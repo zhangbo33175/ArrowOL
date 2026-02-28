@@ -1,0 +1,2203 @@
+Using pre-set license
+Built from '2022.3/staging' branch; Version is '2022.3.8f1 (b5eafc012955) revision 11922172'; Using compiler version '192829333'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) 64bit Professional' Language: 'zh' Physical Memory: 32604 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 1
+
+COMMAND LINE ARGUMENTS:
+E:\Unity\Unity 2022.3.8f1\Editor\Unity.exe
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker4
+-projectPath
+E:/Game/ArrowOL
+-logFile
+Logs/AssetImportWorker4.log
+-srvPort
+52399
+Successfully changed project path to: E:/Game/ArrowOL
+E:/Game/ArrowOL
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [36352] Host "[IP] 192.168.0.101 [Port] 0 [Flags] 2 [Guid] 1934986408 [EditorId] 1934986408 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-U0AV74H) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined multi-casting on [225.0.0.222:54997]...
+
+Player connection [36352] Host "[IP] 192.168.0.101 [Port] 0 [Flags] 2 [Guid] 1934986408 [EditorId] 1934986408 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-U0AV74H) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined alternative multi-casting on [225.0.0.222:34997]...
+
+[Physics::Module] Initialized MultithreadedJobDispatcher with 19 workers.
+Refreshing native plugins compatible for Editor in 3.21 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 2022.3.8f1 (b5eafc012955)
+[Subsystems] Discovering subsystems at path E:/Unity/Unity 2022.3.8f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path E:/Game/ArrowOL/Assets
+GfxDevice: creating device client; threaded=0; jobified=0
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 4060 Ti (ID=0x2803)
+    Vendor:   NVIDIA
+    VRAM:     7949 MB
+    Driver:   32.0.15.6094
+Initialize mono
+Mono path[0] = 'E:/Unity/Unity 2022.3.8f1/Editor/Data/Managed'
+Mono path[1] = 'E:/Unity/Unity 2022.3.8f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'E:/Unity/Unity 2022.3.8f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56376
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: E:/Unity/Unity 2022.3.8f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
+Register platform support module: E:/Unity/Unity 2022.3.8f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001481 seconds.
+- Loaded All Assemblies, in  0.195 seconds
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.173 seconds
+Domain Reload Profiling: 369ms
+	BeginReloadAssembly (55ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (0ms)
+	RebuildCommonClasses (21ms)
+	RebuildNativeTypeToScriptingClass (6ms)
+	initialDomainReloadingComplete (25ms)
+	LoadAllAssembliesAndSetupDomain (88ms)
+		LoadAssemblies (55ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (87ms)
+			TypeCache.Refresh (86ms)
+				TypeCache.ScanAssembly (77ms)
+			ScanForSourceGeneratedMonoScriptInfo (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (174ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (140ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (48ms)
+			SetLoadedEditorAssemblies (3ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (1ms)
+			ProcessInitializeOnLoadAttributes (58ms)
+			ProcessInitializeOnLoadMethodAttributes (30ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+========================================================================
+Worker process is ready to serve import requests
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.452 seconds
+Refreshing native plugins compatible for Editor in 1.10 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+Package Manager log level set to [2]
+[Package Manager] Server::EnsureServerProcessIsRunning -- launch failed, reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] UpmClient::Send -- Unable to send message (not connected to UPM process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.395 seconds
+Domain Reload Profiling: 846ms
+	BeginReloadAssembly (85ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (5ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (14ms)
+	RebuildCommonClasses (22ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (23ms)
+	LoadAllAssembliesAndSetupDomain (313ms)
+		LoadAssemblies (214ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (142ms)
+			TypeCache.Refresh (127ms)
+				TypeCache.ScanAssembly (115ms)
+			ScanForSourceGeneratedMonoScriptInfo (10ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (395ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (304ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (13ms)
+			SetLoadedEditorAssemblies (2ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (60ms)
+			ProcessInitializeOnLoadAttributes (210ms)
+			ProcessInitializeOnLoadMethodAttributes (16ms)
+			AfterProcessingInitializeOnLoad (2ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (7ms)
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.05 seconds
+Refreshing native plugins compatible for Editor in 1.71 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3810 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 54 unused Assets / (1.4 MB). Loaded Objects now: 4253.
+Memory consumption went from 156.1 MB to 154.7 MB.
+Total: 3.247600 ms (FindLiveObjects: 0.233800 ms CreateObjectMapping: 0.093800 ms MarkObjects: 2.314500 ms  DeleteObjects: 0.604400 ms)
+
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:scripting/monoscript/fileName/SetPropertyUtility.cs: f604b4b9e6b0979bdfc1e2b40426dd19 -> 05e505d29bdcd3e99b7b35ffcb2074d8
+  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:CustomObjectIndexerAttribute: 756ad292c208cfabdd7b50bc23989ffe -> 
+  custom:postprocessor/texturePreprocessor: 1909f56bfc062723c751e8b465ee728b -> 92989194f85581def9222ead15a8d050
+  custom:scripting/monoscript/fileName/Icons.cs: abf089f96620a0dfa1fac77a06c6c48e -> 505256bb4e8b1a8a2aa28f47e0ed612c
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:scripting/monoscript/fileName/AssetUtility.cs: 56b81e5e2578818cf6f96d864707db64 -> 18228b8127608ef266f742ec897b786f
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:SearchIndexIgnoredProperties: e643bd26f0fe6173181afceb89e7c659 -> 
+  custom:AudioImporter_EditorPlatform: d09bf68614088b80899f8185d706f6e7 -> 
+  custom:scripting/monoscript/fileName/Sequence.cs: 7009d00abda0c4ac478accbc485f9948 -> f4f0cac687bda6ecebb908f660eb5ff7
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:scripting/monoscript/fileName/XlsBiffDimensions.cs:  -> 19ad84435299ae5f4c7c906dbe5fbec4
+  custom:scripting/monoscript/fileName/CardStack2D.cs:  -> 39b290ed57be1b8a7b410aad33501233
+  custom:scripting/monoscript/fileName/FlowLayoutGroup.cs:  -> e852a46a5bcb5557700b71dd52917573
+  custom:scripting/monoscript/fileName/WaitForSpineAnimation.cs:  -> ecd7f7d6e8a8a3e927fe95786917d59b
+  custom:scripting/monoscript/fileName/UIParticleSystem.cs:  -> aa9d673b24b91c345c138988c7aac746
+  custom:scripting/monoscript/fileName/SpineHandles.cs:  -> 48a52dcf950937b51f1dcd24bd869376
+  custom:scripting/monoscript/fileName/MeshGenerator.cs:  -> 2786905545e7ad31b4d5dda21d7ca271
+  custom:scripting/monoscript/fileName/XlsBiffWindow1.cs:  -> 69591a922e5726d87ee4dcb66793c99d
+  custom:scripting/monoscript/fileName/SkeletonAnimation.cs:  -> 3c8ecaad166c57bd460ef562b42d8d3f
+  custom:scripting/monoscript/fileName/SkeletonLoader.cs:  -> a0f0eddc224fc2a5c1291f56d30b647f
+  custom:scripting/monoscript/fileName/MeshAttachment.cs:  -> 58aa7a46066d7e25f7ed440b7c0617f9
+  custom:scripting/monoscript/fileName/Animation.cs:  -> 3c4b75335ffe39268c84877896d1f700
+  custom:scripting/monoscript/fileName/UILineRenderer.cs:  -> 3785677bcab50205e5cff082dac83d74
+  custom:scripting/monoscript/fileName/XlsBiffFormulaString.cs:  -> 60c1f2fd9745f7aeb3c0098a53facefb
+  custom:scripting/monoscript/fileName/XlsWorksheet.cs:  -> 07fd6e1f3064ebe2b8e4baa9251c11e7
+  custom:scripting/monoscript/fileName/TableLayoutGroup.cs:  -> 2468dc476c38c9495f016a4317cdcaea
+  custom:scripting/monoscript/fileName/ZipWorker.cs:  -> 1400cdec08bb1249323ec20e8008d000
+  custom:scripting/monoscript/fileName/WaitForSpineAnimationEnd.cs:  -> 354bec87511bf5fe5159ab18c6ed9f79
+  custom:scripting/monoscript/fileName/Segment.cs:  -> 6812f5056382912777e352b704648d1c
+  custom:scripting/monoscript/fileName/EventData.cs:  -> 759296f957486863f6deb5d74435a466
+  custom:scripting/monoscript/fileName/SelectionBox.cs:  -> 211f3728de10757772766e2d8b8e008f
+  custom:scripting/monoscript/fileName/BlendModeMaterialsAsset.cs:  -> 8af491a971d7f5020de171c06c9a509a
+  custom:scripting/monoscript/fileName/Col.cs:  -> 1c313606cf9a071c33f2760fea2229a3
+  custom:scripting/monoscript/fileName/SkeletonDataAssetInspector.cs:  -> f30ef7662a9b84623c5119f499a67b21
+  custom:scripting/monoscript/fileName/ReorderableListContent.cs:  -> b38dd56df746462a05a01c46b3e681d9
+  custom:scripting/monoscript/fileName/Menu.cs:  -> 481d67b8a113d9065dc48671620e007e
+  custom:scripting/monoscript/fileName/HSVUtil.cs:  -> f8bf0df304ee72320474a7ad12538cbb
+  custom:scripting/monoscript/fileName/XlsBiffBOF.cs:  -> fc7bd02cf7083aa4f198d3f6ba1a6359
+  custom:scripting/monoscript/fileName/FancyCellGroup.cs:  -> 90647cc400823b41df847a6cbfc29026
+  custom:scripting/monoscript/fileName/RescaleDragPanel.cs:  -> 6f8924fa6634305f1d79aa33ea7d9af7
+  custom:scripting/monoscript/fileName/Row.cs:  -> b1ee44d0390ec702fb7915b7447cca62
+  custom:scripting/monoscript/fileName/ExtensionsToggleGroup.cs:  -> 1a623d1552fce046b6248f476e9b2b3f
+  custom:scripting/monoscript/fileName/SpineEditorUtilities.cs:  -> 856e63273714f4d50a572c5473331da4
+  custom:scripting/monoscript/fileName/ResizePanel.cs:  -> dec2554dcbd5fc157d556d0b7bb2faa4
+  custom:scripting/monoscript/fileName/TransformConstraintData.cs:  -> 1a21bda4e39c6554ac59c9f039a156c0
+  custom:scripting/monoscript/fileName/Circle.cs:  -> e1f9bddca4f99bafacd1270ee8cebc67
+  custom:scripting/monoscript/fileName/XlsBiffCodeName.cs:  -> 599a61445c40b9487fc504cc97bc5354
+  custom:scripting/monoscript/fileName/ShaderLibrary.cs:  -> 8003cd2ea40c2ccfa99b3c56412e24d6
+  custom:scripting/monoscript/fileName/CurvedText.cs:  -> a583f0a9cfdc04fb42d66c08a2ae3b06
+  custom:scripting/monoscript/fileName/XlsxElement.cs:  -> 5a9322608be67456f3cf50ee3d187b70
+  custom:scripting/monoscript/fileName/FancyScrollRectCell.cs:  -> 0cdf409b5aa8d4c25876d72b5c6a3b60
+  custom:scripting/monoscript/fileName/Gradient.cs:  -> 6cda765330b83ae107f638343176d61d
+  custom:scripting/monoscript/fileName/ScrollSnapBase.cs:  -> 96afb463719d1629fe9e764d2ec90ebf
+  custom:scripting/monoscript/fileName/CUIText.cs:  -> 827e4c341c43b4eecb735591323bd5c2
+  custom:scripting/monoscript/fileName/ExcelDataSetConfiguration.cs:  -> 8777321877dd5ea2c00cb02c912e34bf
+  custom:scripting/monoscript/fileName/BoundTooltipTrigger.cs:  -> 91cb0f26f066e693e535f9870d282074
+  custom:scripting/monoscript/fileName/XlsBiffMulRKCell.cs:  -> 219953facbd2bca086a5bd23c32a1ec9
+  custom:scripting/monoscript/fileName/UIHighlightable.cs:  -> 1c3fa7456561978552cb8b2f2f4abe71
+  custom:scripting/monoscript/fileName/XlsBiffNumberCell.cs:  -> 7f9dd038c236ceea75dd60391b59abbe
+  custom:scripting/monoscript/fileName/ILog.cs:  -> 328cb01bab346b8dc19f95b4a8f521cd
+  custom:scripting/monoscript/fileName/UIExtensionsInputManager.cs:  -> 97340491542de7026be73fcb33ce9bab
+  custom:scripting/monoscript/fileName/SkeletonDebugWindow.cs:  -> 63e3dc653b813829c35efdaa1e537060
+  custom:scripting/monoscript/fileName/FollowLocationRigidbody2D.cs:  -> 24cbc133e222c14a5a294c551a763b8f
+  custom:scripting/monoscript/fileName/WaitForSpineTrackEntryEnd.cs:  -> 96a0c6fae5f728b603ec65c50400d661
+  custom:scripting/monoscript/fileName/IkConstraintData.cs:  -> edd5499eb0f57b83720759876ea2b375
+  custom:scripting/monoscript/fileName/SkeletonSubmeshGraphic.cs:  -> de1958407cd722c35f55ee19bd395bad
+  custom:scripting/monoscript/fileName/SkeletonGraphic.cs:  -> 9ab97800994482d4ab8bd265963a0291
+  custom:scripting/monoscript/fileName/SkeletonUtilityInspector.cs:  -> 56ea26f3eef4b771467135c06a81270b
+  custom:scripting/monoscript/fileName/IXlsString.cs:  -> 61ca83df761877190267aa8dfab917b9
+  custom:scripting/monoscript/fileName/Gradient2.cs:  -> 092fde80b16abb6bfa8af236805495e4
+  custom:scripting/monoscript/fileName/SlotData.cs:  -> f5817c662b932e3fe7568cc3deb5b6cf
+  custom:scripting/monoscript/fileName/PointAttachment.cs:  -> c5fddfe78d35d5178a12b36f9db44ccb
+  custom:scripting/monoscript/fileName/IHasTextureRegion.cs:  -> d497e5cb36d360663dca465fceb22f8c
+  custom:scripting/monoscript/fileName/HeaderException.cs:  -> 5a38c3a423dbd1277775ba8e7f77d65b
+  custom:scripting/monoscript/fileName/SkeletonRootMotionBaseInspector.cs:  -> a8458a429785e8572afb66e04c3152fe
+  custom:scripting/monoscript/fileName/CooldownButton.cs:  -> 63d8b19aaa0720b9839a2fb32f83c474
+  custom:scripting/monoscript/fileName/Helpers.cs:  -> 2184940bd610ca2e3dce476a36180e61
+  custom:scripting/monoscript/fileName/SpineBuildProcessor.cs:  -> 645c9fa3bac55c9631246c46029d804e
+  custom:scripting/monoscript/fileName/SpineAttributeDrawers.cs:  -> e6e522ffb0acdd58901efcd8a43fd661
+  custom:scripting/monoscript/fileName/XlsxHeaderFooter.cs:  -> a2448bf92ff84dda0ce76f2f12b92582
+  custom:scripting/precompiled-assembly-types:Assembly-CSharp-Editor-firstpass:  -> 0bd3dfc6f3f99f1cc7c8e073f419f1c8
+  custom:scripting/monoscript/fileName/TileSizeFitter.cs:  -> 6cb2c64ef6b9e37e19e01a98f6ccd12b
+  custom:scripting/monoscript/fileName/XlsxRow.cs:  -> ea739f406b3600ce3b749b256eee0064
+  custom:scripting/monoscript/fileName/SpineShaderWithOutlineGUI.cs:  -> df90e4f57c2ed15fa038ae68ef21bd09
+  custom:scripting/monoscript/fileName/InvalidPasswordException.cs:  -> d363487774b91e298cfb040e1e8d9551
+  custom:scripting/monoscript/fileName/SelectableScaler.cs:  -> 6f874c3479cf06de81153d3914ad262b
+  custom:scripting/monoscript/fileName/AccordionElementEditor.cs:  -> 94f07a495c85261a744019bce8c4f875
+  custom:scripting/monoscript/fileName/ExtensionsToggle.cs:  -> d0407e4406bc4a3c2aff95da1135363d
+  custom:scripting/monoscript/fileName/ShineEffector.cs:  -> f2396423c912bf6436c147dc56331e4b
+  custom:scripting/monoscript/fileName/ReorderableListElement.cs:  -> bdc4919eac674ce0eb3e88d0431dc6ed
+  custom:scripting/monoscript/fileName/XlsByteString.cs:  -> bd97ab43d2fad499e807e10112e25a6d
+  custom:scripting/monoscript/fileName/UISelectableExtension.cs:  -> f11a32e5eb3f4b22335f2cd26c678466
+  custom:scripting/monoscript/fileName/XlsxWorksheet.cs:  -> 6b1bc383aa5c434ef75ea44a97fe6e3d
+  custom:scripting/monoscript/fileName/UISoftAdditiveEffect.cs:  -> 09f841259fc95108f9c1d1dccf43d705
+  custom:scripting/monoscript/fileName/HexColorField.cs:  -> acc72ead010ad27855b905093ba4cf3a
+  custom:scripting/monoscript/fileName/CryptoHelpers.cs:  -> a5aaf854cd0605de7599f8b5a2fd43af
+  custom:scripting/monoscript/fileName/ColorPickerControl.cs:  -> f664f79bcf4192a6827afc1b8d70f5f8
+  custom:scripting/monoscript/fileName/ReorderableListDebug.cs:  -> a3cd588b91ef30b5d38d4303d5164201
+  custom:scripting/monoscript/fileName/TextPic.cs:  -> 2bd1cb12e26ff59204eda933ba6b362b
+  custom:scripting/monoscript/fileName/CUIImage.cs:  -> a8526940477593985de7d46f229f815c
+  custom:scripting/monoscript/fileName/DropDownListButton.cs:  -> 37aef60ee8389b5b543e0a85e009ebb4
+  custom:scripting/monoscript/fileName/SpineSpriteAtlasAssetInspector.cs:  -> 49b805ef98d9f8c7b089f4ce421c4056
+  custom:scripting/monoscript/fileName/XlsBiffMSODrawing.cs:  -> 8e5df8c624aed57882088c940fcd22ad
+  custom:scripting/monoscript/fileName/ScrollSnap.cs:  -> e99ebd142c8821405be54352a5d18884
+  custom:scripting/monoscript/fileName/TextPicIconListCopier.cs:  -> f94b835bafd25759daf59e434321da79
+  custom:scripting/monoscript/fileName/AtlasAssetBase.cs:  -> cfbb40bbdf0ebe085d184f4539de14cc
+  custom:scripting/monoscript/fileName/UICornerCut.cs:  -> 27fea383303924e5cb9eb48814450307
+  custom:scripting/monoscript/fileName/MeshRendererBuffers.cs:  -> 7383cccae8eac0e1d6ab2a92e65cae03
+  custom:scripting/monoscript/fileName/ScrollerEditor.cs:  -> 79fab59728ce51f25bac4090e7b4267b
+  custom:scripting/monoscript/fileName/IBoxSelectable.cs:  -> 500f59ec73627104f392065676a61c0e
+  custom:scripting/monoscript/fileName/SkeletonRendererCustomMaterials.cs:  -> f88369e19f7f2b550bf17b8186e809d4
+  custom:scripting/precompiled-assembly-types:Assembly-CSharp-firstpass:  -> 285bf280d2218b80cb611e89de674e21
+  custom:scripting/monoscript/fileName/BoneFollower.cs:  -> 9e8adae6a7e7c74290f3e42f8c2ef18e
+  custom:scripting/monoscript/fileName/PathConstraintData.cs:  -> 45503c56101f1f963992b0a4e4aaac16
+  custom:scripting/monoscript/fileName/CompoundDocumentException.cs:  -> 4fca4e6dadf036c460e106cfa59e73b4
+  custom:scripting/monoscript/fileName/AtlasAttachmentLoader.cs:  -> b975fe22717e7491c046e0f6d3f6f7f8
+  custom:scripting/monoscript/fileName/CsvParser.cs:  -> 261f44cdb3e470c9e430d7595b01a748
+  custom:scripting/monoscript/fileName/TiltWindow.cs:  -> 8f4bb8c4abfc57a387a29d556b805733
+  custom:scripting/monoscript/fileName/SkeletonRootMotionInspector.cs:  -> 507770af72f92b6d3538c513e2c3d23e
+  custom:scripting/monoscript/fileName/BlendModeMaterialsUtility.cs:  -> 4a286dc4deaf036bbd11b00635e0f31f
+  custom:scripting/monoscript/fileName/ExcelDataTableConfiguration.cs:  -> 3699aea16ffc93dbf2ccf675054eeebb
+  custom:scripting/monoscript/fileName/SkeletonUtility.cs:  -> c9cd92d9ef01df578d3fee15112d1c2b
+  custom:scripting/monoscript/fileName/XlsBiffBlankCell.cs:  -> 069654b9b1132999bd33480be2c764b4
+  custom:scripting/monoscript/fileName/ComboBox.cs:  -> 228308ddbe973d1cff42c35973e9c26e
+  custom:scripting/monoscript/fileName/Condition.cs:  -> 0dec813dd40d075957d9c33fb5209ad0
+  custom:scripting/precompiled-assembly-types:DOTween:  -> d2ab62f318c4b60c7475f71eba8ae202
+  custom:scripting/monoscript/fileName/JsonMockWrapper.cs:  -> 75dddf1dc5457945f73bed0120fe35b4
+  custom:scripting/monoscript/fileName/ScrollRectLinker.cs:  -> dd1aeabd72153a6bc574c0b865d1ef8e
+  custom:scripting/monoscript/fileName/CompoundStream.cs:  -> dd80220e25e0a2453fb6a2e968de0f30
+  custom:scripting/monoscript/fileName/FractionSection.cs:  -> 239388d5162708aa4aabf2aff6fca4dd
+  custom:scripting/monoscript/fileName/SVBoxSlider.cs:  -> a5db2d086d4c567776ea6f5cbaf0846c
+  custom:scripting/monoscript/fileName/SkeletonRendererInstruction.cs:  -> fb319b94a467810d1e2839ede84e6749
+  custom:scripting/monoscript/fileName/VerticalScrollSnap.cs:  -> e0b650e12c1b54f8a165e02a3c09eb94
+  custom:scripting/monoscript/fileName/Color.cs:  -> 188f2ed09d60475b16c588a38cd16038
+  custom:scripting/precompiled-assembly-types:DOTweenPro:  -> a313364ab03b81060e1f7897b5ce7795
+  custom:scripting/monoscript/fileName/SpineSpriteAtlasAsset.cs:  -> 52ba0f22cbe47bdb00cca4b21b7300b9
+  custom:scripting/monoscript/fileName/UILineConnector.cs:  -> 6ba11e47a79a86891397c37ee6da2133
+  custom:scripting/monoscript/fileName/UIScreenEffect.cs:  -> f8bcbff58a40fdf6049bf90823189bcc
+  custom:scripting/monoscript/fileName/SoftMaskScript.cs:  -> 9829086ae73cd0ccf17c94c8c9704a45
+  custom:scripting/monoscript/fileName/DiamondGraph.cs:  -> 15877459747345cae80a39164224ee16
+  custom:scripting/monoscript/fileName/CellRange.cs:  -> a6da278ab418c8ccd4be8be7e992f175
+  custom:scripting/monoscript/fileName/Tokenizer.cs:  -> 5147a475144ddd182af76bcfd912df71
+  custom:scripting/monoscript/fileName/ScrollRectEx.cs:  -> 71d2c97befb05681001cdf2d4480564d
+  custom:scripting/monoscript/fileName/XlsBiffSimpleValueRecord.cs:  -> 5c5e41a8551d44fa4143b5f7dbbaba44
+  custom:scripting/monoscript/fileName/XlsBiffEOF.cs:  -> 90c0f738ef8b7240cf8ec15fb77b1224
+  custom:scripting/precompiled-assembly-types:Newtonsoft.Json:  -> 3158bb04b6cdaed713adc5b6699bd818
+  custom:scripting/monoscript/fileName/UIGridRenderer.cs:  -> c7c7a16b596a8057625d564a3c17fa29
+  custom:scripting/monoscript/fileName/Token.cs:  -> a43263f2f079e1cef0ac18ae4c744767
+  custom:scripting/monoscript/fileName/LeaveOpenStream.cs:  -> e350991e44cb835fcb26bebe68bbb581
+  custom:scripting/monoscript/fileName/BuildSettings.cs:  -> 41c589580b8cc5d867ad73d6cbea3159
+  custom:scripting/monoscript/fileName/FollowLocationRigidbody.cs:  -> 36112487f1b06bee46739ebadc9189c3
+  custom:scripting/monoscript/fileName/SkeletonDataModifierAsset.cs:  -> 020aeeb459f496a495a160669d2d4b5f
+  custom:scripting/monoscript/fileName/NicerOutline.cs:  -> 30de115bf770dfc603d4814e528905c7
+  custom:scripting/monoscript/fileName/BoneData.cs:  -> aa35094f164e395e68aa82dffea068c8
+  custom:scripting/monoscript/fileName/XlsBiffMulBlankCell.cs:  -> eb0c8354d515c42da9f50a076ce72c0b
+  custom:scripting/monoscript/fileName/SkeletonMecanimRootMotion.cs:  -> 63e6fca61dafcd2a2d2e5512f704acdc
+  custom:scripting/monoscript/fileName/ScrollRectExtensions.cs:  -> ffc904f8fe646c96c6891bbb188349c9
+  custom:scripting/monoscript/fileName/FancyGridViewContext.cs:  -> cc7da0c1d95d884d397042eebb056a78
+  custom:scripting/monoscript/fileName/CompoundDocument.cs:  -> 41c51659b0a48c641d6d8a541a128273
+  custom:scripting/monoscript/fileName/XlsBiffIndex.cs:  -> 932b64437e3186760c0f2056f783de07
+  custom:scripting/monoscript/fileName/SkeletonPartsRendererInspector.cs:  -> 110734480286e88efcb4e0dfdf5d5599
+  custom:scripting/monoscript/fileName/CardExpanding3D.cs:  -> fa43914449d1dcb42200986912d4ed2c
+  custom:scripting/monoscript/fileName/XlsBiffBoundSheet.cs:  -> 01e4ea97b2beedfae5d5affa9f63cc3f
+  custom:scripting/monoscript/fileName/XlsBiffDefaultRowHeight.cs:  -> 1794bda1a4abf9163a6f04fa85105cfd
+  custom:scripting/monoscript/fileName/BoundingBoxFollowerGraphicInspector.cs:  -> d1d77445d67b45b6803497064e528ada
+  custom:scripting/monoscript/fileName/ExcelReaderConfiguration.cs:  -> c4a63cc3e759b49925d83783822faf8d
+  custom:scripting/monoscript/fileName/StepperSide.cs:  -> 95ac4cba635fa2926b0a3678054be1e3
+  custom:scripting/monoscript/fileName/CUIGraphicEditor.cs:  -> cf3da6f7eb1850fd0179eba3d02243e9
+  custom:scripting/monoscript/fileName/AnimationReferenceAssetEditor.cs:  -> e788df59146289487a54265745276a48
+  custom:scripting/monoscript/fileName/DropDownList.cs:  -> a3bad528140f03c63b8b6d12faa805d4
+  custom:scripting/monoscript/fileName/ITweenValue.cs:  -> bcaaf5166c56fdb233c89f177431175a
+  custom:scripting/monoscript/fileName/XlsBiffXF.cs:  -> 66d0e573407158413c0e9f089c2c0ff7
+  custom:scripting/monoscript/fileName/RegionAttachment.cs:  -> cc8cb315740146c183214453ad6d21a9
+  custom:scripting/monoscript/fileName/BoundingBoxAttachment.cs:  -> 750539609a3729191f8a8b90fd552d86
+  custom:scripting/monoscript/fileName/ClippingAttachment.cs:  -> c742854d2b65ec97ae0d2f5a3281d91c
+  custom:scripting/monoscript/fileName/CardExpanding2D.cs:  -> 2a36937605de4ddd1e5aa05db1cfde6f
+  custom:scripting/monoscript/fileName/XmlReaderHelper.cs:  -> 2ddbd1c87de54766ed839bd3dd8ed6cc
+  custom:scripting/monoscript/fileName/DataReloadHandler.cs:  -> a3e3b18b69cf611c007f448964834c63
+  custom:scripting/monoscript/fileName/XlsBiffStream.cs:  -> 2232f11c477156a295d283ea40d30548
+  custom:scripting/monoscript/fileName/XlsShortByteString.cs:  -> 9457b8513c22eedda805df61f410484b
+  custom:scripting/monoscript/fileName/UIScrollToSelection.cs:  -> b842dc7c011a6294d6112e5f9e1a8b29
+  custom:scripting/monoscript/fileName/IScrollSnap.cs:  -> 54215222a10733541a8990d2ae6fea1b
+  custom:scripting/monoscript/fileName/NullLogFactory.cs:  -> d8bfd7ca47e886ca1470ca6a2c519638
+  custom:scripting/monoscript/fileName/SkeletonRendererCustomMaterialsInspector.cs:  -> 41d5b02f965eb55e8e28361c710c4b3b
+  custom:scripting/monoscript/fileName/StandardEncryptedPackageStream.cs:  -> 34c291ecd22d0c3b32b20082897294d9
+  custom:scripting/monoscript/fileName/SegmentedControl.cs:  -> ceabf0cce87eca1adb40a63bf8612b64
+  custom:scripting/monoscript/fileName/PathConstraint.cs:  -> 69f9f801696d44230a7f91c8e09dd936
+  custom:scripting/monoscript/fileName/EncryptionInfo.cs:  -> 27f5c94792da0b9f048591b29162e173
+  custom:scripting/monoscript/fileName/BoundingBoxFollowerInspector.cs:  -> 66278a86db92027e9c46ad02234c6616
+  custom:scripting/monoscript/fileName/Event.cs:  -> a5858dc6e4e57c9df648a18452f4fad7
+  custom:scripting/monoscript/fileName/ColorSampler.cs:  -> 470284568b17d9ebe6b5eedd6351fb05
+  custom:scripting/monoscript/fileName/AgileEncryptedPackageStream.cs:  -> 167006d30adfdec331a7461e800fa933
+  custom:scripting/monoscript/fileName/TabNavigationHelper.cs:  -> 559e90c174e95bdb7e5862b05f2ccae9
+  custom:scripting/monoscript/fileName/XlsBiffFormatString.cs:  -> ca5b74cb497798c7758a74475882eb1a
+  custom:scripting/monoscript/fileName/XlsSSTReader.cs:  -> 00bf035965390bfb2835d14ec7a992b2
+  custom:scripting/monoscript/fileName/SkeletonBounds.cs:  -> c37ec36ee99cba22130f7e5d3c7cd50e
+  custom:scripting/monoscript/fileName/SkeletonGraphicCustomMaterialsInspector.cs:  -> 1e5a6c655240922b27247f6e420d2fde
+  custom:scripting/monoscript/fileName/BuiltinNumberFormat.cs:  -> 733353216234b1aba6599ddf18e34f79
+  custom:scripting/monoscript/fileName/Section.cs:  -> b1b82f5d4a8104dacda731d92adcfa73
+  custom:scripting/monoscript/fileName/DoubleBuffered.cs:  -> 90647cc400823b41df847a6cbfc29026
+  custom:scripting/monoscript/fileName/AutoCompleteComboBox.cs:  -> f3dc9db5b05a59ccf9222ad43999a439
+  custom:scripting/monoscript/fileName/TextPicEditor.cs:  -> bc1282da8178b3d53483ec7cf5935d4a
+  custom:scripting/monoscript/fileName/CUIMisc.cs:  -> 17ab8d1f94c78b57f5f321de4dd332c5
+  custom:scripting/monoscript/fileName/UIAdditiveEffect.cs:  -> 02561e5a91f4eef40ecbe91be8076451
+  custom:scripting/monoscript/fileName/IWorksheet.cs:  -> 91fb79e9bf69b8399e90443dc94bc244
+  custom:scripting/monoscript/fileName/MonoSpacing.cs:  -> 8521f7844f6bbe0f7a20cf13c17effbc
+  custom:scripting/monoscript/fileName/FloatTween.cs:  -> b0b7cf6d163eeed5442e01693e643078
+  custom:scripting/monoscript/fileName/BoxSlider.cs:  -> 24b516ccad019b44f22258e9c863f391
+  custom:scripting/monoscript/fileName/IWorkbook.cs:  -> 90647cc400823b41df847a6cbfc29026
+  custom:scripting/monoscript/fileName/ExtentionMethods.cs:  -> b9d410325ffed813678c1c2c0338cdd4
+  custom:scripting/monoscript/fileName/ExcelReaderFactory.cs:  -> adcdb6ce93fef8473e06155d966e6ed6
+  custom:scripting/monoscript/fileName/BezierLineRendererEditor.cs:  -> 930d054b34fe24076b1a008c7caecc05
+  custom:scripting/monoscript/fileName/SkeletonMecanim.cs:  -> eb438b7aca6b332f2f5f2794862f8d48
+  custom:scripting/monoscript/fileName/NonDrawingGraphic.cs:  -> 0a91c204ed180dcb49c865730db6ebf9
+  custom:scripting/monoscript/fileName/SkeletonRendererInspector.cs:  -> 4817c8d7533a822ee80475cc5c91347e
+  custom:scripting/monoscript/fileName/ScrollPositionController.cs:  -> c73b9f3d41ba4931ce5c3c4c0d1c8ad2
+  custom:scripting/monoscript/fileName/LogManager.cs:  -> f97dde2b44451d284d0a0752ab3702d1
+  custom:scripting/monoscript/fileName/ContentScrollSnapHorizontal.cs:  -> 38bcbe658041ce4ad824dfe73b3667dd
+  custom:scripting/monoscript/fileName/BoundingBoxFollower.cs:  -> 8ca381a2d9e9326d2009da8876c93f89
+  custom:scripting/monoscript/fileName/Triangulator.cs:  -> 90e28bc1cb1b82e749c776cc071da543
+  custom:scripting/monoscript/fileName/SkeletonRenderSeparatorInspector.cs:  -> a6101cc8fb4359a049a5ca0ea80f2eb4
+  custom:scripting/monoscript/fileName/UIImageCrop.cs:  -> 0bae8e22d4b50e7632fe87be794756e1
+  custom:scripting/monoscript/fileName/Attachment.cs:  -> 7834954901b313bffa69fb56a1acecfb
+  custom:scripting/monoscript/fileName/BoxSliderEditor.cs:  -> 887f812296c623d4588163c1fc3b370c
+  custom:scripting/monoscript/fileName/FancyScrollView.cs:  -> b5c9c0ea2246378af1368d763fa22f62
+  custom:scripting/monoscript/fileName/BezierPath.cs:  -> b651b75eb687d6a4b9dd4f65f22ed0fa
+  custom:scripting/monoscript/fileName/SuperellipsePoints.cs:  -> 3b357cb30fb20257e9f44c225ce8ff71
+  custom:scripting/monoscript/fileName/UI_Knob.cs:  -> bb8c6d55aac35bf1600b55d83ebef882
+  custom:scripting/precompiled-assembly-types:spine-unity:  -> 547c965a647c5b36c0ec2c1c3a1e06ef
+  custom:scripting/monoscript/fileName/XorManaged.cs:  -> 4e925ba11e7f4672e65dfcede79579bd
+  custom:scripting/monoscript/fileName/ExponentialSection.cs:  -> ad01a2eadd49954c4f4f16637a709122
+  custom:scripting/monoscript/fileName/JsonData.cs:  -> 805dc97e176a9e0520758f4990afebd6
+  custom:scripting/monoscript/fileName/HeaderFooter.cs:  -> 2564b424b69006b1b0ecad3097ca888c
+  custom:scripting/monoscript/fileName/RaycastMask.cs:  -> 167ce7d1953ff9529f5b2de7fe70652d
+  custom:scripting/monoscript/fileName/SpineMaskUtilities.cs:  -> c7a9bffb9fb60795f7924683e5e8feec
+  custom:scripting/monoscript/fileName/MultiTouchScrollRect.cs:  -> b42bb92dcc99ca4a4c24501e19ba2070
+  custom:scripting/monoscript/fileName/InputFieldEnterSubmit.cs:  -> 6a0df5e77dc1fbd1d34815365c5ec928
+  custom:scripting/monoscript/fileName/ExampleSelectable.cs:  -> 54ac56197d6ba46de4990987e6495019
+  custom:scripting/monoscript/fileName/uGUITools.cs:  -> ce183083883a43ca5523a16b5d114600
+  custom:scripting/monoscript/fileName/ExposedList.cs:  -> 0cdf409b5aa8d4c25876d72b5c6a3b60
+  custom:scripting/monoscript/fileName/TimelineExtensions.cs:  -> fa71fb8db1628915a0e2bd78a1118811
+  custom:scripting/monoscript/fileName/SkeletonDataCompatibility.cs:  -> 1628bd3188b4d4107a8bd43a79605d65
+  custom:scripting/monoscript/fileName/UILinearDodgeEffect.cs:  -> 22387b9420083f35b867b5f0a5fb8d23
+  custom:scripting/monoscript/fileName/IUpdatable.cs:  -> 812d508dc1e7c305fe1615cfa4ee09a7
+  custom:scripting/monoscript/fileName/Json.cs:  -> 7680f7dd1a3e858bb66b392e06d6e3ae
+  custom:scripting/monoscript/fileName/XlsBiffLabelSSTCell.cs:  -> 319ffd97f1b9b068bb6a17da433be853
+  custom:scripting/monoscript/fileName/EasingCore.cs:  -> 1e7b09286e691c69ab241210c9831e6e
+  custom:scripting/monoscript/fileName/SkeletonRenderSeparator.cs:  -> ce21a8488d68e8608ad965d4255f1faa
+  custom:scripting/monoscript/fileName/SkeletonAnimationInspector.cs:  -> 0644c8c4d6baa6ff019bd0a256e0137d
+  custom:scripting/monoscript/fileName/PathAttachment.cs:  -> 5325dc258d644292a2908ae08498406e
+  custom:scripting/monoscript/fileName/XlsxCols.cs:  -> ea2d3add773af3c2b12185d7ba5b43c9
+  custom:scripting/monoscript/fileName/SkeletonMecanimInspector.cs:  -> 60da322123eb13c616c753dee6b9b4cb
+  custom:scripting/monoscript/fileName/Stepper.cs:  -> 0cc4951f8f054422ed1fa8b89fe4abd9
+  custom:scripting/monoscript/fileName/UIPrimitiveBase.cs:  -> 083324deeb0e373b0ee30caf6cb65219
+  custom:scripting/precompiled-assembly-types:DOTween43:  -> 7535adb3edf825fc7975ca32faf6c681
+  custom:scripting/precompiled-assembly-types:Microsoft.IO.RecyclableMemoryStream:  -> a1ed5378782d3d045956f3f8fe44294f
+  custom:scripting/monoscript/fileName/XlsxDimension.cs:  -> c90170aff91cb6c5bfba46a57c234b69
+  custom:scripting/monoscript/fileName/LetterSpacing.cs:  -> ae06b4f78740008e65b2c65eaec6afb4
+  custom:scripting/monoscript/fileName/ExcelDataReader.cs:  -> 90647cc400823b41df847a6cbfc29026
+  custom:scripting/monoscript/fileName/XlsBiffQuickTip.cs:  -> a7adb955303ab901a0eb56bd1e80cd21
+  custom:scripting/monoscript/fileName/UISquircle.cs:  -> 9371e70b1cf65f01c6f7d9b8ee423001
+  custom:scripting/monoscript/fileName/XorEncryption.cs:  -> 48fc94553a3b3329f58e745906dcbb60
+  custom:scripting/monoscript/fileName/AnimationState.cs:  -> 509e5f1e40a2fbffb2b52b8a02731ace
+  custom:scripting/monoscript/fileName/AssetDatabaseAvailabilityDetector.cs:  -> 1cef749d4da7f35b4246d903298d6246
+  custom:scripting/monoscript/fileName/PointFollowerInspector.cs:  -> 2d219f8f778a4818acd750c73c64dd6e
+  custom:scripting/monoscript/fileName/XlsxMergeCells.cs:  -> 8759c604c4d6d1fa97e938a51c3999f3
+  custom:scripting/monoscript/fileName/ExcelDataReaderExtensions.cs:  -> fcebb8486394395a1b20fd2122e4fe51
+  custom:scripting/monoscript/fileName/SpriteAtlasImportWindow.cs:  -> ded1c8893e74abad8a18f528930ea5b8
+  custom:scripting/precompiled-assembly-types:EPPlus:  -> de93259799003b98fb9a6f2de4bade0b
+  custom:scripting/monoscript/fileName/XlsBiffRecord.cs:  -> f24d167937aaea657b9bc521f3222fa4
+  custom:scripting/monoscript/fileName/RangeSlider.cs:  -> 99118cc6a08dab0bb5cffbe4410a9b09
+  custom:scripting/monoscript/fileName/ExcelOpenXmlReader.cs:  -> c0991a20d23937af7655aece6d09328c
+  custom:scripting/monoscript/fileName/SkeletonExtensions.cs:  -> 8cb4af2a8b46505dfee56a320e541acc
+  custom:scripting/monoscript/fileName/UIExtensionMethods.cs:  -> a0d3851fd14634513fa2a61738a7dd0b
+  custom:scripting/monoscript/fileName/XlsBiffRKCell.cs:  -> 64226aac39737ad158256249e6a7cc4d
+  custom:scripting/monoscript/fileName/XlsBiffRow.cs:  -> 981d6cf59b77f2f16b3e1b44aa3d5933
+  custom:scripting/monoscript/fileName/XlsxSST.cs:  -> 86ae1f6b03a5d58abc7e5dc352f203b7
+  custom:scripting/monoscript/fileName/UIVerticalScroller.cs:  -> 3a21876b6c69a8b9d3b7b05b5582b5c1
+  custom:scripting/monoscript/fileName/BuildUtilities.cs:  -> f7312787fc21c720f2cb2944aa5d7160
+  custom:scripting/monoscript/fileName/RegionlessAttachmentLoader.cs:  -> 5241d8fb4f9f0353ed8bdf3786da58d4
+  custom:scripting/monoscript/fileName/ColorLabel.cs:  -> 0c138ee77ee98a04d02d1e28f48728db
+  custom:scripting/monoscript/fileName/TooltipTrigger.cs:  -> 6b81592ca68e2a949b281f2e00a98a0f
+  custom:scripting/monoscript/fileName/ReferenceHelper.cs:  -> 60cc7fdcc164ea7d6c30c1bf19a5ab71
+  custom:scripting/monoscript/fileName/UIMultiplyEffect.cs:  -> 93e93e3cd42ea385bb41faaca082c589
+  custom:scripting/monoscript/fileName/AnimationReferenceAsset.cs:  -> ff487fa121cde1e426d1f2be287b3125
+  custom:scripting/monoscript/fileName/BoneFollowerGraphic.cs:  -> dc9be7bff6074e2b8ec742824813bf0d
+  custom:scripting/monoscript/fileName/ISkeletonAnimation.cs:  -> 01146d1e2f77c55137138322051d439c
+  custom:scripting/monoscript/fileName/IExcelDataReader.cs:  -> 302d084e117737a54e66d05f9dffef20
+  custom:scripting/monoscript/fileName/XlsxWorkbook.cs:  -> 427486cc36b28d43a68c03105ee43824
+  custom:scripting/monoscript/fileName/CardPopup2D.cs:  -> 21a091267822cc8b0b9d8ad43f677fcf
+  custom:scripting/monoscript/fileName/ScrollSnapScrollbarHelper.cs:  -> 4d3609d86ead0e708496429ed8cb11b0
+  custom:scripting/monoscript/fileName/AttachmentRegionExtensions.cs:  -> 1053e947b027f497777f0267b2c414e6
+  custom:scripting/monoscript/fileName/HoverTooltip.cs:  -> 63405c6ebc01b0c62a87c90ae47424ef
+  custom:scripting/monoscript/fileName/Preferences.cs:  -> c45d83208f784ee31ef612ea40525475
+  custom:scripting/monoscript/fileName/ColorImage.cs:  -> cb315eeaf045441be21b1999d31e633e
+  custom:scripting/monoscript/fileName/Slot.cs:  -> 5c973dc03383991e5c2c5ac269a12bc8
+  custom:scripting/monoscript/fileName/FancyScrollRectContext.cs:  -> d6c898943dac3245cb695052a5751108
+  custom:scripting/monoscript/fileName/TextPicIconEditor.cs:  -> c89718852392e1180ce0ab5f16ec3337
+  custom:scripting/monoscript/fileName/UI_InfiniteScroll.cs:  -> e8dc7fb80aa9f806cc17a6bf3991437e
+  custom:scripting/monoscript/fileName/UIExtensionsMenuOptions.cs:  -> 1f31321256d09a32ccca2ab7d0f03c11
+  custom:scripting/monoscript/fileName/CsvWorksheet.cs:  -> 63516c8b3d0925fca178d9369dfd837d
+  custom:scripting/monoscript/fileName/StandardEncryption.cs:  -> ec5906c2d07129d42dc5b7f9a5b1ed2f
+  custom:scripting/monoscript/fileName/ReadOnlyAttribute.cs:  -> 7352ca8d1e2b28528b73190105756233
+  custom:scripting/monoscript/fileName/UICircle.cs:  -> 7accc317c86147e14143a21b5ef1e47b
+  custom:scripting/monoscript/fileName/RC4Managed.cs:  -> 97cb59526a2cf258966ee19613e7428a
+  custom:scripting/monoscript/fileName/SpineAtlasAssetInspector.cs:  -> d4d7fd0d8ef8bf8357a5b8f8fa2adc18
+  custom:scripting/monoscript/fileName/UIScrollToSelectionXY.cs:  -> 8c8bac7e27ddf4bd668c70a92995c054
+  custom:scripting/monoscript/fileName/XlsBiffHeaderFooterString.cs:  -> b24bb8bdecd6c29651431ccb2da88d6f
+  custom:scripting/monoscript/fileName/CUITextEditor.cs:  -> 06b8a170dae887561ee53e84f0bb0d68
+  custom:scripting/monoscript/fileName/AtlasUtilities.cs:  -> 19ea7a38a7eb140a5c068c3ba1ad3f22
+  custom:scripting/monoscript/fileName/AttachmentCloneExtensions.cs:  -> 4b0fddbfc7164d55c082b94bb87bbc91
+  custom:scripting/monoscript/fileName/SkeletonDataAsset.cs:  -> 3613c96a046e18b3472455e15c51d306
+  custom:scripting/monoscript/fileName/TransformConstraint.cs:  -> a4d6c6337f995d960bb0e80f11fd756a
+  custom:scripting/monoscript/fileName/TweenRunner.cs:  -> 90647cc400823b41df847a6cbfc29026
+  custom:scripting/monoscript/fileName/XlsBiffFilePass.cs:  -> 2f78941d549cc64e48de803d4fb91973
+  custom:scripting/monoscript/fileName/FollowSkeletonUtilityRootRotation.cs:  -> de789928be856fc939cf4ab9cd0ca5a2
+  custom:scripting/monoscript/fileName/XlsWorkbook.cs:  -> e9875b186c901b89002ef08f06b2bae9
+  custom:scripting/monoscript/fileName/ReturnKeyTriggersButton.cs:  -> a83b59f89ebcccf447a5492794d93123
+  custom:scripting/monoscript/fileName/BoneFollowerInspector.cs:  -> a7e956e5678df6c13422552a14c694fb
+  custom:scripting/monoscript/fileName/XlsSSTStringHeader.cs:  -> d61652fa5c5ef8ea8961f19107d9b397
+  custom:scripting/monoscript/fileName/BoundingBoxFollowerGraphic.cs:  -> 9d5918e2a5416e0e0e4b6331932e1e21
+  custom:scripting/monoscript/fileName/FancyGridViewCell.cs:  -> 0cdf409b5aa8d4c25876d72b5c6a3b60
+  custom:scripting/monoscript/fileName/DecimalSection.cs:  -> 01b2623c411244c9b1e76a0e3efc0c13
+  custom:scripting/monoscript/fileName/Scroller.cs:  -> 8c13df76ee2aca66f1ef7fa85a6a8d19
+  custom:scripting/monoscript/fileName/ConstraintData.cs:  -> 9dcbcd78f97b8c76133c163e4e961a7b
+  custom:scripting/monoscript/fileName/XlsBiffIntegerCell.cs:  -> d4c6f540d2433862c4766f994ae6e384
+  custom:scripting/monoscript/fileName/SkeletonGraphicCustomMaterials.cs:  -> 9c283e9f42f9de5b0af886cf456ce79e
+  custom:scripting/monoscript/fileName/SpineAtlasAsset.cs:  -> a1ccf8dd6e245e6a82d89bb61a3d0e1c
+  custom:scripting/monoscript/fileName/SkeletonUtilityConstraint.cs:  -> e95bf0fe74afddaa4360efe4cd9b38a5
+  custom:scripting/monoscript/fileName/CylinderText.cs:  -> f1c95f471f93adaff2adb54ff981a621
+  custom:scripting/monoscript/fileName/ColorPickerPresets.cs:  -> 58526e02ae52a3039d98e1bd351096c8
+  custom:scripting/monoscript/fileName/SkeletonGraphicInspector.cs:  -> a7817f8d65c130985f7bb07594ca4b96
+  custom:scripting/monoscript/fileName/BlendModeMaterials.cs:  -> e73c347042acf53d7e65487ea29a735f
+  custom:scripting/monoscript/fileName/JsonException.cs:  -> 9bcab3bafaef9cd1a14fc2816e7adbfb
+  custom:scripting/monoscript/fileName/RadialSlider.cs:  -> 53a8459f29a5485eb28575009ed9597e
+  custom:scripting/monoscript/fileName/JsonWriter.cs:  -> 732ec81ea14662f080d14870f44eafcc
+  custom:scripting/monoscript/fileName/PPIViewer.cs:  -> 39bbb29b1e88bc175ff5c9a206a17761
+  custom:scripting/monoscript/fileName/InputFocus.cs:  -> f5a0ea8ad5b0133e0a6e79598ce458e9
+  custom:scripting/monoscript/fileName/CUIBezierCurve.cs:  -> 0bc73ecc7d946edc346a1bcd211139e1
+  custom:scripting/monoscript/fileName/DropDownListItem.cs:  -> daa787850f7093c4b3e377154b10d521
+  custom:scripting/monoscript/fileName/UIFlippable.cs:  -> 11b12f76641b1d2904e9d52404514c57
+  custom:scripting/monoscript/fileName/ExcelBinaryReader.cs:  -> 3a0ea8bc20ea7ed1d22c14ab4187d853
+  custom:scripting/monoscript/fileName/CanvasGroupActivator.cs:  -> fa245004dc204dae9bb3dbf5d7cdb4a4
+  custom:scripting/monoscript/fileName/IkConstraint.cs:  -> 83b72829fc42f79cb3a115454677cf9a
+  custom:scripting/monoscript/fileName/SkeletonBinary.cs:  -> a0bc18e8f099cbcfccebafe082ea6e18
+  custom:scripting/monoscript/fileName/XlsBiffFormulaCell.cs:  -> 272d87ba57e3ff1eb73417d81f086445
+  custom:scripting/monoscript/fileName/UIWindowBase.cs:  -> 9e40dc2f739684144d879115ea8699b3
+  custom:scripting/monoscript/fileName/ScrollPositionControllerEditor.cs:  -> 77cf69d09e440ac34db1fad7f3399314
+  custom:scripting/monoscript/fileName/XlsBiffSST.cs:  -> a1d4f5d674ec09bd54fcdbc7f7e4b3fa
+  custom:scripting/monoscript/fileName/CurvedLayout.cs:  -> 4483d1633f6e48025f7c4e9d50a1c359
+  custom:scripting/monoscript/fileName/XlsInternalString.cs:  -> 739dc39dcdc73e1305f12707b746cf66
+  custom:scripting/monoscript/fileName/XlsBiffLabelCell.cs:  -> f5c92f8db326deab9cbe093844f43f4c
+  custom:scripting/monoscript/fileName/SkeletonRootMotion.cs:  -> 171ca2eebce54a1506cb550a28c5f704
+  custom:scripting/monoscript/fileName/ScrollConflictManager.cs:  -> 69be50b5f1a25aad8f8a26e30a356a48
+  custom:scripting/monoscript/fileName/ReadOnlyDrawer.cs:  -> 2f25be272e7fb8ed1b2ae373a43f750c
+  custom:scripting/monoscript/fileName/XlsBiffInterfaceHdr.cs:  -> 32f75212ce1e087391abff397f16c53b
+  custom:scripting/monoscript/fileName/CsvAnalyzer.cs:  -> 988293ba7c28578dd54b36e8770acf39
+  custom:scripting/monoscript/fileName/XlsUnicodeString.cs:  -> 8fe1bd061ed2ec7e4adf355e8fd5fdd6
+  custom:scripting/precompiled-assembly-types:spine-csharp:  -> e94670dccf3415922e49ab2b94f1c253
+  custom:scripting/monoscript/fileName/Atlas.cs:  -> 29af0bf072a83848c80ae4d9574fb08a
+  custom:scripting/monoscript/fileName/FancyGridView.cs:  -> 849ed7f5b11c9db237ef61b01c5a5104
+  custom:scripting/monoscript/fileName/CableCurve.cs:  -> 3050d26e933aebd9de4a326e7c3a5fba
+  custom:scripting/monoscript/fileName/MathUtilities.cs:  -> c4c08d8e46a74917c2c218f69ca1c0af
+  custom:scripting/monoscript/fileName/PaginationManager.cs:  -> 2f8d97ef4f856924a63a50cbb73fe765
+  custom:scripting/monoscript/fileName/EncodingHelper.cs:  -> 59ea7ec8066f0cb91984c7e273b1a133
+  custom:scripting/monoscript/fileName/Bone.cs:  -> 6bdb7014c303e0dd7a31b9cfb98750ce
+  custom:scripting/monoscript/fileName/MathUtils.cs:  -> 9ee0cc96b738d5bfb36246a07d76c7a2
+  custom:scripting/monoscript/fileName/UILineTextureRenderer.cs:  -> 1d527739dcbce7234ef4dd92a1c39594
+  custom:scripting/monoscript/fileName/SkeletonClipping.cs:  -> 06dcf9752caaa1f905d3c48242d8e7b9
+  custom:scripting/monoscript/fileName/TextureRegion.cs:  -> 565ab463cde3bdd11596f28f65a44450
+  custom:scripting/monoscript/fileName/MenuManager.cs:  -> 88811dad95932ae1dd12eb7b07d5ccf5
+  custom:scripting/monoscript/fileName/VertexAttachment.cs:  -> 4d48a28f697bf406b1eed0cc6f1bab13
+  custom:scripting/monoscript/fileName/ColorPickerPresetsEditor.cs:  -> 14163bc1cc54d6cc8c7ce10015e577f2
+  custom:scripting/monoscript/fileName/Skeleton.cs:  -> 4db266bc03e70660e3ca12feb3812b3a
+  custom:scripting/monoscript/fileName/SkeletonBaker.cs:  -> a6a57e3d12a1fcaafd5141b6e3cd5f48
+  custom:scripting/monoscript/fileName/UI_MagneticInfiniteScroll.cs:  -> 40de319e3615ee55cb242f17ce295cff
+  custom:scripting/monoscript/fileName/XlsBiffColInfo.cs:  -> 7d0b1b7f07f145bbc39048901704e010
+  custom:scripting/monoscript/fileName/MaterialChecks.cs:  -> a8d3b60685466bf769cebcec543413a7
+  custom:scripting/monoscript/fileName/RC4Encryption.cs:  -> ddcdf77816030bda754d7bff24da865b
+  custom:scripting/monoscript/fileName/CompoundDirectoryEntry.cs:  -> 7ec4219496ba954764c10655fa06025a
+  custom:scripting/precompiled-assembly-types:DOTween46:  -> f6c2e5501c14313b4ea0532cb65014a9
+  custom:scripting/monoscript/fileName/XlsxBoundSheet.cs:  -> cb56a10b23e267f355e2bde7cb9c1407
+  custom:scripting/monoscript/fileName/EventDataReferenceAsset.cs:  -> 69e326554d674f5260e4bf057cfedf3c
+  custom:scripting/monoscript/fileName/ToolTip.cs:  -> 3e39c0392dad131ce1df03b0b41e9104
+  custom:scripting/monoscript/fileName/SkeletonBakingWindow.cs:  -> 35737752b22a4a0eddf2d1f044e058a6
+  custom:scripting/monoscript/fileName/TextPicRenameEditor.cs:  -> afeed66ecc0e9125b080d5b5cf17ff5d
+  custom:scripting/monoscript/fileName/SpineInspectorUtility.cs:  -> c1d158def14a5606f94c9bf977e39606
+  custom:scripting/monoscript/fileName/SpinePreferences.cs:  -> 1f642d2364c1a7f671e0c355ee0dbdb6
+  custom:scripting/monoscript/fileName/XlsBiffMergeCells.cs:  -> 14dfd0317a1bf71e1a5e5c6845dd17ac
+  custom:scripting/monoscript/fileName/TestCompression.cs:  -> 286fda9c9ae5479a561d72386676ad15
+  custom:scripting/monoscript/fileName/WaitForSpineAnimationComplete.cs:  -> e3bbd217e58830ee418323373d4e2ed4
+  custom:scripting/monoscript/fileName/IFancyScrollRectContext.cs:  -> 5f817f6116b585f9b399e65284a3e252
+  custom:scripting/monoscript/fileName/ColorChangedEvent.cs:  -> 4b29e4070152113dfe391af70837bc59
+  custom:scripting/monoscript/fileName/SkeletonRootMotionBase.cs:  -> 594097b142334339d093be8057cf2aef
+  custom:scripting/monoscript/fileName/BestFitOutline.cs:  -> 5c379557eb28c532e34108be9e439061
+  custom:scripting/monoscript/fileName/NonDrawingGraphicEditor.cs:  -> bac5a17aca8db1d43325cd110e3f0dee
+  custom:scripting/monoscript/fileName/HSVChangedEvent.cs:  -> 48cded7d885ba4c3cfa0db6f49cd79e4
+  custom:scripting/monoscript/fileName/PointFollower.cs:  -> 3b2f83d3e34f4a53310f621b7f8ea9ba
+  custom:scripting/monoscript/fileName/Errors.cs:  -> 57c6869f3d900cbb0910c697d0870c6e
+  custom:scripting/monoscript/fileName/CUIImageEditor.cs:  -> b7c8797f487287d79cb6048a4c0dab55
+  custom:scripting/monoscript/fileName/HorizontalScrollSnap.cs:  -> d5b40339c32549d6050b92b884807f22
+  custom:scripting/monoscript/fileName/CsvWorkbook.cs:  -> b2501641344c829134cfa489291ca030
+  custom:scripting/monoscript/fileName/JsonMapper.cs:  -> 086843ea080c4d3766736ad391f03a6a
+  custom:scripting/monoscript/fileName/UI_TweenScale.cs:  -> 7d5d224dd7d74dbc4fd666012e353fed
+  custom:scripting/monoscript/fileName/XlsBiffUncalced.cs:  -> 8fc8018c040b5397311fef240d7f4c4a
+  custom:scripting/monoscript/fileName/BoundTooltipItem.cs:  -> 181b332b8b72b499fc1d25bee9e841a7
+  custom:scripting/monoscript/fileName/Log.cs:  -> f55ea75fbd42d623fc7c7e264e4c26b6
+  custom:scripting/monoscript/fileName/ExcelReaderException.cs:  -> 76d76db648bf800f15d1ea8cd24371af
+  custom:scripting/monoscript/fileName/SkeletonJson.cs:  -> 54f57fcb9a248ead020e0fe33bbcac54
+  custom:scripting/monoscript/fileName/CompoundHeader.cs:  -> 528c8c8f6e3a8bd3fe74d07ce2bc16ae
+  custom:scripting/monoscript/fileName/AccordionElement.cs:  -> f544cc0d83e3f9232094f612660ef136
+  custom:scripting/precompiled-assembly-types:spine-unity-editor:  -> b7730664726c09e4aeaed2c060cf45fb
+  custom:scripting/monoscript/fileName/Instantiation.cs:  -> c45d83208f784ee31ef612ea40525475
+  custom:scripting/monoscript/fileName/ActivateBasedOnFlipDirection.cs:  -> f6f8a8f1bf5b4e2e2dbc76260795a0cc
+  custom:scripting/monoscript/fileName/UI_ScrollRectOcclusion.cs:  -> 4b5f3927cc80d00f7dd48c8dd9718bcf
+  custom:scripting/monoscript/fileName/SkeletonUtilityBone.cs:  -> 29c72f6825a7ff7dea616ad29dbd1aa2
+  custom:scripting/monoscript/fileName/XlsShortUnicodeString.cs:  -> 5688f057b78fec0718a44e7baaaff0ca
+  custom:scripting/monoscript/fileName/Menus.cs:  -> b195e4791019098b9eb19b33764c42d9
+  custom:scripting/monoscript/fileName/AgileEncryption.cs:  -> 5e6b9d6d1adf8180f1debcae0deb0e5c
+  custom:scripting/monoscript/fileName/SkeletonMecanimRootMotionInspector.cs:  -> 7e3448d0eea26fb633ec4193533b1619
+  custom:scripting/monoscript/fileName/SpineMesh.cs:  -> 68d26a6561cae1da642fe296238f1a6e
+  custom:scripting/monoscript/fileName/CUIBezierCurveEditor.cs:  -> 23ef821b6a34511cc4a223a005cc560e
+  custom:scripting/monoscript/fileName/ColorSliderImage.cs:  -> 565e14357e0b5cca5056252d8db14ec6
+  custom:scripting/monoscript/fileName/BoneFollowerGraphicInspector.cs:  -> b7abccbd59149a15c98f4fbe9679d896
+  custom:scripting/monoscript/fileName/SpineSpriteShaderGUI.cs:  -> d8dcbb07e9102f6de13d0b01bf86374d
+  custom:scripting/monoscript/fileName/Lexer.cs:  -> 21d8eec3d048133852e2e14bb89d54c4
+  custom:scripting/monoscript/fileName/Accordion.cs:  -> 28ecb44c848a1318cff07162b08264e2
+  custom:scripting/monoscript/fileName/FancyCell.cs:  -> 0cdf409b5aa8d4c25876d72b5c6a3b60
+  custom:scripting/monoscript/fileName/Skin.cs:  -> 04ddf5d13d7e47be8a5c1d903fb7bbed
+  custom:scripting/monoscript/fileName/NumberFormatString.cs:  -> 5cbe33c4669a59fb8c83a000f3d12e15
+  custom:scripting/monoscript/fileName/ShineEffect.cs:  -> 24610498624fdd72047cdcc833d4710c
+  custom:scripting/monoscript/fileName/Parser.cs:  -> d6f3559ccfff4f7ceab83468de46a423
+  custom:scripting/monoscript/fileName/ScrollRectTweener.cs:  -> d76324f5b26a07abc8c23dee0a8f9f14
+  custom:scripting/monoscript/fileName/MeshCreator.cs:  -> 1227a31abd899689c55ff6e4912d7274
+  custom:scripting/monoscript/fileName/UIPolygon.cs:  -> 330f477c3ea52ecd71e67183d1b599e4
+  custom:scripting/monoscript/fileName/switchToRectTransform.cs:  -> 0e3bb9b17757858091ab5f17631798fb
+  custom:scripting/monoscript/fileName/Cell.cs:  -> 2d552d1f1fc710e1f63079d6572dd5fc
+  custom:scripting/monoscript/fileName/UILineRendererList.cs:  -> 755ba754596400ba05483cf14e04a296
+  custom:scripting/monoscript/fileName/CLZF2.cs:  -> 93d3dfa9424b9f764d8cd24ba2213942
+  custom:scripting/monoscript/fileName/JsonReader.cs:  -> e5b4fedf6de5a054e5c8483f65a4a48b
+  custom:scripting/monoscript/fileName/SimpleMenu.cs:  -> 90647cc400823b41df847a6cbfc29026
+  custom:scripting/monoscript/fileName/DateTimeHelper.cs:  -> 5cd08cf05f239f7676330f608536ef30
+  custom:scripting/monoscript/fileName/XlsBiffContinue.cs:  -> 0776b911a5d79e64bbd67a6d4a0630f6
+  custom:scripting/monoscript/fileName/SkeletonData.cs:  -> 12b27c5ef37bb776d2d2b74c92badd62
+  custom:scripting/monoscript/fileName/WaitForSpineEvent.cs:  -> 7287c83d0d56669352c9a68eb9347551
+  custom:scripting/monoscript/fileName/AnimationStateData.cs:  -> 7153e8851fc25a09f02757462033b324
+  custom:scripting/monoscript/fileName/RescalePanel.cs:  -> ddbfed95d1d4afba5e9d841f35eeea81
+  custom:scripting/monoscript/fileName/SkeletonRenderer.cs:  -> c3821ba88c255e549eca887bdd9473d2
+  custom:scripting/monoscript/fileName/DragCorrector.cs:  -> ab32c2bd59918af6774929f33d6aaed7
+  custom:scripting/monoscript/fileName/RangeSliderEditor.cs:  -> cd94b474ffd858aace502d8722070ac3
+  custom:scripting/monoscript/fileName/FancyScrollRect.cs:  -> 0cdf409b5aa8d4c25876d72b5c6a3b60
+  custom:scripting/monoscript/fileName/ReorderableList.cs:  -> 0ee972634a21b164dea9380bc16b1338
+  custom:scripting/monoscript/fileName/RadialLayout.cs:  -> bb1dc301ac7277a868f836bd2a37a67c
+  custom:scripting/monoscript/fileName/XlsBiffDbCell.cs:  -> 6994735da14585f33a5a0bc8e26393ea
+  custom:scripting/monoscript/fileName/IFancyGridViewContext.cs:  -> 1df81160f7c9650e971bf1ca4a1fd9d7
+  custom:scripting/monoscript/fileName/ColorSlider.cs:  -> 5ec9c3515305b9b742633cdede2d62b0
+  custom:scripting/monoscript/fileName/CommonWorkbook.cs:  -> 1245400274023b8964e5bc3e29e5a2d0
+  custom:scripting/precompiled-assembly-types:ICSharpCode.SharpZipLib:  -> 3a8292811df0bb2991599305b58cf1cd
+  custom:scripting/monoscript/fileName/AttachmentLoader.cs:  -> ce2652c92b7c28afda794a8b5422b0ed
+  custom:scripting/monoscript/fileName/ExcelCsvReader.cs:  -> b30c2eabef3737009a2e81fe8179e5f6
+  custom:scripting/monoscript/fileName/SkeletonPartsRenderer.cs:  -> c42639e233e4a398799515483f7bfdac
+  custom:scripting/monoscript/fileName/CUIGraphic.cs:  -> 2eeea441f6dcb0b79b573e8b43b8aa48
+  custom:scripting/monoscript/fileName/IJsonWrapper.cs:  -> 6b2aeed804fbc2ca0adf61f00f8adcf5
+  custom:scripting/monoscript/fileName/SkeletonUtilityBoneInspector.cs:  -> c0a6bf858b54f01ccdbadd8a058b752d
+  custom:scripting/monoscript/fileName/SpineAttributes.cs:  -> a23aee7402db33c705f9e1e0aef42046
+  custom:scripting/monoscript/fileName/IFancyCellGroupContext.cs:  -> e8928cf4d595e629f179cb4846960cf2
+  custom:scripting/monoscript/fileName/ColorPickerTester.cs:  -> f0ce52d093ee310127a71b5ec6329dd2
+========================================================================
+Received Import Request.
+  Time since last request: 366216.645181 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/package.json
+  artifactKey: Guid(1dbb3faeb54e2a4498b2472b8760548b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/package.json using Guid(1dbb3faeb54e2a4498b2472b8760548b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e73096d1ac1ddcce9674897af53bde1b') in 0.051361 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/Plugins/DOTweenPro.dll
+  artifactKey: Guid(79409363d5f237b42b316488ebba38cc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/DOTweenPro.dll using Guid(79409363d5f237b42b316488ebba38cc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '144d6e841fbb8dc361f0fcd6b11463ae') in 0.018070 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000060 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Editor/ScrollPositionControllerEditor.cs
+  artifactKey: Guid(986fda6476737da458576709b7f59ea3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Editor/ScrollPositionControllerEditor.cs using Guid(986fda6476737da458576709b7f59ea3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '2ada53e5b6955de2bad1322bdb71f056') in 0.005347 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000031 seconds.
+  path: Assets/Plugins/ThirdLibs/SharpZipLib/ICSharpCode.SharpZipLib.dll
+  artifactKey: Guid(ebacd1a213c22c14ca5ac31194adad63) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/SharpZipLib/ICSharpCode.SharpZipLib.dll using Guid(ebacd1a213c22c14ca5ac31194adad63) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '97c4fbfa4ef07e2ae3be070dbb227dee') in 0.004453 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000038 seconds.
+  path: Assets/Scripts/Editor/MapEditor/MapBulid.uxml
+  artifactKey: Guid(ea88e4b01e39f374b8a0e47541fb424e) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Editor/MapEditor/MapBulid.uxml using Guid(ea88e4b01e39f374b8a0e47541fb424e) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '4d72660d7ffe04cb0e6b57065e401ef8') in 0.018537 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 3
+========================================================================
+Received Import Request.
+  Time since last request: 0.000052 seconds.
+  path: Assets/FrameWork/Scripts/Editor/Tools/EditorPath.Editor.cs
+  artifactKey: Guid(6c395d2cedcf4aadb7fc01783d606686) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Editor/Tools/EditorPath.Editor.cs using Guid(6c395d2cedcf4aadb7fc01783d606686) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dd6d6fd2039e498f8cf842a9d52cfe79') in 0.003845 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/ToolUtils/Log.cs
+  artifactKey: Guid(601984da759d17c47baa29026e703b91) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/ToolUtils/Log.cs using Guid(601984da759d17c47baa29026e703b91) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '8765f47ac172fd18654dc1c955c030d5') in 0.003050 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000060 seconds.
+  path: Assets/Scripts/Utils/UI Toolkit/MapEditor.cs
+  artifactKey: Guid(95c692da92a96ac4dbe0bfeced49e915) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Utils/UI Toolkit/MapEditor.cs using Guid(95c692da92a96ac4dbe0bfeced49e915) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '82f499191058a845db64c3d3a3e6eed5') in 0.002978 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000048 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Launcher/LauncherManager.Visitors.cs
+  artifactKey: Guid(f11310a7f0de4806aa54e617bc531aa6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Launcher/LauncherManager.Visitors.cs using Guid(f11310a7f0de4806aa54e617bc531aa6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'd527e1e528c043cc02d8069526d03a74') in 0.003774 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000029 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/EPPlus.dll
+  artifactKey: Guid(0fdee0e0b0c8c7b499b623d99d97f2f8) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/EPPlus.dll using Guid(0fdee0e0b0c8c7b499b623d99d97f2f8) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '16341a1b9afa4e56b12a0b2d856f06a1') in 0.004530 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000023 seconds.
+  path: Assets/Scripts/MapGrid/GridMapManager.GridTile.cs
+  artifactKey: Guid(b9cc1656cbc943808fc8c14111585dd6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/MapGrid/GridMapManager.GridTile.cs using Guid(b9cc1656cbc943808fc8c14111585dd6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f9ad2eaa5143a5d89d865121436b3b74') in 0.003026 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/LICENSE.md
+  artifactKey: Guid(85fbb9f9f8b4fa3439349b9c4c495006) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/LICENSE.md using Guid(85fbb9f9f8b4fa3439349b9c4c495006) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '7aced53c49d789ac8d689b347abdc4a4') in 0.004753 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.683813 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Editor/TextPicEditor.cs
+  artifactKey: Guid(5fe8e67609bbee14d8ad0805aac72799) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Editor/TextPicEditor.cs using Guid(5fe8e67609bbee14d8ad0805aac72799) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'acbd15a566e23bdfe026e247ae986a32') in 0.003784 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000132 seconds.
+  path: Assets/Plugins/ThirdLibs/TextMesh Pro/Shaders/TMPro_Mobile.cginc
+  artifactKey: Guid(c334973cef89a9840b0b0c507e0377ab) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/TextMesh Pro/Shaders/TMPro_Mobile.cginc using Guid(c334973cef89a9840b0b0c507e0377ab) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '62f24148f7b2edbbacb3ec96db8689c6') in 0.003973 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000010 seconds.
+  path: Assets/Plugins/ThirdLibs/TextMesh Pro/Sprites/EmojiOne.json
+  artifactKey: Guid(8f05276190cf498a8153f6cbe761d4e6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/TextMesh Pro/Sprites/EmojiOne.json using Guid(8f05276190cf498a8153f6cbe761d4e6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c3f3de8de292acf0f08eaef25e11bf7b') in 0.004022 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000018 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameDOTweenTypes.cs
+  artifactKey: Guid(96f6f098615c4a1395745414fd053343) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameDOTweenTypes.cs using Guid(96f6f098615c4a1395745414fd053343) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e15cc215eaf3eb08c7207fa107129217') in 0.012678 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000060 seconds.
+  path: Assets/Plugins/ThirdLibs/TextMesh Pro/Sprites/EmojiOne.png
+  artifactKey: Guid(dffef66376be4fa480fb02b19edbe903) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/TextMesh Pro/Sprites/EmojiOne.png using Guid(dffef66376be4fa480fb02b19edbe903) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'a3913483f688159819017eb1a5724795') in 0.048245 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/Plugins/ThirdLibs/TextMesh Pro/Shaders/TMP_Bitmap.shader
+  artifactKey: Guid(128e987d567d4e2c824d754223b3f3b0) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/TextMesh Pro/Shaders/TMP_Bitmap.shader using Guid(128e987d567d4e2c824d754223b3f3b0) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '0a110952ea717cbc880341f3c3701f4e') in 0.008518 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/Scripts/Lua/XLua/Doc/XLuaå¢åŠ åˆ é™¤ç¬¬ä¸‰æ–¹luaåº“.doc
+  artifactKey: Guid(40e0633beaaf4dd49aca86e58539a814) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Doc/XLuaå¢åŠ åˆ é™¤ç¬¬ä¸‰æ–¹luaåº“.doc using Guid(40e0633beaaf4dd49aca86e58539a814) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'b13eadd43b3eb17510e879fc4409ff02') in 0.003065 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000028 seconds.
+  path: Assets/Scripts/Lua/XLua/Src/GenAttributes.cs
+  artifactKey: Guid(4455254bac5b6644893ae8183b9eb87c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Src/GenAttributes.cs using Guid(4455254bac5b6644893ae8183b9eb87c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '756af218bd9a6a18cbc86073bc362276') in 0.003448 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000033 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/CHANGELOG.md
+  artifactKey: Guid(41720fb441a986743956b82a17ed20ae) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/CHANGELOG.md using Guid(41720fb441a986743956b82a17ed20ae) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dddc1ff49fa6160f6427c43d5dfbd782') in 0.003096 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000038 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/README.md
+  artifactKey: Guid(67930463bcc479c4c9d214da73741613) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/README.md using Guid(67930463bcc479c4c9d214da73741613) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '10fad9a3152426a577b761143af2f37c') in 0.002629 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/Scripts/Lua/XLua/Doc/Hotfix_EN.md
+  artifactKey: Guid(7919d0bddff7ee340852008d36cd68ec) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Doc/Hotfix_EN.md using Guid(7919d0bddff7ee340852008d36cd68ec) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dc0420fcd42655dd1680905d45152972') in 0.002660 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000039 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameDefinitions.cs
+  artifactKey: Guid(b4412dc7c2af44b288160a3b21de2a78) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameDefinitions.cs using Guid(b4412dc7c2af44b288160a3b21de2a78) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e89e4576bf77b88e288f426e45edf720') in 0.003187 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000044 seconds.
+  path: Assets/Scripts/Lua/XLua/Src/CopyByValue.cs
+  artifactKey: Guid(aba23a1792dbc49438a2357566447979) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Src/CopyByValue.cs using Guid(aba23a1792dbc49438a2357566447979) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '5d45e4934ff643b0786db25ae1721dc8') in 0.003898 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000051 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameConstants.cs
+  artifactKey: Guid(32c83e50809b47749b5f652eaa991107) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameConstants.cs using Guid(32c83e50809b47749b5f652eaa991107) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f83ce5b68e34673928ba459173218ad3') in 0.003398 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000036 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/package.json
+  artifactKey: Guid(09478c42aa0375347898d942d287a819) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/package.json using Guid(09478c42aa0375347898d942d287a819) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '49d5f2b8c78ce8582e9128cd6a47adea') in 0.002867 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000044 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/ExcelDataReader.ruleset
+  artifactKey: Guid(dd36e47bdde264d41928f34bc6d81723) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/ExcelDataReader.ruleset using Guid(dd36e47bdde264d41928f34bc6d81723) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '169a6b0ca658713d8be9670a2cd923e4') in 0.002911 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000047 seconds.
+  path: Assets/Scripts/Lua/XLua/Src/LuaFunction.cs
+  artifactKey: Guid(7c45cd490d853cb409d042c641784718) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Src/LuaFunction.cs using Guid(7c45cd490d853cb409d042c641784718) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f68c73d80b2c17975c7a25d9a4d0b012') in 0.003754 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.670059 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameEventCmd.cs
+  artifactKey: Guid(d166cf6a9bad40af80cd5b1f7e79ff40) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Bases/Definitions/GameEventCmd.cs using Guid(d166cf6a9bad40af80cd5b1f7e79ff40) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '62d33f45730f2d8dd6e9c5ea5ea53086') in 0.013881 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Lua/LuaBehaviour/Others/Trigger2DLifeCyclesBehaviour.cs
+  artifactKey: Guid(ffaa13204dfe4ded9f8d89e40d4d25ff) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Lua/LuaBehaviour/Others/Trigger2DLifeCyclesBehaviour.cs using Guid(ffaa13204dfe4ded9f8d89e40d4d25ff) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '6c98307818316db44b2efa33f5890d8a') in 0.004161 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000009 seconds.
+  path: Assets/Scripts/Lua/XLua/Src/Editor/Hotfix.cs
+  artifactKey: Guid(f9f175d9e85601f4da903e391b8b7c77) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Src/Editor/Hotfix.cs using Guid(f9f175d9e85601f4da903e391b8b7c77) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'a8b26761ebe98ae59ef0098c402bb93a') in 0.004011 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000114 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Lua/LuaBehaviour/LuaBehaviour.None.Visitors.cs
+  artifactKey: Guid(dae82d559f304ff6a090dfc8dcab1b6b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Lua/LuaBehaviour/LuaBehaviour.None.Visitors.cs using Guid(dae82d559f304ff6a090dfc8dcab1b6b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'ecf49f6232c813e638b74616f276806a') in 0.004926 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000008 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Resources/Shaders/UI Particle MultiplyDouble.shader
+  artifactKey: Guid(0765ecef58833c3429346a1fee45e4e0) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Resources/Shaders/UI Particle MultiplyDouble.shader using Guid(0765ecef58833c3429346a1fee45e4e0) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '5ebbe7c09beb5403ed881b9edaa42dcc') in 0.005343 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/InputFocus.cs
+  artifactKey: Guid(a18c7c81729dadf40aee407a0cff0462) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/InputFocus.cs using Guid(a18c7c81729dadf40aee407a0cff0462) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'ff221debd12b6a2054ec9dcfbe9b8861') in 0.003292 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000044 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/UIWindowBase.cs
+  artifactKey: Guid(8803d62703eac8a44a3e9884c71009da) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/UIWindowBase.cs using Guid(8803d62703eac8a44a3e9884c71009da) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '5d44c96f2a6d7dde67a9cb502aaa7d75') in 0.003881 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000026 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/UI/SpecialUIs/SwitchButton/AorSwitchButton.cs
+  artifactKey: Guid(87d99bd4ed864977b84baf73dea1dc3e) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/UI/SpecialUIs/SwitchButton/AorSwitchButton.cs using Guid(87d99bd4ed864977b84baf73dea1dc3e) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '08d05c155ea3e69195581ded54557e36') in 0.004298 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Assets/Component/LoadPrefabComponent/LoadPrefabComponent.Methods.cs
+  artifactKey: Guid(a0e2bab6b92048fb9e31a97fb23350bf) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Assets/Component/LoadPrefabComponent/LoadPrefabComponent.Methods.cs using Guid(a0e2bab6b92048fb9e31a97fb23350bf) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '8d82ea146f1c143536812cbba187c8c1') in 0.003282 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000010 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Component.cs
+  artifactKey: Guid(3bdcbd8fad0742a69e45f0ccc6881f83) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Component.cs using Guid(3bdcbd8fad0742a69e45f0ccc6881f83) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'aed4864e452031a36c99dba0de007f48') in 0.003754 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000043 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/NicerOutline.cs
+  artifactKey: Guid(db125c7de00668f4e98849d0aaf366d7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/NicerOutline.cs using Guid(db125c7de00668f4e98849d0aaf366d7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '8f35850926bf48674f6860c2e613669d') in 0.004191 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Assets/Component/LoadABComponent/LoadABComponent.cs
+  artifactKey: Guid(dec17392a79f403e97fb8c92abd45bf4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Assets/Component/LoadABComponent/LoadABComponent.cs using Guid(dec17392a79f403e97fb8c92abd45bf4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dc355ad17da78b2d6b8bb058686194ee') in 0.002966 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000077 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Persist/Components/PlayerPrefs/PlayerPrefsComponent.Visitors.cs
+  artifactKey: Guid(2980ff70d1e647d99f6ce9c7780896bd) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Persist/Components/PlayerPrefs/PlayerPrefsComponent.Visitors.cs using Guid(2980ff70d1e647d99f6ce9c7780896bd) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '7bb26ba46f5b5a49ed64f8da6e2a0c83') in 0.003099 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000010 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Configs/Components/ConfigComponent.cs
+  artifactKey: Guid(d06f99adcbcf452c928e215075a64c7f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Configs/Components/ConfigComponent.cs using Guid(d06f99adcbcf452c928e215075a64c7f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e37a9c5cc3ae13e791681193e435e7fd') in 0.003185 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000045 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/BoxSlider.cs
+  artifactKey: Guid(a3fd655d1aa9c684d88cdfdd0da9aa34) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/BoxSlider.cs using Guid(a3fd655d1aa9c684d88cdfdd0da9aa34) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '46cde9a24f184b3f5e95883daa0f96b9') in 0.004330 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000029 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Persist/Components/FileFragment/FileFragmentComponent.Methods.cs
+  artifactKey: Guid(4a03307e000e4522aed5324b3dbc3d18) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Persist/Components/FileFragment/FileFragmentComponent.Methods.cs using Guid(4a03307e000e4522aed5324b3dbc3d18) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '24d06274e498fe77a3149e80d2efcd23') in 0.003188 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Resources/Shaders/UIParticleHidden.shader
+  artifactKey: Guid(cf73a0a4b5ea8994f916cd18a97c564b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Resources/Shaders/UIParticleHidden.shader using Guid(cf73a0a4b5ea8994f916cd18a97c564b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '8b9fee098f45410d4caf7d807edd62b4') in 0.004438 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000010 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Lua/LuaBehaviour/LuaInjection.cs
+  artifactKey: Guid(6e646372ab84497690f2e53a4816d285) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Lua/LuaBehaviour/LuaInjection.cs using Guid(6e646372ab84497690f2e53a4816d285) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '58f2704739336a4246674a1fe40c7c55') in 0.003240 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000032 seconds.
+  path: Assets/Scripts/Lua/XLua/Resources/xlua/util.lua.txt
+  artifactKey: Guid(4397ec772c2d41e46a9766cf46b8bec6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Resources/xlua/util.lua.txt using Guid(4397ec772c2d41e46a9766cf46b8bec6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e6fe8a274bfd42f74249fb41a4f9d959') in 0.002556 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000049 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Spine.cs
+  artifactKey: Guid(4b7f972bde5c4e559908cd894dd33711) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Spine.cs using Guid(4b7f972bde5c4e559908cd894dd33711) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '7bf647dca8e1049957fef1fec0543941') in 0.003680 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000048 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/Segment.cs
+  artifactKey: Guid(b8ea9937637d64c6da52723c68267703) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/Segment.cs using Guid(b8ea9937637d64c6da52723c68267703) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e64cdc06a4120a009d5034aba91e7135') in 0.002983 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000018 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Persist/Components/FileFragment/FileFragmentComponent.cs
+  artifactKey: Guid(f02c0a36ed614295b627d15cbd9ec7f3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Persist/Components/FileFragment/FileFragmentComponent.cs using Guid(f02c0a36ed614295b627d15cbd9ec7f3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e9adda394f0757e94d28162e411b033c') in 0.003868 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000074 seconds.
+  path: Assets/Plugins/ThirdLibs/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset
+  artifactKey: Guid(c41005c129ba4d66911b75229fd70b45) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset using Guid(c41005c129ba4d66911b75229fd70b45) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '9e20ee7414d8dc09bd93a56797ea0a42') in 0.008837 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 3
+========================================================================
+Received Import Request.
+  Time since last request: 0.000008 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Procedures/Procedures/ProcedurePlaying.cs
+  artifactKey: Guid(2416efa91a63415a86539c61434125bb) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Procedures/Procedures/ProcedurePlaying.cs using Guid(2416efa91a63415a86539c61434125bb) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'bf252fa63b4ed37d450acee8fdc444d8') in 0.003080 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000032 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/UI/SpecialUIs/AorListView/AorListView.cs
+  artifactKey: Guid(590b2b5b2af44f068e6cf6394c08f3ae) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/UI/SpecialUIs/AorListView/AorListView.cs using Guid(590b2b5b2af44f068e6cf6394c08f3ae) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '099790c0f752c9618f8407743893f5ce') in 0.003329 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/Scripts/Game/Launcher/Procedure/State/State.cs
+  artifactKey: Guid(a094a57bb0d379e4f9c18690225a1ef7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Game/Launcher/Procedure/State/State.cs using Guid(a094a57bb0d379e4f9c18690225a1ef7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '10b34af20b832bb1198812dcda06159c') in 0.003138 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000021 seconds.
+  path: Assets/FrameWork/Scripts/Runtime/Lua/Manager/LuaManager.EventSet.cs
+  artifactKey: Guid(c1d298840dbd43f98d0943b4423352cd) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/FrameWork/Scripts/Runtime/Lua/Manager/LuaManager.EventSet.cs using Guid(c1d298840dbd43f98d0943b4423352cd) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '4bc94444db800e7f4d3fb16c71d9f226') in 0.003897 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000035 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Resources/Shaders/SoftMaskShader.shader
+  artifactKey: Guid(947afae4d36f1274ea2e4098262ceef6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Resources/Shaders/SoftMaskShader.shader using Guid(947afae4d36f1274ea2e4098262ceef6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f2aa2aba20756eaa9084d2761121b774') in 0.004525 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000056 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity-editor.asmdef
+  artifactKey: Guid(173464ddf4cdb6640a4dfa8a9281ad69) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity-editor.asmdef using Guid(173464ddf4cdb6640a4dfa8a9281ad69) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '059deb6689714b8e6020a1a5650e711c') in 0.003105 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.552872 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/RaycastMask.cs
+  artifactKey: Guid(22757922dd9d4064d8186fbef72b0772) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/RaycastMask.cs using Guid(22757922dd9d4064d8186fbef72b0772) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'bcf90ca366196a402cc9ccd7b51a7ff9') in 0.004292 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000092 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/ScrollSnap.cs
+  artifactKey: Guid(c598b387777d96643991be3f0b6c98c2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/ScrollSnap.cs using Guid(c598b387777d96643991be3f0b6c98c2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '33eb6220600ba9873a25b37affae94df') in 0.004722 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000015 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Event.cs
+  artifactKey: Guid(dec0d9d780605944eb4514125ab6350b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Event.cs using Guid(dec0d9d780605944eb4514125ab6350b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '50b4af0c08a34b9e52f5816b5bc30a11') in 0.003749 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000028 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Primitives/UILineTextureRenderer.cs
+  artifactKey: Guid(b801876ddb189f94f905cd1646564fbf) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Primitives/UILineTextureRenderer.cs using Guid(b801876ddb189f94f905cd1646564fbf) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'ba3943a5e5c209c3518ec97f3d2c5e89') in 0.003883 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader.DataSet/ExcelDataReaderExtensions.cs
+  artifactKey: Guid(bf3e77d6c6020864ea6be575dea28a1c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader.DataSet/ExcelDataReaderExtensions.cs using Guid(bf3e77d6c6020864ea6be575dea28a1c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '5f0fa6c030219011bcf7ed695943d9e2') in 0.003368 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000117 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/IkConstraint.cs
+  artifactKey: Guid(916f8e6534860cc40824adfc2916baa7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/IkConstraint.cs using Guid(916f8e6534860cc40824adfc2916baa7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'ac0329165d074a6ff3c769595565b74b') in 0.004078 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000044 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/UILineConnector.cs
+  artifactKey: Guid(8b52ee3a4491f3742bb35fa3eec798d3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/UILineConnector.cs using Guid(8b52ee3a4491f3742bb35fa3eec798d3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e8fb574bb0b2a1692d64190bdf367b8c') in 0.003491 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000008 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/ExcelOpenXmlReader.cs
+  artifactKey: Guid(87189b7934aa02041b3511ba51ff258c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/ExcelOpenXmlReader.cs using Guid(87189b7934aa02041b3511ba51ff258c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '073b3263224f547311bd077cf3a91894') in 0.003555 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000088 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/InputFieldEnterSubmit.cs
+  artifactKey: Guid(bfc77d7b04a86f845b59fb0979e8ec53) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/InputFieldEnterSubmit.cs using Guid(bfc77d7b04a86f845b59fb0979e8ec53) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f6233dc1d68987b4ae87eeaf7eed042f') in 0.003487 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Primitives/UISquircle.cs
+  artifactKey: Guid(d7948ca2f24604c4aa5340622512a976) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Primitives/UISquircle.cs using Guid(d7948ca2f24604c4aa5340622512a976) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c005340fe38d5aedb003a8f8ce9a6e4e') in 0.003585 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000066 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/NonDrawingGraphic.cs
+  artifactKey: Guid(51db53697a53f7a479b8570674dae649) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/NonDrawingGraphic.cs using Guid(51db53697a53f7a479b8570674dae649) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'd0bfbf9f0e44c3ff6adf477ff4392965') in 0.004096 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000037 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/spine-csharp.asmdef
+  artifactKey: Guid(72d1fea872bd7a449bf3818f2b0a6708) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/spine-csharp.asmdef using Guid(72d1fea872bd7a449bf3818f2b0a6708) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c018dd7e07932203e5cf73de3880cef9') in 0.002935 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000011 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/PaginationManager.cs
+  artifactKey: Guid(7cff19ba98ef11d4ebf2e8cbeb6a4342) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/PaginationManager.cs using Guid(7cff19ba98ef11d4ebf2e8cbeb6a4342) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '81c85e52043ac0c909f12540a0d16874') in 0.003244 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/BlendMode.cs
+  artifactKey: Guid(b08ef68b8e39f40498ef24ef12cca281) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/BlendMode.cs using Guid(b08ef68b8e39f40498ef24ef12cca281) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c1e77e49a6b5fb5dec0e73fb1e2190bc') in 0.003136 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000028 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/MenuSystem/Menu.cs
+  artifactKey: Guid(9653e8a2f35df4e42b53f383913554af) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/MenuSystem/Menu.cs using Guid(9653e8a2f35df4e42b53f383913554af) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '003dd3552db5ec80b2ef1ff7db7cfd2c') in 0.003534 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000009 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/TestCompression.cs
+  artifactKey: Guid(585e75d4a56389b4690b3506f37751bc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/TestCompression.cs using Guid(585e75d4a56389b4690b3506f37751bc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '6d285b591b85aefecdf2ac38f92c9edc') in 0.003601 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000033 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/ColorPickerControl.cs
+  artifactKey: Guid(7e448480810b55843aefa91c1ab74cd2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/ColorPickerControl.cs using Guid(7e448480810b55843aefa91c1ab74cd2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'd989d040ca5e1bc5bfaa5248f80dfe1a') in 0.003697 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000122 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Skeleton.cs
+  artifactKey: Guid(12ac3c1c7546be24fb9625d3c850619d) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Skeleton.cs using Guid(12ac3c1c7546be24fb9625d3c850619d) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '0011bfe9c159558b3c44edf0f8cfdc39') in 0.003217 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/UI_ScrollRectOcclusion.cs
+  artifactKey: Guid(f1bb7fb3155d62546a876bd63cdcd81f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/UI_ScrollRectOcclusion.cs using Guid(f1bb7fb3155d62546a876bd63cdcd81f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '677499732745c92b88cc5bf16fcbfe67') in 0.003708 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000056 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/ScrollRectExtensions.cs
+  artifactKey: Guid(9abaa5d90896b4d4a937574b6b3878ab) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/ScrollRectExtensions.cs using Guid(9abaa5d90896b4d4a937574b6b3878ab) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'b360a00104a0b494e645d837e89e6909') in 0.003965 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000052 seconds.
+  path: Assets/Scripts/Lua/XLua/Src/Editor/Template/LuaDelegateBridge.tpl.txt
+  artifactKey: Guid(3d992756e2469044484be75f78e4e556) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Scripts/Lua/XLua/Src/Editor/Template/LuaDelegateBridge.tpl.txt using Guid(3d992756e2469044484be75f78e4e556) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '3661a7b90e43978b987a1223aba350bd') in 0.003764 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000031 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/UI_InfiniteScroll.cs
+  artifactKey: Guid(61fe0f6272fa94d4eb3dafc6aecd50ff) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/UI_InfiniteScroll.cs using Guid(61fe0f6272fa94d4eb3dafc6aecd50ff) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'ea7d6ed10da748e5009eea423778b75e') in 0.003597 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000035 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/IScrollSnap.cs
+  artifactKey: Guid(08ba470d8c8dc384e9d5828136742452) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/IScrollSnap.cs using Guid(08ba470d8c8dc384e9d5828136742452) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '6118e62fd62866de616e138d574f2d17') in 0.003403 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000063 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/ScrollSnapBase.cs
+  artifactKey: Guid(c2a77c45e5354bf40bbd63bd817dee47) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/ScrollSnapBase.cs using Guid(c2a77c45e5354bf40bbd63bd817dee47) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '466a0abd4d1b97e022433a37c148a88c') in 0.003441 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000043 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/CLFZ2-CompressionHelper-ReadME.md
+  artifactKey: Guid(125e21ede8cf31746b15797b86e6a479) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Utilities/CLFZ2-CompressionHelper-ReadME.md using Guid(125e21ede8cf31746b15797b86e6a479) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '0b88335ed113b7eb470e72ea218f2cca') in 0.004522 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000033 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Skin.cs
+  artifactKey: Guid(7df8caa3a771f464e803316a6b18c909) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Skin.cs using Guid(7df8caa3a771f464e803316a6b18c909) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '11e6cf219cdceaf9d422fef57df077c7') in 0.002861 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Primitives/UICornerCut.cs
+  artifactKey: Guid(7a6e620ffa5a4e64b8875761130d0139) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Primitives/UICornerCut.cs using Guid(7a6e620ffa5a4e64b8875761130d0139) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '1f8cd3a269da96ef30d5e45a65320d03') in 0.003057 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/MenuSystem/SimpleMenu.cs
+  artifactKey: Guid(2fdf3dae987a8d44fa2e065bc4edaf3a) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/MenuSystem/SimpleMenu.cs using Guid(2fdf3dae987a8d44fa2e065bc4edaf3a) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '465a617d6201c571d06502a1ce16a9d8') in 0.003322 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000036 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Slot.cs
+  artifactKey: Guid(6974c4b5c87687140a2417201ea43066) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Slot.cs using Guid(6974c4b5c87687140a2417201ea43066) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'fe8b32230ad4760f769d53b0fc30ec33') in 0.004311 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000031 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Animation.cs
+  artifactKey: Guid(fb7099b9c6ce91740b7041dabb0752c2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Animation.cs using Guid(fb7099b9c6ce91740b7041dabb0752c2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '65c77d94ca79b913a42b7dd9bc9e68ea') in 0.003212 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.416612 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/HexColorField.cs
+  artifactKey: Guid(7343402602909bd4f928d58433c5c87f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/HexColorField.cs using Guid(7343402602909bd4f928d58433c5c87f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '31fd419cb23037c4b5e2f1319eadf209') in 0.005066 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000007 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/CurlyUI/CUIGraphic.cs
+  artifactKey: Guid(e011f2cb554f96547bbfc22e5f001c17) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/CurlyUI/CUIGraphic.cs using Guid(e011f2cb554f96547bbfc22e5f001c17) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '6028d709bfa2a3cde846fd76f1e08e57') in 0.005177 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Spine-Special-Skeleton-Grayscale.shader
+  artifactKey: Guid(ea7e7c05f36541b4bb280f98ebda8ba1) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Spine-Special-Skeleton-Grayscale.shader using Guid(ea7e7c05f36541b4bb280f98ebda8ba1) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'b42b20213a6f63420cfafc0aeb8f6f56') in 0.008195 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000010 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Misc/LeaveOpenStream.cs
+  artifactKey: Guid(a29798cad1876f94c92fa2aa51f105c8) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Misc/LeaveOpenStream.cs using Guid(a29798cad1876f94c92fa2aa51f105c8) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c965781797e8f191c4fc2b60865de646') in 0.004502 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonRenderer.cs
+  artifactKey: Guid(e075b9a3e08e2f74fbd651c858ab16ed) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonRenderer.cs using Guid(e075b9a3e08e2f74fbd651c858ab16ed) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '23d920d9af6958699551456182f6fad5') in 0.003509 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000008 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/NumberFormat/Color.cs
+  artifactKey: Guid(555865b0249a900408c781a583b335f3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/NumberFormat/Color.cs using Guid(555865b0249a900408c781a583b335f3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '0bfcaa2131b400536a773da582fbe105') in 0.003622 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000067 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Attachments/BoundingBoxAttachment.cs
+  artifactKey: Guid(cd8ad8fc0f5bce448ba26d096ab32e85) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Attachments/BoundingBoxAttachment.cs using Guid(cd8ad8fc0f5bce448ba26d096ab32e85) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'd60aa65a75470f3e12267bad4043d7a4') in 0.003328 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000070 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffContinue.cs
+  artifactKey: Guid(4a36132547df271449878fb566ca30e3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffContinue.cs using Guid(4a36132547df271449878fb566ca30e3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c3da729f7722c5ccae25fba551ea1bcc') in 0.003894 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000037 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/Col.cs
+  artifactKey: Guid(08d64bb974099c846998219ebcc3284f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/Col.cs using Guid(08d64bb974099c846998219ebcc3284f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '3be4402a5fdfa231e934a6e4a49b4cd5') in 0.003688 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000010 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffInterfaceHdr.cs
+  artifactKey: Guid(f9d100bd483d14d4293057fd705a128f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffInterfaceHdr.cs using Guid(f9d100bd483d14d4293057fd705a128f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '80654a4524ef340cb8bceba6412038b8') in 0.005438 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000041 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/StandardEncryptedPackageStream.cs
+  artifactKey: Guid(93ab08af0361fd041859d0e27138268c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/StandardEncryptedPackageStream.cs using Guid(93ab08af0361fd041859d0e27138268c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '6ba740674dd04e47035fa93758441860') in 0.003766 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000038 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader.DataSet/Portable/ExtensionAttribute.cs
+  artifactKey: Guid(4833f90799d49ea478ff1b7a2941cc68) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader.DataSet/Portable/ExtensionAttribute.cs using Guid(4833f90799d49ea478ff1b7a2941cc68) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '43893105955a11a0c251ba53ee393de7') in 0.003880 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000045 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Materials/SkeletonGraphicDefault.mat
+  artifactKey: Guid(b66cf7a186d13054989b33a5c90044e4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Materials/SkeletonGraphicDefault.mat using Guid(b66cf7a186d13054989b33a5c90044e4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'eb662de81c83650fa412c1a95b453dd9') in 0.023650 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000011 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffColInfo.cs
+  artifactKey: Guid(d5f4b7e5b5f0dbf4092233e2741d7527) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffColInfo.cs using Guid(d5f4b7e5b5f0dbf4092233e2741d7527) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f8c01c93294961a0a7a63f799698d250') in 0.003520 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000046 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/Enums.cs
+  artifactKey: Guid(2ea0a2ee2afdbe549b7e23b20ee7d5ba) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/Enums.cs using Guid(2ea0a2ee2afdbe549b7e23b20ee7d5ba) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '311098d9a2be4fa071ede39a59378ce4') in 0.002825 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000043 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/Accordion/Tweening/TweenRunner.cs
+  artifactKey: Guid(d00ab96853b24074cb837ee70f07dddc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/Accordion/Tweening/TweenRunner.cs using Guid(d00ab96853b24074cb837ee70f07dddc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'b33fe13b2e52b56c0d133e5929be2d2a') in 0.003276 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000039 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Attachments/AttachmentLoader.cs
+  artifactKey: Guid(95466a4f5a30dca4aa69e8ee7df8ae85) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-csharp/Attachments/AttachmentLoader.cs using Guid(95466a4f5a30dca4aa69e8ee7df8ae85) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '1051e6d509f251f35cf7fc665fc261ad') in 0.003160 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/RC4Encryption.cs
+  artifactKey: Guid(c737acccb4199524fbdb33a36b820ae3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/RC4Encryption.cs using Guid(c737acccb4199524fbdb33a36b820ae3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'eb54d721e21160f171a82e062dcd496f') in 0.003245 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000031 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/FancyScrollView/GridView/FancyGridViewCell.cs
+  artifactKey: Guid(ab8a59bbf5118824ab084e32342ad86b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/FancyScrollView/GridView/FancyGridViewCell.cs using Guid(ab8a59bbf5118824ab084e32342ad86b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '7949578efd8529f16f7d633a9d6543be') in 0.003523 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/Events/HSVChangedEvent.cs
+  artifactKey: Guid(3d95ce8fba3dbbf4eb14411412169b88) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/Events/HSVChangedEvent.cs using Guid(3d95ce8fba3dbbf4eb14411412169b88) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f4390c4abaf97211ac85c099776da4bb') in 0.003434 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000008 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Spine-Skeleton-Fill.shader
+  artifactKey: Guid(45495790b394f894a967dbf44489b57b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Spine-Skeleton-Fill.shader using Guid(45495790b394f894a967dbf44489b57b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '3e4768475ef5059a87217238879e0910') in 0.006311 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000009 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/Events/ColorChangedEvent.cs
+  artifactKey: Guid(ff46fbecea7739f4690e4285c88f53c5) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ColorPicker/Events/ColorChangedEvent.cs using Guid(ff46fbecea7739f4690e4285c88f53c5) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '6b31646ef0fa88e36fab6a8a060d0304') in 0.003182 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000011 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffRecord.cs
+  artifactKey: Guid(c35ddc812bccb294aadf56e2a26864f6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffRecord.cs using Guid(c35ddc812bccb294aadf56e2a26864f6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '73b57d0e77052424a0e423d61ff2c07b') in 0.004750 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000011 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/RC4Managed.cs
+  artifactKey: Guid(5b0bed4b02dd49e4080e97a39f1dbce9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/RC4Managed.cs using Guid(5b0bed4b02dd49e4080e97a39f1dbce9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'a5596355ccc590d976b52643529c794a') in 0.003035 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/SelectionBox/IBoxSelectable.cs
+  artifactKey: Guid(72b70b31ccbda4bae8dd5cda36d2e02d) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/SelectionBox/IBoxSelectable.cs using Guid(72b70b31ccbda4bae8dd5cda36d2e02d) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dde791d9eed7768786ddefcb667c6f0b') in 0.003264 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000060 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffBlankCell.cs
+  artifactKey: Guid(31b3336be19f1ae458496165584f9c21) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffBlankCell.cs using Guid(31b3336be19f1ae458496165584f9c21) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'bdb1b2cf190ce51bf787c3c5fa2cc66b') in 0.003104 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000035 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffHeaderFooterString.cs
+  artifactKey: Guid(cd84931d3a9221e46879c7e0a38fcc09) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffHeaderFooterString.cs using Guid(cd84931d3a9221e46879c7e0a38fcc09) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '78cae82506abed1dfb7d96328beb2734') in 0.003730 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000036 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/ReferenceHelper.cs
+  artifactKey: Guid(b56066d55167d8d428dcff507cf9abb7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/ReferenceHelper.cs using Guid(b56066d55167d8d428dcff507cf9abb7) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '79e1597147492088f6b541abaf024203') in 0.003297 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000061 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffWindow1.cs
+  artifactKey: Guid(f2720cf07e8553149a5382a053493433) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffWindow1.cs using Guid(f2720cf07e8553149a5382a053493433) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '86fb33a765579a88e93cc96a4b1f12b8') in 0.003426 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000049 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffEOF.cs
+  artifactKey: Guid(736c509314407db44b9edf6b80fd7cc3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffEOF.cs using Guid(736c509314407db44b9edf6b80fd7cc3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '64bf0888ef3fc2de7661a6e3d9a4a757') in 0.003450 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000053 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonMecanim.cs
+  artifactKey: Guid(f9db98c60740638449864eb028fbe7ad) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonMecanim.cs using Guid(f9db98c60740638449864eb028fbe7ad) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'fd732ca4e6842774d745600f9abfb708') in 0.004294 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffBoundSheet.cs
+  artifactKey: Guid(e0540070029cec943aefdc5b4fb3204b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffBoundSheet.cs using Guid(e0540070029cec943aefdc5b4fb3204b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'b63e7abbb70190908602b2f5304819c4') in 0.003585 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Portable/ZipArchiveEntry.cs
+  artifactKey: Guid(28bd81b63e892394192d68e1192509bb) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Portable/ZipArchiveEntry.cs using Guid(28bd81b63e892394192d68e1192509bb) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c6c3308fab7113d0cd53657536485ddd') in 0.003210 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000051 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/CompoundFormat/CompoundStream.cs
+  artifactKey: Guid(e997d9ba6a689ea488a6827ab918c617) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/CompoundFormat/CompoundStream.cs using Guid(e997d9ba6a689ea488a6827ab918c617) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '69089ad58886e6319f3e26219d1dfa1e') in 0.002961 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000030 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ReorderableList/ReorderableList.cs
+  artifactKey: Guid(6b333d67eb08d464d823874f6a1666c2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Controls/ReorderableList/ReorderableList.cs using Guid(6b333d67eb08d464d823874f6a1666c2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '2adcd4e3108a402a9821ff439681b0c1') in 0.003687 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000039 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/AgileEncryption.cs
+  artifactKey: Guid(42669ce202e353f4ab1ce2646c2a9808) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/AgileEncryption.cs using Guid(42669ce202e353f4ab1ce2646c2a9808) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f446025c790c4c4ae3b3153c119ad09a') in 0.003399 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000045 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/CurlyUI/CUIImage.cs
+  artifactKey: Guid(9ab7726a352b5004cbf5f8e153868637) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Effects/CurlyUI/CUIImage.cs using Guid(9ab7726a352b5004cbf5f8e153868637) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '603efc4f7da3fdfcdb2dbec380b2654c') in 0.003104 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffLabelCell.cs
+  artifactKey: Guid(7d20e4399460c1248ae4e9d913c18d69) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/XlsBiffLabelCell.cs using Guid(7d20e4399460c1248ae4e9d913c18d69) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '6cce239adcfe5a0330bb787ce9dc1c4e') in 0.003280 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000032 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/Enums.cs
+  artifactKey: Guid(9ce03177a363d2c45b72990302fe9d6f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/BinaryFormat/Enums.cs using Guid(9ce03177a363d2c45b72990302fe9d6f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '098f013deb464a5ed84dfdd76de85f8b') in 0.003288 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000025 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/AgileEncryptedPackageStream.cs
+  artifactKey: Guid(7e0629789a4ee984e9e8ae6151fa2fad) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/AgileEncryptedPackageStream.cs using Guid(7e0629789a4ee984e9e8ae6151fa2fad) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '9a59af443aee4e9074ee07a49a27f79f') in 0.003937 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000009 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/FancyScrollView/ScrollRect/FancyScrollRectCell.cs
+  artifactKey: Guid(09f137a55810740eab42e24ef242dcfa) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/FancyScrollView/ScrollRect/FancyScrollRectCell.cs using Guid(09f137a55810740eab42e24ef242dcfa) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '10a887785b337f04e6473f594415afeb') in 0.002993 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000053 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/CardUI/Superellipse Creation/SuperellipsePoints.cs
+  artifactKey: Guid(df6beaa1c87204b919c209b770d44bc9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/CardUI/Superellipse Creation/SuperellipsePoints.cs using Guid(df6beaa1c87204b919c209b770d44bc9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '40239c0315fcf1a8e029995d726dc1cd') in 0.002889 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000028 seconds.
+  path: Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/CardUI/2D Cards/CardStack2D.cs
+  artifactKey: Guid(3c0edb9a3f5da4e129739a8f92a115af) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/com.unity.uiextensions/Runtime/Scripts/Layout/CardUI/2D Cards/CardStack2D.cs using Guid(3c0edb9a3f5da4e129739a8f92a115af) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dacf6cfbb8af4ba2f4f417d3dda75981') in 0.003517 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000061 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Utility/MaterialChecks.cs
+  artifactKey: Guid(e68fa8db689084946adce454b83e6d4a) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Utility/MaterialChecks.cs using Guid(e68fa8db689084946adce454b83e6d4a) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '39e66b44ec9ae2b34e4dca6947b2a599') in 0.004206 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.271009 seconds.
+  path: Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/XorManaged.cs
+  artifactKey: Guid(42de43934807555478524bf245315616) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/ExcelIO/ExcelDataReader-master/src/ExcelDataReader/Core/OfficeCrypto/XorManaged.cs using Guid(42de43934807555478524bf245315616) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '48ea99789868c7be0ea001529b23053a') in 0.004268 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000025 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-constraintNib.png
+  artifactKey: Guid(de1a4f5ad4bdf1a4ea072c4d59ba87d8) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-constraintNib.png using Guid(de1a4f5ad4bdf1a4ea072c4d59ba87d8) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'c3fdf6cbd76b7938e48c46688e43690f') in 0.014587 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonGraphicCustomMaterialsInspector.cs
+  artifactKey: Guid(349bf125947e3aa4bb78690fec69ea17) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonGraphicCustomMaterialsInspector.cs using Guid(349bf125947e3aa4bb78690fec69ea17) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'b70c697dcf869bfba69c4fb173e4638f') in 0.004646 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000009 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/BoundingBoxFollowerGraphicInspector.cs
+  artifactKey: Guid(7c4f5b276299bc048ad00f3cd2d1ea09) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/BoundingBoxFollowerGraphicInspector.cs using Guid(7c4f5b276299bc048ad00f3cd2d1ea09) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'e7fd3fb6364a5261526431483fe5547b') in 0.003767 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000044 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Outline/Spine-Skeleton-Lit-ZWrite-Outline.shader
+  artifactKey: Guid(756be4f2f738f6c4583bb1c90e16bf0b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Outline/Spine-Skeleton-Lit-ZWrite-Outline.shader using Guid(756be4f2f738f6c4583bb1c90e16bf0b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '582f8378f8316488a6c1d1e0e8e4b9ce') in 0.008589 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000009 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-point.png
+  artifactKey: Guid(d7a76922e4dd9fa429da15c018ff127f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-point.png using Guid(d7a76922e4dd9fa429da15c018ff127f) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '1135edfe0dcd3672ae83b31b5ad61c44') in 0.013775 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000055 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/ImporterPresets/PMATexturePreset.preset
+  artifactKey: Guid(665f49f3e2dc7b645b6577f14455f445) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/ImporterPresets/PMATexturePreset.preset using Guid(665f49f3e2dc7b645b6577f14455f445) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'a6b885bc363b7a2b5e836bd27e246508') in 0.004334 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000036 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Sprite/CGIncludes/SpriteVertexLighting.cginc
+  artifactKey: Guid(c739dcf9dbcab944898d0b796e11afb9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Sprite/CGIncludes/SpriteVertexLighting.cginc using Guid(c739dcf9dbcab944898d0b796e11afb9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dba15edf180a3ed363d6b5bad7643b47') in 0.003059 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000124 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Utility/Hidden-Spine-Bones.shader
+  artifactKey: Guid(66988de88a15abd4e8846c6805485f57) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Utility/Hidden-Spine-Bones.shader using Guid(66988de88a15abd4e8846c6805485f57) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '952e5954ed3628b20b1ff52490f42e13') in 0.004536 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000085 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Utility/YieldInstructions/WaitForSpineTrackEntryEnd.cs
+  artifactKey: Guid(8036c6c2897d2764db92f632d2aef568) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Utility/YieldInstructions/WaitForSpineTrackEntryEnd.cs using Guid(8036c6c2897d2764db92f632d2aef568) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'a41e27537eae38b018a8ee3d114d3520') in 0.003685 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000059 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Sprite/CGIncludes/SpriteSpecular.cginc
+  artifactKey: Guid(f195336fc94457241a37a0aa85923681) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Sprite/CGIncludes/SpriteSpecular.cginc using Guid(f195336fc94457241a37a0aa85923681) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'cce2cb19da52798645cf6fd2ad58a082') in 0.003330 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000038 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-subMeshRenderer.png
+  artifactKey: Guid(f31c0c0d608e8ba4f9a1afb032092287) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-subMeshRenderer.png using Guid(f31c0c0d608e8ba4f9a1afb032092287) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '17f61195b89f5989db73f5fe4f800511') in 0.014051 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000021 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonMecanimInspector.cs
+  artifactKey: Guid(6a9ca5213a3a4614c9a9f2e60909bc33) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonMecanimInspector.cs using Guid(6a9ca5213a3a4614c9a9f2e60909bc33) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '8e64b052e6a8ff5feed12d1d5798b784') in 0.003704 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000058 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-skin.png
+  artifactKey: Guid(bfd9f3d2607e9e44c97384d7575a17dc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-skin.png using Guid(bfd9f3d2607e9e44c97384d7575a17dc) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '9de57b253f06769d6df7a29956c93fb8') in 0.012585 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000037 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/BoneFollowerGraphicInspector.cs
+  artifactKey: Guid(da44a8561fd243c43a1f77bda36de0eb) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/BoneFollowerGraphicInspector.cs using Guid(da44a8561fd243c43a1f77bda36de0eb) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '267aedf65a5acd6ced513cfdfa891369') in 0.004064 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000023 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-slotRoot.png
+  artifactKey: Guid(4a1646cf39026224c85ecba92d7d6948) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-slotRoot.png using Guid(4a1646cf39026224c85ecba92d7d6948) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '31dff1991d3b30707487415938310d22') in 0.012493 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/SkeletonDataModifierAssets/BlendModeMaterials/Default BlendModeMaterials.asset
+  artifactKey: Guid(22c0225612a65ee4fb15bad49f644762) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/SkeletonDataModifierAssets/BlendModeMaterials/Default BlendModeMaterials.asset using Guid(22c0225612a65ee4fb15bad49f644762) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '31805c7a0545060e85842015e92abc78') in 0.003078 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000057 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Windows/SpriteAtlasImportWindow.cs
+  artifactKey: Guid(a5b99b091defeef439a0cb8c99fd8a51) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Windows/SpriteAtlasImportWindow.cs using Guid(a5b99b091defeef439a0cb8c99fd8a51) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '31e92afcdadc03c93d19064aacf75ef0') in 0.003306 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000028 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonRendererCustomMaterials/SkeletonGraphicCustomMaterials.cs
+  artifactKey: Guid(6c8717e10b272bf42b05d363ac2679a6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonRendererCustomMaterials/SkeletonGraphicCustomMaterials.cs using Guid(6c8717e10b272bf42b05d363ac2679a6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '05396ffc3c81f57eea0ad2f5f33424a9') in 0.003328 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000089 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Outline/SkeletonGraphic/Spine-SkeletonGraphic-TintBlack-Outline.shader
+  artifactKey: Guid(d55d64dd09c46af40a319933a62fa1b2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Outline/SkeletonGraphic/Spine-SkeletonGraphic-TintBlack-Outline.shader using Guid(d55d64dd09c46af40a319933a62fa1b2) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '13833130f0a75e952b6f5b518c061248') in 0.007536 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000008 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Outline/Spine-Skeleton-OutlineOnly-ZWrite.shader
+  artifactKey: Guid(177da18c3d2e0aa4cb39990ea011973c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Outline/Spine-Skeleton-OutlineOnly-ZWrite.shader using Guid(177da18c3d2e0aa4cb39990ea011973c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '480f85f43957d630d60e3c13a6c4d997') in 0.007638 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000065 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Utility/Instantiation.cs
+  artifactKey: Guid(94ecc7f73dfc0484e848a0e6a1a11f2b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Utility/Instantiation.cs using Guid(94ecc7f73dfc0484e848a0e6a1a11f2b) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'bbbf6b887faedcb0b73921b6b68ef239') in 0.003594 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Sprite/CGIncludes/SpritePixelLighting.cginc
+  artifactKey: Guid(7ffc57e05c42ec748838bea0a3aff9f9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Shaders/Sprite/CGIncludes/SpritePixelLighting.cginc using Guid(7ffc57e05c42ec748838bea0a3aff9f9) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'f14352385fa3fd735fd10b3590acde36') in 0.003358 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000053 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-path.png
+  artifactKey: Guid(dbc817a6c9e9c5747b7f6261bf5d1d09) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-path.png using Guid(dbc817a6c9e9c5747b7f6261bf5d1d09) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '70fdbec973338d1c472f48a659f0e2cd') in 0.011770 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000032 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-poseBones.png
+  artifactKey: Guid(da6f6d414e43aac46a57cc5a87208db4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-poseBones.png using Guid(da6f6d414e43aac46a57cc5a87208db4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'dd62f63c330f8cf3f1522786e71ffef7') in 0.012072 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-constraints.png
+  artifactKey: Guid(ed0736a1eb519ef42b4892d1db2426b3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-constraints.png using Guid(ed0736a1eb519ef42b4892d1db2426b3) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'da3774a9a5d82346f1d533ab7cf7c3ef') in 0.013326 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000030 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/SkeletonDataModifierAssets/BlendModeMaterials/SkeletonStraightAdditive.mat
+  artifactKey: Guid(517c2df5a5dc5d44a8b3820eca503d13) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/SkeletonDataModifierAssets/BlendModeMaterials/SkeletonStraightAdditive.mat using Guid(517c2df5a5dc5d44a8b3820eca503d13) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '7de1691f168d372ec92f129459d004eb') in 0.006586 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000029 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-image.png
+  artifactKey: Guid(2b3a6f35bbaa8414eb51a344743ee641) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-image.png using Guid(2b3a6f35bbaa8414eb51a344743ee641) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '2efd6023c2d3e0cac0173ee64ab3a8af') in 0.013617 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000047 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/AtlasAsset Icon.png
+  artifactKey: Guid(3fc714a0dc1cf6b4b959e073fff2844e) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/AtlasAsset Icon.png using Guid(3fc714a0dc1cf6b4b959e073fff2844e) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '63f4e0c192b8094781b369a8b9387d5a') in 0.012947 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000043 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonAnimationInspector.cs
+  artifactKey: Guid(39fbfef61034ca045b5aa80088e1e8a4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonAnimationInspector.cs using Guid(39fbfef61034ca045b5aa80088e1e8a4) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '7f64cb41e13b12001a7fe04dd324d9c2') in 0.003199 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000039 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonUtilityInspector.cs
+  artifactKey: Guid(a5b90df955eb8c2429ac67c8b2de6c5c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/Components/SkeletonUtilityInspector.cs using Guid(a5b90df955eb8c2429ac67c8b2de6c5c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: 'a1299872033b1bc732ef6badd0470f9e') in 0.003408 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000026 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-hingeChain.png
+  artifactKey: Guid(2c2c6d283dcf3654baf40001c982891c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Editor/spine-unity/Editor/GUI/icon-hingeChain.png using Guid(2c2c6d283dcf3654baf40001c982891c) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '1054defb979383f403808d9900688cab') in 0.012546 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000010 seconds.
+  path: Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonUtility/FollowLocationRigidbody2D.cs
+  artifactKey: Guid(02aae87c39b869548a9051fbdb1975e6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23)
+Start importing Assets/Plugins/ThirdLibs/Spine/Spine/Runtime/spine-unity/Components/SkeletonUtility/FollowLocationRigidbody2D.cs using Guid(02aae87c39b869548a9051fbdb1975e6) Importer(2089858483,0ecaa5967403d082aa24f35e1b516d23) Generated GUIDs only implemented for interfaces!
+ -> (artifact id: '252b538ada7932c1658f7d58d9faf705') in 0.003256 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Prepare
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.311 seconds
+Refreshing native plugins compatible for Editor in 1.12 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+[Package Manager] Server::EnsureServerProcessIsRunning -- launch failed, reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] UpmClient::Send -- Unable to send message (not connected to UPM process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.490 seconds
+Domain Reload Profiling: 801ms
+	BeginReloadAssembly (101ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (3ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (25ms)
+	RebuildCommonClasses (25ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (14ms)
+	LoadAllAssembliesAndSetupDomain (162ms)
+		LoadAssemblies (184ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (27ms)
+			TypeCache.Refresh (13ms)
+				TypeCache.ScanAssembly (6ms)
+			ScanForSourceGeneratedMonoScriptInfo (7ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (490ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (303ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (12ms)
+			SetLoadedEditorAssemblies (3ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (59ms)
+			ProcessInitializeOnLoadAttributes (212ms)
+			ProcessInitializeOnLoadMethodAttributes (14ms)
+			AfterProcessingInitializeOnLoad (2ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Refreshing native plugins compatible for Editor in 1.76 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3744 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 45 unused Assets / (1.4 MB). Loaded Objects now: 4262.
+Memory consumption went from 141.7 MB to 140.3 MB.
+Total: 3.355600 ms (FindLiveObjects: 0.214800 ms CreateObjectMapping: 0.084100 ms MarkObjects: 2.403600 ms  DeleteObjects: 0.652100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:CustomObjectIndexerAttribute: 756ad292c208cfabdd7b50bc23989ffe -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:SearchIndexIgnoredProperties: e643bd26f0fe6173181afceb89e7c659 -> 
+  custom:AudioImporter_EditorPlatform: d09bf68614088b80899f8185d706f6e7 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
+TcpMessagingSession - receive error: operation aborted. errorcode: 995, details: ÓÉÓÚÏß³ÌÍË³ö»òÓ¦ÓÃ³ÌĞòÇëÇó£¬ÒÑÖĞÖ¹ I/O ²Ù×÷¡£
+AssetImportWorker is now disconnected from the server
+Process exiting
+Exiting without the bug reporter. Application will terminate with return code 0

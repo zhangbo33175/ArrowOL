@@ -1,0 +1,50 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="Bag" style="flex-grow: initial; flex-direction: column; align-items: auto; width: 1080px; height: 18px; background-image: none; min-height: 10px;" />
+    <ui:VisualElement style="flex-grow: 1; min-height: auto; flex-direction: row; align-items: flex-start; align-self: auto;">
+        <ui:VisualElement name="Left" style="flex-grow: 1; height: auto; width: 200px; cursor: url(&apos;project://database/Assets/UnityDefaultRuntimeTheme.tss?fileID=4154780841294389669&amp;guid=a8369c627accff54e93ac7aa8b6ce0d6&amp;type=3#arrow-down&apos;); background-color: rgba(113, 224, 35, 0); border-left-color: rgba(128, 224, 41, 0); border-right-color: rgba(128, 224, 41, 0); border-top-color: rgba(128, 224, 41, 0); border-bottom-color: rgba(128, 224, 41, 0); max-width: 200px;">
+            <ui:VisualElement name="VisualElement" style="flex-grow: initial; align-items: flex-start; justify-content: flex-start; align-self: auto; flex-direction: column; height: 210px;">
+                <ui:VisualElement style="flex-grow: initial; flex-direction: row; align-items: center; justify-content: space-between; align-self: flex-start; flex-shrink: 1; width: 200px; max-width: 200px;">
+                    <ui:Button text="创建" parse-escape-sequences="true" display-tooltip-when-elided="true" name="changjian" style="width: 80px; height: 30px;" />
+                    <ui:Button text="删除" parse-escape-sequences="true" display-tooltip-when-elided="true" name="changjian" style="width: 80px; height: 30px;" />
+                </ui:VisualElement>
+                <ui:ListView focusable="true" name="ListView" style="width: 200px; max-height: 200px; height: 200px; min-height: auto; margin-top: 0; top: 10px; background-color: rgba(41, 36, 36, 0); border-left-color: rgba(38, 34, 34, 0); border-right-color: rgba(38, 34, 34, 0); border-top-color: rgba(38, 34, 34, 0); border-bottom-color: rgba(38, 34, 34, 0);" />
+            </ui:VisualElement>
+            <ui:VisualElement name="VisualElement" style="flex-grow: 1; top: 20px;">
+                <ui:VisualElement style="flex-grow: 1; height: 30px; min-height: 30px; max-height: 30px; flex-direction: row; justify-content: space-around; align-items: flex-start; width: 200px;">
+                    <ui:Button text="建筑" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                    <ui:Button text="地表" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                    <ui:Button text="物件" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                    <ui:Button text="刷新" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; min-height: 470px; height: 470px; max-height: 470px;">
+                    <ui:ScrollView style="max-width: initial; max-height: initial; height: 470px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Right" style="flex-grow: 1; width: 830px; height: auto; border-left-color: rgba(110, 94, 111, 0); border-right-color: rgba(110, 94, 111, 0); border-top-color: rgba(110, 94, 111, 0); border-bottom-color: rgba(110, 94, 111, 0); background-color: rgba(174, 153, 176, 0); left: 50px; max-width: 830px;">
+            <ui:VisualElement style="flex-grow: 1; width: 830px; max-width: 830px;">
+                <ui:VisualElement name="VisualElement" style="flex-grow: 1; max-height: 40px;">
+                    <ui:Button text="场景编辑" parse-escape-sequences="true" display-tooltip-when-elided="true" style="max-width: 120px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="VisualElement" style="flex-grow: 1; max-height: 40px; flex-direction: row; left: auto; padding-left: 0;">
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: flex-start; min-width: auto; width: 180px; left: 0; align-items: center; flex-wrap: wrap-reverse; align-self: center; max-width: 180px;">
+                        <ui:Button text="导出设置" parse-escape-sequences="true" display-tooltip-when-elided="true" style="justify-content: space-between; height: auto;" />
+                        <ui:Button text="保存" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                        <ui:Button text="清空摆放物" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Button" />
+                        <ui:Button text="清空格子数据" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                    </ui:VisualElement>
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: row; width: 300px;">
+                        <ui:Label tabindex="-1" text="图层：" parse-escape-sequences="true" display-tooltip-when-elided="true" style="justify-content: center; align-self: center; align-items: center; flex-wrap: wrap-reverse; flex-direction: row;" />
+                        <ui:Toggle label="摆放网格层" />
+                        <ui:Toggle label="航线网格层" style="width: auto;" />
+                        <ui:Toggle label="物件层" style="width: auto;" />
+                        <ui:Toggle label="背景层" style="width: auto;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="VisualElement" style="flex-grow: 1; height: 561px;">
+                    <ui:ScrollView />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
