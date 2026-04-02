@@ -1,0 +1,86 @@
+--=====================================================================================================
+-- descrip:   初始化器-入口
+--=====================================================================================================
+---内存回收（可在对性能要求不高的地方加入下面的全量gc调用）
+collectgarbage("collect")
+---避免内存泄露（表示完成一趟gc后马上开启下一趟）
+collectgarbage("setpause", 100)
+---避免内存泄露（加快gc回收速度使其比内存分配快50倍）
+collectgarbage("setstepmul", 5000)
+---运行库加载
+require("SystemApis")
+---全局框架变量
+require("SystemDefs")
+---全局通用方法
+require("SystemFuncs")
+---全局桥接方法
+require("SystemBridges")
+---事件全局定义
+require("EventCmd")
+---框架规范包含
+require("SystemReqs")
+---启动Main入口
+require("GameMain")
+
+---注册挂起/恢复应用时回调
+---@type fun(pause:boolean):void
+---@param pause boolean @ 应用是否挂起
+function ApplicationPauseCallback(pause)
+    -- 挂起应用时的处理
+    if pause == true then
+        PrintInfo("回调 Lua 应用挂起")
+    else  -- 恢复应用时的处理
+        PrintInfo("回调 Lua 应用恢复")
+        DOTween.Sequence():AppendInterval(0.5):AppendCallback(function()
+            HonorTimerHelper:SetTimeStamp(nil) -- 设置本地时间戳
+        end)
+    end
+    GameApplicationPauseCallback(pause)
+end
+
+---退出应用时回调（ApplicationQuit发生在所有GameObject销毁之前，该Unity的C#接口在个别安卓设备下可能无效）
+---@type fun():void
+function ApplicationQuitCallback()
+    PrintInfo("回调 Lua 应用退出")
+    GameApplicationQuitCallback()
+end
+
+---原生按键抬起时回调
+---@type fun(keyCode:any):void
+---@param keyCode any @UnityEngine.KeyCode按键类型枚举
+function KeyboardsUpCallback(keyCode)
+    PrintInfo("回调 Lua 原生按键抬起：keyCode = "..keyCode:GetHashCode())
+    -- 目前暂时只支持Escape按键回调
+    GameKeyboardsUpCallback(keyCode)
+end
+
+---接收C#层事件回调相关处理
+---@type fun(eventArgs: Honor.Runtime.EventParams):void
+---@param eventArgs Honor.Runtime.EventParams @C#层事件参数
+function ReceiveCsEventCallback(eventArgs)
+    -- 监听屏幕方向变动事件
+    if eventArgs.Cmd == Honor.EventCmd.ScreenOrientationChanged then
+        PrintInfo("ScreenOrientationChanged  LastOrientation = " .. eventArgs:GetInt("LastOrientation") ..
+                "  CurOrientation = " .. eventArgs:GetInt("CurOrientation") ..
+                "  BangsWidth = " .. eventArgs:GetString("BangsWidth") ..
+                "  BangsHeight = " .. eventArgs:GetString("BangsHeight"))
+        HonorEventHelper:Fire(FwEventCmd.ScreenOrientationChanged, eventArgs)
+    end
+    GameReceiveCsToEventCallback(eventArgs)
+end
+
+---返回ResDefs的AB信息
+---@type fun(name:string):table
+---@param name string @别名
+---@return table @返回别名对应的ab信息
+function GetResDefInfoCallback(name)
+    return RES[name]
+end
+
+---返回Sound的信息
+---@type fun(soundKeyName:string):Tables.Sounds_Item
+---@param soundKeyName string @别名
+---@return Tables.Sounds_Item @返回别名对应的Sound信息
+function GameSoundCallback(soundKeyName)
+    return Tables.Sounds[soundKeyName]
+end

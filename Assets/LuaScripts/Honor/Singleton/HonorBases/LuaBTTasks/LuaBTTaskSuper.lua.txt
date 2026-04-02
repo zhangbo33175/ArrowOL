@@ -1,0 +1,35 @@
+--=====================================================================================================
+-- descrip:   Lua行为树Task节点通用父类
+--=====================================================================================================
+
+---@class LuaBTTaskSuper @LuaBTTask通用父类
+local LuaBTTaskSuper = class("LuaBTTaskSuper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function LuaBTTaskSuper:ctor(args)
+	if args ~= nil and args.env ~= nil then for __, v in pairs(args.env) do self[__] = v end end
+	self._args = args											-- 初始化传入参数
+	self._name = self.__cname									-- 初始化名称
+	self._lua = self._args.luaBehaviour			   				-- 所归属的lua层LuaBehaviour
+	self._cs = self._args.cs    			    				-- 所归属的cs类对象
+end
+
+---创建函数
+---@type fun(args:table):LuaBTTaskSuper
+---@param args table @自定义参数
+---@return LuaBTTaskSuper @LuaBTTask通用父类实例
+function LuaBTTaskSuper:Create(args)
+	local obj = LuaBTTaskSuper.new(args)
+	return obj
+end
+
+---销毁
+---@type fun():void
+function LuaBTTaskSuper:OnDestroy()
+	self._args = nil
+	HonorEventHelper:RemoveListenerByTarget(self)
+end
+
+return LuaBTTaskSuper

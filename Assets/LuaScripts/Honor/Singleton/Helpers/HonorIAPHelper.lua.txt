@@ -1,0 +1,256 @@
+--=====================================================================================================
+-- descrip:   内购助手
+--=====================================================================================================
+
+---@class IAPHelper @IAP助手
+local HonorIAPHelper = class("HonorIAPHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HonorIAPHelper:ctor(args)
+	
+	-- 当前进行购买的商品ID
+	self._buyID = nil
+	-- 自定义第三方支付商品展示UI
+	self._customGoodsListUI = nil
+	-- 自定义第三方商品购买界面
+	self._customPayUI = nil
+	-- 当前使用的测试ip, 测试ip可以参考常量表格中的配置
+	self._debugIP = nil
+end
+
+---创建函数
+---@type fun(args:table):IAPHelper
+---@param args table @自定义参数
+---@return IAPHelper @IAP助手实例
+function HonorIAPHelper:Create(args)
+	local obj = HonorIAPHelper.new(args)
+	return obj
+end
+
+---@type fun():void @Google/iOS商店初始化结束
+---@param success boolean @初始化是否成功
+---@param failReason Honor.Runtime.IAPFailedReason @初始化失败的原因
+function HonorIAPHelper:OnIAPInitFinish(success, failReason)
+	local  eventArgs = {Success = success, FailReason = failReason}
+	HonorEventHelper:Fire(FwEventCmd.IAPInitFinish, eventArgs)
+end
+
+
+---@type fun():boolean @获取第三方支付的开关状态
+---@return boolean @是否开启了第三方支付功能
+function HonorIAPHelper:GetThirdPayOpenState()
+	return SystemConfigHelper:GetSystemConfig("THIRD_IAP_OPEN")
+end
+
+---处理使用官方支付还是使用第三方支付的逻辑，从调用这个接口开始，IAP的流程控制就交给了IAPhelper
+---@type fun(tableID:number, customData:table) @购买付费商品， to c#
+---@param tableID number @商品id
+---@param customTable table @自定义参数，需要可以序列化，会存入存档，购买结束会原值传回
+---@param customGoodsListUI table @自定义的第三方商品展示UI，如果为nil则使用通用的第三方商品展示UI
+---@param customPayUI table @自定义的付款网页显示UI，如果为nil则使用通用的付款UI
+---@return boolean @开始第三方支付购买是否成功
+function HonorIAPHelper:BuyThirdPayGood(tableID, customTable, customGoodsListUI, customPayUI, debugIP)
+	self._buyID = tableID
+	self._customGoodsListUI = customGoodsListUI
+	self._customPayUI = customPayUI
+	self._debugIP = debugIP
+	-- amazon平台不支持第三方支付，将自动切换为amazon购买
+	if SystemConfigHelper:GetSystemConfig("THIRD_IAP_OPEN") == true and HonorRoot.Launcher.IsAmazonStore == false  then
+		-- 使用第三方支付
+		GameMainRoot.SDK.IAPHelper:PayThird(tableID, customTable ~= nil and TableEncode(customTable) or nil, self._debugIP)
+		return true
+	else
+		-- 使用官方支付
+		PrintError("IAP, 第三方支付功能关闭，使用Google/iOS支付")
+		HonorRoot.SDK.IAPHelper:PayNormal(tableID, customTable, nil)
+		return false
+	end
+end
+
+---@type fun():void @请求创建第三方支付订单 to c#
+---@param tableID number @商品id
+---@param channelID number @选中的渠道ID
+---@param typeInfoID number @选中的支付方式ID
+function HonorIAPHelper:GotoThirdCreateNewTransaction(tableID, channelID, typeInfoID)
+	HonorRoot.SDK.IAPHelper:CreateThirdTransaction(tableID, channelID, typeInfoID, self._debugIP)
+end
+
+---@type fun():void @请求第三方支付订单状态 to c#
+---@param tableID number @商品id
+---@param orderID number @网页端处理的支付订单id
+---@param orderStatus number @网页端返回的支付状态 --0 支付中 1 成功 2失败 4关单
+function HonorIAPHelper:GetThirdPayStatusFromWebView(tableID, orderID, orderStatus)
+	HonorRoot.SDK.IAPHelper:GetTransactionStatusFromNetView(tableID)
+end
+
+---@type fun(tableID:number):void @请求订单状态返回支付购买成功，发放奖品
+---@param tableID number @购买的商品在tablepurchase表格中的id
+---@param isThird boolean @是否是第三方支付平台订单
+---@param canDeliver boolean @是否需要发货，已经在后台通过邮件发货的就不需要在游戏中再次发货
+---@param customTable table @自定义参数值传递
+---@param SUBData Honor.Runtime.IAPSUBOrderInfo @本次购买的订阅订单附加信息
+function HonorIAPHelper:OnTransaction_Success(tableID, isThird, canDeliver, customTable, SUBData)
+	-- 发送事件通知购买成功
+	local returnData = {tableID = tableID, isThird = isThird, customTable = customTable, canDeliver = canDeliver, SUBData = SUBData}
+	HonorEventHelper:FireNow(FwEventCmd.IAPPaySuccess, returnData)
+end
+
+---@type fun(tableID:number):void @请求订单状态返回支付付款失败
+---@param tableID number @购买的商品在tablepurchase表格中的id
+---@param isThird boolean @是否是第三方支付平台订单
+---@param customTable table @自定义参数值传递
+---@param failReason Honor.Runtime.IAPFailedReason @失败原因
+function HonorIAPHelper:OnTransaction_Fail(tableID, isThird, customTable, failReason)
+	-- 发送事件通知购买失败
+	local returnData = {tableID = tableID, isThird = isThird, customTable = customTable, failReason = failReason}
+	HonorEventHelper:FireNow(FwEventCmd.IAPPayFail, returnData)
+end
+
+---@type fun():void @订阅订单信息更新回调,包含启动时自动恢复和强制恢复
+---@param success boolean @恢复订阅是否成功
+---@param gameUIDStr string @订阅订单绑定UID
+---@param SUBInfo Honor.Runtime.IAPSUBInfo @返回的UID绑定的所有有效订阅订单信息
+---@param isForceRestore boolean @是否是强制恢复
+function HonorIAPHelper:OnSubscriptionRestoreFinish(success, gameUIDStr, SUBInfo, isForceRestore)
+	local restoreData = { success = success, uid = gameUIDStr, SUBInfo = SUBInfo, isForceRestore = isForceRestore}
+	HonorEventHelper:FireNow(FwEventCmd.IAPRestoreFinish, restoreData)
+end
+
+--[[---@type fun():void @处理订阅到期
+---@param tableID number @到期的订阅商品在tablepurchase表格中的id
+function IAPHelper:OnSubscriptionExpire(tableID)
+	local args = {tableID = tableID}
+	EventHelper:FireNow(FwEventCmd.IAPSubscriptionExpire, args)
+end]]
+
+---@type fun(tableID:number):void @请求订单状态返回支付中状态
+---@param tableID number @购买的商品在tablepurchase表格中的id
+---@param isThird boolean @是否是第三方支付平台订单
+---@param customTable table @自定义参数值传递
+function HonorIAPHelper:OnTransaction_InPay(tableID, isThird, customTable)
+	if isThird then
+		--获取存档信息
+		local saveString = HonorRoot.SDK.IAPHelper:GetThirdTransactionSaveData(tableID)
+		if saveString ~= nil then
+			local saveTable = JsonDecode(saveString)
+			if saveTable.OrderState == Honor.IAPOrderStatus.InPay then
+				-- 运行过程中的购买，需要继续展示付费界面
+				if self._customPayUI ~= nil then
+					OpenUIAsync(self._customPayUI, {GoodID = tableID, OrderID = saveTable.OrderID, TradeID = saveTable.TradeID, GoodsUrl = saveTable.BuyUrl})
+				end
+				return
+			end
+		end
+	end
+end
+
+---@type fun(normalData:table, customData:string) @网络请求返回的数据处理 from c#
+---@param normalData table @网络请求返回的标准数据内容
+---@param customData string @自定义参数内容，原值返回
+---特殊需求可以修改下面接口里面的处理
+function HonorIAPHelper:OnThirdPayReturnData(normalData, customData)
+	local tableID = normalData.TableID
+	local customTable = customData ~= nil and TableDecode(customData) or nil
+	if normalData.Status == Honor.IAPThirdStatus.GetPayTypes then
+		-- 获取第三方支付信息
+		local showData = nil
+		if normalData.Success == true then
+			-- 解析获取到的数据
+			local goodsTable = JsonDecode(normalData.PayTypeString)
+			if goodsTable ~= nil and goodsTable.GoodsList ~= nil and #goodsTable.GoodsList > 0 then
+				for i = 1, #goodsTable.GoodsList do
+					if goodsTable.GoodsList[i].goods_id == Tables.Purchases[tableID].ThirdPayID then
+						if #goodsTable.GoodsList[i].List > 0 then
+							-- 找到了要购买的商品
+							showData = goodsTable.GoodsList[i]
+						end
+						break
+					end
+				end
+			end
+		end
+		if showData then
+			-- 打开支付列表界面
+			if self._customGoodsListUI ~= nil then
+				OpenUIAsync(self._customGoodsListUI, {TableID = tableID, GoodsList = showData})
+			end
+		else
+			-- 购买失败
+			self:OnTransaction_Fail(tableID, true, customTable, Honor.IAPFailedReason.GetThirdPayTypesFail)
+		end
+
+	elseif  normalData.Status == Honor.IAPThirdStatus.CreateTransaction then
+		-- 创建第三方支付订单
+		if normalData.Success == true then
+			-- 已经创建了新的订单，打开html去支付
+			if self._customPayUI ~= nil then
+				OpenUIAsync(self._customPayUI, {GoodID = tableID, OrderID = normalData.OrderID, TradeID = normalData.TradeID, GoodsUrl = normalData.OrderURL})
+			end
+		else
+			if normalData.NetError then
+				-- 因为网络连接造成创建订单失败
+			else
+				-- 服务区返回的数据显示创建订单失败
+			end
+			self:OnTransaction_Fail(tableID, true, customTable, Honor.IAPFailedReason.CreateThirdOrderFail)
+		end
+
+
+	elseif  normalData.Status == Honor.IAPThirdStatus.InTransaction then
+		-- 获取第三方支付订单状态，这里只需要处理提示和奖励，不需要处理订单存档
+		if normalData.OrderState == Honor.IAPOrderStatus.ValidateSuccess  then
+			if HonorRoot.Launcher.DevelopMode then
+				HonorRoot.UI:ShowFloatWords("第三方支付成功", 3)
+			end
+			self:OnTransaction_Success(tableID, true, true, customTable)
+
+		elseif normalData.OrderState == Honor.IAPOrderStatus.Delivered then
+			if HonorRoot.Launcher.DevelopMode then
+				HonorRoot.UI:ShowFloatWords("第三方支付已经发货", 3)
+			end
+			self:OnTransaction_Success(tableID, true, false, customTable)
+
+		elseif normalData.OrderState == Honor.IAPOrderStatus.InPay then
+			if HonorRoot.Launcher.DevelopMode then
+				HonorRoot.UI:ShowFloatWords("第三方支付订单挂单中", 3)
+			end
+			self:OnTransaction_InPay(tableID, true, customTable)
+
+		elseif normalData.OrderState == Honor.IAPOrderStatus.LocalPayFail then
+			if HonorRoot.Launcher.DevelopMode then
+				HonorRoot.UI:ShowFloatWords("第三方支付用户拒绝付款", 3)
+			end
+			self:OnTransaction_Fail(tableID, true, customTable, Honor.IAPFailedReason.ThirdPayFail)
+
+		elseif normalData.OrderState == Honor.IAPOrderStatus.ValidateFake then
+			if HonorRoot.Launcher.DevelopMode then
+				HonorRoot.UI:ShowFloatWords("第三方支付校验订单为虚假订单", 3)
+			end
+			self:OnTransaction_Fail(tableID, true, customTable, Honor.IAPFailedReason.ValidateError)
+
+		elseif normalData.OrderState == Honor.IAPOrderStatus.ValidateNetError then
+			if HonorRoot.Launcher.DevelopMode then
+				HonorRoot.UI:ShowFloatWords("第三方支付校验订单时出现网络错误", 3)
+			end
+			self:OnTransaction_Fail(tableID, true, customTable, Honor.IAPFailedReason.ThirdPayNoNet)
+
+		end
+		-- 发送购买结束的事件
+		HonorEventHelper:FireNow(EventCmd.IAPTransactionFinish, tableID)
+	end
+end
+
+---@type fun(tableID:number):IAPWrapper.ProductType
+---@param tableID number @Tables.Purchases里面的ID
+---@return IAPWrapper.ProductType @商品类型
+function HonorIAPHelper:GetProductType(tableID)
+	if Tables.Purchases[tableID] ~= nil then
+		return IAPWrapper.ProductType.__CastFrom(tonumber(Tables.Purchases[tableID].ProductType))
+	end
+end
+
+
+
+return HonorIAPHelper

@@ -1,0 +1,24 @@
+--=====================================================================================================
+-- descrip:   登录数据
+--=====================================================================================================
+
+---@class LoginData @登录数据助手
+local LoginData = class("LoginData")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function LoginData:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):LoginData
+---@param args table @自定义参数
+---@return LoginData @登录数据助手实例
+function LoginData:Create(args)
+    local obj = LoginData.new(args)
+    return obj
+end
+
+return LoginData

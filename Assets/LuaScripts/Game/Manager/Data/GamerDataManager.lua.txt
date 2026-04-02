@@ -1,0 +1,329 @@
+--=====================================================================================================
+-- descrip:   游戏存档管理器
+--=====================================================================================================
+
+---@class GamerDataManager @游戏存档管理器
+local GamerDataManager = class("GamerDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GamerDataManager:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):GamerDataMgr
+---@param args table @自定义参数
+---@return GamerDataMgr @游戏存档管理器
+function GamerDataManager:Create(args)
+    local obj = GamerDataManager.new(args)
+    return obj
+end
+
+---获取最新的章节Id
+---@type fun():string
+---@return string @章节Id
+function GamerDataManager:GetLatestChapterId()
+    local chapterId = PbRootData.GameData.latestChapterId
+    if string.isNullOrEmpty(chapterId) then
+        PbRootData.GameData.latestChapterId = "1"
+        PbIO.GameData.Save_latestChapterId()
+        return PbRootData.GameData.latestChapterId
+    end
+    return chapterId
+end
+
+---获取目前的章节Id
+---@type fun():string
+---@return string @章节Id
+function GamerDataManager:GetCurChapterId()
+    local chapterId = PbRootData.GameData.curChapterId
+    if string.isNullOrEmpty(chapterId) then
+        PbRootData.GameData.curChapterId = "1"
+        PbIO.GameData.Save_curChapterId()
+        return PbRootData.GameData.curChapterId
+    end
+    return chapterId
+end
+
+---@type fun():boolean
+---@return boolean @ 当前章节与关卡是否为最新章节与关卡
+function GamerDataManager:CurrentChapterLevelIsLatest()
+    local latestChapter = self:GetLatestChapterId()
+    local currChapter = self:GetCurChapterId()
+    if latestChapter ~= currChapter then
+        return false
+    end
+    local latestLevel = self:GetLevelLvByChapterId(latestChapter)
+    local currLevel = self:GetLevelLvByChapterId(currChapter)
+    if latestLevel ~= currLevel then
+        return false
+    end
+    return true
+end
+
+---设置目前的章节Id
+---@type fun(chapterId:string):void
+---@param chapterId string @章节Id
+function GamerDataManager:SetCurChapterId(chapterId)
+    PbRootData.GameData.curChapterId = chapterId
+    PbIO.GameData.Save_curChapterId()
+end
+
+---获取关卡等级
+---@type fun(chapterId:string):number
+---@param chapterId string @章节Id
+---@param checkChallengeLevel boolean @是否检查挑战关卡
+---@return number @关卡等级
+function GamerDataManager:GetLevelLvByChapterId(chapterId, checkChallengeLevel)
+    if checkChallengeLevel == nil then
+        checkChallengeLevel = false
+    end
+    -- 是否需要检查挑战关卡
+    if checkChallengeLevel then
+        local challengeLevelId = ChallengeLevelHelper:GetCurChallengeLevel(chapterId)
+        if challengeLevelId > 0 then
+            return challengeLevelId
+        end
+    end
+    local chapterInfos = PbRootData.GameData.chapterInfos
+    if table.kIn(chapterInfos, chapterId) then
+        ---@type SavePBMsgDef.SaveGameData.ChapterInfo
+        local chapterInfo = chapterInfos[chapterId]
+        return chapterInfo.lv or 1
+    end
+
+    if FoodTruckPlayHelper:IsFoodTruckChapter(chapterId) then
+        return FoodTruckPlayHelper:GetLvByChapterId(chapterId)
+    end
+
+    PrintError("获取关卡等级过程中，没有找到章节Id为" .. chapterId .. "的关卡数据")
+    return 1
+end
+
+---返回当前最大章节及其Level
+---@type fun():ChapterLevel
+---@return ChapterLevel
+function GamerDataManager:GetLatestChapterLevel()
+    local chapterId = self:GetLatestChapterId()
+    local level = PbRootData.GameData.chapterInfos[chapterId] and self:GetLevelLvByChapterId(chapterId) or 1
+    return { Chapter = tonumber(chapterId), Level = level }
+end
+
+---返回当前最大章节及其Level
+---@type fun(chapterId:string):ChapterLevel
+---@param chapterId string @ 目标章节ID
+---@return ChapterLevel
+function GamerDataManager:GetTargetChapterLevel(chapterId)
+    local level = PbRootData.GameData.chapterInfos[chapterId] and self:GetLevelLvByChapterId(chapterId) or 1
+    return { Chapter = tonumber(chapterId), Level = level }
+end
+
+---返回当前章节及其Level
+---@type fun():ChapterLevel
+---@return ChapterLevel
+function GamerDataManager:GetChapterLevel(checkChallengeLevel)
+    if checkChallengeLevel == nil then
+        checkChallengeLevel = false
+    end
+    local chapterId = self:GetCurChapterId()
+    -- 是否需要检查挑战关卡
+    if checkChallengeLevel then
+        local challengeLevelId = ChallengeLevelHelper:GetCurChallengeLevel(chapterId)
+        if challengeLevelId > 0 then
+            return { Chapter = tonumber(chapterId), Level = challengeLevelId }
+        end
+    end
+
+    local level = self:GetLevelLvByChapterId(chapterId)
+    return { Chapter = tonumber(chapterId), Level = level }
+end
+
+---获取玩家目前的最大章节Id
+---@type fun():string
+---@return string @章节Id
+function GamerDataManager:GetCurMaxChapterId()
+    local keys = table.keys(PbRootData.GameData.chapterInfos)
+    table.sort(keys, function(a, b)
+        return tonumber(a) > tonumber(b)
+    end)
+    if keys and #keys > 0 then
+        return keys[1]
+    else
+        return "1"
+    end
+end
+
+---是一个产出星星的关卡
+---@type fun(chapterId:number,levelId:number):boolean
+---@param chapterId number @ 章节
+---@param levelId number @ 关卡
+---@return boolean @ 是否带星星产出
+function GamerDataManager:IsOutputStarLevel(chapterId, levelId)
+    local challengeLevelId = ChallengeLevelHelper:GetCurChallengeLevel(chapterId)
+    if challengeLevelId > 0 then
+        -- 挑战关卡,不带星星产出
+        return false
+    end
+    local chapterData = ChapterDataMgr:GetChapterDataByChapterId(chapterId)
+    return chapterData.UnlockNextLevel > levelId
+end
+
+---增加关卡等级
+---@type fun(chapterId:string):boolean
+---@param chapterId string @章节Id
+---@return boolean @是否成功
+function GamerDataManager:AddLevelLvByChapterId(chapterId)
+    if MapMgr.CurLoadMapType == MapType.FoodTruck then
+        -- 快餐车玩法升级
+        return FoodTruckPlayHelper:AddLvByChapterId(chapterId)
+    else
+        -- 主线玩法升级
+        return self:AddLevelLvOfMainChapter(chapterId)
+    end
+end
+
+---增加主线目前所在章节的关卡等级
+---@type fun(chapterId:string):boolean
+---@param chapterId string @章节Id
+---@return boolean @是否成功
+function GamerDataManager:AddLevelLvOfMainChapter(chapterId)
+    if table.kIn(PbRootData.GameData.chapterInfos, chapterId) then
+        -- 连胜次数+1
+        PbRootData.GameData.playerInfo.winStreak = PbRootData.GameData.playerInfo.winStreak and (PbRootData.GameData.playerInfo.winStreak + 1) or 1
+        PbIO.GameData.Save_playerInfo_winStreak()
+
+        ---@type SavePBMsgDef.SaveGameData.ChapterInfo
+        local chapterInfo = PbRootData.GameData.chapterInfos[chapterId]
+        -- 非挑战关卡，增加主线进度
+        if not GameCoreManager:IsInChallengeLevel() then
+            chapterInfo.lv = (chapterInfo.lv or 0) + 1
+            PbIO.GameData.Save_chapterInfos()
+
+            ---更新当前关卡ID
+            HintMarkerHelper:ModifyUserPropertySet(TrackProperty.CommonEventAttr.cur_chapter_lv, { Chapter = chapterId, Level = chapterInfo.lv })
+            if self:GetLatestChapterId() == chapterId then
+                ---更新最大关卡ID
+                HintMarkerHelper:ModifyUserPropertySet(TrackProperty.CommonEventAttr.top_chapter_level, { Chapter = chapterId, Level = chapterInfo.lv })
+            end
+        else
+            -- 挑战关卡，清空挑战关卡数据
+            ChallengeLevelHelper:ClearCurChallengeLevel()
+        end
+
+        -- AF的1-9关卡完成教学打点
+        if chapterId == "1" and chapterInfo.lv == 9 then
+            HonorRoot.SDK.AFHelper:Track("TutorialCompletion")
+        end
+
+        -- 发送关卡胜利事件
+        ---@type ChapterLevel
+        local chapterLevelData = {}
+        chapterLevelData.Chapter = tonumber(chapterId)
+        chapterLevelData.Level = chapterInfo.lv
+        rxpcall(function()
+            HonorEventHelper:Fire(EventCmd.OnLevelSuccess, chapterLevelData)
+        end)
+
+        return true
+    end
+    PrintError("升级过程中，没有找到章节Id为" .. chapterId .. "的关卡数据")
+    return false
+end
+
+---设置目前所在章节的关卡等级
+---@type fun(lv:number):boolean
+---@param lv number @关卡等级
+---@return boolean @是否成功
+function GamerDataManager:SetLevelLv(lv)
+    if lv <= 0 then
+        PrintError("设置关卡过程中，等级不能小于等于0")
+        return false
+    end
+    local chapterId = self:GetCurChapterId()
+    if table.kIn(PbRootData.GameData.chapterInfos, chapterId) then
+        ---@type SavePBMsgDef.SaveGameData.ChapterInfo
+        local chapterInfo = PbRootData.GameData.chapterInfos[chapterId]
+        chapterInfo.lv = lv
+        PbIO.GameData.Save_chapterInfos()
+        return true
+    end
+    PrintError("设置关卡过程中，没有找到章节Id为" .. chapterId .. "的关卡数据,对于没有解锁的章节，不应该调用此方法")
+    return false
+end
+
+---获取关卡开始次数
+---@type fun(chapterId:string,levelId:number):number
+---@param chapterId string @章节Id
+---@param levelId number @关卡Id
+---@return number @关卡开始次数
+function GamerDataManager:GetLevelStartTimes(chapterId, levelId)
+    ---@type table<string,number>
+    if not PbRootData.GameData.playerInfo.lastInLevel then
+        PbRootData.GameData.playerInfo.lastInLevel = {}
+    end
+    local lastInLevelStr = table.concat({ chapterId, '_', levelId })
+    local lastInLevel = PbRootData.GameData.playerInfo.lastInLevel
+    ---更新章节记录
+    local startTimes = lastInLevel[lastInLevelStr] or 0
+    return startTimes
+end
+
+---增加关卡开始次数
+---@type fun(chapterId:string,levelId:number):number
+---@param chapterId string @章节Id
+---@param levelId number @关卡Id
+---@return number @关卡开始次数
+function GamerDataManager:AddLevelStartTimes(chapterId, levelId)
+    ---@type table<string,number>
+    if not PbRootData.GameData.playerInfo.lastInLevel then
+        PbRootData.GameData.playerInfo.lastInLevel = {}
+    end
+    local lastInLevelStr = table.concat({ chapterId, '_', levelId })
+    local lastInLevel = PbRootData.GameData.playerInfo.lastInLevel
+    ---更新章节记录
+    local prevTimes = lastInLevel[lastInLevelStr] or 0
+    lastInLevel[lastInLevelStr] = prevTimes + 1
+    for str, _ in pairs(lastInLevel) do
+        ---找到当前章节
+        if string.match(str, string.format('%s_', chapterId)) then
+            ---删除该章节其它记录
+            if str ~= lastInLevelStr then
+                lastInLevel[str] = nil
+            end
+        end
+    end
+    ---序列化
+    PbIO.GameData.Save_playerInfo_lastInLevel()
+    ---StartTimes 用户第几次成功进入此关卡（按关卡序号id计）这个值动态计算
+    local startTimes = lastInLevel[lastInLevelStr]
+    return startTimes
+end
+
+---获取玩家区域信息
+---@type fun(areaId:string):SavePBMsgDef.SaveGameData.PlayerAreaInfo
+---@param areaId string @ 区域ID
+---@return SavePBMsgDef.SaveGameData.PlayerAreaInfo
+function GamerDataManager:GetPlayerAreaInfo(areaId)
+    if string.isNullOrEmpty(areaId) then
+        areaId = ChapterListManager:GetLatestAreaId()
+    end
+    local playerAreaInfos = PbRootData.GameData.playerInfo.playerAreaInfos
+    if playerAreaInfos[areaId] == nil then
+        ---@type SavePBMsgDef.SaveGameData.PlayerAreaInfo
+        local playerAreaInfo = { areaId = areaId, areaTotalCoinSpend = 0, areaTotalUpgradeCoinSpend = 0 }
+        playerAreaInfos[areaId] = playerAreaInfo
+        PbIO.GameData.Save_playerInfo_playerAreaInfos()
+    end
+    return playerAreaInfos[areaId]
+end
+
+---获取首次注册用户时间
+---@type fun():number
+---@return number @首次注册用户时间
+function GamerDataManager:GetFirstRegUserTime()
+    return PbRootData.GameData.playerInfo.regUserTime
+end
+
+return GamerDataManager

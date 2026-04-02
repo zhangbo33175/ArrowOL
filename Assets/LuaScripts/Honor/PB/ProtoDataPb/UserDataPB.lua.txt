@@ -1,0 +1,737 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UserDataPB.lua
+-- descrip:   用户数据存档
+-- notices:   该文件自动生成，请不要手动修改！ 5541424142
+--=====================================================================================================
+
+PbRootData = PbRootData or {}
+PbRootData.UserData = PbRootData.UserData or {}
+---@type SavePBMsgDef.UserDataPB.UserData @[主结构]用户数据存档根数据
+PbRootData.DeclareUserDataPB = {}
+
+---@type number @用户UID
+PbRootData.UserData.uid = 0
+
+---@type string @三方用户ID
+PbRootData.UserData.aid = ''
+
+---@type SavePBMsgDef.UserDataPB.Time @三方用户绑定时间
+PbRootData.UserData.aidBindTime = {}
+
+---@type number @UTC0时间戳
+PbRootData.UserData.aidBindTime.utc0 = 0
+
+---@type string @UTC0字符串时间描述
+PbRootData.UserData.aidBindTime.utc0String = ''
+
+---@type number @本地时间戳
+PbRootData.UserData.aidBindTime.locality = 0
+
+---@type string @本地字符串时间描述
+PbRootData.UserData.aidBindTime.localString = ''
+
+---@type SavePBMsgDef.UserDataPB.StageTime @启动时间
+PbRootData.UserData.launchTime = {}
+
+---@type SavePBMsgDef.UserDataPB.Time @本次时间
+PbRootData.UserData.launchTime.current = {}
+
+---@type number @UTC0时间戳
+PbRootData.UserData.launchTime.current.utc0 = 0
+
+---@type string @UTC0字符串时间描述
+PbRootData.UserData.launchTime.current.utc0String = ''
+
+---@type number @本地时间戳
+PbRootData.UserData.launchTime.current.locality = 0
+
+---@type string @本地字符串时间描述
+PbRootData.UserData.launchTime.current.localString = ''
+
+---@type SavePBMsgDef.UserDataPB.Time @上次时间
+PbRootData.UserData.launchTime.last = {}
+
+---@type number @UTC0时间戳
+PbRootData.UserData.launchTime.last.utc0 = 0
+
+---@type string @UTC0字符串时间描述
+PbRootData.UserData.launchTime.last.utc0String = ''
+
+---@type number @本地时间戳
+PbRootData.UserData.launchTime.last.locality = 0
+
+---@type string @本地字符串时间描述
+PbRootData.UserData.launchTime.last.localString = ''
+
+---@type SavePBMsgDef.UserDataPB.Time @注册时间
+PbRootData.UserData.regTime = {}
+
+---@type number @UTC0时间戳
+PbRootData.UserData.regTime.utc0 = 0
+
+---@type string @UTC0字符串时间描述
+PbRootData.UserData.regTime.utc0String = ''
+
+---@type number @本地时间戳
+PbRootData.UserData.regTime.locality = 0
+
+---@type string @本地字符串时间描述
+PbRootData.UserData.regTime.localString = ''
+
+---@type SavePBMsgDef.UserDataPB.StageTime @登陆时间
+PbRootData.UserData.loginTime = {}
+
+---@type SavePBMsgDef.UserDataPB.Time @本次时间
+PbRootData.UserData.loginTime.current = {}
+
+---@type number @UTC0时间戳
+PbRootData.UserData.loginTime.current.utc0 = 0
+
+---@type string @UTC0字符串时间描述
+PbRootData.UserData.loginTime.current.utc0String = ''
+
+---@type number @本地时间戳
+PbRootData.UserData.loginTime.current.locality = 0
+
+---@type string @本地字符串时间描述
+PbRootData.UserData.loginTime.current.localString = ''
+
+---@type SavePBMsgDef.UserDataPB.Time @上次时间
+PbRootData.UserData.loginTime.last = {}
+
+---@type number @UTC0时间戳
+PbRootData.UserData.loginTime.last.utc0 = 0
+
+---@type string @UTC0字符串时间描述
+PbRootData.UserData.loginTime.last.utc0String = ''
+
+---@type number @本地时间戳
+PbRootData.UserData.loginTime.last.locality = 0
+
+---@type string @本地字符串时间描述
+PbRootData.UserData.loginTime.last.localString = ''
+
+---@type SavePBMsgDef.UserDataPB.Time @最近运行截止时间
+PbRootData.UserData.latestTime = {}
+
+---@type number @UTC0时间戳
+PbRootData.UserData.latestTime.utc0 = 0
+
+---@type string @UTC0字符串时间描述
+PbRootData.UserData.latestTime.utc0String = ''
+
+---@type number @本地时间戳
+PbRootData.UserData.latestTime.locality = 0
+
+---@type string @本地字符串时间描述
+PbRootData.UserData.latestTime.localString = ''
+
+
+PbIO = PbIO and PbIO or {}
+PbIO.UserData = {}
+----------------------------------------------------------------------------------------------
+PbIO.UserData.LoadAll = function()
+    PbIO.UserData.Load_uid()
+    PbIO.UserData.Load_aid()
+    PbIO.UserData.Load_aidBindTime()
+    PbIO.UserData.Load_launchTime()
+    PbIO.UserData.Load_regTime()
+    PbIO.UserData.Load_loginTime()
+    PbIO.UserData.Load_latestTime()
+end
+PbIO.UserData.Load_uid = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid') then
+        PbRootData.UserData.uid = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid'))
+    end
+end
+PbIO.UserData.Load_aid = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aid') then
+        PbRootData.UserData.aid = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aid')
+    end
+end
+PbIO.UserData.Load_aidBindTime = function()
+    PbIO.UserData.Load_aidBindTime_utc0()
+    PbIO.UserData.Load_aidBindTime_utc0String()
+    PbIO.UserData.Load_aidBindTime_locality()
+    PbIO.UserData.Load_aidBindTime_localString()
+end
+PbIO.UserData.Load_launchTime = function()
+    PbIO.UserData.Load_launchTime_current()
+    PbIO.UserData.Load_launchTime_last()
+end
+PbIO.UserData.Load_regTime = function()
+    PbIO.UserData.Load_regTime_utc0()
+    PbIO.UserData.Load_regTime_utc0String()
+    PbIO.UserData.Load_regTime_locality()
+    PbIO.UserData.Load_regTime_localString()
+end
+PbIO.UserData.Load_loginTime = function()
+    PbIO.UserData.Load_loginTime_current()
+    PbIO.UserData.Load_loginTime_last()
+end
+PbIO.UserData.Load_latestTime = function()
+    PbIO.UserData.Load_latestTime_utc0()
+    PbIO.UserData.Load_latestTime_utc0String()
+    PbIO.UserData.Load_latestTime_locality()
+    PbIO.UserData.Load_latestTime_localString()
+end
+PbIO.UserData.Load_aidBindTime_utc0 = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.utc0') then
+        PbRootData.UserData.aidBindTime.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.utc0'))
+    end
+end
+PbIO.UserData.Load_aidBindTime_utc0String = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.utc0String') then
+        PbRootData.UserData.aidBindTime.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.utc0String')
+    end
+end
+PbIO.UserData.Load_aidBindTime_locality = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.locality') then
+        PbRootData.UserData.aidBindTime.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.locality'))
+    end
+end
+PbIO.UserData.Load_aidBindTime_localString = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.localString') then
+        PbRootData.UserData.aidBindTime.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.localString')
+    end
+end
+PbIO.UserData.Load_launchTime_current = function()
+    PbIO.UserData.Load_launchTime_current_utc0()
+    PbIO.UserData.Load_launchTime_current_utc0String()
+    PbIO.UserData.Load_launchTime_current_locality()
+    PbIO.UserData.Load_launchTime_current_localString()
+end
+PbIO.UserData.Load_launchTime_last = function()
+    PbIO.UserData.Load_launchTime_last_utc0()
+    PbIO.UserData.Load_launchTime_last_utc0String()
+    PbIO.UserData.Load_launchTime_last_locality()
+    PbIO.UserData.Load_launchTime_last_localString()
+end
+PbIO.UserData.Load_launchTime_current_utc0 = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0') then
+        PbRootData.UserData.launchTime.current.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0'))
+    end
+end
+PbIO.UserData.Load_launchTime_current_utc0String = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String') then
+        PbRootData.UserData.launchTime.current.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String')
+    end
+end
+PbIO.UserData.Load_launchTime_current_locality = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality') then
+        PbRootData.UserData.launchTime.current.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality'))
+    end
+end
+PbIO.UserData.Load_launchTime_current_localString = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString') then
+        PbRootData.UserData.launchTime.current.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString')
+    end
+end
+PbIO.UserData.Load_launchTime_last_utc0 = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0') then
+        PbRootData.UserData.launchTime.last.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0'))
+    end
+end
+PbIO.UserData.Load_launchTime_last_utc0String = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String') then
+        PbRootData.UserData.launchTime.last.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String')
+    end
+end
+PbIO.UserData.Load_launchTime_last_locality = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality') then
+        PbRootData.UserData.launchTime.last.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality'))
+    end
+end
+PbIO.UserData.Load_launchTime_last_localString = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString') then
+        PbRootData.UserData.launchTime.last.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString')
+    end
+end
+PbIO.UserData.Load_regTime_utc0 = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0') then
+        PbRootData.UserData.regTime.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0'))
+    end
+end
+PbIO.UserData.Load_regTime_utc0String = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String') then
+        PbRootData.UserData.regTime.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String')
+    end
+end
+PbIO.UserData.Load_regTime_locality = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality') then
+        PbRootData.UserData.regTime.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality'))
+    end
+end
+PbIO.UserData.Load_regTime_localString = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString') then
+        PbRootData.UserData.regTime.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString')
+    end
+end
+PbIO.UserData.Load_loginTime_current = function()
+    PbIO.UserData.Load_loginTime_current_utc0()
+    PbIO.UserData.Load_loginTime_current_utc0String()
+    PbIO.UserData.Load_loginTime_current_locality()
+    PbIO.UserData.Load_loginTime_current_localString()
+end
+PbIO.UserData.Load_loginTime_last = function()
+    PbIO.UserData.Load_loginTime_last_utc0()
+    PbIO.UserData.Load_loginTime_last_utc0String()
+    PbIO.UserData.Load_loginTime_last_locality()
+    PbIO.UserData.Load_loginTime_last_localString()
+end
+PbIO.UserData.Load_loginTime_current_utc0 = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0') then
+        PbRootData.UserData.loginTime.current.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0'))
+    end
+end
+PbIO.UserData.Load_loginTime_current_utc0String = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String') then
+        PbRootData.UserData.loginTime.current.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String')
+    end
+end
+PbIO.UserData.Load_loginTime_current_locality = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality') then
+        PbRootData.UserData.loginTime.current.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality'))
+    end
+end
+PbIO.UserData.Load_loginTime_current_localString = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString') then
+        PbRootData.UserData.loginTime.current.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString')
+    end
+end
+PbIO.UserData.Load_loginTime_last_utc0 = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0') then
+        PbRootData.UserData.loginTime.last.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0'))
+    end
+end
+PbIO.UserData.Load_loginTime_last_utc0String = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String') then
+        PbRootData.UserData.loginTime.last.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String')
+    end
+end
+PbIO.UserData.Load_loginTime_last_locality = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality') then
+        PbRootData.UserData.loginTime.last.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality'))
+    end
+end
+PbIO.UserData.Load_loginTime_last_localString = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString') then
+        PbRootData.UserData.loginTime.last.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString')
+    end
+end
+PbIO.UserData.Load_latestTime_utc0 = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0') then
+        PbRootData.UserData.latestTime.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0'))
+    end
+end
+PbIO.UserData.Load_latestTime_utc0String = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String') then
+        PbRootData.UserData.latestTime.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String')
+    end
+end
+PbIO.UserData.Load_latestTime_locality = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality') then
+        PbRootData.UserData.latestTime.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality'))
+    end
+end
+PbIO.UserData.Load_latestTime_localString = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString') then
+        PbRootData.UserData.latestTime.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString')
+    end
+end
+----------------------------------------------------------------------------------------------
+PbIO.UserData.SaveAll = function()
+    PbIO.UserData.Save_uid()
+    PbIO.UserData.Save_aid()
+    PbIO.UserData.Save_aidBindTime()
+    PbIO.UserData.Save_launchTime()
+    PbIO.UserData.Save_regTime()
+    PbIO.UserData.Save_loginTime()
+    PbIO.UserData.Save_latestTime()
+end
+PbIO.UserData.Save_uid = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid', tostring(PbRootData.UserData.uid))
+end
+PbIO.UserData.Save_aid = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aid', tostring(PbRootData.UserData.aid))
+end
+PbIO.UserData.Save_aidBindTime = function()
+    PbIO.UserData.Save_aidBindTime_utc0()
+    PbIO.UserData.Save_aidBindTime_utc0String()
+    PbIO.UserData.Save_aidBindTime_locality()
+    PbIO.UserData.Save_aidBindTime_localString()
+end
+PbIO.UserData.Save_launchTime = function()
+    PbIO.UserData.Save_launchTime_current()
+    PbIO.UserData.Save_launchTime_last()
+end
+PbIO.UserData.Save_regTime = function()
+    PbIO.UserData.Save_regTime_utc0()
+    PbIO.UserData.Save_regTime_utc0String()
+    PbIO.UserData.Save_regTime_locality()
+    PbIO.UserData.Save_regTime_localString()
+end
+PbIO.UserData.Save_loginTime = function()
+    PbIO.UserData.Save_loginTime_current()
+    PbIO.UserData.Save_loginTime_last()
+end
+PbIO.UserData.Save_latestTime = function()
+    PbIO.UserData.Save_latestTime_utc0()
+    PbIO.UserData.Save_latestTime_utc0String()
+    PbIO.UserData.Save_latestTime_locality()
+    PbIO.UserData.Save_latestTime_localString()
+end
+PbIO.UserData.Save_aidBindTime_utc0 = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.utc0', tostring(PbRootData.UserData.aidBindTime.utc0))
+end
+PbIO.UserData.Save_aidBindTime_utc0String = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.utc0String', tostring(PbRootData.UserData.aidBindTime.utc0String))
+end
+PbIO.UserData.Save_aidBindTime_locality = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.locality', tostring(PbRootData.UserData.aidBindTime.locality))
+end
+PbIO.UserData.Save_aidBindTime_localString = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.aidBindTime.localString', tostring(PbRootData.UserData.aidBindTime.localString))
+end
+PbIO.UserData.Save_launchTime_current = function()
+    PbIO.UserData.Save_launchTime_current_utc0()
+    PbIO.UserData.Save_launchTime_current_utc0String()
+    PbIO.UserData.Save_launchTime_current_locality()
+    PbIO.UserData.Save_launchTime_current_localString()
+end
+PbIO.UserData.Save_launchTime_last = function()
+    PbIO.UserData.Save_launchTime_last_utc0()
+    PbIO.UserData.Save_launchTime_last_utc0String()
+    PbIO.UserData.Save_launchTime_last_locality()
+    PbIO.UserData.Save_launchTime_last_localString()
+end
+PbIO.UserData.Save_launchTime_current_utc0 = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0', tostring(PbRootData.UserData.launchTime.current.utc0))
+end
+PbIO.UserData.Save_launchTime_current_utc0String = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String', tostring(PbRootData.UserData.launchTime.current.utc0String))
+end
+PbIO.UserData.Save_launchTime_current_locality = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality', tostring(PbRootData.UserData.launchTime.current.locality))
+end
+PbIO.UserData.Save_launchTime_current_localString = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString', tostring(PbRootData.UserData.launchTime.current.localString))
+end
+PbIO.UserData.Save_launchTime_last_utc0 = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0', tostring(PbRootData.UserData.launchTime.last.utc0))
+end
+PbIO.UserData.Save_launchTime_last_utc0String = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String', tostring(PbRootData.UserData.launchTime.last.utc0String))
+end
+PbIO.UserData.Save_launchTime_last_locality = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality', tostring(PbRootData.UserData.launchTime.last.locality))
+end
+PbIO.UserData.Save_launchTime_last_localString = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString', tostring(PbRootData.UserData.launchTime.last.localString))
+end
+PbIO.UserData.Save_regTime_utc0 = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0', tostring(PbRootData.UserData.regTime.utc0))
+end
+PbIO.UserData.Save_regTime_utc0String = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String', tostring(PbRootData.UserData.regTime.utc0String))
+end
+PbIO.UserData.Save_regTime_locality = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality', tostring(PbRootData.UserData.regTime.locality))
+end
+PbIO.UserData.Save_regTime_localString = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString', tostring(PbRootData.UserData.regTime.localString))
+end
+PbIO.UserData.Save_loginTime_current = function()
+    PbIO.UserData.Save_loginTime_current_utc0()
+    PbIO.UserData.Save_loginTime_current_utc0String()
+    PbIO.UserData.Save_loginTime_current_locality()
+    PbIO.UserData.Save_loginTime_current_localString()
+end
+PbIO.UserData.Save_loginTime_last = function()
+    PbIO.UserData.Save_loginTime_last_utc0()
+    PbIO.UserData.Save_loginTime_last_utc0String()
+    PbIO.UserData.Save_loginTime_last_locality()
+    PbIO.UserData.Save_loginTime_last_localString()
+end
+PbIO.UserData.Save_loginTime_current_utc0 = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0', tostring(PbRootData.UserData.loginTime.current.utc0))
+end
+PbIO.UserData.Save_loginTime_current_utc0String = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String', tostring(PbRootData.UserData.loginTime.current.utc0String))
+end
+PbIO.UserData.Save_loginTime_current_locality = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality', tostring(PbRootData.UserData.loginTime.current.locality))
+end
+PbIO.UserData.Save_loginTime_current_localString = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString', tostring(PbRootData.UserData.loginTime.current.localString))
+end
+PbIO.UserData.Save_loginTime_last_utc0 = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0', tostring(PbRootData.UserData.loginTime.last.utc0))
+end
+PbIO.UserData.Save_loginTime_last_utc0String = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String', tostring(PbRootData.UserData.loginTime.last.utc0String))
+end
+PbIO.UserData.Save_loginTime_last_locality = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality', tostring(PbRootData.UserData.loginTime.last.locality))
+end
+PbIO.UserData.Save_loginTime_last_localString = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString', tostring(PbRootData.UserData.loginTime.last.localString))
+end
+PbIO.UserData.Save_latestTime_utc0 = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0', tostring(PbRootData.UserData.latestTime.utc0))
+end
+PbIO.UserData.Save_latestTime_utc0String = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String', tostring(PbRootData.UserData.latestTime.utc0String))
+end
+PbIO.UserData.Save_latestTime_locality = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality', tostring(PbRootData.UserData.latestTime.locality))
+end
+PbIO.UserData.Save_latestTime_localString = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString', tostring(PbRootData.UserData.latestTime.localString))
+end
+----------------------------------------------------------------------------------------------
+PbIO.UserData.SerializeAll = function()
+    return JsonEncode(PbRootData.UserData)
+end
+PbIO.UserData.Serialize_uid = function()
+    return JsonEncode(PbRootData.UserData.uid)
+end
+PbIO.UserData.Serialize_aid = function()
+    return JsonEncode(PbRootData.UserData.aid)
+end
+PbIO.UserData.Serialize_aidBindTime = function()
+    return JsonEncode(PbRootData.UserData.aidBindTime)
+end
+PbIO.UserData.Serialize_launchTime = function()
+    return JsonEncode(PbRootData.UserData.launchTime)
+end
+PbIO.UserData.Serialize_regTime = function()
+    return JsonEncode(PbRootData.UserData.regTime)
+end
+PbIO.UserData.Serialize_loginTime = function()
+    return JsonEncode(PbRootData.UserData.loginTime)
+end
+PbIO.UserData.Serialize_latestTime = function()
+    return JsonEncode(PbRootData.UserData.latestTime)
+end
+PbIO.UserData.Serialize_aidBindTime_utc0 = function()
+    return JsonEncode(PbRootData.UserData.aidBindTime.utc0)
+end
+PbIO.UserData.Serialize_aidBindTime_utc0String = function()
+    return JsonEncode(PbRootData.UserData.aidBindTime.utc0String)
+end
+PbIO.UserData.Serialize_aidBindTime_locality = function()
+    return JsonEncode(PbRootData.UserData.aidBindTime.locality)
+end
+PbIO.UserData.Serialize_aidBindTime_localString = function()
+    return JsonEncode(PbRootData.UserData.aidBindTime.localString)
+end
+PbIO.UserData.Serialize_launchTime_current = function()
+    return JsonEncode(PbRootData.UserData.launchTime.current)
+end
+PbIO.UserData.Serialize_launchTime_last = function()
+    return JsonEncode(PbRootData.UserData.launchTime.last)
+end
+PbIO.UserData.Serialize_launchTime_current_utc0 = function()
+    return JsonEncode(PbRootData.UserData.launchTime.current.utc0)
+end
+PbIO.UserData.Serialize_launchTime_current_utc0String = function()
+    return JsonEncode(PbRootData.UserData.launchTime.current.utc0String)
+end
+PbIO.UserData.Serialize_launchTime_current_locality = function()
+    return JsonEncode(PbRootData.UserData.launchTime.current.locality)
+end
+PbIO.UserData.Serialize_launchTime_current_localString = function()
+    return JsonEncode(PbRootData.UserData.launchTime.current.localString)
+end
+PbIO.UserData.Serialize_launchTime_last_utc0 = function()
+    return JsonEncode(PbRootData.UserData.launchTime.last.utc0)
+end
+PbIO.UserData.Serialize_launchTime_last_utc0String = function()
+    return JsonEncode(PbRootData.UserData.launchTime.last.utc0String)
+end
+PbIO.UserData.Serialize_launchTime_last_locality = function()
+    return JsonEncode(PbRootData.UserData.launchTime.last.locality)
+end
+PbIO.UserData.Serialize_launchTime_last_localString = function()
+    return JsonEncode(PbRootData.UserData.launchTime.last.localString)
+end
+PbIO.UserData.Serialize_regTime_utc0 = function()
+    return JsonEncode(PbRootData.UserData.regTime.utc0)
+end
+PbIO.UserData.Serialize_regTime_utc0String = function()
+    return JsonEncode(PbRootData.UserData.regTime.utc0String)
+end
+PbIO.UserData.Serialize_regTime_locality = function()
+    return JsonEncode(PbRootData.UserData.regTime.locality)
+end
+PbIO.UserData.Serialize_regTime_localString = function()
+    return JsonEncode(PbRootData.UserData.regTime.localString)
+end
+PbIO.UserData.Serialize_loginTime_current = function()
+    return JsonEncode(PbRootData.UserData.loginTime.current)
+end
+PbIO.UserData.Serialize_loginTime_last = function()
+    return JsonEncode(PbRootData.UserData.loginTime.last)
+end
+PbIO.UserData.Serialize_loginTime_current_utc0 = function()
+    return JsonEncode(PbRootData.UserData.loginTime.current.utc0)
+end
+PbIO.UserData.Serialize_loginTime_current_utc0String = function()
+    return JsonEncode(PbRootData.UserData.loginTime.current.utc0String)
+end
+PbIO.UserData.Serialize_loginTime_current_locality = function()
+    return JsonEncode(PbRootData.UserData.loginTime.current.locality)
+end
+PbIO.UserData.Serialize_loginTime_current_localString = function()
+    return JsonEncode(PbRootData.UserData.loginTime.current.localString)
+end
+PbIO.UserData.Serialize_loginTime_last_utc0 = function()
+    return JsonEncode(PbRootData.UserData.loginTime.last.utc0)
+end
+PbIO.UserData.Serialize_loginTime_last_utc0String = function()
+    return JsonEncode(PbRootData.UserData.loginTime.last.utc0String)
+end
+PbIO.UserData.Serialize_loginTime_last_locality = function()
+    return JsonEncode(PbRootData.UserData.loginTime.last.locality)
+end
+PbIO.UserData.Serialize_loginTime_last_localString = function()
+    return JsonEncode(PbRootData.UserData.loginTime.last.localString)
+end
+PbIO.UserData.Serialize_latestTime_utc0 = function()
+    return JsonEncode(PbRootData.UserData.latestTime.utc0)
+end
+PbIO.UserData.Serialize_latestTime_utc0String = function()
+    return JsonEncode(PbRootData.UserData.latestTime.utc0String)
+end
+PbIO.UserData.Serialize_latestTime_locality = function()
+    return JsonEncode(PbRootData.UserData.latestTime.locality)
+end
+PbIO.UserData.Serialize_latestTime_localString = function()
+    return JsonEncode(PbRootData.UserData.latestTime.localString)
+end
+----------------------------------------------------------------------------------------------
+PbIO.UserData.DeserializeAll = function(jsonString)
+    PbRootData.UserData = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_uid = function(jsonString)
+    PbRootData.UserData.uid = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_aid = function(jsonString)
+    PbRootData.UserData.aid = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_aidBindTime = function(jsonString)
+    PbRootData.UserData.aidBindTime = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime = function(jsonString)
+    PbRootData.UserData.launchTime = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_regTime = function(jsonString)
+    PbRootData.UserData.regTime = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime = function(jsonString)
+    PbRootData.UserData.loginTime = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_latestTime = function(jsonString)
+    PbRootData.UserData.latestTime = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_aidBindTime_utc0 = function(jsonString)
+    PbRootData.UserData.aidBindTime.utc0 = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_aidBindTime_utc0String = function(jsonString)
+    PbRootData.UserData.aidBindTime.utc0String = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_aidBindTime_locality = function(jsonString)
+    PbRootData.UserData.aidBindTime.locality = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_aidBindTime_localString = function(jsonString)
+    PbRootData.UserData.aidBindTime.localString = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_current = function(jsonString)
+    PbRootData.UserData.launchTime.current = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_last = function(jsonString)
+    PbRootData.UserData.launchTime.last = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_current_utc0 = function(jsonString)
+    PbRootData.UserData.launchTime.current.utc0 = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_current_utc0String = function(jsonString)
+    PbRootData.UserData.launchTime.current.utc0String = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_current_locality = function(jsonString)
+    PbRootData.UserData.launchTime.current.locality = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_current_localString = function(jsonString)
+    PbRootData.UserData.launchTime.current.localString = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_last_utc0 = function(jsonString)
+    PbRootData.UserData.launchTime.last.utc0 = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_last_utc0String = function(jsonString)
+    PbRootData.UserData.launchTime.last.utc0String = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_last_locality = function(jsonString)
+    PbRootData.UserData.launchTime.last.locality = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_launchTime_last_localString = function(jsonString)
+    PbRootData.UserData.launchTime.last.localString = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_regTime_utc0 = function(jsonString)
+    PbRootData.UserData.regTime.utc0 = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_regTime_utc0String = function(jsonString)
+    PbRootData.UserData.regTime.utc0String = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_regTime_locality = function(jsonString)
+    PbRootData.UserData.regTime.locality = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_regTime_localString = function(jsonString)
+    PbRootData.UserData.regTime.localString = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_current = function(jsonString)
+    PbRootData.UserData.loginTime.current = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_last = function(jsonString)
+    PbRootData.UserData.loginTime.last = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_current_utc0 = function(jsonString)
+    PbRootData.UserData.loginTime.current.utc0 = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_current_utc0String = function(jsonString)
+    PbRootData.UserData.loginTime.current.utc0String = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_current_locality = function(jsonString)
+    PbRootData.UserData.loginTime.current.locality = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_current_localString = function(jsonString)
+    PbRootData.UserData.loginTime.current.localString = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_last_utc0 = function(jsonString)
+    PbRootData.UserData.loginTime.last.utc0 = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_last_utc0String = function(jsonString)
+    PbRootData.UserData.loginTime.last.utc0String = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_last_locality = function(jsonString)
+    PbRootData.UserData.loginTime.last.locality = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_loginTime_last_localString = function(jsonString)
+    PbRootData.UserData.loginTime.last.localString = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_latestTime_utc0 = function(jsonString)
+    PbRootData.UserData.latestTime.utc0 = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_latestTime_utc0String = function(jsonString)
+    PbRootData.UserData.latestTime.utc0String = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_latestTime_locality = function(jsonString)
+    PbRootData.UserData.latestTime.locality = JsonDecode(jsonString)
+end
+PbIO.UserData.Deserialize_latestTime_localString = function(jsonString)
+    PbRootData.UserData.latestTime.localString = JsonDecode(jsonString)
+end
+----------------------------------------------------------------------------------------------

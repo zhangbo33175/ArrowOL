@@ -1,0 +1,715 @@
+--=====================================================================================================
+-- descrip:   登录管理器
+--=====================================================================================================
+
+---@class ESelectType @选择类型
+---@field None number @无
+---@field Local number @本地
+---@field Server number @服务器
+ESelectType = {
+    None = 0,
+    Local = 1,
+    Server = 2,
+}
+
+---@class ELoginState @登录状态
+---@field None number @无
+---@field Working number @工作中
+---@field Finish number @结束
+---@field MultiLogin number @多端登陆
+---@field SelectData number @选择数据
+ELoginState = {
+    None = 0,
+    Working = 1,
+    Finish = 2,
+    MultiLogin = 3,
+    SelectData = 4,
+}
+
+---@class LoginManager:Singleton @登录管理器
+local LoginManager = class("LoginManager", import("Singleton"))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function LoginManager:ctor(args)
+    LoginManager.super.ctor(self, args)
+    self._loginState = ELoginState.None                 ---@type ELoginState                                ---登录状态
+    self._IsOnLine = false                              ---@type boolean                                    ---是否在线
+    self._LoginFinishCallback = nil                     ---@type fun:void                                   ---登录结束回调
+    self._isNewUser = false                             ---@type boolean                                    ---是否是新用户
+    self._isDelUser = false                             ---@type boolean                                    ---是否是删除用户
+end
+
+---创建函数
+---@type fun(args:table):LoginMgr
+---@param args table @自定义参数
+---@return LoginMgr @登录管理器
+function LoginManager:Create(args)
+    local obj = LoginManager.new(args)
+    return obj
+end
+
+---初始化(继承覆写)
+---@type fun():void
+function LoginManager:Init()
+    LoginManager.super.Init(self)
+    HonorEventHelper:AddListener(EventCmd.OnAidBindingResult, handler(self, self.OnAidBindingResult))
+    HonorEventHelper:AddListener(EventCmd.OnAidUnBindingResult, handler(self, self.OnAidUnBindingResult))
+end
+
+---清理数据
+---@type fun():void
+function LoginManager:ClearData()
+    LoginManager.super.ClearData(self)
+    self._loginState = ELoginState.None
+    self._IsOnLine = false
+    --self._LoginFinishCallback = nil
+    self._isNewUser = false
+    self._isDelUser = false
+    HearBeatMgr:StopHeartBeat()
+end
+
+---登陆完成回调
+---@type fun(isSuccess:boolean):void
+---@param isSuccess boolean @是否成功
+function LoginManager:LoginFinishCallback(isSuccess)
+    PrintInfo("Login 登陆结束: LoginFinish --> isSuccess: {0} ", isSuccess)
+    self._IsOnLine = isSuccess
+    self._loginState = ELoginState.Finish -- 登陆结束
+    HonorEventHelper:FireNow(EventCmd.OnLoginResult, isSuccess)
+    if self._LoginFinishCallback then
+        xpcall(self._LoginFinishCallback, __G__TRACK_BACK__)
+    end
+    self._LoginFinishCallback = nil
+end
+
+---登陆
+---@type fun(force:boolean, finishCallback:fun):void
+---@param force boolean @是否强制登陆
+---@param finishCallback fun @登陆结束回调
+function LoginManager:Login(force, finishCallback)
+    PrintInfo("Login 登陆开始: LoginStart --> force: {0} ", force)
+    if not force and self._loginState == ELoginState.Working then
+        PrintInfo("Login 正在登陆中,不允许重复登陆")
+        return
+    end
+    self:ClearData()
+    self._loginState = ELoginState.Working -- 登陆中
+    self._LoginFinishCallback = finishCallback
+
+end
+
+---登陆返回网络回调事件
+---@type fun(req:NetCmd.Cmd_Item_Request, resp:NetCmd.Cmd_Item_Response, cmd: NetCmd.Cmd_Item, returnData:NetMsgDef.NetRGameSyncData.RGameLoginResp):void
+---@param req NetCmd.Cmd_Item_Request @请求
+---@param resp NetCmd.Cmd_Item_Response @响应
+---@param cmd  NetCmd.Cmd_Item @命令
+---@param returnData NetMsgDef.NetRGameSyncData.RGameLoginResp @返回数据
+function LoginManager:LoginBackFun(req, resp, cmd, returnData)
+    if returnData ~= nil and cmd ~= nil then
+        -- 有回调信息
+        local errorCode = returnData["error_code"] -- 错误码
+        if errorCode == NetCode.Success[1] then
+            -- 登陆成功 开始心跳
+            self._IsOnLine = true -- 在线
+            SaveDataSyncHelper:SaveToken(returnData) -- 保存token
+            HearBeatMgr:BeginHeartBeat()
+
+            if cmd.Request.Body.Content.is_new_user == 1 or returnData.is_new_user == true then
+                -- 强制注册，则用新的uid直接覆盖本地
+                self._isNewUser = true
+                SaveDataSyncHelper:SaveLocalDataAndAutoSyncData(returnData, function()
+                    self:LogLoginBack(req, resp, cmd, returnData)
+                    self:LoginFinishCallback(true)
+                end)
+            else
+                ---非强制注册
+                if returnData.ServerUserInfo ~= nil and
+                        not string.isNullOrEmpty(returnData.ServerUserInfo.last_sync_device) and
+                        not string.isNullOrEmpty(returnData.ServerUserInfo.server_game_data) then
+                    -- 云端有存档
+                    ---@type SavePBMsgDef.SaveGameData.GameData
+                    local serverGameData = JsonDecode(returnData.ServerUserInfo.server_game_data)
+                    local isTheSameDevice = returnData.ServerUserInfo.last_sync_device == HonorRoot.SDK.TGAHelper:GetDeviceID()
+                    local isTheSameUid = returnData.ServerUserInfo.server_user_id == PbRootData.UserData.uid
+                    if (not isTheSameUid or not isTheSameDevice) and serverGameData then
+                        -- 如果云端的uid跟本地的不一样 或者 云端最后一次登陆的设备id跟本地的不一样 , 这种情况下，需要玩家选择存档
+                        self:OpenSelectData(returnData.ServerUserInfo.last_sync_time, serverGameData, returnData.ServerUserInfo.server_user_id, function(selectType)
+                            self._loginState = ELoginState.SelectData -- 选择数据
+
+                            if selectType == ESelectType.Local then
+                                -- 选择本地存档
+                                if PbRootData.UserData.uid == 0 then
+                                    HintMarkerHelper:OnSaveChoose(selectType)
+                                    -- 选择本地如果本地的uid是0，则直接强制注册
+                                    self:Login(true, self._LoginFinishCallback)
+                                else
+                                    -- uid不为0，且选择了本地存档，这时候直接推送存档到服务器
+                                    SaveDataSyncHelper:SaveLocalDataAndAutoSyncData(returnData, function()
+                                        HintMarkerHelper:OnSaveChoose(selectType)
+                                        self:LogLoginBack(req, resp, cmd, returnData)
+                                        self:LoginFinishCallback(true)
+                                    end)
+                                end
+
+                            elseif selectType == ESelectType.Server then
+                                -- 选择云端存档
+                                local localUid = PbRootData.UserData.uid -- 本地uid
+                                local uid = returnData.ServerUserInfo.server_user_id -- 云端uid
+                                local aid = returnData.ServerUserInfo.server_account
+                                local aidPlatform = returnData.channel_type
+                                SaveDataSyncHelper:SaveServerUserInfoToLocalByGameData(serverGameData, uid, aid, aidPlatform)
+                                HintMarkerHelper:OnSaveChoose(selectType)
+                                if isTheSameUid then
+                                    -- 选择服务器存档，uid一致的情况下 ，需要先上传存档，刷新最后一次登陆设备id
+                                    UploadingGameDataHelper:UploadAllGameData(function(isSuccess)
+                                        -- 判断状态机是否正在预加载状态，若不是，则需要转到预加载状态，否则直接进入游戏
+                                        local curProcedure = HonorRoot.Procedure.CurrentProcedure
+                                        if not self:TurnToProLoadStateByCurProcedure(curProcedure, localUid, uid) then
+                                            -- 在预加载状态，选择服务器存档，需要重新登陆
+                                            self:Login(false, self._LoginFinishCallback)
+                                        end
+                                    end)
+                                else
+                                    -- 选择服务器存档，uid不一致的情况下 ，需要刷新最后一次登陆设备id
+                                    self:SyncOtherUidDeviceId(localUid, uid, function(isSuccess)
+                                        -- 判断状态机是否正在预加载状态，若不是，则需要转到预加载状态，否则直接进入游戏
+                                        local curProcedure = HonorRoot.Procedure.CurrentProcedure
+                                        if not self:TurnToProLoadStateByCurProcedure(curProcedure, localUid, uid) then
+                                            -- 在预加载状态，选择服务器存档，需要重新登陆
+                                            self:Login(false, self._LoginFinishCallback)
+                                        end
+                                    end)
+                                end
+                            end
+                        end)
+                    else
+                        -- 云端有存档，且uid跟本地一样，且云端最后一次登陆的设备id跟本地一样,这种情况下，本地存档是最新的，不需要同步
+                        SaveDataSyncHelper:SaveLocalDataAndAutoSyncData(returnData)
+                        self:LogLoginBack(req, resp, cmd, returnData)
+                        self:LoginFinishCallback(true)
+                    end
+                else
+                    self._isNewUser = true -- 新用户
+                    -- 服务端没存档，
+                    if PbRootData.UserData.uid <= 0 then
+                        -- 服务器没存档，本地uid是0，妥妥的新账户
+                        SaveDataSyncHelper:SaveLocalDataAndAutoSyncData(returnData, function()
+                            self:LogLoginBack(req, resp, cmd, returnData)
+                            self:LoginFinishCallback(true)
+                        end)
+                    else
+                        -- 服务端没存档，error_code ==0 ,且本地有 uid > 0，== 服务器有对应的uid但是没有存档数据
+                        PrintInfo("Login 服务端没存档，error_code ==0 ,且本地有uid > 0，服务器有对应的uid但是没有存档数据 " .. PbRootData.UserData.uid)
+                        SaveDataSyncHelper:SaveLocalDataAndAutoSyncData(returnData, function()
+                            self:LogLoginBack(req, resp, cmd, returnData)
+                            self:LoginFinishCallback(true)
+                        end)
+                    end
+                end
+            end
+        else
+            -- 登录失败 , 根据错误码对应处理
+            self:ErrorCodeDiagnosis(errorCode, req, resp, cmd, returnData)
+        end
+    else
+        -- 没有回调信息-离线登陆
+        self:LogLoginBack(req, resp, cmd, returnData)
+        self:LoginFinishCallback(false)
+    end
+end
+
+---错误码诊断
+---@type fun(errorCode:number, req:NetCmd.Cmd_Item_Request, resp:NetCmd.Cmd_Item_Response, cmd: NetCmd.Cmd_Item, returnData:NetMsgDef.NetRGameSyncData.RGameLoginResp):void
+---@param errorCode number @错误码
+---@param req NetCmd.Cmd_Item_Request @请求
+---@param resp NetCmd.Cmd_Item_Response @响应
+---@param cmd  NetCmd.Cmd_Item @命令
+---@param returnData NetMsgDef.NetRGameSyncData.RGameLoginResp @返回数据
+function LoginManager:ErrorCodeDiagnosis(errorCode, req, resp, cmd, returnData)
+    if errorCode == NetCode.InvalidUID[1] or errorCode == NetCode.NewInvalidUID[1] then
+        -- 无效的uid , 重新注册
+        self._loginState = ELoginState.None  -- 登陆出现错误，重置状态
+        self:Login(true, self._LoginFinishCallback)
+    elseif errorCode == NetCode.UIDSignToOtherDevices[1] then
+        -- uid被其他设备登陆
+        if not PlayHelper:IsInLevelState() then
+            -- 不在游戏中,弹出多端登陆提示
+            self._loginState = ELoginState.MultiLogin -- 多端登陆
+            self:OpenLoginConflict()
+        else
+            -- 在游戏中,离线登陆
+            self:LoginFinishCallback(false)
+        end
+
+    else
+        -- 离线登陆
+        self:LogLoginBack(req, resp, cmd, returnData)
+        self:LoginFinishCallback(false)
+    end
+end
+
+---打点登陆返回
+---@type fun(req:NetCmd.Cmd_Item_Request, resp:NetCmd.Cmd_Item_Response, cmd: NetCmd.Cmd_Item, returnData:table):void
+---@param req NetCmd.Cmd_Item_Request @请求
+---@param resp NetCmd.Cmd_Item_Response @响应
+---@param cmd  NetCmd.Cmd_Item @命令
+---@param returnData table @返回数据
+function LoginManager:LogLoginBack(req, resp, cmd, returnData)
+    local statusCode = -1
+    local isReg = false
+    if cmd then
+        isReg = cmd.Request.Body.Content.is_new_user == 1 or returnData.is_new_user == true
+    end
+    if resp ~= nil then
+        statusCode = resp.StatusCode
+    end
+
+    if returnData ~= nil then
+        -- 有回调信息
+        if returnData["error_code"] == NetCode.Success[1] then
+            if isReg then
+                -- 注册成功
+                HintMarkerHelper:OnAccountReg(1, statusCode)
+            end
+            -- 登录成功
+            HintMarkerHelper:OnAccountLogin(1, statusCode)
+        else
+            if isReg then
+                -- 注册
+                HintMarkerHelper:OnAccountReg(0, statusCode)
+            else
+                -- 登录
+                HintMarkerHelper:OnAccountLogin(0, statusCode)
+            end
+        end
+    else
+        -- 没有回调信息
+        if isReg then
+            -- 注册
+            HintMarkerHelper:OnAccountReg(0, statusCode)
+        else
+            -- 登录
+            HintMarkerHelper:OnAccountLogin(0, statusCode)
+        end
+    end
+end
+
+---打开登录冲突界面
+---@type fun():void
+function LoginManager:OpenLoginConflict()
+    OpenUISync(UIs.UILoginConflict)
+end
+
+---打开选择数据界面
+---@type fun(serverGameDataLastSaveTime:number, serverGameData:SavePBMsgDef.SaveGameData.GameData,serverUid:number,finishCallback:fun(selectType:ESelectType)):void
+---@param serverGameDataLastSaveTime number @服务器存档最后保存时间
+---@param serverGameData SavePBMsgDef.SaveGameData.GameData @服务器存档数据
+---@param serverUid number @服务器uid
+---@param finishCallback fun(selectType:ESelectType) @选择数据结束回调
+function LoginManager:OpenSelectData(serverGameDataLastSaveTime, serverGameData, serverUid, finishCallback)
+    local localGameData = PbRootData.GameData
+    OpenUISync(UIs.UISelectData, { localData = localGameData, serverData = serverGameData, serverUid = serverUid, lastServerDataSaveTime = serverGameDataLastSaveTime, selectCallback = finishCallback })
+end
+
+---打开选择数据确认界面
+---@type fun(finishCallback:fun(isSuccess:boolean)):void
+function LoginManager:OpenSelectDataConfirm(finishCallback)
+    OpenUISync(UIs.UISelectDataConfirm, { selectCallback = finishCallback })
+end
+
+---在主界面尝试登录
+---@type fun():void
+function LoginManager:TryLoginInMainHud(finishCallback)
+    -- 只有在没有登录的情况下才尝试登录
+    self:TryReLogin(finishCallback)
+end
+
+---切换到预加载流程
+---@type fun(oldUid:number, newUid:number):boolean
+---@param oldUid number @旧的uid
+---@param newUid number @新的uid
+---@return boolean @是否切换到预加载流程
+function LoginManager:TurnToProLoadState(oldUid, newUid)
+    local curProcedure = HonorRoot.Procedure.CurrentProcedure
+    return self:TurnToProLoadStateByCurProcedure(curProcedure, oldUid, newUid)
+end
+
+---切换到预加载流程
+---@type fun(curProcedure:Honor.Runtime.ProcedureState, oldUid:number, newUid:number):boolean
+---@param curProcedure Honor.Runtime.ProcedureState @当前流程
+---@param oldUid number @旧的uid
+---@param newUid number @新的uid
+---@return boolean @是否切换到预加载流程
+function LoginManager:TurnToProLoadStateByCurProcedure(curProcedure, oldUid, newUid)
+    if curProcedure and not string.isNullOrEmpty(curProcedure.Name) and curProcedure.Name ~= "ProcedurePreload" then
+       GameStateMachine:ChangeState(GameStateCmd.TurnToPreloadState, function()
+            HonorEventHelper:FireNow(EventCmd.OnReloadGameBefore, oldUid, newUid)
+            SingletonManager:ClearAllSingleData() -- 游戏逻辑中的单例都继承自Singleton
+            curProcedure:PrepareToNextProcedure(typeof(Honor.ProcedurePreload))
+        end)
+        return true
+    elseif curProcedure and not string.isNullOrEmpty(curProcedure.Name) and curProcedure.Name == "ProcedurePreload" then
+        HonorEventHelper:FireNow(EventCmd.OnReloadGameBefore, oldUid, newUid)
+        SingletonManager:ClearAllSingleData() -- 游戏逻辑中的单例都继承自Singleton
+        return false
+    end
+    return false
+end
+
+---绑定第三方平台
+---@type fun(aidPlatform:EAidPlatform, position:number):void
+---@param aidPlatform EAidPlatform @第三方平台
+---@param position number @位置 登录位置：loading页=1，设置页=2
+function LoginManager:BindingPlatform(aidPlatform, position)
+    if HonorRoot.Network:CheckNetworkActive() then
+        HonorRoot.UI:AddWaitingRef()
+        AidHelper:LoginPlatform(aidPlatform, function(resultData)
+            HonorRoot.UI:SubWaitingRef()
+            if resultData then
+                if resultData.aidIsSuccess == true then
+                    -- 登陆成功,开始绑定
+                    self:AccountBind(false, resultData.aid, aidPlatform, position, function(isSuccess)
+                        HonorEventHelper:FireNow(EventCmd.OnAidBindingResult, isSuccess, aidPlatform, resultData.aid, position)
+                    end)
+                else
+                    --  登陆失败
+                    HonorEventHelper:FireNow(EventCmd.OnAidBindingResult, false, aidPlatform, resultData.aid, position)
+                end
+            end
+        end)
+    else
+        OpenUISync(UIs.UINetError)
+    end
+end
+
+---账号绑定(协议)
+---@type fun(forceBind:boolean, aid:string, aidPlatform:EAidPlatform, position:number, finishCallback:fun(isSuccess:boolean):void):void
+---@param forceBind boolean @是否强制绑定
+---@param aid string @第三方平台账号
+---@param aidPlatform EAidPlatform @第三方平台
+---@param position number @位置 登录位置：loading页=1，设置页=2
+---@param finishCallback fun(isSuccess:boolean):void @绑定完成回调
+function LoginManager:AccountBind(forceBind, aid, aidPlatform, position, finishCallback)
+    local syncSaveDataCallBack = function(req, resp, cmd, returnData)
+        HonorRoot.UI:SubWaitingRef()
+        if returnData ~= nil and returnData["error_code"] == NetCode.Success[1] then
+            -- 同步存档 
+            if returnData["status"] == NetCode.Success[1] then
+                PrintInfo("Login 绑定第三方账号 成功")
+                PbRootData.GameData.aidData.aid = aid
+                PbRootData.GameData.aidData.platform = aidPlatform
+                PbRootData.GameData.aidData.bindingUTC0 = HonorTimerHelper:GetUTC0TimeStamp()
+                PbIO.GameData.Save_aidData()
+                UploadingGameDataHelper:UploadAllGameData() -- 上传所有存档
+                pcall(finishCallback, true)
+            else
+                -- 绑定失败，可能是因为服务器还有存档，需要让我们选择
+                if returnData.ServerUserInfo ~= nil and not string.isNullOrEmpty(returnData.ServerUserInfo.server_game_data) then
+                    -- 云端有存档
+                    ---@type SavePBMsgDef.SaveGameData.GameData
+                    local serverGameData = JsonDecode(returnData.ServerUserInfo.server_game_data)
+                    local isTheSameDevice = returnData.ServerUserInfo.last_sync_device == HonorRoot.SDK.TGAHelper:GetDeviceID()
+                    local isTheSameUid = returnData.ServerUserInfo.server_user_id == PbRootData.UserData.uid
+
+                    if (not isTheSameUid or not isTheSameDevice) and serverGameData then
+                        -- 有服务器存档，uid 或者 设备id 不一样，需要选择存档
+                        self:OpenSelectData(returnData.ServerUserInfo.last_sync_time, serverGameData, returnData.ServerUserInfo.server_user_id, function(selectType)
+                            if selectType == ESelectType.Local then
+                                PrintInfo("绑定 选择 本地存档")
+                                HintMarkerHelper:OnSaveChoose(selectType)
+                                -- 选择本地存档,则进行强制绑定流程
+                                self:AccountBind(true, aid, aidPlatform, position, finishCallback)
+                            elseif selectType == ESelectType.Server then
+                                PrintInfo("绑定 选择 云端存档")
+                                -- 选择云端存档
+                                local localUid = PbRootData.UserData.uid -- 本地uid
+                                local uid = returnData.ServerUserInfo.server_user_id -- 云端uid
+                                local serverAid = returnData.ServerUserInfo.server_account
+                                local serverAidPlatform = returnData.channel_type
+                                SaveDataSyncHelper:SaveServerUserInfoToLocalByGameData(serverGameData, uid, serverAid, serverAidPlatform)
+                                HintMarkerHelper:OnSaveChoose(selectType)
+                                if isTheSameUid then
+                                    HonorRoot.UI:AddWaitingRef()
+                                    UploadingGameDataHelper:UploadAllGameData(function(isSuccess)
+                                        HonorRoot.UI:SubWaitingRef()
+                                        -- 判断状态机是否正在预加载状态，若不是，则需要转到预加载状态，否则直接进入游戏
+                                        local curProcedure = HonorRoot.Procedure.CurrentProcedure
+                                        if not self:TurnToProLoadStateByCurProcedure(curProcedure, localUid, uid) then
+                                            pcall(finishCallback, true)
+                                        else
+                                            -- 绑定成功 , 即将进入预加载状态，需要在此处打点
+                                            HintMarkerHelper:OnThirdPartyAccountLogin(TrackProperty.LoginTime.login, true, position, aid, aidPlatform)
+                                        end
+                                    end)
+                                else
+                                    HonorRoot.UI:AddWaitingRef()
+                                    self:SyncOtherUidDeviceId(localUid, uid, function(isSuccess)
+                                        HonorRoot.UI:SubWaitingRef()
+                                        -- 判断状态机是否正在预加载状态，若不是，则需要转到预加载状态，否则直接进入游戏
+                                        local curProcedure = HonorRoot.Procedure.CurrentProcedure
+                                        if not self:TurnToProLoadStateByCurProcedure(curProcedure, localUid, uid) then
+                                            pcall(finishCallback, true)
+                                        else
+                                            -- 绑定成功 , 即将进入预加载状态，需要在此处打点
+                                            HintMarkerHelper:OnThirdPartyAccountLogin(TrackProperty.LoginTime.login, true, position, aid, aidPlatform)
+                                        end
+                                    end)
+                                end
+                            end
+                        end)
+                    else
+                        PrintInfo("Login 绑定失败")
+                        pcall(finishCallback, false)
+                    end
+                else
+                    ---服务器炸了，绑定失败，没有存档
+                    PrintInfo("Login 服务器炸了，绑定失败，没有存档")
+                    pcall(finishCallback, false)
+                end
+            end
+        else
+            PrintInfo("Login 绑定第三方账号 失败")
+            pcall(finishCallback, false)
+        end
+    end
+    if self:CanSendNetMsg() then
+        HonorRoot.UI:AddWaitingRef()
+        SaveDataSyncHelper:CmdAccountBind(PbRootData.UserData.uid, nil, aid, aidPlatform, forceBind, syncSaveDataCallBack)
+    else
+        pcall(finishCallback, false)
+    end
+end
+
+---账号解绑(协议)
+---@type fun(aid:string, aidPlatform:EAidPlatform, finishCallback:fun(isSuccess:boolean):void):void
+---@param aid string @第三方平台账号
+---@param aidPlatform EAidPlatform @第三方平台
+---@param finishCallback fun(isSuccess:boolean):void @解绑完成回调
+function LoginManager:AccountUnBind(aid, aidPlatform, finishCallback)
+    local syncSaveDataCallBack = function(req, resp, cmd, returnData)
+        if returnData ~= nil and returnData["error_code"] == NetCode.Success[1] and returnData["status"] == NetCode.Success[1] then
+            PbRootData.GameData.aidData.aid = ""
+            PbRootData.GameData.aidData.platform = 0
+            PbRootData.GameData.aidData.bindingUTC0 = 0
+            PbIO.GameData.Save_aidData()
+            UploadingGameDataHelper:UploadAllGameData() -- 上传所有存档
+            pcall(finishCallback, true)
+        else
+            pcall(finishCallback, false)
+        end
+    end
+
+    if self:CanSendNetMsg() then
+        SaveDataSyncHelper:CmdAccountUnBind(PbRootData.UserData.uid, nil, aid, syncSaveDataCallBack)
+    else
+        pcall(finishCallback, false)
+    end
+end
+
+---解绑第三方平台 
+---@type fun(position:number):void
+---@param position number @位置 登录位置：loading页=1，设置页=2
+function LoginManager:LogoutPlatform(position)
+    if HonorRoot.Network:CheckNetworkActive() then
+        -- 开始解绑
+        HonorRoot.UI:AddWaitingRef()
+        local aidData = PbRootData.GameData.aidData
+        local aidPlatform = aidData.platform
+        local aid = aidData.aid
+        self:AccountUnBind(aid, aidPlatform, function(isSuccess)
+            HonorRoot.UI:SubWaitingRef()
+            if isSuccess then
+                -- 解绑成功
+                AidHelper:TryLogoutByNotLogin()
+                HonorEventHelper:FireNow(EventCmd.OnAidUnBindingResult, true, aidPlatform, aid, position)
+            else
+                -- 解绑失败
+                HonorEventHelper:FireNow(EventCmd.OnAidUnBindingResult, false, aidPlatform, aid, position)
+            end
+        end)
+    else
+        OpenUISync(UIs.UINetError)
+    end
+end
+
+---绑定结果回调
+---@type fun(isSuccess:boolean, platform:EAidPlatform, aid:string, position:number):void
+---@param isSuccess boolean @是否成功
+---@param platform EAidPlatform @第三方平台
+---@param aid string @第三方平台账号
+---@param position number @位置
+function LoginManager:OnAidBindingResult(isSuccess, platform, aid, position)
+    if isSuccess then
+        -- 绑定成功
+        if platform == EAidPlatform.Apple then
+            OpenUISync(UIs.UIAppleConnectSuccess)
+        else
+            OpenUISync(UIs.UIFBConnectSuccess)
+        end
+    else
+        -- 绑定失败
+        if platform == EAidPlatform.Apple then
+            OpenUISync(UIs.UIAppleConnectFailure)
+        else
+            OpenUISync(UIs.UIFBConnectFailure)
+        end
+    end
+
+    HintMarkerHelper:OnThirdPartyAccountLogin(TrackProperty.LoginTime.login, isSuccess, position, aid, platform)
+end
+
+---解绑结果回调
+---@type fun(isSuccess:boolean, platform:EAidPlatform, aid:string, position:number):void
+---@param isSuccess boolean @是否成功
+---@param platform EAidPlatform @第三方平台
+---@param aid string @第三方平台账号
+---@param position number @位置
+function LoginManager:OnAidUnBindingResult(isSuccess, platform, aid, position)
+    HintMarkerHelper:OnThirdPartyAccountLogin(TrackProperty.LoginTime.logout, isSuccess, position, aid, platform)
+end
+
+---同步其他uid的设备id
+---@type fun(uid:number, otherUid:number, finishCallback:fun(isSuccess:boolean):void):void
+---@param uid number @uid
+---@param otherUid number @其他uid
+---@param finishCallback fun(isSuccess:boolean):void @同步完成回调
+---@return void
+function LoginManager:SyncOtherUidDeviceId(uid, otherUid, finishCallback)
+    local syncSaveDataCallBack = function(req, resp, cmd, returnData)
+        if returnData ~= nil and returnData["error_code"] == NetCode.Success[1] and returnData["status"] == NetCode.Success[1] then
+            pcall(finishCallback, true)
+        else
+            pcall(finishCallback, false)
+        end
+    end
+    if self:CanSendNetMsg(false) then
+        SaveDataSyncHelper:CmdSyncOtherUidDeviceId(uid, nil, otherUid, syncSaveDataCallBack)
+    else
+        pcall(finishCallback, false)
+    end
+end
+
+---尝试重连
+---@type fun(finishCallback:fun):void
+---@param finishCallback fun @重连完成回调
+function LoginManager:TryReLogin(finishCallback)
+    -- 有网络，但是不在线，登陆状态不在工作中，游戏状态机在主界面或者游戏中 ，尝试重连
+    local curStateType = GameStateMachine:CurrentStateType()
+    -- local curProcedure = HonorRoot.Procedure.CurrentProcedure
+    if HonorRoot.Network:CheckNetworkActive() and
+            PbRootData.UserData.uid > 0 and -- 用户是有效的
+            not self._isDelUser and -- 不是删除用户
+            not self:IsOnline() and
+            self._loginState ~= ELoginState.Working and
+            (curStateType == GameStateCmd.MainState or
+                    curStateType == GameStateCmd.PlayingState or
+                    curStateType == GameStateCmd.FoodTruckState or
+                    curStateType == GameStateCmd.PlayingFoodTruckState or
+                    curStateType == GameStateCmd.LoginState)
+    then
+        self:Login(false, function()
+            -- 重连完成
+            PrintInfo("Login 重连成功 _IsOnLine : " .. tostring(self._IsOnLine) .. "    _loginState:" .. self._loginState)
+            if finishCallback then
+                xpcall(finishCallback, __G__TRACK_BACK__)
+            end
+        end)
+
+    elseif self:IsOnline() then
+        PrintInfo("Login 已经在线 ，不需要重连")
+        if finishCallback then
+            xpcall(finishCallback, __G__TRACK_BACK__)
+        end
+    else
+        -- 重连失败
+        PrintInfo("Login 不可重连")
+        if finishCallback then
+            xpcall(finishCallback, __G__TRACK_BACK__)
+        end
+    end
+end
+
+---是否在线
+---@type fun():boolean
+---@return boolean @是否在线
+function LoginManager:IsOnline()
+    return self._IsOnLine
+end
+
+---获取登录状态
+---@type fun():ELoginState
+---@return ELoginState @登录状态
+function LoginManager:GetLoginState()
+    return self._loginState
+end
+
+---是否是新用户
+---@type fun():boolean
+---@return boolean @是否是新用户
+function LoginManager:IsNewUser()
+    return self._isNewUser
+end
+
+---是否可以发送网络消息
+---@type fun(isCheckToken:boolean):boolean
+---@param isCheckToken boolean @是否检查token,默认检查
+---@return boolean @是否可以发送网络消息
+function LoginManager:CanSendNetMsg(isCheckToken)
+    if isCheckToken == nil then
+        isCheckToken = true
+    end
+
+    if isCheckToken and string.isNullOrEmpty(SaveDataSyncHelper:GetLoginToken()) then
+        PrintInfo("Login token为空，不能发送网络消息")
+        return false
+    end
+
+    if HonorRoot.Network:CheckNetworkActive() and self:IsOnline() then
+        return true
+    end
+    PrintInfo("Login 网络不可用或者不在线，不能发送网络消息")
+    self:TryReLogin() -- 尝试重连
+    return false
+end
+
+---删除用户信息
+---@type fun(finishCallback:fun(isSuccess:boolean):void):void
+---@param finishCallback fun(isSuccess:boolean):void @删除完成回调
+function LoginManager:DelUserInfo(finishCallback)
+    local uid = PbRootData.UserData.uid
+    if uid > 0 and HonorRoot.Network:CheckNetworkActive() then
+        HonorRoot.UI:AddWaitingRef()
+        self:ClearData()
+        self._isDelUser = true
+        SaveDataSyncHelper:CmdDelUserInfo(uid, nil, function(req, resp, cmd, returnData)
+            if returnData ~= nil and returnData["error_code"] == NetCode.Success[1] and returnData["status"] == 0 then
+                PrintInfo("Login 删除用户信息成功")
+                HonorRoot.UI:SubWaitingRef()
+                SingletonManager:ClearAllSingleData()
+                HonorRoot.Persist:RemoveAllItems(Honor.PersistWayType.FileFragment)
+                HonorRoot.Persist:RemoveAllItems(Honor.PersistWayType.PlayerPrefs)
+                self._isDelUser = true
+                pcall(finishCallback, true)
+            else
+                PrintInfo("Login 删除用户信息失败")
+                self._isDelUser = false
+                HonorRoot.UI:SubWaitingRef()
+                pcall(finishCallback, false)
+            end
+        end)
+    else
+        PrintInfo("Login 删除用户信息失败")
+        pcall(finishCallback, false)
+    end
+end
+
+---是否是删除用户
+---@type fun():boolean
+---@return boolean @是否是删除用户
+function LoginManager:IsDelUser()
+    return self._isDelUser
+end
+
+return LoginManager

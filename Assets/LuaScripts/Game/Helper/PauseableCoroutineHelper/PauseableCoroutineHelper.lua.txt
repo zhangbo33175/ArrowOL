@@ -1,0 +1,116 @@
+--=====================================================================================================
+-- descrip:   可暂停协程(用于关卡内)
+--=====================================================================================================
+--region 元表及其信号
+---简单的初始化俩值
+local PauseSignal = {false,false}
+local move_end = {}
+local pauseableCoroutineMetaTable = {
+    __index = {
+        MoveNext = function(corontine)
+            if PauseSignal[corontine.pauseSignal] then
+                return true
+            end
+            corontine.Current = corontine.co()
+            if corontine.Current == move_end then
+                corontine.Current = nil
+                return false
+            else
+                return true
+            end
+        end;
+        Reset = function(corontine)
+            corontine.co = coroutine.wrap(corontine.w_func)
+        end
+    }
+}
+--endregion
+
+---@class PauseableCoroutineHelper @可暂停协程(一般用于关卡内)
+---@field Any number @ 通用信号
+---@field Level number @ 关卡逻辑暂停信号  =>（关卡逻辑指客人生成、客人点单、客人离开等逻辑）
+local PauseableCoroutineHelper = class("PauseableCoroutineHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function PauseableCoroutineHelper:ctor(args)
+    self.Any = 1
+    self.Level = 2
+end
+
+---创建函数
+---@type fun(args:table):PauseableCoroutineHelper
+---@param args table @自定义参数
+---@return PauseableCoroutineHelper @新手引导的协程轮询工具
+function PauseableCoroutineHelper:Create(args)
+    local obj = PauseableCoroutineHelper.new(args)
+    return obj
+end
+
+---生成一个可暂停协程的实例
+---@type fun(func:function,pauseSignal:number):function
+---@param func function @协程方法
+---@param pauseSignal number @ 该协程暂停的信号量
+---@return function
+function PauseableCoroutineHelper:_PauseableCoroutineGenerator(func, pauseSignal,from)
+    local generator = setmetatable({
+        w_func = function()
+            func()
+            return move_end
+        end;
+        pauseSignal = pauseSignal,
+        from = from,
+    }, pauseableCoroutineMetaTable)
+    generator:Reset()
+    return generator
+end
+
+---启动一个可暂停的协程
+---@type fun(handler:handler,pauseSignal:number):UnityEngine.Coroutine
+---@param handler handler @协程方法
+---@param pauseSignal number @ 该协程暂停的信号量
+---@return UnityEngine.Coroutine @协程实例
+function PauseableCoroutineHelper:StartPauseableAloneCoroutine(handler,pauseSignal,from)
+    if not pauseSignal then
+        pauseSignal = self.Any
+    end
+    if GameMainRoot.Launcher ~= nil then
+        return GameMainRoot.Launcher:StartCoroutine(self:_PauseableCoroutineGenerator(handler.func,pauseSignal,from))
+    end
+    return nil
+end
+
+---结束一个可暂停的协程
+---@type fun(co:UnityEngine.Coroutine):void
+---@param co UnityEngine.Coroutine @协程实例
+function PauseableCoroutineHelper:StopPauseableAloneCoroutine(co)
+    if co == nil then
+        return
+    end
+    if GameMainRoot.Launcher ~= nil then
+        GameMainRoot.Launcher:StopCoroutine(co)
+    end
+end
+
+---暂停
+---@type fun(pauseSignal:number):void
+---@param pauseSignal number @ 暂停的信号量
+function PauseableCoroutineHelper:Pause(pauseSignal)
+    if not pauseSignal then
+        pauseSignal = self.Any
+    end
+    PauseSignal[pauseSignal] = true
+end
+
+---取消暂停
+---@type fun(pauseSignal:number):void
+---@param pauseSignal number @ 取消暂停的信号量
+function PauseableCoroutineHelper:Resume(pauseSignal)
+    if not pauseSignal then
+        pauseSignal = self.Any
+    end
+    PauseSignal[pauseSignal] = false
+end
+
+return PauseableCoroutineHelper

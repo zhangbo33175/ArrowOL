@@ -1,0 +1,46 @@
+--=====================================================================================================
+-- descrip:   坐标图标数据源管理器
+--=====================================================================================================
+
+---@class EHomeIconId @坐标图标ID
+---@field FreeGem string @免费钻石
+---@field ActivityStarterPack1 string @活动新手礼包1
+---@field DailyQuests string @日常任务
+---@field PiggyBank string @存钱罐
+---@field ChapterBundle string @章节礼包
+EHomeIconId = {
+    FreeGem = "1",---免费钻石
+    ActivityStarterPack1 = "2", ---活动新手礼包1
+    DailyQuests = "3", ---日常任务
+    PiggyBank = "4", ---存钱罐
+    ChapterBundle = "5", ---章节礼包
+}
+
+---@class HomeIconsDataManager @坐标图标数据源管理器
+local HomeIconsDataManager = class("HomeIconsDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HomeIconsDataManager:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):HomeIconsDataMgr
+---@param args table @自定义参数
+---@return HomeIconsDataMgr @坐标图标数据源管理器
+function HomeIconsDataManager:Create(args)
+    local obj = HomeIconsDataManager.new(args)
+    return obj
+end
+
+---获取桌面图标数据
+---@type fun(homeIconId:string):Tables.HomeIcons_Item
+---@param homeIconId string @桌面图标ID
+---@return Tables.HomeIcons_Item @桌面图标数据
+function HomeIconsDataManager:GetHomeIconDataById(homeIconId)
+    return Tables.HomeIcons[homeIconId]
+end
+
+return HomeIconsDataManager

@@ -1,0 +1,56 @@
+{
+    "Hotfix_StartButton_Text" : "COMMENCEMENT",
+    "Hotfix_RetryButton_Text" : "RÉESSAYER",
+    "Hotfix_CloseButton_Text" : "FERMER",
+    "Hotfix_Ready_Download_Text" : "Connexion au serveur...",
+    "Hotfix_Downloading_Text" : "Téléchargement du fichier :",
+    "Hotfix_Download_AllOver_Text" : "Chargement…",
+    "Hotfix_Download_Failed_To_Skip_Text" : "Échec du téléchargement, prêt à entrer dans le jeu.",
+    "Hotfix_Download_Error_Text" : "Téléchargement anormal! Veuillez réessayer.",
+    "Hotfix_Download_Error_Quit_Text" : "Le téléchargement a échoué! Veuillez vérifier le réseau, redémarrer et réessayer avant de quitter l'application.",
+    "Hotfix_Error_Title_Text" : "Erreur de mise à jour à chaud",
+    "Hotfix_Error_Desc_Text" : "Voulez-vous réessayer la mise à jour chaude ?",
+    "Hotfix_Error_RetryButton_Text" : "RÉESSAYER",
+    "Hotfix_Error_CloseButton_Text" : "FERMER",
+    "App_Download_Title_Text" : "Il y a une nouvelle version!",
+    "App_Download_Desc_Text" : "Voulez-vous aller au magasin pour télécharger et installer?",
+    "App_Download_StartButton_Text" : "Allez à la boutique",
+    "App_Download_CloseButton_Text" : "FERMER",
+    "GDPR_MainTitle_Text" : "Merci pour le téléchargement <color=#5380C4>{0}</color>",
+    "GDPR_MainDesc_Text" : "<b>La vie privée est très importante pour {0}.</b>
+
+Nous avons besoin de votre autorisation pour utiliser vos données et vous fournir une expérience personnalisée.
+
+<b>Avec votre consentement, {1} et ses partenaires recueilleront des points de données techniques</b> y compris votre identifiant publicitaire et votre adresse IP afin de vous offrir une expérience de jeu unique et d'améliorer nos jeux.
+
+Ces informations seront spécifiquement <b>collectées par {2} et ses partenaires pour les finalités suivantes:</b>",
+    "GDPR_GDPRDesc_Text" : "Publicités et contenu personnalisés.",
+    "GDPR_CCPADesc_Text" : "Stockez ou accédez à des informations sur un appareil, développez et améliorez des produits.",
+    "GDPR_COPPADesc_Text" : "Je confirme que j'ai plus de 16 ans et que j'ai lu, compris et accepté la <b>{0} Politique de confidentialité</b>.",
+    "GDPR_StartGameButton_Text" : "Commencez à jouer",
+    "GDPR_MoreButton_Text" : "En savoir plus",
+    "GDPR_MoreTitle_Text" : "Rendre <color=#5380C4>{0}</color> meilleur !",
+    "GDPR_MoreStartDesc_Text" : "Merci d'avoir téléchargé notre jeu! Saviez-vous que partager vos données est le meilleur moyen pour vous de profiter d'une expérience de jeu unique et de nous aider à nous améliorer? Vous pouvez décider à tout moment de retirer votre consentement via ceci.
+Voici pourquoi les données sont collectées par cette application:",
+    "GDPR_MoreDesc1_Text" : "Pour générer des statistiques sur votre utilisation du jeu, y compris le nombre de parties jouées et la durée des parties, ce qui nous permet d'améliorer votre expérience de jeu.",
+    "GDPR_MoreDesc2_Text" : "Pour comprendre vos intérêts et vous proposer des publicités ciblées qui sont plus pertinentes pour vous.",
+    "GDPR_MoreDesc3_Text" : "Pour résoudre des problèmes techniques.",
+    "GDPR_MoreFinalDesc_Text" : "Si vous ne souhaitez pas partager vos données personnelles pour une utilisation telle que décrite dans notre Politique de Confidentialité, vous continuerez à avoir accès à nos applications. Votre expérience pourrait être différente et inclure un volume plus important de publicité non ciblée.",
+    "GDPR_MoreBackButton_Text" : "Retour",
+    "GDPR_ResetTitle_Text" : "Mise en place du partage d'informations",
+    "GDPR_ResetDesc_Text" : "Vous pouvez choisir les données que vous souhaitez partager:",
+    "GDPR_ResetGDPRDesc_Text" : "Publicité",
+    "GDPR_ResetCCPADesc_Text" : "Support et Analytiques",
+    "GDPR_SaveButton_Text" : "Enregistrez mes choix",
+    "GDPR_CloseButton_Text" : "Fermer",
+    "Waiting_Desc_Text" : "Veuillez patienter…",
+    "Net_Error_Text" : "Le réseau est anormal. Vérifiez le réseau et essayez à nouveau.",
+    "IAP_Init_Error_Text" : "L'initialisation du paiement a échoué, ne peut pas commencer le paiement.",
+    "IAP_Paying_Text" : "Le paiement est en cours, veuillez patienter...",
+    "IAP_Validating_Text" : "La commande est en cours de vérification, veuillez patienter...",
+    "IAP_No_Net_Validate_Error_Text" : "Exception réseau, échec de la vérification de la commande, veuillez réessayer plus tard......",
+    "IAP_UpdateReceipt_Text" : "Mise à jour de la commande, veuillez patienter…",
+    "UpdateTitle" : "Mise à jour nécessaire!",
+    "UpdateText" : "Bonne nouvelle ! \nIl y a une nouvelle version disponible!",
+    "UpdateButton" : "Installer"
+}

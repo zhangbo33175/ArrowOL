@@ -1,0 +1,57 @@
+{
+    "Hotfix_StartButton_Text" : "开始",
+    "Hotfix_RetryButton_Text" : "重试",
+    "Hotfix_CloseButton_Text" : "关闭",
+    "Hotfix_Ready_Download_Text" : "连接服务器……",
+    "Hotfix_Downloading_Text" : "正在下载文件",
+    "Hotfix_Download_AllOver_Text" : "加载中……",
+    "Hotfix_Download_Failed_To_Skip_Text" : "下载失败，准备进入游戏。",
+    "Hotfix_Download_Error_Text" : "下载异常！请重试。",
+    "Hotfix_Download_Error_Quit_Text" : "下载失败！请检查网络后，重新启动再试，即将退出应用。",
+    "Hotfix_Error_Title_Text" : "热更新错误",
+    "Hotfix_Error_Desc_Text" : "是否重新尝试热更新？",
+    "Hotfix_Error_RetryButton_Text" : "重试",
+    "Hotfix_Error_CloseButton_Text" : "关闭",
+    "App_Download_Title_Text" : "有新版本啦！",
+    "App_Download_Desc_Text" : "是否前往商店下载安装？",
+    "App_Download_StartButton_Text" : "去商店",
+    "App_Download_CloseButton_Text" : "关闭",
+    "GDPR_MainTitle_Text" : "感谢您下载<color=#5380C4>{0}</color>",
+    "GDPR_MainDesc_Text" : "<b>保护用户隐私对{0}非常重要</b>
+
+我们需要您的许可，以便我们使用您的数据来为您提供个性化的游戏体验。
+
+<b>经过您的许可，{1}及其合作伙伴将收集一些数据，</b>包括您的广告标识符和IP地址，以便为您提供独特的游戏体验并不断改进我们的游戏。
+
+这些信息将由<b>{2}及其合作伙伴收集，并用于以下目的：</b>",
+    "GDPR_GDPRDesc_Text" : "为您推荐个性化的广告和内容。",
+    "GDPR_CCPADesc_Text" : "在设备上存储或访问信息，优化改进产品。",
+    "GDPR_COPPADesc_Text" : "我确认已满16周岁
+已阅读、理解并接受<b>{0}的隐私政策</b>。",
+    "GDPR_StartGameButton_Text" : "开始游戏",
+    "GDPR_MoreButton_Text" : "了解更多",
+    "GDPR_MoreTitle_Text" : "帮助<color=#5380C4>{0}</color>变得更好！",
+    "GDPR_MoreStartDesc_Text" : "感谢您下载我们的游戏！您可知与我们共享您的数据将有助于我们为您提供独特的游戏体验并帮助我们做得更好？您可以随时决定在此应用程序内撤回您的授权许可。
+以下为本应用程序需要收集相关数据的原因：",
+    "GDPR_MoreDesc1_Text" : "统计您的游戏使用数据，包括游玩次数以及使用时长，以便我们改善您的游戏体验。",
+    "GDPR_MoreDesc2_Text" : "了解您的兴趣爱好以向您提供更适合的广告内容。",
+    "GDPR_MoreDesc3_Text" : "解决技术问题。",
+    "GDPR_MoreFinalDesc_Text" : "假如您不愿意就隐私协议中阐述的原因分享您的个人数据，您扔可以继续使用此应用程序。但您的体验将会有所不同，包括收到大量未定向的广告。",
+    "GDPR_MoreBackButton_Text" : "返回",
+    "GDPR_ResetTitle_Text" : "建立信息共享",
+    "GDPR_ResetDesc_Text" : "您可以选择您希望共享的数据：",
+    "GDPR_ResetGDPRDesc_Text" : "广告。",
+    "GDPR_ResetCCPADesc_Text" : "支持与分析。",
+    "GDPR_SaveButton_Text" : "保存我的选择",
+    "GDPR_CloseButton_Text" : "关闭",
+    "Waiting_Desc_Text" : "请稍后……",
+    "Net_Error_Text" : "网络异常，请检查网络后再试。",
+    "IAP_Init_Error_Text" : "支付初始化失败，无法启动支付。",
+    "IAP_Paying_Text" : "正在支付中，请稍后……",
+    "IAP_Validating_Text" : "订单校验中，请稍后……",
+    "IAP_No_Net_Validate_Error_Text" : "网络异常，订单校验失败，请稍后再试……",
+    "IAP_UpdateReceipt_Text" : "订单更新中，请稍后……",
+    "UpdateTitle" : "新版本！",
+    "UpdateText" : "好消息！有新版本可以玩了！",
+    "UpdateButton" : "安装"
+}

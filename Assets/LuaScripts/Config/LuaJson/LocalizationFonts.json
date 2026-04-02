@@ -1,0 +1,13 @@
+{
+    "ChineseSimplified" : {"Name":"ChineseSimplified","Desc":"简体中文-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "English" : {"Name":"English","Desc":"英语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "French" : {"Name":"French","Desc":"法语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "German" : {"Name":"German","Desc":"德语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "Spanish" : {"Name":"Spanish","Desc":"西班牙语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "Japanese" : {"Name":"Japanese","Desc":"日语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "Korean" : {"Name":"Korean","Desc":"韩语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "PortuguesePortugal" : {"Name":"PortuguesePortugal","Desc":"葡萄牙语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "Russian" : {"Name":"Russian","Desc":"俄语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "ChineseTraditional" : {"Name":"ChineseTraditional","Desc":"繁体中文-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",},
+    "Italian" : {"Name":"Italian","Desc":"意大利语-字体","FontType":"FontTMP","Mark0":"Main","ABPath0":"Assets/Res/Fonts/TMPs","AssetName0":"ArrowGame_SDF_Static","CustomMaterialName0":"","FontSizeScaleRatio0":"1",}
+}

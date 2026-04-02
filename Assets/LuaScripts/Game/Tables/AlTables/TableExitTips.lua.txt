@@ -1,0 +1,45 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableExitTips
+-- descrip:   退出提示表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.ExitTips_Item @退出提示表条目
+---@field ID string @序号
+---@field Type string @功能类型
+---@field SystemID string @功能标志
+---@field ExitTipsOrder number @退出提示优先级
+---@field ExitTipsText string @退出提示文本
+---@field ExitTipsIcon string @退出提示图标
+---@field ExitTipsText2 string @三次确认退出提示文本
+---@field SpecialExitIconName string @特殊退出Icon资源名
+
+---@class Tables.ExitTips @退出提示表
+---@field 1 Tables.ExitTips_Item
+---@field 2 Tables.ExitTips_Item
+---@field 3 Tables.ExitTips_Item
+---@field 4 Tables.ExitTips_Item
+---@field 5 Tables.ExitTips_Item
+---@field 6 Tables.ExitTips_Item
+---@field 7 Tables.ExitTips_Item
+---@field 8 Tables.ExitTips_Item
+---@field 9 Tables.ExitTips_Item
+---@field 10 Tables.ExitTips_Item
+---@field 11 Tables.ExitTips_Item
+Tables.ExitTips = {
+    ["1"] = {ID = "1", Type = "1", SystemID = "CardPack", ExitTipsOrder = 5, ExitTipsText = "ExitTipsCardPack", ExitTipsIcon = "Sprite_exit_tips_cardpack"},
+    ["2"] = {ID = "2", Type = "2", SystemID = "Collect2", ExitTipsOrder = 8, ExitTipsText = "ExitTipsCollect2", ExitTipsIcon = "Sprite_icon_token_collect2", ExitTipsText2 = "ExitTips2Collect2"},
+    ["3"] = {ID = "3", Type = "2", SystemID = "Cake", ExitTipsOrder = 6, ExitTipsText = "ExitTipsCake", ExitTipsIcon = "Sprite_icon_candy_tool"},
+    ["4"] = {ID = "4", Type = "2", SystemID = "ChefMaster", ExitTipsOrder = 7, ExitTipsText = "ExitTipsChefMaster", ExitTipsIcon = "Sprite_chefmaster_token_icon"},
+    ["5"] = {ID = "5", Type = "2", SystemID = "SeasonPass", ExitTipsOrder = 4},
+    ["6"] = {ID = "6", Type = "2", SystemID = "BurgerTower", ExitTipsOrder = 1, ExitTipsText = "ExitTipsBurgerTower", ExitTipsIcon = "Sprite_burger_exit_icon"},
+    ["7"] = {ID = "7", Type = "2", SystemID = "LavaQuest", ExitTipsOrder = 2, ExitTipsText = "ExitTipsLavaQuest", ExitTipsIcon = "Sprite_icon_exit_lava"},
+    ["8"] = {ID = "8", Type = "2", SystemID = "AIRacing", ExitTipsOrder = 3, ExitTipsText = "ExitTipsAIRacing", ExitTipsIcon = "Sprite_burger_exit_racing"},
+    ["9"] = {ID = "9", Type = "2", SystemID = "MagicPot", ExitTipsOrder = 6, ExitTipsText = "ExitTipsPot", ExitTipsIcon = "Sprite_icon_token_magicpot"},
+    ["10"] = {ID = "10", Type = "2", SystemID = "ArcherArena", ExitTipsOrder = 7, ExitTipsText = "ExitTipsArchery", ExitTipsIcon = "Sprite_icon_token_archery", SpecialExitIconName = "GameObject_ArcheryExitIcon"},
+    ["11"] = {ID = "11", Type = "2", SystemID = "RollDice", ExitTipsOrder = 9, ExitTipsText = "ExitTipsRollDice", ExitTipsIcon = "Sprite_icon_rolldice_dice"},
+}
+

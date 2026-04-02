@@ -1,0 +1,26 @@
+--=====================================================================================================
+-- descrip:   数据中心
+--=====================================================================================================
+
+---@class DataCenter @数据中心
+local DataCenter = class("DataCenter")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function DataCenter:ctor(args)
+    -- 登录数据
+    self.Login = require("LoginData"):Create()
+
+end
+
+---创建函数
+---@type fun(args:table):DataCenter
+---@param args table @自定义参数
+---@return DataCenter @数据中心实例
+function DataCenter:Create(args)
+    local obj = DataCenter.new(args)
+    return obj
+end
+
+return DataCenter

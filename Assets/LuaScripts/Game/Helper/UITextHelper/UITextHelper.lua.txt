@@ -1,0 +1,187 @@
+--=====================================================================================================
+-- descrip:   UI文本帮助类
+--=====================================================================================================
+
+---@class UITextHelper @UI文本帮助类
+local UITextHelper = class("UITextHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function UITextHelper:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):UITextHelper
+---@param args table @自定义参数
+---@return UITextHelper @UI文本帮助类
+function UITextHelper:Create(args)
+    local obj = UITextHelper.new(args)
+    return obj
+end
+
+---播放数字动画(与UI关联，关闭UI的时候停止协程，不容易出错)
+---@type fun(luaBehaviourSuper:LuaBehaviourSuper,text:UnityEngine.UI.MaskableGraphic,originCount:number,targetCount:number,duration:number,prefix:string,suffix:string,onChangeAction:fun(count:number),onEndAction:fun(count:number),animDelay:number,isRealtime:boolean):UnityEngine.Coroutine
+---@param text UnityEngine.UI.MaskableGraphic @文本
+---@param originCount number @起始数字
+---@param targetCount number @目标数字
+---@param duration number @动画时长
+---@param prefix string @前缀
+---@param suffix string @后缀
+---@param onChangeAction fun(count:number) @数字变化回调
+---@param onEndAction fun(count:number) @动画结束回调
+---@param animDelay number @动画延迟
+---@param isRealtime boolean @是否使用真实时间
+---@return UnityEngine.Coroutine @协程实例
+function UITextHelper:PlayNumberAnim(luaBehaviourSuper, text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay, isRealtime)
+    return HonorCoroutineHelper:Start(handler(luaBehaviourSuper,
+            function()
+                self:CoPlayNumberAnim(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay, isRealtime)
+            end))
+end
+
+---播放数字动画(不与UI关联，关闭UI的时候不会自动停止协程，需要手动关闭协程，容易出错)
+---@type fun(text:UnityEngine.UI.MaskableGraphic,originCount:number,targetCount:number,duration:number,prefix:string,suffix:string,onChangeAction:fun(count:number),onEndAction:fun(count:number),animDelay:number):UnityEngine.Coroutine
+---@param text UnityEngine.UI.MaskableGraphic @文本
+---@param originCount number @起始数字
+---@param targetCount number @目标数字
+---@param duration number @动画时长
+---@param prefix string @前缀
+---@param suffix string @后缀
+---@param onChangeAction fun(count:number) @数字变化回调
+---@param onEndAction fun(count:number) @动画结束回调
+---@param animDelay number @动画延迟
+---@return UnityEngine.Coroutine @协程实例
+function UITextHelper:PlayNumberAnimAlone(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay)
+    return HonorCoroutineHelper:StartAlone(function()
+        self:CoPlayNumberAnim(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay)
+    end)
+end
+
+---播放数字动画
+---@type fun(text:UnityEngine.UI.MaskableGraphic,originCount:number,targetCount:number,duration:number,prefix:string,suffix:string,onChangeAction:fun(count:number),onEndAction:fun(count:number),animDelay:number,isRealtime:boolean):void
+---@param text UnityEngine.UI.MaskableGraphic @文本
+---@param originCount number @起始数字
+---@param targetCount number @目标数字
+---@param duration number @动画时长
+---@param prefix string @前缀
+---@param suffix string @后缀
+---@param onChangeAction fun(count:number) @数字变化回调
+---@param onEndAction fun(count:number) @动画结束回调
+---@param animDelay number @动画延迟
+---@param isRealtime boolean @是否使用真实时间
+function UITextHelper:CoPlayNumberAnim(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay, isRealtime)
+    if text == nil then
+        return
+    end
+
+    if isRealtime == nil then
+        isRealtime = false
+    end
+
+    if originCount == nil then
+        originCount = 0
+    end
+    if targetCount == nil then
+        targetCount = 0
+    end
+    if duration == nil then
+        duration = 0.1
+    end
+    if prefix == nil then
+        prefix = ""
+    end
+    if suffix == nil then
+        suffix = ""
+    end
+    if animDelay ~= nil and animDelay > 0 then
+        if isRealtime == true then
+            HonorCoroutineHelper:WaitForSecondsRealtime(animDelay)
+        else
+            HonorCoroutineHelper:WaitForSeconds(animDelay)
+        end
+    end
+
+    local tmpUGUI = text ~= nil and text.gameObject ~= nil and text.gameObject:GetComponent("TextMeshProUGUI") or nil
+    local lab = text ~= nil and text.gameObject ~= nil and text.gameObject:GetComponent("Text") or nil
+    local tmp = text ~= nil and text.gameObject ~= nil and text.gameObject:GetComponent("TextMeshPro") or nil
+
+    if originCount < 0 or math.abs(originCount - targetCount) == 0 then
+        local tmpStr = prefix .. targetCount .. suffix
+        if tmpUGUI ~= nil then
+            tmpUGUI.text = tmpStr
+        elseif lab ~= nil then
+            lab.text = tmpStr
+        elseif tmp ~= nil then
+            tmp.text = tmpStr
+        end
+        if onEndAction then
+            xpcall(onEndAction, __G__TRACK_BACK__, targetCount)
+        end
+        return
+    end
+
+    local waitFrameCount = duration / CS.UnityEngine.Time.deltaTime
+    if isRealtime == true then
+        waitFrameCount = duration / CS.UnityEngine.Time.unscaledDeltaTime
+    end
+    local baseStep = math.floor(math.abs(targetCount - originCount) / waitFrameCount) + 1
+    local step = originCount > targetCount and baseStep or -baseStep
+
+    local delay = -1
+    if waitFrameCount > math.abs(targetCount - originCount) then
+        delay = duration / math.abs(targetCount - originCount)
+        step = originCount > targetCount and 1 or -1
+    end
+
+    while originCount ~= targetCount do
+        originCount = originCount - step
+        if step > 0 and originCount <= targetCount then
+            originCount = targetCount
+        elseif step <= 0 and originCount >= targetCount then
+            originCount = targetCount
+        end
+
+        local tmpStr = prefix .. originCount .. suffix
+        if tmpUGUI ~= nil then
+            tmpUGUI.text = tmpStr
+        elseif lab ~= nil then
+            lab.text = tmpStr
+        elseif tmp ~= nil then
+            tmp.text = tmpStr
+        end
+
+        if onChangeAction then
+            xpcall(onChangeAction, __G__TRACK_BACK__, originCount)
+        end
+
+        if delay > 0 then
+            if isRealtime == true then
+                --coroutine.yield(CS.UnityEngine.WaitForSecondsRealtime(delay))
+                CoroutineHelper:WaitForSecondsRealtime(delay)
+            else
+                --coroutine.yield(CS.UnityEngine.WaitForSeconds(delay))
+                CoroutineHelper:WaitForSeconds(delay)
+            end
+        else
+            coroutine.yield()
+        end
+
+        if originCount == targetCount then
+            local tmpStr = prefix .. originCount .. suffix
+            if tmpUGUI ~= nil then
+                tmpUGUI.text = tmpStr
+            elseif lab ~= nil then
+                lab.text = tmpStr
+            elseif tmp ~= nil then
+                tmp.text = tmpStr
+            end
+        end
+    end
+    if onEndAction then
+        xpcall(onEndAction, __G__TRACK_BACK__, targetCount)
+    end
+end
+
+return UITextHelper

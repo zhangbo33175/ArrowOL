@@ -1,0 +1,155 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UIs.lua
+-- descrip:   界面配置汇总
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.UIs_Item @UI配置项条目
+---@field Name string @界面名称
+---@field Comment string @主描述
+---@field ABPath string @AB路径
+---@field AssetName string @资源名称
+---@field UIType number @界面类型
+---@field ZOrder number @层级序列值（UI追加类型无效）
+---@field IsModal boolean @模态界面（UI追加类型无效）
+---@field Priority number @模态优先级（UI追加类型无效）
+---@field CloseOnEscapeKeyUp boolean @原生返回按键抬起时关闭（UI追加类型无效）
+---@field BlockingMask string @可阻塞UI自身Raycaster的分层名称（UI追加类型无效）
+---@field BlockingObjects number @可阻塞UI自身Raycaster的对象类型（UI追加类型无效）
+---@field MultiTypeTextCompsCoexist boolean @多类型文本组件并存
+---@field IsFullScreenUI boolean @是否为全屏UI
+
+---@class UIs @界面配置汇总
+---@field UILogin Tables.UIs_Item @登录界面
+---@field UITermsPrivacy Tables.UIs_Item @隐私确认面板
+---@field UIMainHud Tables.UIs_Item @主页面界面
+---@field UILevelPause Tables.UIs_Item @暂停界面
+---@field UILevelRevive Tables.UIs_Item @复活界面
+---@field UILoadMap Tables.UIs_Item @加载地图Loading页面
+---@field UIFirstLoadMap Tables.UIs_Item @加载地图Loading页面
+---@field UILevelView Tables.UIs_Item @关卡选择界面
+UIs = {
+    UILogin = {
+        Name = "UILogin",
+        Comment = "登录界面",
+        ABPath = "Assets/Res/Prefabs/UIs/UILoad",
+        AssetName = "UILogin",
+        UIType = 1,
+        ZOrder = 1,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = true,
+    },
+    UITermsPrivacy = {
+        Name = "UITermsPrivacy",
+        Comment = "隐私确认面板",
+        ABPath = "Assets/Res/Prefabs/UIs/UITermsPrivacy",
+        AssetName = "UITermsPrivacy",
+        UIType = 1,
+        ZOrder = 32762,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = false,
+    },
+    UIMainHud = {
+        Name = "UIMainHud",
+        Comment = "主页面界面",
+        ABPath = "Assets/Res/Prefabs/UIs/UIMainHud",
+        AssetName = "UIMainHud",
+        UIType = 1,
+        ZOrder = 1,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = false,
+    },
+    UILevelPause = {
+        Name = "UILevelPause",
+        Comment = "暂停界面",
+        ABPath = "Assets/Res/Prefabs/UIs/UILevel",
+        AssetName = "UILevelPause",
+        UIType = 1,
+        ZOrder = 6,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = false,
+    },
+    UILevelRevive = {
+        Name = "UILevelRevive",
+        Comment = "复活界面",
+        ABPath = "Assets/Res/Prefabs/UIs/UILevel",
+        AssetName = "UILevelRevive",
+        UIType = 1,
+        ZOrder = 5,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = false,
+    },
+    UILoadMap = {
+        Name = "UILoadMap",
+        Comment = "加载地图Loading页面",
+        ABPath = "Assets/Res/Prefabs/UIs/UILoadMap",
+        AssetName = "UILoadMap",
+        UIType = 1,
+        ZOrder = 10000,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = false,
+    },
+    UIFirstLoadMap = {
+        Name = "UIFirstLoadMap",
+        Comment = "加载地图Loading页面",
+        ABPath = "Assets/Res/Prefabs/UIs/UILoad",
+        AssetName = "UIFirstLoadMap",
+        UIType = 1,
+        ZOrder = 10000,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = false,
+    },
+    UILevelView = {
+        Name = "UILevelView",
+        Comment = "关卡选择界面",
+        ABPath = "Assets/Res/Prefabs/UIs/Level/UILevelView",
+        AssetName = "UILevelView",
+        UIType = 1,
+        ZOrder = 1,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = true,
+    },
+}

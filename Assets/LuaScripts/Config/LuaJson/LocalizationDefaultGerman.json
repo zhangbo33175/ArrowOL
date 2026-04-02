@@ -1,0 +1,56 @@
+{
+    "Hotfix_StartButton_Text" : "START",
+    "Hotfix_RetryButton_Text" : "WIEDERHOLEN",
+    "Hotfix_CloseButton_Text" : "SCHLIESSEN",
+    "Hotfix_Ready_Download_Text" : "Verbindung zum Server herstellen...",
+    "Hotfix_Downloading_Text" : "Datei herunterladen:",
+    "Hotfix_Download_AllOver_Text" : "Wird geladen…",
+    "Hotfix_Download_Failed_To_Skip_Text" : "Download fehlgeschlagen, bereit das Spiel zu betreten.",
+    "Hotfix_Download_Error_Text" : "Download unnormal! Bitte versuchen Sie es erneut.",
+    "Hotfix_Download_Error_Quit_Text" : "Download fehlgeschlagen! Bitte überprüfen Sie das Netzwerk, starten Sie neu und versuchen Sie es erneut, bevor Sie die Anwendung beenden.",
+    "Hotfix_Error_Title_Text" : "Heißes Update-Fehler",
+    "Hotfix_Error_Desc_Text" : "Möchten Sie das Hot-Update erneut versuchen?",
+    "Hotfix_Error_RetryButton_Text" : "WIEDERHOLEN",
+    "Hotfix_Error_CloseButton_Text" : "SCHLIESSEN",
+    "App_Download_Title_Text" : "Es gibt eine neue Version!",
+    "App_Download_Desc_Text" : "Möchten Sie zum Laden herunterladen und installieren gehen?",
+    "App_Download_StartButton_Text" : "Geh zum Laden",
+    "App_Download_CloseButton_Text" : "SCHLIESSEN",
+    "GDPR_MainTitle_Text" : "Vielen Dank für den Download von <color=#5380C4>{0}</color>",
+    "GDPR_MainDesc_Text" : "<b>Privatsphäre ist sehr wichtig für {0}.</b>
+
+Wir benötigen Ihre Erlaubnis, um Ihre Daten zu verwenden und Ihnen ein personalisiertes Erlebnis zu bieten.
+
+<b>Mit Ihrer Zustimmung werden {1} und seine Partner technische Datenpunkte sammeln</b>, einschließlich Ihrer Werbekennung und IP-Adresse, um Ihnen ein einzigartiges Spielerlebnis zu bieten und unsere Spiele ständig zu verbessern.
+
+Diese Informationen werden speziell von <b>{2} und seinen Partnern für die folgenden Zwecke gesammelt:</b>",
+    "GDPR_GDPRDesc_Text" : "Personalisierte Anzeigen und Inhalte.",
+    "GDPR_CCPADesc_Text" : "Speichern oder Zugriff auf Informationen auf einem Gerät, entwickeln und verbessern Sie Produkte.",
+    "GDPR_COPPADesc_Text" : "Bestätigung, dass ich über 16 Jahre alt bin und die <b>{0} Datenschutzrichtlinien</b> gelesen, verstanden und akzeptiert habe.",
+    "GDPR_StartGameButton_Text" : "Beginnen Sie zu spielen",
+    "GDPR_MoreButton_Text" : "Erfahren Sie mehr",
+    "GDPR_MoreTitle_Text" : "Machen Sie <color=#5380C4>{0}</color> besser!",
+    "GDPR_MoreStartDesc_Text" : "Vielen Dank für den Download unseres Spiels! Wussten Sie, dass das Teilen Ihrer Daten der beste Weg ist, um ein einzigartiges Spielerlebnis zu genießen und uns bei der Verbesserung zu helfen? Sie können jederzeit über diese entscheiden, Ihre Zustimmung zu entfernen.
+Hier ist, warum Daten von dieser Anwendung gesammelt werden:",
+    "GDPR_MoreDesc1_Text" : "Um Statistiken über Ihre Spielverwendung zu erstellen, einschließlich der Anzahl der gespielten Spiele und der Spielzeit, was uns ermöglicht, Ihr Spielerlebnis zu verbessern.",
+    "GDPR_MoreDesc2_Text" : "Um Ihre Interessen zu verstehen und Ihnen gezielte Werbeanzeigen zu bieten, die für Sie relevanter sind.",
+    "GDPR_MoreDesc3_Text" : "Technische Probleme lösen.",
+    "GDPR_MoreFinalDesc_Text" : "Wenn Sie Ihre persönlichen Daten nicht wie in unserer Datenschutzrichtlinie beschrieben teilen möchten, werden Sie weiterhin Zugang zu unseren Anwendungen haben. Ihre Erfahrung könnte sich unterscheiden und eine größere Menge an nicht gezielter Werbung beinhalten.",
+    "GDPR_MoreBackButton_Text" : "Zurück",
+    "GDPR_ResetTitle_Text" : "Einrichtung der Informationsfreigabe",
+    "GDPR_ResetDesc_Text" : "Sie können die Daten auswählen, die Sie teilen möchten:",
+    "GDPR_ResetGDPRDesc_Text" : "Werbung",
+    "GDPR_ResetCCPADesc_Text" : "Support und Analytik",
+    "GDPR_SaveButton_Text" : "Speichern Sie meine Auswahl",
+    "GDPR_CloseButton_Text" : "Schließen",
+    "Waiting_Desc_Text" : "Bitte warten...",
+    "Net_Error_Text" : "Das Netzwerk ist abnormal. Überprüfen Sie das Netzwerk und versuchen Sie es erneut.",
+    "IAP_Init_Error_Text" : "Die Zahlungsinitialisierung ist fehlgeschlagen, die Zahlung kann nicht gestartet werden.",
+    "IAP_Paying_Text" : "Die Zahlung wird bearbeitet, bitte warten...",
+    "IAP_Validating_Text" : "Bestellung wird überprüft, bitte warten...",
+    "IAP_No_Net_Validate_Error_Text" : "Netzwerkausnahme, Bestellungsverifizierung fehlgeschlagen, bitte versuchen Sie es später erneut......",
+    "IAP_UpdateReceipt_Text" : "Bestellaktualisierung, bitte warten...",
+    "UpdateTitle" : "Aktualisierung erforderlich!",
+    "UpdateText" : "Gute Nachrichten! \nEs ist eine neue Version verfügbar!",
+    "UpdateButton" : "Install"
+}

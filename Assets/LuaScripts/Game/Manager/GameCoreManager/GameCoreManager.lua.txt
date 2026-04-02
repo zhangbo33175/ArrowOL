@@ -1,0 +1,646 @@
+--=====================================================================================================
+-- descrip:   游戏核心类
+--=====================================================================================================
+
+---@class GameCoreManager @游戏核心类
+---@field _CorePlayMgrWaiter CorePlayMgrWaiter @游戏服务员指令
+---@field _CorePlayMgrData CorePlayMgrData @游戏关键数据
+---@field _CorePlayMgrLevelFinish CorePlayMgrLevelFinish @关卡结束
+---@field _CurLevelData Tables.LevelData_Item @当前关卡数据
+---@field _IsPlaying boolean @是否正在游戏中
+---@field _IsGameOver boolean @是否游戏结束
+---@field _IsExitGame boolean @是否退出游戏
+---@field _IsSuccessFinishGame boolean @是否成功完成游戏
+---@field _CorePlayMgrSkill CorePlayMgrSkill @关于技能的效果类
+---@field _CorePlayMgrUseProp CorePlayMgrUseProp @关于使用道具的类
+local GameCoreManager = class("GameCoreManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GameCoreManager:ctor(args)
+    self._IsPlaying = false                                                           ---@type boolean                       ---是否正在游戏中
+    self._IsGameOver = false                                                          ---@type boolean                       ---是否游戏结束
+    self._IsExitGame = false                                                          ---@type boolean                       ---是否退出游戏
+    self._IsSuccessFinishGame = false                                                 ---@type boolean                       ---是否成功完成游戏
+    self._CurLevelData = nil                                                          ---@type Tables.LevelData_Item         ---当前关卡数据
+    self._eGameOverType = EGameOverType.None                                          ---@type EGameOverType                 ---游戏结束类型(退出关卡的原因)
+    self._HandleGameOverMsgQueue = HonorQueue:Create()                                     ---@type Queue                         ---游戏结束消息队列
+    self._HandleGameOverMsgQueueCoroutine = nil                                       ---@type UnityEngine.Coroutine         ---游戏结束消息队列协程
+    self._ExitSureTip = {}                                                            ---@type table                        ---退出关卡二次确认提示 { id = id, strNum = num }
+    self._ExitSureTipAgain = {}                                                      ---@type table<string,LevelChallengeScore>                --- 退出关卡二次确认提示
+
+    --self._CorePlayMgrWaiter = require("CorePlayMgrWaiter"):Create()
+    --self._CorePlayMgrData = require("CorePlayMgrData"):Create()
+    --self._CorePlayMgrLevelFinish = require("CorePlayMgrLevelFinish"):Create()
+    ----self._CorePlayMgrOrders = require("CorePlayMgrOrders"):Create()
+    --self._CorePlayMgrSkill = require("CorePlayMgrSkill"):Create()
+    --self._CorePlayMgrUseProp = require("CorePlayMgrUseProp"):Create()
+    --self._CorePlayMgrEffect = require("CorePlayMgrEffect"):Create()
+end
+
+---创建函数
+---@type fun(args:table):CorePlayMgr
+---@param args table @自定义参数
+---@return CorePlayMgr @
+function GameCoreManager:Create(args)
+    local obj = GameCoreManager.new(args)
+    return obj
+end
+
+---清空数据
+---@type fun():void
+function GameCoreManager:ClearData()
+    self._IsPlaying = false
+    self._IsGameOver = false
+    self._IsExitGame = false
+    self._IsSuccessFinishGame = false
+    self._eGameOverType = EGameOverType.None
+    self._CurLevelData = nil
+    self._ExitSureTip = {}
+    self._HandleGameOverMsgQueue:Clear()
+    self._CorePlayMgrWaiter:ClearCommands()
+    self._CorePlayMgrData:ClearData()
+    self._CorePlayMgrEffect:ClearData()
+    --self._CorePlayMgrOrders:ClearData()
+    self._CorePlayMgrLevelFinish:ClearData()
+    self._CorePlayMgrUseProp:ClearData()
+end
+
+---游戏胜利
+---@type fun():void
+function GameCoreManager:DoGameVictory()
+    --- 发送任务事件
+    self:SendQuestFinishProgress()
+ 
+end
+
+---发送关卡完成进度，供任务系统检测进度
+---@type fun():void
+function GameCoreManager:SendQuestFinishProgress()
+   
+end
+
+---是否在挑战关内
+---@type fun():boolean
+---@return boolean @是否在挑战关内
+function GameCoreManager:IsInChallengeLevel()
+  
+end
+
+---游戏失败
+---@type fun(eGameOverType:EGameOverType):void
+---@param eGameOverType EGameOverType @游戏失败类型
+function GameCoreManager:DoGameFailed(eGameOverType)
+  
+end
+
+---游戏复活
+function GameCoreManager:DoGameRevive()
+  
+end
+
+---获取游戏结束类型（原因）,当 IsGameOver 为 true 时，才有意义
+---@type fun():EGameOverType
+---@return EGameOverType @游戏结束类型
+function GameCoreManager:GetGameOverType()
+
+end
+
+---当前关卡是否为无限关
+---@type fun():boolean
+---@return boolean
+function GameCoreManager:IsUnlimitedGuests()
+    return self._CurLevelData.UnlimitedGuests == 1
+end
+
+---返回关卡数据
+---@type fun():Tables.LevelData_Item
+---@return Tables.LevelData_Item @ 当前关卡数据
+function GameCoreManager:GetCurLevelData()
+    return self._CurLevelData
+end
+
+---是否是最新章节
+---@type fun():boolean
+---@return boolean @ 是否是最新章节
+function GameCoreManager:IsLatestChapter()
+    if not self._CurLevelData then
+        return false
+    end
+
+    return self._CurLevelData.ChapterId == ChapterListMgr:GetLatestChapterId()
+end
+
+---游戏是否结束
+---@type fun():boolean
+---@return boolean @游戏是否结束
+function GameCoreManager:IsGameOver()
+    return self._IsGameOver
+end
+
+--{{{ 检查游戏结果
+---触发游戏结束
+---@type fun(eGameOverType:EGameOverType,bounds: LuaBoundsData):void
+---@param eGameOverType EGameOverType @游戏失败类型
+---@param bounds LuaBoundsData @游戏需要提示的边界
+function GameCoreManager:TriggerGameOver(eGameOverType, bounds)
+    
+end
+
+---添加游戏结束消息
+---@type fun(eGameOverType:EGameOverType,bounds: LuaBoundsData):void
+---@param eGameOverType EGameOverType @游戏失败类型
+---@param bounds LuaBoundsData @游戏需要提示的边界
+function GameCoreManager:AddHandleGameOverMsg(eGameOverType, bounds)
+ 
+end
+
+---是否存在相同的游戏结束类型数据
+---@type fun(eGameOverType:EGameOverType,timeStamp:number):boolean
+---@param eGameOverType EGameOverType @游戏失败类型
+---@param timeStamp number @时间戳
+function GameCoreManager:HasSameTriggerGameOverTypeData(eGameOverType, timeStamp)
+   
+    return false
+end
+
+---检查当前是否还存在客人，不论是队列里还是点餐台上
+---@type fun():boolean
+---@return boolean @ 场上或者队列里还存在客人(note:无限客人关始终认为存在客人)
+function GameCoreManager:IsExistGuest()
+    return (self:IsUnlimitedGuests() or self._CorePlayMgrData._RemainGuestCount > 0 or MapMgr:GetOrderMachineGuestCount() > 0)
+end
+
+---检查游戏结果
+---@type fun(eGameFailedType:EGameOverType,bounds:LuaBoundsData):void
+---@param eGameOverType EGameOverType @游戏结束类型
+---@param bounds LuaBoundsData @游戏需要提示的边界
+function GameCoreManager:CheckGameResult(eGameOverType, bounds)
+   
+end
+
+---检查是否满足游戏目标（外部不可调用）
+---@type fun(hasCoins:boolean, eGameFailedType:EGameOverType,bounds:LuaBoundsData):void
+---@param hasCoins boolean @是否有金币
+---@param eGameOverType EGameOverType @游戏结束类型
+---@param bounds LuaBoundsData @游戏需要提示的边界
+function GameCoreManager:CheckGoalReach(hasCoins, eGameOverType, bounds)
+    
+end
+
+---等待收集金币动画
+---@type fun(finishCallback:fun):void
+---@param finishCallback fun @完成回调
+function GameCoreManager:WaitCollectCoinsAnim(finishCallback)
+    -- GameManager:PauseGame()
+    GameMainRoot.UI:AddUIMaskLayerRef("GameCoreManager:WaitCollectCoinsAnim")
+    ----------------------------------------- 添加UI遮罩层
+    DOTween.Sequence()
+           :AppendInterval(Tables.Constants.GoalsCollectTime.Value[1] + Tables.Constants.GoalsBarFillTime.Value[1])
+           :SetUpdate(true)
+           :AppendCallback(function()
+        GameMainRoot.UI:SubUIMaskLayerRef()
+        ------------------------------------- 移除UI遮罩层
+        pcall(finishCallback)
+        -- GameManager:ResumeGame()
+    end)
+end
+
+---关卡复活时需要额外检查队列里和场上没有任何客人了
+function GameCoreManager:OnReviveCheckGuestOut()
+    if not self:IsExistGuest() then
+        PrintInfo("游戏结束队列协程等待消息  000")
+        self:TriggerGameOver(EGameOverType.GuestOut, nil)
+    end
+end
+
+---启动游戏检查结束队列
+function GameCoreManager:StartCheckGameOverMsgQueue()
+    self:StopCheckGameOverMsgQueue()
+    self._HandleGameOverMsgQueueCoroutine = CoroutineHelper:StartAlone(function()
+        self:CheckGameOverMsgQueueCoroutine()
+    end)
+end
+
+---停止游戏检查结束队列
+function GameCoreManager:StopCheckGameOverMsgQueue()
+    if self._HandleGameOverMsgQueueCoroutine then
+        CoroutineHelper:StopAlone(self._HandleGameOverMsgQueueCoroutine)
+    end
+    self._HandleGameOverMsgQueueCoroutine = nil
+    self._HandleGameOverMsgQueue:Clear()
+end
+
+---检查游戏结束队列协程
+---@type fun():void
+function GameCoreManager:CheckGameOverMsgQueueCoroutine()
+    --PrintInfo("游戏结束队列协程开始")
+    local waitUtil1 = nil
+    local waitUtil2 = nil
+    ---@type HandleTriggerGameOverTypeData
+    local triggerGameOverTypeData = nil
+    while self._IsGameOver ~= true do
+        --PrintInfo("游戏结束队列协程等待消息  111")
+        ---此处是为了减少yield处理，会多等待一帧
+        if self._HandleGameOverMsgQueue:Count() <= 0 then
+            waitUtil1 = waitUtil1 or CS.UnityEngine.WaitUntil(function()
+                return self._HandleGameOverMsgQueue:Count() > 0
+            end)
+            coroutine.yield(waitUtil1)
+        end
+        --PrintInfo("游戏结束队列协程等待消息  222")
+        ---@type HandleTriggerGameOverTypeData
+        triggerGameOverTypeData = self._HandleGameOverMsgQueue:Peek()
+        if triggerGameOverTypeData then
+            if self._IsGameOver ~= true then
+                if self._CorePlayMgrData:IsTriggerLimit(triggerGameOverTypeData.gameOverType) then
+                    self:FireTriggerGameOver(triggerGameOverTypeData.gameOverType, triggerGameOverTypeData.bounds)
+                else
+                    self:CheckGameResult(triggerGameOverTypeData.gameOverType, triggerGameOverTypeData.bounds)
+                end
+                waitUtil2 = waitUtil2 or CS.UnityEngine.WaitUntil(function()
+                    return triggerGameOverTypeData.isHandle == true
+                end)
+                coroutine.yield(waitUtil2)
+                --note:变量声明移出while之后，每次循环结束都要重置为nil
+                triggerGameOverTypeData = nil
+            end
+        end
+    end
+    --PrintInfo("游戏结束队列协程结束")
+end
+
+---完成处理游戏结束消息
+---@type fun():void
+function GameCoreManager:FinishHandleTriggerGameOverTypeData()
+  
+end
+
+---触发游戏结束事件
+---@type fun(gameFailedType:EGameOverType,bounds:LuaBoundsData):void
+---@param gameOverType EGameOverType @游戏结束类型
+---@param bounds LuaBoundsData @游戏需要提示的边界
+function GameCoreManager:FireTriggerGameOver(gameOverType, bounds)
+    ---记录游戏因限制条件失败时的限制条件ID
+end
+
+--}}}
+
+--{{{ 游戏周期
+function GameCoreManager:OnInitGame()
+   
+end
+
+---进入游戏
+function GameCoreManager:OnEnterGame()
+    self._IsPlaying = false
+    self._IsExitGame = false
+end
+
+---游戏开始
+function GameCoreManager:OnBeginGame()
+    
+end
+
+---游戏暂停
+function GameCoreManager:OnPauseGame()
+    if not PlayHelper:IsInLevelState() then
+        return
+    end
+end
+
+---游戏恢复
+function GameCoreManager:OnResumeGame()
+    if not PlayHelper:IsInLevelState() then
+        return
+    end
+end
+
+---游戏结束
+function GameCoreManager:OnGameOver()
+    self._IsPlaying = false
+    self._IsExitGame = false
+    self:StopCheckGameOverMsgQueue()
+    self._CorePlayMgrUseProp:OnGameOver() -- 清除使用道具
+    --self._CorePlayMgrOrders:OnGameOver()
+    SoundMgr:StopCurBGM()
+end
+
+---游戏退出
+function GameCoreManager:OnExitGame()
+    self._IsPlaying = false
+    self._IsExitGame = true
+end
+
+---游戏重玩
+function GameCoreManager:OnRePlayGame()
+    self:OnBeginGame()
+end
+
+--}}}
+
+---@type fun():number
+---@return number @ 烧糊时间
+function GameCoreManager:GetStoveBurnTime()
+    return self._CurLevelData.BurnTime * self._CorePlayMgrData._difficultyBurnFactor
+end
+
+---体力是否足够
+---@type fun():boolean
+---@return boolean @ 体力是否足够
+function GameCoreManager:IsLifeEnough()
+    return BuffMgr:IsBuffValid(EResourceIDs.UnlimitedLife) or ItemMgr:LifeRemain() > 0
+end
+
+---扣除一点体力
+function GameCoreManager:SubLife()
+    if BuffMgr:IsBuffValid(EResourceIDs.UnlimitedLife) then
+        self._CorePlayMgrData._LifeCost = false
+        return
+    end
+    self._CorePlayMgrData._LifeCost = true
+    ItemMgr:SubLife()
+end
+
+---返还一点体力
+---@type fun(isSuccess:boolean):void
+---@param isSuccess boolean @ 游戏是否成功通关
+function GameCoreManager:GiveBackLife(isSuccess)
+    if not isSuccess or not self._CorePlayMgrData._LifeCost then
+        return
+    end
+    if MapMgr.CurLoadMapType == MapType.FoodTruck then
+        -- 快餐车玩法
+        FoodTruckPlayHelper:AddLife(1) --返还一点体力
+    else
+        ItemMgr:AddLife()
+    end
+end
+
+---本关是否消耗了体力
+---@type fun():boolean
+---@return boolean @是否消耗了体力
+function GameCoreManager:GetLevelLifeCost()
+    return self._CorePlayMgrData._LifeCost
+end
+
+---获取关卡退出二次确认提示
+---@type fun():table
+---@return table
+function GameCoreManager:GetExitSureTip()
+    return self._ExitSureTip
+end
+
+---将关卡产出的分数提示插入到退出提示里
+---@type fun():void
+function GameCoreManager:SetupLevelChallengePointsExitTip()
+    ActivityMgr:TryLevelExitTipRunningActivity()
+    ---@param activityScore LevelChallengeScore
+    for _, activityScore in pairs(self._CorePlayMgrData:GetActivityPoints()) do
+        local activityCfg = EventDataMgr:GetEventDataById(activityScore.activityId)
+        if activityCfg.ExitTipsID then
+            ---不检查二次 ， 只检查三次
+            --local exist = self:FindExitSureTip(activityCfg.ExitTipsID)
+            --if exist then
+            --    exist.num = activityScore.double
+            --elseif Tables.ExitTips[activityCfg.ExitTipsID] then
+            --    self:RegisterExitSureTip(activityCfg.ExitTipsID,activityScore.double)
+            --end
+
+            if activityScore.tipsAgain then
+                local tag = ActivityMgr:CombineActivityIDAndPeriod(activityScore.activityId, activityScore.period)
+                self._ExitSureTipAgain[tag] = activityScore
+            end
+        end
+    end
+end
+
+---使用id查询
+---@type fun(id):table
+---@param id : @ 提示的ID
+---@return table
+function GameCoreManager:FindExitSureTip(id)
+    for _, tip in ipairs(self._ExitSureTip) do
+        if tip.id == id then
+            return tip
+        end
+    end
+    return nil
+end
+
+---是否有退出二次确认提示
+---@type fun():boolean
+---@return boolean
+function GameCoreManager:HasExitSureTip()
+    return not TableIsEmpty(self._ExitSureTip)
+end
+
+---消费一个三次提示
+---@type fun():LevelChallengeScore
+---@return LevelChallengeScore @ 三度提示
+function GameCoreManager:UseExitSureTipAgain()
+    local k, v = next(self._ExitSureTipAgain)
+    if k then
+        self._ExitSureTipAgain[k] = nil
+    end
+    return v
+end
+
+---注册退出二次确认提示
+---@type fun(id, num):void
+---@param id string @ 提示的ID
+---@param strNum string @ 提示的数字字符串
+---@return void
+function GameCoreManager:RegisterExitSureTip(id, strNum)
+    local tip = self:FindExitSureTip(id)
+    if tip then
+        tip.strNum = strNum
+    else
+        table.insert(self._ExitSureTip, { id = id, strNum = strNum })
+    end
+end
+
+---注销退出二次确认提示
+---@type fun(id):void
+---@param id string @ 提示的ID
+---@return void
+function GameCoreManager:UnRegisterExitSureTip(id)
+    for i, tip in ipairs(self._ExitSureTip) do
+        if tip.id == id then
+            table.remove(self._ExitSureTip, i)
+            break
+        end
+    end
+end
+
+---当前关卡主目标
+function GameCoreManager:GetMainGoalCfg()
+    local mainId = self._CorePlayMgrData:CurRootGoalID()
+    local mainNum = self._CorePlayMgrData:TotalRootGoalCount()
+    local mainProgress = self._CorePlayMgrData:CurRootGoalCount()
+    return mainId, mainNum, mainProgress
+end
+
+--- 获取副关卡进度
+---@type fun(goalId:string):number,number
+---@param goalId string @副目标ID
+---@return number,number @总数，当前进度
+function GameCoreManager:GetAdditionalGoalProgressById(goalId)
+    if not self._CorePlayMgrData:IsEnableAdditionalGoal(goalId) then
+        return nil, nil
+    end
+    local secNum = self._CorePlayMgrData:TotalAdditionalGoalCount(goalId)
+    local secProgress = self._CorePlayMgrData:CurAdditionalGoalCount(goalId)
+    return secNum, secProgress
+end
+
+---记录一次复活操作
+function GameCoreManager:RecordRevive()
+    return self._CorePlayMgrData:RecordRevive()
+end
+
+---已经使用的复活次数
+function GameCoreManager:GetReviveNumberOfTimes()
+    return self._CorePlayMgrData:GetReviveNumberOfTimes()
+end
+
+---增加一次看广告复活次数
+function GameCoreManager:AddWatchAdvertiseCount()
+    return self._CorePlayMgrData:AddWatchAdvertiseCount()
+end
+
+---增加一次广告复活按钮展示次数
+function GameCoreManager:AddShowWatchAdvertiseButtonCount()
+    return self._CorePlayMgrData:AddShowWatchAdvertiseButtonCount()
+end
+
+---获取看广告复活按钮展示次数
+function GameCoreManager:GetShowWatchAdvertiseButtonCount()
+    return self._CorePlayMgrData:GetShowWatchAdvertiseButtonCount()
+end
+
+---获取看广告复活次数
+---@type fun():number
+---@return number
+function GameCoreManager:GetWatchAdvertiseCount()
+    return self._CorePlayMgrData:GetWatchAdvertiseCount()
+end
+
+---获取剩余时间
+function GameCoreManager:GetRemainTime()
+    return self._CorePlayMgrData._RemainTime
+end
+
+---当前关卡限制条件
+---@type fun():List<number>
+function GameCoreManager:GetLimitConfig()
+    return self._CorePlayMgrData:GetLevelLimitData()
+end
+
+---获取限制条件ID
+---@type fun(limitType:EGameOverType):string
+---@param limitType EGameOverType @限制类型
+---@return string @限制条件ID
+function GameCoreManager:GetLimitIdByLimitType(limitType)
+    if limitType == EGameOverType.LostGuest then
+        return EGoalId.NotLostGuest
+    elseif limitType == EGameOverType.LostItem then
+        return EGoalId.NotLostItem
+    elseif limitType == EGameOverType.GuestAnger then
+        return EGoalId.NotGuestAnger
+    elseif limitType == EGameOverType.BurnedFood then
+        return EGoalId.NotBurnedFood
+    end
+    return nil
+end
+
+---@type fun():boolean
+---@return boolean
+function GameCoreManager:IsPlaying()
+    return self._IsPlaying
+end
+
+--region 拦截道具使用
+---使用某个道具
+---@type fun(boosterID:string, num:number):void
+---@param boosterID string @要使用的道具ID，传入nil时不处理
+---@param num number @确认使用的道具数量，传入nil时默认为1
+function GameCoreManager:OnRequestUsingSkill(boosterID, num)
+    if not boosterID then
+        return
+    end
+
+    self._CorePlayMgrUseProp:OnUsingBooster(boosterID, num)
+end
+
+---是否允许使用这个局内道具
+---@type fun(boosterID:string):boolean
+---@param boosterID string @ 检查的道具ID
+---@return boolean @ 允许使用
+function GameCoreManager:AllowUsingBooster(boosterID)
+    if boosterID == EResourceIDs.Candy then
+        return self._CorePlayMgrUseProp:AllowUsingCandy()
+    elseif boosterID == EResourceIDs.WonderDish then
+        return self._CorePlayMgrUseProp:AllowUsingWonderDish()
+    elseif boosterID == EResourceIDs.Freeze then
+        return self._CorePlayMgrUseProp:AllowUsingFreeze()
+    elseif boosterID == EResourceIDs.SuperDelivery then
+        return self._CorePlayMgrUseProp:AllowUsingSuperDelivery()
+    end
+end
+--endregion
+
+--region 查询某些持续性道具是否处于生效状态
+---@type fun():boolean
+---@return boolean @ 双倍金币是否处于生效状态
+function GameCoreManager:IsDoubleProfitsInEffect()
+    ---与直接使用ItemMgr:InActive并无区别
+    return self._CorePlayMgrData:GetCoinCheckoutFactor() > 1
+end
+
+---@type fun():boolean
+---@return boolean @ 溜冰鞋是否处于生效状态
+function GameCoreManager:IsTurboSkatesInEffect()
+    ---与直接使用ItemMgr:InActive并无区别
+    return self._CorePlayMgrData:GetChefSpeedFactor() > 1
+end
+
+---@type fun():boolean
+---@return boolean @ 超级锅是否处于生效状态
+function GameCoreManager:IsMegaPanInEffect()
+    return ItemMgr:InActive(EResourceIDs.MegaPan)
+end
+
+---@type fun():boolean
+---@return boolean @ 时间冻结是否处于生效状态
+function GameCoreManager:IsFreezeInEffect()
+    return ItemMgr:InActive(EResourceIDs.Freeze)
+end
+
+---设置正在进行的关卡信息，用于判断是否正常结束关卡
+---@type fun(levelInfo:string):void
+---@param levelInfo string @关卡信息
+---@return void
+function GameCoreManager:SetPlayingLevelTag(levelInfo)
+    PbRootData.GameData.playingLevelTag = levelInfo
+
+    PbIO.GameData.Save_playingLevelTag()
+end
+
+---获取正在进行的关卡信息，用于判断是否正常结束关卡
+---@type fun():string
+---@return string @关卡信息
+function GameCoreManager:GetPlayingLevelTag()
+    return PbRootData.GameData.playingLevelTag
+end
+
+---是否是吸铁石关卡
+---@type fun():boolean
+---@return boolean @是否是吸铁石关卡
+function GameCoreManager:IsMagnetLevel()
+    return self._CorePlayMgrData:IsMagnetLevel()
+end
+--endregion
+
+return GameCoreManager

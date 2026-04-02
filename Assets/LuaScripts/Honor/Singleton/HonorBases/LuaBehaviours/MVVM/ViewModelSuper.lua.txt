@@ -1,0 +1,259 @@
+--=====================================================================================================
+-- descrip:   视图模型通用父类（MVVM）
+--=====================================================================================================
+
+---@class ViewModelSuper @视图模型通用父类（MVVM）
+local ViewModelSuper = class("ViewModelSuper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ViewModelSuper:ctor(args)
+	self._args = args.args							-- 初始化传入参数
+	self._params = args.params						-- 自定义传入参数
+	self._name = self.__cname						-- 初始化名称
+	self._mvvmType = "ViewModel"					-- mvvm类型
+	self._commonName = string.sub(self._name,1,string.len(self._name) - string.len(self._mvvmType))  -- 公共名称
+	self._initOver = false							-- 初始化完成标记
+	self._bindValues = {}							-- 绑定值集合
+	self._parentViewModel = args.params ~= nil and args.params.parentViewModel or nil  	-- 父ViewModel（实现ViewModel之间共享数据，需要创建View时手动传入）
+	self.cs = self._args.env.cs						-- cs脚本
+end
+
+---创建函数
+---@type fun(args:table):ViewModelSuper
+---@param args table @自定义参数
+---@return ViewModelSuper @视图模型通用父类（MVVM）
+function ViewModelSuper:Create(args)
+	local obj = ViewModelSuper.new(args)
+	return obj
+end
+
+---唤醒
+---@type fun():void
+function ViewModelSuper:Awake()
+
+end
+
+---启用
+---@type fun():void
+function ViewModelSuper:OnEnable()
+
+end
+
+---初始化回调（ViewSuper首次调用SetViewModel时触发）
+---@type fun():void
+function ViewModelSuper:OnInit()
+	-- 处理有可能存在的绑定值初始化赋值操作
+	for _, bindValue in pairs(self._bindValues) do
+		bindValue:SetValue(bindValue._args.value)
+	end
+end
+
+---开始
+---@type fun():void
+function ViewModelSuper:Start()
+
+end
+
+---心跳（自定义）
+---@type fun():void
+function ViewModelSuper:Proc()
+
+end
+
+---禁用
+---@type fun():void
+function ViewModelSuper:OnDisable()
+
+end
+
+---销毁回调
+---@type fun():void
+function ViewModelSuper:OnDestroy()
+	HonorEventHelper:RemoveListenerByTarget(self)
+end
+
+---注册监听代码处（需要由子类重写）
+---@type fun():void
+function ViewModelSuper:OnAddListeners()
+
+end
+
+---添加绑定值
+---@type fun(name:string, value:any, isTrigger:boolean):BindValue
+---@param name string @绑定值变量名称
+---@param value any @绑定值内容（可传可不传）
+---@param isTrigger boolean @是否为Trigger
+---@return BindValue @绑定值
+function ViewModelSuper:AddBindValue(name, value, isTrigger)
+	if name ~= nil and type(name) == "string" then
+		isTrigger = isTrigger ~= nil and isTrigger or false
+		self._bindValues[name] = require('BindValue'):Create({name = name, value = value, isTrigger = isTrigger})
+		return self._bindValues[name]
+	end
+	return nil
+end
+
+---设置绑定值内容
+---@type fun(name:string, value:any):void
+---@param name string @绑定值变量名称
+---@param value any @绑定值内容
+function ViewModelSuper:SetBindValue(name, value)
+	self._bindValues[name]:SetValue(value)
+end
+
+---获取绑定值内容
+---@type fun(name:string):BindValue
+---@param name string @绑定值变量名称
+---@return any @绑定值内容
+function ViewModelSuper:GetBindValue(name)
+	return self._bindValues[name]:GetValue()
+end
+
+---设置绑定数据集合中指定位置的Item值内容
+---@type fun(name:string, index:number, itemValue:any):void
+---@param name string @绑定数据集合名称
+---@param index number @索引位置
+---@param itemValue any @Item值内容
+function ViewModelSuper:SetBindValueItem(name, index, itemValue)
+	self._bindValues[name]:SetValueItem(index, itemValue)
+end
+
+---从绑定数据集合中获取指定位置的Item值内容
+---@type fun(name:string, index:number):any
+---@param name string @绑定数据集合名称
+---@param index number @索引位置
+---@return any @Item值内容
+function ViewModelSuper:GetBindValueItem(name, index)
+	return self._bindValues[name]:GetValueItem(index)
+end
+
+---获取绑定数据集合中Item值的总数量
+---@type fun(name:string):number
+---@param name string @绑定数据集合名称
+---@return number @总数量
+function ViewModelSuper:GetBindValueItemsCount(name)
+	return self._bindValues[name]:GetValueItemsCount()
+end
+
+---向绑定数据集合追加Item值内容
+---@type fun(name:string, itemValue:any):void
+---@param name string @绑定数据集合名称
+---@param itemValue any @数据集合的Item值内容
+function ViewModelSuper:AddBindValueItem(name, itemValue)
+	self._bindValues[name]:AddValueItem(itemValue)
+end
+
+---向绑定数据集合插入Item值内容
+---@type fun(name:string, index:number, itemValue:any):void
+---@param name string @绑定数据集合名称
+---@param index number @插入索引位置
+---@param itemValue any @数据集合的Item值内容
+function ViewModelSuper:InsertBindValueItem(name, index, itemValue)
+	self._bindValues[name]:InsertValueItem(index, itemValue)
+end
+
+---移除绑定数据集合中的Item值内容
+---@type fun(name:string, itemValue:any, removeAll:boolean):boolean
+---@param name string @绑定数据集合名称
+---@param itemValue any @数据集合的Item值内容
+---@param removeAll boolean @是否移除集合中所有该Item值
+---@return boolean @是否移除成功
+function ViewModelSuper:RemoveBindValueItem(name, itemValue, removeAll)
+	return self._bindValues[name]:RemoveValueItem(itemValue, removeAll)
+end
+
+---移除绑定数据集合中指定索引位置的Item值内容
+---@type fun(name:string, index:number):boolean
+---@param name string @绑定数据集合名称
+---@param index number @数据集合Item索引值
+---@return boolean @是否移除成功
+function ViewModelSuper:RemoveBindValueItemAt(name, index)
+	return self._bindValues[name]:RemoveValueItemAt(index)
+end
+
+---移除绑定数据集合中所有Item值内容
+---@type fun(name:string):void
+---@param name string @绑定数据集合名称
+function ViewModelSuper:RemoveAllBindValueItems(name)
+	self._bindValues[name]:RemoveAllValueItems()
+end
+
+---绑定数据集合中是否包含指定的Item值内容
+---@type fun(name:string, itemValue:any):boolean
+---@param name string @绑定数据集合名称
+---@param itemValue any @待查找的值内容
+---@return boolean @是否包含
+function ViewModelSuper:ContainsBindValueItem(name, itemValue)
+	return self._bindValues[name]:ContainsValueItem(itemValue)
+end
+
+---指定的Item值内容在绑定数据集合中的索引位置
+---@type fun(name:string, itemValue:any):number
+---@param name string @绑定数据集合名称
+---@param itemValue any @待查找的值内容
+---@return number @索引位置
+function ViewModelSuper:IndexOfBindValueItem(name, itemValue)
+	return self._bindValues[name]:IndexOfValueItem(itemValue)
+end
+
+---获取共享数据链中指定父ViewModel
+---@type fun(name:string):ViewModelSuper
+---@param name string @共享数据链指定父ViewModel名称
+---@return ViewModelSuper @ViewModel
+function ViewModelSuper:Ancestors(name)
+	if name ~= nil and type(name) == "string" then
+		local parentViewModel = self._parentViewModel
+		while parentViewModel ~= nil do
+			if parentViewModel._name == name then
+				return parentViewModel
+			end
+			parentViewModel = parentViewModel._parentViewModel
+		end
+	end
+	return nil
+end
+
+---被使用前回调（当被设置到ViewSuper时触发）
+---@type fun():void
+function ViewModelSuper:OnBeforeUse()
+	if self._initOver == false then
+		self:OnAddListeners()
+	end
+end
+
+---被使用后回调（当被设置到ViewSuper时触发）
+---@type fun():void
+function ViewModelSuper:OnAfterUse()
+	if self._initOver == false then
+		self:OnInit()
+		self._initOver = true
+	end
+end
+
+---打开回调
+---@type fun():void
+function ViewModelSuper:OnOpen()
+
+end
+
+---打开结束回调
+---@type fun():void
+function ViewModelSuper:OnOpenOver()
+
+end
+
+---关闭回调
+---@type fun():void
+function ViewModelSuper:OnClose()
+
+end
+
+---关闭结束回调
+---@type fun():void
+function ViewModelSuper:OnCloseOver()
+
+end
+
+return ViewModelSuper

@@ -1,0 +1,82 @@
+--=====================================================================================================
+-- descrip:   账户助手
+--=====================================================================================================
+
+---@class HonorAccountHelper @账户助手
+local HonorAccountHelper = class("HonorAccountHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HonorAccountHelper:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):HonorAccountHelper
+---@param args table @自定义参数
+---@return AccountHelper @账户助手实例
+function HonorAccountHelper:Create(args)
+	local obj = HonorAccountHelper.new(args)
+	return obj
+end
+
+---注册并登录用户
+---@type fun(force:boolean, callback:function):void
+---@param force boolean @强制注册
+---@param callback function @回调
+function HonorAccountHelper:RegisterToSignIn(force, callback)
+	
+end
+
+---登录用户
+---@type fun(uid:number, aid:string, callback:function):void
+---@param uid number @游戏服uid
+---@param aid string @三方账号id（没有时传入nil）
+---@param callback function @回调
+function HonorAccountHelper:LoginToSignIn(uid, aid, callback)
+	
+end
+
+---根据设备id或三方账号id获取用户uid
+---@type fun(id:string, callback:function):void
+---@param id string @设备id或三方账号id
+---@param callback function @回调
+function HonorAccountHelper:GetUID(id, callback)
+
+end
+
+---设置用户数据到云端
+---@type fun(uid:number, datas:table, callback:function):void
+---@param uid number @游戏服uid
+---@param datas table @用户数据集合
+---@param callback function @回调
+function HonorAccountHelper:SetUserData(uid, datas, callback)
+
+end
+
+---从云端拉取用户数据
+---@type fun(uid:number, keys:table, callback:function):void
+---@param uid number @游戏服uid
+---@param keys table @服务器小表名称集合
+---@param callback function @回调
+function HonorAccountHelper:GetUserData(uid, keys, callback)
+
+end
+
+---保存用户登陆信息
+---@type fun(cmd:NetCmd.Cmd_Item_UserSignIn)
+---@param cmd NetCmd.Cmd_Item_UserSignIn
+function HonorAccountHelper:SaveSignInInfos(cmd)
+
+end
+
+
+---获取TGA的AF归因数据
+---@type fun(callback:function)
+---@param callback function @结果返回
+function HonorAccountHelper:GetAFConvertData(callback)
+	
+end
+
+return HonorAccountHelper

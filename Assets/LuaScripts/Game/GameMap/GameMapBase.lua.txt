@@ -1,0 +1,181 @@
+--=====================================================================================================
+-- descrip:   地图基类
+--=====================================================================================================
+
+---@class GameMapBase : LuaBehaviourSuper @地图基类
+local GameMapBase = class('GameMapBase', import('LuaBehaviourSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GameMapBase:ctor(args)
+    GameMapBase.super.ctor(self, args)
+    self.Swipe = nil                        ---@type function(HedgehogTeam.EasyTouch.Gesture)              ---滑动
+    self.SwipeEnd = nil                     ---@type function(HedgehogTeam.EasyTouch.Gesture)              ---滑动结束
+    self.SampleTap = nil                    ---@type function(HedgehogTeam.EasyTouch.Gesture)              ---点击
+    self.SwipePos = CS.UnityEngine.Vector3(0, 0, 0) ---@type UnityEngine.Vector3 @Vector3(0,0,0)           ---滑动的位置 
+    self.ScreenCamera = RGame.MapCamHelper.MapCamera
+
+    self._IsPlaySwipeSound = false          ---@type boolean                                               ---是否播放滑动音效
+
+    MapManager.CurGameMapBase = self
+    ---获取地图配置数据
+    MapManager.CurMapData = self.cs:GetComponent("MapData")
+end
+
+---创建函数
+---@type fun(args:table):GameMapBase
+---@param args table @自定义参数
+---@return GameMapBase @地图基类
+function GameMapBase:Create(args)
+    local obj = GameMapBase.new(args)
+    return obj
+end
+
+---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@type fun():void
+function GameMapBase:OnAddListeners()
+    GameMapBase.super.OnAddListeners(self)
+end
+
+---初始化
+---@type fun():void
+function GameMapBase:Init()
+    GameMapBase.super.Init(self)
+
+end
+
+---唤醒
+---@type fun():void
+function GameMapBase:Awake()
+    GameMapBase.super.Awake(self)
+    ---初始化地图相机
+    RGame.MapCamHelper.InitMapCamera(MapMgr.CurMapData.normalCamData)
+    ---初始化场景机器
+    MapManager:InitMapMachines()
+    MapManager:LoadBehaviorTrees()
+    self:SpawnDefaultCharacters()
+    ---初始化场景机器到初始化状态
+    MapManager:OnInitGame()
+end
+
+---销毁
+---@type fun():void
+function GameMapBase:OnDestroy()
+    GameMapBase.super.OnDestroy(self)
+    self:ClearSwipeData()
+end
+
+--{{{ 游戏周期
+---游戏初始化
+function GameMapBase:OnInitGame()
+
+end
+
+---进入游戏
+function GameMapBase:OnEnterGame()
+
+end
+
+---游戏开始
+function GameMapBase:OnBeginGame()
+    self:RegOrUnRegEvent('+')
+end
+
+---游戏暂停
+function GameMapBase:OnPauseGame()
+
+end
+
+---游戏恢复
+function GameMapBase:OnResumeGame()
+
+end
+
+---游戏结束
+function GameMapBase:OnGameOver()
+    self:RegOrUnRegEvent('-')
+    if GameCoreManager._IsSuccessFinishGame == true then
+        self:GameOverSuccessAni()
+    else
+        self:GameOverFailedAni()
+    end
+end
+
+---游戏退出
+function GameMapBase:OnExitGame()
+
+end
+
+---游戏重玩
+function GameMapBase:OnRePlayGame()
+    self:RegOrUnRegEvent('+')
+end
+
+---地图卸载前清理
+function GameMapBase:UnloadMapBeforeClear()
+
+end
+
+---地图卸载后清理
+function GameMapBase:UnloadMapAfterClear()
+
+end
+
+--}}}
+
+--- 游戏胜利
+function GameMapBase:GameOverSuccessAni()
+    SoundMgr:PlaySound(Tables.Sounds.Level_Success.Name)
+    --播放胜利粒子动画
+    EffectMgr:AddEffect(RES.GameObject_TX_coloredribbon.Name, GameMainRoot.Effect.efRoot, ELayerName.UI, Unity.Vector3(0, 0, 0), EPos.World, 3.5)
+end
+
+--- 游戏失败
+function GameMapBase:GameOverFailedAni()
+    if GameCoreManager._eGameOverType ~= EGameOverType.PlayerGiveUp then
+        -- 玩家主动放弃，不播放音效
+        SoundMgr:PlaySound(Tables.Sounds.Level_Failed.Name)
+    end
+end
+
+--{{{ 手势滑动和点击
+
+---清除滑动数据
+---@type fun():void
+function GameMapBase:ClearSwipeData()
+    self.Swipe = nil
+    self.SimpleTap = nil
+    self.SwipeEnd = nil
+    self._IsPlaySwipeSound = false
+end
+
+---滑动
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+---@param gesture HedgehogTeam.EasyTouch.Gesture @滑动手势
+function GameMapBase:OnSwipe(gesture)
+    self:CheckOrderMachines(gesture, true)
+end
+
+---滑动结束
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+---@param gesture HedgehogTeam.EasyTouch.Gesture @滑动手势
+function GameMapBase:OnSwipeEnd(gesture)
+    self._IsPlaySwipeSound = false
+end
+
+---点击
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+---@param gesture HedgehogTeam.EasyTouch.Gesture @点击手势
+function GameMapBase:OnSimpleTap(gesture)
+    self:CheckOrderMachines(gesture, false)
+end
+
+---检查机器与手指的位置
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+---@param gesture HedgehogTeam.EasyTouch.Gesture @点击手势
+function GameMapBase:CheckOrderMachines(gesture)
+
+end
+
+return GameMapBase

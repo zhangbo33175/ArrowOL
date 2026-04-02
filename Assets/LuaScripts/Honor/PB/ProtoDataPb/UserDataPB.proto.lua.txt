@@ -1,0 +1,41 @@
+-- =====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UserDataPB.proto.lua
+-- descrip:   用户数据存档
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+-- proto.Schema结构
+
+return [[
+
+// 协议描述：用户数据存档
+syntax = "proto3";
+
+// 时间
+message Time{
+  int32 utc0 = 1;              // UTC0时间戳
+  string utc0String = 2;       // UTC0字符串时间描述
+  int32 locality = 3;          // 本地时间戳
+  string localString = 4;      // 本地字符串时间描述
+}
+
+// 阶段时间
+message StageTime{
+  Time current = 1;            // 本次时间
+  Time last = 2;               // 上次时间
+}
+
+// [主结构]用户数据存档根数据
+message UserData{
+  int32 uid = 1;              // 用户UID
+  string aid = 2;             // 三方用户ID
+  Time aidBindTime = 3;       // 三方用户绑定时间
+  StageTime launchTime = 4;   // 启动时间
+  Time regTime = 5;           // 注册时间
+  StageTime loginTime = 6;    // 登陆时间
+  Time latestTime = 7;        // 最近运行截止时间
+}
+]]

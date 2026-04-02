@@ -1,0 +1,97 @@
+--=====================================================================================================
+-- descrip:   推送通知助手
+--=====================================================================================================
+
+---@class NotificationHelper @通知助手
+local HonorNotificationHelper = class("HonorNotificationHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HonorNotificationHelper:ctor(args)
+	-- 发送通知x条后强制推送下消息
+	self._nativeNotificationMessageMaxCount = 5
+	-- 每x秒检测一次本地的消息缓存通知消息
+	self._nativeNotificationMessageTimeDelta = 30
+	-- 当前通知消息的次数
+	self._nativeNotificationMessageCurCount = 0
+	self:Init()
+end
+
+---创建函数
+---@type fun(args:table):NotificationHelper
+---@param args table @自定义参数
+---@return NotificationHelper @存档助手实例
+function HonorNotificationHelper:Create(args)
+	local obj = HonorNotificationHelper.new(args)
+	return obj
+end
+
+---初始化
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HonorNotificationHelper:Init(args)
+	-- 监听通知
+	HonorEventHelper:AddListener(EventCmd.NotificationMessage, handler(self, self.RequestNotificationMessage))
+	-- 发送轮询发送消息的监听
+	HonorTimerHelper:RegisterDeltaTime(EventCmd.NotificationMessage, self._nativeNotificationMessageTimeDelta, "ProcedurePlaying", true)
+
+end
+
+---获取通知功能是否开启
+---@type fun():boolean
+---@return boolean @返回是否开启了通知功能，SystemConfig表控制
+function HonorNotificationHelper:CheckNotifyFuncIsOpen()
+	if Unity.Application.platform == Unity.RuntimePlatform.Android then
+		return SystemConfigHelper:GetSystemConfig("ANDROID_NOTIFY_FUNCTION_OPEN")
+	elseif Unity.Application.platform == Unity.RuntimePlatform.IPhonePlayer then
+		return SystemConfigHelper:GetSystemConfig("IOS_NOTIFY_FUNCTION_OPEN")
+	else
+		return SystemConfigHelper:GetSystemConfig("ANDROID_NOTIFY_FUNCTION_OPEN")
+	end
+
+end
+
+---设置通知
+---@type fun(messageType:number, isCancel:boolean,titleIDS:string,UTC0TimeStamp:number)
+---@param messageType number @通知消息类型, 消息类型必须大于0
+---@param isCancel boolean @是否取消消息
+---@param titleIDS string @后台配置的消息组id "1001,2001"
+---@param UTC0TimeStamp number @发送消息的utc0时间戳，isCancel = true 时可不赋值
+function HonorNotificationHelper:SetNotificationMessage(messageType, isCancel, titleIDS, UTC0TimeStamp)
+
+end
+
+--- 请求通知消息
+---@type fun():void
+function HonorNotificationHelper:RequestNotificationMessage()
+	
+end
+
+
+--- 发送某个领奖类的通知，配合后台使用，（例：某系统每天12点领奖，只有发送过改协议后，后台才不会发送通知，否则每天发送12点领奖通知）
+---@type fun():void
+function HonorNotificationHelper:SendRewardNotificationMessage(flagType)
+
+end
+
+---得到通知的存档信息
+---@type fun():table
+---@return table @返回存档信息
+function HonorNotificationHelper:GetNotificationSaveData()
+
+end
+
+---清除所有的通知存档信息
+---@type fun():void
+function HonorNotificationHelper:ClearNotificationData()
+end
+
+---检测是否需要请求通知消息
+---@type fun():void
+function HonorNotificationHelper:IsNeedRequestNotificationMessage()
+
+end
+
+
+return HonorNotificationHelper

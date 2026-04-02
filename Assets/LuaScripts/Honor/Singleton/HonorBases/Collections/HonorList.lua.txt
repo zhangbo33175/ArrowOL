@@ -1,0 +1,84 @@
+--=====================================================================================================
+-- descrip:   HonorList列表定义
+--=====================================================================================================
+---@class HonorList @List列表类
+---@field items table @条目集合
+local HonorList = class("HonorList")
+
+---构造函数
+---@type fun():void
+function HonorList:ctor()
+    self.items = {}
+end
+
+---创建函数
+---@type fun():List
+---@return List @列表对象
+function HonorList:Create()
+    local list = HonorList.new()
+    return list
+end
+
+---追加条目
+---@type fun(item:any):void
+---@param item any @条目
+function HonorList:Add(item)
+    table.insert(self.items, self:Count() + 1, item)
+end
+
+---列表条目数量
+---@type fun():number
+---@return number @列表条目数量
+function HonorList:Count()
+    return #self.items
+end
+
+---是否包含条目
+---@type fun(item:any):boolean
+---@param item any @条目
+---@return boolean @是否包含
+function HonorList:Contains(item)
+    local isExist = false
+    for _, v in pairs(self.items) do
+        if v == item then
+            isExist = true
+            break
+        end
+    end
+    return isExist
+end
+
+---移除条目
+---@type fun(item:any):void
+---@param item any @条目
+function HonorList:Remove(item)
+    if not self:Contains(item) then
+        return false
+    end
+    for i = 1, self:Count() do
+        if self.items[i] == item then
+            table.remove(self.items, i)
+            break
+        end
+    end
+end
+
+---移除指定索引位置的条目
+---@type fun(index:number):boolean
+---@param index number @指定索引位置
+---@return boolean @是否移除成功
+function HonorList:RemoveAt(index)
+    if not self:Contains(self.items[index]) then
+        return false
+    end
+    table.remove(self.items, index)
+    return true
+end
+
+---列表清空
+---@type fun():void
+function HonorList:Clear()
+    self.items = {}
+end
+
+return HonorList

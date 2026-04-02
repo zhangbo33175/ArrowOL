@@ -1,0 +1,171 @@
+--=====================================================================================================
+-- (c)copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename: DeclareGameDataPB.lua
+-- descrip: 游戏数据存档
+-- notices: 该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+-- 协议描述：游戏数据存档
+-- 玩家区域信息
+---@class SavePBMsgDef.GameDataPB.PlayerAreaInfo : nil
+---@field areaId string @ 区域Id
+---@field areaTotalCoinSpend number @ 区域里累积消耗的金币数量
+---@field areaTotalUpgradeCoinSpend number @ 区域里机器升级累积消耗金币数量
+
+
+-- 玩家信息
+---@class SavePBMsgDef.GameDataPB.PlayerInfo : nil
+---@field name string @ 玩家名称
+---@field userInput boolean @ 是否是用户输入的名称
+---@field isShowPrivacy boolean @ 是否显示了隐私条款
+---@field loginDays number @ 累计登录天数
+---@field loginStreakDays number @ 连续登录天数
+---@field lastInLevel table @ 每个章节对应的最后一次进入的关卡的开始次数
+---@field profileAvatar string @ 玩家头像ID
+---@field profileFrame string @ 玩家头像框ID
+---@field playerAreaInfos table @ 玩家的相关区域信息
+---@field regUserTime number @ 玩家首次启动游戏时间，只会赋值一次
+---@field loginDaysUTC number @ UTC时间的累计登录天数
+---@field winStreak number @ 玩家连胜次数
+
+
+-- 资源信息
+---@class SavePBMsgDef.GameDataPB.ResourceInfo : nil
+---@field nums table @ 资源数量 [key]资源ID [value]资源数量
+
+
+-- 章节任务进度
+---@class SavePBMsgDef.GameDataPB.TaskProgress : nil
+---@field taskGroupId number @ 当前正在执行的任务组ID
+---@field lastCompletedTaskId string @ 最后完成的一个任务的的ID，用来UI上表现任务完成
+---@field lastGettedRewardId string @ 最后一个领取到的奖励的索引
+---@field taskCompleted string[] @ 当前任务组中已完成的任务
+
+
+-- 章节信息
+---@class SavePBMsgDef.GameDataPB.ChapterInfo : nil
+---@field lv number @ 玩家所在章节等级（即将游玩的关卡号）
+---@field progress number[] @ 当前章节信息（三个进度指标）
+---@field taskProgress SavePBMsgDef.GameDataPB.TaskProgress @ 章节任务进度
+---@field loopLevel SavePBMsgDef.GameDataPB.LoopLevelInfo @ 循环关
+---@field diary table @ 生涯数据统计
+---@field difficulty SavePBMsgDef.GameDataPB.ChapterDiff @ 章节难度信息
+
+
+-- 单条成就信息存档（当前正在完成的、最后一条的
+---@class SavePBMsgDef.GameDataPB.AchievementInfo : nil
+---@field claim number @ 成就任务领奖次数
+---@field num number @ 成就任务进度
+---@field id number @ 成就任务ID
+---@field maybeCompress number @ 也许会用
+
+
+-- 章节成就存档
+---@class SavePBMsgDef.GameDataPB.ChapterAchievementInfo : nil
+---@field infos SavePBMsgDef.GameDataPB.AchievementInfo[] @ 章节成就存档
+
+
+-- 体力时间戳
+---@class SavePBMsgDef.GameDataPB.LifeInfo : nil
+---@field lifeRefillTimestamp number @ 体力自动回满一点的时间戳
+---@field lifeUnlimitTimestamp number @ 剩余的无线体力时间的时间戳
+
+
+-- 设置内容
+---@class SavePBMsgDef.GameDataPB.SettingInfo : nil
+---@field colseMusic boolean @ 音乐开启状态
+---@field closeSound boolean @ 音效开启状态
+---@field closeNotification boolean @ 推送开启状态
+
+
+-- 购买记录信息
+---@class SavePBMsgDef.GameDataPB.GamePurchaseInfo : nil
+---@field locality number @ 本地时间戳
+---@field localString string @ 本地字符串时间描述
+---@field iapID string @ IAP表ID
+
+
+-- 购买记录信息集合
+---@class SavePBMsgDef.GameDataPB.GamePurchaseInfosGroup : nil
+---@field isConvertData boolean @ 是否转换过数据
+---@field datas SavePBMsgDef.GameDataPB.GamePurchaseInfo[] @ 购买记录信息
+
+
+-- 订阅购买信息
+---@class SavePBMsgDef.GameDataPB.GamePurchaseSubInfo : nil
+---@field iapID string @ IAP表ID
+---@field times number @ 订阅次数
+
+
+-- 本地活动数据
+---@class SavePBMsgDef.GameDataPB.LocalActivityData  : nil
+---@field activityId string @ 活动Id
+
+
+-- 章节收集信息
+---@class SavePBMsgDef.GameDataPB.CollectionChapterInfo  : nil
+---@field rate number @ 获得卡包概率
+---@field lastFailedLv number @ 上一次失败章节(该章节不会再出现卡包)
+---@field lastGainPackLv number @ 上一次获得卡包章节
+---@field lastCheckLv number @ 上一次检查的章节
+
+
+-- 卡牌收集数据
+---@class SavePBMsgDef.GameDataPB.CollectionData  : nil
+---@field owedList table @ 已贴的卡牌 [key]藏品组id [value]藏品组信息
+---@field newList table @ 新获得卡牌 [key]藏品组id [value]藏品组信息
+---@field chapterInfo table @ 章节信息 [key]章节ID [value]章节收集信息
+---@field packs table @ 卡包数量 [key]资源ID [value]资源数量
+---@field isShowPreviewed boolean @ 是否打开过预览界面
+---@field lastShowTokenNum number @ 上一次查看的藏品代币数量
+---@field shouldShowRedPoint boolean @ 是否要显示入口红点
+
+
+-- 关内道具促销数据
+---@class SavePBMsgDef.GameDataPB.BoosterSaleData  : nil
+---@field count number @ 触发次数 (逐渐递增)
+---@field cdEndTimestamp number @ cd结束时间戳(UTC)
+---@field levelCount number @ 关卡胜利次数
+
+
+-- 通行证数据
+---@class SavePBMsgDef.GameDataPB.GoldenTicketData  : nil
+---@field activityId string @ 活动id
+---@field startTime number @ 本期活动开始时间
+---@field endTime number @ 本期活动结束时间
+---@field period number @ 期数
+---@field lastShowPoints number @ 上次查看的累计点数
+---@field realPoints number @ 实际获得的活动点数
+---@field lastShowEnterPoints number @ 上次查看的入口按钮点数
+---@field lastLevel number @ 上次查看的当前等级
+---@field buyType number @ 购买类型 0 未购买 1 已购买高级 2 已购买初级
+---@field freeClaimed number[] @ 已领取的免费奖励
+---@field goldenClaimed number[] @ 已领取的高级奖励
+---@field claimedUnlimitedBoxCount number @ 已领取的无限宝箱次数
+---@field levelsTipPop number[] @ 用于记录每若干等级是否弹过购买通行证提示
+---@field autoRewardTag boolean @ 活动结束是否补发了奖励标识
+---@field previewTipPop boolean @ 是否弹出了预告
+---@field chapterId number @ 解锁章节
+---@field levelId number @ 解锁章节等级
+---@field seasonId string @ 赛季id
+---@field isPreviewState boolean @ 是否是预览状态
+
+
+-- [主结构]游戏数据存档根数据
+---@class SavePBMsgDef.GameDataPB.GameData : nil
+---@field isInit boolean @ 是否初始化
+---@field playerInfo SavePBMsgDef.GameDataPB.PlayerInfo @ 玩家信息
+---@field resourceInfo SavePBMsgDef.GameDataPB.ResourceInfo @ 资源信息（道具，星星、体力、钻石等）
+---@field curChapterId string @ 目前所在章节Id
+---@field latestChapterId string @ 最新章节Id
+---@field chapterInfos table @ 章节信息 [key]章节ID [value]章节信息
+---@field timestamps table @ 各种时间戳 [key]字符串 [value]时间戳
+---@field boosterTriggered string @ 已达成触发条件的局内道具
+---@field giftPacks table @ 诸多礼包状态
+---@field levelRewardInfos table @ 等级奖励的数据
+---@field maxChapterId number @ 玩家当前记录的最大章节id
+ 
+
+

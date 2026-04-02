@@ -1,0 +1,184 @@
+-- =====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  GameDataPB.proto.lua
+-- descrip:   游戏数据存档
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+-- proto.Schema结构
+
+return [[
+
+// 协议描述：游戏数据存档
+syntax = "proto3";
+
+// 玩家区域信息
+message PlayerAreaInfo{
+  string areaId = 1;                                        // 区域Id
+  int32 areaTotalCoinSpend = 2;                             // 区域里累积消耗的金币数量
+  int32 areaTotalUpgradeCoinSpend = 3;                      // 区域里机器升级累积消耗金币数量
+}
+
+// 玩家信息
+message PlayerInfo{
+  string name = 1;                                          // 玩家名称
+  bool userInput = 2;                                       // 是否是用户输入的名称
+  bool isShowPrivacy = 3;                                   // 是否显示了隐私条款
+  int32 loginDays = 4;                                      // 累计登录天数
+  int32 loginStreakDays = 5;                                // 连续登录天数
+  map<string, int32> lastInLevel = 6;                       // 每个章节对应的最后一次进入的关卡的开始次数
+  string profileAvatar = 7;                                 // 玩家头像ID
+  string profileFrame = 8;                                  // 玩家头像框ID
+  map<string, PlayerAreaInfo> playerAreaInfos = 15;         // 玩家的相关区域信息
+  int32 regUserTime = 16;                                   // 玩家首次启动游戏时间，只会赋值一次
+  int32 loginDaysUTC = 17;                                  // UTC时间的累计登录天数
+  int32 winStreak = 18;                                     // 玩家连胜次数
+}
+
+// 资源信息
+message ResourceInfo{
+  map<string, int32> nums = 1;                              // 资源数量 [key]资源ID [value]资源数量
+}
+
+
+
+// 章节任务进度
+message TaskProgress{
+  int32 taskGroupId = 1;            // 当前正在执行的任务组ID
+  string lastCompletedTaskId = 2;   // 最后完成的一个任务的的ID，用来UI上表现任务完成
+  string lastGettedRewardId = 3;    // 最后一个领取到的奖励的索引
+  repeated string taskCompleted = 4; // 当前任务组中已完成的任务
+}
+
+
+// 章节信息
+message ChapterInfo{
+  int32 lv = 1;                                           // 玩家所在章节等级（即将游玩的关卡号）
+  repeated int32 progress = 3;                            // 当前章节信息（三个进度指标）
+  TaskProgress taskProgress = 4;                          // 章节任务进度
+  LoopLevelInfo loopLevel = 5;                            // 循环关
+  map<string,int32> diary = 6;                            // 生涯数据统计
+  ChapterDiff difficulty  = 7;                            // 章节难度信息
+}
+
+// 单条成就信息存档（当前正在完成的、最后一条的
+message AchievementInfo{
+  int32 claim = 1;                           // 成就任务领奖次数
+  int32 num   = 2;                           // 成就任务进度
+  int32 id    = 3;                           // 成就任务ID
+  int32 maybeCompress = 4;                  // 也许会用
+}
+
+// 章节成就存档
+message ChapterAchievementInfo{
+  repeated AchievementInfo infos = 1;       // 章节成就存档
+}
+
+// 体力时间戳
+message LifeInfo{
+  int64 lifeRefillTimestamp  = 1;                          // 体力自动回满一点的时间戳
+  int64 lifeUnlimitTimestamp = 2;                          // 剩余的无线体力时间的时间戳
+}
+
+// 设置内容
+message SettingInfo{
+  bool   colseMusic = 1;                                      // 音乐开启状态
+  bool   closeSound = 2;                                      // 音效开启状态
+  bool   closeNotification = 3;                               // 推送开启状态
+}
+
+
+// 购买记录信息
+message GamePurchaseInfo{
+  int32 locality = 1;          // 本地时间戳
+  string localString = 2;      // 本地字符串时间描述
+  string iapID = 3;            // IAP表ID
+}
+
+// 购买记录信息集合
+message GamePurchaseInfosGroup{
+  bool isConvertData = 1;                             // 是否转换过数据
+  repeated GamePurchaseInfo datas = 2;                // 购买记录信息
+}
+
+// 订阅购买信息
+message GamePurchaseSubInfo{
+  string iapID = 1;                                   // IAP表ID
+  int32 times = 2;                                    // 订阅次数
+}
+
+
+// 本地活动数据
+message LocalActivityData {
+  string activityId = 1;                                  // 活动Id
+}
+
+// 章节收集信息
+message CollectionChapterInfo {
+  int32 rate = 1;                                     // 获得卡包概率
+  int32 lastFailedLv = 2;                             // 上一次失败章节(该章节不会再出现卡包)
+  int32 lastGainPackLv = 3;                           // 上一次获得卡包章节
+  int32 lastCheckLv = 4;                              // 上一次检查的章节
+}
+
+
+
+// 卡牌收集数据
+message CollectionData {
+  map<string, CollectionGroupData> owedList = 1;      // 已贴的卡牌 [key]藏品组id [value]藏品组信息
+  map<string, CollectionGroupData> newList = 2;       // 新获得卡牌 [key]藏品组id [value]藏品组信息
+  map<string, CollectionChapterInfo> chapterInfo = 3; // 章节信息 [key]章节ID [value]章节收集信息
+  map<string, int32> packs = 4;                       // 卡包数量 [key]资源ID [value]资源数量
+  bool isShowPreviewed = 5;                           // 是否打开过预览界面
+  int32 lastShowTokenNum = 6;                         // 上一次查看的藏品代币数量
+  bool shouldShowRedPoint = 7;                        // 是否要显示入口红点
+}
+
+
+// 关内道具促销数据
+message BoosterSaleData {
+    int32 count = 1;                                       // 触发次数 (逐渐递增)
+    int32 cdEndTimestamp = 2;                              // cd结束时间戳(UTC)
+    int32 levelCount = 3;                                  // 关卡胜利次数
+}
+
+// 通行证数据
+message GoldenTicketData {
+    string activityId = 1;                                // 活动id
+    int32 startTime = 2;                                  // 本期活动开始时间
+    int32 endTime = 3;                                    // 本期活动结束时间
+    int32 period = 4;                                     // 期数
+    int32 lastShowPoints = 5;                             // 上次查看的累计点数
+    int32 realPoints = 6;                                 // 实际获得的活动点数
+    int32 lastShowEnterPoints = 7;                        // 上次查看的入口按钮点数
+    int32 lastLevel = 8;                                  // 上次查看的当前等级
+    int32 buyType = 9;                                    // 购买类型 0 未购买 1 已购买高级 2 已购买初级
+    repeated int32 freeClaimed = 10;                      // 已领取的免费奖励
+    repeated int32 goldenClaimed = 11;                    // 已领取的高级奖励
+    int32 claimedUnlimitedBoxCount = 12;                  // 已领取的无限宝箱次数
+    repeated int32 levelsTipPop = 13;                     // 用于记录每若干等级是否弹过购买通行证提示
+    bool autoRewardTag = 14;                              // 活动结束是否补发了奖励标识
+    bool previewTipPop = 15;                              // 是否弹出了预告
+    int32 chapterId = 16;                                 // 解锁章节
+    int32 levelId = 17;                                   // 解锁章节等级
+    string seasonId = 18;                                 // 赛季id
+    bool isPreviewState = 19;                             // 是否是预览状态
+}
+
+// [主结构]游戏数据存档根数据
+message GameData{
+  bool isInit = 1;                                        // 是否初始化
+  PlayerInfo playerInfo = 2;                              // 玩家信息
+  ResourceInfo resourceInfo = 3;                          // 资源信息（道具，星星、体力、钻石等）
+  string curChapterId = 4;                                // 目前所在章节Id
+  string latestChapterId = 5;                             // 最新章节Id
+  map<string, ChapterInfo> chapterInfos = 6;              // 章节信息 [key]章节ID [value]章节信息
+  map<string, int32> timestamps  = 8;                     // 各种时间戳 [key]字符串 [value]时间戳
+  string boosterTriggered = 12;                           // 已达成触发条件的局内道具
+  map<string,GiftPackStatusSingle> giftPacks = 13;        // 诸多礼包状态
+  map<string, LevelRewardInfo> levelRewardInfos = 16;     // 等级奖励的数据
+  int32 maxChapterId = 18;                                // 玩家当前记录的最大章节id
+
+}]]

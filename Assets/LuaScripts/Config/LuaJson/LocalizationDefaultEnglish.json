@@ -1,0 +1,56 @@
+{
+    "Hotfix_StartButton_Text" : "START",
+    "Hotfix_RetryButton_Text" : "RETRY",
+    "Hotfix_CloseButton_Text" : "CLOSE",
+    "Hotfix_Ready_Download_Text" : "Connecting to server…",
+    "Hotfix_Downloading_Text" : "Downloading…",
+    "Hotfix_Download_AllOver_Text" : "Loading...",
+    "Hotfix_Download_Failed_To_Skip_Text" : "Download failed, ready to enter the game.",
+    "Hotfix_Download_Error_Text" : "Download abnormal!Please try again.",
+    "Hotfix_Download_Error_Quit_Text" : "Download failed! Please check the network, restart and try again before exiting the application.",
+    "Hotfix_Error_Title_Text" : "Hot update error",
+    "Hotfix_Error_Desc_Text" : "Do you want to retry the hot update?",
+    "Hotfix_Error_RetryButton_Text" : "RETRY",
+    "Hotfix_Error_CloseButton_Text" : "CLOSE",
+    "App_Download_Title_Text" : "There's a new version!",
+    "App_Download_Desc_Text" : "Do you want to go to the store to download and install?",
+    "App_Download_StartButton_Text" : "Go to the shop",
+    "App_Download_CloseButton_Text" : "CLOSE",
+    "GDPR_MainTitle_Text" : "Thanks for downloading <color=#5380C4>{0}</color>",
+    "GDPR_MainDesc_Text" : "<b>Privacy is very important to {0}.</b>
+
+We need your permission to use your data and provide you with a personalized experience.
+
+<b>With your consent, {1} and its partners will collect technical data points </b>including your advertising identifier and IP address in order to offer you a unique gaming experience and keep improving our games.
+
+These information will specifically be <b>collected by {2} and its partners for the following purposes:</b>",
+    "GDPR_GDPRDesc_Text" : "Personalized ads and content.",
+    "GDPR_CCPADesc_Text" : "Store or access information on a device, develop and improve products.",
+    "GDPR_COPPADesc_Text" : "Confirming that I am over16 years old and have read, understood and accepted the <b>{0} Privacy Policy</b>.",
+    "GDPR_StartGameButton_Text" : "Start playing",
+    "GDPR_MoreButton_Text" : "Learn more",
+    "GDPR_MoreTitle_Text" : "Make <color=#5380C4>{0}</color> better!",
+    "GDPR_MoreStartDesc_Text" : "Thank you for downloading our game! Did you know that sharing your data is the best way for you to enjoy a unique gaming experience and to help us improve? You can decide at any time to remove your consent via this.
+Here's why data is collected by this application:",
+    "GDPR_MoreDesc1_Text" : "To generate statistics about your game usage, including the number of games played and game length, which allow us to improve your gaming experience.",
+    "GDPR_MoreDesc2_Text" : "To understand your interests and to offer you targeted advertisements that are more relevant to you.",
+    "GDPR_MoreDesc3_Text" : "To solve technical issues.",
+    "GDPR_MoreFinalDesc_Text" : "If you do not wish to share your personal data for use as described in our Privacy Policy, you will continue to have access to our applications. Your experience might differ and include a larger volume of non-targeted advertising.",
+    "GDPR_MoreBackButton_Text" : "Back",
+    "GDPR_ResetTitle_Text" : "Setting up information sharing",
+    "GDPR_ResetDesc_Text" : "You can choose the data you wish to share:",
+    "GDPR_ResetGDPRDesc_Text" : "Advertising",
+    "GDPR_ResetCCPADesc_Text" : "Support and Analytics",
+    "GDPR_SaveButton_Text" : "Save my choices",
+    "GDPR_CloseButton_Text" : "Close",
+    "Waiting_Desc_Text" : "Please Wait…",
+    "Net_Error_Text" : "The network is abnormal. Check the network and try again.",
+    "IAP_Init_Error_Text" : "Payment initialization failed, cannot start payment.",
+    "IAP_Paying_Text" : "Payment is in progress, please wait…",
+    "IAP_Validating_Text" : "Order is being verified, please wait…",
+    "IAP_No_Net_Validate_Error_Text" : "Network exception, order verification failed, please try again later......",
+    "IAP_UpdateReceipt_Text" : "Order updating, please wait…",
+    "UpdateTitle" : "Update Needed!",
+    "UpdateText" : "Good News! \nThere's a new version available!",
+    "UpdateButton" : "Install"
+}

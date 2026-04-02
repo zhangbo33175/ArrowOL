@@ -1,0 +1,39 @@
+--=====================================================================================================
+-- descrip:   系统配置助手
+--=====================================================================================================
+
+---@class SystemConfigHelper @系统配置助手
+local SystemConfigHelper = class("SystemConfigHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function SystemConfigHelper:ctor(args)
+	self._systemConfigData = {}
+end
+
+---创建函数
+---@type fun(args:table):SystemConfigHelper
+---@param args table @自定义参数
+---@return SystemConfigHelper @账户助手实例
+function SystemConfigHelper:Create(args)
+	local obj = SystemConfigHelper.new(args)
+	return obj
+end
+
+---获取游戏的配置信息 注* gm后台必须在 应用配置-key=SystemConfig
+---@type fun():void
+function SystemConfigHelper:GetServerSystemConfig()
+	return nil
+end
+
+---获取游戏数据通过key
+---@type fun(key:string):table
+---@param key string @需要获取的key
+---@return table @返回key的任意类型数据
+function SystemConfigHelper:GetSystemConfig(key)
+	return nil
+end
+
+
+return SystemConfigHelper

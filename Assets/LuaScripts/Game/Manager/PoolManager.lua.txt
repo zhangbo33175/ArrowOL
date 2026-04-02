@@ -1,0 +1,193 @@
+--=====================================================================================================
+-- descrip:   游戏内的对象加载管理器
+--=====================================================================================================
+
+---@class PoolMgr:Singleton @游戏内的对象加载管理器
+---@field pools table<string, Pool> @对象池集合
+---@field maxItemCountOfOnePool number @每个对象池最大支持缓存的数量
+local PoolManager = class("PoolManager", import("Singleton"))
+
+---构造函数
+---@type fun():void
+function PoolManager:ctor()
+    PoolManager.super.ctor(self)
+    self.pools = {}
+    self.maxItemCountOfOnePool = 30
+end
+
+---创建函数
+---@type fun():PoolMgr
+---@return PoolMgr
+function PoolManager:Create()
+    local obj = PoolManager.new()
+    return obj
+end
+
+---初始化 (继承重写)
+---@type fun():void
+function PoolManager:Init()
+    PoolManager.super.Init(self)
+end
+
+---清理数据
+---@type fun():void
+function PoolManager:ClearData()
+    PoolManager.super.ClearData(self)
+    self:DestroyAllPools()
+end
+
+---预热
+---@type fun(resName:string,count:number):void
+---@param resName string @资源名
+---@param count number @预热数量
+function PoolManager:Prewarm(resName, count)
+    if table.kIn(self.pools, resName) then
+        local p = self:GetPool(resName)
+        p:Prewarm(count)
+    end
+    local resDefItem = RES[resName]
+    if resDefItem then
+        local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, handler(self, function()
+        end))
+        return newPool:Prewarm(count)
+    else
+        PrintError("没有在RES资源表中配置,Res:" .. resName)
+    end
+end
+
+---从对象池获取对象，如果对象池不存在，则新建对象池
+---@type fun(resName:string,newParent:UnityEngine.Transform):UnityEngine.GameObject
+---@param resName string @资源名
+---@param newParent UnityEngine.Transform @新父节点
+---@return UnityEngine.GameObject @获取到的对象
+function PoolManager:Get(resName, newParent)
+    return self:GetWithHandle(resName, newParent, handler(self, function()
+    end))
+end
+
+---从对象池获取对象，如果对象池不存在，则新建对象池
+---@type fun(resName:string,newParent:UnityEngine.Transform,resetHandler:handler):UnityEngine.GameObject
+---@param resName string @资源名
+---@param newParent UnityEngine.Transform @新父节点
+---@param resetHandler handler @重置回调
+---@return UnityEngine.GameObject @获取到的对象
+function PoolManager:GetWithHandle(resName, newParent, resetHandler)
+    if table.kIn(self.pools, resName) then
+        local p = self:GetPool(resName)
+        p.resetHandler = resetHandler
+        return p:Get(newParent)
+    end
+
+    local resDefItem = RES[resName]
+    if resDefItem then
+        local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, resetHandler)
+        return newPool:Get(newParent)
+    else
+        PrintError("没有在RES资源表中配置,Res:" .. resName)
+    end
+end
+
+---回收GO
+---@type fun(go:UnityEngine.GameObject):void
+---@param go UnityEngine.GameObject @待回收GO
+function PoolManager:Put(go)
+    if IsNull(go) then
+        return
+    end
+
+    if CS.UnityEngine.Application.isPlaying == false then
+        return
+    end
+
+    local poolName = string.format("GameObject_%s", go.name)
+    if table.kIn(self.pools, poolName) then
+        local p = self:GetPool(poolName)
+        if p.unusedQueue:Count() < self.maxItemCountOfOnePool then
+            p:Put(go)
+        else
+            if p.usedList:Contains(go) == true then
+                p.usedList:Remove(go)
+            end
+            DestroyPrefabWithGO(go)
+        end
+    end
+end
+
+---创建对象池
+---@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):Pool
+---@param name string @对象池名称
+---@param resDefItem RES_DEF_ITEM @资源条目定义
+---@param preParent UnityEngine.Transform @预设父节点
+---@param resetHandler handler @复位处理方法句柄
+---@return Pool @对象池对象
+---@private 私有
+function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
+    if resDefItem.TypeName == "GameObject" then
+        if self.pools[name] == nil then
+            self.pools[name] = require("Pool"):Create(name, resDefItem, preParent, resetHandler)
+        else
+            PrintError("对象池" .. name .. "已存在，无需再次创建。")
+        end
+        return self.pools[name]
+    else
+        PrintError("对象池" .. name .. "创建失败：resDefItem.TypeName不为GameObject。")
+        return nil
+    end
+end
+
+---获取对象池
+---@type fun(name:string):Pool
+---@param name string @对象池名称
+---@return Pool @对象池对象
+function PoolManager:GetPool(name)
+    return self.pools[name]
+end
+
+---对象池数量
+---@type fun():number
+---@return number @数量
+function PoolManager:Count()
+    local count = 0
+    for _, _ in pairs(self.pools) do
+        count = count + 1
+    end
+    return count
+end
+
+---销毁对象池
+---@type fun(name:string):boolean
+---@param name string @对象池名称
+---@return boolean @对象池是否销毁成功
+function PoolManager:DestroyPool(name)
+    if self.pools[name] ~= nil then
+        self.pools[name]:Destroy()
+        self.pools[name] = nil
+        return true
+    end
+    return false
+end
+
+---销毁所有对象池
+---@type fun():void
+function PoolManager:DestroyAllPools()
+    for _, pool in pairs(self.pools) do
+        pool:Destroy()
+    end
+    self.pools = {}
+
+    -- 销毁对象池根节点
+    local poolRoot = GetPoolRoot()
+    if not IsNull(poolRoot) then
+        Unity.GameObject.Destroy(poolRoot)
+    end
+end
+
+---销毁未使用的对象池
+---@type fun():void
+function PoolManager:DestroyAllPoolsUnused()
+    for _, pool in pairs(self.pools) do
+        pool:DestroyUnused()
+    end
+end
+
+return PoolManager

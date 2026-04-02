@@ -1,0 +1,168 @@
+--=====================================================================================================
+-- descrip:   游戏逻辑全局自定义包含
+--=====================================================================================================
+
+require("GameStateCmd")
+
+---单例管理器
+SingletonManager = require("SingletonManager"):Create()
+
+---登录管理器
+LoginManager = require("LoginManager"):Create()
+
+---心跳管理器
+--HearBeatMgr = require("HearBeatMgr"):Create()
+
+---存档数据结构声明
+PbRootData = require("PbRootData")
+
+---数据中心全局结构声明
+DataCenter = require("DataCenter"):Create()
+
+---游戏状态机
+GameStateMachine = require("GameStateMachine"):Create()
+
+---GM帮助类
+--GMHelper = require("GMHelper"):Create()
+---常量数据管理器
+ConstantsDataManager = require("ConstantsDataManager"):Create()
+
+---游戏数据管理器
+GamerDataManager = require("GamerDataManager"):Create()
+
+---游戏中的对象池
+PoolManager = require("PoolManager"):Create()
+
+---活动数据管理器
+EventDataManager = require('EventDataManager'):Create()
+
+---本地活动数据管理器
+LocalEventDataManager = require('LocalEventDataManager'):Create()
+
+---本地活动管理器
+LocalActivityManager = require('LocalActivityManager'):Create()
+
+---创建Cut执行器
+--CutConfigExecute = require('CutConfigExecute'):Create()
+
+---播放Cut
+--CutPlayMgr = require('CutPlayMgr'):Create()
+
+---管理自治体
+--AutonomousMgr = require('AutonomousMgr'):Create()
+
+---管理游戏气泡
+BubbleManager = require('BubbleManager'):Create()
+
+---查询游戏系统是否解锁
+SystemGameUnlock = require('SystemGameUnlock'):Create()
+
+---关卡内使用的可暂停的协程
+PauseableCoroutineHelper = require('PauseableCoroutineHelper'):Create()
+
+---章节数据管理器
+ChapterDataManager = require("ChapterDataManager"):Create()
+
+---任务
+--TaskSys = require('TaskSys'):Create()
+
+---成就系统
+--AchievementSys = require('AchievementSys'):Create()
+
+---推送
+--RNotificationHelper = require('RNotificationHelper'):Create()
+
+---游戏桌面图标数据管理器
+HomeIconsDataManager = require('HomeIconsDataManager'):Create()
+
+---游戏目标管理器
+GoalDataManager = require("GoalDataManager"):Create()
+
+---资源表格数据管理器
+ResourceDataManager = require("ResourceDataManager"):Create()
+
+---设置数据管理器
+SettingDataManager = require("SettingDataManager"):Create()
+
+----------------------------------------------------------
+---playerInfo存档数据管理器
+PlayerInfoDataManager = require('PlayerInfoDataManager'):Create()
+
+---有效多语言配置表格管理器
+--LanguageSettingDataMgr = require('LanguageSettingDataMgr'):Create()
+
+---地图管理器
+MapManager = require("MapManager"):Create()
+
+-----游戏玩法周期
+--PlayHudCycle = require("PlayHudCycle"):Create()
+--
+-----指令UI提示管理器
+--CommandTipMgr = require("CommandTipMgr"):Create()
+--
+-----游戏核心类
+GameCoreManager = require("GameCoreManager"):Create()
+--
+-----章节列表管理器
+ChapterListManager = require("ChapterListManager"):Create()
+--
+-----游戏玩法帮助类
+PlayHelper = require("PlayHelper"):Create()
+--
+-----游戏时间帮助类
+GameTimeHelper = require("GameTimeHelper"):Create()
+--
+-----游戏UI文本帮助类
+UITextHelper = require("UITextHelper"):Create()
+--
+-----RectTransform帮助类
+RectTransformHelper = require("RectTransformHelper"):Create()
+
+-----存档同步管理类
+SaveDataSyncHelper = require("SaveDataHelper"):Create()
+--
+-----道具管理器
+--ItemMgr = require("ItemMgr"):Create()
+--
+-----游戏管理器
+GameManager = require("GameManager"):Create()
+--
+-----主界面弹窗流程管理器
+--GameMainUIPushMgr = require('GameMainUIPushMgr'):Create()
+--
+-----地图运动
+--MapMotion = require('MapMotion')
+--
+-----UI栈管理器
+--UIStackMgr = require('UIStackMgr'):Create()
+--
+-----Animator动画帮助类
+--AnimatorHelper = require('AnimatorHelper'):Create()
+--
+-----特效管理器
+--EffectMgr = require('EffectMgr'):Create()
+--
+-----Layer帮助类
+--LayerHelper = require('LayerHelper'):Create()
+--
+--
+--
+-----隐藏分计算器
+--LevelHiddenScore = require("LevelHiddenScore"):Create()
+--
+-----难度系数控制器
+--LevelDifficultyCtr = require("LevelDifficultyCtr"):Create()
+--
+-----关内道具销售管理器
+--BoosterSaleMgr = require('BoosterSaleMgr'):Create()
+--
+-----主界面UI和动画等执行顺序
+--HomeUILayerDataMgr = require('HomeUILayerDataMgr'):Create()
+--
+-----主界面元素UI气泡执行顺序数据管理器
+--HomeUIBubbleLayerDataMgr = require('HomeUIBubbleLayerDataMgr'):Create()
+--
+--
+--
+-----挑战关卡管理
+--ChallengeLevelHelper = require("ChallengeLevelHelper"):Create()

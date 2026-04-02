@@ -1,0 +1,129 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableChapterInfos
+-- descrip:   章节信息表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.ChapterInfos_Item @章节信息表条目
+---@field ID string @序号
+---@field ChapterID string @章节ID
+---@field InfoKey string @章节信息标志
+---@field Coef number @计算系数
+---@field InfoDesc string @章节信息描述
+---@field Sprite string @章节信息资源路径
+
+---@class Tables.ChapterInfos @章节信息表
+---@field 1 Tables.ChapterInfos_Item
+---@field 2 Tables.ChapterInfos_Item
+---@field 3 Tables.ChapterInfos_Item
+---@field 4 Tables.ChapterInfos_Item
+---@field 5 Tables.ChapterInfos_Item
+---@field 6 Tables.ChapterInfos_Item
+---@field 7 Tables.ChapterInfos_Item
+---@field 8 Tables.ChapterInfos_Item
+---@field 9 Tables.ChapterInfos_Item
+---@field 10 Tables.ChapterInfos_Item
+---@field 11 Tables.ChapterInfos_Item
+---@field 12 Tables.ChapterInfos_Item
+---@field 13 Tables.ChapterInfos_Item
+---@field 14 Tables.ChapterInfos_Item
+---@field 15 Tables.ChapterInfos_Item
+---@field 16 Tables.ChapterInfos_Item
+---@field 17 Tables.ChapterInfos_Item
+---@field 18 Tables.ChapterInfos_Item
+---@field 19 Tables.ChapterInfos_Item
+---@field 20 Tables.ChapterInfos_Item
+---@field 21 Tables.ChapterInfos_Item
+---@field 22 Tables.ChapterInfos_Item
+---@field 23 Tables.ChapterInfos_Item
+---@field 24 Tables.ChapterInfos_Item
+---@field 25 Tables.ChapterInfos_Item
+---@field 26 Tables.ChapterInfos_Item
+---@field 27 Tables.ChapterInfos_Item
+---@field 28 Tables.ChapterInfos_Item
+---@field 29 Tables.ChapterInfos_Item
+---@field 30 Tables.ChapterInfos_Item
+---@field 31 Tables.ChapterInfos_Item
+---@field 32 Tables.ChapterInfos_Item
+---@field 33 Tables.ChapterInfos_Item
+---@field 34 Tables.ChapterInfos_Item
+---@field 35 Tables.ChapterInfos_Item
+---@field 36 Tables.ChapterInfos_Item
+---@field 37 Tables.ChapterInfos_Item
+---@field 38 Tables.ChapterInfos_Item
+---@field 39 Tables.ChapterInfos_Item
+---@field 40 Tables.ChapterInfos_Item
+---@field 41 Tables.ChapterInfos_Item
+---@field 42 Tables.ChapterInfos_Item
+---@field 43 Tables.ChapterInfos_Item
+---@field 44 Tables.ChapterInfos_Item
+---@field 45 Tables.ChapterInfos_Item
+---@field 46 Tables.ChapterInfos_Item
+---@field 47 Tables.ChapterInfos_Item
+---@field 48 Tables.ChapterInfos_Item
+---@field 49 Tables.ChapterInfos_Item
+---@field 50 Tables.ChapterInfos_Item
+---@field 51 Tables.ChapterInfos_Item
+---@field 52 Tables.ChapterInfos_Item
+---@field 53 Tables.ChapterInfos_Item
+---@field 54 Tables.ChapterInfos_Item
+Tables.ChapterInfos = {
+    ["1"] = {ID = "1", ChapterID = "1", InfoKey = "ChapterInfo_1_1", Coef = 0.2, InfoDesc = "ChapterInfoName1_1", Sprite = "Sprite_chefdiary_chapter1_icon1"},
+    ["2"] = {ID = "2", ChapterID = "1", InfoKey = "ChapterInfo_1_2", Coef = 35, InfoDesc = "ChapterInfoName1_2", Sprite = "Sprite_chefdiary_chapter1_icon2"},
+    ["3"] = {ID = "3", ChapterID = "1", InfoKey = "ChapterInfo_1_3", Coef = 1, InfoDesc = "ChapterInfoName1_3", Sprite = "Sprite_chefdiary_chapter1_icon3"},
+    ["4"] = {ID = "4", ChapterID = "2", InfoKey = "ChapterInfo_2_1", Coef = 0.076, InfoDesc = "ChapterInfoName2_1", Sprite = "Sprite_chefdiary_chapter2_icon1"},
+    ["5"] = {ID = "5", ChapterID = "2", InfoKey = "ChapterInfo_2_2", Coef = 1.5, InfoDesc = "ChapterInfoName2_2", Sprite = "Sprite_chefdiary_chapter2_icon2"},
+    ["6"] = {ID = "6", ChapterID = "2", InfoKey = "ChapterInfo_2_3", Coef = 500, InfoDesc = "ChapterInfoName2_3", Sprite = "Sprite_chefdiary_chapter2_icon3"},
+    ["7"] = {ID = "7", ChapterID = "3", InfoKey = "ChapterInfo_3_1", Coef = 0.001, InfoDesc = "ChapterInfoName3_1", Sprite = "Sprite_chefdiary_chapter3_icon1"},
+    ["8"] = {ID = "8", ChapterID = "3", InfoKey = "ChapterInfo_3_2", Coef = 1, InfoDesc = "ChapterInfoName3_2", Sprite = "Sprite_chefdiary_chapter3_icon2"},
+    ["9"] = {ID = "9", ChapterID = "3", InfoKey = "ChapterInfo_3_3", Coef = 0.005, InfoDesc = "ChapterInfoName3_3", Sprite = "Sprite_chefdiary_chapter3_icon3"},
+    ["10"] = {ID = "10", ChapterID = "4", InfoKey = "ChapterInfo_4_1", Coef = 0.005, InfoDesc = "ChapterInfoName4_1", Sprite = "Sprite_chefdiary_chapter4_icon1"},
+    ["11"] = {ID = "11", ChapterID = "4", InfoKey = "ChapterInfo_4_2", Coef = 1, InfoDesc = "ChapterInfoName4_2", Sprite = "Sprite_chefdiary_chapter4_icon2"},
+    ["12"] = {ID = "12", ChapterID = "4", InfoKey = "ChapterInfo_4_3", Coef = 1, InfoDesc = "ChapterInfoName4_3", Sprite = "Sprite_chefdiary_chapter4_icon3"},
+    ["13"] = {ID = "13", ChapterID = "5", InfoKey = "ChapterInfo_5_1", Coef = 1, InfoDesc = "ChapterInfoName5_1", Sprite = "Sprite_chefdiary_chapter5_icon2"},
+    ["14"] = {ID = "14", ChapterID = "5", InfoKey = "ChapterInfo_5_2", Coef = 0.04, InfoDesc = "ChapterInfoName5_2", Sprite = "Sprite_chefdiary_chapter5_icon1"},
+    ["15"] = {ID = "15", ChapterID = "5", InfoKey = "ChapterInfo_5_3", Coef = 25, InfoDesc = "ChapterInfoName5_3", Sprite = "Sprite_chefdiary_chapter5_icon3"},
+    ["16"] = {ID = "16", ChapterID = "6", InfoKey = "ChapterInfo_6_1", Coef = 1, InfoDesc = "ChapterInfoName6_1", Sprite = "Sprite_chefdiary_chapter6_icon1"},
+    ["17"] = {ID = "17", ChapterID = "6", InfoKey = "ChapterInfo_6_2", Coef = 1, InfoDesc = "ChapterInfoName6_2", Sprite = "Sprite_chefdiary_chapter6_icon2"},
+    ["18"] = {ID = "18", ChapterID = "6", InfoKey = "ChapterInfo_6_3", Coef = 1, InfoDesc = "ChapterInfoName6_3", Sprite = "Sprite_chefdiary_chapter6_icon3"},
+    ["19"] = {ID = "19", ChapterID = "7", InfoKey = "ChapterInfo_7_1", Coef = 0.15, InfoDesc = "ChapterInfoName7_1", Sprite = "Sprite_chefdiary_chapter7_icon1"},
+    ["20"] = {ID = "20", ChapterID = "7", InfoKey = "ChapterInfo_7_2", Coef = 1, InfoDesc = "ChapterInfoName7_2", Sprite = "Sprite_chefdiary_chapter7_icon2"},
+    ["21"] = {ID = "21", ChapterID = "7", InfoKey = "ChapterInfo_7_3", Coef = 1, InfoDesc = "ChapterInfoName7_3", Sprite = "Sprite_chefdiary_chapter7_icon3"},
+    ["22"] = {ID = "22", ChapterID = "8", InfoKey = "ChapterInfo_8_1", Coef = 0.02, InfoDesc = "ChapterInfoName8_1", Sprite = "Sprite_chefdiary_chapter8_icon1"},
+    ["23"] = {ID = "23", ChapterID = "8", InfoKey = "ChapterInfo_8_2", Coef = 1, InfoDesc = "ChapterInfoName8_2", Sprite = "Sprite_chefdiary_chapter8_icon2"},
+    ["24"] = {ID = "24", ChapterID = "8", InfoKey = "ChapterInfo_8_3", Coef = 1, InfoDesc = "ChapterInfoName8_3", Sprite = "Sprite_chefdiary_chapter8_icon3"},
+    ["25"] = {ID = "25", ChapterID = "9", InfoKey = "ChapterInfo_9_1", Coef = 1, InfoDesc = "ChapterInfoName9_1", Sprite = "Sprite_chefdiary_chapter9_icon1"},
+    ["26"] = {ID = "26", ChapterID = "9", InfoKey = "ChapterInfo_9_2", Coef = 3, InfoDesc = "ChapterInfoName9_2", Sprite = "Sprite_chefdiary_chapter9_icon2"},
+    ["27"] = {ID = "27", ChapterID = "9", InfoKey = "ChapterInfo_9_3", Coef = 0.04, InfoDesc = "ChapterInfoName9_3", Sprite = "Sprite_chefdiary_chapter9_icon3"},
+    ["28"] = {ID = "28", ChapterID = "10", InfoKey = "ChapterInfo_10_1", Coef = 18, InfoDesc = "ChapterInfoName10_1", Sprite = "Sprite_chefdiary_chapter10_icon1"},
+    ["29"] = {ID = "29", ChapterID = "10", InfoKey = "ChapterInfo_10_2", Coef = 1, InfoDesc = "ChapterInfoName10_2", Sprite = "Sprite_chefdiary_chapter10_icon2"},
+    ["30"] = {ID = "30", ChapterID = "10", InfoKey = "ChapterInfo_10_3", Coef = 0.034, InfoDesc = "ChapterInfoName10_3", Sprite = "Sprite_chefdiary_chapter10_icon3"},
+    ["31"] = {ID = "31", ChapterID = "11", InfoKey = "ChapterInfo_11_1", Coef = 6, InfoDesc = "ChapterInfoName11_1", Sprite = "Sprite_chefdiary_chapter11_icon1"},
+    ["32"] = {ID = "32", ChapterID = "11", InfoKey = "ChapterInfo_11_2", Coef = 1, InfoDesc = "ChapterInfoName11_2", Sprite = "Sprite_chefdiary_chapter11_icon2"},
+    ["33"] = {ID = "33", ChapterID = "11", InfoKey = "ChapterInfo_11_3", Coef = 5, InfoDesc = "ChapterInfoName11_3", Sprite = "Sprite_chefdiary_chapter3_icon3"},
+    ["34"] = {ID = "34", ChapterID = "12", InfoKey = "ChapterInfo_12_1", Coef = 1, InfoDesc = "ChapterInfoName12_1", Sprite = "Sprite_chefdiary_chapter12_icon1"},
+    ["35"] = {ID = "35", ChapterID = "12", InfoKey = "ChapterInfo_12_2", Coef = 0.046, InfoDesc = "ChapterInfoName12_2", Sprite = "Sprite_chefdiary_chapter12_icon2"},
+    ["36"] = {ID = "36", ChapterID = "12", InfoKey = "ChapterInfo_12_3", Coef = 1, InfoDesc = "ChapterInfoName12_3", Sprite = "Sprite_chefdiary_chapter12_icon3"},
+    ["37"] = {ID = "37", ChapterID = "13", InfoKey = "ChapterInfo_13_1", Coef = 0.05, InfoDesc = "ChapterInfoName13_1", Sprite = "Sprite_chefdiary_chapter13_icon1"},
+    ["38"] = {ID = "38", ChapterID = "13", InfoKey = "ChapterInfo_13_2", Coef = 1, InfoDesc = "ChapterInfoName13_2", Sprite = "Sprite_chefdiary_chapter13_icon2"},
+    ["39"] = {ID = "39", ChapterID = "13", InfoKey = "ChapterInfo_13_3", Coef = 1, InfoDesc = "ChapterInfoName13_3", Sprite = "Sprite_chefdiary_chapter13_icon3"},
+    ["40"] = {ID = "40", ChapterID = "14", InfoKey = "ChapterInfo_14_1", Coef = 1, InfoDesc = "ChapterInfoName14_1", Sprite = "Sprite_chefdiary_chapter14_icon1"},
+    ["41"] = {ID = "41", ChapterID = "14", InfoKey = "ChapterInfo_14_2", Coef = 1, InfoDesc = "ChapterInfoName14_2", Sprite = "Sprite_chefdiary_chapter14_icon2"},
+    ["42"] = {ID = "42", ChapterID = "14", InfoKey = "ChapterInfo_14_3", Coef = 3, InfoDesc = "ChapterInfoName14_3", Sprite = "Sprite_chefdiary_chapter14_icon3"},
+    ["43"] = {ID = "43", ChapterID = "15", InfoKey = "ChapterInfo_15_1", Coef = 1, InfoDesc = "ChapterInfoName15_1", Sprite = "Sprite_chefdiary_chapter15_icon1"},
+    ["44"] = {ID = "44", ChapterID = "15", InfoKey = "ChapterInfo_15_2", Coef = 0.25, InfoDesc = "ChapterInfoName15_2", Sprite = "Sprite_chefdiary_chapter15_icon2"},
+    ["45"] = {ID = "45", ChapterID = "15", InfoKey = "ChapterInfo_15_3", Coef = 0.033, InfoDesc = "ChapterInfoName15_3", Sprite = "Sprite_chefdiary_chapter15_icon3"},
+    ["46"] = {ID = "46", ChapterID = "16", InfoKey = "ChapterInfo_16_1", Coef = 6, InfoDesc = "ChapterInfoName16_1", Sprite = "Sprite_chefdiary_chapter16_icon1"},
+    ["47"] = {ID = "47", ChapterID = "16", InfoKey = "ChapterInfo_16_2", Coef = 1, InfoDesc = "ChapterInfoName16_2", Sprite = "Sprite_chefdiary_chapter16_icon2"},
+    ["48"] = {ID = "48", ChapterID = "16", InfoKey = "ChapterInfo_16_3", Coef = 175, InfoDesc = "ChapterInfoName16_3", Sprite = "Sprite_chefdiary_chapter16_icon3"},
+    ["49"] = {ID = "49", ChapterID = "17", InfoKey = "ChapterInfo_17_1", Coef = 1, InfoDesc = "ChapterInfoName17_1", Sprite = "Sprite_chefdiary_chapter17_icon1"},
+    ["50"] = {ID = "50", ChapterID = "17", InfoKey = "ChapterInfo_17_2", Coef = 0.25, InfoDesc = "ChapterInfoName17_2", Sprite = "Sprite_chefdiary_chapter17_icon2"},
+    ["51"] = {ID = "51", ChapterID = "17", InfoKey = "ChapterInfo_17_3", Coef = 0.033, InfoDesc = "ChapterInfoName17_3", Sprite = "Sprite_chefdiary_chapter17_icon3"},
+    ["52"] = {ID = "52", ChapterID = "18", InfoKey = "ChapterInfo_18_1", Coef = 6, InfoDesc = "ChapterInfoName18_1", Sprite = "Sprite_chefdiary_chapter18_icon1"},
+    ["53"] = {ID = "53", ChapterID = "18", InfoKey = "ChapterInfo_18_2", Coef = 1, InfoDesc = "ChapterInfoName18_2", Sprite = "Sprite_chefdiary_chapter18_icon2"},
+    ["54"] = {ID = "54", ChapterID = "18", InfoKey = "ChapterInfo_18_3", Coef = 175, InfoDesc = "ChapterInfoName18_3", Sprite = "Sprite_chefdiary_chapter18_icon3"},
+}
+

@@ -1,0 +1,105 @@
+--=====================================================================================================
+-- descrip:   资源物品表格数据管理中心
+--=====================================================================================================
+---@class ResourceID : table @ 道具id
+---@field ID string @ 道具id
+
+---@class ResourceDataManager @资源物品表格数据管理中心
+---@field _boosterIDs table<EItemSubType,table> 按子类划分的道具id
+---@field _resources table<EResourceType,table> 按类型划分的道具
+local ResourceDataManager = class("ResourceDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ResourceDataManager:ctor(args)
+    self:Init()
+end
+
+---创建函数
+---@type fun(args:table):ResourceDataMgr
+---@param args table @自定义参数
+---@return ResourceDataMgr @资源表格中和道具相关的数据管理中心
+function ResourceDataManager:Create(args)
+    local obj = ResourceDataManager.new(args)
+    return obj
+end
+
+---初始化接口
+---@type fun():void
+function ResourceDataManager:Init()
+    self._boosterIDs = nil
+    self._resources = nil
+end
+
+---获取物品资源总表
+---@type fun():Tables.Resource_Item[]
+---@return Tables.Resource_Item[] @物品资源总表
+function ResourceDataManager:GetResourceDatas()
+    return Tables.Resource
+end
+
+---获取物品资源表格数据
+---@type fun(resID:number):Tables.Resource_Item
+---@param resID string @资源ID
+---@return Tables.Resource_Item @获取对应ID的物品资源表格数据
+function ResourceDataManager:GetResourceData(resID)
+    return Tables.Resource[resID]
+end
+
+---通过资源ID获取资源类型
+---@type fun(resID:number):EResourceType
+---@param resID string @资源ID
+---@return EResourceType @返回资源类型
+function ResourceDataManager:GetResourceTypeById(resID)
+    local data = self:GetResourceData(resID)
+    if data then
+        return data.Type
+    end
+
+    return nil
+end
+
+---获取所有某个子类型的道具ID
+---@type fun(boosterSubType:EItemSubType):table
+---@param boosterSubType EItemSubType @道具类型
+---@return table @返回资源表格中所有的和参数类型相同的道具ID
+function ResourceDataManager:GetBoosterIDs(boosterSubType)
+    if self._boosterIDs == nil then
+        self._boosterIDs = {}
+    end
+    if self._boosterIDs[boosterSubType] == nil then
+        self._boosterIDs[boosterSubType] = {}
+        for k, v in pairs(Tables.Resource)  do
+            if v.Type == EResourceType.Item and v.SubType == boosterSubType then
+                table.insert(self._boosterIDs[boosterSubType], {ID = k})
+            end
+        end
+        table.sort(self._boosterIDs[boosterSubType], function(a, b)
+            return tonumber(a.ID) < tonumber(b.ID)
+        end)
+    end
+    return self._boosterIDs[boosterSubType]
+end
+
+---获取所有某个类型的道具ID
+---@type fun(resType:EResourceType):table
+---@param resType EResourceType @道具类型
+---@return table @返回资源表格中所有的和参数类型相同的道具ID
+function ResourceDataManager:GetResourceIDs(resType)
+    self._resources = self._resources or {}
+    if self._resources[resType] == nil then
+        self._resources[resType] = {}
+        for k, v in pairs(Tables.Resource)  do
+            if v.Type == resType then
+                table.insert(self._resources[resType], {ID = k})
+            end
+        end
+        table.sort(self._resources[resType], function(a, b)
+            return tonumber(a.ID) < tonumber(b.ID)
+        end)
+    end
+    return self._resources[resType] or {}
+end
+
+return ResourceDataManager

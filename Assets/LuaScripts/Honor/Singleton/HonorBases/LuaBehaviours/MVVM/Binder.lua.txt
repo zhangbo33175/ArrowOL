@@ -1,0 +1,79 @@
+--=====================================================================================================
+-- descrip:   绑定器(服务于ViewModel，将自身绑定关系移交给ViewModel)
+--=====================================================================================================
+
+---@class Binder @绑定器
+local Binder = class("Binder")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function Binder:ctor(args)
+	self._binders = {}
+	self._viewModel = nil
+end
+
+---创建函数
+---@type fun(args:table):Binder
+---@param args table @自定义参数
+---@return Binder @绑定器实例
+function Binder:Create(args)
+	local obj = Binder.new(args)
+	return obj
+end
+
+---设置ViewModel
+---@type fun(viewModel:ViewModelSuper):void
+function Binder:SetViewModel(viewModel)
+	self._viewModel = viewModel
+end
+
+---增加绑定
+---@type fun(name:string, handler:handler):void
+---@param name string @绑定的数据变量名称
+---@param handler handler @回调句柄
+function Binder:Add(name, handler)
+	if name ~= nil and type(name) == "string" and handler ~= nil then
+		if self._binders[name] == nil then
+			self._binders[name] = {}
+		end
+		table.insert(self._binders[name], handler)
+	end
+end
+
+---绑定句柄到ViewModel
+---@type fun():void
+function Binder:BindToViewModel()
+	if self._viewModel ~= nil then
+		for name, bindValue in pairs(self._viewModel._bindValues) do
+			if self._binders[name] ~= nil then
+				for i = 1, #self._binders[name] do
+					local handler = self._binders[name][i]
+					bindValue:AddHandler(handler)
+				end
+			end
+		end
+	end
+end
+
+---从ViewModel解除绑定句柄
+---@type fun():void
+function Binder:UnbindFromViewModel()
+	if self._viewModel ~= nil then
+		for name, bindValue in pairs(self._viewModel._bindValues) do
+			if self._binders[name] ~= nil then
+				for i = 1, #self._binders[name] do
+					local handler = self._binders[name][i]
+					bindValue:DeleteHandler(handler)
+				end
+			end
+		end
+	end
+end
+
+return Binder
+
+
+
+
+

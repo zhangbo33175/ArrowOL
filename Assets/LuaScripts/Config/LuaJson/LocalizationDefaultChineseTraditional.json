@@ -1,0 +1,57 @@
+{
+    "Hotfix_StartButton_Text" : "開始",
+    "Hotfix_RetryButton_Text" : "重試",
+    "Hotfix_CloseButton_Text" : "關閉",
+    "Hotfix_Ready_Download_Text" : "連接伺服器…",
+    "Hotfix_Downloading_Text" : "正在下載文件",
+    "Hotfix_Download_AllOver_Text" : "載入中……",
+    "Hotfix_Download_Failed_To_Skip_Text" : "下載失敗，準備進入遊戲。",
+    "Hotfix_Download_Error_Text" : "下載異常！ 請重試。",
+    "Hotfix_Download_Error_Quit_Text" : "下載失敗！ 請檢查網路後，重新啟動再試，即將退出應用程式。",
+    "Hotfix_Error_Title_Text" : "熱更新錯誤",
+    "Hotfix_Error_Desc_Text" : "是否重新嘗試熱更新？",
+    "Hotfix_Error_RetryButton_Text" : "重試",
+    "Hotfix_Error_CloseButton_Text" : "關閉",
+    "App_Download_Title_Text" : "有新版本啦！",
+    "App_Download_Desc_Text" : "是否前往商店下載安裝？",
+    "App_Download_StartButton_Text" : "去商店",
+    "App_Download_CloseButton_Text" : "關閉",
+    "GDPR_MainTitle_Text" : "感謝您下載<color=#5380C4>{0}</color>",
+    "GDPR_MainDesc_Text" : "<b>保護使用者隱私對{0}非常重要</b>
+
+我們需要您的許可，以便我們使用您的數據來為您提供個人化的遊戲體驗。
+
+<b>經過您的許可，{1}及其合作夥伴將收集一些數據，</b>包括您的廣告識別碼和IP位址，以便為您提供獨特的遊戲體驗並不斷改進我們的遊戲。
+
+這些資訊將由<b>{2}及其合作夥伴收集，並用於以下目的：</b>",
+    "GDPR_GDPRDesc_Text" : "為您推薦個人化的廣告和內容。",
+    "GDPR_CCPADesc_Text" : "在設備上儲存或存取訊息，優化改進產品。",
+    "GDPR_COPPADesc_Text" : "我確認已滿16歲
+已閱讀、瞭解並接受<b>{0}的隱私權政策</b>。 ",
+    "GDPR_StartGameButton_Text" : "開始遊戲",
+    "GDPR_MoreButton_Text" : "了解更多",
+    "GDPR_MoreTitle_Text" : "幫助<color=#5380C4>{0}</color>變得更好！",
+    "GDPR_MoreStartDesc_Text" : "感謝您下載我們的遊戲！您可知與我們分享您的資料將有助於我們為您提供獨特的遊戲體驗並幫助我們做得更好？您可以隨時決定在此應用程式內撤回您的授權許可 。
+以下為本應用程式需要收集相關數據的原因：",
+    "GDPR_MoreDesc1_Text" : "統計您的遊戲使用數據，包括遊玩次數以及使用時長，以便我們改善您的遊戲體驗。",
+    "GDPR_MoreDesc2_Text" : "了解您的興趣愛好以向您提供更適合的廣告內容。",
+    "GDPR_MoreDesc3_Text" : "解決技術問題。",
+    "GDPR_MoreFinalDesc_Text" : "如果您不願意就隱私協議中闡述的原因分享您的個人數據，您扔可以繼續使用此應用程式。 但您的體驗將會有所不同，包括收到大量未定向的廣告。",
+    "GDPR_MoreBackButton_Text" : "返回",
+    "GDPR_ResetTitle_Text" : "建立資訊共享",
+    "GDPR_ResetDesc_Text" : "您可以選擇您希望共享的資料：",
+    "GDPR_ResetGDPRDesc_Text" : "廣告。",
+    "GDPR_ResetCCPADesc_Text" : "支持與分析。",
+    "GDPR_SaveButton_Text" : "儲存我的選擇",
+    "GDPR_CloseButton_Text" : "關閉",
+    "Waiting_Desc_Text" : "請稍後…",
+    "Net_Error_Text" : "網路異常，請檢查網路後再試。",
+    "IAP_Init_Error_Text" : "支付初始化失敗，無法啟動支付。",
+    "IAP_Paying_Text" : "正在付款中，請稍後…",
+    "IAP_Validating_Text" : "訂單校驗中，請稍後…",
+    "IAP_No_Net_Validate_Error_Text" : "網路異常，訂單校驗失敗，請稍後再試…",
+    "IAP_UpdateReceipt_Text" : "訂單更新中，請稍後…",
+    "UpdateTitle" : "新版本！",
+    "UpdateText" : "好消息！ 有新版本可以玩了！",
+    "UpdateButton" : "安裝"
+}

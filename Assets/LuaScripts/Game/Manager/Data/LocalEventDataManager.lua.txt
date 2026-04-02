@@ -1,0 +1,76 @@
+--=====================================================================================================
+-- descrip:   本地活动数据管理器
+--=====================================================================================================
+
+---@class LocalEventDataManager @本地活动数据管理器
+local LocalEventDataManager = class("LocalEventDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function LocalEventDataManager:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):LocalEventDataMgr
+---@param args table @自定义参数
+---@return LocalEventDataMgr @本地活动数据管理器
+function LocalEventDataManager:Create(args)
+    local obj = LocalEventDataManager.new(args)
+    return obj
+end
+
+---获取本地活动数据
+---@type fun():Tables.LocalEvents_Item[]
+---@return Tables.LocalEvents_Item[] @活动数据
+function LocalEventDataManager:GetEventDatas()
+    return Tables.LocalEvents
+end
+
+---获取本地活动数据
+---@type fun(eventId:ELocalActivityId):Tables.Events_Item
+---@param eventId ELocalActivityId @活动ID
+---@return Tables.LocalEvents_Item @活动数据
+function LocalEventDataManager:GetEventDataById(eventId)
+    if eventId == nil then
+        return nil
+    end
+    local datas = self:GetEventDatas()
+    if datas then
+        ---@param v Tables.LocalEvents_Item
+        for _, v in ipairs(datas) do
+            if v.EventID == eventId then
+                return v
+            end
+        end
+        PrintError("LocalEventDataMgr:GetEventDataById error , 活动数据不存在 : eventId = " .. eventId)
+        return nil
+    end
+end
+
+---获取活动组ID
+---@type fun(eventId:ELocalActivityId):number
+---@param eventId ELocalActivityId @活动ID
+---@return number @活动组ID
+function LocalEventDataManager:GetActivityGroupId(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return 0
+    end
+    return data.LocalEventGroup
+end
+
+---获取活动顺序
+---@type fun(eventId:ELocalActivityId):number
+---@param eventId ELocalActivityId @活动ID
+---@return number @活动顺序
+function LocalEventDataManager:GetActivityOrder(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return 0
+    end
+    return data.OpenOrder
+end
+
+return LocalEventDataManager

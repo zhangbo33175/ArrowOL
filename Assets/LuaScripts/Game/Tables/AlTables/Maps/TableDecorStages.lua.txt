@@ -1,0 +1,47 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableDecorStages
+-- descrip:   章节与地图资源表对应关系
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.DecorStages_Item @章节与地图资源表对应关系条目
+---@field ID string @ID
+---@field DeviceRating number @设备性能评级（2最高）
+
+---@class Tables.DecorStages @章节与地图资源表对应关系
+---@field 1 Tables.DecorStages_Item
+---@field 2 Tables.DecorStages_Item
+---@field 3 Tables.DecorStages_Item
+---@field 4 Tables.DecorStages_Item
+---@field 5 Tables.DecorStages_Item
+---@field 6 Tables.DecorStages_Item
+---@field 7 Tables.DecorStages_Item
+---@field 8 Tables.DecorStages_Item
+---@field 9 Tables.DecorStages_Item
+---@field 10 Tables.DecorStages_Item
+---@field 11 Tables.DecorStages_Item
+---@field 12 Tables.DecorStages_Item
+---@field 13 Tables.DecorStages_Item
+---@field 14 Tables.DecorStages_Item
+---@field 15 Tables.DecorStages_Item
+Tables.DecorStages = {
+    ["1"] = {ID = "1", DeviceRating = 2},
+    ["2"] = {ID = "2", DeviceRating = 2},
+    ["3"] = {ID = "3", DeviceRating = 2},
+    ["4"] = {ID = "4", DeviceRating = 2},
+    ["5"] = {ID = "5", DeviceRating = 2},
+    ["6"] = {ID = "6", DeviceRating = 1},
+    ["7"] = {ID = "7", DeviceRating = 1},
+    ["8"] = {ID = "8", DeviceRating = 1},
+    ["9"] = {ID = "9", DeviceRating = 1},
+    ["10"] = {ID = "10", DeviceRating = 1},
+    ["11"] = {ID = "11", DeviceRating = 0},
+    ["12"] = {ID = "12", DeviceRating = 0},
+    ["13"] = {ID = "13", DeviceRating = 0},
+    ["14"] = {ID = "14", DeviceRating = 0},
+    ["15"] = {ID = "15", DeviceRating = 0},
+}
+

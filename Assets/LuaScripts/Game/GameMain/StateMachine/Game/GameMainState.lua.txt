@@ -1,0 +1,144 @@
+--=====================================================================================================
+-- descrip:   游戏主界面状态
+--=====================================================================================================
+
+---@class GameMainState : GameStateBase @游戏主界面状态
+local GameMainState = class('GameMainState', import('GameStateBase'))
+
+---构造函数
+---@type fun(stateType:GameStateCmd):void
+---@param stateType GameStateCmd @状态机状态值
+function GameMainState:ctor(stateType)
+    GameMainState.super.ctor(self, stateType)
+
+end
+
+---创建函数
+---@type fun(stateType:GameStateCmd):GameMainState
+---@param stateType GameStateCmd @状态机状态值
+---@return GameMainState @GameMainState实例
+function GameMainState:Create(stateType)
+    local obj = GameMainState.new(stateType)
+    return obj
+end
+
+---进入状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameMainState:OnStateEnter(finishCallback)
+    PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
+    GameLib.Util.SetMultiTouchEnabled(false) -- 关闭多点触摸
+    -------------------------添加UI遮罩层引用
+    GameMainRoot.UI:AddUIMaskLayerRef("GameMainState:OnStateEnter")
+    SyncAllGameDataHelper:TrySyncAllGameData() -- 尝试同步所有游戏存档数据
+    ActivityMgr:UpdateActivityHotfixResStates() -- 更新活动热更资源状态
+    ActivityMgr:SyncActivityDataFromServer() -- 同步活动数据
+
+    LocalActivityMgr:UpdateActivityHotfixResStates() -- 更新本地活动热更资源状态
+    LocalActivityMgr:TryOpenActivities() -- 尝试开启本地活动
+    local chapterData = ChapterDataMgr:GetChapterDataByChapterId(MapMgr.CurLoadChapterId)
+    if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
+        SoundMgr:PlayBGM(chapterData.MapMusic.outgame)
+    end
+    self:_LocateCamera(finishCallback)
+end
+
+---定位相机
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameMainState:_LocateCamera(finishCallback)
+
+    self:_LocateNormalShowChapterMap(finishCallback)
+end
+
+---首次进入某个除第一章以外的章节地图
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameMainState:_LocateFirstShowChapterMap(finishCallback)
+    local mapData = MapMgr.CurMapData;
+    MapMotion:PauseMapMotion()
+    -----定位到最左
+    --RGame.MapCamHelper.LookMap(mapData.normalCamData, 0)
+    --local targetX = MapMotion:ResetPositionX(mapData.playCamData.posX, MapMotion.ScreenCamera.aspect, RGame.MapCamHelper.CurCamSize)
+    -----移动到最右侧
+    --RGame.MapCamHelper.LookMapPosition(targetX, mapData.normalCamData.posY, Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.FirstShow, function()
+    --    self:DoStateEnter(finishCallback)
+    --    MapMotion:ResumeMapMotion()
+    --end)
+end
+
+---正常回到某章节地图
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameMainState:_LocateNormalShowChapterMap(finishCallback)
+    local mapData = MapMgr.CurMapData;
+    if GameLib.MapCamHelper.IsEqualMapCamData(mapData.normalCamData) then
+        GameMainRoot.Effect.efCamera.orthographicSize = mapData.normalCamData.size -- 同比特效相机size与场景相机size匹配
+        self:DoStateEnter(finishCallback)
+    else
+        GameLib.MapCamHelper.LookMap(mapData.exitPlayCamData, Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.MainIn, function()
+            GameLib.MapCamHelper.LookMap(mapData.normalCamData, Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.Main, function()
+                self:DoStateEnter(finishCallback)
+            end)
+        end)
+    end
+end
+
+---进入状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameMainState:DoStateEnter(finishCallback)
+    OpenUISync(UIs.UIMainHud)
+    GameMainRoot.UI:SubUIMaskLayerRef()
+    LoginManager:TryLoginInMainHud() -- 尝试登陆
+    DailyRewardMgr:TrySignin() --每日签到
+    BoosterSaleMgr:TryOpenBoosterSaleUI() --道具促销
+    UpgradeMapMgr:RefreshTimeStamp()
+    LuckyWheelMgr:OnEnterMain()
+    SpecialOfferSaleMgr:OnEnterMain()
+    LocalActivityMgr:TryOpenPopupActivityUI() -- 尝试打开本地活动弹窗活动UI（只有一个弹窗）
+    --进入主界面时补单和弹出补单成功UI，若位置不对可修改
+    rxpcall(function()
+        ShopMgr:OnEnterMainState()
+    end, "补单查询错误：")
+    local preStateType = GameStateMachine:PreStateType() -- 前一个状态机类型
+    if preStateType and
+            preStateType == GameStateCmd.PlayingState and -- 前一个状态机类型为游戏中
+            GameCoreManager:GetGameOverType() ~= EGameOverType.PlayerGiveUp then
+        -- 游戏结束类型不为玩家放弃
+        -- 判断是否需要打开升级界面
+        UpgradeMapMgr:CheckAndAutoOpenUpgradeUI(ChapterListManager:GetRuntimeChapterId())
+    end
+    GameMainUIPushMgr:OnEnterMainState()
+
+    GameManager:SetupEasyTouchAutoSelect(false)
+    -------------------------告知地图
+    MapMgr.CurGameMapBase:CreateAutonomousEntitys()
+    
+    if finishCallback then
+        xpcall(finishCallback, __G__TRACK_BACK__)
+    end
+end
+
+---离开状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameMainState:OnStateExit(finishCallback)
+    PrintInfo("OnStateExit --> GameState: {0} ", tostring(self:GetStateType()))
+    EffectMgr:ClearData() -- 清理特效层数据
+    SoundMgr:StopCurBGM()
+    UpgradeMapMgr:StopTimeStamp()
+    GameMainUIPushMgr:OnLeaveMainState()
+    CloseUI(UIs.UIMainHud)
+    pcall(finishCallback)
+end
+
+---更新
+---@type fun():void
+function GameMainState:OnUpdate()
+    GameMainState.super:OnUpdate()
+    MapMotion:OnUpdate()
+end
+
+return GameMainState
+

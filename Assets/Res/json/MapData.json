@@ -1,0 +1,94 @@
+{
+    "m_MapName": "",
+    "m_BackgroundPath": "",
+    "m_IconPath": "",
+    "m_MapObjectData": [
+        {
+            "id": 0,
+            "type": "",
+            "position": {
+                "x": -437.95684814453127,
+                "y": 155.96307373046876,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "sprite": {
+                "instanceID": 0
+            },
+            "name": "ItemMap_Instance0",
+            "m_IconPath": "",
+            "size": {
+                "x": 35.0,
+                "y": 39.0
+            }
+        },
+        {
+            "id": 0,
+            "type": "",
+            "position": {
+                "x": -474.1907653808594,
+                "y": 63.015380859375,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "sprite": {
+                "instanceID": 0
+            },
+            "name": "ItemMap_Instance1",
+            "m_IconPath": "",
+            "size": {
+                "x": 35.0,
+                "y": 39.0
+            }
+        },
+        {
+            "id": 0,
+            "type": "",
+            "position": {
+                "x": -422.2030944824219,
+                "y": -288.7675476074219,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "sprite": {
+                "instanceID": 0
+            },
+            "name": "ItemMap_Instance2",
+            "m_IconPath": "",
+            "size": {
+                "x": 35.0,
+                "y": 39.0
+            }
+        }
+    ],
+    "m_CcreateTime": "",
+    "m_MapWidth": 0,
+    "m_MapHeight": 0
+}

@@ -1,0 +1,51 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  NotificationDataPB.lua
+-- descrip:   通知消息本地缓存（用于运行时统一上报服务器）
+-- notices:   该文件自动生成，请不要手动修改！ 5541424142
+--=====================================================================================================
+
+PbRootData = PbRootData or {}
+PbRootData.NotificationData = PbRootData.NotificationData or {}
+---@type SavePBMsgDef.NotificationDataPB.NotificationData @[主结构]通知根数据
+PbRootData.DeclareNotificationDataPB = {}
+
+---@type table @系统配置数据
+PbRootData.NotificationData.data = {}
+
+
+PbIO = PbIO and PbIO or {}
+PbIO.NotificationData = {}
+----------------------------------------------------------------------------------------------
+PbIO.NotificationData.LoadAll = function()
+    PbIO.NotificationData.Load_data()
+end
+PbIO.NotificationData.Load_data = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data') then
+         PbRootData.NotificationData.data = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data'))
+    end
+end
+----------------------------------------------------------------------------------------------
+PbIO.NotificationData.SaveAll = function()
+    PbIO.NotificationData.Save_data()
+end
+PbIO.NotificationData.Save_data = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data', JsonEncode(PbRootData.NotificationData.data))
+end
+----------------------------------------------------------------------------------------------
+PbIO.NotificationData.SerializeAll = function()
+    return JsonEncode(PbRootData.NotificationData)
+end
+PbIO.NotificationData.Serialize_data = function()
+    return JsonEncode(PbRootData.NotificationData.data)
+end
+----------------------------------------------------------------------------------------------
+PbIO.NotificationData.DeserializeAll = function(jsonString)
+    PbRootData.NotificationData = JsonDecode(jsonString)
+end
+PbIO.NotificationData.Deserialize_data = function(jsonString)
+    PbRootData.NotificationData.data = JsonDecode(jsonString)
+end
+----------------------------------------------------------------------------------------------

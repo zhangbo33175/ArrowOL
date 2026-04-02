@@ -1,0 +1,35 @@
+--=====================================================================================================
+-- descrip:   目标数据管理器 
+--=====================================================================================================
+
+---@class GoalDataManager @目标数据管理器
+local GoalDataManager = class("GoalDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GoalDataManager:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):GoalDataManager
+---@param args table @自定义参数
+---@return GoalDataManager @目标数据管理器
+function GoalDataManager:Create(args)
+    local obj = GoalDataManager.new(args)
+    return obj
+end
+
+---根据目标Id获取GoalData数据
+---@type fun(goalId:string):Tables.Goals_Item
+---@param goalId string 目标Id
+---@return Tables.Goals_Item 查找到的目标数据，否则为nil
+function GoalDataManager:GetGoalDataById(goalId)
+    if table.kIn(Tables.Goals, goalId) then
+        return Tables.Goals[goalId]
+    end
+    return nil
+end
+
+return GoalDataManager

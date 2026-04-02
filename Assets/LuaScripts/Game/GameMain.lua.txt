@@ -1,0 +1,51 @@
+---扩展函数
+require("GameApiExtend")
+---加载数据信息
+require("Tables")
+---加载UI信息
+require("UIs")
+---本地化配置
+require("Localizations") 
+
+require("GameDefinitions")
+---全局自定义方法
+require("GameFunctions")
+---游戏逻辑全局自定义包含
+require("GameRequires")
+
+--获取游戏的配置信息
+SystemConfigHelper:GetServerSystemConfig()
+
+---注册挂起/恢复应用时回调
+---@type fun(pause:boolean):void
+---@param pause boolean @ 应用是否挂起
+function GameApplicationPauseCallback(pause)
+    if LoginManager:IsDelUser() then
+        return
+    end
+    if pause == false then
+        LoginManager:TryReLogin()
+    end
+end
+
+---退出应用时回调（ApplicationQuit发生在所有GameObject销毁之前，该Unity的C#接口在个别安卓设备下可能无效）
+---@type fun():void
+function GameApplicationQuitCallback()
+    if not LoginManager:IsDelUser() then
+    
+    end
+end
+
+---原生按键抬起时回调
+---@type fun(keyCode:any):void
+---@param keyCode any @UnityEngine.KeyCode按键类型枚举
+function GameKeyboardsUpCallback(keyCode)
+
+end
+
+---接收C#层事件回调相关处理
+---@type fun(eventArgs: Honor.Runtime.EventParams):void
+---@param eventArgs Honor.Runtime.EventParams @C#层事件参数
+function GameReceiveCsToEventCallback(eventArgs)
+
+end

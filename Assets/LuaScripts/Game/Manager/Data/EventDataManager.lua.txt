@@ -1,0 +1,173 @@
+--=====================================================================================================
+-- descrip:   活动数据管理器
+--=====================================================================================================
+
+---@class EventDataMgr @活动数据管理器
+local EventDataManager = class("EventDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function EventDataManager:ctor(args)
+    self._AllIncreaserGroups = {}                               ---@type string[]                                       ---所有服装的增量组名字
+end
+
+---创建函数
+---@type fun(args:table):EventDataMgr
+---@param args table @自定义参数
+---@return EventDataMgr @活动数据管理器
+function EventDataManager:Create(args)
+    local obj = EventDataManager.new(args)
+    return obj
+end
+
+---获取活动数据
+---@type fun():Tables.Events_Item[]
+---@return Tables.Events_Item[] @活动数据
+function EventDataManager:GetEventDatas()
+    return Tables.Events
+end
+
+---获取活动数据
+---@type fun(eventId:EActivityId):Tables.Events_Item
+---@param eventId EActivityId @活动ID
+---@return Tables.Events_Item @活动数据
+function EventDataManager:GetEventDataById(eventId)
+    if eventId == nil then
+        return nil
+    end
+    local data = Tables.Events[eventId]
+    if data == nil then
+        PrintError("EventDataMgr:GetEventDataById error , 活动数据不存在 : eventId = " .. eventId)
+    end
+    return data
+end
+
+---是否有关卡难度影响
+---@type fun(eventId:EActivityId):boolean
+---@param eventId EActivityId @活动ID
+function EventDataManager:HasLevelDiffAffect(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return false
+    end
+
+    return data.LevelDiffAffect == 1
+end
+
+---是否有双倍积分影响
+---@type fun(eventId:EActivityId):boolean
+---@param eventId EActivityId @活动ID
+---@return boolean @是否有双倍积分影响
+function EventDataManager:HasDoublePointsAffect(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return false
+    end
+    return data.DoubleAffect == 1
+end
+
+---返回代币ID
+---@type fun(eventId:EActivityId):string
+---@param eventId EActivityId @活动ID
+---@return string @ 代币ID
+function EventDataManager:GetTokenID(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data then
+        return data.TokenID
+    end
+    return nil
+end
+
+---获取二次退出关卡提示Id
+---@type fun(eventId:EActivityId):string
+---@param eventId EActivityId @活动ID
+---@return string @ 二次退出关卡提示Id
+function EventDataManager:GetExitTipsId(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data then
+        return data.ExitTipsID
+    end
+    return nil
+end
+
+---是否显示Finished状态
+---@type fun(eventId:EActivityId):boolean
+---@param eventId EActivityId @活动ID
+---@return boolean @是否显示Finished状态
+function EventDataManager:CanShowFinishedState(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return false
+    end
+    return data.FinishedShow == 1
+end
+
+---获取服务类型
+---@type fun(eventId:EActivityId):EActivityType
+---@param eventId EActivityId @活动ID
+---@return EActivityType @服务类型
+function EventDataManager:GetActivityType(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return EActivityType.None
+    end
+    return data.Type
+end
+
+---是否有预览
+---@type fun(eventId:EActivityId):boolean
+---@param eventId EActivityId @活动ID
+---@return boolean @是否有预览
+function EventDataManager:HasPreview(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return false
+    end
+    return data.PreviewShow == 1
+end
+
+---获取预览解锁等级数据
+---@type fun(eventId:EActivityId):UnlockData
+---@param eventId EActivityId @活动ID
+---@return UnlockData @预览解锁等级数据
+function EventDataManager:GetPreviewUnlockData(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return nil
+    end
+    return data.PreLevel
+end
+
+---获取活动组ID
+---@type fun(eventId:EActivityId):number
+---@param eventId EActivityId @活动ID
+---@return number @活动组ID
+function EventDataManager:GetActivityGroupId(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return 0
+    end
+    return data.EventGroup
+end
+
+---获取所有事件的增量包名字
+---@type fun():string[]
+---@return string[] @所有事件的增量包名字
+function EventDataManager:GetAllIncreaserGroups()
+    if Tables.Events and #self._AllIncreaserGroups == 0 then
+        ---@param v Tables.Events_Item
+        for _, v in pairs(Tables.Events) do
+            if v and v.GroupNames and #v.GroupNames > 0 then
+                for _, groupName in ipairs(v.GroupNames) do
+                    if not table.vIn(self._AllIncreaserGroups, groupName) then
+                        table.insert(self._AllIncreaserGroups, groupName)
+                    end
+                end
+            end
+        end
+    end
+    return self._AllIncreaserGroups
+end
+
+return EventDataManager

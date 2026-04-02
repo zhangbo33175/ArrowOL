@@ -1,0 +1,37 @@
+namespace Honor.Runtime
+{
+    public enum PlaySoundErrorCode : byte
+    {
+        /// <summary>
+        /// 未知错误
+        /// </summary>
+        Unknown = 0,
+
+        /// <summary>
+        /// 声音组不存在
+        /// </summary>
+        SoundGroupNotExist,
+
+        /// <summary>
+        /// 声音组没有足够的声音代理
+        /// </summary>
+        SoundGroupHasNotEnoughAgent,
+
+        /// <summary>
+        /// 加载资源失败
+        /// </summary>
+        LoadAssetFailure,
+
+        /// <summary>
+        /// 播放声音因优先级低被忽略
+        /// </summary>
+        IgnoredDueToLowPriority,
+
+        /// <summary>
+        /// 设置声音资源失败
+        /// </summary>
+        SetSoundAssetFailure
+    }
+}
+
+

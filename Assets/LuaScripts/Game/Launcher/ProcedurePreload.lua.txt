@@ -1,0 +1,259 @@
+--=====================================================================================================
+-- filename:  ProcedurePreload.lua
+--=====================================================================================================
+
+---@class ProcedurePreload : ProcedureSuper
+local ProcedurePreload = class('ProcedurePreload', import('ProcedureSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ProcedurePreload:ctor(args)
+    ProcedurePreload.super.ctor(self, args)
+    self._preLoadLuaFiles = nil                                         ---@type table                          ---预加载的Lua文件
+    self._loadCountPerFrameOfLow = 3                                    ---@type number                         ---(低端机)每帧加载的数量
+    self._loadCountPerFrameOfMedium = 5                                 ---@type number                         ---(中端机)每帧加载的数量
+    self._loadCountPerFrameOfHigh = 10                                  ---@type number                         ---(高端机)每帧加载的数量
+
+    ---初始化预加载Lua文件
+    self:InitPreLoadLuaFiles()
+    ---需要先初始化时间信息
+    self:InitLaunchTimeData()
+end
+
+---创建函数
+---@type fun(args:table):ProcedurePreload
+---@param args table @自定义参数
+---@return ProcedurePreload @流程实例
+function ProcedurePreload:Create(args)
+    local obj = ProcedurePreload.new(args)
+    return obj
+end
+
+---初始化预加载Lua文件
+---@type fun():void
+function ProcedurePreload:InitPreLoadLuaFiles()
+    self._preLoadLuaFiles = {
+        "LuaBehaviourSuper",
+        "ViewSuper",
+        "GameMapBase",
+        "UIMapBase",
+    }
+end
+
+---初始化数据
+---@type fun():void
+---@return void
+function ProcedurePreload:InitLaunchTimeData()
+    -- 启动游戏时需要记录启动时间到本地存档
+end
+
+---进入
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedurePreload:OnEnter(ownerMachine)
+    ---TimerHelper会在这里做初始化 
+    ProcedurePreload.super.OnEnter(self, ownerMachine)
+
+    -- Preload流程需要预加载下一个流程中的游戏内容，因此切换到下一个流程时不要移除所有内容，防止新流程内容被移除
+    self.cs.RemoveAllContentsOnProcedureTransition = false
+    --- 首先尝试登陆，再进行加载流程
+    self.cs.StartLoading = false
+    self:InitGameSetting()
+    self:InitNewAccountData()
+    ---初始化首次启动时间
+    self:InitGameDataFirstLaunchTime()
+    
+    self:LoadAddSteps()
+end
+
+---尝试显示隐私条款
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
+    if not PbRootData.GameData.playerInfo.isShowPrivacy then
+        OpenUISync(UIs.UITermsPrivacy, { callback = finishCallback })
+
+        PbRootData.GameData.playerInfo.isShowPrivacy = true
+        PbIO.GameData.Save_playerInfo_isShowPrivacy()
+    else
+        if finishCallback then
+            xpcall(finishCallback, __G__TRACK_BACK__)
+        end
+    end
+end
+
+---心跳
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedurePreload:OnUpdate(ownerMachine)
+    ProcedurePreload.super.OnUpdate(self, ownerMachine)
+end
+
+---离开
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedurePreload:OnLeave(ownerMachine)
+    ProcedurePreload.super.OnLeave(self, ownerMachine)
+
+end
+
+---初始化游戏设置
+---@type fun():void
+function ProcedurePreload:InitGameSetting()
+    GameLib.Util.SetMultiTouchEnabled(false) -- 关闭多点触摸
+end
+
+---初始化新账号数据
+---@type fun():void
+function ProcedurePreload:InitNewAccountData()
+
+end
+
+---分步加载流程
+---@type fun():void
+function ProcedurePreload:LoadAddSteps()
+    local timeStart = Unity.Time.realtimeSinceStartup
+    -- 加载单例
+    SingletonManager:InitAllSingleForStep(self)
+
+    -- 预加载自定义的Lua文件
+    self:PreLoadLuaFiles()
+    -- 预加载UI资源,分帧加载
+    --self:PreLoadUIConfig()
+    
+    self.cs:AddStep(function()
+        self.cs:PrepareToNextProcedure(typeof(Honor.ProcedurePlaying), self.cs.ArgsFromChanging)
+    end)
+    self.cs.StartLoading = true
+end
+
+---预加载Lua文件
+---@type fun(luaFileName:string):void
+---@param luaFileName string @Lua文件名
+function ProcedurePreload:PreLoadLuaFile(luaFileName)
+    if not string.isNullOrEmpty(luaFileName) then
+        require(luaFileName)
+    end
+end
+
+---预加载Lua文件
+---@type fun():void
+function ProcedurePreload:PreLoadLuaFiles()
+    if self._preLoadLuaFiles then
+        ---- 分批加载处理
+        BatchTraverseFunc(self._preLoadLuaFiles, self:LoadCountPreFrame(), function(batchData)
+            if batchData and #batchData > 0 then
+                local resultList = CopyTab(batchData)
+                self.cs:AddStep(function()
+                    for _, v in ipairs(resultList) do
+                        self:PreLoadLuaFile(v)
+                    end
+                end)
+            end
+        end)
+    end
+end
+
+---预加载UI资源
+---@type fun():void
+function ProcedurePreload:PreLoadUIConfig()
+    if UIPreloadConfig then
+        ---- 分批加载处理
+        BatchTraverseFunc(UIPreloadConfig, self:LoadCountPreFrame(), function(batchData)
+            if batchData and #batchData > 0 then
+                local resultList = CopyTab(batchData)
+                self.cs:AddStep(function()
+                    for _, v in ipairs(resultList) do
+                        self:PreLoadLuaFile(v)
+                    end
+                end)
+            end
+        end)
+    end
+end
+
+---每帧加载的数量
+---@type fun():number
+---@return number @每帧加载的数量
+function ProcedurePreload:LoadCountPreFrame()
+    local deviceLevel = GameManager:GetDevicePerformanceLevel()
+    PrintInfo("当前设备性能等级：" .. tostring(deviceLevel))
+    if deviceLevel == Honor.DevicePerformanceLevel.High then
+        return self._loadCountPerFrameOfHigh
+    end
+    if deviceLevel == Honor.DevicePerformanceLevel.Mid then
+        return self._loadCountPerFrameOfMedium
+    end
+    if deviceLevel == Honor.DevicePerformanceLevel.Low then
+        return self._loadCountPerFrameOfLow
+    end
+    return self._loadCountPerFrameOfMedium
+end
+
+---预加载地图资源
+---@type fun(callback:function):void
+---@param callback function @回调函数
+function ProcedurePreload:PreLoadAssetAsyncOfMap(callback)
+    local chapterId = ChapterListMgr:GetLatestChapterId()
+    local hasDownGroupChapterId = IncreaserHotfixHelper:GetLastHasDownGroupChapterId(chapterId)
+    local mapName = MapManager:GetLoadMapResName(hasDownGroupChapterId)
+    if mapName then
+        PrintInfo("预加载地图资源：" .. mapName)
+        ---@type RES_DEF_ITEM
+        local mapRes = RES["GameObject_" .. mapName]
+        GameMainRoot.Asset:PreLoadAssetAsync(mapRes.TypeName, mapRes.ABPath, mapName, function(assetObject, asset)
+            PrintInfo("预加载地图资源完成：" .. mapName)
+            if asset then
+                GameMainRoot.Asset:UnloadAsset(asset) -- 预加载完毕后立即卸载
+            end
+            if callback then
+                xpcall(callback, __G__TRACK_BACK__)
+            end
+        end, true)
+    end
+end
+
+---加载地图
+---@type fun(callback:function):void
+---@param callback function @回调函数
+function ProcedurePreload:LoadMap(callback)
+    local chapterId = ChapterListMgr:GetLatestChapterId()
+    local hasDownGroupChapterId = IncreaserHotfixHelper:GetLastHasDownGroupChapterId(chapterId)
+    --- 设置当前运行章节
+    ChapterListMgr:SetRuntimeChapter(hasDownGroupChapterId)
+    local isSuccess = MapManager:LoadMapById(hasDownGroupChapterId, nil)
+    if callback then
+        xpcall(callback, __G__TRACK_BACK__, isSuccess)
+    end
+end
+
+---检查是否异常退出关卡
+function ProcedurePreload:CheckIsUnusualExitLevel()
+    local levelTag = GameCoreManager:GetPlayingLevelTag()
+    if levelTag ~= nil and not string.isNullOrEmpty(levelTag) then
+        local array = string.split(levelTag, "_")
+        if #array ~= 2 then
+            PrintError("退出关卡标签格式错误：" .. levelTag)
+            return
+        end
+
+        -- 离线前关卡没有正常退出，按失败处理相关逻辑
+        HonorEventHelper:Fire(EventCmd.OnLevelUnusualExit, array[1], tonumber(array[2]))
+
+        GameCoreManager:SetPlayingLevelTag('')
+    end
+end
+
+
+---初始化首次启动时间
+---@type fun():void
+function ProcedurePreload:InitGameDataFirstLaunchTime()
+    --local regUserTime = PbRootData.GameData.playerInfo.regUserTime
+    --if regUserTime == nil or regUserTime == 0 then
+    --    PbRootData.GameData.playerInfo.regUserTime = TimerHelper:GetUTC0TimeStamp()
+    --    PbIO.GameData.Save_playerInfo_regUserTime()
+    --end
+end
+
+return ProcedurePreload

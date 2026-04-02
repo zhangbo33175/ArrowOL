@@ -1,0 +1,92 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UILogin.lua
+-- author:    zb
+-- descrip:   登录页面
+--=====================================================================================================
+
+---@class UILogin : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field LoginBtn                           UnityEngine.UI.Button         √         Clicked        
+local UILogin = class('UILogin', import('LuaBehaviourSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function UILogin:ctor(args)
+    UILogin.super.ctor(self, args)
+
+end
+
+---创建函数
+---@type fun(args:table):UILogin
+---@param args table @自定义参数
+---@return UILogin @UILogin实例
+function UILogin:Create(args)
+    local obj = UILogin.new(args)
+    return obj
+end
+
+---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@type fun():void
+function UILogin:OnAddListeners()
+    UILogin.super.OnAddListeners(self)
+
+end
+
+---唤醒
+---@type fun():void
+function UILogin:Awake()
+    UILogin.super.Awake(self)
+-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    AddUIListenerFunction(self.LoginBtn, 'Clicked', handler(self, self.OnLoginBtnClicked))
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+
+end
+
+---开始
+---@type fun():void
+function UILogin:Start()
+    UILogin.super.Start(self)
+
+end
+
+---销毁
+---@type fun():void
+function UILogin:OnDestroy()
+    UILogin.super.OnDestroy(self)
+-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    OnRemoveListener(self.LoginBtn, 'Clicked', handler(self, self.OnLoginBtnClicked))
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+
+end
+
+---播放打开动画回调（可重写该父类方法）
+---@type fun():void
+function UILogin:OnPlayOpenAnimation()
+    UILogin.super.OnPlayOpenAnimation(self)
+end
+
+---播放关闭动画回调（可重写该父类方法）
+---@type fun():void
+function UILogin:OnPlayCloseAnimation()
+    UILogin.super.OnPlayCloseAnimation(self)
+end
+
+---被追加的N层UI子节点销毁回调
+---@type fun(luaClass: XLua.LuaTable):void
+---@param luaClass XLua.LuaTable @luaClass
+function UILogin:OnAddedUIDestroyed(luaClass)
+    UILogin.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+----交互回调
+---@type fun(args:any):void
+function UILogin:OnLoginBtnClicked(args)
+    PrintInfo("OnLoginBtnClicked交互回调")
+end
+
+return UILogin
+

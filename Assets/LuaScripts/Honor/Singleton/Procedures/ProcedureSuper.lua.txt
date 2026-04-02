@@ -1,0 +1,70 @@
+--=====================================================================================================
+-- descrip:   流程基类
+--=====================================================================================================
+
+---@class ProcedureSuper @流程基类
+local ProcedureSuper = class("ProcedureSuper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ProcedureSuper:ctor(args)
+    if args ~= nil and args.env ~= nil then for __, v in pairs(args.env) do self[__] = v end end
+    self._args = args			 -- 初始化传入参数
+
+end
+
+---创建函数
+---@type fun(args:table):ProcedureSuper
+---@param args table @自定义参数
+---@return ProcedureSuper @流程基类实例
+function ProcedureSuper:Create(args)
+    local obj = ProcedureSuper.new(args)
+    return obj
+end
+
+---初始化
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedureSuper:OnInit(ownerMachine)
+
+end
+
+---销毁
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedureSuper:OnDestroy(ownerMachine)
+    self._args = nil
+end
+
+---进入
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedureSuper:OnEnter(ownerMachine)
+    HonorTimerHelper:OnEnter(self)
+end
+
+---心跳
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedureSuper:OnUpdate(ownerMachine)
+    HonorTimerHelper:OnUpdate(self)
+end
+
+---离开
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedureSuper:OnLeave(ownerMachine)
+    HonorTimerHelper:OnLeave(self)
+end
+
+---切换流程
+---@type fun(ownerMachine: userdata, procedureName:string):void
+---@param ownerMachine userdata @流程状态
+---@param procedureName string @流程名称
+function ProcedureSuper:ChangeState(ownerMachine, procedureName)
+    self.cs:ChangeState(ownerMachine, procedureName)
+end
+
+return ProcedureSuper
+

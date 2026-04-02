@@ -1,0 +1,25 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableGoals
+-- descrip:   关卡目标表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.Goals_Item @关卡目标表条目
+---@field ID string @目标ID
+---@field Type number @1目标2限制条件
+---@field UnlockLevel string @章节,关卡（编辑器共用）
+---@field Name string @名称
+---@field Desc string @准备界面气泡描述
+---@field AdditionalDesc string @横幅下方展示描述
+---@field Image string @图片资源名称
+---@field GoalTitle string @编辑器用目标名
+---@field PrepareTipsKey string @准备界面提示气泡文本
+---@field BoosterRecommend string @前置道具推荐
+
+---@class Tables.Goals @关卡目标表
+Tables.Goals = {
+}
+

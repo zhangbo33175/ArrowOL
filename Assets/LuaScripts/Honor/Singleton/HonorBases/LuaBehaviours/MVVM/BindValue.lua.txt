@@ -1,0 +1,253 @@
+--=====================================================================================================
+-- descrip:   可绑定值类（MVVM）
+--=====================================================================================================
+
+---@class BindValue @可绑定值类（MVVM）
+local BindValue = class("BindValue")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function BindValue:ctor(args)
+	self._args = args									    						-- 初始化传入参数
+	self._handlers = {}																-- 回调句柄集合
+	self._data = {name = args.name, value = nil, isTrigger = args.isTrigger}  		-- 数据表（这里value不做赋值，稍后由ViewModel的OnInit方法赋值）
+	if self._data.isTrigger then self._data.value = false end						-- 触发器Trigger默认值一律为false
+	self._guiderData = {}															-- 导向表
+	setmetatable(self._guiderData, {
+		__index = function(t, k)
+			return self._data[k]
+		end,
+		__newindex = function(t, k, v)
+			if self._data[k] ~= v then
+				local old = self._data[k]
+				self._data[k] = v
+				self:__OnChanged(old, self._data[k], BindValueOperate.ValueChanged, nil)
+				if self._data.isTrigger then
+					self._data[k] = false
+				end
+			end
+		end
+	})
+end
+
+---创建函数
+---@type fun(args:table):BindValue
+---@param args table @自定义参数
+---@return BindValue @可绑定值类实例
+function BindValue:Create(args)
+	local obj = BindValue.new(args)
+	return obj
+end
+
+---设置值内容
+---@type fun(value:any):void
+---@param value any @值内容
+function BindValue:SetValue(value)
+	self._guiderData.value = value
+end
+
+---获取值内容
+---@type fun():any
+---@return any @值内容
+function BindValue:GetValue()
+	return self._guiderData.value
+end
+
+---设置数据集合中指定位置的Item值内容
+---@type fun(index:number, itemValue:any):void
+---@param index number @索引位置
+---@param itemValue any @Item值内容
+function BindValue:SetValueItem(index, itemValue)
+	if self._guiderData.value == nil then
+		self._guiderData.value = {}
+	end
+	if type(self._guiderData.value) == "table" then
+		if self._guiderData.value[index] ~= itemValue then
+			self._guiderData.value[index] = itemValue
+			self:__OnChanged(nil, nil, BindValueOperate.ValueItemChanged, itemValue)
+		end
+	end
+end
+
+---从数据集合中获取指定位置的Item值内容
+---@type fun(index:number):any
+---@param index number @索引位置
+---@return any @Item值内容
+function BindValue:GetValueItem(index)
+	if type(self._guiderData.value) == "table" then
+		return self._guiderData.value[index]
+	end
+	return nil
+end
+
+---获取数据集合中Item值的总数量
+---@type fun(void):number
+---@return number @总数量
+function BindValue:GetValueItemsCount()
+	if type(self._guiderData.value) == "table" then
+		return #self._guiderData.value
+	end
+	return 0
+end
+
+---向数据集合追加Item值内容
+---@type fun(itemValue:any):void
+---@param itemValue any @数据集合的Item值内容
+function BindValue:AddValueItem(itemValue)
+	if self._guiderData.value == nil then
+		self._guiderData.value = {}
+	end
+	if type(self._guiderData.value) == "table" then
+		table.insert(self._guiderData.value, itemValue)
+		self:__OnChanged(nil, nil, BindValueOperate.ValueItemAdded, itemValue)
+	end
+end
+
+---向数据集合插入Item值内容
+---@type fun(index:number, itemValue:any):void
+---@param index number @插入索引位置
+---@param itemValue any @数据集合的Item值内容
+function BindValue:InsertValueItem(index, itemValue)
+	if self._guiderData.value == nil then
+		self._guiderData.value = {}
+	end
+	if type(self._guiderData.value) == "table" then
+		if index >= 1 and index <= #self._guiderData.value then
+			table.insert(self._guiderData.value, index, itemValue)
+			self:__OnChanged(nil, nil, BindValueOperate.ValueItemInserted, itemValue)
+		end
+	end
+end
+
+---移除数据集合中的Item值内容
+---@type fun(itemValue:any, removeAll:boolean):boolean
+---@param itemValue any @数据集合的Item值内容
+---@param removeAll boolean @是否移除集合中所有该Item值
+---@return boolean @是否移除成功
+function BindValue:RemoveValueItem(itemValue, removeAll)
+	if type(self._guiderData.value) == "table" then
+		if itemValue ~= nil then
+			if removeAll == nil then
+				removeAll = false
+			end
+			if table.removebyvalue(self._guiderData.value, itemValue, removeAll) > 0 then
+				self:__OnChanged(nil, nil, BindValueOperate.ValueItemRemoved, itemValue)
+				return true
+			end
+		end
+	end
+	return false
+end
+
+---移除数据集合中指定索引位置的Item值内容
+---@type fun(index:number):boolean
+---@param index number @数据集合Item索引值
+---@return boolean @是否移除成功
+function BindValue:RemoveValueItemAt(index)
+	if type(self._guiderData.value) == "table" then
+		if index >= 1 and index <= #self._guiderData.value then
+			local itemValue = self._guiderData.value[index]
+			table.remove(self._guiderData.value, index)
+			self:__OnChanged(nil, nil, BindValueOperate.ValueItemRemoved, itemValue)
+			return true
+		end
+	end
+	return false
+end
+
+---移除数据集合中所有Item值内容
+---@type fun():void
+function BindValue:RemoveAllValueItems()
+	if type(self._guiderData.value) == "table" then
+		for index = #self._guiderData.value, 1, -1 do
+			table.remove(self._guiderData.value, index)
+		end
+		self:__OnChanged(nil, nil, BindValueOperate.ValueItemsAllRemoved, nil)
+	end
+end
+
+---数据集合中是否包含指定的Item值内容
+---@type fun(itemValue:any):boolean
+---@param itemValue any @待查找的值内容
+---@return boolean @是否包含
+function BindValue:ContainsValueItem(itemValue)
+	if type(self._guiderData.value) == "table" then
+		if FindValueInTable(self._guiderData.value, itemValue) ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
+---指定的Item值内容在数据集合中的索引位置
+---@type fun(itemValue:any):number
+---@param itemValue any @待查找的值内容
+---@return number @索引位置
+function BindValue:IndexOfValueItem(itemValue)
+	if type(self._guiderData.value) == "table" then
+		local index = FindValueInTable(self._guiderData.value, itemValue)
+		if index ~= nil then
+			return index
+		end
+	end
+	return 0
+end
+
+---添加值变化回调句柄
+---@type fun(handler:handler):void
+---@param handler handler @回调句柄
+function BindValue:AddHandler(handler)
+	if handler ~= nil then
+		local hasFoundIndex = 0
+		for _ = 1, #self._handlers do
+			local _handler = self._handlers[_]
+			if _handler.target == handler.target and _handler.method == handler.method then
+				hasFoundIndex = _
+				break
+			end
+		end
+		if hasFoundIndex == 0 then
+			table.insert(self._handlers, handler)
+		end
+	end
+end
+
+---删除值变化回调句柄
+---@type fun(handler:handler):void
+---@param handler handler @回调句柄
+function BindValue:DeleteHandler(handler)
+	if handler ~= nil then
+		local hasFoundIndex = 0
+		for _ = #self._handlers, 1, -1 do
+			local _handler = self._handlers[_]
+			if _handler.target == handler.target and _handler.method == handler.method then
+				hasFoundIndex = _
+				break
+			end
+		end
+		if hasFoundIndex > 0 then
+			table.remove(self._handlers, hasFoundIndex)
+		end
+	end
+end
+
+---清空所有值变化回调句柄
+---@type fun(void):void
+function BindValue:CleanAllHandlers()
+	self._handlers = {}
+end
+
+---值变化内部回调
+---@type fun(old:any,new:any):void
+---@param old any @旧值内容
+---@param new any @新值内容
+---@param operate string @操作
+---@param valueItem any @数据集合中Item值内容
+function BindValue:__OnChanged(old, new, operate, valueItem)
+	for _, _handler in pairs(self._handlers) do
+		_handler.func(old, new, operate, valueItem)
+	end
+end
+
+return BindValue

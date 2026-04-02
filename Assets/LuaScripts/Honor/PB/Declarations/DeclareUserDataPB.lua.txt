@@ -1,0 +1,35 @@
+--=====================================================================================================
+-- (c)copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename: DeclareUserDataPB.lua
+-- descrip: 用户数据存档
+-- notices: 该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+-- 协议描述：用户数据存档
+-- 时间
+---@class SavePBMsgDef.UserDataPB.Time : nil
+---@field utc0 number @ UTC0时间戳
+---@field utc0String string @ UTC0字符串时间描述
+---@field locality number @ 本地时间戳
+---@field localString string @ 本地字符串时间描述
+
+
+-- 阶段时间
+---@class SavePBMsgDef.UserDataPB.StageTime : nil
+---@field current SavePBMsgDef.UserDataPB.Time @ 本次时间
+---@field last SavePBMsgDef.UserDataPB.Time @ 上次时间
+
+
+-- [主结构]用户数据存档根数据
+---@class SavePBMsgDef.UserDataPB.UserData : nil
+---@field uid number @ 用户UID
+---@field aid string @ 三方用户ID
+---@field aidBindTime SavePBMsgDef.UserDataPB.Time @ 三方用户绑定时间
+---@field launchTime SavePBMsgDef.UserDataPB.StageTime @ 启动时间
+---@field regTime SavePBMsgDef.UserDataPB.Time @ 注册时间
+---@field loginTime SavePBMsgDef.UserDataPB.StageTime @ 登陆时间
+---@field latestTime SavePBMsgDef.UserDataPB.Time @ 最近运行截止时间
+
+

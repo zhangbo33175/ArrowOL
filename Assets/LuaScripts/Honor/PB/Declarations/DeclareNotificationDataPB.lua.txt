@@ -1,0 +1,23 @@
+--=====================================================================================================
+-- (c)copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename: DeclareNotificationDataPB.lua
+-- descrip: 通知消息本地缓存（用于运行时统一上报服务器）
+-- notices: 该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+-- 协议描述：通知消息本地缓存（用于运行时统一上报服务器）
+-- 通知消息
+---@class SavePBMsgDef.NotificationDataPB.Notification : nil
+---@field title_ids string @ title名字
+---@field notify_time number @ 通知时间
+---@field message_type_c number @ 消息类型
+---@field is_cancel boolean @ 是否是取消协议
+
+
+-- [主结构]通知根数据
+---@class SavePBMsgDef.NotificationDataPB.NotificationData : nil
+---@field data table @ 系统配置数据
+
+

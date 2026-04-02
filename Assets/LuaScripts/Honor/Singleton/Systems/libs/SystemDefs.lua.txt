@@ -1,0 +1,170 @@
+--=====================================================================================================
+-- descrip:   全局框架变量
+--=====================================================================================================
+
+---@type UnityEngine @CS层框架UnityEngine名字空间
+Unity = CS.UnityEngine
+
+---@type UnityEngine.UI @CS层框架UnityEngine.UI名字空间
+UnityUI = CS.UnityEngine.UI
+
+---@type Spine.Unity @CS层框架Spine.Unity名字空间
+Spine = CS.Spine.Unity
+
+---@type HedgehogTeam.EasyTouch @CS层EasyTouch名字空间
+Easy = CS.HedgehogTeam.EasyTouch
+
+---@type HedgehogTeam.EasyTouch.EasyTouch @CS层EasyTouch插件的EasyTouch类
+EasyTouch = Easy.EasyTouch
+
+---@type DG.Tweening @CS层DOTween插件的名字空间
+DGTweening = CS.DG.Tweening
+
+---@type DG.Tweening.DOTween @CS层DOTween插件的DOTWeen类
+DOTween = DGTweening.DOTween
+
+---CS层DOTween插件的LoopType枚举
+LoopType = DGTweening.LoopType
+
+---@type BehaviorDesigner.Runtime @CS层行为树插件的名字空间
+BT = CS.BehaviorDesigner.Runtime
+
+---@type Honor.Runtime @CS层框架名称
+Honor = CS.Honor.Runtime
+
+---@type CS.GameLib @CS层框架名称
+GameLib = CS.GameLib
+
+---@type Honor.Runtime @CS层框架根GameMainRoot组件
+GameMainRoot = Honor.GameMainRoot
+
+---@type IAPWrapper @CS层框架根IAP封装命名空间
+IAPWrapper = CS.IAPWrapper
+
+---@type string @CS层框架当前构建平台名称："Android"、"iOS" or "WebGL"
+BuildPlatformName = GameMainRoot.Config:GetCurBuildPlatformName()
+
+---@type boolean @CS层是否为Windows编辑器环境
+IsWindowEditor = Unity.Application.platform == Unity.RuntimePlatform.WindowsEditor
+
+---@type boolean @CS层是否为Mac编辑器环境
+IsMacEditor = Unity.Application.platform == Unity.RuntimePlatform.OSXEditor
+
+---@type boolean @CS层是否为编辑器环境
+IsEditor = IsWindowEditor or IsMacEditor
+
+---@class Ease @CS层DOTween插件的Ease枚举
+---@field Unset number @DGTweening.Ease.Unset
+---@field Linear number @DGTweening.Ease.Linear
+---@field InSine number @DGTweening.Ease.InSine
+---@field OutSine number @DGTweening.Ease.OutSine
+---@field InOutSine number @DGTweening.Ease.InOutSine
+---@field InQuad number @DGTweening.Ease.InQuad
+---@field OutQuad number @DGTweening.Ease.OutQuad
+---@field InOutQuad number @DGTweening.Ease.InOutQuad
+---@field InCubic number @DGTweening.Ease.InCubic
+---@field OutCubic number @DGTweening.Ease.OutCubic
+---@field InOutCubic number @DGTweening.Ease.InOutCubic
+---@field InQuart number @DGTweening.Ease.InQuart
+---@field OutQuart number @DGTweening.Ease.OutQuart
+---@field InOutQuart number @DGTweening.Ease.InOutQuart
+---@field InQuint number @DGTweening.Ease.InQuint
+---@field OutQuint number @DGTweening.Ease.OutQuint
+---@field InOutQuint number @DGTweening.Ease.InOutQuint
+---@field InExpo number @DGTweening.Ease.InExpo
+---@field OutExpo number @DGTweening.Ease.OutExpo
+---@field InOutExpo number @DGTweening.Ease.InOutExpo
+---@field InCirc number @DGTweening.Ease.InCirc
+---@field OutCirc number @DGTweening.Ease.OutCirc
+---@field InOutCirc number @DGTweening.Ease.InOutCirc
+---@field InElastic number @DGTweening.Ease.InElastic
+---@field OutElastic number @DGTweening.Ease.OutElastic
+---@field InOutElastic number @DGTweening.Ease.InOutElastic
+---@field InBack number @DGTweening.Ease.InBack
+---@field OutBack number @DGTweening.Ease.OutBack
+---@field InOutBack number @DGTweening.Ease.InOutBack
+---@field InBounce number @DGTweening.Ease.InBounce
+---@field OutBounce number @DGTweening.Ease.OutBounce
+---@field InOutBounce number @DGTweening.Ease.InOutBounce
+---@field Flash number @DGTweening.Ease.Flash
+---@field InFlash number @DGTweening.Ease.InFlash
+---@field OutFlash number @DGTweening.Ease.OutFlash
+---@field InOutFlash number @DGTweening.Ease.InOutFlash
+Ease = {
+    Unset = DGTweening.Ease.Unset,
+    Linear = DGTweening.Ease.Linear,
+    InSine = DGTweening.Ease.InSine,
+    OutSine = DGTweening.Ease.OutSine,
+    InOutSine = DGTweening.Ease.InOutSine,
+    InQuad = DGTweening.Ease.InQuad,
+    OutQuad = DGTweening.Ease.OutQuad,
+    InOutQuad = DGTweening.Ease.InOutQuad,
+    InCubic = DGTweening.Ease.InCubic,
+    OutCubic = DGTweening.Ease.OutCubic,
+    InOutCubic = DGTweening.Ease.InOutCubic,
+    InQuart = DGTweening.Ease.InQuart,
+    OutQuart = DGTweening.Ease.OutQuart,
+    InOutQuart = DGTweening.Ease.InOutQuart,
+    InQuint = DGTweening.Ease.InQuint,
+    OutQuint = DGTweening.Ease.OutQuint,
+    InOutQuint = DGTweening.Ease.InOutQuint,
+    InExpo = DGTweening.Ease.InExpo,
+    OutExpo = DGTweening.Ease.OutExpo,
+    InOutExpo = DGTweening.Ease.InOutExpo,
+    InCirc = DGTweening.Ease.InCirc,
+    OutCirc = DGTweening.Ease.OutCirc,
+    InOutCirc = DGTweening.Ease.InOutCirc,
+    InElastic = DGTweening.Ease.InElastic,
+    OutElastic = DGTweening.Ease.OutElastic,
+    InOutElastic = DGTweening.Ease.InOutElastic,
+    InBack = DGTweening.Ease.InBack,
+    OutBack = DGTweening.Ease.OutBack,
+    InOutBack = DGTweening.Ease.InOutBack,
+    InBounce = DGTweening.Ease.InBounce,
+    OutBounce = DGTweening.Ease.OutBounce,
+    InOutBounce = DGTweening.Ease.InOutBounce,
+    Flash = DGTweening.Ease.Flash,
+    InFlash = DGTweening.Ease.InFlash,
+    OutFlash = DGTweening.Ease.OutFlash,
+    InOutFlash = DGTweening.Ease.InOutFlash,
+}
+
+---@type table @Honor框架Lua层Tween类型
+HonorTweenType = {
+    None = "None",
+    PrefabUIBottomMaskLayerOpenAnimation = "PrefabUIBottomMaskLayerOpenAnimation",
+    PrefabUIBottomMaskLayerCloseAnimation = "PrefabUIBottomMaskLayerCloseAnimation",
+    PrefabUIAlphaOpenAnimation = "PrefabUIAlphaOpenAnimation",
+    PrefabUIAlphaCloseAnimation = "PrefabUIAlphaCloseAnimation",
+    PrefabRootOpenAnimation = "PrefabRootOpenAnimation",
+    PrefabRootCloseAnimation = "PrefabRootCloseAnimation",
+}
+
+---@type string @MVVM中绑定数据操作类型
+BindValueOperate = {
+    None = "None",
+    ValueChanged = "ValueChanged",
+    ValueItemChanged = "ValueItemChanged",
+    ValueItemAdded = "ValueItemAdded",
+    ValueItemInserted = "ValueItemInserted",
+    ValueItemRemoved = "ValueItemRemoved",
+    ValueItemsAllRemoved = "ValueItemsAllRemoved",
+}
+
+---@class FwEventCmd @框架事件CMD定义
+---@field ChangeProcedure string @切换流程
+---@field AcrossDayUTC0 string @跨天事件（UTC0时区）
+---@field AcrossDayLocal string @跨天事件（本地时区）
+---@field AcrossDayPST string @跨天事件（PST时区）
+---@field ScreenOrientationChanged string @屏幕方向发生变动
+---@field UIViewOpen string @ui打开
+---@field UIViewClose string @ui关闭
+FwEventCmd = {
+    ChangeProcedure = "ChangeProcedure",
+    AcrossDayUTC0 = "AcrossDayUTC0",
+    AcrossDayLocal = "AcrossDayLocal",
+    AcrossDayPST = "AcrossDayPST",
+    ScreenOrientationChanged = "ScreenOrientationChanged",
+    UIViewOpen = "UIViewOpen",
+    UIViewClose = "UIViewClose",
+}

@@ -1,0 +1,38 @@
+--=====================================================================================================
+-- descrip:   常量管理器
+--=====================================================================================================
+
+---@class ConstantsDataManager @常量管理器
+local ConstantsDataManager = class("ConstantsDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ConstantsDataManager:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):ConstantsDataMgr
+---@param args table @自定义参数
+---@return ConstantsDataMgr @常量管理器
+function ConstantsDataManager:Create(args)
+    local obj = ConstantsDataManager.new(args)
+    return obj
+end
+
+---获取章节Id对应的金币数据
+---@type fun(key:string):Tables.Constants_Item
+---@param key string 常量key
+---@return Tables.Constants_Item 数据
+function ConstantsDataManager:GetDataById(key)
+    return Tables.Constants[key]
+end
+
+---@type fun():number
+---@return number @ 修正过的ComboCellTime
+function ConstantsDataManager:GetComboCellTime()
+    return Tables.Constants.ComboStages.Value.CellTime * GameCoreManager._CorePlayMgrData._difficultyComboTimeFactor
+end
+
+return ConstantsDataManager

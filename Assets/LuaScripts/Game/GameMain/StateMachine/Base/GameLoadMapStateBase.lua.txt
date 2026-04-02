@@ -1,0 +1,94 @@
+--=====================================================================================================
+-- descrip:   加载地图基类
+--=====================================================================================================
+
+---@class GameLoadMapStateBase : GameStateBase @加载地图基类
+local GameLoadMapStateBase = class('GameLoadMapStateBase', import('GameStateBase'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GameLoadMapStateBase:ctor(args)
+    GameLoadMapStateBase.super.ctor(self, args)
+
+    ---@type GameLib.WaitForFrames @ 公共的
+    self._WaitFrame = GameLib.WaitForFrames(1)
+end
+
+---创建函数
+---@type fun(args:table):GameLoadMapStateBase
+---@param args table @自定义参数
+---@return GameLoadMapStateBase @加载地图基类
+function GameLoadMapStateBase:Create(args)
+    local obj = GameLoadMapStateBase.new(args)
+    return obj
+end
+
+---进入状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoadMapStateBase:OnStateEnter(finishCallback)
+    PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
+    self:OpenLoadingUI()
+    HonorCoroutineHelper:StartAlone(function()
+        if MapManager.CurLoadChapterId == MapManager.ReadyLoadChapterId then
+            self:OnReadyToLoadMap(MapMgr.ReadyLoadChapterId)
+            -- 如果当前加载的地图和准备加载的地图一样，直接返回
+            -- coroutine.yield(Unity.WaitForSecondsRealtime(0.2))
+            self:LoadMapOver(finishCallback) -- 加载地图完毕
+        else
+            MapManager:UnloadOldMap()
+            HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
+            PrintInfo("准备加载地图 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
+            self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
+            MapManager:LoadReadyMap(nil)
+            PrintInfo("准备加载地图完毕 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
+            if GameStateMachine:PreStateType() == GameStateCmd.LoginState then
+                HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
+                PrintInfo("地图加载完毕，准备切换状态机 pre LoginState")
+            else
+                HonorCoroutineHelper:WaitForSecondsRealtime(1)
+                PrintInfo("地图加载完毕，准备切换状态机 pre is not LoginState")
+            end
+            self:LoadMapOver(finishCallback) -- 加载地图完毕
+        end
+    end)
+end
+
+---离开状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoadMapStateBase:OnStateExit(finishCallback)
+    self:CloseLoadingUI()
+    if finishCallback then
+        xpcall(finishCallback, __G__TRACK_BACK__)
+    end
+end
+
+---打开加载UI
+---@type fun():void
+function GameLoadMapStateBase:OpenLoadingUI()
+    OpenUISync(UIs.UILoadMap)
+end
+
+---关闭加载UI
+---@type fun():void
+function GameLoadMapStateBase:CloseLoadingUI()
+    CloseUI(UIs.UILoadMap)
+end
+
+---加载地图完毕(在协程中运行)
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoadMapStateBase:LoadMapOver(finishCallback)
+    GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+end
+
+---准备加载地图
+---@type fun(chapterId:string):void
+---@param chapterId string @章节ID
+function GameLoadMapStateBase:OnReadyToLoadMap(chapterId)
+    ---卸载完当前地图准备加载新地图资源前调用
+end
+
+return GameLoadMapStateBase

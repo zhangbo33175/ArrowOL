@@ -1,0 +1,15 @@
+// 协议描述：通知消息本地缓存（用于运行时统一上报服务器）
+syntax = "proto3";
+
+// 通知消息
+message Notification{
+	string title_ids = 1;			// title名字
+	int64 notify_time = 2;		    // 通知时间
+	int32 message_type_c = 3;	    // 消息类型
+	bool is_cancel =4;				// 是否是取消协议
+}
+
+// [主结构]通知根数据
+message NotificationData{
+   map<string,Notification> data = 1;             // 系统配置数据
+}

@@ -1,0 +1,67 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableChapters
+-- descrip:   章节地图表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.Chapters_Item @章节地图表条目
+---@field ID string @章节ID
+---@field ChapterTitle string @章节名
+---@field AreaID string @区域ID
+---@field ChapterInfoID table @章节信息ID
+---@field SpriteList string @章节列表图
+---@field SpriteListGrey string @章节列表图未解锁
+---@field MainLevels table @主线关卡
+---@field UnlockNextLevel number @可解锁下一章关卡号
+---@field ChallengeLevels table @挑战关对应关系
+---@field LevelsWithoutHard number @循环普通关卡数
+---@field DrawHardRate number @困难关卡概率
+---@field AddHardRate number @困难关卡增加概率
+---@field SuperHardPeriod number @极难关卡间隔
+---@field MapName string @地图资源名字
+---@field MapMusic table @地图背景音乐
+---@field ResGroup table @依赖的资源组名
+
+---@class Tables.Chapters @章节地图表
+---@field 1 Tables.Chapters_Item
+---@field 2 Tables.Chapters_Item
+---@field 3 Tables.Chapters_Item
+---@field 4 Tables.Chapters_Item
+---@field 5 Tables.Chapters_Item
+---@field 6 Tables.Chapters_Item
+---@field 7 Tables.Chapters_Item
+---@field 8 Tables.Chapters_Item
+---@field 9 Tables.Chapters_Item
+---@field 10 Tables.Chapters_Item
+---@field 11 Tables.Chapters_Item
+---@field 12 Tables.Chapters_Item
+---@field 13 Tables.Chapters_Item
+---@field 14 Tables.Chapters_Item
+---@field 15 Tables.Chapters_Item
+---@field 16 Tables.Chapters_Item
+---@field 17 Tables.Chapters_Item
+---@field 18 Tables.Chapters_Item
+Tables.Chapters = {
+    ["1"] = {ID = "1", ChapterTitle = "ChapterName1", AreaID = "1", ChapterInfoID = {"1","2","3"}, SpriteList = "Sprite_chapter_list_cover1", SpriteListGrey = "Sprite_chapter_list_cover1_grey", MainLevels = {1,90}, UnlockNextLevel = 31, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map1", MapMusic = {ingame="Map1InLevelMusic", outgame="Map1OutLevelMusic"}},
+    ["2"] = {ID = "2", ChapterTitle = "ChapterName2", AreaID = "1", ChapterInfoID = {"4","5","6"}, SpriteList = "Sprite_chapter_list_cover2", SpriteListGrey = "Sprite_chapter_list_cover2_grey", MainLevels = {1,113}, UnlockNextLevel = 51, ChallengeLevels = {"25,10002","35,10003","46,10004"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map2", MapMusic = {ingame="Map2InLevelMusic", outgame="Map2OutLevelMusic"}},
+    ["3"] = {ID = "3", ChapterTitle = "ChapterName3", AreaID = "1", ChapterInfoID = {"7","8","9"}, SpriteList = "Sprite_chapter_list_cover3", SpriteListGrey = "Sprite_chapter_list_cover3_grey", MainLevels = {1,80}, UnlockNextLevel = 61, ChallengeLevels = {"6,10001","14,10002","23,10003","36,10004","52,10005"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map3", MapMusic = {ingame="Map3InLevelMusic", outgame="Map3OutLevelMusic"}, ResGroup = {"map3"}},
+    ["4"] = {ID = "4", ChapterTitle = "ChapterName4", AreaID = "1", ChapterInfoID = {"10","11","12"}, SpriteList = "Sprite_chapter_list_cover4", SpriteListGrey = "Sprite_chapter_list_cover4_grey", MainLevels = {1,80}, UnlockNextLevel = 61, ChallengeLevels = {"6,10001","14,10002","23,10003","36,10004","55,10005"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map4", MapMusic = {ingame="Map4InLevelMusic", outgame="Map4OutLevelMusic"}, ResGroup = {"map4"}},
+    ["5"] = {ID = "5", ChapterTitle = "ChapterName5", AreaID = "1", ChapterInfoID = {"13","14","15"}, SpriteList = "Sprite_chapter_list_cover5", SpriteListGrey = "Sprite_chapter_list_cover5_grey", MainLevels = {1,80}, UnlockNextLevel = 61, ChallengeLevels = {"8,10001","27,10002","37,10003","47,10004","55,10005"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map5", MapMusic = {ingame="Map4InLevelMusic", outgame="Map5OutLevelMusic"}, ResGroup = {"map5"}},
+    ["6"] = {ID = "6", ChapterTitle = "ChapterName6", AreaID = "2", ChapterInfoID = {"16","17","18"}, SpriteList = "Sprite_chapter_list_cover6", SpriteListGrey = "Sprite_chapter_list_cover6_grey", MainLevels = {1,60}, UnlockNextLevel = 41, ChallengeLevels = {"11,10001","22,10002","36,10003"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map6", MapMusic = {ingame="Map6InLevelMusic", outgame="Map6OutLevelMusic"}, ResGroup = {"map6"}},
+    ["7"] = {ID = "7", ChapterTitle = "ChapterName7", AreaID = "2", ChapterInfoID = {"19","20","21"}, SpriteList = "Sprite_chapter_list_cover7", SpriteListGrey = "Sprite_chapter_list_cover7_grey", MainLevels = {1,80}, UnlockNextLevel = 61, ChallengeLevels = {"11,10001","20,10002","33,10003","47,10004","56,10005"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map7", MapMusic = {ingame="Map7InLevelMusic", outgame="Map7OutLevelMusic"}, ResGroup = {"map7"}},
+    ["8"] = {ID = "8", ChapterTitle = "ChapterName8", AreaID = "2", ChapterInfoID = {"22","23","24"}, SpriteList = "Sprite_chapter_list_cover8", SpriteListGrey = "Sprite_chapter_list_cover8_grey", MainLevels = {1,80}, UnlockNextLevel = 61, ChallengeLevels = {"9,10001","17,10002","32,10003","46,10004","55,10005"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map8", MapMusic = {ingame="Map8InLevelMusic", outgame="Map8OutLevelMusic"}, ResGroup = {"map8"}},
+    ["9"] = {ID = "9", ChapterTitle = "ChapterName9", AreaID = "2", ChapterInfoID = {"25","26","27"}, SpriteList = "Sprite_chapter_list_cover9", SpriteListGrey = "Sprite_chapter_list_cover9_grey", MainLevels = {1,80}, UnlockNextLevel = 81, ChallengeLevels = {"12,10001","32,10002","54,10003","65,10004","76,10005"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map9", MapMusic = {ingame="Map9InLevelMusic", outgame="Map9OutLevelMusic"}, ResGroup = {"map9"}},
+    ["10"] = {ID = "10", ChapterTitle = "ChapterName10", AreaID = "2", ChapterInfoID = {"28","29","30"}, SpriteList = "Sprite_chapter_list_cover10", SpriteListGrey = "Sprite_chapter_list_cover10_grey", MainLevels = {1,80}, UnlockNextLevel = 81, ChallengeLevels = {"16,10001","42,10002","55,10003","65,10004","73,10005"}, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map10", MapMusic = {ingame="Map10InLevelMusic", outgame="Map10OutLevelMusic"}, ResGroup = {"map10"}},
+    ["11"] = {ID = "11", ChapterTitle = "ChapterName11", AreaID = "2", ChapterInfoID = {"31","32","33"}, SpriteList = "Sprite_chapter_list_cover11", SpriteListGrey = "Sprite_chapter_list_cover11_grey", MainLevels = {1,80}, UnlockNextLevel = 81, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map11", MapMusic = {ingame="Map11InLevelMusic", outgame="Map11OutLevelMusic"}, ResGroup = {"map11"}},
+    ["12"] = {ID = "12", ChapterTitle = "ChapterName12", AreaID = "3", ChapterInfoID = {"34","35","36"}, SpriteList = "Sprite_chapter_list_cover12", SpriteListGrey = "Sprite_chapter_list_cover12_grey", MainLevels = {1,80}, UnlockNextLevel = 51, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map12", MapMusic = {ingame="Map12InLevelMusic", outgame="Map12OutLevelMusic"}, ResGroup = {"map12"}},
+    ["13"] = {ID = "13", ChapterTitle = "ChapterName13", AreaID = "3", ChapterInfoID = {"37","38","39"}, SpriteList = "Sprite_chapter_list_cover13", SpriteListGrey = "Sprite_chapter_list_cover13_grey", MainLevels = {1,80}, UnlockNextLevel = 61, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map13", MapMusic = {ingame="Map13InLevelMusic", outgame="Map13OutLevelMusic"}, ResGroup = {"map13"}},
+    ["14"] = {ID = "14", ChapterTitle = "ChapterName14", AreaID = "3", ChapterInfoID = {"40","41","42"}, SpriteList = "Sprite_chapter_list_cover14", SpriteListGrey = "Sprite_chapter_list_cover14_grey", MainLevels = {1,80}, UnlockNextLevel = 71, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map14", MapMusic = {ingame="Map14InLevelMusic", outgame="Map14OutLevelMusic"}, ResGroup = {"map14"}},
+    ["15"] = {ID = "15", ChapterTitle = "ChapterName15", AreaID = "3", ChapterInfoID = {"43","44","45"}, SpriteList = "Sprite_chapter_list_cover15", SpriteListGrey = "Sprite_chapter_list_cover15_grey", MainLevels = {1,80}, UnlockNextLevel = 81, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map15", MapMusic = {ingame="Map15InLevelMusic", outgame="Map15OutLevelMusic"}, ResGroup = {"map15"}},
+    ["16"] = {ID = "16", ChapterTitle = "ChapterName16", AreaID = "3", ChapterInfoID = {"46","47","48"}, SpriteList = "Sprite_chapter_list_cover16", SpriteListGrey = "Sprite_chapter_list_cover16_grey", MainLevels = {1,80}, UnlockNextLevel = 81, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map16", MapMusic = {ingame="Map16InLevelMusic", outgame="Map16OutLevelMusic"}, ResGroup = {"map16"}},
+    ["17"] = {ID = "17", ChapterTitle = "ChapterName17", AreaID = "3", ChapterInfoID = {"49","50","51"}, SpriteList = "Sprite_chapter_list_cover17", SpriteListGrey = "Sprite_chapter_list_cover17_grey", MainLevels = {1,80}, UnlockNextLevel = 81, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map17", MapMusic = {ingame="Map17InLevelMusic", outgame="Map17OutLevelMusic"}, ResGroup = {"map17"}},
+    ["18"] = {ID = "18", ChapterTitle = "ChapterName18", AreaID = "4", ChapterInfoID = {"52","53","54"}, SpriteList = "Sprite_chapter_list_cover18", SpriteListGrey = "Sprite_chapter_list_cover18_grey", MainLevels = {1,60}, UnlockNextLevel = 51, LevelsWithoutHard = 5, DrawHardRate = 0.15, AddHardRate = 0.05, SuperHardPeriod = 19, MapName = "Map18", MapMusic = {ingame="Map18InLevelMusic", outgame="Map18OutLevelMusic"}, ResGroup = {"map18"}},
+}
+

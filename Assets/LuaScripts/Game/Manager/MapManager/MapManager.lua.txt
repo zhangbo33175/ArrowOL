@@ -1,0 +1,261 @@
+--=====================================================================================================
+-- descrip:   地图管理器
+--=====================================================================================================
+
+---@class MapManager @地图管理器
+local MapManager = class("MapManager")
+
+---构造函数
+---@type fun():void
+function MapManager:ctor()
+    self.CurLoadChapterId = nil                                         ---@type string                        ---目前加载的章节Id
+    self.CurLoadMapType = MapType.Main                                 ---@type EMapType                      ---目前加载的地图类型
+    self.CurLoadMapGo = nil                                             ---@type UnityEngine.Object            ---目前加载的地图资源
+    self.CurMapData = nil                                               ---@type GameLib.MapData                 ---地图数据
+    self.CurGameMapBase = nil ---地图基类
+    self.CurMapMachines = {}
+end
+
+---创建函数
+---@type fun():MapManager
+---@return MapManager @地图管理器
+function MapManager:Create()
+    local obj = MapManager.new()
+    return obj
+end
+
+---卸载地图前清理
+---@type fun():void
+function MapManager:UnloadMapBeforeClear()
+    if self.CurGameMapBase then
+        self.CurGameMapBase:UnloadMapBeforeClear()
+    end
+end
+
+---卸载地图后清理
+---@type fun():void
+function MapManager:UnloadMapAfterClear()
+    if self.CurGameMapBase then
+        self.CurGameMapBase:UnloadMapAfterClear()
+    end
+    self.CurLoadMapType = MapType.Main
+    self.CurLoadChapterId = nil
+    self.CurLoadMapGo = nil
+    self.CurMapData = nil
+    self.CurMapMachines = {}
+    self.CurGameMapBase = nil ---地图基类
+
+    GameMainUIPushMgr:ClearElementData() -- 卸载地图的时候清理元素收集与气泡数据
+end
+--region 行为树资源
+---卸载行为树资源
+---@type fun(behaviorTree:UnityEngine.Object):void
+---@param behaviorTree UnityEngine.Object @行为树资源
+function MapManager:UnloadBehaviorTree(behaviorTree)
+    if behaviorTree then
+        RemoveAsset(behaviorTree)
+        behaviorTree = nil
+    end
+end
+
+---加载行为树
+---@type fun():void
+function MapManager:LoadBehaviorTrees()
+    if self.CurMapData then
+        self.ChefExternalBehavior = self:LoadBehaviorTree(self.CurMapData.chefMapInfo.externalBehaviorName)
+        self.GuestExternalBehavior = self:LoadBehaviorTree(self.CurMapData.guestMapInfo.externalBehaviorName)
+        self.AssistantExternalBehavior = self:LoadBehaviorTree(self.CurMapData.assistantMapInfo.externalBehaviorName)
+    end
+end
+
+---加载行为树
+---@type fun(behaviorTreeName:string):UnityEngine.Object
+---@param behaviorTreeName string @行为树名称
+---@return UnityEngine.Object @行为树资源
+function MapManager:LoadBehaviorTree(behaviorTreeName)
+    if behaviorTreeName ~= "" and behaviorTreeName ~= nil then
+        local tree = LoadAssetSync(RES[behaviorTreeName])
+        return tree
+    end
+
+    return nil
+end
+--endregion
+
+--region 加载地图相关
+
+---获取地图类型
+---@type fun(chapterId:string):EMapType
+---@param chapterId string @章节Id
+---@return EMapType @地图类型
+function MapManager:GetMapType(chapterId)
+
+    return MapType.Main
+end
+
+---切换地图
+---@type fun(chapterId:string,finishCallback:function,refuseAd:boolean):void
+---@param chapterId string @章节Id
+---@param finishCallback function @回调
+---@param refuseAd boolean @ 切换章节时不要播放广告
+function MapManager:SwitchMap(chapterId, finishCallback, refuseAd)
+    if self.CurLoadChapterId == chapterId then
+        if finishCallback then
+            finishCallback()
+        end
+        return
+    end
+    if refuseAd or not ADMgr:TryShowInterAd(EInterAdID.ChangeChapter, function()
+        self:ReadyToLoadMap(chapterId, finishCallback)
+    end, nil) then
+        --TODO 需要判断章节是否解锁
+        self:ReadyToLoadMap(chapterId, finishCallback)
+    end
+end
+
+---准备加载地图,同时切换游戏状态机
+---@type fun(chapterId:string,finishCallback:function):void
+---@param chapterId string @章节id
+---@param finishCallback function @回调
+function MapManager:ReadyToLoadMap(chapterId, finishCallback)
+    self.ReadyLoadChapterId = chapterId
+    GameStateMachine:ChangeState(GameStateCmd.LoadMapState, finishCallback)
+end
+
+---加载准备加载的地图
+---@type fun(luaParams:table):void
+function MapManager:LoadReadyMap(luaParams)
+    if self.ReadyLoadChapterId then
+        self:LoadMapById(self.ReadyLoadChapterId, luaParams)
+    end
+end
+
+---加载地图
+---@type fun(chapterId:string,luaParams:table):boolean
+---@param chapterId string @章节Id
+---@param luaParams table @参数
+---@return boolean @加载是否成功
+function MapManager:LoadMapById(chapterId, luaParams)
+    local mapName = self:GetLoadMapResName(chapterId)
+    if mapName then
+        self.CurLoadChapterId = chapterId ---记录已经加载成功的地图
+        self.CurLoadMapType = self:GetMapType(chapterId)
+        GamerDataManager:SetCurChapterId(chapterId)
+        ---设置当前章节Id
+        self.CurLoadMapGo = self:LoadMapResByName(mapName, luaParams)
+        return true
+    end
+    return false
+end
+
+---同步加载地图预制体
+---@type fun(mapName:string,luaParams:table):UnityEngine.Object
+---@param mapName string @地图预制体名字
+---@param luaParams table @参数
+---@return UnityEngine.Object @资源对象
+function MapManager:LoadMapResByName(mapName, luaParams)
+    local parenTransform = GameMainRoot.Scene.SceneRootGO.transform
+    return GameMainRoot.Asset:LoadPrefabSync(RES["GameObject_" .. mapName].ABPath, mapName, parenTransform, luaParams)
+end
+
+---获取加载地图的资源名字
+---@type fun(chapterId:string):string
+---@param chapterId string @地图预制体名字
+---@return string @地图资源名字
+function MapManager:GetLoadMapResName(chapterId)
+    local chapterData = ChapterDataManager:GetChapterDataByChapterId(chapterId)
+    if chapterData then
+        return chapterData.MapName
+    end
+    PrintError("没有找到对应章节配置 " .. chapterId)
+    return nil
+end
+
+---卸载旧地图
+---@type fun():void
+function MapManager:UnloadOldMap()
+    if not string.isNullOrEmpty(self.CurLoadChapterId) and tonumber(self.CurLoadChapterId) > 0 and self.CurLoadMapGo then
+        EffectMgr:ClearData() -- 销毁地图前清理特效
+        self:UnloadMapBeforeClear()
+        DestroyPrefabWithGO(self.CurLoadMapGo)
+        self:UnloadMapAfterClear()
+    end
+end
+--endregion
+
+--region 游戏周期
+---游戏初始化(机器在此初始化状态)
+function MapManager:OnInitGame()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnInitGame()
+    end
+    self.CurGameMapBase:OnInitGame()
+end
+
+---进入游戏
+function MapManager:OnEnterGame()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnEnterGame()
+    end
+    self.CurGameMapBase:OnEnterGame()
+end
+
+---游戏开始
+function MapManager:OnBeginGame()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnBeginGame()
+    end
+    self.CurGameMapBase:OnBeginGame()
+end
+
+---游戏暂停
+function MapManager:OnPauseGame()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnPauseGame()
+    end
+    self.CurGameMapBase:OnPauseGame()
+end
+
+---游戏恢复
+function MapManager:OnResumeGame()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnResumeGame()
+    end
+    self.CurGameMapBase:OnResumeGame()
+end
+
+---游戏结束
+function MapManager:OnGameOver()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnGameOver()
+    end
+    self.CurGameMapBase:OnGameOver()
+end
+
+---游戏退出
+function MapManager:OnExitGame()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnExitGame()
+    end
+    self.CurGameMapBase:OnExitGame()
+end
+
+---游戏重玩
+function MapManager:OnRePlayGame()
+    ---@param v MachineBase
+    for _, v in pairs(self.CurMapMachines) do
+        v:OnInitGame()
+        v:OnRePlayGame()
+    end
+    self.CurGameMapBase:OnRePlayGame()
+end
+--endregion
+
+return MapManager

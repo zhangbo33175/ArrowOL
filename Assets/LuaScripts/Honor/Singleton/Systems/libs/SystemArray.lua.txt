@@ -1,0 +1,69 @@
+--=====================================================================================================
+-- descrip:   数组
+--=====================================================================================================
+local SystemArray = {}
+SystemArray.__index = SystemArray
+
+---创建
+---@type fun(isweak:boolean):SystemArray
+---@param isweak boolean @弱引用
+---@return SystemArray @数组
+function SystemArray.new(isweak)
+    ---@class SystemArray @数组
+    ---@field _cur number @当前下标
+    ---@field _data table @数据集合
+    local t = {}
+    t._cur = 0
+    t._data = {}
+    if isweak then
+        setmetatable(t._data,{__mode ="v"})
+    end
+    setmetatable(t, SystemArray)
+    return t
+end
+
+---追加数据到队尾
+---@type fun(self:SystemArray, value:any):void
+---@param self SystemArray @数组实例
+---@param value any @数据
+function SystemArray.push(self, value)
+    self._cur = self._cur + 1
+    self._data[self._cur] = value
+end
+
+---移出队尾数据
+---@type fun(self:SystemArray):any
+---@param self SystemArray @数组实例
+---@return any @队尾数据
+function SystemArray.pop(self)
+    assert(self._cur>0,"SystemArray:attemp pop empty table")
+    self._cur = self._cur - 1
+    return self._data[self._cur+1]
+end
+
+---清理
+---@type fun(self:SystemArray):void
+---@param self SystemArray @数组实例
+function SystemArray.clear(self)
+    self._cur = 0
+end
+
+---数组大小
+---@type fun(self:SystemArray):number
+---@param self SystemArray @数组实例
+---@return number @数组大小
+function SystemArray.size(self)
+    return self._cur
+end
+
+---遍历器
+---@type fun(self:SystemArray, f:fun):void
+---@param self SystemArray @数组实例
+---@param f fun @遍历回调
+function SystemArray.foreach(self, f)
+    for i=1,self._cur do
+        f(self._data[i])
+    end
+end
+
+return SystemArray

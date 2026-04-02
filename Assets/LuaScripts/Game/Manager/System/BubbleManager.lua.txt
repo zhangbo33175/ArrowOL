@@ -1,0 +1,138 @@
+--=====================================================================================================
+-- descrip:   气泡生成与关闭
+--=====================================================================================================
+---@class BubbleGenerateConfig : table @ 气泡生成配置
+---@field id number @ 气泡位移ID
+---@field key string @ 气泡的文本Key
+---@field bubbleHost UnityEngine.Transform @ 宿主，可能要跟随坐标
+---@field hostInUGUI boolean @ 宿主是场景元素还是UI元素
+---@field pivot UnityEngine.Vector2 @ 中心点
+---@field bubbleTextKey string @ 显示内容
+---@field duration string @ 气泡持续时间
+---@field followPosition boolean @ 保持与宿主的相对静止
+---@field bubbleAnchorGetter function @ 获取气泡跟随坐标
+---@field useScreenSize boolean @ 使用场景大小约束气泡位置
+---@field onlyOneTag string @ 独占标记，相同独占标记的气泡同一时间只显示一个, 为空时任务气泡不独占
+---@field nearCenter boolean @ 布局需要靠近屏幕中轴线
+
+---@class BubbleMgr : Singleton @气泡生成与关闭
+---@field _activeBubble table<string,UIBubble> @ 气泡们
+---@field _autoGrowID number @ 自增的一个ID
+local BubbleManager = class("BubbleManager",import("Singleton"))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function BubbleManager:ctor(args)
+    BubbleManager.super.ctor(self,args)
+    self._activeBubble = {}
+    self._autoGrowID = 10086
+end
+
+---创建函数
+---@type fun(args:table):BubbleMgr
+---@param args table @自定义参数
+---@return BubbleMgr @气泡生成与关闭
+function BubbleManager:Create(args)
+    local obj = BubbleManager.new(args)
+    return obj
+end
+
+--region override
+function BubbleManager:ClearData()
+    BubbleManager.super.ClearData(self)
+    ClearDic(self._activeBubble)
+    self._autoGrowID = 10086
+end
+--endregion
+
+---关闭所有气泡
+function BubbleManager:CloseAllBubble()
+    if self._activeBubble and not TableIsEmpty(self._activeBubble) then
+        for _,bubble in pairs(self._activeBubble) do
+            bubble:OnPutToPool(true)
+        end
+    end
+    ClearDic(self._activeBubble)
+end
+
+---释放所有气泡
+function BubbleManager:Dispose()
+    self:CloseAllBubble()
+end
+
+---生成一个气泡
+---@type fun(bubbleGenerateConfig:BubbleGenerateConfig):void
+---@param bubbleGenerateConfig BubbleGenerateConfig @ 生成配置
+function BubbleManager:GenerateBubble(bubbleGenerateConfig)
+    ---查询onlyonetag
+    if bubbleGenerateConfig.onlyOneTag and not TableIsEmpty(self._activeBubble) then
+        ---@param bubble UIBubble
+        for _,bubble in pairs(self._activeBubble) do
+            local bubbleCfg = bubble:GetBubbleCfg()
+            if bubbleCfg and bubbleCfg.onlyOneTag == bubbleGenerateConfig.onlyOneTag then
+                if not bubble:IsClosing() then
+                    ---关闭这个气泡
+                    xpcall(function()
+                        bubble:OnPutToPool()
+                    end, function(msg)
+                        PrintError(debug.traceback(msg, 5))
+                    end)
+                end
+            end
+        end
+    end
+
+    local extraBubble = self._activeBubble[bubbleGenerateConfig.key]
+    if extraBubble then
+        extraBubble:UpdateTextContent(bubbleGenerateConfig.bubbleTextKey,bubbleGenerateConfig.duration)
+    else
+        ---统一在这里添加气泡的ID
+        bubbleGenerateConfig.id = self:GetNewBubbleID()
+        --local bubble = OpenUISync(UIs.UIBubble,bubbleGenerateConfig)
+        local obj = PoolManager:Get(RES.GameObject_UIBubble.Name,GameMainRoot.UI.ScreenUICanvas.transform)
+        local luaBehaviour = obj:GetComponent("LuaBehaviour")
+        ---@type UIBubble
+        local bubble = luaBehaviour.ValidLuaClass
+        bubble:OnGetFromPool(bubbleGenerateConfig)
+        self._activeBubble[bubbleGenerateConfig.key] = bubble
+        return bubble
+    end
+    return extraBubble
+end
+
+---强制关闭一个气泡
+---@type fun(bubbleKey:string):void
+---@param bubbleKey string @ 气泡的key
+function BubbleManager:ForceCloseBubble(bubbleKey)
+    local bubble = self._activeBubble[bubbleKey]
+    self._activeBubble[bubbleKey] = nil
+    if bubble then
+        bubble:OnPutToPool()
+    end
+end
+
+---@type fun(bubble:UIBubble):void
+---@param bubble UIBubble @ 气泡
+function BubbleManager:CloseBubble(bubble)
+    bubble:OnPutToPool()
+end
+
+---有一个气泡关闭了
+---@type fun(bubbleKey:string):void
+---@param bubbleKey string @ 气泡的key
+function BubbleManager:OnBubbleClose(bubbleKey)
+    if self._activeBubble[bubbleKey] then
+        PoolManager:Put(self._activeBubble[bubbleKey].cs.gameObject)
+        self._activeBubble[bubbleKey] = nil
+    end
+end
+
+---@type fun():number
+---@return number @ 取一个自增ID
+function BubbleManager:GetNewBubbleID()
+    self._autoGrowID = self._autoGrowID + 1
+    return self._autoGrowID
+end
+
+return BubbleManager

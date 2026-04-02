@@ -1,0 +1,92 @@
+--=====================================================================================================
+-- descrip:   单例管理器
+--=====================================================================================================
+
+---@class SingletonManager @单例管理器
+local SingletonManager = class("SingletonManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function SingletonManager:ctor(args)
+    self._singletonList = HonorList:Create()                     ---@type List                     ---单例列表 List<Singleton>
+end
+
+---创建函数
+---@type fun(args:table):SingletonMgr
+---@param args table @自定义参数
+---@return SingletonMgr @单例管理器
+function SingletonManager:Create(args)
+    local obj = SingletonManager.new(args)
+    return obj
+end
+
+---添加单例
+---@type fun(singleton:Singleton):void
+---@param singleton Singleton @单例
+function SingletonManager:AddSingleton(singleton)
+    if singleton then
+        self._singletonList:Add(singleton)
+    end
+end
+
+---移除单例
+---@type fun(singleton:Singleton):void
+---@param singleton Singleton @单例
+function SingletonManager:RemoveSingleton(singleton)
+    if singleton then
+        self._singletonList:Remove(singleton)
+    end
+end
+
+---清理所有单例数据
+---@type fun():void
+function SingletonManager:ClearAllSingleData()
+    Try(function()
+        DOTween.KillAll(false) -- 清理DOTween动画
+        ---------------框架单例数据清理----------------------
+        HonorCoroutineHelper:StopAll()
+        HonorTimerHelper:UnregisterAll(true)
+        HonorNotificationHelper:ClearNotificationData()
+        HonorEventHelper:Cleanup()
+        HonorEventHelper:StartProcessEventAsyncCoroutine() -- 重启异步事件处理协程
+        ---------------------------------------------------
+        self:OrderSingleton(true) -- 降序清理
+        ---@param v Singleton
+        for _, v in ipairs(self._singletonList.items) do
+            v:ClearData()
+        end
+    end)
+end
+
+---初始化所有单例数据
+---@type fun(preload:ProcedurePreload):void
+---@param preload ProcedurePreload @预加载流程
+function SingletonManager:InitAllSingleForStep(preload)
+    self:OrderSingleton(false) -- 升序初始化
+    ---@param v Singleton
+    for _, v in ipairs(self._singletonList.items) do
+        preload.cs:AddStep(function()
+            v:Init()
+        end)
+    end
+end
+
+---按优先级排序单例(默认升序)
+---@type fun(isDescending:boolean):void
+---@param isDescending boolean @是否降序
+---@return void
+function SingletonManager:OrderSingleton(isDescending)
+    if isDescending == nil then
+        isDescending = false
+    end
+    table.sort(self._singletonList.items, function(a, b)
+        if isDescending then
+            return a:Priority() < b:Priority()
+        else
+            return a:Priority() > b:Priority()
+        end
+    end)
+end
+
+return SingletonManager

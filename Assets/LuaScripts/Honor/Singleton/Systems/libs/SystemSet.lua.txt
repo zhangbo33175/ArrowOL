@@ -1,0 +1,113 @@
+--=====================================================================================================
+-- descrip:   无序集合
+--=====================================================================================================
+local SystemSet = {}
+SystemSet.__index = SystemSet
+
+---创建
+---@type fun(isweak:boolean):SystemSet
+---@param isweak boolean @弱引用
+---@return SystemSet @无序集合实例
+function SystemSet.new(isweak)
+    ---@class SystemSet @无序集合
+    ---@field _data table @数据集合
+    ---@field _size number @数据集合大小
+    local t = {}
+    t._data = {}
+    t._size = 0
+    if isweak then
+        setmetatable(t._data, { __mode = "k" })
+    end
+    setmetatable(t, Set)
+    return t
+end
+
+---插入数据
+---@type fun(self:SystemSet, value:any):boolean
+---@param self SystemSet @无序集合实例
+---@param value any @数据
+---@return boolean @是否插入成功
+function SystemSet.insert(self, value)
+    -- assert(not self._data[value], string.format("set: value %s already exist", tostring(value)))
+    if not self._data[value] then
+        self._data[value] = true
+        self._size = self._size + 1
+        return true
+    end
+    return false
+end
+
+---移除数据
+---@type fun(self:SystemSet, value:any):boolean
+---@param self SystemSet @无序集合实例
+---@param value any @数据
+---@return boolean @是否移除成功
+function SystemSet.remove(self, value)
+    --assert(self._data[value], "set:attemp remove unexist value")
+    if self._data[value] then
+        self._data[value] = nil
+        self._size = self._size - 1
+        return value
+    end
+    return false
+end
+
+---无序集合大小
+---@type fun(self:SystemSet):number
+---@param self SystemSet @无序集合实例
+---@return number @无序集合大小
+function SystemSet.size(self)
+    return self._size
+end
+
+---是否包含
+---@type fun(self:SystemSet, value:any):boolean
+---@param self SystemSet @无序集合实例
+---@param value any @数据
+---@return boolean @是否包含
+function SystemSet.has(self, value)
+    return self._data[value]
+end
+
+---遍历器
+---@type fun(self:SystemSet, f:fun, ...:any):void
+---@param self SystemSet @无序集合实例
+---@param f fun @遍历回调
+---@param ... any @参数值若干（可选）
+function SystemSet.foreach(self, f, ...)
+    for k, v in pairs(self._data) do
+        if v then
+            f(k, ...)
+        end
+    end
+end
+
+---指定位置索引在集合中的数据
+---@type fun(self:SystemSet, pos:number):any
+---@param self SystemSet @无序集合实例
+---@param pos number @位置
+---@return any @数据
+function SystemSet.at(self, pos)
+    local n = 0
+    for k, _ in pairs(self._data) do
+        n = n + 1
+        if n == pos then
+            return k
+        end
+    end
+    return nil
+end
+
+---清理
+---@type fun(self:Set):void
+---@param self SystemSet @无序集合实例
+function SystemSet.clear(self)
+    for k, _ in pairs(self._data) do
+        self._data[k] = nil
+    end
+    self._size = 0
+end
+
+
+
+return SystemSet

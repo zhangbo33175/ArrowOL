@@ -1,0 +1,102 @@
+--=====================================================================================================
+-- filename:  ProcedurePlaying.lua
+--=====================================================================================================
+
+---@class ProcedurePlaying : ProcedureSuper
+local ProcedurePlaying = class('ProcedurePlaying', import('ProcedureSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ProcedurePlaying:ctor(args)
+    ProcedurePlaying.super.ctor(self, args)
+
+end
+
+---创建函数
+---@type fun(args:table):ProcedurePlaying
+---@param args table @自定义参数
+---@return ProcedurePlaying @流程实例
+function ProcedurePlaying:Create(args)
+    local obj = ProcedurePlaying.new(args)
+    return obj
+end
+
+---进入
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedurePlaying:OnEnter(ownerMachine)
+    ProcedurePlaying.super.OnEnter(self, ownerMachine)
+    -- 注册关闭ui的回调
+    HonorEventHelper:AddListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
+    -- 注册打开ui的回调
+    HonorEventHelper:AddListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
+    -- 在切换到下一个流程时移除所有内容
+    self.cs.RemoveAllContentsOnProcedureTransition = true
+    -- 清空弹出队列
+    AllOpenUI = {}
+    -- 注册流程切换事件监听
+    HonorEventHelper:AddListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
+    -- 获取切换场景时传入的自定义参数
+    local argsFromChanging = self.cs.ArgsFromChanging
+    
+    self:GotoLoginState()
+end
+
+---进入登录
+---@type fun():void
+function ProcedurePlaying:GotoLoginState()
+    GameStateMachine:ChangeState(GameStateCmd.LoginState, nil)
+end
+
+---心跳
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedurePlaying:OnUpdate(ownerMachine)
+    ProcedurePlaying.super.OnUpdate(self, ownerMachine)
+    GameStateMachine:OnUpdate()
+end
+
+---离开
+---@type fun(ownerMachine: userdata):void
+---@param ownerMachine userdata @流程状态
+function ProcedurePlaying:OnLeave(ownerMachine)
+    ProcedurePlaying.super.OnLeave(self, ownerMachine)
+    -- 注销流程切换事件监听
+    HonorEventHelper:RemoveListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
+    -- 注销流程切换事件监听
+    HonorEventHelper:RemoveListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
+    -- 注销流程切换事件监听
+    HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
+end
+
+---切换流程事件回调
+---@type fun(args:table):void
+---@param args table @事件参数
+function ProcedurePlaying:ChangeProcedureEventCallback(args)
+    self.cs:PrepareToNextProcedure(typeof(Honor.ProcedurePreload), args)
+end
+
+---注册关闭ui的回调
+---@type fun(args:string):void
+---@param args string @ui的名字
+function ProcedurePlaying:UiViewCloseEventCallback(args)
+    if UIs[args] then
+        AllOpenUI[args] = nil
+        HonorEventHelper:Fire(EventCmd.UIGameViewClose)
+    end
+
+end
+
+---注册打开ui的回调
+---@type fun(args:string):void
+---@param args string @ui的名字
+function ProcedurePlaying:UiViewOpenEventCallback(args)
+    if UIs[args] then
+        AllOpenUI[args] = true
+        HonorEventHelper:Fire(EventCmd.UIGameViewOpen)
+    end
+
+end
+
+return ProcedurePlaying

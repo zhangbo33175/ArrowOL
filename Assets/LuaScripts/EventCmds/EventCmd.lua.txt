@@ -1,0 +1,33 @@
+--=====================================================================================================
+-- descrip:   事件全局定义
+--=====================================================================================================
+
+EventCmd = {
+    UIGameViewClose="UIGameViewClose",
+    
+    UIGameViewOpen = "UIGameViewOpen",
+    ---账号绑定结果(isSuccess:boolean, platform:string)
+    OnAidBindingResult = "OnAidBindingResult",
+    ---账号解绑结果(isSuccess:boolean, platform:string)
+    OnAidUnBindingResult = "OnAidUnBindingResult",
+    ---登录结果(isSuccess:boolean)
+    OnLoginResult = "OnLoginResult",
+    ---@field NotificationMessage string @通知的消息回调
+    NotificationMessage = "NotificationMessage",
+    ---多语言切换
+    OnLanguageChange="OnLanguageChange",
+    ---刷新了一次用户分层数据
+    OnGenerateUserType="OnGenerateUserType",
+    ---Level
+    ---关卡成功 1个参数(chapterLevelData:ChapterLevel)
+    OnLevelSuccess="OnLevelSuccess",
+    ---关卡异常退出(杀进程)(chapterId:string, levelId:number)
+    OnLevelUnusualExit="OnLevelUnusualExit",
+    ---[时间]区域离线金币CD时间结束事件
+    TimerAreaOfflineCoinCDOver="TimerAreaOfflineCoinCDOver",
+    ---运行时地图区域发生变化
+    AreaOfflineCoinCDOver="AreaOfflineCoinCDOver",
+
+    ---运行时地图区域发生变化
+    OnRuntimeAreaChanged = "OnRuntimeAreaChanged",
+}

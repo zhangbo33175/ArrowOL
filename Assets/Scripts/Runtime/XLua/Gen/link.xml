@@ -1,0 +1,585 @@
+﻿
+
+<linker>
+
+	<assembly fullname="Assembly-CSharp">
+	    <type fullname="GameLib.HiddenObjectCS" preserve="all"/>
+		<type fullname="Honor.Runtime.AssetComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.PrefabObject" preserve="all"/>
+		<type fullname="Honor.Runtime.AssetBundleObject" preserve="all"/>
+		<type fullname="Honor.Runtime.AssetObject" preserve="all"/>
+		<type fullname="Honor.Runtime.PreloadAssetObject" preserve="all"/>
+		<type fullname="Honor.Runtime.OriginType" preserve="all"/>
+		<type fullname="Honor.Runtime.PrefabDetailType" preserve="all"/>
+		<type fullname="Honor.Runtime.PrefabType" preserve="all"/>
+		<type fullname="Honor.Runtime.AssetBundleLoadManager" preserve="all"/>
+		<type fullname="Honor.Runtime.AssetLoadManager" preserve="all"/>
+		<type fullname="Honor.Runtime.PrefabInstanceGOBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.PrefabLoadManager" preserve="all"/>
+		<type fullname="Honor.Runtime.GameComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.GameComponentsGroup" preserve="all"/>
+		<type fullname="Honor.Runtime.TimerComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.TimerCounter" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions" preserve="all"/>
+		<type fullname="Honor.Runtime.GameEventCmd" preserve="all"/>
+		<type fullname="Honor.Runtime.GameBinaryExtension" preserve="all"/>
+		<type fullname="Honor.Runtime.GameException" preserve="all"/>
+		<type fullname="Honor.Runtime.GameExtension" preserve="all"/>
+		<type fullname="Honor.Runtime.GameExtensionForUnity" preserve="all"/>
+		<type fullname="Honor.Runtime.AnimationStateBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.FocusObjToCamera" preserve="all"/>
+		<type fullname="Honor.Runtime.CameraOutlineAnimation" preserve="all"/>
+		<type fullname="Honor.Runtime.CameraOutlineBuffer" preserve="all"/>
+		<type fullname="Honor.Runtime.ObjectOutline" preserve="all"/>
+		<type fullname="Honor.Runtime.AorClickEventListener" preserve="all"/>
+		<type fullname="Honor.Runtime.SnapStatus" preserve="all"/>
+		<type fullname="Honor.Runtime.ItemCornerEnum" preserve="all"/>
+		<type fullname="Honor.Runtime.ListItemArrangeType" preserve="all"/>
+		<type fullname="Honor.Runtime.GridItemArrangeType" preserve="all"/>
+		<type fullname="Honor.Runtime.GridFixedType" preserve="all"/>
+		<type fullname="Honor.Runtime.RowColumnPair" preserve="all"/>
+		<type fullname="Honor.Runtime.ItemSizeGroup" preserve="all"/>
+		<type fullname="Honor.Runtime.AorItemPosMgr" preserve="all"/>
+		<type fullname="Honor.Runtime.ItemPool" preserve="all"/>
+		<type fullname="Honor.Runtime.ItemPrefabConfData" preserve="all"/>
+		<type fullname="Honor.Runtime.ListViewInitParam" preserve="all"/>
+		<type fullname="Honor.Runtime.DotElem" preserve="all"/>
+		<type fullname="Honor.Runtime.AorListView" preserve="all"/>
+		<type fullname="Honor.Runtime.AorListViewItem" preserve="all"/>
+		<type fullname="Honor.Runtime.AorSwitchButton" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextArea" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectCurve" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectGradient" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectOutline" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectSpacing" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextLocalizing" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextPicMixed" preserve="all"/>
+		<type fullname="Honor.Runtime.ConfigComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.ConfigManager" preserve="all"/>
+		<type fullname="Honor.Runtime.EventComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.EventParams" preserve="all"/>
+		<type fullname="Honor.Runtime.EventManager" preserve="all"/>
+		<type fullname="Honor.Runtime.LauncherComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.LocalizationComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.LocalizationFontData" preserve="all"/>
+		<type fullname="Honor.Runtime.LocalizationManager" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaBindValue" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaInjection" preserve="all"/>
+		<type fullname="Honor.Runtime.Collider2DLifeCyclesBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.Collider3DLifeCyclesBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.Trigger2DLifeCyclesBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.Trigger3DLifeCyclesBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.PatternType" preserve="all"/>
+		<type fullname="Honor.Runtime.NonePatternType" preserve="all"/>
+		<type fullname="Honor.Runtime.MVVMPatternType" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.DirectoryWatcher" preserve="all"/>
+		<type fullname="Honor.Runtime.FileOperation" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaFileWatcher" preserve="all"/>
+		<type fullname="Honor.Runtime.PersistComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.PersistWayType" preserve="all"/>
+		<type fullname="Honor.Runtime.FileFragmentItemGroup" preserve="all"/>
+		<type fullname="Honor.Runtime.FileFragmentManager" preserve="all"/>
+		<type fullname="Honor.Runtime.FileFragmentForWebGLManager" preserve="all"/>
+		<type fullname="Honor.Runtime.PlayerPrefsManager" preserve="all"/>
+		<type fullname="Honor.Runtime.PlayingComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.GridManager" preserve="all"/>
+		<type fullname="Honor.Runtime.UIFadeInEvent" preserve="all"/>
+		<type fullname="Honor.Runtime.UIFadeOutEvent" preserve="all"/>
+		<type fullname="Honor.Runtime.UIFadeStopEvent" preserve="all"/>
+		<type fullname="Honor.Runtime.UIFader" preserve="all"/>
+		<type fullname="Honor.Runtime.ProcedureComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.ProcedureLaunch" preserve="all"/>
+		<type fullname="Honor.Runtime.ProcedurePlaying" preserve="all"/>
+		<type fullname="Honor.Runtime.ProcedurePreload" preserve="all"/>
+		<type fullname="Honor.Runtime.ProcedureState" preserve="all"/>
+		<type fullname="Honor.Runtime.ProcedureStateMachine" preserve="all"/>
+		<type fullname="Honor.Runtime.GameMainRoot" preserve="all"/>
+		<type fullname="Honor.Runtime.SceneCameraActor" preserve="all"/>
+		<type fullname="Honor.Runtime.SceneComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.SceneManager" preserve="all"/>
+		<type fullname="Honor.Runtime.SoundComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.PlaySoundErrorCode" preserve="all"/>
+		<type fullname="Honor.Runtime.PlaySoundInfo" preserve="all"/>
+		<type fullname="Honor.Runtime.PlaySoundParams" preserve="all"/>
+		<type fullname="Honor.Runtime.SoundAgent" preserve="all"/>
+		<type fullname="Honor.Runtime.SoundAgentHelper" preserve="all"/>
+		<type fullname="Honor.Runtime.SoundGroup" preserve="all"/>
+		<type fullname="Honor.Runtime.SoundGroupHelper" preserve="all"/>
+		<type fullname="Honor.Runtime.SoundManager" preserve="all"/>
+		<type fullname="Honor.Runtime.PlaySoundInfoShell" preserve="all"/>
+		<type fullname="Honor.Runtime.SoundGroupShell" preserve="all"/>
+		<type fullname="Honor.Runtime.TableComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.AESEncrypt" preserve="all"/>
+		<type fullname="Honor.Runtime.Assembly" preserve="all"/>
+		<type fullname="Honor.Runtime.Converter" preserve="all"/>
+		<type fullname="Honor.Runtime.DevicePerformanceLevel" preserve="all"/>
+		<type fullname="Honor.Runtime.QualityLevel" preserve="all"/>
+		<type fullname="Honor.Runtime.DevicePerformance" preserve="all"/>
+		<type fullname="Honor.Runtime.Encryption" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils" preserve="all"/>
+		<type fullname="Honor.Runtime.GZip" preserve="all"/>
+		<type fullname="Honor.Runtime.Log" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaHandler" preserve="all"/>
+		<type fullname="Honor.Runtime.MD5Handler" preserve="all"/>
+		<type fullname="Honor.Runtime.Timer" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTxt" preserve="all"/>
+		<type fullname="Honor.Runtime.TouchComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.UIComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.UIType" preserve="all"/>
+		<type fullname="Honor.Runtime.UIFlagBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.UIManager" preserve="all"/>
+		<type fullname="Honor.Runtime.UIInfo" preserve="all"/>
+		<type fullname="Honor.Runtime.UIWebGLWebView" preserve="all"/>
+		<type fullname="Honor.Runtime.VibrateComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.VibrateType" preserve="all"/>
+		<type fullname="Honor.Runtime.VibrateManager" preserve="all"/>
+		<type fullname="Honor.Runtime.VibrateInfo" preserve="all"/>
+		<type fullname="Honor.Runtime.UIAppDownloadBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.UIAppFeedbackBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.UIAppReviewBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.UIConnectionWaitingView" preserve="all"/>
+		<type fullname="Honor.Runtime.UIFloatWordsBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.UIGDPRBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.UILauncherLoadingView" preserve="all"/>
+		<type fullname="Honor.Runtime.UILauncherLogoBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.UILauncherLogoView" preserve="all"/>
+		<type fullname="Honor.Runtime.UILauncherView" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions+DimensionMode" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions+AssetType" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions+PathType" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions+DownloadStep" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions+DebugMode" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions+Language" preserve="all"/>
+		<type fullname="Honor.Runtime.GameDefinitions+DebugWindowModel" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectOutline+HorizontalAligmentType" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectOutline+Line" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectSpacing+HorizontalAligmentType" preserve="all"/>
+		<type fullname="Honor.Runtime.AorTextEffectSpacing+Line" preserve="all"/>
+		<type fullname="Honor.Runtime.ConfigManager+ConfigData" preserve="all"/>
+		<type fullname="Honor.Runtime.LauncherComponent+DevicePerformanceData" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaBindValue+BindValueType" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaInjection+InjectionType" preserve="all"/>
+		<type fullname="Honor.Runtime.UIFader+InitState" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AppDownload" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AB" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+FileFragment" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+LuaScript" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Json" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Font" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Prefab" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Texture" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+PicsForAtlas" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Localization" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Table" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Proto" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Save" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Config" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+UI" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Sound" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Vibrate" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+IDEDebugger" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Debugger" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Purchase" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Track" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+CachedPackageInfo" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Project" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Native" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Tool" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+GetImage" preserve="all"/>
+		<type fullname="Honor.Runtime.Log+LogLevel" preserve="all"/>
+		<type fullname="Honor.Runtime.UILauncherLoadingView+LoadingMode" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+Common" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+IAP" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+GDPR" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+MAX" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+Permission" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+AF" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AppDownload+Uri" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AB+ForServer" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AB+Persistent" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AB+PersistentTmp" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AB+Caching" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AB+Streaming" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+AB+Uri" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+LuaScript+Framework" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+LuaScript+Game" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Proto+Net" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Proto+Save" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+ResDef" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+HierarchyExpandSettings" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+LocalizationFontTMPExportSettings" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+ABGeneration" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+ChatGPT" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+CDN" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+AssetBundleBrowser" preserve="all"/>
+		<type fullname="Honor.Runtime.GamePathUtils+Editor+LuaCloudScript" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+Common+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+IAP+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+GDPR+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+MAX+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+Permission+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.GameConstants+Persist+AF+ItemKey" preserve="all"/>
+		<type fullname="GaussianBlur" preserve="all"/>
+		<type fullname="MapObjectData" preserve="all"/>
+		<type fullname="MapAssetData" preserve="all"/>
+		<type fullname="MapData" preserve="all"/>
+		<type fullname="MapController" preserve="all"/>
+		<type fullname="MapMarker" preserve="all"/>
+		<type fullname="MapPathDrawer" preserve="all"/>
+		<type fullname="MapEditor" preserve="all"/>
+		<type fullname="GameLib.GameManager" preserve="all"/>
+		<type fullname="GameLib.ProcedureUtils" preserve="all"/>
+		<type fullname="GameLib.ItemMap" preserve="all"/>
+		<type fullname="GameLib.AorClickItem" preserve="all"/>
+		<type fullname="GameLib.HonorClickItemAnimation" preserve="all"/>
+		<type fullname="GameLib.EGameMode" preserve="all"/>
+		<type fullname="GameLib.GridMapManager" preserve="all"/>
+		<type fullname="GameLib.GridCell" preserve="all"/>
+		<type fullname="GameLib.MapManager" preserve="all"/>
+		<type fullname="GameLib.CSharpLuaTableBridge" preserve="all"/>
+		<type fullname="GameLib.RSetupLuaTableValue" preserve="all"/>
+		<type fullname="GameLib.TablesBridge" preserve="all"/>
+		<type fullname="GameLib.Util" preserve="all"/>
+		<type fullname="GameLib.WaitForFrames" preserve="all"/>
+		<type fullname="GameLib.GridMapManager+MapTileData" preserve="all"/>
+		<type fullname="GameLib.GridMapManager+MapTilemapData" preserve="all"/>
+		<type fullname="GameLib.GridMapManager+LayerData" preserve="all"/>
+		<type fullname="GameLib.GridMapManager+GridTile" preserve="all"/>
+		<type fullname="GameLib.GridMapManager+GridType" preserve="all"/>
+		<type fullname="GameLib.GridMapManager+LayerLevel" preserve="all"/>
+		<type fullname="GameLib.GridMapManager+GridUtils" preserve="all"/>
+		<type fullname="GameLib.RSetupLuaTableValue+RDateTimeWarpYMDHMS" preserve="all"/>
+		<type fullname="GameLib.TablesBridge+TableCustomizeItem" preserve="all"/>
+		<type fullname="GameLib.TablesBridge+TableAvatarCustomizeItem" preserve="all"/>
+		<type fullname="GameLib.TablesBridge+TableAvatarCustomizeItemColor" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="mscorlib">
+	    <type fullname="System.Object" preserve="all"/>
+		<type fullname="System.DateTime" preserve="all"/>
+		<type fullname="System.TimeSpan" preserve="all"/>
+		<type fullname="System.EventArgs" preserve="all"/>
+		<type fullname="System.Collections.IEnumerator" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[System.Int32]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[System.String]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[System.Boolean]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[System.Single]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[UnityEngine.GameObject]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[Honor.Runtime.PrefabInstanceGOBehaviour]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[Honor.Runtime.UIFlagBehaviour]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[XLua.LuaTable]" preserve="all"/>
+		<type fullname="System.Collections.Generic.List`1[UnityEngine.EventSystems.EventTrigger+Entry]" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.CoreModule">
+	    <type fullname="UnityEngine.Object" preserve="all"/>
+		<type fullname="UnityEngine.Rect" preserve="all"/>
+		<type fullname="UnityEngine.Vector2" preserve="all"/>
+		<type fullname="UnityEngine.Vector3" preserve="all"/>
+		<type fullname="UnityEngine.Vector4" preserve="all"/>
+		<type fullname="UnityEngine.Quaternion" preserve="all"/>
+		<type fullname="UnityEngine.Color" preserve="all"/>
+		<type fullname="UnityEngine.Color32" preserve="all"/>
+		<type fullname="UnityEngine.Ray" preserve="all"/>
+		<type fullname="UnityEngine.Bounds" preserve="all"/>
+		<type fullname="UnityEngine.Ray2D" preserve="all"/>
+		<type fullname="UnityEngine.Time" preserve="all"/>
+		<type fullname="UnityEngine.GameObject" preserve="all"/>
+		<type fullname="UnityEngine.Component" preserve="all"/>
+		<type fullname="UnityEngine.Behaviour" preserve="all"/>
+		<type fullname="UnityEngine.Transform" preserve="all"/>
+		<type fullname="UnityEngine.Resources" preserve="all"/>
+		<type fullname="UnityEngine.TextAsset" preserve="all"/>
+		<type fullname="UnityEngine.Keyframe" preserve="all"/>
+		<type fullname="UnityEngine.AnimationCurve" preserve="all"/>
+		<type fullname="UnityEngine.MonoBehaviour" preserve="all"/>
+		<type fullname="UnityEngine.SkinnedMeshRenderer" preserve="all"/>
+		<type fullname="UnityEngine.Renderer" preserve="all"/>
+		<type fullname="UnityEngine.Light" preserve="all"/>
+		<type fullname="UnityEngine.Mathf" preserve="all"/>
+		<type fullname="UnityEngine.Debug" preserve="all"/>
+		<type fullname="UnityEngine.SpriteRenderer" preserve="all"/>
+		<type fullname="UnityEngine.Camera" preserve="all"/>
+		<type fullname="UnityEngine.Rendering.SortingGroup" preserve="all"/>
+		<type fullname="UnityEngine.LineRenderer" preserve="all"/>
+		<type fullname="UnityEngine.MaterialPropertyBlock" preserve="all"/>
+		<type fullname="UnityEngine.ColorUtility" preserve="all"/>
+		<type fullname="UnityEngine.Events.UnityEvent" preserve="all"/>
+		<type fullname="UnityEngine.Events.UnityEvent`1[System.String]" preserve="all"/>
+		<type fullname="UnityEngine.Events.UnityEvent`1[System.Int32]" preserve="all"/>
+		<type fullname="UnityEngine.Events.UnityEvent`1[System.Boolean]" preserve="all"/>
+		<type fullname="UnityEngine.Events.UnityEvent`1[System.Single]" preserve="all"/>
+		<type fullname="UnityEngine.Events.UnityEvent`1[UnityEngine.Vector2]" preserve="all"/>
+		<type fullname="UnityEngine.WaitForSeconds" preserve="all"/>
+		<type fullname="UnityEngine.WaitForEndOfFrame" preserve="all"/>
+		<type fullname="UnityEngine.WaitForFixedUpdate" preserve="all"/>
+		<type fullname="UnityEngine.WaitUntil" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.AnimationModule">
+	    <type fullname="UnityEngine.AnimationClip" preserve="all"/>
+		<type fullname="UnityEngine.Animator" preserve="all"/>
+		<type fullname="UnityEngine.AnimatorStateInfo" preserve="all"/>
+		<type fullname="UnityEngine.AnimatorUpdateMode" preserve="all"/>
+		<type fullname="UnityEngine.RuntimeAnimatorController" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.ParticleSystemModule">
+	    <type fullname="UnityEngine.ParticleSystem" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.UI">
+	    <type fullname="UnityEngine.UI.Text" preserve="all"/>
+		<type fullname="UnityEngine.UI.Image" preserve="all"/>
+		<type fullname="UnityEngine.UI.Button" preserve="all"/>
+		<type fullname="UnityEngine.UI.Scrollbar" preserve="all"/>
+		<type fullname="UnityEngine.UI.ScrollRect" preserve="all"/>
+		<type fullname="UnityEngine.UI.Toggle" preserve="all"/>
+		<type fullname="UnityEngine.UI.Slider" preserve="all"/>
+		<type fullname="UnityEngine.UI.Dropdown" preserve="all"/>
+		<type fullname="UnityEngine.UI.InputField" preserve="all"/>
+		<type fullname="UnityEngine.UI.Button+ButtonClickedEvent" preserve="all"/>
+		<type fullname="UnityEngine.UI.InputField+OnChangeEvent" preserve="all"/>
+		<type fullname="UnityEngine.UI.InputField+SubmitEvent" preserve="all"/>
+		<type fullname="UnityEngine.UI.Dropdown+DropdownEvent" preserve="all"/>
+		<type fullname="UnityEngine.UI.Toggle+ToggleEvent" preserve="all"/>
+		<type fullname="UnityEngine.UI.Slider+SliderEvent" preserve="all"/>
+		<type fullname="UnityEngine.EventSystems.PointerEventData" preserve="all"/>
+		<type fullname="UnityEngine.EventSystems.BaseEventData" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="Unity.TextMeshPro">
+	    <type fullname="TMPro.TextMeshProUGUI" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.UIModule">
+	    <type fullname="UnityEngine.Canvas" preserve="all"/>
+		<type fullname="UnityEngine.CanvasGroup" preserve="all"/>
+		<type fullname="UnityEngine.RectTransformUtility" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.AudioModule">
+	    <type fullname="UnityEngine.AudioSource" preserve="all"/>
+		<type fullname="UnityEngine.AudioClip" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.Physics2DModule">
+	    <type fullname="UnityEngine.Rigidbody2D" preserve="all"/>
+		<type fullname="UnityEngine.Collider2D" preserve="all"/>
+		<type fullname="UnityEngine.CircleCollider2D" preserve="all"/>
+		<type fullname="UnityEngine.EdgeCollider2D" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="System">
+	    <type fullname="System.Collections.Generic.SortedDictionary`2[System.String,System.String]" preserve="all"/>
+		<type fullname="System.Uri" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="DOTween">
+	    <type fullname="DG.Tweening.ShortcutExtensions" preserve="all"/>
+		<type fullname="DG.Tweening.Tween" preserve="all"/>
+		<type fullname="DG.Tweening.Tweener" preserve="all"/>
+		<type fullname="DG.Tweening.AutoPlay" preserve="all"/>
+		<type fullname="DG.Tweening.AxisConstraint" preserve="all"/>
+		<type fullname="DG.Tweening.Color2" preserve="all"/>
+		<type fullname="DG.Tweening.DOTween" preserve="all"/>
+		<type fullname="DG.Tweening.DOVirtual" preserve="all"/>
+		<type fullname="DG.Tweening.Ease" preserve="all"/>
+		<type fullname="DG.Tweening.EaseFactory" preserve="all"/>
+		<type fullname="DG.Tweening.PathMode" preserve="all"/>
+		<type fullname="DG.Tweening.PathType" preserve="all"/>
+		<type fullname="DG.Tweening.RotateMode" preserve="all"/>
+		<type fullname="DG.Tweening.ScrambleMode" preserve="all"/>
+		<type fullname="DG.Tweening.TweenExtensions" preserve="all"/>
+		<type fullname="DG.Tweening.LoopType" preserve="all"/>
+		<type fullname="DG.Tweening.Sequence" preserve="all"/>
+		<type fullname="DG.Tweening.TweenParams" preserve="all"/>
+		<type fullname="DG.Tweening.TweenSettingsExtensions" preserve="all"/>
+		<type fullname="DG.Tweening.LogBehaviour" preserve="all"/>
+		<type fullname="DG.Tweening.TweenType" preserve="all"/>
+		<type fullname="DG.Tweening.UpdateType" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.TilemapModule">
+	    <type fullname="UnityEngine.Tilemaps.ITilemap" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.Tile" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.Tile+ColliderType" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TileBase" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.Tilemap" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.Tilemap+Orientation" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TileFlags" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TileAnimationFlags" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TilemapRenderer" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TilemapRenderer+SortOrder" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TilemapRenderer+Mode" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TilemapRenderer+DetectChunkCullingBounds" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TileData" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TileChangeData" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TileAnimationData" preserve="all"/>
+		<type fullname="UnityEngine.Tilemaps.TilemapCollider2D" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="Unity.Timeline">
+	    <type fullname="UnityEngine.Timeline.ActivationTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.AnimationPlayableAsset" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.MatchTargetFields" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TrackOffset" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.AnimationTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelineClip" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelineAsset" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TrackAsset" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.AudioPlayableAsset" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.AudioTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.ClipCaps" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.ControlPlayableAsset" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.ControlTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.Marker" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.MarkerTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.SignalAsset" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.SignalEmitter" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.SignalReceiver" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.SignalTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TrackAssetExtensions" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.GroupTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.ActivationControlPlayable" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.DirectorControlPlayable" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.NotificationFlags" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.ParticleControlPlayable" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.PrefabControlPlayable" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimeControlPlayable" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimeNotificationBehaviour" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.PlayableTrack" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TrackBindingFlags" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelinePlayable" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelineClipExtensions" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.StandardFrameRates" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.ActivationTrack+PostPlaybackState" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.AnimationPlayableAsset+LoopMode" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelineClip+ClipExtrapolation" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelineClip+BlendCurveMode" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelineAsset+DurationMode" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.TimelineAsset+EditorSettings" preserve="all"/>
+		<type fullname="UnityEngine.Timeline.ActivationControlPlayable+PostPlaybackState" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="spine-unity">
+	    <type fullname="Spine.Unity.AnimationReferenceAsset" preserve="all"/>
+		<type fullname="Spine.Unity.AtlasAssetBase" preserve="all"/>
+		<type fullname="Spine.Unity.BlendModeMaterials" preserve="all"/>
+		<type fullname="Spine.Unity.EventDataReferenceAsset" preserve="all"/>
+		<type fullname="Spine.Unity.RegionlessAttachmentLoader" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonDataAsset" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonDataModifierAsset" preserve="all"/>
+		<type fullname="Spine.Unity.SpineAtlasAsset" preserve="all"/>
+		<type fullname="Spine.Unity.NoOpTextureLoader" preserve="all"/>
+		<type fullname="Spine.Unity.MaterialsTextureLoader" preserve="all"/>
+		<type fullname="Spine.Unity.SpineSpriteAtlasAsset" preserve="all"/>
+		<type fullname="Spine.Unity.BoneFollower" preserve="all"/>
+		<type fullname="Spine.Unity.BoneFollowerGraphic" preserve="all"/>
+		<type fullname="Spine.Unity.BoundingBoxFollower" preserve="all"/>
+		<type fullname="Spine.Unity.BoundingBoxFollowerGraphic" preserve="all"/>
+		<type fullname="Spine.Unity.PointFollower" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonSubmeshGraphic" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonAnimation" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonGraphic" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonMecanim" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonRenderer" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonGraphicCustomMaterials" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonRendererCustomMaterials" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonPartsRenderer" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonRenderSeparator" preserve="all"/>
+		<type fullname="Spine.Unity.ActivateBasedOnFlipDirection" preserve="all"/>
+		<type fullname="Spine.Unity.FollowLocationRigidbody" preserve="all"/>
+		<type fullname="Spine.Unity.FollowLocationRigidbody2D" preserve="all"/>
+		<type fullname="Spine.Unity.FollowSkeletonUtilityRootRotation" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonUtility" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonUtilityBone" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonUtilityConstraint" preserve="all"/>
+		<type fullname="Spine.Unity.UpdateMode" preserve="all"/>
+		<type fullname="Spine.Unity.UpdateTiming" preserve="all"/>
+		<type fullname="Spine.Unity.ISpineComponentExtensions" preserve="all"/>
+		<type fullname="Spine.Unity.MeshGeneratorBuffers" preserve="all"/>
+		<type fullname="Spine.Unity.MeshGenerator" preserve="all"/>
+		<type fullname="Spine.Unity.MeshRendererBuffers" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonRendererInstruction" preserve="all"/>
+		<type fullname="Spine.Unity.SpineMesh" preserve="all"/>
+		<type fullname="Spine.Unity.SubmeshInstruction" preserve="all"/>
+		<type fullname="Spine.Unity.BlendModeMaterialsAsset" preserve="all"/>
+		<type fullname="Spine.Unity.SpineBone" preserve="all"/>
+		<type fullname="Spine.Unity.SpineSlot" preserve="all"/>
+		<type fullname="Spine.Unity.SpineAnimation" preserve="all"/>
+		<type fullname="Spine.Unity.SpineEvent" preserve="all"/>
+		<type fullname="Spine.Unity.SpineIkConstraint" preserve="all"/>
+		<type fullname="Spine.Unity.SpineTransformConstraint" preserve="all"/>
+		<type fullname="Spine.Unity.SpinePathConstraint" preserve="all"/>
+		<type fullname="Spine.Unity.SpineSkin" preserve="all"/>
+		<type fullname="Spine.Unity.SpineAttachment" preserve="all"/>
+		<type fullname="Spine.Unity.SpineAtlasRegion" preserve="all"/>
+		<type fullname="Spine.Unity.MathUtilities" preserve="all"/>
+		<type fullname="Spine.Unity.SettingsTriState" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonExtensions" preserve="all"/>
+		<type fullname="Spine.Unity.WaitForSpineAnimation" preserve="all"/>
+		<type fullname="Spine.Unity.WaitForSpineAnimationComplete" preserve="all"/>
+		<type fullname="Spine.Unity.WaitForSpineAnimationEnd" preserve="all"/>
+		<type fullname="Spine.Unity.WaitForSpineEvent" preserve="all"/>
+		<type fullname="Spine.Unity.WaitForSpineTrackEntryEnd" preserve="all"/>
+		<type fullname="Spine.Unity.BlendModeMaterials+ReplacementMaterial" preserve="all"/>
+		<type fullname="Spine.Unity.BoneFollower+AxisOrientation" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonGraphic+LayoutMode" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonMecanim+MecanimTranslator" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonRenderer+SpriteMaskInteractionMaterials" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonGraphicCustomMaterials+AtlasMaterialOverride" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonGraphicCustomMaterials+AtlasTextureOverride" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonRendererCustomMaterials+SlotMaterialOverride" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonRendererCustomMaterials+AtlasMaterialOverride" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonUtilityBone+Mode" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonUtilityBone+UpdatePhase" preserve="all"/>
+		<type fullname="Spine.Unity.MeshGenerator+Settings" preserve="all"/>
+		<type fullname="Spine.Unity.MeshRendererBuffers+SmartMesh" preserve="all"/>
+		<type fullname="Spine.Unity.SpineAttachment+Hierarchy" preserve="all"/>
+		<type fullname="Spine.Unity.SkeletonMecanim+MecanimTranslator+MixMode" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="DOTween46">
+	    <type fullname="DG.Tweening.DOTweenUtils46" preserve="all"/>
+		<type fullname="DG.Tweening.ShortcutExtensions46" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="DOTweenPro">
+	    <type fullname="DG.Tweening.DOTweenVisualManager" preserve="all"/>
+		<type fullname="DG.Tweening.HandlesDrawMode" preserve="all"/>
+		<type fullname="DG.Tweening.HandlesType" preserve="all"/>
+		<type fullname="DG.Tweening.DOTweenInspectorMode" preserve="all"/>
+		<type fullname="DG.Tweening.DOTweenPath" preserve="all"/>
+		<type fullname="DG.Tweening.ShortcutExtensionsPro" preserve="all"/>
+		<type fullname="DG.Tweening.SpiralMode" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="DOTween43">
+	    <type fullname="DG.Tweening.ShortcutExtensions43" preserve="all"/>
+		
+	</assembly>
+
+</linker>

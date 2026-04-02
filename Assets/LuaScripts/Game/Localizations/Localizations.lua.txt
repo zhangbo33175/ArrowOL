@@ -1,0 +1,53 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  Localizations.lua
+-- descrip:   本地化配置
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Localizations @本地化配置
+Localizations = {
+    ---@type Localizations.ChineseSimplified @简体中文
+    ChineseSimplified = nil,
+    ---@type Localizations.English @英语
+    English = nil,
+    ---@type Localizations.French @法语
+    French = nil,
+    ---@type Localizations.German @德语
+    German = nil,
+    ---@type Localizations.Spanish @西班牙语
+    Spanish = nil,
+    ---@type Localizations.Japanese @日语
+    Japanese = nil,
+    ---@type Localizations.Korean @韩语
+    Korean = nil,
+    ---@type Localizations.PortuguesePortugal @葡萄牙语
+    PortuguesePortugal = nil,
+    ---@type Localizations.Russian @俄语
+    Russian = nil,
+    ---@type Localizations.ChineseTraditional @繁体中文
+    ChineseTraditional = nil,
+    ---@type Localizations.Italian @意大利语
+    Italian = nil,
+}
+
+---Lua层本地化语言表数据关联回调全局事件派发(由C#回调回来)(此处自动生成，请不要手动修改！)
+---@type fun():void
+function Relate_Localization_Table_Data()
+    if tostring(GameMainRoot.Localization.LanguageName) == 'ChineseSimplified' then if Localizations.ChineseSimplified == nil then require('LocalizationChineseSimplified') end Lang = Localizations['ChineseSimplified']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'English' then if Localizations.English == nil then require('LocalizationEnglish') end Lang = Localizations['English']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'French' then if Localizations.French == nil then require('LocalizationFrench') end Lang = Localizations['French']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'German' then if Localizations.German == nil then require('LocalizationGerman') end Lang = Localizations['German']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'Spanish' then if Localizations.Spanish == nil then require('LocalizationSpanish') end Lang = Localizations['Spanish']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'Japanese' then if Localizations.Japanese == nil then require('LocalizationJapanese') end Lang = Localizations['Japanese']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'Korean' then if Localizations.Korean == nil then require('LocalizationKorean') end Lang = Localizations['Korean']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'PortuguesePortugal' then if Localizations.PortuguesePortugal == nil then require('LocalizationPortuguesePortugal') end Lang = Localizations['PortuguesePortugal']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'Russian' then if Localizations.Russian == nil then require('LocalizationRussian') end Lang = Localizations['Russian']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'ChineseTraditional' then if Localizations.ChineseTraditional == nil then require('LocalizationChineseTraditional') end Lang = Localizations['ChineseTraditional']
+    elseif tostring(GameMainRoot.Localization.LanguageName) == 'Italian' then if Localizations.Italian == nil then require('LocalizationItalian') end Lang = Localizations['Italian']
+    end
+end
+
+Relate_Localization_Table_Data()

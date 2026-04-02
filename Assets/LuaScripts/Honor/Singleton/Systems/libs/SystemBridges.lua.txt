@@ -1,0 +1,212 @@
+--=====================================================================================================
+-- descrip:   全局桥接方法
+--=====================================================================================================
+
+---emmy断点调试器
+---@type fun():void
+function __DEBUGGER__()
+    if IsEditor == true then
+        local debugType = Honor.GameDefinitions.DebugMode.None
+        if io.exists(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath()) == true then
+            local content = io.readfile(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath())
+            debugType = Honor.GameDefinitions.DebugMode.__CastFrom(tonumber(content))
+            if IsWindowEditor then
+                package.cpath = package.cpath .. ';C:/Users/Administrator/AppData/Roaming/JetBrains/Rider2023.2/plugins/EmmyLua/debugger/emmy/windows/x64/?.dll'
+
+            elseif IsMacEditor then
+                package.cpath = package.cpath .. ';C:/Users/Administrator/AppData/Roaming/JetBrains/Rider2023.2/plugins/EmmyLua/debugger/emmy/windows/x64/?.dll'
+
+            end
+            if debugType == Honor.GameDefinitions.DebugMode.IDEFirst then
+                local dbg = require('emmy_core')
+                dbg.tcpConnect('localhost', 9966)
+            elseif debugType == Honor.GameDefinitions.DebugMode.UnityFirst then
+                local dbg = require('emmy_core')
+                dbg.tcpListen('localhost', 9966)
+                dbg.waitIDE()
+            end
+        end
+    end if IsEditor == true then
+        local debugType = Honor.GameDefinitions.DebugMode.None
+        if io.exists(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath()) == true then
+            local content = io.readfile(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath())
+            debugType = Honor.GameDefinitions.DebugMode.__CastFrom(tonumber(content))
+            if IsWindowEditor then
+                package.cpath = package.cpath .. ';C:/Users/Administrator/AppData/Roaming/JetBrains/Rider2023.2/plugins/EmmyLua/debugger/emmy/windows/x64/?.dll'
+            elseif IsMacEditor then
+                package.cpath = package.cpath .. ';C:/Users/Administrator/AppData/Roaming/JetBrains/Rider2023.2/plugins/EmmyLua/debugger/emmy/windows/x64/?.dll'
+            end
+            if debugType == Honor.GameDefinitions.DebugMode.IDEFirst then
+                local dbg = require('emmy_core')
+                dbg.tcpConnect('localhost', 9966)
+            elseif debugType == Honor.GameDefinitions.DebugMode.UnityFirst then
+                local dbg = require('emmy_core')
+                dbg.tcpListen('localhost', 9966)
+                dbg.waitIDE()
+            end
+        end
+    end
+end
+--__DEBUGGER__()
+
+---从CS层创建Lua层的面向对象class
+---@type fun(__env:table, __luaScriptName:string):table
+---@param __env table @用于将xlua层成员变量对接为luaClass层成员变量
+---@param __luaScriptName string @待创建luaClass的名称
+---@return table
+function CreateLuaClassFromCS(__env, __luaScriptName)
+    local __createdClass = require(__luaScriptName):Create({env = __env})
+    __env.Awake = function() __createdClass:Awake() end
+    __env.OnEnable = function() __createdClass:OnEnable() end
+    __env.Start = function() __createdClass:Start() end
+    __env.Proc = function() __createdClass:Proc() end
+    __env.OnDisable = function() __createdClass:OnDisable() end
+    __env.OnDestroy = function() __createdClass:OnDestroy() end
+    __env.OnCollisionEnter2D = function(collision) __createdClass:OnCollisionEnter2D(collision) end
+    __env.OnCollisionStay2D = function(collision) __createdClass:OnCollisionStay2D(collision) end
+    __env.OnCollisionExit2D = function(collision) __createdClass:OnCollisionExit2D(collision) end
+    __env.OnCollisionEnter3D = function(collision) __createdClass:OnCollisionEnter3D(collision) end
+    __env.OnCollisionStay3D = function(collision) __createdClass:OnCollisionStay3D(collision) end
+    __env.OnCollisionExit3D = function(collision) __createdClass:OnCollisionExit3D(collision) end
+    __env.OnTriggerEnter2D = function(collision) __createdClass:OnTriggerEnter2D(collision) end
+    __env.OnTriggerStay2D = function(collision) __createdClass:OnTriggerStay2D(collision) end
+    __env.OnTriggerExit2D = function(collision) __createdClass:OnTriggerExit2D(collision) end
+    __env.OnTriggerEnter3D = function(collision) __createdClass:OnTriggerEnter3D(collision) end
+    __env.OnTriggerStay3D = function(collision) __createdClass:OnTriggerStay3D(collision) end
+    __env.OnTriggerExit3D = function(collision) __createdClass:OnTriggerExit3D(collision) end
+    return __createdClass
+end
+
+---从CS层创建Lua层的Procedure面向对象class
+---@type fun(__env:table, __luaScriptName:string):table
+---@param __env table @用于将xlua层成员变量对接为luaClass层成员变量
+---@param __luaScriptName string @待创建luaClass的名称
+---@return table
+function CreatePocedureLuaClassFromCS(__env, __luaScriptName)
+    local __createdClass = require(__luaScriptName):Create({env = __env})
+    __env.OnEnter = function(...) __createdClass:OnEnter(...) end
+    __env.OnUpdate = function(...) __createdClass:OnUpdate(...) end
+    __env.OnLeave = function(...) __createdClass:OnLeave(...) end
+    return __createdClass
+end
+
+---为注入对象注册监听
+---@type fun(__injectionObj:userdata, __injectionCmd:string, __handler:handler):void
+---@param _injectionObj userdata @注入对象
+---@param _injectionCmd string @注入监听的信息描述
+---@param _handler handler @回调句柄
+function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
+    -- 初始化注册容器
+    if addUIListenerInfos == nil then
+        addUIListenerInfos = {}
+    end
+    -- 初始化对象的注册容器
+    if addUIListenerInfos[_injectionObj] == nil then
+        addUIListenerInfos[_injectionObj] = {}
+        addUIListenerInfos[_injectionObj]._handlerList = {}
+        addUIListenerInfos[_injectionObj]._interactTargetTimes = {}
+    end
+    -- 查找是否已经存在该luaFunction，若存在则直接返回，否则向容器中注册
+    for _, v in pairs(addUIListenerInfos[_injectionObj]._handlerList) do
+        if v.target == _handler.target and v.method == _handler.method then
+            return
+        end
+    end
+    table.insert(addUIListenerInfos[_injectionObj]._handlerList, _handler)
+    table.insert(addUIListenerInfos[_injectionObj]._interactTargetTimes, 0)
+    -- 定义派发的闭包环境
+    local _dispatchFunction = function(...)
+        for _, v in pairs(addUIListenerInfos[_injectionObj]._handlerList) do
+            if Unity.Time.realtimeSinceStartup >= addUIListenerInfos[_injectionObj]._interactTargetTimes[_] then
+                if v.target == _handler.target and v.method == _handler.method then
+                    local finalArgsList = {...}
+                    if _injectionCmd == 'Clicked' then
+                        local injections = _injectionObj:GetComponentInParent(typeof(Honor.LuaBehaviour), true).Injections
+                        for i = 0, injections.Count - 1 do
+                            if injections[i].InjectionTypeName == Honor.LuaInjection.InjectionType.UI_Button then
+                                if injections[i].IsArray then
+                                    for k, vObj in pairs(injections[i].ElementsObjs) do
+                                        if injections[i].ElementsExtendsEnableds[k] and injections[i]:GetExtendsCountAtElementIndex(k) == 3 then
+                                            if vObj == _injectionObj then
+                                                table.insert(finalArgsList, injections[i]:GetExtendsInfoAtElementIndex(k, 2))
+                                                break
+                                            end
+                                        end
+                                    end
+                                elseif injections[i].ExtendsEnabled and injections[i]:GetExtendsCount() == 3 then
+                                    if injections[i].Obj == _injectionObj then
+                                        table.insert(finalArgsList, injections[i]:GetExtendsInfo(2))
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                        addUIListenerInfos[_injectionObj]._interactTargetTimes[_] = Unity.Time.realtimeSinceStartup + GameMainRoot.UI.ButtonInteractDuration
+                    end
+                    return v.func(table.unpack(finalArgsList))
+                end
+            end
+        end
+    end
+    -- 注册监听
+    if _injectionCmd == 'Clicked' then
+        _injectionObj.onClick:AddListener(_dispatchFunction)
+    elseif _injectionCmd == 'Changed' then
+        _injectionObj.onValueChanged:AddListener(_dispatchFunction)
+    elseif _injectionCmd == 'End' then
+        _injectionObj.onEndEdit:AddListener(_dispatchFunction)
+    elseif _injectionCmd == 'Chosen' then
+        _injectionObj.onChosen = _dispatchFunction
+    elseif _injectionCmd == 'GettingItem' then
+        _injectionObj:InitListView(_injectionObj.MaxItemNum, function(index)
+            return _dispatchFunction(index)
+        end)
+    elseif _injectionCmd == 'Start' then
+        _injectionObj.OnListViewStart = _dispatchFunction
+    elseif _injectionCmd == 'SnapItemFinished' then
+        _injectionObj.OnListViewSnapItemFinished = _dispatchFunction
+    elseif _injectionCmd == 'SnapNearestChanged' then
+        _injectionObj.OnListViewSnapNearestChanged = _dispatchFunction
+    else
+        if string.starts(_injectionCmd, "Evt_") then
+            local entry = nil
+            local eventTrigger = _injectionObj.gameObject:GetOrAddComponent(typeof(Unity.EventSystems.EventTrigger))
+            for _, existingEntry in pairs(eventTrigger.triggers) do
+                if existingEntry.eventID == Unity.EventSystems.EventTriggerType.__CastFrom(string.sub(_injectionCmd, 5)) then
+                    entry = existingEntry
+                    break
+                end
+            end
+            if entry == nil then
+                entry = Unity.EventSystems.EventTrigger.Entry()
+                entry.eventID = Unity.EventSystems.EventTriggerType.__CastFrom(string.sub(_injectionCmd, 5))
+                eventTrigger.triggers:Add(entry)
+            end
+            entry.callback:AddListener(_dispatchFunction)
+        end
+    end
+end
+
+---为注入对象注销监听
+---@type fun(__injectionObj:userdata, __injectionCmd:string, __handler:handler):void
+---@param _injectionObj userdata @注入对象
+---@param _injectionCmd string @注入监听的信息描述
+---@param _handler handler @回调句柄
+function OnRemoveListener(_injectionObj, _injectionCmd, _handler)
+    if addUIListenerInfos ~= nil and addUIListenerInfos[_injectionObj] ~= nil and addUIListenerInfos[_injectionObj]._handlerList ~= nil and addUIListenerInfos[_injectionObj]._interactTargetTimes ~= nil then
+        for __, __v in pairs(addUIListenerInfos[_injectionObj]._handlerList) do
+            if __v.target == _handler.target and __v.method == _handler.method then
+                table.remove(addUIListenerInfos[_injectionObj]._handlerList, __)
+                table.remove(addUIListenerInfos[_injectionObj]._interactTargetTimes, __)
+                break
+            end
+        end
+    end
+    if #addUIListenerInfos[_injectionObj]._handlerList == 0 then
+        addUIListenerInfos[_injectionObj]._handlerList = nil
+    end
+    if #addUIListenerInfos[_injectionObj]._interactTargetTimes == 0 then
+        addUIListenerInfos[_injectionObj]._interactTargetTimes = nil
+    end
+end
+

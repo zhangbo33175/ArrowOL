@@ -1,0 +1,99 @@
+--=====================================================================================================
+-- descrip:   游戏系统解锁查询
+--=====================================================================================================
+---@class SystemGameUnlock:Singleton @游戏系统解锁查询
+local SystemGameUnlock = class("SystemGameUnlock",import("Singleton"))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function SystemGameUnlock:ctor(args)
+    SystemGameUnlock.super.ctor(self, args)
+    self.map = {}                           ---@type table<string,boolean>                      ---系统名称，是否解锁
+    self.unlockLv = {}                      ---@type table<string,ChapterLevel>                 ---系统名称，解锁等级
+
+end
+
+---创建函数
+---@type fun(args:table):GameSysUnlock
+---@param args table @自定义参数
+---@return GameSysUnlock @游戏系统解锁查询
+function SystemGameUnlock:Create(args)
+    local obj = SystemGameUnlock.new(args)
+    return obj
+end
+
+---@type fun(sys : string) : boolean
+---@param sys string @ 系统名称
+---@return boolean @ true : 已解锁
+function SystemGameUnlock:SystemIsUnlock(sys)
+    return self.map and self.map[sys]
+end
+
+---@type fun(chapterLv : ChapterLevel) : void
+---@param chapterLv ChapterLevel @ 升级后的关卡ID
+function SystemGameUnlock:_ListenLevelSuccess(chapterLv)
+    local isAllUnlock = true
+    for sys,unlock in pairs(self.unlockLv) do
+        if not self.map[sys] then
+            self.map[sys] = unlock.Chapter < chapterLv.Chapter or (unlock.Chapter == chapterLv.Chapter and unlock.Level <= chapterLv.Level)
+            if self.map[sys] then
+                HonorEventHelper:Fire(EventCmd.OnGameSysUnlock,sys)
+            end
+        end
+        isAllUnlock = isAllUnlock and self.map[sys]
+    end
+    if isAllUnlock then
+        HonorEventHelper:RemoveListener(EventCmd.OnLevelSuccess,handler(self,self._ListenLevelSuccess))
+        HonorEventHelper:RemoveListener(EventCmd.OnNewChapterUnlockEvent,handler(self,self._ListenChapterUnlock))
+    end
+end
+
+---章节解锁
+---@type fun() : void
+function SystemGameUnlock:_ListenChapterUnlock()
+    local latest = GamerDataManager:GetLatestChapterLevel()
+    self:_ListenLevelSuccess(latest)
+end
+
+---获取优先级
+---@type fun():number
+---@return number @优先级
+function SystemGameUnlock:Priority()
+    return ESingletonPriority.GameSysUnlock
+end
+
+---初始化各系统解锁状态
+function SystemGameUnlock:Init()
+    SystemGameUnlock.super.Init(self)
+    --self.unlockLv = {}
+    --self.unlockLv[ESystemName.MachineUpgrade] = Tables.Constants.UpgradeUnlockLevel.Value
+    --self.unlockLv[ESystemName.Build] = Tables.Constants.DecorSysUnlock.Value
+    --self.unlockLv[ESystemName.ChapterList] = Tables.Constants.ChapterListUnlock.Value
+    --self.unlockLv[ESystemName.DailyRewards] = {Chapter=Tables.Constants.dailyRewardUnlockLevel.Value.ChapterID,Level=Tables.Constants.dailyRewardUnlockLevel.Value.LevelID}
+    --self.unlockLv[ESystemName.DailyQuest] = Tables.Constants.DailyQuestsUnlockLevel.Value
+    --self.unlockLv[ESystemName.EntityIdle] = Tables.Constants.IdleGuestUnlockLevel.Value
+    --self.unlockLv[ESystemName.Collection] = Tables.Constants.CollectionsUnlockLevel.Value
+    --self.map = {}
+    --local chapterLv = GamerDataManager:GetLatestChapterLevel()
+    --local isAllUnlock = true
+    --for sys,unlock in pairs(self.unlockLv) do
+    --    self.map[sys] = unlock.Chapter < chapterLv.Chapter or (unlock.Chapter == chapterLv.Chapter and unlock.Level <= chapterLv.Level)
+    --    isAllUnlock = isAllUnlock and self.map[sys]
+    --end
+    --if not isAllUnlock then
+    --    HonorEventHelper:AddListener(EventCmd.OnLevelSuccess,handler(self,self._ListenLevelSuccess))
+    --    HonorEventHelper:AddListener(EventCmd.OnNewChapterUnlockEvent,handler(self,self._ListenChapterUnlock))
+    --end
+end
+
+---清理数据
+---@type fun():void
+---@return void
+function SystemGameUnlock:ClearData()
+    SystemGameUnlock.super.ClearData(self)
+    self.map = {}
+    self.unlockLv = {}
+end
+
+return SystemGameUnlock

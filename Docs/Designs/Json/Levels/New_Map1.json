@@ -1,0 +1,12 @@
+{
+    "FilePath": "E:/Game/ArrowDemo/Assets/../Docs/Designs/Json/Levels",
+    "FileName": "New_Map1",
+    "DisplayName": "New_Map1.json",
+    "MapData": {
+        "m_MapName": "New_Map1",
+        "m_BackgroundPath": "E:/Game/ArrowDemo/Assets/Res/Textures/Level1/Map_level_1.png",
+        "m_IconPath": "E:/Game/ArrowDemo/Assets/Res/Textures/Level1/Icon",
+        "m_MapObjectData": [],
+        "m_CcreateTime": "2026-03-21 11:39:59"
+    }
+}

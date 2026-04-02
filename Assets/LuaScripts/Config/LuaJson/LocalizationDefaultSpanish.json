@@ -1,0 +1,56 @@
+{
+    "Hotfix_StartButton_Text" : "INICIO",
+    "Hotfix_RetryButton_Text" : "REINTENTAR",
+    "Hotfix_CloseButton_Text" : "CERRAR",
+    "Hotfix_Ready_Download_Text" : "Conectando al servidor...",
+    "Hotfix_Downloading_Text" : "Descargando archivo:",
+    "Hotfix_Download_AllOver_Text" : "Cargando…",
+    "Hotfix_Download_Failed_To_Skip_Text" : "La descarga falló, listo para entrar al juego.",
+    "Hotfix_Download_Error_Text" : "¡Descarga anormal! Por favor, inténtalo de nuevo.",
+    "Hotfix_Download_Error_Quit_Text" : "¡Descarga fallida! Por favor, revise la red, reinicie y pruebe de nuevo antes de salir de la aplicación.",
+    "Hotfix_Error_Title_Text" : "Error de actualización caliente",
+    "Hotfix_Error_Desc_Text" : "¿Quieres volver a intentar la actualización caliente?",
+    "Hotfix_Error_RetryButton_Text" : "REINTENTAR",
+    "Hotfix_Error_CloseButton_Text" : "CERRAR",
+    "App_Download_Title_Text" : "¡Hay una nueva versión!",
+    "App_Download_Desc_Text" : "¿Quieres ir a la tienda para descargar e instalar?",
+    "App_Download_StartButton_Text" : "Ve a la tienda",
+    "App_Download_CloseButton_Text" : "CERRAR",
+    "GDPR_MainTitle_Text" : "Gracias por descargar <color=#5380C4>{0}</color>",
+    "GDPR_MainDesc_Text" : "<b>La privacidad es muy importante para {0}.</b>
+
+Necesitamos tu permiso para usar tus datos y brindarte una experiencia personalizada.
+
+<b>Con tu consentimiento, {1} y sus socios recopilarán puntos de datos técnicos</b> incluyendo tu identificador de publicidad y dirección IP para ofrecerte una experiencia de juego única y seguir mejorando nuestros juegos.
+
+Esta información será específicamente <b>recolectada por {2} y sus socios para los siguientes propósitos:</b>",
+    "GDPR_GDPRDesc_Text" : "Anuncios y contenido personalizados.",
+    "GDPR_CCPADesc_Text" : "Almacene o acceda a información en un dispositivo, desarrolle y mejore productos.",
+    "GDPR_COPPADesc_Text" : "Confirmando que tengo más de 16 años y he leído, entendido y aceptado la <b>{0} Política de Privacidad</b>.",
+    "GDPR_StartGameButton_Text" : "Comienza a jugar",
+    "GDPR_MoreButton_Text" : "Aprende más",
+    "GDPR_MoreTitle_Text" : "Haz <color=#5380C4>{0}</color> mejor!",
+    "GDPR_MoreStartDesc_Text" : "¡Gracias por descargar nuestro juego! ¿Sabías que compartir tus datos es la mejor manera de disfrutar de una experiencia de juego única y ayudarnos a mejorar? Puedes decidir en cualquier momento retirar tu consentimiento a través de esto. 
+Aquí está la razón por la que esta aplicación recoge datos:",
+    "GDPR_MoreDesc1_Text" : "Para generar estadísticas sobre el uso de tu juego, incluyendo el número de juegos jugados y la duración de los juegos, lo que nos permite mejorar tu experiencia de juego.",
+    "GDPR_MoreDesc2_Text" : "Para entender tus intereses y ofrecerte anuncios dirigidos que sean más relevantes para ti.",
+    "GDPR_MoreDesc3_Text" : "Para resolver problemas técnicos.",
+    "GDPR_MoreFinalDesc_Text" : "Si no desea compartir sus datos personales para ser utilizados como se describe en nuestra Política de Privacidad, seguirá teniendo acceso a nuestras aplicaciones. Su experiencia podría diferir e incluir un volumen mayor de publicidad no dirigida.",
+    "GDPR_MoreBackButton_Text" : "Volver",
+    "GDPR_ResetTitle_Text" : "Configurando el intercambio de información",
+    "GDPR_ResetDesc_Text" : "Puedes elegir los datos que deseas compartir:",
+    "GDPR_ResetGDPRDesc_Text" : "Publicidad",
+    "GDPR_ResetCCPADesc_Text" : "Apoyo y Análisis",
+    "GDPR_SaveButton_Text" : "Guarda mis elecciones",
+    "GDPR_CloseButton_Text" : "Cerrar",
+    "Waiting_Desc_Text" : "Por favor espera…",
+    "Net_Error_Text" : "La red es anormal. Verifica la red e intenta de nuevo.",
+    "IAP_Init_Error_Text" : "Error en la inicialización del pago, no se puede iniciar el pago.",
+    "IAP_Paying_Text" : "El pago está en progreso, por favor espera…",
+    "IAP_Validating_Text" : "El pedido está siendo verificado, por favor espera…",
+    "IAP_No_Net_Validate_Error_Text" : "Excepción de red, la verificación del pedido falló, por favor intente nuevamente más tarde......",
+    "IAP_UpdateReceipt_Text" : "Actualización de pedido, por favor espera…",
+    "UpdateTitle" : "Actualización necesaria!",
+    "UpdateText" : "¡Buenas noticias! \nHay una nueva versión disponible.",
+    "UpdateButton" : "Instalar"
+}

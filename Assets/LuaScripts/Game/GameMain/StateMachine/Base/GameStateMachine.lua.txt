@@ -1,0 +1,107 @@
+--=====================================================================================================
+-- descrip:   游戏业务状态机
+--=====================================================================================================
+
+---@class GameStateMachine @游戏业务状态机
+local GameStateMachine = class('GameStateMachine')
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GameStateMachine:ctor(args)
+    self._stateMap = {}         ---状态表
+    self._currentState = nil    ---@type GameStateBase ---目前状态 
+    self._preState = nil        ---@type GameStateBase ---前一个状态
+
+    self._stateMap[GameStateCmd.LoginState] = require("GameLoginState"):Create(GameStateCmd.LoginState)
+    self._stateMap[GameStateCmd.LoadMapState] = require("GameLoadMapState"):Create(GameStateCmd.LoadMapState)
+    self._stateMap[GameStateCmd.MainState] = require("GameMainState"):Create(GameStateCmd.MainState)
+    self._stateMap[GameStateCmd.PlayingState] = require("GamePlayingState"):Create(GameStateCmd.PlayingState)
+    self._stateMap[GameStateCmd.TurnToPreloadState] = require("GameTurnToProLoadState"):Create(GameStateCmd.TurnToPreloadState)
+end
+
+---创建函数
+---@type fun(args:table):GameStateMachine
+---@param args table @自定义参数
+---@return GameStateMachine @GameStateMachine实例
+function GameStateMachine:Create(args)
+    local obj = GameStateMachine.new(args)
+    return obj
+end
+
+---获取目前状态机类型
+---@type fun():GameStateCmd
+---@return GameStateCmd @游戏状态类型
+function GameStateMachine:CurrentStateType()
+    if self._currentState then
+        return self._currentState:GetStateType()
+    end
+    return nil
+end
+
+---获取前一个状态机类型
+---@type fun():GameStateCmd
+---@return GameStateCmd @游戏状态类型
+function GameStateMachine:PreStateType()
+    if self._preState then
+        return self._preState:GetStateType()
+    end
+    return nil
+end
+
+---切换状态
+---@type fun(nextGameState:GameStateCmd):void
+---@param nextStateCmd GameStateCmd @枚举
+---@param finishCallback function @回调
+function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
+    PrintInfo("currentState [{0}] ChangeState to ---> [{1}]", tostring(self:CurrentStateType()), tostring(nextStateCmd))
+
+    if nextStateCmd == self:CurrentStateType() then
+        ---游戏状态已经是需要切换的状态
+        PrintWarning("游戏状态已经是 [{0}]", tostring(nextStateCmd))
+        if finishCallback then
+            xpcall(finishCallback, __G__TRACK_BACK__)
+        end
+        return
+    end
+
+    local nextState = self._stateMap[nextStateCmd]
+    if not nextState then
+        ---没有找到需要切换的状态机
+        PrintError("游戏状态没有注册 [{0}]  -- 切换状态失败", tostring(nextStateCmd))
+        if finishCallback then
+            xpcall(finishCallback, __G__TRACK_BACK__)
+        end
+        return
+    end
+
+    if self._currentState then
+        self._currentState:OnStateExit(function()
+            self:DoPreStateExitAfter(self._currentState, nextState, finishCallback)
+        end)
+    else
+        self:DoPreStateExitAfter(self._currentState, nextState, finishCallback)
+    end
+end
+
+---处理前状态退出之后的工作
+---@param currentState GameStateBase @目前状态
+---@param nextState GameStateBase @下一个状态
+---@param finishCallback function @回调
+function GameStateMachine:DoPreStateExitAfter(currentState, nextState, finishCallback)
+    Try(function()
+        self._preState = currentState
+        self._currentState = nextState
+        self._currentState:OnStateEnter(finishCallback)
+    end)
+end
+
+---更新
+function GameStateMachine:OnUpdate()
+    if self._currentState ~= nil then
+        self._currentState:OnUpdate()
+    end
+end
+
+return GameStateMachine
+

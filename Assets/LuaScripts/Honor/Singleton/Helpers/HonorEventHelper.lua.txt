@@ -1,0 +1,186 @@
+--=====================================================================================================
+-- descrip:   事件助手
+--=====================================================================================================
+
+---@class HonorEventHelper @事件助手
+local HonorEventHelper = class("HonorEventHelper")
+
+---构造函数
+---
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HonorEventHelper:ctor(args)
+    self._targetHandlers = {}        -- 格式：{[evtCmd] = {handler,...},...}
+    self._eventsCallNextFrame = {}   -- 格式：{func,func,...}
+    self._csCoroutine = nil          -- 协程句柄
+    self:StartProcessEventAsyncCoroutine()
+end
+
+---创建函数
+---@type fun(args:table):EventHelper
+---@param args table @自定义参数
+---@return EventHelper @事件助手实例
+function HonorEventHelper:Create(args)
+    local obj = HonorEventHelper.new(args)
+    return obj
+end
+
+---启动异步处理事件协程
+---@type fun():void
+function HonorEventHelper:StartProcessEventAsyncCoroutine()
+    HonorCoroutineHelper:Stop(self._csCoroutine)
+    self._csCoroutine = HonorCoroutineHelper:Start(handler(self, self.ProcessEventAsync))
+end
+
+---异步处理事件回调
+---@type fun():void
+function HonorEventHelper:ProcessEventAsync()
+    while true do
+        coroutine.yield(Unity.WaitUntil(function() return #self._eventsCallNextFrame > 0 end))
+        coroutine.yield(nil)
+        if #self._eventsCallNextFrame > 0 then
+            for _, callFunc in pairs(self._eventsCallNextFrame) do
+                callFunc()
+            end
+            self._eventsCallNextFrame = {}
+        end
+    end
+end
+
+---注册监听
+---@type fun(evtCmd:string, targetHandler:handler):void
+---@param evtCmd string @事件Cmd
+---@param targetHandler handler @目标回调句柄
+function HonorEventHelper:AddListener(evtCmd, targetHandler)
+    if type(evtCmd) ~= "string" then
+        PrintError("[Event] Lua 中 evtCmd = " .. evtCmd .. " 参数非法，必须为 string 类型。")
+        return
+    end
+    if targetHandler ~= nil then
+        if self._targetHandlers[evtCmd] == nil then
+            self._targetHandlers[evtCmd] = {}
+        end
+        for _, info in pairs(self._targetHandlers[evtCmd]) do
+            if info.target == targetHandler.target and info.method == targetHandler.method then
+                PrintWarning("[Event] Lua 中 evtCmd = " .. evtCmd .. " 相同的 target 与 method 已经注册过事件监听，不能重复注册。")
+                return
+            end
+        end
+        table.insert(self._targetHandlers[evtCmd], targetHandler)
+    end
+end
+
+---移除监听
+---@type fun(evtCmd:string, targetHandler:handler):void
+---@param evtCmd string @事件Cmd
+---@param targetHandler handler @目标回调函数
+function HonorEventHelper:RemoveListener(evtCmd, targetHandler)
+    if type(evtCmd) ~= "string" then
+        PrintError("[Event] Lua 中 evtCmd = " .. evtCmd .. " 参数非法，必须为 string 类型。")
+        return
+    end
+    if targetHandler == nil then
+        PrintError("[Event] Lua 中 targetHandler 参数非法，不可为 nil 。")
+        return
+    end
+    if self._targetHandlers[evtCmd] ~= nil then
+        for index, info in pairs(self._targetHandlers[evtCmd]) do
+            if info.target == targetHandler.target and info.method == targetHandler.method then
+                self._targetHandlers[evtCmd][index] = nil
+                break
+            end
+        end
+    end
+end
+
+---根据事件id移除监听
+---@type fun(evtCmd:string):void
+---@param evtCmd string @事件Cmd
+function HonorEventHelper:RemoveListenerByEventID(evtCmd)
+    if type(evtCmd) ~= "string" then
+        PrintError("[Event] Lua 中 evtCmd = " .. evtCmd .. " 参数非法，必须为 string 类型。")
+        return
+    end
+    if self._targetHandlers[evtCmd] ~= nil then
+        self._targetHandlers[evtCmd] = {}
+    end
+end
+
+---根据目标移除监听
+---@type fun(target:userdata):void
+---@param target userdata @目标对象
+function HonorEventHelper:RemoveListenerByTarget(target)
+    if target ~= nil then
+        for evtCmd, targetHandlers in pairs(self._targetHandlers) do
+            for index, info in pairs(targetHandlers) do
+                if info.target == target then
+                    targetHandlers[index] = nil
+                end
+            end
+        end
+    end
+end
+
+---根据回调函数移除监听
+---@type fun(method:function):void
+---@param method function @回调函数
+function HonorEventHelper:RemoveListenerByFunc(method)
+    if method ~= nil then
+        for evtCmd, targetHandlers in pairs(self._targetHandlers) do
+            for index, info in pairs(targetHandlers) do
+                if info.method == method then
+                    targetHandlers[index] = nil
+                end
+            end
+        end
+    end
+end
+
+---立即派发事件
+---@type fun(evtCmd:string, ...:any):void
+---@param evtCmd string @事件Cmd
+function HonorEventHelper:FireNow(evtCmd, ...)
+    if type(evtCmd) ~= "string" then
+        PrintError("[Event] Lua 中 evtCmd = " .. evtCmd .. " 参数非法，必须为 string 类型。")
+        return
+    end
+    local targetHandlersForFireNow = {}
+    if self._targetHandlers[evtCmd] ~= nil then
+        for _, info in pairs(self._targetHandlers[evtCmd]) do
+            if info.func ~= nil then
+                table.insert(targetHandlersForFireNow, info)
+            end
+        end
+    end
+    for _, info in pairs(targetHandlersForFireNow) do
+        info.func(...)
+    end
+end
+
+---协程派发事件
+---@type fun(evtCmd:string, ...:any):void
+---@param evtCmd string @事件Cmd
+function HonorEventHelper:Fire(evtCmd, ...)
+    if type(evtCmd) ~= "string" then
+        PrintError("[Event] Lua 中 evtCmd = " .. evtCmd .. " 参数非法，必须为 string 类型。")
+        return
+    end
+    if not self._targetHandlers or not next(self._targetHandlers) then
+        return
+    end
+    local param = { ... }
+    table.insert(self._eventsCallNextFrame, function()
+        xpcall(function()
+            self:FireNow(evtCmd, table.unpack(param))
+        end, __G__TRACK_BACK__)
+    end)
+end
+
+---清空数据
+---@type fun():void
+function HonorEventHelper:Cleanup()
+    self._targetHandlers = {}
+    self._eventsCallNextFrame = {}
+end
+
+return HonorEventHelper

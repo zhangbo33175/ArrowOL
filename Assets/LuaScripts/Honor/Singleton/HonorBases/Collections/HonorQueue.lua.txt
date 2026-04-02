@@ -1,0 +1,58 @@
+--=====================================================================================================
+-- descrip:   Queue队列定义
+--=====================================================================================================
+---@class HonorQueue @HonorQueue队列类
+---@field items table @条目集合
+local HonorQueue = class("HonorQueue")
+
+---构造函数
+---@type fun():void
+function HonorQueue:ctor()
+    self.items = {}
+end
+
+---创建函数
+---@type fun():HonorQueue
+---@return HonorQueue @队列对象
+function HonorQueue:Create()
+    local queue = HonorQueue.new()
+    return queue
+end
+
+---获取队首条目
+---@type fun():any
+---@return any @队首条目
+function HonorQueue:Peek()
+    return self.items[1]
+end
+
+---条目入队
+---@type fun(item:any):void
+---@param item any @条目
+function HonorQueue:Enqueue(item)
+    table.insert(self.items, self:Count() + 1, item)
+end
+
+---条目出队
+---@type fun():any
+---@return any @出队条目
+function HonorQueue:Dequeue()
+    local item = self:Peek()
+    table.remove(self.items, 1)
+    return item
+end
+
+---队列条目数量
+---@type fun():number
+---@return number @队列条目数量
+function HonorQueue:Count()
+    return #self.items
+end
+
+---队列清空
+---@type fun():void
+function HonorQueue:Clear()
+    self.items = {}
+end
+
+return HonorQueue

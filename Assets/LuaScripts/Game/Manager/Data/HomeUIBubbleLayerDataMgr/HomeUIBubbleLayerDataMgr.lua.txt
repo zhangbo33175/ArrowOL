@@ -1,0 +1,49 @@
+--====================================================================================================
+-- descrip:   主界面元素UI气泡执行顺序数据管理器
+--=====================================================================================================
+
+---@class HomeUIBubbleLayerDataMgr @主界面元素UI气泡执行顺序数据管理器
+local HomeUIBubbleLayerDataMgr = class("HomeUIBubbleLayerDataMgr")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HomeUIBubbleLayerDataMgr:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):HomeUIBubbleLayerDataMgr
+---@param args table @自定义参数
+---@return HomeUIBubbleLayerDataMgr @主界面元素UI气泡执行顺序数据管理器
+function HomeUIBubbleLayerDataMgr:Create(args)
+    local obj = HomeUIBubbleLayerDataMgr.new(args)
+    return obj
+end
+
+---根据ID获取数据
+---@type fun(id:EGameElementUIBubbleType):Tables.HomeUIBubbleLayers_Item
+---@param id EGameElementUIBubbleType @ID
+---@return Tables.HomeUIBubbleLayers_Item @主界面元素UI气泡次序条目
+function HomeUIBubbleLayerDataMgr:GetDataById(id)
+    if id == nil then
+        PrintError("HomeUIBubbleLayerDataMgr:GetDataById id is nil,默认返回NormalUIBubble")
+        return Tables.HomeUIBubbleLayers[EGameElementUIBubbleType.NormalUIBubble]
+    end
+    return Tables.HomeUIBubbleLayers[id]
+end
+
+---根据ID获取子排序
+---@type fun(id:EGameElementUIBubbleType):number
+---@param id EGameElementUIBubbleType @ID
+---@return number @子排序
+function HomeUIBubbleLayerDataMgr:GetOrderById(id)
+    local data = self:GetDataById(id)
+    if data == nil then
+        PrintError("HomeUIBubbleLayerDataMgr:GetOrderById data is nil,默认返回0")
+        return 0
+    end
+    return data.Order
+end
+
+return HomeUIBubbleLayerDataMgr

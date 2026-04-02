@@ -1,0 +1,43 @@
+--=====================================================================================================
+-- descrip:   单例
+--=====================================================================================================
+
+---@class Singleton @单例
+local Singleton = class("Singleton")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function Singleton:ctor(args)
+    SingletonManager:AddSingleton(self)
+end
+
+---创建函数
+---@type fun(args:table):Singleton
+---@param args table @自定义参数
+---@return Singleton @单例
+function Singleton:Create(args)
+    local obj = Singleton.new(args)
+    return obj
+end
+
+---初始化 (继承重写)
+---@type fun():void
+function Singleton:Init()
+    PrintInfo("Singleton:Init --> " .. self.__cname)
+end
+
+---清理数据
+---@type fun():void
+function Singleton:ClearData()
+    PrintInfo("Singleton:ClearData --> " .. self.__cname)
+end
+
+---获取优先级 (继承重写) (优先级越大越先执行，相同优先级按添加顺序执行，不重写默认为0)
+---@type fun():number
+---@return number @优先级
+function Singleton:Priority()
+    return ESingletonPriority.Default
+end
+
+return Singleton

@@ -1,0 +1,47 @@
+--=====================================================================================================
+-- descrip:   playerInfo存档数据管理器
+--=====================================================================================================
+
+---@class PlayerInfoDataManager @设置数值管理器
+local PlayerInfoDataManager = class("PlayerInfoDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function PlayerInfoDataManager:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):PlayerInfoDataManager
+---@param args table @自定义参数
+---@return PlayerInfoDataManager @区域金币管理器
+function PlayerInfoDataManager:Create(args)
+    local obj = PlayerInfoDataManager.new(args)
+    return obj
+end
+
+---获取玩家当前用户名
+---@type fun():string
+---@return string
+function PlayerInfoDataManager:GetPlayerInfoUserName()
+    if PbRootData.GameData.playerInfo.userInput == false then
+        if PbRootData.UserData.uid <= 0 then
+            return Lang["PlayerDefaultNameError"]
+        else
+            return mstr{Lang["PlayerDefaultName"],  str1 = PbRootData.UserData.uid}
+        end
+    else
+        return PbRootData.GameData.playerInfo.name
+    end
+end
+
+---设置玩家新的用户名
+---@type fun(newName:string):void
+---@param newName string @用户新输入的用户名
+function PlayerInfoDataManager:SetPlayerInfoUserName(newName)
+    PbRootData.GameData.playerInfo.name = newName
+    PbRootData.GameData.playerInfo.userInput = true
+    PbIO.GameData.Save_playerInfo()
+end
+return PlayerInfoDataManager

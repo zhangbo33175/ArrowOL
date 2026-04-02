@@ -1,0 +1,298 @@
+--=====================================================================================================
+-- descrip:   存档同步助手
+--=====================================================================================================
+
+---@class SaveDataHelper @存档同步助手
+local SaveDataHelper = class("SaveDataHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function SaveDataHelper:ctor(args)
+    ---@type string @登陆成功后的token
+    self._loginToken = ""
+end
+
+---创建函数
+---@type fun(args:table):SaveDataHelper
+---@param args table @自定义参数
+---@return SaveDataHelper @Patch助手实例
+function SaveDataHelper:Create(args)
+    local obj = SaveDataHelper.new(args)
+    return obj
+end
+
+---注册并登录用户
+---@type fun(force:boolean, callback:function):void
+---@param force boolean @是否强制注册
+---@param callback function @回调
+function SaveDataHelper:CmdRegisterToSignIn(force, callback)
+
+end
+
+---登录用户
+---@type fun(uid:number,callback:function):void
+---@param uid number @游戏服uid
+---@param callback function @回调
+function SaveDataHelper:CmdLoginToSignIn(uid, callback)
+  
+end
+
+---心跳同步
+---@type fun(uid:number, token:string, callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param callback function @回调
+function SaveDataHelper:CmdHeartBeat(uid, token, callback)
+   
+end
+
+---获取存档
+---@type fun(uid:number, token:string, callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param callback function @回调
+function SaveDataHelper:CmdGetSaveData(uid, token, callback)
+  
+end
+
+---通过key，value分字段同步存档
+---@type fun(uid:number, token:string, fields_game_data :string  , callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param fields_game_data string @同步的存档luaTable json
+---@param callback function @回调
+function SaveDataHelper:CmdSyncSaveData(uid, token, fields_game_data, callback)
+   
+end
+
+---同步全部存档
+---@type fun(uid:number, token:string, gameData:string, callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param gameData string @全部存档
+---@param callback function @回调
+function SaveDataHelper:CmdSyncAllSaveData(uid, token, gameData, callback)
+    
+end
+
+---绑定第三方账号
+---@type fun(uid:number, token:string, accountId:string, aidPlatform:number, forceBind:boolean, callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param accountId string @第三方账号
+---@param aidPlatform number @第三方平台
+---@param forceBind boolean @是否是强制绑定
+---@param callback function @回调
+function SaveDataHelper:CmdAccountBind(uid, token, accountId, aidPlatform, forceBind, callback)
+  
+end
+
+---解绑第三方账号
+---@type fun(uid:number, token:string, accountId:string, callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param accountId string @第三方账号
+---@param callback function @回调
+function SaveDataHelper:CmdAccountUnBind(uid, token, accountId, callback)
+  
+end
+
+---同步其他uid的设备id
+---@type fun(uid:number, token:string, otherUid:number, callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param otherUid number @其他uid
+---@param callback function @回调
+function SaveDataHelper:CmdSyncOtherUidDeviceId(uid, token, otherUid, callback)
+   
+end
+
+---删除用户信息
+---@type fun(uid:number, token:string, callback:function):void
+---@param uid number @游戏服uid
+---@param token string @登陆的token
+---@param callback function @回调
+function SaveDataHelper:CmdDelUserInfo(uid, token, callback)
+   
+end
+
+---检查错误码
+---@type fun(returnData:table):boolean
+---@param returnData table @传入的数据
+---@return boolean @返回是否需要中断返回code
+function SaveDataHelper:CheckErrorCode(returnData)
+    if returnData ~= nil then
+        if returnData["error_code"] == NetCode.Success[1] then
+            return true
+        elseif returnData["error_code"] == 1001 then
+            -- 出现顶号了，必须下线,回调不执行
+            PrintError("弹出下线操作")
+            return false
+        end
+    end
+    return true
+end
+
+---保存用户登陆信息
+---@type fun(returnData:NetMsgDef.NetRGameSyncData.RGameLoginResp)
+---@param returnData NetMsgDef.NetRGameSyncData.RGameLoginResp
+function SaveDataHelper:SaveSignInInfos(returnData)
+    if returnData then
+        if returnData.user_id ~= nil and returnData.user_id > 0 then
+            PbRootData.UserData.uid = returnData.user_id
+            PbIO.UserData.Save_uid()
+            ---UID存入
+            SolarRoot.SDK.TGAHelper:ModifyDynamicCommonTrackProperty("uid", PbRootData.UserData.uid)
+            SolarRoot.SDK.TGAHelper:Login(PbRootData.UserData.uid)
+        end
+        if returnData.create_time ~= nil and returnData.create_time > 0 then
+            PbRootData.UserData.regTime.utc0 = returnData.create_time
+            PbRootData.UserData.regTime.utc0String = TimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", returnData.create_time)
+            PbRootData.UserData.regTime.locality = TimerHelper:GetLocalTimeStamp(returnData.create_time)
+            PbRootData.UserData.regTime.localString = TimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", TimerHelper:GetLocalTimeStamp(returnData.create_time))
+            PbIO.UserData.Save_regTime()
+        end
+        if returnData.login_time ~= nil and returnData.login_time > 0 then
+            PbRootData.UserData.loginTime.last.utc0 = PbRootData.UserData.loginTime.current.utc0
+            PbRootData.UserData.loginTime.last.utc0String = PbRootData.UserData.loginTime.current.utc0String
+            PbRootData.UserData.loginTime.last.locality = PbRootData.UserData.loginTime.current.locality
+            PbRootData.UserData.loginTime.last.localString = PbRootData.UserData.loginTime.current.localString
+            PbRootData.UserData.loginTime.current.utc0 = returnData.login_time
+            PbRootData.UserData.loginTime.current.utc0String = TimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", returnData.login_time)
+            PbRootData.UserData.loginTime.current.locality = TimerHelper:GetLocalTimeStamp(returnData.login_time)
+            PbRootData.UserData.loginTime.current.localString = TimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", TimerHelper:GetLocalTimeStamp(returnData.login_time))
+            PbIO.UserData.Save_loginTime()
+        end
+
+        if returnData.binding_time ~= nil and returnData.binding_time > 0 then
+            PbRootData.UserData.aidBindTime.utc0 = returnData.binding_time
+            PbRootData.UserData.aidBindTime.utc0String = TimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", returnData.binding_time)
+            PbRootData.UserData.aidBindTime.locality = TimerHelper:GetLocalTimeStamp(returnData.binding_time)
+            PbRootData.UserData.aidBindTime.localString = TimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", TimerHelper:GetLocalTimeStamp(returnData.binding_time))
+            PbIO.UserData.Save_aidBindTime()
+        end
+
+        if returnData.token ~= "" then
+            -- 登陆成功后会有token
+            self._loginToken = returnData.token;
+        end
+        if returnData.country ~= "" then
+            -- 返回登陆后的国家
+            UserTypeMgr:TrySaveUserCountry(returnData.country)
+        end
+        if returnData.ServerUserInfo ~= nil then
+            -- 云端有存档,同步第三方账号
+            PbRootData.GameData.aidData.aid = returnData.ServerUserInfo.server_account
+            PbRootData.GameData.aidData.platform = returnData.channel_type
+            PbIO.GameData.Save_aidData()
+        end
+    end
+end
+
+---同步保存token
+---@type fun(returnData:NetMsgDef.NetRGameSyncData.RGameLoginResp)
+---@param returnData NetMsgDef.NetRGameSyncData.RGameLoginResp
+function SaveDataHelper:SaveToken(returnData)
+    if returnData then
+        -- 登陆成功后会有token
+        self._loginToken = returnData.token;
+    end
+end
+
+---同步保存云端第三方账号
+---@type fun(returnData:NetMsgDef.NetRGameSyncData.RGameLoginResp)
+---@param returnData NetMsgDef.NetRGameSyncData.RGameLoginResp
+function SaveDataHelper:SaveSignInAid(returnData)
+    if returnData then
+        if returnData.ServerUserInfo ~= nil then
+            -- 云端有存档,同步第三方账号
+            PbRootData.UserData.aid = returnData.ServerUserInfo.server_account
+            PbIO.UserData.Save_aid()
+        end
+    end
+end
+
+---设置服务器的信息到本地（更新uid aid gameData）
+---@type fun(serverGameData:SavePBMsgDef.SaveGameData.GameData,uid:number,aid:string，eAidPlatform:EAidPlatform)
+---@param serverGameData SavePBMsgDef.SaveGameData.GameData
+---@param uid number @游戏服uid
+---@param aid string @第三方账号
+---@param eAidPlatform EAidPlatform @第三方平台
+function SaveDataHelper:SaveServerUserInfoToLocalByGameData(serverGameData, uid, aid, eAidPlatform)
+    if serverGameData then
+        PbRootData.GameData = self:DynamicReplacementGameData(serverGameData)
+        PbIO.GameData.SaveAll()
+    end
+
+    PbRootData.UserData.uid = uid
+    PbIO.UserData.Save_uid()
+
+    PbRootData.GameData.aidData.aid = aid
+    PbRootData.GameData.aidData.platform = eAidPlatform
+    PbIO.GameData.Save_aidData()
+end
+
+---动态替换存档数据
+---@type fun(otherGameData:SavePBMsgDef.SaveGameData.GameData):table
+---@param otherGameData SavePBMsgDef.SaveGameData.GameData @游戏数据
+function SaveDataHelper:DynamicReplacementGameData(otherGameData)
+    package.loaded["SaveGameData"] = nil
+    require('SaveGameData')
+    local result = PbRootData.GameData
+    self:CopyGameDataTable(result, otherGameData)
+    return result
+end
+
+---复制table,递归复制,originTab 会覆盖 desTab
+---@type fun(desTab:table,originTab:table)
+---@param desTab table @目标table
+---@param originTab table @原始table
+function SaveDataHelper:CopyGameDataTable(desTab, originTab)
+    for key, oldValue in pairs(originTab) do
+        if type(oldValue) ~= "table" then
+            desTab[key] = oldValue
+        else
+            if desTab[key] == nil then
+                desTab[key] = {}
+            end
+            self:CopyGameDataTable(desTab[key], oldValue)
+        end
+    end
+end
+
+---设置返回数据，登陆成功后可调用此方法
+function SaveDataHelper:SaveLocalDataAndAutoSyncData(returnData, overCallBack)
+    -- 保持本次登陆信息
+    self:SaveSignInInfos(returnData)
+    -- 同步全部存档
+    UploadingGameDataHelper:UploadAllGameData()
+    if overCallBack ~= nil then
+        overCallBack()
+    end
+end
+
+---@type fun():string
+---@return string @ 后端返回的登录Token
+function SaveDataHelper:GetLoginToken()
+    return self._loginToken
+end
+
+--------------------------------------------测试代码-----------------------------------------------------------
+
+---测试获取存档
+---@type fun():void
+function SaveDataHelper:TestGetSaveData()
+    local getSaveDataCallBack = function(req, resp, cmd, returnData)
+        if returnData ~= nil and returnData["error_code"] == NetCode.Success[1] then
+            -- 心跳同步成功 end
+            local gameData = returnData["game_data"]
+            PrintInfo("ying 获取存档:" .. gameData)
+        end
+    end
+    self:CmdGetSaveData(PbRootData.UserData.uid, nil, getSaveDataCallBack)
+end
+
+-----------------------------------------------------------------------------------------------------------
+
+return SaveDataHelper

@@ -1,0 +1,158 @@
+--=====================================================================================================
+-- descrip:   挑战关卡管理
+--=====================================================================================================
+
+---@class ChallengeLevelHelper : Singleton @挑战关卡管理
+local ChallengeLevelHelper = class('ChallengeLevelHelper', import('Singleton'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ChallengeLevelHelper:ctor(args)
+    ChallengeLevelHelper.super.ctor(self, args)
+
+    ---@type number -- 最小挑战关卡ID
+    self._minChallengeLevelId = 10001
+    ---@type number -- 最大挑战关卡ID
+    self._maxChallengeLevelId = 99999
+end
+
+---创建函数
+---@type fun(args:table):ChallengeLevelHelper
+---@param args table @自定义参数
+---@return ChallengeLevelHelper @挑战关卡管理
+function ChallengeLevelHelper:Create(args)
+    local obj = ChallengeLevelHelper.new(args)
+    return obj
+end
+
+---初始化(继承覆写)
+---@type fun():void
+function ChallengeLevelHelper:Init()
+    ChallengeLevelHelper.super.Init(self)
+
+    self:AddListener()
+end
+
+---清理数据
+---@type fun():void
+function ChallengeLevelHelper:ClearData()
+    ChallengeLevelHelper.super.ClearData(self)
+
+    self:RemoveListener()
+end
+
+---监听事件
+---@type fun():void
+---@return void
+function ChallengeLevelHelper:AddListener()
+    HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
+    HonorEventHelper:AddListener(EventCmd.OnLevelUnusualExit, handler(self, self.OnLevelUnusualExit))
+end
+
+---移除监听
+---@type fun():void
+---@return void
+function ChallengeLevelHelper:RemoveListener()
+    EventHelper:RemoveListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
+    EventHelper:RemoveListener(EventCmd.OnLevelUnusualExit, handler(self, self.OnLevelUnusualExit))
+end
+
+---关卡异常退出，清空挑战关卡数据
+---@type fun(chapterId:string, levelId:number):void
+---@param chapterId string @章节id
+---@param levelId number @关卡id
+---@return void
+function ChallengeLevelHelper:OnLevelUnusualExit(chapterId, levelId)
+    if self:GetCurChallengeLevel(chapterId) > 0 then
+        self:ClearCurChallengeLevel()
+    end
+end
+
+---是否是挑战关卡
+---@type fun(levelId:number):boolean
+---@param levelId number @关卡ID
+---@return boolean @是否是挑战关卡
+function ChallengeLevelHelper:IsChallengeLevel(levelId)
+    return levelId >= self._minChallengeLevelId and levelId <= self._maxChallengeLevelId
+end
+
+---关卡胜利，检测是否解锁新的挑战关卡
+---@type fun(lvInfo : ChapterLevel) : void
+---@param lvInfo ChapterLevel @ 胜利关卡数据
+function ChallengeLevelHelper:OnLevelSuccess(lvInfo)
+    -- 当前是挑战关卡，清空挑战关卡数据，不再判断解锁新的挑战关卡
+    if GameCoreManager:IsInChallengeLevel() then
+        return
+    end
+
+    -- 普通关卡胜利，检测是否解锁新的挑战关卡
+    local strChapterId = tostring(lvInfo.Chapter)
+    ---@type Tables.Chapters_Item
+    local chapterCfg = Tables.Chapters[strChapterId]
+    if chapterCfg and not TableIsEmpty(chapterCfg.ChallengeLevels) then
+        ---@type List<Struct2Data>
+        local levels = ParseStruct2DataTable(chapterCfg.ChallengeLevels)
+        if levels then
+            ---@param v Struct2Data
+            for k, v in pairs(levels.items) do
+                if tonumber(v.Item1) == lvInfo.Level then
+                    ---设置当前挑战关卡
+                    self:SetCurChallengeLevel(strChapterId, tonumber(v.Item2))
+                    break
+                end
+            end
+        end
+    end
+end
+
+---获取当前挑战关卡
+---@type fun(chapterId:string):number
+---@param chapterId string @章节ID
+---@return number @当前挑战关卡
+function ChallengeLevelHelper:GetCurChallengeLevel(chapterId)
+    ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
+    local data = PbRootData.GameData.challengeLevelData or {}
+    if data and not string.isNullOrEmpty(data.chapterId) and data.chapterId == chapterId then
+        return data.challengeLevelId
+    end
+
+    return 0
+end
+
+---清除当前挑战关卡，进入挑战关卡时就可以清除了
+---@type fun():void
+function ChallengeLevelHelper:ClearCurChallengeLevel()
+    ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
+    local data = PbRootData.GameData.challengeLevelData or {}
+    data.chapterId = ""
+    data.challengeLevelId = 0
+
+    PbRootData.GameData.challengeLevelData = data
+    PbIO.GameData.Save_challengeLevelData()
+end
+
+---设置当前挑战关卡
+---@type fun(chapterId:string, levelId:number):void
+---@param chapterId string @章节ID
+---@param levelId number @关卡ID
+function ChallengeLevelHelper:SetCurChallengeLevel(chapterId, levelId)
+    ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
+    local data = PbRootData.GameData.challengeLevelData or {}
+    data.chapterId = chapterId
+    data.challengeLevelId = levelId
+
+    PbRootData.GameData.challengeLevelData = data
+    PbIO.GameData.Save_challengeLevelData()
+end
+
+---挑战关卡胜利，给予额外奖励
+---@type fun():void
+---@return void
+function ChallengeLevelHelper:GiveExtraReward()
+    local rewards = ParseRewardTable(Tables.Constants.ChallengeExtraReward.Value)
+    PlacingItemByRewardData(rewards)
+    AnalyticsRewards(rewards, TrackProperty.ResGetMethod.level_win)
+end
+
+return ChallengeLevelHelper

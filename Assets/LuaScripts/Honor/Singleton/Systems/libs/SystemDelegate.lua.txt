@@ -1,0 +1,51 @@
+--=====================================================================================================
+-- descrip:   代理器
+--=====================================================================================================
+local SystemSet = require("SystemSet")
+
+local SystemDelegate = {}
+SystemDelegate.__index = SystemDelegate
+SystemDelegate.__call = function(t, ...)
+    for k,_ in pairs(t._listeners._data) do
+        k(...)
+    end
+end
+
+---创建
+---@type fun():Delegate
+---@return Delegate @代理器
+function SystemDelegate.new()
+    ---@class Delegate @代理器
+    ---@field _listeners Set @监听器集合
+    local tb = {}
+    tb._listeners = SystemSet.new()
+    return setmetatable(tb, SystemDelegate)
+end
+
+---新增监听
+---@type fun(self: Delegate, f:fun):Delegate
+---@param self Delegate @代理器实例
+---@param f fun @监听回调
+function SystemDelegate.add(self, f)
+    assert(SystemSet.insert(self._listeners, f))
+end
+
+---移除监听
+---@type fun(self: Delegate, f:fun):boolean
+---@param self Delegate @代理器实例
+---@param f fun @监听回调
+---@return boolean @是否移除成功
+function SystemDelegate.remove(self, f)
+    return SystemSet.remove(self._listeners, f)
+end
+
+---是否包含监听
+---@type fun(self:Delegate, f:fun):boolean
+---@param self Delegate @代理器实例
+---@param f fun @监听回调
+---@return boolean @是否包含
+function SystemDelegate.has(self, f)
+    return self._listeners:has(f)
+end
+
+return SystemDelegate

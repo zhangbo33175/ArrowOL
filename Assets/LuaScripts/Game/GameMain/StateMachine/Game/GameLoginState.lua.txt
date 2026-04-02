@@ -1,0 +1,44 @@
+--=====================================================================================================
+-- descrip:   
+--=====================================================================================================
+
+---@class GameLoginState : GameStateBase @
+local GameLoginState = class('GameLoginState', import('GameStateBase'))
+
+---构造函数
+---@type fun(stateType:GameStateCmd):GameMainState
+---@param stateType GameStateCmd @状态机状态值
+function GameLoginState:ctor(stateType)
+    GameLoginState.super.ctor(self, stateType)
+
+end
+
+---创建函数
+---@type fun(stateType:GameStateCmd):GameMainState
+---@param stateType GameStateCmd @状态机状态值
+---@return GameLoginState @GameLoginState实例
+function GameLoginState:Create(stateType)
+    local obj = GameLoginState.new(stateType)
+    return obj
+end
+
+---进入状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoginState:OnStateEnter(finishCallback)
+    --SoundMgr:PlayBGM("LoadPageMusic")
+    OpenUISync(UIs.UILogin)
+    pcall(finishCallback)
+end
+
+---离开状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoginState:OnStateExit(finishCallback)
+    --SoundMgr:StopCurBGM()
+    CloseUI(UIs.UILogin)
+    pcall(finishCallback)
+end
+
+return GameLoginState
+

@@ -1,0 +1,28 @@
+--=====================================================================================================
+-- descrip:   全局框架包含
+--=====================================================================================================
+
+---Base64
+SystemBase64 = require("SystemBase64")
+
+---协程助手
+HonorCoroutineHelper = require("HonorCoroutineHelper"):Create()
+
+---事件助手
+HonorEventHelper = require("HonorEventHelper"):Create()
+
+---时间助手
+HonorTimerHelper = require("HonorTimerHelper"):Create()
+
+---通知助手
+HonorNotificationHelper = require("HonorNotificationHelper"):Create()
+
+---系统配置助手
+SystemConfigHelper = require("SystemConfigHelper"):Create()
+
+---登录助手
+HonorAccountHelper = require("HonorAccountHelper"):Create()
+
+---对象池助手
+HonorPoolHelper = require("HonorPoolHelper"):Create()
+

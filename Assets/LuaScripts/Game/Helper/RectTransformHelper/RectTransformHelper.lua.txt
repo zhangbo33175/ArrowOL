@@ -1,0 +1,36 @@
+--=====================================================================================================
+-- descrip:   RectTransform帮助类
+--=====================================================================================================
+
+---@class RectTransformHelper @RectTransform帮助类
+local RectTransformHelper = class("RectTransformHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function RectTransformHelper:ctor(args)
+
+end
+
+---创建函数
+---@type fun(args:table):RectTransformHelper
+---@param args table @自定义参数
+---@return RectTransformHelper @RectTransform帮助类
+function RectTransformHelper:Create(args)
+    local obj = RectTransformHelper.new(args)
+    return obj
+end
+
+function RectTransformHelper:SetViewAnchoredPositionY(rectTransform, newPosY)
+    local pos = rectTransform.anchoredPosition
+    pos.y = newPosY
+    rectTransform.anchoredPosition = pos
+end
+
+function RectTransformHelper:SetViewAnchoredPositionX(rectTransform, newPosX)
+    local pos = rectTransform.anchoredPosition
+    pos.x = newPosX
+    rectTransform.anchoredPosition = pos
+end
+
+return RectTransformHelper

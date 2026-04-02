@@ -1,0 +1,18 @@
+--=====================================================================================================
+-- descrip:   游戏业务状态全局定义 
+--=====================================================================================================
+
+---@class GameStateCmd @游戏业务状态机枚举定义
+---@field LoginState string @登录状态机
+---@field LoadMapState string @加载地图状态机
+---@field MainState string @主界面状态机
+---@field PlayingState string @游玩游戏状态 
+---@field TurnToPreloadState string @切换到预加载状态
+GameStateCmd = {
+    LoginState = "LoginState",
+    LoadMapState = "LoadMapState",
+    MainState = "MainState",
+    PlayingState = "PlayingState",
+    TurnToPreloadState = "TurnToPreloadState",
+}
+

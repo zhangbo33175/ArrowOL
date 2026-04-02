@@ -1,0 +1,8 @@
+
+---@class EventCodes
+EventCodes={
+    ---@field S_OnTimeCorrectionByServer string 服务器时间校正 1个参数(IsTimeCorrectionByServer:boolean) true:服务器校正 false:客户端校正
+    S_OnTimeCorrectionByServer                        ="S_OnTimeCorrectionByServer", --创建界面
+    ---@field NotificationMessage string @通知的消息回调
+    NotificationMessage                               = "NotificationMessage", 
+}

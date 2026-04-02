@@ -1,0 +1,67 @@
+--=====================================================================================================
+-- descrip:   栈
+--=====================================================================================================
+
+---@class HonorStack @栈
+---@field items table @条目集合
+local HonorStack = class("HonorStack")
+
+---构造函数
+---@type fun():void
+function HonorStack:ctor()
+    self.items = {}
+end
+
+---创建函数
+---@type fun():Stack
+---@return Stack @栈
+function HonorStack:Create()
+    local obj = HonorStack.new()
+    return obj
+end
+
+---获取队首条目
+---@type fun():any
+---@return any @队首条目
+function HonorStack:Peek()
+    return self.items[1]
+end
+
+---条目入队
+---@type fun(item:any):void
+---@param item any @条目
+function HonorStack:Push(item)
+    table.insert(self.items, 1, item)
+end
+
+---条目出队
+---@type fun():any
+---@return any @出队条目
+function HonorStack:Pop()
+    local item = self:Peek()
+    table.remove(self.items, 1)
+    return item
+end
+
+---队列条目数量
+---@type fun():number
+---@return number @队列条目数量
+function HonorStack:Count()
+    return #self.items
+end
+
+---是否包含条目
+---@type fun(item:any):boolean
+---@param item any @条目
+---@return boolean @是否包含
+function HonorStack:Contains(item)
+    return table.vIn(self.items, item)
+end
+
+---队列清空
+---@type fun():void
+function HonorQueue:Clear()
+    self.items = {}
+end
+
+return HonorStack

@@ -1,0 +1,140 @@
+--=====================================================================================================
+-- descrip:   对象池
+--=====================================================================================================
+---@class HonorPool @对象池
+---@field name string @名称
+---@field unusedQueue Queue @未使用的go队列
+---@field usedList List @已使用的go队列
+---@field resDefItem RES_DEF_ITEM @资源条目定义
+---@field preParent UnityEngine.Transform @预设父节点
+---@field resetHandler handler @复位处理方法句柄
+local HonorPool = class("HonorPool")
+
+---构造函数
+---@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):void
+---@param name string @名称
+---@param resDefItem RES_DEF_ITEM @资源条目定义
+---@param preParent UnityEngine.Transform @预设父节点
+---@param resetHandler handler @复位处理方法句柄
+function HonorPool:ctor(name, resDefItem, preParent, resetHandler)
+    self.name = name
+    self.unusedQueue = require("HonorQueue"):Create()
+    self.usedList = require("HonorList"):Create()
+    self.resDefItem = resDefItem
+    self.preParent = preParent
+    self.resetHandler = resetHandler
+    self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
+end
+
+---创建函数
+---@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):Pool
+---@param name string @名称
+---@param resDefItem RES_DEF_ITEM @资源条目定义
+---@param preParent UnityEngine.Transform @预设父节点
+---@param resetHandler handler @复位处理方法句柄
+---@return Pool @对象池对象
+function HonorPool:Create(name, resDefItem, preParent, resetHandler)
+    local obj = HonorPool.new(name, resDefItem, preParent, resetHandler)
+    return obj
+end
+
+---预热
+---@type fun(count:number):void
+---@param count number @预热数量
+function HonorPool:Prewarm(count)
+    for _ = 1, count do
+        local go = CreatePrefabGOSync(self.resDefItem, self.preParent)
+        self.usedList:Add(go)
+        self:Put(go)
+    end
+end
+
+---回收GO
+---@type fun(go:UnityEngine.GameObject):void
+---@param go UnityEngine.GameObject @待回收GO
+function HonorPool:Put(go)
+    if IsNull(self.preParent) then
+        PrintWarning("对象池" .. self.name .. "的预设父节点为空，无法回收对象。")
+        return
+    end
+    if not IsNull(go) then
+        if self.usedList:Contains(go) == true then
+            self.usedList:Remove(go)
+            self.unusedQueue:Enqueue(go)
+            go.transform:SetParent(self.preParent)
+            go:SetActive(false)
+            self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
+        else
+            PrintWarning("待回收对象不在对象池" .. self.name .. "的维护范围内，请检查。")
+        end
+    end
+end
+
+---获取GO
+---@type fun():UnityEngine.GameObject
+---@param newParent UnityEngine.Transform @新父节点（可不传，此时将默认为预设父节点）
+---@return UnityEngine.GameObject @获取的GO对象
+function HonorPool:Get(newParent)
+    if IsNull(newParent) then
+        newParent = self.preParent
+    end
+
+    local go = nil
+    if self.unusedQueue:Count() == 0 then
+        go = CreatePrefabGOSync(self.resDefItem, newParent.transform)
+    else
+        go = self.unusedQueue:Dequeue()
+        if IsNull(go) then
+            PrintError("对象池" .. self.name .. "获取对象失败，未知原因。 容错处理，创建一个新的对象。")
+            go = CreatePrefabGOSync(self.resDefItem, newParent.transform)
+        end
+        go.transform:SetParent(newParent.transform)
+    end
+    if IsNull(go) then
+        PrintError("对象池" .. self.name .. "获取对象失败，请检查。")
+    end
+    self.usedList:Add(go)
+    go:SetActive(true)
+    self.resetHandler.func(go)
+    self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
+    return go
+end
+
+---回收所有被使用的对象
+---@type fun():void
+function HonorPool:RecycleAll()
+    local count = self.usedList:Count()
+    for i = count, 1, -1 do
+        local item = self.usedList.items[i]
+        self:Put(item)
+    end
+    self.usedList:Clear()
+end
+
+---销毁所有对象
+---@type fun():void
+function HonorPool:Destroy()
+    self:RecycleAll()
+    for _ = self.unusedQueue:Count(), 1, -1 do
+        local go = self.unusedQueue:Dequeue()
+        DestroyPrefabWithGO(go)
+    end
+    self.unusedQueue:Clear()
+    self.usedList:Clear()
+    self.resDefItem = nil
+    Unity.GameObject.Destroy(self.preParent.gameObject)
+    self.preParent = nil
+end
+
+---销毁未使用的对象
+---@type fun():void
+function HonorPool:DestroyUnused()
+    for _ = self.unusedQueue:Count(), 1, -1 do
+        local go = self.unusedQueue:Dequeue()
+        DestroyPrefabWithGO(go)
+    end
+    self.unusedQueue:Clear()
+    self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
+end
+
+return HonorPool

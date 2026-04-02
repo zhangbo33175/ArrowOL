@@ -1,0 +1,44 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableLocalizationSetting
+-- descrip:   设置界面的多语言显示
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.LocalizationSetting_Item @设置界面的多语言显示条目
+---@field ID number @编号
+---@field Name string @语言名字
+---@field Index number @enum Language中的定义
+---@field Comment string @描述
+---@field Content string @显示内容
+---@field InUse boolean @是否显示
+
+---@class Tables.LocalizationSetting @设置界面的多语言显示
+---@type table<number, Tables.LocalizationSetting_Item> @数据格式
+---@field 1 Tables.LocalizationSetting_Item
+---@field 2 Tables.LocalizationSetting_Item
+---@field 3 Tables.LocalizationSetting_Item
+---@field 4 Tables.LocalizationSetting_Item
+---@field 5 Tables.LocalizationSetting_Item
+---@field 6 Tables.LocalizationSetting_Item
+---@field 7 Tables.LocalizationSetting_Item
+---@field 8 Tables.LocalizationSetting_Item
+---@field 9 Tables.LocalizationSetting_Item
+---@field 10 Tables.LocalizationSetting_Item
+---@field 11 Tables.LocalizationSetting_Item
+Tables.LocalizationSetting = {
+    [1] = {ID = 1, Name = "English", Index = 14, Comment = "英语-字体", Content = "English", InUse = true},
+    [2] = {ID = 2, Name = "ChineseSimplified", Index = 8, Comment = "简体中文-字体", Content = "简体中文", InUse = true},
+    [3] = {ID = 3, Name = "ChineseTraditional", Index = 9, Comment = "繁体中文-字体", Content = "繁體中文", InUse = true},
+    [4] = {ID = 4, Name = "Italian", Index = 26, Comment = "意大利语-字体", Content = "Italiano", InUse = true},
+    [5] = {ID = 5, Name = "French", Index = 18, Comment = "法语-字体", Content = "Français", InUse = true},
+    [6] = {ID = 6, Name = "Japanese", Index = 27, Comment = "日语-字体", Content = "日本語", InUse = true},
+    [7] = {ID = 7, Name = "Korean", Index = 28, Comment = "韩语-字体", Content = "한국인", InUse = true},
+    [8] = {ID = 8, Name = "Portuguese", Index = 36, Comment = "葡萄牙语-字体", Content = "Português", InUse = true},
+    [9] = {ID = 9, Name = "German", Index = 20, Comment = "德语-字体", Content = "Deutsch", InUse = true},
+    [10] = {ID = 10, Name = "Spanish", Index = 44, Comment = "西语-字体", Content = "Español", InUse = true},
+    [11] = {ID = 11, Name = "Russian", Index = 38, Comment = "俄语-字体", Content = "Русский", InUse = true},
+}
+

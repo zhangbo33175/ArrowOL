@@ -1,0 +1,27 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.GameLib
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  PbRootData.lua
+-- descrip:   存档主干数据
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class PbRootData @存档主干数据
+---@field GameData SavePBMsgDef.GameDataPB.GameData @[主结构]游戏数据存档根数据
+---@field NotificationData SavePBMsgDef.NotificationDataPB.NotificationData @[主结构]通知根数据
+---@field SystemConfigData SavePBMsgDef.SystemConfigDataPB.SystemConfigData @[主结构]系统配置根数据
+---@field UserData SavePBMsgDef.UserDataPB.UserData @[主结构]用户数据存档根数据
+PbRootData = {}
+
+require('GameDataPB')
+require('NotificationDataPB')
+require('SystemConfigDataPB')
+require('UserDataPB')
+
+PbIO.GameData.LoadAll()
+PbIO.NotificationData.LoadAll()
+PbIO.SystemConfigData.LoadAll()
+PbIO.UserData.LoadAll()
+
+return PbRootData

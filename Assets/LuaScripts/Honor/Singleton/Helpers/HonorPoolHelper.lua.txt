@@ -1,0 +1,95 @@
+----=====================================================================================================
+---- descrip:   对象池助手
+----=====================================================================================================
+
+---@class PoolHelper @对象池助手
+---@field pools table<string, Pool> @对象池集合
+local HonorPoolHelper = class("HonorPoolHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HonorPoolHelper:ctor(args)
+    self.pools = {}
+end
+
+---创建函数
+---@type fun(args:table):PoolHelper
+---@param args table @自定义参数
+---@return PoolHelper @助手实例
+function HonorPoolHelper:Create(args)
+    local obj = HonorPoolHelper.new(args)
+    return obj
+end
+
+---创建对象池
+---@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):Pool
+---@param name string @对象池名称
+---@param resDefItem RES_DEF_ITEM @资源条目定义
+---@param preParent UnityEngine.Transform @预设父节点
+---@param resetHandler handler @复位处理方法句柄
+---@return Pool @对象池对象
+function HonorPoolHelper:CreatePool(name, resDefItem, preParent, resetHandler)
+    if resDefItem.TypeName == "GameObject" then
+        if self.pools[name] == nil then
+            self.pools[name] = require("Pool"):Create(name, resDefItem, preParent, resetHandler)
+        else
+            PrintError("对象池" .. name .. "已存在，无需再次创建。")
+        end
+        return self.pools[name]
+    else
+        PrintError("对象池" .. name .. "创建失败：resDefItem.TypeName不为GameObject。")
+        return nil
+    end
+end
+
+---获取对象池
+---@type fun(name:string):Pool
+---@param name string @对象池名称
+---@return Pool @对象池对象
+function HonorPoolHelper:GetPool(name)
+    return self.pools[name]
+end
+
+---对象池数量
+---@type fun():number
+---@return number @数量
+function HonorPoolHelper:Count()
+    local count = 0
+    for _, __ in pairs(self.pools) do
+        count = count + 1
+    end
+    return count
+end
+
+---销毁对象池
+---@type fun(name:string):boolean
+---@param name string @对象池名称
+---@return boolean @对象池是否销毁成功
+function HonorPoolHelper:DestroyPool(name)
+    if self.pools[name] ~= nil then
+        self.pools[name]:Destroy()
+        self.pools[name] = nil
+        return true
+    end
+    return false
+end
+
+---销毁所有对象池
+---@type fun():void
+function HonorPoolHelper:DestroyAllPools()
+    for _, pool in pairs(self.pools) do
+        pool:Destroy()
+    end
+    self.pools = {}
+end
+
+---销毁未使用的对象池
+---@type fun():void
+function HonorPoolHelper:DestroyPoolUnused()
+    for _, pool in pairs(self.pools) do
+        pool:DestroyUnused()
+    end
+end
+
+return HonorPoolHelper

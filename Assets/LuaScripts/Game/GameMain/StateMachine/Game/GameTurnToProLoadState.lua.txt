@@ -1,0 +1,59 @@
+--=====================================================================================================
+-- descrip:   游戏转到预加载状态
+--=====================================================================================================
+
+---@class GameTurnToProLoadState : GameStateBase @游戏转到预加载状态
+local GameTurnToProLoadState = class('GameTurnToProLoadState', import('GameStateBase'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GameTurnToProLoadState:ctor(args)
+    GameTurnToProLoadState.super.ctor(self, args)
+end
+
+---创建函数
+---@type fun(args:table):GameTurnToProLoadState
+---@param args table @自定义参数
+---@return GameTurnToProLoadState @游戏转到预加载状态
+function GameTurnToProLoadState:Create(args)
+    local obj = GameTurnToProLoadState.new(args)
+    return obj
+end
+
+---进入状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameTurnToProLoadState:OnStateEnter(finishCallback)
+    PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
+    GameManager:CloseAllUI(true)
+    MapManager:UnloadOldMap()
+    GameManager:OnAfterCanvasCloseAll()
+    if finishCallback then
+        xpcall(finishCallback, __G__TRACK_BACK__)
+    end
+end
+
+---离开状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameTurnToProLoadState:OnStateExit(finishCallback)
+    --self:CloseLoadingUI()
+    if finishCallback then
+        xpcall(finishCallback, __G__TRACK_BACK__)
+    end
+end
+
+---打开加载UI
+---@type fun():void
+function GameTurnToProLoadState:OpenLoadingUI()
+    OpenUISync(UIs.UILoadMap)
+end
+
+---关闭加载UI
+---@type fun():void
+function GameTurnToProLoadState:CloseLoadingUI()
+    CloseUI(UIs.UILoadMap)
+end
+
+return GameTurnToProLoadState

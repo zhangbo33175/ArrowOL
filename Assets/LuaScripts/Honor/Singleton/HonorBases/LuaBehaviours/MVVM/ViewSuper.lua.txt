@@ -1,0 +1,513 @@
+--=====================================================================================================
+-- descrip:   视图通用父类（MVVM）
+--=====================================================================================================
+
+---@class ViewSuper @视图通用父类
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+local ViewSuper = class("ViewSuper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ViewSuper:ctor(args)
+    if args ~= nil and args.env ~= nil then
+        for __, v in pairs(args.env) do
+            self[__] = v
+        end
+    end
+    self._args = args                                        -- 初始化传入参数
+    self._params = self.cs.LuaParams                        -- 自定义传入参数
+    self._name = self.__cname                                -- 初始化名称
+    self._mvvmType = "View"                                    -- mvvm类型
+    self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))  -- 公共名称
+    self._initOver = false                                -- 初始化完成标记
+    self._binder = require('Binder'):Create()        -- 界面对数据的监听绑定器(所有的绑定)
+    self._viewModelPackage = require('BindValue'):Create({ name = "ViewModelPackage", value = nil, isTrigger = false })   -- 具有“可绑定值”性质的ViewMode内部包装
+    self._isClosing = false                                -- 正在关闭中
+    self._bgImage = nil                                        -- ui背景图片
+    self._bottomMaskLayerImage = nil                        -- ui底部遮罩层图片
+    self._topMaskLayerImage = nil                            -- ui顶部遮罩层图片
+    self._bottomCloseLayerButton = nil                        -- ui底部背景关闭层按钮
+    self._bottomMaskLayerOpenAnimationDelay = 0.5            -- ui底部遮罩层打开动画时长
+    self._bottomMaskLayerCloseAnimationDelay = 0.5            -- ui底部遮罩层关闭动画时长
+    self._alphaOpenAnimationDelay = 0.5                        -- ui整体透明度变化打开动画时长
+    self._alphaCloseAnimationDelay = 0.5                    -- ui整体透明度变化关闭动画时长
+    self._rootOpenAnimationDelay = 0.5                        -- 根节点打开动画时长
+    self._rootCloseAnimationDelay = 0.5                        -- 根节点关闭动画时长
+    self._loadedAssets = {}                                    -- 动态加载的资源集合
+    self._oriPosForUIStack = CS.UnityEngine.Vector3.zero    ---@type UnityEngine.Vector3    ---UIStack中的原始位置
+end
+
+---创建函数
+---@type fun(args:table):ViewSuper
+---@param args table @自定义参数
+---@return ViewSuper @视图通用父类实例
+function ViewSuper:Create(args)
+    local obj = ViewSuper.new(args)
+    return obj
+end
+
+---唤醒
+---@type fun():void
+function ViewSuper:Awake()
+
+    -- 找到ui背景层图片
+    local bgImage = self.cs.transform:Find("__BgImage")
+    if bgImage ~= nil then
+        self._bgImage = bgImage:GetComponent("Image")
+    end
+
+    -- 找到ui遮罩层图片并设置可见性
+    local bottomMaskLayer = self.cs.transform:Find("__BottomMaskLayer")
+    if bottomMaskLayer ~= nil then
+        self._bottomMaskLayerImage = bottomMaskLayer:GetComponent("Image")
+        if self._bottomMaskLayerImage ~= nil then
+            self._bottomMaskLayerImage.gameObject:SetActive(self.cs.MaskLayer)
+        end
+    end
+
+    local topMaskLayer = self.cs.transform:Find("__TopMaskLayer")
+    if topMaskLayer ~= nil then
+        self._topMaskLayerImage = topMaskLayer:GetComponent("Image")
+        if self._topMaskLayerImage ~= nil then
+            self._topMaskLayerImage.gameObject:SetActive(self.cs.MaskLayer)
+        end
+    end
+
+    -- 找到ui背景关闭层按钮并设置可见性
+    local bottomCloseLayer = self.cs.transform:Find("__BottomCloseLayer")
+    if bottomCloseLayer ~= nil then
+        self._bottomCloseLayerButton = bottomCloseLayer:GetComponent("Button")
+        if self._bottomCloseLayerButton ~= nil then
+            self._bottomCloseLayerButton.gameObject:SetActive(false)
+        end
+    end
+
+    HonorEventHelper:FireNow(FwEventCmd.UIViewOpen, self._commonName)
+
+    -- 注册监听代码
+    self:OnAddListeners()
+
+    -- 设置ViewModel
+    local viewModel = require(self._commonName .. 'ViewModel'):Create({ args = self._args, params = self._params })
+    self.cs.OwnLuaClasses[Honor.MVVMPatternType.ViewModel:GetHashCode()] = viewModel
+    viewModel:Awake()
+    self:SetViewModel(viewModel)
+end
+
+---启用
+---@type fun():void
+function ViewSuper:OnEnable()
+    self:GetViewModel():OnEnable()
+end
+
+---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置自身的ViewModel，因此请勿在该方法中调用GetViewModel。）
+---@type fun(viewModel:ViewModelSuper):void
+function ViewSuper:OnInit(viewModel)
+    self._binder:SetViewModel(viewModel)
+    self._viewModelPackage:AddHandler(handler(self, self.OnViewModelChanged))
+end
+
+---开始
+---@type fun():void
+function ViewSuper:Start()
+    self:GetViewModel():Start()
+    self:Open()
+end
+
+---心跳（自定义）
+---@type fun():void
+function ViewSuper:Proc()
+    self:GetViewModel():Proc()
+
+end
+
+---禁用
+---@type fun():void
+function ViewSuper:OnDisable()
+    self:GetViewModel():OnDisable()
+end
+
+---销毁回调
+---@type fun():void
+function ViewSuper:OnDestroy()
+    self:GetViewModel():OnDestroy()
+    self:SetViewModel(nil)
+    self._viewModelPackage:CleanAllHandlers()
+    self._binder = nil
+    self:UnloadAllAssets()
+    HonorEventHelper:RemoveListenerByTarget(self)
+    HonorCoroutineHelper:StopByGO(self.cs.gameObject)
+end
+
+---注册监听代码处（需要由子类重写）
+---@type fun():void
+function ViewSuper:OnAddListeners()
+
+end
+
+---设置ViewModel
+---@type fun(viewModel:ViewModelSuper):void
+---@param viewModel ViewModelSuper @ViewModel
+function ViewSuper:SetViewModel(viewModel)
+    if self._initOver == false then
+        self:OnInit(viewModel)
+        self._initOver = true
+    end
+    self._viewModelPackage:SetValue(viewModel)
+end
+
+---获取ViewModel
+---@type fun():ViewModelSuper
+---@return ViewModelSuper @ViewModel
+function ViewSuper:GetViewModel()
+    return self._viewModelPackage:GetValue()
+end
+
+---新增绑定值回调句柄
+---@type fun(name:string, handler:handler):void
+---@param name string @绑定值变量名称
+---@param handler handler @回调句柄
+function ViewSuper:AddBindHandler(name, handler)
+    self._binder:Add(name, handler)
+end
+
+---ViewModel变化回调
+---@type fun(old:ViewModelSuper, new:ViewModelSuper):void
+---@param old ViewModelSuper @旧ViewModel
+---@param new ViewModelSuper @新ViewModel
+---@param operate string @操作
+---@param valueItem any @数据集合中Item值内容
+function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
+    if new ~= nil then
+        new:OnBeforeUse()
+    end
+    self._binder:UnbindFromViewModel()
+    self._binder:SetViewModel(new)
+    self._binder:BindToViewModel()
+    if new ~= nil then
+        new:OnAfterUse()
+    end
+end
+
+---打开
+---@type fun():void
+function ViewSuper:Open()
+    self:GetViewModel():OnOpen()
+    if self.cs.MaskLayer then
+        if self._bottomMaskLayerImage ~= nil then
+            self._bottomMaskLayerImage.raycastTarget = true
+            self._bottomMaskLayerImage.gameObject:SetActive(true)
+        end
+        if self._topMaskLayerImage ~= nil then
+            self._topMaskLayerImage.raycastTarget = true
+            self._topMaskLayerImage.gameObject:SetActive(true)
+        end
+    end
+    if self.cs.OpenAnimation == true then
+        self:OnPlayOpenAnimation()
+    else
+        self:OnOpenOver()
+    end
+
+end
+
+---关闭
+---@type fun():void
+function ViewSuper:Close()
+    if self._isClosing == false then
+        self._isClosing = true
+        self:GetViewModel():OnClose()
+        if self.cs.MaskLayer then
+            if self._bottomMaskLayerImage ~= nil then
+                self._bottomMaskLayerImage.raycastTarget = true
+                self._bottomMaskLayerImage.gameObject:SetActive(true)
+            end
+            if self._topMaskLayerImage ~= nil then
+                self._topMaskLayerImage.raycastTarget = true
+                self._topMaskLayerImage.gameObject:SetActive(true)
+            end
+        end
+        if self._bottomCloseLayerButton ~= nil then
+            self._bottomCloseLayerButton.gameObject:SetActive(false)
+        end
+        if self.cs.CloseAnimation == true then
+            self:OnPlayCloseAnimation()
+        else
+            self:OnCloseOver()
+        end
+    end
+end
+
+---播放打开动画
+---@type fun():void
+function ViewSuper:OnPlayOpenAnimation()
+    -- ui底部遮罩层动画
+    if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
+        local targetColor = self._bottomMaskLayerImage.color
+        self._bottomMaskLayerImage.color = Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0)
+        DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
+        self._bottomMaskLayerImage:DOColor(targetColor, self._bottomMaskLayerOpenAnimationDelay):SetEase(Ease.OutBack).stringId = HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID()
+    end
+
+    -- ui整体透明度变化
+    local canvasGroup = self.cs:GetComponent("CanvasGroup")
+    if canvasGroup ~= nil then
+        canvasGroup.alpha = 0
+        DOTween.Kill(HonorTweenType.PrefabUIAlphaOpenAnimation .. self.cs.gameObject:GetInstanceID())
+        DOTween                               .To(function()
+            return canvasGroup.alpha
+        end, function(value)
+            canvasGroup.alpha = value
+        end, 1, self._alphaOpenAnimationDelay):SetEase(Ease.OutBack).stringId = HonorTweenType.PrefabUIAlphaOpenAnimation .. self.cs.gameObject:GetInstanceID()
+    end
+
+    -- 根节点动画
+    local transform = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
+    transform.localScale = Unity.Vector3.one * 0.00001
+    DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
+    DOTween.Sequence():Append(transform:DOScale(1, self._rootOpenAnimationDelay):SetEase(Ease.OutBack)
+                                       :OnComplete(function()
+        self:OnOpenOver()
+    end))  .stringId = HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID()
+
+end
+
+---打开完毕回调
+---@type fun():void
+function ViewSuper:OnOpenOver()
+    self:GetViewModel():OnOpenOver()
+    if self.cs.MaskLayer then
+        if self._bottomMaskLayerImage ~= nil then
+            self._bottomMaskLayerImage.raycastTarget = true
+            self._bottomMaskLayerImage.gameObject:SetActive(true)
+        end
+        if self._topMaskLayerImage ~= nil then
+            self._topMaskLayerImage.raycastTarget = false
+            self._topMaskLayerImage.gameObject:SetActive(false)
+        end
+    end
+    if self.cs.BottomCloseLayer then
+        if self._bottomCloseLayerButton ~= nil then
+            self._bottomCloseLayerButton.gameObject:SetActive(true)
+            self._bottomCloseLayerButton.onClick:AddListener(function()
+                self:Close()
+            end)
+        end
+    end
+end
+
+---播放关闭动画
+---@type fun():void
+function ViewSuper:OnPlayCloseAnimation()
+    -- ui底部遮罩层动画
+    if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
+        DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
+        DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
+        self._bottomMaskLayerImage:DOColor(Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0), self._bottomMaskLayerCloseAnimationDelay):SetEase(Ease.InBack).stringId = HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID()
+    end
+
+    -- ui整体透明度变化
+    local canvasGroup = self.cs:GetComponent("CanvasGroup")
+    if canvasGroup ~= nil then
+        DOTween.Kill(HonorTweenType.PrefabUIAlphaCloseAnimation .. self.cs.gameObject:GetInstanceID())
+        DOTween                                .To(function()
+            return canvasGroup.alpha
+        end, function(value)
+            canvasGroup.alpha = value
+        end, 0, self._alphaCloseAnimationDelay):SetEase(Ease.InBack).stringId = HonorTweenType.PrefabUIAlphaCloseAnimation .. self.cs.gameObject:GetInstanceID()
+    end
+
+    -- 根节点动画
+    local transform = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
+    local targetLocalScale = Unity.Vector3.one * 0.00001
+    DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
+    DOTween.Kill(HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID())
+    DOTween.Sequence():Append(transform:DOScale(targetLocalScale, self._rootCloseAnimationDelay):SetEase(Ease.InBack)
+                                       :OnComplete(function()
+        self:OnCloseOver()
+    end))  .stringId = HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID()
+
+end
+
+---关闭完毕回调
+---@type fun():void
+function ViewSuper:OnCloseOver()
+    self:GetViewModel():OnCloseOver()
+    self.cs.UseProc = false
+    HonorEventHelper:Fire(FwEventCmd.UIViewClose, self._commonName)
+    -- 对于UI，销毁时Lua中按照父节点->子节点的顺序依次调用。原因：C#:Honor.UI中销毁对象的顺序为倒序，这样便可确保C#:Honor.UI最终按照子节点->父节点的顺序依次销毁。
+    if self.cs.PrefabType == Honor.PrefabType.UI then
+        HonorRoot.UI:AddToUnloadUIList(self.cs.gameObject)
+        local children = self.cs:GetAllDirectChildren()
+        for i = 0, children.Count - 1 do
+            --[[            local luaBehaviour = children[i]
+                        if luaBehaviour == nil then
+                            PrintError("UI luaBehaviour == nil")
+                        else
+                            PrintInfo("UI luaBehaviour ~= nil 准备销毁" .. luaBehaviour.gameObject.name)
+                        end]]
+            local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
+            if luaClass.GetViewModel ~= nil then
+                luaClass:GetViewModel():OnClose()
+            end
+            luaClass:OnCloseOver()
+        end
+    elseif self.cs.PrefabType == Honor.PrefabType.Entity then
+        local children = self.cs:GetAllDirectChildren()
+        for i = 0, children.Count - 1 do
+            --[[            local luaBehaviour = children[i]
+                        if luaBehaviour == nil then
+                            PrintError("Entity luaBehaviour == nil")
+                        else
+                            PrintInfo("Entity luaBehaviour ~= nil 准备销毁" .. luaBehaviour.gameObject.name)
+                        end]]
+            local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
+            if luaClass.GetViewModel ~= nil then
+                luaClass:GetViewModel():OnClose()
+            end
+            luaClass:OnCloseOver()
+        end
+        Unity.GameObject.Destroy(self.cs.gameObject)
+    end
+end
+
+---被追加的N层UI子节点销毁回调
+---@type fun(luaClass:XLua.LuaTable):void
+---@param luaClass XLua.LuaTable @luaClass
+function ViewSuper:OnAddedUIDestroyed(luaClass)
+
+end
+
+---同步方式追加UI子体
+---@type fun(uiTable: Tables.UIs_Item, parent: UnityEngine.Transform, luaParams: table): table, UnityEngine.GameObject
+---@param uiTable Tables.UIs_Item @uiTable
+---@param parent UnityEngine.Transform @追加到的父对象
+---@param luaParams table @自定义参数
+---@return table, UnityEngine.GameObject @UI子体luaClass,UI子体GO
+function ViewSuper:AddUISync(uiTable, parent, luaParams)
+    if parent == nil then
+        parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
+    end
+    local uiGO = HonorRoot.UI:AddUISyncByLuaTable(uiTable, parent, luaParams)
+    local luaBehaviour = uiGO:GetComponent("LuaBehaviour")
+    local luaClass = luaBehaviour == nil and nil or (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView)
+    return luaClass, uiGO
+end
+
+---异步方式追加UI子体
+---@type fun(uiTable: Tables.UIs_Item, parent: UnityEngine.Transform, luaParams: table, overCallback: function):void
+---@param uiTable Tables.UIs_Item @uiTable
+---@param parent UnityEngine.Transform @追加到的父对象
+---@param luaParams table @自定义参数
+---@param overCallback function @回调函数
+function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
+    if parent == nil then
+        parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
+    end
+    HonorRoot.UI:AddUIAsyncByLuaTable(uiTable, parent, luaParams, overCallback)
+end
+
+---动态加载资源
+---@type fun(assetInfo:RES_DEF_ITEM):UnityEngine.Object
+---@param assetInfo RES_DEF_ITEM @资源信息
+---@return UnityEngine.Object @Asset资源
+function ViewSuper:LoadAsset(assetInfo)
+    if assetInfo ~= nil then
+        local keyName = assetInfo.Name
+        if self._loadedAssets[keyName] == nil then
+            self._loadedAssets[keyName] = HonorRoot.Asset:LoadAssetSync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName)
+        end
+        return self._loadedAssets[keyName]
+    end
+    return nil
+end
+
+---动态卸载资源
+---@type fun(assetInfo:RES_DEF_ITEM):boolean
+---@param assetInfo RES_DEF_ITEM @资源信息
+---@return boolean @是否卸载成功
+function ViewSuper:UnloadAsset(assetInfo)
+    if assetInfo ~= nil then
+        local keyName = assetInfo.Name
+        local asset = self._loadedAssets[keyName]
+        if asset ~= nil then
+            if HonorRoot.Asset ~= nil then
+                HonorRoot.Asset:UnloadAsset(asset)
+                self._loadedAssets[keyName] = nil
+            end
+            return true
+        end
+    end
+    return false
+end
+
+---动态卸载资源
+---@type fun(asset: UnityEngine.Object):boolean
+---@param asset UnityEngine.Object @Asset资源
+---@return boolean @是否卸载成功
+function ViewSuper:UnloadAssetByAsset(asset)
+    if asset ~= nil then
+        for keyName, vAsset in pairs(self._loadedAssets) do
+            if vAsset == asset then
+                if HonorRoot.Asset ~= nil then
+                    HonorRoot.Asset:UnloadAsset(asset)
+                    self._loadedAssets[keyName] = nil
+                end
+                return true
+            end
+        end
+    end
+    return false
+end
+
+---卸载所有动态资源
+---@type fun():void
+function ViewSuper:UnloadAllAssets()
+    if HonorRoot.Asset ~= nil then
+        for _, vAsset in pairs(self._loadedAssets) do
+            if vAsset ~= nil then
+                HonorRoot.Asset:UnloadAsset(vAsset)
+            end
+        end
+        self._loadedAssets = {}
+    end
+end
+
+---UI入栈
+function ViewSuper:OnStackPush()
+    if self.cs then
+        self._oriPosForUIStack = self.cs.transform.localPosition
+        self.cs.transform.localPosition = CS.UnityEngine.Vector3.one * 3000
+    end
+end
+
+---UI出栈
+function ViewSuper:OnStackPop()
+    if self.cs then
+        self.cs.transform.localPosition = self._oriPosForUIStack
+    end
+end
+
+--{{{ 协程延迟函数
+---协程延迟时间函数
+---@type fun(delayTime:number, isRealTime:boolean, callback:function):UnityEngine.Coroutine
+---@param delayTime number @延迟时间
+---@param isRealTime boolean @是否使用真实时间
+---@param callback function @回调函数
+---@return UnityEngine.Coroutine @协程实例
+function ViewSuper:CoDelayFunction(delayTime, isRealTime, callback)
+    CoDelayFunctionOfG(self, delayTime, isRealTime, callback)
+end
+
+---协程延迟帧数函数
+---@type fun(delayFrame:number, callback:function):UnityEngine.Coroutine
+---@param delayFrame number @延迟帧数
+---@param callback function @回调函数
+---@return UnityEngine.Coroutine @协程实例
+function ViewSuper:CoDelayFrameFunction(delayFrame, callback)
+    CoDelayFrameFunctionOfG(self, delayFrame, callback)
+end
+--}}}
+
+return ViewSuper

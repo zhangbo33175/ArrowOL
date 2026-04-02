@@ -1,0 +1,141 @@
+--=====================================================================================================
+-- descrip:   游戏加载地图状态机
+--=====================================================================================================
+
+---@class GameLoadMapState : GameLoadMapStateBase @游戏加载地图状态机
+local GameLoadMapState = class('GameLoadMapState', import('GameLoadMapStateBase'))
+
+---构造函数
+---@type fun(stateType:GameStateCmd):GameMainState
+---@param stateType GameStateCmd @状态机状态值
+function GameLoadMapState:ctor(stateType)
+    GameLoadMapState.super.ctor(self, stateType)
+end
+
+---创建函数
+---@type fun(stateType:GameStateCmd):GameMainState
+---@param stateType GameStateCmd @状态机状态值
+---@return GamePlayingState @GamePlayingState实例
+function GameLoadMapState:Create(stateType)
+    local obj = GameLoadMapState.new(stateType)
+    return obj
+end
+
+---进入状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoadMapState:OnStateEnter(finishCallback)
+    GameLoadMapState.super.OnStateEnter(self, finishCallback)
+end
+
+---离开状态
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoadMapState:OnStateExit(finishCallback)
+    GameLoadMapState.super.OnStateExit(self, finishCallback)
+end
+
+---打开加载UI
+---@type fun():void
+function GameLoadMapState:OpenLoadingUI()
+    local preState = GameStateMachine:PreStateType()
+    if preState == GameStateCmd.LoginState or preState == nil then
+        OpenUISync(UIs.UIFirstLoadMap)
+    else
+        OpenUISync(UIs.UILoadMap)
+    end
+end
+
+---关闭加载UI
+---@type fun():void
+function GameLoadMapState:CloseLoadingUI()
+    local preState = GameStateMachine:PreStateType()
+    if preState == GameStateCmd.LoginState or preState == nil then
+        CloseUI(UIs.UIFirstLoadMap)
+    else
+        CloseUI(UIs.UILoadMap)
+    end
+end
+
+---加载地图完毕
+---@type fun(finishCallback:function):void
+---@param finishCallback function @回调函数
+function GameLoadMapState:LoadMapOver(finishCallback)
+    local chapterId = ChapterListManager:GetRuntimeChapterId()
+    UpgradeMapMgr:UpdateRecommendItemId(chapterId) -- 加载地图完毕后更新推荐物品ID，预计算可以避免之后的计算时间过长问题
+    if PlayHelper:IsPlayFirstLevel() then
+        local levelId = GamerDataMgr:GetLevelLvByChapterId(chapterId)
+        ItemMgr:FullLife() -- 补满生命
+
+        local intoMainStateComplete = false
+        local firstAvatarFlowComplete = false
+        local waitUtil1 = nil
+        local waitUtil2 = nil
+        ---检查是否需要播放首次入关Cut，如播
+        if not PbRootData.GameData.cutRecord[EPlayOnceCutType.FirstShow] then
+            -- 先进入主State
+            GameStateMachine:ChangeState(GameStateCmd.MainState, function()
+                -- pcall(finishCallback)
+                intoMainStateComplete = true
+            end)
+            waitUtil1 = waitUtil1 or Unity.WaitUntil(function()
+                return intoMainStateComplete
+            end)
+            coroutine.yield(waitUtil1)
+            --note:变量声明移出while之后，每次循环结束都要重置为false
+            intoMainStateComplete = false
+
+            -- 通知隐藏主界面HUD
+            HonorEventHelper:Fire(EventCmd.OnHideMainHudUI)
+
+            -- 打开捏脸UI开始捏脸，捏脸、起名完成后，
+            OpenUISync(UIs.UICostume, { firstAvatar = true, completeCallback = function()
+                firstAvatarFlowComplete = true
+            end })
+            waitUtil2 = waitUtil2 or Unity.WaitUntil(function()
+                return firstAvatarFlowComplete
+            end)
+            coroutine.yield(waitUtil2)
+            --note:变量声明移出while之后，每次循环结束都要重置为false
+            firstAvatarFlowComplete = false
+
+            -- 存...
+            PbRootData.GameData.cutRecord[EPlayOnceCutType.FirstShow] = true
+            PbIO.GameData.Save_cutRecord()
+
+            ---- 遮罩主界面
+            --MapMotion:PauseMapMotion()
+            ---- 播片
+            --coroutine.yield(Unity.WaitUntil(function()
+            --    return CutPlayMgr:CoroutinePlayCharacterSpineCut(CutPlayMgr:GetPlayOnceSpineCutConfig(EPlayOnceCutType.FirstShow))
+            --end))
+            --MapMotion:ResumeMapMotion()
+        end
+
+        local levelData = PlayHelper:LoadLevelData(chapterId, levelId)
+        if PlayHelper:PlayLevel(levelData) then
+            GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
+            ---塞打点数据
+            local lv = GamerDataMgr:GetLevelLvByChapterId(chapterId)
+            HintMarkerHelper:OnLevelStart({ Chapter = chapterId, Level = lv }, levelId, levelData.Difficulty, TrackProperty.LevelStartResult.success, nil, CollectionMgr:CheckHasPackOrCouldGainPack(levelData) and 1 or 0)
+        else
+            GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+            PrintError("默认进入第一关失败，改为进入主页面")
+        end
+    else
+        GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+    end
+end
+
+---准备加载地图
+---@type fun(chapterId:string):void
+---@param chapterId string @章节ID
+function GameLoadMapState:OnReadyToLoadMap(chapterId)
+    ---卸载完当前地图准备加载新地图资源前调用
+
+    --- 设置当前运行章节
+    ChapterListManager:SetRuntimeChapter(chapterId)
+end
+
+return GameLoadMapState
+

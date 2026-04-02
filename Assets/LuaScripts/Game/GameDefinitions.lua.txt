@@ -1,0 +1,500 @@
+--=====================================================================================================
+-- descrip:   全局定义
+--=====================================================================================================
+---HonorList列表定义
+HonorList = require("HonorList")
+---Queue队列定义
+HonorQueue = require("HonorQueue")
+---堆栈
+HonorStack = require("HonorStack")
+
+
+--所有打开的ui
+AllOpenUI = {}
+
+---@class EPersistentForEditor @编辑器持久化数据
+---@field ClassName string @类名
+EPersistentForEditor = {
+    ClassName = "ArrowForEditor",
+}
+
+---@class EPersistentForGame @游戏持久化数据
+---@field ClassName string @类名
+---@field DownGroup string @下载组
+---@field NotificationClassName string @ 推送
+---@field NotificationCache string @ 推送缓存
+---@field FirstIntoMapClassName string @ 推送
+---@field FirstIntoMap string @ 首次进入某章节
+EPersistentForGame = {
+    ClassName = "ArrowForGame",
+    NotificationCache = "ArrowNotificationCache",
+    FirstIntoMapClassName = "FirstIntoMapRoot",
+    FirstIntoMap = "ChapterMap",
+}
+
+---@class EUIStackName @UI堆栈名称
+---@field None string @无
+---@field Temp string @临时
+---@field UI string @UI
+UIStackName = {
+    None = "None",
+    Temp = "Temp",
+    UI = "UI",
+}
+
+---@class ELayerName @层级名称
+---@field UI string @UI
+---@field Map string @地图
+---@field Effect string @特效
+---@field Charater string @角色
+ELayerName = {
+    UI = "UI",
+    Map = "Map",
+    Effect = "Effect",
+    Charater = "Charater",
+}
+
+---@class EPos @位置
+---@field Local number @本地
+---@field World number @世界
+EPos = {
+    Local = 0,
+    World = 1,
+}
+
+---@class EPopBubbleOrientation @气泡箭头方向
+---@field Down number @下
+---@field Up number @上
+EPopBubbleOrientation = {
+    Down = 0,
+    Up = 1,
+}
+
+---@class KeyCode @CS层Unity KeyCode的枚举
+---@field F1 number @Unity.KeyCode.F1
+---@field F2 number @Unity.KeyCode.F2
+---@field F3 number @Unity.KeyCode.F3
+---@field F4 number @Unity.KeyCode.F4
+---@field F5 number @Unity.KeyCode.F5
+---@field F6 number @Unity.KeyCode.F6
+---@field F7 number @Unity.KeyCode.F7
+---@field F8 number @Unity.KeyCode.F8
+---@field F9 number @Unity.KeyCode.F9
+---@field F10 number @Unity.KeyCode.F10
+---@field F11 number @Unity.KeyCode.F11
+---@field F12 number @Unity.KeyCode.F12
+KeyCode = {
+    F1 = Unity.KeyCode.F1,
+    F2 = Unity.KeyCode.F2,
+    F3 = Unity.KeyCode.F3,
+    F4 = Unity.KeyCode.F4,
+    F5 = Unity.KeyCode.F5,
+    F6 = Unity.KeyCode.F6,
+    F7 = Unity.KeyCode.F7,
+    F8 = Unity.KeyCode.F8,
+    F9 = Unity.KeyCode.F9,
+    F10 = Unity.KeyCode.F10,
+    F11 = Unity.KeyCode.F11,
+    F12 = Unity.KeyCode.F12
+}
+
+---@class EPlayHudCycleAction @游戏内循环周期事件
+---@field InitGame number @初始化游戏关卡
+---@field EnterGame number @进入游戏关卡
+---@field BeginGame number @游戏开始
+---@field PauseGame number @游戏暂停
+---@field ResumeGame number @游戏从暂停状态恢复
+---@field GameOver number @游戏结束
+---@field ExitGame number @离开游戏关卡
+---@field RePlayGame number @重新开始游戏关卡
+EPlayHudCycleAction = {
+    InitGame = 0,
+    EnterGame = 1,
+    BeginGame = 2,
+    PauseGame = 3,
+    ResumeGame = 4,
+    GameOver = 5,
+    ExitGame = 6,
+    RePlayGame = 7
+}
+
+---@class EMapType @游戏地图类型
+---@field Main number @主线
+MapType = {
+    Main = 1,
+}
+
+---@class ECharacterType @角色类型
+
+CharacterType = {
+    Chef = 1,
+}
+
+---@class EChefAvatarFrame @头像、头像框
+---@field Avatar number @ 头像
+---@field Frame number @ 头像框
+ChefAvatarFrame = {
+    Avatar = 1,
+    Frame = 2,
+}
+
+---@class EChefAvatarFrameMethodType @ 头像、头像框获取方式
+---@field Level number @ 通关解锁
+---@field Booster number @ 道具投放
+---@field GoldenTicket number @ 通行证
+ChefAvatarFrameMethodType = {
+    Level = 1,
+    Booster = 2,
+    GoldenTicket = 3,
+}
+
+---@class EChefChallengeActivityReward : table @ 奖励类型
+---@field Single number @ 单个奖励
+---@field Box number @ 宝箱
+---@field Biggest number @ 究极大奖
+ChefChallengeActivityReward = {
+    Single = 1,
+    Box = 2,
+    Biggest = 3,
+}
+
+---@class SpineUpdateTiming : table @ 动画更新方式
+---@field ManualUpdate number @ 手动更新
+---@field InUpdate number @ Update函数中更新
+---@field InFixedUpdate number @ FixedUpdate中更新
+SpineUpdateTiming = {
+    ManualUpdate = 0,
+    InUpdate = 1,
+    InFixedUpdate = 2
+}
+
+---@class EGameOverType @游戏结束类型
+---@field None number @无
+EGameOverType = {
+    None = 0,
+}
+
+---@class EResourceType @资源类型定义，资源表格中的Type
+---@field Currency string @货币类型
+---@field Item string @道具
+---@field Buff string @ buff
+---@field Card string @ 卡片
+---@field Token string @ 代币
+---@field Profile string @ 头像、头像框
+---@field Costume string @ 捏脸换装
+---@field Life string @ 体力
+EResourceType = {
+    Currency = "Currency",
+    Item = "Item",
+    Buff = "Buff",
+    Card = "Card",
+    Booster = "Booster",
+    Token = "Token",
+    Profile = "Profile",
+    Costume = "Costume",
+    Life = "Life",
+}
+
+---@class ELifeID @ 体力ID
+---@field ID string @ 体力ID
+ELifeID = {
+    ID = "LifeID",
+}
+
+---@class ETimestampID 时间戳ID
+---@field LifeRefill string @ 体力恢复时间戳
+ETimestampID = {
+    LifeRefill = "Timestamp_LifeRefill",
+}
+
+---@class EResourceIDs @所有资源ID定义
+---@field Freeze string @时间冻结
+---@field SeasonPassFrame string @ 通行证头像框
+---@field SeasonPassHighFrame string @ 通行证高级头像框
+EResourceIDs = {
+    Freeze = "1",
+    SeasonPassFrame = "101", -- 通行证头像框
+    SeasonPassHighFrame = "102", -- 通行证高级头像框
+}
+
+---@class ELevelType @ 关卡类型
+---@field Normal string @ 普通关
+ELevelType = {
+    Normal = "0",
+}
+
+---@class EInterAdID table @ 插屏广告ID枚举
+---@field LevelWin number @ 关卡胜利
+---@field LevelFailed number @ 关卡失败
+---@field ChangeChapter number @ 切换章节
+EInterAdID = {
+    LevelWin = 1,
+    LevelFailed = 2,
+    ChangeChapter = 3,
+}
+
+---@class EPlayOnceCutType : table @ 只播放一次的Cut的枚举值
+---@field FirstShow string @ 首次进入关卡前的Cut
+EPlayOnceCutType = {
+    FirstShow = "FirstShow",
+}
+
+---@class ECustomTweenID @自定义TweenID
+---@field ChapterList_AreaChange string @章节列表-切换动画
+---@field ChapterList_ItemNextAreaTip string @章节列表-下一区域提示文案动画
+ECustomTweenID = {
+    ChapterList_AreaChange = "__ChapterList_AreaChange__",
+    ChapterList_ItemNextAreaTip = "__ChapterList_ItemNextAreaTip__",
+}
+
+--region 任务相关
+---@class ETaskType @ 任务类型
+---@field Build number @ 装修、装饰任务
+---@field Clear number @ 清理任务
+ETaskType = {
+    Build = 1,
+    Clear = 2,
+}
+
+--endregion
+
+--region 
+---@class ESettingType @设置界面包含的开关状态
+---@field Music string @背景音乐
+---@field Sound string @音效
+---@field Notification string @推送
+---@field Language string @多语言
+ESettingType = {
+    Music = "colseMusic",
+    Sound = "closeSound",
+    Notification = "closeNotification",
+    Language = "langIndex",
+}
+
+---@class EUIControllerAnimName @UI控制器动画名称
+---@field Open string @打开
+---@field Close string @关闭
+EUIControllerAnimName = {
+    Open = "UIOpen",
+    Close = "UIClose",
+}
+
+---@class EUIChapterListAnimName @UI章节列表动画名称
+---@field Open string @打开
+---@field Close string @关闭
+EUIChapterListAnimName = {
+    Open = "UIChapterList__BgImage",
+    Close = "UIChapterList__Close",
+}
+
+--endregion
+
+--region 主界面UI自动弹出相关
+
+---@class EGameElementUIBubbleType @ 主界面UI气泡类型
+---@field AchievementsTips string @ 成就提示
+---@field DailyQuestBubble string @ 每日任务气泡
+---@field NormalUIBubble string @ 默认UI气泡
+EGameElementUIBubbleType = {
+    AchievementsTips = "AchievementsTips",
+    DailyQuestBubble = "DailyQuestBubble",
+    NormalUIBubble = "NormalUIBubble",
+}
+
+---@class EGameMainUIPUshRunningType @ 工作类型，值既是Type也是优先级数值
+---@field OnMachineReceive string @ 机器审到货
+---@field OnUIMainHudOpen string @ 主界面打开
+---@field OnEnterMainState string @ 游戏状态机切换到MainState
+---@field OnInsertUITask string @ 自动弹出一个UI
+---@field OnInertNotUITask string @ 自动弹出一个非UI任务
+EGameMainUIPUshRunningType = {
+    OnMachineReceive = "OnMachineReceive",
+    OnUIMainHudOpen = "OnUIMainHudOpen",
+    OnEnterMainState = "OnEnterMainState",
+    OnInsertUITask = "OnInsertUITask",
+    OnInertNotUITask = "OnInertNotUITask",
+}
+
+---@class EGameMainUIPushType @ 工作类型，值无意义
+---@field MachineUpgradeUI number @ 物品升级UI（钱够就弹出的一个UI）
+---@field ElementCollection number @ 主界面Icon收集动画表现
+---@field MachineReceive number @ 物品送达流程
+---@field Tutorial number @有被触发的引导
+---@field UI number @ 普通的UI弹窗
+---@field CommonTask number @ 通用任务
+EGameMainUIPushType = {
+    MachineUpgradeUIFromFail = 12,
+    ElementCollection = 10,
+    MachineReceive = 8,
+    Tutorial = 7,
+    UI = 6,
+    MachineUpgradeUI = 4,
+    CommonTask = 3,
+}
+
+---@class EGameMainUIPushSortOrder @ 工作类型，值既是Type也是优先级数值
+---@field MachineUpgradeUIFromFail string @ 从失败界面，手动点击弹出的升级界面
+---@field OpenCardBag string @ 主界面开卡包
+---@field UICollection string @ 卡牌收集界面
+---@field FlyCards string @ 主界面开卡包后飞贴纸
+
+EGameMainUIPushSortOrder = {
+    MachineUpgradeUIFromFail = "MachineUpgradeUIFromFail", -- 从失败界面，手动点击弹出的升级界面
+    FlyCards = "FlyCards",
+    OpenCardBag = "OpenCardBag",
+    UICollection = "UICollection",
+}
+--endregion
+
+
+---@class EHotfixDownloadStep @热更下载步骤
+---@field None number @无
+---@field Idle number @空闲
+---@field Processing number @下载中
+---@field AllOver number @下载完成
+---@field Skip number @跳过
+---@field Error number @错误
+---@field CheckError number @检查错误
+EHotfixDownloadStep = {
+    None = 0,
+    Idle = 1,
+    Processing = 2,
+    AllOver = 3,
+    Skip = 4,
+    Error = 5,
+    CheckError = 6,
+}
+
+---@class EUITaskOpenFrom @装修界面开启来源打点
+---@field Default number @默认
+---@field Auto number @自动
+---@field DailyTask number @每日任务
+EUITaskOpenFrom = {
+    Default = 0,
+    Auto = 1,
+    DailyTask = 2,
+}
+
+
+---@class EDailyQuestState @每日任务状态
+---@field InProgress number @进行中
+---@field Completed number @已完成
+---@field Claimed number @已领取
+EDailyQuestState = {
+    InProgress = 1,
+    Completed = 2,
+    Claimed = 3,
+}
+
+---@class EDailyQuestSubType @每日任务子类型
+---@field Win_Streak number @连胜
+---@field Win number @胜利
+---@field UseBooster number @使用道具完成关卡
+---@field UsePreBooster number @使用前置道具完成关卡
+
+EDailyQuestSubType = {
+    Win_Streak = 11,
+    Win = 15,
+    UpgradeMachine = 18,
+    UsePreBooster = 20,
+}
+
+
+---@class ESingletonPriority @单例执行顺序优先级(越大越优先)
+---@field GameTimeHelper number @游戏时间助手
+---@field GameSysUnlock number @游戏系统解锁
+---@field CurrencyMgr number @货币管理器
+---@field CommandTipMgr number @命令提示管理器
+---@field Default number @默认层级 (所有没有指定优先级的单例都会在这个层级)
+---@field GuideMgr number @ 引导的初始化层级调低
+---@field PatchMgr number @补丁管理器
+ESingletonPriority = {
+    GameTimeHelper = 10000,
+    GameSysUnlock = 2000,
+    CurrencyMgr = 1000,
+    CommandTipMgr = 10,
+    Default = 0,
+    GuideMgr = -20,
+    PatchMgr = -100000, -- 优先级最低
+}
+
+---@class ELevelDifficultyType @关卡难度类型
+---@field Normal number @普通
+---@field Hard number @困难
+---@field SuperHard number @超级困难
+---@field Challenge number @挑战
+ELevelDifficultyType = {
+    Normal = 1,
+    Hard = 2,
+    SuperHard = 3,
+    Challenge = 4,
+}
+
+---@class ELevelModeType @关卡模式类型
+---@field Normal number @普通
+---@field Magnet number @吸铁石关卡
+ELevelModeType = {
+    Normal = 0,
+    Magnet = 1,
+}
+
+
+---@class ECollectionStar @藏品星级(十分位)
+---@field All number @所有
+---@field Normal number @普通
+---@field Rare number @稀有
+---@field SRare number @超稀有
+---@field Exclusive number @专属
+ECollectionRare = {
+    All = 0,
+    Normal = 1,
+    Rare = 2,
+    SRare = 3,
+    Exclusive = 4,
+}
+
+---@class EIapType @IAP类型
+---@field Bundle string @礼包
+EIapType = {
+    Bundle = "Bundle",
+}
+
+---@class EActivityIconPageType @活动Icon图标出现位置
+---@field Main number @主界面
+---@field LevelPrepare number @关卡准备界面
+---@field MainAndIconInLevelPrepare number @ 入口在关卡准备界面，但是主界面需要调用结算API
+---@field OnlyMainAndLevelPrepare number @ 只能出现在主界面和关卡准备界面的入口
+EActivityIconPageType = {
+    Main = 1,
+    LevelPrepare = 2,
+    MainAndIconInLevelPrepare = 3,
+    OnlyMainAndLevelPrepare = 4,
+}
+
+---@class EActivityEnterFormPosType @活动入口位置类型
+---@field LevelPrepare number @关卡准备界面
+---@field LevelSuccess number @关卡成功界面
+---@field LevelFail number @关卡失败界面
+EActivityEnterFormPosType = {
+    LevelPrepare = 1,
+    LevelSuccess = 2,
+    LevelFail = 3,
+}
+
+---@class EActivityDoublePointsType @活动积分翻倍类型原因
+---@field DoublePointsBuff number @双倍积分buff
+---@field LevelDiff number @关卡难度
+EActivityDoublePointsType = {
+    DoublePointsBuff = 1,
+    LevelDiff = 2,
+}
+
+---@class EOpenUILevelPrepareFrom @ 打开关卡准备界面来源
+---@field None number @ 无
+---@field Main number @ 主界面
+---@field Other number @ 其他
+EOpenUILevelPrepareFrom = {
+    None = 0,
+    Main = 1,
+    Other = 2,
+}

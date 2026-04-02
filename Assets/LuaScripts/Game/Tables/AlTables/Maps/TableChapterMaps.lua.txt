@@ -1,0 +1,55 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableChapterMaps
+-- descrip:   章节与地图资源表对应关系
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.ChapterMaps_Item @章节与地图资源表对应关系条目
+---@field ChapterID string @章节ID
+---@field TableItems string @物品表
+---@field TableUpgrade string @升级表
+---@field TableStaffPoints string @交互点表
+
+---@class Tables.ChapterMaps @章节与地图资源表对应关系
+---@field 1 Tables.ChapterMaps_Item
+---@field 2 Tables.ChapterMaps_Item
+---@field 3 Tables.ChapterMaps_Item
+---@field 4 Tables.ChapterMaps_Item
+---@field 5 Tables.ChapterMaps_Item
+---@field 6 Tables.ChapterMaps_Item
+---@field 7 Tables.ChapterMaps_Item
+---@field 8 Tables.ChapterMaps_Item
+---@field 9 Tables.ChapterMaps_Item
+---@field 10 Tables.ChapterMaps_Item
+---@field 11 Tables.ChapterMaps_Item
+---@field 12 Tables.ChapterMaps_Item
+---@field 13 Tables.ChapterMaps_Item
+---@field 14 Tables.ChapterMaps_Item
+---@field 15 Tables.ChapterMaps_Item
+---@field 16 Tables.ChapterMaps_Item
+---@field 17 Tables.ChapterMaps_Item
+---@field 18 Tables.ChapterMaps_Item
+Tables.ChapterMaps = {
+    ["1"] = {ChapterID = "1", TableItems = "ItemsMap1", TableUpgrade = "UpgradeMap1", TableStaffPoints = "StaffPointsMap1"},
+    ["2"] = {ChapterID = "2", TableItems = "ItemsMap2", TableUpgrade = "UpgradeMap2", TableStaffPoints = "StaffPointsMap2"},
+    ["3"] = {ChapterID = "3", TableItems = "ItemsMap3", TableUpgrade = "UpgradeMap3", TableStaffPoints = "StaffPointsMap3"},
+    ["4"] = {ChapterID = "4", TableItems = "ItemsMap4", TableUpgrade = "UpgradeMap4", TableStaffPoints = "StaffPointsMap4"},
+    ["5"] = {ChapterID = "5", TableItems = "ItemsMap5", TableUpgrade = "UpgradeMap5", TableStaffPoints = "StaffPointsMap5"},
+    ["6"] = {ChapterID = "6", TableItems = "ItemsMap6", TableUpgrade = "UpgradeMap6", TableStaffPoints = "StaffPointsMap6"},
+    ["7"] = {ChapterID = "7", TableItems = "ItemsMap7", TableUpgrade = "UpgradeMap7", TableStaffPoints = "StaffPointsMap7"},
+    ["8"] = {ChapterID = "8", TableItems = "ItemsMap8", TableUpgrade = "UpgradeMap8", TableStaffPoints = "StaffPointsMap8"},
+    ["9"] = {ChapterID = "9", TableItems = "ItemsMap9", TableUpgrade = "UpgradeMap9", TableStaffPoints = "StaffPointsMap9"},
+    ["10"] = {ChapterID = "10", TableItems = "ItemsMap10", TableUpgrade = "UpgradeMap10", TableStaffPoints = "StaffPointsMap10"},
+    ["11"] = {ChapterID = "11", TableItems = "ItemsMap11", TableUpgrade = "UpgradeMap11", TableStaffPoints = "StaffPointsMap11"},
+    ["12"] = {ChapterID = "12", TableItems = "ItemsMap12", TableUpgrade = "UpgradeMap12", TableStaffPoints = "StaffPointsMap12"},
+    ["13"] = {ChapterID = "13", TableItems = "ItemsMap13", TableUpgrade = "UpgradeMap13", TableStaffPoints = "StaffPointsMap13"},
+    ["14"] = {ChapterID = "14", TableItems = "ItemsMap14", TableUpgrade = "UpgradeMap14", TableStaffPoints = "StaffPointsMap14"},
+    ["15"] = {ChapterID = "15", TableItems = "ItemsMap15", TableUpgrade = "UpgradeMap15", TableStaffPoints = "StaffPointsMap15"},
+    ["16"] = {ChapterID = "16", TableItems = "ItemsMap16", TableUpgrade = "UpgradeMap16", TableStaffPoints = "StaffPointsMap16"},
+    ["17"] = {ChapterID = "17", TableItems = "ItemsMap17", TableUpgrade = "UpgradeMap17", TableStaffPoints = "StaffPointsMap17"},
+    ["18"] = {ChapterID = "18", TableItems = "ItemsMap18", TableUpgrade = "UpgradeMap18", TableStaffPoints = "StaffPointsMap18"},
+}
+

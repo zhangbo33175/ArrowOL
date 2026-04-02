@@ -1,0 +1,406 @@
+--=====================================================================================================
+-- descrip:   章节列表管理器
+--=====================================================================================================
+
+---@class ChapterListMgr:Singleton @章节列表管理器
+local ChapterListManager = class("ChapterListManager", import("Singleton"))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ChapterListManager:ctor(args)
+    ChapterListManager.super.ctor(self, args)
+    self._runtimeAreaID = ""
+    self._changeChapterFunc = nil
+end
+
+---创建函数
+---@type fun(args:table):ChapterListMgr
+---@param args table @自定义参数
+---@return ChapterListMgr @章节列表管理器
+function ChapterListManager:Create(args)
+    local obj = ChapterListManager.new(args)
+    return obj
+end
+
+---清理数据
+---@type fun():void
+---@return void
+function ChapterListManager:ClearData()
+    ChapterListManager.super.ClearData(self)
+    self._runtimeAreaID = ""
+    self._changeChapterFunc = nil
+end
+
+---初始化
+---@type fun():void
+function ChapterListManager:Init()
+    ChapterListManager.super.Init(self)
+    -- 注册[时间]区域离线金币CD结束的时间监听
+    HonorEventHelper:AddListener(EventCmd.TimerAreaOfflineCoinCDOver, handler(self, self.OnTimerAreaOfflineCoinCDOverCallback))
+    HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
+    -- 启动时恢复存档中所有区域的CD时间事件
+    --for areaId, timeStamp in pairs(PbRootData.GameData.cdEnds) do
+    --    self:RegisterAreaOfflineCD(areaId, timeStamp)
+    --end
+    -- 启动时检查是否有更新的章节需要自动解锁
+    local checkNextChapterId = tostring(tonumber(self:GetLatestChapterId()) + 1)
+    if ChapterDataManager:GetChapterDataByChapterId(checkNextChapterId) ~= nil then
+        local meetCondition = self:MeetConditionForUnlock(checkNextChapterId)
+        -- note:特殊处理，检查是否存在待领取的奖励，没有才直接跨入下一章
+        if meetCondition then
+            if not self:CheckIsPauseUnlockNextChapter(self:GetLatestChapterId()) then
+                -- 直接解锁下一章，没有提示过程
+                self:UnlockChapter(checkNextChapterId)
+            else
+                self:OpenChapterUnlockUI(checkNextChapterId)
+            end
+
+        end
+    end
+    -- 启动时默认设置最新的区域Id和章节Id为运行时区域Id和章节Id
+    self:SetRuntimeChapter(self:GetLatestChapterId())
+    --设置最大章节ID( 要调用在 CheckIsPauseUnlockNextChapter 之后 )
+    self:SetupMaxChapterID()
+end
+
+---记录当前配置中的最大章节id
+function ChapterListManager:SetupMaxChapterID()
+    --local cfgMax = ChapterListManager:GetConfigMaxChapterID()
+    --if PbRootData.GameData.maxChapterId ~= cfgMax then
+    --    PbRootData.GameData.maxChapterId = cfgMax
+    --    PbIO.GameData.Save_maxChapterId()
+    --end
+end
+
+--- 检测是否有未结束的礼包，标记为已结束，且打点跨章结束
+---@return void
+function ChapterListManager:CheckChapterBundleEndWhenUnlockNewChapter()
+    local packs = PbRootData.GameData.giftPacks
+    if TableIsEmpty(packs) then
+        return
+    end
+
+    ---@type Tables.BundleSale_Item
+    local cfg = Tables.BundleSale
+    if not cfg then
+        return
+    end
+
+    local hasChanged = false
+    for k, v in pairs(packs) do
+        if v.status == ELimitedTimeActivityTimeStatus.DurationVaild then
+            ---@param c Tables.BundleSale_Item
+            for _, c in pairs(cfg) do
+
+            end
+        end
+    end
+
+    if hasChanged then
+        PbIO.GameData.Save_giftPacks()
+    end
+end
+
+--region ChapterListCommon
+
+
+---是否打成解锁指定章节的条件（比较lv）
+---@type fun(chapterId :string):boolean
+---@param chapterId string @ 章节ID
+function ChapterListManager:MeetConditionForUnlock(chapterId)
+    local lastChapterData = ChapterDataManager:GetChapterDataByChapterId(tostring(tonumber(chapterId) - 1))
+    local lastChapterLv = self:GetRuntimeChapterLvByChapterId(lastChapterData.ID) - 1
+    local lastChapterMaxLv = lastChapterData.UnlockNextLevel - 1
+    return lastChapterLv >= lastChapterMaxLv
+end
+
+---解锁指定章节
+---@type fun(chapterId:string):void
+---@param chapterId string @章节Id
+function ChapterListManager:UnlockChapter(chapterId)
+   
+end
+
+---@type fun(chapterId:string):SavePBMsgDef.SaveGameData.ChapterInfo
+---@param chapterId string @ 章节ID
+---@return SavePBMsgDef.SaveGameData.ChapterInfo @ 空章节数据
+function ChapterListManager:CreateChapterInitData(chapterId)
+   
+    return saveChapterInfo
+end
+
+---GM完成指定章节之前章节
+---@type fun(chapterId:string):void
+---@param chapterId string @章节Id
+function ChapterListManager:GMCompleteChapterBefore(chapterId)
+   
+end
+
+---是否为已解锁章节
+---@type fun(chapterId:string):boolean
+---@param chapterId string @章节Id
+---@return boolean 是否已解锁
+function ChapterListManager:IsUnlockedChapter(chapterId)
+    return tonumber(chapterId) <= tonumber(self:GetLatestChapterId())
+end
+
+---是否已完成指定章节
+---@type fun(chapterId:string):boolean
+---@param chapterId string @章节Id
+---@return boolean 是否已完成
+function ChapterListManager:IsChapterCompleted(chapterId)
+    local curLv = self:GetRuntimeChapterLvByChapterId(chapterId)
+    local unlockNextLv = ChapterListManager:GetChapterDataByChapterId(chapterId).UnlockNextLevel
+    return curLv >= unlockNextLv
+end
+
+---是否已完成指定区域的所有章节
+---@type fun(areaId:string):boolean
+---@param areaId string @区域Id
+---@return boolean 是否已完成
+function ChapterListManager:IsAllChaptersCompleted(areaId)
+    local chapterIDs = ChapterListManager:GetAreaDataByAreaId(areaId).ChaptersID
+    for _, chapterId in pairs(chapterIDs) do
+        if self:IsChapterCompleted(chapterId) == false then
+            return false
+        end
+    end
+    return true
+end
+
+--endregion ChapterListCommon
+
+--region ChapterListRuntime
+
+---设置运行时章节ID和区域ID
+---@type fun(chapterId:string):void
+---@param chapterId string @章节Id
+function ChapterListManager:SetRuntimeChapter(chapterId)
+    local areaData = ChapterDataManager:GetAreaDataByChapterId(chapterId)
+    if areaData then
+        self:SetRuntimeChapterId(chapterId)
+        self:SetRuntimeAreaId(areaData.ID)
+    end
+end
+
+---设置运行时区域Id
+---@type fun(areaId:string):void
+---@param areaId string @区域Id
+function ChapterListManager:SetRuntimeAreaId(areaId)
+    if self._runtimeAreaID ~= areaId then
+        self._runtimeAreaID = areaId
+        HonorEventHelper:FireNow(EventCmd.OnRuntimeAreaChanged, areaId)
+    end
+end
+
+---获取运行时区域Id
+---@type fun():string
+---@return string @区域Id
+function ChapterListManager:GetRuntimeAreaId()
+    return self._runtimeAreaID
+end
+
+---设置运行时章节Id
+---@type fun(areaId:string):void
+---@param chapterId string @章节Id
+function ChapterListManager:SetRuntimeChapterId(chapterId)
+    if self._runtimeChapterID and self._runtimeChapterID ~= chapterId then
+        ThinkingAnalyticsHelper:ModifyUserPropertySet(TrackProperty.CommonEventAttr.cur_chapter_lv, { Chapter = chapterId, Level = GamerDataMgr:GetLevelLvByChapterId(chapterId) })
+    end
+    self._runtimeChapterID = chapterId or "1"
+end
+
+---获取运行时章节ID
+---@type fun():string
+---@return string @ 章节ID
+function ChapterListManager:GetRuntimeChapterId()
+    return self._runtimeChapterID or self:GetLatestChapterId()
+end
+
+---是否在最新章节
+---@type fun():boolean
+---@return boolean @是否在最新章节
+function ChapterListManager:IsInLatestChapter()
+    return self:GetRuntimeChapterId() == self:GetLatestChapterId()
+end
+
+
+---运行时区域是否首位
+---@type fun():boolean
+---@return boolean @是否首位
+function ChapterListManager:IsRuntimeAreaFirst()
+    return self:GetRuntimeAreaId() == "1"
+end
+
+---运行时区域是否末位
+---@type fun():boolean
+---@return boolean @是否末位
+function ChapterListManager:IsRuntimeAreaFinal()
+    return self:GetRuntimeAreaId() == tostring(ChapterDataMgr:GetAreaDatasNum())
+end
+
+---是否为第一个区域
+---@type fun(areaId:string):boolean
+---@param areaId string @区域Id
+---@return boolean 是否为第一个区域
+function ChapterListManager:IsFirstArea(areaId)
+    return areaId == "1"
+end
+
+
+---是否有上一个区域
+---@type fun(areaId:string):boolean
+---@param areaId string @区域Id
+---@return boolean 是否有上一个区域
+function ChapterListManager:HasPreArea(areaId)
+    if areaId == "1" then
+        return false
+    end
+    if tonumber(areaId) > 1 then
+        return true
+    end
+    return false
+end
+
+---获取运行时章节等级
+---@type fun(chapterId:string):number
+---@param chapterId string @章节Id
+---@return number 章节等级
+function ChapterListManager:GetRuntimeChapterLvByChapterId(chapterId)
+    return PbRootData.GameData.chapterInfos[chapterId] ~= nil and PbRootData.GameData.chapterInfos[chapterId].lv or 0
+end
+
+---获取运行时章节进度指标
+---@type fun(chapterId:string, progressIndex:number):number
+---@param chapterId string @章节Id
+---@param progressIndex number @进度指标的索引
+---@return number 进度值
+function ChapterListManager:GetRuntimeChapterProgressByChapterId(chapterId, progressIndex)
+    local progress = 0
+    if PbRootData.GameData.chapterInfos[chapterId] ~= nil then
+        if PbRootData.GameData.chapterInfos[chapterId].progress ~= nil then
+            progress = PbRootData.GameData.chapterInfos[chapterId].progress[progressIndex] == nil and 0 or PbRootData.GameData.chapterInfos[chapterId].progress[progressIndex]
+        end
+    end
+    local result = progress * ChapterDataManager:GetChapterInfoDataByChapterInfoId(ChapterDataManager:GetChapterDataByChapterId(chapterId).ChapterInfoID[progressIndex]).Coef
+    local decimalPointNum = #tostring(result % 1) - 2
+    if decimalPointNum > 0 then
+        result = tonumber(string.format(mstr { "%.<<decimalPointNum>>f", decimalPointNum = decimalPointNum }, result))
+    end
+    return result
+end
+
+---获取运行时章节在该区域内的索引
+---@type fun(chapterId:string):number
+---@param chapterId string @传入的必须是当前区域的章节Id
+---@return number 章节索引
+function ChapterListManager:GetRuntimeChapterIndexInAreaByChapterId(chapterId)
+    
+    return 0
+end
+
+
+---检查最新区域离线奖励推送状态并处理相应推送
+---@type fun(areaId:string):void
+---@param areaId string @ 最新区域Id
+function ChapterListManager:UpdateChapterRewardNotification(areaId)
+    local utc0TimeStamp = self:GetAreaOfflineRewardCoinsTimeStamp(areaId) or 0
+    local timeValid = utc0TimeStamp >= HonorTimerHelper:GetUTC0TimeStamp()
+    ---时间有效则更新，时间无效且存在有效推送则删除
+    if timeValid then
+        local localTimeStamp = HonorTimerHelper:GetLocalTimeStamp(utc0TimeStamp)
+        RNotificationHelper:GenerateSingleNotification(Tables.Push['5'], ENotificationConstKey.ChapterReward, true, localTimeStamp, nil, nil)
+    elseif not timeValid then
+        RNotificationHelper:TryCancelNotification(ENotificationConstKey.ChapterReward, true)
+    end
+end
+
+--endregion ChapterListRuntime
+
+--region ChapterListSave
+
+---设置章节Id
+---@type fun(chapterId:string):void
+---@param chapterId string @章节Id
+function ChapterListManager:SetLatestChapterId(chapterId)
+    PbRootData.GameData.latestChapterId = chapterId
+    PbIO.GameData.Save_latestChapterId()
+
+    -- 更新关卡游玩提醒
+    self:UpdateLevelNotification(chapterId, false, true)
+end
+
+---@type fun(chapterId:string,isInit:boolean,isUnlock:boolean):void
+---@param chapterId string @ 最新的章节ID
+---@param isInit boolean @ 初始化时需要检查之前是否存在
+---@param isUnlock boolean @ 是否在解锁新的章节
+function ChapterListManager:UpdateLevelNotification(chapterId, isInit, isUnlock)
+    ---给一个默认值
+    chapterId = chapterId or self:GetLatestChapterId()
+
+    local chapterConfig = ChapterDataManager:GetChapterDataByChapterId(chapterId)
+    local extraVaild = RNotificationHelper:SearchVaildNotification(ENotificationConstKey.LevelPlay)
+    ---初始化时存在一个之前的推送数据，则不必更新了
+    if extraVaild and isInit then
+        return
+    end
+
+    local name = GetLang(chapterConfig.ChapterTitle)
+    ---@param t NotificationStrReplace
+    RNotificationHelper:GeneratePeriodicNotification(Tables.Push['3'], ENotificationConstKey.LevelPlay, 0, isUnlock, nil, ArrayTableConvert(Tables.Push['3'].ContentReplace, function(t)
+        return { key = t.key, value = name }
+    end))
+end
+
+---获取当前区域Id
+---@type fun():string
+---@return string @区域Id
+function ChapterListManager:GetLatestAreaId()
+    return ChapterDataManager:GetChapterDataByChapterId(self:GetLatestChapterId()).AreaID
+end
+
+---获取章节Id
+---@type fun():string
+---@return string @章节Id
+function ChapterListManager:GetLatestChapterId()
+    local chapterId = PbRootData.GameData.latestChapterId
+    if string.isNullOrEmpty(chapterId) then
+        PbRootData.GameData.latestChapterId = "1"
+        PbIO.GameData.Save_latestChapterId()
+        return PbRootData.GameData.latestChapterId
+    end
+    return chapterId
+end
+
+---运行时区域是否CD完成
+---@type fun():boolean
+---@return boolean @是否完成
+function ChapterListManager:IsRuntimeAreaOfflineCDOver()
+    return self:CanClimbAreaOfflineRewards(self:GetRuntimeAreaId())
+end
+
+--endregion ChapterListSave
+
+
+---目标章节是否大于最新章节
+---@type fun(targetChapterLv:ChapterLevel,latestChapterLv:ChapterLevel):boolean
+---@param targetChapterLv ChapterLevel @ 目标关卡id
+---@param latestChapterLv ChapterLevel @ 最新章节、关卡 （可空）
+function ChapterListManager:LargeThanLatestChapterLv(targetChapterLv, latestChapterLv)
+    latestChapterLv = latestChapterLv or GamerDataManager:GetLatestChapterLevel()
+    local lessOrEqual = targetChapterLv.Chapter < latestChapterLv.Chapter or (targetChapterLv.Chapter == latestChapterLv.Chapter and targetChapterLv.Level <= latestChapterLv.Level)
+    return not lessOrEqual
+end
+
+---目标章节是否小于最新章节
+---@type fun(targetChapterLv:ChapterLevel,latestChapterLv:ChapterLevel):boolean
+---@param targetChapterLv ChapterLevel @ 目标关卡id
+---@param latestChapterLv ChapterLevel @ 最新章节、关卡 （可空）
+---@return boolean @ 目标章节是否小于最新章节
+function ChapterListManager:LessThanChapterLv(targetChapterLv, latestChapterLv)
+    latestChapterLv = latestChapterLv or GamerDataManager:GetLatestChapterLevel()
+    return targetChapterLv.Chapter < latestChapterLv.Chapter or (targetChapterLv.Chapter == latestChapterLv.Chapter and targetChapterLv.Level < latestChapterLv.Level)
+end
+
+return ChapterListManager

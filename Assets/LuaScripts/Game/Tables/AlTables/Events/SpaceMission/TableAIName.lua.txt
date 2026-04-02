@@ -1,0 +1,663 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableAIName
+-- descrip:   AI名称表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.AIName_Item @AI名称表条目
+---@field ID number @ID
+---@field Name string @玩家昵称
+---@field ChineseSimplified string @简体中文
+---@field English string @英语
+---@field French string @法语
+---@field German string @德语
+---@field Spanish string @西班牙语
+---@field Japanese string @日语
+---@field Korean string @韩语
+---@field PortuguesePortugal string @葡萄牙语
+---@field Russian string @俄语
+---@field ChineseTraditional string @繁体中文
+---@field Italian string @意大利语
+
+---@class Tables.AIName @AI名称表
+---@type table<number, Tables.AIName_Item> @数据格式
+---@field 1 Tables.AIName_Item
+---@field 2 Tables.AIName_Item
+---@field 3 Tables.AIName_Item
+---@field 4 Tables.AIName_Item
+---@field 5 Tables.AIName_Item
+---@field 6 Tables.AIName_Item
+---@field 7 Tables.AIName_Item
+---@field 8 Tables.AIName_Item
+---@field 9 Tables.AIName_Item
+---@field 10 Tables.AIName_Item
+---@field 11 Tables.AIName_Item
+---@field 12 Tables.AIName_Item
+---@field 13 Tables.AIName_Item
+---@field 14 Tables.AIName_Item
+---@field 15 Tables.AIName_Item
+---@field 16 Tables.AIName_Item
+---@field 17 Tables.AIName_Item
+---@field 18 Tables.AIName_Item
+---@field 19 Tables.AIName_Item
+---@field 20 Tables.AIName_Item
+---@field 21 Tables.AIName_Item
+---@field 22 Tables.AIName_Item
+---@field 23 Tables.AIName_Item
+---@field 24 Tables.AIName_Item
+---@field 25 Tables.AIName_Item
+---@field 26 Tables.AIName_Item
+---@field 27 Tables.AIName_Item
+---@field 28 Tables.AIName_Item
+---@field 29 Tables.AIName_Item
+---@field 30 Tables.AIName_Item
+---@field 31 Tables.AIName_Item
+---@field 32 Tables.AIName_Item
+---@field 33 Tables.AIName_Item
+---@field 34 Tables.AIName_Item
+---@field 35 Tables.AIName_Item
+---@field 36 Tables.AIName_Item
+---@field 37 Tables.AIName_Item
+---@field 38 Tables.AIName_Item
+---@field 39 Tables.AIName_Item
+---@field 40 Tables.AIName_Item
+---@field 41 Tables.AIName_Item
+---@field 42 Tables.AIName_Item
+---@field 43 Tables.AIName_Item
+---@field 44 Tables.AIName_Item
+---@field 45 Tables.AIName_Item
+---@field 46 Tables.AIName_Item
+---@field 47 Tables.AIName_Item
+---@field 48 Tables.AIName_Item
+---@field 49 Tables.AIName_Item
+---@field 50 Tables.AIName_Item
+---@field 51 Tables.AIName_Item
+---@field 52 Tables.AIName_Item
+---@field 53 Tables.AIName_Item
+---@field 54 Tables.AIName_Item
+---@field 55 Tables.AIName_Item
+---@field 56 Tables.AIName_Item
+---@field 57 Tables.AIName_Item
+---@field 58 Tables.AIName_Item
+---@field 59 Tables.AIName_Item
+---@field 60 Tables.AIName_Item
+---@field 61 Tables.AIName_Item
+---@field 62 Tables.AIName_Item
+---@field 63 Tables.AIName_Item
+---@field 64 Tables.AIName_Item
+---@field 65 Tables.AIName_Item
+---@field 66 Tables.AIName_Item
+---@field 67 Tables.AIName_Item
+---@field 68 Tables.AIName_Item
+---@field 69 Tables.AIName_Item
+---@field 70 Tables.AIName_Item
+---@field 71 Tables.AIName_Item
+---@field 72 Tables.AIName_Item
+---@field 73 Tables.AIName_Item
+---@field 74 Tables.AIName_Item
+---@field 75 Tables.AIName_Item
+---@field 76 Tables.AIName_Item
+---@field 77 Tables.AIName_Item
+---@field 78 Tables.AIName_Item
+---@field 79 Tables.AIName_Item
+---@field 80 Tables.AIName_Item
+---@field 81 Tables.AIName_Item
+---@field 82 Tables.AIName_Item
+---@field 83 Tables.AIName_Item
+---@field 84 Tables.AIName_Item
+---@field 85 Tables.AIName_Item
+---@field 86 Tables.AIName_Item
+---@field 87 Tables.AIName_Item
+---@field 88 Tables.AIName_Item
+---@field 89 Tables.AIName_Item
+---@field 90 Tables.AIName_Item
+---@field 91 Tables.AIName_Item
+---@field 92 Tables.AIName_Item
+---@field 93 Tables.AIName_Item
+---@field 94 Tables.AIName_Item
+---@field 95 Tables.AIName_Item
+---@field 96 Tables.AIName_Item
+---@field 97 Tables.AIName_Item
+---@field 98 Tables.AIName_Item
+---@field 99 Tables.AIName_Item
+---@field 100 Tables.AIName_Item
+---@field 101 Tables.AIName_Item
+---@field 102 Tables.AIName_Item
+---@field 103 Tables.AIName_Item
+---@field 104 Tables.AIName_Item
+---@field 105 Tables.AIName_Item
+---@field 106 Tables.AIName_Item
+---@field 107 Tables.AIName_Item
+---@field 108 Tables.AIName_Item
+---@field 109 Tables.AIName_Item
+---@field 110 Tables.AIName_Item
+---@field 111 Tables.AIName_Item
+---@field 112 Tables.AIName_Item
+---@field 113 Tables.AIName_Item
+---@field 114 Tables.AIName_Item
+---@field 115 Tables.AIName_Item
+---@field 116 Tables.AIName_Item
+---@field 117 Tables.AIName_Item
+---@field 118 Tables.AIName_Item
+---@field 119 Tables.AIName_Item
+---@field 120 Tables.AIName_Item
+---@field 121 Tables.AIName_Item
+---@field 122 Tables.AIName_Item
+---@field 123 Tables.AIName_Item
+---@field 124 Tables.AIName_Item
+---@field 125 Tables.AIName_Item
+---@field 126 Tables.AIName_Item
+---@field 127 Tables.AIName_Item
+---@field 128 Tables.AIName_Item
+---@field 129 Tables.AIName_Item
+---@field 130 Tables.AIName_Item
+---@field 131 Tables.AIName_Item
+---@field 132 Tables.AIName_Item
+---@field 133 Tables.AIName_Item
+---@field 134 Tables.AIName_Item
+---@field 135 Tables.AIName_Item
+---@field 136 Tables.AIName_Item
+---@field 137 Tables.AIName_Item
+---@field 138 Tables.AIName_Item
+---@field 139 Tables.AIName_Item
+---@field 140 Tables.AIName_Item
+---@field 141 Tables.AIName_Item
+---@field 142 Tables.AIName_Item
+---@field 143 Tables.AIName_Item
+---@field 144 Tables.AIName_Item
+---@field 145 Tables.AIName_Item
+---@field 146 Tables.AIName_Item
+---@field 147 Tables.AIName_Item
+---@field 148 Tables.AIName_Item
+---@field 149 Tables.AIName_Item
+---@field 150 Tables.AIName_Item
+---@field 151 Tables.AIName_Item
+---@field 152 Tables.AIName_Item
+---@field 153 Tables.AIName_Item
+---@field 154 Tables.AIName_Item
+---@field 155 Tables.AIName_Item
+---@field 156 Tables.AIName_Item
+---@field 157 Tables.AIName_Item
+---@field 158 Tables.AIName_Item
+---@field 159 Tables.AIName_Item
+---@field 160 Tables.AIName_Item
+---@field 161 Tables.AIName_Item
+---@field 162 Tables.AIName_Item
+---@field 163 Tables.AIName_Item
+---@field 164 Tables.AIName_Item
+---@field 165 Tables.AIName_Item
+---@field 166 Tables.AIName_Item
+---@field 167 Tables.AIName_Item
+---@field 168 Tables.AIName_Item
+---@field 169 Tables.AIName_Item
+---@field 170 Tables.AIName_Item
+---@field 171 Tables.AIName_Item
+---@field 172 Tables.AIName_Item
+---@field 173 Tables.AIName_Item
+---@field 174 Tables.AIName_Item
+---@field 175 Tables.AIName_Item
+---@field 176 Tables.AIName_Item
+---@field 177 Tables.AIName_Item
+---@field 178 Tables.AIName_Item
+---@field 179 Tables.AIName_Item
+---@field 180 Tables.AIName_Item
+---@field 181 Tables.AIName_Item
+---@field 182 Tables.AIName_Item
+---@field 183 Tables.AIName_Item
+---@field 184 Tables.AIName_Item
+---@field 185 Tables.AIName_Item
+---@field 186 Tables.AIName_Item
+---@field 187 Tables.AIName_Item
+---@field 188 Tables.AIName_Item
+---@field 189 Tables.AIName_Item
+---@field 190 Tables.AIName_Item
+---@field 191 Tables.AIName_Item
+---@field 192 Tables.AIName_Item
+---@field 193 Tables.AIName_Item
+---@field 194 Tables.AIName_Item
+---@field 195 Tables.AIName_Item
+---@field 196 Tables.AIName_Item
+---@field 197 Tables.AIName_Item
+---@field 198 Tables.AIName_Item
+---@field 199 Tables.AIName_Item
+---@field 200 Tables.AIName_Item
+---@field 201 Tables.AIName_Item
+---@field 202 Tables.AIName_Item
+---@field 203 Tables.AIName_Item
+---@field 204 Tables.AIName_Item
+---@field 205 Tables.AIName_Item
+---@field 206 Tables.AIName_Item
+---@field 207 Tables.AIName_Item
+---@field 208 Tables.AIName_Item
+---@field 209 Tables.AIName_Item
+---@field 210 Tables.AIName_Item
+---@field 211 Tables.AIName_Item
+---@field 212 Tables.AIName_Item
+---@field 213 Tables.AIName_Item
+---@field 214 Tables.AIName_Item
+---@field 215 Tables.AIName_Item
+---@field 216 Tables.AIName_Item
+---@field 217 Tables.AIName_Item
+---@field 218 Tables.AIName_Item
+---@field 219 Tables.AIName_Item
+---@field 220 Tables.AIName_Item
+---@field 221 Tables.AIName_Item
+---@field 222 Tables.AIName_Item
+---@field 223 Tables.AIName_Item
+---@field 224 Tables.AIName_Item
+---@field 225 Tables.AIName_Item
+---@field 226 Tables.AIName_Item
+---@field 227 Tables.AIName_Item
+---@field 228 Tables.AIName_Item
+---@field 229 Tables.AIName_Item
+---@field 230 Tables.AIName_Item
+---@field 231 Tables.AIName_Item
+---@field 232 Tables.AIName_Item
+---@field 233 Tables.AIName_Item
+---@field 234 Tables.AIName_Item
+---@field 235 Tables.AIName_Item
+---@field 236 Tables.AIName_Item
+---@field 237 Tables.AIName_Item
+---@field 238 Tables.AIName_Item
+---@field 239 Tables.AIName_Item
+---@field 240 Tables.AIName_Item
+---@field 241 Tables.AIName_Item
+---@field 242 Tables.AIName_Item
+---@field 243 Tables.AIName_Item
+---@field 244 Tables.AIName_Item
+---@field 245 Tables.AIName_Item
+---@field 246 Tables.AIName_Item
+---@field 247 Tables.AIName_Item
+---@field 248 Tables.AIName_Item
+---@field 249 Tables.AIName_Item
+---@field 250 Tables.AIName_Item
+---@field 251 Tables.AIName_Item
+---@field 252 Tables.AIName_Item
+---@field 253 Tables.AIName_Item
+---@field 254 Tables.AIName_Item
+---@field 255 Tables.AIName_Item
+---@field 256 Tables.AIName_Item
+---@field 257 Tables.AIName_Item
+---@field 258 Tables.AIName_Item
+---@field 259 Tables.AIName_Item
+---@field 260 Tables.AIName_Item
+---@field 261 Tables.AIName_Item
+---@field 262 Tables.AIName_Item
+---@field 263 Tables.AIName_Item
+---@field 264 Tables.AIName_Item
+---@field 265 Tables.AIName_Item
+---@field 266 Tables.AIName_Item
+---@field 267 Tables.AIName_Item
+---@field 268 Tables.AIName_Item
+---@field 269 Tables.AIName_Item
+---@field 270 Tables.AIName_Item
+---@field 271 Tables.AIName_Item
+---@field 272 Tables.AIName_Item
+---@field 273 Tables.AIName_Item
+---@field 274 Tables.AIName_Item
+---@field 275 Tables.AIName_Item
+---@field 276 Tables.AIName_Item
+---@field 277 Tables.AIName_Item
+---@field 278 Tables.AIName_Item
+---@field 279 Tables.AIName_Item
+---@field 280 Tables.AIName_Item
+---@field 281 Tables.AIName_Item
+---@field 282 Tables.AIName_Item
+---@field 283 Tables.AIName_Item
+---@field 284 Tables.AIName_Item
+---@field 285 Tables.AIName_Item
+---@field 286 Tables.AIName_Item
+---@field 287 Tables.AIName_Item
+---@field 288 Tables.AIName_Item
+---@field 289 Tables.AIName_Item
+---@field 290 Tables.AIName_Item
+---@field 291 Tables.AIName_Item
+---@field 292 Tables.AIName_Item
+---@field 293 Tables.AIName_Item
+---@field 294 Tables.AIName_Item
+---@field 295 Tables.AIName_Item
+---@field 296 Tables.AIName_Item
+---@field 297 Tables.AIName_Item
+---@field 298 Tables.AIName_Item
+---@field 299 Tables.AIName_Item
+---@field 300 Tables.AIName_Item
+---@field 301 Tables.AIName_Item
+---@field 302 Tables.AIName_Item
+---@field 303 Tables.AIName_Item
+---@field 304 Tables.AIName_Item
+---@field 305 Tables.AIName_Item
+---@field 306 Tables.AIName_Item
+---@field 307 Tables.AIName_Item
+---@field 308 Tables.AIName_Item
+---@field 309 Tables.AIName_Item
+---@field 310 Tables.AIName_Item
+---@field 311 Tables.AIName_Item
+---@field 312 Tables.AIName_Item
+---@field 313 Tables.AIName_Item
+---@field 314 Tables.AIName_Item
+---@field 315 Tables.AIName_Item
+---@field 316 Tables.AIName_Item
+---@field 317 Tables.AIName_Item
+Tables.AIName = {
+    [1] = {ID = 1, Name = "Charon", ChineseSimplified = "胡宛妤", English = "Charon", French = "Gourmandise", German = "Kochkünstler", Spanish = "ChefEstrella", Japanese = "料理達人", Korean = "요리사", PortuguesePortugal = "ChefEstrela", Russian = "ШефПовар", ChineseTraditional = "廚神", Italian = "ChefStella"},
+    [2] = {ID = 2, Name = "シメオン", ChineseSimplified = "傅令宜", English = "Simeon", French = "Épicurien", German = "Geschmack", Spanish = "Saborista", Japanese = "味覚王", Korean = "맛의신", PortuguesePortugal = "Saboroso", Russian = "Вкусно", ChineseTraditional = "美味達人", Italian = "Gusto"},
+    [3] = {ID = 3, Name = "Simeon", ChineseSimplified = "邢怡君", English = "YgorOfOT", French = "ChefMagique", German = "Backmeister", Spanish = "Panadero", Japanese = "パン職人", Korean = "빵굽는사람", PortuguesePortugal = "Padeiro", Russian = "Пекарь", ChineseTraditional = "烘焙師", Italian = "Panettiere"},
+    [4] = {ID = 4, Name = "YgorOfOT", ChineseSimplified = "白豪霈", English = "MDetective", French = "Boulangère", German = "Würzmeister", Spanish = "Repostero", Japanese = "スイーツ姫", Korean = "달콤한요리", PortuguesePortugal = "Confeiteiro", Russian = "Сладкий", ChineseTraditional = "甜點王", Italian = "Dolci"},
+    [5] = {ID = 5, Name = "MDetective", ChineseSimplified = "范淑芬", English = "UnlRichard", French = "CuisinierÉtoilé", German = "Küchenchef", Spanish = "CocineroMágico", Japanese = "魔法のシェフ", Korean = "마법의요리사", PortuguesePortugal = "Sibarita", Russian = "Гурман", ChineseTraditional = "魔法廚子", Italian = "Cucinare"},
+    [6] = {ID = 6, Name = "UnlRichard", ChineseSimplified = "姜詩涵", English = "HenryBower", French = "Pâtissier", German = "Süßspeise", Spanish = "Horneado", Japanese = "炎の料理人", Korean = "구이달인", PortuguesePortugal = "MestreChurrasco", Russian = "Магия", ChineseTraditional = "燒烤英雄", Italian = "Grigliata"},
+    [7] = {ID = 7, Name = "HenryBower", ChineseSimplified = "程曉彤", English = "Iosef", French = "Sommelier", German = "Feinschmecker", Spanish = "GourmetGalante", Japanese = "旨味探求者", Korean = "미식가", PortuguesePortugal = "GourmetElegante", Russian = "Повар", ChineseTraditional = "食神", Italian = "Gourmet"},
+    [8] = {ID = 8, Name = "Iosef", ChineseSimplified = "許婷婷", English = "Vezenkof", French = "Fromager", German = "Grillmeister", Spanish = "Pastelero", Japanese = "天才パティシエ", Korean = "케이크장인", PortuguesePortugal = "Pastelero", Russian = "Гриль", ChineseTraditional = "蛋糕藝術家", Italian = "Pasticcere"},
+    [9] = {ID = 9, Name = "LuckyGuy7", ChineseSimplified = "沈宜庭", English = "Kamil", French = "Chocolatier", German = "Pfannenheld", Spanish = "SommelierSol", Japanese = "野菜の魔術師", Korean = "와인전문가", PortuguesePortugal = "SommelierSol", Russian = "Вино", ChineseTraditional = "酒神", Italian = "Vino"},
+    [10] = {ID = 10, Name = "Vezenkof", ChineseSimplified = "薛令宜", English = "XanderGal", French = "Marmiton", German = "Saucenzauberer", Spanish = "Quesero", Japanese = "肉の彫刻家", Korean = "치즈의달인", PortuguesePortugal = "Queijeiro", Russian = "Сыр", ChineseTraditional = "奶酪大師", Italian = "Formaggio"},
+    [11] = {ID = 11, Name = "Kamil", ChineseSimplified = "王永恩", English = "BestCooker", French = "Bistrotier", German = "Teigwaren", Spanish = "Dulcero", Japanese = "魚の詩人", Korean = "사탕제조자", PortuguesePortugal = "Doceiro", Russian = "Охотник", ChineseTraditional = "糖果工匠", Italian = "Cacciatore"},
+    [12] = {ID = 12, Name = "XanderGal", ChineseSimplified = "刘斯丁", English = "MasterChef", French = "CordonBleu", German = "Fleischkoch", Spanish = "Verdura", Japanese = "調理の戦士", Korean = "맛사냥꾼", PortuguesePortugal = "Cozinhar", Russian = "Паэлья", ChineseTraditional = "味道獵人", Italian = "Paella"},
+    [13] = {ID = 13, Name = "BestCooker", ChineseSimplified = "陈光年", English = "NedStark", French = "Délicieux", German = "Gemüsegärtner", Spanish = "ReyDeLaPaella", Japanese = "ソースの魔人", Korean = "파엘라왕", PortuguesePortugal = "ReiDaPaella", Russian = "Острый", ChineseTraditional = "海鮮之王", Italian = "Piccante"},
+    [14] = {ID = 14, Name = "MasterChef", ChineseSimplified = "张夸克", English = "SamRivers", French = "Goûteur", German = "Käsekenner", Spanish = "PicantePríncipe", Japanese = "食材の守護神", Korean = "매운맛공주", PortuguesePortugal = "PríncipePicante", Russian = "Выпечка", ChineseTraditional = "辣味公主", Italian = "Forno"},
+    [15] = {ID = 15, Name = "NedStark", ChineseSimplified = "罗毛桃", English = "CuperTrade", French = "Mijoteuse", German = "Suppengeist", Spanish = "Salsa", Japanese = "味の冒険者", Korean = "제빵영웅", PortuguesePortugal = "HeróiDeAssar", Russian = "Овощи", ChineseTraditional = "烘焙騎士", Italian = "Verdura"},
+    [16] = {ID = 16, Name = "SamRivers", ChineseSimplified = "香茗轩", English = "awilwer", French = "Poêlon", German = "Bratenkönig", Spanish = "Gastrónomo", Japanese = "キッチンの騎士", Korean = "야채의달인", PortuguesePortugal = "Delícia", Russian = "Соус", ChineseTraditional = "蔬菜專家", Italian = "Salsa"},
+    [17] = {ID = 17, Name = "CuperTrade", ChineseSimplified = "郝宝玉", English = "Korneliusz", French = "Saucier", German = "Speisemeister", Spanish = "MaestroDeSalsas", Japanese = "グルメの旅人", Korean = "소스마스터", PortuguesePortugal = "MestreDeMolhos", Russian = "Еда", ChineseTraditional = "醬料大師", Italian = "Mangiare"},
+    [18] = {ID = 18, Name = "awilwer", ChineseSimplified = "张达西", English = "BeornHuson", French = "Toqué", German = "Küchenmagier", Spanish = "Conquistar", Japanese = "伝説の料理人", Korean = "음식수호자", PortuguesePortugal = "PratoFino", Russian = "Победа", ChineseTraditional = "美食守護者", Italian = "Vittoria"},
+    [19] = {ID = 19, Name = "Korneliusz", ChineseSimplified = "美味达人", English = "JimmyJames", French = "Vinificateur", German = "Gourmetführer", Spanish = "Culinario", Japanese = "味覚の芸術家", Korean = "요리정복자", PortuguesePortugal = "Vitória", Russian = "Завоевать", ChineseTraditional = "廚房征服者", Italian = "Conquistare"},
+    [20] = {ID = 20, Name = "BeornHuson", ChineseSimplified = "厨艺之星", English = "JohnDoe", French = "Confiseur", German = "Zuckerschnute", Spanish = "SibaritaSupremo", Japanese = "料理の精霊", Korean = "미식의제왕", PortuguesePortugal = "SupremoSibarita", Russian = "Кулинар", ChineseTraditional = "美食至尊", Italian = "Culinario"},
+    [21] = {ID = 21, Name = "JimmyJames", ChineseSimplified = "烹饪大师", English = "WilliamRob"},
+    [22] = {ID = 22, Name = "JohnDoe", ChineseSimplified = "食物艺术家", English = "EnzoDavies"},
+    [23] = {ID = 23, Name = "WilliamRob", ChineseSimplified = "烹饪专家", English = "DrewTill"},
+    [24] = {ID = 24, Name = "EnzoDavies", ChineseSimplified = "美食家", English = "CharlWoods"},
+    [25] = {ID = 25, Name = "DrewTill", ChineseSimplified = "厨房达人", English = "Wilkinson"},
+    [26] = {ID = 26, Name = "CharlWoods", ChineseSimplified = "味蕾大使", English = "CameronDoe"},
+    [27] = {ID = 27, Name = "Wilkinson", ChineseSimplified = "烹饪使者", English = "TomSeeker"},
+    [28] = {ID = 28, Name = "CameronDoe", ChineseSimplified = "厨艺精英", English = "JakeButler"},
+    [29] = {ID = 29, Name = "TomSeeker", English = "CMathis"},
+    [30] = {ID = 30, Name = "JakeButler", English = "TylerHer"},
+    [31] = {ID = 31, Name = "CMathis", English = "MattewB"},
+    [32] = {ID = 32, Name = "TylerHer", English = "MohameHick"},
+    [33] = {ID = 33, Name = "MattewB", English = "hustnprobl"},
+    [34] = {ID = 34, Name = "MohameHick", English = "MarshMell"},
+    [35] = {ID = 35, Name = "hustnprobl", English = "AGeorgiaA"},
+    [36] = {ID = 36, Name = "MarshMell", English = "vElliotv"},
+    [37] = {ID = 37, Name = "AGeorgiaA", English = "Blake"},
+    [38] = {ID = 38, Name = "vElliotv", English = "KHayden"},
+    [39] = {ID = 39, Name = "Blake", English = "Hickman"},
+    [40] = {ID = 40, Name = "KHayden", English = "AlanP"},
+    [41] = {ID = 41, Name = "Hickman", English = "LMatthews"},
+    [42] = {ID = 42, Name = "AlanP", English = "AlexH"},
+    [43] = {ID = 43, Name = "LMatthews", English = "Demi"},
+    [44] = {ID = 44, Name = "AlexH", English = "Elliot"},
+    [45] = {ID = 45, Name = "Demi", English = "IamRobot"},
+    [46] = {ID = 46, Name = "Elliot", English = "FinleyCHEF"},
+    [47] = {ID = 47, Name = "IamRobot", English = "MyShokKu"},
+    [48] = {ID = 48, Name = "FinleyCHEF", English = "ShaimingHe"},
+    [49] = {ID = 49, Name = "MyShokKu", English = "MingYu"},
+    [50] = {ID = 50, Name = "ShaimingHe", English = "LianHou"},
+    [51] = {ID = 51, Name = "MingYu", English = "WenTang"},
+    [52] = {ID = 52, Name = "LianHou", English = "GuangWei"},
+    [53] = {ID = 53, Name = "WenTang", English = "LiangChang"},
+    [54] = {ID = 54, Name = "GuangWei", English = "DongHsueh"},
+    [55] = {ID = 55, Name = "LiangChang", English = "HoTu"},
+    [56] = {ID = 56, Name = "DongHsueh", English = "ChenSu"},
+    [57] = {ID = 57, Name = "HoTu", English = "OnYeh"},
+    [58] = {ID = 58, Name = "ChenSu", English = "Sven"},
+    [59] = {ID = 59, Name = "OnYeh", English = "Wietse"},
+    [60] = {ID = 60, Name = "Sven", English = "PascalVlas"},
+    [61] = {ID = 61, Name = "Wietse", English = "Matthews"},
+    [62] = {ID = 62, Name = "PascalVlas", English = "GustaveBon"},
+    [63] = {ID = 63, Name = "Matthews", English = "NikCoster"},
+    [64] = {ID = 64, Name = "GustaveBon", English = "Orville"},
+    [65] = {ID = 65, Name = "NikCoster", English = "Roberto"},
+    [66] = {ID = 66, Name = "Orville", English = "Noel"},
+    [67] = {ID = 67, Name = "Roberto", English = "Pryor"},
+    [68] = {ID = 68, Name = "Noel", English = "RedBaron"},
+    [69] = {ID = 69, Name = "Pryor", English = "ByronLord"},
+    [70] = {ID = 70, Name = "RedBaron", English = "Stephano"},
+    [71] = {ID = 71, Name = "ByronLord", English = "Mathias"},
+    [72] = {ID = 72, Name = "Stephano", English = "Wolfe"},
+    [73] = {ID = 73, Name = "Mathias", English = "Unger"},
+    [74] = {ID = 74, Name = "Wolfe", English = "Max"},
+    [75] = {ID = 75, Name = "Unger", English = "Ralf"},
+    [76] = {ID = 76, Name = "Max", English = "Leon"},
+    [77] = {ID = 77, Name = "Ralf", English = "Markus"},
+    [78] = {ID = 78, Name = "Leon", English = "Lukas"},
+    [79] = {ID = 79, Name = "Markus", English = "mrKlein"},
+    [80] = {ID = 80, Name = "Lukas", English = "Wechsler"},
+    [81] = {ID = 81, Name = "mrKlein", English = "ErikSchulz"},
+    [82] = {ID = 82, Name = "Wechsler", English = "Phillipp"},
+    [83] = {ID = 83, Name = "ErikSchulz", English = "UweOld"},
+    [84] = {ID = 84, Name = "Phillipp", English = "Marko"},
+    [85] = {ID = 85, Name = "UweOld", English = "TimStrauss"},
+    [86] = {ID = 86, Name = "Marko", English = "Goldschmit"},
+    [87] = {ID = 87, Name = "TimStrauss", English = "SaskeUchih"},
+    [88] = {ID = 88, Name = "Goldschmit", English = "Fish"},
+    [89] = {ID = 89, Name = "白木", English = "Stout"},
+    [90] = {ID = 90, Name = "茅島", English = "Starfall"},
+    [91] = {ID = 91, Name = "京谷", English = "DemonCooky"},
+    [92] = {ID = 92, Name = "若江", English = "Landslide"},
+    [93] = {ID = 93, Name = "笹沼", English = "Cannonball"},
+    [94] = {ID = 94, Name = "高", English = "ChefManiac"},
+    [95] = {ID = 95, Name = "眞鍋", English = "Sailor"},
+    [96] = {ID = 96, Name = "SaskeUchih", English = "Dynamite"},
+    [97] = {ID = 97, Name = "Fish", English = "Cyclops"},
+    [98] = {ID = 98, Name = "Stout", English = "Skin"},
+    [99] = {ID = 99, Name = "Starfall", English = "Guns"},
+    [100] = {ID = 100, Name = "DemonCooky", English = "Fire"},
+    [101] = {ID = 101, Name = "Landslide", English = "Bear"},
+    [102] = {ID = 102, Name = "Cannonball", English = "Dagger"},
+    [103] = {ID = 103, Name = "ChefManiac", English = "Silence"},
+    [104] = {ID = 104, Name = "Sailor", English = "Robin"},
+    [105] = {ID = 105, Name = "Dynamite", English = "Captain"},
+    [106] = {ID = 106, Name = "Cyclops", English = "CaptainObv"},
+    [107] = {ID = 107, Name = "Assassin", English = "Viper"},
+    [108] = {ID = 108, Name = "Skin", English = "Blush"},
+    [109] = {ID = 109, Name = "Guns", English = "Thief"},
+    [110] = {ID = 110, Name = "Fire", English = "Gibby"},
+    [111] = {ID = 111, Name = "Bear", English = "Lightning"},
+    [112] = {ID = 112, Name = "Dagger", English = "Dumdum"},
+    [113] = {ID = 113, Name = "Silence", English = "Hurricane"},
+    [114] = {ID = 114, Name = "Robin", English = "ChefMaster"},
+    [115] = {ID = 115, Name = "Captain", English = "BadBoy"},
+    [116] = {ID = 116, Name = "CaptainObv", English = "Fuzz"},
+    [117] = {ID = 117, Name = "Viper", English = "Fox"},
+    [118] = {ID = 118, Name = "Blush", English = "Dino"},
+    [119] = {ID = 119, Name = "Thief", English = "Chip"},
+    [120] = {ID = 120, Name = "Gibby", English = "Slash"},
+    [121] = {ID = 121, Name = "Lightning", English = "EmperorH"},
+    [122] = {ID = 122, Name = "Dumdum", English = "Cesar"},
+    [123] = {ID = 123, Name = "Hurricane", English = "Luiz"},
+    [124] = {ID = 124, Name = "ChefMaster", English = "Goncalves"},
+    [125] = {ID = 125, Name = "BadBoy", English = "Santos"},
+    [126] = {ID = 126, Name = "Fuzz", English = "Winter"},
+    [127] = {ID = 127, Name = "Fox", English = "AlexeyS"},
+    [128] = {ID = 128, Name = "Dino", English = "Helen"},
+    [129] = {ID = 129, Name = "Chip", English = "EmmyHoney"},
+    [130] = {ID = 130, Name = "Slash", English = "AmandaCrow"},
+    [131] = {ID = 131, Name = "KingOfHill", English = "Anna"},
+    [132] = {ID = 132, Name = "EmperorH", English = "MissStar"},
+    [133] = {ID = 133, Name = "King", English = "XieShui"},
+    [134] = {ID = 134, Name = "Cesar", English = "LeiJing"},
+    [135] = {ID = 135, Name = "Luiz", English = "ZouZexi"},
+    [136] = {ID = 136, Name = "Goncalves", English = "ZhanCheng"},
+    [137] = {ID = 137, Name = "Santos", English = "BellBeauty"},
+    [138] = {ID = 138, Name = "Winter", English = "OliviaFlow"},
+    [139] = {ID = 139, Name = "AlexeyS", English = "MystryGirl"},
+    [140] = {ID = 140, Name = "Helen", English = "OhNoNaka"},
+    [141] = {ID = 141, Name = "EmmyHoney", English = "LollyPope"},
+    [142] = {ID = 142, Name = "AmandaCrow", English = "MaisyBut"},
+    [143] = {ID = 143, Name = "Anna", English = "Sophia"},
+    [144] = {ID = 144, Name = "MissStar", English = "Elizabeth"},
+    [145] = {ID = 145, Name = "XieShui", English = "BeatriceR"},
+    [146] = {ID = 146, Name = "LeiJing", English = "AlexiaRose"},
+    [147] = {ID = 147, Name = "ZouZexi", English = "Velma"},
+    [148] = {ID = 148, Name = "ZhanCheng", English = "Aliyah"},
+    [149] = {ID = 149, Name = "BellBeauty", English = "Helena"},
+    [150] = {ID = 150, Name = "OliviaFlow", English = "Lucie"},
+    [151] = {ID = 151, Name = "MystryGirl", English = "Rebekka"},
+    [152] = {ID = 152, Name = "OhNoNaka", English = "AngelA"},
+    [153] = {ID = 153, Name = "LollyPope", English = "Hannah"},
+    [154] = {ID = 154, Name = "MaisyBut", English = "Piper"},
+    [155] = {ID = 155, Name = "Sophia", English = "Megan"},
+    [156] = {ID = 156, Name = "Elizabeth", English = "Dayana"},
+    [157] = {ID = 157, Name = "BeatriceR", English = "Veronica"},
+    [158] = {ID = 158, Name = "AlexiaRose", English = "Jasmin"},
+    [159] = {ID = 159, Name = "Velma", English = "Iliana"},
+    [160] = {ID = 160, Name = "Aliyah", English = "Aleena"},
+    [161] = {ID = 161, Name = "Helena", English = "Marisa"},
+    [162] = {ID = 162, Name = "Lucie", English = "Jacqueline"},
+    [163] = {ID = 163, Name = "Rebekka", English = "Kristy"},
+    [164] = {ID = 164, Name = "AngelA", English = "Reagan"},
+    [165] = {ID = 165, Name = "Hannah", English = "Saniyah"},
+    [166] = {ID = 166, Name = "Piper", English = "Nathalie"},
+    [167] = {ID = 167, Name = "Megan", English = "Karly"},
+    [168] = {ID = 168, Name = "Dayana", English = "Anasteisha"},
+    [169] = {ID = 169, Name = "Veronica", English = "Ashtyn"},
+    [170] = {ID = 170, Name = "Jasmin", English = "Sofia"},
+    [171] = {ID = 171, Name = "Iliana", English = "Gianna"},
+    [172] = {ID = 172, Name = "Aleena", English = "Alisa"},
+    [173] = {ID = 173, Name = "Marisa", English = "Charlee"},
+    [174] = {ID = 174, Name = "Jacqueline", English = "Elisabeth"},
+    [175] = {ID = 175, Name = "Kristy", English = "Leilani"},
+    [176] = {ID = 176, Name = "Reagan", English = "Cecilia"},
+    [177] = {ID = 177, Name = "Saniyah", English = "Laura"},
+    [178] = {ID = 178, Name = "Nathalie", English = "Adeline"},
+    [179] = {ID = 179, Name = "Karly", English = "Lilyana"},
+    [180] = {ID = 180, Name = "Anasteisha", English = "Alana"},
+    [181] = {ID = 181, Name = "Ashtyn", English = "Luna"},
+    [182] = {ID = 182, Name = "Sofia", English = "Vivien"},
+    [183] = {ID = 183, Name = "Gianna", English = "Alexandra"},
+    [184] = {ID = 184, Name = "Alisa", English = "Lena"},
+    [185] = {ID = 185, Name = "Charlee", English = "AnnaMary"},
+    [186] = {ID = 186, Name = "Elisabeth", English = "Victoria"},
+    [187] = {ID = 187, Name = "Leilani", English = "Tessa"},
+    [188] = {ID = 188, Name = "Cecilia", English = "Brilliant"},
+    [189] = {ID = 189, Name = "Laura", English = "TeBeAitch"},
+    [190] = {ID = 190, Name = "Adeline", English = "Bronella"},
+    [191] = {ID = 191, Name = "Lilyana", English = "Harrie"},
+    [192] = {ID = 192, Name = "Alana", English = "Harra"},
+    [193] = {ID = 193, Name = "Luna", English = "TerriCakes"},
+    [194] = {ID = 194, Name = "Vivien", English = "TeraKitten"},
+    [195] = {ID = 195, Name = "Alexandra", English = "NiceRice"},
+    [196] = {ID = 196, Name = "Lena", English = "EffBeeAre"},
+    [197] = {ID = 197, Name = "AnnaMary", English = "Fredrella"},
+    [198] = {ID = 198, Name = "Victoria", English = "Brennella"},
+    [199] = {ID = 199, Name = "Tessa", English = "LoneMuffin"},
+    [200] = {ID = 200, Name = "Brilliant", English = "Mulan"},
+    [201] = {ID = 201, Name = "TeBeAitch", English = "Lixue"},
+    [202] = {ID = 202, Name = "Bronella", English = "LiHuan"},
+    [203] = {ID = 203, Name = "Harrie", English = "CaiChiang"},
+    [204] = {ID = 204, Name = "Harra", English = "LingLu"},
+    [205] = {ID = 205, Name = "TerriCakes", English = "ChanJuan"},
+    [206] = {ID = 206, Name = "TeraKitten", English = "JinTeng"},
+    [207] = {ID = 207, Name = "NiceRice", English = "FenWu"},
+    [208] = {ID = 208, Name = "EffBeeAre", English = "LiMing"},
+    [209] = {ID = 209, Name = "Fredrella", English = "MingmeiTao"},
+    [210] = {ID = 210, Name = "Brennella", English = "ShuFang"},
+    [211] = {ID = 211, Name = "LoneMuffin", English = "YueYan"},
+    [212] = {ID = 212, Name = "胡宛妤", English = "LiQin"},
+    [213] = {ID = 213, Name = "傅令宜", English = "MeeTsou"},
+    [214] = {ID = 214, Name = "邢怡君", English = "WenNi"},
+    [215] = {ID = 215, Name = "白豪霈", English = "LiliShao"},
+    [216] = {ID = 216, Name = "范淑芬", English = "JunYang"},
+    [217] = {ID = 217, Name = "姜詩涵", English = "LiHua"},
+    [218] = {ID = 218, Name = "程曉彤", English = "LeeYu"},
+    [219] = {ID = 219, Name = "許婷婷", English = "TaoTao"},
+    [220] = {ID = 220, Name = "沈宜庭", English = "Reika"},
+    [221] = {ID = 221, Name = "薛令宜", English = "TrissM"},
+    [222] = {ID = 222, Name = "Mulan", English = "Catalina"},
+    [223] = {ID = 223, Name = "Lixue", English = "Diana"},
+    [224] = {ID = 224, Name = "LiHuan", English = "Colleen"},
+    [225] = {ID = 225, Name = "CaiChiang", English = "Adrienne"},
+    [226] = {ID = 226, Name = "LingLu", English = "Velma"},
+    [227] = {ID = 227, Name = "ChanJuan", English = "Fonda"},
+    [228] = {ID = 228, Name = "JinTeng", English = "Ginger"},
+    [229] = {ID = 229, Name = "FenWu", English = "Katie"},
+    [230] = {ID = 230, Name = "LiMing", English = "Kate"},
+    [231] = {ID = 231, Name = "MingmeiTao", English = "Selma"},
+    [232] = {ID = 232, Name = "ShuFang", English = "Clara"},
+    [233] = {ID = 233, Name = "YueYan", English = "Jody"},
+    [234] = {ID = 234, Name = "LiQin", English = "Madeline"},
+    [235] = {ID = 235, Name = "MeeTsou", English = "RobinSpkls"},
+    [236] = {ID = 236, Name = "WenNi", English = "Sheri"},
+    [237] = {ID = 237, Name = "LiliShao", English = "SusanCher"},
+    [238] = {ID = 238, Name = "JunYang", English = "Nadia"},
+    [239] = {ID = 239, Name = "LiHua", English = "Jennifer"},
+    [240] = {ID = 240, Name = "LeeYu", English = "Leyla"},
+    [241] = {ID = 241, Name = "TaoTao", English = "LyndaPines"},
+    [242] = {ID = 242, Name = "Reika", English = "CrookedAn"},
+    [243] = {ID = 243, Name = "TrissM", English = "AliceW"},
+    [244] = {ID = 244, Name = "Catalina", English = "PollyBurch"},
+    [245] = {ID = 245, Name = "Diana", English = "DonnaM"},
+    [246] = {ID = 246, Name = "Colleen", English = "Wilcox"},
+    [247] = {ID = 247, Name = "Adrienne", English = "MirmPotter"},
+    [248] = {ID = 248, Name = "Dickerson", English = "MyrnaRiver"},
+    [249] = {ID = 249, Name = "Tucker", English = "ArlineTay"},
+    [250] = {ID = 250, Name = "Velma", English = "NataliaV"},
+    [251] = {ID = 251, Name = "Fonda", English = "SofiaZ"},
+    [252] = {ID = 252, Name = "Ginger", English = "HonyMony"},
+    [253] = {ID = 253, Name = "Katie", English = "Kiki"},
+    [254] = {ID = 254, Name = "Kate", English = "Sheep"},
+    [255] = {ID = 255, Name = "Selma", English = "Tigress"},
+    [256] = {ID = 256, Name = "Clara", English = "Aelita"},
+    [257] = {ID = 257, Name = "Jody", English = "Honey"},
+    [258] = {ID = 258, Name = "Madeline", English = "Dodo"},
+    [259] = {ID = 259, Name = "RobinSpkls", English = "Blondie"},
+    [260] = {ID = 260, Name = "Sheri", English = "Ruby"},
+    [261] = {ID = 261, Name = "SusanCher", English = "Sweety"},
+    [262] = {ID = 262, Name = "Nadia", English = "Skinny"},
+    [263] = {ID = 263, Name = "Jennifer", English = "Bunny"},
+    [264] = {ID = 264, Name = "Leyla", English = "RedRose"},
+    [265] = {ID = 265, Name = "LyndaPines", English = "Quiennie"},
+    [266] = {ID = 266, Name = "CrookedAn", English = "CooCoo"},
+    [267] = {ID = 267, Name = "AliceW", English = "Crystal"},
+    [268] = {ID = 268, Name = "PollyBurch", English = "Chery"},
+    [269] = {ID = 269, Name = "DonnaM", English = "CometGirl"},
+    [270] = {ID = 270, Name = "Wilcox", English = "Mamba"},
+    [271] = {ID = 271, Name = "MirmPotter", English = "NuoYa"},
+    [272] = {ID = 272, Name = "MyrnaRiver", English = "BaoYu"},
+    [273] = {ID = 273, Name = "ArlineTay", English = "BaoMa"},
+    [274] = {ID = 274, Name = "NataliaV", English = "ADaXi"},
+    [275] = {ID = 275, Name = "SofiaZ", English = "JiaLaoShi"},
+    [276] = {ID = 276, Name = "HonyMony", English = "XiaoNan"},
+    [277] = {ID = 277, Name = "Kiki", English = "BingBing"},
+    [278] = {ID = 278, Name = "Silly", English = "JinMuYan"},
+    [279] = {ID = 279, Name = "Sheep", English = "BeiLuo"},
+    [280] = {ID = 280, Name = "Tigress", English = "ChuanShao"},
+    [281] = {ID = 281, Name = "Aelita", English = "DaHua"},
+    [282] = {ID = 282, Name = "Honey", English = "MaoTao"},
+    [283] = {ID = 283, Name = "Dodo", English = "XiaoMoXian"},
+    [284] = {ID = 284, Name = "Widow", English = "GuangNian"},
+    [285] = {ID = 285, Name = "Blondie", English = "KuaKe"},
+    [286] = {ID = 286, Name = "Ruby", English = "KaiSa"},
+    [287] = {ID = 287, Name = "Sweety", English = "YongEn"},
+    [288] = {ID = 288, Name = "Skinny"},
+    [289] = {ID = 289, Name = "Bunny"},
+    [290] = {ID = 290, Name = "RedRose"},
+    [291] = {ID = 291, Name = "Quiennie"},
+    [292] = {ID = 292, Name = "CooCoo"},
+    [293] = {ID = 293, Name = "Crystal"},
+    [294] = {ID = 294, Name = "Chery"},
+    [295] = {ID = 295, Name = "Dummy"},
+    [296] = {ID = 296, Name = "CometGirl"},
+    [297] = {ID = 297, Name = "Mamba"},
+    [298] = {ID = 298, Name = "NuoYa"},
+    [299] = {ID = 299, Name = "BaoYu"},
+    [300] = {ID = 300, Name = "BaoMa"},
+    [301] = {ID = 301, Name = "ADaXi"},
+    [302] = {ID = 302, Name = "JiaLaoShi"},
+    [303] = {ID = 303, Name = "XiaoNan"},
+    [304] = {ID = 304, Name = "BingBing"},
+    [305] = {ID = 305, Name = "JinMuYan"},
+    [306] = {ID = 306, Name = "BeiLuo"},
+    [307] = {ID = 307, Name = "ChuanShao"},
+    [308] = {ID = 308, Name = "DaHua"},
+    [309] = {ID = 309, Name = "MaoTao"},
+    [310] = {ID = 310, Name = "XiaoMoXian"},
+    [311] = {ID = 311, Name = "GuangNian"},
+    [312] = {ID = 312, Name = "KuaKe"},
+    [313] = {ID = 313, Name = "KaiSa"},
+    [314] = {ID = 314, Name = "YongEn"},
+    [315] = {ID = 315},
+    [316] = {ID = 316},
+    [317] = {ID = 317},
+}
+

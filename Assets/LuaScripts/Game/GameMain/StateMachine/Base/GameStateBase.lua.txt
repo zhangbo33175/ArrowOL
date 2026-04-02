@@ -1,0 +1,65 @@
+--=====================================================================================================
+-- descrip:   游戏业务状态基类
+--=====================================================================================================
+
+---@class GameStateBase @游戏业务状态基类
+local GameStateBase = class('GameStateBase')
+
+---构造函数
+---@type fun(stateType:GameStateCmd):void
+---@param stateType GameStateCmd @状态机状态值
+function GameStateBase:ctor(stateType)
+    self._stateType = stateType
+end
+
+---创建函数
+---@type fun(stateType:GameStateCmd):GameStateBase
+---@param stateType GameStateCmd @状态机状态值
+---@return GameStateBase @GameStateBase实例
+function GameStateBase:Create(stateType)
+    local obj = GameStateBase.new(stateType)
+    return obj
+end
+
+---获取状态机类型
+---@type fun():GameStateCmd
+---@return GameStateCmd @游戏状态类型
+function GameStateBase:GetStateType()
+    if self._stateType then
+        return self._stateType
+    end
+    return nil
+end
+
+---进入状态
+---@type fun():void
+---@param finishCallback function @回调函数
+function GameStateBase:OnStateEnter(finishCallback)
+    if finishCallback then
+        xpcall(finishCallback, __G__TRACK_BACK__)
+    end
+end
+
+---离开状态
+---@type fun():void
+---@param finishCallback function @回调函数
+function GameStateBase:OnStateExit(finishCallback)
+    if finishCallback then
+        xpcall(finishCallback, __G__TRACK_BACK__)
+    end
+end
+
+---更新
+---@type fun():void
+function GameStateBase:OnUpdate()
+    --GMHelper:OnUpdate(self)
+end
+
+---清理缓存数据
+---@type fun():void
+function GameStateBase:ClearCacheData()
+    --EffectMgr:ClearData() -- 清理特效层数据
+end
+
+return GameStateBase
+
