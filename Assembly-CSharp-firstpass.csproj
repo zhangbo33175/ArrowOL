@@ -12,7 +12,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{fb298ca9-4e7f-24c2-a794-e64379b62286}</ProjectGuid>
+    <ProjectGuid>{54fc806b-ad4e-cc60-9a03-f4fac1d207c3}</ProjectGuid>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Temp\Bin\Debug\Assembly-CSharp-firstpass\</OutputPath>
-    <DefineConstants>UNITY_2022_3_8;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_STANDARD_2_0;NET_STANDARD;NET_STANDARD_2_1;NETSTANDARD;NETSTANDARD2_1;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;UNITY_PRO_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <DefineConstants>UNITY_2022_3_8;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_STANDARD_2_0;NET_STANDARD;NET_STANDARD_2_1;NETSTANDARD;NETSTANDARD2_1;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;UNITY_PRO_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169,0649</NoWarn>
@@ -58,8 +58,8 @@
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ExtensionsToggle.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\UIParticleSystem.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsUnicodeString.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\AssemblyInfo.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\TileSizeFitter.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\AssemblyInfo.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Exceptions\InvalidPasswordException.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UIScrollToSelectionXY.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsBiffColInfo.cs" />
@@ -77,8 +77,8 @@
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\SegmentedControl.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ComboBox\AutoCompleteComboBox.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\Accordion\Tweening\ITweenValue.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CsvFormat\CsvWorksheet.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CompoundFormat\CompoundHeader.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CsvFormat\CsvWorksheet.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\Segment.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Primitives\UISquircle.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\NumberFormat\SectionType.cs" />
@@ -95,8 +95,8 @@
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\ColorSampler.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CsvFormat\CsvParser.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\TextPic.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\ShaderEffects\UISoftAdditiveEffect.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurvedText.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\ShaderEffects\UISoftAdditiveEffect.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\TiltWindow.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ComboBox\ComboBox.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CompoundFormat\CompoundEnums.cs" />
@@ -112,8 +112,8 @@
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView\GridView\IFancyCellGroupContext.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CylinderText.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\StepperSide.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\CardUI\2D Cards\CardStack2D.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UI_InfiniteScroll.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\CardUI\2D Cards\CardStack2D.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ReadOnlyAttribute.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurlyUI\CUIGraphic.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\CardUI\3D Cards\CardExpanding3D.cs" />
@@ -150,9 +150,9 @@
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader.DataSet\Portable\ExtensionAttribute.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\TabNavigationHelper.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\HorizontalScrollSnap.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ExtentionMethods.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\NumberFormat\ExponentialSection.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\UIVerticalScroller.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\NumberFormat\ExponentialSection.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ExtentionMethods.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurlyUI\CUIBezierCurve.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Primitives\UICircle.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ScrollRectEx.cs" />
@@ -189,10 +189,10 @@
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView\ScrollRect\FancyScrollRectCell.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\MonoSpacing.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Exceptions\CompoundDocumentException.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FlowLayoutGroup.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CsvFormat\CsvAnalyzer.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\ExcelReaderConfiguration.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FlowLayoutGroup.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\BezierPath.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\ExcelReaderConfiguration.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\RadialSlider.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Log\Logger\NullLogFactory.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\ExcelCsvReader.cs" />
@@ -295,8 +295,8 @@
      <Compile Include="Assets\Plugins\ThirdLibs\LitJson\JsonMapper.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\PPIViewer.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CompoundFormat\CompoundStream.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Primitives\DiamondGraph.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\ColorImage.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Primitives\DiamondGraph.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Log\Log.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsShortByteString.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\SelectableScaler.cs" />
@@ -324,9 +324,9 @@
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\UIFlippable.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\ReferenceHelper.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\OpenXmlFormat\XlsxCols.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UISelectableExtension.cs" />
-     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsWorkbook.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsSSTStringHeader.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsWorkbook.cs" />
+     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UISelectableExtension.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurlyUI\CUIMisc.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\UI_Knob.cs" />
      <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\SVBoxSlider.cs" />
@@ -364,6 +364,7 @@
      <Folder Include="Assets\Plugins\ThirdLibs\TextMesh Pro" />
      <Folder Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Resources\Sprite Assets" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView" />
+     <Folder Include="Assets\Plugins\x86_64\debugger" />
      <None Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
      <None Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Resources\Shaders\UIScreen.shader" />
      <None Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Resources\Shaders\UI Particle Multiply.shader" />
@@ -389,7 +390,7 @@
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\CardUI\Superellipse Creation" />
      <None Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
-     <Folder Include="Assets\Plugins\Demigiant" />
+     <Folder Include="Assets\Plugins\x86_64" />
      <None Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Resources\Shaders\UI Particle MultiplyDouble.shader" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Resources" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView\GridView" />
@@ -408,6 +409,7 @@
      <None Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurlyUI" />
      <None Include="Assets\Plugins\ThirdLibs\Spine\Spine\package.json" />
+     <Folder Include="Assets\Plugins\x86" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\ToolTips" />
      <None Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView\Scroller" />
@@ -428,6 +430,7 @@
      <Folder Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Misc" />
      <Folder Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Exceptions" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Primitives" />
+     <Folder Include="Assets\Plugins\x86_64\debugger\emmy" />
      <Folder Include="Assets\Plugins\ThirdLibs\LitJson" />
      <Folder Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CsvFormat" />
      <Folder Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects" />
@@ -706,35 +709,38 @@
      <Reference Include="UnityEditor.UnityConnectModule">
      <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
      </Reference>
-     <Reference Include="ReportGeneratorMerged">
-     <HintPath>E:\Game\ArrowOL\Library\PackageCache\com.unity.testtools.codecoverage@1.2.4\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
+     <Reference Include="Newtonsoft.Json">
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
      </Reference>
-     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
-     <HintPath>E:\Game\ArrowOL\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+     <Reference Include="ReportGeneratorMerged">
+     <HintPath>E:\Game\ArrowDemo\Library\PackageCache\com.unity.testtools.codecoverage@1.2.4\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
      </Reference>
      <Reference Include="DOTween">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\DOTween.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\DOTween.dll</HintPath>
      </Reference>
      <Reference Include="DOTween46">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\DOTween46.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\DOTween46.dll</HintPath>
      </Reference>
      <Reference Include="DOTweenPro">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\DOTweenPro.dll</HintPath>
-     </Reference>
-     <Reference Include="ICSharpCode.SharpZipLib">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
-     </Reference>
-     <Reference Include="EPPlus">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\ThirdLibs\ExcelIO\EPPlus.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\DOTweenPro.dll</HintPath>
      </Reference>
      <Reference Include="DOTween43">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\DOTween43.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\DOTween43.dll</HintPath>
      </Reference>
-     <Reference Include="Newtonsoft.Json">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
+     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
+     <HintPath>E:\Game\ArrowDemo\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+     </Reference>
+     <Reference Include="ICSharpCode.SharpZipLib">
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
+     </Reference>
+     <Reference Include="System.Runtime.CompilerServices.Unsafe">
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
      </Reference>
      <Reference Include="Microsoft.IO.RecyclableMemoryStream">
-     <HintPath>E:\Game\ArrowOL\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+     </Reference>
+     <Reference Include="EPPlus">
+     <HintPath>E:\Game\ArrowDemo\Assets\Plugins\ThirdLibs\ExcelIO\EPPlus.dll</HintPath>
      </Reference>
      <Reference Include="Unity.Android.Types">
      <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Types.dll</HintPath>
@@ -1112,86 +1118,86 @@
      <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\NetStandard\compat\2.1.0\shims\netfx\System.Xml.Serialization.dll</HintPath>
      </Reference>
      <Reference Include="Unity.Timeline">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
      </Reference>
      <Reference Include="Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection.dll</HintPath>
      </Reference>
      <Reference Include="UnityEngine.UI">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
      </Reference>
      <Reference Include="Unity.EditorCoroutines.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.EditorCoroutines.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.EditorCoroutines.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.SettingsProvider.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.SettingsProvider.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.SettingsProvider.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.Performance.Profile-Analyzer.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.Performance.Profile-Analyzer.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.Performance.Profile-Analyzer.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.TestTools.CodeCoverage.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.TestTools.CodeCoverage.Editor.OpenCover.Model">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Model.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Model.dll</HintPath>
      </Reference>
      <Reference Include="Unity.PlasticSCM.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.State.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.State.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.State.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.Timeline.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.Shared.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.Shared.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.Shared.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualStudio.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.TextMeshPro">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.Core">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.Core.dll</HintPath>
-     </Reference>
-     <Reference Include="Unity.TextMeshPro.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.Core.dll</HintPath>
      </Reference>
      <Reference Include="UnityEditor.UI">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.Core.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.Core.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.Core.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.Rider.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
+     </Reference>
+     <Reference Include="Unity.TextMeshPro.Editor">
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.State">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VSCode.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.Flow">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.Flow.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.Flow.dll</HintPath>
      </Reference>
      <Reference Include="Unity.VisualScripting.Flow.Editor">
-     <HintPath>E:\Game\ArrowOL\Library\ScriptAssemblies\Unity.VisualScripting.Flow.Editor.dll</HintPath>
+     <HintPath>E:\Game\ArrowDemo\Library\ScriptAssemblies\Unity.VisualScripting.Flow.Editor.dll</HintPath>
      </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="spine-unity-editor.csproj">
-      <Project>{d22ea3bc-e9ae-1fb7-51ae-2a817831090a}</Project>
+      <Project>{428737e9-7683-1ec2-46c2-673fe3277b1a}</Project>
       <Name>spine-unity-editor</Name>
     </ProjectReference>
     <ProjectReference Include="spine-csharp.csproj">
-      <Project>{82529bab-c80e-b201-5d0b-055ec4a13b18}</Project>
+      <Project>{2bdb3e9d-306f-f5fe-72fd-94762bbbdaa1}</Project>
       <Name>spine-csharp</Name>
     </ProjectReference>
     <ProjectReference Include="spine-unity.csproj">
-      <Project>{ff6847fa-56ef-adc4-5bd7-cabc317a7be6}</Project>
+      <Project>{ea09a4b0-9ea1-d3c6-7ef1-d9288a5bea85}</Project>
       <Name>spine-unity</Name>
     </ProjectReference>
   </ItemGroup>
