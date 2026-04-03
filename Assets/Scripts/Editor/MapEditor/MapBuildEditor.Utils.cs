@@ -235,23 +235,23 @@ namespace Editor.MapEditor
             }
             
              /// <summary>
-             /// 
+             /// 获取背景图片路径
              /// </summary>
              /// <param name="backgroundName">背景名称</param>
              /// <returns></returns>
             public static string GetItemStrPath(string backgroundName)
             {
-                return AorTxt.Format("{0}/{1}.png","Assets/Res/Textures/LevelBackground",backgroundName);
+                return AorTxt.Format("{0}/{1}.png","Assets/Res/Textures/Map/LevelBackground",backgroundName);
             }
              
              /// <summary>
-             /// 
+             /// 获取图片路径
              /// </summary>
              /// <param name="_iconName">图片名称</param>
              /// <returns></returns>
              public static string GetItemIconPath(string _iconName)
              {
-                 return AorTxt.Format("{0}/{1}.png","Assets/Res/Textures/Icon",_iconName);
+                 return AorTxt.Format("{0}/{1}.png","Assets/Res/Textures/Map/Icon",_iconName);
              }
         }
 
