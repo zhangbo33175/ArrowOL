@@ -20,6 +20,12 @@ namespace Editor.MapEditor
         private string _selectedImagePath;
 
         /// <summary>
+        /// 选中的列表项索引
+        /// </summary>
+        private int _selectedIconIndex = -1;
+        
+        
+        /// <summary>
         /// 
         /// </summary>
         private readonly float _previewBoxWidth = 120f;
@@ -31,12 +37,20 @@ namespace Editor.MapEditor
         private readonly Color _selectedBgColor = new Color(0.2f, 0.6f, 1f, 0.2f); // 选中背景色
         private readonly Color _normalBgColor = new Color(0.9f, 0.9f, 0.9f, 0.1f); // 正常背景色
 
+
+        private bool m_IsInitIconList = false;
+        
         /// <summary>
         /// 
         /// </summary>
         private void OnSetIconList()
         {
-            DrawIconPreviewList();
+            if (!m_IsInitIconList)
+            {
+                DrawIconPreviewList();
+                //m_IsInitIconList = true;
+            }
+            
         }
        /// <summary>
         /// 更具地址生成图片信息
@@ -137,26 +151,15 @@ namespace Editor.MapEditor
             {
                 GUILayout.EndHorizontal();
             }
-
+            
             GUILayout.EndVertical();
             EditorGUILayout.EndScrollView();
         }
         
- 
-
         /// <summary>
         /// 绘制单个ICON Item（支持点击选中，适配截图样式）
-        /// </summary>
         /// <param name="data">ICON预览数据</param>
         /// <param name="index">ITEM索引</param>
-        /// <summary>
-        /// 绘制单个ICON Item（修复重叠，固定尺寸）
-        /// </summary>
-   /// <summary>
-/// 绘制单个ICON Item（40*40图标 + 文字横向布局）
-/// </summary>
-        /// <summary>
-        /// 绘制单个ICON Item（40*40图标 + 文字横向布局，无报错版）
         /// </summary>
         private void CreateIconItem(IconData data, int index)
         {
@@ -164,7 +167,7 @@ namespace Editor.MapEditor
             Rect itemRect = GUILayoutUtility.GetRect(10000, 50);
 
             // 背景
-            Color bg = _selectedIndex == index ? _selectedBgColor : _normalBgColor;
+            Color bg = _selectedIconIndex == index ? _selectedBgColor : _normalBgColor;
             EditorGUI.DrawRect(itemRect, bg);
 
             // 图标 40*40 居中
@@ -174,6 +177,10 @@ namespace Editor.MapEditor
                 40, 40
             );
 
+            if (data.m_IconAssetPath!=null)
+            {
+                data.m_IconTexture=Utils.LoadImageTexture(PathUtils.GetItemIconPath(data.m_IconAssetPath));
+            }
             // 绘制图标
             if (data.m_IconTexture != null)
             {
@@ -186,7 +193,7 @@ namespace Editor.MapEditor
             }
 
             // 选中红色边框
-            if (_selectedIndex == index)
+            if (_selectedIconIndex == index)
             {
                 EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.y, iconRect.width, 2), Color.red);
                 EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.y, 2, iconRect.height), Color.red);
@@ -214,7 +221,7 @@ namespace Editor.MapEditor
             Event e = Event.current;
             if (e.type == EventType.MouseDown && e.button == 0 && itemRect.Contains(e.mousePosition))
             {
-                _selectedIndex = index;
+                _selectedIconIndex = index;
                 ChooseIconItem(data);
                 e.Use();
                 Repaint();

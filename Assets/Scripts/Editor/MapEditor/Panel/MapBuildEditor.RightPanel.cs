@@ -113,7 +113,11 @@ namespace Editor.MapEditor
             {
                 SaveTheMap();
             }
-
+            
+            if (GUILayout.Button("自动匹配背景图片并对齐"))
+            {
+                AutoAlignAllObjectsToBackground();
+            }
             GUILayout.EndVertical();
 
             // 分割线
@@ -155,6 +159,7 @@ namespace Editor.MapEditor
 
             GUILayout.EndVertical();
             // ===================== 右侧容器结束 =====================
+            //m_IsInitIconList = true;
         }
         /// <summary>
         /// 保存地图

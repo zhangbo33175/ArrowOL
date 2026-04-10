@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,6 @@ namespace Editor.MapEditor
     /// </summary>
     public sealed partial class MapBuildEditor
     {
-        
         #region 鼠标交互处理（核心修复：统一坐标转换）
 
         // ========== 修复鼠标点击逻辑：增加防抖和精准判断 ==========
@@ -257,7 +257,7 @@ namespace Editor.MapEditor
         }
 
         #endregion
-        
+
         #region 清空添加的物体
 
         private void ClearAddedObjects()
@@ -270,10 +270,115 @@ namespace Editor.MapEditor
                     DestroyImmediate(obj);
                 }
             }
+
             m_AddObjects.Clear();
             Repaint();
         }
 
+        #endregion
+        
+        #region 自动匹配背景图片 + 自动对齐重合
+
+        /// <summary>
+        /// 【你要的按钮调用方法】
+        /// 自动匹配所有已添加物体 → 找到背景对应图 → 自动重合
+        /// </summary>
+        public void AutoAlignAllObjectsToBackground()
+        {
+            if (m_AddObjects == null || m_AddObjects.Count == 0)
+            {
+                Debug.LogWarning("没有需要对齐的物体");
+                return;
+            }
+
+            // 1. 获取背景里所有图片
+            var allBackgroundImages = GetAllBackgroundImages();
+            if (allBackgroundImages.Count == 0)
+            {
+                Debug.LogWarning("背景里没有找到任何图片");
+                return;
+            }
+
+            int successCount = 0;
+
+            // 2. 遍历所有放置的物体
+            foreach (var obj in m_AddObjects)
+            {
+                if (obj == null) continue;
+
+                // 获取物体图片
+                Graphic objGraphic = obj.GetComponentInChildren<Graphic>();
+                if (objGraphic == null) continue;
+
+                Texture objTex = GetGraphicTexture(objGraphic);
+                if (objTex == null) continue;
+
+                // 3. 在背景里找 同名/同纹理 的图片
+                RectTransform targetRt = FindMatchBackgroundImage(allBackgroundImages, objTex);
+                if (targetRt == null) continue;
+
+                // 4. 自动移动过去重合
+                RectTransform objRt = obj.GetComponent<RectTransform>();
+                objRt.anchoredPosition = targetRt.anchoredPosition;
+
+                // 5. 记录位置信息
+                Debug.Log($"<color=green>自动对齐成功：{obj.name} → 位置：{targetRt.anchoredPosition}</color>");
+                successCount++;
+            }
+
+            Debug.Log($"<color=yellow>自动对齐完成！成功：{successCount} 个</color>");
+            Repaint();
+        }
+
+        /// <summary>
+        /// 获取背景里所有图片
+        /// </summary>
+        private List<RectTransform> GetAllBackgroundImages()
+        {
+            List<RectTransform> images = new List<RectTransform>();
+            if (m_MapRoot == null) return images;
+
+            var allGraphics = m_MapRoot.GetComponentsInChildren<Graphic>();
+            foreach (var g in allGraphics)
+            {
+                // 排除自己
+                if (g.gameObject.name.Contains("PreviewInstance")) continue;
+                if (g.GetComponentInParent<Canvas>() != null && g.transform != m_MapRoot)
+                {
+                    images.Add(g.GetComponent<RectTransform>());
+                }
+            }
+
+            return images;
+        }
+
+        /// <summary>
+        /// 获取图片纹理
+        /// </summary>
+        private Texture GetGraphicTexture(Graphic graphic)
+        {
+            if (graphic is Image img) return img.sprite?.texture;
+            if (graphic is RawImage raw) return raw.texture;
+            return null;
+        }
+
+        /// <summary>
+        /// 寻找匹配的背景图（按纹理匹配）
+        /// </summary>
+        private RectTransform FindMatchBackgroundImage(List<RectTransform> images, Texture objTex)
+        {
+            foreach (var rt in images)
+            {
+                Graphic g = rt.GetComponent<Graphic>();
+                Texture bgTex = GetGraphicTexture(g);
+                if (bgTex != null && bgTex.name == objTex.name)
+                {
+                    return rt;
+                }
+            }
+
+            return null;
+        }
         #endregion
     }
 }

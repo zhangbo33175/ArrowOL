@@ -1,0 +1,41 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableItem
+-- descrip:   物品列表信息
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.Item_Item @物品列表信息条目
+---@field ID string @序号
+---@field Type string @功能类型
+---@field SystemID string @功能标志
+---@field Icon string @圖標信息
+
+---@class Tables.Item @物品列表信息
+---@field 1 Tables.Item_Item
+---@field 2 Tables.Item_Item
+---@field 3 Tables.Item_Item
+---@field 4 Tables.Item_Item
+---@field 5 Tables.Item_Item
+---@field 6 Tables.Item_Item
+---@field 7 Tables.Item_Item
+---@field 8 Tables.Item_Item
+---@field 9 Tables.Item_Item
+---@field 10 Tables.Item_Item
+---@field 11 Tables.Item_Item
+Tables.Item = {
+    ["1"] = {ID = "1", Type = "1", SystemID = "CardPack"},
+    ["2"] = {ID = "2", Type = "2", SystemID = "Collect2"},
+    ["3"] = {ID = "3", Type = "2", SystemID = "Cake"},
+    ["4"] = {ID = "4", Type = "2", SystemID = "ChefMaster"},
+    ["5"] = {ID = "5", Type = "2", SystemID = "SeasonPass"},
+    ["6"] = {ID = "6", Type = "2", SystemID = "BurgerTower"},
+    ["7"] = {ID = "7", Type = "2", SystemID = "LavaQuest"},
+    ["8"] = {ID = "8", Type = "2", SystemID = "AIRacing"},
+    ["9"] = {ID = "9", Type = "2", SystemID = "MagicPot"},
+    ["10"] = {ID = "10", Type = "2", SystemID = "ArcherArena"},
+    ["11"] = {ID = "11", Type = "2", SystemID = "RollDice"},
+}
+

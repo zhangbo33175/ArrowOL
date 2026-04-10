@@ -471,11 +471,9 @@ namespace Editor.MapEditor
             /// </summary>
             /// <param name="imagePath">图片地址</param>
             /// <returns>纹理资源</returns>
-            private static Texture2D LoadImageTexture(string imagePath)
+            public static Texture2D LoadImageTexture(string imagePath)
             {
                 Texture2D texture = null;
-
-                // 情况1：AssetDatabase路径（如：Assets/Resources/Icons/test.png）
                 if (imagePath.StartsWith("Assets/"))
                 {
                     texture = AssetDatabase.LoadAssetAtPath<Texture2D>(imagePath);
@@ -484,7 +482,6 @@ namespace Editor.MapEditor
                         return texture;
                     }
                 }
-                // 情况2：本地绝对路径（如：D:/Images/test.png）
                 if (File.Exists(imagePath))
                 {
                     byte[] imageBytes = File.ReadAllBytes(imagePath);
@@ -492,8 +489,7 @@ namespace Editor.MapEditor
                     texture.LoadImage(imageBytes);
                     return texture;
                 }
-                
-                Debug.LogError($"不支持的图片地址格式：{imagePath}");
+                Debug.LogError($"没有找到对应的图片资源：{imagePath}");
                 return null;
             }
             #endregion
@@ -541,18 +537,19 @@ namespace Editor.MapEditor
             }
             
             /// <summary>
-            /// 
+            /// 转换成Int[]
             /// </summary>
             /// <param name="???"></param>
             /// <returns></returns>
             public static int[] GetIntList(string _list)
             {
                 if (string.IsNullOrWhiteSpace(_list))
-                    return new int[0];
+                {
+                    return new int[0];  
+                }
                 string clean = _list.Trim('{', '}');
                 clean = clean.Replace("\"", "");
-                return clean.Split(',')
-                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                return clean.Split(',').Where(s => !string.IsNullOrWhiteSpace(s))
                     .Select(int.Parse)
                     .ToArray();
             }

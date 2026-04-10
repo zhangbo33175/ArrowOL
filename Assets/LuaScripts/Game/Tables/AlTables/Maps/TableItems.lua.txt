@@ -1,0 +1,117 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableItems
+-- descrip:   物件列表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.Items_Item @物件列表条目
+---@field ID number @序号
+---@field Icon string @图片名称
+
+---@class Tables.Items @物件列表
+---@field 1001 Tables.Items_Item
+---@field 1002 Tables.Items_Item
+---@field 1003 Tables.Items_Item
+---@field 1004 Tables.Items_Item
+---@field 1005 Tables.Items_Item
+---@field 1006 Tables.Items_Item
+---@field 1007 Tables.Items_Item
+---@field 1008 Tables.Items_Item
+---@field 1009 Tables.Items_Item
+---@field 1010 Tables.Items_Item
+---@field 1011 Tables.Items_Item
+---@field 1012 Tables.Items_Item
+---@field 1013 Tables.Items_Item
+---@field 1014 Tables.Items_Item
+---@field 1015 Tables.Items_Item
+---@field 1016 Tables.Items_Item
+---@field 1017 Tables.Items_Item
+---@field 1018 Tables.Items_Item
+---@field 1019 Tables.Items_Item
+---@field 1020 Tables.Items_Item
+---@field 1021 Tables.Items_Item
+---@field 1022 Tables.Items_Item
+---@field 1023 Tables.Items_Item
+---@field 1024 Tables.Items_Item
+---@field 1025 Tables.Items_Item
+---@field 1026 Tables.Items_Item
+---@field 1027 Tables.Items_Item
+---@field 1028 Tables.Items_Item
+---@field 1029 Tables.Items_Item
+---@field 1030 Tables.Items_Item
+---@field 1031 Tables.Items_Item
+---@field 1032 Tables.Items_Item
+---@field 1033 Tables.Items_Item
+---@field 1034 Tables.Items_Item
+---@field 1035 Tables.Items_Item
+---@field 1036 Tables.Items_Item
+---@field 1037 Tables.Items_Item
+---@field 1038 Tables.Items_Item
+---@field 1039 Tables.Items_Item
+---@field 1040 Tables.Items_Item
+---@field 1041 Tables.Items_Item
+---@field 1042 Tables.Items_Item
+---@field 1043 Tables.Items_Item
+---@field 1044 Tables.Items_Item
+---@field 1045 Tables.Items_Item
+---@field 1046 Tables.Items_Item
+---@field 1047 Tables.Items_Item
+---@field 1048 Tables.Items_Item
+---@field 1049 Tables.Items_Item
+---@field 1050 Tables.Items_Item
+Tables.Items = {
+    [1001] = {ID = 1001, Icon = "main_level1_cat1"},
+    [1002] = {ID = 1002, Icon = "main_level1_cat2"},
+    [1003] = {ID = 1003, Icon = "main_level1_cat3"},
+    [1004] = {ID = 1004, Icon = "main_level1_cat4"},
+    [1005] = {ID = 1005, Icon = "main_level1_cat5"},
+    [1006] = {ID = 1006, Icon = "main_level1_cat6"},
+    [1007] = {ID = 1007, Icon = "main_level1_cat7"},
+    [1008] = {ID = 1008, Icon = "main_level1_cat8"},
+    [1009] = {ID = 1009, Icon = "main_level1_cat9"},
+    [1010] = {ID = 1010, Icon = "main_level1_cat10"},
+    [1011] = {ID = 1011, Icon = "main_level1_cat11"},
+    [1012] = {ID = 1012, Icon = "main_level1_cat12"},
+    [1013] = {ID = 1013, Icon = "main_level1_cat13"},
+    [1014] = {ID = 1014, Icon = "main_level1_cat14"},
+    [1015] = {ID = 1015, Icon = "main_level1_cat15"},
+    [1016] = {ID = 1016, Icon = "main_level1_cat16"},
+    [1017] = {ID = 1017, Icon = "main_level1_cat17"},
+    [1018] = {ID = 1018, Icon = "main_level1_cat18"},
+    [1019] = {ID = 1019, Icon = "main_level1_cat19"},
+    [1020] = {ID = 1020, Icon = "main_level1_cat20"},
+    [1021] = {ID = 1021, Icon = "main_level1_cat21"},
+    [1022] = {ID = 1022, Icon = "main_level1_cat22"},
+    [1023] = {ID = 1023, Icon = "main_level1_cat23"},
+    [1024] = {ID = 1024, Icon = "main_level1_cat24"},
+    [1025] = {ID = 1025, Icon = "main_level1_cat25"},
+    [1026] = {ID = 1026, Icon = "main_level1_cat26"},
+    [1027] = {ID = 1027, Icon = "main_level1_cat27"},
+    [1028] = {ID = 1028, Icon = "main_level1_cat28"},
+    [1029] = {ID = 1029, Icon = "main_level1_cat29"},
+    [1030] = {ID = 1030, Icon = "main_level1_cat30"},
+    [1031] = {ID = 1031, Icon = "main_level2_cat1"},
+    [1032] = {ID = 1032, Icon = "main_level2_cat2"},
+    [1033] = {ID = 1033, Icon = "main_level2_cat3"},
+    [1034] = {ID = 1034, Icon = "main_level2_cat4"},
+    [1035] = {ID = 1035, Icon = "main_level2_cat5"},
+    [1036] = {ID = 1036, Icon = "main_level2_cat6"},
+    [1037] = {ID = 1037, Icon = "main_level2_cat7"},
+    [1038] = {ID = 1038, Icon = "main_level2_cat8"},
+    [1039] = {ID = 1039, Icon = "main_level2_cat9"},
+    [1040] = {ID = 1040, Icon = "main_level2_cat10"},
+    [1041] = {ID = 1041, Icon = "main_level2_cat11"},
+    [1042] = {ID = 1042, Icon = "main_level2_cat12"},
+    [1043] = {ID = 1043, Icon = "main_level2_cat13"},
+    [1044] = {ID = 1044, Icon = "main_level2_cat14"},
+    [1045] = {ID = 1045, Icon = "main_level2_cat15"},
+    [1046] = {ID = 1046, Icon = "main_level2_cat16"},
+    [1047] = {ID = 1047, Icon = "main_level2_cat17"},
+    [1048] = {ID = 1048, Icon = "main_level2_cat18"},
+    [1049] = {ID = 1049, Icon = "main_level2_cat19"},
+    [1050] = {ID = 1050, Icon = "main_level2_cat20"},
+}
+

@@ -2,9 +2,6 @@
 {
     public sealed partial class MapBuildEditor
     {
-        
-        
-        
         /// <summary>
         /// 设置Icon的预制体
         /// </summary>

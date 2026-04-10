@@ -84,6 +84,7 @@ namespace Editor.MapEditor
                 m_TableMainLevels = tableMainLevels;
                 mapName = tableMainLevels.LevelID;
                 mapId = tableMainLevels.ID;
+                m_IsInitIconList = false;
                 SetIconItem();
                 Debug.Log($"选中地图：{tableMainLevels.LevelID}");
             }

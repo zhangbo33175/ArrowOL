@@ -883,6 +883,7 @@
      <None Include="Assets\LuaScripts\Game\Tables\AlOthers\TableBadWords.lua.txt" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Bases" />
      <None Include="Assets\LuaScripts\Honor\Singleton\Systems\libs\SystemArray.lua.txt" />
+     <None Include="Assets\LuaScripts\Game\Tables\AlTables\TableItem.lua.txt" />
      <None Include="Assets\LuaScripts\Game\Localizations\LocalizationItalian\LocalPart_Localizations_Italian.lua.txt" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Persists\Definitions" />
      <Folder Include="Assets\LuaScripts\Game\Manager\GameCoreManager" />
@@ -911,6 +912,7 @@
      <Folder Include="Assets\Res\Prefabs\UIs\UILoad" />
      <Folder Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UILauncherLogoView" />
      <None Include="Assets\Res\Fonts\TMPTxt\lang_ja.txt" />
+     <None Include="Assets\LuaScripts\Game\Tables\AlTables\Maps\TableMainLevels.lua.txt" />
      <Folder Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UIFloatWords" />
      <Folder Include="Assets\LuaScripts\Game\GameMain\StateMachine" />
      <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationSpanishFontTMPChars.txt" />
@@ -933,6 +935,7 @@
      <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\French.txt" />
      <Folder Include="Assets\LuaScripts\Game\Localizations\LocalizationPortuguesePortugal" />
      <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultRussian.json" />
+     <None Include="Assets\LuaScripts\Game\Tables\AlTables\Maps\TableDailyLevels.lua.txt" />
      <None Include="Assets\LuaScripts\Game\Tables\AlTables\Maps\TableDecorStages.lua.txt" />
      <Folder Include="Assets\LuaScripts\Honor\Singleton\Systems\libs" />
      <None Include="Assets\LuaScripts\Game\Tables\AlTables\TableExitTips.lua.txt" />
@@ -999,7 +1002,6 @@
      <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationChineseSimplifiedFontTMPChars.txt" />
      <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationRussianFontTMPChars.txt" />
      <Folder Include="Assets\LuaScripts\Game\GameMain\StateMachine\Base" />
-     <Folder Include="Assets\Res\Textures\LevelBanground" />
      <Folder Include="Assets\LuaScripts\Game\GameMain\GameUI\UILoginView" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Bases\UIs\TextArea" />
      <None Include="Assets\LuaScripts\Honor\Singleton\Systems\perfs\SystemProfiler.lua.txt" />
@@ -1021,6 +1023,7 @@
      <None Include="Assets\LuaScripts\Honor\Singleton\Singleton.lua.txt" />
      <None Include="Assets\LuaScripts\Game\Launcher\ProcedurePlaying.lua.txt" />
      <Folder Include="Assets\LuaScripts\Game\Manager\GameManager" />
+     <None Include="Assets\LuaScripts\Game\Tables\AlTables\Maps\TableItems.lua.txt" />
      <None Include="Assets\LuaScripts\Game\Manager\GameCoreManager\GameCoreManager.lua.txt" />
      <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultEnglish.json" />
      <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\PortuguesePortugal.txt" />
@@ -1133,10 +1136,9 @@
      <None Include="Assets\LuaScripts\Game\Manager\Data\HomeIconsDataManager\HomeIconsDataManager.lua.txt" />
      <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\ViewModelSuper.lua.txt" />
      <None Include="Assets\LuaScripts\Honor\Singleton\Helpers\HonorCoroutineHelper.lua.txt" />
-     <Folder Include="Assets\Res\Textures\Level1\Icon" />
      <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\Collections\HonorPool.lua.txt" />
      <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\Collections\HonorStack.lua.txt" />
-     <Folder Include="Assets\Res\Textures\Level1" />
+     <Folder Include="Assets\Res\Textures\Map\LevelBackground" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Events\Components" />
      <None Include="Assets\LuaScripts\Honor\Singleton\Procedures\ProcedureSuper.lua.txt" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\UIs\UIInfo" />
@@ -1155,7 +1157,6 @@
      <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultFrench.json" />
      <None Include="Assets\LuaScripts\Game\Localizations\LocalizationFrench\LocalPart_Localizations_French.lua.txt" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Assets\Managers" />
-     <Folder Include="Assets\Res\Textures\LevelBackground" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Assets\Definitions" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime" />
      <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\Collections\HonorQueue.lua.txt" />
@@ -1165,7 +1166,6 @@
      <Folder Include="Assets\LuaScripts\Game\Manager\GoalDataManager" />
      <Folder Include="Assets\Scripts\Runtime\Utils\CSharpLuaTableBridge" />
      <Folder Include="Assets\Res\Fonts\TMPSources" />
-     <Folder Include="Assets\GeneratedPrefabs" />
      <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\Binder.lua.txt" />
      <Folder Include="Assets\LuaScripts\Game\Helper\PlayHelper" />
      <Folder Include="Assets\Scripts\Runtime\Game\GameMain" />
@@ -1184,10 +1184,10 @@
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Vibrates\Managers" />
      <Folder Include="Assets\LuaScripts\Game\Localizations\LocalizationChineseSimplified" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Events" />
-     <Folder Include="Assets\Res\Textures\Icon" />
-     <Folder Include="Assets\Res\Textures\合集" />
+     <Folder Include="Assets\Res\Textures\Map\Icon" />
      <Folder Include="Assets\LuaScripts\Game\Helper" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Sounds\Definitions" />
+     <Folder Include="Assets\Res\Textures\Map" />
      <Folder Include="Assets\Res\Icon" />
      <None Include="Assets\LuaScripts\Game\Localizations\LocalizationItalian\LocalizationItalian.lua.txt" />
      <Folder Include="Assets\GameFramework\Scripts\Runtime\Vibrates\Components" />
