@@ -1,0 +1,65 @@
+
+{
+    "m_MapName" : null,
+    "ChapterId" : "",
+    "LevelId"   : 0,
+    "m_BackgroundPath" : null,
+    "m_MapObjectData"  : [
+        {
+            "m_Id" : 1010,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : -113.4277,
+                "y" : -412.7507,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat10",
+            "m_Name"     : "ItemMap_Instance_0",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 1017,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : -12.60305,
+                "y" : 157.5385,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat17",
+            "m_Name"     : "ItemMap_Instance_1",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        }
+    ],
+    "m_CcreateTime"    : null,
+    "m_MapWidth"       : 2048,
+    "m_MapHeight"      : 2048,
+    "SavePath"         : ""
+}

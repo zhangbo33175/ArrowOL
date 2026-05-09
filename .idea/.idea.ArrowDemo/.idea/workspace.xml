@@ -1,0 +1,1175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeSettings">
+    <configurations />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7b0524f1-5a94-4f3a-b57c-f763ada3c38c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Data.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Visitors.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/SectionItem.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/UILevelViewView.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/UILevelViewViewModel.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoadMapView/UILoadMapView.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoginView/UILoginView.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIPlayingAnimated/UIPlayingAnimated.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/Map/UIMap.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/RScripts/ResDefs/ResDefs.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/RScripts/ResDefs/ResDefs_1.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/TableLevelData.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/TableLevelData_1_1.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2001.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2003.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2004.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2005.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2006.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2007.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2008.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2009.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2010.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/LevelBackground/Level_bg_main15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/LevelBackground/Level_bg_main_1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/LevelBackground/map.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/20260424-121016.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/Tile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/主界面.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/头像.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图底.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/排行.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/猫窝.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/皮肤.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/签到.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/转盘.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (1).png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (17).png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (19).png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (2).png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (6).png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (7).png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/LuaTxtToLuaConverter.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_AorExtendImageWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_AorUIFullScreenImageWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_AorUIMaskLayerBehaviourWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_JsonHelperWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_MapCamHelperWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/MapCamDataWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapChapterTypeDataWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapDataWrap.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Docs/Designs/Editor/ReadMe.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableDailyLevels.xlsm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableMainLevels.xlsm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/TableConstants.xlsm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/TableItems.xlsm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/expandedItems" beforeDir="false" afterPath="$PROJECT_DIR$/Library/expandedItems" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Tutorial" />
+        <option value="NewLua" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/10871f9e312b442cb78b9b97db88fdcb172a00/76/8588135a/LoadSceneMode.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/10871f9e312b442cb78b9b97db88fdcb172a00/e7/c9e7670a/RuntimePlatform.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/10871f9e312b442cb78b9b97db88fdcb172a00/ea/cc8cabeb/Texture.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/10871f9e312b442cb78b9b97db88fdcb172a00/ed/02d576d0/Application.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/35c0e5f206594d2fa707969117964d7094aa00/44/5befe3cd/HostView.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/35c0e5f206594d2fa707969117964d7094aa00/49/7b92d606/AssetDatabase.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/35c0e5f206594d2fa707969117964d7094aa00/5c/3ba45b85/AssetImporter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/35c0e5f206594d2fa707969117964d7094aa00/5d/94592316/EditorApplication.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/35c0e5f206594d2fa707969117964d7094aa00/bd/10280db0/EditorWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/35c0e5f206594d2fa707969117964d7094aa00/e9/cd4f4ac3/EditorUtility.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7d32d47739784082a25842797912aa1c22a00/e0/fb72b15e/Tween.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/880832f2c4e2458090401bbb74a86b24a8a00/70/0899525a/JObject.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b89873cb176e44a995a4781c7487d41046ac00/59/7fdc631f/InvalidOperationException.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b89873cb176e44a995a4781c7487d41046ac00/66/dbaf8a15/Dictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b89873cb176e44a995a4781c7487d41046ac00/6e/37b0f771/Path.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b8c852c145a8456ba2512bf23f96ab0b175400/4a/1029c3e4/IMGUIContainer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b8c852c145a8456ba2512bf23f96ab0b175400/63/a7fa786e/RenderChain.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/de482c2695fe43d4bc4f288c4be451372d400/50/610cccaa/GUIContent.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e27997765c1848b09d8073e5d642717a14fc18/cc/ce271052/LoadSceneMode.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f3cb625e9a3f437991ebaf58a99c81f710fc00/6a/bc8aaa89/Enumerable.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d44b17e136d09081da1e8fd0e8c83fde60e11818b9f2442d7ed8cb733fae895e/System.Collections.Generic.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/ABConfigInfo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/AssetBundleNamePostprocessor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportMenuOptions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/UIs/AorTextLocalizingComponentInspector.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/BaseEditorWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Editor/LuaTxtToLuaConverter.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Editor/Utility/MapLevelDataUtil.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Honor/UI/AorExtendImage.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Honor/UI/AorUIFullScreenImage.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Honor/UI/AorUIMaskLayerBehaviour.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/JsonHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/MapCamHelper.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="3CN9MictcD8C6l9ccvxXgDQg5tF" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
+    &quot;Emmy Debugger(NEW).调试.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.35720304&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.Lua&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+    <configuration name="Attach to ILRuntime 2" type="ILRuntime" factoryName="ILRuntime Attach To Remote 2" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <option name="address" value="localhost" />
+      <option name="PORT" value="56000" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to ILRuntime 4" type="ILRuntime" factoryName="ILRuntime Attach To Remote 4" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <option name="address" value="localhost" />
+      <option name="PORT" value="56000" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="E:\Unity\Unity 2022.3.8f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-projectPath E:\Game\ArrowDemo -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="E:\Game\ArrowDemo" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="ENV_FILE_PATHS" value="" />
+      <option name="REDIRECT_INPUT_PATH" value="" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="E:\Unity\Unity 2022.3.8f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath E:\Game\ArrowDemo -testResults Logs/results.xml -testPlatform EditMode -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="E:\Game\ArrowDemo" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="ENV_FILE_PATHS" value="" />
+      <option name="REDIRECT_INPUT_PATH" value="" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false" ignored-value-for-modified-check="484">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" value="484" />
+      <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list>
+          <MonoRuntime />
+        </list>
+      </option>
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to" type="UnityDevicePlayer" factoryName="UnityAttachToDevicePlayer">
+      <method v="2" />
+    </configuration>
+    <configuration name="调试" type="lua.emmy.debugger" factoryName="Emmy Debugger(NEW)">
+      <module name="rider.module" />
+      <option name="TYPE" value="1" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="9966" />
+      <option name="PIPE" value="emmy" />
+      <option name="WIN_ARCH" value="1" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Attach to Unity Editor.Attach to Unity Editor" />
+      <item itemvalue="Attach to Unity Editor.Attach to Unity Editor &amp; Play" />
+      <item itemvalue="Emmy Debugger(NEW).调试" />
+      <item itemvalue="Standalone Player.Start Unity" />
+      <item itemvalue="Standalone Player.Unit Tests (batch mode)" />
+      <item itemvalue="Unity Attach To.Attach to" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7b0524f1-5a94-4f3a-b57c-f763ada3c38c" name="Changes" comment="" />
+      <created>1776215115507</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1776215115507</updated>
+      <workItem from="1776215117984" duration="780000" />
+      <workItem from="1776216084948" duration="2070000" />
+      <workItem from="1776218553331" duration="7234000" />
+      <workItem from="1776226058992" duration="2283000" />
+      <workItem from="1776228878204" duration="1184000" />
+      <workItem from="1776230089413" duration="113000" />
+      <workItem from="1776230224331" duration="866000" />
+      <workItem from="1776231441196" duration="21000" />
+      <workItem from="1776235422515" duration="106000" />
+      <workItem from="1776235547273" duration="1137000" />
+      <workItem from="1776244035769" duration="213000" />
+      <workItem from="1776244437665" duration="347000" />
+      <workItem from="1776244801295" duration="1131000" />
+      <workItem from="1776246117705" duration="6147000" />
+      <workItem from="1776309537709" duration="35677000" />
+      <workItem from="1776916290573" duration="7186000" />
+      <workItem from="1777259052345" duration="24290000" />
+      <workItem from="1777513246611" duration="39916000" />
+      <workItem from="1777680581276" duration="6578000" />
+      <workItem from="1777714021016" duration="61683000" />
+      <workItem from="1778288249033" duration="7203000" />
+      <workItem from="1778295763553" duration="9302000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityProjectDiscoverer">
+    <option name="hasUnityReference" value="true" />
+    <option name="unityProject" value="true" />
+    <option name="unityProjectFolder" value="true" />
+  </component>
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
+          <option name="timeStamp" value="68" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
+          <option name="timeStamp" value="69" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
+          <option name="timeStamp" value="70" />
+        </breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt</url>
+          <line>29</line>
+          <option name="timeStamp" value="84" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt</url>
+          <line>37</line>
+          <option name="timeStamp" value="85" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt</url>
+          <line>54</line>
+          <option name="timeStamp" value="86" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt</url>
+          <line>54</line>
+          <option name="timeStamp" value="95" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt</url>
+          <line>63</line>
+          <option name="timeStamp" value="96" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt</url>
+          <line>72</line>
+          <option name="timeStamp" value="97" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>321</line>
+          <option name="timeStamp" value="117" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>291</line>
+          <option name="timeStamp" value="119" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>330</line>
+          <option name="timeStamp" value="122" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameManager/GameManager.lua.txt</url>
+          <line>240</line>
+          <option name="timeStamp" value="201" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/TimerHelper/TimerHelper.lua.txt</url>
+          <line>193</line>
+          <option name="timeStamp" value="206" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GameTimeHelper/GameTimeHelper.lua.txt</url>
+          <line>223</line>
+          <option name="timeStamp" value="212" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt</url>
+          <line>317</line>
+          <option name="timeStamp" value="244" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
+          <line>1107</line>
+          <option name="timeStamp" value="285" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>160</line>
+          <option name="timeStamp" value="288" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>168</line>
+          <option name="timeStamp" value="289" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>125</line>
+          <option name="timeStamp" value="293" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>66</line>
+          <option name="timeStamp" value="304" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>68</line>
+          <option name="timeStamp" value="305" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>69</line>
+          <option name="timeStamp" value="307" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
+          <line>78</line>
+          <option name="timeStamp" value="310" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>169</line>
+          <option name="timeStamp" value="339" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt</url>
+          <line>81</line>
+          <option name="timeStamp" value="340" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt</url>
+          <line>54</line>
+          <option name="timeStamp" value="341" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>111</line>
+          <option name="timeStamp" value="342" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameMainState.lua.txt</url>
+          <line>76</line>
+          <option name="timeStamp" value="343" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>784</line>
+          <option name="timeStamp" value="344" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
+          <line>91</line>
+          <option name="timeStamp" value="346" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>176</line>
+          <option name="timeStamp" value="347" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>173</line>
+          <option name="timeStamp" value="348" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>118</line>
+          <option name="timeStamp" value="349" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>119</line>
+          <option name="timeStamp" value="350" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>74</line>
+          <option name="timeStamp" value="351" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>197</line>
+          <option name="timeStamp" value="352" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>194</line>
+          <option name="timeStamp" value="353" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>76</line>
+          <option name="timeStamp" value="354" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>79</line>
+          <option name="timeStamp" value="355" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt</url>
+          <line>116</line>
+          <option name="timeStamp" value="356" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>208</line>
+          <option name="timeStamp" value="357" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt</url>
+          <line>52</line>
+          <option name="timeStamp" value="358" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>29</line>
+          <option name="timeStamp" value="359" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>86</line>
+          <option name="timeStamp" value="360" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>31</line>
+          <option name="timeStamp" value="364" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>34</line>
+          <option name="timeStamp" value="365" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameManager/GameManager.lua.txt</url>
+          <line>167</line>
+          <option name="timeStamp" value="366" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>36</line>
+          <option name="timeStamp" value="368" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/UILevelViewView.lua.txt</url>
+          <line>149</line>
+          <option name="timeStamp" value="371" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/UILevelViewView.lua.txt</url>
+          <line>150</line>
+          <option name="timeStamp" value="372" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>76</line>
+          <option name="timeStamp" value="374" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>77</line>
+          <option name="timeStamp" value="375" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBehaviours/None/LuaBehaviourSuper.lua.txt</url>
+          <line>298</line>
+          <option name="timeStamp" value="376" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>147</line>
+          <option name="timeStamp" value="377" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>149</line>
+          <option name="timeStamp" value="378" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>150</line>
+          <option name="timeStamp" value="379" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>161</line>
+          <option name="timeStamp" value="380" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>152</line>
+          <option name="timeStamp" value="430" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
+          <line>18</line>
+          <option name="timeStamp" value="431" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
+          <line>25</line>
+          <option name="timeStamp" value="432" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
+          <line>55</line>
+          <option name="timeStamp" value="433" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
+          <line>34</line>
+          <option name="timeStamp" value="434" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
+          <line>33</line>
+          <option name="timeStamp" value="435" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
+          <line>57</line>
+          <option name="timeStamp" value="436" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>198</line>
+          <option name="timeStamp" value="437" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>126</line>
+          <option name="timeStamp" value="438" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
+          <line>84</line>
+          <option name="timeStamp" value="440" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>144</line>
+          <option name="timeStamp" value="441" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <line>181</line>
+          <option name="timeStamp" value="443" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt</url>
+          <line>51</line>
+          <option name="timeStamp" value="444" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerData.lua.txt</url>
+          <line>45</line>
+          <option name="timeStamp" value="446" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
+          <line>31</line>
+          <option name="timeStamp" value="448" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
+          <line>69</line>
+          <option name="timeStamp" value="449" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt</url>
+          <line>241</line>
+          <option name="timeStamp" value="450" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoginState.lua.txt</url>
+          <line>30</line>
+          <option name="timeStamp" value="455" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
+          <line>689</line>
+          <option name="timeStamp" value="458" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
+          <line>683</line>
+          <option name="timeStamp" value="459" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
+          <line>671</line>
+          <option name="timeStamp" value="466" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
+          <line>664</line>
+          <option name="timeStamp" value="468" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
+          <line>665</line>
+          <option name="timeStamp" value="469" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.Methods.cs</url>
+          <line>59</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Editor\MapEditor\Panel\MapBuildEditor.RightPanel.Methods.cs" containingFunctionPresentation="Method 'HandlePreviewInput'">
+            <startOffsets>
+              <option value="1829" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1830" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="242" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.cs</url>
+          <line>217</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Editor\MapEditor\Panel\MapBuildEditor.RightPanel.cs" containingFunctionPresentation="Method 'SaveData'">
+            <startOffsets>
+              <option value="6771" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6869" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="246" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapBuildEditor.Utils.cs</url>
+          <line>537</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Editor\MapEditor\MapBuildEditor.Utils.cs" containingFunctionPresentation="Property 'LevelSavePath'">
+            <startOffsets>
+              <option value="16864" />
+            </startOffsets>
+            <endOffsets>
+              <option value="16909" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="247" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/Utility/MapLevelDataUtil.cs</url>
+          <line>24</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Editor\Utility\MapLevelDataUtil.cs" containingFunctionPresentation="Method 'SaveDataJson'">
+            <startOffsets>
+              <option value="634" />
+            </startOffsets>
+            <endOffsets>
+              <option value="678" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="248" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/Utility/MapLevelDataUtil.cs</url>
+          <line>26</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Editor\Utility\MapLevelDataUtil.cs" containingFunctionPresentation="Method 'SaveDataJson'">
+            <startOffsets>
+              <option value="714" />
+            </startOffsets>
+            <endOffsets>
+              <option value="763" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="249" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/JsonHelper.cs</url>
+          <line>34</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Runtime\Utils\JsonHelper.cs" containingFunctionPresentation="Method 'ToJson'">
+            <startOffsets>
+              <option value="935" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1078" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="250" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/JsonHelper.cs</url>
+          <line>26</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Runtime\Utils\JsonHelper.cs" containingFunctionPresentation="Method 'ToJson'">
+            <startOffsets>
+              <option value="712" />
+            </startOffsets>
+            <endOffsets>
+              <option value="731" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="251" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/JsonHelper.cs</url>
+          <line>38</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Runtime\Utils\JsonHelper.cs" containingFunctionPresentation="Method 'ToJson'">
+            <startOffsets>
+              <option value="1095" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1126" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="252" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/JsonHelper.cs</url>
+          <line>39</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\Scripts\Runtime\Utils\JsonHelper.cs" containingFunctionPresentation="Method 'ToJson'">
+            <startOffsets>
+              <option value="1143" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1177" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="253" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs</url>
+          <line>379</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.cs" containingFunctionPresentation="Method 'CloseUIsByInfo'">
+            <startOffsets>
+              <option value="16014" />
+            </startOffsets>
+            <endOffsets>
+              <option value="16039" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="261" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs</url>
+          <line>410</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.cs" containingFunctionPresentation="Method 'RemoveUIByGO'">
+            <startOffsets>
+              <option value="17238" />
+            </startOffsets>
+            <endOffsets>
+              <option value="17266" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="262" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Methods.cs</url>
+          <line>551</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.Methods.cs" containingFunctionPresentation="Method 'InnerCloseUIByGO'">
+            <startOffsets>
+              <option value="20383" />
+            </startOffsets>
+            <endOffsets>
+              <option value="20449" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="270" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Methods.cs</url>
+          <line>546</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.Methods.cs" containingFunctionPresentation="Method 'InnerCloseUIByGO'">
+            <startOffsets>
+              <option value="20275" />
+            </startOffsets>
+            <endOffsets>
+              <option value="20303" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="275" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>838</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'UpdateSearchResDefItemInfo'">
+            <startOffsets>
+              <option value="36036" />
+            </startOffsets>
+            <endOffsets>
+              <option value="36357" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="384" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>191</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'UpdateFindAllFileData'">
+            <startOffsets>
+              <option value="8397" />
+            </startOffsets>
+            <endOffsets>
+              <option value="8464" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="398" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>181</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'UpdateFindAllFileData'">
+            <startOffsets>
+              <option value="7813" />
+            </startOffsets>
+            <endOffsets>
+              <option value="7875" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="400" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>187</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'UpdateFindAllFileData'">
+            <startOffsets>
+              <option value="8210" />
+            </startOffsets>
+            <endOffsets>
+              <option value="8254" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="401" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>619</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'GetAbPathFullDirPath'">
+            <startOffsets>
+              <option value="27776" />
+            </startOffsets>
+            <endOffsets>
+              <option value="27839" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="403" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs</url>
+          <line>438</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Tools\GamePathUtils.cs" containingFunctionPresentation="Method 'GetRootDirectoryFullPath'">
+            <startOffsets>
+              <option value="17694" />
+            </startOffsets>
+            <endOffsets>
+              <option value="17762" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="411" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs</url>
+          <line>435</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Tools\GamePathUtils.cs" containingFunctionPresentation="Method 'GetRootDirectoryFullPath'">
+            <startOffsets>
+              <option value="17418" />
+            </startOffsets>
+            <endOffsets>
+              <option value="17486" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="414" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs</url>
+          <line>1157</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Tools\GamePathUtils.cs" containingFunctionPresentation="Method 'GetResDefLuaFullPath'">
+            <startOffsets>
+              <option value="40696" />
+            </startOffsets>
+            <endOffsets>
+              <option value="40808" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="415" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>34</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'WriteOutputGDefsFile'">
+            <startOffsets>
+              <option value="935" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1066" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="416" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>98</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'WriteOutputGDefsFile'">
+            <startOffsets>
+              <option value="4188" />
+            </startOffsets>
+            <endOffsets>
+              <option value="4348" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="417" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>134</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'WriteOutputGDefsFile'">
+            <startOffsets>
+              <option value="6023" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6103" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="418" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>41</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'WriteOutputGDefsFile'">
+            <startOffsets>
+              <option value="1191" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1249" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="419" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/AssetBundleNamePostprocessor.cs</url>
+          <line>41</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ABConfigInfo\AssetBundleNamePostprocessor.cs" containingFunctionPresentation="Method 'RefreshABConfigs'">
+            <startOffsets>
+              <option value="1296" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1344" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="420" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/AssetBundleNamePostprocessor.cs</url>
+          <line>46</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ABConfigInfo\AssetBundleNamePostprocessor.cs" containingFunctionPresentation="Method 'RefreshABConfigs'">
+            <startOffsets>
+              <option value="1456" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1497" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="421" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>894</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'ExportExcelToJsonFromABConfig'">
+            <startOffsets>
+              <option value="38007" />
+            </startOffsets>
+            <endOffsets>
+              <option value="38094" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="423" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>201</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'UpdateFindAllFileData'">
+            <startOffsets>
+              <option value="8749" />
+            </startOffsets>
+            <endOffsets>
+              <option value="8802" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="425" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>150</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'CheckFileABPath'">
+            <startOffsets>
+              <option value="6732" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6777" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="426" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>149</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'CheckFileABPath'">
+            <startOffsets>
+              <option value="6646" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6719" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="427" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs</url>
+          <line>114</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Components\UIComponent.cs" containingFunctionPresentation="Method 'OpenUISyncByLuaTable'">
+            <startOffsets>
+              <option value="3139" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3200" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="467" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs</url>
+          <line>108</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Components\UIComponent.cs" containingFunctionPresentation="Method 'OpenUISyncByLuaTable'">
+            <startOffsets>
+              <option value="2895" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2916" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="470" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs</url>
+          <line>113</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Components\UIComponent.cs" containingFunctionPresentation="Method 'OpenUISyncByLuaTable'">
+            <startOffsets>
+              <option value="3062" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3126" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="471" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

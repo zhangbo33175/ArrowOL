@@ -1,0 +1,13 @@
+{
+  "LuaExportFolderPath": "Assets/LuaScripts/Game/RScripts/ResDefs",
+  "DefaultSheetCount": 300,
+  "ConvertData": [
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_GameMainMap",
+      "ABPath": "Assets/Res/Prefabs",
+      "AssetName": "GameMainMap",
+      "AssetGUID": "dd9947a0f04f64e48ab5a5e5876eb1b7"
+    }
+  ]
+}

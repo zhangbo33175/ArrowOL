@@ -1,0 +1,220 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UILevelViewView.lua
+-- author:    zb
+-- descrip:   关卡界面View
+--=====================================================================================================
+
+---@class UILevelViewView : ViewSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field CatButton                          UnityEngine.UI.Image          √                        猫猫头
+---@field SettingButton                      UnityEngine.UI.Button         √         Clicked        设置
+---@field PlayAroundButton                   UnityEngine.UI.Button         √         Clicked        玩一玩
+---@field LevelButton                        UnityEngine.UI.Button         √         Clicked        关卡按钮
+---@field LevelTxt                           TMPro.TextMeshProUGUI         √                        关卡提示
+---@field ButtonLegacy1                      UnityEngine.UI.Button         √         Clicked        每日挑战按钮
+---@field TextLegacy                         TMPro.TextMeshProUGUI         √                        每日挑战TXT
+---@field SkinButton                         UnityEngine.UI.Button         √         Clicked        皮肤按钮
+---@field RankingButton                      UnityEngine.UI.Button         √         Clicked        排行按钮
+---@field CheckInButton                      UnityEngine.UI.Button         √         Clicked        签到
+---@field TurntableButton                    UnityEngine.UI.Button         √         Clicked        转盘
+---@field CatBedButton                       UnityEngine.UI.Button         √         Clicked        猫窝
+---@field InvitationButton                   UnityEngine.UI.Button         √         Clicked        通关奖励
+local UILevelViewView = class('UILevelViewView', import('ViewSuper'))
+
+---绑定值Key名称
+---@class UILevelViewView.BVKey
+UILevelViewView.BVKey = {}
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function UILevelViewView:ctor(args)
+    UILevelViewView.super.ctor(self, args)
+end
+
+---创建函数
+---@type fun(args:table):UILevelViewView
+---@param args table @自定义参数
+---@return UILevelViewView @UILevelViewView实例
+function UILevelViewView:Create(args)
+    local obj = UILevelViewView.new(args)
+    return obj
+end
+
+---唤醒
+---@type fun():void
+function UILevelViewView:Awake()
+    UILevelViewView.super.Awake(self)
+-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
+    AddUIListenerFunction(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
+    AddUIListenerFunction(self.LevelButton, 'Clicked', handler(self, self.OnLevelButtonClicked))
+    AddUIListenerFunction(self.ButtonLegacy1, 'Clicked', handler(self, self.OnButtonLegacy1Clicked))
+    AddUIListenerFunction(self.SkinButton, 'Clicked', handler(self, self.OnSkinButtonClicked))
+    AddUIListenerFunction(self.RankingButton, 'Clicked', handler(self, self.OnRankingButtonClicked))
+    AddUIListenerFunction(self.CheckInButton, 'Clicked', handler(self, self.OnCheckInButtonClicked))
+    AddUIListenerFunction(self.TurntableButton, 'Clicked', handler(self, self.OnTurntableButtonClicked))
+    AddUIListenerFunction(self.CatBedButton, 'Clicked', handler(self, self.OnCatBedButtonClicked))
+    AddUIListenerFunction(self.InvitationButton, 'Clicked', handler(self, self.OnInvitationButtonClicked))
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+
+end
+
+---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）
+---@type fun(viewModel:UILevelViewViewModel):void
+---@param viewModel UILevelViewViewModel @ViewModel
+function UILevelViewView:OnInit(viewModel)
+    UILevelViewView.super.OnInit(self, viewModel)
+-- 4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    -- 无数据变化监听
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4
+end
+
+---开始
+---@type fun():void
+function UILevelViewView:Start()
+    UILevelViewView.super.Start(self)
+
+end
+
+---销毁
+---@type fun():void
+function UILevelViewView:OnDestroy()
+    UILevelViewView.super.OnDestroy(self)
+-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
+    OnRemoveListener(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
+    OnRemoveListener(self.LevelButton, 'Clicked', handler(self, self.OnLevelButtonClicked))
+    OnRemoveListener(self.ButtonLegacy1, 'Clicked', handler(self, self.OnButtonLegacy1Clicked))
+    OnRemoveListener(self.SkinButton, 'Clicked', handler(self, self.OnSkinButtonClicked))
+    OnRemoveListener(self.RankingButton, 'Clicked', handler(self, self.OnRankingButtonClicked))
+    OnRemoveListener(self.CheckInButton, 'Clicked', handler(self, self.OnCheckInButtonClicked))
+    OnRemoveListener(self.TurntableButton, 'Clicked', handler(self, self.OnTurntableButtonClicked))
+    OnRemoveListener(self.CatBedButton, 'Clicked', handler(self, self.OnCatBedButtonClicked))
+    OnRemoveListener(self.InvitationButton, 'Clicked', handler(self, self.OnInvitationButtonClicked))
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+
+end
+
+---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@type fun():void
+function UILevelViewView:OnAddListeners()
+    UILevelViewView.super.OnAddListeners(self)
+
+end
+
+---获取ViewModel
+---@type fun():UILevelViewViewModel
+---@return UILevelViewViewModel @ViewModel
+function UILevelViewView:GetViewModel()
+    return UILevelViewView.super.GetViewModel(self)
+end
+
+---被追加的N层UI子节点销毁回调
+---@type fun(luaClass: XLua.LuaTable):void
+---@param luaClass XLua.LuaTable @luaClass
+function UILevelViewView:OnAddedUIDestroyed(luaClass)
+    UILevelViewView.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+-- 5>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+---设置-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnSettingButtonClicked(args)
+    
+end
+
+---玩一玩-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnPlayAroundButtonClicked(args)
+end
+
+---关卡按钮-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnLevelButtonClicked(args)
+    self.EnterTheGame()
+end
+---进入游戏
+---@type fun():void
+function UILevelViewView:EnterTheGame()
+    local chapterId = ChapterListManager:GetLatestChapterId()
+     MapManager:ReadyToLoadMap(chapterId, function()
+        SafeCall(function()
+            HonorEventHelper:Fire(EventCmd.OnFirstIntoMainState)
+            HonorEventHelper:Fire(EventCmd.OnChapterMapChangeComplete)
+        end, "OnFirstIntoMainState 事件通知错误:")
+    end)
+end
+---加载地图
+---@type fun(callback:function):void
+---@param callback function @回调函数
+function UILevelViewView:LoadMap(callback)
+    local chapterId = ChapterListManager:GetLatestChapterId()
+    --- 设置当前运行章节
+    ChapterListManager:SetRuntimeChapter(chapterId)
+    local isSuccess = MapManager:LoadMapById(chapterId, nil)
+    if callback then
+        xpcall(callback, __G__TRACK_BACK__, isSuccess)
+    end
+end
+---每日挑战按钮-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnButtonLegacy1Clicked(args)
+    
+end
+
+---皮肤按钮-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnSkinButtonClicked(args)
+    
+end
+
+---排行按钮-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnRankingButtonClicked(args)
+    
+end
+
+---签到-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnCheckInButtonClicked(args)
+end
+
+---转盘-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnTurntableButtonClicked(args)
+end
+
+---猫窝-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnCatBedButtonClicked(args)
+end
+
+---通关奖励-交互回调
+---@type fun(args:any):void
+---@param args any @UI交互内容
+function UILevelViewView:OnInvitationButtonClicked(args)
+    
+end
+
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<5
+
+-- 6>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<6
+
+return UILevelViewView
+

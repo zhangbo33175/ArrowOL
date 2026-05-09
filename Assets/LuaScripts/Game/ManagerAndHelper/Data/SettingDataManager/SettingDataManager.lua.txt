@@ -1,0 +1,61 @@
+--=====================================================================================================
+-- descrip:   设置数值管理器
+--            功能：管理游戏内开关设置（音乐、音效、推送等），读写存档、同步声音状态
+--=====================================================================================================
+
+---@class SettingDataManager @设置数值管理器（音乐/音效/推送等开关存档管理）
+local SettingDataManager = class("SettingDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function SettingDataManager:ctor(args)
+
+end
+
+---创建实例
+---@type fun(args:table):SettingDataManager
+---@param args table @自定义参数
+---@return SettingDataManager @设置数值管理器实例
+function SettingDataManager:Create(args)
+    local obj = SettingDataManager.new(args)
+    return obj
+end
+
+---获取存档中记录的设置开关状态
+---@type fun(settingType:ESettingType):boolean
+---@param settingType ESettingType @设置类型（音乐/音效/推送等）
+---@return boolean @开关状态：true=开启，false=关闭
+function SettingDataManager:GetSettingState(settingType)
+    return PbRootData.GameData.settingInfo[settingType]
+end
+
+---修改设置开关状态并保存存档
+---@type fun(settingType:ESettingType, newState:boolean):void
+---@param settingType ESettingType @设置类型
+---@param newState boolean @新状态：true=开启，false=关闭
+function SettingDataManager:SetSettingNewState(settingType, newState)
+    PbRootData.GameData.settingInfo[settingType] = newState
+    PbIO.GameData.Save_settingInfo()
+
+    -- 音乐开关变化
+    if settingType == ESettingType.Music then
+        SoundMgr:OnBGMCloseStateChanged(settingType, newState)
+    end
+
+    -- 音效开关变化
+    if settingType == ESettingType.Sound then
+        SoundMgr:OnSoundCloseStateChanged(settingType, newState)
+    end
+end
+
+---使用系统推送权限状态，矫正本地存档的推送开关
+---@type fun():void
+function SettingDataManager:CorrectNotificationState()
+    local allow = not self:GetSettingState(ESettingType.Notification)
+    if allow then
+        -- 预留扩展
+    end
+end
+
+return SettingDataManager
