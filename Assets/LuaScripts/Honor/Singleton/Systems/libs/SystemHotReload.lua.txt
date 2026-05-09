@@ -1,53 +1,69 @@
 --=====================================================================================================
--- descrip:   Lua热重载
+-- descrip:   Lua 热重载模块（支持运行中替换代码、保留数据、无重启更新逻辑）
+--              核心：替换函数、保留 upvalue / 旧数据、自动更新 table、支持 OnReload 回调
 --=====================================================================================================
----Lua热重载
+
+--- 主入口：Lua 脚本热重载
+--- 功能：重新加载指定 Lua 文件，替换旧代码，保留运行时数据，实现无重启更新
 ---@type fun(filename:string):void
----@param filename string @Lua文件名
+---@param filename string @需要热重载的 Lua 文件名（模块名）
 function __RELOAD_LUA_HOTFIX__(filename)
     PrintDebug("开始热重载Lua脚本: {0}", filename)
+
+    -- 1. 取出旧模块（如果已经加载过）
     local oldModule
     if package.loaded[filename] then
-        oldModule = package.loaded[filename]
-        package.loaded[filename] = nil
+        oldModule = package.loaded[filename]  -- 保存旧模块
+        package.loaded[filename] = nil        -- 清空缓存，让 require 重新加载
     else
         PrintDebug("该Lua脚本从未加载过: {0}",filename)
         return
     end
+
+    -- 2. 尝试重新加载新模块
     local ok, err = pcall(require, filename)
     if not ok then
+        -- 加载失败：恢复旧模块，避免崩溃
         package.loaded[filename] = oldModule
         PrintDebug("热重载Lua脚本失败，错误信息：", err)
         return
     end
 
+    -- 3. 获取刚加载的新模块
     local newModule = package.loaded[filename]
-    
+
+    -- 4. 深度递归更新：把新模块的函数/table 同步到旧模块
+    --    保留旧模块的所有运行时数据，只替换逻辑
     local updated_tables = {}
     __RELOAD_LUA_HOTFIX_UPDATE_TABLE__(newModule, oldModule, updated_tables)
 
+    -- 5. 如果旧模块有 OnReload 方法，执行重载回调
     if "table" == type(oldModule) and oldModule.OnReload ~= nil then
         oldModule:OnReload()
     end
 
+    -- 6. 恢复旧模块到 package.loaded（保证外部引用不变）
     PrintDebug("Lua脚本替换成功！")
     package.loaded[filename] = oldModule
 end
 
----更新Lua方法
+--- 更新 Lua 函数（热重载核心）
+--- 功能：替换函数体，**保留旧函数的 upvalue（外部变量）**，保证数据不丢失
 ---@type fun(new_func:function, old_func:function):void
----@param new_func function @新Lua方法
----@param old_func function @旧Lua方法
+---@param new_func function @新代码的函数
+---@param old_func function @旧的运行中函数
 function __RELOAD_LUA_HOTFIX_UPDATE_FUNC__(new_func, old_func)
     if "function" == type(new_func) and "function" == type(old_func) then
-        -- 获取旧方法的upvalues（upvalue：就是一个函数使用了不在这个函数内的变量）
+        -- 第一步：收集旧函数的所有 upvalue（外部引用变量）
         local old_upvalue_map = {}
         for i = 1, math.huge do
             local name, value = debug.getupvalue(old_func, i)
             if not name then break end
             old_upvalue_map[name] = value
         end
-        -- 用旧的upvalues来更新新的upvalues（upvalue：就是一个函数使用了不在这个函数内的变量）
+
+        -- 第二步：把旧的 upvalue 赋值给新函数
+        -- 作用：新代码可以继续使用旧的运行数据，不会重置
         for i = 1, math.huge do
             local name, value = debug.getupvalue(new_func, i)
             if not name then break end
@@ -60,28 +76,34 @@ function __RELOAD_LUA_HOTFIX_UPDATE_FUNC__(new_func, old_func)
     end
 end
 
----更新Lua的table
+--- 递归更新 Lua table（模块、类、子 table）
+--- 功能：遍历新旧 table，只替换 function，保留旧数据，递归处理嵌套 table
 ---@type fun(new_table:table, old_table:table, updated_tables:table):void
----@param new_table table @新table
----@param old_table table @旧table
----@param updated_tables table @已更新的table
+---@param new_table table @新代码的 table
+---@param old_table table @旧的运行中 table
+---@param updated_tables table @防止循环引用，记录已更新的 table
 function __RELOAD_LUA_HOTFIX_UPDATE_TABLE__(new_table, old_table, updated_tables)
     if "table" == type(new_table) and "table" == type(old_table) then
-        -- 比较新旧table，并更新旧table
+        -- 遍历新 table 的所有 key，同步到旧 table
         for key, value in pairs(new_table) do
             local old_value = old_table[key]
             local type_value = type(value)
+
             if type_value == "function" then
+                -- 函数：替换并保留 upvalue
                 __RELOAD_LUA_HOTFIX_UPDATE_FUNC__(value, old_value)
                 old_table[key] = value
+
             elseif type_value == "table" then
-                if ( updated_tables[value] == nil ) then
+                -- 子表：递归更新，避免循环引用
+                if updated_tables[value] == nil then
                     updated_tables[value] = true
                     __RELOAD_LUA_HOTFIX_UPDATE_TABLE__(value, old_value, updated_tables)
                 end
             end
         end
-        -- 更新元表
+
+        -- 最后更新元表（保证类的 __index / 方法也被热更）
         local old_meta = debug.getmetatable(old_table)
         local new_meta = debug.getmetatable(new_table)
         if type(old_meta) == "table" and type(new_meta) == "table" then

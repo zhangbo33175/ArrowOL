@@ -1,0 +1,33 @@
+--=====================================================================================================
+-- descrip:   坐标图标数据源管理器
+--            功能：读取主界面图标配置表，根据图标ID获取位置、样式等数据
+--=====================================================================================================
+
+---@class HomeIconsDataManager @主界面坐标图标数据源管理器
+local HomeIconsDataManager = class("HomeIconsDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HomeIconsDataManager:ctor(args)
+
+end
+
+---创建实例
+---@type fun(args:table):HomeIconsDataManager
+---@param args table @自定义参数
+---@return HomeIconsDataManager @坐标图标数据源管理器实例
+function HomeIconsDataManager:Create(args)
+    local obj = HomeIconsDataManager.new(args)
+    return obj
+end
+
+---根据图标ID获取主界面图标配置数据
+---@type fun(homeIconId:string):Tables.HomeIcons_Item
+---@param homeIconId string @桌面图标ID
+---@return Tables.HomeIcons_Item @图标配置数据
+function HomeIconsDataManager:GetHomeIconDataById(homeIconId)
+    return Tables.HomeIcons[homeIconId]
+end
+
+return HomeIconsDataManager

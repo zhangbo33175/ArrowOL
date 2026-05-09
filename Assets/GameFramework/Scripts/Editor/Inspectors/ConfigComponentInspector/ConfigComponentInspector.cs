@@ -9,46 +9,69 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// 【配置组件编辑器】
+    /// 功能：提供配置表Excel的一键导出、查看、打开、文件夹定位
+    /// 作用：负责将策划Excel → 加密JsonBytes，供游戏运行时读取
+    /// </summary>
     [CustomEditor(typeof(ConfigComponent))]
-    public class ConfigComponentInspector: HonorComponentInspector
+    public class ConfigComponentInspector : HonorComponentInspector
     {
-         private Dictionary<string, List<string>> m_ConfigDatas;
+        /// <summary>
+        /// 配置表数据缓存
+        /// Key = 配置项名称
+        /// Value = [0]开发环境值 / [1]生产环境值
+        /// </summary>
+        private Dictionary<string, List<string>> m_ConfigDatas;
 
+        /// <summary>
+        /// 启用时初始化数据容器
+        /// </summary>
         private void OnEnable()
         {
             m_ConfigDatas = new Dictionary<string, List<string>>();
         }
 
+        /// <summary>
+        /// 绘制Inspector面板
+        /// </summary>
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
             serializedObject.Update();
+
+            // ====================== 功能按钮区 ======================
             EditorGUILayout.BeginHorizontal("box");
-            if (GUILayout.Button("打开配置表Excel"))
             {
-                TableExportEditorUtility.OpenExcel(GamePathUtils.Config.GetExcelFileFullPath());
-                GUIUtility.ExitGUI();
-            }
+                // 打开配置表Excel
+                if (GUILayout.Button("打开配置表Excel"))
+                {
+                    TableExportEditorUtility.OpenExcel(GamePathUtils.Config.GetExcelFileFullPath());
+                    GUIUtility.ExitGUI();
+                }
 
-            // Excel导出（导出Configs目录下的Excel到Json）
-            if (GUILayout.Button("导出配置表Excel到Json"))
-            {
-                string filePath = GamePathUtils.Config.GetExcelFileFullPath();
-                ExportExcelConfigToBytes(Path.GetFileNameWithoutExtension(filePath));
+                // 将Excel导出为加密JsonBytes
+                if (GUILayout.Button("导出配置表Excel到Json"))
+                {
+                    string filePath = GamePathUtils.Config.GetExcelFileFullPath();
+                    ExportExcelConfigToBytes(Path.GetFileNameWithoutExtension(filePath));
+                    GUIUtility.ExitGUI();
+                }
 
-                GUIUtility.ExitGUI();
-            }
-
-            if (GUILayout.Button("打开配置表Excel所在文件夹"))
-            {
-                TableExportEditorUtility.OpenDirectory(GamePathUtils.Config.GetExcelRootDirectoryFullPath());
-                GUIUtility.ExitGUI();
+                // 打开Excel所在文件夹
+                if (GUILayout.Button("打开配置表Excel所在文件夹"))
+                {
+                    TableExportEditorUtility.OpenDirectory(GamePathUtils.Config.GetExcelRootDirectoryFullPath());
+                    GUIUtility.ExitGUI();
+                }
             }
             EditorGUILayout.EndHorizontal();
 
-            if(ReadConfigDatas())
+            // ====================== 配置信息预览区 ======================
+            if (ReadConfigDatas())
             {
+                // 显示开发环境配置
                 EditorGUILayout.BeginVertical("box");
                 EditorGUILayout.LabelField("开发环境配置");
                 foreach (var itr in m_ConfigDatas)
@@ -57,6 +80,7 @@ namespace Honor.Editor
                 }
                 EditorGUILayout.EndVertical();
 
+                // 显示生产环境配置
                 EditorGUILayout.BeginVertical("box");
                 EditorGUILayout.LabelField("生产环境配置");
                 foreach (var itr in m_ConfigDatas)
@@ -67,39 +91,47 @@ namespace Honor.Editor
             }
             else
             {
+                // 配置文件不存在提示
                 EditorGUILayout.HelpBox("配置文件不存在，请检查是否已生成。", MessageType.Warning);
             }
 
             serializedObject.ApplyModifiedProperties();
-
             Repaint();
         }
 
         protected override void OnCompileStart()
         {
             base.OnCompileStart();
-
         }
 
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-
         }
 
         /// <summary>
-        /// 读取Config数据集合
+        /// 【读取加密配置表】
+        /// 从 Configs.bytes 读取并解密，解析成键值对供面板显示
         /// </summary>
-        /// <returns>是否成功</returns>
+        /// <returns>是否读取成功</returns>
         private bool ReadConfigDatas()
         {
             m_ConfigDatas.Clear();
-            string jsonFilePath = AorTxt.Format("{0}/{1}/{2}", Application.dataPath.Substring(0, Application.dataPath.Length- "Assets".Length), GamePathUtils.Json.GetRootDirectoryRelativePath(), "Configs.bytes");
+
+            // 配置文件路径
+            string jsonFilePath = AorTxt.Format("{0}/{1}/{2}", 
+                Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length), 
+                GamePathUtils.Json.GetRootDirectoryRelativePath(), 
+                "Configs.bytes");
+
             if (File.Exists(jsonFilePath))
             {
+                // 读取字节 -> 解密 -> 转字符串
                 byte[] contentBytes = File.ReadAllBytes(jsonFilePath);
                 byte[] bytes = Encryption.GetQuickXorBytes(contentBytes, ConfigComponent.s_ConfigEncrytionKey);
                 string content = Converter.GetString(bytes);
+
+                // 解析Json结构
                 JObject jObject = JObject.Parse(content);
                 foreach (var configItr in jObject)
                 {
@@ -108,6 +140,8 @@ namespace Honor.Editor
                         var configData = new List<string>();
                         m_ConfigDatas.Add(configItr.Key, configData);
                     }
+
+                    // 读取开发/生产两个环境的值
                     foreach (JToken elementItr in configItr.Value)
                     {
                         m_ConfigDatas[configItr.Key].Add(elementItr.ToString());
@@ -115,49 +149,63 @@ namespace Honor.Editor
                 }
                 return true;
             }
+
             return false;
         }
 
         /// <summary>
-        /// 从Excel中导出到bytes（json加密后存为bytes文件）
+        /// 【Excel → 加密Bytes】
+        /// 读取策划配置Excel，导出为加密的 Configs.bytes
         /// </summary>
-        /// <param name="openExcelNamePre"></param>
-        /// <returns></returns>
+        /// <param name="openExcelNamePre">Excel文件名（不含后缀）</param>
+        /// <returns>是否导出成功</returns>
         private bool ExportExcelConfigToBytes(string openExcelNamePre)
         {
-            // 读取excel的内容
+            // 1. 读取Excel文件内容
             string excelPath = $"{GamePathUtils.Config.GetExcelRootDirectoryFullPath()}/{openExcelNamePre}.xlsm";
             DataSet result = TableExportEditorUtility.GetExcelData(excelPath);
 
-            // 要写入的bytes文件根路径
+            // 2. 输出目标路径
             string strSubJsonDirectoryPath = GamePathUtils.Json.GetRootDirectoryFullPath();
             string strFilePathList = strSubJsonDirectoryPath + "/" + openExcelNamePre + ".bytes";
-            if(!Directory.Exists(strSubJsonDirectoryPath))
+
+            if (!Directory.Exists(strSubJsonDirectoryPath))
             {
                 Directory.CreateDirectory(strSubJsonDirectoryPath);
             }
 
-            // 开始添加文件头
+            // 3. 拼接Json格式字符串（固定格式：key: [开发值, 生产值]）
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("{");
 
             int rows = result.Tables[0].Rows.Count;
-            for (int i = 4; i < rows; i++)
+            for (int i = 4; i < rows; i++) // 第5行开始是真实配置
             {
-                string thisRow = "    \"" + result.Tables[0].Rows[i][1].ToString() + "\":[\"" + result.Tables[0].Rows[i][3].ToString() + "\",\"" + result.Tables[0].Rows[i][4].ToString() + "\"]";
+                string thisRow = "    \"" + result.Tables[0].Rows[i][1].ToString() + "\":[\"" +
+                                 result.Tables[0].Rows[i][3].ToString() + "\",\"" +
+                                 result.Tables[0].Rows[i][4].ToString() + "\"]";
+
                 if (i < rows - 1)
                 {
-                    thisRow = thisRow + ",";
+                    thisRow += ",";
                 }
+
                 stringBuilder.AppendLine(thisRow);
             }
+
             stringBuilder.AppendLine("}");
+
+            // 4. 写入文件并加密
             if (File.Exists(strFilePathList))
             {
                 File.Delete(strFilePathList);
             }
-            File.WriteAllBytes(strFilePathList, Encryption.GetQuickXorBytes(Converter.GetBytesByString(stringBuilder.ToString()), ConfigComponent.s_ConfigEncrytionKey));
 
+            byte[] fileBytes = Converter.GetBytesByString(stringBuilder.ToString());
+            byte[] encryptBytes = Encryption.GetQuickXorBytes(fileBytes, ConfigComponent.s_ConfigEncrytionKey);
+            File.WriteAllBytes(strFilePathList, encryptBytes);
+
+            // 刷新Unity
             AssetDatabase.Refresh();
             return true;
         }

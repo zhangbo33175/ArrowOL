@@ -16,70 +16,6 @@ namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
     
-    public class UnityEngineAnimatorUpdateModeWrap
-    {
-		public static void __Register(RealStatePtr L)
-        {
-		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(UnityEngine.AnimatorUpdateMode), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(UnityEngine.AnimatorUpdateMode), L, translator, null, null, null, null, null);
-			
-			Utils.BeginClassRegister(typeof(UnityEngine.AnimatorUpdateMode), L, null, 4, 0, 0);
-
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Normal", UnityEngine.AnimatorUpdateMode.Normal);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AnimatePhysics", UnityEngine.AnimatorUpdateMode.AnimatePhysics);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UnscaledTime", UnityEngine.AnimatorUpdateMode.UnscaledTime);
-            
-
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
-            
-            Utils.EndClassRegister(typeof(UnityEngine.AnimatorUpdateMode), L, translator);
-        }
-		
-		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int __CastFrom(RealStatePtr L)
-		{
-			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
-            if (lua_type == LuaTypes.LUA_TNUMBER)
-            {
-                translator.PushUnityEngineAnimatorUpdateMode(L, (UnityEngine.AnimatorUpdateMode)LuaAPI.xlua_tointeger(L, 1));
-            }
-			
-            else if(lua_type == LuaTypes.LUA_TSTRING)
-            {
-
-			    if (LuaAPI.xlua_is_eq_str(L, 1, "Normal"))
-                {
-                    translator.PushUnityEngineAnimatorUpdateMode(L, UnityEngine.AnimatorUpdateMode.Normal);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "AnimatePhysics"))
-                {
-                    translator.PushUnityEngineAnimatorUpdateMode(L, UnityEngine.AnimatorUpdateMode.AnimatePhysics);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "UnscaledTime"))
-                {
-                    translator.PushUnityEngineAnimatorUpdateMode(L, UnityEngine.AnimatorUpdateMode.UnscaledTime);
-                }
-				else
-                {
-                    return LuaAPI.luaL_error(L, "invalid string for UnityEngine.AnimatorUpdateMode!");
-                }
-
-            }
-			
-            else
-            {
-                return LuaAPI.luaL_error(L, "invalid lua type for UnityEngine.AnimatorUpdateMode! Expect number or string, got + " + lua_type);
-            }
-
-            return 1;
-		}
-	}
-    
     public class UnityEngineTilemapsTileColliderTypeWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -5150,6 +5086,238 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for DG.Tweening.SpiralMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class RMapIconTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(RMapIconType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(RMapIconType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(RMapIconType), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Coloring", RMapIconType.Coloring);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Dissipate", RMapIconType.Dissipate);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(RMapIconType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushRMapIconType(L, (RMapIconType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Coloring"))
+                {
+                    translator.PushRMapIconType(L, RMapIconType.Coloring);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Dissipate"))
+                {
+                    translator.PushRMapIconType(L, RMapIconType.Dissipate);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for RMapIconType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for RMapIconType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class RMapPlayHudPosTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(RMapPlayHudPosType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(RMapPlayHudPosType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(RMapPlayHudPosType), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Left", RMapPlayHudPosType.Left);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Center", RMapPlayHudPosType.Center);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(RMapPlayHudPosType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushRMapPlayHudPosType(L, (RMapPlayHudPosType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Left"))
+                {
+                    translator.PushRMapPlayHudPosType(L, RMapPlayHudPosType.Left);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Center"))
+                {
+                    translator.PushRMapPlayHudPosType(L, RMapPlayHudPosType.Center);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for RMapPlayHudPosType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for RMapPlayHudPosType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class RMapTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(RMapType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(RMapType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(RMapType), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Normal", RMapType.Normal);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "DailyLevel", RMapType.DailyLevel);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(RMapType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushRMapType(L, (RMapType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Normal"))
+                {
+                    translator.PushRMapType(L, RMapType.Normal);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "DailyLevel"))
+                {
+                    translator.PushRMapType(L, RMapType.DailyLevel);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for RMapType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for RMapType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class RMapCamPosTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(RMapCamPosType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(RMapCamPosType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(RMapCamPosType), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Left", RMapCamPosType.Left);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Right", RMapCamPosType.Right);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(RMapCamPosType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushRMapCamPosType(L, (RMapCamPosType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Left"))
+                {
+                    translator.PushRMapCamPosType(L, RMapCamPosType.Left);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Right"))
+                {
+                    translator.PushRMapCamPosType(L, RMapCamPosType.Right);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for RMapCamPosType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for RMapCamPosType! Expect number or string, got + " + lua_type);
             }
 
             return 1;

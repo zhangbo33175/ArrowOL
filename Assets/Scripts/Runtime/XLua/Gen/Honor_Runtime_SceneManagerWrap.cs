@@ -28,12 +28,12 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadSceneSync", _m_LoadSceneSync);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UnloadScene", _m_UnloadScene);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SceneIsLoaded", _m_SceneIsLoaded);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLoadedSceneAssetNames", _m_GetLoadedSceneAssetNames);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SceneIsLoading", _m_SceneIsLoading);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLoadingSceneAssetNames", _m_GetLoadingSceneAssetNames);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SceneIsUnloading", _m_SceneIsUnloading);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetUnloadingSceneAssetNames", _m_GetUnloadingSceneAssetNames);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HasScene", _m_HasScene);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLoadedSceneAssetNames", _m_GetLoadedSceneAssetNames);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLoadingSceneAssetNames", _m_GetLoadingSceneAssetNames);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetUnloadingSceneAssetNames", _m_GetUnloadingSceneAssetNames);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "PreLoadSceneAssetNames", _g_get_PreLoadSceneAssetNames);
@@ -264,6 +264,96 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SceneIsLoading(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SceneManager gen_to_be_invoked = (Honor.Runtime.SceneManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _abPath = LuaAPI.lua_tostring(L, 2);
+                    string _assetName = LuaAPI.lua_tostring(L, 3);
+                    
+                        bool gen_ret = gen_to_be_invoked.SceneIsLoading( _abPath, _assetName );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SceneIsUnloading(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SceneManager gen_to_be_invoked = (Honor.Runtime.SceneManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _abPath = LuaAPI.lua_tostring(L, 2);
+                    string _assetName = LuaAPI.lua_tostring(L, 3);
+                    
+                        bool gen_ret = gen_to_be_invoked.SceneIsUnloading( _abPath, _assetName );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_HasScene(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SceneManager gen_to_be_invoked = (Honor.Runtime.SceneManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _abPath = LuaAPI.lua_tostring(L, 2);
+                    string _assetName = LuaAPI.lua_tostring(L, 3);
+                    
+                        bool gen_ret = gen_to_be_invoked.HasScene( _abPath, _assetName );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_GetLoadedSceneAssetNames(RealStatePtr L)
         {
 		    try {
@@ -302,36 +392,6 @@ namespace XLua.CSObjectWrap
             }
             
             return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SceneManager.GetLoadedSceneAssetNames!");
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_SceneIsLoading(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.SceneManager gen_to_be_invoked = (Honor.Runtime.SceneManager)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    string _abPath = LuaAPI.lua_tostring(L, 2);
-                    string _assetName = LuaAPI.lua_tostring(L, 3);
-                    
-                        bool gen_ret = gen_to_be_invoked.SceneIsLoading( _abPath, _assetName );
-                        LuaAPI.lua_pushboolean(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
             
         }
         
@@ -378,36 +438,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_SceneIsUnloading(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.SceneManager gen_to_be_invoked = (Honor.Runtime.SceneManager)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    string _abPath = LuaAPI.lua_tostring(L, 2);
-                    string _assetName = LuaAPI.lua_tostring(L, 3);
-                    
-                        bool gen_ret = gen_to_be_invoked.SceneIsUnloading( _abPath, _assetName );
-                        LuaAPI.lua_pushboolean(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_GetUnloadingSceneAssetNames(RealStatePtr L)
         {
 		    try {
@@ -446,36 +476,6 @@ namespace XLua.CSObjectWrap
             }
             
             return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SceneManager.GetUnloadingSceneAssetNames!");
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_HasScene(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.SceneManager gen_to_be_invoked = (Honor.Runtime.SceneManager)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    string _abPath = LuaAPI.lua_tostring(L, 2);
-                    string _assetName = LuaAPI.lua_tostring(L, 3);
-                    
-                        bool gen_ret = gen_to_be_invoked.HasScene( _abPath, _assetName );
-                        LuaAPI.lua_pushboolean(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
             
         }
         

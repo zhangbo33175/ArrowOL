@@ -12,56 +12,6 @@
 ---@field Icon string @图片名称
 
 ---@class Tables.Items @物件列表
----@field 1001 Tables.Items_Item
----@field 1002 Tables.Items_Item
----@field 1003 Tables.Items_Item
----@field 1004 Tables.Items_Item
----@field 1005 Tables.Items_Item
----@field 1006 Tables.Items_Item
----@field 1007 Tables.Items_Item
----@field 1008 Tables.Items_Item
----@field 1009 Tables.Items_Item
----@field 1010 Tables.Items_Item
----@field 1011 Tables.Items_Item
----@field 1012 Tables.Items_Item
----@field 1013 Tables.Items_Item
----@field 1014 Tables.Items_Item
----@field 1015 Tables.Items_Item
----@field 1016 Tables.Items_Item
----@field 1017 Tables.Items_Item
----@field 1018 Tables.Items_Item
----@field 1019 Tables.Items_Item
----@field 1020 Tables.Items_Item
----@field 1021 Tables.Items_Item
----@field 1022 Tables.Items_Item
----@field 1023 Tables.Items_Item
----@field 1024 Tables.Items_Item
----@field 1025 Tables.Items_Item
----@field 1026 Tables.Items_Item
----@field 1027 Tables.Items_Item
----@field 1028 Tables.Items_Item
----@field 1029 Tables.Items_Item
----@field 1030 Tables.Items_Item
----@field 1031 Tables.Items_Item
----@field 1032 Tables.Items_Item
----@field 1033 Tables.Items_Item
----@field 1034 Tables.Items_Item
----@field 1035 Tables.Items_Item
----@field 1036 Tables.Items_Item
----@field 1037 Tables.Items_Item
----@field 1038 Tables.Items_Item
----@field 1039 Tables.Items_Item
----@field 1040 Tables.Items_Item
----@field 1041 Tables.Items_Item
----@field 1042 Tables.Items_Item
----@field 1043 Tables.Items_Item
----@field 1044 Tables.Items_Item
----@field 1045 Tables.Items_Item
----@field 1046 Tables.Items_Item
----@field 1047 Tables.Items_Item
----@field 1048 Tables.Items_Item
----@field 1049 Tables.Items_Item
----@field 1050 Tables.Items_Item
 Tables.Items = {
     [1001] = {ID = 1001, Icon = "main_level1_cat1"},
     [1002] = {ID = 1002, Icon = "main_level1_cat2"},
@@ -113,5 +63,14 @@ Tables.Items = {
     [1048] = {ID = 1048, Icon = "main_level2_cat18"},
     [1049] = {ID = 1049, Icon = "main_level2_cat19"},
     [1050] = {ID = 1050, Icon = "main_level2_cat20"},
+    [2001] = {ID = 2001, Icon = "main_level1_cat2001"},
+    [2002] = {ID = 2002, Icon = "main_level1_cat2002"},
+    [2003] = {ID = 2003, Icon = "main_level1_cat2003"},
+    [2004] = {ID = 2004, Icon = "main_level1_cat2004"},
+    [2005] = {ID = 2005, Icon = "main_level1_cat2005"},
+    [2006] = {ID = 2006, Icon = "main_level1_cat2006"},
+    [2007] = {ID = 2007, Icon = "main_level1_cat2007"},
+    [2008] = {ID = 2008, Icon = "main_level1_cat2008"},
+    [2009] = {ID = 2009, Icon = "main_level1_cat2009"},
+    [2010] = {ID = 2010, Icon = "main_level1_cat2010"},
 }
-

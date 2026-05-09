@@ -5,6 +5,11 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 场景管理组件
+    /// 功能：场景异步/同步加载、卸载、预加载、场景物体清理、多相机管理、相机动画控制
+    /// 属于游戏核心系统，通过 GameMainRoot.Scene 访问
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class SceneComponent : GameComponent
     {
@@ -12,47 +17,43 @@ namespace Honor.Runtime
         {
             base.Awake();
 
-            // m_TouchComponent = GameComponentsGroup.GetComponent<TouchComponent>();
-            // if (m_TouchComponent == null)
-            // {
-            //     Log.Fatal("TouchComponent 无效。");
-            //     return;
-            // }
-
+            // 初始化场景管理器
             m_SceneManager = new SceneManager();
             if (m_SceneManager == null)
             {
                 Log.Fatal("SceneManager 无效。");
                 return;
             }
-
         }
 
         private void Start()
         {
-
         }
 
         private void OnDestroy()
         {
-
         }
 
         /// <summary>
-        /// 销毁场景中所有对象
+        /// 销毁场景根节点下所有对象
+        /// 会自动调用LuaBehaviour的关闭逻辑，防止资源泄漏
         /// </summary>
-        /// <param name="root">指定根节点</param>
+        /// <param name="root">指定根节点，默认使用场景根节点</param>
         public void DestroyAllSceneGOs(GameObject root = null)
         {
-            bool isDefault = root == null ? true : false;
-            if(root == null) root = m_SceneRootGO;
+            bool isDefault = root == null;
+            if (root == null) root = m_SceneRootGO;
 
+            // 收集所有子物体
             List<GameObject> gameObjects = new List<GameObject>();
             for (int index = 0; index < root.transform.childCount; index++)
             {
                 gameObjects.Add(root.transform.GetChild(index).gameObject);
             }
-            gameObjects.RemoveAll((tmp) => {
+
+            // 过滤掉子物体（只保留顶级对象）
+            gameObjects.RemoveAll((tmp) =>
+            {
                 foreach (var tmp1 in gameObjects)
                 {
                     if (tmp != tmp1 && tmp.transform.IsChildOf(tmp1.transform))
@@ -60,9 +61,13 @@ namespace Honor.Runtime
                         return true;
                     }
                 }
+
                 return false;
             });
-            gameObjects.ForEach((go) => {
+
+            // 销毁对象：Lua对象走Lua关闭，普通对象直接销毁
+            gameObjects.ForEach((go) =>
+            {
                 LuaBehaviour luaBehaviour = go.GetComponent<LuaBehaviour>();
                 if (luaBehaviour != null)
                 {
@@ -74,14 +79,15 @@ namespace Honor.Runtime
                 }
             });
 
+            // 如果不是默认根节点，销毁传入的根节点
             if (!isDefault) Destroy(root);
         }
 
         /// <summary>
-        /// 异步预加载场景。
+        /// 异步预加载场景（后台加载，不激活）
         /// </summary>
-        /// <param name="abPath">ab路径。</param>
-        /// <param name="assetName">asset资源名称。</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">场景资源名</param>
         public void PreLoadSceneAsync(string abPath, string assetName)
         {
             if (string.IsNullOrEmpty(abPath))
@@ -94,16 +100,12 @@ namespace Honor.Runtime
                 throw new GameException("Scene assetName 无效。");
             }
 
-            // 注意：preload队列中的scene通过AssetComponent加载完毕后将直接记录到loaded队列中，中间态loading将不做表现。
             m_SceneManager.PreLoadSceneAsync(abPath, assetName);
         }
 
         /// <summary>
-        /// 异步加载场景。
+        /// 异步加载场景（可带回调）
         /// </summary>
-        /// <param name="abPath">ab路径。</param>
-        /// <param name="assetName">asset资源名称。</param>
-        /// <param name="overCallback">场景加载完毕回调。</param>
         public void LoadSceneAsync(string abPath, string assetName, SceneLoadOverCallback overCallback = null)
         {
             if (string.IsNullOrEmpty(abPath))
@@ -120,10 +122,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步加载场景。
+        /// 同步加载场景（阻塞主线程）
         /// </summary>
-        /// <param name="abPath">ab路径。</param>
-        /// <param name="assetName">asset资源名称。</param>
         public UnityEngine.SceneManagement.Scene LoadSceneSync(string abPath, string assetName)
         {
             if (string.IsNullOrEmpty(abPath))
@@ -140,124 +140,68 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 卸载场景。
+        /// 异步卸载场景
         /// </summary>
-        /// <param name="sceneName">场景名称。</param>
-        /// <param name="overCallback">场景卸载完毕回调。</param>
         public void UnloadScene(string sceneName, SceneUnloadOverCallback overCallback = null)
         {
             if (string.IsNullOrEmpty(sceneName))
             {
                 throw new GameException("Scene sceneName 无效。");
             }
+
             m_SceneManager.UnloadScene(sceneName, overCallback);
         }
 
         /// <summary>
-        /// 获取已加载场景的资源名称。
+        /// 获取已加载/加载中/卸载中的场景列表
         /// </summary>
-        /// <returns>已加载场景的资源名称。</returns>
-        public List<List<string>> GetLoadedSceneAssetNames()
-        {
-            return m_SceneManager.GetLoadedSceneAssetNames();
-        }
+        public List<List<string>> GetLoadedSceneAssetNames() => m_SceneManager.GetLoadedSceneAssetNames();
 
-        /// <summary>
-        /// 获取已加载场景的资源名称。
-        /// </summary>
-        /// <param name="results">已加载场景的资源名称。</param>
-        public void GetLoadedSceneAssetNames(List<List<string>> results)
-        {
-            if (results == null)
-            {
-                throw new GameException("Results 无效。");
-            }
-
+        public void GetLoadedSceneAssetNames(List<List<string>> results) =>
             m_SceneManager.GetLoadedSceneAssetNames(results);
-        }
 
-        /// <summary>
-        /// 获取正在加载场景的资源名称。
-        /// </summary>
-        /// <returns>正在加载场景的资源名称。</returns>
-        public List<List<string>> GetLoadingSceneAssetNames()
-        {
-            return m_SceneManager.GetLoadingSceneAssetNames();
-        }
+        public List<List<string>> GetLoadingSceneAssetNames() => m_SceneManager.GetLoadingSceneAssetNames();
 
-        /// <summary>
-        /// 获取正在加载场景的资源名称。
-        /// </summary>
-        /// <param name="results">正在加载场景的资源名称。</param>
-        public void GetLoadingSceneAssetNames(List<List<string>> results)
-        {
-            if (results == null)
-            {
-                throw new GameException("Results 无效。");
-            }
+        public void GetLoadingSceneAssetNames(List<List<string>> results) =>
             m_SceneManager.GetLoadingSceneAssetNames(results);
-        }
 
-        /// <summary>
-        /// 获取正在卸载场景的资源名称。
-        /// </summary>
-        /// <returns>正在卸载场景的资源名称。</returns>
-        public List<List<string>> GetUnloadingSceneAssetNames()
-        {
-            return m_SceneManager.GetUnloadingSceneAssetNames();
-        }
+        public List<List<string>> GetUnloadingSceneAssetNames() => m_SceneManager.GetUnloadingSceneAssetNames();
 
-        /// <summary>
-        /// 获取正在卸载场景的资源名称。
-        /// </summary>
-        /// <param name="results">正在卸载场景的资源名称。</param>
-        public void GetUnloadingSceneAssetNames(List<List<string>> results)
-        {
-            if (results == null)
-            {
-                throw new GameException("Results 无效。");
-            }
-
+        public void GetUnloadingSceneAssetNames(List<List<string>> results) =>
             m_SceneManager.GetUnloadingSceneAssetNames(results);
-        }
 
         /// <summary>
-        /// 检查场景资源是否存在。
+        /// 检查场景是否已加载
         /// </summary>
-        /// <param name="abPath">ab路径。</param>
-        /// <param name="assetName">asset资源名称。</param>
-        /// <returns>场景资源是否存在。</returns>
         public bool HasScene(string abPath, string assetName)
         {
             return m_SceneManager.HasScene(abPath, assetName);
         }
 
+        #region 场景相机管理
+
         /// <summary>
-        /// 追加场景相机
+        /// 添加相机到场景相机列表
         /// </summary>
-        /// <param name="camera">场景相机</param>
-        /// <returns>场景相机索引值</returns>
         public int AddSceneCamera(Camera camera)
         {
-            if(camera == null)
+            if (camera == null)
             {
                 Log.Error("SceneComponent.AddSceneCamera camera 无效。");
                 return -1;
             }
 
-            if(!m_SceneCameras.Contains(camera))
+            if (!m_SceneCameras.Contains(camera))
             {
                 m_SceneCameras.Add(camera);
             }
 
-            return m_SceneCameras.FindIndex((obj)=> { return obj == camera; });
+            return m_SceneCameras.FindIndex((obj) => obj == camera);
         }
 
         /// <summary>
         /// 移除场景相机
         /// </summary>
-        /// <param name="camera">场景相机</param>
-        /// <returns>是否移除成功</returns>
         public bool RemoveSceneCamera(Camera camera)
         {
             if (camera == null)
@@ -265,14 +209,13 @@ namespace Honor.Runtime
                 Log.Error("SceneComponent.RemoveSceneCamera camera 无效。");
                 return false;
             }
+
             return m_SceneCameras.Remove(camera);
         }
 
         /// <summary>
-        /// 根据索引值移除场景相机
+        /// 根据索引移除相机
         /// </summary>
-        /// <param name="index">场景相机索引值</param>
-        /// <returns>是否移除成功</returns>
         public bool RemoveSceneCameraByIndex(int index)
         {
             if (index < 0 || index >= m_SceneCameras.Count)
@@ -280,15 +223,14 @@ namespace Honor.Runtime
                 Log.Error("SceneComponent.RemoveSceneCameraByIndex index 无效。");
                 return false;
             }
+
             m_SceneCameras.RemoveAt(index);
             return true;
         }
 
         /// <summary>
-        /// 获取场景相机索引值
+        /// 获取相机索引
         /// </summary>
-        /// <param name="camera">场景相机</param>
-        /// <returns>场景相机索引值</returns>
         public int GetSceneCameraIndex(Camera camera)
         {
             if (camera == null)
@@ -296,14 +238,13 @@ namespace Honor.Runtime
                 Log.Error("SceneComponent.GetSceneCameraIndex camera 无效。");
                 return -1;
             }
-            return m_SceneCameras.FindIndex((obj) => { return obj == camera; });
+
+            return m_SceneCameras.FindIndex((obj) => obj == camera);
         }
 
         /// <summary>
-        /// 获取场景相机
+        /// 根据索引获取相机
         /// </summary>
-        /// <param name="index">场景相机索引值</param>
-        /// <returns>场景相机</returns>
         public Camera GetSceneCamera(int index)
         {
             if (index < 0 || index >= m_SceneCameras.Count)
@@ -311,23 +252,23 @@ namespace Honor.Runtime
                 Log.Error("SceneComponent.GetSceneCamera index 无效。");
                 return null;
             }
+
             return m_SceneCameras[index];
         }
 
         /// <summary>
-        /// 设置场景相机是否可用
+        /// 设置相机启用/禁用
         /// </summary>
-        /// <param name="enabled">可用</param>
-        /// <param name="index">索引值</param>
         public void SetSceneCameraEnable(bool enabled, int index = -1)
         {
             if (index < -1 || index >= m_SceneCameras.Count)
             {
                 Log.Error("SceneComponent.SetSceneCameraEnable index 无效。");
             }
-            if(index == -1)
+
+            if (index == -1)
             {
-                m_SceneCameras.ForEach(camera => camera.enabled = enabled);
+                m_SceneCameras.ForEach(cam => cam.enabled = enabled);
             }
             else
             {
@@ -335,16 +276,17 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
+        #region 相机动画控制
+
         /// <summary>
-        /// 初始化相机
+        /// 初始化相机（无动画）
         /// </summary>
-        /// <param name="sceneCameraIndex">场景相机列表中的相机index</param>
-        /// <param name="originalPosition">初始场景相机位置</param>
-        /// <param name="originalRotation">初始场景相机角度</param>
-        /// <param name="sizeOrField">初始场景相机尺寸</param>
-        public void InitSceneCamera(int sceneCameraIndex, Vector3 originalPosition, Quaternion originalRotation, float sizeOrField)
+        public void InitSceneCamera(int sceneCameraIndex, Vector3 originalPosition, Quaternion originalRotation,
+            float sizeOrField)
         {
-            if(sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
+            if (sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
             {
                 SceneCameraActor actor = m_SceneCameras[sceneCameraIndex].GetOrAddComponent<SceneCameraActor>();
                 actor.Init(originalPosition, originalRotation, sizeOrField);
@@ -352,56 +294,51 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 初始化相机（动画）
+        /// 初始化相机（带动画）
         /// </summary>
-        /// <param name="sceneCameraIndex">场景相机列表中的相机index</param>
-        /// <param name="originalPosition">初始场景相机位置</param>
-        /// <param name="originalRotation">初始场景相机角度</param>
-        /// <param name="originalSizeOrField">初始场景相机的尺寸</param>
-        /// <param name="targetPosition">目标相机位置</param>
-        /// <param name="targetRotation">目标相机角度</param>
-        /// <param name="targetSizeOrField">目标相机位置</param>
-        /// <param name="targetDuration">初始场景相机向目标参数递进的动画持续时间</param>
-        /// <param name="canInterruptByGestures">动画是否可以被手势打断</param>
-        /// <param name="overCallback">动画结束回调</param>
-        public void InitSceneCameraWithAnimation(int sceneCameraIndex, Vector3 originalPosition, Quaternion originalRotation, float originalSizeOrField, Vector3 targetPosition = default(Vector3), Quaternion targetRotation = default(Quaternion), float targetSizeOrField = -1f, float targetDuration = 2f, bool canInterruptByGestures = false, Action overCallback = null)
+        public void InitSceneCameraWithAnimation(
+            int sceneCameraIndex,
+            Vector3 originalPosition,
+            Quaternion originalRotation,
+            float originalSizeOrField,
+            Vector3 targetPosition = default(Vector3),
+            Quaternion targetRotation = default(Quaternion),
+            float targetSizeOrField = -1f,
+            float targetDuration = 2f,
+            bool canInterruptByGestures = false,
+            Action overCallback = null)
         {
             if (sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
             {
-                if (targetPosition == default(Vector3))
-                {
-                    targetPosition = originalPosition;
-                }
-                if (targetSizeOrField == -1f)
-                {
-                    targetSizeOrField = originalSizeOrField;
-                }
+                if (targetPosition == default(Vector3)) targetPosition = originalPosition;
+                if (targetSizeOrField == -1f) targetSizeOrField = originalSizeOrField;
+
                 SceneCameraActor actor = m_SceneCameras[sceneCameraIndex].GetOrAddComponent<SceneCameraActor>();
-                actor.InitWithAnimation(originalPosition, originalRotation, originalSizeOrField, targetPosition, targetRotation, targetSizeOrField, targetDuration, canInterruptByGestures, overCallback);
+                actor.InitWithAnimation(originalPosition, originalRotation, originalSizeOrField, targetPosition,
+                    targetRotation, targetSizeOrField, targetDuration, canInterruptByGestures, overCallback);
             }
         }
 
         /// <summary>
-        /// 播放相机向目标递进的动画
+        /// 播放相机目标动画（位移+旋转+缩放）
         /// </summary>
-        /// <param name="sceneCameraIndex">场景相机列表中的相机index</param>
-        /// <param name="duration">动画持续时间</param>
-        /// <param name="targetPosition">目标位置</param>
-        /// <param name="targetRotation">目标角度</param>
-        /// <param name="targetSizeOrField">目标尺寸</param>
-        /// <param name="canInterruptByGestures">动画是否可以被手势打断</param>
-        /// <param name="overCallback">动画结束回调</param>
-        public void PlaySceneCameraAnimationToTarget(int sceneCameraIndex, float duration, Vector3 targetPosition, Quaternion targetRotation, float targetSizeOrField, bool canInterruptByGestures = false, Action overCallback = null)
+        public void PlaySceneCameraAnimationToTarget(
+            int sceneCameraIndex,
+            float duration,
+            Vector3 targetPosition,
+            Quaternion targetRotation,
+            float targetSizeOrField,
+            bool canInterruptByGestures = false,
+            Action overCallback = null)
         {
             if (sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
             {
                 SceneCameraActor actor = m_SceneCameras[sceneCameraIndex].GetOrAddComponent<SceneCameraActor>();
-                actor.PlayAnimationToTarget(duration, targetPosition, targetRotation, targetSizeOrField, canInterruptByGestures, overCallback);
+                actor.PlayAnimationToTarget(duration, targetPosition, targetRotation, targetSizeOrField,
+                    canInterruptByGestures, overCallback);
             }
         }
 
+        #endregion
     }
-
 }
-
-

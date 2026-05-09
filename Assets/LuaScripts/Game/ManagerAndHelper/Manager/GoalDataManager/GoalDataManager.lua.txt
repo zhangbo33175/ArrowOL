@@ -1,0 +1,33 @@
+--=====================================================================================================
+-- 【目标数据管理器】
+-- 功能：统一读取、查询关卡/任务/成就等目标配置表数据
+-- 对外提供：根据目标ID获取目标配置（目标类型、条件、奖励、描述等）
+--=====================================================================================================
+
+---@class GoalDataManager @目标数据管理器
+local GoalDataManager = class("GoalDataManager")
+
+--- 构造函数
+---@param args table 自定义参数
+function GoalDataManager:ctor(args)
+end
+
+--- 创建实例
+---@param args table 自定义参数
+---@return GoalDataManager
+function GoalDataManager:Create(args)
+    local obj = GoalDataManager.new(args)
+    return obj
+end
+
+---=========================================================================
+--- 【核心接口】根据目标ID获取目标配置表数据
+---@param goalId string 目标ID
+---@return Tables.Goals_Item 目标配置表项（目标类型、条件、奖励等）
+---=========================================================================
+function GoalDataManager:GetGoalDataById(goalId)
+    -- 实际项目中会从配置表（如 Tables.Goals）中根据ID查询
+    return nil
+end
+
+return GoalDataManager

@@ -1,383 +1,157 @@
-
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 游戏框架全局常量定义
+    /// 统一管理版本、UI层级、持久化键值等全局不变的配置
+    /// 禁止写入，仅用于读取常量
+    /// </summary>
     public static partial class GameConstants
     {
         /// <summary>
-        /// 最小游戏版本号
+        /// 游戏支持的最低版本号
         /// </summary>
         public const string MinGameVersion = "0.0.1";
 
         /// <summary>
-        /// Honor框架版本号
+        /// Honor 游戏框架版本号
         /// </summary>
         public const string HonorVersion = "1.1.0";
 
         /// <summary>
-        /// 启动UI默认层级ZOrder
+        /// 全局系统级 UI 层级（ZOrder）定义
+        /// 层级数值越大，显示越靠前
         /// </summary>
-        public const int LaunchUIZOrder = 32755;
+        public const int LaunchUIZOrder = 32755; // 启动UI
+
+        public const int SplashUIZOrder = 32756; // 闪屏UI
+        public const int HotfixUIZOrder = 32757; // 热更新UI
+        public const int HotfixErrorUIZOrder = 32758; // 热更新错误提示UI
+        public const int WebGLUIZOrder = 32759; // WebGL专用UI
+        public const int PreloadUIZOrder = 32760; // 预加载UI
+        public const int AppDownloadUIZOrder = 32761; // 大版本更新提示UI
+        public const int WaitingUIZOrder = 32762; // 加载等待菊花UI
+        public const int ProcedureTransitionUIZOrder = 32763; // 流程切换过渡UI
+        public const int GDPRUIZOrder = 32764; // GDPR隐私授权UI
+        public const int AppReviewUIZOrder = 32765; // 应用内评价UI
+        public const int AppFeedbackUIZOrder = 32766; // 应用内反馈UI
+        public const int FloatWordsUIZOrder = 32767; // 顶部飘字UI（最高优先级）
 
         /// <summary>
-        /// 闪屏UI默认层级ZOrder
-        /// </summary>
-        public const int SplashUIZOrder = 32756;
-
-        /// <summary>
-        /// 热更新UI默认层级ZOrder
-        /// </summary>
-        public const int HotfixUIZOrder = 32757;
-
-        /// <summary>
-        /// 热更新错误提示UI默认层级ZOrder
-        /// </summary>
-        public const int HotfixErrorUIZOrder = 32758;
-
-        /// <summary>
-        /// WebGL-UI默认层级ZOrder
-        /// </summary>
-        public const int WebGLUIZOrder = 32759;
-
-        /// <summary>
-        /// 预加载UI默认层级ZOrder
-        /// </summary>
-        public const int PreloadUIZOrder = 32760;
-
-        /// <summary>
-        /// 大版本更新提示UI默认层级ZOrder
-        /// </summary>
-        public const int AppDownloadUIZOrder = 32761;
-
-        /// <summary>
-        /// 菊花等待UI默认层级ZOrder
-        /// </summary>
-        public const int WaitingUIZOrder = 32762;
-
-        /// <summary>
-        /// 流程切换过渡UI默认层级ZOrder
-        /// </summary>
-        public const int ProcedureTransitionUIZOrder = 32763;
-
-        /// <summary>
-        /// GDPRUI默认层级ZOrder
-        /// </summary>
-        public const int GDPRUIZOrder = 32764;
-
-        /// <summary>
-        /// 应用内评价UI默认层级ZOrder
-        /// </summary>
-        public const int AppReviewUIZOrder = 32765;
-
-        /// <summary>
-        /// 应用内反馈UI默认层级ZOrder
-        /// </summary>
-        public const int AppFeedbackUIZOrder = 32766;
-
-        /// <summary>
-        /// 飘字UI默认层级ZOrder
-        /// </summary>
-        public const int FloatWordsUIZOrder = 32767;
-
-        /// <summary>
-        /// 持久化常量
+        /// 持久化（存储）相关常量
+        /// 统一管理所有存储路径、分类名、Key值
         /// </summary>
         public static class Persist
         {
             /// <summary>
-            /// 持久化-通用常量
+            /// 通用持久化配置
+            /// 存储：版本、语言、设备信息等基础数据
             /// </summary>
             public static class Common
             {
-                /// <summary>
-                /// 持久化-通用常量-存储方式
-                /// </summary>
                 public const PersistWayType WayType = PersistWayType.FileFragment;
-
-                /// <summary>
-                /// 持久化-通用常量-类别名称
-                /// </summary>
                 public const string ClassifyName = "CommonInfos";
 
-                /// <summary>
-                /// 持久化-通用常量-条目键
-                /// </summary>
                 public static class ItemKey
                 {
-                    /// <summary>
-                    /// 持久化-通用常量-条目键-版本
-                    /// </summary>
-                    public const string Version = "Version";
-
-                    /// <summary>
-                    /// 持久化-通用常量-条目键-语言
-                    /// </summary>
-                    public const string Language = "Language";
+                    public const string Version = "Version"; // 游戏版本
+                    public const string Language = "Language"; // 语言设置
                 }
-
             }
 
             /// <summary>
-            /// 持久化-IAP常量
+            /// IAP 内购持久化配置
+            /// 存储：订单、订阅、支付记录、分层信息等
             /// </summary>
             public static class IAP
             {
-                /// <summary>
-                /// 持久化-IAP常量-存储方式
-                /// </summary>
                 public const PersistWayType WayType = PersistWayType.FileFragment;
-
-                /// <summary>
-                /// 持久化-IAP常量-类别名称
-                /// </summary>
                 public const string ClassifyName = "IAPInfos";
 
-                /// <summary>
-                /// 持久化-IAP常量-条目键
-                /// </summary>
                 public static class ItemKey
                 {
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-正在进行中的订单状态集合
-                    /// </summary>
-                    public const string OrderingStates = "OrderingStates";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-
-                    /// </summary>
-                    public const string NonConsumeDotDatas = "NonConsumeDotDatas";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-正在进行中的订单状态集合
-                    /// </summary>
-                    public const string SubscriptionDotDatas = "SubscriptionDotDatas";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-订阅订单ID和TableID的对应关系
-                    /// </summary>
-                    public const string SubscriptionOrderTableIDs = "SubscriptionOrderTableIDs";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-正在购买中的订阅TableID
-                    /// </summary>
-                    public const string SubscriptionInBuyID = "SubscriptionInBuyID";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-已经完成的订单ID集合
-                    /// </summary>
-                    public const string FinishedOrderIDs = "FinishedOrderIDs";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-已经完成的失败订单ID集合
-                    /// </summary>
-                    public const string FinishedFailedOrderIDs = "FinishedFailedOrderIDs";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-首次订单完成时间
-                    /// </summary>
-                    public const string FinishedOrderFirstTime = "FinishedOrderFirstTime";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-最近订单完成时间
-                    /// </summary>
-                    public const string FinishedOrderLatestTime = "FinishedOrderLatestTime";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-最近支付距离上一次支付时间间隔（秒数）
-                    /// </summary>
-                    public const string FinishedOrderLatestTimeInterval = "FinishedOrderLatestTimeInterval";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-累积完成订单次数
-                    /// </summary>
-                    public const string FinishedOrderTotalCount = "FinishedOrderTotalCount";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-累积完成订单金额（统一按照美元）
-                    /// </summary>
-                    public const string FinishedOrderTotalMoney = "FinishedOrderTotalMoney";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-用户分层统计订单时间,新增
-                    /// </summary>
-                    public const string FinishedUserLayerInfo = "FinishedUserLayerInfo";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-正在进行中的第三方订单状态集合,新增
-                    /// </summary>
-                    public const string ThirdOrderingStates = "ThirdOrderingStates";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-完成的第三方订单ID集合,新增
-                    /// </summary>
-                    public const string ThirdFinishOrderIDs = "ThirdFinishOrderIDs";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-失败的第三方订单ID集合,新增
-                    /// </summary>
-                    public const string ThirdFailedOrderIDs = "ThirdErrorOrderIDs";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-正在进行中的Amazon订单状态集合,新增
-                    /// </summary>
-                    public const string AmazonOrderingStates = "AmazonOrderingStates";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-完成的Amazon订单ID集合,新增
-                    /// </summary>
-                    public const string AmazonFinishOrderIDs = "AmazonFinishOrderIDs";
-
-                    /// <summary>
-                    /// 持久化-IAP常量-条目键-失败的Amazon集合,新增
-                    /// </summary>
-                    public const string AmazonFailedOrderIDs = "AmazonFailedOrderIDs";
-
+                    public const string OrderingStates = "OrderingStates"; // 进行中订单
+                    public const string NonConsumeDotDatas = "NonConsumeDotDatas"; // 非消耗品数据
+                    public const string SubscriptionDotDatas = "SubscriptionDotDatas"; // 订阅数据
+                    public const string SubscriptionOrderTableIDs = "SubscriptionOrderTableIDs"; // 订阅订单映射
+                    public const string SubscriptionInBuyID = "SubscriptionInBuyID"; // 购买中的订阅
+                    public const string FinishedOrderIDs = "FinishedOrderIDs"; // 已完成订单
+                    public const string FinishedFailedOrderIDs = "FinishedFailedOrderIDs"; // 已失败订单
+                    public const string FinishedOrderFirstTime = "FinishedOrderFirstTime"; // 首次支付时间
+                    public const string FinishedOrderLatestTime = "FinishedOrderLatestTime"; // 最近支付时间
+                    public const string FinishedOrderLatestTimeInterval = "FinishedOrderLatestTimeInterval"; // 最近支付间隔
+                    public const string FinishedOrderTotalCount = "FinishedOrderTotalCount"; // 总支付次数
+                    public const string FinishedOrderTotalMoney = "FinishedOrderTotalMoney"; // 总支付金额（USD）
+                    public const string FinishedUserLayerInfo = "FinishedUserLayerInfo"; // 用户分层信息
+                    public const string ThirdOrderingStates = "ThirdOrderingStates"; // 第三方进行中订单
+                    public const string ThirdFinishOrderIDs = "ThirdFinishOrderIDs"; // 第三方完成订单
+                    public const string ThirdFailedOrderIDs = "ThirdErrorOrderIDs"; // 第三方失败订单
+                    public const string AmazonOrderingStates = "AmazonOrderingStates"; // Amazon进行中订单
+                    public const string AmazonFinishOrderIDs = "AmazonFinishOrderIDs"; // Amazon完成订单
+                    public const string AmazonFailedOrderIDs = "AmazonFailedOrderIDs"; // Amazon失败订单
                 }
-
             }
 
             /// <summary>
-            /// 持久化-GDPR常量
+            /// GDPR 隐私合规持久化配置
             /// </summary>
             public static class GDPR
             {
-                /// <summary>
-                /// 持久化-GDPR常量-存储方式
-                /// </summary>
                 public const PersistWayType WayType = PersistWayType.FileFragment;
-
-                /// <summary>
-                /// 持久化-GDPR常量-类别名称
-                /// </summary>
                 public const string ClassifyName = "GDPRInfos";
 
-                /// <summary>
-                /// 持久化-GDPR常量-条目键
-                /// </summary>
                 public static class ItemKey
                 {
-                    /// <summary>
-                    /// 持久化-GDPR常量-条目键-GDPR是否已结束
-                    /// </summary>
-                    public const string GDPROver = "GDPROver";
-
-                    /// <summary>
-                    /// 持久化-GDPR常量-条目键-是否需要遵循GDPR的云端标记
-                    /// </summary>
-                    public const string GDPRNeedFlagFromNet = "GDPRNeedFlagFromNet";
-
-                    /// <summary>
-                    /// 持久化-GDPR常量-条目键-GDPR协议设置项
-                    /// </summary>
-                    public const string HasUserConsent = "HasUserConsent";
-
-                    /// <summary>
-                    /// 持久化-GDPR常量-条目键-CCPA协议设置项
-                    /// </summary>
-                    public const string IsSell = "IsSell";
-
-                    /// <summary>
-                    /// 持久化-GDPR常量-条目键-COPPA协议设置项
-                    /// </summary>
-                    public const string IsAgeReachStandard = "IsAgeReachStandard";
-
+                    public const string GDPROver = "GDPROver"; // GDPR流程是否完成
+                    public const string GDPRNeedFlagFromNet = "GDPRNeedFlagFromNet"; // 云端是否需要GDPR
+                    public const string HasUserConsent = "HasUserConsent"; // 用户授权状态
+                    public const string IsSell = "IsSell"; // CCPA 隐私选项
+                    public const string IsAgeReachStandard = "IsAgeReachStandard"; // COPPA 年龄认证
                 }
-
             }
 
             /// <summary>
-            /// 持久化-MAX常量
+            /// MAX 广告相关持久化配置
             /// </summary>
             public static class MAX
             {
-                /// <summary>
-                /// 持久化-MAX常量-存储方式
-                /// </summary>
                 public const PersistWayType WayType = PersistWayType.FileFragment;
-
-                /// <summary>
-                /// 持久化-MAX常量-类别名称
-                /// </summary>
                 public const string ClassifyName = "MAXInfos";
 
-                /// <summary>
-                /// 持久化-MAX常量-条目键
-                /// </summary>
                 public static class ItemKey
                 {
-                    /// <summary>
-                    /// 持久化-MAX常量-条目键-Banner同步间隔
-                    /// </summary>
-                    public const string BannerILRDCount = "BannerILRDCount";
-                    
-                    /// <summary>
-                    /// 持久化-MAX常量-条目键-Banner的累计付费
-                    /// </summary>
-                    public const string BannerILRDRevenue = "BannerILRDRevenue";
+                    public const string BannerILRDCount = "BannerILRDCount"; // Banner广告展示次数
+                    public const string BannerILRDRevenue = "BannerILRDRevenue"; // Banner广告收益
                 }
-
             }
 
             /// <summary>
-            /// 持久化-Permission常量
+            /// 权限申请相关持久化配置
             /// </summary>
             public static class Permission
             {
-                /// <summary>
-                /// 持久化-Permission常量-存储方式
-                /// </summary>
                 public const PersistWayType WayType = PersistWayType.FileFragment;
-
-                /// <summary>
-                /// 持久化-Permission常量-类别名称
-                /// </summary>
                 public const string ClassifyName = "PermissionInfos";
 
-                /// <summary>
-                /// 持久化-Permission常量-条目键
-                /// </summary>
                 public static class ItemKey
                 {
-                    /// <summary>
-                    /// 持久化-授予常量-条目键-用户授予是否已结束
-                    /// </summary>
-                    public const string IsAuthorized = "IsAuthorized";
+                    public const string IsAuthorized = "IsAuthorized"; // 用户是否已授权
                 }
             }
-            
+
             /// <summary>
-            /// 持久化-Permission常量
+            /// AF（AppsFlyer）归因相关持久化配置
             /// </summary>
             public static class AF
             {
-                /// <summary>
-                /// 持久化-AF常量-存储方式
-                /// </summary>
                 public const PersistWayType WayType = PersistWayType.FileFragment;
-
-                /// <summary>
-                /// 持久化-AF常量-类别名称
-                /// </summary>
                 public const string ClassifyName = "AFInfos";
 
-                /// <summary>
-                /// 持久化-AF常量-条目键
-                /// </summary>
                 public static class ItemKey
                 {
-                    /// <summary>
-                    /// 持久化-授予常量-条目键-是否从服务器获取精准归因数据
-                    /// </summary>
-                    public const string IsServerConversionDatas = "IsServerConversionDatas";
-                    
-                    /// <summary>
-                    /// 持久化-授予常量-条目键-从服务器获取精准归因数据
-                    /// </summary>
-                    public const string ServerConversionDatas = "ServerConversionDatas";
+                    public const string IsServerConversionDatas = "IsServerConversionDatas"; // 是否获取服务端归因
+                    public const string ServerConversionDatas = "ServerConversionDatas"; // 服务端归因数据
                 }
             }
         }
-
     }
 }
-
-

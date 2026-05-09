@@ -3,120 +3,98 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 声音组（BGM / 音效 / UI / 角色 等分组）
+    /// 作用：统一管理本组内所有声音播放器，处理优先级、复用、音量、静音
+    /// </summary>
     public sealed class SoundGroup
     {
         /// <summary>
-        /// 声音组名称
+        /// 声音组名称（如 BGM、Effect、UI）
         /// </summary>
         private readonly string m_Name;
         public string Name
         {
-            get
-            {
-                return m_Name;
-            }
+            get => m_Name;
         }
 
         /// <summary>
-        /// 声音组辅助器
+        /// 声音组辅助对象（挂载在 GameObject 上）
         /// </summary>
         private readonly SoundGroupHelper m_SoundGroupHelper;
         public SoundGroupHelper SoundGroupHelper
         {
-            get
-            {
-                return m_SoundGroupHelper;
-            }
+            get => m_SoundGroupHelper;
         }
 
         /// <summary>
-        /// 声音代理集合
+        /// 本组所有声音播放器列表（对象池）
         /// </summary>
         private readonly List<SoundAgent> m_SoundAgents;
 
         /// <summary>
-        /// 获取声音代理数
+        /// 本组播放器数量
         /// </summary>
         public int SoundAgentCount
         {
-            get
-            {
-                return m_SoundAgents.Count;
-            }
+            get => m_SoundAgents.Count;
         }
 
         /// <summary>
-        /// 声音组中的声音是否避免被同优先级声音替换
+        /// 同优先级声音是否禁止互相替换
         /// </summary>
         private bool m_AvoidBeingReplacedBySamePriority;
         public bool AvoidBeingReplacedBySamePriority
         {
-            get
-            {
-                return m_AvoidBeingReplacedBySamePriority;
-            }
-            set
-            {
-                m_AvoidBeingReplacedBySamePriority = value;
-            }
+            get => m_AvoidBeingReplacedBySamePriority;
+            set => m_AvoidBeingReplacedBySamePriority = value;
         }
 
         /// <summary>
-        /// 声音组静音
+        /// 本组全局静音
+        /// 设置时自动刷新所有播放器
         /// </summary>
         private bool m_Mute;
         public bool Mute
         {
-            get
-            {
-                return m_Mute;
-            }
+            get => m_Mute;
             set
             {
                 m_Mute = value;
-                foreach (SoundAgent soundAgent in m_SoundAgents)
+                foreach (SoundAgent agent in m_SoundAgents)
                 {
-                    soundAgent.RefreshMute();
+                    agent.RefreshMute();
                 }
             }
         }
 
         /// <summary>
-        /// 声音组音量
+        /// 本组全局音量
+        /// 设置时自动刷新所有播放器
         /// </summary>
         private float m_Volume;
         public float Volume
         {
-            get
-            {
-                return m_Volume;
-            }
+            get => m_Volume;
             set
             {
                 m_Volume = value;
-                foreach (SoundAgent soundAgent in m_SoundAgents)
+                foreach (SoundAgent agent in m_SoundAgents)
                 {
-                    soundAgent.RefreshVolume();
+                    agent.RefreshVolume();
                 }
             }
         }
 
         /// <summary>
-        /// 初始化声音组的新实例
+        /// 构造：创建声音组
         /// </summary>
-        /// <param name="name">声音组名称。</param>
-        /// <param name="soundGroupHelper">声音组辅助器。</param>
         public SoundGroup(string name, SoundGroupHelper soundGroupHelper)
         {
             if (string.IsNullOrEmpty(name))
-            {
                 throw new GameException("Sound group name 无效。");
-            }
-
             if (soundGroupHelper == null)
-            {
                 throw new GameException("Sound group helper 无效。");
-            }
 
             m_Name = name;
             m_SoundGroupHelper = soundGroupHelper;
@@ -124,73 +102,65 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 增加声音代理
+        /// 添加一个声音播放器到本组
         /// </summary>
-        /// <param name="soundManager">声音管理器。</param>
-        /// <param name="soundAgentHelper">要增加的声音代理辅助器。</param>
         public void AddSoundAgent(SoundManager soundManager, SoundAgentHelper soundAgentHelper)
         {
             m_SoundAgents.Add(new SoundAgent(this, soundManager, soundAgentHelper));
         }
 
         /// <summary>
-        /// 播放声音
+        /// 核心方法：播放声音（自动选择空闲/可淘汰播放器）
         /// </summary>
-        /// <param name="serialID">声音的序列编号。</param>
-        /// <param name="soundAsset">声音资源。</param>
-        /// <param name="playSoundParams">播放声音参数。</param>
-        /// <param name="errorCode">错误码。</param>
-        /// <returns>用于播放的声音代理。</returns>
         public SoundAgent PlaySound(int serialID, Object soundAsset, PlaySoundParams playSoundParams, out PlaySoundErrorCode? errorCode)
         {
             errorCode = null;
             SoundAgent candidateAgent = null;
             int busyCount = 0;
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+
+            // 遍历所有播放器，找最合适的
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-                if (!soundAgent.IsPlaying)
+                // 1. 优先用空闲播放器
+                if (!agent.IsPlaying)
                 {
-                    candidateAgent = soundAgent;
+                    candidateAgent = agent;
                     break;
                 }
 
                 busyCount++;
 
-                if (soundAgent.Priority < playSoundParams.Priority)
+                // 2. 找优先级更低的，可以被顶替
+                if (agent.Priority < playSoundParams.Priority)
                 {
-                    if (candidateAgent == null || soundAgent.Priority < candidateAgent.Priority)
-                    {
-                        candidateAgent = soundAgent;
-                    }
+                    if (candidateAgent == null || agent.Priority < candidateAgent.Priority)
+                        candidateAgent = agent;
                 }
-                else if (!m_AvoidBeingReplacedBySamePriority && soundAgent.Priority == playSoundParams.Priority)
+                // 3. 同优先级，允许顶替最早播放的
+                else if (!m_AvoidBeingReplacedBySamePriority && agent.Priority == playSoundParams.Priority)
                 {
-                    if (candidateAgent == null || soundAgent.SetSoundAssetTime < candidateAgent.SetSoundAssetTime)
-                    {
-                        candidateAgent = soundAgent;
-                    }
+                    if (candidateAgent == null || agent.SetSoundAssetTime < candidateAgent.SetSoundAssetTime)
+                        candidateAgent = agent;
                 }
             }
 
+            // 没有可用播放器
             if (candidateAgent == null)
             {
-                if(busyCount == m_SoundAgents.Count)
-                {
-                    errorCode = PlaySoundErrorCode.SoundGroupHasNotEnoughAgent;
-                }
-                else
-                {
-                    errorCode = PlaySoundErrorCode.IgnoredDueToLowPriority;
-                }
+                errorCode = busyCount == m_SoundAgents.Count 
+                    ? PlaySoundErrorCode.SoundGroupHasNotEnoughAgent 
+                    : PlaySoundErrorCode.IgnoredDueToLowPriority;
                 return null;
             }
 
+            // 设置音频资源失败
             if (!candidateAgent.SetSoundAsset(soundAsset))
             {
                 errorCode = PlaySoundErrorCode.SetSoundAssetFailure;
                 return null;
             }
 
+            // 赋值播放参数
             candidateAgent.SerialID = serialID;
             candidateAgent.Time = playSoundParams.Time;
             candidateAgent.MuteInSoundGroup = playSoundParams.MuteInSoundGroup;
@@ -202,130 +172,103 @@ namespace Honor.Runtime
             candidateAgent.SpatialBlend = playSoundParams.SpatialBlend;
             candidateAgent.MaxDistance = playSoundParams.MaxDistance;
             candidateAgent.DopplerLevel = playSoundParams.DopplerLevel;
+            
+            // 开始播放
             candidateAgent.Play(playSoundParams.FadeInSeconds);
             return candidateAgent;
         }
 
         /// <summary>
-        /// 停止播放声音。
+        /// 停止指定声音
         /// </summary>
-        /// <param name="serialID">要停止播放声音的序列编号。</param>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
-        /// <returns>是否停止播放声音成功。</returns>
         public bool StopSound(int serialID, float fadeOutSeconds)
         {
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-                if (soundAgent.SerialID != serialID)
+                if (agent.SerialID == serialID)
                 {
-                    continue;
+                    agent.Stop(fadeOutSeconds);
+                    return true;
                 }
-
-                soundAgent.Stop(fadeOutSeconds);
-                return true;
             }
-
             return false;
         }
 
         /// <summary>
-        /// 暂停播放声音。
+        /// 暂停指定声音
         /// </summary>
-        /// <param name="serialID">要暂停播放声音的序列编号。</param>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
-        /// <returns>是否暂停播放声音成功。</returns>
         public bool PauseSound(int serialID, float fadeOutSeconds)
         {
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-                if (soundAgent.SerialID != serialID)
+                if (agent.SerialID == serialID)
                 {
-                    continue;
+                    agent.Pause(fadeOutSeconds);
+                    return true;
                 }
-
-                soundAgent.Pause(fadeOutSeconds);
-                return true;
             }
-
             return false;
         }
 
         /// <summary>
-        /// 恢复播放声音。
+        /// 恢复指定声音
         /// </summary>
-        /// <param name="serialID">要恢复播放声音的序列编号。</param>
-        /// <param name="fadeInSeconds">声音淡入时间，以秒为单位。</param>
-        /// <returns>是否恢复播放声音成功。</returns>
         public bool ResumeSound(int serialID, float fadeInSeconds)
         {
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-                if (soundAgent.SerialID != serialID)
+                if (agent.SerialID == serialID)
                 {
-                    continue;
+                    agent.Resume(fadeInSeconds);
+                    return true;
                 }
-
-                soundAgent.Resume(fadeInSeconds);
-                return true;
             }
-
             return false;
         }
 
         /// <summary>
-        /// 停止所有已加载的声音。
+        /// 停止本组所有声音
         /// </summary>
         public void StopAllLoadedSounds()
         {
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-                if (soundAgent.IsPlaying)
-                {
-                    soundAgent.Stop();
-                }
+                if (agent.IsPlaying)
+                    agent.Stop();
             }
         }
 
         /// <summary>
-        /// 停止所有已加载的声音。
+        /// 停止本组所有声音（带淡出）
         /// </summary>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void StopAllLoadedSounds(float fadeOutSeconds)
         {
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-             //   if (soundAgent.IsPlaying)
-                {
-                    soundAgent.Stop(fadeOutSeconds);
-                }
+                agent.Stop(fadeOutSeconds);
             }
         }
 
         /// <summary>
-        /// 暂停所有正在播放中的音乐
+        /// 暂停本组所有声音
         /// </summary>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void PauseAllLoadedSounds(float fadeOutSeconds)
         {
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-                soundAgent.Pause(fadeOutSeconds);
+                agent.Pause(fadeOutSeconds);
             }
         }
 
         /// <summary>
-        /// 恢复所有正在播放中的音乐
+        /// 恢复本组所有声音
         /// </summary>
-        /// <param name="fadeInSeconds">声音淡入时间，以秒为单位。</param>
         public void ResumeAllLoadedSounds(float fadeInSeconds)
         {
-            foreach (SoundAgent soundAgent in m_SoundAgents)
+            foreach (SoundAgent agent in m_SoundAgents)
             {
-                soundAgent.Resume(fadeInSeconds);
+                agent.Resume(fadeInSeconds);
             }
         }
-
     }
 }
-
-

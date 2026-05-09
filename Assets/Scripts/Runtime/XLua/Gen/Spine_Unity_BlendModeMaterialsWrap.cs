@@ -21,9 +21,11 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Spine.Unity.BlendModeMaterials);
-			Utils.BeginObjectRegister(type, L, translator, 0, 2, 5, 5);
+			Utils.BeginObjectRegister(type, L, translator, 0, 4, 5, 5);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "BlendModeForMaterial", _m_BlendModeForMaterial);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "TransferSettingsFrom", _m_TransferSettingsFrom);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateBlendmodeMaterialsRequiredState", _m_UpdateBlendmodeMaterialsRequiredState);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ApplyMaterials", _m_ApplyMaterials);
 			
 			
@@ -100,6 +102,63 @@ namespace XLua.CSObjectWrap
                     
                         Spine.BlendMode gen_ret = gen_to_be_invoked.BlendModeForMaterial( _material );
                         translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_TransferSettingsFrom(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Spine.Unity.BlendModeMaterials gen_to_be_invoked = (Spine.Unity.BlendModeMaterials)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    Spine.Unity.BlendModeMaterialsAsset _modifierAsset = (Spine.Unity.BlendModeMaterialsAsset)translator.GetObject(L, 2, typeof(Spine.Unity.BlendModeMaterialsAsset));
+                    
+                    gen_to_be_invoked.TransferSettingsFrom( _modifierAsset );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateBlendmodeMaterialsRequiredState(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Spine.Unity.BlendModeMaterials gen_to_be_invoked = (Spine.Unity.BlendModeMaterials)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    Spine.SkeletonData _skeletonData = (Spine.SkeletonData)translator.GetObject(L, 2, typeof(Spine.SkeletonData));
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateBlendmodeMaterialsRequiredState( _skeletonData );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
                     
                     
                     

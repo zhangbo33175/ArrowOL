@@ -3,26 +3,32 @@ using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 游戏框架全局枚举 & 定义
+    /// 统一管理游戏内所有类型、资源、路径、语言、状态等枚举
+    /// 属于框架核心常量定义文件
+    /// </summary>
     public static partial class GameDefinitions
     {
         /// <summary>
-        /// 2D/3D类型
+        /// 游戏维度类型（2D / 3D）
         /// </summary>
         public enum DimensionMode
         {
             /// <summary>
-            /// 2D模式
+            /// 2D 游戏模式
             /// </summary>
             Two,
 
             /// <summary>
-            /// 3D模式
+            /// 3D 游戏模式
             /// </summary>
-            Three,
-        };
+            Three
+        }
 
         /// <summary>
-        /// Asset类型
+        /// 资源（Asset）类型枚举
+        /// 对应 Unity 各类资源文件
         /// </summary>
         public enum AssetType
         {
@@ -44,407 +50,268 @@ namespace Honor.Runtime
             Scene,
             Sound,
             Model,
-            AnimatorController,
+            AnimatorController
         }
 
         /// <summary>
-        /// Asset后缀名
+        /// 资源类型 → 对应文件后缀名 映射表
+        /// 用于资源加载、热更、文件校验时匹配后缀
         /// </summary>
-        public static Dictionary<AssetType, string> AssetSuffix = new Dictionary<AssetType, string>() {
-            {AssetType.GameObject, ".prefab"},
-            {AssetType.Texture2D, ".png"},
-            {AssetType.Texture, ".png"},
-            {AssetType.Sprite, ".png"},
-            {AssetType.ScriptableObject, ".asset"},
-            {AssetType.TileBase, ".asset"},
-            {AssetType.Font, ".ttf"},
-            {AssetType.FontTMP, ".asset"},
-            {AssetType.Shader, ".shader"},
-            {AssetType.Material, ".mat"},
-            {AssetType.TextAsset, ".txt"},
-            {AssetType.JsonAsset, ".json"},
-            {AssetType.BinaryAsset, ".bytes"},
-            {AssetType.LuaAsset, ".txt"},
-            {AssetType.LuacAsset, ".bytes"},
-            {AssetType.Scene, ".unity"},
-            {AssetType.Sound, ".ogg"},
-            {AssetType.Model, ".fbx"},
-            {AssetType.AnimatorController, ".controller"},
+        public static readonly Dictionary<AssetType, string> AssetSuffix = new Dictionary<AssetType, string>()
+        {
+            { AssetType.GameObject,          ".prefab" },
+            { AssetType.Texture2D,            ".png" },
+            { AssetType.Texture,              ".png" },
+            { AssetType.Sprite,               ".png" },
+            { AssetType.ScriptableObject,     ".asset" },
+            { AssetType.TileBase,             ".asset" },
+            { AssetType.Font,                 ".ttf" },
+            { AssetType.FontTMP,              ".asset" },
+            { AssetType.Shader,               ".shader" },
+            { AssetType.Material,             ".mat" },
+            { AssetType.TextAsset,            ".txt" },
+            { AssetType.JsonAsset,            ".json" },
+            { AssetType.BinaryAsset,          ".bytes" },
+            { AssetType.LuaAsset,             ".txt" },
+            { AssetType.LuacAsset,            ".bytes" },
+            { AssetType.Scene,                ".unity" },
+            { AssetType.Sound,                ".ogg" },
+            { AssetType.Model,                ".fbx" },
+            { AssetType.AnimatorController,   ".controller" }
         };
 
         /// <summary>
         /// 路径类型
+        /// 区分资源读取的不同路径来源
         /// </summary>
         public enum PathType
         {
             /// <summary>
-            /// 可写路径
+            /// 可读写持久化路径
             /// </summary>
             Persist,
 
             /// <summary>
-            /// 只读路径
+            /// 只读 StreamingAssets 路径
             /// </summary>
             Streaming,
 
             /// <summary>
-            /// 服务器路径
+            /// 正式服务器路径
             /// </summary>
             Server,
 
             /// <summary>
-            /// 灰度服务器路径
+            /// 灰度/测试服务器路径
             /// </summary>
-            ServerGray,
-        };
+            ServerGray
+        }
 
         /// <summary>
-        /// 下载步骤
+        /// 下载步骤状态（支持位标记）
+        /// 用于热更新、资源下载流程状态管理
         /// </summary>
         [Flags]
         public enum DownloadStep : byte
         {
             /// <summary>
-            /// 无效
+            /// 无状态 / 无效
             /// </summary>
-            None = 0,
+            None        = 0,
 
             /// <summary>
-            /// 待机
+            /// 待机空闲
             /// </summary>
-            Idle,
+            Idle        = 1,
 
             /// <summary>
-            /// 进行中
+            /// 下载/处理中
             /// </summary>
-            Processing,
+            Processing  = 2,
 
             /// <summary>
             /// 全部完成
             /// </summary>
-            AllOver,
+            AllOver     = 4,
 
             /// <summary>
-            /// 跳过
+            /// 已跳过
             /// </summary>
-            Skip,
+            Skip        = 8,
 
             /// <summary>
-            /// 异常
+            /// 发生错误
             /// </summary>
-            Error,
+            Error       = 16,
 
             /// <summary>
-            /// 检测异常
+            /// 版本/资源检测错误
             /// </summary>
-            CheckError,
-        };
+            CheckError  = 32
+        }
 
         /// <summary>
-        /// 调试模式
+        /// 调试启动模式
+        /// 用于编辑器下区分不同启动逻辑
         /// </summary>
         public enum DebugMode
         {
             /// <summary>
-            /// 非调试模式
+            /// 非调试模式（正式运行）
             /// </summary>
-            None = 0,
+            None        = 0,
 
             /// <summary>
-            /// 调试模式-IDE优先启动模式
+            /// 调试模式：IDE 优先启动
             /// </summary>
             IDEFirst,
 
             /// <summary>
-            /// 调试模式-Unity优先启动模式
+            /// 调试模式：Unity 优先启动
             /// </summary>
-            UnityFirst,
-        };
+            UnityFirst
+        }
 
         /// <summary>
-        /// 游戏语言类型
+        /// 游戏支持的语言类型
         /// </summary>
         public enum Language : byte
         {
-            // 未指定
-            Unspecified = 0,
-
-            // 南非荷兰语
+            Unspecified         = 0,
             Afrikaans,
-
-            // 阿尔巴尼亚语
             Albanian,
-
-            // 阿拉伯语
             Arabic,
-
-            // 巴斯克语
             Basque,
-
-            // 白俄罗斯语
             Belarusian,
-
-            // 保加利亚语
             Bulgarian,
-
-            // 加泰罗尼亚语
             Catalan,
-
-            // 简体中文
             ChineseSimplified,
-
-            // 繁体中文
             ChineseTraditional,
-
-            // 克罗地亚语
             Croatian,
-
-            // 捷克语
             Czech,
-
-            // 丹麦语
             Danish,
-
-            // 荷兰语
             Dutch,
-
-            // 英语
             English,
-
-            // 爱沙尼亚语
             Estonian,
-
-            // 法罗语
             Faroese,
-
-            // 芬兰语
             Finnish,
-
-            // 法语
             French,
-
-            // 格鲁吉亚语
             Georgian,
-
-            // 德语
             German,
-
-            // 希腊语
             Greek,
-
-            // 希伯来语
             Hebrew,
-
-            // 匈牙利语
             Hungarian,
-
-            // 冰岛语
             Icelandic,
-
-            // 印尼语
             Indonesian,
-
-            // 意大利语
             Italian,
-
-            // 日语
             Japanese,
-
-            // 韩语
             Korean,
-
-            // 拉脱维亚语
             Latvian,
-
-            // 立陶宛语
             Lithuanian,
-
-            // 马其顿语
             Macedonian,
-
-            // 马拉雅拉姆语
             Malayalam,
-
-            // 挪威语
             Norwegian,
-
-            // 波斯语
             Persian,
-
-            // 波兰语
             Polish,
-
-            // 葡萄牙语
             PortuguesePortugal,
-
-            // 罗马尼亚语
             Romanian,
-
-            // 俄语
             Russian,
-
-            // 塞尔维亚克罗地亚语
             SerboCroatian,
-
-            // 塞尔维亚西里尔语
             SerbianCyrillic,
-
-            // 塞尔维亚拉丁语
             SerbianLatin,
-
-            // 斯洛伐克语
             Slovak,
-
-            // 斯洛文尼亚语
             Slovenian,
-
-            // 西班牙语
             Spanish,
-
-            // 瑞典语
             Swedish,
-
-            // 泰语
             Thai,
-
-            // 土耳其语
             Turkish,
-
-            // 乌克兰语
             Ukrainian,
-
-            // 越南语
             Vietnamese,
-
-            // 总数量
-            TotalNum,
-
-        };
+            TotalNum
+        }
 
         /// <summary>
-        /// 游戏语言类型描述
+        /// 语言名称描述（对应 Language 枚举）
+        /// 用于显示、日志、调试
         /// </summary>
         public static readonly string[] LanguageDesc = new string[(int)Language.TotalNum]
         {
             "未指定",
-
             "南非荷兰语",
-
             "阿尔巴尼亚语",
-
             "阿拉伯语",
-
             "巴斯克语",
-
             "白俄罗斯语",
-
             "保加利亚语",
-
             "加泰罗尼亚语",
-
             "简体中文",
-
             "繁体中文",
-
             "克罗地亚语",
-
             "捷克语",
-
             "丹麦语",
-
             "荷兰语",
-
             "英语",
-
             "爱沙尼亚语",
-
             "法罗语",
-
             "芬兰语",
-
             "法语",
-
             "格鲁吉亚语",
-
             "德语",
-
             "希腊语",
-
             "希伯来语",
-
             "匈牙利语",
-
             "冰岛语",
-
             "印尼语",
-
             "意大利语",
-
             "日语",
-
             "韩语",
-
             "拉脱维亚语",
-
             "立陶宛语",
-
             "马其顿语",
-
             "马拉雅拉姆语",
-
             "挪威语",
-
             "波斯语",
-
             "波兰语",
-
             "葡萄牙语",
-
             "罗马尼亚语",
-
             "俄语",
-
             "塞尔维亚克罗地亚语",
-
             "塞尔维亚西里尔语",
-
             "塞尔维亚拉丁语",
-
             "斯洛伐克语",
-
             "斯洛文尼亚语",
-
             "西班牙语",
-
             "瑞典语",
-
             "泰语",
-
             "土耳其语",
-
             "乌克兰语",
-
-            "越南语",
-
+            "越南语"
         };
 
-
         /// <summary>
-        /// Debug窗口显示模式
+        /// 调试窗口显示模式
         /// </summary>
         public enum DebugWindowModel
-        { 
-            // 最小化
+        {
+            /// <summary>
+            /// 最小化悬浮窗
+            /// </summary>
             MiniWindow,
-            // 显示帧率的窗口
+
+            /// <summary>
+            /// 仅显示 FPS 的窗口
+            /// </summary>
             FPSWindow,
-            // 全屏窗口
+
+            /// <summary>
+            /// 全屏调试窗口
+            /// </summary>
             FullWindow,
-            // 弹出窗口
-            PopWindow,
+
+            /// <summary>
+            /// 弹出式窗口
+            /// </summary>
+            PopWindow
         }
-
     }
-    }
-
-
+}

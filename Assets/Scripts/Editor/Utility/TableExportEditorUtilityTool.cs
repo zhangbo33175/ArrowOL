@@ -9,36 +9,41 @@ using UnityEngine;
 namespace GameLib
 {
     /// <summary>
-    /// 编辑器模式下数据导出工具类
+    /// 编辑器模式下 配置表/文本数据 导出工具类
+    /// 功能：导出字符串到 TXT 文件，支持合并导出 / 分文件导出、自动去重、删除旧文件
+    /// 主要用于：导出文本、字库字符集、配置表文本
     /// </summary>
     public static class TableExportEditorUtilityTool
     {
         /// <summary>
-        /// 使用table导出的string创建txt文件
+        /// 导出字符串数据到 TXT 文件（通用版）
         /// </summary>
-        /// <param name="exportDirectory">创建asset文件需要存放的文件夹</param>
-        /// <param name="mulToOne">是否将assetChars的内容导出到一个文件</param>
-        /// <param name="exportOneFileName">将assetChars的内容导出到一个文件的文件名字</param>
-        /// <param name="assetChars">Dictionary<string, List<string>> 要导出的文件名/导出文件内容</param>
+        /// <param name="exportDirectory">导出目标文件夹</param>
+        /// <param name="mulToOne">是否合并为一个文件</param>
+        /// <param name="exportOneFileName">合并后的文件名</param>
+        /// <param name="assetChars">文件名 -> 字符串列表</param>
         public static bool CreateTableExportTxt(string exportDirectory, bool mulToOne, string exportOneFileName,
             Dictionary<string, List<string>> assetChars)
         {
-            // 检查传入路径是否是以.asset后缀名结尾
+            // 路径为空校验
             if (string.IsNullOrEmpty(exportDirectory))
             {
                 Log.Error("CreateTableExportTxt 时传入的路径为空");
                 return false;
             }
 
-            // 删除当前文件夹下面原有的asset文件
+            // 提取 Assets 内部相对路径
             string assetFilePath = exportDirectory.Substring(exportDirectory.IndexOf("/Assets") + 1);
             string oneFilePath = $"{assetFilePath}/{exportOneFileName}.txt";
+
+            // 删除旧的合并文件
             if (File.Exists(oneFilePath))
             {
                 Log.Info($"CreateTableExportTxt 删除旧的TMP字符集文件{oneFilePath}");
                 File.Delete(oneFilePath);
             }
 
+            // 删除所有旧的分文件
             foreach (var item in assetChars)
             {
                 string perFilePath = $"{assetFilePath}/{item.Key}.txt";
@@ -49,21 +54,26 @@ namespace GameLib
                 }
             }
 
+            // 合并导出为一个文件
             if (mulToOne)
             {
                 string tmpChars = "";
                 foreach (var item in assetChars)
                 {
-                    // 对要制作字库的文字内容进行去重
+                    // 字符串去重
                     List<string> assetStringArray = item.Value.Distinct().ToList();
-                    tmpChars = $"{tmpChars}{string.Join("", assetStringArray)}";
+                    tmpChars += string.Join("", assetStringArray);
                 }
 
+                // 拼接完整磁盘路径
                 var filePath = AorTxt.Format("{0}/{1}",
                     Application.dataPath.Substring(0, Application.dataPath.Length - "Assets/".Length), oneFilePath);
+
+                // UTF8 无BOM 写入
                 File.WriteAllText(filePath, tmpChars, new UTF8Encoding(false));
                 AssetDatabase.Refresh();
             }
+            // 分别导出多个文件
             else
             {
                 foreach (var item in assetChars)
@@ -74,6 +84,7 @@ namespace GameLib
 
                     var filePath = AorTxt.Format("{0}/{1}",
                         Application.dataPath.Substring(0, Application.dataPath.Length - "Assets/".Length), perFilePath);
+
                     File.WriteAllText(filePath, tempStr, new UTF8Encoding(false));
                 }
 
@@ -84,25 +95,25 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 使用table导出的string创建txt文件
+        /// 导出字符串数据到 TXT 文件（文本专用版）
+        /// 逻辑与上一方法完全一致，仅做方法区分
         /// </summary>
-        /// <param name="exportDirectory">创建asset文件需要存放的文件夹</param>
-        /// <param name="mulToOne">是否将assetChars的内容导出到一个文件</param>
-        /// <param name="exportOneFileName">是否将assetChars的内容导出到一个文件</param>
-        /// <param name="assetChars">Dictionary<string, List<string>> 要导出的文件名/导出文件内容</param>
+        /// <param name="exportDirectory">导出目录</param>
+        /// <param name="mulToOne">是否合并导出</param>
+        /// <param name="exportOneFileName">合并文件名</param>
+        /// <param name="assetChars">文件名字符串映射</param>
         public static bool CreateTableExportTextTxt(string exportDirectory, bool mulToOne, string exportOneFileName,
             Dictionary<string, List<string>> assetChars)
         {
-            // 检查传入路径是否是以.asset后缀名结尾
             if (string.IsNullOrEmpty(exportDirectory))
             {
                 Log.Error("CreateTableExportTextTxt 时传入的路径为空");
                 return false;
             }
 
-            // 删除当前文件夹下面原有的asset文件
             string assetFilePath = exportDirectory.Substring(exportDirectory.IndexOf("/Assets") + 1);
             string oneFilePath = $"{assetFilePath}/{exportOneFileName}.txt";
+
             if (File.Exists(oneFilePath))
             {
                 Log.Info($"CreateTableExportTextTxt 删除旧的TMP字符集文件{oneFilePath}");
@@ -124,7 +135,6 @@ namespace GameLib
                 string tmpChars = "";
                 foreach (var item in assetChars)
                 {
-                    // 对要制作字库的文字内容进行去重
                     List<string> assetStringArray = item.Value.Distinct().ToList();
                     tmpChars = $"{tmpChars}{string.Join("", assetStringArray)}";
                 }

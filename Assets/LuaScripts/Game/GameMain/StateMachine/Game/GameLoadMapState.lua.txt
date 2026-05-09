@@ -1,21 +1,22 @@
 --=====================================================================================================
--- descrip:   游戏加载地图状态机
+-- descrip:   游戏加载地图状态
+--            职责：负责地图加载、LoadingUI显示、首次创角流程、新手第一关跳转、主界面切换
 --=====================================================================================================
 
----@class GameLoadMapState : GameLoadMapStateBase @游戏加载地图状态机
+---@class GameLoadMapState : GameLoadMapStateBase @游戏加载地图状态
 local GameLoadMapState = class('GameLoadMapState', import('GameLoadMapStateBase'))
 
 ---构造函数
----@type fun(stateType:GameStateCmd):GameMainState
----@param stateType GameStateCmd @状态机状态值
+---@type fun(stateType:GameStateCmd):void
+---@param stateType GameStateCmd @状态类型
 function GameLoadMapState:ctor(stateType)
     GameLoadMapState.super.ctor(self, stateType)
 end
 
----创建函数
----@type fun(stateType:GameStateCmd):GameMainState
----@param stateType GameStateCmd @状态机状态值
----@return GamePlayingState @GamePlayingState实例
+---创建状态实例
+---@type fun(stateType:GameStateCmd):GameLoadMapState
+---@param stateType GameStateCmd @状态类型
+---@return GameLoadMapState @状态实例
 function GameLoadMapState:Create(stateType)
     local obj = GameLoadMapState.new(stateType)
     return obj
@@ -23,26 +24,28 @@ end
 
 ---进入状态
 ---@type fun(finishCallback:function):void
----@param finishCallback function @回调函数
+---@param finishCallback function @进入完成回调
 function GameLoadMapState:OnStateEnter(finishCallback)
     GameLoadMapState.super.OnStateEnter(self, finishCallback)
 end
 
 ---离开状态
 ---@type fun(finishCallback:function):void
----@param finishCallback function @回调函数
+---@param finishCallback function @退出完成回调
 function GameLoadMapState:OnStateExit(finishCallback)
     GameLoadMapState.super.OnStateExit(self, finishCallback)
 end
 
----打开加载UI
+---打开加载UI（根据前序状态决定显示首次加载/普通加载）
 ---@type fun():void
 function GameLoadMapState:OpenLoadingUI()
     local preState = GameStateMachine:PreStateType()
+    -- 从登录态进入 → 首次加载界面
     if preState == GameStateCmd.LoginState or preState == nil then
         OpenUISync(UIs.UIFirstLoadMap)
     else
-        OpenUISync(UIs.UILoadMap)
+        -- 普通地图加载界面
+        OpenUISync(UIs.UILoadMapView)
     end
 end
 
@@ -53,89 +56,42 @@ function GameLoadMapState:CloseLoadingUI()
     if preState == GameStateCmd.LoginState or preState == nil then
         CloseUI(UIs.UIFirstLoadMap)
     else
-        CloseUI(UIs.UILoadMap)
+        CloseUI(UIs.UILoadMapView)
     end
 end
 
----加载地图完毕
+---地图加载完毕（核心逻辑：新手流程/正常流程）
 ---@type fun(finishCallback:function):void
----@param finishCallback function @回调函数
+---@param finishCallback function @加载完成回调
 function GameLoadMapState:LoadMapOver(finishCallback)
     local chapterId = ChapterListManager:GetRuntimeChapterId()
-    UpgradeMapMgr:UpdateRecommendItemId(chapterId) -- 加载地图完毕后更新推荐物品ID，预计算可以避免之后的计算时间过长问题
+    -- ====================== 新手首次游戏流程 ======================
     if PlayHelper:IsPlayFirstLevel() then
-        local levelId = GamerDataMgr:GetLevelLvByChapterId(chapterId)
-        ItemMgr:FullLife() -- 补满生命
-
-        local intoMainStateComplete = false
-        local firstAvatarFlowComplete = false
-        local waitUtil1 = nil
-        local waitUtil2 = nil
-        ---检查是否需要播放首次入关Cut，如播
-        if not PbRootData.GameData.cutRecord[EPlayOnceCutType.FirstShow] then
-            -- 先进入主State
-            GameStateMachine:ChangeState(GameStateCmd.MainState, function()
-                -- pcall(finishCallback)
-                intoMainStateComplete = true
-            end)
-            waitUtil1 = waitUtil1 or Unity.WaitUntil(function()
-                return intoMainStateComplete
-            end)
-            coroutine.yield(waitUtil1)
-            --note:变量声明移出while之后，每次循环结束都要重置为false
-            intoMainStateComplete = false
-
-            -- 通知隐藏主界面HUD
-            HonorEventHelper:Fire(EventCmd.OnHideMainHudUI)
-
-            -- 打开捏脸UI开始捏脸，捏脸、起名完成后，
-            OpenUISync(UIs.UICostume, { firstAvatar = true, completeCallback = function()
-                firstAvatarFlowComplete = true
-            end })
-            waitUtil2 = waitUtil2 or Unity.WaitUntil(function()
-                return firstAvatarFlowComplete
-            end)
-            coroutine.yield(waitUtil2)
-            --note:变量声明移出while之后，每次循环结束都要重置为false
-            firstAvatarFlowComplete = false
-
-            -- 存...
-            PbRootData.GameData.cutRecord[EPlayOnceCutType.FirstShow] = true
-            PbIO.GameData.Save_cutRecord()
-
-            ---- 遮罩主界面
-            --MapMotion:PauseMapMotion()
-            ---- 播片
-            --coroutine.yield(Unity.WaitUntil(function()
-            --    return CutPlayMgr:CoroutinePlayCharacterSpineCut(CutPlayMgr:GetPlayOnceSpineCutConfig(EPlayOnceCutType.FirstShow))
-            --end))
-            --MapMotion:ResumeMapMotion()
-        end
-
+        local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
+        -- 补满体力
+        --ItemManager:FullLife()
+        -- 加载第一关数据并进入游戏
         local levelData = PlayHelper:LoadLevelData(chapterId, levelId)
         if PlayHelper:PlayLevel(levelData) then
+            -- 进入战斗状态
             GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
-            ---塞打点数据
-            local lv = GamerDataMgr:GetLevelLvByChapterId(chapterId)
-            HintMarkerHelper:OnLevelStart({ Chapter = chapterId, Level = lv }, levelId, levelData.Difficulty, TrackProperty.LevelStartResult.success, nil, CollectionMgr:CheckHasPackOrCouldGainPack(levelData) and 1 or 0)
         else
+            -- 进入失败则回到主界面
             GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
             PrintError("默认进入第一关失败，改为进入主页面")
         end
     else
+        -- ====================== 正常流程：直接回到主界面 ======================
         GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
     end
 end
 
----准备加载地图
+---准备加载地图（设置运行章节）
 ---@type fun(chapterId:string):void
----@param chapterId string @章节ID
+---@param chapterId string @要加载的章节ID
 function GameLoadMapState:OnReadyToLoadMap(chapterId)
-    ---卸载完当前地图准备加载新地图资源前调用
-
-    --- 设置当前运行章节
+    -- 卸载旧地图、准备加载新地图前设置当前运行章节
     ChapterListManager:SetRuntimeChapter(chapterId)
 end
 
 return GameLoadMapState
-

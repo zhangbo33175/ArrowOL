@@ -5,178 +5,165 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 通用字符串扩展工具类
+    /// 提供首字母大写、富文本计算、时间格式化、汉字统计、空格清理等功能
+    /// </summary>
     public static class GameExtension
     {
         /// <summary>
         /// 首字母大写
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         public static string UppercaseFirst(this string s)
         {
             if (string.IsNullOrEmpty(s))
-            {
                 return string.Empty;
-            }
+
             return char.ToUpper(s[0]) + s.Substring(1);
         }
 
         /// <summary>
-        /// 获取富文本的长度（剔除了所有tags）
+        /// 获取富文本的真实长度（自动剔除 <color>、<b>、<size> 等标签）
         /// </summary>
-        /// <param name="richText"></param>
-        /// <returns></returns>
         public static int RichTextLength(this string richText)
         {
-            int richTextLength = 0;
+            if (string.IsNullOrEmpty(richText))
+                return 0;
+
+            int length = 0;
             bool insideTag = false;
 
+            // 替换换行标签为占位符
             richText = richText.Replace("<br>", "-");
 
-            foreach (char character in richText)
+            foreach (char c in richText)
             {
-                if (character == '<')
+                if (c == '<')
                 {
                     insideTag = true;
-                    continue;
                 }
-                else if (character == '>')
+                else if (c == '>')
                 {
                     insideTag = false;
                 }
                 else if (!insideTag)
                 {
-                    richTextLength++;
+                    length++;
                 }
             }
 
-            return richTextLength;
+            return length;
         }
 
         /// <summary>
         /// 将文本中的每个单词首字母大写
         /// </summary>
-        /// <param name="title"></param>
-        /// <returns></returns>
         public static string ToTitleCase(this string title)
         {
+            if (string.IsNullOrEmpty(title))
+                return string.Empty;
+
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(title.ToLower());
         }
 
         /// <summary>
-        /// 移除掉文本中的额外空格
+        /// 移除文本中多余空格（多个空格 → 一个空格）
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         public static string RemoveExtraSpaces(this string s)
         {
-            return Regex.Replace(s, @"\s+", " ");
+            if (string.IsNullOrEmpty(s))
+                return string.Empty;
+
+            return Regex.Replace(s, @"\s+", " ").Trim();
         }
 
         /// <summary>
-        /// 采用 hh:mm:ss:SSS 字符串并将其转换为以秒为单位的浮点值
+        /// 将 hh:mm:ss:SSS 格式时间字符串 转为 秒数(float)
         /// </summary>
-        /// <param name="timeInStringNotation"></param>
-        /// <returns></returns>
         public static float TimeStringToFloat(this string timeInStringNotation)
         {
-            if (timeInStringNotation.Length != 12)
+            if (string.IsNullOrEmpty(timeInStringNotation) || timeInStringNotation.Length != 12)
             {
-                throw new GameException("The time in the TimeStringToFloat method must be specified using a hh:mm:ss:SSS syntax");
+                throw new GameException("时间格式错误，必须使用 hh:mm:ss:SSS 格式");
             }
 
-            string[] timeStringArray = timeInStringNotation.Split(new string[] { ":" }, StringSplitOptions.None);
-
-            float startTime = 0f;
-            float result;
-            if (float.TryParse(timeStringArray[0], out result))
+            string[] parts = timeInStringNotation.Split(':', StringSplitOptions.None);
+            if (parts.Length != 4)
             {
-                startTime += result * 3600f;
-            }
-            if (float.TryParse(timeStringArray[1], out result))
-            {
-                startTime += result * 60f;
-            }
-            if (float.TryParse(timeStringArray[2], out result))
-            {
-                startTime += result;
-            }
-            if (float.TryParse(timeStringArray[3], out result))
-            {
-                startTime += result / 1000f;
+                throw new GameException("时间格式分段错误，必须是 4 段：hh:mm:ss:SSS");
             }
 
-            return startTime;
+            float total = 0;
+
+            float.TryParse(parts[0], out float h);
+            float.TryParse(parts[1], out float m);
+            float.TryParse(parts[2], out float s);
+            float.TryParse(parts[3], out float ms);
+
+            total += h * 3600;
+            total += m * 60;
+            total += s;
+            total += ms / 1000f;
+
+            return total;
         }
 
         /// <summary>
-        /// 获取字符串中的汉字个数
+        /// 统计字符串中的汉字数量
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         public static int GetChineseNum(this string s)
         {
-            int count = 0;
-            Regex regex = new Regex(@"^[\u4E00-\u9FA5]{0,}$");
+            if (string.IsNullOrEmpty(s))
+                return 0;
 
-            for (int i = 0; i < s.Length; i++)
+            int count = 0;
+            Regex regex = new Regex(@"[\u4E00-\u9FA5]");
+
+            foreach (char c in s)
             {
-                if (regex.IsMatch(s[i].ToString()))
-                {
+                if (regex.IsMatch(c.ToString()))
                     count++;
-                }
             }
 
             return count;
         }
 
         /// <summary>
-        /// 将浮点数（以秒表示）转换为字符串，可选择显示小时、分钟、秒和毫秒
+        /// 将秒数(float) 转为格式化时间字符串
         /// </summary>
-        /// <param name="t"></param>
-        /// <param name="displayHours"></param>
-        /// <param name="displayMinutes"></param>
-        /// <param name="displaySeconds"></param>
-        /// <param name="displayMilliseconds"></param>
-        /// <returns></returns>
-        public static string FloatToTimeString(this float t, bool displayHours = false, bool displayMinutes = true, bool displaySeconds = true, bool displayMilliseconds = false)
+        public static string FloatToTimeString(
+            this float t,
+            bool displayHours = false,
+            bool displayMinutes = true,
+            bool displaySeconds = true,
+            bool displayMilliseconds = false)
         {
-            int intTime = (int)t;
-            int hours = intTime / 3600;
-            int minutes = intTime / 60;
-            int seconds = intTime % 60;
+            int totalSeconds = Mathf.FloorToInt(t);
+            int hours = totalSeconds / 3600;
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
             int milliseconds = Mathf.FloorToInt((t * 1000) % 1000);
 
+            // 组合显示格式
             if (displayHours && displayMinutes && displaySeconds && displayMilliseconds)
-            {
-                return string.Format("{0:00}:{1:00}:{2:00}.{3:D3}", hours, minutes, seconds, milliseconds);
-            }
+                return $"{hours:00}:{minutes:00}:{seconds:00}.{milliseconds:D3}";
+
             if (!displayHours && displayMinutes && displaySeconds && displayMilliseconds)
-            {
-                return string.Format("{0:00}:{1:00}.{2:D3}", minutes, seconds, milliseconds);
-            }
+                return $"{minutes:00}:{seconds:00}.{milliseconds:D3}";
+
             if (!displayHours && !displayMinutes && displaySeconds && displayMilliseconds)
-            {
-                return string.Format("{0:D2}.{1:D3}", seconds, milliseconds);
-            }
+                return $"{seconds:D2}.{milliseconds:D3}";
+
             if (!displayHours && !displayMinutes && displaySeconds && !displayMilliseconds)
-            {
-                return string.Format("{0:00}", seconds);
-            }
+                return $"{seconds:00}";
+
             if (displayHours && displayMinutes && displaySeconds && !displayMilliseconds)
-            {
-                return string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
-            }
+                return $"{hours:00}:{minutes:00}:{seconds:00}";
+
             if (!displayHours && displayMinutes && displaySeconds && !displayMilliseconds)
-            {
-                return string.Format("{0:00}:{1:00}", minutes, seconds);
-            }
+                return $"{minutes:00}:{seconds:00}";
 
-            return null;
+            return string.Empty;
         }
-
     }
-
 }
-
-

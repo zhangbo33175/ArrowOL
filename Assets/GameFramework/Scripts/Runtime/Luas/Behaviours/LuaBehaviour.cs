@@ -8,7 +8,6 @@ namespace Honor.Runtime
 {
     public partial class LuaBehaviour : MonoBehaviour
     {
-
         private void Awake()
         {
             if (!Application.isEditor)
@@ -62,12 +61,11 @@ namespace Honor.Runtime
                     }
                 }
             }
-
         }
 
         private void OnDisable()
         {
-            if(m_EnableOver)
+            if (m_EnableOver)
             {
                 Action[] luaOnDisables = LuaOnDisables;
                 if (luaOnDisables != null)
@@ -98,7 +96,7 @@ namespace Honor.Runtime
             }
 
             LuaTable[] ownLuaEnvs = OwnLuaEnvs;
-            if(ownLuaEnvs != null)
+            if (ownLuaEnvs != null)
             {
                 for (int index = 0; index < ownLuaEnvs.Length; index++)
                 {
@@ -110,7 +108,7 @@ namespace Honor.Runtime
             }
 
             LuaTable[] ownLuaClasses = OwnLuaClasses;
-            if(ownLuaClasses != null)
+            if (ownLuaClasses != null)
             {
                 for (int index = 0; index < ownLuaClasses.Length; index++)
                 {
@@ -163,7 +161,7 @@ namespace Honor.Runtime
                     return;
                 }
             }
-            else if(m_PatternType == PatternType.MVVM)
+            else if (m_PatternType == PatternType.MVVM)
             {
                 index = (int)MVVMPatternType.View;
                 if (string.IsNullOrEmpty(LuaScriptNames[index]))
@@ -195,7 +193,7 @@ namespace Honor.Runtime
             OwnLuaEnvs[index].Get("OnDestroy", out LuaOnDestroys[index]);
 
             // 绑定2D碰撞生命周期函数
-            if(m_UseCollider2DLifeCycles)
+            if (m_UseCollider2DLifeCycles)
             {
                 Collider2DLifeCyclesBehaviour.LuaBinding(OwnLuaEnvs[index]);
             }
@@ -229,7 +227,7 @@ namespace Honor.Runtime
                     }
                 }
             }
-            
+
             m_AwakeOver = true;
         }
 
@@ -239,7 +237,7 @@ namespace Honor.Runtime
         public void OnEnableAppended(bool isAuto = false)
         {
             // 自动调用进入 或 已经完成调用情况下的手动调用进入
-            if(isAuto || !m_EnableOver)
+            if (isAuto || !m_EnableOver)
             {
                 if (m_AwakeOver && enabled && gameObject.activeInHierarchy)
                 {
@@ -254,18 +252,11 @@ namespace Honor.Runtime
                             }
                         }
                     }
+
                     m_EnableOver = true;
                 }
             }
         }
-
-        ///// <summary>
-        ///// 父节点变化回调
-        ///// </summary>
-        //private void OnTransformParentChanged()
-        //{
-
-        //}
 
         /// <summary>
         /// 获取所有直系孩子节点（不包括自身）
@@ -288,9 +279,11 @@ namespace Honor.Runtime
                         allDirectChildren.RemoveAt(index);
                         break;
                     }
+
                     parent = parent.parent;
                 }
             }
+
             return allDirectChildren;
         }
 
@@ -302,14 +295,11 @@ namespace Honor.Runtime
             if (ValidLuaClass != null)
             {
                 ValidLuaClass.Get("Close", out LuaFunction closeFunc);
-                if(closeFunc != null)
+                if (closeFunc != null)
                 {
                     closeFunc.Action(ValidLuaClass);
                 }
             }
         }
-
     }
 }
-
-

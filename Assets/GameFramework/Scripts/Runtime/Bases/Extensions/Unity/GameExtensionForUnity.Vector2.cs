@@ -4,150 +4,170 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Unity 向量 & 2D 物理射线检测扩展方法
+    /// 提供 Vector2/Vector3 转换、屏幕坐标转世界坐标射线、线检测、球形检测等便捷功能
+    /// </summary>
     public static partial class GameExtensionForUnity
     {
         /// <summary>
-        /// 取 <see cref="Vector2" /> 的 (x, y) 转换为 <see cref="Vector3" /> 的 (x, 0, y)。
+        /// 将 Vector2 转换为 Vector3，Y 轴固定为 0
+        /// 格式：(x, y) → (x, 0, y)
         /// </summary>
-        /// <param name="vector2">要转换的 Vector2。</param>
-        /// <returns>转换后的 Vector3。</returns>
+        /// <param name="vector2">待转换的 2D 向量</param>
+        /// <returns>转换后的 3D 向量</returns>
         public static Vector3 ToVector3(this Vector2 vector2)
         {
             return new Vector3(vector2.x, 0f, vector2.y);
         }
-        
+
         /// <summary>
-        /// 取 <see cref="Vector2" /> 的 (x, y) 和给定参数 y 转换为 <see cref="Vector3" /> 的 (x, 参数 y, y)。
+        /// 将 Vector2 转换为 Vector3，使用自定义 Y 值
+        /// 格式：(x, y) → (x, customY, y)
         /// </summary>
-        /// <param name="vector2">要转换的 Vector2。</param>
-        /// <param name="y">Vector3 的 y 值。</param>
-        /// <returns>转换后的 Vector3。</returns>
+        /// <param name="vector2">待转换的 2D 向量</param>
+        /// <param name="y">指定的 3D 向量 Y 轴值</param>
+        /// <returns>转换后的 3D 向量</returns>
         public static Vector3 ToVector3(this Vector2 vector2, float y)
         {
             return new Vector3(vector2.x, y, vector2.y);
         }
 
         /// <summary>
-        /// 获取屏幕2D坐标射线检测到的transform
+        /// 屏幕 2D 坐标发射 2D 射线，返回第一个碰撞到的 Transform
+        /// 适用于鼠标/触摸点击检测 2D 物体
         /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="camera"></param>
-        /// <returns></returns>
-        public static Transform GetRaycastHit2DRaycastTransform(this Vector2 origin, Camera camera)
+        /// <param name="screenPos">屏幕坐标（如 Input.mousePosition）</param>
+        /// <param name="camera">照射使用的相机（默认为 Camera.main）</param>
+        /// <returns>碰撞到的 Transform，无碰撞返回 null</returns>
+        /// <exception cref="System.NullReferenceException">camera 为 null 时抛出</exception>
+        public static Transform GetRaycastHit2DTransform(this Vector2 screenPos, Camera camera)
         {
-            Ray myRay = camera.ScreenPointToRay(origin);//从摄像机发出一条射线
-            RaycastHit2D hit = Physics2D.Raycast(new Vector2(myRay.origin.x, myRay.origin.y), Vector2.zero);//射线从鼠标点击屏幕的那个点出发，射到以当前点击位置为原点的坐标系中的垂直于(0,0)的位置，
-            if (hit.collider)
-            {
-                return hit.transform;
-            }
+            if (camera == null) return null;
 
-            return null;
+            Vector2 worldPoint = camera.ScreenToWorldPoint(screenPos);
+            RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+
+            return hit ? hit.transform : null;
         }
 
         /// <summary>
-        /// 获取屏幕2D坐标射线检测到的transform集合
+        /// 屏幕 2D 坐标发射 2D 射线，返回所有碰撞到的 Transform 数组
         /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="camera"></param>
-        /// <returns></returns>
-        public static Transform[] GetRaycastHit2DRaycastAllTransform(this Vector2 origin ,Camera camera)
+        /// <param name="screenPos">屏幕坐标（如 Input.mousePosition）</param>
+        /// <param name="camera">照射使用的相机</param>
+        /// <returns>所有碰撞到的 Transform 数组</returns>
+        public static Transform[] GetRaycastHit2DAllTransforms(this Vector2 screenPos, Camera camera)
         {
-            List<Transform> transforms = new List<Transform>();
-            Ray myRay = camera.ScreenPointToRay(origin);
-            var hit = Physics2D.RaycastAll(new Vector2(myRay.origin.x, myRay.origin.y), Vector2.zero);
-            if (hit.Length > 0)
-            {
-                hit.ToList().ForEach(trans => { transforms.Add(trans.transform);});
-            }
-            return transforms.ToArray();
+            if (camera == null) return new Transform[0];
+
+            Vector2 worldPoint = camera.ScreenToWorldPoint(screenPos);
+            RaycastHit2D[] hits = Physics2D.RaycastAll(worldPoint, Vector2.zero);
+
+            return hits
+                .Where(hit => hit.transform != null)
+                .Select(hit => hit.transform)
+                .ToArray();
         }
 
         /// <summary>
-        /// 获取屏幕两点之间的连线碰撞检测到的transform
+        /// 屏幕两点之间执行 2D 线段检测（Linecast），返回第一个碰撞物体
         /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="direction"></param>
-        /// <param name="camera"></param>
-        /// <returns></returns>
-        public static Transform GetRaycastHit2DLineRaycastTransform(this Vector2 origin, Vector2 direction, Camera camera)
+        /// <param name="startScreenPos">起点屏幕坐标</param>
+        /// <param name="endScreenPos">终点屏幕坐标</param>
+        /// <param name="camera">照射使用的相机</param>
+        /// <returns>碰撞到的 Transform，无碰撞返回 null</returns>
+        public static Transform GetLinecastHit2DTransform(
+            this Vector2 startScreenPos,
+            Vector2 endScreenPos,
+            Camera camera)
         {
-            Ray startPoint = camera.ScreenPointToRay(origin);
-            Ray endPoint = camera.ScreenPointToRay(direction);
-            RaycastHit2D hit = Physics2D.Linecast(new Vector2(startPoint.origin.x, startPoint.origin.y), new Vector2(endPoint.origin.x, endPoint.origin.y));
-            if (hit.collider)
-            {
-                return hit.transform;
-            }
+            if (camera == null) return null;
 
-            return null;
+            Vector2 startWorld = camera.ScreenToWorldPoint(startScreenPos);
+            Vector2 endWorld = camera.ScreenToWorldPoint(endScreenPos);
+            RaycastHit2D hit = Physics2D.Linecast(startWorld, endWorld);
+
+            return hit ? hit.transform : null;
         }
 
         /// <summary>
-        /// 获取屏幕两点之间的连线碰撞检测到的transform集合
+        /// 屏幕两点之间执行 2D 线段检测，返回所有碰撞物体
         /// </summary>
-        /// <param name="origin">起始点</param>
-        /// <param name="radius">球形半径</param>
-        /// <param name="direction">终点</param>
-        /// <param name="camera"></param>
-        /// <returns></returns>
-        public static Transform[] GetRaycastHit2DLineCastAllTransform(this Vector2 origin, Vector2 direction, Camera camera)
+        /// <param name="startScreenPos">起点屏幕坐标</param>
+        /// <param name="endScreenPos">终点屏幕坐标</param>
+        /// <param name="camera">照射使用的相机</param>
+        /// <returns>所有碰撞到的 Transform 数组</returns>
+        public static Transform[] GetLinecastHit2DAllTransforms(
+            this Vector2 startScreenPos,
+            Vector2 endScreenPos,
+            Camera camera)
         {
-            List<Transform> transforms = new List<Transform>();
-            var startPoint = camera.ScreenToWorldPoint(origin);
-            var endPoint =  camera.ScreenToWorldPoint(direction);
-            var hit  = Physics2D.LinecastAll(startPoint, direction);
-            if (hit.Length > 0)
-            {
-                hit.ToList().ForEach(trans => { transforms.Add(trans.transform);});
-            }
-            return transforms.ToArray();
+            if (camera == null) return new Transform[0];
+
+            Vector2 startWorld = camera.ScreenToWorldPoint(startScreenPos);
+            Vector2 endWorld = camera.ScreenToWorldPoint(endScreenPos);
+            RaycastHit2D[] hits = Physics2D.LinecastAll(startWorld, endWorld);
+
+            return hits
+                .Where(hit => hit.transform != null)
+                .Select(hit => hit.transform)
+                .ToArray();
         }
 
         /// <summary>
-        /// 获取屏幕两点之间的2D球形连线碰撞检测到的transform
+        /// 屏幕两点之间执行 2D 球形投射检测（CircleCast），返回第一个碰撞物体
         /// </summary>
-        /// <param name="origin">起始点</param>
-        /// <param name="radius">球形半径</param>
-        /// <param name="direction">终点</param>
-        /// <param name="camera"></param>
-        /// <returns></returns>
-        public static Transform GetRaycastHit2DCircleCastTransform(this Vector2 origin, float radius, Vector2 direction, Camera camera)
+        /// <param name="startScreenPos">起点屏幕坐标</param>
+        /// <param name="radius">球形检测半径</param>
+        /// <param name="endScreenPos">终点屏幕坐标</param>
+        /// <param name="camera">照射使用的相机</param>
+        /// <returns>碰撞到的 Transform，无碰撞返回 null</returns>
+        public static Transform GetCircleCastHit2DTransform(
+            this Vector2 startScreenPos,
+            float radius,
+            Vector2 endScreenPos,
+            Camera camera)
         {
-            var startPoint = camera.ScreenToWorldPoint(origin);
-            var endPoint = camera.ScreenToWorldPoint(direction);
-            var hit = Physics2D.CircleCast(startPoint, radius, (endPoint - startPoint ), (endPoint - startPoint).magnitude);
-            if (hit.collider)
-            {
-                return hit.transform;
-            }
+            if (camera == null) return null;
 
-            return null;
+            Vector2 startWorld = camera.ScreenToWorldPoint(startScreenPos);
+            Vector2 endWorld = camera.ScreenToWorldPoint(endScreenPos);
+            Vector2 direction = endWorld - startWorld;
+            float distance = direction.magnitude;
+
+            RaycastHit2D hit = Physics2D.CircleCast(startWorld, radius, direction.normalized, distance);
+
+            return hit ? hit.transform : null;
         }
-        
+
         /// <summary>
-        /// 获取屏幕两点之间的2D球形连线碰撞检测到的transform集合
+        /// 屏幕两点之间执行 2D 球形投射检测，返回所有碰撞物体
         /// </summary>
-        /// <param name="origin">起始点</param>
-        /// <param name="radius">球形半径</param>
-        /// <param name="direction">终点</param>
-        /// <param name="camera"></param>
-        /// <returns></returns>
-        public static Transform[] GetRaycastHit2DCircleCastAllTransform(this Vector2  origin, float radius, Vector2 direction, Camera camera)
+        /// <param name="startScreenPos">起点屏幕坐标坐标</param>
+        /// <param name="radius">球形检测半径</param>
+        /// <param name="endScreenPos">终点屏幕坐标</param>
+        /// <param name="camera">照射使用的相机</param>
+        /// <returns>所有碰撞到的 Transform 数组</returns>
+        public static Transform[] GetCircleCastHit2DAllTransforms(
+            this Vector2 startScreenPos,
+            float radius,
+            Vector2 endScreenPos,
+            Camera camera)
         {
-            List<Transform> transforms = new List<Transform>();
-            var startPoint = camera.ScreenToWorldPoint(origin);
-            var endPoint =  camera.ScreenToWorldPoint(direction);
-            var hit  = Physics2D.CircleCastAll(startPoint, radius, (endPoint - startPoint ), (endPoint - startPoint ).magnitude);
-            if (hit.Length > 0)
-            {
-                hit.ToList().ForEach(trans => { transforms.Add(trans.transform);});
-            }
-            return transforms.ToArray();
+            if (camera == null) return new Transform[0];
+
+            Vector2 startWorld = camera.ScreenToWorldPoint(startScreenPos);
+            Vector2 endWorld = camera.ScreenToWorldPoint(endScreenPos);
+            Vector2 direction = endWorld - startWorld;
+            float distance = direction.magnitude;
+
+            RaycastHit2D[] hits = Physics2D.CircleCastAll(startWorld, radius, direction.normalized, distance);
+
+            return hits
+                .Where(hit => hit.transform != null)
+                .Select(hit => hit.transform)
+                .ToArray();
         }
     }
-
-
 }
-
-

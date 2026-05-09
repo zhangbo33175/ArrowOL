@@ -31,15 +31,14 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 1, 1);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 3, 0, 0);
 			
 			
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AssetSuffix", Honor.Runtime.GameDefinitions.AssetSuffix);
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LanguageDesc", Honor.Runtime.GameDefinitions.LanguageDesc);
             
-			Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "AssetSuffix", _g_get_AssetSuffix);
-            
-			Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "AssetSuffix", _s_set_AssetSuffix);
-            
+			
+			
 			
 			Utils.EndClassRegister(type, L, translator);
         }
@@ -60,32 +59,7 @@ namespace XLua.CSObjectWrap
         
         
         
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_AssetSuffix(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    translator.Push(L, Honor.Runtime.GameDefinitions.AssetSuffix);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
         
-        
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_AssetSuffix(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    Honor.Runtime.GameDefinitions.AssetSuffix = (System.Collections.Generic.Dictionary<Honor.Runtime.GameDefinitions.AssetType, string>)translator.GetObject(L, 1, typeof(System.Collections.Generic.Dictionary<Honor.Runtime.GameDefinitions.AssetType, string>));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
         
 		
 		

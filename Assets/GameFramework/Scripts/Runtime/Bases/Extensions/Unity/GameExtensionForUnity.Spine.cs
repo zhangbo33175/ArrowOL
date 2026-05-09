@@ -7,64 +7,102 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Spine 动画扩展方法
+    /// 提供动态换装、Slot 图片替换等功能
+    /// </summary>
     public static partial class GameExtensionForUnity
     {
 #if SPINE_ENABLE
         /// <summary>
-        /// 修改spine中的slot中皮肤的精灵图片
+        /// 替换 Spine 动画中指定 Slot 的皮肤图片
         /// </summary>
-        /// <param name="skeletonAnimation"><see cref="SkeletonAnimation" /> 对象</param>
-        /// <param name="slotName">槽位名字</param>
-        /// <param name="findSpriteName">槽位下要替换的精灵的名字</param>
-        /// <param name="sprite">更换的图片</param>
-        /// <param name="skinLayerName">皮肤所在层</param>
-        public static void ChangeSlotSkinSprite(this SkeletonAnimation skeletonAnimation, string slotName, string findSpriteName, Sprite sprite, string skinLayerName)
+        /// <param name="skeletonAnimation">SkeletonAnimation 组件</param>
+        /// <param name="slotName">插槽名称</param>
+        /// <param name="findSpriteName">要替换的附件名称</param>
+        /// <param name="sprite">新图片</param>
+        /// <param name="skinLayerName">皮肤层名称</param>
+        public static void ChangeSlotSkinSprite(this SkeletonAnimation skeletonAnimation, string slotName,
+            string findSpriteName, Sprite sprite, string skinLayerName)
         {
-            SpinChangeSlotSkinSprite(skeletonAnimation.Skeleton, skeletonAnimation.skeletonDataAsset, skeletonAnimation.AnimationState, slotName, findSpriteName, sprite, skinLayerName);
-        }
-        
-        /// <summary>
-        /// 修改spine中的slot中皮肤的精灵图片
-        /// </summary>
-        /// <param name="skeletonGraphic"><see cref="SkeletonGraphic" /> 对象</param>
-        /// <param name="slotName">槽位名字</param>
-        /// <param name="findSpriteName">槽位下要替换的精灵的名字</param>
-        /// <param name="sprite">更换的图片</param>
-        /// <param name="skinLayerName">皮肤所在层</param>
-        public static void ChangeSlotSkinSprite(this SkeletonGraphic skeletonGraphic, string slotName,  string findSpriteName, Sprite sprite, string skinLayerName)
-        {
-            skeletonGraphic.allowMultipleCanvasRenderers = true;
-            SpinChangeSlotSkinSprite(skeletonGraphic.Skeleton, skeletonGraphic.skeletonDataAsset, skeletonGraphic.AnimationState, slotName ,findSpriteName, sprite, skinLayerName);
+            if (skeletonAnimation == null) return;
+
+            SpinChangeSlotSkinSprite(
+                skeletonAnimation.Skeleton,
+                skeletonAnimation.skeletonDataAsset,
+                skeletonAnimation.AnimationState,
+                slotName,
+                findSpriteName,
+                sprite,
+                skinLayerName
+            );
         }
 
         /// <summary>
-        /// spine的Slot中皮肤图片的修改
+        /// 替换 UI 下 Spine 动画中指定 Slot 的皮肤图片
         /// </summary>
-        /// <param name="skeleton"><see cref="Skeleton" /> 对象</param>
-        /// <param name="skeletonDataAsset">spine中skeletonDataAsset对象</param>
-        /// <param name="animationState">spine中AnimationState对象</param>
-        /// <param name="slotName">槽位名字</param>
-        /// <param name="findSpriteName">槽位下要替换的精灵的名字</param>
-        /// <param name="sprite">更换的图片</param>
-        /// <param name="skinLayerName">皮肤所在层</param>
-        private static void SpinChangeSlotSkinSprite(Skeleton skeleton, SkeletonDataAsset skeletonDataAsset, Spine.AnimationState animationState, string slotName, string findSpriteName,  Sprite sprite, string skinLayerName)
+        /// <param name="skeletonGraphic">SkeletonGraphic 组件</param>
+        /// <param name="slotName">插槽名称</param>
+        /// <param name="findSpriteName">要替换的附件名称</param>
+        /// <param name="sprite">新图片</param>
+        /// <param name="skinLayerName">皮肤层名称</param>
+        public static void ChangeSlotSkinSprite(this SkeletonGraphic skeletonGraphic, string slotName,
+            string findSpriteName, Sprite sprite, string skinLayerName)
         {
-            Attachment cloneAttachment;
-            var skeletonData = skeletonDataAsset.GetSkeletonData(true);
-            var skin = skeletonData.FindSkin(skinLayerName);
-            var slotData = skeletonData.FindSlot(slotName);
+            if (skeletonGraphic == null) return;
+
+            skeletonGraphic.allowMultipleCanvasRenderers = true;
+
+            SpinChangeSlotSkinSprite(
+                skeletonGraphic.Skeleton,
+                skeletonGraphic.skeletonDataAsset,
+                skeletonGraphic.AnimationState,
+                slotName,
+                findSpriteName,
+                sprite,
+                skinLayerName
+            );
+        }
+
+        /// <summary>
+        /// 内部实现：替换 Spine Slot 皮肤图片
+        /// </summary>
+        private static void SpinChangeSlotSkinSprite(
+            Skeleton skeleton,
+            SkeletonDataAsset skeletonDataAsset,
+            Spine.AnimationState animationState,
+            string slotName,
+            string findSpriteName,
+            Sprite sprite,
+            string skinLayerName
+        )
+        {
+            if (skeleton == null || skeletonDataAsset == null || animationState == null)
+                return;
+
+            if (string.IsNullOrEmpty(slotName) || string.IsNullOrEmpty(findSpriteName) || sprite == null)
+                return;
+
+            SkeletonData skeletonData = skeletonDataAsset.GetSkeletonData(true);
+            Skin skin = skeletonData.FindSkin(skinLayerName);
+            SlotData slotData = skeletonData.FindSlot(slotName);
+
+            if (skin == null || slotData == null)
+                return;
+
             Attachment templateAttachment = skin.GetAttachment(slotData.Index, findSpriteName);
-            cloneAttachment = templateAttachment.GetRemappedClone(sprite, templateAttachment.GetMaterial());
-            skin.SetAttachment(slotData.Index, slotName, cloneAttachment);
+            if (templateAttachment == null)
+                return;
+
+            Material sourceMaterial = templateAttachment.GetMaterial();
+            Attachment clonedAttachment = templateAttachment.GetRemappedClone(sprite, sourceMaterial);
+
+            skin.SetAttachment(slotData.Index, findSpriteName, clonedAttachment);
+
             skeleton.SetSkin(skin);
             skeleton.SetSlotsToSetupPose();
             animationState.Apply(skeleton);
         }
-        
 #endif
     }
-
-
 }
-
-

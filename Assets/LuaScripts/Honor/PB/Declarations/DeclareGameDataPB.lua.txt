@@ -8,13 +8,6 @@
 --=====================================================================================================
 
 -- 协议描述：游戏数据存档
--- 玩家区域信息
----@class SavePBMsgDef.GameDataPB.PlayerAreaInfo : nil
----@field areaId string @ 区域Id
----@field areaTotalCoinSpend number @ 区域里累积消耗的金币数量
----@field areaTotalUpgradeCoinSpend number @ 区域里机器升级累积消耗金币数量
-
-
 -- 玩家信息
 ---@class SavePBMsgDef.GameDataPB.PlayerInfo : nil
 ---@field name string @ 玩家名称
@@ -25,7 +18,6 @@
 ---@field lastInLevel table @ 每个章节对应的最后一次进入的关卡的开始次数
 ---@field profileAvatar string @ 玩家头像ID
 ---@field profileFrame string @ 玩家头像框ID
----@field playerAreaInfos table @ 玩家的相关区域信息
 ---@field regUserTime number @ 玩家首次启动游戏时间，只会赋值一次
 ---@field loginDaysUTC number @ UTC时间的累计登录天数
 ---@field winStreak number @ 玩家连胜次数
@@ -54,49 +46,11 @@
 ---@field difficulty SavePBMsgDef.GameDataPB.ChapterDiff @ 章节难度信息
 
 
--- 单条成就信息存档（当前正在完成的、最后一条的
----@class SavePBMsgDef.GameDataPB.AchievementInfo : nil
----@field claim number @ 成就任务领奖次数
----@field num number @ 成就任务进度
----@field id number @ 成就任务ID
----@field maybeCompress number @ 也许会用
-
-
--- 章节成就存档
----@class SavePBMsgDef.GameDataPB.ChapterAchievementInfo : nil
----@field infos SavePBMsgDef.GameDataPB.AchievementInfo[] @ 章节成就存档
-
-
--- 体力时间戳
----@class SavePBMsgDef.GameDataPB.LifeInfo : nil
----@field lifeRefillTimestamp number @ 体力自动回满一点的时间戳
----@field lifeUnlimitTimestamp number @ 剩余的无线体力时间的时间戳
-
-
 -- 设置内容
 ---@class SavePBMsgDef.GameDataPB.SettingInfo : nil
 ---@field colseMusic boolean @ 音乐开启状态
 ---@field closeSound boolean @ 音效开启状态
 ---@field closeNotification boolean @ 推送开启状态
-
-
--- 购买记录信息
----@class SavePBMsgDef.GameDataPB.GamePurchaseInfo : nil
----@field locality number @ 本地时间戳
----@field localString string @ 本地字符串时间描述
----@field iapID string @ IAP表ID
-
-
--- 购买记录信息集合
----@class SavePBMsgDef.GameDataPB.GamePurchaseInfosGroup : nil
----@field isConvertData boolean @ 是否转换过数据
----@field datas SavePBMsgDef.GameDataPB.GamePurchaseInfo[] @ 购买记录信息
-
-
--- 订阅购买信息
----@class SavePBMsgDef.GameDataPB.GamePurchaseSubInfo : nil
----@field iapID string @ IAP表ID
----@field times number @ 订阅次数
 
 
 -- 本地活动数据
@@ -110,24 +64,6 @@
 ---@field lastFailedLv number @ 上一次失败章节(该章节不会再出现卡包)
 ---@field lastGainPackLv number @ 上一次获得卡包章节
 ---@field lastCheckLv number @ 上一次检查的章节
-
-
--- 卡牌收集数据
----@class SavePBMsgDef.GameDataPB.CollectionData  : nil
----@field owedList table @ 已贴的卡牌 [key]藏品组id [value]藏品组信息
----@field newList table @ 新获得卡牌 [key]藏品组id [value]藏品组信息
----@field chapterInfo table @ 章节信息 [key]章节ID [value]章节收集信息
----@field packs table @ 卡包数量 [key]资源ID [value]资源数量
----@field isShowPreviewed boolean @ 是否打开过预览界面
----@field lastShowTokenNum number @ 上一次查看的藏品代币数量
----@field shouldShowRedPoint boolean @ 是否要显示入口红点
-
-
--- 关内道具促销数据
----@class SavePBMsgDef.GameDataPB.BoosterSaleData  : nil
----@field count number @ 触发次数 (逐渐递增)
----@field cdEndTimestamp number @ cd结束时间戳(UTC)
----@field levelCount number @ 关卡胜利次数
 
 
 -- 通行证数据
@@ -162,8 +98,8 @@
 ---@field latestChapterId string @ 最新章节Id
 ---@field chapterInfos table @ 章节信息 [key]章节ID [value]章节信息
 ---@field timestamps table @ 各种时间戳 [key]字符串 [value]时间戳
+---@field settingInfo SavePBMsgDef.GameDataPB.SettingInfo @ 设置数据
 ---@field boosterTriggered string @ 已达成触发条件的局内道具
----@field giftPacks table @ 诸多礼包状态
 ---@field levelRewardInfos table @ 等级奖励的数据
 ---@field maxChapterId number @ 玩家当前记录的最大章节id
  

@@ -10,38 +10,58 @@ namespace Editor.MapEditor
     public sealed partial class MapBuildEditor
     {
         /// <summary>
-        /// 记录当前选中的Item
+        /// 当前在图标列表中选中的UI元素（VisualElement版本，用于新版UIToolkit）
         /// </summary>
         private VisualElement _selectedItem;
 
         /// <summary>
-        /// 记录当前选中的Item
+        /// 当前选中的图标/图片资源路径（用于记录选中的预制体/图片地址）
         /// </summary>
         private string _selectedImagePath;
 
         /// <summary>
-        /// 选中的列表项索引
+        /// 图标列表中选中项的索引（-1 = 未选中任何项）
         /// </summary>
         private int _selectedIconIndex = -1;
-        
-        
+
         /// <summary>
-        /// 
+        /// 图标预览框的固定宽度
         /// </summary>
         private readonly float _previewBoxWidth = 120f;
 
+        /// <summary>
+        /// 图标预览框的固定高度
+        /// </summary>
         private readonly float _previewBoxHeight = 140f;
+
+        /// <summary>
+        /// 列表文字显示的字体大小
+        /// </summary>
         private int _textFontSize = 14;
 
-        private float _previewSize = 40f; // 图片预览尺寸
-        private readonly Color _selectedBgColor = new Color(0.2f, 0.6f, 1f, 0.2f); // 选中背景色
-        private readonly Color _normalBgColor = new Color(0.9f, 0.9f, 0.9f, 0.1f); // 正常背景色
-
-
-        private bool m_IsInitIconList = false;
-        
         /// <summary>
-        /// 
+        /// 列表中小图标的显示尺寸
+        /// </summary>
+        private float _previewSize = 40f;
+
+        /// <summary>
+        /// 列表项【选中状态】的背景颜色（蓝色半透明高亮）
+        /// </summary>
+        private readonly Color _selectedBgColor = new Color(0.2f, 0.6f, 1f, 0.2f);
+
+        /// <summary>
+        /// 列表项【正常/未选中状态】的背景颜色（浅灰色）
+        /// </summary>
+        private readonly Color _normalBgColor = new Color(0.9f, 0.9f, 0.9f, 0.1f);
+
+        /// <summary>
+        /// 图标列表是否已完成初始化（避免重复加载）
+        /// </summary>
+        private bool m_IsInitIconList = false;
+
+        /// <summary>
+        /// 【核心方法】初始化/刷新图标列表
+        /// 加载所有图标资源、创建列表项、绑定选中事件、设置列表显示内容
         /// </summary>
         private void OnSetIconList()
         {
@@ -50,9 +70,9 @@ namespace Editor.MapEditor
                 DrawIconPreviewList();
                 //m_IsInitIconList = true;
             }
-            
         }
-       /// <summary>
+
+        /// <summary>
         /// 更具地址生成图片信息
         /// </summary>
         /// <param name="folderPath"></param>
@@ -89,12 +109,13 @@ namespace Editor.MapEditor
                         tex.LoadImage(fileData); // 自动适配图片尺寸
 
                         // 创建图片数据对象
-                        m_IconList.Add(new IconData
+                        m_IconList.Add(new ItemIconDataEditor
                         {
                             m_IconName = Path.GetFileNameWithoutExtension(imagePath), // 不含后缀的文件名
                             m_IconAssetPath = imagePath,
-                            m_IconTexture = tex,
-                            m_IocnIsLoaded = false // 默认未选中
+                            m_IsChoose = false, // 默认未选中
+                            m_Type = RMapIconType.Dissipate,
+                            m_ID = 1
                         });
                     }
                     catch (System.Exception ex)
@@ -109,6 +130,7 @@ namespace Editor.MapEditor
                 Debug.LogError($"OnItemBtnClicked异常：{e}");
             }
         }
+
         /// <summary>
         /// 绘制ICON预览列表
         /// </summary>
@@ -135,6 +157,7 @@ namespace Editor.MapEditor
                 {
                     GUILayout.BeginVertical(); // 新行
                 }
+
                 // 绘制一个Item
                 CreateIconItem(data, currentCount + 1);
                 currentCount++;
@@ -151,17 +174,17 @@ namespace Editor.MapEditor
             {
                 GUILayout.EndHorizontal();
             }
-            
+
             GUILayout.EndVertical();
             EditorGUILayout.EndScrollView();
         }
-        
+
         /// <summary>
         /// 绘制单个ICON Item（支持点击选中，适配截图样式）
-        /// <param name="data">ICON预览数据</param>
+        /// <param name="dataEditor">ICON预览数据</param>
         /// <param name="index">ITEM索引</param>
         /// </summary>
-        private void CreateIconItem(IconData data, int index)
+        private void CreateIconItem(ItemIconDataEditor dataEditor, int index)
         {
             // 最安全的写法：固定宽度 + 固定高度
             Rect itemRect = GUILayoutUtility.GetRect(10000, 50);
@@ -176,15 +199,17 @@ namespace Editor.MapEditor
                 itemRect.y + 5,
                 40, 40
             );
+            Texture2D m_IconTexture = null;
 
-            if (data.m_IconAssetPath!=null)
+            if (dataEditor.m_IconAssetPath != null)
             {
-                data.m_IconTexture=Utils.LoadImageTexture(PathUtils.GetItemIconPath(data.m_IconAssetPath));
+                m_IconTexture = Utils.LoadImageTexture(PathUtils.GetItemIconPath(dataEditor.m_IconAssetPath));
             }
+
             // 绘制图标
-            if (data.m_IconTexture != null)
+            if (m_IconTexture != null)
             {
-                GUI.DrawTexture(iconRect, data.m_IconTexture, ScaleMode.ScaleToFit);
+                GUI.DrawTexture(iconRect, m_IconTexture, ScaleMode.ScaleToFit);
             }
             else
             {
@@ -215,14 +240,14 @@ namespace Editor.MapEditor
                 fontSize = 13,
                 normal = { textColor = Color.white }
             };
-            GUI.Label(labelRect, data.m_IconName, labelStyle);
+            GUI.Label(labelRect, dataEditor.m_IconName, labelStyle);
 
             // 点击事件
             Event e = Event.current;
             if (e.type == EventType.MouseDown && e.button == 0 && itemRect.Contains(e.mousePosition))
             {
                 _selectedIconIndex = index;
-                ChooseIconItem(data);
+                ChooseIconItem(dataEditor);
                 e.Use();
                 Repaint();
             }
@@ -231,19 +256,20 @@ namespace Editor.MapEditor
         /// <summary>
         /// 更具选择添加预制体
         /// </summary>
-        /// <param name="data"></param>
-        private void ChooseIconItem(IconData data)
+        /// <param name="dataEditor"></param>
+        private void ChooseIconItem(ItemIconDataEditor dataEditor)
         {
-            Debug.Log($"选中Icon图：{data.m_IconName}");
-            if (string.IsNullOrEmpty(data.m_IconAssetPath))
+            Debug.Log($"选中Icon图：{dataEditor.m_IconName}");
+            if (string.IsNullOrEmpty(dataEditor.m_IconAssetPath))
             {
                 return;
             }
 
-            GameObject prefabPath = Utils.ReplaceImageInPrefab(Utils.GetIconItem(), "BG", data.m_IconAssetPath, false,Type.LoadingIcon);
+            GameObject prefabPath = Utils.ReplaceImageInPrefab(Utils.GetIconItem(), "BG", dataEditor.m_IconAssetPath,
+                false, Type.LoadingIcon);
             if (prefabPath != null)
             {
-                AddPrefabToMap(prefabPath, Vector2.zero);
+                AddPrefabToMap(prefabPath, Vector2.zero, dataEditor);
             }
         }
 

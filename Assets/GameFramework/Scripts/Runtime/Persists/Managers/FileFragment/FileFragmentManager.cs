@@ -4,10 +4,16 @@ using System.IO;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 文件片段存储管理器（非 WebGL 平台使用）
+    /// 管理多个分类文件（.dat），每个文件独立加密压缩存储
+    /// 自动扫描目录、加载、保存、删除文件
+    /// </summary>
     public sealed partial class FileFragmentManager
     {
         /// <summary>
         /// 构造方法
+        /// 初始化目录 → 扫描 .dat 文件 → 构建内存索引
         /// </summary>
         public FileFragmentManager()
         {
@@ -22,6 +28,7 @@ namespace Honor.Runtime
             m_FileFragmentNames = new List<string>();
             m_FileFragmentNamesForDelete = new List<string>();
 
+            // 扫描目录下所有 .dat 数据文件
             string[] fileFragmentFullPaths = Directory.GetFiles(m_FileFragmentsRootDirectoryFullPath, "*.dat");
             for (int index = 0; index < fileFragmentFullPaths.Length; index++)
             {
@@ -35,7 +42,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 加载文件片段条目
+        /// 加载所有文件片段数据（从文件读到内存）
         /// </summary>
         /// <returns>是否加载文件片段条目成功。</returns>
         public bool Load()
@@ -62,11 +69,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 保存所有文件片段。
+        /// 保存所有文件片段（内存 → 文件）
+        /// 先删除标记删除的文件，再全部保存
         /// </summary>
         /// <returns>是否保存成功。</returns>
         public bool Save()
         {
+            // 删除标记的文件
             for (int index = 0; index < m_FileFragmentNamesForDelete.Count; index++)
             {
                 string fullPath = $"{m_FileFragmentsRootDirectoryFullPath}/{m_FileFragmentNamesForDelete[index]}.dat";
@@ -77,6 +86,7 @@ namespace Honor.Runtime
             }
             m_FileFragmentNamesForDelete.Clear();
 
+            // 保存所有文件
             for (int index = 0; index < m_FilePaths.Count; index++)
             {
                 string filePath = m_FilePaths[index];
@@ -90,11 +100,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 保存指定文件片段。
+        /// 单独保存指定分类文件
         /// </summary>
         /// <returns>是否保存成功。</returns>
         public bool Save(string fileFragmentName)
         {
+            // 如果是标记删除的，先删除
             if (m_FileFragmentNamesForDelete.Contains(fileFragmentName))
             {
                 string fullPath = $"{m_FileFragmentsRootDirectoryFullPath}/{fileFragmentName}.dat";
@@ -106,6 +117,7 @@ namespace Honor.Runtime
                 return true;
             }
 
+            // 正常保存
             if (m_FileFragmentNames.Contains(fileFragmentName))
             {
                 int index = m_FileFragmentNames.FindIndex((name) => { return name == fileFragmentName; });
@@ -162,7 +174,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定条目。
+        /// 删除指定键（删完自动检查空分类并移除）
         /// </summary>
         /// <param name="fileFragmentName">指定的文件片段名称。</param>
         /// <param name="itemName">要移除条目的名称。</param>
@@ -179,13 +191,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清空所有条目。
+        /// 清空数据
+        /// null = 清空全部；指定名称 = 清空该分类
         /// </summary>
         /// <param name="fileFragmentName">指定的文件片段名称。</param>
         public void RemoveAllItems(string fileFragmentName)
         {
             if (string.IsNullOrEmpty(fileFragmentName))
             {
+                // 清空全部：删除目录重建
                 if (Directory.Exists(m_FileFragmentsRootDirectoryFullPath))
                 {
                     Directory.Delete(m_FileFragmentsRootDirectoryFullPath, true);
@@ -199,6 +213,7 @@ namespace Honor.Runtime
             }
             else
             {
+                // 清空单个分类
                 if (m_ItemGroups.ContainsKey(fileFragmentName))
                 {
                     m_ItemGroups[fileFragmentName].RemoveAllItems();

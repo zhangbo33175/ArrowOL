@@ -3,55 +3,97 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 动画状态机回调适配器
+    /// 用于将 Animator 的状态事件转发到 Lua 脚本中处理
+    /// </summary>
     public class AnimationStateBehaviour : StateMachineBehaviour
     {
-        override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        /// <summary>
+        /// 动画状态进入时调用
+        /// </summary>
+        /// <param name="animator">动画控制器</param>
+        /// <param name="stateInfo">动画状态信息</param>
+        /// <param name="layerIndex">动画层索引</param>
+        public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            var luaBehaviour = animator.GetComponent<LuaBehaviour>();
-            if(luaBehaviour)
+            if (animator == null) return;
+
+            LuaBehaviour luaBehaviour = animator.GetComponent<LuaBehaviour>();
+            if (luaBehaviour == null) return;
+
+            // 获取有效的Lua表（优先luaClass，否则使用luaClassView）
+            LuaTable luaTable = luaBehaviour.luaClass ?? luaBehaviour.luaClassView;
+            if (luaTable == null) return;
+
+            // 调用Lua侧的OnAnimationStateEnter
+            luaTable.Get("OnAnimationStateEnter", out LuaFunction func);
+            if (func != null)
             {
-                LuaTable luaTable = luaBehaviour.luaClass != null ? luaBehaviour.luaClass : luaBehaviour.luaClassView;
-                luaTable.Get("OnAnimationStateEnter", out LuaFunction func);
-                if (func != null) func.Action(luaTable, stateInfo);
+                func.Call(luaTable, stateInfo);
+                func.Dispose();
             }
         }
 
-        // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-        override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        /// <summary>
+        /// 动画状态每帧更新时调用
+        /// </summary>
+        /// <param name="animator">动画控制器</param>
+        /// <param name="stateInfo">动画状态信息</param>
+        /// <param name="layerIndex">动画层索引</param>
+        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-
+            // 状态持续期间每帧调用
         }
 
-        // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-        override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        /// <summary>
+        /// 动画状态退出时调用
+        /// </summary>
+        /// <param name="animator">动画控制器</param>
+        /// <param name="stateInfo">动画状态信息</param>
+        /// <param name="layerIndex">动画层索引</param>
+        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            var luaBehaviour = animator.GetComponent<LuaBehaviour>();
-            if (luaBehaviour)
+            if (animator == null) return;
+
+            LuaBehaviour luaBehaviour = animator.GetComponent<LuaBehaviour>();
+            if (luaBehaviour == null) return;
+
+            // 获取有效的Lua表
+            LuaTable luaTable = luaBehaviour.luaClass ?? luaBehaviour.luaClassView;
+            if (luaTable == null) return;
+
+            // 调用Lua侧的OnAnimationStateExit
+            luaTable.Get("OnAnimationStateExit", out LuaFunction func);
+            if (func != null)
             {
-                LuaTable luaTable = luaBehaviour.luaClass != null ? luaBehaviour.luaClass : luaBehaviour.luaClassView;
-                luaTable.Get("OnAnimationStateExit", out LuaFunction func);
-                if (func != null) func.Action(luaTable, stateInfo);
+                func.Call(luaTable, stateInfo);
+                func.Dispose();
             }
         }
 
-        // OnStateMove is called right after Animator.OnAnimatorMove()
-        override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        /// <summary>
+        /// 动画物体移动时调用（在 Animator.OnAnimatorMove() 之后调用）
+        /// </summary>
+        /// <param name="animator">动画控制器</param>
+        /// <param name="stateInfo">动画状态信息</param>
+        /// <param name="layerIndex">动画层索引</param>
+        public override void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            // 在OnAnimatorMove之前被调用 
-
+            // 在 OnAnimatorMove 之后调用，用于处理 root motion 相关逻辑
         }
 
-        // OnStateIK is called right after Animator.OnAnimatorIK()
-        override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        /// <summary>
+        /// 动画IK（反向动力学）回调，每帧调用
+        /// </summary>
+        /// <param name="animator">动画控制器</param>
+        /// <param name="stateInfo">动画状态信息</param>
+        /// <param name="layerIndex">动画层索引</param>
+        public override void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            // 在OnAnimatorIK之后调用，用于在播放状态时的每一帧的monobehavior。
-            // 需要注意的是，OnStateIK只有在状态位于具有IK pass的层上时才会被调用。
-            // 默认情况下，图层没有IK通道，所以这个函数不会被调用
-            // 关于IK的使用，可以看看这篇文章《Animator使用IK实现头部及身体跟随》
-            // https://www.jianshu.com/p/ae6d65563efa
-
+            // IK 处理回调
+            // 注意：只有开启了 IK Pass 的动画层才会触发此方法
+            // 常用于：头部瞄准、手部IK、武器瞄准等
         }
     }
 }
-
-

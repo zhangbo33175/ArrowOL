@@ -1,67 +1,71 @@
 --=====================================================================================================
--- descrip:   数组
+-- descrip:   数组（栈式结构数组，支持弱引用）
+--              功能：提供高效的栈操作（push/pop）、遍历、清空，可选择弱引用模式
 --=====================================================================================================
 local SystemArray = {}
 SystemArray.__index = SystemArray
 
----创建
+--- 创建数组实例
 ---@type fun(isweak:boolean):SystemArray
----@param isweak boolean @弱引用
----@return SystemArray @数组
+---@param isweak boolean @是否开启弱引用（v=弱引用值，不影响GC）
+---@return SystemArray @数组实例
 function SystemArray.new(isweak)
-    ---@class SystemArray @数组
-    ---@field _cur number @当前下标
-    ---@field _data table @数据集合
+    ---@class SystemArray @栈式数组类
+    ---@field _cur number @当前元素数量（同时作为栈顶下标）
+    ---@field _data table @内部数据存储表
     local t = {}
     t._cur = 0
     t._data = {}
+
+    -- 开启弱引用（不阻止GC回收对象）
     if isweak then
-        setmetatable(t._data,{__mode ="v"})
+        setmetatable(t._data, {__mode = "v"})
     end
+
     setmetatable(t, SystemArray)
     return t
 end
 
----追加数据到队尾
+--- 向数组尾部（栈顶）添加数据
 ---@type fun(self:SystemArray, value:any):void
 ---@param self SystemArray @数组实例
----@param value any @数据
+---@param value any @要添加的数据
 function SystemArray.push(self, value)
     self._cur = self._cur + 1
     self._data[self._cur] = value
 end
 
----移出队尾数据
+--- 移除并返回数组尾部（栈顶）数据
 ---@type fun(self:SystemArray):any
 ---@param self SystemArray @数组实例
----@return any @队尾数据
+---@return any @出栈的数据
 function SystemArray.pop(self)
-    assert(self._cur>0,"SystemArray:attemp pop empty table")
+    assert(self._cur > 0, "SystemArray:尝试从空数组中弹出元素")
     self._cur = self._cur - 1
-    return self._data[self._cur+1]
+    return self._data[self._cur + 1]
 end
 
----清理
+--- 清空数组（仅重置计数，数据保留但不可访问，高效清空）
 ---@type fun(self:SystemArray):void
 ---@param self SystemArray @数组实例
 function SystemArray.clear(self)
     self._cur = 0
 end
 
----数组大小
+--- 获取数组当前元素数量
 ---@type fun(self:SystemArray):number
 ---@param self SystemArray @数组实例
----@return number @数组大小
+---@return number @元素数量
 function SystemArray.size(self)
     return self._cur
 end
 
----遍历器
+--- 遍历数组（从 1 到 size）
 ---@type fun(self:SystemArray, f:fun):void
 ---@param self SystemArray @数组实例
----@param f fun @遍历回调
+---@param f fun @遍历回调 function(value)
 function SystemArray.foreach(self, f)
-    for i=1,self._cur do
+    for i = 1, self._cur do
         f(self._data[i])
     end
 end

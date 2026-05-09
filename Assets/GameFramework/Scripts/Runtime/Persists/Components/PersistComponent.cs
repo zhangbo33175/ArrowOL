@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 持久化存储组件
+    /// 统一管理本地存储：文件分片（WebGL/普通）、PlayerPrefs
+    /// 提供 bool/int/float/string 存取、删除、清空、查询接口
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class PersistComponent : GameComponent
     {
@@ -11,6 +16,7 @@ namespace Honor.Runtime
         {
             base.Awake();
 
+            // 初始化文件存储（WebGL 特殊处理）
 #if UNITY_WEBGL && !UNITY_EDITOR
             m_FileFragmentForWebGLManager = new FileFragmentForWebGLManager();
             if (m_FileFragmentForWebGLManager == null)
@@ -36,6 +42,7 @@ namespace Honor.Runtime
                 Log.Error("读取FileFragment数据失败。");
             }
 #endif
+            // 初始化 PlayerPrefs
             m_PlayerPrefsManager = new PlayerPrefsManager();
             if (m_PlayerPrefsManager == null)
             {
@@ -58,9 +65,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 保存游戏数据。
+        /// 保存数据（全量）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
+        /// <param name="wayType">存储方式</param>
         public void Save(PersistWayType wayType)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -78,10 +85,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 保存游戏数据。
+        /// 按分类保存数据
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
+        /// <param name="wayType">存储方式</param>
+        /// <param name="classifyName">分类名</param>
         public void Save(PersistWayType wayType, string classifyName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -99,11 +106,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有条目的名称。
+        /// 获取某分类下所有键名（数组）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <returns>所有条目名称。</returns>
         public string[] GetAllItemNames(PersistWayType wayType, string classifyName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -123,11 +127,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有条目的名称。
+        /// 获取某分类下所有键名（列表）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="results">所有条目名称。</param>
         public void GetAllItemNames(PersistWayType wayType, string classifyName, List<string> results)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -145,12 +146,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在指定条目。
+        /// 判断是否存在某条数据
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>指定的条目是否存在。</returns>
         public bool HasItem(PersistWayType wayType, string classifyName, string itemName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -170,11 +167,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定条目。
+        /// 删除单条数据
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
         public bool RemoveItem(PersistWayType wayType, string classifyName, string itemName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -196,9 +190,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清空所有条目。
+        /// 清空全部数据
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
         public void RemoveAllItems(PersistWayType wayType)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -217,10 +210,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清空指定分类名称的所有条目。
+        /// 清空某一分类下所有数据
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
         public void RemoveAllItems(PersistWayType wayType, string classifyName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -239,12 +230,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取布尔值。
+        /// 读取 bool（无默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的布尔值。</returns>
         public bool GetBool(PersistWayType wayType, string classifyName, string itemName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -264,13 +251,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取布尔值。
+        /// 读取 bool（带默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的布尔值。</returns>
         public bool GetBool(PersistWayType wayType, string classifyName, string itemName, bool defaultValue)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -290,12 +272,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入布尔值。
+        /// 写入 bool
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的布尔值。</param>
         public void SetBool(PersistWayType wayType, string classifyName, string itemName, bool value)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -314,12 +292,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取整数值。
+        /// 读取 int（无默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的整数值。</returns>
         public int GetInt(PersistWayType wayType, string classifyName, string itemName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -339,13 +313,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取整数值。
+        /// 读取 int（带默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的整数值。</returns>
         public int GetInt(PersistWayType wayType, string classifyName, string itemName, int defaultValue)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -365,12 +334,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入整数值。
+        /// 写入 int
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的整数值。</param>
         public void SetInt(PersistWayType wayType, string classifyName, string itemName, int value)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -389,12 +354,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取浮点数值。
+        /// 读取 float（无默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的浮点数值。</returns>
         public float GetFloat(PersistWayType wayType, string classifyName, string itemName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -414,13 +375,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取浮点数值。
+        /// 读取 float（带默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的浮点数值。</returns>
         public float GetFloat(PersistWayType wayType, string classifyName, string itemName, float defaultValue)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -440,12 +396,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入浮点数值。
+        /// 写入 float
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的浮点数值。</param>
         public void SetFloat(PersistWayType wayType, string classifyName, string itemName, float value)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -464,12 +416,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取字符串值。
+        /// 读取 string（无默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的字符串值。</returns>
         public string GetString(PersistWayType wayType, string classifyName, string itemName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -489,13 +437,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取字符串值。
+        /// 读取 string（带默认值）
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的字符串值。</returns>
         public string GetString(PersistWayType wayType, string classifyName, string itemName, string defaultValue)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -515,12 +458,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入字符串值。
+        /// 写入 string
         /// </summary>
-        /// <param name="wayType">持久化存储方式。</param>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的字符串值。</param>
         public void SetString(PersistWayType wayType, string classifyName, string itemName, string value)
         {
             if (wayType == PersistWayType.FileFragment)

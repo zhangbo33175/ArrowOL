@@ -1,23 +1,27 @@
 --=====================================================================================================
--- descrip:   系统函数库
+-- descrip:   系统函数库（项目核心工具库）
+--              功能：异常捕获、dump打印、类型检查、类继承、热更新、表/字符串/数学/IO工具函数
 --=====================================================================================================
 
+--- 全局异常追踪函数（Lua报错统一捕获）
+---@param msg string 错误信息
 function __G__TRACK_BACK__(msg)
     local msg = debug.traceback(msg, 3)
-    Honor.GameException.ThrowLuaException(msg)
-    -- PrintError(msg)
+    Honor.GameException.ThrowLuaException(msg) -- 抛给C#异常系统
     return msg
 end
 
+--- 可变参包装函数
+---@return table 参数列表
 local function argv(...)
     return { ... }
 end
 
----@class Catch @捕获异常
----@field Catch function @获取异常。
+---@class Catch @异常捕获对象
+---@field Catch function 异常回调
 
----捕获异常
----@param method function @要执行的方法
+--- 异常捕获 Try/Catch（替代xpcall，更易用）
+---@param method function 执行方法
 ---@return Catch
 function Try(method, ...)
     local catch
@@ -48,6 +52,7 @@ function Try(method, ...)
     }
 end
 
+--- dump 内部值格式化
 local function dump_value_(v)
     if type(v) == "string" then
         v = "\"" .. v .. "\""
@@ -55,6 +60,10 @@ local function dump_value_(v)
     return tostring(v)
 end
 
+--- 表格格式化打印（调试神器）
+---@param value any 要打印的值
+---@param description string 描述
+---@param nesting number 打印层级
 function dump(value, description, nesting)
     if type(nesting) ~= "number" then
         nesting = 3
@@ -116,18 +125,22 @@ function dump(value, description, nesting)
     end
 end
 
+--- 安全转数字（失败返回0）
 function checknumber(value, base)
     return tonumber(value, base) or 0
 end
 
+--- 安全转整数（四舍五入）
 function checkint(value)
     return math.round(checknumber(value))
 end
 
+--- 安全转布尔
 function checkbool(value)
     return (value ~= nil and value ~= false)
 end
 
+--- 安全转表（不是表则返回空表）
 function checktable(value)
     if type(value) ~= "table" then
         value = {}
@@ -135,11 +148,13 @@ function checktable(value)
     return value
 end
 
+--- 判断表是否存在键
 function isset(hashtable, key)
     local t = type(hashtable)
     return (t == "table" or t == "userdata") and hashtable[key] ~= nil
 end
 
+--- 递归设置元表 __index
 local setmetatableindex_
 setmetatableindex_ = function(t, index)
     if type(t) == "userdata" then
@@ -164,6 +179,7 @@ setmetatableindex_ = function(t, index)
 end
 setmetatableindex = setmetatableindex_
 
+--- 深拷贝
 function clone(object)
     local lookup_table = {}
     local function _copy(object)
@@ -182,6 +198,9 @@ function clone(object)
     return _copy(object)
 end
 
+--- 类定义（Lua OOP核心）
+---@param classname string 类名
+---@param ... 父类
 function class(classname, ...)
     local cls = { __cname = classname }
 
@@ -196,11 +215,9 @@ function class(classname, ...)
             assert(cls.__create == nil,
                     string.format("class() - create class \"%s\" with more than one creating function",
                             classname));
-            -- if super is function, set it to __create
             cls.__create = super
         elseif superType == "table" then
             if super[".isclass"] then
-                -- super is native class
                 assert(cls.__create == nil,
                         string.format("class() - create class \"%s\" with more than one creating function or native class",
                                 classname));
@@ -208,11 +225,9 @@ function class(classname, ...)
                     return super:create()
                 end
             else
-                -- super is pure lua class
                 cls.__supers = cls.__supers or {}
                 cls.__supers[#cls.__supers + 1] = super
                 if not cls.super then
-                    -- set first super pure lua class as class.super
                     cls.super = super
                 end
             end
@@ -238,7 +253,6 @@ function class(classname, ...)
     end
 
     if not cls.ctor then
-        -- add default constructor
         cls.ctor = function()
         end
     end
@@ -261,6 +275,7 @@ function class(classname, ...)
     return cls
 end
 
+--- 判断实例是否属于某个类（支持多继承）
 local iskindof_
 iskindof_ = function(cls, name)
     local __index = rawget(cls, "__index")
@@ -275,7 +290,7 @@ iskindof_ = function(cls, name)
     if not __supers then
         return false
     end
-    for _, super in ipairs(__supers) do
+    for _, super in ip(__supers) do
         if iskindof_(super, name) then
             return true
         end
@@ -295,13 +310,13 @@ function iskindof(obj, classname)
     return false
 end
 
+--- 热补丁容器
 ClassPatch = {}
 StaticClassPatch = {}
 
----LoadPatcher
----@param content string @Patch数据
+--- 加载热补丁（框架热更新核心）
+---@param content string 补丁代码
 function LoadPatcher(content)
-    --PrintInfo(content)
     if content ~= nil then
         ClassPatch = {}
         StaticClassPatch = {}
@@ -319,6 +334,7 @@ function LoadPatcher(content)
     end
 end
 
+--- 增强 require（支持热补丁注入）
 local _require = require
 require = function(filePath)
     local ret, ptr = xpcall(
@@ -335,6 +351,7 @@ require = function(filePath)
     return ptr
 end
 
+--- 模块导入（支持相对路径）
 function import(moduleName, currentModuleName)
     local currentModuleNameParts
     local moduleFullName = moduleName
@@ -342,7 +359,6 @@ function import(moduleName, currentModuleName)
 
     while true do
         if string.byte(moduleName, offset) ~= 46 then
-            -- .
             moduleFullName = string.sub(moduleName, offset)
             if currentModuleNameParts and #currentModuleNameParts > 0 then
                 moduleFullName = table.concat(currentModuleNameParts, ".") .. "." .. moduleFullName
@@ -357,7 +373,7 @@ function import(moduleName, currentModuleName)
                 currentModuleName = v
             end
 
-            currentModuleNameParts = string.split(currentModuleName, ".")
+            currentModuleNameParts = string.split(currentModuleNameName, ".")
         end
         table.remove(currentModuleNameParts, #currentModuleNameParts)
     end
@@ -365,20 +381,17 @@ function import(moduleName, currentModuleName)
     return require(moduleFullName)
 end
 
----@class handler @回调句柄
----@type fun(obj:table, method:function):table
----@param obj table @对象
----@param method function @对象方法
----@return table @回调句柄
+--- 回调绑定（解决self指向问题）
+---@param obj table 对象
+---@param method function 方法
+---@return table 回调句柄
 function handler(obj, method)
     return { target = obj, method = method, func = function(...)
         return method(obj, ...)
     end }
 end
 
----根据系统时间初始化随机数种子
----@type fun():number
----@return number @随机种子
+--- 生成随机种子（高精度）
 function math.newrandomseed()
     local ok, socket = pcall(function()
         return require("socket")
@@ -395,32 +408,24 @@ function math.newrandomseed()
     math.random()
 end
 
----对数值进行四舍五入，如果不是数值则返回 0
----@type fun(value:number):number
----@param value number @要四舍五入的值
----@return number @四舍五入后的值
+--- 四舍五入
 function math.round(value)
     value = checknumber(value)
     return math.floor(value + 0.5)
 end
 
 local pi_div_180 = math.pi / 180
----角度转弧度
----@type fun(angle:number):number
----@param angle number @角度
----@return number @弧度
+--- 角度转弧度
 function math.angle2radian(angle)
     return angle * pi_div_180
 end
 
----弧度转角度
----@type fun(radian:number):number
----@param radian number @弧度
----@return number @角度
+--- 弧度转角度
 function math.radian2angle(radian)
     return radian * 180 / math.pi
 end
 
+--- 文件是否存在
 function io.exists(path)
     local file = io.open(path, "r")
     if file then
@@ -430,6 +435,7 @@ function io.exists(path)
     return false
 end
 
+--- 读取文件
 function io.readfile(path)
     local file = io.open(path, "r")
     if file then
@@ -440,6 +446,7 @@ function io.readfile(path)
     return nil
 end
 
+--- 写入文件
 function io.writefile(path, content, mode)
     mode = mode or "w+b"
     local file = io.open(path, mode)
@@ -454,16 +461,15 @@ function io.writefile(path, content, mode)
     end
 end
 
+--- 获取路径信息（目录/文件名/后缀）
 function io.pathinfo(path)
     local pos = string.len(path)
     local extpos = pos + 1
     while pos > 0 do
         local b = string.byte(path, pos)
         if b == 46 then
-            -- 46 = char "."
             extpos = pos
         elseif b == 47 then
-            -- 47 = char "/"
             break
         end
         pos = pos - 1
@@ -482,6 +488,7 @@ function io.pathinfo(path)
     }
 end
 
+--- 获取文件大小
 function io.filesize(path)
     local size = false
     local file = io.open(path, "r")
@@ -494,6 +501,7 @@ function io.filesize(path)
     return size
 end
 
+--- 表键值对数量
 function table.nums(t)
     local count = 0
     for k, v in pairs(t) do
@@ -502,6 +510,7 @@ function table.nums(t)
     return count
 end
 
+--- 获取表所有键
 function table.keys(hashtable)
     local keys = {}
     for k, v in pairs(hashtable) do
@@ -510,6 +519,7 @@ function table.keys(hashtable)
     return keys
 end
 
+--- 获取表所有值
 function table.values(hashtable)
     local values = {}
     for k, v in pairs(hashtable) do
@@ -518,12 +528,14 @@ function table.values(hashtable)
     return values
 end
 
+--- 表合并
 function table.merge(dest, src)
     for k, v in pairs(src) do
         dest[k] = v
     end
 end
 
+--- 批量插入表
 function table.insertto(dest, src, begin)
     begin = checkint(begin)
     if begin <= 0 then
@@ -536,6 +548,7 @@ function table.insertto(dest, src, begin)
     end
 end
 
+--- 查找值索引
 function table.indexof(array, value, begin)
     for i = begin or 1, #array do
         if array[i] == value then
@@ -545,6 +558,7 @@ function table.indexof(array, value, begin)
     return false
 end
 
+--- 查找值对应的键
 function table.keyof(hashtable, value)
     for k, v in pairs(hashtable) do
         if v == value then
@@ -554,6 +568,7 @@ function table.keyof(hashtable, value)
     return nil
 end
 
+--- 根据值删除元素
 function table.removebyvalue(array, value, removeall)
     local c, i, max = 0, 1, #array
     while i <= max do
@@ -571,18 +586,21 @@ function table.removebyvalue(array, value, removeall)
     return c
 end
 
+--- 表映射（修改每个元素）
 function table.map(t, fn)
     for k, v in pairs(t) do
         t[k] = fn(v, k)
     end
 end
 
+--- 遍历表（只执行）
 function table.walk(t, fn)
     for k, v in pairs(t) do
         fn(v, k)
     end
 end
 
+--- 表过滤
 function table.filter(t, fn)
     for k, v in pairs(t) do
         if not fn(v, k) then
@@ -591,6 +609,7 @@ function table.filter(t, fn)
     end
 end
 
+--- 表去重
 function table.unique(t, bArray)
     local check = {}
     local n = {}
@@ -609,7 +628,7 @@ function table.unique(t, bArray)
     return n
 end
 
--- 获得一个重复值数组
+--- 创建重复值数组
 function table.full(count, value)
     local result = {}
     for idx = 1, count do
@@ -618,6 +637,7 @@ function table.full(count, value)
     return result
 end
 
+--- HTML转义字符映射
 string._htmlspecialchars_set = {}
 string._htmlspecialchars_set["&"] = "&amp;"
 string._htmlspecialchars_set["\""] = "&quot;"
@@ -625,6 +645,7 @@ string._htmlspecialchars_set["'"] = "&#039;"
 string._htmlspecialchars_set["<"] = "&lt;"
 string._htmlspecialchars_set[">"] = "&gt;"
 
+--- HTML转义
 function string.htmlspecialchars(input)
     for k, v in pairs(string._htmlspecialchars_set) do
         input = string.gsub(input, k, v)
@@ -632,6 +653,7 @@ function string.htmlspecialchars(input)
     return input
 end
 
+--- 还原HTML转义
 function string.restorehtmlspecialchars(input)
     for k, v in pairs(string._htmlspecialchars_set) do
         input = string.gsub(input, v, k)
@@ -639,10 +661,12 @@ function string.restorehtmlspecialchars(input)
     return input
 end
 
+--- 换行转<br />
 function string.nl2br(input)
     return string.gsub(input, "\n", "<br />")
 end
 
+--- 文本转HTML格式
 function string.text2html(input)
     input = string.gsub(input, "\t", "    ")
     input = string.htmlspecialchars(input)
@@ -651,6 +675,7 @@ function string.text2html(input)
     return input
 end
 
+--- 字符串分割
 function string.split(input, delimiter)
     input = tostring(input)
     delimiter = tostring(delimiter)
@@ -658,7 +683,6 @@ function string.split(input, delimiter)
         return false
     end
     local pos, arr = 0, {}
-    -- for each divider found
     for st, sp in function()
         return string.find(input, delimiter, pos, true)
     end do
@@ -669,19 +693,23 @@ function string.split(input, delimiter)
     return arr
 end
 
+--- 去除左侧空白
 function string.ltrim(input)
     return string.gsub(input, "^[ \t\n\r]+", "")
 end
 
+--- 去除右侧空白
 function string.rtrim(input)
     return string.gsub(input, "[ \t\n\r]+$", "")
 end
 
+--- 去除两侧空白
 function string.trim(input)
     input = string.gsub(input, "^[ \t\n\r]+", "")
     return string.gsub(input, "[ \t\n\r]+$", "")
 end
 
+--- 首字母大写
 function string.ucfirst(input)
     return string.upper(string.sub(input, 1, 1)) .. string.sub(input, 2)
 end
@@ -689,15 +717,15 @@ end
 local function urlencodechar(char)
     return "%" .. string.format("%02X", string.byte(char))
 end
+
+--- URL编码
 function string.urlencode(input)
-    -- convert line endings
     input = string.gsub(tostring(input), "\n", "\r\n")
-    -- escape all characters but alphanumeric, '.' and '-'
     input = string.gsub(input, "([^%w%.%- ])", urlencodechar)
-    -- convert spaces to "+" symbols
     return string.gsub(input, " ", "+")
 end
 
+--- URL解码
 function string.urldecode(input)
     input = string.gsub(input, "+", " ")
     input = string.gsub(input, "%%(%x%x)", function(h)
@@ -707,6 +735,7 @@ function string.urldecode(input)
     return input
 end
 
+--- UTF8字符长度计算
 function string.utf8len(input)
     local len = string.len(input)
     local left = len
@@ -727,6 +756,7 @@ function string.utf8len(input)
     return cnt
 end
 
+--- 数字格式化（千分位逗号）
 function string.formatnumberthousands(num)
     local formatted = tostring(checknumber(num))
     local k
@@ -739,10 +769,12 @@ function string.formatnumberthousands(num)
     return formatted
 end
 
+--- 是否以指定字符串开头
 function string.starts(String, Start)
     return string.sub(String, 1, string.len(Start)) == Start
 end
 
+--- 是否以指定字符串结尾
 function string.ends(String, End)
     return End == '' or string.sub(String, -string.len(End)) == End
 end

@@ -10,8 +10,7 @@ namespace Honor.Runtime
         private string m_FileFragmentsRootDirectoryFullPath = null;
 
         /// <summary>
-        /// 所有文件片段的名称
-        /// 纯文件名称(不带后缀)
+        /// 所有文件片段名称列表（纯名称，不带后缀）
         /// </summary>
         private readonly List<string> m_FileFragmentNames = null;
         public List<string> FileFragmentNames
@@ -23,8 +22,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 所有待删除的文件片段的名称
-        /// 纯文件名称(不带后缀)
+        /// 待删除的文件片段名称列表（Save 时统一删除）
         /// </summary>
         private readonly List<string> m_FileFragmentNamesForDelete = null;
         public List<string> FileFragmentNamesForDelete
@@ -36,7 +34,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 所有文件片段在读写区的文件路径
+        /// 所有文件片段的完整物理路径
         /// </summary>
         private readonly List<string> m_FilePaths = null;
         public List<string> FilePaths
@@ -48,8 +46,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 所有文件片段的条目信息集合
-        /// <文件片段名称，文件片段中Item集合>
+        /// 文件片段数据分组字典
+        /// Key：文件片段名称
+        /// Value：对应的数据项集合
         /// </summary>
         private readonly SortedDictionary<string, FileFragmentItemGroup> m_ItemGroups = null;
         public SortedDictionary<string, FileFragmentItemGroup> ItemGroups
@@ -61,16 +60,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定文件片段的条目数量。
+        /// 获取指定文件片段内的数据条目数量
         /// </summary>
         /// <param name="fileFragmentName">文件片段名称</param>
-        /// <returns></returns>
+        /// <returns>数据条数</returns>
         public int Count(string fileFragmentName)
         {
-            return (m_ItemGroups != null && m_ItemGroups.ContainsKey(fileFragmentName) && m_ItemGroups[fileFragmentName] != null) ? m_ItemGroups[fileFragmentName].Count : 0;
+            return (m_ItemGroups != null && m_ItemGroups.ContainsKey(fileFragmentName) && m_ItemGroups[fileFragmentName] != null) 
+                ? m_ItemGroups[fileFragmentName].Count 
+                : 0;
         }
     }
-
 }
-
-

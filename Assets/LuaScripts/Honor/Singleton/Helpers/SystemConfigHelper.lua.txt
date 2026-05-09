@@ -1,39 +1,41 @@
 --=====================================================================================================
 -- descrip:   系统配置助手
+--              作用：统一管理、读取游戏全局系统配置（GM 后台配置、功能开关、全局参数）
+--              来源：服务器配置表 + GM 后台配置（key=SystemConfig）
 --=====================================================================================================
 
----@class SystemConfigHelper @系统配置助手
+---@class SystemConfigHelper @系统配置管理类
 local SystemConfigHelper = class("SystemConfigHelper")
 
----构造函数
+--- 构造函数
 ---@type fun(args:table):void
----@param args table @自定义参数
 function SystemConfigHelper:ctor(args)
+	-- 系统配置数据表（存储从服务器拉取的所有全局配置）
 	self._systemConfigData = {}
 end
 
----创建函数
+--- 创建实例
 ---@type fun(args:table):SystemConfigHelper
----@param args table @自定义参数
----@return SystemConfigHelper @账户助手实例
+---@return SystemConfigHelper
 function SystemConfigHelper:Create(args)
 	local obj = SystemConfigHelper.new(args)
 	return obj
 end
 
----获取游戏的配置信息 注* gm后台必须在 应用配置-key=SystemConfig
----@type fun():void
+--- 从服务器获取全局系统配置
+--- 注：GM 后台必须在【应用配置 - key = SystemConfig】下配置
+---@type fun():table
+---@return table 服务器系统配置
 function SystemConfigHelper:GetServerSystemConfig()
 	return nil
 end
 
----获取游戏数据通过key
----@type fun(key:string):table
----@param key string @需要获取的key
----@return table @返回key的任意类型数据
+--- 根据 key 获取指定系统配置
+---@type fun(key:string):any
+---@param key 配置项名称
+---@return any 配置值（number/string/table）
 function SystemConfigHelper:GetSystemConfig(key)
 	return nil
 end
-
 
 return SystemConfigHelper

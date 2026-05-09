@@ -1,63 +1,71 @@
 --=====================================================================================================
--- descrip:   视图通用父类（MVVM）
+-- descrip:   视图通用父类（MVVM - View层基类）
+--              作用：所有UI界面的View层基类，负责绑定ViewModel、UI动画、生命周期、资源管理
 --=====================================================================================================
 
----@class ViewSuper @视图通用父类
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@class ViewSuper @MVVM视图基类
+---@field cs Honor.Runtime.LuaBehaviour @绑定的C# LuaBehaviour组件
 local ViewSuper = class("ViewSuper")
 
----构造函数
+--- 构造函数
 ---@type fun(args:table):void
----@param args table @自定义参数
+---@param args table 构造参数
 function ViewSuper:ctor(args)
+    -- 绑定环境表变量
     if args ~= nil and args.env ~= nil then
         for __, v in pairs(args.env) do
             self[__] = v
         end
     end
-    self._args = args                                        -- 初始化传入参数
-    self._params = self.cs.LuaParams                        -- 自定义传入参数
-    self._name = self.__cname                                -- 初始化名称
-    self._mvvmType = "View"                                    -- mvvm类型
-    self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))  -- 公共名称
+
+    self._args = args                                        -- 传入参数
+    self._params = self.cs.LuaParams                        -- C#配置的自定义参数
+    self._name = self.__cname                                -- 类名
+    self._mvvmType = "View"                                    -- MVVM标识
+    self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))  -- 公共名称（用于匹配ViewModel）
     self._initOver = false                                -- 初始化完成标记
-    self._binder = require('Binder'):Create()        -- 界面对数据的监听绑定器(所有的绑定)
-    self._viewModelPackage = require('BindValue'):Create({ name = "ViewModelPackage", value = nil, isTrigger = false })   -- 具有“可绑定值”性质的ViewMode内部包装
-    self._isClosing = false                                -- 正在关闭中
-    self._bgImage = nil                                        -- ui背景图片
-    self._bottomMaskLayerImage = nil                        -- ui底部遮罩层图片
-    self._topMaskLayerImage = nil                            -- ui顶部遮罩层图片
-    self._bottomCloseLayerButton = nil                        -- ui底部背景关闭层按钮
-    self._bottomMaskLayerOpenAnimationDelay = 0.5            -- ui底部遮罩层打开动画时长
-    self._bottomMaskLayerCloseAnimationDelay = 0.5            -- ui底部遮罩层关闭动画时长
-    self._alphaOpenAnimationDelay = 0.5                        -- ui整体透明度变化打开动画时长
-    self._alphaCloseAnimationDelay = 0.5                    -- ui整体透明度变化关闭动画时长
-    self._rootOpenAnimationDelay = 0.5                        -- 根节点打开动画时长
-    self._rootCloseAnimationDelay = 0.5                        -- 根节点关闭动画时长
-    self._loadedAssets = {}                                    -- 动态加载的资源集合
-    self._oriPosForUIStack = CS.UnityEngine.Vector3.zero    ---@type UnityEngine.Vector3    ---UIStack中的原始位置
+
+    -- MVVM 绑定核心
+    self._binder = require('Binder'):Create()        -- 数据绑定器
+    self._viewModelPackage = require('BindValue'):Create({ name = "ViewModelPackage", value = nil, isTrigger = false })   -- ViewModel包装（可监听）
+
+    self._isClosing = false                                -- 是否正在关闭
+
+    -- UI 元素引用
+    self._bgImage = nil                                        -- 背景图
+    self._bottomMaskLayerImage = nil                        -- 底部遮罩
+    self._topMaskLayerImage = nil                            -- 顶部遮罩
+    self._bottomCloseLayerButton = nil                        -- 底部关闭按钮
+
+    -- 动画时长
+    self._bottomMaskLayerOpenAnimationDelay = 0.5
+    self._bottomMaskLayerCloseAnimationDelay = 0.5
+    self._alphaOpenAnimationDelay = 0.5
+    self._alphaCloseAnimationDelay = 0.5
+    self._rootOpenAnimationDelay = 0.5
+    self._rootCloseAnimationDelay = 0.5
+
+    self._loadedAssets = {}                                    -- 动态加载资源
+    self._oriPosForUIStack = UnityVector3.zero    -- UI栈原始位置
 end
 
----创建函数
+--- 创建实例
 ---@type fun(args:table):ViewSuper
----@param args table @自定义参数
----@return ViewSuper @视图通用父类实例
+---@return ViewSuper
 function ViewSuper:Create(args)
     local obj = ViewSuper.new(args)
     return obj
 end
 
----唤醒
+--- 唤醒（Unity生命周期）
 ---@type fun():void
 function ViewSuper:Awake()
-
-    -- 找到ui背景层图片
+    -- 自动查找固定UI节点
     local bgImage = self.cs.transform:Find("__BgImage")
     if bgImage ~= nil then
         self._bgImage = bgImage:GetComponent("Image")
     end
 
-    -- 找到ui遮罩层图片并设置可见性
     local bottomMaskLayer = self.cs.transform:Find("__BottomMaskLayer")
     if bottomMaskLayer ~= nil then
         self._bottomMaskLayerImage = bottomMaskLayer:GetComponent("Image")
@@ -74,7 +82,6 @@ function ViewSuper:Awake()
         end
     end
 
-    -- 找到ui背景关闭层按钮并设置可见性
     local bottomCloseLayer = self.cs.transform:Find("__BottomCloseLayer")
     if bottomCloseLayer ~= nil then
         self._bottomCloseLayerButton = bottomCloseLayer:GetComponent("Button")
@@ -83,52 +90,52 @@ function ViewSuper:Awake()
         end
     end
 
+    -- 抛出UI打开事件
     HonorEventHelper:FireNow(FwEventCmd.UIViewOpen, self._commonName)
 
-    -- 注册监听代码
+    -- 注册事件
     self:OnAddListeners()
 
-    -- 设置ViewModel
+    -- 自动创建并绑定对应 ViewModel
     local viewModel = require(self._commonName .. 'ViewModel'):Create({ args = self._args, params = self._params })
     self.cs.OwnLuaClasses[Honor.MVVMPatternType.ViewModel:GetHashCode()] = viewModel
     viewModel:Awake()
     self:SetViewModel(viewModel)
 end
 
----启用
+--- 启用
 ---@type fun():void
 function ViewSuper:OnEnable()
     self:GetViewModel():OnEnable()
 end
 
----初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置自身的ViewModel，因此请勿在该方法中调用GetViewModel。）
+--- 初始化回调（首次设置ViewModel时调用）
 ---@type fun(viewModel:ViewModelSuper):void
 function ViewSuper:OnInit(viewModel)
     self._binder:SetViewModel(viewModel)
     self._viewModelPackage:AddHandler(handler(self, self.OnViewModelChanged))
 end
 
----开始
+--- 开始
 ---@type fun():void
 function ViewSuper:Start()
     self:GetViewModel():Start()
     self:Open()
 end
 
----心跳（自定义）
+--- 帧更新
 ---@type fun():void
 function ViewSuper:Proc()
     self:GetViewModel():Proc()
-
 end
 
----禁用
+--- 禁用
 ---@type fun():void
 function ViewSuper:OnDisable()
     self:GetViewModel():OnDisable()
 end
 
----销毁回调
+--- 销毁（自动释放所有）
 ---@type fun():void
 function ViewSuper:OnDestroy()
     self:GetViewModel():OnDestroy()
@@ -140,15 +147,13 @@ function ViewSuper:OnDestroy()
     HonorCoroutineHelper:StopByGO(self.cs.gameObject)
 end
 
----注册监听代码处（需要由子类重写）
+--- 注册事件（子类重写）
 ---@type fun():void
 function ViewSuper:OnAddListeners()
-
 end
 
----设置ViewModel
+--- 设置ViewModel
 ---@type fun(viewModel:ViewModelSuper):void
----@param viewModel ViewModelSuper @ViewModel
 function ViewSuper:SetViewModel(viewModel)
     if self._initOver == false then
         self:OnInit(viewModel)
@@ -157,27 +162,21 @@ function ViewSuper:SetViewModel(viewModel)
     self._viewModelPackage:SetValue(viewModel)
 end
 
----获取ViewModel
+--- 获取ViewModel
 ---@type fun():ViewModelSuper
----@return ViewModelSuper @ViewModel
+---@return ViewModelSuper
 function ViewSuper:GetViewModel()
     return self._viewModelPackage:GetValue()
 end
 
----新增绑定值回调句柄
+--- 添加绑定回调
 ---@type fun(name:string, handler:handler):void
----@param name string @绑定值变量名称
----@param handler handler @回调句柄
 function ViewSuper:AddBindHandler(name, handler)
     self._binder:Add(name, handler)
 end
 
----ViewModel变化回调
+--- ViewModel 变化时自动重新绑定
 ---@type fun(old:ViewModelSuper, new:ViewModelSuper):void
----@param old ViewModelSuper @旧ViewModel
----@param new ViewModelSuper @新ViewModel
----@param operate string @操作
----@param valueItem any @数据集合中Item值内容
 function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
     if new ~= nil then
         new:OnBeforeUse()
@@ -190,7 +189,7 @@ function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
     end
 end
 
----打开
+--- 打开界面
 ---@type fun():void
 function ViewSuper:Open()
     self:GetViewModel():OnOpen()
@@ -209,10 +208,9 @@ function ViewSuper:Open()
     else
         self:OnOpenOver()
     end
-
 end
 
----关闭
+--- 关闭界面
 ---@type fun():void
 function ViewSuper:Close()
     if self._isClosing == false then
@@ -239,10 +237,9 @@ function ViewSuper:Close()
     end
 end
 
----播放打开动画
+--- 播放打开动画
 ---@type fun():void
 function ViewSuper:OnPlayOpenAnimation()
-    -- ui底部遮罩层动画
     if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
         local targetColor = self._bottomMaskLayerImage.color
         self._bottomMaskLayerImage.color = Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0)
@@ -250,30 +247,27 @@ function ViewSuper:OnPlayOpenAnimation()
         self._bottomMaskLayerImage:DOColor(targetColor, self._bottomMaskLayerOpenAnimationDelay):SetEase(Ease.OutBack).stringId = HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID()
     end
 
-    -- ui整体透明度变化
     local canvasGroup = self.cs:GetComponent("CanvasGroup")
     if canvasGroup ~= nil then
         canvasGroup.alpha = 0
         DOTween.Kill(HonorTweenType.PrefabUIAlphaOpenAnimation .. self.cs.gameObject:GetInstanceID())
-        DOTween                               .To(function()
+        DOTween.To(function()
             return canvasGroup.alpha
         end, function(value)
             canvasGroup.alpha = value
         end, 1, self._alphaOpenAnimationDelay):SetEase(Ease.OutBack).stringId = HonorTweenType.PrefabUIAlphaOpenAnimation .. self.cs.gameObject:GetInstanceID()
     end
 
-    -- 根节点动画
     local transform = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
     transform.localScale = Unity.Vector3.one * 0.00001
     DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
     DOTween.Sequence():Append(transform:DOScale(1, self._rootOpenAnimationDelay):SetEase(Ease.OutBack)
                                        :OnComplete(function()
         self:OnOpenOver()
-    end))  .stringId = HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID()
-
+    end)).stringId = HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID()
 end
 
----打开完毕回调
+--- 打开完成
 ---@type fun():void
 function ViewSuper:OnOpenOver()
     self:GetViewModel():OnOpenOver()
@@ -297,28 +291,25 @@ function ViewSuper:OnOpenOver()
     end
 end
 
----播放关闭动画
+--- 播放关闭动画
 ---@type fun():void
 function ViewSuper:OnPlayCloseAnimation()
-    -- ui底部遮罩层动画
     if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
         DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
         DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
         self._bottomMaskLayerImage:DOColor(Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0), self._bottomMaskLayerCloseAnimationDelay):SetEase(Ease.InBack).stringId = HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID()
     end
 
-    -- ui整体透明度变化
     local canvasGroup = self.cs:GetComponent("CanvasGroup")
     if canvasGroup ~= nil then
         DOTween.Kill(HonorTweenType.PrefabUIAlphaCloseAnimation .. self.cs.gameObject:GetInstanceID())
-        DOTween                                .To(function()
+        DOTween.To(function()
             return canvasGroup.alpha
         end, function(value)
             canvasGroup.alpha = value
         end, 0, self._alphaCloseAnimationDelay):SetEase(Ease.InBack).stringId = HonorTweenType.PrefabUIAlphaCloseAnimation .. self.cs.gameObject:GetInstanceID()
     end
 
-    -- 根节点动画
     local transform = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
     local targetLocalScale = Unity.Vector3.one * 0.00001
     DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
@@ -326,27 +317,20 @@ function ViewSuper:OnPlayCloseAnimation()
     DOTween.Sequence():Append(transform:DOScale(targetLocalScale, self._rootCloseAnimationDelay):SetEase(Ease.InBack)
                                        :OnComplete(function()
         self:OnCloseOver()
-    end))  .stringId = HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID()
-
+    end)).stringId = HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID()
 end
 
----关闭完毕回调
+--- 关闭完成（自动销毁）
 ---@type fun():void
 function ViewSuper:OnCloseOver()
     self:GetViewModel():OnCloseOver()
     self.cs.UseProc = false
     HonorEventHelper:Fire(FwEventCmd.UIViewClose, self._commonName)
-    -- 对于UI，销毁时Lua中按照父节点->子节点的顺序依次调用。原因：C#:Honor.UI中销毁对象的顺序为倒序，这样便可确保C#:Honor.UI最终按照子节点->父节点的顺序依次销毁。
+
     if self.cs.PrefabType == Honor.PrefabType.UI then
-        HonorRoot.UI:AddToUnloadUIList(self.cs.gameObject)
+        GameMainRoot.UI:AddToUnloadUIList(self.cs.gameObject)
         local children = self.cs:GetAllDirectChildren()
         for i = 0, children.Count - 1 do
-            --[[            local luaBehaviour = children[i]
-                        if luaBehaviour == nil then
-                            PrintError("UI luaBehaviour == nil")
-                        else
-                            PrintInfo("UI luaBehaviour ~= nil 准备销毁" .. luaBehaviour.gameObject.name)
-                        end]]
             local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
             if luaClass.GetViewModel ~= nil then
                 luaClass:GetViewModel():OnClose()
@@ -356,12 +340,6 @@ function ViewSuper:OnCloseOver()
     elseif self.cs.PrefabType == Honor.PrefabType.Entity then
         local children = self.cs:GetAllDirectChildren()
         for i = 0, children.Count - 1 do
-            --[[            local luaBehaviour = children[i]
-                        if luaBehaviour == nil then
-                            PrintError("Entity luaBehaviour == nil")
-                        else
-                            PrintInfo("Entity luaBehaviour ~= nil 准备销毁" .. luaBehaviour.gameObject.name)
-                        end]]
             local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
             if luaClass.GetViewModel ~= nil then
                 luaClass:GetViewModel():OnClose()
@@ -372,68 +350,49 @@ function ViewSuper:OnCloseOver()
     end
 end
 
----被追加的N层UI子节点销毁回调
----@type fun(luaClass:XLua.LuaTable):void
----@param luaClass XLua.LuaTable @luaClass
+--- 子UI销毁回调
 function ViewSuper:OnAddedUIDestroyed(luaClass)
-
 end
 
----同步方式追加UI子体
----@type fun(uiTable: Tables.UIs_Item, parent: UnityEngine.Transform, luaParams: table): table, UnityEngine.GameObject
----@param uiTable Tables.UIs_Item @uiTable
----@param parent UnityEngine.Transform @追加到的父对象
----@param luaParams table @自定义参数
----@return table, UnityEngine.GameObject @UI子体luaClass,UI子体GO
+--- 同步添加子UI
 function ViewSuper:AddUISync(uiTable, parent, luaParams)
     if parent == nil then
         parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
     end
-    local uiGO = HonorRoot.UI:AddUISyncByLuaTable(uiTable, parent, luaParams)
+    local uiGO = GameMainRoot.UI:AddUISyncByLuaTable(uiTable, parent, luaParams)
     local luaBehaviour = uiGO:GetComponent("LuaBehaviour")
     local luaClass = luaBehaviour == nil and nil or (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView)
     return luaClass, uiGO
 end
 
----异步方式追加UI子体
----@type fun(uiTable: Tables.UIs_Item, parent: UnityEngine.Transform, luaParams: table, overCallback: function):void
----@param uiTable Tables.UIs_Item @uiTable
----@param parent UnityEngine.Transform @追加到的父对象
----@param luaParams table @自定义参数
----@param overCallback function @回调函数
+--- 异步添加子UI
 function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
     if parent == nil then
         parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
     end
-    HonorRoot.UI:AddUIAsyncByLuaTable(uiTable, parent, luaParams, overCallback)
+    GameMainRoot.UI:AddUIAsyncByLuaTable(uiTable, parent, luaParams, overCallback)
 end
 
----动态加载资源
----@type fun(assetInfo:RES_DEF_ITEM):UnityEngine.Object
----@param assetInfo RES_DEF_ITEM @资源信息
----@return UnityEngine.Object @Asset资源
+--- 加载资源（自动管理）
 function ViewSuper:LoadAsset(assetInfo)
     if assetInfo ~= nil then
         local keyName = assetInfo.Name
         if self._loadedAssets[keyName] == nil then
-            self._loadedAssets[keyName] = HonorRoot.Asset:LoadAssetSync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName)
+            self._loadedAssets[keyName] = GameMainRoot.Asset:LoadAssetSync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName)
         end
         return self._loadedAssets[keyName]
     end
     return nil
 end
 
----动态卸载资源
----@type fun(assetInfo:RES_DEF_ITEM):boolean
----@param assetInfo RES_DEF_ITEM @资源信息
----@return boolean @是否卸载成功
+--- 卸载资源
 function ViewSuper:UnloadAsset(assetInfo)
     if assetInfo ~= nil then
         local keyName = assetInfo.Name
         local asset = self._loadedAssets[keyName]
         if asset ~= nil then
-            if HonorRoot.Asset ~= nil then
-                HonorRoot.Asset:UnloadAsset(asset)
+            if GameMainRoot.Asset ~= nil then
+                GameMainRoot.Asset:UnloadAsset(asset)
                 self._loadedAssets[keyName] = nil
             end
             return true
@@ -442,16 +401,13 @@ function ViewSuper:UnloadAsset(assetInfo)
     return false
 end
 
----动态卸载资源
----@type fun(asset: UnityEngine.Object):boolean
----@param asset UnityEngine.Object @Asset资源
----@return boolean @是否卸载成功
+--- 按对象卸载资源
 function ViewSuper:UnloadAssetByAsset(asset)
     if asset ~= nil then
         for keyName, vAsset in pairs(self._loadedAssets) do
             if vAsset == asset then
-                if HonorRoot.Asset ~= nil then
-                    HonorRoot.Asset:UnloadAsset(asset)
+                if GameMainRoot.Asset ~= nil then
+                    GameMainRoot.Asset:UnloadAsset(asset)
                     self._loadedAssets[keyName] = nil
                 end
                 return true
@@ -461,53 +417,41 @@ function ViewSuper:UnloadAssetByAsset(asset)
     return false
 end
 
----卸载所有动态资源
----@type fun():void
+--- 卸载所有资源
 function ViewSuper:UnloadAllAssets()
-    if HonorRoot.Asset ~= nil then
+    if GameMainRoot.Asset ~= nil then
         for _, vAsset in pairs(self._loadedAssets) do
             if vAsset ~= nil then
-                HonorRoot.Asset:UnloadAsset(vAsset)
+                GameMainRoot.Asset:UnloadAsset(vAsset)
             end
         end
         self._loadedAssets = {}
     end
 end
 
----UI入栈
+--- UI入栈
 function ViewSuper:OnStackPush()
     if self.cs then
         self._oriPosForUIStack = self.cs.transform.localPosition
-        self.cs.transform.localPosition = CS.UnityEngine.Vector3.one * 3000
+        self.cs.transform.localPosition = UnityVector3.one * 3000
     end
 end
 
----UI出栈
+--- UI出栈
 function ViewSuper:OnStackPop()
     if self.cs then
         self.cs.transform.localPosition = self._oriPosForUIStack
     end
 end
 
---{{{ 协程延迟函数
----协程延迟时间函数
----@type fun(delayTime:number, isRealTime:boolean, callback:function):UnityEngine.Coroutine
----@param delayTime number @延迟时间
----@param isRealTime boolean @是否使用真实时间
----@param callback function @回调函数
----@return UnityEngine.Coroutine @协程实例
+--- 延迟协程
 function ViewSuper:CoDelayFunction(delayTime, isRealTime, callback)
     CoDelayFunctionOfG(self, delayTime, isRealTime, callback)
 end
 
----协程延迟帧数函数
----@type fun(delayFrame:number, callback:function):UnityEngine.Coroutine
----@param delayFrame number @延迟帧数
----@param callback function @回调函数
----@return UnityEngine.Coroutine @协程实例
+--- 延迟帧
 function ViewSuper:CoDelayFrameFunction(delayFrame, callback)
     CoDelayFrameFunctionOfG(self, delayFrame, callback)
 end
---}}}
 
 return ViewSuper

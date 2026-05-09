@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Spine.Unity.SkeletonGraphic);
-			Utils.BeginObjectRegister(type, L, translator, 0, 28, 39, 25);
+			Utils.BeginObjectRegister(type, L, translator, 0, 30, 41, 26);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Rebuild", _m_Rebuild);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Update", _m_Update);
@@ -39,6 +39,8 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateMesh", _m_UpdateMesh);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateMeshToInstructions", _m_UpdateMeshToInstructions);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HasMultipleSubmeshInstructions", _m_HasMultipleSubmeshInstructions);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetRectToReferenceRectSize", _m_ResetRectToReferenceRectSize);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetReferenceRectSize", _m_GetReferenceRectSize);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ChangeSlotSkinSprite", _m_ChangeSlotSkinSprite);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AssignMeshOverrideSingleRenderer", _e_AssignMeshOverrideSingleRenderer);
@@ -55,6 +57,8 @@ namespace XLua.CSObjectWrap
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "SkeletonDataAsset", _g_get_SkeletonDataAsset);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "MeshScale", _g_get_MeshScale);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "EditReferenceRect", _g_get_EditReferenceRect);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "RectTransformSize", _g_get_RectTransformSize);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UpdateMode", _g_get_UpdateMode);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SeparatorParts", _g_get_SeparatorParts);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CustomTextureOverride", _g_get_CustomTextureOverride);
@@ -93,7 +97,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "updateSeparatorPartScale", _g_get_updateSeparatorPartScale);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "disableMeshAssignmentOnOverride", _g_get_disableMeshAssignmentOnOverride);
             
-			Utils.RegisterFunc(L, Utils.SETTER_IDX, "UpdateMode", _s_set_UpdateMode);
+			Utils.RegisterFunc(L, Utils.SETTER_IDX, "EditReferenceRect", _s_set_EditReferenceRect);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "UpdateMode", _s_set_UpdateMode);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "OverrideTexture", _s_set_OverrideTexture);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "Skeleton", _s_set_Skeleton);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "UpdateTiming", _s_set_UpdateTiming);
@@ -718,6 +723,61 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ResetRectToReferenceRectSize(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Spine.Unity.SkeletonGraphic gen_to_be_invoked = (Spine.Unity.SkeletonGraphic)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.ResetRectToReferenceRectSize(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetReferenceRectSize(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Spine.Unity.SkeletonGraphic gen_to_be_invoked = (Spine.Unity.SkeletonGraphic)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        UnityEngine.Vector2 gen_ret = gen_to_be_invoked.GetReferenceRectSize(  );
+                        translator.PushUnityEngineVector2(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_ChangeSlotSkinSprite(RealStatePtr L)
         {
 		    try {
@@ -773,6 +833,34 @@ namespace XLua.CSObjectWrap
 			
                 Spine.Unity.SkeletonGraphic gen_to_be_invoked = (Spine.Unity.SkeletonGraphic)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.MeshScale);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_EditReferenceRect(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SkeletonGraphic gen_to_be_invoked = (Spine.Unity.SkeletonGraphic)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.EditReferenceRect);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_RectTransformSize(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SkeletonGraphic gen_to_be_invoked = (Spine.Unity.SkeletonGraphic)translator.FastGetCSObj(L, 1);
+                translator.PushUnityEngineVector2(L, gen_to_be_invoked.RectTransformSize);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -1298,6 +1386,21 @@ namespace XLua.CSObjectWrap
         }
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_EditReferenceRect(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SkeletonGraphic gen_to_be_invoked = (Spine.Unity.SkeletonGraphic)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.EditReferenceRect = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_UpdateMode(RealStatePtr L)

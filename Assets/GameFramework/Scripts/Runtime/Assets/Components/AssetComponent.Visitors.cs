@@ -3,14 +3,21 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 资源管理组件 - 字段与属性定义部分
+    /// 负责提供资源加载的配置项、管理器引用、状态查询接口
+    /// </summary>
     public sealed partial class AssetComponent : GameComponent
     {
         /// <summary>
-        /// Asset最小过期帧数
-        /// Asset资源过期帧数，60帧*60s：相当于1分钟
+        /// 资源自动卸载延迟帧数
+        /// 计算公式：60帧 * 60秒 = 1分钟（默认值）
         /// </summary>
         [SerializeField] private int m_UnloadAssetDelayFrameNum = 60 * 60;
 
+        /// <summary>
+        /// 设置资源自动卸载延迟帧数
+        /// </summary>
         public int UnloadAssetDelayFrameNum
         {
             set
@@ -24,10 +31,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 每轮资源清理所需要加载完成资源的累计个数
+        /// 触发内存清理的最大加载资源数量
         /// </summary>
         [SerializeField] private int m_LoadedMaxNumToCleanMemery = 50;
 
+        /// <summary>
+        /// 设置触发内存清理的资源数量阈值
+        /// </summary>
         public int LoadedMaxNumToCleanMemery
         {
             set
@@ -41,38 +51,47 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Launcher组件
+        /// 启动器组件引用
         /// </summary>
         private LauncherComponent m_LauncherComponent = null;
 
+        /// <summary>
+        /// 获取启动器组件
+        /// </summary>
         public LauncherComponent LauncherComponent
         {
             get { return m_LauncherComponent; }
         }
 
         /// <summary>
-        /// Asset加载管理器
+        /// 底层资源加载管理器（负责 Asset/AB 加载卸载）
         /// </summary>
         private AssetLoadManager m_AssetLoadManager = null;
 
+        /// <summary>
+        /// 获取资源加载管理器实例
+        /// </summary>
         public AssetLoadManager AssetLoadManager
         {
             get { return m_AssetLoadManager; }
         }
 
         /// <summary>
-        /// Prefab加载管理器
+        /// 预制体加载管理器（负责 Prefab 实例化）
         /// </summary>
         private PrefabLoadManager m_PrefabLoadManager = null;
 
+        /// <summary>
+        /// 获取预制体加载管理器实例
+        /// </summary>
         public PrefabLoadManager PrefabLoadManager
         {
             get { return m_PrefabLoadManager; }
         }
 
         /// <summary>
-        /// 全局依赖资源
-        /// 记录了Manifest中所有AB的依赖资源关系
+        /// 全局依赖资源映射表
+        /// 记录 Manifest 中所有 AB 包的依赖关系
         /// </summary>
         public Dictionary<string, string[]> DependsDataList
         {
@@ -80,9 +99,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否为编辑器资源模式
+        /// 是否处于编辑器资源模式（Editor 模式下直接加载资源，不打 AB 包）
         /// </summary>
-        /// <returns></returns>
         public bool EditorResourceMode
         {
             get
@@ -92,94 +110,84 @@ namespace Honor.Runtime
                 {
                     return launcherComponent.EditorResourceMode;
                 }
-
                 return false;
             }
         }
 
         /// <summary>
-        /// 获取Prefab加载完成列表
+        /// 已加载完成的预制体对象列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, PrefabObject> LoadedPrefabList
         {
             get { return m_PrefabLoadManager.LoadedList; }
         }
 
         /// <summary>
-        /// 获取正在加载的Asset列表
+        /// 正在加载中的资源对象列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, AssetObject> LoadingAssetList
         {
             get { return m_AssetLoadManager.LoadingList; }
         }
 
         /// <summary>
-        /// 获取加载完成的Asset列表
+        /// 已加载完成的资源对象列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, AssetObject> LoadedAssetList
         {
             get { return m_AssetLoadManager.LoadedList; }
         }
 
         /// <summary>
-        /// 获取准备卸载的Asset列表
+        /// 等待延迟卸载的资源对象列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, AssetObject> UnloadAssetList
         {
             get { return m_AssetLoadManager.UnloadList; }
         }
 
         /// <summary>
-        /// 获取预加载的Asset列表
+        /// 预加载资源队列
         /// </summary>
-        /// <returns></returns>
         public Queue<PreloadAssetObject> PreloadedAssetList
         {
             get { return m_AssetLoadManager.PreloadedAsyncList; }
         }
 
         /// <summary>
-        /// 获取所有当前AB准备列表
+        /// 准备就绪的 AB 包列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, AssetBundleObject> ReadyABList
         {
             get { return m_AssetLoadManager.AssetBundleLoadManager.ReadyAssetBundleList; }
         }
 
         /// <summary>
-        /// 获取所有当前加载中的AB列表
+        /// 正在加载中的 AB 包列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, AssetBundleObject> LoadingABList
         {
             get { return m_AssetLoadManager.AssetBundleLoadManager.LoadingAssetBundleList; }
         }
 
         /// <summary>
-        /// 获取所有当前已加载的AB包
+        /// 已加载完成的 AB 包列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, AssetBundleObject> LoadedABList
         {
             get { return m_AssetLoadManager.AssetBundleLoadManager.LoadedAssetBundleList; }
         }
 
         /// <summary>
-        /// 获取所有当前待卸载AB列表
+        /// 等待卸载的 AB 包列表
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, AssetBundleObject> UnloadABList
         {
             get { return m_AssetLoadManager.AssetBundleLoadManager.UnloadAssetBundleList; }
         }
 
         /// <summary>
-        /// 获取当前所有激活的场景集合
+        /// 当前已激活的场景资源集合
         /// </summary>
         public List<AssetObject> Scenes
         {
@@ -187,10 +195,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否严格检测
+        /// 是否开启严格校验模式
         /// </summary>
         private bool m_StrictCheck = true;
 
+        /// <summary>
+        /// 设置或获取严格校验开关
+        /// </summary>
         public bool StrictCheck
         {
             set { m_StrictCheck = value; }

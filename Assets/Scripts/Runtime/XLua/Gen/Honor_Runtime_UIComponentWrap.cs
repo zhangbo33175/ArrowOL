@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UIComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 55, 22, 10);
+			Utils.BeginObjectRegister(type, L, translator, 0, 60, 24, 10);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OpenUIAsyncByLuaTable", _m_OpenUIAsyncByLuaTable);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OpenUIAsyncByInfo", _m_OpenUIAsyncByInfo);
@@ -78,6 +78,11 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HideLoading", _m_HideLoading);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowAppReview", _m_ShowAppReview);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowAppFeedback", _m_ShowAppFeedback);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddUIMaskLayerRef", _m_AddUIMaskLayerRef);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SubUIMaskLayerRef", _m_SubUIMaskLayerRef);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "IsUIMaskLayerVisible", _m_IsUIMaskLayerVisible);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CloseUIMaskLayer", _m_CloseUIMaskLayer);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetScreenScale", _m_GetScreenScale);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "ScreenDesignedResolution", _g_get_ScreenDesignedResolution);
@@ -102,6 +107,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SceneUIList", _g_get_SceneUIList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SubUIList", _g_get_SubUIList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ModalUIInfoList", _g_get_ModalUIInfoList);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "MaskLayerUI", _g_get_MaskLayerUI);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "MaskLayerUIRefCount", _g_get_MaskLayerUIRefCount);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "ScreenWidthHeightMatchValue", _s_set_ScreenWidthHeightMatchValue);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "DestroyMaxNumPerFrame", _s_set_DestroyMaxNumPerFrame);
@@ -2185,6 +2192,144 @@ namespace XLua.CSObjectWrap
             
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AddUIMaskLayerRef(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _name = LuaAPI.lua_tostring(L, 2);
+                    
+                    gen_to_be_invoked.AddUIMaskLayerRef( _name );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SubUIMaskLayerRef(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.SubUIMaskLayerRef(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_IsUIMaskLayerVisible(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        bool gen_ret = gen_to_be_invoked.IsUIMaskLayerVisible(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_CloseUIMaskLayer(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.CloseUIMaskLayer(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetScreenScale(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        float gen_ret = gen_to_be_invoked.GetScreenScale(  );
+                        LuaAPI.lua_pushnumber(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
         
         
         
@@ -2490,6 +2635,34 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
                 translator.Push(L, gen_to_be_invoked.ModalUIInfoList);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_MaskLayerUI(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.MaskLayerUI);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_MaskLayerUIRefCount(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.MaskLayerUIRefCount);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -32,14 +33,14 @@ namespace Honor.Runtime
         /// <param name="binaryWriter">目标流。</param>
         /// <param name="data">要序列化的数据。</param>
         /// <returns>序列化数据是否成功。</returns>
-        public delegate bool SerializeCallback(BinaryWriter binaryWriter, T data, string flag = default(string));
+        public delegate bool SerializeCallback(BinaryWriter binaryWriter, T data, string flag = default);
 
         /// <summary>
         /// 反序列化回调函数。
         /// </summary>
         /// <param name="binaryReader">指定流。</param>
         /// <returns>反序列化的数据。</returns>
-        public delegate T DeserializeCallback(BinaryReader binaryReader, string flag = default(string));
+        public delegate T DeserializeCallback(BinaryReader binaryReader, string flag = default);
 
         /// <summary>
         /// 尝试从指定流获取指定键的值回调函数。
@@ -80,7 +81,7 @@ namespace Honor.Runtime
         {
             if (callback == null)
             {
-                throw new GameException("Deserialize callback 无效。");
+                throw new GameException("反序列化回调函数无效。");
             }
 
             m_DeserializeCallbacks[version] = callback;
@@ -107,7 +108,7 @@ namespace Honor.Runtime
         /// <param name="stream">目标流。</param>
         /// <param name="data">要序列化的数据。</param>
         /// <returns>序列化数据是否成功。</returns>
-        public bool Serialize(Stream stream, T data, string flag = default(string))
+        public bool Serialize(Stream stream, T data, string flag = default)
         {
             if (m_SerializeCallbacks.Count <= 0)
             {
@@ -124,19 +125,27 @@ namespace Honor.Runtime
         /// <param name="data">要序列化的数据。</param>
         /// <param name="version">序列化回调函数的版本。</param>
         /// <returns>序列化数据是否成功。</returns>
-        public bool Serialize(Stream stream, T data, byte version, string flag = default(string))
+        public bool Serialize(Stream stream, T data, byte version, string flag = default)
         {
-            using (BinaryWriter binaryWriter = new BinaryWriter(stream, Encoding.UTF8))
+            if (stream == null)
+                throw new GameException("流不能为空。");
+
+            using (BinaryWriter binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true))
             {
                 byte[] header = GetHeader();
+                if (header == null || header.Length < 3)
+                {
+                    throw new GameException("数据头标识无效。");
+                }
+
                 binaryWriter.Write(header[0]);
                 binaryWriter.Write(header[1]);
                 binaryWriter.Write(header[2]);
                 binaryWriter.Write(version);
-                SerializeCallback callback = null;
-                if (!m_SerializeCallbacks.TryGetValue(version, out callback))
+
+                if (!m_SerializeCallbacks.TryGetValue(version, out SerializeCallback callback))
                 {
-                    throw new GameException(AorTxt.Format("序列化回调函数'{0}'不存在。", version.ToString()));
+                    throw new GameException($"序列化回调函数 '{version}' 不存在。");
                 }
 
                 return callback(binaryWriter, data, flag);
@@ -148,21 +157,31 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="stream">指定流。</param>
         /// <returns>反序列化的数据。</returns>
-        public T Deserialize(Stream stream, string flag = default(string))
+        public T Deserialize(Stream stream, string flag = default)
         {
-            using (BinaryReader binaryReader = new BinaryReader(stream, Encoding.UTF8))
+            if (stream == null)
+                throw new GameException("流不能为空。");
+
+            using (BinaryReader binaryReader = new BinaryReader(stream, Encoding.UTF8, true))
             {
                 byte[] header = GetHeader();
-                if (binaryReader.ReadByte() != header[0] || binaryReader.ReadByte() != header[1] || binaryReader.ReadByte() != header[2])
+                if (header == null || header.Length < 3)
                 {
                     throw new GameException("数据头标识无效。");
                 }
 
-                byte version = binaryReader.ReadByte();
-                DeserializeCallback callback = null;
-                if (!m_DeserializeCallbacks.TryGetValue(version, out callback))
+                if (binaryReader.ReadByte() != header[0] || 
+                    binaryReader.ReadByte() != header[1] || 
+                    binaryReader.ReadByte() != header[2])
                 {
-                    throw new GameException(AorTxt.Format("反序列化回调函数'{0}'不存在。", version.ToString()));
+                    throw new GameException("数据头标识不匹配。");
+                }
+
+                byte version = binaryReader.ReadByte();
+
+                if (!m_DeserializeCallbacks.TryGetValue(version, out DeserializeCallback callback))
+                {
+                    throw new GameException($"反序列化回调函数 '{version}' 不存在。");
                 }
 
                 return callback(binaryReader, flag);
@@ -179,17 +198,28 @@ namespace Honor.Runtime
         public bool TryGetValue(Stream stream, string key, out object value)
         {
             value = null;
-            using (BinaryReader binaryReader = new BinaryReader(stream, Encoding.UTF8))
+
+            if (stream == null)
+                return false;
+
+            using (BinaryReader binaryReader = new BinaryReader(stream, Encoding.UTF8, true))
             {
                 byte[] header = GetHeader();
-                if (binaryReader.ReadByte() != header[0] || binaryReader.ReadByte() != header[1] || binaryReader.ReadByte() != header[2])
+                if (header == null || header.Length < 3)
+                {
+                    return false;
+                }
+
+                if (binaryReader.ReadByte() != header[0] || 
+                    binaryReader.ReadByte() != header[1] || 
+                    binaryReader.ReadByte() != header[2])
                 {
                     return false;
                 }
 
                 byte version = binaryReader.ReadByte();
-                TryGetValueCallback callback = null;
-                if (!m_TryGetValueCallbacks.TryGetValue(version, out callback))
+
+                if (!m_TryGetValueCallbacks.TryGetValue(version, out TryGetValueCallback callback))
                 {
                     return false;
                 }
@@ -205,5 +235,3 @@ namespace Honor.Runtime
         protected abstract byte[] GetHeader();
     }
 }
-
-

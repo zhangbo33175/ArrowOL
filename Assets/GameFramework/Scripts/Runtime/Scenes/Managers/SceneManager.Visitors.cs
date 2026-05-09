@@ -2,66 +2,59 @@ using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 场景管理器（成员变量分部类）
+    /// 定义场景加载的所有状态队列、缓存列表与依赖组件
+    /// </summary>
     public sealed partial class SceneManager
     {
         /// <summary>
-        /// 准备预加载Scene资源信息
-        /// 格式：<<abPath, assetName>>
+        /// 等待预加载的场景列表
+        /// 格式：<<ab包路径, 场景资源名>>
         /// </summary>
         private readonly List<List<string>> m_PreLoadSceneAssetNames;
+
         public List<List<string>> PreLoadSceneAssetNames
         {
-            get
-            {
-                return m_PreLoadSceneAssetNames;
-            }
+            get => m_PreLoadSceneAssetNames;
         }
 
         /// <summary>
-        /// 正在加载中的Scene资源信息
-        /// 格式：<<abPath, assetName>>
+        /// 正在异步加载的场景列表
+        /// 格式：<<ab包路径, 场景资源名>>
         /// </summary>
         private readonly List<List<string>> m_LoadingSceneAssetNames;
+
         public List<List<string>> LoadingSceneAssetNames
         {
-            get
-            {
-                return m_LoadingSceneAssetNames;
-            }
+            get => m_LoadingSceneAssetNames;
         }
 
         /// <summary>
-        /// 已经加载的Scene资源信息
-        /// 格式：<<abPath, assetName>>
+        /// 已加载完成的场景列表
+        /// 格式：<<ab包路径, 场景资源名>>
         /// </summary>
         private readonly List<List<string>> m_LoadedSceneAssetNames;
+
         public List<List<string>> LoadedSceneAssetNames
         {
-            get
-            {
-                return m_LoadedSceneAssetNames;
-            }
+            get => m_LoadedSceneAssetNames;
         }
 
         /// <summary>
-        /// 正在卸载中的Scene资源信息
-        /// 格式：<<assetName>>
+        /// 正在异步卸载的场景列表
+        /// 格式：<<场景资源名>>（仅存名称）
         /// </summary>
         private readonly List<List<string>> m_UnloadingSceneAssetNames;
+
         public List<List<string>> UnloadingSceneAssetNames
         {
-            get
-            {
-                return m_UnloadingSceneAssetNames;
-            }
+            get => m_UnloadingSceneAssetNames;
         }
 
         /// <summary>
-        /// Asset组件
+        /// 资源管理组件（负责AB包加载/卸载）
         /// </summary>
         private AssetComponent m_AssetComponent;
-
     }
 }
-
-

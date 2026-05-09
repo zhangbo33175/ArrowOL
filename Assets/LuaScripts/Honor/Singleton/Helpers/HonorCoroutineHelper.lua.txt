@@ -1,162 +1,128 @@
 --=====================================================================================================
--- descrip:   协程助手
+-- descrip:   协程助手（全局协程管理器 + GC 优化）
+--              功能：
+--              1. 启动/停止/管理 Lua 协程
+--              2. 绑定 GameObject，物体销毁自动停协程
+--              3. 缓存 WaitForSeconds，大幅减少 GC 分配
+--              4. 支持帧等待、真实时间等待
 --=====================================================================================================
 
----@class CoroutineWaitHelper @ 缓存等待时间，减少分配
----@field waitForSeconds table<number,UnityEngine.WaitForSeconds[]> @按时间缓存
----@field WaitForSecondsRealtime table<number,UnityEngine.WaitForSecondsRealtime[]> @按时间缓存
+---@class CoroutineWaitHelper  等待对象缓存池（减少GC）
 local CoroutineWaitHelper = class("CoroutineWaitHelper")
 
----@class CoroutineHelper @协程助手
----@field waitForEndOfFrame UnityEngine.WaitForEndOfFrame @ 等待帧末
+---@class HonorCoroutineHelper 协程管理助手
 local HonorCoroutineHelper = class("HonorCoroutineHelper")
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+--- 构造函数
 function HonorCoroutineHelper:ctor(args)
-    self._util = require("SystemUtil")        -- xlua util
-    self._coroutines = {}                        -- 协程对象集合{{target = ..., coroutine = ...}, ...}
-    self.waitForEndOfFrame = Unity.WaitForEndOfFrame
-    self.waitForSeconds = CoroutineWaitHelper
-    self.waitForSeconds.waitForSeconds = {}
-    self.waitForSeconds.WaitForSecondsRealtime = {}
+    self._util = require("SystemUtil")         --- xlua 协程工具
+    self._coroutines = {}                      --- 协程列表：{target, coroutine}
+    self.waitForEndOfFrame = Unity.WaitForEndOfFrame  --- 等待帧末
+    self.waitForSeconds = CoroutineWaitHelper          --- 等待时间缓存池
+    self.waitForSeconds.waitForSeconds = {}            --- 普通等待缓存
+    self.waitForSeconds.WaitForSecondsRealtime = {}    --- 真实时间等待缓存
 end
 
----创建函数
----@type fun(args:table):HonorCoroutineHelper
----@param args table @自定义参数
----@return HonorCoroutineHelper @协程助手实例
+--- 创建实例
 function HonorCoroutineHelper:Create(args)
     local obj = HonorCoroutineHelper.new(args)
     return obj
 end
 
----开始协程
----@type fun(handler:handler):UnityEngine.Coroutine
----@param handler handler @协程方法
----@return UnityEngine.Coroutine @协程实例
+--- 启动协程（自动绑定 target，方便后续销毁）
+--- @return UnityEngine.Coroutine
 function HonorCoroutineHelper:Start(handler)
     local co = nil
-    if GameMainRoot.Launcher ~= nil then
+    if GameMainRoot.Launcher then
         co = GameMainRoot.Launcher:StartCoroutine(self._util.cs_generator(handler.func))
-        if handler.target.cs ~= nil then
-            table.insert(self._coroutines, {target = handler.target.cs.gameObject, coroutine = co})
-        else
-            table.insert(self._coroutines, {target = handler.target, coroutine = co})
-        end
+        -- 绑定 target 便于销毁
+        local target = handler.target.cs ~= nil and handler.target.cs.gameObject or handler.target
+        table.insert(self._coroutines, { target = target, coroutine = co })
     end
     return co
 end
 
----开始协程
----@type fun(func:function):UnityEngine.Coroutine
----@param func function @协程方法
----@return UnityEngine.Coroutine @协程实例
+--- 独立启动协程（不绑定 target）
 function HonorCoroutineHelper:StartAlone(func)
-    if GameMainRoot.Launcher ~= nil then
+    if GameMainRoot.Launcher then
         return GameMainRoot.Launcher:StartCoroutine(self._util.cs_generator(func))
     end
     return nil
 end
 
----结束协程
----@type fun(co:UnityEngine.Coroutine):void
----@param co UnityEngine.Coroutine @协程实例
+--- 停止单个独立协程
 function HonorCoroutineHelper:StopAlone(co)
-    if co == nil then
-        return
-    end
-    if GameMainRoot.Launcher ~= nil then
+    if not co then return end
+    if GameMainRoot.Launcher then
         GameMainRoot.Launcher:StopCoroutine(co)
     end
 end
 
----结束所有协程
----@type fun():void
----@return void
+--- 停止所有协程
 function HonorCoroutineHelper:StopAll()
-    if GameMainRoot.Launcher ~= nil then
+    if GameMainRoot.Launcher then
         GameMainRoot.Launcher:StopAllCoroutines()
     end
     self._coroutines = {}
 end
 
----结束协程
----@type fun(coroutine:UnityEngine.Coroutine):void
----@param co UnityEngine.Coroutine @协程实例
+--- 停止指定协程
 function HonorCoroutineHelper:Stop(co)
-    if co == nil then
-        return
-    end
+    if not co then return end
     for i = #self._coroutines, 1, -1 do
         if self._coroutines[i].coroutine == co then
-            if GameMainRoot.Launcher ~= nil then
-                GameMainRoot.Launcher:StopCoroutine(co)
-            end
+            GameMainRoot.Launcher:StopCoroutine(co)
             table.remove(self._coroutines, i)
         end
     end
 end
 
----根据go结束协程
----@type fun(go:UnityEngine.GameObject):void
----@param go UnityEngine.GameObject @协程实例
+--- 根据 GameObject 停止其所有协程（界面销毁必备）
 function HonorCoroutineHelper:StopByGO(go)
-    if go == nil then
-        return
-    end
+    if not go then return end
     for i = #self._coroutines, 1, -1 do
         if self._coroutines[i].target == go then
-            if not IsNull(HonorRoot.Launcher) and self._coroutines[i].coroutine ~= nil then
-                GameMainRoot.Launcher:StopCoroutine(self._coroutines[i].coroutine)
-            end
+            GameMainRoot.Launcher:StopCoroutine(self._coroutines[i].coroutine)
             table.remove(self._coroutines, i)
         end
     end
 end
 
----等待函数
----@type fun(waitter:RGame.WaitForFrames):void
----@param waitter RGame.WaitForFrames @ 等待多少帧
+--- 等待指定帧数
 function HonorCoroutineHelper:WaitForFrame(waitter)
     waitter:Reset()
     coroutine.yield(waitter)
 end
 
----@type fun(waitTime:number):void
----@param waitTime number @ 等待多少秒
+--- 等待秒数（带缓存，无GC）
 function HonorCoroutineHelper:WaitForSeconds(waitTime)
-    waitTime = math.floor(waitTime * 1000) / 1000
+    waitTime = math.floor(waitTime * 1000) / 1000  -- 精度处理
     local cache = self.waitForSeconds.waitForSeconds[waitTime]
+    -- 无缓存则新建
     if not cache or #cache == 0 then
-        cache = cache or {}
-        table.insert(cache,CS.UnityEngine.WaitForSeconds(waitTime))
+        cache = {}
+        table.insert(cache, UnityWaitForSeconds(waitTime))
         self.waitForSeconds.waitForSeconds[waitTime] = cache
     end
-    local waitter = cache[#cache]
-    table.remove(cache,#cache)
+    -- 取出、等待、回收（完全无GC）
+    local waitter = table.remove(cache)
     coroutine.yield(waitter)
-    --yield之后回收，要是协程未执行完毕，那就不回收了，无所谓的...
-    table.insert(cache,waitter)
+    table.insert(cache, waitter)
 end
 
----@type fun(waitTime:number):void
----@param waitTime number @ 等待多少秒
+--- 等待真实秒数（不受时间缩放影响，带缓存）
 function HonorCoroutineHelper:WaitForSecondsRealtime(waitTime)
     waitTime = math.floor(waitTime * 1000) / 1000
     local cache = self.waitForSeconds.WaitForSecondsRealtime[waitTime]
     if not cache or #cache == 0 then
-        cache = cache or {}
-        table.insert(cache,CS.UnityEngine.WaitForSecondsRealtime(waitTime))
+        cache = {}
+        table.insert(cache, UnityWaitForSecondsRealtime(waitTime))
         self.waitForSeconds.WaitForSecondsRealtime[waitTime] = cache
     end
-    local waitter = cache[#cache]
-    table.remove(cache,#cache)
+    local waitter = table.remove(cache)
     waitter:Reset()
     coroutine.yield(waitter)
-    --yield之后回收，要是协程未执行完毕，那就不回收了，无所谓的...
-    table.insert(cache,waitter)
+    table.insert(cache, waitter)
 end
 
 return HonorCoroutineHelper

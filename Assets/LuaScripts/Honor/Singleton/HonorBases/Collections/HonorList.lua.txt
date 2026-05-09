@@ -1,42 +1,44 @@
 --=====================================================================================================
--- descrip:   HonorList列表定义
+-- descrip:   通用动态列表（仿 C# List）
+--              用途：存储、管理一组有序元素，是框架最基础的容器
+--              适用：对象列表、UI集合、任务列表、数据缓存
 --=====================================================================================================
----@class HonorList @List列表类
----@field items table @条目集合
+
+---@class HonorList @通用列表类
+---@field items table @内部存储元素的数组
 local HonorList = class("HonorList")
 
----构造函数
+--- 构造函数
 ---@type fun():void
 function HonorList:ctor()
-    self.items = {}
+    self.items = {}   -- 初始化空列表
 end
 
----创建函数
----@type fun():List
----@return List @列表对象
+--- 创建列表实例
+---@type fun():HonorList
+---@return HonorList
 function HonorList:Create()
     local list = HonorList.new()
     return list
 end
 
----追加条目
+--- 添加元素到列表末尾
 ---@type fun(item:any):void
----@param item any @条目
+---@param item 要添加的元素
 function HonorList:Add(item)
     table.insert(self.items, self:Count() + 1, item)
 end
 
----列表条目数量
+--- 获取列表元素数量
 ---@type fun():number
----@return number @列表条目数量
+---@return number 元素个数
 function HonorList:Count()
     return #self.items
 end
 
----是否包含条目
+--- 判断列表是否包含指定元素
 ---@type fun(item:any):boolean
----@param item any @条目
----@return boolean @是否包含
+---@return boolean 是否存在
 function HonorList:Contains(item)
     local isExist = false
     for _, v in pairs(self.items) do
@@ -48,9 +50,9 @@ function HonorList:Contains(item)
     return isExist
 end
 
----移除条目
+--- 移除指定元素
 ---@type fun(item:any):void
----@param item any @条目
+---@param item 要移除的元素
 function HonorList:Remove(item)
     if not self:Contains(item) then
         return false
@@ -63,10 +65,10 @@ function HonorList:Remove(item)
     end
 end
 
----移除指定索引位置的条目
+--- 移除指定索引位置的元素
 ---@type fun(index:number):boolean
----@param index number @指定索引位置
----@return boolean @是否移除成功
+---@param index 索引（从 1 开始）
+---@return boolean 是否移除成功
 function HonorList:RemoveAt(index)
     if not self:Contains(self.items[index]) then
         return false
@@ -75,7 +77,7 @@ function HonorList:RemoveAt(index)
     return true
 end
 
----列表清空
+--- 清空整个列表
 ---@type fun():void
 function HonorList:Clear()
     self.items = {}

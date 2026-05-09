@@ -1,0 +1,54 @@
+--=====================================================================================================
+-- descrip:   关卡界面管理器
+--            职责：管理关卡选择界面、关卡数据获取、关卡状态控制等关卡相关逻辑
+--=====================================================================================================
+
+---@class LevelManager:Singleton @关卡界面管理器（单例）
+local LevelManager = class("LevelManager", import("Singleton"))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function LevelManager:ctor(args)
+    LevelManager.super.ctor(self, args)
+
+    -- 临时兼容字段（保留原结构）
+    self._loginState = ELoginState.None                 ---@type ELoginState @登录状态（临时兼容）
+    self._IsOnLine = false                              ---@type boolean @是否在线（临时兼容）
+    self._LoginFinishCallback = nil                     ---@type fun:void @登录结束回调（临时兼容）
+    self._isNewUser = false                             ---@type boolean @是否是新用户（临时兼容）
+    self._isDelUser = false                             ---@type boolean @是否是删除用户（临时兼容）
+end
+
+---创建函数
+---@type fun(args:table):LevelManager
+---@param args table @自定义参数
+---@return LevelManager @关卡管理器实例
+function LevelManager:Create(args)
+    local obj = LevelManager.new(args)
+    return obj
+end
+
+---初始化(继承覆写)
+---@type fun():void
+function LevelManager:Init()
+    LevelManager.super.Init(self)
+end
+
+---清理数据
+---@type fun():void
+function LevelManager:ClearData()
+    LevelManager.super.ClearData(self)
+    self._loginState = ELoginState.None
+    self._IsOnLine = false
+    self._isNewUser = false
+    self._isDelUser = false
+end
+
+---获取当前关卡信息（用于界面展示）
+---@return table @关卡信息数据
+function LevelManager:GetCurrentLevelInformation()
+    -- 可扩展：获取当前章节、当前关卡、星级、解锁状态、奖励等信息
+end
+
+return LevelManager

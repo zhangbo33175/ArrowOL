@@ -1,12 +1,3 @@
-/***************************************************************
- * (c) copyright 2021 - 2025, Honor.Game
- * All Rights Reserved.
- * -------------------------------------------------------------
- * filename:  NetworkManager.cs
- * author:    taoye
- * created:   2022/10/12
- * descrip:   Network管理器
- ***************************************************************/
 #if BEST_HTTP_ENABLE
 using BestHTTP.WebSocket;
 #endif
@@ -15,13 +6,18 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 网络底层管理器
+    /// 负责网络状态检测、WebSocket管理、请求/连接超时配置
+    /// </summary>
     public sealed partial class NetworkManager
     {
         /// <summary>
-        /// 构造方法
+        /// 构造函数
+        /// 初始化Lua组件、超时时间、WebSocket容器
         /// </summary>
-        /// <param name="connectTimeout">链接超时</param>
-        /// <param name="requestTimeout">请求超时</param>
+        /// <param name="connectTimeout">连接超时（秒）</param>
+        /// <param name="requestTimeout">请求超时（秒）</param>
         public NetworkManager(float connectTimeout, float requestTimeout)
         {
             m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
@@ -33,36 +29,36 @@ namespace Honor.Runtime
 
             m_ConnectTimeout = connectTimeout;
             m_RequestTimeout = requestTimeout;
+
 #if BEST_HTTP_ENABLE
             m_WebSockets = new Dictionary<string, WebSocket>();
 #endif
         }
 
         /// <summary>
-        /// 检查网络激活的状态
+        /// 检查当前设备网络是否可用
+        /// 判断：无网络/移动网络/WiFi
         /// </summary>
-        /// <returns></returns>
+        /// <returns>true 网络可用，false 不可用</returns>
         public bool CheckNetworkActive()
         {
-            // 没有网络
+            // 无网络
             if (Application.internetReachability == NetworkReachability.NotReachable)
             {
                 return false;
             }
-            // 2345G网络
+            // 移动数据网络（4/5G）
             else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork)
             {
                 return true;
             }
-            // wifi网络
+            // WiFi 网络
             else if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
             {
                 return true;
             }
+            
             return false;
         }
     }
-
 }
-
-

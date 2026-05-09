@@ -3,17 +3,26 @@ using System.Text;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 字符串格式化工具类（静态扩展）
+    /// 功能：使用缓存的 StringBuilder 优化字符串拼接，减少 GC Alloc
+    /// 特点：线程安全、高性能、无 GC
+    /// </summary>
     public static partial class AorTxt
     {
+        /// <summary>
+        /// 线程静态缓存 StringBuilder
+        /// 每个线程独立实例，避免多线程冲突，复用减少 GC
+        /// </summary>
         [ThreadStatic]
         private static StringBuilder s_CachedStringBuilder = null;
 
         /// <summary>
-        /// 获取格式化字符串
+        /// 格式化字符串（1个参数）
         /// </summary>
-        /// <param name="format">字符串格式</param>
-        /// <param name="arg0">字符串参数0</param>
-        /// <returns>返回格式化后的字符串</returns>
+        /// <param name="format">格式字符串</param>
+        /// <param name="arg0">参数</param>
+        /// <returns>格式化后的字符串</returns>
         public static string Format(string format, object arg0)
         {
             if (format == null)
@@ -28,12 +37,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取格式化字符串
+        /// 格式化字符串（2个参数）
         /// </summary>
-        /// <param name="format">字符串格式</param>
-        /// <param name="arg0">字符串参数0</param>
-        /// <param name="arg1">字符串参数1</param>
-        /// <returns>返回格式化后的字符串</returns>
         public static string Format(string format, object arg0, object arg1)
         {
             if (format == null)
@@ -48,13 +53,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取格式化字符串
+        /// 格式化字符串（3个参数）
         /// </summary>
-        /// <param name="format">字符串格式</param>
-        /// <param name="arg0">字符串参数0</param>
-        /// <param name="arg1">字符串参数1</param>
-        /// <param name="arg2">字符串参数2</param>
-        /// <returns>返回格式化后的字符串</returns>
         public static string Format(string format, object arg0, object arg1, object arg2)
         {
             if (format == null)
@@ -69,11 +69,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取格式化字符串
+        /// 格式化字符串（多参数）
         /// </summary>
-        /// <param name="format">字符串格式</param>
-        /// <param name="args">字符串参数数组</param>
-        /// <returns></returns>
         public static string Format(string format, params object[] args)
         {
             if (format == null)
@@ -93,7 +90,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查缓存StringBuilder的初始化
+        /// 检查并初始化缓存 StringBuilder
+        /// 默认容量 1024，避免频繁扩容
         /// </summary>
         private static void CheckCachedStringBuilder()
         {
@@ -104,5 +102,3 @@ namespace Honor.Runtime
         }
     }
 }
-
-

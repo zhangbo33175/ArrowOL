@@ -1,100 +1,112 @@
 --=====================================================================================================
--- descrip:   游戏运行状态机
+-- descrip:   游戏运行状态
+--            职责：关卡正式运行的核心状态，管理UI、相机、触摸、音效、引导、 HUD、活动同步
 --=====================================================================================================
 
----@class GamePlayingState : GameStateBase @游戏运行状态机
+---@class GamePlayingState : GameStateBase @游戏运行状态
 local GamePlayingState = class('GamePlayingState', import('GameStateBase'))
 
 ---构造函数
----@type fun(stateType:GameStateCmd):GameMainState
----@param stateType GameStateCmd @状态机状态值
+---@type fun(stateType:GameStateCmd):void
+---@param stateType GameStateCmd @状态类型
 function GamePlayingState:ctor(stateType)
     GamePlayingState.super.ctor(self, stateType)
-
 end
 
----创建函数
----@type fun(stateType:GameStateCmd):GameMainState
----@param stateType GameStateCmd @状态机状态值
----@return GamePlayingState @GamePlayingState实例
+---创建状态实例
+---@type fun(stateType:GameStateCmd):GamePlayingState
+---@param stateType GameStateCmd @状态类型
+---@return GamePlayingState @状态实例
 function GamePlayingState:Create(stateType)
     local obj = GamePlayingState.new(stateType)
     return obj
 end
 
----进入状态
+---进入游戏运行状态（关卡正式开始）
 ---@type fun(finishCallback:function):void
----@param finishCallback function @回调函数
+---@param finishCallback function @进入完成回调
 function GamePlayingState:OnStateEnter(finishCallback)
-    GameLib.Util.SetMultiTouchEnabled(true) -- 打开多点触摸
-    --=>不通过事件传递，直接尝试打开隐藏分显示的GUI页面(要放最上面，在一些事件抛出前
-    LevelHiddenScore:TryLoadGMGUI()
+    -- 开启多点触摸
+    GameLib.Util.SetMultiTouchEnabled(true)
+    -- 加载GM隐藏分GUI
+    --LevelHiddenScore:TryLoadGMGUI()
 
+    -- 增加UI遮罩，防止操作
     GameMainRoot.UI:AddUIMaskLayerRef("GamePlayingState:OnStateEnter")
-    -------------------------------------------------------------- 添加遮罩层
-    GameMainUIPushMgr:ClearWorkQueue() -- 清理UI工作队列
-    local layerNum = LayerHelper:GetLayerIntByName(ELayerName.Charater)
-    GameLib.MapCamHelper.CloseSceneRaycasterLayer(layerNum)
+    -- 清空UI推送队列
+    GameMainUIPushManager:ClearWorkQueue()
 
-    PlayHudCycle:OnAction(EPlayHudCycleAction.InitGame) -- 进入关卡，初始化游戏，by chuanshao 2024/1/5 这个时候需要扣除前置道具和连胜开始计时
+    -- 关闭角色层射线投射
+    --local layerNum = LayerHelper:GetLayerIntByName(ELayerName.Charater)
+    --GameLib.MapCamHelper.CloseSceneRaycasterLayer(layerNum)
 
-    ActivityMgr:SyncActivityDataFromServer() -- 同步活动数据
-    --- 开启EasyTouch对点击的响应
+    -- 初始化游戏（扣除道具、连胜计时）
+    --PlayHudCycle:OnAction(EPlayHudCycleAction.InitGame)
+    -- 开启点击检测
     GameManager:SetupEasyTouchAutoSelect(true)
-    --- 关闭地图移动
-    MapMotion:PauseMapMotion()
-    --- 调整相机位置到后厨
+    -- 暂停地图拖动
+    --MapMotion:PauseMapMotion()
+
+    -- 相机移动到关卡战斗位置
     local mapData = MapManager.CurMapData
-    GameLib.MapCamHelper.LookMap(mapData.playCamData,
+    GameLib.MapCamHelper.LookMap(
+            mapData.playCamData,
             Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.Playing,
             function()
+                -- 相机动画完成后的回调
                 local closeUICallback = function()
-                    ---游戏开始
+                    -- 正式开始游戏
                     PlayHudCycle:OnAction(EPlayHudCycleAction.BeginGame)
+                    -- 触发引导事件
                     GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
                 end
-                ---------------------------------------------------- 移除遮罩层
-                GameMainRoot.UI:SubUIMaskLayerRef()
 
-                --- 进入游戏
+                -- 移除UI遮罩
+                GameMainRoot.UI:SubUIMaskLayerRef()
+                -- 进入游戏逻辑
                 PlayHudCycle:OnAction(EPlayHudCycleAction.EnterGame)
-                --- 后抛事件
-                GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalReady)
-                
-                --- 初始化游戏内UI
-                OpenUISync(UIs.UIPlayingHud)
-                --- 展示目标提示
-                OpenUISync(UIs.UIGoalTips, { callback = closeUICallback })
-                --- 目标飞行层
-                OpenUISync(UIs.UIPlayingHudCollect)
-            end)
+                -- 触发目标准备事件
+                --GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalReady)
+
+                -- 打开游戏内核心UI
+                OpenUISync(UIs.UIMainPlaying)                  -- 主HUD
+                --OpenUISync(UIs.UIGoalTips, { callback = closeUICallback })  -- 目标提示
+                --OpenUISync(UIs.UIPlayingHudCollect)          -- 收集物飞行层
+            end
+    )
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
 
----离开状态
+---离开游戏运行状态（退出关卡）
 ---@type fun(finishCallback:function):void
----@param finishCallback function @回调函数
+---@param finishCallback function @退出完成回调
 function GamePlayingState:OnStateExit(finishCallback)
-    GameCoreManager._CorePlayMgrEffect:ClearData()
+    -- 清空核心管理器数据
+    GameCoreManager._GameCoreManagerEffect:ClearData()
+    -- 打开角色层射线投射
     local layerNum = LayerHelper:GetLayerIntByName(ELayerName.Charater)
     GameLib.MapCamHelper.OpenSceneRaycasterLayer(layerNum)
 
-    EffectMgr:ClearData() -- 清理特效层数据
+    -- 清理特效、停止音乐
+    GameEffectManager:ClearData()
     SoundMgr:StopCurBGM()
+
+    -- 关闭战斗UI
     CloseUI(UIs.UIPlayingHud)
     CloseUI(UIs.UIPlayingHudCollect)
-    CloseUI(UIs.UILevelSuccessBg) -- 胜利通用背景层
+    CloseUI(UIs.UILevelSuccessBg)
+
+    -- 退出游戏逻辑
     PlayHudCycle:OnAction(EPlayHudCycleAction.ExitGame)
-    ---退出游戏
+
+    -- 卸载GM隐藏分GUI
+    LevelHiddenScore:TryUnloadGMGUI()
+
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
-
-    --=>不通过事件传递，直接尝试关闭隐藏分显示的GUI页面
-    LevelHiddenScore:TryUnloadGMGUI()
 end
 
 return GamePlayingState
-

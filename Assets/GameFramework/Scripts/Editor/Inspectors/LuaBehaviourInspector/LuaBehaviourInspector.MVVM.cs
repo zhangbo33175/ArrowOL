@@ -27,7 +27,7 @@ namespace Honor.Editor
 
         /// <summary>
         /// 绑定型数据（数组）
-        /// </summary>
+        /// </summary>
         private SerializedProperty m_BindValues = null;
 
         /// <summary>
@@ -983,21 +983,21 @@ namespace Honor.Editor
                                 stringBuilder.AppendLine(AorTxt.Format("    local operation = function()"));
                                 stringBuilder.AppendLine(AorTxt.Format("        self.{0}:SetListItemCount(new, false)", bindedInjectionName));
                                 stringBuilder.AppendLine(AorTxt.Format("    end"));
-                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then CoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
+                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
                             }
                             else if (bindedInjectionWay == "ScrollTo")
                             {
                                 stringBuilder.AppendLine(AorTxt.Format("    local operation = function()"));
                                 stringBuilder.AppendLine(AorTxt.Format("        self.{0}:MovePanelToItemIndex(new, 0)", bindedInjectionName));
                                 stringBuilder.AppendLine(AorTxt.Format("    end"));
-                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then CoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
+                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
                             }
                             else if (bindedInjectionWay == "AddItemNum")
                             {
                                 stringBuilder.AppendLine(AorTxt.Format("    local operation = function()"));
                                 stringBuilder.AppendLine(AorTxt.Format("        self.{0}:SetListItemCount(self.{1}.ItemTotalCount + new, false)", bindedInjectionName, bindedInjectionName));
                                 stringBuilder.AppendLine(AorTxt.Format("    end"));
-                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then CoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
+                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
                             }
                         }
                     }
@@ -1460,21 +1460,21 @@ namespace Honor.Editor
                                     innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
                                     innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(new, false)\n", innerContent, bindedInjectionName);
                                     innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then CoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
                                 }
                                 else if (bindedInjectionWay == "ScrollTo")
                                 {
                                     innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
                                     innerContent = AorTxt.Format("{0}        self.{1}:MovePanelToItemIndex(new, 0)\n", innerContent, bindedInjectionName);
                                     innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then CoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
                                 }
                                 else if (bindedInjectionWay == "AddItemNum")
                                 {
                                     innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
                                     innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(self.{2}.ItemTotalCount + new, false)\n", innerContent, bindedInjectionName, bindedInjectionName);
                                     innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then CoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
                                 }
                             }
                             functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n{5}\n{6}\n{7}\n{8}end\n\n",

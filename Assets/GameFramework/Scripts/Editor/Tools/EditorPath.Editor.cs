@@ -182,7 +182,7 @@ namespace Honor.Editor
                 /// <summary>
                 /// 获取资源信息定义Lua脚本相对路径
                 /// </summary>
-                public static string LuaFolderPath = $"Assets/Game/LuaScripts/ResDefs";
+                public static string LuaFolderPath = $"Assets/LuaScripts/Game/ResDefs";
 
                 /// <summary>
                 /// 获取资源信息导出工具设置文件绝对路径

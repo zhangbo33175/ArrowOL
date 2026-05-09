@@ -56,10 +56,10 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 				if(LuaAPI.lua_gettop(L) == 3 && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2) && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3))
 				{
-					int _row1 = LuaAPI.xlua_tointeger(L, 2);
-					int _column1 = LuaAPI.xlua_tointeger(L, 3);
+					int _row = LuaAPI.xlua_tointeger(L, 2);
+					int _column = LuaAPI.xlua_tointeger(L, 3);
 					
-					Honor.Runtime.RowColumnPair gen_ret = new Honor.Runtime.RowColumnPair(_row1, _column1);
+					Honor.Runtime.RowColumnPair gen_ret = new Honor.Runtime.RowColumnPair(_row, _column);
 					translator.Push(L, gen_ret);
                     
 					return 1;

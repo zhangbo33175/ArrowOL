@@ -4,17 +4,28 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// UI 核心管理组件
+    /// 负责 UI 的同步/异步加载、关闭、管理、相机管理、多语言字体适配、刘海屏适配
+    /// 基于 GameComponent 生命周期运行，是全局唯一的 UI 入口
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class UIComponent : GameComponent
     {
+        /// <summary>
+        /// 初始化：框架生命周期入口
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
 
-            // 初始化
+            // 初始化管理器、配置、依赖
             Initialize();
         }
 
+        /// <summary>
+        /// 启动：初始化刘海屏适配
+        /// </summary>
         private void Start()
         {
             // 初始化刘海区域大小
@@ -24,6 +35,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 每帧更新 UI 管理器逻辑
+        /// </summary>
         private void Update()
         {
             if (m_UIManager != null)
@@ -32,17 +46,19 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 销毁（预留）
+        /// </summary>
         private void OnDestroy()
         {
         }
 
         /// <summary>
-        /// 异步打开UI界面
+        /// 通过 LuaTable 异步打开 UI
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <param name="luaParams">lua参数</param>
+        /// <param name="luaTable">Lua 配置表</param>
+        /// <param name="luaParams">传递参数</param>
         /// <param name="overCallback">加载完成回调</param>
-        /// <returns></returns>
         public void OpenUIAsyncByLuaTable(LuaTable luaTable, LuaTable luaParams = null,
             UILoadOverCallback overCallback = null)
         {
@@ -56,10 +72,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步打开UI界面
+        /// 通过 UIInfo 异步打开 UI
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <returns></returns>
+        /// <param name="uiInfo">UI 配置信息</param>
         public void OpenUIAsyncByInfo(UIInfo uiInfo)
         {
             if (uiInfo == null)
@@ -84,11 +99,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步打开UI界面
+        /// 通过 LuaTable 同步打开 UI
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <param name="luaParams">lua参数</param>
-        /// <returns></returns>
+        /// <param name="luaTable">Lua 配置表</param>
+        /// <param name="luaParams">传递参数</param>
+        /// <returns>UI 实例对象</returns>
         public GameObject OpenUISyncByLuaTable(LuaTable luaTable, LuaTable luaParams = null)
         {
             if (luaTable == null)
@@ -96,15 +111,15 @@ namespace Honor.Runtime
                 Log.Error("UIComponent.OpenUISyncByLuaTable luaTable 无效。");
                 return null;
             }
-
+            var  go = OpenUISyncByInfo(GenerateUIInfo(luaTable, luaParams));
             return OpenUISyncByInfo(GenerateUIInfo(luaTable, luaParams));
         }
 
         /// <summary>
-        /// 同步打开UI界面
+        /// 通过 UIInfo 同步打开 UI
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <returns></returns>
+        /// <param name="uiInfo">UI 配置信息</param>
+        /// <returns>UI 实例对象</returns>
         public GameObject OpenUISyncByInfo(UIInfo uiInfo)
         {
             if (uiInfo == null)
@@ -129,12 +144,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步追加UI到主体UI上
+        /// 通过 LuaTable 异步追加子 UI 到指定父节点
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <param name="parent">指定的父对象（必须为UI主体下的对象节点）</param>
-        /// <param name="luaParams">lua参数</param>
-        /// <param name="overCallback">异步回调函数</param>
+        /// <param name="luaTable">Lua 配置表</param>
+        /// <param name="parent">父节点</param>
+        /// <param name="luaParams">参数</param>
+        /// <param name="overCallback">完成回调</param>
         public void AddUIAsyncByLuaTable(LuaTable luaTable, Transform parent, LuaTable luaParams = null,
             UILoadOverCallback overCallback = null)
         {
@@ -148,10 +163,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步追加UI到主体UI上
+        /// 通过 UIInfo 异步追加子 UI
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <param name="parent">指定的父对象（必须为UI主体下的对象节点）</param>
+        /// <param name="uiInfo">UI 信息</param>
+        /// <param name="parent">父节点</param>
         public void AddUIAsyncByInfo(UIInfo uiInfo, Transform parent)
         {
             if (uiInfo == null)
@@ -182,11 +197,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步追加UI到主体UI上
+        /// 通过 LuaTable 同步追加子 UI
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <param name="parent">指定的父对象（必须为UI主体下的对象节点）</param>
-        /// <param name="luaParams">lua参数</param>
         public GameObject AddUISyncByLuaTable(LuaTable luaTable, Transform parent, LuaTable luaParams = null)
         {
             if (luaTable == null)
@@ -199,10 +211,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步追加UI到主体UI上
+        /// 通过 UIInfo 同步追加子 UI
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <param name="parent">指定的父对象（必须为UI主体下的对象节点）</param>
         public GameObject AddUISyncByInfo(UIInfo uiInfo, Transform parent)
         {
             if (uiInfo == null)
@@ -233,11 +243,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭UI界面
+        /// 通过 GameObject 关闭 UI
         /// </summary>
-        /// <param name="uiGO">UI对象</param>
-        /// <param name="rightNow">马上</param>
-        /// <returns></returns>
+        /// <param name="uiGO">UI 对象</param>
+        /// <param name="rightNow">是否立即关闭</param>
         public void CloseUIByGO(GameObject uiGO, bool rightNow = false)
         {
             if (uiGO == null)
@@ -250,11 +259,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭UI界面
-        /// 检查到任意一个匹配UI即触发关闭并返回
+        /// 通过 LuaTable 关闭 UI（匹配到一个即关闭）
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <param name="rightNow">马上</param>
         public void CloseUIByLuaTable(LuaTable luaTable, bool rightNow = false)
         {
             if (luaTable == null)
@@ -267,11 +273,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭UI界面
-        /// 检查到任意一个匹配UI即触发关闭并返回
+        /// 通过 UIInfo 关闭 UI（匹配到一个即关闭）
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <param name="rightNow">马上</param>
         public void CloseUIByInfo(UIInfo uiInfo, bool rightNow = false)
         {
             if (uiInfo == null)
@@ -296,11 +299,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭UI界面
-        /// 检查到所有匹配UI，统一触发关闭并返回
+        /// 通过 LuaTable 关闭所有匹配的 UI
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <param name="rightNow">马上</param>
         public void CloseUIsByLuaTable(LuaTable luaTable, bool rightNow = false)
         {
             if (luaTable == null)
@@ -313,12 +313,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭UI界面
-        /// 检查到所有匹配UI，统一触发关闭并返回
+        /// 通过 UIInfo 关闭所有匹配的 UI
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <param name="rightNow">马上</param>
-        /// <returns></returns>
         public void CloseUIsByInfo(UIInfo uiInfo, bool rightNow = false)
         {
             if (uiInfo == null)
@@ -343,10 +339,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除主体UI上的追加UI
+        /// 移除子 UI（追加模式）
         /// </summary>
-        /// <param name="uiGO">UI对象</param>
-        /// <param name="rightNow">马上</param>
         public void RemoveUIByGO(GameObject uiGO, bool rightNow = false)
         {
             if (uiGO == null)
@@ -359,10 +353,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取UI界面
+        /// 通过 LuaTable 获取 UI 对象
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <returns></returns>
         public GameObject GetUIByLuaTable(LuaTable luaTable)
         {
             if (luaTable == null)
@@ -375,10 +367,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取UI界面
+        /// 通过 UIInfo 获取 UI 对象
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <returns></returns>
         public GameObject GetUIByInfo(UIInfo uiInfo)
         {
             if (uiInfo == null)
@@ -403,10 +393,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取UI界面集合
+        /// 通过 LuaTable 获取一组 UI
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <returns></returns>
         public GameObject[] GetUIsByLuaTable(LuaTable luaTable)
         {
             if (luaTable == null)
@@ -419,11 +407,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取UI界面集合
+        /// 通过 LuaTable 获取一组 UI（输出到 List）
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <param name="uis">ui集合</param>
-        /// <returns></returns>
         public void GetUIsByLuaTable(LuaTable luaTable, List<GameObject> uis)
         {
             if (luaTable == null)
@@ -442,10 +427,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取UI界面集合
+        /// 通过 UIInfo 获取一组 UI
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <returns></returns>
         public GameObject[] GetUIsByInfo(UIInfo uiInfo)
         {
             if (uiInfo == null)
@@ -470,11 +453,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取UI界面集合
+        /// 通过 UIInfo 获取一组 UI（输出到 List）
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <param name="uis">ui集合</param>
-        /// <returns></returns>
         public void GetUIsByInfo(UIInfo uiInfo, List<GameObject> uis)
         {
             if (uiInfo == null)
@@ -505,20 +485,16 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取UI界面集合
+        /// 根据 UIType 获取一组 UI
         /// </summary>
-        /// <param name="uiType">UI界面类型</param>
-        /// <returns></returns>
         public GameObject[] GetUIsByUIType(UIType uiType, bool isAppend)
         {
             return m_UIManager.GetUIsByUIType(uiType, isAppend);
         }
 
         /// <summary>
-        /// 获取UI界面集合
+        /// 根据 UIType 获取一组 UI（输出到 List）
         /// </summary>
-        /// <param name="uiType">UI界面类型</param>
-        /// <param name="uis">ui集合</param>
         public void GetUIsByUIType(UIType uiType, bool isAppend, List<GameObject> uis)
         {
             if (uis == null)
@@ -531,37 +507,32 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭所有模态UI界面
+        /// 关闭所有模态窗口
         /// </summary>
-        /// <param name="rightNow">马上</param>
         public void CloseAllModalUIs(bool rightNow = false)
         {
             m_UIManager.CloseAllModalUIs(rightNow);
         }
 
         /// <summary>
-        /// 关闭所有非模态UI界面
+        /// 关闭所有非模态窗口
         /// </summary>
-        /// <param name="rightNow">马上</param>
         public void CloseAllUnModalUIs(bool rightNow = false)
         {
             m_UIManager.CloseAllUnModalUIs(rightNow);
         }
 
         /// <summary>
-        /// 关闭所有UI界面
+        /// 关闭指定类型的所有 UI
         /// </summary>
-        /// <param name="uiType">UI界面类型</param>
-        /// <param name="rightNow">马上</param>
         public void CloseAllUIs(UIType uiType, bool rightNow = false)
         {
             m_UIManager.CloseAllUIs(uiType, rightNow);
         }
 
         /// <summary>
-        /// 将UI加入到UI卸载列表（非追加式UI）
+        /// 将 UI 标记为可卸载
         /// </summary>
-        /// <param name="go">GameObject</param>
         public void AddToUnloadUIList(GameObject go)
         {
             if (go == null)
@@ -574,10 +545,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 判断指定UI界面是否存在于模态UI集合中
+        /// 判断 UI 是否存在于模态队列中
         /// </summary>
-        /// <param name="luaTable">luaTable</param>
-        /// <returns></returns>
         public bool IsUIExistInModalUIs(LuaTable luaTable)
         {
             if (luaTable == null)
@@ -590,10 +559,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 判断指定UI界面是否存在于模态UI集合中
+        /// 判断 UI 是否存在于模态队列中
         /// </summary>
-        /// <param name="uiInfo">UI信息</param>
-        /// <returns></returns>
         public bool IsUIExistInModalUIs(UIInfo uiInfo)
         {
             if (uiInfo == null)
@@ -618,10 +585,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 追加场景UI相机
+        /// 添加场景 UI 相机
         /// </summary>
-        /// <param name="camera">场景UI相机</param>
-        /// <returns>场景UI相机索引值</returns>
         public int AddSceneUICamera(Camera camera)
         {
             if (camera == null)
@@ -639,10 +604,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除场景UI相机
+        /// 移除场景 UI 相机
         /// </summary>
-        /// <param name="camera">场景UI相机</param>
-        /// <returns>是否移除成功</returns>
         public bool RemoveSceneUICamera(Camera camera)
         {
             if (camera == null)
@@ -655,10 +618,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 根据索引值移除场景UI相机
+        /// 根据索引移除场景 UI 相机
         /// </summary>
-        /// <param name="index">场景UI相机索引值</param>
-        /// <returns>是否移除成功</returns>
         public bool RemoveSceneUICameraByIndex(int index)
         {
             if (index < 0 || index >= m_SceneUICameras.Count)
@@ -672,10 +633,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取场景UI相机索引值
+        /// 获取场景 UI 相机索引
         /// </summary>
-        /// <param name="camera">场景UI相机</param>
-        /// <returns>场景UI相机索引值</returns>
         public int GetSceneUICameraIndex(Camera camera)
         {
             if (camera == null)
@@ -688,10 +647,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取场景UI相机
+        /// 根据索引获取场景 UI 相机
         /// </summary>
-        /// <param name="index">场景UI相机索引值</param>
-        /// <returns>场景UI相机</returns>
         public Camera GetSceneUICamera(int index)
         {
             if (index < 0 || index >= m_SceneUICameras.Count)
@@ -704,10 +661,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 设置场景UI相机是否可用
+        /// 设置场景相机启用状态
         /// </summary>
-        /// <param name="enabled">可用</param>
-        /// <param name="index">索引值</param>
         public void SetSceneUICameraEnable(bool enabled, int index = -1)
         {
             if (index < -1 || index >= m_SceneUICameras.Count)
@@ -726,10 +681,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 追加屏幕UI相机
+        /// 添加屏幕 UI 相机
         /// </summary>
-        /// <param name="camera">屏幕UI相机</param>
-        /// <returns>屏幕UI相机索引值</returns>
         public int AddScreenUICamera(Camera camera)
         {
             if (camera == null)
@@ -747,10 +700,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除屏幕UI相机
+        /// 移除屏幕 UI 相机
         /// </summary>
-        /// <param name="camera">屏幕UI相机</param>
-        /// <returns>是否移除成功</returns>
         public bool RemoveScreenUICamera(Camera camera)
         {
             if (camera == null)
@@ -763,10 +714,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 根据索引值移除屏幕UI相机
+        /// 根据索引移除屏幕 UI 相机
         /// </summary>
-        /// <param name="index">屏幕UI相机索引值</param>
-        /// <returns>是否移除成功</returns>
         public bool RemoveScreenUICameraByIndex(int index)
         {
             if (index < 0 || index >= m_ScreenUICameras.Count)
@@ -780,10 +729,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取屏幕UI相机索引值
+        /// 获取屏幕 UI 相机索引
         /// </summary>
-        /// <param name="camera">屏幕UI相机</param>
-        /// <returns>屏幕UI相机索引值</returns>
         public int GetScreenUICameraIndex(Camera camera)
         {
             if (camera == null)
@@ -796,10 +743,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取屏幕UI相机
+        /// 根据索引获取屏幕 UI 相机
         /// </summary>
-        /// <param name="index">屏幕UI相机索引值</param>
-        /// <returns>屏幕UI相机</returns>
         public Camera GetScreenUICamera(int index)
         {
             if (index < 0 || index >= m_ScreenUICameras.Count)
@@ -812,10 +757,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 设置屏幕UI相机是否可用
+        /// 设置屏幕相机启用状态
         /// </summary>
-        /// <param name="enabled">可用</param>
-        /// <param name="index">索引值</param>
         public void SetScreenUICameraEnable(bool enabled, int index = -1)
         {
             if (index < -1 || index >= m_ScreenUICameras.Count)
@@ -834,7 +777,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 加载字体资源集合
+        /// 加载多语言字体（自动适配）
         /// </summary>
         public void LoadFonts()
         {
@@ -845,7 +788,7 @@ namespace Honor.Runtime
 
             if (m_UIManager.Fonts.Count == 0)
             {
-                m_LocalizationComponent.GetFontDatas(m_LocalizationComponent.Language,
+                m_LocalizationComponent.GetFontData(m_LocalizationComponent.Language,
                     out List<LocalizationFontData> fontDatas);
 
                 if (fontDatas == null || fontDatas.Count == 0)
@@ -864,9 +807,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 卸载字体资源
+        /// 卸载多语言字体
         /// </summary>
-        /// <param name="rightNow">马上</param>
         public void UnloadFonts(bool rightNow = false)
         {
             if (!m_LocalizationComponent.AutoFontAdapt)
@@ -883,10 +825,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 刷新当前语言的字体到UI
-        /// 当打开UI时使用（不建议频繁调用）
+        /// 刷新 UI 字体（语言切换后调用）
         /// </summary>
-        /// <param name="ui">ui（不传入时表示刷新当前所有ui）</param>
         public void RefreshFontsForUI(GameObject ui = null)
         {
             if (!m_LocalizationComponent.AutoFontAdapt)
@@ -896,7 +836,7 @@ namespace Honor.Runtime
 
             if (m_UIManager.Fonts.Count > 0)
             {
-                m_LocalizationComponent.GetFontDatas(m_LocalizationComponent.Language,
+                m_LocalizationComponent.GetFontData(m_LocalizationComponent.Language,
                     out List<LocalizationFontData> fontDatas);
 
                 if (fontDatas == null || fontDatas.Count == 0)
@@ -912,7 +852,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 刷新屏幕宽高适比例配阀值
+        /// 刷新屏幕适配比例（平板/手机自适应）
+        /// 自动根据宽高比切换适配模式，并重新计算刘海
         /// </summary>
         public void RefreshScreenMatchValue()
         {

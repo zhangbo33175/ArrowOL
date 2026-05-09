@@ -3,288 +3,216 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Unity Animator 组件扩展方法
+    /// 提供安全、带校验、高性能的动画参数设置，防止因参数不存在导致的报错
+    /// </summary>
     public static partial class GameExtensionForUnity
     {
         /// <summary>
-        /// Animator中是否包含指定的参数
+        /// 检查 Animator 是否包含指定名称和类型的参数
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="name"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static bool HasParameterOfType(this Animator animator, string name, AnimatorControllerParameterType type)
+        /// <param name="animator">目标动画器</param>
+        /// <param name="paramName">参数名称</param>
+        /// <param name="type">参数类型</param>
+        /// <returns>存在返回 true，不存在返回 false</returns>
+        public static bool HasParameterOfType(this Animator animator, string paramName, AnimatorControllerParameterType type)
         {
-            if (string.IsNullOrEmpty(name)) { return false; }
+            if (string.IsNullOrEmpty(paramName) || animator == null)
+                return false;
+
             AnimatorControllerParameter[] parameters = animator.parameters;
-            foreach (AnimatorControllerParameter currParam in parameters)
+            foreach (AnimatorControllerParameter param in parameters)
             {
-                if (currParam.type == type && currParam.name == name)
-                {
+                if (param.name == paramName && param.type == type)
                     return true;
-                }
             }
             return false;
         }
 
         /// <summary>
-        /// 向外部传入的parameterList中添加参数名称
+        /// 如果参数存在，则将其哈希值加入列表（用于高性能校验）
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="parameter"></param>
-        /// <param name="type"></param>
-        /// <param name="parameterList"></param>
-        public static void AddAnimatorParameterIfExists(Animator animator, string parameterName, out int parameter, AnimatorControllerParameterType type, HashSet<int> parameterList)
+        public static void AddAnimatorParameterIfExists(this Animator animator, string paramName, out int paramHash, AnimatorControllerParameterType type, HashSet<int> paramList)
         {
-            if (string.IsNullOrEmpty(parameterName))
-            {
-                parameter = -1;
+            paramHash = -1;
+
+            if (string.IsNullOrEmpty(paramName))
                 return;
-            }
 
-            parameter = Animator.StringToHash(parameterName);
+            paramHash = Animator.StringToHash(paramName);
 
-            if (animator.HasParameterOfType(parameterName, type))
-            {
-                parameterList.Add(parameter);
-            }
+            if (animator.HasParameterOfType(paramName, type))
+                paramList.Add(paramHash);
         }
 
         /// <summary>
-        /// 向外部传入的parameterList中添加参数名称
+        /// 如果参数存在，则将其名称加入列表
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="type"></param>
-        /// <param name="parameterList"></param>
-        public static void AddAnimatorParameterIfExists(Animator animator, string parameterName, AnimatorControllerParameterType type, HashSet<string> parameterList)
+        public static void AddAnimatorParameterIfExists(this Animator animator, string paramName, AnimatorControllerParameterType type, HashSet<string> paramList)
         {
-            if (animator.HasParameterOfType(parameterName, type))
-            {
-                parameterList.Add(parameterName);
-            }
+            if (animator.HasParameterOfType(paramName, type))
+                paramList.Add(paramName);
+        }
+
+        #region 直接设置（无缓存校验）
+        /// <summary>
+        /// 直接设置 Bool 参数（无校验）
+        /// </summary>
+        public static void UpdateAnimatorBool(this Animator animator, string paramName, bool value)
+        {
+            animator.SetBool(paramName, value);
         }
 
         /// <summary>
-        /// 设置Animator的Boolean值
+        /// 直接设置 Int 参数（无校验）
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        public static void UpdateAnimatorBool(Animator animator, string parameterName, bool value)
+        public static void UpdateAnimatorInteger(this Animator animator, string paramName, int value)
         {
-            animator.SetBool(parameterName, value);
-        }
-
-
-        /// <summary>
-        /// 设置Animator的Integer值
-        /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        public static void UpdateAnimatorInteger(Animator animator, string parameterName, int value)
-        {
-            animator.SetInteger(parameterName, value);
+            animator.SetInteger(paramName, value);
         }
 
         /// <summary>
-        /// 设置Animator的Float值
+        /// 直接设置 Float 参数（无校验）
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        /// <param name="performSanityCheck"></param>
-        public static void UpdateAnimatorFloat(Animator animator, string parameterName, float value, bool performSanityCheck = true)
+        public static void UpdateAnimatorFloat(this Animator animator, string paramName, float value)
         {
-            animator.SetFloat(parameterName, value);
+            animator.SetFloat(paramName, value);
         }
+        #endregion
 
+        #region 哈希值 + 缓存列表（高性能）
         /// <summary>
-        /// 设置Animator的Boolean值
+        /// 安全设置 Bool 参数（使用哈希 + 缓存列表校验）
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameter"></param>
-        /// <param name="value"></param>
-        /// <param name="parameterList"></param>
-        /// <param name="performSanityCheck"></param>
-        /// <returns></returns>
-        public static bool UpdateAnimatorBool(Animator animator, int parameter, bool value, HashSet<int> parameterList, bool performSanityCheck = true)
+        public static bool UpdateAnimatorBool(this Animator animator, int paramHash, bool value, HashSet<int> paramList, bool performCheck = true)
         {
-            if (performSanityCheck && !parameterList.Contains(parameter))
-            {
+            if (performCheck && !paramList.Contains(paramHash))
                 return false;
-            }
-            animator.SetBool(parameter, value);
+
+            animator.SetBool(paramHash, value);
             return true;
         }
 
         /// <summary>
-        /// 设置Animator的Trigger
+        /// 安全设置 Trigger 参数（使用哈希 + 缓存列表校验）
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameter"></param>
-        /// <param name="parameterList"></param>
-        public static bool UpdateAnimatorTrigger(Animator animator, int parameter, HashSet<int> parameterList, bool performSanityCheck = true)
+        public static bool UpdateAnimatorTrigger(this Animator animator, int paramHash, HashSet<int> paramList, bool performCheck = true)
         {
-            if (performSanityCheck && !parameterList.Contains(parameter))
-            {
+            if (performCheck && !paramList.Contains(paramHash))
                 return false;
-            }
-            animator.SetTrigger(parameter);
+
+            animator.SetTrigger(paramHash);
             return true;
         }
 
         /// <summary>
-        /// 设置Animator的Float值
+        /// 安全设置 Float 参数（使用哈希 + 缓存列表校验）
         /// </summary>
-        /// <param name="animator">Animator.</param>
-        /// <param name="parameter">Parameter name.</param>
-        /// <param name="value">Value.</param>
-        public static bool UpdateAnimatorFloat(Animator animator, int parameter, float value, HashSet<int> parameterList, bool performSanityCheck = true)
+        public static bool UpdateAnimatorFloat(this Animator animator, int paramHash, float value, HashSet<int> paramList, bool performCheck = true)
         {
-            if (performSanityCheck && !parameterList.Contains(parameter))
-            {
+            if (performCheck && !paramList.Contains(paramHash))
                 return false;
-            }
-            animator.SetFloat(parameter, value);
+
+            animator.SetFloat(paramHash, value);
             return true;
         }
 
         /// <summary>
-        /// 设置Animator的Integer值
+        /// 安全设置 Int 参数（使用哈希 + 缓存列表校验）
         /// </summary>
-        /// <param name="animator">Animator.</param>
-        /// <param name="parameter">Parameter name.</param>
-        /// <param name="value">Value.</param>
-        public static bool UpdateAnimatorInteger(Animator animator, int parameter, int value, HashSet<int> parameterList, bool performSanityCheck = true)
+        public static bool UpdateAnimatorInteger(this Animator animator, int paramHash, int value, HashSet<int> paramList, bool performCheck = true)
         {
-            if (performSanityCheck && !parameterList.Contains(parameter))
-            {
+            if (performCheck && !paramList.Contains(paramHash))
                 return false;
-            }
-            animator.SetInteger(parameter, value);
+
+            animator.SetInteger(paramHash, value);
             return true;
         }
+        #endregion
 
-        // <summary>
-        /// 设置Animator的Boolean值
+        #region 字符串 + 缓存列表
+        /// <summary>
+        /// 安全设置 Bool 参数（使用字符串 + 缓存列表校验）
         /// </summary>
-        /// <param name="animator">Animator.</param>
-        /// <param name="parameterName">Parameter name.</param>
-        /// <param name="value">If set to <c>true</c> value.</param>
-        public static void UpdateAnimatorBool(Animator animator, string parameterName, bool value, HashSet<string> parameterList, bool performSanityCheck = true)
+        public static void UpdateAnimatorBool(this Animator animator, string paramName, bool value, HashSet<string> paramList, bool performCheck = true)
         {
-            if (parameterList.Contains(parameterName))
-            {
-                animator.SetBool(parameterName, value);
-            }
+            if (performCheck && !paramList.Contains(paramName))
+                return;
+
+            animator.SetBool(paramName, value);
         }
 
         /// <summary>
-        /// 设置Animator的Trigger
+        /// 安全设置 Trigger 参数（使用字符串 + 缓存列表校验）
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="parameterList"></param>
-        public static void UpdateAnimatorTrigger(Animator animator, string parameterName, HashSet<string> parameterList, bool performSanityCheck = true)
+        public static void UpdateAnimatorTrigger(this Animator animator, string paramName, HashSet<string> paramList, bool performCheck = true)
         {
-            if (parameterList.Contains(parameterName))
-            {
-                animator.SetTrigger(parameterName);
-            }
+            if (performCheck && !paramList.Contains(paramName))
+                return;
+
+            animator.SetTrigger(paramName);
+        }
+
+        /// <summary
+        /// 安全设置 Float 参数（使用字符串 + 缓存列表校验）
+        /// </summary>
+        public static void UpdateAnimatorFloat(this Animator animator, string paramName, float value, HashSet<string> paramList, bool performCheck = true)
+        {
+            if (performCheck && !paramList.Contains(paramName))
+                return;
+
+            animator.SetFloat(paramName, value);
         }
 
         /// <summary>
-        /// 设置Animator的Float值
+        /// 安全设置 Int 参数（使用字符串 + 缓存列表校验）
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        /// <param name="parameterList"></param>
-        /// <param name="performSanityCheck"></param>
-		public static void UpdateAnimatorFloat(Animator animator, string parameterName, float value, HashSet<string> parameterList, bool performSanityCheck = true)
+        public static void UpdateAnimatorInteger(this Animator animator, string paramName, int value, HashSet<string> paramList, bool performCheck = true)
         {
-            if (parameterList.Contains(parameterName))
-            {
-                animator.SetFloat(parameterName, value);
-            }
+            if (performCheck && !paramList.Contains(paramName))
+                return;
+
+            animator.SetInteger(paramName, value);
+        }
+        #endregion
+
+        #region 实时检查（安全但性能较低，适合调试）
+        /// <summary>
+        /// 检查参数存在后再设置 Bool
+        /// </summary>
+        public static void UpdateAnimatorBoolIfExists(this Animator animator, string paramName, bool value)
+        {
+            if (animator.HasParameterOfType(paramName, AnimatorControllerParameterType.Bool))
+                animator.SetBool(paramName, value);
         }
 
         /// <summary>
-        /// 设置Animator的Integer值
+        /// 检查参数存在后再设置 Trigger
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        /// <param name="parameterList"></param>
-        /// <param name="performSanityCheck"></param>
-        public static void UpdateAnimatorInteger(Animator animator, string parameterName, int value, HashSet<string> parameterList, bool performSanityCheck = true)
+        public static void UpdateAnimatorTriggerIfExists(this Animator animator, string paramName)
         {
-            if (parameterList.Contains(parameterName))
-            {
-                animator.SetInteger(parameterName, value);
-            }
+            if (animator.HasParameterOfType(paramName, AnimatorControllerParameterType.Trigger))
+                animator.SetTrigger(paramName);
         }
 
         /// <summary>
-        /// 设置Animator的Boolean值
+        /// 检查参数存在后再设置 Float
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        /// <param name="performSanityCheck"></param>
-        public static void UpdateAnimatorBoolIfExists(Animator animator, string parameterName, bool value, bool performSanityCheck = true)
+        public static void UpdateAnimatorFloatIfExists(this Animator animator, string paramName, float value)
         {
-            if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Bool))
-            {
-                animator.SetBool(parameterName, value);
-            }
+            if (animator.HasParameterOfType(paramName, AnimatorControllerParameterType.Float))
+                animator.SetFloat(paramName, value);
         }
 
         /// <summary>
-        /// 设置Animator的Trigger
+        /// 检查参数存在后再设置 Int
         /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        public static void UpdateAnimatorTriggerIfExists(Animator animator, string parameterName, bool performSanityCheck = true)
+        public static void UpdateAnimatorIntegerIfExists(this Animator animator, string paramName, int value)
         {
-            if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Trigger))
-            {
-                animator.SetTrigger(parameterName);
-            }
+            if (animator.HasParameterOfType(paramName, AnimatorControllerParameterType.Int))
+                animator.SetInteger(paramName, value);
         }
-
-        /// <summary>
-        /// 设置Animator的Float值
-        /// </summary>
-        /// <param name="animator"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        /// <param name="performSanityCheck"></param>
-        public static void UpdateAnimatorFloatIfExists(Animator animator, string parameterName, float value, bool performSanityCheck = true)
-        {
-            if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Float))
-            {
-                animator.SetFloat(parameterName, value);
-            }
-        }
-
-        /// <summary>
-        /// 设置Animator的Trigger
-        /// </summary>
-        /// <param name="animator">Animator.</param>
-        /// <param name="parameterName">Parameter name.</param>
-        /// <param name="value">Value.</param>
-        public static void UpdateAnimatorIntegerIfExists(Animator animator, string parameterName, int value, bool performSanityCheck = true)
-        {
-            if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Int))
-            {
-                animator.SetInteger(parameterName, value);
-            }
-        }
-
+        #endregion
     }
 }
-
-

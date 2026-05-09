@@ -37,12 +37,12 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Equals", _m_Equals);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SqrMagnitude", _m_SqrMagnitude);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ToVector3", _m_ToVector3);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DRaycastTransform", _m_GetRaycastHit2DRaycastTransform);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DRaycastAllTransform", _m_GetRaycastHit2DRaycastAllTransform);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DLineRaycastTransform", _m_GetRaycastHit2DLineRaycastTransform);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DLineCastAllTransform", _m_GetRaycastHit2DLineCastAllTransform);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DCircleCastTransform", _m_GetRaycastHit2DCircleCastTransform);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DCircleCastAllTransform", _m_GetRaycastHit2DCircleCastAllTransform);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DTransform", _m_GetRaycastHit2DTransform);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetRaycastHit2DAllTransforms", _m_GetRaycastHit2DAllTransforms);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLinecastHit2DTransform", _m_GetLinecastHit2DTransform);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLinecastHit2DAllTransforms", _m_GetLinecastHit2DAllTransforms);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetCircleCastHit2DTransform", _m_GetCircleCastHit2DTransform);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetCircleCastHit2DAllTransforms", _m_GetCircleCastHit2DAllTransforms);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "normalized", _g_get_normalized);
@@ -1134,7 +1134,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetRaycastHit2DRaycastTransform(RealStatePtr L)
+        static int _m_GetRaycastHit2DTransform(RealStatePtr L)
         {
 		    try {
             
@@ -1148,7 +1148,7 @@ namespace XLua.CSObjectWrap
                 {
                     UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 2, typeof(UnityEngine.Camera));
                     
-                        UnityEngine.Transform gen_ret = gen_to_be_invoked.GetRaycastHit2DRaycastTransform( _camera );
+                        UnityEngine.Transform gen_ret = gen_to_be_invoked.GetRaycastHit2DTransform( _camera );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1165,7 +1165,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetRaycastHit2DRaycastAllTransform(RealStatePtr L)
+        static int _m_GetRaycastHit2DAllTransforms(RealStatePtr L)
         {
 		    try {
             
@@ -1179,7 +1179,7 @@ namespace XLua.CSObjectWrap
                 {
                     UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 2, typeof(UnityEngine.Camera));
                     
-                        UnityEngine.Transform[] gen_ret = gen_to_be_invoked.GetRaycastHit2DRaycastAllTransform( _camera );
+                        UnityEngine.Transform[] gen_ret = gen_to_be_invoked.GetRaycastHit2DAllTransforms( _camera );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1196,7 +1196,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetRaycastHit2DLineRaycastTransform(RealStatePtr L)
+        static int _m_GetLinecastHit2DTransform(RealStatePtr L)
         {
 		    try {
             
@@ -1208,10 +1208,10 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    UnityEngine.Vector2 _direction;translator.Get(L, 2, out _direction);
+                    UnityEngine.Vector2 _endScreenPos;translator.Get(L, 2, out _endScreenPos);
                     UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 3, typeof(UnityEngine.Camera));
                     
-                        UnityEngine.Transform gen_ret = gen_to_be_invoked.GetRaycastHit2DLineRaycastTransform( _direction, _camera );
+                        UnityEngine.Transform gen_ret = gen_to_be_invoked.GetLinecastHit2DTransform( _endScreenPos, _camera );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1228,7 +1228,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetRaycastHit2DLineCastAllTransform(RealStatePtr L)
+        static int _m_GetLinecastHit2DAllTransforms(RealStatePtr L)
         {
 		    try {
             
@@ -1240,10 +1240,10 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    UnityEngine.Vector2 _direction;translator.Get(L, 2, out _direction);
+                    UnityEngine.Vector2 _endScreenPos;translator.Get(L, 2, out _endScreenPos);
                     UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 3, typeof(UnityEngine.Camera));
                     
-                        UnityEngine.Transform[] gen_ret = gen_to_be_invoked.GetRaycastHit2DLineCastAllTransform( _direction, _camera );
+                        UnityEngine.Transform[] gen_ret = gen_to_be_invoked.GetLinecastHit2DAllTransforms( _endScreenPos, _camera );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1260,7 +1260,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetRaycastHit2DCircleCastTransform(RealStatePtr L)
+        static int _m_GetCircleCastHit2DTransform(RealStatePtr L)
         {
 		    try {
             
@@ -1273,10 +1273,10 @@ namespace XLua.CSObjectWrap
                 
                 {
                     float _radius = (float)LuaAPI.lua_tonumber(L, 2);
-                    UnityEngine.Vector2 _direction;translator.Get(L, 3, out _direction);
+                    UnityEngine.Vector2 _endScreenPos;translator.Get(L, 3, out _endScreenPos);
                     UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 4, typeof(UnityEngine.Camera));
                     
-                        UnityEngine.Transform gen_ret = gen_to_be_invoked.GetRaycastHit2DCircleCastTransform( _radius, _direction, _camera );
+                        UnityEngine.Transform gen_ret = gen_to_be_invoked.GetCircleCastHit2DTransform( _radius, _endScreenPos, _camera );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1293,7 +1293,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetRaycastHit2DCircleCastAllTransform(RealStatePtr L)
+        static int _m_GetCircleCastHit2DAllTransforms(RealStatePtr L)
         {
 		    try {
             
@@ -1306,10 +1306,10 @@ namespace XLua.CSObjectWrap
                 
                 {
                     float _radius = (float)LuaAPI.lua_tonumber(L, 2);
-                    UnityEngine.Vector2 _direction;translator.Get(L, 3, out _direction);
+                    UnityEngine.Vector2 _endScreenPos;translator.Get(L, 3, out _endScreenPos);
                     UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 4, typeof(UnityEngine.Camera));
                     
-                        UnityEngine.Transform[] gen_ret = gen_to_be_invoked.GetRaycastHit2DCircleCastAllTransform( _radius, _direction, _camera );
+                        UnityEngine.Transform[] gen_ret = gen_to_be_invoked.GetCircleCastHit2DAllTransforms( _radius, _endScreenPos, _camera );
                         translator.Push(L, gen_ret);
                     
                     

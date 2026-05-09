@@ -1,41 +1,41 @@
 --=====================================================================================================
--- descrip:   单例
+-- descrip:   单例基类
+--              所有业务/框架单例的父类，自动注册、生命周期管理
 --=====================================================================================================
 
----@class Singleton @单例
+---@class Singleton 单例基类（所有单例必须继承）
 local Singleton = class("Singleton")
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+--- 构造函数
+---@param args table 自定义参数
 function Singleton:ctor(args)
+    -- 自动将自身加入单例管理器统一管理
     SingletonManager:AddSingleton(self)
 end
 
----创建函数
----@type fun(args:table):Singleton
----@param args table @自定义参数
----@return Singleton @单例
+--- 创建单例实例
+---@param args table 自定义参数
+---@return Singleton
 function Singleton:Create(args)
     local obj = Singleton.new(args)
     return obj
 end
 
----初始化 (继承重写)
----@type fun():void
+--- 初始化（子类可重写）
+--- 预加载时按优先级调用
 function Singleton:Init()
     PrintInfo("Singleton:Init --> " .. self.__cname)
 end
 
----清理数据
----@type fun():void
+--- 清理数据（子类可重写）
+--- 切换账号/重启游戏时调用
 function Singleton:ClearData()
     PrintInfo("Singleton:ClearData --> " .. self.__cname)
 end
 
----获取优先级 (继承重写) (优先级越大越先执行，相同优先级按添加顺序执行，不重写默认为0)
----@type fun():number
----@return number @优先级
+--- 获取优先级（子类可重写）
+--- 数值越大，初始化越早、清理越晚
+---@return number 优先级
 function Singleton:Priority()
     return ESingletonPriority.Default
 end

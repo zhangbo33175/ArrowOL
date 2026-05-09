@@ -6,192 +6,167 @@ using UnityEngine.UI;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// APP 应用内下载/更新弹窗行为脚本
+    /// 功能：显示强制/非强制更新弹窗，支持 Text / TextMeshProUGUI
+    /// 提供：标题、描述、开始更新、关闭取消 等逻辑
+    /// </summary>
     public sealed class UIAppDownloadBehaviour : MonoBehaviour
     {
         /// <summary>
-        /// 标题文本
+        /// 标题文本（UGUI Text）
         /// </summary>
-        [SerializeField]
-        private Text m_TitleText;
+        [SerializeField] private Text m_TitleText;
 
         /// <summary>
-        /// 标题文本
+        /// 标题文本（TextMeshProUGUI）
         /// </summary>
-        [SerializeField]
-        private TextMeshProUGUI m_TitleTextTMP;
+        [SerializeField] private TextMeshProUGUI m_TitleTextTMP;
 
         /// <summary>
-        /// 开始按钮
+        /// 开始/更新按钮
         /// </summary>
-        [SerializeField]
-        private Button m_StartButton;
+        [SerializeField] private Button m_StartButton;
 
         /// <summary>
-        /// 开始按钮文字
+        /// 开始按钮文字（UGUI Text）
         /// </summary>
-        [SerializeField]
-        private Text m_StartButtonText;
+        [SerializeField] private Text m_StartButtonText;
 
         /// <summary>
-        /// 开始按钮文字
+        /// 开始按钮文字（TextMeshProUGUI）
         /// </summary>
-        [SerializeField]
-        private TextMeshProUGUI m_StartButtonTextTMP;
+        [SerializeField] private TextMeshProUGUI m_StartButtonTextTMP;
 
         /// <summary>
         /// 关闭按钮
         /// </summary>
-        [SerializeField]
-        private Button m_CloseButton;
+        [SerializeField] private Button m_CloseButton;
 
         /// <summary>
-        /// 关闭按钮文字
+        /// 关闭按钮文字（UGUI Text）
         /// </summary>
-        [SerializeField]
-        private Text m_CloseButtonText;
+        [SerializeField] private Text m_CloseButtonText;
 
         /// <summary>
-        /// 关闭按钮文字
+        /// 关闭按钮文字（TextMeshProUGUI）
         /// </summary>
-        [SerializeField]
-        private TextMeshProUGUI m_CloseButtonTextTMP;
+        [SerializeField] private TextMeshProUGUI m_CloseButtonTextTMP;
 
         /// <summary>
-        /// 描述文本
+        /// 描述文本（UGUI Text）
         /// </summary>
-        [SerializeField]
-        private Text m_DescText;
+        [SerializeField] private Text m_DescText;
 
         /// <summary>
-        /// 描述文本
+        /// 描述文本（TextMeshProUGUI）
         /// </summary>
-        [SerializeField]
-        private TextMeshProUGUI m_DescTextTMP;
+        [SerializeField] private TextMeshProUGUI m_DescTextTMP;
 
         /// <summary>
-        /// 是否显示关闭按钮,默认显示,显示时就是非强制更新
+        /// 是否显示关闭按钮（默认显示 = 非强制更新）
         /// </summary>
         private bool isShowCloseBtn = true;
+
         /// <summary>
-        /// 是否显示关闭按钮
+        /// 设置是否显示关闭按钮
         /// </summary>
         public bool ShowCloseButton
         {
-            set
-            {
-                m_CloseButton.gameObject.SetActive(value);
-            }
+            set { m_CloseButton.gameObject.SetActive(value); }
         }
 
         /// <summary>
-        /// 描述性内容
-        /// 比如当前正在下载的文件名称等
+        /// 描述内容（如：当前下载的文件名/进度信息）
         /// </summary>
         private string m_DescContent;
+
         public string DescContent
         {
-            set
-            {
-                m_DescContent = value;
-            }
-            get
-            {
-                return m_DescContent;
-            }
+            set => m_DescContent = value;
+            get => m_DescContent;
         }
 
         private void Awake()
         {
-
+            // 初始化预留
         }
 
         private void Start()
         {
+            // 多版本 Text 兼容，自动设置多语言文本
             if (m_TitleText != null)
-            {
                 m_TitleText.text = GameMainRoot.Localization.GetDefaultData("UpdateTitle");
-            }
 
             if (m_TitleTextTMP != null)
-            {
                 m_TitleTextTMP.text = GameMainRoot.Localization.GetDefaultData("UpdateTitle");
-            }
 
             if (m_DescText != null)
-            {
                 m_DescText.text = GameMainRoot.Localization.GetDefaultData("UpdateText");
-            }
 
             if (m_DescTextTMP != null)
-            {
                 m_DescTextTMP.text = GameMainRoot.Localization.GetDefaultData("UpdateText");
-            }
 
             if (m_StartButtonText != null)
-            {
                 m_StartButtonText.text = GameMainRoot.Localization.GetDefaultData("UpdateButton");
-            }
 
             if (m_StartButtonTextTMP != null)
-            {
                 m_StartButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("UpdateButton");
-            }
 
             if (m_CloseButtonText != null)
-            {
                 m_CloseButtonText.text = GameMainRoot.Localization.GetDefaultData("App_Download_CloseButton_Text");
-            }
 
             if (m_CloseButtonTextTMP != null)
-            {
                 m_CloseButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Download_CloseButton_Text");
-            }
-
         }
 
         private void OnDestroy()
         {
-
+            // 销毁预留
         }
 
+        /// <summary>
+        /// 开始按钮点击（去更新/下载）
+        /// </summary>
         public void OnStartButtonClicked()
         {
-   /*         // 应用版本更新-点击
-            Root.SDK.TGAHelper.Track("Honor_hotfix_launcher", new Dictionary<string, object>() {
+            // 埋点：应用版本更新 - 点击确认
+            /*Root.SDK.TGAHelper.Track("Honor_hotfix_launcher", new Dictionary<string, object>() {
                 { "Honor_hotfix_step", "app_version_go" }
             });*/
-
-            
         }
 
+        /// <summary>
+        /// 关闭按钮点击（取消更新）
+        /// </summary>
         public void OnCloseButtonClicked()
         {
-            // 应用版本更新-取消
-          /*  Root.SDK.TGAHelper.Track("Honor_hotfix_launcher", new Dictionary<string, object>() {
+            // 埋点：应用版本更新 - 取消
+            /*Root.SDK.TGAHelper.Track("Honor_hotfix_launcher", new Dictionary<string, object>() {
                 { "Honor_hotfix_step", "app_version_cancel" }
             });*/
 
+            // 关闭当前 UI
             GameMainRoot.UI.CloseUIByGO(gameObject, true);
-            // 非“大版本更新取消时强制退出游戏”时进行流程放行
+
+            // 放行流程（非强制更新时）
             GameMainRoot.Event.Fire(this, GameEventCmd.FlowPermit);
         }
 
         /// <summary>
-        /// 初始化界面
+        /// 初始化界面显示
         /// </summary>
-        /// <param name="isShowCloseBtn"></param>
+        /// <param name="isShowCloseBtn">是否显示关闭按钮（非强制更新）</param>
         public void InitView(bool isShowCloseBtn)
         {
             this.isShowCloseBtn = isShowCloseBtn;
             ShowCloseButton = this.isShowCloseBtn;
-            
-            var updateTypeInt = this.isShowCloseBtn ? 2 : 1;
-        /*    Root.SDK.TGAHelper.Track("Update", new Dictionary<string, object>() {
+
+            // 埋点：更新类型 1=强制 2=非强制
+            int updateTypeInt = this.isShowCloseBtn ? 2 : 1;
+            /*Root.SDK.TGAHelper.Track("Update", new Dictionary<string, object>() {
                 { "update_type", updateTypeInt }
             });*/
         }
     }
-
 }
-
-

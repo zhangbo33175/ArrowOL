@@ -5,99 +5,68 @@ namespace Honor.Runtime
     public sealed partial class LocalizationComponent : GameComponent
     {
         /// <summary>
-        /// Launcher组件
+        /// 启动器组件
         /// </summary>
         private LauncherComponent m_LauncherComponent;
 
         /// <summary>
-        /// Asset组件
+        /// 资源管理组件
         /// </summary>
         private AssetComponent m_AssetComponent;
 
         /// <summary>
-        /// Persist组件
+        /// 持久化存储组件
         /// </summary>
         private PersistComponent m_PersistComponent;
 
         /// <summary>
-        /// Localization管理器
+        /// 本地化管理器
         /// </summary>
         private LocalizationManager m_LocalizationManager;
 
         /// <summary>
-        /// 语言类型
+        /// 当前使用的语言类型
         /// </summary>
         [SerializeField]
         private GameDefinitions.Language m_Language;
-        public GameDefinitions.Language Language
-        {
-            get
-            {
-                return m_Language;
-            }
-        }
 
         /// <summary>
-        /// 获取语言类型名称
+        /// 获取当前语言类型
         /// </summary>
-        public string LanguageName
-        {
-            get
-            {
-                return m_Language.ToString();
-            }
-        }
+        public GameDefinitions.Language Language => m_Language;
 
         /// <summary>
-        /// 获取语言类型枚举index
+        /// 获取当前语言名称（字符串）
         /// </summary>
-        public int LanguageIndex
-        {
-            get
-            {
-                return (int)m_Language;
-            }
-        }
+        public string LanguageName => m_Language.ToString();
 
         /// <summary>
-        /// 运行时前次语言类型
-        /// 启动时默认强制为“简体中文”
+        /// 获取当前语言枚举索引
+        /// </summary>
+        public int LanguageIndex => (int)m_Language;
+
+        /// <summary>
+        /// 运行时上一次使用的语言（启动默认强制为简体中文）
         /// </summary>
         private GameDefinitions.Language m_RuntimeLastLanguage = GameDefinitions.Language.ChineseSimplified;
-        public GameDefinitions.Language RuntimeLastLanguage
-        {
-            get
-            {
-                return m_RuntimeLastLanguage;
-            }
-        }
 
         /// <summary>
-        /// 运行时前次语言类型名称
-        /// 启动时默认强制为“简体中文”
+        /// 获取运行时上一次语言
         /// </summary>
-        public string RuntimeLastLanguageName
-        {
-            get
-            {
-                return m_RuntimeLastLanguage.ToString();
-            }
-        }
+        public GameDefinitions.Language RuntimeLastLanguage => m_RuntimeLastLanguage;
 
         /// <summary>
-        /// 运行时前次语言类型枚举index
-        /// 启动时默认强制为“简体中文”
+        /// 获取上一次语言名称（字符串）
         /// </summary>
-        public int RuntimeLastLanguageIndex
-        {
-            get
-            {
-                return (int)m_RuntimeLastLanguage;
-            }
-        }
+        public string RuntimeLastLanguageName => m_RuntimeLastLanguage.ToString();
 
         /// <summary>
-        /// 获取系统语言。
+        /// 获取上一次语言枚举索引
+        /// </summary>
+        public int RuntimeLastLanguageIndex => (int)m_RuntimeLastLanguage;
+
+        /// <summary>
+        /// 获取系统当前语言，并映射为框架内部语言枚举
         /// </summary>
         public GameDefinitions.Language SystemLanguage
         {
@@ -154,42 +123,24 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取系统语言类型名称
+        /// 获取系统语言名称（字符串）
         /// </summary>
-        public string SystemLanguageName
-        {
-            get
-            {
-                return SystemLanguage.ToString();
-            }
-        }
+        public string SystemLanguageName => SystemLanguage.ToString();
 
         /// <summary>
-        /// 获取系统语言类型枚举index
+        /// 获取系统语言枚举索引
         /// </summary>
-        public int SystemLanguageIndex
-        {
-            get
-            {
-                return (int)SystemLanguage;
-            }
-        }
+        public int SystemLanguageIndex => (int)SystemLanguage;
 
         /// <summary>
-        /// 开启字体自动适配
+        /// 是否开启字体自动适配
         /// </summary>
         [SerializeField]
         private bool m_AutoFontAdapt;
-        public bool AutoFontAdapt
-        {
-            get
-            {
-                return m_AutoFontAdapt;
-            }
-        }
 
+        /// <summary>
+        /// 获取字体自动适配开关状态
+        /// </summary>
+        public bool AutoFontAdapt => m_AutoFontAdapt;
     }
-
 }
-
-

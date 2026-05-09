@@ -1,16 +1,24 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 全局配置管理组件
+    /// 功能：统一管理游戏配置文件、提供Bool/Int/Float/String配置读取、支持平台差异化配置
+    /// 挂载方式：游戏启动时自动初始化，全局唯一
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class ConfigComponent : GameComponent
     {
+        /// <summary>
+        /// 初始化：获取依赖组件、创建配置管理器
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
 
+            // 获取全局资源组件
             m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
             if (m_AssetComponent == null)
             {
@@ -18,27 +26,32 @@ namespace Honor.Runtime
                 return;
             }
 
+            // 初始化配置管理器
             m_ConfigManager = new ConfigManager();
             if (m_ConfigManager == null)
             {
                 Log.Fatal("ConfigManager 无效。");
                 return;
             }
-
-        }
-
-        private void Start()
-        {
-
-        }
-
-        private void OnDestroy()
-        {
-
         }
 
         /// <summary>
-        /// 加载全局配置
+        /// 生命周期 Start（暂未使用）
+        /// </summary>
+        private void Start()
+        {
+        }
+
+        /// <summary>
+        /// 销毁时清理（暂未使用）
+        /// </summary>
+        private void OnDestroy()
+        {
+        }
+
+        /// <summary>
+        /// 加载全局配置文件
+        /// 从指定路径加载所有Configs配置
         /// </summary>
         public void LoadConfigs()
         {
@@ -46,23 +59,23 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有配置名称集合
+        /// 获取所有已加载的配置名称列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>配置名称集合</returns>
         public List<string> GetAllConfigNames()
         {
             return m_ConfigManager.GetAllConfigNames();
         }
 
         /// <summary>
-        /// 检查是否存在指定全局配置项。
+        /// 检查是否存在指定配置项
         /// </summary>
-        /// <param name="configName">要检查全局配置项的名称。</param>
-        /// <param name="onPlatform">是否整合平台类型。</param>
-        /// <returns>指定的全局配置项是否存在。</returns>
+        /// <param name="configName">配置名称</param>
+        /// <param name="onPlatform">是否自动拼接平台后缀</param>
+        /// <returns>是否存在</returns>
         public bool HasConfig(string configName, bool onPlatform = false)
         {
-            if(onPlatform)
+            if (onPlatform)
             {
                 configName = AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName());
             }
@@ -70,11 +83,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定全局配置项。
+        /// 移除指定配置项
         /// </summary>
-        /// <param name="configName">要移除全局配置项的名称。</param>
-        /// <param name="onPlatform">是否整合平台类型。</param>
-        /// <returns>是否移除全局配置项成功。</returns>
+        /// <param name="configName">配置名称</param>
+        /// <param name="onPlatform">是否自动拼接平台后缀</param>
+        /// <returns>是否移除成功</returns>
         public bool RemoveConfig(string configName, bool onPlatform = false)
         {
             if (onPlatform)
@@ -85,7 +98,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清空所有全局配置项。
+        /// 清空所有配置项
         /// </summary>
         public void RemoveAllConfigs()
         {
@@ -93,11 +106,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取布尔值。
+        /// 获取布尔型配置
         /// </summary>
-        /// <param name="configName">要获取全局配置项的名称。</param>
-        /// <param name="onPlatform">是否整合平台类型。</param>
-        /// <returns>读取的布尔值。</returns>
+        /// <param name="configName">配置名称</param>
+        /// <param name="onPlatform">是否自动拼接平台后缀</param>
+        /// <returns>布尔值</returns>
         public bool GetBool(string configName, bool onPlatform = false)
         {
             if (onPlatform)
@@ -108,11 +121,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取整数值。
+        /// 获取整型配置
         /// </summary>
-        /// <param name="configName">要获取全局配置项的名称。</param>
-        /// <param name="onPlatform">是否整合平台类型。</param>
-        /// <returns>读取的整数值。</returns>
+        /// <param name="configName">配置名称</param>
+        /// <param name="onPlatform">是否自动拼接平台后缀</param>
+        /// <returns>整型值</returns>
         public int GetInt(string configName, bool onPlatform = false)
         {
             if (onPlatform)
@@ -123,11 +136,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取浮点数值。
+        /// 获取浮点型配置
         /// </summary>
-        /// <param name="configName">要获取全局配置项的名称。</param>
-        /// <param name="onPlatform">是否整合平台类型。</param>
-        /// <returns>读取的浮点数值。</returns>
+        /// <param name="configName">配置名称</param>
+        /// <param name="onPlatform">是否自动拼接平台后缀</param>
+        /// <returns>浮点值</returns>
         public float GetFloat(string configName, bool onPlatform = false)
         {
             if (onPlatform)
@@ -138,11 +151,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取字符串值。
+        /// 获取字符串型配置
         /// </summary>
-        /// <param name="configName">要获取全局配置项的名称。</param>
-        /// <param name="onPlatform">是否整合平台类型。</param>
-        /// <returns>读取的字符串值。</returns>
+        /// <param name="configName">配置名称</param>
+        /// <param name="onPlatform">是否自动拼接平台后缀</param>
+        /// <returns>字符串值</returns>
         public string GetString(string configName, bool onPlatform = false)
         {
             if (onPlatform)
@@ -153,9 +166,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取当前构建平台名称
+        /// 获取当前构建平台名称（用于差异化配置）
         /// </summary>
-        /// <returns></returns>
+        /// <returns>平台名称：iOS / WebGL / Android / Amazon</returns>
         public string GetCurBuildPlatformName()
         {
 #if UNITY_IOS
@@ -163,10 +176,8 @@ namespace Honor.Runtime
 #elif UNITY_WEBGL
             return "WebGL";
 #else
-            return GameMainRoot.Launcher.IsAmazonStore? "Amazon" : "Android";
+            return GameMainRoot.Launcher.IsAmazonStore ? "Amazon" : "Android";
 #endif
         }
-
     }
-
 }

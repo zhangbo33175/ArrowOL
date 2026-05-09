@@ -5,11 +5,16 @@ using System.IO;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 文件片段存储分组（单个分类的数据容器）
+    /// 负责单个分类下的所有键值对管理、序列化/反序列化、加解密、压缩
+    /// </summary>
     public sealed class FileFragmentItemGroup
     {
         /// <summary>
-        /// 所有item的数据集合
-        /// <条目名称,条目数据>
+        /// 键值对数据集合
+        /// Key：条目名称
+        /// Value：数据内容（字符串存储）
         /// </summary>
         private readonly SortedDictionary<string, string> m_Items = new SortedDictionary<string, string>();
         public SortedDictionary<string, string> Items
@@ -21,7 +26,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 初始化条目集合新实例。
+        /// 构造方法
         /// </summary>
         public FileFragmentItemGroup()
         {
@@ -29,7 +34,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取条目数量。
+        /// 当前分组内的条目总数
         /// </summary>
         public int Count
         {
@@ -40,9 +45,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有条目的名称。
+        /// 获取所有条目的名称（数组）
         /// </summary>
-        /// <returns>所有条目的名称。</returns>
         public string[] GetAllItemNames()
         {
             string[] allItemNames = new string[m_Items.Count];
@@ -57,9 +61,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有条目的名称。
+        /// 获取所有条目的名称（列表）
         /// </summary>
-        /// <param name="results">所有条目的名称。</param>
+        /// <param name="results">输出结果列表</param>
         public void GetAllItemNames(List<string> results)
         {
             if (results == null)
@@ -71,27 +75,24 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在指定条目。
+        /// 判断是否存在指定条目
         /// </summary>
-        /// <param name="itemName">要检查条目的名称。</param>
-        /// <returns>指定的条目是否存在。</returns>
+        /// <param name="itemName">条目名称</param>
         public bool HasItem(string itemName)
         {
             return m_Items.ContainsKey(itemName);
         }
 
         /// <summary>
-        /// 移除指定条目。
+        /// 删除指定条目
         /// </summary>
-        /// <param name="itemName">要移除条目的名称。</param>
-        /// <returns>是否移除指定条目成功。</returns>
         public bool RemoveItem(string itemName)
         {
             return m_Items.Remove(itemName);
         }
 
         /// <summary>
-        /// 清空所有条目。
+        /// 清空当前分组所有数据
         /// </summary>
         public void RemoveAllItems()
         {
@@ -99,10 +100,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取布尔值。
+        /// 读取布尔值（不存在则警告）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <returns>读取的布尔值。</returns>
         public bool GetBool(string itemName)
         {
             string value = null;
@@ -116,11 +115,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取布尔值。
+        /// 读取布尔值（带默认值）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的布尔值。</returns>
         public bool GetBool(string itemName, bool defaultValue)
         {
             string value = null;
@@ -133,20 +129,16 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入布尔值。
+        /// 写入布尔值（存储为 1/0）
         /// </summary>
-        /// <param name="itemName">要写入条目的名称。</param>
-        /// <param name="value">要写入的布尔值。</param>
         public void SetBool(string itemName, bool value)
         {
             m_Items[itemName] = value ? "1" : "0";
         }
 
         /// <summary>
-        /// 从指定条目中读取整数值。
+        /// 读取整数（不存在则警告）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <returns>读取的整数值。</returns>
         public int GetInt(string itemName)
         {
             string value = null;
@@ -160,11 +152,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取整数值。
+        /// 读取整数（带默认值）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的整数值。</returns>
         public int GetInt(string itemName, int defaultValue)
         {
             string value = null;
@@ -177,20 +166,16 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入整数值。
+        /// 写入整数
         /// </summary>
-        /// <param name="itemName">要写入条目的名称。</param>
-        /// <param name="value">要写入的整数值。</param>
         public void SetInt(string itemName, int value)
         {
             m_Items[itemName] = value.ToString();
         }
 
         /// <summary>
-        /// 从指定条目中读取浮点数值。
+        /// 读取浮点数（不存在则警告）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <returns>读取的浮点数值。</returns>
         public float GetFloat(string itemName)
         {
             string value = null;
@@ -204,11 +189,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取浮点数值。
+        /// 读取浮点数（带默认值）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的浮点数值。</returns>
         public float GetFloat(string itemName, float defaultValue)
         {
             string value = null;
@@ -221,20 +203,16 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入浮点数值。
+        /// 写入浮点数
         /// </summary>
-        /// <param name="itemName">要写入条目的名称。</param>
-        /// <param name="value">要写入的浮点数值。</param>
         public void SetFloat(string itemName, float value)
         {
             m_Items[itemName] = value.ToString();
         }
 
         /// <summary>
-        /// 从指定条目中读取字符串值。
+        /// 读取字符串（不存在则警告）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <returns>读取的字符串值。</returns>
         public string GetString(string itemName)
         {
             string value = null;
@@ -248,11 +226,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 从指定条目中读取字符串值。
+        /// 读取字符串（带默认值）
         /// </summary>
-        /// <param name="itemName">要获取条目的名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的字符串值。</returns>
         public string GetString(string itemName, string defaultValue)
         {
             string value = null;
@@ -265,19 +240,18 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向指定条目写入字符串值。
+        /// 写入字符串
         /// </summary>
-        /// <param name="itemName">要写入条目的名称。</param>
-        /// <param name="value">要写入的字符串值。</param>
         public void SetString(string itemName, string value)
         {
             m_Items[itemName] = value;
         }
 
         /// <summary>
-        /// 序列化
+        /// 序列化数据到文件流
+        /// 流程：JObject → Json字符串 → GZip压缩 → AES加密 → Base64 → 写入文件
         /// </summary>
-        /// <param name="fs">文件流写入器</param>
+        /// <param name="fs">文件流</param>
         public bool Serialize(FileStream fs)
         {
             JObject jObject = new JObject();
@@ -292,7 +266,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 反序列化
+        /// 从流中反序列化数据
+        /// 流程：读取字符串 → Base64 → AES解密 → GZip解压 → Json → JObject → 数据字典
         /// </summary>
         /// <param name="reader">流读取器</param>
         public void Deserialize(StreamReader reader)
@@ -313,6 +288,3 @@ namespace Honor.Runtime
 
     }
 }
-
-
-

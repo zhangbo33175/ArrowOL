@@ -1,13 +1,6 @@
 // 协议描述：游戏数据存档
 syntax = "proto3";
 
-// 玩家区域信息
-message PlayerAreaInfo{
-  string areaId = 1;                                        // 区域Id
-  int32 areaTotalCoinSpend = 2;                             // 区域里累积消耗的金币数量
-  int32 areaTotalUpgradeCoinSpend = 3;                      // 区域里机器升级累积消耗金币数量
-}
-
 // 玩家信息
 message PlayerInfo{
   string name = 1;                                          // 玩家名称
@@ -18,7 +11,6 @@ message PlayerInfo{
   map<string, int32> lastInLevel = 6;                       // 每个章节对应的最后一次进入的关卡的开始次数
   string profileAvatar = 7;                                 // 玩家头像ID
   string profileFrame = 8;                                  // 玩家头像框ID
-  map<string, PlayerAreaInfo> playerAreaInfos = 15;         // 玩家的相关区域信息
   int32 regUserTime = 16;                                   // 玩家首次启动游戏时间，只会赋值一次
   int32 loginDaysUTC = 17;                                  // UTC时间的累计登录天数
   int32 winStreak = 18;                                     // 玩家连胜次数
@@ -50,50 +42,11 @@ message ChapterInfo{
   ChapterDiff difficulty  = 7;                            // 章节难度信息
 }
 
-// 单条成就信息存档（当前正在完成的、最后一条的
-message AchievementInfo{
-  int32 claim = 1;                           // 成就任务领奖次数
-  int32 num   = 2;                           // 成就任务进度
-  int32 id    = 3;                           // 成就任务ID
-  int32 maybeCompress = 4;                  // 也许会用
-}
-
-// 章节成就存档
-message ChapterAchievementInfo{
-  repeated AchievementInfo infos = 1;       // 章节成就存档
-}
-
-// 体力时间戳
-message LifeInfo{
-  int64 lifeRefillTimestamp  = 1;                          // 体力自动回满一点的时间戳
-  int64 lifeUnlimitTimestamp = 2;                          // 剩余的无线体力时间的时间戳
-}
-
 // 设置内容
 message SettingInfo{
   bool   colseMusic = 1;                                      // 音乐开启状态
   bool   closeSound = 2;                                      // 音效开启状态
   bool   closeNotification = 3;                               // 推送开启状态
-}
-
-
-// 购买记录信息
-message GamePurchaseInfo{
-  int32 locality = 1;          // 本地时间戳
-  string localString = 2;      // 本地字符串时间描述
-  string iapID = 3;            // IAP表ID
-}
-
-// 购买记录信息集合
-message GamePurchaseInfosGroup{
-  bool isConvertData = 1;                             // 是否转换过数据
-  repeated GamePurchaseInfo datas = 2;                // 购买记录信息
-}
-
-// 订阅购买信息
-message GamePurchaseSubInfo{
-  string iapID = 1;                                   // IAP表ID
-  int32 times = 2;                                    // 订阅次数
 }
 
 
@@ -111,25 +64,6 @@ message CollectionChapterInfo {
 }
 
 
-
-// 卡牌收集数据
-message CollectionData {
-  map<string, CollectionGroupData> owedList = 1;      // 已贴的卡牌 [key]藏品组id [value]藏品组信息
-  map<string, CollectionGroupData> newList = 2;       // 新获得卡牌 [key]藏品组id [value]藏品组信息
-  map<string, CollectionChapterInfo> chapterInfo = 3; // 章节信息 [key]章节ID [value]章节收集信息
-  map<string, int32> packs = 4;                       // 卡包数量 [key]资源ID [value]资源数量
-  bool isShowPreviewed = 5;                           // 是否打开过预览界面
-  int32 lastShowTokenNum = 6;                         // 上一次查看的藏品代币数量
-  bool shouldShowRedPoint = 7;                        // 是否要显示入口红点
-}
-
-
-// 关内道具促销数据
-message BoosterSaleData {
-    int32 count = 1;                                       // 触发次数 (逐渐递增)
-    int32 cdEndTimestamp = 2;                              // cd结束时间戳(UTC)
-    int32 levelCount = 3;                                  // 关卡胜利次数
-}
 
 // 通行证数据
 message GoldenTicketData {
@@ -163,8 +97,8 @@ message GameData{
   string latestChapterId = 5;                             // 最新章节Id
   map<string, ChapterInfo> chapterInfos = 6;              // 章节信息 [key]章节ID [value]章节信息
   map<string, int32> timestamps  = 8;                     // 各种时间戳 [key]字符串 [value]时间戳
+  SettingInfo settingInfo = 9;                            // 设置数据
   string boosterTriggered = 12;                           // 已达成触发条件的局内道具
-  map<string,GiftPackStatusSingle> giftPacks = 13;        // 诸多礼包状态
   map<string, LevelRewardInfo> levelRewardInfos = 16;     // 等级奖励的数据
   int32 maxChapterId = 18;                                // 玩家当前记录的最大章节id
 

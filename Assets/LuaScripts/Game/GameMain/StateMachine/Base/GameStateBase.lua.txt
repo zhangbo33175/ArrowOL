@@ -1,65 +1,62 @@
 --=====================================================================================================
 -- descrip:   游戏业务状态基类
+--            职责：所有游戏状态（Login/LoadMap/Main/Playing等）的统一父类，提供基础生命周期
 --=====================================================================================================
 
----@class GameStateBase @游戏业务状态基类
+---@class GameStateBase @游戏业务状态基类（所有状态的父类）
 local GameStateBase = class('GameStateBase')
 
 ---构造函数
 ---@type fun(stateType:GameStateCmd):void
----@param stateType GameStateCmd @状态机状态值
+---@param stateType GameStateCmd @状态类型枚举
 function GameStateBase:ctor(stateType)
-    self._stateType = stateType
+    self._stateType = stateType  ---@type GameStateCmd 保存当前状态类型
 end
 
----创建函数
+---创建状态实例
 ---@type fun(stateType:GameStateCmd):GameStateBase
----@param stateType GameStateCmd @状态机状态值
----@return GameStateBase @GameStateBase实例
+---@param stateType GameStateCmd @状态类型枚举
+---@return GameStateBase @状态基类实例
 function GameStateBase:Create(stateType)
     local obj = GameStateBase.new(stateType)
     return obj
 end
 
----获取状态机类型
+---获取当前状态类型
 ---@type fun():GameStateCmd
----@return GameStateCmd @游戏状态类型
+---@return GameStateCmd @当前状态枚举值
 function GameStateBase:GetStateType()
-    if self._stateType then
-        return self._stateType
-    end
-    return nil
+    return self._stateType
 end
 
----进入状态
----@type fun():void
----@param finishCallback function @回调函数
+---进入状态（子类重写）
+---@type fun(finishCallback:function):void
+---@param finishCallback function @进入完成回调
 function GameStateBase:OnStateEnter(finishCallback)
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
 
----离开状态
----@type fun():void
----@param finishCallback function @回调函数
+---离开状态（子类重写）
+---@type fun(finishCallback:function):void
+---@param finishCallback function @退出完成回调
 function GameStateBase:OnStateExit(finishCallback)
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
 
----更新
+---帧更新（子类重写）
 ---@type fun():void
 function GameStateBase:OnUpdate()
-    --GMHelper:OnUpdate(self)
+    -- GM 辅助更新（预留）
 end
 
----清理缓存数据
+---清理缓存数据（子类重写）
 ---@type fun():void
 function GameStateBase:ClearCacheData()
-    --EffectMgr:ClearData() -- 清理特效层数据
+    -- 清理特效等临时数据（预留）
 end
 
 return GameStateBase
-

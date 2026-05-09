@@ -42,9 +42,6 @@ PbRootData.GameData.playerInfo.profileAvatar = ''
 ---@type string @玩家头像框ID
 PbRootData.GameData.playerInfo.profileFrame = ''
 
----@type table @玩家的相关区域信息
-PbRootData.GameData.playerInfo.playerAreaInfos = {}
-
 ---@type number @玩家首次启动游戏时间，只会赋值一次
 PbRootData.GameData.playerInfo.regUserTime = 0
 
@@ -72,11 +69,20 @@ PbRootData.GameData.chapterInfos = {}
 ---@type table @各种时间戳
 PbRootData.GameData.timestamps = {}
 
+---@type SavePBMsgDef.GameDataPB.SettingInfo @设置数据
+PbRootData.GameData.settingInfo = {}
+
+---@type boolean @音乐开启状态
+PbRootData.GameData.settingInfo.colseMusic = false
+
+---@type boolean @音效开启状态
+PbRootData.GameData.settingInfo.closeSound = false
+
+---@type boolean @推送开启状态
+PbRootData.GameData.settingInfo.closeNotification = false
+
 ---@type string @已达成触发条件的局内道具
 PbRootData.GameData.boosterTriggered = ''
-
----@type table @诸多礼包状态
-PbRootData.GameData.giftPacks = {}
 
 ---@type table @等级奖励的数据
 PbRootData.GameData.levelRewardInfos = {}
@@ -96,8 +102,8 @@ PbIO.GameData.LoadAll = function()
     PbIO.GameData.Load_latestChapterId()
     PbIO.GameData.Load_chapterInfos()
     PbIO.GameData.Load_timestamps()
+    PbIO.GameData.Load_settingInfo()
     PbIO.GameData.Load_boosterTriggered()
-    PbIO.GameData.Load_giftPacks()
     PbIO.GameData.Load_levelRewardInfos()
     PbIO.GameData.Load_maxChapterId()
 end
@@ -115,7 +121,6 @@ PbIO.GameData.Load_playerInfo = function()
     PbIO.GameData.Load_playerInfo_lastInLevel()
     PbIO.GameData.Load_playerInfo_profileAvatar()
     PbIO.GameData.Load_playerInfo_profileFrame()
-    PbIO.GameData.Load_playerInfo_playerAreaInfos()
     PbIO.GameData.Load_playerInfo_regUserTime()
     PbIO.GameData.Load_playerInfo_loginDaysUTC()
     PbIO.GameData.Load_playerInfo_winStreak()
@@ -143,14 +148,14 @@ PbIO.GameData.Load_timestamps = function()
          PbRootData.GameData.timestamps = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps'))
     end
 end
+PbIO.GameData.Load_settingInfo = function()
+    PbIO.GameData.Load_settingInfo_colseMusic()
+    PbIO.GameData.Load_settingInfo_closeSound()
+    PbIO.GameData.Load_settingInfo_closeNotification()
+end
 PbIO.GameData.Load_boosterTriggered = function()
     if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered') then
         PbRootData.GameData.boosterTriggered = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered')
-    end
-end
-PbIO.GameData.Load_giftPacks = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.giftPacks') then
-         PbRootData.GameData.giftPacks = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.giftPacks'))
     end
 end
 PbIO.GameData.Load_levelRewardInfos = function()
@@ -203,11 +208,6 @@ PbIO.GameData.Load_playerInfo_profileFrame = function()
         PbRootData.GameData.playerInfo.profileFrame = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.profileFrame')
     end
 end
-PbIO.GameData.Load_playerInfo_playerAreaInfos = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.playerAreaInfos') then
-         PbRootData.GameData.playerInfo.playerAreaInfos = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.playerAreaInfos'))
-    end
-end
 PbIO.GameData.Load_playerInfo_regUserTime = function()
     if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.regUserTime') then
         PbRootData.GameData.playerInfo.regUserTime = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.regUserTime'))
@@ -228,6 +228,21 @@ PbIO.GameData.Load_resourceInfo_nums = function()
          PbRootData.GameData.resourceInfo.nums = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums'))
     end
 end
+PbIO.GameData.Load_settingInfo_colseMusic = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic') then
+       PbRootData.GameData.settingInfo.colseMusic = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic') == 'true' and true or false
+    end
+end
+PbIO.GameData.Load_settingInfo_closeSound = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound') then
+       PbRootData.GameData.settingInfo.closeSound = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound') == 'true' and true or false
+    end
+end
+PbIO.GameData.Load_settingInfo_closeNotification = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification') then
+       PbRootData.GameData.settingInfo.closeNotification = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification') == 'true' and true or false
+    end
+end
 ----------------------------------------------------------------------------------------------
 PbIO.GameData.SaveAll = function()
     PbIO.GameData.Save_isInit()
@@ -237,8 +252,8 @@ PbIO.GameData.SaveAll = function()
     PbIO.GameData.Save_latestChapterId()
     PbIO.GameData.Save_chapterInfos()
     PbIO.GameData.Save_timestamps()
+    PbIO.GameData.Save_settingInfo()
     PbIO.GameData.Save_boosterTriggered()
-    PbIO.GameData.Save_giftPacks()
     PbIO.GameData.Save_levelRewardInfos()
     PbIO.GameData.Save_maxChapterId()
 end
@@ -254,7 +269,6 @@ PbIO.GameData.Save_playerInfo = function()
     PbIO.GameData.Save_playerInfo_lastInLevel()
     PbIO.GameData.Save_playerInfo_profileAvatar()
     PbIO.GameData.Save_playerInfo_profileFrame()
-    PbIO.GameData.Save_playerInfo_playerAreaInfos()
     PbIO.GameData.Save_playerInfo_regUserTime()
     PbIO.GameData.Save_playerInfo_loginDaysUTC()
     PbIO.GameData.Save_playerInfo_winStreak()
@@ -274,11 +288,13 @@ end
 PbIO.GameData.Save_timestamps = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps', JsonEncode(PbRootData.GameData.timestamps))
 end
+PbIO.GameData.Save_settingInfo = function()
+    PbIO.GameData.Save_settingInfo_colseMusic()
+    PbIO.GameData.Save_settingInfo_closeSound()
+    PbIO.GameData.Save_settingInfo_closeNotification()
+end
 PbIO.GameData.Save_boosterTriggered = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered', tostring(PbRootData.GameData.boosterTriggered))
-end
-PbIO.GameData.Save_giftPacks = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.giftPacks', JsonEncode(PbRootData.GameData.giftPacks))
 end
 PbIO.GameData.Save_levelRewardInfos = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.levelRewardInfos', JsonEncode(PbRootData.GameData.levelRewardInfos))
@@ -310,9 +326,6 @@ end
 PbIO.GameData.Save_playerInfo_profileFrame = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.profileFrame', tostring(PbRootData.GameData.playerInfo.profileFrame))
 end
-PbIO.GameData.Save_playerInfo_playerAreaInfos = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.playerAreaInfos', JsonEncode(PbRootData.GameData.playerInfo.playerAreaInfos))
-end
 PbIO.GameData.Save_playerInfo_regUserTime = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.playerInfo.regUserTime', tostring(PbRootData.GameData.playerInfo.regUserTime))
 end
@@ -324,6 +337,15 @@ PbIO.GameData.Save_playerInfo_winStreak = function()
 end
 PbIO.GameData.Save_resourceInfo_nums = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums', JsonEncode(PbRootData.GameData.resourceInfo.nums))
+end
+PbIO.GameData.Save_settingInfo_colseMusic = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic', PbRootData.GameData.settingInfo.colseMusic == true and 'true' or 'false')
+end
+PbIO.GameData.Save_settingInfo_closeSound = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound', PbRootData.GameData.settingInfo.closeSound == true and 'true' or 'false')
+end
+PbIO.GameData.Save_settingInfo_closeNotification = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification', PbRootData.GameData.settingInfo.closeNotification == true and 'true' or 'false')
 end
 ----------------------------------------------------------------------------------------------
 PbIO.GameData.SerializeAll = function()
@@ -350,11 +372,11 @@ end
 PbIO.GameData.Serialize_timestamps = function()
     return JsonEncode(PbRootData.GameData.timestamps)
 end
+PbIO.GameData.Serialize_settingInfo = function()
+    return JsonEncode(PbRootData.GameData.settingInfo)
+end
 PbIO.GameData.Serialize_boosterTriggered = function()
     return JsonEncode(PbRootData.GameData.boosterTriggered)
-end
-PbIO.GameData.Serialize_giftPacks = function()
-    return JsonEncode(PbRootData.GameData.giftPacks)
 end
 PbIO.GameData.Serialize_levelRewardInfos = function()
     return JsonEncode(PbRootData.GameData.levelRewardInfos)
@@ -386,9 +408,6 @@ end
 PbIO.GameData.Serialize_playerInfo_profileFrame = function()
     return JsonEncode(PbRootData.GameData.playerInfo.profileFrame)
 end
-PbIO.GameData.Serialize_playerInfo_playerAreaInfos = function()
-    return JsonEncode(PbRootData.GameData.playerInfo.playerAreaInfos)
-end
 PbIO.GameData.Serialize_playerInfo_regUserTime = function()
     return JsonEncode(PbRootData.GameData.playerInfo.regUserTime)
 end
@@ -400,6 +419,15 @@ PbIO.GameData.Serialize_playerInfo_winStreak = function()
 end
 PbIO.GameData.Serialize_resourceInfo_nums = function()
     return JsonEncode(PbRootData.GameData.resourceInfo.nums)
+end
+PbIO.GameData.Serialize_settingInfo_colseMusic = function()
+    return JsonEncode(PbRootData.GameData.settingInfo.colseMusic)
+end
+PbIO.GameData.Serialize_settingInfo_closeSound = function()
+    return JsonEncode(PbRootData.GameData.settingInfo.closeSound)
+end
+PbIO.GameData.Serialize_settingInfo_closeNotification = function()
+    return JsonEncode(PbRootData.GameData.settingInfo.closeNotification)
 end
 ----------------------------------------------------------------------------------------------
 PbIO.GameData.DeserializeAll = function(jsonString)
@@ -426,11 +454,11 @@ end
 PbIO.GameData.Deserialize_timestamps = function(jsonString)
     PbRootData.GameData.timestamps = JsonDecode(jsonString)
 end
+PbIO.GameData.Deserialize_settingInfo = function(jsonString)
+    PbRootData.GameData.settingInfo = JsonDecode(jsonString)
+end
 PbIO.GameData.Deserialize_boosterTriggered = function(jsonString)
     PbRootData.GameData.boosterTriggered = JsonDecode(jsonString)
-end
-PbIO.GameData.Deserialize_giftPacks = function(jsonString)
-    PbRootData.GameData.giftPacks = JsonDecode(jsonString)
 end
 PbIO.GameData.Deserialize_levelRewardInfos = function(jsonString)
     PbRootData.GameData.levelRewardInfos = JsonDecode(jsonString)
@@ -462,9 +490,6 @@ end
 PbIO.GameData.Deserialize_playerInfo_profileFrame = function(jsonString)
     PbRootData.GameData.playerInfo.profileFrame = JsonDecode(jsonString)
 end
-PbIO.GameData.Deserialize_playerInfo_playerAreaInfos = function(jsonString)
-    PbRootData.GameData.playerInfo.playerAreaInfos = JsonDecode(jsonString)
-end
 PbIO.GameData.Deserialize_playerInfo_regUserTime = function(jsonString)
     PbRootData.GameData.playerInfo.regUserTime = JsonDecode(jsonString)
 end
@@ -476,5 +501,14 @@ PbIO.GameData.Deserialize_playerInfo_winStreak = function(jsonString)
 end
 PbIO.GameData.Deserialize_resourceInfo_nums = function(jsonString)
     PbRootData.GameData.resourceInfo.nums = JsonDecode(jsonString)
+end
+PbIO.GameData.Deserialize_settingInfo_colseMusic = function(jsonString)
+    PbRootData.GameData.settingInfo.colseMusic = JsonDecode(jsonString)
+end
+PbIO.GameData.Deserialize_settingInfo_closeSound = function(jsonString)
+    PbRootData.GameData.settingInfo.closeSound = JsonDecode(jsonString)
+end
+PbIO.GameData.Deserialize_settingInfo_closeNotification = function(jsonString)
+    PbRootData.GameData.settingInfo.closeNotification = JsonDecode(jsonString)
 end
 ----------------------------------------------------------------------------------------------

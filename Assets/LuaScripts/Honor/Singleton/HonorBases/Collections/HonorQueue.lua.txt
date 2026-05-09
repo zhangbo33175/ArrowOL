@@ -1,55 +1,58 @@
 --=====================================================================================================
--- descrip:   Queue队列定义
+-- descrip:   队列（Queue）
+--              规则：先进先出 FIFO (First In First Out)
+--              用途：任务队列、网络请求队列、消息队列、顺序执行指令
 --=====================================================================================================
----@class HonorQueue @HonorQueue队列类
----@field items table @条目集合
+
+---@class HonorQueue @队列结构类
+---@field items table @队列内部存储的元素数组
 local HonorQueue = class("HonorQueue")
 
----构造函数
+--- 构造函数
 ---@type fun():void
 function HonorQueue:ctor()
-    self.items = {}
+    self.items = {}   -- 初始化空队列
 end
 
----创建函数
+--- 创建队列实例
 ---@type fun():HonorQueue
----@return HonorQueue @队列对象
+---@return HonorQueue
 function HonorQueue:Create()
     local queue = HonorQueue.new()
     return queue
 end
 
----获取队首条目
+--- 获取队首元素（不删除）
 ---@type fun():any
----@return any @队首条目
+---@return any 队首第一个元素
 function HonorQueue:Peek()
     return self.items[1]
 end
 
----条目入队
+--- 元素入队（添加到队尾）
 ---@type fun(item:any):void
----@param item any @条目
+---@param item 要加入队列的元素
 function HonorQueue:Enqueue(item)
     table.insert(self.items, self:Count() + 1, item)
 end
 
----条目出队
+--- 元素出队（从队首移除）
 ---@type fun():any
----@return any @出队条目
+---@return any 出队的元素
 function HonorQueue:Dequeue()
-    local item = self:Peek()
-    table.remove(self.items, 1)
+    local item = self:Peek()   -- 取队首
+    table.remove(self.items, 1) -- 移除队首
     return item
 end
 
----队列条目数量
+--- 获取队列元素数量
 ---@type fun():number
----@return number @队列条目数量
+---@return number 元素个数
 function HonorQueue:Count()
     return #self.items
 end
 
----队列清空
+--- 清空队列
 ---@type fun():void
 function HonorQueue:Clear()
     self.items = {}

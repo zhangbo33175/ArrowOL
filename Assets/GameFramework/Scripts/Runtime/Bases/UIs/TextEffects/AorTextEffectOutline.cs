@@ -4,21 +4,44 @@ using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
-    [AddComponentMenu("UI/Honor/TextEffectOutline")]
+    /// <summary>
+    /// 自定义文本描边效果（基于Shader + 顶点偏移实现高品质外描边）
+    /// 同时支持：文本描边、字间距调整、多行文本对齐适配
+    /// 依赖自定义Shader：Honor/UI/UIOutlineShader
+    /// </summary>
+    [AddComponentMenu("UI/Honor/自定义文本描边效果")]
     public class AorTextEffectOutline : BaseMeshEffect
     {
+        /// <summary>
+        /// 描边颜色
+        /// </summary>
         public Color OutlineColor = Color.white;
-        [Range(0, 8)]
-        public int OutlineWidth = 0;
-        [Range(0, 50)]
-        public float Spacing = 0f;
 
+        /// <summary>
+        /// 描边宽度（0~8）
+        /// </summary>
+        [Range(0, 8)] public int OutlineWidth = 0;
+
+        /// <summary>
+        /// 文本字符间距（0~50）
+        /// </summary>
+        [Range(0, 50)] public float Spacing = 0f;
+
+        /// <summary>
+        /// 静态顶点缓存列表（减少GC）
+        /// </summary>
         private static List<UIVertex> m_VetexList = new List<UIVertex>();
-        
+
+        /// <summary>
+        /// 所属Canvas（用于开启Shader通道）
+        /// </summary>
         private Canvas m_canvas = null;
 
         #region Struct
 
+        /// <summary>
+        /// 文本水平对齐类型
+        /// </summary>
         public enum HorizontalAligmentType
         {
             Left,
@@ -26,20 +49,46 @@ namespace Honor.Runtime
             Right
         }
 
+        /// <summary>
+        /// 文本行数据结构（记录一行文字的顶点起始/结束/数量）
+        /// </summary>
         public class Line
         {
-            // 起点索引
-            public int StartVertexIndex { get { return _startVertexIndex; } }
+            /// <summary>
+            /// 起点顶点索引
+            /// </summary>
+            public int StartVertexIndex
+            {
+                get { return _startVertexIndex; }
+            }
+
             private int _startVertexIndex = 0;
 
-            // 终点索引
-            public int EndVertexIndex { get { return _endVertexIndex; } }
+            /// <summary>
+            /// 终点顶点索引
+            /// </summary>
+            public int EndVertexIndex
+            {
+                get { return _endVertexIndex; }
+            }
+
             private int _endVertexIndex = 0;
 
-            // 该行占的点数目
-            public int VertexCount { get { return _vertexCount; } }
+            /// <summary>
+            /// 该行总顶点数量
+            /// </summary>
+            public int VertexCount
+            {
+                get { return _vertexCount; }
+            }
+
             private int _vertexCount = 0;
 
+            /// <summary>
+            /// 构造一行文本数据
+            /// </summary>
+            /// <param name="startVertexIndex">起始顶点索引</param>
+            /// <param name="length">字符数量</param>
             public Line(int startVertexIndex, int length)
             {
                 _startVertexIndex = startVertexIndex;
@@ -49,12 +98,15 @@ namespace Honor.Runtime
         }
 
         #endregion
-        
 
+        /// <summary>
+        /// 初始化：获取Canvas、创建材质、设置Shader通道、更新描边参数
+        /// </summary>
         protected override void Start()
         {
             m_canvas = graphic.canvas;
             AddMaterial();
+
             if (CheckShader())
             {
                 SetShaderChannels();
@@ -63,32 +115,42 @@ namespace Honor.Runtime
             }
         }
 
-
+        /// <summary>
+        /// 检查Graphic与Material是否有效
+        /// </summary>
+        /// <returns>检查结果</returns>
         bool CheckShader()
         {
             if (graphic == null)
             {
-                Log.Error("No Graphic Component !");
+                Debug.LogError("No Graphic Component !");
                 return false;
             }
+
             if (graphic.material == null)
             {
-                Log.Error("No Material !");
+                Debug.LogError("No Material !");
                 return false;
             }
+
             return true;
         }
 
+        /// <summary>
+        /// 向Shader设置描边颜色与宽度
+        /// </summary>
         void SetParams()
         {
             if (graphic.material != null)
             {
-               graphic.material.SetColor("_OutlineColor", OutlineColor);
-               graphic.material.SetFloat("_OutlineWidth", OutlineWidth);
-
+                graphic.material.SetColor("_OutlineColor", OutlineColor);
+                graphic.material.SetFloat("_OutlineWidth", OutlineWidth);
             }
         }
 
+        /// <summary>
+        /// 开启Canvas所需的额外Shader通道（TexCoord1、TexCoord2）
+        /// </summary>
         void SetShaderChannels()
         {
             if (m_canvas)
@@ -99,6 +161,7 @@ namespace Honor.Runtime
                 {
                     m_canvas.additionalShaderChannels |= v2;
                 }
+
                 v2 = AdditionalCanvasShaderChannels.TexCoord2;
                 if ((v1 & v2) != v2)
                 {
@@ -106,13 +169,19 @@ namespace Honor.Runtime
                 }
             }
         }
-        
+
+        /// <summary>
+        /// 刷新文本网格（标记顶点为脏）
+        /// </summary>
         private void _Refresh()
         {
-           graphic.SetVerticesDirty();
+            graphic.SetVerticesDirty();
         }
-        
+
 #if UNITY_EDITOR
+        /// <summary>
+        /// 编辑器模式：参数修改时自动更新效果
+        /// </summary>
         protected override void OnValidate()
         {
             base.OnValidate();
@@ -124,7 +193,11 @@ namespace Honor.Runtime
         }
 #endif
 
-
+        /// <summary>
+        /// 重写UGUI网格修改方法
+        /// 先调整字间距，再处理描边顶点偏移
+        /// </summary>
+        /// <param name="vh">顶点辅助器</param>
         public override void ModifyMesh(VertexHelper vh)
         {
             ModifyMeshText(vh);
@@ -136,7 +209,9 @@ namespace Honor.Runtime
             vh.AddUIVertexTriangleStream(m_VetexList);
         }
 
-
+        /// <summary>
+        /// 处理所有三角形顶点：计算中心点、方向、UV，执行描边偏移
+        /// </summary>
         private void _ProcessVertices()
         {
             for (int i = 0, count = m_VetexList.Count - 3; i <= count; i += 3)
@@ -144,19 +219,20 @@ namespace Honor.Runtime
                 var v1 = m_VetexList[i];
                 var v2 = m_VetexList[i + 1];
                 var v3 = m_VetexList[i + 2];
-                // 计算原顶点坐标中心点
-                //
+
+                // 计算三角形中心点
                 var minX = _Min(v1.position.x, v2.position.x, v3.position.x);
                 var minY = _Min(v1.position.y, v2.position.y, v3.position.y);
                 var maxX = _Max(v1.position.x, v2.position.x, v3.position.x);
                 var maxY = _Max(v1.position.y, v2.position.y, v3.position.y);
                 var posCenter = new Vector2(minX + maxX, minY + maxY) * 0.5f;
-                // 计算原始顶点坐标和UV的方向
-                //
+
+                // 计算三角形本地方向与UV方向
                 Vector2 triX, triY, uvX, uvY;
                 Vector2 pos1 = v1.position;
                 Vector2 pos2 = v2.position;
                 Vector2 pos3 = v3.position;
+
                 if (Mathf.Abs(Vector2.Dot((pos2 - pos1).normalized, Vector2.right))
                     > Mathf.Abs(Vector2.Dot((pos3 - pos2).normalized, Vector2.right)))
                 {
@@ -172,35 +248,33 @@ namespace Honor.Runtime
                     uvX = v3.uv0 - v2.uv0;
                     uvY = v2.uv0 - v1.uv0;
                 }
-                // 计算原始UV框
+
+                // 计算原始UV边界
                 var uvMin = _Min(v1.uv0, v2.uv0, v3.uv0);
                 var uvMax = _Max(v1.uv0, v2.uv0, v3.uv0);
-                //OutlineColor 和 OutlineWidth 也传入，避免出现不同的材质球
-                //var col_rg = new Vector2(OutlineColor.r, OutlineColor.g);       //描边颜色 用uv3 和 tangent的 zw传递
-                //var col_ba = new Vector4(0, 0, OutlineColor.b, OutlineColor.a);
-                //var normal = new Vector3(0, 0, OutlineWidth);                   //描边的宽度 用normal的z传递
 
-                // 为每个顶点设置新的Position和UV，并传入原始UV框
+                // 为每个顶点应用新的位置与UV
                 v1 = _SetNewPosAndUV(v1, this.OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
                 v2 = _SetNewPosAndUV(v2, this.OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
                 v3 = _SetNewPosAndUV(v3, this.OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
 
-                // 应用设置后的UIVertex
-                //
+                // 回写顶点
                 m_VetexList[i] = v1;
                 m_VetexList[i + 1] = v2;
                 m_VetexList[i + 2] = v3;
             }
         }
 
-
+        /// <summary>
+        /// 设置顶点的新位置与UV（实现描边偏移）
+        /// </summary>
         private static UIVertex _SetNewPosAndUV(UIVertex pVertex, int pOutLineWidth,
             Vector2 pPosCenter,
             Vector2 pTriangleX, Vector2 pTriangleY,
             Vector2 pUVX, Vector2 pUVY,
             Vector2 pUVOriginMin, Vector2 pUVOriginMax)
         {
-            // Position
+            // 位置偏移
             var pos = pVertex.position;
             var posXOffset = pos.x > pPosCenter.x ? pOutLineWidth : -pOutLineWidth;
             var posYOffset = pos.y > pPosCenter.y ? pOutLineWidth : -pOutLineWidth;
@@ -208,59 +282,77 @@ namespace Honor.Runtime
             pos.y += posYOffset;
             pVertex.position = pos;
 
-            // UV
+            // UV偏移
             Vector4 uv = pVertex.uv0;
-            Vector2 tmp1 = pUVX / pTriangleX.magnitude * posXOffset * (Vector2.Dot(pTriangleX, Vector2.right) > 0 ? 1 : -1);
-            uv.x += tmp1.x; uv.y += tmp1.y;
+            Vector2 tmp1 = pUVX / pTriangleX.magnitude * posXOffset *
+                           (Vector2.Dot(pTriangleX, Vector2.right) > 0 ? 1 : -1);
+            uv.x += tmp1.x;
+            uv.y += tmp1.y;
 
-            Vector2 tmp2 = pUVY / pTriangleY.magnitude * posYOffset * (Vector2.Dot(pTriangleY, Vector2.up) > 0 ? 1 : -1);
-            uv.x += tmp2.x; uv.y += tmp2.y;
+            Vector2 tmp2 = pUVY / pTriangleY.magnitude * posYOffset *
+                           (Vector2.Dot(pTriangleY, Vector2.up) > 0 ? 1 : -1);
+            uv.x += tmp2.x;
+            uv.y += tmp2.y;
 
             pVertex.uv0 = uv;
-
-            pVertex.uv1 = pUVOriginMin;     //uv1 uv2 可用  tangent  normal 在缩放情况 会有问题
+            pVertex.uv1 = pUVOriginMin;
             pVertex.uv2 = pUVOriginMax;
 
             return pVertex;
         }
 
-
+        /// <summary>
+        /// 取三个float中的最小值
+        /// </summary>
         private static float _Min(float pA, float pB, float pC)
         {
             return Mathf.Min(Mathf.Min(pA, pB), pC);
         }
 
-
+        /// <summary>
+        /// 取三个float中的最大值
+        /// </summary>
         private static float _Max(float pA, float pB, float pC)
         {
             return Mathf.Max(Mathf.Max(pA, pB), pC);
         }
 
-
+        /// <summary>
+        /// 取三个Vector2的最小值
+        /// </summary>
         private static Vector2 _Min(Vector2 pA, Vector2 pB, Vector2 pC)
         {
             return new Vector2(_Min(pA.x, pB.x, pC.x), _Min(pA.y, pB.y, pC.y));
         }
 
-
+        /// <summary>
+        /// 取三个Vector2的最大值
+        /// </summary>
         private static Vector2 _Max(Vector2 pA, Vector2 pB, Vector2 pC)
         {
             return new Vector2(_Max(pA.x, pB.x, pC.x), _Max(pA.y, pB.y, pC.y));
         }
 
+        /// <summary>
+        /// 销毁时清空材质引用，防止内存泄漏
+        /// </summary>
         private void OnDestroy()
         {
-            if(graphic) graphic.material = null;
+            if (graphic) graphic.material = null;
         }
 
+        /// <summary>
+        /// 创建并绑定自定义描边Shader材质
+        /// </summary>
         private void AddMaterial()
         {
             var shader1 = Shader.Find("Honor/UI/UIOutlineShader");
             graphic.material = new Material(shader1);
-
         }
 
-
+        /// <summary>
+        /// 修改文本网格：根据对齐方式调整字符间距（支持左/中/右对齐）
+        /// </summary>
         public void ModifyMeshText(VertexHelper vh)
         {
             if (!IsActive() || vh.currentVertCount == 0)
@@ -269,20 +361,21 @@ namespace Honor.Runtime
             }
 
             var text = GetComponent<Text>();
-
             if (text == null)
             {
-                Log.Error("Missing Text component");
+                Debug.LogError("Missing Text component");
                 return;
             }
 
-            // 水平对齐方式
+            // 判断水平对齐方式
             HorizontalAligmentType alignment;
-            if (text.alignment == TextAnchor.LowerLeft || text.alignment == TextAnchor.MiddleLeft || text.alignment == TextAnchor.UpperLeft)
+            if (text.alignment == TextAnchor.LowerLeft || text.alignment == TextAnchor.MiddleLeft ||
+                text.alignment == TextAnchor.UpperLeft)
             {
                 alignment = HorizontalAligmentType.Left;
             }
-            else if (text.alignment == TextAnchor.LowerCenter || text.alignment == TextAnchor.MiddleCenter || text.alignment == TextAnchor.UpperCenter)
+            else if (text.alignment == TextAnchor.LowerCenter || text.alignment == TextAnchor.MiddleCenter ||
+                     text.alignment == TextAnchor.UpperCenter)
             {
                 alignment = HorizontalAligmentType.Center;
             }
@@ -293,16 +386,14 @@ namespace Honor.Runtime
 
             var vertexs = new List<UIVertex>();
             vh.GetUIVertexStream(vertexs);
-            // var indexCount = vh.currentIndexCount;
 
+            // 按换行符分割行
             var lineTexts = text.text.Split('\n');
-
             var lines = new Line[lineTexts.Length];
 
-            // 根据lines数组中各个元素的长度计算每一行中第一个点的索引，每个字、字母、空母均占6个点
+            // 构建每一行的顶点索引范围
             for (var i = 0; i < lines.Length; i++)
             {
-                // 除最后一行外，vertexs对于前面几行都有回车符占了6个点
                 if (i == 0)
                 {
                     lines[i] = new Line(0, lineTexts[i].Length + 1);
@@ -318,49 +409,41 @@ namespace Honor.Runtime
             }
 
             UIVertex vt;
-
             for (var i = 0; i < lines.Length; i++)
             {
                 for (var j = lines[i].StartVertexIndex; j <= lines[i].EndVertexIndex; j++)
                 {
-                    if (j < 0 || j >= vertexs.Count)
-                    {
-                        continue;
-                    }
+                    if (j < 0 || j >= vertexs.Count) continue;
 
                     vt = vertexs[j];
-
                     var charCount = lines[i].EndVertexIndex - lines[i].StartVertexIndex;
-                    if (i == lines.Length - 1)
-                    {
-                        charCount += 6;
-                    }
+                    if (i == lines.Length - 1) charCount += 6;
 
+                    // 根据对齐方式应用间距偏移
                     if (alignment == HorizontalAligmentType.Left)
                     {
                         vt.position += new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6), 0, 0);
                     }
                     else if (alignment == HorizontalAligmentType.Right)
                     {
-                        vt.position += new Vector3(Spacing * (-(charCount - j + lines[i].StartVertexIndex) / 6 + 1), 0, 0);
+                        vt.position += new Vector3(Spacing * (-(charCount - j + lines[i].StartVertexIndex) / 6 + 1), 0,
+                            0);
                     }
                     else if (alignment == HorizontalAligmentType.Center)
                     {
                         var offset = (charCount / 6) % 2 == 0 ? 0.5f : 0f;
-                        vt.position += new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6 - charCount / 12 + offset), 0, 0);
+                        vt.position +=
+                            new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6 - charCount / 12 + offset), 0,
+                                0);
                     }
 
                     vertexs[j] = vt;
-                    // 以下注意点与索引的对应关系
-                    if (j % 6 <= 2)
-                    {
-                        vh.SetUIVertex(vt, (j / 6) * 4 + j % 6);
-                    }
 
+                    // 回写顶点
+                    if (j % 6 <= 2)
+                        vh.SetUIVertex(vt, (j / 6) * 4 + j % 6);
                     if (j % 6 == 4)
-                    {
                         vh.SetUIVertex(vt, (j / 6) * 4 + j % 6 - 1);
-                    }
                 }
             }
         }

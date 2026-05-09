@@ -1,9 +1,11 @@
 --=====================================================================================================
--- descrip:   地图基础类
+-- descrip:   UI地图基础类
+--            职责：游戏主界面地图的基类，管理地图交互、图标、自治体、气泡、生命周期等
 --=====================================================================================================
+
+---@class UIMapBase : GameMapBase @UI地图基础类
 ---@field name string @ 动画名称
 ---@field delay number @ 延时
----@class UIMapBase : MapBase @地图基础类
 local UIMapBase = class('UIMapBase', import('GameMapBase'))
 
 ---构造函数
@@ -11,12 +13,13 @@ local UIMapBase = class('UIMapBase', import('GameMapBase'))
 ---@param args table @自定义参数
 function UIMapBase:ctor(args)
     UIMapBase.super.ctor(self, args)
-    self._MapPiggyBankIcon = nil            ---@type UnityEngine.Transform                                 ---猪猪银行图标
-    self._ClickItemOfPiggyBank = nil        ---@type RGame.ClickItemAnimation                              ---猪猪银行图标的点击动画
-    self._delayCallIds = {}                        ---@type table  ---延迟调用函数的ID（在切换地图时需要手动关闭
+
+    self._MapPiggyBankIcon = nil            ---@type UnityEngine.Transform @猪猪银行图标节点
+    self._ClickItemOfPiggyBank = nil        ---@type RGame.ClickItemAnimation @猪猪银行点击动画组件
+    self._delayCallIds = {}                 ---@type table @延迟调用ID列表（切换地图时需要清理）
 end
 
----创建函数
+---创建实例
 ---@type fun(args:table):UIMapBase
 ---@param args table @自定义参数
 ---@return UIMapBase @UIMapBase实例
@@ -25,39 +28,42 @@ function UIMapBase:Create(args)
     return obj
 end
 
----注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---注册事件监听（父类自动注销）
 ---@type fun():void
 function UIMapBase:OnAddListeners()
     UIMapBase.super.OnAddListeners(self)
-    EventHelper:AddListener(EventCmd.OnDailyRewardSignin, handler(self, self.OnDailyRewardSignin))
+    -- 每日奖励签到刷新事件
+    --HonorEventHelper:AddListener(EventCmd.OnDailyRewardSignin, handler(self, self.OnDailyRewardSignin))
 end
 
 ---初始化
 ---@type fun():void
 function UIMapBase:Init()
     UIMapBase.super.Init(self)
-
 end
 
----唤醒
+---唤醒回调
 ---@type fun():void
 function UIMapBase:Awake()
     UIMapBase.super.Awake(self)
-    ---初始化猪猪银行图标
-    self:InitPiggyBackIcon()
-    self:InitCalendar()
-    ---设置地图
-    TaskSys:SetupMapContent(self)
+
+    --- 初始化猪猪银行图标
+    --self:InitPiggyBackIcon()
+    --- 初始化日历
+    --self:InitCalendar()
+    --- 绑定地图到任务系统
+    --TaskSys:SetupMapContent(self)
 end
 
----开始
+---开始回调
 ---@type fun():void
 function UIMapBase:Start()
     UIMapBase.super.Start(self)
-    MapMotion:OnMapStart(self.cs.transform)
+    --- 初始化地图移动/镜头控制
+    --MapMotion:OnMapStart(self.cs.transform)
 end
 
----销毁
+---销毁回调
 ---@type fun():void
 function UIMapBase:OnDestroy()
     UIMapBase.super.OnDestroy(self)
@@ -71,15 +77,22 @@ end
 ---进入游戏
 function UIMapBase:OnEnterGame()
     UIMapBase.super.OnEnterGame(self)
+
+    --- 进入游戏时处理猪猪银行
     self:OnEnterGamePiggyBank()
+
+    --- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnEnterGame()
     end
+
+    --- 外部自治工人
     if self._outsiderAutonomousWorker then
         self._outsiderAutonomousWorker:OnEnterGame()
     end
-    ---关闭所有气泡
-    BubbleMgr:Dispose()
+
+    --- 关闭所有气泡
+    --BubbleMgr:Dispose()
 end
 
 ---游戏开始
@@ -102,19 +115,25 @@ function UIMapBase:OnGameOver()
     UIMapBase.super.OnGameOver(self)
 end
 
----游戏退出
+---退出游戏
 function UIMapBase:OnExitGame()
     UIMapBase.super.OnExitGame(self)
+
+    --- 退出游戏时处理猪猪银行
     self:OnExitGamePiggyBank()
+
+    --- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnExitGame()
     end
+
+    --- 外部自治工人
     if self._outsiderAutonomousWorker then
         self._outsiderAutonomousWorker:OnExitGame()
     end
 
-    ---temp临时处理，抛出一个事件去开门放关卡内的客人出去
-    EventHelper:Fire(AutonomousMgr:GeneratorBindEventID(EventCmd.RequestOpenDoor, 'Door'))
+    --- 发送开门事件（释放关卡内客人）
+    --HonorEventHelper:Fire(AutonomousMgr:GeneratorBindEventID(EventCmd.RequestOpenDoor, 'Door'))
 end
 
 ---游戏重玩
@@ -122,73 +141,76 @@ function UIMapBase:OnRePlayGame()
     UIMapBase.super.OnRePlayGame(self)
 end
 
----卸载地图之前的清理
+---卸载地图前清理（核心资源释放）
 ---@type fun():void
 function UIMapBase:UnloadMapBeforeClear()
     UIMapBase.super.UnloadMapBeforeClear(self)
 
-    MapMotion:OnMapEnd()
-    TaskSys:SetupMapContent(nil)
+    --- 结束地图控制
+    --MapMotion:OnMapEnd()
+    --- 解绑任务系统地图
+    --TaskSys:SetupMapContent(nil)
 
+    --- 销毁内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:Dispose()
         self._insiderAutonomousWorker = nil
     end
 
+    --- 销毁外部自治工人
     if self._outsiderAutonomousWorker then
         self._outsiderAutonomousWorker:Dispose()
         self._outsiderAutonomousWorker = nil
     end
 
-    ---关闭延迟调用函数
+    --- 清理所有延迟调用
     for id,_ in pairs(self._delayCallIds) do
         DOTween.Kill(id)
     end
     ClearDic(self._delayCallIds)
 
-    ---释放当前地图的自治体
-    AutonomousMgr:Dispose()
+    --- 释放自治体管理器
+    --AutonomousMgr:Dispose()
 
-    ---释放当前地图的气泡
-    BubbleMgr:Dispose()
-
+    --- 释放气泡管理器
+    --BubbleMgr:Dispose()
 end
 
----地图卸载清理
+---地图卸载后清理
 function UIMapBase:UnloadMapAfterClear()
     UIMapBase.super.UnloadMapAfterClear(self)
-
 end
 
+---每日奖励签到刷新（重置日历）
 function UIMapBase:OnDailyRewardSignin()
     self:InitCalendar()
 end
 
----游戏进入
+---进入游戏时猪猪银行逻辑（禁用交互）
 ---@type fun():void
 function UIMapBase:OnEnterGamePiggyBank()
     self:SetPiggyBankIconInteraction(false)
 end
 
----游戏退出
+---退出游戏时猪猪银行逻辑（启用交互）
 ---@type fun():void
 function UIMapBase:OnExitGamePiggyBank()
     self:InitPiggyBackIconActive()
     self:SetPiggyBankIconInteraction(true)
 end
 
-
+---添加延迟调用ID（用于统一清理）
 ---@type fun(id:string):void
----@param id string @ Dotween延时函数的ID
+---@param id string @Dotween延时ID
 function UIMapBase:AddDelayCallId(id)
     self._delayCallIds[id] = id
 end
 
+---移除延迟调用ID
 ---@type fun(id:string):void
----@param id string @ Dotween延时函数的ID
+---@param id string @Dotween延时ID
 function UIMapBase:RemoveDelayCallId(id)
     self._delayCallIds[id] = nil
 end
 
 return UIMapBase
-

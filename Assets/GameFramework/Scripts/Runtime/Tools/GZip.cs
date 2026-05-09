@@ -5,54 +5,62 @@ using System.Text;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// GZip 压缩解压工具类
+    /// 提供字符串/字节数组的压缩、解压，并支持 Base64 编码转换
+    /// 用于网络传输、本地存档、配置文件体积优化
+    /// </summary>
     public static class GZip
     {
         /// <summary>
-        /// 压缩文本为base64
+        /// 将字符串压缩并转换为 Base64 字符串
         /// </summary>
-        /// <param name="content">文本</param>
-        /// <returns>压缩后文本</returns>
+        /// <param name="content">原始明文字符串</param>
+        /// <returns>压缩+Base64编码后的字符串</returns>
         public static string CompressToBase64(string content)
         {
-            MemoryStream ms = new MemoryStream();
-            GZipOutputStream gzip = new GZipOutputStream(ms);
+            using MemoryStream ms = new MemoryStream();
+            using GZipOutputStream gzip = new GZipOutputStream(ms);
             byte[] binary = Encoding.UTF8.GetBytes(content);
             gzip.Write(binary, 0, binary.Length);
             gzip.Close();
-            var jsonString = Convert.ToBase64String(ms.ToArray());
-            return jsonString;
+            return Convert.ToBase64String(ms.ToArray());
         }
 
         /// <summary>
-        /// 解压base64文本
+        /// 将 Base64 字符串解压还原为原始字符串
         /// </summary>
-        /// <param name="content">文本</param>
-        /// <returns>解压后文本</returns>
+        /// <param name="content">Base64压缩字符串</param>
+        /// <returns>原始明文字符串</returns>
         public static string UncompressFromBase64(string content)
         {
             byte[] compressedContent = Convert.FromBase64String(content);
-            GZipInputStream gzip = new GZipInputStream(new MemoryStream(compressedContent));
-            MemoryStream ms = new MemoryStream();
-            int count = 0;
+            
+            using MemoryStream compressedMs = new MemoryStream(compressedContent);
+            using GZipInputStream gzip = new GZipInputStream(compressedMs);
+            using MemoryStream ms = new MemoryStream();
+            
             byte[] data = new byte[256];
+            int count;
             while ((count = gzip.Read(data, 0, data.Length)) != 0)
             {
                 ms.Write(data, 0, count);
             }
+
             byte[] uncompressed = ms.ToArray();
             return Encoding.UTF8.GetString(uncompressed);
         }
 
         /// <summary>
-        /// 压缩字节流到文本
+        /// 压缩字节数组
         /// </summary>
-        /// <param name="content">字节流</param>
-        /// <returns>压缩后字节流</returns>
+        /// <param name="content">原始字节数组</param>
+        /// <returns>压缩后的字节数组</returns>
         public static byte[] CompressToBytes(byte[] content)
         {
             //Profiler.BeginSample("GZip");
-            MemoryStream ms = new MemoryStream();
-            GZipOutputStream gzip = new GZipOutputStream(ms);
+            using MemoryStream ms = new MemoryStream();
+            using GZipOutputStream gzip = new GZipOutputStream(ms);
             gzip.Write(content, 0, content.Length);
             gzip.Close();
             //Profiler.EndSample();
@@ -60,27 +68,24 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 解压文本到字节流
+        /// 解压字节数组
         /// </summary>
-        /// <param name="content">文本</param>
-        /// <returns>解压后字节流</returns>
+        /// <param name="content">压缩字节数组</param>
+        /// <returns>解压后的原始字节数组</returns>
         public static byte[] UncompressToBytes(byte[] content)
         {
-            byte[] compressedContent = content;
-            GZipInputStream gzip = new GZipInputStream(new MemoryStream(compressedContent));
-            MemoryStream ms = new MemoryStream();
-            int count = 0;
+            using MemoryStream compressedMs = new MemoryStream(content);
+            using GZipInputStream gzip = new GZipInputStream(compressedMs);
+            using MemoryStream ms = new MemoryStream();
+            
             byte[] data = new byte[256];
+            int count;
             while ((count = gzip.Read(data, 0, data.Length)) != 0)
             {
                 ms.Write(data, 0, count);
             }
-            byte[] uncompressed = ms.ToArray();
-            return uncompressed;
+
+            return ms.ToArray();
         }
-
     }
-
 }
-
-

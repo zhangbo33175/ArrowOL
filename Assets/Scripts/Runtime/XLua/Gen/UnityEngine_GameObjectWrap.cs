@@ -920,9 +920,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string _luaOnComponentName = LuaAPI.lua_tostring(L, 2);
+                    string _luaScriptName = LuaAPI.lua_tostring(L, 2);
                     
-                        UnityEngine.Component gen_ret = gen_to_be_invoked.GetLua( _luaOnComponentName );
+                        UnityEngine.Component gen_ret = gen_to_be_invoked.GetLua( _luaScriptName );
                         translator.Push(L, gen_ret);
                     
                     
@@ -949,9 +949,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string _luaOnComponentName = LuaAPI.lua_tostring(L, 2);
+                    string _luaScriptName = LuaAPI.lua_tostring(L, 2);
                     
-                        UnityEngine.Component gen_ret = gen_to_be_invoked.GetLuaInParent( _luaOnComponentName );
+                        UnityEngine.Component gen_ret = gen_to_be_invoked.GetLuaInParent( _luaScriptName );
                         translator.Push(L, gen_ret);
                     
                     
@@ -978,9 +978,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string _luaOnComponentName = LuaAPI.lua_tostring(L, 2);
+                    string _luaScriptName = LuaAPI.lua_tostring(L, 2);
                     
-                        UnityEngine.Component gen_ret = gen_to_be_invoked.GetLuaInChildren( _luaOnComponentName );
+                        UnityEngine.Component gen_ret = gen_to_be_invoked.GetLuaInChildren( _luaScriptName );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1007,9 +1007,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string _luaOnComponentName = LuaAPI.lua_tostring(L, 2);
+                    string _luaScriptName = LuaAPI.lua_tostring(L, 2);
                     
-                        UnityEngine.Component[] gen_ret = gen_to_be_invoked.GetLuasInChildren( _luaOnComponentName );
+                        UnityEngine.Component[] gen_ret = gen_to_be_invoked.GetLuasInChildren( _luaScriptName );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1121,9 +1121,9 @@ namespace XLua.CSObjectWrap
                 
                 {
                     int _sortOrder = LuaAPI.xlua_tointeger(L, 2);
-                    bool _isSortParticle = LuaAPI.lua_toboolean(L, 3);
+                    bool _keepOriginalOrder = LuaAPI.lua_toboolean(L, 3);
                     
-                    gen_to_be_invoked.SetParticleSortOrder( _sortOrder, _isSortParticle );
+                    gen_to_be_invoked.SetParticleSortOrder( _sortOrder, _keepOriginalOrder );
                     
                     
                     

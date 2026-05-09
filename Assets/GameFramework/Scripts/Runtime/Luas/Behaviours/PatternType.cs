@@ -11,10 +11,9 @@ namespace Honor.Runtime
         None = 0,
 
         /// <summary>
-        /// MVVM模式
+        /// MVVM模式:Model - View - ViewModel（模型 - 视图 - 视图模型）
         /// </summary>
         MVVM,
-
     }
 
     /// <summary>
@@ -31,7 +30,6 @@ namespace Honor.Runtime
         /// 总数量
         /// </summary>
         TotalNum,
-
     }
 
     /// <summary>
@@ -54,7 +52,4 @@ namespace Honor.Runtime
         /// </summary>
         TotalNum,
     }
-
 }
-
-

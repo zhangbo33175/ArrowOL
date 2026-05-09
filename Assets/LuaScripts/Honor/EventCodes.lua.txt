@@ -1,8 +1,13 @@
 
----@class EventCodes
-EventCodes={
-    ---@field S_OnTimeCorrectionByServer string 服务器时间校正 1个参数(IsTimeCorrectionByServer:boolean) true:服务器校正 false:客户端校正
-    S_OnTimeCorrectionByServer                        ="S_OnTimeCorrectionByServer", --创建界面
-    ---@field NotificationMessage string @通知的消息回调
-    NotificationMessage                               = "NotificationMessage", 
+---@class EventCodes 全局事件定义（C# <-> Lua 通用）
+EventCodes = {
+    --- 服务器时间校正事件
+    --- 参数：IsTimeCorrectionByServer(boolean)
+    ---       true = 服务器校正
+    ---       false = 客户端校正
+    S_OnTimeCorrectionByServer = "S_OnTimeCorrectionByServer",
+
+    --- 全局通知消息回调
+    --- 用途：飘字、提示、系统通知
+    NotificationMessage = "NotificationMessage",
 }

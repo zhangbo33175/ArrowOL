@@ -27,7 +27,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua脚本公有名称
+        /// Lua 脚本公共名称（MVVM 模式）
         /// </summary>
         public string LuaScriptCommonName
         {
@@ -43,7 +43,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua脚本名称集合
+        /// Lua 脚本名称集合
         /// </summary>
         public List<string> LuaScriptNames
         {
@@ -59,7 +59,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua父类脚本名称集合
+        /// Lua 父类脚本名称集合
         /// </summary>
         public List<string> LuaSuperScriptNames
         {
@@ -75,7 +75,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 使用Proc
+        /// 是否启用 Proc 逻辑更新
         /// </summary>
         [SerializeField]
         private bool m_UseProc;
@@ -92,7 +92,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 使用前后遮罩层
+        /// 是否使用遮罩层
         /// </summary>
         [SerializeField]
         private bool m_MaskLayer;
@@ -105,7 +105,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 使用关闭背景层
+        /// 是否使用关闭背景层
         /// </summary>
         [SerializeField]
         private bool m_BottomCloseLayer;
@@ -118,7 +118,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 注入Collider2D生命周期函数
+        /// 是否注入 2D 碰撞事件
         /// </summary>
         [SerializeField]
         private bool m_UseCollider2DLifeCycles;
@@ -131,7 +131,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 注入Collider3D生命周期函数
+        /// 是否注入 3D 碰撞事件
         /// </summary>
         [SerializeField]
         private bool m_UseCollider3DLifeCycles;
@@ -144,7 +144,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 注入Trigger2D生命周期函数
+        /// 是否注入 2D 触发事件
         /// </summary>
         [SerializeField]
         private bool m_UseTrigger2DLifeCycles;
@@ -157,7 +157,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 注入Trigger3D生命周期函数
+        /// 是否注入 3D 触发事件
         /// </summary>
         [SerializeField]
         private bool m_UseTrigger3DLifeCycles;
@@ -170,7 +170,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 使用打开动画
+        /// 是否使用打开动画
         /// </summary>
         [SerializeField]
         private bool m_OpenAnimation;
@@ -187,7 +187,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 使用关闭动画
+        /// 是否使用关闭动画
         /// </summary>
         [SerializeField]
         private bool m_CloseAnimation;
@@ -204,7 +204,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 绘制Gizmo信息(RaycastTargets)
+        /// 是否绘制射线检测目标 Gizmo
         /// </summary>
         [SerializeField]
         private bool m_ShowRaycastTargetsGizmos;
@@ -217,18 +217,18 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 绘制Gizmo信息颜色(RaycastTargets)
+        /// Gizmo 绘制颜色
         /// </summary>
         private Color m_RaycastTargetsGizmosColor = new Color(1.0f, 0.47f, 0.0f, 1.0f);
 
         /// <summary>
-        /// Lua脚本作者名称
+        /// 脚本作者
         /// </summary>
         [SerializeField]
         private string m_LuaAuthorName;
 
         /// <summary>
-        /// Lua脚本描述信息
+        /// 脚本描述
         /// </summary>
         [SerializeField]
         private string m_LuaDescript;
@@ -247,7 +247,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// lua自定义传入参数
+        /// Lua 传入参数
         /// </summary>
         private LuaTable m_LuaParams;
         public LuaTable LuaParams
@@ -263,8 +263,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 公开暴露的cs层的lua环境
-        /// 可以在lua层中通过cs.lua来访问当前挂载的Lua环境
+        /// 公开 Lua 环境（供 Lua 层访问：cs.lua）
         /// </summary>
         public LuaTable lua
         {
@@ -280,7 +279,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 公开暴露的cs层的lua脚本class环境（设计模式：默认）
+        /// 标准模式 Lua Class
         /// </summary>
         public LuaTable luaClass
         {
@@ -291,7 +290,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 公开暴露的cs层的lua脚本ViewClass环境（设计模式：MVVM）
+        /// MVVM 模式 View Class
         /// </summary>
         public LuaTable luaClassView
         {
@@ -302,7 +301,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 公开暴露的cs层的lua脚本ViewModelClass环境（设计模式：MVVM）
+        /// MVVM 模式 ViewModel Class
         /// </summary>
         public LuaTable luaClassViewModel
         {
@@ -313,7 +312,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取公开暴露的cs层有效的lua脚本class环境
+        /// 获取有效 Lua Class（自动适配模式）
         /// </summary>
         public LuaTable ValidLuaClass
         {
@@ -324,7 +323,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua脚本独立环境集合
+        /// Lua 独立环境集合
         /// </summary>
         public LuaTable[] OwnLuaEnvs
         {
@@ -350,7 +349,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua脚本class环境集合
+        /// Lua Class 集合
         /// </summary>
         public LuaTable[] OwnLuaClasses
         {
@@ -374,9 +373,9 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Lua自定义生命周期函数：Awake
-        /// </summary>
+        // ==============================================
+        // 生命周期回调访问器
+        // ==============================================
         public Action[] LuaAwakes
         {
             set
@@ -399,9 +398,6 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Lua自定义生命周期函数：OnEnable
-        /// </summary>
         public Action[] LuaOnEnables
         {
             set
@@ -424,9 +420,6 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Lua自定义生命周期函数：Start
-        /// </summary>
         public Action[] LuaStarts
         {
             set
@@ -449,9 +442,6 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Lua自定义生命周期函数：Proc
-        /// </summary>
         public Action[] LuaProcs
         {
             set
@@ -474,9 +464,6 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Lua自定义生命周期函数：OnDisable
-        /// </summary>
         public Action[] LuaOnDisables
         {
             set
@@ -499,9 +486,6 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Lua自定义生命周期函数：Destroy
-        /// </summary>
         public Action[] LuaOnDestroys
         {
             set
@@ -524,9 +508,9 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Collider2D碰撞盒生命周期函数组件
-        /// </summary>
+        // ==============================================
+        // 碰撞/触发组件
+        // ==============================================
         [SerializeField]
         private Collider2DLifeCyclesBehaviour m_Collider2DLifeCyclesBehaviour;
         public Collider2DLifeCyclesBehaviour Collider2DLifeCyclesBehaviour
@@ -537,9 +521,6 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Collider3D碰撞盒生命周期函数组件
-        /// </summary>
         [SerializeField]
         private Collider3DLifeCyclesBehaviour m_Collider3DLifeCyclesBehaviour;
         public Collider3DLifeCyclesBehaviour Collider3DLifeCyclesBehaviour
@@ -550,9 +531,6 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// Trigger2D触发器生命周期函数组件
-        /// </summary>
         [SerializeField]
         private Trigger2DLifeCyclesBehaviour m_Trigger2DLifeCyclesBehaviour;
         public Trigger2DLifeCyclesBehaviour Trigger2DLifeCyclesBehaviour
@@ -563,10 +541,6 @@ namespace Honor.Runtime
             }
         }
 
-
-        /// <summary>
-        /// Trigger3D触发器生命周期函数组件
-        /// </summary>
         [SerializeField]
         private Trigger3DLifeCyclesBehaviour m_Trigger3DLifeCyclesBehaviour;
         public Trigger3DLifeCyclesBehaviour Trigger3DLifeCyclesBehaviour
@@ -577,37 +551,22 @@ namespace Honor.Runtime
             }
         }
 
-        /// <summary>
-        /// UI组件
-        /// </summary>
+        // ==============================================
+        // 内部组件
+        // ==============================================
         private UIComponent m_UIComponent;
-
-        /// <summary>
-        /// Lua组件
-        /// </summary>
         private LuaComponent m_LuaComponent;
 
         /// <summary>
-        /// 标记Awake是否调用结束
+        /// 生命周期标记
         /// </summary>
         private bool m_AwakeOver;
-
-        /// <summary>
-        /// 标记启动时Enable是否调用结束
-        /// </summary>
         private bool m_EnableOver;
-
-        /// <summary>
-        /// 标记Start是否调用结束
-        /// </summary>
         private bool m_StartOver;
 
         /// <summary>
-        /// Gizmos绘制过程中RaycastTargets对象的四角坐标
+        /// Gizmo 绘制缓存
         /// </summary>
         private Vector3[] m_RaycastTargetWorldCornersOnDrawGizmos = new Vector3[4];
-
     }
 }
-
-

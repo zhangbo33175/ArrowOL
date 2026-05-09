@@ -6,54 +6,57 @@ using UnityEngine;
 namespace GameLib
 {
     /// <summary>
-    /// 有限状态机。
+    /// 通用有限状态机基类 (FSM)
+    /// 管理一组状态的切换、更新、生命周期
     /// </summary>
-    /// <typeparam name="T">有限状态机持有者类型。</typeparam>
+    /// <typeparam name="T">状态机持有者（拥有者）的类型</typeparam>
     public abstract class StateMachine<T> where T : class
     {
         /// <summary>
-        /// 有限状态机名称
+        /// 状态机名称（用于标识、调试）
         /// </summary>
         protected string m_Name;
 
         /// <summary>
-        /// 有限状态机的持有者
+        /// 状态机持有者（实体对象，如角色、怪物、UI）
         /// </summary>
         protected T m_Owner;
 
         /// <summary>
-        /// 有限状态机中的状态集合
+        /// 状态集合（Type -> State 映射）
         /// </summary>
         protected readonly Dictionary<Type, State<T>> m_States;
 
         /// <summary>
-        /// 有限状态机的前一次状态
+        /// 上一个状态
         /// </summary>
         protected State<T> m_LastState;
 
         /// <summary>
-        /// 前一次状态的持续时间
+        /// 上一个状态持续了多久
         /// </summary>
         protected float m_LastStateTime;
 
         /// <summary>
-        /// 有限状态机的当前状态
+        /// 当前状态
         /// </summary>
         protected State<T> m_CurrentState;
 
         /// <summary>
-        /// 当前状态的持续时间
+        /// 当前状态持续了多久
         /// </summary>
         protected float m_CurrentStateTime;
 
         /// <summary>
-        /// 有限状态机是否已经销毁
+        /// 是否已销毁
         /// </summary>
         protected bool m_IsDestroyed;
 
         /// <summary>
-        /// 初始化有限状态机的新实例。
+        /// 构造函数：初始化状态机
         /// </summary>
+        /// <param name="owner">持有者</param>
+        /// <param name="states">所有状态实例</param>
         public StateMachine(T owner, params State<T>[] states)
         {
             if (owner == null)
@@ -75,6 +78,7 @@ namespace GameLib
             m_CurrentState = null;
             m_CurrentStateTime = 0f;
 
+            // 注册所有状态并初始化
             foreach (State<T> state in states)
             {
                 if (state == null)
@@ -94,7 +98,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机名称。
+        /// 状态机名称
         /// </summary>
         public string Name
         {
@@ -103,7 +107,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机持有者。
+        /// 状态机持有者
         /// </summary>
         public T Owner
         {
@@ -111,7 +115,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机持有者类型。
+        /// 持有者类型
         /// </summary>
         public Type OwnerType
         {
@@ -119,7 +123,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机中状态的数量。
+        /// 状态数量
         /// </summary>
         public int StateCount
         {
@@ -127,7 +131,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机是否正在运行。
+        /// 是否正在运行（当前状态不为空）
         /// </summary>
         public bool IsRunning
         {
@@ -135,7 +139,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机是否被销毁。
+        /// 是否已销毁
         /// </summary>
         public bool IsDestroyed
         {
@@ -143,7 +147,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取前一次有限状态机状态。
+        /// 上一个状态
         /// </summary>
         public State<T> LastState
         {
@@ -151,7 +155,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取前一次有限状态机状态名称。
+        /// 上一个状态名称
         /// </summary>
         public string LastStateName
         {
@@ -159,7 +163,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取前一次有限状态机状态持续时间。
+        /// 上一个状态持续时间
         /// </summary>
         public float LastStateTime
         {
@@ -167,7 +171,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取当前有限状态机状态。
+        /// 当前状态
         /// </summary>
         public State<T> CurrentState
         {
@@ -175,7 +179,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取当前有限状态机状态名称。
+        /// 当前状态名称
         /// </summary>
         public string CurrentStateName
         {
@@ -183,7 +187,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取当前有限状态机状态持续时间。
+        /// 当前状态已持续时间
         /// </summary>
         public float CurrentStateTime
         {
@@ -191,7 +195,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 清理有限状态机。
+        /// 清空状态机（退出当前状态、销毁所有状态）
         /// </summary>
         public void Clear()
         {
@@ -216,9 +220,9 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 启动有限状态机。
+        /// 启动状态机（进入初始状态）
         /// </summary>
-        /// <param name="stateType">要开始的有限状态机状态类型。</param>
+        /// <param name="stateType">初始状态类型</param>
         public void Start(Type stateType)
         {
             if (IsRunning)
@@ -248,10 +252,8 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 是否存在有限状态机状态。
+        /// 是否包含某个状态
         /// </summary>
-        /// <param name="stateType">要检查的有限状态机状态类型。</param>
-        /// <returns>是否存在有限状态机状态。</returns>
         public bool HasState(Type stateType)
         {
             if (stateType == null)
@@ -268,10 +270,8 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机状态。
+        /// 获取指定状态
         /// </summary>
-        /// <param name="stateType">要获取的有限状态机状态类型。</param>
-        /// <returns>要获取的有限状态机状态。</returns>
         public State<T> GetState(Type stateType)
         {
             if (stateType == null)
@@ -294,9 +294,8 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机的所有状态。
+        /// 获取所有状态（数组）
         /// </summary>
-        /// <returns>有限状态机的所有状态。</returns>
         public State<T>[] GetAllStates()
         {
             int index = 0;
@@ -310,9 +309,8 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 获取有限状态机的所有状态。
+        /// 获取所有状态（List）
         /// </summary>
-        /// <param name="results">有限状态机的所有状态。</param>
         public void GetAllStates(List<State<T>> results)
         {
             if (results == null)
@@ -328,9 +326,9 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 切换当前有限状态机状态。
+        /// 切换状态
         /// </summary>
-        /// <param name="stateType">要切换到的有限状态机状态类型。</param>
+        /// <param name="stateType">目标状态类型</param>
         public void ChangeState(Type stateType)
         {
             if (m_CurrentState == null)
@@ -344,16 +342,22 @@ namespace GameLib
                 throw new Exception(AorTxt.Format("状态机 '{0}' 不能切换到不存在的 state '{1}'。", Name, stateType.FullName));
             }
 
+            // 退出当前状态
             m_CurrentState.OnLeave(this, false);
+
+            // 记录上一个状态
             m_LastState = m_CurrentState;
             m_LastStateTime = m_CurrentStateTime;
+
+            // 进入新状态
             m_CurrentStateTime = 0f;
             m_CurrentState = state;
             m_CurrentState.OnEnter(this);
         }
 
         /// <summary>
-        /// 有限状态机轮询。
+        /// 每帧更新
+        /// 驱动当前状态的逻辑
         /// </summary>
         public virtual void Update()
         {
@@ -367,7 +371,7 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 关闭并清理有限状态机。
+        /// 关闭状态机（子类可重写）
         /// </summary>
         public virtual void Shutdown()
         {

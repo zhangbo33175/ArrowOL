@@ -1,35 +1,48 @@
-
 namespace Honor.Runtime
 {
     public sealed partial class EventPool<T> where T : EventParams
     {
+        /// <summary>
+        /// 事件节点（内部私有类）
+        /// 用于封装事件发送者与事件参数，作为事件队列的存储单元
+        /// </summary>
         private sealed class Event
         {
+            /// <summary>
+            /// 事件发送者
+            /// </summary>
             private object m_Sender;
+
+            /// <summary>
+            /// 事件参数
+            /// </summary>
             private T m_EventParams;
 
+            /// <summary>
+            /// 默认构造函数
+            /// </summary>
             public Event()
             {
                 m_Sender = null;
                 m_EventParams = null;
             }
 
-            public object Sender
-            {
-                get
-                {
-                    return m_Sender;
-                }
-            }
+            /// <summary>
+            /// 获取事件发送者
+            /// </summary>
+            public object Sender => m_Sender;
 
-            public T EventParams
-            {
-                get
-                {
-                    return m_EventParams;
-                }
-            }
+            /// <summary>
+            /// 获取事件参数
+            /// </summary>
+            public T EventParams => m_EventParams;
 
+            /// <summary>
+            /// 创建事件节点（静态工厂方法）
+            /// </summary>
+            /// <param name="sender">事件发送者</param>
+            /// <param name="e">事件参数</param>
+            /// <returns>创建完成的事件节点</returns>
             public static Event Create(object sender, T e)
             {
                 Event eventNode = new Event();
@@ -38,14 +51,14 @@ namespace Honor.Runtime
                 return eventNode;
             }
 
+            /// <summary>
+            /// 清理事件节点引用，便于复用或回收
+            /// </summary>
             public void Clear()
             {
                 m_Sender = null;
                 m_EventParams = null;
             }
-
         }
     }
 }
-
-

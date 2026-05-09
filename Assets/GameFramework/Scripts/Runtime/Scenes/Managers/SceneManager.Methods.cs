@@ -2,14 +2,20 @@ using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 场景管理器（工具方法分部类）
+    /// 提供：场景列表查找、移除、状态判断的通用工具
+    /// </summary>
     public sealed partial class SceneManager
     {
         /// <summary>
-        /// 从资源名称列表中移除资源名称
+        /// 从场景列表中移除指定的场景记录
+        /// 特殊处理：卸载列表只匹配场景名，其他列表匹配 abPath + assetName
         /// </summary>
-        /// <param name="list">资源名称列表</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset资源名称</param>
+        /// <param name="list">目标列表</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">场景资源名</param>
+        /// <returns>是否成功移除</returns>
         private bool RemoveAssetNamesFromList(List<List<string>> list, string abPath, string assetName)
         {
             if (list == null)
@@ -17,6 +23,7 @@ namespace Honor.Runtime
                 throw new GameException("Scene list 无效。");
             }
 
+            // 如果是【卸载队列】：只按场景名称匹配（只存 assetName）
             if (list == m_UnloadingSceneAssetNames)
             {
                 if (string.IsNullOrEmpty(assetName))
@@ -26,16 +33,14 @@ namespace Honor.Runtime
 
                 for (int index = 0; index < list.Count; index++)
                 {
-                    if (!string.IsNullOrEmpty(list[index][0]))
+                    if (!string.IsNullOrEmpty(list[index][0]) && list[index][0] == assetName)
                     {
-                        if (list[index][0] == assetName)
-                        {
-                            list.RemoveAt(index);
-                            return true;
-                        }
+                        list.RemoveAt(index);
+                        return true;
                     }
                 }
             }
+            // 如果是【预加载/加载中/已加载队列】：按 AB路径 + 场景名 匹配
             else
             {
                 if (string.IsNullOrEmpty(abPath))
@@ -65,11 +70,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 指定资源是否存在于指定资源名称列表中
+        /// 检查指定场景名称是否存在于列表中
+        /// 卸载队列只查第0位，其他队列查第1位（assetName）
         /// </summary>
-        /// <param name="list">资源名称列表</param>
-        /// <param name="assetName">asset资源名称</param>
-        /// <returns></returns>
+        /// <param name="list">目标列表</param>
+        /// <param name="assetName">场景资源名</param>
+        /// <returns>是否存在</returns>
         private bool IsAssetNameExistInList(List<List<string>> list, string assetName)
         {
             if (list == null)
@@ -77,39 +83,30 @@ namespace Honor.Runtime
                 throw new GameException("Scene list 无效。");
             }
 
+            if (string.IsNullOrEmpty(assetName))
+            {
+                throw new GameException("Scene assetName 无效。");
+            }
+
+            // 卸载队列：存储格式 [assetName]
             if (list == m_UnloadingSceneAssetNames)
             {
-                if (string.IsNullOrEmpty(assetName))
-                {
-                    throw new GameException("Scene assetName 无效。");
-                }
-
                 for (int index = 0; index < list.Count; index++)
                 {
-                    if (!string.IsNullOrEmpty(list[index][0]))
+                    if (!string.IsNullOrEmpty(list[index][0]) && list[index][0] == assetName)
                     {
-                        if (list[index][0] == assetName)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
+            // 其他队列：存储格式 [abPath, assetName]
             else
             {
-                if (string.IsNullOrEmpty(assetName))
-                {
-                    throw new GameException("Scene assetName 无效。");
-                }
-
                 for (int index = 0; index < list.Count; index++)
                 {
-                    if (!string.IsNullOrEmpty(list[index][1]))
+                    if (!string.IsNullOrEmpty(list[index][1]) && list[index][1] == assetName)
                     {
-                        if (list[index][1] == assetName)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
@@ -117,7 +114,4 @@ namespace Honor.Runtime
             return false;
         }
     }
-
 }
-
-

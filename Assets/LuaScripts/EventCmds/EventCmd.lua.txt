@@ -1,33 +1,125 @@
 --=====================================================================================================
--- descrip:   事件全局定义
+-- descrip:   全局事件定义（全局事件中心）
+--            作用：定义全游戏唯一的事件字符串，用于跨模块、跨UI消息通信
 --=====================================================================================================
 
 EventCmd = {
-    UIGameViewClose="UIGameViewClose",
-    
+    ------------------------------
+    -- UI 通用事件
+    ------------------------------
+    --- 游戏界面关闭
+    UIGameViewClose = "UIGameViewClose",
+    --- 游戏界面打开
     UIGameViewOpen = "UIGameViewOpen",
-    ---账号绑定结果(isSuccess:boolean, platform:string)
-    OnAidBindingResult = "OnAidBindingResult",
-    ---账号解绑结果(isSuccess:boolean, platform:string)
-    OnAidUnBindingResult = "OnAidUnBindingResult",
-    ---登录结果(isSuccess:boolean)
-    OnLoginResult = "OnLoginResult",
-    ---@field NotificationMessage string @通知的消息回调
-    NotificationMessage = "NotificationMessage",
-    ---多语言切换
-    OnLanguageChange="OnLanguageChange",
-    ---刷新了一次用户分层数据
-    OnGenerateUserType="OnGenerateUserType",
-    ---Level
-    ---关卡成功 1个参数(chapterLevelData:ChapterLevel)
-    OnLevelSuccess="OnLevelSuccess",
-    ---关卡异常退出(杀进程)(chapterId:string, levelId:number)
-    OnLevelUnusualExit="OnLevelUnusualExit",
-    ---[时间]区域离线金币CD时间结束事件
-    TimerAreaOfflineCoinCDOver="TimerAreaOfflineCoinCDOver",
-    ---运行时地图区域发生变化
-    AreaOfflineCoinCDOver="AreaOfflineCoinCDOver",
 
-    ---运行时地图区域发生变化
+    ------------------------------
+    -- 账号 / 登录相关
+    ------------------------------
+    --- 账号绑定结果（isSuccess:boolean, platform:EAidPlatform, aid:string, position:number）
+    OnAidBindingResult = "OnAidBindingResult",
+    --- 账号解绑结果（isSuccess:boolean, platform:EAidPlatform, aid:string, position:number）
+    OnAidUnBindingResult = "OnAidUnBindingResult",
+    --- 登录结果（isSuccess:boolean）
+    OnLoginResult = "OnLoginResult",
+
+    ------------------------------
+    -- 全局通知
+    ------------------------------
+    --- 通用提示消息（msg:string）
+    NotificationMessage = "NotificationMessage",
+    --- 多语言切换
+    OnLanguageChange = "OnLanguageChange",
+    --- 用户分层数据刷新
+    OnGenerateUserType = "OnGenerateUserType",
+
+    ------------------------------
+    -- 关卡 / 游戏核心
+    ------------------------------
+    --- 关卡失败（chapterLevelData:ChapterLevel）
+    OnLevelFailure="OnLevelFailure",
+    --- 关卡成功（chapterLevelData:ChapterLevel）
+    OnLevelSuccess = "OnLevelSuccess",
+    --- 关卡异常退出（杀进程）（chapterId:string, levelId:number）
+    OnLevelUnusualExit = "OnLevelUnusualExit",
+    ---首次进入主状态
+    OnFirstIntoMainState = "OnFirstIntoMainState",
+    ---地图切换完成
+    OnChapterMapChangeComplete = "OnChapterMapChangeComplete",
+    ------------------------------
+    -- 地图 / 区域
+    ------------------------------
+    --- 区域离线金币CD结束
+    TimerAreaOfflineCoinCDOver = "TimerAreaOfflineCoinCDOver",
+    --- 区域离线金币结算结束
+    AreaOfflineCoinCDOver = "AreaOfflineCoinCDOver",
+    --- 运行时地图区域变化
     OnRuntimeAreaChanged = "OnRuntimeAreaChanged",
+    --- 章节地图切换完成
+    OnChapterMapChangeComplete = "OnChapterMapChangeComplete",
+
+    ------------------------------
+    -- 时间 / 同步
+    ------------------------------
+    --- 服务器时间校正（IsTimeCorrectionByServer:boolean）
+    OnTimeCorrectionByServer = "OnTimeCorrectionByServer",
+
+    ------------------------------
+    -- 道具 / 技能
+    ------------------------------
+    --- 使用道具（boosterId:string, num:number）
+    OnBoosterUseEvent = "OnBoosterUseEvent",
+    --- 时间冻结技能结束
+    OnSkillFreezeTimeOver = "OnSkillFreezeTimeOver",
+    --- 道具功能启用
+    OnBoostersEnable = "OnBoostersEnable",
+    --- 道具效果结束
+    OnBoosterEnd = "OnBoosterEnd",
+    --- 显示道具解锁描述
+    OnBoosterUnlockDescShowEvent = "OnBoosterUnlockDescShowEvent",
+    --- 道具数量修改
+    OnBoosterNumModifyEvent = "OnBoosterNumModifyEvent",
+
+    ------------------------------
+    -- 主界面 HUD
+    ------------------------------
+    --- 主界面状态变更
+    OnGameMainHudStateChange = "OnGameMainHudStateChange",
+    --- 恢复主界面推送UI
+    OnTryResumeGameMainPushUI = "OnTryResumeGameMainPushUI",
+    --- 主界面射线检测状态变更
+    OnUIMainRaycastStateChange = "OnUIMainRaycastStateChange",
+    --- 允许主界面新手引导
+    OnAllowMainHudTutorial = "OnAllowMainHudTutorial",
+
+    --- 显示主界面HUD
+    OnShowMainHudUI = "OnShowMainHudUI",
+    --- 隐藏主界面HUD
+    OnHideMainHudUI = "OnHideMainHudUI",
+    --- 主界面显示完成
+    OnShowMainHudUIOver = "OnShowMainHudUIOver",
+    --- 主界面隐藏完成
+    OnHideMainHudUIOver = "OnHideMainHudUIOver",
+
+    ------------------------------
+    -- 货币 / 成就
+    ------------------------------
+    --- UI临时货币变化（仅显示）
+    OnCurrencyChangeInUI = "OnCurrencyChangeInUI",
+    --- 请求显示成就提示UI
+    OnRequestShowAchievementTipsUI = "OnRequestShowAchievementTipsUI",
+
+
+    ---PlayingState
+    ---剩余寻找物数量变化
+    ChangeOnTheNumberOfRemainingSearchItems = "ChangeOnTheNumberOfRemainingSearchItems",
+
+
+    ---Buffer
+    OnBufferTimeModifyEvent = "OnBufferTimeModifyEvent",
+    OnBufferTimeEndEvent = "OnBufferTimeEndEvent",
+    ---Buffer倒计时事件(Buff管理器专用事件)
+    OnBufferDeltaTimeTickEvent = "OnBufferDeltaTimeTickEvent",
+    ---Buffer倒计时事件(业务逻辑监听的事件)
+    OnBufferTimeTickEvent = "OnBufferTimeTickEvent",
+
 }

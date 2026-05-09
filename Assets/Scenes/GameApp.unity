@@ -1169,14 +1169,14 @@ MonoBehaviour:
   m_ProcedureTransitionExitDurationFromProcedureHotfix: 1
   m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix: 1
   m_EntryProcedureTypeName: Honor.Runtime.ProcedureLaunch
-  m_UITransitionABPath: Assets/Res//Prefabs/UIs/UILauncherLogo
+  m_UITransitionABPath: Assets/Res//Prefabs/UIs/UILauncherLogoView
   m_UITransitionAssetName: UILauncherLogoView
   m_UISplashABPath: Assets/Res//Prefabs/UIs/UILauncherView
   m_UISplashAssetName: UILauncherView
   m_SplashProcedureDuration: 5
-  m_UseUIPreload: 0
-  m_UIPreloadABPath: Assets/Res//Prefabs
-  m_UIPreloadAssetName: UIPreloadDefault
+  m_UseUIPreload: 1
+  m_UIPreloadABPath: Assets/Res//Prefabs/UIs/UILoadingView
+  m_UIPreloadAssetName: UILauncherLoadingView
 --- !u!1 &1787250798
 GameObject:
   m_ObjectHideFlags: 0

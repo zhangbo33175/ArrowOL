@@ -4,91 +4,113 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 全局计时器组件
+    /// 负责管理所有延时计时器，基于 MonoBehaviour 更新驱动
+    /// 继承 GameComponent 自动注册到框架
+    /// </summary>
     public class TimerComponent : GameComponent
     {
-        // 管理的所有时间触发器
-        List<TimerCounter> _Timers = new List<TimerCounter>();
+        /// <summary>
+        /// 存储所有正在运行的计时器
+        /// </summary>
+        private readonly List<TimerCounter> _timers = new List<TimerCounter>();
 
+        /// <summary>
+        /// 清空所有计时器
+        /// </summary>
         public void Clear()
         {
-            _Timers.Clear();
+            _timers.Clear();
         }
 
-        void Update()
+        /// <summary>
+        /// 每帧更新所有计时器
+        /// 倒序遍历，防止移除元素导致的索引越界
+        /// </summary>
+        private void Update()
         {
-            for (int i = _Timers.Count - 1; i >= 0; i--)
+            // 倒序遍历，安全删除元素
+            for (int i = _timers.Count - 1; i >= 0; i--)
             {
-                if (i >= _Timers.Count)
+                TimerCounter timer = _timers[i];
+
+                // 计时器为空，直接移除
+                if (timer == null)
                 {
-                    break;
+                    _timers.RemoveAt(i);
+                    continue;
                 }
 
-                var timer = _Timers[i];
-                if (timer != null)
+                // 绑定物体已销毁，自动清理计时器
+                if (timer.DelObj == null || timer.DelObj.Equals(null))
                 {
-                    if (timer._DelObj == null || timer._DelObj.Equals(null))
-                    {
-                        _Timers.Remove(timer);
-                        continue;
-                    }
+                    _timers.RemoveAt(i);
+                    continue;
+                }
 
-                    timer._DeltaTime += Time.deltaTime;
-                    // 计时器触发了
-                    if (timer._DeltaTime >= timer._DelayTime)
-                    {
-                        // 通知刷新
-                        if (timer._Del != null)
-                        {
-                            timer._Del(timer._Owner);
-                        }
+                // 累加时间
+                timer.DeltaTime += Time.deltaTime;
 
-                        _Timers.Remove(timer);
-                    }
+                // 时间到达，触发回调
+                if (timer.DeltaTime >= timer.DelayTime)
+                {
+                    timer.Del?.Invoke(timer.Owner);
+                    _timers.RemoveAt(i);
                 }
             }
         }
 
         /// <summary>
-        /// 移除一个计时器
+        /// 根据所有者标识移除计时器
         /// </summary>
-        /// <param name="counter"></param>
+        /// <param name="owner">计时器唯一标识</param>
         public void RemoveTimer(string owner)
         {
             if (string.IsNullOrEmpty(owner))
-            {
                 return;
-            }
 
-            for (int i = 0; i < _Timers.Count; i++)
+            for (int i = _timers.Count - 1; i >= 0; i--)
             {
-                if (_Timers[i]._Owner == owner)
+                if (_timers[i].Owner == owner)
                 {
-                    _Timers.Remove(_Timers[i]);
+                    _timers.RemoveAt(i);
                     break;
                 }
             }
         }
 
+        /// <summary>
+        /// 根据所有者获取计时器
+        /// </summary>
+        /// <param name="owner">唯一标识</param>
+        /// <returns>找到的计时器，没有则返回null</returns>
         public TimerCounter GetTimerCounter(string owner)
         {
-            for (int i = 0; i < _Timers.Count; i++)
+            foreach (var timer in _timers)
             {
-                if (_Timers[i]._Owner == owner)
-                {
-                    return _Timers[i];
-                }
+                if (timer.Owner == owner)
+                    return timer;
             }
 
             return null;
         }
 
+        /// <summary>
+        /// 添加/复用一个延时计时器
+        /// 相同owner会复用，不会重复创建
+        /// </summary>
+        /// <param name="time">延迟时间（秒）</param>
+        /// <param name="del">回调委托</param>
+        /// <param name="obj">绑定的GameObject（物体销毁则计时器自动失效）</param>
+        /// <param name="owner">唯一标识，用于查找/删除</param>
+        /// <returns>创建或复用的计时器</returns>
         public TimerCounter AddTimerCounter(float time, Action<string> del, GameObject obj, string owner = "")
         {
             if (obj == null)
-            {
                 return null;
-            }
 
+            // 尝试复用已有计时器
             TimerCounter timerCounter = null;
             if (!string.IsNullOrEmpty(owner))
             {
@@ -97,41 +119,77 @@ namespace Honor.Runtime
 
             if (timerCounter != null)
             {
-                timerCounter._DelayTime = time;
-                timerCounter._Del = del;
-                timerCounter._DelObj = obj;
-                timerCounter._DeltaTime = 0f;
+                // 复用：重置参数
+                timerCounter.DelayTime = time;
+                timerCounter.Del = del;
+                timerCounter.DelObj = obj;
+                timerCounter.DeltaTime = 0f;
             }
             else
             {
-                timerCounter = new TimerCounter();
-                timerCounter._Owner = owner;
-                timerCounter._Del = del;
-                timerCounter._DelayTime = time;
-                timerCounter._DelObj = obj;
-                _Timers.Add(timerCounter);
+                // 新建计时器
+                timerCounter = new TimerCounter
+                {
+                    Owner = owner,
+                    Del = del,
+                    DelayTime = time,
+                    DelObj = obj,
+                    DeltaTime = 0f
+                };
+
+                _timers.Add(timerCounter);
             }
 
             return timerCounter;
         }
     }
 
+    /// <summary>
+    /// 计时器数据结构
+    /// 存储延时、回调、绑定对象、唯一标识等信息
+    /// </summary>
+    [Serializable]
     public class TimerCounter
     {
-        public Action<string> _Del = null;
-        public float _DelayTime; //持续时间
-        public float _DeltaTime; //已经被计时的时间
-        public string _Owner = string.Empty;
-        public GameObject _DelObj = null;
+        /// <summary>
+        /// 计时结束回调
+        /// </summary>
+        public Action<string> Del;
 
+        /// <summary>
+        /// 延迟时间（秒）
+        /// </summary>
+        public float DelayTime;
+
+        /// <summary>
+        /// 当前已计时时间
+        /// </summary>
+        public float DeltaTime;
+
+        /// <summary>
+        /// 所有者标识（唯一ID）
+        /// </summary>
+        public string Owner = string.Empty;
+
+        /// <summary>
+        /// 绑定的GameObject（物体销毁则自动停止计时）
+        /// </summary>
+        public GameObject DelObj;
+
+        /// <summary>
+        /// 获取剩余时间
+        /// </summary>
         public float GetLeftTime()
         {
-            return _DelayTime - _DeltaTime;
+            return DelayTime - DeltaTime;
         }
 
+        /// <summary>
+        /// 设置回调方法
+        /// </summary>
         public void SetCallBack(Action<string> func)
         {
-            _Del = func;
+            Del = func;
         }
     }
 }

@@ -5,20 +5,28 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 震动管理组件（游戏框架核心组件）
+    /// 功能：提供设备震动的外部调用接口，支持Lua调用、参数校验、类型震动/自定义震动
+    /// 归属：GameFramework -> 输入反馈模块
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class VibrateComponent : GameComponent
     {
+        /// <summary>
+        /// 组件初始化
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
 
+            // 创建震动管理器实例
             m_VibrateManager = new VibrateManager();
             if (m_VibrateManager == null)
             {
                 Log.Fatal("Vibrate manager 无效。");
                 return;
             }
-
         }
 
         private void Start()
@@ -32,7 +40,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放最简单的振动
+        /// 播放系统默认简单震动
         /// </summary>
         public void Play()
         {
@@ -40,23 +48,24 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放不同类型的振动
+        /// 播放预设类型的震动
         /// </summary>
-        /// <param name="type">振动类型</param>
+        /// <param name="type">震动类型枚举</param>
         public void Play(VibrateType type)
         {
             m_VibrateManager.Play(type);
         }
 
         /// <summary>
-        /// 播放自定义振动
+        /// 播放自定义连续震动
         /// </summary>
-        /// <param name="intensity">强度（0~1）</param>
-        /// <param name="sharpness">感知度（0~1）</param>
-        /// <param name="preDuration">前奏空闲持续时间（>=0）</param>
-        /// <param name="duration">持续时间（>=0）</param>
+        /// <param name="intensity">强度 0~1</param>
+        /// <param name="sharpness">触感尖锐度 0~1</param>
+        /// <param name="preDuration">前置延迟</param>
+        /// <param name="duration">持续时间</param>
         public void PlayCustom(float intensity, float sharpness, float preDuration = 0f, float duration = 0f)
         {
+            // 参数合法性校验
             if (intensity < 0f || intensity > 1f)
             {
                 Log.Error("VibrateComponent.PlayCustom intensity 无效。");
@@ -85,9 +94,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放自定义振动组合
+        /// 播放一组自定义连续震动（Lua配置表传入）
         /// </summary>
-        /// <param name="luaTable">表格信息</param>
+        /// <param name="luaTable">Lua配置表</param>
         public void PlayCustomGroup(LuaTable luaTable)
         {
             if (luaTable == null)
@@ -100,12 +109,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放点振动
+        /// 播放点震动能效（短促、间隔式震动）
         /// </summary>
-        /// <param name="amplitude">振幅（0~1）</param>
-        /// <param name="frequency">频率（0~1）</param>
-        /// <param name="preDuration">前奏空闲持续时间（>=0）</param>
-        /// <param name="interval">间隔时间（>=0）</param>
+        /// <param name="amplitude">振幅</param>
+        /// <param name="frequency">频率</param>
+        /// <param name="preDuration">延迟</param>
+        /// <param name="interval">间隔</param>
         public void PlayEmphasis(float amplitude, float frequency, float preDuration = 0f, float interval = 0f)
         {
             if (amplitude < 0f || amplitude > 1f)
@@ -136,9 +145,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放点振动组合
+        /// 播放一组点震动（Lua配置表）
         /// </summary>
-        /// <param name="luaTable">表格信息</param>
         public void PlayEmphasisGroup(LuaTable luaTable)
         {
             if (luaTable == null)
@@ -151,24 +159,23 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 终止所有振动
+        /// 停止所有正在播放的震动
         /// </summary>
         public void StopAll()
         {
             m_VibrateManager.StopAll();
         }
 
-        /// <summary>
-        /// 设置开关
+        /// <summary
+        /// 设置震动总开关
         /// </summary>
-        /// <param name="enable">开关</param>
         public void SetEnable(bool enable)
         {
             m_VibrateManager.SetEnable(enable);
         }
 
         /// <summary>
-        /// 获取开关
+        /// 获取震动开关状态
         /// </summary>
         public bool GetEnable()
         {
@@ -176,15 +183,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 判断是否支持振动
+        /// 当前设备是否支持震动
         /// </summary>
-        /// <returns></returns>
         public bool IsSupported()
         {
             return m_VibrateManager.IsSupported();
         }
-
     }
 }
-
-

@@ -6,11 +6,14 @@ namespace Honor.Runtime
     public sealed partial class FileFragmentForWebGLManager
     {
         /// <summary>
-        /// 从存档中读取所有条目
+        /// 从本地存储中加载所有分类与键名索引（内存索引重建）
+        /// 读取分类列表 → 读取每个分类下的键名列表 → 构建内存结构
         /// </summary>
         private void LoadItemNameGroups()
         {
             m_ItemNameGroups.Clear();
+
+            // 读取所有分类名称（加密存储）
             string classifyNameListText = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString("ClassifyNameListForWebGL", AESEncrypt.EncodeToBase64(string.Empty)));
             if (!string.IsNullOrEmpty(classifyNameListText))
             {
@@ -20,6 +23,7 @@ namespace Honor.Runtime
                     string classifyName = classifyNameList[classifyNameIndex];
                     m_ItemNameGroups.Add(classifyName, new List<string>());
 
+                    // 读取当前分类下的所有键名
                     string classifyXXXXXItemNameListText = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString($"Classify_{classifyName}_ItemNameListForWebGL", AESEncrypt.EncodeToBase64(string.Empty)));
                     if (!string.IsNullOrEmpty(classifyXXXXXItemNameListText))
                     {
@@ -28,11 +32,11 @@ namespace Honor.Runtime
                     }
                 }
             }
-
         }
 
         /// <summary>
-        /// 刷新分类名称列表到存档
+        /// 将当前所有分类名称刷新并保存到本地
+        /// 用于新增/删除分类后同步索引
         /// </summary>
         private void RefreshClassifyNameListToSave()
         {
@@ -41,19 +45,23 @@ namespace Honor.Runtime
             {
                 classifyNameList = string.IsNullOrEmpty(classifyNameList) ? classifyName : $"{classifyNameList},{classifyName}";
             }
+            // 加密后保存
             PlayerPrefs.SetString("ClassifyNameListForWebGL", AESEncrypt.EncodeToBase64(classifyNameList));
         }
 
         /// <summary>
-        /// 刷新条目指定分类名称下的所有数据到存档
+        /// 刷新指定分类下的所有键名并保存到本地
+        /// 用于新增/删除键后同步索引
         /// </summary>
-        /// <param name="classifyNameForSetting">分类名称</param>
+        /// <param name="classifyNameForSetting">要刷新的分类名</param>
         private void RefreshItemNameListToSave(string classifyNameForSetting)
         {
             if (!string.IsNullOrEmpty(classifyNameForSetting))
             {
                 List<string> names = null;
                 string key = $"Classify_{classifyNameForSetting}_ItemNameListForWebGL";
+
+                // 存在则保存键名列表
                 if (m_ItemNameGroups.TryGetValue(classifyNameForSetting, out names))
                 {
                     string nameList = string.Empty;
@@ -63,6 +71,7 @@ namespace Honor.Runtime
                     }
                     PlayerPrefs.SetString(key, AESEncrypt.EncodeToBase64(nameList));
                 }
+                // 不存在则删除该分类的键名列表
                 else
                 {
                     if (PlayerPrefs.HasKey(key))
@@ -74,5 +83,3 @@ namespace Honor.Runtime
         }
     }
 }
-
-

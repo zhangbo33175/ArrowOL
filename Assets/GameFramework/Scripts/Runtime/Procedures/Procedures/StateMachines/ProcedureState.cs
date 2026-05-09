@@ -3,20 +3,25 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 流程状态抽象基类
+    /// 所有游戏流程（启动/热更/预加载/游戏中）均继承此类
+    /// 提供：Lua绑定、状态切换、过渡动画、事件监听、生命周期管理
+    /// </summary>
     public abstract class ProcedureState : State<ProcedureComponent>
     {
         /// <summary>
-        /// 切换至下一个流程时需要等待最大帧数
+        /// 切换流程时最大等待帧数（防止帧等待死循环）
         /// </summary>
         private const int MAX_NEXT_PROCEDURE_WAIT_FRAME_NUM = 5;
 
         /// <summary>
-        /// 是否复位(复位Lua，会自动重新加载PreloadProcedure流程)
+        /// 全局复位标记（置true会自动重启到Preload流程）
         /// </summary>
         public static bool IsReset;
 
         /// <summary>
-        /// 所归属的流程状态机
+        /// 所属状态机
         /// </summary>
         protected ProcedureStateMachine m_OwnerMachine = null;
 
@@ -25,127 +30,103 @@ namespace Honor.Runtime
         /// </summary>
         protected string m_Name = null;
         public string Name { get => m_Name; }
-        
+
         /// <summary>
-        /// 对应的lua脚本名称
+        /// 绑定的Lua脚本名
         /// </summary>
         protected string m_LuaScriptName;
 
         /// <summary>
-        /// Lua脚本独立环境
-        /// 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
+        /// 独立Lua环境（每个流程一个环境，防止变量污染）
         /// </summary>
         protected LuaTable m_OwnEnv;
 
         /// <summary>
-        /// 流程状态进入lua绑定回调
+        /// Lua绑定：流程进入回调
         /// </summary>
         protected Action<StateMachine<ProcedureComponent>> m_LuaOnEnter;
 
         /// <summary>
-        /// 流程状态心跳更新lua绑定回调
+        /// Lua绑定：流程更新回调
         /// </summary>
         protected Action<StateMachine<ProcedureComponent>> m_LuaOnUpdate;
 
         /// <summary>
-        /// 流程状态离开lua绑定回调
+        /// Lua绑定：流程离开回调
         /// </summary>
         protected Action<StateMachine<ProcedureComponent>> m_LuaOnLeave;
 
         /// <summary>
-        /// 上一个流程的类型
+        /// 上一个流程类型
         /// </summary>
         protected Type m_LastProcedureType;
 
         /// <summary>
-        /// 当前流程的类型
+        /// 当前流程类型
         /// </summary>
         protected Type m_CurProcedureType;
 
         /// <summary>
-        /// 准备切换到的下一个流程的类型
-        /// 用于记录提前预缓存流程类型
+        /// 预准备切换的下一个流程类型（提前缓存）
         /// </summary>
         protected Type m_PrepareNextProcedureType;
 
         /// <summary>
-        /// 下一个流程的类型
+        /// 真正要切换的下一个流程类型
         /// </summary>
         protected Type m_NextProcedureType;
 
         /// <summary>
-        /// 准备切换到下一个流程时传入的自定义参数
+        /// 准备切换时携带的自定义参数（LuaTable）
         /// </summary>
         protected LuaTable m_PrepareArgsFromChanging;
         public LuaTable PrepareArgsFromChanging
         {
-            get
-            {
-                return m_PrepareArgsFromChanging;
-            }
-            set
-            {
-                m_PrepareArgsFromChanging = value;
-            }
+            get => m_PrepareArgsFromChanging;
+            set => m_PrepareArgsFromChanging = value;
         }
 
         /// <summary>
-        /// 切换过程中传入的自定义参数
+        /// 切换完成后传入的自定义参数
         /// </summary>
         protected LuaTable m_ArgsFromChanging;
         public LuaTable ArgsFromChanging
         {
-            get
-            {
-                return m_ArgsFromChanging;
-            }
-            set
-            {
-                m_ArgsFromChanging = value;
-            }
+            get => m_ArgsFromChanging;
+            set => m_ArgsFromChanging = value;
         }
 
         /// <summary>
-        /// 流程进入结束标记
+        /// 流程进入完成标记（过渡动画结束）
         /// </summary>
         protected bool m_EnterOver;
         public bool EnterOver { set => m_EnterOver = value; get => m_EnterOver; }
 
         /// <summary>
-        /// 下一个流程切换前等待帧数
+        /// 切换流程前等待的帧数
         /// </summary>
         protected int m_NextProcedureWaitFrameCount;
 
         /// <summary>
-        /// 在流程切换时是否需要移除所有内容
+        /// 流程切换时是否清空所有UI/场景资源
         /// </summary>
         protected bool m_RemoveAllContentsOnProcedureTransition;
         public bool RemoveAllContentsOnProcedureTransition
         {
-            set
-            {
-                m_RemoveAllContentsOnProcedureTransition = value;
-            }
-            get
-            {
-                return m_RemoveAllContentsOnProcedureTransition;
-            }
+            set => m_RemoveAllContentsOnProcedureTransition = value;
+            get => m_RemoveAllContentsOnProcedureTransition;
         }
 
         /// <summary>
-        /// 公开暴露的cs层的lua环境
-        /// 可以在lua层中通过cs.lua来访问当前挂载的Lua环境
+        /// 公开给Lua访问的CS环境（lua.cs = this）
         /// </summary>
         public LuaTable lua
         {
-            get
-            {
-                return m_OwnEnv;
-            }
+            get => m_OwnEnv;
         }
 
         /// <summary>
-        /// 初始化lua绑定
+        /// 初始化Lua绑定：创建独立环境、加载脚本、绑定生命周期
         /// </summary>
         public void InitLuaBindings(string luaScriptName)
         {
@@ -157,62 +138,54 @@ namespace Honor.Runtime
             }
 
             m_LuaScriptName = luaScriptName;
-
-            // 获取全局Lua环境
             LuaEnv luaEnv = luaComponent.Env;
 
-            // 实例化Lua脚本的独立环境
+            // 创建独立环境并绑定元表
             m_OwnEnv = luaEnv.NewTable();
             LuaTable meta = luaEnv.NewTable();
             meta.Set("__index", luaEnv.Global);
             m_OwnEnv.SetMetaTable(meta);
             meta.Dispose();
 
-            // 向Lua脚本独立环境中注入所有必需对象
+            // 向Lua注入自身与环境
             m_OwnEnv.Set("lua", m_OwnEnv);
             m_OwnEnv.Set("cs", this);
 
+            // 加载Lua流程类
             luaComponent.LuaCreateProcedureLuaClassFromCSEventDelegate(m_OwnEnv, m_LuaScriptName);
 
-            // 绑定Lua中必需的声明周期函数到C#
+            // 绑定生命周期
             m_OwnEnv.Get("OnEnter", out m_LuaOnEnter);
             m_OwnEnv.Get("OnUpdate", out m_LuaOnUpdate);
             m_OwnEnv.Get("OnLeave", out m_LuaOnLeave);
-
         }
 
         /// <summary>
-        /// 状态初始化时调用。
+        /// 状态初始化（只执行一次）
         /// </summary>
-        /// <param name="ownerMachine">流程持有者。</param>
         public override void OnInit(StateMachine<ProcedureComponent> ownerMachine)
         {
             base.OnInit(ownerMachine);
-
             m_OwnerMachine = (ProcedureStateMachine)ownerMachine;
-
         }
 
         /// <summary>
-        /// 状态销毁时调用。
+        /// 状态销毁
         /// </summary>
-        /// <param name="ownerMachine">流程持有者。</param>
         public override void OnDestroy(StateMachine<ProcedureComponent> ownerMachine)
         {
             base.OnDestroy(ownerMachine);
-
         }
 
         /// <summary>
-        /// 进入状态时调用。
+        /// 进入流程：记录上一流程、绑定事件、播放进入过渡
         /// </summary>
-        /// <param name="ownerMachine">流程持有者。</param>
         public override void OnEnter(StateMachine<ProcedureComponent> ownerMachine)
         {
             base.OnEnter(ownerMachine);
-
             Log.Info("进入流程 '{0}' 。", GetType());
 
+            // 记录上一流程与参数
             if (ownerMachine.LastState != null)
             {
                 m_LastProcedureType = ownerMachine.LastState.GetType();
@@ -220,6 +193,8 @@ namespace Honor.Runtime
                 ((ProcedureState)ownerMachine.LastState).PrepareArgsFromChanging = null;
                 ((ProcedureState)ownerMachine.LastState).ArgsFromChanging = null;
             }
+
+            // 重置状态
             m_CurProcedureType = GetType();
             m_PrepareNextProcedureType = null;
             m_PrepareArgsFromChanging = null;
@@ -227,65 +202,51 @@ namespace Honor.Runtime
             m_NextProcedureWaitFrameCount = 0;
             m_EnterOver = false;
 
-            // 注册事件监听-切换过渡进入结束
+            // 注册过渡动画事件
             GameMainRoot.Event.Subscribe(GameEventCmd.ProcedureTransitionEnterOver, this, OnProcedureTransitionEnterOverEventCallback);
-
-            // 注册事件监听-切换过渡退出结束
             GameMainRoot.Event.Subscribe(GameEventCmd.ProcedureTransitionExitOver, this, OnProcedureTransitionExitOverEventCallback);
 
-            // 显示流程切换过渡进入效果
-            ShowProcedureTransitionEnter(!GameMainRoot.Procedure.CurrentProcedureTransitionEnterFlag, GameMainRoot.Procedure.CurrentProcedureTransitionEnterDuration, GameMainRoot.Procedure.CurrentProcedureTransitionEnterBlockRaycast);
-
+            // 播放流程进入过渡
+            ShowProcedureTransitionEnter(!GameMainRoot.Procedure.CurrentProcedureTransitionEnterFlag, 
+                GameMainRoot.Procedure.CurrentProcedureTransitionEnterDuration, 
+                GameMainRoot.Procedure.CurrentProcedureTransitionEnterBlockRaycast);
         }
 
         /// <summary>
-        /// 状态轮询时调用。
+        /// 流程更新：执行等待帧逻辑，满足条件则切换流程
         /// </summary>
-        /// <param name="ownerMachine">流程持有者。</param>
         public override void OnUpdate(StateMachine<ProcedureComponent> ownerMachine)
         {
             base.OnUpdate(ownerMachine);
 
-            // 切换至下一个流程
+            // 等待指定帧数后切换流程
             if (m_NextProcedureType != null)
             {
                 m_NextProcedureWaitFrameCount++;
                 if (m_NextProcedureWaitFrameCount > MAX_NEXT_PROCEDURE_WAIT_FRAME_NUM)
                 {
                     ChangeState(m_OwnerMachine, m_NextProcedureType);
-                    // 加载字体资源集合
                     GameMainRoot.UI.LoadFonts();
-                    // 刷新当前语言的字体到所有UI
                     GameMainRoot.UI.RefreshFontsForUI();
                 }
             }
-
         }
 
         /// <summary>
-        /// 离开状态时调用。
+        /// 离开流程：注销事件、输出日志
         /// </summary>
-        /// <param name="ownerMachine">流程持有者。</param>
-        /// <param name="isShutdown">是否是关闭状态机时触发。</param>
         public override void OnLeave(StateMachine<ProcedureComponent> ownerMachine, bool isShutdown)
         {
             base.OnLeave(ownerMachine, isShutdown);
-
             Log.Info("离开流程 '{0}'，该流程持续时间 {1:N2}秒。", GetType(), ownerMachine.CurrentStateTime);
 
-            // 注销事件监听-切换过渡进入结束
             GameMainRoot.Event.Unsubscribe(GameEventCmd.ProcedureTransitionEnterOver, this, OnProcedureTransitionEnterOverEventCallback);
-
-            // 注销事件监听-切换过渡退出结束
             GameMainRoot.Event.Unsubscribe(GameEventCmd.ProcedureTransitionExitOver, this, OnProcedureTransitionExitOverEventCallback);
-
         }
 
         /// <summary>
-        /// 切换当前有限状态机状态。
+        /// 切换流程：记录运行时信息
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
-        /// <param name="stateType">要切换到的有限状态机状态类型。</param>
         public override void ChangeState(StateMachine<ProcedureComponent> ownerMachine, Type stateType)
         {
             ownerMachine.Owner.RecordRuntimeProcedureInfos(ownerMachine.CurrentStateName, ownerMachine.CurrentStateTime);
@@ -293,106 +254,84 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 切换当前有限状态机状态。
+        /// 根据名称切换流程（简化调用）
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
-        /// <param name="stateName">要切换到的有限状态机状态名称。</param>
         public void ChangeState(StateMachine<ProcedureComponent> ownerMachine, string stateName)
         {
-            ChangeState(ownerMachine, Assembly.GetType(AorTxt.Format("Honor.Runtime.{0}", stateName)));
+            ChangeState(ownerMachine, Type.GetType($"Honor.Runtime.{stateName}"));
         }
 
         /// <summary>
-        /// 事件监听回调-切换过渡进入结束
+        /// 过渡进入结束事件回调
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         public void OnProcedureTransitionEnterOverEventCallback(object sender, object userData, EventParams e)
         {
             if (userData != this) return;
             m_EnterOver = true;
         }
-        
+
         /// <summary>
-        /// 事件监听回调-切换过渡退出结束
+        /// 过渡退出结束事件回调：清空资源 → 准备切换
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         public void OnProcedureTransitionExitOverEventCallback(object sender, object userData, EventParams e)
         {
             if (userData != this) return;
-            // 移除游戏中所有内容
             RemoveAllContents();
-            // 设置下一个流程
             m_NextProcedureType = m_PrepareNextProcedureType;
         }
 
         /// <summary>
-        /// 准备切换到下一个流程
+        /// 准备切换到下一流程：播放退出过渡
         /// </summary>
-        /// <param name="stateType">要切换到的有限状态机状态类型</param>
-        /// <param name="argsFromChanging">换到状态机状态时携带的自定义参数</param>
         public void PrepareToNextProcedure(Type stateType, LuaTable argsFromChanging = null)
         {
             if (stateType == null)
-            {
                 throw new GameException("State type 无效。");
-            }
 
             m_PrepareNextProcedureType = stateType;
             m_PrepareArgsFromChanging = argsFromChanging;
 
-            ShowProcedureTransitionExit(!GameMainRoot.Procedure.CurrentProcedureTransitionExitFlag, GameMainRoot.Procedure.CurrentProcedureTransitionExitDuration, GameMainRoot.Procedure.CurrentProcedureTransitionExitBlockRaycast);
+            ShowProcedureTransitionExit(!GameMainRoot.Procedure.CurrentProcedureTransitionExitFlag,
+                GameMainRoot.Procedure.CurrentProcedureTransitionExitDuration,
+                GameMainRoot.Procedure.CurrentProcedureTransitionExitBlockRaycast);
         }
 
         /// <summary>
-        /// 准备切换到下一个流程
+        /// 根据名称准备切换流程
         /// </summary>
-        /// <param name="stateName">要切换到的有限状态机状态名称</param>
-        /// <param name="argsFromChanging">换到状态机状态时携带的自定义参数</param>
         public void PrepareToNextProcedure(string stateName, LuaTable argsFromChanging = null)
         {
-            PrepareToNextProcedure(Assembly.GetType(AorTxt.Format("Honor.Runtime.{0}", stateName)), argsFromChanging);
+            PrepareToNextProcedure(Type.GetType($"Honor.Runtime.{stateName}"), argsFromChanging);
         }
 
         /// <summary>
-        /// 显示流程切换过渡进入效果
+        /// 显示流程进入过渡动画
         /// </summary>
-        /// <param name="forceOver">强制结束</param>
-        /// <param name="duration">过渡时间</param>
-        /// <param name="blockRaycast">阻塞触摸</param>
         public virtual void ShowProcedureTransitionEnter(bool forceOver, float duration, bool blockRaycast)
         {
             GameMainRoot.UI.ShowProcedureTransitionEnter(forceOver, duration, blockRaycast);
         }
 
         /// <summary>
-        /// 显示流程切换过渡退出效果
+        /// 显示流程退出过渡动画
         /// </summary>
-        /// <param name="forceOver">强制结束</param>
-        /// <param name="duration">过渡时间</param>
-        /// <param name="blockRaycast">阻塞触摸</param>
         public virtual void ShowProcedureTransitionExit(bool forceOver, float duration, bool blockRaycast)
         {
             GameMainRoot.UI.ShowProcedureTransitionExit(forceOver, duration, blockRaycast);
         }
 
         /// <summary>
-        /// 移除游戏中所有内容
+        /// 清空所有场景/UI/资源（流程切换时）
         /// </summary>
         private void RemoveAllContents()
         {
-            if(m_RemoveAllContentsOnProcedureTransition)
+            if (m_RemoveAllContentsOnProcedureTransition)
             {
-                // 关闭所有UI
                 GameMainRoot.UI.CloseAllUIs(UIType.Screen, true);
                 GameMainRoot.UI.CloseAllUIs(UIType.Scene, true);
-                // 销毁所有场景中对象
                 GameMainRoot.Scene.DestroyAllSceneGOs();
-                // 卸载字体（马上，不等待Asset的过期帧数）
                 GameMainRoot.UI.UnloadFonts(true);
             }
         }
-
     }
 }

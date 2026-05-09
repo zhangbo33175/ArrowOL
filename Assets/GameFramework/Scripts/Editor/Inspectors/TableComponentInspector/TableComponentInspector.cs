@@ -8,12 +8,20 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// 【配置表系统编辑器面板】
+    /// 功能：可视化管理 Excel 配置表，支持一键导出 Lua/Json、搜索、自定义导出、目录树展示
+    /// 作用：让策划/程序直接在 Unity 里操作配置表，不用手动找文件、手动导出
+    /// 属于：框架 -> 配置表系统 -> 编辑器扩展
+    /// </summary>
     [CustomEditor(typeof(TableComponent))]
     internal sealed class TableComponentInspector : HonorComponentInspector
     {
         /// <summary>
-        /// 文件夹内容读取类
+        /// 【目录结构记录类】
+        /// 递归存储 Excel 文件夹结构、文件列表、深度、路径
         /// </summary>
+        [Serializable]
         public class DirectoryContentsRecorder
         {
             public DirectoryContentsRecorder()
@@ -23,114 +31,76 @@ namespace Honor.Editor
                 DirectoryName = string.Empty;
             }
 
-            /// <summary>
-            /// 文件夹的目录信息
-            /// </summary>
+            // 子目录列表
             public List<DirectoryContentsRecorder> DirectoryContentsRecorders;
-
-            /// <summary>
-            /// 当前文件包含的所有Excel文件
-            /// </summary>
+            // 当前目录下的 Excel 文件名
             public List<string> ExcelFileNames;
-
-            /// <summary>
-            /// 当前文件夹的名字
-            /// </summary>
+            // 目录名
             public string DirectoryName;
-
-            /// <summary>
-            /// 文件夹的完整目录
-            /// </summary>
+            // 完整路径
             public string DirectoryFullPath;
-
-            /// <summary>
-            /// 目录层级深度
-            /// </summary>
+            // 层级深度（用于缩进显示）
             public int Depth = 0;
         }
 
-        /// <summary>
-        /// 自定义ExcelPath
-        /// </summary>
+        // 自定义导出用路径
         private string m_customExcelPath = null;
-
-        /// <summary>
-        /// 自定义luaPath
-        /// </summary>
         private string m_customLuaPath = null;
 
-        /// <summary>
-        /// 目录文件信息
-        /// </summary>
+        // 目录树根节点
         private DirectoryContentsRecorder m_DirectoryContentsRecorder;
-
-        /// <summary>
-        /// Excel文件数量
-        /// </summary>
+        // Excel 文件总数
         private int m_ExcelFileCount = 0;
 
-        /// <summary>
-        /// Lua Table目录的文件记录<文件名，true>
-        /// </summary>
+        // 已生成的 Lua 表名缓存
         private Dictionary<string, bool> m_LuaFileNames;
-
-        /// <summary>
-        /// 折叠控件的 展开/关闭 记录
-        /// </summary>
+        // 折叠面板状态
         private Dictionary<string, bool> m_ExcelFoldoutSections;
 
-        /// <summary>
-        /// 获取Tables的Lua脚本根目录的绝对路径
-        /// </summary>
-        private string m_LuaDirectoryPath = String.Empty;
+        // 框架路径（Lua/Excel 根目录）
+        private string m_LuaDirectoryPath = string.Empty;
+        private string m_ExcelDirectoryPath = string.Empty;
 
-        /// <summary>
-        /// 获取Tables的Excel根目录的绝对路径
-        /// </summary>
-        private string m_ExcelDirectoryPath = String.Empty;
-
-        /// <summary>
-        /// 搜索excel名字
-        /// </summary>
+        // 搜索相关
         private string m_SearchExcelName = string.Empty;
-
         private Dictionary<string, DirectoryContentsRecorder> m_SearchExcelDetailInfo;
 
+        /// <summary>
+        /// 初始化：加载目录、缓存文件列表
+        /// </summary>
         private void OnEnable()
         {
             m_LuaFileNames = new Dictionary<string, bool>();
             m_ExcelFoldoutSections = new Dictionary<string, bool>();
             m_SearchExcelDetailInfo = new Dictionary<string, DirectoryContentsRecorder>();
+
             m_LuaDirectoryPath = GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath();
             m_ExcelDirectoryPath = GamePathUtils.Table.GetExcelRootDirectoryFullPath();
+
+            // 刷新目录结构 & Lua 文件列表
             UpdateExcelDirectoryContentsRecorder();
             UpdateLuaFileNames();
         }
 
+        /// <summary>
+        /// 绘制 Inspector 面板
+        /// </summary>
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-
             serializedObject.Update();
 
+            // ====================== 统计信息 ======================
             EditorGUILayout.BeginHorizontal("box");
             {
                 EditorGUILayout.LabelField("Excel数据表数量", m_ExcelFileCount.ToString());
-                if (m_LuaFileNames.Count == 0)
-                {
-                    EditorGUILayout.LabelField("Lua数据表数量", "0");
-                }
-                else
-                {
-                    EditorGUILayout.LabelField("Lua数据表数量", (m_LuaFileNames.Count - 1).ToString());
-                }
-
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.LabelField("Lua数据表数量", (m_LuaFileNames.Count).ToString());
             }
+            EditorGUILayout.EndHorizontal();
 
+            // ====================== 批量操作按钮 ======================
             EditorGUILayout.BeginHorizontal("box");
             {
-                // Excel导出（一键批处理导出所有Table目录下的Excel到Lua）
                 if (GUILayout.Button("导出所有数据表Excel到Lua"))
                 {
                     RunDirectoryContentsRecorderToLua(m_DirectoryContentsRecorder);
@@ -144,259 +114,123 @@ namespace Honor.Editor
                     TableExportEditorUtility.OpenDirectory(m_ExcelDirectoryPath);
                     GUIUtility.ExitGUI();
                 }
-
-                EditorGUILayout.EndHorizontal();
             }
+            EditorGUILayout.EndHorizontal();
 
+            // ====================== 搜索框 ======================
             GUILayout.Space(5);
             EditorGUILayout.BeginHorizontal("box");
             {
-                // 搜索框
-                var tempSearchExcelName = EditorGUILayout.TextField("搜索Excel名字：", m_SearchExcelName);
-                if (tempSearchExcelName != m_SearchExcelName)
+                string searchText = EditorGUILayout.TextField("搜索Excel名字：", m_SearchExcelName);
+                if (searchText != m_SearchExcelName)
                 {
-                    m_SearchExcelName = tempSearchExcelName;
+                    m_SearchExcelName = searchText;
                     m_SearchExcelDetailInfo.Clear();
-                    if (m_SearchExcelName != string.Empty)
-                    {
+                    if (!string.IsNullOrEmpty(m_SearchExcelName))
                         UpdateSearchExcelDetailInfo(m_DirectoryContentsRecorder, m_SearchExcelName.ToLower());
-                    }
                 }
 
-                // 删除搜索框里面的内容
                 if (GUILayout.Button("Del", GUILayout.Width(30)))
                 {
                     m_SearchExcelName = string.Empty;
-                    GUIUtility.keyboardControl = 0; // 强制焦点切换,不然会有输入框文字不清空需要点击下空白地方才能清空问题
+                    GUIUtility.keyboardControl = 0;
                 }
-
-                EditorGUILayout.EndHorizontal();
             }
+            EditorGUILayout.EndHorizontal();
 
+            // ====================== 目录树 / 搜索结果 ======================
             GUILayout.Space(5);
             EditorGUILayout.BeginVertical("box");
             {
-                if (m_SearchExcelName == String.Empty)
-                {
-                    // Tables的Excel根目录的下目录信息
+                if (string.IsNullOrEmpty(m_SearchExcelName))
                     CreateDirectoryContentsRecorderView(m_DirectoryContentsRecorder);
-                }
                 else
-                {
-                    // 创建搜索框内名字符合的Excel
                     CreateSearchExcelView();
-                }
-
-                EditorGUILayout.EndVertical();
             }
+            EditorGUILayout.EndVertical();
 
-            if (m_LuaFileNames.Count == 0)
-            {
-                EditorGUILayout.HelpBox("缺少Tables.lua脚本！请生成任意lua数据表脚本来修复此问题！", MessageType.Error);
-                return;
-            }
-
+            // ====================== 自定义导出 ======================
             EditorGUILayout.Separator();
-
-            // 自定义导出
-            EditorGUILayout.LabelField("自定义数据表Excel导出配置");
+            EditorGUILayout.LabelField("自定义数据表Excel导出配置", EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal("box");
             {
-                EditorGUILayout.LabelField("数据表Excel位置:", m_customExcelPath != null ? m_customExcelPath : "");
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.LabelField("当前选择Excel:", m_customExcelPath ?? "未选择");
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (GUILayout.Button("选择自定义Excel表格"))
+            {
+                m_customExcelPath = EditorUtility.OpenFilePanel("选择Excel", Application.dataPath, "xlsm");
+                GUIUtility.ExitGUI();
             }
 
-
-            EditorGUI.BeginDisabledGroup(false);
+            if (GUILayout.Button("打开自定义Excel"))
             {
-                if (GUILayout.Button("选择自定义Excel表格"))
-                {
-                    m_customExcelPath = EditorUtility.OpenFilePanel("选择要导出的数据表Excel", Application.dataPath, "xlsm");
-                    GUIUtility.ExitGUI();
-                }
-
-                EditorGUI.EndDisabledGroup();
+                if (File.Exists(m_customExcelPath))
+                    TableExportEditorUtility.OpenExcel(m_customExcelPath);
+                GUIUtility.ExitGUI();
             }
 
-
-            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_customExcelPath));
+            if (GUILayout.Button("打开自定义Excel所在文件夹"))
             {
-                if (GUILayout.Button("打开自定义Excel"))
-                {
-                    if (string.IsNullOrEmpty(m_customExcelPath))
-                    {
-                        Log.Error("打开自定义Excel失败，未设置需要导出的Excel表格");
-                    }
-                    else
-                    {
-                        if (File.Exists(m_customExcelPath))
-                        {
-                            TableExportEditorUtility.OpenExcel(m_customExcelPath);
-                        }
-                        else
-                        {
-                            Log.Error($"要打开的数据表Excel {m_customExcelPath}不存在");
-                        }
-                    }
-
-                    GUIUtility.ExitGUI();
-                }
-
-                EditorGUI.EndDisabledGroup();
+                string dir = Path.GetDirectoryName(m_customExcelPath);
+                if (Directory.Exists(dir)) TableExportEditorUtility.OpenDirectory(dir);
+                GUIUtility.ExitGUI();
             }
 
-
-            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_customExcelPath));
+            if (GUILayout.Button("导出自定义Excel → Lua"))
             {
-                if (GUILayout.Button("打开自定义Excel文件夹"))
-                {
-                    if (string.IsNullOrEmpty(m_customExcelPath))
-                    {
-                        Log.Error("打开自定义Excel失败，未设置需要导出的Excel表格");
-                    }
-                    else
-                    {
-                        string directoryPath = System.IO.Path.GetDirectoryName(m_customExcelPath);
-                        if (Directory.Exists(directoryPath))
-                        {
-                            TableExportEditorUtility.OpenDirectory(directoryPath);
-                        }
-                        else
-                        {
-                            Log.Error($"要打开的文件夹{directoryPath}不存在");
-                        }
-                    }
-
-                    GUIUtility.ExitGUI();
-                }
-
-                EditorGUI.EndDisabledGroup();
+                string toPath = EditorUtility.SaveFilePanel("导出Lua", Application.dataPath, Path.GetFileNameWithoutExtension(m_customExcelPath), "lua.txt");
+                if (!string.IsNullOrEmpty(toPath)) TableExportEditorUtility.ExportExcelToLua(m_customExcelPath, toPath);
+                GUIUtility.ExitGUI();
             }
 
-
-            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_customExcelPath));
+            if (GUILayout.Button("导出自定义Excel → Json"))
             {
-                if (GUILayout.Button("导出自定义数据表Excel到Lua"))
-                {
-                    if (string.IsNullOrEmpty(m_customExcelPath))
-                    {
-                        Log.Error("导出自定义数据表Excel到Lua失败，未设置需要导出的Excel表格");
-                    }
-                    else if (!File.Exists(m_customExcelPath))
-                    {
-                        Log.Error("导出自定义数据表Excel到Lua失败，选中的Excel表格不存在");
-                    }
-                    else
-                    {
-                        string excelName = System.IO.Path.GetFileNameWithoutExtension(m_customExcelPath);
-                        //bool needReg = TableExportEditorUtility.IsDirectoryInLuaDirectory(m_customLuaPath);
-                        string toLuaPath = EditorUtility.SaveFilePanel("导出自定义数据表Excel到Lua", Application.dataPath,
-                            excelName, "lua.txt");
-                        if (!string.IsNullOrEmpty(toLuaPath))
-                        {
-                            TableExportEditorUtility.ExportExcelToLua(m_customExcelPath, toLuaPath);
-                        }
-                        else
-                        {
-                            Log.Error("自定义数据表Excel导出lua失败，未设置导出路径");
-                        }
-                    }
-
-                    GUIUtility.ExitGUI();
-                }
-
-                EditorGUI.EndDisabledGroup();
-            }
-
-
-            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_customExcelPath));
-            {
-                if (GUILayout.Button("导出自定义数据表Excel到Json"))
-                {
-                    if (string.IsNullOrEmpty(m_customExcelPath))
-                    {
-                        Log.Error("导出自定义数据表Excel到Json失败，未设置需要导出的Excel表格");
-                    }
-                    else if (!File.Exists(m_customExcelPath))
-                    {
-                        Log.Error("导出自定义数据表Excel到Json失败，选中的Excel表格不存在");
-                    }
-                    else
-                    {
-                        string excelName = System.IO.Path.GetFileNameWithoutExtension(m_customExcelPath);
-                        string toJsonPath = EditorUtility.SaveFilePanel("导出自定义数据表Excel到Json", Application.dataPath,
-                            excelName, "json");
-                        if (!string.IsNullOrEmpty(toJsonPath))
-                        {
-                            TableExportEditorUtility.ExportExcelToJson(m_customExcelPath, toJsonPath);
-                        }
-                        else
-                        {
-                            Log.Error("自定义数据表Excel导出json失败，未设置导出路径");
-                        }
-                    }
-
-                    GUIUtility.ExitGUI();
-                }
-
-                EditorGUI.EndDisabledGroup();
+                string toPath = EditorUtility.SaveFilePanel("导出Json", Application.dataPath, Path.GetFileNameWithoutExtension(m_customExcelPath), "json");
+                if (!string.IsNullOrEmpty(toPath)) TableExportEditorUtility.ExportExcelToJson(m_customExcelPath, toPath);
+                GUIUtility.ExitGUI();
             }
 
             serializedObject.ApplyModifiedProperties();
-
             Repaint();
         }
 
         /// <summary>
-        /// 更新当前表格目录结构
+        /// 递归刷新目录结构
         /// </summary>
-        /// <param name="directoryFullPath"></param>
-        /// <param name="depth"></param>
-        /// <returns></returns>
-        private DirectoryContentsRecorder UpdateDirectoryData(string directoryFullPath)
+        private DirectoryContentsRecorder UpdateDirectoryData(string fullPath)
         {
-            if (string.IsNullOrEmpty(directoryFullPath))
-            {
-                return null;
-            }
-            string relativePath = System.IO.Path.GetRelativePath(m_ExcelDirectoryPath, directoryFullPath);
-            var directoryDetailInfo = new DirectoryContentsRecorder();
-            directoryDetailInfo.ExcelFileNames = Directory.GetFiles(directoryFullPath, "*.xlsm").Where(file =>
-                    !System.IO.Path.GetFileName(file).StartsWith("~$", StringComparison.Ordinal))
-                .Select(filePath => System.IO.Path.GetFileNameWithoutExtension(filePath)).ToList();
-            directoryDetailInfo.DirectoryName = System.IO.Path.GetFileNameWithoutExtension(directoryFullPath);
-            directoryDetailInfo.DirectoryFullPath = directoryFullPath.Replace("\\", "/");
-            m_ExcelFileCount += directoryDetailInfo.ExcelFileNames.Count;
-            if (m_ExcelDirectoryPath == directoryFullPath)
-            {
-                directoryDetailInfo.Depth = 0;
-            }
-            else
-            {
-                directoryDetailInfo.Depth = relativePath.Split(System.IO.Path.DirectorySeparatorChar).Length;
-            }
+            DirectoryContentsRecorder info = new DirectoryContentsRecorder();
+            info.DirectoryFullPath = fullPath.Replace("\\", "/");
+            info.DirectoryName = Path.GetFileName(fullPath);
 
-            if (m_ExcelFoldoutSections.ContainsKey(directoryDetailInfo.DirectoryFullPath) == false)
-            {
-                m_ExcelFoldoutSections.Add(directoryDetailInfo.DirectoryFullPath, false);
-            }
+            // 读取所有 .xlsm 文件
+            info.ExcelFileNames = Directory.GetFiles(fullPath, "*.xlsm")
+                .Where(f => !Path.GetFileName(f).StartsWith("~$"))
+                .Select(Path.GetFileNameWithoutExtension)
+                .ToList();
 
-            string[] subDirectories = Directory.GetDirectories(directoryFullPath);
-            if (subDirectories.Length > 0)
-            {
-                foreach (var subDirectory in subDirectories)
-                {
-                    directoryDetailInfo.DirectoryContentsRecorders.Add(UpdateDirectoryData(subDirectory));
-                }
-            }
+            m_ExcelFileCount += info.ExcelFileNames.Count;
 
-            return directoryDetailInfo;
+            // 计算深度
+            string relative = Path.GetRelativePath(m_ExcelDirectoryPath, fullPath);
+            info.Depth = relative == "." ? 0 : relative.Split(Path.DirectorySeparatorChar).Length;
+
+            // 折叠状态
+            if (!m_ExcelFoldoutSections.ContainsKey(info.DirectoryFullPath))
+                m_ExcelFoldoutSections[info.DirectoryFullPath] = false;
+
+            // 子目录
+            foreach (string sub in Directory.GetDirectories(fullPath))
+                info.DirectoryContentsRecorders.Add(UpdateDirectoryData(sub));
+
+            return info;
         }
 
-
         /// <summary>
-        /// 更新Excel目录文件信息
+        /// 刷新目录结构
         /// </summary>
         private void UpdateExcelDirectoryContentsRecorder()
         {
@@ -405,185 +239,119 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 更新已经存在的lua文件
+        /// 刷新已生成 Lua 表列表
         /// </summary>
         private void UpdateLuaFileNames()
         {
             m_LuaFileNames.Clear();
-            Directory.GetFiles(m_LuaDirectoryPath, "*.lua.txt", SearchOption.AllDirectories).ToList().ForEach(file =>
+            foreach (string f in Directory.GetFiles(m_LuaDirectoryPath, "*.lua.txt", SearchOption.AllDirectories))
             {
-                string fileNames = System.IO.Path.GetFileName(file);
-                if (fileNames.StartsWith("Table", StringComparison.Ordinal))
-                {
-                    m_LuaFileNames.Add(fileNames.Substring(0, fileNames.Length - 8), true);
-                }
-            });
-        }
-
-        /// <summary>
-        /// 一键批处理导出所有Table目录下的Excel到Lua
-        /// </summary>
-        /// <param name="directoryContentsRecorder"></param>
-        private void RunDirectoryContentsRecorderToLua(DirectoryContentsRecorder directoryContentsRecorder)
-        {
-            if (!Directory.Exists(m_LuaDirectoryPath))
-            {
-                Directory.CreateDirectory(m_LuaDirectoryPath);
-            }
-
-            directoryContentsRecorder.ExcelFileNames.ForEach(excelFileName =>
-            {
-                RunExcelToLua(excelFileName, directoryContentsRecorder.DirectoryFullPath, m_ExcelDirectoryPath,
-                    m_LuaDirectoryPath);
-            });
-
-            foreach (var recorder in directoryContentsRecorder.DirectoryContentsRecorders)
-            {
-                RunDirectoryContentsRecorderToLua(recorder);
+                string name = Path.GetFileName(f);
+                if (name.EndsWith(".lua.txt"))
+                    m_LuaFileNames[name[0..^8]] = true;
             }
         }
 
         /// <summary>
-        /// 执行单个excel到lua
+        /// 递归导出整个目录
         /// </summary>
-        /// <param name="excelFileName"></param>
-        /// <param name="DirectoryFullPath"></param>
-        /// <param name="excelDirectoryPath"></param>
-        /// <param name="luaDirectoryPath"></param>
-        private void RunExcelToLua(string excelFileName, string DirectoryFullPath, string excelDirectoryPath,
-            string luaDirectoryPath)
+        private void RunDirectoryContentsRecorderToLua(DirectoryContentsRecorder root)
         {
-            string excelPath = $"{DirectoryFullPath}/{excelFileName}.xlsm";
-            string distancePath = string.Empty;
-            if (DirectoryFullPath != excelDirectoryPath)
-            {
-                distancePath = $"{DirectoryFullPath.Replace(excelDirectoryPath, string.Empty)}/";
-            }
+            if (!Directory.Exists(m_LuaDirectoryPath)) Directory.CreateDirectory(m_LuaDirectoryPath);
 
-            string luaPath = $"{luaDirectoryPath}/{distancePath}{excelFileName}.lua.txt";
+            foreach (string excel in root.ExcelFileNames)
+                RunExcelToLua(excel, root.DirectoryFullPath, m_ExcelDirectoryPath, m_LuaDirectoryPath);
+
+            foreach (var child in root.DirectoryContentsRecorders)
+                RunDirectoryContentsRecorderToLua(child);
+        }
+
+        /// <summary>
+        /// 单个 Excel → Lua
+        /// </summary>
+        private void RunExcelToLua(string excelName, string excelDir, string rootExcelDir, string rootLuaDir)
+        {
+            string excelPath = $"{excelDir}/{excelName}.xlsm";
+            string subDir = excelDir.Replace(rootExcelDir, "");
+            string luaPath = $"{rootLuaDir}/{subDir}/{excelName}.lua.txt";
             TableExportEditorUtility.ExportExcelToLua(excelPath, luaPath);
         }
 
-
         /// <summary>
-        /// 创建excel列表显示条目
+        /// 绘制目录树
         /// </summary>
-        /// <param name="directoryContentsRecorder"></param>
-        /// <param name="isFirst"></param>
-        private void CreateDirectoryContentsRecorderView(DirectoryContentsRecorder directoryContentsRecorder)
+        private void CreateDirectoryContentsRecorderView(DirectoryContentsRecorder root)
         {
-            if (directoryContentsRecorder == null)
-            {
-                return;
-            }
-
-            foreach (var recorder in directoryContentsRecorder.DirectoryContentsRecorders)
+            foreach (var child in root.DirectoryContentsRecorders)
             {
                 EditorGUILayout.BeginVertical("box");
                 {
-                    m_ExcelFoldoutSections[recorder.DirectoryFullPath] =
-                        EditorGUILayout.Foldout(m_ExcelFoldoutSections[recorder.DirectoryFullPath],
-                            recorder.DirectoryName);
-                    if (m_ExcelFoldoutSections[recorder.DirectoryFullPath])
-                    {
-                        CreateDirectoryContentsRecorderView(recorder);
-                    }
+                    m_ExcelFoldoutSections[child.DirectoryFullPath] =
+                        EditorGUILayout.Foldout(m_ExcelFoldoutSections[child.DirectoryFullPath], child.DirectoryName);
+                    if (m_ExcelFoldoutSections[child.DirectoryFullPath])
+                        CreateDirectoryContentsRecorderView(child);
                 }
                 EditorGUILayout.EndVertical();
             }
 
-            // 创建Excel的显示view
-            directoryContentsRecorder.ExcelFileNames.ForEach(excelFileName =>
-                CreateExcelView(excelFileName, directoryContentsRecorder));
+            foreach (string excel in root.ExcelFileNames)
+                CreateExcelView(excel, root);
         }
 
         /// <summary>
-        /// 创建单个Excel的显示条目
+        /// 绘制单个 Excel 行
         /// </summary>
-        /// <param name="excelFileName">excel名字</param>
-        /// <param name="directoryContentsRecorder">excel所在的目录信息</param>
-        /// <param name="isSearchView">是否是搜索view</param>
-        private void CreateExcelView(string excelFileName, DirectoryContentsRecorder directoryContentsRecorder,
-            bool isSearchView = false)
+        private void CreateExcelView(string excelName, DirectoryContentsRecorder dir, bool isSearch = false)
         {
             EditorGUILayout.BeginHorizontal("box");
             {
-                var spaceString = isSearchView ? "" : new string(' ', directoryContentsRecorder.Depth * 2);
-                EditorGUILayout.LabelField(string.Concat(spaceString, $"{excelFileName}.xlsm"),
-                    GUILayout.MaxWidth(250));
-                if (GUILayout.Button("打开数据表Excel"))
+                string space = isSearch ? "" : new string(' ', dir.Depth * 2);
+                EditorGUILayout.LabelField($"{space}{excelName}.xlsm", GUILayout.MaxWidth(250));
+
+                if (GUILayout.Button("打开"))
                 {
-                    TableExportEditorUtility.OpenExcel(
-                        $"{directoryContentsRecorder.DirectoryFullPath}/{excelFileName}.xlsm");
+                    TableExportEditorUtility.OpenExcel($"{dir.DirectoryFullPath}/{excelName}.xlsm");
                     GUIUtility.ExitGUI();
                 }
 
-                if (GUILayout.Button("导出数据表Excel到Lua"))
+                if (GUILayout.Button("导出Lua"))
                 {
-                    if (!Directory.Exists(m_LuaDirectoryPath))
-                    {
-                        Directory.CreateDirectory(m_LuaDirectoryPath);
-                    }
-
-                    RunExcelToLua(excelFileName, directoryContentsRecorder.DirectoryFullPath, m_ExcelDirectoryPath,
-                        m_LuaDirectoryPath);
+                    RunExcelToLua(excelName, dir.DirectoryFullPath, m_ExcelDirectoryPath, m_LuaDirectoryPath);
                     UpdateLuaFileNames();
                     GUIUtility.ExitGUI();
                 }
 
-                if (m_LuaFileNames.ContainsKey(excelFileName))
-                {
-                    EditorGUILayout.LabelField(AorTxt.Format("===> {0}.lua", excelFileName));
-                }
-                else
-                {
-                    EditorGUILayout.LabelField("===> Lua文件未生成!!!");
-                }
-
-                EditorGUILayout.EndHorizontal();
+                string tip = m_LuaFileNames.ContainsKey(excelName) ? $"<color=green>{excelName}.lua</color>" : "<color=red>Lua未生成</color>";
+                EditorGUILayout.LabelField(tip);
             }
+            EditorGUILayout.EndHorizontal();
         }
 
-
         /// <summary>
-        /// 更新符合名字的条目信息
+        /// 搜索匹配 Excel
         /// </summary>
-        /// <param name="directoryContentsRecorder"></param>
-        /// <param name="searchName"></param>
-        private void UpdateSearchExcelDetailInfo(DirectoryContentsRecorder directoryContentsRecorder, string searchName)
+        private void UpdateSearchExcelDetailInfo(DirectoryContentsRecorder root, string key)
         {
-            directoryContentsRecorder.ExcelFileNames.ForEach(fileName =>
+            foreach (string name in root.ExcelFileNames)
             {
-                if (fileName.ToLower().Contains(searchName))
-                {
-                    if (m_SearchExcelDetailInfo.ContainsKey(fileName) == false)
-                    {
-                        m_SearchExcelDetailInfo.Add(fileName, directoryContentsRecorder);
-                    }
-                }
-            });
-            directoryContentsRecorder.DirectoryContentsRecorders.ForEach(recorder =>
-                UpdateSearchExcelDetailInfo(recorder, searchName));
+                if (name.ToLower().Contains(key) && !m_SearchExcelDetailInfo.ContainsKey(name))
+                    m_SearchExcelDetailInfo[name] = root;
+            }
+
+            foreach (var child in root.DirectoryContentsRecorders)
+                UpdateSearchExcelDetailInfo(child, key);
         }
 
         /// <summary>
-        /// 创建搜索框的view
+        /// 绘制搜索结果
         /// </summary>
         private void CreateSearchExcelView()
         {
-            m_SearchExcelDetailInfo.Keys.ToList().ForEach(fileName =>
-                CreateExcelView(fileName, m_SearchExcelDetailInfo[fileName], true));
+            foreach (var pair in m_SearchExcelDetailInfo)
+                CreateExcelView(pair.Key, pair.Value, true);
         }
 
-
-        protected override void OnCompileStart()
-        {
-            base.OnCompileStart();
-        }
-
-        protected override void OnCompileComplete()
-        {
-            base.OnCompileComplete();
-        }
+        protected override void OnCompileStart() { }
+        protected override void OnCompileComplete() { }
     }
 }

@@ -8,36 +8,37 @@ namespace Honor.Runtime
     public sealed partial class PrefabLoadManager
     {
         /// <summary>
-        /// 实例化对象
+        /// 内部实例化 GameObject
+        /// 处理父节点异常、生命周期激活、Lua 脚本绑定、引用计数管理
         /// </summary>
-        /// <param name="prefabObj">Prefab封装对象</param>
-        /// <param name="parent">指定的父节点</param>
-        /// <returns>实例</returns>
+        /// <param name="prefabObj">Prefab 包装对象</param>
+        /// <param name="parent">父节点</param>
+        /// <param name="luaParams">Lua 传入参数</param>
+        /// <returns>实例化完成的对象</returns>
         private GameObject InstanceGO(PrefabObject prefabObj, Transform parent, LuaTable luaParams)
         {
             Transform tempParent = parent;
 
-            // 先处理有可能的parent对象异常或者父对象Hierarchy的active为false等特殊情况：统一临时挂载到默认节点，保证其awake可以正常调用
+            // 父对象无效或处于非激活状态 → 临时挂载到根节点，确保 Awake 能正常执行
             if (parent == null || parent.gameObject == null || !parent.gameObject.activeInHierarchy)
             {
                 tempParent = GameMainRoot.Asset.transform;
             }
 
-            //GameMainRoot.RProfiler.BeginSample("PrefabLoadManager.LoadSync.InstanceGO " + prefabObj.AssetName);
-
+            // 实例化对象并去除 (Clone) 后缀
             GameObject go = GameObject.Instantiate(prefabObj.Asset, tempParent, false) as GameObject;
             go.name = go.name.Replace("(Clone)", "");
             PrefabInstanceGOBehaviour goBehaviour = go.AddComponent<PrefabInstanceGOBehaviour>();
 
+            // 强制激活一次，确保 Awake / OnDestroy 生命周期正常
             if (!go.activeSelf)
             {
                 LuaBehaviour luaBehaviour = go.GetComponent<LuaBehaviour>();
-                // 保证GameObject active一次，ObjInfo才能触发Awake，未Awake的脚本不能触发OnDestroy，不触发Awake和OnDestroy的情况下引用计数会出错
                 go.SetActive(true);
                 go.SetActive(false);
             }
 
-            // 重新处理因上述特殊情况下导致父对象变更的情况
+            // 恢复真实父节点
             if (parent != null)
             {
                 go.transform.SetParent(parent, false);
@@ -59,15 +60,15 @@ namespace Honor.Runtime
                 {
                     if (childBehaviour != luaBehaviour)
                     {
+                        // 未激活对象强制激活一次，保证生命周期正常
                         if (!childBehaviour.gameObject.activeSelf)
                         {
-                            // 保证GameObject active一次，ObjInfo才能触发Awake，未Awake的脚本不能触发OnDestroy，不触发Awake和OnDestroy的情况下引用计数会出错
                             childBehaviour.gameObject.SetActive(true);
                             childBehaviour.gameObject.SetActive(false);
                         }
                         else
                         {
-                            // 向上追溯最近的hierarchy中inactive的父节点
+                            // 层级未激活 → 向上查找最近未激活父节点并临时激活
                             if (!childBehaviour.gameObject.activeInHierarchy)
                             {
                                 GameObject nearestInactiveParentInHierarchy = GetNearestInactiveParentInHierarchy(childBehaviour.gameObject);
@@ -88,27 +89,29 @@ namespace Honor.Runtime
                 }
             }
 
+            // 记录实例 ID，维护引用计数
             prefabObj.GOInstanceIDs.Add(instanceID);
             m_GOInstanceIDList.Add(instanceID, prefabObj);
 
-            //GameMainRoot.RProfiler.EndSample("PrefabLoadManager.LoadSync.InstanceGO " + prefabObj.AssetName);
-            
             return go;
         }
 
         /// <summary>
-        /// 实例化对象并回调
+        /// 实例化并执行异步回调
+        /// 先缓存回调列表，防止执行过程中列表被修改
         /// </summary>
+        /// <param name="prefabObj">Prefab 包装对象</param>
         private void InstanceGOWithCallback(PrefabObject prefabObj)
         {
             if (prefabObj.PrefabLoadOverCallbackList.Count == 0) return;
 
-            // 先将回调提取保存出来缓存（保证回调中可能出现的加载和销毁不出错）
+            // 锁定回调数据，避免回调体内操作导致列表异常
             int count = prefabObj.LockCallbackCount;
             var callbackList = prefabObj.PrefabLoadOverCallbackList.GetRange(0, count);
             var luaParamList = prefabObj.PrefabLoadLuaTableParamList.GetRange(0, count);
             var callParentList = prefabObj.PrefabInstancingGOParentList.GetRange(0, count);
 
+            // 清空已锁定的回调
             prefabObj.LockCallbackCount = 0;
             prefabObj.PrefabLoadOverCallbackList.RemoveRange(0, count);
             prefabObj.PrefabLoadLuaTableParamList.RemoveRange(0, count);
@@ -128,29 +131,22 @@ namespace Honor.Runtime
                     {
                         Log.Error(e);
                     }
-
-                    //// 如果回调之后，节点挂在默认节点下，认为该节点无效，销毁
-                    //if (go.transform.parent == m_DefaultGOInstanceParent.transform)
-                    //{
-                    //    Destroy(go);
-                    //}
                 }
             }
         }
 
         /// <summary>
-        /// “加载完成异步回调列表”心跳管理
+        /// 异步加载完成回调派发
+        /// 处理“已加载完成但需要异步回调”的对象
         /// </summary>
         private void UpdateLoadedAsync()
         {
-            // 处理：当调用异步加载时因之前已经同步加载过了，所以为了遵循异步加载的异步回调规则而临时记录过的Prefab封装对象需要在此处进行异步回调
-
             if (m_LoadedAsyncTmpAgentList.Count == 0) return;
 
             int count = m_LoadedAsyncTmpAgentList.Count;
             for (int i = 0; i < count; i++)
             {
-                // 异步回调前需要最大程度的收集接下来需要进行回调的数量
+                // 提前锁定回调数量
                 m_LoadedAsyncTmpAgentList[i].LockCallbackCount = m_LoadedAsyncTmpAgentList[i].PrefabLoadOverCallbackList.Count;
             }
 
@@ -159,14 +155,12 @@ namespace Honor.Runtime
                 InstanceGOWithCallback(m_LoadedAsyncTmpAgentList[i]);
             }
             m_LoadedAsyncTmpAgentList.RemoveRange(0, count);
-
         }
 
         /// <summary>
-        /// 向上追溯最近的hierarchy中inactive的父节点
+        /// 向上查找 Hierarchy 中**最近的未激活父物体**
+        /// 用于修复非激活节点无法触发 Awake 的问题
         /// </summary>
-        /// <param name="go"></param>
-        /// <returns></returns>
         private GameObject GetNearestInactiveParentInHierarchy(GameObject go)
         {
             Transform parent = go.transform.parent;
@@ -176,8 +170,5 @@ namespace Honor.Runtime
             }
             return parent.gameObject;
         }
-
     }
 }
-
-

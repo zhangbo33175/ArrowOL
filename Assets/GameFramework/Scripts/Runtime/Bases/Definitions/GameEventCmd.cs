@@ -1,79 +1,83 @@
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 游戏全局事件枚举（事件中心/消息中心命令）
+    /// 用于框架内各模块解耦通信，所有事件统一在这里定义
+    /// </summary>
     public enum GameEventCmd
     {
         /// <summary>
-        /// 无效
+        /// 无效事件 / 默认值
         /// </summary>
         None = 0,
 
         /// <summary>
-        /// 流程放行
+        /// 流程放行（流程节点允许继续执行）
         /// </summary>
         FlowPermit,
 
         /// <summary>
-        /// 流程禁止
+        /// 流程禁止（流程节点暂停执行）
         /// </summary>
         FlowUnPermit,
 
         /// <summary>
-        /// 流程切换过渡进入完毕
+        /// 流程切换过渡动画 - 进入完成
         /// </summary>
         ProcedureTransitionEnterOver,
 
         /// <summary>
-        /// 流程切换过渡退出完毕
+        /// 流程切换过渡动画 - 退出完成
         /// </summary>
         ProcedureTransitionExitOver,
 
         /// <summary>
-        /// 文本本地化刷新
+        /// 文本多语言本地化刷新
         /// </summary>
         TextLocalizingRefresh,
 
         /// <summary>
-        /// 加载进度
+        /// 资源加载进度更新
         /// </summary>
         LoadProgress,
 
         /// <summary>
-        /// 热更跳过
+        /// 热更新跳过
         /// </summary>
         HotfixSkip,
 
         /// <summary>
-        /// 热更准备
+        /// 热更新准备完成
         /// </summary>
         HotfixReady,
 
         /// <summary>
-        /// 热更进度
+        /// 热更新进度更新
         /// </summary>
         HotfixProgress,
 
         /// <summary>
-        /// 热更新全部结束
+        /// 热更新全部流程结束
         /// </summary>
         HotfixAllOver,
 
         /// <summary>
-        /// 热更异常
+        /// 热更新发生异常
         /// </summary>
         HotfixError,
 
         /// <summary>
-        /// 大版本更新
+        /// 触发大版本更新（App商店更新）
         /// </summary>
         AppDownload,
 
         /// <summary>
-        /// UnityGameService初始化结束
+        /// Unity 游戏服务初始化完成
         /// </summary>
         GameServiceInitialized,
 
         /// <summary>
-        /// GDPR结束
+        /// GDPR 隐私授权流程结束
         /// </summary>
         GDPROver,
 
@@ -83,42 +87,42 @@ namespace Honor.Runtime
         ScreenOrientationChanged,
 
         /// <summary>
-        /// UI渐变器渐变进入
+        /// UI 淡入动画开始/完成
         /// </summary>
         UIFadeIn,
 
         /// <summary>
-        /// UI渐变器退出
+        /// UI 淡出动画开始/完成
         /// </summary>
         UIFadeOut,
 
         /// <summary>
-        /// UI渐变器停止
+        /// UI 淡入淡出动画强制停止
         /// </summary>
         UIFadeStop,
 
         /// <summary>
-        /// 角色
+        /// 角色相关事件（创建/销毁/切换）
         /// </summary>
         Character,
 
         /// <summary>
-        /// 生命周期
+        /// 生命周期事件（加载/启动/销毁）
         /// </summary>
         LifeCycle,
 
         /// <summary>
-        /// 受伤
+        /// 受到伤害
         /// </summary>
         DamageTaken,
 
         /// <summary>
-        /// 受伤
+        /// 生命值发生变化
         /// </summary>
         HealthChange,
 
         /// <summary>
-        /// 状态机状态切换
+        /// 状态机状态切换完成
         /// </summary>
         StateChange,
     }

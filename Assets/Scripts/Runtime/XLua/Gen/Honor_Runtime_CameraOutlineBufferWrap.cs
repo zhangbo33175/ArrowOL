@@ -23,8 +23,8 @@ namespace XLua.CSObjectWrap
 			System.Type type = typeof(Honor.Runtime.CameraOutlineBuffer);
 			Utils.BeginObjectRegister(type, L, translator, 0, 4, 21, 21);
 			
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnPreRender", _m_OnPreRender);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateMaterialsPublicProperties", _m_UpdateMaterialsPublicProperties);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateOutlineCameraFromSource", _m_UpdateOutlineCameraFromSource);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddOutline", _m_AddOutline);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RemoveOutline", _m_RemoveOutline);
 			
@@ -119,33 +119,6 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OnPreRender(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.CameraOutlineBuffer gen_to_be_invoked = (Honor.Runtime.CameraOutlineBuffer)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.OnPreRender(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_UpdateMaterialsPublicProperties(RealStatePtr L)
         {
 		    try {
@@ -160,6 +133,33 @@ namespace XLua.CSObjectWrap
                 {
                     
                     gen_to_be_invoked.UpdateMaterialsPublicProperties(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateOutlineCameraFromSource(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.CameraOutlineBuffer gen_to_be_invoked = (Honor.Runtime.CameraOutlineBuffer)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.UpdateOutlineCameraFromSource(  );
                     
                     
                     

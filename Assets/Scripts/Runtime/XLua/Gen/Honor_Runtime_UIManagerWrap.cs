@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UIManager);
-			Utils.BeginObjectRegister(type, L, translator, 0, 36, 18, 9);
+			Utils.BeginObjectRegister(type, L, translator, 0, 40, 20, 10);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Update", _m_Update);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OpenUIAsyncByInfo", _m_OpenUIAsyncByInfo);
@@ -59,6 +59,10 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HideLoading", _m_HideLoading);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowAppReview", _m_ShowAppReview);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowAppFeedback", _m_ShowAppFeedback);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddUIMakLayerRef", _m_AddUIMakLayerRef);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SubUIMaskLayerRef", _m_SubUIMaskLayerRef);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CloseUIMaskLayer", _m_CloseUIMaskLayer);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetScreenScale", _m_GetScreenScale);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "Fonts", _g_get_Fonts);
@@ -79,6 +83,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "FloatWordsDuration", _g_get_FloatWordsDuration);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UIBangsSize", _g_get_UIBangsSize);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ScreenOrientation", _g_get_ScreenOrientation);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "MaskUI", _g_get_MaskUI);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "MaskLayerUIRefCount", _g_get_MaskLayerUIRefCount);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "Fonts", _s_set_Fonts);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "LastFonts", _s_set_LastFonts);
@@ -89,6 +95,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "FloatWordsDuration", _s_set_FloatWordsDuration);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "UIBangsSize", _s_set_UIBangsSize);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "ScreenOrientation", _s_set_ScreenOrientation);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "MaskLayerUIRefCount", _s_set_MaskLayerUIRefCount);
             
 			
 			Utils.EndObjectRegister(type, L, translator, null, null,
@@ -1243,6 +1250,116 @@ namespace XLua.CSObjectWrap
             
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AddUIMakLayerRef(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _name = LuaAPI.lua_tostring(L, 2);
+                    
+                    gen_to_be_invoked.AddUIMakLayerRef( _name );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SubUIMaskLayerRef(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.SubUIMaskLayerRef(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_CloseUIMaskLayer(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.CloseUIMaskLayer(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetScreenScale(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        float gen_ret = gen_to_be_invoked.GetScreenScale(  );
+                        LuaAPI.lua_pushnumber(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
         
         
         
@@ -1510,6 +1627,34 @@ namespace XLua.CSObjectWrap
             return 1;
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_MaskUI(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.MaskUI);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_MaskLayerUIRefCount(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.MaskLayerUIRefCount);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1655,6 +1800,21 @@ namespace XLua.CSObjectWrap
                 Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
                 UnityEngine.ScreenOrientation gen_value;translator.Get(L, 2, out gen_value);
 				gen_to_be_invoked.ScreenOrientation = gen_value;
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_MaskLayerUIRefCount(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.MaskLayerUIRefCount = LuaAPI.xlua_tointeger(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(UnityEngine.Tilemaps.Tilemap);
-			Utils.BeginObjectRegister(type, L, translator, 0, 48, 10, 7);
+			Utils.BeginObjectRegister(type, L, translator, 0, 59, 12, 7);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetCellCenterLocal", _m_GetCellCenterLocal);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetCellCenterWorld", _m_GetCellCenterWorld);
@@ -71,6 +71,17 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ClearAllTiles", _m_ClearAllTiles);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResizeBounds", _m_ResizeBounds);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CompressBounds", _m_CompressBounds);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetEditorPreviewTile", _m_SetEditorPreviewTile);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HasEditorPreviewTile", _m_HasEditorPreviewTile);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetEditorPreviewSprite", _m_GetEditorPreviewSprite);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetEditorPreviewTransformMatrix", _m_GetEditorPreviewTransformMatrix);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetEditorPreviewTransformMatrix", _m_SetEditorPreviewTransformMatrix);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetEditorPreviewColor", _m_GetEditorPreviewColor);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetEditorPreviewColor", _m_SetEditorPreviewColor);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetEditorPreviewTileFlags", _m_GetEditorPreviewTileFlags);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "EditorPreviewFloodFill", _m_EditorPreviewFloodFill);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "EditorPreviewBoxFill", _m_EditorPreviewBoxFill);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ClearAllEditorPreviewTiles", _m_ClearAllEditorPreviewTiles);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "layoutGrid", _g_get_layoutGrid);
@@ -83,6 +94,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "tileAnchor", _g_get_tileAnchor);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "orientation", _g_get_orientation);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "orientationMatrix", _g_get_orientationMatrix);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "editorPreviewOrigin", _g_get_editorPreviewOrigin);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "editorPreviewSize", _g_get_editorPreviewSize);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "animationFrameRate", _s_set_animationFrameRate);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "color", _s_set_color);
@@ -96,8 +109,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 3, 0, 0);
 			
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "tilemapTileChanged", _e_tilemapTileChanged);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "tilemapPositionsChanged", _e_tilemapPositionsChanged);
 			
             
@@ -1591,6 +1605,327 @@ namespace XLua.CSObjectWrap
             
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetEditorPreviewTile(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    UnityEngine.Tilemaps.TileBase _tile = (UnityEngine.Tilemaps.TileBase)translator.GetObject(L, 3, typeof(UnityEngine.Tilemaps.TileBase));
+                    
+                    gen_to_be_invoked.SetEditorPreviewTile( _position, _tile );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_HasEditorPreviewTile(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    
+                        bool gen_ret = gen_to_be_invoked.HasEditorPreviewTile( _position );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetEditorPreviewSprite(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    
+                        UnityEngine.Sprite gen_ret = gen_to_be_invoked.GetEditorPreviewSprite( _position );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetEditorPreviewTransformMatrix(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    
+                        UnityEngine.Matrix4x4 gen_ret = gen_to_be_invoked.GetEditorPreviewTransformMatrix( _position );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetEditorPreviewTransformMatrix(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    UnityEngine.Matrix4x4 _transform;translator.Get(L, 3, out _transform);
+                    
+                    gen_to_be_invoked.SetEditorPreviewTransformMatrix( _position, _transform );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetEditorPreviewColor(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    
+                        UnityEngine.Color gen_ret = gen_to_be_invoked.GetEditorPreviewColor( _position );
+                        translator.PushUnityEngineColor(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetEditorPreviewColor(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    UnityEngine.Color _color;translator.Get(L, 3, out _color);
+                    
+                    gen_to_be_invoked.SetEditorPreviewColor( _position, _color );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetEditorPreviewTileFlags(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    
+                        UnityEngine.Tilemaps.TileFlags gen_ret = gen_to_be_invoked.GetEditorPreviewTileFlags( _position );
+                        translator.PushUnityEngineTilemapsTileFlags(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_EditorPreviewFloodFill(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    UnityEngine.Tilemaps.TileBase _tile = (UnityEngine.Tilemaps.TileBase)translator.GetObject(L, 3, typeof(UnityEngine.Tilemaps.TileBase));
+                    
+                    gen_to_be_invoked.EditorPreviewFloodFill( _position, _tile );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_EditorPreviewBoxFill(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector3Int _position;translator.Get(L, 2, out _position);
+                    UnityEngine.Object _tile = (UnityEngine.Object)translator.GetObject(L, 3, typeof(UnityEngine.Object));
+                    int _startX = LuaAPI.xlua_tointeger(L, 4);
+                    int _startY = LuaAPI.xlua_tointeger(L, 5);
+                    int _endX = LuaAPI.xlua_tointeger(L, 6);
+                    int _endY = LuaAPI.xlua_tointeger(L, 7);
+                    
+                    gen_to_be_invoked.EditorPreviewBoxFill( _position, _tile, _startX, _startY, _endX, _endY );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ClearAllEditorPreviewTiles(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.ClearAllEditorPreviewTiles(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
         
         
         
@@ -1734,6 +2069,34 @@ namespace XLua.CSObjectWrap
             return 1;
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_editorPreviewOrigin(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.editorPreviewOrigin);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_editorPreviewSize(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                UnityEngine.Tilemaps.Tilemap gen_to_be_invoked = (UnityEngine.Tilemaps.Tilemap)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.editorPreviewSize);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1851,6 +2214,35 @@ namespace XLua.CSObjectWrap
 		
 		
 		
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _e_tilemapTileChanged(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+                System.Action<UnityEngine.Tilemaps.Tilemap, UnityEngine.Tilemaps.Tilemap.SyncTile[]> gen_delegate = translator.GetDelegate<System.Action<UnityEngine.Tilemaps.Tilemap, UnityEngine.Tilemaps.Tilemap.SyncTile[]>>(L, 2);
+                if (gen_delegate == null) {
+                    return LuaAPI.luaL_error(L, "#2 need System.Action<UnityEngine.Tilemaps.Tilemap, UnityEngine.Tilemaps.Tilemap.SyncTile[]>!");
+                }
+                
+				
+				if (gen_param_count == 2 && LuaAPI.xlua_is_eq_str(L, 1, "+")) {
+					UnityEngine.Tilemaps.Tilemap.tilemapTileChanged += gen_delegate;
+					return 0;
+				} 
+				
+				
+				if (gen_param_count == 2 && LuaAPI.xlua_is_eq_str(L, 1, "-")) {
+					UnityEngine.Tilemaps.Tilemap.tilemapTileChanged -= gen_delegate;
+					return 0;
+				} 
+				
+			} catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+			return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Tilemaps.Tilemap.tilemapTileChanged!");
+        }
+        
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _e_tilemapPositionsChanged(RealStatePtr L)
         {

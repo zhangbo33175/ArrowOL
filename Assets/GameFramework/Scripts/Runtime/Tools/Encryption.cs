@@ -2,7 +2,11 @@ using System;
 
 namespace Honor.Runtime
 {
-    public static class Encryption
+    /// <summary>
+    /// 异或加密工具类
+    /// 提供二进制流快速异或运算，用于数据加密与解密
+    /// </summary>
+    public static partial class Encryption
     {
         internal const int QuickEncryptLength = -1;
 
@@ -111,5 +115,3 @@ namespace Honor.Runtime
         }
     }
 }
-
-

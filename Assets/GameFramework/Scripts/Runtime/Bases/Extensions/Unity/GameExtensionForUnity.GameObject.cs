@@ -4,260 +4,229 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// GameObject 通用扩展方法
+    /// 包含：安全获取组件、无GC获取组件、Lua脚本查找、层级设置、粒子排序等
+    /// 全框架最核心的工具扩展类
+    /// </summary>
     public static partial class GameExtensionForUnity
     {
+        /// <summary>
+        /// 静态缓存列表，用于无GC获取组件 / 变换
+        /// </summary>
         private static readonly List<Transform> s_CachedTransforms = new List<Transform>();
+
         private static readonly List<Component> s_CachedComponents = new List<Component>();
 
         /// <summary>
-        /// 获取组件（降低无效内存开销）
+        /// 无GC获取组件（避免GC分配，高频调用安全）
         /// </summary>
-        /// <param name="gameObject">目标对象。</param>
-        /// <param name="type">要获取的组件类型。</param>
-        /// <returns>获取的组件。</returns>
-        public static Component GetComponentNoAlloc(this GameObject gameObject, System.Type type)
+        public static Component GetComponentNoAlloc(this GameObject gameObject, Type type)
         {
+            if (gameObject == null || type == null)
+                return null;
+
             gameObject.GetComponents(type, s_CachedComponents);
-            Component component = s_CachedComponents.Count > 0 ? s_CachedComponents[0] : null;
+            Component comp = s_CachedComponents.Count > 0 ? s_CachedComponents[0] : null;
             s_CachedComponents.Clear();
-            return component;
+            return comp;
         }
 
         /// <summary>
-        /// 获取组件（降低无效内存开销）
+        /// 无GC获取泛型组件（避免GC分配，高频调用安全）
         /// </summary>
-        /// <typeparam name="T">要获取的组件。</typeparam>
-        /// <param name="gameObject">目标对象。</param>
-        /// <returns>获取的组件。</returns>
         public static T GetComponentNoAlloc<T>(this GameObject gameObject) where T : Component
         {
+            if (gameObject == null)
+                return null;
+
             gameObject.GetComponents(typeof(T), s_CachedComponents);
-            Component component = s_CachedComponents.Count > 0 ? s_CachedComponents[0] : null;
+            Component comp = s_CachedComponents.Count > 0 ? s_CachedComponents[0] : null;
             s_CachedComponents.Clear();
-            return component as T;
+            return comp as T;
         }
 
         /// <summary>
-        /// 获取对象/子对象/父对象上的组件，如果未找到，则将其添加到对象
+        /// 优先从自身/子物体/父物体找组件，找不到则添加到自身
         /// </summary>
-        /// <param name="gameObject">目标对象。</param>
-        /// <typeparam name="T">要获取的组件。</typeparam>
-        /// <returns>获取或增加的组件。</returns>
         public static T GetComponentAroundOrAdd<T>(this GameObject gameObject) where T : Component
         {
-            T component = gameObject.GetComponentInChildren<T>(true);
-            if (component == null)
-            {
-                component = gameObject.GetComponentInParent<T>();
-            }
-            if (component == null)
-            {
-                component = gameObject.AddComponent<T>();
-            }
-            return component;
+            if (gameObject == null)
+                return null;
+
+            T comp = gameObject.GetComponentInChildren<T>(true);
+            if (comp == null)
+                comp = gameObject.GetComponentInParent<T>();
+            if (comp == null)
+                comp = gameObject.AddComponent<T>();
+
+            return comp;
         }
 
         /// <summary>
-        /// 获取或增加组件。
+        /// 获取或添加组件（不存在则自动Add）
         /// </summary>
-        /// <typeparam name="T">要获取或增加的组件。</typeparam>
-        /// <param name="gameObject">目标对象。</param>
-        /// <returns>获取或增加的组件。</returns>
         public static T GetOrAddComponent<T>(this GameObject gameObject) where T : Component
         {
-            T component = gameObject.GetComponent<T>();
-            if (component == null)
-            {
-                component = gameObject.AddComponent<T>();
-            }
-            return component;
+            if (gameObject == null)
+                return null;
+
+            T comp = gameObject.GetComponent<T>();
+            if (comp == null)
+                comp = gameObject.AddComponent<T>();
+
+            return comp;
         }
 
         /// <summary>
-        /// 获取或增加组件。
+        /// 获取或添加组件（Type版）
         /// </summary>
-        /// <param name="gameObject">目标对象。</param>
-        /// <param name="type">要获取或增加的组件类型。</param>
-        /// <returns>获取或增加的组件。</returns>
         public static Component GetOrAddComponent(this GameObject gameObject, Type type)
         {
-            Component component = gameObject.GetComponent(type);
-            if (component == null)
-            {
-                component = gameObject.AddComponent(type);
-            }
-            return component;
+            if (gameObject == null || type == null)
+                return null;
+
+            Component comp = gameObject.GetComponent(type);
+            if (comp == null)
+                comp = gameObject.AddComponent(type);
+
+            return comp;
         }
 
         /// <summary>
-        /// 获取LuaBehaviour组件
+        /// 获取挂载了指定Lua脚本的LuaBehaviour
         /// </summary>
-        /// <param name="gameObject">目标对象</param>
-        /// <param name="luaOnComponentName">LuaBehaviour组件上挂靠的lua脚本名称</param>
-        /// <returns></returns>
-        public static Component GetLua(this GameObject gameObject, string luaOnComponentName)
+        public static Component GetLua(this GameObject gameObject, string luaScriptName)
         {
-            LuaBehaviour component = gameObject.GetComponent<LuaBehaviour>();
-            if (component)
-            {
-                if (component.LuaScriptNames.Contains(luaOnComponentName))
-                {
-                    return component;
-                }
-            }
+            if (gameObject == null || string.IsNullOrEmpty(luaScriptName))
+                return null;
+
+            LuaBehaviour luaComp = gameObject.GetComponent<LuaBehaviour>();
+            if (luaComp != null && luaComp.LuaScriptNames.Contains(luaScriptName))
+                return luaComp;
+
             return null;
         }
 
         /// <summary>
-        /// 获取父对象上的LuaBehaviour组件
+        /// 在父物体中查找指定Lua脚本的LuaBehaviour
         /// </summary>
-        /// <param name="gameObject">目标对象</param>
-        /// <param name="luaOnComponentName">LuaBehaviour组件上挂靠的lua脚本名称</param>
-        /// <returns></returns>
-        public static Component GetLuaInParent(this GameObject gameObject, string luaOnComponentName)
+        public static Component GetLuaInParent(this GameObject gameObject, string luaScriptName)
         {
-            LuaBehaviour component = gameObject.GetComponentInParent<LuaBehaviour>();
-            if (component)
-            {
-                if (component.LuaScriptNames.Contains(luaOnComponentName))
-                {
-                    return component;
-                }
-            }
+            if (gameObject == null || string.IsNullOrEmpty(luaScriptName))
+                return null;
+
+            LuaBehaviour luaComp = gameObject.GetComponentInParent<LuaBehaviour>();
+            if (luaComp != null && luaComp.LuaScriptNames.Contains(luaScriptName))
+                return luaComp;
+
             return null;
         }
 
         /// <summary>
-        /// 获取孩子对象上的LuaBehaviour组件
+        /// 在子物体中查找指定Lua脚本的LuaBehaviour
         /// </summary>
-        /// <param name="gameObject">目标对象</param>
-        /// <param name="luaOnComponentName">LuaBehaviour组件上挂靠的lua脚本名称</param>
-        /// <returns></returns>
-        public static Component GetLuaInChildren(this GameObject gameObject, string luaOnComponentName)
+        public static Component GetLuaInChildren(this GameObject gameObject, string luaScriptName)
         {
-            LuaBehaviour component = gameObject.GetComponentInChildren<LuaBehaviour>();
-            if (component != null)
-            {
-                if (component.LuaScriptNames.Contains(luaOnComponentName))
-                {
-                    return component;
-                }
-            }
+            if (gameObject == null || string.IsNullOrEmpty(luaScriptName))
+                return null;
+
+            LuaBehaviour luaComp = gameObject.GetComponentInChildren<LuaBehaviour>();
+            if (luaComp != null && luaComp.LuaScriptNames.Contains(luaScriptName))
+                return luaComp;
+
             return null;
         }
 
         /// <summary>
-        /// 获取孩子对象上的LuaBehaviour组件集合
+        /// 获取所有子物体中包含指定Lua脚本的LuaBehaviour数组
         /// </summary>
-        /// <param name="gameObject">目标对象</param>
-        /// <param name="luaOnComponentName">LuaBehaviour组件上挂靠的lua脚本名称</param>
-        /// <returns></returns>
-        public static Component[] GetLuasInChildren(this GameObject gameObject, string luaOnComponentName)
+        public static Component[] GetLuasInChildren(this GameObject gameObject, string luaScriptName)
         {
-            LuaBehaviour[] components = gameObject.GetComponentsInChildren<LuaBehaviour>();
+            if (gameObject == null || string.IsNullOrEmpty(luaScriptName))
+                return Array.Empty<Component>();
+
+            LuaBehaviour[] comps = gameObject.GetComponentsInChildren<LuaBehaviour>();
             List<LuaBehaviour> results = new List<LuaBehaviour>();
-            for (int index = 0; index < components.Length; index++)
+
+            foreach (var luaComp in comps)
             {
-                if (components[index])
-                {
-                    if (components[index].LuaScriptNames.Contains(luaOnComponentName))
-                    {
-                        results.Add(components[index]);
-                    }
-                }
+                if (luaComp != null && luaComp.LuaScriptNames.Contains(luaScriptName))
+                    results.Add(luaComp);
             }
+
             return results.ToArray();
         }
 
         /// <summary>
-        /// 获取 GameObject 是否在场景中。
+        /// 判断物体是否在场景中（不是Prefab）
         /// </summary>
-        /// <param name="gameObject">目标对象。</param>
-        /// <returns>GameObject 是否在场景中。</returns>
-        /// <remarks>若返回 true，表明此 GameObject 是一个场景中的实例对象；若返回 false，表明此 GameObject 是一个 Prefab。</remarks>
         public static bool InScene(this GameObject gameObject)
         {
-            return gameObject.scene.name != null;
+            return gameObject != null && gameObject.scene.name != null;
         }
 
         /// <summary>
-        /// 递归设置游戏对象的层次。
+        /// 递归设置物体及所有子物体的Layer（无GC）
         /// </summary>
-        /// <param name="gameObject"><see cref="GameObject" /> 对象。</param>
-        /// <param name="layer">目标层次的编号。</param>
         public static void SetLayerRecursively(this GameObject gameObject, int layer)
         {
+            if (gameObject == null)
+                return;
+
             gameObject.GetComponentsInChildren(true, s_CachedTransforms);
-            for (int i = 0; i < s_CachedTransforms.Count; i++)
+            foreach (var trans in s_CachedTransforms)
             {
-                s_CachedTransforms[i].gameObject.layer = layer;
+                trans.gameObject.layer = layer;
             }
 
             s_CachedTransforms.Clear();
         }
 
         /// <summary>
-        /// 获取RectTransform组件
+        /// 快捷获取RectTransform
         /// </summary>
-        /// <param name="gameObject">目标对象</param>
-        /// <returns></returns>
         public static RectTransform rectTransform(this GameObject gameObject)
         {
-            return gameObject.transform as RectTransform;
+            return gameObject != null ? gameObject.transform as RectTransform : null;
         }
 
         /// <summary>
-        /// 设置粒子特效的SortingOrder
+        /// 设置粒子特效的SortingOrder（支持保持原有顺序）
         /// </summary>
-        /// <param name="gameObject">目标对象</param>
-        /// <param name="sortOrder">层级值</param>
-        /// <param name="isSortParticle">是否排序粒子特效</param>
-        public static void SetParticleSortOrder(this GameObject gameObject, int sortOrder, bool isSortParticle)
+        public static void SetParticleSortOrder(this GameObject gameObject, int sortOrder, bool keepOriginalOrder)
         {
-            if (gameObject == null) return;
+            if (gameObject == null)
+                return;
 
-            ParticleSystemRenderer[] psRender = gameObject.GetComponentsInChildren<ParticleSystemRenderer>();
+            ParticleSystemRenderer[] renderers = gameObject.GetComponentsInChildren<ParticleSystemRenderer>();
 
-            if (isSortParticle)
+            if (keepOriginalOrder)
             {
-                int lastSortingOrder = 0;
-                int curSortingOrder = sortOrder;
-                List<ParticleSystemRenderer> psRenderList = new List<ParticleSystemRenderer>(psRender);
-                psRenderList.Sort((a, b) => a.sortingOrder.CompareTo(b.sortingOrder));
+                List<ParticleSystemRenderer> sortedList = new List<ParticleSystemRenderer>(renderers);
+                sortedList.Sort((a, b) => a.sortingOrder.CompareTo(b.sortingOrder));
 
-                for (int i = 0, len = psRenderList.Count; i < len; i++)
+                int lastOrder = 0;
+                int currentOrder = sortOrder;
+
+                foreach (var renderer in sortedList)
                 {
-                    if (lastSortingOrder == 0)
+                    if (lastOrder == 0 || renderer.sortingOrder != lastOrder)
                     {
-                        lastSortingOrder = psRenderList[i].sortingOrder;
-                        psRenderList[i].sortingOrder = curSortingOrder;
-                        continue;
+                        lastOrder = renderer.sortingOrder;
+                        currentOrder++;
                     }
 
-                    if (psRenderList[i].sortingOrder == lastSortingOrder)
-                    {
-                        psRenderList[i].sortingOrder = curSortingOrder;
-                        continue;
-                    }
-
-                    lastSortingOrder = psRenderList[i].sortingOrder;
-
-                    ++curSortingOrder;
-                    psRenderList[i].sortingOrder = curSortingOrder;
+                    renderer.sortingOrder = currentOrder;
                 }
             }
             else
             {
-                for (int i = 0, len = psRender.Length; i < len; i++)
+                foreach (var renderer in renderers)
                 {
-                    psRender[i].sortingOrder = sortOrder;
+                    renderer.sortingOrder = sortOrder;
                 }
             }
         }
-
     }
-
-
 }
-
-

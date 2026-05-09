@@ -6,9 +6,10 @@ namespace Honor.Runtime
     public sealed partial class AssetLoadManager
     {
         /// <summary>
-        /// 根据回调解绑回调
+        /// 根据回调委托，全局解绑加载完成回调
+        /// 遍历加载中/已加载列表，移除指定回调
         /// </summary>
-        /// <param name="overCallback">asset资源加载完成的异步回调</param>
+        /// <param name="overCallback">要移除的加载回调</param>
         private void RemoveCallBackByCallBack(AssetLoadOverCallback overCallback)
         {
             foreach (var assetObj in m_LoadingList.Values)
@@ -33,9 +34,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 内部执行Asset资源加载完成的回调
+        /// 执行资源加载完成回调
+        /// 先锁定回调数量，防止回调体内再次修改列表导致异常
         /// </summary>
-        /// <param name="assetObj">asset封装对象</param>
+        /// <param name="assetObj">资源包装对象</param>
         private void DoAssetCallback(AssetObject assetObj)
         {
             if (assetObj.AssetLoadOverCallbackList.Count == 0)
@@ -43,13 +45,13 @@ namespace Honor.Runtime
                 return;
             }
 
-            // 先提取count，保证回调中有加载需求不加载
+            // 先提取count，保证回调中有加载需求不影响本次执行
             int count = assetObj.LockCallbackCount;
             for (int i = 0; i < count; i++)
             {
                 if (assetObj.AssetLoadOverCallbackList[i] != null)
                 {
-                    // 每次回调，引用计数+1
+                    // 回调期间引用计数 +1，保证资源不被释放
                     assetObj.RefCount++;
 
                     try
@@ -67,9 +69,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 内部执行Asset资源的卸载
+        /// 内部执行资源卸载逻辑
+        /// 处理场景卸载、AB包引用递减、实例ID清理、卸载回调
         /// </summary>
-        /// <param name="assetObj">asset封装对象</param>
+        /// <param name="assetObj">资源包装对象</param>
         private void DoUnload(AssetObject assetObj)
         {
             if (assetObj.IsScene)
@@ -96,7 +99,7 @@ namespace Honor.Runtime
                 }
             }
 
-            // unload完毕回调
+            // 触发卸载完成回调
             if (assetObj.AssetUnloadOverCallbackList != null)
             {
                 foreach (AssetUnloadOverCallback overCallback in assetObj.AssetUnloadOverCallbackList)
@@ -110,7 +113,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// “预加载列表”心跳管理
+        /// 预加载队列帧更新
+        /// 当加载队列为空时，从预加载队列取一个进行加载
         /// </summary>
         private void UpdatePreload()
         {
@@ -119,7 +123,6 @@ namespace Honor.Runtime
                 return;
             }
 
-            // 从队列取出一个Asset封装对象进行异步加载
             PreloadAssetObject plAssetObj = null;
             while (m_PreloadedAsyncList.Count > 0 && plAssetObj == null)
             {
@@ -151,7 +154,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// “加载完成列表”心跳管理
+        /// 异步加载完成回调派发
+        /// 统一触发已加载完成资源的回调
         /// </summary>
         private void UpdateLoadedAsync()
         {
@@ -160,7 +164,7 @@ namespace Honor.Runtime
             int count = m_LoadedAsyncTmpAgentList.Count;
             for (int i = 0; i < count; i++)
             {
-                // 先锁定回调数量，保证异步成立
+                // 锁定回调数量，防止异步过程中列表变化
                 m_LoadedAsyncTmpAgentList[i].LockCallbackCount =
                     m_LoadedAsyncTmpAgentList[i].AssetLoadOverCallbackList.Count;
             }
@@ -172,22 +176,22 @@ namespace Honor.Runtime
 
             m_LoadedAsyncTmpAgentList.RemoveRange(0, count);
 
+            // 大量加载完成后触发一次GC优化内存
             if (m_LoadingList.Count == 0 && m_LoadingIntervalCount > m_LoadedMaxNumToCleanMemery)
             {
-                // 在连续的大量加载后，强制调用一次gc
                 m_LoadingIntervalCount = 0;
                 System.GC.Collect();
             }
         }
 
         /// <summary>
-        /// “加载中列表”心跳管理
+        /// 加载中列表帧更新
+        /// 检测异步加载完成的资源，移入已加载列表并触发回调
         /// </summary>
         private void UpdateLoading()
         {
             if (m_LoadingList.Count == 0) return;
 
-            // 检测加载完的
             m_TempLoadeds.Clear();
             foreach (var assetObj in m_LoadingList.Values)
             {
@@ -221,7 +225,6 @@ namespace Honor.Runtime
 
                         if (assetObj.Asset == null)
                         {
-                            // 提取的资源失败，从加载列表删除
                             m_LoadingList.Remove(assetObj.AssetPath);
                             Log.Error("AssetLoadManager assetObj.Asset Null : {0}", assetObj.AssetPath);
                             break;
@@ -235,7 +238,7 @@ namespace Honor.Runtime
                         else
                         {
                             Log.Error(
-                                "AssetLoadManager.UpdateLoading assetObj.InstanceID '{0}' 已经存在。Name: {1} ,请检查这个资源各个地方的AB路径配置是否一致",
+                                "AssetLoadManager.UpdateLoading assetObj.InstanceID '{0}' 已存在。Name: {1} 请检查AB配置",
                                 assetObj.InstanceID, assetObj.AssetName);
                         }
 
@@ -254,7 +257,6 @@ namespace Honor.Runtime
                         }
                         else
                         {
-                            // 加载完进行数据清理
                             if (assetObj.Request is AssetBundleRequest)
                             {
                                 assetObj.Asset = (assetObj.Request as AssetBundleRequest).asset;
@@ -262,7 +264,6 @@ namespace Honor.Runtime
 
                             if (assetObj.Asset == null)
                             {
-                                // 提取的资源失败，从加载列表删除
                                 m_LoadingList.Remove(assetObj.AssetPath);
                                 Log.Error("AssetLoadManager assetObj.Asset Null : {0}", assetObj.AssetPath);
                                 break;
@@ -275,7 +276,7 @@ namespace Honor.Runtime
                             }
                             else
                             {
-                                Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已经存在。",
+                                Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已存在。",
                                     assetObj.InstanceID);
                             }
                         }
@@ -286,20 +287,17 @@ namespace Honor.Runtime
                 }
             }
 
-            // 回调中有可能对m_LoadingList进行操作，先移动
+            // 先移动列表，再统一回调，防止嵌套操作异常
             foreach (var assetObj in m_TempLoadeds)
             {
                 m_LoadingList.Remove(assetObj.AssetPath);
                 m_LoadedList.Add(assetObj.AssetPath, assetObj);
 
-                // 统计本轮加载的数量
                 m_LoadingIntervalCount++;
-
-                // 先锁定回调数量，保证异步成立
                 assetObj.LockCallbackCount = assetObj.AssetLoadOverCallbackList.Count;
             }
 
-            // 统一进行加载完成的回调派发
+            // 统一派发加载完成回调
             foreach (var assetObj in m_TempLoadeds)
             {
                 DoAssetCallback(assetObj);
@@ -307,7 +305,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// “卸载列表”心跳管理
+        /// 卸载列表帧更新
+        /// 处理延迟卸载、引用计数恢复、弱引用资源释放
         /// </summary>
         private void UpdateUnload()
         {
@@ -316,9 +315,9 @@ namespace Honor.Runtime
             m_TempLoadeds.Clear();
             foreach (var assetObj in m_UnloadList.Values)
             {
+                // 弱引用 + 引用计数为0 + 无回调 → 可以卸载
                 if (assetObj.IsWeak && assetObj.RefCount == 0 && assetObj.AssetLoadOverCallbackList.Count == 0)
                 {
-                    // 引用计数为0，延迟卸载时间到，且没有需要回调的函数，销毁
                     if (assetObj.UnloadTickNum < 0)
                     {
                         m_LoadedList.Remove(assetObj.AssetPath);
@@ -331,12 +330,10 @@ namespace Honor.Runtime
                     }
                 }
 
-                // 正常在unload列表中对象的引用计数应该为0，如果此时发现外界对该对象又进行了重新load从而导致引用计数>0，这时需要从unload列表中马上移除来取消后面即将触发的释放操作。
+                // 引用计数恢复 或 强引用 → 取消卸载
                 if (assetObj.RefCount > 0 || !assetObj.IsWeak)
                 {
-                    // 延迟卸载帧数清0
                     assetObj.UnloadTickNum = 0;
-                    // 引用计数增加（销毁期间有加载）
                     m_TempLoadeds.Add(assetObj);
                 }
             }
@@ -348,20 +345,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 根据场景对象从当前已经激活的场景集合中获取对应的Asset封装对象
+        /// 根据场景对象，查找对应的资源包装对象
         /// </summary>
-        /// <param name="scene">场景对象</param>
-        /// <returns></returns>
+        /// <param name="scene">场景实例</param>
+        /// <returns>匹配的AssetObject</returns>
         private AssetObject GetSceneAssetObjectByScene(UnityEngine.SceneManagement.Scene scene)
         {
             AssetObject result = m_Scenes.Find((assetObject) =>
             {
-                if (assetObject.AssetName == scene.name)
-                {
-                    return true;
-                }
-
-                return false;
+                return assetObject.AssetName == scene.name;
             });
             return result;
         }

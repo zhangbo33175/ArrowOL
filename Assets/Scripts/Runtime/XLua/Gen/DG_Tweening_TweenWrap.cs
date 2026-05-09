@@ -23,7 +23,6 @@ namespace XLua.CSObjectWrap
 			System.Type type = typeof(DG.Tweening.Tween);
 			Utils.BeginObjectRegister(type, L, translator, 0, 56, 7, 7);
 			
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DOTimeScale", _m_DOTimeScale);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Complete", _m_Complete);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Flip", _m_Flip);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ForceInit", _m_ForceInit);
@@ -59,6 +58,7 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PathGetPoint", _m_PathGetPoint);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PathGetDrawPoints", _m_PathGetDrawPoints);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PathLength", _m_PathLength);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DOTimeScale", _m_DOTimeScale);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetAutoKill", _m_SetAutoKill);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetId", _m_SetId);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetTarget", _m_SetTarget);
@@ -123,36 +123,6 @@ namespace XLua.CSObjectWrap
         
         
         
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_DOTimeScale(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                DG.Tweening.Tween gen_to_be_invoked = (DG.Tweening.Tween)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    float _endValue = (float)LuaAPI.lua_tonumber(L, 2);
-                    float _duration = (float)LuaAPI.lua_tonumber(L, 3);
-                    
-                        DG.Tweening.Tweener gen_ret = gen_to_be_invoked.DOTimeScale( _endValue, _duration );
-                        translator.Push(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_Complete(RealStatePtr L)
@@ -1272,6 +1242,36 @@ namespace XLua.CSObjectWrap
                     
                         float gen_ret = gen_to_be_invoked.PathLength(  );
                         LuaAPI.lua_pushnumber(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_DOTimeScale(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                DG.Tweening.Tween gen_to_be_invoked = (DG.Tweening.Tween)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    float _endValue = (float)LuaAPI.lua_tonumber(L, 2);
+                    float _duration = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                        DG.Tweening.Tweener gen_ret = gen_to_be_invoked.DOTimeScale( _endValue, _duration );
+                        translator.Push(L, gen_ret);
                     
                     
                     

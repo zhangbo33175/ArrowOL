@@ -331,9 +331,7 @@ namespace Honor.Runtime
 
         [SerializeField]
         private GUISkin debugSkin = null;
-
-
-
+        
     }
 
 }

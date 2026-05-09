@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 网格管理系统（单例）
+    /// 提供：世界坐标 ↔ 网格坐标转换、格子占用管理、对象路径追踪、调试网格绘制
+    /// 支持 2D / 3D 双模式
+    /// </summary>
     [AddComponentMenu("Honor Core/Manager/GridManager")]
     public class GridManager : MonoSingleton<GridManager>
     {
@@ -43,31 +48,34 @@ namespace Honor.Runtime
         public Color InnerColor = new Color(60f, 221f, 255f, 0.3f);
 
         /// <summary>
-        /// 所有已经被占用的单位格子列表
+        /// 所有已被占用的格子世界坐标列表
         /// </summary>
         [HideInInspector]
         public List<Vector3> OccupiedGridCells;
 
         /// <summary>
-        /// 所有注册对象在网格中行进的前一次位置信息
+        /// 所有注册对象的上一次网格索引位置
         /// </summary>
         [HideInInspector]
         public Dictionary<GameObject, Vector3Int> LastPositions;
 
         /// <summary>
-        /// 所有注册对象在网格中即将进行的下一次目标位置信息
+        /// 所有注册对象的下一个目标网格索引位置
         /// </summary>
         [HideInInspector]
         public Dictionary<GameObject, Vector3Int> NextPositions;
 
         /// <summary>
-        /// 以下向量均为避免反复开销的临时变量
+        /// 临时计算变量，避免频繁 GC
         /// </summary>
         protected Vector3 m_NewGridPosition;
         protected Vector3 m_DebugOrigin = Vector3.zero;
         protected Vector3 m_DebugDestination = Vector3.zero;
         protected Vector3Int m_WorkCoordinate = Vector3Int.zero;
 
+        /// <summary>
+        /// 初始化所有网格管理容器
+        /// </summary>
         protected virtual void Start()
         {
             OccupiedGridCells = new List<Vector3>();
@@ -76,19 +84,18 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 指定位置的单位格子是否被占用
+        /// 判断指定格子是否被占用
         /// </summary>
-        /// <param name="cellCoordinates">单位格子坐标</param>
-        /// <returns></returns>
+        /// <param name="cellCoordinates">格子世界坐标</param>
         public virtual bool CellIsOccupied(Vector3 cellCoordinates)
         {
             return OccupiedGridCells.Contains(cellCoordinates);
         }
 
         /// <summary>
-        /// 标记指定位置的单位格子为占用状态
+        /// 标记一个格子为占用状态
         /// </summary>
-        /// <param name="cellCoordinates">单位格子坐标</param>
+        /// <param name="cellCoordinates">格子世界坐标</param>
         public virtual void OccupyCell(Vector3 cellCoordinates)
         {
             if (!OccupiedGridCells.Contains(cellCoordinates))
@@ -98,9 +105,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定位置单位格子的占用状态
+        /// 释放一个格子的占用状态
         /// </summary>
-        /// <param name="cellCoordinates">单位格子坐标</param>
+        /// <param name="cellCoordinates">格子世界坐标</param>
         public virtual void FreeCell(Vector3 cellCoordinates)
         {
             if (OccupiedGridCells.Contains(cellCoordinates))
@@ -110,14 +117,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 设置指定对象下一次的目标位置索引
-        /// 下一次的目标位置为当前对象到达当前目标位置后的下一个目标位置
+        /// 设置对象的下一个目标网格位置
         /// </summary>
-        /// <param name="trackedObject">指定对象</param>
-        /// <param name="posIndex">目标位置索引</param>
+        /// <param name="trackedObject">追踪对象</param>
+        /// <param name="posIndex">网格索引</param>
         public virtual void SetNextPosition(GameObject trackedObject, Vector3Int posIndex)
         {
-            // we add that to our dictionary
             if (NextPositions.ContainsKey(trackedObject))
             {
                 NextPositions[trackedObject] = posIndex;
@@ -129,17 +134,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 设置指定对象前一次的目标位置索引
-        /// 前一次的目标位置为当前对象前一次已经经过的目标位置
+        /// 设置对象的上一次经过的网格位置
         /// </summary>
-        /// <param name="trackedObject">指定对象</param>
-        /// <param name="posIndex">目标位置索引</param>
+        /// <param name="trackedObject">追踪对象</param>
+        /// <param name="posIndex">网格索引</param>
         public virtual void SetLastPosition(GameObject trackedObject, Vector3Int posIndex)
         {
             if (LastPositions.ContainsKey(trackedObject))
             {
                 LastPositions[trackedObject] = posIndex;
-
             }
             else
             {
@@ -148,10 +151,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 世界坐标转换为索引坐标
+        /// 世界坐标 → 网格索引坐标
         /// </summary>
         /// <param name="position">世界坐标</param>
-        /// <returns></returns>
         public virtual Vector3Int PositionToPosIndex(Vector3 position)
         {
             m_NewGridPosition = (position - GridOrigin.position) / GridUnitSize;
@@ -164,10 +166,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 索引坐标转换为世界坐标
+        /// 网格索引坐标 → 世界坐标（格子中心点）
         /// </summary>
-        /// <param name="posIndex">位置索引</param>
-        /// <returns></returns>
+        /// <param name="posIndex">网格索引</param>
         public virtual Vector3 PosIndexToPosition(Vector3Int posIndex)
         {
             m_NewGridPosition = (Vector3)posIndex * GridUnitSize + GridOrigin.position;
@@ -176,7 +177,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 绘制Gizmos信息-网格绘制
+        /// 绘制调试网格 Gizmos
+        /// 支持 2D / 3D 模式
         /// </summary>
         protected virtual void OnDrawGizmos()
         {
@@ -191,7 +193,7 @@ namespace Honor.Runtime
             {
                 int i = -DebugGridSize;
 
-                // 网格线绘制
+                // 绘制 3D 网格线
                 while (i <= DebugGridSize)
                 {
                     m_DebugOrigin.x = GridOrigin.position.x - DebugGridSize * GridUnitSize;
@@ -217,7 +219,7 @@ namespace Honor.Runtime
                     i++;
                 }
 
-                // 网格绘制（交替颜色区分）
+                // 绘制 3D 棋盘格填充
                 Gizmos.color = InnerColor;
                 for (int col = -DebugGridSize; col < DebugGridSize; col++)
                 {
@@ -237,7 +239,7 @@ namespace Honor.Runtime
             else
             {
                 int i = -DebugGridSize;
-                // 网格线绘制
+                // 绘制 2D 网格线
                 while (i <= DebugGridSize)
                 {
                     m_DebugOrigin.x = GridOrigin.position.x - DebugGridSize * GridUnitSize;
@@ -263,7 +265,7 @@ namespace Honor.Runtime
                     i++;
                 }
 
-                // 网格绘制（交替颜色区分）
+                // 绘制 2D 棋盘格填充
                 Gizmos.color = InnerColor;
                 for (int col = -DebugGridSize; col < DebugGridSize; col++)
                 {
@@ -283,10 +285,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 绘制一个2D的单元网格
+        /// 绘制单个 2D 格子
         /// </summary>
-        /// <param name="col">列</param>
-        /// <param name="row">行</param>
         protected virtual void DrawCell2D(int col, int row)
         {
             m_DebugOrigin.x = GridOrigin.position.x + col * GridUnitSize + GridUnitSize / 2f;
@@ -296,10 +296,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 绘制一个3D的单元网格
+        /// 绘制单个 3D 格子
         /// </summary>
-        /// <param name="col">列</param>
-        /// <param name="row">行</param>
         protected virtual void DrawCell3D(int col, int row)
         {
             m_DebugOrigin.x = GridOrigin.position.x + col * GridUnitSize + GridUnitSize / 2f;

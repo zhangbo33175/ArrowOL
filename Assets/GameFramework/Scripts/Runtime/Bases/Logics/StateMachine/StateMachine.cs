@@ -5,64 +5,67 @@ using UnityEngine;
 namespace Honor.Runtime
 {
     /// <summary>
-    /// 有限状态机。
+    /// 有限状态机抽象基类
+    /// 负责管理一组状态的生命周期、切换、轮询与运行时数据
     /// </summary>
-    /// <typeparam name="T">有限状态机持有者类型。</typeparam>
+    /// <typeparam name="T">状态机持有者类型</typeparam>
     public abstract class StateMachine<T> where T : class
     {
         /// <summary>
-        /// 有限状态机名称
+        /// 状态机名称
         /// </summary>
         protected string m_Name;
 
         /// <summary>
-        /// 有限状态机的持有者
+        /// 状态机持有者（拥有该状态机的对象）
         /// </summary>
         protected T m_Owner;
 
         /// <summary>
-        /// 有限状态机中的状态集合
+        /// 状态集合（类型 -> 状态实例）
         /// </summary>
         protected readonly Dictionary<Type, State<T>> m_States;
 
         /// <summary>
-        /// 有限状态机的前一次状态
+        /// 上一个状态
         /// </summary>
         protected State<T> m_LastState;
 
         /// <summary>
-        /// 前一次状态的持续时间
+        /// 上一个状态持续时间
         /// </summary>
         protected float m_LastStateTime;
 
         /// <summary>
-        /// 有限状态机的当前状态
+        /// 当前状态
         /// </summary>
         protected State<T> m_CurrentState;
 
         /// <summary>
-        /// 当前状态的持续时间
+        /// 当前状态已持续时间
         /// </summary>
         protected float m_CurrentStateTime;
 
         /// <summary>
-        /// 有限状态机是否已经销毁
+        /// 是否已销毁
         /// </summary>
         protected bool m_IsDestroyed;
 
         /// <summary>
-        /// 初始化有限状态机的新实例。
+        /// 创建状态机
         /// </summary>
+        /// <param name="owner">持有者</param>
+        /// <param name="states">状态机包含的所有状态</param>
         public StateMachine(T owner, params State<T>[] states)
         {
             if (owner == null)
             {
-                throw new GameException("状态机 owner 无效。");
+                throw new GameException("状态机创建失败：Owner 不能为空。");
             }
 
             if (states == null || states.Length < 1)
             {
-                throw new GameException("状态机 states 无效。");
+                throw new GameException("状态机创建失败：必须至少包含一个状态。");
             }
 
             m_Name = string.Empty;
@@ -78,159 +81,86 @@ namespace Honor.Runtime
             {
                 if (state == null)
                 {
-                    throw new GameException("状态机 states 无效。");
+                    throw new GameException("状态机创建失败：状态列表中包含空状态。");
                 }
 
                 Type stateType = state.GetType();
                 if (m_States.ContainsKey(stateType))
                 {
-                    throw new GameException(AorTxt.Format("状态机 state '{1}' 已经存在。", stateType));
+                    throw new GameException($"状态机创建失败：状态 {stateType} 已重复添加。");
                 }
 
                 m_States.Add(stateType, state);
                 state.OnInit(this);
             }
-
         }
 
         /// <summary>
-        /// 获取有限状态机名称。
+        /// 状态机名称
         /// </summary>
         public string Name
         {
-            get
-            {
-                return m_Name;
-            }
-            protected set
-            {
-                m_Name = value ?? string.Empty;
-            }
+            get => m_Name;
+            protected set => m_Name = value ?? string.Empty;
         }
 
         /// <summary>
-        /// 获取有限状态机持有者。
+        /// 状态机持有者
         /// </summary>
-        public T Owner
-        {
-            get
-            {
-                return m_Owner;
-            }
-        }
+        public T Owner => m_Owner;
 
         /// <summary>
-        /// 获取有限状态机持有者类型。
+        /// 持有者类型
         /// </summary>
-        public Type OwnerType
-        {
-            get
-            {
-                return typeof(T);
-            }
-        }
+        public Type OwnerType => typeof(T);
 
         /// <summary>
-        /// 获取有限状态机中状态的数量。
+        /// 状态数量
         /// </summary>
-        public int StateCount
-        {
-            get
-            {
-                return m_States.Count;
-            }
-        }
+        public int StateCount => m_States.Count;
 
         /// <summary>
-        /// 获取有限状态机是否正在运行。
+        /// 是否正在运行（当前状态不为空）
         /// </summary>
-        public bool IsRunning
-        {
-            get
-            {
-                return m_CurrentState != null;
-            }
-        }
+        public bool IsRunning => m_CurrentState != null;
 
         /// <summary>
-        /// 获取有限状态机是否被销毁。
+        /// 是否已销毁
         /// </summary>
-        public bool IsDestroyed
-        {
-            get
-            {
-                return m_IsDestroyed;
-            }
-        }
+        public bool IsDestroyed => m_IsDestroyed;
 
         /// <summary>
-        /// 获取前一次有限状态机状态。
+        /// 上一个状态
         /// </summary>
-        public State<T> LastState
-        {
-            get
-            {
-                return m_LastState;
-            }
-        }
+        public State<T> LastState => m_LastState;
 
         /// <summary>
-        /// 获取前一次有限状态机状态名称。
+        /// 上一个状态名称
         /// </summary>
-        public string LastStateName
-        {
-            get
-            {
-                return m_LastState != null ? m_LastState.GetType().FullName : null;
-            }
-        }
+        public string LastStateName => m_LastState?.GetType().FullName;
 
         /// <summary>
-        /// 获取前一次有限状态机状态持续时间。
+        /// 上一个状态持续时间
         /// </summary>
-        public float LastStateTime
-        {
-            get
-            {
-                return m_LastStateTime;
-            }
-        }
+        public float LastStateTime => m_LastStateTime;
 
         /// <summary>
-        /// 获取当前有限状态机状态。
+        /// 当前状态
         /// </summary>
-        public State<T> CurrentState
-        {
-            get
-            {
-                return m_CurrentState;
-            }
-        }
+        public State<T> CurrentState => m_CurrentState;
 
         /// <summary>
-        /// 获取当前有限状态机状态名称。
+        /// 当前状态名称
         /// </summary>
-        public string CurrentStateName
-        {
-            get
-            {
-                return m_CurrentState != null ? m_CurrentState.GetType().FullName : null;
-            }
-        }
+        public string CurrentStateName => m_CurrentState?.GetType().FullName;
 
         /// <summary>
-        /// 获取当前有限状态机状态持续时间。
+        /// 当前状态已持续时间
         /// </summary>
-        public float CurrentStateTime
-        {
-            get
-            {
-                return m_CurrentStateTime;
-            }
-        }
+        public float CurrentStateTime => m_CurrentStateTime;
 
         /// <summary>
-        /// 清理有限状态机。
+        /// 清空并销毁状态机
         /// </summary>
         public void Clear()
         {
@@ -239,9 +169,9 @@ namespace Honor.Runtime
                 m_CurrentState.OnLeave(this, true);
             }
 
-            foreach (KeyValuePair<Type, State<T>> state in m_States)
+            foreach (var state in m_States.Values)
             {
-                state.Value.OnDestroy(this);
+                state.OnDestroy(this);
             }
 
             Name = null;
@@ -255,30 +185,30 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 启动有限状态机。
+        /// 启动状态机
         /// </summary>
-        /// <param name="stateType">要开始的有限状态机状态类型。</param>
+        /// <param name="stateType">初始状态类型</param>
         public void Start(Type stateType)
         {
             if (IsRunning)
             {
-                throw new GameException("状态机正在执行中，不能再次开始。");
+                throw new GameException("状态机已在运行中，无法重复启动。");
             }
 
             if (stateType == null)
             {
-                throw new GameException("State type 无效。");
+                throw new GameException("启动失败：状态类型不能为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+                throw new GameException($"启动失败：类型 {stateType.FullName} 不是有效状态。");
             }
 
             State<T> state = GetState(stateType);
             if (state == null)
             {
-                throw new GameException(AorTxt.Format("状态机 '{0}' 不能开始一个不存在的 state '{1}'。", Name, stateType.FullName));
+                throw new GameException($"启动失败：状态 {stateType.FullName} 不存在于状态机中。");
             }
 
             m_CurrentStateTime = 0f;
@@ -287,100 +217,87 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否存在有限状态机状态。
+        /// 是否包含指定状态
         /// </summary>
-        /// <param name="stateType">要检查的有限状态机状态类型。</param>
-        /// <returns>是否存在有限状态机状态。</returns>
         public bool HasState(Type stateType)
         {
             if (stateType == null)
             {
-                throw new GameException("State type 无效。");
+                throw new GameException("状态类型不能为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+                throw new GameException($"类型 {stateType.FullName} 不是有效状态。");
             }
 
             return m_States.ContainsKey(stateType);
         }
 
         /// <summary>
-        /// 获取有限状态机状态。
+        /// 获取指定状态
         /// </summary>
-        /// <param name="stateType">要获取的有限状态机状态类型。</param>
-        /// <returns>要获取的有限状态机状态。</returns>
         public State<T> GetState(Type stateType)
         {
             if (stateType == null)
             {
-                throw new GameException("State type 无效。");
+                throw new GameException("状态类型不能为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+                throw new GameException($"类型 {stateType.FullName} 不是有效状态。");
             }
 
-            State<T> state = null;
-            if (m_States.TryGetValue(stateType, out state))
-            {
-                return state;
-            }
-
-            return null;
+            m_States.TryGetValue(stateType, out State<T> state);
+            return state;
         }
 
         /// <summary>
-        /// 获取有限状态机的所有状态。
+        /// 获取所有状态
         /// </summary>
-        /// <returns>有限状态机的所有状态。</returns>
         public State<T>[] GetAllStates()
         {
             int index = 0;
             State<T>[] results = new State<T>[m_States.Count];
-            foreach (KeyValuePair<Type, State<T>> state in m_States)
+            foreach (var pair in m_States)
             {
-                results[index++] = state.Value;
+                results[index++] = pair.Value;
             }
-
             return results;
         }
 
         /// <summary>
-        /// 获取有限状态机的所有状态。
+        /// 获取所有状态（不分配数组，更高效）
         /// </summary>
-        /// <param name="results">有限状态机的所有状态。</param>
         public void GetAllStates(List<State<T>> results)
         {
             if (results == null)
             {
-                throw new GameException("Results 无效。");
+                throw new GameException("传入的结果列表不能为空。");
             }
 
             results.Clear();
-            foreach (KeyValuePair<Type, State<T>> state in m_States)
+            foreach (var pair in m_States)
             {
-                results.Add(state.Value);
+                results.Add(pair.Value);
             }
         }
 
         /// <summary>
-        /// 切换当前有限状态机状态。
+        /// 切换状态
         /// </summary>
-        /// <param name="stateType">要切换到的有限状态机状态类型。</param>
         public void ChangeState(Type stateType)
         {
             if (m_CurrentState == null)
             {
-                throw new GameException("Current state 无效。");
+                throw new GameException("切换失败：当前状态无效，状态机未运行。");
             }
 
             State<T> state = GetState(stateType);
             if (state == null)
             {
-                throw new GameException(AorTxt.Format("状态机 '{0}' 不能切换到不存在的 state '{1}'。", Name, stateType.FullName));
+                throw new GameException($"切换失败：状态 {stateType.FullName} 不存在。");
             }
 
             m_CurrentState.OnLeave(this, false);
@@ -392,28 +309,23 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 有限状态机轮询。
+        /// 每帧轮询状态机
         /// </summary>
         public virtual void Update()
         {
             if (m_CurrentState == null)
-            {
                 return;
-            }
 
             m_CurrentStateTime += Time.deltaTime;
             m_CurrentState.OnUpdate(this);
         }
 
         /// <summary>
-        /// 关闭并清理有限状态机。
+        /// 关闭并销毁状态机
         /// </summary>
         public virtual void Shutdown()
         {
-
+            Clear();
         }
-
     }
 }
-
-

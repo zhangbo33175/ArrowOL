@@ -28,12 +28,11 @@ function HonorTimerHelper:ctor(args)
 end
 
 ---创建函数
----@type fun(args:table):TimerHelper
+---@type fun(args:table):HonorTimerHelper
 ---@param args table @自定义参数
----@return TimerHelper @时间助手实例
+---@return HonorTimerHelper @时间助手实例
 function HonorTimerHelper:Create(args)
     local obj = HonorTimerHelper.new(args)
-
     return obj
 end
 
@@ -42,6 +41,37 @@ end
 ---@param procedure ProcedureSuper @流程
 function HonorTimerHelper:OnEnter(procedure)
     if procedure.cs.Name == "ProcedurePreload" then
+        -- 启动游戏时需要派发跨天事件
+        if procedure.cs:IsLaunch() == true or GameLib.ProcedureState.IsReset == true then
+            local launchTime = PbRootData.UserData.launchTime
+            local latestTime = PbRootData.UserData.latestTime
+            -- 记录UTC0跨天事件
+            local currentUTC0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(launchTime.current.utc0)
+            local lastUTC0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(launchTime.last.utc0)
+            local acrossDayUTC0Num = self:GetAcrossDayNumBetweenTimeStamps(latestTime.utc0, launchTime.current.utc0)
+            table.insert(self._acrossDayEventQueue, 1, { evtCmd = FwEventCmd.AcrossDayUTC0, isOnLaunch = true, curTimeInfo = currentUTC0TimeInfo, lastTimeInfo = lastUTC0TimeInfo, acrossDayNum = acrossDayUTC0Num })
+            -- 计算当天23:59:59的utc0戳
+            self._curDay24UTC0TimeStamp = self:GetUTC0TimeStampByParams(currentUTC0TimeInfo[1], currentUTC0TimeInfo[2], currentUTC0TimeInfo[3], 23, 59, 59)
+            -- 计算当天00:00:00的utc0戳
+            self._curDay00UTC0TimeStamp = self:GetUTC0TimeStampByParams(currentUTC0TimeInfo[1], currentUTC0TimeInfo[2], currentUTC0TimeInfo[3], 0, 0, 0)
+            -- 启动跨天数据处理完毕后需要对“最近运行截止时间”进行刷新
+            PbRootData.UserData.latestTime.utc0 = self._curDay00UTC0TimeStamp
+            PbRootData.UserData.latestTime.utc0String = self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", self._curDay00UTC0TimeStamp)
+            -- 记录本地跨天事件
+            local currentLocalTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(launchTime.current.locality)
+            local lastLocalTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(launchTime.last.locality)
+            local acrossDayLocalNum = self:GetAcrossDayNumBetweenTimeStamps(latestTime.locality, launchTime.current.locality)
+            table.insert(self._acrossDayEventQueue, 1, { evtCmd = FwEventCmd.AcrossDayLocal, isOnLaunch = true, curTimeInfo = currentLocalTimeInfo, lastTimeInfo = lastLocalTimeInfo, acrossDayNum = acrossDayLocalNum })
+            -- 计算当天23:59:59的本地时间戳
+            self._curDay24LocalTimeStamp = self:GetLocalTimeStampByParams(currentLocalTimeInfo[1], currentLocalTimeInfo[2], currentLocalTimeInfo[3], 23, 59, 59)
+            -- 计算当天00:00:00的本地时间戳
+            self._curDay00LocalTimeStamp = self:GetLocalTimeStampByParams(currentLocalTimeInfo[1], currentLocalTimeInfo[2], currentLocalTimeInfo[3], 0, 0, 0)
+            -- 启动跨天数据处理完毕后需要对“最近运行截止时间”进行刷新
+            PbRootData.UserData.latestTime.locality = self._curDay00LocalTimeStamp
+            PbRootData.UserData.latestTime.localString = self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", self._curDay00LocalTimeStamp)
+            -- 保存“最近运行截止时间”
+            PbIO.UserData.Save_latestTime()
+        end
     end
 end
 
@@ -63,13 +93,8 @@ end
 ---@type fun(utc0TimeStamp:number):void
 ---@param utc0TimeStamp number @utc0时间戳
 function HonorTimerHelper:SetTimeStamp(utc0TimeStamp)
-    if GameMainRoot.Config:GetBool("UseServerUTC0Time", false) then
-        self._IsTimeCorrectionByServer = true
-        self._mainUTC0TimeStamp = utc0TimeStamp
-    else
-        self._IsTimeCorrectionByServer = false
-        self._mainUTC0TimeStamp = self:GetUTC0TimeStamp()
-    end
+    self._IsTimeCorrectionByServer = false
+    self._mainUTC0TimeStamp = self:GetUTC0TimeStamp()
     self._mainLocalTimeStamp = self:GetLocalTimeStamp(self._mainUTC0TimeStamp)
     HonorEventHelper:FireNow(EventCmd.OnTimeCorrectionByServer, self._IsTimeCorrectionByServer)
 end
@@ -354,8 +379,8 @@ function HonorTimerHelper:UnregisterAll(force)
 end
 
 ---处理时间轴主线
----@type fun(procedure:Honor.Runtime.ProcedureState):void
----@param procedure Honor.Runtime.ProcedureState @流程
+---@type fun(procedure:Solar.Runtime.ProcedureState):void
+---@param procedure Solar.Runtime.ProcedureState @流程
 function HonorTimerHelper:ProcTiming(procedure)
     local realtimeSinceStartup = Unity.Time.realtimeSinceStartup
     -- 计算时间间隔
@@ -364,8 +389,11 @@ function HonorTimerHelper:ProcTiming(procedure)
     end
     local deltaTime = realtimeSinceStartup - self._lastRealTime
     self._lastRealTime = realtimeSinceStartup
-    
+
+    -- 处理utc0时间轴主线回调 (by chuanshao , 先设置服务器时间，再发送对应的事件，因为对应的事件里面可能会使用服务器时间)
+  
     self._mainUTC0TimeStamp = self:GetUTC0TimeStamp()
+
     -- 处理周期性时间间隔回调
     ClearDic(self._helperContianer)
     local collectedDeltaTimerNodesForFire = self._helperContianer
@@ -402,7 +430,24 @@ function HonorTimerHelper:ProcTiming(procedure)
         HonorEventHelper:Fire(timerNode.evtCmd, timerNode)
     end
     collectedMainUTC0TimerNodesForFire = nil
-    
+
+    -- 处理utc0跨天事件（同时考虑时间正向走与反向走的跨天回调）
+    if self._mainUTC0TimeStamp >= self._curDay24UTC0TimeStamp + 1 or self._mainUTC0TimeStamp < self._curDay00UTC0TimeStamp then
+        -- 派发UTC0跨天事件
+        local currentUTC0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._mainUTC0TimeStamp)
+        local lastUTC0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._curDay24UTC0TimeStamp)
+        local acrossDayUTC0Num = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24UTC0TimeStamp, self._mainUTC0TimeStamp)
+        table.insert(self._acrossDayEventQueue, 1, { evtCmd = FwEventCmd.AcrossDayUTC0, isOnLaunch = false, curTimeInfo = currentUTC0TimeInfo, lastTimeInfo = lastUTC0TimeInfo, acrossDayNum = acrossDayUTC0Num })
+        -- 计算新的一天23:59:59的utc0戳
+        self._curDay24UTC0TimeStamp = self:GetUTC0TimeStampByParams(currentUTC0TimeInfo[1], currentUTC0TimeInfo[2], currentUTC0TimeInfo[3], 23, 59, 59)
+        -- 计算新的一天00:00:00的utc0戳
+        self._curDay00UTC0TimeStamp = self:GetUTC0TimeStampByParams(currentUTC0TimeInfo[1], currentUTC0TimeInfo[2], currentUTC0TimeInfo[3], 0, 0, 0)
+        -- 记录跨天时的utc0时间戳作为“最近运行截止时间”
+        PbRootData.UserData.latestTime.utc0 = self._curDay00UTC0TimeStamp
+        PbRootData.UserData.latestTime.utc0String = self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", self._curDay00UTC0TimeStamp)
+        PbIO.UserData.Save_latestTime()
+    end
+    --本地时间
     self._mainLocalTimeStamp = self:GetLocalTimeStamp()
     
     ClearDic(self._helperContianer)
@@ -422,6 +467,69 @@ function HonorTimerHelper:ProcTiming(procedure)
         HonorEventHelper:Fire(timerNode.evtCmd, timerNode)
     end
     collectedMainLocalTimerNodesForFire = nil
+
+    -- 处理本地跨天事件（同时考虑时间正向走与反向走的跨天回调）
+    if self._mainLocalTimeStamp >= self._curDay24LocalTimeStamp + 1 or self._mainLocalTimeStamp < self._curDay00LocalTimeStamp then
+        -- 派发本地跨天事件
+        local currentLocalTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(self._mainLocalTimeStamp)
+        local lastLocalTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(self._curDay24LocalTimeStamp)
+        local acrossDayLocalNum = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24LocalTimeStamp, self._mainLocalTimeStamp)
+        table.insert(self._acrossDayEventQueue, 1, { evtCmd = FwEventCmd.AcrossDayLocal, isOnLaunch = false, curTimeInfo = currentLocalTimeInfo, lastTimeInfo = lastLocalTimeInfo, acrossDayNum = acrossDayLocalNum })
+        -- 计算新的一天23:59:59的本地时间戳
+        self._curDay24LocalTimeStamp = self:GetLocalTimeStampByParams(currentLocalTimeInfo[1], currentLocalTimeInfo[2], currentLocalTimeInfo[3], 23, 59, 59)
+        -- 计算新的一天00:00:00的本地时间戳
+        self._curDay00LocalTimeStamp = self:GetLocalTimeStampByParams(currentLocalTimeInfo[1], currentLocalTimeInfo[2], currentLocalTimeInfo[3], 0, 0, 0)
+        -- 记录跨天时的本地时间戳作为“最近运行截止时间”
+        PbRootData.UserData.latestTime.locality = self._curDay00LocalTimeStamp
+        PbRootData.UserData.latestTime.localString = self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", self._curDay00LocalTimeStamp)
+        PbIO.UserData.Save_latestTime()
+    end
+
+    -- 处理PST跨天事件（同时考虑时间正向走与反向走的跨天回调） by chuanshao
+    if self:IsTimeCorrectionByServer() then
+        -- PST 跨天事件 需要先经过时间校正
+        if not PbRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] then
+            -- 第一次进入游戏时，记录PST时间戳
+            local curPSTTimeStamp = self:GetPSTTimeStamp(self._mainUTC0TimeStamp) -- 当前PST时间
+            PbRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] = curPSTTimeStamp
+            PbIO.GameData.Save_timestamps()
+        end
+
+        if self._curDay24PSTTimeStamp == nil or self._curDay00PSTTimeStamp == nil then
+            -- 第一次启动游戏,还没有初始化
+            local lastPSTTimeStamp = PbRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] -- 上一次PST时间
+            local curPSTTimeStamp = self:GetPSTTimeStamp(self._mainUTC0TimeStamp) -- 当前PST时间
+            local currentPSTTimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(lastPSTTimeStamp)
+            -- 计算新的一天23:59:59的utc0戳
+            self._curDay24PSTTimeStamp = self:GetUTC0TimeStampByParams(currentPSTTimeInfo[1], currentPSTTimeInfo[2], currentPSTTimeInfo[3], 23, 59, 59)
+            -- 计算新的一天00:00:00的utc0戳
+            self._curDay00PSTTimeStamp = self:GetUTC0TimeStampByParams(currentPSTTimeInfo[1], currentPSTTimeInfo[2], currentPSTTimeInfo[3], 0, 0, 0)
+            local lastPSTTimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._curDay24PSTTimeStamp)
+            local acrossDayUTC0Num = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24PSTTimeStamp, curPSTTimeStamp)
+            table.insert(self._acrossDayEventQueue, 1, { evtCmd = FwEventCmd.AcrossDayPST, isOnLaunch = true, curTimeInfo = currentPSTTimeInfo, lastTimeInfo = lastPSTTimeInfo, acrossDayNum = acrossDayUTC0Num })
+            -- 记录跨天时的PST时间戳作为“最近运行截止时间”
+            PbRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] = curPSTTimeStamp
+            PbIO.GameData.Save_timestamps()
+        else
+            -- 循环检测PST时间是否跨天
+            local curPSTTimeStamp = self:GetPSTTimeStamp(self._mainUTC0TimeStamp) -- 当前PST时间
+            if curPSTTimeStamp >= self._curDay24PSTTimeStamp + 1 or curPSTTimeStamp < self._curDay00PSTTimeStamp then
+                -- 派发UTC0跨天事件
+                local currentPSTTimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(curPSTTimeStamp)
+                local lastPSTTimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._curDay24PSTTimeStamp)
+                local acrossDayUTC0Num = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24PSTTimeStamp, curPSTTimeStamp)
+                table.insert(self._acrossDayEventQueue, 1, { evtCmd = FwEventCmd.AcrossDayPST, isOnLaunch = false, curTimeInfo = currentPSTTimeInfo, lastTimeInfo = lastPSTTimeInfo, acrossDayNum = acrossDayUTC0Num })
+                -- 计算新的一天23:59:59的utc0戳
+                self._curDay24PSTTimeStamp = self:GetUTC0TimeStampByParams(currentPSTTimeInfo[1], currentPSTTimeInfo[2], currentPSTTimeInfo[3], 23, 59, 59)
+                -- 计算新的一天00:00:00的utc0戳
+                self._curDay00PSTTimeStamp = self:GetUTC0TimeStampByParams(currentPSTTimeInfo[1], currentPSTTimeInfo[2], currentPSTTimeInfo[3], 0, 0, 0)
+                -- 记录跨天时的PST时间戳作为“最近运行截止时间”
+                PbRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] = curPSTTimeStamp
+                PbIO.GameData.Save_timestamps()
+            end
+        end
+    end
+
     -- 在允许的流程中派发跨天事件
     ClearDic(self._helperContianer)
     local collectedAcrossDayEventsForFire = self._helperContianer
@@ -461,7 +569,7 @@ end
 ---@param utc0SecondsFromServer number @服务器utc0时间戳，不传时表示通过本地系统时间推算（本地系统时间无法避免作弊）
 ---@return number @时间戳
 function HonorTimerHelper:GetLocalTimeStamp(utc0SecondsFromServer)
-    return math.floor(GameLib.RSetupLuaTableValue.GetLocalTimeStamp(utc0SecondsFromServer ~= nil, utc0SecondsFromServer))
+    return math.floor(GameLib.RSetupLuaTableValue.GetLocalTimeStamp( utc0SecondsFromServer ~= nil ,utc0SecondsFromServer))
 end
 
 ---获取当前时区的年月日时分秒信息
@@ -469,8 +577,7 @@ end
 ---@param utc0SecondsFromServer number @服务器utc0时间戳，不传时表示通过本地系统时间推算（本地系统时间无法避免作弊）
 ---@return table @年月日时分秒信息（以数组的方式存储）
 function HonorTimerHelper:GetLocalTimeInfo(utc0SecondsFromServer)
-    --local dataTime = self:GetLocalDateTime(utc0SecondsFromServer)
-    local dataTime = GameLib.RSetupLuaTableValue.GetLocalTimeInfo(utc0SecondsFromServer ~= nil, utc0SecondsFromServer)
+   local dataTime = GameLib.RSetupLuaTableValue.GetLocalTimeInfo(utc0SecondsFromServer~=nil,utc0SecondsFromServer)
     local info = { dataTime.Year, dataTime.Month, dataTime.Day, dataTime.Hour, dataTime.Minute, dataTime.Second }
     return info
 end
@@ -481,7 +588,6 @@ end
 ---@return table @年月日时分秒信息（以数组的方式存储）
 function HonorTimerHelper:GetLocalTimeInfoByLocalTimeStamp(localTimeStamp)
     if localTimeStamp ~= nil then
-        --local dataTime = CS.System.DateTime(1970, 1, 1):AddSeconds(localTimeStamp)
         local dataTime = GameLib.RSetupLuaTableValue.GetDateTime1970AddSeconds(localTimeStamp)
         local info = { dataTime.Year, dataTime.Month, dataTime.Day, dataTime.Hour, dataTime.Minute, dataTime.Second }
         return info
@@ -500,7 +606,6 @@ end
 ---@return number @时间戳
 function HonorTimerHelper:GetLocalTimeStampByParams(year, month, day, hour, minute, second)
     if year ~= nil and month ~= nil and day ~= nil and hour ~= nil and minute ~= nil and second ~= nil then
-        --return math.floor((CS.System.DateTime(year, month, day, hour, minute, second, CS.System.DateTimeKind.__CastFrom("Local")) - CS.System.DateTime(1970, 1, 1)).TotalSeconds)
         return math.floor(GameLib.RSetupLuaTableValue.GetLocalTimeStampByParams(year, month, day, hour, minute, second))
     end
     return 0
@@ -523,15 +628,16 @@ end
 ---@type fun():number
 ---@return number @时间戳
 function HonorTimerHelper:GetUTC0TimeStamp()
-   return math.floor(GameLib.RSetupLuaTableValue.GetUTC0TimeStamp())
+    return math.floor(GameLib.RSetupLuaTableValue.GetUTC0TimeStamp())
 end
+
 
 ---获取UTC0时区的年月日时分秒信息
 ---@type fun(utc0SecondsFromServer:number):table
 ---@param utc0SecondsFromServer number @服务器utc0时间戳，不传时表示通过本地系统时间推算（本地系统时间无法避免作弊）
 ---@return table @年月日时分秒信息（以数组的方式存储）
 function HonorTimerHelper:GetUTC0TimeInfo(utc0SecondsFromServer)
-    local dataTime = GameLib.RSetupLuaTableValue.GetUTC0TimeInfo(utc0SecondsFromServer ~= nil, utc0SecondsFromServer)
+   local dataTime = GameLib.RSetupLuaTableValue.GetUTC0TimeInfo(utc0SecondsFromServer~=nil,utc0SecondsFromServer)
     local info = { dataTime.Year, dataTime.Month, dataTime.Day, dataTime.Hour, dataTime.Minute, dataTime.Second }
     return info
 end
@@ -542,7 +648,7 @@ end
 ---@return table @年月日时分秒信息（以数组的方式存储）
 function HonorTimerHelper:GetUTC0TimeInfoByUTC0TimeStamp(utc0TimeStamp)
     if utc0TimeStamp ~= nil then
-        local dataTime = GameLib.RSetupLuaTableValue.GetUTC0TimeInfoByUTC0TimeStamp(utc0TimeStamp)
+       local dataTime = GameLib.RSetupLuaTableValue.GetUTC0TimeInfoByUTC0TimeStamp(utc0TimeStamp)
         local info = { dataTime.Year, dataTime.Month, dataTime.Day, dataTime.Hour, dataTime.Minute, dataTime.Second }
         return info
     end
@@ -560,7 +666,7 @@ end
 ---@return number @时间戳
 function HonorTimerHelper:GetUTC0TimeStampByParams(year, month, day, hour, minute, second)
     if year ~= nil and month ~= nil and day ~= nil and hour ~= nil and minute ~= nil and second ~= nil then
-      return math.floor(GameLib.RSetupLuaTableValue.GetUTC0TimeStampByParams(year, month, day, hour, minute, second))
+        return math.floor(GameLib.RSetupLuaTableValue.GetUTC0TimeStampByParams(year, month, day, hour, minute, second))
     end
     return 0
 end
@@ -652,7 +758,6 @@ end
 ---@param timeStamp number @时间总秒数
 ---@return string
 function HonorTimerHelper:GetTimeStringByTimeStamp(format, timeStamp)
-    --return CS.System.DateTime(1970, 1, 1):AddSeconds(timeStamp):ToString(format)
     return GameLib.RSetupLuaTableValue.GetTimeStringByTimeStamp(format, timeStamp)
 end
 

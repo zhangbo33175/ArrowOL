@@ -1,21 +1,69 @@
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 声音播放参数类
+    /// 作用：封装播放音频所需的所有配置参数，统一传递、复用、重置
+    /// 支持：音量、循环、优先级、音调、3D空间、多普勒、淡入等
+    /// </summary>
     public sealed class PlaySoundParams
     {
+        /// <summary>
+        /// 播放起始时间点
+        /// </summary>
         private float m_Time;
+
+        /// <summary>
+        /// 在本组内单独静音
+        /// </summary>
         private bool m_MuteInSoundGroup;
+
+        /// <summary>
+        /// 是否循环播放
+        /// </summary>
         private bool m_Loop;
+
+        /// <summary>
+        /// 声音优先级（值越小优先级越高）
+        /// </summary>
         private int m_Priority;
+
+        /// <summary>
+        /// 本组内的相对音量
+        /// </summary>
         private float m_VolumeInSoundGroup;
+
+        /// <summary>
+        /// 淡入时间（秒）
+        /// </summary>
         private float m_FadeInSeconds;
+
+        /// <summary>
+        /// 音调（播放速度）
+        /// </summary>
         private float m_Pitch;
+
+        /// <summary>
+        /// 立体声相位（左右声道）
+        /// </summary>
         private float m_PanStereo;
+
+        /// <summary>
+        /// 空间混合量（0=2D，1=3D）
+        /// </summary>
         private float m_SpatialBlend;
+
+        /// <summary>
+        /// 3D声音最大距离
+        /// </summary>
         private float m_MaxDistance;
+
+        /// <summary>
+        /// 多普勒效应强度
+        /// </summary>
         private float m_DopplerLevel;
 
         /// <summary>
-        /// 初始化播放声音参数的新实例。
+        /// 构造函数：使用默认常量初始化所有参数
         /// </summary>
         public PlaySoundParams()
         {
@@ -33,7 +81,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置播放位置。
+        /// 播放起始位置
         /// </summary>
         public float Time
         {
@@ -48,7 +96,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置在声音组内是否静音。
+        /// 是否在本组内单独静音
         /// </summary>
         public bool MuteInSoundGroup
         {
@@ -63,7 +111,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置是否循环播放。
+        /// 是否循环播放
         /// </summary>
         public bool Loop
         {
@@ -78,7 +126,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音优先级。
+        /// 声音优先级（数值越小，优先级越高）
         /// </summary>
         public int Priority
         {
@@ -93,7 +141,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置在声音组内音量大小。
+        /// 在本组内的相对音量
         /// </summary>
         public float VolumeInSoundGroup
         {
@@ -108,7 +156,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音淡入时间，以秒为单位。
+        /// 淡入时间（秒）
         /// </summary>
         public float FadeInSeconds
         {
@@ -123,7 +171,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音音调。
+        /// 音调 / 播放速度
         /// </summary>
         public float Pitch
         {
@@ -138,7 +186,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音立体声声相。
+        /// 立体声相位（-1左声道，1右声道）
         /// </summary>
         public float PanStereo
         {
@@ -153,7 +201,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音空间混合量。
+        /// 空间混合量：0=2D音效，1=3D音效
         /// </summary>
         public float SpatialBlend
         {
@@ -168,7 +216,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音最大距离。
+        /// 3D声音最大衰减距离
         /// </summary>
         public float MaxDistance
         {
@@ -183,7 +231,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音多普勒等级。
+        /// 多普勒效应强度
         /// </summary>
         public float DopplerLevel
         {
@@ -198,9 +246,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 创建播放声音参数。
+        /// 静态创建方法（工厂模式）
         /// </summary>
-        /// <returns>创建的播放声音参数。</returns>
         public static PlaySoundParams Create()
         {
             PlaySoundParams playSoundParams = new PlaySoundParams();
@@ -208,7 +255,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清理播放声音参数。
+        /// 重置所有参数为默认值（对象池复用）
         /// </summary>
         public void Clear()
         {

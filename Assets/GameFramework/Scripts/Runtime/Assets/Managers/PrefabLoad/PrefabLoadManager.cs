@@ -7,8 +7,10 @@ namespace Honor.Runtime
     public sealed partial class PrefabLoadManager
     {
         /// <summary>
-        /// Prefab加载管理器构造方法
+        /// Prefab 加载管理器构造函数
+        /// 初始化容器、依赖引用、日志校验
         /// </summary>
+        /// <param name="assetLoadManager">资源加载管理器实例</param>
         public PrefabLoadManager(AssetLoadManager assetLoadManager)
         {
             m_LoadedList = new Dictionary<string, PrefabObject>();
@@ -32,13 +34,14 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步加载Prefab并实例化
+        /// 同步加载 Prefab 并实例化
+        /// 自动管理引用计数、异步转同步
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="parent">为实例指定的父对象</param>
-        /// <param name="luaParams">自定义lua传入参数</param>
-        /// <returns></returns>
+        /// <param name="abPath">AB 包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="parent">父节点</param>
+        /// <param name="luaParams">Lua 传入参数</param>
+        /// <returns>实例化后的 GameObject</returns>
         public GameObject LoadSync(string abPath, string assetName, Transform parent, LuaTable luaParams = null)
         {
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
@@ -49,13 +52,13 @@ namespace Honor.Runtime
                 prefabObj = m_LoadedList[assetPath];
                 prefabObj.RefCount++;
 
-                // 如果当前prefab正在异步加载中（不能影响异步加载，加载后需要释放）
+                // 异步加载未完成 → 同步加载并临时使用，使用后立即释放
                 if (prefabObj.Asset == null)
                 {
                     prefabObj.Asset = m_AssetLoadManager.LoadSync("GameObject", abPath, assetName);
                     var newGo = InstanceGO(prefabObj, parent, luaParams);
                     m_AssetLoadManager.Unload(prefabObj.Asset);
-                    prefabObj.Asset = null; // 等待异步加载结束后重新赋值
+                    prefabObj.Asset = null;
                     return newGo;
                 }
                 else
@@ -64,6 +67,7 @@ namespace Honor.Runtime
                 }
             }
 
+            // 全新加载
             prefabObj = new PrefabObject();
             prefabObj.AssetBundlePath = abPath;
             prefabObj.AssetName = assetName;
@@ -77,13 +81,14 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步加载Prefab并实例化
+        /// 异步加载 Prefab 并实例化
+        /// 支持批量回调、父节点缓存、参数缓存
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="parent">为实例指定的父节点</param>
-        /// <param name="luaParams">自定义lua传入参数</param>
-        /// <param name="overCallback">prefab加载完成并实例化结束的异步回调</param>
+        /// <param name="abPath">AB 包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="parent">父节点</param>
+        /// <param name="luaParams">Lua 参数</param>
+        /// <param name="overCallback">加载完成回调</param>
         public void LoadAsync(string abPath, string assetName, Transform parent, LuaTable luaParams = null,
             PrefabLoadOverCallback overCallback = null)
         {
@@ -105,6 +110,7 @@ namespace Honor.Runtime
                 return;
             }
 
+            // 新建异步加载对象
             prefabObj = new PrefabObject();
             prefabObj.AssetBundlePath = abPath;
             prefabObj.AssetName = assetName;
@@ -120,32 +126,30 @@ namespace Honor.Runtime
                 (AssetObject assetObject, UnityEngine.Object obj) =>
                 {
                     prefabObj.Asset = obj;
-                    // 异步加载完成后最大程度收集接下来需要进行回调的数量
+                    // 锁定回调数量，防止加载过程中列表变更
                     prefabObj.LockCallbackCount = prefabObj.PrefabLoadOverCallbackList.Count;
-                    // 异步回调处理
                     InstanceGOWithCallback(prefabObj);
                 });
         }
 
         /// <summary>
-        /// 挂载模板的克隆对象到指定节点上
-        /// 注：当GO是一个不被各类Manager管控的对象时，可以使用该克隆接口，其他情况禁止使用该克隆接口，因为克隆得到的对象将不受各类Manager的管控！
-        ///     比如：UI对象，只能通过UIManager进行实例化，克隆方式的实例化对象并不在UIManager管理容器内！
+        /// 直接克隆 GameObject（非托管方式）
+        /// 注意：仅用于不受管理器管控的对象
         /// </summary>
         /// <param name="parent">父节点</param>
-        /// <param name="childTemplateGO">模板节点</param>
-        /// <param name="luaParams">传入参数</param>
-        /// <returns>克隆得到的节点对象</returns>
+        /// <param name="childTemplateGO">模板对象</param>
+        /// <param name="luaParams">Lua 参数</param>
+        /// <returns>克隆后的对象</returns>
         public GameObject InstantiateGO(Transform parent, GameObject childTemplateGO, LuaTable luaParams)
         {
             GameObject go = GameObject.Instantiate(childTemplateGO, parent, false) as GameObject;
             go.name = go.name.Replace("(Clone)", "");
             PrefabInstanceGOBehaviour goBehaviour = go.AddComponent<PrefabInstanceGOBehaviour>();
 
+            // 强制激活一次确保 Awake/OnDestroy 正常执行
             if (!go.activeSelf)
             {
                 LuaBehaviour luaBehaviour = go.GetComponent<LuaBehaviour>();
-                // 保证GameObject active一次，ObjInfo才能触发Awake，未Awake的脚本不能触发OnDestroy，不触发Awake和OnDestroy的情况下引用计数会出错
                 go.SetActive(true);
                 go.SetActive(false);
             }
@@ -169,13 +173,11 @@ namespace Honor.Runtime
                     {
                         if (!childBehaviour.gameObject.activeSelf)
                         {
-                            // 保证GameObject active一次，ObjInfo才能触发Awake，未Awake的脚本不能触发OnDestroy，不触发Awake和OnDestroy的情况下引用计数会出错
                             childBehaviour.gameObject.SetActive(true);
                             childBehaviour.gameObject.SetActive(false);
                         }
                         else
                         {
-                            // 向上追溯最近的hierarchy中inactive的父节点
                             if (!childBehaviour.gameObject.activeInHierarchy)
                             {
                                 GameObject nearestInactiveParentInHierarchy =
@@ -203,19 +205,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 管理器心跳
+        /// 管理器帧更新
+        /// 驱动异步回调
         /// </summary>
         public void Update()
         {
             UpdateLoadedAsync();
         }
 
-        /// <summary>
-        /// 针对特定资源需要添加引用计数以保证引用计数的正确
+        /// <summary
+        /// 手动增加资源引用计数（用于克隆对象）
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="go">实例</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <param name="go">实例对象</param>
         public void AddAssetRef(string abPath, string assetName, GameObject go)
         {
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
@@ -237,10 +240,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 销毁实例
+        /// 销毁 GameObject 实例
+        /// 自动维护引用计数，计数为 0 时释放资源
         /// </summary>
-        /// <param name="go">实例</param>
-        /// <param name="rightNow">马上</param>
+        /// <param name="go">对象</param>
+        /// <param name="rightNow">是否立即卸载</param>
         public void Destroy(GameObject go, bool rightNow = false)
         {
             if (go == null) return;
@@ -249,7 +253,6 @@ namespace Honor.Runtime
 
             if (!m_GOInstanceIDList.ContainsKey(instanceID))
             {
-                // 非从本类创建的资源，直接销毁即可
                 if (go is GameObject)
                 {
                     UnityEngine.Object.Destroy(go);
@@ -283,6 +286,7 @@ namespace Honor.Runtime
                 return;
             }
 
+            // 引用归零 → 释放资源
             if (prefabObj.RefCount == 0)
             {
                 m_LoadedList.Remove(prefabObj.AssetPath);
@@ -292,11 +296,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 解绑回调
+        /// 移除异步加载回调
+        /// 同时维护计数、参数、父节点列表
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="overCallback">prefab加载完成并实例化结束的异步回调</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <param name="overCallback">回调</param>
         public void RemoveCallBack(string abPath, string assetName, PrefabLoadOverCallback overCallback)
         {
             if (overCallback == null) return;
@@ -319,7 +324,7 @@ namespace Honor.Runtime
                     prefabObj.PrefabLoadLuaTableParamList.RemoveAt(index);
                     prefabObj.PrefabInstancingGOParentList.RemoveAt(index);
 
-                    // 如果是加载回调过程中解绑回调，需要降低lock个数
+                    // 修正锁定计数
                     if (index < prefabObj.LockCallbackCount)
                     {
                         prefabObj.LockCallbackCount--;

@@ -6,11 +6,15 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 游戏框架自定义异常类
+    /// 提供游戏运行时异常抛出、日志上报、Lua 异常包装功能
+    /// </summary>
     [Serializable]
     public class GameException : Exception
     {
         /// <summary>
-        /// 框架异常类构造
+        /// 游戏框架异常构造函数
         /// 初始化异常类的新实例
         /// </summary>
         public GameException()
@@ -19,7 +23,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 使用指定错误消息初始化框架异常类的新实例
+        /// 使用指定错误消息初始化游戏框架异常类的新实例
         /// </summary>
         /// <param name="message">描述错误的消息</param>
         public GameException(string message)
@@ -28,51 +32,73 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 使用指定错误消息和此异常原因内部异常的引用来初始化游戏框架异常类的新实例
+        /// 使用指定错误消息和内部异常，初始化游戏框架异常类的新实例
         /// </summary>
         /// <param name="message">描述错误的消息</param>
-        /// <param name="innerException">导致当前异常的异常，如果 innerException 参数不为空引用，则在处理内部异常的 catch 块中引发当前异常</param>
+        /// <param name="innerException">导致当前异常的内部异常</param>
         public GameException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
         /// <summary>
-        /// 用序列化数据初始化框架异常类的新实例
+        /// 序列化构造函数（反序列化时使用）
         /// </summary>
-        /// <param name="info">存有有关所引发异常的序列化的对象数据</param>
-        /// <param name="context">包含有关源或目标的上下文信息</param>
+        /// <param name="info">序列化信息</param>
+        /// <param name="context">流上下文</param>
         protected GameException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
 
         /// <summary>
-        /// 主动上传Lua异常
+        /// 主动抛出并上报 Lua 异常
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">异常信息</param>
         public static void ThrowLuaException(string message)
         {
             try
             {
-                // 抛出一个异常
                 throw new GameException(message);
             }
-            catch (Exception e)
+            catch (GameException e)
             {
-                string fileName = Regex.Match(e.Message, @".+.lua").Value;
-                if (!string.IsNullOrEmpty(fileName))
+                // 安全匹配 Lua 文件名
+                string fileName = Regex.Match(e.Message, @"[^\\/\:\*\?""<>\|]+\.lua").Value;
+                string originalMethodName = string.Empty;
+
+                // 安全获取目标方法（防御空引用）
+                MethodBase targetSite = e.TargetSite;
+                if (targetSite != null)
                 {
-                    fileName = "Lua Exception";
+                    originalMethodName = targetSite.Name;
+
+                    // 安全获取字段（防御反射失败）
+                    FieldInfo field = targetSite.GetType().GetField(
+                        "name",
+                        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.ExactBinding);
+
+                    if (field != null)
+                    {
+                        // 若匹配到文件名则使用，否则标记为 Lua 异常
+                        string displayName = string.IsNullOrEmpty(fileName) ? "Lua Exception" : fileName;
+                        field.SetValue(targetSite, displayName);
+                    }
                 }
-                string name = e.TargetSite.Name;
-                var field = e.TargetSite.GetType().GetField("name", BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.ExactBinding);
-                field.SetValue(e.TargetSite, fileName);
+
+                // 输出异常
                 Debug.LogException(e);
-                field.SetValue(e.TargetSite, name);
+
+                // 还原方法名（避免污染运行时）
+                if (targetSite != null && !string.IsNullOrEmpty(originalMethodName))
+                {
+                    FieldInfo field = targetSite.GetType().GetField(
+                        "name",
+                        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.ExactBinding);
+
+                    field?.SetValue(targetSite, originalMethodName);
+                }
             }
         }
     }
 }
-
-

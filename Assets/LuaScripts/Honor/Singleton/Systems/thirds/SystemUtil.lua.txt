@@ -6,6 +6,10 @@
 
 local unpack = unpack or table.unpack
 
+---
+--- 异步函数 转 同步调用（让异步逻辑像同步一样写）
+--- 用于：C# 异步回调 → Lua 协程同步写法
+---
 local function async_to_sync(async_func, callback_pos)
     return function(...)
         local _co = coroutine.running() or error ('this function must be run in coroutine')
@@ -25,11 +29,14 @@ local function async_to_sync(async_func, callback_pos)
             waiting = true
             rets = {coroutine.yield()}
         end
-        
+
         return unpack(rets)
     end
 end
 
+---
+--- 协程包装调用（自动创建并启动协程）
+---
 local function coroutine_call(func)
     return function(...)
         local co = coroutine.create(func)
@@ -39,6 +46,7 @@ end
 
 local move_end = {}
 
+--- C# 迭代器适配（IEnumerator）
 local generator_mt = {
     __index = {
         MoveNext = function(self)
@@ -56,6 +64,9 @@ local generator_mt = {
     }
 }
 
+---
+--- 生成 C# 可使用的迭代器
+---
 local function cs_generator(func, ...)
     local params = {...}
     local generator = setmetatable({
@@ -68,6 +79,9 @@ local function cs_generator(func, ...)
     return generator
 end
 
+---
+--- 手动加载包（兼容 Lua 模块搜索）
+---
 local function loadpackage(...)
     for _, loader in ipairs(package.searchers) do
         local func = loader(...)
@@ -77,6 +91,9 @@ local function loadpackage(...)
     end
 end
 
+---
+--- 自动 ID 映射（热更新内部优化）
+---
 local function auto_id_map()
     local hotfix_id_map = require 'hotfix_id_map'
     local org_hotfix = xlua.hotfix
@@ -91,7 +108,6 @@ local function auto_id_map()
                 for _, id in ipairs(map_info_of_methods or {}) do
                     CS.XLua.HotfixDelegateBridge.Set(id, f)
                 end
-                --CS.XLua.HotfixDelegateBridge.Set(
             end
             xlua.private_accessible(cs)
         else
@@ -100,7 +116,9 @@ local function auto_id_map()
     end
 end
 
---和xlua.hotfix的区别是：这个可以调用原来的函数
+---
+--- 增强版热更新（可调用原函数）
+---
 local function hotfix_ex(cs, field, func)
     assert(type(field) == 'string' and type(func) == 'function', 'invalid argument: #2 string needed, #3 function needed!')
     local function func_after(...)
@@ -112,13 +130,18 @@ local function hotfix_ex(cs, field, func)
     xlua.hotfix(cs, field, func_after)
 end
 
+---
+--- 绑定函数到对象（this 绑定）
+---
 local function bind(func, obj)
     return function(...)
         return func(obj, ...)
     end
 end
 
---为了兼容luajit，lua53版本直接用|操作符即可
+---
+--- 枚举位或运算（兼容 luajit）
+---
 local enum_or_op = debug.getmetatable(CS.System.Reflection.BindingFlags.Public).__bor
 local enum_or_op_ex = function(first, ...)
     for _, e in ipairs({...}) do
@@ -127,15 +150,20 @@ local enum_or_op_ex = function(first, ...)
     return first
 end
 
--- description: 直接用C#函数创建delegate
+---
+--- 直接用 C# 反射创建委托（xlua 高级用法）
+---
 local function createdelegate(delegate_cls, obj, impl_cls, method_name, parameter_type_list)
-    local flag = enum_or_op_ex(CS.System.Reflection.BindingFlags.Public, CS.System.Reflection.BindingFlags.NonPublic, 
-        CS.System.Reflection.BindingFlags.Instance, CS.System.Reflection.BindingFlags.Static)
+    local flag = enum_or_op_ex(CS.System.Reflection.BindingFlags.Public, CS.System.Reflection.BindingFlags.NonPublic,
+            CS.System.Reflection.BindingFlags.Instance, CS.System.Reflection.BindingFlags.Static)
     local m = parameter_type_list and typeof(impl_cls):GetMethod(method_name, flag, nil, parameter_type_list, nil)
-             or typeof(impl_cls):GetMethod(method_name, flag)
+            or typeof(impl_cls):GetMethod(method_name, flag)
     return CS.System.Delegate.CreateDelegate(typeof(delegate_cls), obj, m)
 end
 
+---
+--- 给 C# 对象绑定 Lua 状态表（扩展 C# 对象）
+---
 local function state(csobj, state)
     local csobj_mt = getmetatable(csobj)
     for k, v in pairs(csobj_mt) do rawset(state, k, v) end
@@ -154,6 +182,9 @@ local function state(csobj, state)
     return state
 end
 
+---
+--- 打印被 C# 引用的 Lua 函数（调试内存泄漏）
+---
 local function print_func_ref_by_csharp()
     local registry = debug.getregistry()
     for k, v in pairs(registry) do
@@ -163,16 +194,18 @@ local function print_func_ref_by_csharp()
         end
     end
 end
-
+---
+--- 导出工具函数表
+---
 return {
-    async_to_sync = async_to_sync,
-    coroutine_call = coroutine_call,
-    cs_generator = cs_generator,
-    loadpackage = loadpackage,
-    auto_id_map = auto_id_map,
-    hotfix_ex = hotfix_ex,
-    bind = bind,
-    createdelegate = createdelegate,
-    state = state,
-    print_func_ref_by_csharp = print_func_ref_by_csharp,
+    async_to_sync = async_to_sync,            -- 异步转同步
+    coroutine_call = coroutine_call,          -- 协程调用
+    cs_generator = cs_generator,              -- C# 迭代器
+    loadpackage = loadpackage,                -- 模块加载
+    auto_id_map = auto_id_map,                -- 热更ID映射
+    hotfix_ex = hotfix_ex,                    -- 增强热更
+    bind = bind,                              -- 函数绑定
+    createdelegate = createdelegate,          -- 创建委托
+    state = state,                            -- 绑定对象状态
+    print_func_ref_by_csharp = print_func_ref_by_csharp, -- 调试引用
 }

@@ -1320,7 +1320,9 @@ namespace XLua.CSObjectWrap
                 UnityEngine.Vector3 gen_to_be_invoked;translator.Get(L, 1, out gen_to_be_invoked);
             
             
-                
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 2&& translator.Assignable<UnityEngine.Camera>(L, 2)) 
                 {
                     UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 2, typeof(UnityEngine.Camera));
                     
@@ -1333,10 +1335,24 @@ namespace XLua.CSObjectWrap
                     
                     return 1;
                 }
+                if(gen_param_count == 1) 
+                {
+                    
+                        UnityEngine.Transform gen_ret = gen_to_be_invoked.GetRaycastHit3DTransform(  );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                        translator.UpdateUnityEngineVector3(L, 1, gen_to_be_invoked);
+                    
+                    
+                    return 1;
+                }
                 
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Vector3.GetRaycastHit3DTransform!");
             
         }
         

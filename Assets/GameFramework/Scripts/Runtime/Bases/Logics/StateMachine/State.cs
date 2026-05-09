@@ -3,86 +3,83 @@ using System;
 namespace Honor.Runtime
 {
     /// <summary>
-    /// 有限状态机状态基类。
+    /// 有限状态机状态基类
+    /// 所有自定义状态都必须继承此类
     /// </summary>
-    /// <typeparam name="T">有限状态机持有者类型。</typeparam>
+    /// <typeparam name="T">状态机持有者类型（Owner）</typeparam>
     public abstract class State<T> where T : class
     {
         /// <summary>
-        /// 初始化有限状态机状态基类的新实例。
+        /// 状态构造函数
         /// </summary>
         public State()
         {
         }
 
         /// <summary>
-        /// 有限状态机状态初始化时调用。
+        /// 状态初始化时调用（状态机创建时执行一次）
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
+        /// <param name="ownerMachine">所属状态机</param>
         public virtual void OnInit(StateMachine<T> ownerMachine)
         {
         }
 
         /// <summary>
-        /// 有限状态机状态销毁时调用。
+        /// 状态销毁时调用（状态机销毁时执行一次）
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
+        /// <param name="ownerMachine">所属状态机</param>
         public virtual void OnDestroy(StateMachine<T> ownerMachine)
         {
         }
 
         /// <summary>
-        /// 有限状态机状态进入时调用。
+        /// 进入状态时调用
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
+        /// <param name="ownerMachine">所属状态机</param>
         public virtual void OnEnter(StateMachine<T> ownerMachine)
         {
         }
 
         /// <summary>
-        /// 有限状态机状态轮询时调用。
+        /// 状态每帧逻辑更新
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
+        /// <param name="ownerMachine">所属状态机</param>
         public virtual void OnUpdate(StateMachine<T> ownerMachine)
         {
         }
 
         /// <summary>
-        /// 有限状态机状态离开时调用。
+        /// 离开状态时调用
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
-        /// <param name="isShutdown">是否是关闭有限状态机时触发。</param>
+        /// <param name="ownerMachine">所属状态机</param>
+        /// <param name="isShutdown">是否为状态机关闭时触发</param>
         public virtual void OnLeave(StateMachine<T> ownerMachine, bool isShutdown)
         {
-
         }
 
         /// <summary>
-        /// 切换当前有限状态机状态。
+        /// 切换到指定状态
         /// </summary>
-        /// <param name="ownerMachine">有限状态机引用。</param>
-        /// <param name="stateType">要切换到的有限状态机状态类型。</param>
+        /// <param name="ownerMachine">所属状态机</param>
+        /// <param name="stateType">要切换的目标状态类型</param>
         public virtual void ChangeState(StateMachine<T> ownerMachine, Type stateType)
         {
-            StateMachine<T> stateMachineImplement = (StateMachine<T>)ownerMachine;
-            if (stateMachineImplement == null)
+            if (ownerMachine == null)
             {
-                throw new GameException("状态机无效。");
+                throw new GameException("状态机为空，无法切换状态。");
             }
 
             if (stateType == null)
             {
-                throw new GameException("State type 无效。");
+                throw new GameException("要切换的状态类型为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException(AorTxt.Format("状态类型 '{0}' 无效。", stateType.FullName));
+                throw new GameException($"状态类型 '{stateType.FullName}' 不是有效的 State<{typeof(T)}> 类型。");
             }
 
-            stateMachineImplement.ChangeState(stateType);
+            ownerMachine.ChangeState(stateType);
         }
     }
 }
-
-

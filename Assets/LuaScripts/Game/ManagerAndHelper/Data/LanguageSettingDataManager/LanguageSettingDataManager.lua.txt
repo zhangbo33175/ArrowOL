@@ -1,0 +1,47 @@
+--=====================================================================================================
+-- descrip:   游戏中使用的多语言配置表格数据管理中心
+--            功能：读取多语言配置表，获取游戏内启用的语言类型
+--=====================================================================================================
+
+---@class LanguageSettingDataManager @多语言配置管理中心
+local LanguageSettingDataManager = class("LanguageSettingDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function LanguageSettingDataManager:ctor(args)
+    self:Init()
+end
+
+---创建实例
+---@type fun(args:table):LanguageSettingDataManager
+---@param args table @自定义参数
+---@return LanguageSettingDataManager @多语言配置管理中心实例
+function LanguageSettingDataManager:Create(args)
+    local obj = LanguageSettingDataManager.new(args)
+    return obj
+end
+
+---初始化接口
+---@type fun():void
+function LanguageSettingDataManager:Init()
+
+end
+
+---获取游戏中已启用的语言类型列表（缓存）
+---@type fun():table
+---@return table @启用的语言配置数组
+function LanguageSettingDataManager:GetInUseLangs()
+    if self._useLangs == nil then
+        self._useLangs = {}
+        for i = 1, #Tables.LocalizationSetting do
+            -- 只收集启用状态的语言
+            if Tables.LocalizationSetting[i].InUse then
+                table.insert(self._useLangs, Tables.LocalizationSetting[i])
+            end
+        end
+    end
+    return self._useLangs
+end
+
+return LanguageSettingDataManager

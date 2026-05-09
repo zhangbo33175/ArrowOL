@@ -182,14 +182,14 @@ namespace XLua.CSObjectWrap
                 
                 {
                     float _pos = (float)LuaAPI.lua_tonumber(L, 2);
-                    int _index = LuaAPI.xlua_tointeger(L, 3);
-                    float _itemPos = (float)LuaAPI.lua_tonumber(L, 4);
+                    int _itemIndex = LuaAPI.xlua_tointeger(L, 3);
+                    float _itemStartPos = (float)LuaAPI.lua_tonumber(L, 4);
                     
-                        bool gen_ret = gen_to_be_invoked.GetItemIndexAndPosAtGivenPos( _pos, ref _index, ref _itemPos );
+                        bool gen_ret = gen_to_be_invoked.GetItemIndexAndPosAtGivenPos( _pos, ref _itemIndex, ref _itemStartPos );
                         LuaAPI.lua_pushboolean(L, gen_ret);
-                    LuaAPI.xlua_pushinteger(L, _index);
+                    LuaAPI.xlua_pushinteger(L, _itemIndex);
                         
-                    LuaAPI.lua_pushnumber(L, _itemPos);
+                    LuaAPI.lua_pushnumber(L, _itemStartPos);
                         
                     
                     

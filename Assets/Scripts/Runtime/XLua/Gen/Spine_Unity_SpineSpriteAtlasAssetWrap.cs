@@ -21,16 +21,18 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Spine.Unity.SpineSpriteAtlasAsset);
-			Utils.BeginObjectRegister(type, L, translator, 0, 2, 7, 3);
+			Utils.BeginObjectRegister(type, L, translator, 0, 3, 8, 3);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Clear", _m_Clear);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetAtlas", _m_GetAtlas);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadRegionsInEditorPlayMode", _m_LoadRegionsInEditorPlayMode);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "IsLoaded", _g_get_IsLoaded);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "Materials", _g_get_Materials);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "MaterialCount", _g_get_MaterialCount);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrimaryMaterial", _g_get_PrimaryMaterial);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "RegionsNeedLoading", _g_get_RegionsNeedLoading);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "spriteAtlasFile", _g_get_spriteAtlasFile);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "materials", _g_get_materials);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "updateRegionsInPlayMode", _g_get_updateRegionsInPlayMode);
@@ -43,8 +45,12 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 4, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 8, 0, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "CreateRuntimeInstance", _m_CreateRuntimeInstance_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "UpdateByStartingEditorPlayMode", _m_UpdateByStartingEditorPlayMode_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "AnySpriteAtlasNeedsRegionsLoaded", _m_AnySpriteAtlasNeedsRegionsLoaded_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "UpdateWhenEditorPlayModeStarted", _m_UpdateWhenEditorPlayModeStarted_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "AccessPackedTextureEditor", _m_AccessPackedTextureEditor_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "AccessPackedTexture", _m_AccessPackedTexture_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "AccessPackedSprites", _m_AccessPackedSprites_xlua_st_);
             
@@ -186,6 +192,130 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateByStartingEditorPlayMode_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    Spine.Unity.SpineSpriteAtlasAsset.UpdateByStartingEditorPlayMode(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AnySpriteAtlasNeedsRegionsLoaded_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                        bool gen_ret = Spine.Unity.SpineSpriteAtlasAsset.AnySpriteAtlasNeedsRegionsLoaded(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateWhenEditorPlayModeStarted_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    Spine.Unity.SpineSpriteAtlasAsset.UpdateWhenEditorPlayModeStarted(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_LoadRegionsInEditorPlayMode(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Spine.Unity.SpineSpriteAtlasAsset gen_to_be_invoked = (Spine.Unity.SpineSpriteAtlasAsset)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.LoadRegionsInEditorPlayMode(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AccessPackedTextureEditor_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    UnityEngine.U2D.SpriteAtlas _spriteAtlas = (UnityEngine.U2D.SpriteAtlas)translator.GetObject(L, 1, typeof(UnityEngine.U2D.SpriteAtlas));
+                    
+                        UnityEngine.Texture2D gen_ret = Spine.Unity.SpineSpriteAtlasAsset.AccessPackedTextureEditor( _spriteAtlas );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_AccessPackedTexture_xlua_st_(RealStatePtr L)
         {
 		    try {
@@ -292,6 +422,20 @@ namespace XLua.CSObjectWrap
 			
                 Spine.Unity.SpineSpriteAtlasAsset gen_to_be_invoked = (Spine.Unity.SpineSpriteAtlasAsset)translator.FastGetCSObj(L, 1);
                 translator.Push(L, gen_to_be_invoked.PrimaryMaterial);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_RegionsNeedLoading(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SpineSpriteAtlasAsset gen_to_be_invoked = (Spine.Unity.SpineSpriteAtlasAsset)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.RegionsNeedLoading);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

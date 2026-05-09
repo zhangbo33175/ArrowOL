@@ -5,81 +5,79 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Lua 逻辑挂载脚本（MVVM 模式）
+    /// 负责 Lua 脚本加载、生命周期管理、UI 数据绑定
+    /// </summary>
     public partial class LuaBehaviour : MonoBehaviour
     {
         /// <summary>
-        /// MVVM模式下Lua脚本公有名称
+        /// MVVM 模式：Lua 脚本公共名称（配置用）
         /// </summary>
         [SerializeField]
         private string m_LuaScriptCommonNameMVVM;
 
         /// <summary>
-        /// MVVM模式下Lua脚本名称
+        /// MVVM 模式：Lua 脚本名称列表
         /// </summary>
         [SerializeField]
         private List<string> m_LuaScriptNamesMVVM;
 
         /// <summary>
-        /// MVVM模式下Lua父类脚本名称
+        /// MVVM 模式：Lua 父类脚本名称列表
         /// </summary>
         [SerializeField]
         private List<string> m_LuaSuperScriptNamesMVVM;
 
         /// <summary>
-        /// 绑定数据集合
+        /// 绑定数据集合（Inspector 配置）
         /// </summary>
         [SerializeField]
         private List<LuaBindValue> m_BindValues;
-        public List<LuaBindValue> BindValues
-        {
-            get
-            {
-                return m_BindValues;
-            }
-        }
+        public List<LuaBindValue> BindValues => m_BindValues;
 
         /// <summary>
-        /// MVVM模式下的Lua脚本独立环境
-        /// 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
+        /// MVVM 模式：Lua 独立运行环境（隔离作用域）
+        /// 每个脚本独立环境，防止变量/函数冲突
         /// </summary>
         private LuaTable[] m_OwnLuaEnvsMVVM;
 
         /// <summary>
-        /// MVVM模式下的Lua脚本class环境
+        /// MVVM 模式：Lua Class 实例
         /// </summary>
         private LuaTable[] m_OwnLuaClassesMVVM;
 
+        // ==============================================
+        // Lua 生命周期回调（MVVM 多脚本支持）
+        // ==============================================
         /// <summary>
-        /// MVVM模式下的Lua生命周期函数：Awake
+        /// Lua 生命周期：Awake
         /// </summary>
         private Action[] m_LuaAwakesMVVM;
 
         /// <summary>
-        /// MVVM模式下的Lua生命周期函数：OnEnable
+        /// Lua 生命周期：OnEnable
         /// </summary>
         private Action[] m_LuaOnEnablesMVVM;
 
         /// <summary>
-        /// MVVM模式下的Lua生命周期函数：Start
+        /// Lua 生命周期：Start
         /// </summary>
         private Action[] m_LuaStartsMVVM;
 
         /// <summary>
-        /// MVVM模式下的Lua自定义生命周期函数：Proc
+        /// Lua 自定义逻辑：Proc（逻辑帧更新）
         /// </summary>
         private Action[] m_LuaProcsMVVM;
 
         /// <summary>
-        /// MVVM模式下的Lua生命周期函数：OnDisable
+        /// Lua 生命周期：OnDisable
         /// </summary>
         private Action[] m_LuaOnDisablesMVVM;
 
         /// <summary>
-        /// MVVM模式下的Lua生命周期函数：Destroy
+        /// Lua 生命周期：OnDestroy
         /// </summary>
         private Action[] m_LuaOnDestroysMVVM;
-
     }
 }
-
-

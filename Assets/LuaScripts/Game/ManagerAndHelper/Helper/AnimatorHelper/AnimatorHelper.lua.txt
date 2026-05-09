@@ -1,0 +1,107 @@
+--=====================================================================================================
+-- descrip:   动画控制器工具类
+--            提供：获取动画时长、播放动画、采样动画、防重复播放等通用Animator操作
+--=====================================================================================================
+
+---@class AnimatorHelper @动画控制器通用工具类（无状态、工具方法）
+local AnimatorHelper = class("AnimatorHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function AnimatorHelper:ctor(args)
+
+end
+
+---创建实例
+---@type fun(args:table):AnimatorHelper
+---@param args table @自定义参数
+---@return AnimatorHelper @动画控制器工具实例
+function AnimatorHelper:Create(args)
+    local obj = AnimatorHelper.new(args)
+    return obj
+end
+
+---获取单个动画片段时长
+---@type fun(animator:UnityEngine.Animator,clipName:string):number
+---@param animator UnityEngine.Animator @目标动画控制器
+---@param clipName string @动画片段名称
+---@return number @动画时长（秒），未找到返回0
+function AnimatorHelper:GetAnimLength(animator, clipName)
+    if (animator == nil or string.isNullOrEmpty(clipName)) then
+        return 0
+    end
+
+    local clips = animator.runtimeAnimatorController.animationClips
+    local animTime = 0
+    for i = 0, clips.Length - 1 do
+        if (clips[i].name == clipName) then
+            animTime = clips[i].length
+            break
+        end
+    end
+    return animTime
+end
+
+---获取控制器下所有动画总时长
+---@type fun(animator:UnityEngine.Animator):number
+---@param animator UnityEngine.Animator @目标动画控制器
+---@return number @所有动画总时长（秒）
+function AnimatorHelper:GetAllAnimLength(animator)
+    if (animator == nil) then
+        return 0
+    end
+
+    local clips = animator.runtimeAnimatorController.animationClips
+    local animTime = 0
+    for i = 0, clips.Length - 1 do
+        animTime = animTime + clips[i].length
+    end
+    return animTime
+end
+
+---播放指定动画（从头播放）
+---@type fun(animator:UnityEngine.Animator,stateName:string):void
+---@param animator UnityEngine.Animator @目标动画控制器
+---@param stateName string @动画状态名称
+---@return void
+function AnimatorHelper:PlayAnim(animator, stateName)
+    if animator == nil or string.isNullOrEmpty(stateName) then
+        return
+    end
+    GameLib.AnimatorUtil.PlayByNormalizedTime(animator, stateName, 0, 0)
+    animator:Update(0)
+end
+
+---动画采样：定位到指定时间点
+---@type fun(animator:UnityEngine.Animator,stateName:string,length:number):void
+---@param animator UnityEngine.Animator @目标动画控制器
+---@param stateName string @动画状态名称
+---@param length number @要采样的时间点（秒）
+function AnimatorHelper:SampleAnimation(animator, stateName, length)
+    if animator == nil or string.isNullOrEmpty(stateName) then
+        return
+    end
+    GameLib.AnimatorUtil.PlayByNormalizedTime(animator, stateName, 0, 0)
+    animator:Update(0)
+    animator:Update(length)
+end
+
+---安全播放动画：避免重复播放（正在播放且未结束则不处理）
+---@type fun(animator:UnityEngine.Animator,stateName:string):void
+---@param animator UnityEngine.Animator @目标动画控制器
+---@param stateName string @动画状态名称
+function AnimatorHelper:PlayAnimAvoidPlaying(animator, stateName)
+    local animatorStateInfo = animator:GetCurrentAnimatorStateInfo(0)
+    if animatorStateInfo then
+        -- 不是目标动画 或 目标动画已播放完成 -> 重新播放
+        if not animatorStateInfo:IsName(stateName) or animatorStateInfo.normalizedTime >= 1 then
+            AnimatorHelper:PlayAnim(animator, stateName)
+        end
+    else
+        -- 获取状态失败，直接播放
+        AnimatorHelper:PlayAnim(animator, stateName)
+    end
+end
+
+return AnimatorHelper

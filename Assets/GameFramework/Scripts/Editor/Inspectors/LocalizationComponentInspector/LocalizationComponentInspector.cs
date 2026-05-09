@@ -12,54 +12,89 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// 本地化组件自定义Inspector面板
+    /// 负责多语言配置的可视化编辑、Excel导出、TMP字符集生成、增量导出等核心功能
+    /// </summary>
     [CustomEditor(typeof(LocalizationComponent))]
     internal sealed partial class LocalizationComponentInspector : HonorComponentInspector
     {
-        // 从本地文件中获取配置参数
+        #region TMP导出配置
+        /// <summary>
+        /// 本地TMP导出配置文件反序列化对象
+        /// </summary>
         private JObject m_TMPExportConfig = null;
 
-        // 导出TMP页面配置数据
+        /// <summary>
+        /// 是否启用TextMeshPro字符集生成功能
+        /// </summary>
         private bool m_UseTMP = false;
+
+        /// <summary>
+        /// 是否将多语言字符集合并为一个文件导出
+        /// </summary>
         private bool m_MulLangToOne = false;
 
+        /// <summary>
+        /// TMP字符集文件保存目录
+        /// </summary>
         private string m_TMPCharsSaveDirectory = "";
+        #endregion
 
-        // 从component中获取的配置数据
+        #region 组件序列化属性
+        /// <summary>
+        /// 当前选中的语言类型序列化属性
+        /// </summary>
         private SerializedProperty m_Language = null;
-        private SerializedProperty m_AutoFontAdapt = null;
 
+        /// <summary>
+        /// 字体自动适配开关序列化属性
+        /// </summary>
+        private SerializedProperty m_AutoFontAdapt = null;
+        #endregion
+
+        #region 自定义表格配置
         /// <summary>
         /// 自定义表格需要排除的表格路径集合
         /// </summary>
         private List<string> m_ExcludeExcelsPathsForCustoms = null;
+        #endregion
 
+        #region Lua增量导出配置
         /// <summary>
-        /// 是否导出lua增量文件
+        /// 是否启用Lua增量导出功能
         /// </summary>
         public bool m_EnableExportLuaIncrease = false;
 
         /// <summary>
-        /// 导出增量lua文件的时候只保留一个版本
+        /// 增量导出时是否仅保留单个版本文件
         /// </summary>
         public bool m_EnableExportLuaIncreaseSingleVersion = false;
 
         /// <summary>
-        /// 导出增量lua文件的自定义路径
+        /// 增量Lua文件自定义导出路径
         /// </summary>
         public string m_ExportLuaIncreasePath = null;
+        #endregion
 
+        #region Key校验缓存
         /// <summary>
-        /// 所有多语言key
+        /// 所有多语言Key集合
         /// </summary>
         private static List<string> m_AllKey = new List<string>();
 
         /// <summary>
-        /// 重复key筛查
+        /// 重复的多语言Key集合
         /// </summary>
         private static List<string> m_RepeatKey = new List<string>();
+        #endregion
 
+        /// <summary>
+        /// 启用时初始化配置、加载序列化属性
+        /// </summary>
         protected void OnEnable()
         {
+            // 获取序列化属性
             m_Language = serializedObject.FindProperty("m_Language");
             m_AutoFontAdapt = serializedObject.FindProperty("m_AutoFontAdapt");
 
@@ -69,21 +104,23 @@ namespace Honor.Editor
             m_MulLangToOne = (bool)m_TMPExportConfig["MulLangToOne"];
             m_TMPCharsSaveDirectory = (string)m_TMPExportConfig["TMPCharsSaveDirectory"];
 
+            // 初始化排除表格路径
             m_ExcludeExcelsPathsForCustoms = new List<string>();
             m_ExcludeExcelsPathsForCustoms.Add(EditorPath.Localization.ExcelFileFullPath);
             m_ExcludeExcelsPathsForCustoms.Add(EditorPath.Localization.ExcelDefaultFileFullPath);
             m_ExcludeExcelsPathsForCustoms.Add(EditorPath.Localization.ExcelFontFileFullPath);
 
+            // 加载本地化增量导出配置
             LoadLocalizationSettings(out m_EnableExportLuaIncrease, out m_EnableExportLuaIncreaseSingleVersion,
                 out m_ExportLuaIncreasePath);
         }
 
         /// <summary>
-        /// 加载本地化配置信息
+        /// 加载本地化配置信息（增量导出相关）
         /// </summary>
-        /// <param name="enableExportLuaIncrease"></param>
-        /// <param name="enableExportLuaIncreaseSingleVersion"></param>
-        /// <param name="exportLuaIncreasePath"></param>
+        /// <param name="enableExportLuaIncrease">是否启用增量导出</param>
+        /// <param name="enableExportLuaIncreaseSingleVersion">是否单版本增量</param>
+        /// <param name="exportLuaIncreasePath">增量导出路径</param>
         public static void LoadLocalizationSettings(out bool enableExportLuaIncrease,
             out bool enableExportLuaIncreaseSingleVersion, out string exportLuaIncreasePath)
         {
@@ -91,6 +128,7 @@ namespace Honor.Editor
             enableExportLuaIncreaseSingleVersion = false;
             exportLuaIncreasePath = string.Empty;
 
+            // 读取配置文件并解析
             string content = File.ReadAllText(EditorPath.Editor.Localization.ProjectSettingFileFullPath);
             JObject jObject = JObject.Parse(content);
             if (jObject.ContainsKey("EnableExportLuaIncrease"))
@@ -108,6 +146,7 @@ namespace Honor.Editor
                 exportLuaIncreasePath = (string)jObject["ExportLuaIncreasePath"];
             }
 
+            // 路径为空时使用默认值
             if (string.IsNullOrEmpty(exportLuaIncreasePath))
             {
                 exportLuaIncreasePath = EditorPath.Localization.LuaIncreaseFolderName;
@@ -115,11 +154,11 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 保存本地化配置信息
+        /// 保存本地化配置信息到本地文件
         /// </summary>
-        /// <param name="enableExportLuaIncrease"></param>
-        /// <param name="enableExportLuaIncreaseSingleVersion"></param>
-        /// <param name="exportLuaIncreasePath"></param>
+        /// <param name="enableExportLuaIncrease">是否启用增量导出</param>
+        /// <param name="enableExportLuaIncreaseSingleVersion">是否单版本增量</param>
+        /// <param name="exportLuaIncreasePath">增量导出路径</param>
         public static void SaveLocalizationSettings(bool enableExportLuaIncrease,
             bool enableExportLuaIncreaseSingleVersion, string exportLuaIncreasePath)
         {
@@ -130,12 +169,16 @@ namespace Honor.Editor
             File.WriteAllText(EditorPath.Editor.Localization.ProjectSettingFileFullPath, jObject.ToString());
         }
 
+        /// <summary>
+        /// 自定义Inspector面板绘制
+        /// </summary>
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
             serializedObject.Update();
 
+            // 显示当前语言类型
             string codeName = ((GameDefinitions.Language)m_Language.enumValueIndex).ToString();
             EditorGUILayout.LabelField("当前语言类型",
                 AorTxt.Format("{0}({1})", codeName, GameDefinitions.LanguageDesc[m_Language.enumValueIndex]));
@@ -143,6 +186,7 @@ namespace Honor.Editor
             List<string> luaFileNames = new List<string>();
             bool hasLuaLocalizationsFile = false;
 
+            // 获取所有多语言Lua文件
             string[] luaFileFullPaths = Directory.GetFiles(EditorPath.Localization.LuaScriptsFolderFullPath,
                 "Localization*.lua.txt", SearchOption.AllDirectories);
             for (int index = 0; index < luaFileFullPaths.Length; index++)
@@ -162,6 +206,7 @@ namespace Honor.Editor
 
             bool canExport = true;
 
+            // 打开翻译工具按钮
             if (GUILayout.Button("打开 ChatGPT-Translation 多语言批量翻译工具"))
             {
                 //ChatGPTTranslationEditorWindow.Open();
@@ -183,7 +228,7 @@ namespace Honor.Editor
                 return false;
             });
 
-            // 添加多语言表格展示模块
+            // 多语言表格操作模块
             EditorGUILayout.Separator();
             EditorGUILayout.BeginVertical("box");
             {
@@ -195,7 +240,7 @@ namespace Honor.Editor
                         GUIUtility.ExitGUI();
                     }
 
-                    // Excel导出（导出Localizations目录下的多语言表Excel到Lua）
+                    // 导出所有多语言表到Lua
                     EditorGUI.BeginDisabledGroup(!canExport);
                     if (GUILayout.Button("导出所有多语言表Excel到Lua（多合一）"))
                     {
@@ -206,6 +251,7 @@ namespace Honor.Editor
                             $"{EditorPath.Localization.LuaScriptsFolderFullPath}/{m_ExportLuaIncreasePath}";
                         ExportAllExcelsLanguageToLua(customExcelsFullPaths, m_EnableExportLuaIncrease,
                             m_EnableExportLuaIncreaseSingleVersion, increasePath);
+                        // 提示重复Key
                         if (m_RepeatKey.Count > 0)
                         {
                             string res = "";
@@ -228,7 +274,7 @@ namespace Honor.Editor
                 }
                 EditorGUILayout.EndHorizontal();
 
-
+                // 增量导出配置开关
                 EditorGUILayout.BeginHorizontal();
                 {
                     bool enableExportLuaIncrease =
@@ -255,6 +301,7 @@ namespace Honor.Editor
                 }
                 EditorGUILayout.EndHorizontal();
 
+                // 增量导出路径配置
                 EditorGUILayout.BeginHorizontal();
                 {
                     if (m_EnableExportLuaIncrease)
@@ -274,6 +321,7 @@ namespace Honor.Editor
 
                 EditorGUILayout.Space();
 
+                // 显示自定义多语言表列表
                 if (customExcelsFullPaths.Count == 0)
                 {
                     EditorGUILayout.LabelField("自定义多语言表名称列表：暂无。");
@@ -304,6 +352,7 @@ namespace Honor.Editor
                     }
                 }
 
+                // 显示多语言类型数量和列表
                 EditorGUILayout.LabelField("多语言类型数量", luaFileNames.Count.ToString());
 
                 for (int index = 0; index < luaFileNames.Count; index++)
@@ -321,6 +370,7 @@ namespace Honor.Editor
                     EditorGUILayout.EndHorizontal();
                 }
 
+                // 缺失主文件提示
                 if (!hasLuaLocalizationsFile)
                 {
                     EditorGUILayout.HelpBox("缺少Localizations.lua脚本！请生成本地化脚本来修复此问题！", MessageType.Error);
@@ -330,6 +380,7 @@ namespace Honor.Editor
 
             EditorGUILayout.Separator();
 
+            // 默认多语言配置模块
             string jsonRootDirPath = EditorPath.Json.FolderFullPath;
             List<string> jsonFileNames = new List<string>();
 
@@ -356,7 +407,7 @@ namespace Honor.Editor
                         GUIUtility.ExitGUI();
                     }
 
-                    // Excel导出（导出Localizations目录下的默认多语言表Excel到Json）
+                    // 导出默认多语言表到Json
                     EditorGUI.BeginDisabledGroup(!canExport);
                     if (GUILayout.Button("导出默认多语言表Excel到Json"))
                     {
@@ -374,6 +425,7 @@ namespace Honor.Editor
                 }
                 EditorGUILayout.EndHorizontal();
 
+                // 显示默认多语言类型
                 EditorGUILayout.LabelField("默认多语言类型数量", jsonFileNames.Count.ToString());
                 for (int index = 0; index < jsonFileNames.Count; index++)
                 {
@@ -394,6 +446,7 @@ namespace Honor.Editor
 
             EditorGUILayout.Separator();
 
+            // 字体配置模块
             List<string> fontLocalizationNames = new List<string>();
             List<string> fontNames = new List<string>();
             // 收集所有使用TMP的语言和TMP字体名称
@@ -419,9 +472,10 @@ namespace Honor.Editor
                             assetName = fontInfo["AssetName0"].ToString();
                         }
 
+                        // 筛选TMP字体
                         if (fontInfo.ContainsKey("FontType") && fontInfo["FontType"].ToString() == "FontTMP")
                         {
-                            // 当前语言使用TMP字体,遍历所有的Asset
+                            // 遍历所有字体资源
                             for (int fonti = 0; fonti < 50; fonti++)
                             {
                                 if (fontInfo.ContainsKey($"AssetName{fonti}") &&
@@ -465,7 +519,7 @@ namespace Honor.Editor
                         GUIUtility.ExitGUI();
                     }
 
-                    // Excel导出（导出Localizations目录下的字体表Excel到Json）
+                    // 导出字体表到Json
                     if (GUILayout.Button("导出字体表Excel到Json"))
                     {
                         ExportExcelFontsToJson();
@@ -480,8 +534,10 @@ namespace Honor.Editor
                 }
                 EditorGUILayout.EndHorizontal();
 
+                // 字体自动适配开关
                 m_AutoFontAdapt.boolValue = EditorGUILayout.Toggle("字体自动适配", m_AutoFontAdapt.boolValue);
                 EditorGUILayout.LabelField("字体类型数量", fontLocalizationNames.Count.ToString());
+                // 显示字体配置列表
                 for (int index = 0; index < fontLocalizationNames.Count; index++)
                 {
                     EditorGUILayout.BeginHorizontal("box");
@@ -498,7 +554,7 @@ namespace Honor.Editor
             }
             EditorGUILayout.EndVertical();
 
-            // 添加文字资源导出配置模块
+            // TMP字符集导出配置模块
             EditorGUILayout.Separator();
             EditorGUILayout.BeginVertical("box");
             {
@@ -542,10 +598,9 @@ namespace Honor.Editor
                                 "勾选“字符集生成”选项：\n1.需配置导出路径，否则导出按钮无法使用。\n2.自动分析字体表中所有TMPFont，并列举出每个TMPFont对应的所有语种类型。\n3.导出时将自动搜集多语言表中所有匹配字符，去重后导出为字符集文件。",
                                 MessageType.Info);
 
-                            // 列举所有的TMPFont
+                            // 展示所有TMP字体并提供导出按钮
                             for (int i = 0; i < TMPFontNameList.Count; i++)
                             {
-                                // 展示TMPFont名称
                                 EditorGUILayout.BeginVertical("box");
 
                                 EditorGUILayout.LabelField($"[字体名称] {TMPFontNameList[i]}");
@@ -595,28 +650,36 @@ namespace Honor.Editor
             Repaint();
         }
 
+        /// <summary>
+        /// 编译开始时的回调
+        /// </summary>
         protected override void OnCompileStart()
         {
             base.OnCompileStart();
         }
 
+        /// <summary>
+        /// 编译完成时的回调
+        /// </summary>
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
         }
 
         /// <summary>
-        /// 导出配置的字体表格到json
+        /// 导出字体配置Excel为Json文件
         /// </summary>
-        /// <returns></returns>
+        /// <returns>导出是否成功</returns>
         public static bool ExportExcelFontsToJson()
         {
             string openExcelNamePre =Path.GetFileNameWithoutExtension(EditorPath.Localization.ExcelFontFileFullPath);
-            // 要打开的excel根路径
+            // Excel路径
             string excelPath = $"{EditorPath.Localization.ExcelFolderFullPath}/{openExcelNamePre}.xlsm";
-            // 要写入的json文件根路径
+            // Json保存路径
             string strSubJsonFilePath = EditorPath.Json.FolderFullPath;
             string strFilePathList = strSubJsonFilePath + "/" + openExcelNamePre + ".json";
+            
+            // 清理旧文件
             if (Directory.Exists(strSubJsonFilePath))
             {
                 if (File.Exists(strFilePathList))
@@ -634,17 +697,17 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// cs中使用的多语言转为json文件
+        /// 导出默认多语言Excel为Json文件
         /// </summary>
-        /// <returns></returns>
+        /// <returns>导出是否成功</returns>
         public static bool ExportExcelDefaultLanguageToJson()
         {
             string openExcelNamePre =Path.GetFileNameWithoutExtension(EditorPath.Localization.ExcelDefaultFileFullPath);
-            // 要打开的excel根路径
             string excelPath = $"{EditorPath.Localization.ExcelFolderFullPath}/{openExcelNamePre}.xlsm";
             DataSet result = TableExportEditorUtility.GetExcelData(excelPath);
-            // 要写入的json文件夹路径
             string toJsonRootPath = EditorPath.Json.FolderFullPath;
+            
+            // 清理旧文件
             if (Directory.Exists(toJsonRootPath))
             {
                 string[] files = Directory.GetFiles(toJsonRootPath, "LocalizationDefault*.json",
@@ -663,7 +726,7 @@ namespace Honor.Editor
                 Directory.CreateDirectory(toJsonRootPath);
             }
 
-            // 所有多语言字符分类<文件名，asset内容>
+            // 多语言字符分类存储
             Dictionary<string, List<string>> assetFileDic = new Dictionary<string, List<string>>();
 
             int columns = result.Tables[0].Columns.Count;
@@ -672,11 +735,12 @@ namespace Honor.Editor
             string[] typeList = new string[columns];
             keyList[0] = "";
             typeList[0] = "";
+            
+            // 解析表头
             for (int excleCol = 1; excleCol < columns; excleCol++)
             {
                 keyList[excleCol] = result.Tables[0].Rows[1][excleCol].ToString();
                 typeList[excleCol] = result.Tables[0].Rows[2][excleCol].ToString();
-                // 添加asset中语种统计
                 assetFileDic.Add(keyList[excleCol], new List<string>());
 
                 if (keyList[excleCol] != string.Empty && typeList[excleCol] == string.Empty)
@@ -687,11 +751,11 @@ namespace Honor.Editor
                 }
             }
 
-            // 语种类型汇总文件
+            // 生成语种汇总文件
             StringBuilder stringBuilderMain = new StringBuilder();
             stringBuilderMain.Append("[");
 
-            // 开始按照列转换多语言数据, 从第6行开始每列转出一个文件
+            // 按列生成多语言Json文件
             for (int excleCol = 6; excleCol < columns; excleCol++)
             {
                 if (excleCol > 6)
@@ -701,7 +765,7 @@ namespace Honor.Editor
 
                 stringBuilderMain.Append("\"" + keyList[excleCol] + "\"");
 
-                // 单个导出对应语种的json文件
+                // 单个语种Json
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.AppendLine("{");
                 string thisRow = null;
@@ -737,7 +801,6 @@ namespace Honor.Editor
                     }
                 }
 
-                // 每一列都会导出一个json文件
                 stringBuilder.AppendLine("}");
                 string jsonFile = toJsonRootPath + "/LocalizationDefault" + keyList[excleCol] + ".json";
                 if (File.Exists(jsonFile))
@@ -765,8 +828,12 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// lua文件头部组装
+        /// 生成Lua文件头部注释
         /// </summary>
+        /// <param name="stringBuilder">字符串构建器</param>
+        /// <param name="fileName">文件名</param>
+        /// <param name="keyName">语言Key</param>
+        /// <param name="descrip">文件描述</param>
         private static void MakeLuaFileTitle(StringBuilder stringBuilder, string fileName, string keyName,
             string descrip)
         {
@@ -794,24 +861,31 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 写入引导require文件
+        /// 生成Lua主引导文件（Localizations.lua）
         /// </summary>
+        /// <param name="mainExcelName">主Excel名称</param>
+        /// <param name="tableDetailTidy">表格描述</param>
+        /// <param name="columns">列数</param>
+        /// <param name="keyList">语言Key列表</param>
+        /// <param name="langInfo">语言描述信息</param>
+        /// <param name="exportFolderPaths">导出路径字典</param>
         private static void MakeLuaRequireFile(string mainExcelName, string tableDetailTidy, int columns,
             string[] keyList, string[] langInfo, Dictionary<string, string> exportFolderPaths)
         {
-            // 首先统计所有的语种，注册到Localizations.lua中
+            // 类定义
             string strClassDef0 = "---@class " + mainExcelName + " @" + tableDetailTidy;
             string strClassDef1 = mainExcelName + " = {";
             StringBuilder stringBuilder = new StringBuilder();
             MakeLuaFileTitle(stringBuilder, mainExcelName, null, tableDetailTidy);
             stringBuilder.AppendLine(strClassDef0)
                 .AppendLine(strClassDef1);
+            
+            // 注册语言字段
             for (int i = 6; i < columns; i++)
             {
                 if (keyList[i] != "")
                 {
                     string refStr = null;
-                    // 添加注释
                     if (langInfo[i] == null)
                     {
                         refStr = "    ---@type " + mainExcelName + "." + keyList[i];
@@ -826,7 +900,6 @@ namespace Honor.Editor
                         stringBuilder.AppendLine(refStr);
                     }
 
-                    // 添加table注册代码
                     string tableRegStr = string.Format("    {0} = nil,", keyList[i]);
                     stringBuilder.AppendLine(tableRegStr);
                 }
@@ -836,7 +909,8 @@ namespace Honor.Editor
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("---Lua层本地化语言表数据关联回调全局事件派发(由C#回调回来)(此处自动生成，请不要手动修改！)");
             stringBuilder.AppendLine("---@type fun():void");
-            // 开始添加注册回调函数
+            
+            // 生成语言切换逻辑
             stringBuilder.AppendLine("function Relate_Localization_Table_Data()");
             int Index = 1;
             for (int i = 6; i < columns; i++)
@@ -872,13 +946,20 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 生成各个语言的lua文件
+        /// 生成各语言对应的Lua文件
         /// </summary>
+        /// <param name="columns">列数</param>
+        /// <param name="keyList">语言Key列表</param>
+        /// <param name="exportFolderPaths">导出路径</param>
+        /// <param name="tableDetailTidy">表格描述</param>
+        /// <param name="langInfo">语言信息</param>
+        /// <param name="fullPaths">Excel全路径</param>
+        /// <param name="fileNames">Excel文件名</param>
         private static void MakeLanguageLuaFile(int columns, string[] keyList,
             Dictionary<string, string> exportFolderPaths, string tableDetailTidy, string[] langInfo,
             List<string> fullPaths, List<string> fileNames)
         {
-            // 提前清空历史生成的所有文件夹
+            // 清空历史文件
             foreach (var itr in exportFolderPaths)
             {
                 if (Directory.Exists(itr.Value))
@@ -891,7 +972,7 @@ namespace Honor.Editor
 
             AssetDatabase.Refresh();
 
-            // 根据每一种语言类型，依次遍历所有多语言表格，生成Part文件和LocalizationXXX文件
+            // 遍历所有语言生成文件
             for (int i = 6; i < columns; i++)
             {
                 if (keyList[i] != string.Empty)
@@ -904,6 +985,8 @@ namespace Honor.Editor
 
                     StringBuilder luaBuilder = null;
                     var isArabic = keyList[i] == GameDefinitions.Language.Arabic.ToString();
+                    
+                    // 遍历所有Excel表
                     for (int index = 0; index < fullPaths.Count; index++)
                     {
                         luaBuilder = new StringBuilder();
@@ -925,7 +1008,7 @@ namespace Honor.Editor
                         luaBuilder.AppendLine($"local {lowerKeyName} = Localizations.{keyList[i]}");
                         luaBuilder.AppendLine("");
 
-                        // 生成内容
+                        // 解析Excel数据
                         DataSet excelDatas = TableExportEditorUtility.GetExcelData(fullPaths[index]);
                         int rows = excelDatas.Tables[0].Rows.Count;
                         for (int row = 4; row < rows; row++)
@@ -981,7 +1064,7 @@ namespace Honor.Editor
                         File.WriteAllText(makingFilePath, luaBuilder.ToString(), new System.Text.UTF8Encoding(false));
                     }
 
-                    // 生成LocalizationXXX文件
+                    // 生成语言主文件
                     luaBuilder = new StringBuilder();
                     MakeLuaFileTitle(luaBuilder, $"Localization{keyList[i]}", null,
                         $"{tableDetailTidy}: {langInfo[i]}");
@@ -999,7 +1082,7 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 检查默认表中是否有key重复
+        /// 检查默认配置表中的Key重复
         /// </summary>
         private static void CheckDefaultConfigKeyRepeat()
         {
@@ -1017,16 +1100,20 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 导出Localizations中所有多语言到lua文件（主表+自定义表）
+        /// 导出所有多语言Excel为Lua文件（支持增量导出）
         /// </summary>
-        /// <returns></returns>
+        /// <param name="customExcelsFullPaths">自定义Excel路径</param>
+        /// <param name="enableExportLuaIncrease">是否增量导出</param>
+        /// <param name="enableExportLuaIncreaseSingleVersion">是否单版本增量</param>
+        /// <param name="exportLuaIncreasePath">增量导出路径</param>
+        /// <returns>导出是否成功</returns>
         public static bool ExportAllExcelsLanguageToLua(List<string> customExcelsFullPaths,
             bool enableExportLuaIncrease = false, bool enableExportLuaIncreaseSingleVersion = false,
             string exportLuaIncreasePath = "")
         {
-            if (!enableExportLuaIncrease) //增量导出lua变动不需要删除以前的lua导出配置
+            // 非增量模式清空历史文件
+            if (!enableExportLuaIncrease)
             {
-                // 清理历史Table脚本
                 List<string> oldFilesPaths = new List<string>();
                 oldFilesPaths.AddRange(Directory.GetFiles(Application.dataPath, "Localization*.lua.txt",
                     SearchOption.AllDirectories));
@@ -1049,7 +1136,7 @@ namespace Honor.Editor
                 AssetDatabase.Refresh();
             }
 
-            // 收集所有多语言Excel表格的路径信息和文件名称集合
+            // 收集所有Excel路径
             List<string> fullPaths = new List<string>();
             List<string> fileNames = new List<string>();
 
@@ -1066,12 +1153,12 @@ namespace Honor.Editor
                 fileNames.Add(customExcelName);
             });
 
-            // 获取主表的表头信息
+            // 解析主表信息
             DataSet mainExcelDatas = TableExportEditorUtility.GetExcelData(mainExcelFullPath);
             string tableDetail = mainExcelDatas.Tables[0].Rows[0][1].ToString();
             string tableDetailTidy = tableDetail;
 
-            // 简化表格B1的描述信息
+            // 清理表格描述
             int startIndex = 0;
             int endIndex = 0;
             while (startIndex != -1)
@@ -1121,6 +1208,7 @@ namespace Honor.Editor
                 }
             }
 
+            // 获取导出路径
             Dictionary<string, string> exportFolderPaths = GetTableExportPath(tableDetail);
             for (int i = 6; i < columns; i++)
             {
@@ -1142,14 +1230,14 @@ namespace Honor.Editor
                 }
             }
 
-            if (enableExportLuaIncrease) //使用增量导出lua多语言配置
+            // 增量/全量导出逻辑
+            if (enableExportLuaIncrease)
             {
                 FindIncrease(columns, fullPaths, keyList, tableDetailTidy, langInfo,
                     enableExportLuaIncreaseSingleVersion, exportLuaIncreasePath);
             }
-            else //正常导出lua多语言配置
+            else
             {
-                // 开始添加lua文件的内容
                 MakeLanguageLuaFile(columns, keyList, exportFolderPaths, tableDetailTidy, langInfo, fullPaths,
                     fileNames);
             }
@@ -1162,6 +1250,12 @@ namespace Honor.Editor
             return true;
         }
 
+        /// <summary>
+        /// 导出TMP字符集
+        /// </summary>
+        /// <param name="customExcelsFullPaths">自定义Excel路径</param>
+        /// <param name="tmpConfig">TMP配置</param>
+        /// <param name="exportFonts">导出字体配置</param>
         public void ExportTMPChars(List<string> customExcelsFullPaths, JObject tmpConfig = null,
             Dictionary<string, string> exportFonts = null)
         {
@@ -1171,13 +1265,10 @@ namespace Honor.Editor
                 return;
             }
 
-            // 收集所有多语言Excel表格的路径信息和文件名称集合
+            // 收集Excel路径
             List<string> fullPaths = new List<string>();
             List<string> fileNames = new List<string>();
-            // 所有多语言字符分类<文件名，asset内容>
-            // <导出字符集名称，asset内容>
             Dictionary<string, List<string>> assetFileDic = new Dictionary<string, List<string>>();
-            // 语言名称/导出字符集名称
             Dictionary<string, string> assetFileNameDic = new Dictionary<string, string>();
 
             string mainExcelFullPath = EditorPath.Localization.ExcelFileFullPath;
@@ -1193,7 +1284,7 @@ namespace Honor.Editor
                 fileNames.Add(customExcelName);
             });
 
-            // 获取主表的表头信息
+            // 解析主表
             DataSet mainExcelDatas = TableExportEditorUtility.GetExcelData(mainExcelFullPath);
             int columns = mainExcelDatas.Tables[0].Columns.Count;
             string[] keyList = new string[columns];
@@ -1205,7 +1296,7 @@ namespace Honor.Editor
                 }
             }
 
-            // 开始添加lua文件的内容
+            // 收集多语言字符
             for (int i = 6; i < columns; i++)
             {
                 if (keyList[i] != string.Empty)
@@ -1217,7 +1308,6 @@ namespace Honor.Editor
                     for (int index = 0; index < fullPaths.Count; index++)
                     {
                         DataSet excelDatas = TableExportEditorUtility.GetExcelData(fullPaths[index]);
-                        // 开始逐行加入多语言内容
                         for (int row = 4; row < excelDatas.Tables[0].Rows.Count; row++)
                         {
                             if (excelDatas.Tables[0].Rows[row][2] != null)
@@ -1237,12 +1327,10 @@ namespace Honor.Editor
                 }
             }
 
-            // 开始添加默认多语言字符集
-
+            // 收集默认多语言字符
             string excelPath = EditorPath.Localization.ExcelDefaultFileFullPath;
             DataSet defaultExcelData = TableExportEditorUtility.GetExcelData(excelPath);
             int defaultColumns = defaultExcelData.Tables[0].Columns.Count;
-            // 开始按照列转换多语言数据, 从第6行开始每列转出一个文件
             for (int defaultCol = 6; defaultCol < defaultColumns; defaultCol++)
             {
                 if (defaultExcelData.Tables[0].Rows[1][defaultCol] != null)
@@ -1292,10 +1380,10 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 获取指定的导出路径（目录）
+        /// 根据表格描述解析导出路径
         /// </summary>
-        /// <param name="excelDescrip">表格中B1字段</param>
-        /// <returns></returns>
+        /// <param name="excelDescrip">表格B1描述</param>
+        /// <returns>路径字典</returns>
         public static Dictionary<string, string> GetTableExportPath(string excelDescrip)
         {
             Dictionary<string, string> paths = new Dictionary<string, string>();
@@ -1335,9 +1423,9 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 读取TMP字符集文件配置信息
+        /// 加载TMP导出配置文件
         /// </summary>
-        /// <returns></returns>
+        /// <returns>TMP配置JObject</returns>
         public JObject LoadTMPExportConfig()
         {
             string configFilePath = EditorPath.Editor.LocalizationFontTMPExportSettings.ProjectSettingFileFullPath;
@@ -1348,6 +1436,7 @@ namespace Honor.Editor
                 configJsonData = JsonConvert.DeserializeObject<JObject>(content);
             }
 
+            // 配置为空时创建默认配置
             if (configJsonData == null)
             {
                 configJsonData = new JObject();
@@ -1360,9 +1449,9 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 写入TMP字符集文件配置信息
+        /// 保存TMP导出配置到本地文件
         /// </summary>
-        /// <param name="curConfigData"></param>
+        /// <param name="curConfigData">配置对象</param>
         public void SaveTMPExportConfig(JObject curConfigData)
         {
             if (curConfigData == null)
@@ -1382,14 +1471,12 @@ namespace Honor.Editor
             Log.Debug($"保存 TMP 导出配置信息成功，配置文件路径：{configFilePath}。");
         }
 
-
         /// <summary>
-        /// 获取Docs\Designs\Excels\Localizations文件夹下面所有包含多语言字段的表格(包含通用表格和自定义表格)
+        /// 获取所有多语言Excel文件路径（排除临时文件和字体表）
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Excel路径列表</returns>
         public List<string> GetAllLocalizationExcelPaths()
         {
-            // 获取自定义多语言表格路径集合
             List<string> localizationExcelList =
                 new List<string>(Directory.GetFiles(EditorPath.Localization.ExcelFolderFullPath, "*.xlsm",
                     SearchOption.TopDirectoryOnly));
@@ -1412,24 +1499,22 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 导出多语言字符集
+        /// 为指定TMP字体导出对应语言的字符集
         /// </summary>
-        /// <param name="TMPFontName">需要导出多语言字符集的TMP字体文件，用来创建字体文件夹名称</param>
-        /// <param name="exportLangNames">需要导出多语言字符集的多语言类型，用来筛选字符集</param>
-        /// <param name="exprotOneFile">是否将多个多语言合并到一个导出文件中</param>
+        /// <param name="TMPFontName">字体名称</param>
+        /// <param name="exportRootPath">导出根目录</param>
+        /// <param name="exportLangNames">目标语言列表</param>
+        /// <param name="exprotOneFile">是否合并导出</param>
         public void ExprotTMPCharsForFont(string TMPFontName, string exportRootPath, List<string> exportLangNames,
             bool exprotOneFile)
         {
             string oneCharName = null;
-            // 收集所有多语言Excel表格的路径信息和文件名称集合
             List<string> fullPaths = new List<string>();
             List<string> fileNames = new List<string>();
-            // 所有多语言字符分类<文件名，asset内容>
-            // <语言名称，asset内容>
             Dictionary<string, List<string>> assetFileDic = new Dictionary<string, List<string>>();
-            // 语言名称/导出字符集名称
             Dictionary<string, string> assetFileNameDic = new Dictionary<string, string>();
 
+            // 获取所有多语言Excel
             List<string> excelFullPaths = GetAllLocalizationExcelPaths();
             excelFullPaths.ForEach(perPath =>
             {
@@ -1437,6 +1522,7 @@ namespace Honor.Editor
                 fileNames.Add(System.IO.Path.GetFileNameWithoutExtension(perPath));
             });
 
+            // 初始化语言字符容器
             exportLangNames.ForEach(p =>
             {
                 assetFileDic.Add(p, new List<string>());
@@ -1451,19 +1537,16 @@ namespace Honor.Editor
             });
             oneCharName = $"Localization_{oneCharName}_FontTMP_Chars";
 
-            // 开始遍历所有多语言表格
+            // 遍历Excel收集字符
             for (int i = 0; i < fullPaths.Count; i++)
             {
-                // 获取多语言表格数据
                 DataSet excelData = TableExportEditorUtility.GetExcelData(fullPaths[i]);
-                // 判断当前列对应的多语言是否需要导出
                 for (int col = 6; col < excelData.Tables[0].Columns.Count; col++)
                 {
                     string curColLangName = excelData.Tables[0].Rows[1][col].ToString();
                     if (string.IsNullOrEmpty(curColLangName) == false && assetFileDic.ContainsKey(curColLangName))
                     {
                         Log.Debug($"TMP 字符集，添加 {fullPaths[i]} 中多语言 {curColLangName} 。");
-                        // 开始逐行加入多语言内容
                         for (int row = 4; row < excelData.Tables[0].Rows.Count; row++)
                         {
                             string valuseStr = excelData.Tables[0].Rows[row][col].ToString();
@@ -1477,25 +1560,23 @@ namespace Honor.Editor
                             }
                         }
                     }
-                    else
-                    {
-                        //   Log.Debug(LogTag.Editor, $"TMP 字符集，表格 {fullPaths[i]} 中未找到多语言 {curColLangName} 。");
-                    }
                 }
             }
 
-            if (Directory.Exists(exportRootPath) == false)
+            // 创建导出目录
+            if (!Directory.Exists(exportRootPath))
             {
                 Directory.CreateDirectory(exportRootPath);
             }
 
             string exportSubDirectory = $"{exportRootPath}/{TMPFontName}";
 
-            if (Directory.Exists(exportSubDirectory) == false)
+            if (!Directory.Exists(exportSubDirectory))
             {
                 Directory.CreateDirectory(exportSubDirectory);
             }
 
+            // 导出字符集文件
             if (TableExportEditorUtilityTool.CreateTableExportTextTxt(exportSubDirectory, exprotOneFile, oneCharName,
                     assetFileDic))
             {

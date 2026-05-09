@@ -1,0 +1,303 @@
+--=====================================================================================================
+-- 【游戏总管理器】
+-- 功能：游戏全局核心控制中心
+-- 负责：游戏暂停/恢复、UI栈管理、全屏UI相机优化、版本号、设备性能、全局状态控制
+--=====================================================================================================
+
+---@class OpenCanvas : table @ 已打开的UI配置
+---@field Canvas UnityEngine.Canvas 画布
+---@field UIInfo Tables.UIs_Item UI配置
+
+---@class GameManager:Singleton @游戏管理器
+---@field _PauseGameRef number 游戏暂停引用计数
+---@field _OpenOverCanvasArray OpenCanvas[] 已打开动画完成的UI列表
+---@field _devicePerformanceLevel Honor.DevicePerformanceLevel 设备性能等级
+---@field _WaitFrame GameLib.WaitForFrames 公共等待帧
+
+local GameManager = class("GameManager", import("Singleton"))
+
+--- 构造函数
+function GameManager:ctor(args)
+    GameManager.super.ctor(self, args)
+    self._PauseGameRef = 0
+    self._OpenOverCanvasArray = {}
+    self._devicePerformanceLevel = nil
+    self._WaitFrame = GameLib.WaitForFrames(6)
+end
+
+--- 创建单例
+---@return GameManager
+function GameManager:Create(args)
+    local obj = GameManager.new(args)
+    PrintInfo("初始化 GameManager")
+    return obj
+end
+
+--- 初始化
+function GameManager:Init()
+    GameManager.super.Init(self)
+    self:ResetNormalGame()
+end
+
+--- 清理数据
+function GameManager:ClearData()
+    GameManager.super.ClearData(self)
+    self:ResetNormalGame()
+end
+
+--- 是否开发者模式
+---@return boolean
+function GameManager:IsDevelopMode()
+    return GameMainRoot.Launcher.DevelopMode
+end
+
+--=========================================================================
+-- region 游戏暂停/恢复（引用计数，支持多层暂停）
+--=========================================================================
+
+--- 暂停游戏（引用+1）
+function GameManager:PauseGame()
+    self._PauseGameRef = self._PauseGameRef + 1
+    if self._PauseGameRef >= 1 then
+        GameMainRoot.Launcher:PauseGame()
+        GameCoreManager:OnPauseGame()
+        SoundMgr:PauseAllSound()
+        PrintInfo("游戏暂停 _PauseGameRef = {0}", self._PauseGameRef)
+    end
+end
+
+--- 延迟恢复游戏（等待6帧）
+function GameManager:ResumeGame()
+    HonorCoroutineHelper:StartAlone(function()
+        HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
+        self:ResumeGameImmediately()
+    end)
+end
+
+--- 立即恢复游戏（引用-1）
+function GameManager:ResumeGameImmediately()
+    if self._PauseGameRef > 0 then
+        self._PauseGameRef = self._PauseGameRef - 1
+        if self._PauseGameRef == 0 then
+            GameMainRoot.Launcher:ResumeGame()
+            GameCoreManager:OnResumeGame()
+            SoundMgr:ResumeAllSound()
+        end
+        PrintInfo("游戏恢复 _PauseGameRef = {0}", self._PauseGameRef)
+    end
+end
+
+--- 重置游戏状态（清空暂停计数）
+function GameManager:ResetNormalGame()
+    self._PauseGameRef = 0
+    GameMainRoot.Launcher:ResetNormalGameSpeed()
+end
+
+--- 游戏是否暂停
+---@return boolean
+function GameManager:IsGamePaused()
+    return GameMainRoot.Launcher.IsGamePaused
+end
+
+-- endregion
+
+--=========================================================================
+-- region UI栈管理（封装）
+--=========================================================================
+
+--- 获取栈顶UI
+---@return any
+function GameManager:PeekUI()
+    return UIStackMgr:Peek(UIStackName.UI)
+end
+
+--- UI入栈
+function GameManager:PushUI(ui)
+    UIStackMgr:Push(UIStackName.UI, ui)
+end
+
+--- UI出栈
+function GameManager:PopUI()
+    return UIStackMgr:Pop(UIStackName.UI)
+end
+
+--- 关闭所有UI
+function GameManager:CloseAllUI(rightNow)
+    GameMainRoot.UI:CloseAllUIs(Honor.UIType.Screen, rightNow)
+    GameMainRoot.UI:CloseAllUIs(Honor.UIType.Scene, rightNow)
+    self:ResetNormalGame()
+end
+
+-- endregion
+
+--=========================================================================
+-- region 版本号管理
+--=========================================================================
+
+--- 获取资源版本
+---@return number
+function GameManager:GetResVersion()
+    local resMinor = GameMainRoot.Hotfix.ResMinor
+    local localVersion = GameMainRoot.Hotfix.LocalVersion
+    if localVersion then
+        resMinor = localVersion.ResVersion
+    end
+    return resMinor
+end
+
+--- 获取主版本
+---@return string
+function GameManager:GetMainVersion()
+    return Unity.Application.version
+end
+
+--- 获取完整版本号：主版本.资源版本
+---@return string
+function GameManager:GetGameVersion()
+    return self:GetMainVersion() .. "." .. self:GetResVersion()
+end
+
+-- endregion
+
+--=========================================================================
+-- region 设备性能 & EasyTouch 设置
+--=========================================================================
+
+--- 设置EasyTouch触摸屏蔽
+function GameManager:SetupEasyTouchAutoSelect(enable)
+   -- CS.HedgehogTeam.EasyTouch.EasyTouch.instance.autoSelect = enable
+   -- CS.HedgehogTeam.EasyTouch.EasyTouch.instance.allowUIDetection = enable
+end
+
+--- 获取设备性能等级
+---@return Honor.DevicePerformanceLevel
+function GameManager:GetDevicePerformanceLevel()
+    if self._devicePerformanceLevel == nil then
+        self._devicePerformanceLevel = Honor.DevicePerformance.GetDevicePerformanceLevel()
+    end
+    if self._devicePerformanceLevel == nil then
+        PrintError("获取设备性能等级失败，默认低性能")
+        return Honor.DevicePerformanceLevel.Low
+    end
+    return self._devicePerformanceLevel
+end
+
+--- 获取设备性能数字（0=低 1=中 2=高）
+---@return number
+function GameManager:GetDevicePerformanceLevelNumber()
+    local level = self:GetDevicePerformanceLevel()
+    if level == Honor.DevicePerformanceLevel.High then return 2
+    elseif level == Honor.DevicePerformanceLevel.Mid then return 1
+    else return 0 end
+end
+
+-- endregion
+
+--=========================================================================
+-- region UI全屏优化：自动关闭/开启相机、Canvas渲染（性能核心）
+--=========================================================================
+
+--- UI打开完毕（全屏UI会关闭底层Canvas与场景相机）
+---@param canvas UnityEngine.Canvas
+---@param uiName string
+function GameManager:OnCanvasOpenOver(canvas, uiName)
+    -- 清理空引用
+    for k, v in pairs(self._OpenOverCanvasArray) do
+        if IsNull(v.Canvas) then
+            table.remove(self._OpenOverCanvasArray, k)
+        end
+    end
+
+    if not canvas then return end
+    local uiCfg = UIs[uiName]
+    if not uiCfg then return end
+
+    -- 全屏UI → 关闭其他所有Canvas
+    if uiCfg.IsFullScreenUI then
+        for i, v in ipairs(self._OpenOverCanvasArray) do
+            v.Canvas.enabled = false
+        end
+    end
+
+    table.insert(self._OpenOverCanvasArray, { Canvas = canvas, UIInfo = uiCfg })
+
+    -- 存在全屏UI → 关闭场景相机
+    local hasFullUI = false
+    for i, v in ipairs(self._OpenOverCanvasArray) do
+        if v.UIInfo.IsFullScreenUI then
+            hasFullUI = true
+            break
+        end
+    end
+
+    if hasFullUI then
+        local cam = GameMainRoot.Scene.SceneCameras[0]
+        if cam.activeSelf then cam:SetActive(false) end
+    end
+end
+
+--- UI立即关闭（清理记录）
+function GameManager:OnCanvasCloseRightNow(uiName)
+    for k, v in pairs(self._OpenOverCanvasArray) do
+        if v.UIInfo.Name == uiName then
+            table.remove(self._OpenOverCanvasArray, k)
+        end
+    end
+end
+
+--- UI关闭（内部逻辑）
+function GameManager:_OnCanvasClose(uiName)
+    -- 清理无效UI
+    for k, v in pairs(self._OpenOverCanvasArray) do
+        if v.UIInfo.Name == uiName or IsNull(v.Canvas) then
+            table.remove(self._OpenOverCanvasArray, k)
+        end
+    end
+
+    -- 找到最高层级全屏UI并启用它及之后的Canvas
+    if #self._OpenOverCanvasArray > 0 then
+        local maxIdx = 1
+        for i = 2, #self._OpenOverCanvasArray do
+            local curr = self._OpenOverCanvasArray[i]
+            local max = self._OpenOverCanvasArray[maxIdx]
+            if curr.UIInfo.IsFullScreenUI and curr.UIInfo.ZOrder >= max.UIInfo.ZOrder then
+                maxIdx = i
+            end
+        end
+        for i = maxIdx, #self._OpenOverCanvasArray do
+            self._OpenOverCanvasArray[i].Canvas.enabled = true
+        end
+    end
+end
+
+--- UI关闭（外部调用）
+function GameManager:OnCanvasClose(uiName)
+    local ok = pcall(function() self:_OnCanvasClose(uiName) end)
+
+    -- 无全屏UI → 恢复相机
+    local hasFullUI = false
+    if ok then
+        for i, v in ipairs(self._OpenOverCanvasArray) do
+            if v.UIInfo.IsFullScreenUI then
+                hasFullUI = true
+                break
+            end
+        end
+    end
+
+    if not hasFullUI then
+        local cam = GameMainRoot.Scene.SceneCameras[0]
+        if not cam.activeSelf then cam:SetActive(true) end
+    end
+end
+
+--- 所有UI关闭 → 恢复相机
+function GameManager:OnAfterCanvasCloseAll()
+    ClearArray(self._OpenOverCanvasArray)
+    local cam = GameMainRoot.Scene.SceneCameras[0]
+    if not cam.activeSelf then cam:SetActive(true) end
+end
+
+-- endregion
+
+return GameManager

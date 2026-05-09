@@ -1,125 +1,194 @@
--- Tencent is pleased to support the open source community by making xLua available.
--- Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
--- Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
--- http://opensource.org/licenses/MIT
--- Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+--[[
+    xLua 性能分析工具（函数耗时统计）
+    作用：统计 Lua 函数的调用次数、总耗时、平均耗时、占比
+    用途：定位性能瓶颈、优化函数执行速度
+    依赖：xlua.sethook / debug.sethook（函数调用钩子）
+]]--
 
+-- 获取当前时间（高精度计时）
 local get_time = os.clock
+-- 设置 Lua 钩子：监听函数调用/返回（xlua 优先，原生 debug 兼容）
 local sethook = xlua.sethook or debug.sethook
+-- 函数信息缓存表：key=函数唯一ID，value=函数统计数据
 local func_info_map = nil
 
+-- 性能统计开始时间
 local start_time
 
+--[[
+    创建函数统计信息
+    @param db_info: debug.getinfo 获取的函数基础信息
+    @return 函数统计结构体（调用次数、总耗时等）
+]]
 local function create_func_info(db_info)
     return {
-		db_info = db_info,
-		count = 0,
-		total_time = 0
-	}
+        db_info     = db_info,   -- 函数源信息（文件名、行号、函数名）
+        count       = 0,        -- 函数被调用次数
+        total_time  = 0         -- 函数总执行耗时（秒）
+    }
 end
 
+--[[
+    钩子回调函数：监听所有 Lua 函数的 call / return 事件
+    核心：自动统计每个函数的耗时与调用次数
+    @param event: 事件类型 "call" / "return" / "tail return"
+    @param func_info_id: 函数唯一ID
+    @param source: 函数所在文件路径
+]]
 local function on_hook(event, func_info_id, source)
+    -- 从缓存中获取函数信息，不存在则创建
     local func_info = func_info_map[func_info_id]
     if not func_info then
-        func_info = create_func_info(debug.getinfo( 2, 'nS' ))
+        func_info = create_func_info(debug.getinfo(2, 'nS')) -- 获取当前函数信息
         func_info_map[func_info_id] = func_info
     end
-	if event == "call" then
-		func_info.call_time = get_time()
-        func_info.count = func_info.count + 1
-        func_info.return_time = nil
-	elseif event == "return" or event == 'tail return' then
-        local now = get_time()
+
+    -- 事件：函数被调用
+    if event == "call" then
+        func_info.call_time = get_time()         -- 记录调用开始时间
+        func_info.count = func_info.count + 1    -- 调用次数 +1
+        func_info.return_time = nil              -- 清空返回时间标记
+
+        -- 事件：函数返回（正常返回 / 尾调用返回）
+    elseif event == "return" or event == 'tail return' then
+        local now = get_time() -- 当前时间
+
+        -- 正常调用：计算从 call 到 return 的耗时
         if func_info.call_time then
             func_info.total_time = func_info.total_time + (now - func_info.call_time)
             func_info.call_time = nil
+
+            -- 异常返回：无 call 事件，直接统计 return 间隔
         else
             func_info.total_time = func_info.total_time + (now - (func_info.return_time or now))
             func_info.count = func_info.count + 1
         end
-        func_info.return_time = now
+
+        func_info.return_time = now -- 记录本次返回时间
+
+        -- 第一次调用时，记录函数所在文件路径
         if source and func_info.count == 1 then
             func_info.db_info.short_src = source
         end
-	end
+    end
 end
 
+--[[
+    启动性能统计
+    功能：清空数据、开始监听所有函数调用
+]]
 local function start()
-    func_info_map = {}
-    start_time = get_time()
-    sethook(on_hook, 'cr')
+    func_info_map = {}    -- 重置统计数据
+    start_time = get_time() -- 记录统计开始时间
+    sethook(on_hook, 'cr') -- 开启钩子：监听 call + return
 end
 
+--[[
+    暂停统计
+    功能：临时关闭钩子，不清除数据
+]]
 local function pause()
-    sethook()
+    sethook() -- 不传参数 = 关闭钩子
 end
 
+--[[
+    恢复统计
+    功能：重新开启钩子，继续统计
+]]
 local function resume()
     sethook(on_hook, 'cr')
 end
 
+--[[
+    停止统计
+    功能：关闭钩子、清空所有数据
+]]
 local function stop()
     sethook()
     func_info_map = nil
     start_time = nil
 end
 
+--[[
+    生成单行统计报告
+    @param rp: 单个函数的统计数据
+    @param stat_interval: 总统计时长（秒）
+    @return 格式化字符串（函数名、文件、耗时、次数等）
+]]
 local function report_output_line(rp, stat_interval)
+    -- 函数所在文件 + 行号
     local source        = rp.db_info.short_src or '[NA]'
     local linedefined   = (rp.db_info.linedefined and rp.db_info.linedefined >= 0) and string.format(":%i", rp.db_info.linedefined) or ''
     source = source .. linedefined
+
+    -- 函数名（匿名函数显示 [anonymous]）
     local name          = rp.db_info.name or '[anonymous]'
+    -- 总耗时（毫秒）
     local total_time    = string.format("%04.3f", rp.total_time * 1000)
-    local average_time    = string.format("%04.3f", rp.total_time / rp.count * 1000)
+    -- 平均耗时（毫秒）
+    local average_time  = string.format("%04.3f", rp.total_time / rp.count * 1000)
+    -- 占总统计时间的百分比
     local relative_time = string.format("%03.2f%%", (rp.total_time / stat_interval) * 100 )
+    -- 调用次数
     local count         = string.format("%7i", rp.count)
-        
-    return string.format("|%-40.40s: %-50.50s: %-12s: %-12s: %-12s: %-12s|\n", name, source, total_time, average_time, relative_time, count)
+
+    -- 格式化输出一行报告
+    return string.format(
+            "|%-40.40s: %-50.50s: %-12s: %-12s: %-12s: %-12s|\n",
+            name, source, total_time, average_time, relative_time, count
+    )
 end
 
+-- 排序方式枚举：总耗时 / 平均耗时 / 调用次数
 local sort_funcs = {
-    TOTAL = function(a, b) return a.total_time > b.total_time end,
-    AVERAGE = function(a, b) return a.average > b.average end,
-    CALLED = function(a, b) return a.count > b.count end
+    TOTAL    = function(a, b) return a.total_time > b.total_time end,  -- 按总耗时降序
+    AVERAGE  = function(a, b) return a.average > b.average end,        -- 按平均耗时降序
+    CALLED   = function(a, b) return a.count > b.count end            -- 按调用次数降序
 }
 
+--[[
+    生成完整性能统计报告
+    @param sort_by: 排序方式 'TOTAL' / 'AVERAGE' / 'CALLED'
+    @return 格式化的完整报告字符串
+]]
 local function report(sort_by)
-    sethook()
+    pause() -- 临时暂停统计，避免生成报告时干扰数据
+
+    -- 确定排序函数
     local sort_func = type(sort_by) == 'function' and sort_by or sort_funcs[sort_by]
-    
-    local FORMAT_HEADER_LINE       = "|%-40s: %-50s: %-12s: %-12s: %-12s: %-12s|\n"
-    local header = string.format( FORMAT_HEADER_LINE, "FUNCTION", "SOURCE", "TOTAL(MS)", "AVERAGE(MS)", "RELATIVE", "CALLED" )
+    -- 报告表头
+    local FORMAT_HEADER_LINE = "|%-40s: %-50s: %-12s: %-12s: %-12s: %-12s|\n"
+    local header = string.format(FORMAT_HEADER_LINE, "FUNCTION", "SOURCE", "TOTAL(MS)", "AVERAGE(MS)", "RELATIVE", "CALLED")
+
+    -- 本次统计总时长
     local stat_interval = get_time() - (start_time or get_time())
-    
+    -- 构建报告列表
     local report_list = {}
     for _, rp in pairs(func_info_map) do
         table.insert(report_list, {
             total_time = rp.total_time,
-            count = rp.count,
-            average = rp.total_time / rp.count,
-            output = report_output_line(rp, stat_interval)
+            count      = rp.count,
+            average    = rp.total_time / rp.count,
+            output     = report_output_line(rp, stat_interval)
         })
     end
-    
+
+    -- 排序
     table.sort(report_list, sort_func or sort_funcs.TOTAL)
-    
+
+    -- 拼接最终报告
     local output = header
-    
     for i, rp in ipairs(report_list) do
         output = output .. rp.output
     end
-    
-    sethook(on_hook, 'cr')
-    
+
+    resume() -- 恢复统计
     return output
 end
 
+-- 导出接口
 return {
-    --开始统计
-    start = start,
-    --获取报告，start和stop之间可以多次调用，参数sort_by类型是string，可以是'TOTAL','AVERAGE', 'CALLED'
-    report = report,
-    --停止统计
-    stop = stop
+    start   = start,    -- 开始统计
+    report  = report,   -- 生成报告（参数：TOTAL/AVERAGE/CALLED）
+    stop    = stop      -- 停止统计
 }
-

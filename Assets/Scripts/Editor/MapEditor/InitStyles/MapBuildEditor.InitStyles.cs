@@ -5,22 +5,62 @@ namespace Editor.MapEditor
 {
     public sealed partial class MapBuildEditor
     {
-        // 样式缓存
-        private GUIStyle leftPanelStyle;
-        private GUIStyle buttonStyle;
-        private GUIStyle tabActiveStyle;
-        private GUIStyle scrollViewStyle;
-        private GUIStyle statusBarStyle;
-        private GUIStyle separatorStyle;
-        private GUIStyle darkBoxStyle;
-        private GUIStyle labelStyle;
         /// <summary>
-        /// 
+        /// 左侧面板整体背景样式（用于左侧功能面板区域）
+        /// </summary>
+        private GUIStyle leftPanelStyle;
+
+        /// <summary>
+        /// 通用按钮样式（编辑器内所有功能按钮）
+        /// </summary>
+        private GUIStyle buttonStyle;
+
+        /// <summary>
+        /// 标签页【选中/激活】状态样式（当前打开的功能标签）
+        /// </summary>
+        private GUIStyle tabActiveStyle;
+
+        /// <summary>
+        /// 滚动视图样式（左侧长列表使用）
+        /// </summary>
+        private GUIStyle scrollViewStyle;
+
+        /// <summary>
+        /// 底部状态栏样式（显示提示、状态信息）
+        /// </summary>
+        private GUIStyle statusBarStyle;
+
+        /// <summary>
+        /// 分割线样式（界面区域之间的分隔线）
+        /// </summary>
+        private GUIStyle separatorStyle;
+
+        /// <summary>
+        /// 深色盒子背景样式（用于模块分组、深色背景区域）
+        /// </summary>
+        private GUIStyle darkBoxStyle;
+
+        /// <summary>
+        /// 文本标签样式（普通文字说明）
+        /// </summary>
+        private GUIStyle labelStyle;
+
+        /// <summary>
+        /// 列表项样式（左侧预制体/物体列表的每一项）
         /// </summary>
         private GUIStyle itemStyle;
-        // 正确唯一的样式
+
+        /// <summary>
+        /// 列表项【选中】样式（当前选中的物体/预制体高亮样式）
+        /// </summary>
         private GUIStyle _selectedStyle;
+
+        /// <summary>
+        /// 列表项【正常/未选中】样式（未选中时的默认样式）
+        /// </summary>
         private GUIStyle _normalStyle;
+        /// 初始化样式
+        /// </summary>
         private void InitStyles()
         {
             // 完全自定义 GUIStyle，不依赖 GUI.skin，避免跨线程问题
@@ -77,7 +117,14 @@ namespace Editor.MapEditor
             _selectedStyle.normal.background = MakeTex(2, 2, new Color(0.2f, 0.5f, 0.8f, 0.3f));
             
         }
-        
+        /// <summary>
+        /// 【编辑器GUI工具】创建指定大小、指定颜色的纯色纹理
+        /// 用于给 GUIStyle 制作背景、边框、色块等视觉效果（无需外部图片）
+        /// </summary>
+        /// <param name="width">纯色纹理的宽度（像素）</param>
+        /// <param name="height">纯色纹理的高度（像素）</param>
+        /// <param name="col">填充的纯色</param>
+        /// <returns>生成好的只读纯色 Texture2D（自动设置为不压缩、可读）</returns>
         private Texture2D MakeTex(int width, int height, Color col)
         {
             Color[] pix = new Color[width * height];

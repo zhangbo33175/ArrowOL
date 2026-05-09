@@ -5,12 +5,14 @@ namespace Honor.Editor
     public static partial class EditorPath
     {
         /// <summary>
-        /// Json相关路径信息
+        /// 【Json 配置路径】
+        /// 管理框架中所有 Json 文件的导出/读取路径
         /// </summary>
         public static class Json
         {
             /// <summary>
-            /// 获取JSON根目录的绝对路径
+            /// Json 配置文件根目录（绝对路径）
+            /// 存放从 Excel 导出的 Lua/Json 配置表
             /// </summary>
             public static string FolderFullPath = $"{Application.dataPath}/LuaScripts/Config/LuaJson";
         }

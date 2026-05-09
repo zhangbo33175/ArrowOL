@@ -16,18 +16,6 @@
 ---@field InUse boolean @是否显示
 
 ---@class Tables.LocalizationSetting @设置界面的多语言显示
----@type table<number, Tables.LocalizationSetting_Item> @数据格式
----@field 1 Tables.LocalizationSetting_Item
----@field 2 Tables.LocalizationSetting_Item
----@field 3 Tables.LocalizationSetting_Item
----@field 4 Tables.LocalizationSetting_Item
----@field 5 Tables.LocalizationSetting_Item
----@field 6 Tables.LocalizationSetting_Item
----@field 7 Tables.LocalizationSetting_Item
----@field 8 Tables.LocalizationSetting_Item
----@field 9 Tables.LocalizationSetting_Item
----@field 10 Tables.LocalizationSetting_Item
----@field 11 Tables.LocalizationSetting_Item
 Tables.LocalizationSetting = {
     [1] = {ID = 1, Name = "English", Index = 14, Comment = "英语-字体", Content = "English", InUse = true},
     [2] = {ID = 2, Name = "ChineseSimplified", Index = 8, Comment = "简体中文-字体", Content = "简体中文", InUse = true},
@@ -41,4 +29,3 @@ Tables.LocalizationSetting = {
     [10] = {ID = 10, Name = "Spanish", Index = 44, Comment = "西语-字体", Content = "Español", InUse = true},
     [11] = {ID = 11, Name = "Russian", Index = 38, Comment = "俄语-字体", Content = "Русский", InUse = true},
 }
-

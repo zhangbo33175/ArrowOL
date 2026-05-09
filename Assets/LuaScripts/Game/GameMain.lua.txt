@@ -1,51 +1,80 @@
----扩展函数
-require("GameApiExtend")
----加载数据信息
-require("Tables")
----加载UI信息
-require("UIs")
----本地化配置
-require("Localizations") 
+--=====================================================================================================
+-- 游戏 Lua 主入口 Main
+-- 功能：加载依赖、注册全局回调、系统初始化
+--=====================================================================================================
 
+--- 扩展函数（工具方法、API 扩展）
+require("GameApiExtend")
+
+--- 加载所有表格配置数据
+require("Tables")
+
+require("ResDefs")
+--- 加载所有 UI 定义、路径、配置
+require("UIs")
+
+--- 多语言本地化配置
+require("Localizations")
+
+--- 游戏全局常量、枚举、定义
 require("GameDefinitions")
----全局自定义方法
+
+--- 全局自定义工具函数
 require("GameFunctions")
----游戏逻辑全局自定义包含
+
+--- 游戏核心模块引用（所有管理器、单例）
 require("GameRequires")
 
---获取游戏的配置信息
+
+-- ==========================================================
+-- 全局日志输出
+-- ==========================================================
+PrintInfo("回调 Main 应用挂起 lua界面 ")
+
+-- 读取服务器系统配置
 SystemConfigHelper:GetServerSystemConfig()
 
----注册挂起/恢复应用时回调
----@type fun(pause:boolean):void
----@param pause boolean @ 应用是否挂起
+-- ==========================================================
+-- 全局系统回调注册
+-- ==========================================================
+
+---
+--- 应用挂起/恢复回调（切后台/切回）
+--- @param pause boolean  true=挂起  false=恢复
+---
 function GameApplicationPauseCallback(pause)
+    -- 如果正在删除用户，不处理
     if LoginManager:IsDelUser() then
         return
     end
+    -- 从后台切回 → 尝试重新登录
     if pause == false then
         LoginManager:TryReLogin()
     end
 end
 
----退出应用时回调（ApplicationQuit发生在所有GameObject销毁之前，该Unity的C#接口在个别安卓设备下可能无效）
----@type fun():void
+---
+--- 应用退出时回调（Unity OnApplicationQuit）
+---
 function GameApplicationQuitCallback()
+    -- 未删除账号时可做退出保存逻辑
     if not LoginManager:IsDelUser() then
-    
+
     end
 end
 
----原生按键抬起时回调
----@type fun(keyCode:any):void
----@param keyCode any @UnityEngine.KeyCode按键类型枚举
+---
+--- 原生按键抬起回调（如 Android 返回键）
+--- @param keyCode 按键类型
+---
 function GameKeyboardsUpCallback(keyCode)
 
 end
 
----接收C#层事件回调相关处理
----@type fun(eventArgs: Honor.Runtime.EventParams):void
----@param eventArgs Honor.Runtime.EventParams @C#层事件参数
+---
+--- 接收 C# 层派发的全局事件
+--- @param eventArgs C# 事件参数
+---
 function GameReceiveCsToEventCallback(eventArgs)
 
 end

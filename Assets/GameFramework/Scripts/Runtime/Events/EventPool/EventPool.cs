@@ -2,10 +2,15 @@ using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 泛型事件池（核心事件驱动模块）
+    /// 负责事件的订阅、取消订阅、线程安全入队、主线程派发
+    /// </summary>
+    /// <typeparam name="T">事件参数类型，必须继承自 EventParams</typeparam>
     public sealed partial class EventPool<T> where T : EventParams
     {
         /// <summary>
-        /// 初始化事件池的新实例。
+        /// 初始化事件池实例
         /// </summary>
         public EventPool()
         {
@@ -23,7 +28,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 事件池轮询。
+        /// 事件池帧更新（主线程派发队列事件）
         /// </summary>
         public void Update()
         {
@@ -39,7 +44,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭并清理事件池。
+        /// 关闭并完全清理事件池
         /// </summary>
         public void Shutdown()
         {
@@ -50,7 +55,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清理事件。
+        /// 清空待派发事件队列
         /// </summary>
         public void Clear()
         {
@@ -61,12 +66,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在事件处理函数。
+        /// 检查指定事件是否已注册对应回调
         /// </summary>
-        /// <param name="cmd">事件类型编号。</param>
-        /// <param name="userData">用户数据。</param>
-        /// <param name="handler">要检查的事件处理函数。</param>
-        /// <returns>是否存在事件处理函数。</returns>
+        /// <param name="cmd">事件命令</param>
+        /// <param name="userData">用户数据</param>
+        /// <param name="handler">事件回调</param>
+        /// <returns>是否已注册</returns>
         public bool Check(GameEventCmd cmd, object userData, HonorEventHandler<T> handler)
         {
             if (handler == null)
@@ -91,15 +96,14 @@ namespace Honor.Runtime
                 }
             }
             return false;
-
         }
 
         /// <summary>
-        /// 注册事件处理函数。
+        /// 订阅事件
         /// </summary>
-        /// <param name="cmd">事件类型编号。</param>
-        /// <param name="userData">用户数据。</param>
-        /// <param name="handler">要注册的事件处理函数。</param>
+        /// <param name="cmd">事件命令</param>
+        /// <param name="userData">用户数据</param>
+        /// <param name="handler">事件回调</param>
         public void Subscribe(GameEventCmd cmd, object userData, HonorEventHandler<T> handler)
         {
             if (handler == null)
@@ -117,15 +121,14 @@ namespace Honor.Runtime
                 item.Add(userData, handler);
                 m_SubscribedEventHandlers.Add(cmd, item);
             }
-
         }
 
         /// <summary>
-        /// 注销事件处理函数。
+        /// 取消订阅事件
         /// </summary>
-        /// <param name="cmd">事件类型编号。</param>
-        /// <param name="userData">用户数据。</param>
-        /// <param name="handler">要取消注册的事件处理函数。</param>
+        /// <param name="cmd">事件命令</param>
+        /// <param name="userData">用户数据</param>
+        /// <param name="handler">事件回调</param>
         public void Unsubscribe(GameEventCmd cmd, object userData, HonorEventHandler<T> handler)
         {
             if (handler == null)
@@ -186,10 +189,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 抛出事件，这个操作是线程安全的，即使不在主线程中抛出，也可保证在主线程中回调事件处理函数，但事件会在抛出后的下一帧分发。
+        /// 线程安全抛出事件（入队，下一帧派发）
         /// </summary>
-        /// <param name="sender">事件源。</param>
-        /// <param name="e">事件参数。</param>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">事件参数</param>
         public void Fire(object sender, T e)
         {
             if (e == null)
@@ -197,7 +200,6 @@ namespace Honor.Runtime
                 throw new GameException("事件参数无效。");
             }
 
-            // 创建事件暂时缓存到事件队列中等待在Update中进行事件派发
             Event eventNode = Event.Create(sender, e);
             lock (m_EventsForFire)
             {
@@ -206,10 +208,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 抛出事件立即模式，这个操作不是线程安全的，事件会立刻分发。
+        /// 立即抛出事件（同步执行，非线程安全）
         /// </summary>
-        /// <param name="sender">事件源。</param>
-        /// <param name="e">事件参数。</param>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">事件参数</param>
         public void FireNow(object sender, T e)
         {
             if (e == null)
@@ -217,12 +219,7 @@ namespace Honor.Runtime
                 throw new GameException("事件参数无效。");
             }
 
-            // 立即抛出事件时需要创建Event，直接派发即可。
             HandleEvent(sender, e);
         }
-
     }
-
 }
-
-

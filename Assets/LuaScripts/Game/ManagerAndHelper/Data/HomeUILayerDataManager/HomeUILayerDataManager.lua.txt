@@ -1,0 +1,50 @@
+--=====================================================================================================
+-- descrip:   主界面UI层级数据管理器
+--            功能：管理主界面UI、弹窗、动画的显示层级与执行顺序配置
+--=====================================================================================================
+
+---@class HomeUILayerDataManager @主界面UI层级数据管理器
+local HomeUILayerDataManager = class("HomeUILayerDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HomeUILayerDataManager:ctor(args)
+
+end
+
+---创建实例
+---@type fun(args:table):HomeUILayerDataManager
+---@param args table @自定义参数
+---@return HomeUILayerDataManager @主界面UI层级管理器实例
+function HomeUILayerDataManager:Create(args)
+    local obj = HomeUILayerDataManager.new(args)
+    return obj
+end
+
+---根据层级ID获取UI层级配置
+---@type fun(id:EGameMainUIPushSortOrder):Tables.HomeUILayers_Item
+---@param id EGameMainUIPushSortOrder @UI层级ID
+---@return Tables.HomeUILayers_Item @UI层级配置
+function HomeUILayerDataManager:GetDataById(id)
+    if id == nil then
+        PrintError("HomeUILayerDataManager:GetDataById id is nil,默认返回NormalUI")
+        return Tables.HomeUILayers[EGameMainUIPushSortOrder.NormalUI]
+    end
+    return Tables.HomeUILayers[id]
+end
+
+---根据层级ID获取UI显示顺序
+---@type fun(id:EGameMainUIPushSortOrder):number
+---@param id EGameMainUIPushSortOrder @UI层级ID
+---@return number @排序值（数值越小越先显示）
+function HomeUILayerDataManager:GetOrderById(id)
+    local data = self:GetDataById(id)
+    if data == nil then
+        PrintError("HomeUILayerDataManager:GetOrderById data is nil,默认返回0")
+        return 0
+    end
+    return data.Order
+end
+
+return HomeUILayerDataManager

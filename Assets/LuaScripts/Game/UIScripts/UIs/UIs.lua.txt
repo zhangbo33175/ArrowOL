@@ -23,20 +23,21 @@
 ---@field IsFullScreenUI boolean @是否为全屏UI
 
 ---@class UIs @界面配置汇总
----@field UILogin Tables.UIs_Item @登录界面
+---@field UILoginView Tables.UIs_Item @登录界面
 ---@field UITermsPrivacy Tables.UIs_Item @隐私确认面板
 ---@field UIMainHud Tables.UIs_Item @主页面界面
 ---@field UILevelPause Tables.UIs_Item @暂停界面
 ---@field UILevelRevive Tables.UIs_Item @复活界面
----@field UILoadMap Tables.UIs_Item @加载地图Loading页面
+---@field UILoadMapView Tables.UIs_Item @加载地图Loading页面
 ---@field UIFirstLoadMap Tables.UIs_Item @加载地图Loading页面
 ---@field UILevelView Tables.UIs_Item @关卡选择界面
+---@field UIPlayingAnimated Tables.UIs_Item @动画收集界面
 UIs = {
-    UILogin = {
-        Name = "UILogin",
+    UILoginView = {
+        Name = "UILoginView",
         Comment = "登录界面",
-        ABPath = "Assets/Res/Prefabs/UIs/UILoad",
-        AssetName = "UILogin",
+        ABPath = "Assets/Res/Prefabs/UIs/UILogin",
+        AssetName = "UILoginView",
         UIType = 1,
         ZOrder = 1,
         IsModal = false,
@@ -50,7 +51,7 @@ UIs = {
     UITermsPrivacy = {
         Name = "UITermsPrivacy",
         Comment = "隐私确认面板",
-        ABPath = "Assets/Res/Prefabs/UIs/UITermsPrivacy",
+        ABPath = "Assets/Res/Prefabs/UIs/UITermsPrivacyView",
         AssetName = "UITermsPrivacy",
         UIType = 1,
         ZOrder = 32762,
@@ -80,7 +81,7 @@ UIs = {
     UILevelPause = {
         Name = "UILevelPause",
         Comment = "暂停界面",
-        ABPath = "Assets/Res/Prefabs/UIs/UILevel",
+        ABPath = "Assets/Res/Prefabs/UIs/UILevelView",
         AssetName = "UILevelPause",
         UIType = 1,
         ZOrder = 6,
@@ -95,7 +96,7 @@ UIs = {
     UILevelRevive = {
         Name = "UILevelRevive",
         Comment = "复活界面",
-        ABPath = "Assets/Res/Prefabs/UIs/UILevel",
+        ABPath = "Assets/Res/Prefabs/UIs/UILevelView",
         AssetName = "UILevelRevive",
         UIType = 1,
         ZOrder = 5,
@@ -107,11 +108,11 @@ UIs = {
         MultiTypeTextCompsCoexist = false,
         IsFullScreenUI = false,
     },
-    UILoadMap = {
-        Name = "UILoadMap",
+    UILoadMapView = {
+        Name = "UILoadMapView",
         Comment = "加载地图Loading页面",
-        ABPath = "Assets/Res/Prefabs/UIs/UILoadMap",
-        AssetName = "UILoadMap",
+        ABPath = "Assets/Res/Prefabs/UIs/UILoadMapView",
+        AssetName = "UILoadMapView",
         UIType = 1,
         ZOrder = 10000,
         IsModal = false,
@@ -125,7 +126,7 @@ UIs = {
     UIFirstLoadMap = {
         Name = "UIFirstLoadMap",
         Comment = "加载地图Loading页面",
-        ABPath = "Assets/Res/Prefabs/UIs/UILoad",
+        ABPath = "Assets/Res/Prefabs/UIs/UILoadView",
         AssetName = "UIFirstLoadMap",
         UIType = 1,
         ZOrder = 10000,
@@ -140,8 +141,23 @@ UIs = {
     UILevelView = {
         Name = "UILevelView",
         Comment = "关卡选择界面",
-        ABPath = "Assets/Res/Prefabs/UIs/Level/UILevelView",
+        ABPath = "Assets/Res/Prefabs/UIs/UILevelView",
         AssetName = "UILevelView",
+        UIType = 1,
+        ZOrder = 1,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = true,
+    },
+    UIPlayingAnimated = {
+        Name = "UIPlayingAnimated",
+        Comment = "动画收集界面",
+        ABPath = "Assets/Res/Prefabs/UIs/UIPlayingAnimated",
+        AssetName = "UIPlayingAnimated",
         UIType = 1,
         ZOrder = 1,
         IsModal = false,

@@ -37,7 +37,7 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadFontDatas", _m_LoadFontDatas);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddFontData", _m_AddFontData);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RemoveAllFontDatas", _m_RemoveAllFontDatas);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetFontDatas", _m_GetFontDatas);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetFontData", _m_GetFontData);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "Language", _g_get_Language);
@@ -503,7 +503,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetFontDatas(RealStatePtr L)
+        static int _m_GetFontData(RealStatePtr L)
         {
 		    try {
             
@@ -518,7 +518,7 @@ namespace XLua.CSObjectWrap
                     Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
                     System.Collections.Generic.List<Honor.Runtime.LocalizationFontData> _fontDatas;
                     
-                    gen_to_be_invoked.GetFontDatas( _language, out _fontDatas );
+                    gen_to_be_invoked.GetFontData( _language, out _fontDatas );
                     translator.Push(L, _fontDatas);
                         
                     

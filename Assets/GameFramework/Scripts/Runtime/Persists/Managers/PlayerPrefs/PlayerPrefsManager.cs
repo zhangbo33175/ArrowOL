@@ -4,10 +4,15 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// PlayerPrefs 加密存储管理器
+    /// 基于 Unity PlayerPrefs 实现，带 AES 加密、分类管理
+    /// 轻量级、全平台通用（含 WebGL）
+    /// </summary>
     public sealed partial class PlayerPrefsManager
     {
         /// <summary>
-        /// 构造方法
+        /// 分类名称 → 该分类下所有键名（内存索引）
         /// </summary>
         public PlayerPrefsManager()
         {
@@ -15,21 +20,17 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 加载条目信息。
+        /// 加载所有分类与键名索引（从 PlayerPrefs 读取）
         /// </summary>
-        /// <returns>是否加载条目信息成功。</returns>
         public bool Load()
         {
-            // 从存档中读取所有条目
             LoadItemNameGroups();
-
             return true;
         }
 
         /// <summary>
-        /// 保存。
+        /// 立即保存到本地磁盘
         /// </summary>
-        /// <returns>是否保存成功。</returns>
         public bool Save()
         {
             PlayerPrefs.Save();
@@ -37,9 +38,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定分类名称的所有条目名称集合。
+        /// 获取指定分类下所有键名（数组）
         /// </summary>
-        /// <returns>条目名称集合。</returns>
         public string[] GetAllItemNames(string classifyName)
         {
             List<string> range = null;
@@ -51,7 +51,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定分类名称的所有条目名称集合。
+        /// 获取指定分类下所有键名（列表）
         /// </summary>
         /// <param name="classifyName">分类名称。</param>
         /// <param name="results">条目名称集合。</param>
@@ -74,7 +74,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在指定条目。
+        /// 判断指定分类下是否存在某键
         /// </summary>
         /// <param name="classifyName">分类名称。</param>
         /// <param name="itemName">要检查条目的名称。</param>
@@ -86,7 +86,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定条目。
+        /// 删除指定键（同步删除内存索引并刷新保存）
         /// </summary>
         /// <param name="classifyName">分类名称。</param>
         /// <param name="itemName">要移除条目的名称。</param>
@@ -120,7 +120,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清空所有条目。
+        /// 清空数据
+        /// classifyName = null 清空全部；否则清空指定分类
         /// </summary>
         /// <param name="classifyName">分类名称。</param>
         public void RemoveAllItems(string classifyName)
@@ -382,7 +383,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 打印所有名称列表
+        /// 调试：打印所有分类与键名索引
         /// </summary>
         public void PrintAllNameLists()
         {

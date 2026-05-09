@@ -21,9 +21,10 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(UnityEngine.Timeline.AnimationPlayableAsset);
-			Utils.BeginObjectRegister(type, L, translator, 0, 3, 12, 9);
+			Utils.BeginObjectRegister(type, L, translator, 0, 4, 12, 9);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CreatePlayable", _m_CreatePlayable);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LiveLink", _m_LiveLink);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetOffsets", _m_ResetOffsets);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GatherProperties", _m_GatherProperties);
 			
@@ -117,6 +118,33 @@ namespace XLua.CSObjectWrap
                     
                     
                     return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_LiveLink(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Timeline.AnimationPlayableAsset gen_to_be_invoked = (UnityEngine.Timeline.AnimationPlayableAsset)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.LiveLink(  );
+                    
+                    
+                    
+                    return 0;
                 }
                 
             } catch(System.Exception gen_e) {

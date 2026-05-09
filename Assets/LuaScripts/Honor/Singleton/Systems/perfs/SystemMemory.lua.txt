@@ -1,20 +1,32 @@
--- Tencent is pleased to support the open source community by making xLua available.
--- Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
--- Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
--- http://opensource.org/licenses/MIT
--- Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+--[[
+    模块功能：Lua 内存监控工具（已废弃，仅做兼容保留）
+    所属：xLua 框架
+    版权：腾讯 (C) 2016 THL A29 Limited
+    协议：MIT License
+    说明：本模块所有功能均已废弃，调用会直接抛出错误，引导使用内存泄漏检测器
+]]--
 
+--[[
+    内存快照函数（已废弃）
+    功能：原本用于获取 Lua 内存使用快照
+    现状：已废弃，强制抛出错误，提示使用 memory leak checker
+]]
 local function snapshot()
     error('use memory leak checker instead!')
 end
 
+--[[
+    获取 Lua 总内存占用（已废弃）
+    功能：原本用于返回 Lua 正在使用的总内存（单位 KB）
+    现状：已废弃，强制抛出错误，提示使用 memory leak checker
+]]
 --returns the total memory in use by Lua (in Kbytes).
 local function total()
     error('use memory leak checker instead!')
 end
 
-
+-- 导出接口（仅兼容旧代码，实际调用都会报错）
 return {
-    snapshot = snapshot,
-    total = total
+    snapshot = snapshot,   -- 内存快照（废弃）
+    total = total          -- 获取总内存（废弃）
 }

@@ -10,69 +10,82 @@ using XLua;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// 持久化组件编辑器检视面板
+    /// 提供存档数据编辑、Proto协议导出、数据序列化/反序列化、运行时数据查看功能
+    /// </summary>
     [CustomEditor(typeof(PersistComponent))]
     internal sealed partial class PersistComponentInspector: HonorComponentInspector
     {
-          /// <summary>
-        /// 所有大小分类名称集合
+        /// <summary>
+        /// 展开的分类项集合
         /// </summary>
         private readonly HashSet<string> m_OpenedItems = new HashSet<string>();
 
         /// <summary>
-        /// 条目值内容集合(仅EditorMode有效)
-        /// <classifyName, <分类下所有条目名称集合,值内容>>
+        /// 持久化数据值集合
+        /// 结构：持久化方式 -> 分类名 -> 键值对
         /// </summary>
         private readonly SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, string>>> m_ValueList = new SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, string>>>();
 
         /// <summary>
-        /// 条目编辑状态集合(仅EditorMode有效)
+        /// 数据编辑状态集合
         /// </summary>
         private readonly SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, bool>>> m_EditStateList = new SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, bool>>>();
 
         /// <summary>
-        /// 条目编辑中的内容集合(仅EditorMode有效)
+        /// 编辑中的数据内容集合
         /// </summary>
         private readonly SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, string>>> m_EditValueList = new SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, string>>>();
 
         /// <summary>
-        /// 条目编辑中的内容缓冲集合(仅EditorMode有效)
+        /// 编辑数据缓存集合
         /// </summary>
         private readonly SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, string>>> m_EditValueCacheList = new SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, string>>>();
 
         /// <summary>
-        /// 条目ScrollView位置集合(仅EditorMode有效)
+        /// 滚动视图位置记录集合
         /// </summary>
         private readonly SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, Vector2>>> m_EditScrollViewPositionList = new SortedDictionary<PersistWayType, SortedDictionary<string, SortedDictionary<string, Vector2>>>();
 
         /// <summary>
-        /// 文件片段根目录绝对路径(仅EditorMode有效)
+        /// 文件片段根目录绝对路径
         /// </summary>
         private string m_FileFragmentsRootDirectoryFullPath = string.Empty;
 
         /// <summary>
-        /// 所有文件片段的名称(仅EditorMode有效)
+        /// 文件片段名称列表
         /// </summary>
         private List<string> m_FileFragmentNames = new List<string>();
 
         /// <summary>
-        /// 所有文件片段在读写区的文件路径(仅EditorMode有效)
+        /// 文件片段完整路径列表
         /// </summary>
         private List<string> m_FilePaths = new List<string>();
 
+        /// <summary>
+        /// 当前是否为枚举类型
+        /// </summary>
         private static bool s_IsCurEnum = false;
+
+        /// <summary>
+        /// 当前类名列表
+        /// </summary>
         private static List<string> s_CurClsName = new List<string>();
 
         /// <summary>
-        /// 运行时上一次已经反序列化的pb数据
-        /// <classifyName, <itemName, 明文itemValue>>
+        /// 运行时已解码的PB数据缓存
         /// </summary>
         private Dictionary<string, Dictionary<string, string>> m_RuntimeLastDecodedPbValue = new Dictionary<string, Dictionary<string, string>>();
 
         /// <summary>
-        /// 运行时所有Proto协议主结构的详细信息集合
+        /// 运行时Proto协议结构信息
         /// </summary>
         Dictionary<string, Dictionary<string, string>> m_RuntimeClassInterFieldTypes = new Dictionary<string, Dictionary<string, string>>();
 
+        /// <summary>
+        /// 启用时初始化数据与状态
+        /// </summary>
         private void OnEnable()
         {
             RefreshTypeNames();
@@ -113,6 +126,9 @@ namespace Honor.Editor
 
         }
 
+        /// <summary>
+        /// 绘制检视面板GUI
+        /// </summary>
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -164,6 +180,9 @@ namespace Honor.Editor
             Repaint();
         }
 
+        /// <summary>
+        /// 编译完成回调
+        /// </summary>
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
@@ -172,7 +191,7 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 打开存档协议文件夹。
+        /// 打开Proto协议存放文件夹
         /// </summary>
         private void OpenProtoFolder()
         {
@@ -190,16 +209,19 @@ namespace Honor.Editor
             }
         }
 
+        /// <summary>
+        /// 刷新序列化对象类型名称
+        /// </summary>
         private void RefreshTypeNames()
         {
             serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>
-        /// 获取Pb文件主结构的详细信息
+        /// 解析Proto文件，获取主结构字段详情
         /// </summary>
-        /// <param name="totalList"></param>
-        /// <returns></returns>
+        /// <param name="totalList">Lua声明文件内容</param>
+        /// <returns>结构字段类型字典</returns>
         private Dictionary<string, Dictionary<string, string>> GetPbFileMainStructorDetailInfos(List<List<string>> totalList)
         {
             void ___recusive(string className, string structorName, string prefix, Dictionary<string, Dictionary<string, string>> classFieldTypes, Dictionary<string, string> baseInterFieldTypes)
@@ -331,12 +353,12 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 序列化Pb-Msg数据
+        /// PB消息数据编码（Base64+Protobuf）
         /// </summary>
-        /// <param name="protoLuaFileName"></param>
-        /// <param name="msgName"></param>
-        /// <param name="contentString"></param>
-        /// <returns></returns>
+        /// <param name="protoLuaFileName">Proto文件名</param>
+        /// <param name="msgName">消息名</param>
+        /// <param name="contentString">原始内容</param>
+        /// <returns>编码后字符串</returns>
         private string EncodePbMsgData(string protoLuaFileName, string msgName, string contentString)
         {
             LuaEnv luaEnv = new LuaEnv();
@@ -350,7 +372,7 @@ namespace Honor.Editor
                 require('Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt')
                 local Base64 = require('Assets/LuaScripts/Honor/Singleton/Systems/thirds/SystemBase64.lua.txt')
                 local protoc = require('Assets/LuaScripts/Honor/Singleton/Systems/thirds/SystemProtoc.lua.txt')
-                local proto = require('Assets/Game/LuaScripts/PBData/Proto/{0}.proto.lua.txt')
+                local proto = require('Assets/LuaScripts/Game/PBData/Proto/{0}.proto.lua.txt')
                 assert(protoc: load(proto))
                 local pb = require 'pb'
                 local datas = Base64.encode(pb.encode('{1}', TableDecode('{2}')))
@@ -361,12 +383,12 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 反序列化Pb-Msg数据
+        /// PB消息数据解码
         /// </summary>
-        /// <param name="protoLuaFileName"></param>
-        /// <param name="msgName"></param>
-        /// <param name="contentString"></param>
-        /// <returns></returns>
+        /// <param name="protoLuaFileName">Proto文件名</param>
+        /// <param name="msgName">消息名</param>
+        /// <param name="contentString">编码内容</param>
+        /// <returns>解码后明文</returns>
         private string DecodePbMsgData(string protoLuaFileName, string msgName, string contentString)
         {
             LuaEnv luaEnv = new LuaEnv();
@@ -376,7 +398,7 @@ namespace Honor.Editor
                 return asset.bytes;
             });
 
-            string protoLuaFilePath = AorTxt.Format("Assets/Game/LuaScripts/PBData/Proto/{0}.proto.lua.txt", protoLuaFileName);
+            string protoLuaFilePath = AorTxt.Format("Assets/LuaScripts/Game/PBData/Proto/{0}.proto.lua.txt", protoLuaFileName);
             if(File.Exists(protoLuaFilePath))
             {
                 object[] results = luaEnv.DoString(AorTxt.Format(@"
@@ -396,9 +418,9 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 读取非运行时的持久化数据
+        /// 编辑器模式下加载持久化数据
         /// </summary>
-        /// <param name="persisway">持久化类型</param>
+        /// <param name="persisway">持久化方式</param>
         private void LoadDatasOnEditorMode(PersistWayType persisway)
         {
             if (persisway == PersistWayType.PlayerPrefs)
@@ -490,9 +512,9 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 读取运行时的持久化数据
+        /// 运行时模式加载持久化数据
         /// </summary>
-        /// <param name="persisway">持久化类型</param>
+        /// <param name="persisway">持久化方式</param>
         private void LoadDatasOnRuntimeMode(PersistWayType persisway)
         {
             if(persisway == PersistWayType.PlayerPrefs)
@@ -506,9 +528,9 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 刷新界面（Editor模式）
+        /// 编辑器模式刷新GUI
         /// </summary>
-        /// <param name="persistWay">持久化存储方式</param>
+        /// <param name="persistWay">持久化方式</param>
         private void RefreshGUIOnEditorMode(PersistWayType persistWay)
         {
             string persistWayName = string.Empty;
@@ -711,9 +733,9 @@ namespace Honor.Editor
                                                 {
                                                     m_ValueList[persistWay][classifyName].Remove(itemName);
                                                     m_EditStateList[persistWay][classifyName].Remove(itemName);
-                                                    m_EditValueList[persistWay][classifyName].Remove(itemName);
-                                                    m_EditValueCacheList[persistWay][classifyName].Remove(itemName);
-                                                    m_EditScrollViewPositionList[persistWay][classifyName].Remove(itemName);
+                                                    m_EditValueList[persistWay].Remove(classifyName);
+                                                    m_EditValueCacheList[persistWay].Remove(classifyName);
+                                                    m_EditScrollViewPositionList[persistWay].Remove(classifyName);
                                                     if (m_ValueList[persistWay][classifyName].Keys.Count == 0)
                                                     {
                                                         m_ValueList[persistWay].Remove(classifyName);
@@ -772,9 +794,9 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 刷新界面（Runtime模式）
+        /// 运行时模式刷新GUI（只读）
         /// </summary>
-        /// <param name="persistWay">持久化存储方式</param>
+        /// <param name="persistWay">持久化方式</param>
         private void RefreshGUIOnRuntimeMode(PersistWayType persistWay)
         {
             string persistWayName = string.Empty;
@@ -823,7 +845,7 @@ namespace Honor.Editor
 
                                 default:
                                     throw new Exception(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
-                            }
+                                }
                             GUIUtility.ExitGUI();
                         }
                         if (t.FileFragmentManager.ItemGroups.Keys.Count > 0)
@@ -954,11 +976,10 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 序列化文件片段
+        /// 序列化文件片段数据（AES+GZIP压缩）
         /// </summary>
-        /// <param name="filePath">文件片段路径</param>
-        /// <param name="fileFragmentName">文件片段名称</param>
-        /// <returns>序列化是否成功</returns>
+        /// <param name="filePath">文件路径</param>
+        /// <param name="fileFragmentName">文件片段名</param>
         public void Serialize(string filePath, string fileFragmentName = null)
         {
             using (System.IO.FileStream fs = new System.IO.FileStream(filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write))
@@ -975,11 +996,10 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 反序列化文件片段
+        /// 反序列化文件片段数据
         /// </summary>
-        /// <param name="filePath">文件片段路径</param>
-        /// <param name="fileFragmentName">文件片段名称</param>
-        /// <returns>游戏配置集合</returns>
+        /// <param name="filePath">文件路径</param>
+        /// <param name="fileFragmentName">文件片段名</param>
         public void Deserialize(string filePath, string fileFragmentName = null)
         {
             using (System.IO.StreamReader reader = new System.IO.StreamReader(filePath))
@@ -1008,12 +1028,12 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 刷新运行时数据库条目信息
+        /// 运行时刷新PlayerPrefs数据显示
         /// </summary>
-        /// <param name="classifyName"></param>
-        /// <param name="fieldName"></param>
-        /// <param name="fieldType"></param>
-        /// <param name="itemName"></param>
+        /// <param name="classifyName">分类名</param>
+        /// <param name="fieldName">字段名</param>
+        /// <param name="fieldType">字段类型</param>
+        /// <param name="itemName">条目名</param>
         private void RefreshPlayerPrefsItemOnRuntimeMode(string classifyName, string fieldName, string fieldType, string itemName)
         {
             string key = AorTxt.Format("{0}_{1}", classifyName, itemName);
@@ -1022,17 +1042,12 @@ namespace Honor.Editor
             {
                 m_RuntimeLastDecodedPbValue[classifyName][itemName] = SwitchToReadableFormat(itemValue);
             }
-            //else
-            //{
-            //    m_runtimeLastDecodedPbValue[classifyName][itemName] = SwitchToReadableFormat(DecodePbMsgData(classifyName, fieldType.Split('.')[2], SwitchToTidyFormat(itemValue)));
-            //}
         }
 
         /// <summary>
-        /// 展示面板条目
+        /// 编辑器模式展示PlayerPrefs层级结构
         /// </summary>
-        /// <param name="persistWay">持久化存储方式</param>
-        /// <param name="classifyName">分类名称</param>
+        /// <param name="classifyName">分类名</param>
         private void ShowPlayerPrefsItemsOnEditorMode(string classifyName)
         {
             // 递归链表
@@ -1051,11 +1066,11 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 递归生成节点元素（生成链表）
+        /// 递归生成节点树结构
         /// </summary>
-        /// <param name="picesNames"></param>
-        /// <param name="curCheckPicesIndex"></param>
-        /// <param name="list"></param>
+        /// <param name="picesNames">键名分段</param>
+        /// <param name="curCheckPicesIndex">当前索引</param>
+        /// <param name="list">节点列表</param>
         private void GenerateNodeElements(string[] picesNames, int curCheckPicesIndex, List<Node> list)
         {
             if(curCheckPicesIndex >= picesNames.Length)
@@ -1081,11 +1096,10 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 递归绘制节点元素
+        /// 递归绘制PlayerPrefs节点
         /// </summary>
-        /// <param name="persistWay"></param>
-        /// <param name="classifyName"></param>
-        /// <param name="node"></param>
+        /// <param name="classifyName">分类名</param>
+        /// <param name="node">节点</param>
         private void ShowPlayerPrefsItemOnEditorMode(string classifyName, Node node)
         {
             if (node.IsLeaf)
@@ -1245,6 +1259,9 @@ namespace Honor.Editor
 
         }
         
+        /// <summary>
+        /// 树形节点结构类
+        /// </summary>
         class Node
         {
             public Node(string name, string key)
@@ -1253,21 +1270,35 @@ namespace Honor.Editor
                 Key = key;
                 NextNodes = new List<Node>();
             }
+            /// <summary>
+            /// 节点名称
+            /// </summary>
             public string Name;
+            /// <summary>
+            /// 节点完整键
+            /// </summary>
             public string Key;
+            /// <summary>
+            /// 子节点列表
+            /// </summary>
             public List<Node> NextNodes;
+            /// <summary>
+            /// 节点描述
+            /// </summary>
             public string Desc { get => Name + "(" + NextNodes.Count + ")"; }
+            /// <summary>
+            /// 是否为叶子节点
+            /// </summary>
             public bool IsLeaf { get => NextNodes.Count == 0; }
         }
 
-        #region format
+        #region 数据格式化工具
 
         /// <summary>
-        /// 转换为可阅读格式
-        /// json || lua
+        /// 转换为带缩进的可读格式
         /// </summary>
-        /// <param name="gameData"></param>
-        /// <returns></returns>
+        /// <param name="gameData">原始字符串</param>
+        /// <returns>格式化字符串</returns>
         private static string SwitchToReadableFormat(string gameData)
         {
             int tabCount = 0;
@@ -1339,10 +1370,10 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 转换为精简格式
+        /// 转换为压缩无格式字符串
         /// </summary>
-        /// <param name="gameData"></param>
-        /// <returns></returns>
+        /// <param name="gameData">原始字符串</param>
+        /// <returns>精简格式字符串</returns>
         private static string SwitchToTidyFormat(string gameData)
         {
             string result = gameData.Replace("\n", string.Empty).Replace("\t", string.Empty);
@@ -1350,11 +1381,8 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 遇到左括号是否要换行
+        /// 判断左大括号是否需要换行
         /// </summary>
-        /// <param name="gameData"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
         private static bool IsNeedLineFeedByLeftBracket(string gameData, int index)
         {
             if (index == gameData.Length)
@@ -1376,11 +1404,8 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 遇到右括号是否要换行
+        /// 判断右大括号是否需要换行
         /// </summary>
-        /// <param name="gameData"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
         private static bool IsNeedLineFeedByRightBracket(string gameData, int index)
         {
             if (index == 0)
@@ -1402,11 +1427,8 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 遇到逗号是否需要换行
+        /// 判断逗号是否需要换行
         /// </summary>
-        /// <param name="gameData"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
         private static bool IsNeedLineFeedByComma(string gameData, int index)
         {
             if (index == 0)
@@ -1428,10 +1450,8 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 获取指定tab转义符数量的字符串
+        /// 获取指定数量的Tab缩进字符串
         /// </summary>
-        /// <param name="tabCount"></param>
-        /// <returns></returns>
         private static string GetTabStringByTabCount(int tabCount)
         {
             string tabStr = "";
@@ -1450,7 +1470,6 @@ namespace Honor.Editor
             return tabStr;
         }
 
-        #endregion format
-
+        #endregion
     }
 }

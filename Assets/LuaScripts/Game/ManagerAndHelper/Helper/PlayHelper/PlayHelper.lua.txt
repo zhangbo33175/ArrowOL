@@ -1,0 +1,996 @@
+--=====================================================================================================
+-- descrip:   开始游戏帮助类
+--            封装游戏关卡、界面、特效、奖励、道具、状态判断等核心游戏逻辑
+--=====================================================================================================
+
+---@class PlayHelper @开始游戏帮助类：统一管理关卡启动、UI打开、特效播放、奖励展示等游戏核心逻辑
+---@field _loopLevelHelper LoopLevelHelper @ 循环关卡辅助类（预留）
+local PlayHelper = class("PlayHelper")
+
+---构造函数：初始化常量配置、颜色配置、格式字符串
+---@type fun():void
+function PlayHelper:ctor()
+    --self._loopLevelHelper = require("LoopLevelHelper"):Create()
+    self._mainMinChapterId = 1                                          ---@type number                                 ---主线最小章节ID
+    self._mainMaxChapterId = 1000                                       ---@type number                                 ---主线最大章节ID
+    self._goldenTicketPlayNameTextColorConfigData = nil                 ---@type TextColorConfigData                    ---金票玩家名字颜色配置
+    self._goldenTicketHighPlayNameTextColorConfigData = nil             ---@type TextColorConfigData                    ---高级金票玩家名字颜色配置
+    self._OutLineName = "Material_RGame_SDF_Static___Outline_%s"        ---@type string                                 ---文字描边材质名称格式化串
+end
+
+---创建PlayHelper单例对象
+---@type fun():PlayHelper
+---@return PlayHelper 帮助类实例
+function PlayHelper:Create()
+    local obj = PlayHelper.new()
+    return obj
+end
+
+---判断是否为主线章节
+---@type fun(chapterId:string):boolean
+---@param chapterId string 章节ID
+---@return boolean 是否主线章节
+function PlayHelper:IsMainChapter(chapterId)
+    if string.isNullOrEmpty(chapterId) then
+        return false
+    end
+    local chapterIdNum = tonumber(chapterId)
+    return chapterIdNum >= self._mainMinChapterId and chapterIdNum <= self._mainMaxChapterId
+end
+
+---判断当前是否处于游戏关卡状态
+---@type fun():boolean
+---@return boolean 是否在游戏中
+function PlayHelper:IsInLevelState()
+    if GameStateMachine:CurrentStateType() == GameStateCmd.PlayingState then
+        return true
+    end
+    return false
+end
+
+---判断是否满足游玩第一关条件
+---@type fun():boolean
+---@return boolean 是否满足
+function PlayHelper:IsPlayFirstLevel()
+    local chapterId = ChapterListManager:GetLatestChapterId()
+    if chapterId == "1" and GamerDataManager:GetLevelLvByChapterId(chapterId) == 1 then
+        return true
+    end
+    return false
+end
+
+---判断是否需要显示准备关卡界面
+---@type fun(chapterId:string,levelId:number):boolean
+---@param chapterId string 章节ID
+---@param levelId number 关卡ID
+---@return boolean 是否显示
+function PlayHelper:IsPlayShowPrepareLevel(chapterId, levelId)
+    --local data = Tables.Constants.ShowPrepareLevel.Value
+    --local chapterIdNum = tonumber(chapterId)
+    --if chapterIdNum > data.Chapter then
+    --    return true
+    --end
+    --if chapterIdNum == data.Chapter and levelId >= data.Level then
+    --    return true
+    --end
+    return false
+end
+
+---打开最新章节的物品升级界面
+---@type fun():void
+---@return void
+function PlayHelper:OpenLastLevelUpgradeUI()
+    local curChapterId = GamerDataManager:GetCurChapterId()
+    local latest = ChapterListMgr:GetLatestChapterId()
+    if latest ~= curChapterId then
+        local isReady = IncreaserHotfixHelper:IsReadyGroupRes(latest)
+        if isReady then
+            self:LoadMainMap(latest, function()
+                self:OpenLevelUpgradeUI(latest)
+            end)
+        else
+            -- 资源未就绪，标记自动打开更新界面并打开热更UI
+            IncreaserHotfixHelper:SetNeedAutoOpenDownloadUpdateUI(true)
+            IncreaserHotfixHelper:OpenUIIncreaserUpdate()
+        end
+    else
+        self:OpenLevelUpgradeUI(curChapterId)
+    end
+end
+
+---打开指定章节的物品升级面板
+---@type fun(chapterId:string):void
+---@param chapterId string 章节ID
+function PlayHelper:OpenLevelUpgradeUI(chapterId)
+    OpenUISync(UIs.UIUpgrade, { chapterId = chapterId })
+end
+
+---打开最后一关的准备关卡面板
+---@type fun(openFrom:EOpenUILevelPrepareFrom):void
+---@param openFrom EOpenUILevelPrepareFrom 打开来源，默认Other
+function PlayHelper:OpenLastLevelPrepareUI(openFrom)
+    if openFrom == nil then
+        openFrom = EOpenUILevelPrepareFrom.Other
+    end
+    local curChapterId = GamerDataManager:GetCurChapterId()
+    local curLevelId = GamerDataManager:GetLevelLvByChapterId(curChapterId, true)
+    if not self:IsPlayShowPrepareLevel(curChapterId, curLevelId) then
+        --SoundMgr:PlaySound(Tables.Sounds.LevelStart_Ding.Name)
+        local levelData = self:LoadLevelData(curChapterId, curLevelId)
+        self:CommonOnPlayGame(levelData)
+    else
+        local latest = ChapterListMgr:GetLatestChapterId()
+        if latest ~= curChapterId then
+            local isReady = IncreaserHotfixHelper:IsReadyGroupRes(latest)
+            if isReady then
+                self:LoadMainMap(latest, function()
+                    self:OpenLevelPrepareUI(latest, GamerDataMgr:GetLevelLvByChapterId(latest, true), openFrom)
+                end)
+            else
+                -- 资源未就绪，打开热更界面
+                IncreaserHotfixHelper:SetNeedAutoOpenDownloadUpdateUI(true)
+                IncreaserHotfixHelper:OpenUIIncreaserUpdate()
+            end
+        else
+            self:OpenLevelPrepareUI(curChapterId, curLevelId, openFrom)
+        end
+    end
+end
+
+---打开指定关卡的准备面板
+---@type fun(chapterId:string,levelId:string,openFrom:EOpenUILevelPrepareFrom):void
+---@param chapterId string 章节ID
+---@param levelId string 关卡ID
+---@param openFrom EOpenUILevelPrepareFrom 打开来源
+function PlayHelper:OpenLevelPrepareUI(chapterId, levelId, openFrom)
+    if GameMainRoot.UI:GetUIByLuaTable(UIs.UILevelPrepare) then
+        -- 已打开则不再重复打开
+        return
+    end
+    OpenUISync(UIs.UILevelPrepare, { chapterId = chapterId, levelId = levelId, openFrom = openFrom })
+end
+
+---打开关卡暂停界面
+---@type fun(isManual:boolean):void
+---@param isManual boolean 是否手动打开
+function PlayHelper:OpenLevelPauseUI(isManual)
+    if GameMainRoot.UI:GetUIByLuaTable(UIs.UILevelPause) then
+        return
+    end
+    OpenUISync(UIs.UILevelPause, { isManual = isManual })
+end
+
+---加载并获取关卡配置数据
+---@type fun(characterId:string,levelId:number):Tables.LevelData_Item
+---@param chapterId string 章节ID
+---@param levelId number 关卡ID
+---@return Tables.LevelData_Item 关卡数据
+function PlayHelper:LoadLevelData(chapterId, levelId)
+    ---@type Tables.Chapters_Item
+    local chapterConfig = Tables.MainLevels[tostring(chapterId)]
+    if chapterConfig and chapterConfig.MainLevels and not ChallengeLevelHelper:IsChallengeLevel(levelId) and levelId > chapterConfig.MainLevels[2] then
+       return nil
+    end
+
+    local levelName = table.concat({ "LevelData_", chapterId, "_", levelId })
+    local levelData = Tables[levelName]
+    return levelData
+end
+
+---查询关卡难度对应的奖励倍率
+---@type fun():number
+---@return number 关卡倍率奖励
+function PlayHelper:SearchLevelHardLevelReward(diff)
+    --if Tables.Constants.HardLevelReward and Tables.Constants.HardLevelReward.Value[diff] then
+    --    return Tables.Constants.HardLevelReward.Value[diff]
+    --end
+    return 1
+end
+
+---开始游戏（消耗体力）
+---@type fun(levelData:Tables.LevelData_Item):boolean
+---@param levelData Tables.LevelData_Item 关卡数据
+---@return boolean 是否成功开始
+function PlayHelper:PlayLevel(levelData)
+    if levelData == nil then
+        return false
+    end
+    if GameCoreManager:IsLifeEnough() and self:PlayLevelImmediate(levelData) then
+        return true
+    end
+    return false
+end
+
+---立即开始游戏（不检查体力）
+---@type fun(levelData:Tables.LevelData_Item):boolean
+---@param levelData Tables.LevelData_Item 关卡数据
+---@return boolean 是否成功
+function PlayHelper:PlayLevelImmediate(levelData)
+    if levelData then
+        GameCoreManager:ClearData()
+        GameCoreManager._CurLevelData = levelData
+        return true
+    end
+    PrintError("PlayLevelImmediate is not implement,LevelData is nil")
+    return false
+end
+
+---游戏结束
+---@type fun(isSuccess:boolean):void
+---@param isSuccess boolean 是否胜利
+function PlayHelper:GameOver(isSuccess)
+    PrintInfo("GameOver,IsSuccess:" .. tostring(isSuccess))
+    GameCoreManager._IsGameOver = true
+    GameCoreManager._IsSuccessFinishGame = isSuccess
+    GameCoreManager:SetPlayingLevelTag('')
+    --PlayHudCycle:OnAction(EPlayHudCycleAction.GameOver)
+end
+
+---主动点击退出游戏
+---@type fun():void
+function PlayHelper:ClickGameExit()
+    PrintInfo("ClickGameExit")
+    GameCoreManager:DoGameFailed(EGameOverType.PlayerGiveUp)
+    self:GameExitPlayHud()
+end
+
+---注册退出二次确认提示
+---@type fun(id:string,num:string):void
+---@param id string 提示ID
+---@param strNum string 提示数字字符串
+function PlayHelper:RegisterExitSureTip(id, strNum)
+    GameCoreManager:RegisterExitSureTip(id, strNum)
+end
+
+---放弃关卡复活
+---@type fun(eGameOverType:EGameOverType):void
+---@param eGameOverType EGameOverType 游戏结束类型
+function PlayHelper:ClickLevelReviveGiveUp(eGameOverType)
+    GameCoreManager:DoGameFailed(eGameOverType)
+end
+
+---退出关卡，返回主界面
+---@type fun():void
+function PlayHelper:GameExitPlayHud()
+    GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
+end
+
+---游戏胜利后离开关卡（结算专用）
+---@type fun():void
+function PlayHelper:OnLevelWinExitPlayGameFun()
+    if GuideContext:IsTutorialExecute() or not ADMgr:TryShowInterAd(EInterAdID.LevelWin, function()
+        PlayHelper:GameExitPlayHud()
+    end, nil) then
+        PlayHelper:GameExitPlayHud()
+    end
+end
+
+---等级礼包领奖关闭动画回调
+function PlayHelper:OnLevelWinRewardBeginCloseFun()
+    CloseUI(UIs.UILevelSuccessBg)
+end
+
+---通用游戏开始入口（处理道具、打点、状态切换）
+---@type fun(lvData:Tables.LevelData_Item,view:GameViewSuper,boostersLua:UIBoosterButton[]):boolean
+---@param lvData Tables.LevelData_Item 关卡数据
+---@param view GameViewSuper 界面（可为空）
+---@param boostersLua UIBoosterButton[] 前置道具（可为空）
+---@return boolean 是否成功
+function PlayHelper:CommonOnPlayGame(lvData, view, boostersLua)
+    ---收集战前选中的道具用于打点
+    local preboosterUse = {}
+    if boostersLua then
+        for i = 1, #boostersLua do
+            if boostersLua[i]:GetSelectedState() then
+                table.insert(preboosterUse, boostersLua[i]:GetPropID())
+            end
+        end
+    end
+
+    if self:PlayLevel(lvData) then
+        if boostersLua then
+            for i = 1, #boostersLua do
+                boostersLua[i]:OnConfirmBooster()
+            end
+        end
+        ---切换游戏状态
+        if self:IsInLevelState() then
+            -- 重玩当前关卡
+            PlayHudCycle:OnAction(EPlayHudCycleAction.RePlayGame)
+        else
+            GameStateMachine:ChangeState(GameStateCmd.PlayingState, nil)
+        end
+        if view then
+            view:Close()
+        end
+        return true
+    else
+        -- 体力不足，打开体力面板
+        if not GameCoreManager:IsLifeEnough() then
+            OpenUISync(UIs.UILife)
+        else
+            if view then
+                view:Close()
+            end
+        end
+        return false
+    end
+end
+
+---显示心形破碎特效
+---@type fun(prefabName:string,parentTransform:UnityEngine.Transform,pos:UnityEngine.Vector3):HeartBroken
+---@param prefabName string 特效预制体名
+---@param parentTransform UnityEngine.Transform 父节点
+---@param pos UnityEngine.Vector3 世界位置
+---@return HeartBroken 特效对象
+function PlayHelper:ShowHeartBrokenVFX(prefabName, parentTransform, pos)
+    prefabName = prefabName or RES.GameObject_HeartBroken.Name
+    local heartBrokenGo = PoolManager:GetWithHandle(
+            prefabName,
+            parentTransform,
+            handler(self, function(_, heartBrokenGo)
+                heartBrokenGo.transform.position = pos
+                heartBrokenGo.transform.localScale = UnityVector3.one
+                heartBrokenGo.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type HeartBroken
+    local heartBrokenLua = heartBrokenGo:GetComponent("LuaBehaviour").luaClass
+    heartBrokenLua:Show(nil)
+    return heartBrokenLua
+end
+
+---显示通用气泡提示
+---@type fun(text:string,parentTransform:UnityEngine.Transform,pos:UnityEngine.Vector3, heightOffset:number, sortOrder:number, posType:EPos, PopBubblePrefabName:string,lineNum:number,fontSize:number,autoWidth:boolean,popBubbleOrientation:EPopBubbleOrientation):PopBubbleUINode
+---@param text string 显示文本
+---@param parentTransform UnityEngine.Transform 父节点
+---@param pos UnityEngine.Vector3 位置
+---@param heightOffset number 高度偏移
+---@param sortOrder number UI排序
+---@param posType EPos 坐标类型
+---@param PopBubblePrefabName string 预制体名
+---@param lineNum number 最大行数
+---@param fontSize number 字体大小
+---@param autoWidth boolean 自动宽度
+---@param popBubbleOrientation EPopBubbleOrientation 气泡方向
+---@return PopBubbleUINode 气泡对象
+function PlayHelper:ShowPopBubbleUINode(text, parentTransform, pos, heightOffset, sortOrder, posType, PopBubblePrefabName, lineNum, fontSize, autoWidth, popBubbleOrientation)
+    if string.isNullOrEmpty(PopBubblePrefabName) then
+        PopBubblePrefabName = RES.GameObject_PopBubbleUINode.Name
+    end
+    if posType == nil then
+        posType = EPos.Local
+    end
+    if posType == EPos.World then
+        pos = parentTransform:InverseTransformPoint(pos)
+    end
+    local popNodeGo = PoolManager:GetWithHandle(
+            PopBubblePrefabName,
+            parentTransform,
+            handler(self, function(_, _PopNode)
+                ---@type UnityEngine.RectTransform
+                local rectTransform = _PopNode:GetComponent("RectTransform")
+                if rectTransform then
+                    pos.y = pos.y + heightOffset
+                    rectTransform.localPosition = pos
+                end
+                _PopNode.transform.localScale = Unity.Vector3.one
+                _PopNode.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type PopBubbleUINode
+    local popNodeLua = popNodeGo:GetComponent("LuaBehaviour").luaClass
+    popNodeLua:Init(text, pos, heightOffset, sortOrder, lineNum, fontSize, autoWidth, popBubbleOrientation)
+    return popNodeLua
+end
+
+---显示奖励气泡
+---@type fun(rewardList:List<RewardData>,parentTransform:UnityEngine.Transform, pos:UnityEngine.Vector3, heightOffset:number, sortOrder:number, posType:EPos, PopBubblePrefabName:string, popBubbleOrientation:EPopBubbleOrientation):PopBubbleUINodeReward
+---@param rewardList List 奖励列表
+---@param parentTransform UnityEngine.Transform 父节点
+---@param pos UnityEngine.Vector3 位置
+---@param heightOffset number 高度偏移
+---@param sortOrder number UI排序
+---@param posType EPos 坐标类型
+---@param PopBubblePrefabName string 预制体名
+---@param popBubbleOrientation EPopBubbleOrientation 气泡方向
+---@return PopBubbleUINodeReward 奖励气泡
+function PlayHelper:ShowPopBubbleRewards(rewardList, parentTransform, pos, heightOffset, sortOrder, posType, PopBubblePrefabName, popBubbleOrientation)
+    if string.isNullOrEmpty(PopBubblePrefabName) then
+        PopBubblePrefabName = RES.GameObject_PopBubbleUINodeReward.Name
+    end
+    if posType == nil then
+        posType = EPos.Local
+    end
+    if posType == EPos.World then
+        pos = parentTransform:InverseTransformPoint(pos)
+    end
+
+    local popNodeGo = PoolManager:GetWithHandle(
+            PopBubblePrefabName,
+            parentTransform,
+            handler(self, function(_, _PopNode)
+                ---@type UnityEngine.RectTransform
+                local rectTransform = _PopNode:GetComponent("RectTransform")
+                if rectTransform then
+                    pos.y = pos.y + heightOffset
+                    rectTransform.localPosition = pos
+                end
+                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type PopBubbleUINodeReward
+    local popNodeLua = popNodeGo:GetComponent("LuaBehaviour").luaClass
+    popNodeLua:Init(rewardList, pos, heightOffset, sortOrder, popBubbleOrientation)
+    return popNodeLua
+end
+
+---显示带文本提示的奖励气泡（慎用，颜色易错乱）
+---@type fun(tips:string, rewardList:List<RewardData>,parentTransform:UnityEngine.Transform, pos:UnityEngine.Vector3, heightOffset:number, sortOrder:number, posType:EPos, PopBubblePrefabName:string, popBubbleOrientation:EPopBubbleOrientation,textMaxLine:number, popBubbleLimitWidth:number ,textCountColor:UnityEngine.Color):PopBubbleUINodeRewardOfTips
+---@param tips string 提示文本
+---@param rewardList List 奖励列表
+---@param parentTransform UnityEngine.Transform 父节点
+---@param pos UnityEngine.Vector3 位置
+---@param heightOffset number 高度偏移
+---@param sortOrder number UI排序
+---@param posType EPos 坐标类型
+---@param PopBubblePrefabName string 预制体名
+---@param popBubbleOrientation EPopBubbleOrientation 气泡方向
+---@param textMaxLine number 文本最大行数
+---@param popBubbleLimitWidth number 气泡固定宽度
+---@param textCountColor UnityEngine.Color 文本颜色
+---@return PopBubbleUINodeRewardOfTips 奖励气泡
+function PlayHelper:ShowPopBubbleRewardsOfTips(tips, rewardList, parentTransform, pos, heightOffset, sortOrder, posType, PopBubblePrefabName, popBubbleOrientation, textMaxLine, popBubbleLimitWidth, textCountColor)
+    if string.isNullOrEmpty(PopBubblePrefabName) then
+        PopBubblePrefabName = RES.GameObject_PopBubbleUINodeRewardOfTips.Name
+    end
+    if posType == nil then
+        posType = EPos.Local
+    end
+    if posType == EPos.World then
+        pos = parentTransform:InverseTransformPoint(pos)
+    end
+
+    local popNodeGo = PoolManager:GetWithHandle(
+            PopBubblePrefabName,
+            parentTransform,
+            handler(self, function(_, _PopNode)
+                ---@type UnityEngine.RectTransform
+                local rectTransform = _PopNode:GetComponent("RectTransform")
+                if rectTransform then
+                    pos.y = pos.y + heightOffset
+                    rectTransform.localPosition = pos
+                end
+                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type PopBubbleUINodeRewardOfTips
+    local popNodeLua = popNodeGo:GetComponent("LuaBehaviour").luaClass
+    popNodeLua:InitOfTips(tips, rewardList, pos, heightOffset, sortOrder, popBubbleOrientation, textCountColor)
+    popNodeLua:InitExtraSetting(textMaxLine, popBubbleLimitWidth)
+    return popNodeLua
+end
+
+---显示带提示的奖励气泡（推荐使用）
+---@type fun(tips:string, rewardList:List<RewardData>,parentTransform:UnityEngine.Transform, pos:UnityEngine.Vector3, heightOffset:number, sortOrder:number, posType:EPos, PopBubblePrefabName:string, popBubbleOrientation:EPopBubbleOrientation,textMaxLine:number, popBubbleLimitWidth:number):PopBubbleUINodeRewardOfTips2
+---@param tips string 提示文本
+---@param rewardList List 奖励列表
+---@param parentTransform UnityEngine.Transform 父节点
+---@param pos UnityEngine.Vector3 位置
+---@param heightOffset number 高度偏移
+---@param sortOrder number UI排序
+---@param posType EPos 坐标类型
+---@param PopBubblePrefabName string 预制体名
+---@param popBubbleOrientation EPopBubbleOrientation 气泡方向
+---@param textMaxLine number 最大行数
+---@param popBubbleLimitWidth number 固定宽度
+---@return PopBubbleUINodeRewardOfTips2 奖励气泡
+function PlayHelper:ShowPopBubbleRewardsOfTips2(tips, rewardList, parentTransform, pos, heightOffset, sortOrder, posType, PopBubblePrefabName, popBubbleOrientation, textMaxLine, popBubbleLimitWidth)
+    if string.isNullOrEmpty(PopBubblePrefabName) then
+        PopBubblePrefabName = RES.GameObject_PopBubbleUINodeRewardOfTips2.Name
+    end
+    if posType == nil then
+        posType = EPos.Local
+    end
+    if posType == EPos.World then
+        pos = parentTransform:InverseTransformPoint(pos)
+    end
+
+    local popNodeGo = PoolManager:GetWithHandle(
+            PopBubblePrefabName,
+            parentTransform,
+            handler(self, function(_, _PopNode)
+                ---@type UnityEngine.RectTransform
+                local rectTransform = _PopNode:GetComponent("RectTransform")
+                if rectTransform then
+                    pos.y = pos.y + heightOffset
+                    rectTransform.localPosition = pos
+                end
+                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type PopBubbleUINodeRewardOfTips
+    local popNodeLua = popNodeGo:GetComponent("LuaBehaviour").luaClass
+    popNodeLua:InitOfTips(tips, rewardList, pos, heightOffset, sortOrder, popBubbleOrientation)
+    popNodeLua:InitExtraSetting(textMaxLine, popBubbleLimitWidth)
+    return popNodeLua
+end
+
+---弹出单个奖励飞行动画
+---@type fun(rewardData:RewardData,parentTransform:UnityEngine.Transform, pos:UnityEngine.Vector3, sortOrder:number,delayTime:number):PopClaimRewardUINode,number
+---@param rewardData RewardData 奖励数据
+---@param parentTransform UnityEngine.Transform 父节点
+---@param pos UnityEngine.Vector3 UI世界坐标
+---@param sortOrder number UI排序
+---@param delayTime number 延迟显示
+---@param startFlyCallback function 飞行开始回调
+---@param prefabName string 预制体名
+---@return PopClaimRewardUINode,number 奖励对象+总时长
+function PlayHelper:PopClaimRewardUINode(rewardData, parentTransform, pos, sortOrder, delayTime, startFlyCallback, prefabName, showX)
+    if string.isNullOrEmpty(prefabName) then
+        prefabName = RES.GameObject_PopClaimRewardUINode.Name
+    end
+    local popNodeGo = PoolManager:GetWithHandle(
+            prefabName,
+            parentTransform,
+            handler(self, function(_, _PopNode)
+                ---@type UnityEngine.RectTransform
+                local rectTransform = _PopNode:GetComponent("RectTransform")
+                if rectTransform then
+                    local localPos = parentTransform:InverseTransformPoint(pos)
+                    rectTransform.anchoredPosition3D = localPos
+                end
+                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type PopClaimRewardUINode
+    local popNodeLua = popNodeGo:GetComponent("LuaBehaviour").luaClass
+    popNodeLua:Init(rewardData, sortOrder, showX)
+    DelayFunction(delayTime, true, function()
+        if startFlyCallback then
+            startFlyCallback()
+        end
+        popNodeLua:PlayFlyAnim(function()
+            PoolManager:Put(popNodeGo)
+        end)
+    end)
+    return popNodeLua, popNodeLua:GetFlyAnimLength() + delayTime
+end
+
+---批量弹出奖励飞行动画
+---@type fun(rewardList:List<RewardData>,parentTransform:UnityEngine.Transform, pos:UnityEngine.Vector3,offPosX:number,intervalTime:number, sortOrder:number):number
+---@param rewardList List 奖励列表
+---@param parentTransform UnityEngine.Transform 父节点
+---@param pos UnityEngine.Vector3 世界坐标
+---@param offPosX number X偏移
+---@param intervalTime number 间隔时间
+---@param sortOrder number UI排序
+---@param startFlyCallback function 开始回调
+---@param prefabName string 预制体名
+---@return number 总动画时长
+function PlayHelper:PopClaimRewardsUINode(rewardList, parentTransform, pos, offPosX, intervalTime, sortOrder, startFlyCallback, prefabName, showX)
+    local maxAnimTime = 0
+    local localPos = parentTransform:InverseTransformPoint(pos)
+    ---@param i number
+    ---@param v RewardData
+    for i, v in ipairs(rewardList.items) do
+        local newPos = Unity.Vector3.zero
+        if i % 2 == 0 then
+            newPos.x = localPos.x + offPosX * -1
+        else
+            newPos.x = localPos.x + offPosX
+        end
+        newPos.y = localPos.y
+        newPos.z = localPos.z
+
+        local worldPos = parentTransform:TransformPoint(newPos)
+        local _, animTime = self:PopClaimRewardUINode(v, parentTransform, worldPos, sortOrder, intervalTime * (i - 1), startFlyCallback, prefabName, showX)
+        if animTime > maxAnimTime then
+            maxAnimTime = animTime
+        end
+    end
+    return maxAnimTime
+end
+
+---启动普通倒计时
+---@type fun(time:number,parentTransform:UnityEngine.Transform,callback:function,countDownGoName:string):CountDown
+---@param time number 倒计时秒数
+---@param parentTransform UnityEngine.Transform 父节点
+---@param callback function 结束回调
+---@param countDownGoName string 预制体名
+---@return CountDown 倒计时对象
+function PlayHelper:StartCountDown(time, parentTransform, callback, countDownGoName)
+    if time <= 0.001 then
+        if callback then
+            callback()
+        end
+        return
+    end
+    local countDownGo = PoolManager:GetWithHandle(
+            countDownGoName or RES.GameObject_CountDown.Name,
+            parentTransform,
+            handler(self, function(_, countDownGo)
+                countDownGo.transform.localPosition = UnityVector3.zero
+                countDownGo.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type CountDown
+    local countDown = countDownGo:GetComponent("LuaBehaviour").luaClass
+    local sq = countDown:StartCountDown(time, callback)
+    GuideContext:InsertTweenToPauseableTable(sq, true)
+    return countDown
+end
+
+---显示飘字动画
+---@type fun(flyText:string,intervalTime:number,parentTransform:UnityEngine.Transform,callback:function,htmlColor:string,positionOffset:UnityEngine.Vector3):FlyWord
+---@param flyText string 文字内容
+---@param intervalTime number 间隔
+---@param parentTransform UnityEngine.Transform 父节点
+---@param callback function 结束回调
+---@param htmlColor string 颜色
+---@param positionOffset UnityEngine.Vector3 偏移
+---@return FlyWord 飘字对象
+function PlayHelper:FlyWord(flyText, intervalTime, parentTransform, callback, htmlColor, positionOffset)
+    local flyWordGo = PoolManager:GetWithHandle(
+            RES.GameObject_FlyWord.Name,
+            parentTransform,
+            handler(self, function(_, flyWordGo)
+                flyWordGo.transform.localPosition = positionOffset or UnityVector3.zero
+                flyWordGo.transform.localScale = UnityVector3.one
+                flyWordGo.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type FlyWord
+    local flyWord = flyWordGo:GetComponent("LuaBehaviour").luaClass
+    flyWord:ShowWord(flyText, intervalTime, callback, htmlColor)
+    return flyWord
+end
+
+---显示Combo特效
+---@type fun(parentTransform:UnityEngine.Transform,comboTimes:number,callback:function):EFCombo
+---@param parentTransform UnityEngine.Transform 父节点
+---@param comboTimes number 次数
+---@param callback function 回调
+---@return EFCombo 特效对象
+function PlayHelper:ShowComboVFX(parentTransform, comboTimes, callback)
+    local efComboGo = PoolManager:GetWithHandle(RES.GameObject_EFCombo.Name,
+            parentTransform,
+            handler(self, function(_, go)
+                go.transform.localPosition = UnityVector3.zero
+                go.transform.localScale = UnityVector3.one
+                go.transform.localRotation = UnityQuaternion.identity
+            end))
+    ---@type EFCombo
+    local efCombo = efComboGo:GetComponent("LuaBehaviour").luaClass
+    efCombo:Show(comboTimes, callback)
+    return efCombo
+end
+
+
+
+---判断关卡是否已解锁
+---@type fun(chapterId:number,levelId:number):boolean
+---@param chapterId number 章节ID（数字）
+---@param levelId number 关卡ID
+function PlayHelper:IsUnlock(chapterId, levelId)
+    local lastChapterId = ChapterListMgr:GetLatestChapterId()
+    local lastChapterIdNum = tonumber(lastChapterId)
+    if lastChapterIdNum > chapterId then
+        return true
+    end
+
+    if lastChapterIdNum == chapterId then
+        local lastLevelId = tonumber(GamerDataMgr:GetLevelLvByChapterId(lastChapterId))
+        if lastLevelId >= levelId then
+            return true
+        end
+    end
+
+    return false
+end
+
+---播放关卡内背景音乐
+---@type fun():void
+function PlayHelper:PlayInGameBGM()
+    local levelData = GameCoreManager._CurLevelData
+    if levelData then
+        if MapManager.CurLoadMapType == MapType.FoodTruck then
+            --- 快餐车模式
+            FoodTruckPlayHelper:PlayInGameBGM(MapManager.CurLoadChapterId)
+            return
+        end
+        if MapManager.CurLoadMapType == MapType.Main then
+            --- 主线模式
+            local peakId = levelData.PeakId
+            local peakLevelData = PeakLevelsDataMgr:GetDataById(tostring(peakId))
+            if peakLevelData and peakId ~= ELevelType.Normal and not string.isNullOrEmpty(peakLevelData.LevelBGM) then
+                SoundMgr:PlayBGM(peakLevelData.LevelBGM)
+            else
+                self:PlayCommonInGameBGM()
+            end
+            return
+        end
+        if not string.isNullOrEmpty(MapManager.CurLoadChapterId) then
+            PrintError("PlayHelper:PlayInGameBGM() 未知的地图类型 chapterId" .. MapManager.CurLoadChapterId)
+        end
+    end
+end
+
+---播放普通关卡背景音乐
+---@type fun():void
+function PlayHelper:PlayCommonInGameBGM()
+    --if GameCoreManager:IsInChallengeLevel() then
+    --    SoundManager:PlayBGM(Tables.Sounds.BGM_Challenge.Name)
+    --    return
+    --end
+
+    local chapterData = ChapterDataManager:GetChapterDataByChapterId(MapManager.CurLoadChapterId)
+    if chapterData and chapterData.MapMusic and chapterData.MapMusic.ingame then
+        SoundManager:PlayBGM(chapterData.MapMusic.ingame)
+    end
+end
+
+
+---打开通用奖励界面（无宝箱动画）
+---@type fun(rewardList:List, closeCallback:function,effectName:string,content:string, areaId:string,shouldCheckInLevelAndSubCoin:boolean,isShowBgBlurImg:boolean,playCloseAnimCallback:function):table
+---@param rewardList List 奖励列表
+---@param closeCallback function 关闭回调
+---@param effectName string 特效
+---@param content string 文本
+---@param areaId string 区域
+---@param shouldCheckInLevelAndSubCoin boolean 是否扣金币
+---@param isShowBgBlurImg boolean 模糊背景
+---@param playCloseAnimCallback function 关闭动画
+---@return table UI实例
+function PlayHelper:OpenRewardsUI(rewardList, closeCallback, effectName, content, areaId, shouldCheckInLevelAndSubCoin, isShowBgBlurImg, playCloseAnimCallback)
+    if shouldCheckInLevelAndSubCoin == nil then
+        shouldCheckInLevelAndSubCoin = true
+    end
+    if isShowBgBlurImg == nil then
+        isShowBgBlurImg = true
+    end
+    return OpenUISync(UIs.UIGiftPack,
+            { Rewards = rewardList
+            , TXEffect = effectName
+            , AreaId = areaId
+            , Content = content
+            , CloseCallback = closeCallback
+            , ShouldCheckInLevelAndSubCoin = shouldCheckInLevelAndSubCoin
+            , IsShowBgBlurImg = isShowBgBlurImg
+            , BeginPlayCloseAnimCallback = playCloseAnimCallback })
+end
+
+---打开账号进度保存界面
+---@type fun(position:number):void
+---@param position number 位置：1=Loading，2=设置
+function PlayHelper:OpenUISaveProgress(position)
+    OpenUISync(UIs.UISaveProgress, { position = position })
+end
+
+---打开购买结果界面
+---@type fun(isSuccess:boolean,iconName:string,finishCallback:function):void
+---@param isSuccess boolean 是否成功
+---@param iconName string 图标
+---@param finishCallback function 完成回调
+function PlayHelper:OpenBuyResultUI(isSuccess, iconName, finishCallback)
+    if isSuccess then
+        OpenUISync(UIs.UIBuyResults, { type = "Success", resDef = iconName, callback = finishCallback })
+        SoundManager:PlaySound("UI_PurchaseSuccess")
+    else
+        OpenUISync(UIs.UIBuyResults, { type = "Failed", resDef = iconName, callback = finishCallback })
+    end
+end
+
+---根据难度获取奖励倍率
+---@type fun(levelDifficultyType:ELevelDifficultyType):number
+---@param levelDifficultyType ELevelDifficultyType 难度
+---@return number 倍率
+function PlayHelper:GetRateByLevelDifficulty(levelDifficultyType)
+    PrintInfo("根据难度获取奖励倍率")
+    
+    --local diffDatas = Tables.Constants.HardLevelEventReward.Value
+    --if levelDifficultyType == ELevelDifficultyType.Normal then
+    --    return diffDatas[1]
+    --elseif levelDifficultyType == ELevelDifficultyType.Hard then
+    --    return diffDatas[2]
+    --elseif levelDifficultyType == ELevelDifficultyType.SuperHard then
+    --    return diffDatas[3]
+    --elseif levelDifficultyType == ELevelDifficultyType.Challenge then
+    --    return diffDatas[4]
+    --else
+    --    return diffDatas[1]
+    --end
+end
+
+---是否正在游玩最新章节
+---@type fun():boolean
+---@return boolean
+function PlayHelper:IsPlayingNewChapter()
+    return PbRootData.GameData.latestChapterId == PbRootData.GameData.curChapterId
+end
+
+
+---刷新文本描边材质
+---@type fun(ui:LuaBehaviourSuper, uiText:TMPro.TextMeshProUGUI,outlineMatName:string):void
+---@param ui LuaBehaviourSuper UI基类
+---@param uiText TMPro.TextMeshProUGUI 文本
+---@param outlineMatName string 材质名
+function PlayHelper:RefreshTextOutLineMaterial(ui, uiText, outlineMatName)
+    if ui and uiText then
+        ---@type RES_DEF_ITEM
+        local info = RES[outlineMatName]
+        if info and (not uiText.fontMaterial or uiText.fontMaterial.name ~= info.AssetName) then
+            uiText.fontMaterial = ui:LoadAsset(info)
+        end
+    end
+end
+
+---刷新图片精灵
+---@type fun(ui:LuaBehaviourSuper, uiImage:UnityEngine.UI.Image,spriteName:string):void
+---@param ui LuaBehaviourSuper UI
+---@param uiImage UnityEngine.UI.Image 图片
+---@param spriteName string 精灵名
+function PlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
+    if ui and uiImage then
+        ---@type RES_DEF_ITEM
+        local info = RES[spriteName]
+        if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
+            uiImage.sprite = ui:LoadAsset(info)
+        end
+    end
+end
+
+---获取关卡内已游玩时间
+---@type fun():number
+---@return number 秒数
+function PlayHelper:GetTimeOfInLevel()
+    if self:IsInLevelState() and GameCoreManager:IsPlaying() then
+        return GameCoreManager._GameCoreManagerData:GetDurationTime()
+    end
+    return 0
+end
+
+---加载主线地图
+---@type fun(chapterId:number, callback:fun(), refuseAd:boolean):void
+---@param chapterId number 章节ID
+---@param callback fun() 加载完成回调
+---@param refuseAd boolean 不播放广告
+function PlayHelper:LoadMainMap(chapterId, callback, refuseAd)
+    local areaData = ChapterDataMgr:GetAreaDataByChapterId(chapterId)
+    if not areaData then
+        PrintError("没有找到章节所在区域数据:" .. chapterId)
+        return
+    end
+
+    MapManager:SwitchMap(chapterId, callback, refuseAd)
+end
+
+---打开恢复购买结果界面
+---@type fun(isSuccess:boolean):void
+---@param isSuccess boolean 是否成功
+function PlayHelper:OpenReStorePurchaseResultUI(isSuccess)
+    OpenUISync(UIs.UIRestorationResult, { isSuccess = isSuccess })
+end
+
+---打开活动退出确认界面
+---@type fun(title:string, topTip:string, content:string, tokenList:table[], onQuitCallback:function, onStayCallback:function):void
+---@param title string 标题
+---@param topTip string 顶部提示
+---@param content string 内容
+---@param tokenList table[] 道具列表
+---@param onQuitCallback function 退出回调
+---@param onStayCallback function 留下回调
+function PlayHelper:OpenActivityQuitConfirmUI(title, topTip, content, tokenList, onQuitCallback, onStayCallback)
+    OpenUISync(UIs.UIActivityQuitConfirm, {
+        title = title,
+        topTip = topTip,
+        content = content,
+        tokenList = tokenList,
+        onQuit = onQuitCallback,
+        onStay = onStayCallback
+    })
+end
+
+--{{{ 初始化道具图标和数量视图
+
+---通过奖励数据初始化道具图标与数量
+---@type fun(ui:LuaBehaviourSuper, iconImg:UnityEngine.UI.Image, countText:TMPro.TextMeshProUGUI, rewardData:RewardData, areaId:string):void
+---@param ui LuaBehaviourSuper UI
+---@param iconImg UnityEngine.UI.Image 图标
+---@param countText TMPro.TextMeshProUGUI 数量
+---@param rewardData RewardData 奖励
+---@param areaId string 区域
+function PlayHelper:InitPropIconAndCountViewByRewardData(ui, iconImg, countText, rewardData, areaId)
+    if ui and iconImg and countText and rewardData then
+        local propId = rewardData.Id
+        local propNum = rewardData.Num
+        self:InitPropIconAndCountView(ui, iconImg, countText, propId, propNum, areaId)
+    end
+end
+
+---初始化道具图标与数量
+---@type fun(ui:LuaBehaviourSuper, iconImg:UnityEngine.UI.Image, countText:TMPro.TextMeshProUGUI, propId:string, propNum:number, areaId:string):void
+---@param ui LuaBehaviourSuper UI
+---@param iconImg UnityEngine.UI.Image 图标
+---@param countText TMPro.TextMeshProUGUI 数量
+---@param propId string 道具ID
+---@param propNum number 数量
+---@param areaId string 区域
+function PlayHelper:InitPropIconAndCountView(ui, iconImg, countText, propId, propNum, areaId)
+    if ui and iconImg and countText and not string.isNullOrEmpty(propId) and propNum then
+        self:InitPropIcon(ui, iconImg, propId, areaId)
+        self:InitPropCountView(countText, propId, propNum)
+    end
+end
+
+---通过奖励数据初始化道具数量
+---@type fun(countText:TMPro.TextMeshProUGUI, rewardData:RewardData):void
+---@param countText TMPro.TextMeshProUGUI 数量
+---@param rewardData RewardData 奖励
+function PlayHelper:InitPropCountViewByRewardData(countText, rewardData)
+    if countText and rewardData then
+        countText.text = FormatItemCount(rewardData.Id, rewardData.Num)
+    end
+end
+
+---初始化道具数量显示
+---@type fun(countText:TMPro.TextMeshProUGUI, propId:string, propNum:number, showX:boolean):void
+---@param countText TMPro.TextMeshProUGUI 数量
+---@param propId string 道具ID
+---@param propNum number 数量
+function PlayHelper:InitPropCountView(countText, propId, propNum, showX)
+    if countText and not string.isNullOrEmpty(propId) and propNum then
+        countText.text = FormatItemCount(propId, propNum, showX)
+    end
+end
+
+---初始化道具图标
+---@type fun(ui:LuaBehaviourSuper, iconImg:UnityEngine.UI.Image, propId:string, areaId:string):void
+---@param ui LuaBehaviourSuper UI
+---@param iconImg UnityEngine.UI.Image 图标
+---@param propId string 道具ID
+---@param areaId string 区域
+function PlayHelper:InitPropIcon(ui, iconImg, propId, areaId)
+    if ui and iconImg and not string.isNullOrEmpty(propId) then
+        local itemData = ResourceDataManager:GetResourceData(propId)
+        if itemData then
+            if itemData.ID == EResourceIDs.Coin then
+                self:SetCoinIconViewImage(ui, iconImg, areaId)
+            else
+                self:SetPropIconViewImageByItemData(ui, iconImg, itemData)
+            end
+        end
+    end
+end
+
+---设置金币图标（按区域）
+---@type fun(ui:LuaBehaviourSuper, image:UnityEngine.UI.Image, areaId:string):void
+---@param ui LuaBehaviourSuper UI
+---@param image UnityEngine.UI.Image 图片
+---@param areaId string 区域
+function PlayHelper:SetCoinIconViewImage(ui, image, areaId)
+    if ui and image then
+        if areaId == nil then
+            areaId = ChapterListMgr:GetLatestAreaId()
+        end
+        local coinIconName = CoinsDataMgr:GetAreaCoinData(areaId).ImageStack
+        self:RefreshImageSprite(ui, image, coinIconName)
+    end
+end
+
+---通过道具数据设置图标
+---@type fun(ui:LuaBehaviourSuper,image:UnityEngine.UI.Image,itemData:Tables.Resource_Item):void
+---@param ui LuaBehaviourSuper UI
+---@param image UnityEngine.UI.Image 图片
+---@param itemData Tables.Resource_Item 道具数据
+function PlayHelper:SetPropIconViewImageByItemData(ui, image, itemData)
+    self:SetPropIconViewImageByName(ui, image, itemData.UnlockedIconResUrl)
+end
+
+---通过名称设置图标
+---@type fun(ui:LuaBehaviourSuper, image:UnityEngine.UI.Image,name:string):void
+---@param ui LuaBehaviourSuper UI
+---@param image UnityEngine.UI.Image 图片
+---@param name string 图标名
+function PlayHelper:SetPropIconViewImageByName(ui, image, name)
+    self:RefreshImageSprite(ui, image, name)
+end
+--}}}
+
+return PlayHelper

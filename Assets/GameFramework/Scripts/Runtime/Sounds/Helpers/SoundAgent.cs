@@ -2,95 +2,80 @@ using System;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 声音代理（真正的声音播放器）
+    /// 每个 SoundAgent 对应一个 AudioSource，负责播放单个音频
+    /// 属于声音池对象，循环复用，避免频繁创建销毁
+    /// </summary>
     public sealed class SoundAgent
     {
         /// <summary>
-        /// 声音管理器
+        /// 所属声音管理器
         /// </summary>
         private readonly SoundManager m_SoundManager;
 
         /// <summary>
-        /// 声音组
+        /// 所属声音组（BGM/音效/UI等）
         /// </summary>
         private readonly SoundGroup m_SoundGroup;
+
         public SoundGroup SoundGroup
         {
-            get
-            {
-                return m_SoundGroup;
-            }
+            get => m_SoundGroup;
         }
 
         /// <summary>
-        /// 声音代理辅助器
+        /// 声音辅助器（封装 AudioSource 具体操作）
         /// </summary>
         private readonly SoundAgentHelper m_SoundAgentHelper;
 
         /// <summary>
-        /// 声音序列编号
+        /// 声音唯一序列ID
         /// </summary>
         private int m_SerialID;
+
         public int SerialID
         {
-            get
-            {
-                return m_SerialID;
-            }
-            set
-            {
-                m_SerialID = value;
-            }
+            get => m_SerialID;
+            set => m_SerialID = value;
         }
 
         /// <summary>
-        /// 声音资源
+        /// 当前播放的音频资源
         /// </summary>
         private UnityEngine.Object m_SoundAsset;
 
         /// <summary>
-        /// 声音创建时间
+        /// 设置音频资源的时间（用于优先级淘汰）
         /// </summary>
         private DateTime m_SetSoundAssetTime;
+
         public DateTime SetSoundAssetTime
         {
-            get
-            {
-                return m_SetSoundAssetTime;
-            }
+            get => m_SetSoundAssetTime;
         }
 
         /// <summary>
-        /// 声音组内是否静音
+        /// 本组内单独静音标记
         /// </summary>
         private bool m_MuteInSoundGroup;
 
         /// <summary>
-        /// 声音组内音量
+        /// 本组内相对音量
         /// </summary>
         private float m_VolumeInSoundGroup;
 
         /// <summary>
-        /// 初始化声音代理的新实例
+        /// 构造函数：初始化声音播放器
         /// </summary>
-        /// <param name="soundGroup">所在的声音组。</param>
-        /// <param name="soundManager">声音管理器。</param>
-        /// <param name="soundAgentHelper">声音代理辅助器接口。</param>
         public SoundAgent(SoundGroup soundGroup, SoundManager soundManager, SoundAgentHelper soundAgentHelper)
         {
             if (soundGroup == null)
-            {
                 throw new GameException("Sound group 无效。");
-            }
-
             if (soundManager == null)
-            {
                 throw new GameException("Sound manager 无效。");
-            }
-
             if (soundAgentHelper == null)
-            {
                 throw new GameException("Sound agent helper 无效。");
-            }
 
             m_SoundManager = soundManager;
             m_SoundGroup = soundGroup;
@@ -101,62 +86,44 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取当前是否正在播放
+        /// 当前是否正在播放
         /// </summary>
         public bool IsPlaying
         {
-            get
-            {
-                return m_SoundAgentHelper.IsPlaying;
-            }
+            get => m_SoundAgentHelper.IsPlaying;
         }
 
         /// <summary>
-        /// 获取声音长度
+        /// 音频长度
         /// </summary>
         public float Length
         {
-            get
-            {
-                return m_SoundAgentHelper.Length;
-            }
+            get => m_SoundAgentHelper.Length;
         }
 
         /// <summary>
-        /// 获取或设置播放位置
+        /// 播放位置（时间）
         /// </summary>
         public float Time
         {
-            get
-            {
-                return m_SoundAgentHelper.Time;
-            }
-            set
-            {
-                m_SoundAgentHelper.Time = value;
-            }
+            get => m_SoundAgentHelper.Time;
+            set => m_SoundAgentHelper.Time = value;
         }
 
         /// <summary>
-        /// 获取是否静音
+        /// 当前是否静音（最终结果）
         /// </summary>
         public bool Mute
         {
-            get
-            {
-                return m_SoundAgentHelper.Mute;
-            }
+            get => m_SoundAgentHelper.Mute;
         }
 
         /// <summary>
-        /// 获取或设置在声音组内是否静音
+        /// 本组内单独静音
         /// </summary>
         public bool MuteInSoundGroup
         {
-            get
-            {
-                return m_MuteInSoundGroup;
-            }
+            get => m_MuteInSoundGroup;
             set
             {
                 m_MuteInSoundGroup = value;
@@ -165,55 +132,37 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置是否循环播放
+        /// 是否循环
         /// </summary>
         public bool Loop
         {
-            get
-            {
-                return m_SoundAgentHelper.Loop;
-            }
-            set
-            {
-                m_SoundAgentHelper.Loop = value;
-            }
+            get => m_SoundAgentHelper.Loop;
+            set => m_SoundAgentHelper.Loop = value;
         }
 
         /// <summary>
-        /// 获取或设置声音优先级
+        /// 优先级
         /// </summary>
         public int Priority
         {
-            get
-            {
-                return m_SoundAgentHelper.Priority;
-            }
-            set
-            {
-                m_SoundAgentHelper.Priority = value;
-            }
+            get => m_SoundAgentHelper.Priority;
+            set => m_SoundAgentHelper.Priority = value;
         }
 
         /// <summary>
-        /// 获取音量大小
+        /// 最终音量（组音量 * 自身音量）
         /// </summary>
         public float Volume
         {
-            get
-            {
-                return m_SoundAgentHelper.Volume;
-            }
+            get => m_SoundAgentHelper.Volume;
         }
 
         /// <summary>
-        /// 获取或设置在声音组内音量大小
+        /// 本组内相对音量
         /// </summary>
         public float VolumeInSoundGroup
         {
-            get
-            {
-                return m_VolumeInSoundGroup;
-            }
+            get => m_VolumeInSoundGroup;
             set
             {
                 m_VolumeInSoundGroup = value;
@@ -222,93 +171,60 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取或设置声音音调
+        /// 音调
         /// </summary>
         public float Pitch
         {
-            get
-            {
-                return m_SoundAgentHelper.Pitch;
-            }
-            set
-            {
-                m_SoundAgentHelper.Pitch = value;
-            }
+            get => m_SoundAgentHelper.Pitch;
+            set => m_SoundAgentHelper.Pitch = value;
         }
 
         /// <summary>
-        /// 获取或设置声音立体声声相
+        /// 立体声相位
         /// </summary>
         public float PanStereo
         {
-            get
-            {
-                return m_SoundAgentHelper.PanStereo;
-            }
-            set
-            {
-                m_SoundAgentHelper.PanStereo = value;
-            }
+            get => m_SoundAgentHelper.PanStereo;
+            set => m_SoundAgentHelper.PanStereo = value;
         }
 
         /// <summary>
-        /// 获取或设置声音空间混合量
+        /// 空间混合（0=2D，1=3D）
         /// </summary>
         public float SpatialBlend
         {
-            get
-            {
-                return m_SoundAgentHelper.SpatialBlend;
-            }
-            set
-            {
-                m_SoundAgentHelper.SpatialBlend = value;
-            }
+            get => m_SoundAgentHelper.SpatialBlend;
+            set => m_SoundAgentHelper.SpatialBlend = value;
         }
 
         /// <summary>
-        /// 获取或设置声音最大距离
+        /// 3D最大距离
         /// </summary>
         public float MaxDistance
         {
-            get
-            {
-                return m_SoundAgentHelper.MaxDistance;
-            }
-            set
-            {
-                m_SoundAgentHelper.MaxDistance = value;
-            }
+            get => m_SoundAgentHelper.MaxDistance;
+            set => m_SoundAgentHelper.MaxDistance = value;
         }
 
         /// <summary>
-        /// 获取或设置声音多普勒等级
+        /// 多普勒强度
         /// </summary>
         public float DopplerLevel
         {
-            get
-            {
-                return m_SoundAgentHelper.DopplerLevel;
-            }
-            set
-            {
-                m_SoundAgentHelper.DopplerLevel = value;
-            }
+            get => m_SoundAgentHelper.DopplerLevel;
+            set => m_SoundAgentHelper.DopplerLevel = value;
         }
 
         /// <summary>
-        /// 获取声音代理辅助器
+        /// 获取辅助器对象
         /// </summary>
         public SoundAgentHelper Helper
         {
-            get
-            {
-                return m_SoundAgentHelper;
-            }
+            get => m_SoundAgentHelper;
         }
 
         /// <summary>
-        /// 播放声音
+        /// 播放声音（默认淡入）
         /// </summary>
         public void Play()
         {
@@ -316,16 +232,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放声音
+        /// 播放声音（自定义淡入）
         /// </summary>
-        /// <param name="fadeInSeconds">声音淡入时间，以秒为单位。</param>
         public void Play(float fadeInSeconds)
         {
             m_SoundAgentHelper.Play(fadeInSeconds);
         }
 
         /// <summary>
-        /// 停止播放声音
+        /// 停止声音（默认淡出）
         /// </summary>
         public void Stop()
         {
@@ -333,16 +248,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 停止播放声音
+        /// 停止声音（自定义淡出）
         /// </summary>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void Stop(float fadeOutSeconds)
         {
             m_SoundAgentHelper.Stop(fadeOutSeconds);
         }
 
         /// <summary>
-        /// 暂停播放声音
+        /// 暂停声音（默认淡出）
         /// </summary>
         public void Pause()
         {
@@ -350,16 +264,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 暂停播放声音
+        /// 暂停声音（自定义淡出）
         /// </summary>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void Pause(float fadeOutSeconds)
         {
             m_SoundAgentHelper.Pause(fadeOutSeconds);
         }
 
         /// <summary>
-        /// 恢复播放声音
+        /// 恢复播放（默认淡入）
         /// </summary>
         public void Resume()
         {
@@ -367,19 +280,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 恢复播放声音
+        /// 恢复播放（自定义淡入）
         /// </summary>
-        /// <param name="fadeInSeconds">声音淡入时间，以秒为单位。</param>
         public void Resume(float fadeInSeconds)
         {
             m_SoundAgentHelper.Resume(fadeInSeconds);
         }
 
         /// <summary>
-        /// 重置声音代理
+        /// 重置播放器（回收进对象池）
+        /// 释放资源、清空参数、恢复默认值
         /// </summary>
         public void Reset()
         {
+            // 释放音频资源
             if (m_SoundAsset != null)
             {
                 m_SoundManager.ReleaseSoundAsset(m_SoundAsset);
@@ -397,9 +311,14 @@ namespace Honor.Runtime
             SpatialBlend = SoundConstant.DefaultSpatialBlend;
             MaxDistance = SoundConstant.DefaultMaxDistance;
             DopplerLevel = SoundConstant.DefaultDopplerLevel;
+
+            // 重置辅助器
             m_SoundAgentHelper.Reset();
         }
 
+        /// <summary>
+        /// 设置要播放的音频资源
+        /// </summary>
         public bool SetSoundAsset(UnityEngine.Object soundAsset)
         {
             Reset();
@@ -408,17 +327,20 @@ namespace Honor.Runtime
             return m_SoundAgentHelper.SetSoundAsset(soundAsset);
         }
 
+        /// <summary>
+        /// 刷新静音状态 = 组静音 || 自身静音
+        /// </summary>
         public void RefreshMute()
         {
             m_SoundAgentHelper.Mute = m_SoundGroup.Mute || m_MuteInSoundGroup;
         }
 
+        /// <summary>
+        /// 刷新最终音量 = 组音量 * 自身音量
+        /// </summary>
         public void RefreshVolume()
         {
             m_SoundAgentHelper.Volume = m_SoundGroup.Volume * m_VolumeInSoundGroup;
         }
-
     }
 }
-
-

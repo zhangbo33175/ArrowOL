@@ -7,20 +7,17 @@ namespace Honor.Runtime
     public sealed partial class UIComponent : GameComponent
     {
         /// <summary>
-        /// 屏幕设计分辨率
+        /// UI 设计基准分辨率（屏幕UI适配用）
         /// </summary>
         [SerializeField]
         private Vector2 m_ScreenDesignedResolution = new Vector2(1366, 768);
         public Vector2 ScreenDesignedResolution
         {
-            get
-            {
-                return m_ScreenDesignedResolution;
-            }
+            get => m_ScreenDesignedResolution;
         }
 
         /// <summary>
-        /// 屏幕宽高适比例配阀值
+        /// 屏幕宽高比适配阈值（Canvas 匹配模式用）
         /// </summary>
         [SerializeField]
         private float m_ScreenWidthHeightMatchValue = 1f;
@@ -31,14 +28,11 @@ namespace Honor.Runtime
                 m_ScreenWidthHeightMatchValue = value;
                 m_UIManager.RefreshScreenMatchValue(m_ScreenWidthHeightMatchValue);
             }
-            get
-            {
-                return m_ScreenWidthHeightMatchValue;
-            }
+            get => m_ScreenWidthHeightMatchValue;
         }
 
         /// <summary>
-        /// 每帧最多销毁ui数量
+        /// 每帧最大销毁UI数量（防止卡顿）
         /// </summary>
         [SerializeField]
         private int m_DestroyMaxNumPerFrame = 1;
@@ -49,38 +43,35 @@ namespace Honor.Runtime
                 m_DestroyMaxNumPerFrame = value;
                 m_UIManager.DestroyMaxNumPerFrame = m_DestroyMaxNumPerFrame;
             }
-            get
-            {
-                return m_DestroyMaxNumPerFrame;
-            }
+            get => m_DestroyMaxNumPerFrame;
         }
 
         /// <summary>
-        /// 菊花等待界面AB路径
+        /// 等待菊花UI的AB包路径
         /// </summary>
         [SerializeField]
         private string m_WaitingUIABPath;
 
         /// <summary>
-        /// 菊花等待界面Asset资源名称
+        /// 等待菊花UI的资源名称
         /// </summary>
         [SerializeField]
         private string m_WaitingUIAssetName;
 
         /// <summary>
-        /// 飘字界面AB路径
+        /// 飘字UI的AB包路径
         /// </summary>
         [SerializeField]
         private string m_FloatWordsUIABPath;
 
         /// <summary>
-        /// 飘字界面Asset资源名称
+        /// 飘字UI的资源名称
         /// </summary>
         [SerializeField]
         private string m_FloatWordsUIAssetName;
 
         /// <summary>
-        /// 飘字界面持续时间
+        /// 飘字默认显示时长
         /// </summary>
         [SerializeField]
         private float m_FloatWordsDuration;
@@ -91,279 +82,167 @@ namespace Honor.Runtime
                 m_FloatWordsDuration = value;
                 m_UIManager.FloatWordsDuration = m_FloatWordsDuration;
             }
-            get
-            {
-                return m_FloatWordsDuration;
-            }
+            get => m_FloatWordsDuration;
         }
 
         /// <summary>
-        /// 按钮点击有效间隔
+        /// 按钮防重复点击有效间隔
         /// </summary>
         [SerializeField]
         private float m_ButtonInteractDuration;
         public float ButtonInteractDuration
         {
-            set
-            {
-                m_ButtonInteractDuration = value;
-            }
-            get
-            {
-                return m_ButtonInteractDuration;
-            }
+            set => m_ButtonInteractDuration = value;
+            get => m_ButtonInteractDuration;
         }
 
         /// <summary>
-        /// 屏幕UI相机列表
+        /// 屏幕层UI相机列表
         /// </summary>
         [SerializeField]
         private List<Camera> m_ScreenUICameras;
         public List<Camera> ScreenUICameras
         {
-            set
-            {
-                m_ScreenUICameras = value;
-            }
-            get
-            {
-                return m_ScreenUICameras;
-            }
+            set => m_ScreenUICameras = value;
+            get => m_ScreenUICameras;
         }
 
         /// <summary>
-        /// 场景UI相机列表
+        /// 场景层UI相机列表
         /// </summary>
         [SerializeField]
         private List<Camera> m_SceneUICameras;
         public List<Camera> SceneUICameras
         {
-            get
-            {
-                return m_SceneUICameras;
-            }
+            get => m_SceneUICameras;
         }
 
         /// <summary>
-        /// 屏幕UI画布Canvas
+        /// 屏幕层UI根Canvas
         /// </summary>
         [SerializeField]
         private Canvas m_ScreenUICanvas;
         public Canvas ScreenUICanvas
         {
-            set
-            {
-                m_ScreenUICanvas = value;
-            }
-            get
-            {
-                return m_ScreenUICanvas;
-            }
+            set => m_ScreenUICanvas = value;
+            get => m_ScreenUICanvas;
         }
 
         /// <summary>
-        /// 场景UI画布Canvas
+        /// 场景层UI根Canvas
         /// </summary>
         [SerializeField]
         private Canvas m_SceneUICanvas;
         public Canvas SceneUICanvas
         {
-            set
-            {
-                m_SceneUICanvas = value;
-            }
-            get
-            {
-                return m_SceneUICanvas;
-            }
+            set => m_SceneUICanvas = value;
+            get => m_SceneUICanvas;
         }
 
         /// <summary>
-        /// 是否启用屏幕方向变动检测
+        /// 是否开启屏幕方向变化检测
         /// </summary>
         [SerializeField]
         private bool m_CheckOrientationState;
         public bool CheckOrientationState
         {
-            set
-            {
-                m_CheckOrientationState = value;
-            }
-            get
-            {
-                return m_CheckOrientationState;
-            }
+            set => m_CheckOrientationState = value;
+            get => m_CheckOrientationState;
         }
 
         /// <summary>
-        /// 是否启用TextLocalizing脚本检测
+        /// 是否开启TextLocalizing脚本检测（多语言文本）
         /// </summary>
         [SerializeField]
         private bool m_CheckTextLocalizings;
         public bool CheckTextLocalizings
         {
-            get
-            {
-                return m_CheckTextLocalizings;
-            }
-            set
-            {
-                m_CheckTextLocalizings = value;
-            }
-        }
-		
-        /// <summary>
-        /// 获取刘海尺寸
-        /// </summary>
-        public Vector2 UIBangsSize
-        {
-            get
-            {
-                return m_UIManager.UIBangsSize;
-            }
+            get => m_CheckTextLocalizings;
+            set => m_CheckTextLocalizings = value;
         }
 
         /// <summary>
-        /// 阻塞所有模态UI的开关
+        /// UI刘海屏安全区域尺寸
+        /// </summary>
+        public Vector2 UIBangsSize => m_UIManager.UIBangsSize;
+
+        /// <summary>
+        /// 全局阻塞所有模态UI开关
         /// </summary>
         public bool BlockModalUIsSwitch
         {
-            set
-            {
-                m_UIManager.BlockModalUIsSwitch = value;
-            }
-            get
-            {
-                return m_UIManager.BlockModalUIsSwitch;
-            }
+            set => m_UIManager.BlockModalUIsSwitch = value;
+            get => m_UIManager.BlockModalUIsSwitch;
         }
 
         /// <summary>
-        /// [屏幕UI] 菊花等待UI（常驻内存）
+        /// 屏幕层 - 等待菊花UI实例（常驻）
         /// </summary>
-        public UIConnectionWaitingView ConnectionWaitingUIConnection
-        {
-            get
-            {
-                return m_UIManager.ConnectionWaitingUIConnection;
-            }
-        }
+        public UIConnectionWaitingView ConnectionWaitingUIConnection => m_UIManager.ConnectionWaitingUIConnection;
 
         /// <summary>
-        /// [屏幕UI] 菊花等待UI引用计数
+        /// 等待菊花UI引用计数
         /// </summary>
-        public int WaitingUIRefCount
-        {
-            get
-            {
-                return m_UIManager.WaitingUIRefCount;
-            }
-        }
+        public int WaitingUIRefCount => m_UIManager.WaitingUIRefCount;
 
         /// <summary>
-        /// [屏幕UI] 流程切换过渡UI（常驻内存）
+        /// 屏幕层 - 流程切换过渡UI实例（常驻）
         /// </summary>
-        public UILauncherLogoView ProcedureTransitionUI
-        {
-            get
-            {
-                return m_UIManager.TransitionUI;
-            }
-        }
+        public UILauncherLogoView ProcedureTransitionUI => m_UIManager.TransitionUI;
 
         /// <summary>
-        /// UI卸载列表
+        /// 待卸载UI列表
         /// </summary>
-        public List<UIFlagBehaviour> UnloadUIList
-        {
-            get
-            {
-                return m_UIManager.UnloadUIList;
-            }
-        }
+        public List<UIFlagBehaviour> UnloadUIList => m_UIManager.UnloadUIList;
 
         /// <summary>
-        /// [屏幕UI] 当前模态UI实例
+        /// 屏幕层 - 当前显示的模态UI
         /// </summary>
-        public UIFlagBehaviour CurModalUI
-        {
-            get
-            {
-                return m_UIManager.CurModalUI;
-            }
-        }
+        public UIFlagBehaviour CurModalUI => m_UIManager.CurModalUI;
 
         /// <summary>
-        /// [屏幕UI] 非模态UI实例列表
+        /// 屏幕层 - 非模态UI列表
         /// </summary>
-        public List<UIFlagBehaviour> UnModalUIList
-        {
-            get
-            {
-                return m_UIManager.UnModalUIList;
-            }
-        }
+        public List<UIFlagBehaviour> UnModalUIList => m_UIManager.UnModalUIList;
 
         /// <summary>
-        /// [场景UI] 场景UI实例列表
+        /// 场景层 - 场景UI列表
         /// </summary>
-        public List<UIFlagBehaviour> SceneUIList
-        {
-            get
-            {
-                return m_UIManager.SceneUIList;
-            }
-        }
+        public List<UIFlagBehaviour> SceneUIList => m_UIManager.SceneUIList;
 
         /// <summary>
-        /// 附加UI实例列表
-        /// <UI类型, UI列表>
+        /// 子/附加UI实例字典（按UI类型分类）
         /// </summary>
-        public Dictionary<UIType, List<UIFlagBehaviour>> SubUIList
-        {
-            get
-            {
-                return m_UIManager.SubUIList;
-            }
-        }
+        public Dictionary<UIType, List<UIFlagBehaviour>> SubUIList => m_UIManager.SubUIList;
 
         /// <summary>
-        /// [屏幕UI] 模态UI信息队列
+        /// 屏幕层 - 模态UI等待队列
         /// </summary>
-        public List<UIInfo> ModalUIInfoList
-        {
-            get
-            {
-                return m_UIManager.ModalUIInfoList;
-            }
-        }
+        public List<UIInfo> ModalUIInfoList => m_UIManager.ModalUIInfoList;
 
         /// <summary>
-        /// Asset组件
+        /// 资源管理组件
         /// </summary>
         private AssetComponent m_AssetComponent;
 
         /// <summary>
-        /// Localization组件
+        /// 多语言管理组件
         /// </summary>
         private LocalizationComponent m_LocalizationComponent;
 
         /// <summary>
-        /// Config组件
+        /// 配置管理组件
         /// </summary>
         private ConfigComponent m_ConfigComponent;
 
         /// <summary>
-        /// UI管理器
+        /// UI核心管理器
         /// </summary>
         private UIManager m_UIManager;
 
         /// <summary>
-        /// 缓冲JObject数据
+        /// LuaTable 转 UIInfo 专用缓存对象
         /// </summary>
         private JObject m_CachedJsonObject;
     }
-
 }
-
-

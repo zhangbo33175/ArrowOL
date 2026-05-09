@@ -4,10 +4,15 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// WebGL 专用文件片段存储管理器
+    /// 基于 PlayerPrefs 实现，支持 AES 加密 + GZip 压缩
+    /// 提供分类管理、键值存储、增删改查
+    /// </summary>
     public sealed partial class FileFragmentForWebGLManager
     {
         /// <summary>
-        /// 构造方法
+        /// 分类名称 => 该分类下所有键名的集合（内存索引）
         /// </summary>
         public FileFragmentForWebGLManager()
         {
@@ -15,21 +20,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 加载条目信息。
+        /// 加载所有条目索引（从 PlayerPrefs 读取分类与键名）
         /// </summary>
-        /// <returns>是否加载条目信息成功。</returns>
+        /// <returns>固定返回 true</returns>
         public bool Load()
         {
             // 从存档中读取所有条目
             LoadItemNameGroups();
-
             return true;
         }
 
         /// <summary>
-        /// 保存。
+        /// 立即保存到本地（调用 PlayerPrefs.Save）
         /// </summary>
-        /// <returns>是否保存成功。</returns>
+        /// <returns>固定返回 true</returns>
         public bool Save()
         {
             PlayerPrefs.Save();
@@ -37,9 +41,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定分类名称的所有条目名称集合。
+        /// 获取指定分类下所有键名（数组）
         /// </summary>
-        /// <returns>条目名称集合。</returns>
+        /// <param name="classifyName">分类名</param>
+        /// <returns>键名数组</returns>
         public string[] GetAllItemNames(string classifyName)
         {
             List<string> range = null;
@@ -51,10 +56,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定分类名称的所有条目名称集合。
+        /// 获取指定分类下所有键名（列表）
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="results">条目名称集合。</param>
+        /// <param name="classifyName">分类名</param>
+        /// <param name="results">输出结果列表</param>
         public void GetAllItemNames(string classifyName, List<string> results)
         {
             if (results == null)
@@ -74,11 +79,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在指定条目。
+        /// 判断是否存在某条数据
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">要检查条目的名称。</param>
-        /// <returns>指定的条目是否存在。</returns>
+        /// <param name="classifyName">分类名</param>
+        /// <param name="itemName">键名</param>
+        /// <returns>是否存在</returns>
         public bool HasItem(string classifyName, string itemName)
         {
             string key = $"{classifyName}_{itemName}";
@@ -86,11 +91,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定条目。
+        /// 删除单条数据（同步删除索引）
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">要移除条目的名称。</param>
-        /// <returns>是否移除指定条目成功。</returns>
+        /// <param name="classifyName">分类名</param>
+        /// <param name="itemName">键名</param>
+        /// <returns>是否删除成功</returns>
         public bool RemoveItem(string classifyName, string itemName)
         {
             string key = $"{classifyName}_{itemName}";
@@ -120,9 +125,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 清空所有条目。
+        /// 清空数据（支持清空全部 / 清空指定分类）
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
+        /// <param name="classifyName">分类名（null 则清空全部）</param>
         public void RemoveAllItems(string classifyName)
         {
             if (string.IsNullOrEmpty(classifyName))
@@ -378,7 +383,6 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="classifyName">分类名称。</param>
         /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的字符串值。</param>
         public void SetString(string classifyName, string itemName, string value)
         {
             string key = $"{classifyName}_{itemName}";
@@ -405,7 +409,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 打印所有名称列表
+        /// 调试：打印所有分类与键名索引（方便排查存储问题）
         /// </summary>
         public void PrintAllNameLists()
         {

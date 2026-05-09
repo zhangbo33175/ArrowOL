@@ -13,28 +13,33 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// 【表格导出工具类】
+    /// 功能：读取 Excel(.xlsm/.csv)，自动导出为 Lua 配置表 / Json 配置表
+    /// 支持：数据校验、加密导出、注释生成、注册文件自动刷新
+    /// 属于：游戏框架 -> 配置表系统 -> 编辑器导出工具
+    /// </summary>
     public class TableExportEditorUtility
     {
-         /// <summary>
-        /// 打开指定的文件夹
+        /// <summary>
+        /// 打开系统文件夹
         /// </summary>
-        /// <param name="directoryPath">需要打开的文件夹绝对路径</param>
+        /// <param name="directoryPath">绝对路径</param>
         public static void OpenDirectory(string directoryPath)
         {
-            if (System.IO.Directory.Exists(directoryPath))
+            if (Directory.Exists(directoryPath))
             {
                 switch (Application.platform)
                 {
                     case RuntimePlatform.WindowsEditor:
                         Process.Start("Explorer.exe", directoryPath.Replace('/', '\\'));
                         break;
-
                     case RuntimePlatform.OSXEditor:
                         Process.Start("open", directoryPath);
                         break;
-
                     default:
-                        throw new GameException(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
+                        throw new GameException(AorTxt.Format("Not support open folder on '{0}' platform.",
+                            Application.platform));
                 }
             }
             else
@@ -44,14 +49,13 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 删除指定文件夹
+        /// 删除文件夹
         /// </summary>
-        /// <param name="directoryPath">需要删除的文件夹绝对路径</param>
         public static void DeleteDirectory(string directoryPath)
         {
-            if (System.IO.Directory.Exists(directoryPath))
+            if (Directory.Exists(directoryPath))
             {
-                System.IO.Directory.Delete(directoryPath, true);
+                Directory.Delete(directoryPath, true);
                 Log.Info("文件夹 {0} 删除完毕。", directoryPath);
             }
             else
@@ -61,14 +65,12 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 打开指定的excel表格
+        /// 打开 Excel 文件（仅限 .xlsm）
         /// </summary>
-        /// <param name="excelPath">要打开的Excel文件绝对路径</param>
-        /// <exception cref="HonorException"></exception>
         public static void OpenExcel(string excelPath)
         {
-            string strExtense = System.IO.Path.GetExtension(excelPath);
-            if (strExtense == ".xlsm")
+            string ext = Path.GetExtension(excelPath);
+            if (ext == ".xlsm")
             {
                 switch (Application.platform)
                 {
@@ -79,767 +81,444 @@ namespace Honor.Editor
                         Process.Start("open", excelPath);
                         break;
                     default:
-                        throw new GameException(AorTxt.Format("Not support open file on '{0}' platform.", Application.platform.ToString()));
+                        throw new GameException(AorTxt.Format("Not support open file on '{0}' platform.",
+                            Application.platform));
                 }
             }
             else
             {
-                Log.Error("指定的文件不是 xlsm文件");
+                Log.Error("指定的文件不是 xlsm 文件");
             }
         }
 
         /// <summary>
-        /// 判断输入路径是否位于lua文件夹下
+        /// 判断路径是否在 Lua 脚本目录
         /// </summary>
-        /// <param name="directoryPath"></param>
-        /// <returns></returns>
         public static bool IsDirectoryInLuaDirectory(string checkPath)
         {
-            if (string.IsNullOrEmpty(checkPath))
-            {
-                return false;
-            }
+            if (string.IsNullOrEmpty(checkPath)) return false;
             checkPath = checkPath.Replace("\\", "/");
-            if (checkPath.Contains("Assets/Framework/LuaScripts/"))
-            {
-                return true;
-            }
-            if (checkPath.Contains("Assets/Game/LuaScripts/"))
-            {
-                return true;
-            }
-            return false;
+            return checkPath.Contains("Assets/Framework/LuaScripts/") || checkPath.Contains("Assets/LuaScripts/Game/");
         }
 
         /// <summary>
-        /// 获取Excel表格内容，目前支持.xlsm和.csv文件
+        /// 读取 Excel 文件，返回 DataSet
+        /// 支持 .xlsm / .csv
         /// </summary>
-        /// <param name="ExcleAbsolutePath">Excel文件的绝对路径</param>
-        /// <param name="CsvFile">是否是.csv文件</param>
-        /// <returns></returns>
-        public static DataSet GetExcelData(string ExcleAbsolutePath)
+        public static DataSet GetExcelData(string excelAbsolutePath)
         {
-            if (string.IsNullOrEmpty(ExcleAbsolutePath))
+            if (string.IsNullOrEmpty(excelAbsolutePath))
             {
-                Log.Error("Excel, 打开路径为null");
-                return null;    
+                Log.Error("Excel 打开路径为 null");
+                return null;
             }
 
-            string strExtension = System.IO.Path.GetExtension(ExcleAbsolutePath);
-            bool csvFile = false;
-            if (strExtension == ".xlsm")
+            string ext = Path.GetExtension(excelAbsolutePath);
+            bool isCsv = ext == ".csv";
+            if (ext != ".xlsm" && !isCsv)
             {
-                csvFile = false;
-            }
-            else if (strExtension == ".csv")
-            {
-                csvFile = true;
-            }
-            else
-            {
-                Log.Error("Excel, 需要打开的文件类型不是xlsm或csv");
+                Log.Error("仅支持 xlsm / csv 文件");
                 return null;
             }
 
             FileStream stream = null;
             try
             {
-                stream = File.Open(ExcleAbsolutePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                stream = File.Open(excelAbsolutePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             }
-            catch (Exception)
+            catch
             {
-                Runtime.Log.Error("表格" + ExcleAbsolutePath + " 打开失败，请检查表格是否存在");
+                Log.Error("表格 {0} 打开失败，请检查是否被占用", excelAbsolutePath);
                 throw;
             }
 
             try
             {
-                IExcelDataReader excelReader = null;
-                if (csvFile)
+                IExcelDataReader reader = null;
+                if (isCsv)
                 {
-                    ExcelReaderConfiguration csvConfig = new ExcelReaderConfiguration();
-                    csvConfig.FallbackEncoding = Encoding.GetEncoding("GB2312");
-                    excelReader = ExcelReaderFactory.CreateCsvReader(stream, csvConfig);
+                    var cfg = new ExcelReaderConfiguration();
+                    cfg.FallbackEncoding = Encoding.GetEncoding("GB2312");
+                    reader = ExcelReaderFactory.CreateCsvReader(stream, cfg);
                 }
                 else
                 {
-                    excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                    reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
                 }
-                // 转换数据
-                DataSet excelData = (excelReader != null) ? excelReader.AsDataSet() : null;
+
+                DataSet data = reader?.AsDataSet();
                 stream.Close();
-                excelReader.Close();
-                return excelData;
+                reader.Close();
+                return data;
             }
-            catch (Exception)
+            catch
             {
-                Log.Error("Excel {0}存在无法解析的数据。", ExcleAbsolutePath);
+                Log.Error("Excel {0} 存在无法解析的数据", excelAbsolutePath);
                 throw;
             }
         }
 
         /// <summary>
-        /// 获取表格名称，文件名去掉Tables前缀，去掉文件标识符
+        /// 获取表格名（去掉 Table 前缀 + 后缀）
+        /// 例：TableItem.xlsm → Item
         /// </summary>
-        /// <param name="excelFileName">Excel文件名</param>
-        /// <returns></returns>
         public static string GetExcelName(string excelFileName)
         {
-            if (string.IsNullOrEmpty(excelFileName))
-            {
-                Log.Error("Excel 表格名称为null");
-                return null;
-            }
-            // 去掉后缀
-            string tableName = System.IO.Path.GetFileNameWithoutExtension(excelFileName);
-            // 去掉Table
-            if (tableName.StartsWith("Table"))
-            {
-                tableName = tableName.Substring(5);
-            }
-            return tableName;
+            if (string.IsNullOrEmpty(excelFileName)) return null;
+            string name = Path.GetFileNameWithoutExtension(excelFileName);
+            if (name.StartsWith("Table")) name = name.Substring(5);
+            return name;
         }
 
         /// <summary>
-        /// 判断表格导出数据是否需要加密
+        /// 判断表格是否需要加密（包含 [encrypt] 标记）
         /// </summary>
-        /// <param name="excelDescrip">表格中B1字段</param>
-        /// <returns></returns>
-        public static bool IsTableNeedEncrypt(string excelDescrip)
+        public static bool IsTableNeedEncrypt(string desc)
         {
-            return string.IsNullOrEmpty(excelDescrip) ? false : excelDescrip.Contains("[encrypt]");
+            return !string.IsNullOrEmpty(desc) && desc.Contains("[encrypt]");
         }
 
         /// <summary>
-        /// 获取lua表格定义
+        /// 获取 Lua 表名：Tables.XXX
         /// </summary>
-        /// <param name="excelFileName"></param>
-        /// <param name="needChangeName"></param>
-        /// <returns></returns>
-        public static string GetLuaTableDefine(string excelFileName, bool needChangeName = false)
+        public static string GetLuaTableDefine(string excelFileName, bool needChange = false)
         {
-            string tableName = needChangeName ? GetExcelName(excelFileName) : excelFileName;
-            return $"Tables.{tableName}";
+            string name = needChange ? GetExcelName(excelFileName) : excelFileName;
+            return $"Tables.{name}";
         }
 
         /// <summary>
-        /// 获取Lua表格中每项类型定义
+        /// 获取 Lua 行结构名：Tables.XXX_Item
         /// </summary>
-        /// <param name="excelFileName"></param>
-        /// <param name="needChangeName"></param>
-        /// <returns></returns>
-        public static string GetLuaTableItemDefine(string excelFileName, bool needChangeName = false)
-        { 
-            string tableName = needChangeName ? GetExcelName(excelFileName) : excelFileName;
-            return $"Tables.{tableName}_Item";
-        }
-
-        /// <summary>
-        /// 获取Excel转换成的lua文件中详情信息
-        /// </summary>
-        /// <param name="excelFileName"></param>
-        /// <param name="excelDescrip"></param>
-        /// <returns></returns>
-        public static string GetExcelToLuaDetailInfo(string excelFileName, string excelDescrip)
+        public static string GetLuaTableItemDefine(string excelFileName, bool needChange = false)
         {
-            string writeTableName = GetExcelName(excelFileName);
-            if (string.IsNullOrEmpty(excelFileName))
-            {
-                Log.Error("Excel 表格名称为null");
-                return null;
-            }
-            if (excelDescrip == null)
-            {
-                excelDescrip = "";
-            }
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("--=====================================================================================================")
-                         .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
-                         .AppendLine("-- All Rights Reserved.")
-                         .AppendLine("-- ----------------------------------------------------------------------------------------------------")
-                         .AppendLine(AorTxt.Format($"-- filename:  Table{writeTableName}"))
-                         .AppendLine(AorTxt.Format($"-- descrip:   {excelDescrip}"))
-                         .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
-                         .AppendLine("--=====================================================================================================")
-                         .AppendLine("")
-                         .AppendLine($"---@class Tables.{writeTableName}_Item @{excelDescrip}条目");
-            return stringBuilder.ToString();
+            string name = needChange ? GetExcelName(excelFileName) : excelFileName;
+            return $"Tables.{name}_Item";
         }
 
         /// <summary>
-        /// 添加加密表格中的元表功能
+        /// 生成导出 Lua 文件头部注释（版权、说明、类型）
         /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="tableItem"></param>
-        /// <returns></returns>
-        public static string GetEncryptTableMetaFunc(string tableName, string tableItem)
+        public static string GetExcelToLuaDetailInfo(string excelFileName, string desc)
         {
-            string TableEncryptName = $"table{tableName}Encrypt";
-            string TableOriginalName = $"Tables.{tableName}";
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("");
-            stringBuilder.AppendLine($"---@type fun(inTable: table, key: any):{tableItem} @返回解密后的数据");
-            stringBuilder.AppendLine("---@param luaTable table @加密后的表格");
-            stringBuilder.AppendLine("---@param key any @需要解密的表格字段的关键字");
-            stringBuilder.AppendLine($"---@return {tableItem} @返回解密后的数据");
-            stringBuilder.AppendLine("local pairfunc = function(inTable, key)");
-            stringBuilder.AppendLine($"    local nk, nv = next({TableEncryptName}, key)");
-            stringBuilder.AppendLine("    if nk then");
-            stringBuilder.AppendLine($"        nv = {TableOriginalName}[nk]");
-            stringBuilder.AppendLine("    end");
-            stringBuilder.AppendLine("    return nk, nv");
-            stringBuilder.AppendLine("end");
-
-            stringBuilder.AppendLine("");
-            stringBuilder.AppendLine("local mt = { }");
-
-            stringBuilder.AppendLine("");
-            stringBuilder.AppendLine($"---@type fun(inTable: table, key: any):{tableItem} @返回解密后的数据");
-            stringBuilder.AppendLine("---@param luaTable table @加密后的表格");
-            stringBuilder.AppendLine("---@param key any @需要解密的表格字段的关键字");
-            stringBuilder.AppendLine($"---@return {tableItem} @返回解密后的数据");
-            stringBuilder.AppendLine("mt.__index = function(inTable, key)");
-            stringBuilder.AppendLine($"    if {TableEncryptName}[key] ~= nil then");
-            stringBuilder.AppendLine($"        return AESDecodeFromBase64({TableEncryptName}[key], \"table\")");
-            stringBuilder.AppendLine("    end");
-            stringBuilder.AppendLine("end");
-
-            stringBuilder.AppendLine("");
-            stringBuilder.AppendLine("---@type fun():number @返回关联表格真实长度");
-            stringBuilder.AppendLine("---@return number @返回关联表格真实长度");
-            stringBuilder.AppendLine("mt.__len = function()");
-            stringBuilder.AppendLine($"    return #{TableEncryptName}");
-            stringBuilder.AppendLine("end");
-      
-            stringBuilder.AppendLine("");
-            stringBuilder.AppendLine($"---@type fun(inTable: table, key: any):{tableItem} @重写，返回关联表格解密后的数据");
-            stringBuilder.AppendLine("---@param inTable table @加密表格");
-            stringBuilder.AppendLine("---@param key any @需要解密的表格字段的关键字");
-            stringBuilder.AppendLine($"---@return {tableItem} @返回关联表格解密后的数据");
-            stringBuilder.AppendLine("mt.__pairs = function(inTable, key)");
-            stringBuilder.AppendLine("    return pairfunc, inTable, nil");
-            stringBuilder.AppendLine("end");
-
-            stringBuilder.AppendLine("");
-            stringBuilder.AppendLine($"setmetatable({TableOriginalName}, mt)");
-            stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine($"Tables.{tableName} = table{tableName}");
-
-            return stringBuilder.ToString();
+            string table = GetExcelName(excelFileName);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(
+                    "--=====================================================================================================")
+                .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+                .AppendLine("-- All Rights Reserved.")
+                .AppendLine(
+                    "-- ----------------------------------------------------------------------------------------------------")
+                .AppendLine(AorTxt.Format($"-- filename:  Table{table}"))
+                .AppendLine(AorTxt.Format($"-- descrip:   {desc}"))
+                .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
+                .AppendLine(
+                    "--=====================================================================================================")
+                .AppendLine("")
+                .AppendLine($"---@class Tables.{table}_Item @{desc}条目");
+            return sb.ToString();
         }
 
         /// <summary>
-        /// 将表格中的字段转为lua类型
+        /// 生成加密表格的元表逻辑（__index / __pairs / __len）
+        /// 实现访问时自动解密
         /// </summary>
-        /// <param name="typeStr"></param>
-        /// <returns></returns>
+        public static string GetEncryptTableMetaFunc(string tableName, string itemType)
+        {
+            string encryptTable = $"table{tableName}Encrypt";
+            string realTable = $"Tables.{tableName}";
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine()
+                .AppendLine($"---@type fun(inTable: table, key: any):{itemType}")
+                .AppendLine("local pairfunc = function(inTable, key)")
+                .AppendLine($"    local nk, nv = next({encryptTable}, key)")
+                .AppendLine("    if nk then")
+                .AppendLine($"        nv = {realTable}[nk]")
+                .AppendLine("    end")
+                .AppendLine("    return nk, nv")
+                .AppendLine("end")
+                .AppendLine()
+                .AppendLine("local mt = { }")
+                .AppendLine()
+                .AppendLine("mt.__index = function(t, key)")
+                .AppendLine($"    if {encryptTable}[key] ~= nil then")
+                .AppendLine($"        return AESDecodeFromBase64({encryptTable}[key], \"table\")")
+                .AppendLine("    end")
+                .AppendLine("end")
+                .AppendLine()
+                .AppendLine("mt.__len = function()")
+                .AppendLine($"    return #{encryptTable}")
+                .AppendLine("end")
+                .AppendLine()
+                .AppendLine("mt.__pairs = function(t)")
+                .AppendLine("    return pairfunc, t, nil")
+                .AppendLine("end")
+                .AppendLine()
+                .AppendLine($"setmetatable({realTable}, mt)");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Excel 类型 → Lua 类型
+        /// </summary>
         public static string GetTypeFromExcel(string typeStr)
         {
-            switch (typeStr)
+            return typeStr switch
             {
-                case "color32":
-                    return "UnityEngine.Color32";
-                case "color":
-                    return "UnityEngine.Color";
-                case "datetime":
-                    return "System.DateTime";
-                case "quaternion":
-                    return "UnityEngine.Quaternion";
-                case "rect":
-                    return "UnityEngine.Rect";
-                case "vector2":
-                    return "UnityEngine.Vector2";
-                case "vector3":
-                    return "UnityEngine.Vector3";
-                case "vector4":
-                    return "UnityEngine.Vector4";
-                case "int":
-                case "float":
-                    return "number";
-                default:
-                    break;
-            }
-
-            return typeStr;
+                "color32" => "UnityEngine.Color32",
+                "color" => "UnityEngine.Color",
+                "datetime" => "System.DateTime",
+                "quaternion" => "UnityEngine.Quaternion",
+                "rect" => "UnityEngine.Rect",
+                "vector2" => "UnityEngine.Vector2",
+                "vector3" => "UnityEngine.Vector3",
+                "vector4" => "UnityEngine.Vector4",
+                "int" or "float" => "number",
+                _ => typeStr
+            };
         }
 
         /// <summary>
-        /// 删除注释文字中的换行符
+        /// 清除注释中的换行符
         /// </summary>
-        /// <param name="checkStr"></param>
-        /// <returns></returns>
-        public static string DelNewLineFlag(string checkStr)
+        public static string DelNewLineFlag(string str)
         {
-            if (!string.IsNullOrEmpty(checkStr))
-            {
-                if (checkStr.IndexOf("\n") >= 0)
-                {
-                    return checkStr.Replace("\n", " ");
-                }
-                else if (checkStr.IndexOf("\n\r") >= 0)
-                {
-                    return checkStr.Replace("\n\r", " ");
-                }
-                else if (checkStr.IndexOf("\r\n") >= 0)
-                {
-                    return checkStr.Replace("\r\n", " ");
-                }
-                return checkStr;
-            }
-            return " ";
+            if (string.IsNullOrEmpty(str)) return " ";
+            return str.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
         }
 
         /// <summary>
-        /// Table中定义的数据类型和lua数据转换格式
+        /// 把 Excel 单元格内容转为 Lua 字面量
         /// </summary>
-        /// <param name="initialStr"> 带转换的字符串</param>
-        /// <param name="typeStr">带转换的字符串在table中的类型</param>
-        /// <returns></returns>
-        public static string GetLuaTypeFromExcel(string initialStr, string typeStr)
+        public static string GetLuaTypeFromExcel(string value, string type)
         {
-            if (string.IsNullOrEmpty(initialStr))
+            if (string.IsNullOrEmpty(value)) return "";
+            return type switch
             {
-                return "";
-            }
-            string changedStr = initialStr;
-            switch (typeStr)
-            {
-                case "number":
-                    break;
-                case "boolean":
-                    break;
-                case "table":
-                    break;
-                case "string":
-                    changedStr = "\"" + initialStr + "\"";
-                    break;
-                case "color32":
-                    changedStr = "CS.UnityEngine.Color32(" + initialStr + ")";
-                    break;
-                case "color":
-                    changedStr = "CS.UnityEngine.Color(" + initialStr + ")";
-                    break;
-                case "datetime":
-                    changedStr = "CS.System.DateTime.Parse(\"" + initialStr + "\")";
-                    break;
-                case "quaternion":
-                    changedStr = "CS.UnityEngine.Quaternion(" + initialStr + ")";
-                    break;
-                case "rect":
-                    changedStr = "CS.UnityEngine.Rect(" + initialStr + ")";
-                    break;
-                case "vector2":
-                    changedStr = "CS.UnityEngine.Vector2(" + initialStr + ")";
-                    break;
-                case "vector3":
-                    changedStr = "CS.UnityEngine.Vector3(" + initialStr + ")";
-                    break;
-                case "vector4":
-                    changedStr = "CS.UnityEngine.Vector4(" + initialStr + ")";
-                    break;
-                default:
-                    break;
-            }
-            return changedStr;
-
+                "string" => $"\"{value}\"",
+                "color32" => $"UnityColor32({value})",
+                "color" => $"UnityColor({value})",
+                "datetime" => $"CS.System.DateTime.Parse(\"{value}\")",
+                "quaternion" => $"UnityQuaternion({value})",
+                "rect" => $"UnityRect({value})",
+                "vector2" => $"UnityVector2({value})",
+                "vector3" => $"UnityVector3({value})",
+                "vector4" => $"UnityVector4({value})",
+                _ => value
+            };
         }
 
-        public static bool CheckLuaTypeInExcel(string defType, string checkString)
+        /// <summary>
+        /// 检查 Excel 填写内容是否符合类型规则
+        /// </summary>
+        public static bool CheckLuaTypeInExcel(string defType, string content)
         {
-            if (string.IsNullOrEmpty(checkString))
-            {
-                return true;
-            }
+            if (string.IsNullOrEmpty(content)) return true;
             switch (defType)
             {
                 case "number":
-                    {
-                        return CheckStringIsNumber(checkString);
-                    }
+                    return CheckStringIsNumber(content);
                 case "boolean":
-                    {
-                        if (checkString == "false" || checkString == "true")
-                        {
-                            return true;
-                        }
-                        return false;
-                    }
+                    return content is "true" or "false";
                 case "table":
-                    {
-                        if (checkString.StartsWith("{") && checkString.EndsWith("}"))
-                        {
-                            return true;
-                        }
-                        return false;
-                    }
+                    return content.StartsWith("{") && content.EndsWith("}");
                 case "string":
-                    {
-                        return true;
-                    }
+                    return true;
                 case "color32":
-                    {
-                        // 用,分割的4个int数字
-                        string[] ints = checkString.Split(',');
-                        if (ints.Length != 4)
-                        {
-                            return false;
-                        }
-                        Regex regex = new Regex("^[0-9]*[1-9][0-9]*$");
-                        for (int i = 0; i < ints.Length; i++)
-                        {
-                            if (!regex.IsMatch(ints[i].Trim()))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
+                    return CheckVector(content, 4) && content.Split(',').All(x => byte.TryParse(x.Trim(), out _));
                 case "color":
-                    {
-                        // 用,分割的4个float数字 [0,1]
-                        string[] floats = checkString.Split(',');
-                        if (floats.Length != 4)
-                        {
-                            return false;
-                        }
-                        Regex regex = new Regex("^(?:0|1|0.[0-9]+)$");
-                        for (int i = 0; i < floats.Length; i++)
-                        {
-                            if (!regex.IsMatch(floats[i].Trim()))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                case "quaternion":
-                    {
-                        // 用,分割的4个float数字
-                        string[] floats = checkString.Split(',');
-                        if (floats.Length != 4)
-                        {
-                            return false;
-                        }
-                        //Regex regex = new Regex("^(-?\\d+)(\\.\\d+)?$");
-                        for (int i = 0; i < floats.Length; i++)
-                        {
-                            if (!CheckStringIsNumber(floats[i].Trim()))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                case "datetime":
-                    {
-                        DateTime convertTime;
-                        bool tt = DateTime.TryParse(checkString, out convertTime);
-                        return DateTime.TryParse(checkString, out convertTime);
-                    }
-                case "rect":
-                    {
-                        // 用,分割的4个数字
-                        string[] floats = checkString.Split(',');
-                        if (floats.Length != 4)
-                        {
-                            return false;
-                        }
-                        //Regex regex = new Regex("^(-?\\d+)(\\.\\d+)?$");
-                        for (int i = 0; i < floats.Length; i++)
-                        {
-                            if (!CheckStringIsNumber(floats[i].Trim()))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
+                    return CheckVector(content, 4) && content.Split(',').All(x => float.TryParse(x.Trim(), out _));
                 case "vector2":
-                    {
-                        return CheckStringIsVector(checkString, 2);
-                    }
+                    return CheckVector(content, 2);
                 case "vector3":
-                    {
-                        return CheckStringIsVector(checkString, 3);
-                    }
+                    return CheckVector(content, 3);
                 case "vector4":
-                    {
-                        return CheckStringIsVector(checkString, 4);
-                    }
+                    return CheckVector(content, 4);
+                case "rect":
+                case "quaternion":
+                    return CheckVector(content, 4);
+                case "datetime":
+                    return DateTime.TryParse(content, out _);
+                default:
+                    return true;
             }
-            return true;
-
         }
 
         /// <summary>
-        /// 检查字符串是否是numbe
+        /// 检查字符串是否是合法数字
         /// </summary>
-        /// <param name="strNumber"></param>
-        /// <returns></returns>
-        public static bool CheckStringIsNumber(string strNumber)
+        public static bool CheckStringIsNumber(string str)
         {
-            Regex objNotNumberPattern = new Regex("[^0-9.-]");
-            Regex objTwoDotPattern = new Regex("[0-9]*[.][0-9]*[.][0-9]*");
-            Regex objTwoMinusPattern = new Regex("[0-9]*[-][0-9]*[-][0-9]*");
-            String strValidRealPattern = "^([-]|[.]|[-.]|[0-9])[0-9]*[.]*[0-9]+$";
-            String strValidIntegerPattern = "^([-]|[0-9])[0-9]*$";
-            Regex objNumberPattern = new Regex("(" + strValidRealPattern + ")|(" + strValidIntegerPattern + ")");
-
-            return !objNotNumberPattern.IsMatch(strNumber) &&
-                !objTwoDotPattern.IsMatch(strNumber) &&
-                !objTwoMinusPattern.IsMatch(strNumber) &&
-                objNumberPattern.IsMatch(strNumber);
+            if (string.IsNullOrEmpty(str)) return false;
+            Regex numReg = new Regex(@"^[-+]?(\d+(\.\d*)?|\.\d+)$");
+            return numReg.IsMatch(str);
         }
 
         /// <summary>
-        /// 判断输入的字符串是否可以转为vector
+        /// 检查是否是合法 Vector (x,y,z,w)
         /// </summary>
-        /// <param name="vectorString"></param>
-        /// <param name="vectorPointCount"></param>
-        /// <returns></returns>
-        public static bool CheckStringIsVector(string vectorString, int vectorPointCount)
+        public static bool CheckVector(string str, int count)
         {
-            string[] floats = vectorString.Split(',');
-            if (floats.Length != vectorPointCount)
-            {
-                return false;
-            }
-            for (int i = 0; i < vectorPointCount; i++)
-            {
-                if (!CheckStringIsNumber(floats[i].Trim()))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        /// 生成或者刷新Tables.lua文件
-        /// </summary>
-        /// <param name="openExcelNamePre"> 表格名称，不带后缀</param>
-        /// <param name="tableIntroduction"> 表格里面的说明文本</param>
-        public static void RefreshTableRegisterFile(string openExcelNamePre, string tableIntroduction)
-        {
-            if (!openExcelNamePre.StartsWith("Table"))
-            {
-                openExcelNamePre = $"Table{openExcelNamePre}";
-            }
-            string tableName = openExcelNamePre.Substring(5);
-            string luaRootDirPath = GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath();
-            string strFilePath = luaRootDirPath + "/Tables.lua.txt";
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("--=====================================================================================================")
-                            .AppendLine("-- (c) copyright 2026 - 2030, GameLib")
-                            .AppendLine("-- All Rights Reserved.")
-                            .AppendLine("-- ----------------------------------------------------------------------------------------------------")
-                            .AppendLine("-- filename:  Tables.lua")
-                            .AppendLine("-- descrip:   数据表")
-                            .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
-                            .AppendLine("--=====================================================================================================")
-                            .AppendLine("")
-                            .AppendLine("---@class Tables @数据表")
-                            .AppendLine("Tables = {}")
-                            .AppendLine("local rawget = rawget")
-                            .AppendLine("setmetatable(Tables, { __index = function(t, k) require('Table'..k) return rawget(Tables, k) end })");
-
-            // 写入文件
-            File.WriteAllText(strFilePath, stringBuilder.ToString(), new System.Text.UTF8Encoding(false));
-            
-            // 打印log
-            Log.Info("表格 " + openExcelNamePre + " 添加Tables注册完成");
+            var parts = str.Split(',');
+            return parts.Length == count && parts.All(x => CheckStringIsNumber(x.Trim()));
         }
 
         /// <summary>
-        /// 1 ID为string/number, lua作为number处理， ID列命名无要求
-        /// 2 第二列如果是Desc，则导出未注释
+        /// 刷新 Tables.lua 注册文件（自动懒加载）
         /// </summary>
-        /// <param name="excelPath"></param>
-        /// <param name="luaPath"></param>
-        /// <returns></returns>
+        public static void RefreshTableRegisterFile(string fileName, string desc)
+        {
+            string luaDir = GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath();
+            string path = Path.Combine(luaDir, "Tables.lua.txt");
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(
+                    "--=====================================================================================================")
+                .AppendLine("-- (c) copyright 2026 - 2030, GameLib")
+                .AppendLine("-- All Rights Reserved.")
+                .AppendLine(
+                    "-- ----------------------------------------------------------------------------------------------------")
+                .AppendLine("-- filename:  Tables.lua")
+                .AppendLine("-- descrip:   数据表自动注册")
+                .AppendLine("-- notices:   自动生成，禁止修改")
+                .AppendLine(
+                    "--=====================================================================================================")
+                .AppendLine()
+                .AppendLine("---@class Tables")
+                .AppendLine("Tables = {}")
+                .AppendLine("local rawget = rawget")
+                .AppendLine(
+                    "setmetatable(Tables, { __index = function(t, k) require('Table'..k) return rawget(t, k) end })");
+
+            File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
+            Log.Info("Tables.lua 注册完成");
+        }
+
+        /// <summary>
+        /// 【核心导出】Excel → Lua
+        /// 支持：类型检查、加密、注释、自动注册
+        /// </summary>
         public static bool ExportExcelToLua(string excelPath, string luaPath)
         {
-            if (string.IsNullOrEmpty(luaPath))
+            if (string.IsNullOrEmpty(luaPath)) return false;
+            string dir = Path.GetDirectoryName(luaPath);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+            DataSet data = GetExcelData(excelPath);
+            DataTable table = data.Tables[0];
+            string shortName = GetExcelName(excelPath);
+            string desc = table.Rows[0][1].ToString();
+            bool isEncrypt = IsTableNeedEncrypt(desc);
+            int colCount = table.Columns.Count;
+            int rowCount = table.Rows.Count;
+
+            // 字段/类型数组
+            string[] keys = new string[colCount];
+            string[] types = new string[colCount];
+            for (int i = 1; i < colCount; i++)
             {
-                Log.Error("Excel, 导出路径为空，导出lua文件失败");
-                return false;
+                keys[i] = table.Rows[1][i].ToString();
+                types[i] = table.Rows[2][i].ToString();
             }
 
-            string checkPath = luaPath.Substring(0, luaPath.LastIndexOf("/"));
-            if (!Directory.Exists(checkPath))
-            {
-                Directory.CreateDirectory(checkPath);
-            }
-
-            // 获取表格内容
-            DataSet result = GetExcelData(excelPath);
-
-            // 获取表格说明
-            string tableName = GetExcelName(excelPath);
-            string tableItemType = GetLuaTableItemDefine(tableName);
-            string tableDetail = result.Tables[0].Rows[0][1].ToString();
-            bool isEncrypt = IsTableNeedEncrypt(tableDetail);
-            // 开始添加文件头
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(GetExcelToLuaDetailInfo(tableName, tableDetail));
-
-            // 开始table中item定义
-            int columns = result.Tables[0].Columns.Count;
-            int rows = result.Tables[0].Rows.Count;
-            string[] keyList = new string[columns];
-            string[] typeList = new string[columns];
-            keyList[0] = "";
-            typeList[0] = "";
-            // 首先检查表格类型定义是否正确
-            System.Text.ASCIIEncoding asciiEncoding = new System.Text.ASCIIEncoding();
+            // 数据校验
             bool hasError = false;
-            for (int checkCol = 1; checkCol < columns; checkCol++)
+            for (int c = 1; c < colCount; c++)
             {
-                if (result.Tables[0].Rows[1][checkCol].ToString() != string.Empty && result.Tables[0].Rows[2][checkCol].ToString() == string.Empty)
+                if (!string.IsNullOrEmpty(keys[c]) && string.IsNullOrEmpty(types[c]))
                 {
+                    Log.Error("表格 {0} 缺少类型定义", excelPath);
                     hasError = true;
-                    Log.Error($"数据表格{excelPath}错误, 列{asciiEncoding.GetString(new byte[] {(byte)(checkCol + 65) })} 没有设置类型");
                 }
             }
-            if (hasError)
+
+            for (int r = 4; r < rowCount; r++)
             {
-                return false;
-            }
-            // 继续检查表格内容格式填写是否正确
-            for (int checkCol = 1; checkCol < columns; checkCol++)
-            {
-                for (int checkCow = 4; checkCow < rows; checkCow++)
+                for (int c = 1; c < colCount; c++)
                 {
-                    if (!CheckLuaTypeInExcel(result.Tables[0].Rows[2][checkCol].ToString(), result.Tables[0].Rows[checkCow][checkCol].ToString()))
+                    if (!CheckLuaTypeInExcel(types[c], table.Rows[r][c].ToString()))
                     {
+                        Log.Error("表格 {0} 单元格格式错误", excelPath);
                         hasError = true;
-                        Log.Error($"数据表格{excelPath}，单元格{asciiEncoding.GetString(new byte[] {(byte)(checkCol + 65) })}{checkCow +1} 填写内容不符合定义格式");
                     }
                 }
             }
-            if (hasError)
-            {
-                return false;
-            }
-            // 开始转换数据
-            for (int keyi = 1; keyi < columns; keyi++)
-            {
-                keyList[keyi] = result.Tables[0].Rows[1][keyi].ToString();
-                typeList[keyi] = result.Tables[0].Rows[2][keyi].ToString();
 
-                if (!string.IsNullOrEmpty(keyList[keyi]) && !string.IsNullOrEmpty(typeList[keyi]))
+            if (hasError) return false;
+
+            // 生成 Lua
+            StringBuilder sb = new StringBuilder();
+            sb.Append(GetExcelToLuaDetailInfo(excelPath, desc));
+
+            // 生成 EmmyLua 注释
+            for (int c = 1; c < colCount; c++)
+            {
+                if (!string.IsNullOrEmpty(keys[c]))
                 {
-                    stringBuilder.AppendLine($"---@field {keyList[keyi]} {GetTypeFromExcel(typeList[keyi])} @{DelNewLineFlag(result.Tables[0].Rows[3][keyi].ToString())}");
+                    string note = DelNewLineFlag(table.Rows[3][c].ToString());
+                    sb.AppendLine($"---@field {keys[c]} {GetTypeFromExcel(types[c])} @{note}");
                 }
             }
-            stringBuilder.AppendLine("");
 
-            stringBuilder.AppendLine($"---@class {GetLuaTableDefine(tableName)} @{tableDetail}");
-            if (typeList[1] == "number")
+            sb.AppendLine();
+            sb.AppendLine($"---@class {GetLuaTableDefine(shortName)} @{desc}");
+
+            // 生成数据
+            if (isEncrypt)
             {
-                stringBuilder.AppendLine($"---@type table<{typeList[1]}, {tableItemType}> @数据格式");
+                sb.AppendLine($"Tables.{shortName} = {{ }}");
+                sb.AppendLine($"local table{shortName}Encrypt = {{ ");
+            }
+            else
+            {
+                sb.AppendLine($"Tables.{shortName} = {{");
             }
 
-            // 开始Table中每行类型定义
-            for (int i = 4; i < rows; i++)
+            for (int r = 4; r < rowCount; r++)
             {
-                if (keyList[2] == "Desc")
+                string id = GetLuaTypeFromExcel(table.Rows[r][1].ToString(), types[1]);
+                string line = "";
+                for (int c = 1; c < colCount; c++)
                 {
-                    stringBuilder.AppendLine($"---@field {result.Tables[0].Rows[i][1].ToString()} {tableItemType} @{DelNewLineFlag(result.Tables[0].Rows[i][2].ToString())}");
+                    if (string.IsNullOrEmpty(keys[c])) continue;
+                    string val = GetLuaTypeFromExcel(table.Rows[r][c].ToString(), types[c]);
+                    line += string.IsNullOrEmpty(line) ? $"{keys[c]} = {val}" : $", {keys[c]} = {val}";
+                }
+
+                if (isEncrypt)
+                {
+                    string enc = AESEncrypt.EncodeToBase64($"{{{line}}}");
+                    sb.AppendLine($"    [{id}] = \"{enc}\",");
                 }
                 else
                 {
-                    stringBuilder.AppendLine($"---@field {result.Tables[0].Rows[i][1].ToString()} {tableItemType}");
+                    sb.AppendLine($"    [{id}] = {{{line}}},");
                 }
-
             }
 
-            // 给Table赋值
+            sb.AppendLine("}");
+
+            // 写入文件
+            if (File.Exists(luaPath)) File.Delete(luaPath);
             if (isEncrypt)
             {
-                stringBuilder.AppendLine($"Tables.{tableName} = {{ }}");
-                stringBuilder.AppendLine("");
-                stringBuilder.AppendLine($"local table{tableName}Encrypt = {{ ");
+                string meta = GetEncryptTableMetaFunc(shortName, GetLuaTableItemDefine(shortName));
+                File.WriteAllText(luaPath, sb + meta, new UTF8Encoding(false));
             }
             else
             {
-                stringBuilder.AppendLine($"Tables.{tableName} = {{");
+                File.WriteAllText(luaPath, sb.ToString(), new UTF8Encoding(false));
             }
 
-            for (int i = 4; i < rows; i++)
-            {
-                string thisRow = "";
-                string rowKey = GetLuaTypeFromExcel(result.Tables[0].Rows[i][1].ToString(), typeList[1]);
-                for (int j = 1; j < columns; j++)
-                {
-                    if (keyList[j] != string.Empty)
-                    {
-                        if (!string.IsNullOrEmpty(result.Tables[0].Rows[i][j].ToString()))
-                        {
-                            string cellValue = null;
-                            if (thisRow != string.Empty)
-                            {
-                                cellValue = $", {keyList[j]} = {GetLuaTypeFromExcel(result.Tables[0].Rows[i][j].ToString(), typeList[j])}";
-                            }
-                            else
-                            {
-                                cellValue = $"{keyList[j]} = {GetLuaTypeFromExcel(result.Tables[0].Rows[i][j].ToString(), typeList[j])}";
-                            }
-                            thisRow = thisRow + cellValue;
-                        }
-                    }
-                }
-                if (thisRow != string.Empty)
-                {
-                    // 判断是否要加密
-                    if (isEncrypt)
-                    {
-                        thisRow = AESEncrypt.EncodeToBase64($"{{{thisRow}}}");
-                        thisRow = $"    [{rowKey}] = \"{thisRow}\",";
-                    }
-                    else
-                    {
-                        thisRow = $"    [{rowKey}] = {{{thisRow}}},";
-                    }
-
-                    if (typeList[1] == "string" && keyList[2] == "Desc")
-                    {
-                        //首先添加每一行数值中第二列的注释部分
-                        stringBuilder.AppendLine($"    -- {result.Tables[0].Rows[i][2].ToString()}");
-                    }
-                    //再添加每行导出值
-                    stringBuilder.AppendLine(thisRow);
-                }
-            }
-            stringBuilder.AppendLine("}");
-            if (File.Exists(luaPath))
-            {
-                File.Delete(luaPath);
-            }
-            if (isEncrypt)
-            {
-                string encryptFuncString = GetEncryptTableMetaFunc(tableName, tableItemType);
-                File.WriteAllText(luaPath, stringBuilder.ToString() + encryptFuncString, new System.Text.UTF8Encoding(false));
-            }
-            else
-            {
-                stringBuilder.AppendLine("");
-                File.WriteAllText(luaPath, stringBuilder.ToString(), new System.Text.UTF8Encoding(false));
-            }
-            Runtime.Log.Info($"表格 {excelPath} 导出到 {luaPath} 完成。");
-
-            // 开始修改Tables.lua文件
-            RefreshTableRegisterFile(System.IO.Path.GetFileNameWithoutExtension(excelPath), tableDetail);
-
+            RefreshTableRegisterFile(Path.GetFileNameWithoutExtension(excelPath), desc);
             AssetDatabase.Refresh();
-
+            Log.Info("导出完成：{0}", luaPath);
             return true;
-
         }
 
-
         /// <summary>
-        /// 导出表格到Json文件
+        /// 导出 Excel → 普通 Json
         /// </summary>
         /// <param name="exclePath">需要导出数据的excel表格绝对路径</param>
         /// <param name="jsonPath">要导出的json文件的绝对路径</param>

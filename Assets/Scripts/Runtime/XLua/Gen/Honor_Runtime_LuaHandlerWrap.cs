@@ -68,10 +68,10 @@ namespace XLua.CSObjectWrap
             
                 if(gen_param_count == 2&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TTABLE)&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TTABLE)) 
                 {
-                    XLua.LuaTable _luaHandelr = (XLua.LuaTable)translator.GetObject(L, 1, typeof(XLua.LuaTable));
+                    XLua.LuaTable _luaHandler = (XLua.LuaTable)translator.GetObject(L, 1, typeof(XLua.LuaTable));
                     XLua.LuaTable _args = (XLua.LuaTable)translator.GetObject(L, 2, typeof(XLua.LuaTable));
                     
-                    Honor.Runtime.LuaHandler.Callback( _luaHandelr, _args );
+                    Honor.Runtime.LuaHandler.Callback( _luaHandler, _args );
                     
                     
                     
@@ -79,9 +79,9 @@ namespace XLua.CSObjectWrap
                 }
                 if(gen_param_count == 1&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TTABLE)) 
                 {
-                    XLua.LuaTable _luaHandelr = (XLua.LuaTable)translator.GetObject(L, 1, typeof(XLua.LuaTable));
+                    XLua.LuaTable _luaHandler = (XLua.LuaTable)translator.GetObject(L, 1, typeof(XLua.LuaTable));
                     
-                    Honor.Runtime.LuaHandler.Callback( _luaHandelr );
+                    Honor.Runtime.LuaHandler.Callback( _luaHandler );
                     
                     
                     

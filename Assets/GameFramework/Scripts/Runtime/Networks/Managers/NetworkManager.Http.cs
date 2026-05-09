@@ -1,12 +1,3 @@
-/***************************************************************
- * (c) copyright 2021 - 2025, Honor.Game
- * All Rights Reserved.
- * -------------------------------------------------------------
- * filename:  NetworkManager.Http.cs
- * author:    taoye
- * created:   2022/10/12
- * descrip:   Network管理器-Http链接接口（短连接）
- ***************************************************************/
 #if BEST_HTTP_ENABLE
 using BestHTTP;
 using LitJson;
@@ -20,14 +11,14 @@ namespace Honor.Runtime
     {
 #if BEST_HTTP_ENABLE
         /// <summary>
-        /// GET方式HTTP请求
+        /// GET 方式 HTTP 请求
         /// </summary>
-        /// <param name="url">url链接</param>
-        /// <param name="finishedCallback">HTTP结果回调</param>
-        /// <param name="keepAlive">是否保活（频繁交互时保活可以降低开销）</param>
-        /// <param name="requestTimeout">请求超时时间</param>
-        /// <param name="connectTimeout">链接超时时间</param>
-        /// <param name="headerInfos">传入的协议头内容（json键值对格式）</param>
+        /// <param name="url">请求地址</param>
+        /// <param name="finishedCallback">请求完成回调</param>
+        /// <param name="keepAlive">是否长连接</param>
+        /// <param name="requestTimeout">请求超时</param>
+        /// <param name="connectTimeout">连接超时</param>
+        /// <param name="headerInfos">请求头 Json 字符串</param>
         public void HttpRequestOnGet(string url, OnRequestFinishedDelegate finishedCallback, bool keepAlive, float requestTimeout, float connectTimeout, string headerInfos)
         {
             Log.Info("请求网络 HttpRequestOnGet url: " + url);
@@ -36,7 +27,6 @@ namespace Honor.Runtime
                 switch (req.State)
                 {
                     case HTTPRequestStates.Finished:
-                        //Log.Info("Request Finished!");
                         break;
                     case HTTPRequestStates.Error:
                         Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
@@ -51,6 +41,8 @@ namespace Honor.Runtime
                         Log.Warning("Processing the request Timed Out!");
                         break;
                 }
+
+                // 执行上层回调
                 if (finishedCallback != null)
                 {
                     Log.Info("请求网络 返回 HttpRequestOnGet url: " + url);
@@ -58,10 +50,12 @@ namespace Honor.Runtime
                 }
             });
 
+            // 基础配置
             request.IsKeepAlive = keepAlive;
             request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? m_RequestTimeout : requestTimeout);
             request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? m_ConnectTimeout : connectTimeout);
 
+            // 解析并添加请求头
             if (headerInfos != null)
             {
                 JObject headerJson = JObject.Parse(headerInfos);
@@ -71,23 +65,23 @@ namespace Honor.Runtime
                 }
             }
 
+            // 发送请求
             if (request != null)
             {
                 request.Send();
             }
-
         }
 
         /// <summary>
-        /// POST方式HTTP请求
+        /// POST 方式 HTTP 请求（字符串内容）
         /// </summary>
-        /// <param name="url">url链接</param>
-        /// <param name="contentString">字符串</param>
-        /// <param name="finishedCallback">HTTP结果回调</param>
-        /// <param name="keepAlive">是否保活（频繁交互时保活可以降低开销）</param>
-        /// <param name="requestTimeout">请求超时时间</param>
-        /// <param name="connectTimeout">链接超时时间</param>
-        /// <param name="headerInfos">传入的协议头内容（json键值对格式）</param>
+        /// <param name="url">请求地址</param>
+        /// <param name="contentString">请求体字符串</param>
+        /// <param name="finishedCallback">完成回调</param>
+        /// <param name="keepAlive">是否长连接</param>
+        /// <param name="requestTimeout">请求超时</param>
+        /// <param name="connectTimeout">连接超时</param>
+        /// <param name="headerInfos">请求头 Json</param>
         public void HttpRequestOnPost(string url, string contentString, OnRequestFinishedDelegate finishedCallback, bool keepAlive, float requestTimeout, float connectTimeout, string headerInfos)
         {
             Log.Info("请求网络 HttpRequestOnPost url: " + url + " contentString: " + contentString);
@@ -96,7 +90,6 @@ namespace Honor.Runtime
                 switch (req.State)
                 {
                     case HTTPRequestStates.Finished:
-                        //Log.Info("Request Finished!");
                         break;
                     case HTTPRequestStates.Error:
                         Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
@@ -111,6 +104,7 @@ namespace Honor.Runtime
                         Log.Warning("Processing the request Timed Out!");
                         break;
                 }
+
                 if (finishedCallback != null)
                 {
                     Log.Info("请求网络 返回 HttpRequestOnPost url: " + url);
@@ -118,11 +112,13 @@ namespace Honor.Runtime
                 }
             });
 
+            // 设置原始数据
             request.RawData = Converter.GetBytesByString(contentString);
             request.IsKeepAlive = keepAlive;
             request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? m_RequestTimeout : requestTimeout);
             request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? m_ConnectTimeout : connectTimeout);
 
+            // 添加请求头
             if (headerInfos != null)
             {
                 JObject headerJson = JObject.Parse(headerInfos);
@@ -136,20 +132,19 @@ namespace Honor.Runtime
             {
                 request.Send();
             }
-
         }
 
         /// <summary>
-        /// POST方式HTTP请求（字节流）
-        /// 明文请求
+        /// POST 方式 HTTP 请求（原始字节流）
+        /// 用于二进制/加密数据请求
         /// </summary>
-        /// <param name="url">url链接</param>
-        /// <param name="contentBytes">字节流</param>
-        /// <param name="finishedCallback">HTTP结果回调</param>
-        /// <param name="keepAlive">是否保活（频繁交互时保活可以降低开销）</param>
-        /// <param name="requestTimeout">请求超时时间</param>
-        /// <param name="connectTimeout">链接超时时间</param>
-        /// <param name="headerInfos">传入的协议头内容（json键值对格式）</param>
+        /// <param name="url">地址</param>
+        /// <param name="contentBytes">字节数据</param>
+        /// <param name="finishedCallback">回调</param>
+        /// <param name="keepAlive">长连接</param>
+        /// <param name="requestTimeout">超时</param>
+        /// <param name="connectTimeout">连接超时</param>
+        /// <param name="headerInfos">头信息</param>
         public void HttpRequestOnPostWithRawData(string url, byte[] contentBytes, OnRequestFinishedDelegate finishedCallback, bool keepAlive, float requestTimeout, float connectTimeout, string headerInfos)
         {
             Log.Info("请求网络 HttpRequestOnPostWithRawData url: " + url);
@@ -158,7 +153,6 @@ namespace Honor.Runtime
                 switch (req.State)
                 {
                     case HTTPRequestStates.Finished:
-                        //Log.Info("Request Finished!");
                         break;
                     case HTTPRequestStates.Error:
                         Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
@@ -173,6 +167,7 @@ namespace Honor.Runtime
                         Log.Warning("Processing the request Timed Out!");
                         break;
                 }
+
                 if (finishedCallback != null)
                 {
                     Log.Info("请求网络 返回 HttpRequestOnPostWithRawData url: " + url);
@@ -198,21 +193,20 @@ namespace Honor.Runtime
             {
                 request.Send();
             }
-
         }
-        
-         /// <summary>
-        /// POST方式HTTP请求（文件）
-        /// 明文请求
+
+        /// <summary>
+        /// POST 方式 HTTP 请求（上传文件 + 表单数据）
         /// </summary>
-        /// <param name="url">url链接</param>
-         /// <param name="fileBytes">文件字节流</param>
-        /// <param name="fileName">文件名称</param>
-        /// <param name="finishedCallback">HTTP结果回调</param>
-        /// <param name="keepAlive">是否保活（频繁交互时保活可以降低开销）</param>
-        /// <param name="requestTimeout">请求超时时间</param>
-        /// <param name="connectTimeout">链接超时时间</param>
-        /// <param name="headerInfos">传入的协议头内容（json键值对格式）</param>
+        /// <param name="url">地址</param>
+        /// <param name="customJsonData">自定义表单 Json</param>
+        /// <param name="fileBytes">文件字节</param>
+        /// <param name="fileName">文件名</param>
+        /// <param name="finishedCallback">完成回调</param>
+        /// <param name="keepAlive">长连接</param>
+        /// <param name="requestTimeout">超时</param>
+        /// <param name="connectTimeout">连接超时</param>
+        /// <param name="headerInfos">头信息</param>
         public void HttpRequestOnPostWithFile(string url, string customJsonData, byte[] fileBytes, string fileName, OnRequestFinishedDelegate finishedCallback = null, bool keepAlive = true, float requestTimeout = -1f, float connectTimeout = -1f, string headerInfos = null)
         {
             HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, (HTTPRequest req, HTTPResponse resp) =>
@@ -220,7 +214,6 @@ namespace Honor.Runtime
                 switch (req.State)
                 {
                     case HTTPRequestStates.Finished:
-                        //Log.Info("Request Finished!");
                         break;
                     case HTTPRequestStates.Error:
                         Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
@@ -235,12 +228,14 @@ namespace Honor.Runtime
                         Log.Warning("Processing the request Timed Out!");
                         break;
                 }
+
                 if (finishedCallback != null)
                 {
                     finishedCallback(req, resp);
                 }
             });
 
+            // 构建表单：添加自定义字段 + 文件数据
             HTTPMultiPartForm form = new HTTPMultiPartForm();
             if (!string.IsNullOrEmpty(customJsonData))
             {
@@ -255,14 +250,16 @@ namespace Honor.Runtime
             }
             form.AddBinaryData("file", fileBytes, fileName, "multipart/form-data");
             request.SetForm(form);
-            
-            // 设置超时
+
+            // 超时设置
             request.IsKeepAlive = keepAlive;
             request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? 30f : requestTimeout);
             request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? 10f : connectTimeout);
 
-            // 设置请求头
+            // 默认开启 gzip 压缩
             request.AddHeader("Accept-Encoding", "gzip");
+
+            // 自定义请求头
             if (!string.IsNullOrEmpty(headerInfos))
             {
                 JObject headerJson = JObject.Parse(headerInfos);
@@ -272,7 +269,7 @@ namespace Honor.Runtime
                 }
             }
 
-            // 发送请求
+            // 发送
             request.Send();
         }
 #endif

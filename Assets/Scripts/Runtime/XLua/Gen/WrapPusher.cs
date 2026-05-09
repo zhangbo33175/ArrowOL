@@ -34,7 +34,6 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<UnityEngine.Ray>(translator.PushUnityEngineRay, translator.Get, translator.UpdateUnityEngineRay);
 				translator.RegisterPushAndGetAndUpdate<UnityEngine.Bounds>(translator.PushUnityEngineBounds, translator.Get, translator.UpdateUnityEngineBounds);
 				translator.RegisterPushAndGetAndUpdate<UnityEngine.Ray2D>(translator.PushUnityEngineRay2D, translator.Get, translator.UpdateUnityEngineRay2D);
-				translator.RegisterPushAndGetAndUpdate<UnityEngine.AnimatorUpdateMode>(translator.PushUnityEngineAnimatorUpdateMode, translator.Get, translator.UpdateUnityEngineAnimatorUpdateMode);
 				translator.RegisterPushAndGetAndUpdate<UnityEngine.Tilemaps.Tile.ColliderType>(translator.PushUnityEngineTilemapsTileColliderType, translator.Get, translator.UpdateUnityEngineTilemapsTileColliderType);
 				translator.RegisterPushAndGetAndUpdate<UnityEngine.Tilemaps.Tilemap.Orientation>(translator.PushUnityEngineTilemapsTilemapOrientation, translator.Get, translator.UpdateUnityEngineTilemapsTilemapOrientation);
 				translator.RegisterPushAndGetAndUpdate<UnityEngine.Tilemaps.TileFlags>(translator.PushUnityEngineTilemapsTileFlags, translator.Get, translator.UpdateUnityEngineTilemapsTileFlags);
@@ -109,6 +108,10 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<DG.Tweening.HandlesType>(translator.PushDGTweeningHandlesType, translator.Get, translator.UpdateDGTweeningHandlesType);
 				translator.RegisterPushAndGetAndUpdate<DG.Tweening.DOTweenInspectorMode>(translator.PushDGTweeningDOTweenInspectorMode, translator.Get, translator.UpdateDGTweeningDOTweenInspectorMode);
 				translator.RegisterPushAndGetAndUpdate<DG.Tweening.SpiralMode>(translator.PushDGTweeningSpiralMode, translator.Get, translator.UpdateDGTweeningSpiralMode);
+				translator.RegisterPushAndGetAndUpdate<RMapIconType>(translator.PushRMapIconType, translator.Get, translator.UpdateRMapIconType);
+				translator.RegisterPushAndGetAndUpdate<RMapPlayHudPosType>(translator.PushRMapPlayHudPosType, translator.Get, translator.UpdateRMapPlayHudPosType);
+				translator.RegisterPushAndGetAndUpdate<RMapType>(translator.PushRMapType, translator.Get, translator.UpdateRMapType);
+				translator.RegisterPushAndGetAndUpdate<RMapCamPosType>(translator.PushRMapCamPosType, translator.Get, translator.UpdateRMapCamPosType);
 				translator.RegisterPushAndGetAndUpdate<GameLib.EGameMode>(translator.PushGameLibEGameMode, translator.Get, translator.UpdateGameLibEGameMode);
 				translator.RegisterPushAndGetAndUpdate<GameLib.GridMapManager.GridType>(translator.PushGameLibGridMapManagerGridType, translator.Get, translator.UpdateGameLibGridMapManagerGridType);
 				translator.RegisterPushAndGetAndUpdate<GameLib.GridMapManager.LayerLevel>(translator.PushGameLibGridMapManagerLayerLevel, translator.Get, translator.UpdateGameLibGridMapManagerLayerLevel);
@@ -639,90 +642,6 @@ namespace XLua
                 if (!CopyByValue.Pack(buff, 0,  val))
                 {
                     throw new Exception("pack fail for UnityEngine.Ray2D ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
-        int UnityEngineAnimatorUpdateMode_TypeID = -1;
-		int UnityEngineAnimatorUpdateMode_EnumRef = -1;
-        
-        public void PushUnityEngineAnimatorUpdateMode(RealStatePtr L, UnityEngine.AnimatorUpdateMode val)
-        {
-            if (UnityEngineAnimatorUpdateMode_TypeID == -1)
-            {
-			    bool is_first;
-                UnityEngineAnimatorUpdateMode_TypeID = getTypeId(L, typeof(UnityEngine.AnimatorUpdateMode), out is_first);
-				
-				if (UnityEngineAnimatorUpdateMode_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(UnityEngine.AnimatorUpdateMode));
-				    UnityEngineAnimatorUpdateMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, UnityEngineAnimatorUpdateMode_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, UnityEngineAnimatorUpdateMode_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for UnityEngine.AnimatorUpdateMode ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, UnityEngineAnimatorUpdateMode_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out UnityEngine.AnimatorUpdateMode val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != UnityEngineAnimatorUpdateMode_TypeID)
-				{
-				    throw new Exception("invalid userdata for UnityEngine.AnimatorUpdateMode");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for UnityEngine.AnimatorUpdateMode");
-                }
-				val = (UnityEngine.AnimatorUpdateMode)e;
-                
-            }
-            else
-            {
-                val = (UnityEngine.AnimatorUpdateMode)objectCasters.GetCaster(typeof(UnityEngine.AnimatorUpdateMode))(L, index, null);
-            }
-        }
-		
-        public void UpdateUnityEngineAnimatorUpdateMode(RealStatePtr L, int index, UnityEngine.AnimatorUpdateMode val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != UnityEngineAnimatorUpdateMode_TypeID)
-				{
-				    throw new Exception("invalid userdata for UnityEngine.AnimatorUpdateMode");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for UnityEngine.AnimatorUpdateMode ,value="+val);
                 }
             }
 			
@@ -6948,6 +6867,342 @@ namespace XLua
             }
         }
         
+        int RMapIconType_TypeID = -1;
+		int RMapIconType_EnumRef = -1;
+        
+        public void PushRMapIconType(RealStatePtr L, RMapIconType val)
+        {
+            if (RMapIconType_TypeID == -1)
+            {
+			    bool is_first;
+                RMapIconType_TypeID = getTypeId(L, typeof(RMapIconType), out is_first);
+				
+				if (RMapIconType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(RMapIconType));
+				    RMapIconType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, RMapIconType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, RMapIconType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for RMapIconType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, RMapIconType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out RMapIconType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapIconType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapIconType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for RMapIconType");
+                }
+				val = (RMapIconType)e;
+                
+            }
+            else
+            {
+                val = (RMapIconType)objectCasters.GetCaster(typeof(RMapIconType))(L, index, null);
+            }
+        }
+		
+        public void UpdateRMapIconType(RealStatePtr L, int index, RMapIconType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapIconType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapIconType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for RMapIconType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int RMapPlayHudPosType_TypeID = -1;
+		int RMapPlayHudPosType_EnumRef = -1;
+        
+        public void PushRMapPlayHudPosType(RealStatePtr L, RMapPlayHudPosType val)
+        {
+            if (RMapPlayHudPosType_TypeID == -1)
+            {
+			    bool is_first;
+                RMapPlayHudPosType_TypeID = getTypeId(L, typeof(RMapPlayHudPosType), out is_first);
+				
+				if (RMapPlayHudPosType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(RMapPlayHudPosType));
+				    RMapPlayHudPosType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, RMapPlayHudPosType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, RMapPlayHudPosType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for RMapPlayHudPosType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, RMapPlayHudPosType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out RMapPlayHudPosType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapPlayHudPosType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapPlayHudPosType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for RMapPlayHudPosType");
+                }
+				val = (RMapPlayHudPosType)e;
+                
+            }
+            else
+            {
+                val = (RMapPlayHudPosType)objectCasters.GetCaster(typeof(RMapPlayHudPosType))(L, index, null);
+            }
+        }
+		
+        public void UpdateRMapPlayHudPosType(RealStatePtr L, int index, RMapPlayHudPosType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapPlayHudPosType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapPlayHudPosType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for RMapPlayHudPosType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int RMapType_TypeID = -1;
+		int RMapType_EnumRef = -1;
+        
+        public void PushRMapType(RealStatePtr L, RMapType val)
+        {
+            if (RMapType_TypeID == -1)
+            {
+			    bool is_first;
+                RMapType_TypeID = getTypeId(L, typeof(RMapType), out is_first);
+				
+				if (RMapType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(RMapType));
+				    RMapType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, RMapType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, RMapType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for RMapType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, RMapType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out RMapType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for RMapType");
+                }
+				val = (RMapType)e;
+                
+            }
+            else
+            {
+                val = (RMapType)objectCasters.GetCaster(typeof(RMapType))(L, index, null);
+            }
+        }
+		
+        public void UpdateRMapType(RealStatePtr L, int index, RMapType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for RMapType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int RMapCamPosType_TypeID = -1;
+		int RMapCamPosType_EnumRef = -1;
+        
+        public void PushRMapCamPosType(RealStatePtr L, RMapCamPosType val)
+        {
+            if (RMapCamPosType_TypeID == -1)
+            {
+			    bool is_first;
+                RMapCamPosType_TypeID = getTypeId(L, typeof(RMapCamPosType), out is_first);
+				
+				if (RMapCamPosType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(RMapCamPosType));
+				    RMapCamPosType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, RMapCamPosType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, RMapCamPosType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for RMapCamPosType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, RMapCamPosType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out RMapCamPosType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapCamPosType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapCamPosType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for RMapCamPosType");
+                }
+				val = (RMapCamPosType)e;
+                
+            }
+            else
+            {
+                val = (RMapCamPosType)objectCasters.GetCaster(typeof(RMapCamPosType))(L, index, null);
+            }
+        }
+		
+        public void UpdateRMapCamPosType(RealStatePtr L, int index, RMapCamPosType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapCamPosType_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapCamPosType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for RMapCamPosType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
         int GameLibEGameMode_TypeID = -1;
 		int GameLibEGameMode_EnumRef = -1;
         
@@ -7257,12 +7512,6 @@ namespace XLua
 			{
 			    UnityEngine.Ray2D[] array = obj as UnityEngine.Ray2D[];
 				translator.PushUnityEngineRay2D(L, array[index]);
-				return true;
-			}
-			else if (type == typeof(UnityEngine.AnimatorUpdateMode[]))
-			{
-			    UnityEngine.AnimatorUpdateMode[] array = obj as UnityEngine.AnimatorUpdateMode[];
-				translator.PushUnityEngineAnimatorUpdateMode(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(UnityEngine.Tilemaps.Tile.ColliderType[]))
@@ -7709,6 +7958,30 @@ namespace XLua
 				translator.PushDGTweeningSpiralMode(L, array[index]);
 				return true;
 			}
+			else if (type == typeof(RMapIconType[]))
+			{
+			    RMapIconType[] array = obj as RMapIconType[];
+				translator.PushRMapIconType(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(RMapPlayHudPosType[]))
+			{
+			    RMapPlayHudPosType[] array = obj as RMapPlayHudPosType[];
+				translator.PushRMapPlayHudPosType(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(RMapType[]))
+			{
+			    RMapType[] array = obj as RMapType[];
+				translator.PushRMapType(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(RMapCamPosType[]))
+			{
+			    RMapCamPosType[] array = obj as RMapCamPosType[];
+				translator.PushRMapCamPosType(L, array[index]);
+				return true;
+			}
 			else if (type == typeof(GameLib.EGameMode[]))
 			{
 			    GameLib.EGameMode[] array = obj as GameLib.EGameMode[];
@@ -7778,12 +8051,6 @@ namespace XLua
 			else if (type == typeof(UnityEngine.Ray2D[]))
 			{
 			    UnityEngine.Ray2D[] array = obj as UnityEngine.Ray2D[];
-				translator.Get(L, obj_idx, out array[array_idx]);
-				return true;
-			}
-			else if (type == typeof(UnityEngine.AnimatorUpdateMode[]))
-			{
-			    UnityEngine.AnimatorUpdateMode[] array = obj as UnityEngine.AnimatorUpdateMode[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
@@ -8228,6 +8495,30 @@ namespace XLua
 			else if (type == typeof(DG.Tweening.SpiralMode[]))
 			{
 			    DG.Tweening.SpiralMode[] array = obj as DG.Tweening.SpiralMode[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(RMapIconType[]))
+			{
+			    RMapIconType[] array = obj as RMapIconType[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(RMapPlayHudPosType[]))
+			{
+			    RMapPlayHudPosType[] array = obj as RMapPlayHudPosType[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(RMapType[]))
+			{
+			    RMapType[] array = obj as RMapType[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(RMapCamPosType[]))
+			{
+			    RMapCamPosType[] array = obj as RMapCamPosType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

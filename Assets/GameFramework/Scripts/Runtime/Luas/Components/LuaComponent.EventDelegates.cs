@@ -1,9 +1,15 @@
+using XLua;
+
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Lua 核心组件
+    /// 负责 C# 与 Lua 全局事件绑定、生命周期派发、跨语言通信
+    /// </summary>
     public sealed partial class LuaComponent : GameComponent
     {
         /// <summary>
-        /// Lua创建LuaBahaviour到Lua层的面向对象Class全局事件派发
+        /// Lua 创建类回调（C# -> Lua）
         /// </summary>
         private LuaCreateLuaClassFromCSEventDelegate m_LuaCreateLuaClassFromCSEventDelegate;
 
@@ -13,7 +19,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua层本地化语言表数据关联回调全局事件派发
+        /// 本地化语言表关联回调
         /// </summary>
         private LuaRelateLocalizationTableDataFromCSEventDelegate m_LuaRelateLocalizationTableDataFromCSEventDelegate;
 
@@ -23,7 +29,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua创建Lua层的Procedure面向对象Class全局事件派发
+        /// Lua 创建流程类回调
         /// </summary>
         private LuaCreateProcedureLuaClassFromCSEventDelegate m_LuaCreateProcedureLuaClassFromCSEventDelegate;
 
@@ -33,7 +39,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua层ApplicationPause回调全局事件派发
+        /// 应用暂停回调
         /// </summary>
         private LuaApplicationPauseFromCSEventDelegate m_LuaApplicationPauseFromCSEventDelegate;
 
@@ -43,7 +49,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua层ApplicationQuit回调全局事件派发
+        /// 应用退出回调
         /// </summary>
         private LuaApplicationQuitFromCSEventDelegate m_LuaApplicationQuitFromCSEventDelegate;
 
@@ -53,10 +59,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua层原生按键弹起回调全局事件派发
+        /// 键盘按键抬起回调
         /// </summary>
+  
         private LuaKeysUpFromCSEventDelegate m_LuaKeysUpFromCSEventDelegate;
-
+   
         public LuaKeysUpFromCSEventDelegate LuaKeysUpFromCSEventDelegate
         {
             get { return m_LuaKeysUpFromCSEventDelegate; }
@@ -64,7 +71,7 @@ namespace Honor.Runtime
 
 
         /// <summary>
-        /// Lua层Apple登陆结果回调全局事件派发
+        /// Apple 登录回调
         /// </summary>
         private LuaSignInWithAppleCSEventDelegate m_LuaSignInWithAppleCSEventDelegate;
 
@@ -83,7 +90,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua层Google登陆结果回调全局事件派发
+        /// Google 登录回调
         /// </summary>
         private LuaSignInWithAppleCSEventDelegate m_LuaSignInWithGoogleCSEventDelegate;
 
@@ -93,7 +100,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua层Google登出结果回调全局事件派发
+        /// Google 登出回调
         /// </summary>
         private LuaSignInWithAppleCSEventDelegate m_LuaSignOutWithGoogleCSEventDelegate;
 
@@ -103,7 +110,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua层Google当前登录账号数据全局事件派发
+        /// Google 当前账号回调
         /// </summary>
         private LuaSignInWithAppleCSEventDelegate m_LuaSignInGoogleAccountCSEventDelegate;
 
@@ -115,14 +122,13 @@ namespace Honor.Runtime
         /// Lua层接收C#事件回调全局派发
         /// </summary>
         private LuaReceiveEventCSEventDelegate m_LuaReceiveEventCSEventDelegate;
-
         public LuaReceiveEventCSEventDelegate LuaReceiveEventCSEventDelegate
         {
             get { return m_LuaReceiveEventCSEventDelegate; }
         }
 
         /// <summary>
-        /// c#获取lua层的ResDefInfo 通过别名
+        /// 获取资源定义信息
         /// </summary>
         private LuaGetResDefInfoEventDelegate m_LuaGetResDefInfoEventDelegate;
 
@@ -141,7 +147,7 @@ namespace Honor.Runtime
         }
         
         /// <summary>
-        /// 初始化所有Lua全局事件派发接口
+        /// 初始化 C# <-> Lua 全局事件绑定
         /// </summary>
         public void InitLuaBindings()
         {
@@ -149,11 +155,11 @@ namespace Honor.Runtime
             m_LuaCreateLuaClassFromCSEventDelegate =GetGlobalValue<LuaCreateLuaClassFromCSEventDelegate>("CreateLuaClassFromCS");
             if (m_LuaCreateLuaClassFromCSEventDelegate == null)
             {
-                Log.Fatal("LuaCreateLuaClassFromCSEventDelegate 无效。");
+                Log.Fatal("LuaCreateLuaClassFromCSEventDelegate 绑定失败");
                 return;
             }
 
-            // Lua层本地化语言表数据关联回调全局事件派发
+            // 本地化表关联
             m_LuaRelateLocalizationTableDataFromCSEventDelegate =GetGlobalValue<LuaRelateLocalizationTableDataFromCSEventDelegate>("Relate_Localization_Table_Data");
             if (m_LuaRelateLocalizationTableDataFromCSEventDelegate == null)
             {
@@ -161,15 +167,15 @@ namespace Honor.Runtime
                 return;
             }
 
-            // 获取Lua层的Procedure面向对象Class创建回调
-            m_LuaCreateProcedureLuaClassFromCSEventDelegate =GetGlobalValue<LuaCreateProcedureLuaClassFromCSEventDelegate>("CreatePocedureLuaClassFromCS");
+            // 创建流程 Lua 类
+            m_LuaCreateProcedureLuaClassFromCSEventDelegate = GetGlobalValue<LuaCreateProcedureLuaClassFromCSEventDelegate>("CreatePocedureLuaClassFromCS");
             if (m_LuaCreateProcedureLuaClassFromCSEventDelegate == null)
             {
-                Log.Fatal("LuaCreateProcedureLuaClassFromCSEventDelegate 无效。");
+                Log.Fatal("LuaCreateProcedureLuaClassFromCSEventDelegate 绑定失败");
                 return;
             }
 
-            // 获取Lua层ApplicationPause回调
+            // 应用暂停
             m_LuaApplicationPauseFromCSEventDelegate =GetGlobalValue<LuaApplicationPauseFromCSEventDelegate>("ApplicationPauseCallback");
             if (m_LuaApplicationPauseFromCSEventDelegate == null)
             {
@@ -177,29 +183,21 @@ namespace Honor.Runtime
                 return;
             }
 
-            // 获取Lua层ApplicationQuit回调
-            m_LuaApplicationQuitFromCSEventDelegate =GetGlobalValue<LuaApplicationQuitFromCSEventDelegate>("ApplicationQuitCallback");
+            // 应用退出
+            m_LuaApplicationQuitFromCSEventDelegate = GetGlobalValue<LuaApplicationQuitFromCSEventDelegate>("ApplicationQuitCallback");
             if (m_LuaApplicationQuitFromCSEventDelegate == null)
             {
-                Log.Fatal("LuaApplicationQuitFromCSEventDelegate 无效。");
+                Log.Fatal("LuaApplicationQuitFromCSEventDelegate 绑定失败");
                 return;
             }
 
-            // 获取Lua层原生按键抬起回调
-            m_LuaKeysUpFromCSEventDelegate =GetGlobalValue<LuaKeysUpFromCSEventDelegate>("KeyboardsUpCallback");
+            // 按键抬起
+            m_LuaKeysUpFromCSEventDelegate = GetGlobalValue<LuaKeysUpFromCSEventDelegate>("KeyboardsUpCallback");
             if (m_LuaKeysUpFromCSEventDelegate == null)
             {
-                Log.Fatal("LuaKeysUpFromCSEventDelegate 无效。");
+                Log.Fatal("LuaKeysUpFromCSEventDelegate 绑定失败");
                 return;
             }
-            
-            // // 获取Lua层Localizing-UI本地化全局事件派发
-            // m_LuaLocalizingCSEventDelegate =GetGlobalValue<LuaLocalizingCSEventDelegate>("Framework_Ui_Localizing_Callback");
-            // if (m_LuaLocalizingCSEventDelegate == null)
-            // {
-            //     Log.Fatal("m_LuaLocalizingCSEventDelegate 无效。");
-            //     return;
-            // }
 
 
             // 获取Lua层接收C#事件回调全局派发

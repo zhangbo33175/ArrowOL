@@ -1,0 +1,468 @@
+--=====================================================================================================
+-- (c) copyright 2021 - 2025, Solar.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- @brief  游戏内道具使用核心管理器
+-- @desc   负责关内/关外道具的使用、扣除、效果应用、动效播放、缓存队列、生命周期管理
+--=====================================================================================================
+
+---@class PropUsedEffectParam @道具使用动效参数
+---@field duration number @动效持续时间
+
+---@class PropUsedFreezeParam @时间冻结道具参数
+---@field duration number @动效持续时间
+---@field freezeTime number @冻结时间
+
+---@class CacheProp @关卡未就绪时缓存的道具
+---@field boosterID string @道具ID
+---@field num number @使用数量
+
+---@class GameCoreManagerUseItem @道具使用管理器
+---@field _isGameWorking boolean @游戏是否正常运行中
+---@field _cacheWhenLevelNotWorking CacheProp[] @未就绪时缓存的道具列表
+---@field _cacheEventFunc function[] @事件监听缓存（自动清理）
+---@field _longtimeEffects UnityEngine.GameObject[] @常驻特效对象
+---@field _wonderDishWeight table<EFoodType, number> @神奇菜肴替换权重
+---@field _freeTag table<string, boolean> @引导免费道具标记
+
+local GameCoreManagerUseItem = class("GameCoreManagerUseItem")
+
+---构造函数
+---@param args table @自定义参数
+function GameCoreManagerUseItem:ctor(args)
+    self._freeTag = {}
+end
+
+---静态创建实例
+---@param args table @自定义参数
+---@return GameCoreManagerUseItem
+function GameCoreManagerUseItem:Create(args)
+    local obj = GameCoreManagerUseItem.new(args)
+    return obj
+end
+
+---清空运行时数据
+function GameCoreManagerUseItem:ClearData()
+    self._cacheWhenLevelNotWorking = nil
+end
+
+---回收所有常驻特效对象
+function GameCoreManagerUseItem:RecycleEffectObject()
+    if not self._longtimeEffects then
+        return
+    end
+
+    for _, effect in pairs(self._longtimeEffects) do
+        GameEffectManager:RecycleEffect(effect)
+    end
+    self._longtimeEffects = nil
+end
+
+---使用道具（外部入口）
+---@param boosterID string @道具ID
+---@param num number @使用数量，默认1
+function GameCoreManagerUseItem:OnUsingBooster(boosterID, num)
+    if not self._isGameWorking or GameManager:IsGamePaused() then
+        self._cacheWhenLevelNotWorking = self._cacheWhenLevelNotWorking or {}
+        table.insert(self._cacheWhenLevelNotWorking, { boosterID = boosterID, num = num })
+    else
+        self:UseBooster(boosterID, num)
+    end
+end
+
+---预处理缓存道具（初始化时）
+function GameCoreManagerUseItem:Preconditioning()
+    local boosters = self._cacheWhenLevelNotWorking
+    if not boosters or #boosters == 0 then
+        return
+    end
+
+    self:TryUsePreBoosterDatas()
+    for _, v in ipairs(boosters) do
+        if v.boosterID == EResourceIDs.TurboSkates then
+            HonorEventHelper:Fire(EventCmd.OnSkillChangeChefAnimation)
+        end
+    end
+end
+
+---尝试扣除前置道具数量
+function GameCoreManagerUseItem:TryUsePreBoosterDatas()
+    local boosters = self._cacheWhenLevelNotWorking
+    if not boosters or #boosters == 0 then
+        return
+    end
+
+    for _, v in ipairs(boosters) do
+        self:UseBoosterData(v.boosterID, v.num)
+    end
+end
+
+---应用前置道具效果
+function GameCoreManagerUseItem:TryApplyPreBoosters()
+    local boosters = self._cacheWhenLevelNotWorking
+    if not boosters or #boosters == 0 then
+        return
+    end
+
+    for _, v in ipairs(boosters) do
+        self:ApplyBooster(v.boosterID)
+    end
+    self._cacheWhenLevelNotWorking = nil
+end
+
+---游戏就绪后执行缓存道具
+function GameCoreManagerUseItem:TryUseBoosters()
+    local boosters = self._cacheWhenLevelNotWorking
+    if not boosters or #boosters == 0 then
+        return
+    end
+
+    for _, v in ipairs(boosters) do
+        self:UseBooster(v.boosterID, v.num)
+    end
+    self._cacheWhenLevelNotWorking = nil
+end
+
+---确认扣除道具（收拢接口）
+---@param boosterID string @道具ID
+function GameCoreManagerUseItem:OnConfirmTakeOffBooster(boosterID)
+    ItemManager:OnConfirmUseBooster(boosterID, self._freeTag[boosterID] and 0 or 1)
+
+    if self._freeTag[boosterID] then
+        self._freeTag[boosterID] = nil
+    end
+end
+
+---使用道具（仅扣除数据）
+---@param boosterID string @道具ID
+---@param num number @数量
+---@return boolean, string @是否成功，最终道具ID
+function GameCoreManagerUseItem:UseBoosterData(boosterID, num)
+    if not boosterID then
+        return false, nil
+    end
+
+    num = num or 1
+    if self._freeTag[boosterID] then
+        num = 0
+    end
+
+    local itemData = ResourceDataManager:GetResourceData(boosterID)
+    if itemData and itemData.Type == EResourceType.Item then
+        ItemMgr:OnSelectBooster(boosterID, num)
+    end
+
+    local propId = boosterID
+    if ItemMgr:IsPreBooster(boosterID) then
+        self:OnConfirmTakeOffBooster(boosterID)
+    elseif BuffManager:IsBuffPreBooster(boosterID) then
+        self:OnConfirmTakeOffBooster(boosterID)
+        local boosterData = ResourceDataManager:GetResourceData(boosterID)
+        propId = boosterData.RelatedItem
+    end
+
+    CorePlayMgr._CorePlayMgrData:RecordLevelBoosterUse(boosterID, 1)
+    return true, propId
+end
+
+---应用道具效果
+---@param propId string @道具ID
+---@return boolean
+function GameCoreManagerUseItem:ApplyBooster(propId)
+    if string.isNullOrEmpty(propId) then
+        return false
+    end
+
+    if BuffManager:IsBuffPreBooster(propId) then
+        local boosterData = ResourceDataManager:GetResourceData(propId)
+        propId = boosterData.RelatedItem
+    end
+
+    if propId == EResourceIDs.AddPatience then
+        local addValue = ItemMgr:GetParam(propId)
+        self:PlayPatienceUsedEffect({ duration = 2.5 })
+        self:UsePropOfAddPatienceUpperLimit(addValue)
+        SoundMgr:PlaySound(Tables.Sounds.Booster_Use101.Name)
+        return true
+    elseif propId == EResourceIDs.TurboSkates then
+        local speed = ItemMgr:GetParam(propId)
+        self:PlayTurboSkatesUsedEffect({ duration = 0.5 })
+        self:UsePropOfTurboSkates(speed)
+        return true
+    elseif propId == EResourceIDs.MegaPan then
+        local produceTime = ItemMgr:GetParam(propId)
+        self:PlayMegaPanUsedEffect({ duration = 0.5 })
+        self:UsePropOfMegaPan(produceTime)
+        return true
+    elseif propId == EResourceIDs.DoubleProfits then
+        local factor = ItemMgr:GetParam(propId)
+        self:PlayDoubleProfitsUsedEffect({ duration = 0.5 })
+        self:UsePropOfDoubleProfits(factor)
+        return true
+    elseif propId == EResourceIDs.Candy then
+        self:PlayCandyUsedEffect({ duration = 1.5 })
+        self:UsePropOfCandy()
+        SoundMgr:PlaySound(Tables.Sounds.Booster_Use201.Name)
+        return true
+    elseif propId == EResourceIDs.WonderDish then
+        self:PlayWonderDishUsedEffect()
+        self:UsePropOfWonderDish()
+        return true
+    elseif propId == EResourceIDs.Freeze then
+        self:PlayFreezeUsedEffect({ duration = 2.5, freezeTime = Tables.Constants.FrozenTime.Value[1] })
+        self:UsePropOfFreeze()
+        return true
+    elseif propId == EResourceIDs.SuperDelivery then
+        self:UseBoosterSuperDelivery()
+        SoundMgr:PlaySound(Tables.Sounds.Booster_Use204.Name)
+        return true
+    end
+
+    return false
+end
+
+---使用道具（数据 + 效果）
+---@param boosterID string @道具ID
+---@param num number @数量
+function GameCoreManagerUseItem:UseBooster(boosterID, num)
+    local isSuccess, propId = self:UseBoosterData(boosterID, num)
+    if isSuccess then
+        self:ApplyBooster(propId)
+    end
+end
+
+---闪电速递（全屏动效特殊处理）
+function GameCoreManagerUseItem:UseBoosterSuperDelivery()
+    local fullScreenEffectDuration = 1.5
+    local timeShowLight = Tables.Constants.DeliveryLightShowTime.Value[1]
+    timeShowLight = math.min(timeShowLight, fullScreenEffectDuration - 0.1)
+    local position = ScreenToUIPoint(Unity.Vector3.one * 0.5)
+    local effect = GameEffectManager:AddEFLayerEffect("GameObject_Spine_SuperDeliveryUsedEffect", position, fullScreenEffectDuration, SolarRoot.UI.ScreenUICameras[0])
+    local animator = effect:GetComponent('Animator')
+
+    if animator then
+        GameManager:PauseGame()
+        local animDuration = AnimatorHelper:GetAnimLength(animator, 'Spine_SuperDeliveryUsedEffect')
+        AnimatorHelper:PlayAnim(animator, 'Spine_SuperDeliveryUsedEffect')
+
+        DOTween.Sequence()
+               :AppendInterval(animDuration)
+               :AppendCallback(function()
+            GameManager:ResumeGame()
+            effect:SetActive(false)
+            self:PlaySuperDeliveryUsedEffect({ duration = 1.5 })
+            self:UsePropOfSuperDelivery()
+        end)
+               :SetUpdate(true)
+
+        local child = effect.transform:Find("Root/Spine")
+        local spine = child:GetComponent('SkeletonGraphic')
+        spine.AnimationState:SetAnimation(0, 'work', false)
+    else
+        self:PlaySuperDeliveryUsedEffect({ duration = 1.5 })
+        self:UsePropOfSuperDelivery()
+    end
+end
+
+--region 关卡生命周期
+---关卡初始化
+function GameCoreManagerUseItem:OnLeveInit()
+    self:Preconditioning()
+end
+
+---显示目标后游戏正式开始
+function GameCoreManagerUseItem:OnBeginGameAfterShowGoal()
+    self._isGameWorking = true
+    self:ClearEventListener()
+    self:TryApplyPreBoosters()
+end
+
+---UI关闭后尝试执行道具
+function GameCoreManagerUseItem:TryUsingAfterUIClose()
+    if not PlayHelper:IsInLevelState() then
+        return
+    end
+    self:TryUseBoosters()
+end
+
+---游戏结束清理
+function GameCoreManagerUseItem:OnGameOver()
+    self._isGameWorking = false
+    ClearDic(self._freeTag)
+    self:RecycleEffectObject()
+    self:ClearEventListener()
+    self:GameOverRollbackWonderDish()
+    ItemManager:OnEndUseBooster()
+end
+--endregion
+
+---设置免费道具（新手引导专用）
+---@param boosterID string @道具ID
+---@param value boolean @是否免费
+function GameCoreManagerUseItem:SetupFreeBooster(boosterID, value)
+    self._freeTag[boosterID] = value
+end
+
+--region 事件监听管理
+---清除所有注册事件
+function GameCoreManagerUseItem:ClearEventListener()
+    if not self._cacheEventFunc then
+        return
+    end
+    for _, func in ipairs(self._cacheEventFunc) do
+        HonorEventHelper:RemoveListenerByFunc(func)
+    end
+    self._cacheEventFunc = nil
+end
+
+---记录事件函数（自动清理）
+---@param func function @监听函数
+function GameCoreManagerUseItem:RecordEventFunction(func)
+    self._cacheEventFunc = self._cacheEventFunc or {}
+    for _, f in ipairs(self._cacheEventFunc) do
+        if f == func then
+            return
+        end
+    end
+    table.insert(self._cacheEventFunc, func)
+end
+--endregion
+
+--region 道具使用条件检查
+---是否允许使用糖果
+---@return boolean
+function GameCoreManagerUseItem:AllowUsingCandy()
+    local orderMachineList = MapManager:GetOrderMachineList()
+    local canUseProp = false
+    if orderMachineList and orderMachineList:Count() > 0 then
+        for _, v in ipairs(orderMachineList.items) do
+            if v:CanUseSkillRecoverHeart() then
+                canUseProp = true
+                break
+            end
+        end
+    end
+    return canUseProp
+end
+--endregion
+
+--region 道具效果实现
+---使用糖果
+function GameCoreManagerUseItem:UsePropOfCandy()
+    self:OnConfirmTakeOffBooster(EResourceIDs.Candy)
+    CorePlayMgr._CorePlayMgrSkill:RecoverAllHeart()
+end
+--endregion
+
+--region 特效播放
+---播放香水道具动效
+---@param param PropUsedEffectParam
+function GameCoreManagerUseItem:PlayPatienceUsedEffect(param)
+    local leftOrderMachines = MapManager:GetOrderMachineListOfLeft()
+    local parentLeft, patienceLeft, spineLeft = self:CalPatienceUsedEffectByOrderMachineList(leftOrderMachines)
+
+    local rightOrderMachines = MapManager:GetOrderMachineListOfRight()
+    local parentRight, patienceRight, spineRight = self:CalPatienceUsedEffectByOrderMachineList(rightOrderMachines)
+
+    GameEffectManager:AddEffect("GameObject_TX_perfume", parentLeft, ELayerName.Map, spineLeft, EPos.World, param.duration)
+    local spineObj = GameEffectManager:AddEffect("GameObject_Spine_PatienceUsedEffect", parentLeft, ELayerName.Map, spineLeft, EPos.World, param.duration)
+    spineObj.transform.localScale = Unity.Vector3.one * 0.65
+
+    local spine = spineObj:GetComponent("SkeletonAnimation")
+    spine.skeleton:SetToSetupPose()
+    spine.state:ClearTracks()
+    spine.state:SetAnimation(0, "work", false):Complete("+", function()
+        self:PlayPatienceLongTimeEffect(parentLeft, patienceLeft)
+        self:PlayPatienceLongTimeEffect(parentRight, patienceRight)
+    end)
+end
+
+---耐心常驻特效
+---@param parent UnityEngine.Transform
+---@param pos UnityEngine.Vector3
+function GameCoreManagerUseItem:PlayPatienceLongTimeEffect(parent, pos)
+    if not parent then return end
+    local position = Unity.Vector3(pos.x, -1.66, 0)
+    local effect = GameEffectManager:AddEffect("GameObject_TX_perfume_02", parent, ELayerName.Map, position, EPos.World, 0)
+    self._longtimeEffects = self._longtimeEffects or {}
+    table.insert(self._longtimeEffects, effect)
+end
+
+---计算耐心道具动效位置
+---@param list List<OrderMachine>
+---@return UnityEngine.Transform, UnityEngine.Vector3, UnityEngine.Vector3
+function GameCoreManagerUseItem:CalPatienceUsedEffectByOrderMachineList(list)
+    if not list or list:Count() <= 0 then return nil, nil, nil end
+
+    local x, y, cx = 0, 0, 0
+    local parent = nil
+    local count = #list.items
+
+    for _, machine in ipairs(list.items) do
+        local guestPos = machine:GetGuestInteractionPos()
+        local checkoutPos = machine.Checkout.transform.position
+        x = x + guestPos.x
+        y = y + checkoutPos.y
+        cx = cx + checkoutPos.x
+        parent = machine.cs.transform.parent
+    end
+
+    x = x / count
+    y = y / count
+    cx = cx / count
+
+    return parent, Unity.Vector3(x, y, 0), Unity.Vector3(cx, y, 0)
+end
+
+---溜冰鞋动效
+function GameCoreManagerUseItem:PlayTurboSkatesUsedEffect(param)
+end
+
+---糖果动效
+function GameCoreManagerUseItem:PlayCandyUsedEffect(param)
+    self:PlayPatienceUpEffectForEveryone(param.duration)
+end
+
+---时间冻结动效
+function GameCoreManagerUseItem:PlayFreezeUsedEffect(param)
+    if AllOpenUI[UIs.UIFreezeEffect.Name] then
+        CloseUI(UIs.UIFreezeEffect, true)
+    end
+    OpenUISync(UIs.UIFreezeEffect)
+end
+
+---闪电速递动效
+function GameCoreManagerUseItem:PlaySuperDeliveryUsedEffect(param)
+    local machines = MapManager:GetOrderMachineList()
+    for _, machine in ipairs(machines.items) do
+        local guest = machine:GetGuest()
+        if guest and guest:GetOrderLength() > 0 then
+            local parent = machine.Orders.parent
+            local pos = machine.Checkout.transform.position
+            GameEffectManager:AddEffect("GameObject_TX_yanwu_02", parent, ELayerName.Map, pos, EPos.World, param.duration)
+        end
+    end
+end
+--endregion
+
+--region 公共特效接口
+---为所有客人播放耐心提升动效
+function GameCoreManagerUseItem:PlayPatienceUpEffectForEveryone(duration)
+    local machines = MapManager:GetOrderMachineList()
+    for _, machine in ipairs(machines.items) do
+        local guest = machine:GetGuest()
+        if guest and machine:CurPatienceFillAmount() < guest:GetMaxPatience() then
+            self:PlayPatienceUpEffectForOrderMachine(machine, duration)
+        end
+    end
+end
+
+---为单个点餐机播放耐心动效
+function GameCoreManagerUseItem:PlayPatienceUpEffectForOrderMachine(machine, duration)
+    local trans = machine:GetPatienceParentTransform()
+    local pos = machine:GetPatienceCenterPosition()
+    GameEffectManager:AddEffect("GameObject_TX_atientslot", trans, ELayerName.Map, pos, EPos.World, duration)
+end
+--endregion
+
+return GameCoreManagerUseItem

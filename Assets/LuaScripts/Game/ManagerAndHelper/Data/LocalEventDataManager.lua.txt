@@ -1,0 +1,77 @@
+--=====================================================================================================
+-- descrip:   本地活动数据管理器
+--            功能：读取本地活动配置表、根据活动ID获取配置、获取活动分组/排序等信息
+--=====================================================================================================
+
+---@class LocalEventDataManager @本地活动数据管理器（纯配置读取工具）
+local LocalEventDataManager = class("LocalEventDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function LocalEventDataManager:ctor(args)
+
+end
+
+---创建实例
+---@type fun(args:table):LocalEventDataManager
+---@param args table @自定义参数
+---@return LocalEventDataManager @本地活动数据管理器实例
+function LocalEventDataManager:Create(args)
+    local obj = LocalEventDataManager.new(args)
+    return obj
+end
+
+---获取全部本地活动配置
+---@type fun():Tables.LocalEvents_Item[]
+---@return Tables.LocalEvents_Item[] @本地活动配置数组
+function LocalEventDataManager:GetEventDatas()
+    return Tables.LocalEvents
+end
+
+---根据活动ID获取对应配置
+---@type fun(eventId:ELocalActivityId):Tables.LocalEvents_Item
+---@param eventId ELocalActivityId @活动ID
+---@return Tables.LocalEvents_Item @对应活动配置，不存在返回nil
+function LocalEventDataManager:GetEventDataById(eventId)
+    if eventId == nil then
+        return nil
+    end
+    local datas = self:GetEventDatas()
+    if datas then
+        ---@param v Tables.LocalEvents_Item
+        for _, v in ipairs(datas) do
+            if v.EventID == eventId then
+                return v
+            end
+        end
+        PrintError("LocalEventDataManager:GetEventDataById error , 活动数据不存在 : eventId = " .. eventId)
+        return nil
+    end
+end
+
+---根据活动ID获取活动组ID
+---@type fun(eventId:ELocalActivityId):number
+---@param eventId ELocalActivityId @活动ID
+---@return number @活动组ID（获取失败返回0）
+function LocalEventDataManager:GetActivityGroupId(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return 0
+    end
+    return data.LocalEventGroup
+end
+
+---根据活动ID获取活动开启顺序
+---@type fun(eventId:ELocalActivityId):number
+---@param eventId ELocalActivityId @活动ID
+---@return number @活动开启顺序（获取失败返回0）
+function LocalEventDataManager:GetActivityOrder(eventId)
+    local data = self:GetEventDataById(eventId)
+    if data == nil then
+        return 0
+    end
+    return data.OpenOrder
+end
+
+return LocalEventDataManager

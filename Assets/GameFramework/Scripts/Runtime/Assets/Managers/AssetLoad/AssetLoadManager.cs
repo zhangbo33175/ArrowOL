@@ -8,8 +8,11 @@ namespace Honor.Runtime
     public sealed partial class AssetLoadManager
     {
         /// <summary>
-        /// Asset加载管理器构造方法
+        /// 资源加载管理器构造方法
         /// </summary>
+        /// <param name="editorResourceMode">是否为编辑器资源模式</param>
+        /// <param name="unloadAssetDelayFrameNum">资源延迟卸载帧数</param>
+        /// <param name="loadedMaxNumToCleanMemery">触发内存清理的最大资源数量</param>
         public AssetLoadManager(bool editorResourceMode, int unloadAssetDelayFrameNum, int loadedMaxNumToCleanMemery)
         {
             m_EditorResourceMode = editorResourceMode;
@@ -32,16 +35,16 @@ namespace Honor.Runtime
             }
 
             _mAssetBundleLoadManager = new AssetBundleLoadManager();
-
         }
 
         /// <summary>
-        /// 同步加载
+        /// 同步加载资源
+        /// 支持普通资源/场景，自动处理异步转同步、已加载、加载中等状态
         /// </summary>
         /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>加载完成的资源对象</returns>
         public UnityEngine.Object LoadSync(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -51,6 +54,7 @@ namespace Honor.Runtime
                 {
                     Log.Error("AssetLoadManager 资源文件不存在 : {0}", assetPath);
                 }
+
                 return null;
             }
 
@@ -65,25 +69,25 @@ namespace Honor.Runtime
             {
                 assetObj = m_LoadingList[assetPath];
 
-                // 异步加载未完成
+                // 异步加载未完成，直接提取资源（异步转同步）
                 if (assetObj.Request != null)
                 {
-                    // 异步转同步（直接取asset）
                     if (assetObj.Request is AssetBundleRequest)
                     {
                         assetObj.Asset = (assetObj.Request as AssetBundleRequest).asset;
                     }
+
                     assetObj.Request = null;
                 }
-                else  // 异步加载已经完成
+                else // 异步加载已完成，重新加载
                 {
                     if (m_EditorResourceMode)
                     {
 #if UNITY_EDITOR
                         if (assetObj.IsScene)
                         {
-                            // 开始加载场景
-                            UnityEngine.SceneManagement.SceneManager.LoadScene(assetName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+                            UnityEngine.SceneManagement.SceneManager.LoadScene(assetName,
+                                UnityEngine.SceneManagement.LoadSceneMode.Additive);
                         }
                         else
                         {
@@ -91,24 +95,25 @@ namespace Honor.Runtime
                             Type assetType = Assembly.GetType(AorTxt.GetTypeStringByName(typeName));
                             if (assetType != null)
                             {
-                                assetObj.Asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath, assetType);
+                                assetObj.Asset =
+                                    UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath, assetType);
                             }
                             else
                             {
-                                assetObj.Asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath, typeof(UnityEngine.Object));
+                                assetObj.Asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath,
+                                    typeof(UnityEngine.Object));
                             }
                         }
 #endif
                     }
                     else
                     {
-                        // 异步转同步，按照同步的方式重新加载
                         AssetBundle ab = _mAssetBundleLoadManager.LoadSync(abPath);
 
                         if (assetObj.IsScene)
                         {
-                            // 开始加载场景
-                            UnityEngine.SceneManagement.SceneManager.LoadScene(assetName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+                            UnityEngine.SceneManagement.SceneManager.LoadScene(assetName,
+                                UnityEngine.SceneManagement.LoadSceneMode.Additive);
                         }
                         else
                         {
@@ -123,7 +128,7 @@ namespace Honor.Runtime
                             }
                         }
 
-                        // 由于AB刚刚进行了异步转同步，即多进行了一次引用计数的增加，所以为了确保引用计数的正确性，需要卸载AB异步时的引用计数
+                        // 修正异步转同步带来的额外引用计数
                         _mAssetBundleLoadManager.Unload(abPath);
                     }
                 }
@@ -136,14 +141,15 @@ namespace Honor.Runtime
                 {
                     if (assetObj.Asset == null)
                     {
-                        // 提取的资源失败，从加载列表删除
                         m_LoadingList.Remove(assetObj.AssetPath);
                         if (m_AssetComponent.StrictCheck)
                         {
                             Log.Error("AssetLoadManager.LoadSync assetObj.Asset '{0}' 为空。", assetObj.AssetPath);
                         }
+
                         return null;
                     }
+
                     assetObj.InstanceID = assetObj.Asset.GetInstanceID();
                     if (!m_AssetInstanceIDList.ContainsKey(assetObj.InstanceID))
                     {
@@ -151,20 +157,20 @@ namespace Honor.Runtime
                     }
                     else
                     {
-                        Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已经存在。 AssetPath:'{1}'", assetObj.InstanceID,assetObj.AssetPath);
+                        Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已存在。Path:{1}",
+                            assetObj.InstanceID, assetObj.AssetPath);
                     }
                 }
 
                 m_LoadingList.Remove(assetObj.AssetPath);
                 m_LoadedList.Add(assetObj.AssetPath, assetObj);
-                // 原先是异步加载的Asset封装对象，加入异步列表
                 m_LoadedAsyncTmpAgentList.Add(assetObj);
 
                 assetObj.RefCount++;
-
                 return assetObj.Asset;
             }
 
+            // 全新同步加载
             assetObj = new AssetObject();
             assetObj.TypeName = typeName;
             assetObj.AssetBundlePath = abPath;
@@ -177,8 +183,8 @@ namespace Honor.Runtime
 #if UNITY_EDITOR
                 if (assetObj.IsScene)
                 {
-                    // 以追加的方式开始加载场景
-                    UnityEngine.SceneManagement.SceneManager.LoadScene(assetName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(assetName,
+                        UnityEngine.SceneManagement.LoadSceneMode.Additive);
                 }
                 else
                 {
@@ -190,7 +196,9 @@ namespace Honor.Runtime
                     }
                     else
                     {
-                        assetObj.Asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath, typeof(UnityEngine.Object));
+                        assetObj.Asset =
+                            UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath,
+                                typeof(UnityEngine.Object));
                     }
                 }
 #endif
@@ -203,7 +211,8 @@ namespace Honor.Runtime
                     AssetBundle ab = _mAssetBundleLoadManager.LoadSync(abPath);
                     if (assetObj.IsScene)
                     {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(assetName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+                        UnityEngine.SceneManagement.SceneManager.LoadScene(assetName,
+                            UnityEngine.SceneManagement.LoadSceneMode.Additive);
                     }
                     else
                     {
@@ -217,7 +226,10 @@ namespace Honor.Runtime
                             assetObj.Asset = ab.LoadAsset(assetName);
                         }
                     }
-                    assetObj.Origin = _mAssetBundleLoadManager.LoadedAssetBundleList[_mAssetBundleLoadManager.GetABFormatPath(assetObj.AssetBundlePath)].Origin;
+
+                    assetObj.Origin = _mAssetBundleLoadManager
+                        .LoadedAssetBundleList[_mAssetBundleLoadManager.GetABFormatPath(assetObj.AssetBundlePath)]
+                        .Origin;
                 }
             }
 
@@ -229,11 +241,11 @@ namespace Honor.Runtime
             {
                 if (assetObj.Asset == null)
                 {
-                    // 提取的资源失败，从加载列表删除
                     if (m_AssetComponent.StrictCheck)
                     {
                         Log.Error("AssetLoadManager.LoadSync assetObj.Asset '{0}' 为空。", assetObj.AssetPath);
                     }
+
                     return null;
                 }
 
@@ -244,25 +256,25 @@ namespace Honor.Runtime
                 }
                 else
                 {
-                    Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已经存在。 AssetPath:'{1}'", assetObj.InstanceID,assetObj.AssetPath);
+                    Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已存在。Path:{1}", assetObj.InstanceID,
+                        assetObj.AssetPath);
                 }
             }
 
             m_LoadedList.Add(assetPath, assetObj);
-
             assetObj.RefCount = 1;
 
             return assetObj.Asset;
         }
 
         /// <summary>
-        /// 异步加载
-        /// 即使资源已经加载完成也会异步回调
+        /// 异步加载资源
+        /// 自动处理依赖、并发、回调合并
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="overCallback">asset资源加载完成的异步回调</param>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <param name="overCallback">加载完成回调</param>
         public void LoadAsync(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -272,6 +284,7 @@ namespace Honor.Runtime
                 {
                     Log.Error("AssetLoadManager Asset 文件不存在 : '{0}'。", assetPath);
                 }
+
                 return;
             }
 
@@ -290,21 +303,23 @@ namespace Honor.Runtime
                 return;
             }
 
+            // 新建异步加载对象
             assetObj = new AssetObject();
             assetObj.TypeName = typeName;
             assetObj.AssetBundlePath = abPath;
             assetObj.AssetName = assetName;
             assetObj.AssetPath = assetPath;
             assetObj.IsScene = typeName.Equals("Scene");
-
             assetObj.AssetLoadOverCallbackList.Add(overCallback);
 
             if (m_EditorResourceMode)
             {
                 if (assetObj.IsScene)
                 {
-                    assetObj.Request = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(assetName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+                    assetObj.Request = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(assetName,
+                        UnityEngine.SceneManagement.LoadSceneMode.Additive);
                 }
+
                 assetObj.Origin = OriginType.Editor;
                 m_LoadingList.Add(assetPath, assetObj);
             }
@@ -321,55 +336,55 @@ namespace Honor.Runtime
                             {
                                 Log.Error("AssetLoadManager.LoadAsync异步加载错误！{0}", assetObj.AssetPath);
                             }
+
                             m_LoadingList.Remove(assetPath);
                             return;
                         }
+
                         if (m_LoadingList.ContainsKey(assetPath) && assetObj.Request == null)
                         {
                             if (assetObj.IsScene)
                             {
-                                assetObj.Request = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(assetName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+                                assetObj.Request = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(assetName,
+                                    UnityEngine.SceneManagement.LoadSceneMode.Additive);
                             }
                             else
                             {
-                                if (assetObj.Asset == null)
+                                Type assetType = Assembly.GetType(AorTxt.GetTypeStringByName(typeName));
+                                if (assetType != null)
                                 {
-                                    Type assetType = Assembly.GetType(AorTxt.GetTypeStringByName(typeName));
-                                    if (assetType != null)
-                                    {
-                                        assetObj.Request = ab.LoadAssetAsync(assetName, assetType);
-                                    }
-                                    else
-                                    {
-                                        assetObj.Request = ab.LoadAssetAsync(assetName);
-                                    }
+                                    assetObj.Request = ab.LoadAssetAsync(assetName, assetType);
+                                }
+                                else
+                                {
+                                    assetObj.Request = ab.LoadAssetAsync(assetName);
                                 }
                             }
                         }
                     });
 
-                   AssetBundleObject assetBundleObjectTryGet;
+                    AssetBundleObject assetBundleObjectTryGet;
                     string path = AssetBundleLoadManager.GetABFormatPath(assetObj.AssetBundlePath);
-                    if (AssetBundleLoadManager.LoadedAssetBundleList.TryGetValue(path, out assetBundleObjectTryGet) || AssetBundleLoadManager.LoadingAssetBundleList.TryGetValue(path, out assetBundleObjectTryGet))
+                    if (AssetBundleLoadManager.LoadedAssetBundleList.TryGetValue(path, out assetBundleObjectTryGet) ||
+                        AssetBundleLoadManager.LoadingAssetBundleList.TryGetValue(path, out assetBundleObjectTryGet))
                     {
                         assetObj.Origin = assetBundleObjectTryGet.Origin;
                     }
-                }
-                else
-                {
-                    return;
                 }
             }
         }
 
         /// <summary>
-        /// 预加载
+        /// 异步预加载资源
+        /// 支持弱引用（自动卸载）/强引用（常驻内存）
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="isWeak">弱引用(当为true时表示使用过后会销毁，为false时将不会销毁，常驻内存，慎用)</param>
-        public void PreLoadAsync(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback, bool isWeak = true)
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <param name="overCallback">完成回调</param>
+        /// <param name="isWeak">是否为弱引用</param>
+        public void PreLoadAsync(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback,
+            bool isWeak = true)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
             AssetObject assetObj = null;
@@ -381,7 +396,8 @@ namespace Honor.Runtime
             {
                 assetObj = m_LoadingList[assetPath];
             }
-            // 如果已经存在，改变其弱引用关系
+
+            // 已存在则修改引用类型
             if (assetObj != null)
             {
                 assetObj.IsWeak = isWeak;
@@ -389,16 +405,17 @@ namespace Honor.Runtime
                 {
                     m_UnloadList.Add(assetPath, assetObj);
                 }
+
                 return;
             }
 
+            // 新建预加载对象
             PreloadAssetObject plAssetObj = new PreloadAssetObject();
             plAssetObj.TypeName = typeName;
             plAssetObj.AssetBundlePath = abPath;
             plAssetObj.AssetName = assetName;
             plAssetObj.AssetPath = assetPath;
             plAssetObj.IsScene = typeName.Equals("Scene");
-
             plAssetObj.IsWeak = isWeak;
 
             if (overCallback != null)
@@ -410,15 +427,17 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 资源销毁
-        /// 请保证资源销毁都要调用这个接口
+        /// 卸载资源（统一入口）
+        /// 支持场景/普通对象，自动管理引用计数
         /// </summary>
-        /// <param name="oriAsset">asset资源（原始资源）</param>
-        /// <param name="rightNow">是否立刻卸载</param>
+        /// <param name="oriAsset">要卸载的资源</param>
+        /// <param name="overCallback">卸载完成回调</param>
+        /// <param name="rightNow">是否立即卸载</param>
         public void Unload(object oriAsset, AssetUnloadOverCallback overCallback = null, bool rightNow = false)
         {
             if (oriAsset == null) return;
 
+            // 卸载场景
             if (oriAsset is UnityEngine.SceneManagement.Scene)
             {
                 AssetObject matchedScene = GetSceneAssetObjectByScene((UnityEngine.SceneManagement.Scene)oriAsset);
@@ -431,8 +450,10 @@ namespace Honor.Runtime
                         {
                             Log.Error("AssetLoadManager Destroy 引用计数错误 ! assetName:{0}", matchedScene.AssetPath);
                         }
+
                         return;
                     }
+
                     if (matchedScene.RefCount == 0 && !m_UnloadList.ContainsKey(matchedScene.AssetPath))
                     {
                         matchedScene.UnloadTickNum = -1;
@@ -440,6 +461,7 @@ namespace Honor.Runtime
                         {
                             matchedScene.AssetUnloadOverCallbackList.Add(overCallback);
                         }
+
                         m_UnloadList.Add(matchedScene.AssetPath, matchedScene);
                         if (matchedScene.UnloadTickNum < 0)
                         {
@@ -448,6 +470,7 @@ namespace Honor.Runtime
                     }
                 }
             }
+            // 卸载普通资源
             else
             {
                 UnityEngine.Object asset = oriAsset as UnityEngine.Object;
@@ -455,11 +478,11 @@ namespace Honor.Runtime
 
                 if (!m_AssetInstanceIDList.ContainsKey(instanceID))
                 {
-                    // 非从本类创建的资源，直接销毁即可
                     if (asset is GameObject)
                     {
                         UnityEngine.Object.Destroy(asset);
                     }
+
                     return;
                 }
 
@@ -474,6 +497,7 @@ namespace Honor.Runtime
                     {
                         Log.Error("AssetLoadManager Destroy 错误 ! assetName:{0}", assetObj.AssetPath);
                     }
+
                     return;
                 }
 
@@ -483,6 +507,7 @@ namespace Honor.Runtime
                     {
                         Log.Error("AssetLoadManager Destroy 引用计数错误 ! assetName:{0}", assetObj.AssetPath);
                     }
+
                     return;
                 }
 
@@ -493,6 +518,7 @@ namespace Honor.Runtime
                     {
                         assetObj.AssetUnloadOverCallbackList.Add(overCallback);
                     }
+
                     m_UnloadList.Add(assetObj.AssetPath, assetObj);
                     if (assetObj.UnloadTickNum < 0)
                     {
@@ -500,13 +526,13 @@ namespace Honor.Runtime
                     }
                 }
             }
-
         }
 
         /// <summary>
-        /// 强制卸载未使用的Asset资源（异步）
+        /// 强制卸载所有未使用资源
+        /// 会触发 GC，适合场景切换时调用
         /// </summary>
-        /// <param name="overcallback">结束回调</param>
+        /// <param name="overcallback">完成回调</param>
         public void ForceUnloadUnusedAssets(Action overcallback = null)
         {
             if (m_UnloadList.Count > 0)
@@ -521,12 +547,10 @@ namespace Honor.Runtime
                         m_TempLoadeds.Add(assetObj);
                     }
 
-                    // 正常在unload列表中对象的引用计数应该为0，如果此时发现外界对该对象又进行了重新load从而导致引用计数>0，这时需要从unload列表中马上移除来取消后面即将触发的释放操作。
+                    // 引用计数恢复则取消卸载
                     if (assetObj.RefCount > 0 || !assetObj.IsWeak)
                     {
-                        // 延迟卸载帧数清0
                         assetObj.UnloadTickNum = 0;
-                        // 引用计数增加（销毁期间有加载）
                         m_TempLoadeds.Add(assetObj);
                     }
                 }
@@ -541,15 +565,13 @@ namespace Honor.Runtime
             operation.completed += (oper) =>
             {
                 GC.Collect();
-                if (overcallback != null)
-                {
-                    overcallback();
-                }
+                overcallback?.Invoke();
             };
         }
 
         /// <summary>
-        /// 管理器心跳
+        /// 管理器帧更新
+        /// 驱动预加载、异步完成、卸载、AB管理器更新
         /// </summary>
         public void Update()
         {
@@ -558,27 +580,18 @@ namespace Honor.Runtime
             UpdateLoading();
             UpdateUnload();
             _mAssetBundleLoadManager.Update();
-
         }
 
         /// <summary>
-        /// 判断资源文件是否存在
-        /// 对打入atlas的图片无法判断，图片请用AtlasLoadMgr
+        /// 判断资源是否存在
+        /// Editor模式检查文件，运行时检查AB清单
         /// </summary>
-        /// <param name="typeName"></param>
-        /// <param name="abPath"></param>
-        /// <param name="assetName"></param>
-        /// <returns></returns>
         public bool IsFileExist(string typeName, string abPath, string assetName)
         {
             if (m_EditorResourceMode)
             {
                 string absoluteFullPath = GetAssetAbsoluteFullPath(typeName, abPath, assetName);
-                if (string.IsNullOrEmpty(absoluteFullPath))
-                {
-                    return false;
-                }
-                return File.Exists(absoluteFullPath);
+                return !string.IsNullOrEmpty(absoluteFullPath) && File.Exists(absoluteFullPath);
             }
             else
             {
@@ -587,30 +600,25 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取资源文件的后缀名
+        /// 获取资源文件后缀
         /// </summary>
-        /// <param name="typeName">资源的类型名称</param>
-        /// <returns></returns>
         public string GetAssetSuffix(string typeName)
         {
             string suffix = string.Empty;
             if (m_EditorResourceMode)
             {
-                if(Enum.TryParse(typeof(GameDefinitions.AssetType), typeName, out object tmpAssetType))
+                if (Enum.TryParse(typeof(GameDefinitions.AssetType), typeName, out object tmpAssetType))
                 {
                     suffix = GameDefinitions.AssetSuffix[(GameDefinitions.AssetType)tmpAssetType];
                 }
             }
+
             return suffix;
         }
 
         /// <summary>
-        /// 将外部加载得到的资源加入管理器（给其他地方调用）
+        /// 将外部资源加入管理器统一管理
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="asset">asset原始资源</param>
         public void AddAsset(string typeName, string abPath, string assetName, UnityEngine.Object asset)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -621,7 +629,6 @@ namespace Honor.Runtime
             assetObj.AssetName = assetName;
             assetObj.AssetPath = assetPath;
             assetObj.IsScene = typeName.Equals("Scene");
-
             assetObj.RefCount = 1;
 
             if (assetObj.IsScene)
@@ -638,18 +645,16 @@ namespace Honor.Runtime
                 }
                 else
                 {
-                    Log.Error("AssetLoadManager.AddAsset assetObj.InstanceID '{0}' 已经存在。", assetObj.InstanceID);
+                    Log.Error("AssetLoadManager.AddAsset InstanceID '{0}' 已存在", assetObj.InstanceID);
                 }
             }
+
             m_LoadedList.Add(assetObj.AssetPath, assetObj);
         }
 
         /// <summary>
-        /// 针对特定资源需要添加引用计数以保证引用计数的正确
+        /// 手动增加资源引用计数
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
         public void AddAssetRef(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -660,28 +665,22 @@ namespace Honor.Runtime
                 {
                     Log.Error("AssetLoadManager 追加引用计数错误 : {0}", assetPath);
                 }
+
                 return;
             }
+
             var assetObj = m_LoadedList[assetPath];
             assetObj.RefCount++;
         }
 
         /// <summary>
-        /// 解绑回调
+        /// 移除资源加载回调
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="overCallback">asset资源加载完成的异步回调</param>
         public void RemoveCallBack(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback)
         {
-            if (overCallback == null)
-            {
-                return;
-            }
-            string assetPath = GetAssetPath(typeName, abPath, assetName);
+            if (overCallback == null) return;
 
-            // 对于不确定asset的回调，将根据回调函数删除
+            string assetPath = GetAssetPath(typeName, abPath, assetName);
             if (string.IsNullOrEmpty(assetPath))
             {
                 RemoveCallBackByCallBack(overCallback);
@@ -708,80 +707,63 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取资源的绝对路径
-        /// EditorMode下使用
+        /// 获取资源绝对路径（Editor专用）
         /// </summary>
-        /// <param name="typeName">类型名称</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
         public string GetAssetAbsoluteFullPath(string typeName, string abPath, string assetName)
         {
-            // 如果assetName不直接在abPath下则需要计算出准确的fileFullPath
-            string abFullPath = AorTxt.Format("{0}{1}", Application.dataPath.Substring(0, Application.dataPath.Length - s_AssetsStringLength), abPath);
-            // 如果是一个文件则直接返回即可
+            string abFullPath = AorTxt.Format("{0}{1}",Application.dataPath.Substring(0, Application.dataPath.Length - s_AssetsStringLength), abPath);
             string tryFileName = AorTxt.Format("{0}{1}", abFullPath, GetAssetSuffix(typeName));
             if (File.Exists(tryFileName))
             {
                 return tryFileName;
             }
-            else // 如果不是文件，则开始在该目录下进行搜索
+            else
             {
-                string[] fileFullPaths = Directory.GetFiles(abFullPath, AorTxt.Format("{0}{1}", assetName, GetAssetSuffix(typeName)), SearchOption.AllDirectories);
+                string[] fileFullPaths = Directory.GetFiles(abFullPath,AorTxt.Format("{0}{1}", assetName, GetAssetSuffix(typeName)), SearchOption.AllDirectories);
                 if (fileFullPaths.Length == 0)
                 {
                     if (m_AssetComponent.StrictCheck)
                     {
-                        Log.Warning(AorTxt.Format("目录 {0} 及其子目录中没有遍历到文件 {1}{2} ！", abFullPath, assetName, GetAssetSuffix(typeName)));
+                        Log.Warning("目录 {0} 未找到文件 {1}{2}", abFullPath, assetName, GetAssetSuffix(typeName));
                     }
+
                     return null;
                 }
                 else if (fileFullPaths.Length != 1)
                 {
                     if (m_AssetComponent.StrictCheck)
                     {
-                        Log.Warning(AorTxt.Format("目录 {0} 及其子目录中遍历到多个文件 {1}{2} ！", abFullPath, assetName, GetAssetSuffix(typeName)));
+                        Log.Warning("目录 {0} 找到多个文件 {1}{2}", abFullPath, assetName, GetAssetSuffix(typeName));
                     }
+
                     return null;
                 }
+
                 return fileFullPaths[0].Replace('\\', '/');
             }
         }
 
         /// <summary>
-        /// 获取资源Assets开头的路径
-        /// EditorMode下使用
+        /// 获取资源相对路径（Assets 开头）
         /// </summary>
-        /// <param name="typeName">类型名称</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
         public string GetAssetRelativeFullPath(string typeName, string abPath, string assetName)
         {
             string absoluteFullPath = GetAssetAbsoluteFullPath(typeName, abPath, assetName);
-            string relativeFullPath = absoluteFullPath.Substring(Application.dataPath.Length - s_AssetsStringLength, absoluteFullPath.Length - (Application.dataPath.Length - s_AssetsStringLength));
+            string relativeFullPath = absoluteFullPath.Substring(Application.dataPath.Length - s_AssetsStringLength);
             return relativeFullPath;
         }
 
         /// <summary>
-        /// 获取Asset唯一标识路径
+        /// 生成资源唯一标识路径
         /// </summary>
-        /// <param name="typeName">类型名称</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
         public string GetAssetPath(string typeName, string abPath, string assetName)
         {
             return AorTxt.Format("{0}/{1}{2}", abPath, assetName, GetAssetSuffix(typeName));
         }
 
         /// <summary>
-        /// 从列表中获取加载中的AssetObject封装对象
+        /// 获取加载中的资源包装对象
         /// </summary>
-        /// <param name="typeName">类型名称</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
         public AssetObject GetLoadingAssetObjectFromList(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -789,16 +771,13 @@ namespace Honor.Runtime
             {
                 return m_LoadingList[assetPath];
             }
+
             return null;
         }
 
         /// <summary>
-        /// 从列表中获取已加载的AssetObject封装对象
+        /// 获取已加载的资源包装对象
         /// </summary>
-        /// <param name="typeName">类型名称</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
         public AssetObject GetLoadedAssetObjectFromList(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -806,16 +785,13 @@ namespace Honor.Runtime
             {
                 return m_LoadedList[assetPath];
             }
+
             return null;
         }
 
         /// <summary>
-        /// 从列表中获取卸载中的AssetObject封装对象
+        /// 获取等待卸载的资源包装对象
         /// </summary>
-        /// <param name="typeName">类型名称</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
         public AssetObject GetUnLoadAssetObjectFromList(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -823,10 +799,8 @@ namespace Honor.Runtime
             {
                 return m_UnloadList[assetPath];
             }
+
             return null;
         }
-
     }
 }
-
-

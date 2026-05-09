@@ -1,0 +1,43 @@
+--=====================================================================================================
+-- descrip:   RectTransform帮助类
+--            提供UGUI中RectTransform组件的常用操作封装，简化坐标、位置等设置逻辑
+--=====================================================================================================
+
+---@class RectTransformHelper @RectTransform帮助类：封装UGUI RectTransform常用操作工具
+local RectTransformHelper = class("RectTransformHelper")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数（预留扩展使用）
+function RectTransformHelper:ctor(args)
+
+end
+
+---创建RectTransformHelper实例对象
+---@type fun(args:table):RectTransformHelper
+---@param args table @自定义参数（预留扩展使用）
+---@return RectTransformHelper @返回创建好的RectTransformHelper实例对象
+function RectTransformHelper:Create(args)
+    local obj = RectTransformHelper.new(args)
+    return obj
+end
+
+---设置RectTransform的锚点Y坐标
+---@param rectTransform UnityEngine.RectTransform @目标RectTransform组件
+---@param newPosY number @要设置的新Y坐标值
+function RectTransformHelper:SetViewAnchoredPositionY(rectTransform, newPosY)
+    local pos = rectTransform.anchoredPosition
+    pos.y = newPosY
+    rectTransform.anchoredPosition = pos
+end
+
+---设置RectTransform的锚点X坐标
+---@param rectTransform UnityEngine.RectTransform @目标RectTransform组件
+---@param newPosX number @要设置的新X坐标值
+function RectTransformHelper:SetViewAnchoredPositionX(rectTransform, newPosX)
+    local pos = rectTransform.anchoredPosition
+    pos.x = newPosX
+    rectTransform.anchoredPosition = pos
+end
+
+return RectTransformHelper 

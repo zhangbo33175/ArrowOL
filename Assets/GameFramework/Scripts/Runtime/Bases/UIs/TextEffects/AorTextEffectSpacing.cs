@@ -4,32 +4,54 @@ using UnityEngine.UI;
 
 namespace Honor.Runtime
 {
-    [AddComponentMenu("UI/Honor/TextEffectSpacing")]
+    /// <summary>
+    /// 自定义文本字符间距调整组件
+    /// 基于UGUI BaseMeshEffect实现，支持左对齐、居中、右对齐三种模式下的字符间距调整
+    /// 仅适用于UGUI Text组件
+    /// </summary>
+    [AddComponentMenu("UI/Honor/自定义文本字符间距调整组件")]
     public class AorTextEffectSpacing : BaseMeshEffect
     {
         #region Struct
-
+        /// <summary>
+        /// 文本水平对齐类型
+        /// </summary>
         public enum HorizontalAligmentType
         {
-            Left,
-            Center,
-            Right
+            Left,       // 左对齐
+            Center,     // 居中对齐
+            Right       // 右对齐
         }
 
+        /// <summary>
+        /// 文本行数据结构
+        /// 用于记录一行文本对应的顶点起始索引、结束索引、总顶点数量
+        /// </summary>
         public class Line
         {
-            // 起点索引
+            /// <summary>
+            /// 该行文本起始顶点索引
+            /// </summary>
             public int StartVertexIndex { get { return _startVertexIndex; } }
             private int _startVertexIndex = 0;
 
-            // 终点索引
+            /// <summary>
+            /// 该行文本结束顶点索引
+            /// </summary>
             public int EndVertexIndex { get { return _endVertexIndex; } }
             private int _endVertexIndex = 0;
 
-            // 该行占的点数目
+            /// <summary>
+            /// 该行文本总顶点数量
+            /// </summary>
             public int VertexCount { get { return _vertexCount; } }
             private int _vertexCount = 0;
 
+            /// <summary>
+            /// 构造函数：初始化一行文本的顶点信息
+            /// </summary>
+            /// <param name="startVertexIndex">起始顶点索引</param>
+            /// <param name="length">当前行字符数量</param>
             public Line(int startVertexIndex, int length)
             {
                 _startVertexIndex = startVertexIndex;
@@ -37,27 +59,35 @@ namespace Honor.Runtime
                 _vertexCount = length * 6;
             }
         }
-
         #endregion
 
+        /// <summary>
+        /// 字符间距值
+        /// 正数增大间距，负数缩小间距
+        /// </summary>
         public float Spacing = 1f;
 
+        /// <summary>
+        /// 重写网格修改方法，调整文本字符顶点位置实现间距效果
+        /// </summary>
+        /// <param name="vh">顶点辅助器，用于获取和修改UI网格顶点数据</param>
         public override void ModifyMesh(VertexHelper vh)
         {
+            // 组件未激活或无顶点数据时，不执行逻辑
             if (!IsActive() || vh.currentVertCount == 0)
             {
                 return;
             }
 
+            // 获取挂载的Text组件
             var text = GetComponent<Text>();
-
             if (text == null)
             {
                 Debug.LogError("Missing Text component");
                 return;
             }
 
-            // 水平对齐方式
+            // 根据Text的对齐方式，确定当前水平对齐类型
             HorizontalAligmentType alignment;
             if (text.alignment == TextAnchor.LowerLeft || text.alignment == TextAnchor.MiddleLeft || text.alignment == TextAnchor.UpperLeft)
             {
@@ -72,18 +102,17 @@ namespace Honor.Runtime
                 alignment = HorizontalAligmentType.Right;
             }
 
+            // 获取所有顶点数据
             var vertexs = new List<UIVertex>();
             vh.GetUIVertexStream(vertexs);
-            // var indexCount = vh.currentIndexCount;
 
+            // 根据换行符，将文本分割为多行
             var lineTexts = text.text.Split('\n');
-
             var lines = new Line[lineTexts.Length];
 
-            // 根据lines数组中各个元素的长度计算每一行中第一个点的索引，每个字、字母、空母均占6个点
+            // 计算每一行文本对应的顶点范围（每个字符占6个顶点）
             for (var i = 0; i < lines.Length; i++)
             {
-                // 除最后一行外，vertexs对于前面几行都有回车符占了6个点
                 if (i == 0)
                 {
                     lines[i] = new Line(0, lineTexts[i].Length + 1);
@@ -99,24 +128,25 @@ namespace Honor.Runtime
             }
 
             UIVertex vt;
-
+            // 遍历所有行，逐行调整字符间距
             for (var i = 0; i < lines.Length; i++)
             {
+                // 遍历当前行所有顶点
                 for (var j = lines[i].StartVertexIndex; j <= lines[i].EndVertexIndex; j++)
                 {
                     if (j < 0 || j >= vertexs.Count)
-                    {
                         continue;
-                    }
 
                     vt = vertexs[j];
-
                     var charCount = lines[i].EndVertexIndex - lines[i].StartVertexIndex;
+                    
+                    // 最后一行补充顶点数量
                     if (i == lines.Length - 1)
                     {
                         charCount += 6;
                     }
 
+                    // 根据不同对齐方式，计算顶点偏移量
                     if (alignment == HorizontalAligmentType.Left)
                     {
                         vt.position += new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6), 0, 0);
@@ -132,7 +162,8 @@ namespace Honor.Runtime
                     }
 
                     vertexs[j] = vt;
-                    // 以下注意点与索引的对应关系
+
+                    // 将修改后的顶点回写到网格（处理Text顶点索引规则）
                     if (j % 6 <= 2)
                     {
                         vh.SetUIVertex(vt, (j / 6) * 4 + j % 6);
@@ -147,5 +178,3 @@ namespace Honor.Runtime
         }
     }
 }
-
-

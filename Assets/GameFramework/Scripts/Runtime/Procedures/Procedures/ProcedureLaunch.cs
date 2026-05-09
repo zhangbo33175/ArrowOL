@@ -4,199 +4,179 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 游戏启动流程（游戏入口第一个流程）
+    /// 功能：版本升级、存档转换、GDPR、性能设置、配置加载、多语言初始化、WebGL特殊处理
+    /// 完成后自动跳转到预加载流程 ProcedurePreload
+    /// </summary>
     public class ProcedureLaunch : ProcedureState
     {
         /// <summary>
-        /// WebGL热更新UI界面组件
+        /// WebGL 启动加载界面组件
         /// </summary>
         private UILauncherLoadingView _mUILauncherLoadingView;
 
+        /// <summary>
+        /// 流程初始化：设置流程名称
+        /// </summary>
         public override void OnInit(StateMachine<ProcedureComponent> ownerMachine)
         {
             base.OnInit(ownerMachine);
-
             m_Name = "ProcedureLaunch";
-
         }
-        
+
+        /// <summary>
+        /// 进入启动流程：版本转换、GDPR、性能设置、WebGL 热更检查
+        /// </summary>
         public override void OnEnter(StateMachine<ProcedureComponent> ownerMachine)
         {
+            // 切换流程时清空所有资源
             RemoveAllContentsOnProcedureTransition = true;
 
-            // PlayPrefs存档版本转换
-            string versionStringInSave = GameMainRoot.Persist.GetString(GameConstants.Persist.Common.WayType, GameConstants.Persist.Common.ClassifyName, GameConstants.Persist.Common.ItemKey.Version, "1.3.0");
-            if(Version.Parse(versionStringInSave) < Version.Parse("1.3.0"))
+            // ==============================================
+            // 存档版本升级逻辑（旧版本存档自动升级兼容）
+            // ==============================================
+            string versionStringInSave = GameMainRoot.Persist.GetString(
+                GameConstants.Persist.Common.WayType,
+                GameConstants.Persist.Common.ClassifyName,
+                GameConstants.Persist.Common.ItemKey.Version,
+                "1.3.0");
+
+            if (Version.Parse(versionStringInSave) < Version.Parse("1.3.0"))
             {
-                SortedDictionary<string, List<string>> ItemNameGroups = GameMainRoot.Persist.PlayerPrefsManager.ItemNameGroups;
+                SortedDictionary<string, List<string>> ItemNameGroups =
+                    GameMainRoot.Persist.PlayerPrefsManager.ItemNameGroups;
                 foreach (var itr in ItemNameGroups)
                 {
                     string classifyName = itr.Key;
                     List<string> itemNames = itr.Value;
                     foreach (var itemName in itemNames)
                     {
-                        //string content = GameMainRoot.Persist.PlayerPrefsManager.GetString_old(classifyName, itemName);
-                        //GameMainRoot.Persist.PlayerPrefsManager.SetString(classifyName, itemName, content);
+                        // 旧存档迁移逻辑（已注释）
                     }
                 }
+
                 GameMainRoot.Persist.PlayerPrefsManager.Save();
             }
 
             // 刷新本地版本号记录
             RefreshVersionRecorders();
 
-            // 注册GDPR状态变化监听回调
+            // 注册 GDPR 隐私政策完成回调
             GameMainRoot.Event.Subscribe(GameEventCmd.GDPROver, this, OnGDPRStateChanged);
-
-#if UNITY_WEBGL
-
-            // 注册事件监听-WebGL下载跳过
-            Root.Event.Subscribe(EventCmd.HotfixSkip, this, OnWebGLSkipEventCallback);
-
-            // 注册事件监听-WebGL下载准备
-            Root.Event.Subscribe(EventCmd.HotfixReady, this, OnWebGLReadyEventCallback);
-
-            // 注册事件监听-流程许可
-            Root.Event.Subscribe(EventCmd.FlowPermit, this, OnProcedureTransitionEventCallback);
-
-            // 检查WebGL下载
-            Root.Hotfix.CheckWebGLLauncher();
-#else
-            // 初始化启动配置
+            
+            // 非 WebGL 平台直接初始化启动
             InitLaunch(ownerMachine);
-#endif
-
         }
 
+        /// <summary>
+        /// 启动流程更新：等待进入完成
+        /// </summary>
         public override void OnUpdate(StateMachine<ProcedureComponent> ownerMachine)
         {
             if (!m_EnterOver) return;
             base.OnUpdate(ownerMachine);
         }
 
+        /// <summary>
+        /// 离开启动流程：注销所有事件
+        /// </summary>
         public override void OnLeave(StateMachine<ProcedureComponent> ownerMachine, bool isShutdown)
         {
             base.OnLeave(ownerMachine, isShutdown);
 
-            // 注销GDPR状态变化监听回调
+            // 注销 GDPR 事件
             GameMainRoot.Event.Unsubscribe(GameEventCmd.GDPROver, this, OnGDPRStateChanged);
-
-#if UNITY_WEBGL
-
-            // 注销事件监听-WebGL下载跳过
-            Root.Event.Unsubscribe(EventCmd.HotfixSkip, this, OnWebGLSkipEventCallback);
-
-            // 注销事件监听-WebGL下载准备
-            Root.Event.Unsubscribe(EventCmd.HotfixReady, this, OnWebGLReadyEventCallback);
-
-            // 注销事件监听-流程许可
-            Root.Event.Unsubscribe(EventCmd.FlowPermit, this, OnProcedureTransitionEventCallback);
-
-            // 隐藏Loading显示对象
-            if (m_UILoadingBehaviour != null)
-            {
-                Root.UI.HideLoading(m_UILoadingBehaviour);
-                m_UILoadingBehaviour = null;
-            }
-#endif
         }
 
         /// <summary>
-        /// 初始化启动配置
+        /// 初始化启动核心逻辑（全平台通用）
+        /// 性能设置 → 资源清单 → 配置表 → 多语言 → 字体 → 跳转预加载
         /// </summary>
         private void InitLaunch(StateMachine<ProcedureComponent> ownerMachine)
         {
-            // 根据机型硬件性能评级自动设置项目质量参数
+            // 根据设备性能自动设置画质
             if (GameMainRoot.Launcher.UseDevicePerformance)
             {
                 DevicePerformance.ModifyQualitySettingsBasedOnPerformanceLevel();
             }
 
-            // 加载Manifest
+            // 加载 AB 清单
             GameMainRoot.Asset.LoadManifest();
 
-            // 加载全局配置
+            // 加载全局配置表
             GameMainRoot.Config.LoadConfigs();
 
-            // 加载默认支持语种类型集合
+            // 加载支持的语言列表
             GameMainRoot.Localization.LoadDefaultLanguages();
 
-            // 初始化当前语言类型
+            // 初始化当前语言
             GameMainRoot.Localization.InitCurLanguage();
 
-            // 加载当前默认本地化数据
+            // 加载默认语言数据
             GameMainRoot.Localization.LoadDefaultDatas();
 
-            // 加载字库本地化配置数据
+            // 加载字体配置
             GameMainRoot.Localization.LoadFontDatas();
 
-            // 设置启动时语言类型
+            // 设置语言并刷新
             GameMainRoot.Localization.SetLanguage(GameMainRoot.Localization.Language, true);
 
-            // 刷新屏幕宽高适比例配阀值
+            // 刷新 UI 适配比例
             GameMainRoot.UI.RefreshScreenMatchValue();
-            
-            // 基类流程
+
+            // 调用基类进入逻辑
             base.OnEnter(ownerMachine);
-            
+
+            // 启动流程完成 → 跳转到预加载流程
             PrepareToNextProcedure(typeof(ProcedurePreload));
         }
 
         /// <summary>
-        /// GDPR状态改变回调
+        /// GDPR 完成回调：隐私政策确认后进入游戏
         /// </summary>
         private void OnGDPRStateChanged(object sender = null, object userData = null, EventParams e = null)
         {
             if (userData != this) return;
-#if UNITY_WEBGL
-            // WebGL没有热更新，默认直接跳过Hotfix
-            Root.Hotfix.OpenVersionCheck = false;
-            // 切换到preload（随后会销毁所有游戏内容）
+            
+            // 进入预加载流程
             PrepareToNextProcedure(typeof(ProcedurePreload));
-#else
-            // 切换到preload（随后会销毁所有游戏内容）
-            PrepareToNextProcedure(typeof(ProcedurePreload));
-#endif
         }
 
         /// <summary>
-        /// 事件监听回调-WebGL下载跳过
+        /// WebGL 跳过下载回调
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void OnWebGLSkipEventCallback(object sender, object userData, EventParams e)
         {
             if (userData != this) return;
-
-            InitLaunch(m_OwnerMachine);
-        }
-        
-        /// <summary>
-        /// 事件监听回调-流程切换
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnProcedureTransitionEventCallback(object sender, object userData, EventParams e)
-        {
-            if (userData != this) return;
-
             InitLaunch(m_OwnerMachine);
         }
 
         /// <summary>
-        /// 刷新本地版本号记录
+        /// 刷新本地版本记录：包体版本变化时自动更新存档版本
         /// </summary>
         private void RefreshVersionRecorders()
         {
-            // 更新存档中记录的版本号为当前包体中的版本号
-            string versionStringInSave = GameMainRoot.Persist.GetString(GameConstants.Persist.Common.WayType, GameConstants.Persist.Common.ClassifyName, GameConstants.Persist.Common.ItemKey.Version, GameConstants.MinGameVersion);
+            string versionStringInSave = GameMainRoot.Persist.GetString(
+                GameConstants.Persist.Common.WayType,
+                GameConstants.Persist.Common.ClassifyName,
+                GameConstants.Persist.Common.ItemKey.Version,
+                GameConstants.MinGameVersion);
+
             string versionStringInPackage = Application.version;
+
             if (versionStringInSave != versionStringInPackage)
             {
-                GameMainRoot.Persist.SetString(GameConstants.Persist.Common.WayType, GameConstants.Persist.Common.ClassifyName, GameConstants.Persist.Common.ItemKey.Version, versionStringInPackage);
-                GameMainRoot.Persist.Save(GameConstants.Persist.Common.WayType, GameConstants.Persist.Common.ClassifyName);
+                GameMainRoot.Persist.SetString(
+                    GameConstants.Persist.Common.WayType,
+                    GameConstants.Persist.Common.ClassifyName,
+                    GameConstants.Persist.Common.ItemKey.Version,
+                    versionStringInPackage);
+
+                GameMainRoot.Persist.Save(
+                    GameConstants.Persist.Common.WayType,
+                    GameConstants.Persist.Common.ClassifyName);
             }
         }
-
     }
 }
-

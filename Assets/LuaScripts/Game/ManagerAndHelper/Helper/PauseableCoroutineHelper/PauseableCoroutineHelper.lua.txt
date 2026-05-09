@@ -1,0 +1,131 @@
+--=====================================================================================================
+-- descrip:   可暂停协程工具类（专门用于游戏关卡内）
+--            支持按信号量分组暂停/恢复，解决关卡中UI弹窗、暂停时需要冻结逻辑的问题
+--=====================================================================================================
+
+--region 元表与内部信号定义
+--- 全局暂停信号数组：下标对应信号类型，值为 true=暂停 / false=运行
+--- 1 = 通用全局暂停(Any)
+--- 2 = 关卡逻辑暂停(Level)
+local PauseSignal = {false, false}
+
+--- 协程结束标记：用于标识协程执行完毕
+local move_end = {}
+
+--- 可暂停协程迭代器元表
+--- 实现 Unity 协程规范的 MoveNext / Reset 接口，支持暂停时卡住协程
+local pauseableCoroutineMetaTable = {
+    __index = {
+        --- 协程迭代：每次帧更新调用
+        --- 若当前信号为暂停状态，则直接返回true（卡住协程）
+        MoveNext = function(corontine)
+            if PauseSignal[corontine.pauseSignal] then
+                return true
+            end
+            corontine.Current = corontine.co()
+            if corontine.Current == move_end then
+                corontine.Current = nil
+                return false
+            else
+                return true
+            end
+        end;
+
+        --- 重置协程：重新包装函数，可再次启动
+        Reset = function(corontine)
+            corontine.co = coroutine.wrap(corontine.w_func)
+        end
+    }
+}
+--endregion
+
+---@class PauseableCoroutineHelper @可暂停协程工具类（关卡专用）
+---@field Any number @通用全局暂停信号（1）
+---@field Level number @关卡逻辑暂停信号（2）：客人生成、点单、离开等核心关卡流程
+local PauseableCoroutineHelper = class("PauseableCoroutineHelper")
+
+---构造函数：初始化暂停信号类型常量
+---@type fun(args:table):void
+---@param args table @自定义参数（预留）
+function PauseableCoroutineHelper:ctor(args)
+    self.Any = 1      --- 通用暂停：所有标记 Any 的协程都会被暂停
+    self.Level = 2    --- 关卡逻辑暂停：仅暂停关卡流程（客人、订单、移动等）
+end
+
+---创建工具类实例（单例模式）
+---@type fun(args:table):PauseableCoroutineHelper
+---@param args table @自定义参数
+---@return PauseableCoroutineHelper @可暂停协程工具实例
+function PauseableCoroutineHelper:Create(args)
+    local obj = PauseableCoroutineHelper.new(args)
+    return obj
+end
+
+--- 生成一个可暂停协程迭代器（内部方法）
+--- 包装函数并绑定暂停信号，让协程可被对应信号控制
+---@type fun(func:function,pauseSignal:number):function
+---@param func function @协程执行函数
+---@param pauseSignal number @协程所属的暂停信号
+---@return function @符合Unity协程规范的迭代器对象
+function PauseableCoroutineHelper:_PauseableCoroutineGenerator(func, pauseSignal, from)
+    local generator = setmetatable({
+        w_func = function()
+            func()
+            return move_end
+        end;
+        pauseSignal = pauseSignal,  -- 绑定信号量
+        from = from,                -- 调用来源（用于调试/排查）
+    }, pauseableCoroutineMetaTable)
+    generator:Reset()
+    return generator
+end
+
+--- 启动一个可独立暂停/恢复的协程
+--- 关卡内所有逻辑协程都应使用此方法启动
+---@type fun(handler:handler,pauseSignal:number):UnityEngine.Coroutine
+---@param handler handler @协程方法包装器
+---@param pauseSignal number @暂停信号类型（默认Any=1）
+---@return UnityEngine.Coroutine @Unity协程实例（用于停止）
+function PauseableCoroutineHelper:StartPauseableAloneCoroutine(handler,pauseSignal,from)
+    if not pauseSignal then
+        pauseSignal = self.Any
+    end
+    if GameMainRoot.Launcher ~= nil then
+        return GameMainRoot.Launcher:StartCoroutine(self:_PauseableCoroutineGenerator(handler.func,pauseSignal,from))
+    end
+    return nil
+end
+
+--- 停止一个可暂停协程
+---@type fun(co:UnityEngine.Coroutine):void
+---@param co UnityEngine.Coroutine @协程实例
+function PauseableCoroutineHelper:StopPauseableAloneCoroutine(co)
+    if co == nil then
+        return
+    end
+    if GameMainRoot.Launcher ~= nil then
+        GameMainRoot.Launcher:StopCoroutine(co)
+    end
+end
+
+--- 暂停指定信号组的所有协程
+---@type fun(pauseSignal:number):void
+---@param pauseSignal number @要暂停的信号（默认Any=1）
+function PauseableCoroutineHelper:Pause(pauseSignal)
+    if not pauseSignal then
+        pauseSignal = self.Any
+    end
+    PauseSignal[pauseSignal] = true
+end
+
+--- 恢复指定信号组的所有协程
+---@type fun(pauseSignal:number):void
+---@param pauseSignal number @要恢复的信号（默认Any=1）
+function PauseableCoroutineHelper:Resume(pauseSignal)
+    if not pauseSignal then
+        pauseSignal = self.Any
+    end
+    PauseSignal[pauseSignal] = false
+end
+
+return PauseableCoroutineHelper

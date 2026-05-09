@@ -5,11 +5,15 @@ namespace Honor.Runtime
     public sealed partial class NetworkComponent : GameComponent
     {
         /// <summary>
-        /// 默认网络连接超时时间
-        /// 默认时间20s
+        /// 网络连接超时时间（单位：秒）
+        /// 用于建立网络连接时的超时判断
         /// </summary>
         [SerializeField]
         private float m_ConnectTimeout = 20f;
+        
+        /// <summary>
+        /// 获取连接超时时间
+        /// </summary>
         public float ConnectTimeout
         {
             get
@@ -19,11 +23,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 默认网络请求超时时间
-        /// 默认时间60s
+        /// 网络请求超时时间（单位：秒）
+        /// 用于数据请求/下载时的超时判断
         /// </summary>
         [SerializeField]
         private float m_RequestTimeout = 60f;
+        
+        /// <summary>
+        /// 获取请求超时时间
+        /// </summary>
         public float RequestTimeout
         {
             get
@@ -33,12 +41,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 网络管理器
+        /// 底层网络管理实例
+        /// 负责网络状态、请求、连接的实际管理
         /// </summary>
         private NetworkManager m_NetworkManager;
-
     }
-
 }
-
-

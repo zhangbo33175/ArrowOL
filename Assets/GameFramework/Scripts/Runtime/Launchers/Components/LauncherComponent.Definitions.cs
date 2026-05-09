@@ -4,10 +4,21 @@ namespace Honor.Runtime
 {
     public sealed partial class LauncherComponent : GameComponent
     {
-        // 测试
+        /// <summary>
+        /// 设备性能配置数据（用于自动检测设备性能等级）
+        /// 可在 Inspector 中配置
+        /// </summary>
         [System.Serializable]
         public class DevicePerformanceData
         {
+            /// <summary>
+            /// 构造设备性能数据
+            /// </summary>
+            /// <param name="processorCount">CPU核心数</param>
+            /// <param name="graphicsMemorySizeHighBase">高档GPU显存阈值</param>
+            /// <param name="graphicsMemorySizeMidBase">中档GPU显存阈值</param>
+            /// <param name="systemMemorySizeHighBase">高档运行内存阈值</param>
+            /// <param name="systemMemorySizeMidBase">中档运行内存阈值</param>
             public DevicePerformanceData(int processorCount, int graphicsMemorySizeHighBase, int graphicsMemorySizeMidBase, int systemMemorySizeHighBase, int systemMemorySizeMidBase)
             {
                 ProcessorCount = processorCount;
@@ -16,16 +27,31 @@ namespace Honor.Runtime
                 SystemMemorySizeHighBase = systemMemorySizeHighBase;
                 SystemMemorySizeMidBase = systemMemorySizeMidBase;
             }
+
+            /// <summary>
+            /// CPU 核心数
+            /// </summary>
             public int ProcessorCount;
 
+            /// <summary>
+            /// 高档设备 GPU 显存阈值（MB）
+            /// </summary>
             public int GraphicsMemorySizeHighBase;
 
+            /// <summary>
+            /// 中档设备 GPU 显存阈值（MB）
+            /// </summary>
             public int GraphicsMemorySizeMidBase;
 
+            /// <summary>
+            /// 高档设备 运行内存阈值（MB）
+            /// </summary>
             public int SystemMemorySizeHighBase;
 
+            /// <summary>
+            /// 中档设备 运行内存阈值（MB）
+            /// </summary>
             public int SystemMemorySizeMidBase;
         }
     }
-
 }

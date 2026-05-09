@@ -7,13 +7,12 @@ namespace Honor.Runtime
     public sealed partial class LuaComponent : GameComponent
     {
         /// <summary>
-        /// Luac加密秘钥Key
+        /// Luac 字节码加密密钥
         /// </summary>
         public static byte[] s_LuacEncrytionKey = { 110, 52, 63, 5, 7, 13, 245, 206, 178, 221, 143, 135, 53, 41, 29, 3, 197, 77, 103, 82 };
 
         /// <summary>
-        /// Lua运行时分析模式
-        /// 仅Editor中有效
+        /// Lua 运行时性能分析模式（仅编辑器生效）
         /// </summary>
         [SerializeField]
         private bool m_LuaRuntimeProfilerMode;
@@ -26,17 +25,17 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 最近一次的GC调用时间
+        /// 最近一次 Lua GC 调用时间
         /// </summary>
-        internal static float m_LastGCTime = 0f;
+        internal static float m_LastGCTime;
 
         /// <summary>
-        /// GC调用时间间隔
+        /// Lua GC 调用间隔（秒）
         /// </summary>
         internal const float m_GCInterval = 1f;
 
         /// <summary>
-        /// Lua已加载列表
+        /// 已加载 Lua 脚本名称列表
         /// </summary>
         private List<string> m_LoadedLuaScriptsNames;
         public List<string> LoadedLuaScriptsNames
@@ -47,9 +46,9 @@ namespace Honor.Runtime
             }
         }
 
+
         /// <summary>
-        /// Lua环境
-        /// 避免不必要的开销，全局只有一个即可
+        /// 全局唯一 Lua 运行环境
         /// </summary>
         private LuaEnv m_Env;
         public LuaEnv Env

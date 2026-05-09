@@ -794,7 +794,7 @@ namespace XLua
             var hotfixCfg = new Dictionary<string, int>();
             HotfixConfig.GetConfig(hotfixCfg, Utils.GetAllTypes());
             var xluaAssemblyPath = typeof(LuaEnv).Module.FullyQualifiedName;
-            var idMapFileName = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map.lua.txt";
+            var idMapFileName = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map.lua";
             var injectAssemblyPaths = HotfixConfig.GetHotfixAssemblyPaths();
 
             foreach (var injectAssemblyPath in injectAssemblyPaths)
@@ -803,7 +803,7 @@ namespace XLua
                 if (injectAssemblyPaths.Count > 1)
                 {
                     var injectAssemblyFileName = Path.GetFileName(injectAssemblyPath);
-                    idMapFileName = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map_" + injectAssemblyFileName.Substring(0, injectAssemblyFileName.Length - 4) + ".lua.txt";
+                    idMapFileName = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map_" + injectAssemblyFileName.Substring(0, injectAssemblyFileName.Length - 4) + ".lua";
                 }
                 HotfixInject(injectAssemblyPath, xluaAssemblyPath, null, idMapFileName, hotfixCfg);
             }
@@ -1661,7 +1661,7 @@ namespace XLua
             }
 
             var assembly_csharp_path = Path.Combine(assemblyDir, "Assembly-CSharp.dll");
-            var id_map_file_path = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map.lua.txt";
+            var id_map_file_path = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map.lua";
             var hotfix_cfg_in_editor = CSObjectWrapEditor.GeneratorConfig.common_path + "hotfix_cfg_in_editor.data";
 
             Dictionary<string, int> editor_cfg = new Dictionary<string, int>();
@@ -1711,7 +1711,7 @@ namespace XLua
                 if (injectAssemblyPaths.Count > 1)
                 {
                     var injectAssemblyFileName = Path.GetFileName(injectAssemblyPath);
-                    args[2] = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map_" + injectAssemblyFileName.Substring(0, injectAssemblyFileName.Length - 4) + ".lua.txt";
+                    args[2] = CSObjectWrapEditor.GeneratorConfig.common_path + "Resources/hotfix_id_map_" + injectAssemblyFileName.Substring(0, injectAssemblyFileName.Length - 4) + ".lua";
                     idMapFileNames.Add(args[2]);
                 }
                 Process hotfix_injection = new Process();

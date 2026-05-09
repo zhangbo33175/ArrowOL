@@ -1,0 +1,128 @@
+--=====================================================================================================
+-- 【UI 栈管理器】
+-- 功能：对 UI 进行分组栈管理（支持多栈），用于控制 UI 显示层级、返回、历史记录、弹窗序列
+-- 依赖：Singleton、Stack（栈结构）
+-- 内置生命周期：OnStackPush / OnStackPop
+--=====================================================================================================
+
+---@class UIStackManager:Singleton @UI栈管理器
+---@field _dict table<string, Stack> @多个栈容器：key=栈名，value=栈实例
+local UIStackManager = class("UIStackManager", import("Singleton"))
+
+--- 构造函数
+---@param args table 自定义参数
+function UIStackManager:ctor(args)
+    UIStackManager.super.ctor(self, args)
+    self._dict = {} -- 存储多个命名栈
+end
+
+--- 创建单例
+---@param args table 自定义参数
+---@return UIStackManager
+function UIStackManager:Create(args)
+    local obj = UIStackManager.new(args)
+    return obj
+end
+
+--- 清理数据（切号/重载时调用）
+function UIStackManager:ClearData()
+    UIStackManager.super.ClearData(self)
+    self._dict = {}
+end
+
+---=========================================================================
+--- 【压入 UI 到指定栈】
+--- 自动创建不存在的栈
+--- 触发 UI 的 OnStackPush 生命周期
+---@param name string 栈名称（如 UIStackName.UI / Temp）
+---@param ui any UI实例
+---=========================================================================
+function UIStackManager:Push(name, ui)
+    if string.isNullOrEmpty(name) or ui == nil then
+        return
+    end
+
+    -- 栈不存在则创建
+    local stack = self._dict[name]
+    if not stack then
+        stack = Stack:Create()
+        self._dict[name] = stack
+    end
+
+    stack:Push(ui)
+
+    -- 触发生命周期
+    if ui.OnStackPush then
+        ui:OnStackPush()
+    end
+end
+
+---=========================================================================
+--- 【获取栈顶 UI，但不出栈】
+---@param name string 栈名称
+---@return any 栈顶UI
+---=========================================================================
+function UIStackManager:Peek(name)
+    if string.isNullOrEmpty(name) then
+        return nil
+    end
+
+    local stack = self._dict[name]
+    if not stack then
+        return nil
+    end
+
+    return stack:Peek()
+end
+
+---=========================================================================
+--- 【弹出栈顶 UI】
+--- 触发 UI 的 OnStackPop 生命周期
+---@param name string 栈名称
+---@return any 弹出的UI
+---=========================================================================
+function UIStackManager:Pop(name)
+    if string.isNullOrEmpty(name) then
+        return nil
+    end
+
+    local stack = self._dict[name]
+    if not stack then
+        return nil
+    end
+
+    local ui = stack:Pop()
+
+    -- 触发生命周期
+    if ui and ui.OnStackPop then
+        ui:OnStackPop()
+    end
+
+    return ui
+end
+
+---=========================================================================
+--- 【清空整个栈】
+--- 依次弹出所有 UI，并触发每个 UI 的 OnStackPop
+---@param name string 栈名称
+---=========================================================================
+function UIStackManager:Clear(name)
+    if string.isNullOrEmpty(name) then
+        return
+    end
+
+    local stack = self._dict[name]
+    if not stack or stack:Count() == 0 then
+        return
+    end
+
+    -- 依次弹出所有元素
+    while stack:Count() > 0 do
+        local ui = stack:Pop()
+        if ui.OnStackPop then
+            ui:OnStackPop()
+        end
+    end
+end
+
+return UIStackManager

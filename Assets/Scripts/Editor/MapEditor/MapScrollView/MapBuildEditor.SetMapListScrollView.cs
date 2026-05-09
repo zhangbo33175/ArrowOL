@@ -9,24 +9,28 @@ namespace Editor.MapEditor
     public sealed partial class MapBuildEditor
     {
         /// <summary>
-        /// 存储读取到的所有地图配置
+        /// 存储所有读取到的地图章节配置数据列表
         /// </summary>
-        private List<MapAssetData> _mapConfigs = new List<MapAssetData>();
+        private List<RMapChapterTypeData> _mapConfigs = new List<RMapChapterTypeData>();
 
         /// <summary>
-        /// 选中的列表项索引
+        /// 地图配置列表当前选中项的索引（-1 = 未选中）
         /// </summary>
         private int _selectedIndex = -1;
+
         /// <summary>
-        /// 核心方法：在ScrollView中绘制MapConfigData列表
+        /// 【核心UI方法】在滚动视图中绘制地图配置数据列表
+        /// 负责绘制列表容器、空数据提示、遍历渲染每一个可点击列表项
         /// </summary>
         private void OnSetMapJsonList()
         {
-            m_MapListView = GUILayout.BeginScrollView(m_MapListView, 
+            // 绘制地图列表滚动视图，固定高度260
+            m_MapListView = GUILayout.BeginScrollView(m_MapListView,
                 GUILayout.MinHeight(260), GUILayout.Height(260));
 
             GUILayout.BeginVertical();
 
+            // 无数据时显示空提示
             if (m_TableMainLevelsList.Count == 0)
             {
                 GUILayout.Space(20);
@@ -34,12 +38,13 @@ namespace Editor.MapEditor
             }
             else
             {
+                // 遍历所有地图配置，绘制每一个列表项
                 for (int i = 0; i < m_TableMainLevelsList.Count; i++)
                 {
-                   GUILayout.BeginVertical("Box");
-                   DrawClickableListItem(m_TableMainLevelsList[i], i);
-                   GUILayout.EndVertical(); 
-                   GUILayout.Space(2);
+                    GUILayout.BeginVertical("Box");
+                    DrawClickableListItem(m_TableMainLevelsList[i], i);
+                    GUILayout.EndVertical();
+                    GUILayout.Space(2);
                 }
             }
 
@@ -48,10 +53,14 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 可点击的列表项
+        /// 绘制单个可点击的地图列表项
+        /// 根据选中状态切换样式，点击后触发选中逻辑
         /// </summary>
-        private void DrawClickableListItem(TableMainLevels tableMainLevels, int index)
+        /// <param name="tableMainLevelsEditor">当前项的地图配置数据</param>
+        /// <param name="index">当前项在列表中的索引</param>
+        private void DrawClickableListItem(TableMainLevelsEditor tableMainLevelsEditor, int index)
         {
+            // 当前项被选中：使用Box样式高亮显示
             if (_selectedIndex == index)
             {
                 GUILayout.BeginHorizontal("Box");
@@ -61,32 +70,44 @@ namespace Editor.MapEditor
                 GUILayout.BeginHorizontal();
             }
 
-            if (GUILayout.Button($"{tableMainLevels.LevelID}", EditorStyles.label, GUILayout.Width(165)))
+            // 显示关卡ID文字按钮，点击即选中该项
+            if (GUILayout.Button($"{tableMainLevelsEditor.LevelID}", EditorStyles.label, GUILayout.Width(165)))
             {
                 _selectedIndex = index;
-                ChooseItem(tableMainLevels);
+                ChooseItem(tableMainLevelsEditor);
             }
+
             GUILayout.EndHorizontal();
         }
+
         /// <summary>
-        /// 
+        /// 【选中回调】点击列表项后执行：加载对应地图、切换背景、刷新图标列表
         /// </summary>
-        /// <param name="tableMainLevels"></param>
-        private void ChooseItem(TableMainLevels tableMainLevels)
+        /// <param name="tableMainLevelsEditor">选中的地图配置数据</param>
+        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor)
         {
             try
             {
-                GameObject prefabPath = Utils.ReplaceImageInPrefab(Utils.GetMap(), "RawImage", tableMainLevels.Level_bg, false,Type.LoadBackground);
-                if (prefabPath!=null)
+                // 替换地图背景图并获取地图预制体
+                GameObject prefabPath = Utils.ReplaceImageInPrefab(Utils.GetMap(), "RawImage",
+                    tableMainLevelsEditor.Level_bg, false, Type.LoadBackground);
+
+                if (prefabPath != null)
                 {
-                    LoadMapPrefab(prefabPath, () => { SetPreviewRect(); }); 
+                    // 加载地图预制体，完成后刷新预览区域
+                    LoadMapPrefab(prefabPath, () => { SetPreviewRect(); });
                 }
-                m_TableMainLevels = tableMainLevels;
-                mapName = tableMainLevels.LevelID;
-                mapId = tableMainLevels.ID;
+
+                // 保存当前选中的地图数据
+                _mTableMainLevelsEditor = tableMainLevelsEditor;
+                mapName = tableMainLevelsEditor.LevelID;
+                mapId = tableMainLevelsEditor.ID;
+
+                // 重置图标列表标记，刷新图标显示
                 m_IsInitIconList = false;
-                SetIconItem();
-                Debug.Log($"选中地图：{tableMainLevels.LevelID}");
+                SetIconItem(tableMainLevelsEditor);
+
+                Debug.Log($"选中地图：{tableMainLevelsEditor.LevelID}");
             }
             catch (Exception e)
             {

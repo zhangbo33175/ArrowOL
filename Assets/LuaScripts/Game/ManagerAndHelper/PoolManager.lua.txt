@@ -1,0 +1,213 @@
+--=====================================================================================================
+-- 【全局对象池管理器】
+-- 功能：管理所有 GameObject 的缓存、复用、销毁，减少 Instantiate/Destroy 开销
+-- 依赖：Singleton、Pool、RES资源配置表
+--=====================================================================================================
+
+---@class PoolManager:Singleton @游戏内的对象加载/缓存管理器
+---@field pools table<string, Pool> @对象池字典：key=资源名，value=Pool实例
+---@field maxItemCountOfOnePool number @单个池最大缓存数量（超过直接销毁）
+local PoolManager = class("PoolManager", import("Singleton"))
+
+--- 构造函数（初始化池容器）
+function PoolManager:ctor()
+    PoolManager.super.ctor(self)
+    self.pools = {}
+    self.maxItemCountOfOnePool = 30  -- 单个池最大缓存数量
+end
+
+--- 创建单例实例
+---@return PoolManager
+function PoolManager:Create()
+    local obj = PoolManager.new()
+    return obj
+end
+
+--- 初始化（重写Singleton）
+function PoolManager:Init()
+    PoolManager.super.Init(self)
+end
+
+--- 清空所有数据（销毁所有池）
+function PoolManager:ClearData()
+    PoolManager.super.ClearData(self)
+    self:DestroyAllPools()
+end
+
+---=========================================================================
+--- 【预热接口】预加载指定数量对象到池，避免运行时卡顿
+---@param resName string 资源名（必须在RES表中配置）
+---@param count number 预热数量
+---=========================================================================
+function PoolManager:Prewarm(resName, count)
+    -- 如果池已存在，直接预热
+    if table.kIn(self.pools, resName) then
+        local p = self:GetPool(resName)
+        p:Prewarm(count)
+        return
+    end
+
+    -- 检查资源配置
+    local resDefItem = RES[resName]
+    if resDefItem then
+        -- 创建新池并预热
+        local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, function() end)
+        newPool:Prewarm(count)
+    else
+        PrintError("【对象池】资源未在RES表配置: " .. resName)
+    end
+end
+
+---=========================================================================
+--- 【获取对象】从池获取，无池则自动创建（最简接口）
+---@param resName string 资源名
+---@param newParent Transform 父物体
+---@return GameObject 复用/新建的对象
+---=========================================================================
+function PoolManager:Get(resName, newParent)
+    return self:GetWithHandle(resName, newParent, function() end)
+end
+
+---=========================================================================
+--- 【获取对象（带重置回调）】
+---@param resName string 资源名
+---@param newParent Transform 父物体
+---@param resetHandler function 物体激活时的重置逻辑
+---@return GameObject
+---=========================================================================
+function PoolManager:GetWithHandle(resName, newParent, resetHandler)
+    -- 池已存在 → 直接取
+    if table.kIn(self.pools, resName) then
+        local p = self:GetPool(resName)
+        p.resetHandler = resetHandler
+        return p:Get(newParent)
+    end
+
+    -- 池不存在 → 创建新池
+    local resDefItem = RES[resName]
+    if resDefItem then
+        local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, resetHandler)
+        return newPool:Get(newParent)
+    else
+        PrintError("【对象池】资源未在RES表配置: " .. resName)
+        return nil
+    end
+end
+
+---=========================================================================
+--- 【回收对象】将GameObject放回池（超过上限则直接销毁）
+---@param go GameObject
+---=========================================================================
+function PoolManager:Put(go)
+    if IsNull(go) then return end
+    if not UnityApplication.isPlaying then return end
+
+    -- 池名规则：GameObject_资源名
+    local poolName = "GameObject_" .. go.name
+
+    -- 找到对应池
+    if table.kIn(self.pools, poolName) then
+        local pool = self:GetPool(poolName)
+
+        -- 未超上限 → 入池缓存
+        if pool.unusedQueue:Count() < self.maxItemCountOfOnePool then
+            pool:Put(go)
+        else
+            -- 超上限 → 直接销毁
+            if pool.usedList:Contains(go) then
+                pool.usedList:Remove(go)
+            end
+            DestroyPrefabWithGO(go)
+        end
+    end
+end
+
+---=========================================================================
+--- 【私有】创建一个新对象池
+---@param name string 池名
+---@param resDefItem RES_DEF_ITEM 资源配置
+---@param preParent Transform 默认父节点
+---@param resetHandler function 重置回调
+---@return Pool
+---@private
+---=========================================================================
+function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
+    -- 只支持GameObject类型
+    if resDefItem.TypeName ~= "GameObject" then
+        PrintError("【对象池】创建失败：仅支持GameObject类型 → " .. name)
+        return nil
+    end
+
+    -- 已存在则不重复创建
+    if self.pools[name] then
+        PrintError("【对象池】已存在: " .. name)
+        return self.pools[name]
+    end
+
+    -- 创建Pool实例
+    self.pools[name] = require("Pool"):Create(name, resDefItem, preParent, resetHandler)
+    return self.pools[name]
+end
+
+---=========================================================================
+--- 【获取指定对象池】
+---@param name string 池名
+---@return Pool
+---=========================================================================
+function PoolManager:GetPool(name)
+    return self.pools[name]
+end
+
+---=========================================================================
+--- 【获取当前池数量】
+---@return number
+---=========================================================================
+function PoolManager:Count()
+    local count = 0
+    for _, _ in pairs(self.pools) do
+        count = count + 1
+    end
+    return count
+end
+
+---=========================================================================
+--- 【销毁指定池】
+---@param name string 池名
+---@return boolean 是否成功
+---=========================================================================
+function PoolManager:DestroyPool(name)
+    if self.pools[name] then
+        self.pools[name]:Destroy()
+        self.pools[name] = nil
+        return true
+    end
+    return false
+end
+
+---=========================================================================
+--- 【销毁所有池 + 清理根节点】
+---=========================================================================
+function PoolManager:DestroyAllPools()
+    -- 销毁所有池
+    for _, pool in pairs(self.pools) do
+        pool:Destroy()
+    end
+    self.pools = {}
+
+    -- 销毁池根节点
+    local poolRoot = GetPoolRoot()
+    if not IsNull(poolRoot) then
+        Unity.GameObject.Destroy(poolRoot)
+    end
+end
+
+---=========================================================================
+--- 【只销毁未使用的缓存对象】（保留池结构，优化内存）
+---=========================================================================
+function PoolManager:DestroyAllPoolsUnused()
+    for _, pool in pairs(self.pools) do
+        pool:DestroyUnused()
+    end
+end
+
+return PoolManager

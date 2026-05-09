@@ -1,4 +1,3 @@
-
 using DG.Tweening;
 #if NICEVIBRATIONS_ENABLE
 using Lofelt.NiceVibrations;
@@ -10,10 +9,15 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 震动管理器（核心逻辑实现）
+    /// 基于 Nice Vibrations 插件，提供：预设震动、自定义连续震动、点震动、组合震动、全局开关控制
+    /// 支持 Lua 配置表驱动，适合游戏技能/UI/打击震动反馈
+    /// </summary>
     public sealed partial class VibrateManager
     {
         /// <summary>
-        /// 初始化振动管理器的新实例
+        /// 构造函数：初始化震动组合字典
         /// </summary>
         public VibrateManager()
         {
@@ -22,7 +26,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放最简单的振动
+        /// 播放默认简单震动（强震动3秒）
         /// </summary>
         public void Play()
         {
@@ -32,9 +36,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放不同类型的振动
+        /// 播放内置预设类型震动（成功/失败/重击/轻击等）
         /// </summary>
-        /// <param name="type">振动类型</param>
+        /// <param name="type">震动类型</param>
         public void Play(VibrateType type)
         {
 #if NICEVIBRATIONS_ENABLE
@@ -43,24 +47,24 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放自定义振动
+        /// 播放自定义连续震动
         /// </summary>
-        /// <param name="intensity">强度（0-1）</param>
-        /// <param name="sharpness">感知度（0-1）</param>
-        /// <param name="preDuration">前奏空闲持续时间（>0）</param>
-        /// <param name="duration">持续时间（>0）</param>
+        /// <param name="intensity">强度</param>
+        /// <param name="sharpness">尖锐度</param>
+        /// <param name="preDuration">延迟时间</param>
+        /// <param name="duration">持续时间</param>
+        /// <param name="overCallback">结束回调</param>
         public void PlayCustom(float intensity, float sharpness, float preDuration, float duration, Action overCallback)
         {
 #if NICEVIBRATIONS_ENABLE
             if (GetEnable())
             {
+                // 延迟后播放震动
                 DOTween.Sequence().AppendInterval(preDuration).AppendCallback(() => {
                     HapticPatterns.PlayConstant(intensity, sharpness, duration);
+                    // 震动结束后触发回调
                     DOTween.Sequence().AppendInterval(duration).AppendCallback(() => {
-                        if (overCallback != null)
-                        {
-                            overCallback();
-                        }
+                        overCallback?.Invoke();
                     }).stringId = DOTweenTypes.CustomVibrateDuration;
                 }).stringId = DOTweenTypes.CustomVibratePreDuration;
             }
@@ -68,13 +72,15 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放自定义振动组合
+        /// 播放自定义震动组合（从Lua配置表读取）
+        /// 支持多段震动按顺序自动播放
         /// </summary>
-        /// <param name="luaTable">LuaTable</param>
+        /// <param name="luaTable">Lua配置表</param>
         public void PlayCustomGroup(LuaTable luaTable)
         {
             luaTable.Get("Name", out string name);
 
+            // 第一次播放时缓存震动组合
             if (!m_CustomVibratesGroup.ContainsKey(name))
             {
                 m_CustomVibratesGroup.Add(name, new List<VibrateInfo>());
@@ -82,18 +88,15 @@ namespace Honor.Runtime
                 int index = 1;
                 LuaTable vibrateLuabTable = null;
                 luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
+
+                // 循环读取所有震动片段
                 while (vibrateLuabTable != null)
                 {
-                    float intensity = 0f;
-                    float sharpness = 0f;
-                    float preDuration = 0f;
-                    float duration = 0f;
-                    int type = 0;
+                    vibrateLuabTable.Get("Intensity", out float intensity);
+                    vibrateLuabTable.Get("Sharpness", out float sharpness);
+                    vibrateLuabTable.Get("PreDuration", out float preDuration);
+                    vibrateLuabTable.Get("Duration", out float duration);
 
-                    vibrateLuabTable.Get("Intensity", out intensity);
-                    vibrateLuabTable.Get("Sharpness", out sharpness);
-                    vibrateLuabTable.Get("PreDuration", out preDuration);
-                    vibrateLuabTable.Get("Duration", out duration);
                     m_CustomVibratesGroup[name].Add(new VibrateInfo(intensity, sharpness, preDuration, duration));
 
                     index++;
@@ -101,18 +104,16 @@ namespace Honor.Runtime
                     luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
                 }
             }
-            // 开始播放振动组合
+
+            // 开始顺序播放组合
             StartCustomGroupItem(name, 0);
         }
 
         /// <summary>
-        /// 播放点振动
+        /// 播放点震动（短促、冲击型震动，适合点击/打击反馈）
         /// </summary>
-        /// <param name="amplitude">振幅（0~1）</param>
-        /// <param name="frequency">频率（0~1）</param>
-        /// <param name="preDuration">前奏空闲持续时间（>=0）</param>
-        /// <param name="interval">间隔时间（>=0）</param>
-        public void PlayEmphasis(float amplitude, float frequency, float preDuration, float interval, Action overCallback)
+        public void PlayEmphasis(float amplitude, float frequency, float preDuration, float interval,
+            Action overCallback)
         {
 #if NICEVIBRATIONS_ENABLE
             if (GetEnable())
@@ -120,10 +121,7 @@ namespace Honor.Runtime
                 DOTween.Sequence().AppendInterval(preDuration).AppendCallback(() => {
                     HapticPatterns.PlayEmphasis(amplitude, frequency);
                     DOTween.Sequence().AppendInterval(interval).AppendCallback(() => {
-                        if (overCallback != null)
-                        {
-                            overCallback();
-                        }
+                        overCallback?.Invoke();
                     }).stringId = DOTweenTypes.EmphasisVibrateDuration;
                 }).stringId = DOTweenTypes.EmphasisVibratePreDuration;
             }
@@ -131,9 +129,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放点振动组合
+        /// 播放点震动组合（Lua配置表驱动）
         /// </summary>
-        /// <param name="luaTable">LuaTable</param>
         public void PlayEmphasisGroup(LuaTable luaTable)
         {
             luaTable.Get("Name", out string name);
@@ -145,17 +142,14 @@ namespace Honor.Runtime
                 int index = 1;
                 LuaTable vibrateLuabTable = null;
                 luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
+
                 while (vibrateLuabTable != null)
                 {
-                    float amplitude = 0f;
-                    float frequency = 0f;
-                    float preDuration = 0f;
-                    float interval = 0f;
+                    vibrateLuabTable.Get("Amplitude", out float amplitude);
+                    vibrateLuabTable.Get("Frequency", out float frequency);
+                    vibrateLuabTable.Get("PreDuration", out float preDuration);
+                    vibrateLuabTable.Get("Interval", out float interval);
 
-                    vibrateLuabTable.Get("Amplitude", out amplitude);
-                    vibrateLuabTable.Get("Frequency", out frequency);
-                    vibrateLuabTable.Get("PreDuration", out preDuration);
-                    vibrateLuabTable.Get("Interval", out interval);
                     m_EmphasisVibratesGroup[name].Add(new VibrateInfo(amplitude, frequency, preDuration, interval));
 
                     index++;
@@ -163,44 +157,44 @@ namespace Honor.Runtime
                     luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
                 }
             }
-            // 开始播放点振动组合
+
+            // 开始播放点震动组合
             StartEmphasisGroupItem(name, 0);
         }
 
         /// <summary>
-        /// 结束所有振动
+        /// 停止所有震动（包括DOTween延迟+NV震动）
         /// </summary>
         public void StopAll()
         {
+            // 停止所有延迟/计时动画
             DOTween.Kill(GameDOTweenTypes.CustomVibratePreDuration);
             DOTween.Kill(GameDOTweenTypes.CustomVibrateDuration);
             DOTween.Kill(GameDOTweenTypes.EmphasisVibratePreDuration);
             DOTween.Kill(GameDOTweenTypes.EmphasisVibrateDuration);
+
 #if NICEVIBRATIONS_ENABLE
             HapticController.Stop();
 #endif
         }
 
         /// <summary>
-        /// 设置开关
+        /// 设置全局震动开关
         /// </summary>
-        /// <param name="enable">开关</param>
         public void SetEnable(bool enable)
         {
-            if(!enable)
+            if (!enable)
             {
-                DOTween.Kill(GameDOTweenTypes.CustomVibratePreDuration);
-                DOTween.Kill(GameDOTweenTypes.CustomVibrateDuration);
-                DOTween.Kill(GameDOTweenTypes.EmphasisVibratePreDuration);
-                DOTween.Kill(GameDOTweenTypes.EmphasisVibrateDuration);
+                StopAll();
             }
+
 #if NICEVIBRATIONS_ENABLE
             HapticController.hapticsEnabled = enable;
 #endif
         }
 
         /// <summary>
-        /// 获取开关
+        /// 获取震动开关状态
         /// </summary>
         public bool GetEnable()
         {
@@ -212,9 +206,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 判断是否支持振动
+        /// 当前设备是否支持震动
         /// </summary>
-        /// <returns></returns>
         public bool IsSupported()
         {
 #if NICEVIBRATIONS_ENABLE
@@ -223,8 +216,5 @@ namespace Honor.Runtime
             return false;
 #endif
         }
-
     }
 }
-
-

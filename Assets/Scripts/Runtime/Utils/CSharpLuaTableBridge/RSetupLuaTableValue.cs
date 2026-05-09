@@ -1,44 +1,81 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using XLua;
 
 namespace GameLib
 {
+    /// <summary>
+    /// Lua ↔ C# 交互工具类
+    /// 提供：屏幕坐标转换、时间获取、UI检测、时间戳/日期转换、本地/UTC时间计算
+    /// 专供 Lua 脚本调用，实现跨语言功能互通
+    /// </summary>
     public static class RSetupLuaTableValue
     {
-        public static void RScreenToWorldPoint(Camera camera,Vector3 screenPosition,LuaTable worldPosition)
+        /// <summary>
+        /// 屏幕坐标转世界坐标（结果写入LuaTable）
+        /// </summary>
+        /// <param name="camera">相机</param>
+        /// <param name="screenPosition">屏幕坐标</param>
+        /// <param name="worldPosition">Lua表（用于接收x/y/z）</param>
+        public static void RScreenToWorldPoint(Camera camera, Vector3 screenPosition, LuaTable worldPosition)
         {
-            var screenPoint = new Vector3(screenPosition.x,screenPosition.y,screenPosition.z);
-            var result = camera.ScreenToWorldPoint(screenPoint);
-            worldPosition.Set("x",result.x);
-            worldPosition.Set("y",result.y);
-            worldPosition.Set("z",result.z);
+            Vector3 screenPoint = new Vector3(screenPosition.x, screenPosition.y, screenPosition.z);
+            Vector3 result = camera.ScreenToWorldPoint(screenPoint);
+
+            // 把结果写入Lua表
+            worldPosition.Set("x", result.x);
+            worldPosition.Set("y", result.y);
+            worldPosition.Set("z", result.z);
         }
 
+        /// <summary>
+        /// 获取帧间隔时间 deltaTime
+        /// </summary>
         public static float GetTimeDeltaTime()
         {
             return Time.deltaTime;
         }
 
+        /// <summary>
+        /// 获取游戏启动总时间
+        /// </summary>
         public static float GetRealtimeSinceStartup()
         {
             return Time.realtimeSinceStartup;
         }
 
         #region 是否点击到了UI
+
         private static List<RaycastResult> _isPointerOverUIObjectResult;
-        public static bool IsPointerOverUIObject() {
-            var eventData = new PointerEventData(EventSystem.current);
+
+        /// <summary>
+        /// 判断鼠标是否点击在UI上（检测UI层）
+        /// </summary>
+        public static bool IsPointerOverUIObject()
+        {
+            PointerEventData eventData = new PointerEventData(EventSystem.current);
             eventData.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+
             _isPointerOverUIObjectResult ??= new List<RaycastResult>();
             _isPointerOverUIObjectResult.Clear();
             EventSystem.current.RaycastAll(eventData, _isPointerOverUIObjectResult);
-            return _isPointerOverUIObjectResult.Count > 0 && _isPointerOverUIObjectResult.Exists(ui=>ui.gameObject && ui.gameObject.layer == LayerMask.NameToLayer("UI"));
+
+            // 检测是否存在 UI 层的物体
+            return _isPointerOverUIObjectResult.Count > 0 &&
+                   _isPointerOverUIObjectResult.Exists(ui =>
+                       ui.gameObject && ui.gameObject.layer == LayerMask.NameToLayer("UI"));
         }
+
         #endregion
 
-        #region 返回DateTime相关的对象
+        #region 日期时间结构（供Lua获取时间使用）
+
+        /// <summary>
+        /// 年月日时分秒包装类
+        /// Lua获取时间的通用数据结构
+        /// </summary>
         public class RDateTimeWarpYMDHMS
         {
             public int Year;
@@ -50,40 +87,35 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 一个公用的容器，Lua端获取之后要立刻建一个table把数据拷贝出去
+        /// 静态公用容器（Lua端获取后需立刻复制数据）
+        /// 减少GC，复用对象
         /// </summary>
         private static readonly RDateTimeWarpYMDHMS _dateTimeCommonData = new();
-        
+
         /// <summary>
-        /// 获取一个年月日时分秒的结构
-        /// 从19791100添加秒数
-        /// 根据本地时间戳获取本地年月日时分秒信息
+        /// 从1970-01-01加上秒数，获取年月日时分秒
         /// </summary>
-        /// <returns></returns>
         public static RDateTimeWarpYMDHMS GetDateTime1970AddSeconds(int seconds)
         {
-            var dateTime = new System.DateTime(1970, 1, 1).AddSeconds(seconds);
+            DateTime dateTime = new DateTime(1970, 1, 1).AddSeconds(seconds);
             _dateTimeCommonData.Year = dateTime.Year;
             _dateTimeCommonData.Month = dateTime.Month;
             _dateTimeCommonData.Day = dateTime.Day;
             _dateTimeCommonData.Hour = dateTime.Hour;
             _dateTimeCommonData.Minute = dateTime.Minute;
             _dateTimeCommonData.Second = dateTime.Second;
-            
+
             return _dateTimeCommonData;
         }
 
         /// <summary>
-        /// 获取当前时区的年月日时分秒信息
+        /// 获取本地时区时间（支持服务器时间戳）
         /// </summary>
-        /// <param name="isFromServer"></param>
-        /// <param name="utc0SecondsFromServer"></param>
-        /// <returns></returns>
-        public static RDateTimeWarpYMDHMS GetLocalTimeInfo(bool isFromServer,double utc0SecondsFromServer)
+        public static RDateTimeWarpYMDHMS GetLocalTimeInfo(bool isFromServer, double utc0SecondsFromServer)
         {
-            var dateTime = !isFromServer
-                ? System.DateTime.Now
-                : new System.DateTime(1970, 1, 1).AddSeconds(utc0SecondsFromServer).ToLocalTime();
+            DateTime dateTime = !isFromServer
+                ? DateTime.Now
+                : new DateTime(1970, 1, 1).AddSeconds(utc0SecondsFromServer).ToLocalTime();
 
             _dateTimeCommonData.Year = dateTime.Year;
             _dateTimeCommonData.Month = dateTime.Month;
@@ -91,155 +123,126 @@ namespace GameLib
             _dateTimeCommonData.Hour = dateTime.Hour;
             _dateTimeCommonData.Minute = dateTime.Minute;
             _dateTimeCommonData.Second = dateTime.Second;
-            
+
             return _dateTimeCommonData;
         }
 
         /// <summary>
-        /// 获取当前时区的时间戳
+        /// 获取本地时间戳（1970年起）
         /// </summary>
-        /// <param name="isFromServer"></param>
-        /// <param name="utc0SecondsFromServer"></param>
-        /// <returns></returns>
-        public static double GetLocalTimeStamp(bool isFromServer,double utc0SecondsFromServer)
+        public static double GetLocalTimeStamp(bool isFromServer, double utc0SecondsFromServer)
         {
-            var dateTime = !isFromServer
-                ? System.DateTime.Now
-                : new System.DateTime(1970, 1, 1).AddSeconds(utc0SecondsFromServer).ToLocalTime();
+            DateTime dateTime = !isFromServer
+                ? DateTime.Now
+                : new DateTime(1970, 1, 1).AddSeconds(utc0SecondsFromServer).ToLocalTime();
 
-            return (dateTime - new System.DateTime(1970, 1, 1)).TotalSeconds;
+            return (dateTime - new DateTime(1970, 1, 1)).TotalSeconds;
         }
 
         /// <summary>
-        ///  推送那儿的本地推送时间戳
+        /// 本地时间戳 → UTC0时间戳
         /// </summary>
-        /// <param name="localTimeStamp"></param>
-        /// <returns></returns>
         public static double GetUniversalTimeStamp(double localTimeStamp)
         {
-            var date = new System.DateTime(1970, 1, 1).AddSeconds(localTimeStamp);
-            return (date.ToUniversalTime() - new System.DateTime(1970, 1, 1)).TotalSeconds;
+            DateTime date = new DateTime(1970, 1, 1).AddSeconds(localTimeStamp);
+            return (date.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalSeconds;
         }
 
         /// <summary>
-        /// 生成的周期性推送的时间戳
+        /// 获取周期性推送结束时间戳（7天后）
         /// </summary>
-        /// <param name="localTime"></param>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
-        /// <param name="day"></param>
-        /// <returns></returns>
         public static double GetPeriodicNotificationEndTimestamp(double localTime)
         {
-            var localDate = new System.DateTime(1970, 1, 1).AddSeconds(localTime);
-            return (new System.DateTime(localDate.Year, localDate.Month, localDate.Day).AddDays(7) -
-                    new System.DateTime(1970, 1, 1)).TotalSeconds;
-        }
-
-        public static double GetPeriodicNotificationLocalDayDate(double localTime, int delayDays,int hours,int minutes)
-        {
-            var localDate = new System.DateTime(1970, 1, 1).AddSeconds(localTime);
-            var localDayDate = new System.DateTime(localDate.Year, localDate.Month, localDate.Day, 0, 0, 0);
-            return (localDayDate.AddDays(delayDays).AddHours(hours).AddMinutes(minutes).ToUniversalTime() -
-                    new System.DateTime(1970, 1, 1)).TotalSeconds;
+            DateTime localDate = new DateTime(1970, 1, 1).AddSeconds(localTime);
+            return (new DateTime(localDate.Year, localDate.Month, localDate.Day).AddDays(7)
+                    - new DateTime(1970, 1, 1)).TotalSeconds;
         }
 
         /// <summary>
-        /// 获取本地时区上指定年月日时分秒信息的时间戳
+        /// 获取指定延迟天数/时分的本地日期时间戳（推送用）
         /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
-        /// <param name="day"></param>
-        /// <param name="hour"></param>
-        /// <param name="minute"></param>
-        /// <param name="second"></param>
-        /// <returns></returns>
+        public static double GetPeriodicNotificationLocalDayDate(double localTime, int delayDays, int hours,
+            int minutes)
+        {
+            DateTime localDate = new DateTime(1970, 1, 1).AddSeconds(localTime);
+            DateTime localDayDate = new DateTime(localDate.Year, localDate.Month, localDate.Day, 0, 0, 0);
+
+            return (localDayDate.AddDays(delayDays).AddHours(hours).AddMinutes(minutes).ToUniversalTime()
+                    - new DateTime(1970, 1, 1)).TotalSeconds;
+        }
+
+        /// <summary>
+        /// 根据年月日时分秒 获取本地时间戳
+        /// </summary>
         public static double GetLocalTimeStampByParams(int year, int month, int day, int hour, int minute, int second)
         {
-            var dateTime = new System.DateTime(year, month, day, hour, minute, second,System.DateTimeKind.Local)
-                           - 
-                           new System.DateTime(1970,1,1);
+            TimeSpan dateTime = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Local)
+                                - new DateTime(1970, 1, 1);
             return dateTime.TotalSeconds;
         }
 
         /// <summary>
-        /// 获取UTC0时间戳（通过本地系统时间推算，本地系统时间无法避免作弊）
+        /// 获取当前UTC0时间戳（防本地时间作弊）
         /// </summary>
-        /// <returns></returns>
         public static double GetUTC0TimeStamp()
         {
-            return (System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;
+            return (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
         }
 
         /// <summary>
-        /// 获取UTC0时区的年月日时分秒信息
+        /// 获取UTC0时间信息
         /// </summary>
-        /// <param name="isFromServer"></param>
-        /// <param name="utc0SecondsFromServer"></param>
-        /// <returns></returns>
-        public static RDateTimeWarpYMDHMS GetUTC0TimeInfo(bool isFromServer,double utc0SecondsFromServer)
+        public static RDateTimeWarpYMDHMS GetUTC0TimeInfo(bool isFromServer, double utc0SecondsFromServer)
         {
-            var dateTime = !isFromServer
-                ? System.DateTime.UtcNow
-                : new System.DateTime(1970, 1, 1).AddSeconds(utc0SecondsFromServer);
-            
+            DateTime dateTime = !isFromServer
+                ? DateTime.UtcNow
+                : new DateTime(1970, 1, 1).AddSeconds(utc0SecondsFromServer);
+
             _dateTimeCommonData.Year = dateTime.Year;
             _dateTimeCommonData.Month = dateTime.Month;
             _dateTimeCommonData.Day = dateTime.Day;
             _dateTimeCommonData.Hour = dateTime.Hour;
             _dateTimeCommonData.Minute = dateTime.Minute;
             _dateTimeCommonData.Second = dateTime.Second;
-            
+
             return _dateTimeCommonData;
         }
 
         /// <summary>
-        /// 根据UTC0时间戳获取UTC0年月日时分秒信息
+        /// 根据UTC0时间戳 获取UTC0时间信息
         /// </summary>
-        /// <param name="utc0TimeStamp"></param>
-        /// <returns></returns>
         public static RDateTimeWarpYMDHMS GetUTC0TimeInfoByUTC0TimeStamp(double utc0TimeStamp)
         {
-            var dateTime = new System.DateTime(1970,1,1).AddSeconds(utc0TimeStamp);
-            
+            DateTime dateTime = new DateTime(1970, 1, 1).AddSeconds(utc0TimeStamp);
+
             _dateTimeCommonData.Year = dateTime.Year;
             _dateTimeCommonData.Month = dateTime.Month;
             _dateTimeCommonData.Day = dateTime.Day;
             _dateTimeCommonData.Hour = dateTime.Hour;
             _dateTimeCommonData.Minute = dateTime.Minute;
             _dateTimeCommonData.Second = dateTime.Second;
-            
+
             return _dateTimeCommonData;
         }
 
         /// <summary>
-        /// 获取UTC0时区上指定年月日时分秒信息的时间戳
+        /// 根据年月日时分秒 获取UTC0时间戳
         /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
-        /// <param name="day"></param>
-        /// <param name="hour"></param>
-        /// <param name="minute"></param>
-        /// <param name="second"></param>
-        /// <returns></returns>
         public static double GetUTC0TimeStampByParams(int year, int month, int day, int hour, int minute, int second)
         {
-            var dateTime = new System.DateTime(year, month, day, hour, minute, second)
-                           -
-                           new System.DateTime(1970, 1, 1);
+            TimeSpan dateTime = new DateTime(year, month, day, hour, minute, second)
+                                - new DateTime(1970, 1, 1);
             return dateTime.TotalSeconds;
         }
 
         /// <summary>
-        /// 将时间戳转换成格式化字符串
+        /// 时间戳 → 自定义格式化字符串
         /// </summary>
-        /// <param name="format"></param>
-        /// <param name="timeStamp"></param>
-        /// <returns></returns>
-        public static string GetTimeStringByTimeStamp(string format,double timeStamp)
+        public static string GetTimeStringByTimeStamp(string format, double timeStamp)
         {
-            return new System.DateTime(1970, 1, 1).AddSeconds(timeStamp).ToString(format);
+            return new DateTime(1970, 1, 1).AddSeconds(timeStamp).ToString(format);
         }
+
         #endregion
     }
 }

@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(UnityEngine.Animator);
-			Utils.BeginObjectRegister(type, L, translator, 0, 56, 45, 20);
+			Utils.BeginObjectRegister(type, L, translator, 0, 65, 45, 20);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetFloat", _m_GetFloat);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetFloat", _m_SetFloat);
@@ -79,6 +79,15 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Rebind", _m_Rebind);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ApplyBuiltinRootMotion", _m_ApplyBuiltinRootMotion);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HasParameterOfType", _m_HasParameterOfType);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddAnimatorParameterIfExists", _m_AddAnimatorParameterIfExists);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorBool", _m_UpdateAnimatorBool);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorInteger", _m_UpdateAnimatorInteger);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorFloat", _m_UpdateAnimatorFloat);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorTrigger", _m_UpdateAnimatorTrigger);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorBoolIfExists", _m_UpdateAnimatorBoolIfExists);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorTriggerIfExists", _m_UpdateAnimatorTriggerIfExists);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorFloatIfExists", _m_UpdateAnimatorFloatIfExists);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAnimatorIntegerIfExists", _m_UpdateAnimatorIntegerIfExists);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "isOptimizable", _g_get_isOptimizable);
@@ -2407,15 +2416,504 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string _name = LuaAPI.lua_tostring(L, 2);
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
                     UnityEngine.AnimatorControllerParameterType _type;translator.Get(L, 3, out _type);
                     
-                        bool gen_ret = gen_to_be_invoked.HasParameterOfType( _name, _type );
+                        bool gen_ret = gen_to_be_invoked.HasParameterOfType( _paramName, _type );
                         LuaAPI.lua_pushboolean(L, gen_ret);
                     
                     
                     
                     return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AddAnimatorParameterIfExists(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& translator.Assignable<UnityEngine.AnimatorControllerParameterType>(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 4)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    UnityEngine.AnimatorControllerParameterType _type;translator.Get(L, 3, out _type);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<string>));
+                    
+                    gen_to_be_invoked.AddAnimatorParameterIfExists( _paramName, _type, _paramList );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& translator.Assignable<UnityEngine.AnimatorControllerParameterType>(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 4)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    int _paramHash;
+                    UnityEngine.AnimatorControllerParameterType _type;translator.Get(L, 3, out _type);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<int>));
+                    
+                    gen_to_be_invoked.AddAnimatorParameterIfExists( _paramName, out _paramHash, _type, _paramList );
+                    LuaAPI.xlua_pushinteger(L, _paramHash);
+                        
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Animator.AddAnimatorParameterIfExists!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorBool(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 3)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    bool _value = LuaAPI.lua_toboolean(L, 3);
+                    
+                    gen_to_be_invoked.UpdateAnimatorBool( _paramName, _value );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 5&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 4)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    bool _value = LuaAPI.lua_toboolean(L, 3);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<int>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 5);
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorBool( _paramHash, _value, _paramList, _performCheck );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 4&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 4)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    bool _value = LuaAPI.lua_toboolean(L, 3);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<int>));
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorBool( _paramHash, _value, _paramList );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 4)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    bool _value = LuaAPI.lua_toboolean(L, 3);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<string>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 5);
+                    
+                    gen_to_be_invoked.UpdateAnimatorBool( _paramName, _value, _paramList, _performCheck );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 4)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    bool _value = LuaAPI.lua_toboolean(L, 3);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<string>));
+                    
+                    gen_to_be_invoked.UpdateAnimatorBool( _paramName, _value, _paramList );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Animator.UpdateAnimatorBool!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorInteger(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    int _value = LuaAPI.xlua_tointeger(L, 3);
+                    
+                    gen_to_be_invoked.UpdateAnimatorInteger( _paramName, _value );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 5&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 4)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    int _value = LuaAPI.xlua_tointeger(L, 3);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<int>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 5);
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorInteger( _paramHash, _value, _paramList, _performCheck );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 4&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 4)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    int _value = LuaAPI.xlua_tointeger(L, 3);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<int>));
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorInteger( _paramHash, _value, _paramList );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 4)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    int _value = LuaAPI.xlua_tointeger(L, 3);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<string>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 5);
+                    
+                    gen_to_be_invoked.UpdateAnimatorInteger( _paramName, _value, _paramList, _performCheck );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 4)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    int _value = LuaAPI.xlua_tointeger(L, 3);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<string>));
+                    
+                    gen_to_be_invoked.UpdateAnimatorInteger( _paramName, _value, _paramList );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Animator.UpdateAnimatorInteger!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorFloat(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    float _value = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                    gen_to_be_invoked.UpdateAnimatorFloat( _paramName, _value );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 5&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 4)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    float _value = (float)LuaAPI.lua_tonumber(L, 3);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<int>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 5);
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorFloat( _paramHash, _value, _paramList, _performCheck );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 4&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 4)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    float _value = (float)LuaAPI.lua_tonumber(L, 3);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<int>));
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorFloat( _paramHash, _value, _paramList );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 4)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    float _value = (float)LuaAPI.lua_tonumber(L, 3);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<string>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 5);
+                    
+                    gen_to_be_invoked.UpdateAnimatorFloat( _paramName, _value, _paramList, _performCheck );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 4)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    float _value = (float)LuaAPI.lua_tonumber(L, 3);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 4, typeof(System.Collections.Generic.HashSet<string>));
+                    
+                    gen_to_be_invoked.UpdateAnimatorFloat( _paramName, _value, _paramList );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Animator.UpdateAnimatorFloat!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorTrigger(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 4&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 3)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 4)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 3, typeof(System.Collections.Generic.HashSet<int>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 4);
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorTrigger( _paramHash, _paramList, _performCheck );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 3&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& translator.Assignable<System.Collections.Generic.HashSet<int>>(L, 3)) 
+                {
+                    int _paramHash = LuaAPI.xlua_tointeger(L, 2);
+                    System.Collections.Generic.HashSet<int> _paramList = (System.Collections.Generic.HashSet<int>)translator.GetObject(L, 3, typeof(System.Collections.Generic.HashSet<int>));
+                    
+                        bool gen_ret = gen_to_be_invoked.UpdateAnimatorTrigger( _paramHash, _paramList );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 3)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 4)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 3, typeof(System.Collections.Generic.HashSet<string>));
+                    bool _performCheck = LuaAPI.lua_toboolean(L, 4);
+                    
+                    gen_to_be_invoked.UpdateAnimatorTrigger( _paramName, _paramList, _performCheck );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Collections.Generic.HashSet<string>>(L, 3)) 
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    System.Collections.Generic.HashSet<string> _paramList = (System.Collections.Generic.HashSet<string>)translator.GetObject(L, 3, typeof(System.Collections.Generic.HashSet<string>));
+                    
+                    gen_to_be_invoked.UpdateAnimatorTrigger( _paramName, _paramList );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Animator.UpdateAnimatorTrigger!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorBoolIfExists(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    bool _value = LuaAPI.lua_toboolean(L, 3);
+                    
+                    gen_to_be_invoked.UpdateAnimatorBoolIfExists( _paramName, _value );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorTriggerIfExists(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    
+                    gen_to_be_invoked.UpdateAnimatorTriggerIfExists( _paramName );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorFloatIfExists(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    float _value = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                    gen_to_be_invoked.UpdateAnimatorFloatIfExists( _paramName, _value );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UpdateAnimatorIntegerIfExists(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _paramName = LuaAPI.lua_tostring(L, 2);
+                    int _value = LuaAPI.xlua_tointeger(L, 3);
+                    
+                    gen_to_be_invoked.UpdateAnimatorIntegerIfExists( _paramName, _value );
+                    
+                    
+                    
+                    return 0;
                 }
                 
             } catch(System.Exception gen_e) {
@@ -2602,7 +3100,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 UnityEngine.Animator gen_to_be_invoked = (UnityEngine.Animator)translator.FastGetCSObj(L, 1);
-                translator.PushUnityEngineAnimatorUpdateMode(L, gen_to_be_invoked.updateMode);
+                translator.Push(L, gen_to_be_invoked.updateMode);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

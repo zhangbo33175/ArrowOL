@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 #if UNITY_WEBGL && WEBVIEW_ENABLE
@@ -10,20 +9,35 @@ using Vuplex.WebView;
 namespace Honor.Runtime
 {
     /// <summary>
-    /// A generic version of System.EventArgs.
+    /// 泛型事件参数，用于传递简单数据
     /// </summary>
+    /// <typeparam name="T">参数类型</typeparam>
     public class EventArgs<T> : EventArgs
     {
+        /// <summary>
+        /// 事件携带的值
+        /// </summary>
         public T Value { get; private set; }
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="val">要传递的数据</param>
         public EventArgs(T val) => Value = val;
     }
 
     /// <summary>
-    /// A generic version of System.EventArgs.
+    /// 加载进度事件参数（带类型、进度、消息）
     /// </summary>
+    /// <typeparam name="T">进度类型</typeparam>
     public class LoadEventArgs<T> : EventArgs
     {
+        /// <summary>
+        /// 构造加载进度参数
+        /// </summary>
+        /// <param name="type">事件类型</param>
+        /// <param name="progress">0~1 进度</param>
+        /// <param name="message">附加消息</param>
         public LoadEventArgs(T type, float progress, string message = "")
         {
             Type = type;
@@ -32,255 +46,238 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// The estimated load progress, normalized to a float between 0 and 1.
+        /// 加载进度（0 ~ 1）
         /// </summary>
         public readonly float Progress;
 
         /// <summary>
-        /// The load progress event type.
+        /// 加载事件类型
         /// </summary>
         public readonly T Type;
 
         /// <summary>
-        /// The load message.
+        /// 加载消息（错误/状态）
         /// </summary>
         public readonly string Message;
     }
 
+    /// <summary>
+    /// WebView 统一管理组件
+    /// 自动适配 WebGL / Android / iOS 平台
+    /// </summary>
     [DisallowMultipleComponent]
     public class UIWebGLWebView : MonoBehaviour
     {
-        [Tooltip("Input Url")]
+        /// <summary>
+        /// 初始加载 URL
+        /// </summary>
+        [Tooltip("初始加载的网页地址")]
         [GameTitle("Initial Url")]
         public string InitialUrl;
-        /// <summary>
-        /// 是否初始化完成
-        /// </summary>
-        private bool m_WebGLVuplexViewInitialized = false;
-        public bool WebGLVuplexViewInitialized
-        {
-            get => m_WebGLVuplexViewInitialized;
-        }
 
         /// <summary>
-        /// 当前展开的WebView
+        /// WebGL Vuplex WebView 是否初始化完成
         /// </summary>
+        private bool m_WebGLVuplexViewInitialized;
+
+        /// <summary>
+        /// 获取 WebGL Vuplex WebView 初始化状态
+        /// </summary>
+        public bool WebGLVuplexViewInitialized => m_WebGLVuplexViewInitialized;
+
 #if WEBVIEW_ENABLE
 #if UNITY_WEBGL
+        /// <summary>
+        /// Vuplex WebView 实例（WebGL 平台）
+        /// </summary>
         private CanvasWebViewPrefab m_WebView;
+
         public CanvasWebViewPrefab WebView
-        { 
-            set { m_WebView = value; }
-            get { return m_WebView; }
+        {
+            get => m_WebView;
+            set => m_WebView = value;
         }
 #else
+        /// <summary
+        /// UniWebView 实例（原生平台）
+        /// </summary>
         private UniWebView m_WebView;
+
         public UniWebView WebView
         {
-            set { m_WebView = value; }
-            get { return m_WebView; }
+            get => m_WebView;
+            set => m_WebView = value;
         }
 #endif
 #endif
 
         /// <summary>
-        /// 载入事件
+        /// 加载进度变化事件
         /// </summary>
         public event EventHandler<LoadEventArgs<string>> OnLoadProgressChanged;
 
         /// <summary>
-        /// 消息事件
+        /// 网页消息抛出事件
         /// </summary>
         public event EventHandler<EventArgs<string>> OnMessageEmitted;
 
 #if WEBVIEW_ENABLE
         /// <summary>
-        /// UniWebView
+        /// 原生平台消息接收事件
         /// </summary>
         public event EventHandler<EventArgs<UniWebViewMessage>> OnMessageReceived;
 #endif
 
-        void Awake ()
+        private void Awake()
         {
 #if UNITY_WEBGL
             Debug.Log("CreateVuplexWebView !!!");
-            // 删除CreateVuplexWebView接口,在UIManager统一处理
 #else
             Debug.Log("CreateUniWebView !!!");
-          //  CreateUniWebView();
 #endif
         }
 
         private void OnDestroy()
         {
-#if UNITY_WEBGL
-#endif
+            // 清理逻辑
         }
 
         /// <summary>
-        /// webgl平台CanvasWebViewPrefab初始化完成回调
+        /// WebGL 平台 Vuplex WebView 初始化完成回调
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="userData"></param>
-        /// <param name="e"></param>
         public void OnWebGLVuplexViewInitialized(object sender = null, object userData = null, EventParams e = null)
         {
 #if UNITY_WEBGL
-            if (m_WebGLVuplexViewInitialized == false)
+            if (m_WebGLVuplexViewInitialized) return;
+
+            var vuplexWebView = m_WebView;
+            vuplexWebView.WebView.CloseRequested += (_, _) =>
             {
-                var vuplexWebView = m_WebView as CanvasWebViewPrefab;
-                vuplexWebView.WebView.CloseRequested += (sender, eventArgs) =>
-                {
-                    Debug.Log("CloseRequested");
-                };
+                Debug.Log("CloseRequested");
+            };
 
-                vuplexWebView.WebView.LoadProgressChanged += (sender, eventArgs) =>
-                {
-                    OnLoadProgressChanged(sender, new LoadEventArgs<string>(eventArgs.Type.ToString(), eventArgs.Progress));
-                };
+            vuplexWebView.WebView.LoadProgressChanged += (_, eventArgs) =>
+            {
+                OnLoadProgressChanged?.Invoke(this,
+                    new LoadEventArgs<string>(eventArgs.Type.ToString(), eventArgs.Progress));
+            };
 
-                vuplexWebView.WebView.MessageEmitted += (sender, eventArgs) =>
-                {
-                    Debug.Log(AorTxt.Format("MessageEmitted {0}", eventArgs.Value));
-                    OnMessageEmitted(sender, new EventArgs<string>(eventArgs.Value));
-                };
+            vuplexWebView.WebView.MessageEmitted += (_, eventArgs) =>
+            {
+                Debug.Log($"MessageEmitted: {eventArgs.Value}");
+                OnMessageEmitted?.Invoke(this, new EventArgs<string>(eventArgs.Value));
+            };
 
-                vuplexWebView.WebView.UrlChanged += (sender, eventArgs) =>
-                {
-                    Debug.Log(AorTxt.Format("UrlChanged {0}", eventArgs.Url));
-                    OnMessageReceived(sender, new EventArgs<UniWebViewMessage>(new UniWebViewMessage(eventArgs.Url)));
-                };
+            vuplexWebView.WebView.UrlChanged += (_, eventArgs) =>
+            {
+                Debug.Log($"UrlChanged: {eventArgs.Url}");
+                OnMessageReceived?.Invoke(this,
+                    new EventArgs<UniWebViewMessage>(new UniWebViewMessage(eventArgs.Url)));
+            };
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-                var webGLWebView = vuplexWebView.WebView as WebGLWebView;
-                if (webGLWebView.CanAccessIFrameContent()) {
-                    Debug.Log("The iframe content can be accessed 👍");
-                }
-#endif
-                m_WebGLVuplexViewInitialized = true;
-            }
+            m_WebGLVuplexViewInitialized = true;
 #endif
         }
 
         /// <summary>
-        /// 载入地址
+        /// 加载指定 URL
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="url">网页地址</param>
         public void LoadUrl(string url = null)
         {
 #if WEBVIEW_ENABLE
 #if UNITY_WEBGL
-            if (!string.IsNullOrEmpty(url))
+            if (!string.IsNullOrEmpty(url) && m_WebView?.WebView != null)
             {
-                if (m_WebView != null && m_WebView.WebView != null)
-                {
-                    m_WebView.WebView.LoadUrl(url);
-                }
+                m_WebView.WebView.LoadUrl(url);
             }
 #else
-            var webView = m_WebView as UniWebView;
-            if (!string.IsNullOrEmpty(url))
+            if (m_WebView != null && !string.IsNullOrEmpty(url))
             {
-                webView.Load(url);
-                webView.Show(true);
+                m_WebView.Load(url);
+                m_WebView.Show(true);
             }
 #endif
 #endif
         }
 
         /// <summary>
-        /// 载入内容
+        /// 直接加载 HTML 内容
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">HTML 字符串</param>
         public void LoadHtml(string context)
         {
 #if UNITY_WEBGL
-            if (!string.IsNullOrEmpty(context))
+            if (!string.IsNullOrEmpty(context) && m_WebView?.WebView != null)
             {
-                if (m_WebView != null && m_WebView.WebView != null)
-                {
-                    m_WebView.WebView.LoadHtml(context);
-                }
+                m_WebView.WebView.LoadHtml(context);
             }
-#else
-
 #endif
         }
 
-
         /// <summary>
-        /// 创建UniWebView
+        /// 创建原生平台 UniWebView
         /// </summary>
         public void CreateUniWebView()
         {
 #if !UNITY_WEBGL && WEBVIEW_ENABLE
             var uniWebView = transform.GetOrAddComponent<UniWebView>();
             m_WebView = uniWebView;
-
             uniWebView.ReferenceRectTransform = transform.GetComponent<RectTransform>();
 
-            uniWebView.OnPageStarted += (sender, url) =>
+            uniWebView.OnPageStarted += (sender, _) =>
             {
-                OnLoadProgressChanged(sender, new LoadEventArgs<string>("Started", 0f));
+                OnLoadProgressChanged?.Invoke(sender, new LoadEventArgs<string>("Started", 0f));
             };
 
-            uniWebView.OnPageFinished += (sender, statusCode, url) =>
+            uniWebView.OnPageFinished += (sender, _, _) =>
             {
-                OnLoadProgressChanged(sender, new LoadEventArgs<string>("Finished", 1f));
+                OnLoadProgressChanged?.Invoke(sender, new LoadEventArgs<string>("Finished", 1f));
             };
 
-            uniWebView.OnPageErrorReceived += (sender, errorCode, errorMessage) =>
+            uniWebView.OnPageErrorReceived += (sender, code, msg) =>
             {
-                OnLoadProgressChanged(sender, new LoadEventArgs<string>("Failed", 0f, errorMessage));
+                OnLoadProgressChanged?.Invoke(sender, new LoadEventArgs<string>("Failed", 0f, msg));
             };
 
             uniWebView.OnPageProgressChanged += (sender, progress) =>
             {
-                OnLoadProgressChanged(sender, new LoadEventArgs<string>("Progress", progress));
+                OnLoadProgressChanged?.Invoke(sender, new LoadEventArgs<string>("Progress", progress));
             };
 
             uniWebView.OnMessageReceived += (sender, message) =>
             {
-                Debug.Log(Txt.Format("OnMessageReceived {0}", message.RawMessage));
-                OnMessageReceived(sender, new EventArgs<UniWebViewMessage>(message));
+                Debug.Log($"OnMessageReceived: {message.RawMessage}");
+                OnMessageReceived?.Invoke(sender, new EventArgs<UniWebViewMessage>(message));
             };
-
-            //LoadUrl(InitialUrl);
 #endif
         }
 
         /// <summary>
-        /// 
+        /// 向网页发送消息
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">消息内容</param>
         public void PostMessage(string context)
         {
-#if UNITY_WEBGL
-            var webView = m_WebView as CanvasWebViewPrefab;
-            webView.WebView.PostMessage(context);
-#else
-            // UniWebView 不支持
+#if UNITY_WEBGL && WEBVIEW_ENABLE
+            if (m_WebView != null)
+            {
+                m_WebView.WebView.PostMessage(context);
+            }
 #endif
         }
 
         /// <summary>
-        /// 执行js脚本
+        /// 执行 JavaScript 脚本
         /// </summary>
-        /// <param name="javaScript"></param>
+        /// <param name="javaScript">JS 代码</param>
         public void ExecuteJavaScript(string javaScript)
         {
 #if WEBVIEW_ENABLE
 #if UNITY_WEBGL
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-            //WebGLWebView.ExecuteJavaScriptLocally(javaScript);
-#endif
-            if (javaScript != null)
+            if (!string.IsNullOrEmpty(javaScript) && m_WebView?.WebView != null)
             {
-                if (m_WebView != null && m_WebView.WebView != null)
-                {
-                    m_WebView.WebView.ExecuteJavaScript(javaScript);
-                }
+                m_WebView.WebView.ExecuteJavaScript(javaScript);
             }
 #else
             if (m_WebView != null)
@@ -291,49 +288,14 @@ namespace Honor.Runtime
 #endif
         }
 
+        /// <summary>
+        /// 重新加载页面（原生平台）
+        /// </summary>
         public void Reload()
         {
-#if WEBVIEW_ENABLE
-#if !UNITY_WEBGL
-            if (m_WebView != null)
-            {
-                m_WebView.Reload();
-            }
-#else
-            Log.Debug("UNITY_WEBGL 不支持这个接口");
-#endif
+#if WEBVIEW_ENABLE && !UNITY_WEBGL
+            m_WebView?.Reload();
 #endif
         }
-
-#if WEBVIEW_ENABLE
-        public void Show(bool fade = false, UniWebViewTransitionEdge edge = UniWebViewTransitionEdge.None,
-            float duration = 0.4f, Action completionHandler = null)
-        {
-#if !UNITY_WEBGL
-            // 统一接口，禁用
-/*
-            var webView = m_WebView as UniWebView;
-            webView.Show(fade, edge, duration, completionHandler);
-*/
-#endif
-        }
-#endif
-
-#if WEBVIEW_ENABLE
-        public void Hide(bool fade = false, UniWebViewTransitionEdge edge = UniWebViewTransitionEdge.None,
-                float duration = 0.4f, Action completionHandler = null)
-        {
-#if !UNITY_WEBGL
-            // 统一接口，禁用
-/*
-            var webView = m_WebView as UniWebView;
-            webView.Hide(fade, edge, duration, completionHandler);
-*/
-#endif
-        }
-#endif
-
-
     }
-
 }

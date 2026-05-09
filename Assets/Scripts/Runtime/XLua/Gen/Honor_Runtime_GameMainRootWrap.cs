@@ -47,9 +47,9 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "UI", _g_get_UI);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Procedure", _g_get_Procedure);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Touch", _g_get_Touch);
-            Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Playing", _g_get_Playing);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Scene", _g_get_Scene);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Sound", _g_get_Sound);
+            Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Playing", _g_get_Playing);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Vibrate", _g_get_Vibrate);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "gameManager", _g_get_gameManager);
             
@@ -236,18 +236,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_Playing(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    translator.Push(L, Honor.Runtime.GameMainRoot.Playing);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_Scene(RealStatePtr L)
         {
 		    try {
@@ -265,6 +253,18 @@ namespace XLua.CSObjectWrap
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			    translator.Push(L, Honor.Runtime.GameMainRoot.Sound);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_Playing(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			    translator.Push(L, Honor.Runtime.GameMainRoot.Playing);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

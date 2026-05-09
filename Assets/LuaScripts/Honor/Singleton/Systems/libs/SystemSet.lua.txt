@@ -1,34 +1,35 @@
 --=====================================================================================================
--- descrip:   无序集合
+-- descrip:   无序集合（SystemSet）
+--              特点：元素唯一、O(1) 查找、O(1) 插入删除、不保证顺序
 --=====================================================================================================
 local SystemSet = {}
 SystemSet.__index = SystemSet
 
----创建
+--- 创建一个无序集合
 ---@type fun(isweak:boolean):SystemSet
----@param isweak boolean @弱引用
----@return SystemSet @无序集合实例
+---@param isweak boolean @是否使用弱引用表（自动回收无引用对象）
+---@return SystemSet @返回集合实例
 function SystemSet.new(isweak)
-    ---@class SystemSet @无序集合
-    ---@field _data table @数据集合
-    ---@field _size number @数据集合大小
+    ---@class SystemSet @无序集合类
+    ---@field _data table @存储集合元素的表（key=元素，value=true）
+    ---@field _size number @集合元素数量
     local t = {}
-    t._data = {}
-    t._size = 0
+    t._data = {}        -- 实际存储数据
+    t._size = 0         -- 元素个数
     if isweak then
+        -- 弱引用key，方便自动释放对象
         setmetatable(t._data, { __mode = "k" })
     end
-    setmetatable(t, Set)
+    setmetatable(t, SystemSet)
     return t
 end
 
----插入数据
+--- 向集合插入数据（自动去重）
 ---@type fun(self:SystemSet, value:any):boolean
----@param self SystemSet @无序集合实例
----@param value any @数据
----@return boolean @是否插入成功
+---@param self SystemSet @集合实例
+---@param value any @要插入的数据
+---@return boolean @true=插入成功，false=已存在
 function SystemSet.insert(self, value)
-    -- assert(not self._data[value], string.format("set: value %s already exist", tostring(value)))
     if not self._data[value] then
         self._data[value] = true
         self._size = self._size + 1
@@ -37,13 +38,12 @@ function SystemSet.insert(self, value)
     return false
 end
 
----移除数据
+--- 从集合移除指定数据
 ---@type fun(self:SystemSet, value:any):boolean
----@param self SystemSet @无序集合实例
----@param value any @数据
----@return boolean @是否移除成功
+---@param self SystemSet @集合实例
+---@param value any @要移除的数据
+---@return any|false @成功返回被移除的值，失败返回false
 function SystemSet.remove(self, value)
-    --assert(self._data[value], "set:attemp remove unexist value")
     if self._data[value] then
         self._data[value] = nil
         self._size = self._size - 1
@@ -52,28 +52,28 @@ function SystemSet.remove(self, value)
     return false
 end
 
----无序集合大小
+--- 获取集合元素数量
 ---@type fun(self:SystemSet):number
----@param self SystemSet @无序集合实例
----@return number @无序集合大小
+---@param self SystemSet @集合实例
+---@return number @元素个数
 function SystemSet.size(self)
     return self._size
 end
 
----是否包含
+--- 判断集合是否包含某个值
 ---@type fun(self:SystemSet, value:any):boolean
----@param self SystemSet @无序集合实例
----@param value any @数据
----@return boolean @是否包含
+---@param self SystemSet @集合实例
+---@param value any @要检查的值
+---@return boolean @true=包含，false=不包含
 function SystemSet.has(self, value)
     return self._data[value]
 end
 
----遍历器
+--- 遍历集合所有元素
 ---@type fun(self:SystemSet, f:fun, ...:any):void
----@param self SystemSet @无序集合实例
----@param f fun @遍历回调
----@param ... any @参数值若干（可选）
+---@param self SystemSet @集合实例
+---@param f fun @遍历回调函数，参数为元素值
+---@param ... any @传递给回调的额外参数
 function SystemSet.foreach(self, f, ...)
     for k, v in pairs(self._data) do
         if v then
@@ -82,11 +82,11 @@ function SystemSet.foreach(self, f, ...)
     end
 end
 
----指定位置索引在集合中的数据
+--- 根据位置获取元素（无序，不推荐频繁使用）
 ---@type fun(self:SystemSet, pos:number):any
----@param self SystemSet @无序集合实例
----@param pos number @位置
----@return any @数据
+---@param self SystemSet @集合实例
+---@param pos number @位置索引（从1开始）
+---@return any @返回对应位置的元素，不存在则返回nil
 function SystemSet.at(self, pos)
     local n = 0
     for k, _ in pairs(self._data) do
@@ -98,16 +98,14 @@ function SystemSet.at(self, pos)
     return nil
 end
 
----清理
----@type fun(self:Set):void
----@param self SystemSet @无序集合实例
+--- 清空集合所有元素
+---@type fun(self:SystemSet):void
+---@param self SystemSet @集合实例
 function SystemSet.clear(self)
     for k, _ in pairs(self._data) do
         self._data[k] = nil
     end
     self._size = 0
 end
-
-
 
 return SystemSet

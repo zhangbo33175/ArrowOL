@@ -1,0 +1,404 @@
+--=====================================================================================================
+-- 【本地活动管理器】
+-- 功能：管理所有本地活动（礼包、周卡、免费钻石、银行等）
+-- 核心：活动互斥、组管理、生命周期、热更资源、弹窗顺序、本地存储
+-- 架构：基于 LocalActivityBase 子类驱动
+--=====================================================================================================
+
+---@class ELocalActivityId @本地活动ID枚举
+---@field StarterPackActivityId string 新手礼包
+---@field SuperSaleActivityId string 超值特卖
+---@field ChapterPackActivityId string 章节礼包
+---@field DailyPackActivityId string 每日礼包
+---@field FreeDiamondId string 免费钻石
+---@field WeekCardActivityId string 周卡
+---@field PiggyBankActivityId string 猪猪银行
+ELocalActivityId = {
+    StarterPackActivityId   = "101",
+    SuperSaleActivityId     = "102",
+    ChapterPackActivityId   = "103",
+    DailyPackActivityId     = "104",
+    FreeDiamondId           = "105",
+    WeekCardActivityId      = "106",
+    PiggyBankActivityId     = "107",
+}
+
+---@class LocalActivityPopupData @本地活动弹窗数据
+---@field activityId string 活动ID
+---@field popupOrder number 弹窗优先级（越大越先弹）
+
+---@class LocalActivityManager : Singleton @本地活动管理器
+local LocalActivityManager = class('LocalActivityManager', import('Singleton'))
+
+--- 构造函数
+function LocalActivityManager:ctor(args)
+    LocalActivityManager.super.ctor(self, args)
+
+    self._activityLogicList     = HonorList:Create()    ---@type List<LocalActivityBase> 活动逻辑类列表
+    self._activityGroupIdArray  = {}                    ---@type number[] 活动组ID缓存
+    self._activityHotfixResStates = {}                  ---@type table<string, boolean> 活动热更资源状态
+    self._activityPopupData     = {}                    ---@type LocalActivityPopupData[] 待弹窗队列
+end
+
+--- 创建单例
+---@return LocalActivityManager
+function LocalActivityManager:Create(args)
+    local obj = LocalActivityManager.new(args)
+    return obj
+end
+
+--- 初始化
+function LocalActivityManager:Init()
+    LocalActivityManager.super.Init(self)
+    self:InitAllActivityLogic()
+    HonorEventHelper:AddListener(EventCmd.OnGenerateUserType, handler(self, self.OnGenerateUserType))
+    self:TryPopupActivityUIByFirstLogin()
+end
+
+--- 清理数据
+function LocalActivityManager:ClearData()
+    LocalActivityManager.super.ClearData(self)
+    self._activityGroupIdArray = {}
+    self._activityHotfixResStates = {}
+    self._activityPopupData = {}
+    self:ClearDataAllActivityLogic()
+    HonorEventHelper:RemoveListener(EventCmd.OnGenerateUserType, handler(self, self.OnGenerateUserType))
+end
+
+--=========================================================================
+-- region 活动组管理（互斥核心：同组活动互斥开启）
+--=========================================================================
+
+--- 获取活动组ID
+---@param activityId string
+---@return number
+function LocalActivityManager:GetActivityGroupId(activityId)
+    return LocalEventDataManager:GetActivityGroupId(activityId)
+end
+
+--- 重置临时组ID数组
+function LocalActivityManager:ResetTempActivityGroupIdArray()
+    self._activityGroupIdArray = {}
+end
+
+--- 获取当前所有开启中的活动组ID
+---@return number[]
+function LocalActivityManager:GetCurrentActivityGroupIds()
+    self:ResetTempActivityGroupIdArray()
+    local activityDatas = self:GetActivityDatas()
+
+    for _, activityData in ipairs(activityDatas) do
+        if activityData then
+            local groupId = self:GetActivityGroupId(activityData.activityId)
+            if groupId > 0 and not table.vIn(self._activityGroupIdArray, groupId) then
+                table.insert(self._activityGroupIdArray, groupId)
+            end
+        end
+    end
+    return self._activityGroupIdArray
+end
+
+--- 检查活动是否与当前开启活动同组（互斥判断）
+---@param activityId string
+---@return boolean
+function LocalActivityManager:CheckActivityGroupId(activityId)
+    local groupId = self:GetActivityGroupId(activityId)
+    local groupIds = self:GetCurrentActivityGroupIds()
+    return groupIds and table.vIn(groupIds, groupId)
+end
+
+-- endregion
+
+--=========================================================================
+-- region 本地活动数据存储（增删查改）
+--=========================================================================
+
+--- 保存活动数据到本地
+function LocalActivityManager:SaveActivityDatas()
+    PbIO.GameData.Save_localActivityDatas()
+end
+
+--- 获取所有本地活动数据
+---@return SavePBMsgDef.SaveGameData.LocalActivityData[]
+function LocalActivityManager:GetActivityDatas()
+    --return PbRootData.GameData.localActivityDatas
+    return nil
+end
+
+--- 根据ID获取活动数据
+---@param activityId string
+---@return SavePBMsgDef.SaveGameData.LocalActivityData
+function LocalActivityManager:GetActivityDataById(activityId)
+    for _, activityData in ipairs(self:GetActivityDatas()) do
+        if activityData.activityId == activityId then
+            return activityData
+        end
+    end
+    return nil
+end
+
+--- 是否已经开启该活动
+---@param activityId string
+---@return boolean
+function LocalActivityManager:HasActivity(activityId)
+    for _, activityData in ipairs(self:GetActivityDatas()) do
+        if activityData.activityId == activityId then
+            return true
+        end
+    end
+    return false
+end
+
+--- 添加活动数据
+---@param activityData table
+---@param isNeedSave boolean
+---@return boolean
+function LocalActivityManager:AddActivity(activityData, isNeedSave)
+    isNeedSave = isNeedSave ~= nil and isNeedSave or true
+    if not self:HasActivity(activityData.activityId) then
+        table.insert(self:GetActivityDatas(), activityData)
+        if isNeedSave then self:SaveActivityDatas() end
+        return true
+    end
+    return false
+end
+
+--- 直接通过活动ID添加活动
+---@param activityId string
+---@param isNeedSave boolean
+---@return boolean
+function LocalActivityManager:AddActivityByActivityId(activityId, isNeedSave)
+    if self:HasActivity(activityId) then return false end
+    local activityData = { activityId = activityId }
+    return self:AddActivity(activityData, isNeedSave)
+end
+
+--- 删除活动
+---@param activityId string
+---@param isNeedSave boolean
+---@return boolean
+function LocalActivityManager:RemoveActivity(activityId, isNeedSave)
+    isNeedSave = isNeedSave ~= nil and isNeedSave or true
+    local list = self:GetActivityDatas()
+    for i = #list, 1, -1 do
+        if list[i].activityId == activityId then
+            table.remove(list, i)
+            if isNeedSave then self:SaveActivityDatas() end
+            return true
+        end
+    end
+    return false
+end
+
+--- 清空所有活动
+function LocalActivityManager:ClearAllActivity()
+    PbRootData.GameData.localActivityDatas = {}
+    self:SaveActivityDatas()
+end
+
+-- endregion
+
+--=========================================================================
+-- region 活动逻辑类管理（LocalActivityBase）
+--=========================================================================
+
+--- 获取活动逻辑类
+---@param activityId string
+---@return LocalActivityBase
+function LocalActivityManager:GetActivityLogic(activityId)
+    for _, logic in ipairs(self._activityLogicList.items) do
+        if logic:ActivityId() == activityId then
+            return logic
+        end
+    end
+    PrintError("LocalActivityManager 未找到活动逻辑: " .. activityId)
+    return nil
+end
+
+--- 添加活动逻辑
+---@param logic LocalActivityBase
+function LocalActivityManager:AddActivityLogic(logic)
+    if logic then self._activityLogicList:Add(logic) end
+end
+
+--- 移除活动逻辑
+---@param logic LocalActivityBase
+function LocalActivityManager:RemoveActivityLogic(logic)
+    if logic then self._activityLogicList:Remove(logic) end
+end
+
+--- 初始化所有活动逻辑
+function LocalActivityManager:InitAllActivityLogic()
+    for _, logic in ipairs(self._activityLogicList.items) do
+        logic:Init()
+    end
+end
+
+--- 清空所有活动逻辑数据
+function LocalActivityManager:ClearDataAllActivityLogic()
+    for _, logic in ip(self._activityLogicList.items) do
+        logic:ClearData()
+    end
+end
+
+-- endregion
+
+--=========================================================================
+-- region 活动热更资源状态
+--=========================================================================
+
+--- 更新活动热更资源状态
+function LocalActivityManager:UpdateActivityHotfixResStates()
+    local events = LocalEventDataManager:GetEventDatas()
+    if not events then return end
+
+    for _, v in pairs(events) do
+        if v and (not v.GroupNames or #v.GroupNames <= 0) then
+            self:SetActivityHotfixResState(v.EventID, true)
+        end
+    end
+end
+
+--- 所有活动热更资源是否就绪
+---@return boolean
+function LocalActivityManager:IsAllActivityHotfixResReady()
+    local events = LocalEventDataManager:GetEventDatas()
+    if not events then return true end
+
+    for _, v in pairs(events) do
+        if v.GroupNames and not self:GetActivityHotfixResState(v.EventID) then
+            return false
+        end
+    end
+    return true
+end
+
+--- 设置热更资源状态
+---@param activityId string
+---@param isReady boolean
+function LocalActivityManager:SetActivityHotfixResState(activityId, isReady)
+    if activityId then self._activityHotfixResStates[activityId] = isReady end
+end
+
+--- 获取热更资源状态
+---@param activityId string
+---@return boolean
+function LocalActivityManager:GetActivityHotfixResState(activityId)
+    return self._activityHotfixResStates[activityId] or false
+end
+
+-- endregion
+
+--=========================================================================
+-- region 外部 API
+--=========================================================================
+
+--- 尝试开启所有可开启的本地活动（互斥判断）
+function LocalActivityManager:TryOpenActivities()
+    local datas = LocalEventDataManager:GetEventDatas()
+    if not datas or #datas == 0 then return end
+
+    for _, data in ipairs(datas) do
+        local activityId = data.EventID
+        local opened = self:HasActivity(activityId)
+        local inGroup = self:CheckActivityGroupId(activityId)
+
+        -- 互斥规则：未开启 + 不在同组 → 可开启
+        if not opened and not inGroup then
+            local logic = self:GetActivityLogic(activityId)
+            if logic and logic:CanOpen() then
+                self:AddActivityByActivityId(activityId)
+                logic:OnActivityStart(activityId)
+            end
+        end
+    end
+end
+
+--- 完成活动（关闭+清理）
+---@param localActivityId string
+function LocalActivityManager:FinishActivity(localActivityId)
+    self:RemoveActivity(localActivityId, true)
+    local logic = self:GetActivityLogic(localActivityId)
+    if logic then logic:OnActivityEnd(localActivityId) end
+end
+
+-- endregion
+
+--=========================================================================
+-- region 事件监听
+--=========================================================================
+
+--- 用户分层变化 → 重新检查活动
+---@param userType string
+function LocalActivityManager:OnGenerateUserType(userType)
+    self:UpdateActivityHotfixResStates()
+    self:TryOpenActivities()
+end
+
+-- endregion
+
+--=========================================================================
+-- region 活动UI弹窗
+--=========================================================================
+
+--- 首次登录自动弹活动
+function LocalActivityManager:TryPopupActivityUIByFirstLogin()
+    for _, logic in ipairs(self._activityLogicList.items) do
+        logic:TryPopupActivityUIByFirstLogin()
+    end
+end
+
+--- 添加弹窗数据
+---@param activityId string
+---@param popupOrder number
+function LocalActivityManager:AddActivityPopupData(activityId, popupOrder)
+    local data = self:GetActivityPopupData(activityId)
+    if not data then
+        data = {}
+        table.insert(self._activityPopupData, data)
+    end
+    data.activityId = activityId
+    data.popupOrder = popupOrder
+end
+
+--- 获取弹窗数据
+---@param activityId string
+---@return LocalActivityPopupData
+function LocalActivityManager:GetActivityPopupData(activityId)
+    for _, v in ipairs(self._activityPopupData) do
+        if v.activityId == activityId then return v end
+    end
+    return nil
+end
+
+--- 按优先级排序弹窗
+function LocalActivityManager:OrderActivityPopupData()
+    table.sort(self._activityPopupData, function(a,b)
+        return a.popupOrder > b.popupOrder
+    end)
+end
+
+--- 尝试弹出优先级最高的活动UI
+function LocalActivityManager:TryOpenPopupActivityUI()
+    if not self._activityPopupData or #self._activityPopupData == 0 then
+        return
+    end
+
+    self:OrderActivityPopupData()
+    local top = self._activityPopupData[1]
+    if top then
+        PrintInfo("弹出本地活动 UI: " .. top.activityId)
+        local logic = self:GetActivityLogic(top.activityId)
+        if logic then logic:PopupActivityUI(top) end
+    end
+    self:ClearAllActivityPopupData()
+end
+
+--- 清空弹窗队列
+function LocalActivityManager:ClearAllActivityPopupData()
+    ClearArray(self._activityPopupData)
+end
+
+-- endregion
+
+return LocalActivityManager

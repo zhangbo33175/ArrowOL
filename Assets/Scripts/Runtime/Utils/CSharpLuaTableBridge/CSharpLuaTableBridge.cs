@@ -6,57 +6,89 @@ using XLua;
 
 namespace GameLib
 {
-    //=>沟通Lua与CSharp之间的表单数据
+    /// <summary>
+    /// C# 与 Lua 配置表桥接工具
+    /// 功能：编辑器/运行时通用，从 Lua 环境中读取表格配置
+    /// 作用：让地图编辑器可以直接读取游戏 Lua 表格数据
+    /// </summary>
     public static class CSharpLuaTableBridge
     {
+        /// <summary>
+        /// 获取当前 Lua 环境（运行时/编辑器 自动适配）
+        /// 运行时：使用游戏主 LuaEnv
+        /// 编辑器：新建环境并配置 Lua 路径
+        /// </summary>
         public static LuaEnv GetCurrEnv
         {
             get
             {
-                var env = Application.isPlaying ? GameMainRoot.Lua.Env  : new LuaEnv();
+                // 运行时：直接使用游戏主 Lua 环境
+                LuaEnv env = Application.isPlaying ? GameMainRoot.Lua.Env : new LuaEnv();
+
+                // 编辑器模式：手动配置 Lua 搜索路径
                 if (!Application.isPlaying)
                 {
+                    // 追加 Lua 脚本搜索目录
                     env.DoString($"package.path = package.path..\";{Application.dataPath}/LuaScripts/Game/?.lua.txt\"");
+                    // 加载总表格 Tables
                     env.DoString("require('Tables/Tables')");
                 }
+
                 return env;
             }
         }
 
-        //=>获取表单配置数据
+        /// <summary>
+        /// 从 Lua 表中获取指定 ID 的配置项，并转为 C# 类
+        /// </summary>
+        /// <typeparam name="T">C# 数据结构</typeparam>
+        /// <param name="tablePath">Lua 表路径（如：Tables.LevelData）</param>
+        /// <param name="requireDefault">不存在时执行的 Lua 代码</param>
+        /// <param name="id">配置ID</param>
         public static T GetLuaTableItem<T>(string tablePath, string requireDefault, string id) where T : class
         {
-            var tables = GetTableInGlobal<LuaTable>(GetCurrEnv, tablePath, requireDefault);
+            LuaTable tables = GetTableInGlobal<LuaTable>(GetCurrEnv, tablePath, requireDefault);
             return tables?.GetInPath<T>(id);
         }
 
-        //=>获取这张表
+        /// <summary>
+        /// 获取整张 Lua 表（返回 LuaTable）
+        /// </summary>
         public static LuaTable GetLuaTable(string tablePath, string requireDefault)
         {
             return GetTableInGlobal<LuaTable>(GetCurrEnv, tablePath, requireDefault);
         }
 
-        //=>获取这张表并转换为C#结构
+        /// <summary>
+        /// 获取整张 Lua 表，并直接转换为 C# 结构体
+        /// </summary>
         public static T GetLuaTableCSharp<T>(string tablePath, string requireDefault)
         {
             return GetTableInGlobal<T>(GetCurrEnv, tablePath, requireDefault);
         }
-        
-        //=>用于全局访问一张表，如果不存在，则调用generateString生成，生成的逻辑应该只在非运行时今昔
-        private static T GetTableInGlobal<T>(LuaEnv luaEnv,string tableSearchKey,string generateString)
+
+        /// <summary>
+        /// 【核心】从 Lua 全局环境中获取表数据
+        /// 运行时：直接读取
+        /// 编辑器：执行初始化代码后读取
+        /// </summary>
+        private static T GetTableInGlobal<T>(LuaEnv luaEnv, string tableSearchKey, string generateString)
         {
+            // 运行时：直接从 Lua 全局获取表
             if (Application.isPlaying)
             {
                 return luaEnv.Global.GetInPath<T>(tableSearchKey);
             }
+            // 编辑器：执行生成代码，再读取
             else
             {
-                var ret = luaEnv.DoString(generateString);
+                object[] ret = luaEnv.DoString(generateString);
                 if (ret == null)
                 {
-                    Debug.LogError($"{tableSearchKey} is not exist...");
-                    return default(T);
+                    Debug.LogError($"{tableSearchKey} 表不存在！");
+                    return default;
                 }
+
                 return luaEnv.Global.GetInPath<T>(tableSearchKey);
             }
         }

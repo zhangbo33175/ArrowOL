@@ -13,7 +13,8 @@ namespace Honor.Runtime
     public sealed partial class UIManager
     {
         /// <summary>
-        /// 菊花等待界面ref+1
+        /// 全局等待菊花（Loading）界面 引用计数 +1
+        /// 计数 > 0 时自动创建并显示等待界面
         /// </summary>
         public void AddWaitingRef()
         {
@@ -56,7 +57,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 菊花等待界面ref-1
+        /// 全局等待菊花（Loading）界面 引用计数 -1
+        /// 计数 == 0 时隐藏等待界面
         /// </summary>
         public void SubWaitingRef()
         {
@@ -64,7 +66,7 @@ namespace Honor.Runtime
             if (m_WaitingUIRefCount < 0)
             {
                 Log.Error("WaitingUI 引用计数不可为负数，请检查引用计数的加减调用。当前引用计数为：{0}", m_WaitingUIRefCount);
-                m_WaitingUIRefCount = 0; // 修正为0 , 防止引用计数为负数
+                m_WaitingUIRefCount = 0;
             }
             if (m_WaitingUIRefCount == 0)
             {
@@ -73,8 +75,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取菊花等待界面的可见性
+        /// 获取全局等待菊花界面是否可见
         /// </summary>
+        /// <returns>是否可见</returns>
         public bool IsWaitingVisible()
         {
             if (_mConnectionWaitingUIConnection != null)
@@ -85,9 +88,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 设置菊花等待界面显示文本
+        /// 设置等待界面的描述文本
         /// </summary>
-        /// <param name="text"></param>
+        /// <param name="text">显示文本</param>
         public void SetWaitingDescText(string text)
         {
             if (_mConnectionWaitingUIConnection != null)
@@ -97,20 +100,19 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 在游戏内打开webview
+        /// 在游戏内打开 WebView 网页视图
+        /// 各平台自动适配（WebGL / Android / iOS）
         /// </summary>
-        /// <param name="viewRect">打开的webview挂载的节点</param>
-        /// <param name="loadOverCallback">webview创建后的回调函数</param>
-        /// <param name="openUrl">要打开的url链接，可为null</param>
+        /// <param name="adaptRectTransform">用于适配大小的 RectTransform</param>
+        /// <param name="openUrl">初始加载 URL，可为 null</param>
+        /// <param name="loadOverCallback">WebView 初始化完成回调</param>
 #if WEBVIEW_ENABLE
         public async void OpenWebView(RectTransform adaptRectTransform, string openUrl = null, WebViewLoadOverCallback loadOverCallback = null)
         {
 #if UNITY_WEBGL
-            // 创建新的预制体，并挂载在m_WebUICanvas下
             var vuplexWebView = CanvasWebViewPrefab.Instantiate();
             vuplexWebView.transform.parent = m_WebUICanvas.transform;
 
-            // 处理打开的网页的大小和位置
             var localRectTransform = adaptRectTransform;
             var rectTransform = vuplexWebView.transform.GetComponent<RectTransform>();
             rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left,
@@ -120,20 +122,14 @@ namespace Honor.Runtime
                 (Screen.height - localRectTransform.rect.height * localRectTransform.localScale.y) * localRectTransform.pivot.y,
                 localRectTransform.rect.height * localRectTransform.localScale.y);
 
-            // 统一在回调函数中打开url，或者html，或者js
             vuplexWebView.InitialUrl = null;
-
-            // Load a URL once the prefab finishes initializing
             await vuplexWebView.WaitUntilInitialized();
-            // 挂载统一逻辑处理的脚本
+            
             UIWebGLWebView newView = vuplexWebView.transform.GetOrAddComponent<UIWebGLWebView>();
             newView.WebView = vuplexWebView;
             newView.OnWebGLVuplexViewInitialized();
-            // 调用回调，通知UI webview节点创建并初始化完毕
-            if (loadOverCallback != null)
-            {
-                loadOverCallback(newView);
-            }
+            
+            loadOverCallback?.Invoke(newView);
             if (openUrl != null)
             {
                 newView.LoadUrl(openUrl);
@@ -141,15 +137,9 @@ namespace Honor.Runtime
 #else
             if (adaptRectTransform != null)
             {
-                // 在需要显示网页的节点上面挂载统一的网页处理UI
                 UIWebGLWebView newView = adaptRectTransform.transform.GetOrAddComponent<UIWebGLWebView>();
-                // 添加网页显示界面
                 newView.CreateUniWebView();
-                // 调用回调，通知UIWebGLWebView节点创建并初始化完毕
-                if (loadOverCallback != null)
-                {
-                    loadOverCallback(newView);
-                }
+                loadOverCallback?.Invoke(newView);
                 if (openUrl != null)
                 {
                     newView.LoadUrl(openUrl);
@@ -160,9 +150,11 @@ namespace Honor.Runtime
 #endif
 
         /// <summary>
-        /// 在WebGL平台上面，直接删除运行过程中Clone的CanvasWebViewPrefab
-        /// 在Google/iOS上面，卸载显示网页的节点上面挂载的UIWebGLWebView组件
+        /// 关闭并销毁 WebView
+        /// WebGL：直接销毁克隆对象
+        /// 原生平台：销毁组件
         /// </summary>
+        /// <param name="closeView">要关闭的 WebView 对象</param>
         public void CloseWebView(GameObject closeView)
         {
 #if UNITY_WEBGL
@@ -178,22 +170,21 @@ namespace Honor.Runtime
 #else
             if (closeView != null)
             {
-                UIWebGLWebView webView = closeView.transform.GetComponent<UIWebGLWebView>();
+                UIWebGLWebView webView = closeView.GetComponent<UIWebGLWebView>();
                 if (webView != null)
                 {
                     UnityEngine.Object.DestroyImmediate(webView);
                 }
             }
-
 #endif
         }
 
         /// <summary>
-        /// 显示流程切换过渡进入效果
+        /// 播放流程切换的入场转场动画（黑屏/白屏过渡）
         /// </summary>
-        /// <param name="forceOver">强制结束</param>
-        /// <param name="duration">过渡时间</param>
-        /// <param name="blockRaycast">阻塞触摸</param>
+        /// <param name="forceOver">是否立即完成，不播动画</param>
+        /// <param name="duration">动画持续时间</param>
+        /// <param name="blockRaycast">动画期间是否阻断射线（触摸）</param>
         public void ShowProcedureTransitionEnter(bool forceOver, float duration, bool blockRaycast)
         {
             if (m_TransitionUI == null)
@@ -232,21 +223,17 @@ namespace Honor.Runtime
             m_TransitionUI.BlockRaycastOnEntering = blockRaycast;
 
             if (forceOver)
-            {
                 m_TransitionUI.EnterOver();
-            }
             else
-            {
                 m_TransitionUI.Enter();
-            }
         }
 
         /// <summary>
-        /// 显示流程切换过渡退出效果
+        /// 播放流程切换的退场转场动画
         /// </summary>
-        /// <param name="forceOver">强制结束</param>
-        /// <param name="duration">过渡时间</param>
-        /// <param name="blockRaycast">阻塞触摸</param>
+        /// <param name="forceOver">是否立即完成</param>
+        /// <param name="duration">动画时长</param>
+        /// <param name="blockRaycast">是否阻断触摸</param>
         public void ShowProcedureTransitionExit(bool forceOver, float duration, bool blockRaycast)
         {
             if (m_TransitionUI == null)
@@ -285,22 +272,18 @@ namespace Honor.Runtime
             m_TransitionUI.BlockRaycastOnExiting = blockRaycast;
 
             if (forceOver)
-            {
                 m_TransitionUI.ExitOver();
-            }
             else
-            {
                 m_TransitionUI.Exit();
-            }
         }
 
         /// <summary>
-        /// 显示飘字
+        /// 显示屏幕中央飘字提示（通用提示）
         /// </summary>
-        /// <param name="text">飘字内容</param>
-        /// <param name="duration">飘字持续时间</param>
-        /// <param name="blockUITouches">是否阻塞UI触摸</param>
-        /// <param name="overCallback">结束回调</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="duration">显示时长</param>
+        /// <param name="blockUITouches">是否阻断触摸</param>
+        /// <param name="overCallback">动画结束回调</param>
         public void ShowFloatWords(string text, float duration, bool blockUITouches = false, Action overCallback = null)
         {
             UIInfo uiInfo = new UIInfo()
@@ -323,7 +306,6 @@ namespace Honor.Runtime
                     {
                         floatWordsBehaviour.WordsText.text = text;
                     }
-
                     if (floatWordsBehaviour.WordsTextTMP != null)
                     {
                         floatWordsBehaviour.WordsTextTMP.text = text;
@@ -337,10 +319,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 展示Splash闪屏界面
+        /// 显示启动 Splash 界面
         /// </summary>
-        /// <param name="durationOverCallback">延迟结束回调</param>
-        /// <returns></returns>
+        /// <param name="durationOverCallback">动画结束回调</param>
+        /// <returns>启动界面控制组件</returns>
         public UILauncherView ShowSplash(Action durationOverCallback)
         {
             UIInfo uiInfo = new UIInfo()
@@ -365,16 +347,16 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 展示App大版本更新提示界面
+        /// 显示 App 大版本更新弹窗
         /// </summary>
-        /// <returns></returns>
+        /// <param name="showCloseButton">是否显示关闭按钮</param>
+        /// <returns>更新界面控制组件</returns>
         public UIAppDownloadBehaviour ShowAppDownload(bool showCloseButton)
         {
-            // 打开大版本更新提示界面
             UIInfo uiInfo = new UIInfo()
             {
                 UIType = UIType.Screen,
-                ABPath = "aa",//GameMainRoot.Hotfix.UIAppDownloadABPath,
+                ABPath = "aa",
                 AssetName = "aa",
                 IsModal = false,
                 ZOrder = GameConstants.AppDownloadUIZOrder,
@@ -393,18 +375,16 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 展示GDPR界面
+        /// 显示 GDPR 隐私政策弹窗
         /// </summary>
-        /// <param name="inGame">是否为游戏中重复进入</param>
-        /// <param name="overButtonClickedCallback">over按钮点击外部回调</param>
-        /// <returns></returns>
+        /// <param name="inGame">是否游戏内再次打开</param>
+        /// <param name="overButtonClickedCallback">确认按钮回调</param>
+        /// <returns>GDPR 控制组件</returns>
         public UIGDPRBehaviour ShowGDPR(bool inGame, Action overButtonClickedCallback)
         {
             UIInfo uiInfo = new UIInfo()
             {
                 UIType = UIType.Screen,
-               /* ABPath = Root.SDK.UIGDPRABPath,
-                AssetName = Root.SDK.UIGDPRAssetName,*/
                 IsModal = false,
                 ZOrder = GameConstants.GDPRUIZOrder,
                 Priority = 0,
@@ -423,22 +403,29 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 展示loading界面
+        /// 显示 Loading 界面（预加载、切换场景等）
         /// </summary>
         /// <param name="loadingMode">加载模式</param>
-        /// <returns></returns>
+        /// <returns>Loading 控制组件</returns>
         public UILauncherLoadingView ShowLoading(UILauncherLoadingView.LoadingMode loadingMode)
         {
             string abPath = string.Empty;
             string assetName = string.Empty;
             int ZOrder = 0;
-            switch(loadingMode)
-            { 
-                case UILauncherLoadingView.LoadingMode.Preload: abPath = GameMainRoot.Procedure.UIPreloadABPath; assetName = GameMainRoot.Procedure.UIPreloadAssetName; ZOrder = GameConstants.PreloadUIZOrder; break;
-                default: Log.Error("UIManager.ShowLoading 参数错误。"); break;
+
+            switch (loadingMode)
+            {
+                case UILauncherLoadingView.LoadingMode.Preload:
+                    abPath = GameMainRoot.Procedure.UIPreloadABPath;
+                    assetName = GameMainRoot.Procedure.UIPreloadAssetName;
+                    ZOrder = GameConstants.PreloadUIZOrder;
+                    break;
+                default:
+                    Log.Error("UIManager.ShowLoading 参数错误。");
+                    break;
             }
 
-            if(!string.IsNullOrEmpty(abPath) && !string.IsNullOrEmpty(assetName))
+            if (!string.IsNullOrEmpty(abPath) && !string.IsNullOrEmpty(assetName))
             {
                 UIInfo uiInfo = new UIInfo()
                 {
@@ -456,34 +443,33 @@ namespace Honor.Runtime
                     OverCallback = null,
                 };
                 GameObject uiGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
-                UILauncherLoadingView uiLauncherLoadingView = uiGO.GetComponent<UILauncherLoadingView>();
-                uiLauncherLoadingView.SetLoadingMode(loadingMode);
-                return uiLauncherLoadingView;
+                UILauncherLoadingView view = uiGO.GetComponent<UILauncherLoadingView>();
+                view.SetLoadingMode(loadingMode);
+                return view;
             }
 
             return null;
         }
 
         /// <summary>
-        /// 隐藏loading界面
+        /// 隐藏 Loading 界面
         /// </summary>
-        /// <param name="uiLauncher">待隐藏的ui</param>
-        /// <returns></returns>
+        /// <param name="uiLauncher">Loading 界面组件</param>
         public void HideLoading(UILauncherLoadingView uiLauncher)
         {
-            uiLauncher.SetVisible(false);
+            if (uiLauncher != null)
+                uiLauncher.SetVisible(false);
         }
+
         /// <summary>
-        /// 展示App应用内评价
+        /// 打开应用内评分（App Review）弹窗
         /// </summary>
-        /// <returns></returns>
+        /// <returns>评分界面组件</returns>
         public UIAppReviewBehaviour ShowAppReview()
         {
             UIInfo uiInfo = new UIInfo()
             {
                 UIType = UIType.Screen,
-               /* ABPath = Root.SDK.UIAppReviewABPath,
-                AssetName = Root.SDK.UIAppReviewAssetName,*/
                 IsModal = false,
                 ZOrder = GameConstants.AppReviewUIZOrder,
                 Priority = 0,
@@ -495,23 +481,20 @@ namespace Honor.Runtime
                 OverCallback = null,
             };
             GameObject uiGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
-            UIAppReviewBehaviour uiAppReviewBehaviour = uiGO.GetComponent<UIAppReviewBehaviour>();
-            return uiAppReviewBehaviour;
+            return uiGO.GetComponent<UIAppReviewBehaviour>();
         }
 
         /// <summary>
-        /// 展示App应用内反馈
+        /// 打开应用内反馈（Feedback）界面
         /// </summary>
-        /// <param name="starNum">评星数量</param>
-        /// <param name="locationDescForDot">打点位置描述</param>
-        /// <returns></returns>
+        /// <param name="starNum">评分星级</param>
+        /// <param name="locationDescForDot">埋点描述</param>
+        /// <returns>反馈界面组件</returns>
         public UIAppFeedbackBehaviour ShowAppFeedback(int starNum, string locationDescForDot)
         {
             UIInfo uiInfo = new UIInfo()
             {
                 UIType = UIType.Screen,
-              /*  ABPath = Root.SDK.UIAppFeedbackABPath,
-                AssetName = Root.SDK.UIAppFeedbackAssetName,*/
                 IsModal = false,
                 ZOrder = GameConstants.AppFeedbackUIZOrder,
                 Priority = 0,
@@ -523,14 +506,10 @@ namespace Honor.Runtime
                 OverCallback = null,
             };
             GameObject uiGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
-            UIAppFeedbackBehaviour uiAppFeedbackBehaviour = uiGO.GetComponent<UIAppFeedbackBehaviour>();
-            uiAppFeedbackBehaviour.StarNum = starNum;
-            uiAppFeedbackBehaviour.LocationDescForDot = locationDescForDot;
-            return uiAppFeedbackBehaviour;
+            UIAppFeedbackBehaviour behaviour = uiGO.GetComponent<UIAppFeedbackBehaviour>();
+            behaviour.StarNum = starNum;
+            behaviour.LocationDescForDot = locationDescForDot;
+            return behaviour;
         }
-
     }
-
 }
-
-

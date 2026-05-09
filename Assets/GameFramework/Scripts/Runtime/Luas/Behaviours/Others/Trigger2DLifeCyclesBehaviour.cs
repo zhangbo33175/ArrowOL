@@ -1,32 +1,34 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 2D Trigger 事件生命周期转发脚本
+    /// 负责将 Unity 2D 触发事件绑定并转发到 Lua 层
+    /// </summary>
     public partial class Trigger2DLifeCyclesBehaviour : MonoBehaviour
     {
         /// <summary>
-        /// 进入碰撞Lua回调
+        /// 触发进入 Lua 回调
         /// </summary>
         private Action<Collider2D> m_OnTriggerEnter2DCallback;
 
         /// <summary>
-        /// 停留碰撞Lua回调
+        /// 触发停留 Lua 回调
         /// </summary>
         private Action<Collider2D> m_OnTriggerStay2DCallback;
 
         /// <summary>
-        /// 退出碰撞Lua回调
+        /// 触发退出 Lua 回调
         /// </summary>
         private Action<Collider2D> m_OnTriggerExit2DCallback;
 
         /// <summary>
-        /// 绑定Lua
+        /// 绑定 Lua 函数
         /// </summary>
-        /// <param name="luaEnv">Lua环境</param>
+        /// <param name="luaEnv">Lua 表（脚本实例）</param>
         public void LuaBinding(LuaTable luaEnv)
         {
             luaEnv.Get("OnTriggerEnter2D", out m_OnTriggerEnter2DCallback);
@@ -35,7 +37,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 进入碰撞
+        /// 解除 Lua 绑定，防止内存泄漏
         /// </summary>
         /// <param name="other">对方碰撞器</param>
         void OnTriggerEnter2D(Collider2D other)
@@ -59,7 +61,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 退出碰撞
+        /// 销毁时自动解绑
         /// </summary>
         /// <param name="other">对方碰撞器</param>
         void OnTriggerExit2D(Collider2D other)

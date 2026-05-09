@@ -7,7 +7,7 @@ namespace Honor.Runtime
     public sealed partial class AssetBundleLoadManager
     {
         /// <summary>
-        /// AB包加载管理器构造
+        /// 构造函数：初始化所有AB包管理容器
         /// </summary>
         public AssetBundleLoadManager()
         {
@@ -21,7 +21,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 管理器心跳
+        /// 每帧更新：驱动加载、就绪、卸载流程
         /// </summary>
         public void Update()
         {
@@ -31,7 +31,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 加载Manifest信息
+        /// 加载AB依赖清单文件（AssetBundleManifest）
+        /// 读取所有AB包的依赖关系，存入全局依赖表
         /// </summary>
         public void LoadManifest()
         {
@@ -73,10 +74,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步加载
+        /// 同步加载AB包
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <returns></returns>
+        /// <param name="abPath">原始AB路径</param>
+        /// <returns>加载完成的AB包</returns>
         public AssetBundle LoadSync(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
@@ -85,10 +86,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步加载
+        /// 异步加载AB包
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="abLoadOverCallback">加载完成回调函数</param>
+        /// <param name="abPath">原始AB路径</param>
+        /// <param name="abLoadOverCallback">加载完成回调</param>
         public void LoadAsync(string abPath, AssetBundleLoadOverCallBack abLoadOverCallback)
         {
             string formatPath = GetABFormatPath(abPath);
@@ -96,9 +97,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 卸载（异步）
+        /// 异步卸载AB包
         /// </summary>
-        /// <param name="abPath">ab路径</param>
+        /// <param name="abPath">原始AB路径</param>
         public void Unload(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
@@ -106,10 +107,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// AB资源文件是否存在
+        /// 判断AB包是否存在（依赖表中存在）
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <returns></returns>
+        /// <param name="abPath">原始AB路径</param>
+        /// <returns>是否存在</returns>
         public bool IsABExist(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
@@ -117,10 +118,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// AB资源文件在Persistent读写目录中是否存在
+        /// 判断AB包是否存在于可读写目录(Persistent)
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <returns></returns>
+        /// <param name="abPath">原始AB路径</param>
+        /// <returns>是否存在</returns>
         public bool IsABExistInPersistentDataPath(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
@@ -129,10 +130,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取AB包的格式化路径
+        /// 获取格式化后的AB包路径（统一命名规则）
+        /// 格式：路径替换@符号 + 小写 + .bundle
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <returns></returns>
+        /// <param name="abPath">原始AB路径</param>
+        /// <returns>格式化路径</returns>
         public string GetABFormatPath(string abPath)
         {
             if (!m_AssetBundleFormatPathCaches.ContainsKey(abPath))
@@ -144,11 +146,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取AB包还原后的路径
-        /// 注意：还原后的路径大小写不敏感
+        /// 将格式化路径还原为原始AB路径
         /// </summary>
-        /// <param name="abFormatPath">ab格式化路径</param>
-        /// <returns></returns>
+        /// <param name="abFormatPath">格式化路径</param>
+        /// <returns>还原后的原始路径</returns>
         public string GetABRestoredPath(string abFormatPath)
         {
             string restoredPath = string.Empty;

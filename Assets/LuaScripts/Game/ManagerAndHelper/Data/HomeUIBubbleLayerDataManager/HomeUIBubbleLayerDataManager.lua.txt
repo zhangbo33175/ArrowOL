@@ -1,0 +1,50 @@
+--=====================================================================================================
+-- descrip:   主界面元素UI气泡执行顺序数据管理器
+--            功能：管理主界面UI气泡、提示、红点的显示层级与执行顺序
+--=====================================================================================================
+
+---@class HomeUIBubbleLayerDataManager @主界面UI气泡层级数据管理器
+local HomeUIBubbleLayerDataManager = class("HomeUIBubbleLayerDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function HomeUIBubbleLayerDataManager:ctor(args)
+
+end
+
+---创建实例
+---@type fun(args:table):HomeUIBubbleLayerDataManager
+---@param args table @自定义参数
+---@return HomeUIBubbleLayerDataManager @主界面UI气泡层级管理器实例
+function HomeUIBubbleLayerDataManager:Create(args)
+    local obj = HomeUIBubbleLayerDataManager.new(args)
+    return obj
+end
+
+---根据气泡类型ID获取层级配置
+---@type fun(id:EGameElementUIBubbleType):Tables.HomeUIBubbleLayers_Item
+---@param id EGameElementUIBubbleType @气泡类型ID
+---@return Tables.HomeUIBubbleLayers_Item @气泡层级配置
+function HomeUIBubbleLayerDataManager:GetDataById(id)
+    if id == nil then
+        PrintError("HomeUIBubbleLayerDataManager:GetDataById id is nil,默认返回NormalUIBubble")
+        return Tables.HomeUIBubbleLayers[EGameElementUIBubbleType.NormalUIBubble]
+    end
+    return Tables.HomeUIBubbleLayers[id]
+end
+
+---根据气泡类型ID获取执行顺序
+---@type fun(id:EGameElementUIBubbleType):number
+---@param id EGameElementUIBubbleType @气泡类型ID
+---@return number @排序值（数值越小优先级越高）
+function HomeUIBubbleLayerDataManager:GetOrderById(id)
+    local data = self:GetDataById(id)
+    if data == nil then
+        PrintError("HomeUIBubbleLayerDataManager:GetOrderById data is nil,默认返回0")
+        return 0
+    end
+    return data.Order
+end
+
+return HomeUIBubbleLayerDataManager

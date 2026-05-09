@@ -5,246 +5,242 @@ using XLua;
 namespace Honor.Runtime
 {
     /// <summary>
-    /// Prefab封装对象
+    /// 预制体资源封装对象
+    /// 管理Prefab加载、实例化、回调、引用计数与实例ID
     /// </summary>
     public class PrefabObject
     {
         /// <summary>
-        /// AB包路径
-        /// 以Assets开头
+        /// AB包路径（必须以 Assets 开头）
         /// </summary>
         public string AssetBundlePath;
 
         /// <summary>
-        /// AB中Asset名称
+        /// AB包内的资源名称
         /// </summary>
         public string AssetName;
 
         /// <summary>
-        /// 经ABPath与AssetName结合后Asset路径
+        /// 资源完整路径（ABPath + AssetName 组合）
         /// </summary>
         public string AssetPath;
 
         /// <summary>
-        /// 本轮（帧）已经确定下来的需要在下一帧进行的回调数量
-        /// 保证异步是下一帧回调
+        /// 锁定的回调数量
+        /// 标记当前帧确定、下一帧执行的回调数，保证异步下一帧回调
         /// </summary>
         public int LockCallbackCount;
 
         /// <summary>
-        /// Prefab加载完成回调函数集合
-        /// 按帧规律抛出
+        /// 预制体加载完成回调列表
+        /// 按帧序统一派发
         /// </summary>
         public List<PrefabLoadOverCallback> PrefabLoadOverCallbackList = new List<PrefabLoadOverCallback>();
 
         /// <summary>
-        /// Prefab加载完成自定义传入参数集合
-        /// 按帧规律抛出
+        /// 预制体加载时传入的Lua参数列表
         /// </summary>
         public List<LuaTable> PrefabLoadLuaTableParamList = new List<LuaTable>();
 
         /// <summary>
-        /// Prefab实例化时指定的父对象集合
-        /// 按帧规律缓存并设置后移除
+        /// 预制体实例化父节点列表
+        /// 缓存并按帧设置后自动移除
         /// </summary>
         public List<Transform> PrefabInstancingGOParentList = new List<Transform>();
 
         /// <summary>
-        /// Asset资源
+        /// 加载完成的资源对象
         /// </summary>
         public UnityEngine.Object Asset;
 
         /// <summary>
-        /// 引用计数
+        /// 资源引用计数
         /// </summary>
         public int RefCount;
 
         /// <summary>
-        /// 通过该Prefab实例化的对象的实例ID集合
-        /// 实时维护
+        /// 由该Prefab实例化出的所有GameObject实例ID集合
+        /// 用于实时管理对象生命周期
         /// </summary>
         public HashSet<int> GOInstanceIDs = new HashSet<int>();
     }
 
     /// <summary>
-    /// AB包封装对象
+    /// AssetBundle 封装对象
+    /// 管理AB包加载、依赖、引用计数、回调与资源本体
     /// </summary>
     public class AssetBundleObject
     {
         /// <summary>
-        /// AB标准名称格式
+        /// AB包标准格式化路径
         /// </summary>
         public string FormatPath;
 
         /// <summary>
-        /// 引用计数
+        /// AB包引用计数
         /// </summary>
         public int RefCount;
 
         /// <summary>
-        /// 依赖资源总数
+        /// 待加载的依赖资源数量
         /// </summary>
         public int DependLoadingCount;
 
         /// <summary>
-        /// 资源位置来源
+        /// 资源来源类型
         /// </summary>
         public OriginType Origin;
 
         /// <summary>
-        /// AB异步加载请求
+        /// AB包异步加载请求
         /// </summary>
         public AssetBundleCreateRequest Request;
 
         /// <summary>
-        /// AssetBundle
+        /// AB包资源本体
         /// </summary>
         public AssetBundle AssetBundles;
 
         /// <summary>
-        /// 依赖AB集合
+        /// 依赖的AB包列表
         /// </summary>
         public readonly List<AssetBundleObject> Depends = new List<AssetBundleObject>();
 
         /// <summary>
-        /// AB异步加载完成回调列表
+        /// AB包加载完成回调列表
         /// </summary>
         public readonly List<AssetBundleLoadOverCallBack> AssetBundleLoadOverCallbacksList =
             new List<AssetBundleLoadOverCallBack>();
     }
 
     /// <summary>
-    /// Asset封装对象
+    /// 普通资源封装对象
+    /// 管理资源加载、卸载、引用、弱引用、延迟释放、异步回调
     /// </summary>
     public class AssetObject
     {
         /// <summary>
-        /// Asset类型名称
+        /// 资源类型名称
         /// </summary>
         public string TypeName;
 
         /// <summary>
-        /// AB包路径
-        /// 以Assets开头
+        /// AB包路径（必须以 Assets 开头）
         /// </summary>
         public string AssetBundlePath;
 
         /// <summary>
-        /// AB中Asset名称
+        /// AB包内资源名称
         /// </summary>
         public string AssetName;
 
         /// <summary>
-        /// 经ABPath与AssetName结合后Asset路径
+        /// 资源完整路径（ABPath + AssetName）
         /// </summary>
         public string AssetPath;
 
         /// <summary>
-        /// 资源位置来源
+        /// 资源来源类型
         /// </summary>
         public OriginType Origin;
 
         /// <summary>
-        /// 是否为Scene
+        /// 是否为场景资源
         /// </summary>
         public bool IsScene;
 
         /// <summary>
-        /// 本轮（帧）已经确定下来的需要在下一帧进行的回调数量
-        /// 保证异步是下一帧回调
+        /// 锁定的回调数量
+        /// 标记当前帧确定、下一帧执行的回调数，保证异步下一帧回调
         /// </summary>
         public int LockCallbackCount;
 
         /// <summary>
-        /// Asset加载完成回调函数集合
+        /// 资源加载完成回调列表
         /// </summary>
         public List<AssetLoadOverCallback> AssetLoadOverCallbackList = new List<AssetLoadOverCallback>();
 
         /// <summary>
-        /// Asset卸载完成回调函数集合
+        /// 资源卸载完成回调列表
         /// </summary>
         public List<AssetUnloadOverCallback> AssetUnloadOverCallbackList = new List<AssetUnloadOverCallback>();
 
         /// <summary>
-        /// Asset实例ID
+        /// 资源实例ID
         /// </summary>
         public int InstanceID;
 
         /// <summary>
-        /// 异步请求
+        /// 资源异步加载请求
         /// </summary>
         public AsyncOperation Request;
 
         /// <summary>
-        /// Asset资源
-        /// 当加载资源为Scene时该Asset为null
+        /// 资源本体
+        /// 若为场景资源，此字段为 null
         /// </summary>
         public UnityEngine.Object Asset;
 
         /// <summary>
-        /// 是否是弱引用
-        /// 用于预加载和释放
-        /// 为true时，表示这个资源可以在没有引用时卸载，否则常驻内存。
-        /// 常驻内存是指引用计数为0也不卸载。
+        /// 是否为弱引用
+        /// true：无引用时可自动卸载
+        /// false：常驻内存，引用计数为0也不释放
         /// </summary>
         public bool IsWeak = true;
 
         /// <summary>
-        /// 引用计数
+        /// 资源引用计数
         /// </summary>
         public int RefCount;
 
         /// <summary>
-        /// 延迟卸载的帧数
-        /// UNLOAD_DELAY_FIXED_FRAME_NUM + m_UnloadList.Count
-        /// 用上面的方式赋值来保证在加入unload释放队列中的时候一定是后加入的Asset比前一个加入的Asset晚一帧释放
-        /// 这样可以保证在某个时刻大量卸载的时候，资源卸载的压力平摊到后面一段时间上，兼顾效率和内存
+        /// 延迟卸载帧数
+        /// 用于平摊大量资源卸载性能压力
         /// </summary>
         public int UnloadTickNum;
     }
+
     /// <summary>
-    /// 预加载Asset封装对象
+    /// 预加载资源封装对象
+    /// 用于预加载队列，记录预加载信息与完成回调
     /// </summary>
     public class PreloadAssetObject
     {
         /// <summary>
-        /// Asset类型名称
+        /// 资源类型名称
         /// </summary>
         public string TypeName;
 
         /// <summary>
-        /// AB包路径
-        /// 以Assets开头
+        /// AB包路径（必须以 Assets 开头）
         /// </summary>
         public string AssetBundlePath;
 
         /// <summary>
-        /// AB中Asset名称
+        /// AB包内资源名称
         /// </summary>
         public string AssetName;
 
         /// <summary>
-        /// 经ABPath与AssetName结合后Asset路径
+        /// 资源完整路径
         /// </summary>
         public string AssetPath;
 
         /// <summary>
-        /// 是否为Scene
+        /// 是否为场景资源
         /// </summary>
         public bool IsScene;
 
         /// <summary>
-        /// 是否是弱引用
-        /// 用于预加载和释放
-        /// 为true时，表示这个资源可以在没有引用时卸载，否则常驻内存。
-        /// 常驻内存是指引用计数为0也不卸载。
+        /// 是否为弱引用
+        /// true：无引用时可自动卸载
+        /// false：常驻内存
         /// </summary>
         public bool IsWeak = true;
 
         /// <summary>
-        /// Asset预加载完成回调函数
+        /// 预加载完成回调
         /// </summary>
         public AssetLoadOverCallback AssetLoadOverCallback = null;
-
     }
 }

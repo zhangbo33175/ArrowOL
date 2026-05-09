@@ -21,8 +21,9 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Spine.Unity.SkeletonRenderer);
-			Utils.BeginObjectRegister(type, L, translator, 0, 15, 27, 22);
+			Utils.BeginObjectRegister(type, L, translator, 0, 16, 29, 24);
 			
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "EditorUpdateMeshFilterHideFlags", _m_EditorUpdateMeshFilterHideFlags);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetMeshSettings", _m_SetMeshSettings);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Awake", _m_Awake);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ClearState", _m_ClearState);
@@ -40,13 +41,15 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnRebuild", _e_OnRebuild);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnMeshAndMaterialsUpdated", _e_OnMeshAndMaterialsUpdated);
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "UpdateMode", _g_get_UpdateMode);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "EditorSkipSkinSync", _g_get_EditorSkipSkinSync);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "UpdateMode", _g_get_UpdateMode);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CustomMaterialOverride", _g_get_CustomMaterialOverride);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CustomSlotMaterials", _g_get_CustomSlotMaterials);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "Skeleton", _g_get_Skeleton);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SkeletonDataAsset", _g_get_SkeletonDataAsset);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "skeletonDataAsset", _g_get_skeletonDataAsset);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "initialSkinName", _g_get_initialSkinName);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "fixPrefabOverrideViaMeshFilter", _g_get_fixPrefabOverrideViaMeshFilter);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "initialFlipX", _g_get_initialFlipX);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "initialFlipY", _g_get_initialFlipY);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "updateWhenInvisible", _g_get_updateWhenInvisible);
@@ -68,9 +71,11 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "valid", _g_get_valid);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "skeleton", _g_get_skeleton);
             
-			Utils.RegisterFunc(L, Utils.SETTER_IDX, "UpdateMode", _s_set_UpdateMode);
+			Utils.RegisterFunc(L, Utils.SETTER_IDX, "EditorSkipSkinSync", _s_set_EditorSkipSkinSync);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "UpdateMode", _s_set_UpdateMode);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "skeletonDataAsset", _s_set_skeletonDataAsset);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "initialSkinName", _s_set_initialSkinName);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "fixPrefabOverrideViaMeshFilter", _s_set_fixPrefabOverrideViaMeshFilter);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "initialFlipX", _s_set_initialFlipX);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "initialFlipY", _s_set_initialFlipY);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "updateWhenInvisible", _s_set_updateWhenInvisible);
@@ -95,7 +100,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 6, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 6, 1, 1);
 			
 			
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "STENCIL_COMP_PARAM_ID", Spine.Unity.SkeletonRenderer.STENCIL_COMP_PARAM_ID);
@@ -104,8 +109,10 @@ namespace XLua.CSObjectWrap
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "STENCIL_COMP_MASKINTERACTION_VISIBLE_OUTSIDE", Spine.Unity.SkeletonRenderer.STENCIL_COMP_MASKINTERACTION_VISIBLE_OUTSIDE);
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SUBMESH_DUMMY_PARAM_ID", Spine.Unity.SkeletonRenderer.SUBMESH_DUMMY_PARAM_ID);
             
-			
-			
+			Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "fixPrefabOverrideViaMeshFilterGlobal", _g_get_fixPrefabOverrideViaMeshFilterGlobal);
+            
+			Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "fixPrefabOverrideViaMeshFilterGlobal", _s_set_fixPrefabOverrideViaMeshFilterGlobal);
+            
 			
 			Utils.EndClassRegister(type, L, translator);
         }
@@ -139,6 +146,33 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_EditorUpdateMeshFilterHideFlags(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Spine.Unity.SkeletonRenderer gen_to_be_invoked = (Spine.Unity.SkeletonRenderer)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.EditorUpdateMeshFilterHideFlags(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_SetMeshSettings(RealStatePtr L)
@@ -520,6 +554,20 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_EditorSkipSkinSync(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SkeletonRenderer gen_to_be_invoked = (Spine.Unity.SkeletonRenderer)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.EditorSkipSkinSync);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_UpdateMode(RealStatePtr L)
         {
 		    try {
@@ -611,6 +659,32 @@ namespace XLua.CSObjectWrap
 			
                 Spine.Unity.SkeletonRenderer gen_to_be_invoked = (Spine.Unity.SkeletonRenderer)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushstring(L, gen_to_be_invoked.initialSkinName);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_fixPrefabOverrideViaMeshFilter(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SkeletonRenderer gen_to_be_invoked = (Spine.Unity.SkeletonRenderer)translator.FastGetCSObj(L, 1);
+                translator.PushSpineUnitySettingsTriState(L, gen_to_be_invoked.fixPrefabOverrideViaMeshFilter);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_fixPrefabOverrideViaMeshFilterGlobal(RealStatePtr L)
+        {
+		    try {
+            
+			    LuaAPI.lua_pushboolean(L, Spine.Unity.SkeletonRenderer.fixPrefabOverrideViaMeshFilterGlobal);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -900,6 +974,21 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_EditorSkipSkinSync(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SkeletonRenderer gen_to_be_invoked = (Spine.Unity.SkeletonRenderer)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.EditorSkipSkinSync = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_UpdateMode(RealStatePtr L)
         {
 		    try {
@@ -938,6 +1027,35 @@ namespace XLua.CSObjectWrap
 			
                 Spine.Unity.SkeletonRenderer gen_to_be_invoked = (Spine.Unity.SkeletonRenderer)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.initialSkinName = LuaAPI.lua_tostring(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_fixPrefabOverrideViaMeshFilter(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Spine.Unity.SkeletonRenderer gen_to_be_invoked = (Spine.Unity.SkeletonRenderer)translator.FastGetCSObj(L, 1);
+                Spine.Unity.SettingsTriState gen_value;translator.Get(L, 2, out gen_value);
+				gen_to_be_invoked.fixPrefabOverrideViaMeshFilter = gen_value;
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_fixPrefabOverrideViaMeshFilterGlobal(RealStatePtr L)
+        {
+		    try {
+                
+			    Spine.Unity.SkeletonRenderer.fixPrefabOverrideViaMeshFilterGlobal = LuaAPI.lua_toboolean(L, 1);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

@@ -4,14 +4,22 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 资源管理组件（运行时核心）
+    /// 负责 AssetBundle / 普通资源的同步/异步加载、卸载、场景管理、Prefab 实例化
+    /// 与 Lua 深度绑定，是游戏资源加载的唯一入口
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class AssetComponent : GameComponent
     {
+        /// <summary>
+        /// 初始化资源管理器
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
 
-            // 获取Launcher组件
+            // 获取启动器组件
             m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
             if (m_LauncherComponent == null)
             {
@@ -19,7 +27,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            // 实例化Asset加载管理器
+            // 初始化资源加载管理器（负责底层资源加载/卸载）
             m_AssetLoadManager = new AssetLoadManager(m_LauncherComponent.EditorResourceMode,
                 m_UnloadAssetDelayFrameNum, m_LoadedMaxNumToCleanMemery);
             if (m_AssetLoadManager == null)
@@ -28,7 +36,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            // 实例化Prefab加载管理器
+            // 初始化预制体加载管理器（负责实例化、克隆、Lua 传参）
             m_PrefabLoadManager = new PrefabLoadManager(m_AssetLoadManager);
             if (m_PrefabLoadManager == null)
             {
@@ -37,10 +45,16 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 启动回调（当前无逻辑）
+        /// </summary>
         private void Start()
         {
         }
 
+        /// <summary>
+        /// 每帧更新管理器（执行异步任务、延迟卸载、内存清理）
+        /// </summary>
         private void Update()
         {
             if (m_AssetLoadManager != null)
@@ -54,12 +68,15 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary
+        /// 销毁回调（当前无逻辑）
+        /// </summary>
         private void OnDestroy()
         {
         }
 
         /// <summary>
-        /// 加载Manifest信息
+        /// 加载 AssetBundle 清单文件（非编辑器模式下必须调用）
         /// </summary>
         public void LoadManifest()
         {
@@ -73,13 +90,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步加载Prefab并实例化
+        /// 同步加载 Prefab 并自动实例化
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="parent">为实例指定的父对象</param>
-        /// <param name="luaParams">自定义lua传入参数</param>
-        /// <returns></returns>
+        /// <param name="abPath">AB 包路径（必须以 Assets 开头）</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="parent">父节点</param>
+        /// <param name="luaParams">Lua 传入参数</param>
+        /// <returns>实例化后的 GameObject</returns>
         public GameObject LoadPrefabSync(string abPath, string assetName, Transform parent, LuaTable luaParams = null)
         {
             if (string.IsNullOrEmpty(abPath))
@@ -110,13 +127,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步加载Prefab并实例化
+        /// 异步加载 Prefab 并自动实例化
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="parent">为实例指定的父节点</param>
-        /// <param name="luaParams">自定义lua传入参数</param>
-        /// <param name="overCallback">prefab加载完成并实例化结束的异步回调</param>
+        /// <param name="abPath">AB 包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="parent">父节点</param>
+        /// <param name="luaParams">Lua 传参</param>
+        /// <param name="overCallback">实例化完成回调</param>
         public void LoadPrefabAsync(string abPath, string assetName, Transform parent, LuaTable luaParams = null,
             PrefabLoadOverCallback overCallback = null)
         {
@@ -154,14 +171,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 挂载模板的克隆对象到指定节点上
-        /// 注：当GO是一个不被各类Manager管控的对象时，可以使用该克隆接口，其他情况禁止使用该克隆接口，因为克隆得到的对象将不受各类Manager的管控！
-        ///     比如：UI对象，只能通过UIManager进行实例化，克隆方式的实例化对象并不在UIManager管理容器内！
+        /// 直接克隆 GameObject（不经过资源加载流程）
+        /// 注意：仅用于非托管模板对象，UI/场景对象禁止使用
         /// </summary>
         /// <param name="parent">父节点</param>
-        /// <param name="childTemplateGO">模板节点</param>
-        /// <param name="luaParams">传入参数</param>
-        /// <returns>克隆得到的节点对象</returns>
+        /// <param name="childTemplateGO">模板对象</param>
+        /// <param name="luaParams">Lua 参数</param>
+        /// <returns>克隆后的对象</returns>
         public GameObject InstantiateGO(Transform parent, GameObject childTemplateGO, LuaTable luaParams = null)
         {
             if (parent == null)
@@ -180,12 +196,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 同步加载Asset资源
+        /// 同步加载任意资源（非实例化，仅加载原始资源）
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
+        /// <param name="typeName">资源类型名</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <returns>UnityEngine.Object 资源</returns>
         public UnityEngine.Object LoadAssetSync(string typeName, string abPath, string assetName)
         {
             if (string.IsNullOrEmpty(typeName))
@@ -215,12 +231,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步加载Asset资源
+        /// 异步加载任意资源
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="overCallback">回调函数</param>
+        /// <param name="typeName">类型名</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <param name="overCallback">加载完成回调</param>
         public void LoadAssetAsync(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback)
         {
             if (overCallback == null)
@@ -257,13 +273,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步预加载Asset资源
+        /// 异步预加载资源（可设置弱引用）
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <param name="overCallback">回调函数</param>
-        /// <param name="isWeak">弱引用(当为true时表示使用过后会销毁，为false时将不会销毁，常驻内存，慎用)</param>
+        /// <param name="typeName">类型名</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <param name="overCallback">回调</param>
+        /// <param name="isWeak">是否弱引用（true=用完自动释放）</param>
         public void PreLoadAssetAsync(string typeName, string abPath, string assetName,
             AssetLoadOverCallback overCallback, bool isWeak = true)
         {
@@ -295,10 +311,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 卸载Asset
+        /// 卸载资源
         /// </summary>
-        /// <param name="asset">asset原始资源</param>
-        /// <param name="rightNow">是否立刻卸载</param>
+        /// <param name="asset">资源对象</param>
+        /// <param name="overCallback">卸载完成回调</param>
+        /// <param name="rightNow">是否立即卸载</param>
         public void UnloadAsset(UnityEngine.Object asset, AssetUnloadOverCallback overCallback = null,
             bool rightNow = false)
         {
@@ -312,26 +329,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 强制卸载未使用的Asset资源（异步）
-        /// 注意以下4点：（非常重要）
-        /// 1.使用时需要格外注意调用时机，若为手动调用，请确保在调用接口时待卸载资源已处于【Asset准备卸载列表】中正处于过期延迟等待倒计时的状态。
-        /// 2.Resources.UnloadUnusedAssets是异步接口，由于游戏场景越复杂、资源越多，该接口的开销也就相对越大，一般在0.3s~2s范围内。
-        /// 3.避免在overCallback回调前对资源进行加载和释放操作，这样便可规避资源生命周期的混乱迭代（异步释放过程中资源被重复加载后又被重复释放导致资源获取为空的问题），强烈建议在overcallback中对结束状态进行监控并进行结束后的额外拓展。
-        /// 4.为了游戏正常运行，在调用该接口前请确保游戏业务逻辑中资源的引用计数正确迭代（即Load与Unload配对使用），否则如若出现Load调用次数多余unload调用次数时，框架对资源的引用标记将失去实际的作用（调用该接口时资源引用计数>0，框架层维护的资源不认为会被释放，但是真实的资源却已被Unity释放掉了，最终将会导致游戏运行异常。）
-        /// 建议使用的案例场景：
-        /// Procedure之间进行切换时可调用该接口。流程A切换到流程B，在流程A中游戏内容全部销毁后（当流程A中游戏内容较多时，可能需要多帧迭代后才能完成真正的销毁操作，该间隔由游戏内容复杂度决定），调用该接口并在overcallback中初始化流程B的所有游戏内容。
+        /// 强制卸载所有未使用资源（异步）
+        /// 注意：开销大，必须谨慎使用，适合场景切换时调用
         /// </summary>
-        /// <param name="overCallback">结束回调</param>
+        /// <param name="overCallback">完成回调</param>
         public void ForceUnloadUnusedAssets(Action overCallback = null)
         {
             m_AssetLoadManager.ForceUnloadUnusedAssets(overCallback);
         }
 
         /// <summary>
-        /// 异步加载Scene
+        /// 同步加载场景
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="sceneName">scene名称</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="sceneName">场景名</param>
         public void LoadSceneSync(string abPath, string sceneName)
         {
             if (string.IsNullOrEmpty(abPath))
@@ -356,11 +367,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步加载Scene
+        /// 异步加载场景
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="sceneName">scene名称</param>
-        /// <param name="overCallback">回调函数</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="sceneName">场景名</param>
+        /// <param name="overCallback">加载完成回调</param>
         public void LoadSceneAsync(string abPath, string sceneName, AssetLoadOverCallback overCallback)
         {
             if (overCallback == null)
@@ -391,10 +402,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步预加载Scene
+        /// 异步预加载场景
         /// </summary>
-        /// <param name="abPath">ab路径</param>
-        /// <param name="sceneName">scene名称</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="sceneName">场景名</param>
+        /// <param name="overCallback">回调</param>
+        /// <param name="isWeak">弱引用</param>
         public void PreLoadSceneAsync(string abPath, string sceneName, AssetLoadOverCallback overCallback,
             bool isWeak = true)
         {
@@ -420,9 +433,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 卸载Scene
+        /// 卸载场景
         /// </summary>
-        /// <param name="asset">asset原始资源</param>
+        /// <param name="sceneName">场景名</param>
+        /// <param name="overCallback">完成回调</param>
         public void UnloadScene(string sceneName, AssetUnloadOverCallback overCallback = null)
         {
             if (string.IsNullOrEmpty(sceneName))
@@ -444,12 +458,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 判断Asset资源文件是否存在
+        /// 判断资源是否存在
         /// </summary>
-        /// <param name="typeName">资源类型名称</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset名称</param>
-        /// <returns></returns>
+        /// <param name="typeName">类型名</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <returns>是否存在</returns>
         public bool IsAssetExist(string typeName, string abPath, string assetName)
         {
             if (string.IsNullOrEmpty(typeName))

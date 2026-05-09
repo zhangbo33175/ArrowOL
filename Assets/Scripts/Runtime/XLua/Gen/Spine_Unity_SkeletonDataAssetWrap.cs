@@ -58,13 +58,15 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 1, 1);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "CreateRuntimeInstance", _m_CreateRuntimeInstance_xlua_st_);
             
 			
             
-			
-			
+			Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "errorIfSkeletonFileNullGlobal", _g_get_errorIfSkeletonFileNullGlobal);
+            
+			Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "errorIfSkeletonFileNullGlobal", _s_set_errorIfSkeletonFileNullGlobal);
+            
 			
 			Utils.EndClassRegister(type, L, translator);
         }
@@ -469,6 +471,18 @@ namespace XLua.CSObjectWrap
             return 1;
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_errorIfSkeletonFileNullGlobal(RealStatePtr L)
+        {
+		    try {
+            
+			    LuaAPI.lua_pushboolean(L, Spine.Unity.SkeletonDataAsset.errorIfSkeletonFileNullGlobal);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -629,6 +643,19 @@ namespace XLua.CSObjectWrap
 			
                 Spine.Unity.SkeletonDataAsset gen_to_be_invoked = (Spine.Unity.SkeletonDataAsset)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.controller = (UnityEngine.RuntimeAnimatorController)translator.GetObject(L, 2, typeof(UnityEngine.RuntimeAnimatorController));
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_errorIfSkeletonFileNullGlobal(RealStatePtr L)
+        {
+		    try {
+                
+			    Spine.Unity.SkeletonDataAsset.errorIfSkeletonFileNullGlobal = LuaAPI.lua_toboolean(L, 1);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

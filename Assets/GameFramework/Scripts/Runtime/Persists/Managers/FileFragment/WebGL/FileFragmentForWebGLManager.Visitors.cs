@@ -5,8 +5,9 @@ namespace Honor.Runtime
     public sealed partial class FileFragmentForWebGLManager
     {
         /// <summary>
-        /// 存储条目名称分类集合
-        /// <classifyName，当前分类下的所有条目名称key>
+        /// 分类名称与对应条目键名的索引字典（内存结构）
+        /// Key：分类名称
+        /// Value：该分类下所有存储键名列表
         /// </summary>
         private readonly SortedDictionary<string, List<string>> m_ItemNameGroups = null;
         public SortedDictionary<string, List<string>> ItemNameGroups
@@ -18,10 +19,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定分类名称的条目数量。
+        /// 获取指定分类下的存储条目数量
         /// </summary>
         /// <param name="classifyName">分类名称</param>
-        /// <returns>指定分类名称的条目数量</returns>
+        /// <returns>条目数量</returns>
         public int Count(string classifyName)
         {
             if (m_ItemNameGroups != null && m_ItemNameGroups.ContainsKey(classifyName))
@@ -32,5 +33,3 @@ namespace Honor.Runtime
         }
     }
 }
-
-

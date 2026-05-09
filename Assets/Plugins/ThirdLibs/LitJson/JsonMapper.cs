@@ -627,59 +627,103 @@ namespace LitJson
                 delegate { return new JsonMockWrapper (); }, reader);
         }
 
-        private static void RegisterBaseExporters ()
-        {
-            base_exporters_table[typeof (byte)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write (Convert.ToInt32 ((byte) obj));
-                };
+   private static void RegisterBaseExporters()
+{
+    base_exporters_table[typeof(byte)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(Convert.ToInt32((byte)obj));
+        };
 
-            base_exporters_table[typeof (char)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write (Convert.ToString ((char) obj));
-                };
+    base_exporters_table[typeof(char)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(Convert.ToString((char)obj));
+        };
 
-            base_exporters_table[typeof (DateTime)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write (Convert.ToString ((DateTime) obj,
-                                                    datetime_format));
-                };
+    base_exporters_table[typeof(DateTime)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(Convert.ToString((DateTime)obj, datetime_format));
+        };
 
-            base_exporters_table[typeof (decimal)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write ((decimal) obj);
-                };
+    base_exporters_table[typeof(decimal)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write((decimal)obj);
+        };
 
-            base_exporters_table[typeof (sbyte)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write (Convert.ToInt32 ((sbyte) obj));
-                };
+    base_exporters_table[typeof(sbyte)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(Convert.ToInt32((sbyte)obj));
+        };
 
-            base_exporters_table[typeof (short)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write (Convert.ToInt32 ((short) obj));
-                };
+    base_exporters_table[typeof(short)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(Convert.ToInt32((short)obj));
+        };
 
-            base_exporters_table[typeof (ushort)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write (Convert.ToInt32 ((ushort) obj));
-                };
+    base_exporters_table[typeof(ushort)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(Convert.ToInt32((ushort)obj));
+        };
 
-            base_exporters_table[typeof (uint)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write (Convert.ToUInt64 ((uint) obj));
-                };
+    base_exporters_table[typeof(uint)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(Convert.ToUInt64((uint)obj));
+        };
 
-            base_exporters_table[typeof (ulong)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write ((ulong) obj);
-                };
+    base_exporters_table[typeof(ulong)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write((ulong)obj);
+        };
 
-            base_exporters_table[typeof(DateTimeOffset)] =
-                delegate (object obj, JsonWriter writer) {
-                    writer.Write(((DateTimeOffset)obj).ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz", datetime_format));
-                };
-        }
+    base_exporters_table[typeof(DateTimeOffset)] =
+        delegate (object obj, JsonWriter writer) {
+            writer.Write(((DateTimeOffset)obj).ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz", datetime_format));
+        };
+
+    // ======================================================================
+    // 👇 👇 👇 【关键：添加 Unity 类型支持】👇 👇 👇
+    // ======================================================================
+    base_exporters_table[typeof(UnityEngine.Vector2)] =
+        delegate (object obj, JsonWriter writer) {
+            var v = (UnityEngine.Vector2)obj;
+            writer.WriteObjectStart();
+            writer.WritePropertyName("x"); writer.Write(v.x);
+            writer.WritePropertyName("y"); writer.Write(v.y);
+            writer.WriteObjectEnd();
+        };
+
+    base_exporters_table[typeof(UnityEngine.Vector3)] =
+        delegate (object obj, JsonWriter writer) {
+            var v = (UnityEngine.Vector3)obj;
+            writer.WriteObjectStart();
+            writer.WritePropertyName("x"); writer.Write(v.x);
+            writer.WritePropertyName("y"); writer.Write(v.y);
+            writer.WritePropertyName("z"); writer.Write(v.z);
+            writer.WriteObjectEnd();
+        };
+
+    base_exporters_table[typeof(UnityEngine.Vector4)] =
+        delegate (object obj, JsonWriter writer) {
+            var v = (UnityEngine.Vector4)obj;
+            writer.WriteObjectStart();
+            writer.WritePropertyName("x"); writer.Write(v.x);
+            writer.WritePropertyName("y"); writer.Write(v.y);
+            writer.WritePropertyName("z"); writer.Write(v.z);
+            writer.WritePropertyName("w"); writer.Write(v.w);
+            writer.WriteObjectEnd();
+        };
+
+    base_exporters_table[typeof(UnityEngine.Quaternion)] =
+        delegate (object obj, JsonWriter writer) {
+            var q = (UnityEngine.Quaternion)obj;
+            writer.WriteObjectStart();
+            writer.WritePropertyName("x"); writer.Write(q.x);
+            writer.WritePropertyName("y"); writer.Write(q.y);
+            writer.WritePropertyName("z"); writer.Write(q.z);
+            writer.WritePropertyName("w"); writer.Write(q.w);
+            writer.WriteObjectEnd();
+        };
+    // ======================================================================
+}
 
         private static void RegisterBaseImporters ()
         {
@@ -774,6 +818,18 @@ namespace LitJson
             };
             RegisterImporter(base_importers_table, typeof(string),
                 typeof(DateTimeOffset), importer);
+            // 新增：Vector2/3/4/Quaternion 解析
+            importer = delegate (object input) {
+                var dict = input as System.Collections.Generic.Dictionary<string, object>;
+                return new UnityEngine.Vector2((float)(double)dict["x"], (float)(double)dict["y"]);
+            };
+            RegisterImporter(base_importers_table, typeof(object), typeof(UnityEngine.Vector2), importer);
+
+            importer = delegate (object input) {
+                var dict = input as System.Collections.Generic.Dictionary<string, object>;
+                return new UnityEngine.Vector3((float)(double)dict["x"], (float)(double)dict["y"], (float)(double)dict["z"]);
+            };
+            RegisterImporter(base_importers_table, typeof(object), typeof(UnityEngine.Vector3), importer);
         }
 
         private static void RegisterImporter (

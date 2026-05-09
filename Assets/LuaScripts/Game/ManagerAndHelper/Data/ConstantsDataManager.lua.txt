@@ -1,0 +1,25 @@
+--=====================================================================================================
+-- descrip:   常量管理器
+--            功能：统一管理游戏全局常量、配置常数、静态参数（供后续扩展使用）
+--=====================================================================================================
+
+---@class ConstantsDataManager @常量管理器（全局静态常量配置管理）
+local ConstantsDataManager = class("ConstantsDataManager")
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ConstantsDataManager:ctor(args)
+
+end
+
+---创建实例
+---@type fun(args:table):ConstantsDataManager
+---@param args table @自定义参数
+---@return ConstantsDataManager @常量管理器实例
+function ConstantsDataManager:Create(args)
+    local obj = ConstantsDataManager.new(args)
+    return obj
+end
+
+return ConstantsDataManager

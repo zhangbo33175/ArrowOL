@@ -8,10 +8,11 @@ namespace Honor.Runtime
     public sealed partial class AssetBundleLoadManager
     {
         /// <summary>
-        /// 内部同步加载AB
+        /// 内部同步加载 AssetBundle
+        /// 会自动处理已加载、加载中、准备中三种状态，并递归加载依赖
         /// </summary>
-        /// <param name="abFormatPath">ab格式化路径</param>
-        /// <returns></returns>
+        /// <param name="abFormatPath">AB 格式化路径</param>
+        /// <returns>AB 包装对象</returns>
         private AssetBundleObject InternalLoadAssetBundleSync(string abFormatPath)
         {
             AssetBundleObject assetBundleObj = null;
@@ -28,7 +29,7 @@ namespace Honor.Runtime
 
                 return assetBundleObj;
             }
-            // 如果处在【加载中列表（异步方式）】中则立即将异步改成同步加载得到结果（自身与其递归到的所有依赖AB项引用计数全部+1）
+            // 如果处在【加载中列表（异步方式）】中则立即将异步改成同步加载得到结果
             else if (m_LoadingAssetBundleList.ContainsKey(abFormatPath))
             {
                 assetBundleObj = m_LoadingAssetBundleList[abFormatPath];
@@ -44,7 +45,7 @@ namespace Honor.Runtime
 
                 return assetBundleObj;
             }
-            // 如果处在【准备加载列表】中则立即进行同步加载得到结果（自身与其递归到的所有依赖AB项引用计数全部+1）
+            // 如果处在【准备加载列表】中则立即进行同步加载得到结果
             else if (_mReadyAssetBundleList.ContainsKey(abFormatPath))
             {
                 assetBundleObj = _mReadyAssetBundleList[abFormatPath];
@@ -109,17 +110,18 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 内部异步加载AB
+        /// 内部异步加载 AssetBundle
+        /// 自动处理依赖加载、并发限制、状态管理
         /// </summary>
-        /// <param name="abFormatPath">ab格式化路径</param>
-        /// <param name="abLoadOverCallback">加载完成回调函数</param>
-        /// <returns></returns>
+        /// <param name="abFormatPath">AB 格式化路径</param>
+        /// <param name="abLoadOverCallback">加载完成回调</param>
+        /// <returns>AB 包装对象</returns>
         private AssetBundleObject InternalLoadAssetBundleAsync(string abFormatPath,
             AssetBundleLoadOverCallBack abLoadOverCallback)
         {
             AssetBundleObject assetBundleObj = null;
 
-            // 如果处在【加载完成列表】中则直接返回（自身与其所有的依赖AB项引用计数全部+1）
+            // 如果处在【加载完成列表】中则直接返回
             if (m_LoadedAssetBundleList.ContainsKey(abFormatPath))
             {
                 assetBundleObj = m_LoadedAssetBundleList[abFormatPath];
@@ -127,7 +129,7 @@ namespace Honor.Runtime
                 abLoadOverCallback(assetBundleObj, assetBundleObj.AssetBundles);
                 return assetBundleObj;
             }
-            // 如果处在【加载中列表（异步方式）】中则立即将新传入的回调函数加入ab封装对象中，等待异步结束后回调（自身与其所有的依赖AB项引用计数全部+1）
+            // 如果处在【加载中列表】则合并回调
             else if (m_LoadingAssetBundleList.ContainsKey(abFormatPath))
             {
                 assetBundleObj = m_LoadingAssetBundleList[abFormatPath];
@@ -135,8 +137,7 @@ namespace Honor.Runtime
                 assetBundleObj.AssetBundleLoadOverCallbacksList.Add(abLoadOverCallback);
                 return assetBundleObj;
             }
-            // 在准备加载中
-            // 如果处在【准备加载列表】中则立即将新传入的回调函数加入ab封装对象中，等待异步开始到结束（自身与其所有的依赖AB项引用计数全部+1）
+            // 如果处在【准备加载列表】则合并回调
             else if (_mReadyAssetBundleList.ContainsKey(abFormatPath))
             {
                 assetBundleObj = _mReadyAssetBundleList[abFormatPath];
@@ -161,7 +162,7 @@ namespace Honor.Runtime
 
             if (dependsData != null && dependsData.Length > 0)
             {
-                // 将即将开始异步加载的依赖资源的总数量赋给当前新创建的ab资源中，等待后面异步加载依赖资源时对该数量的刷新
+                // 记录依赖数量，等待异步加载完成
                 assetBundleObj.DependLoadingCount = dependsData.Length;
                 foreach (var dpFormatName in dependsData)
                 {
@@ -208,9 +209,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 内部异步卸载AB
+        /// 内部异步卸载 AssetBundle
+        /// 递归减少自身与依赖引用计数，计数为 0 时加入卸载队列
         /// </summary>
-        /// <param name="abFormatPath">ab格式化路径</param>
+        /// <param name="abFormatPath">AB 格式化路径</param>
         private void InternalUnloadAssetBundleAsync(string abFormatPath)
         {
             AssetBundleObject assetBundleObj = null;
@@ -259,10 +261,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// WebGL读取AssetBundle
+        /// WebGL 平台专用：从 Web 加载 AssetBundle
+        /// 会阻塞主线程等待加载完成
         /// </summary>
-        /// <param name="abFormatPath">ab格式化路径</param>
-        /// <returns></returns>
+        /// <param name="abFormatPath">AB 格式化路径</param>
+        /// <returns>加载完成的 AB</returns>
         private AssetBundle LoadAssetBundleFromWebGL(string abFormatPath)
         {
             // 主线程调用多线程
@@ -289,18 +292,16 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// WebGL内部赋值WebRequest（多线程）
+        /// WebGL 异步请求赋值（异步线程）
         /// </summary>
-        /// <param name="abFormatPath">ab格式化路径</param>
         private async void InternalEvaluateWebRequestFromWebGL(string abFormatPath)
         {
             m_WebGLRequest = await InternalGetWebRequestFromWebGL(abFormatPath);
         }
 
         /// <summary>
-        /// WebGL内部获取WebRequest（多线程）
+        /// WebGL 创建 WebRequest 任务
         /// </summary>
-        /// <param name="abFormatPath">ab格式化路径</param>
         private Task<UnityWebRequest> InternalGetWebRequestFromWebGL(string abFormatPath)
         {
             TaskCompletionSource<UnityWebRequest> taskSource = new TaskCompletionSource<UnityWebRequest>();
@@ -310,10 +311,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// ab自身与所有依赖项AB引用计数+1
-        /// 递归调用
+        /// AB 自身 + 所有依赖 引用计数 +1（递归）
         /// </summary>
-        /// <param name="assetBundleObj"></param>
         private void AddSelfAndDependsRef(AssetBundleObject assetBundleObj)
         {
             assetBundleObj.RefCount++;
@@ -321,15 +320,13 @@ namespace Honor.Runtime
             if (assetBundleObj.Depends.Count == 0) return;
             foreach (var dpObj in assetBundleObj.Depends)
             {
-                // 递归依赖项，加载完
                 AddSelfAndDependsRef(dpObj);
             }
         }
 
         /// <summary>
-        /// 异步加载AB资源
+        /// 执行异步加载 AB
         /// </summary>
-        /// <param name="assetBundleObj">AB封装对象</param>
         private void DoLoadAsync(AssetBundleObject assetBundleObj)
         {
             string path;
@@ -346,12 +343,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 卸载AB资源
+        /// 执行卸载 AB（包含内存卸载）
         /// </summary>
-        /// <param name="assetBundleObj">AB封装对象</param>
         private void DoUnload(AssetBundleObject assetBundleObj)
         {
-            // 这里用true，卸载Asset内存，实现指定卸载
             if (assetBundleObj.AssetBundles == null)
             {
                 Log.Error("卸载AB包时错误！ab名称:{0}", assetBundleObj.FormatPath);
@@ -363,9 +358,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 正常或强制加载完成并触发回调
+        /// 正常/强制完成加载，并触发所有回调
+        /// 可将异步加载转为同步
         /// </summary>
-        /// <param name="assetBundleObj">AB封装对象</param>
         private void NormalOrForceLoadOverAndCallBack(AssetBundleObject assetBundleObj)
         {
             // 从异步中提取ab
@@ -397,11 +392,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取ab包在磁盘上的加载路径
+        /// 获取 AB 在磁盘中的实际路径
+        /// 优先 Persistent，其次 Streaming
         /// </summary>
-        /// <param name="formatPath">ab格式化路径</param>
-        /// <param name="path">ab资源路径</param>
-        /// <param name="origin">ab资源来源</param>
         private void GetABLoadPathOnDisk(string formatPath, out string path, out OriginType origin)
         {
             // 优先检查读写区域的资源是否存在，如果存在则加载读写区域的资源，否则加载只读区域
@@ -419,7 +412,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// “加载中列表”心跳管理
+        ///  Update 驱动：管理加载中列表，完成后触发回调
         /// </summary>
         private void UpdateLoadingList()
         {
@@ -441,13 +434,12 @@ namespace Honor.Runtime
             // 回调中有可能对m_LoadingABList进行操作，提取后回调
             foreach (var abObj in m_TempLoadeds)
             {
-                // 加载完进行回调
                 NormalOrForceLoadOverAndCallBack(abObj);
             }
         }
 
         /// <summary>
-        /// “卸载列表”心跳管理
+        /// Update 驱动：管理卸载列表
         /// </summary>
         private void UpdateUnLoadList()
         {
@@ -479,7 +471,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// “准备列表”心跳管理
+        /// Update 驱动：管理准备列表，控制并发加载数量
         /// </summary>
         private void UpdateReadyList()
         {

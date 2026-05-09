@@ -7,11 +7,18 @@ using UnityEditor;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// 本地化组件编辑器检视面板 扩展类
+    /// 负责本地化文件的增量更新、文件查找、内容解析、版本管理等核心逻辑
+    /// </summary>
     internal sealed partial class LocalizationComponentInspector
     {
-         /// <summary>
-        /// 查找导出文件中的翻译  LocalPart_xxxx_{keyFileName}.lua.txt 与  Localization{keyFileName}_*Increase.lua.txt
+        /// <summary>
+        /// 读取增量文件中的翻译键值对并存储到字典中
+        /// 匹配文件格式：LocalPart_xxxx_{keyFileName}.lua.txt 与 Localization{keyFileName}_*Increase.lua.txt
         /// </summary>
+        /// <param name="res">存储解析后的键值对结果字典</param>
+        /// <param name="searchPattern">文件搜索匹配规则</param>
         private static void GetIncreaseFileContent(Dictionary<string, string> res, string searchPattern)
         {
             string pattern = @"^(?:[\w]+)\.([\w]+) = ""(.*)""$";;
@@ -63,9 +70,11 @@ namespace Honor.Editor
             }
         }
         
-        /// <summary>
-        /// 查看是否有增量更新文件
+        /// <summary
+        /// 查找指定语言的增量更新文件
         /// </summary>
+        /// <param name="keyFileName">语言标识文件名</param>
+        /// <returns>匹配到的增量文件名称数组</returns>
         private static string[] FindIncrementalFile(string keyFileName)
         {
             var res = Directory.GetFiles(EditorPath.Localization.LuaScriptsFolderFullPath, $"Localization{keyFileName}_*Increase.lua.txt", SearchOption.AllDirectories);
@@ -82,9 +91,10 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 计算下一个增量版本是多少
+        /// 计算下一个增量文件的版本号
         /// </summary>
-        /// <returns></returns>
+        /// <param name="keyFileName">语言标识文件名</param>
+        /// <returns>下一个可用的增量版本号</returns>
         private static int GetNextIncreaseFileVersion(string keyFileName)
         {
             // 匹配"_"和"Increase"之间的数字
@@ -107,6 +117,11 @@ namespace Honor.Editor
             return res;
         }
         
+        /// <summary>
+        /// 获取下一个可用的增量文件夹编号（自动递增）
+        /// </summary>
+        /// <param name="exportLuaIncreasePath">增量文件导出根路径</param>
+        /// <returns>下一个文件夹编号</returns>
         private static int GetNextIncreaseDirector(string exportLuaIncreasePath)
         {
             int res = 1;
@@ -120,6 +135,10 @@ namespace Honor.Editor
             return res;
         }
 
+        /// <summary>
+        /// 收集翻译键并检查是否重复
+        /// </summary>
+        /// <param name="key">待检查的翻译键</param>
         private static void CollectAndCheckKeyRepeat(string key)
         {
             if(m_AllKey.Contains(key))
@@ -129,8 +148,15 @@ namespace Honor.Editor
         }
         
         /// <summary>
-        /// 收集需要增量的翻译文本
+        /// 收集并对比新旧翻译数据，筛选出新增、修改、删除的翻译项
         /// </summary>
+        /// <param name="columns">Excel表格总列数</param>
+        /// <param name="fullPaths">Excel文件完整路径集合</param>
+        /// <param name="keyList">语言标识列表</param>
+        /// <param name="tableDetailTidy">表格名称描述</param>
+        /// <param name="langInfo">语言信息数组</param>
+        /// <param name="exportLuaIncreaseSingleVersion">是否启用单版本增量模式</param>
+        /// <param name="exportLuaIncreasePath">增量文件导出路径</param>
         private static void FindIncrease(int columns, List<string> fullPaths, string[] keyList, string tableDetailTidy, string[] langInfo, bool exportLuaIncreaseSingleVersion, string exportLuaIncreasePath)
         {
             var targetDir = exportLuaIncreasePath;
@@ -211,8 +237,16 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 生成增量文件
+        /// 根据对比结果生成Lua格式的增量更新文件
         /// </summary>
+        /// <param name="resAddChange">新增/修改的翻译数据字典</param>
+        /// <param name="resRemove">删除的翻译键列表</param>
+        /// <param name="keyFileName">语言标识文件名</param>
+        /// <param name="tableDetailTidy">表格名称描述</param>
+        /// <param name="langInfo">语言信息数组</param>
+        /// <param name="col">当前处理的表格列索引</param>
+        /// <param name="versionDir">增量文件夹版本号</param>
+        /// <param name="exportLuaIncreasePath">增量文件导出路径</param>
         private static void MakeIncreaseFile(Dictionary<string, DataRow> resAddChange, List<string> resRemove, string keyFileName, string tableDetailTidy, string[] langInfo, int col, int versionDir, string exportLuaIncreasePath)
         {
             var version = GetNextIncreaseFileVersion(keyFileName);

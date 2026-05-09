@@ -1,0 +1,247 @@
+--=====================================================================================================
+-- 【存档同步助手】全局唯一单例
+-- 功能：负责 登录 / 心跳 / 存档上传下载 / 第三方账号绑定 / 数据覆盖 / 错误码处理
+-- 作用：本地存档 ↔ 云端存档 同步核心，账号系统入口
+--=====================================================================================================
+
+---@class SaveDataHelper @存档&登录&云端同步核心
+local SaveDataHelper = class("SaveDataHelper")
+
+--- 构造函数
+function SaveDataHelper:ctor(args)
+    --- 登录成功后的 Token（鉴权用）
+    self._loginToken = ""
+end
+
+--- 创建实例
+---@return SaveDataHelper
+function SaveDataHelper:Create(args)
+    return SaveDataHelper.new(args)
+end
+
+--=========================================================================
+-- region 登录/注册相关接口
+--=========================================================================
+
+--- 注册并登录用户
+function SaveDataHelper:CmdRegisterToSignIn(force, callback)
+end
+
+--- 登录用户
+function SaveDataHelper:CmdLoginToSignIn(uid, callback)
+end
+
+--- 心跳同步（保活）
+function SaveDataHelper:CmdHeartBeat(uid, token, callback)
+end
+
+-- endregion
+
+--=========================================================================
+-- region 存档同步接口
+--=========================================================================
+
+--- 获取云端存档
+function SaveDataHelper:CmdGetSaveData(uid, token, callback)
+end
+
+--- 按字段同步存档（增量更新）
+function SaveDataHelper:CmdSyncSaveData(uid, token, fields_game_data, callback)
+end
+
+--- 同步全量存档
+function SaveDataHelper:CmdSyncAllSaveData(uid, token, gameData, callback)
+end
+
+-- endregion
+
+--=========================================================================
+-- region 第三方账号绑定
+--=========================================================================
+
+--- 绑定第三方账号
+function SaveDataHelper:CmdAccountBind(uid, token, accountId, aidPlatform, forceBind, callback)
+end
+
+--- 解绑第三方账号
+function SaveDataHelper:CmdAccountUnBind(uid, token, accountId, callback)
+end
+
+--- 同步其他UID的设备ID
+function SaveDataHelper:CmdSyncOtherUidDeviceId(uid, token, otherUid, callback)
+end
+
+--- 删除用户信息
+function SaveDataHelper:CmdDelUserInfo(uid, token, callback)
+end
+
+-- endregion
+
+--=========================================================================
+-- region 网络错误码处理
+--=========================================================================
+
+--- 检查网络返回错误码
+---@return boolean 是否继续执行
+function SaveDataHelper:CheckErrorCode(returnData)
+    if returnData then
+        -- 成功
+        if returnData.error_code == NetCode.Success[1] then
+            return true
+        end
+        -- 顶号强制下线
+        if returnData.error_code == 1001 then
+            PrintError("检测到顶号，强制下线")
+            return false
+        end
+    end
+    return true
+end
+
+-- endregion
+
+--=========================================================================
+-- region 登录信息保存（本地存档）
+--=========================================================================
+
+--- 保存登录返回的用户信息（UID、注册时间、登录时间、绑定时间）
+function SaveDataHelper:SaveSignInInfos(returnData)
+    if not returnData then return end
+
+    -- UID
+    if returnData.user_id and returnData.user_id > 0 then
+        PbRootData.UserData.uid = returnData.user_id
+        PbIO.UserData.Save_uid()
+        -- 埋点统计
+        SolarRoot.SDK.TGAHelper:ModifyDynamicCommonTrackProperty("uid", PbRootData.UserData.uid)
+        SolarRoot.SDK.TGAHelper:Login(PbRootData.UserData.uid)
+    end
+
+    -- 注册时间
+    if returnData.create_time and returnData.create_time > 0 then
+        PbRootData.UserData.regTime.utc0 = returnData.create_time
+        PbRootData.UserData.regTime.utc0String = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", returnData.create_time)
+        PbRootData.UserData.regTime.locality = HonorTimerHelper:GetLocalTimeStamp(returnData.create_time)
+        PbRootData.UserData.regTime.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", PbRootData.UserData.regTime.locality)
+        PbIO.UserData.Save_regTime()
+    end
+
+    -- 上次登录 / 当前登录 时间
+    if returnData.login_time and returnData.login_time > 0 then
+        PbRootData.UserData.loginTime.last.utc0 = PbRootData.UserData.loginTime.current.utc0
+        PbRootData.UserData.loginTime.last.utc0String = PbRootData.UserData.loginTime.current.utc0String
+        PbRootData.UserData.loginTime.last.locality = PbRootData.UserData.loginTime.current.locality
+        PbRootData.UserData.loginTime.last.localString = PbRootData.UserData.loginTime.current.localString
+
+        PbRootData.UserData.loginTime.current.utc0 = returnData.login_time
+        PbRootData.UserData.loginTime.current.utc0String = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", returnData.login_time)
+        PbRootData.UserData.loginTime.current.locality = HonorTimerHelper:GetLocalTimeStamp(returnData.login_time)
+        PbRootData.UserData.loginTime.current.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", PbRootData.UserData.loginTime.current.locality)
+        PbIO.UserData.Save_loginTime()
+    end
+
+    -- 账号绑定时间
+    if returnData.binding_time and returnData.binding_time > 0 then
+        PbRootData.UserData.aidBindTime.utc0 = returnData.binding_time
+        PbRootData.UserData.aidBindTime.utc0String = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", returnData.binding_time)
+        PbRootData.UserData.aidBindTime.locality = HonorTimerHelper:GetLocalTimeStamp(returnData.binding_time)
+        PbRootData.UserData.aidBindTime.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", PbRootData.UserData.aidBindTime.locality)
+        PbIO.UserData.Save_aidBindTime()
+    end
+
+    -- 登录 Token
+    if returnData.token then
+        self._loginToken = returnData.token
+    end
+
+    -- 国家地区
+    if returnData.country then
+        UserTypeMgr:TrySaveUserCountry(returnData.country)
+    end
+end
+
+--- 仅保存 Token
+function SaveDataHelper:SaveToken(returnData)
+    if returnData and returnData.token then
+        self._loginToken = returnData.token
+    end
+end
+
+--- 保存云端第三方账号
+function SaveDataHelper:SaveSignInAid(returnData)
+    if returnData and returnData.ServerUserInfo then
+        PbRootData.UserData.aid = returnData.ServerUserInfo.server_account
+        PbIO.UserData.Save_aid()
+    end
+end
+
+-- endregion
+
+--=========================================================================
+-- region 云端存档 → 本地覆盖
+--=========================================================================
+
+--- 将服务器存档覆盖到本地
+function SaveDataHelper:SaveServerUserInfoToLocalByGameData(serverGameData, uid, aid, eAidPlatform)
+    -- 覆盖游戏存档
+    if serverGameData then
+        PbRootData.GameData = self:DynamicReplacementGameData(serverGameData)
+        PbIO.GameData.SaveAll()
+    end
+
+    -- 覆盖UID
+    PbRootData.UserData.uid = uid
+    PbIO.UserData.Save_uid()
+
+    -- 覆盖绑定账号
+    PbRootData.GameData.aidData.aid = aid
+    PbRootData.GameData.aidData.platform = eAidPlatform
+    PbIO.GameData.Save_aidData()
+end
+
+--- 动态重载存档结构并替换数据
+function SaveDataHelper:DynamicReplacementGameData(otherGameData)
+    package.loaded["SaveGameData"] = nil
+    require('SaveGameData')
+    local result = PbRootData.GameData
+    self:CopyGameDataTable(result, otherGameData)
+    return result
+end
+
+--- 递归复制存档表（云端 → 本地）
+function SaveDataHelper:CopyGameDataTable(desTab, originTab)
+    for k, v in pairs(originTab) do
+        if type(v) ~= "table" then
+            desTab[k] = v
+        else
+            desTab[k] = desTab[k] or {}
+            self:CopyGameDataTable(desTab[k], v)
+        end
+    end
+end
+
+--- 登录成功后：保存信息 + 自动全量同步
+function SaveDataHelper:SaveLocalDataAndAutoSyncData(returnData, overCallBack)
+    self:SaveSignInInfos(returnData)
+    -- 自动上传本地存档到云端
+    UploadingGameDataHelper:UploadAllGameData()
+    if overCallBack then
+        overCallBack()
+    end
+end
+
+-- endregion
+
+--=========================================================================
+-- region 工具方法
+--=========================================================================
+
+--- 获取登录Token
+---@return string
+function SaveDataHelper:GetLoginToken()
+    return self._loginToken
+end
+
+-- endregion
+
+return SaveDataHelper

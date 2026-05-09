@@ -1,87 +1,90 @@
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 游戏全局 DOTween 动画唯一标识常量
+    /// 用于统一管理所有 Tween 动画的 ID，方便缓存、管理、强制回收
+    /// 避免动画冲突、内存泄漏
+    /// </summary>
     public static partial class GameDOTweenTypes
     {
         /// <summary>
-        /// 流程切换过渡进入动画
+        /// 流程切换 - 进入过渡动画 ID
         /// </summary>
         public const string ProcedureTransitionEnterAnimation = "__DOTween__ProcedureTransitionEnterAnimation__";
 
         /// <summary>
-        /// 流程切换过渡退出动画
+        /// 流程切换 - 退出过渡动画 ID
         /// </summary>
         public const string ProcedureTransitionExitAnimation = "__DOTween__ProcedureTransitionExitAnimation__";
 
         /// <summary>
-        /// Splash闪屏延迟计数
+        /// 闪屏界面 - 延时展示动画 ID
         /// </summary>
         public const string SplashDurationAnimation = "__DOTween__SplashDurationAnimation__";
 
         /// <summary>
-        /// 相机动画
+        /// 相机综合动画 ID
         /// </summary>
         public const string CameraAnimation = "__DOTween__CameraAnimation__";
 
         /// <summary>
-        /// 相机移动动画
+        /// 相机 - 位移动画 ID
         /// </summary>
         public const string CameraMoveAnimation = "__DOTween__CameraMoveAnimation__";
 
         /// <summary>
-        /// 相机旋转动画
+        /// 相机 - 旋转动画 ID
         /// </summary>
         public const string CameraRotateAnimation = "__DOTween__CameraRotateAnimation__";
 
         /// <summary>
-        /// 相机缩放动画
+        /// 相机 - 缩放动画 ID
         /// </summary>
         public const string CameraScaleAnimation = "__DOTween__CameraScaleAnimation__";
 
         /// <summary>
-        /// 自定义振动前奏空闲持续时间计时器
+        /// 自定义震动 - 前置延时计时器 ID
         /// </summary>
         public const string CustomVibratePreDuration = "__DOTween__CustomVibratePreDuration__";
 
         /// <summary>
-        /// 自定义振动持续时间计时器
+        /// 自定义震动 - 持续时间计时器 ID
         /// </summary>
         public const string CustomVibrateDuration = "__DOTween__CustomVibrateDuration__";
 
         /// <summary>
-        /// 点振动前奏空闲持续时间计时器
+        /// 重点震动 - 前置延时计时器 ID
         /// </summary>
         public const string EmphasisVibratePreDuration = "__DOTween__EmphasisVibratePreDuration__";
 
         /// <summary>
-        /// 点振动持续时间计时器
+        /// 重点震动 - 持续时间计时器 ID
         /// </summary>
         public const string EmphasisVibrateDuration = "__DOTween__EmphasisVibrateDuration__";
 
         /// <summary>
-        /// 自定义InterAd计时器
+        /// MAX 广告 - 插屏广告计时器 ID
         /// </summary>
         public const string MaxHelperInterAd = "__DOTween__MaxHelperInterAd__";
 
         /// <summary>
-        /// 自定义BannerAd计时器
+        /// MAX 广告 - Banner 广告计时器 ID
         /// </summary>
         public const string MaxHelperBannerAd = "__DOTween__MaxHelperBannerAd__";
 
         /// <summary>
-        /// 自定义RVAd计时器
+        /// MAX 广告 - 激励视频广告计时器 ID
         /// </summary>
         public const string MaxHelperRVAd = "__DOTween__MaxHelperRVAd__";
 
         /// <summary>
-        /// UI渐变器渐变动画
+        /// UI 淡入淡出器动画 ID
         /// </summary>
         public const string UIFader = "__DOTween__UIFader__";
+
         /// <summary>
-        /// 悬浮框上传日志文字变化
+        /// 调试工具 - 上传日志文字动画 ID
         /// </summary>
         public const string DebuggerUploadWordsChanging = "__DOTween__DebuggerUploadWordsChanging__";
-
     }
 }
-
-

@@ -445,45 +445,20 @@ namespace XLua
         public void ThrowExceptionFromError(int oldTop)
         {
 #if THREAD_SAFE || HOTFIX_ENABLE
-            lock (luaEnvLock)
-            {
+    lock (luaEnvLock)
+    {
 #endif
-                object err = translator.GetObject(L, -1);
-                LuaAPI.lua_settop(L, oldTop);
+            object err = translator.GetObject(L, -1);
+            LuaAPI.lua_settop(L, oldTop);
 
-                // fix by zhaony
-                try
-                {
-                    // A pre-wrapped exception - just rethrow it (stack trace of InnerException will be preserved)
-                    Exception ex = err as Exception;
-                    if (ex != null) throw ex;
+            // 正常抛出真实错误，不屏蔽、不修改
+            Exception ex = err as Exception;
+            if (ex != null)
+                throw ex;
 
-                    // A non-wrapped Lua error (best interpreted as a string) - wrap it and throw it
-                    if (err == null) err = "Unknown Lua Error";
-                    throw new LuaException(err.ToString());
-                }
-                catch (Exception e)
-                {
-                    lock (e.TargetSite.Name)
-                    {
-                        string fileName = Regex.Match(e.Message, @".+.lua").Value;
-                        if (!string.IsNullOrEmpty(fileName))
-                        {
-                            string name = e.TargetSite.Name;
-                            var field = e.TargetSite.GetType().GetField("name", BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.ExactBinding);
-                            field.SetValue(e.TargetSite, fileName);
-                            Debug.LogException(e);
-                            field.SetValue(e.TargetSite, name);
-                        }
-                        else
-                        {
-                            Debug.Log("Unknown Lua Error, Continue Throw !");
-                            throw e;
-                        }
-                    }
-                }
+            throw new LuaException(err?.ToString() ?? "Unknown Lua Error");
 #if THREAD_SAFE || HOTFIX_ENABLE
-            }
+    }
 #endif
         }
 

@@ -3,11 +3,11 @@
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  Tables.lua
--- descrip:   数据表
--- notices:   该文件自动生成，请不要手动修改！
+-- descrip:   数据表自动注册
+-- notices:   自动生成，禁止修改
 --=====================================================================================================
 
----@class Tables @数据表
+---@class Tables
 Tables = {}
 local rawget = rawget
-setmetatable(Tables, { __index = function(t, k) require('Table'..k) return rawget(Tables, k) end })
+setmetatable(Tables, { __index = function(t, k) require('Table'..k) return rawget(t, k) end })

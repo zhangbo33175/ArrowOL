@@ -27,17 +27,17 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetCallBack", _m_SetCallBack);
 			
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "_Del", _g_get__Del);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "_DelayTime", _g_get__DelayTime);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "_DeltaTime", _g_get__DeltaTime);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "_Owner", _g_get__Owner);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "_DelObj", _g_get__DelObj);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "Del", _g_get_Del);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "DelayTime", _g_get_DelayTime);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "DeltaTime", _g_get_DeltaTime);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "Owner", _g_get_Owner);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "DelObj", _g_get_DelObj);
             
-			Utils.RegisterFunc(L, Utils.SETTER_IDX, "_Del", _s_set__Del);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "_DelayTime", _s_set__DelayTime);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "_DeltaTime", _s_set__DeltaTime);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "_Owner", _s_set__Owner);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "_DelObj", _s_set__DelObj);
+			Utils.RegisterFunc(L, Utils.SETTER_IDX, "Del", _s_set_Del);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "DelayTime", _s_set_DelayTime);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "DeltaTime", _s_set_DeltaTime);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "Owner", _s_set_Owner);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "DelObj", _s_set_DelObj);
             
 			
 			Utils.EndObjectRegister(type, L, translator, null, null,
@@ -143,13 +143,13 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get__Del(RealStatePtr L)
+        static int _g_get_Del(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked._Del);
+                translator.Push(L, gen_to_be_invoked.Del);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -157,13 +157,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get__DelayTime(RealStatePtr L)
+        static int _g_get_DelayTime(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushnumber(L, gen_to_be_invoked._DelayTime);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.DelayTime);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -171,13 +171,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get__DeltaTime(RealStatePtr L)
+        static int _g_get_DeltaTime(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushnumber(L, gen_to_be_invoked._DeltaTime);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.DeltaTime);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -185,13 +185,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get__Owner(RealStatePtr L)
+        static int _g_get_Owner(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushstring(L, gen_to_be_invoked._Owner);
+                LuaAPI.lua_pushstring(L, gen_to_be_invoked.Owner);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -199,13 +199,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get__DelObj(RealStatePtr L)
+        static int _g_get_DelObj(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked._DelObj);
+                translator.Push(L, gen_to_be_invoked.DelObj);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -215,13 +215,13 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set__Del(RealStatePtr L)
+        static int _s_set_Del(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked._Del = translator.GetDelegate<System.Action<string>>(L, 2);
+                gen_to_be_invoked.Del = translator.GetDelegate<System.Action<string>>(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
@@ -230,13 +230,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set__DelayTime(RealStatePtr L)
+        static int _s_set_DelayTime(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked._DelayTime = (float)LuaAPI.lua_tonumber(L, 2);
+                gen_to_be_invoked.DelayTime = (float)LuaAPI.lua_tonumber(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
@@ -245,13 +245,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set__DeltaTime(RealStatePtr L)
+        static int _s_set_DeltaTime(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked._DeltaTime = (float)LuaAPI.lua_tonumber(L, 2);
+                gen_to_be_invoked.DeltaTime = (float)LuaAPI.lua_tonumber(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
@@ -260,13 +260,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set__Owner(RealStatePtr L)
+        static int _s_set_Owner(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked._Owner = LuaAPI.lua_tostring(L, 2);
+                gen_to_be_invoked.Owner = LuaAPI.lua_tostring(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
@@ -275,13 +275,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set__DelObj(RealStatePtr L)
+        static int _s_set_DelObj(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.TimerCounter gen_to_be_invoked = (Honor.Runtime.TimerCounter)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked._DelObj = (UnityEngine.GameObject)translator.GetObject(L, 2, typeof(UnityEngine.GameObject));
+                gen_to_be_invoked.DelObj = (UnityEngine.GameObject)translator.GetObject(L, 2, typeof(UnityEngine.GameObject));
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

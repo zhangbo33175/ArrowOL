@@ -102,7 +102,6 @@ namespace Honor.Runtime
                                 }
                                 if (!luaBehaviour.gameObject.activeSelf)
                                 {
-                                    // 保证GameObject active一次，ObjInfo才能触发Awake，未Awake的脚本不能触发OnDestroy，不触发Awake和OnDestroy的情况下引用计数会出错
                                     luaBehaviour.gameObject.SetActive(true);
                                     luaBehaviour.gameObject.SetActive(false);
                                 }

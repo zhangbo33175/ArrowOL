@@ -2,21 +2,23 @@ using System;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 持久化存储方式类型（可位标记）
+    /// 用于区分本地存储使用哪种底层方案
+    /// </summary>
     [Flags]
     public enum PersistWayType : byte
     {
         /// <summary>
-        /// 文件片段方式。
-        /// 因网页端不支持文件IO，因此WebGL网页端将由PlayerPrefs-V2取代。
+        /// 文件片段存储
+        /// 常规平台使用文件IO；WebGL 平台自动用 PlayerPrefs-V2 替代
         /// </summary>
         FileFragment = 0,
 
         /// <summary>
-        /// 数据库方式。
+        /// PlayerPrefs 存储
+        /// 轻量级键值对本地存储
         /// </summary>
         PlayerPrefs = 1,
-
     }
 }
-
-

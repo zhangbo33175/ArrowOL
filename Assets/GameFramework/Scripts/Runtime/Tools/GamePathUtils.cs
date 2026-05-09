@@ -3,10 +3,15 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 游戏全局路径工具类
+    /// 统一管理项目中所有路径规则：AB包、Lua脚本、资源、配置表、协议、原生工程、编辑器工具等
+    /// 自动适配 Android / iOS / WebGL / Editor 平台，路径统一使用 '/' 分隔符
+    /// </summary>
     public static class GamePathUtils
     {
         /// <summary>
-        /// 平台名称
+        /// 当前运行平台名称（自动根据宏定义切换）
         /// </summary>
 #if UNITY_IOS
         public static string PlatformName = "iOS";
@@ -16,7 +21,7 @@ namespace Honor.Runtime
         public static string PlatformName = "Android";
 #endif
         /// <summary>
-        /// 大版本更新相关路径信息
+        /// 应用大版本更新、应用商店下载相关路径
         /// </summary>
         public static class AppDownload
         {
@@ -144,7 +149,7 @@ namespace Honor.Runtime
                 /// <returns></returns>
                 public static string GetFileFullPath(string platformName, string appVersion, int resMinor, string formatPath)
                 {
-                    return System.IO.Path.Combine(GetRootDirectoryFullPath(platformName, appVersion, resMinor), formatPath).Replace('\\', '/');
+                    return Path.Combine(GetRootDirectoryFullPath(platformName, appVersion, resMinor), formatPath).Replace('\\', '/');
                 }
             }
 
@@ -160,13 +165,9 @@ namespace Honor.Runtime
                 public static string GetRootDirectoryFullPath(string platformName = null)
                 {
                     if (string.IsNullOrEmpty(platformName))
-                    {
-                        return System.IO.Path.Combine(Application.persistentDataPath, DirectoryPrefix).Replace('\\', '/');
-                    }
+                        return Path.Combine(Application.persistentDataPath, DirectoryPrefix).Replace('\\', '/');
                     else
-                    {
-                        return System.IO.Path.Combine(Application.persistentDataPath, AorTxt.Format("AssetBundles/{0}", platformName)).Replace('\\', '/');
-                    }
+                        return Path.Combine(Application.persistentDataPath, AorTxt.Format("AssetBundles/{0}", platformName)).Replace('\\', '/');
                 }
 
                 /// <summary>
@@ -175,7 +176,7 @@ namespace Honor.Runtime
                 /// <returns></returns>
                 public static string GetVersionFileFullPath()
                 {
-                    return System.IO.Path.Combine(Application.persistentDataPath, DirectoryPrefix, VersionFileName).Replace('\\', '/');
+                    return Path.Combine(Application.persistentDataPath, DirectoryPrefix, VersionFileName).Replace('\\', '/');
                 }
 
                 /// <summary>
@@ -185,7 +186,7 @@ namespace Honor.Runtime
                 /// <returns></returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return System.IO.Path.Combine(GetRootDirectoryFullPath(), formatPath).Replace('\\', '/');
+                    return Path.Combine(GetRootDirectoryFullPath(), formatPath).Replace('\\', '/');
                 }
             }
 
@@ -200,7 +201,7 @@ namespace Honor.Runtime
                 /// <returns></returns>
                 public static string GetRootDirectoryFullPath()
                 {
-                    return System.IO.Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___").Replace('\\', '/');
+                    return Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___").Replace('\\', '/');
                 }
 
                 /// <summary>
@@ -209,7 +210,7 @@ namespace Honor.Runtime
                 /// <returns></returns>
                 public static string GetVersionFileFullPath()
                 {
-                    return System.IO.Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___", VersionFileName).Replace('\\', '/');
+                    return Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___", VersionFileName).Replace('\\', '/');
                 }
 
                 /// <summary>
@@ -395,18 +396,18 @@ namespace Honor.Runtime
                 {
                     if (isEditorTool)
                     {
-                        return AorTxt.Format("{0}/{1}", Application.dataPath, "Game/LuaScripts/XLua");
+                        return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/XLua");
                     }
                     else
                     {
                         bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
                         if (luacMode)
                         {
-                            return AorTxt.Format("{0}/{1}", Application.dataPath, "Game/LuaScripts/XLua");
+                            return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/XLua");
                         }
                         else
                         {
-                            return AorTxt.Format("{0}/{1}", Application.dataPath, "Game/LuaScripts/XLua");
+                            return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/XLua");
                         }
                     }
                 }
@@ -422,46 +423,20 @@ namespace Honor.Runtime
                 public static string GetRootDirectoryRelativePath(bool isEditorTool = false)
                 {
                     if (isEditorTool)
-                    {
                         return "Assets/LuaScripts";
-                    }
-                    else
-                    {
-                        bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
-                        if (luacMode)
-                        {
-                            return "Assets/LuacScripts";
-                        }
-                        else
-                        {
-                            return "Assets/LuaScripts";
-                        }
-                    }
+                    
+                    bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
+                    return luacMode ? "Assets/LuacScripts" : "Assets/LuaScripts";
                 }
 
-                /// <summary>
-                /// 获取Lua脚本根目录的绝对路径
-                /// </summary>
-                /// <param name="isEditorTool">是否为编辑器工具调用</param>
-                /// <returns></returns>
                 public static string GetRootDirectoryFullPath(bool isEditorTool = false)
                 {
                     if (isEditorTool)
                     {
-                        return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts");
+                       return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts");
                     }
-                    else
-                    {
-                        bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
-                        if (luacMode)
-                        {
-                            return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts");
-                        }
-                        else
-                        {
-                            return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts");
-                        }
-                    }
+                    bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
+                    return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts");
                 }
             }
         }
@@ -1180,13 +1155,13 @@ namespace Honor.Runtime
                 /// <returns></returns>
                 public static string GetResDefLuaFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/RScripts", "ResDefs.lua.txt");
+                   return AorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/RScripts", "ResDefs.lua.txt");
                 }
                 
                 /// <summary>
                 /// 获取资源信息定义Lua脚本相对路径
                 /// </summary>
-                public static string LuaFolderPath = $"Assets/Game/LuaScripts/RScripts/ResDefs";
+                public static string LuaFolderPath = "Assets/LuaScripts/Game/RScripts/ResDefs";
 
                 /// <summary>
                 /// 获取资源信息导出工具配置文件绝对路径

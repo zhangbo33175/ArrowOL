@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8284534698763298334}
   - component: {fileID: 3244085241345173435}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: __BgImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54,7 +54,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5985087302239230187}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIWaitingBehaviour
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 5640098408526728018}
   - component: {fileID: 1459290386453059824}
   - component: {fileID: 1672920876539351235}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}

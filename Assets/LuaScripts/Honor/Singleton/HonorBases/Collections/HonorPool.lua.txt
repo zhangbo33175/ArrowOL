@@ -1,57 +1,50 @@
 --=====================================================================================================
--- descrip:   对象池
+-- descrip:   GameObject 对象池（核心性能优化工具）
+--              作用：复用游戏对象（Prefab），减少 Instantiate/Destroy 开销，避免卡顿
+--              结构：使用队列存空闲对象，列表存使用中对象
 --=====================================================================================================
----@class HonorPool @对象池
----@field name string @名称
----@field unusedQueue Queue @未使用的go队列
----@field usedList List @已使用的go队列
----@field resDefItem RES_DEF_ITEM @资源条目定义
----@field preParent UnityEngine.Transform @预设父节点
----@field resetHandler handler @复位处理方法句柄
+
+---@class HonorPool @GameObject 对象池
+---@field name string 池名称
+---@field unusedQueue HonorQueue 空闲对象队列（等待复用）
+---@field usedList HonorList 正在使用的对象列表
+---@field resDefItem RES_DEF_ITEM 资源配置
+---@field preParent UnityEngine.Transform 池父物体（存放空闲对象）
+---@field resetHandler handler 对象回收时的重置函数
 local HonorPool = class("HonorPool")
 
----构造函数
+--- 构造函数
 ---@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):void
----@param name string @名称
----@param resDefItem RES_DEF_ITEM @资源条目定义
----@param preParent UnityEngine.Transform @预设父节点
----@param resetHandler handler @复位处理方法句柄
 function HonorPool:ctor(name, resDefItem, preParent, resetHandler)
     self.name = name
-    self.unusedQueue = require("HonorQueue"):Create()
-    self.usedList = require("HonorList"):Create()
-    self.resDefItem = resDefItem
-    self.preParent = preParent
-    self.resetHandler = resetHandler
+    self.unusedQueue = require("HonorQueue"):Create()    -- 空闲队列
+    self.usedList = require("HonorList"):Create()        -- 使用中列表
+    self.resDefItem = resDefItem                         -- 资源定义
+    self.preParent = preParent                           -- 池根节点
+    self.resetHandler = resetHandler                     -- 重置函数
+    -- 更新父物体名称，显示空闲数量
     self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
 end
 
----创建函数
----@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):Pool
----@param name string @名称
----@param resDefItem RES_DEF_ITEM @资源条目定义
----@param preParent UnityEngine.Transform @预设父节点
----@param resetHandler handler @复位处理方法句柄
----@return Pool @对象池对象
+--- 创建对象池
+---@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):HonorPool
 function HonorPool:Create(name, resDefItem, preParent, resetHandler)
     local obj = HonorPool.new(name, resDefItem, preParent, resetHandler)
     return obj
 end
 
----预热
+--- 预热（预创建对象，避免运行时卡顿）
 ---@type fun(count:number):void
----@param count number @预热数量
 function HonorPool:Prewarm(count)
     for _ = 1, count do
         local go = CreatePrefabGOSync(self.resDefItem, self.preParent)
         self.usedList:Add(go)
-        self:Put(go)
+        self:Put(go)  -- 放入空闲池
     end
 end
 
----回收GO
+--- 回收对象（放回对象池）
 ---@type fun(go:UnityEngine.GameObject):void
----@param go UnityEngine.GameObject @待回收GO
 function HonorPool:Put(go)
     if IsNull(self.preParent) then
         PrintWarning("对象池" .. self.name .. "的预设父节点为空，无法回收对象。")
@@ -61,8 +54,9 @@ function HonorPool:Put(go)
         if self.usedList:Contains(go) == true then
             self.usedList:Remove(go)
             self.unusedQueue:Enqueue(go)
-            go.transform:SetParent(self.preParent)
-            go:SetActive(false)
+            go.transform:SetParent(self.preParent)  -- 放回池节点
+            go:SetActive(false)                    -- 隐藏
+            -- 更新名称显示数量
             self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
         else
             PrintWarning("待回收对象不在对象池" .. self.name .. "的维护范围内，请检查。")
@@ -70,19 +64,19 @@ function HonorPool:Put(go)
     end
 end
 
----获取GO
----@type fun():UnityEngine.GameObject
----@param newParent UnityEngine.Transform @新父节点（可不传，此时将默认为预设父节点）
----@return UnityEngine.GameObject @获取的GO对象
+--- 获取对象（无则创建，有则复用）
+---@type fun(newParent:UnityEngine.Transform):UnityEngine.GameObject
 function HonorPool:Get(newParent)
     if IsNull(newParent) then
         newParent = self.preParent
     end
 
     local go = nil
+    -- 无空闲对象 → 创建新对象
     if self.unusedQueue:Count() == 0 then
         go = CreatePrefabGOSync(self.resDefItem, newParent.transform)
     else
+        -- 有空闲 → 复用
         go = self.unusedQueue:Dequeue()
         if IsNull(go) then
             PrintError("对象池" .. self.name .. "获取对象失败，未知原因。 容错处理，创建一个新的对象。")
@@ -94,13 +88,14 @@ function HonorPool:Get(newParent)
         PrintError("对象池" .. self.name .. "获取对象失败，请检查。")
     end
     self.usedList:Add(go)
-    go:SetActive(true)
-    self.resetHandler.func(go)
+    go:SetActive(true)               -- 显示
+    self.resetHandler.func(go)       -- 重置组件/状态
+    -- 更新名称显示
     self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
     return go
 end
 
----回收所有被使用的对象
+--- 回收所有正在使用的对象
 ---@type fun():void
 function HonorPool:RecycleAll()
     local count = self.usedList:Count()
@@ -111,10 +106,11 @@ function HonorPool:RecycleAll()
     self.usedList:Clear()
 end
 
----销毁所有对象
+--- 销毁整个对象池（释放所有资源）
 ---@type fun():void
 function HonorPool:Destroy()
-    self:RecycleAll()
+    self:RecycleAll()  -- 先回收
+    -- 销毁空闲对象
     for _ = self.unusedQueue:Count(), 1, -1 do
         local go = self.unusedQueue:Dequeue()
         DestroyPrefabWithGO(go)
@@ -126,7 +122,7 @@ function HonorPool:Destroy()
     self.preParent = nil
 end
 
----销毁未使用的对象
+--- 只销毁空闲对象（保留正在使用的）
 ---@type fun():void
 function HonorPool:DestroyUnused()
     for _ = self.unusedQueue:Count(), 1, -1 do

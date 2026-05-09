@@ -2,16 +2,46 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Prefab 实例化对象挂载脚本
+    /// 用于管理通过克隆/动态加载生成的 GameObject，维护资源引用计数与自动销毁
+    /// </summary>
     public class PrefabInstanceGOBehaviour : MonoBehaviour
     {
+        /// <summary>
+        /// 资源实例ID（用于在资源管理器中定位资源对象）
+        /// </summary>
         public int InstanceID = -1;
+
+        /// <summary>
+        /// 资源所在 AB 包路径
+        /// </summary>
         public string ABPath = string.Empty;
+
+        /// <summary>
+        /// 资源名称（Prefab 名称）
+        /// </summary>
         public string AssetName = string.Empty;
+
+        /// <summary>
+        /// 销毁时是否立即卸载资源
+        /// true：立即释放资源内存
+        /// false：按延迟策略自动释放
+        /// </summary>
         public bool RightNowDestroyOnAsset = false;
+
+        /// <summary>
+        /// 绑定的 Lua 逻辑脚本（业务层使用）
+        /// </summary>
         public LuaBehaviour LuaBehaviour = null;
 
+        /// <summary>
+        /// 激活时执行
+        /// 处理【GameObject.Instantiate】克隆方式创建的对象，手动增加引用计数
+        /// </summary>
         void Awake()
         {
+            // 必须同时配置 ABPath 和 AssetName 才视为克隆对象
             if (string.IsNullOrEmpty(ABPath))
             {
                 return;
@@ -22,21 +52,20 @@ namespace Honor.Runtime
                 return;
             }
 
-            // 当ABPath与AssetName为非空时，则说明是通过【克隆】方式进行的实例化，并非是通过【动态加载】方式进行的实例化，所以这里需要特殊处理：添加引用计数
-            // 注：【克隆】方式是指通过 GameObject.Instantiate(go); 进行的实例化行为！
-            //     当go是一个不被各类Manager管控的对象时，可以使用【克隆】方式，其他情况禁止使用【克隆】方式，因为克隆得到的对象将不受各类Manager的管控！
-            //     比如：UI对象，只能通过UIManager进行实例化，【克隆】方式的实例化对象并不在UIManager的管理容器内！
+            // 克隆方式实例化的对象，需要手动维护引用计数，确保资源管理器计数正确
+            // 注意：克隆对象不受 Manager 统一管控，仅特殊场景允许使用
             InstanceID = gameObject.GetInstanceID();
             GameMainRoot.Asset.PrefabLoadManager.AddAssetRef(ABPath, AssetName, gameObject);
         }
 
+        /// <summary>
+        /// 销毁时执行
+        /// 被动销毁时自动通知资源管理器，减少引用计数并触发资源卸载
+        /// </summary>
         void OnDestroy()
         {
-            // 被动销毁，保证引用计数正确
+            // 自动销毁，保证引用计数正确，防止资源泄漏
             GameMainRoot.Asset.PrefabLoadManager.Destroy(gameObject, RightNowDestroyOnAsset);
         }
     }
-
 }
-
-

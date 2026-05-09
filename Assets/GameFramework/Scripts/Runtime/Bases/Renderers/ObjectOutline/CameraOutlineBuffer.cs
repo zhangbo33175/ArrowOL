@@ -1,490 +1,428 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
+using UnityEngine.XR;
 
 namespace Honor.Runtime
 {
-	[DisallowMultipleComponent]
-	[RequireComponent(typeof(Camera))]
-	public class CameraOutlineBuffer : MonoBehaviour
-	{
-		public static CameraOutlineBuffer Instance { get; private set; }
+    /// <summary>
+    /// 全局描边渲染管理器（单例）
+    /// 功能：使用 CommandBuffer 渲染物体轮廓，实现高效全屏描边效果
+    /// </summary>
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Camera))]
+    public class CameraOutlineBuffer : MonoBehaviour
+    {
+        /// <summary>
+        /// 全局唯一实例
+        /// </summary>
+        public static CameraOutlineBuffer Instance { get; private set; }
 
-		private readonly GameLinkedSet<ObjectOutline> m_Outlines = new GameLinkedSet<ObjectOutline>();
+        /// <summary>
+        /// 已注册的描边物体集合
+        /// </summary>
+        private readonly GameLinkedSet<ObjectOutline> m_Outlines = new GameLinkedSet<ObjectOutline>();
 
-		[Range(1.0f, 6.0f)]
-		public float LineThickness = 1.25f;
-		[Range(0, 10)]
-		public float LineIntensity = .5f;
-		[Range(0, 1)]
-		public float FillAmount = 0.2f;
+        [Header("描边基础设置")]
+        [Range(1.0f, 6.0f)]
+        public float LineThickness = 1.25f;
 
-		public Color LineColor0 = Color.red;
-		public Color LineColor1 = Color.green;
-		public Color LineColor2 = Color.blue;
+        [Range(0, 10)]
+        public float LineIntensity = 0.5f;
 
-		public bool AdditiveRendering = false;
+        [Range(0, 1)]
+        public float FillAmount = 0.2f;
 
-		public bool BackfaceCulling = true;
+        public Color LineColor0 = Color.red;
+        public Color LineColor1 = Color.green;
+        public Color LineColor2 = Color.blue;
 
-		public Color FillColor = Color.blue;
-		public bool UseFillColor = false;
+        public bool AdditiveRendering;
+        public bool BackfaceCulling = true;
 
-		[Header("These settings can affect performance!")]
-		public bool CornerOutlines = false;
-		public bool AddLinesBetweenColors = false;
+        public Color FillColor = Color.blue;
+        public bool UseFillColor;
 
-		[Header("Advanced settings")]
-		public bool ScaleWithScreenSize = true;
-		[Range(0.0f, 1.0f)]
-		public float AlphaCutoff = .5f;
-		public bool FlipY = false;
-		public Camera SourceCamera;
-		public bool AutoEnableOutlines = false;
+        [Header("性能相关设置（可能影响性能）")]
+        public bool CornerOutlines;
+        public bool AddLinesBetweenColors;
 
-		[HideInInspector]
-		public Camera OutlineCamera;
-		private Material m_Outline1Material;
-		private Material m_Outline2Material;
-		private Material m_Outline3Material;
-		private Material m_OutlineEraseMaterial;
-		private Shader m_OutlineShader;
-		private Shader m_OutlineBufferShader;
-		[HideInInspector]
-		public Material OutlineShaderMaterial;
-		[HideInInspector]
-		public RenderTexture RenderTexture;
-		[HideInInspector]
-		public RenderTexture ExtraRenderTexture;
+        [Header("高级设置")]
+        public bool ScaleWithScreenSize = true;
 
-		private CommandBuffer m_CommandBuffer;
-		private List<Material> m_MaterialBuffer = new List<Material>();
-		private bool m_RenderTheNextFrame;
+        [Range(0.0f, 1.0f)]
+        public float AlphaCutoff = 0.5f;
 
-		Material GetMaterialFromID(int ID)
-		{
-			switch(ID)
+        public bool FlipY;
+        public Camera SourceCamera;
+        public bool AutoEnableOutlines;
+
+        [HideInInspector]
+        public Camera OutlineCamera;
+
+        private Material m_Outline1Material;
+        private Material m_Outline2Material;
+        private Material m_Outline3Material;
+        private Material m_OutlineEraseMaterial;
+
+        private Shader m_OutlineShader;
+        private Shader m_OutlineBufferShader;
+
+        [HideInInspector]
+        public Material OutlineShaderMaterial;
+
+        [HideInInspector]
+        public RenderTexture RenderTexture;
+
+        [HideInInspector]
+        public RenderTexture ExtraRenderTexture;
+
+        private CommandBuffer m_CommandBuffer;
+        private List<Material> m_MaterialBuffer = new List<Material>();
+        private bool m_RenderTheNextFrame;
+
+        /// <summary>
+        /// 根据颜色ID获取对应材质
+        /// </summary>
+        private Material GetMaterialFromID(int id)
+        {
+            switch (id)
             {
-				case 0:return m_Outline1Material;
-				case 1:return m_Outline2Material;
-				case 2:return m_Outline3Material;
-				default:return m_Outline1Material;
+                case 0: return m_Outline1Material;
+                case 1: return m_Outline2Material;
+                case 2: return m_Outline3Material;
+                default: return m_Outline1Material;
             }
-		}
+        }
 
-		Material CreateMaterial(Color emissionColor)
-		{
-			Material m = new Material(m_OutlineBufferShader);
-			m.SetColor("_Color", emissionColor);
-			m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-			m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-			m.SetInt("_ZWrite", 0);
-			m.DisableKeyword("_ALPHATEST_ON");
-			m.EnableKeyword("_ALPHABLEND_ON");
-			m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-			m.renderQueue = 3000;
-			return m;
-		}
+        /// <summary>
+        /// 创建描边专用材质
+        /// </summary>
+        private Material CreateMaterial(Color emissionColor)
+        {
+            Material mat = new Material(m_OutlineBufferShader);
+            mat.SetColor("_Color", emissionColor);
+            mat.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.DisableKeyword("_ALPHATEST_ON");
+            mat.EnableKeyword("_ALPHABLEND_ON");
+            mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            mat.renderQueue = 3000;
+            return mat;
+        }
 
-		private void Awake()
-		{
-			if (Instance != null)
-			{
-				Destroy(this);
-				throw new System.Exception("you can only have one outline camera in the scene");
-			}
-
-			Instance = this;
-		}
-
-		void Start()
-		{
-			CreateMaterialsIfNeeded();
-			UpdateMaterialsPublicProperties();
-
-			if (SourceCamera == null)
-			{
-				SourceCamera = GetComponent<Camera>();
-
-				if (SourceCamera == null)
-                {
-					SourceCamera = Camera.main;
-				}
-			}
-
-			if (OutlineCamera == null)
-			{
-				foreach (Camera c in GetComponentsInChildren<Camera>())
-				{
-					if (c.name == "Outline Camera")
-					{
-						OutlineCamera = c;
-						c.enabled = false;
-						break;
-					}
-				}
-
-				if (OutlineCamera == null)
-				{
-					GameObject cameraGameObject = new GameObject("Outline Camera");
-					cameraGameObject.transform.parent = SourceCamera.transform;
-					OutlineCamera = cameraGameObject.AddComponent<Camera>();
-					OutlineCamera.enabled = false;
-				}
-			}
-
-			if (RenderTexture != null)
+        private void Awake()
+        {
+            // 单例安全检测
+            if (Instance != null)
             {
-				RenderTexture.Release();
-			}
-			if (ExtraRenderTexture != null)
-            {
-				ExtraRenderTexture.Release();
-			}
-
-			RenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
-			ExtraRenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
-			UpdateOutlineCameraFromSource();
-
-			m_CommandBuffer = new CommandBuffer();
-			OutlineCamera.AddCommandBuffer(CameraEvent.BeforeImageEffects, m_CommandBuffer);
-		}
-
-		public void OnPreRender()
-		{
-			if (m_CommandBuffer == null)
-            {
-				return;
+                Destroy(this);
+                throw new System.Exception("场景中只能存在一个 CameraOutlineBuffer 实例！");
             }
 
-			if (m_Outlines.Count == 0)
-			{
-				if (!m_RenderTheNextFrame)
+            Instance = this;
+        }
+
+        private void Start()
+        {
+            CreateMaterialsIfNeeded();
+            UpdateMaterialsPublicProperties();
+
+            // 自动绑定主相机
+            if (SourceCamera == null)
+            {
+                SourceCamera = GetComponent<Camera>();
+                if (SourceCamera == null)
+                    SourceCamera = Camera.main;
+            }
+
+            // 初始化描边相机
+            if (OutlineCamera == null)
+            {
+                foreach (Camera c in GetComponentsInChildren<Camera>())
                 {
-					return;
+                    if (c.name == "Outline Camera")
+                    {
+                        OutlineCamera = c;
+                        OutlineCamera.enabled = false;
+                        break;
+                    }
                 }
 
-				m_RenderTheNextFrame = false;
-			}
-			else
-			{
-				m_RenderTheNextFrame = true;
-			}
-
-			CreateMaterialsIfNeeded();
-
-			if (RenderTexture == null || RenderTexture.width != SourceCamera.pixelWidth || RenderTexture.height != SourceCamera.pixelHeight)
-			{
-				if (RenderTexture != null)
+                if (OutlineCamera == null)
                 {
-					RenderTexture.Release();
-				}
-				if (ExtraRenderTexture != null)
+                    GameObject camObj = new GameObject("Outline Camera");
+                    camObj.transform.parent = SourceCamera.transform;
+                    OutlineCamera = camObj.AddComponent<Camera>();
+                    OutlineCamera.enabled = false;
+                }
+            }
+
+            // 释放旧RT
+            if (RenderTexture != null) RenderTexture.Release();
+            if (ExtraRenderTexture != null) ExtraRenderTexture.Release();
+
+            // 创建RT
+            RenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
+            ExtraRenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
+
+            UpdateOutlineCameraFromSource();
+
+            // 初始化命令缓冲
+            m_CommandBuffer = new CommandBuffer();
+            OutlineCamera.AddCommandBuffer(CameraEvent.BeforeImageEffects, m_CommandBuffer);
+        }
+
+        /// <summary>
+        /// 相机预渲染：绘制所有描边物体到 RT
+        /// </summary>
+        private void OnPreRender()
+        {
+            if (m_CommandBuffer == null)
+                return;
+
+            // 没有描边物体时跳过渲染
+            if (m_Outlines.Count == 0 && !m_RenderTheNextFrame)
+                return;
+
+            m_RenderTheNextFrame = m_Outlines.Count > 0;
+            CreateMaterialsIfNeeded();
+
+            // 屏幕尺寸变化时重建RT
+            if (RenderTexture == null || RenderTexture.width != SourceCamera.pixelWidth || RenderTexture.height != SourceCamera.pixelHeight)
+            {
+                if (RenderTexture != null) RenderTexture.Release();
+                if (ExtraRenderTexture != null) ExtraRenderTexture.Release();
+
+                RenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
+                ExtraRenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
+                OutlineCamera.targetTexture = RenderTexture;
+            }
+
+            UpdateMaterialsPublicProperties();
+            UpdateOutlineCameraFromSource();
+            OutlineCamera.targetTexture = RenderTexture;
+            m_CommandBuffer.SetRenderTarget(RenderTexture);
+            m_CommandBuffer.Clear();
+
+            // 渲染所有描边对象
+            foreach (ObjectOutline outline in m_Outlines)
+            {
+                if (outline == null) continue;
+
+                // 只渲染相机可见层
+                if ((SourceCamera.cullingMask & (1 << outline.gameObject.layer)) == 0)
+                    continue;
+
+                for (int v = 0; v < outline.SharedMaterials.Length; v++)
                 {
-					ExtraRenderTexture.Release();
-				}
-				RenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
-				ExtraRenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
-				OutlineCamera.targetTexture = RenderTexture;
-			}
-			UpdateMaterialsPublicProperties();
-			UpdateOutlineCameraFromSource();
-			OutlineCamera.targetTexture = RenderTexture;
-			m_CommandBuffer.SetRenderTarget(RenderTexture);
+                    Material mat = null;
+                    Material srcMat = outline.SharedMaterials[v];
 
-			m_CommandBuffer.Clear();
-
-			foreach (ObjectOutline outline in m_Outlines)
-			{
-				LayerMask l = SourceCamera.cullingMask;
-
-				if (outline != null && l == (l | (1 << outline.gameObject.layer)))
-				{
-					for (int v = 0; v < outline.SharedMaterials.Length; v++)
-					{
-						Material m = null;
-
-						if (outline.SharedMaterials[v].HasProperty("_MainTex") && outline.SharedMaterials[v].mainTexture != null && outline.SharedMaterials[v])
-						{
-							foreach (Material g in m_MaterialBuffer)
-							{
-								if (g.mainTexture == outline.SharedMaterials[v].mainTexture)
-								{
-									if (outline.eraseRenderer && g.color == m_OutlineEraseMaterial.color)
-                                    {
-										m = g;
-									}
-									else if (!outline.eraseRenderer && g.color == GetMaterialFromID(outline.color).color)
-                                    {
-										m = g;
-									}
-								}
-							}
-
-							if (m == null)
-							{
-								if (outline.eraseRenderer)
-                                {
-									m = new Material(m_OutlineEraseMaterial);
-								}
-								else
-								{ 
-									m = new Material(GetMaterialFromID(outline.color)); 
-								}
-
-								m.mainTexture = outline.SharedMaterials[v].mainTexture;
-								m_MaterialBuffer.Add(m);
-							}
-						}
-						else
-						{
-							if (outline.eraseRenderer)
-                            {
-								m = m_OutlineEraseMaterial;
-							}
-							else
-                            {
-								m = GetMaterialFromID(outline.color);
-							}
-						}
-
-						if (BackfaceCulling)
-                        {
-							m.SetInt("_Culling", (int)UnityEngine.Rendering.CullMode.Back);
-						}
-						else
-                        {
-							m.SetInt("_Culling", (int)UnityEngine.Rendering.CullMode.Off);
-						}
-
-						MeshFilter mL = outline.MeshFilter;
-						SkinnedMeshRenderer sMR = outline.SkinnedMeshRenderer;
-						SpriteRenderer sR = outline.SpriteRenderer;
-						if (mL)
-						{
-							if (mL.sharedMesh != null)
-							{
-								if (v < mL.sharedMesh.subMeshCount)
-                                {
-									m_CommandBuffer.DrawRenderer(outline.Renderer, m, v, 0);
-								}
-							}
-						}
-						else if (sMR)
-						{
-							if (sMR.sharedMesh != null)
-							{
-								if (v < sMR.sharedMesh.subMeshCount)
-                                {
-									m_CommandBuffer.DrawRenderer(outline.Renderer, m, v, 0);
-								}
-							}
-						}
-						else if (sR)
-						{
-							m_CommandBuffer.DrawRenderer(outline.Renderer, m, v, 0);
-						}
-					}
-				}
-			}
-
-			OutlineCamera.Render();
-		}
-
-		private void OnEnable()
-		{
-			ObjectOutline[] o = FindObjectsOfType<ObjectOutline>();
-			if (AutoEnableOutlines)
-			{
-				foreach (ObjectOutline oL in o)
-				{
-					oL.enabled = false;
-					oL.enabled = true;
-				}
-			}
-			else
-			{
-				foreach (ObjectOutline oL in o)
-				{
-					if (!m_Outlines.Contains(oL))
+                    // 带贴图的物体需要缓存材质
+                    if (srcMat != null && srcMat.HasProperty("_MainTex") && srcMat.mainTexture != null)
                     {
-						m_Outlines.Add(oL);
-					}
-				}
-			}
-		}
+                        foreach (Material g in m_MaterialBuffer)
+                        {
+                            if (g.mainTexture == srcMat.mainTexture)
+                            {
+                                if (outline.eraseRenderer && g.color == m_OutlineEraseMaterial.color)
+                                    mat = g;
+                                else if (!outline.eraseRenderer && g.color == GetMaterialFromID(outline.color).color)
+                                    mat = g;
+                            }
+                        }
 
-		void OnDestroy()
-		{
-			if (RenderTexture != null)
-            {
-				RenderTexture.Release();
-			}
-			if (ExtraRenderTexture != null)
-            {
-				ExtraRenderTexture.Release();
-			}
-			DestroyMaterials();
-		}
+                        if (mat == null)
+                        {
+                            mat = outline.eraseRenderer ? new Material(m_OutlineEraseMaterial) : new Material(GetMaterialFromID(outline.color));
+                            mat.mainTexture = srcMat.mainTexture;
+                            m_MaterialBuffer.Add(mat);
+                        }
+                    }
+                    else
+                    {
+                        mat = outline.eraseRenderer ? m_OutlineEraseMaterial : GetMaterialFromID(outline.color);
+                    }
 
-		[ImageEffectOpaque]
-		void OnRenderImage(RenderTexture source, RenderTexture destination)
-		{
-			if (OutlineShaderMaterial != null)
-			{
-				OutlineShaderMaterial.SetTexture("_OutlineSource", RenderTexture);
+                    // 剔除模式
+                    mat.SetInt("_Culling", BackfaceCulling ? (int)CullMode.Back : (int)CullMode.Off);
 
-				if (AddLinesBetweenColors)
-				{
-					Graphics.Blit(source, ExtraRenderTexture, OutlineShaderMaterial, 0);
-					OutlineShaderMaterial.SetTexture("_OutlineSource", ExtraRenderTexture);
-				}
-				Graphics.Blit(source, destination, OutlineShaderMaterial, 1);
-			}
-		}
+                    // 绘制渲染器
+                    if (outline.MeshFilter != null && outline.MeshFilter.sharedMesh != null && v < outline.MeshFilter.sharedMesh.subMeshCount)
+                    {
+                        m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
+                    }
+                    else if (outline.SkinnedMeshRenderer != null && outline.SkinnedMeshRenderer.sharedMesh != null && v < outline.SkinnedMeshRenderer.sharedMesh.subMeshCount)
+                    {
+                        m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
+                    }
+                    else if (outline.SpriteRenderer != null)
+                    {
+                        m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
+                    }
+                }
+            }
 
-		private void CreateMaterialsIfNeeded()
-		{
-			if (m_OutlineShader == null)
-            {
-				m_OutlineShader = Shader.Find("Honor/GO/ObjectOutlineShader");
-			}
-			if (m_OutlineBufferShader == null)
-			{
-				m_OutlineBufferShader = Shader.Find("Honor/GO/CameraOutlineBufferShader");
-			}
-			if (OutlineShaderMaterial == null)
-			{
-				OutlineShaderMaterial = new Material(m_OutlineShader);
-				OutlineShaderMaterial.hideFlags = HideFlags.HideAndDontSave;
-				UpdateMaterialsPublicProperties();
-			}
-			if (m_OutlineEraseMaterial == null)
-            {
-				m_OutlineEraseMaterial = CreateMaterial(new Color(0, 0, 0, 0));
-			}
-			if (m_Outline1Material == null)
-            {
-				m_Outline1Material = CreateMaterial(new Color(1, 0, 0, 0));
-			}
-			if (m_Outline2Material == null)
-            {
-				m_Outline2Material = CreateMaterial(new Color(0, 1, 0, 0));
-			}
-			if (m_Outline3Material == null)
-            {
-				m_Outline3Material = CreateMaterial(new Color(0, 0, 1, 0));
-			}
-		}
+            OutlineCamera.Render();
+        }
 
-		private void DestroyMaterials()
-		{
-			foreach (Material m in m_MaterialBuffer)
+        private void OnEnable()
+        {
+            ObjectOutline[] allOutlines = FindObjectsOfType<ObjectOutline>();
+
+            if (AutoEnableOutlines)
             {
-				DestroyImmediate(m);
-			}
-			m_MaterialBuffer.Clear();
-			DestroyImmediate(OutlineShaderMaterial);
-			DestroyImmediate(m_OutlineEraseMaterial);
-			DestroyImmediate(m_Outline1Material);
-			DestroyImmediate(m_Outline2Material);
-			DestroyImmediate(m_Outline3Material);
-			m_OutlineShader = null;
-			m_OutlineBufferShader = null;
-			OutlineShaderMaterial = null;
-			m_OutlineEraseMaterial = null;
-			m_Outline1Material = null;
-			m_Outline2Material = null;
-			m_Outline3Material = null;
-		}
-
-		public void UpdateMaterialsPublicProperties()
-		{
-			if (OutlineShaderMaterial)
-			{
-				float scalingFactor = 1;
-				if (ScaleWithScreenSize)
-				{
-					scalingFactor = Screen.height / 360.0f;
-				}
-
-				if (ScaleWithScreenSize && scalingFactor < 1)
-				{
-					if (UnityEngine.XR.XRSettings.isDeviceActive && SourceCamera.stereoTargetEye != StereoTargetEyeMask.None)
-					{
-						OutlineShaderMaterial.SetFloat("_LineThicknessX", (1 / 1000.0f) * (1.0f / UnityEngine.XR.XRSettings.eyeTextureWidth) * 1000.0f);
-						OutlineShaderMaterial.SetFloat("_LineThicknessY", (1 / 1000.0f) * (1.0f / UnityEngine.XR.XRSettings.eyeTextureHeight) * 1000.0f);
-					}
-					else
-					{
-						OutlineShaderMaterial.SetFloat("_LineThicknessX", (1 / 1000.0f) * (1.0f / Screen.width) * 1000.0f);
-						OutlineShaderMaterial.SetFloat("_LineThicknessY", (1 / 1000.0f) * (1.0f / Screen.height) * 1000.0f);
-					}
-				}
-				else
-				{
-					if (UnityEngine.XR.XRSettings.isDeviceActive && SourceCamera.stereoTargetEye != StereoTargetEyeMask.None)
-					{
-						OutlineShaderMaterial.SetFloat("_LineThicknessX", scalingFactor * (LineThickness / 1000.0f) * (1.0f / UnityEngine.XR.XRSettings.eyeTextureWidth) * 1000.0f);
-						OutlineShaderMaterial.SetFloat("_LineThicknessY", scalingFactor * (LineThickness / 1000.0f) * (1.0f / UnityEngine.XR.XRSettings.eyeTextureHeight) * 1000.0f);
-					}
-					else
-					{
-						OutlineShaderMaterial.SetFloat("_LineThicknessX", scalingFactor * (LineThickness / 1000.0f) * (1.0f / Screen.width) * 1000.0f);
-						OutlineShaderMaterial.SetFloat("_LineThicknessY", scalingFactor * (LineThickness / 1000.0f) * (1.0f / Screen.height) * 1000.0f);
-					}
-				}
-				OutlineShaderMaterial.SetFloat("_LineIntensity", LineIntensity);
-				OutlineShaderMaterial.SetFloat("_FillAmount", FillAmount);
-				OutlineShaderMaterial.SetColor("_FillColor", FillColor);
-				OutlineShaderMaterial.SetFloat("_UseFillColor", UseFillColor ? 1 : 0);
-				OutlineShaderMaterial.SetColor("_LineColor1", LineColor0 * LineColor0);
-				OutlineShaderMaterial.SetColor("_LineColor2", LineColor1 * LineColor1);
-				OutlineShaderMaterial.SetColor("_LineColor3", LineColor2 * LineColor2);
-				if (FlipY)
+                foreach (var o in allOutlines)
                 {
-					OutlineShaderMaterial.SetInt("_FlipY", 1);
-				}
-				else
+                    o.enabled = false;
+                    o.enabled = true;
+                }
+            }
+            else
+            {
+                foreach (var o in allOutlines)
                 {
-					OutlineShaderMaterial.SetInt("_FlipY", 0);
-				}
-				if (!AdditiveRendering)
-                {
-					OutlineShaderMaterial.SetInt("_Dark", 1);
-				}
-				else
-                {
-					OutlineShaderMaterial.SetInt("_Dark", 0);
-				}
-				if (CornerOutlines)
-                {
-					OutlineShaderMaterial.SetInt("_CornerOutlines", 1);
-				}
-				else
-                {
-					OutlineShaderMaterial.SetInt("_CornerOutlines", 0);
-				}
+                    if (!m_Outlines.Contains(o))
+                        m_Outlines.Add(o);
+                }
+            }
+        }
 
-				Shader.SetGlobalFloat("_OutlineAlphaCutoff", AlphaCutoff);
-			}
-		}
+        private void OnDestroy()
+        {
+            // 释放渲染纹理
+            if (RenderTexture != null) RenderTexture.Release();
+            if (ExtraRenderTexture != null) ExtraRenderTexture.Release();
 
-		void UpdateOutlineCameraFromSource()
-		{
-			OutlineCamera.CopyFrom(SourceCamera);
-			OutlineCamera.renderingPath = RenderingPath.Forward;
-			OutlineCamera.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
-			OutlineCamera.clearFlags = CameraClearFlags.SolidColor;
-			OutlineCamera.rect = new Rect(0, 0, 1, 1);
-			OutlineCamera.cullingMask = 0;
-			OutlineCamera.targetTexture = RenderTexture;
-			OutlineCamera.enabled = false;
+            // 销毁材质
+            DestroyMaterials();
+            Instance = null;
+        }
+
+        /// <summary>
+        /// 全屏图像后处理：将描边RT合成到屏幕
+        /// </summary>
+        [ImageEffectOpaque]
+        private void OnRenderImage(RenderTexture source, RenderTexture destination)
+        {
+            if (OutlineShaderMaterial == null)
+            {
+                Graphics.Blit(source, destination);
+                return;
+            }
+
+            OutlineShaderMaterial.SetTexture("_OutlineSource", RenderTexture);
+
+            if (AddLinesBetweenColors)
+            {
+                Graphics.Blit(source, ExtraRenderTexture, OutlineShaderMaterial, 0);
+                OutlineShaderMaterial.SetTexture("_OutlineSource", ExtraRenderTexture);
+            }
+
+            Graphics.Blit(source, destination, OutlineShaderMaterial, 1);
+        }
+
+        /// <summary>
+        /// 确保所有材质已创建
+        /// </summary>
+        private void CreateMaterialsIfNeeded()
+        {
+            m_OutlineShader = Shader.Find("Honor/GO/ObjectOutlineShader");
+            m_OutlineBufferShader = Shader.Find("Honor/GO/CameraOutlineBufferShader");
+
+            if (OutlineShaderMaterial == null)
+            {
+                OutlineShaderMaterial = new Material(m_OutlineShader);
+                OutlineShaderMaterial.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            m_OutlineEraseMaterial ??= CreateMaterial(new Color(0, 0, 0, 0));
+            m_Outline1Material ??= CreateMaterial(new Color(1, 0, 0, 0));
+            m_Outline2Material ??= CreateMaterial(new Color(0, 1, 0, 0));
+            m_Outline3Material ??= CreateMaterial(new Color(0, 0, 1, 0));
+        }
+
+        /// <summary>
+        /// 销毁所有动态材质
+        /// </summary>
+        private void DestroyMaterials()
+        {
+            foreach (var mat in m_MaterialBuffer)
+                DestroyImmediate(mat);
+
+            m_MaterialBuffer.Clear();
+
+            DestroyImmediate(OutlineShaderMaterial);
+            DestroyImmediate(m_OutlineEraseMaterial);
+            DestroyImmediate(m_Outline1Material);
+            DestroyImmediate(m_Outline2Material);
+            DestroyImmediate(m_Outline3Material);
+        }
+
+        /// <summary>
+        /// 更新描边材质参数
+        /// </summary>
+        public void UpdateMaterialsPublicProperties()
+        {
+            if (!OutlineShaderMaterial) return;
+
+            float scalingFactor = ScaleWithScreenSize ? Screen.height / 360f : 1f;
+            bool isXR = XRSettings.isDeviceActive && SourceCamera.stereoTargetEye != StereoTargetEyeMask.None;
+
+            // 设置描边宽度
+            if (isXR)
+            {
+                OutlineShaderMaterial.SetFloat("_LineThicknessX", scalingFactor * LineThickness / 1000f * (1000f / XRSettings.eyeTextureWidth));
+                OutlineShaderMaterial.SetFloat("_LineThicknessY", scalingFactor * LineThickness / 1000f * (1000f / XRSettings.eyeTextureHeight));
+            }
+            else
+            {
+                OutlineShaderMaterial.SetFloat("_LineThicknessX", scalingFactor * LineThickness / 1000f * (1000f / Screen.width));
+                OutlineShaderMaterial.SetFloat("_LineThicknessY", scalingFactor * LineThickness / 1000f * (1000f / Screen.height));
+            }
+
+            OutlineShaderMaterial.SetFloat("_LineIntensity", LineIntensity);
+            OutlineShaderMaterial.SetFloat("_FillAmount", FillAmount);
+            OutlineShaderMaterial.SetColor("_FillColor", FillColor);
+            OutlineShaderMaterial.SetFloat("_UseFillColor", UseFillColor ? 1 : 0);
+
+            OutlineShaderMaterial.SetColor("_LineColor1", LineColor0 * LineColor0);
+            OutlineShaderMaterial.SetColor("_LineColor2", LineColor1 * LineColor1);
+            OutlineShaderMaterial.SetColor("_LineColor3", LineColor2 * LineColor2);
+
+            OutlineShaderMaterial.SetInt("_FlipY", FlipY ? 1 : 0);
+            OutlineShaderMaterial.SetInt("_Dark", AdditiveRendering ? 0 : 1);
+            OutlineShaderMaterial.SetInt("_CornerOutlines", CornerOutlines ? 1 : 0);
+
+            Shader.SetGlobalFloat("_OutlineAlphaCutoff", AlphaCutoff);
+        }
+
+        /// <summary>
+        /// 同步描边相机参数
+        /// </summary>
+        public void UpdateOutlineCameraFromSource()
+        {
+            OutlineCamera.CopyFrom(SourceCamera);
+            OutlineCamera.renderingPath = RenderingPath.Forward;
+            OutlineCamera.backgroundColor = Color.clear;
+            OutlineCamera.clearFlags = CameraClearFlags.SolidColor;
+            OutlineCamera.rect = new Rect(0, 0, 1, 1);
+            OutlineCamera.cullingMask = 0;
+            OutlineCamera.targetTexture = RenderTexture;
+            OutlineCamera.enabled = false;
             OutlineCamera.allowHDR = false;
-		}
+        }
 
-		public void AddOutline(ObjectOutline outline) => m_Outlines.Add(outline);
+        /// <summary>
+        /// 添加描边对象
+        /// </summary>
+        public void AddOutline(ObjectOutline outline) => m_Outlines.Add(outline);
 
-		public void RemoveOutline(ObjectOutline outline) => m_Outlines.Remove(outline);
-	}
+        /// <summary>
+        /// 移除描边对象
+        /// </summary>
+        public void RemoveOutline(ObjectOutline outline) => m_Outlines.Remove(outline);
+    }
 }

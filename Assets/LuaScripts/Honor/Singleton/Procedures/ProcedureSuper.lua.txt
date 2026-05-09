@@ -1,70 +1,74 @@
 --=====================================================================================================
--- descrip:   流程基类
+-- descrip:   流程基类（游戏状态机/流程管理基类）
+--              作用：所有游戏流程（登录/主城/战斗/过场）必须继承此类
 --=====================================================================================================
 
----@class ProcedureSuper @流程基类
+---@class ProcedureSuper @流程基类（状态机基类）
 local ProcedureSuper = class("ProcedureSuper")
 
----构造函数
+--- 构造函数
 ---@type fun(args:table):void
----@param args table @自定义参数
+---@param args table 构造参数（必须包含 env 环境表）
 function ProcedureSuper:ctor(args)
-    if args ~= nil and args.env ~= nil then for __, v in pairs(args.env) do self[__] = v end end
-    self._args = args			 -- 初始化传入参数
-
+    -- 将C#传入的环境表成员绑定到自身
+    if args ~= nil and args.env ~= nil then
+        for __, v in pairs(args.env) do
+            self[__] = v
+        end
+    end
+    self._args = args  -- 保存初始化参数
 end
 
----创建函数
+--- 创建实例（对外接口）
 ---@type fun(args:table):ProcedureSuper
----@param args table @自定义参数
----@return ProcedureSuper @流程基类实例
+---@param args table 自定义参数
+---@return ProcedureSuper 流程实例
 function ProcedureSuper:Create(args)
     local obj = ProcedureSuper.new(args)
     return obj
 end
 
----初始化
+--- 初始化（只会执行一次）
 ---@type fun(ownerMachine: userdata):void
----@param ownerMachine userdata @流程状态
+---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnInit(ownerMachine)
 
 end
 
----销毁
+--- 销毁（流程释放时调用）
 ---@type fun(ownerMachine: userdata):void
----@param ownerMachine userdata @流程状态
+---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnDestroy(ownerMachine)
     self._args = nil
 end
 
----进入
+--- 进入流程（每次切换进来都会调用）
 ---@type fun(ownerMachine: userdata):void
----@param ownerMachine userdata @流程状态
+---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnEnter(ownerMachine)
-    HonorTimerHelper:OnEnter(self)
+    HonorTimerHelper:OnEnter(self) -- 注册定时器
 end
 
----心跳
+--- 帧更新（每帧执行）
 ---@type fun(ownerMachine: userdata):void
----@param ownerMachine userdata @流程状态
+---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnUpdate(ownerMachine)
-    HonorTimerHelper:OnUpdate(self)
+    HonorTimerHelper:OnUpdate(self) -- 更新定时器
 end
 
----离开
+--- 离开流程（切换到其他流程时调用）
 ---@type fun(ownerMachine: userdata):void
----@param ownerMachine userdata @流程状态
+---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnLeave(ownerMachine)
-    HonorTimerHelper:OnLeave(self)
+    HonorTimerHelper:OnLeave(self) -- 清理定时器
 end
 
----切换流程
+--- 切换到其他流程
 ---@type fun(ownerMachine: userdata, procedureName:string):void
----@param ownerMachine userdata @流程状态
----@param procedureName string @流程名称
+---@param ownerMachine userdata 状态机宿主对象
+---@param procedureName string 目标流程名称
 function ProcedureSuper:ChangeState(ownerMachine, procedureName)
     self.cs:ChangeState(ownerMachine, procedureName)
 end
 
 return ProcedureSuper
-

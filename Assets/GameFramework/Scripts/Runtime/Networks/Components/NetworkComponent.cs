@@ -6,6 +6,11 @@ using UnityEngine.Networking;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 网络管理组件
+    /// 提供网络状态检测、URL 编码、Web 请求下载等基础网络功能
+    /// 禁止挂载多个，单例模式组件
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class NetworkComponent : GameComponent
     {
@@ -13,13 +18,13 @@ namespace Honor.Runtime
         {
             base.Awake();
 
+            // 初始化底层网络管理器
             m_NetworkManager = new NetworkManager(m_ConnectTimeout, m_RequestTimeout);
             if (m_NetworkManager == null)
             {
                 Log.Fatal("NetworkManager 无效。");
                 return;
             }
-
         }
 
         private void Start()
@@ -28,19 +33,19 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查网络激活的状态
+        /// 检查网络是否可用（连接/数据状态）
         /// </summary>
-        /// <returns></returns>
+        /// <returns>true 网络正常，false 不可用</returns>
         public bool CheckNetworkActive()
         {
             return m_NetworkManager.CheckNetworkActive();
         }
 
         /// <summary>
-        /// Url编码
+        /// UTF-8 格式 URL 编码
         /// </summary>
-        /// <param name="str">待转换的字符串</param>
-        /// <returns></returns>
+        /// <param name="str">需要编码的原始字符串</param>
+        /// <returns>URL 编码后的结果</returns>
         public string UrlEncode(string str)
         {
             StringBuilder sb = new StringBuilder();
@@ -49,51 +54,53 @@ namespace Honor.Runtime
             {
                 sb.Append(@"%" + Convert.ToString(byStr[i], 16));
             }
-            return (sb.ToString());
+            return sb.ToString();
         }
 
         /// <summary>
-        /// 从url中获取文本内容
+        /// 从 URL 地址下载文本内容（异步）
+        /// 使用 UnityWebRequest 加载文本数据
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="finishCallback"></param>
-        /// <param name="timeout"></param>
+        /// <param name="url">下载地址</param>
+        /// <param name="finishCallback">下载完成回调（返回文本）</param>
+        /// <param name="timeout">超时时间，-1 使用默认值</param>
         public void GetTextFromUrl(string url, Action<string> finishCallback = null, int timeout = -1)
         {
+            // 局部协程：下载文本并回调
             IEnumerator DownloadFromUrl(string url, Action<string> finishCallback, int timeout)
             {
-                var uwr = UnityWebRequest.Get(url);
+                UnityWebRequest uwr = UnityWebRequest.Get(url);
+                
+                // 设置超时
                 if (timeout >= 0)
                 {
                     uwr.timeout = timeout;
                 }
-                uwr.SendWebRequest();
+
+                // 发送请求并等待完成
+                yield return uwr.SendWebRequest();
                 while (!uwr.isDone)
                 {
                     yield return null;
                 }
+
+                // 网络错误判断
                 if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Log.Warning("[Hotfix] 下载文件 {0} 时出错！", url);
-                    if (finishCallback != null)
-                    {
-                        finishCallback(null);
-                    }
+                    finishCallback?.Invoke(null);
                 }
                 else
                 {
-                    if (finishCallback != null)
-                    {
-                        finishCallback(uwr.downloadHandler.text);
-                    }
+                    // 成功返回文本
+                    finishCallback?.Invoke(uwr.downloadHandler.text);
                 }
+
+                // 释放 WebRequest 资源
                 uwr.Dispose();
             }
+
             StartCoroutine(DownloadFromUrl(url, finishCallback, timeout));
         }
-        
     }
-
 }
-
-

@@ -1,0 +1,501 @@
+--=====================================================================================================
+-- 【主界面弹出任务管理器】
+-- 功能：主界面自动弹出任务队列（UI、动效、机器升级、元素收集、气泡）
+-- 核心：优先级队列、协程调度、主界面状态感知、去重、阻塞、恢复
+-- 所有需要在主界面“自动弹”的内容，全部走这里统一调度
+--=====================================================================================================
+
+---@class CommonOpenUITaskParam : table @ 通用打开UI任务参数
+---@field uiName string UI名称
+---@field uiParams table 参数
+---@field sortOrder number 优先级
+---@field needMainUIOpen boolean 需要主界面打开
+---@field recheck function 执行前检查
+---@field linkChapterID string 绑定章节
+---@field onlyGameStatusExchange boolean 仅状态变化触发
+---@field repeatable boolean 允许重复
+
+---@class GameMainCommonTaskParam : table @ 通用任务参数
+---@field taskFunc function 任务函数
+---@field taskParams table 参数
+---@field recheck function 检查
+---@field sortOrder number 优先级
+---@field needMainUIOpen boolean 需要主界面打开
+---@field linkChapterID string 绑定章节
+---@field onlyGameStatusExchange boolean 仅状态变化触发
+---@field unvaildDiffentLink boolean 章节不同则失效
+---@field completeCallback function 完成回调
+
+---@class GameMainUIPushConfig @ 弹出任务配置
+---@field Type number 任务类型
+---@field SortOrder number 优先级
+---@field NeedMainHudOpen boolean 需要主界面打开
+---@field linkChapterID string 绑定章节
+---@field unvaildDiffentLink boolean 章节不同失效
+---@field onlyGameStatusExchange boolean 仅状态变化触发
+---@field closeUIMainRaycast boolean 屏蔽主界面点击
+---@field param table 参数
+---@field Recheck function 检查
+---@field Execute function 执行
+---@field Complete function 完成回调
+
+---@class ElementCollectionConfig @ 元素收集配置
+---@field param ElementCollectionConfigParam 参数
+---@field Execute function 执行
+---@field SortOrder1 number 排序1
+---@field SortOrder2 number 排序2
+
+---@class ElementUIBubbleConfig @ 气泡配置
+---@field Execute function 执行
+---@field Params ElementUIBubbleConfigParam 参数
+---@field Order number 排序
+
+---@class GameMainUIPushMgr : Singleton
+---@field _workQueue GameMainUIPushConfig[] 任务队列
+---@field _uiMainInHideState boolean 主界面隐藏
+---@field Coroutine thread 协程
+---@field _intoMainState boolean 刚进入主状态
+---@field _uiMainHudIsStart boolean 主界面已Start
+---@field _elementCollectionList ElementCollectionConfig[] 元素收集队列
+---@field _elementUIBubbleList ElementUIBubbleConfig[] 气泡队列
+---@field _elementProcessRefCount number 元素流程计数
+
+local GameMainUIPushManager = class("GameMainUIPushMgr", import("Singleton"))
+
+--- 构造函数
+function GameMainUIPushManager:ctor(args)
+    GameMainUIPushManager.super.ctor(self, args)
+    self._workQueue = {}
+    self._uiMainInHideState = true
+    self._intoMainState = false
+    self._uiMainHudIsStart = false
+    self._elementCollectionList = {}
+    self._elementUIBubbleList = {}
+    self._elementProcessRefCount = 0
+    self._sceneEffectWorking = {}
+    self._elementCollectionInterval = 0.25
+end
+
+--- 创建单例
+---@return GameMainUIPushMgr
+function GameMainUIPushManager:Create(args)
+    return GameMainUIPushManager.new(args)
+end
+
+--- 清空数据
+function GameMainUIPushManager:ClearData()
+    GameMainUIPushManager.super.ClearData(self)
+    self._workQueue = {}
+    self._uiMainInHideState = true
+    self._intoMainState = false
+    self._uiMainHudIsStart = false
+    self.Coroutine = nil
+    self:ClearElementData()
+end
+
+--- 进入主界面状态
+function GameMainUIPushManager:OnEnterMainState()
+    HonorEventHelper:AddListener(EventCmd.OnHideMainHudUI, handler(self, self._OnMainHudUIHide))
+    HonorEventHelper:AddListener(EventCmd.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver))
+    HonorEventHelper:AddListener(EventCmd.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI))
+    HonorEventHelper:AddListener(FwEventCmd.UIViewOpen, handler(self, self._UIGameViewOpen))
+    self._intoMainState = true
+    self._uiMainHudIsStart = false
+end
+
+--- 离开主界面状态
+function GameMainUIPushManager:OnLeaveMainState()
+    self._uiMainInHideState = true
+    HonorEventHelper:RemoveListener(EventCmd.OnHideMainHudUI, handler(self, self._OnMainHudUIHide))
+    HonorEventHelper:RemoveListener(EventCmd.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver))
+    HonorEventHelper:RemoveListener(EventCmd.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI))
+    HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self._UIGameViewOpen))
+end
+
+--- 进入关卡清空队列
+function GameMainUIPushManager:ClearWorkQueue()
+    self._workQueue = {}
+    self._sceneEffectWorking = {}
+    self:ClearElementData()
+end
+
+--- 清空元素数据
+function GameMainUIPushManager:ClearElementData()
+    self._elementCollectionList = {}
+    self._elementUIBubbleList = {}
+    self._elementProcessRefCount = 0
+end
+
+--- 主界面初始化完成，开始运行任务
+function GameMainUIPushManager:BeginTryRunning()
+    self._uiMainHudIsStart = true
+    self:TryInsertElementTask()
+    if TableIsEmpty(self._workQueue) then
+        MapMotion:ResumeMapMotion()
+        self:_ExchangeMainHubPeaceState(true)
+    else
+        self:_TryRunning(EGameMainUIPUshRunningType.OnEnterMainState)
+    end
+end
+
+--=========================================================================
+-- region 任务调度核心（协程 + 优先级 + 重试 + 恢复）
+--=========================================================================
+
+--- 任务不能执行但需要保留
+function GameMainUIPushManager:_TaskCantExecuteButNeedKeep(cmd, from)
+    local stateInvalid = cmd.onlyGameStatusExchange and not self._intoMainState
+    local chapInvalid = cmd.linkChapterID and cmd.linkChapterID ~= ChapterListManager:GetRuntimeChapterId()
+    return stateInvalid or chapInvalid
+end
+
+--- 移除无效任务
+function GameMainUIPushManager:_TryRemoveUnvalidTask(idx, cmd, from)
+    while idx > 0 and self:_TaskCantExecuteButNeedKeep(cmd, from) do
+        if cmd.unvaildDiffentLink then
+            table.remove(self._workQueue, idx)
+            idx = #self._workQueue
+        else
+            idx = idx - 1
+        end
+        cmd = self._workQueue[idx]
+    end
+    return idx, cmd
+end
+
+--- 协程工作函数
+function GameMainUIPushManager:_Work(from)
+    local maxTimes = 64
+    local times = 0
+    MapMotion:PauseMapMotion()
+    self:_ExchangeMainHubPeaceState(false)
+
+    while #self._workQueue > 0 and times < maxTimes do
+        times = times + 1
+        local idx = #self._workQueue
+        local cmd = self._workQueue[idx]
+        idx, cmd = self:_TryRemoveUnvalidTask(idx, cmd, from)
+        if idx == 0 then break end
+
+        -- 等待主界面打开
+        while cmd.NeedMainHudOpen and self._uiMainInHideState do
+            coroutine.yield()
+        end
+
+        idx, cmd = self:_TryRemoveUnvalidTask(idx, cmd, from)
+        if idx == 0 then break end
+
+        if #self._workQueue == idx then
+            table.remove(self._workQueue, idx)
+            local allow = not (cmd.Recheck and not cmd:Recheck())
+            if allow then
+                -- 屏蔽主界面点击
+                if cmd.closeUIMainRaycast then
+                    HonorEventHelper:FireNow(EventCmd.OnUIMainRaycastStateChange, false)
+                end
+                -- 执行任务
+                xpcall(function() cmd:Execute() coroutine.yield() end,
+                        function(msg) PrintError(debug.traceback(msg, 3)) end)
+                -- 恢复点击
+                if cmd.closeUIMainRaycast then
+                    HonorEventHelper:FireNow(EventCmd.OnUIMainRaycastStateChange, true)
+                end
+            end
+            if cmd.Complete then cmd:Complete() end
+        end
+    end
+
+    self.Coroutine = nil
+    self._intoMainState = false
+    MapMotion:ResumeMapMotion()
+    self:_ExchangeMainHubPeaceState(true)
+end
+
+--- 恢复协程
+function GameMainUIPushManager:_ResumeCoroutine(from)
+    if not self._uiMainHudIsStart then return end
+    if self.Coroutine and GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
+        coroutine.resume(self.Coroutine)
+        if coroutine.status(self.Coroutine) == "dead" then
+            self.Coroutine = nil
+        end
+    end
+end
+
+--- 尝试运行队列
+function GameMainUIPushManager:_TryRunning(from, noWork)
+    if GameStateMachine:CurrentStateType() ~= GameStateCmd.MainState then return end
+    if not TableIsEmpty(self._sceneEffectWorking) then return end
+    if noWork and self.Coroutine then return end
+
+    if self.Coroutine then
+        if coroutine.status(self.Coroutine) == "suspended" then
+            self:_ResumeCoroutine(from)
+        end
+        return
+    end
+
+    if TableIsEmpty(self._workQueue) then
+        self:_ExchangeMainHubPeaceState(true)
+        return
+    end
+
+    self.Coroutine = coroutine.create(function() self:_Work(from) end)
+    self:_ResumeCoroutine("StartTask")
+end
+
+-- endregion
+
+--=========================================================================
+-- region 任务插入（对外统一入口）
+--=========================================================================
+
+--- 添加任务
+function GameMainUIPushManager:_AddTask(cfg)
+    EasyInsert(self._workQueue, cfg, "SortOrder")
+end
+
+--- 删除任务
+function GameMainUIPushManager:_DeleteTask(cfg)
+    for i, v in ipairs(self._workQueue) do
+        if v == cfg then table.remove(self._workQueue, i) break end
+    end
+end
+
+--- 按UI名删除任务
+function GameMainUIPushManager:DeleteUITaskByName(name)
+    for i = #self._workQueue, 1, -1 do
+        local t = self._workQueue[i]
+        if t.Type == EGameMainUIPushType.UI and t.param.UI == name then
+            table.remove(self._workQueue, i)
+        end
+    end
+end
+
+--- 通用打开UI任务
+function GameMainUIPushManager:InsertUITaskCommon(param)
+    if param.repeatable or not self:_GetUITaskByUIName(param.uiName) then
+        self:_AddTask({
+            Type = EGameMainUIPushType.UI,
+            SortOrder = param.sortOrder,
+            NeedMainHudOpen = param.needMainUIOpen,
+            param = { UI = param.uiName, Params = param.uiParams },
+            linkChapterID = param.linkChapterID,
+            Recheck = param.recheck,
+            onlyGameStatusExchange = param.onlyGameStatusExchange,
+            closeUIMainRaycast = true,
+            Execute = function(cmd)
+                OpenUISync(UIs[cmd.param.UI], cmd.param.Params)
+            end,
+        })
+    end
+    self:_TryRunning(EGameMainUIPUshRunningType.OnInsertUITask, true)
+end
+
+--- 通用自定义任务
+function GameMainUIPushManager:InsertCommonTask(param)
+    self:_AddTask({
+        Type = EGameMainUIPushType.CommonTask,
+        SortOrder = param.sortOrder,
+        NeedMainHudOpen = param.needMainUIOpen,
+        param = { Func = param.taskFunc, Params = param.taskParams },
+        linkChapterID = param.linkChapterID,
+        onlyGameStatusExchange = param.onlyGameStatusExchange,
+        unvaildDiffentLink = param.unvaildDiffentLink,
+        closeUIMainRaycast = true,
+        Execute = function(cmd) cmd.param.Func(cmd.param.Params) end,
+        Complete = param.completeCallback,
+        Recheck = param.recheck,
+    })
+    self:_TryRunning(EGameMainUIPUshRunningType.OnInertNotUITask, true)
+end
+
+-- endregion
+
+--=========================================================================
+-- region 机器升级/到货（业务核心）
+--=========================================================================
+
+--- 插入机器到货任务
+function GameMainUIPushManager:InsertMachineReceiveTask(upgrade, needUI)
+    if TableIsEmpty(upgrade) or #upgrade.receivedMachineIds <= 0 then return end
+    local task = self:_GetTaskByType(EGameMainUIPushType.MachineReceive)
+    if not task then
+        task = {
+            Type = EGameMainUIPushType.MachineReceive,
+            SortOrder = HomeUILayerDataManager:GetOrderById(EGameMainUIPushSortOrder.MachineReceive),
+            NeedMainHudOpen = true,
+            param = {},
+            linkChapterID = upgrade.chapterId,
+            closeUIMainRaycast = true,
+            Execute = function(c) self:_OnMachineReceive(c) end,
+        }
+        self:_AddTask(task)
+    end
+
+    local p = task.param
+    p[upgrade.chapterId] = p[upgrade.chapterId] or {}
+    for _, mid in ipairs(upgrade.receivedMachineIds) do
+        p[upgrade.chapterId][mid] = true
+    end
+
+    if needUI and not self._listenMachineUpgradeReceive:IsExist(upgrade.chapterId) then
+        local has = false
+        for _, t in ipairs(self._workQueue) do
+            if t.Type == EGameMainUIPushType.MachineReceiveUI and t.linkChapterID == upgrade.chapterId then
+                has = true break
+            end
+        end
+        if not has then
+            self:_AddTask({
+                Type = EGameMainUIPushType.MachineReceiveUI,
+                SortOrder = HomeUILayerDataManager:GetOrderById(EGameMainUIPushSortOrder.MachineReceiveUI),
+                NeedMainHudOpen = true,
+                param = {},
+                linkChapterID = upgrade.chapterId,
+                closeUIMainRaycast = true,
+                Execute = function(c) self:_OnMachineReceiveUI(c) end,
+                Recheck = function()
+                    return not GuideContext:IsTutorialExecute()
+                            and #UpgradeMapMgr:GetCurCanReceivedMachineIds(upgrade.chapterId) > 0
+                end
+            })
+        end
+    end
+    self:_TryRunning(EGameMainUIPUshRunningType.OnMachineReceive, true)
+end
+
+--- 插入机器升级UI
+function GameMainUIPushManager:InsertMachineUpgradeUITask(chap)
+    local high = self:_GetTaskByType(EGameMainUIPushType.MachineUpgradeUIFromFail)
+    if not high or high.linkChapterID ~= chap then
+        local t = self:_GetTaskByType(EGameMainUIPushType.MachineUpgradeUI)
+        if not t or t.linkChapterID ~= chap then
+            self:_AddTask({
+                Type = EGameMainUIPushType.MachineUpgradeUI,
+                SortOrder = HomeUILayerDataManager:GetOrderById(EGameMainUIPushSortOrder.MachineUpgradeUI),
+                NeedMainHudOpen = true,
+                param = { chapterId = chap },
+                linkChapterID = chap,
+                unvaildDiffentLink = true,
+                closeUIMainRaycast = true,
+                Execute = function(c) self:_OnMachineUpgradeUI(c, 1) end,
+                Recheck = function() return not GuideContext:IsTutorialExecute() end
+            })
+        end
+    end
+end
+
+--- 从失败界面插入升级UI
+function GameMainUIPushManager:InsertMachineUpgradeUIFromFailTask(chap)
+    local t = self:_GetTaskByType(EGameMainUIPushType.MachineUpgradeUI)
+    if t and t.linkChapterID == chap then self:_DeleteTask(t) end
+
+    local high = self:_GetTaskByType(EGameMainUIPushType.MachineUpgradeUIFromFail)
+    if not high or high.linkChapterID ~= chap then
+        self:_AddTask({
+            Type = EGameMainUIPushType.MachineUpgradeUIFromFail,
+            SortOrder = HomeUILayerDataManager:GetOrderById(EGameMainUIPushSortOrder.MachineUpgradeUIFromFail),
+            NeedMainHudOpen = false,
+            param = { chapterId = chap },
+            linkChapterID = chap,
+            unvaildDiffentLink = true,
+            closeUIMainRaycast = true,
+            Execute = function(c) self:_OnMachineUpgradeUI(c, 2) end,
+            Recheck = function() return not GuideContext:IsTutorialExecute() end
+        })
+    end
+end
+
+-- endregion
+
+--=========================================================================
+-- region 元素收集 & 气泡（动画队列）
+--=========================================================================
+
+--- 尝试插入元素任务
+function GameMainUIPushManager:TryInsertElementTask()
+    if (#self._elementCollectionList == 0 and #self._elementUIBubbleList == 0) then return end
+    if self:SearchTaskBySortID(HomeUILayerDataManager:GetOrderById(EGameMainUIPushSortOrder.ElementCollection)) then
+        return
+    end
+    self:_AddTask({
+        Type = EGameMainUIPushType.ElementCollection,
+        SortOrder = HomeUILayerDataManager:GetOrderById(EGameMainUIPushSortOrder.ElementCollection),
+        NeedMainHudOpen = true,
+        param = {},
+        linkChapterID = ChapterListMgr:GetRuntimeChapterId(),
+        closeUIMainRaycast = true,
+        Execute = function() self:ExecuteElementTask() end,
+    })
+    self:_TryRunning(EGameMainUIPUshRunningType.OnInertNotUITask, true)
+end
+
+--- 执行元素任务
+function GameMainUIPushManager:ExecuteElementTask()
+    self._elementProcessRefCount = 0
+    self:TryAddEleProcessRefCount(self._elementCollectionList)
+    self:TryAddEleProcessRefCount(self._elementUIBubbleList)
+    self:ExecuteElementCollectionTask()
+    self:ExecuteElementUIBubbleTask()
+end
+
+--- 执行收集动画
+function GameMainUIPushManager:ExecuteElementCollectionTask()
+    if #self._elementCollectionList == 0 then return end
+    local seq = DOTween.Sequence()
+    for _, e in ipairs(self._elementCollectionList) do
+        seq:AppendCallback(function()
+            local ok, t = xpcall(function() return e:Execute() end, function(m) PrintError(m) end)
+            DelayFunction(ok and t or 0, true, function()
+                self:ExecuteElementCollectionTaskFinish()
+            end)
+        end)
+        seq:AppendInterval(self._elementCollectionInterval)
+    end
+end
+
+--- 执行气泡动画
+function GameMainUIPushManager:ExecuteElementUIBubbleTask()
+    if #self._elementUIBubbleList == 0 then return end
+    table.sort(self._elementUIBubbleList, function(a,b) return a.Order > b.Order end)
+    HonorCoroutineHelper:Start(function()
+        for _, e in ipairs(self._elementUIBubbleList) do
+            if e.Params.recheck and not e.Params.recheck.func() then goto continue end
+            local t = e:Execute()
+            if t > 0 then HonorCoroutineHelper:WaitForSeconds(t) end
+            if e.Params.completeCallback then e.Params.completeCallback.func() end
+            ::continue::
+        end
+        self:ExecuteElementUIBubbleTaskFinish()
+    end)
+end
+
+-- endregion
+
+--=========================================================================
+-- region 任务执行（真正打开UI）
+--=========================================================================
+
+--- 打开升级UI
+function GameMainUIPushManager:_OnMachineUpgradeUI(cmd, typ)
+    OpenUISync(UIs.UIUpgrade, { chapterId = cmd.param.chapterId, openType = typ })
+end
+
+--- 打开机器到货UI
+function GameMainUIPushManager:_OnMachineReceiveUI(cmd)
+    UpgradeMapMgr:OpenUpgradeRewardUI()
+end
+
+--- 播放机器升级动效
+function GameMainUIPushManager:_OnMachineReceive(cmd)
+    local c = ChapterListMgr:GetRuntimeChapterId()
+    if cmd.param[c] then
+        self:_ShowMachineUpgradeEffect({ chapterId = c, receivedMachineIds = table.keys(cmd.param[c]) })
+        cmd.param[c] = nil
+    end
+end
+
+-- endregion
+
+return GameMainUIPushManager

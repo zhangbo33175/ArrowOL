@@ -1,37 +1,40 @@
 --=====================================================================================================
--- descrip:   游戏业务状态机
+-- descrip:   游戏业务状态机（总调度）
+--            职责：注册、管理、切换所有游戏状态（登录/加载地图/主界面/战斗/选关/返回预加载）
 --=====================================================================================================
 
----@class GameStateMachine @游戏业务状态机
+---@class GameStateMachine @游戏业务状态机（全局唯一）
 local GameStateMachine = class('GameStateMachine')
 
 ---构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function GameStateMachine:ctor(args)
-    self._stateMap = {}         ---状态表
-    self._currentState = nil    ---@type GameStateBase ---目前状态 
-    self._preState = nil        ---@type GameStateBase ---前一个状态
+    self._stateMap = {}         ---@type table<GameStateCmd, GameStateBase> @所有已注册的状态表
+    self._currentState = nil    ---@type GameStateBase @当前正在运行的状态
+    self._preState = nil        ---@type GameStateBase @上一个运行的状态
 
-    self._stateMap[GameStateCmd.LoginState] = require("GameLoginState"):Create(GameStateCmd.LoginState)
-    self._stateMap[GameStateCmd.LoadMapState] = require("GameLoadMapState"):Create(GameStateCmd.LoadMapState)
-    self._stateMap[GameStateCmd.MainState] = require("GameMainState"):Create(GameStateCmd.MainState)
-    self._stateMap[GameStateCmd.PlayingState] = require("GamePlayingState"):Create(GameStateCmd.PlayingState)
+    -- 注册所有游戏状态
+    self._stateMap[GameStateCmd.LoginState]         = require("GameLoginState"):Create(GameStateCmd.LoginState)
+    self._stateMap[GameStateCmd.LoadMapState]       = require("GameLoadMapState"):Create(GameStateCmd.LoadMapState)
+    self._stateMap[GameStateCmd.MainState]          = require("GameMainState"):Create(GameStateCmd.MainState)
+    self._stateMap[GameStateCmd.PlayingState]       = require("GamePlayingState"):Create(GameStateCmd.PlayingState)
     self._stateMap[GameStateCmd.TurnToPreloadState] = require("GameTurnToProLoadState"):Create(GameStateCmd.TurnToPreloadState)
+    self._stateMap[GameStateCmd.ChooseLevel]        = require("ChooseLevelState"):Create(GameStateCmd.ChooseLevel)
 end
 
----创建函数
+---创建单例实例
 ---@type fun(args:table):GameStateMachine
 ---@param args table @自定义参数
----@return GameStateMachine @GameStateMachine实例
+---@return GameStateMachine @状态机实例
 function GameStateMachine:Create(args)
     local obj = GameStateMachine.new(args)
     return obj
 end
 
----获取目前状态机类型
+---获取当前状态类型
 ---@type fun():GameStateCmd
----@return GameStateCmd @游戏状态类型
+---@return GameStateCmd @当前状态枚举
 function GameStateMachine:CurrentStateType()
     if self._currentState then
         return self._currentState:GetStateType()
@@ -39,9 +42,9 @@ function GameStateMachine:CurrentStateType()
     return nil
 end
 
----获取前一个状态机类型
+---获取上一个状态类型
 ---@type fun():GameStateCmd
----@return GameStateCmd @游戏状态类型
+---@return GameStateCmd @上一个状态枚举
 function GameStateMachine:PreStateType()
     if self._preState then
         return self._preState:GetStateType()
@@ -49,15 +52,15 @@ function GameStateMachine:PreStateType()
     return nil
 end
 
----切换状态
----@type fun(nextGameState:GameStateCmd):void
----@param nextStateCmd GameStateCmd @枚举
----@param finishCallback function @回调
+---切换游戏状态（外部调用唯一入口）
+---@type fun(nextStateCmd:GameStateCmd, finishCallback:function):void
+---@param nextStateCmd GameStateCmd @要切换的目标状态
+---@param finishCallback function @切换完成回调
 function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
     PrintInfo("currentState [{0}] ChangeState to ---> [{1}]", tostring(self:CurrentStateType()), tostring(nextStateCmd))
 
+    -- 1. 如果已经是目标状态，直接返回
     if nextStateCmd == self:CurrentStateType() then
-        ---游戏状态已经是需要切换的状态
         PrintWarning("游戏状态已经是 [{0}]", tostring(nextStateCmd))
         if finishCallback then
             xpcall(finishCallback, __G__TRACK_BACK__)
@@ -65,9 +68,9 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
         return
     end
 
+    -- 2. 获取目标状态
     local nextState = self._stateMap[nextStateCmd]
     if not nextState then
-        ---没有找到需要切换的状态机
         PrintError("游戏状态没有注册 [{0}]  -- 切换状态失败", tostring(nextStateCmd))
         if finishCallback then
             xpcall(finishCallback, __G__TRACK_BACK__)
@@ -75,6 +78,7 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
         return
     end
 
+    -- 3. 退出当前状态 → 进入新状态
     if self._currentState then
         self._currentState:OnStateExit(function()
             self:DoPreStateExitAfter(self._currentState, nextState, finishCallback)
@@ -84,10 +88,10 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
     end
 end
 
----处理前状态退出之后的工作
----@param currentState GameStateBase @目前状态
----@param nextState GameStateBase @下一个状态
----@param finishCallback function @回调
+---前状态退出完成后，执行进入新状态
+---@param currentState GameStateBase @当前要退出的状态
+---@param nextState GameStateBase @要进入的新状态
+---@param finishCallback function @完成回调
 function GameStateMachine:DoPreStateExitAfter(currentState, nextState, finishCallback)
     Try(function()
         self._preState = currentState
@@ -96,7 +100,7 @@ function GameStateMachine:DoPreStateExitAfter(currentState, nextState, finishCal
     end)
 end
 
----更新
+---状态机帧更新（驱动当前状态Update）
 function GameStateMachine:OnUpdate()
     if self._currentState ~= nil then
         self._currentState:OnUpdate()
@@ -104,4 +108,3 @@ function GameStateMachine:OnUpdate()
 end
 
 return GameStateMachine
-

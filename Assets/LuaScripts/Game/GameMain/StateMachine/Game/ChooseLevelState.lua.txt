@@ -1,0 +1,43 @@
+--=====================================================================================================
+-- descrip:   关卡选择状态
+--            职责：管理关卡选择界面，打开/关闭关卡列表UI
+--=====================================================================================================
+
+---@class ChooseLevelState : GameStateBase @关卡选择状态
+local ChooseLevelState = class('ChooseLevelState', import('GameStateBase'))
+
+---构造函数
+---@type fun(stateType:GameStateCmd):void
+---@param stateType GameStateCmd @状态类型
+function ChooseLevelState:ctor(stateType)
+    ChooseLevelState.super.ctor(self, stateType)
+end
+
+---创建状态实例
+---@type fun(stateType:GameStateCmd):ChooseLevelState
+---@param stateType GameStateCmd @状态类型
+---@return ChooseLevelState @关卡选择状态实例
+function ChooseLevelState:Create(stateType)
+    local obj = ChooseLevelState.new(stateType)
+    return obj
+end
+
+---进入关卡选择状态（打开关卡界面）
+---@type fun(finishCallback:function):void
+---@param finishCallback function @状态进入完成回调
+function ChooseLevelState:OnStateEnter(finishCallback)
+    -- 打开关卡选择UI
+    OpenUISync(UIs.UILevelView)
+    pcall(finishCallback)
+end
+
+---离开关卡选择状态（关闭关卡界面）
+---@type fun(finishCallback:function):void
+---@param finishCallback function @状态退出完成回调
+function ChooseLevelState:OnStateExit(finishCallback)
+    -- 关闭关卡选择UI
+    CloseUI(UIs.UILevelView)
+    pcall(finishCallback)
+end
+
+return ChooseLevelState

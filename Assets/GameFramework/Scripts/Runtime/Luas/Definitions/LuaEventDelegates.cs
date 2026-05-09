@@ -12,79 +12,83 @@ using XLua;
 namespace Honor.Runtime
 {
     /// <summary>
-    /// Lua创建LuaBahaviour到Lua层的面向对象Class全局事件派发
-    /// C#回调到Lua
+    /// 【C# → Lua】创建 LuaBehaviour 面向对象类
     /// </summary>
-    /// <param name="env">xlua提供的lua环境</param>
-    /// <param name="luaScriptName">luaClass的类名称</param>
-    /// <returns></returns>
+    /// <param name="env">Lua 环境</param>
+    /// <param name="luaScriptName">脚本名</param>
+    /// <returns>Lua 类实例</returns>
+    [CSharpCallLua]
     public delegate LuaTable LuaCreateLuaClassFromCSEventDelegate(LuaTable env, string luaScriptName);
 
     /// <summary>
-    /// Lua层本地化语言表数据关联回调全局事件派发
+    /// 【C# → Lua】关联本地化语言表数据
     /// </summary>
+    [CSharpCallLua]
     public delegate void LuaRelateLocalizationTableDataFromCSEventDelegate();
 
     /// <summary>
-    /// Lua创建Lua层的Procedure面向对象Class全局事件派发
-    /// C#回调到Lua
+    /// 【C# → Lua】创建流程（Procedure）Lua 类
     /// </summary>
-    /// <param name="env">xlua提供的lua环境</param>
-    /// <param name="luaScriptName">luaClass的类名称</param>
-    /// <returns></returns>
+    /// <param name="env">Lua 环境</param>
+    /// <param name="luaScriptName">脚本名</param>
+    /// <returns>Lua 类实例</returns>
+    [CSharpCallLua]
     public delegate LuaTable LuaCreateProcedureLuaClassFromCSEventDelegate(LuaTable env, string luaScriptName);
 
     /// <summary>
-    /// Lua层ApplicationPause回调全局事件派发
-    /// C#回调到Lua
+    /// 【C# → Lua】应用暂停/唤醒
     /// </summary>
     /// <param name="pause">是否暂停</param>
+    [CSharpCallLua]
     public delegate void LuaApplicationPauseFromCSEventDelegate(bool pause);
 
     /// <summary>
-    /// Lua层ApplicationQuit回调全局事件派发
-    /// C#回调到Lua
+    /// 【C# → Lua】应用退出
     /// </summary>
+    [CSharpCallLua]
     public delegate void LuaApplicationQuitFromCSEventDelegate();
 
     /// <summary>
-    /// Lua层原生按键弹起回调全局事件派发
-    /// C#回调到Lua
+    /// 【C# → Lua】键盘按键抬起
     /// </summary>
-    /// <param name="keyCode">按键编号</param>
+    /// <param name="keyCode">按键</param>
+    [CSharpCallLua]
     public delegate void LuaKeysUpFromCSEventDelegate(KeyCode keyCode);
 
-   
     /// <summary>
-    /// Lua层Apple登陆失败回调全局事件派发
-    /// C#回调到Lua
+    /// 【C# → Lua】Apple 登录结果回调
     /// </summary>
-    /// <param name="resultTable">结果数据</param>
+    /// <param name="resultTable">结果表</param>
+    [CSharpCallLua]
     public delegate void LuaSignInWithAppleCSEventDelegate(LuaTable resultTable);
 
     /// <summary>
-    /// Lua层Apple登陆状态查询全局事件派发
-    /// C#回调到Lua
+    /// 【C# → Lua】Apple 登录状态查询
     /// </summary>
-    /// <param name="statueTable">状态数据</param>
-    public delegate void LuaSignInWithAppleStateCSEventDelegate(LuaTable statueTable);
+    /// <param name="stateTable">状态表</param>
+    [CSharpCallLua]
+    public delegate void LuaSignInWithAppleStateCSEventDelegate(LuaTable stateTable);
 
     /// <summary>
-    /// Lua层接收C#事件回调全局派发
+    /// 【C# → Lua】接收 C# 事件派发
     /// </summary>
-    /// <param name="eventArgs">C#事件参数</param>
+    /// <param name="eventArgs">事件参数</param>
+    [CSharpCallLua]
     public delegate void LuaReceiveEventCSEventDelegate(EventParams eventArgs);
- 
+
     /// <summary>
-    /// c#获取lua层的ResDefInfo事件全局派发
+    /// 【C# → Lua】获取资源定义信息
     /// </summary>
+    /// <param name="name">资源名称</param>
+    /// <returns>配置表</returns>
+    [CSharpCallLua]
     public delegate LuaTable LuaGetResDefInfoEventDelegate(string name);
 
     /// <summary>
-    /// Lua层Localizing-UI本地化全局事件派发
+    /// 【C# → Lua】UI 本地化文本获取
     /// </summary>
-    /// <param name="localizingKeyName">本地化Key字段名称</param>
-    /// <returns></returns>
+    /// <param name="localizingKeyName">Key</param>
+    /// <returns>本地化文本</returns>
+    [CSharpCallLua]
     public delegate string LuaLocalizingCSEventDelegate(string localizingKeyName);
-
 }

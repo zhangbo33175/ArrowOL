@@ -5,34 +5,30 @@ namespace Honor.Runtime
     public sealed partial class LocalizationManager
     {
         /// <summary>
-        /// Launcher组件
+        /// 框架启动组件
         /// </summary>
         private LauncherComponent m_LauncherComponent;
 
         /// <summary>
-        /// Asset组件
+        /// 资源加载组件
         /// </summary>
         private AssetComponent m_AssetComponent;
 
         /// <summary>
-        /// 默认支持语种类型集合
-        /// <语种类型>
+        /// 支持的语言列表
         /// </summary>
         private readonly List<GameDefinitions.Language> m_DefaultLanguages;
 
         /// <summary>
-        /// 默认数据集合
-        /// <语种类型,<字段名称, 文本内容>>
+        /// 多语言文本数据
+        /// 结构：语言类型 → (Key → 文本内容)
         /// </summary>
         private readonly Dictionary<GameDefinitions.Language, Dictionary<string, string>> m_DefaultDatas;
 
         /// <summary>
-        /// 字体配置数据集合
-        /// <语种类型, 字体数据集合>
+        /// 多语言字体配置
+        /// 结构：语言类型 → 字体数据列表
         /// </summary>
         private readonly Dictionary<GameDefinitions.Language, List<LocalizationFontData>> m_FontDatas;
     }
-
 }
-
-

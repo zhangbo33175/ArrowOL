@@ -3,8 +3,7 @@ namespace Honor.Runtime
     public sealed partial class PersistComponent : GameComponent
     {
         /// <summary>
-        /// 文件片段存储管理器
-        /// WebGL网页专用版
+        /// WebGL 专用文件片段存储管理器
         /// </summary>
         private FileFragmentForWebGLManager m_FileFragmentForWebGLManager = null;
         public FileFragmentForWebGLManager FileFragmentForWebGLManager
@@ -15,6 +14,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 常规平台文件片段存储管理器
+        /// </summary>
         private FileFragmentManager m_FileFragmentManager = null;
         public FileFragmentManager FileFragmentManager
         {
@@ -25,7 +27,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// PlayerPrefs存储管理器
+        /// PlayerPrefs 存储管理器
         /// </summary>
         private PlayerPrefsManager m_PlayerPrefsManager = null;
         public PlayerPrefsManager PlayerPrefsManager
@@ -37,8 +39,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取条目数量。
+        /// 获取指定分类下的存储条目数量
         /// </summary>
+        /// <param name="wayType">存储方式</param>
+        /// <param name="classifyName">分类名称</param>
+        /// <returns>条目数量</returns>
         public int Count(PersistWayType wayType, string classifyName)
         {
             if (wayType == PersistWayType.FileFragment)
@@ -56,7 +61,4 @@ namespace Honor.Runtime
             return 0;
         }
     }
-
 }
-
-

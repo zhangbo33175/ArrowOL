@@ -1,95 +1,96 @@
 --=====================================================================================================
--- descrip:   全局框架变量
+-- descrip:   全局框架变量（Lua 访问 C# 桥接全量定义）
+--              作用：统一封装 C# 命名空间、插件、枚举、全局常量，方便 Lua 层调用
 --=====================================================================================================
 
----@type UnityEngine @CS层框架UnityEngine名字空间
+---@type UnityEngine @CS层：Unity引擎核心命名空间
 Unity = CS.UnityEngine
 
----@type UnityEngine.UI @CS层框架UnityEngine.UI名字空间
-UnityUI = CS.UnityEngine.UI
+---@type UnityEngine.UI @CS层：Unity UI系统命名空间
+UnityUI = Unity.UI
 
----@type Spine.Unity @CS层框架Spine.Unity名字空间
+---@type Spine.Unity @CS层：Spine动画插件命名空间
 Spine = CS.Spine.Unity
 
----@type HedgehogTeam.EasyTouch @CS层EasyTouch名字空间
+---@type HedgehogTeam.EasyTouch @CS层：EasyTouch触摸插件命名空间
 Easy = CS.HedgehogTeam.EasyTouch
 
----@type HedgehogTeam.EasyTouch.EasyTouch @CS层EasyTouch插件的EasyTouch类
+---@type HedgehogTeam.EasyTouch.EasyTouch @CS层：EasyTouch核心类
 EasyTouch = Easy.EasyTouch
 
----@type DG.Tweening @CS层DOTween插件的名字空间
+---@type DG.Tweening @CS层：DOTween动画插件命名空间
 DGTweening = CS.DG.Tweening
 
----@type DG.Tweening.DOTween @CS层DOTween插件的DOTWeen类
+---@type DG.Tweening.DOTween @CS层：DOTween动画核心类
 DOTween = DGTweening.DOTween
 
----CS层DOTween插件的LoopType枚举
+---CS层：DOTween循环类型枚举
 LoopType = DGTweening.LoopType
 
----@type BehaviorDesigner.Runtime @CS层行为树插件的名字空间
+---@type BehaviorDesigner.Runtime @CS层：行为树插件命名空间
 BT = CS.BehaviorDesigner.Runtime
 
----@type Honor.Runtime @CS层框架名称
+---@type Honor.Runtime @CS层：项目自研框架核心命名空间
 Honor = CS.Honor.Runtime
 
----@type CS.GameLib @CS层框架名称
+---@type CS.GameLib @CS层：游戏工具库命名空间
 GameLib = CS.GameLib
 
----@type Honor.Runtime @CS层框架根GameMainRoot组件
+---@type Honor.Runtime @CS层：游戏框架根节点（全局唯一入口）
 GameMainRoot = Honor.GameMainRoot
 
----@type IAPWrapper @CS层框架根IAP封装命名空间
+---@type IAPWrapper @CS层：内购支付封装模块
 IAPWrapper = CS.IAPWrapper
 
----@type string @CS层框架当前构建平台名称："Android"、"iOS" or "WebGL"
+---@type string @当前构建平台名称：Android / iOS / WebGL
 BuildPlatformName = GameMainRoot.Config:GetCurBuildPlatformName()
 
----@type boolean @CS层是否为Windows编辑器环境
+---@type boolean @是否运行在 Windows 编辑器
 IsWindowEditor = Unity.Application.platform == Unity.RuntimePlatform.WindowsEditor
 
----@type boolean @CS层是否为Mac编辑器环境
+---@type boolean @是否运行在 Mac 编辑器
 IsMacEditor = Unity.Application.platform == Unity.RuntimePlatform.OSXEditor
 
----@type boolean @CS层是否为编辑器环境
+---@type boolean @是否运行在 Unity 编辑器环境
 IsEditor = IsWindowEditor or IsMacEditor
 
----@class Ease @CS层DOTween插件的Ease枚举
----@field Unset number @DGTweening.Ease.Unset
----@field Linear number @DGTweening.Ease.Linear
----@field InSine number @DGTweening.Ease.InSine
----@field OutSine number @DGTweening.Ease.OutSine
----@field InOutSine number @DGTweening.Ease.InOutSine
----@field InQuad number @DGTweening.Ease.InQuad
----@field OutQuad number @DGTweening.Ease.OutQuad
----@field InOutQuad number @DGTweening.Ease.InOutQuad
----@field InCubic number @DGTweening.Ease.InCubic
----@field OutCubic number @DGTweening.Ease.OutCubic
----@field InOutCubic number @DGTweening.Ease.InOutCubic
----@field InQuart number @DGTweening.Ease.InQuart
----@field OutQuart number @DGTweening.Ease.OutQuart
----@field InOutQuart number @DGTweening.Ease.InOutQuart
----@field InQuint number @DGTweening.Ease.InQuint
----@field OutQuint number @DGTweening.Ease.OutQuint
----@field InOutQuint number @DGTweening.Ease.InOutQuint
----@field InExpo number @DGTweening.Ease.InExpo
----@field OutExpo number @DGTweening.Ease.OutExpo
----@field InOutExpo number @DGTweening.Ease.InOutExpo
----@field InCirc number @DGTweening.Ease.InCirc
----@field OutCirc number @DGTweening.Ease.OutCirc
----@field InOutCirc number @DGTweening.Ease.InOutCirc
----@field InElastic number @DGTweening.Ease.InElastic
----@field OutElastic number @DGTweening.Ease.OutElastic
----@field InOutElastic number @DGTweening.Ease.InOutElastic
----@field InBack number @DGTweening.Ease.InBack
----@field OutBack number @DGTweening.Ease.OutBack
----@field InOutBack number @DGTweening.Ease.InOutBack
----@field InBounce number @DGTweening.Ease.InBounce
----@field OutBounce number @DGTweening.Ease.OutBounce
----@field InOutBounce number @DGTweening.Ease.InOutBounce
----@field Flash number @DGTweening.Ease.Flash
----@field InFlash number @DGTweening.Ease.InFlash
----@field OutFlash number @DGTweening.Ease.OutFlash
----@field InOutFlash number @DGTweening.Ease.InOutFlash
+---@class Ease @DOTween 动画缓动曲线枚举（Lua 层简化别名）
+---@field Unset number @未设置
+---@field Linear number @线性
+---@field InSine number @正弦缓动-入
+---@field OutSine number @正弦缓动-出
+---@field InOutSine number @正弦缓动-入出
+---@field InQuad number @二次方缓动-入
+---@field OutQuad number @二次方缓动-出
+---@field InOutQuad number @二次方缓动-入出
+---@field InCubic number @三次方缓动-入
+---@field OutCubic number @三次方缓动-出
+---@field InOutCubic number @三次方缓动-入出
+---@field InQuart number @四次方缓动-入
+---@field OutQuart number @四次方缓动-出
+---@field InOutQuart number @四次方缓动-入出
+---@field InQuint number @五次方缓动-入
+---@field OutQuint number @五次方缓动-出
+---@field InOutQuint number @五次方缓动-入出
+---@field InExpo number @指数缓动-入
+---@field OutExpo number @指数缓动-出
+---@field InOutExpo number @指数缓动-入出
+---@field InCirc number @圆形缓动-入
+---@field OutCirc number @圆形缓动-出
+---@field InOutCirc number @圆形缓动-入出
+---@field InElastic number @弹性缓动-入
+---@field OutElastic number @弹性缓动-出
+---@field InOutElastic number @弹性缓动-入出
+---@field InBack number @回退缓动-入
+---@field OutBack number @回退缓动-出
+---@field InOutBack number @回退缓动-入出
+---@field InBounce number @弹跳缓动-入
+---@field OutBounce number @弹跳缓动-出
+---@field InOutBounce number @弹跳缓动-入出
+---@field Flash number @闪烁
+---@field InFlash number @闪烁-入
+---@field OutFlash number @闪烁-出
+---@field InOutFlash number @闪烁-入出
 Ease = {
     Unset = DGTweening.Ease.Unset,
     Linear = DGTweening.Ease.Linear,
@@ -129,36 +130,36 @@ Ease = {
     InOutFlash = DGTweening.Ease.InOutFlash,
 }
 
----@type table @Honor框架Lua层Tween类型
+---@type table @Lua层UI动画类型定义（框架内置动画）
 HonorTweenType = {
     None = "None",
-    PrefabUIBottomMaskLayerOpenAnimation = "PrefabUIBottomMaskLayerOpenAnimation",
-    PrefabUIBottomMaskLayerCloseAnimation = "PrefabUIBottomMaskLayerCloseAnimation",
-    PrefabUIAlphaOpenAnimation = "PrefabUIAlphaOpenAnimation",
-    PrefabUIAlphaCloseAnimation = "PrefabUIAlphaCloseAnimation",
-    PrefabRootOpenAnimation = "PrefabRootOpenAnimation",
-    PrefabRootCloseAnimation = "PrefabRootCloseAnimation",
+    PrefabUIBottomMaskLayerOpenAnimation = "PrefabUIBottomMaskLayerOpenAnimation", -- 底部遮罩打开
+    PrefabUIBottomMaskLayerCloseAnimation = "PrefabUIBottomMaskLayerCloseAnimation", -- 底部遮罩关闭
+    PrefabUIAlphaOpenAnimation = "PrefabUIAlphaOpenAnimation", -- 透明度打开
+    PrefabUIAlphaCloseAnimation = "PrefabUIAlphaCloseAnimation", -- 透明度关闭
+    PrefabRootOpenAnimation = "PrefabRootOpenAnimation", -- 根节点打开
+    PrefabRootCloseAnimation = "PrefabRootCloseAnimation", -- 根节点关闭
 }
 
----@type string @MVVM中绑定数据操作类型
+---@type string @MVVM数据绑定操作类型（数据变更事件）
 BindValueOperate = {
     None = "None",
-    ValueChanged = "ValueChanged",
-    ValueItemChanged = "ValueItemChanged",
-    ValueItemAdded = "ValueItemAdded",
-    ValueItemInserted = "ValueItemInserted",
-    ValueItemRemoved = "ValueItemRemoved",
-    ValueItemsAllRemoved = "ValueItemsAllRemoved",
+    ValueChanged = "ValueChanged", -- 值整体变更
+    ValueItemChanged = "ValueItemChanged", -- 子项变更
+    ValueItemAdded = "ValueItemAdded", -- 子项添加
+    ValueItemInserted = "ValueItemInserted", -- 子项插入
+    ValueItemRemoved = "ValueItemRemoved", -- 子项移除
+    ValueItemsAllRemoved = "ValueItemsAllRemoved", -- 全部清空
 }
 
----@class FwEventCmd @框架事件CMD定义
----@field ChangeProcedure string @切换流程
----@field AcrossDayUTC0 string @跨天事件（UTC0时区）
----@field AcrossDayLocal string @跨天事件（本地时区）
----@field AcrossDayPST string @跨天事件（PST时区）
----@field ScreenOrientationChanged string @屏幕方向发生变动
----@field UIViewOpen string @ui打开
----@field UIViewClose string @ui关闭
+---@class FwEventCmd @框架全局事件定义（全局消息CMD）
+---@field ChangeProcedure string @切换流程/场景
+---@field AcrossDayUTC0 string @UTC0时区跨天
+---@field AcrossDayLocal string @本地时区跨天
+---@field AcrossDayPST string @PST时区跨天
+---@field ScreenOrientationChanged string @屏幕方向旋转
+---@field UIViewOpen string @UI界面打开
+---@field UIViewClose string @UI界面关闭
 FwEventCmd = {
     ChangeProcedure = "ChangeProcedure",
     AcrossDayUTC0 = "AcrossDayUTC0",

@@ -5,10 +5,14 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 本地化管理器（核心逻辑层）
+    /// 负责多语言文本加载、语言配置管理、字体配置管理、JSON解析
+    /// </summary>
     public sealed partial class LocalizationManager
     {
         /// <summary>
-        /// 构造函数
+        /// 构造函数：初始化组件与数据容器
         /// </summary>
         public LocalizationManager()
         {
@@ -32,31 +36,32 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 加载默认支持语种类型集合
+        /// 从 JSON 加载支持的语言列表
         /// </summary>
         public void LoadDefaultLanguages()
         {
             TextAsset languagesJsonAsset = (TextAsset)m_AssetComponent.LoadAssetSync("JsonAsset", GamePathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationDefaultLanguages");
             JArray jArray = JArray.Parse(languagesJsonAsset.text);
+            
             foreach (var name in jArray)
             {
-                m_DefaultLanguages.Add((GameDefinitions.Language)System.Enum.Parse(typeof(GameDefinitions.Language), name.ToString()));
+                m_DefaultLanguages.Add((GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), name.ToString()));
             }
+            
             m_AssetComponent.UnloadAsset(languagesJsonAsset, null, true);
         }
 
         /// <summary>
-        /// 检查是否支持指定的默认语种类型
+        /// 检查是否支持指定语言
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <returns>是否支持指定的默认语种类型</returns>
+        /// <param name="language">目标语言</param>
         public bool HasDefaultLanguage(GameDefinitions.Language language)
         {
             return m_DefaultLanguages.Contains(language);
         }
 
         /// <summary>
-        /// 移除所有默认支持语种类型集合
+        /// 清空支持的语言列表
         /// </summary>
         public void RemoveAllDefaultLanguages()
         {
@@ -64,11 +69,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 加载默认数据
+        /// 加载指定语言的本地化文本数据
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset资源名称</param>
+        /// <param name="language">语言</param>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
         public void LoadDefaultDatas(GameDefinitions.Language language, string abPath, string assetName)
         {
             TextAsset configJsonAsset = (TextAsset)m_AssetComponent.LoadAssetSync("JsonAsset", abPath, assetName);
@@ -82,24 +87,17 @@ namespace Honor.Runtime
             m_AssetComponent.UnloadAsset(configJsonAsset, null, true);
         }
 
-
         /// <summary>
-        /// 检查是否存在指定的默认数据
+        /// 检查是否存在指定本地化 Key
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <param name="keyName">字段名称</param>
-        /// <returns>是否存在指定的默认数据</returns>
         public bool HasDefaultData(GameDefinitions.Language language, string keyName)
         {
             return GetDefaultData(language, keyName) != null;
         }
 
         /// <summary>
-        /// 添加指定的默认数据
+        /// 添加一条本地化文本
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <param name="keyName">字段名称</param>
-        /// <param name="content">数据内容</param>
         public void AddDefaultData(GameDefinitions.Language language, string keyName, string content)
         {
             string data = GetDefaultData(language, keyName);
@@ -114,11 +112,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定的默认数据
+        /// 移除一条本地化文本
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <param name="keyName">字段名称</param>
-        /// <returns>是否成功移除指定的默认数据</returns>
         public bool RemoveDefaultData(GameDefinitions.Language language, string keyName)
         {
             if (!HasDefaultData(language, keyName))
@@ -130,7 +125,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除所有默认数据
+        /// 清空所有语言的本地化数据
         /// </summary>
         public void RemoveAllDefaultDatas()
         {
@@ -138,9 +133,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 移除指定语种的所有默认数据
+        /// 清空指定语言的本地化数据
         /// </summary>
-        /// <param name="language">语种类型</param>
         public void RemoveAllDefaultDatas(GameDefinitions.Language language)
         {
             if (m_DefaultDatas.ContainsKey(language))
@@ -150,12 +144,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定语种的字段内容（默认）
-        /// 数据来源于json的多语言配置文件
+        /// 获取本地化文本（核心接口）
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <param name="keyName">字段名称</param>
-        /// <returns></returns>
+        /// <param name="language">语言</param>
+        /// <param name="keyName">文本 Key</param>
+        /// <returns>本地化文本内容</returns>
         public string GetDefaultData(GameDefinitions.Language language, string keyName)
         {
             if (language == GameDefinitions.Language.Unspecified)
@@ -169,31 +162,27 @@ namespace Honor.Runtime
             }
 
             string content = null;
-
             Dictionary<string, string> languageContents = null;
             m_DefaultDatas.TryGetValue(language, out languageContents);
-            if (languageContents != null)
-            {
-                languageContents.TryGetValue(keyName, out content);
-            }
+            languageContents?.TryGetValue(keyName, out content);
 
             return content;
         }
 
         /// <summary>
-        /// 加载字体配置数据
+        /// 从 JSON 加载多语言字体配置
         /// </summary>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset资源名称</param>
         public void LoadFontDatas(string abPath, string assetName)
         {
             TextAsset configJsonAsset = (TextAsset)m_AssetComponent.LoadAssetSync("JsonAsset", abPath, assetName);
             JObject jObject = JObject.Parse(configJsonAsset.text);
+            
             foreach (var item in jObject)
             {
                 GameDefinitions.Language language = (GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), item.Key);
                 string fontType = item.Value["FontType"].ToString();
                 int index = 0;
+                
                 while (item.Value[$"Mark{index}"] != null && !string.IsNullOrEmpty(item.Value[$"Mark{index}"].ToString()))
                 {
                     string itemMark = item.Value[$"Mark{index}"].ToString();
@@ -201,6 +190,7 @@ namespace Honor.Runtime
                     string itemAssetName = item.Value[$"AssetName{index}"].ToString();
                     string itemCustomMaterialName = item.Value[$"CustomMaterialName{index}"].ToString();
                     float itemFontSizeScaleRatio = float.Parse(item.Value[$"FontSizeScaleRatio{index}"].ToString());
+                    
                     LocalizationFontData fontData = new LocalizationFontData(fontType, itemMark, itemABPath, itemAssetName, itemCustomMaterialName, itemFontSizeScaleRatio);
                     AddFontData(language, fontData);
                     index++;
@@ -211,32 +201,31 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 添加指定的字体配置数据
+        /// 添加语言对应的字体数据（自动去重）
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <param name="fontData">字体数据</param
         public void AddFontData(GameDefinitions.Language language, LocalizationFontData fontData)
         {
             GetFontDatas(language, out List<LocalizationFontData> tmpfontDatas);
-            if(tmpfontDatas != null)
+            
+            if (tmpfontDatas != null)
             {
                 foreach (var data in tmpfontDatas)
                 {
                     if (data.Equals(fontData))
-                    {
                         return;
-                    }
                 }
             }
+
             if (!m_FontDatas.ContainsKey(language))
             {
                 m_FontDatas.Add(language, new List<LocalizationFontData>());
             }
+            
             m_FontDatas[language].Add(fontData);
         }
 
         /// <summary>
-        /// 移除所有字体配置数据
+        /// 清空所有字体配置
         /// </summary>
         public void RemoveAllFontDatas()
         {
@@ -244,23 +233,18 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定语种的字体配置数据
-        /// 数据来源于json的多语言配置文件
+        /// 获取指定语言的字体列表
         /// </summary>
-        /// <param name="language">语种类型</param>
-        /// <param name="fontDatas">字体数据集合</param>
-        /// <returns></returns>
+        /// <param name="language">语言</param>
+        /// <param name="fontDatas">输出字体列表</param>
         public void GetFontDatas(GameDefinitions.Language language, out List<LocalizationFontData> fontDatas)
         {
             if (language == GameDefinitions.Language.Unspecified)
             {
                 throw new GameException("language 无效。");
             }
+            
             m_FontDatas.TryGetValue(language, out fontDatas);
         }
-
     }
-
 }
-
-

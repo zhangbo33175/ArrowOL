@@ -1,168 +1,164 @@
 --=====================================================================================================
--- descrip:   游戏逻辑全局自定义包含
+-- descrip:   游戏逻辑全局自定义包含文件（总入口）
+--              所有核心模块、管理器、工具类在此统一加载并创建单例
 --=====================================================================================================
 
+-- 游戏状态命令定义
 require("GameStateCmd")
 
----单例管理器
+--- 单例管理器（基础核心）
 SingletonManager = require("SingletonManager"):Create()
 
----登录管理器
+--- 登录管理器
 LoginManager = require("LoginManager"):Create()
 
----心跳管理器
---HearBeatMgr = require("HearBeatMgr"):Create()
+--- 关卡界面管理器
+LevelManager = require("LevelManager"):Create()
 
----存档数据结构声明
+--- 存档数据结构声明
 PbRootData = require("PbRootData")
 
----数据中心全局结构声明
+--- 数据中心（全局唯一数据结构）
 DataCenter = require("DataCenter"):Create()
 
----游戏状态机
+--- 游戏状态机
 GameStateMachine = require("GameStateMachine"):Create()
 
----GM帮助类
---GMHelper = require("GMHelper"):Create()
----常量数据管理器
+--- 常量数据管理器
 ConstantsDataManager = require("ConstantsDataManager"):Create()
 
----游戏数据管理器
+--- 游戏数据管理器（玩家核心数据）
 GamerDataManager = require("GamerDataManager"):Create()
 
----游戏中的对象池
+--- 对象池管理器
 PoolManager = require("PoolManager"):Create()
 
----活动数据管理器
+--- 活动数据管理器
 EventDataManager = require('EventDataManager'):Create()
 
----本地活动数据管理器
+--- 本地活动数据管理器
 LocalEventDataManager = require('LocalEventDataManager'):Create()
 
----本地活动管理器
+--- 本地活动管理器
 LocalActivityManager = require('LocalActivityManager'):Create()
 
----创建Cut执行器
+--- 剧情 Cut 执行器（注释）
 --CutConfigExecute = require('CutConfigExecute'):Create()
 
----播放Cut
+--- 剧情播放管理器（注释）
 --CutPlayMgr = require('CutPlayMgr'):Create()
 
----管理自治体
+--- 自治体管理器（注释）
 --AutonomousMgr = require('AutonomousMgr'):Create()
 
----管理游戏气泡
+--- 游戏气泡提示管理器
 BubbleManager = require('BubbleManager'):Create()
 
----查询游戏系统是否解锁
+--- 游戏系统解锁判断工具
 SystemGameUnlock = require('SystemGameUnlock'):Create()
 
----关卡内使用的可暂停的协程
+--- 关卡内可暂停协程工具
 PauseableCoroutineHelper = require('PauseableCoroutineHelper'):Create()
 
----章节数据管理器
+--- 章节数据管理器
 ChapterDataManager = require("ChapterDataManager"):Create()
 
----任务
+--- 任务系统（注释）
 --TaskSys = require('TaskSys'):Create()
 
----成就系统
+--- 成就系统（注释）
 --AchievementSys = require('AchievementSys'):Create()
 
----推送
+--- 推送通知（注释）
 --RNotificationHelper = require('RNotificationHelper'):Create()
 
----游戏桌面图标数据管理器
+--- 游戏桌面图标数据管理器
 HomeIconsDataManager = require('HomeIconsDataManager'):Create()
 
----游戏目标管理器
+--- 游戏目标管理器
 GoalDataManager = require("GoalDataManager"):Create()
 
----资源表格数据管理器
+--- 资源表格数据管理器
 ResourceDataManager = require("ResourceDataManager"):Create()
 
----设置数据管理器
+--- 设置数据管理器
 SettingDataManager = require("SettingDataManager"):Create()
 
 ----------------------------------------------------------
----playerInfo存档数据管理器
+--- 玩家信息存档管理器
 PlayerInfoDataManager = require('PlayerInfoDataManager'):Create()
 
----有效多语言配置表格管理器
---LanguageSettingDataMgr = require('LanguageSettingDataMgr'):Create()
+--- 多语言配置表格管理器
+LanguageSettingDataManager = require('LanguageSettingDataManager'):Create()
 
----地图管理器
+--- 地图管理器
 MapManager = require("MapManager"):Create()
 
------游戏玩法周期
+--- 游戏玩法周期（注释）
 --PlayHudCycle = require("PlayHudCycle"):Create()
---
------指令UI提示管理器
+
+--- 指令UI提示管理器（注释）
 --CommandTipMgr = require("CommandTipMgr"):Create()
---
------游戏核心类
+
+--- 游戏核心管理器
 GameCoreManager = require("GameCoreManager"):Create()
---
------章节列表管理器
+
+--- 章节列表管理器
 ChapterListManager = require("ChapterListManager"):Create()
---
------游戏玩法帮助类
+
+--- 游戏玩法帮助类
 PlayHelper = require("PlayHelper"):Create()
---
------游戏时间帮助类
+
+--- 游戏时间帮助类
 GameTimeHelper = require("GameTimeHelper"):Create()
---
------游戏UI文本帮助类
+
+--- 游戏UI文本帮助类
 UITextHelper = require("UITextHelper"):Create()
---
------RectTransform帮助类
+
+--- RectTransform 工具类
 RectTransformHelper = require("RectTransformHelper"):Create()
 
------存档同步管理类
+--- 存档同步管理类
 SaveDataSyncHelper = require("SaveDataHelper"):Create()
---
------道具管理器
---ItemMgr = require("ItemMgr"):Create()
---
------游戏管理器
+
+--- 道具管理器
+ItemManager = require("ItemManager"):Create()
+
+--- 游戏总管理器
 GameManager = require("GameManager"):Create()
---
------主界面弹窗流程管理器
---GameMainUIPushMgr = require('GameMainUIPushMgr'):Create()
---
------地图运动
+
+--- 主界面弹窗流程管理器
+GameMainUIPushManager = require('GameMainUIPushManager'):Create()
+
+--- 地图运动（注释）
 --MapMotion = require('MapMotion')
---
------UI栈管理器
---UIStackMgr = require('UIStackMgr'):Create()
---
------Animator动画帮助类
---AnimatorHelper = require('AnimatorHelper'):Create()
---
------特效管理器
---EffectMgr = require('EffectMgr'):Create()
---
------Layer帮助类
+
+--- UI栈管理器
+UIStackManager = require('UIStackManager'):Create()
+
+--- Animator 动画帮助类
+AnimatorHelper = require('AnimatorHelper'):Create()
+
+--- 特效管理器（注释）
+GameEffectManager = require('GameEffectManager'):Create()
+
+--- Layer 层级帮助类（注释）
 --LayerHelper = require('LayerHelper'):Create()
---
---
---
------隐藏分计算器
+
+--- 隐藏分计算器（注释）
 --LevelHiddenScore = require("LevelHiddenScore"):Create()
---
------难度系数控制器
+
+--- 难度系数控制器（注释）
 --LevelDifficultyCtr = require("LevelDifficultyCtr"):Create()
---
------关内道具销售管理器
+
+--- 关内道具销售管理器（注释）
 --BoosterSaleMgr = require('BoosterSaleMgr'):Create()
---
------主界面UI和动画等执行顺序
---HomeUILayerDataMgr = require('HomeUILayerDataMgr'):Create()
---
------主界面元素UI气泡执行顺序数据管理器
---HomeUIBubbleLayerDataMgr = require('HomeUIBubbleLayerDataMgr'):Create()
---
---
---
------挑战关卡管理
+
+--- 主界面UI层级执行顺序管理器
+HomeUILayerDataManager = require('HomeUILayerDataManager'):Create()
+
+--- 主界面气泡执行顺序管理器
+HomeUIBubbleLayerDataManager = require('HomeUIBubbleLayerDataManager'):Create()
+
+--- 挑战关卡管理（注释）
 --ChallengeLevelHelper = require("ChallengeLevelHelper"):Create()

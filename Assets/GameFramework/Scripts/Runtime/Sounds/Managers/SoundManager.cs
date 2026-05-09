@@ -3,10 +3,14 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 声音总管理器（音频系统顶层入口）
+    /// 功能：管理所有声音组、处理资源加载、播放/暂停/停止调度、全局音量控制
+    /// </summary>
     public sealed partial class SoundManager
     {
         /// <summary>
-        /// 初始化声音管理器的新实例
+        /// 声音组字典（key=组名，value=声音组实例）
         /// </summary>
         public SoundManager()
         {
@@ -15,28 +19,25 @@ namespace Honor.Runtime
             m_SoundsToReleaseOnLoad = new HashSet<int>();
             m_Serial = 0;
 
+            // 获取全局资源组件
             m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
             if (m_AssetComponent == null)
             {
                 Log.Fatal("Asset Component 无效。");
                 return;
             }
-
         }
 
         /// <summary>
-        /// 获取声音组数量
+        /// 声音组数量
         /// </summary>
         public int SoundGroupCount
         {
-            get
-            {
-                return m_SoundGroups.Count;
-            }
+            get { return m_SoundGroups.Count; }
         }
 
         /// <summary>
-        /// 关闭并清理声音管理器
+        /// 关闭音频系统，释放所有声音
         /// </summary>
         public void Shutdown()
         {
@@ -49,14 +50,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 是否存在指定声音组
         /// </summary>
-        /// <param name="soundGroupName">声音组名称。</param>
-        /// <returns>指定声音组是否存在。</returns>
         public bool HasSoundGroup(string soundGroupName)
         {
             if (string.IsNullOrEmpty(soundGroupName))
-            {
                 throw new GameException("Sound group name 无效。");
-            }
 
             return m_SoundGroups.ContainsKey(soundGroupName);
         }
@@ -64,94 +61,70 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取指定声音组
         /// </summary>
-        /// <param name="soundGroupName">声音组名称。</param>
-        /// <returns>要获取的声音组。</returns>
         public SoundGroup GetSoundGroup(string soundGroupName)
         {
             if (string.IsNullOrEmpty(soundGroupName))
-            {
                 throw new GameException("Sound group name 无效。");
-            }
 
-            SoundGroup soundGroup = null;
-            if (m_SoundGroups.TryGetValue(soundGroupName, out soundGroup))
-            {
-                return soundGroup;
-            }
-
-            return null;
+            m_SoundGroups.TryGetValue(soundGroupName, out SoundGroup soundGroup);
+            return soundGroup;
         }
 
         /// <summary>
         /// 获取所有声音组
         /// </summary>
-        /// <returns>所有声音组。</returns>
         public SoundGroup[] GetAllSoundGroups()
         {
             int index = 0;
             SoundGroup[] results = new SoundGroup[m_SoundGroups.Count];
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
-            {
-                results[index++] = soundGroup.Value;
-            }
+            foreach (var pair in m_SoundGroups)
+                results[index++] = pair.Value;
 
             return results;
         }
 
         /// <summary>
-        /// 获取所有声音组
+        /// 获取所有声音组（List 版本）
         /// </summary>
-        /// <param name="results">所有声音组。</param>
         public void GetAllSoundGroups(List<SoundGroup> results)
         {
             if (results == null)
-            {
                 throw new GameException("Results 无效。");
-            }
 
             results.Clear();
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
-            {
-                results.Add(soundGroup.Value);
-            }
+            foreach (var pair in m_SoundGroups)
+                results.Add(pair.Value);
         }
 
         /// <summary>
-        /// 增加声音组
+        /// 添加声音组（默认参数）
         /// </summary>
-        /// <param name="soundGroupName">声音组名称。</param>
-        /// <param name="soundGroupHelper">声音组辅助器。</param>
-        /// <returns>是否增加声音组成功。</returns>
         public bool AddSoundGroup(string soundGroupName, SoundGroupHelper soundGroupHelper)
         {
-            return AddSoundGroup(soundGroupName, false, SoundConstant.DefaultMute, SoundConstant.DefaultVolume, soundGroupHelper);
+            return AddSoundGroup(
+                soundGroupName,
+                false,
+                SoundConstant.DefaultMute,
+                SoundConstant.DefaultVolume,
+                soundGroupHelper);
         }
 
         /// <summary>
-        /// 增加声音组
+        /// 添加声音组（完整参数）
         /// </summary>
-        /// <param name="soundGroupName">声音组名称。</param>
-        /// <param name="soundGroupAvoidBeingReplacedBySamePriority">声音组中的声音是否避免被同优先级声音替换。</param>
-        /// <param name="soundGroupMute">声音组是否静音。</param>
-        /// <param name="soundGroupVolume">声音组音量。</param>
-        /// <param name="soundGroupHelper">声音组辅助器。</param>
-        /// <returns>是否增加声音组成功。</returns>
-        public bool AddSoundGroup(string soundGroupName, bool soundGroupAvoidBeingReplacedBySamePriority, bool soundGroupMute, float soundGroupVolume, SoundGroupHelper soundGroupHelper)
+        public bool AddSoundGroup(
+            string soundGroupName,
+            bool soundGroupAvoidBeingReplacedBySamePriority,
+            bool soundGroupMute,
+            float soundGroupVolume,
+            SoundGroupHelper soundGroupHelper)
         {
             if (string.IsNullOrEmpty(soundGroupName))
-            {
                 throw new GameException("Sound group name 无效。");
-            }
-
             if (soundGroupHelper == null)
-            {
                 throw new GameException("Sound group helper 无效。");
-            }
-
             if (HasSoundGroup(soundGroupName))
-            {
                 return false;
-            }
 
             SoundGroup soundGroup = new SoundGroup(soundGroupName, soundGroupHelper)
             {
@@ -161,100 +134,93 @@ namespace Honor.Runtime
             };
 
             m_SoundGroups.Add(soundGroupName, soundGroup);
-
             return true;
         }
 
         /// <summary>
-        /// 增加声音代理
+        /// 给指定声音组添加一个声音播放器（AudioSource）
         /// </summary>
-        /// <param name="soundGroupName">声音组名称。</param>
-        /// <param name="soundAgentHelper">要增加的声音代理辅助器。</param>
         public void AddSoundAgent(string soundGroupName, SoundAgentHelper soundAgentHelper)
         {
             SoundGroup soundGroup = GetSoundGroup(soundGroupName);
             if (soundGroup == null)
-            {
                 throw new GameException(AorTxt.Format("Sound group '{0}' 不存在。", soundGroupName));
-            }
 
             soundGroup.AddSoundAgent(this, soundAgentHelper);
         }
 
         /// <summary>
-        /// 获取所有正在加载声音的序列编号
+        /// 获取所有正在加载的声音ID
         /// </summary>
-        /// <returns>所有正在加载声音的序列编号。</returns>
         public int[] GetAllLoadingSoundSerialIDs()
         {
             return m_SoundsLoading.ToArray();
         }
 
         /// <summary>
-        /// 获取所有正在加载声音的序列编号
+        /// 获取所有正在加载的声音ID（List 版本）
         /// </summary>
-        /// <param name="results">所有正在加载声音的序列编号。</param>
         public void GetAllLoadingSoundSerialIDs(List<int> results)
         {
             if (results == null)
-            {
                 throw new GameException("Results 无效。");
-            }
 
             results.Clear();
             results.AddRange(m_SoundsLoading);
         }
 
         /// <summary>
-        /// 是否正在加载声音
+        /// 某个声音是否正在加载中
         /// </summary>
-        /// <param name="serialID">声音序列编号。</param>
-        /// <returns>是否正在加载声音。</returns>
         public bool IsLoadingSound(int serialID)
         {
             return m_SoundsLoading.Contains(serialID);
         }
 
         /// <summary>
-        /// 播放声音
+        /// 【核心接口】播放声音（异步加载AB包 + 自动调度播放器）
         /// </summary>
-        /// <param name="abPath">ab资源路径</param>
-        /// <param name="assetName">asset资源名称</param>
-        /// <param name="soundGroupName">声音组名称。</param>
-        /// <param name="playSoundParams">播放声音参数。</param>
-        /// <returns>声音的序列编号。</returns>
-        public int PlaySound(string abPath, string assetName, string soundGroupName, PlaySoundParams playSoundParams = null, PlaySoundInfoShell playSoundInfoShell = null)
+        /// <returns>声音唯一ID，用于暂停/停止</returns>
+        public int PlaySound(
+            string abPath,
+            string assetName,
+            string soundGroupName,
+            PlaySoundParams playSoundParams = null,
+            PlaySoundInfoShell playSoundInfoShell = null)
         {
             if (playSoundParams == null)
-            {
                 playSoundParams = PlaySoundParams.Create();
-            }
 
+            // 生成唯一ID
             int serialID = ++m_Serial;
             PlaySoundErrorCode? errorCode = null;
             string errorMessage = null;
+
             SoundGroup soundGroup = GetSoundGroup(soundGroupName);
             if (soundGroup == null)
             {
                 errorCode = PlaySoundErrorCode.SoundGroupNotExist;
-                errorMessage = AorTxt.Format("Sound group '{0}' 不存在，errorCode = '{1}'", soundGroupName, errorCode.ToString());
+                errorMessage = AorTxt.Format("Sound group '{0}' 不存在，errorCode = '{1}'", soundGroupName, errorCode);
             }
             else if (soundGroup.SoundAgentCount <= 0)
             {
                 errorCode = PlaySoundErrorCode.SoundGroupHasNotEnoughAgent;
-                errorMessage = AorTxt.Format("Sound group '{0}' 没有足够的 sound agent，errorCode = '{1}'", soundGroupName, errorCode.ToString());
+                errorMessage = AorTxt.Format("Sound group '{0}' 没有足够的 sound agent，errorCode = '{1}'", soundGroupName, errorCode);
             }
 
             if (errorCode.HasValue)
-            {
                 Log.Warning(errorMessage);
-            }
 
+            // 标记为加载中
             m_SoundsLoading.Add(serialID);
 
+            // 包装播放信息
             PlaySoundInfo playSoundInfo = PlaySoundInfo.Create(serialID, soundGroup, playSoundParams, playSoundInfoShell);
+
+            // 异步加载音频资源
             m_AssetComponent.LoadAssetAsync("Sound", abPath, assetName, (AssetObject assetObject, Object soundAsset) =>
             {
+                // 如果加载过程中被标记为释放，直接卸载
                 if (m_SoundsToReleaseOnLoad.Contains(playSoundInfo.SerialID))
                 {
                     m_SoundsToReleaseOnLoad.Remove(playSoundInfo.SerialID);
@@ -262,38 +228,43 @@ namespace Honor.Runtime
                     return;
                 }
 
+                // 加载完成，移除加载标记
                 m_SoundsLoading.Remove(playSoundInfo.SerialID);
 
-                SoundAgent soundAgent = playSoundInfo.SoundGroup.PlaySound(playSoundInfo.SerialID, soundAsset, playSoundInfo.PlaySoundParams, out errorCode);
+                // 交给声音组播放
+                SoundAgent soundAgent = playSoundInfo.SoundGroup.PlaySound(
+                    playSoundInfo.SerialID,
+                    soundAsset,
+                    playSoundInfo.PlaySoundParams,
+                    out errorCode);
+
+                // 播放失败 → 释放资源
                 if (soundAgent == null)
                 {
-                    m_SoundsToReleaseOnLoad.Remove(playSoundInfo.SerialID);
                     ReleaseSoundAsset(soundAsset);
-                    errorMessage = AorTxt.Format("Sound group '{0}' 播放声音 '{1}' 失败，errorCode = '{2}'", playSoundInfo.SoundGroup.Name, assetName, errorCode.ToString());
+                    errorMessage = AorTxt.Format("Sound group '{0}' 播放声音 '{1}' 失败，errorCode = '{2}'",
+                        playSoundInfo.SoundGroup.Name, assetName, errorCode);
                     Log.Warning(errorMessage);
                 }
             });
+
             return serialID;
         }
 
         /// <summary>
-        /// 停止播放声音
+        /// 停止声音（默认淡出）
         /// </summary>
-        /// <param name="serialID">要停止播放声音的序列编号。</param>
-        /// <returns>是否停止播放声音成功。</returns>
         public bool StopSound(int serialID)
         {
             return StopSound(serialID, SoundConstant.DefaultFadeOutSeconds);
         }
 
         /// <summary>
-        /// 停止播放声音
+        /// 停止声音（支持淡出）
         /// </summary>
-        /// <param name="serialID">要停止播放声音的序列编号。</param>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
-        /// <returns>是否停止播放声音成功。</returns>
         public bool StopSound(int serialID, float fadeOutSeconds)
         {
+            // 如果正在加载，标记加载完成后自动释放
             if (IsLoadingSound(serialID))
             {
                 m_SoundsToReleaseOnLoad.Add(serialID);
@@ -301,19 +272,18 @@ namespace Honor.Runtime
                 return true;
             }
 
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
+            // 遍历所有组停止声音
+            foreach (var pair in m_SoundGroups)
             {
-                if (soundGroup.Value.StopSound(serialID, fadeOutSeconds))
-                {
+                if (pair.Value.StopSound(serialID, fadeOutSeconds))
                     return true;
-                }
             }
 
             return false;
         }
 
         /// <summary>
-        /// 停止所有已加载的声音
+        /// 停止所有已加载声音
         /// </summary>
         public void StopAllLoadedSounds()
         {
@@ -321,15 +291,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 停止所有已加载的声音
+        /// 停止所有已加载声音（带淡出）
         /// </summary>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void StopAllLoadedSounds(float fadeOutSeconds)
         {
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
-            {
-                soundGroup.Value.StopAllLoadedSounds(fadeOutSeconds);
-            }
+            foreach (var pair in m_SoundGroups)
+                pair.Value.StopAllLoadedSounds(fadeOutSeconds);
         }
 
         /// <summary>
@@ -338,155 +305,135 @@ namespace Honor.Runtime
         public void StopAllLoadingSounds()
         {
             foreach (int serialID in m_SoundsLoading)
-            {
                 m_SoundsToReleaseOnLoad.Add(serialID);
-            }
         }
 
         /// <summary>
-        /// 暂停播放声音
+        /// 暂停声音（默认淡出）
         /// </summary>
-        /// <param name="serialID">要暂停播放声音的序列编号。</param>
         public void PauseSound(int serialID)
         {
             PauseSound(serialID, SoundConstant.DefaultFadeOutSeconds);
         }
 
         /// <summary>
-        /// 暂停播放声音
+        /// 暂停声音（支持淡出）
         /// </summary>
-        /// <param name="serialID">要暂停播放声音的序列编号。</param>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void PauseSound(int serialID, float fadeOutSeconds)
         {
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
+            foreach (var pair in m_SoundGroups)
             {
-                if (soundGroup.Value.PauseSound(serialID, fadeOutSeconds))
-                {
+                if (pair.Value.PauseSound(serialID, fadeOutSeconds))
                     return;
-                }
             }
 
-            throw new GameException(AorTxt.Format("无法找到 Sound '{0}'。", serialID.ToString()));
+            throw new GameException(AorTxt.Format("无法找到 Sound '{0}'。", serialID));
         }
 
         /// <summary>
-        /// 暂停整个声音组的音乐播放
+        /// 暂停整个声音组
         /// </summary>
-        /// <param name="groupName"></param>
         public bool PauseGroupSound(string groupName)
         {
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
+            foreach (var pair in m_SoundGroups)
             {
-                if (soundGroup.Value.Name == groupName)
+                if (pair.Value.Name == groupName)
                 {
-                    Log.Info($"暂停整个声音组的音乐播放  name = {soundGroup.Value.Name}");
-                    soundGroup.Value.PauseAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
+                    Log.Info($"暂停整个声音组的音乐播放  name = {groupName}");
+                    pair.Value.PauseAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
                     return true;
                 }
             }
+
             Log.Error($"暂停整个声音组的音乐播放 未找到要设置的音乐组  name = {groupName}");
             return false;
         }
 
         /// <summary>
-        /// 恢复播放声音
+        /// 恢复声音（默认淡入）
         /// </summary>
-        /// <param name="serialID">要恢复播放声音的序列编号。</param>
         public bool ResumeSound(int serialID)
         {
             return ResumeSound(serialID, SoundConstant.DefaultFadeInSeconds);
         }
 
         /// <summary>
-        /// 恢复播放声音
+        /// 恢复声音（支持淡入）
         /// </summary>
-        /// <param name="serialID">要恢复播放声音的序列编号。</param>
-        /// <param name="fadeInSeconds">声音淡入时间，以秒为单位。</param>
         public bool ResumeSound(int serialID, float fadeInSeconds)
         {
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
+            foreach (var pair in m_SoundGroups)
             {
-                if (soundGroup.Value.ResumeSound(serialID, fadeInSeconds))
-                {
+                if (pair.Value.ResumeSound(serialID, fadeInSeconds))
                     return true;
-                }
             }
 
-            Log.Warning(AorTxt.Format("无法找到 Sound '{0}'。", serialID.ToString()));
+            Log.Warning(AorTxt.Format("无法找到 Sound '{0}'。", serialID));
             return false;
         }
 
         /// <summary>
-        /// 恢复声音组音乐播放
+        /// 恢复整个声音组
         /// </summary>
-        /// <param name="groupName"></param>
-        /// <returns></returns>
         public bool ResumeGroupSound(string groupName)
         {
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
+            foreach (var pair in m_SoundGroups)
             {
-                if (soundGroup.Value.Name == groupName)
+                if (pair.Value.Name == groupName)
                 {
-                    Log.Info($"恢复声音组音乐播放  name = {soundGroup.Value.Name}");
-                    soundGroup.Value.ResumeAllLoadedSounds(SoundConstant.DefaultFadeInSeconds);
+                    Log.Info($"恢复声音组音乐播放  name = {groupName}");
+                    pair.Value.ResumeAllLoadedSounds(SoundConstant.DefaultFadeInSeconds);
                     return true;
                 }
             }
+
             Log.Error($"恢复声音组音乐播放 未找到要设置的音乐组  name = {groupName}");
             return false;
         }
 
         /// <summary>
-        /// 停止声音组音乐播放
+        /// 停止整个声音组
         /// </summary>
-        /// <param name="groupName"></param>
-        /// <returns></returns>
         public bool StopGroupSound(string groupName)
         {
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
+            foreach (var pair in m_SoundGroups)
             {
-                if (soundGroup.Value.Name == groupName)
+                if (pair.Value.Name == groupName)
                 {
-                    Log.Info($"停止声音组音乐播放  name = {soundGroup.Value.Name}");
-                    soundGroup.Value.StopAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
+                    Log.Info($"停止声音组音乐播放  name = {groupName}");
+                    pair.Value.StopAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
                     return true;
                 }
             }
+
             Log.Error($"停止声音组音乐播放 未找到要设置的音乐组  name = {groupName}");
             return false;
         }
 
         /// <summary>
-        /// 释放声音资源
+        /// 释放音频资源（交给资源组件卸载）
         /// </summary>
-        /// <param name="soundAsset"></param>
         public void ReleaseSoundAsset(Object soundAsset)
         {
             m_AssetComponent.UnloadAsset(soundAsset);
         }
 
         /// <summary>
-        /// 在播放过程中修改音量,对传入的名称组起作用
+        /// 设置指定声音组的全局音量
         /// </summary>
-        /// <param name="newVolume">要设置的声音组音量</param>
-        /// <param name="groupName">要设置的声音组名称</param>
-
         public void SetAllSoundVolume(float newVolume, string groupName)
         {
-            foreach (KeyValuePair<string, SoundGroup> soundGroup in m_SoundGroups)
+            foreach (var pair in m_SoundGroups)
             {
-                if (soundGroup.Value.Name == groupName)
+                if (pair.Value.Name == groupName)
                 {
-                    Log.Info($"设置音乐组音量  name = {soundGroup.Value.Name}");
-                    soundGroup.Value.Volume = newVolume;
+                    Log.Info($"设置音乐组音量  name = {groupName}");
+                    pair.Value.Volume = newVolume;
                     return;
                 }
             }
+
             Log.Error($"设置音乐组音量 未找到要设置的音乐组  name = {groupName}");
         }
-
     }
 }
-
-

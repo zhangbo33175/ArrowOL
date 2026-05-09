@@ -5,221 +5,155 @@ using UnityEngine.Audio;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 声音代理辅助器（MonoBehaviour）
+    /// 功能：直接封装 Unity AudioSource，实现播放、暂停、停止、淡入淡出、3D 定位
+    /// 每个声音播放器对应一个此脚本
+    /// </summary>
     public class SoundAgentHelper : MonoBehaviour
     {
         /// <summary>
-        /// 缓存声音Transform
+        /// 缓存 Transform，提升性能
         /// </summary>
         private Transform m_CachedTransform = null;
 
         /// <summary>
-        /// 声音源 
+        /// Unity 官方音频播放组件
         /// </summary>
         private AudioSource m_AudioSource = null;
 
         /// <summary>
-        /// 暂停时的音量值
+        /// 暂停前保存的音量，用于恢复
         /// </summary>
         private float m_VolumeWhenPause = 0f;
 
         /// <summary>
-        /// 获取当前是否正在播放
+        /// 当前是否正在播放
         /// </summary>
         public bool IsPlaying
         {
-            get
-            {
-                return m_AudioSource.isPlaying;
-            }
+            get { return m_AudioSource.isPlaying; }
         }
 
         /// <summary>
-        /// 获取声音长度
+        /// 音频长度（秒）
         /// </summary>
         public float Length
         {
-            get
-            {
-                return m_AudioSource.clip != null ? m_AudioSource.clip.length : 0f;
-            }
+            get { return m_AudioSource.clip != null ? m_AudioSource.clip.length : 0f; }
         }
 
         /// <summary>
-        /// 获取或设置播放位置
+        /// 当前播放时间位置
         /// </summary>
         public float Time
         {
-            get
-            {
-                return m_AudioSource.time;
-            }
-            set
-            {
-                m_AudioSource.time = value;
-            }
+            get { return m_AudioSource.time; }
+            set { m_AudioSource.time = value; }
         }
 
         /// <summary>
-        /// 获取或设置是否静音
+        /// 是否静音
         /// </summary>
         public bool Mute
         {
-            get
-            {
-                return m_AudioSource.mute;
-            }
-            set
-            {
-                m_AudioSource.mute = value;
-            }
+            get { return m_AudioSource.mute; }
+            set { m_AudioSource.mute = value; }
         }
 
         /// <summary>
-        /// 获取或设置是否循环播放
+        /// 是否循环
         /// </summary>
         public bool Loop
         {
-            get
-            {
-                return m_AudioSource.loop;
-            }
-            set
-            {
-                m_AudioSource.loop = value;
-            }
+            get { return m_AudioSource.loop; }
+            set { m_AudioSource.loop = value; }
         }
 
         /// <summary>
-        /// 获取或设置声音优先级
+        /// 声音优先级（做了值反转，方便外部使用：数字越大优先级越高）
         /// </summary>
         public int Priority
         {
-            get
-            {
-                return 128 - m_AudioSource.priority;
-            }
-            set
-            {
-                m_AudioSource.priority = 128 - value;
-            }
+            get { return 128 - m_AudioSource.priority; }
+            set { m_AudioSource.priority = 128 - value; }
         }
 
         /// <summary>
-        /// 获取或设置音量大小
+        /// 最终音量
         /// </summary>
         public float Volume
         {
-            get
-            {
-                return m_AudioSource.volume;
-            }
-            set
-            {
-                m_AudioSource.volume = value;
-            }
+            get { return m_AudioSource.volume; }
+            set { m_AudioSource.volume = value; }
         }
 
         /// <summary>
-        /// 获取或设置声音音调
+        /// 音调 / 播放速度
         /// </summary>
         public float Pitch
         {
-            get
-            {
-                return m_AudioSource.pitch;
-            }
+            get { return m_AudioSource.pitch; }
             set
             {
                 m_AudioSource.pitch = value;
-                m_AudioSource.time *= value;
+                m_AudioSource.time *= value; // 同步时间轴，防止变速跳变
             }
         }
 
         /// <summary>
-        /// 获取或设置声音立体声声相
+        /// 立体声相位（-1 左，1 右）
         /// </summary>
         public float PanStereo
         {
-            get
-            {
-                return m_AudioSource.panStereo;
-            }
-            set
-            {
-                m_AudioSource.panStereo = value;
-            }
+            get { return m_AudioSource.panStereo; }
+            set { m_AudioSource.panStereo = value; }
         }
 
         /// <summary>
-        /// 获取或设置声音空间混合量
+        /// 空间混合：0=2D，1=3D
         /// </summary>
         public float SpatialBlend
         {
-            get
-            {
-                return m_AudioSource.spatialBlend;
-            }
-            set
-            {
-                m_AudioSource.spatialBlend = value;
-            }
+            get { return m_AudioSource.spatialBlend; }
+            set { m_AudioSource.spatialBlend = value; }
         }
 
         /// <summary>
-        /// 获取或设置声音最大距离
+        /// 3D 声音最大距离
         /// </summary>
         public float MaxDistance
         {
-            get
-            {
-                return m_AudioSource.maxDistance;
-            }
-
-            set
-            {
-                m_AudioSource.maxDistance = value;
-            }
+            get { return m_AudioSource.maxDistance; }
+            set { m_AudioSource.maxDistance = value; }
         }
 
         /// <summary>
-        /// 获取或设置声音多普勒等级
+        /// 多普勒效果强度
         /// </summary>
         public float DopplerLevel
         {
-            get
-            {
-                return m_AudioSource.dopplerLevel;
-            }
-            set
-            {
-                m_AudioSource.dopplerLevel = value;
-            }
+            get { return m_AudioSource.dopplerLevel; }
+            set { m_AudioSource.dopplerLevel = value; }
         }
 
         /// <summary>
-        /// 获取或设置声音代理辅助器所在的混音组
+        /// 混音器轨道分组
         /// </summary>
         public AudioMixerGroup AudioMixerGroup
         {
-            get
-            {
-                return m_AudioSource.outputAudioMixerGroup;
-            }
-            set
-            {
-                m_AudioSource.outputAudioMixerGroup = value;
-            }
+            get { return m_AudioSource.outputAudioMixerGroup; }
+            set { m_AudioSource.outputAudioMixerGroup = value; }
         }
 
         /// <summary>
-        /// 播放声音
+        /// 播放声音（支持淡入）
         /// </summary>
-        /// <param name="fadeInSeconds">声音淡入时间，以秒为单位。</param>
         public void Play(float fadeInSeconds)
         {
             StopAllCoroutines();
-
             m_AudioSource.Play();
+
             if (fadeInSeconds > 0f)
             {
                 float volume = m_AudioSource.volume;
@@ -229,63 +163,45 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 停止播放声音
+        /// 停止声音（支持淡出）
         /// </summary>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void Stop(float fadeOutSeconds)
         {
             StopAllCoroutines();
 
             if (fadeOutSeconds > 0f && gameObject.activeInHierarchy)
-            {
                 StartCoroutine(StopCo(fadeOutSeconds));
-            }
             else
-            {
                 m_AudioSource.Stop();
-            }
         }
 
         /// <summary>
-        /// 暂停播放声音
+        /// 暂停声音（支持淡出）
         /// </summary>
-        /// <param name="fadeOutSeconds">声音淡出时间，以秒为单位。</param>
         public void Pause(float fadeOutSeconds)
         {
             StopAllCoroutines();
 
-           // m_VolumeWhenPause = m_AudioSource.volume;
             if (fadeOutSeconds > 0f && gameObject.activeInHierarchy)
-            {
                 StartCoroutine(PauseCo(fadeOutSeconds));
-            }
             else
-            {
                 m_AudioSource.Pause();
-            }
         }
 
         /// <summary>
-        /// 恢复播放声音
+        /// 恢复播放（支持淡入）
         /// </summary>
-        /// <param name="fadeInSeconds">声音淡入时间，以秒为单位。</param>
         public void Resume(float fadeInSeconds)
         {
             StopAllCoroutines();
-
             m_AudioSource.UnPause();
+
             if (fadeInSeconds > 0f)
-            {
                 StartCoroutine(FadeToVolume(m_AudioSource, m_VolumeWhenPause, fadeInSeconds));
-            }
-            else
-            {
-         //       m_AudioSource.volume = m_VolumeWhenPause;
-            }
         }
 
         /// <summary>
-        /// 重置声音代理辅助器
+        /// 重置状态（对象池复用）
         /// </summary>
         public void Reset()
         {
@@ -295,26 +211,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 设置声音资源
+        /// 设置音频片段
         /// </summary>
-        /// <param name="soundAsset">声音资源。</param>
-        /// <returns>是否设置声音资源成功。</returns>
         public bool SetSoundAsset(object soundAsset)
         {
             AudioClip audioClip = soundAsset as AudioClip;
-            if (audioClip == null)
-            {
-                return false;
-            }
+            if (audioClip == null) return false;
 
             m_AudioSource.clip = audioClip;
             return true;
         }
 
         /// <summary>
-        /// 设置声音所在的世界坐标。
+        /// 设置 3D 世界位置
         /// </summary>
-        /// <param name="worldPosition">声音所在的世界坐标。</param>
         public void SetWorldPosition(Vector3 worldPosition)
         {
             m_CachedTransform.position = worldPosition;
@@ -330,25 +240,34 @@ namespace Honor.Runtime
 
         private void Update()
         {
-
         }
 
+        /// <summary>
+        /// 淡出后停止协程
+        /// </summary>
         private IEnumerator StopCo(float fadeOutSeconds)
         {
             yield return FadeToVolume(m_AudioSource, 0f, fadeOutSeconds);
             m_AudioSource.Stop();
         }
 
+        /// <summary>
+        /// 淡出后暂停协程
+        /// </summary>
         private IEnumerator PauseCo(float fadeOutSeconds)
         {
             yield return FadeToVolume(m_AudioSource, 0f, fadeOutSeconds);
             m_AudioSource.Pause();
         }
 
+        /// <summary>
+        /// 通用音量渐变
+        /// </summary>
         private IEnumerator FadeToVolume(AudioSource audioSource, float volume, float duration)
         {
             float time = 0f;
             float originalVolume = audioSource.volume;
+
             while (time < duration)
             {
                 time += UnityEngine.Time.deltaTime;
@@ -360,5 +279,3 @@ namespace Honor.Runtime
         }
     }
 }
-
-

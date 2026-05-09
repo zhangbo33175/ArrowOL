@@ -1,66 +1,68 @@
 --=====================================================================================================
--- descrip:   栈
+-- descrip:   栈结构（Stack）
+--              规则：后进先出 LIFO (Last In First Out)
+--              用途：UI栈、返回栈、面板层级管理、状态回溯
 --=====================================================================================================
 
----@class HonorStack @栈
----@field items table @条目集合
+---@class HonorStack @栈结构类
+---@field items table @栈内部存储的元素数组
 local HonorStack = class("HonorStack")
 
----构造函数
+--- 构造函数
 ---@type fun():void
 function HonorStack:ctor()
-    self.items = {}
+    self.items = {}   -- 初始化空栈
 end
 
----创建函数
----@type fun():Stack
----@return Stack @栈
+--- 创建栈实例
+---@type fun():HonorStack
+---@return HonorStack
 function HonorStack:Create()
     local obj = HonorStack.new()
     return obj
 end
 
----获取队首条目
+--- 获取栈顶元素（不弹出）
 ---@type fun():any
----@return any @队首条目
+---@return any 栈顶第一个元素
 function HonorStack:Peek()
     return self.items[1]
 end
 
----条目入队
+--- 元素入栈（压栈）
 ---@type fun(item:any):void
----@param item any @条目
+---@param item 要压入栈的元素
 function HonorStack:Push(item)
+    -- 插入到数组第1位，作为新栈顶
     table.insert(self.items, 1, item)
 end
 
----条目出队
+--- 元素出栈（弹出栈顶）
 ---@type fun():any
----@return any @出队条目
+---@return any 弹出的元素
 function HonorStack:Pop()
-    local item = self:Peek()
-    table.remove(self.items, 1)
+    local item = self:Peek()   -- 取栈顶
+    table.remove(self.items, 1) -- 移除栈顶
     return item
 end
 
----队列条目数量
+--- 获取栈内元素数量
 ---@type fun():number
----@return number @队列条目数量
+---@return number 元素个数
 function HonorStack:Count()
     return #self.items
 end
 
----是否包含条目
+--- 判断栈是否包含某个元素
 ---@type fun(item:any):boolean
----@param item any @条目
----@return boolean @是否包含
+---@return boolean 是否包含
 function HonorStack:Contains(item)
     return table.vIn(self.items, item)
 end
 
----队列清空
+--- 清空栈
 ---@type fun():void
-function HonorQueue:Clear()
+function HonorStack:Clear()
     self.items = {}
 end
 

@@ -292,6 +292,7 @@ namespace Honor.Runtime
             {
                 return infos[index];
             }
+
             return null;
         }
 
@@ -301,10 +302,11 @@ namespace Honor.Runtime
         /// <returns></returns>
         public int GetExtendsCountAtElementIndex(int elementIndex)
         {
-            if(elementIndex >= 0 && elementIndex < ElementsExtends.Count)
+            if (elementIndex >= 0 && elementIndex < ElementsExtends.Count)
             {
                 return ElementsExtends[elementIndex].Split('#').Length;
             }
+
             return -1;
         }
 
@@ -323,11 +325,8 @@ namespace Honor.Runtime
                     return infos[index];
                 }
             }
+
             return null;
         }
-
     }
-
 }
-
-

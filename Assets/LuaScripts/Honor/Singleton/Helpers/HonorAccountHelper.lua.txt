@@ -1,82 +1,67 @@
 --=====================================================================================================
--- descrip:   账户助手
+-- descrip:   账户助手（游戏账号体系 + 云存档核心）
+--              功能：
+--              1. 账号注册 / 登录 / 自动登录
+--              2. 设备ID / 第三方账号（Facebook/Google等）绑定
+--              3. 玩家数据云端存储、读取
+--              4. 登录信息本地缓存
+--              5. 广告归因（AF）数据获取
 --=====================================================================================================
 
----@class HonorAccountHelper @账户助手
+---@class HonorAccountHelper @全局账户管理助手
 local HonorAccountHelper = class("HonorAccountHelper")
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+--- 构造函数
 function HonorAccountHelper:ctor(args)
-
 end
 
----创建函数
----@type fun(args:table):HonorAccountHelper
----@param args table @自定义参数
----@return AccountHelper @账户助手实例
+--- 创建单例实例
 function HonorAccountHelper:Create(args)
 	local obj = HonorAccountHelper.new(args)
 	return obj
 end
 
----注册并登录用户
----@type fun(force:boolean, callback:function):void
----@param force boolean @强制注册
----@param callback function @回调
+--- 注册并自动登录用户（新号流程）
+---@param force boolean 是否强制注册
+---@param callback function 注册完成回调
 function HonorAccountHelper:RegisterToSignIn(force, callback)
-	
 end
 
----登录用户
----@type fun(uid:number, aid:string, callback:function):void
----@param uid number @游戏服uid
----@param aid string @三方账号id（没有时传入nil）
----@param callback function @回调
+--- 使用 UID + 第三方ID 登录用户（老号流程）
+---@param uid 游戏服用户ID
+---@param aid 第三方账号ID（Facebook/Google等，没有传nil）
+---@param callback 登录完成回调
 function HonorAccountHelper:LoginToSignIn(uid, aid, callback)
-	
 end
 
----根据设备id或三方账号id获取用户uid
----@type fun(id:string, callback:function):void
----@param id string @设备id或三方账号id
----@param callback function @回调
+--- 根据 设备ID 或 第三方账号ID 获取游戏UID
+---@param id 设备ID / 三方ID
+---@param callback 回调返回UID
 function HonorAccountHelper:GetUID(id, callback)
-
 end
 
----设置用户数据到云端
----@type fun(uid:number, datas:table, callback:function):void
----@param uid number @游戏服uid
----@param datas table @用户数据集合
----@param callback function @回调
+--- 向云端保存用户数据（云存档）
+---@param uid 游戏UID
+---@param datas 要保存的玩家数据
+---@param callback 保存完成回调
 function HonorAccountHelper:SetUserData(uid, datas, callback)
-
 end
 
----从云端拉取用户数据
----@type fun(uid:number, keys:table, callback:function):void
----@param uid number @游戏服uid
----@param keys table @服务器小表名称集合
----@param callback function @回调
+--- 从云端拉取用户数据（读存档）
+---@param uid 游戏UID
+---@param keys 要拉取的数据表名列表
+---@param callback 回调返回数据
 function HonorAccountHelper:GetUserData(uid, keys, callback)
-
 end
 
----保存用户登陆信息
----@type fun(cmd:NetCmd.Cmd_Item_UserSignIn)
----@param cmd NetCmd.Cmd_Item_UserSignIn
+--- 缓存登录信息（保存到本地，用于自动登录）
+---@param cmd 服务器返回的登录数据结构
 function HonorAccountHelper:SaveSignInInfos(cmd)
-
 end
 
-
----获取TGA的AF归因数据
----@type fun(callback:function)
----@param callback function @结果返回
+--- 获取 AF（AppsFlyer）广告归因数据
+---@param callback 回调返回归因信息（渠道、广告包、转化数据）
 function HonorAccountHelper:GetAFConvertData(callback)
-	
 end
 
 return HonorAccountHelper

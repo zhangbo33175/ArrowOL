@@ -1,0 +1,452 @@
+--=====================================================================================================
+-- 【游戏核心管理器】
+-- 功能：关卡内全局核心总控
+-- 负责：游戏状态、胜负判定、结束流程、体力/复活/道具、目标进度、游戏结束消息队列
+-- 所有关卡内的核心规则全部由此类统一调度
+--=====================================================================================================
+
+---@class GameCoreManager @游戏核心类
+---@field _GameCoreManagerWaiter         GameCoreManagerWaiter     指令调度器
+---@field _GameCoreManagerData          GameCoreManagerData      游戏数据
+---@field _GameCoreManagerLevelFinish   GameCoreManagerLevelFinish 关卡结束
+---@field _GameCoreManagerSkill         GameCoreManagerSkill     技能
+---@field _GameCoreManagerUseProp       GameCoreManagerUseProp   道具
+---@field _CurLevelData             Tables.LevelData_Item 当前关卡配置
+---@field _IsPlaying                boolean              游戏中
+---@field _IsGameOver               boolean              游戏结束
+---@field _IsExitGame               boolean              退出游戏
+---@field _IsSuccessFinishGame      boolean              成功通关
+---@field _eGameOverType            EGameOverType        结束类型
+---@field _HandleGameOverMsgQueue   HonorQueue            结束消息队列
+---@field _ExitSureTip              table                 退出二次提示
+---@field _ExitSureTipAgain         table                 退出多次提示
+
+local GameCoreManager = class("GameCoreManager")
+
+--- 构造函数
+function GameCoreManager:ctor(args)
+    self._IsPlaying = false
+    self._IsGameOver = false
+    self._IsExitGame = false
+    self._IsSuccessFinishGame = false
+    self._CurLevelData = nil
+    self._eGameOverType = EGameOverType.None
+    self._HandleGameOverMsgQueue = HonorQueue:Create()
+    self._ExitSureTip = {}
+    self._ExitSureTipAgain = {}
+
+
+    self._GameCoreManagerData = require("GameCoreManagerData"):Create()
+    self._GameCoreManagerLevelFinish = require("GameCoreManagerLevelFinish"):Create()
+    self._GameCoreManagerUseItem = require("GameCoreManagerUseItem"):Create()
+    self._GameCoreManagerEffect = require("GameCoreManagerEffect"):Create()
+end
+
+--- 创建实例
+---@return GameCoreManager
+function GameCoreManager:Create(args)
+    return GameCoreManager.new(args)
+end
+
+--- 清空数据
+function GameCoreManager:ClearData()
+    self._IsPlaying = false
+    self._IsGameOver = false
+    self._IsExitGame = false
+    self._IsSuccessFinishGame = false
+    self._eGameOverType = EGameOverType.None
+    self._CurLevelData = nil
+    self._ExitSureTip = {}
+    self._HandleGameOverMsgQueue:Clear()
+    
+    self._GameCoreManagerData:ClearData()
+    self._GameCoreManagerEffect:ClearData()
+    self._GameCoreManagerLevelFinish:ClearData()
+end
+
+--=========================================================================
+-- region 游戏胜负
+--=========================================================================
+
+--- 游戏胜利
+function GameCoreManager:OnGameVictory()
+    self:SendQuestFinishProgress()
+
+    PlayHelper:GameOver(true)
+    self._GameCoreManagerLevelFinish:OnGameOverAfter()
+    self._GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
+end
+
+--- 发送任务进度
+function GameCoreManager:SendQuestFinishProgress()
+end
+
+--- 游戏失败
+---@param eGameOverType EGameOverType
+function GameCoreManager:DoGameFailed(eGameOverType)
+end
+
+--- 游戏复活
+function GameCoreManager:DoGameRevive()
+end
+
+--- 获取游戏结束原因
+---@return EGameOverType
+function GameCoreManager:GetGameOverType()
+end
+
+--endregion
+
+
+---是否在挑战关内
+---@type fun():boolean
+---@return boolean @是否在挑战关内
+function GameCoreManager:IsInChallengeLevel()
+    if self._CurLevelData == nil then
+        return false
+    end
+
+    return self._CurLevelData.Difficulty == ELevelDifficultyType.Challenge
+end
+
+
+---体力是否足够
+---@type fun():boolean
+---@return boolean @ 体力是否足够
+function GameCoreManager:IsLifeEnough()
+    return true
+end
+
+
+--=========================================================================
+--region 关卡信息
+
+--- 获取当前关卡配置
+---@return Tables.LevelData_Item
+function GameCoreManager:GetCurLevelData()
+    return self._CurLevelData
+end
+
+--- 是否无限关卡
+---@return boolean
+function GameCoreManager:IsUnlimitedGuests()
+    return self._CurLevelData.UnlimitedGuests == 1
+end
+
+--- 是否最新章节
+---@return boolean
+function GameCoreManager:IsLatestChapter()
+    if not self._CurLevelData then return false end
+    return self._CurLevelData.ChapterId == ChapterListMgr:GetLatestChapterId()
+end
+
+--- 是否在挑战关卡
+---@return boolean
+function GameCoreManager:IsInChallengeLevel()
+    return false
+end
+
+--endregion
+
+--=========================================================================
+--region 游戏状态
+
+--- 是否游戏结束
+---@return boolean
+function GameCoreManager:IsGameOver()
+    return self._IsGameOver
+end
+
+--- 是否正在游戏
+---@return boolean
+function GameCoreManager:IsPlaying()
+    return self._IsPlaying
+end
+
+--endregion
+
+--=========================================================================
+--region 游戏结束判定 & 消息队列（核心机制）
+
+--- 触发游戏结束
+---@param eGameOverType EGameOverType
+---@param bounds LuaBoundsData
+function GameCoreManager:TriggerGameOver(eGameOverType, bounds)
+end
+
+--- 加入结束消息
+---@param eGameOverType EGameOverType
+---@param bounds LuaBoundsData
+function GameCoreManager:AddHandleGameOverMsg(eGameOverType, bounds)
+end
+
+--- 检查游戏结果
+---@param eGameOverType EGameOverType
+---@param bounds LuaBoundsData
+function GameCoreManager:CheckGameResult(eGameOverType, bounds)
+end
+
+--- 检查目标是否完成
+---@param hasCoins boolean
+---@param eGameOverType EGameOverType
+---@param bounds LuaBoundsData
+function GameCoreManager:CheckGoalReach(hasCoins, eGameOverType, bounds)
+end
+
+--- 等待金币收集动画
+---@param finishCallback function
+function GameCoreManager:WaitCollectCoinsAnim(finishCallback)
+    GameMainRoot.UI:AddUIMaskLayerRef("WaitCollectCoinsAnim")
+    DOTween.Sequence()
+           :AppendInterval(Tables.Constants.GoalsCollectTime.Value[1] + Tables.Constants.GoalsBarFillTime.Value[1])
+           :SetUpdate(true)
+           :AppendCallback(function()
+        GameMainRoot.UI:SubUIMaskLayerRef()
+        pcall(finishCallback)
+    end)
+end
+
+--- 启动结束消息队列
+function GameCoreManager:StartCheckGameOverMsgQueue()
+    self:StopCheckGameOverMsgQueue()
+    self._HandleGameOverMsgQueueCoroutine = HonorCoroutineHelper:StartAlone(function()
+        self:CheckGameOverMsgQueueCoroutine()
+    end)
+end
+
+--- 停止结束消息队列
+function GameCoreManager:StopCheckGameOverMsgQueue()
+    if self._HandleGameOverMsgQueueCoroutine then
+        HonorCoroutineHelper:StopAlone(self._HandleGameOverMsgQueueCoroutine)
+    end
+    self._HandleGameOverMsgQueueCoroutine = nil
+    self._HandleGameOverMsgQueue:Clear()
+end
+
+--- 协程：处理游戏结束队列
+function GameCoreManager:CheckGameOverMsgQueueCoroutine()
+    local waitUtil1, waitUtil2
+    local data
+
+    while not self._IsGameOver do
+        if self._HandleGameOverMsgQueue:Count() <= 0 then
+            waitUtil1 = waitUtil1 or UnityWaitUntil(function()
+                return self._HandleGameOverMsgQueue:Count() > 0
+            end)
+            coroutine.yield(waitUtil1)
+        end
+
+        data = self._HandleGameOverMsgQueue:Peek()
+        if data then
+            if not self._IsGameOver then
+                if self._GameCoreManagerData:IsTriggerLimit(data.gameOverType) then
+                    self:FireTriggerGameOver(data.gameOverType, data.bounds)
+                else
+                    self:CheckGameResult(data.gameOverType, data.bounds)
+                end
+
+                waitUtil2 = waitUtil2 or UnityWaitUntil(function()
+                    return data.isHandle
+                end)
+                coroutine.yield(waitUtil2)
+                data = nil
+            end
+        end
+    end
+end
+
+--- 触发游戏失败事件
+---@param gameOverType EGameOverType
+---@param bounds LuaBoundsData
+function GameCoreManager:FireTriggerGameOver(gameOverType, bounds)
+end
+
+--endregion
+
+--=========================================================================
+--region 游戏生命周期
+
+--- 初始化游戏
+function GameCoreManager:OnInitGame()
+end
+
+--- 进入游戏
+function GameCoreManager:OnEnterGame()
+    self._IsPlaying = false
+    self._IsExitGame = false
+end
+
+--- 游戏开始
+function GameCoreManager:OnBeginGame()
+end
+
+--- 游戏暂停
+function GameCoreManager:OnPauseGame()
+    if not PlayHelper:IsInLevelState() then return end
+end
+
+--- 游戏恢复
+function GameCoreManager:OnResumeGame()
+    if not PlayHelper:IsInLevelState() then return end
+end
+
+--- 游戏结束
+function GameCoreManager:OnGameOver()
+    self._IsPlaying = false
+    self._IsExitGame = false
+    self:StopCheckGameOverMsgQueue()
+    self._GameCoreManagerUseProp:OnGameOver()
+    SoundMgr:StopCurBGM()
+end
+
+--- 退出游戏
+function GameCoreManager:OnExitGame()
+    self._IsPlaying = false
+    self._IsExitGame = true
+end
+
+--- 重玩
+function GameCoreManager:OnRePlayGame()
+    self:OnBeginGame()
+end
+
+--endregion
+
+--=========================================================================
+-- region 体力 / 复活
+--=========================================================================
+--region 体力 / 复活
+--- 返还体力
+---@param isSuccess boolean
+function GameCoreManager:GiveBackLife(isSuccess)
+    if not isSuccess or not self._GameCoreManagerData._LifeCost then return end
+    if MapManager.CurLoadMapType == MapType.FoodTruck then
+        FoodTruckPlayHelper:AddLife(1)
+    else
+        ItemManager:AddLife()
+    end
+end
+
+--- 本关是否耗体
+---@return boolean
+function GameCoreManager:GetLevelLifeCost()
+    return self._GameCoreManagerData._LifeCost
+end
+
+--- 记录复活
+function GameCoreManager:RecordRevive()
+    return self._GameCoreManagerData:RecordRevive()
+end
+
+--- 获取复活次数
+function GameCoreManager:GetReviveNumberOfTimes()
+    return self._GameCoreManagerData:GetReviveNumberOfTimes()
+end
+
+--endregion
+
+--=========================================================================
+--region 退出二次确认提示
+--- 获取退出提示
+function GameCoreManager:GetExitSureTip()
+    return self._ExitSureTip
+end
+
+--- 是否有退出提示
+---@return boolean
+function GameCoreManager:HasExitSureTip()
+    return not TableIsEmpty(self._ExitSureTip)
+end
+
+--- 注册提示
+function GameCoreManager:RegisterExitSureTip(id, strNum)
+    local tip = self:FindExitSureTip(id)
+    if tip then
+        tip.strNum = strNum
+    else
+        table.insert(self._ExitSureTip, { id = id, strNum = strNum })
+    end
+end
+
+--- 移除提示
+function GameCoreManager:UnRegisterExitSureTip(id)
+    for i, t in ipairs(self._ExitSureTip) do
+        if t.id == id then
+            table.remove(self._ExitSureTip, i)
+            break
+        end
+    end
+end
+
+--endregion
+
+--=========================================================================
+--region 目标进度（主/副目标）
+
+--- 获取主目标
+function GameCoreManager:GetMainGoalCfg()
+    local mainId = self._GameCoreManagerData:CurRootGoalID()
+    local mainNum = self._GameCoreManagerData:TotalRootGoalCount()
+    local mainProgress = self._GameCoreManagerData:CurRootGoalCount()
+    return mainId, mainNum, mainProgress
+end
+
+--- 获取副目标进度
+---@param goalId string
+---@return number, number
+function GameCoreManager:GetAdditionalGoalProgressById(goalId)
+    if not self._GameCoreManagerData:IsEnableAdditionalGoal(goalId) then
+        return nil, nil
+    end
+    local total = self._GameCoreManagerData:TotalAdditionalGoalCount(goalId)
+    local progress = self._GameCoreManagerData:CurAdditionalGoalCount(goalId)
+    return total, progress
+end
+
+--endregion
+
+--=========================================================================
+--region 道具 & 技能（拦截与状态）
+
+--- 使用道具
+---@param boosterID string
+---@param num number
+function GameCoreManager:OnRequestUsingSkill(boosterID, num)
+    if not boosterID then return end
+    self._GameCoreManagerUseProp:OnUsingBooster(boosterID, num)
+end
+
+--- 是否允许使用道具
+---@param boosterID string
+---@return boolean
+function GameCoreManager:AllowUsingBooster(boosterID)
+    if boosterID == EResourceIDs.Candy then
+        return self._GameCoreManagerUseProp:AllowUsingCandy()
+    elseif boosterID == EResourceIDs.WonderDish then
+        return self._GameCoreManagerUseProp:AllowUsingWonderDish()
+    elseif boosterID == EResourceIDs.Freeze then
+        return self._GameCoreManagerUseProp:AllowUsingFreeze()
+    elseif boosterID == EResourceIDs.SuperDelivery then
+        return self._GameCoreManagerUseProp:AllowUsingSuperDelivery()
+    end
+end
+
+--- 冻结生效中
+function GameCoreManager:IsFreezeInEffect()
+    return ItemManager:InActive(EResourceIDs.Freeze)
+end
+
+--endregion
+
+
+---设置正在进行的关卡信息，用于判断是否正常结束关卡
+---@type fun(levelInfo:string):void
+---@param levelInfo string @关卡信息
+---@return void
+function GameCoreManager:SetPlayingLevelTag(levelInfo)
+    PbRootData.GameData.playingLevelTag = levelInfo
+
+    PbIO.GameData.Save_playingLevelTag()
+end
+
+return GameCoreManager
