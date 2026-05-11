@@ -1,80 +1,89 @@
 --=====================================================================================================
--- 游戏 Lua 主入口 Main
--- 功能：加载依赖、注册全局回调、系统初始化
+-- Game Lua Main Entry
+-- Description: 游戏Lua主入口，负责依赖加载、全局回调注册、系统初始化
 --=====================================================================================================
 
---- 扩展函数（工具方法、API 扩展）
+--- 基础扩展函数（工具方法、API 扩展）
 require("GameApiExtend")
 
---- 加载所有表格配置数据
+--- 配置表数据
 require("Tables")
 
+--- 资源定义
 require("ResDefs")
---- 加载所有 UI 定义、路径、配置
+
+--- UI 配置、路径、定义
 require("UIs")
 
---- 多语言本地化配置
+--- 多语言本地化
 require("Localizations")
 
---- 游戏全局常量、枚举、定义
+--- 全局常量、枚举、定义
 require("GameDefinitions")
 
---- 全局自定义工具函数
+--- 全局工具函数
 require("GameFunctions")
 
---- 游戏核心模块引用（所有管理器、单例）
+--- 核心模块、管理器、单例
 require("GameRequires")
 
-
 -- ==========================================================
--- 全局日志输出
+-- 启动日志
 -- ==========================================================
-PrintInfo("回调 Main 应用挂起 lua界面 ")
+PrintInfo("[LuaMain] Lua 主入口初始化完成")
 
 -- 读取服务器系统配置
 SystemConfigHelper:GetServerSystemConfig()
 
 -- ==========================================================
--- 全局系统回调注册
+-- 全局系统回调注册（Unity 生命周期回调）
 -- ==========================================================
 
 ---
---- 应用挂起/恢复回调（切后台/切回）
---- @param pause boolean  true=挂起  false=恢复
+--- 应用挂起/恢复回调（切后台 / 切回前台）
+--- @param isPaused boolean  true=挂起  false=恢复
 ---
-function GameApplicationPauseCallback(pause)
-    -- 如果正在删除用户，不处理
-    if LoginManager:IsDelUser() then
+function GameApplicationPauseCallback(isPaused)
+    -- 安全判断
+    if IsNull(LoginManager) or LoginManager:IsDelUser() then
         return
     end
-    -- 从后台切回 → 尝试重新登录
-    if pause == false then
+
+    -- 从后台切回 → 自动尝试重登
+    if not isPaused then
+        PrintInfo("[LuaMain] 应用从后台恢复，尝试重新登录")
         LoginManager:TryReLogin()
     end
 end
 
 ---
---- 应用退出时回调（Unity OnApplicationQuit）
+--- 应用退出回调（Unity OnApplicationQuit）
 ---
 function GameApplicationQuitCallback()
-    -- 未删除账号时可做退出保存逻辑
-    if not LoginManager:IsDelUser() then
+    -- 安全判断
+    if IsNull(LoginManager) then
+        return
+    end
 
+    -- 非删除账号状态：可执行退出前保存逻辑
+    if not LoginManager:IsDelUser() then
+        PrintInfo("[LuaMain] 应用退出，执行保存逻辑")
+        -- 可在这里添加数据保存、埋点上报等逻辑
     end
 end
 
 ---
---- 原生按键抬起回调（如 Android 返回键）
---- @param keyCode 按键类型
+--- 按键抬起回调（如 Android 返回键）
+--- @param keyCode number 按键编码
 ---
 function GameKeyboardsUpCallback(keyCode)
-
+    -- 按键逻辑扩展位
 end
 
 ---
---- 接收 C# 层派发的全局事件
---- @param eventArgs C# 事件参数
+--- 接收 C# 全局事件
+--- @param eventArgs table C# 传递的事件参数
 ---
 function GameReceiveCsToEventCallback(eventArgs)
-
+    -- C# -> Lua 全局事件处理
 end

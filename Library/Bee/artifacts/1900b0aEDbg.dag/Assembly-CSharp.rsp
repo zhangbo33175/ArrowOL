@@ -124,6 +124,7 @@
 -define:ENABLE_DEBUG_AND_ABOVE_LOG
 -define:UIEXTENSION_ENABLE
 -define:SPINE_ENABLE
+-define:EASY_TOUCH_ENABLE
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
 -r:"Assets/Plugins/DOTween.dll"
@@ -663,6 +664,9 @@
 "Assets/Scripts/Runtime/Utils/CSharpLuaTableBridge/TablesBridge.cs"
 "Assets/Scripts/Runtime/Utils/JsonHelper.cs"
 "Assets/Scripts/Runtime/Utils/MapCamHelper.cs"
+"Assets/Scripts/Runtime/Utils/MapInBounds.cs"
+"Assets/Scripts/Runtime/Utils/ObjectCommon.cs"
+"Assets/Scripts/Runtime/Utils/RTransformExtension.cs"
 "Assets/Scripts/Runtime/Utils/Util.cs"
 "Assets/Scripts/Runtime/Utils/WaitForFrames.cs"
 "Assets/Scripts/Runtime/XLua/Gen/DelegatesGensBridge.cs"
@@ -703,9 +707,11 @@
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_JsonHelperWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_MapCamHelperWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_MapManagerWrap.cs"
+"Assets/Scripts/Runtime/XLua/Gen/GameLib_ObjectCommonWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_ProcedureUtilsWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_RSetupLuaTableValueWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_RSetupLuaTableValue_RDateTimeWarpYMDHMSWrap.cs"
+"Assets/Scripts/Runtime/XLua/Gen/GameLib_RTransformExtensionWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_TablesBridgeWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_TablesBridge_TableAvatarCustomizeItemColorWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_TablesBridge_TableAvatarCustomizeItemWrap.cs"
@@ -825,6 +831,9 @@
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_GamePathUtils_TrackWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_GamePathUtils_UIWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_GamePathUtils_VibrateWrap.cs"
+"Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Gestures2DWrap.cs"
+"Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Gestures3DWrap.cs"
+"Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_GesturesUIWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_GridManagerWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_GZipWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ItemPoolWrap.cs"

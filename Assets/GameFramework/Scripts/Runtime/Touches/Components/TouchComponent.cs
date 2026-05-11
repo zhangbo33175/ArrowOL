@@ -6,28 +6,29 @@ using UnityEngine;
 namespace Honor.Runtime
 {
     /// <summary>
-    /// 触摸输入组件
-    /// 基于 EasyTouch 插件封装，统一管理 2D/3D/UI 手势交互
-    /// 依赖 EASY_TOUCH_ENABLE 宏定义控制启用
+    /// 触摸输入管理组件
+    /// 基于 EasyTouch 插件进行封装，统一管理 2D / 3D / UI 相机手势交互
+    /// 通过 EASY_TOUCH_ENABLE 宏开关控制功能启用状态
     /// </summary>
     [DisallowMultipleComponent]
     public sealed partial class TouchComponent : GameComponent
     {
         /// <summary>
-        /// 初始化：获取并缓存所有 EasyTouch 相关组件
+        /// 组件初始化
+        /// 缓存所有手势相关组件实例，并刷新组件开关状态
         /// </summary>
         protected override void Awake()
         {
             base.Awake();
 
 #if EASY_TOUCH_ENABLE
-            // 获取当前物体上所有手势组件
+            // 获取当前对象上挂载的各类手势控制器
             m_Gestures2D = GetComponent<Gestures2D>();
             m_Gestures3D = GetComponent<Gestures3D>();
             m_GesturesUI = GetComponent<GesturesUI>();
             m_EasyTouch = GetComponent<EasyTouch>();
 
-            // 刷新开关状态（触发组件内部逻辑）
+            // 重新赋值启用开关，触发组件内部初始化逻辑
             m_Gestures2D.EnableSwitch = m_Gestures2D.EnableSwitch;
             m_Gestures3D.EnableSwitch = m_Gestures3D.EnableSwitch;
             m_GesturesUI.EnableSwitch = m_GesturesUI.EnableSwitch;
@@ -35,14 +36,14 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 启动逻辑（预留）
+        /// 组件启动逻辑（预留扩展）
         /// </summary>
         private void Start()
         {
         }
 
         /// <summary>
-        /// 销毁逻辑（预留）
+        /// 组件销毁逻辑（预留扩展）
         /// </summary>
         private void OnDestroy()
         {

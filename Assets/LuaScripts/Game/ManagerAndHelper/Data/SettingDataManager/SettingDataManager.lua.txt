@@ -74,14 +74,14 @@ function SettingDataManager:SetSettingNewState(settingType, newState)
     end)
 
     -- 音乐开关同步
-    if settingType == ESettingType.Music then
+    if settingType == ESettingType.MUSIC then
         xpcall(function()
             SoundMgr:OnBGMCloseStateChanged(settingType, newState)
         end, function() end)
     end
 
     -- 音效开关同步
-    if settingType == ESettingType.Sound then
+    if settingType == ESettingType.SOUND then
         xpcall(function()
             SoundMgr:OnSoundCloseStateChanged(settingType, newState)
         end, function() end)
@@ -92,7 +92,7 @@ end
 --- 使用系统推送权限状态，矫正本地存档的推送开关
 ---=========================================================================
 function SettingDataManager:CorrectNotificationState()
-    local allow = not self:GetSettingState(ESettingType.Notification)
+    local allow = not self:GetSettingState(ESettingType.NOTIFICATION)
     if allow then
         -- 可扩展：系统权限同步逻辑
     end

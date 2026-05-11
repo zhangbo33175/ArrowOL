@@ -9,7 +9,7 @@ namespace Honor.Runtime
         /// 总开关
         /// </summary>
         [SerializeField]
-        [HonorTitle("总开关 (EnableSwitch)")]
+        [GameTitle("总开关 (EnableSwitch)")]
         private bool m_EnableSwitch;
         public bool EnableSwitch
         {

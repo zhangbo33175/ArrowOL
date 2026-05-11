@@ -27,7 +27,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Temp\Bin\Debug\Assembly-CSharp\Player\</OutputPath>
-    <DefineConstants>UNITY_2022_3_8;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_STANDARD_2_0;NET_STANDARD;NET_STANDARD_2_1;NETSTANDARD;NETSTANDARD2_1;UNITY_PRO_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <DefineConstants>UNITY_2022_3_8;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_STANDARD_2_0;NET_STANDARD;NET_STANDARD_2_1;NETSTANDARD;NETSTANDARD2_1;UNITY_PRO_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;EASY_TOUCH_ENABLE;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169,0649</NoWarn>
@@ -50,6 +50,8 @@
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UIAppReviewFeedback\UIAppReviewBehaviour.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AorTextAreaWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Playing\UIs\UIFader.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Utils\RTransformExtension.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_Gestures3DWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\UIs\UIWebGL\UIWebGLWebView.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SpineAtlasRegionWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\Gesture2D\Gestures2D.Events.cs" />
@@ -209,11 +211,11 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Proto_SaveWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_LuaInjectionWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Editor_HierarchyExpandSettingsWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetBundleObjectWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_AppDownloadWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_ControlPlayableAssetWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_AppDownloadWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\Gesture3D\Gestures3D.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Persists\Managers\FileFragment\WebGL\FileFragmentForWebGLManager.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetBundleObjectWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\AorExtendImage.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_MathfWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Src\CopyByValue.cs" />
@@ -258,10 +260,10 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Persists\Components\PersistComponent.Visitors.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_ParticleControlPlayableWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Procedures\Procedures\StateMachines\ProcedureStateMachine.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Editor_AssetBundleBrowserWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\DG_Tweening_Color2Wrap.cs" />
-    <Compile Include="Assets\GameFramework\Scripts\Runtime\Assets\Definitions\OriginType.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_SoundAgentHelperWrap.cs" />
+    <Compile Include="Assets\GameFramework\Scripts\Runtime\Assets\Definitions\OriginType.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Editor_AssetBundleBrowserWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SkeletonUtilityConstraintWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Launchers\Components\LauncherComponent.Definitions.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UIGDPR\UIGDPRBehaviour.ResetBg.cs" />
@@ -428,6 +430,7 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_UI_InputFieldWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_ControlTrackWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_ISpineComponentExtensionsWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_Gestures2DWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_GridMapManager_GridUtilsWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Src\SignatureLoader.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_AnimatorStateInfoWrap.cs" />
@@ -463,6 +466,7 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Tables\Components\TableComponent.Visitors.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Tools\GamePathUtils.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Assets\Managers\PrefabLoad\PrefabLoadManager.Visitors.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_ObjectCommonWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_FollowLocationRigidbody2DWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SkeletonMecanimWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_SaveWrap.cs" />
@@ -477,18 +481,19 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Sounds\Helpers\SoundAgentHelper.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\Logics\BehaviorTree\LuaBTDecorator.Visitors.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_TablesBridge_TableCustomizeItemWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_FileFragmentItemGroupWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_MeshRendererBuffers_SmartMeshWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_ProcedurePlayingWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UIGDPR\UIGDPRBehaviour.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SkeletonUtilityWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_FileFragmentItemGroupWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Networks\Managers\NetworkManager.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_ProcedurePlayingWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AorTextEffectOutlineWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_UIInfoWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_AB_CachingWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Luas\Definitions\LuaEventDelegates.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_EditorWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\UIs\TextEffects\AorTextEffectSpacing.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Utils\ObjectCommon.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\GestureUI\GesturesUI.Events.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\UIs\Tree\AorTreeData.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Tools\Encryption.cs" />
@@ -552,6 +557,7 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Editor_LuaCloudScriptWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\MapView\MapPathDrawer.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_ComponentWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GesturesUIWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\MapGrid\GridMapManager.Methods.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Events\EventPool\EventPool.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GameConstants_Persist_AFWrap.cs" />
@@ -619,9 +625,9 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_FontWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_MeshGenerator_SettingsWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_FileFragmentWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PlayingComponentWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetComponentWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GameConstants_Persist_IAPWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PlayingComponentWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Procedures\Procedures\ProcedureLaunch.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\Definitions\GameConstants.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\Components\TouchComponent.Methods.cs" />
@@ -685,6 +691,7 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Luas\LuaHotReloads\FileOperation.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_TableWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\Game\Map\MapData.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_RTransformExtensionWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PersistComponentWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\UIs\TextPicMixed\AorTextPicMixed.ResDefFormat.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_WaitForFramesWrap.cs" />
@@ -704,10 +711,11 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\Extensions\GameLinkedSet.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AnimationStateBehaviourWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Launchers\Components\LauncherComponent.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Utils\MapInBounds.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_UILauncherLogoViewWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_CachedPackageInfoWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_MD5HandlerWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_AorUIFullScreenImageWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_MD5HandlerWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Events_UnityEventWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Src\ObjectPool.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SpineAtlasAssetWrap.cs" />

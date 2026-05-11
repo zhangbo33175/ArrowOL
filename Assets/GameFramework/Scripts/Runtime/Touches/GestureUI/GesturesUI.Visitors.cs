@@ -11,19 +11,19 @@ namespace Honor.Runtime
         /// UI相机在UI相机列表中的index
         /// </summary>
         [SerializeField]
-        [HonorTitle("UI相机索引值")]
+        [GameTitle("UI相机索引值")]
         private int m_UICameraIndex;
         public int UICameraIndex
         {
             set
             {
-                if (value < 0 || value >= Root.UI.ScreenUICameras.Count)
+                if (value < 0 || value >= GameMainRoot.UI.ScreenUICameras.Count)
                 {
                     Log.Fatal("UICameraIndex 无效。");
                     return;
                 }
                 m_UICameraIndex = value;
-                m_UICamera = Root.UI.ScreenUICameras[m_UICameraIndex];
+                m_UICamera = GameMainRoot.UI.ScreenUICameras[m_UICameraIndex];
             }
             get
             {
@@ -35,7 +35,7 @@ namespace Honor.Runtime
         /// 总开关
         /// </summary>
         [SerializeField]
-        [HonorTitle("总开关 (EnableSwitch)")]
+        [GameTitle("总开关 (EnableSwitch)")]
         private bool m_EnableSwitch;
         public bool EnableSwitch
         {
@@ -54,7 +54,7 @@ namespace Honor.Runtime
         ///【UI】UI开关
         /// </summary>
         [SerializeField]
-        [HonorTitle("UI开关 (UISwitch)")]
+        [GameTitle("UI开关 (UISwitch)")]
         private bool m_UISwitch;
         public bool UISwitch
         {
@@ -72,7 +72,7 @@ namespace Honor.Runtime
         ///【选中】选中开关
         /// </summary>
         [SerializeField]
-        [HonorTitle("选中开关 (SelectSwitch)")]
+        [GameTitle("选中开关 (SelectSwitch)")]
         private bool m_SelectSwitch;
         public bool SelectSwitch
         {
@@ -90,7 +90,7 @@ namespace Honor.Runtime
         ///【拖拽】拖拽开关
         /// </summary>
         [SerializeField]
-        [HonorTitle("拖拽开关 (DragSwitch)")]
+        [GameTitle("拖拽开关 (DragSwitch)")]
         private bool m_DragSwitch;
         public bool DragSwitch
         {
@@ -110,7 +110,7 @@ namespace Honor.Runtime
         /// 非常选中模式：具体流程：选中->开始拖拽->拖拽中->结束拖拽->结束选中
         /// </summary>
         [SerializeField]
-        [HonorTitle("常选中模式（SelectHoldMode）")]
+        [GameTitle("常选中模式（SelectHoldMode）")]
         private bool m_SelectHoldMode;
         public bool SelectHoldMode
         {
@@ -129,7 +129,7 @@ namespace Honor.Runtime
         /// 常选中模式下：当对象处于被选中状态时，再次点击可以将选中状态反弹回未选中状态
         /// </summary>
         [SerializeField]
-        [HonorTitle("常选中模式下选中反弹机制（SelectReboundInSelectHoldMode）")]
+        [GameTitle("常选中模式下选中反弹机制（SelectReboundInSelectHoldMode）")]
         private bool m_SelectReboundInSelectHoldMode;
         public bool SelectReboundInSelectHoldMode
         {
@@ -148,7 +148,7 @@ namespace Honor.Runtime
         /// 常选中模式下：当对象拖拽结束时，可以将选中状态反弹回未选中状态
         /// </summary>
         [SerializeField]
-        [HonorTitle("常选中模式下拖拽结束后反弹机制（SelectReboundAfterDragEndInSelectHoldMode）")]
+        [GameTitle("常选中模式下拖拽结束后反弹机制（SelectReboundAfterDragEndInSelectHoldMode）")]
         private bool m_SelectReboundAfterDragEndInSelectHoldMode;
         public bool SelectReboundAfterDragEndInSelectHoldMode
         {
@@ -166,7 +166,7 @@ namespace Honor.Runtime
         /// 选中对象时所需按压等待时长
         /// </summary>
         [SerializeField]
-        [HonorTitle("选中对象时所需按压等待时长 (PressTimeOfSelectingObj)")]
+        [GameTitle("选中对象时所需按压等待时长 (PressTimeOfSelectingObj)")]
         private float m_PressTimeOfSelectingObj = 0f;
         public float PressTimeOfSelectingObj
         {
@@ -185,7 +185,7 @@ namespace Honor.Runtime
         /// 必须按照响应优先级从高到底的顺序设置
         /// </summary>
         [SerializeField]
-        [HonorTitle("选中拖拽行为的Lua类名 (SelectingTypes)")]
+        [GameTitle("选中拖拽行为的Lua类名 (SelectingTypes)")]
         private List<string> m_SelectingTypes;
         public List<string> SelectingTypes
         {
@@ -203,7 +203,7 @@ namespace Honor.Runtime
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在自身中查询"
         /// </summary>
         [SerializeField]
-        [HonorTitle("选中拖拽行为的Lua类名-在自身中查询 (FindSelectingTypesOnSelf)")]
+        [GameTitle("选中拖拽行为的Lua类名-在自身中查询 (FindSelectingTypesOnSelf)")]
         private bool m_FindSelectingTypesOnSelf = false;
         public bool FindSelectingTypesOnSelf
         {
@@ -222,7 +222,7 @@ namespace Honor.Runtime
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在父对象中查询
         /// </summary>
         [SerializeField]
-        [HonorTitle("选中拖拽行为的Lua类名-在父对象中查询 (FindSelectingTypesOnParent)")]
+        [GameTitle("选中拖拽行为的Lua类名-在父对象中查询 (FindSelectingTypesOnParent)")]
         private bool m_FindSelectingTypesOnParent = false;
         public bool FindSelectingTypesOnParent
         {
@@ -240,7 +240,7 @@ namespace Honor.Runtime
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在子对象中查询
         /// </summary>
         [SerializeField]
-        [HonorTitle("选中拖拽行为的Lua类名-在子对象中查询 (FindSelectingTypesOnChildren)")]
+        [GameTitle("选中拖拽行为的Lua类名-在子对象中查询 (FindSelectingTypesOnChildren)")]
         private bool m_FindSelectingTypesOnChildren = false;
         public bool FindSelectingTypesOnChildren
         {

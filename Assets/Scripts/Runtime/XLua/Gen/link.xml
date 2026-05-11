@@ -127,6 +127,9 @@
 		<type fullname="Honor.Runtime.Timer" preserve="all"/>
 		<type fullname="Honor.Runtime.AorTxt" preserve="all"/>
 		<type fullname="Honor.Runtime.TouchComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.Gestures2D" preserve="all"/>
+		<type fullname="Honor.Runtime.Gestures3D" preserve="all"/>
+		<type fullname="Honor.Runtime.GesturesUI" preserve="all"/>
 		<type fullname="Honor.Runtime.UIComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.UIType" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFlagBehaviour" preserve="all"/>
@@ -253,6 +256,8 @@
 		<type fullname="GameLib.TablesBridge" preserve="all"/>
 		<type fullname="GameLib.JsonHelper" preserve="all"/>
 		<type fullname="GameLib.MapCamHelper" preserve="all"/>
+		<type fullname="GameLib.ObjectCommon" preserve="all"/>
+		<type fullname="GameLib.RTransformExtension" preserve="all"/>
 		<type fullname="GameLib.Util" preserve="all"/>
 		<type fullname="GameLib.WaitForFrames" preserve="all"/>
 		<type fullname="GameLib.GridMapManager+MapTileData" preserve="all"/>

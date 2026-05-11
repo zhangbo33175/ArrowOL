@@ -1,36 +1,30 @@
 --=====================================================================================================
--- descrip:   全局通用扩展函数（table / math / string 工具库）
+-- Description: 全局通用扩展函数（table / math / string 工具库）
 --=====================================================================================================
 
 ------------------------------
 -- Table 扩展
 ------------------------------
 
----查看某值是否为表tbl中的key值
+--- 判断键是否存在于表中
 ---@param tbl table 目标表
----@param key any 要查找的键
----@return boolean 是否存在
+---@param key any 键
+---@return boolean
 function table.kIn(tbl, key)
-    if tbl == nil then
+    if type(tbl) ~= "table" then
         return false
     end
-    for k, _ in pairs(tbl) do
-        if k == key then
-            return true
-        end
-    end
-    return false
+    return tbl[key] ~= nil
 end
 
----查看某值是否为表tbl中的value值
+--- 判断值是否存在于表中
 ---@param tbl table 目标表
----@param value any 要查找的值
----@return boolean 是否存在
+---@param value any 值
+---@return boolean
 function table.vIn(tbl, value)
-    if tbl == nil then
+    if type(tbl) ~= "table" then
         return false
     end
-
     for _, v in pairs(tbl) do
         if v == value then
             return true
@@ -39,15 +33,14 @@ function table.vIn(tbl, value)
     return false
 end
 
----查看表tbl中是否包含 valueTable 里的所有值
+--- 判断表是否包含子表所有值
 ---@param tbl table 主表
----@param valueTable table 子值表
----@return boolean 是否全部包含
+---@param valueTable table 子表
+---@return boolean
 function table.tableIn(tbl, valueTable)
-    if tbl == nil then
+    if type(tbl) ~= "table" or type(valueTable) ~= "table" then
         return false
     end
-
     for _, v in pairs(valueTable) do
         if not table.vIn(tbl, v) then
             return false
@@ -56,49 +49,50 @@ function table.tableIn(tbl, valueTable)
     return true
 end
 
----检查table是否为纯数组（只有连续数字索引）
+--- 判断是否为纯数组（连续数字索引）
 ---@param t table
 ---@return boolean
 function table.isArrayTable(t)
     if type(t) ~= "table" then
         return false
     end
-    local n = #t
-    for i, _ in pairs(t) do
-        if type(i) ~= "number" then
-            return false
-        end
-        if i > n then
+    local length = #t
+    for k, _ in pairs(t) do
+        if type(k) ~= "number" or k < 1 or k > length then
             return false
         end
     end
     return true
 end
 
----递归打印字典表（方便调试）
+--- 递归打印表（调试专用）
 ---@param t table
 ---@return string
 function table.PrintDicTable(t)
-    local str = ""
-    for k, v in pairs(t) do
-        if type(v) == "table" then
-            str = str .. k .. " = " .. table.PrintDicTable(v) .. "\n"
-        else
-            str = str .. k .. " = " .. tostring(v) .. "\n"
-        end
+    if type(t) ~= "table" then
+        return tostring(t)
     end
-    return str
+    local result = {}
+    for k, v in pairs(t) do
+        local keyStr = tostring(k)
+        local valStr = type(v) == "table" and table.PrintDicTable(v) or tostring(v)
+        table.insert(result, keyStr .. " = " .. valStr)
+    end
+    return table.concat(result, "\n")
 end
 
----无序比较两个表的值是否相等
+--- 无序比较两个数组是否相等
 ---@param t1 table
 ---@param t2 table
 ---@return boolean
 function table.compareTablesWithDisorder(t1, t2)
+    if type(t1) ~= "table" or type(t2) ~= "table" then
+        return false
+    end
     if #t1 ~= #t2 then
         return false
     end
-    for k, v in pairs(t1) do
+    for _, v in pairs(t1) do
         if not table.vIn(t2, v) then
             return false
         end
@@ -106,25 +100,31 @@ function table.compareTablesWithDisorder(t1, t2)
     return true
 end
 
----数组过滤删除（安全删除，不会跳索引）
+--- 数组安全过滤删除
 ---@param t table 数组
----@param fn function 回调 function(key,value):boolean
-function table.filterRemove(t, fn)
-    local key = 1
-    while key <= #t do
-        if not fn(key, t[key]) then
-            table.remove(t, key)
+---@param predicate function 判定函数(key, value):boolean
+function table.filterRemove(t, predicate)
+    if type(t) ~= "table" or type(predicate) ~= "function" then
+        return
+    end
+    local index = 1
+    while index <= #t do
+        if not predicate(index, t[index]) then
+            table.remove(t, index)
         else
-            key = key + 1
+            index = index + 1
         end
     end
 end
 
----判断 t1 是否包含 t2 所有元素
+--- 判断 t1 是否包含 t2 所有元素
 ---@param t1 table
 ---@param t2 table
 ---@return boolean
 function table.isContains(t1, t2)
+    if type(t1) ~= "table" or type(t2) ~= "table" then
+        return false
+    end
     for _, v in pairs(t2) do
         if not table.vIn(t1, v) then
             return false
@@ -133,135 +133,123 @@ function table.isContains(t1, t2)
     return true
 end
 
----随机打乱数组（直接修改原表）
+--- Fisher-Yates 打乱数组（原地修改）
 ---@param t table
 function table.shuffle(t)
-    if type(t) ~= "table" then
+    if type(t) ~= "table" or #t <= 1 then
         return
     end
-    local num = #t
-    while num > 1 do
-        local next = math.random(1, num - 1)
-        t[next], t[num] = t[num], t[next]
-        num = num - 1
+    local i = #t
+    while i > 1 do
+        local j = math.random(i)
+        t[i], t[j] = t[j], t[i]
+        i = i - 1
     end
 end
 
----求两个数组的交集
----@param table1 table 数组1
----@param table2 table 数组2
----@return table 交集数组
-function table.Intersection(table1, table2)
-    local intersection = {}
-    local set = {}
-
-    for _, value in ipairs(table2) do
-        set[value] = true
+--- 求两个数组的交集
+---@param arr1 table 数组1
+---@param arr2 table 数组2
+---@return table 交集结果数组
+function table.Intersection(arr1, arr2)
+    if type(arr1) ~= "table" or type(arr2) ~= "table" then
+        return {}
     end
-
-    for _, value in ipairs(table1) do
-        if set[value] then
-            table.insert(intersection, value)
+    local lookup = {}
+    local result = {}
+    for _, v in ipairs(arr2) do
+        lookup[v] = true
+    end
+    for _, v in ipairs(arr1) do
+        if lookup[v] then
+            table.insert(result, v)
         end
     end
-
-    return intersection
+    return result
 end
 
 ------------------------------
 -- Math 扩展
 ------------------------------
 
----数值限制在 [min, max] 之间
----@param v number
----@param minValue number
----@param maxValue number
+--- 数值限制在 [min, max]
+---@param value number
+---@param min number
+---@param max number
 ---@return number
-function math.clamp(v, minValue, maxValue)
-    if v < minValue then
-        return minValue
-    end
-    if v > maxValue then
-        return maxValue
-    end
-    return v
+function math.clamp(value, min, max)
+    if value < min then return min end
+    if value > max then return max end
+    return value
 end
 
----四舍五入
----@param num number
+--- 四舍五入
+---@param value number
 ---@return number
-function math.roundToNearest(num)
-    if num >= 0 then
-        return math.floor(num + 0.5)
-    else
-        return math.ceil(num - 0.5)
-    end
+function math.roundToNearest(value)
+    return value >= 0 and math.floor(value + 0.5) or math.ceil(value - 0.5)
 end
 
----保留 N 位小数（截断，不四舍五入）
----@param nNum number 原数
----@param n number 保留位数
+--- 保留 N 位小数（截断）
+---@param value number 原数值
+---@param decimals number 保留位数，默认0
 ---@return number
-function math.GetPreciseDecimal(nNum, n)
-    if type(nNum) ~= "number" then
-        return nNum
+function math.GetPreciseDecimal(value, decimals)
+    if type(value) ~= "number" then
+        return value
     end
-    n = n or 0
-    n = math.floor(n)
-    if n < 0 then n = 0 end
-
-    local decimal = 10 ^ n
-    return math.floor(nNum * decimal) / decimal
+    decimals = math.max(math.floor(decimals or 0), 0)
+    local multiplier = 10 ^ decimals
+    return math.floor(value * multiplier) / multiplier
 end
 
----浮点数相等判断（防精度误差）
+--- 浮点数近似相等判断
 ---@param a number
 ---@param b number
 ---@return boolean
 function math.Approximately(a, b)
-    return math.abs(a - b) < 0.000001
+    return math.abs(a - b) < 1e-6
 end
 
----限制值在 0~1
+--- 限制值在 0~1 之间
 ---@param value number
 ---@return number
 function math.Clamp01(value)
-    if value < 0 then
-        return 0
-    else
-        return value > 1 and 1 or value
-    end
+    return math.clamp(value, 0, 1)
 end
 
----平滑插值（SmoothStep）
+--- 平滑插值 SmoothStep
 ---@param from number 起始值
 ---@param to number 目标值
 ---@param t number 0~1
 ---@return number
 function math.SmoothStep(from, to, t)
     t = math.Clamp01(t)
-    t = -2 * t * t * t + 3 * t * t
-    return to * t + from * (1 - t)
+    t = t * t * (3 - 2 * t)
+    return from + (to - from) * t
 end
 
 ------------------------------
 -- String 扩展
 ------------------------------
 
----查找字符第一次出现的索引（找不到返回-1）
----@param s string 原字符串
----@param pattern string 查找内容
----@param init number 起始位置
----@return number 索引
-function string.indexOf(s, pattern, init)
-    init = init or 1
-    local index = string.find(s, pattern, init, true)
-    return index or -1
+--- 查找子串第一次出现的索引，找不到返回-1
+---@param str string 原字符串
+---@param substr string 子串
+---@param startIndex number 起始位置，默认1
+---@return number
+function string.indexOf(str, substr, startIndex)
+    if type(str) ~= "string" or type(substr) ~= "string" then
+        return -1
+    end
+    startIndex = startIndex or 1
+    local pos = string.find(str, substr, startIndex, true)
+    return pos or -1
 end
 
----判断字符串是否为空或nil
----@param s string
+--- 判断字符串是否为空或 nil
+---@param str string
 ---@return boolean
-function string.isNullOrEmpty(s)
-    return s == nil or s == ""
+function string.isNullOrEmpty(str)
+    return str == nil or str == ""
 end

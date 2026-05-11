@@ -395,7 +395,7 @@ function HonorTimerHelper:ProcTiming(procedure)
     self._mainUTC0TimeStamp = self:GetUTC0TimeStamp()
 
     -- 处理周期性时间间隔回调
-    ClearDic(self._helperContianer)
+    ClearDictionary(self._helperContianer)
     local collectedDeltaTimerNodesForFire = self._helperContianer
     for index = #self._deltaTimerNodes, 1, -1 do
         local timerNode = self._deltaTimerNodes[index]
@@ -413,7 +413,7 @@ function HonorTimerHelper:ProcTiming(procedure)
     end
     collectedDeltaTimerNodesForFire = nil
 
-    ClearDic(self._helperContianer)
+    ClearDictionary(self._helperContianer)
     local collectedMainUTC0TimerNodesForFire = self._helperContianer
     for index = #self._mainUTC0TimerNodes, 1, -1 do
         local timerNode = self._mainUTC0TimerNodes[index]
@@ -450,7 +450,7 @@ function HonorTimerHelper:ProcTiming(procedure)
     --本地时间
     self._mainLocalTimeStamp = self:GetLocalTimeStamp()
     
-    ClearDic(self._helperContianer)
+    ClearDictionary(self._helperContianer)
     local collectedMainLocalTimerNodesForFire = self._helperContianer
     for index = #self._mainLocalTimerNodes, 1, -1 do
         local timerNode = self._mainLocalTimerNodes[index]
@@ -531,7 +531,7 @@ function HonorTimerHelper:ProcTiming(procedure)
     end
 
     -- 在允许的流程中派发跨天事件
-    ClearDic(self._helperContianer)
+    ClearDictionary(self._helperContianer)
     local collectedAcrossDayEventsForFire = self._helperContianer
     if self._acrossDayEventProcedureNameFlags[procedure.cs.Name] == true then
         for index = #self._acrossDayEventQueue, 1, -1 do
@@ -544,7 +544,7 @@ function HonorTimerHelper:ProcTiming(procedure)
     end
     collectedAcrossDayEventsForFire = nil
 
-    ClearDic(self._helperContianer)
+    ClearDictionary(self._helperContianer)
 end
 
 ---获取当天24点本地时间戳

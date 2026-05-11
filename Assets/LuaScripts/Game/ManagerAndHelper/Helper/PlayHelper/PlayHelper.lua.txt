@@ -695,7 +695,7 @@ function PlayHelper:PlayInGameBGM()
             FoodTruckPlayHelper:PlayInGameBGM(MapManager.CurLoadChapterId)
             return
         end
-        if MapManager.CurLoadMapType == MapType.Main then
+        if MapManager.CurLoadMapType == EMapType.Main then
             --- 主线模式
             local peakId = levelData.PeakId
             local peakLevelData = PeakLevelsDataMgr:GetDataById(tostring(peakId))

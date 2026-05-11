@@ -34,7 +34,7 @@ function BuffManager:IsBuffPreBooster(boosterID)
     end
 
     local boosterData = ResourceDataManager:GetResourceData(boosterID)
-    if boosterData and boosterData.Type == EResourceType.Buff and boosterData.SubType == EItemSubType.UnlimitedPreBooster then
+    if boosterData and boosterData.Type == EResourceType.BUFF and boosterData.SubType == EItemSubType.UNLIMITED_PRE_BOOSTER then
         return true
     end
     return false

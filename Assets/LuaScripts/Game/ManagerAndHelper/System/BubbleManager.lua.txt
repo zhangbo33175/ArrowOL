@@ -62,7 +62,7 @@ function BubbleManager:CloseAllBubble()
             end)
         end
     end
-    ClearDic(self._activeBubble)
+    ClearDictionary(self._activeBubble)
 end
 
 --- 释放（同CloseAll）

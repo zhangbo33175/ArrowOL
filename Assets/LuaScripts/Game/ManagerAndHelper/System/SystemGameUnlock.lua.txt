@@ -96,7 +96,7 @@ end
 ---@return number
 ---=========================================================================
 function SystemGameUnlock:Priority()
-    return ESingletonPriority.GameSysUnlock
+    return ESingletonPriority.GAME_SYS_UNLOCK
 end
 
 ---=========================================================================

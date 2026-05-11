@@ -177,7 +177,7 @@ end
 ---@type fun():number
 ---@return number @ 引导单例初始化优先级
 function GuideNewContext:Priority()
-    return ESingletonPriority.GuideMgr
+    return ESingletonPriority.GUIDE_MGR
 end
 
 ---是否有执行中的引导步骤

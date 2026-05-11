@@ -21,11 +21,15 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.TouchComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 0, 4, 0);
 			
 			
 			
-			
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "Gestures2D", _g_get_Gestures2D);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "Gestures3D", _g_get_Gestures3D);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "GesturesUI", _g_get_GesturesUI);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "EasyTouch", _g_get_EasyTouch);
+            
 			
 			
 			Utils.EndObjectRegister(type, L, translator, null, null,
@@ -73,6 +77,62 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_Gestures2D(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.TouchComponent gen_to_be_invoked = (Honor.Runtime.TouchComponent)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.Gestures2D);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_Gestures3D(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.TouchComponent gen_to_be_invoked = (Honor.Runtime.TouchComponent)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.Gestures3D);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_GesturesUI(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.TouchComponent gen_to_be_invoked = (Honor.Runtime.TouchComponent)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.GesturesUI);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_EasyTouch(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.TouchComponent gen_to_be_invoked = (Honor.Runtime.TouchComponent)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.EasyTouch);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
         
         
         

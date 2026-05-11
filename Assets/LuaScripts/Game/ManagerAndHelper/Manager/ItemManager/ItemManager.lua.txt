@@ -158,19 +158,19 @@ end
 --- 是否前置道具
 function ItemManager:IsPreBooster(id)
     local data = ResourceDataManager:GetResourceData(id)
-    return data and data.Type == EResourceType.Item and data.SubType == EItemSubType.PreBooster
+    return data and data.Type == EResourceType.ITEM and data.SubType == EItemSubType.PRE_BOOSTER
 end
 
 --- 是否局内道具
 function ItemManager:IsBooster(id)
     local data = ResourceDataManager:GetResourceData(id)
-    return data and data.Type == EResourceType.Item and data.SubType == EItemSubType.Booster
+    return data and data.Type == EResourceType.ITEM and data.SubType == EItemSubType.BOOSTER
 end
 
 --- 是否复活道具
 function ItemManager:IsReviveBooster(id)
     local data = ResourceDataManager:GetResourceData(id)
-    return data and data.Type == EResourceType.Item and data.SubType == EItemSubType.Revive
+    return data and data.Type == EResourceType.ITEM and data.SubType == EItemSubType.REVIVE
 end
 
 -- endregion
@@ -199,7 +199,7 @@ function ItemManager:OnConfirmUseBooster(boosterID, num)
     local realID = boosterID
 
     -- 无限前置道具 → 扣关联道具
-    if itemData.Type == EResourceType.Buff and itemData.SubType == EItemSubType.UnlimitedPreBooster then
+    if itemData.Type == EResourceType.BUFF and itemData.SubType == EItemSubType.UNLIMITED_PRE_BOOSTER then
         realID = itemData.RelatedItem
     else
         self:SubSaveNum(boosterID, num)
@@ -234,7 +234,7 @@ function ItemManager:OnConfirmUseBooster(boosterID, num)
             HonorEventHelper:Fire(EventCmd.OnSkillFreezeTimeOver)
         end)
                :SetUpdate(true)
-               .stringId = ECustomTweenID.ItemMgr_FrozenTime_Change
+               .stringId = ECustomTweenID.ITEM_MGR_FROZEN_TIME_CHANGE
     end
 end
 
@@ -247,7 +247,7 @@ end
 
 --- 结束使用（清空所有生效Buff）
 function ItemManager:OnEndUseBooster()
-    DOTween.Kill(ECustomTweenID.ItemMgr_FrozenTime_Change, true)
+    DOTween.Kill(ECustomTweenID.ITEM_MGR_FROZEN_TIME_CHANGE, true)
     self._inActiveIDs = {}
     self._cacheSubNum = {}
 end
@@ -287,7 +287,7 @@ function ItemManager:AddNum(id, addNum)
     end
 
     local item = ResourceDataManager:GetResourceData(id)
-    if item and item.SubType == EItemSubType.Fragment then
+    if item and item.SubType == EItemSubType.FRAGMENT then
         local oldNum = self:GetNum(id)
         local rate = Tables.Constants.FragmentsToBooster.Value[1] or 10
 

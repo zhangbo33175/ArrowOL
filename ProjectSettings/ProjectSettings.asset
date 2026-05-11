@@ -734,7 +734,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Standalone: ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE
+    Standalone: ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;EASY_TOUCH_ENABLE
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}

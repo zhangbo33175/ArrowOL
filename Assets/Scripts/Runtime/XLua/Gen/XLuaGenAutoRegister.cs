@@ -586,6 +586,15 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.TouchComponent), HonorRuntimeTouchComponentWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Honor.Runtime.Gestures2D), HonorRuntimeGestures2DWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.Gestures3D), HonorRuntimeGestures3DWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.GesturesUI), HonorRuntimeGesturesUIWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIComponent), HonorRuntimeUIComponentWrap.__Register);
         
         
@@ -636,6 +645,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.UILauncherLoadingView), HonorRuntimeUILauncherLoadingViewWrap.__Register);
         
+        }
+        
+        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.UILauncherLogoBehaviour), HonorRuntimeUILauncherLogoBehaviourWrap.__Register);
         
@@ -645,10 +658,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.UILauncherView), HonorRuntimeUILauncherViewWrap.__Register);
         
-        }
-        
-        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist), HonorRuntimeGameConstantsPersistWrap.__Register);
         
@@ -793,6 +802,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.IAP), HonorRuntimeGameConstantsPersistIAPWrap.__Register);
         
+        }
+        
+        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.GDPR), HonorRuntimeGameConstantsPersistGDPRWrap.__Register);
         
@@ -802,10 +815,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.Permission), HonorRuntimeGameConstantsPersistPermissionWrap.__Register);
         
-        }
-        
-        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.AF), HonorRuntimeGameConstantsPersistAFWrap.__Register);
         
@@ -950,6 +959,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.ActivationControlPlayable), UnityEngineTimelineActivationControlPlayableWrap.__Register);
         
+        }
+        
+        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.DirectorControlPlayable), UnityEngineTimelineDirectorControlPlayableWrap.__Register);
         
@@ -959,10 +972,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.ParticleControlPlayable), UnityEngineTimelineParticleControlPlayableWrap.__Register);
         
-        }
-        
-        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.PrefabControlPlayable), UnityEngineTimelinePrefabControlPlayableWrap.__Register);
         
@@ -1107,6 +1116,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.UpdateMode), SpineUnityUpdateModeWrap.__Register);
         
+        }
+        
+        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.UpdateTiming), SpineUnityUpdateTimingWrap.__Register);
         
@@ -1116,10 +1129,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.MeshGeneratorBuffers), SpineUnityMeshGeneratorBuffersWrap.__Register);
         
-        }
-        
-        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.MeshGenerator), SpineUnityMeshGeneratorWrap.__Register);
         
@@ -1264,6 +1273,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(DG.Tweening.PathType), DGTweeningPathTypeWrap.__Register);
         
+        }
+        
+        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(DG.Tweening.RotateMode), DGTweeningRotateModeWrap.__Register);
         
@@ -1273,10 +1286,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(DG.Tweening.TweenExtensions), DGTweeningTweenExtensionsWrap.__Register);
         
-        }
-        
-        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(DG.Tweening.LoopType), DGTweeningLoopTypeWrap.__Register);
         
@@ -1419,6 +1428,16 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(GameLib.MapCamHelper), GameLibMapCamHelperWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(GameLib.ObjectCommon), GameLibObjectCommonWrap.__Register);
+        
+        }
+        
+        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
+        {
+        
+            translator.DelayWrapLoader(typeof(GameLib.RTransformExtension), GameLibRTransformExtensionWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(GameLib.Util), GameLibUtilWrap.__Register);
         
         
@@ -1430,10 +1449,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(GameLib.GridMapManager.MapTilemapData), GameLibGridMapManagerMapTilemapDataWrap.__Register);
         
-        }
-        
-        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(GameLib.GridMapManager.LayerData), GameLibGridMapManagerLayerDataWrap.__Register);
         
@@ -1866,6 +1881,14 @@ namespace XLua
 		delegate DG.Tweening.Sequence __GEN_DELEGATE175( UnityEngine.Rigidbody2D target,  UnityEngine.Vector2 endValue,  float jumpPower,  int numJumps,  float duration,  bool snapping);
 		
 		delegate DG.Tweening.Tweener __GEN_DELEGATE176( UnityEngine.SpriteRenderer target,  UnityEngine.Color endValue,  float duration);
+		
+		delegate float __GEN_DELEGATE177( HedgehogTeam.EasyTouch.BaseFinger transform);
+		
+		delegate float __GEN_DELEGATE178( HedgehogTeam.EasyTouch.BaseFinger transform);
+		
+		delegate float __GEN_DELEGATE179( HedgehogTeam.EasyTouch.BaseFinger finger);
+		
+		delegate float __GEN_DELEGATE180( HedgehogTeam.EasyTouch.BaseFinger finger);
 		
 	    static InternalGlobals()
 		{
@@ -3255,6 +3278,38 @@ namespace XLua
 #endif
 				
 				  new __GEN_DELEGATE175(DG.Tweening.ShortcutExtensions43.DOJump)
+#if UNITY_WSA && !UNITY_EDITOR
+                                      .GetMethodInfo(),
+#else
+                                      .Method,
+#endif
+				
+				}},
+				
+				{typeof(HedgehogTeam.EasyTouch.BaseFinger), new List<MethodInfo>(){
+				
+				  new __GEN_DELEGATE177(GameLib.RTransformExtension.GetPositionX)
+#if UNITY_WSA && !UNITY_EDITOR
+                                      .GetMethodInfo(),
+#else
+                                      .Method,
+#endif
+				
+				  new __GEN_DELEGATE178(GameLib.RTransformExtension.GetPositionY)
+#if UNITY_WSA && !UNITY_EDITOR
+                                      .GetMethodInfo(),
+#else
+                                      .Method,
+#endif
+				
+				  new __GEN_DELEGATE179(GameLib.RTransformExtension.GetDeltaPositionX)
+#if UNITY_WSA && !UNITY_EDITOR
+                                      .GetMethodInfo(),
+#else
+                                      .Method,
+#endif
+				
+				  new __GEN_DELEGATE180(GameLib.RTransformExtension.GetDeltaPositionY)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else

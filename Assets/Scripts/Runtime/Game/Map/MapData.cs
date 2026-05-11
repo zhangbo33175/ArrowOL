@@ -297,7 +297,8 @@ public class MapData : MonoBehaviour
     /// </summary>
     [Tooltip("游玩关卡对齐方式类型")]
     public RMapPlayHudPosType m_MapPlayHudPosType = RMapPlayHudPosType.Left;
-
+    [Tooltip("地图区域Bounds")] public MapMotionLayer mapBounds;
+    [Tooltip("视差Transform")] public Transform parallaxTransform;
     /// <summary>
     /// 地图类型（主线/每日）
     /// </summary>

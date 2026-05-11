@@ -52,13 +52,18 @@ function GameMapBase:Awake()
     --- 初始化地图相机参数
     --GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.normalCamData)
     --- 初始化地图机器
-    MapManager:InitMapMachines()
+    --MapManager:InitMapMachines()
     --- 生成默认角色
     --self:SpawnDefaultCharacters()
     --- 初始化机器到游戏初始状态
     MapManager:OnInitGame()
 end
-
+---开始
+---@type fun():void
+function GameMapBase:Start()
+    GameMapBase.super.Start(self)
+    GameMapMotion:OnMapStart(self.cs.transform)
+end
 ---@brief 销毁回调
 function GameMapBase:OnDestroy()
     GameMapBase.super.OnDestroy(self)

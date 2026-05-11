@@ -16,7 +16,7 @@
 
 ---@class GameMapMotion 地图滑动控制单例
 ---@field FollowPosition UnityEngine.Vector3 相机目标跟随位置
----@field MapMotionLayer RGame.MapMotionLayer 地图运动根节点
+---@field MapMotionLayer GameLib.MapMotionLayer 地图运动根节点
 ---@field CloseShots CloseShotLayer[] 近景视差层列表
 ---@field ScreenCamera UnityEngine.Camera 主相机
 ---@field SwipeBegin function 滑动开始委托
@@ -308,7 +308,7 @@ function GameMapMotion:OnMapStart(mapTrans)
         return
     end
 
-    self.MapMotionLayer = mapTrans:GetComponent("RGame.MapMotionLayer")
+    self.MapMotionLayer = mapTrans:GetComponent("GameLib.MapMotionLayer")
     if not self.MapMotionLayer then
         return
     end
@@ -335,11 +335,11 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.Vector3Num = { x = 0, y = 0, z = 0 }
 
     -- 地图边界信息
-    self.MapHalfWidth = self.MapMotionLayer.AreaBounds.extents.x
-    self.MapHalfHeigh = self.MapMotionLayer.AreaBounds.extents.y
-    self.MapCenterX = self.MapMotionLayer.AreaBounds.center.x + self.MapMotionLayer.transform:GetPositionX()
-    self.MapCenterY = self.MapMotionLayer.AreaBounds.center.y + self.MapMotionLayer.transform:GetPositionY()
-    self.MapBounds = self.MapMotionLayer.AreaBounds
+    self.MapHalfWidth = self.MapMotionLayer.areaBounds.extents.x
+    self.MapHalfHeigh = self.MapMotionLayer.areaBounds.extents.y
+    self.MapCenterX = self.MapMotionLayer.areaBounds.center.x + self.MapMotionLayer.transform:GetPositionX()
+    self.MapCenterY = self.MapMotionLayer.areaBounds.center.y + self.MapMotionLayer.transform:GetPositionY()
+    self.MapBounds = self.MapMotionLayer.areaBounds
 
     -- 相机参数
     self.ScreenCameraAspect = self.ScreenCamera.aspect
@@ -347,7 +347,7 @@ function GameMapMotion:OnMapStart(mapTrans)
 
     -- 初始化近景视差层
     self.CloseShots = {}
-    local parallaxLayer = MapMgr.CurMapData.parallaxTransform
+    local parallaxLayer = MapManager.CurMapData.parallaxTransform
 
     if parallaxLayer then
         local aspect = self.ScreenCameraAspect
@@ -377,7 +377,7 @@ function GameMapMotion:OnMapStart(mapTrans)
     end
 
     -- 注册触摸
-    self:RegOrUnregEvent("+")
+    self:RegisterTouchEvents("+")
 end
 
 ---@brief 限制 X 坐标在地图可见范围内

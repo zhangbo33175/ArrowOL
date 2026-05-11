@@ -207,7 +207,7 @@ end
 --- 游戏结束清理
 function GameCoreManagerUseItem:OnGameOver()
     self._isGameWorking = false
-    ClearDic(self._freeTag)
+    ClearDictionary(self._freeTag)
     self:RecycleEffectObject()
     self:ClearEventListener()
     self:GameOverRollbackWonderDish()

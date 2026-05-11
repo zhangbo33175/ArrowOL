@@ -42,13 +42,6 @@ function UIMapBase:Awake()
     
 end
 
----@brief 开始回调
-function UIMapBase:Start()
-    UIMapBase.super.Start(self)
-    --- 初始化地图移动/镜头控制
-    GameMapMotion:OnMapStart(self.cs.transform)
-end
-
 ---@brief 销毁回调
 function UIMapBase:OnDestroy()
     UIMapBase.super.OnDestroy(self)
@@ -142,7 +135,7 @@ function UIMapBase:UnloadMapBeforeClear()
     for id,_ in pairs(self._delayCallIds) do
         DOTween.Kill(id)
     end
-    ClearDic(self._delayCallIds)
+    ClearDictionary(self._delayCallIds)
 
     --- 释放自治体管理器
     --AutonomousMgr:Dispose()

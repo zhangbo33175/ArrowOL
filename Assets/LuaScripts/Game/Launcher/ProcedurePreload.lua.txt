@@ -22,9 +22,7 @@ function ProcedurePreload:ctor(args)
     self._loadCountPerFrameOfMedium = 5
     --- 高端机每帧加载数量
     self._loadCountPerFrameOfHigh = 10
-
-    --- 初始化预加载Lua列表
-    self:InitPreLoadLuaFiles()
+    
     --- 初始化启动时间数据
     self:InitLaunchTimeData()
 end
@@ -34,16 +32,6 @@ end
 ---@return ProcedurePreload 实例对象
 function ProcedurePreload:Create(args)
     return ProcedurePreload.new(args)
-end
-
----@brief 初始化需要预加载的核心Lua基类文件
-function ProcedurePreload:InitPreLoadLuaFiles()
-    self._preLoadLuaFiles = {
-        "LuaBehaviourSuper",
-        "ViewSuper",
-        "GameMapBase",
-        "UIMapBase",
-    }
 end
 
 ---@brief 初始化游戏启动时间数据（上次启动时间 / 当前启动时间）
@@ -189,10 +177,7 @@ function ProcedurePreload:LoadAddSteps()
     if SingletonManager then
         SingletonManager:InitAllSingleForStep(self)
     end
-
-    -- 预加载核心Lua
-    self:PreLoadLuaFiles()
-
+    
     -- 加载完成跳转到主流程
     self.cs:AddStep(function()
         if self.cs and typeof(Honor.ProcedurePlaying) then
@@ -213,38 +198,6 @@ function ProcedurePreload:PreLoadLuaFile(luaFileName)
     end
 end
 
----@brief 分帧批量预加载Lua文件
-function ProcedurePreload:PreLoadLuaFiles()
-    if not self._preLoadLuaFiles then return end
-
-    BatchTraverseFunc(self._preLoadLuaFiles, self:LoadCountPreFrame(), function(batchData)
-        if not batchData or #batchData <= 0 then return end
-
-        local list = CopyTab(batchData)
-        self.cs:AddStep(function()
-            for _, v in ipairs(list) do
-                self:PreLoadLuaFile(v)
-            end
-        end)
-    end)
-end
-
----@brief 预加载UI配置文件
-function ProcedurePreload:PreLoadUIConfig()
-    if not UIPreloadConfig then return end
-
-    BatchTraverseFunc(UIPreloadConfig, self:LoadCountPreFrame(), function(batchData)
-        if not batchData or #batchData <= 0 then return end
-
-        local list = CopyTab(batchData)
-        self.cs:AddStep(function()
-            for _, v in ipairs(list) do
-                self:PreLoadLuaFile(v)
-            end
-        end)
-    end)
-end
-
 ---@brief 根据设备性能等级获取每帧加载数量
 ---@return number 每帧加载个数
 function ProcedurePreload:LoadCountPreFrame()
@@ -261,56 +214,6 @@ function ProcedurePreload:LoadCountPreFrame()
         return self._loadCountPerFrameOfLow
     end
     return self._loadCountPerFrameOfMedium
-end
-
----@brief 异步预加载地图资源
----@param callback function 加载完成回调
-function ProcedurePreload:PreLoadAssetAsyncOfMap(callback)
-    local chapterId = ChapterListMgr and ChapterListMgr:GetLatestChapterId() or "1"
-    local downId = IncreaserHotfixHelper and IncreaserHotfixHelper:GetLastHasDownGroupChapterId(chapterId) or chapterId
-    local mapName = MapManager and MapManager:GetLoadMapResName(downId)
-
-    if not mapName or not RES or not GameMainRoot or not GameMainRoot.Asset then
-        if callback then xpcall(callback, __G__TRACK_BACK__) end
-        return
-    end
-
-    PrintInfo("预加载地图：" .. mapName)
-    local mapRes = RES["GameObject_" .. mapName]
-    if not mapRes then
-        if callback then xpcall(callback, __G__TRACK_BACK__) end
-        return
-    end
-
-    GameMainRoot.Asset:PreLoadAssetAsync(mapRes.TypeName, mapRes.ABPath, mapName, function(assetObject, asset)
-        PrintInfo("预加载地图完成：" .. mapName)
-        if asset then
-            GameMainRoot.Asset:UnloadAsset(asset)
-        end
-        if callback then
-            xpcall(callback, __G__TRACK_BACK__)
-        end
-    end, true)
-end
-
----@brief 加载地图
----@param callback function 加载完成回调
-function ProcedurePreload:LoadMap(callback)
-    local chapterId = ChapterListManager and ChapterListManager:GetLatestChapterId() or "1"
-    local downId = IncreaserHotfixHelper and IncreaserHotfixHelper:GetLastHasDownGroupChapterId(chapterId) or chapterId
-
-    if ChapterListManager and ChapterListManager.SetRuntimeChapter then
-        ChapterListManager:SetRuntimeChapter(downId)
-    end
-
-    local succ = false
-    if MapManager and MapManager.LoadMapById then
-        succ = MapManager:LoadMapById(downId, nil)
-    end
-
-    if callback then
-        xpcall(callback, __G__TRACK_BACK__, succ)
-    end
 end
 
 ---@brief 检查游戏是否异常退出（未正常结束关卡）

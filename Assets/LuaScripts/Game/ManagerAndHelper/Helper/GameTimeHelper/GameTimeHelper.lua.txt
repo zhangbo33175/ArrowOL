@@ -87,7 +87,7 @@ end
 ---@type fun():number
 ---@return number @优先级
 function GameTimeHelper:Priority()
-    return ESingletonPriority.GameTimeHelper
+    return ESingletonPriority.GAME_TIME_HELPER
 end
 
 ---@brief 清理数据（切换账号/场景时调用）
@@ -111,10 +111,10 @@ end
 
 ---@brief 初始化多语言时间单位文本
 function GameTimeHelper:_InitLanguageText()
-    self.dayStr = GetLang('TimeShowDay')
-    self.hourStr = GetLang('TimeShowHour')
-    self.minStr = GetLang('TimeShowMin')
-    self.secStr = GetLang('TimeShowSec')
+    self.dayStr = GetLocalization('TimeShowDay')
+    self.hourStr = GetLocalization('TimeShowHour')
+    self.minStr = GetLocalization('TimeShowMin')
+    self.secStr = GetLocalization('TimeShowSec')
 end
 
 ---@brief 二分法插入有序任务列表（保证按时间戳升序）
@@ -282,12 +282,12 @@ end
 --region 防篡改时间戳（防止玩家修改本地时间作弊）
 ---@brief 登录时初始化基准未来时间戳
 function GameTimeHelper:SetupFutureTimeStamp()
-    if not PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] then
-        PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] = PbRootData.UserData.launchTime.current.utc0
+    if not PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] then
+        PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = PbRootData.UserData.launchTime.current.utc0
     end
 
     local loginTime = PbRootData.UserData.launchTime.current.utc0
-    local futureTime = PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp]
+    local futureTime = PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP]
 
     if loginTime == nil then
         return
@@ -295,11 +295,11 @@ function GameTimeHelper:SetupFutureTimeStamp()
 
     --- 使用真实启动时间矫正基准，防止回退时间
     if futureTime < loginTime then
-        PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] = loginTime - Unity.Time.realtimeSinceStartup
+        PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = loginTime - Unity.Time.realtimeSinceStartup
         PbIO.GameData.Save_timestamps()
     end
 
-    self.futureTimeStamp = PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp]
+    self.futureTimeStamp = PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP]
 end
 
 ---@brief 切后台/退出游戏时刷新并保存基准时间
@@ -308,7 +308,7 @@ function GameTimeHelper:RefreshFutureTimeStamp()
         return
     end
 
-    PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] = self:GetUTC0FutureTimeStamp()
+    PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = self:GetUTC0FutureTimeStamp()
     PbIO.GameData.Save_timestamps()
 end
 

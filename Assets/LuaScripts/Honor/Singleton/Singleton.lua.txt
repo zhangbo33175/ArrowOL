@@ -37,7 +37,7 @@ end
 --- 数值越大，初始化越早、清理越晚
 ---@return number 优先级
 function Singleton:Priority()
-    return ESingletonPriority.Default
+    return ESingletonPriority.DEFAULT
 end
 
 return Singleton

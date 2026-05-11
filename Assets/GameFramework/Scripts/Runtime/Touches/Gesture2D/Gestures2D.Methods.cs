@@ -131,7 +131,7 @@ namespace Honor.Runtime
 
                                 List<GameObject> goHits = new List<GameObject>();
 
-                                if (m_ColliderDetectMode == Definitions.DimensionMode.Two)
+                                if (m_ColliderDetectMode == GameDefinitions.DimensionMode.Two)
                                 {
                                     RaycastHit2D[] hits2D = Physics2D.GetRayIntersectionAll(ray);
 
@@ -167,7 +167,7 @@ namespace Honor.Runtime
                                         goHits.Add(hits2D[index].transform.gameObject);
                                     }
                                 }
-                                else if (m_ColliderDetectMode == Definitions.DimensionMode.Three)
+                                else if (m_ColliderDetectMode == GameDefinitions.DimensionMode.Three)
                                 {
                                     RaycastHit[] hits3D = Physics.RaycastAll(ray);
 

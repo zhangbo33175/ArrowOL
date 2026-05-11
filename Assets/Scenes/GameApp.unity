@@ -252,6 +252,7 @@ Transform:
   - {fileID: 138080650}
   - {fileID: 1325806118}
   - {fileID: 400789284}
+  - {fileID: 1027725692}
   m_Father: {fileID: 1051954316}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &242576484
@@ -544,6 +545,191 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 96f2afe9fdd139f4d819671f50749748, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1027725691
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1027725692}
+  - component: {fileID: 1027725697}
+  - component: {fileID: 1027725696}
+  - component: {fileID: 1027725695}
+  - component: {fileID: 1027725694}
+  - component: {fileID: 1027725693}
+  m_Layer: 0
+  m_Name: TouchManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1027725692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027725691}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 242576483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1027725693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027725691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c5e3fb994c18394f8dad7b18a5a6824, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UICameraIndex: 0
+  m_EnableSwitch: 0
+  m_UISwitch: 0
+  m_SelectSwitch: 0
+  m_DragSwitch: 0
+  m_SelectHoldMode: 0
+  m_SelectReboundInSelectHoldMode: 0
+  m_SelectReboundAfterDragEndInSelectHoldMode: 0
+  m_PressTimeOfSelectingObj: 0
+  m_SelectingTypes: []
+  m_FindSelectingTypesOnSelf: 0
+  m_FindSelectingTypesOnParent: 0
+  m_FindSelectingTypesOnChildren: 0
+--- !u!114 &1027725694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027725691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc91545177989474f8b20a588fac635c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EnableSwitch: 0
+--- !u!114 &1027725695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027725691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a31083642bd751947a04bd3815ef9281, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneCameraIndex: 0
+  m_IsOrthographic: 0
+  m_GestureCameraDistance: 0
+  m_EnableSwitch: 0
+  m_SwipeSwitch: 0
+  m_PinchSwitch: 0
+  m_MouseWheelPinchSwitch: 0
+  m_SelectSwitch: 0
+  m_DragSwitch: 0
+  m_SpaceCenterPosition: {x: 0, y: 0}
+  m_SpaceHorizontalLength: 30
+  m_SpaceVerticalLength: 30
+  m_SpaceHorizontalEdgeMoveElasticLength: 10
+  m_SpaceVerticalEdgeMoveElasticLength: 10
+  m_PinchRatio: 150
+  m_PinchMinScale: 1
+  m_PinchMaxScale: 13
+  m_MouseWheelPinchOffset: -400
+  m_SpaceEdgeScaleElasticValue: 1
+  m_SafeTimeOnGestureOver: 0.04
+  m_SelectHoldMode: 0
+  m_SelectReboundInSelectHoldMode: 0
+  m_SelectReboundAfterDragEndInSelectHoldMode: 0
+  m_PressTimeOfSelectingObj: 0
+  m_ColliderDetectMode: 0
+  m_PosYSortSelectSwitch: 1
+  m_RayDistanceSortSelectSwitch: 1
+  m_SortingLayerOrderSortSelectSwitch: 1
+  m_SelectingTypes: []
+  m_FindSelectingTypesOnSelf: 0
+  m_FindSelectingTypesOnParent: 0
+  m_FindSelectingTypesOnChildren: 0
+--- !u!114 &1027725696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027725691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42241010c6f9ddc46b78abdc21d505c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enable: 1
+  enableRemote: 0
+  gesturePriority: 0
+  StationaryTolerance: 15
+  longTapTime: 1
+  swipeTolerance: 0.85
+  minPinchLength: 0
+  minTwistAngle: 0
+  doubleTapDetection: 0
+  doubleTapTime: 0.3
+  alwaysSendSwipe: 0
+  enable2FingersGesture: 1
+  enableTwist: 1
+  enablePinch: 1
+  enable2FingersSwipe: 1
+  twoFingerPickMethod: 0
+  touchCameras: []
+  autoSelect: 1
+  pickableLayers3D:
+    serializedVersion: 2
+    m_Bits: 1
+  enable2D: 0
+  pickableLayers2D:
+    serializedVersion: 2
+    m_Bits: 1
+  autoUpdatePickedObject: 0
+  allowUIDetection: 1
+  enableUIMode: 1
+  autoUpdatePickedUI: 0
+  enabledNGuiMode: 0
+  nGUILayers:
+    serializedVersion: 2
+    m_Bits: 0
+  nGUICameras: []
+  enableSimulation: 1
+  twistKey: 308
+  swipeKey: 306
+  showGuiInspector: 1
+  showSelectInspector: 1
+  showGestureInspector: 1
+  showTwoFingerInspector: 0
+  showSecondFingerInspector: 0
+  secondFingerTexture: {fileID: 0}
+--- !u!114 &1027725697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027725691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e1835ff61324464785d0d9f85778474, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1051954315

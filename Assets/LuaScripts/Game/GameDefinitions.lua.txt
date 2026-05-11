@@ -1,7 +1,11 @@
 --=====================================================================================================
--- descrip:   全局常量、枚举、配置定义（所有模块共用）
+-- Description: 全局常量、枚举、配置定义（所有模块共用）
+-- Author:     优化版 - 遵循 Unity 规范 + 统一命名 + 修复拼写错误
 --=====================================================================================================
 
+--==================================================
+-- 基础模块依赖
+--==================================================
 --- 通用列表容器
 HonorList = require("HonorList")
 --- 队列容器
@@ -9,87 +13,134 @@ HonorQueue = require("HonorQueue")
 --- 堆栈容器
 HonorStack = require("HonorStack")
 
---- 全局记录所有已打开的UI
+--- 全局记录所有已打开的UI实例
 AllOpenUI = {}
 
+--==================================================
+-- 持久化数据配置
+--==================================================
 --- 编辑器环境持久化数据标识
----@class EPersistentForEditor @编辑器持久化数据
----@field ClassName string @类名
+---@class EPersistentForEditor
+---@field CLASS_NAME string 类名
 EPersistentForEditor = {
-    ClassName = "ArrowForEditor",
+    CLASS_NAME = "ArrowForEditor",
 }
 
 --- 运行时游戏持久化数据标识
----@class EPersistentForGame @游戏持久化数据
----@field ClassName string @类名
----@field DownGroup string @下载组
----@field NotificationClassName string @推送类名
----@field NotificationCache string @推送缓存
----@field FirstIntoMapClassName string @首次进入地图根节点
----@field FirstIntoMap string @首次进入某章节标记
+---@class EPersistentForGame
+---@field CLASS_NAME string 主数据类名
+---@field NOTIFICATION_CACHE string 推送缓存键
+---@field FIRST_INTO_MAP_CLASS_NAME string 首次进入地图根节点
+---@field FIRST_INTO_MAP string 首次进入章节标记
 EPersistentForGame = {
-    ClassName = "ArrowForGame",
-    NotificationCache = "ArrowNotificationCache",
-    FirstIntoMapClassName = "FirstIntoMapRoot",
-    FirstIntoMap = "ChapterMap",
+    CLASS_NAME = "ArrowForGame",
+    NOTIFICATION_CACHE = "ArrowNotificationCache",
+    FIRST_INTO_MAP_CLASS_NAME = "FirstIntoMapRoot",
+    FIRST_INTO_MAP = "ChapterMap",
 }
 
---- UI堆栈分组名称（用于区分不同UI队列）
----@class EUIStackName @UI堆栈名称
----@field None string @无
----@field Temp string @临时UI栈
----@field UI string @主UI栈
-UIStackName = {
-    None = "None",
-    Temp = "Temp",
+--==================================================
+-- UI 系统枚举
+--==================================================
+--- UI堆栈分组名称
+---@class EUIStackName
+---@field NONE string 无分组
+---@field TEMP string 临时UI栈
+---@field UI string 主UI栈
+EUIStackName = {
+    NONE = "None",
+    TEMP = "Temp",
     UI = "UI",
 }
 
---- 层级名称（SortingLayer）
----@class ELayerName @层级名称
----@field UI string @UI层
----@field Map string @地图层
----@field Effect string @特效层
----@field Charater string @角色层
+--- 渲染层级名称
+---@class ELayerName
+---@field UI string UI层级
+---@field MAP string 地图层级
+---@field EFFECT string 特效层级
+---@field CHARACTER string 角色层级
 ELayerName = {
     UI = "UI",
-    Map = "Map",
-    Effect = "Effect",
-    Charater = "Charater",
+    MAP = "Map",
+    EFFECT = "Effect",
+    CHARACTER = "Character",
 }
 
 --- 坐标空间类型
----@class EPos @位置
----@field Local number @本地坐标
----@field World number @世界坐标
-EPos = {
-    Local = 0,
-    World = 1,
+---@class EPosType
+---@field LOCAL number 本地坐标
+---@field WORLD number 世界坐标
+EPosType = {
+    LOCAL = 0,
+    WORLD = 1,
 }
 
 --- 气泡弹窗箭头方向
----@class EPopBubbleOrientation @气泡箭头方向
----@field Down number @向下
----@field Up number @向上
+---@class EPopBubbleOrientation
+---@field DOWN number 箭头向下
+---@field UP number 箭头向上
 EPopBubbleOrientation = {
-    Down = 0,
-    Up = 1,
+    DOWN = 0,
+    UP = 1,
 }
 
+--- UI控制器动画名称
+---@class EUIControllerAnim
+---@field OPEN string 打开动画
+---@field CLOSE string 关闭动画
+EUIControllerAnim = {
+    OPEN = "UIOpen",
+    CLOSE = "UIClose",
+}
+
+--- 章节列表UI动画
+---@class EUIChapterListAnim
+---@field OPEN string 打开动画
+---@field CLOSE string 关闭动画
+EUIChapterListAnim = {
+    OPEN = "UIChapterList__BgImage",
+    CLOSE = "UIChapterList__Close",
+}
+
+--- 插屏广告播放点位
+---@class EInterAdID
+---@field LEVEL_WIN number 关卡胜利
+---@field LEVEL_FAILED number 关卡失败
+---@field CHANGE_CHAPTER number 切换章节
+EInterAdID = {
+    LEVEL_WIN = 1,
+    LEVEL_FAILED = 2,
+    CHANGE_CHAPTER = 3,
+}
+
+--- UI打开来源（埋点用）
+---@class EUITaskOpenSource
+---@field DEFAULT number 默认打开
+---@field AUTO number 自动弹出
+---@field DAILY_TASK number 每日任务跳转
+EUITaskOpenSource = {
+    DEFAULT = 0,
+    AUTO = 1,
+    DAILY_TASK = 2,
+}
+
+--==================================================
+-- 输入按键
+--==================================================
 --- Unity 按键枚举（Lua 包装）
----@class KeyCode @CS层Unity KeyCode的枚举
----@field F1 number @F1
----@field F2 number @F2
----@field F3 number @F3
----@field F4 number @F4
----@field F5 number @F5
----@field F6 number @F6
----@field F7 number @F7
----@field F8 number @F8
----@field F9 number @F9
----@field F10 number @F10
----@field F11 number @F11
----@field F12 number @F12
+---@class KeyCode
+---@field F1 number
+---@field F2 number
+---@field F3 number
+---@field F4 number
+---@field F5 number
+---@field F6 number
+---@field F7 number
+---@field F8 number
+---@field F9 number
+---@field F10 number
+---@field F11 number
+---@field F12 number
 KeyCode = {
     F1 = Unity.KeyCode.F1,
     F2 = Unity.KeyCode.F2,
@@ -105,526 +156,558 @@ KeyCode = {
     F12 = Unity.KeyCode.F12
 }
 
---- 游戏关卡生命周期事件（进入、开始、暂停、结束等）
----@class EPlayHudCycleAction @游戏内循环周期事件
----@field InitGame number @初始化游戏关卡
----@field EnterGame number @进入游戏关卡
----@field BeginGame number @游戏开始
----@field PauseGame number @游戏暂停
----@field ResumeGame number @恢复游戏
----@field GameOver number @游戏结束
----@field ExitGame number @离开关卡
----@field RePlayGame number @重新开始
-EPlayHudCycleAction = {
-    InitGame = 0,
-    EnterGame = 1,
-    BeginGame = 2,
-    PauseGame = 3,
-    ResumeGame = 4,
-    GameOver = 5,
-    ExitGame = 6,
-    RePlayGame = 7
-}
-
---- 地图类型
----@class EMapType @游戏地图类型
----@field Main number @主线地图
-MapType = {
-    Main = 1,
-}
-
---- 角色类型
----@class ECharacterType @角色类型
-CharacterType = {
-    Chef = 1, -- 厨师
-}
-
---- 头像/头像框类型
----@class EChefAvatarFrame @头像、头像框
----@field Avatar number @头像
----@field Frame number @头像框
-ChefAvatarFrame = {
-    Avatar = 1,
-    Frame = 2,
-}
-
---- 头像/头像框获取方式
----@class EChefAvatarFrameMethodType @ 头像、头像框获取方式
----@field Level number @通关解锁
----@field Booster number @道具投放
----@field GoldenTicket number @通行证
-ChefAvatarFrameMethodType = {
-    Level = 1,
-    Booster = 2,
-    GoldenTicket = 3,
-}
-
---- 厨师挑战活动奖励类型
----@class EChefChallengeActivityReward : table @ 奖励类型
----@field Single number @单个奖励
----@field Box number @宝箱
----@field Biggest number @终极大奖
-ChefChallengeActivityReward = {
-    Single = 1,
-    Box = 2,
-    Biggest = 3,
-}
-
---- Spine动画更新时机
----@class SpineUpdateTiming : table @ 动画更新方式
----@field ManualUpdate number @手动更新
----@field InUpdate number @Update更新
----@field InFixedUpdate number @FixedUpdate更新
-SpineUpdateTiming = {
-    ManualUpdate = 0,
-    InUpdate = 1,
-    InFixedUpdate = 2
+--==================================================
+-- 游戏核心流程
+--==================================================
+--- 游戏关卡生命周期事件
+---@class ELevelCycleAction
+---@field INIT_GAME number 初始化关卡
+---@field ENTER_GAME number 进入关卡
+---@field BEGIN_GAME number 游戏开始
+---@field PAUSE_GAME number 游戏暂停
+---@field RESUME_GAME number 恢复游戏
+---@field GAME_OVER number 游戏结束
+---@field EXIT_GAME number 离开关卡
+---@field REPLAY_GAME number 重新开始
+ELevelCycleAction = {
+    INIT_GAME = 0,
+    ENTER_GAME = 1,
+    BEGIN_GAME = 2,
+    PAUSE_GAME = 3,
+    RESUME_GAME = 4,
+    GAME_OVER = 5,
+    EXIT_GAME = 6,
+    REPLAY_GAME = 7
 }
 
 --- 游戏结束类型
----@class EGameOverType @游戏结束类型
----@field None number @无
+---@class EGameOverType
+---@field NONE number 无（默认）
 EGameOverType = {
-    None = 0,
+    NONE = 0,
 }
 
---- 资源类型（对应策划表Type字段）
----@class EResourceType @资源类型定义，资源表格中的Type
----@field Currency string @货币
----@field Item string @道具
----@field Buff string @Buff
----@field Card string @卡片
----@field Token string @代币
----@field Profile string @头像/头像框
----@field Costume string @换装
----@field Life string @体力
+--- 只播放一次的剧情动画
+---@class EPlayOnceCutsceneType
+---@field FIRST_SHOW string 首次进入关卡
+EPlayOnceCutsceneType = {
+    FIRST_SHOW = "FirstShow",
+}
+
+--==================================================
+-- 地图 & 关卡
+--==================================================
+--- 地图类型
+---@class EMapType
+---@field MAIN number 主线地图
+EMapType = {
+    MAIN = 1,
+}
+
+--- 关卡类型
+---@class ELevelType
+---@field NORMAL string 普通关卡
+ELevelType = {
+    NORMAL = "0",
+}
+
+--- 关卡难度
+---@class ELevelDifficulty
+---@field NORMAL number 普通难度
+---@field HARD number 困难难度
+---@field SUPER_HARD number 超难难度
+---@field CHALLENGE number 每日挑战
+ELevelDifficulty = {
+    NORMAL = 1,
+    HARD = 2,
+    SUPER_HARD = 3,
+    CHALLENGE = 4,
+}
+
+--- 关卡模式
+---@class ELevelMode
+---@field NORMAL number 普通模式
+---@field MAGNET number 吸铁石模式
+ELevelMode = {
+    NORMAL = 0,
+    MAGNET = 1,
+}
+
+--- 打开关卡准备界面来源
+---@class EOpenLevelPrepareSource
+---@field NONE number 无来源
+---@field MAIN number 主界面跳转
+---@field OTHER number 其他来源
+EOpenLevelPrepareSource = {
+    NONE = 0,
+    MAIN = 1,
+    OTHER = 2,
+}
+
+--==================================================
+-- 角色 & 形象系统
+--==================================================
+--- 角色类型
+---@class ECharacterType
+---@field CHEF number 角色
+ECharacterType = {
+    CHEF = 1,
+}
+
+--- 头像/头像框类型
+---@class EAvatarFrameType
+---@field AVATAR number 头像
+---@field FRAME number 头像框
+EAvatarFrameType = {
+    AVATAR = 1,
+    FRAME = 2,
+}
+
+--- 头像/头像框获取方式
+---@class EAvatarFrameObtainType
+---@field LEVEL number 通关解锁
+---@field BOOSTER number 道具投放
+---@field GOLDEN_TICKET number 通行证解锁
+EAvatarFrameObtainType = {
+    LEVEL = 1,
+    BOOSTER = 2,
+    GOLDEN_TICKET = 3,
+}
+
+--==================================================
+-- 资源 & 道具 & 货币
+--==================================================
+--- 资源类型（策划表Type）
+---@class EResourceType
+---@field CURRENCY string 货币
+---@field ITEM string 道具
+---@field BUFF string Buff效果
+---@field CARD string 卡片
+---@field BOOSTER string 增益道具
+---@field TOKEN string 代币
+---@field PROFILE string 头像/头像框
+---@field COSTUME string 换装
+---@field LIFE string 体力
 EResourceType = {
-    Currency = "Currency",
-    Item = "Item",
-    Buff = "Buff",
-    Card = "Card",
-    Booster = "Booster",
-    Token = "Token",
-    Profile = "Profile",
-    Costume = "Costume",
-    Life = "Life",
+    CURRENCY = "Currency",
+    ITEM = "Item",
+    BUFF = "Buff",
+    CARD = "Card",
+    BOOSTER = "Booster",
+    TOKEN = "Token",
+    PROFILE = "Profile",
+    COSTUME = "Costume",
+    LIFE = "Life",
 }
 
 --- 道具子类型（策划表SubType）
----@class EItemSubType @道具类型子分类，资源表格中SubType
----@field PreBooster string @战前道具
----@field Booster string @关内道具
----@field Revive string @复活
----@field UnlimitedLife string @无限体力
----@field UnlimitedPreBooster string @无限战前道具
----@field DoublePoints string @双倍积分
----@field Fragment string @碎片
----@field CardPack string @卡包
----@field Collect string @活动代币
----@field SeasonPass string @通行证代币
----@field Customize string @脸型
----@field Suit string @套装
----@field Clothes string @散件
+---@class EItemSubType
+---@field PRE_BOOSTER string 战前道具
+---@field BOOSTER string 关内道具
+---@field REVIVE string 复活道具
+---@field UNLIMITED_LIFE string 无限体力
+---@field UNLIMITED_PRE_BOOSTER string 无限战前道具
+---@field DOUBLE_POINTS string 双倍积分
+---@field FRAGMENT string 碎片
+---@field CARD_PACK string 卡包
+---@field COLLECT string 活动代币
+---@field SEASON_PASS string 通行证代币
+---@field CUSTOMIZE string 脸型
+---@field SUIT string 套装
+---@field CLOTHES string 散件
+---@field MAGIC_POT string 魔法锅
 EItemSubType = {
-    PreBooster = "PreBooster",
-    Booster = "Booster",
-    Revive = "Revive",
-    UnlimitedLife = "UnlimitedLife",
-    UnlimitedPreBooster = "UnlimitedPreBooster",
-    DoublePoints = "DoublePoints",
-    Fragment = "Fragment",
-    CardPack = "CardPack",
-    Collect = "Collect",
-    SeasonPass = "SeasonPass",
-    Customize = "Customize",
-    Suit = "Suit",
-    Clothes = "Clothes",
-    MagicPot = "MagicPot",
+    PRE_BOOSTER = "PreBooster",
+    BOOSTER = "Booster",
+    REVIVE = "Revive",
+    UNLIMITED_LIFE = "UnlimitedLife",
+    UNLIMITED_PRE_BOOSTER = "UnlimitedPreBooster",
+    DOUBLE_POINTS = "DoublePoints",
+    FRAGMENT = "Fragment",
+    CARD_PACK = "CardPack",
+    COLLECT = "Collect",
+    SEASON_PASS = "SeasonPass",
+    CUSTOMIZE = "Customize",
+    SUIT = "Suit",
+    CLOTHES = "Clothes",
+    MAGIC_POT = "MagicPot",
 }
 
---- 体力配置
----@class ELifeID @ 体力ID
----@field ID string @ 体力ID
+--- 全局核心资源ID（策划表ID）
+---@class EResourceID
+---@field COIN string 金币
+---@field GEM string 钻石
+---@field STAR string 星星
+---@field COLLECTION_TOKEN string 收藏代币
+---@field TICKET string 券
+---@field ADD_PATIENCE string 耐心道具
+---@field MEGA_PAN string 超级锅
+---@field DOUBLE_PROFITS string 双倍收益
+---@field CANDY string 糖果
+---@field WONDER_DISH string 神奇料理
+---@field FREEZE string 时间冻结
+---@field SUPER_DELIVERY string 超级传送
+---@field REVIVE_SECOND_CHANCE string 复活第二次机会
+---@field REVIVE_ADD_GUEST_ADD_TIME string 复活加时
+---@field UNLIMITED_LIFE string 无限体力
+---@field UNLIMITED_ADD_PATIENCE string 无限耐心
+---@field UNLIMITED_MEGA_PAN string 无限超级锅
+---@field UNLIMITED_DOUBLE_PROFITS string 无限双倍收益
+---@field DOUBLE_POINTS string 双倍积分
+---@field ADD_PATIENCE_FRAGMENT string 耐心碎片
+---@field MEGA_PAN_FRAGMENT string 超级锅碎片
+---@field DOUBLE_PROFITS_FRAGMENT string 双倍收益碎片
+---@field LIGHTNING_TOKEN string 闪电代币
+---@field LOVE_TOKEN string 爱心代币
+---@field SEASON_PASS_FRAME string 通行证头像框
+---@field SEASON_PASS_HIGH_FRAME string 高级通行证头像框
+EResourceID = {
+    COIN = "1",
+    GEM = "2",
+    STAR = "3",
+    COLLECTION_TOKEN = "4",
+    TICKET = "5",
+    ADD_PATIENCE = "101",
+    MEGA_PAN = "103",
+    DOUBLE_PROFITS = "104",
+    CANDY = "201",
+    WONDER_DISH = "202",
+    FREEZE = "203",
+    SUPER_DELIVERY = "204",
+    REVIVE_SECOND_CHANCE = "301",
+    REVIVE_ADD_GUEST_ADD_TIME = "302",
+    UNLIMITED_LIFE = "1000",
+    UNLIMITED_ADD_PATIENCE = "1101",
+    UNLIMITED_MEGA_PAN = "1103",
+    UNLIMITED_DOUBLE_PROFITS = "1104",
+    DOUBLE_POINTS = "2000",
+    ADD_PATIENCE_FRAGMENT = "10101",
+    MEGA_PAN_FRAGMENT = "10103",
+    DOUBLE_PROFITS_FRAGMENT = "10104",
+    LIGHTNING_TOKEN = "401",
+    LOVE_TOKEN = "402",
+    SEASON_PASS_FRAME = "601",
+    SEASON_PASS_HIGH_FRAME = "602",
+}
+
+--==================================================
+-- 时间 & 时间戳
+--==================================================
+--- 时间戳ID
+---@class ETimestampID
+---@field LIFE_REFILL string 体力恢复时间戳
+---@field FUTURE_TIME_STAMP string 未来登录时间戳
+---@field ACTIVITY_FUTURE_TIME_STAMP_UTC0 string 活动UTC0时间戳
+---@field LAST_LOGIN_TIME_UTC string 上次UTC登录时间
+---@field LAST_LOGIN_TIME_LOCAL string 上次本地登录时间
+---@field PST_ACROSS_TIME_STAMP string PST跨天时间戳
+---@field LAST_SYNC_ALL_GAME_DATA_TIME string 上次数据同步时间
+ETimestampID = {
+    LIFE_REFILL = "Timestamp_LifeRefill",
+    FUTURE_TIME_STAMP = "FutureTimeStamp",
+    ACTIVITY_FUTURE_TIME_STAMP_UTC0 = "ActivityFutureTimeStampUTC0",
+    LAST_LOGIN_TIME_UTC = "LastLoginTimeUTC",
+    LAST_LOGIN_TIME_LOCAL = "LastLoginTimeLocal",
+    PST_ACROSS_TIME_STAMP = "PSTAcrossTimeStamp",
+    LAST_SYNC_ALL_GAME_DATA_TIME = "LastSyncAllGameDataTime",
+}
+
+--- 时间戳存储KEY（本地存储）
+---@class ETimestampKey
+---@field LIFE_REFILL string 体力恢复时间
+---@field FUTURE_TIME_STAMP string 未来登录时间
+---@field ACTIVITY_FUTURE_TIME_STAMP_UTC0 string 活动UTC0时间
+---@field LAST_LOGIN_TIME_UTC string 上次UTC登录时间
+---@field LAST_LOGIN_TIME_LOCAL string 上次本地登录时间
+---@field PST_ACROSS_TIME_STAMP string PST跨天时间
+---@field LAST_SYNC_ALL_GAME_DATA_TIME string 上次数据同步时间
+ETimestampKey = {
+    LIFE_REFILL = "Timestamp_LifeRefill",
+    FUTURE_TIME_STAMP = "FutureTimeStamp",
+    ACTIVITY_FUTURE_TIME_STAMP_UTC0 = "ActivityFutureTimeStampUTC0",
+    LAST_LOGIN_TIME_UTC = "LastLoginTimeUTC",
+    LAST_LOGIN_TIME_LOCAL = "LastLoginTimeLocal",
+    PST_ACROSS_TIME_STAMP = "PSTAcrossTimeStamp",
+    LAST_SYNC_ALL_GAME_DATA_TIME = "LastSyncAllGameDataTime",
+}
+
+--- 生命配置
+---@class ELifeConfig
+---@field ID string 生命配置ID
+ELifeConfig = {
+    ID = "LifeID",
+}
+
+--- 生命ID
+---@class ELifeID
+---@field ID string 生命ID
 ELifeID = {
     ID = "LifeID",
 }
 
---- 时间戳存储KEY（本地存储用）
----@class ETimestampID 时间戳ID
----@field LifeRefill string @体力恢复时间
----@field FutureTimeStamp string @未来登录时间
----@field ActivityFutureTimeStampUTC0 string @活动UTC0时间
----@field LastLoginTimeUTC string @上次UTC登录时间
----@field LastLoginTimeLocal string @上次本地登录时间
----@field PSTAcrossTimeStamp string @PST跨天时间
----@field LastSyncAllGameDataTime string @上次数据同步时间
-ETimestampID = {
-    LifeRefill = "Timestamp_LifeRefill",
-    FutureTimeStamp = "FutureTimeStamp",
-    ActivityFutureTimeStampUTC0 = "ActivityFutureTimeStampUTC0",
-    LastLoginTimeUTC = "LastLoginTimeUTC",
-    LastLoginTimeLocal = "LastLoginTimeLocal",
-    PSTAcrossTimeStamp = "PSTAcrossTimeStamp",
-    LastSyncAllGameDataTime = "LastSyncAllGameDataTime",
+--==================================================
+-- 动画 & 效果
+--==================================================
+--- Spine动画更新时机
+---@class ESpineUpdateTiming
+---@field MANUAL_UPDATE number 手动更新
+---@field IN_UPDATE number Update更新
+---@field IN_FIXED_UPDATE number FixedUpdate更新
+ESpineUpdateTiming = {
+    MANUAL_UPDATE = 0,
+    IN_UPDATE = 1,
+    IN_FIXED_UPDATE = 2
 }
 
---- 所有核心道具ID（策划表ID映射）
----@class EResourceIDs @所有资源ID定义
----@field Coin string @金币
----@field Gem string @钻石
----@field Star string @星星
----@field CollectionToken string @收藏代币
----@field Ticket string @券
----@field AddPatience string @耐心道具
-
----@field MegaPan string @超级锅
----@field DoubleProfits string @双倍收益
----@field Candy string @糖果
----@field WonderDish string @神奇 dish
----@field Freeze string @时间冻结
----@field SuperDelivery string @超级传送
----@field ReviveSecondChance string @复活第二次机会
----@field ReviveAddGuestAddTime string @复活加时
----@field UnlimitedLife string @无限体力
----@field UnlimitedAddPatience string @无限耐心
----@field UnlimitedMegaPan string @无限超级锅
----@field UnlimitedDoubleProfits string @无限双倍收益
----@field DoublePoints string @双倍积分
----@field AddPatienceFragment string @耐心碎片
----@field MegaPanFragment string @超级锅碎片
----@field DoubleProfitsFragment string @双倍收益碎片
----@field LightningToken string @闪电代币
----@field LoveToken string @爱心代币
----@field SeasonPassFrame string @通行证头像框
----@field SeasonPassHighFrame string @高级通行证头像框
-EResourceIDs = {
-    Coin = "1",
-    Gem = "2",
-    Star = "3",
-    CollectionToken = "4",
-    Ticket = "5",
-    AddPatience = "101",
-
-    MegaPan = "103",
-    DoubleProfits = "104",
-    Candy = "201",
-    WonderDish = "202",
-    Freeze = "203",
-    SuperDelivery = "204",
-    ReviveSecondChance = "301",
-    ReviveAddGuestAddTime = "302",
-    UnlimitedLife = "1000",
-    UnlimitedAddPatience = "1101",
-
-    UnlimitedMegaPan = "1103",
-    UnlimitedDoubleProfits = "1104",
-    DoublePoints = "2000",
-    AddPatienceFragment = "10101",
-
-    MegaPanFragment = "10103",
-    DoubleProfitsFragment = "10104",
-    LightningToken = "401",
-    LoveToken = "402",
-    SeasonPassFrame = "601",
-    SeasonPassHighFrame = "602",
-}
-
---- 关卡类型
----@class ELevelType @ 关卡类型
----@field Normal string @ 普通关
-ELevelType = {
-    Normal = "0",
-}
-
---- 插屏广告播放点位
----@class EInterAdID table @ 插屏广告ID枚举
----@field LevelWin number @胜利
----@field LevelFailed number @失败
----@field ChangeChapter number @切章节
-EInterAdID = {
-    LevelWin = 1,
-    LevelFailed = 2,
-    ChangeChapter = 3,
-}
-
---- 只播放一次的剧情动画
----@class EPlayOnceCutType : table @ 只播放一次的Cut的枚举值
----@field FirstShow string @首次进关卡
-EPlayOnceCutType = {
-    FirstShow = "FirstShow",
-}
-
---- 自定义Tween唯一标识（防止重复播放）
----@class ECustomTweenID @自定义TweenID
----@field ChapterList_AreaChange string @章节列表区域切换
----@field ChapterList_ItemNextAreaTip string @下一区域提示
+--- 自定义Tween唯一标识
+---@class ECustomTweenID
+---@field ITEM_MGR_FROZEN_TIME_CHANGE string 物品管理器冻结时间变化
+---@field ON_COLLECT_GOAL_ANIM_FLY string 收集目标飞行动画
+---@field ON_COLLECT_GOAL_PROGRESS_ANIM string 收集目标进度动画
+---@field CHAPTER_LIST_AREA_CHANGE string 章节列表区域切换
+---@field CHAPTER_LIST_ITEM_NEXT_AREA_TIP string 下一区域提示
 ECustomTweenID = {
-    ChapterList_AreaChange = "__ChapterList_AreaChange__",
-    ChapterList_ItemNextAreaTip = "__ChapterList_ItemNextAreaTip__",
+    -- 物品管理器动画
+    ITEM_MGR_FROZEN_TIME_CHANGE = "__ItemMgr_FrozenTime_Change__",
+    -- 收集目标动画
+    ON_COLLECT_GOAL_ANIM_FLY = "OnCollectGoal_Anim_Fly",
+    ON_COLLECT_GOAL_PROGRESS_ANIM = "OnCollectGoalProgress_Anim",
+    -- 章节列表动画
+    CHAPTER_LIST_AREA_CHANGE = "__ChapterList_AreaChange__",
+    CHAPTER_LIST_ITEM_NEXT_AREA_TIP = "__ChapterList_ItemNextAreaTip__",
 }
 
---====================== 任务相关 ======================
----@class ETaskType @ 任务类型
----@field Build number @装修
----@field Clear number @清理
-ETaskType = {
-    Build = 1,
-    Clear = 2,
-}
-
---====================== 设置相关 ======================
----@class ESettingType @设置界面包含的开关状态
----@field Music string @音乐开关
----@field Sound string @音效开关
----@field Notification string @推送开关
----@field Language string @语言
+--==================================================
+-- 设置系统
+--==================================================
+---@class ESettingType
+---@field MUSIC string 音乐开关
+---@field SOUND string 音效开关
+---@field NOTIFICATION string 推送开关
+---@field LANGUAGE string 语言索引
 ESettingType = {
-    Music = "colseMusic",
-    Sound = "closeSound",
-    Notification = "closeNotification",
-    Language = "langIndex",
+    MUSIC = "closeMusic",
+    SOUND = "closeSound",
+    NOTIFICATION = "closeNotification",
+    LANGUAGE = "langIndex",
 }
 
---- UI控制器动画名称
----@class EUIControllerAnimName @UI控制器动画名称
----@field Open string @打开
----@field Close string @关闭
-EUIControllerAnimName = {
-    Open = "UIOpen",
-    Close = "UIClose",
+--==================================================
+-- 任务系统
+--==================================================
+--- 任务类型
+---@class ETaskType
+---@field BUILD number 装修任务
+---@field CLEAR number 清理任务
+ETaskType = {
+    BUILD = 1,
+    CLEAR = 2,
 }
 
---- 章节列表UI动画
----@class EUIChapterListAnimName @UI章节列表动画名称
----@field Open string @打开
----@field Close string @关闭
-EUIChapterListAnimName = {
-    Open = "UIChapterList__BgImage",
-    Close = "UIChapterList__Close",
-}
-
---====================== 主界面自动弹出 ======================
---- 主界面气泡类型
----@class EGameElementUIBubbleType @ 主界面UI气泡类型
----@field AchievementsTips string @成就提示
----@field DailyQuestBubble string @每日任务
----@field NormalUIBubble string @普通气泡
-EGameElementUIBubbleType = {
-    AchievementsTips = "AchievementsTips",
-    DailyQuestBubble = "DailyQuestBubble",
-    NormalUIBubble = "NormalUIBubble",
-}
-
---- 主界面UI推送触发时机
----@class EGameMainUIPUshRunningType @ 工作类型，值既是Type也是优先级数值
----@field OnMachineReceive string @机器收货
----@field OnUIMainHudOpen string @主界面打开
----@field OnEnterMainState string @进入主状态
----@field OnInsertUITask string @插入UI任务
----@field OnInertNotUITask string @插入非UI任务
-EGameMainUIPUshRunningType = {
-    OnMachineReceive = "OnMachineReceive",
-    OnUIMainHudOpen = "OnUIMainHudOpen",
-    OnEnterMainState = "OnEnterMainState",
-    OnInsertUITask = "OnInsertUITask",
-    OnInertNotUITask = "OnInertNotUITask",
-}
-
---- 主界面推送类型
----@class EGameMainUIPushType @ 工作类型，值无意义
----@field MachineUpgradeUI number @机器升级
----@field ElementCollection number @收集动画
----@field MachineReceive number @物品收货
----@field Tutorial number @引导
----@field UI number @弹窗
----@field CommonTask number @通用任务
-EGameMainUIPushType = {
-    MachineUpgradeUIFromFail = 12,
-    ElementCollection = 10,
-    MachineReceive = 8,
-    Tutorial = 7,
-    UI = 6,
-    MachineUpgradeUI = 4,
-    CommonTask = 3,
-}
-
---- 主界面UI弹出优先级
----@class EGameMainUIPushSortOrder @ 优先级
----@field MachineUpgradeUIFromFail string @失败页升级
----@field OpenCardBag string @开卡包
----@field UICollection string @卡牌收集
----@field FlyCards string @飞贴纸
-EGameMainUIPushSortOrder = {
-    MachineUpgradeUIFromFail = "MachineUpgradeUIFromFail",
-    FlyCards = "FlyCards",
-    OpenCardBag = "OpenCardBag",
-    UICollection = "UICollection",
-}
-
---====================== 热更 ======================
---- 热更下载步骤
----@class EHotfixDownloadStep @热更下载步骤
----@field None number @无
----@field Idle number @空闲
----@field Processing number @下载中
----@field AllOver number @完成
----@field Skip number @跳过
----@field Error number @错误
----@field CheckError number @检查错误
-EHotfixDownloadStep = {
-    None = 0,
-    Idle = 1,
-    Processing = 2,
-    AllOver = 3,
-    Skip = 4,
-    Error = 5,
-    CheckError = 6,
-}
-
---- UI打开来源（用于埋点）
----@class EUITaskOpenFrom @装修界面开启来源打点
----@field Default number @默认
----@field Auto number @自动弹出
----@field DailyTask number @每日任务
-EUITaskOpenFrom = {
-    Default = 0,
-    Auto = 1,
-    DailyTask = 2,
-}
-
---====================== 每日任务 ======================
 --- 每日任务状态
----@class EDailyQuestState @每日任务状态
----@field InProgress number @进行中
----@field Completed number @已完成
----@field Claimed number @已领取
-EDailyQuestState = {
-    InProgress = 1,
-    Completed = 2,
-    Claimed = 3,
+---@class EDailyQuestStatus
+---@field IN_PROGRESS number 进行中
+---@field COMPLETED number 已完成
+---@field CLAIMED number 已领取奖励
+EDailyQuestStatus = {
+    IN_PROGRESS = 1,
+    COMPLETED = 2,
+    CLAIMED = 3,
 }
 
 --- 每日任务子类型
----@class EDailyQuestSubType @每日任务子类型
----@field Win_Streak number @连胜
----@field Win number @胜利
----@field UpgradeMachine number @升级机器
----@field UsePreBooster number @使用战前道具
+---@class EDailyQuestSubType
+---@field WIN_STREAK number 连胜任务
+---@field WIN number 关卡胜利任务
+---@field UPGRADE_MACHINE number 升级机器任务
+---@field USE_PRE_BOOSTER number 使用战前道具任务
 EDailyQuestSubType = {
-    Win_Streak = 11,
-    Win = 15,
-    UpgradeMachine = 18,
-    UsePreBooster = 20,
+    WIN_STREAK = 11,
+    WIN = 15,
+    UPGRADE_MACHINE = 18,
+    USE_PRE_BOOSTER = 20,
 }
 
---====================== 单例优先级 ======================
---- 单例初始化顺序（数字越大越早执行）
----@class ESingletonPriority @单例执行顺序优先级(越大越优先)
----@field GameTimeHelper number @时间工具
----@field GameSysUnlock number @系统解锁
----@field CurrencyMgr number @货币管理
----@field CommandTipMgr number @提示管理
----@field Default number @默认
----@field GuideMgr number @引导
----@field PatchMgr number @补丁
+--==================================================
+-- 主界面弹出系统
+--==================================================
+--- 主界面气泡类型
+---@class EMainUIBubbleType
+---@field ACHIEVEMENTS_TIPS string 成就提示
+---@field DAILY_QUEST_BUBBLE string 每日任务气泡
+---@field NORMAL_UI_BUBBLE string 普通UI气泡
+EMainUIBubbleType = {
+    ACHIEVEMENTS_TIPS = "AchievementsTips",
+    DAILY_QUEST_BUBBLE = "DailyQuestBubble",
+    NORMAL_UI_BUBBLE = "NormalUIBubble",
+}
+
+--- 主界面UI推送触发时机
+---@class EMainUIPushTrigger
+---@field ON_MACHINE_RECEIVE string 机器收货
+---@field ON_UI_MAIN_HUD_OPEN string 主界面打开
+---@field ON_ENTER_MAIN_STATE string 进入主状态
+---@field ON_INSERT_UI_TASK string 插入UI任务
+---@field ON_INSERT_NOT_UI_TASK string 插入非UI任务
+EMainUIPushTrigger = {
+    ON_MACHINE_RECEIVE = "OnMachineReceive",
+    ON_UI_MAIN_HUD_OPEN = "OnUIMainHudOpen",
+    ON_ENTER_MAIN_STATE = "OnEnterMainState",
+    ON_INSERT_UI_TASK = "OnInsertUITask",
+    ON_INSERT_NOT_UI_TASK = "OnInsertNotUITask",
+}
+
+--- 主界面推送类型
+---@class EMainUIPushType
+---@field MACHINE_UPGRADE_UI_FROM_FAIL number 失败页跳转升级
+---@field ELEMENT_COLLECTION number 收集动画
+---@field MACHINE_RECEIVE number 物品收货
+---@field TUTORIAL number 新手引导
+---@field UI number UI弹窗
+---@field MACHINE_UPGRADE_UI number 机器升级
+---@field COMMON_TASK number 通用任务
+EMainUIPushType = {
+    MACHINE_UPGRADE_UI_FROM_FAIL = 12,
+    ELEMENT_COLLECTION = 10,
+    MACHINE_RECEIVE = 8,
+    TUTORIAL = 7,
+    UI = 6,
+    MACHINE_UPGRADE_UI = 4,
+    COMMON_TASK = 3,
+}
+
+--- 主界面UI弹出优先级
+---@class EMainUIPushPriority
+---@field MACHINE_UPGRADE_UI_FROM_FAIL string 失败页升级
+---@field OPEN_CARD_BAG string 打开卡包
+---@field UI_COLLECTION string 卡牌收集
+---@field FLY_CARDS string 飞贴纸动画
+EMainUIPushPriority = {
+    MACHINE_UPGRADE_UI_FROM_FAIL = "MachineUpgradeUIFromFail",
+    FLY_CARDS = "FlyCards",
+    OPEN_CARD_BAG = "OpenCardBag",
+    UI_COLLECTION = "UICollection",
+}
+
+--==================================================
+-- 热更系统
+--==================================================
+--- 热更下载步骤
+---@class EHotfixStep
+---@field NONE number 无状态
+---@field IDLE number 空闲
+---@field PROCESSING number 处理中
+---@field ALL_OVER number 全部完成
+---@field SKIP number 跳过
+---@field ERROR number 错误
+---@field CHECK_ERROR number 检查更新错误
+EHotfixStep = {
+    NONE = 0,
+    IDLE = 1,
+    PROCESSING = 2,
+    ALL_OVER = 3,
+    SKIP = 4,
+    ERROR = 5,
+    CHECK_ERROR = 6,
+}
+
+--==================================================
+-- 单例优先级
+--==================================================
+--- 单例执行优先级（越大越优先）
+---@class ESingletonPriority
+---@field GAME_TIME_HELPER number 时间工具
+---@field GAME_SYS_UNLOCK number 系统解锁
+---@field CURRENCY_MGR number 货币管理
+---@field COMMAND_TIP_MGR number 提示管理
+---@field DEFAULT number 默认
+---@field GUIDE_MGR number 引导管理
+---@field PATCH_MGR number 补丁管理
 ESingletonPriority = {
-    GameTimeHelper = 10000,
-    GameSysUnlock = 2000,
-    CurrencyMgr = 1000,
-    CommandTipMgr = 10,
-    Default = 0,
-    GuideMgr = -20,
-    PatchMgr = -100000,
+    GAME_TIME_HELPER = 10000,
+    GAME_SYS_UNLOCK = 2000,
+    CURRENCY_MGR = 1000,
+    COMMAND_TIP_MGR = 10,
+    DEFAULT = 0,
+    GUIDE_MGR = -20,
+    PATCH_MGR = -100000,
 }
 
---====================== 关卡 ======================
---- 关卡难度
----@class ELevelDifficultyType @关卡难度类型
----@field Normal number @普通
----@field Hard number @困难
----@field SuperHard number @超难
----@field Challenge number @每日挑战
-ELevelDifficultyType = {
-    Normal = 1,
-    Hard = 2,
-    SuperHard = 3,
-    Challenge = 4,
-}
+--- 单例初始化顺序（兼容旧版）
+---@class ESingletonInitPriority
+ESingletonInitPriority = ESingletonPriority
 
---- 关卡模式
----@class ELevelModeType @关卡模式类型
----@field Normal number @普通
----@field Magnet number @吸铁石
-ELevelModeType = {
-    Normal = 0,
-    Magnet = 1,
-}
-
---====================== 藏品 ======================
+--==================================================
+-- 藏品系统
+--==================================================
 --- 藏品稀有度
----@class ECollectionStar @藏品星级(十分位)
----@field All number @所有
----@field Normal number @普通
----@field Rare number @稀有
----@field SRare number @超稀有
----@field Exclusive number @专属
-ECollectionRare = {
-    All = 0,
-    Normal = 1,
-    Rare = 2,
-    SRare = 3,
-    Exclusive = 4,
+---@class ECollectionRarity
+---@field ALL number 全部
+---@field NORMAL number 普通
+---@field RARE number 稀有
+---@field S_RARE number 超稀有
+---@field EXCLUSIVE number 专属
+ECollectionRarity = {
+    ALL = 0,
+    NORMAL = 1,
+    RARE = 2,
+    S_RARE = 3,
+    EXCLUSIVE = 4,
 }
 
---====================== 支付 ======================
+--==================================================
+-- 支付 & IAP
+--==================================================
 --- IAP类型
----@class EIapType @IAP类型
----@field Bundle string @礼包
-EIapType = {
-    Bundle = "Bundle",
+---@class EIAPType
+---@field BUNDLE string 礼包
+EIAPType = {
+    BUNDLE = "Bundle",
 }
 
---====================== 活动 ======================
+--==================================================
+-- 活动系统
+--==================================================
 --- 活动图标显示位置
----@class EActivityIconPageType @活动Icon图标出现位置
----@field Main number @主界面
----@field LevelPrepare number @关卡准备
----@field MainAndIconInLevelPrepare number @主界面+准备界面
----@field OnlyMainAndLevelPrepare number @仅主界面+准备
-EActivityIconPageType = {
-    Main = 1,
-    LevelPrepare = 2,
-    MainAndIconInLevelPrepare = 3,
-    OnlyMainAndLevelPrepare = 4,
+---@class EActivityIconPage
+---@field MAIN number 主界面
+---@field LEVEL_PREPARE number 关卡准备界面
+---@field MAIN_AND_ICON_IN_LEVEL_PREPARE number 主界面+准备界面
+---@field ONLY_MAIN_AND_LEVEL_PREPARE number 仅主界面+准备界面
+EActivityIconPage = {
+    MAIN = 1,
+    LEVEL_PREPARE = 2,
+    MAIN_AND_ICON_IN_LEVEL_PREPARE = 3,
+    ONLY_MAIN_AND_LEVEL_PREPARE = 4,
+}
+
+--- 活动入口位置类型
+---@class EActivityEnterFormPosType
+---@field LEVEL_PREPARE number 关卡准备界面
+---@field LEVEL_SUCCESS number 关卡成功界面
+---@field LEVEL_FAIL number 关卡失败界面
+EActivityEnterFormPosType = {
+    LEVEL_PREPARE = 1,
+    LEVEL_SUCCESS = 2,
+    LEVEL_FAIL = 3,
 }
 
 --- 活动入口位置
----@class EActivityEnterFormPosType @活动入口位置类型
----@field LevelPrepare number @准备界面
----@field LevelSuccess number @胜利界面
----@field LevelFail number @失败界面
-EActivityEnterFormPosType = {
-    LevelPrepare = 1,
-    LevelSuccess = 2,
-    LevelFail = 3,
+---@class EActivityEntryPos
+---@field LEVEL_PREPARE number 关卡准备界面
+---@field LEVEL_SUCCESS number 关卡胜利界面
+---@field LEVEL_FAIL number 关卡失败界面
+EActivityEntryPos = {
+    LEVEL_PREPARE = 1,
+    LEVEL_SUCCESS = 2,
+    LEVEL_FAIL = 3,
 }
 
---- 活动双倍积分原因
----@class EActivityDoublePointsType @活动积分翻倍类型原因
----@field DoublePointsBuff number @Buff
----@field LevelDiff number @难度
-EActivityDoublePointsType = {
-    DoublePointsBuff = 1,
-    LevelDiff = 2,
-}
-
---- 打开关卡准备界面来源
----@class EOpenUILevelPrepareFrom @ 打开关卡准备界面来源
----@field None number @无
----@field Main number @主界面
----@field Other number @其他
-EOpenUILevelPrepareFrom = {
-    None = 0,
-    Main = 1,
-    Other = 2,
+--- 活动双倍积分来源
+---@class EActivityDoublePointsSource
+---@field DOUBLE_POINTS_BUFF number Buff效果
+---@field LEVEL_DIFF number 关卡难度
+EActivityDoublePointsSource = {
+    DOUBLE_POINTS_BUFF = 1,
+    LEVEL_DIFF = 2,
 }
