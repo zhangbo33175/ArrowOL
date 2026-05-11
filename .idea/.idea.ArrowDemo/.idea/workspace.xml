@@ -11,75 +11,79 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b0524f1-5a94-4f3a-b57c-f763ada3c38c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Data.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Visitors.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/SectionItem.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/UILevelViewView.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILevelView/UILevelViewViewModel.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoadMapView/UILoadMapView.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoginView/UILoginView.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIPlayingAnimated/UIPlayingAnimated.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/Map/UIMap.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/RScripts/ResDefs/ResDefs.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/RScripts/ResDefs/ResDefs_1.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/TableLevelData.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/TableLevelData_1_1.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2001.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2002.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2003.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2004.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2005.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2006.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2007.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2008.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2009.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/Icon/main_level1_cat2010.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/LevelBackground/Level_bg_main15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/LevelBackground/Level_bg_main_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/Map/LevelBackground/map.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/20260424-121016.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/Tile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/主界面.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/头像.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图底.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/排行.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/猫窝.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/皮肤.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/签到.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/转盘.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (1).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (17).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (19).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (2).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (6).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image (7).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Resources/whiteboard_exported_image.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/LuaTxtToLuaConverter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_AorExtendImageWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_AorUIFullScreenImageWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_AorUIMaskLayerBehaviourWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_JsonHelperWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/GameLib_MapCamHelperWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/MapCamDataWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapChapterTypeDataWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapDataWrap.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Docs/Designs/Editor/ReadMe.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableDailyLevels.xlsm" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableMainLevels.xlsm" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/TableConstants.xlsm" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/TableItems.xlsm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Utilities/TableExportEditorUtility.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Utilities/TableExportEditorUtility.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabInstanceGOBehaviour.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabInstanceGOBehaviour.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Luas/Components/LuaComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Luas/Components/LuaComponent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameFunctions.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameFunctions.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoginView/UILoginView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoginView/UILoginView.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameEffectManager/GameEffectManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameEffectManager/GameEffectManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameManager/GameManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameManager/GameManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GoalDataManager/GoalDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GoalDataManager/GoalDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/HomeUIBubbleLayerDataManager/HomeUIBubbleLayerDataManager.lua.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/HomeUILayerDataManager/HomeUILayerDataManager.lua.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorCoroutineHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorCoroutineHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBehaviours/MVVM/ViewSuper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBehaviours/MVVM/ViewSuper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBehaviours/None/LuaBehaviourSuper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBehaviours/None/LuaBehaviourSuper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Initializer.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/StartGame.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemApis.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemApis.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/02/022966d74f25923a212dc8236ca60021" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/08/08a02e9b7c7e64c2959d8243ef666f44" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/0f/0f0865273fb68b66c12ae3cef2b9a3bf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/11/1146ffeaac73aa2a1e3fd4c455f6da50" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/13/1310166d0547eea1da3ce9ce51b851a7" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/15/15da25320d32d1add9b1c6c36dbf140d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/35/354833b9b8b23560b65418b5befefcc9" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/47/47ecc536c1939598f3fb73d26aac3a45" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/4d/4daebb5cb4151e0b9d17c621e9bca31c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/4e/4ed7f7e89cd7c84e0b2925fd398011bd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/56/5664fc1fd2fea00ae182b2442a641647" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/5d/5d34779ffeed35358191477f62632984" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/68/682f3a3801c32216637f647d5d693fa9" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/77/77456807f4a8315cee4160fbede11d82" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/7c/7c5d8d90f4869888414126312b7e5134" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/7e/7e5748393a1be5ee844ba527eb426ba3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/84/846e266454dbd3d21e8293b4f23a5801" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/8a/8a69be8160760f9cb50379e5f28269a4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/8f/8fd4e74d9da2989ab1e5fee41569eed3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/99/99b3299fc79413ec63325e8350da4f4c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/a8/a8841a2cc0b2e32c09c590bf73e38152" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/ad/adcfcddc61eb2d7b5d2db2d539098666" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/b2/b2a1f27fc651c6c7fabf1d8fd244da99" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/d3/d348f9c15412821abc52804349ea5cc1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/d8/d8eebfaf0aa68204b9703a395d33834f" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/dc/dcad224e234eb1a08443aad2470a5145" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/e3/e35b068fea58cdf86d9ed3471789113b" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Artifacts/e7/e7daac2c6b0f36cfe11eac12c38c6ae6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ShaderCache/shader/TMP_SDF-Mobilefe39/00/174ed40357f95ca14bd41f200de12675.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ShaderCache/shader/TMP_SDF-Mobilefe39/00/2ba4f6e393ea4590f31e8bb79d346384.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ShaderCache/shader/TMP_SDF-Mobilefe39/00/722ed65795b4f8e570361f55df0df588.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ShaderCache/shader/TMP_SDF-Mobilefe39/00/8976c0ebe34395fe95aad2787663ec5c.bin" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/expandedItems" beforeDir="false" afterPath="$PROJECT_DIR$/Library/expandedItems" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0-prev.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker1-prev.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker1.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/AssetImportWorker1.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/shadercompiler-AssetImportWorker0.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/shadercompiler-AssetImportWorker0.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -179,7 +183,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+  <component name="RunManager" selected="Emmy Debugger(NEW).调试">
     <configuration name="Attach to ILRuntime 2" type="ILRuntime" factoryName="ILRuntime Attach To Remote 2" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
@@ -235,10 +239,10 @@
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false" ignored-value-for-modified-check="484">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false" ignored-value-for-modified-check="27124">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" value="484" />
+      <option name="pid" value="27124" />
       <option name="projectPathOnTarget" />
       <option name="runtimes">
         <list>
@@ -301,6 +305,8 @@
       <workItem from="1777714021016" duration="61683000" />
       <workItem from="1778288249033" duration="7203000" />
       <workItem from="1778295763553" duration="9302000" />
+      <workItem from="1778309532260" duration="3034000" />
+      <workItem from="1778422220048" duration="1747000" />
     </task>
     <servers />
   </component>
@@ -379,7 +385,7 @@
           <option name="timeStamp" value="122" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameManager/GameManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameManager/GameManager.lua.txt</url>
           <line>240</line>
           <option name="timeStamp" value="201" />
         </line-breakpoint>
@@ -404,17 +410,17 @@
           <option name="timeStamp" value="285" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>160</line>
           <option name="timeStamp" value="288" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>168</line>
           <option name="timeStamp" value="289" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>125</line>
           <option name="timeStamp" value="293" />
         </line-breakpoint>
@@ -435,7 +441,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
-          <line>78</line>
+          <line>79</line>
           <option name="timeStamp" value="310" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
@@ -470,7 +476,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
-          <line>91</line>
+          <line>92</line>
           <option name="timeStamp" value="346" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
@@ -479,7 +485,7 @@
           <option name="timeStamp" value="347" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>173</line>
           <option name="timeStamp" value="348" />
         </line-breakpoint>
@@ -554,7 +560,7 @@
           <option name="timeStamp" value="365" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameManager/GameManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameManager/GameManager.lua.txt</url>
           <line>167</line>
           <option name="timeStamp" value="366" />
         </line-breakpoint>
@@ -589,27 +595,27 @@
           <option name="timeStamp" value="376" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>147</line>
           <option name="timeStamp" value="377" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>149</line>
           <option name="timeStamp" value="378" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>150</line>
           <option name="timeStamp" value="379" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>161</line>
           <option name="timeStamp" value="380" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>152</line>
           <option name="timeStamp" value="430" />
         </line-breakpoint>
@@ -649,22 +655,22 @@
           <option name="timeStamp" value="437" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>126</line>
           <option name="timeStamp" value="438" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt</url>
-          <line>84</line>
+          <line>85</line>
           <option name="timeStamp" value="440" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>144</line>
           <option name="timeStamp" value="441" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MapManager/MapManager.lua.txt</url>
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
           <line>181</line>
           <option name="timeStamp" value="443" />
         </line-breakpoint>
@@ -694,11 +700,6 @@
           <option name="timeStamp" value="450" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoginState.lua.txt</url>
-          <line>30</line>
-          <option name="timeStamp" value="455" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
           <line>689</line>
           <option name="timeStamp" value="458" />
@@ -712,16 +713,6 @@
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
           <line>671</line>
           <option name="timeStamp" value="466" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
-          <line>664</line>
-          <option name="timeStamp" value="468" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt</url>
-          <line>665</line>
-          <option name="timeStamp" value="469" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.Methods.cs</url>
@@ -1127,43 +1118,43 @@
           <option name="timeStamp" value="427" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs</url>
-          <line>114</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Components\UIComponent.cs" containingFunctionPresentation="Method 'OpenUISyncByLuaTable'">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.cs</url>
+          <line>169</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Assets\Managers\AssetLoad\AssetLoadManager.cs" containingFunctionPresentation="Method 'LoadSync'">
             <startOffsets>
-              <option value="3139" />
+              <option value="6751" />
             </startOffsets>
             <endOffsets>
-              <option value="3200" />
+              <option value="6773" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="467" />
+          <option name="timeStamp" value="475" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs</url>
-          <line>108</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Components\UIComponent.cs" containingFunctionPresentation="Method 'OpenUISyncByLuaTable'">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Luas/Components/LuaComponent.cs</url>
+          <line>135</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Luas\Components\LuaComponent.cs" containingFunctionPresentation="Method 'InitLuaConfigs'">
             <startOffsets>
-              <option value="2895" />
+              <option value="4664" />
             </startOffsets>
             <endOffsets>
-              <option value="2916" />
+              <option value="4722" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="470" />
+          <option name="timeStamp" value="476" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs</url>
-          <line>113</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Components\UIComponent.cs" containingFunctionPresentation="Method 'OpenUISyncByLuaTable'">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Luas/Components/LuaComponent.cs</url>
+          <line>120</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Luas\Components\LuaComponent.cs" containingFunctionPresentation="Method 'InitLuaConfigs'">
             <startOffsets>
-              <option value="3062" />
+              <option value="3884" />
             </startOffsets>
             <endOffsets>
-              <option value="3126" />
+              <option value="3922" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="471" />
+          <option name="timeStamp" value="477" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

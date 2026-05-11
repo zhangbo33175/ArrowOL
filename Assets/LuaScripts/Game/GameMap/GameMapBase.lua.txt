@@ -15,7 +15,7 @@ function GameMapBase:ctor(args)
     self.Swipe = nil                        ---@type function(HedgehogTeam.EasyTouch.Gesture) @滑动手势回调
     self.SwipeEnd = nil                     ---@type function(HedgehogTeam.EasyTouch.Gesture) @滑动结束回调
     self.SampleTap = nil                    ---@type function(HedgehogTeam.EasyTouch.Gesture) @点击回调
-    self.SwipePos = UnityVector3(0, 0, 0) ---@type UnityEngine.Vector3 @滑动位置
+    self.SwipePos = Unity.Vector3(0, 0, 0) ---@type UnityEngine.Vector3 @滑动位置
     self.ScreenCamera = GameLib.MapCamHelper.MapCamera  ---@type UnityEngine.Camera @地图相机
 
     self._IsPlaySwipeSound = false          ---@type boolean @是否正在播放滑动音效

@@ -64,8 +64,11 @@ namespace Honor.Runtime
         /// </summary>
         void OnDestroy()
         {
-            // 自动销毁，保证引用计数正确，防止资源泄漏
-            GameMainRoot.Asset.PrefabLoadManager.Destroy(gameObject, RightNowDestroyOnAsset);
+            if (GameMainRoot.Asset)
+            {
+                // 自动销毁，保证引用计数正确，防止资源泄漏
+                GameMainRoot.Asset.PrefabLoadManager.Destroy(gameObject, RightNowDestroyOnAsset);
+            }
         }
     }
 }

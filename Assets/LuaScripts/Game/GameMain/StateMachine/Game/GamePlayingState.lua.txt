@@ -47,33 +47,34 @@ function GamePlayingState:OnStateEnter(finishCallback)
     -- 暂停地图拖动
     --MapMotion:PauseMapMotion()
 
-    -- 相机移动到关卡战斗位置
-    local mapData = MapManager.CurMapData
-    GameLib.MapCamHelper.LookMap(
-            mapData.playCamData,
-            Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.Playing,
-            function()
-                -- 相机动画完成后的回调
-                local closeUICallback = function()
-                    -- 正式开始游戏
-                    PlayHudCycle:OnAction(EPlayHudCycleAction.BeginGame)
-                    -- 触发引导事件
-                    GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
-                end
-
-                -- 移除UI遮罩
-                GameMainRoot.UI:SubUIMaskLayerRef()
-                -- 进入游戏逻辑
-                PlayHudCycle:OnAction(EPlayHudCycleAction.EnterGame)
-                -- 触发目标准备事件
-                --GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalReady)
-
-                -- 打开游戏内核心UI
-                OpenUISync(UIs.UIMainPlaying)                  -- 主HUD
-                --OpenUISync(UIs.UIGoalTips, { callback = closeUICallback })  -- 目标提示
-                --OpenUISync(UIs.UIPlayingHudCollect)          -- 收集物飞行层
-            end
-    )
+    ---- 相机移动到关卡战斗位置
+    --local mapData = MapManager.CurMapData
+    --GameLib.MapCamHelper.LookMap(
+    --        mapData.playCamData,
+    --        Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.Playing,
+    --        function()
+    --            -- 相机动画完成后的回调
+    --            local closeUICallback = function()
+    --                -- 正式开始游戏
+    --                PlayHudCycle:OnAction(EPlayHudCycleAction.BeginGame)
+    --                -- 触发引导事件
+    --                GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
+    --            end
+    --
+    --            -- 移除UI遮罩
+    --            GameMainRoot.UI:SubUIMaskLayerRef()
+    --            -- 进入游戏逻辑
+    --            PlayHudCycle:OnAction(EPlayHudCycleAction.EnterGame)
+    --            -- 触发目标准备事件
+    --            --GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalReady)
+    --
+    --            -- 打开游戏内核心UI
+    --            OpenUISync(UIs.UIMainPlaying)                  -- 主HUD
+    --            --OpenUISync(UIs.UIGoalTips, { callback = closeUICallback })  -- 目标提示
+    --            --OpenUISync(UIs.UIPlayingHudCollect)          -- 收集物飞行层
+    --        end
+    --)
+    OpenUISync(UIs.UIMainPlaying)
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end

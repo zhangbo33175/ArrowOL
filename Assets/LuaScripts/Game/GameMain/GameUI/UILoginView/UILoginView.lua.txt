@@ -85,7 +85,8 @@ end
 ----交互回调
 ---@type fun(args:any):void
 function UILoginView:OnLoginBtnClicked(args)
-
+    
+    GameStateMachine:ChangeState(GameStateCmd.ChooseLevel, nil)
 end
 
 return UILoginView

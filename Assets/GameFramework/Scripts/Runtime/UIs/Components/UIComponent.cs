@@ -111,7 +111,6 @@ namespace Honor.Runtime
                 Log.Error("UIComponent.OpenUISyncByLuaTable luaTable 无效。");
                 return null;
             }
-            var  go = OpenUISyncByInfo(GenerateUIInfo(luaTable, luaParams));
             return OpenUISyncByInfo(GenerateUIInfo(luaTable, luaParams));
         }
 

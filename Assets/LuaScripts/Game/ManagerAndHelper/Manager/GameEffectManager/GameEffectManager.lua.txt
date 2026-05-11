@@ -45,7 +45,7 @@ end
 ---@return UnityEngine.GameObject @特效对象
 function GameEffectManager:AddEffect(effectName, parentTransform, layerName, pos, ePos, durationTime, callBack, isRealTime, autoRecycle)
     if pos == nil then
-        pos = UnityVector3.zero
+        pos = Unity.Vector3.zero
     end
     if ePos == nil then
         ePos = EPos.Local
@@ -68,7 +68,7 @@ function GameEffectManager:AddEffect(effectName, parentTransform, layerName, pos
         -- 世界坐标
         efGo.transform.position = pos
     end
-    efGo.transform.localScale = UnityVector3.one
+    efGo.transform.localScale = Unity.Vector3.one
     efGo.transform.localRotation = UnityQuaternion.identity
     LayerHelper:SetLayerByName(efGo, layerName)
     self._efList:Add(efGo)

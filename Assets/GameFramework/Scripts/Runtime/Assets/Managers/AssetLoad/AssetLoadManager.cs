@@ -196,9 +196,7 @@ namespace Honor.Runtime
                     }
                     else
                     {
-                        assetObj.Asset =
-                            UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath,
-                                typeof(UnityEngine.Object));
+                        assetObj.Asset =UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath,typeof(UnityEngine.Object));
                     }
                 }
 #endif

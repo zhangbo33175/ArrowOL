@@ -143,7 +143,7 @@ function GetScreenBorderLeftX(sceneCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
     end
-    local leftX = sceneCamera:ViewportToWorldPoint(UnityVector3(0, 0, 0)).x
+    local leftX = sceneCamera:ViewportToWorldPoint(Unity.Vector3(0, 0, 0)).x
     return leftX
 end
 
@@ -154,7 +154,7 @@ function GetScreenBorderRightX(sceneCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
     end
-    local rightX = sceneCamera:ViewportToWorldPoint(UnityVector3(1, 0, 0)).x
+    local rightX = sceneCamera:ViewportToWorldPoint(Unity.Vector3(1, 0, 0)).x
     return rightX
 end
 
@@ -165,7 +165,7 @@ function GetScreenBorderTopY(sceneCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
     end
-    local rightX = sceneCamera:ViewportToWorldPoint(UnityVector3(0, 1, 0)).y
+    local rightX = sceneCamera:ViewportToWorldPoint(Unity.Vector3(0, 1, 0)).y
     return rightX
 end
 
@@ -176,7 +176,7 @@ function GetScreenBorderBottomY(sceneCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
     end
-    local rightX = sceneCamera:ViewportToWorldPoint(UnityVector3(0, 0, 0)).y
+    local rightX = sceneCamera:ViewportToWorldPoint(Unity.Vector3(0, 0, 0)).y
     return rightX
 end
 

@@ -373,7 +373,7 @@ function import(moduleName, currentModuleName)
                 currentModuleName = v
             end
 
-            currentModuleNameParts = string.split(currentModuleNameName, ".")
+            currentModuleNameParts = string.split(currentModuleName, ".")
         end
         table.remove(currentModuleNameParts, #currentModuleNameParts)
     end

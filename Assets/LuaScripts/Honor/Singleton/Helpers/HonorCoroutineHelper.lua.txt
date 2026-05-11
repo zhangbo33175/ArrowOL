@@ -116,7 +116,7 @@ function HonorCoroutineHelper:WaitForSecondsRealtime(waitTime)
     local cache = self.waitForSeconds.WaitForSecondsRealtime[waitTime]
     if not cache or #cache == 0 then
         cache = {}
-        table.insert(cache, UnityWaitForSecondsRealtime(waitTime))
+        table.insert(cache, Unity.WaitForSecondsRealtime(waitTime))
         self.waitForSeconds.WaitForSecondsRealtime[waitTime] = cache
     end
     local waitter = table.remove(cache)

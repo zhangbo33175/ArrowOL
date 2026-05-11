@@ -774,7 +774,7 @@
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameCoreManager\GameCore\GameCoreManagerData.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\PoolManager.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.ai@1.0.0\package.json" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\Initializer.lua.txt" />
+    <None Include="Assets\LuaScripts\Honor\Singleton\StartGame.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\thirds\SystemBase64.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPTxt\lang_it.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\Localizations.lua.txt" />
@@ -841,7 +841,7 @@
     <None Include="Library\PackageCache\com.unity.timeline@1.7.5\ValidationExceptions.json" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameEffectManager\GameEffectManager.lua.txt" />
     <None Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\package.json" />
-    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GoalDataManager\GoalDataManager.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\GoalDataManager\GoalDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\GameDataPB.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\EventDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultGerman.json" />
@@ -925,8 +925,8 @@
     <None Include="Library\PackageCache\com.unity.modules.umbra@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\HomeUILayerDataManager\HomeUILayerDataManager.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationFrenchFontTMPChars.txt" />
-    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameManager\GameManager.lua.txt" />
-    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\MapManager\MapManager.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameCoreManager\GameManager\GameManager.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameCoreManager\MapManager\MapManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Helper\SaveDataHelper\SaveDataHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Base\GameStateBase.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\GameTurnToProLoadState.lua.txt" />

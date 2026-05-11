@@ -44,7 +44,7 @@ function LuaBehaviourSuper:ctor(args)
     self._rootCloseAnimationDelay = 0.5
 
     self._loadedAssets = {}                            -- 动态加载的资源（自动管理释放）
-    self._oriPosForUIStack = UnityVector3.zero   -- UI栈原始位置
+    self._oriPosForUIStack = Unity.Vector3.zero   -- UI栈原始位置
 end
 
 --- 创建实例
@@ -453,7 +453,7 @@ end
 function LuaBehaviourSuper:OnStackPush()
     if self.cs then
         self._oriPosForUIStack = self.cs.transform.localPosition
-        self.cs.transform.localPosition = UnityVector3.one * 3000
+        self.cs.transform.localPosition = Unity.Vector3.one * 3000
     end
 end
 

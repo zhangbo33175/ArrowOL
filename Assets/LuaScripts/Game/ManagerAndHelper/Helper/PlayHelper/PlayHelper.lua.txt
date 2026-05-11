@@ -330,7 +330,7 @@ function PlayHelper:ShowHeartBrokenVFX(prefabName, parentTransform, pos)
             parentTransform,
             handler(self, function(_, heartBrokenGo)
                 heartBrokenGo.transform.position = pos
-                heartBrokenGo.transform.localScale = UnityVector3.one
+                heartBrokenGo.transform.localScale = Unity.Vector3.one
                 heartBrokenGo.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type HeartBroken
@@ -414,7 +414,7 @@ function PlayHelper:ShowPopBubbleRewards(rewardList, parentTransform, pos, heigh
                     pos.y = pos.y + heightOffset
                     rectTransform.localPosition = pos
                 end
-                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localScale = Unity.Vector3.one
                 _PopNode.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type PopBubbleUINodeReward
@@ -459,7 +459,7 @@ function PlayHelper:ShowPopBubbleRewardsOfTips(tips, rewardList, parentTransform
                     pos.y = pos.y + heightOffset
                     rectTransform.localPosition = pos
                 end
-                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localScale = Unity.Vector3.one
                 _PopNode.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type PopBubbleUINodeRewardOfTips
@@ -504,7 +504,7 @@ function PlayHelper:ShowPopBubbleRewardsOfTips2(tips, rewardList, parentTransfor
                     pos.y = pos.y + heightOffset
                     rectTransform.localPosition = pos
                 end
-                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localScale = Unity.Vector3.one
                 _PopNode.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type PopBubbleUINodeRewardOfTips
@@ -538,7 +538,7 @@ function PlayHelper:PopClaimRewardUINode(rewardData, parentTransform, pos, sortO
                     local localPos = parentTransform:InverseTransformPoint(pos)
                     rectTransform.anchoredPosition3D = localPos
                 end
-                _PopNode.transform.localScale = UnityVector3.one
+                _PopNode.transform.localScale = Unity.Vector3.one
                 _PopNode.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type PopClaimRewardUINode
@@ -608,7 +608,7 @@ function PlayHelper:StartCountDown(time, parentTransform, callback, countDownGoN
             countDownGoName or RES.GameObject_CountDown.Name,
             parentTransform,
             handler(self, function(_, countDownGo)
-                countDownGo.transform.localPosition = UnityVector3.zero
+                countDownGo.transform.localPosition = Unity.Vector3.zero
                 countDownGo.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type CountDown
@@ -632,8 +632,8 @@ function PlayHelper:FlyWord(flyText, intervalTime, parentTransform, callback, ht
             RES.GameObject_FlyWord.Name,
             parentTransform,
             handler(self, function(_, flyWordGo)
-                flyWordGo.transform.localPosition = positionOffset or UnityVector3.zero
-                flyWordGo.transform.localScale = UnityVector3.one
+                flyWordGo.transform.localPosition = positionOffset or Unity.Vector3.zero
+                flyWordGo.transform.localScale = Unity.Vector3.one
                 flyWordGo.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type FlyWord
@@ -652,8 +652,8 @@ function PlayHelper:ShowComboVFX(parentTransform, comboTimes, callback)
     local efComboGo = PoolManager:GetWithHandle(RES.GameObject_EFCombo.Name,
             parentTransform,
             handler(self, function(_, go)
-                go.transform.localPosition = UnityVector3.zero
-                go.transform.localScale = UnityVector3.one
+                go.transform.localPosition = Unity.Vector3.zero
+                go.transform.localScale = Unity.Vector3.one
                 go.transform.localRotation = UnityQuaternion.identity
             end))
     ---@type EFCombo
