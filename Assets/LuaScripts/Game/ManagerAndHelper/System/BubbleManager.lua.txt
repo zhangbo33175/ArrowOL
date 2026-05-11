@@ -1,7 +1,7 @@
 --=====================================================================================================
--- 【全局气泡管理器】
--- 功能：管理游戏内所有提示气泡（跟随目标、自动消失、互斥显示、对象池复用）
--- 特点：支持UGUI/场景物体跟随、屏幕约束、互斥显示、自动回收
+-- @brief  全局气泡管理器
+-- @desc   管理游戏内所有提示气泡（跟随目标、自动消失、互斥显示、对象池复用）
+-- @feat   支持UGUI/场景物体跟随、屏幕约束、互斥显示、自动回收、Key去重、对象池安全
 --=====================================================================================================
 
 ---@class BubbleGenerateConfig : table @ 气泡生成配置
@@ -35,14 +35,13 @@ end
 ---@param args table
 ---@return BubbleManager
 function BubbleManager:Create(args)
-    local obj = BubbleManager.new(args)
-    return obj
+    return BubbleManager.new(args)
 end
 
 --- 清理数据（切号/重载）
 function BubbleManager:ClearData()
     BubbleManager.super.ClearData(self)
-    ClearDic(self._activeBubble)
+    self:CloseAllBubble()
     self._autoGrowID = 10086
 end
 
@@ -50,9 +49,17 @@ end
 --- 【全局接口】关闭所有活跃气泡
 ---=========================================================================
 function BubbleManager:CloseAllBubble()
-    if self._activeBubble and not TableIsEmpty(self._activeBubble) then
-        for _, bubble in pairs(self._activeBubble) do
-            bubble:OnPutToPool(true)
+    if not self._activeBubble or TableIsEmpty(self._activeBubble) then
+        return
+    end
+
+    for key, bubble in pairs(self._activeBubble) do
+        if bubble then
+            xpcall(function()
+                bubble:OnPutToPool(true)
+            end, function(msg)
+                PrintError("[BubbleManager] CloseAllBubble Error: " .. debug.traceback(msg, 5))
+            end)
         end
     end
     ClearDic(self._activeBubble)
@@ -73,19 +80,28 @@ end
 ---@return UIBubble
 ---=========================================================================
 function BubbleManager:GenerateBubble(bubbleGenerateConfig)
+    -- 安全校验
+    if not bubbleGenerateConfig or string.isNullOrEmpty(bubbleGenerateConfig.key) then
+        PrintError("[BubbleManager] GenerateBubble failed: invalid config or empty key!")
+        return nil
+    end
+
     -- 互斥逻辑：同 onlyOneTag 只允许显示一个
-    if bubbleGenerateConfig.onlyOneTag and not TableIsEmpty(self._activeBubble) then
+    if not string.isNullOrEmpty(bubbleGenerateConfig.onlyOneTag) and not TableIsEmpty(self._activeBubble) then
         for _, bubble in pairs(self._activeBubble) do
+            if not bubble then goto continue end
+
             local cfg = bubble:GetBubbleCfg()
             if cfg and cfg.onlyOneTag == bubbleGenerateConfig.onlyOneTag then
-                if not bubble:IsClosing() then
-                    xpcall(function()
+                xpcall(function()
+                    if not bubble:IsClosing() then
                         bubble:OnPutToPool()
-                    end, function(msg)
-                        PrintError(debug.traceback(msg, 5))
-                    end)
-                end
+                    end
+                end, function(msg)
+                    PrintError("[BubbleManager] Close mutex bubble failed: " .. debug.traceback(msg, 5))
+                end)
             end
+            ::continue::
         end
     end
 
@@ -99,15 +115,24 @@ function BubbleManager:GenerateBubble(bubbleGenerateConfig)
     -- 分配新ID
     bubbleGenerateConfig.id = self:GetNewBubbleID()
 
-    -- 从对象池创建气泡
-    local go = PoolManager:Get(RES.GameObject_UIBubble.Name, GameMainRoot.UI.ScreenUICanvas.transform)
-    local luaBehaviour = go:GetComponent("LuaBehaviour")
-    ---@type UIBubble
-    local bubble = luaBehaviour.ValidLuaClass
+    -- 安全从对象池创建气泡
+    local bubble = nil
+    xpcall(function()
+        local parent = GameMainRoot.UI.ScreenUICanvas.transform
+        local go = PoolManager:Get(RES.GameObject_UIBubble.Name, parent)
+        if not go then return end
 
-    -- 初始化气泡
-    bubble:OnGetFromPool(bubbleGenerateConfig)
-    self._activeBubble[bubbleGenerateConfig.key] = bubble
+        local luaBehaviour = go:GetComponent("LuaBehaviour")
+        bubble = luaBehaviour and luaBehaviour.ValidLuaClass
+
+        -- 初始化
+        if bubble then
+            bubble:OnGetFromPool(bubbleGenerateConfig)
+            self._activeBubble[bubbleGenerateConfig.key] = bubble
+        end
+    end, function(msg)
+        PrintError("[BubbleManager] Create bubble failed: " .. debug.traceback(msg, 5))
+    end)
 
     return bubble
 end
@@ -117,18 +142,25 @@ end
 ---@param bubbleKey string 气泡Key
 ---=========================================================================
 function BubbleManager:ForceCloseBubble(bubbleKey)
+    if string.isNullOrEmpty(bubbleKey) then return end
+
     local bubble = self._activeBubble[bubbleKey]
     self._activeBubble[bubbleKey] = nil
 
     if bubble then
-        bubble:OnPutToPool()
+        xpcall(function()
+            bubble:OnPutToPool()
+        end, function(err) end)
     end
 end
 
 --- 关闭气泡（外部调用）
 ---@param bubble UIBubble
 function BubbleManager:CloseBubble(bubble)
-    bubble:OnPutToPool()
+    if not bubble then return end
+    xpcall(function()
+        bubble:OnPutToPool()
+    end, function(err) end)
 end
 
 ---=========================================================================
@@ -136,11 +168,17 @@ end
 ---@param bubbleKey string
 ---=========================================================================
 function BubbleManager:OnBubbleClose(bubbleKey)
-    if self._activeBubble[bubbleKey] then
-        -- 回收GameObject
-        PoolManager:Put(self._activeBubble[bubbleKey].cs.gameObject)
-        self._activeBubble[bubbleKey] = nil
+    if string.isNullOrEmpty(bubbleKey) then return end
+
+    local bubble = self._activeBubble[bubbleKey]
+    if bubble then
+        -- 安全回收
+        xpcall(function()
+            PoolManager:Put(bubble.cs.gameObject)
+        end, function(err) end)
     end
+
+    self._activeBubble[bubbleKey] = nil
 end
 
 --- 生成新气泡ID（自增）

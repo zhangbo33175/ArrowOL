@@ -1,17 +1,18 @@
 --=====================================================================================================
--- 【章节列表管理器】
--- 功能：管理章节/区域的解锁、运行时状态、存档、进度、关卡等级
--- 作用域：全局唯一单例，主界面 + 关卡 + 活动 + 解锁系统都依赖它
+-- @brief  章节列表管理器
+-- @desc   管理章节/区域的解锁、运行时状态、存档、进度、关卡等级
+-- @scope  全局唯一单例，主界面 + 关卡 + 活动 + 解锁系统都依赖它
 --=====================================================================================================
 
----@class ChapterListManager:Singleton @章节&区域全局管理器
+---@class ChapterListManager : Singleton @ 章节&区域全局管理器
 local ChapterListManager = class("ChapterListManager", import("Singleton"))
 
 --- 构造函数
 function ChapterListManager:ctor(args)
     ChapterListManager.super.ctor(self, args)
-    self._runtimeAreaID = ""           -- 当前运行时区域ID
-    self._changeChapterFunc = nil      -- 切章节回调
+    self._runtimeAreaID = ""            ---@type string 当前运行时区域ID
+    self._runtimeChapterID = "1"        ---@type string 当前运行时章节ID
+    self._changeChapterFunc = nil       ---@type function 切章节回调
 end
 
 --- 创建单例
@@ -24,6 +25,7 @@ end
 function ChapterListManager:ClearData()
     ChapterListManager.super.ClearData(self)
     self._runtimeAreaID = ""
+    self._runtimeChapterID = "1"
     self._changeChapterFunc = nil
 end
 
@@ -53,7 +55,6 @@ end
 
 --- 解锁新章节时检查礼包结束（跨章结束）
 function ChapterListManager:CheckChapterBundleEndWhenUnlockNewChapter()
-    
 end
 
 --region 公共方法：解锁、完成、判断
@@ -62,9 +63,15 @@ end
 ---@param chapterId string 章节ID
 ---@return boolean
 function ChapterListManager:MeetConditionForUnlock(chapterId)
-    local lastChapterData = ChapterDataManager:GetChapterDataByChapterId(tostring(tonumber(chapterId) - 1))
-    local lastChapterLv = self:GetRuntimeChapterLvByChapterId(lastChapterData.ID) - 1
-    return lastChapterLv
+    local prevChapterId = tostring(tonumber(chapterId) - 1)
+    local lastChapterData = ChapterDataManager:GetChapterDataByChapterId(prevChapterId)
+    if not lastChapterData then
+        return false
+    end
+
+    local lastChapterLv = self:GetRuntimeChapterLvByChapterId(lastChapterData.ID)
+    local unlockNextLv = lastChapterData.UnlockNextLevel or 1
+    return lastChapterLv >= unlockNextLv
 end
 
 --- 解锁指定章节
@@ -76,7 +83,10 @@ end
 ---@param chapterId string
 ---@return table
 function ChapterListManager:CreateChapterInitData(chapterId)
-    local saveChapterInfo = {}
+    local saveChapterInfo = {
+        lv = 1,
+        progress = { 0, 0, 0 }
+    }
     return saveChapterInfo
 end
 
@@ -97,7 +107,12 @@ end
 ---@return boolean
 function ChapterListManager:IsChapterCompleted(chapterId)
     local curLv = self:GetRuntimeChapterLvByChapterId(chapterId)
-    -- local unlockNextLv = ChapterDataManager:GetChapterDataByChapterId(chapterId).UnlockNextLevel
+    local chapterData = ChapterDataManager:GetChapterDataByChapterId(chapterId)
+    if not chapterData then
+        return false
+    end
+
+    local unlockNextLv = chapterData.UnlockNextLevel or 1
     return curLv >= unlockNextLv
 end
 
@@ -105,8 +120,12 @@ end
 ---@param areaId string
 ---@return boolean
 function ChapterListManager:IsAllChaptersCompleted(areaId)
-    local chapterIDs = ChapterDataManager:GetAreaDataByAreaId(areaId).ChaptersID
-    for _, chapterId in pairs(chapterIDs) do
+    local areaData = ChapterDataManager:GetAreaDataByAreaId(areaId)
+    if not areaData or not areaData.ChaptersID then
+        return true
+    end
+
+    for _, chapterId in pairs(areaData.ChaptersID) do
         if not self:IsChapterCompleted(chapterId) then
             return false
         end
@@ -159,9 +178,8 @@ end
 ---@param chapterId string
 ---@return number
 function ChapterListManager:GetRuntimeChapterLvByChapterId(chapterId)
-    return PbRootData.GameData.chapterInfos[chapterId] ~= nil
-            and PbRootData.GameData.chapterInfos[chapterId].lv
-            or 0
+    local info = PbRootData.GameData.chapterInfos[chapterId]
+    return info and info.lv or 0
 end
 
 --- 获取章节指定指标的进度（带系数计算）
@@ -170,33 +188,36 @@ end
 ---@return number
 function ChapterListManager:GetRuntimeChapterProgressByChapterId(chapterId, progressIndex)
     local progress = 0
-    if PbRootData.GameData.chapterInfos[chapterId]
-            and PbRootData.GameData.chapterInfos[chapterId].progress then
-        progress = PbRootData.GameData.chapterInfos[chapterId].progress[progressIndex] or 0
+    local chapterInfo = PbRootData.GameData.chapterInfos[chapterId]
+    if chapterInfo and chapterInfo.progress then
+        progress = chapterInfo.progress[progressIndex] or 0
     end
 
-    local cfg = ChapterDataManager:GetChapterInfoDataByChapterInfoId(
-            ChapterDataManager:GetChapterDataByChapterId(chapterId).ChapterInfoID[progressIndex]
-    )
+    local chapterData = ChapterDataManager:GetChapterDataByChapterId(chapterId)
+    if not chapterData or not chapterData.ChapterInfoID then
+        return progress
+    end
+
+    local infoId = chapterData.ChapterInfoID[progressIndex]
+    local cfg = ChapterDataManager:GetChapterInfoDataByChapterInfoId(infoId)
+    if not cfg then
+        return progress
+    end
+
     local result = progress * cfg.Coef
-
-    -- 小数位处理
-    local decimalPointNum = #tostring(result % 1) - 2
-    if decimalPointNum > 0 then
-        result = tonumber(string.format("%.%"..decimalPointNum.."f", result))
-    end
-    return result
+    return tonumber(string.format("%.2f", result))
 end
 
 --endregion
-
 
 --region 存档相关：最新解锁章节/区域
 
 --- 获取当前最新解锁的区域ID
 ---@return string
 function ChapterListManager:GetLatestAreaId()
-    return ChapterDataManager:GetChapterDataByChapterId(self:GetLatestChapterId()).AreaID
+    local chapterId = self:GetLatestChapterId()
+    local chapterData = ChapterDataManager:GetChapterDataByChapterId(chapterId)
+    return chapterData and chapterData.AreaID or "1"
 end
 
 --- 获取最新解锁的章节ID（存档）
@@ -204,10 +225,11 @@ end
 function ChapterListManager:GetLatestChapterId()
     local chapterId = PbRootData.GameData.latestChapterId
     if string.isNullOrEmpty(chapterId) then
-        PbRootData.GameData.latestChapterId = "1"
+        chapterId = "1"
+        PbRootData.GameData.latestChapterId = chapterId
         PbIO.GameData.Save_latestChapterId()
     end
-    return PbRootData.GameData.latestChapterId
+    return chapterId
 end
 
 --endregion

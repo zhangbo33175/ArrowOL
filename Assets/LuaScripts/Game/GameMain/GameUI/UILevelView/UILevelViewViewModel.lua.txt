@@ -4,69 +4,51 @@
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UILevelViewViewModel.lua
 -- author:    zb
--- descrip:   关卡界面ViewModel
+-- descrip:   关卡界面 ViewModel
 --=====================================================================================================
 
----@class UILevelViewViewModel : ViewModelSuper
+---@class UILevelViewViewModel : ViewModelSuper 关卡界面ViewModel
 local UILevelViewViewModel = class('UILevelViewViewModel', import('ViewModelSuper'))
 
----绑定值Key名称
----@class UILevelViewViewModel.BVKey
+---@class UILevelViewViewModel.BVKey 绑定值Key常量
 UILevelViewViewModel.BVKey = {}
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+---@brief 构造函数
+---@param args table 自定义参数
 function UILevelViewViewModel:ctor(args)
     UILevelViewViewModel.super.ctor(self, args)
--- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    -- 无添加绑定数据成员
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
 end
 
----创建函数
----@type fun(args:table):UILevelViewViewModel
----@param args table @自定义参数
----@return UILevelViewViewModel @UILevelViewViewModel实例
+---@brief 创建实例
+---@param args table 自定义参数
+---@return UILevelViewViewModel
 function UILevelViewViewModel:Create(args)
-    local obj = UILevelViewViewModel.new(args)
-    return obj
+    return UILevelViewViewModel.new(args)
 end
 
----唤醒
----@type fun():void
+---@brief 唤醒
 function UILevelViewViewModel:Awake()
     UILevelViewViewModel.super.Awake(self)
-
 end
 
----初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）
----@type fun():void
+---@brief 初始化回调（View 绑定 ViewModel 时触发）
 function UILevelViewViewModel:OnInit()
     UILevelViewViewModel.super.OnInit(self)
-
 end
 
----开始
----@type fun():void
+---@brief 开始
 function UILevelViewViewModel:Start()
     UILevelViewViewModel.super.Start(self)
-
 end
 
----销毁
----@type fun():void
+---@brief 销毁
 function UILevelViewViewModel:OnDestroy()
     UILevelViewViewModel.super.OnDestroy(self)
-
 end
 
----注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
----@type fun():void
+---@brief 注册事件监听（自动注销）
 function UILevelViewViewModel:OnAddListeners()
     UILevelViewViewModel.super.OnAddListeners(self)
-
 end
 
 return UILevelViewViewModel
-

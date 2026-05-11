@@ -4,82 +4,60 @@
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIPlayingAnimated.lua
 -- author:    zb
--- descrip:   收集目标飞行动画UI
+-- descrip:   收集目标飞行动画 UI
 --=====================================================================================================
 
 ---@class UIPlayingAnimated : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field cs Honor.Runtime.LuaBehaviour LuaBehaviour 组件
 local UIPlayingAnimated = class('UIPlayingAnimated', import('LuaBehaviourSuper'))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+---@brief 构造函数
+---@param args table 自定义参数
 function UIPlayingAnimated:ctor(args)
     UIPlayingAnimated.super.ctor(self, args)
-
 end
 
----创建函数
----@type fun(args:table):UIPlayingAnimated
----@param args table @自定义参数
----@return UIPlayingAnimated @UIPlayingAnimated实例
+---@brief 创建 UI 实例
+---@param args table 自定义参数
+---@return UIPlayingAnimated
 function UIPlayingAnimated:Create(args)
-    local obj = UIPlayingAnimated.new(args)
-    return obj
+    return UIPlayingAnimated.new(args)
 end
 
----注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
----@type fun():void
+---@brief 注册事件监听
 function UIPlayingAnimated:OnAddListeners()
     UIPlayingAnimated.super.OnAddListeners(self)
-
 end
 
----唤醒
----@type fun():void
+---@brief 唤醒
 function UIPlayingAnimated:Awake()
     UIPlayingAnimated.super.Awake(self)
--- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--- 无自动注册内容。
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
-
 end
 
----开始
----@type fun():void
+---@brief 开始
 function UIPlayingAnimated:Start()
     UIPlayingAnimated.super.Start(self)
-
 end
 
----销毁
----@type fun():void
+---@brief 销毁
 function UIPlayingAnimated:OnDestroy()
     UIPlayingAnimated.super.OnDestroy(self)
--- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--- 无自动注销内容。
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
-
 end
 
----播放打开动画回调（可重写该父类方法）
----@type fun():void
+---@brief 播放打开动画
 function UIPlayingAnimated:OnPlayOpenAnimation()
     UIPlayingAnimated.super.OnPlayOpenAnimation(self)
 end
 
----播放关闭动画回调（可重写该父类方法）
----@type fun():void
+---@brief 播放关闭动画
 function UIPlayingAnimated:OnPlayCloseAnimation()
     UIPlayingAnimated.super.OnPlayCloseAnimation(self)
 end
 
----被追加的N层UI子节点销毁回调
----@type fun(luaClass: XLua.LuaTable):void
----@param luaClass XLua.LuaTable @luaClass
+---@brief 子 UI 销毁回调
+---@param luaClass XLua.LuaTable
 function UIPlayingAnimated:OnAddedUIDestroyed(luaClass)
     UIPlayingAnimated.super.OnAddedUIDestroyed(self, luaClass)
 end
 
 return UIPlayingAnimated
-

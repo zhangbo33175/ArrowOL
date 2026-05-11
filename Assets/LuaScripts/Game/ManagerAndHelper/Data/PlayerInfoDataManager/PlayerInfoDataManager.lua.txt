@@ -1,53 +1,86 @@
 --=====================================================================================================
--- descrip:   playerInfo存档数据管理器
---            功能：管理玩家个人信息（用户名、输入状态等）的存档读写
+-- @brief  playerInfo 存档数据管理器
+-- @desc   管理玩家个人信息（用户名、输入状态等）的存档读写
+-- @feat   全局单例、安全存档、默认昵称生成、多语言、空值防护
 --=====================================================================================================
 
----@class PlayerInfoDataManager @玩家信息存档管理器
-local PlayerInfoDataManager = class("PlayerInfoDataManager")
+---@class PlayerInfoDataManager : Singleton @玩家信息存档管理器
+local PlayerInfoDataManager = class("PlayerInfoDataManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
-function PlayerInfoDataManager:ctor(args)
-
+--- 构造函数
+function PlayerInfoDataManager:ctor()
+    PlayerInfoDataManager.super.ctor(self)
 end
 
----创建实例
----@type fun(args:table):PlayerInfoDataManager
----@param args table @自定义参数
----@return PlayerInfoDataManager @玩家信息存档管理器实例
-function PlayerInfoDataManager:Create(args)
-    local obj = PlayerInfoDataManager.new(args)
-    return obj
+--- 创建单例
+---@return PlayerInfoDataManager
+function PlayerInfoDataManager:Create()
+    return PlayerInfoDataManager.new()
 end
 
----获取玩家当前显示的用户名（自动判断默认名/自定义名）
----@type fun():string
+--- 初始化
+function PlayerInfoDataManager:Init()
+    PlayerInfoDataManager.super.Init(self)
+end
+
+--- 清理数据
+function PlayerInfoDataManager:ClearData()
+    PlayerInfoDataManager.super.ClearData(self)
+end
+
+---=========================================================================
+--- 获取玩家当前显示的用户名（自动判断默认名/自定义名）
 ---@return string 用户名
+---=========================================================================
 function PlayerInfoDataManager:GetPlayerInfoUserName()
+    -- 安全校验存档
+    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.playerInfo then
+        return Lang["PlayerDefaultNameError"] or "Player_Error"
+    end
+
+    local playerInfo = PbRootData.GameData.playerInfo
+
     -- 未自定义过用户名
-    if PbRootData.GameData.playerInfo.userInput == false then
-        -- UID 异常，返回错误默认名
-        if PbRootData.UserData.uid <= 0 then
-            return Lang["PlayerDefaultNameError"]
+    if playerInfo.userInput == false then
+        -- UID 异常
+        if not PbRootData.UserData or PbRootData.UserData.uid <= 0 then
+            return Lang["PlayerDefaultNameError"] or "Player_Error"
         else
             -- 返回默认用户名：玩家_UID
-            return mstr{Lang["PlayerDefaultName"], str1 = PbRootData.UserData.uid}
+            return mstr(Lang["PlayerDefaultName"], { str1 = PbRootData.UserData.uid })
         end
     else
-        -- 返回玩家自定义的名字
-        return PbRootData.GameData.playerInfo.name
+        -- 返回自定义名字（空值防护）
+        return playerInfo.name or Lang["PlayerDefaultNameError"]
     end
 end
 
----设置玩家自定义用户名，并标记为已输入
----@type fun(newName:string):void
----@param newName string @用户新输入的用户名
+---=========================================================================
+--- 设置玩家自定义用户名，并标记为已输入
+---@param newName string 用户新输入的用户名
+---=========================================================================
 function PlayerInfoDataManager:SetPlayerInfoUserName(newName)
+    if not newName or type(newName) ~= "string" or newName == "" then
+        PrintError("[PlayerInfoDataManager] 设置用户名失败：名字为空")
+        return
+    end
+
+    -- 安全校验存档结构
+    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.playerInfo then
+        PrintError("[PlayerInfoDataManager] 设置用户名失败：playerInfo 存档不存在")
+        return
+    end
+
+    -- 写入数据
     PbRootData.GameData.playerInfo.name = newName
     PbRootData.GameData.playerInfo.userInput = true
-    PbIO.GameData.Save_playerInfo()
+
+    -- 保存存档
+    if PbIO and PbIO.GameData and PbIO.GameData.Save_playerInfo then
+        PbIO.GameData.Save_playerInfo()
+    else
+        PrintError("[PlayerInfoDataManager] 保存失败：存档接口不存在")
+    end
 end
 
 return PlayerInfoDataManager

@@ -2,31 +2,47 @@
 -- 【地图管理器】
 -- 功能：负责章节地图的加载、卸载、生命周期管理、场景机器/角色行为树管理
 -- 流程：切换章节 → 播放广告 → 卸载旧地图 → 加载新地图 → 初始化地图逻辑
+-- 规范：遵循 Unity + Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
----@class MapManager @地图管理器
+---@class MapManager @ 地图管理器：管理地图加载、卸载、生命周期、场景机器
 local MapManager = class("MapManager")
 
 --- 构造函数
 function MapManager:ctor()
-    self.ReadyLoadChapterId = PbRootData.GameData.latestChapterId     ---@type string                        ---目前准备加载的章节Id
-    self.CurLoadChapterId = nil                               ---@type string               当前加载的章节ID
-    self.CurLoadMapType = MapType.Main                     ---@type EMapType             当前地图类型（默认主线）
-    self.CurLoadMapGo = nil                              ---@type UnityEngine.Object   当前加载的地图GameObject
-    self.CurMapData = nil                              ---@type GameLib.MapData      地图数据
-    self.CurGameMapBase = nil                              ---@type GameMapBase          地图逻辑基类
-    self.CurMapMachines = {}                               ---@type table<string, MachineBase> 场景内所有机器
+    --- 准备加载的章节ID（预加载目标）
+    self.ReadyLoadChapterId = PbRootData.GameData.latestChapterId
+    --- 当前加载中的章节ID
+    self.CurLoadChapterId = nil
+    --- 当前地图类型（默认主线）
+    self.CurLoadMapType = MapType.Main
+    --- 当前加载的地图GameObject
+    self.CurLoadMapGo = nil
+    --- 地图数据配置
+    self.CurMapData = nil
+    --- 地图逻辑基类实例
+    self.CurGameMapBase = nil
+    --- 场景内所有机器实例字典
+    self.CurMapMachines = {}
+
+    --- 厨师外部行为树资源
+    self.ChefExternalBehavior = nil
+    --- 客人外部行为树资源
+    self.GuestExternalBehavior = nil
+    --- 助手外部行为树资源
+    self.AssistantExternalBehavior = nil
 end
 
---- 创建实例
----@return MapManager
+--- 创建管理器单例实例
+---@return MapManager 地图管理器实例
 function MapManager:Create()
-    local obj = MapManager.new()
-    return obj
+    local instance = MapManager.new()
+    PrintInfo("[MapManager] 初始化完成")
+    return instance
 end
 
 ---=========================================================================
---- 卸载地图【前】清理（调用地图自身的预清理）
+--- 卸载地图【前】清理：调用地图自身预清理逻辑
 ---=========================================================================
 function MapManager:UnloadMapBeforeClear()
     if self.CurGameMapBase then
@@ -35,99 +51,72 @@ function MapManager:UnloadMapBeforeClear()
 end
 
 ---=========================================================================
---- 卸载地图【后】清理（清空所有引用、数据、状态）
+--- 卸载地图【后】清理：清空所有引用、数据、状态、资源引用
 ---=========================================================================
 function MapManager:UnloadMapAfterClear()
     if self.CurGameMapBase then
         self.CurGameMapBase:UnloadMapAfterClear()
     end
-
+    
     -- 清空所有地图数据
     self.CurLoadMapType = MapType.Main
     self.CurLoadChapterId = nil
     self.CurLoadMapGo = nil
     self.CurMapData = nil
-    self.CurMapMachines = {}
     self.CurGameMapBase = nil
+    self.CurMapMachines = {}
 
-    -- 清理主界面收集/气泡数据
+    self.ChefExternalBehavior = nil
+    self.GuestExternalBehavior = nil
+    self.AssistantExternalBehavior = nil
+
+    -- 清理主界面推送数据
     GameMainUIPushManager:ClearElementData()
 end
 
---region 行为树资源加载/卸载
-
---- 卸载行为树资源
----@param behaviorTree UnityEngine.Object
-function MapManager:UnloadBehaviorTree(behaviorTree)
-    if behaviorTree then
-        RemoveAsset(behaviorTree)
-        behaviorTree = nil
-    end
-end
-
---- 加载当前地图所需的所有行为树（厨师/客人/助手）
-function MapManager:LoadBehaviorTrees()
-    if not self.CurMapData then
-        return
-    end
-    self.ChefExternalBehavior = self:LoadBehaviorTree(self.CurMapData.chefMapInfo.externalBehaviorName)
-    self.GuestExternalBehavior = self:LoadBehaviorTree(self.CurMapData.guestMapInfo.externalBehaviorName)
-    self.AssistantExternalBehavior = self:LoadBehaviorTree(self.CurMapData.assistantMapInfo.externalBehaviorName)
-end
-
---- 加载单个行为树
----@param behaviorTreeName string
----@return UnityEngine.Object
-function MapManager:LoadBehaviorTree(behaviorTreeName)
-    if not string.isNullOrEmpty(behaviorTreeName) then
-        return LoadAssetSync(RES[behaviorTreeName])
-    end
-    return nil
-end
-
---endregion
-
 --region 地图加载/切换/卸载
 
---- 获取地图类型（目前固定主线）
----@param chapterId string
----@return EMapType
+--- 获取地图类型（目前固定为主线地图）
+---@param chapterId string 章节ID
+---@return EMapType 地图类型
 function MapManager:GetMapType(chapterId)
     return MapType.Main
 end
 
 ---=========================================================================
 --- 切换地图（外部入口）
---- 逻辑：相同章节→直接回调；不同→尝试播放插屏广告→加载
----@param chapterId string 目标章节
----@param finishCallback function 完成回调
----@param refuseAd boolean 不播放广告
+--- 逻辑：相同章节→直接回调；不同→播放插屏广告→加载新地图
+---@param chapterId string 目标章节ID
+---@param finishCallback function 加载完成回调
+---@param refuseAd boolean 是否跳过广告
 ---=========================================================================
 function MapManager:OnSetSwitchMap(chapterId, finishCallback, refuseAd)
+    -- 相同章节无需切换
     if self.CurLoadChapterId == chapterId then
-        if finishCallback then
-            finishCallback()
-        end
+        if finishCallback then finishCallback() end
         return
     end
 
-    -- 播放切章节广告
-    if refuseAd or not ADMgr:TryShowInterAd(EInterAdID.ChangeChapter, function()
+    -- 尝试播放切章节广告
+    local adShown = ADMgr:TryShowInterAd(EInterAdID.ChangeChapter, function()
         self:ReadyToLoadMap(chapterId, finishCallback)
-    end) then
+    end)
+
+    -- 不播放广告 或 广告播放失败 → 直接加载
+    if refuseAd or not adShown then
         self:ReadyToLoadMap(chapterId, finishCallback)
     end
 end
 
---- 准备加载地图 → 切换到LoadMap状态
----@param chapterId string
----@param finishCallback function
+--- 准备加载地图：切换到加载状态
+---@param chapterId string 目标章节ID
+---@param finishCallback function 完成回调
 function MapManager:ReadyToLoadMap(chapterId, finishCallback)
     self.ReadyLoadChapterId = chapterId
     GameStateMachine:ChangeState(GameStateCmd.LoadMapState, finishCallback)
 end
 
---- 加载预准备的地图
+--- 加载预准备好的地图（状态机调用）
 function MapManager:LoadReadyMap(luaParams)
     if self.ReadyLoadChapterId then
         self:LoadMapById(self.ReadyLoadChapterId, luaParams)
@@ -136,112 +125,142 @@ end
 
 ---=========================================================================
 --- 根据章节ID加载地图
----@param chapterId string
----@param luaParams table
+---@param chapterId string 章节ID
+---@param luaParams table 加载参数
 ---@return boolean 是否加载成功
 ---=========================================================================
 function MapManager:LoadMapById(chapterId, luaParams)
     local mapName = self:GetLoadMapResName(chapterId)
     if not mapName then
+        PrintError("[MapManager] 加载地图失败，资源名为空：" .. chapterId)
         return false
     end
+
     self.CurLoadChapterId = chapterId
     self.CurLoadMapType = self:GetMapType(chapterId)
     GamerDataManager:SetCurChapterId(chapterId)
-    self.CurLoadMapGo = self:LoadMapResByName("GameMainMap", luaParams)
 
+    -- 同步加载地图Prefab
+    self.CurLoadMapGo = self:LoadMapResByName(mapName, luaParams)
     return true
 end
 
---- 同步加载地图Prefab
----@param mapName string
----@param luaParams table
----@return UnityEngine.Object
+--- 同步加载地图Prefab到场景
+---@param mapName string 地图资源名
+---@param luaParams table 实例化参数
+---@return UnityEngine.Object 地图GameObject
 function MapManager:LoadMapResByName(mapName, luaParams)
-    local parent = GameMainRoot.Scene.SceneRootGO.transform
-    return GameMainRoot.Asset:LoadPrefabSync(RES["GameObject_" .. mapName].ABPath, mapName, parent, luaParams)
+    local parentTrans = GameMainRoot.Scene.SceneRootGO.transform
+    local resPath = RES["GameObject_" .. mapName].ABPath
+    return GameMainRoot.Asset:LoadPrefabSync(resPath, mapName, parentTrans, luaParams)
 end
 
---- 根据章节ID获取地图资源名
----@param chapterId string
----@return string
+--- 根据章节ID获取配置的地图资源名
+---@param chapterId string 章节ID
+---@return string 地图资源名
 function MapManager:GetLoadMapResName(chapterId)
     local chapterData = ChapterDataManager:GetChapterDataByChapterId(chapterId)
     if chapterData then
         return chapterData.MapName
     end
 
-    PrintError("MapManager: 未找到章节配置 → " .. chapterId)
+    PrintError("[MapManager] 未找到章节配置：" .. chapterId)
     return nil
 end
 
---- 卸载旧地图（清理特效→预清理→销毁→后清理）
+--- 卸载旧地图：清理特效 → 预清理 → 销毁物体 → 后清理
 function MapManager:UnloadOldMap()
-    if not string.isNullOrEmpty(self.CurLoadChapterId) and self.CurLoadMapGo then
-        --GameEffectManager:ClearData()
-        self:UnloadMapBeforeClear()
-        DestroyPrefabWithGO(self.CurLoadMapGo)
-        self:UnloadMapAfterClear()
+    if string.isNullOrEmpty(self.CurLoadChapterId) or IsNull(self.CurLoadMapGo) then
+        return
     end
+
+    -- GameEffectManager:ClearData()
+    self:UnloadMapBeforeClear()
+    DestroyPrefabWithGO(self.CurLoadMapGo)
+    self:UnloadMapAfterClear()
 end
 
 --endregion
 
---region 游戏生命周期（转发给地图+所有机器）
+--region 游戏生命周期（统一转发给地图 + 所有机器）
 
+--- 游戏初始化
 function MapManager:OnInitGame()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnInitGame()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnInitGame()
     end
     self.CurGameMapBase:OnInitGame()
 end
 
+--- 进入游戏
 function MapManager:OnEnterGame()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnEnterGame()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnEnterGame()
     end
     self.CurGameMapBase:OnEnterGame()
 end
 
+--- 游戏开始
 function MapManager:OnBeginGame()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnBeginGame()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnBeginGame()
     end
     self.CurGameMapBase:OnBeginGame()
 end
 
+--- 游戏暂停
 function MapManager:OnPauseGame()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnPauseGame()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnPauseGame()
     end
     self.CurGameMapBase:OnPauseGame()
 end
 
+--- 游戏恢复
 function MapManager:OnResumeGame()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnResumeGame()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnResumeGame()
     end
     self.CurGameMapBase:OnResumeGame()
 end
 
+--- 游戏结束
 function MapManager:OnGameOver()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnGameOver()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnGameOver()
     end
     self.CurGameMapBase:OnGameOver()
 end
 
+--- 退出游戏
 function MapManager:OnExitGame()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnExitGame()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnExitGame()
     end
     self.CurGameMapBase:OnExitGame()
 end
 
+--- 重新开始游戏
 function MapManager:OnRePlayGame()
-    for _, v in pairs(self.CurMapMachines) do
-        v:OnInitGame()
-        v:OnRePlayGame()
+    if not self.CurGameMapBase then return end
+
+    for _, machine in pairs(self.CurMapMachines) do
+        machine:OnInitGame()
+        machine:OnRePlayGame()
     end
     self.CurGameMapBase:OnRePlayGame()
 end

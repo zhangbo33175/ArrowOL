@@ -131,7 +131,7 @@ GameManager = require("GameManager"):Create()
 GameMainUIPushManager = require('GameMainUIPushManager'):Create()
 
 --- 地图运动（注释）
---MapMotion = require('MapMotion')
+GameMapMotion = require('GameMapMotion')
 
 --- UI栈管理器
 UIStackManager = require('UIStackManager'):Create()

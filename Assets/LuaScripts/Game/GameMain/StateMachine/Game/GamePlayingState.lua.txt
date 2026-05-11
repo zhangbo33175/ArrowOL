@@ -45,7 +45,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
     -- 开启点击检测
     GameManager:SetupEasyTouchAutoSelect(true)
     -- 暂停地图拖动
-    --MapMotion:PauseMapMotion()
+    GameMapMotion:PauseMapMotion()
 
     ---- 相机移动到关卡战斗位置
     --local mapData = MapManager.CurMapData
@@ -92,7 +92,7 @@ function GamePlayingState:OnStateExit(finishCallback)
 
     -- 清理特效、停止音乐
     GameEffectManager:ClearData()
-    SoundMgr:StopCurBGM()
+    SoundManager:StopCurBGM()
 
     -- 关闭战斗UI
     CloseUI(UIs.UIPlayingHud)

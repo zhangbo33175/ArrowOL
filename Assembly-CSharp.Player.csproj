@@ -397,6 +397,7 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Procedures\Procedures\ProcedurePlaying.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\Gesture2D\Gestures2D.Methods.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Events\EventPool\EventPool.Event.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Honor\UI\MapMotionLayer.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UILauncherLogoView\UILauncherLogoView.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Tools\Assembly.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UnityFramework\EGameMode.cs" />

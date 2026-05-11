@@ -1,3 +1,15 @@
 {
-    "1" : {"ID":1,"Desc":"预制体文件","Path":"Assets/Res/Prefabs","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false}
+    "1" : {"ID":1,"Desc":"预制体文件","Path":"Assets/Res/Prefabs","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "2" : {"ID":2,"Desc":"Json配置文件","Path":"Assets/LuaScripts/Config/LuaJson","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "3" : {"ID":3,"Desc":"lua脚本-本地语言","Path":"Assets/LuaScripts/Game/Localizations","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "4" : {"ID":4,"Desc":"lua脚本-游戏逻辑脚本","Path":"Assets/LuaScripts/Game/LuacScripts/RScripts","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "5" : {"ID":5,"Desc":"lua脚本-配置","Path":"Assets/LuaScripts/Game/Tables/AlOthers","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "6" : {"ID":6,"Desc":"lua脚本-配置-其他配置不与主配置相关(避免同时热更)","Path":"Assets/LuaScripts/Game/Tables/AlTables","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "7" : {"ID":7,"Desc":"lua脚本-关卡","Path":"Assets/LuaScripts/Game/Tables/Levels","PackageMeasureType":2,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "8" : {"ID":8,"Desc":"通用界面图片","Path":"Assets/Res/Textures/PicsForEditor/Common/Common","PackageMeasureType":1,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "9" : {"ID":9,"Desc":"使用选中Icon纹理","Path":"Assets/Res/Textures/Map/Icon","PackageMeasureType":1,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "10" : {"ID":10,"Desc":"使用大图背景纹理","Path":"Assets/Res/Textures/Map/LevelBackground","PackageMeasureType":1,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "11" : {"ID":11,"Desc":"lua脚本","Path":"Assets/LuaScripts","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "12" : {"ID":12,"Desc":"字体文件","Path":"Assets/Res/Fonts/Commons","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "13" : {"ID":13,"Desc":"TMP字体文件","Path":"Assets/Res/Fonts/TMPs","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false}
 }

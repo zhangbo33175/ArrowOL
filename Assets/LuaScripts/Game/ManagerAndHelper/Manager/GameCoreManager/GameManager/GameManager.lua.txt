@@ -2,35 +2,36 @@
 -- 【游戏总管理器】
 -- 功能：游戏全局核心控制中心
 -- 负责：游戏暂停/恢复、UI栈管理、全屏UI相机优化、版本号、设备性能、全局状态控制
+-- 规范：遵循 Unity + Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
----@class OpenCanvas : table @ 已打开的UI配置
----@field Canvas UnityEngine.Canvas 画布
----@field UIInfo Tables.UIs_Item UI配置
+---@class OpenCanvas @ 已打开完成的UI数据结构
+---@field Canvas UnityEngine.Canvas  UI画布
+---@field UIInfo Tables.UIs_Item    UI配置表数据
 
----@class GameManager:Singleton @游戏管理器
----@field _PauseGameRef number 游戏暂停引用计数
----@field _OpenOverCanvasArray OpenCanvas[] 已打开动画完成的UI列表
----@field _devicePerformanceLevel Honor.DevicePerformanceLevel 设备性能等级
----@field _WaitFrame GameLib.WaitForFrames 公共等待帧
-
+---@class GameManager : Singleton @ 游戏全局管理器
+---@field _pauseGameRef number              游戏暂停引用计数
+---@field _openOverCanvasArray OpenCanvas[] 已打开完成的UI列表
+---@field _devicePerformanceLevel Honor.DevicePerformanceLevel 设备性能等级（缓存）
+---@field _waitForFrames GameLib.WaitForFrames 公共等待帧对象
 local GameManager = class("GameManager", import("Singleton"))
 
 --- 构造函数
 function GameManager:ctor(args)
     GameManager.super.ctor(self, args)
-    self._PauseGameRef = 0
-    self._OpenOverCanvasArray = {}
-    self._devicePerformanceLevel = nil
-    self._WaitFrame = GameLib.WaitForFrames(6)
+
+    self._pauseGameRef = 0                          -- 暂停引用计数
+    self._openOverCanvasArray = {}                  -- 已打开完成的UI数组
+    self._devicePerformanceLevel = nil              -- 设备性能缓存
+    self._waitForFrames = GameLib.WaitForFrames(6)  -- 公共等待6帧
 end
 
---- 创建单例
----@return GameManager
+--- 创建单例实例
+---@return GameManager 管理器实例
 function GameManager:Create(args)
-    local obj = GameManager.new(args)
-    PrintInfo("初始化 GameManager")
-    return obj
+    local instance = GameManager.new(args)
+    PrintInfo("[GameManager] 初始化完成")
+    return instance
 end
 
 --- 初始化
@@ -45,259 +46,299 @@ function GameManager:ClearData()
     self:ResetNormalGame()
 end
 
---- 是否开发者模式
+--- 是否为开发者模式
 ---@return boolean
 function GameManager:IsDevelopMode()
     return GameMainRoot.Launcher.DevelopMode
 end
 
 --=========================================================================
--- region 游戏暂停/恢复（引用计数，支持多层暂停）
---=========================================================================
+--region 游戏暂停/恢复（引用计数，支持多层嵌套暂停）
 
---- 暂停游戏（引用+1）
+--- 暂停游戏（引用计数 +1）
 function GameManager:PauseGame()
-    self._PauseGameRef = self._PauseGameRef + 1
-    if self._PauseGameRef >= 1 then
+    self._pauseGameRef = self._pauseGameRef + 1
+
+    if self._pauseGameRef >= 1 then
         GameMainRoot.Launcher:PauseGame()
         GameCoreManager:OnPauseGame()
-        SoundMgr:PauseAllSound()
-        PrintInfo("游戏暂停 _PauseGameRef = {0}", self._PauseGameRef)
+        -- SoundMgr:PauseAllSound()
+        PrintInfo("[GameManager] 游戏暂停，计数：{0}", self._pauseGameRef)
     end
 end
 
 --- 延迟恢复游戏（等待6帧）
 function GameManager:ResumeGame()
     HonorCoroutineHelper:StartAlone(function()
-        HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
+        HonorCoroutineHelper:WaitForFrame(self._waitForFrames)
         self:ResumeGameImmediately()
     end)
 end
 
---- 立即恢复游戏（引用-1）
+--- 立即恢复游戏（引用计数 -1）
 function GameManager:ResumeGameImmediately()
-    if self._PauseGameRef > 0 then
-        self._PauseGameRef = self._PauseGameRef - 1
-        if self._PauseGameRef == 0 then
-            GameMainRoot.Launcher:ResumeGame()
-            GameCoreManager:OnResumeGame()
-            SoundMgr:ResumeAllSound()
-        end
-        PrintInfo("游戏恢复 _PauseGameRef = {0}", self._PauseGameRef)
+    if self._pauseGameRef <= 0 then
+        return
     end
+
+    self._pauseGameRef = self._pauseGameRef - 1
+    if self._pauseGameRef == 0 then
+        GameMainRoot.Launcher:ResumeGame()
+        GameCoreManager:OnResumeGame()
+        -- SoundMgr:ResumeAllSound()
+    end
+
+    PrintInfo("[GameManager] 游戏恢复，计数：{0}", self._pauseGameRef)
 end
 
---- 重置游戏状态（清空暂停计数）
+--- 重置游戏正常状态（清空暂停计数、恢复正常速度）
 function GameManager:ResetNormalGame()
-    self._PauseGameRef = 0
+    self._pauseGameRef = 0
     GameMainRoot.Launcher:ResetNormalGameSpeed()
 end
 
---- 游戏是否暂停
+--- 游戏当前是否处于暂停状态
 ---@return boolean
 function GameManager:IsGamePaused()
     return GameMainRoot.Launcher.IsGamePaused
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region UI栈管理（封装）
---=========================================================================
+--region UI栈管理（封装对外接口）
 
 --- 获取栈顶UI
----@return any
+---@return UIBase
 function GameManager:PeekUI()
-    return UIStackMgr:Peek(UIStackName.UI)
+    return UIStackManager:Peek(UIStackName.UI)
 end
 
 --- UI入栈
+---@param ui UIBase UI实例
 function GameManager:PushUI(ui)
-    UIStackMgr:Push(UIStackName.UI, ui)
+    UIStackManager:Push(UIStackName.UI, ui)
 end
 
 --- UI出栈
+---@return UIBase
 function GameManager:PopUI()
-    return UIStackMgr:Pop(UIStackName.UI)
+    return UIStackManager:Pop(UIStackName.UI)
 end
 
---- 关闭所有UI
+--- 关闭所有界面
+---@param rightNow boolean 是否立即关闭
 function GameManager:CloseAllUI(rightNow)
     GameMainRoot.UI:CloseAllUIs(Honor.UIType.Screen, rightNow)
     GameMainRoot.UI:CloseAllUIs(Honor.UIType.Scene, rightNow)
     self:ResetNormalGame()
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 版本号管理
---=========================================================================
+--region 版本号管理
 
---- 获取资源版本
+--- 获取资源版本号
 ---@return number
 function GameManager:GetResVersion()
     local resMinor = GameMainRoot.Hotfix.ResMinor
     local localVersion = GameMainRoot.Hotfix.LocalVersion
+
     if localVersion then
         resMinor = localVersion.ResVersion
     end
+
     return resMinor
 end
 
---- 获取主版本
+--- 获取主版本号（应用版本）
 ---@return string
 function GameManager:GetMainVersion()
     return Unity.Application.version
 end
 
---- 获取完整版本号：主版本.资源版本
+--- 获取游戏完整版本号：主版本.资源版本
 ---@return string
 function GameManager:GetGameVersion()
-    return self:GetMainVersion() .. "." .. self:GetResVersion()
+    return string.format("%s.%s", self:GetMainVersion(), self:GetResVersion())
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 设备性能 & EasyTouch 设置
---=========================================================================
+--region 设备性能等级 & 触摸设置
 
---- 设置EasyTouch触摸屏蔽
+--- 设置EasyTouch触摸自动选择
+---@param enable boolean 开启/关闭
 function GameManager:SetupEasyTouchAutoSelect(enable)
-   -- CS.HedgehogTeam.EasyTouch.EasyTouch.instance.autoSelect = enable
-   -- CS.HedgehogTeam.EasyTouch.EasyTouch.instance.allowUIDetection = enable
+    CS.HedgehogTeam.EasyTouch.EasyTouch.instance.autoSelect = enable
+    CS.HedgehogTeam.EasyTouch.EasyTouch.instance.allowUIDetection = enable
 end
 
---- 获取设备性能等级
+--- 获取设备性能等级（缓存结果，避免重复调用）
 ---@return Honor.DevicePerformanceLevel
 function GameManager:GetDevicePerformanceLevel()
-    if self._devicePerformanceLevel == nil then
-        self._devicePerformanceLevel = Honor.DevicePerformance.GetDevicePerformanceLevel()
+    if self._devicePerformanceLevel ~= nil then
+        return self._devicePerformanceLevel
     end
+
+    self._devicePerformanceLevel = Honor.DevicePerformance.GetDevicePerformanceLevel()
+
+    -- 失败降级
     if self._devicePerformanceLevel == nil then
-        PrintError("获取设备性能等级失败，默认低性能")
-        return Honor.DevicePerformanceLevel.Low
+        PrintError("[GameManager] 获取设备性能等级失败，使用默认低性能")
+        self._devicePerformanceLevel = Honor.DevicePerformanceLevel.Low
     end
+
     return self._devicePerformanceLevel
 end
 
---- 获取设备性能数字（0=低 1=中 2=高）
+--- 获取设备性能等级数字（0=低 1=中 2=高）
 ---@return number
 function GameManager:GetDevicePerformanceLevelNumber()
     local level = self:GetDevicePerformanceLevel()
-    if level == Honor.DevicePerformanceLevel.High then return 2
-    elseif level == Honor.DevicePerformanceLevel.Mid then return 1
-    else return 0 end
+
+    if level == Honor.DevicePerformanceLevel.High then
+        return 2
+    elseif level == Honor.DevicePerformanceLevel.Mid then
+        return 1
+    else
+        return 0
+    end
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region UI全屏优化：自动关闭/开启相机、Canvas渲染（性能核心）
---=========================================================================
+--region 全屏UI性能优化：自动管理相机/Canvas渲染
 
---- UI打开完毕（全屏UI会关闭底层Canvas与场景相机）
----@param canvas UnityEngine.Canvas
----@param uiName string
+--- UI打开完成回调（全屏UI关闭底层画布）
+---@param canvas UnityEngine.Canvas 画布对象
+---@param uiName string UI名称
 function GameManager:OnCanvasOpenOver(canvas, uiName)
     -- 清理空引用
-    for k, v in pairs(self._OpenOverCanvasArray) do
-        if IsNull(v.Canvas) then
-            table.remove(self._OpenOverCanvasArray, k)
+    for i = #self._openOverCanvasArray, 1, -1 do
+        local data = self._openOverCanvasArray[i]
+        if IsNull(data.Canvas) then
+            table.remove(self._openOverCanvasArray, i)
         end
     end
 
-    if not canvas then return end
+    if IsNull(canvas) then
+        return
+    end
+
     local uiCfg = UIs[uiName]
-    if not uiCfg then return end
+    if not uiCfg then
+        return
+    end
 
-    -- 全屏UI → 关闭其他所有Canvas
+    -- 全屏UI：禁用所有已打开的Canvas
     if uiCfg.IsFullScreenUI then
-        for i, v in ipairs(self._OpenOverCanvasArray) do
-            v.Canvas.enabled = false
+        for _, data in ipairs(self._openOverCanvasArray) do
+            data.Canvas.enabled = false
         end
     end
 
-    table.insert(self._OpenOverCanvasArray, { Canvas = canvas, UIInfo = uiCfg })
+    -- 加入已打开列表
+    table.insert(self._openOverCanvasArray, {
+        Canvas = canvas,
+        UIInfo = uiCfg
+    })
 
-    -- 存在全屏UI → 关闭场景相机
-    local hasFullUI = false
-    for i, v in ipairs(self._OpenOverCanvasArray) do
-        if v.UIInfo.IsFullScreenUI then
-            hasFullUI = true
-            break
+    -- 检查是否存在全屏UI → 关闭场景相机
+    local hasFullScreenUI = self:HasFullScreenUI()
+    if hasFullScreenUI then
+        local mainCamera = GameMainRoot.Scene.SceneCameras[0]
+        if not IsNull(mainCamera) and mainCamera.activeSelf then
+            mainCamera:SetActive(false)
         end
-    end
-
-    if hasFullUI then
-        local cam = GameMainRoot.Scene.SceneCameras[0]
-        if cam.activeSelf then cam:SetActive(false) end
     end
 end
 
---- UI立即关闭（清理记录）
+--- UI立即关闭（直接清理）
+---@param uiName string UI名称
 function GameManager:OnCanvasCloseRightNow(uiName)
-    for k, v in pairs(self._OpenOverCanvasArray) do
-        if v.UIInfo.Name == uiName then
-            table.remove(self._OpenOverCanvasArray, k)
+    for i = #self._openOverCanvasArray, 1, -1 do
+        local data = self._openOverCanvasArray[i]
+        if data.UIInfo.Name == uiName then
+            table.remove(self._openOverCanvasArray, i)
         end
     end
 end
 
 --- UI关闭（内部逻辑）
+---@param uiName string UI名称
 function GameManager:_OnCanvasClose(uiName)
-    -- 清理无效UI
-    for k, v in pairs(self._OpenOverCanvasArray) do
-        if v.UIInfo.Name == uiName or IsNull(v.Canvas) then
-            table.remove(self._OpenOverCanvasArray, k)
+    -- 清理无效数据
+    for i = #self._openOverCanvasArray, 1, -1 do
+        local data = self._openOverCanvasArray[i]
+        if data.UIInfo.Name == uiName or IsNull(data.Canvas) then
+            table.remove(self._openOverCanvasArray, i)
         end
     end
 
-    -- 找到最高层级全屏UI并启用它及之后的Canvas
-    if #self._OpenOverCanvasArray > 0 then
-        local maxIdx = 1
-        for i = 2, #self._OpenOverCanvasArray do
-            local curr = self._OpenOverCanvasArray[i]
-            local max = self._OpenOverCanvasArray[maxIdx]
-            if curr.UIInfo.IsFullScreenUI and curr.UIInfo.ZOrder >= max.UIInfo.ZOrder then
-                maxIdx = i
-            end
+    -- 启用最高层级全屏UI及之后的画布
+    local count = #self._openOverCanvasArray
+    if count <= 0 then
+        return
+    end
+
+    local maxIndex = 1
+    for i = 2, count do
+        local curr = self._openOverCanvasArray[i]
+        local max = self._openOverCanvasArray[maxIndex]
+
+        if curr.UIInfo.IsFullScreenUI and curr.UIInfo.ZOrder >= max.UIInfo.ZOrder then
+            maxIndex = i
         end
-        for i = maxIdx, #self._OpenOverCanvasArray do
-            self._OpenOverCanvasArray[i].Canvas.enabled = true
-        end
+    end
+
+    for i = maxIndex, count do
+        self._openOverCanvasArray[i].Canvas.enabled = true
     end
 end
 
---- UI关闭（外部调用）
+--- UI关闭（外部调用，带异常保护）
+---@param uiName string UI名称
 function GameManager:OnCanvasClose(uiName)
-    local ok = pcall(function() self:_OnCanvasClose(uiName) end)
+    -- 安全执行
+    local success = pcall(function()
+        self:_OnCanvasClose(uiName)
+    end)
 
-    -- 无全屏UI → 恢复相机
-    local hasFullUI = false
-    if ok then
-        for i, v in ipairs(self._OpenOverCanvasArray) do
-            if v.UIInfo.IsFullScreenUI then
-                hasFullUI = true
-                break
-            end
+    -- 无全屏UI → 恢复场景相机
+    local hasFullScreenUI = success and self:HasFullScreenUI()
+    if not hasFullScreenUI then
+        local mainCamera = GameMainRoot.Scene.SceneCameras[0]
+        if not IsNull(mainCamera) and not mainCamera.activeSelf then
+            mainCamera:SetActive(true)
         end
     end
+end
 
-    if not hasFullUI then
-        local cam = GameMainRoot.Scene.SceneCameras[0]
-        if not cam.activeSelf then cam:SetActive(true) end
+--- 所有UI关闭完成 → 强制恢复相机
+function GameManager:OnAfterCanvasCloseAll()
+    ClearArray(self._openOverCanvasArray)
+
+    local mainCamera = GameMainRoot.Scene.SceneCameras[0]
+    if not IsNull(mainCamera) and not mainCamera.activeSelf then
+        mainCamera:SetActive(true)
     end
 end
 
---- 所有UI关闭 → 恢复相机
-function GameManager:OnAfterCanvasCloseAll()
-    ClearArray(self._OpenOverCanvasArray)
-    local cam = GameMainRoot.Scene.SceneCameras[0]
-    if not cam.activeSelf then cam:SetActive(true) end
+--- 判断当前是否存在全屏UI（内部工具方法）
+---@return boolean
+function GameManager:HasFullScreenUI()
+    for _, data in ipairs(self._openOverCanvasArray) do
+        if data.UIInfo.IsFullScreenUI then
+            return true
+        end
+    end
+    return false
 end
 
--- endregion
+--endregion
 
 return GameManager

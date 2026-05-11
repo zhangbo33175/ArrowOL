@@ -1,107 +1,135 @@
 --=====================================================================================================
--- descrip:   资源物品表格数据管理中心
---            功能：读取物品配置表、按类型/子类型获取道具列表、获取资源类型、缓存分类道具数据
+-- @brief  资源物品表格数据管理中心
+-- @desc   读取物品配置表、按类型/子类型获取道具列表、获取资源类型、缓存分类道具数据
+-- @feat   全局单例、自动缓存、安全查询、分类排序、配置容错
 --=====================================================================================================
 
----@class ResourceID @ 道具ID结构
----@field ID string @ 道具ID
+---@class ResourceID
+---@field ID string 道具ID
 
----@class ResourceDataManager @资源物品表格数据管理中心
----@field _boosterIDs table<EItemSubType, ResourceID[]> @ 按子类型缓存的道具ID列表
----@field _resources table<EResourceType, ResourceID[]> @ 按资源类型缓存的道具ID列表
-local ResourceDataManager = class("ResourceDataManager")
+---@class ResourceDataManager : Singleton 资源物品表格数据管理中心
+---@field _boosterIDs table<EItemSubType, ResourceID[]> 按子类型缓存的道具ID列表
+---@field _resources table<EResourceType, ResourceID[]> 按资源类型缓存的道具ID列表
+local ResourceDataManager = class("ResourceDataManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
-function ResourceDataManager:ctor(args)
+--- 构造函数
+function ResourceDataManager:ctor()
+    ResourceDataManager.super.ctor(self)
     self:Init()
 end
 
----创建实例
----@type fun(args:table):ResourceDataManager
----@param args table @自定义参数
----@return ResourceDataManager @资源物品数据管理中心实例
-function ResourceDataManager:Create(args)
-    local obj = ResourceDataManager.new(args)
-    return obj
+--- 创建单例
+---@return ResourceDataManager
+function ResourceDataManager:Create()
+    return ResourceDataManager.new()
 end
 
----初始化（清空缓存）
----@type fun():void
+--- 初始化（清空缓存）
 function ResourceDataManager:Init()
     self._boosterIDs = nil
     self._resources = nil
 end
 
----获取物品资源总表
----@type fun():Tables.Resource_Item[]
----@return Tables.Resource_Item[] @物品资源总表
+--- 清理数据（切号/重载）
+function ResourceDataManager:ClearData()
+    ResourceDataManager.super.ClearData(self)
+    self:Init()
+end
+
+---=========================================================================
+--- 获取物品资源总表
+---@return Tables.Resource_Item[]
+---=========================================================================
 function ResourceDataManager:GetResourceDatas()
+    if not Tables or not Tables.Items then
+        PrintError("[ResourceDataManager] Tables.Items 配置表不存在！")
+        return {}
+    end
     return Tables.Items
 end
 
----根据资源ID获取物品配置
----@type fun(resID:string):Tables.Resource_Item
----@param resID string @资源ID
----@return Tables.Resource_Item @物品配置数据
+---=========================================================================
+--- 根据资源ID获取物品配置
+---@param resID string 资源ID
+---@return Tables.Resource_Item|nil
+---=========================================================================
 function ResourceDataManager:GetResourceData(resID)
-    return Tables.Items[resID]
+    if not resID then return nil end
+    local items = self:GetResourceDatas()
+    return items[tostring(resID)]
 end
 
----根据资源ID获取资源类型
----@type fun(resID:string):EResourceType
----@param resID string @资源ID
----@return EResourceType @资源类型
+---=========================================================================
+--- 根据资源ID获取资源类型
+---@param resID string 资源ID
+---@return EResourceType|nil
+---=========================================================================
 function ResourceDataManager:GetResourceTypeById(resID)
     local data = self:GetResourceData(resID)
-    if data then
-        return data.Type
-    end
-    return nil
+    return data and data.Type or nil
 end
 
----获取指定子类型的所有道具ID（已排序）
----@type fun(boosterSubType:EItemSubType):ResourceID[]
----@param boosterSubType EItemSubType @道具子类型
----@return ResourceID[] @该类型下所有道具ID结构数组
+---=========================================================================
+--- 获取指定子类型的所有道具ID（已排序）
+---@param boosterSubType EItemSubType
+---@return ResourceID[]
+---=========================================================================
 function ResourceDataManager:GetBoosterIDs(boosterSubType)
-    if self._boosterIDs == nil then
-        self._boosterIDs = {}
-    end
-    if self._boosterIDs[boosterSubType] == nil then
-        self._boosterIDs[boosterSubType] = {}
-        for k, v in pairs(Tables.Items) do
+    if not boosterSubType then return {} end
+
+    self._boosterIDs = self._boosterIDs or {}
+    if not self._boosterIDs[boosterSubType] then
+        local list = {}
+        local items = self:GetResourceDatas()
+
+        for k, v in pairs(items) do
             if v.Type == EResourceType.Item and v.SubType == boosterSubType then
-                table.insert(self._boosterIDs[boosterSubType], { ID = k })
+                table.insert(list, { ID = k })
             end
         end
-        -- 按ID数字升序排序
-        table.sort(self._boosterIDs[boosterSubType], function(a, b)
-            return tonumber(a.ID) < tonumber(b.ID)
+
+        -- 稳定数字排序
+        table.sort(list, function(a, b)
+            local idA = tonumber(a.ID) or 99999
+            local idB = tonumber(b.ID) or 99999
+            return idA < idB
         end)
+
+        self._boosterIDs[boosterSubType] = list
     end
-    return self._boosterIDs[boosterSubType]
+
+    return self._boosterIDs[boosterSubType] or {}
 end
 
----获取指定资源类型的所有道具ID（已排序）
----@type fun(resType:EResourceType):ResourceID[]
----@param resType EResourceType @资源类型
----@return ResourceID[] @该类型下所有道具ID结构数组
+---=========================================================================
+--- 获取指定资源类型的所有道具ID（已排序）
+---@param resType EResourceType
+---@return ResourceID[]
+---=========================================================================
 function ResourceDataManager:GetResourceIDs(resType)
+    if not resType then return {} end
+
     self._resources = self._resources or {}
-    if self._resources[resType] == nil then
-        self._resources[resType] = {}
-        for k, v in pairs(Tables.Items) do
+    if not self._resources[resType] then
+        local list = {}
+        local items = self:GetResourceDatas()
+
+        for k, v in pairs(items) do
             if v.Type == resType then
-                table.insert(self._resources[resType], { ID = k })
+                table.insert(list, { ID = k })
             end
         end
-        -- 按ID数字升序排序
-        table.sort(self._resources[resType], function(a, b)
-            return tonumber(a.ID) < tonumber(b.ID)
+
+        -- 稳定数字排序
+        table.sort(list, function(a, b)
+            local idA = tonumber(a.ID) or 99999
+            local idB = tonumber(b.ID) or 99999
+            return idA < idB
         end)
+
+        self._resources[resType] = list
     end
+
     return self._resources[resType] or {}
 end
 

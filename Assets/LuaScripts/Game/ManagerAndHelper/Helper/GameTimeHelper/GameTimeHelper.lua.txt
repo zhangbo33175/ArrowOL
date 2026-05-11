@@ -1,6 +1,6 @@
 --=====================================================================================================
--- descrip:   游戏时间工具（单例）
---            提供：定时任务注册/取消、时间格式化、多语言时间单位、未来时间戳矫正（防改时间）
+-- @brief:     游戏时间工具单例
+-- @desc:      提供定时任务注册/取消、时间格式化、多语言时间单位、防篡改时间戳矫正功能
 --=====================================================================================================
 
 ---@class ETimeCustomFormat @自定义时间格式枚举
@@ -28,36 +28,40 @@ EFormatTimeString = {
 ---@field callback function @ 到达时间回调
 ---@field key string @ 任务唯一标识（用于取消）
 
----@class GameTimeHelper :Singleton @游戏时间管理单例
----@field TimestampRecords table @已排序定时任务列表（二分插入）
----@field WaittingExecute table @ 待执行回调缓存
----@field EventCmdProcSecond string @每秒触发事件Key
----@field TimestampRecordsCache table @任务缓存队列
----@field FutureTimeStamp number @ 基准未来时间戳（防改时间）
----@field DayStr string @ 多语言：天
----@field HourStr string @ 多语言：小时
----@field MinStr string @ 多语言：分钟
----@field SecStr string @ 多语言：秒
+---@class GameTimeHelper : Singleton @游戏时间管理单例
+---@field timestampRecords table @已排序定时任务列表（二分插入）
+---@field waitingExecute table @待执行回调缓存
+---@field eventCmdProcSecond string @每秒触发事件Key
+---@field timestampRecordsCache table @任务缓存队列
+---@field futureTimeStamp number @基准未来时间戳（防改时间）
+---@field dayStr string @多语言：天
+---@field hourStr string @多语言：小时
+---@field minStr string @多语言：分钟
+---@field secStr string @多语言：秒
 local GameTimeHelper = class("GameTimeHelper", import("Singleton"))
 
----构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function GameTimeHelper:ctor(args)
     GameTimeHelper.super.ctor(self, args)
-    self.TimestampRecords = {}          -- 定时任务有序列表
-    self.WaittingExecute = {}           -- 待执行任务
-    self.TimestampRecordsCache = {}     -- 注册任务缓存
-    self.EventCmdProcSecond = "EventCmd_ProcSecond"
-    self.FutureTimeStamp = 0            -- 防作弊基准时间戳
-    self.DayStr = nil
-    self.HourStr = nil
-    self.MinStr = nil
-    self.SecStr = nil
-    self:_InitLanguageText()             -- 初始化多语言单位
+
+    self.timestampRecords = {}          --- 定时任务有序列表（按时间戳升序）
+    self.waitingExecute = {}            --- 待执行任务缓存
+    self.timestampRecordsCache = {}     --- 任务注册缓存队列
+    self.eventCmdProcSecond = "EventCmd_ProcSecond"
+    self.futureTimeStamp = 0            --- 防时间作弊基准时间戳
+
+    self.dayStr = nil
+    self.hourStr = nil
+    self.minStr = nil
+    self.secStr = nil
+
+    --- 初始化多语言时间单位
+    self:_InitLanguageText()
 end
 
----创建单例实例
+---@brief 创建单例实例
 ---@type fun(args:table):GameTimeHelper
 ---@param args table @自定义参数
 ---@return GameTimeHelper @时间工具实例
@@ -66,61 +70,67 @@ function GameTimeHelper:Create(args)
     return obj
 end
 
----初始化（注册事件、每秒定时器）
+---@brief 初始化（注册事件、启动每秒定时器）
 ---@type fun():void
 function GameTimeHelper:Init()
     GameTimeHelper.super.Init(self)
-    -- 语言切换刷新
+
+    --- 语言切换时刷新时间单位文本
     HonorEventHelper:AddListener(EventCmd.OnLanguageChange, handler(self, self._OnLanguageChange))
-    -- 每秒执行
-    HonorEventHelper:AddListener(self.EventCmdProcSecond, handler(self, self.ProcSecond))
-    HonorTimerHelper:RegisterDeltaTime(self.EventCmdProcSecond, 1, "ProcedurePlaying", true)
+    --- 注册每秒执行事件
+    HonorEventHelper:AddListener(self.eventCmdProcSecond, handler(self, self.ProcSecond))
+    --- 启动每秒定时器
+    HonorTimerHelper:RegisterDeltaTime(self.eventCmdProcSecond, 1, "ProcedurePlaying", true)
 end
 
----获取单例优先级
+---@brief 获取单例优先级
 ---@type fun():number
 ---@return number @优先级
 function GameTimeHelper:Priority()
     return ESingletonPriority.GameTimeHelper
 end
 
----清理数据（切换账号/场景时调用）
+---@brief 清理数据（切换账号/场景时调用）
 ---@type fun():void
 function GameTimeHelper:ClearData()
     GameTimeHelper.super.ClearData(self)
-    self.TimestampRecords = {}
-    self.WaittingExecute = {}
-    self.TimestampRecordsCache = {}
-    self:SetupFutureTimeStamp() -- 重置防作弊时间
+
+    --- 清空所有任务队列
+    self.timestampRecords = {}
+    self.waitingExecute = {}
+    self.timestampRecordsCache = {}
+
+    --- 重置防作弊基准时间
+    self:SetupFutureTimeStamp()
 end
 
----多语言切换刷新
+---@brief 多语言切换刷新事件
 function GameTimeHelper:_OnLanguageChange()
     self:_InitLanguageText()
 end
 
----初始化多语言时间单位文本
+---@brief 初始化多语言时间单位文本
 function GameTimeHelper:_InitLanguageText()
-    self.DayStr = GetLang('TimeShowDay')
-    self.HourStr = GetLang('TimeShowHour')
-    self.MinStr = GetLang('TimeShowMin')
-    self.SecStr = GetLang('TimeShowSec')
+    self.dayStr = GetLang('TimeShowDay')
+    self.hourStr = GetLang('TimeShowHour')
+    self.minStr = GetLang('TimeShowMin')
+    self.secStr = GetLang('TimeShowSec')
 end
 
----二分法插入有序任务列表（保证按时间戳升序）
+---@brief 二分法插入有序任务列表（保证按时间戳升序）
 ---@type fun(record :TimestampRecorder) :void
 ---@param record TimestampRecorder @ 定时任务
 function GameTimeHelper:_Insert(record)
-    local count = #self.TimestampRecords
+    local count = #self.timestampRecords
     local min = 1
     local max = count
 
-    -- 二分查找插入位置
+    --- 二分查找合适的插入位置
     while count > 0 and max - min > 0 do
         local mid = min + math.floor((max - min) / 2)
-        if self.TimestampRecords[mid].timestamp > record.timestamp then
+        if self.timestampRecords[mid].timestamp > record.timestamp then
             max = math.clamp(mid - 1, min, max)
-        elseif self.TimestampRecords[mid].timestamp < record.timestamp then
+        elseif self.timestampRecords[mid].timestamp < record.timestamp then
             min = math.clamp(mid + 1, min, max)
         else
             min = mid
@@ -128,95 +138,98 @@ function GameTimeHelper:_Insert(record)
         end
     end
 
-    -- 插入任务
-    if self.TimestampRecords[min] == nil or self.TimestampRecords[min].timestamp >= record.timestamp then
-        table.insert(self.TimestampRecords, min, record)
+    --- 插入任务到有序列表
+    if self.timestampRecords[min] == nil or self.timestampRecords[min].timestamp >= record.timestamp then
+        table.insert(self.timestampRecords, min, record)
     else
-        table.insert(self.TimestampRecords, min + 1, record)
+        table.insert(self.timestampRecords, min + 1, record)
     end
 end
 
----注册一个UTC时间戳定时任务
+---@brief 注册UTC时间戳定时任务
 ---@type fun(key : string ,timestamp:number,func :function):void
----@param key string @ 取消任务用Key（可空）
+---@param key string @ 取消任务用唯一Key
 ---@param timestamp number @UTC0时间戳
----@param func function @回调
+---@param func function @到达时间回调
 function GameTimeHelper:RegisterTime(key, timestamp, func)
-    table.insert(self.TimestampRecordsCache, { key = key, timestamp = timestamp, callback = func })
+    table.insert(self.timestampRecordsCache, { key = key, timestamp = timestamp, callback = func })
 end
 
----根据Key取消定时任务
+---@brief 根据Key取消指定定时任务
 ---@type fun(key : string):void
----@param key string @ 任务Key
+---@param key string @ 任务唯一Key
 function GameTimeHelper:UnRegisterTime(key)
-    -- 取消缓存中任务
-    for i = 1, #self.TimestampRecordsCache do
-        local task = self.TimestampRecordsCache[i]
+    --- 从缓存队列移除
+    for i = 1, #self.timestampRecordsCache do
+        local task = self.timestampRecordsCache[i]
         if task.key and task.key == key then
-            table.remove(self.TimestampRecordsCache, i)
+            table.remove(self.timestampRecordsCache, i)
             break
         end
     end
-    -- 取消已插入任务
-    for i = 1, #self.TimestampRecords do
-        local task = self.TimestampRecords[i]
+
+    --- 从有序执行队列移除
+    for i = 1, #self.timestampRecords do
+        local task = self.timestampRecords[i]
         if task.key and task.key == key then
-            table.remove(self.TimestampRecords, i)
+            table.remove(self.timestampRecords, i)
             break
         end
     end
 end
 
----每秒执行一次：检查并执行到期任务
+---@brief 每秒执行：检查并执行所有到期任务
 ---@type fun():void
 function GameTimeHelper:ProcSecond()
-    -- 将缓存任务插入有序列表
-    local count = #self.TimestampRecordsCache
+    --- 将缓存队列任务插入有序列表
+    local count = #self.timestampRecordsCache
     for i = 1, count do
-        self:_Insert(self.TimestampRecordsCache[i])
-        self.TimestampRecordsCache[i] = nil
+        self:_Insert(self.timestampRecordsCache[i])
+        self.timestampRecordsCache[i] = nil
     end
 
-    local total = #self.TimestampRecords
+    local total = #self.timestampRecords
     if total == 0 then return end
 
-    -- 查找所有已到期任务
+    --- 查找所有已到期任务
     local idx = 0
     for i = 1, total do
-        if self.TimestampRecords[i].timestamp > self:GetUTC0FutureTimeStamp() then
+        if self.timestampRecords[i].timestamp > self:GetUTC0FutureTimeStamp() then
             break
         end
         idx = i
     end
+
     if idx == 0 then return end
 
-    -- 收集待执行回调
-    ClearArray(self.WaittingExecute)
+    --- 收集待执行回调
+    ClearArray(self.waitingExecute)
     for i = 1, idx do
-        table.insert(self.WaittingExecute, self.TimestampRecords[i])
+        table.insert(self.waitingExecute, self.timestampRecords[i])
     end
 
-    -- 移除已执行任务
+    --- 移除已执行任务
     for i = 1, total do
         if i <= total - idx then
-            self.TimestampRecords[i] = self.TimestampRecords[i + idx]
+            self.timestampRecords[i] = self.timestampRecords[i + idx]
         else
-            self.TimestampRecords[i] = nil
+            self.timestampRecords[i] = nil
         end
     end
 
-    -- 执行回调
-    for i = 1, #self.WaittingExecute do
-        self.WaittingExecute[i].callback()
+    --- 执行到期回调
+    for i = 1, #self.waitingExecute do
+        self.waitingExecute[i].callback()
     end
-    ClearArray(self.WaittingExecute)
+
+    ClearArray(self.waitingExecute)
 end
 
----格式化时间（固定格式）
+---@brief 固定格式时间格式化
 ---@type fun(time:number,format:ETimeCustomFormat):string
----@param time number @秒数
----@param format ETimeCustomFormat @格式
----@return string @格式化字符串
+---@param time number @总秒数
+---@param format ETimeCustomFormat @目标格式
+---@return string @格式化后的时间字符串
 function GameTimeHelper:FormatTime(time, format)
     if format == ETimeCustomFormat.Time_0m00s then
         local minute = math.floor(time / 60)
@@ -230,44 +243,44 @@ function GameTimeHelper:FormatTime(time, format)
     return ""
 end
 
----通用智能时间格式化（带多语言、自动适配天/时/分/秒）
+---@brief 通用智能时间格式化（自动适配天/时/分/秒，支持多语言）
 ---@type fun(time:number,inTick:boolean):string
----@param time number @秒数
----@param inTick boolean @ 是否正在倒计时（倒计时会强制显示秒）
----@return string @显示文本
+---@param time number @总秒数
+---@param inTick boolean @ 是否为倒计时状态（倒计时强制显示秒数）
+---@return string @最终显示文本
 function GameTimeHelper:FormatTimeInCommonRule(time, inTick)
     if time >= 86400 then
         local day = math.floor(time / 86400)
         local hour = math.floor((time - day * 86400) / 3600)
         if hour == 0 then
-            return string.format("%s%s", day, self.DayStr)
+            return string.format("%s%s", day, self.dayStr)
         else
-            return string.format("%s%s %s%s", day, self.DayStr, hour, self.HourStr)
+            return string.format("%s%s %s%s", day, self.dayStr, hour, self.hourStr)
         end
     elseif time >= 3600 then
         local hour = math.floor(time / 3600)
         local minute = math.floor((time - hour * 3600) / 60)
         if minute == 0 and not inTick then
-            return string.format("%s%s", hour, self.HourStr)
+            return string.format("%s%s", hour, self.hourStr)
         else
-            return string.format("%s%s %s%s", hour, self.HourStr, minute, self.MinStr)
+            return string.format("%s%s %s%s", hour, self.hourStr, minute, self.minStr)
         end
     elseif time >= 60 then
         local minute = math.floor(time / 60)
         local second = math.floor(time % 60)
         if second == 0 and not inTick then
-            return string.format("%s%s", minute, self.MinStr)
+            return string.format("%s%s", minute, self.minStr)
         else
-            return string.format("%s%s %02d%s", minute, self.MinStr, second, self.SecStr)
+            return string.format("%s%s %02d%s", minute, self.minStr, second, self.secStr)
         end
     else
         local second = math.floor(time % 60)
-        return string.format("%02d%s", second, self.SecStr)
+        return string.format("%02d%s", second, self.secStr)
     end
 end
 
---region 未来时间戳（防玩家修改本地时间作弊）
----登录时初始化基准未来时间
+--region 防篡改时间戳（防止玩家修改本地时间作弊）
+---@brief 登录时初始化基准未来时间戳
 function GameTimeHelper:SetupFutureTimeStamp()
     if not PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] then
         PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] = PbRootData.UserData.launchTime.current.utc0
@@ -276,36 +289,39 @@ function GameTimeHelper:SetupFutureTimeStamp()
     local loginTime = PbRootData.UserData.launchTime.current.utc0
     local futureTime = PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp]
 
-    if loginTime ==nil  then
+    if loginTime == nil then
         return
     end
-    -- 使用真实启动时间矫正基准
+
+    --- 使用真实启动时间矫正基准，防止回退时间
     if futureTime < loginTime then
         PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] = loginTime - Unity.Time.realtimeSinceStartup
         PbIO.GameData.Save_timestamps()
     end
 
-    self.FutureTimeStamp = PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp]
+    self.futureTimeStamp = PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp]
 end
 
----切后台/退出时保存当前基准时间
+---@brief 切后台/退出游戏时刷新并保存基准时间
 function GameTimeHelper:RefreshFutureTimeStamp()
-    if not self.FutureTimeStamp then
+    if not self.futureTimeStamp then
         return
     end
+
     PbRootData.GameData.timestamps[ETimestampID.FutureTimeStamp] = self:GetUTC0FutureTimeStamp()
     PbIO.GameData.Save_timestamps()
 end
 
----获取当前可靠UTC0时间戳（防改时间）
+---@brief 获取当前可靠UTC0时间戳（防篡改）
 ---@type fun():number
----@return number @ 可靠时间戳
+---@return number @ 安全可靠的服务器基准时间戳
 function GameTimeHelper:GetUTC0FutureTimeStamp()
-    if not self.FutureTimeStamp then
+    if not self.futureTimeStamp then
         PrintError("GameTimeHelper => SetupFutureTimeStamp must be call...")
-        self.FutureTimeStamp = PbRootData.UserData.launchTime.current.utc0
+        self.futureTimeStamp = PbRootData.UserData.launchTime.current.utc0
     end
-    return self.FutureTimeStamp + Unity.Time.realtimeSinceStartup
+
+    return self.futureTimeStamp + Unity.Time.realtimeSinceStartup
 end
 --endregion
 

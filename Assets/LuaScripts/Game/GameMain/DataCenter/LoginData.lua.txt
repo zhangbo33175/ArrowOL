@@ -1,24 +1,21 @@
 --=====================================================================================================
--- descrip:   登录数据模块
---            职责：管理登录相关数据、账号信息、登录状态、服务器信息等
+-- @brief:     登录数据模块
+-- @desc:      管理登录相关数据、账号信息、登录状态、服务器信息等
 --=====================================================================================================
 
----@class LoginData @登录数据模块
+---@class LoginData 登录数据模块
 local LoginData = class("LoginData")
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+---@brief 构造函数
+---@param args table 自定义参数
 function LoginData:ctor(args)
 end
 
----创建实例
----@type fun(args:table):LoginData
----@param args table @自定义参数
----@return LoginData @登录数据实例
+---@brief 创建数据实例
+---@param args table 自定义参数
+---@return LoginData
 function LoginData:Create(args)
-    local obj = LoginData.new(args)
-    return obj
+    return LoginData.new(args)
 end
 
 return LoginData

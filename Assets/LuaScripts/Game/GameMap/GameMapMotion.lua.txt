@@ -1,0 +1,418 @@
+--=====================================================================================================
+-- @filename:  GameMapMotion.lua
+-- @brief:     地图跟随控制器（相机不动，地图移动）
+-- @desc:      实现地图滑动控制、视差滚动、惯性缓动、边界限制、触摸事件管理
+--=====================================================================================================
+
+---@class MapMotionRange 地图滑动范围结构
+---@field min number X 轴最小边界
+---@field max number X 轴最大边界
+
+---@class CloseShotLayer 近景视差层配置
+---@field CloseShot GameLib.MapMotionLayer 近景层对象
+---@field CloseFollowPositin UnityEngine.Vector3 近景层目标跟随位置
+---@field CloseShotFactor number 视差移动系数（越小移动越慢）
+---@field CloseShotMotionRange MapMotionRange 近景层自身边界
+
+---@class GameMapMotion 地图滑动控制单例
+---@field FollowPosition UnityEngine.Vector3 相机目标跟随位置
+---@field MapMotionLayer RGame.MapMotionLayer 地图运动根节点
+---@field CloseShots CloseShotLayer[] 近景视差层列表
+---@field ScreenCamera UnityEngine.Camera 主相机
+---@field SwipeBegin function 滑动开始委托
+---@field Swipe function 滑动中委托
+---@field SwipeEnd function 滑动结束委托
+---@field Vector3Num UnityEngine.Vector3 临时速度向量
+---@field InertialSlidingVector UnityEngine.Vector3 惯性滑动向量
+---@field PositionWhenPaused UnityEngine.Vector3 暂停时记录的位置
+---@field StepAddFactor number 平滑插值增长系数
+---@field IsMapWork boolean 地图是否可交互
+---@field MapHalfWidth number 地图半宽
+---@field MapHalfHeigh number 地图半高
+---@field MapCenterX number 地图中心点 X
+---@field MapCenterY number 地图中心点 Y
+---@field MapBounds UnityEngine.Bounds 地图总边界
+---@field SwipeSmoothStepNum number 滑动平滑插值系数
+---@field InertialSlidingFactor number 惯性衰减系数
+---@field ScreenCameraAspect number 相机宽高比
+---@field ScreenCameraOrthographicSize number 相机正交大小
+---@field VectorContainer1 table 屏幕转世界临时向量 1
+---@field VectorContainer2 table 屏幕转世界临时向量 2
+---@field PointStartFromUI boolean 是否从 UI 区域开始触摸
+local GameMapMotion = {
+    StepAddFactor = 2,
+    SwipeSmoothStepNum = 0,
+    InertialSlidingFactor = 0,
+    VectorContainer1 = { x = 0, y = 0, z = 0 },
+    VectorContainer2 = { x = 0, y = 0, z = 0 },
+    PointStartFromUI = false,
+}
+
+---@brief 帧更新：驱动相机插值、视差滚动、惯性滑动
+function GameMapMotion:OnUpdate()
+    -- 游戏暂停或新手引导期间不更新
+    if GameManager:IsGamePaused() or GuideNewContext:IsTutorialExecute() then
+        return
+    end
+
+    -- 地图未激活不更新
+    if not self.IsMapWork then
+        return
+    end
+
+    -- 相机 X 轴平滑跟随
+    local currCameraX = self.ScreenCamera.transform:GetPositionX()
+    if not math.Approximately(currCameraX, self.FollowPosition.x) then
+        local smoothX = math.SmoothStep(currCameraX, self.FollowPosition.x, self.SwipeSmoothStepNum)
+        self.ScreenCamera.transform:SetPositionX(smoothX)
+    end
+
+    -- 近景层视差平滑更新
+    if self.CloseShots and #self.CloseShots > 0 then
+        for i = 1, #self.CloseShots do
+            local layer = self.CloseShots[i]
+            local currCloseX = layer.CloseShot.transform:GetPositionX()
+            if not math.Approximately(currCloseX, layer.CloseFollowPositin.x) then
+                local smoothX = math.SmoothStep(currCloseX, layer.CloseFollowPositin.x, self.SwipeSmoothStepNum)
+                layer.CloseShot.transform:SetPositionX(smoothX)
+            end
+        end
+    end
+
+    -- 惯性滑动更新
+    if self.InertialSlidingFactor > 0 then
+        self:OnInertialSliding(self.InertialSlidingFactor)
+    end
+end
+
+--------------------------------------------------------------------------------
+-- 触摸滑动逻辑
+--------------------------------------------------------------------------------
+
+---@brief 判断当前触摸是否在 UI 上
+---@return boolean 在 UI 上返回 true
+function GameMapMotion:IsPointerOverGameObject()
+    return GameLib.RSetupLuaTableValue.IsPointerOverUIObject()
+end
+
+---@brief 手指开始滑动
+---@param gesture HedgehogTeam.EasyTouch.Gesture 触摸手势
+function GameMapMotion:OnSwipeBegin(gesture)
+    if GameManager:IsGamePaused() or GuideNewContext:IsTutorialExecute() then
+        return
+    end
+
+    -- 标记是否从 UI 开始滑动
+    self.PointStartFromUI = self:IsPointerOverGameObject()
+    if self.PointStartFromUI then
+        return
+    end
+
+    -- 重置滑动状态
+    self.InertialSlidingFactor = 0
+    self.SwipeSmoothStepNum = 0
+    self.Vector3Num.x = 0
+    self.Vector3Num.y = 0
+end
+
+---@brief 手指滑动中（计算位移并移动地图）
+---@param gesture HedgehogTeam.EasyTouch.Gesture 触摸手势
+function GameMapMotion:OnSwipe(gesture)
+    if GameManager:IsGamePaused() or GuideNewContext:IsTutorialExecute() or self.PointStartFromUI then
+        return
+    end
+
+    if not self.IsMapWork then
+        return
+    end
+
+    -- 单指滑动有效
+    if gesture.touchCount == 1 then
+        -- 屏幕坐标转世界坐标，计算滑动增量
+        self.Vector3Num.x = gesture:GetPositionX()
+        self.Vector3Num.y = gesture:GetPositionY()
+        self.Vector3Num.z = 0
+        GameLib.RSetupLuaTableValue.RScreenToWorldPoint(self.ScreenCamera, self.Vector3Num, self.VectorContainer1)
+
+        self.Vector3Num.x = gesture:GetPositionX() - gesture:GetDeltaPositionX()
+        self.Vector3Num.y = gesture:GetPositionY() - gesture:GetDeltaPositionY()
+        GameLib.RSetupLuaTableValue.RScreenToWorldPoint(self.ScreenCamera, self.Vector3Num, self.VectorContainer2)
+
+        -- 计算世界空间偏移
+        local deltaWorldX = self.VectorContainer1.x - self.VectorContainer2.x
+        local deltaWorldY = self.VectorContainer1.y - self.VectorContainer2.y
+
+        -- X 轴反向（滑动方向与地图移动方向相反）
+        deltaWorldX = deltaWorldX * -1
+
+        -- 执行地图移动
+        self.Vector3Num.x = deltaWorldX
+        self.Vector3Num.y = deltaWorldY
+        self:MovingFollowPosition(self.Vector3Num)
+
+        -- 增加平滑系数
+        self.SwipeSmoothStepNum = math.clamp(
+                self.SwipeSmoothStepNum + CS.UnityEngine.Time.deltaTime * self.StepAddFactor,
+                0.3, 1
+        )
+    end
+end
+
+---@brief 手指滑动结束（开启惯性）
+---@param gesture HedgehogTeam.EasyTouch.Gesture 触摸手势
+function GameMapMotion:OnSwipeEnd(gesture)
+    if GameManager:IsGamePaused() or GuideNewContext:IsTutorialExecute() then
+        return
+    end
+
+    -- UI 滑动不产生惯性
+    if self.PointStartFromUI then
+        self.InertialSlidingFactor = 0
+        self.SwipeSmoothStepNum = 0
+        self.Vector3Num.x = 0
+        self.Vector3Num.y = 0
+    end
+
+    self.PointStartFromUI = false
+    -- 根据滑动速度设置惯性系数
+    self.InertialSlidingFactor = 1 - self.SwipeSmoothStepNum
+    self.SwipeSmoothStepNum = 0.3
+end
+
+---@brief 惯性滑动（减速衰减）
+---@param factor number 惯性系数
+function GameMapMotion:OnInertialSliding(factor)
+    -- 计算惯性位移
+    self.InertialSlidingVector.x = self.Vector3Num.x * self.InertialSlidingFactor
+    self:MovingFollowPosition(self.InertialSlidingVector)
+
+    -- 线性衰减惯性
+    self.InertialSlidingFactor = math.clamp(self.InertialSlidingFactor - 0.025, 0, 1)
+
+    -- 增加平滑度
+    self.SwipeSmoothStepNum = math.clamp(
+            self.SwipeSmoothStepNum + GameLib.RSetupLuaTableValue.GetTimeDeltaTime(),
+            0.75, 1
+    )
+end
+
+---@brief 执行地图 + 视差层移动（带边界限制）
+---@param worldDelta UnityEngine.Vector3 世界空间偏移量
+function GameMapMotion:MovingFollowPosition(worldDelta)
+    -- 计算相机可见区域半宽
+    local aspect = self.ScreenCameraAspect
+    local orthoSize = self.ScreenCameraOrthographicSize
+    local halfWidth = aspect * orthoSize
+
+    -- 地图可移动边界
+    local minX = self.MapCenterX - self.MapHalfWidth + halfWidth
+    local maxX = self.MapCenterX + self.MapHalfWidth - halfWidth
+
+    -- 记录移动前 X（用于视差层计算）
+    local oldX = self.FollowPosition.x
+
+    -- 地图主体移动 + 边界限制
+    self.FollowPosition.x = self.FollowPosition.x + worldDelta.x
+    self.FollowPosition.y = self.FollowPosition.y + worldDelta.y
+    self.FollowPosition.x = math.clamp(self.FollowPosition.x, minX, maxX)
+
+    -- 精度截断（保留 3 位小数）
+    self.FollowPosition.x = math.floor(self.FollowPosition.x * 1000) / 1000
+    self.FollowPosition.y = math.floor(self.FollowPosition.y * 1000) / 1000
+
+    -- 实际位移量
+    local moveDeltaX = self.FollowPosition.x - oldX
+
+    -- 近景视差层跟随（慢于地图）
+    if self.CloseShots and #self.CloseShots > 0 then
+        for i = 1, #self.CloseShots do
+            local layer = self.CloseShots[i]
+            layer.CloseFollowPositin.x = layer.CloseFollowPositin.x + moveDeltaX * layer.CloseShotFactor
+            layer.CloseFollowPositin.y = layer.CloseFollowPositin.y + worldDelta.y * layer.CloseShotFactor
+            layer.CloseFollowPositin.x = math.clamp(layer.CloseFollowPositin.x, layer.CloseShotMotionRange.min, layer.CloseShotMotionRange.max)
+
+            -- 精度截断
+            layer.CloseFollowPositin.x = math.floor(layer.CloseFollowPositin.x * 1000) / 1000
+            layer.CloseFollowPositin.y = math.floor(layer.CloseFollowPositin.y * 1000) / 1000
+        end
+    end
+end
+
+--------------------------------------------------------------------------------
+-- 初始化 / 事件注册 / 状态控制
+--------------------------------------------------------------------------------
+
+---@brief 注册/反注册触摸事件
+---@param action string "+"注册 / "-"反注册
+function GameMapMotion:RegisterTouchEvents(action)
+    if action == "+" then
+        -- 绑定触摸事件
+        self.SwipeBegin = self.SwipeBegin or function(g)
+            self:OnSwipeBegin(g)
+        end
+        self.Swipe = self.Swipe or function(g)
+            self:OnSwipe(g)
+        end
+        self.SwipeEnd = self.SwipeEnd or function(g)
+            self:OnSwipeEnd(g)
+        end
+
+        CS.HedgehogTeam.EasyTouch.EasyTouch.On_SwipeStart("+", self.SwipeBegin)
+        CS.HedgehogTeam.EasyTouch.EasyTouch.On_Swipe("+", self.Swipe)
+        CS.HedgehogTeam.EasyTouch.EasyTouch.On_SwipeEnd("+", self.SwipeEnd)
+
+    elseif action == "-" then
+        -- 解绑触摸事件
+        if self.SwipeBegin and self.Swipe and self.SwipeEnd then
+            CS.HedgehogTeam.EasyTouch.EasyTouch.On_SwipeStart("-", self.SwipeBegin)
+            CS.HedgehogTeam.EasyTouch.EasyTouch.On_Swipe("-", self.Swipe)
+            CS.HedgehogTeam.EasyTouch.EasyTouch.On_SwipeEnd("-", self.SwipeEnd)
+        end
+    end
+end
+
+---@brief 恢复地图交互
+function GameMapMotion:ResumeMapMotion()
+    if self.IsMapWork then
+        return
+    end
+
+    -- 同步当前相机位置
+    self.SwipeSmoothStepNum = 0
+    self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
+    self.FollowPosition.y = self.ScreenCamera.transform:GetPositionY()
+
+    -- 重置滑动状态
+    self.InertialSlidingFactor = 0
+    self.Vector3Num.x = 0
+    self.Vector3Num.y = 0
+
+    self.IsMapWork = true
+end
+
+---@brief 暂停地图交互
+function GameMapMotion:PauseMapMotion()
+    self.IsMapWork = false
+    -- 记录暂停位置
+    self.PositionWhenPaused = {
+        self.ScreenCamera.transform:GetPositionX(),
+        self.ScreenCamera.transform:GetPositionY(),
+        self.ScreenCamera.transform:GetPositionZ()
+    }
+end
+
+---@brief 初始化地图运动、边界、视差层
+---@param mapTrans UnityEngine.Transform 地图根节点
+function GameMapMotion:OnMapStart(mapTrans)
+    if not mapTrans then
+        return
+    end
+
+    self.MapMotionLayer = mapTrans:GetComponent("RGame.MapMotionLayer")
+    if not self.MapMotionLayer then
+        return
+    end
+
+    -- 基础参数初始化
+    self.ScreenCamera = GameLib.MapCamHelper.MapCamera
+    self.IsMapWork = true
+    self.SwipeSmoothStepNum = 0
+
+    -- 位置初始化
+    self.FollowPosition = {
+        x = self.ScreenCamera.transform:GetPositionX(),
+        y = self.ScreenCamera.transform:GetPositionY(),
+        z = self.ScreenCamera.transform:GetPositionZ()
+    }
+    self.PositionWhenPaused = {
+        x = self.ScreenCamera.transform:GetPositionX(),
+        y = self.ScreenCamera.transform:GetPositionY(),
+        z = self.ScreenCamera.transform:GetPositionZ()
+    }
+
+    -- 向量初始化
+    self.InertialSlidingVector = { x = 0, y = 0, z = 0 }
+    self.Vector3Num = { x = 0, y = 0, z = 0 }
+
+    -- 地图边界信息
+    self.MapHalfWidth = self.MapMotionLayer.AreaBounds.extents.x
+    self.MapHalfHeigh = self.MapMotionLayer.AreaBounds.extents.y
+    self.MapCenterX = self.MapMotionLayer.AreaBounds.center.x + self.MapMotionLayer.transform:GetPositionX()
+    self.MapCenterY = self.MapMotionLayer.AreaBounds.center.y + self.MapMotionLayer.transform:GetPositionY()
+    self.MapBounds = self.MapMotionLayer.AreaBounds
+
+    -- 相机参数
+    self.ScreenCameraAspect = self.ScreenCamera.aspect
+    self.ScreenCameraOrthographicSize = self.ScreenCamera.orthographicSize
+
+    -- 初始化近景视差层
+    self.CloseShots = {}
+    local parallaxLayer = MapMgr.CurMapData.parallaxTransform
+
+    if parallaxLayer then
+        local aspect = self.ScreenCameraAspect
+        local orthoSize = self.ScreenCameraOrthographicSize
+        local halfWidth = aspect * orthoSize
+        local camX = self.ScreenCamera.transform:GetPositionX()
+
+        local minX = self.MapCenterX - self.MapHalfWidth + halfWidth
+        local maxX = self.MapCenterX + self.MapHalfWidth - halfWidth
+
+        -- 视差系数（负数表示反向慢速）
+        local factor = -0.2
+        local layerMin = parallaxLayer:GetPositionX() + (maxX - camX) * factor
+        local layerMax = parallaxLayer:GetPositionX() + (minX - camX) * factor
+
+        -- 添加视差层
+        table.insert(self.CloseShots, {
+            CloseShot = parallaxLayer,
+            CloseShotFactor = factor,
+            CloseFollowPositin = {
+                x = parallaxLayer:GetPositionX(),
+                y = parallaxLayer:GetPositionY(),
+                z = parallaxLayer:GetPositionZ()
+            },
+            CloseShotMotionRange = { min = layerMin, max = layerMax }
+        })
+    end
+
+    -- 注册触摸
+    self:RegOrUnregEvent("+")
+end
+
+---@brief 限制 X 坐标在地图可见范围内
+---@param posX number 目标 X
+---@param aspect number 相机宽高比
+---@param orthographicSize number 相机正交大小
+---@return number 合法 X
+function GameMapMotion:ResetPositionX(posX, aspect, orthographicSize)
+    local halfWidth = aspect * orthographicSize
+    local min = self.MapCenterX - self.MapHalfWidth + halfWidth
+    local max = self.MapCenterX + self.MapHalfWidth - halfWidth
+    return math.clamp(posX, min, max)
+end
+
+---@brief 限制 Y 坐标在地图可见范围内
+---@param posY number 目标 Y
+---@param orthographicSize number 相机正交大小
+---@return number 合法 Y
+function GameMapMotion:ResetPositionY(posY, orthographicSize)
+    local halfHeigh = orthographicSize
+    local min = self.MapCenterY - self.MapHalfHeigh + halfHeigh
+    local max = self.MapCenterY + self.MapHalfHeigh - halfHeigh
+    return math.clamp(posY, min, max)
+end
+
+---@brief 获取地图总边界
+---@return UnityEngine.Bounds
+function GameMapMotion:GetCurrMapRect()
+    return self.MapBounds
+end
+
+---@brief 地图销毁：清理事件、暂停交互
+function GameMapMotion:OnMapEnd()
+    self:RegisterTouchEvents("-")
+    self:PauseMapMotion()
+end
+
+return GameMapMotion

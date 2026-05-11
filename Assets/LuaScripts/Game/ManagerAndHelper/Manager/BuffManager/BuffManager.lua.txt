@@ -1,180 +1,181 @@
 --=====================================================================================================
--- (c) copyright 2021 - 2025, Solar.Game
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
--- filename:  BuffMgr
--- author:    maotao
--- time:      2023/5/6
--- descrip:   限时道具管理
+-- @brief  限时道具 / Buff 管理类
+-- @desc   管理所有限时生效的道具、增益效果，负责时间计算、事件派发、生命周期
 --=====================================================================================================
----@class BuffModifyConfig @ buff开始
----@field ID string@ buffID
----@field oldNum number @ 旧值
----@field newNum number @ 新值
 
----@class BuffManager:Singleton @限时道具管理
+---@class BuffModifyConfig @ Buff 修改配置
+---@field ID string Buff ID
+---@field oldNum number 旧时间戳
+---@field newNum number 新时间戳
+
+---@class BuffManager : Singleton @ 限时道具管理（单例）
 local BuffManager = class("BuffManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+--- 构造函数
+---@param args table 自定义参数
 function BuffManager:ctor(args)
     BuffManager.super.ctor(self, args)
 end
 
----创建函数
----@type fun(args:table):BuffMgr
----@param args table @自定义参数
----@return BuffMgr @限时道具管理
+--- 创建实例
+---@param args table 自定义参数
+---@return BuffManager
 function BuffManager:Create(args)
     local obj = BuffManager.new(args)
     return obj
 end
 
----是否是前置道具Buff
----@type fun(boosterID:string):boolean
----@param boosterID string @道具ID
----@return boolean @是否是前置道具Buff
+--- 是否为前置道具 Buff
+---@param boosterID string 道具 ID
+---@return boolean
 function BuffManager:IsBuffPreBooster(boosterID)
-    if boosterID ~= nil then
-        local boosterData = ResourceDataManager:GetResourceData(boosterID)
-        if boosterData and boosterData.Type == EResourceType.Buff and boosterData.SubType == EItemSubType.UnlimitedPreBooster then
-            return true
-        end
+    if not boosterID then
+        return false
+    end
+
+    local boosterData = ResourceDataManager:GetResourceData(boosterID)
+    if boosterData and boosterData.Type == EResourceType.Buff and boosterData.SubType == EItemSubType.UnlimitedPreBooster then
+        return true
     end
     return false
 end
 
----buff是否有效
----@type fun(id:string):boolean
----@param id string @ buff id (Resource表中id)
----@return boolean @ 是否有效
+--- Buff 是否有效（剩余时间 > 0）
+---@param id string Buff ID
+---@return boolean
 function BuffManager:IsBuffValid(id)
     return self:GetRemainTime(id) > 0
 end
 
----添加buff
----@type fun(id:string,duration:number):number
----@param id string @ buff id (Resource表中id)
----@param duration number @ 持续时间
----@return number @ 剩余时间(单位秒)
+--- 添加 Buff（延长时间）
+---@param id string Buff ID
+---@param duration number 持续秒数
+---@return number 剩余时间
 function BuffManager:AddBuff(id, duration)
- 
     local resData = ResourceDataManager:GetResourceData(id)
-    if resData and resData.Type == EResourceType.Buff then
-        local oldEndTimeStamp = PbRootData.GameData.resourceInfo.nums[id]
-        local newUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
-        local newEndTimeStamp = nil
-
-        if oldEndTimeStamp == nil or oldEndTimeStamp == 0 or oldEndTimeStamp < newUTC0 then
-            newEndTimeStamp = newUTC0 + duration
-        else
-            newEndTimeStamp = oldEndTimeStamp + duration
-        end
-        local result = self:SetBuffTime(id, newEndTimeStamp, oldEndTimeStamp)
-        return result
-    else
-        PrintError("BuffMgr:AddBuff error , 请检查是否是Buffer : id = {0} , duration = {1}", id, duration)
+    if not resData or resData.Type ~= EResourceType.Buff then
+        PrintError("BuffManager:AddBuff -> 不是有效的 Buff: id=" .. tostring(id))
         return 0
     end
+
+    local oldEndTimeStamp = PbRootData.GameData.resourceInfo.nums[id] or 0
+    local newUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
+    local newEndTimeStamp
+
+    if oldEndTimeStamp == 0 or oldEndTimeStamp < newUTC0 then
+        newEndTimeStamp = newUTC0 + duration
+    else
+        newEndTimeStamp = oldEndTimeStamp + duration
+    end
+
+    return self:SetBuffTime(id, newEndTimeStamp, oldEndTimeStamp)
 end
 
----设置buff的结束时间戳
----@type fun(id:string,endTimeStamp:number,oldEndTimeStamp:number):number
----@param id string @ buff id (Resource表中id)
----@param endTimeStamp number @ 结束时间戳
----@param oldEndTimeStamp number @ 旧的结束时间戳
----@return number @ 剩余时间(单位秒)
+--- 设置 Buff 结束时间戳
+---@param id string Buff ID
+---@param endTimeStamp number 结束时间戳
+---@param oldEndTimeStamp number 旧时间戳
+---@return number 剩余时间
 function BuffManager:SetBuffTime(id, endTimeStamp, oldEndTimeStamp)
     local nowUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
     if endTimeStamp < 0 or endTimeStamp < nowUTC0 then
-        PrintError(string.format("BuffManager:SetBuffTime error: endTimeStamp < 0 or endTimeStamp < 当前时间戳  id = {0} , endTimeStamp = {1}", id, endTimeStamp))
+        PrintError(string.format("BuffManager:SetBuffTime 时间非法 id=%s time=%d", id, endTimeStamp))
     end
+
+    -- 保存数据
     PbRootData.GameData.resourceInfo.nums[id] = endTimeStamp
     PbIO.GameData.Save_resourceInfo()
-    HonorEventHelper:Fire(EventCmd.OnBufferTimeModifyEvent, { ID = id, oldNum = oldEndTimeStamp, newNum = endTimeStamp })  -- buff时间修改事件
 
-    --启动倒计时监听Buff结束
-    local buffEventKey = string.format("%s_%s", EventCmd.OnBufferTimeEndEvent, id)
+    -- 派发修改事件
+    HonorEventHelper:Fire(EventCmd.OnBufferTimeModifyEvent, {
+        ID = id,
+        oldNum = oldEndTimeStamp,
+        newNum = endTimeStamp
+    })
+
+    -- 注册结束倒计时
+    local buffEventKey = EventCmd.OnBufferTimeEndEvent .. "_" .. id
     GameTimeHelper:UnRegisterTime(buffEventKey)
     self:_RegisterBuffEndTimeStamp(id, endTimeStamp)
+
+    -- 后续逻辑
     self:SetBuffTimeAfter(id)
+
     return self:GetRemainTime(id)
 end
 
----@type fun(id:string,endTimeStamp:number):void
----@param id string @ buffID
----@param endTimeStamp number @ buff结束
+--- 注册 Buff 结束时间监听
+---@param id string Buff ID
+---@param endTimeStamp number 结束时间戳
 function BuffManager:_RegisterBuffEndTimeStamp(id, endTimeStamp)
-    local buffEventKey = string.format("%s_%s", EventCmd.OnBufferTimeEndEvent, id)
-    GameTimeHelper:RegisterTime(buffEventKey, endTimeStamp, function()
-        PrintInfo(string.format("BuffMgr:BuffEnd : %s", id))
-        HonorEventHelper:FireNow(EventCmd.OnBufferTimeEndEvent, id)    -- buff结束事件
+    local key = EventCmd.OnBufferTimeEndEvent .. "_" .. id
+    GameTimeHelper:RegisterTime(key, endTimeStamp, function()
+        PrintInfo("Buff 结束: " .. id)
+        HonorEventHelper:FireNow(EventCmd.OnBufferTimeEndEvent, id)
     end)
 end
 
----更新Buff时间后需要处理的逻辑
----@type fun(id:string):void
----@param id string @ buff id (Resource表中id)
+--- Buff 时间更新后处理逻辑
+---@param id string Buff ID
 function BuffManager:SetBuffTimeAfter(id)
     local resData = ResourceDataManager:GetResourceData(id)
     if resData and resData.SubType == EItemSubType.UnlimitedLife then
-        ---体力回满                                                             
+        -- 无限体力：回满体力
         ItemMgr:AddLife(ItemMgr:GetMaxLifeNum())
     end
 end
 
----获取buff剩余时间(单位秒)                                                                
----@type fun(id:string):number
----@param id string @ buff id (Resource表中id)
----@return number @ 剩余时间(单位秒)
+--- 获取 Buff 剩余时间（秒）
+---@param id string Buff ID
+---@return number
 function BuffManager:GetRemainTime(id)
-    local endTimeStamp = PbRootData.GameData.resourceInfo.nums[id]
-    if endTimeStamp == nil or endTimeStamp == 0 then
+    local endTimeStamp = PbRootData.GameData.resourceInfo.nums[id] or 0
+    if endTimeStamp <= 0 then
         return 0
     end
+
     local nowUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
     if endTimeStamp < nowUTC0 then
         return 0
     end
+
     return endTimeStamp - nowUTC0
 end
 
----初始化buff结束计时
----@type fun():void
----@return void
+--- 初始化所有 Buff 计时
 function BuffManager:Init()
     BuffManager.super.Init(self)
+
+    -- 注册有效 Buff 的结束事件
     local resTable = ResourceDataManager:GetResourceIDs(EResourceType.Buff)
-    ---@param resId ResourceID
     for _, resId in ipairs(resTable) do
         if self:IsBuffValid(resId.ID) then
-            local endTimeStamp = PbRootData.GameData.resourceInfo.nums[resId.ID]
-            ---注入一个倒计时
-            self:_RegisterBuffEndTimeStamp(resId.ID, endTimeStamp)
+            local endTime = PbRootData.GameData.resourceInfo.nums[resId.ID]
+            self:_RegisterBuffEndTimeStamp(resId.ID, endTime)
         end
     end
+
+    -- 注册每秒 Tick
     HonorEventHelper:AddListener(EventCmd.OnBufferDeltaTimeTickEvent, handler(self, self.OnBufferDeltaTimeTickEvent))
     HonorTimerHelper:RegisterDeltaTime(EventCmd.OnBufferDeltaTimeTickEvent, 1, "ProcedurePlaying", true)
 end
 
----清理数据
----@type fun():void
----@return void
+--- 清理数据
 function BuffManager:ClearData()
     BuffManager.super.ClearData(self)
+
+    -- 注销定时器 & 事件
     HonorTimerHelper:UnregisterDeltaTime(true, EventCmd.OnBufferDeltaTimeTickEvent, 1)
     HonorEventHelper:RemoveListener(EventCmd.OnBufferDeltaTimeTickEvent, handler(self, self.OnBufferDeltaTimeTickEvent))
 end
 
----Buff的Tick事件
+--- Buff 每秒 Tick 事件
 function BuffManager:OnBufferDeltaTimeTickEvent()
     local resTable = ResourceDataManager:GetResourceIDs(EResourceType.Buff)
-    ---@param resId ResourceID
     for _, resId in ipairs(resTable) do
-        local remainTime = self:GetRemainTime(resId.ID) -- 剩余时间
-        if remainTime > 0 then
-            HonorEventHelper:FireNow(EventCmd.OnBufferTimeTickEvent, resId.ID, remainTime)
+        local remain = self:GetRemainTime(resId.ID)
+        if remain > 0 then
+            HonorEventHelper:FireNow(EventCmd.OnBufferTimeTickEvent, resId.ID, remain)
         end
     end
 end

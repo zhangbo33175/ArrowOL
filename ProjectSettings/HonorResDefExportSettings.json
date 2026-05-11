@@ -8,6 +8,13 @@
       "ABPath": "Assets/Res/Prefabs",
       "AssetName": "GameMainMap",
       "AssetGUID": "dd9947a0f04f64e48ab5a5e5876eb1b7"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_ItemMap",
+      "ABPath": "Assets/Res/Prefabs",
+      "AssetName": "ItemMap",
+      "AssetGUID": "0c636324cfd576541aa96f21cb027792"
     }
   ]
 }

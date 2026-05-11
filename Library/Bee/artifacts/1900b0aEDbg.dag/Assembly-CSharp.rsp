@@ -627,6 +627,7 @@
 "Assets/Scripts/Runtime/Honor/UI/AorUIFullScreenImage.cs"
 "Assets/Scripts/Runtime/Honor/UI/AorUIMaskLayerBehaviour.cs"
 "Assets/Scripts/Runtime/Honor/UI/HonorClickItemAnimation.cs"
+"Assets/Scripts/Runtime/Honor/UI/MapMotionLayer.cs"
 "Assets/Scripts/Runtime/Honor/UI/SpecialUIs/UIAppDownload/UIAppDownloadBehaviour.cs"
 "Assets/Scripts/Runtime/Honor/UI/SpecialUIs/UIAppFeedback/UIAppFeedbackBehaviour.cs"
 "Assets/Scripts/Runtime/Honor/UI/SpecialUIs/UIAppReviewFeedback/UIAppReviewBehaviour.cs"

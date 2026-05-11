@@ -1,33 +1,57 @@
 --=====================================================================================================
--- descrip:   坐标图标数据源管理器
---            功能：读取主界面图标配置表，根据图标ID获取位置、样式等数据
+-- @brief  主界面坐标图标数据源管理器
+-- @desc   读取主界面图标配置表，根据图标ID获取位置、样式、显示逻辑等数据
+-- @feat   安全查询、错误捕获、全局单例、日志输出
 --=====================================================================================================
 
----@class HomeIconsDataManager @主界面坐标图标数据源管理器
-local HomeIconsDataManager = class("HomeIconsDataManager")
+---@class HomeIconsDataManager : Singleton @主界面图标数据源管理器
+local HomeIconsDataManager = class("HomeIconsDataManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
-function HomeIconsDataManager:ctor(args)
-
+--- 构造函数
+function HomeIconsDataManager:ctor()
+    HomeIconsDataManager.super.ctor(self)
 end
 
----创建实例
----@type fun(args:table):HomeIconsDataManager
----@param args table @自定义参数
----@return HomeIconsDataManager @坐标图标数据源管理器实例
-function HomeIconsDataManager:Create(args)
-    local obj = HomeIconsDataManager.new(args)
-    return obj
+--- 创建单例
+---@return HomeIconsDataManager
+function HomeIconsDataManager:Create()
+    return HomeIconsDataManager.new()
 end
 
----根据图标ID获取主界面图标配置数据
----@type fun(homeIconId:string):Tables.HomeIcons_Item
----@param homeIconId string @桌面图标ID
----@return Tables.HomeIcons_Item @图标配置数据
+--- 初始化
+function HomeIconsDataManager:Init()
+    HomeIconsDataManager.super.Init(self)
+end
+
+--- 清理数据
+function HomeIconsDataManager:ClearData()
+    HomeIconsDataManager.super.ClearData(self)
+end
+
+---=========================================================================
+--- 根据图标ID获取主界面图标配置数据
+---@param homeIconId string | number 桌面图标ID
+---@return Tables.HomeIcons_Item | nil 图标配置数据
+---=========================================================================
 function HomeIconsDataManager:GetHomeIconDataById(homeIconId)
-    return Tables.HomeIcons[homeIconId]
+    -- 安全校验
+    if not homeIconId then
+        PrintError("[HomeIconsDataManager] 获取图标数据失败：ID 为空")
+        return nil
+    end
+
+    -- 安全读取配置表
+    if not Tables or not Tables.HomeIcons then
+        PrintError("[HomeIconsDataManager] Tables.HomeIcons 配置表不存在")
+        return nil
+    end
+
+    local data = Tables.HomeIcons[tostring(homeIconId)]
+    if not data then
+        PrintDebug("[HomeIconsDataManager] 未找到图标配置 ID: " .. tostring(homeIconId))
+    end
+
+    return data
 end
 
 return HomeIconsDataManager

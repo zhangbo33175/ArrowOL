@@ -1,43 +1,39 @@
 --=====================================================================================================
--- descrip:   RectTransform帮助类
---            提供UGUI中RectTransform组件的常用操作封装，简化坐标、位置等设置逻辑
+-- @brief:     RectTransform 工具类
+-- @desc:      封装 UGUI RectTransform 常用操作，简化坐标、位置设置
 --=====================================================================================================
 
----@class RectTransformHelper @RectTransform帮助类：封装UGUI RectTransform常用操作工具
+---@class RectTransformHelper RectTransform 工具类：封装 UGUI 常用操作
 local RectTransformHelper = class("RectTransformHelper")
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数（预留扩展使用）
+---@brief 构造函数
+---@param args table 预留扩展参数
 function RectTransformHelper:ctor(args)
-
 end
 
----创建RectTransformHelper实例对象
----@type fun(args:table):RectTransformHelper
----@param args table @自定义参数（预留扩展使用）
----@return RectTransformHelper @返回创建好的RectTransformHelper实例对象
+---@brief 创建工具类实例
+---@param args table 预留扩展参数
+---@return RectTransformHelper
 function RectTransformHelper:Create(args)
-    local obj = RectTransformHelper.new(args)
-    return obj
+    return RectTransformHelper.new(args)
 end
 
----设置RectTransform的锚点Y坐标
----@param rectTransform UnityEngine.RectTransform @目标RectTransform组件
----@param newPosY number @要设置的新Y坐标值
-function RectTransformHelper:SetViewAnchoredPositionY(rectTransform, newPosY)
-    local pos = rectTransform.anchoredPosition
-    pos.y = newPosY
-    rectTransform.anchoredPosition = pos
+---@brief 设置锚点位置 X 坐标
+---@param rectTransform UnityEngine.RectTransform 目标组件
+---@param posX number 目标 X 值
+function RectTransformHelper:SetAnchoredPositionX(rectTransform, posX)
+    local anchoredPos = rectTransform.anchoredPosition
+    anchoredPos.x = posX
+    rectTransform.anchoredPosition = anchoredPos
 end
 
----设置RectTransform的锚点X坐标
----@param rectTransform UnityEngine.RectTransform @目标RectTransform组件
----@param newPosX number @要设置的新X坐标值
-function RectTransformHelper:SetViewAnchoredPositionX(rectTransform, newPosX)
-    local pos = rectTransform.anchoredPosition
-    pos.x = newPosX
-    rectTransform.anchoredPosition = pos
+---@brief 设置锚点位置 Y 坐标
+---@param rectTransform UnityEngine.RectTransform 目标组件
+---@param posY number 目标 Y 值
+function RectTransformHelper:SetAnchoredPositionY(rectTransform, posY)
+    local anchoredPos = rectTransform.anchoredPosition
+    anchoredPos.y = posY
+    rectTransform.anchoredPosition = anchoredPos
 end
 
-return RectTransformHelper 
+return RectTransformHelper

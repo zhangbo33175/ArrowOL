@@ -1,0 +1,699 @@
+--=====================================================================================================
+-- descrip:   新手引导环境
+--=====================================================================================================
+
+---@class GuideNewContext:Singleton @引导环境
+---@field _levelListener GuideLevelListener @关卡监听
+---@field _conditions table<Tables.GuideList_Item,GuideCondition> @ 一个容器，保存当前的触发器
+---@field _setter table<Tables.GuideList_Item,GuideForceSetup> @ 一个容器，保存当前的设置器
+---@field _preconditioning GuidePreconditioningExecuteEnv @ 引导执行前预处理一些东西
+---@field _executing table<Tables.GuideContent_Item[],GuideCondition> @ 引导步骤和执行条件绑定一下
+---@field _dispatcher GuideEvent @ 封装一下引导的事件派发
+---@field _stepWorker GuideStepExecuteContext @ 引导步骤的执行者
+---@field _pauseLevelTime boolean @ 引导暂停关内计时
+---@field _stepInWaittingState boolean @ 当前步骤是否是等待类型
+---@field _pauseableTweenCollection  table  @ 收集允许被新手引导暂停的动画
+---@field _coroutine thread @ 统计一帧的触发数据
+---@field _waittingExecute GuideCondition @ 等待执行的那个触发器
+---@field _waittingExecuteParam table @ 参数
+---@field _envChecker TutorialExecuteEnvCheck @ 用于检查执行环境
+local GuideNewContext = class("GuideNewContext",import("Singleton"))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function GuideNewContext:ctor(args)
+    GuideNewContext.super.ctor(self,args)
+    self._envChecker = require('TutorialExecuteEnvCheck'):Create()
+end
+
+---创建函数
+---@type fun(args:table):GuideContext
+---@param args table @自定义参数
+---@return GuideContext @引导环境
+function GuideNewContext:Create(args)
+    local obj = GuideNewContext.new(args)
+    return obj
+end
+
+---清理数据
+---@type fun():void
+---@return void
+function GuideNewContext:ClearData()
+    GuideNewContext.super.ClearData(self)
+    xpcall(function() self:Dispose() end,function(msg) PrintError(debug.traceback(msg,5)) end)
+end
+
+---释放(todo...)
+function GuideNewContext:Dispose()
+    if self._levelListener then
+        self._levelListener:Dispose()
+    end
+    if self._conditions then
+        for key,condition in pairs(self._conditions) do
+            condition:Dispose()
+            condition:CloseTriggerListener()
+            self._conditions[key] = nil
+        end
+    end
+    if self._setter then
+        for key,setter in pairs(self._setter) do
+            setter:Dispose()
+            setter:CloseListener()
+            self._setter[key] = nil
+        end
+    end
+    if self._dispatcher then
+        self._dispatcher:Dispose()
+    end
+    if self._stepWorker then
+        self._stepWorker:Dispose()
+    end
+    if self._executing then
+        self._executing = nil
+    end
+    if self._coroutine then
+        HonorCoroutineHelper:StopAlone(self._coroutine)
+        self._coroutine = nil
+    end
+    self._waittingExecute = nil
+    self._waittingExecuteParam = nil
+end
+
+---GM指令直接完成当前正在执行的引导
+function GuideNewContext:GMCloseRunning()
+    self:ForceCloseTutorial()
+end
+
+---如果某引导执行步骤执行失败，强制跳过该引导，防止卡死
+function GuideNewContext:ForceCloseTutorial()
+    self:TryForceCloseTutorialByID()
+    if GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
+        HonorEventHelper:Fire(EventCmd.OnTryResumeGameMainPushUI,"ForceCloseTutorial")
+    end
+end
+
+---强制关闭某个引导
+---@type fun(id:string):void
+---@param id string @ 引导ID（可空
+function GuideNewContext:TryForceCloseTutorialByID(id)
+    if self._stepWorker and self._stepWorker._cmds then
+        ---检查是否是所需id
+        if id and self._stepWorker._current and self._stepWorker._current.GuideID ~= id then
+            return
+        end
+
+        if self._dispatcher and self._dispatcher._listener then
+            for eventCmd,handles in pairs(self._dispatcher._listener) do
+                for idx,handler in ipairs(handles) do
+                    if handler.target == self._stepWorker._waitter or handler.target == self._stepWorker._instant then
+                        HonorEventHelper:RemoveListener(eventCmd,handler)
+                        table.remove(handles,idx)
+                    end
+                end
+            end
+        end
+        self:GuideStepsExecutedCompleteTagStep(self._stepWorker._cmds)
+        self._stepWorker:ExecuteComplete()
+        self._stepWorker:Dispose()
+    end
+end
+
+---获取当前引导步骤执行者
+---@type fun():GuideStepExecuteContext
+---@return GuideStepExecuteContext
+function GuideNewContext:GetCurrentGuideStepWorker()
+    return self._stepWorker
+end
+
+---初始化引导进度
+function GuideNewContext:Init()
+    GuideNewContext.super.Init(self)
+    if PbRootData.GameData.guidesCompleted and string.match(PbRootData.GameData.guidesCompleted,"Jump") then
+        return
+    end
+    self:CheckDataFormat()
+    self._preconditioning = require("GuidePreconditioningExecuteEnv"):Create()
+    self._pauseLevelTime = false
+    self._stepInWaittingState = false
+    local guidesTable = Tables.GuideList
+    for id,guide in pairs(guidesTable) do
+        self:CreateTutorialTrigger(guide)
+    end
+    if self._levelListener then
+        self._levelListener:Init()
+    end
+end
+
+---检查存档格式给存档加个脑袋
+function GuideNewContext:CheckDataFormat()
+    if not StringStart(PbRootData.GameData.guidesCompleted,"_") then
+        PbRootData.GameData.guidesCompleted = string.format("_%s",SaveRootData.GameData.guidesCompleted)
+    end
+    if not StringEnd(PbRootData.GameData.guidesCompleted, "_") then
+        PbRootData.GameData.guidesCompleted = string.format("%s_",SaveRootData.GameData.guidesCompleted)
+    end
+end
+
+---@type fun(guide:Tables.GuideList_Item):void
+---@param guide Tables.GuideList_Item @ 引导配置
+function GuideNewContext:CreateTutorialTrigger(guide)
+    local state = self:ParseGuideState(guide)
+    if state == EGuideState.ForceTrigger  then
+        ---需要强制配引导触发参数、生成条件检查器
+        self:CreateGuideForceSetup(guide)
+        self:CreateGuideCondition(guide)
+    elseif state == EGuideState.WaittingTrigger then
+        ---生成条件检查器
+        self:CreateGuideCondition(guide)
+    end
+    if state == EGuideState.Lock or state == EGuideState.WaittingTrigger then
+        ---监听关卡变化，检查是否解锁或者需要强制触发
+        self._levelListener = self._levelListener or require("GuideLevelListener")
+        self._levelListener:AddGuideItem(guide,state)
+    end
+end
+
+---@type fun():number
+---@return number @ 引导单例初始化优先级
+function GuideNewContext:Priority()
+    return ESingletonPriority.GuideMgr
+end
+
+---是否有执行中的引导步骤
+---@type fun():boolean
+---@return boolean
+function GuideNewContext:IsTutorialExecute()
+    return self._waittingExecute or (self._executing ~= nil and not TableIsEmpty(self._executing))
+end
+
+---@type fun(guideId:string):boolean
+---@param guideId string @ 查询的引导ID
+---@return boolean @ 该引导是否正在执行
+function GuideNewContext:IsTutorialRunning(guideId)
+    if TableIsEmpty(self._executing) then
+        return false
+    end
+    ---@param condition GuideCondition
+    for _,condition in pairs(self._executing) do
+        if  condition.guideItem and condition.guideItem.ID == guideId then
+            return true
+        end
+    end
+    return false
+end
+
+--region 关内暂停逻辑，独立于引导，不因考虑当前是否存在引导，代码暂时不挪位置
+--region 状态变换
+---步骤开始执行的时候，暂停关卡内的一些计时器
+function GuideNewContext:TryPauseLevelTime()
+    self._pauseLevelTime = true
+
+    ---处理协程
+    PauseableCoroutineHelper:Pause(PauseableCoroutineHelper.Any)
+    PauseableCoroutineHelper:Pause(PauseableCoroutineHelper.Level)
+
+    if self._pauseableTweenCollection then
+        ---处理tween
+        for tween,_ in pairs(self._pauseableTweenCollection) do
+            ---@type DG.Tweening.Tween
+            local t = tween
+            if t:IsComplete() then
+                self._pauseableTweenCollection[tween] = nil
+            elseif t:IsPlaying() then
+                t:Pause()
+            end
+        end
+    end
+end
+
+---当前引导的所有步骤结束之后，取消关卡内的一些计时器的暂停
+function GuideNewContext:TryResumeLevelTime()
+    self._pauseLevelTime = false
+
+    ---处理协程
+    PauseableCoroutineHelper:Resume(PauseableCoroutineHelper.Any)
+    PauseableCoroutineHelper:Resume(PauseableCoroutineHelper.Level)
+
+    if self._pauseableTweenCollection then
+        ---处理tween
+        for tween,_ in pairs(self._pauseableTweenCollection) do
+            ---@type DG.Tweening.Tween
+            local t = tween
+            if t:IsComplete() then
+                self._pauseableTweenCollection[tween] = nil
+            elseif not t:IsPlaying() then
+                t:Play()
+            end
+        end
+    end
+end
+
+---当引导步骤事件类型为Wait时，事件参数触发前，需要恢复关卡逻辑与部分计时器计数
+---@type fun(isResume:boolean):void
+---@param isResume boolean @ 是恢复
+function GuideNewContext:TryResumeOrPauseInWaitEvent(isResume)
+    self._stepInWaittingState = isResume
+
+    if isResume then
+        PauseableCoroutineHelper:Resume(PauseableCoroutineHelper.Level)
+    else
+        PauseableCoroutineHelper:Pause(PauseableCoroutineHelper.Level)
+    end
+
+    if not self._pauseableTweenCollection then
+        return
+    end
+    for tween,resumeInWaitState in pairs(self._pauseableTweenCollection) do
+        ---@type DG.Tweening.Tween
+        local t = tween
+        if t:IsComplete() then
+            self._pauseableTweenCollection[tween] = nil
+        elseif (isResume and resumeInWaitState and self._stepInWaittingState) and not t:IsPlaying() then
+            t:Play()
+        elseif not isResume and t:IsPlaying() then
+            t:Pause()
+        end
+    end
+end
+--endregion
+
+--region 记录、删除记录一些tween
+---@type fun(sq : DG.Tweening.Sequence,resumeInWaitState : boolean):void
+---@param sq DG.Tweening.Sequence
+---@param resumeInWaitState boolean @ 是否需要在Wait步骤恢复(耐心引导中会重建不必恢复)
+function GuideNewContext:InsertTweenToPauseableTable(sq,resumeInWaitState)
+    sq:AppendCallback(function()
+        self:RemoveTweenFromPauseableTable(sq)
+    end)
+    if self._pauseLevelTime and not (resumeInWaitState and self._stepInWaittingState) then
+        sq:Pause()
+    end
+    self._pauseableTweenCollection = self._pauseableTweenCollection or {}
+    self._pauseableTweenCollection[sq] = resumeInWaitState
+end
+
+---@type fun(sq:DG.Tweening.Sequence):void
+---@param sq DG.Tweening.Sequence
+function GuideNewContext:RemoveTweenFromPauseableTable(sq)
+    if not self._pauseableTweenCollection then
+        return
+    end
+    if self._pauseableTweenCollection[sq] then
+        self._pauseableTweenCollection[sq] = nil
+    end
+end
+
+---@type fun(name : string):void
+---@param name string @ tween的名称
+function GuideNewContext:RemoveTweenFromPauseableTableByName(name)
+    if not self._pauseableTweenCollection then
+        return
+    end
+    for tween,_ in pairs(self._pauseableTweenCollection) do
+        if tween.stringId == name then
+            self._pauseableTweenCollection[tween] = nil
+            break
+        end
+    end
+end
+--endregion
+--endregion
+
+--region 引导的事件封装
+---尝试派发一个事件，没引导则会丢弃，认为是一次空调用
+---@type fun(eventCmd : string):void
+---@param eventCmd string
+function GuideNewContext:TryDispatchEvent(eventCmd,...)
+    if not self._dispatcher then
+        return
+    end
+    self._dispatcher:Dispatch(eventCmd,...)
+end
+
+---@type fun(eventCmd : string,handler:handler):void
+---@param eventCmd string
+---@param handler handler
+function GuideNewContext:ListenGuideEvent(eventCmd,handler)
+    self._dispatcher = self._dispatcher or require("GuideEvent"):Create()
+    self._dispatcher:Listen(eventCmd,handler)
+end
+
+---@type fun(eventCmd : string,handler:function):void
+---@param eventCmd string
+---@param handler function
+function GuideNewContext:RemoveGuideEvent(eventCmd,handler)
+    if not self._dispatcher then
+        return
+    end
+    self._dispatcher:Remove(eventCmd,handler)
+end
+--endregion
+
+--region 解析与创建
+---生成触发装置
+---@type fun(guide : Tables.GuideList_Item):void
+---@param guide Tables.GuideList_Item @ 条件类型
+function GuideNewContext:CreateGuideCondition(guide)
+    if self._conditions and self._conditions[guide] then
+        PrintInfo("不能重复创建触发器：" .. guide.ID)
+        return
+    end
+    self._conditions = self._conditions or {}
+
+    local status,result = pcall(function(path) return require(path)  end,string.format('GuideCondition%s',guide.TriggerType))
+    ---处理异常
+    if type(result) == 'table' then
+        ---@type GuideCondition
+        local condition = result
+        condition = condition:Create()
+        condition:SetupGuideItem(guide)
+        condition:StartTriggerListener()
+        self._conditions[guide] = condition
+
+        PrintInfo(string.format("Tutorial->Condition %s:<color=#ffff00ff>%s</color> is waitting ...",guide.ID,guide.TriggerType))
+    else
+        PrintInfo(string.format("%s  找不到合适的触发装置...",guide.TriggerType))
+    end
+end
+
+---创建一个强制触发器
+---@type fun(guide : Tables.GuideList_Item):void
+---@param guide Tables.GuideList_Item @ 条件类型
+function GuideNewContext:CreateGuideForceSetup(guide)
+    if not guide.GuidePreparation or guide.GuidePreparation == "" then
+        return
+    end
+
+    if self._setter and self._setter[guide] then
+        PrintInfo("不能重复创建设置器：" .. guide.ID)
+        return
+    end
+    self._setter = self._setter or {}
+
+    ---@type GuideForceSetup
+    local setup = nil
+    if guide.GuidePreparation[EGuidePreparationType.Food] then
+        setup = require('GuideForceSetupFood'):Create()
+        setup:SetupConfig(guide)
+        setup:StartListener()
+    elseif guide.GuidePreparation[EGuidePreparationType.Patience] then
+        setup = require('GuideForceSetupGuest'):Create()
+        setup:SetupConfig(guide)
+        setup:StartListener()
+    end
+    self._setter[guide] = setup
+end
+
+---查询引导是否完成
+---@type fun(guideID:string):boolean
+---@param guideID string @ 引导ID
+---@return boolean 引导是否已完成
+function GuideNewContext:IsTutorialComplete(guideID)
+    local completed = PbRootData.GameData.guidesCompleted
+    ---@type Tables.GuideList_Item
+    local cfg = Tables.GuideList[guideID]
+    if cfg.GuideConnect then
+        for _,connect in ipairs(cfg.GuideConnect) do
+            if string.match(completed,connect) then
+                return true
+            end
+        end
+    end
+    return string.match(completed,guideID) ~= nil
+end
+
+---解析引导解锁状态：是否已经达到解锁等级、是否已结束
+---@type fun(guideItem : Tables.GuideList_Item):EGuideState
+---@param guideItem Tables.GuideList_Item @ 配置表中的引导数据
+---@return EGuideState
+function GuideNewContext:ParseGuideState(guideItem)
+    if self:IsTutorialComplete(guideItem.ID) then
+        return EGuideState.Executed
+    end
+    local chapterLv = GamerDataManager:GetLatestChapterLevel()
+
+    ---@type ChapterLevel
+    local forceLv = guideItem.GuidePreparationLevel
+    if forceLv and forceLv.Chapter == chapterLv.Chapter and forceLv.Level == chapterLv.Level then
+        return EGuideState.ForceTrigger
+    end
+
+    ---最新章节或者关卡越过了保底关卡，视为放弃
+    if forceLv and (forceLv.Chapter < chapterLv.Chapter or (forceLv.Chapter == chapterLv.Chapter and forceLv.Level < chapterLv.Level)) then
+        return EGuideState.GiveUp
+    end
+
+    ---@type ChapterLevel
+    local unlockLv = guideItem.UnlockLevel
+    if unlockLv and unlockLv.Chapter < chapterLv.Chapter or (unlockLv.Chapter == chapterLv.Chapter and unlockLv.Level <= chapterLv.Level ) then
+        return EGuideState.WaittingTrigger
+    end
+
+    return EGuideState.Lock
+end
+--endregion
+
+--region 生成执行步骤
+---生成一个执行步骤的list
+---@type fun(guideItem:Tables.GuideList_Item):Tables.GuideContent_Item[]
+---@param guideItem Tables.GuideList_Item @ 引导项
+---@return Tables.GuideContent_Item[] @ 可执行步骤数组
+function GuideNewContext:GenerateGuideSteps(guideItem)
+    local guidesBehavoursTable = Tables.GuideContent
+    local steps = {}
+    for _,step in pairs(guidesBehavoursTable) do
+        if step.GuideID == guideItem.ID then
+            EasyInsert(steps,step,"StepID")
+        end
+    end
+    return steps
+end
+--endregion
+
+--region 特殊处理一下后厨地图的点击事件
+---引导在暂停时允许地图接受点击消息(暂停状态下收金币)
+---@type fun():boolean
+---@return boolean
+function GuideNewContext:IsTutorialAllowCheck()
+    if not self._stepWorker then
+        return false
+    end
+    local currStep = self._stepWorker:GetCurrent()
+    if not currStep then
+        return false
+    end
+    ---特殊处理收金币的时候，暂停逻辑不暂停点击事件
+    return currStep.Type == EGuideOneStepBehavioutType.Coin
+end
+
+---新手引导对地图点击事件的屏蔽
+---@type fun(screenSpacePosition:UnityEngine.Vector3):boolean
+---@param screenSpacePosition UnityEngine.Vector3
+function GuideNewContext:IsTutorialBlockClicks(screenSpacePosition)
+    if not self._stepWorker then
+        return false
+    end
+    local currMask = self._stepWorker:GetScreenSpaceMaskBounds()
+    if not currMask then
+        return false
+    end
+    ---遮罩区域大小为0
+    if math.abs(currMask.size.x) < 0.0001 and math.abs(currMask.size.y) < 0.0001 then
+        return false
+    end
+    ---引导类型为Info时是一个全屏遮罩
+    local step = self._stepWorker:GetCurrent()
+    if step and step.Type == EGuideOneStepBehavioutType.Info then
+        return true
+    end
+    local halfSize = currMask.size / 2
+    local min = currMask.center - halfSize
+    local max = currMask.center + halfSize
+    return screenSpacePosition.x < min.x or screenSpacePosition.y < min.y or screenSpacePosition.x > max.x or screenSpacePosition.y > max.y
+end
+--endregion
+
+--region 触发后处理
+---配置写入完成
+---@type fun(setter : GuideForceSetup):void
+---@param setter GuideForceSetup @ 设定器
+function GuideNewContext:ForceSetupComplete(setter)
+    ---关闭设置器监听
+    if self._setter and self._setter[setter.guideItem] then
+        self._setter[setter.guideItem]:CloseListener()
+    end
+end
+
+---等待执行
+---@type fun():void
+function GuideNewContext:ExecuteTriggedTutorial()
+    local condition = self._waittingExecute
+    local param = self._waittingExecuteParam
+
+    PrintInfo(string.format("Tutorial->Condition: %s <color=#00ff00ff>%s</color> is triggering ...",condition.guideItem.ID,condition.guideItem.TriggerType))
+    ---不再监听关卡变化
+    if self._levelListener then
+        self._levelListener:RemoveGuideItem(condition.guideItem)
+    end
+
+    ---关闭触发器监听
+    if self._conditions and self._conditions[condition.guideItem] then
+        self._conditions[condition.guideItem]:CloseTriggerListener()
+    end
+
+    ---关闭设置器监听
+    if self._setter and self._setter[condition.guideItem] then
+        self._setter[condition.guideItem]:CloseListener()
+    end
+
+    ---执行预处理
+    self._preconditioning:Preconditioning(condition.guideItem)
+
+    ---执行引导
+    self._stepWorker = self._stepWorker or require("GuideStepExecuteContext"):Create()
+    local steps = self:GenerateGuideSteps(condition.guideItem)
+    self._executing = self._executing or {}
+    self._executing[steps] = condition
+    self._stepWorker:ExecuteGuideSteps(steps,param)
+
+    ---清理引用
+    self._coroutine = nil
+    self._waittingExecute = nil
+    self._waittingExecuteParam = nil
+end
+
+---触发了引导的执行
+---@type fun(condition : GuideCondition,param : table):void
+---@param condition GuideCondition @ 某引导触发条件
+---@param param table @ 触发时带入的参数
+function GuideNewContext:TriggerTriggering(condition,param)
+    ---优先检查当前是否处于执行状态
+    if self._executing and not TableIsEmpty(self._executing) then
+        PrintWarning(string.format("Tutorial->Repeated triggering: triggering=%s",condition.guideItem.ID))
+        condition:OnGiveupTriggering(false)
+        return
+    end
+
+    ---检查执行环境
+    if condition.guideItem.EnvCheck and not self._envChecker:EnvCheck(condition.guideItem.EnvCheck) then
+        PrintWarning(string.format("Tutorial->EvnCheck failed = %s",condition.guideItem.ID))
+        condition:OnGiveupTriggering(true)
+        return
+    end
+
+    local currOrder = condition.guideItem.GuideOrder or 0
+    local prevOrder = self._waittingExecute and self._waittingExecute.guideItem.GuideOrder or 0
+    ---统计这一帧内优先级最高的引导
+    if self._waittingExecute == nil or prevOrder < currOrder then
+        self._waittingExecute = condition
+        self._waittingExecuteParam = param
+    end
+    ---帧末执行
+    if not self._coroutine then
+        self._coroutine = HonorCoroutineHelper:StartAlone(function()
+            coroutine.yield(CoroutineHelper.waitForEndOfFrame)
+            self:ExecuteTriggedTutorial()
+        end)
+    end
+end
+
+---某引导的所有步骤都执行完毕了
+---@type fun(steps : Tables.GuideContent_Item[]):void
+---@param steps Tables.GuideContent_Item[] @ 执行完毕的步骤们
+function GuideNewContext:GuideStepsExecuteComplete(steps)
+    local condition = self._executing[steps]
+    if condition then
+        PrintInfo(string.format("Tutorial-><color=#00ff00ff>Condition %s execute over ...</color>",condition.guideItem.ID))
+        local guideItem = condition.guideItem
+        self._executing[steps] = nil
+        if self._conditions and self._conditions[guideItem] then
+            self._conditions[guideItem]:Dispose()
+            self._conditions[guideItem] = nil
+        end
+        if self._setter and self._setter[guideItem] then
+            self._setter[guideItem]:Dispose()
+            self._setter[guideItem] = nil
+        end
+        self._preconditioning:RollbackPreconditioningConfig(guideItem)
+    end
+    self._pauseLevelTime = false
+    self._stepInWaittingState = false
+
+    if self._conditions and TableIsEmpty(self._conditions) then
+        self._conditions = nil
+    end
+    if self._setter and TableIsEmpty(self._setter) then
+        self._setter = nil
+    end
+end
+
+---该步骤标记了引导结束
+---@type fun(steps : Tables.GuideContent_Item[]):void
+---@param steps Tables.GuideContent_Item[] @ 指令数组，做id用的
+function GuideNewContext:GuideStepsExecutedCompleteTagStep(steps)
+    local condition = self._executing[steps]
+    if not condition then
+        return
+    end
+    local completed = PbRootData.GameData.guidesCompleted
+    completed = completed or ""
+    if string.match(completed,condition.guideItem.ID) then
+        return
+    end
+
+    ---序列化保存
+    if condition.guideItem.GuideConnect and #condition.guideItem.GuideConnect > 0 then
+        PbRootData.GameData.guidesCompleted = string.format("%s%s",completed,table.concat(condition.guideItem.GuideConnect,'_'))
+        ---关闭关联的触发器
+        self:CloseConnectTutorial(condition.guideItem.GuideConnect,condition.guideItem.ID)
+    else
+        PbRootData.GameData.guidesCompleted = string.format("%s%s",completed,condition.guideItem.ID)
+    end
+
+    ---检查格式
+    self:CheckDataFormat()
+    PbIO.GameData.Save_guidesCompleted()
+end
+
+---同步关闭关联引导
+---@type fun(tutorialStrs:string[],currTutorial:string):void
+---@param tutorialStrs string[] @ 关联引导列表
+---@param currTutorial string @ 当前结束的引导ID
+function GuideNewContext:CloseConnectTutorial(tutorialStrs,currTutorial)
+    for _,str in ipairs(tutorialStrs) do
+        if str ~= currTutorial then
+            ---搜索关联触发器 并关闭
+            for key,condition in pairs(self._conditions) do
+                if condition.guideItem.ID == str then
+                    condition:Dispose()
+                    condition:CloseTriggerListener()
+                    self._conditions[key] = nil
+                    PrintInfo(string.format("Tutorial-> %s 同步关闭 %s",currTutorial,str))
+                end
+            end
+        end
+    end
+end
+
+---@type fun(removeId:string):void
+---@param removeId string @ 需要删除的id
+function GuideNewContext:RemoveCompletedTutorial(removeId)
+    self:CheckDataFormat()
+    local completed = PbRootData.GameData.guidesCompleted
+    local remove = string.format("_%s_",removeId)
+    local result = completed:gsub(remove,"_")
+    local lenOfRemove = string.len(remove) - 1
+    if string.len(completed) - string.len(result) == lenOfRemove then
+        PbRootData.GameData.guidesCompleted = result
+        PbIO.GameData.Save_guidesCompleted()
+    end
+    local guide = Tables.GuideList[removeId]
+    ---目前没有待触发或者没有目标引导待触发
+    if guide and (TableIsEmpty(self._conditions) or (not self._conditions[guide])) then
+        self:CreateTutorialTrigger(guide)
+    end
+end
+--endregion
+
+return GuideNewContext

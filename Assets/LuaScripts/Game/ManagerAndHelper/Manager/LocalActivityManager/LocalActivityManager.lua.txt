@@ -11,16 +11,12 @@
 ---@field ChapterPackActivityId string 章节礼包
 ---@field DailyPackActivityId string 每日礼包
 ---@field FreeDiamondId string 免费钻石
----@field WeekCardActivityId string 周卡
----@field PiggyBankActivityId string 猪猪银行
 ELocalActivityId = {
     StarterPackActivityId   = "101",
     SuperSaleActivityId     = "102",
     ChapterPackActivityId   = "103",
     DailyPackActivityId     = "104",
     FreeDiamondId           = "105",
-    WeekCardActivityId      = "106",
-    PiggyBankActivityId     = "107",
 }
 
 ---@class LocalActivityPopupData @本地活动弹窗数据
@@ -66,8 +62,7 @@ function LocalActivityManager:ClearData()
 end
 
 --=========================================================================
--- region 活动组管理（互斥核心：同组活动互斥开启）
---=========================================================================
+--region 活动组管理（互斥核心：同组活动互斥开启）
 
 --- 获取活动组ID
 ---@param activityId string
@@ -107,11 +102,10 @@ function LocalActivityManager:CheckActivityGroupId(activityId)
     return groupIds and table.vIn(groupIds, groupId)
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 本地活动数据存储（增删查改）
---=========================================================================
+--region 本地活动数据存储（增删查改）
 
 --- 保存活动数据到本地
 function LocalActivityManager:SaveActivityDatas()
@@ -196,11 +190,10 @@ function LocalActivityManager:ClearAllActivity()
     self:SaveActivityDatas()
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 活动逻辑类管理（LocalActivityBase）
---=========================================================================
+--region 活动逻辑类管理（LocalActivityBase）
 
 --- 获取活动逻辑类
 ---@param activityId string
@@ -241,11 +234,10 @@ function LocalActivityManager:ClearDataAllActivityLogic()
     end
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 活动热更资源状态
---=========================================================================
+--region 活动热更资源状态
 
 --- 更新活动热更资源状态
 function LocalActivityManager:UpdateActivityHotfixResStates()
@@ -287,11 +279,10 @@ function LocalActivityManager:GetActivityHotfixResState(activityId)
     return self._activityHotfixResStates[activityId] or false
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 外部 API
---=========================================================================
+--region 外部 API
 
 --- 尝试开启所有可开启的本地活动（互斥判断）
 function LocalActivityManager:TryOpenActivities()
@@ -322,11 +313,10 @@ function LocalActivityManager:FinishActivity(localActivityId)
     if logic then logic:OnActivityEnd(localActivityId) end
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 事件监听
---=========================================================================
+--region 事件监听
 
 --- 用户分层变化 → 重新检查活动
 ---@param userType string
@@ -335,11 +325,10 @@ function LocalActivityManager:OnGenerateUserType(userType)
     self:TryOpenActivities()
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 活动UI弹窗
---=========================================================================
+--region 活动UI弹窗
 
 --- 首次登录自动弹活动
 function LocalActivityManager:TryPopupActivityUIByFirstLogin()
@@ -399,6 +388,6 @@ function LocalActivityManager:ClearAllActivityPopupData()
     ClearArray(self._activityPopupData)
 end
 
--- endregion
+--endregion
 
 return LocalActivityManager

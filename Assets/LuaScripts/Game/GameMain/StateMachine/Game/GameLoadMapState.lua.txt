@@ -68,8 +68,8 @@ function GameLoadMapState:LoadMapOver(finishCallback)
     -- ====================== 新手首次游戏流程 ======================
     if PlayHelper:IsPlayFirstLevel() then
         local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
-        -- 补满体力
-        --ItemManager:FullLife()
+        -- 补满心心
+        ItemManager:FullLife()
         -- 加载第一关数据并进入游戏
         local levelData = PlayHelper:LoadLevelData(chapterId, levelId)
         if PlayHelper:PlayLevel(levelData) then

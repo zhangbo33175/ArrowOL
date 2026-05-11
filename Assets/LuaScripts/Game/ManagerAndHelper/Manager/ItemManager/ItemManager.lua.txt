@@ -1,8 +1,8 @@
 --=====================================================================================================
--- 【道具管理中心】
--- 功能：全游戏道具/体力/Buff/前置道具/局内道具 统一管理
--- 核心：解锁判断、数量缓存、使用流程、事件抛出、体力系统、碎片合成
--- 架构：存档数据 + 缓存层 + 显示层 分离
+-- @brief  道具管理中心
+-- @desc   全游戏道具/体力/Buff/前置道具/局内道具 统一管理
+-- @core   解锁判断、数量缓存、使用流程、事件抛出、体力系统、碎片合成
+-- @struct 存档数据 + 缓存层 + 显示层 分离
 --=====================================================================================================
 
 ---@class LifeChange @体力变更
@@ -19,24 +19,28 @@
 ---@field oldNum number 变化前
 ---@field newNum number 变化后
 
----@class ItemMgr:Singleton @道具管理中心
+---@class ItemManager : Singleton @道具管理中心
+---@field _unlockState table<string, boolean> 道具解锁状态缓存
+---@field _inActiveIDs table<string, any> 正在生效的道具（Buff/前置道具）
+---@field _cacheSubNum table<string, number> 缓存使用数量（确认前临时扣减）
 ---@field _boosterCondition BoosterExtraCondition 关内道具额外条件
+
 local ItemManager = class("ItemManager", import("Singleton"))
 
 --- 构造函数
 function ItemManager:ctor(args)
     ItemManager.super.ctor(self, args)
 
-    self._unlockState    = {}     ---@type table<string, boolean> 道具解锁状态（缓存）
-    self._inActiveIDs    = {}     ---@type table<string, any> 正在生效的道具（buff/前置道具）
-    self._cacheSubNum    = {}     ---@type table<string, number> 缓存使用数量（确认前临时扣减）
+    self._unlockState    = {}
+    self._inActiveIDs    = {}
+    self._cacheSubNum    = {}
+    self._boosterCondition = nil
 end
 
 --- 创建单例
 ---@return ItemManager
 function ItemManager:Create(args)
-    local obj = ItemManager.new()
-    return obj
+    return ItemManager.new()
 end
 
 --- 初始化
@@ -60,27 +64,30 @@ end
 ---@param boosterID string
 ---@return boolean
 function ItemManager:IsUnlock(boosterID)
-    local boosterData = ResourceDataManager:GetResourceData(boosterID)
-    if not boosterData then
-        PrintDebug("Booster 表格数据不存在: " .. boosterID)
+    if string.isNullOrEmpty(boosterID) then
         return false
     end
 
-    -- 缓存已计算 → 直接返回
+    -- 读取缓存
     if self._unlockState[boosterID] ~= nil then
         return self._unlockState[boosterID]
     end
 
+    local boosterData = ResourceDataManager:GetResourceData(boosterID)
+    if not boosterData or not boosterData.UnlockLevel then
+        self._unlockState[boosterID] = true
+        return true
+    end
+
     local maxChap = GamerDataManager:GetCurMaxChapterId()
-    local numChap = tonumber(maxChap)
-    local unlockChap = boosterData.UnlockLevel.ChapterID
-    local unlockLv  = boosterData.UnlockLevel.LevelID
-    local curLv     = GamerDataMgr:GetLevelLvByChapterId(maxChap)
+    local numChap = tonumber(maxChap) or 0
+    local unlockChap = boosterData.UnlockLevel.ChapterID or 0
+    local unlockLv = boosterData.UnlockLevel.LevelID or 0
+    local curLv = GamerDataManager:GetLevelLvByChapterId(maxChap) or 0
 
-    -- 解锁判断
-    local unlock = numChap > unlockChap or (numChap == unlockChap and curLv >= unlockLv)
+    -- 解锁逻辑
+    local unlock = (numChap > unlockChap) or (numChap == unlockChap and curLv >= unlockLv)
     self._unlockState[boosterID] = unlock
-
     return unlock
 end
 
@@ -97,7 +104,9 @@ function ItemManager:IsPreBoostersAndBoostersUnlock()
     -- 前置道具
     local preIDs = ResourceDataManager:GetBoosterIDs(EItemSubType.PreBooster)
     for _, v in ipairs(preIDs) do
-        if not self:IsUnlock(v.ID) then return false end
+        if not self:IsUnlock(v.ID) then
+            return false
+        end
     end
 
     -- 局内道具
@@ -122,6 +131,7 @@ end
 ---@param useNum number
 ---@return boolean
 function ItemManager:IsEnough(id, useNum)
+    useNum = useNum or 1
     return self:GetNum(id) >= useNum
 end
 
@@ -136,7 +146,7 @@ end
 ---@param id string
 ---@return number
 function ItemManager:GetParam(id)
-    return self._inActiveIDs[id] and self._inActiveIDs[id].param
+    return self._inActiveIDs[id] and self._inActiveIDs[id].param or 0
 end
 
 --- 是否限时道具
@@ -180,10 +190,12 @@ end
 ---@param boosterID string
 ---@param num number
 function ItemManager:OnConfirmUseBooster(boosterID, num)
-    if not boosterID then return end
+    if string.isNullOrEmpty(boosterID) then return end
+
     local itemData = ResourceDataManager:GetResourceData(boosterID)
     if not itemData then return end
 
+    num = num or 1
     local realID = boosterID
 
     -- 无限前置道具 → 扣关联道具
@@ -198,7 +210,7 @@ function ItemManager:OnConfirmUseBooster(boosterID, num)
 
     -- 生效逻辑：各类全局 Buff
     if realID == EResourceIDs.AddPatience then
-        self._inActiveIDs[realID] = { param = ConstantsDataMgr:GetDataById("AddPatienceCoef").Value[1] }
+        self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("AddPatienceCoef").Value[1] }
 
     elseif realID == EResourceIDs.TurboSkates then
         self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("AddChefSpeedCoef").Value[1] }
@@ -211,13 +223,17 @@ function ItemManager:OnConfirmUseBooster(boosterID, num)
 
     elseif realID == EResourceIDs.Freeze then
         self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("FrozenTime").Value[1] }
-        DOTween.To(function() return self._inActiveIDs[realID].param end,
+        DOTween.To(
+                function() return self._inActiveIDs[realID].param end,
                 function(value) self._inActiveIDs[realID].param = math.ceil(value) end,
-                0, self._inActiveIDs[realID].param)
+                0,
+                self._inActiveIDs[realID].param
+        )
                :OnComplete(function()
             self._inActiveIDs[realID] = nil
             HonorEventHelper:Fire(EventCmd.OnSkillFreezeTimeOver)
         end)
+               :SetUpdate(true)
                .stringId = ECustomTweenID.ItemMgr_FrozenTime_Change
     end
 end
@@ -246,6 +262,7 @@ end
 ---@param id string
 ---@return number
 function ItemManager:GetNum(id)
+    if string.isNullOrEmpty(id) then return 0 end
     local cache = self._cacheSubNum[id] or 0
     local save  = PbRootData.GameData.resourceInfo.nums[id] or 0
     return math.max(save - cache, 0)
@@ -264,46 +281,60 @@ end
 --- 增加数量（支持碎片合成）
 ---@param id string
 ---@param addNum number
----@return number
 function ItemManager:AddNum(id, addNum)
+    if string.isNullOrEmpty(id) or not addNum or addNum <= 0 then
+        return
+    end
+
     local item = ResourceDataManager:GetResourceData(id)
     if item and item.SubType == EItemSubType.Fragment then
         local oldNum = self:GetNum(id)
-        local rate = Tables.Constants.FragmentsToBooster.Value[1]
+        local rate = Tables.Constants.FragmentsToBooster.Value[1] or 10
+
         if oldNum + addNum >= rate then
             local combine = math.floor((oldNum + addNum) / rate)
-            addNum = (oldNum + addNum) - combine * rate
+            local left = (oldNum + addNum) % rate
+
             self:AddNum(item.RelatedItem, combine)
-            self:SetNum(id, addNum, oldNum)
+            self:SetNum(id, left, oldNum)
             return
         end
     end
-    return self:SetNum(id, self:GetSaveNum(id) + addNum, self:GetNum(id))
+
+    self:SetNum(id, self:GetSaveNum(id) + addNum, self:GetNum(id))
 end
 
 --- 缓存扣减（临时）
 function ItemManager:AddSelNumToCache(id, subNum)
+    if string.isNullOrEmpty(id) then return 0 end
     subNum = subNum or 1
+
     local old = self:GetNum(id)
     self._cacheSubNum[id] = (self._cacheSubNum[id] or 0) + subNum
     local now = self:GetNum(id)
+
     HonorEventHelper:Fire(EventCmd.OnBoosterNumModifyEvent, { ID = id, oldNum = old, newNum = now })
     return now
 end
 
 --- 缓存恢复
 function ItemManager:SubCacheNum(id, subNum)
+    if string.isNullOrEmpty(id) then return 0 end
     subNum = subNum or 1
+
     local old = self:GetNum(id)
     self._cacheSubNum[id] = math.max((self._cacheSubNum[id] or 0) - subNum, 0)
     local now = self:GetNum(id)
+
     HonorEventHelper:Fire(EventCmd.OnBoosterNumModifyEvent, { ID = id, oldNum = old, newNum = now })
     return now
 end
 
 --- 确认扣减（写入存档）
 function ItemManager:SubSaveNum(id, subNum)
+    if string.isNullOrEmpty(id) then return 0 end
     subNum = subNum or 1
+
     local oldUI = self:GetNum(id)
     self._cacheSubNum[id] = math.max((self._cacheSubNum[id] or 0) - subNum, 0)
     return self:SetNum(id, self:GetSaveNum(id) - subNum, oldUI)
@@ -311,57 +342,60 @@ end
 
 --- 设置数量（底层保存）
 function ItemManager:SetNum(id, newNum, oldUI)
+    if string.isNullOrEmpty(id) then return 0 end
     newNum = math.max(newNum, 0)
-    PbRootData.GameData.resourceInfo.nums[tostring(id)] = newNum
+
+    PbRootData.GameData.resourceInfo.nums[id] = newNum
     PbIO.GameData.Save_resourceInfo()
+
+    local nowUI = self:GetNum(id)
     HonorEventHelper:Fire(EventCmd.OnBoosterNumModifyEvent, {
-        ID = id, oldNum = oldUI, newNum = self:GetNum(id)
+        ID = id, oldNum = oldUI, newNum = nowUI
     })
-    return self:GetNum(id)
+    return nowUI
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 体力系统
---=========================================================================
+--region 生命系统
 
---- 最大体力
+--- 最大生命
 function ItemManager:GetMaxLifeNum()
     return 2
 end
 
---- 增加体力
+--- 增加生命
 function ItemManager:AddLife(num)
     num = num or 1
     local max = self:GetMaxLifeNum()
     local cur = self:LifeRemain()
+
     if cur >= max then return end
     num = math.min(num, max - cur)
     self:AddNum(ELifeID.ID, num)
 end
 
---- 扣除体力
+--- 扣除生命
 function ItemManager:SubLife()
     self:AddSelNumToCache(ELifeID.ID, 1)
     self:SubSaveNum(ELifeID.ID, 1)
 end
 
---- 当前体力
+--- 当前生命
 function ItemManager:LifeRemain()
     return self:GetSaveNum(ELifeID.ID)
 end
 
---- 满体力
+--- 满生命
 function ItemManager:FullLife()
     self:AddLife(self:GetMaxLifeNum())
 end
 
--- endregion
+--endregion
 
 --=========================================================================
--- region 新账号初始化
---=========================================================================
+--region 新账号初始化
 
 --- 新账号钻石
 function ItemManager:InitGemCountOfNewAccount()
@@ -373,6 +407,6 @@ function ItemManager:InitNewAccountItemData()
     self:InitGemCountOfNewAccount()
 end
 
--- endregion
+--endregion
 
 return ItemManager

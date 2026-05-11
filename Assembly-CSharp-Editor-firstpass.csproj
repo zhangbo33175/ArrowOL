@@ -46,26 +46,48 @@
     <Analyzer Include="E:\Unity\Unity 2022.3.8f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCDPadInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCAxisInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickDragInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCButtonInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickTouchInspector.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\TextPicIconListCopier.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\HTGuiTools.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchTriggerInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCMenu.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\CUIGraphicEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\RangeSliderEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\UIExtensionsMenuOptions.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\uGUITools.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\EasytouchHierachyCallBack.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickSwipeInspector.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\CUIImageEditor.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickEnterExitInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickLongTapInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchMenu.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\CUIBezierCurveEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\BoxSliderEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\AccordionElementEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\ColorPickerPresetsEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\TextPicEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\BezierLineRendererEditor.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCTouchPadInspector.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\NonDrawingGraphicEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\TextPicRenameEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\ReadOnlyDrawer.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCGuiTools.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\ScrollPositionControllerEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\CUITextEditor.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\FancyScrollView\ScrollerEditor.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickTapInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickTwistInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCAreaInspector.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\TextPicIconEditor.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickPinchInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchInspector.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCJoystickInspector.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Editor\CanvasGroupActivator.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchWelcomeScreen.cs" />
     <Reference Include="UnityEngine">
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>

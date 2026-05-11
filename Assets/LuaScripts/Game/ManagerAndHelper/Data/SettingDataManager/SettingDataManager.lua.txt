@@ -1,60 +1,100 @@
 --=====================================================================================================
--- descrip:   设置数值管理器
---            功能：管理游戏内开关设置（音乐、音效、推送等），读写存档、同步声音状态
+-- @brief  设置数值管理器
+-- @desc   管理游戏内开关设置（音乐、音效、推送等），读写存档、同步声音状态
+-- @feat   全局单例、存档安全、自动同步声音、空值防护、错误捕获
 --=====================================================================================================
 
----@class SettingDataManager @设置数值管理器（音乐/音效/推送等开关存档管理）
-local SettingDataManager = class("SettingDataManager")
+---@class SettingDataManager : Singleton 设置数值管理器
+local SettingDataManager = class("SettingDataManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
-function SettingDataManager:ctor(args)
-
+--- 构造函数
+function SettingDataManager:ctor()
+    SettingDataManager.super.ctor(self)
 end
 
----创建实例
----@type fun(args:table):SettingDataManager
----@param args table @自定义参数
----@return SettingDataManager @设置数值管理器实例
-function SettingDataManager:Create(args)
-    local obj = SettingDataManager.new(args)
-    return obj
+--- 创建单例
+---@return SettingDataManager
+function SettingDataManager:Create()
+    return SettingDataManager.new()
 end
 
----获取存档中记录的设置开关状态
----@type fun(settingType:ESettingType):boolean
----@param settingType ESettingType @设置类型（音乐/音效/推送等）
----@return boolean @开关状态：true=开启，false=关闭
+--- 初始化
+function SettingDataManager:Init()
+    SettingDataManager.super.Init(self)
+end
+
+--- 清理数据
+function SettingDataManager:ClearData()
+    SettingDataManager.super.ClearData(self)
+end
+
+---=========================================================================
+--- 获取存档中记录的设置开关状态
+---@param settingType ESettingType 设置类型（音乐/音效/推送等）
+---@return boolean 开关状态：true=开启，false=关闭
+---=========================================================================
 function SettingDataManager:GetSettingState(settingType)
-    return PbRootData.GameData.settingInfo[settingType]
+    -- 安全校验
+    if not settingType or not PbRootData or not PbRootData.GameData or not PbRootData.GameData.settingInfo then
+        PrintError("[SettingDataManager] 获取设置失败：存档结构异常")
+        return true -- 默认开启
+    end
+
+    local state = PbRootData.GameData.settingInfo[settingType]
+    -- 未初始化默认开启
+    return state ~= nil and state or true
 end
 
----修改设置开关状态并保存存档
----@type fun(settingType:ESettingType, newState:boolean):void
----@param settingType ESettingType @设置类型
----@param newState boolean @新状态：true=开启，false=关闭
+---=========================================================================
+--- 修改设置开关状态并保存存档
+---@param settingType ESettingType 设置类型
+---@param newState boolean 新状态：true=开启，false=关闭
+---=========================================================================
 function SettingDataManager:SetSettingNewState(settingType, newState)
-    PbRootData.GameData.settingInfo[settingType] = newState
-    PbIO.GameData.Save_settingInfo()
-
-    -- 音乐开关变化
-    if settingType == ESettingType.Music then
-        SoundMgr:OnBGMCloseStateChanged(settingType, newState)
+    -- 安全校验
+    if not settingType or type(newState) ~= "boolean" then
+        PrintError("[SettingDataManager] 设置失败：参数无效")
+        return
+    end
+    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.settingInfo then
+        PrintError("[SettingDataManager] 设置失败：settingInfo 不存在")
+        return
     end
 
-    -- 音效开关变化
+    -- 写入并保存
+    PbRootData.GameData.settingInfo[settingType] = newState
+
+    -- 安全保存存档
+    xpcall(function()
+        if PbIO and PbIO.GameData and PbIO.GameData.Save_settingInfo then
+            PbIO.GameData.Save_settingInfo()
+        end
+    end, function(err)
+        PrintError("[SettingDataManager] 保存设置失败：" .. tostring(err))
+    end)
+
+    -- 音乐开关同步
+    if settingType == ESettingType.Music then
+        xpcall(function()
+            SoundMgr:OnBGMCloseStateChanged(settingType, newState)
+        end, function() end)
+    end
+
+    -- 音效开关同步
     if settingType == ESettingType.Sound then
-        SoundMgr:OnSoundCloseStateChanged(settingType, newState)
+        xpcall(function()
+            SoundMgr:OnSoundCloseStateChanged(settingType, newState)
+        end, function() end)
     end
 end
 
----使用系统推送权限状态，矫正本地存档的推送开关
----@type fun():void
+---=========================================================================
+--- 使用系统推送权限状态，矫正本地存档的推送开关
+---=========================================================================
 function SettingDataManager:CorrectNotificationState()
     local allow = not self:GetSettingState(ESettingType.Notification)
     if allow then
-        -- 预留扩展
+        -- 可扩展：系统权限同步逻辑
     end
 end
 

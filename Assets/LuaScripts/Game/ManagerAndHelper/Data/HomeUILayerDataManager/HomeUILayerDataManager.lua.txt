@@ -1,50 +1,73 @@
 --=====================================================================================================
--- descrip:   主界面UI层级数据管理器
---            功能：管理主界面UI、弹窗、动画的显示层级与执行顺序配置
+-- @brief  主界面UI层级数据管理器
+-- @desc   管理主界面UI、弹窗、动画的显示层级与执行顺序配置
+-- @feat   全局单例、安全查询、自动容错、排序获取、日志规范
 --=====================================================================================================
 
----@class HomeUILayerDataManager @主界面UI层级数据管理器
-local HomeUILayerDataManager = class("HomeUILayerDataManager")
+---@class HomeUILayerDataManager : Singleton @主界面UI层级数据管理器
+local HomeUILayerDataManager = class("HomeUILayerDataManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
-function HomeUILayerDataManager:ctor(args)
-
+--- 构造函数
+function HomeUILayerDataManager:ctor()
+    HomeUILayerDataManager.super.ctor(self)
 end
 
----创建实例
----@type fun(args:table):HomeUILayerDataManager
----@param args table @自定义参数
----@return HomeUILayerDataManager @主界面UI层级管理器实例
-function HomeUILayerDataManager:Create(args)
-    local obj = HomeUILayerDataManager.new(args)
-    return obj
+--- 创建单例
+---@return HomeUILayerDataManager
+function HomeUILayerDataManager:Create()
+    return HomeUILayerDataManager.new()
 end
 
----根据层级ID获取UI层级配置
----@type fun(id:EGameMainUIPushSortOrder):Tables.HomeUILayers_Item
----@param id EGameMainUIPushSortOrder @UI层级ID
----@return Tables.HomeUILayers_Item @UI层级配置
+--- 初始化
+function HomeUILayerDataManager:Init()
+    HomeUILayerDataManager.super.Init(self)
+end
+
+--- 清理数据
+function HomeUILayerDataManager:ClearData()
+    HomeUILayerDataManager.super.ClearData(self)
+end
+
+---=========================================================================
+--- 根据层级ID获取UI层级配置
+---@param id EGameMainUIPushSortOrder UI层级ID
+---@return Tables.HomeUILayers_Item UI层级配置
+---=========================================================================
 function HomeUILayerDataManager:GetDataById(id)
+    -- 配置表不存在防护
+    if not Tables or not Tables.HomeUILayers then
+        PrintError("[HomeUILayerDataManager] Tables.HomeUILayers 配置表不存在！")
+        return nil
+    end
+
+    -- 空ID → 返回默认NormalUI
     if id == nil then
-        PrintError("HomeUILayerDataManager:GetDataById id is nil,默认返回NormalUI")
+        PrintError("[HomeUILayerDataManager] GetDataById id is nil → 使用默认 NormalUI")
         return Tables.HomeUILayers[EGameMainUIPushSortOrder.NormalUI]
     end
-    return Tables.HomeUILayers[id]
+
+    local cfg = Tables.HomeUILayers[id]
+    -- 配置不存在 → 降级默认
+    if not cfg then
+        PrintDebug("[HomeUILayerDataManager] 未找到ID: " .. tostring(id) .. " → 使用默认 NormalUI")
+        return Tables.HomeUILayers[EGameMainUIPushSortOrder.NormalUI]
+    end
+
+    return cfg
 end
 
----根据层级ID获取UI显示顺序
----@type fun(id:EGameMainUIPushSortOrder):number
----@param id EGameMainUIPushSortOrder @UI层级ID
----@return number @排序值（数值越小越先显示）
+---=========================================================================
+--- 根据层级ID获取UI显示顺序
+---@param id EGameMainUIPushSortOrder UI层级ID
+---@return number 排序值（数值越小越先显示）
+---=========================================================================
 function HomeUILayerDataManager:GetOrderById(id)
     local data = self:GetDataById(id)
-    if data == nil then
-        PrintError("HomeUILayerDataManager:GetOrderById data is nil,默认返回0")
+    if not data then
+        PrintError("[HomeUILayerDataManager] GetOrderById data is nil → return 0")
         return 0
     end
-    return data.Order
+    return data.Order or 0
 end
 
 return HomeUILayerDataManager

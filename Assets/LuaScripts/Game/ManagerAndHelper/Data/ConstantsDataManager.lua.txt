@@ -1,25 +1,31 @@
 --=====================================================================================================
--- descrip:   常量管理器
---            功能：统一管理游戏全局常量、配置常数、静态参数（供后续扩展使用）
+-- @brief  全局常量管理器
+-- @desc   统一管理游戏全局常量、配置常数、静态参数（便于集中维护与扩展）
+-- @feat   全局单例、集中配置、无GC、无状态、工程级规范
 --=====================================================================================================
 
----@class ConstantsDataManager @常量管理器（全局静态常量配置管理）
-local ConstantsDataManager = class("ConstantsDataManager")
+---@class ConstantsDataManager : Singleton 全局常量管理器
+local ConstantsDataManager = class("ConstantsDataManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
-function ConstantsDataManager:ctor(args)
-
+--- 构造函数
+function ConstantsDataManager:ctor()
+    ConstantsDataManager.super.ctor(self)
 end
 
----创建实例
----@type fun(args:table):ConstantsDataManager
----@param args table @自定义参数
----@return ConstantsDataManager @常量管理器实例
-function ConstantsDataManager:Create(args)
-    local obj = ConstantsDataManager.new(args)
-    return obj
+--- 创建单例
+---@return ConstantsDataManager
+function ConstantsDataManager:Create()
+    return ConstantsDataManager.new()
+end
+
+--- 初始化
+function ConstantsDataManager:Init()
+    ConstantsDataManager.super.Init(self)
+end
+
+--- 清理数据（常量无需清理，保留空实现）
+function ConstantsDataManager:ClearData()
+    ConstantsDataManager.super.ClearData(self)
 end
 
 return ConstantsDataManager

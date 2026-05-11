@@ -1,10 +1,11 @@
 --=====================================================================================================
--- 【全局对象池管理器】
--- 功能：管理所有 GameObject 的缓存、复用、销毁，减少 Instantiate/Destroy 开销
--- 依赖：Singleton、Pool、RES资源配置表
+-- @brief  全局对象池管理器
+-- @desc   管理所有 GameObject 的缓存、复用、销毁，大幅减少 Instantiate/Destroy 开销
+-- @feat   自动创建池、预热、上限控制、安全回收、内存优化
+-- @dependency Singleton、Pool、RES 资源配置表
 --=====================================================================================================
 
----@class PoolManager:Singleton @游戏内的对象加载/缓存管理器
+---@class PoolManager : Singleton @游戏内的对象加载/缓存管理器
 ---@field pools table<string, Pool> @对象池字典：key=资源名，value=Pool实例
 ---@field maxItemCountOfOnePool number @单个池最大缓存数量（超过直接销毁）
 local PoolManager = class("PoolManager", import("Singleton"))
@@ -19,8 +20,7 @@ end
 --- 创建单例实例
 ---@return PoolManager
 function PoolManager:Create()
-    local obj = PoolManager.new()
-    return obj
+    return PoolManager.new()
 end
 
 --- 初始化（重写Singleton）
@@ -40,8 +40,12 @@ end
 ---@param count number 预热数量
 ---=========================================================================
 function PoolManager:Prewarm(resName, count)
-    -- 如果池已存在，直接预热
-    if table.kIn(self.pools, resName) then
+    if string.isNullOrEmpty(resName) or count <= 0 then
+        return
+    end
+
+    -- 池已存在，直接预热
+    if self.pools[resName] then
         local p = self:GetPool(resName)
         p:Prewarm(count)
         return
@@ -49,12 +53,15 @@ function PoolManager:Prewarm(resName, count)
 
     -- 检查资源配置
     local resDefItem = RES[resName]
-    if resDefItem then
-        -- 创建新池并预热
-        local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, function() end)
-        newPool:Prewarm(count)
-    else
+    if not resDefItem then
         PrintError("【对象池】资源未在RES表配置: " .. resName)
+        return
+    end
+
+    -- 创建新池并预热
+    local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, function() end)
+    if newPool then
+        newPool:Prewarm(count)
     end
 end
 
@@ -76,8 +83,13 @@ end
 ---@return GameObject
 ---=========================================================================
 function PoolManager:GetWithHandle(resName, newParent, resetHandler)
+    if string.isNullOrEmpty(resName) then
+        PrintError("【对象池】GetWithHandle 资源名不能为空")
+        return nil
+    end
+
     -- 池已存在 → 直接取
-    if table.kIn(self.pools, resName) then
+    if self.pools[resName] then
         local p = self:GetPool(resName)
         p.resetHandler = resetHandler
         return p:Get(newParent)
@@ -85,13 +97,17 @@ function PoolManager:GetWithHandle(resName, newParent, resetHandler)
 
     -- 池不存在 → 创建新池
     local resDefItem = RES[resName]
-    if resDefItem then
-        local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, resetHandler)
-        return newPool:Get(newParent)
-    else
+    if not resDefItem then
         PrintError("【对象池】资源未在RES表配置: " .. resName)
         return nil
     end
+
+    local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, resetHandler)
+    if newPool then
+        return newPool:Get(newParent)
+    end
+
+    return nil
 end
 
 ---=========================================================================
@@ -99,26 +115,29 @@ end
 ---@param go GameObject
 ---=========================================================================
 function PoolManager:Put(go)
-    if IsNull(go) then return end
-    if not UnityApplication.isPlaying then return end
+    if IsNull(go) or not UnityApplication.isPlaying then
+        return
+    end
 
     -- 池名规则：GameObject_资源名
     local poolName = "GameObject_" .. go.name
+    local pool = self.pools[poolName]
 
-    -- 找到对应池
-    if table.kIn(self.pools, poolName) then
-        local pool = self:GetPool(poolName)
+    if not pool then
+        -- 无对应池，直接销毁
+        DestroyPrefabWithGO(go)
+        return
+    end
 
-        -- 未超上限 → 入池缓存
-        if pool.unusedQueue:Count() < self.maxItemCountOfOnePool then
-            pool:Put(go)
-        else
-            -- 超上限 → 直接销毁
-            if pool.usedList:Contains(go) then
-                pool.usedList:Remove(go)
-            end
-            DestroyPrefabWithGO(go)
+    -- 未超上限 → 入池缓存
+    if pool.unusedQueue:Count() < self.maxItemCountOfOnePool then
+        pool:Put(go)
+    else
+        -- 超上限 → 直接销毁
+        if pool.usedList:Contains(go) then
+            pool.usedList:Remove(go)
         end
+        DestroyPrefabWithGO(go)
     end
 end
 
@@ -132,6 +151,10 @@ end
 ---@private
 ---=========================================================================
 function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
+    if string.isNullOrEmpty(name) or not resDefItem then
+        return nil
+    end
+
     -- 只支持GameObject类型
     if resDefItem.TypeName ~= "GameObject" then
         PrintError("【对象池】创建失败：仅支持GameObject类型 → " .. name)
@@ -140,12 +163,20 @@ function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
 
     -- 已存在则不重复创建
     if self.pools[name] then
-        PrintError("【对象池】已存在: " .. name)
         return self.pools[name]
     end
 
     -- 创建Pool实例
-    self.pools[name] = require("Pool"):Create(name, resDefItem, preParent, resetHandler)
+    local ok, pool = xpcall(function()
+        return require("Pool"):Create(name, resDefItem, preParent, resetHandler)
+    end, function(err)
+        PrintError("【对象池】创建池失败: " .. tostring(err))
+    end)
+
+    if ok and pool then
+        self.pools[name] = pool
+    end
+
     return self.pools[name]
 end
 
@@ -177,7 +208,9 @@ end
 ---=========================================================================
 function PoolManager:DestroyPool(name)
     if self.pools[name] then
-        self.pools[name]:Destroy()
+        xpcall(function()
+            self.pools[name]:Destroy()
+        end, function(err) end)
         self.pools[name] = nil
         return true
     end
@@ -188,9 +221,13 @@ end
 --- 【销毁所有池 + 清理根节点】
 ---=========================================================================
 function PoolManager:DestroyAllPools()
-    -- 销毁所有池
-    for _, pool in pairs(self.pools) do
-        pool:Destroy()
+    -- 安全销毁所有池
+    for name, pool in pairs(self.pools) do
+        xpcall(function()
+            pool:Destroy()
+        end, function(err)
+            PrintError("【对象池】销毁池失败: " .. name .. " err: " .. tostring(err))
+        end)
     end
     self.pools = {}
 
@@ -206,7 +243,9 @@ end
 ---=========================================================================
 function PoolManager:DestroyAllPoolsUnused()
     for _, pool in pairs(self.pools) do
-        pool:DestroyUnused()
+        xpcall(function()
+            pool:DestroyUnused()
+        end, function(err) end)
     end
 end
 

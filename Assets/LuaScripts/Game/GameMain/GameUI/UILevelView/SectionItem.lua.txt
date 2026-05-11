@@ -4,94 +4,68 @@
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  SectionItem.lua
 -- author:    zb
--- descrip:   界面显示信息
+-- descrip:   章节界面条目组件
 --=====================================================================================================
 
 ---@class SectionItem : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field FourPicturePuzzle                  UnityEngine.GameObject        √                        四块拼图的Object
----@field FourPicturePuzzleList              UnityEngine.Transform[]       √                        四块拼图对应的List
+---@field cs Honor.Runtime.LuaBehaviour Lua 绑定组件
+---@field FourPicturePuzzle UnityEngine.GameObject 四块拼图容器
+---@field FourPicturePuzzleList UnityEngine.Transform[] 四块拼图列表
 local SectionItem = class('SectionItem', import('LuaBehaviourSuper'))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+---@brief 构造函数
+---@param args table 自定义参数
 function SectionItem:ctor(args)
     SectionItem.super.ctor(self, args)
-    PrintInfo("构造函数SectionItem + 初始化")
+    PrintInfo("SectionItem 构造函数 -> 初始化")
 end
 
----创建函数
----@type fun(args:table):SectionItem
----@param args table @自定义参数
----@return SectionItem @SectionItem实例
+---@brief 创建实例
+---@param args table 自定义参数
+---@return SectionItem
 function SectionItem:Create(args)
-    local obj = SectionItem.new(args)
-    return obj
+    return SectionItem.new(args)
 end
 
----注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
----@type fun():void
+---@brief 注册事件监听（父类自动注销）
 function SectionItem:OnAddListeners()
     SectionItem.super.OnAddListeners(self)
-
 end
 
----唤醒
----@type fun():void
+---@brief 唤醒回调
 function SectionItem:Awake()
     SectionItem.super.Awake(self)
--- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--- 无自动注册内容。
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
-
 end
 
----开始
----@type fun():void
+---@brief 启动回调
 function SectionItem:Start()
     SectionItem.super.Start(self)
-
 end
 
----销毁
----@type fun():void
+---@brief 销毁回调
 function SectionItem:OnDestroy()
     SectionItem.super.OnDestroy(self)
--- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--- 无自动注销内容。
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
-
 end
 
----播放打开动画回调（可重写该父类方法）
----@type fun():void
+---@brief 播放打开动画
 function SectionItem:OnPlayOpenAnimation()
     SectionItem.super.OnPlayOpenAnimation(self)
 end
 
----播放关闭动画回调（可重写该父类方法）
----@type fun():void
+---@brief 播放关闭动画
 function SectionItem:OnPlayCloseAnimation()
     SectionItem.super.OnPlayCloseAnimation(self)
 end
 
----被追加的N层UI子节点销毁回调
----@type fun(luaClass: XLua.LuaTable):void
----@param luaClass XLua.LuaTable @luaClass
+---@brief 子UI销毁回调
+---@param luaClass XLua.LuaTable
 function SectionItem:OnAddedUIDestroyed(luaClass)
     SectionItem.super.OnAddedUIDestroyed(self, luaClass)
 end
 
-
+---@brief 设置拼图列表显示
 function SectionItem:SetListGameObject()
-    
     
 end
 
-
-
-
-
 return SectionItem
-

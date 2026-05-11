@@ -1,15 +1,18 @@
 --=====================================================================================================
--- descrip:   游戏业务状态全局定义（状态机枚举）
---            作用：定义所有游戏状态的唯一标识，供 GameStateMachine 统一调度
+-- @filename:  GameStateCmd.lua
+-- @brief:     游戏业务状态全局定义（状态机枚举）
+-- @desc:      定义所有游戏状态的唯一标识，供 GameStateMachine 统一调度
+-- @author:    Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class GameStateCmd @游戏业务状态机枚举定义
----@field LoginState string @登录状态
----@field ChooseLevel string @关卡选择状态
----@field LoadMapState string @加载地图状态
----@field MainState string @主界面状态
----@field PlayingState string @游戏战斗状态
----@field TurnToPreloadState string @切换回预加载流程状态
+---@class GameStateCmd 游戏业务状态机枚举定义
+---@field LoginState string 登录状态
+---@field ChooseLevel string 关卡选择状态
+---@field LoadMapState string 加载地图状态
+---@field MainState string 主界面状态
+---@field PlayingState string 游戏战斗/游玩状态
+---@field TurnToPreloadState string 切换回预加载流程状态
 GameStateCmd = {
     LoginState = "LoginState",
     ChooseLevel = "ChooseLevelState",

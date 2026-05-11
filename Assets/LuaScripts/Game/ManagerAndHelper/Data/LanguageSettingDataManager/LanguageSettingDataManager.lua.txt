@@ -1,46 +1,62 @@
 --=====================================================================================================
--- descrip:   游戏中使用的多语言配置表格数据管理中心
---            功能：读取多语言配置表，获取游戏内启用的语言类型
+-- @brief  游戏多语言配置表格数据管理中心
+-- @desc   读取多语言配置表，获取游戏内启用的语言类型、语言列表
+-- @feat   全局单例、安全缓存、自动容错、配置校验
 --=====================================================================================================
 
----@class LanguageSettingDataManager @多语言配置管理中心
-local LanguageSettingDataManager = class("LanguageSettingDataManager")
+---@class LanguageSettingDataManager : Singleton @多语言配置管理中心
+local LanguageSettingDataManager = class("LanguageSettingDataManager", import("Singleton"))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
-function LanguageSettingDataManager:ctor(args)
-    self:Init()
+--- 构造函数
+function LanguageSettingDataManager:ctor()
+    LanguageSettingDataManager.super.ctor(self)
+    self._useLangs = nil -- 启用语言缓存
 end
 
----创建实例
----@type fun(args:table):LanguageSettingDataManager
----@param args table @自定义参数
----@return LanguageSettingDataManager @多语言配置管理中心实例
-function LanguageSettingDataManager:Create(args)
-    local obj = LanguageSettingDataManager.new(args)
-    return obj
+--- 创建单例
+---@return LanguageSettingDataManager
+function LanguageSettingDataManager:Create()
+    return LanguageSettingDataManager.new()
 end
 
----初始化接口
----@type fun():void
+--- 初始化
 function LanguageSettingDataManager:Init()
-
+    LanguageSettingDataManager.super.Init(self)
+    self._useLangs = nil -- 重置缓存
 end
 
----获取游戏中已启用的语言类型列表（缓存）
----@type fun():table
----@return table @启用的语言配置数组
+--- 清理数据（切号/重载）
+function LanguageSettingDataManager:ClearData()
+    LanguageSettingDataManager.super.ClearData(self)
+    self._useLangs = nil
+end
+
+---=========================================================================
+--- 获取游戏中已启用的语言类型列表（自动缓存）
+---@return table 启用的语言配置数组
+---=========================================================================
 function LanguageSettingDataManager:GetInUseLangs()
-    if self._useLangs == nil then
-        self._useLangs = {}
-        for i = 1, #Tables.LocalizationSetting do
-            -- 只收集启用状态的语言
-            if Tables.LocalizationSetting[i].InUse then
-                table.insert(self._useLangs, Tables.LocalizationSetting[i])
-            end
+    -- 已有缓存直接返回
+    if self._useLangs ~= nil then
+        return self._useLangs
+    end
+
+    self._useLangs = {}
+
+    -- 安全校验配置表
+    if not Tables or not Tables.LocalizationSetting then
+        PrintError("[LanguageSettingDataManager] 多语言配置表 LocalizationSetting 不存在！")
+        return self._useLangs
+    end
+
+    -- 遍历并收集启用的语言
+    for i = 1, #Tables.LocalizationSetting do
+        local cfg = Tables.LocalizationSetting[i]
+        if cfg and cfg.InUse then
+            table.insert(self._useLangs, cfg)
         end
     end
+
     return self._useLangs
 end
 

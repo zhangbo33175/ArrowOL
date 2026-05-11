@@ -187,7 +187,7 @@ function PlayHelper:SearchLevelHardLevelReward(diff)
     return 1
 end
 
----开始游戏（消耗体力）
+---开始游戏（显示心心）
 ---@type fun(levelData:Tables.LevelData_Item):boolean
 ---@param levelData Tables.LevelData_Item 关卡数据
 ---@return boolean 是否成功开始

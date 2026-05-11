@@ -1,86 +1,68 @@
 --=====================================================================================================
--- descrip:   UI地图基础类
---            职责：游戏主界面地图的基类，管理地图交互、图标、自治体、气泡、生命周期等
+-- @filename:  UIMapBase.lua
+-- @brief:     UI地图基础类
+-- @desc:      游戏主界面地图的基类，管理地图交互、图标、自治体、气泡、生命周期等
+-- @author:    Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class UIMapBase : GameMapBase @UI地图基础类
----@field name string @ 动画名称
----@field delay number @ 延时
+---@class UIMapBase : GameMapBase UI地图基础类
+---@field name string 动画名称
+---@field delay number 延时
 local UIMapBase = class('UIMapBase', import('GameMapBase'))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+---@brief 构造函数
+---@param args table 自定义参数
 function UIMapBase:ctor(args)
     UIMapBase.super.ctor(self, args)
 
-    self._MapPiggyBankIcon = nil            ---@type UnityEngine.Transform @猪猪银行图标节点
-    self._ClickItemOfPiggyBank = nil        ---@type RGame.ClickItemAnimation @猪猪银行点击动画组件
-    self._delayCallIds = {}                 ---@type table @延迟调用ID列表（切换地图时需要清理）
+   self._delayCallIds = {}                 ---@type table 延迟调用ID列表（切换地图时需要清理）
 end
 
----创建实例
----@type fun(args:table):UIMapBase
----@param args table @自定义参数
----@return UIMapBase @UIMapBase实例
+---@brief 创建实例
+---@param args table 自定义参数
+---@return UIMapBase UIMapBase实例
 function UIMapBase:Create(args)
-    local obj = UIMapBase.new(args)
-    return obj
+    return UIMapBase.new(args)
 end
 
----注册事件监听（父类自动注销）
----@type fun():void
+---@brief 注册事件监听（父类自动注销）
 function UIMapBase:OnAddListeners()
     UIMapBase.super.OnAddListeners(self)
-    -- 每日奖励签到刷新事件
-    --HonorEventHelper:AddListener(EventCmd.OnDailyRewardSignin, handler(self, self.OnDailyRewardSignin))
 end
 
----初始化
----@type fun():void
+---@brief 初始化
 function UIMapBase:Init()
     UIMapBase.super.Init(self)
 end
 
----唤醒回调
----@type fun():void
+---@brief 唤醒回调
 function UIMapBase:Awake()
     UIMapBase.super.Awake(self)
-
-    --- 初始化猪猪银行图标
-    --self:InitPiggyBackIcon()
-    --- 初始化日历
-    --self:InitCalendar()
-    --- 绑定地图到任务系统
-    --TaskSys:SetupMapContent(self)
+    
 end
 
----开始回调
----@type fun():void
+---@brief 开始回调
 function UIMapBase:Start()
     UIMapBase.super.Start(self)
     --- 初始化地图移动/镜头控制
-    --MapMotion:OnMapStart(self.cs.transform)
+    GameMapMotion:OnMapStart(self.cs.transform)
 end
 
----销毁回调
----@type fun():void
+---@brief 销毁回调
 function UIMapBase:OnDestroy()
     UIMapBase.super.OnDestroy(self)
 end
 
----游戏初始化
+---@brief 游戏初始化
 function UIMapBase:OnInitGame()
     UIMapBase.super.OnInitGame(self)
 end
 
----进入游戏
+---@brief 进入游戏
 function UIMapBase:OnEnterGame()
     UIMapBase.super.OnEnterGame(self)
-
-    --- 进入游戏时处理猪猪银行
-    self:OnEnterGamePiggyBank()
-
+    
     --- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnEnterGame()
@@ -95,33 +77,30 @@ function UIMapBase:OnEnterGame()
     --BubbleMgr:Dispose()
 end
 
----游戏开始
+---@brief 游戏开始
 function UIMapBase:OnBeginGame()
     UIMapBase.super.OnBeginGame(self)
 end
 
----游戏暂停
+---@brief 游戏暂停
 function UIMapBase:OnPauseGame()
     UIMapBase.super.OnPauseGame(self)
 end
 
----游戏恢复
+---@brief 游戏恢复
 function UIMapBase:OnResumeGame()
     UIMapBase.super.OnResumeGame(self)
 end
 
----游戏结束
+---@brief 游戏结束
 function UIMapBase:OnGameOver()
     UIMapBase.super.OnGameOver(self)
 end
 
----退出游戏
+---@brief 退出游戏
 function UIMapBase:OnExitGame()
     UIMapBase.super.OnExitGame(self)
-
-    --- 退出游戏时处理猪猪银行
-    self:OnExitGamePiggyBank()
-
+    
     --- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnExitGame()
@@ -131,23 +110,19 @@ function UIMapBase:OnExitGame()
     if self._outsiderAutonomousWorker then
         self._outsiderAutonomousWorker:OnExitGame()
     end
-
-    --- 发送开门事件（释放关卡内客人）
-    --HonorEventHelper:Fire(AutonomousMgr:GeneratorBindEventID(EventCmd.RequestOpenDoor, 'Door'))
 end
 
----游戏重玩
+---@brief 游戏重玩
 function UIMapBase:OnRePlayGame()
     UIMapBase.super.OnRePlayGame(self)
 end
 
----卸载地图前清理（核心资源释放）
----@type fun():void
+---@brief 卸载地图前清理（核心资源释放）
 function UIMapBase:UnloadMapBeforeClear()
     UIMapBase.super.UnloadMapBeforeClear(self)
 
     --- 结束地图控制
-    --MapMotion:OnMapEnd()
+    GameMapMotion:OnMapEnd()
     --- 解绑任务系统地图
     --TaskSys:SetupMapContent(nil)
 
@@ -176,39 +151,24 @@ function UIMapBase:UnloadMapBeforeClear()
     --BubbleMgr:Dispose()
 end
 
----地图卸载后清理
+---@brief 地图卸载后清理
 function UIMapBase:UnloadMapAfterClear()
     UIMapBase.super.UnloadMapAfterClear(self)
 end
 
----每日奖励签到刷新（重置日历）
+---@brief 每日奖励签到刷新（重置日历）
 function UIMapBase:OnDailyRewardSignin()
     self:InitCalendar()
 end
 
----进入游戏时猪猪银行逻辑（禁用交互）
----@type fun():void
-function UIMapBase:OnEnterGamePiggyBank()
-    self:SetPiggyBankIconInteraction(false)
-end
-
----退出游戏时猪猪银行逻辑（启用交互）
----@type fun():void
-function UIMapBase:OnExitGamePiggyBank()
-    self:InitPiggyBackIconActive()
-    self:SetPiggyBankIconInteraction(true)
-end
-
----添加延迟调用ID（用于统一清理）
----@type fun(id:string):void
----@param id string @Dotween延时ID
+---@brief 添加延迟调用ID（用于统一清理）
+---@param id string Dotween延时ID
 function UIMapBase:AddDelayCallId(id)
     self._delayCallIds[id] = id
 end
 
----移除延迟调用ID
----@type fun(id:string):void
----@param id string @Dotween延时ID
+---@brief 移除延迟调用ID
+---@param id string Dotween延时ID
 function UIMapBase:RemoveDelayCallId(id)
     self._delayCallIds[id] = nil
 end

@@ -1,26 +1,23 @@
 --=====================================================================================================
--- descrip:   数据中心
---            职责：全局唯一的数据管理类，统一创建、管理所有子数据模块（登录、玩家、关卡、背包等）
+-- @brief:     全局数据中心（单例）
+-- @desc:      统一创建、管理所有子数据模块（登录、玩家、关卡、背包等）
 --=====================================================================================================
 
----@class DataCenter @全局数据中心
+---@class DataCenter 全局数据中心
 local DataCenter = class("DataCenter")
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+---@brief 构造函数
+---@param args table 自定义参数
 function DataCenter:ctor(args)
-    -- 登录相关数据
-    self.Login = require("LoginData"):Create()
+    --- 登录数据模块
+    self.loginData = require("LoginData"):Create()
 end
 
----创建数据中心单例
----@type fun(args:table):DataCenter
----@param args table @自定义参数
----@return DataCenter @数据中心实例
+---@brief 创建数据中心实例
+---@param args table 自定义参数
+---@return DataCenter
 function DataCenter:Create(args)
-    local obj = DataCenter.new(args)
-    return obj
+    return DataCenter.new(args)
 end
 
 return DataCenter

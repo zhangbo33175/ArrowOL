@@ -1,38 +1,35 @@
 --=====================================================================================================
--- descrip:   切换到预加载流程状态
---            职责：关闭所有UI、卸载旧地图、清理画布，完成游戏 -> 预加载流程的过渡
+-- @filename:  GameTurnToProLoadState.lua
+-- @brief:     切换至预加载流程状态
+-- @desc:      负责关闭全部UI、卸载旧地图、清理画布，完成游戏场景 -> 预加载流程的安全过渡
 --=====================================================================================================
 
----@class GameTurnToProLoadState : GameStateBase @切换到预加载流程状态
+---@class GameTurnToProLoadState : GameStateBase 切换至预加载流程状态
 local GameTurnToProLoadState = class('GameTurnToProLoadState', import('GameStateBase'))
 
----构造函数
----@type fun(args:table):void
----@param args table @自定义参数
+---@brief 构造函数
+---@param args table 状态传入参数
 function GameTurnToProLoadState:ctor(args)
     GameTurnToProLoadState.super.ctor(self, args)
 end
 
----创建状态实例
----@type fun(args:table):GameTurnToProLoadState
----@param args table @自定义参数
----@return GameTurnToProLoadState @状态实例
+---@brief 创建状态实例（静态工厂）
+---@param args table 传入参数
+---@return GameTurnToProLoadState 状态实例
 function GameTurnToProLoadState:Create(args)
-    local obj = GameTurnToProLoadState.new(args)
-    return obj
+    return GameTurnToProLoadState.new(args)
 end
 
----进入状态（执行清理工作）
----@type fun(finishCallback:function):void
----@param finishCallback function @状态进入完成回调
+---@brief 进入状态：执行场景切换前的清理工作
+---@param finishCallback function 状态进入完成回调
 function GameTurnToProLoadState:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
 
-    -- 关闭所有UI
+    -- 关闭所有打开的UI界面
     GameManager:CloseAllUI(true)
-    -- 卸载旧地图
+    -- 卸载当前旧地图资源
     MapManager:UnloadOldMap()
-    -- 关闭所有UI后的后续处理
+    -- 执行全量UI关闭后的画布清理与后续操作
     GameManager:OnAfterCanvasCloseAll()
 
     -- 执行完成回调
@@ -41,11 +38,10 @@ function GameTurnToProLoadState:OnStateEnter(finishCallback)
     end
 end
 
----离开状态
----@type fun(finishCallback:function):void
----@param finishCallback function @状态退出完成回调
+---@brief 离开状态：状态退出清理
+---@param finishCallback function 状态退出完成回调
 function GameTurnToProLoadState:OnStateExit(finishCallback)
-    -- 可在此处关闭加载UI
+    -- 可在此处扩展：关闭加载界面、清理过渡资源
     -- self:CloseLoadingUI()
 
     if finishCallback then
@@ -53,14 +49,12 @@ function GameTurnToProLoadState:OnStateExit(finishCallback)
     end
 end
 
----打开地图加载UI
----@type fun():void
+---@brief 打开地图加载界面
 function GameTurnToProLoadState:OpenLoadingUI()
     OpenUISync(UIs.UILoadMap)
 end
 
----关闭地图加载UI
----@type fun():void
+---@brief 关闭地图加载界面
 function GameTurnToProLoadState:CloseLoadingUI()
     CloseUI(UIs.UILoadMap)
 end

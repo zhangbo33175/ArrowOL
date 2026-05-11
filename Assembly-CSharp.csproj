@@ -397,6 +397,7 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Procedures\Procedures\ProcedurePlaying.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\Gesture2D\Gestures2D.Methods.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Events\EventPool\EventPool.Event.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Honor\UI\MapMotionLayer.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UILauncherLogoView\UILauncherLogoView.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Tools\Assembly.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UnityFramework\EGameMode.cs" />
@@ -962,6 +963,7 @@
     <None Include="Assets\LuaScripts\Game\RScripts\ResDefs\ResDefs_1.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\UIStackManager\UIStackManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\GameMainState.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\GameMain\Guide\GuideNewContext.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\Declarations\DeclareUserDataPB.lua.txt" />
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\Editor Resources\Shaders\TMP_SDF_SSD.cginc" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\SystemConfigDataPB.lua.txt" />
@@ -993,6 +995,7 @@
     <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\Collections\HonorQueue.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\libs\SystemHotReload.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationEnglish\LocalizationEnglish.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\GameMap\GameMapMotion.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\Binder.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.terrain@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\EventCmds\EventCmd.lua.txt" />

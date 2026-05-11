@@ -10,3 +10,6 @@
 ---@field GameObject_GameMainMap RES_DEF_ITEM @文件 GameMainMap
 RES["GameObject_GameMainMap"] = { Name = "GameObject_GameMainMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "GameMainMap" }
 
+---@field GameObject_ItemMap RES_DEF_ITEM @文件 ItemMap
+RES["GameObject_ItemMap"] = { Name = "GameObject_ItemMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "ItemMap" }
+

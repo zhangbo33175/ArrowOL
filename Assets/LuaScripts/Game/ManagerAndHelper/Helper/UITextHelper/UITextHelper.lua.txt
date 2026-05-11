@@ -1,158 +1,230 @@
 --=====================================================================================================
--- 【UI文本帮助类】
--- 功能：通用数字滚动动画（支持 Text / TextMeshPro / TextMeshProUGUI）
--- 用途：金币增加、分数跳动、数值变化、结算动画
+-- @brief:     UI 文本工具类
+-- @desc:      通用数字滚动动画，支持 Text / TextMeshProUGUI / TextMeshPro
+--              用于金币、分数、数值变化、结算界面动画
 --=====================================================================================================
 
----@class UITextHelper @UI文本通用工具类
+---@class UITextHelper UI 文本通用工具类
 local UITextHelper = class("UITextHelper")
 
---- 构造函数
+---@brief 构造函数
 function UITextHelper:ctor(args)
 end
 
---- 创建实例
+---@brief 创建工具类实例
 ---@return UITextHelper
 function UITextHelper:Create(args)
     return UITextHelper.new(args)
 end
 
---- 播放数字动画（推荐：绑定UI，关闭UI自动停止协程，安全）
----@param luaBehaviourSuper LuaBehaviourSuper 脚本宿主
----@param text UnityEngine.UI.MaskableGraphic 文本组件
----@param originCount number 起始数字
----@param targetCount number 目标数字
+---@brief 播放数字动画（推荐：绑定 UI，关闭时自动停止协程，安全无泄漏）
+---@param luaBehaviour LuaBehaviourSuper 脚本宿主
+---@param textComponent UnityEngine.UI.MaskableGraphic 文本组件
+---@param startValue number 起始数字
+---@param targetValue number 目标数字
 ---@param duration number 动画时长
----@param prefix string 前缀
----@param suffix string 后缀
----@param onChangeAction function 变化回调
----@param onEndAction function 结束回调
----@param animDelay number 延迟播放
----@param isRealtime boolean 是否真实时间（不受暂停影响）
----@return UnityEngine.Coroutine
-function UITextHelper:PlayNumberAnim(luaBehaviourSuper, text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay, isRealtime)
-    return HonorCoroutineHelper:Start(handler(luaBehaviourSuper, function()
-        self:CoPlayNumberAnim(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay, isRealtime)
+---@param prefix string 数字前缀
+---@param suffix string 数字后缀
+---@param onValueChanged function 数值变化回调
+---@param onComplete function 动画完成回调
+---@param delay number 延迟播放时间
+---@param useRealtime boolean 是否使用真实时间（不受游戏暂停影响）
+---@return UnityEngine.Coroutine 协程实例
+function UITextHelper:PlayNumberAnimation(
+        luaBehaviour,
+        textComponent,
+        startValue,
+        targetValue,
+        duration,
+        prefix,
+        suffix,
+        onValueChanged,
+        onComplete,
+        delay,
+        useRealtime
+)
+    return HonorCoroutineHelper:Start(handler(luaBehaviour, function()
+        self:CoroutineNumberAnimation(
+                textComponent,
+                startValue,
+                targetValue,
+                duration,
+                prefix,
+                suffix,
+                onValueChanged,
+                onComplete,
+                delay,
+                useRealtime
+        )
     end))
 end
 
---- 播放数字动画（独立协程：不绑定UI，需手动管理，容易泄漏）
----@param text UnityEngine.UI.MaskableGraphic
----@param originCount number
----@param targetCount number
----@param duration number
----@param prefix string
----@param suffix string
----@param onChangeAction function
----@param onEndAction function
----@param animDelay number
+---@brief 播放独立数字动画（不绑定 UI，需手动管理，可能泄漏）
+---@param textComponent UnityEngine.UI.MaskableGraphic 文本组件
+---@param startValue number 起始数字
+---@param targetValue number 目标数字
+---@param duration number 动画时长
+---@param prefix string 前缀
+---@param suffix string 后缀
+---@param onValueChanged function 变化回调
+---@param onComplete function 完成回调
+---@param delay number 延迟播放
 ---@return UnityEngine.Coroutine
-function UITextHelper:PlayNumberAnimAlone(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay)
+function UITextHelper:PlayNumberAnimationAlone(
+        textComponent,
+        startValue,
+        targetValue,
+        duration,
+        prefix,
+        suffix,
+        onValueChanged,
+        onComplete,
+        delay
+)
     return HonorCoroutineHelper:StartAlone(function()
-        self:CoPlayNumberAnim(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay)
+        self:CoroutineNumberAnimation(
+                textComponent,
+                startValue,
+                targetValue,
+                duration,
+                prefix,
+                suffix,
+                onValueChanged,
+                onComplete,
+                delay
+        )
     end)
 end
 
---- 协程数字动画主逻辑（支持所有文本组件）
----@param text UnityEngine.UI.MaskableGraphic
----@param originCount number
----@param targetCount number
+---@brief 数字滚动动画协程主逻辑（支持所有文本类型）
+---@param textComponent UnityEngine.UI.MaskableGraphic
+---@param startValue number
+---@param targetValue number
 ---@param duration number
 ---@param prefix string
 ---@param suffix string
----@param onChangeAction function
----@param onEndAction function
----@param animDelay number
----@param isRealtime boolean
-function UITextHelper:CoPlayNumberAnim(text, originCount, targetCount, duration, prefix, suffix, onChangeAction, onEndAction, animDelay, isRealtime)
-    if not text then return end
+---@param onValueChanged function
+---@param onComplete function
+---@param delay number
+---@param useRealtime boolean
+function UITextHelper:CoroutineNumberAnimation(
+        textComponent,
+        startValue,
+        targetValue,
+        duration,
+        prefix,
+        suffix,
+        onValueChanged,
+        onComplete,
+        delay,
+        useRealtime
+)
+    -- 组件为空直接退出
+    if not textComponent then
+        return
+    end
 
-    -- 默认参数
-    isRealtime = isRealtime or false
-    originCount = originCount or 0
-    targetCount = targetCount or 0
+    -- 默认参数初始化
+    useRealtime = useRealtime or false
+    startValue = startValue or 0
+    targetValue = targetValue or 0
     duration = duration or 0.1
     prefix = prefix or ""
     suffix = suffix or ""
 
-    -- 延迟播放
-    if animDelay and animDelay > 0 then
-        if isRealtime then
-            HonorCoroutineHelper:WaitForSecondsRealtime(animDelay)
+    -- 处理延迟播放
+    if delay and delay > 0 then
+        if useRealtime then
+            HonorCoroutineHelper:WaitForSecondsRealtime(delay)
         else
-            HonorCoroutineHelper:WaitForSeconds(animDelay)
+            HonorCoroutineHelper:WaitForSeconds(delay)
         end
     end
 
     -- 获取三种文本组件
-    local tmpUGUI = text.gameObject:GetComponent("TextMeshProUGUI")
-    local lab = text.gameObject:GetComponent("Text")
-    local tmp = text.gameObject:GetComponent("TextMeshPro")
+    local tmpUGUI = textComponent.gameObject:GetComponent("TextMeshProUGUI")
+    local text = textComponent.gameObject:GetComponent("Text")
+    local tmp = textComponent.gameObject:GetComponent("TextMeshPro")
 
-    -- 无需动画直接赋值
-    if originCount < 0 or originCount == targetCount then
-        local str = prefix .. targetCount .. suffix
-        if tmpUGUI then tmpUGUI.text = str
-        elseif lab then lab.text = str
-        elseif tmp then tmp.text = str end
+    -- 无需动画，直接赋值
+    if startValue < 0 or startValue == targetValue then
+        local finalText = prefix .. targetValue .. suffix
 
-        if onEndAction then xpcall(onEndAction, __G__TRACK_BACK__, targetCount) end
+        if tmpUGUI then
+            tmpUGUI.text = finalText
+        elseif text then
+            text.text = finalText
+        elseif tmp then
+            tmp.text = finalText
+        end
+
+        if onComplete then
+            xpcall(onComplete, __G__TRACK_BACK__, targetValue)
+        end
         return
     end
 
-    -- 计算步进
-    local deltaTime = isRealtime and UnityTime.unscaledDeltaTime or UnityTime.deltaTime
-    local waitFrameCount = duration / deltaTime
-    local baseStep = math.floor(math.abs(targetCount - originCount) / waitFrameCount) + 1
-    local step = originCount > targetCount and baseStep or -baseStep
+    -- 计算动画步进
+    local delta = useRealtime and Unity.Time.unscaledDeltaTime or Unity.Time.deltaTime
+    local totalFrames = duration / delta
+    local baseStep = math.floor(math.abs(targetValue - startValue) / totalFrames) + 1
+    local step = startValue > targetValue and baseStep or -baseStep
 
-    local delay = -1
-    if waitFrameCount > math.abs(targetCount - originCount) then
-        delay = duration / math.abs(targetCount - originCount)
-        step = originCount > targetCount and 1 or -1
+    local frameDelay = -1
+    if totalFrames > math.abs(targetValue - startValue) then
+        frameDelay = duration / math.abs(targetValue - startValue)
+        step = startValue > targetValue and 1 or -1
     end
 
-    -- 滚动动画
-    while originCount ~= targetCount do
-        originCount = originCount - step
-        if step > 0 and originCount <= targetCount then
-            originCount = targetCount
-        elseif step <= 0 and originCount >= targetCount then
-            originCount = targetCount
+    -- 数字滚动循环
+    while startValue ~= targetValue do
+        startValue = startValue - step
+
+        -- 边界值修正
+        if (step > 0 and startValue <= targetValue) or (step <= 0 and startValue >= targetValue) then
+            startValue = targetValue
         end
 
-        -- 赋值显示
-        local str = prefix .. originCount .. suffix
-        if tmpUGUI then tmpUGUI.text = str
-        elseif lab then lab.text = str
-        elseif tmp then tmp.text = str end
-
-        -- 变化回调
-        if onChangeAction then
-            xpcall(onChangeAction, __G__TRACK_BACK__, originCount)
+        -- 更新文本显示
+        local displayText = prefix .. startValue .. suffix
+        if tmpUGUI then
+            tmpUGUI.text = displayText
+        elseif text then
+            text.text = displayText
+        elseif tmp then
+            tmp.text = displayText
         end
 
-        -- 等待
-        if delay > 0 then
-            if isRealtime then
-                HonorCoroutineHelper:WaitForSecondsRealtime(delay)
+        -- 数值变化回调
+        if onValueChanged then
+            xpcall(onValueChanged, __G__TRACK_BACK__, startValue)
+        end
+
+        -- 等待帧/时间
+        if frameDelay > 0 then
+            if useRealtime then
+                HonorCoroutineHelper:WaitForSecondsRealtime(frameDelay)
             else
-                HonorCoroutineHelper:WaitForSeconds(delay)
+                HonorCoroutineHelper:WaitForSeconds(frameDelay)
             end
         else
             coroutine.yield()
         end
     end
 
-    -- 最终赋值
-    local finalStr = prefix .. targetCount .. suffix
-    if tmpUGUI then tmpUGUI.text = finalStr
-    elseif lab then lab.text = finalStr
-    elseif tmp then tmp.text = finalStr end
+    -- 最终确保显示正确数值
+    local finalDisplayText = prefix .. targetValue .. suffix
+    if tmpUGUI then
+        tmpUGUI.text = finalDisplayText
+    elseif text then
+        text.text = finalDisplayText
+    elseif tmp then
+        tmp.text = finalDisplayText
+    end
 
-    -- 结束回调
-    if onEndAction then
-        xpcall(onEndAction, __G__TRACK_BACK__, targetCount)
+    -- 动画完成回调
+    if onComplete then
+        xpcall(onComplete, __G__TRACK_BACK__, targetValue)
     end
 end
 
