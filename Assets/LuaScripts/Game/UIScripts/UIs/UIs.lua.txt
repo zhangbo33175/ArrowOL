@@ -25,7 +25,7 @@
 ---@class UIs @界面配置汇总
 ---@field UILoginView Tables.UIs_Item @登录界面
 ---@field UITermsPrivacy Tables.UIs_Item @隐私确认面板
----@field UIMainHud Tables.UIs_Item @主页面界面
+---@field UIMainPlaying Tables.UIs_Item @主页面界面
 ---@field UILevelPause Tables.UIs_Item @暂停界面
 ---@field UILevelRevive Tables.UIs_Item @复活界面
 ---@field UILoadMapView Tables.UIs_Item @加载地图Loading页面
@@ -63,11 +63,11 @@ UIs = {
         MultiTypeTextCompsCoexist = false,
         IsFullScreenUI = false,
     },
-    UIMainHud = {
-        Name = "UIMainHud",
+    UIMainPlaying = {
+        Name = "UIMainPlaying",
         Comment = "主页面界面",
-        ABPath = "Assets/Res/Prefabs/UIs/UIMainHud",
-        AssetName = "UIMainHud",
+        ABPath = "Assets/Res/Prefabs/UIs/UIMainPlaying",
+        AssetName = "UIMainPlaying",
         UIType = 1,
         ZOrder = 1,
         IsModal = false,

@@ -1,5 +1,5 @@
 {
-  "LuaExportFolderPath": "Assets/LuaScripts/Game/RScripts/ResDefs",
+  "LuaExportFolderPath": "Assets/LuaScripts/Config/LoadResDefs",
   "DefaultSheetCount": 300,
   "ConvertData": [
     {
@@ -15,6 +15,447 @@
       "ABPath": "Assets/Res/Prefabs",
       "AssetName": "ItemMap",
       "AssetGUID": "0c636324cfd576541aa96f21cb027792"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat1",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat1",
+      "AssetName": "main_level1_cat1",
+      "AssetGUID": "027968f4378d13e44bfe00fe0f551532"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat10",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat10",
+      "AssetName": "main_level1_cat10",
+      "AssetGUID": "c8ff72eda9bb75047842324abef3d70f"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat11",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat11",
+      "AssetName": "main_level1_cat11",
+      "AssetGUID": "7b40f9bbc9b50b547a37453fe0ee371f"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat12",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat12",
+      "AssetName": "main_level1_cat12",
+      "AssetGUID": "bf13e3623a8bd5446af567193ac0b881"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat13",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat13",
+      "AssetName": "main_level1_cat13",
+      "AssetGUID": "c4963ab9fe872a742b52c8488ff88731"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat14",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat14",
+      "AssetName": "main_level1_cat14",
+      "AssetGUID": "157173e6af2424f4eb38a3a3978ab1ba"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat15",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat15",
+      "AssetName": "main_level1_cat15",
+      "AssetGUID": "5697c7e8cd197724c86dad3722ffc6f0"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat16",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat16",
+      "AssetName": "main_level1_cat16",
+      "AssetGUID": "db7fef54498e6b64cb6a43812c6806c8"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat17",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat17",
+      "AssetName": "main_level1_cat17",
+      "AssetGUID": "032cfdb45e57ffa46acdc39f20a1ee43"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat18",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat18",
+      "AssetName": "main_level1_cat18",
+      "AssetGUID": "2ec49d7dea09aa14982677e352431f4b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat19",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat19",
+      "AssetName": "main_level1_cat19",
+      "AssetGUID": "47764cd094d570844945c9a3db0403c8"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2",
+      "AssetName": "main_level1_cat2",
+      "AssetGUID": "70aea2c4ef864584ba3c7c9f82a4d86b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat20",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat20",
+      "AssetName": "main_level1_cat20",
+      "AssetGUID": "af0bfa4b69fa69d4c97196291afda0c8"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2001",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2001",
+      "AssetName": "main_level1_cat2001",
+      "AssetGUID": "0d0271e77b057e940b1d6e9005b9a2fb"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2002",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2002",
+      "AssetName": "main_level1_cat2002",
+      "AssetGUID": "33eeec9e16ab0d14a889bc06d442ef93"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2003",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2003",
+      "AssetName": "main_level1_cat2003",
+      "AssetGUID": "a1ccab5456b870340b1c8a6653d28eb2"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2004",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2004",
+      "AssetName": "main_level1_cat2004",
+      "AssetGUID": "06c5b835f6d2469429371ee146cff77a"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2005",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2005",
+      "AssetName": "main_level1_cat2005",
+      "AssetGUID": "3c7ccfc4ca7a2e74a83e0e47f0d7f9c9"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2006",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2006",
+      "AssetName": "main_level1_cat2006",
+      "AssetGUID": "2cf9d975f478c5a4c8db807783ea4282"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2007",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2007",
+      "AssetName": "main_level1_cat2007",
+      "AssetGUID": "1e707f2963ca1404bbecd643522442bc"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2008",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2008",
+      "AssetName": "main_level1_cat2008",
+      "AssetGUID": "6c6b8a74e95123f4a812d26a1d306392"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2009",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2009",
+      "AssetName": "main_level1_cat2009",
+      "AssetGUID": "ff60d673c53060844b7d81da4c6a4246"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat2010",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat2010",
+      "AssetName": "main_level1_cat2010",
+      "AssetGUID": "d45c11fb47710ca49af23ecc7867bb02"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat21",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat21",
+      "AssetName": "main_level1_cat21",
+      "AssetGUID": "a73c6f596b5ae9548bfc50f99e9aa36a"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat22",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat22",
+      "AssetName": "main_level1_cat22",
+      "AssetGUID": "d5a5cd0e08da0354dab4e5f6429c6eed"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat23",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat23",
+      "AssetName": "main_level1_cat23",
+      "AssetGUID": "c87208f7194bad945972e0f9961f1fb9"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat3",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat3",
+      "AssetName": "main_level1_cat3",
+      "AssetGUID": "6368ab5d5d026174ba8fc4cbf8e9eff3"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat4",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat4",
+      "AssetName": "main_level1_cat4",
+      "AssetGUID": "d981fde6905d21447b9cfe423b8cd24b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat5",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat5",
+      "AssetName": "main_level1_cat5",
+      "AssetGUID": "7092c54ccc1536f4092d717a7e246817"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat6",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat6",
+      "AssetName": "main_level1_cat6",
+      "AssetGUID": "2245f068c58d89c4eb47141825f1b98c"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat7",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat7",
+      "AssetName": "main_level1_cat7",
+      "AssetGUID": "d65bfb7e969381f41a86784b9071bee2"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat8",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat8",
+      "AssetName": "main_level1_cat8",
+      "AssetGUID": "66915403534d8e24a90ead56f3890e45"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_main_level1_cat9",
+      "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat9",
+      "AssetName": "main_level1_cat9",
+      "AssetGUID": "5e6034ae50656564e915f1867c088fea"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main1",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main1",
+      "AssetName": "Level_bg_main1",
+      "AssetGUID": "dfb2a0a24ea12c94ca29e1534daf81fe"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main10",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main10",
+      "AssetName": "Level_bg_main10",
+      "AssetGUID": "057143022d9a8ee459b798aba56d3f3a"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main11",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main11",
+      "AssetName": "Level_bg_main11",
+      "AssetGUID": "9cc5dcf7d35891447a4159315cf0dcc5"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main15",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main15",
+      "AssetName": "Level_bg_main15",
+      "AssetGUID": "c2ea87516add8ff41a1fc91293a16e35"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main2",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main2",
+      "AssetName": "Level_bg_main2",
+      "AssetGUID": "3d23e689dd665524dab868340914ea10"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main3",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main3",
+      "AssetName": "Level_bg_main3",
+      "AssetGUID": "b9ea4d9a15f12d3418c25b86c4b54856"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main4",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main4",
+      "AssetName": "Level_bg_main4",
+      "AssetGUID": "27c8e9d759ee07a43b205b82eabf8f80"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main5",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main5",
+      "AssetName": "Level_bg_main5",
+      "AssetGUID": "ffc54314f5647f8418635dbdaeab6dc2"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main6",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main6",
+      "AssetName": "Level_bg_main6",
+      "AssetGUID": "5d4d6165ba23cc448a6cb77eb534242a"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main7",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main7",
+      "AssetName": "Level_bg_main7",
+      "AssetGUID": "3e229007c71649a44aaa0511e4e1134b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main8",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main8",
+      "AssetName": "Level_bg_main8",
+      "AssetGUID": "c80b4459dbae0e04eac8b9c96a31518f"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main_1",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main_1",
+      "AssetName": "Level_bg_main_1",
+      "AssetGUID": "3bb45fd56ae24f147a5388d47a3fc24a"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_map",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/map",
+      "AssetName": "map",
+      "AssetGUID": "0cb8e7b8cfd7a9f45a127ef3508ae418"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Map_level_1",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Map_level_1",
+      "AssetName": "Map_level_1",
+      "AssetGUID": "fd52b85f08ba72d43b68af000f449666"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_20260424-121016",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/20260424-121016",
+      "AssetName": "20260424-121016",
+      "AssetGUID": "53ee7dca67c1ed84a9b03633cc62a7a9"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_btn1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn1",
+      "AssetName": "btn1",
+      "AssetGUID": "33c8dd1c81e1e1348922dbf960892dcf"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_btn2",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn2",
+      "AssetName": "btn2",
+      "AssetGUID": "59a3f4914d40f7b4d891cd810d8d3b30"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Tile",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/Tile",
+      "AssetName": "Tile",
+      "AssetGUID": "dc6569c0e841b6949b1c4811c291a708"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_主界面",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/主界面",
+      "AssetName": "主界面",
+      "AssetGUID": "616939fd1e0d6174f9d8b61f6996592b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_头像",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/头像",
+      "AssetName": "头像",
+      "AssetGUID": "c19fcb262ea4d924a8444a213f0780e5"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图1",
+      "AssetName": "拼图1",
+      "AssetGUID": "c3a657beab33a9746907f635c9d0bb68"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图2",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图2",
+      "AssetName": "拼图2",
+      "AssetGUID": "4cdfc4716caedd444a9fa5978fca1c9e"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图3",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图3",
+      "AssetName": "拼图3",
+      "AssetGUID": "7fda2dcad6dacac458098da049477a5c"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图4",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图4",
+      "AssetName": "拼图4",
+      "AssetGUID": "ca970eda385526044a413816bec8a681"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图底",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图底",
+      "AssetName": "拼图底",
+      "AssetGUID": "278abd07ce1083d42bf1473b8f68d3c7"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_排行",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/排行",
+      "AssetName": "排行",
+      "AssetGUID": "effd18e0cf427e347af92eb8cad11c45"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_猫窝",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/猫窝",
+      "AssetName": "猫窝",
+      "AssetGUID": "bc85985c05096de4c939c94d0535bae0"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_皮肤",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/皮肤",
+      "AssetName": "皮肤",
+      "AssetGUID": "073028024835a2541a55080a8ba1e658"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_签到",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/签到",
+      "AssetName": "签到",
+      "AssetGUID": "ca344dc3feee8a142a7195bb9b2f2247"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_转盘",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/转盘",
+      "AssetName": "转盘",
+      "AssetGUID": "38254a522c1a0ba4ebed7f807af7cc37"
     }
   ]
 }

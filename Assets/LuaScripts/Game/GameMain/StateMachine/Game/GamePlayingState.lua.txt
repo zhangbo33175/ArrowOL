@@ -50,7 +50,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
     ---- 相机移动到关卡战斗位置
     local mapData = MapManager.CurMapData
     GameLib.MapCamHelper.LookMap(
-            mapData.playCamData,
+            mapData.m_PlayCamData,
             1.3,
             function()
                 -- 相机动画完成后的回调

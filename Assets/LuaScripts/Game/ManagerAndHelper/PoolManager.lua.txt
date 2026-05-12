@@ -52,7 +52,7 @@ function PoolManager:Prewarm(resName, count)
     end
 
     -- 检查资源配置
-    local resDefItem = RES[resName]
+    local resDefItem = LoadRes[resName]
     if not resDefItem then
         PrintError("【对象池】资源未在RES表配置: " .. resName)
         return
@@ -96,7 +96,7 @@ function PoolManager:GetWithHandle(resName, newParent, resetHandler)
     end
 
     -- 池不存在 → 创建新池
-    local resDefItem = RES[resName]
+    local resDefItem = LoadRes[resName]
     if not resDefItem then
         PrintError("【对象池】资源未在RES表配置: " .. resName)
         return nil

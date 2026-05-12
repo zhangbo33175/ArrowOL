@@ -814,7 +814,7 @@ end
 function PlayHelper:RefreshTextOutLineMaterial(ui, uiText, outlineMatName)
     if ui and uiText then
         ---@type RES_DEF_ITEM
-        local info = RES[outlineMatName]
+        local info = LoadRes[outlineMatName]
         if info and (not uiText.fontMaterial or uiText.fontMaterial.name ~= info.AssetName) then
             uiText.fontMaterial = ui:LoadAsset(info)
         end
@@ -829,7 +829,7 @@ end
 function PlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
     if ui and uiImage then
         ---@type RES_DEF_ITEM
-        local info = RES[spriteName]
+        local info = LoadRes[spriteName]
         if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
             uiImage.sprite = ui:LoadAsset(info)
         end

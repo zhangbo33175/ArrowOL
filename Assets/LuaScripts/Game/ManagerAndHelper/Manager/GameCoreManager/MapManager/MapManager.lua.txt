@@ -130,18 +130,18 @@ end
 ---@return boolean 是否加载成功
 ---=========================================================================
 function MapManager:LoadMapById(chapterId, luaParams)
-    --local mapName = self:GetLoadMapResName(chapterId)
-    --if not mapName then
-    --    PrintError("[MapManager] 加载地图失败，资源名为空：" .. chapterId)
-    --    return false
-    --end
+    local mapName = self:GetLoadMapResName(chapterId)
+    if not mapName then
+        PrintError("[MapManager] 加载地图失败，资源名为空：" .. chapterId)
+        return false
+    end
 
     self.CurLoadChapterId = chapterId
     self.CurLoadMapType = self:GetMapType(chapterId)
     GamerDataManager:SetCurChapterId(chapterId)
 
     -- 同步加载地图Prefab
-    self.CurLoadMapGo = self:LoadMapResByName("GameMainMap", luaParams)
+    self.CurLoadMapGo = self:LoadMapResByName(mapName, luaParams)
     return true
 end
 
@@ -151,7 +151,7 @@ end
 ---@return UnityEngine.Object 地图GameObject
 function MapManager:LoadMapResByName(mapName, luaParams)
     local parentTrans = GameMainRoot.Scene.SceneRootGO.transform
-    local resPath = RES["GameObject_" .. mapName].ABPath
+    local resPath = LoadRes["GameObject_" .. mapName].ABPath
     return GameMainRoot.Asset:LoadPrefabSync(resPath, mapName, parentTrans, luaParams)
 end
 
@@ -163,7 +163,6 @@ function MapManager:GetLoadMapResName(chapterId)
     if chapterData then
         return chapterData.MapName
     end
-
     PrintError("[MapManager] 未找到章节配置：" .. chapterId)
     return nil
 end

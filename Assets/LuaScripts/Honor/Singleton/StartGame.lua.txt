@@ -104,7 +104,7 @@ end
 --- @return 资源配置
 ---
 function GetResDefInfoCallback(name)
-    return RES[name]
+    return LoadRes[name]
 end
 
 ---

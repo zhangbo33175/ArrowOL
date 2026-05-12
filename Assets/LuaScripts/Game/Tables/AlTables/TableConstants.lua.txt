@@ -1,0 +1,21 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableConstants
+-- descrip:   常量表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.Constants_Item @常量表条目
+---@field Key string @名称
+---@field Value table @常量值
+
+---@class Tables.Constants @常量表
+Tables.Constants = {
+    ["FragmentsToBooster"] = {Key = "FragmentsToBooster", Value = {20}},
+    ["ShowPrepareLevel"] = {Key = "ShowPrepareLevel", Value = {Chapter=1,Level=6}},
+    ["ChallengeExtraReward"] = {Key = "ChallengeExtraReward", Value = {"2,50","10005,1","5,20","1000,900","1102,300"}},
+    ["GameEndTime"] = {Key = "GameEndTime", Value = {3}},
+    ["UpgradeUnlockLevel"] = {Key = "UpgradeUnlockLevel", Value = {Chapter=1,Level=3}},
+}

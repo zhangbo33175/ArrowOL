@@ -125,7 +125,7 @@ end
 function UILevelViewView:EnterTheGame()
     local chapterId = ChapterListManager:GetLatestChapterId()
     MapManager:ReadyToLoadMap(chapterId, function()
-        SafeCall(function()
+        SafeInvoke(function()
             HonorEventHelper:Fire(EventCmd.OnFirstIntoMainState)
             HonorEventHelper:Fire(EventCmd.OnChapterMapChangeComplete)
         end, "OnFirstIntoMainState 事件通知错误:")

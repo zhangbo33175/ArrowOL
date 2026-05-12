@@ -1155,13 +1155,13 @@ namespace Honor.Runtime
                 /// <returns></returns>
                 public static string GetResDefLuaFullPath()
                 {
-                   return AorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/RScripts", "ResDefs.lua.txt");
+                   return AorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/Config", "LoadResDefs.lua.txt");
                 }
                 
                 /// <summary>
                 /// 获取资源信息定义Lua脚本相对路径
                 /// </summary>
-                public static string LuaFolderPath = "Assets/LuaScripts/Game/RScripts/ResDefs";
+                public static string LuaFolderPath = "Assets/LuaScripts/Config/LoadResDefs";
 
                 /// <summary>
                 /// 获取资源信息导出工具配置文件绝对路径

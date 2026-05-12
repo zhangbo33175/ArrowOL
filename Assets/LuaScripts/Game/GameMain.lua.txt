@@ -10,7 +10,7 @@ require("GameApiExtend")
 require("Tables")
 
 --- 资源定义
-require("ResDefs")
+require("LoadResDefs")
 
 --- UI 配置、路径、定义
 require("UIs")

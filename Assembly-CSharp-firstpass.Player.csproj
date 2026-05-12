@@ -98,8 +98,8 @@
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\VerticalScrollSnap.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\Events\HSVChangedEvent.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\ToolTips\ToolTip.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\OpenXmlFormat\XlsxDimension.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\ETCAxis.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\OpenXmlFormat\XlsxDimension.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Engine\Finger.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\ColorSampler.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\CsvFormat\CsvParser.cs" />
@@ -215,8 +215,8 @@
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\ScrollSnap.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\ToolTips\BoundTooltip\BoundTooltipItem.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\NumberFormat\Condition.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\NumberFormat\Color.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\ComponentExtensions.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\NumberFormat\Color.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView\Scroller\Scroller.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\ScrollSnapScrollbarHelper.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\ExcelOpenXmlReader.cs" />
@@ -348,13 +348,13 @@
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Components\QuickEnterOverExist.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\OpenXmlFormat\XlsxCols.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsSSTStringHeader.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsWorkbook.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UISelectableExtension.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\ETCDPad.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsWorkbook.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurlyUI\CUIMisc.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\UI_Knob.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\SVBoxSlider.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Engine\BaseFinger.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UISelectableExtension.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\EncodingHelper.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\LitJson\IJsonWrapper.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsBiffFilePass.cs" />

@@ -1,0 +1,39 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableHomeIcons
+-- descrip:   主界面
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.HomeIcons_Item @主界面条目
+---@field ID string @图标ID
+---@field Prefab string @图标预制体名
+---@field Position number @图标位置，左0右1
+---@field Order number @图标顺序，小在上
+
+---@class Tables.HomeIcons @主界面
+Tables.HomeIcons = {
+    ["1"] = {ID = "1", Prefab = "GameObject_FreeGemIcon", Position = 1, Order = 1},
+    ["2"] = {ID = "2", Prefab = "GameObject_ActivityStarterPack1", Position = 1, Order = 4},
+    ["3"] = {ID = "3", Prefab = "GameObject_DailyQuests", Position = 0, Order = 6},
+    ["4"] = {ID = "4", Prefab = "GameObject_PiggyBankIcon", Position = 1, Order = 3},
+    ["5"] = {ID = "5", Prefab = "GameObject_ChapterBundle", Position = 1, Order = 6},
+    ["6"] = {ID = "6", Prefab = "GameObject_EndlessBundleIcon", Position = 1, Order = 5},
+    ["7"] = {ID = "7", Prefab = "GameObject_ChefMasterIcon", Position = 0, Order = 3},
+    ["8"] = {ID = "8", Prefab = "GameObject_CandyCrushIcon", Position = 0, Order = 4},
+    ["9"] = {ID = "9", Prefab = "GameObject_SeasonIcon", Position = 1, Order = 2},
+    ["10"] = {ID = "10", Prefab = "GameObject_LavaQuestIcon", Position = 0, Order = 5},
+    ["11"] = {ID = "11", Prefab = "GameObject_SpaceMissionIcon", Position = 0, Order = 3},
+    ["12"] = {ID = "12", Prefab = "GameObject_FoodTruckIcon", Position = 0, Order = 1},
+    ["13"] = {ID = "13", Prefab = "GameObject_EndlessBundleIcon2", Position = 1, Order = 5},
+    ["14"] = {ID = "14", Prefab = "GameObject_MagicPotIcon", Position = 0, Order = 4},
+    ["15"] = {ID = "15", Prefab = "GameObject_ArcheryIcon", Position = 0, Order = 3},
+    ["16"] = {ID = "16", Prefab = "GameObject_SuperSaleIcon", Position = 1, Order = 4},
+    ["17"] = {ID = "17", Prefab = "GameObject_SelectPackIcon", Position = 1, Order = 4},
+    ["18"] = {ID = "18", Prefab = "GameObject_DailyPackIcon", Position = 1, Order = 7},
+    ["19"] = {ID = "19", Prefab = "GameObject_CostumePackIcon", Position = 1, Order = 4},
+    ["20"] = {ID = "20", Prefab = "GameObject_OnePlusPackIcon", Position = 1, Order = 4},
+    ["21"] = {ID = "21", Prefab = "GameObject_RollDiceIcon", Position = 0, Order = 2},
+}

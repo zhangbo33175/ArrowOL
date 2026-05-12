@@ -2,18 +2,18 @@
 -- (c) copyright 2026 - 2030, GDResources
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
--- filename:  ResDefs.lua
+-- filename:  LoadResDefs.lua
 -- descrip:   资源全局定义
 -- notices:   该文件自动生成，请不要手动修改！
 --=====================================================================================================
----@class RES_DEF_ITEM @资源条目定义
+---@class LOAD_RES_DEF_ITEM @资源条目定义
 ---@field Name string @资源名称
 ---@field TypeName string @类型名称
 ---@field ABPath string @ab路径
 ---@field AssetName string @Asset名称
 
----@class RES @资源全局定义
----@type table<string, RES_DEF_ITEM> @数据格式
+---@class LoadRES @资源全局定义
+---@type table<string, LOAD_RES_DEF_ITEM> @数据格式
 
-RES = {}
-require('ResDefs_1')
+LoadRes = {}
+require('LoadResDefs_1')

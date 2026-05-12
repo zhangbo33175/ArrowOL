@@ -32,8 +32,7 @@ namespace Honor.Editor
         public static void WriteOutputGDefsFile(List<List<ResDefItem>> allResultDetailInfo)
         {
             // 清理历史Table脚本
-            string[] oldFilesPaths =
-                Directory.GetFiles(Application.dataPath, "ResDefs*.lua.txt", SearchOption.AllDirectories);
+            string[] oldFilesPaths =Directory.GetFiles(Application.dataPath, "LoadResDefs*.lua.txt", SearchOption.AllDirectories);
             foreach (var path in oldFilesPaths)
             {
                 File.Delete(path);
@@ -66,7 +65,7 @@ namespace Honor.Editor
                             .AppendLine("-- All Rights Reserved.")
                             .AppendLine(
                                 "-- ----------------------------------------------------------------------------------------------------")
-                            .AppendLine($"-- filename:  ResDefs_{sheetCount + 1}.lua")
+                            .AppendLine($"-- filename:  LoadResDefs_{sheetCount + 1}.lua")
                             .AppendLine($"-- descrip:   资源全局定义")
                             .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
                             .AppendLine(
@@ -74,18 +73,17 @@ namespace Honor.Editor
                             .AppendLine("");
                     }
 
-                    stringBuilder.AppendLine(AorTxt.Format("---@field {0} RES_DEF_ITEM @文件 {1}", detailInfo.AliasName,
+                    stringBuilder.AppendLine(AorTxt.Format("---@field {0} LOAD_RES_DEF_ITEM @文件 {1}", detailInfo.AliasName,
                         detailInfo.AssetName));
                     stringBuilder.AppendLine(AorTxt.Format(
-                        "RES[\"{0}\"] = {{ Name = \"{1}\", TypeName = \"{2}\", ABPath = \"{3}\", AssetName = \"{4}\" }}",
+                        "LoadRes[\"{0}\"] = {{ Name = \"{1}\", TypeName = \"{2}\", ABPath = \"{3}\", AssetName = \"{4}\" }}",
                         detailInfo.AliasName, detailInfo.AliasName, detailInfo.ResType, detailInfo.ABPath,
                         detailInfo.AssetName));
                     stringBuilder.AppendLine("");
                     resDefItemIndex++;
                     if (resDefItemIndex >= m_OneSheetMaxCount)
                     {
-                        string luaExportFilePath =
-                            $"{ResDefInfos.LuaExportFolderPath}/ResDefs_{sheetCount + 1}.lua.txt";
+                        string luaExportFilePath =$"{ResDefInfos.LuaExportFolderPath}/LoadResDefs_{sheetCount + 1}.lua.txt";
                         File.WriteAllText(luaExportFilePath, stringBuilder.ToString(), new UTF8Encoding(false));
                         stringBuilder.Clear();
                         resDefItemIndex = 0;
@@ -96,7 +94,7 @@ namespace Honor.Editor
 
             if (stringBuilder.ToString() != string.Empty)
             {
-                File.WriteAllText($"{ResDefInfos.LuaExportFolderPath}/ResDefs_{sheetCount + 1}.lua.txt",
+                File.WriteAllText($"{ResDefInfos.LuaExportFolderPath}/LoadResDefs_{sheetCount + 1}.lua.txt",
                     stringBuilder.ToString(), new UTF8Encoding(false));
             }
             else
@@ -112,27 +110,27 @@ namespace Honor.Editor
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine(
                     "-- ----------------------------------------------------------------------------------------------------")
-                .AppendLine(AorTxt.Format($"-- filename:  ResDefs.lua"))
+                .AppendLine(AorTxt.Format($"-- filename:  LoadResDefs.lua"))
                 .AppendLine(AorTxt.Format($"-- descrip:   资源全局定义"))
                 .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
                 .AppendLine(
                     "--=====================================================================================================")
-                .AppendLine($"---@class RES_DEF_ITEM @资源条目定义")
+                .AppendLine($"---@class LOAD_RES_DEF_ITEM @资源条目定义")
                 .AppendLine($"---@field Name string @资源名称")
                 .AppendLine($"---@field TypeName string @类型名称")
                 .AppendLine($"---@field ABPath string @ab路径")
                 .AppendLine($"---@field AssetName string @Asset名称")
                 .AppendLine($"")
-                .AppendLine($"---@class RES @资源全局定义")
-                .AppendLine($"---@type table<string, RES_DEF_ITEM> @数据格式")
+                .AppendLine($"---@class LoadRES @资源全局定义")
+                .AppendLine($"---@type table<string, LOAD_RES_DEF_ITEM> @数据格式")
                 .AppendLine("")
-                .AppendLine("RES = {}");
+                .AppendLine("LoadRes = {}");
             for (int idx = 0; idx <= sheetCount; idx++)
             {
-                stringBuilder.AppendLine($"require('ResDefs_{idx + 1}')");
+                stringBuilder.AppendLine($"require('LoadResDefs_{idx + 1}')");
             }
 
-            string luaExportFilePath = $"{ResDefInfos.LuaExportFolderPath}/ResDefs.lua.txt";
+            string luaExportFilePath = $"{ResDefInfos.LuaExportFolderPath}/LoadResDefs.lua.txt";
             File.WriteAllText(luaExportFilePath, stringBuilder.ToString(), new UTF8Encoding(false));
             Log.Debug($"[Editor] 导出 {luaExportFilePath} 完成。");
             AssetDatabase.Refresh();
@@ -460,8 +458,7 @@ namespace Honor.Editor
                 // ========== 这里加安全判断！==========
                 if (!abConfigs.ContainsKey(path))
                 {
-                    abConfigs.Add(path,
-                        new ABConfigInfo(int.Parse(data["ID"].ToString()), path,
+                    abConfigs.Add(path,new ABConfigInfo(int.Parse(data["ID"].ToString()), path,
                             int.Parse(data["PackageMeasureType"].ToString()), data["Rename"].ToString(),
                             data["GroupName"].ToString(), bool.Parse(data["IsIncreaserGroup"].ToString()),
                             bool.Parse(data["IsCommonIncreaserGroup"].ToString())));

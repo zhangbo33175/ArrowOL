@@ -11,6 +11,7 @@
 Tables.LevelData_1_1 = { 
     ChapterId = "",
     LevelId= 0,
+    MapName="GameMainMap",
     BackgroundPath = "",
     Time = "",
     SavePath =" ",
