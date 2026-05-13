@@ -256,6 +256,7 @@
 		<type fullname="GameLib.TablesBridge" preserve="all"/>
 		<type fullname="GameLib.JsonHelper" preserve="all"/>
 		<type fullname="GameLib.MapCamHelper" preserve="all"/>
+		<type fullname="GameLib.MapInBounds" preserve="all"/>
 		<type fullname="GameLib.ObjectCommon" preserve="all"/>
 		<type fullname="GameLib.RTransformExtension" preserve="all"/>
 		<type fullname="GameLib.Util" preserve="all"/>

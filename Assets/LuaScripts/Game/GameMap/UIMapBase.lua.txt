@@ -11,51 +11,59 @@
 ---@field delay number 延时
 local UIMapBase = class('UIMapBase', import('GameMapBase'))
 
----@brief 构造函数
+---构造函数
+---@type fun(args:table):void
 ---@param args table 自定义参数
 function UIMapBase:ctor(args)
     UIMapBase.super.ctor(self, args)
 
-   self._delayCallIds = {}                 ---@type table 延迟调用ID列表（切换地图时需要清理）
+    self._delayCallIds = {}                 ---@type table 延迟调用ID列表（切换地图时需要清理）
 end
 
----@brief 创建实例
+---创建实例
+---@type fun(args:table):UIMapBase
 ---@param args table 自定义参数
 ---@return UIMapBase UIMapBase实例
 function UIMapBase:Create(args)
     return UIMapBase.new(args)
 end
 
----@brief 注册事件监听（父类自动注销）
+---注册事件监听（父类自动注销）
+---@type fun():void
 function UIMapBase:OnAddListeners()
     UIMapBase.super.OnAddListeners(self)
 end
 
----@brief 初始化
+---初始化
+---@type fun():void
 function UIMapBase:Init()
     UIMapBase.super.Init(self)
 end
 
----@brief 唤醒回调
+---唤醒回调
+---@type fun():void
 function UIMapBase:Awake()
     UIMapBase.super.Awake(self)
-    
+
 end
 
----@brief 销毁回调
+---销毁回调
+---@type fun():void
 function UIMapBase:OnDestroy()
     UIMapBase.super.OnDestroy(self)
 end
 
----@brief 游戏初始化
+---游戏初始化
+---@type fun():void
 function UIMapBase:OnInitGame()
     UIMapBase.super.OnInitGame(self)
 end
 
----@brief 进入游戏
+---进入游戏
+---@type fun():void
 function UIMapBase:OnEnterGame()
     UIMapBase.super.OnEnterGame(self)
-    
+
     --- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnEnterGame()
@@ -66,34 +74,37 @@ function UIMapBase:OnEnterGame()
         self._outsiderAutonomousWorker:OnEnterGame()
     end
 
-    --- 关闭所有气泡
-    --BubbleMgr:Dispose()
 end
 
----@brief 游戏开始
+---游戏开始
+---@type fun():void
 function UIMapBase:OnBeginGame()
     UIMapBase.super.OnBeginGame(self)
 end
 
----@brief 游戏暂停
+---游戏暂停
+---@type fun():void
 function UIMapBase:OnPauseGame()
     UIMapBase.super.OnPauseGame(self)
 end
 
----@brief 游戏恢复
+---游戏恢复
+---@type fun():void
 function UIMapBase:OnResumeGame()
     UIMapBase.super.OnResumeGame(self)
 end
 
----@brief 游戏结束
+---游戏结束
+---@type fun():void
 function UIMapBase:OnGameOver()
     UIMapBase.super.OnGameOver(self)
 end
 
----@brief 退出游戏
+---退出游戏
+---@type fun():void
 function UIMapBase:OnExitGame()
     UIMapBase.super.OnExitGame(self)
-    
+
     --- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnExitGame()
@@ -105,19 +116,19 @@ function UIMapBase:OnExitGame()
     end
 end
 
----@brief 游戏重玩
+---游戏重玩
+---@type fun():void
 function UIMapBase:OnRePlayGame()
     UIMapBase.super.OnRePlayGame(self)
 end
 
----@brief 卸载地图前清理（核心资源释放）
+---卸载地图前清理（核心资源释放）
+---@type fun():void
 function UIMapBase:UnloadMapBeforeClear()
     UIMapBase.super.UnloadMapBeforeClear(self)
 
     --- 结束地图控制
     GameMapMotion:OnMapEnd()
-    --- 解绑任务系统地图
-    --TaskSys:SetupMapContent(nil)
 
     --- 销毁内部自治工人
     if self._insiderAutonomousWorker then
@@ -137,30 +148,29 @@ function UIMapBase:UnloadMapBeforeClear()
     end
     ClearDictionary(self._delayCallIds)
 
-    --- 释放自治体管理器
-    --AutonomousMgr:Dispose()
-
-    --- 释放气泡管理器
-    --BubbleMgr:Dispose()
 end
 
----@brief 地图卸载后清理
+---地图卸载后清理
+---@type fun():void
 function UIMapBase:UnloadMapAfterClear()
     UIMapBase.super.UnloadMapAfterClear(self)
 end
 
----@brief 每日奖励签到刷新（重置日历）
+---每日奖励签到刷新（重置日历）
+---@type fun():void
 function UIMapBase:OnDailyRewardSignin()
     self:InitCalendar()
 end
 
----@brief 添加延迟调用ID（用于统一清理）
+---添加延迟调用ID（用于统一清理）
+---@type fun(id:string):void
 ---@param id string Dotween延时ID
 function UIMapBase:AddDelayCallId(id)
     self._delayCallIds[id] = id
 end
 
----@brief 移除延迟调用ID
+---移除延迟调用ID
+---@type fun(id:string):void
 ---@param id string Dotween延时ID
 function UIMapBase:RemoveDelayCallId(id)
     self._delayCallIds[id] = nil

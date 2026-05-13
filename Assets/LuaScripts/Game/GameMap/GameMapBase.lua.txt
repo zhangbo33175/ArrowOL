@@ -9,7 +9,8 @@
 ---@class GameMapBase : LuaBehaviourSuper 地图基类
 local GameMapBase = class('GameMapBase', import('LuaBehaviourSuper'))
 
----@brief 构造函数
+---构造函数
+---@type fun(args:table):void
 ---@param args table 自定义参数
 function GameMapBase:ctor(args)
     GameMapBase.super.ctor(self, args)
@@ -28,29 +29,33 @@ function GameMapBase:ctor(args)
     MapManager.CurMapData = self.cs:GetComponent("MapData")
 end
 
----@brief 创建实例
+---创建实例
+---@type fun(args:table):GameMapBase
 ---@param args table 自定义参数
 ---@return GameMapBase 地图基类实例
 function GameMapBase:Create(args)
     return GameMapBase.new(args)
 end
 
----@brief 注册事件监听（父类自动注销）
+---注册事件监听（父类自动注销）
+---@type fun():void
 function GameMapBase:OnAddListeners()
     GameMapBase.super.OnAddListeners(self)
 end
 
----@brief 初始化
+---初始化
+---@type fun():void
 function GameMapBase:Init()
     GameMapBase.super.Init(self)
 end
 
----@brief 唤醒回调
+---唤醒回调
+---@type fun():void
 function GameMapBase:Awake()
     GameMapBase.super.Awake(self)
 
     --- 初始化地图相机参数
-    --GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.normalCamData)
+    GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.m_NormalCamData)
     --- 初始化地图机器
     --MapManager:InitMapMachines()
     --- 生成默认角色
@@ -58,13 +63,16 @@ function GameMapBase:Awake()
     --- 初始化机器到游戏初始状态
     MapManager:OnInitGame()
 end
+
 ---开始
 ---@type fun():void
 function GameMapBase:Start()
     GameMapBase.super.Start(self)
     GameMapMotion:OnMapStart(self.cs.transform)
 end
----@brief 销毁回调
+
+---销毁回调
+---@type fun():void
 function GameMapBase:OnDestroy()
     GameMapBase.super.OnDestroy(self)
     --- 清理触摸手势数据
@@ -75,32 +83,38 @@ end
 -- 游戏生命周期
 --========================================================================
 
----@brief 游戏初始化
+---游戏初始化
+---@type fun():void
 function GameMapBase:OnInitGame()
 end
 
----@brief 进入游戏
+---进入游戏
+---@type fun():void
 function GameMapBase:OnEnterGame()
 end
 
----@brief 游戏开始
+---游戏开始
+---@type fun():void
 function GameMapBase:OnBeginGame()
     --- 注册触摸事件
     --self:RegOrUnRegEvent('+')
 end
 
----@brief 游戏暂停
+---游戏暂停
+---@type fun():void
 function GameMapBase:OnPauseGame()
 end
 
----@brief 游戏恢复
+---游戏恢复
+---@type fun():void
 function GameMapBase:OnResumeGame()
 end
 
----@brief 游戏结束
+---游戏结束
+---@type fun():void
 function GameMapBase:OnGameOver()
     --- 注销触摸事件
-    --self:RegOrUnRegEvent('-')
+    self:RegOrUnRegEvent('-')
 
     --- 胜利/失败表现
     if GameCoreManager._IsSuccessFinishGame == true then
@@ -110,20 +124,24 @@ function GameMapBase:OnGameOver()
     end
 end
 
----@brief 游戏退出
+---游戏退出
+---@type fun():void
 function GameMapBase:OnExitGame()
 end
 
----@brief 游戏重玩
+---游戏重玩
+---@type fun():void
 function GameMapBase:OnRePlayGame()
     self:RegOrUnRegEvent('+')
 end
 
----@brief 地图卸载前清理
+---地图卸载前清理
+---@type fun():void
 function GameMapBase:UnloadMapBeforeClear()
 end
 
----@brief 地图卸载后清理
+---地图卸载后清理
+---@type fun():void
 function GameMapBase:UnloadMapAfterClear()
 end
 
@@ -131,14 +149,16 @@ end
 -- 胜利/失败动画与音效
 --========================================================================
 
----@brief 游戏胜利表现（音效+粒子）
+---游戏胜利表现（音效+粒子）
+---@type fun():void
 function GameMapBase:GameOverSuccessAni()
     SoundMgr:PlaySound(Tables.Sounds.Level_Success.Name)
     --- 播放胜利彩带粒子
     GameEffectManager:AddEffect(RES.GameObject_TX_coloredribbon.Name, GameMainRoot.Effect.efRoot, ELayerName.UI, Unity.Vector3(0, 0, 0), EPos.World, 3.5)
 end
 
----@brief 游戏失败表现（音效）
+---游戏失败表现（音效）
+---@type fun():void
 function GameMapBase:GameOverFailedAni()
     --- 玩家主动放弃不播放失败音效
     if GameCoreManager._eGameOverType ~= EGameOverType.PlayerGiveUp then
@@ -150,7 +170,8 @@ end
 -- 触摸滑动与点击
 --========================================================================
 
----@brief 清除滑动/点击数据
+---清除滑动/点击数据
+---@type fun():void
 function GameMapBase:ClearSwipeData()
     self.Swipe = nil
     self.SimpleTap = nil
@@ -158,29 +179,59 @@ function GameMapBase:ClearSwipeData()
     self._IsPlaySwipeSound = false
 end
 
----@brief 滑动手势回调
----@param gesture HedgehogTeam.EasyTouch.Gesture 手势对象
+---滑动手势回调
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+---@param gesture 手势对象
 function GameMapBase:OnSwipe(gesture)
     self:CheckOrderMachines(gesture, true)
 end
 
----@brief 滑动结束回调
----@param gesture HedgehogTeam.EasyTouch.Gesture 手势对象
+---滑动结束回调
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+---@param gesture 手势对象
 function GameMapBase:OnSwipeEnd(gesture)
     self._IsPlaySwipeSound = false
 end
 
----@brief 点击手势回调
----@param gesture HedgehogTeam.EasyTouch.Gesture 手势对象
+---点击手势回调
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+---@param gesture 手势对象
 function GameMapBase:OnSimpleTap(gesture)
     self:CheckOrderMachines(gesture, false)
 end
 
----@brief 检测点击/滑动与机器的交互
----@param gesture HedgehogTeam.EasyTouch.Gesture 手势对象
+---检测点击/滑动与机器的交互
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture, isSwipe:boolean):void
+---@param gesture 手势对象
 ---@param isSwipe boolean 是否为滑动
 function GameMapBase:CheckOrderMachines(gesture, isSwipe)
-    
+    if GameManager:IsGamePaused()then
+        return
+    end
+
+    if gesture.touchCount == 1 then
+        self.SwipePos.x = gesture.position.x
+        self.SwipePos.y = gesture.position.y
+        self.SwipePos.z = 0
+
+        local worldPosition = self.ScreenCamera:ScreenToWorldPoint(self.SwipePos)
+        worldPosition.z = -1
+
+        if MapManager.CurMapData and MapManager.CurMapData.tableOfViewBounds then
+
+            if MapManager.CurMapData.tableOfViewBounds.Count > 0 then
+                local leftBounds = MapManager.CurMapData.tableOfViewBounds[0]
+                local leftList = MapManager:GetOrderMachineListOfLeft()
+                --self:CheckTouchOfOrderMachineList(leftList, worldPosition, leftBounds)
+            end
+
+            if MapManager.CurMapData.tableOfViewBounds.Count > 1 then
+                local rightBounds = MapManager.CurMapData.tableOfViewBounds[1]
+                local rightList = MapManager:GetOrderMachineListOfRight()
+                --self:CheckTouchOfOrderMachineList(rightList, worldPosition, rightBounds)
+            end
+        end
+    end
 end
 
 return GameMapBase

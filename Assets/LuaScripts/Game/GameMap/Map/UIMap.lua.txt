@@ -39,7 +39,6 @@ end
 ---@brief 开始回调
 function UIMap:Start()
     UIMap.super.Start(self)
-    GameMapMotion:OnMapStart(self.cs.transform)
 end
 
 ---@brief 销毁回调

@@ -1653,7 +1653,6 @@ GameObject:
   - component: {fileID: 7060999112722321485}
   - component: {fileID: 8831104357739844576}
   - component: {fileID: 4983066354908210019}
-  - component: {fileID: 5752075580793368831}
   m_Layer: 5
   m_Name: DailyChallengeButton
   m_TagString: Untagged
@@ -1763,21 +1762,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &5752075580793368831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4794487344346428791}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 268f4a01911b8dd4e999247387dcaace, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_LocalizingKeyName: 
-  m_LocalizingFontMark: Main
-  m_Language: 0
 --- !u!1 &5261469553673126542
 GameObject:
   m_ObjectHideFlags: 0

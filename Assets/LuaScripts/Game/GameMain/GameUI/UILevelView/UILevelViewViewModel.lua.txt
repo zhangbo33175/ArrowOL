@@ -17,6 +17,7 @@ UILevelViewViewModel.BVKey = {}
 ---@param args table 自定义参数
 function UILevelViewViewModel:ctor(args)
     UILevelViewViewModel.super.ctor(self, args)
+    LevelManager:GetCurrentLevelInfo()
 end
 
 ---@brief 创建实例
@@ -34,6 +35,7 @@ end
 ---@brief 初始化回调（View 绑定 ViewModel 时触发）
 function UILevelViewViewModel:OnInit()
     UILevelViewViewModel.super.OnInit(self)
+    
 end
 
 ---@brief 开始
@@ -50,5 +52,11 @@ end
 function UILevelViewViewModel:OnAddListeners()
     UILevelViewViewModel.super.OnAddListeners(self)
 end
+
+
+function UILevelViewViewModel:GetChapterLevel()
+    return LevelManager:GetChapterLevel()
+end
+
 
 return UILevelViewViewModel

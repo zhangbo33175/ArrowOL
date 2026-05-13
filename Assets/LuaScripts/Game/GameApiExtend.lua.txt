@@ -1,5 +1,6 @@
 --=====================================================================================================
 -- Description: 全局通用扩展函数（table / math / string 工具库）
+-- Author:     优化版 - 遵循 Unity 规范 + 完整注解 + 商业级稳定性
 --=====================================================================================================
 
 ------------------------------
@@ -9,7 +10,7 @@
 --- 判断键是否存在于表中
 ---@param tbl table 目标表
 ---@param key any 键
----@return boolean
+---@return boolean 是否存在
 function table.kIn(tbl, key)
     if type(tbl) ~= "table" then
         return false
@@ -20,7 +21,7 @@ end
 --- 判断值是否存在于表中
 ---@param tbl table 目标表
 ---@param value any 值
----@return boolean
+---@return boolean 是否存在
 function table.vIn(tbl, value)
     if type(tbl) ~= "table" then
         return false
@@ -36,7 +37,7 @@ end
 --- 判断表是否包含子表所有值
 ---@param tbl table 主表
 ---@param valueTable table 子表
----@return boolean
+---@return boolean 是否全部包含
 function table.tableIn(tbl, valueTable)
     if type(tbl) ~= "table" or type(valueTable) ~= "table" then
         return false
@@ -50,8 +51,8 @@ function table.tableIn(tbl, valueTable)
 end
 
 --- 判断是否为纯数组（连续数字索引）
----@param t table
----@return boolean
+---@param t table 目标表
+---@return boolean 是否为纯数组
 function table.isArrayTable(t)
     if type(t) ~= "table" then
         return false
@@ -66,8 +67,8 @@ function table.isArrayTable(t)
 end
 
 --- 递归打印表（调试专用）
----@param t table
----@return string
+---@param t table 目标表
+---@return string 格式化字符串
 function table.PrintDicTable(t)
     if type(t) ~= "table" then
         return tostring(t)
@@ -82,9 +83,9 @@ function table.PrintDicTable(t)
 end
 
 --- 无序比较两个数组是否相等
----@param t1 table
----@param t2 table
----@return boolean
+---@param t1 table 数组1
+---@param t2 table 数组2
+---@return boolean 是否相等
 function table.compareTablesWithDisorder(t1, t2)
     if type(t1) ~= "table" or type(t2) ~= "table" then
         return false
@@ -100,9 +101,9 @@ function table.compareTablesWithDisorder(t1, t2)
     return true
 end
 
---- 数组安全过滤删除
+--- 数组安全过滤删除（遍历过程中安全删除元素）
 ---@param t table 数组
----@param predicate function 判定函数(key, value):boolean
+---@param predicate function 判定函数(key, value):boolean 满足条件保留，不满足删除
 function table.filterRemove(t, predicate)
     if type(t) ~= "table" or type(predicate) ~= "function" then
         return
@@ -118,9 +119,9 @@ function table.filterRemove(t, predicate)
 end
 
 --- 判断 t1 是否包含 t2 所有元素
----@param t1 table
----@param t2 table
----@return boolean
+---@param t1 table 主表
+---@param t2 table 子表
+---@return boolean 是否全部包含
 function table.isContains(t1, t2)
     if type(t1) ~= "table" or type(t2) ~= "table" then
         return false
@@ -134,7 +135,7 @@ function table.isContains(t1, t2)
 end
 
 --- Fisher-Yates 打乱数组（原地修改）
----@param t table
+---@param t table 数组
 function table.shuffle(t)
     if type(t) ~= "table" or #t <= 1 then
         return
@@ -173,10 +174,10 @@ end
 ------------------------------
 
 --- 数值限制在 [min, max]
----@param value number
----@param min number
----@param max number
----@return number
+---@param value number 输入值
+---@param min number 最小值
+---@param max number 最大值
+---@return number  clamped 结果
 function math.clamp(value, min, max)
     if value < min then return min end
     if value > max then return max end
@@ -184,8 +185,8 @@ function math.clamp(value, min, max)
 end
 
 --- 四舍五入
----@param value number
----@return number
+---@param value number 输入值
+---@return number 四舍五入结果
 function math.roundToNearest(value)
     return value >= 0 and math.floor(value + 0.5) or math.ceil(value - 0.5)
 end
@@ -193,7 +194,7 @@ end
 --- 保留 N 位小数（截断）
 ---@param value number 原数值
 ---@param decimals number 保留位数，默认0
----@return number
+---@return number 截断后数值
 function math.GetPreciseDecimal(value, decimals)
     if type(value) ~= "number" then
         return value
@@ -204,25 +205,25 @@ function math.GetPreciseDecimal(value, decimals)
 end
 
 --- 浮点数近似相等判断
----@param a number
----@param b number
----@return boolean
+---@param a number 数值A
+---@param b number 数值B
+---@return boolean 是否近似相等
 function math.Approximately(a, b)
     return math.abs(a - b) < 1e-6
 end
 
 --- 限制值在 0~1 之间
----@param value number
----@return number
+---@param value number 输入值
+---@return number 0~1 之间的值
 function math.Clamp01(value)
     return math.clamp(value, 0, 1)
 end
 
---- 平滑插值 SmoothStep
+--- 平滑插值 SmoothStep（Unity 标准平滑曲线）
 ---@param from number 起始值
 ---@param to number 目标值
----@param t number 0~1
----@return number
+---@param t number 0~1 插值系数
+---@return number 平滑插值结果
 function math.SmoothStep(from, to, t)
     t = math.Clamp01(t)
     t = t * t * (3 - 2 * t)
@@ -237,7 +238,7 @@ end
 ---@param str string 原字符串
 ---@param substr string 子串
 ---@param startIndex number 起始位置，默认1
----@return number
+---@return number 索引位置
 function string.indexOf(str, substr, startIndex)
     if type(str) ~= "string" or type(substr) ~= "string" then
         return -1
@@ -248,8 +249,8 @@ function string.indexOf(str, substr, startIndex)
 end
 
 --- 判断字符串是否为空或 nil
----@param str string
----@return boolean
+---@param str string 目标字符串
+---@return boolean 是否为空
 function string.isNullOrEmpty(str)
     return str == nil or str == ""
 end

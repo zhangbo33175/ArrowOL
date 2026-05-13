@@ -4,99 +4,84 @@
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIMainPlaying.lua
 -- author:    zb
--- descrip:   游戏主战斗/游玩界面
+-- descrip:   游戏主界面
 --=====================================================================================================
 
 ---@class UIMainPlaying : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour LuaBehaviour 组件
----@field __BgImage UnityEngine.RectTransform Root 根节点
----@field Top UnityEngine.RectTransform 顶部区域
----@field Bottom UnityEngine.RectTransform 底部区域
----@field Right UnityEngine.RectTransform 右侧区域
----@field Pause UnityEngine.UI.Button 暂停按钮
----@field Remain UnityEngine.RectTransform 剩余客人背景
----@field RemainingGuestCountText TMPro.TextMeshProUGUI 剩余客人数值
----@field RemainingGuestSucceed UnityEngine.GameObject 剩余客人完成状态
----@field RootGoalIconImg UnityEngine.UI.Image 主目标图标
----@field RootGoalProgressText TMPro.TextMeshProUGUI 主目标进度文本
----@field SecondGoalParent UnityEngine.RectTransform 副目标父节点
----@field CombTimer UnityEngine.UI.Image 连击计时器
----@field Comb_1 UnityEngine.UI.Image 连击1
----@field Comb_2 UnityEngine.UI.Image 连击2
----@field Comb_3 UnityEngine.UI.Image 连击3
----@field Comb_4 UnityEngine.UI.Image 连击4
----@field Comb_5 UnityEngine.UI.Image 连击5
----@field LimitingParentGo UnityEngine.GameObject 限制条件父节点
----@field Bg UnityEngine.UI.Image 界面背景
----@field Info UnityEngine.RectTransform 信息区域
----@field Condition UnityEngine.RectTransform 条件区域
----@field Limiting UnityEngine.RectTransform 限制条件布局节点
----@field InfinityGuest UnityEngine.GameObject 无限客人标记
----@field BoosterVerticalBg UnityEngine.RectTransform 关内道具竖直布局
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field Top                                UnityEngine.RectTransform     √                        Top
+---@field Right                              UnityEngine.RectTransform     √                        Right
+---@field Remain                             UnityEngine.RectTransform     √                        剩余客人背景图
+---@field Bg                                 UnityEngine.UI.Image          √                        界面bg图
 local UIMainPlaying = class('UIMainPlaying', import('LuaBehaviourSuper'))
 
----@brief 构造函数
----@param args table 自定义参数
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
 function UIMainPlaying:ctor(args)
     UIMainPlaying.super.ctor(self, args)
 
-    ---@type UnityEngine.RectTransform UI 画布 RectTransform
-    self._uiCanvasRectTransform = nil
 end
 
----@brief 创建 UI 实例
----@param args table 自定义参数
----@return UIMainPlaying
+---创建函数
+---@type fun(args:table):UIMainPlaying
+---@param args table @自定义参数
+---@return UIMainPlaying @UIMainPlaying实例
 function UIMainPlaying:Create(args)
-    return UIMainPlaying.new(args)
+    local obj = UIMainPlaying.new(args)
+    return obj
 end
 
----@brief 注册事件监听
+---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@type fun():void
 function UIMainPlaying:OnAddListeners()
     UIMainPlaying.super.OnAddListeners(self)
+
 end
 
----@brief 唤醒
+---唤醒
+---@type fun():void
 function UIMainPlaying:Awake()
     UIMainPlaying.super.Awake(self)
-    AddUIListenerFunction(self.Pause, 'Clicked', handler(self, self.OnPauseClicked))
+-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>-- 无自动注册内容。
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+
 end
 
----@brief 开始
+---开始
+---@type fun():void
 function UIMainPlaying:Start()
     UIMainPlaying.super.Start(self)
+
 end
 
----@brief 销毁
+---销毁
+---@type fun():void
 function UIMainPlaying:OnDestroy()
-    OnRemoveListener(self.Pause, 'Clicked', handler(self, self.OnPauseClicked))
     UIMainPlaying.super.OnDestroy(self)
+-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>-- 无自动注销内容。
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+
 end
 
----@brief 播放打开动画
+---播放打开动画回调（可重写该父类方法）
+---@type fun():void
 function UIMainPlaying:OnPlayOpenAnimation()
-    -- 屏蔽父类默认动画
+    UIMainPlaying.super.OnPlayOpenAnimation(self)
 end
 
----@brief 播放关闭动画
+---播放关闭动画回调（可重写该父类方法）
+---@type fun():void
 function UIMainPlaying:OnPlayCloseAnimation()
-    -- 屏蔽父类默认动画
+    UIMainPlaying.super.OnPlayCloseAnimation(self)
 end
 
----@brief 子 UI 销毁回调
----@param luaClass XLua.LuaTable
+---被追加的N层UI子节点销毁回调
+---@type fun(luaClass: XLua.LuaTable):void
+---@param luaClass XLua.LuaTable @luaClass
 function UIMainPlaying:OnAddedUIDestroyed(luaClass)
     UIMainPlaying.super.OnAddedUIDestroyed(self, luaClass)
 end
 
----@brief 暂停按钮点击回调
----@param args any 事件参数
-function UIMainPlaying:OnPauseClicked(args)
-end
-
----@brief 初始化界面
-function UIMainPlaying:InitView()
-    self._uiCanvasRectTransform = GameMainRoot.UI.ScreenUICanvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
-end
-
 return UIMainPlaying
+

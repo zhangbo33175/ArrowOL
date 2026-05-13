@@ -266,6 +266,11 @@ public enum RMapCamPosType
     /// 相机默认靠右
     /// </summary>
     Right = 1,
+
+    /// <summary>
+    /// 居中对齐
+    /// </summary>
+    Center = 2,
 }
 
 /// <summary>
@@ -290,15 +295,26 @@ public class MapData : MonoBehaviour
     /// 地图相机初始位置类型
     /// </summary>
     [Tooltip("地图相机位置类型")]
-    public RMapCamPosType m_MapCamPosType = RMapCamPosType.Right;
+    public RMapCamPosType m_MapCamPosType = RMapCamPosType.Center;
 
     /// <summary>
     /// 关卡游玩时 HUD 对齐方式
     /// </summary>
     [Tooltip("游玩关卡对齐方式类型")]
-    public RMapPlayHudPosType m_MapPlayHudPosType = RMapPlayHudPosType.Left;
-    [Tooltip("地图区域Bounds")] public MapMotionLayer mapBounds;
-    [Tooltip("视差Transform")] public Transform parallaxTransform;
+    public RMapPlayHudPosType m_MapPlayHudPosType = RMapPlayHudPosType.Center;
+
+    /// <summary>
+    /// 地图区域边界
+    /// </summary>
+    [Tooltip("地图区域Bounds")]
+    public MapMotionLayer mapBounds;
+
+    /// <summary>
+    /// 视差背景节点
+    /// </summary>
+    [Tooltip("视差Transform")]
+    public Transform parallaxTransform;
+
     /// <summary>
     /// 地图类型（主线/每日）
     /// </summary>
@@ -327,14 +343,95 @@ public class MapData : MonoBehaviour
     public MapCamData m_ExitPlayCamData;
 
     /// <summary>
+    /// 主大厅最大高度
+    /// </summary>
+    [Tooltip("主大厅最大高度")]
+    public float m_MainHudMaxHeight = 768f;
+
+    /// <summary>
     /// 地图章节配置数据
     /// </summary>
     [FormerlySerializedAs("m_RMapChapterData")]
-    public RMapChapterTypeData mRMapChapterTypeData = new();
+    public RMapChapterTypeData m_RMapChapterTypeData = new();
 
     /// <summary>
-    /// 获取游玩相机可视区域 **右边界** 世界坐标X
+    /// 视角中心区域
     /// </summary>
+    [Tooltip("视角中心")]
+    public MapInBounds m_CenterOfViewBounds = null;
+
+    /// <summary>
+    /// 视角中心左边偏移
+    /// </summary>
+    [Tooltip("视角中心 左边偏移")]
+    public float m_CenterOfViewLeftOffset = 100f;
+
+    /// <summary>
+    /// 视角中心右边偏移
+    /// </summary>
+    [Tooltip("视角中心 右边偏移")]
+    public float m_CenterOfViewRightOffset = 150f;
+
+    /// <summary>
+    /// 游戏内最大高度
+    /// </summary>
+    [Tooltip("游戏内最大高度")]
+    public float m_PlayHudMaxHeight = 640f;
+
+    /// <summary>
+    /// 游戏内Pad最大高度
+    /// </summary>
+    [Tooltip("游戏内Pad最大高度")]
+    public float m_PlayHudMaxHeightPad = 640f;
+
+    [Header("地图缩放配置")]
+    [Tooltip("最小相机正交Size(最小缩小)")]
+    public float m_MinCamSize = 250f;
+    [Tooltip("最大相机正交Size(最大放大)")]
+    public float m_MaxCamSize = 1024f;
+    [Tooltip("滚轮缩放灵敏度")]
+    public float m_ScrollSensitivity = 0.5f;
+    /// <summary>
+    /// 初始化相机参数
+    /// </summary>
+    private void Awake()
+    {
+    }
+
+    /// <summary>
+    /// 获取地图右边界的X坐标（世界坐标）
+    /// </summary>
+    /// <returns>右边界X坐标</returns>
+    private float MapRightBoundPosX()
+    {
+        var mapPosX = mapBounds.m_AreaBounds.max.x;
+        return mapPosX;
+    }
+
+    /// <summary>
+    /// 获取地图左边界的X坐标（世界坐标）
+    /// </summary>
+    /// <returns>左边界X坐标</returns>
+    private float MapLeftBoundPosX()
+    {
+        var mapPosX = mapBounds.m_AreaBounds.min.x;
+        return mapPosX;
+    }
+
+    /// <summary>
+    /// 大厅相机标准Size
+    /// </summary>
+    /// <param name="viewSize">视图尺寸</param>
+    /// <returns>相机Size</returns>
+    public float NormalCamSize(Vector2 viewSize)
+    {
+        return 1024f;
+    }
+
+    /// <summary>
+    /// 获取游玩相机可视区域右边界世界坐标X
+    /// </summary>
+    /// <returns>右边界X坐标</returns>
     public float PlayHudRightViewWorldPosX()
     {
         var viewSize = Util.GameViewSize();
@@ -347,8 +444,9 @@ public class MapData : MonoBehaviour
     }
 
     /// <summary>
-    /// 获取游玩相机可视区域 **左边界** 世界坐标X
+    /// 获取游玩相机可视区域左边界世界坐标X
     /// </summary>
+    /// <returns>左边界X坐标</returns>
     public float PlayHudLeftViewWorldPosX()
     {
         var viewSize = Util.GameViewSize();
@@ -358,5 +456,154 @@ public class MapData : MonoBehaviour
 
         var posX = m_PlayCamData.posX - viewBoundPosX;
         return posX;
+    }
+
+    /// <summary>
+    /// 获取厨房中心点左边界的宽度
+    /// </summary>
+    /// <returns>左侧宽度</returns>
+    private float MapKitchenLeftOfCenterWidth()
+    {
+        return MapKitchenWidth() / 2 + m_CenterOfViewLeftOffset;
+    }
+
+    /// <summary>
+    /// 获取厨房的最小宽度
+    /// </summary>
+    /// <returns>最小宽度</returns>
+    private float MapKitchenMinWidth()
+    {
+        return MapKitchenWidth() + m_CenterOfViewLeftOffset;
+    }
+
+    /// <summary>
+    /// 获取厨房的宽度
+    /// </summary>
+    /// <returns>厨房宽度</returns>
+    private float MapKitchenWidth()
+    {
+        return m_CenterOfViewBounds.areaBounds.size.x * 100;
+    }
+
+    /// <summary>
+    /// 游戏内相机Size计算
+    /// </summary>
+    /// <param name="viewSize">视图尺寸</param>
+    /// <param name="camData">相机数据</param>
+    /// <param name="mapPlayHudPosType">对齐方式</param>
+    /// <returns>计算后的相机Size</returns>
+    private float PlayHudCamSize(Vector2 viewSize, MapCamData camData, RMapPlayHudPosType mapPlayHudPosType)
+    {
+        var minKitchenWidth = MapKitchenMinWidth(); 
+        var kitchenLeftOfCenterWidth = MapKitchenLeftOfCenterWidth(); 
+        var standardKitchenWidth = minKitchenWidth + m_CenterOfViewRightOffset; 
+        var centerKitchenPos = m_CenterOfViewBounds.areaBounds.center; 
+
+        CalStandardSizeAndWith(
+            viewSize,
+            m_PlayHudMaxHeight,
+            centerKitchenPos,
+            out var standardSize,
+            out var standardWidth,
+            out var rightBoundOfCenterWidth);
+
+        if (standardWidth >= standardKitchenWidth)
+        {
+            m_IsPad = false;
+
+            if (mapPlayHudPosType == RMapPlayHudPosType.Center)
+            {
+                camData.posX = centerKitchenPos.x;
+                return standardSize;
+            }
+
+            var worldViewHalfWidth = standardWidth * 0.5f * 0.01f; 
+            var worldKitchenLeftOfCenterWidth = kitchenLeftOfCenterWidth * 0.01f; 
+            if (worldViewHalfWidth > worldKitchenLeftOfCenterWidth)
+            {
+                var tempPosX = centerKitchenPos.x + (worldViewHalfWidth - worldKitchenLeftOfCenterWidth);
+                if (tempPosX + worldViewHalfWidth <= MapRightBoundPosX())
+                {
+                    camData.posX = tempPosX;
+                }
+                else
+                {
+                    camData.posX = MapRightBoundPosX() - worldViewHalfWidth;
+                }
+            }
+            else
+            {
+                camData.posX = centerKitchenPos.x;
+            }
+
+            return standardSize;
+        }
+        else if (standardWidth < standardKitchenWidth && standardWidth >= minKitchenWidth)
+        {
+            m_IsPad = true;
+
+            CalStandardSizeAndWith(
+                viewSize,
+                m_PlayHudMaxHeightPad,
+                centerKitchenPos,
+                out var standardSizePad,
+                out var standardWidthPad,
+                out var rightBoundOfCenterWidthPad);
+
+            var worldViewHalfWidth = standardWidthPad * 0.5f * 0.01f; 
+            if (worldViewHalfWidth >= rightBoundOfCenterWidthPad)
+            {
+                camData.posX = MapRightBoundPosX() - worldViewHalfWidth;
+            }
+            else
+            {
+                camData.posX = centerKitchenPos.x;
+            }
+
+            return standardSizePad;
+        }
+        else
+        {
+            var tempWidth = minKitchenWidth;
+            if (m_MapType == RMapType.DailyLevel)
+            {
+                tempWidth = minKitchenWidth + m_CenterOfViewRightOffset;
+            }
+            m_IsPad = true;
+            var padSize = viewSize.y / (viewSize.x * 1.000f) * tempWidth * 0.01f * 0.5f; 
+
+            if (mapPlayHudPosType == RMapPlayHudPosType.Center)
+            {
+                camData.posX = centerKitchenPos.x;
+                return padSize;
+            }
+            
+            var rightBoundPosX = m_CenterOfViewBounds.areaBounds.max.x; 
+            camData.posX = rightBoundPosX - tempWidth * 0.01f * 0.5f;
+
+            return padSize;
+        }
+    }
+
+    /// <summary>
+    /// 计算标准Size和宽度
+    /// </summary>
+    /// <param name="viewSize">视口大小</param>
+    /// <param name="playHudMaxHeight">游戏内最大高度</param>
+    /// <param name="centerKitchenPos">厨房中心点</param>
+    /// <param name="standardSize">相机标准Size</param>
+    /// <param name="standardWidth">标准宽度</param>
+    /// <param name="rightBoundOfCenterWidth">厨房中心点右边界的宽度</param>
+    private void CalStandardSizeAndWith(
+        Vector2 viewSize,
+        float playHudMaxHeight,
+        Vector3 centerKitchenPos,
+        out float standardSize,
+        out float standardWidth,
+        out float rightBoundOfCenterWidth)
+    {
+        standardSize = playHudMaxHeight * 0.01f * 0.5f;
+        standardWidth = viewSize.x / (viewSize.y * 1.000f) * standardSize * 2 * 100;
+        rightBoundOfCenterWidth = MapRightBoundPosX() - centerKitchenPos.x;
     }
 }

@@ -1,1 +1,222 @@
-﻿
+﻿--=====================================================================================================
+-- descrip:   全局音效/音乐播放管理中心
+-- @feat      支持BGM播放、音效分组、音量控制、暂停/恢复/停止、设置开关联动
+-- @dependency Singleton, Tables, EventHelper, SettingDataManager, GameMainRoot
+--=====================================================================================================
+
+---@class SoundManager:Singleton @全局音效音乐管理中心
+local SoundManager = class("SoundManager", import("Singleton"))
+
+--- 构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function SoundManager:ctor(args)
+    SoundManager.super.ctor(self, args)
+    self._BGMSerialID = -1                ---@type number      --- 当前正在播放的背景音乐序列号
+    self._curBGMKey = nil                 ---@type string      --- 当前播放的背景音乐Key
+    self._soundGroupNames = nil           ---@type table       --- 所有音效组名称缓存
+    self._soundGroupNamesForPause = nil   ---@type table       --- 需要暂停的音效组缓存
+end
+
+--- 创建单例
+---@type fun(args:table):SoundManager
+---@param args table @自定义参数
+---@return SoundManager @音效管理器实例
+function SoundManager:Create(args)
+    local obj = SoundManager.new(args)
+    return obj
+end
+
+--- 清空数据（切号/重载）
+---@type fun():void
+function SoundManager:ClearData()
+    SoundManager.super.ClearData(self)
+    self:StopCurBGM()
+    self:StopAllSound()
+end
+
+--- 初始化：注册事件 + 同步设置状态
+---@type fun():void
+function SoundManager:Init()
+    SoundManager.super.Init(self)
+    self:OnAddListeners()
+    self:OnBGMCloseStateChanged()
+    self:OnSoundCloseStateChanged()
+end
+
+--- 注册全局事件监听
+---@type fun():void
+function SoundManager:OnAddListeners()
+    -- 切换背景音乐事件
+    HonorEventHelper:AddListener(EventCmd.OnPlayBGMKeyChanged, handler(self, self.OnPlayBGM))
+end
+
+--- 对外接口：播放背景音乐
+---@type fun(soundKey:string):void
+---@param soundKey string @音效表配置Key
+function SoundManager:PlayBGM(soundKey)
+    self:OnPlayBGM(soundKey)
+end
+
+--- 内部：播放背景音乐
+---@type fun(soundKey:string):void
+---@param soundKey string @背景音乐配置Key
+function SoundManager:OnPlayBGM(soundKey)
+    if self._curBGMKey ~= soundKey then
+        self:StopCurBGM()
+    end
+    PrintInfo("PlayBGM 播放背景音乐:" .. soundKey)
+    self._curBGMKey = soundKey
+
+    if Tables.Sounds[soundKey] ~= nil then
+        self._BGMSerialID = GameMainRoot.Sound:PlaySound(Tables.Sounds[soundKey])
+    else
+        PrintInfo("背景音乐在表格中未配置:" .. soundKey)
+    end
+end
+
+--- 获取当前正在播放的BGM Key
+---@return string
+function SoundManager:GetCurrentBGMKey()
+    return self._curBGMKey
+end
+
+--- 停止当前背景音乐
+---@type fun():void
+function SoundManager:StopCurBGM()
+    if self._BGMSerialID ~= nil and self._BGMSerialID >= 0 then
+        GameMainRoot.Sound:StopSound(self._BGMSerialID)
+        self._BGMSerialID = nil
+    end
+end
+
+--- 播放普通音效
+---@type fun(soundKey:string,speed:number):number
+---@param soundKey string @音效表Key
+---@param speed number @播放速度
+---@return number @音效序列ID
+function SoundManager:PlaySound(soundKey, speed)
+    PrintInfo("播放音效：" .. soundKey)
+    if Tables.Sounds[soundKey] ~= nil then
+        local t = Tables.Sounds[soundKey]
+        if speed ~= nil then
+            t = CopyTab(t)
+            t.Speed = speed
+        end
+        return GameMainRoot.Sound:PlaySound(t)
+    else
+        PrintInfo("音效在表格中未配置:" .. soundKey)
+    end
+end
+
+--- 停止指定音效
+---@type fun(serialID:number):void
+---@param serialID number @音效序列ID
+function SoundManager:StopSound(serialID)
+    GameMainRoot.Sound:StopSound(serialID)
+end
+
+--- 获取音效时长（同步加载）
+---@type fun(soundKey:string):number
+---@param soundKey string @音效表Key
+---@return number 时长秒
+function SoundManager:GetSoundTime(soundKey)
+    local time = 1
+    if Tables.Sounds[soundKey] ~= nil then
+        local assetInfo = Tables.Sounds[soundKey]
+        local audioAsset = GameMainRoot.Asset:LoadAssetSync("Sound", assetInfo.ABPath, assetInfo.AssetName)
+        if audioAsset ~= nil then
+            time = audioAsset.length
+            GameMainRoot.Asset:UnloadAsset(audioAsset)
+        end
+    end
+    return time
+end
+
+--- 背景音乐开关状态切换
+---@type fun(eType:ESettingType, newState:boolean, BGMKey:string):void
+function SoundManager:OnBGMCloseStateChanged(eType, newState, BGMKey)
+    if SettingDataManager:GetSettingState(ESettingType.MUSIC) == true then
+        GameMainRoot.Sound:SetAllSoundVolume(0, "Music")
+    else
+        GameMainRoot.Sound:SetAllSoundVolume(1, "Music")
+    end
+end
+
+--- 音效总开关状态切换
+---@type fun(eType:ESettingType, newState:boolean, BGMKey:string):void
+function SoundManager:OnSoundCloseStateChanged(eType, newState, BGMKey)
+    self:ModifyRuntimeSoundVolumn()
+end
+
+--- 缓存所有音效组名称（排除Music）
+---@type fun():void
+function SoundManager:CheckAllSoundName()
+    if self._soundGroupNames == nil then
+        self._soundGroupNames = {}
+        for k, v in pairs(Tables.Sounds) do
+            if v.GroupName ~= "Music" then
+                self._soundGroupNames[v.GroupName] = 1
+            end
+        end
+    end
+end
+
+--- 缓存需要暂停的音效组（排除Music/UISound）
+---@type fun():void
+function SoundManager:CheckAllSoundNamesForPause()
+    if self._soundGroupNamesForPause == nil then
+        self._soundGroupNamesForPause = {}
+        for k, v in pairs(Tables.Sounds) do
+            if v.GroupName ~= "Music" and v.GroupName ~= "UISound" then
+                self._soundGroupNamesForPause[v.GroupName] = 1
+            end
+        end
+    end
+end
+
+--- 修改所有运行时音效音量（开关联动）
+---@type fun():void
+function SoundManager:ModifyRuntimeSoundVolumn()
+    local volume = SettingDataManager:GetSettingState(ESettingType.SOUND) and 0 or 1
+    self:CheckAllSoundName()
+    for k, v in pairs(self._soundGroupNames) do
+        GameMainRoot.Sound:SetAllSoundVolume(volume, k)
+    end
+end
+
+--- 暂停所有非UI、非音乐的音效
+---@type fun():void
+function SoundManager:PauseAllSound()
+    self:CheckAllSoundNamesForPause()
+    for k, v in pairs(self._soundGroupNamesForPause) do
+        GameMainRoot.Sound:PauseGourpSound(k)
+    end
+end
+
+--- 恢复所有暂停的音效
+---@type fun():void
+function SoundManager:ResumeAllSound()
+    self:CheckAllSoundNamesForPause()
+    for k, v in pairs(self._soundGroupNamesForPause) do
+        GameMainRoot.Sound:ResumeGroupSound(k)
+    end
+end
+
+--- 停止所有音效
+---@type fun():void
+function SoundManager:StopAllSound()
+    self:CheckAllSoundName()
+    for k, v in pairs(self._soundGroupNames) do
+        GameMainRoot.Sound:StopGroupSound(k)
+    end
+end
+
+--- 设置音效开关状态
+---@type fun(newState:boolean):void
+---@param newState boolean true=关闭 false=开启
+function SoundManager:OnSoundStateChanged(newState)
+    SettingDataManager:SetSettingNewState(ESettingType.SOUND, newState)
+end
+
+return SoundManager

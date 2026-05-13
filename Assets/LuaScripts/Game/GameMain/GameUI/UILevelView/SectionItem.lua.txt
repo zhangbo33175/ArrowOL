@@ -20,7 +20,7 @@ local SectionItem = class('SectionItem', import('LuaBehaviourSuper'))
 ---@param args table @自定义参数
 function SectionItem:ctor(args)
     SectionItem.super.ctor(self, args)
-
+    self:Init()
 end
 
 ---创建函数
@@ -43,11 +43,16 @@ end
 ---@type fun():void
 function SectionItem:Awake()
     SectionItem.super.Awake(self)
--- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--- 无自动注册内容。
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
-
 end
+
+
+---@type 初始化信息
+function SectionItem:Init() 
+    self.OnePicturePuzzle:SetActive(true)
+    self.FourPicturePuzzle:SetActive(false)
+end
+
+
 
 ---开始
 ---@type fun():void
@@ -60,10 +65,6 @@ end
 ---@type fun():void
 function SectionItem:OnDestroy()
     SectionItem.super.OnDestroy(self)
--- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--- 无自动注销内容。
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
-
 end
 
 ---播放打开动画回调（可重写该父类方法）

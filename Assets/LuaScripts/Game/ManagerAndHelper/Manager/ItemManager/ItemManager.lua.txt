@@ -3,6 +3,7 @@
 -- @desc   全游戏道具/体力/Buff/前置道具/局内道具 统一管理
 -- @core   解锁判断、数量缓存、使用流程、事件抛出、体力系统、碎片合成
 -- @struct 存档数据 + 缓存层 + 显示层 分离
+-- @dependency Singleton, ResourceDataManager, GamerDataManager, HonorEventHelper, PbIO, DOTween
 --=====================================================================================================
 
 ---@class LifeChange @体力变更
@@ -31,10 +32,10 @@ local ItemManager = class("ItemManager", import("Singleton"))
 function ItemManager:ctor(args)
     ItemManager.super.ctor(self, args)
 
-    self._unlockState    = {}
-    self._inActiveIDs    = {}
-    self._cacheSubNum    = {}
-    self._boosterCondition = nil
+    self._unlockState    = {}       --- 道具解锁状态缓存
+    self._inActiveIDs    = {}       --- 正在生效的道具（Buff/前置道具）
+    self._cacheSubNum    = {}       --- 缓存使用数量（确认前临时扣减）
+    self._boosterCondition = nil    --- 关内道具额外条件
 end
 
 --- 创建单例
@@ -61,8 +62,8 @@ end
 --=========================================================================
 
 --- 判断道具是否解锁（按章节关卡）
----@param boosterID string
----@return boolean
+---@param boosterID string 道具ID
+---@return boolean 是否解锁
 function ItemManager:IsUnlock(boosterID)
     if string.isNullOrEmpty(boosterID) then
         return false
@@ -85,14 +86,14 @@ function ItemManager:IsUnlock(boosterID)
     local unlockLv = boosterData.UnlockLevel.LevelID or 0
     local curLv = GamerDataManager:GetLevelLvByChapterId(maxChap) or 0
 
-    -- 解锁逻辑
+    -- 解锁逻辑：章节达标 或 同章节关卡达标
     local unlock = (numChap > unlockChap) or (numChap == unlockChap and curLv >= unlockLv)
     self._unlockState[boosterID] = unlock
     return unlock
 end
 
 --- 局内道具是否触发解锁
----@param boosterID string
+---@param boosterID string 道具ID
 ---@return boolean
 function ItemManager:IsBoosterTriggered(boosterID)
     return self._boosterCondition and self._boosterCondition:IsTriggered(boosterID) ~= nil
@@ -126,9 +127,9 @@ end
 -- region 道具类型判断
 --=========================================================================
 
---- 数量足够？
----@param id string
----@param useNum number
+--- 道具数量是否足够
+---@param id string 道具ID
+---@param useNum number 使用数量
 ---@return boolean
 function ItemManager:IsEnough(id, useNum)
     useNum = useNum or 1
@@ -136,38 +137,46 @@ function ItemManager:IsEnough(id, useNum)
 end
 
 --- 是否在生效中（buff/前置道具）
----@param id string
+---@param id string 道具ID
 ---@return boolean
 function ItemManager:InActive(id)
     return self._inActiveIDs[id] ~= nil
 end
 
---- 生效中道具参数
----@param id string
+--- 获取生效中道具参数
+---@param id string 道具ID
 ---@return number
 function ItemManager:GetParam(id)
     return self._inActiveIDs[id] and self._inActiveIDs[id].param or 0
 end
 
 --- 是否限时道具
+---@param id string 道具ID
+---@return boolean
 function ItemManager:IsTimeLimitBooster(id)
     local data = ResourceDataManager:GetResourceData(id)
     return data and data.Type == EResourceType.Buff and data.SubType == EItemSubType.UnlimitedPreBooster
 end
 
 --- 是否前置道具
+---@param id string 道具ID
+---@return boolean
 function ItemManager:IsPreBooster(id)
     local data = ResourceDataManager:GetResourceData(id)
     return data and data.Type == EResourceType.ITEM and data.SubType == EItemSubType.PRE_BOOSTER
 end
 
 --- 是否局内道具
+---@param id string 道具ID
+---@return boolean
 function ItemManager:IsBooster(id)
     local data = ResourceDataManager:GetResourceData(id)
     return data and data.Type == EResourceType.ITEM and data.SubType == EItemSubType.BOOSTER
 end
 
 --- 是否复活道具
+---@param id string 道具ID
+---@return boolean
 function ItemManager:IsReviveBooster(id)
     local data = ResourceDataManager:GetResourceData(id)
     return data and data.Type == EResourceType.ITEM and data.SubType == EItemSubType.REVIVE
@@ -180,15 +189,15 @@ end
 --=========================================================================
 
 --- 选择使用（临时扣减到缓存）
----@param boosterID string
----@param num number
+---@param boosterID string 道具ID
+---@param num number 数量
 function ItemManager:OnSelectBooster(boosterID, num)
     self:AddSelNumToCache(boosterID, num)
 end
 
 --- 确认使用（缓存 → 写入存档）
----@param boosterID string
----@param num number
+---@param boosterID string 道具ID
+---@param num number 数量
 function ItemManager:OnConfirmUseBooster(boosterID, num)
     if string.isNullOrEmpty(boosterID) then return end
 
@@ -239,13 +248,13 @@ function ItemManager:OnConfirmUseBooster(boosterID, num)
 end
 
 --- 取消使用（从缓存恢复）
----@param boosterID string
----@param num number
+---@param boosterID string 道具ID
+---@param num number 数量
 function ItemManager:OnCancelSelectBooster(boosterID, num)
     self:SubCacheNum(boosterID, num)
 end
 
---- 结束使用（清空所有生效Buff）
+--- 结束使用（清空所有生效Buff + 动画）
 function ItemManager:OnEndUseBooster()
     DOTween.Kill(ECustomTweenID.ITEM_MGR_FROZEN_TIME_CHANGE, true)
     self._inActiveIDs = {}
@@ -259,8 +268,8 @@ end
 --=========================================================================
 
 --- 获取显示数量（最终玩家看到的）
----@param id string
----@return number
+---@param id string 道具ID
+---@return number 显示数量
 function ItemManager:GetNum(id)
     if string.isNullOrEmpty(id) then return 0 end
     local cache = self._cacheSubNum[id] or 0
@@ -269,18 +278,22 @@ function ItemManager:GetNum(id)
 end
 
 --- 获取缓存扣减量
+---@param id string 道具ID
+---@return number
 function ItemManager:GetCacheNum(id)
     return self._cacheSubNum[id] or 0
 end
 
 --- 获取存档原始数量
+---@param id string 道具ID
+---@return number
 function ItemManager:GetSaveNum(id)
     return PbRootData.GameData.resourceInfo.nums[id] or 0
 end
 
---- 增加数量（支持碎片合成）
----@param id string
----@param addNum number
+--- 增加数量（支持碎片自动合成）
+---@param id string 道具ID
+---@param addNum number 增加数量
 function ItemManager:AddNum(id, addNum)
     if string.isNullOrEmpty(id) or not addNum or addNum <= 0 then
         return
@@ -304,7 +317,10 @@ function ItemManager:AddNum(id, addNum)
     self:SetNum(id, self:GetSaveNum(id) + addNum, self:GetNum(id))
 end
 
---- 缓存扣减（临时）
+--- 缓存扣减（临时，仅UI显示变化）
+---@param id string 道具ID
+---@param subNum number 扣减数量
+---@return number 最新显示数量
 function ItemManager:AddSelNumToCache(id, subNum)
     if string.isNullOrEmpty(id) then return 0 end
     subNum = subNum or 1
@@ -317,7 +333,10 @@ function ItemManager:AddSelNumToCache(id, subNum)
     return now
 end
 
---- 缓存恢复
+--- 缓存恢复（取消选择时）
+---@param id string 道具ID
+---@param subNum number 恢复数量
+---@return number 最新显示数量
 function ItemManager:SubCacheNum(id, subNum)
     if string.isNullOrEmpty(id) then return 0 end
     subNum = subNum or 1
@@ -331,6 +350,9 @@ function ItemManager:SubCacheNum(id, subNum)
 end
 
 --- 确认扣减（写入存档）
+---@param id string 道具ID
+---@param subNum number 扣减数量
+---@return number 最新显示数量
 function ItemManager:SubSaveNum(id, subNum)
     if string.isNullOrEmpty(id) then return 0 end
     subNum = subNum or 1
@@ -340,7 +362,11 @@ function ItemManager:SubSaveNum(id, subNum)
     return self:SetNum(id, self:GetSaveNum(id) - subNum, oldUI)
 end
 
---- 设置数量（底层保存）
+--- 设置数量（底层保存 + 事件抛出）
+---@param id string 道具ID
+---@param newNum number 新数量
+---@param oldUI number 旧显示数量
+---@return number 最新显示数量
 function ItemManager:SetNum(id, newNum, oldUI)
     if string.isNullOrEmpty(id) then return 0 end
     newNum = math.max(newNum, 0)
@@ -358,14 +384,17 @@ end
 --endregion
 
 --=========================================================================
---region 生命系统
+--region 生命（体力）系统
+--=========================================================================
 
---- 最大生命
+--- 获取最大生命
+---@return number
 function ItemManager:GetMaxLifeNum()
     return 2
 end
 
 --- 增加生命
+---@param num number 增加数量
 function ItemManager:AddLife(num)
     num = num or 1
     local max = self:GetMaxLifeNum()
@@ -382,12 +411,13 @@ function ItemManager:SubLife()
     self:SubSaveNum(ELifeID.ID, 1)
 end
 
---- 当前生命
+--- 获取当前剩余生命
+---@return number
 function ItemManager:LifeRemain()
     return self:GetSaveNum(ELifeID.ID)
 end
 
---- 满生命
+--- 生命回满
 function ItemManager:FullLife()
     self:AddLife(self:GetMaxLifeNum())
 end
@@ -396,12 +426,13 @@ end
 
 --=========================================================================
 --region 新账号初始化
+--=========================================================================
 
---- 新账号钻石
+--- 新账号钻石初始化
 function ItemManager:InitGemCountOfNewAccount()
 end
 
---- 新账号道具
+--- 新账号道具初始化
 function ItemManager:InitNewAccountItemData()
     self:FullLife()
     self:InitGemCountOfNewAccount()

@@ -1,9 +1,12 @@
 --=====================================================================================================
 -- Description: 全局通用工具函数库
 -- Author:     优化版 - 遵循Unity/XLua规范 + 统一命名 + 修复Bug
+-- @author:    Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
 --- 将数字类型的缓动类型 转换成 DOTween 枚举 Ease
+---@type fun(intEaseType:number):DG.Tweening.Ease
 ---@param intEaseType number 数字缓动类型
 ---@return DG.Tweening.Ease DOTween 缓动枚举
 function ParseEaseByInt(intEaseType)
@@ -49,12 +52,14 @@ function ParseEaseByInt(intEaseType)
 end
 
 --- 获取对象池根节点 GameObject
+---@type fun():UnityEngine.GameObject
 ---@return UnityEngine.GameObject 对象池根节点
 function GetPoolRoot()
     return UnityEngine.GameObject.Find("PoolRoot")
 end
 
 --- 创建一个新的对象池子节点
+---@type fun():UnityEngine.GameObject
 ---@return UnityEngine.GameObject 新创建的对象池子节点
 function CreateNewPoolRoot()
     local poolRootGo = GetPoolRoot()
@@ -70,6 +75,7 @@ function CreateNewPoolRoot()
 end
 
 --- 获取屏幕左边界世界坐标 X
+---@type fun(sceneCamera:UnityEngine.Camera):number
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 左边界世界X坐标
 function GetScreenBorderLeftWorldX(sceneCamera)
@@ -80,6 +86,7 @@ function GetScreenBorderLeftWorldX(sceneCamera)
 end
 
 --- 获取屏幕右边界世界坐标 X
+---@type fun(sceneCamera:UnityEngine.Camera):number
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 右边界世界X坐标
 function GetScreenBorderRightWorldX(sceneCamera)
@@ -90,6 +97,7 @@ function GetScreenBorderRightWorldX(sceneCamera)
 end
 
 --- 获取屏幕上边界世界坐标 Y
+---@type fun(sceneCamera:UnityEngine.Camera):number
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 上边界世界Y坐标
 function GetScreenBorderTopWorldY(sceneCamera)
@@ -100,6 +108,7 @@ function GetScreenBorderTopWorldY(sceneCamera)
 end
 
 --- 获取屏幕下边界世界坐标 Y
+---@type fun(sceneCamera:UnityEngine.Camera):number
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 下边界世界Y坐标
 function GetScreenBorderBottomWorldY(sceneCamera)
@@ -110,6 +119,7 @@ function GetScreenBorderBottomWorldY(sceneCamera)
 end
 
 --- 判断字符串是否以指定内容开头
+---@type fun(str:string, startStr:string):boolean
 ---@param str string 原字符串
 ---@param startStr string 开头匹配串
 ---@return boolean 是否匹配
@@ -119,6 +129,7 @@ function StringStartsWith(str, startStr)
 end
 
 --- 判断字符串是否以指定内容结尾
+---@type fun(str:string, endStr:string):boolean
 ---@param str string 原字符串
 ---@param endStr string 结尾匹配串
 ---@return boolean 是否匹配
@@ -129,6 +140,7 @@ end
 
 --====================== Spine 动画相关工具 ======================
 --- 获取 Spine.SkeletonAnimation 动画时长
+---@type fun(spineAnim:Spine.Unity.SkeletonAnimation, animName:string):number
 ---@param spineAnim Spine.Unity.SkeletonAnimation Spine动画组件
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
@@ -139,6 +151,7 @@ function GetSpineAnimationDuration(spineAnim, animName)
 end
 
 --- 获取 Spine.SkeletonGraphic 动画时长
+---@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string):number
 ---@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
@@ -149,6 +162,7 @@ function GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
 end
 
 --- 判断是否存在指定 Spine 动画
+---@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string):boolean
 ---@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@return boolean 是否存在该动画
@@ -158,6 +172,7 @@ function HasSpineAnimation(skeletonGraphic, animName)
 end
 
 --- 播放 Spine 动画
+---@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string, loop:boolean):Spine.TrackEntry
 ---@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@param loop boolean 是否循环
@@ -172,6 +187,7 @@ function PlaySpineAnimation(skeletonGraphic, animName, loop)
 end
 
 --- 延迟播放 Spine 动画
+---@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string, delay:number, loop:boolean):Spine.TrackEntry
 ---@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@param delay number 延迟时间（秒）
@@ -183,6 +199,7 @@ function DelayPlaySpineAnimation(skeletonGraphic, animName, delay, loop)
 end
 
 --- 打开飞星界面并播放飞星效果
+---@type fun(cfg:StarFlyConfig):void
 ---@param cfg StarFlyConfig 飞星配置数据
 function OpenStarFlyUI(cfg)
     if not AllOpenUI[UIs.UIStarFly.Name] then
@@ -191,6 +208,7 @@ function OpenStarFlyUI(cfg)
 end
 
 --- 贝塞尔曲线飞行动画（金币/道具飞入）
+---@type fun(starFly:RGame.StarFly, parentTransform:UnityEngine.Transform, count:number, startPos:UnityEngine.Vector3, targetPos:UnityEngine.Vector3, duration:number, delay:number, ease:DG.Tweening.Ease, tweenId:string, realTime:boolean, onComplete:function, reverseCtrlX:boolean, minOffsetX:number, maxOffsetX:number):void
 ---@param starFly RGame.StarFly 飞行动画组件
 ---@param parentTransform UnityEngine.Transform 父节点
 ---@param count number 数量
@@ -257,6 +275,7 @@ function StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, 
 end
 
 --- 物体按路径点曲线运动
+---@type fun(go:UnityEngine.GameObject, pathPoints:UnityEngine.Vector3[], preDelay:number, duration:number, ease:DG.Tweening.Ease):DG.Tweening.Sequence
 ---@param go UnityEngine.GameObject 运动物体
 ---@param pathPoints UnityEngine.Vector3[] 路径点数组
 ---@param preDelay number 前置延迟
@@ -278,6 +297,7 @@ function DOPathAndWait(go, pathPoints, preDelay, duration, ease)
 end
 
 --- 获取文本宽度（根据内容）
+---@type fun(text:TMPro.TextMeshProUGUI, content:string):number
 ---@param text TMPro.TextMeshProUGUI 文本组件
 ---@param content string 文本内容
 ---@return number 首选宽度
@@ -288,6 +308,7 @@ function GetTextPreferredWidth(text, content)
 end
 
 --- 获取多语言文本
+---@type fun(key:string):string
 ---@param key string 多语言Key
 ---@return string 对应语言文本
 function GetLocalization(key)
@@ -295,6 +316,7 @@ function GetLocalization(key)
 end
 
 --- 获取 UI 元素对应的屏幕宽度（适配缩放）
+---@type fun(rectTransform:UnityEngine.RectTransform):number
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
 ---@return number 实际屏幕宽度
 function GetUGUIRealScreenWidth(rectTransform)
@@ -302,6 +324,7 @@ function GetUGUIRealScreenWidth(rectTransform)
 end
 
 --- 获取 UI 元素对应的屏幕高度
+---@type fun(rectTransform:UnityEngine.RectTransform):number
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
 ---@return number 实际屏幕高度
 function GetUGUIRealScreenHeight(rectTransform)
@@ -309,6 +332,7 @@ function GetUGUIRealScreenHeight(rectTransform)
 end
 
 --- 设计宽度转当前屏幕宽度
+---@type fun(designWidth:number):number
 ---@param designWidth number 设计尺寸宽度
 ---@return number 实际屏幕宽度
 function GetRealScreenWidthByDesign(designWidth)
@@ -325,6 +349,7 @@ function GetRealScreenWidthByDesign(designWidth)
 end
 
 --- 设计高度转当前屏幕高度
+---@type fun(designHeight:number):number
 ---@param designHeight number 设计尺寸高度
 ---@return number 实际屏幕高度
 function GetRealScreenHeightByDesign(designHeight)
@@ -341,6 +366,7 @@ function GetRealScreenHeightByDesign(designHeight)
 end
 
 --- 判断 table 是否为空
+---@type fun(t:table):boolean
 ---@param t table 目标表
 ---@return boolean 是否为空
 function IsTableEmpty(t)
@@ -349,6 +375,7 @@ function IsTableEmpty(t)
 end
 
 --- 数组映射转换
+---@type fun(source:table, converter:function):table
 ---@param source table 原数组
 ---@param converter function 转换函数
 ---@return table 转换后数组
@@ -362,6 +389,7 @@ function ArrayConvert(source, converter)
 end
 
 --- 获取 UI 中心点世界坐标
+---@type fun(rectTransform:UnityEngine.RectTransform):UnityEngine.Vector3
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
 ---@return UnityEngine.Vector3 中心点世界坐标
 function GetRectTransformCenterWorldPos(rectTransform)
@@ -379,6 +407,7 @@ function GetRectTransformCenterWorldPos(rectTransform)
 end
 
 --- 二分法插入有序数组
+---@type fun(array:table, item:table, sortField:string):void
 ---@param array table 有序数组
 ---@param item table 插入项
 ---@param sortField string 排序字段名
@@ -414,6 +443,7 @@ function BinaryInsertSortedArray(array, item, sortField)
 end
 
 --- 等比缩放限制尺寸
+---@type fun(origin:Vector2, maxWidth:number, maxHeight:number):Vector2
 ---@param origin Vector2 原始尺寸
 ---@param maxWidth number 最大宽度
 ---@param maxHeight number 最大高度
@@ -433,6 +463,7 @@ function ScaleToFitSize(origin, maxWidth, maxHeight)
 end
 
 --- 安全执行函数（捕获异常）
+---@type fun(func:function, errorMsg:string):void
 ---@param func function 执行函数
 ---@param errorMsg string 错误提示信息
 function SafeInvoke(func, errorMsg)
@@ -443,6 +474,7 @@ function SafeInvoke(func, errorMsg)
 end
 
 --- 获取模型屏幕包围盒
+---@type fun(meshFilter:UnityEngine.MeshFilter):table
 ---@param meshFilter UnityEngine.MeshFilter 网格过滤器
 ---@return table 包围盒信息（center + size）
 function GetMeshScreenBounds(meshFilter)
@@ -465,6 +497,7 @@ function GetMeshScreenBounds(meshFilter)
 end
 
 --- 获取2D碰撞盒屏幕包围盒
+---@type fun(collider2D:UnityEngine.BoxCollider2D):table
 ---@param collider2D UnityEngine.BoxCollider2D 2D碰撞器
 ---@return table 包围盒信息（center + size）
 function GetBox2DScreenBounds(collider2D)
@@ -479,6 +512,7 @@ function GetBox2DScreenBounds(collider2D)
 end
 
 --- 获取UI屏幕包围盒
+---@type fun(rectTransform:UnityEngine.RectTransform, camera:UnityEngine.Camera):table
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
 ---@param camera UnityEngine.Camera 渲染相机
 ---@return table 包围盒信息（center + size）
@@ -505,6 +539,7 @@ function GetRectTransformScreenBounds(rectTransform, camera)
 end
 
 --- 清空数组（高效）
+---@type fun(array:table):void
 ---@param array table 目标数组
 function ClearArray(array)
     if not array then return end
@@ -514,6 +549,7 @@ function ClearArray(array)
 end
 
 --- 清空字典
+---@type fun(dict:table):void
 ---@param dict table 目标字典
 function ClearDictionary(dict)
     if not dict then return end
@@ -523,6 +559,7 @@ function ClearDictionary(dict)
 end
 
 --- Fisher-Yates 打乱数组
+---@type fun(array:table):void
 ---@param array table 目标数组
 function ShuffleArray(array)
     if not array or #array <= 1 then return end
@@ -535,6 +572,7 @@ function ShuffleArray(array)
 end
 
 --- 加载关卡准备界面活动图标
+---@type fun(parent:UnityEngine.Transform, enableAnimator:boolean, entryType:EActivityEnterFormPosType):table
 ---@param parent UnityEngine.Transform 父节点
 ---@param enableAnimator boolean 是否启用动画
 ---@param entryType EActivityEnterFormPosType 入口类型
@@ -574,6 +612,7 @@ function TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
 end
 
 --- 播放 Spine 显示 → Idle → 隐藏 整套动画
+---@type fun(spine:Spine.Unity.SkeletonGraphic, idleDuration:number, showAnim:string, idleAnim:string, hideAnim:string, onHideStart:function, onHideComplete:function):void
 ---@param spine Spine.Unity.SkeletonGraphic UI Spine组件
 ---@param idleDuration number Idle停留时长
 ---@param showAnim string 显示动画
@@ -610,6 +649,7 @@ function PlaySpineShowIdleHide(spine, idleDuration, showAnim, idleAnim, hideAnim
 end
 
 --- 根据资源类型获取预设名
+---@type fun(resType:EResourceType):string
 ---@param resType EResourceType 资源类型
 ---@return string 预设名称
 function GetItemPrefabNameByType(resType)
@@ -624,6 +664,7 @@ function GetItemPrefabNameByType(resType)
 end
 
 --- 直接发放道具
+---@type fun(itemId:string, count:number, areaId:string):void
 ---@param itemId string 道具ID
 ---@param count number 数量
 ---@param areaId string 区域ID
@@ -650,6 +691,7 @@ function GrantItem(itemId, count, areaId)
 end
 
 --- 批量发放奖励
+---@type fun(rewardList:table, areaId:string):void
 ---@param rewardList table 奖励列表
 ---@param areaId string 区域ID
 function GrantRewardList(rewardList, areaId)
@@ -660,6 +702,7 @@ function GrantRewardList(rewardList, areaId)
 end
 
 --- 单个奖励统计打点
+---@type fun(itemId:string, count:number, reason:number, purchaseId:string, areaId:string):void
 ---@param itemId string 道具ID
 ---@param count number 数量
 ---@param reason number 获取原因
@@ -688,6 +731,7 @@ function TrackReward(itemId, count, reason, purchaseId, areaId)
 end
 
 --- 批量奖励打点
+---@type fun(rewardList:table, reason:number, purchaseId:string, areaId:string):void
 ---@param rewardList table 奖励列表
 ---@param reason number 获取原因
 ---@param purchaseId string 购买ID
@@ -700,6 +744,7 @@ function TrackRewardList(rewardList, reason, purchaseId, areaId)
 end
 
 --- 格式化道具数量显示
+---@type fun(itemId:string, count:number, showPrefix:boolean):string
 ---@param itemId string 道具ID
 ---@param count number 数量
 ---@param showPrefix boolean 是否显示前缀x
@@ -720,6 +765,7 @@ function FormatItemCountDisplay(itemId, count, showPrefix)
 end
 
 --- 从RewardData格式化数量
+---@type fun(reward:table):string
 ---@param reward table 奖励数据
 ---@return string 格式化数量字符串
 function FormatRewardCount(reward)
@@ -727,6 +773,7 @@ function FormatRewardCount(reward)
 end
 
 --- 敏感词匹配检查
+---@type fun(content:string, word:string):boolean
 ---@param content string 检查内容
 ---@param word string 敏感词
 ---@return boolean 是否包含敏感词
@@ -742,6 +789,7 @@ function ContainsBadWord(content, word)
 end
 
 --- DOTween 延迟执行
+---@type fun(delay:number, realTime:boolean, callback:function, tweenId:string):DG.Tweening.Sequence
 ---@param delay number 延迟时间
 ---@param realTime boolean 是否真实时间
 ---@param callback function 回调函数
@@ -762,6 +810,7 @@ function DelayInvoke(delay, realTime, callback, tweenId)
 end
 
 --- 协程延迟执行
+---@type fun(self:table, delay:number, realTime:boolean, callback:function):UnityEngine.Coroutine
 ---@param self table 执行主体
 ---@param delay number 延迟时间
 ---@param realTime boolean 是否真实时间
@@ -786,6 +835,7 @@ function CoroutineDelayInvoke(self, delay, realTime, callback)
 end
 
 --- 协程延迟N帧执行
+---@type fun(self:table, frameCount:number, callback:function):UnityEngine.Coroutine
 ---@param self table 执行主体
 ---@param frameCount number 帧数
 ---@param callback function 回调函数
@@ -805,6 +855,7 @@ function CoroutineDelayFrame(self, frameCount, callback)
 end
 
 --- 独立延迟帧调用
+---@type fun(frameCount:number, callback:function, param:any):void
 ---@param frameCount number 帧数
 ---@param callback function 回调函数
 ---@param param any 回调参数
@@ -823,6 +874,7 @@ function DelayFrameInvoke(frameCount, callback, param)
 end
 
 --- 检查父节点是否隐藏（最多查几层）
+---@type fun(transform:UnityEngine.Transform, maxDepth:number):boolean
 ---@param transform UnityEngine.Transform 目标变换
 ---@param maxDepth number 检查深度
 ---@return boolean 是否有父节点隐藏
@@ -840,6 +892,7 @@ function IsAnyParentInactive(transform, maxDepth)
 end
 
 --- 复制物体并设为子节点
+---@type fun(parent:UnityEngine.GameObject, original:UnityEngine.GameObject):UnityEngine.GameObject
 ---@param parent UnityEngine.GameObject 父物体
 ---@param original UnityEngine.GameObject 原始物体
 ---@return UnityEngine.GameObject 复制后的物体
@@ -855,6 +908,7 @@ function InstantiateChild(parent, original)
 end
 
 --- 设置父子关系并重置Transform
+---@type fun(parent:UnityEngine.GameObject, child:UnityEngine.GameObject):void
 ---@param parent UnityEngine.GameObject 父物体
 ---@param child UnityEngine.GameObject 子物体
 function SetTransformChild(parent, child)
@@ -867,6 +921,7 @@ function SetTransformChild(parent, child)
 end
 
 --- 判断是否解锁章节/关卡
+---@type fun(unlockChapter:number, unlockLevel:number, currentChapter:number, currentLevel:number):boolean
 ---@param unlockChapter number 解锁章节
 ---@param unlockLevel number 解锁关卡
 ---@param currentChapter number 当前章节
@@ -882,6 +937,7 @@ function IsLevelUnlocked(unlockChapter, unlockLevel, currentChapter, currentLeve
 end
 
 --- 派发任务进度更新事件
+---@type fun(subType:EDailyQuestSubType, value:number, isLatestChapter:boolean):void
 ---@param subType EDailyQuestSubType 任务子类型
 ---@param value number 进度值
 ---@param isLatestChapter boolean 是否最新章节
@@ -891,6 +947,7 @@ function DispatchQuestProgressUpdate(subType, value, isLatestChapter)
 end
 
 --- 派发任务进度清空事件
+---@type fun(subType:EDailyQuestSubType, isLatestChapter:boolean):void
 ---@param subType EDailyQuestSubType 任务子类型
 ---@param isLatestChapter boolean 是否最新章节
 function DispatchQuestProgressClear(subType, isLatestChapter)
@@ -899,6 +956,7 @@ function DispatchQuestProgressClear(subType, isLatestChapter)
 end
 
 --- 解析奖励表
+---@type fun(rewardTable:table):HonorList
 ---@param rewardTable table 奖励表数据
 ---@return HonorList 奖励数据列表
 function ParseRewardDataList(rewardTable)
@@ -912,6 +970,7 @@ function ParseRewardDataList(rewardTable)
 end
 
 --- 解析单个奖励字符串 id,num
+---@type fun(str:string):table
 ---@param str string 奖励字符串
 ---@return table 奖励数据 {Id, Num}
 function ParseRewardData(str)
@@ -928,6 +987,7 @@ function ParseRewardData(str)
 end
 
 --- 判断Unity对象是否为空
+---@type fun(obj:UnityEngine.Object):boolean
 ---@param obj UnityEngine.Object Unity对象
 ---@return boolean 是否为空
 function IsNull(obj)
@@ -935,6 +995,7 @@ function IsNull(obj)
 end
 
 --- 解析二元组数组
+---@type fun(dataList:table):HonorList
 ---@param dataList table 原始数据列表
 ---@return HonorList 结构数据列表
 function ParseStruct2List(dataList)
@@ -948,6 +1009,7 @@ function ParseStruct2List(dataList)
 end
 
 --- 解析二元组 a,b
+---@type fun(str:string):table
 ---@param str string 二元组字符串
 ---@return table 结构数据 {Item1, Item2}
 function ParseStruct2(str)
@@ -964,6 +1026,7 @@ function ParseStruct2(str)
 end
 
 --- 分批遍历（防卡顿）
+---@type fun(data:table, batchCount:number, callback:function):void
 ---@param data table 数据列表
 ---@param batchCount number 每批数量
 ---@param callback function 处理回调

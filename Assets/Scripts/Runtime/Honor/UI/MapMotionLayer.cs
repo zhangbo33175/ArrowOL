@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GameLib
 {
@@ -12,14 +13,15 @@ namespace GameLib
         /// <summary>
         /// 地图区域包围盒（2D平面使用，忽略Z轴）
         /// </summary>
-        public Bounds areaBounds;
+        [FormerlySerializedAs("areaBounds")] 
+        public Bounds m_AreaBounds;
 
         /// <summary>
         /// Scene视图绘制包围盒线框，用于可视化编辑
         /// </summary>
         private void OnDrawGizmos()
         {
-            Gizmos.DrawWireCube(areaBounds.center, areaBounds.size);
+            Gizmos.DrawWireCube(m_AreaBounds.center, m_AreaBounds.size);
         }
     }
 
@@ -60,39 +62,42 @@ namespace GameLib
         private void RegenerateBounds()
         {
             MapMotionLayer motionLayer = target as MapMotionLayer;
-            
-            // 空值安全校验
-            if (motionLayer == null)
-            {
-                return;
-            }
+            if (motionLayer == null) return;
 
-            // 清空并获取所有子物体Renderer
             childRenderers.Clear();
             motionLayer.GetComponentsInChildren(childRenderers);
-            
-            // 初始化包围盒
+
+            // 新增：获取所有UI Image/RawImage
+            List<UnityEngine.UI.Image> uiImages = new List<UnityEngine.UI.Image>();
+            motionLayer.GetComponentsInChildren(uiImages);
+
             Bounds resultBounds = new Bounds(motionLayer.transform.position, Vector2.one);
 
-            // 遍历合并包围盒
-            for (int i = 0; i < childRenderers.Count; i++)
+            // 合并Renderer的Bounds
+            foreach (var renderer in childRenderers)
             {
-                Renderer renderer = childRenderers[i];
-                
-                // 跳过粒子渲染器 & 空对象
-                if (renderer == null || renderer is ParticleSystemRenderer)
-                {
-                    continue;
-                }
-
+                if (renderer == null || renderer is ParticleSystemRenderer) continue;
                 resultBounds.Encapsulate(renderer.bounds);
             }
 
-            // 保持2D，重置Z轴尺寸为0
+            // 新增：合并UI Image的Bounds
+            foreach (var image in uiImages)
+            {
+                RectTransform rectTransform = image.rectTransform;
+                Vector3[] corners = new Vector3[4];
+                rectTransform.GetWorldCorners(corners);
+
+                // 计算UI世界坐标的包围盒
+                Bounds uiBounds = new Bounds(corners[0], Vector3.zero);
+                for (int i = 0; i < 4; i++)
+                {
+                    uiBounds.Encapsulate(corners[i]);
+                }
+                resultBounds.Encapsulate(uiBounds);
+            }
+
             resultBounds.size = new Vector3(resultBounds.size.x, resultBounds.size.y, 0);
-            
-            // 赋值并标记修改，确保可保存
-            motionLayer.areaBounds = resultBounds;
+            motionLayer.m_AreaBounds = resultBounds;
             EditorUtility.SetDirty(motionLayer);
         }
     }

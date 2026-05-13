@@ -21,6 +21,9 @@ function LevelManager:ctor(args)
     self._isNewUser = false
     --- 是否删除用户（临时兼容字段）
     self._isDelUser = false
+    --- 当前章节信息
+    self._chapterLevel=""
+    
 end
 
 ---@brief 创建单例实例
@@ -43,12 +46,22 @@ function LevelManager:ClearData()
     self._isOnline = false
     self._isNewUser = false
     self._isDelUser = false
+    self._chapterLevel=""
 end
+
+
+---@brief 当前章节信息
+function LevelManager:GetChapterLevel()
+    return "第 "..  self._chapterLevel.."关"
+end
+
 
 ---@brief 获取当前关卡信息（用于界面展示）
 ---@return table 关卡信息数据
 function LevelManager:GetCurrentLevelInfo()
     -- 扩展：当前章节、关卡、星级、解锁状态、奖励配置等
+    self._chapterLevel=ChapterListManager:GetRuntimeChapterId()
 end
+
 
 return LevelManager

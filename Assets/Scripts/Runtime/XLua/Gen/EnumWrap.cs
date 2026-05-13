@@ -5274,12 +5274,14 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginObjectRegister(typeof(RMapCamPosType), L, translator, 0, 0, 0, 0);
 			Utils.EndObjectRegister(typeof(RMapCamPosType), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(RMapCamPosType), L, null, 3, 0, 0);
+			Utils.BeginClassRegister(typeof(RMapCamPosType), L, null, 4, 0, 0);
 
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Left", RMapCamPosType.Left);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Right", RMapCamPosType.Right);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Center", RMapCamPosType.Center);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
@@ -5307,6 +5309,10 @@ namespace XLua.CSObjectWrap
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Right"))
                 {
                     translator.PushRMapCamPosType(L, RMapCamPosType.Right);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Center"))
+                {
+                    translator.PushRMapCamPosType(L, RMapCamPosType.Center);
                 }
 				else
                 {

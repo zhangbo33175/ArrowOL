@@ -1,19 +1,23 @@
 --=====================================================================================================
 -- @brief:     登录数据模块
 -- @desc:      管理登录相关数据、账号信息、登录状态、服务器信息等
+-- @author:    Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
 ---@class LoginData 登录数据模块
 local LoginData = class("LoginData")
 
----@brief 构造函数
+---构造函数
+---@type fun(args:table):void
 ---@param args table 自定义参数
 function LoginData:ctor(args)
 end
 
----@brief 创建数据实例
+---创建数据实例
+---@type fun(args:table):LoginData
 ---@param args table 自定义参数
----@return LoginData
+---@return LoginData 登录数据实例
 function LoginData:Create(args)
     return LoginData.new(args)
 end

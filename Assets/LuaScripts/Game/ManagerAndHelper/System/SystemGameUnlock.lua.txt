@@ -3,9 +3,10 @@
 -- @desc   根据玩家当前章节/关卡，判断各个游戏系统（升级、装修、任务、收藏）是否解锁
 -- @trigger 关卡胜利 / 新章节解锁 时自动刷新
 -- @event  OnGameSysUnlock - 系统解锁时抛出
+-- @dependency Singleton, HonorEventHelper, GamerDataManager, ESingletonPriority, ESystemName
 --=====================================================================================================
 
----@class SystemGameUnlock : Singleton @游戏系统解锁查询
+---@class SystemGameUnlock : Singleton @游戏系统解锁查询管理器
 local SystemGameUnlock = class("SystemGameUnlock", import("Singleton"))
 
 --- 构造函数
@@ -41,7 +42,8 @@ end
 
 ---=========================================================================
 --- 【监听】关卡胜利 → 刷新所有系统解锁状态
----@param chapterLv ChapterLevel 最新章节关卡
+---@param chapterLv ChapterLevel 最新章节关卡数据
+---@private
 ---=========================================================================
 function SystemGameUnlock:_ListenLevelSuccess(chapterLv)
     if not chapterLv or not chapterLv.Chapter or not chapterLv.Level then
@@ -65,7 +67,7 @@ function SystemGameUnlock:_ListenLevelSuccess(chapterLv)
 
             self.map[sys] = isUnlock
 
-            -- 解锁成功 → 抛出事件
+            -- 解锁成功 → 抛出全局事件
             if isUnlock then
                 HonorEventHelper:Fire(EventCmd.OnGameSysUnlock, sys)
             end
@@ -84,7 +86,8 @@ function SystemGameUnlock:_ListenLevelSuccess(chapterLv)
 end
 
 ---=========================================================================
---- 【监听】新章节解锁 → 刷新系统解锁
+--- 【监听】新章节解锁 → 刷新系统解锁状态
+---@private
 ---=========================================================================
 function SystemGameUnlock:_ListenChapterUnlock()
     local latestChapterLv = GamerDataManager:GetLatestChapterLevel()
@@ -93,14 +96,14 @@ end
 
 ---=========================================================================
 --- 单例优先级（越高越早初始化）
----@return number
+---@return number 优先级数值
 ---=========================================================================
 function SystemGameUnlock:Priority()
     return ESingletonPriority.GAME_SYS_UNLOCK
 end
 
 ---=========================================================================
---- 初始化：读取配置 → 注册监听
+--- 初始化：读取配置 → 注册事件监听 → 初始化解锁状态
 ---=========================================================================
 function SystemGameUnlock:Init()
     SystemGameUnlock.super.Init(self)
@@ -149,7 +152,7 @@ function SystemGameUnlock:Init()
 end
 
 ---=========================================================================
---- 清理数据（切号/重载时使用）
+--- 清理数据（切号/重载游戏时使用）
 ---=========================================================================
 function SystemGameUnlock:ClearData()
     SystemGameUnlock.super.ClearData(self)

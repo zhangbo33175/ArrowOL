@@ -7,54 +7,55 @@
 ---@class GameTurnToProLoadState : GameStateBase 切换至预加载流程状态
 local GameTurnToProLoadState = class('GameTurnToProLoadState', import('GameStateBase'))
 
----@brief 构造函数
+---构造函数
+---@type fun(args:table):void
 ---@param args table 状态传入参数
 function GameTurnToProLoadState:ctor(args)
     GameTurnToProLoadState.super.ctor(self, args)
 end
 
----@brief 创建状态实例（静态工厂）
+---创建状态实例（静态工厂）
+---@type fun(args:table):GameTurnToProLoadState
 ---@param args table 传入参数
 ---@return GameTurnToProLoadState 状态实例
 function GameTurnToProLoadState:Create(args)
     return GameTurnToProLoadState.new(args)
 end
 
----@brief 进入状态：执行场景切换前的清理工作
+---进入状态：执行场景切换前的清理工作
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态进入完成回调
 function GameTurnToProLoadState:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
-
     -- 关闭所有打开的UI界面
     GameManager:CloseAllUI(true)
     -- 卸载当前旧地图资源
     MapManager:UnloadOldMap()
     -- 执行全量UI关闭后的画布清理与后续操作
     GameManager:OnAfterCanvasCloseAll()
-
     -- 执行完成回调
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
 
----@brief 离开状态：状态退出清理
+---离开状态：状态退出清理
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态退出完成回调
 function GameTurnToProLoadState:OnStateExit(finishCallback)
-    -- 可在此处扩展：关闭加载界面、清理过渡资源
-    -- self:CloseLoadingUI()
-
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
 
----@brief 打开地图加载界面
+---打开地图加载界面
+---@type fun():void
 function GameTurnToProLoadState:OpenLoadingUI()
     OpenUISync(UIs.UILoadMap)
 end
 
----@brief 关闭地图加载界面
+---关闭地图加载界面
+---@type fun():void
 function GameTurnToProLoadState:CloseLoadingUI()
     CloseUI(UIs.UILoadMap)
 end

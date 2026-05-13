@@ -9,26 +9,30 @@
 ---@class GameStateBase 游戏业务状态基类（所有状态的父类）
 local GameStateBase = class('GameStateBase')
 
----@brief 构造函数
+---构造函数
+---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型枚举
 function GameStateBase:ctor(stateType)
     self._stateType = stateType  ---@type GameStateCmd 当前状态类型
 end
 
----@brief 创建状态实例
+---创建状态实例
+---@type fun(stateType:GameStateCmd):GameStateBase
 ---@param stateType GameStateCmd 状态类型枚举
 ---@return GameStateBase 状态基类实例
 function GameStateBase:Create(stateType)
     return GameStateBase.new(stateType)
 end
 
----@brief 获取当前状态类型
+---获取当前状态类型
+---@type fun():GameStateCmd
 ---@return GameStateCmd 当前状态枚举值
 function GameStateBase:GetStateType()
     return self._stateType
 end
 
----@brief 进入状态（子类重写）
+---进入状态（子类重写）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameStateBase:OnStateEnter(finishCallback)
     if finishCallback then
@@ -36,7 +40,8 @@ function GameStateBase:OnStateEnter(finishCallback)
     end
 end
 
----@brief 离开状态（子类重写）
+---离开状态（子类重写）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameStateBase:OnStateExit(finishCallback)
     if finishCallback then
@@ -44,12 +49,14 @@ function GameStateBase:OnStateExit(finishCallback)
     end
 end
 
----@brief 帧更新（子类重写）
+---帧更新（子类重写）
+---@type fun():void
 function GameStateBase:OnUpdate()
-    --- GM 辅助更新（预留）
+
 end
 
----@brief 清理缓存数据（子类重写）
+---清理缓存数据（子类重写）
+---@type fun():void
 function GameStateBase:ClearCacheData()
     --- 清理特效等临时数据（预留）
 end

@@ -1,21 +1,25 @@
 --=====================================================================================================
 -- @brief:     全局数据中心（单例）
 -- @desc:      统一创建、管理所有子数据模块（登录、玩家、关卡、背包等）
+-- @author:    Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
 ---@class DataCenter 全局数据中心
 local DataCenter = class("DataCenter")
 
----@brief 构造函数
+---构造函数
+---@type fun(args:table):void
 ---@param args table 自定义参数
 function DataCenter:ctor(args)
     --- 登录数据模块
     self.loginData = require("LoginData"):Create()
 end
 
----@brief 创建数据中心实例
+---创建数据中心实例
+---@type fun(args:table):DataCenter
 ---@param args table 自定义参数
----@return DataCenter
+---@return DataCenter 数据中心实例
 function DataCenter:Create(args)
     return DataCenter.new(args)
 end

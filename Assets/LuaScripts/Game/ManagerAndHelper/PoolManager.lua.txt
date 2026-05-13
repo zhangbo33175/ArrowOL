@@ -14,7 +14,7 @@ local PoolManager = class("PoolManager", import("Singleton"))
 function PoolManager:ctor()
     PoolManager.super.ctor(self)
     self.pools = {}
-    self.maxItemCountOfOnePool = 30  -- 单个池最大缓存数量
+    self.maxItemCountOfOnePool = 30  -- 单个对象池最大缓存数量
 end
 
 --- 创建单例实例

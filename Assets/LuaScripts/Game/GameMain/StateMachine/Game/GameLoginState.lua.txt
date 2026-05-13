@@ -9,33 +9,49 @@
 ---@class GameLoginState : GameStateBase 游戏登录状态
 local GameLoginState = class('GameLoginState', import('GameStateBase'))
 
----@brief 构造函数
+---构造函数
+---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
 function GameLoginState:ctor(stateType)
     GameLoginState.super.ctor(self, stateType)
 end
 
----@brief 创建状态实例
+---创建状态实例
+---@type fun(stateType:GameStateCmd):GameLoginState
 ---@param stateType GameStateCmd 状态类型
 ---@return GameLoginState 登录状态实例
 function GameLoginState:Create(stateType)
     return GameLoginState.new(stateType)
 end
 
----@brief 进入登录状态（打开登录界面）
+---进入登录状态（打开登录界面）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态进入完成回调
 function GameLoginState:OnStateEnter(finishCallback)
     --- 打开登录UI
-    OpenUISync(UIs.UILoginView)
+    self:OpenLoginUI()
     pcall(finishCallback)
 end
 
----@brief 离开登录状态（关闭登录界面）
+---离开登录状态（关闭登录界面）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态退出完成回调
 function GameLoginState:OnStateExit(finishCallback)
     --- 关闭登录UI
-    CloseUI(UIs.UILoginView)
+    self:CloseLoginUI()
     pcall(finishCallback)
+end
+
+---打开登录界面
+---@type fun():void
+function GameLoginState:OpenLoginUI()
+    OpenUISync(UIs.UILoginView)
+end
+
+---关闭登录界面
+---@type fun():void
+function GameLoginState:CloseLoginUI()
+    CloseUI(UIs.UILoginView)
 end
 
 return GameLoginState

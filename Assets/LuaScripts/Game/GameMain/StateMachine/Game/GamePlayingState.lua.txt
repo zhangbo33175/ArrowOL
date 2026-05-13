@@ -3,20 +3,20 @@
 --            职责：关卡正式运行的核心状态，管理UI、相机、触摸、音效、引导、 HUD、活动同步
 --=====================================================================================================
 
----@class GamePlayingState : GameStateBase @游戏运行状态
+---@class GamePlayingState : GameStateBase 游戏运行状态
 local GamePlayingState = class('GamePlayingState', import('GameStateBase'))
 
 ---构造函数
 ---@type fun(stateType:GameStateCmd):void
----@param stateType GameStateCmd @状态类型
+---@param stateType GameStateCmd 状态类型
 function GamePlayingState:ctor(stateType)
     GamePlayingState.super.ctor(self, stateType)
 end
 
 ---创建状态实例
 ---@type fun(stateType:GameStateCmd):GamePlayingState
----@param stateType GameStateCmd @状态类型
----@return GamePlayingState @状态实例
+---@param stateType GameStateCmd 状态类型
+---@return GamePlayingState 状态实例
 function GamePlayingState:Create(stateType)
     local obj = GamePlayingState.new(stateType)
     return obj
@@ -24,29 +24,18 @@ end
 
 ---进入游戏运行状态（关卡正式开始）
 ---@type fun(finishCallback:function):void
----@param finishCallback function @进入完成回调
+---@param finishCallback function 进入完成回调
 function GamePlayingState:OnStateEnter(finishCallback)
     -- 开启多点触摸
     GameLib.Util.SetMultiTouchEnabled(true)
-    -- 加载GM隐藏分GUI
-    --LevelHiddenScore:TryLoadGMGUI()
-
     -- 增加UI遮罩，防止操作
     GameMainRoot.UI:AddUIMaskLayerRef("GamePlayingState:OnStateEnter")
     -- 清空UI推送队列
     GameMainUIPushManager:ClearWorkQueue()
-
-    -- 关闭角色层射线投射
-    --local layerNum = LayerHelper:GetLayerIntByName(ELayerName.Charater)
-    --GameLib.MapCamHelper.CloseSceneRaycasterLayer(layerNum)
-
-    -- 初始化游戏（扣除道具、连胜计时）
-    --PlayHudCycle:OnAction(EPlayHudCycleAction.InitGame)
     -- 开启点击检测
     GameManager:SetupEasyTouchAutoSelect(true)
     -- 暂停地图拖动
     GameMapMotion:PauseMapMotion()
-
     ---- 相机移动到关卡战斗位置
     local mapData = MapManager.CurMapData
     GameLib.MapCamHelper.LookMap(
@@ -56,7 +45,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
                 -- 相机动画完成后的回调
                 local closeUICallback = function()
                     -- 正式开始游戏
-                   -- PlayHudCycle:OnAction(EPlayHudCycleAction.BeginGame)
+                    -- PlayHudCycle:OnAction(EPlayHudCycleAction.BeginGame)
                     -- 触发引导事件
                     GuideNewContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
                 end
@@ -64,12 +53,13 @@ function GamePlayingState:OnStateEnter(finishCallback)
                 -- 移除UI遮罩
                 GameMainRoot.UI:SubUIMaskLayerRef()
                 -- 进入游戏逻辑
-               -- PlayHudCycle:OnAction(EPlayHudCycleAction.EnterGame)
+                -- PlayHudCycle:OnAction(EPlayHudCycleAction.EnterGame)
                 -- 触发目标准备事件
                 --GuideNewContext:TryDispatchEvent(EventCmd.OnLevelShowGoalReady)
 
                 -- 打开游戏内核心UI
                 OpenUISync(UIs.UIMainPlaying)                  -- 主HUD
+                GameMapMotion:ResumeMapMotion()
                 --OpenUISync(UIs.UIGoalTips, { callback = closeUICallback })  -- 目标提示
                 --OpenUISync(UIs.UIPlayingHudCollect)          -- 收集物飞行层
             end
@@ -81,32 +71,30 @@ end
 
 ---离开游戏运行状态（退出关卡）
 ---@type fun(finishCallback:function):void
----@param finishCallback function @退出完成回调
+---@param finishCallback function 退出完成回调
 function GamePlayingState:OnStateExit(finishCallback)
     -- 清空核心管理器数据
     GameCoreManager._GameCoreManagerEffect:ClearData()
-    -- 打开角色层射线投射
-    local layerNum = LayerHelper:GetLayerIntByName(ELayerName.Charater)
-    GameLib.MapCamHelper.OpenSceneRaycasterLayer(layerNum)
-
     -- 清理特效、停止音乐
     GameEffectManager:ClearData()
     SoundManager:StopCurBGM()
-
     -- 关闭战斗UI
     CloseUI(UIs.UIPlayingHud)
     CloseUI(UIs.UIPlayingHudCollect)
     CloseUI(UIs.UILevelSuccessBg)
-
     -- 退出游戏逻辑
     PlayHudCycle:OnAction(EPlayHudCycleAction.ExitGame)
-
-    -- 卸载GM隐藏分GUI
-    LevelHiddenScore:TryUnloadGMGUI()
-
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
+end
+
+---帧更新
+---@type fun():void
+function GamePlayingState:OnUpdate()
+    GamePlayingState.super.OnUpdate(self)
+    --- 地图移动更新
+    GameMapMotion:OnUpdate()
 end
 
 return GamePlayingState

@@ -188,7 +188,11 @@ function LuaBehaviourSuper:OnPlayOpenAnimation()
             local targetColor = self._bottomMaskLayerImage.color
             self._bottomMaskLayerImage.color = Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0)
             DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
-            self._bottomMaskLayerImage:DOColor(targetColor, self._bottomMaskLayerOpenAnimationDelay):SetEase(Ease.OutBack).stringId = HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID()
+
+            -- 修复：stringId 改成 SetId
+            self._bottomMaskLayerImage:DOColor(targetColor, self._bottomMaskLayerOpenAnimationDelay)
+                :SetEase(Ease.OutBack)
+                :SetId(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
         end
 
         -- 透明度渐入
@@ -206,10 +210,14 @@ function LuaBehaviourSuper:OnPlayOpenAnimation()
     local transform = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
     transform.localScale = Unity.Vector3.one * 0.00001
     DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
-    DOTween.Sequence():Append(transform:DOScale(1, self._rootOpenAnimationDelay):SetEase(Ease.OutBack)
-                                       :OnComplete(function()
+
+    -- 修复：stringId 改成 SetId
+    DOTween.Sequence()
+           :Append(transform:DOScale(1, self._rootOpenAnimationDelay):SetEase(Ease.OutBack)
+                            :OnComplete(function()
         self:OnOpenOver()
-    end)).stringId = HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID()
+    end))
+           :SetId(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
 end
 
 --- 打开完成
@@ -275,7 +283,10 @@ function LuaBehaviourSuper:OnPlayCloseAnimation()
         if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
             DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
             DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
-            self._bottomMaskLayerImage:DOColor(Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0), self._bottomMaskLayerCloseAnimationDelay):SetEase(Ease.InBack).stringId = HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID()
+            -- 修复：stringId → SetId()
+            self._bottomMaskLayerImage:DOColor(Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0), self._bottomMaskLayerCloseAnimationDelay)
+                :SetEase(Ease.InBack)
+                :SetId(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
         end
 
         -- 透明度淡出
@@ -293,10 +304,13 @@ function LuaBehaviourSuper:OnPlayCloseAnimation()
     local targetLocalScale = Unity.Vector3.one * 0.00001
     DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
     DOTween.Kill(HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID())
-    DOTween.Sequence():Append(transform:DOScale(targetLocalScale, self._rootCloseAnimationDelay):SetEase(Ease.InBack)
-                                       :OnComplete(function()
+    -- 修复：stringId → SetId()
+    DOTween.Sequence()
+           :Append(transform:DOScale(targetLocalScale, self._rootCloseAnimationDelay):SetEase(Ease.InBack)
+                            :OnComplete(function()
         self:OnCloseOver()
-    end)).stringId = HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID()
+    end))
+           :SetId(HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID())
 end
 
 --- 关闭完成（自动销毁）

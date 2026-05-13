@@ -1,6 +1,7 @@
 --=====================================================================================================
 -- @brief    全局事件定义（全局事件中心）
 -- @desc     定义全游戏唯一的事件字符串，用于跨模块、跨UI、跨系统消息通信
+-- @module   UI / 登录 / 通知 / 关卡 / 地图 / 时间 / 道具 / HUD / 货币 / 玩法 / Buff / BGM
 --=====================================================================================================
 
 EventCmd = {
@@ -22,13 +23,13 @@ EventCmd = {
     ----------------------------------------------------------------------------------------------------
     NotificationMessage                  = "NotificationMessage",                -- 通用提示消息（msg）
     OnLanguageChange                     = "OnLanguageChange",                   -- 多语言切换
-    OnGenerateUserType                   = "OnGenerateUserType",                 -- 用户分层数据刷新
+    OnGenerateUserType                   = "OnGenerateUserType",                 -- 用户分层数据刷新（关联：本地活动/系统解锁）
 
     ----------------------------------------------------------------------------------------------------
     -- 关卡 / 游戏核心
     ----------------------------------------------------------------------------------------------------
     OnLevelFailure                       = "OnLevelFailure",                     -- 关卡失败（chapterId, levelId）
-    OnLevelSuccess                       = "OnLevelSuccess",                     -- 关卡成功
+    OnLevelSuccess                       = "OnLevelSuccess",                     -- 关卡成功（关联：系统解锁/活动开启）
     OnLevelUnusualExit                   = "OnLevelUnusualExit",                 -- 关卡异常退出（杀进程）
     OnFirstIntoMainState                 = "OnFirstIntoMainState",               -- 首次进入主状态
     OnChapterMapChangeComplete           = "OnChapterMapChangeComplete",         -- 章节地图切换完成
@@ -84,5 +85,10 @@ EventCmd = {
     OnBufferTimeModifyEvent              = "OnBufferTimeModifyEvent",            -- Buff 时间修改
     OnBufferTimeEndEvent                 = "OnBufferTimeEndEvent",               -- Buff 时间结束
     OnBufferDeltaTimeTickEvent           = "OnBufferDeltaTimeTickEvent",         -- Buff 每秒倒计时（内部）
-    OnBufferTimeTickEvent                = "OnBufferTimeTickEvent",              -- Buff 倒计时（业务）
+    OnBufferTimeTickEvent                = "OnBufferTimeTickEvent",              -- Buff 倒计时回调
+
+    ----------------------------------------------------------------------------------------------------
+    -- BGM / 音效
+    ----------------------------------------------------------------------------------------------------
+    OnPlayBGMKeyChanged                  = "OnPlayBGMKeyChanged",               -- 切换背景音乐（关联：SoundManager）
 }

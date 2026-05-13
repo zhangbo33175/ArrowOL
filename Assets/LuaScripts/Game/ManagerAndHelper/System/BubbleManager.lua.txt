@@ -2,6 +2,7 @@
 -- @brief  全局气泡管理器
 -- @desc   管理游戏内所有提示气泡（跟随目标、自动消失、互斥显示、对象池复用）
 -- @feat   支持UGUI/场景物体跟随、屏幕约束、互斥显示、自动回收、Key去重、对象池安全
+-- @dependency Singleton, PoolManager, UIBubble, RES, GameMainRoot
 --=====================================================================================================
 
 ---@class BubbleGenerateConfig : table @ 气泡生成配置
@@ -18,7 +19,7 @@
 ---@field onlyOneTag string @ 互斥Tag（同Tag只显示一个）
 ---@field nearCenter boolean @ 是否靠近屏幕中心
 
----@class BubbleManager : Singleton @气泡生成与关闭
+---@class BubbleManager : Singleton @气泡生成与关闭管理器
 ---@field _activeBubble table<string, UIBubble> @ 当前活跃气泡字典
 ---@field _autoGrowID number @ 自增ID生成器
 local BubbleManager = class("BubbleManager", import("Singleton"))
@@ -27,12 +28,12 @@ local BubbleManager = class("BubbleManager", import("Singleton"))
 ---@param args table 自定义参数
 function BubbleManager:ctor(args)
     BubbleManager.super.ctor(self, args)
-    self._activeBubble = {}   --- 活跃气泡
+    self._activeBubble = {}   --- 活跃气泡列表
     self._autoGrowID = 10086 --- 自增ID初始值
 end
 
 --- 创建单例
----@param args table
+---@param args table 自定义参数
 ---@return BubbleManager
 function BubbleManager:Create(args)
     return BubbleManager.new(args)
@@ -65,7 +66,7 @@ function BubbleManager:CloseAllBubble()
     ClearDictionary(self._activeBubble)
 end
 
---- 释放（同CloseAll）
+--- 释放资源（同CloseAll）
 function BubbleManager:Dispose()
     self:CloseAllBubble()
 end
@@ -125,7 +126,7 @@ function BubbleManager:GenerateBubble(bubbleGenerateConfig)
         local luaBehaviour = go:GetComponent("LuaBehaviour")
         bubble = luaBehaviour and luaBehaviour.ValidLuaClass
 
-        -- 初始化
+        -- 初始化气泡
         if bubble then
             bubble:OnGetFromPool(bubbleGenerateConfig)
             self._activeBubble[bubbleGenerateConfig.key] = bubble
@@ -155,7 +156,7 @@ function BubbleManager:ForceCloseBubble(bubbleKey)
 end
 
 --- 关闭气泡（外部调用）
----@param bubble UIBubble
+---@param bubble UIBubble 气泡实例
 function BubbleManager:CloseBubble(bubble)
     if not bubble then return end
     xpcall(function()
@@ -165,14 +166,15 @@ end
 
 ---=========================================================================
 --- 【气泡内部回调】气泡真正关闭并回池
----@param bubbleKey string
+---@param bubbleKey string 气泡唯一Key
+---@private
 ---=========================================================================
 function BubbleManager:OnBubbleClose(bubbleKey)
     if string.isNullOrEmpty(bubbleKey) then return end
 
     local bubble = self._activeBubble[bubbleKey]
     if bubble then
-        -- 安全回收
+        -- 安全回收至对象池
         xpcall(function()
             PoolManager:Put(bubble.cs.gameObject)
         end, function(err) end)
@@ -182,7 +184,7 @@ function BubbleManager:OnBubbleClose(bubbleKey)
 end
 
 --- 生成新气泡ID（自增）
----@return number
+---@return number 新ID
 function BubbleManager:GetNewBubbleID()
     self._autoGrowID = self._autoGrowID + 1
     return self._autoGrowID

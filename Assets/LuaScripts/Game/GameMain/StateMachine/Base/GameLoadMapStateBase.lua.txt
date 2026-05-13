@@ -9,7 +9,8 @@
 ---@class GameLoadMapStateBase : GameStateBase 加载地图状态基类
 local GameLoadMapStateBase = class('GameLoadMapStateBase', import('GameStateBase'))
 
----@brief 构造函数
+---构造函数
+---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
 function GameLoadMapStateBase:ctor(stateType)
     GameLoadMapStateBase.super.ctor(self, stateType)
@@ -18,14 +19,16 @@ function GameLoadMapStateBase:ctor(stateType)
     self._WaitFrame = GameLib.WaitForFrames(1)
 end
 
----@brief 创建状态实例
+---创建状态实例
+---@type fun(stateType:GameStateCmd):GameLoadMapStateBase
 ---@param stateType GameStateCmd 状态类型
 ---@return GameLoadMapStateBase 加载地图基类实例
 function GameLoadMapStateBase:Create(stateType)
     return GameLoadMapStateBase.new(stateType)
 end
 
----@brief 进入状态（核心加载逻辑）
+---进入状态（核心加载逻辑）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameLoadMapStateBase:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
@@ -67,7 +70,8 @@ function GameLoadMapStateBase:OnStateEnter(finishCallback)
     end)
 end
 
----@brief 离开状态
+---离开状态
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameLoadMapStateBase:OnStateExit(finishCallback)
     --- 关闭加载界面
@@ -78,23 +82,27 @@ function GameLoadMapStateBase:OnStateExit(finishCallback)
     end
 end
 
----@brief 打开加载UI（子类可重写）
+---打开加载UI（子类可重写）
+---@type fun():void
 function GameLoadMapStateBase:OpenLoadingUI()
     OpenUISync(UIs.UILoadMapView)
 end
 
----@brief 关闭加载UI（子类可重写）
+---关闭加载UI（子类可重写）
+---@type fun():void
 function GameLoadMapStateBase:CloseLoadingUI()
     CloseUI(UIs.UILoadMapView)
 end
 
----@brief 地图加载完毕（子类重写：默认切主界面）
+---地图加载完毕（子类重写：默认切主界面）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 完成回调
 function GameLoadMapStateBase:LoadMapOver(finishCallback)
     GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
 end
 
----@brief 准备加载地图（子类重写）
+---准备加载地图（子类重写）
+---@type fun(chapterId:string):void
 ---@param chapterId string 即将加载的章节ID
 function GameLoadMapStateBase:OnReadyToLoadMap(chapterId)
     --- 卸载旧地图、加载新地图之前执行

@@ -7,22 +7,26 @@
 --=====================================================================================================
 
 ---@class GameMainState : GameStateBase 游戏主界面状态
-local GameMainState = class('GameMainState', import('GameStateBase'))
+local GameStateBase = require("GameStateBase")
+local GameMainState = class('GameMainState', GameStateBase)
 
----@brief 构造函数
+---构造函数
+---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
 function GameMainState:ctor(stateType)
     GameMainState.super.ctor(self, stateType)
 end
 
----@brief 创建状态实例
+---创建状态实例
+---@type fun(stateType:GameStateCmd):GameMainState
 ---@param stateType GameStateCmd 状态类型
 ---@return GameMainState 状态实例
 function GameMainState:Create(stateType)
     return GameMainState.new(stateType)
 end
 
----@brief 进入主界面状态（入口）
+---进入主界面状态（入口）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameMainState:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
@@ -31,7 +35,7 @@ function GameMainState:OnStateEnter(finishCallback)
     GameLib.Util.SetMultiTouchEnabled(false)
     --- 添加UI遮罩，防止操作
     GameMainRoot.UI:AddUIMaskLayerRef("GameMainState:OnStateEnter")
-    
+
     --- 本地活动热更资源状态更新
     LocalActivityManager:UpdateActivityHotfixResStates()
     --- 尝试开启本地活动
@@ -47,20 +51,23 @@ function GameMainState:OnStateEnter(finishCallback)
     self:_LocateCamera(finishCallback)
 end
 
----@brief 相机定位总入口
+---相机定位总入口
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:_LocateCamera(finishCallback)
     self:_LocateNormalShowChapterMap(finishCallback)
 end
 
----@brief 首次进入非第一章地图（备用逻辑）
+---首次进入非第一章地图（备用逻辑）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:_LocateFirstShowChapterMap(finishCallback)
     local mapData = MapManager.CurMapData
     GameMapMotion:PauseMapMotion()
 end
 
----@brief 正常回到章节地图（主逻辑）
+---正常回到章节地图（主逻辑）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:_LocateNormalShowChapterMap(finishCallback)
     local mapData = MapManager.CurMapData
@@ -79,7 +86,8 @@ function GameMainState:_LocateNormalShowChapterMap(finishCallback)
     end
 end
 
----@brief 主界面真正初始化逻辑（相机到位后执行）
+---主界面真正初始化逻辑（相机到位后执行）
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:DoStateEnter(finishCallback)
     --- 打开主界面HUD
@@ -95,10 +103,10 @@ function GameMainState:DoStateEnter(finishCallback)
     BoosterSaleManager:TryOpenBoosterSaleUI()
     --- 刷新升级时间
     UpgradeMapManager:RefreshTimeStamp()
-  
+
     --- 本地活动弹窗
     LocalActivityManager:TryOpenPopupActivityUI()
-    
+
     --- 如果从关卡胜利回来，自动打开升级界面
     local preStateType = GameStateMachine:PreStateType()
     if preStateType and
@@ -119,7 +127,8 @@ function GameMainState:DoStateEnter(finishCallback)
     end
 end
 
----@brief 离开主界面状态
+---离开主界面状态
+---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameMainState:OnStateExit(finishCallback)
     PrintInfo("OnStateExit --> GameState: {0} ", tostring(self:GetStateType()))
@@ -138,7 +147,8 @@ function GameMainState:OnStateExit(finishCallback)
     pcall(finishCallback)
 end
 
----@brief 帧更新
+---帧更新
+---@type fun():void
 function GameMainState:OnUpdate()
     GameMainState.super.OnUpdate(self)
     --- 地图移动更新

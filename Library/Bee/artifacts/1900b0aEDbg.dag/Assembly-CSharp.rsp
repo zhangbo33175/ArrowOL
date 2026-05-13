@@ -706,6 +706,7 @@
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_ItemMapWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_JsonHelperWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_MapCamHelperWrap.cs"
+"Assets/Scripts/Runtime/XLua/Gen/GameLib_MapInBoundsWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_MapManagerWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_ObjectCommonWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/GameLib_ProcedureUtilsWrap.cs"
