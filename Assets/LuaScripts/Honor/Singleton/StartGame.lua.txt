@@ -42,10 +42,8 @@ PrintInfo("回调 Lua 应用挂起 lua界面 ")
 -- 全局系统回调（由 C# 层调用）
 -- ==========================================================
 
----
 --- 应用挂起/恢复回调
---- @param pause boolean  true=挂起  false=恢复
----
+--- @param pause boolean true=挂起 false=恢复
 function ApplicationPauseCallback(pause)
     -- 挂起
     if pause == true then
@@ -62,28 +60,22 @@ function ApplicationPauseCallback(pause)
     GameApplicationPauseCallback(pause)
 end
 
----
 --- 应用退出时回调
----
 function ApplicationQuitCallback()
     PrintInfo("回调 Lua 应用退出")
     GameApplicationQuitCallback()
 end
 
----
 --- 原生按键抬起回调（如 Android 返回键）
---- @param keyCode 按键类型
----
+--- @param keyCode table 按键类型
 function KeyboardsUpCallback(keyCode)
     PrintInfo("回调 Lua 原生按键抬起：keyCode = "..keyCode:GetHashCode())
     -- 目前暂时只支持Escape按键回调
     GameKeyboardsUpCallback(keyCode)
 end
 
----
 --- 接收 C# 层全局事件
---- @param eventArgs C# 事件参数
----
+--- @param eventArgs table C# 事件参数
 function ReceiveCsEventCallback(eventArgs)
     -- 监听屏幕旋转事件 → 转发给 Lua 事件系统
     if eventArgs.Cmd == Honor.EventCmd.ScreenOrientationChanged then
@@ -98,20 +90,16 @@ function ReceiveCsEventCallback(eventArgs)
     GameReceiveCsToEventCallback(eventArgs)
 end
 
----
 --- 获取资源配置信息（给 C# 层调用）
---- @param name 资源别名
---- @return 资源配置
----
+--- @param name string 资源别名
+--- @return table 资源配置
 function GetResDefInfoCallback(name)
     return LoadRes[name]
 end
 
----
 --- 获取音效配置（给 C# 层调用）
---- @param soundKeyName 音效 Key
---- @return 音效配置表
----
+--- @param soundKeyName string 音效 Key
+--- @return table 音效配置表
 function GameSoundCallback(soundKeyName)
     return Tables.Sounds[soundKeyName]
 end

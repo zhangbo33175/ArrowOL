@@ -1,9 +1,10 @@
 --=====================================================================================================
 -- descrip:   LuaBehaviour通用父类（UI/实体/逻辑组件基类）
 --              作用：项目所有Lua脚本的顶级父类，自动管理生命周期、动画、资源、事件、协程、行为树
+--              地位：框架顶层基类，ViewSuper 最终继承自此类
 --=====================================================================================================
 
----@class LuaBehaviourSuper @LuaBehaviour 通用父类
+---@class LuaBehaviourSuper @LuaBehaviour 通用顶级父类（所有Lua脚本的基类）
 ---@field cs Honor.Runtime.LuaBehaviour @绑定的C# LuaBehaviour组件
 local LuaBehaviourSuper = class("LuaBehaviourSuper")
 
@@ -189,7 +190,6 @@ function LuaBehaviourSuper:OnPlayOpenAnimation()
             self._bottomMaskLayerImage.color = Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0)
             DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
 
-            -- 修复：stringId 改成 SetId
             self._bottomMaskLayerImage:DOColor(targetColor, self._bottomMaskLayerOpenAnimationDelay)
                 :SetEase(Ease.OutBack)
                 :SetId(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
@@ -211,7 +211,6 @@ function LuaBehaviourSuper:OnPlayOpenAnimation()
     transform.localScale = Unity.Vector3.one * 0.00001
     DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
 
-    -- 修复：stringId 改成 SetId
     DOTween.Sequence()
            :Append(transform:DOScale(1, self._rootOpenAnimationDelay):SetEase(Ease.OutBack)
                             :OnComplete(function()
@@ -283,7 +282,7 @@ function LuaBehaviourSuper:OnPlayCloseAnimation()
         if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
             DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
             DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
-            -- 修复：stringId → SetId()
+
             self._bottomMaskLayerImage:DOColor(Unity.Color(self._bottomMaskLayerImage.color.r, self._bottomMaskLayerImage.color.g, self._bottomMaskLayerImage.color.b, 0), self._bottomMaskLayerCloseAnimationDelay)
                 :SetEase(Ease.InBack)
                 :SetId(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
@@ -304,7 +303,7 @@ function LuaBehaviourSuper:OnPlayCloseAnimation()
     local targetLocalScale = Unity.Vector3.one * 0.00001
     DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID())
     DOTween.Kill(HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID())
-    -- 修复：stringId → SetId()
+
     DOTween.Sequence()
            :Append(transform:DOScale(targetLocalScale, self._rootCloseAnimationDelay):SetEase(Ease.InBack)
                             :OnComplete(function()

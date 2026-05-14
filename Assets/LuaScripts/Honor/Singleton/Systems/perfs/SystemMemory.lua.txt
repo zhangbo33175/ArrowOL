@@ -6,26 +6,27 @@
     说明：本模块所有功能均已废弃，调用会直接抛出错误，引导使用内存泄漏检测器
 ]]--
 
---[[
-    内存快照函数（已废弃）
-    功能：原本用于获取 Lua 内存使用快照
-    现状：已废弃，强制抛出错误，提示使用 memory leak checker
-]]
+--- 内存快照函数（已废弃）
+--- 功能：原本用于获取 Lua 内存使用快照
+--- 现状：已废弃，强制抛出错误，提示使用 memory leak checker
+---@type fun()
 local function snapshot()
     error('use memory leak checker instead!')
 end
 
---[[
-    获取 Lua 总内存占用（已废弃）
-    功能：原本用于返回 Lua 正在使用的总内存（单位 KB）
-    现状：已废弃，强制抛出错误，提示使用 memory leak checker
-]]
---returns the total memory in use by Lua (in Kbytes).
+--- 获取 Lua 总内存占用（已废弃）
+--- 功能：原本用于返回 Lua 正在使用的总内存（单位 KB）
+--- 现状：已废弃，强制抛出错误，提示使用 memory leak checker
+---@return number 总内存(KB)
+---@type fun():number
 local function total()
     error('use memory leak checker instead!')
 end
 
 -- 导出接口（仅兼容旧代码，实际调用都会报错）
+---@class LuaMemoryMonitor
+---@field snapshot fun() 内存快照（废弃）
+---@field total fun():number 获取总内存（废弃）
 return {
     snapshot = snapshot,   -- 内存快照（废弃）
     total = total          -- 获取总内存（废弃）

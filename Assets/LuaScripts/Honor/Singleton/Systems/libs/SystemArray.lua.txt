@@ -1,73 +1,114 @@
 --=====================================================================================================
 -- descrip:   数组（栈式结构数组，支持弱引用）
 --              功能：提供高效的栈操作（push/pop）、遍历、清空，可选择弱引用模式
+--              优点：O(1) push/pop，clear 零GC，弱引用不影响对象回收
 --=====================================================================================================
 local SystemArray = {}
 SystemArray.__index = SystemArray
 
 --- 创建数组实例
 ---@type fun(isweak:boolean):SystemArray
----@param isweak boolean @是否开启弱引用（v=弱引用值，不影响GC）
----@return SystemArray @数组实例
+---@param isweak boolean 是否开启弱引用（value 弱引用，不阻止GC）
+---@return SystemArray 数组实例
 function SystemArray.new(isweak)
-    ---@class SystemArray @栈式数组类
-    ---@field _cur number @当前元素数量（同时作为栈顶下标）
-    ---@field _data table @内部数据存储表
+    ---@class SystemArray
+    ---@field _cur number 当前元素数量（栈顶下标）
+    ---@field _data table 数据存储表
     local t = {}
     t._cur = 0
     t._data = {}
 
-    -- 开启弱引用（不阻止GC回收对象）
+    -- 弱引用模式：value 可被GC自动回收
     if isweak then
-        setmetatable(t._data, {__mode = "v"})
+        setmetatable(t._data, { __mode = "v" })
     end
 
     setmetatable(t, SystemArray)
     return t
 end
 
---- 向数组尾部（栈顶）添加数据
----@type fun(self:SystemArray, value:any):void
----@param self SystemArray @数组实例
----@param value any @要添加的数据
+--- 压入元素（栈顶）
+---@param self SystemArray
+---@param value any 元素
 function SystemArray.push(self, value)
     self._cur = self._cur + 1
     self._data[self._cur] = value
 end
 
---- 移除并返回数组尾部（栈顶）数据
----@type fun(self:SystemArray):any
----@param self SystemArray @数组实例
----@return any @出栈的数据
+--- 弹出栈顶元素
+---@param self SystemArray
+---@return any
 function SystemArray.pop(self)
-    assert(self._cur > 0, "SystemArray:尝试从空数组中弹出元素")
+    assert(self._cur > 0, "[SystemArray] pop() 数组为空！")
+    local value = self._data[self._cur]
+    self._data[self._cur] = nil  -- 释放引用，帮助GC
     self._cur = self._cur - 1
-    return self._data[self._cur + 1]
+    return value
 end
 
---- 清空数组（仅重置计数，数据保留但不可访问，高效清空）
----@type fun(self:SystemArray):void
----@param self SystemArray @数组实例
+--- 获取指定下标元素
+---@param self SystemArray
+---@param index number 下标 1~size
+---@return any
+function SystemArray.get(self, index)
+    if index < 1 or index > self._cur then
+        return nil
+    end
+    return self._data[index]
+end
+
+--- 设置指定下标元素
+---@param self SystemArray
+---@param index number
+---@param value any
+function SystemArray.set(self, index, value)
+    if index >= 1 and index <= self._cur then
+        self._data[index] = value
+    end
+end
+
+--- 清空数组（高效零GC）
+---@param self SystemArray
 function SystemArray.clear(self)
+    -- 清空引用，避免内存泄漏
+    for i = 1, self._cur do
+        self._data[i] = nil
+    end
     self._cur = 0
 end
 
---- 获取数组当前元素数量
----@type fun(self:SystemArray):number
----@param self SystemArray @数组实例
----@return number @元素数量
+--- 获取元素数量
+---@param self SystemArray
+---@return number
 function SystemArray.size(self)
     return self._cur
 end
 
---- 遍历数组（从 1 到 size）
----@type fun(self:SystemArray, f:fun):void
----@param self SystemArray @数组实例
----@param f fun @遍历回调 function(value)
-function SystemArray.foreach(self, f)
+--- 判断是否为空
+---@param self SystemArray
+---@return boolean
+function SystemArray.empty(self)
+    return self._cur == 0
+end
+
+--- 遍历数组（安全遍历）
+---@param self SystemArray
+---@param func fun(value:any, index:number)
+function SystemArray.foreach(self, func)
     for i = 1, self._cur do
-        f(self._data[i])
+        func(self._data[i], i)
     end
+end
+
+--- 转换为普通Lua表
+---@param self SystemArray
+---@return table
+function SystemArray.toTable(self)
+    local tab = {}
+    for i = 1, self._cur do
+        tab[i] = self._data[i]
+    end
+    return tab
 end
 
 return SystemArray

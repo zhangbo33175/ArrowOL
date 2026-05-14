@@ -18,8 +18,6 @@ message StageTime{
 // [主结构]用户数据存档根数据
 message UserData{
   int32 uid = 1;              // 用户UID
-  string aid = 2;             // 三方用户ID
-  Time aidBindTime = 3;       // 三方用户绑定时间
   StageTime launchTime = 4;   // 启动时间
   Time regTime = 5;           // 注册时间
   StageTime loginTime = 6;    // 登陆时间

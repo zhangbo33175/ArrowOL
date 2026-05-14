@@ -224,10 +224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ChapterId: 
   m_LevelId: 0
-  m_MapCamPosType: 2
-  m_MapPlayHudPosType: 1
   mapBounds: {fileID: 4550662171828505143}
-  parallaxTransform: {fileID: 7506781147531553487}
   m_MapType: 0
   m_IsPad: 0
   m_NormalCamData:
@@ -235,11 +232,11 @@ MonoBehaviour:
     posX: 0
     posY: 0
   m_PlayCamData:
-    size: 0
+    size: 512
     posX: 0
     posY: 0
   m_ExitPlayCamData:
-    size: 0
+    size: 1024
     posX: 0
     posY: 0
   m_MainHudMaxHeight: 768
@@ -253,11 +250,6 @@ MonoBehaviour:
     m_MapWidth: 0
     m_MapHeight: 0
     SavePath: 
-  m_CenterOfViewBounds: {fileID: 5167318242050816577}
-  m_CenterOfViewLeftOffset: 100
-  m_CenterOfViewRightOffset: 150
-  m_PlayHudMaxHeight: 640
-  m_PlayHudMaxHeightPad: 640
   m_MinCamSize: 300
   m_MaxCamSize: 1024
   m_ScrollSensitivity: 0.5

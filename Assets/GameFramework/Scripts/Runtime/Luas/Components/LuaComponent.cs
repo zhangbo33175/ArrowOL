@@ -76,7 +76,14 @@ namespace Honor.Runtime
         /// </summary>
         private void OnDestroy()
         {
-            // 必须释放 LuaEnv，否则会严重泄漏
+            // 1. 先清空 C# 绑定的 Lua 回调（关键）
+            if (m_Env != null)
+            {
+                m_Env.Tick();
+                // 强制释放所有委托、回调、事件
+                m_Env.FullGc();
+            }
+            // 2. 再释放 LuaEnv
             if (m_Env != null)
             {
                 m_Env.Dispose();

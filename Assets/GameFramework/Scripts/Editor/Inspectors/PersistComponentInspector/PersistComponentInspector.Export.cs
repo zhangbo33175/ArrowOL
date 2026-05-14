@@ -141,11 +141,11 @@ namespace Honor.Editor
                                 "--=====================================================================================================")
                             .AppendLine("");
 
-                        stringBuilder.AppendLine("PbRootData = PbRootData or {}");
-                        stringBuilder.AppendLine(AorTxt.Format("PbRootData.{0} = PbRootData.{1} or {{}}", classTidyName,
+                        stringBuilder.AppendLine("SaveRootData = SaveRootData or {}");
+                        stringBuilder.AppendLine(AorTxt.Format("SaveRootData.{0} = SaveRootData.{1} or {{}}", classTidyName,
                             classTidyName));
                         stringBuilder.AppendLine(AorTxt.Format("---@type {0} @{1}", className, classNote));
-                        stringBuilder.AppendLine(AorTxt.Format("PbRootData.{0} = {1}", saveDataFileTidyName, "{}"));
+                        stringBuilder.AppendLine(AorTxt.Format("SaveRootData.{0} = {1}", saveDataFileTidyName, "{}"));
                         stringBuilder.AppendLine(AorTxt.Format(""));
 
                         string content = string.Empty;
@@ -155,8 +155,8 @@ namespace Honor.Editor
                         content += "\n";
 
                         // 自动化-load-接口
-                        content += AorTxt.Format("PbIO = PbIO and PbIO or {0}\n", "{}");
-                        content += AorTxt.Format("PbIO.{0} = {1}\n", classTidyName, "{}");
+                        content += AorTxt.Format("SaveIO = SaveIO and SaveIO or {0}\n", "{}");
+                        content += AorTxt.Format("SaveIO.{0} = {1}\n", classTidyName, "{}");
                         content +=
                             "----------------------------------------------------------------------------------------------\n";
                         content += _RecurseLoadAPIs("", "", saveDataFileName, classTidyName, className,
@@ -206,21 +206,21 @@ namespace Honor.Editor
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine(
                     "-- ----------------------------------------------------------------------------------------------------")
-                .AppendLine(AorTxt.Format("-- filename:  PbRootData.lua"))
+                .AppendLine(AorTxt.Format("-- filename:  SaveRootData.lua"))
                 .AppendLine(AorTxt.Format("-- descrip:   存档主干数据"))
                 .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
                 .AppendLine(
                     "--=====================================================================================================")
                 .AppendLine("");
 
-            rootStringBuilder.AppendLine(AorTxt.Format("---@class PbRootData @存档主干数据"));
+            rootStringBuilder.AppendLine(AorTxt.Format("---@class SaveRootData @存档主干数据"));
             for (int index = 0; index < tidyNamesUnderRoot.Count; index++)
             {
                 rootStringBuilder.AppendLine(AorTxt.Format("---@field {0} {1} @{2}", tidyNamesUnderRoot[index],
                     typeNamesUnderRoot[index], notesUnderRoot[index]));
             }
 
-            rootStringBuilder.AppendLine("PbRootData = {}");
+            rootStringBuilder.AppendLine("SaveRootData = {}");
 
             rootStringBuilder.AppendLine(AorTxt.Format(""));
 
@@ -241,16 +241,16 @@ namespace Honor.Editor
 
             for (int index = 0; index < tidyNamesUnderRoot.Count; index++)
             {
-                rootStringBuilder.AppendLine(AorTxt.Format("PbIO.{0}.LoadAll()", tidyNamesUnderRoot[index]));
+                rootStringBuilder.AppendLine(AorTxt.Format("SaveIO.{0}.LoadAll()", tidyNamesUnderRoot[index]));
             }
 
             rootStringBuilder.AppendLine(AorTxt.Format(""));
 
-            rootStringBuilder.AppendLine(AorTxt.Format("return PbRootData"));
+            rootStringBuilder.AppendLine(AorTxt.Format("return SaveRootData"));
 
 
             string saveRootPath =
-                Runtime.GamePathUtils.Save.GetLuaScriptRootDirectoryFullPath() + "/PbRootData.lua.txt";
+                Runtime.GamePathUtils.Save.GetLuaScriptRootDirectoryFullPath() + "/SaveRootData.lua.txt";
             File.WriteAllText(saveRootPath, rootStringBuilder.ToString(), new System.Text.UTF8Encoding(false));
             Log.Debug("生成 " + saveRootPath + " 文件成功。");
         }
@@ -450,7 +450,7 @@ namespace Honor.Editor
                     if (fieldType.Contains("SavePBMsgDef"))
                     {
                         content += comment;
-                        content += $"PbRootData.{saveDataTidyName}.{fieldName} = " + "{}" + "\n\n";
+                        content += $"SaveRootData.{saveDataTidyName}.{fieldName} = " + "{}" + "\n\n";
                         content = _RecurseFieldDefines(content, tmpPrefix, fieldType, classFieldTypes, classFieldNotes);
                     }
                     else // 普通类型
@@ -465,7 +465,7 @@ namespace Honor.Editor
                         }
 
                         content += comment;
-                        content += $"PbRootData.{saveDataTidyName}.{fieldName} = {defaultValue}\n\n";
+                        content += $"SaveRootData.{saveDataTidyName}.{fieldName} = {defaultValue}\n\n";
                     }
                 }
             }
@@ -475,7 +475,7 @@ namespace Honor.Editor
 
         /// <summary>
         /// 递归生成存档Load读取接口
-        /// 从持久化层读取数据并赋值到PbRootData对应字段
+        /// 从持久化层读取数据并赋值到SaveRootData对应字段
         /// </summary>
         /// <param name="content">当前拼接的Lua代码</param>
         /// <param name="prefix">字段前缀（用于嵌套结构）</param>
@@ -490,11 +490,11 @@ namespace Honor.Editor
             // 需要生成LoadAll接口
             if (string.IsNullOrEmpty(prefix))
             {
-                content += $"PbIO.{saveDataTidyName}.LoadAll = function()\n";
+                content += $"SaveIO.{saveDataTidyName}.LoadAll = function()\n";
                 foreach (var fieldInfo in classFieldTypes[className])
                 {
                     string fieldName = fieldInfo.Key;
-                    content += $"    PbIO.{saveDataTidyName}.Load_{fieldName}()\n";
+                    content += $"    SaveIO.{saveDataTidyName}.Load_{fieldName}()\n";
                 }
 
                 content += "end\n";
@@ -515,36 +515,36 @@ namespace Honor.Editor
                 // 自定义类型
                 if (fieldType.Contains("SavePBMsgDef"))
                 {
-                    content += $"PbIO.{saveDataTidyName}.Load_{tmpPrefix} = function()\n";
+                    content += $"SaveIO.{saveDataTidyName}.Load_{tmpPrefix} = function()\n";
                     foreach (var itr in classFieldTypes[fieldType])
                     {
-                        content += $"    PbIO.{saveDataTidyName}.Load_{tmpPrefix}_{itr.Key}()\n";
+                        content += $"    SaveIO.{saveDataTidyName}.Load_{tmpPrefix}_{itr.Key}()\n";
                     }
 
                     content += "end\n";
                 }
                 else // 普通类型
                 {
-                    content += $"PbIO.{saveDataTidyName}.Load_{tmpPrefix} = function()\n";
+                    content += $"SaveIO.{saveDataTidyName}.Load_{tmpPrefix} = function()\n";
                     content +=
                         $"    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}') then\n";
                     switch (fieldType)
                     {
                         case "number":
                             content +=
-                                $"        PbRootData.{saveDataTidyName}.{tmpFields} = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
+                                $"        SaveRootData.{saveDataTidyName}.{tmpFields} = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
                             break;
                         case "string":
                             content +=
-                                $"        PbRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}')\n";
+                                $"        SaveRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}')\n";
                             break;
                         case "table":
                             content +=
-                                $"         PbRootData.{saveDataTidyName}.{tmpFields} = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
+                                $"         SaveRootData.{saveDataTidyName}.{tmpFields} = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
                             break;
                         case "boolean":
                             content +=
-                                $"       PbRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}') == 'true' and true or false\n";
+                                $"       SaveRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}') == 'true' and true or false\n";
                             break;
                     }
 
@@ -578,7 +578,7 @@ namespace Honor.Editor
 
         /// <summary>
         /// 递归生成存档Save保存接口
-        /// 将PbRootData数据写入持久化层
+        /// 将SaveRootData数据写入持久化层
         /// </summary>
         /// <param name="content">当前拼接的Lua代码</param>
         /// <param name="prefix">字段前缀</param>
@@ -593,11 +593,11 @@ namespace Honor.Editor
             // 需要生成SaveAll接口
             if (string.IsNullOrEmpty(prefix))
             {
-                content += $"PbIO.{saveDataTidyName}.SaveAll = function()\n";
+                content += $"SaveIO.{saveDataTidyName}.SaveAll = function()\n";
                 foreach (var fieldInfo in classFieldTypes[className])
                 {
                     string fieldName = fieldInfo.Key;
-                    content += $"    PbIO.{saveDataTidyName}.Save_{fieldName}()\n";
+                    content += $"    SaveIO.{saveDataTidyName}.Save_{fieldName}()\n";
                 }
 
                 content += "end\n";
@@ -618,34 +618,34 @@ namespace Honor.Editor
                 // 自定义类型
                 if (fieldType.Contains("SavePBMsgDef"))
                 {
-                    content += $"PbIO.{saveDataTidyName}.Save_{tmpPrefix} = function()\n";
+                    content += $"SaveIO.{saveDataTidyName}.Save_{tmpPrefix} = function()\n";
                     foreach (var itr in classFieldTypes[fieldType])
                     {
-                        content += $"    PbIO.{saveDataTidyName}.Save_{tmpPrefix}_{itr.Key}()\n";
+                        content += $"    SaveIO.{saveDataTidyName}.Save_{tmpPrefix}_{itr.Key}()\n";
                     }
 
                     content += "end\n";
                 }
                 else // 普通类型
                 {
-                    content += $"PbIO.{saveDataTidyName}.Save_{tmpPrefix} = function()\n";
+                    content += $"SaveIO.{saveDataTidyName}.Save_{tmpPrefix} = function()\n";
                     switch (fieldType)
                     {
                         case "number":
                             content +=
-                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(PbRootData.{saveDataTidyName}.{tmpFields}))\n";
+                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
                             break;
                         case "string":
                             content +=
-                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(PbRootData.{saveDataTidyName}.{tmpFields}))\n";
+                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
                             break;
                         case "table":
                             content +=
-                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', JsonEncode(PbRootData.{saveDataTidyName}.{tmpFields}))\n";
+                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', JsonEncode(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
                             break;
                         case "boolean":
                             content +=
-                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', PbRootData.{saveDataTidyName}.{tmpFields} == true and 'true' or 'false')\n";
+                                $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', SaveRootData.{saveDataTidyName}.{tmpFields} == true and 'true' or 'false')\n";
                             break;
                     }
 
@@ -694,8 +694,8 @@ namespace Honor.Editor
             // 需要生成SerializeAll接口
             if (string.IsNullOrEmpty(prefix))
             {
-                content += $"PbIO.{saveDataTidyName}.SerializeAll = function()\n";
-                content += $"    return JsonEncode(PbRootData.{saveDataTidyName})\n";
+                content += $"SaveIO.{saveDataTidyName}.SerializeAll = function()\n";
+                content += $"    return JsonEncode(SaveRootData.{saveDataTidyName})\n";
                 content += "end\n";
             }
 
@@ -706,8 +706,8 @@ namespace Honor.Editor
                 string tmpPrefix = string.IsNullOrEmpty(prefix) ? $"{fieldName}" : $"{prefix}_{fieldName}";
                 string tmpFields = tmpPrefix.Replace('_', '.'); // xxx.yyy.zzz.aaa.sss
 
-                content += $"PbIO.{saveDataTidyName}.Serialize_{tmpPrefix} = function()\n";
-                content += $"    return JsonEncode(PbRootData.{saveDataTidyName}.{tmpFields})\n";
+                content += $"SaveIO.{saveDataTidyName}.Serialize_{tmpPrefix} = function()\n";
+                content += $"    return JsonEncode(SaveRootData.{saveDataTidyName}.{tmpFields})\n";
                 content += "end\n";
             }
 
@@ -751,8 +751,8 @@ namespace Honor.Editor
             // 需要生成DeserializeAll接口
             if (string.IsNullOrEmpty(prefix))
             {
-                content += $"PbIO.{saveDataTidyName}.DeserializeAll = function(jsonString)\n";
-                content += $"    PbRootData.{saveDataTidyName} = JsonDecode(jsonString)\n";
+                content += $"SaveIO.{saveDataTidyName}.DeserializeAll = function(jsonString)\n";
+                content += $"    SaveRootData.{saveDataTidyName} = JsonDecode(jsonString)\n";
                 content += "end\n";
             }
 
@@ -763,8 +763,8 @@ namespace Honor.Editor
                 string tmpPrefix = string.IsNullOrEmpty(prefix) ? $"{fieldName}" : $"{prefix}_{fieldName}";
                 string tmpFields = tmpPrefix.Replace('_', '.'); // xxx.yyy.zzz.aaa.sss
 
-                content += $"PbIO.{saveDataTidyName}.Deserialize_{tmpPrefix} = function(jsonString)\n";
-                content += $"    PbRootData.{saveDataTidyName}.{tmpFields} = JsonDecode(jsonString)\n";
+                content += $"SaveIO.{saveDataTidyName}.Deserialize_{tmpPrefix} = function(jsonString)\n";
+                content += $"    SaveRootData.{saveDataTidyName}.{tmpFields} = JsonDecode(jsonString)\n";
                 content += "end\n";
             }
 

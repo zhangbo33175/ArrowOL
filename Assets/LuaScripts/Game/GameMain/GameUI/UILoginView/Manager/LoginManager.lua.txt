@@ -127,14 +127,14 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
                 then
                     local serverGameData    = JsonDecode(returnData.ServerUserInfo.server_game_data)
                     local isSameDevice      = returnData.ServerUserInfo.last_sync_device == HonorRoot.SDK.TGAHelper:GetDeviceID()
-                    local isSameUid         = returnData.ServerUserInfo.server_user_id == PbRootData.UserData.uid
+                    local isSameUid         = returnData.ServerUserInfo.server_user_id == SaveRootData.UserData.uid
 
                     if (not isSameUid or not isSameDevice) and serverGameData then
                         self:OpenSelectData(returnData.ServerUserInfo.last_sync_time, serverGameData, returnData.ServerUserInfo.server_user_id, function(selectType)
                             self._loginState = ELoginState.SelectData
 
                             if selectType == ESelectType.Local then
-                                if PbRootData.UserData.uid == 0 then
+                                if SaveRootData.UserData.uid == 0 then
                                     HintMarkerHelper:OnSaveChoose(selectType)
                                     self:Login(true, self._loginFinishCallback)
                                 else
@@ -145,7 +145,7 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
                                     end)
                                 end
                             elseif selectType == ESelectType.Server then
-                                local localUid     = PbRootData.UserData.uid
+                                local localUid     = SaveRootData.UserData.uid
                                 local uid           = returnData.ServerUserInfo.server_user_id
                                 local aid           = returnData.ServerUserInfo.server_account
                                 local platform      = returnData.channel_type
@@ -178,13 +178,13 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
                 else
                     self._isNewUser = true
 
-                    if PbRootData.UserData.uid <= 0 then
+                    if SaveRootData.UserData.uid <= 0 then
                         SaveDataSyncHelper:SaveLocalDataAndAutoSyncData(returnData, function()
                             self:LogLoginBack(req, resp, cmd, returnData)
                             self:LoginFinishCallback(true)
                         end)
                     else
-                        PrintInfo("Login 服务端没存档，error_code ==0 ,且本地有uid > 0，服务器有对应的uid但是没有存档数据 " .. PbRootData.UserData.uid)
+                        PrintInfo("Login 服务端没存档，error_code ==0 ,且本地有uid > 0，服务器有对应的uid但是没有存档数据 " .. SaveRootData.UserData.uid)
 
                         SaveDataSyncHelper:SaveLocalDataAndAutoSyncData(returnData, function()
                             self:LogLoginBack(req, resp, cmd, returnData)
@@ -263,7 +263,7 @@ end
 
 ---@brief 打开存档选择UI
 function LoginManager:OpenSelectData(lastSaveTime, serverGameData, serverUid, callback)
-    local localData = PbRootData.GameData
+    local localData = SaveRootData.GameData
 
     OpenUISync(UIs.UISelectData, {
         localData            = localData,

@@ -35,12 +35,12 @@ end
 ---=========================================================================
 function SettingDataManager:GetSettingState(settingType)
     -- 安全校验
-    if not settingType or not PbRootData or not PbRootData.GameData or not PbRootData.GameData.settingInfo then
+    if not settingType or not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.settingInfo then
         PrintError("[SettingDataManager] 获取设置失败：存档结构异常")
         return true -- 默认开启
     end
 
-    local state = PbRootData.GameData.settingInfo[settingType]
+    local state = SaveRootData.GameData.settingInfo[settingType]
     -- 未初始化默认开启
     return state ~= nil and state or true
 end
@@ -56,18 +56,18 @@ function SettingDataManager:SetSettingNewState(settingType, newState)
         PrintError("[SettingDataManager] 设置失败：参数无效")
         return
     end
-    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.settingInfo then
+    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.settingInfo then
         PrintError("[SettingDataManager] 设置失败：settingInfo 不存在")
         return
     end
 
     -- 写入并保存
-    PbRootData.GameData.settingInfo[settingType] = newState
+    SaveRootData.GameData.settingInfo[settingType] = newState
 
     -- 安全保存存档
     xpcall(function()
-        if PbIO and PbIO.GameData and PbIO.GameData.Save_settingInfo then
-            PbIO.GameData.Save_settingInfo()
+        if SaveIO and SaveIO.GameData and SaveIO.GameData.Save_settingInfo then
+            SaveIO.GameData.Save_settingInfo()
         end
     end, function(err)
         PrintError("[SettingDataManager] 保存设置失败：" .. tostring(err))

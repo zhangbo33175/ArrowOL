@@ -7,45 +7,45 @@
 -- notices:   该文件自动生成，请不要手动修改！ 5541424142
 --=====================================================================================================
 
-PbRootData = PbRootData or {}
-PbRootData.SystemConfigData = PbRootData.SystemConfigData or {}
+SaveRootData = SaveRootData or {}
+SaveRootData.SystemConfigData = SaveRootData.SystemConfigData or {}
 ---@type SavePBMsgDef.SystemConfigDataPB.SystemConfigData @[主结构]系统配置根数据
-PbRootData.DeclareSystemConfigDataPB = {}
+SaveRootData.DeclareSystemConfigDataPB = {}
 
 ---@type table @[json]系统配置数据
-PbRootData.SystemConfigData.data = {}
+SaveRootData.SystemConfigData.data = {}
 
 
-PbIO = PbIO and PbIO or {}
-PbIO.SystemConfigData = {}
+SaveIO = SaveIO and SaveIO or {}
+SaveIO.SystemConfigData = {}
 ----------------------------------------------------------------------------------------------
-PbIO.SystemConfigData.LoadAll = function()
-    PbIO.SystemConfigData.Load_data()
+SaveIO.SystemConfigData.LoadAll = function()
+    SaveIO.SystemConfigData.Load_data()
 end
-PbIO.SystemConfigData.Load_data = function()
+SaveIO.SystemConfigData.Load_data = function()
     if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data') then
-         PbRootData.SystemConfigData.data = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data'))
+         SaveRootData.SystemConfigData.data = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data'))
     end
 end
 ----------------------------------------------------------------------------------------------
-PbIO.SystemConfigData.SaveAll = function()
-    PbIO.SystemConfigData.Save_data()
+SaveIO.SystemConfigData.SaveAll = function()
+    SaveIO.SystemConfigData.Save_data()
 end
-PbIO.SystemConfigData.Save_data = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data', JsonEncode(PbRootData.SystemConfigData.data))
-end
-----------------------------------------------------------------------------------------------
-PbIO.SystemConfigData.SerializeAll = function()
-    return JsonEncode(PbRootData.SystemConfigData)
-end
-PbIO.SystemConfigData.Serialize_data = function()
-    return JsonEncode(PbRootData.SystemConfigData.data)
+SaveIO.SystemConfigData.Save_data = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data', JsonEncode(SaveRootData.SystemConfigData.data))
 end
 ----------------------------------------------------------------------------------------------
-PbIO.SystemConfigData.DeserializeAll = function(jsonString)
-    PbRootData.SystemConfigData = JsonDecode(jsonString)
+SaveIO.SystemConfigData.SerializeAll = function()
+    return JsonEncode(SaveRootData.SystemConfigData)
 end
-PbIO.SystemConfigData.Deserialize_data = function(jsonString)
-    PbRootData.SystemConfigData.data = JsonDecode(jsonString)
+SaveIO.SystemConfigData.Serialize_data = function()
+    return JsonEncode(SaveRootData.SystemConfigData.data)
+end
+----------------------------------------------------------------------------------------------
+SaveIO.SystemConfigData.DeserializeAll = function(jsonString)
+    SaveRootData.SystemConfigData = JsonDecode(jsonString)
+end
+SaveIO.SystemConfigData.Deserialize_data = function(jsonString)
+    SaveRootData.SystemConfigData.data = JsonDecode(jsonString)
 end
 ----------------------------------------------------------------------------------------------

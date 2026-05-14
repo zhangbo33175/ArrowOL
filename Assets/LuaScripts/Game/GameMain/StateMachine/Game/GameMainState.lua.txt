@@ -42,7 +42,7 @@ function GameMainState:OnStateEnter(finishCallback)
     LocalActivityManager:TryOpenActivities()
 
     --- 播放章节主界面背景音乐
-    local chapterData = ChapterDataManager:GetChapterDataByChapterId(MapManager.CurLoadChapterId)
+    local chapterData = ChapterDataManager:GetChapterDataByChapterType(MapManager.CurLoadChapterId)
     if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
         SoundManager:PlayBGM(chapterData.MapMusic.outgame)
     end

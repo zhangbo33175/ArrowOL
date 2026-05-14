@@ -1,6 +1,7 @@
 --=====================================================================================================
 -- @brief  关卡结束流程管理类
 -- @desc   负责关卡胜利/失败结算、流程控制、协程管理、界面展示、数据保存、奖励发放等逻辑
+-- @规范    Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class GameVictorySettlementStep @ 胜利结算扩展步骤
@@ -31,7 +32,10 @@ function GameCoreManagerLevelFinish:ClearData()
     self:StopAloneLevelFinishProcess()
 end
 
+---=========================================================================
 --- 游戏结束后统一逻辑（胜利/失败）
+--- 负责：进度保存、奖励发放、挑战关卡处理、数据持久化
+---=========================================================================
 function GameCoreManagerLevelFinish:OnGameOverAfter()
     local isSuccess = GameCoreManager._IsSuccessFinishGame
     local curChapterId = GamerDataManager:GetCurChapterId()
@@ -48,8 +52,8 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
         end
     else
         -- 失败 → 清空连胜
-        PbRootData.GameData.playerInfo.winStreak = 0
-        PbIO.GameData.Save_playerInfo_winStreak()
+        SaveRootData.GameData.playerInfo.winStreak = 0
+        SaveIO.GameData.Save_playerInfo_winStreak()
         -- 挑战关卡失败 → 清空挑战进度
         if GameCoreManager:IsInChallengeLevel() then
             ChallengeLevelHelper:ClearCurChallengeLevel()
@@ -71,7 +75,7 @@ function GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
     end)
 end
 
---- 安全停止关卡结束协程，防止泄漏
+--- 安全停止关卡结束协程，防止内存泄漏
 function GameCoreManagerLevelFinish:StopAloneLevelFinishProcess()
     if self._LevelFinishProcessCoroutine then
         HonorCoroutineHelper:StopAlone(self._LevelFinishProcessCoroutine)
@@ -79,7 +83,10 @@ function GameCoreManagerLevelFinish:StopAloneLevelFinishProcess()
     self._LevelFinishProcessCoroutine = nil
 end
 
---- 关卡结束协程主体：延时 → 关闭遮罩 → 打开结算界面
+---=========================================================================
+--- 关卡结束协程主体
+--- 流程：添加UI遮罩 → 等待配置延时 → 移除遮罩 → 打开结算界面
+---=========================================================================
 function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     -- UI遮罩，防止操作穿透
     GameMainRoot.UI:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
@@ -98,7 +105,10 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     self:ShowLevelFinishUI()
 end
 
+---=========================================================================
 --- 显示关卡结算界面（胜利/失败）
+--- 统一入口：停止音效 → 区分胜负 → 打开对应UI
+---=========================================================================
 function GameCoreManagerLevelFinish:ShowLevelFinishUI()
     -- 停止所有音效
     SoundMgr:StopAllSound()
@@ -119,8 +129,10 @@ function GameCoreManagerLevelFinish:ShowLevelFinishUI()
     end
 end
 
+---=========================================================================
 --- 打开关卡失败界面
 ---@param preBoosterId string 推荐的前置道具ID（可选）
+---=========================================================================
 function GameCoreManagerLevelFinish:OpenLevelFailureUI(preBoosterId)
     if GameCoreManager:IsInChallengeLevel() then
         OpenUISync(UIs.UIChallengeLevelFailure)
@@ -132,16 +144,20 @@ function GameCoreManagerLevelFinish:OpenLevelFailureUI(preBoosterId)
     end
 end
 
---- 获取关卡成功结算数据
----@return table
+---=========================================================================
+--- 获取关卡成功结算数据（子类可重写扩展）
+---@return table 结算数据
+---=========================================================================
 function GameCoreManagerLevelFinish:GetLevelSuccessInfo()
     local coreData = GameCoreManager._GameCoreManagerData
     local result = {}
     return result
 end
 
---- 获取关卡失败结算数据
----@return table
+---=========================================================================
+--- 获取关卡失败结算数据（子类可重写扩展）
+---@return table 结算数据
+---=========================================================================
 function GameCoreManagerLevelFinish:GetLevelFailureInfo()
     local coreData = GameCoreManager._GameCoreManagerData
     local result = {}

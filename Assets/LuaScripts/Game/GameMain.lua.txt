@@ -41,9 +41,8 @@ SystemConfigHelper:GetServerSystemConfig()
 -- 全局系统回调注册（Unity 生命周期回调）
 -- ==========================================================
 
----应用挂起/恢复回调（切后台 / 切回前台）
----@type fun(isPaused:boolean):void
----@param isPaused boolean  true=挂起  false=恢复
+--- 应用挂起/恢复回调（切后台 / 切回前台）
+--- @param isPaused boolean true=挂起 false=恢复
 function GameApplicationPauseCallback(isPaused)
     -- 安全判断
     if IsNull(LoginManager) or LoginManager:IsDelUser() then
@@ -57,8 +56,7 @@ function GameApplicationPauseCallback(isPaused)
     end
 end
 
----应用退出回调（Unity OnApplicationQuit）
----@type fun():void
+--- 应用退出回调（Unity OnApplicationQuit）
 function GameApplicationQuitCallback()
     -- 安全判断
     if IsNull(LoginManager) then
@@ -72,16 +70,14 @@ function GameApplicationQuitCallback()
     end
 end
 
----按键抬起回调（如 Android 返回键）
----@type fun(keyCode:number):void
----@param keyCode number 按键编码
+--- 按键抬起回调（如 Android 返回键）
+--- @param keyCode number 按键编码
 function GameKeyboardsUpCallback(keyCode)
     -- 按键逻辑扩展位
 end
 
----接收 C# 全局事件
----@type fun(eventArgs:table):void
----@param eventArgs table C# 传递的事件参数
+--- 接收 C# 全局事件
+--- @param eventArgs table C# 传递的事件参数
 function GameReceiveCsToEventCallback(eventArgs)
     -- C# -> Lua 全局事件处理
 end

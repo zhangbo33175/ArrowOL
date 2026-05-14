@@ -24,7 +24,7 @@ DGTweening = CS.DG.Tweening
 ---@type DG.Tweening.DOTween @CS层：DOTween动画核心类
 DOTween = DGTweening.DOTween
 
----CS层：DOTween循环类型枚举
+---@type DG.Tweening.LoopType @CS层：DOTween循环类型枚举
 LoopType = DGTweening.LoopType
 
 ---@type BehaviorDesigner.Runtime @CS层：行为树插件命名空间
@@ -36,10 +36,10 @@ Honor = CS.Honor.Runtime
 ---@type CS.GameLib @CS层：游戏工具库命名空间
 GameLib = CS.GameLib
 
----@type Honor.Runtime @CS层：游戏框架根节点（全局唯一入口）
+---@type Honor.Runtime.GameMainRoot @CS层：游戏框架根节点（全局唯一入口）
 GameMainRoot = Honor.GameMainRoot
 
----@type IAPWrapper @CS层：内购支付封装模块
+---@type CS.IAPWrapper @CS层：内购支付封装模块
 IAPWrapper = CS.IAPWrapper
 
 ---@type string @当前构建平台名称：Android / iOS / WebGL
@@ -130,26 +130,40 @@ Ease = {
     InOutFlash = DGTweening.Ease.InOutFlash,
 }
 
----@type table @Lua层UI动画类型定义（框架内置动画）
+---@class HonorTweenType @Lua层UI动画类型定义（框架内置动画）
+---@field None string @无动画
+---@field PrefabUIBottomMaskLayerOpenAnimation string @底部遮罩打开
+---@field PrefabUIBottomMaskLayerCloseAnimation string @底部遮罩关闭
+---@field PrefabUIAlphaOpenAnimation string @透明度打开
+---@field PrefabUIAlphaCloseAnimation string @透明度关闭
+---@field PrefabRootOpenAnimation string @根节点打开
+---@field PrefabRootCloseAnimation string @根节点关闭
 HonorTweenType = {
     None = "None",
-    PrefabUIBottomMaskLayerOpenAnimation = "PrefabUIBottomMaskLayerOpenAnimation", -- 底部遮罩打开
-    PrefabUIBottomMaskLayerCloseAnimation = "PrefabUIBottomMaskLayerCloseAnimation", -- 底部遮罩关闭
-    PrefabUIAlphaOpenAnimation = "PrefabUIAlphaOpenAnimation", -- 透明度打开
-    PrefabUIAlphaCloseAnimation = "PrefabUIAlphaCloseAnimation", -- 透明度关闭
-    PrefabRootOpenAnimation = "PrefabRootOpenAnimation", -- 根节点打开
-    PrefabRootCloseAnimation = "PrefabRootCloseAnimation", -- 根节点关闭
+    PrefabUIBottomMaskLayerOpenAnimation = "PrefabUIBottomMaskLayerOpenAnimation",
+    PrefabUIBottomMaskLayerCloseAnimation = "PrefabUIBottomMaskLayerCloseAnimation",
+    PrefabUIAlphaOpenAnimation = "PrefabUIAlphaOpenAnimation",
+    PrefabUIAlphaCloseAnimation = "PrefabUIAlphaCloseAnimation",
+    PrefabRootOpenAnimation = "PrefabRootOpenAnimation",
+    PrefabRootCloseAnimation = "PrefabRootCloseAnimation",
 }
 
----@type string @MVVM数据绑定操作类型（数据变更事件）
+---@class BindValueOperate @MVVM数据绑定操作类型（数据变更事件）
+---@field None string @无操作
+---@field ValueChanged string @值整体变更
+---@field ValueItemChanged string @子项变更
+---@field ValueItemAdded string @子项添加
+---@field ValueItemInserted string @子项插入
+---@field ValueItemRemoved string @子项移除
+---@field ValueItemsAllRemoved string @全部清空
 BindValueOperate = {
     None = "None",
-    ValueChanged = "ValueChanged", -- 值整体变更
-    ValueItemChanged = "ValueItemChanged", -- 子项变更
-    ValueItemAdded = "ValueItemAdded", -- 子项添加
-    ValueItemInserted = "ValueItemInserted", -- 子项插入
-    ValueItemRemoved = "ValueItemRemoved", -- 子项移除
-    ValueItemsAllRemoved = "ValueItemsAllRemoved", -- 全部清空
+    ValueChanged = "ValueChanged",
+    ValueItemChanged = "ValueItemChanged",
+    ValueItemAdded = "ValueItemAdded",
+    ValueItemInserted = "ValueItemInserted",
+    ValueItemRemoved = "ValueItemRemoved",
+    ValueItemsAllRemoved = "ValueItemsAllRemoved",
 }
 
 ---@class FwEventCmd @框架全局事件定义（全局消息CMD）

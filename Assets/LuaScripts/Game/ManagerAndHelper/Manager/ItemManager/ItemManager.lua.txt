@@ -3,7 +3,7 @@
 -- @desc   全游戏道具/体力/Buff/前置道具/局内道具 统一管理
 -- @core   解锁判断、数量缓存、使用流程、事件抛出、体力系统、碎片合成
 -- @struct 存档数据 + 缓存层 + 显示层 分离
--- @dependency Singleton, ResourceDataManager, GamerDataManager, HonorEventHelper, PbIO, DOTween
+-- @dependency Singleton, ResourceDataManager, GamerDataManager, HonorEventHelper, SaveIO, DOTween
 --=====================================================================================================
 
 ---@class LifeChange @体力变更
@@ -273,7 +273,7 @@ end
 function ItemManager:GetNum(id)
     if string.isNullOrEmpty(id) then return 0 end
     local cache = self._cacheSubNum[id] or 0
-    local save  = PbRootData.GameData.resourceInfo.nums[id] or 0
+    local save  = SaveRootData.GameData.resourceInfo.nums[id] or 0
     return math.max(save - cache, 0)
 end
 
@@ -288,7 +288,7 @@ end
 ---@param id string 道具ID
 ---@return number
 function ItemManager:GetSaveNum(id)
-    return PbRootData.GameData.resourceInfo.nums[id] or 0
+    return SaveRootData.GameData.resourceInfo.nums[id] or 0
 end
 
 --- 增加数量（支持碎片自动合成）
@@ -371,8 +371,8 @@ function ItemManager:SetNum(id, newNum, oldUI)
     if string.isNullOrEmpty(id) then return 0 end
     newNum = math.max(newNum, 0)
 
-    PbRootData.GameData.resourceInfo.nums[id] = newNum
-    PbIO.GameData.Save_resourceInfo()
+    SaveRootData.GameData.resourceInfo.nums[id] = newNum
+    SaveIO.GameData.Save_resourceInfo()
 
     local nowUI = self:GetNum(id)
     HonorEventHelper:Fire(EventCmd.OnBoosterNumModifyEvent, {

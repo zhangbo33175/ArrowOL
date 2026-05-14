@@ -35,8 +35,8 @@ GameManager = require("GameManager"):Create()
 ------------------------------
 -- 3. 数据结构 & 存档
 ------------------------------
----@type PbRootData 存档根结构
-PbRootData = require("PbRootData")
+---@type SaveRootData 存档根结构
+SaveRootData = require("SaveRootData")
 
 ---@type DataCenter 全局数据中心
 DataCenter = require("DataCenter"):Create()
@@ -183,4 +183,4 @@ HomeUIBubbleLayerDataManager = require('HomeUIBubbleLayerDataManager'):Create()
 -- 道具销售管理器
 -- BoosterSaleMgr = require('BoosterSaleMgr'):Create()
 -- 挑战关卡工具
--- ChallengeLevelHelper = require("ChallengeLevelHelper"):Create()
+ ChallengeLevelHelper = require("ChallengeLevelHelper"):Create()

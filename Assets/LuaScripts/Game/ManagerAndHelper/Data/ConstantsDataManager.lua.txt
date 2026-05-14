@@ -13,7 +13,7 @@ function ConstantsDataManager:ctor()
 end
 
 --- 创建单例
----@return ConstantsDataManager
+---@return ConstantsDataManager 常量管理器实例
 function ConstantsDataManager:Create()
     return ConstantsDataManager.new()
 end
@@ -23,7 +23,16 @@ function ConstantsDataManager:Init()
     ConstantsDataManager.super.Init(self)
 end
 
---- 清理数据（常量无需清理，保留空实现）
+--- 根据常量Key获取配置数据
+---@type fun(key:string):Tables.Constants_Item
+---@param key string 常量配置Key
+---@return Tables.Constants_Item 常量配置数据
+function ConstantsDataManager:GetDataById(key)
+    return Tables.Constants[key]
+end
+
+--- 清理数据
+---@desc 常量类无需清理数据，保留空实现保证生命周期统一
 function ConstantsDataManager:ClearData()
     ConstantsDataManager.super.ClearData(self)
 end

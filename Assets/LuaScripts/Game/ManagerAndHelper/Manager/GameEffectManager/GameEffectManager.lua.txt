@@ -1,6 +1,8 @@
 --=====================================================================================================
 -- @brief  游戏全局特效管理器
 -- @desc   负责所有游戏特效的创建、播放、回收、生命周期管理，基于对象池
+-- @core   对象池复用、延时自动回收、坐标转换、UI/场景/特效层分离
+-- @dependency Singleton, PoolManager, DOTween, LayerHelper, UIs
 --=====================================================================================================
 
 ---@class GameEffectManager : Singleton @ 特效管理器（单例）
@@ -11,11 +13,8 @@ local GameEffectManager = class("GameEffectManager", import("Singleton"))
 function GameEffectManager:ctor(args)
     GameEffectManager.super.ctor(self, args)
 
-    --- 特效对象列表（用于统一管理和回收）
-    self._efList = HonorList:Create() ---@type List<UnityEngine.GameObject>
-
-    --- UI动画控制器
-    self._UIPlayingAnimated = nil ---@type UIPlayingAnimated
+    self._efList = HonorList:Create()            ---@type List<UnityEngine.GameObject> 特效对象列表（统一管理&回收）
+    self._UIPlayingAnimated = nil                ---@type UIPlayingAnimated UI动画控制器
 end
 
 --- 创建实例（单例对外接口）
@@ -26,7 +25,7 @@ function GameEffectManager:Create(args)
     return obj
 end
 
---- 清空所有数据 & 回收特效
+--- 清空所有数据 & 回收全部特效
 function GameEffectManager:ClearData()
     GameEffectManager.super.ClearData(self)
     self:RecycleAllEffects()
@@ -94,37 +93,37 @@ function GameEffectManager:AddEffect(effectName, parentTransform, layerName, pos
 end
 
 --- 添加 UI 坐标转换特效
----@param effectName string
----@param pos UnityEngine.Vector3
----@param durationTime number
----@param callBack function
----@param isRealTime boolean
----@param autoRecycle boolean
+---@param effectName string 特效名
+---@param pos UnityEngine.Vector3 世界坐标
+---@param durationTime number 持续时间
+---@param callBack function 回调
+---@param isRealTime boolean 真实时间
+---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
 function GameEffectManager:AddEffectFromUI(effectName, pos, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEFLayerEffect(effectName, pos, durationTime, GameMainRoot.UI.ScreenUICameras[0], callBack, isRealTime, autoRecycle)
 end
 
 --- 添加场景坐标转换特效
----@param effectName string
----@param pos UnityEngine.Vector3
----@param durationTime number
----@param callBack function
----@param isRealTime boolean
----@param autoRecycle boolean
+---@param effectName string 特效名
+---@param pos UnityEngine.Vector3 场景坐标
+---@param durationTime number 持续时间
+---@param callBack function 回调
+---@param isRealTime boolean 真实时间
+---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
 function GameEffectManager:AddEFLayerEffectFromScene(effectName, pos, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEFLayerEffect(effectName, pos, durationTime, GameMainRoot.Scene.SceneCameras[0], callBack, isRealTime, autoRecycle)
 end
 
 --- 添加特效层特效（指定相机转换坐标）
----@param effectName string
----@param pos UnityEngine.Vector3
----@param durationTime number
----@param camera UnityEngine.Camera
----@param callBack function
----@param isRealTime boolean
----@param autoRecycle boolean
+---@param effectName string 特效名
+---@param pos UnityEngine.Vector3 目标坐标
+---@param durationTime number 持续时间
+---@param camera UnityEngine.Camera 渲染相机
+---@param callBack function 结束回调
+---@param isRealTime boolean 真实时间
+---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
 function GameEffectManager:AddEFLayerEffect(effectName, pos, durationTime, camera, callBack, isRealTime, autoRecycle)
     local sPoint = SceneToScreenPoint(pos, camera)
@@ -147,13 +146,13 @@ function GameEffectManager:GetPlayingAnimated()
     return self._UIPlayingAnimated
 end
 
---- 添加场景转 UI 动画特效
----@param effectName string
----@param pos UnityEngine.Vector3
----@param durationTime number
----@param callBack function
----@param isRealTime boolean
----@param autoRecycle boolean
+--- 添加场景转 UI 动画特效（收集类动效专用）
+---@param effectName string 特效名
+---@param pos UnityEngine.Vector3 场景起点
+---@param durationTime number 持续时间
+---@param callBack function 回调
+---@param isRealTime boolean 真实时间
+---@param autoRecycle boolean 自动回收
 function GameEffectManager:AddUIEffectToPlayingHudCollectFormScene(effectName, pos, durationTime, callBack, isRealTime, autoRecycle)
     local uiPlayingAnimated = self:GetPlayingAnimated()
     if uiPlayingAnimated then
@@ -164,41 +163,38 @@ function GameEffectManager:AddUIEffectToPlayingHudCollectFormScene(effectName, p
 end
 
 --- 添加 UI 层特效
----@param effectName string
----@param parentTransform UnityEngine.Transform
----@param durationTime number
----@param callBack function
----@param isRealTime boolean
----@param autoRecycle boolean
+---@param effectName string 特效名
+---@param parentTransform UnityEngine.Transform 父节点
+---@param durationTime number 持续时间
+---@param callBack function 回调
+---@param isRealTime boolean 真实时间
+---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
 function GameEffectManager:AddUILayerEffect(effectName, parentTransform, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEffect(effectName, parentTransform, ELayerName.UI, nil, EPos.Local, durationTime, callBack, isRealTime, autoRecycle)
 end
 
 --- 添加地图层特效
----@param effectName string
----@param parentTransform UnityEngine.Transform
----@param durationTime number
----@param callBack function
----@param isRealTime boolean
----@param autoRecycle boolean
+---@param effectName string 特效名
+---@param parentTransform UnityEngine.Transform 父节点
+---@param durationTime number 持续时间
+---@param callBack function 回调
+---@param isRealTime boolean 真实时间
+---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
 function GameEffectManager:AddMapLayerEffect(effectName, parentTransform, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEffect(effectName, parentTransform, ELayerName.Map, nil, EPos.Local, durationTime, callBack, isRealTime, autoRecycle)
 end
 
 --- 回收单个特效
----@param go UnityEngine.GameObject
+---@param go UnityEngine.GameObject 特效对象
 function GameEffectManager:RecycleEffect(go)
     if IsNull(go) then return end
     if not self._efList:Contains(go) then return end
 
-    -- 停止动画
-    DOTween.Kill(go.name .. go:GetInstanceID())
-    -- 放回对象池
-    PoolManager:Put(go)
-    -- 从列表移除
-    self._efList:Remove(go)
+    DOTween.Kill(go.name .. go:GetInstanceID())    -- 停止动画
+    PoolManager:Put(go)                           -- 放回对象池
+    self._efList:Remove(go)                       -- 从管理列表移除
 end
 
 --- 回收所有特效（场景切换/重启时调用）

@@ -10,6 +10,7 @@ local SingletonManager = class("SingletonManager")
 ---@param args table 自定义参数
 function SingletonManager:ctor(args)
     --- 单例列表 List<Singleton>
+    ---@type HonorList
     self._singletonList = HonorList:Create()
 end
 
@@ -70,7 +71,7 @@ function SingletonManager:InitAllSingleForStep(preload)
     self:OrderSingleton(false)
 
     ---@param v Singleton
-    for _, v in ipairs(self._singletonList.items) do
+    for _, v in ip(self._singletonList.items) do
         -- 加入预加载步骤
         preload.cs:AddStep(function()
             v:Init()

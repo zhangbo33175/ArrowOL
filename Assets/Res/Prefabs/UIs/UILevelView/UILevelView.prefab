@@ -2527,9 +2527,9 @@ MonoBehaviour:
     ElementsExtends: []
   - Comment: "\u6BCF\u65E5\u6311\u6218\u6309\u94AE"
     InjectionTypeName: 12
-    Name: ButtonLegacy1
+    Name: DailyChallengeButton
     IsArray: 0
-    Obj: {fileID: 1762378345883997773}
+    Obj: {fileID: 4983066354908210019}
     Variant: 
     InfoEx: Clicked
     ExtendsEnabled: 0

@@ -2,57 +2,65 @@
 -- descrip:   对象池助手（全局对象池管理器）
 --              作用：统一创建、管理、销毁所有 GameObject 对象池
 --              定位：对象池系统的顶层入口，方便全局调用与管理
+--              核心：避免频繁 Instantiate / Destroy 导致 GC 峰值，优化游戏性能
+--              适用：特效、怪物、道具、UI  item 等频繁创建销毁的 GameObject
 --=====================================================================================================
 
----@class HonorPoolHelper @全局对象池管理助手
----@field pools table<string, HonorPool> @所有对象池字典（key=池名称, value=池对象）
+---@class HonorPoolHelper @全局对象池管理助手（顶层管理器）
+---@field pools table<string, HonorPool> @所有对象池字典：key=唯一池名称，value=HonorPool 实例
 local HonorPoolHelper = class("HonorPoolHelper")
 
 --- 构造函数
+--- 初始化对象池容器，清空所有池数据
 ---@type fun(args:table):void
+---@param args table 可选初始化参数
 function HonorPoolHelper:ctor(args)
-    self.pools = {}  -- 初始化空的对象池集合
+    self.pools = {}  ---@type table<string, HonorPool> 存储所有已创建的对象池
 end
 
---- 创建实例
+--- 创建全局对象池管理器实例
 ---@type fun(args:table):HonorPoolHelper
----@return HonorPoolHelper
+---@param args table 可选初始化参数
+---@return HonorPoolHelper 管理器实例
 function HonorPoolHelper:Create(args)
     local obj = HonorPoolHelper.new(args)
     return obj
 end
 
---- 创建一个新的对象池
----@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:handler):HonorPool
----@param name 对象池名称（唯一标识）
----@param resDefItem 资源配置
----@param preParent 对象池父节点
----@param resetHandler 对象复用前的重置函数
----@return HonorPool
+--- 创建一个新的 GameObject 对象池
+---@type fun(name:string, resDefItem:RES_DEF_ITEM, preParent:UnityEngine.Transform, resetHandler:fun(go:GameObject)):HonorPool
+---@param name string 对象池唯一名称（用于查找/销毁）
+---@param resDefItem RES_DEF_ITEM 资源配置表项（包含路径、类型、预加载数量等）
+---@param preParent UnityEngine.Transform 对象默认父节点（池内对象统一挂载节点）
+---@param resetHandler function 对象从池取出时的重置函数（重置状态/位置/动画等）
+---@return HonorPool 创建成功返回池实例，失败返回 nil
 function HonorPoolHelper:CreatePool(name, resDefItem, preParent, resetHandler)
-    -- 只支持 GameObject 类型
+    -- 仅支持 GameObject 类型资源
     if resDefItem.TypeName == "GameObject" then
         if self.pools[name] == nil then
-            -- 创建并缓存对象池
+            -- 创建池实例并缓存
             self.pools[name] = require("HonorPool"):Create(name, resDefItem, preParent, resetHandler)
         else
-            PrintError("对象池" .. name .. "已存在，无需再次创建。")
+            PrintError("对象池【" .. name .. "】已存在，无需重复创建。")
         end
         return self.pools[name]
     else
-        PrintError("对象池" .. name .. "创建失败：资源类型不是 GameObject。")
+        PrintError("对象池【" .. name .. "】创建失败：仅支持 GameObject 类型资源。")
         return nil
     end
 end
 
---- 根据名称获取对象池
+--- 根据名称获取已存在的对象池
 ---@type fun(name:string):HonorPool
+---@param name string 对象池名称
+---@return HonorPool 池实例（不存在则返回 nil）
 function HonorPoolHelper:GetPool(name)
     return self.pools[name]
 end
 
---- 获取当前总对象池数量
+--- 获取当前已创建的对象池总数量
 ---@type fun():number
+---@return number 池数量
 function HonorPoolHelper:Count()
     local count = 0
     for _, __ in pairs(self.pools) do
@@ -61,8 +69,10 @@ function HonorPoolHelper:Count()
     return count
 end
 
---- 销毁指定名称的对象池
+--- 销毁指定名称的对象池（释放所有对象+清理内存）
 ---@type fun(name:string):boolean
+---@param name string 要销毁的池名称
+---@return boolean 是否销毁成功
 function HonorPoolHelper:DestroyPool(name)
     if self.pools[name] ~= nil then
         self.pools[name]:Destroy()
@@ -72,7 +82,7 @@ function HonorPoolHelper:DestroyPool(name)
     return false
 end
 
---- 销毁所有对象池（场景切换/游戏退出时调用）
+--- 销毁所有对象池（场景切换、游戏退出时调用）
 ---@type fun():void
 function HonorPoolHelper:DestroyAllPools()
     for _, pool in pairs(self.pools) do
@@ -81,7 +91,7 @@ function HonorPoolHelper:DestroyAllPools()
     self.pools = {}
 end
 
---- 销毁所有池中的未使用对象（释放内存）
+--- 销毁所有池中的【闲置未使用对象】（主动释放内存，不影响正在使用的对象）
 ---@type fun():void
 function HonorPoolHelper:DestroyPoolUnused()
     for _, pool in pairs(self.pools) do

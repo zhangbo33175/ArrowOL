@@ -10,16 +10,16 @@ local get_time = os.clock
 -- 设置 Lua 钩子：监听函数调用/返回（xlua 优先，原生 debug 兼容）
 local sethook = xlua.sethook or debug.sethook
 -- 函数信息缓存表：key=函数唯一ID，value=函数统计数据
+---@type table<number, table>
 local func_info_map = nil
 
 -- 性能统计开始时间
+---@type number
 local start_time
 
---[[
-    创建函数统计信息
-    @param db_info: debug.getinfo 获取的函数基础信息
-    @return 函数统计结构体（调用次数、总耗时等）
-]]
+--- 创建函数统计信息
+---@param db_info table debug.getinfo 获取的函数基础信息
+---@return table 函数统计结构体（调用次数、总耗时等）
 local function create_func_info(db_info)
     return {
         db_info     = db_info,   -- 函数源信息（文件名、行号、函数名）
@@ -28,13 +28,11 @@ local function create_func_info(db_info)
     }
 end
 
---[[
-    钩子回调函数：监听所有 Lua 函数的 call / return 事件
-    核心：自动统计每个函数的耗时与调用次数
-    @param event: 事件类型 "call" / "return" / "tail return"
-    @param func_info_id: 函数唯一ID
-    @param source: 函数所在文件路径
-]]
+--- 钩子回调函数：监听所有 Lua 函数的 call / return 事件
+--- 核心：自动统计每个函数的耗时与调用次数
+---@param event string 事件类型 "call" / "return" / "tail return"
+---@param func_info_id number 函数唯一ID
+---@param source string 函数所在文件路径
 local function on_hook(event, func_info_id, source)
     -- 从缓存中获取函数信息，不存在则创建
     local func_info = func_info_map[func_info_id]
@@ -73,48 +71,38 @@ local function on_hook(event, func_info_id, source)
     end
 end
 
---[[
-    启动性能统计
-    功能：清空数据、开始监听所有函数调用
-]]
+--- 启动性能统计
+--- 功能：清空数据、开始监听所有函数调用
 local function start()
     func_info_map = {}    -- 重置统计数据
     start_time = get_time() -- 记录统计开始时间
     sethook(on_hook, 'cr') -- 开启钩子：监听 call + return
 end
 
---[[
-    暂停统计
-    功能：临时关闭钩子，不清除数据
-]]
+--- 暂停统计
+--- 功能：临时关闭钩子，不清除数据
 local function pause()
     sethook() -- 不传参数 = 关闭钩子
 end
 
---[[
-    恢复统计
-    功能：重新开启钩子，继续统计
-]]
+--- 恢复统计
+--- 功能：重新开启钩子，继续统计
 local function resume()
     sethook(on_hook, 'cr')
 end
 
---[[
-    停止统计
-    功能：关闭钩子、清空所有数据
-]]
+--- 停止统计
+--- 功能：关闭钩子、清空所有数据
 local function stop()
     sethook()
     func_info_map = nil
     start_time = nil
 end
 
---[[
-    生成单行统计报告
-    @param rp: 单个函数的统计数据
-    @param stat_interval: 总统计时长（秒）
-    @return 格式化字符串（函数名、文件、耗时、次数等）
-]]
+--- 生成单行统计报告
+---@param rp table 单个函数的统计数据
+---@param stat_interval number 总统计时长（秒）
+---@return string 格式化字符串（函数名、文件、耗时、次数等）
 local function report_output_line(rp, stat_interval)
     -- 函数所在文件 + 行号
     local source        = rp.db_info.short_src or '[NA]'
@@ -146,11 +134,9 @@ local sort_funcs = {
     CALLED   = function(a, b) return a.count > b.count end            -- 按调用次数降序
 }
 
---[[
-    生成完整性能统计报告
-    @param sort_by: 排序方式 'TOTAL' / 'AVERAGE' / 'CALLED'
-    @return 格式化的完整报告字符串
-]]
+--- 生成完整性能统计报告
+---@param sort_by string|function 排序方式 'TOTAL' / 'AVERAGE' / 'CALLED'
+---@return string 格式化的完整报告字符串
 local function report(sort_by)
     pause() -- 临时暂停统计，避免生成报告时干扰数据
 
@@ -187,6 +173,10 @@ local function report(sort_by)
 end
 
 -- 导出接口
+---@class XLuaProfiler
+---@field start fun() 开始统计
+---@field report fun(sort_by:string|function):string 生成报告
+---@field stop fun() 停止统计
 return {
     start   = start,    -- 开始统计
     report  = report,   -- 生成报告（参数：TOTAL/AVERAGE/CALLED）

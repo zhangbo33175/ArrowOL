@@ -13,8 +13,8 @@ function GameCoreManagerEffect:ctor(args)
     -- 初始化特效缓存容器（预留结构，便于后续扩展）
 end
 
----@brief 创建特效管理器实例（静态创建方法）
----@param args table @初始化参数
+--- 静态创建实例
+---@param args table 初始化参数
 ---@return GameCoreManagerEffect 特效管理器实例对象
 function GameCoreManagerEffect:Create(args)
     local instance = GameCoreManagerEffect.new(args)

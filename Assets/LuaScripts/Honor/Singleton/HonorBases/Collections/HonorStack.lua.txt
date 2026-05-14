@@ -1,48 +1,53 @@
 --=====================================================================================================
 -- descrip:   栈结构（Stack）
 --              规则：后进先出 LIFO (Last In First Out)
---              用途：UI栈、返回栈、面板层级管理、状态回溯
+--              用途：UI面板栈、场景返回栈、状态回溯、操作撤销、层级管理
 --=====================================================================================================
 
----@class HonorStack @栈结构类
----@field items table @栈内部存储的元素数组
+---@class HonorStack @通用栈容器（LIFO 后进先出）
+---@field items table @内部存储元素的数组
 local HonorStack = class("HonorStack")
 
 --- 构造函数
 ---@type fun():void
 function HonorStack:ctor()
-    self.items = {}   -- 初始化空栈
+    ---@type table 栈元素数组
+    self.items = {}
 end
 
 --- 创建栈实例
 ---@type fun():HonorStack
----@return HonorStack
+---@return HonorStack 新的栈对象
 function HonorStack:Create()
     local obj = HonorStack.new()
     return obj
 end
 
---- 获取栈顶元素（不弹出）
+--- 获取栈顶元素（仅查看，不弹出）
 ---@type fun():any
----@return any 栈顶第一个元素
+---@return any 栈顶元素，空栈返回 nil
 function HonorStack:Peek()
-    return self.items[1]
+    if self:IsEmpty() then
+        return nil
+    end
+    return self.items[#self.items]
 end
 
---- 元素入栈（压栈）
+--- 元素入栈（压入栈顶）
 ---@type fun(item:any):void
----@param item 要压入栈的元素
+---@param item any 任意类型要压入的元素
 function HonorStack:Push(item)
-    -- 插入到数组第1位，作为新栈顶
-    table.insert(self.items, 1, item)
+    table.insert(self.items, item)
 end
 
---- 元素出栈（弹出栈顶）
+--- 元素出栈（弹出栈顶并返回）
 ---@type fun():any
----@return any 弹出的元素
+---@return any 出栈元素，空栈返回 nil
 function HonorStack:Pop()
-    local item = self:Peek()   -- 取栈顶
-    table.remove(self.items, 1) -- 移除栈顶
+    if self:IsEmpty() then
+        return nil
+    end
+    local item = table.remove(self.items)
     return item
 end
 
@@ -53,14 +58,27 @@ function HonorStack:Count()
     return #self.items
 end
 
---- 判断栈是否包含某个元素
----@type fun(item:any):boolean
----@return boolean 是否包含
-function HonorStack:Contains(item)
-    return table.vIn(self.items, item)
+--- 判断栈是否为空
+---@type fun():boolean
+---@return boolean true=空, false=非空
+function HonorStack:IsEmpty()
+    return self:Count() == 0
 end
 
---- 清空栈
+--- 判断栈是否包含指定元素
+---@type fun(item:any):boolean
+---@param item any 要查找的元素
+---@return boolean 是否包含
+function HonorStack:Contains(item)
+    for _, v in ipairs(self.items) do
+        if v == item then
+            return true
+        end
+    end
+    return false
+end
+
+--- 清空整个栈
 ---@type fun():void
 function HonorStack:Clear()
     self.items = {}

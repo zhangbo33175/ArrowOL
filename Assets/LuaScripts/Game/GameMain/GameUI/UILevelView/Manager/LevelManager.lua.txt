@@ -9,7 +9,7 @@ local LevelManager = class("LevelManager", import("Singleton"))
 ---@brief 构造函数
 ---@param args table 自定义参数
 function LevelManager:ctor(args)
-    LevelManager.super.ctor(self, args)
+    LevelManager.super.ctor(self)
 
     --- 登录状态（临时兼容字段）
     self._loginState = ELoginState.None
@@ -22,13 +22,12 @@ function LevelManager:ctor(args)
     --- 是否删除用户（临时兼容字段）
     self._isDelUser = false
     --- 当前章节信息
-    self._chapterLevel=""
-    
+    self._chapterLevel = ""
 end
 
 ---@brief 创建单例实例
 ---@param args table 自定义参数
----@return LevelManager
+---@return LevelManager 关卡管理器实例
 function LevelManager:Create(args)
     return LevelManager.new(args)
 end
@@ -46,22 +45,49 @@ function LevelManager:ClearData()
     self._isOnline = false
     self._isNewUser = false
     self._isDelUser = false
-    self._chapterLevel=""
+    self._chapterLevel = ""
 end
 
-
----@brief 当前章节信息
+---@brief 获取当前章节关卡展示文本
+---@return string 关卡展示文本
 function LevelManager:GetChapterLevel()
-    return "第 "..  self._chapterLevel.."关"
+    return "第 " .. self._chapterLevel .. "关"
 end
-
 
 ---@brief 获取当前关卡信息（用于界面展示）
 ---@return table 关卡信息数据
 function LevelManager:GetCurrentLevelInfo()
     -- 扩展：当前章节、关卡、星级、解锁状态、奖励配置等
-    self._chapterLevel=ChapterListManager:GetRuntimeChapterId()
+    self._chapterLevel = ChapterListManager:GetRuntimeChapterId()
 end
 
+---@brief 设置关卡模式
+---@param _levelMode ELevelMode 关卡模式枚举
+function LevelManager:SetLevelMode(_levelMode)
+    GameManager:SetLevelMode(_levelMode)
+    self:EnterTheGame()
+end
+
+---@brief 进入游戏（加载地图）
+function LevelManager:EnterTheGame()
+    local chapterId = ChapterListManager:GetLatestChapterId()
+    MapManager:ReadyToLoadMap(chapterId, function()
+        SafeInvoke(function()
+            HonorEventHelper:Fire(EventCmd.OnFirstIntoMainState)
+            HonorEventHelper:Fire(EventCmd.OnChapterMapChangeComplete)
+        end, "OnFirstIntoMainState 事件通知错误:")
+    end)
+end
+
+---@brief 加载地图
+---@param callback function 完成回调
+function LevelManager:LoadMap(callback)
+    local chapterId = ChapterListManager:GetLatestChapterId()
+    ChapterListManager:SetRuntimeChapter(chapterId)
+    local isSuccess = MapManager:LoadMapById(chapterId, nil)
+    if callback then
+        xpcall(callback, __G__TRACK_BACK__, isSuccess)
+    end
+end
 
 return LevelManager

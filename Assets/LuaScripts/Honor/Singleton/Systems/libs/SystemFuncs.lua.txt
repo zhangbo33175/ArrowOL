@@ -3,10 +3,11 @@
 --              包含：协议序列化、Json/Table处理、加解密、Table工具、时间格式化、字符串处理、
 --                   C#<->Lua互转、UI/资源管理、动画、坐标转换、DOTween移动等全功能工具集
 --=====================================================================================================
+
 --region table处理方法
 ---初始化Proto文件（加载并解析proto协议定义）
 ---@type fun(protoLuaFileName:string):void
----@param protoLuaFileName string @proto协议lua脚本名称
+---@param protoLuaFileName string proto协议lua脚本名称
 function InitProtoFile(protoLuaFileName)
     -- 全局缓存：记录已加载的proto文件，避免重复加载
     if _GlobalProtoLuaFileNamesLoaded == nil then
@@ -25,9 +26,9 @@ end
 
 ---Proto协议序列化（将lua的table数据转换成字节数组）
 ---@type fun(protoDataName:string, tableData:table):System.Byte[]
----@param protoDataName string @proto协议中数据名称
----@param tableData table @proto协议数据
----@return System.Byte[] @序列化结果
+---@param protoDataName string proto协议中数据名称
+---@param tableData table proto协议数据
+---@return System.Byte[] 序列化结果
 function ProtoEncode(protoDataName, tableData)
     if type(protoDataName) == "string" and protoDataName ~= "" then
         local pb = require "pb"
@@ -39,9 +40,9 @@ end
 
 ---Proto协议反序列化（将字节数组转换成lua的table数据）
 ---@type fun(protoDataName:string, bytes:System.Byte[]):table
----@param protoDataName string @proto协议中数据名称
----@param bytes System.Byte[] @proto协议字节流数据
----@return table @反序列化结果
+---@param protoDataName string proto协议中数据名称
+---@param bytes System.Byte[] proto协议字节流数据
+---@return table 反序列化结果
 function ProtoDecode(protoDataName, bytes)
     if type(protoDataName) == "string" and protoDataName ~= "" then
         local pb = require "pb"
@@ -53,8 +54,8 @@ end
 
 ---Json序列化（将lua的table数据转换成json字符串）
 ---@type fun(tableData:table):string
----@param tableData table @table数据
----@return string @序列化结果
+---@param tableData table table数据
+---@return string 序列化结果
 function JsonEncode(tableData)
     local rapidjson = require "rapidjson"
     local jsonString = rapidjson.encode(tableData)
@@ -63,8 +64,8 @@ end
 
 ---Json反序列化（将json字符串转换成lua的table数据）
 ---@type fun(jsonString:string):table
----@param jsonString string @json字符串
----@return table @反序列化结果
+---@param jsonString string json字符串
+---@return table 反序列化结果
 function JsonDecode(jsonString)
     local rapidjson = require "rapidjson"
     local tableData = rapidjson.decode(jsonString)
@@ -73,8 +74,8 @@ end
 
 ---LuaTable序列化（将LuaTable数据转化成lua字符串，大数据量效率低）
 ---@type fun(tableData:table):string
----@param data table @table数据
----@return string @序列化结果
+---@param data table table数据
+---@return string 序列化结果
 function TableEncode(data)
     local lua = ""
     local t = type(data)
@@ -107,8 +108,8 @@ end
 
 ---Table反序列化（将lua字符串转换成LuaTable数据）
 ---@type fun(luaString:string):table
----@param luaString string @lua字符串
----@return table @反序列化结果
+---@param luaString string lua字符串
+---@return table 反序列化结果
 function TableDecode(luaString)
     if luaString == nil or type(luaString) ~= "string" or luaString == "" then
         return {}
@@ -120,10 +121,10 @@ end
 ---AES加密字符串为base64字符串
 ---传入key与iv时表示使用静态加密/不传key与iv时表示使用动态加密
 ---@type fun(value:any, key:string, iv:string):string
----@param value any @明文字符串
----@param key string @指定的加密key（可不传，默认使用动态加密）
----@param iv string @指定的加密iv（可不传，默认使用动态加密）
----@return string @加密结果
+---@param value any 明文字符串
+---@param key string 指定的加密key（可不传，默认使用动态加密）
+---@param iv string 指定的加密iv（可不传，默认使用动态加密）
+---@return string 加密结果
 function AESEncodeToBase64(value, key, iv)
     local str = type(value) == "table" and TableEncode(value) or tostring(value)
     return Honor.AESEncrypt.EncodeToBase64(str, key, iv)
@@ -132,11 +133,11 @@ end
 ---AES解密base64字符串
 ---传入key与iv时表示使用静态解密/不传key与iv时表示使用动态解密
 ---@type fun(s:string, typeName:string, key:string, iv:string):any
----@param s string @密文字符串
----@param typeName string @输出类型："number" "boolean" "table"
----@param key string @指定的解密key
----@param iv string @指定的解密iv
----@return any @解密结果
+---@param s string 密文字符串
+---@param typeName string 输出类型："number" "boolean" "table"
+---@param key string 指定的解密key
+---@param iv string 指定的解密iv
+---@return any 解密结果
 function AESDecodeFromBase64(s, typeName, key, iv)
     local result = Honor.AESEncrypt.DecodeFromBase64(s, key, iv)
     if typeName == "number" then
@@ -152,10 +153,10 @@ end
 ---AES加密字节流
 ---传入key与iv时表示使用静态加密/不传key与iv时表示使用动态加密
 ---@type fun(bytes:System.Byte[], key:string, iv:string):string
----@param bytes System.Byte[] @字节流
----@param key string @指定的加密key（可不传，默认使用动态加密）
----@param iv string @指定的加密iv（可不传，默认使用动态加密）
----@return System.Byte[] @加密结果
+---@param bytes System.Byte[] 字节流
+---@param key string 指定的加密key（可不传，默认使用动态加密）
+---@param iv string 指定的加密iv（可不传，默认使用动态加密）
+---@return System.Byte[] 加密结果
 function AESEncodeToBytes(bytes, key, iv)
     return Honor.AESEncrypt.EncodeToBytes(bytes, key, iv)
 end
@@ -163,18 +164,18 @@ end
 ---AES解密字节流
 ---传入key与iv时表示使用静态解密/不传key与iv时表示使用动态解密
 ---@type fun(bytes:System.Byte[], key:string, iv:string):any
----@param bytes System.Byte[] @密文字节流
----@param key string @指定的解密key
----@param iv string @指定的解密iv
----@return System.Byte[] @解密结果
+---@param bytes System.Byte[] 密文字节流
+---@param key string 指定的解密key
+---@param iv string 指定的解密iv
+---@return System.Byte[] 解密结果
 function AESDecodeToBytes(bytes, key, iv)
     return Honor.AESEncrypt.DecodeToBytes(bytes, key, iv)
 end
 
 ---浅拷贝Table（只拷贝一层，子table为引用）
 ---@type fun(tab:table):table
----@param tab table @table数据
----@return table @拷贝结果
+---@param tab table table数据
+---@return table 拷贝结果
 function CopyTab(tab)
     local result = {}
     for k, v in pairs(tab or {}) do
@@ -189,8 +190,8 @@ end
 
 ---深拷贝对象（完全拷贝，所有层级独立，支持循环引用）
 ---@type fun(object:table):table
----@param object table @table数据
----@return table @拷贝结果
+---@param object table table数据
+---@return table 拷贝结果
 function DeepCopy(object)
     local lookup_table = {} -- 解决循环引用
     local function _copy(object)
@@ -212,9 +213,9 @@ end
 
 ---在table数组中查找某个值（有：返回k值；无：返回nil）
 ---@type fun(tab:table, value:any):number
----@param tab table @table数据
----@param value any @table中任意数据
----@return number @下标值
+---@param tab table table数据
+---@param value any table中任意数据
+---@return number 下标值
 function FindValueInTable(tab, value)
     for k, v in pairs(tab) do
         if v == value then
@@ -226,9 +227,9 @@ end
 
 ---在table中查找所有包含str的键集合
 ---@type fun(tab:table, str:string):any[]
----@param tab table @table数据
----@param str string @table中待查的键
----@return any[] @下标值数据
+---@param tab table table数据
+---@param str string table中待查的键
+---@return any[] 下标值数据
 function FindKeysWhichContainStrInTable(tab, str)
     local result = {}
     for k, v in pairs(tab) do
@@ -241,9 +242,9 @@ end
 
 ---获取num1到num2之间的一个随机数（左右闭区间）
 ---@type fun(num1:number, num2:number):number
----@param num1 number @区间开始值
----@param num2 number @区间结束值
----@return number @随机结果
+---@param num1 number 区间开始值
+---@param num2 number 区间结束值
+---@return number 随机结果
 function GetRandomNumBetween(num1, num2)
     if num1 <= num2 then
         return (math.random(num1, num2))
@@ -254,9 +255,9 @@ end
 
 ---合并两个数组型table（按顺序拼接）
 ---@type fun(tableFront:table, tableEnd:table):table
----@param tableFront table @前面的table
----@param tableEnd table @后面的table
----@return table @合并结果
+---@param tableFront table 前面的table
+---@param tableEnd table 后面的table
+---@return table 合并结果
 function JoinTables(tableFront, tableEnd)
     local tableResult = {}
 
@@ -281,8 +282,8 @@ end
 
 ---选择法排序（数值从小到大/从大到小）
 ---@type fun(tab:table, descOrder:boolean):table
----@param tab table @需要排序的table
----@param descOrder boolean @是否为降序（默认为升序）
+---@param tab table 需要排序的table
+---@param descOrder boolean 是否为降序（默认为升序）
 function SelectSort(tab, descOrder)
     if descOrder == nil then
         descOrder = false
@@ -308,9 +309,9 @@ end
 
 ---选择法排序（按table内指定key排序）
 ---@type fun(tab:table, key:string, descOrder:boolean):table
----@param tab table @需要排序的table
----@param key string @table排序依据的key
----@param descOrder boolean @是否为降序（默认为升序）
+---@param tab table 需要排序的table
+---@param key string table排序依据的key
+---@param descOrder boolean 是否为降序（默认为升序）
 function SelectSortByKey(tab, key, descOrder)
     if descOrder == nil then
         descOrder = false
@@ -336,8 +337,8 @@ end
 
 ---获取table所有的子集自由组合（用于配置表组合计算）
 ---@type fun(tb:table):table
----@param tb table @原始table数据
----@return table @自由组合结果
+---@param tb table 原始table数据
+---@return table 自由组合结果
 function GetFreeCombinations(tb)
     local keys = table.keys(tb)
     local num_keys = #keys
@@ -359,7 +360,7 @@ end
 --region 时间间隔转换成格式化字符串
 ---将时间间隔(秒)转换成格式化时间字符串
 ---@type fun(format:string, timeInterval:number):string
----@param format string @格式模板
+---@param format string 格式模板
 --- "DD"                 "d天h时m分"
 --- "DDHH"               "d天h时m分"
 --- "DDHHMM"             "d天h时m分"
@@ -367,12 +368,12 @@ end
 --- "HH:MM:SS"           "h:m:s"
 --- "MM:SS"              "m:s"
 --- "MMSSms""            "m's.ms"
----@param timeInterval number @时间间隔（秒数）
----@param D_unit string @天-单位
----@param H_unit string @时-单位
----@param M_unit string @分-单位
----@param S_unit string @秒-单位
----@return string @转换结果
+---@param timeInterval number 时间间隔（秒数）
+---@param D_unit string 天-单位
+---@param H_unit string 时-单位
+---@param M_unit string 分-单位
+---@param S_unit string 秒-单位
+---@return string 转换结果
 function TransformTimeIntervalToFormat(format, timeInterval, D_unit, H_unit, M_unit, S_unit)
     local result = ""
     local day = math.floor(timeInterval / 3600 / 24)
@@ -408,8 +409,8 @@ end
 ---字符串模板拼接（支持占位符替换）
 ---使用方法： mstr{"<<m>>年<<n>>月", m=x1, n=x2})
 ---@type fun(t :table):string
----@param t table @拼接table
----@return string @拼接结果
+---@param t table 拼接table
+---@return string 拼接结果
 function mstr(t)
     local key = string.gsub(t[1], "%$(%d+)", function(s)
         local index = toint(s)
@@ -428,8 +429,8 @@ end
 
 ---获取utf8编码字符串正确长度（支持中文）
 ---@type fun(str:string):number
----@param str string @字符串
----@return number @长度
+---@param str string 字符串
+---@return number 长度
 function GetUTF8StrLength(str)
     local len = #str
     local left = len
@@ -452,9 +453,9 @@ end
 
 ---字符串分割函数
 ---@type fun(szFullString:string, szSeparator:string):string[]
----@param szFullString string @待分割的字符串
----@param szSeparator string @分割字符
----@return string[] @分割结果
+---@param szFullString string 待分割的字符串
+---@param szSeparator string 分割字符
+---@return string[] 分割结果
 function SplitString(szFullString, szSeparator)
     local findStartIndex = 1
     local splitIndex = 1
@@ -476,8 +477,8 @@ end
 --region LuaTable与C#的转换
 ---LuaTable转C#的Array
 ---@type fun(luaTable:table):System.Array
----@param luaTable table @luatable
----@return System.Array @转化结果
+---@param luaTable table luatable
+---@return System.Array 转化结果
 function LuaTableToCSArray(luaTable)
     local convertArray = CS.System.Array.CreateInstance(typeof(CS.System.Object), #luaTable)
     for index = 0, #luaTable - 1 do
@@ -488,8 +489,8 @@ end
 
 ---LuaTable转C#的List
 ---@type fun(luaTable:table):any
----@param luaTable table @luatable
----@return any @转化结果
+---@param luaTable table luatable
+---@return any 转化结果
 function LuaTableToCSList(luaTable)
     local convertList = CS.System.Collections.Generic['List`1[System.Object]']()
     for index = 0, #luaTable - 1 do
@@ -500,8 +501,8 @@ end
 
 ---C#的Dictionary转LuaTable
 ---@type fun(dictionary:any):table
----@param dictionary any @dictionary
----@return table @转化结果
+---@param dictionary any dictionary
+---@return table 转化结果
 function CSDictionaryToLuaTable(dictionary)
     local t = {}
     local iter = dictionary:GetEnumerator() -- 获取迭代器
@@ -515,7 +516,7 @@ end
 --region 刘海的高度或者宽度
 ---获取刘海适配偏移值（自动适配横竖屏、iOS/Android）
 ---@type fun():number
----@return number @高度/宽度值
+---@return number 高度/宽度值
 function GetBangsNumber()
     if UIBangsNumber == nil then
         -- 判断屏幕是横屏还是竖屏
@@ -546,7 +547,7 @@ end
 --region 移除transform下的所有GameObject
 ---销毁transform下的所有子物体
 ---@type fun(transform:UnityEngine.Transform):void
----@param transform UnityEngine.Transform @transform组件
+---@param transform UnityEngine.Transform transform组件
 function RemoveAllChildren(transform)
     if transform ~= nil and transform.childCount > 0 then
         -- 倒序删除，避免索引错乱
@@ -599,8 +600,8 @@ end
 --region 资源加载与卸载
 ---同步加载Asset（支持JsonAsset自动解析）
 ---@type fun(assetInfo:RES_DEF_ITEM):UnityEngine.Object
----@param assetInfo RES_DEF_ITEM @资源信息
----@return UnityEngine.Object @资源对象
+---@param assetInfo RES_DEF_ITEM 资源信息
+---@return UnityEngine.Object 资源对象
 function LoadAssetSync(assetInfo)
     local status, asset = xpcall(function()
         local asset = GameMainRoot.Asset:LoadAssetSync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName)
@@ -619,8 +620,8 @@ end
 
 ---异步加载Asset
 ---@type fun(assetInfo:RES_DEF_ITEM, overCallback:handler):void
----@param assetInfo RES_DEF_ITEM @资源信息
----@param overCallback handler @回调句柄
+---@param assetInfo RES_DEF_ITEM 资源信息
+---@param overCallback handler 回调句柄
 function LoadAssetAsync(assetInfo, overCallback)
     local status, _ = xpcall(function()
         GameMainRoot.Asset:LoadAssetAsync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName, function(___asset_obj___, asset)
@@ -635,9 +636,9 @@ end
 
 ---卸载Asset
 ---@type fun(asset:UnityEngine.Object, overCallback:handler, rightNow:boolean):void
----@param asset UnityEngine.Object @资源对象
----@param overCallback handler @回调句柄
----@param rightNow boolean @立即卸载
+---@param asset UnityEngine.Object 资源对象
+---@param overCallback handler 回调句柄
+---@param rightNow boolean 立即卸载
 function RemoveAsset(asset, overCallback, rightNow)
     if asset ~= nil then
         if rightNow == nil then
@@ -657,9 +658,9 @@ end
 --region UI开启与关闭
 ---同步打开UI
 ---@type fun(uiInfo:Tables.UIs_Item, params:table):table
----@param uiInfo Tables.UIs_Item @UI信息
----@param params table @自定义参数
----@return table @UI对象LuaBehaviour组件的luaClass
+---@param uiInfo Tables.UIs_Item UI信息
+---@param params table 自定义参数
+---@return table UI对象LuaBehaviour组件的luaClass
 function OpenUISync(uiInfo, params)
     local status, luaClass = xpcall(function()
         local uiGO = GameMainRoot.UI:OpenUISyncByLuaTable(uiInfo, params)
@@ -676,9 +677,9 @@ end
 
 ---异步打开UI
 ---@type fun(uiInfo:Tables.UIs_Item, params:table, overCallback:handler):void
----@param uiInfo Tables.UIs_Item @UI信息
----@param params table @自定义参数
----@param overCallback handler @回调句柄
+---@param uiInfo Tables.UIs_Item UI信息
+---@param params table 自定义参数
+---@param overCallback handler 回调句柄
 function OpenUIAsync(uiInfo, params, overCallback)
     local status, _ = xpcall(function()
         GameMainRoot.UI:OpenUIAsyncByLuaTable(uiInfo, params, function(abPath, assetName, luaClass, uiGO)
@@ -693,8 +694,8 @@ end
 
 ---关闭UI
 ---@type fun(uiInfo:Tables.UIs_Item, rightNow:boolean):void
----@param uiInfo Tables.UIs_Item @UI信息
----@param rightNow boolean @马上
+---@param uiInfo Tables.UIs_Item UI信息
+---@param rightNow boolean 马上
 function CloseUI(uiInfo, rightNow)
     if rightNow == nil then
         rightNow = false
@@ -709,8 +710,8 @@ end
 
 ---通过LuaClass关闭UI
 ---@type fun(luaClass:table, rightNow:boolean):void
----@param luaClass table @UI对象LuaBehaviour组件的luaClass
----@param rightNow boolean @马上
+---@param luaClass table UI对象LuaBehaviour组件的luaClass
+---@param rightNow boolean 马上
 function CloseUIByClass(luaClass, rightNow)
     if rightNow == nil then
         rightNow = false
@@ -722,8 +723,8 @@ end
 
 ---关闭所有UI
 ---@type fun(uiType:Honor.Runtime.UIType, rightNow:boolean):void
----@param uiType Honor.Runtime.UIType @UI类型
----@param rightNow boolean @马上
+---@param uiType Honor.Runtime.UIType UI类型
+---@param rightNow boolean 马上
 function CloseAllUIs(uiType, rightNow)
     if rightNow == nil then
         rightNow = false
@@ -736,10 +737,10 @@ end
 --region 创建预制体与销毁
 ---同步创建预制体实例（返回GO对象）
 ---@type fun(assetInfo:RES_DEF_ITEM, parent:UnityEngine.Transform, params:table):UnityEngine.GameObject
----@param assetInfo RES_DEF_ITEM @资源信息
----@param parent UnityEngine.Transform @父节点Transform
----@param params table @自定义参数
----@return UnityEngine.GameObject @UI对象
+---@param assetInfo RES_DEF_ITEM 资源信息
+---@param parent UnityEngine.Transform 父节点Transform
+---@param params table 自定义参数
+---@return UnityEngine.GameObject UI对象
 function CreatePrefabGOSync(assetInfo, parent, params)
     local status, go = xpcall(function()
         parent = parent == nil and GameMainRoot.Scene.SceneRootGO.transform or parent
@@ -753,10 +754,10 @@ end
 
 ---同步创建预制体实例（返回LuaClass）
 ---@type fun(assetInfo:RES_DEF_ITEM, parent:UnityEngine.Transform, params:table):table
----@param assetInfo RES_DEF_ITEM @资源信息
----@param parent UnityEngine.Transform @父节点Transform
----@param params table @自定义参数
----@return table @UI对象LuaBehaviour组件的luaClass
+---@param assetInfo RES_DEF_ITEM 资源信息
+---@param parent UnityEngine.Transform 父节点Transform
+---@param params table 自定义参数
+---@return table UI对象LuaBehaviour组件的luaClass
 function CreatePrefabLuaClassSync(assetInfo, parent, params)
     local status, luaClass = xpcall(function()
         parent = parent == nil and GameMainRoot.Scene.SceneRootGO.transform or parent
@@ -772,10 +773,10 @@ end
 
 ---异步创建预制体实例
 ---@type fun(assetInfo:RES_DEF_ITEM, parent:UnityEngine.Transform, params:table, overCallback:handler):void
----@param assetInfo RES_DEF_ITEM @资源信息
----@param parent UnityEngine.Transform @父节点Transform
----@param params table @自定义参数
----@param overCallback handler @回调句柄
+---@param assetInfo RES_DEF_ITEM 资源信息
+---@param parent UnityEngine.Transform 父节点Transform
+---@param params table 自定义参数
+---@param overCallback handler 回调句柄
 function CreatePrefabAsync(assetInfo, parent, params, overCallback)
     local status, _ = xpcall(function()
         parent = parent == nil and GameMainRoot.Scene.SceneRootGO.transform or parent
@@ -793,7 +794,7 @@ end
 
 ---通过GameObject销毁预制体
 ---@type fun(go:UnityEngine.GameObject):void
----@param go UnityEngine.GameObject @UI对象
+---@param go UnityEngine.GameObject UI对象
 function DestroyPrefabWithGO(go)
     if go ~= nil then
         local luaBehaviour = go:GetComponent("LuaBehaviour")
@@ -807,7 +808,7 @@ end
 
 ---通过LuaClass销毁预制体
 ---@type fun(luaClass:table):void
----@param luaClass table @UI对象LuaBehaviour组件的luaClass
+---@param luaClass table UI对象LuaBehaviour组件的luaClass
 function DestroyPrefabWithLuaClass(luaClass)
     if luaClass ~= nil then
         luaClass:Close()
@@ -816,16 +817,16 @@ end
 
 ---销毁所有场景go实例
 ---@type fun(root:UnityEngine.GameObject):void
----@param root UnityEngine.GameObject @指定根节点
+---@param root UnityEngine.GameObject 指定根节点
 function DestroyAllSceneGOs(root)
     GameMainRoot.Scene:DestroyAllSceneGOs(root)
 end
 
 ---克隆模板对象并挂载到节点（自动重置坐标/缩放）
 ---@type fun(parent:UnityEngine.Transform, child:UnityEngine.GameObject):UnityEngine.GameObject
----@param parent UnityEngine.Transform @父节点
----@param childTemplateGO UnityEngine.GameObject @模板节点
----@return UnityEngine.GameObject @克隆得到的节点对象
+---@param parent UnityEngine.Transform 父节点
+---@param childTemplateGO UnityEngine.GameObject 模板节点
+---@return UnityEngine.GameObject 克隆得到的节点对象
 function InstantiateGO(parent, childTemplateGO)
     local go = GameMainRoot.Asset:InstantiateGO(parent, childTemplateGO)
     go:SetActive(true)
@@ -839,10 +840,10 @@ end
 --region 播放spine动画
 ---播放spine动画（兼容SkeletonAnimation/SkeletonGraphic）
 ---@type fun(spineGO:UnityEngine.GameObject, animationName:string, loop:boolean, overCallback:handler)
----@param spineGO UnityEngine.GameObject @Spine对象（GO或者UI）
----@param animationName string @动画名称
----@param loop boolean @是否循环
----@param overCallback handler @结束回调句柄
+---@param spineGO UnityEngine.GameObject Spine对象（GO或者UI）
+---@param animationName string 动画名称
+---@param loop boolean 是否循环
+---@param overCallback handler 结束回调句柄
 function PlaySpineAnimation(spineGO, animationName, loop, overCallback)
     local animationState = nil
     local skeleton = nil
@@ -881,7 +882,7 @@ end
 
 ---停止播放spine动画
 ---@type fun(spineGO:UnityEngine.GameObject)
----@param spineGO UnityEngine.GameObject @Spine对象（GO或者UI）
+---@param spineGO UnityEngine.GameObject Spine对象（GO或者UI）
 function StopSpineAnimations(spineGO)
     local animationState = nil
     local skeletonAnimation = spineGO:GetComponent("SkeletonAnimation")
@@ -903,10 +904,10 @@ end
 --region 坐标转换
 ---世界坐标转换到UI坐标
 ---@type fun(scenePosition:UnityEngine.Vector3, sceneCamera:UnityEngine.Camera, uiCamera:UnityEngine.Camera):UnityEngine.Vector3
----@param scenePosition UnityEngine.Vector3 @场景相机下的世界坐标
----@param sceneCamera UnityEngine.Camera @场景相机（默认主相机）
----@param uiCamera UnityEngine.Camera @ui相机（默认UI相机）
----@return UnityEngine.Vector3 @UI坐标
+---@param scenePosition UnityEngine.Vector3 场景相机下的世界坐标
+---@param sceneCamera UnityEngine.Camera 场景相机（默认主相机）
+---@param uiCamera UnityEngine.Camera ui相机（默认UI相机）
+---@return UnityEngine.Vector3 UI坐标
 function SceneToUIPoint(scenePosition, sceneCamera, uiCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
@@ -921,10 +922,10 @@ end
 
 ---UI坐标转换到世界坐标
 ---@type fun(uiPosition:UnityEngine.Vector3, sceneCamera:UnityEngine.Camera, uiCamera:UnityEngine.Camera):UnityEngine.Vector3
----@param uiPosition UnityEngine.Vector3 @UI坐标
----@param sceneCamera UnityEngine.Camera @场景相机
----@param uiCamera UnityEngine.Camera @ui相机
----@return UnityEngine.Vector3 @世界坐标
+---@param uiPosition UnityEngine.Vector3 UI坐标
+---@param sceneCamera UnityEngine.Camera 场景相机
+---@param uiCamera UnityEngine.Camera ui相机
+---@return UnityEngine.Vector3 世界坐标
 function UIToScenePoint(uiPosition, sceneCamera, uiCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
@@ -939,9 +940,9 @@ end
 
 ---世界坐标转换到屏幕坐标
 ---@type fun(scenePosition:UnityEngine.Vector3, sceneCamera:UnityEngine.Camera):UnityEngine.Vector3
----@param scenePosition UnityEngine.Vector3 @世界坐标
----@param sceneCamera UnityEngine.Camera @场景相机
----@return UnityEngine.Vector3 @屏幕坐标
+---@param scenePosition UnityEngine.Vector3 世界坐标
+---@param sceneCamera UnityEngine.Camera 场景相机
+---@return UnityEngine.Vector3 屏幕坐标
 function SceneToScreenPoint(scenePosition, sceneCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
@@ -952,9 +953,9 @@ end
 
 ---UI坐标转换到屏幕坐标
 ---@type fun(uiPosition:UnityEngine.Vector3, uiCamera:UnityEngine.Camera):UnityEngine.Vector3
----@param uiPosition UnityEngine.Vector3 @UI坐标
----@param uiCamera UnityEngine.Camera @ui相机
----@return UnityEngine.Vector3 @屏幕坐标
+---@param uiPosition UnityEngine.Vector3 UI坐标
+---@param uiCamera UnityEngine.Camera ui相机
+---@return UnityEngine.Vector3 屏幕坐标
 function UIToScreenPoint(uiPosition, uiCamera)
     if uiCamera == nil then
         uiCamera = GameMainRoot.UI.ScreenUICameras[0]
@@ -965,9 +966,9 @@ end
 
 ---屏幕坐标转换到世界坐标
 ---@type fun(screenPosition:UnityEngine.Vector3, sceneCamera:UnityEngine.Camera):UnityEngine.Vector3
----@param screenPosition UnityEngine.Vector3 @屏幕坐标
----@param sceneCamera UnityEngine.Camera @场景相机
----@return UnityEngine.Vector3 @世界坐标
+---@param screenPosition UnityEngine.Vector3 屏幕坐标
+---@param sceneCamera UnityEngine.Camera 场景相机
+---@return UnityEngine.Vector3 世界坐标
 function ScreenToScenePoint(screenPosition, sceneCamera)
     if sceneCamera == nil then
         sceneCamera = GameMainRoot.Scene.SceneCameras[0]
@@ -978,9 +979,9 @@ end
 
 ---屏幕坐标转换到UI坐标
 ---@type fun(screenPosition:UnityEngine.Vector3, uiCamera:UnityEngine.Camera):UnityEngine.Vector3
----@param screenPosition UnityEngine.Vector3 @屏幕坐标
----@param uiCamera UnityEngine.Camera @ui相机
----@return UnityEngine.Vector3 @ui坐标
+---@param screenPosition UnityEngine.Vector3 屏幕坐标
+---@param uiCamera UnityEngine.Camera ui相机
+---@return UnityEngine.Vector3 ui坐标
 function ScreenToUIPoint(screenPosition, uiCamera)
     if uiCamera == nil then
         uiCamera = GameMainRoot.UI.ScreenUICameras[0]
@@ -994,12 +995,12 @@ end
 --region GameObject移动（DOTween路径动画）
 ---物体路径移动动画
 ---@type fun(go:UnityEngine.GameObject, points:UnityEngine.Vector3[], duration:number, dotweenEase:Ease, finishCallback:handler):DG.Tweening.Sequence
----@param go UnityEngine.GameObject @移动目标
----@param points UnityEngine.Vector3[] @路径点
----@param preDelay number @延迟
----@param duration number @时长
----@param dotweenEase Ease @缓动
----@param finishCallback handler @结束回调
+---@param go UnityEngine.GameObject 移动目标
+---@param points UnityEngine.Vector3[] 路径点
+---@param preDelay number 延迟
+---@param duration number 时长
+---@param dotweenEase Ease 缓动
+---@param finishCallback handler 结束回调
 ---@return DG.Tweening.Sequence
 function DOPath(go, points, preDelay, duration, dotweenEase, finishCallback)
     if go ~= nil then
@@ -1022,6 +1023,13 @@ end
 
 ---物体路径移动+自动朝向旋转
 ---@type fun(go:UnityEngine.GameObject, points:UnityEngine.Vector3[], duration:number, dotweenEase:Ease, finishCallback:handler):DG.Tweening.Sequence
+---@param go UnityEngine.GameObject
+---@param points UnityEngine.Vector3[]
+---@param preDelay number
+---@param duration number
+---@param dotweenEase Ease
+---@param finishCallback handler
+---@return DG.Tweening.Sequence
 function DOPathWithRotation(go, points, preDelay, duration, dotweenEase, finishCallback)
     if go ~= nil then
         go.transform.position = points[1]
@@ -1050,6 +1058,15 @@ end
 
 ---跨相机UI->场景飞行动画（奖励、道具飞行）
 ---@type fun(sceneGO:UnityEngine.GameObject, pointsGroup:UnityEngine.Vector3[][], durations:number[], dotweenEases:Ease[], targetGO:UnityEngine.GameObject, resDefItems:RES_DEF_ITEM[], params:table, finishCallbacks:handler[]):UnityEngine.GameObject[],DG.Tweening.Sequence[]
+---@param originGO UnityEngine.GameObject
+---@param pointsGroup UnityEngine.Vector3[][]
+---@param durations number[]
+---@param dotweenEases Ease[]
+---@param targetParentGO UnityEngine.GameObject
+---@param resDefItems RES_DEF_ITEM[]
+---@param params table[]
+---@param finishCallbacks handler[]
+---@return UnityEngine.GameObject[]|nil, DG.Tweening.Sequence[]|nil
 function DOPathWithRotationAcrossCameras(originGO, pointsGroup, durations, dotweenEases, targetParentGO, resDefItems, params, finishCallbacks)
     if originGO == nil or targetParentGO == nil or pointsGroup == nil then
         return nil, nil

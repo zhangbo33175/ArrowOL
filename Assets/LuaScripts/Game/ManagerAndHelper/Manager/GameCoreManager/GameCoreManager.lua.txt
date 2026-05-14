@@ -1,9 +1,9 @@
 --=====================================================================================================
--- 【游戏核心管理器】
--- 功能：关卡内全局核心总控
--- 负责：游戏状态、胜负判定、结束流程、体力/复活/道具、目标进度、游戏结束消息队列
--- 所有关卡内的核心规则全部由此类统一调度
--- 规范：Unity Lua 商业项目标准 / 注释完整 / 健壮性 / 性能优化
+-- @brief  【游戏核心管理器】关卡内全局总控
+-- @desc   负责：游戏状态、胜负判定、结束流程、体力/复活/道具、目标进度、游戏结束消息队列
+-- @core   所有关卡内核心规则统一调度、状态安全、流程可控
+-- @struct 子模块解耦：数据 / 结束流程 / 技能 / 道具 / 特效
+-- @规范    Unity Lua 商业项目标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class GameCoreManager @ 关卡核心管理器：游戏状态、胜负、体力、道具、目标、结束流程总控
@@ -24,6 +24,7 @@
 ---@field _HandleGameOverMsgQueueCoroutine  table                结束队列协程
 ---@field _ExitSureTip                  table                    退出二次提示配置
 ---@field _ExitSureTipAgain             table                    退出多次提示配置
+
 local GameCoreManager = class("GameCoreManager")
 
 --- 构造函数
@@ -44,7 +45,7 @@ function GameCoreManager:ctor(args)
     self._ExitSureTip = {}
     self._ExitSureTipAgain = {}
 
-    -- 子模块初始化
+    -- 子模块初始化（解耦架构）
     self._GameCoreManagerData = require("GameCoreManagerData"):Create()
     self._GameCoreManagerLevelFinish = require("GameCoreManagerLevelFinish"):Create()
     self._GameCoreManagerUseItem = require("GameCoreManagerUseItem"):Create()
@@ -86,6 +87,7 @@ end
 
 --=========================================================================
 --region 游戏胜负逻辑
+--=========================================================================
 
 --- 游戏胜利
 function GameCoreManager:OnGameVictory()
@@ -138,6 +140,7 @@ end
 
 --=========================================================================
 --region 关卡信息
+--=========================================================================
 
 --- 获取当前关卡配置
 ---@return Tables.LevelData_Item
@@ -164,6 +167,7 @@ end
 
 --=========================================================================
 --region 游戏状态
+--=========================================================================
 
 --- 是否游戏结束
 ---@return boolean
@@ -181,6 +185,7 @@ end
 
 --=========================================================================
 --region 游戏结束判定 & 消息队列（核心机制）
+--=========================================================================
 
 --- 触发游戏结束
 ---@param eGameOverType EGameOverType 结束类型
@@ -207,7 +212,7 @@ end
 function GameCoreManager:CheckGoalReach(hasCoins, eGameOverType, bounds)
 end
 
---- 等待金币收集动画完成
+--- 等待金币收集动画完成（安全遮罩 + 延时回调）
 ---@param finishCallback function 完成回调
 function GameCoreManager:WaitCollectCoinsAnim(finishCallback)
     -- 显示遮罩防止操作
@@ -246,7 +251,7 @@ function GameCoreManager:StopCheckGameOverMsgQueue()
     self._HandleGameOverMsgQueue:Clear()
 end
 
---- 协程：处理游戏结束消息队列
+--- 协程：处理游戏结束消息队列（安全、有序、防重入）
 function GameCoreManager:CheckGameOverMsgQueueCoroutine()
     local waitUtil1, waitUtil2
     local data
@@ -291,6 +296,7 @@ end
 
 --=========================================================================
 --region 游戏生命周期
+--=========================================================================
 
 --- 初始化游戏
 function GameCoreManager:OnInitGame()
@@ -348,10 +354,11 @@ function GameCoreManager:OnRePlayGame()
     self:OnBeginGame()
 end
 
--- endregion
+--endregion
 
 --=========================================================================
 --region 体力 / 复活管理
+--=========================================================================
 
 --- 返还体力
 ---@param isSuccess boolean 是否通关成功
@@ -388,6 +395,7 @@ end
 
 --=========================================================================
 --region 退出二次确认提示
+--=========================================================================
 
 --- 获取退出提示列表
 function GameCoreManager:GetExitSureTip()
@@ -439,6 +447,7 @@ end
 
 --=========================================================================
 --region 目标进度（主/副目标）
+--=========================================================================
 
 --- 获取主目标配置与进度
 ---@return number, number, number 目标ID, 目标总数, 当前进度
@@ -466,6 +475,7 @@ end
 
 --=========================================================================
 --region 道具 & 技能
+--=========================================================================
 
 --- 请求使用技能/道具
 ---@param boosterID string 道具ID
@@ -500,13 +510,13 @@ function GameCoreManager:IsFreezeInEffect()
     return ItemManager:InActive(EResourceIDs.Freeze)
 end
 
--- endregion
+--endregion
 
 --- 设置正在进行的关卡标记（用于异常恢复）
 ---@param levelInfo string 关卡信息
 function GameCoreManager:SetPlayingLevelTag(levelInfo)
-    PbRootData.GameData.playingLevelTag = levelInfo
-    PbIO.GameData.Save_playingLevelTag()
+    SaveRootData.GameData.playingLevelTag = levelInfo
+    SaveIO.GameData.Save_playingLevelTag()
 end
 
 return GameCoreManager

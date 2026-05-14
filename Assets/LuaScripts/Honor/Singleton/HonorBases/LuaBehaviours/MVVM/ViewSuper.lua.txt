@@ -1,10 +1,11 @@
 --=====================================================================================================
 -- descrip:   视图通用父类（MVVM - View层基类）
 --              作用：所有UI界面的View层基类，负责绑定ViewModel、UI动画、生命周期、资源管理
+--              职责：UI渲染、事件绑定、动画控制、自动释放、资源管理、嵌套UI管理
 --=====================================================================================================
 
----@class ViewSuper @MVVM视图基类
----@field cs Honor.Runtime.LuaBehaviour @绑定的C# LuaBehaviour组件
+---@class ViewSuper @MVVM 视图基类（所有界面 View 的父类）
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 C# LuaBehaviour 组件
 local ViewSuper = class("ViewSuper")
 
 --- 构造函数
@@ -18,24 +19,26 @@ function ViewSuper:ctor(args)
         end
     end
 
-    self._args = args                                        -- 传入参数
-    self._params = self.cs.LuaParams                        -- C#配置的自定义参数
-    self._name = self.__cname                                -- 类名
-    self._mvvmType = "View"                                    -- MVVM标识
-    self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))  -- 公共名称（用于匹配ViewModel）
-    self._initOver = false                                -- 初始化完成标记
+    self._args = args                                           -- 传入参数
+    self._params = self.cs.LuaParams                           -- C# 配置的自定义参数
+    self._name = self.__cname                                   -- 类名
+    self._mvvmType = "View"                                     -- MVVM 标识
+    -- 公共名称（自动去掉 View 后缀，用于匹配 ViewModel）
+    self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))
+    self._initOver = false                                      -- 初始化完成标记
 
     -- MVVM 绑定核心
-    self._binder = require('Binder'):Create()        -- 数据绑定器
-    self._viewModelPackage = require('BindValue'):Create({ name = "ViewModelPackage", value = nil, isTrigger = false })   -- ViewModel包装（可监听）
+    self._binder = require('Binder'):Create()                   -- 数据绑定器
+    -- ViewModel 包装（可监听）
+    self._viewModelPackage = require('BindValue'):Create({ name = "ViewModelPackage", value = nil, isTrigger = false })
 
-    self._isClosing = false                                -- 是否正在关闭
+    self._isClosing = false                                     -- 是否正在关闭
 
     -- UI 元素引用
-    self._bgImage = nil                                        -- 背景图
-    self._bottomMaskLayerImage = nil                        -- 底部遮罩
-    self._topMaskLayerImage = nil                            -- 顶部遮罩
-    self._bottomCloseLayerButton = nil                        -- 底部关闭按钮
+    self._bgImage = nil                                          -- 背景图
+    self._bottomMaskLayerImage = nil                            -- 底部遮罩
+    self._topMaskLayerImage = nil                               -- 顶部遮罩
+    self._bottomCloseLayerButton = nil                          -- 底部关闭按钮
 
     -- 动画时长
     self._bottomMaskLayerOpenAnimationDelay = 0.5
@@ -45,22 +48,22 @@ function ViewSuper:ctor(args)
     self._rootOpenAnimationDelay = 0.5
     self._rootCloseAnimationDelay = 0.5
 
-    self._loadedAssets = {}                                    -- 动态加载资源
-    self._oriPosForUIStack = Unity.Vector3.zero    -- UI栈原始位置
+    self._loadedAssets = {}                                     -- 动态加载资源
+    self._oriPosForUIStack = Unity.Vector3.zero                 -- UI 栈原始位置
 end
 
 --- 创建实例
 ---@type fun(args:table):ViewSuper
----@return ViewSuper
+---@return ViewSuper View 实例
 function ViewSuper:Create(args)
     local obj = ViewSuper.new(args)
     return obj
 end
 
---- 唤醒（Unity生命周期）
+--- 唤醒（Unity 生命周期）
 ---@type fun():void
 function ViewSuper:Awake()
-    -- 自动查找固定UI节点
+    -- 自动查找固定 UI 节点
     local bgImage = self.cs.transform:Find("__BgImage")
     if bgImage ~= nil then
         self._bgImage = bgImage:GetComponent("Image")
@@ -90,7 +93,7 @@ function ViewSuper:Awake()
         end
     end
 
-    -- 抛出UI打开事件
+    -- 抛出 UI 打开事件
     HonorEventHelper:FireNow(FwEventCmd.UIViewOpen, self._commonName)
 
     -- 注册事件
@@ -106,10 +109,12 @@ end
 --- 启用
 ---@type fun():void
 function ViewSuper:OnEnable()
-    self:GetViewModel():OnEnable()
+    if self:GetViewModel() then
+        self:GetViewModel():OnEnable()
+    end
 end
 
---- 初始化回调（首次设置ViewModel时调用）
+--- 初始化回调（首次设置 ViewModel 时调用）
 ---@type fun(viewModel:ViewModelSuper):void
 function ViewSuper:OnInit(viewModel)
     self._binder:SetViewModel(viewModel)
@@ -119,26 +124,34 @@ end
 --- 开始
 ---@type fun():void
 function ViewSuper:Start()
-    self:GetViewModel():Start()
+    if self:GetViewModel() then
+        self:GetViewModel():Start()
+    end
     self:Open()
 end
 
 --- 帧更新
 ---@type fun():void
 function ViewSuper:Proc()
-    self:GetViewModel():Proc()
+    if self:GetViewModel() then
+        self:GetViewModel():Proc()
+    end
 end
 
 --- 禁用
 ---@type fun():void
 function ViewSuper:OnDisable()
-    self:GetViewModel():OnDisable()
+    if self:GetViewModel() then
+        self:GetViewModel():OnDisable()
+    end
 end
 
 --- 销毁（自动释放所有）
 ---@type fun():void
 function ViewSuper:OnDestroy()
-    self:GetViewModel():OnDestroy()
+    if self:GetViewModel() then
+        self:GetViewModel():OnDestroy()
+    end
     self:SetViewModel(nil)
     self._viewModelPackage:CleanAllHandlers()
     self._binder = nil
@@ -152,7 +165,7 @@ end
 function ViewSuper:OnAddListeners()
 end
 
---- 设置ViewModel
+--- 设置 ViewModel
 ---@type fun(viewModel:ViewModelSuper):void
 function ViewSuper:SetViewModel(viewModel)
     if self._initOver == false then
@@ -162,9 +175,9 @@ function ViewSuper:SetViewModel(viewModel)
     self._viewModelPackage:SetValue(viewModel)
 end
 
---- 获取ViewModel
+--- 获取 ViewModel
 ---@type fun():ViewModelSuper
----@return ViewModelSuper
+---@return ViewModelSuper 视图模型
 function ViewSuper:GetViewModel()
     return self._viewModelPackage:GetValue()
 end
@@ -176,7 +189,7 @@ function ViewSuper:AddBindHandler(name, handler)
 end
 
 --- ViewModel 变化时自动重新绑定
----@type fun(old:ViewModelSuper, new:ViewModelSuper):void
+---@type fun(old:ViewModelSuper, new:ViewModelSuper, operate:string, valueItem:any):void
 function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
     if new ~= nil then
         new:OnBeforeUse()
@@ -192,7 +205,10 @@ end
 --- 打开界面
 ---@type fun():void
 function ViewSuper:Open()
-    self:GetViewModel():OnOpen()
+    if self:GetViewModel() then
+        self:GetViewModel():OnOpen()
+    end
+
     if self.cs.MaskLayer then
         if self._bottomMaskLayerImage ~= nil then
             self._bottomMaskLayerImage.raycastTarget = true
@@ -203,6 +219,7 @@ function ViewSuper:Open()
             self._topMaskLayerImage.gameObject:SetActive(true)
         end
     end
+
     if self.cs.OpenAnimation == true then
         self:OnPlayOpenAnimation()
     else
@@ -215,7 +232,10 @@ end
 function ViewSuper:Close()
     if self._isClosing == false then
         self._isClosing = true
-        self:GetViewModel():OnClose()
+        if self:GetViewModel() then
+            self:GetViewModel():OnClose()
+        end
+
         if self.cs.MaskLayer then
             if self._bottomMaskLayerImage ~= nil then
                 self._bottomMaskLayerImage.raycastTarget = true
@@ -226,9 +246,11 @@ function ViewSuper:Close()
                 self._topMaskLayerImage.gameObject:SetActive(true)
             end
         end
+
         if self._bottomCloseLayerButton ~= nil then
             self._bottomCloseLayerButton.gameObject:SetActive(false)
         end
+
         if self.cs.CloseAnimation == true then
             self:OnPlayCloseAnimation()
         else
@@ -270,7 +292,10 @@ end
 --- 打开完成
 ---@type fun():void
 function ViewSuper:OnOpenOver()
-    self:GetViewModel():OnOpenOver()
+    if self:GetViewModel() then
+        self:GetViewModel():OnOpenOver()
+    end
+
     if self.cs.MaskLayer then
         if self._bottomMaskLayerImage ~= nil then
             self._bottomMaskLayerImage.raycastTarget = true
@@ -281,6 +306,7 @@ function ViewSuper:OnOpenOver()
             self._topMaskLayerImage.gameObject:SetActive(false)
         end
     end
+
     if self.cs.BottomCloseLayer then
         if self._bottomCloseLayerButton ~= nil then
             self._bottomCloseLayerButton.gameObject:SetActive(true)
@@ -323,7 +349,10 @@ end
 --- 关闭完成（自动销毁）
 ---@type fun():void
 function ViewSuper:OnCloseOver()
-    self:GetViewModel():OnCloseOver()
+    if self:GetViewModel() then
+        self:GetViewModel():OnCloseOver()
+    end
+
     self.cs.UseProc = false
     HonorEventHelper:Fire(FwEventCmd.UIViewClose, self._commonName)
 
@@ -350,11 +379,13 @@ function ViewSuper:OnCloseOver()
     end
 end
 
---- 子UI销毁回调
+--- 子 UI 销毁回调
+---@type fun(luaClass:table):void
 function ViewSuper:OnAddedUIDestroyed(luaClass)
 end
 
---- 同步添加子UI
+--- 同步添加子 UI
+---@type fun(uiTable:table, parent:UnityEngine.Transform, luaParams:table):table, UnityEngine.GameObject
 function ViewSuper:AddUISync(uiTable, parent, luaParams)
     if parent == nil then
         parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
@@ -365,7 +396,8 @@ function ViewSuper:AddUISync(uiTable, parent, luaParams)
     return luaClass, uiGO
 end
 
---- 异步添加子UI
+--- 异步添加子 UI
+---@type fun(uiTable:table, parent:UnityEngine.Transform, luaParams:table, overCallback:function):void
 function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
     if parent == nil then
         parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
@@ -374,6 +406,7 @@ function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
 end
 
 --- 加载资源（自动管理）
+---@type fun(assetInfo:table):UnityEngine.Object
 function ViewSuper:LoadAsset(assetInfo)
     if assetInfo ~= nil then
         local keyName = assetInfo.Name
@@ -386,6 +419,7 @@ function ViewSuper:LoadAsset(assetInfo)
 end
 
 --- 卸载资源
+---@type fun(assetInfo:table):boolean
 function ViewSuper:UnloadAsset(assetInfo)
     if assetInfo ~= nil then
         local keyName = assetInfo.Name
@@ -402,6 +436,7 @@ function ViewSuper:UnloadAsset(assetInfo)
 end
 
 --- 按对象卸载资源
+---@type fun(asset:UnityEngine.Object):boolean
 function ViewSuper:UnloadAssetByAsset(asset)
     if asset ~= nil then
         for keyName, vAsset in pairs(self._loadedAssets) do
@@ -418,6 +453,7 @@ function ViewSuper:UnloadAssetByAsset(asset)
 end
 
 --- 卸载所有资源
+---@type fun():void
 function ViewSuper:UnloadAllAssets()
     if GameMainRoot.Asset ~= nil then
         for _, vAsset in pairs(self._loadedAssets) do
@@ -429,7 +465,8 @@ function ViewSuper:UnloadAllAssets()
     end
 end
 
---- UI入栈
+--- UI 入栈
+---@type fun():void
 function ViewSuper:OnStackPush()
     if self.cs then
         self._oriPosForUIStack = self.cs.transform.localPosition
@@ -437,7 +474,8 @@ function ViewSuper:OnStackPush()
     end
 end
 
---- UI出栈
+--- UI 出栈
+---@type fun():void
 function ViewSuper:OnStackPop()
     if self.cs then
         self.cs.transform.localPosition = self._oriPosForUIStack
@@ -445,11 +483,13 @@ function ViewSuper:OnStackPop()
 end
 
 --- 延迟协程
+---@type fun(delayTime:number, isRealTime:boolean, callback:function):void
 function ViewSuper:CoDelayFunction(delayTime, isRealTime, callback)
     CoDelayFunctionOfG(self, delayTime, isRealTime, callback)
 end
 
 --- 延迟帧
+---@type fun(delayFrame:number, callback:function):void
 function ViewSuper:CoDelayFrameFunction(delayFrame, callback)
     CoDelayFrameFunctionOfG(self, delayFrame, callback)
 end

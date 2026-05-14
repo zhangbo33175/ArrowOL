@@ -7,12 +7,12 @@ SystemSet.__index = SystemSet
 
 --- 创建一个无序集合
 ---@type fun(isweak:boolean):SystemSet
----@param isweak boolean @是否使用弱引用表（自动回收无引用对象）
----@return SystemSet @返回集合实例
+---@param isweak boolean 是否使用弱引用表（自动回收无引用对象）
+---@return SystemSet 返回集合实例
 function SystemSet.new(isweak)
-    ---@class SystemSet @无序集合类
-    ---@field _data table @存储集合元素的表（key=元素，value=true）
-    ---@field _size number @集合元素数量
+    ---@class SystemSet 无序集合类
+    ---@field _data table 存储集合元素的表（key=元素，value=true）
+    ---@field _size number 集合元素数量
     local t = {}
     t._data = {}        -- 实际存储数据
     t._size = 0         -- 元素个数
@@ -26,9 +26,9 @@ end
 
 --- 向集合插入数据（自动去重）
 ---@type fun(self:SystemSet, value:any):boolean
----@param self SystemSet @集合实例
----@param value any @要插入的数据
----@return boolean @true=插入成功，false=已存在
+---@param self SystemSet 集合实例
+---@param value any 要插入的数据
+---@return boolean true=插入成功，false=已存在
 function SystemSet.insert(self, value)
     if not self._data[value] then
         self._data[value] = true
@@ -40,9 +40,9 @@ end
 
 --- 从集合移除指定数据
 ---@type fun(self:SystemSet, value:any):boolean
----@param self SystemSet @集合实例
----@param value any @要移除的数据
----@return any|false @成功返回被移除的值，失败返回false
+---@param self SystemSet 集合实例
+---@param value any 要移除的数据
+---@return any|false 成功返回被移除的值，失败返回false
 function SystemSet.remove(self, value)
     if self._data[value] then
         self._data[value] = nil
@@ -54,26 +54,26 @@ end
 
 --- 获取集合元素数量
 ---@type fun(self:SystemSet):number
----@param self SystemSet @集合实例
----@return number @元素个数
+---@param self SystemSet 集合实例
+---@return number 元素个数
 function SystemSet.size(self)
     return self._size
 end
 
 --- 判断集合是否包含某个值
 ---@type fun(self:SystemSet, value:any):boolean
----@param self SystemSet @集合实例
----@param value any @要检查的值
----@return boolean @true=包含，false=不包含
+---@param self SystemSet 集合实例
+---@param value any 要检查的值
+---@return boolean true=包含，false=不包含
 function SystemSet.has(self, value)
     return self._data[value]
 end
 
 --- 遍历集合所有元素
 ---@type fun(self:SystemSet, f:fun, ...:any):void
----@param self SystemSet @集合实例
----@param f fun @遍历回调函数，参数为元素值
----@param ... any @传递给回调的额外参数
+---@param self SystemSet 集合实例
+---@param f fun 遍历回调函数，参数为元素值
+---@param ... any 传递给回调的额外参数
 function SystemSet.foreach(self, f, ...)
     for k, v in pairs(self._data) do
         if v then
@@ -84,9 +84,9 @@ end
 
 --- 根据位置获取元素（无序，不推荐频繁使用）
 ---@type fun(self:SystemSet, pos:number):any
----@param self SystemSet @集合实例
----@param pos number @位置索引（从1开始）
----@return any @返回对应位置的元素，不存在则返回nil
+---@param self SystemSet 集合实例
+---@param pos number 位置索引（从1开始）
+---@return any 返回对应位置的元素，不存在则返回nil
 function SystemSet.at(self, pos)
     local n = 0
     for k, _ in pairs(self._data) do
@@ -100,7 +100,7 @@ end
 
 --- 清空集合所有元素
 ---@type fun(self:SystemSet):void
----@param self SystemSet @集合实例
+---@param self SystemSet 集合实例
 function SystemSet.clear(self)
     for k, _ in pairs(self._data) do
         self._data[k] = nil

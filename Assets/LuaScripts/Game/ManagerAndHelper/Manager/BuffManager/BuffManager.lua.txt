@@ -58,7 +58,7 @@ function BuffManager:AddBuff(id, duration)
         return 0
     end
 
-    local oldEndTimeStamp = PbRootData.GameData.resourceInfo.nums[id] or 0
+    local oldEndTimeStamp = SaveRootData.GameData.resourceInfo.nums[id] or 0
     local newUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
     local newEndTimeStamp
 
@@ -83,8 +83,8 @@ function BuffManager:SetBuffTime(id, endTimeStamp, oldEndTimeStamp)
     end
 
     -- 保存数据
-    PbRootData.GameData.resourceInfo.nums[id] = endTimeStamp
-    PbIO.GameData.Save_resourceInfo()
+    SaveRootData.GameData.resourceInfo.nums[id] = endTimeStamp
+    SaveIO.GameData.Save_resourceInfo()
 
     -- 派发修改事件
     HonorEventHelper:Fire(EventCmd.OnBufferTimeModifyEvent, {
@@ -129,7 +129,7 @@ end
 ---@param id string Buff ID
 ---@return number
 function BuffManager:GetRemainTime(id)
-    local endTimeStamp = PbRootData.GameData.resourceInfo.nums[id] or 0
+    local endTimeStamp = SaveRootData.GameData.resourceInfo.nums[id] or 0
     if endTimeStamp <= 0 then
         return 0
     end
@@ -150,7 +150,7 @@ function BuffManager:Init()
     local resTable = ResourceDataManager:GetResourceIDs(EResourceType.Buff)
     for _, resId in ipairs(resTable) do
         if self:IsBuffValid(resId.ID) then
-            local endTime = PbRootData.GameData.resourceInfo.nums[resId.ID]
+            local endTime = SaveRootData.GameData.resourceInfo.nums[resId.ID]
             self:_RegisterBuffEndTimeStamp(resId.ID, endTime)
         end
     end

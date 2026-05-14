@@ -3,7 +3,7 @@
 -- 功能：管理所有本地活动（礼包、周卡、免费钻石、银行等）
 -- 核心：活动互斥、组管理、生命周期、热更资源、弹窗顺序、本地存储
 -- 架构：基于 LocalActivityBase 子类驱动
--- @dependency Singleton, LocalActivityBase, LocalEventDataManager, PbIO, HonorEventHelper
+-- @dependency Singleton, LocalActivityBase, LocalEventDataManager, SaveIO, HonorEventHelper
 --=====================================================================================================
 
 ---@class ELocalActivityId @本地活动ID枚举
@@ -110,13 +110,13 @@ end
 
 --- 保存活动数据到本地存储
 function LocalActivityManager:SaveActivityDatas()
-    PbIO.GameData.Save_localActivityDatas()
+    SaveIO.GameData.Save_localActivityDatas()
 end
 
 --- 获取所有本地活动数据
 ---@return SavePBMsgDef.SaveGameData.LocalActivityData[]
 function LocalActivityManager:GetActivityDatas()
-    --return PbRootData.GameData.localActivityDatas
+    --return SaveRootData.GameData.localActivityDatas
     return nil
 end
 
@@ -187,7 +187,7 @@ end
 
 --- 清空所有本地活动
 function LocalActivityManager:ClearAllActivity()
-    PbRootData.GameData.localActivityDatas = {}
+    SaveRootData.GameData.localActivityDatas = {}
     self:SaveActivityDatas()
 end
 

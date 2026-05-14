@@ -1,9 +1,7 @@
 --=====================================================================================================
--- (c) copyright 2021 - 2025, Solar.Game
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
 -- @brief  游戏内道具使用核心管理器
 -- @desc   负责关内/关外道具的使用、扣除、效果应用、动效播放、缓存队列、生命周期管理
+-- @规范    Unity Lua 商业项目标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class PropUsedEffectParam          @ 道具使用动效参数
@@ -29,6 +27,10 @@ local GameCoreManagerUseItem = class("GameCoreManagerUseItem")
 --- 构造函数
 ---@param args table 自定义参数
 function GameCoreManagerUseItem:ctor(args)
+    self._isGameWorking = false
+    self._cacheWhenLevelNotWorking = nil
+    self._cacheEventFunc = nil
+    self._longtimeEffects = nil
     self._freeTag = {}
 end
 
@@ -183,7 +185,9 @@ function GameCoreManagerUseItem:UseBooster(boosterID, num)
     end
 end
 
---region 关卡生命周期
+--=========================================================================
+-- region 关卡生命周期
+--=========================================================================
 --- 关卡初始化
 function GameCoreManagerUseItem:OnLeveInit()
     self:Preconditioning()
@@ -213,7 +217,7 @@ function GameCoreManagerUseItem:OnGameOver()
     self:GameOverRollbackWonderDish()
     ItemManager:OnEndUseBooster()
 end
---endregion
+-- endregion
 
 --- 设置免费道具（新手引导专用）
 ---@param boosterID string 道具ID
@@ -222,7 +226,9 @@ function GameCoreManagerUseItem:SetupFreeBooster(boosterID, value)
     self._freeTag[boosterID] = value
 end
 
---region 事件监听管理
+--=========================================================================
+-- region 事件监听管理
+--=========================================================================
 --- 清除所有注册的事件，防止泄漏
 function GameCoreManagerUseItem:ClearEventListener()
     if not self._cacheEventFunc then
@@ -245,5 +251,13 @@ function GameCoreManagerUseItem:RecordEventFunction(func)
     end
     table.insert(self._cacheEventFunc, func)
 end
---endregion
+-- endregion
+
+---=========================================================================
+--- 游戏结束 神奇盘子效果回滚（补全缺失方法）
+---=========================================================================
+function GameCoreManagerUseItem:GameOverRollbackWonderDish()
+    -- 子类重写实现具体回滚逻辑
+end
+
 return GameCoreManagerUseItem

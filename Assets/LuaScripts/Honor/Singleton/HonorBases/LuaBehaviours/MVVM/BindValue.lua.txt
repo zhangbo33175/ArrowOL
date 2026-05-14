@@ -1,46 +1,55 @@
 --=====================================================================================================
 -- descrip:   可绑定值类（MVVM 双向绑定核心）
 --              作用：包装一个数据，当数据发生变化时，自动触发所有注册的回调函数
---              支持：普通值、数组列表、增删改查、自动事件通知
+--              支持：普通值、数组列表、增删改查、自动事件通知、触发器自动复位
+--              核心：元表拦截赋值 + 自动事件分发，实现 View 与 ViewModel 解耦
 --=====================================================================================================
 
----@class BindValue @MVVM 可绑定值（双向绑定核心）
+---@class BindValue @MVVM 可绑定值（双向绑定核心驱动）
 local BindValue = class("BindValue")
 
+--- 操作类型枚举（值变化 / 列表增删改查）
+BindValueOperate = {
+	ValueChanged         = "ValueChanged",           -- 普通值变化
+	ValueItemChanged     = "ValueItemChanged",       -- 列表元素修改
+	ValueItemAdded       = "ValueItemAdded",         -- 列表元素添加
+	ValueItemInserted    = "ValueItemInserted",      -- 列表元素插入
+	ValueItemRemoved     = "ValueItemRemoved",       -- 列表元素移除
+	ValueItemsAllRemoved = "ValueItemsAllRemoved"    -- 列表清空
+}
+
 --- 构造函数
----@type fun(args:table):void
+---@type fun(args:table)
 ---@param args table {name:变量名, value:初始值, isTrigger:是否触发型}
 function BindValue:ctor(args)
-	self._args = args									    						-- 构造参数
-	self._handlers = {}																-- 数据变化的回调函数列表
+	self._args = args                                       -- 构造参数
+	self._handlers = {}                                     -- 数据变化回调函数列表
 
-	-- 数据存储：isTrigger=true 表示是按钮/触发型，值自动恢复为 false
+	-- 数据实体
 	self._data = {
 		name = args.name,
-		value = nil,    -- 注意：这里不赋值，由 ViewModel:OnInit 统一赋值
-		isTrigger = args.isTrigger
+		value = nil,
+		isTrigger = args.isTrigger or false
 	}
 
-	-- 触发器默认值为 false
+	-- 触发器类型默认值为 false
 	if self._data.isTrigger then
 		self._data.value = false
 	end
 
-	-- 【核心】导向表 + 元表：监听数据赋值，自动触发变化事件
+	-- 元表拦截赋值，实现自动监听
 	self._guiderData = {}
 	setmetatable(self._guiderData, {
-		-- 读取时，直接从 _data 读
 		__index = function(t, k)
 			return self._data[k]
 		end,
-		-- 写入时，拦截赋值 → 比较新旧值 → 触发变化事件
 		__newindex = function(t, k, v)
 			if self._data[k] ~= v then
 				local old = self._data[k]
-				self._data[k] = v  -- 赋值
-				-- 触发值变化
-				self:_OnChanged(old, self._data[k], BindValueOperate.ValueChanged, nil)
-				-- 如果是触发型，执行后自动恢复 false
+				self._data[k] = v
+				-- 触发变化事件
+				self:_OnChanged(old, v, BindValueOperate.ValueChanged, nil)
+				-- 触发型变量自动复位
 				if self._data.isTrigger then
 					self._data[k] = false
 				end
@@ -128,7 +137,7 @@ function BindValue:InsertValueItem(index, itemValue)
 		self._guiderData.value = {}
 	end
 	if type(self._guiderData.value) == "table" then
-		if index >= 1 and index <= #self._guiderData.value then
+		if index >= 1 and index <= #self._guiderData.value + 1 then
 			table.insert(self._guiderData.value, index, itemValue)
 			self:_OnChanged(nil, nil, BindValueOperate.ValueItemInserted, itemValue)
 		end
@@ -141,7 +150,7 @@ function BindValue:RemoveValueItem(itemValue, removeAll)
 	if type(self._guiderData.value) == "table" then
 		if itemValue ~= nil then
 			removeAll = removeAll or false
-			if table.removebyvalue(self._guiderData.value, itemValue, removeAll) > 0 then
+			if table.removebyvalue and table.removebyvalue(self._guiderData.value, itemValue, removeAll) > 0 then
 				self:_OnChanged(nil, nil, BindValueOperate.ValueItemRemoved, itemValue)
 				return true
 			end
@@ -168,8 +177,8 @@ end
 ---@type fun():void
 function BindValue:RemoveAllValueItems()
 	if type(self._guiderData.value) == "table" then
-		for index = #self._guiderData.value, 1, -1 do
-			table.remove(self._guiderData.value, index)
+		for i = #self._guiderData.value, 1, -1 do
+			table.remove(self._guiderData.value, i)
 		end
 		self:_OnChanged(nil, nil, BindValueOperate.ValueItemsAllRemoved, nil)
 	end
@@ -179,7 +188,7 @@ end
 ---@type fun(itemValue:any):boolean
 function BindValue:ContainsValueItem(itemValue)
 	if type(self._guiderData.value) == "table" then
-		if FindValueInTable(self._guiderData.value, itemValue) ~= nil then
+		if FindValueInTable and FindValueInTable(self._guiderData.value, itemValue) ~= nil then
 			return true
 		end
 	end
@@ -190,9 +199,9 @@ end
 ---@type fun(itemValue:any):number
 function BindValue:IndexOfValueItem(itemValue)
 	if type(self._guiderData.value) == "table" then
-		local index = FindValueInTable(self._guiderData.value, itemValue)
-		if index ~= nil then
-			return index
+		if FindValueInTable then
+			local index = FindValueInTable(self._guiderData.value, itemValue)
+			return index or 0
 		end
 	end
 	return 0
@@ -203,37 +212,26 @@ end
 --------------------------------------------------------------------------------
 
 --- 添加变化监听
----@type fun(handler:handler):void
+---@type fun(handler:table):void
 function BindValue:AddHandler(handler)
-	if handler ~= nil then
-		local hasFoundIndex = 0
-		for _ = 1, #self._handlers do
-			local _handler = self._handlers[_]
-			if _handler.target == handler.target and _handler.method == handler.method then
-				hasFoundIndex = _
-				break
-			end
-		end
-		if hasFoundIndex == 0 then
-			table.insert(self._handlers, handler)
+	if not handler then return end
+	for _, h in ipairs(self._handlers) do
+		if h.target == handler.target and h.method == handler.method then
+			return
 		end
 	end
+	table.insert(self._handlers, handler)
 end
 
 --- 移除监听
----@type fun(handler:handler):void
+---@type fun(handler:table):void
 function BindValue:DeleteHandler(handler)
-	if handler ~= nil then
-		local hasFoundIndex = 0
-		for _ = #self._handlers, 1, -1 do
-			local _handler = self._handlers[_]
-			if _handler.target == handler.target and _handler.method == handler.method then
-				hasFoundIndex = _
-				break
-			end
-		end
-		if hasFoundIndex > 0 then
-			table.remove(self._handlers, hasFoundIndex)
+	if not handler then return end
+	for i = #self._handlers, 1, -1 do
+		local h = self._handlers[i]
+		if h.target == handler.target and h.method == handler.method then
+			table.remove(self._handlers, i)
+			break
 		end
 	end
 end
@@ -244,11 +242,13 @@ function BindValue:CleanAllHandlers()
 	self._handlers = {}
 end
 
---- 数据变化内部回调（触发所有注册的函数）
+--- 数据变化内部回调（触发所有注册函数）
 ---@type fun(old:any, new:any, operate:string, valueItem:any):void
 function BindValue:_OnChanged(old, new, operate, valueItem)
-	for _, _handler in pairs(self._handlers) do
-		_handler.func(old, new, operate, valueItem)
+	for _, handler in ipairs(self._handlers) do
+		if handler and handler.func then
+			handler.func(old, new, operate, valueItem)
+		end
 	end
 end
 

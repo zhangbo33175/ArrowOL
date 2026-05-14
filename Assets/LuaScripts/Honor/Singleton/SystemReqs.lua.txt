@@ -3,25 +3,33 @@
 --=====================================================================================================
 
 --- Base64 编码解码工具
+---@class SystemBase64
 SystemBase64 = require("SystemBase64")
 
 --- 协程管理助手
+---@class HonorCoroutineHelper
 HonorCoroutineHelper = require("HonorCoroutineHelper"):Create()
 
 --- 事件/消息中心助手
+---@class HonorEventHelper
 HonorEventHelper = require("HonorEventHelper"):Create()
 
 --- 计时器/定时器助手
+---@class HonorTimerHelper
 HonorTimerHelper = require("HonorTimerHelper"):Create()
 
 --- 本地/全局通知助手
+---@class HonorNotificationHelper
 HonorNotificationHelper = require("HonorNotificationHelper"):Create()
 
 --- 系统配置读取助手
+---@class SystemConfigHelper
 SystemConfigHelper = require("SystemConfigHelper"):Create()
 
 --- 账号登录相关助手
+---@class HonorAccountHelper
 HonorAccountHelper = require("HonorAccountHelper"):Create()
 
 --- 对象池管理助手
+---@class HonorPoolHelper
 HonorPoolHelper = require("HonorPoolHelper"):Create()

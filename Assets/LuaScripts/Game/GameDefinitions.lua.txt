@@ -229,11 +229,12 @@ ELevelDifficulty = {
 --- 关卡模式
 ---@class ELevelMode
 ---@field NORMAL number 普通模式
----@field MAGNET number 吸铁石模式
+---@field DAILY number 每日模式
 ELevelMode = {
     NORMAL = 0,
-    MAGNET = 1,
+    DAILY = 1,
 }
+
 
 --- 打开关卡准备界面来源
 ---@class EOpenLevelPrepareSource

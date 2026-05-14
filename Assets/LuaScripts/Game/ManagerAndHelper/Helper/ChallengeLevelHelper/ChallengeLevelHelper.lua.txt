@@ -81,7 +81,7 @@ end
 ---@return number 挑战关卡 ID（0 = 无记录）
 function ChallengeLevelHelper:GetCurrentChallengeLevelId(chapterId)
     ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
-    local challengeData = PbRootData.GameData.challengeLevelData or {}
+    local challengeData = SaveRootData.GameData.challengeLevelData or {}
 
     if challengeData and not string.isNullOrEmpty(challengeData.chapterId) and challengeData.chapterId == chapterId then
         return challengeData.challengeLevelId
@@ -92,13 +92,13 @@ end
 ---@brief 清除当前挑战关卡记录（退出 / 完成 / 异常时调用）
 function ChallengeLevelHelper:ClearCurrentChallengeLevel()
     ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
-    local challengeData = PbRootData.GameData.challengeLevelData or {}
+    local challengeData = SaveRootData.GameData.challengeLevelData or {}
 
     challengeData.chapterId = ""
     challengeData.challengeLevelId = 0
 
-    PbRootData.GameData.challengeLevelData = challengeData
-    PbIO.GameData.Save_challengeLevelData()
+    SaveRootData.GameData.challengeLevelData = challengeData
+    SaveIO.GameData.Save_challengeLevelData()
 end
 
 ---@brief 设置当前挑战关卡（进入挑战关卡时记录）
@@ -106,13 +106,13 @@ end
 ---@param levelId number 关卡 ID
 function ChallengeLevelHelper:SetCurrentChallengeLevel(chapterId, levelId)
     ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
-    local challengeData = PbRootData.GameData.challengeLevelData or {}
+    local challengeData = SaveRootData.GameData.challengeLevelData or {}
 
     challengeData.chapterId = chapterId
     challengeData.challengeLevelId = levelId
 
-    PbRootData.GameData.challengeLevelData = challengeData
-    PbIO.GameData.Save_challengeLevelData()
+    SaveRootData.GameData.challengeLevelData = challengeData
+    SaveIO.GameData.Save_challengeLevelData()
 end
 
 ---@brief 挑战关卡胜利，发放配置表额外奖励

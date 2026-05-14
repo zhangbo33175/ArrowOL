@@ -13,9 +13,7 @@ local ProcedurePreload = class('ProcedurePreload', import('ProcedureSuper'))
 ---@param args table 外部传入参数
 function ProcedurePreload:ctor(args)
     ProcedurePreload.super.ctor(self, args)
-
-    --- 预加载Lua文件列表
-    self._preLoadLuaFiles = nil
+    
     --- 低端机每帧加载数量
     self._loadCountPerFrameOfLow = 3
     --- 中端机每帧加载数量
@@ -36,15 +34,15 @@ end
 
 ---@brief 初始化游戏启动时间数据（上次启动时间 / 当前启动时间）
 function ProcedurePreload:InitLaunchTimeData()
-    if not self.cs or not PbRootData or not PbRootData.UserData then
+    if not self.cs or not SaveRootData or not SaveRootData.UserData then
         return
     end
 
     if self.cs:IsLaunch() == true then
         -- 安全赋值时间数据
-        local last = PbRootData.UserData.launchTime.last
-        local curr = PbRootData.UserData.launchTime.current
-        local latest = PbRootData.UserData.latestTime
+        local last = SaveRootData.UserData.launchTime.last
+        local curr = SaveRootData.UserData.launchTime.current
+        local latest = SaveRootData.UserData.latestTime
 
         last.utc0 = curr.utc0
         last.utc0String = curr.utc0String
@@ -61,7 +59,7 @@ function ProcedurePreload:InitLaunchTimeData()
         curr.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", localStamp)
 
         -- 新账号初始化
-        if not PbRootData.GameData.isInit then
+        if not SaveRootData.GameData.isInit then
             last.utc0 = curr.utc0
             last.utc0String = curr.utc0String
             last.locality = curr.locality
@@ -76,8 +74,8 @@ function ProcedurePreload:InitLaunchTimeData()
 
         -- 安全保存
         xpcall(function()
-            PbIO.UserData.Save_launchTime()
-            PbIO.UserData.Save_latestTime()
+            SaveIO.UserData.Save_launchTime()
+            SaveIO.UserData.Save_latestTime()
         end, function() end)
 
         -- 初始化游戏时间
@@ -91,7 +89,7 @@ end
 ---@param ownerMachine userdata 流程状态机
 function ProcedurePreload:OnEnter(ownerMachine)
     ProcedurePreload.super.OnEnter(self, ownerMachine)
-
+    
     if self.cs then
         self.cs.RemoveAllContentsOnProcedureTransition = false
         self.cs.StartLoading = false
@@ -110,16 +108,16 @@ end
 ---@brief 尝试显示隐私政策弹窗
 ---@param finishCallback function 显示完成回调
 function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
-    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.playerInfo then
+    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
         if finishCallback then xpcall(finishCallback, __G__TRACK_BACK__) end
         return
     end
 
-    if not PbRootData.GameData.playerInfo.isShowPrivacy then
+    if not SaveRootData.GameData.playerInfo.isShowPrivacy then
         OpenUISync(UIs.UITermsPrivacy, { callback = finishCallback })
-        PbRootData.GameData.playerInfo.isShowPrivacy = true
+        SaveRootData.GameData.playerInfo.isShowPrivacy = true
         xpcall(function()
-            PbIO.GameData.Save_playerInfo_isShowPrivacy()
+            SaveIO.GameData.Save_playerInfo_isShowPrivacy()
         end, function() end)
     else
         if finishCallback then
@@ -149,12 +147,10 @@ end
 
 ---@brief 新账号初始化（仅首次进入游戏执行）
 function ProcedurePreload:InitNewAccountData()
-    if not PbRootData or not PbRootData.GameData or PbRootData.GameData.isInit ~= false then
+    if not SaveRootData or not SaveRootData.GameData or SaveRootData.GameData.isInit ~= false then
         return
     end
-
     PrintInfo("=== 初始化新账号数据 ===")
-
     -- 安全初始化管理器
     xpcall(function() ItemManager:Init() end, function() end)
     xpcall(function() ChapterListManager:Init() end, function() end)
@@ -162,8 +158,8 @@ function ProcedurePreload:InitNewAccountData()
     xpcall(function() ChapterListManager:UnlockChapter("1") end, function() end)
 
     -- 标记已初始化
-    PbRootData.GameData.isInit = true
-    xpcall(function() PbIO.GameData.Save_isInit() end, function() end)
+    SaveRootData.GameData.isInit = true
+    xpcall(function() SaveIO.GameData.Save_isInit() end, function() end)
 
     -- 清理临时数据
     xpcall(function() ItemManager:ClearData() end, function() end)
@@ -190,13 +186,6 @@ function ProcedurePreload:LoadAddSteps()
     end
 end
 
----@brief 预加载单个Lua文件
----@param luaFileName string 文件名
-function ProcedurePreload:PreLoadLuaFile(luaFileName)
-    if not string.isNullOrEmpty(luaFileName) then
-        xpcall(function() require(luaFileName) end, function() end)
-    end
-end
 
 ---@brief 根据设备性能等级获取每帧加载数量
 ---@return number 每帧加载个数
@@ -239,15 +228,15 @@ end
 
 ---@brief 初始化玩家首次注册时间（时间戳）
 function ProcedurePreload:InitGameDataFirstLaunchTime()
-    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.playerInfo then
+    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
         return
     end
 
-    local info = PbRootData.GameData.playerInfo
+    local info = SaveRootData.GameData.playerInfo
     if not info.regUserTime or info.regUserTime <= 0 then
         info.regUserTime = HonorTimerHelper:GetUTC0TimeStamp()
         xpcall(function()
-            PbIO.GameData.Save_playerInfo_regUserTime()
+            SaveIO.GameData.Save_playerInfo_regUserTime()
         end, function() end)
     end
 end

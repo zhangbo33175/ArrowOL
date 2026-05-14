@@ -129,7 +129,7 @@ end
 ---初始化引导进度
 function GuideNewContext:Init()
     GuideNewContext.super.Init(self)
-    if PbRootData.GameData.guidesCompleted and string.match(PbRootData.GameData.guidesCompleted,"Jump") then
+    if SaveRootData.GameData.guidesCompleted and string.match(SaveRootData.GameData.guidesCompleted,"Jump") then
         return
     end
     self:CheckDataFormat()
@@ -147,11 +147,11 @@ end
 
 ---检查存档格式给存档加个脑袋
 function GuideNewContext:CheckDataFormat()
-    if not StringStart(PbRootData.GameData.guidesCompleted,"_") then
-        PbRootData.GameData.guidesCompleted = string.format("_%s",SaveRootData.GameData.guidesCompleted)
+    if not StringStart(SaveRootData.GameData.guidesCompleted,"_") then
+        SaveRootData.GameData.guidesCompleted = string.format("_%s",SaveRootData.GameData.guidesCompleted)
     end
-    if not StringEnd(PbRootData.GameData.guidesCompleted, "_") then
-        PbRootData.GameData.guidesCompleted = string.format("%s_",SaveRootData.GameData.guidesCompleted)
+    if not StringEnd(SaveRootData.GameData.guidesCompleted, "_") then
+        SaveRootData.GameData.guidesCompleted = string.format("%s_",SaveRootData.GameData.guidesCompleted)
     end
 end
 
@@ -410,7 +410,7 @@ end
 ---@param guideID string @ 引导ID
 ---@return boolean 引导是否已完成
 function GuideNewContext:IsTutorialComplete(guideID)
-    local completed = PbRootData.GameData.guidesCompleted
+    local completed = SaveRootData.GameData.guidesCompleted
     ---@type Tables.GuideList_Item
     local cfg = Tables.GuideList[guideID]
     if cfg.GuideConnect then
@@ -636,7 +636,7 @@ function GuideNewContext:GuideStepsExecutedCompleteTagStep(steps)
     if not condition then
         return
     end
-    local completed = PbRootData.GameData.guidesCompleted
+    local completed = SaveRootData.GameData.guidesCompleted
     completed = completed or ""
     if string.match(completed,condition.guideItem.ID) then
         return
@@ -644,16 +644,16 @@ function GuideNewContext:GuideStepsExecutedCompleteTagStep(steps)
 
     ---序列化保存
     if condition.guideItem.GuideConnect and #condition.guideItem.GuideConnect > 0 then
-        PbRootData.GameData.guidesCompleted = string.format("%s%s",completed,table.concat(condition.guideItem.GuideConnect,'_'))
+        SaveRootData.GameData.guidesCompleted = string.format("%s%s",completed,table.concat(condition.guideItem.GuideConnect,'_'))
         ---关闭关联的触发器
         self:CloseConnectTutorial(condition.guideItem.GuideConnect,condition.guideItem.ID)
     else
-        PbRootData.GameData.guidesCompleted = string.format("%s%s",completed,condition.guideItem.ID)
+        SaveRootData.GameData.guidesCompleted = string.format("%s%s",completed,condition.guideItem.ID)
     end
 
     ---检查格式
     self:CheckDataFormat()
-    PbIO.GameData.Save_guidesCompleted()
+    SaveIO.GameData.Save_guidesCompleted()
 end
 
 ---同步关闭关联引导
@@ -680,13 +680,13 @@ end
 ---@param removeId string @ 需要删除的id
 function GuideNewContext:RemoveCompletedTutorial(removeId)
     self:CheckDataFormat()
-    local completed = PbRootData.GameData.guidesCompleted
+    local completed = SaveRootData.GameData.guidesCompleted
     local remove = string.format("_%s_",removeId)
     local result = completed:gsub(remove,"_")
     local lenOfRemove = string.len(remove) - 1
     if string.len(completed) - string.len(result) == lenOfRemove then
-        PbRootData.GameData.guidesCompleted = result
-        PbIO.GameData.Save_guidesCompleted()
+        SaveRootData.GameData.guidesCompleted = result
+        SaveIO.GameData.Save_guidesCompleted()
     end
     local guide = Tables.GuideList[removeId]
     ---目前没有待触发或者没有目标引导待触发

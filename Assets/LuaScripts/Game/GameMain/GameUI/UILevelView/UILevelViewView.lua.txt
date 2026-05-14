@@ -15,7 +15,7 @@
 ---@field PlayAroundButton                   UnityEngine.UI.Button         √         Clicked        玩一玩
 ---@field LevelButton                        UnityEngine.UI.Button         √         Clicked        关卡按钮
 ---@field LevelTxt                           TMPro.TextMeshProUGUI         √                        关卡提示
----@field ButtonLegacy1                      UnityEngine.UI.Button         √         Clicked        每日挑战按钮
+---@field DailyChallengeButton               UnityEngine.UI.Button         √         Clicked        每日挑战按钮
 ---@field TextLegacy                         TMPro.TextMeshProUGUI         √                        每日挑战TXT
 ---@field SkinButton                         UnityEngine.UI.Button         √         Clicked        皮肤按钮
 ---@field RankingButton                      UnityEngine.UI.Button         √         Clicked        排行按钮
@@ -53,7 +53,7 @@ function UILevelViewView:Awake()
     AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     AddUIListenerFunction(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
     AddUIListenerFunction(self.LevelButton, 'Clicked', handler(self, self.OnLevelButtonClicked))
-    AddUIListenerFunction(self.ButtonLegacy1, 'Clicked', handler(self, self.OnButtonLegacy1Clicked))
+    AddUIListenerFunction(self.DailyChallengeButton, 'Clicked', handler(self, self.OnDailyChallengeButtonClicked))
     AddUIListenerFunction(self.SkinButton, 'Clicked', handler(self, self.OnSkinButtonClicked))
     AddUIListenerFunction(self.RankingButton, 'Clicked', handler(self, self.OnRankingButtonClicked))
     AddUIListenerFunction(self.CheckInButton, 'Clicked', handler(self, self.OnCheckInButtonClicked))
@@ -69,9 +69,9 @@ end
 ---@param viewModel UILevelViewViewModel @ViewModel
 function UILevelViewView:OnInit(viewModel)
     UILevelViewView.super.OnInit(self, viewModel)
-    self.LevelTMPText.text=viewModel.GetChapterLevel()
 -- 4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     -- 无数据变化监听
+    self.LevelTMPText.text=viewModel.GetChapterLevel()
 -- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4
 end
 
@@ -79,6 +79,7 @@ end
 ---@type fun():void
 function UILevelViewView:Start()
     UILevelViewView.super.Start(self)
+
 end
 
 ---销毁
@@ -89,7 +90,7 @@ function UILevelViewView:OnDestroy()
     OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     OnRemoveListener(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
     OnRemoveListener(self.LevelButton, 'Clicked', handler(self, self.OnLevelButtonClicked))
-    OnRemoveListener(self.ButtonLegacy1, 'Clicked', handler(self, self.OnButtonLegacy1Clicked))
+    OnRemoveListener(self.DailyChallengeButton, 'Clicked', handler(self, self.OnDailyChallengeButtonClicked))
     OnRemoveListener(self.SkinButton, 'Clicked', handler(self, self.OnSkinButtonClicked))
     OnRemoveListener(self.RankingButton, 'Clicked', handler(self, self.OnRankingButtonClicked))
     OnRemoveListener(self.CheckInButton, 'Clicked', handler(self, self.OnCheckInButtonClicked))
@@ -139,34 +140,14 @@ end
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UILevelViewView:OnLevelButtonClicked(args)
-   self:EnterTheGame()
+    LevelManager:SetLevelMode(ELevelMode.NORMAL)
 end
 
----@brief 进入游戏（加载地图）
-function UILevelViewView:EnterTheGame()
-    local chapterId = ChapterListManager:GetLatestChapterId()
-    MapManager:ReadyToLoadMap(chapterId, function()
-        SafeInvoke(function()
-            HonorEventHelper:Fire(EventCmd.OnFirstIntoMainState)
-            HonorEventHelper:Fire(EventCmd.OnChapterMapChangeComplete)
-        end, "OnFirstIntoMainState 事件通知错误:")
-    end)
-end
-
----@brief 加载地图
----@param callback function 完成回调
-function UILevelViewView:LoadMap(callback)
-    local chapterId = ChapterListManager:GetLatestChapterId()
-    ChapterListManager:SetRuntimeChapter(chapterId)
-    local isSuccess = MapManager:LoadMapById(chapterId, nil)
-    if callback then
-        xpcall(callback, __G__TRACK_BACK__, isSuccess)
-    end
-end
 ---每日挑战按钮-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnButtonLegacy1Clicked(args)
+function UILevelViewView:OnDailyChallengeButtonClicked(args)
+    LevelManager:SetLevelMode(ELevelMode.DAILY)
 end
 
 ---皮肤按钮-交互回调

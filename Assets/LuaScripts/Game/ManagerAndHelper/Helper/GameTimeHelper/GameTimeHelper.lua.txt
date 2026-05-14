@@ -282,12 +282,12 @@ end
 --region 防篡改时间戳（防止玩家修改本地时间作弊）
 ---@brief 登录时初始化基准未来时间戳
 function GameTimeHelper:SetupFutureTimeStamp()
-    if not PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] then
-        PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = PbRootData.UserData.launchTime.current.utc0
+    if not SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] then
+        SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = SaveRootData.UserData.launchTime.current.utc0
     end
 
-    local loginTime = PbRootData.UserData.launchTime.current.utc0
-    local futureTime = PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP]
+    local loginTime = SaveRootData.UserData.launchTime.current.utc0
+    local futureTime = SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP]
 
     if loginTime == nil then
         return
@@ -295,11 +295,11 @@ function GameTimeHelper:SetupFutureTimeStamp()
 
     --- 使用真实启动时间矫正基准，防止回退时间
     if futureTime < loginTime then
-        PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = loginTime - Unity.Time.realtimeSinceStartup
-        PbIO.GameData.Save_timestamps()
+        SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = loginTime - Unity.Time.realtimeSinceStartup
+        SaveIO.GameData.Save_timestamps()
     end
 
-    self.futureTimeStamp = PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP]
+    self.futureTimeStamp = SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP]
 end
 
 ---@brief 切后台/退出游戏时刷新并保存基准时间
@@ -308,8 +308,8 @@ function GameTimeHelper:RefreshFutureTimeStamp()
         return
     end
 
-    PbRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = self:GetUTC0FutureTimeStamp()
-    PbIO.GameData.Save_timestamps()
+    SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = self:GetUTC0FutureTimeStamp()
+    SaveIO.GameData.Save_timestamps()
 end
 
 ---@brief 获取当前可靠UTC0时间戳（防篡改）
@@ -318,7 +318,7 @@ end
 function GameTimeHelper:GetUTC0FutureTimeStamp()
     if not self.futureTimeStamp then
         PrintError("GameTimeHelper => SetupFutureTimeStamp must be call...")
-        self.futureTimeStamp = PbRootData.UserData.launchTime.current.utc0
+        self.futureTimeStamp = SaveRootData.UserData.launchTime.current.utc0
     end
 
     return self.futureTimeStamp + Unity.Time.realtimeSinceStartup

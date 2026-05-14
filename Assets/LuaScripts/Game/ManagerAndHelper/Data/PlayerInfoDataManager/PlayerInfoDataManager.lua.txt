@@ -34,20 +34,20 @@ end
 ---=========================================================================
 function PlayerInfoDataManager:GetPlayerInfoUserName()
     -- 安全校验存档
-    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.playerInfo then
+    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
         return Lang["PlayerDefaultNameError"] or "Player_Error"
     end
 
-    local playerInfo = PbRootData.GameData.playerInfo
+    local playerInfo = SaveRootData.GameData.playerInfo
 
     -- 未自定义过用户名
     if playerInfo.userInput == false then
         -- UID 异常
-        if not PbRootData.UserData or PbRootData.UserData.uid <= 0 then
+        if not SaveRootData.UserData or SaveRootData.UserData.uid <= 0 then
             return Lang["PlayerDefaultNameError"] or "Player_Error"
         else
             -- 返回默认用户名：玩家_UID
-            return mstr(Lang["PlayerDefaultName"], { str1 = PbRootData.UserData.uid })
+            return mstr(Lang["PlayerDefaultName"], { str1 = SaveRootData.UserData.uid })
         end
     else
         -- 返回自定义名字（空值防护）
@@ -66,18 +66,18 @@ function PlayerInfoDataManager:SetPlayerInfoUserName(newName)
     end
 
     -- 安全校验存档结构
-    if not PbRootData or not PbRootData.GameData or not PbRootData.GameData.playerInfo then
+    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
         PrintError("[PlayerInfoDataManager] 设置用户名失败：playerInfo 存档不存在")
         return
     end
 
     -- 写入数据
-    PbRootData.GameData.playerInfo.name = newName
-    PbRootData.GameData.playerInfo.userInput = true
+    SaveRootData.GameData.playerInfo.name = newName
+    SaveRootData.GameData.playerInfo.userInput = true
 
     -- 保存存档
-    if PbIO and PbIO.GameData and PbIO.GameData.Save_playerInfo then
-        PbIO.GameData.Save_playerInfo()
+    if SaveIO and SaveIO.GameData and SaveIO.GameData.Save_playerInfo then
+        SaveIO.GameData.Save_playerInfo()
     else
         PrintError("[PlayerInfoDataManager] 保存失败：存档接口不存在")
     end

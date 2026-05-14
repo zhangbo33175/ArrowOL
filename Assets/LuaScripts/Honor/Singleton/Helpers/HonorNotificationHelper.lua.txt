@@ -1,43 +1,47 @@
 --=====================================================================================================
 -- descrip:   推送通知助手（本地/远程推送管理）
 --              功能：
---              1. 本地定时推送通知（离线消息、活动提醒）
---              2. 跨平台推送开关（iOS / Android）
---              3. 定时轮询拉取通知
---              4. 领奖通知、后台运营推送协议交互
---              5. 推送数据存档与清除
+--              1. 本地定时推送通知（离线消息、活动提醒、回归提醒）
+--              2. 跨平台推送开关控制（iOS / Android 分开配置）
+--              3. 定时轮询拉取后台通知消息
+--              4. 领奖通知、运营活动推送协议交互
+--              5. 推送状态数据存档、读取、清空管理
+--              适用：游戏离线推送、活动提醒、奖励领取提醒
 --=====================================================================================================
 
----@class HonorNotificationHelper @推送通知管理助手
+---@class HonorNotificationHelper @推送通知管理助手（本地+远程推送统一入口）
 local HonorNotificationHelper = class("HonorNotificationHelper")
 
 --- 构造函数
+--- 初始化推送配置、计数变量、启动监听与定时轮询
 ---@type fun(args:table):void
+---@param args table 可选初始化参数
 function HonorNotificationHelper:ctor(args)
-    -- 发送通知达到 X 条后，强制刷新一次系统推送
+    --- 发送通知达到上限条数后，强制刷新系统推送
     self._nativeNotificationMessageMaxCount = 5
-    -- 每 X 秒轮询检测一次通知消息
+    --- 通知轮询检测间隔（秒）
     self._nativeNotificationMessageTimeDelta = 30
-    -- 当前已发送通知计数
+    --- 当前已发送通知计数
     self._nativeNotificationMessageCurCount = 0
-    -- 初始化监听与定时
+    --- 初始化事件监听与定时任务
     self:Init()
 end
 
---- 创建实例
+--- 创建推送助手实例
 ---@type fun(args:table):HonorNotificationHelper
----@return HonorNotificationHelper
+---@param args table 可选初始化参数
+---@return HonorNotificationHelper 推送管理实例
 function HonorNotificationHelper:Create(args)
     local obj = HonorNotificationHelper.new(args)
     return obj
 end
 
---- 初始化（注册事件 + 定时轮询）
+--- 初始化（注册事件监听 + 启动定时轮询任务）
 ---@type fun():void
 function HonorNotificationHelper:Init(args)
-    -- 监听通知消息事件
+    -- 监听全局通知消息事件，触发拉取逻辑
     HonorEventHelper:AddListener(EventCmd.NotificationMessage, handler(self, self.RequestNotificationMessage))
-    -- 定时轮询拉取通知（每30秒执行一次，锁定不删除）
+    -- 启动定时轮询：每30秒拉取一次通知，场景锁定不自动删除
     HonorTimerHelper:RegisterDeltaTime(
             EventCmd.NotificationMessage,
             self._nativeNotificationMessageTimeDelta,
@@ -46,50 +50,53 @@ function HonorNotificationHelper:Init(args)
     )
 end
 
---- 检查推送功能是否开启（受系统配置表控制）
+--- 检查平台推送总开关是否开启（受系统配置表控制）
 ---@type fun():boolean
----@return boolean iOS/Android 推送总开关
+---@return boolean true=推送开启，false=推送关闭
 function HonorNotificationHelper:CheckNotifyFuncIsOpen()
     if Unity.Application.platform == Unity.RuntimePlatform.Android then
         return SystemConfigHelper:GetSystemConfig("ANDROID_NOTIFY_FUNCTION_OPEN")
     elseif Unity.Application.platform == Unity.RuntimePlatform.IPhonePlayer then
         return SystemConfigHelper:GetSystemConfig("IOS_NOTIFY_FUNCTION_OPEN")
     else
+        -- 其他平台默认使用Android配置
         return SystemConfigHelper:GetSystemConfig("ANDROID_NOTIFY_FUNCTION_OPEN")
     end
 end
 
---- 设置/取消 本地定时通知
+--- 设置 / 取消 本地定时推送通知
 ---@type fun(messageType:number, isCancel:boolean, titleIDS:string,UTC0TimeStamp:number)
----@param messageType 消息类型 >0
----@param isCancel 是否取消该通知
----@param titleIDS 后台配置ID组，如 "1001,2001"
----@param UTC0TimeStamp 通知触发时间（UTC0），取消时可不传
+---@param messageType number 消息类型（>0，用于区分活动/奖励/回归等）
+---@param isCancel boolean 是否取消该类型通知（true=取消，false=添加）
+---@param titleIDS string 后台多语言配置ID组，格式示例："1001,2001"
+---@param UTC0TimeStamp number 通知触发时间戳（UTC0标准时间），取消时可不传
 function HonorNotificationHelper:SetNotificationMessage(messageType, isCancel, titleIDS, UTC0TimeStamp)
 end
 
---- 请求拉取通知消息（主动刷新）
+--- 主动请求拉取后台通知消息（手动刷新通知）
 ---@type fun():void
 function HonorNotificationHelper:RequestNotificationMessage()
 end
 
---- 发送【领奖类通知】协议（每日奖励、限时奖励等）
---- 作用：告诉后台“已领取”，避免重复推送
+--- 发送【领奖类通知】回执协议
+--- 作用：告知服务器该奖励已领取，停止重复推送
 ---@type fun(flagType:number):void
+---@param flagType number 奖励类型标识（每日奖励/限时奖励/活动奖励等）
 function HonorNotificationHelper:SendRewardNotificationMessage(flagType)
 end
 
---- 获取通知相关存档数据（记录已读/已发/已领）
+--- 获取通知模块存档数据（记录已读、已发送、已领取状态）
 ---@type fun():table
+---@return table 通知存档数据结构
 function HonorNotificationHelper:GetNotificationSaveData()
 end
 
---- 清空所有通知存档数据
+--- 清空所有通知模块存档数据（重置推送状态）
 ---@type fun():void
 function HonorNotificationHelper:ClearNotificationData()
 end
 
---- 检测是否需要主动拉取通知
+--- 检测当前是否需要主动拉取通知（条件：开关开启+达到计数/时间条件）
 ---@type fun():void
 function HonorNotificationHelper:IsNeedRequestNotificationMessage()
 end

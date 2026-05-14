@@ -55,38 +55,38 @@ __DEBUGGER__()
 --- 从 C# 层创建 Lua 业务类（绑定生命周期）
 --- 功能：C# 的 LuaBehaviour 调用此函数创建 Lua 类，并绑定 Awake/Start/Update/OnDestroy 等周期
 ---@type fun(_env:table, _luaScriptName:string):table
----@param _env table @C#传递的环境表，用于绑定生命周期函数
----@param _luaScriptName string @Lua脚本名称（require用）
----@return table @创建好的Lua类实例
+---@param _env table C#传递的环境表，用于绑定生命周期函数
+---@param _luaScriptName string Lua脚本名称（require用）
+---@return table 创建好的Lua类实例
 function CreateLuaClassFromCS(_env, _luaScriptName)
     -- 创建Lua类实例
-    local _createdClass = require(_luaScriptName):Create({ env = _env })
+    local _createdClass     = require(_luaScriptName):Create({ env = _env })
 
     -- 绑定 C# 生命周期 -> Lua 函数
-    _env.Awake = function() _createdClass:Awake() end
-    _env.OnEnable = function() _createdClass:OnEnable() end
-    _env.Start = function() _createdClass:Start() end
-    _env.Proc = function() _createdClass:Proc() end
-    _env.OnDisable = function() _createdClass:OnDisable() end
-    _env.OnDestroy = function() _createdClass:OnDestroy() end
+    _env.Awake              = function() _createdClass:Awake() end
+    _env.OnEnable           = function() _createdClass:OnEnable() end
+    _env.Start              = function() _createdClass:Start() end
+    _env.Proc               = function() _createdClass:Proc() end
+    _env.OnDisable          = function() _createdClass:OnDisable() end
+    _env.OnDestroy          = function() _createdClass:OnDestroy() end
 
     -- 2D碰撞
     _env.OnCollisionEnter2D = function(collision) _createdClass:OnCollisionEnter2D(collision) end
-    _env.OnCollisionStay2D = function(collision) _createdClass:OnCollisionStay2D(collision) end
-    _env.OnCollisionExit2D = function(collision) _createdClass:OnCollisionExit2D(collision) end
+    _env.OnCollisionStay2D  = function(collision) _createdClass:OnCollisionStay2D(collision) end
+    _env.OnCollisionExit2D  = function(collision) _createdClass:OnCollisionExit2D(collision) end
     -- 3D碰撞
     _env.OnCollisionEnter3D = function(collision) _createdClass:OnCollisionEnter3D(collision) end
-    _env.OnCollisionStay3D = function(collision) _createdClass:OnCollisionStay3D(collision) end
-    _env.OnCollisionExit3D = function(collision) _createdClass:OnCollisionExit3D(collision) end
+    _env.OnCollisionStay3D  = function(collision) _createdClass:OnCollisionStay3D(collision) end
+    _env.OnCollisionExit3D  = function(collision) _createdClass:OnCollisionExit3D(collision) end
 
     -- 2D触发
-    _env.OnTriggerEnter2D = function(collision) _createdClass:OnTriggerEnter2D(collision) end
-    _env.OnTriggerStay2D = function(collision) _createdClass:OnTriggerStay2D(collision) end
-    _env.OnTriggerExit2D = function(collision) _createdClass:OnTriggerExit2D(collision) end
+    _env.OnTriggerEnter2D   = function(collision) _createdClass:OnTriggerEnter2D(collision) end
+    _env.OnTriggerStay2D    = function(collision) _createdClass:OnTriggerStay2D(collision) end
+    _env.OnTriggerExit2D    = function(collision) _createdClass:OnTriggerExit2D(collision) end
     -- 3D触发
-    _env.OnTriggerEnter3D = function(collision) _createdClass:OnTriggerEnter3D(collision) end
-    _env.OnTriggerStay3D = function(collision) _createdClass:OnTriggerStay3D(collision) end
-    _env.OnTriggerExit3D = function(collision) _createdClass:OnTriggerExit3D(collision) end
+    _env.OnTriggerEnter3D   = function(collision) _createdClass:OnTriggerEnter3D(collision) end
+    _env.OnTriggerStay3D    = function(collision) _createdClass:OnTriggerStay3D(collision) end
+    _env.OnTriggerExit3D    = function(collision) _createdClass:OnTriggerExit3D(collision) end
 
     return _createdClass
 end
@@ -94,16 +94,16 @@ end
 --- 从 C# 层创建流程(Procedure)Lua类
 --- 功能：专门用于流程（场景/状态）的创建，绑定流程生命周期
 ---@type fun(_env:table, _luaScriptName:string):table
----@param _env table @环境表
----@param _luaScriptName string @流程类名
----@return table @流程实例
+---@param _env table 环境表
+---@param _luaScriptName string 流程类名
+---@return table 流程实例
 function CreatePocedureLuaClassFromCS(_env, _luaScriptName)
     local _createdClass = require(_luaScriptName):Create({ env = _env })
 
     -- 流程生命周期
-    _env.OnEnter = function(...) _createdClass:OnEnter(...) end    -- 进入流程
-    _env.OnUpdate = function(...) _createdClass:OnUpdate(...) end  -- 流程更新
-    _env.OnLeave = function(...) _createdClass:OnLeave(...) end    -- 离开流程
+    _env.OnEnter        = function(...) _createdClass:OnEnter(...) end    -- 进入流程
+    _env.OnUpdate       = function(...) _createdClass:OnUpdate(...) end  -- 流程更新
+    _env.OnLeave        = function(...) _createdClass:OnLeave(...) end    -- 离开流程
 
     return _createdClass
 end
@@ -111,9 +111,9 @@ end
 --- 为UI注入对象注册事件监听（按钮、Toggle、输入框、列表等自动绑定）
 --- 功能：框架核心函数，C#可视化配置的事件自动绑定到Lua函数
 ---@type fun(_injectionObj:userdata, _injectionCmd:string, _handler:handler):void
----@param _injectionObj userdata @C#注入的UI对象（Button/Toggle/Input等）
----@param _injectionCmd string @事件类型：Clicked/Changed/End/Chosen 或 Evt_开头的事件
----@param _handler handler @Lua回调函数（handler包装）
+---@param _injectionObj userdata C#注入的UI对象（Button/Toggle/Input等）
+---@param _injectionCmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_开头的事件
+---@param _handler handler Lua回调函数（handler包装）
 function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
     -- 全局注册容器初始化
     if addUIListenerInfos == nil then
@@ -219,10 +219,10 @@ function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
 end
 
 --- 移除UI注入对象的监听
----@type fun(__injectionObj:userdata, __injectionCmd:string, __handler:handler):void
----@param _injectionObj userdata @UI对象
----@param _injectionCmd string @事件类型
----@param _handler handler @要移除的回调
+---@type fun(_injectionObj:userdata, _injectionCmd:string, _handler:handler):void
+---@param _injectionObj userdata UI对象
+---@param _injectionCmd string 事件类型
+---@param _handler handler 要移除的回调
 function OnRemoveListener(_injectionObj, _injectionCmd, _handler)
     if addUIListenerInfos ~= nil and addUIListenerInfos[_injectionObj] ~= nil and addUIListenerInfos[_injectionObj]._handlerList ~= nil and addUIListenerInfos[_injectionObj]._interactTargetTimes ~= nil then
         for __, __v in pairs(addUIListenerInfos[_injectionObj]._handlerList) do

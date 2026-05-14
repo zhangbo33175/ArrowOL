@@ -19,7 +19,7 @@ function ChapterDataManager:ctor()
 end
 
 --- 创建单例
----@return ChapterDataManager
+---@return ChapterDataManager 章节管理器实例
 function ChapterDataManager:Create()
     return ChapterDataManager.new()
 end
@@ -31,17 +31,32 @@ function ChapterDataManager:Init()
     self._chapterSorts = nil
 end
 
---- 清理数据（切号/重载）
+--- 清理数据
+---@desc 切号/重载/重置时调用，清空缓存数据
 function ChapterDataManager:ClearData()
     ChapterDataManager.super.ClearData(self)
     self._chapterInfos = {}
     self._chapterSorts = nil
 end
 
+--region 关卡模式获取对应章
+---=========================================================================
+--- 根据当前关卡模式获取对应章节配置
+---@param chapterId string 章节Id
+---@return Tables.Chapters_Item|nil 章节配置数据
+---=========================================================================
+function ChapterDataManager:GetChapterDataByChapterType(chapterId)
+    if GameManager:GetLevelMode() == ELevelMode.NORMAL then
+        return self:GetChapterDataByChapterId(chapterId)
+    else
+        return self:GetDailyLevelsDataByChapterId(chapterId)
+    end
+end
+
 ---=========================================================================
 --- 根据章节ID获取主线章节配置
 ---@param chapterId string 章节Id
----@return Tables.Chapters_Item|nil
+---@return Tables.Chapters_Item|nil 章节配置数据
 ---=========================================================================
 function ChapterDataManager:GetChapterDataByChapterId(chapterId)
     if not chapterId or not Tables or not Tables.MainLevels then
@@ -53,7 +68,7 @@ end
 ---=========================================================================
 --- 根据章节ID获取每日挑战章节配置
 ---@param chapterId string 章节Id
----@return Tables.Chapters_Item|nil
+---@return Tables.Chapters_Item|nil 每日挑战章节配置
 ---=========================================================================
 function ChapterDataManager:GetDailyLevelsDataByChapterId(chapterId)
     if not chapterId or not Tables.DailyLevels then
@@ -61,48 +76,26 @@ function ChapterDataManager:GetDailyLevelsDataByChapterId(chapterId)
     end
     return Tables.DailyLevels[tostring(chapterId)]
 end
-
----=========================================================================
---- 判断是否为循环关卡
----@param chapterId string 章节Id
----@param levelId number 关卡Id
----@return boolean
----=========================================================================
-function ChapterDataManager:IsLoopLevel(chapterId, levelId)
-    local chapterData = self:GetChapterDataByChapterId(chapterId)
-    if not chapterData or not chapterData.UnlockNextLevel then
-        return false
-    end
-    return levelId >= chapterData.UnlockNextLevel
-end
+--endregion
 
 ---=========================================================================
 --- 根据章节ID获取多语言章节名称
 ---@param chapterId string 章节Id
----@return string
+---@return string 多语言章节名称
 ---=========================================================================
 function ChapterDataManager:GetChapterNameByChapterId(chapterId)
-    local data = self:GetChapterDataByChapterId(chapterId)
+    local data = self:GetChapterDataByChapterType(chapterId)
     if not data or not data.ChapterTitle then
         return tostring(chapterId)
     end
     return GetLang(data.ChapterTitle)
 end
 
----=========================================================================
---- 根据章节ID获取章节小图标
----@param chapterId string 章节Id
----@return string|nil
----=========================================================================
-function ChapterDataManager:GetChapterDecorBarIconByChapterId(chapterId)
-    local data = self:GetChapterDataByChapterId(chapterId)
-    return data and data.DecorBarIcon or nil
-end
 
 ---=========================================================================
 --- 根据章节信息ID获取单条章节信息配置
 ---@param chapterInfoId string 章节信息Id
----@return Tables.ChapterInfos_Item|nil
+---@return Tables.ChapterInfos_Item|nil 章节信息配置
 ---=========================================================================
 function ChapterDataManager:GetChapterInfoDataByChapterInfoId(chapterInfoId)
     if not chapterInfoId or not Tables.ChapterInfos then
@@ -114,7 +107,7 @@ end
 ---=========================================================================
 --- 根据章节ID获取该章节下所有章节信息（已排序）
 ---@param chapterId string 章节Id
----@return Tables.ChapterInfos_Item[]
+---@return Tables.ChapterInfos_Item[] 章节信息列表
 ---=========================================================================
 function ChapterDataManager:GetChapterInfoListDataByChapterID(chapterId)
     if not chapterId then return {} end
@@ -149,7 +142,7 @@ end
 
 ---=========================================================================
 --- 获取配置表中最大章节ID
----@return number
+---@return number 最大章节ID
 ---=========================================================================
 function ChapterDataManager:GetConfigMaxChapterID()
     local max = self:GetDefaultMaxChapterID()
@@ -167,7 +160,7 @@ end
 
 ---=========================================================================
 --- 获取默认最小最大章节数（保底2章）
----@return number
+---@return number 默认最大章节ID
 ---=========================================================================
 function ChapterDataManager:GetDefaultMaxChapterID()
     return 2
@@ -176,40 +169,16 @@ end
 ---=========================================================================
 --- 根据章节ID获取对应区域配置
 ---@param chapterId string 章节Id
----@return Tables.Areas_Item|nil
+---@return Tables.Areas_Item|nil 区域配置数据
 ---=========================================================================
 function ChapterDataManager:GetAreaDataByChapterId(chapterId)
-    return self:GetChapterDataByChapterId(chapterId)
+    return self:GetChapterDataByChapterType(chapterId)
 end
 
----=========================================================================
---- 获取指定章节的装修星星总数
----@param chapterId string 章节Id
----@return number
----=========================================================================
-function ChapterDataManager:GetTotalDecorateStarsNumByChapterID(chapterId)
-    local totalNum = 0
-    local chapterData = self:GetChapterDataByChapterId(chapterId)
-    if not chapterData or not chapterData.MapName then
-        return totalNum
-    end
-
-    local tableName = string.format("Decorations%s", chapterData.MapName)
-    SafeCall(function()
-        local decorationData = Tables[tableName]
-        if decorationData then
-            for _, vData in pairs(decorationData) do
-                totalNum = totalNum + (vData.Stars or 0)
-            end
-        end
-    end, string.format("[ChapterDataManager] 找不到装修表: %s", tableName))
-
-    return totalNum
-end
 
 ---=========================================================================
 --- 获取所有增量更新资源组名
----@return string[]
+---@return string[] 资源组名列表
 ---=========================================================================
 function ChapterDataManager:GetAllIncreaserGroupNames()
     local result = {}
@@ -227,7 +196,7 @@ end
 
 ---=========================================================================
 --- 计算已完成的章节总数
----@return number
+---@return number 已完成章节数量
 ---=========================================================================
 function ChapterDataManager:CalculateCompletedChapterTotalCount()
     local config = Tables.Chapters
@@ -244,7 +213,7 @@ end
 
 ---=========================================================================
 --- 计算已解锁的章节总数
----@return number
+---@return number 已解锁章节数量
 ---=========================================================================
 function ChapterDataManager:CalculateUnlockedChapterTotalCount()
     local config = Tables.Chapters
@@ -261,7 +230,7 @@ end
 
 ---=========================================================================
 --- 获取排序后的所有章节配置
----@return Tables.Chapters_Item[]
+---@return Tables.Chapters_Item[] 排序后的章节配置数组
 ---=========================================================================
 function ChapterDataManager:GetAllChapterSort()
     if self._chapterSorts then

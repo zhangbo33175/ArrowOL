@@ -25,8 +25,6 @@
 -- [主结构]用户数据存档根数据
 ---@class SavePBMsgDef.UserDataPB.UserData : nil
 ---@field uid number @ 用户UID
----@field aid string @ 三方用户ID
----@field aidBindTime SavePBMsgDef.UserDataPB.Time @ 三方用户绑定时间
 ---@field launchTime SavePBMsgDef.UserDataPB.StageTime @ 启动时间
 ---@field regTime SavePBMsgDef.UserDataPB.Time @ 注册时间
 ---@field loginTime SavePBMsgDef.UserDataPB.StageTime @ 登陆时间

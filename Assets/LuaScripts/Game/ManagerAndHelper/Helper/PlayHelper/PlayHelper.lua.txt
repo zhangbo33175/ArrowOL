@@ -690,17 +690,12 @@ end
 function PlayHelper:PlayInGameBGM()
     local levelData = GameCoreManager._CurLevelData
     if levelData then
-        if MapManager.CurLoadMapType == MapType.FoodTruck then
-            --- 快餐车模式
-            FoodTruckPlayHelper:PlayInGameBGM(MapManager.CurLoadChapterId)
-            return
-        end
         if MapManager.CurLoadMapType == EMapType.Main then
             --- 主线模式
             local peakId = levelData.PeakId
             local peakLevelData = PeakLevelsDataMgr:GetDataById(tostring(peakId))
             if peakLevelData and peakId ~= ELevelType.Normal and not string.isNullOrEmpty(peakLevelData.LevelBGM) then
-                SoundMgr:PlayBGM(peakLevelData.LevelBGM)
+                SoundManager:PlayBGM(peakLevelData.LevelBGM)
             else
                 self:PlayCommonInGameBGM()
             end
@@ -720,7 +715,7 @@ function PlayHelper:PlayCommonInGameBGM()
     --    return
     --end
 
-    local chapterData = ChapterDataManager:GetChapterDataByChapterId(MapManager.CurLoadChapterId)
+    local chapterData = ChapterDataManager:GetChapterDataByChapterType(MapManager.CurLoadChapterId)
     if chapterData and chapterData.MapMusic and chapterData.MapMusic.ingame then
         SoundManager:PlayBGM(chapterData.MapMusic.ingame)
     end
@@ -802,7 +797,7 @@ end
 ---@type fun():boolean
 ---@return boolean
 function PlayHelper:IsPlayingNewChapter()
-    return PbRootData.GameData.latestChapterId == PbRootData.GameData.curChapterId
+    return SaveRootData.GameData.latestChapterId == SaveRootData.GameData.curChapterId
 end
 
 

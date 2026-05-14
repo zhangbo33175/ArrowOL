@@ -35,7 +35,7 @@ end
 --- 获取所有活动配置数据
 ---@return Tables.Events_Item[]
 ---=========================================================================
-function EventDataManager:GetEventDatas()
+function EventDataManager:GetEventData()
     if not Tables or not Tables.Events then
         PrintError("[EventDataManager] Tables.Events 配置表不存在！")
         return {}
@@ -68,26 +68,6 @@ end
 function EventDataManager:HasLevelDiffAffect(eventId)
     local data = self:GetEventDataById(eventId)
     return data and data.LevelDiffAffect == 1 or false
-end
-
----=========================================================================
---- 活动是否有双倍积分效果
----@param eventId EActivityId
----@return boolean
----=========================================================================
-function EventDataManager:HasDoublePointsAffect(eventId)
-    local data = self:GetEventDataById(eventId)
-    return data and data.DoubleAffect == 1 or false
-end
-
----=========================================================================
---- 获取活动对应的代币ID
----@param eventId EActivityId
----@return string|nil
----=========================================================================
-function EventDataManager:GetTokenID(eventId)
-    local data = self:GetEventDataById(eventId)
-    return data and data.TokenID or nil
 end
 
 ---=========================================================================

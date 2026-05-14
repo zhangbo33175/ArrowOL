@@ -144,7 +144,7 @@ end
 ---=========================================================================
 --- 【私有】创建一个新对象池
 ---@param name string 池名
----@param resDefItem RES_DEF_ITEM 资源配置
+---@param resDefItem table 资源配置
 ---@param preParent Transform 默认父节点
 ---@param resetHandler function 重置回调
 ---@return Pool

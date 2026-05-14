@@ -1,8 +1,8 @@
 --=====================================================================================================
--- 【游戏总管理器】
--- 功能：游戏全局核心控制中心
--- 负责：游戏暂停/恢复、UI栈管理、全屏UI相机优化、版本号、设备性能、全局状态控制
--- 规范：遵循 Unity + Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @brief  【游戏总管理器】
+-- @desc   游戏全局核心控制中心
+-- @focus  游戏暂停/恢复、UI栈管理、全屏UI相机优化、版本号、设备性能、全局状态控制
+-- @规范    Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class OpenCanvas @ 已打开完成的UI数据结构
@@ -19,7 +19,7 @@ local GameManager = class("GameManager", import("Singleton"))
 --- 构造函数
 function GameManager:ctor(args)
     GameManager.super.ctor(self, args)
-
+    self.CurrentMode=ELevelMode.NORMAL
     self._pauseGameRef = 0                          -- 暂停引用计数
     self._openOverCanvasArray = {}                  -- 已打开完成的UI数组
     self._devicePerformanceLevel = nil              -- 设备性能缓存
@@ -52,8 +52,26 @@ function GameManager:IsDevelopMode()
     return GameMainRoot.Launcher.DevelopMode
 end
 
+
+---=========================================================================
+--- 设置当前关卡运行模式
+---@param eLevelMode ELevelMode 关卡模式枚举
+---=========================================================================
+function GameManager:SetLevelMode(eLevelMode)
+    self.CurrentMode = eLevelMode
+end
+
+---=========================================================================
+--- 获取当前关卡运行模式
+---@return ELevelMode 关卡模式枚举
+---=========================================================================
+function GameManager:GetLevelMode()
+    return self.CurrentMode
+end
+
 --=========================================================================
 --region 游戏暂停/恢复（引用计数，支持多层嵌套暂停）
+--=========================================================================
 
 --- 暂停游戏（引用计数 +1）
 function GameManager:PauseGame()
@@ -62,12 +80,12 @@ function GameManager:PauseGame()
     if self._pauseGameRef >= 1 then
         GameMainRoot.Launcher:PauseGame()
         GameCoreManager:OnPauseGame()
-        -- SoundMgr:PauseAllSound()
+        SoundManager:PauseAllSound()
         PrintInfo("[GameManager] 游戏暂停，计数：{0}", self._pauseGameRef)
     end
 end
 
---- 延迟恢复游戏（等待6帧）
+--- 延迟恢复游戏（等待6帧，避免UI闪屏）
 function GameManager:ResumeGame()
     HonorCoroutineHelper:StartAlone(function()
         HonorCoroutineHelper:WaitForFrame(self._waitForFrames)
@@ -85,7 +103,7 @@ function GameManager:ResumeGameImmediately()
     if self._pauseGameRef == 0 then
         GameMainRoot.Launcher:ResumeGame()
         GameCoreManager:OnResumeGame()
-        -- SoundMgr:ResumeAllSound()
+        SoundManager:ResumeAllSound()
     end
 
     PrintInfo("[GameManager] 游戏恢复，计数：{0}", self._pauseGameRef)
@@ -107,6 +125,7 @@ end
 
 --=========================================================================
 --region UI栈管理（封装对外接口）
+--=========================================================================
 
 --- 获取栈顶UI
 ---@return UIBase
@@ -138,6 +157,7 @@ end
 
 --=========================================================================
 --region 版本号管理
+--=========================================================================
 
 --- 获取资源版本号
 ---@return number
@@ -168,6 +188,7 @@ end
 
 --=========================================================================
 --region 设备性能等级 & 触摸设置
+--=========================================================================
 
 --- 设置EasyTouch触摸自动选择
 ---@param enable boolean 开启/关闭
@@ -211,7 +232,8 @@ end
 --endregion
 
 --=========================================================================
---region 全屏UI性能优化：自动管理相机/Canvas渲染
+--region 全屏UI性能优化：自动管理相机/Canvas渲染（核心优化）
+--=========================================================================
 
 --- UI打开完成回调（全屏UI关闭底层画布）
 ---@param canvas UnityEngine.Canvas 画布对象

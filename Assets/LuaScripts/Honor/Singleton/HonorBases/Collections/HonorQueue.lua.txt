@@ -1,58 +1,70 @@
 --=====================================================================================================
 -- descrip:   队列（Queue）
 --              规则：先进先出 FIFO (First In First Out)
---              用途：任务队列、网络请求队列、消息队列、顺序执行指令
+--              用途：任务队列、网络请求队列、消息队列、顺序执行指令、对象池空闲存储
+--              特性：尾部入队、头部出队、安全访问、索引从1开始（Lua原生规范）
 --=====================================================================================================
 
----@class HonorQueue @队列结构类
----@field items table @队列内部存储的元素数组
+---@class HonorQueue @通用队列容器（FIFO 先进先出）
+---@field items table @内部存储元素的数组
 local HonorQueue = class("HonorQueue")
 
 --- 构造函数
 ---@type fun():void
 function HonorQueue:ctor()
-    self.items = {}   -- 初始化空队列
+    ---@type table 队列元素数组
+    self.items = {}
 end
 
 --- 创建队列实例
 ---@type fun():HonorQueue
----@return HonorQueue
+---@return HonorQueue 新队列对象
 function HonorQueue:Create()
     local queue = HonorQueue.new()
     return queue
 end
 
---- 获取队首元素（不删除）
+--- 获取队首元素（仅查看，不移除）
 ---@type fun():any
----@return any 队首第一个元素
+---@return any 队首元素，空队列返回 nil
 function HonorQueue:Peek()
     return self.items[1]
 end
 
 --- 元素入队（添加到队尾）
 ---@type fun(item:any):void
----@param item 要加入队列的元素
+---@param item any 任意类型要入队的元素
 function HonorQueue:Enqueue(item)
-    table.insert(self.items, self:Count() + 1, item)
+    table.insert(self.items, item)
 end
 
---- 元素出队（从队首移除）
+--- 元素出队（从队首移除并返回）
 ---@type fun():any
----@return any 出队的元素
+---@return any 出队的元素，空队列返回 nil
 function HonorQueue:Dequeue()
-    local item = self:Peek()   -- 取队首
-    table.remove(self.items, 1) -- 移除队首
+    if self:Count() <= 0 then
+        return nil
+    end
+    local item = self:Peek()
+    table.remove(self.items, 1)
     return item
 end
 
 --- 获取队列元素数量
 ---@type fun():number
----@return number 元素个数
+---@return number 队列元素个数
 function HonorQueue:Count()
     return #self.items
 end
 
---- 清空队列
+--- 判断队列是否为空
+---@type fun():boolean
+---@return boolean true=空, false=非空
+function HonorQueue:IsEmpty()
+    return self:Count() == 0
+end
+
+--- 清空整个队列
 ---@type fun():void
 function HonorQueue:Clear()
     self.items = {}

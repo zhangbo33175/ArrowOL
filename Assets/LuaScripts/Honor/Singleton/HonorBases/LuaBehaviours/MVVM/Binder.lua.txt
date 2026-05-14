@@ -1,37 +1,41 @@
 --=====================================================================================================
 -- descrip:   绑定器（MVVM 双向绑定桥梁）
 --              作用：管理 View 上所有的监听函数，并统一绑定/解绑到 ViewModel 的可绑定值上
---              服务于 ViewSuper，实现 View <-> ViewModel 自动解耦
+--              服务于 ViewSuper，实现 View <-> ViewModel 自动解耦、安全释放
+--              核心：自动管理 BindValue 监听，防止内存泄漏、空引用
 --=====================================================================================================
 
----@class Binder @MVVM 绑定器
+---@class Binder @MVVM 视图绑定器（管理 View 与 ViewModel 的绑定关系）
 local Binder = class("Binder")
 
 --- 构造函数
----@type fun(args:table):void
-function Binder:ctor(args)
-	self._binders = {}       -- 存储绑定关系：{ 变量名 = { 监听函数1, 监听函数2... } }
-	self._viewModel = nil    -- 关联的 ViewModel
+---@type fun():void
+function Binder:ctor()
+	---@type table<string, function[]> 绑定关系表：key=属性名，value=回调函数数组
+	self._binders = {}
+	---@type ViewModelSuper 关联的视图模型
+	self._viewModel = nil
 end
 
---- 创建实例
----@type fun(args:table):Binder
----@return Binder
-function Binder:Create(args)
-	local obj = Binder.new(args)
+--- 创建绑定器实例
+---@type fun():Binder
+---@return Binder 绑定器对象
+function Binder:Create()
+	local obj = Binder.new()
 	return obj
 end
 
 --- 设置要绑定的 ViewModel
 ---@type fun(viewModel:ViewModelSuper):void
+---@param viewModel ViewModelSuper 视图模型对象
 function Binder:SetViewModel(viewModel)
 	self._viewModel = viewModel
 end
 
---- 添加一个绑定关系
----@type fun(name:string, handler:handler):void
----@param name string ViewModel 中的 BindValue 名称
----@param handler handler 数据变化时要执行的回调（View 刷新逻辑）
+--- 添加一个属性绑定
+---@type fun(name:string, handler:function):void
+---@param name string ViewModel 中 BindValue 属性名称
+---@param handler function 属性值变化时的回调函数
 function Binder:Add(name, handler)
 	if name ~= nil and type(name) == "string" and handler ~= nil then
 		if self._binders[name] == nil then
@@ -41,15 +45,15 @@ function Binder:Add(name, handler)
 	end
 end
 
---- 将所有监听函数【绑定】到 ViewModel 的 BindValue 上
+--- 将所有注册的回调【绑定】到 ViewModel 的 BindValue
 ---@type fun():void
 function Binder:BindToViewModel()
 	if self._viewModel ~= nil then
-		-- 遍历所有注册的绑定名称
+		-- 遍历 ViewModel 所有可绑定属性
 		for name, bindValue in pairs(self._viewModel._bindValues) do
-			-- 如果当前 View 监听了这个名称
+			-- 匹配当前 View 注册的监听
 			if self._binders[name] ~= nil then
-				-- 把所有回调注册到 BindValue 上
+				-- 批量绑定回调
 				for i = 1, #self._binders[name] do
 					local handler = self._binders[name][i]
 					bindValue:AddHandler(handler)
@@ -59,7 +63,7 @@ function Binder:BindToViewModel()
 	end
 end
 
---- 将所有监听函数从 ViewModel 的 BindValue 上【解绑】
+--- 将所有回调从 ViewModel 【解绑】（安全释放、防止泄漏）
 ---@type fun():void
 function Binder:UnbindFromViewModel()
 	if self._viewModel ~= nil then
@@ -72,6 +76,14 @@ function Binder:UnbindFromViewModel()
 			end
 		end
 	end
+end
+
+--- 清空所有绑定记录（完全释放）
+---@type fun():void
+function Binder:Clear()
+	self:UnbindFromViewModel()
+	self._binders = {}
+	self._viewModel = nil
 end
 
 return Binder

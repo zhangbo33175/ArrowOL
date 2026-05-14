@@ -1,6 +1,7 @@
 --=====================================================================================================
 -- descrip:   系统函数库（项目核心工具库）
 --              功能：异常捕获、dump打印、类型检查、类继承、热更新、表/字符串/数学/IO工具函数
+--              地位：框架底层核心，所有脚本依赖此库
 --=====================================================================================================
 
 --- 全局异常追踪函数（Lua报错统一捕获）
@@ -373,7 +374,7 @@ function import(moduleName, currentModuleName)
                 currentModuleName = v
             end
 
-            currentModuleNameParts = string.split(currentModuleName, ".")
+            currentModuleNameParts = string.split(currentModuleNameName, ".")
         end
         table.remove(currentModuleNameParts, #currentModuleNameParts)
     end
