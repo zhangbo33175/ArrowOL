@@ -1,14 +1,16 @@
 --=====================================================================================================
--- descrip:   Lua行为树Task节点通用父类
+-- Description: Lua行为树Task节点通用父类
 --              作用：所有自定义行为树节点（Action/Conditional/Composite等）都必须继承此类
 --              地位：行为树框架顶层基类，所有Lua BT节点的父类
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class LuaBTTaskSuper @Lua行为树节点基类（所有BT节点继承此类）
+--region Lua行为树节点基类
+---@class LuaBTTaskSuper Lua行为树节点基类（所有BT节点继承此类）
 local LuaBTTaskSuper = class("LuaBTTaskSuper")
 
 --- 构造函数
----@type fun(args:table):void
 ---@param args table 构造参数（包含 luaBehaviour: 所属Lua脚本, cs: C#节点对象）
 function LuaBTTaskSuper:ctor(args)
 	-- 绑定环境变量（兼容C#传递的运行环境）
@@ -25,7 +27,6 @@ function LuaBTTaskSuper:ctor(args)
 end
 
 --- 创建实例（框架内部调用）
----@type fun(args:table):LuaBTTaskSuper
 ---@param args table 节点参数
 ---@return LuaBTTaskSuper 行为树节点实例
 function LuaBTTaskSuper:Create(args)
@@ -34,7 +35,6 @@ function LuaBTTaskSuper:Create(args)
 end
 
 --- 节点销毁（自动释放资源、事件，防止内存泄漏）
----@type fun():void
 function LuaBTTaskSuper:OnDestroy()
 	self._args = nil
 	self._lua = nil
@@ -43,5 +43,6 @@ function LuaBTTaskSuper:OnDestroy()
 	-- 自动释放当前节点注册的所有事件
 	HonorEventHelper:RemoveListenerByTarget(self)
 end
+--endregion
 
 return LuaBTTaskSuper

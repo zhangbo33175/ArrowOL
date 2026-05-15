@@ -4,58 +4,61 @@
 -- @desc:      提供地图加载的通用逻辑：卸载旧地图、加载新地图、协程控制、LoadingUI管理
 -- @author:    Unity Standard
 -- @date:      2025
+-- @feat:      通用地图加载流程、协程管理、重复加载过滤、体验优化
+-- @规范:       Unity Lua 商业项目编码标准 / 核心基类规范
 --=====================================================================================================
 
 ---@class GameLoadMapStateBase : GameStateBase 加载地图状态基类
 local GameLoadMapStateBase = class('GameLoadMapStateBase', import('GameStateBase'))
 
----构造函数
+--region 【构造 & 实例化】
+---@brief 构造函数
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
 function GameLoadMapStateBase:ctor(stateType)
     GameLoadMapStateBase.super.ctor(self, stateType)
-
-    ---@type GameLib.WaitForFrames 公共帧等待对象
-    self._WaitFrame = GameLib.WaitForFrames(1)
+    self._WaitFrame = GameLib.WaitForFrames(1) ---@type GameLib.WaitForFrames 公共帧等待对象
 end
 
----创建状态实例
+---@brief 创建状态实例
 ---@type fun(stateType:GameStateCmd):GameLoadMapStateBase
 ---@param stateType GameStateCmd 状态类型
 ---@return GameLoadMapStateBase 加载地图基类实例
 function GameLoadMapStateBase:Create(stateType)
     return GameLoadMapStateBase.new(stateType)
 end
+--endregion
 
----进入状态（核心加载逻辑）
+--region 【状态进入 - 核心加载流程】
+---@brief 进入状态（核心加载逻辑）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameLoadMapStateBase:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
 
-    --- 打开加载界面
+    -- 打开加载界面
     self:OpenLoadingUI()
 
-    --- 启动独立协程执行地图加载
+    -- 启动独立协程执行地图加载
     HonorCoroutineHelper:StartAlone(function()
-        --- 如果当前地图 == 目标地图，无需重新加载
+        -- 目标地图与当前相同 → 不重复加载
         if MapManager.CurLoadChapterId == MapManager.ReadyLoadChapterId then
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
             self:LoadMapOver(finishCallback)
         else
-            --- 卸载旧地图
+            -- 卸载旧地图
             MapManager:UnloadOldMap()
             HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
 
-            --- 准备加载新地图
+            -- 准备加载新地图
             PrintInfo("准备加载地图 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
 
-            --- 加载预准备的地图
+            -- 执行地图加载
             MapManager:LoadReadyMap(nil)
             PrintInfo("准备加载地图完毕 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
 
-            --- 登录态快速切换，其他状态延迟1秒增强体验
+            -- 登录态快速切换，其他状态延迟 1 秒提升体验
             if GameStateMachine:PreStateType() == GameStateCmd.LoginState then
                 HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
                 PrintInfo("地图加载完毕，准备切换状态机 pre LoginState")
@@ -64,48 +67,52 @@ function GameLoadMapStateBase:OnStateEnter(finishCallback)
                 PrintInfo("地图加载完毕，准备切换状态机 pre is not LoginState")
             end
 
-            --- 地图加载完成
+            -- 加载完成
             self:LoadMapOver(finishCallback)
         end
     end)
 end
+--endregion
 
----离开状态
+--region 【状态退出】
+---@brief 离开状态
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameLoadMapStateBase:OnStateExit(finishCallback)
-    --- 关闭加载界面
     self:CloseLoadingUI()
-
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+--endregion
 
----打开加载UI（子类可重写）
+--region 【加载界面（子类可重写）】
+---@brief 打开加载UI
 ---@type fun():void
 function GameLoadMapStateBase:OpenLoadingUI()
     OpenUISync(UIs.UILoadMapView)
 end
 
----关闭加载UI（子类可重写）
+---@brief 关闭加载UI
 ---@type fun():void
 function GameLoadMapStateBase:CloseLoadingUI()
     CloseUI(UIs.UILoadMapView)
 end
+--endregion
 
----地图加载完毕（子类重写：默认切主界面）
+--region 【地图加载生命周期（子类重写）】
+---@brief 地图加载完毕（默认切主界面）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 完成回调
 function GameLoadMapStateBase:LoadMapOver(finishCallback)
     GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
 end
 
----准备加载地图（子类重写）
+---@brief 准备加载地图
 ---@type fun(chapterId:string):void
 ---@param chapterId string 即将加载的章节ID
 function GameLoadMapStateBase:OnReadyToLoadMap(chapterId)
-    --- 卸载旧地图、加载新地图之前执行
 end
+--endregion
 
 return GameLoadMapStateBase

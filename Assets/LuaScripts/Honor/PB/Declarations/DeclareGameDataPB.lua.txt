@@ -16,16 +16,16 @@
 -- 关卡进度
 ---@class SavePBMsgDef.GameDataPB.LevelProgress : nil
 ---@field levelGroupId number @ 关卡ID
----@field levelStamina string @ 关卡体力
----@field diary table @ 关卡数据
+---@field levelStamina number @ 关卡体力
+---@field levelData table @ 关卡数据
 
 
 -- 章节信息
 ---@class SavePBMsgDef.GameDataPB.ChapterInfo : nil
 ---@field lv number @ 玩家所在章节等级
----@field progress number[] @ 当前章节信息
----@field taskProgress SavePBMsgDef.GameDataPB.LevelProgress @ 关卡进度
----@field diary table @ 生涯数据统计
+---@field currentChapterData number[] @ 当前章节信息
+---@field levelProgress SavePBMsgDef.GameDataPB.LevelProgress @ 关卡进度
+---@field CareerDataStatistics table @ 生涯数据统计
 
 
 -- 设置内容
@@ -59,6 +59,7 @@
 ---@field settingInfo SavePBMsgDef.GameDataPB.SettingInfo @ 设置数据
 ---@field boosterTriggered string @ 已达成触发条件的局内道具
 ---@field maxChapterId number @ 玩家当前记录的最大章节id
+---@field localActivityData SavePBMsgDef.GameDataPB.LocalActivityData[] @ 本地活动数据
  
 
 

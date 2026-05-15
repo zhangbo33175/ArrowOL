@@ -7,33 +7,49 @@
 ---@class LocalEventDataManager : Singleton 本地活动数据管理器
 local LocalEventDataManager = class("LocalEventDataManager", import("Singleton"))
 
+--region 【构造与生命周期】
+---=========================================================================
 --- 构造函数
+---@type fun():void
+---=========================================================================
 function LocalEventDataManager:ctor()
     LocalEventDataManager.super.ctor(self)
 end
 
+---=========================================================================
 --- 创建单例
----@return LocalEventDataManager 本地活动数据管理器实例
+---@type fun():LocalEventDataManager
+---@return LocalEventDataManager @本地活动数据管理器实例
+---=========================================================================
 function LocalEventDataManager:Create()
     return LocalEventDataManager.new()
 end
 
+---=========================================================================
 --- 初始化
+---@type fun():void
+---=========================================================================
 function LocalEventDataManager:Init()
     LocalEventDataManager.super.Init(self)
 end
 
+---=========================================================================
 --- 清理数据
+---@type fun():void
 ---@desc 切换场景/重置时调用，无实际数据需要清理，保持生命周期统一
+---=========================================================================
 function LocalEventDataManager:ClearData()
     LocalEventDataManager.super.ClearData(self)
 end
+--endregion
 
+--region 【本地活动数据获取】
 ---=========================================================================
 --- 获取全部本地活动配置
----@return Tables.LocalEvents_Item[] 本地活动配置数组
+---@type fun():Tables.LocalEvents_Item[]
+---@return Tables.LocalEvents_Item[] @本地活动配置数组
 ---=========================================================================
-function LocalEventDataManager:GetEventDatas()
+function LocalEventDataManager:GetEventData()
     if not Tables or not Tables.LocalEvents then
         PrintError("[LocalEventDataManager] Tables.LocalEvents 配置表不存在！")
         return {}
@@ -43,15 +59,16 @@ end
 
 ---=========================================================================
 --- 根据活动ID获取对应配置
----@param eventId ELocalActivityId 本地活动ID
----@return Tables.LocalEvents_Item|nil 本地活动配置数据
+---@type fun(eventId:ELocalActivityId):Tables.LocalEvents_Item|nil
+---@param eventId ELocalActivityId @本地活动ID
+---@return Tables.LocalEvents_Item|nil @本地活动配置数据
 ---=========================================================================
 function LocalEventDataManager:GetEventDataById(eventId)
     if not eventId then
         return nil
     end
 
-    local _data = self:GetEventDatas()
+    local _data = self:GetEventData()
     for _, v in ipairs(_data) do
         if v.EventID == eventId then
             return v
@@ -64,8 +81,9 @@ end
 
 ---=========================================================================
 --- 根据活动ID获取活动组ID
----@param eventId ELocalActivityId 本地活动ID
----@return number 活动组ID（获取失败返回0）
+---@type fun(eventId:ELocalActivityId):number
+---@param eventId ELocalActivityId @本地活动ID
+---@return number @活动组ID（获取失败返回0）
 ---=========================================================================
 function LocalEventDataManager:GetActivityGroupId(eventId)
     local data = self:GetEventDataById(eventId)
@@ -74,12 +92,14 @@ end
 
 ---=========================================================================
 --- 根据活动ID获取活动开启顺序
----@param eventId ELocalActivityId 本地活动ID
----@return number 活动开启顺序（获取失败返回0）
+---@type fun(eventId:ELocalActivityId):number
+---@param eventId ELocalActivityId @本地活动ID
+---@return number @活动开启顺序（获取失败返回0）
 ---=========================================================================
 function LocalEventDataManager:GetActivityOrder(eventId)
     local data = self:GetEventDataById(eventId)
     return data and data.OpenOrder or 0
 end
+--endregion
 
 return LocalEventDataManager

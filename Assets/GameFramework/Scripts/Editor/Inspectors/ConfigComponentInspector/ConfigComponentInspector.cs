@@ -17,24 +17,27 @@ namespace Honor.Editor
     [CustomEditor(typeof(ConfigComponent))]
     public class ConfigComponentInspector : HonorComponentInspector
     {
-        /// <summary>
-        /// 配置表数据缓存
-        /// Key = 配置项名称
-        /// Value = [0]开发环境值 / [1]生产环境值
-        /// </summary>
+        #region 【字段定义】
+        //=========================================================================
+        // 配置表数据缓存
+        // Key = 配置项名称
+        // Value = [0]开发环境值 / [1]生产环境值
+        //=========================================================================
         private Dictionary<string, List<string>> m_ConfigDatas;
+        #endregion
 
-        /// <summary>
-        /// 启用时初始化数据容器
-        /// </summary>
+        #region 【编辑器生命周期】
+        //=========================================================================
+        // 启用时初始化数据容器
+        //=========================================================================
         private void OnEnable()
         {
             m_ConfigDatas = new Dictionary<string, List<string>>();
         }
 
-        /// <summary>
-        /// 绘制Inspector面板
-        /// </summary>
+        //=========================================================================
+        // 绘制Inspector面板
+        //=========================================================================
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -99,21 +102,28 @@ namespace Honor.Editor
             Repaint();
         }
 
+        //=========================================================================
+        // 编译开始回调
+        //=========================================================================
         protected override void OnCompileStart()
         {
             base.OnCompileStart();
         }
 
+        //=========================================================================
+        // 编译完成回调
+        //=========================================================================
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
         }
+        #endregion
 
-        /// <summary>
-        /// 【读取加密配置表】
-        /// 从 Configs.bytes 读取并解密，解析成键值对供面板显示
-        /// </summary>
-        /// <returns>是否读取成功</returns>
+        #region 【配置读取】
+        //=========================================================================
+        // 【读取加密配置表】
+        // 从 Configs.bytes 读取并解密，解析成键值对供面板显示
+        //=========================================================================
         private bool ReadConfigDatas()
         {
             m_ConfigDatas.Clear();
@@ -152,13 +162,13 @@ namespace Honor.Editor
 
             return false;
         }
+        #endregion
 
-        /// <summary>
-        /// 【Excel → 加密Bytes】
-        /// 读取策划配置Excel，导出为加密的 Configs.bytes
-        /// </summary>
-        /// <param name="openExcelNamePre">Excel文件名（不含后缀）</param>
-        /// <returns>是否导出成功</returns>
+        #region 【配置导出】
+        //=========================================================================
+        // 【Excel → 加密Bytes】
+        // 读取策划配置Excel，导出为加密的 Configs.bytes
+        //=========================================================================
         private bool ExportExcelConfigToBytes(string openExcelNamePre)
         {
             // 1. 读取Excel文件内容
@@ -209,5 +219,6 @@ namespace Honor.Editor
             AssetDatabase.Refresh();
             return true;
         }
+        #endregion
     }
 }

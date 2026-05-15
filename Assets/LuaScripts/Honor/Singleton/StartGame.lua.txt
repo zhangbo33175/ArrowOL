@@ -1,8 +1,11 @@
 --=====================================================================================================
--- descrip:   框架初始化入口（Lua 最顶层入口）
+-- Description: 框架初始化入口（Lua 最顶层入口）
 --              系统初始化、GC 优化、依赖加载、全局回调注册
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
+--region Lua 内存与GC优化设置
 --- 内存回收：启动时全量 GC 一次
 collectgarbage("collect")
 
@@ -11,7 +14,9 @@ collectgarbage("setpause", 100)
 
 --- 避免内存泄漏：加快 GC 速度（比内存分配快 50 倍）
 collectgarbage("setstepmul", 5000)
+--endregion
 
+--region 核心依赖模块加载
 --- 运行库 API 加载
 require("SystemApis")
 
@@ -32,6 +37,7 @@ require("SystemReqs")
 
 --- 游戏业务主入口
 require("GameMain")
+--endregion
 
 -- 强制打印当前加载文件路径（调试用）
 --print("📂 当前加载的文件路径:", debug.getinfo(1,"S").source)
@@ -41,6 +47,7 @@ PrintInfo("回调 Lua 应用挂起 lua界面 ")
 -- ==========================================================
 -- 全局系统回调（由 C# 层调用）
 -- ==========================================================
+--region C# -> Lua 全局回调
 
 --- 应用挂起/恢复回调
 --- @param pause boolean true=挂起 false=恢复
@@ -103,3 +110,4 @@ end
 function GameSoundCallback(soundKeyName)
     return Tables.Sounds[soundKeyName]
 end
+--endregion

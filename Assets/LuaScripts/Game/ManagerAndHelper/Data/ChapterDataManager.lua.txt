@@ -1,7 +1,8 @@
 --=====================================================================================================
--- @brief  章节管理器
--- @desc   管理章节/关卡/区域/装修星星/增量包/解锁状态等配置读取
--- @feat   全局单例、安全缓存、排序稳定、空值防护、装修星星计算、增量包管理
+-- @brief:     章节管理器
+-- @desc:      管理章节/关卡/区域/装修星星/增量包/解锁状态等配置读取
+-- @feat:      全局单例、安全缓存、排序稳定、空值防护、装修星星计算、增量包管理
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 章节关卡配置管理
 --=====================================================================================================
 
 ---@class ChapterDataManager : Singleton 章节管理器
@@ -10,7 +11,9 @@
 ---@field Levels table 主线关卡配置表
 local ChapterDataManager = class("ChapterDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function ChapterDataManager:ctor()
     ChapterDataManager.super.ctor(self)
     self._chapterInfos = {}
@@ -18,30 +21,37 @@ function ChapterDataManager:ctor()
     self.Levels = Tables.MainLevels
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():ChapterDataManager
 ---@return ChapterDataManager 章节管理器实例
 function ChapterDataManager:Create()
     return ChapterDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function ChapterDataManager:Init()
     ChapterDataManager.super.Init(self)
     self._chapterInfos = {}
     self._chapterSorts = nil
 end
 
---- 清理数据
+---@brief 清理数据
+---@type fun():void
 ---@desc 切号/重载/重置时调用，清空缓存数据
 function ChapterDataManager:ClearData()
     ChapterDataManager.super.ClearData(self)
     self._chapterInfos = {}
     self._chapterSorts = nil
 end
+--endregion
 
---region 关卡模式获取对应章
+--region 关卡模式获取对应章节配置
 ---=========================================================================
---- 根据当前关卡模式获取对应章节配置
+---@brief  根据当前关卡模式获取对应章节配置
+---@type fun(chapterId:string):Tables.Chapters_Item|nil
 ---@param chapterId string 章节Id
 ---@return Tables.Chapters_Item|nil 章节配置数据
 ---=========================================================================
@@ -54,7 +64,8 @@ function ChapterDataManager:GetChapterDataByChapterType(chapterId)
 end
 
 ---=========================================================================
---- 根据章节ID获取主线章节配置
+---@brief  根据章节ID获取主线章节配置
+---@type fun(chapterId:string):Tables.Chapters_Item|nil
 ---@param chapterId string 章节Id
 ---@return Tables.Chapters_Item|nil 章节配置数据
 ---=========================================================================
@@ -66,7 +77,8 @@ function ChapterDataManager:GetChapterDataByChapterId(chapterId)
 end
 
 ---=========================================================================
---- 根据章节ID获取每日挑战章节配置
+---@brief  根据章节ID获取每日挑战章节配置
+---@type fun(chapterId:string):Tables.Chapters_Item|nil
 ---@param chapterId string 章节Id
 ---@return Tables.Chapters_Item|nil 每日挑战章节配置
 ---=========================================================================
@@ -78,8 +90,10 @@ function ChapterDataManager:GetDailyLevelsDataByChapterId(chapterId)
 end
 --endregion
 
+--region 章节名称 & 信息
 ---=========================================================================
---- 根据章节ID获取多语言章节名称
+---@brief  根据章节ID获取多语言章节名称
+---@type fun(chapterId:string):string
 ---@param chapterId string 章节Id
 ---@return string 多语言章节名称
 ---=========================================================================
@@ -91,9 +105,9 @@ function ChapterDataManager:GetChapterNameByChapterId(chapterId)
     return GetLang(data.ChapterTitle)
 end
 
-
 ---=========================================================================
---- 根据章节信息ID获取单条章节信息配置
+---@brief  根据章节信息ID获取单条章节信息配置
+---@type fun(chapterInfoId:string):Tables.ChapterInfos_Item|nil
 ---@param chapterInfoId string 章节信息Id
 ---@return Tables.ChapterInfos_Item|nil 章节信息配置
 ---=========================================================================
@@ -105,7 +119,8 @@ function ChapterDataManager:GetChapterInfoDataByChapterInfoId(chapterInfoId)
 end
 
 ---=========================================================================
---- 根据章节ID获取该章节下所有章节信息（已排序）
+---@brief  根据章节ID获取该章节下所有章节信息（已排序）
+---@type fun(chapterId:string):Tables.ChapterInfos_Item[]
 ---@param chapterId string 章节Id
 ---@return Tables.ChapterInfos_Item[] 章节信息列表
 ---=========================================================================
@@ -139,9 +154,12 @@ function ChapterDataManager:GetChapterInfoListDataByChapterID(chapterId)
 
     return result
 end
+--endregion
 
+--region 章节ID & 区域配置
 ---=========================================================================
---- 获取配置表中最大章节ID
+---@brief  获取配置表中最大章节ID
+---@type fun():number
 ---@return number 最大章节ID
 ---=========================================================================
 function ChapterDataManager:GetConfigMaxChapterID()
@@ -159,7 +177,8 @@ function ChapterDataManager:GetConfigMaxChapterID()
 end
 
 ---=========================================================================
---- 获取默认最小最大章节数（保底2章）
+---@brief  获取默认最小最大章节数（保底2章）
+---@type fun():number
 ---@return number 默认最大章节ID
 ---=========================================================================
 function ChapterDataManager:GetDefaultMaxChapterID()
@@ -167,17 +186,20 @@ function ChapterDataManager:GetDefaultMaxChapterID()
 end
 
 ---=========================================================================
---- 根据章节ID获取对应区域配置
+---@brief  根据章节ID获取对应区域配置
+---@type fun(chapterId:string):Tables.Areas_Item|nil
 ---@param chapterId string 章节Id
 ---@return Tables.Areas_Item|nil 区域配置数据
 ---=========================================================================
 function ChapterDataManager:GetAreaDataByChapterId(chapterId)
     return self:GetChapterDataByChapterType(chapterId)
 end
+--endregion
 
-
+--region 增量包 & 统计
 ---=========================================================================
---- 获取所有增量更新资源组名
+---@brief  获取所有增量更新资源组名
+---@type fun():string[]
 ---@return string[] 资源组名列表
 ---=========================================================================
 function ChapterDataManager:GetAllIncreaserGroupNames()
@@ -195,7 +217,8 @@ function ChapterDataManager:GetAllIncreaserGroupNames()
 end
 
 ---=========================================================================
---- 计算已完成的章节总数
+---@brief  计算已完成的章节总数
+---@type fun():number
 ---@return number 已完成章节数量
 ---=========================================================================
 function ChapterDataManager:CalculateCompletedChapterTotalCount()
@@ -212,7 +235,8 @@ function ChapterDataManager:CalculateCompletedChapterTotalCount()
 end
 
 ---=========================================================================
---- 计算已解锁的章节总数
+---@brief  计算已解锁的章节总数
+---@type fun():number
 ---@return number 已解锁章节数量
 ---=========================================================================
 function ChapterDataManager:CalculateUnlockedChapterTotalCount()
@@ -227,9 +251,12 @@ function ChapterDataManager:CalculateUnlockedChapterTotalCount()
     end
     return count
 end
+--endregion
 
+--region 章节排序
 ---=========================================================================
---- 获取排序后的所有章节配置
+---@brief  获取排序后的所有章节配置
+---@type fun():Tables.Chapters_Item[]
 ---@return Tables.Chapters_Item[] 排序后的章节配置数组
 ---=========================================================================
 function ChapterDataManager:GetAllChapterSort()
@@ -249,5 +276,6 @@ function ChapterDataManager:GetAllChapterSort()
 
     return self._chapterSorts
 end
+--endregion
 
 return ChapterDataManager

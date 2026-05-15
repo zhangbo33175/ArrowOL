@@ -774,6 +774,7 @@
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\perfs\SystemMemory.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameCoreManager\GameCore\GameCoreManagerLevelFinish.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.jsonserialize@1.0.0\package.json" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\CharacterGenerationManager\CharacterGenerationManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\TableLocalizationSetting.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.screencapture@1.0.0\package.json" />
     <None Include="Library\PackageCache\com.unity.modules.cloth@1.0.0\package.json" />
@@ -857,6 +858,7 @@
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\EventDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultGerman.json" />
     <None Include="Assets\LuaScripts\Honor\PB\Declarations\DeclareNotificationDataPB.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\CharacterGenerationDataManager\CharacterGenerationDataManager.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\French.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\LevelConfigs\TableDailyLevels.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultRussian.json" />
@@ -949,6 +951,7 @@
     <None Include="Library\PackageCache\com.unity.modules.audio@1.0.0\package.json" />
     <None Include="Library\PackageCache\com.unity.modules.physics@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\GamePlayingState.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\Tables\AlTables\TableSounds.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationEnglishFontTMPChars.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\thirds\SystemLuaunit.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Helpers\SystemConfigHelper.lua.txt" />
@@ -1015,6 +1018,7 @@
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationItalianFontTMPChars.txt" />
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\PackageConversionData_Assets.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UILevelView\SectionItem.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\Tables\AlTables\Events\TableLocalEvents.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationItalian\LocalizationItalian.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.animation@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Helpers\HonorAccountHelper.lua.txt" />

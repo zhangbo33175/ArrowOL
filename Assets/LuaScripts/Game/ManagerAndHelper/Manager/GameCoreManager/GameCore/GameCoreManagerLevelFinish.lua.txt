@@ -12,29 +12,40 @@
 ---@class GameCoreManagerLevelFinish @ 关卡结束核心管理器
 local GameCoreManagerLevelFinish = class("GameCoreManagerLevelFinish")
 
+--region 构造 & 初始化
+---=========================================================================
 --- 构造函数
+---@brief 初始化结算流程协程容器
 ---@param args table 外部参数
+---=========================================================================
 function GameCoreManagerLevelFinish:ctor(args)
     --- 关卡结束流程协程
     self._LevelFinishProcessCoroutine = nil ---@type UnityEngine.Coroutine
 end
 
+---=========================================================================
 --- 静态创建实例
 ---@param args table 初始化参数
 ---@return GameCoreManagerLevelFinish
+---=========================================================================
 function GameCoreManagerLevelFinish:Create(args)
     local instance = GameCoreManagerLevelFinish.new(args)
     return instance
 end
 
+---=========================================================================
 --- 清空数据 & 停止协程
+---@brief 切换关卡/重置时安全清理资源
+---=========================================================================
 function GameCoreManagerLevelFinish:ClearData()
     self:StopAloneLevelFinishProcess()
 end
+--endregion
 
+--region 游戏结束后统一逻辑
 ---=========================================================================
 --- 游戏结束后统一逻辑（胜利/失败）
---- 负责：进度保存、奖励发放、挑战关卡处理、数据持久化
+---@brief 负责：进度保存、奖励发放、挑战关卡处理、数据持久化
 ---=========================================================================
 function GameCoreManagerLevelFinish:OnGameOverAfter()
     local isSuccess = GameCoreManager._IsSuccessFinishGame
@@ -66,8 +77,13 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
         )
     end
 end
+--endregion
 
+--region 结算流程协程管理
+---=========================================================================
 --- 启动独立协程执行关卡结束流程
+---@brief 安全启动，自动停止旧协程
+---=========================================================================
 function GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
     self:StopAloneLevelFinishProcess()
     self._LevelFinishProcessCoroutine = HonorCoroutineHelper:StartAlone(function()
@@ -75,7 +91,10 @@ function GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
     end)
 end
 
+---=========================================================================
 --- 安全停止关卡结束协程，防止内存泄漏
+---@brief 强制停止协程，避免流程重复执行
+---=========================================================================
 function GameCoreManagerLevelFinish:StopAloneLevelFinishProcess()
     if self._LevelFinishProcessCoroutine then
         HonorCoroutineHelper:StopAlone(self._LevelFinishProcessCoroutine)
@@ -85,7 +104,7 @@ end
 
 ---=========================================================================
 --- 关卡结束协程主体
---- 流程：添加UI遮罩 → 等待配置延时 → 移除遮罩 → 打开结算界面
+---@brief 流程：添加UI遮罩 → 等待配置延时 → 移除遮罩 → 打开结算界面
 ---=========================================================================
 function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     -- UI遮罩，防止操作穿透
@@ -104,10 +123,12 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     -- 显示结算界面
     self:ShowLevelFinishUI()
 end
+--endregion
 
+--region 结算界面展示
 ---=========================================================================
 --- 显示关卡结算界面（胜利/失败）
---- 统一入口：停止音效 → 区分胜负 → 打开对应UI
+---@brief 统一入口：停止音效 → 区分胜负 → 打开对应UI
 ---=========================================================================
 function GameCoreManagerLevelFinish:ShowLevelFinishUI()
     -- 停止所有音效
@@ -143,7 +164,9 @@ function GameCoreManagerLevelFinish:OpenLevelFailureUI(preBoosterId)
         })
     end
 end
+--endregion
 
+--region 结算数据扩展（子类重写）
 ---=========================================================================
 --- 获取关卡成功结算数据（子类可重写扩展）
 ---@return table 结算数据
@@ -163,5 +186,6 @@ function GameCoreManagerLevelFinish:GetLevelFailureInfo()
     local result = {}
     return result
 end
+--endregion
 
 return GameCoreManagerLevelFinish

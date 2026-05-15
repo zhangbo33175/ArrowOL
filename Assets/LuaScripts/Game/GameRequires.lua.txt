@@ -5,15 +5,15 @@
 -- @date:      2025
 --=====================================================================================================
 
-------------------------------
+--=========================================================================
 -- 1. 基础命令 / 定义
-------------------------------
+--=========================================================================
 ---@type GameStateCmd 游戏状态枚举定义
 require("GameStateCmd")
 
-------------------------------
+--=========================================================================
 -- 2. 核心单例管理器
-------------------------------
+--=========================================================================
 ---@type SingletonManager 全局单例管理器
 SingletonManager = require("SingletonManager"):Create()
 
@@ -32,9 +32,9 @@ GameCoreManager = require("GameCoreManager"):Create()
 ---@type GameManager 游戏总控管理器
 GameManager = require("GameManager"):Create()
 
-------------------------------
+--=========================================================================
 -- 3. 数据结构 & 存档
-------------------------------
+--=========================================================================
 ---@type SaveRootData 存档根结构
 SaveRootData = require("SaveRootData")
 
@@ -53,9 +53,9 @@ SettingDataManager = require("SettingDataManager"):Create()
 ---@type SaveDataSyncHelper 存档同步工具
 SaveDataSyncHelper = require("SaveDataHelper"):Create()
 
-------------------------------
+--=========================================================================
 -- 4. 配置 & 表格管理器
-------------------------------
+--=========================================================================
 ---@type ConstantsDataManager 常量数据管理器
 ConstantsDataManager = require("ConstantsDataManager"):Create()
 
@@ -68,9 +68,9 @@ LanguageSettingDataManager = require('LanguageSettingDataManager'):Create()
 ---@type EventDataManager 事件配置管理器
 EventDataManager = require('EventDataManager'):Create()
 
-------------------------------
+--=========================================================================
 -- 5. 玩法 & 关卡数据
-------------------------------
+--=========================================================================
 ---@type ChapterDataManager 章节数据管理器
 ChapterDataManager = require("ChapterDataManager"):Create()
 
@@ -86,18 +86,18 @@ GoalDataManager = require("GoalDataManager"):Create()
 ---@type HomeIconsDataManager 主界面图标管理器
 HomeIconsDataManager = require('HomeIconsDataManager'):Create()
 
-------------------------------
+--=========================================================================
 -- 6. 活动 & 本地活动
-------------------------------
+--=========================================================================
 ---@type LocalEventDataManager 本地活动数据管理器
 LocalEventDataManager = require('LocalEventDataManager'):Create()
 
 ---@type LocalActivityManager 本地活动管理器
 LocalActivityManager = require('LocalActivityManager'):Create()
 
-------------------------------
+--=========================================================================
 -- 7. 游戏功能系统
-------------------------------
+--=========================================================================
 ---@type SystemGameUnlock 系统解锁判断
 SystemGameUnlock = require('SystemGameUnlock'):Create()
 
@@ -116,9 +116,9 @@ UIStackManager = require('UIStackManager'):Create()
 ---@type PoolManager 对象池管理器
 PoolManager = require("PoolManager"):Create()
 
-------------------------------
+--=========================================================================
 -- 8. 工具 & 帮助类
-------------------------------
+--=========================================================================
 ---@type PauseableCoroutineHelper 可暂停协程工具
 PauseableCoroutineHelper = require('PauseableCoroutineHelper'):Create()
 
@@ -143,18 +143,33 @@ GameMapMotion = require('GameMapMotion')
 ---@type GameEffectManager 特效管理器
 GameEffectManager = require('GameEffectManager'):Create()
 
-------------------------------
+--=========================================================================
 -- 9. 层级管理
-------------------------------
+--=========================================================================
 ---@type HomeUILayerDataManager 主界面UI层级
 HomeUILayerDataManager = require('HomeUILayerDataManager'):Create()
 
 ---@type HomeUIBubbleLayerDataManager 主界面气泡层级
 HomeUIBubbleLayerDataManager = require('HomeUIBubbleLayerDataManager'):Create()
 
-------------------------------
--- 10. 已注释 / 备用模块
-------------------------------
+--=========================================================================
+-- 10. 新增模块
+--=========================================================================
+---@type ChallengeLevelHelper 挑战关卡工具
+ChallengeLevelHelper = require("ChallengeLevelHelper"):Create()
+
+---@type SoundManager 音效管理器
+SoundManager = require("SoundManager"):Create()
+
+---@type CharacterGenerationDataManager 角色生成数据管理器
+CharacterGenerationDataManager = require("CharacterGenerationDataManager"):Create()
+
+---@type CharacterGenerationManager 角色生成管理器
+CharacterGenerationManager = require("CharacterGenerationManager"):Create()
+
+--=========================================================================
+-- 11. 已注释 / 备用模块
+--=========================================================================
 -- 剧情执行器
 -- CutConfigExecute = require('CutConfigExecute'):Create()
 -- 剧情播放管理器
@@ -182,5 +197,3 @@ HomeUIBubbleLayerDataManager = require('HomeUIBubbleLayerDataManager'):Create()
 -- LevelDifficultyCtr = require("LevelDifficultyCtr"):Create()
 -- 道具销售管理器
 -- BoosterSaleMgr = require('BoosterSaleMgr'):Create()
--- 挑战关卡工具
- ChallengeLevelHelper = require("ChallengeLevelHelper"):Create()

@@ -1,14 +1,16 @@
 --=====================================================================================================
--- descrip:   流程基类（游戏状态机/流程管理基类）
+-- Description: 流程基类（游戏状态机/流程管理基类）
 --              作用：所有游戏流程（登录/主城/战斗/过场）必须继承此类
 --              地位：游戏核心状态机基类，管理全局流程切换与生命周期
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class ProcedureSuper @流程状态机基类（所有游戏流程父类）
+--region 流程状态机基类
+---@class ProcedureSuper 流程状态机基类（所有游戏流程父类）
 local ProcedureSuper = class("ProcedureSuper")
 
 --- 构造函数
----@type fun(args:table):void
 ---@param args table 构造参数（必须包含 env 环境表）
 function ProcedureSuper:ctor(args)
     -- 绑定 C# 传递的环境变量
@@ -21,7 +23,6 @@ function ProcedureSuper:ctor(args)
 end
 
 --- 创建实例（框架内部调用）
----@type fun(args:table):ProcedureSuper
 ---@param args table 自定义参数
 ---@return ProcedureSuper 流程实例
 function ProcedureSuper:Create(args)
@@ -30,14 +31,12 @@ function ProcedureSuper:Create(args)
 end
 
 --- 初始化（全局只执行一次）
----@type fun(ownerMachine: userdata):void
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnInit(ownerMachine)
 
 end
 
 --- 销毁（流程彻底释放时调用）
----@type fun(ownerMachine: userdata):void
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnDestroy(ownerMachine)
     -- 释放引用，防止内存泄漏
@@ -45,7 +44,6 @@ function ProcedureSuper:OnDestroy(ownerMachine)
 end
 
 --- 进入流程（每次切换进入都会调用）
----@type fun(ownerMachine: userdata):void
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnEnter(ownerMachine)
     -- 自动注册当前流程的定时器
@@ -53,7 +51,6 @@ function ProcedureSuper:OnEnter(ownerMachine)
 end
 
 --- 帧更新（每帧执行）
----@type fun(ownerMachine: userdata):void
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnUpdate(ownerMachine)
     -- 自动更新定时器
@@ -61,7 +58,6 @@ function ProcedureSuper:OnUpdate(ownerMachine)
 end
 
 --- 离开流程（切换到其他流程时调用）
----@type fun(ownerMachine: userdata):void
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnLeave(ownerMachine)
     -- 自动清理当前流程的所有定时器
@@ -69,11 +65,11 @@ function ProcedureSuper:OnLeave(ownerMachine)
 end
 
 --- 切换到其他流程
----@type fun(ownerMachine: userdata, procedureName:string):void
 ---@param ownerMachine userdata 状态机宿主对象
 ---@param procedureName string 目标流程类名
 function ProcedureSuper:ChangeState(ownerMachine, procedureName)
     self.cs:ChangeState(ownerMachine, procedureName)
 end
+--endregion
 
 return ProcedureSuper

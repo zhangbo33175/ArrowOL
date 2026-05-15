@@ -4,92 +4,47 @@
 -- @desc:      游戏启动初始化、时间同步、账号初始化、Lua预加载、UI/地图预加载、流程跳转
 -- @author:    Unity 规范自动生成
 -- @date:      2025
+-- @feat:      设备分级加载、时间同步、新账号初始化、异常退出检测、流程自动跳转
+-- @规范:       Unity Lua 商业项目编码标准 / 流程生命周期规范
 --=====================================================================================================
 
 ---@class ProcedurePreload : ProcedureSuper 游戏预加载流程（游戏入口状态）
 local ProcedurePreload = class('ProcedurePreload', import('ProcedureSuper'))
 
+--region 【构造 & 实例化】
 ---@brief 构造函数
+---@type fun(args:table):void
 ---@param args table 外部传入参数
 function ProcedurePreload:ctor(args)
     ProcedurePreload.super.ctor(self, args)
-    
+
     --- 低端机每帧加载数量
-    self._loadCountPerFrameOfLow = 3
+    self._loadCountPerFrameOfLow    = 3
     --- 中端机每帧加载数量
     self._loadCountPerFrameOfMedium = 5
     --- 高端机每帧加载数量
-    self._loadCountPerFrameOfHigh = 10
-    
+    self._loadCountPerFrameOfHigh   = 10
+
     --- 初始化启动时间数据
     self:InitLaunchTimeData()
 end
 
 ---@brief 创建流程实例
+---@type fun(args:table):ProcedurePreload
 ---@param args table 外部参数
 ---@return ProcedurePreload 实例对象
 function ProcedurePreload:Create(args)
     return ProcedurePreload.new(args)
 end
+--endregion
 
----@brief 初始化游戏启动时间数据（上次启动时间 / 当前启动时间）
-function ProcedurePreload:InitLaunchTimeData()
-    if not self.cs or not SaveRootData or not SaveRootData.UserData then
-        return
-    end
-
-    if self.cs:IsLaunch() == true then
-        -- 安全赋值时间数据
-        local last = SaveRootData.UserData.launchTime.last
-        local curr = SaveRootData.UserData.launchTime.current
-        local latest = SaveRootData.UserData.latestTime
-
-        last.utc0 = curr.utc0
-        last.utc0String = curr.utc0String
-        last.locality = curr.locality
-        last.localString = curr.localString
-
-        -- 更新当前启动时间
-        local utc0 = HonorTimerHelper:GetUTC0TimeStamp()
-        local localStamp = HonorTimerHelper:GetLocalTimeStamp()
-
-        curr.utc0 = utc0
-        curr.utc0String = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", utc0)
-        curr.locality = localStamp
-        curr.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", localStamp)
-
-        -- 新账号初始化
-        if not SaveRootData.GameData.isInit then
-            last.utc0 = curr.utc0
-            last.utc0String = curr.utc0String
-            last.locality = curr.locality
-            last.localString = curr.localString
-        end
-
-        -- 同步最近时间
-        latest.utc0 = last.utc0
-        latest.utc0String = last.utc0String
-        latest.locality = last.locality
-        latest.localString = last.localString
-
-        -- 安全保存
-        xpcall(function()
-            SaveIO.UserData.Save_launchTime()
-            SaveIO.UserData.Save_latestTime()
-        end, function() end)
-
-        -- 初始化游戏时间
-        if GameTimeHelper then
-            GameTimeHelper:SetupFutureTimeStamp()
-        end
-    end
-end
-
+--region 【流程生命周期】
 ---@brief 进入流程生命周期
+---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 流程状态机
 function ProcedurePreload:OnEnter(ownerMachine)
     ProcedurePreload.super.OnEnter(self, ownerMachine)
-    
+
     if self.cs then
         self.cs.RemoveAllContentsOnProcedureTransition = false
         self.cs.StartLoading = false
@@ -105,40 +60,80 @@ function ProcedurePreload:OnEnter(ownerMachine)
     self:LoadAddSteps()
 end
 
----@brief 尝试显示隐私政策弹窗
----@param finishCallback function 显示完成回调
-function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
-    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
-        if finishCallback then xpcall(finishCallback, __G__TRACK_BACK__) end
-        return
-    end
-
-    if not SaveRootData.GameData.playerInfo.isShowPrivacy then
-        OpenUISync(UIs.UITermsPrivacy, { callback = finishCallback })
-        SaveRootData.GameData.playerInfo.isShowPrivacy = true
-        xpcall(function()
-            SaveIO.GameData.Save_playerInfo_isShowPrivacy()
-        end, function() end)
-    else
-        if finishCallback then
-            xpcall(finishCallback, __G__TRACK_BACK__)
-        end
-    end
-end
-
 ---@brief 帧更新
+---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 状态机对象
 function ProcedurePreload:OnUpdate(ownerMachine)
     ProcedurePreload.super.OnUpdate(self, ownerMachine)
 end
 
 ---@brief 离开流程生命周期
+---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 状态机对象
 function ProcedurePreload:OnLeave(ownerMachine)
     ProcedurePreload.super.OnLeave(self, ownerMachine)
 end
+--endregion
 
+--region 【启动时间初始化】
+---@brief 初始化游戏启动时间数据（上次启动时间 / 当前启动时间）
+---@type fun():void
+function ProcedurePreload:InitLaunchTimeData()
+    if not self.cs or not SaveRootData or not SaveRootData.UserData then
+        return
+    end
+
+    if self.cs:IsLaunch() == true then
+        -- 安全赋值时间数据
+        local last   = SaveRootData.UserData.launchTime.last
+        local curr   = SaveRootData.UserData.launchTime.current
+        local latest = SaveRootData.UserData.latestTime
+
+        last.utc0       = curr.utc0
+        last.utc0String = curr.utc0String
+        last.locality   = curr.locality
+        last.localString = curr.localString
+
+        -- 更新当前启动时间
+        local utc0      = HonorTimerHelper:GetUTC0TimeStamp()
+        local localStamp = HonorTimerHelper:GetLocalTimeStamp()
+
+        curr.utc0       = utc0
+        curr.utc0String = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", utc0)
+        curr.locality   = localStamp
+        curr.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", localStamp)
+
+        -- 新账号初始化
+        if not SaveRootData.GameData.isInit then
+            last.utc0       = curr.utc0
+            last.utc0String = curr.utc0String
+            last.locality   = curr.locality
+            last.localString = curr.localString
+        end
+
+        -- 同步最近时间
+        latest.utc0       = last.utc0
+        latest.utc0String = last.utc0String
+        latest.locality   = last.locality
+        latest.localString = last.localString
+
+        -- 安全保存
+        xpcall(function()
+            SaveIO.UserData.Save_launchTime()
+            SaveIO.UserData.Save_latestTime()
+        end, function() end)
+
+        -- 初始化游戏时间
+        if GameTimeHelper then
+            GameTimeHelper:SetupFutureTimeStamp()
+        end
+    end
+end
+--endregion
+
+--region 【游戏设置 & 账号初始化】
 ---@brief 初始化游戏基础设置（多点触摸等）
+---@type fun():void
 function ProcedurePreload:InitGameSetting()
     if GameLib and GameLib.Util and GameLib.Util.SetMultiTouchEnabled then
         GameLib.Util.SetMultiTouchEnabled(false)
@@ -146,6 +141,7 @@ function ProcedurePreload:InitGameSetting()
 end
 
 ---@brief 新账号初始化（仅首次进入游戏执行）
+---@type fun():void
 function ProcedurePreload:InitNewAccountData()
     if not SaveRootData or not SaveRootData.GameData or SaveRootData.GameData.isInit ~= false then
         return
@@ -167,13 +163,32 @@ function ProcedurePreload:InitNewAccountData()
     xpcall(function() HonorEventHelper:Cleanup() end, function() end)
 end
 
+---@brief 初始化玩家首次注册时间（时间戳）
+---@type fun():void
+function ProcedurePreload:InitGameDataFirstLaunchTime()
+    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
+        return
+    end
+
+    local info = SaveRootData.GameData.playerInfo
+    if not info.regUserTime or info.regUserTime <= 0 then
+        info.regUserTime = HonorTimerHelper:GetUTC0TimeStamp()
+        xpcall(function()
+            SaveIO.GameData.Save_playerInfo_regUserTime()
+        end, function() end)
+    end
+end
+--endregion
+
+--region 【加载 & 设备分级】
 ---@brief 执行分步加载逻辑（单例、Lua、资源、跳转）
+---@type fun():void
 function ProcedurePreload:LoadAddSteps()
     -- 初始化所有单例
     if SingletonManager then
         SingletonManager:InitAllSingleForStep(self)
     end
-    
+
     -- 加载完成跳转到主流程
     self.cs:AddStep(function()
         if self.cs and typeof(Honor.ProcedurePlaying) then
@@ -186,8 +201,8 @@ function ProcedurePreload:LoadAddSteps()
     end
 end
 
-
 ---@brief 根据设备性能等级获取每帧加载数量
+---@type fun():number
 ---@return number 每帧加载个数
 function ProcedurePreload:LoadCountPreFrame()
     if not GameManager or not GameManager.GetDevicePerformanceLevel then
@@ -204,8 +219,11 @@ function ProcedurePreload:LoadCountPreFrame()
     end
     return self._loadCountPerFrameOfMedium
 end
+--endregion
 
+--region 【异常退出检测】
 ---@brief 检查游戏是否异常退出（未正常结束关卡）
+---@type fun():void
 function ProcedurePreload:CheckIsUnusualExitLevel()
     if not GameCoreManager then return end
 
@@ -225,20 +243,30 @@ function ProcedurePreload:CheckIsUnusualExitLevel()
     HonorEventHelper:Fire(EventCmd.OnLevelUnusualExit, arr[1], tonumber(arr[2]))
     GameCoreManager:SetPlayingLevelTag('')
 end
+--endregion
 
----@brief 初始化玩家首次注册时间（时间戳）
-function ProcedurePreload:InitGameDataFirstLaunchTime()
+--region 【隐私弹窗】
+---@brief 尝试显示隐私政策弹窗
+---@type fun(finishCallback:function):void
+---@param finishCallback function 显示完成回调
+function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
     if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
+        if finishCallback then xpcall(finishCallback, __G__TRACK_BACK__) end
         return
     end
 
-    local info = SaveRootData.GameData.playerInfo
-    if not info.regUserTime or info.regUserTime <= 0 then
-        info.regUserTime = HonorTimerHelper:GetUTC0TimeStamp()
+    if not SaveRootData.GameData.playerInfo.isShowPrivacy then
+        OpenUISync(UIs.UITermsPrivacy, { callback = finishCallback })
+        SaveRootData.GameData.playerInfo.isShowPrivacy = true
         xpcall(function()
-            SaveIO.GameData.Save_playerInfo_regUserTime()
+            SaveIO.GameData.Save_playerInfo_isShowPrivacy()
         end, function() end)
+    else
+        if finishCallback then
+            xpcall(finishCallback, __G__TRACK_BACK__)
+        end
     end
 end
+--endregion
 
 return ProcedurePreload

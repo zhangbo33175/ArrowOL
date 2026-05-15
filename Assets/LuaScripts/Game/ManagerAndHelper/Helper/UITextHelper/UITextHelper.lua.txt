@@ -1,23 +1,32 @@
 --=====================================================================================================
--- @brief:     UI 文本工具类
--- @desc:      通用数字滚动动画，支持 Text / TextMeshProUGUI / TextMeshPro
---              用于金币、分数、数值变化、结算界面动画
+-- @brief  UI 文本工具类
+-- @desc   通用数字滚动动画，支持 Text / TextMeshProUGUI / TextMeshPro
+--         用于金币、分数、数值变化、结算界面动画
+-- @规范   Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class UITextHelper UI 文本通用工具类
 local UITextHelper = class("UITextHelper")
 
----@brief 构造函数
+--region 构造 & 实例化
+---=========================================================================
+--- 构造函数
+---=========================================================================
 function UITextHelper:ctor(args)
 end
 
----@brief 创建工具类实例
+---=========================================================================
+--- 创建工具类实例
 ---@return UITextHelper
+---=========================================================================
 function UITextHelper:Create(args)
     return UITextHelper.new(args)
 end
+--endregion
 
----@brief 播放数字动画（推荐：绑定 UI，关闭时自动停止协程，安全无泄漏）
+--region 数字动画对外接口
+---=========================================================================
+--- 播放数字动画（推荐：绑定 UI，关闭时自动停止协程，安全无泄漏）
 ---@param luaBehaviour LuaBehaviourSuper 脚本宿主
 ---@param textComponent UnityEngine.UI.MaskableGraphic 文本组件
 ---@param startValue number 起始数字
@@ -30,6 +39,7 @@ end
 ---@param delay number 延迟播放时间
 ---@param useRealtime boolean 是否使用真实时间（不受游戏暂停影响）
 ---@return UnityEngine.Coroutine 协程实例
+---=========================================================================
 function UITextHelper:PlayNumberAnimation(
         luaBehaviour,
         textComponent,
@@ -59,7 +69,8 @@ function UITextHelper:PlayNumberAnimation(
     end))
 end
 
----@brief 播放独立数字动画（不绑定 UI，需手动管理，可能泄漏）
+---=========================================================================
+--- 播放独立数字动画（不绑定 UI，需手动管理，可能泄漏）
 ---@param textComponent UnityEngine.UI.MaskableGraphic 文本组件
 ---@param startValue number 起始数字
 ---@param targetValue number 目标数字
@@ -70,6 +81,7 @@ end
 ---@param onComplete function 完成回调
 ---@param delay number 延迟播放
 ---@return UnityEngine.Coroutine
+---=========================================================================
 function UITextHelper:PlayNumberAnimationAlone(
         textComponent,
         startValue,
@@ -95,8 +107,11 @@ function UITextHelper:PlayNumberAnimationAlone(
         )
     end)
 end
+--endregion
 
----@brief 数字滚动动画协程主逻辑（支持所有文本类型）
+--region 数字动画协程核心
+---=========================================================================
+--- 数字滚动动画协程主逻辑（支持所有文本类型）
 ---@param textComponent UnityEngine.UI.MaskableGraphic
 ---@param startValue number
 ---@param targetValue number
@@ -107,6 +122,7 @@ end
 ---@param onComplete function
 ---@param delay number
 ---@param useRealtime boolean
+---=========================================================================
 function UITextHelper:CoroutineNumberAnimation(
         textComponent,
         startValue,
@@ -144,7 +160,7 @@ function UITextHelper:CoroutineNumberAnimation(
     -- 获取三种文本组件
     local tmpUGUI = textComponent.gameObject:GetComponent("TextMeshProUGUI")
     local text = textComponent.gameObject:GetComponent("Text")
-    local tmp = textComponent.gameObject:GetComponent("TextMeshPro")
+    local tmp = textComponent:GetComponent("TextMeshPro")
 
     -- 无需动画，直接赋值
     if startValue < 0 or startValue == targetValue then
@@ -227,5 +243,6 @@ function UITextHelper:CoroutineNumberAnimation(
         xpcall(onComplete, __G__TRACK_BACK__, targetValue)
     end
 end
+--endregion
 
 return UITextHelper

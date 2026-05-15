@@ -26,17 +26,17 @@ message ResourceInfo{
 // 关卡进度
 message LevelProgress{
   int32 levelGroupId = 1;              // 关卡ID
-  string levelStamina = 2;       	   // 关卡体力
-  map<string,int32> diary = 3;         // 关卡数据
+  int32 levelStamina = 2;       	   // 关卡体力
+  map<string,int32> levelData = 3;     // 关卡数据
 }
 
 
 // 章节信息
 message ChapterInfo{
   int32 lv = 1;                                           // 玩家所在章节等级
-  repeated int32 progress = 2;                            // 当前章节信息
-  LevelProgress taskProgress = 3;                         // 关卡进度
-  map<string,int32> diary = 4;                            // 生涯数据统计
+  repeated int32 currentChapterData = 2;                  // 当前章节信息
+  LevelProgress levelProgress = 3;                        // 关卡进度
+  map<string,int32> CareerDataStatistics = 4;             // 生涯数据统计
 }
 
 // 设置内容
@@ -71,5 +71,6 @@ message GameData{
   SettingInfo settingInfo = 7;                            // 设置数据
   string boosterTriggered = 8;                           // 已达成触发条件的局内道具
   int32 maxChapterId = 9;                                // 玩家当前记录的最大章节id
+  repeated LocalActivityData localActivityData = 10;     // 本地活动数据
 
 }]]

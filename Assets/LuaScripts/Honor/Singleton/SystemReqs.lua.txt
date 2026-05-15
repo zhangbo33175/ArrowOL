@@ -1,7 +1,10 @@
 --=====================================================================================================
--- descrip:   全局框架包含文件（底层核心工具、系统级模块）
+-- Description: 全局框架包含文件（底层核心工具、系统级模块）
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
+--region 全局核心框架模块加载
 --- Base64 编码解码工具
 ---@class SystemBase64
 SystemBase64 = require("SystemBase64")
@@ -33,3 +36,4 @@ HonorAccountHelper = require("HonorAccountHelper"):Create()
 --- 对象池管理助手
 ---@class HonorPoolHelper
 HonorPoolHelper = require("HonorPoolHelper"):Create()
+--endregion

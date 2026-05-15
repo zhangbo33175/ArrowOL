@@ -1,6 +1,7 @@
 --=====================================================================================================
 -- @brief  限时道具 / Buff 管理类
 -- @desc   管理所有限时生效的道具、增益效果，负责时间计算、事件派发、生命周期
+-- @规范    Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class BuffModifyConfig @ Buff 修改配置
@@ -11,23 +12,32 @@
 ---@class BuffManager : Singleton @ 限时道具管理（单例）
 local BuffManager = class("BuffManager", import("Singleton"))
 
+--region 构造 & 实例化
+---=========================================================================
 --- 构造函数
 ---@param args table 自定义参数
+---=========================================================================
 function BuffManager:ctor(args)
     BuffManager.super.ctor(self, args)
 end
 
+---=========================================================================
 --- 创建实例
 ---@param args table 自定义参数
 ---@return BuffManager
+---=========================================================================
 function BuffManager:Create(args)
     local obj = BuffManager.new(args)
     return obj
 end
+--endregion
 
+--region 前置道具判断
+---=========================================================================
 --- 是否为前置道具 Buff
 ---@param boosterID string 道具 ID
 ---@return boolean
+---=========================================================================
 function BuffManager:IsBuffPreBooster(boosterID)
     if not boosterID then
         return false
@@ -39,18 +49,46 @@ function BuffManager:IsBuffPreBooster(boosterID)
     end
     return false
 end
+--endregion
 
+--region Buff 有效性 & 剩余时间
+---=========================================================================
 --- Buff 是否有效（剩余时间 > 0）
 ---@param id string Buff ID
 ---@return boolean
+---=========================================================================
 function BuffManager:IsBuffValid(id)
     return self:GetRemainTime(id) > 0
 end
 
+---=========================================================================
+--- 获取 Buff 剩余时间（秒）
+---@param id string Buff ID
+---@return number
+---=========================================================================
+function BuffManager:GetRemainTime(id)
+    local endTimeStamp = SaveRootData.GameData.resourceInfo.nums[id] or 0
+    if endTimeStamp <= 0 then
+        return 0
+    end
+
+    local nowUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
+    if endTimeStamp < nowUTC0 then
+        return 0
+    end
+
+    return endTimeStamp - nowUTC0
+end
+--endregion
+
+--region 添加 & 设置 Buff 时间
+---=========================================================================
 --- 添加 Buff（延长时间）
+---@desc 已存在则延长，不存在则重新开始计时
 ---@param id string Buff ID
 ---@param duration number 持续秒数
 ---@return number 剩余时间
+---=========================================================================
 function BuffManager:AddBuff(id, duration)
     local resData = ResourceDataManager:GetResourceData(id)
     if not resData or resData.Type ~= EResourceType.Buff then
@@ -71,11 +109,14 @@ function BuffManager:AddBuff(id, duration)
     return self:SetBuffTime(id, newEndTimeStamp, oldEndTimeStamp)
 end
 
+---=========================================================================
 --- 设置 Buff 结束时间戳
+---@desc 保存数据、派发事件、注册结束倒计时
 ---@param id string Buff ID
 ---@param endTimeStamp number 结束时间戳
 ---@param oldEndTimeStamp number 旧时间戳
 ---@return number 剩余时间
+---=========================================================================
 function BuffManager:SetBuffTime(id, endTimeStamp, oldEndTimeStamp)
     local nowUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
     if endTimeStamp < 0 or endTimeStamp < nowUTC0 then
@@ -103,10 +144,14 @@ function BuffManager:SetBuffTime(id, endTimeStamp, oldEndTimeStamp)
 
     return self:GetRemainTime(id)
 end
+--endregion
 
+--region 时间注册 & 后续处理
+---=========================================================================
 --- 注册 Buff 结束时间监听
 ---@param id string Buff ID
 ---@param endTimeStamp number 结束时间戳
+---=========================================================================
 function BuffManager:_RegisterBuffEndTimeStamp(id, endTimeStamp)
     local key = EventCmd.OnBufferTimeEndEvent .. "_" .. id
     GameTimeHelper:RegisterTime(key, endTimeStamp, function()
@@ -115,8 +160,11 @@ function BuffManager:_RegisterBuffEndTimeStamp(id, endTimeStamp)
     end)
 end
 
+---=========================================================================
 --- Buff 时间更新后处理逻辑
+---@desc 处理无限体力等特殊 Buff 效果
 ---@param id string Buff ID
+---=========================================================================
 function BuffManager:SetBuffTimeAfter(id)
     local resData = ResourceDataManager:GetResourceData(id)
     if resData and resData.SubType == EItemSubType.UnlimitedLife then
@@ -124,25 +172,13 @@ function BuffManager:SetBuffTimeAfter(id)
         ItemMgr:AddLife(ItemMgr:GetMaxLifeNum())
     end
 end
+--endregion
 
---- 获取 Buff 剩余时间（秒）
----@param id string Buff ID
----@return number
-function BuffManager:GetRemainTime(id)
-    local endTimeStamp = SaveRootData.GameData.resourceInfo.nums[id] or 0
-    if endTimeStamp <= 0 then
-        return 0
-    end
-
-    local nowUTC0 = GameTimeHelper:GetUTC0FutureTimeStamp()
-    if endTimeStamp < nowUTC0 then
-        return 0
-    end
-
-    return endTimeStamp - nowUTC0
-end
-
+--region 初始化 & 清理 & 每秒更新
+---=========================================================================
 --- 初始化所有 Buff 计时
+---@desc 注册结束事件、启动每秒 Tick
+---=========================================================================
 function BuffManager:Init()
     BuffManager.super.Init(self)
 
@@ -160,7 +196,10 @@ function BuffManager:Init()
     HonorTimerHelper:RegisterDeltaTime(EventCmd.OnBufferDeltaTimeTickEvent, 1, "ProcedurePlaying", true)
 end
 
+---=========================================================================
 --- 清理数据
+---@desc 注销定时器、移除事件监听，防止内存泄漏
+---=========================================================================
 function BuffManager:ClearData()
     BuffManager.super.ClearData(self)
 
@@ -169,7 +208,10 @@ function BuffManager:ClearData()
     HonorEventHelper:RemoveListener(EventCmd.OnBufferDeltaTimeTickEvent, handler(self, self.OnBufferDeltaTimeTickEvent))
 end
 
+---=========================================================================
 --- Buff 每秒 Tick 事件
+---@desc 派发所有有效 Buff 的每秒更新事件
+---=========================================================================
 function BuffManager:OnBufferDeltaTimeTickEvent()
     local resTable = ResourceDataManager:GetResourceIDs(EResourceType.Buff)
     for _, resId in ipairs(resTable) do
@@ -179,5 +221,6 @@ function BuffManager:OnBufferDeltaTimeTickEvent()
         end
     end
 end
+--endregion
 
 return BuffManager

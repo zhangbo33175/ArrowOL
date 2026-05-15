@@ -8,8 +8,12 @@
 ---@class GameEffectManager : Singleton @ 特效管理器（单例）
 local GameEffectManager = class("GameEffectManager", import("Singleton"))
 
+--region 生命周期 & 基础函数
+---=========================================================================
 --- 构造函数
+---@brief 初始化特效管理容器与缓存
 ---@param args table 初始化参数
+---=========================================================================
 function GameEffectManager:ctor(args)
     GameEffectManager.super.ctor(self, args)
 
@@ -17,21 +21,29 @@ function GameEffectManager:ctor(args)
     self._UIPlayingAnimated = nil                ---@type UIPlayingAnimated UI动画控制器
 end
 
+---=========================================================================
 --- 创建实例（单例对外接口）
 ---@param args table 初始化参数
----@return GameEffectManager
+---@return GameEffectManager 管理器实例
+---=========================================================================
 function GameEffectManager:Create(args)
     local obj = GameEffectManager.new(args)
     return obj
 end
 
+---=========================================================================
 --- 清空所有数据 & 回收全部特效
+---@brief 切号/重载/场景切换时调用，清理所有特效
+---=========================================================================
 function GameEffectManager:ClearData()
     GameEffectManager.super.ClearData(self)
     self:RecycleAllEffects()
     self._UIPlayingAnimated = nil
 end
+--endregion
 
+--region 核心特效创建 API
+---=========================================================================
 --- 添加特效（核心方法）
 ---@param effectName string 特效名称
 ---@param parentTransform UnityEngine.Transform 父节点
@@ -43,6 +55,7 @@ end
 ---@param isRealTime boolean 是否不受暂停影响
 ---@param autoRecycle boolean 是否自动回收
 ---@return UnityEngine.GameObject 特效对象
+---=========================================================================
 function GameEffectManager:AddEffect(effectName, parentTransform, layerName, pos, ePos, durationTime, callBack, isRealTime, autoRecycle)
     -- 参数默认值
     pos = pos or Unity.Vector3.zero
@@ -91,7 +104,10 @@ function GameEffectManager:AddEffect(effectName, parentTransform, layerName, pos
 
     return efGo
 end
+--endregion
 
+--region 坐标转换类特效（UI / 场景 / 相机）
+---=========================================================================
 --- 添加 UI 坐标转换特效
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 世界坐标
@@ -100,10 +116,12 @@ end
 ---@param isRealTime boolean 真实时间
 ---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
+---=========================================================================
 function GameEffectManager:AddEffectFromUI(effectName, pos, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEFLayerEffect(effectName, pos, durationTime, GameMainRoot.UI.ScreenUICameras[0], callBack, isRealTime, autoRecycle)
 end
 
+---=========================================================================
 --- 添加场景坐标转换特效
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 场景坐标
@@ -112,10 +130,12 @@ end
 ---@param isRealTime boolean 真实时间
 ---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
+---=========================================================================
 function GameEffectManager:AddEFLayerEffectFromScene(effectName, pos, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEFLayerEffect(effectName, pos, durationTime, GameMainRoot.Scene.SceneCameras[0], callBack, isRealTime, autoRecycle)
 end
 
+---=========================================================================
 --- 添加特效层特效（指定相机转换坐标）
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 目标坐标
@@ -125,14 +145,19 @@ end
 ---@param isRealTime boolean 真实时间
 ---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
+---=========================================================================
 function GameEffectManager:AddEFLayerEffect(effectName, pos, durationTime, camera, callBack, isRealTime, autoRecycle)
     local sPoint = SceneToScreenPoint(pos, camera)
     local newPos = ScreenToScenePoint(sPoint, GameMainRoot.Effect.efCamera)
     return self:AddEffect(effectName, GameMainRoot.Effect.efRoot, ELayerName.Effect, newPos, EPos.World, durationTime, callBack, isRealTime, autoRecycle)
 end
+--endregion
 
+--region UI动画 & 收集动效
+---=========================================================================
 --- 获取 UI 动画控制器
 ---@return UIPlayingAnimated
+---=========================================================================
 function GameEffectManager:GetPlayingAnimated()
     if self._UIPlayingAnimated == nil then
         local ui = GameMainRoot.UI:GetUIByLuaTable(UIs.UIPlayingAnimated)
@@ -146,6 +171,7 @@ function GameEffectManager:GetPlayingAnimated()
     return self._UIPlayingAnimated
 end
 
+---=========================================================================
 --- 添加场景转 UI 动画特效（收集类动效专用）
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 场景起点
@@ -153,6 +179,7 @@ end
 ---@param callBack function 回调
 ---@param isRealTime boolean 真实时间
 ---@param autoRecycle boolean 自动回收
+---=========================================================================
 function GameEffectManager:AddUIEffectToPlayingHudCollectFormScene(effectName, pos, durationTime, callBack, isRealTime, autoRecycle)
     local uiPlayingAnimated = self:GetPlayingAnimated()
     if uiPlayingAnimated then
@@ -161,7 +188,10 @@ function GameEffectManager:AddUIEffectToPlayingHudCollectFormScene(effectName, p
         return self:AddEffect(effectName, uiPlayingAnimated:GetVFXRootTransform(), ELayerName.UI, uiPoint, EPos.World, durationTime, callBack, isRealTime, autoRecycle)
     end
 end
+--endregion
 
+--region 分层快捷创建 API
+---=========================================================================
 --- 添加 UI 层特效
 ---@param effectName string 特效名
 ---@param parentTransform UnityEngine.Transform 父节点
@@ -170,10 +200,12 @@ end
 ---@param isRealTime boolean 真实时间
 ---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
+---=========================================================================
 function GameEffectManager:AddUILayerEffect(effectName, parentTransform, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEffect(effectName, parentTransform, ELayerName.UI, nil, EPos.Local, durationTime, callBack, isRealTime, autoRecycle)
 end
 
+---=========================================================================
 --- 添加地图层特效
 ---@param effectName string 特效名
 ---@param parentTransform UnityEngine.Transform 父节点
@@ -182,12 +214,18 @@ end
 ---@param isRealTime boolean 真实时间
 ---@param autoRecycle boolean 自动回收
 ---@return UnityEngine.GameObject
+---=========================================================================
 function GameEffectManager:AddMapLayerEffect(effectName, parentTransform, durationTime, callBack, isRealTime, autoRecycle)
     return self:AddEffect(effectName, parentTransform, ELayerName.Map, nil, EPos.Local, durationTime, callBack, isRealTime, autoRecycle)
 end
+--endregion
 
+--region 特效回收（对象池复用）
+---=========================================================================
 --- 回收单个特效
+---@brief 停止动画 → 放回对象池 → 移除管理
 ---@param go UnityEngine.GameObject 特效对象
+---=========================================================================
 function GameEffectManager:RecycleEffect(go)
     if IsNull(go) then return end
     if not self._efList:Contains(go) then return end
@@ -197,7 +235,10 @@ function GameEffectManager:RecycleEffect(go)
     self._efList:Remove(go)                       -- 从管理列表移除
 end
 
+---=========================================================================
 --- 回收所有特效（场景切换/重启时调用）
+---@brief 清空所有创建的特效，防止内存泄漏
+---=========================================================================
 function GameEffectManager:RecycleAllEffects()
     for _, v in ipairs(self._efList.items) do
         if not IsNull(v) then
@@ -209,5 +250,6 @@ function GameEffectManager:RecycleAllEffects()
     end
     self._efList:Clear()
 end
+--endregion
 
 return GameEffectManager

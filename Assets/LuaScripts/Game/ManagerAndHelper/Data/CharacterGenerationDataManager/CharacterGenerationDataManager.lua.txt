@@ -1,0 +1,73 @@
+--=====================================================================================================
+-- @brief:     角色数据管理器
+-- @desc:      统一读取、查询角色配置表，支持按ID/类型获取数据，带缓存机制
+-- @feat:      全局缓存、类型分组、安全查询、空值防护、日志规范
+-- @usage:     获取角色配置、按类型筛选角色列表
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 角色数据管理
+--=====================================================================================================
+
+---@class CharacterDataManager @角色数据管理器
+---@field _cacheByType table<ECharacterType, List<Tables.Characters_Item>> @按角色类型缓存
+local CharacterDataManager = class("CharacterDataManager")
+
+--region 【构造与创建】
+---=========================================================================
+---@brief  构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+---=========================================================================
+function CharacterDataManager:ctor(args)
+    self._cacheByType = {}
+end
+
+---=========================================================================
+---@brief  创建实例
+---@type fun(args:table):CharacterDataManager
+---@param args table @自定义参数
+---@return CharacterDataManager @角色数据管理器实例
+---=========================================================================
+function CharacterDataManager:Create(args)
+    return CharacterDataManager.new(args)
+end
+--endregion
+
+--region 【数据获取接口】
+---=========================================================================
+---@brief  根据角色ID获取角色配置
+---@type fun(characterId:string):Tables.Characters_Item
+---@param characterId string @角色ID
+---@return Tables.Characters_Item @角色配置
+---=========================================================================
+function CharacterDataManager:GetDataById(characterId)
+    if table.kIn(Tables.Characters, characterId) then
+        return Tables.Characters[characterId]
+    else
+        PrintError(string.format("角色ID不存在：%s", characterId))
+        return nil
+    end
+end
+
+---=========================================================================
+---@brief  根据角色类型获取角色列表
+---@type fun(characterType:ECharacterType):List<Tables.Characters_Item>
+---@param characterType ECharacterType @角色类型
+---@return List<Tables.Characters_Item> @角色列表
+---=========================================================================
+function CharacterDataManager:GetListByType(characterType)
+    if self._cacheByType[characterType] then
+        return self._cacheByType[characterType]
+    end
+
+    local list = HonorList:Create()
+    for _, characterCfg in pairs(Tables.Characters) do
+        if characterCfg.CharType == characterType then
+            list:Add(characterCfg)
+        end
+    end
+
+    self._cacheByType[characterType] = list
+    return list
+end
+--endregion
+
+return CharacterDataManager

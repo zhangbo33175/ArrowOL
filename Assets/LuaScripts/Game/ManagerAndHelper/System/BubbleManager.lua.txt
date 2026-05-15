@@ -24,22 +24,31 @@
 ---@field _autoGrowID number @ 自增ID生成器
 local BubbleManager = class("BubbleManager", import("Singleton"))
 
+--region 生命周期 & 基础函数
+---=========================================================================
 --- 构造函数
+---@brief 初始化活跃气泡容器与自增ID
 ---@param args table 自定义参数
+---=========================================================================
 function BubbleManager:ctor(args)
     BubbleManager.super.ctor(self, args)
     self._activeBubble = {}   --- 活跃气泡列表
     self._autoGrowID = 10086 --- 自增ID初始值
 end
 
+---=========================================================================
 --- 创建单例
 ---@param args table 自定义参数
----@return BubbleManager
+---@return BubbleManager 单例实例
+---=========================================================================
 function BubbleManager:Create(args)
     return BubbleManager.new(args)
 end
 
+---=========================================================================
 --- 清理数据（切号/重载）
+---@brief 清空所有气泡并重置管理器状态
+---=========================================================================
 function BubbleManager:ClearData()
     BubbleManager.super.ClearData(self)
     self:CloseAllBubble()
@@ -47,7 +56,18 @@ function BubbleManager:ClearData()
 end
 
 ---=========================================================================
+--- 释放资源
+---@brief 统一释放接口，关闭所有气泡
+---=========================================================================
+function BubbleManager:Dispose()
+    self:CloseAllBubble()
+end
+--endregion
+
+--region 气泡关闭管理
+---=========================================================================
 --- 【全局接口】关闭所有活跃气泡
+---@brief 安全回收所有气泡至对象池，清空活跃列表
 ---=========================================================================
 function BubbleManager:CloseAllBubble()
     if not self._activeBubble or TableIsEmpty(self._activeBubble) then
@@ -66,11 +86,57 @@ function BubbleManager:CloseAllBubble()
     ClearDictionary(self._activeBubble)
 end
 
---- 释放资源（同CloseAll）
-function BubbleManager:Dispose()
-    self:CloseAllBubble()
+---=========================================================================
+--- 强制关闭指定Key的气泡
+---@brief 根据Key立即销毁气泡并回收
+---@param bubbleKey string 气泡Key
+---=========================================================================
+function BubbleManager:ForceCloseBubble(bubbleKey)
+    if string.isNullOrEmpty(bubbleKey) then return end
+
+    local bubble = self._activeBubble[bubbleKey]
+    self._activeBubble[bubbleKey] = nil
+
+    if bubble then
+        xpcall(function()
+            bubble:OnPutToPool()
+        end, function(err) end)
+    end
 end
 
+---=========================================================================
+--- 关闭气泡（外部调用）
+---@brief 传入气泡实例进行回收关闭
+---@param bubble UIBubble 气泡实例
+---=========================================================================
+function BubbleManager:CloseBubble(bubble)
+    if not bubble then return end
+    xpcall(function()
+        bubble:OnPutToPool()
+    end, function(err) end)
+end
+
+---=========================================================================
+--- 【气泡内部回调】气泡真正关闭并回池
+---@brief 气泡生命周期结束回调，执行对象池回收
+---@param bubbleKey string 气泡唯一Key
+---@private
+---=========================================================================
+function BubbleManager:OnBubbleClose(bubbleKey)
+    if string.isNullOrEmpty(bubbleKey) then return end
+
+    local bubble = self._activeBubble[bubbleKey]
+    if bubble then
+        xpcall(function()
+            PoolManager:Put(bubble.cs.gameObject)
+        end, function(err) end)
+    end
+
+    self._activeBubble[bubbleKey] = nil
+end
+--endregion
+
+--region 气泡生成核心
 ---=========================================================================
 --- 【核心接口】生成一个气泡
 --- 逻辑：
@@ -78,7 +144,7 @@ end
 --- 2. 检查Key是否已存在 → 存在则更新文本
 --- 3. 不存在则从对象池创建 → 加入管理
 ---@param bubbleGenerateConfig BubbleGenerateConfig 气泡配置
----@return UIBubble
+---@return UIBubble 生成的气泡实例
 ---=========================================================================
 function BubbleManager:GenerateBubble(bubbleGenerateConfig)
     -- 安全校验
@@ -137,57 +203,18 @@ function BubbleManager:GenerateBubble(bubbleGenerateConfig)
 
     return bubble
 end
+--endregion
 
+--region 工具函数
 ---=========================================================================
---- 强制关闭指定Key的气泡
----@param bubbleKey string 气泡Key
----=========================================================================
-function BubbleManager:ForceCloseBubble(bubbleKey)
-    if string.isNullOrEmpty(bubbleKey) then return end
-
-    local bubble = self._activeBubble[bubbleKey]
-    self._activeBubble[bubbleKey] = nil
-
-    if bubble then
-        xpcall(function()
-            bubble:OnPutToPool()
-        end, function(err) end)
-    end
-end
-
---- 关闭气泡（外部调用）
----@param bubble UIBubble 气泡实例
-function BubbleManager:CloseBubble(bubble)
-    if not bubble then return end
-    xpcall(function()
-        bubble:OnPutToPool()
-    end, function(err) end)
-end
-
----=========================================================================
---- 【气泡内部回调】气泡真正关闭并回池
----@param bubbleKey string 气泡唯一Key
----@private
----=========================================================================
-function BubbleManager:OnBubbleClose(bubbleKey)
-    if string.isNullOrEmpty(bubbleKey) then return end
-
-    local bubble = self._activeBubble[bubbleKey]
-    if bubble then
-        -- 安全回收至对象池
-        xpcall(function()
-            PoolManager:Put(bubble.cs.gameObject)
-        end, function(err) end)
-    end
-
-    self._activeBubble[bubbleKey] = nil
-end
-
 --- 生成新气泡ID（自增）
+---@brief 生成气泡唯一自增ID
 ---@return number 新ID
+---=========================================================================
 function BubbleManager:GetNewBubbleID()
     self._autoGrowID = self._autoGrowID + 1
     return self._autoGrowID
 end
+--endregion
 
 return BubbleManager

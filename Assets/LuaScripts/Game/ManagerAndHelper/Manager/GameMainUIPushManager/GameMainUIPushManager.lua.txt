@@ -52,20 +52,23 @@
 ---@field Order number 排序
 
 ---@class GameMainUIPushMgr : Singleton
----@field _workQueue GameMainUIPushConfig[] 任务队列
----@field _uiMainInHideState boolean 主界面隐藏
----@field Coroutine thread 协程
----@field _intoMainState boolean 刚进入主状态
----@field _uiMainHudIsStart boolean 主界面已Start
----@field _elementCollectionList ElementCollectionConfig[] 元素收集队列
----@field _elementUIBubbleList ElementUIBubbleConfig[] 气泡队列
----@field _elementProcessRefCount number 元素流程计数
----@field _sceneEffectWorking table 场景特效工作中
----@field _elementCollectionInterval number 元素收集间隔
-
+---@field _workQueue GameMainUIPushConfig[] @任务队列
+---@field _uiMainInHideState boolean @主界面隐藏状态
+---@field Coroutine thread @任务执行协程
+---@field _intoMainState boolean @刚进入主状态标记
+---@field _uiMainHudIsStart boolean @主界面已启动完成
+---@field _elementCollectionList ElementCollectionConfig[] @元素收集队列
+---@field _elementUIBubbleList ElementUIBubbleConfig[] @气泡队列
+---@field _elementProcessRefCount number @元素流程引用计数
+---@field _sceneEffectWorking table @场景特效工作中标记
+---@field _elementCollectionInterval number @元素收集间隔时间
 local GameMainUIPushManager = class("GameMainUIPushManager", import("Singleton"))
 
+--region 生命周期 & 基础函数
+---=========================================================================
 --- 构造函数
+---@brief 初始化所有队列、状态、缓存变量
+---=========================================================================
 function GameMainUIPushManager:ctor(args)
     GameMainUIPushManager.super.ctor(self, args)
     self._workQueue = {}
@@ -79,13 +82,18 @@ function GameMainUIPushManager:ctor(args)
     self._elementCollectionInterval = 0.25
 end
 
+---=========================================================================
 --- 创建单例
----@return GameMainUIPushMgr
+---@return GameMainUIPushMgr 单例实例
+---=========================================================================
 function GameMainUIPushManager:Create(args)
     return GameMainUIPushManager.new(args)
 end
 
+---=========================================================================
 --- 清空数据（切号/重载）
+---@brief 重置所有队列、状态、协程
+---=========================================================================
 function GameMainUIPushManager:ClearData()
     GameMainUIPushManager.super.ClearData(self)
     self._workQueue = {}
@@ -96,7 +104,10 @@ function GameMainUIPushManager:ClearData()
     self:ClearElementData()
 end
 
---- 进入主界面状态（注册事件）
+---=========================================================================
+--- 进入主界面状态
+---@brief 注册事件，标记进入主界面
+---=========================================================================
 function GameMainUIPushManager:OnEnterMainState()
     HonorEventHelper:AddListener(EventCmd.OnHideMainHudUI, handler(self, self._OnMainHudUIHide))
     HonorEventHelper:AddListener(EventCmd.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver))
@@ -106,7 +117,10 @@ function GameMainUIPushManager:OnEnterMainState()
     self._uiMainHudIsStart = false
 end
 
---- 离开主界面状态（注销事件）
+---=========================================================================
+--- 离开主界面状态
+---@brief 注销事件，重置状态
+---=========================================================================
 function GameMainUIPushManager:OnLeaveMainState()
     self._uiMainInHideState = true
     HonorEventHelper:RemoveListener(EventCmd.OnHideMainHudUI, handler(self, self._OnMainHudUIHide))
@@ -115,21 +129,30 @@ function GameMainUIPushManager:OnLeaveMainState()
     HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self._UIGameViewOpen))
 end
 
+---=========================================================================
 --- 进入关卡清空所有队列
+---@brief 防止闯关过程中弹出主界面任务
+---=========================================================================
 function GameMainUIPushManager:ClearWorkQueue()
     self._workQueue = {}
     self._sceneEffectWorking = {}
     self:ClearElementData()
 end
 
+---=========================================================================
 --- 清空元素动画数据
+---@brief 重置元素收集、气泡动画队列
+---=========================================================================
 function GameMainUIPushManager:ClearElementData()
     self._elementCollectionList = {}
     self._elementUIBubbleList = {}
     self._elementProcessRefCount = 0
 end
 
+---=========================================================================
 --- 主界面初始化完成，开始运行任务
+---@brief 主界面加载完毕后启动任务调度
+---=========================================================================
 function GameMainUIPushManager:BeginTryRunning()
     self._uiMainHudIsStart = true
     self:TryInsertElementTask()
@@ -140,11 +163,16 @@ function GameMainUIPushManager:BeginTryRunning()
         self:_TryRunning(EGameMainUIPUshRunningType.OnEnterMainState)
     end
 end
+--endregion
 
 --=========================================================================
 --region 任务调度核心（协程 + 优先级 + 重试 + 恢复）
-
+---=========================================================================
 --- 任务当前不能执行，但需要保留
+---@param cmd GameMainUIPushConfig 任务配置
+---@param from 调用来源
+---@return boolean 是否需要保留
+---=========================================================================
 function GameMainUIPushManager:_TaskCantExecuteButNeedKeep(cmd, from)
     if not cmd then return false end
     local stateInvalid = cmd.onlyGameStatusExchange and not self._intoMainState
@@ -152,7 +180,13 @@ function GameMainUIPushManager:_TaskCantExecuteButNeedKeep(cmd, from)
     return stateInvalid or chapInvalid
 end
 
+---=========================================================================
 --- 移除无效/过期任务
+---@param idx 索引
+---@param cmd 任务
+---@param from 调用来源
+---@return number, table 清理后的索引和任务
+---=========================================================================
 function GameMainUIPushManager:_TryRemoveUnvalidTask(idx, cmd, from)
     while idx > 0 and self:_TaskCantExecuteButNeedKeep(cmd, from) do
         if cmd.unvaildDiffentLink then
@@ -164,7 +198,11 @@ function GameMainUIPushManager:_TryRemoveUnvalidTask(idx, cmd, from)
     return idx, cmd
 end
 
+---=========================================================================
 --- 协程工作函数（真正执行任务队列）
+---@brief 按优先级执行任务，支持等待、重试、异常捕获
+---@param from 调用来源
+---=========================================================================
 function GameMainUIPushManager:_Work(from)
     local maxTimes = 64
     local times = 0
@@ -222,7 +260,11 @@ function GameMainUIPushManager:_Work(from)
     self:_ExchangeMainHubPeaceState(true)
 end
 
+---=========================================================================
 --- 恢复协程
+---@brief 继续执行被挂起的任务队列
+---@param from 调用来源
+---=========================================================================
 function GameMainUIPushManager:_ResumeCoroutine(from)
     if not self._uiMainHudIsStart then return end
     if self.Coroutine and GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
@@ -237,7 +279,12 @@ function GameMainUIPushManager:_ResumeCoroutine(from)
     end
 end
 
+---=========================================================================
 --- 尝试运行队列（外部入口）
+---@brief 启动/恢复任务调度
+---@param from 运行类型
+---@param noWork 是否无新任务
+---=========================================================================
 function GameMainUIPushManager:_TryRunning(from, noWork)
     if GameStateMachine:CurrentStateType() ~= GameStateCmd.MainState then return end
     if not TableIsEmpty(self._sceneEffectWorking) then return end
@@ -260,19 +307,23 @@ function GameMainUIPushManager:_TryRunning(from, noWork)
     end)
     self:_ResumeCoroutine("StartTask")
 end
-
 --endregion
 
 --=========================================================================
 --region 任务插入（对外统一入口）
-
+---=========================================================================
 --- 添加任务（内部）
+---@param cfg GameMainUIPushConfig 任务配置
+---=========================================================================
 function GameMainUIPushManager:_AddTask(cfg)
     if not cfg then return end
     EasyInsert(self._workQueue, cfg, "SortOrder")
 end
 
+---=========================================================================
 --- 删除任务
+---@param cfg GameMainUIPushConfig 任务配置
+---=========================================================================
 function GameMainUIPushManager:_DeleteTask(cfg)
     if not cfg then return end
     for i, v in ipairs(self._workQueue) do
@@ -283,7 +334,10 @@ function GameMainUIPushManager:_DeleteTask(cfg)
     end
 end
 
+---=========================================================================
 --- 按UI名删除任务
+---@param name string UI名称
+---=========================================================================
 function GameMainUIPushManager:DeleteUITaskByName(name)
     if string.isNullOrEmpty(name) then return end
     for i = #self._workQueue, 1, -1 do
@@ -294,7 +348,10 @@ function GameMainUIPushManager:DeleteUITaskByName(name)
     end
 end
 
+---=========================================================================
 --- 通用打开UI任务（外部调用）
+---@param param CommonOpenUITaskParam UI任务参数
+---=========================================================================
 function GameMainUIPushManager:InsertUITaskCommon(param)
     if not param or string.isNullOrEmpty(param.uiName) then return end
     if param.repeatable or not self:_GetUITaskByUIName(param.uiName) then
@@ -315,7 +372,10 @@ function GameMainUIPushManager:InsertUITaskCommon(param)
     self:_TryRunning(EGameMainUIPUshRunningType.OnInsertUITask, true)
 end
 
+---=========================================================================
 --- 通用自定义任务（外部调用）
+---@param param GameMainCommonTaskParam 自定义任务参数
+---=========================================================================
 function GameMainUIPushManager:InsertCommonTask(param)
     if not param or not param.taskFunc then return end
     self:_AddTask({
@@ -335,13 +395,15 @@ function GameMainUIPushManager:InsertCommonTask(param)
     })
     self:_TryRunning(EGameMainUIPUshRunningType.OnInertNotUITask, true)
 end
-
 --endregion
 
 --=========================================================================
 --region 机器升级/到货（业务核心）
-
+---=========================================================================
 --- 插入机器到货任务
+---@param upgrade 升级数据
+---@param needUI 是否需要弹出UI
+---=========================================================================
 function GameMainUIPushManager:InsertMachineReceiveTask(upgrade, needUI)
     if TableIsEmpty(upgrade) or not upgrade.receivedMachineIds or #upgrade.receivedMachineIds <= 0 then
         return
@@ -391,10 +453,13 @@ function GameMainUIPushManager:InsertMachineReceiveTask(upgrade, needUI)
             })
         end
     end
-    self:_TryRunning(EGameMainUIPUshRunningType.OnMachineReceive, true)
+    self:_TryRunning(EGameMainUIPushRunningType.OnMachineReceive, true)
 end
 
+---=========================================================================
 --- 插入机器升级UI
+---@param chap 章节ID
+---=========================================================================
 function GameMainUIPushManager:InsertMachineUpgradeUITask(chap)
     local high = self:_GetTaskByType(EGameMainUIPushType.MachineUpgradeUIFromFail)
     if not high or high.linkChapterID ~= chap then
@@ -415,7 +480,10 @@ function GameMainUIPushManager:InsertMachineUpgradeUITask(chap)
     end
 end
 
+---=========================================================================
 --- 从失败界面插入升级UI
+---@param chap 章节ID
+---=========================================================================
 function GameMainUIPushManager:InsertMachineUpgradeUIFromFailTask(chap)
     local t = self:_GetTaskByType(EGameMainUIPushType.MachineUpgradeUI)
     if t and t.linkChapterID == chap then
@@ -437,13 +505,14 @@ function GameMainUIPushManager:InsertMachineUpgradeUIFromFailTask(chap)
         })
     end
 end
-
 --endregion
 
 --=========================================================================
 --region 元素收集 & 气泡（动画队列）
-
+---=========================================================================
 --- 尝试插入元素任务
+---@brief 将元素收集/气泡加入任务队列并执行
+---=========================================================================
 function GameMainUIPushManager:TryInsertElementTask()
     if #self._elementCollectionList == 0 and #self._elementUIBubbleList == 0 then
         return
@@ -463,7 +532,10 @@ function GameMainUIPushManager:TryInsertElementTask()
     self:_TryRunning(EGameMainUIPUshRunningType.OnInertNotUITask, true)
 end
 
+---=========================================================================
 --- 执行元素任务
+---@brief 统一执行收集动画与气泡动画
+---=========================================================================
 function GameMainUIPushManager:ExecuteElementTask()
     self._elementProcessRefCount = 0
     self:TryAddEleProcessRefCount(self._elementCollectionList)
@@ -472,7 +544,10 @@ function GameMainUIPushManager:ExecuteElementTask()
     self:ExecuteElementUIBubbleTask()
 end
 
+---=========================================================================
 --- 执行收集动画
+---@brief 串行执行元素收集动画
+---=========================================================================
 function GameMainUIPushManager:ExecuteElementCollectionTask()
     if #self._elementCollectionList == 0 then return end
     local seq = DOTween.Sequence()
@@ -492,7 +567,10 @@ function GameMainUIPushManager:ExecuteElementCollectionTask()
     end
 end
 
+---=========================================================================
 --- 执行气泡动画
+---@brief 按优先级执行气泡提示动画
+---=========================================================================
 function GameMainUIPushManager:ExecuteElementUIBubbleTask()
     if #self._elementUIBubbleList == 0 then return end
     table.sort(self._elementUIBubbleList, function(a, b)
@@ -515,13 +593,15 @@ function GameMainUIPushManager:ExecuteElementUIBubbleTask()
         self:ExecuteElementUIBubbleTaskFinish()
     end)
 end
-
 --endregion
 
 --=========================================================================
 --region 任务执行（真正打开UI）
-
+---=========================================================================
 --- 打开升级UI
+---@param cmd 任务配置
+---@param typ 打开类型
+---=========================================================================
 function GameMainUIPushManager:_OnMachineUpgradeUI(cmd, typ)
     if not cmd or not cmd.param then return end
     OpenUISync(UIs.UIUpgrade, {
@@ -530,12 +610,18 @@ function GameMainUIPushManager:_OnMachineUpgradeUI(cmd, typ)
     })
 end
 
+---=========================================================================
 --- 打开机器到货UI
+---@param cmd 任务配置
+---=========================================================================
 function GameMainUIPushManager:_OnMachineReceiveUI(cmd)
     UpgradeMapMgr:OpenUpgradeRewardUI()
 end
 
+---=========================================================================
 --- 播放机器升级动效
+---@param cmd 任务配置
+---=========================================================================
 function GameMainUIPushManager:_OnMachineReceive(cmd)
     if not cmd or not cmd.param then return end
     local c = ChapterListManager:GetRuntimeChapterId()
@@ -547,7 +633,6 @@ function GameMainUIPushManager:_OnMachineReceive(cmd)
         cmd.param[c] = nil
     end
 end
-
 --endregion
 
 return GameMainUIPushManager

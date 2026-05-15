@@ -1,5 +1,11 @@
+--=====================================================================================================
+-- Description: 全局事件定义（C# <-> Lua 互通）
+-- Author:     优化版 - 遵循 Unity 规范 + 通用事件标准
+--=====================================================================================================
 
----@class EventCodes 全局事件定义（C# <-> Lua 通用）
+--region 全局通用事件 C# <-> Lua
+--- 全局事件定义（C# <-> Lua 通用）
+---@class EventCodes
 EventCodes = {
     --- 服务器时间校正事件
     --- 参数：IsTimeCorrectionByServer(boolean)
@@ -11,3 +17,4 @@ EventCodes = {
     --- 用途：飘字、提示、系统通知
     NotificationMessage = "NotificationMessage",
 }
+--endregion

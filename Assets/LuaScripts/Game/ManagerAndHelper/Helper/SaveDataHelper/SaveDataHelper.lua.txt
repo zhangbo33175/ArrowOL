@@ -1,30 +1,38 @@
 --=====================================================================================================
--- @brief:     存档同步助手（全局单例）
--- @desc:      负责登录、心跳、存档上传/下载、第三方账号绑定、数据覆盖、错误码处理
---              核心作用：本地存档 ↔ 云端存档 双向同步，账号体系入口
+-- @brief  存档同步助手（全局单例）
+-- @desc   负责登录、心跳、存档上传/下载、第三方账号绑定、数据覆盖、错误码处理
+--         核心作用：本地存档 ↔ 云端存档 双向同步，账号体系入口
+-- @规范   Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class SaveDataHelper 存档&登录&云端同步核心单例
 local SaveDataHelper = class("SaveDataHelper")
 
----@brief 构造函数
+--region 构造 & 实例化
+---=========================================================================
+--- 构造函数
+---=========================================================================
 function SaveDataHelper:ctor(args)
     ---@type string 登录鉴权 Token
     self._loginToken = ""
 end
 
----@brief 创建单例实例
+---=========================================================================
+--- 创建单例实例
 ---@return SaveDataHelper
+---=========================================================================
 function SaveDataHelper:Create(args)
     return SaveDataHelper.new(args)
 end
+--endregion
 
 --=========================================================================
 --region 登录信息本地保存
 --=========================================================================
-
----@brief 保存登录返回的用户信息（UID、注册时间、登录时间、绑定时间）
+---=========================================================================
+--- 保存登录返回的用户信息（UID、注册时间、登录时间、绑定时间）
 ---@param returnData table 登录返回数据
+---=========================================================================
 function SaveDataHelper:SaveSignInInfos(returnData)
     if not returnData then return end
 
@@ -60,38 +68,42 @@ function SaveDataHelper:SaveSignInInfos(returnData)
         SaveIO.UserData.Save_loginTime()
     end
 
-    
     -- 保存国家地区
     if returnData.country then
         UserTypeMgr:TrySaveUserCountry(returnData.country)
     end
 end
 
----@brief 仅保存登录 Token
+---=========================================================================
+--- 仅保存登录 Token
 ---@param returnData table 登录数据
+---=========================================================================
 function SaveDataHelper:SaveToken(returnData)
     if returnData and returnData.token then
         self._loginToken = returnData.token
     end
 end
 
----@brief 保存云端第三方账号信息
+---=========================================================================
+--- 保存云端第三方账号信息
 ---@param returnData table 服务器数据
+---=========================================================================
 function SaveDataHelper:SaveSignInAid(returnData)
     if returnData and returnData.ServerUserInfo then
         SaveRootData.UserData.aid = returnData.ServerUserInfo.server_account
         SaveIO.UserData.Save_aid()
     end
 end
-
 --endregion
+
 --=========================================================================
 --region 云端存档 → 本地覆盖
 --=========================================================================
-
----@brief 动态重载存档结构并替换数据
+---=========================================================================
+--- 动态重载存档结构并替换数据
 ---@param otherGameData table 外部数据
 ---@return table 新的游戏数据
+---=========================================================================
 function SaveDataHelper:DynamicReplacementGameData(otherGameData)
     package.loaded["SaveGameData"] = nil
     require('SaveGameData')
@@ -101,9 +113,11 @@ function SaveDataHelper:DynamicReplacementGameData(otherGameData)
     return result
 end
 
----@brief 递归复制存档表（云端 → 本地）
+---=========================================================================
+--- 递归复制存档表（云端 → 本地）
 ---@param dest table 目标表
 ---@param source table 源表
+---=========================================================================
 function SaveDataHelper:CopyGameDataTable(dest, source)
     for key, value in pairs(source) do
         if type(value) ~= "table" then
@@ -115,16 +129,17 @@ function SaveDataHelper:CopyGameDataTable(dest, source)
     end
 end
 
----@brief 登录成功后：保存信息 + 自动全量同步
+---=========================================================================
+--- 登录成功后：保存信息 + 自动全量同步
 ---@param returnData table 登录数据
 ---@param completeCallback function 完成回调
+---=========================================================================
 function SaveDataHelper:SaveLocalDataAndAutoSyncData(returnData, completeCallback)
     self:SaveSignInInfos(returnData)
     if completeCallback then
         completeCallback()
     end
 end
-
 --endregion
 
 --=========================================================================

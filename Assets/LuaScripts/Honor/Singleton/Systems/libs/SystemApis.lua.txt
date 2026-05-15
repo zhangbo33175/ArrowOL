@@ -1,9 +1,12 @@
 --=====================================================================================================
--- descrip:   系统函数库（项目核心工具库）
+-- Description: 系统函数库（项目核心工具库）
 --              功能：异常捕获、dump打印、类型检查、类继承、热更新、表/字符串/数学/IO工具函数
 --              地位：框架底层核心，所有脚本依赖此库
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
+--region 全局异常与调试
 --- 全局异常追踪函数（Lua报错统一捕获）
 ---@param msg string 错误信息
 function __G__TRACK_BACK__(msg)
@@ -125,7 +128,9 @@ function dump(value, description, nesting)
         print(line)
     end
 end
+--endregion
 
+--region 类型安全检查
 --- 安全转数字（失败返回0）
 function checknumber(value, base)
     return tonumber(value, base) or 0
@@ -154,7 +159,9 @@ function isset(hashtable, key)
     local t = type(hashtable)
     return (t == "table" or t == "userdata") and hashtable[key] ~= nil
 end
+--endregion
 
+--region OOP & 继承
 --- 递归设置元表 __index
 local setmetatableindex_
 setmetatableindex_ = function(t, index)
@@ -310,7 +317,9 @@ function iskindof(obj, classname)
     end
     return false
 end
+--endregion
 
+--region 热更新 & 模块化
 --- 热补丁容器
 ClassPatch = {}
 StaticClassPatch = {}
@@ -374,7 +383,7 @@ function import(moduleName, currentModuleName)
                 currentModuleName = v
             end
 
-            currentModuleNameParts = string.split(currentModuleNameName, ".")
+            currentModuleNameParts = string.split(currentModuleName, ".")
         end
         table.remove(currentModuleNameParts, #currentModuleNameParts)
     end
@@ -391,7 +400,9 @@ function handler(obj, method)
         return method(obj, ...)
     end }
 end
+--endregion
 
+--region 数学工具
 --- 生成随机种子（高精度）
 function math.newrandomseed()
     local ok, socket = pcall(function()
@@ -425,7 +436,9 @@ end
 function math.radian2angle(radian)
     return radian * 180 / math.pi
 end
+--endregion
 
+--region 文件IO工具
 --- 文件是否存在
 function io.exists(path)
     local file = io.open(path, "r")
@@ -501,7 +514,9 @@ function io.filesize(path)
     end
     return size
 end
+--endregion
 
+--region 表操作工具
 --- 表键值对数量
 function table.nums(t)
     local count = 0
@@ -637,7 +652,9 @@ function table.full(count, value)
     end
     return result
 end
+--endregion
 
+--region 字符串工具
 --- HTML转义字符映射
 string._htmlspecialchars_set = {}
 string._htmlspecialchars_set["&"] = "&amp;"
@@ -779,3 +796,4 @@ end
 function string.ends(String, End)
     return End == '' or string.sub(String, -string.len(End)) == End
 end
+--endregion

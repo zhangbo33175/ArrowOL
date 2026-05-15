@@ -2,6 +2,8 @@
 -- Description: 全局通用扩展函数（table / math / string 工具库）
 -- Author:     优化版 - 遵循 Unity 规范 + 完整注解 + 商业级稳定性
 --=====================================================================================================
+
+--region Table 扩展工具
 --- 判断键是否存在于表中
 ---@param tbl table 目标表
 ---@param key any 键
@@ -163,7 +165,9 @@ function table.Intersection(arr1, arr2)
     end
     return result
 end
+--endregion
 
+--region Math 扩展工具
 ------------------------------
 -- Math 扩展
 ------------------------------
@@ -172,7 +176,7 @@ end
 ---@param value number 输入值
 ---@param min number 最小值
 ---@param max number 最大值
----@return number  clamped 结果
+---@return number clamped 结果
 function math.clamp(value, min, max)
     if value < min then return min end
     if value > max then return max end
@@ -224,7 +228,9 @@ function math.SmoothStep(from, to, t)
     t = t * t * (3 - 2 * t)
     return from + (to - from) * t
 end
+--endregion
 
+--region String 扩展工具
 ------------------------------
 -- String 扩展
 ------------------------------
@@ -249,3 +255,4 @@ end
 function string.isNullOrEmpty(str)
     return str == nil or str == ""
 end
+--endregion

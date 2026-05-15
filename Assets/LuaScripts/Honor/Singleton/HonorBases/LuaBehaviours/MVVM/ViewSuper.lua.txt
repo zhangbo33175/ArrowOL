@@ -1,15 +1,17 @@
 --=====================================================================================================
--- descrip:   视图通用父类（MVVM - View层基类）
+-- Description: 视图通用父类（MVVM - View层基类）
 --              作用：所有UI界面的View层基类，负责绑定ViewModel、UI动画、生命周期、资源管理
 --              职责：UI渲染、事件绑定、动画控制、自动释放、资源管理、嵌套UI管理
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class ViewSuper @MVVM 视图基类（所有界面 View 的父类）
----@field cs Honor.Runtime.LuaBehaviour @绑定的 C# LuaBehaviour 组件
+--region MVVM View 层基类
+---@class ViewSuper MVVM 视图基类（所有界面 View 的父类）
+---@field cs Honor.Runtime.LuaBehaviour 绑定的 C# LuaBehaviour 组件
 local ViewSuper = class("ViewSuper")
 
 --- 构造函数
----@type fun(args:table):void
 ---@param args table 构造参数
 function ViewSuper:ctor(args)
     -- 绑定环境表变量
@@ -53,7 +55,7 @@ function ViewSuper:ctor(args)
 end
 
 --- 创建实例
----@type fun(args:table):ViewSuper
+---@param args table
 ---@return ViewSuper View 实例
 function ViewSuper:Create(args)
     local obj = ViewSuper.new(args)
@@ -61,7 +63,6 @@ function ViewSuper:Create(args)
 end
 
 --- 唤醒（Unity 生命周期）
----@type fun():void
 function ViewSuper:Awake()
     -- 自动查找固定 UI 节点
     local bgImage = self.cs.transform:Find("__BgImage")
@@ -107,7 +108,6 @@ function ViewSuper:Awake()
 end
 
 --- 启用
----@type fun():void
 function ViewSuper:OnEnable()
     if self:GetViewModel() then
         self:GetViewModel():OnEnable()
@@ -115,14 +115,13 @@ function ViewSuper:OnEnable()
 end
 
 --- 初始化回调（首次设置 ViewModel 时调用）
----@type fun(viewModel:ViewModelSuper):void
+---@param viewModel ViewModelSuper
 function ViewSuper:OnInit(viewModel)
     self._binder:SetViewModel(viewModel)
     self._viewModelPackage:AddHandler(handler(self, self.OnViewModelChanged))
 end
 
 --- 开始
----@type fun():void
 function ViewSuper:Start()
     if self:GetViewModel() then
         self:GetViewModel():Start()
@@ -131,7 +130,6 @@ function ViewSuper:Start()
 end
 
 --- 帧更新
----@type fun():void
 function ViewSuper:Proc()
     if self:GetViewModel() then
         self:GetViewModel():Proc()
@@ -139,7 +137,6 @@ function ViewSuper:Proc()
 end
 
 --- 禁用
----@type fun():void
 function ViewSuper:OnDisable()
     if self:GetViewModel() then
         self:GetViewModel():OnDisable()
@@ -147,7 +144,6 @@ function ViewSuper:OnDisable()
 end
 
 --- 销毁（自动释放所有）
----@type fun():void
 function ViewSuper:OnDestroy()
     if self:GetViewModel() then
         self:GetViewModel():OnDestroy()
@@ -161,12 +157,11 @@ function ViewSuper:OnDestroy()
 end
 
 --- 注册事件（子类重写）
----@type fun():void
 function ViewSuper:OnAddListeners()
 end
 
 --- 设置 ViewModel
----@type fun(viewModel:ViewModelSuper):void
+---@param viewModel ViewModelSuper
 function ViewSuper:SetViewModel(viewModel)
     if self._initOver == false then
         self:OnInit(viewModel)
@@ -176,20 +171,23 @@ function ViewSuper:SetViewModel(viewModel)
 end
 
 --- 获取 ViewModel
----@type fun():ViewModelSuper
 ---@return ViewModelSuper 视图模型
 function ViewSuper:GetViewModel()
     return self._viewModelPackage:GetValue()
 end
 
 --- 添加绑定回调
----@type fun(name:string, handler:handler):void
+---@param name string
+---@param handler handler
 function ViewSuper:AddBindHandler(name, handler)
     self._binder:Add(name, handler)
 end
 
 --- ViewModel 变化时自动重新绑定
----@type fun(old:ViewModelSuper, new:ViewModelSuper, operate:string, valueItem:any):void
+---@param old ViewModelSuper
+---@param new ViewModelSuper
+---@param operate string
+---@param valueItem any
 function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
     if new ~= nil then
         new:OnBeforeUse()
@@ -203,7 +201,6 @@ function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
 end
 
 --- 打开界面
----@type fun():void
 function ViewSuper:Open()
     if self:GetViewModel() then
         self:GetViewModel():OnOpen()
@@ -228,7 +225,6 @@ function ViewSuper:Open()
 end
 
 --- 关闭界面
----@type fun():void
 function ViewSuper:Close()
     if self._isClosing == false then
         self._isClosing = true
@@ -260,7 +256,6 @@ function ViewSuper:Close()
 end
 
 --- 播放打开动画
----@type fun():void
 function ViewSuper:OnPlayOpenAnimation()
     if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
         local targetColor = self._bottomMaskLayerImage.color
@@ -290,7 +285,6 @@ function ViewSuper:OnPlayOpenAnimation()
 end
 
 --- 打开完成
----@type fun():void
 function ViewSuper:OnOpenOver()
     if self:GetViewModel() then
         self:GetViewModel():OnOpenOver()
@@ -318,7 +312,6 @@ function ViewSuper:OnOpenOver()
 end
 
 --- 播放关闭动画
----@type fun():void
 function ViewSuper:OnPlayCloseAnimation()
     if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
         DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
@@ -347,7 +340,6 @@ function ViewSuper:OnPlayCloseAnimation()
 end
 
 --- 关闭完成（自动销毁）
----@type fun():void
 function ViewSuper:OnCloseOver()
     if self:GetViewModel() then
         self:GetViewModel():OnCloseOver()
@@ -362,7 +354,7 @@ function ViewSuper:OnCloseOver()
         for i = 0, children.Count - 1 do
             local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
             if luaClass.GetViewModel ~= nil then
-                luaClass:GetViewModel():OnClose()
+                luaClass.GetViewModel():OnClose()
             end
             luaClass:OnCloseOver()
         end
@@ -371,7 +363,7 @@ function ViewSuper:OnCloseOver()
         for i = 0, children.Count - 1 do
             local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
             if luaClass.GetViewModel ~= nil then
-                luaClass:GetViewModel():OnClose()
+                luaClass.GetViewModel():OnClose()
             end
             luaClass:OnCloseOver()
         end
@@ -380,12 +372,15 @@ function ViewSuper:OnCloseOver()
 end
 
 --- 子 UI 销毁回调
----@type fun(luaClass:table):void
+---@param luaClass table
 function ViewSuper:OnAddedUIDestroyed(luaClass)
 end
 
 --- 同步添加子 UI
----@type fun(uiTable:table, parent:UnityEngine.Transform, luaParams:table):table, UnityEngine.GameObject
+---@param uiTable table
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@return table,UnityEngine.GameObject
 function ViewSuper:AddUISync(uiTable, parent, luaParams)
     if parent == nil then
         parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
@@ -397,7 +392,10 @@ function ViewSuper:AddUISync(uiTable, parent, luaParams)
 end
 
 --- 异步添加子 UI
----@type fun(uiTable:table, parent:UnityEngine.Transform, luaParams:table, overCallback:function):void
+---@param uiTable table
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@param overCallback function
 function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
     if parent == nil then
         parent = self._bgImage ~= nil and self._bgImage.transform or self.cs.transform
@@ -406,7 +404,8 @@ function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
 end
 
 --- 加载资源（自动管理）
----@type fun(assetInfo:table):UnityEngine.Object
+---@param assetInfo table
+---@return UnityEngine.Object
 function ViewSuper:LoadAsset(assetInfo)
     if assetInfo ~= nil then
         local keyName = assetInfo.Name
@@ -419,7 +418,8 @@ function ViewSuper:LoadAsset(assetInfo)
 end
 
 --- 卸载资源
----@type fun(assetInfo:table):boolean
+---@param assetInfo table
+---@return boolean
 function ViewSuper:UnloadAsset(assetInfo)
     if assetInfo ~= nil then
         local keyName = assetInfo.Name
@@ -436,7 +436,8 @@ function ViewSuper:UnloadAsset(assetInfo)
 end
 
 --- 按对象卸载资源
----@type fun(asset:UnityEngine.Object):boolean
+---@param asset UnityEngine.Object
+---@return boolean
 function ViewSuper:UnloadAssetByAsset(asset)
     if asset ~= nil then
         for keyName, vAsset in pairs(self._loadedAssets) do
@@ -453,7 +454,6 @@ function ViewSuper:UnloadAssetByAsset(asset)
 end
 
 --- 卸载所有资源
----@type fun():void
 function ViewSuper:UnloadAllAssets()
     if GameMainRoot.Asset ~= nil then
         for _, vAsset in pairs(self._loadedAssets) do
@@ -466,7 +466,6 @@ function ViewSuper:UnloadAllAssets()
 end
 
 --- UI 入栈
----@type fun():void
 function ViewSuper:OnStackPush()
     if self.cs then
         self._oriPosForUIStack = self.cs.transform.localPosition
@@ -475,7 +474,6 @@ function ViewSuper:OnStackPush()
 end
 
 --- UI 出栈
----@type fun():void
 function ViewSuper:OnStackPop()
     if self.cs then
         self.cs.transform.localPosition = self._oriPosForUIStack
@@ -483,15 +481,19 @@ function ViewSuper:OnStackPop()
 end
 
 --- 延迟协程
----@type fun(delayTime:number, isRealTime:boolean, callback:function):void
+---@param delayTime number
+---@param isRealTime boolean
+---@param callback function
 function ViewSuper:CoDelayFunction(delayTime, isRealTime, callback)
     CoDelayFunctionOfG(self, delayTime, isRealTime, callback)
 end
 
 --- 延迟帧
----@type fun(delayFrame:number, callback:function):void
+---@param delayFrame number
+---@param callback function
 function ViewSuper:CoDelayFrameFunction(delayFrame, callback)
     CoDelayFrameFunctionOfG(self, delayFrame, callback)
 end
+--endregion
 
 return ViewSuper

@@ -1,13 +1,16 @@
 --=====================================================================================================
--- descrip:   数组（栈式结构数组，支持弱引用）
+-- Description: 数组（栈式结构数组，支持弱引用）
 --              功能：提供高效的栈操作（push/pop）、遍历、清空，可选择弱引用模式
 --              优点：O(1) push/pop，clear 零GC，弱引用不影响对象回收
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
+
+--region 栈式结构数组
 local SystemArray = {}
 SystemArray.__index = SystemArray
 
 --- 创建数组实例
----@type fun(isweak:boolean):SystemArray
 ---@param isweak boolean 是否开启弱引用（value 弱引用，不阻止GC）
 ---@return SystemArray 数组实例
 function SystemArray.new(isweak)
@@ -110,5 +113,6 @@ function SystemArray.toTable(self)
     end
     return tab
 end
+--endregion
 
 return SystemArray

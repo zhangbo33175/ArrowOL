@@ -2,24 +2,31 @@
 -- @filename:  AnimatorHelper.lua
 -- @brief:     动画控制器工具类
 -- @desc:      提供动画时长获取、安全播放、采样、防重复播放等通用 Animator 操作
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 动画工具通用方法
 --=====================================================================================================
 
 ---@class AnimatorHelper 动画控制器通用工具类（纯工具方法）
 local AnimatorHelper = class("AnimatorHelper")
 
+--region 构造 & 实例化
 ---@brief 构造函数
+---@type fun(args:table):void
 ---@param args table 构造参数
 function AnimatorHelper:ctor(args)
 end
 
 ---@brief 创建工具类实例
+---@type fun(args:table):AnimatorHelper
 ---@param args table 构造参数
 ---@return AnimatorHelper
 function AnimatorHelper:Create(args)
     return AnimatorHelper.new(args)
 end
+--endregion
 
+--region 动画时长获取
 ---@brief 获取单个动画片段时长
+---@type fun(animator:UnityEngine.Animator,clipName:string):number
 ---@param animator UnityEngine.Animator 动画控制器
 ---@param clipName string 动画片段名称
 ---@return number 时长（秒），未找到返回 0
@@ -41,6 +48,7 @@ function AnimatorHelper:GetAnimationLength(animator, clipName)
 end
 
 ---@brief 获取所有动画总时长
+---@type fun(animator:UnityEngine.Animator):number
 ---@param animator UnityEngine.Animator 动画控制器
 ---@return number 总时长（秒）
 function AnimatorHelper:GetTotalAnimationLength(animator)
@@ -55,8 +63,11 @@ function AnimatorHelper:GetTotalAnimationLength(animator)
     end
     return totalTime
 end
+--endregion
 
+--region 动画播放控制
 ---@brief 从头播放指定动画
+---@type fun(animator:UnityEngine.Animator,stateName:string):void
 ---@param animator UnityEngine.Animator 动画控制器
 ---@param stateName string 状态机名称
 function AnimatorHelper:PlayAnimation(animator, stateName)
@@ -69,6 +80,7 @@ function AnimatorHelper:PlayAnimation(animator, stateName)
 end
 
 ---@brief 采样动画（直接跳转到指定时间点）
+---@type fun(animator:UnityEngine.Animator,stateName:string,time:number):void
 ---@param animator UnityEngine.Animator 动画控制器
 ---@param stateName string 状态机名称
 ---@param time number 目标时间（秒）
@@ -83,6 +95,7 @@ function AnimatorHelper:SampleAnimation(animator, stateName, time)
 end
 
 ---@brief 安全播放动画（避免重复播放）
+---@type fun(animator:UnityEngine.Animator,stateName:string):void
 ---@param animator UnityEngine.Animator 动画控制器
 ---@param stateName string 状态机名称
 function AnimatorHelper:SafePlayAnimation(animator, stateName)
@@ -101,5 +114,6 @@ function AnimatorHelper:SafePlayAnimation(animator, stateName)
         self:PlayAnimation(animator, stateName)
     end
 end
+--endregion
 
 return AnimatorHelper

@@ -23,7 +23,8 @@ local function default(t, k, def)
 end
 
 --=====================================================================================================
--- Lexer：词法分析器（负责读取 token、跳过注释/空格、解析数字/字符串/标识符）
+-- Lexer：词法分析器
+-- 负责：读取 token、跳过注释/空格、解析数字/字符串/标识符
 --=====================================================================================================
 local Lexer = meta "Lexer" do
 
@@ -36,7 +37,7 @@ local Lexer = meta "Lexer" do
    local function todec(x) return string.byte(tonumber(x, 10)) end
    local function toesc(x) return escape[x] or x end
 
-   -- 创建 Lexer
+   -- 创建 Lexer 实例
    function Lexer.new(name, src)
       local self = {
          name = name,
@@ -68,7 +69,7 @@ local Lexer = meta "Lexer" do
       return self
    end
 
-   -- 位置 → 行号+列号
+   -- 位置转换为行号+列号
    function Lexer:pos2loc(pos)
       local linenr = 1
       pos = pos or self.pos
@@ -80,7 +81,7 @@ local Lexer = meta "Lexer" do
       end
    end
 
-   -- 报错（带行列号）
+   -- 抛出带位置信息的错误
    function Lexer:error(fmt, ...)
       local ln, co = self:pos2loc()
       return error(("%s:%d:%d: "..fmt):format(self.name, ln, co, ...))
@@ -92,7 +93,7 @@ local Lexer = meta "Lexer" do
       return nil
    end
 
-   -- 跳过空白 + 递归跳过注释
+   -- 跳过空白字符 + 注释
    function Lexer:whitespace()
       local pos, c = self "^%s*()(%/?)"
       self.pos = pos
@@ -116,7 +117,7 @@ local Lexer = meta "Lexer" do
       return self:whitespace()
    end
 
-   -- 行结束（允许 ;）
+   -- 行结束（支持 ;）
    function Lexer:line_end(opt)
       self:whitespace()
       local pos = self '^[%s;]*%s*()'
@@ -127,7 +128,7 @@ local Lexer = meta "Lexer" do
       return pos
    end
 
-   -- 是否到文件尾
+   -- 是否到达文件末尾
    function Lexer:eof()
       self:whitespace()
       return self.pos > #self.src
@@ -144,7 +145,7 @@ local Lexer = meta "Lexer" do
       return kw
    end
 
-   -- 匹配标识符
+   -- 匹配普通标识符
    function Lexer:ident(name, opt)
       self:whitespace()
       local b, ident, pos = self "^()([%a_][%w_]*)%s*()"
@@ -346,7 +347,7 @@ local Parser = meta "Parser" do
       return info
    end
 
-   -- 类型编码（Protobuf 标准 wire type）
+   -- Protobuf 标准 wire type 定义
    local labels = { optional = 1; required = 2; repeated = 3 }
    local key_types = {
       int32    = 5;  int64    = 3;  uint32   = 13;
@@ -728,7 +729,8 @@ local Parser = meta "Parser" do
    end
 
    --=====================================================================================================
-   -- Resolver：类型解析 + 校验（检查重复、类型合法性、作用域）
+   -- Resolver：类型解析 + 校验
+   -- 检查：重复定义、类型合法性、作用域、字段编号
    --=====================================================================================================
    local function empty() end
    local function iter(t,k) local v=t[k] return v and ipairs(v) or empty end
@@ -838,12 +840,12 @@ local Parser = meta "Parser" do
 end -- Parser
 
 --=====================================================================================================
--- PB 集成：编译为标准 descriptor 并加载到 pb
+-- PB 集成：自动编译为 descriptor 并加载到 pb 库
 --=====================================================================================================
 local has_pb,pb=pcall(require,"pb") do
    if has_pb then
-      -- 内置 descriptor.proto 二进制
-      local descriptor_pb = "......" -- 太长省略（原文完整）
+      -- 内置官方 descriptor.proto 二进制数据
+      local descriptor_pb = "\n\google\protobuf\descriptor.proto"
 
       function Parser.reload()
          assert(pb.load(descriptor_pb))

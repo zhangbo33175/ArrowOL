@@ -1,38 +1,49 @@
 --=====================================================================================================
--- @brief  游戏多语言配置表格数据管理中心
--- @desc   读取多语言配置表，获取游戏内启用的语言类型、语言列表
--- @feat   全局单例、安全缓存、自动容错、配置校验
+-- @brief:     游戏多语言配置表格数据管理中心
+-- @desc:      读取多语言配置表，获取游戏内启用的语言类型、语言列表
+-- @feat:      全局单例、安全缓存、自动容错、配置校验
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 多语言配置管理
 --=====================================================================================================
 
 ---@class LanguageSettingDataManager : Singleton @多语言配置管理中心
 local LanguageSettingDataManager = class("LanguageSettingDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function LanguageSettingDataManager:ctor()
     LanguageSettingDataManager.super.ctor(self)
     self._useLangs = nil -- 启用语言缓存
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():LanguageSettingDataManager
 ---@return LanguageSettingDataManager
 function LanguageSettingDataManager:Create()
     return LanguageSettingDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function LanguageSettingDataManager:Init()
     LanguageSettingDataManager.super.Init(self)
     self._useLangs = nil -- 重置缓存
 end
 
---- 清理数据（切号/重载）
+---@brief 清理数据（切号/重载）
+---@type fun():void
 function LanguageSettingDataManager:ClearData()
     LanguageSettingDataManager.super.ClearData(self)
     self._useLangs = nil
 end
+--endregion
 
+--region 多语言配置获取
 ---=========================================================================
---- 获取游戏中已启用的语言类型列表（自动缓存）
+---@brief  获取游戏中已启用的语言类型列表（自动缓存）
+---@type fun():table
 ---@return table 启用的语言配置数组
 ---=========================================================================
 function LanguageSettingDataManager:GetInUseLangs()
@@ -59,5 +70,6 @@ function LanguageSettingDataManager:GetInUseLangs()
 
     return self._useLangs
 end
+--endregion
 
 return LanguageSettingDataManager

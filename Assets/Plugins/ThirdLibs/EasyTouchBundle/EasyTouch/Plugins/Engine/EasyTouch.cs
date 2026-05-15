@@ -524,18 +524,24 @@ public class EasyTouch : MonoBehaviour {
 	}
 
 
-	void LateUpdate(){
-
+	void LateUpdate()
+	{
 		// single gesture
-		if (_currentGestures.Count>1){
-			_currentGestures.RemoveAt(0);	
+		if (_currentGestures.Count > 1)
+		{
+			_currentGestures.RemoveAt(0);
 		}
-		else{
-                _currentGestures[0] = null;// new Gesture();
+
+		// ========== 修复：加安全判断，防止空列表访问 [0] ==========
+		if (_currentGestures.Count > 0)
+		{
+			_currentGestures[0] = null;
+			_currentGesture = _currentGestures[0];
 		}
-		_currentGesture = _currentGestures[0];
-
-
+		else
+		{
+			_currentGesture = null;
+		}
 	}
 
 		

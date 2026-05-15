@@ -1,13 +1,16 @@
 --=====================================================================================================
--- descrip:   协程助手（全局协程管理器 + GC 优化）
+-- Description: 协程助手（全局协程管理器 + GC 优化）
 --              功能：
 --              1. 启动/停止/管理 Lua 协程
 --              2. 绑定 GameObject，物体销毁自动停协程
 --              3. 缓存 WaitForSeconds，大幅减少 GC 分配
 --              4. 支持帧等待、真实时间等待
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class CoroutineWaitHelper  等待对象缓存池（减少GC）
+--region 协程管理助手
+---@class CoroutineWaitHelper 等待对象缓存池（减少GC）
 local CoroutineWaitHelper = class("CoroutineWaitHelper")
 
 ---@class HonorCoroutineHelper 协程管理助手
@@ -24,13 +27,16 @@ function HonorCoroutineHelper:ctor(args)
 end
 
 --- 创建实例
+---@param args table
+---@return HonorCoroutineHelper
 function HonorCoroutineHelper:Create(args)
     local obj = HonorCoroutineHelper.new(args)
     return obj
 end
 
 --- 启动协程（自动绑定 target，方便后续销毁）
---- @return UnityEngine.Coroutine
+---@param handler table
+---@return UnityEngine.Coroutine
 function HonorCoroutineHelper:Start(handler)
     local co = nil
     if GameMainRoot.Launcher then
@@ -43,6 +49,8 @@ function HonorCoroutineHelper:Start(handler)
 end
 
 --- 独立启动协程（不绑定 target）
+---@param func function
+---@return UnityEngine.Coroutine
 function HonorCoroutineHelper:StartAlone(func)
     if GameMainRoot.Launcher then
         return GameMainRoot.Launcher:StartCoroutine(self._util.cs_generator(func))
@@ -51,6 +59,7 @@ function HonorCoroutineHelper:StartAlone(func)
 end
 
 --- 停止单个独立协程
+---@param co UnityEngine.Coroutine
 function HonorCoroutineHelper:StopAlone(co)
     if not co then return end
     if GameMainRoot.Launcher then
@@ -67,6 +76,7 @@ function HonorCoroutineHelper:StopAll()
 end
 
 --- 停止指定协程
+---@param co UnityEngine.Coroutine
 function HonorCoroutineHelper:Stop(co)
     if not co then return end
     for i = #self._coroutines, 1, -1 do
@@ -78,6 +88,7 @@ function HonorCoroutineHelper:Stop(co)
 end
 
 --- 根据 GameObject 停止其所有协程（界面销毁必备）
+---@param go UnityEngine.GameObject
 function HonorCoroutineHelper:StopByGO(go)
     if not go then return end
     for i = #self._coroutines, 1, -1 do
@@ -89,12 +100,14 @@ function HonorCoroutineHelper:StopByGO(go)
 end
 
 --- 等待指定帧数
+---@param waitter any
 function HonorCoroutineHelper:WaitForFrame(waitter)
     waitter:Reset()
     coroutine.yield(waitter)
 end
 
 --- 等待秒数（带缓存，无GC）
+---@param waitTime number
 function HonorCoroutineHelper:WaitForSeconds(waitTime)
     waitTime = math.floor(waitTime * 1000) / 1000  -- 精度处理
     local cache = self.waitForSeconds.waitForSeconds[waitTime]
@@ -111,6 +124,7 @@ function HonorCoroutineHelper:WaitForSeconds(waitTime)
 end
 
 --- 等待真实秒数（不受时间缩放影响，带缓存）
+---@param waitTime number
 function HonorCoroutineHelper:WaitForSecondsRealtime(waitTime)
     waitTime = math.floor(waitTime * 1000) / 1000
     local cache = self.waitForSeconds.WaitForSecondsRealtime[waitTime]
@@ -124,5 +138,6 @@ function HonorCoroutineHelper:WaitForSecondsRealtime(waitTime)
     coroutine.yield(waitter)
     table.insert(cache, waitter)
 end
+--endregion
 
 return HonorCoroutineHelper

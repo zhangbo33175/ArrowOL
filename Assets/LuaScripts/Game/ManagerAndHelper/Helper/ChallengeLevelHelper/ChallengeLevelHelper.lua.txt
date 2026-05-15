@@ -2,12 +2,15 @@
 -- @filename:  ChallengeLevelHelper.lua
 -- @brief:     挑战关卡管理单例
 -- @desc:      负责挑战关卡判断、当前关卡记录、异常退出清理、胜利发放额外奖励等逻辑
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 挑战关卡流程管理
 --=====================================================================================================
 
 ---@class ChallengeLevelHelper : Singleton 挑战关卡管理单例
 local ChallengeLevelHelper = class('ChallengeLevelHelper', import('Singleton'))
 
+--region 构造 & 实例化
 ---@brief 构造函数
+---@type fun(args:table):void
 ---@param args table 构造参数
 function ChallengeLevelHelper:ctor(args)
     ChallengeLevelHelper.super.ctor(self, args)
@@ -19,13 +22,17 @@ function ChallengeLevelHelper:ctor(args)
 end
 
 ---@brief 创建单例实例（静态工厂）
+---@type fun(args:table):ChallengeLevelHelper
 ---@param args table 构造参数
 ---@return ChallengeLevelHelper
 function ChallengeLevelHelper:Create(args)
     return ChallengeLevelHelper.new(args)
 end
+--endregion
 
+--region 初始化 & 生命周期
 ---@brief 初始化（覆写父类）
+---@type fun():void
 function ChallengeLevelHelper:Init()
     ChallengeLevelHelper.super.Init(self)
     -- 注册全局事件监听
@@ -33,25 +40,43 @@ function ChallengeLevelHelper:Init()
 end
 
 ---@brief 清理数据（覆写父类）
+---@type fun():void
 function ChallengeLevelHelper:ClearData()
     ChallengeLevelHelper.super.ClearData(self)
     -- 移除全局事件监听
     self:RemoveGameEventListeners()
 end
+--endregion
 
+--region 事件监听
 ---@brief 注册游戏全局事件监听
+---@type fun():void
 function ChallengeLevelHelper:AddGameEventListeners()
     HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
     HonorEventHelper:AddListener(EventCmd.OnLevelUnusualExit, handler(self, self.OnLevelUnusualExit))
 end
 
 ---@brief 移除游戏全局事件监听
+---@type fun():void
 function ChallengeLevelHelper:RemoveGameEventListeners()
     HonorEventHelper:RemoveListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
     HonorEventHelper:RemoveListener(EventCmd.OnLevelUnusualExit, handler(self, self.OnLevelUnusualExit))
 end
+--endregion
 
+--region 关卡状态判断
+---@brief 判断是否为挑战关卡
+---@type fun(levelId:number):boolean
+---@param levelId number 关卡 ID
+---@return boolean true = 是挑战关卡
+function ChallengeLevelHelper:IsChallengeLevel(levelId)
+    return levelId >= self._minChallengeLevelId and levelId <= self._maxChallengeLevelId
+end
+--endregion
+
+--region 关卡回调事件
 ---@brief 关卡异常退出回调（闪退 / 切后台 / 强制退出）
+---@type fun(chapterId:string,levelId:number):void
 ---@param chapterId string 章节 ID
 ---@param levelId number 关卡 ID
 function ChallengeLevelHelper:OnLevelUnusualExit(chapterId, levelId)
@@ -60,14 +85,8 @@ function ChallengeLevelHelper:OnLevelUnusualExit(chapterId, levelId)
     end
 end
 
----@brief 判断是否为挑战关卡
----@param levelId number 关卡 ID
----@return boolean true = 是挑战关卡
-function ChallengeLevelHelper:IsChallengeLevel(levelId)
-    return levelId >= self._minChallengeLevelId and levelId <= self._maxChallengeLevelId
-end
-
 ---@brief 关卡胜利回调
+---@type fun(lvInfo:ChapterLevel):void
 ---@param lvInfo ChapterLevel 关卡数据
 function ChallengeLevelHelper:OnLevelSuccess(lvInfo)
     -- 处于挑战关卡中，不处理普通关卡胜利逻辑
@@ -75,8 +94,11 @@ function ChallengeLevelHelper:OnLevelSuccess(lvInfo)
         return
     end
 end
+--endregion
 
+--region 挑战关卡数据管理（存储/读取/清除）
 ---@brief 获取当前记录的挑战关卡 ID
+---@type fun(chapterId:string):number
 ---@param chapterId string 章节 ID
 ---@return number 挑战关卡 ID（0 = 无记录）
 function ChallengeLevelHelper:GetCurrentChallengeLevelId(chapterId)
@@ -90,6 +112,7 @@ function ChallengeLevelHelper:GetCurrentChallengeLevelId(chapterId)
 end
 
 ---@brief 清除当前挑战关卡记录（退出 / 完成 / 异常时调用）
+---@type fun():void
 function ChallengeLevelHelper:ClearCurrentChallengeLevel()
     ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
     local challengeData = SaveRootData.GameData.challengeLevelData or {}
@@ -102,6 +125,7 @@ function ChallengeLevelHelper:ClearCurrentChallengeLevel()
 end
 
 ---@brief 设置当前挑战关卡（进入挑战关卡时记录）
+---@type fun(chapterId:string,levelId:number):void
 ---@param chapterId string 章节 ID
 ---@param levelId number 关卡 ID
 function ChallengeLevelHelper:SetCurrentChallengeLevel(chapterId, levelId)
@@ -114,8 +138,11 @@ function ChallengeLevelHelper:SetCurrentChallengeLevel(chapterId, levelId)
     SaveRootData.GameData.challengeLevelData = challengeData
     SaveIO.GameData.Save_challengeLevelData()
 end
+--endregion
 
+--region 奖励发放
 ---@brief 挑战关卡胜利，发放配置表额外奖励
+---@type fun():void
 function ChallengeLevelHelper:GiveExtraReward()
     -- 解析常量配置表奖励
     local rewardList = ParseRewardTable(Tables.Constants.ChallengeExtraReward.Value)
@@ -124,5 +151,6 @@ function ChallengeLevelHelper:GiveExtraReward()
     -- 数据埋点
     AnalyticsRewards(rewardList, TrackProperty.ResGetMethod.level_win)
 end
+--endregion
 
 return ChallengeLevelHelper

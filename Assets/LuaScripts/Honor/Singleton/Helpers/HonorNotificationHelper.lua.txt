@@ -1,5 +1,5 @@
 --=====================================================================================================
--- descrip:   推送通知助手（本地/远程推送管理）
+-- Description: 推送通知助手（本地/远程推送管理）
 --              功能：
 --              1. 本地定时推送通知（离线消息、活动提醒、回归提醒）
 --              2. 跨平台推送开关控制（iOS / Android 分开配置）
@@ -7,14 +7,16 @@
 --              4. 领奖通知、运营活动推送协议交互
 --              5. 推送状态数据存档、读取、清空管理
 --              适用：游戏离线推送、活动提醒、奖励领取提醒
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class HonorNotificationHelper @推送通知管理助手（本地+远程推送统一入口）
+--region 推送通知管理助手（本地+远程推送统一入口）
+---@class HonorNotificationHelper 推送通知管理助手（本地+远程推送统一入口）
 local HonorNotificationHelper = class("HonorNotificationHelper")
 
 --- 构造函数
 --- 初始化推送配置、计数变量、启动监听与定时轮询
----@type fun(args:table):void
 ---@param args table 可选初始化参数
 function HonorNotificationHelper:ctor(args)
     --- 发送通知达到上限条数后，强制刷新系统推送
@@ -28,7 +30,6 @@ function HonorNotificationHelper:ctor(args)
 end
 
 --- 创建推送助手实例
----@type fun(args:table):HonorNotificationHelper
 ---@param args table 可选初始化参数
 ---@return HonorNotificationHelper 推送管理实例
 function HonorNotificationHelper:Create(args)
@@ -37,7 +38,6 @@ function HonorNotificationHelper:Create(args)
 end
 
 --- 初始化（注册事件监听 + 启动定时轮询任务）
----@type fun():void
 function HonorNotificationHelper:Init(args)
     -- 监听全局通知消息事件，触发拉取逻辑
     HonorEventHelper:AddListener(EventCmd.NotificationMessage, handler(self, self.RequestNotificationMessage))
@@ -51,7 +51,6 @@ function HonorNotificationHelper:Init(args)
 end
 
 --- 检查平台推送总开关是否开启（受系统配置表控制）
----@type fun():boolean
 ---@return boolean true=推送开启，false=推送关闭
 function HonorNotificationHelper:CheckNotifyFuncIsOpen()
     if Unity.Application.platform == Unity.RuntimePlatform.Android then
@@ -65,7 +64,6 @@ function HonorNotificationHelper:CheckNotifyFuncIsOpen()
 end
 
 --- 设置 / 取消 本地定时推送通知
----@type fun(messageType:number, isCancel:boolean, titleIDS:string,UTC0TimeStamp:number)
 ---@param messageType number 消息类型（>0，用于区分活动/奖励/回归等）
 ---@param isCancel boolean 是否取消该类型通知（true=取消，false=添加）
 ---@param titleIDS string 后台多语言配置ID组，格式示例："1001,2001"
@@ -74,31 +72,27 @@ function HonorNotificationHelper:SetNotificationMessage(messageType, isCancel, t
 end
 
 --- 主动请求拉取后台通知消息（手动刷新通知）
----@type fun():void
 function HonorNotificationHelper:RequestNotificationMessage()
 end
 
 --- 发送【领奖类通知】回执协议
 --- 作用：告知服务器该奖励已领取，停止重复推送
----@type fun(flagType:number):void
 ---@param flagType number 奖励类型标识（每日奖励/限时奖励/活动奖励等）
 function HonorNotificationHelper:SendRewardNotificationMessage(flagType)
 end
 
 --- 获取通知模块存档数据（记录已读、已发送、已领取状态）
----@type fun():table
 ---@return table 通知存档数据结构
 function HonorNotificationHelper:GetNotificationSaveData()
 end
 
 --- 清空所有通知模块存档数据（重置推送状态）
----@type fun():void
 function HonorNotificationHelper:ClearNotificationData()
 end
 
 --- 检测当前是否需要主动拉取通知（条件：开关开启+达到计数/时间条件）
----@type fun():void
 function HonorNotificationHelper:IsNeedRequestNotificationMessage()
 end
+--endregion
 
 return HonorNotificationHelper

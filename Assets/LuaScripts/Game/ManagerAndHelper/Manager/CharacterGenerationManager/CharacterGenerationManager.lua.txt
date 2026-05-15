@@ -1,0 +1,311 @@
+--=====================================================================================================
+-- descrip:   角色生成管理器
+--=====================================================================================================
+
+---@class CharacterGenerationManager @角色生成管理器
+---@field _characterBaseTable List<CharacterBase> @角色实例列表
+---@field _characterCfg table<ECharacterType, Tables.Characters_Item[]> @按角色类型缓存配置
+local CharacterGenerationManager = class("CharacterGenerationManager")
+
+---=========================================================================
+--- 构造函数
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:ctor()
+    self._characterBaseTable = HonorList:Create()
+    self._characterCfg = {}
+end
+
+---=========================================================================
+--- 创建实例
+---@type fun():CharacterGenerationManager
+---@return CharacterGenerationManager @角色生成管理器实例
+---=========================================================================
+function CharacterGenerationManager:Create()
+    local obj = CharacterGenerationManager.new()
+    return obj
+end
+
+--region 【角色生成/销毁接口】
+---=========================================================================
+--- 生成闲置角色(对象池管理)
+---@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase
+---@param characterId string @角色ID
+---@param newParent UnityEngine.Transform @父节点
+---@return CharacterBase @角色实例
+---=========================================================================
+function CharacterGenerationManager:SpawnIdle(characterId, newParent)
+    local data = CharacterDataManager.Instance:GetDataById(characterId)
+    return self:SpawnByData(data, newParent, true)
+end
+
+---=========================================================================
+--- 销毁闲置角色(放回对象池)
+---@type fun(characterBase:CharacterBase):void
+---@param characterBase CharacterBase @角色实例
+---=========================================================================
+function CharacterGenerationManager:DespawnIdle(characterBase)
+    if characterBase ~= nil  then
+        if not IsNull(characterBase.cs) then
+            PoolMgr:Put(characterBase.cs.gameObject)
+        end
+        characterBase:Clear()
+    end
+end
+
+---=========================================================================
+--- 生成角色
+---@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase
+---@param characterId string @角色ID
+---@param newParent UnityEngine.Transform @父节点
+---@return CharacterBase @角色实例
+---=========================================================================
+function CharacterGenerationManager:Spawn(characterId, newParent)
+    local data = CharacterDataManager.Instance:GetDataById(characterId)
+    return self:SpawnByData(data, newParent)
+end
+
+---=========================================================================
+--- 根据角色数据生成角色
+---@type fun(characterData:Tables.Characters_Item,newParent:UnityEngine.Transform,isIdle:boolean):CharacterBase
+---@param characterData Tables.Characters_Item @角色配置数据
+---@param newParent UnityEngine.Transform @父节点
+---@param isIdle boolean @是否为闲置角色
+---@return CharacterBase @角色实例
+---=========================================================================
+function CharacterGenerationManager:SpawnByData(characterData, newParent, isIdle)
+    if characterData then
+        if characterData.ResName == nil or characterData.ResName == '' then
+            PrintError("角色id:{0},没有配置资源名字", characterData.ID)
+            return nil
+        end
+        local go = PoolMgr:Get(characterData.ResName, newParent)
+        ---@type Solar.Runtime.LuaBehaviour
+        local luaBehaviour = go:GetComponent("LuaBehaviour")
+        ---@type CharacterBase
+        local characterBase = luaBehaviour.luaClass
+        characterBase:Clear()
+        characterBase._CharData = characterData
+
+        if not isIdle then
+            self._characterBaseTable:Add(characterBase)
+        end
+        return characterBase
+    end
+end
+
+---=========================================================================
+--- 销毁角色(放回对象池)
+---@type fun(characterBase:CharacterBase):void
+---@param characterBase CharacterBase @角色实例
+---=========================================================================
+function CharacterGenerationManager:Despawn(characterBase)
+    if characterBase ~= nil then
+        self._characterBaseTable:Remove(characterBase)
+        PrintInfo("Despawn -> characterBase:{0} 剩余:{1}", characterBase.cs.gameObject.name, self._characterBaseTable:Count())
+        PoolMgr:Put(characterBase.cs.gameObject)
+        characterBase:Clear()
+    end
+end
+
+---=========================================================================
+--- 销毁所有角色(放回对象池)
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:DespawnAll()
+    for i = 1, self._characterBaseTable:Count() do
+        ---@type CharacterBase
+        local characterBase = self._characterBaseTable.items[i]
+        PoolMgr:Put(characterBase.cs.gameObject)
+        characterBase:Clear()
+    end
+    self._characterBaseTable:Clear()
+end
+--endregion
+
+--region 【角色获取接口】
+---=========================================================================
+--- 根据角色类型获取已生成的角色列表
+---@type fun(characterType:ECharacterType):List<CharacterBase>
+---@param characterType ECharacterType @角色类型
+---@return List<CharacterBase> @角色实例列表
+---=========================================================================
+function CharacterGenerationManager:GetCharactersByType(characterType)
+    local list = List:Create()
+    for i = 1, self._characterBaseTable:Count() do
+        ---@type CharacterBase
+        local characterBase = self._characterBaseTable.items[i]
+        if characterBase._CharData.CharType == characterType then
+            list:Add(characterBase)
+        end
+    end
+    return list
+end
+
+---=========================================================================
+--- 按类型获取角色配置列表
+---@type fun(characterType:ECharacterType):Tables.Characters_Item[]
+---@param characterType ECharacterType @角色类型
+---@return Tables.Characters_Item[] @角色配置数组
+---=========================================================================
+function CharacterGenerationManager:GetCharacterConfigsByType(characterType)
+    local result = self._characterCfg[characterType]
+    if not result then
+        result = {}
+        for _,cfg in pairs(Tables.Characters) do
+            if cfg.CharType == characterType then
+                table.insert(result, cfg)
+            end
+        end
+        self._characterCfg[characterType] = result
+    end
+    return result
+end
+
+---=========================================================================
+--- 按类型拷贝角色配置到目标容器
+---@type fun(characterType:ECharacterType,result:table):void
+---@param characterType ECharacterType @角色类型
+---@param result table @目标容器
+---=========================================================================
+function CharacterGenerationManager:CopyCharacterConfigsByType(characterType, result)
+    for _,cfg in pairs(Tables.Characters) do
+        if cfg.CharType == characterType then
+            table.insert(result, cfg)
+        end
+    end
+end
+
+---=========================================================================
+--- 根据角色类型与客人ID获取角色
+---@type fun(characterType:ECharacterType,id : number):CharacterBase
+---@param characterType ECharacterType @角色类型
+---@param id number @客人ID
+---@return CharacterBase @角色实例
+---=========================================================================
+function CharacterGenerationManager:GetCharacter(characterType, id)
+    local guests = self:GetCharactersByType(characterType)
+    if guests and guests:Count() > 0 then
+        for i = 1, #guests.items do
+            ---@type CharacterGuest
+            local chara = guests.items[i]
+            if chara:GetGuestId() == id then
+                return chara
+            end
+        end
+    end
+    return nil
+end
+
+---=========================================================================
+--- 根据角色类型与配置ID获取角色
+---@type fun(characterType:ECharacterType,id : number):CharacterBase
+---@param characterType ECharacterType @角色类型
+---@param id number @角色配置ID
+---@return CharacterBase @角色实例
+---=========================================================================
+function CharacterGenerationManager:GetCharacterByCharaId(characterType, id)
+    local guests = self:GetCharactersByType(characterType)
+    if guests and guests:Count() > 0 then
+        for i = 1, #guests.items do
+            ---@type CharacterGuest
+            local chara = guests.items[i]
+            if chara._CharData.ID == id then
+                return chara
+            end
+        end
+    end
+    return nil
+end
+--endregion
+
+--region 【游戏生命周期】
+---=========================================================================
+--- 游戏初始化
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnInitGame()
+    for i, v in ipairs(self._characterBaseTable.items) do
+        v:OnInitGame()
+    end
+end
+
+---=========================================================================
+--- 进入游戏
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnEnterGame()
+    for i, v in ipairs(self._characterBaseTable.items) do
+        v:OnEnterGame()
+    end
+end
+
+---=========================================================================
+--- 游戏开始
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnBeginGame()
+    for i, v in ipairs(self._characterBaseTable.items) do
+        v:OnBeginGame()
+    end
+end
+
+---=========================================================================
+--- 游戏暂停
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnPauseGame()
+    for i, v in ipairs(self._characterBaseTable.items) do
+        v:OnPauseGame()
+    end
+end
+
+---=========================================================================
+--- 游戏恢复
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnResumeGame()
+    for i, v in ipairs(self._characterBaseTable.items) do
+        v:OnResumeGame()
+    end
+end
+
+---=========================================================================
+--- 游戏结束
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnGameOver()
+    for i, v in ipairs(self._characterBaseTable.items) do
+        v:OnGameOver()
+    end
+end
+
+---=========================================================================
+--- 游戏退出
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnExitGame()
+    for i, v in ipairs(self._characterBaseTable.items) do
+        v:OnExitGame()
+    end
+end
+
+---=========================================================================
+--- 游戏重玩
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnRePlayGame()
+end
+
+---=========================================================================
+--- 重玩前初始化地图中剩余角色
+---@type fun():void
+---=========================================================================
+function CharacterGenerationManager:OnRePlayGameBefore()
+    for _, v in ipairs(self._characterBaseTable.items) do
+        v:OnRePlayGame()
+    end
+end
+--endregion
+
+return CharacterGenerationManager

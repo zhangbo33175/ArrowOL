@@ -1,94 +1,138 @@
 --=====================================================================================================
--- @brief    全局事件定义（全局事件中心）
--- @desc     定义全游戏唯一的事件字符串，用于跨模块、跨UI、跨系统消息通信
--- @module   UI / 登录 / 通知 / 关卡 / 地图 / 时间 / 道具 / HUD / 货币 / 玩法 / Buff / BGM
+-- @filename:  EventCmd.lua
+-- @brief:     全局事件定义（全局事件中心）
+-- @desc:      定义全游戏唯一的事件字符串，用于跨模块、跨UI、跨系统消息通信
+-- @author:    Unity Standard
+-- @date:      2025
+-- @module:    UI / 登录 / 通知 / 关卡 / 地图 / 时间 / 道具 / HUD / 货币 / 玩法 / Buff / BGM
+-- @规范:       Unity Lua 商业项目编码标准 / 全局常量规范
 --=====================================================================================================
 
+---@class EventCmd 全局事件枚举（全局唯一）
 EventCmd = {
     ----------------------------------------------------------------------------------------------------
     -- UI 通用事件
     ----------------------------------------------------------------------------------------------------
-    UIGameViewClose                      = "UIGameViewClose",                     -- 游戏界面关闭
-    UIGameViewOpen                       = "UIGameViewOpen",                      -- 游戏界面打开
+    ---@type string 游戏界面关闭
+    UIGameViewClose                      = "UIGameViewClose",
+    ---@type string 游戏界面打开
+    UIGameViewOpen                       = "UIGameViewOpen",
 
     ----------------------------------------------------------------------------------------------------
     -- 账号 / 登录相关
     ----------------------------------------------------------------------------------------------------
-    OnAidBindingResult                   = "OnAidBindingResult",                 -- 账号绑定结果（isSuccess, platform, aid, position）
-    OnAidUnBindingResult                 = "OnAidUnBindingResult",               -- 账号解绑结果（isSuccess, platform, aid, position）
-    OnLoginResult                        = "OnLoginResult",                      -- 登录结果（isSuccess）
+    ---@type string 账号绑定结果（isSuccess, platform, aid, position）
+    OnAidBindingResult                   = "OnAidBindingResult",
+    ---@type string 账号解绑结果（isSuccess, platform, aid, position）
+    OnAidUnBindingResult                 = "OnAidUnBindingResult",
+    ---@type string 登录结果（isSuccess）
+    OnLoginResult                        = "OnLoginResult",
 
     ----------------------------------------------------------------------------------------------------
     -- 全局通知
     ----------------------------------------------------------------------------------------------------
-    NotificationMessage                  = "NotificationMessage",                -- 通用提示消息（msg）
-    OnLanguageChange                     = "OnLanguageChange",                   -- 多语言切换
-    OnGenerateUserType                   = "OnGenerateUserType",                 -- 用户分层数据刷新（关联：本地活动/系统解锁）
+    ---@type string 通用提示消息（msg）
+    NotificationMessage                  = "NotificationMessage",
+    ---@type string 多语言切换
+    OnLanguageChange                     = "OnLanguageChange",
+    ---@type string 用户分层数据刷新（关联：本地活动/系统解锁）
+    OnGenerateUserType                   = "OnGenerateUserType",
 
     ----------------------------------------------------------------------------------------------------
     -- 关卡 / 游戏核心
     ----------------------------------------------------------------------------------------------------
-    OnLevelFailure                       = "OnLevelFailure",                     -- 关卡失败（chapterId, levelId）
-    OnLevelSuccess                       = "OnLevelSuccess",                     -- 关卡成功（关联：系统解锁/活动开启）
-    OnLevelUnusualExit                   = "OnLevelUnusualExit",                 -- 关卡异常退出（杀进程）
-    OnFirstIntoMainState                 = "OnFirstIntoMainState",               -- 首次进入主状态
-    OnChapterMapChangeComplete           = "OnChapterMapChangeComplete",         -- 章节地图切换完成
+    ---@type string 关卡失败（chapterId, levelId）
+    OnLevelFailure                       = "OnLevelFailure",
+    ---@type string 关卡成功（关联：系统解锁/活动开启）
+    OnLevelSuccess                       = "OnLevelSuccess",
+    ---@type string 关卡异常退出（杀进程）
+    OnLevelUnusualExit                   = "OnLevelUnusualExit",
+    ---@type string 首次进入主状态
+    OnFirstIntoMainState                 = "OnFirstIntoMainState",
+    ---@type string 章节地图切换完成
+    OnChapterMapChangeComplete           = "OnChapterMapChangeComplete",
 
     ----------------------------------------------------------------------------------------------------
     -- 地图 / 区域
     ----------------------------------------------------------------------------------------------------
-    TimerAreaOfflineCoinCDOver           = "TimerAreaOfflineCoinCDOver",         -- 区域离线金币CD结束
-    AreaOfflineCoinCDOver                = "AreaOfflineCoinCDOver",              -- 区域离线金币结算结束
-    OnRuntimeAreaChanged                 = "OnRuntimeAreaChanged",               -- 运行时地图区域变化
+    ---@type string 区域离线金币CD结束
+    TimerAreaOfflineCoinCDOver           = "TimerAreaOfflineCoinCDOver",
+    ---@type string 区域离线金币结算结束
+    AreaOfflineCoinCDOver                = "AreaOfflineCoinCDOver",
+    ---@type string 运行时地图区域变化
+    OnRuntimeAreaChanged                 = "OnRuntimeAreaChanged",
 
     ----------------------------------------------------------------------------------------------------
     -- 时间 / 同步
     ----------------------------------------------------------------------------------------------------
-    OnTimeCorrectionByServer             = "OnTimeCorrectionByServer",           -- 服务器时间校正
+    ---@type string 服务器时间校正
+    OnTimeCorrectionByServer             = "OnTimeCorrectionByServer",
 
     ----------------------------------------------------------------------------------------------------
     -- 道具 / 技能 / Buff
     ----------------------------------------------------------------------------------------------------
-    OnBoosterUseEvent                    = "OnBoosterUseEvent",                  -- 使用道具（boosterId, num）
-    OnSkillFreezeTimeOver                = "OnSkillFreezeTimeOver",              -- 时间冻结技能结束
-    OnBoostersEnable                     = "OnBoostersEnable",                   -- 道具功能启用
-    OnBoosterEnd                         = "OnBoosterEnd",                       -- 道具效果结束
-    OnBoosterUnlockDescShowEvent         = "OnBoosterUnlockDescShowEvent",       -- 显示道具解锁描述
-    OnBoosterNumModifyEvent              = "OnBoosterNumModifyEvent",            -- 道具数量修改
+    ---@type string 使用道具（boosterId, num）
+    OnBoosterUseEvent                    = "OnBoosterUseEvent",
+    ---@type string 时间冻结技能结束
+    OnSkillFreezeTimeOver                = "OnSkillFreezeTimeOver",
+    ---@type string 道具功能启用
+    OnBoostersEnable                     = "OnBoostersEnable",
+    ---@type string 道具效果结束
+    OnBoosterEnd                         = "OnBoosterEnd",
+    ---@type string 显示道具解锁描述
+    OnBoosterUnlockDescShowEvent         = "OnBoosterUnlockDescShowEvent",
+    ---@type string 道具数量修改
+    OnBoosterNumModifyEvent              = "OnBoosterNumModifyEvent",
 
     ----------------------------------------------------------------------------------------------------
     -- 主界面 HUD
     ----------------------------------------------------------------------------------------------------
-    OnGameMainHudStateChange             = "OnGameMainHudStateChange",           -- 主界面状态变更
-    OnTryResumeGameMainPushUI            = "OnTryResumeGameMainPushUI",          -- 恢复主界面推送UI
-    OnUIMainRaycastStateChange           = "OnUIMainRaycastStateChange",         -- 主界面射线检测状态变更
-    OnAllowMainHudTutorial               = "OnAllowMainHudTutorial",             -- 允许主界面新手引导
-    OnShowMainHudUI                      = "OnShowMainHudUI",                    -- 显示主界面HUD
-    OnHideMainHudUI                      = "OnHideMainHudUI",                    -- 隐藏主界面HUD
-    OnShowMainHudUIOver                  = "OnShowMainHudUIOver",                -- 主界面显示完成
-    OnHideMainHudUIOver                  = "OnHideMainHudUIOver",                -- 主界面隐藏完成
+    ---@type string 主界面状态变更
+    OnGameMainHudStateChange             = "OnGameMainHudStateChange",
+    ---@type string 恢复主界面推送UI
+    OnTryResumeGameMainPushUI            = "OnTryResumeGameMainPushUI",
+    ---@type string 主界面射线检测状态变更
+    OnUIMainRaycastStateChange           = "OnUIMainRaycastStateChange",
+    ---@type string 允许主界面新手引导
+    OnAllowMainHudTutorial               = "OnAllowMainHudTutorial",
+    ---@type string 显示主界面HUD
+    OnShowMainHudUI                      = "OnShowMainHudUI",
+    ---@type string 隐藏主界面HUD
+    OnHideMainHudUI                      = "OnHideMainHudUI",
+    ---@type string 主界面显示完成
+    OnShowMainHudUIOver                  = "OnShowMainHudUIOver",
+    ---@type string 主界面隐藏完成
+    OnHideMainHudUIOver                  = "OnHideMainHudUIOver",
 
     ----------------------------------------------------------------------------------------------------
     -- 货币 / 成就
     ----------------------------------------------------------------------------------------------------
-    OnCurrencyChangeInUI                 = "OnCurrencyChangeInUI",               -- UI临时货币变化（仅显示）
-    OnRequestShowAchievementTipsUI       = "OnRequestShowAchievementTipsUI",     -- 请求显示成就提示UI
+    ---@type string UI临时货币变化（仅显示）
+    OnCurrencyChangeInUI                 = "OnCurrencyChangeInUI",
+    ---@type string 请求显示成就提示UI
+    OnRequestShowAchievementTipsUI       = "OnRequestShowAchievementTipsUI",
 
     ----------------------------------------------------------------------------------------------------
     -- 游戏玩法
     ----------------------------------------------------------------------------------------------------
-    ChangeOnTheNumberOfRemainingSearchItems = "ChangeOnTheNumberOfRemainingSearchItems", -- 剩余寻找物数量变化
+    ---@type string 剩余寻找物数量变化
+    ChangeOnTheNumberOfRemainingSearchItems = "ChangeOnTheNumberOfRemainingSearchItems",
 
     ----------------------------------------------------------------------------------------------------
     -- Buff / 限时道具
     ----------------------------------------------------------------------------------------------------
-    OnBufferTimeModifyEvent              = "OnBufferTimeModifyEvent",            -- Buff 时间修改
-    OnBufferTimeEndEvent                 = "OnBufferTimeEndEvent",               -- Buff 时间结束
-    OnBufferDeltaTimeTickEvent           = "OnBufferDeltaTimeTickEvent",         -- Buff 每秒倒计时（内部）
-    OnBufferTimeTickEvent                = "OnBufferTimeTickEvent",              -- Buff 倒计时回调
+    ---@type string Buff 时间修改
+    OnBufferTimeModifyEvent              = "OnBufferTimeModifyEvent",
+    ---@type string Buff 时间结束
+    OnBufferTimeEndEvent                 = "OnBufferTimeEndEvent",
+    ---@type string Buff 每秒倒计时（内部）
+    OnBufferDeltaTimeTickEvent           = "OnBufferDeltaTimeTickEvent",
+    ---@type string Buff 倒计时回调
+    OnBufferTimeTickEvent                = "OnBufferTimeTickEvent",
 
     ----------------------------------------------------------------------------------------------------
     -- BGM / 音效
     ----------------------------------------------------------------------------------------------------
-    OnPlayBGMKeyChanged                  = "OnPlayBGMKeyChanged",               -- 切换背景音乐（关联：SoundManager）
+    ---@type string 切换背景音乐（关联：SoundManager）
+    OnPlayBGMKeyChanged                  = "OnPlayBGMKeyChanged",
 }

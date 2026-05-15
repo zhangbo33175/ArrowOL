@@ -1,11 +1,13 @@
 --=====================================================================================================
--- descrip:   Lua 热重载模块（支持运行中替换代码、保留数据、无重启更新逻辑）
+-- Description: Lua 热重载模块（支持运行中替换代码、保留数据、无重启更新逻辑）
 --              核心：替换函数、保留 upvalue / 旧数据、自动更新 table、支持 OnReload 回调
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
+--region Lua 热重载核心（运行时代码热更）
 --- 主入口：Lua 脚本热重载
 --- 功能：重新加载指定 Lua 文件，替换旧代码，保留运行时数据，实现无重启更新
----@type fun(filename:string):void
 ---@param filename string 需要热重载的 Lua 文件名（模块名）
 function __RELOAD_LUA_HOTFIX__(filename)
     PrintDebug("开始热重载Lua脚本: {0}", filename)
@@ -49,7 +51,6 @@ end
 
 --- 更新 Lua 函数（热重载核心）
 --- 功能：替换函数体，**保留旧函数的 upvalue（外部变量）**，保证数据不丢失
----@type fun(new_func:function, old_func:function):void
 ---@param new_func function 新代码的函数
 ---@param old_func function 旧的运行中函数
 function __RELOAD_LUA_HOTFIX_UPDATE_FUNC__(new_func, old_func)
@@ -78,7 +79,6 @@ end
 
 --- 递归更新 Lua table（模块、类、子 table）
 --- 功能：遍历新旧 table，只替换 function，保留旧数据，递归处理嵌套 table
----@type fun(new_table:table, old_table:table, updated_tables:table):void
 ---@param new_table table 新代码的 table
 ---@param old_table table 旧的运行中 table
 ---@param updated_tables table 防止循环引用，记录已更新的 table
@@ -111,3 +111,4 @@ function __RELOAD_LUA_HOTFIX_UPDATE_TABLE__(new_table, old_table, updated_tables
         end
     end
 end
+--endregion

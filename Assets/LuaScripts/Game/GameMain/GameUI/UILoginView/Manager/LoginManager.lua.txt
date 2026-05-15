@@ -281,7 +281,7 @@ end
 
 ---@brief 主界面自动尝试登录
 function LoginManager:TryLoginInMainHud(callback)
-    self:TryReLogin(callback)
+   -- self:TryReLogin(callback)
 end
 
 ---@brief 切换到预加载流程

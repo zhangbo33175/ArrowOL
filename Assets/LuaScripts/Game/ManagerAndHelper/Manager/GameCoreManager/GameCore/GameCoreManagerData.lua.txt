@@ -2,12 +2,16 @@
 -- @brief  游戏玩法核心数据管理类
 -- @desc   统一管理关卡运行时的所有关键数据：目标进度、关卡信息、道具使用、复活、难度、星级等
 -- @author 商业项目规范版 | 注释完整 | 空安全 | 性能优化
+-- @规范    Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class GameCoreManagerData @ 关卡核心运行时数据管理类
 local GameCoreManagerData = class("GameCoreManagerData")
 
+--region 构造 & 初始化
+---=========================================================================
 --- 构造函数：初始化所有运行时数据默认值
+---=========================================================================
 function GameCoreManagerData:ctor()
     --- 主目标配置
     self._RootGoalData = nil                    ---@type Tables.Goals_Item              主目标配置
@@ -38,85 +42,114 @@ function GameCoreManagerData:ctor()
     self._showWatchAdvertiseButtonCount = 0     ---@type number                         复活广告显示次数
 end
 
+---=========================================================================
 --- 静态创建实例
 ---@return GameCoreManagerData
+---=========================================================================
 function GameCoreManagerData:Create()
     local instance = GameCoreManagerData.new()
     return instance
 end
 
+---=========================================================================
 --- 根据关卡配置初始化核心数据
 ---@param levelData Tables.LevelData_Item 关卡配置
+---=========================================================================
 function GameCoreManagerData:InitData(levelData)
 end
 
+---=========================================================================
 --- 清空运行时数据（关卡退出/重置时调用）
+---=========================================================================
 function GameCoreManagerData:ClearData()
 end
 
+---=========================================================================
 --- 保存玩家游戏数据到本地存档
 ---@desc 包含星级、货币、道具使用等关键进度数据
+---=========================================================================
 function GameCoreManagerData:SaveData()
     self:SaveStarCount()
     self:SaveTotalMoney()
 end
 
+---=========================================================================
 --- 动态设置关卡难度系数
+---=========================================================================
 function GameCoreManagerData:SetupDifficultyFactor()
 end
+--endregion
 
 --========================================================================
--- 主目标相关
+-- region 主目标相关
 --========================================================================
 
+---=========================================================================
 --- 获取当前已完成的主目标数量
 ---@return number
+---=========================================================================
 function GameCoreManagerData:CurRootGoalCount()
     -- 根据目标类型动态计算已完成数量
     return 0
 end
 
+---=========================================================================
 --- 获取当前主目标ID
 ---@return string
+---=========================================================================
 function GameCoreManagerData:CurRootGoalID()
     return self._RootGoalData and self._RootGoalData.ID or ""
 end
 
+---=========================================================================
 --- 获取主目标总需求数量
 ---@return number
+---=========================================================================
 function GameCoreManagerData:TotalRootGoalCount()
     return self._TotalRootGoalCount
 end
 
+---=========================================================================
 --- 主目标是否已完成
 ---@return boolean
+---=========================================================================
 function GameCoreManagerData:IsRootGoalReach()
     return self:CurRootGoalCount() >= self._TotalRootGoalCount
 end
 
+---=========================================================================
 --- 是否为特殊客人关卡
 ---@return boolean
+---=========================================================================
 function GameCoreManagerData:IsSpecialGuest()
     local curGoalId = self:CurRootGoalID()
     return curGoalId == EGoalId.specialGuestCount or self:IsEnableAdditionalGoal(EGoalId.specialGuestCount)
 end
 
+-- endregion
+
 --========================================================================
--- 寻找物数量相关
+-- region 寻找物数量相关
 --========================================================================
 
+---=========================================================================
 --- 减少剩余寻找物数量，并派发事件
+---=========================================================================
 function GameCoreManagerData:SubRemainGuestCount()
     self._RemainGuestCount = math.max(0, self._RemainGuestCount - 1)
     HonorEventHelper:Fire(EventCmd.ChangeOnTheNumberOfRemainingSearchItems)
 end
 
+-- endregion
+
 --========================================================================
--- 道具使用统计
+-- region 道具使用统计
 --========================================================================
 
+---=========================================================================
 --- 获取关卡内道具使用明细列表
 ---@return table[]
+---=========================================================================
 function GameCoreManagerData:GetBoosterUse()
     if not self._LevelBoosterUsed then
         return nil
@@ -129,8 +162,10 @@ function GameCoreManagerData:GetBoosterUse()
     return result
 end
 
+---=========================================================================
 --- 是否使用过任意【关内道具】
 ---@return boolean
+---=========================================================================
 function GameCoreManagerData:IsUsedBooster()
     if not self._LevelBoosterUsed then
         return false
@@ -144,8 +179,10 @@ function GameCoreManagerData:IsUsedBooster()
     return false
 end
 
+---=========================================================================
 --- 是否使用过任意【前置道具】
 ---@return boolean
+---=========================================================================
 function GameCoreManagerData:IsUsedPreBooster()
     if not self._LevelBoosterUsed then
         return false
@@ -159,12 +196,16 @@ function GameCoreManagerData:IsUsedPreBooster()
     return false
 end
 
+---=========================================================================
 --- 记录关卡内道具使用数量
 ---@param id string 道具ID
 ---@param num number 使用数量
+---=========================================================================
 function GameCoreManagerData:RecordLevelBoosterUse(id, num)
     self._LevelBoosterUsed = self._LevelBoosterUsed or {}
     self._LevelBoosterUsed[id] = (self._LevelBoosterUsed[id] or 0) + num
 end
+
+-- endregion
 
 return GameCoreManagerData

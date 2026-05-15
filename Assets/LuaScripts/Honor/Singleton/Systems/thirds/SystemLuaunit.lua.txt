@@ -1,14 +1,13 @@
---[[
-    luaunit.lua
+--=====================================================================================================
+-- Description: LuaUnit - Lua 单元测试框架
+-- Project Home: https://github.com/bluebird75/luaunit
+-- Author: Philippe Fremy <phil@freehackers.org>
+-- Based on earlier work by Ryu, Gwang
+-- License: BSD License
+-- Version: 3.2
+--=====================================================================================================
 
-    描述：Lua 单元测试框架
-    项目主页：https://github.com/bluebird75/luaunit
-    作者：Philippe Fremy <phil@freehackers.org>
-    基于 Ryu, Gwang 的早期版本开发
-    协议：BSD License
-    版本：3.2
-]]--
-
+--region LuaUnit 单元测试框架 v3.2
 -- 导入数学库，用于数值计算、随机、精度判断
 require("math")
 
@@ -1190,5 +1189,6 @@ M.Run = M.LuaUnit.run
 function M:setVerbosity(v)
     M.LuaUnit.verbosity = v
 end
+--endregion
 
 return M

@@ -91,7 +91,7 @@ namespace Honor.Editor
             string excelPath = $"{GamePathUtils.Sound.GetExcelRootDirectoryFullPath()}/{excelFileName}.xlsm";
             // 导出的 Lua 文件路径
             string luaRootPath = GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath();
-            string luaPath = Path.Combine(luaRootPath, "RTables", $"Table{excelFileName}.lua.txt");
+            string luaPath = Path.Combine(luaRootPath, "AlTables", $"Table{excelFileName}.lua.txt");
 
             // 目录不存在则创建
             if (!Directory.Exists(luaRootPath))

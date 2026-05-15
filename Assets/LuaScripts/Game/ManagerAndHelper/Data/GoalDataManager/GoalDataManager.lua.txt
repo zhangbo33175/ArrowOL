@@ -1,36 +1,47 @@
 --=====================================================================================================
--- @brief  目标数据管理器
--- @desc   统一读取、查询关卡/任务/成就等目标配置表数据
--- @feat   安全查询、空值保护、日志输出、单例全局访问
--- @usage  根据目标ID获取：目标类型、条件、奖励、描述、参数等配置
+-- @brief:     目标数据管理器
+-- @desc:      统一读取、查询关卡/任务/成就等目标配置表数据
+-- @feat:      安全查询、空值保护、日志输出、单例全局访问
+-- @usage:     根据目标ID获取：目标类型、条件、奖励、描述、参数等配置
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 目标配置管理
 --=====================================================================================================
 
 ---@class GoalDataManager : Singleton @目标数据管理器（全局单例）
 local GoalDataManager = class("GoalDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function GoalDataManager:ctor()
     GoalDataManager.super.ctor(self)
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():GoalDataManager
 ---@return GoalDataManager
 function GoalDataManager:Create()
     return GoalDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function GoalDataManager:Init()
     GoalDataManager.super.Init(self)
 end
 
---- 清理数据
+---@brief 清理数据
+---@type fun():void
 function GoalDataManager:ClearData()
     GoalDataManager.super.ClearData(self)
 end
+--endregion
 
+--region 目标配置获取
 ---=========================================================================
---- 【核心接口】根据目标ID获取目标配置表数据
+---@brief  【核心接口】根据目标ID获取目标配置表数据
+---@type fun(goalId:string|number):Tables.Goals_Item|nil
 ---@param goalId string | number 目标ID
 ---@return Tables.Goals_Item | nil 目标配置（类型、条件、奖励、参数等）
 ---=========================================================================
@@ -56,7 +67,8 @@ function GoalDataManager:GetGoalDataById(goalId)
 end
 
 ---=========================================================================
---- 【扩展接口】批量获取一组目标的配置
+---@brief  【扩展接口】批量获取一组目标的配置
+---@type fun(goalIdList:table):table
 ---@param goalIdList table 目标ID数组
 ---@return table 配置数组
 ---=========================================================================
@@ -75,5 +87,6 @@ function GoalDataManager:GetGoalDataList(goalIdList)
 
     return result
 end
+--endregion
 
 return GoalDataManager

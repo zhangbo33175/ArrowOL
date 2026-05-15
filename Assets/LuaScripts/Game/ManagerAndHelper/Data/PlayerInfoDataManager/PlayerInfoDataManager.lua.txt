@@ -1,35 +1,46 @@
 --=====================================================================================================
--- @brief  playerInfo 存档数据管理器
--- @desc   管理玩家个人信息（用户名、输入状态等）的存档读写
--- @feat   全局单例、安全存档、默认昵称生成、多语言、空值防护
+-- @brief:     playerInfo 存档数据管理器
+-- @desc:      管理玩家个人信息（用户名、输入状态等）的存档读写
+-- @feat:      全局单例、安全存档、默认昵称生成、多语言、空值防护
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 玩家信息管理
 --=====================================================================================================
 
 ---@class PlayerInfoDataManager : Singleton @玩家信息存档管理器
 local PlayerInfoDataManager = class("PlayerInfoDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function PlayerInfoDataManager:ctor()
     PlayerInfoDataManager.super.ctor(self)
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():PlayerInfoDataManager
 ---@return PlayerInfoDataManager
 function PlayerInfoDataManager:Create()
     return PlayerInfoDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function PlayerInfoDataManager:Init()
     PlayerInfoDataManager.super.Init(self)
 end
 
---- 清理数据
+---@brief 清理数据
+---@type fun():void
 function PlayerInfoDataManager:ClearData()
     PlayerInfoDataManager.super.ClearData(self)
 end
+--endregion
 
+--region 用户名管理
 ---=========================================================================
---- 获取玩家当前显示的用户名（自动判断默认名/自定义名）
+---@brief  获取玩家当前显示的用户名（自动判断默认名/自定义名）
+---@type fun():string
 ---@return string 用户名
 ---=========================================================================
 function PlayerInfoDataManager:GetPlayerInfoUserName()
@@ -56,7 +67,8 @@ function PlayerInfoDataManager:GetPlayerInfoUserName()
 end
 
 ---=========================================================================
---- 设置玩家自定义用户名，并标记为已输入
+---@brief  设置玩家自定义用户名，并标记为已输入
+---@type fun(newName:string):void
 ---@param newName string 用户新输入的用户名
 ---=========================================================================
 function PlayerInfoDataManager:SetPlayerInfoUserName(newName)
@@ -82,5 +94,6 @@ function PlayerInfoDataManager:SetPlayerInfoUserName(newName)
         PrintError("[PlayerInfoDataManager] 保存失败：存档接口不存在")
     end
 end
+--endregion
 
 return PlayerInfoDataManager

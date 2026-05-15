@@ -1,35 +1,46 @@
 --=====================================================================================================
--- @brief  主界面UI层级数据管理器
--- @desc   管理主界面UI、弹窗、动画的显示层级与执行顺序配置
--- @feat   全局单例、安全查询、自动容错、排序获取、日志规范
+-- @brief:     主界面UI层级数据管理器
+-- @desc:      管理主界面UI、弹窗、动画的显示层级与执行顺序配置
+-- @feat:      全局单例、安全查询、自动容错、排序获取、日志规范
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / UI层级管理
 --=====================================================================================================
 
 ---@class HomeUILayerDataManager : Singleton @主界面UI层级数据管理器
 local HomeUILayerDataManager = class("HomeUILayerDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function HomeUILayerDataManager:ctor()
     HomeUILayerDataManager.super.ctor(self)
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():HomeUILayerDataManager
 ---@return HomeUILayerDataManager
 function HomeUILayerDataManager:Create()
     return HomeUILayerDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function HomeUILayerDataManager:Init()
     HomeUILayerDataManager.super.Init(self)
 end
 
---- 清理数据
+---@brief 清理数据
+---@type fun():void
 function HomeUILayerDataManager:ClearData()
     HomeUILayerDataManager.super.ClearData(self)
 end
+--endregion
 
+--region UI层级配置获取
 ---=========================================================================
---- 根据层级ID获取UI层级配置
+---@brief  根据层级ID获取UI层级配置
+---@type fun(id:EGameMainUIPushSortOrder):Tables.HomeUILayers_Item
 ---@param id EGameMainUIPushSortOrder UI层级ID
 ---@return Tables.HomeUILayers_Item UI层级配置
 ---=========================================================================
@@ -57,7 +68,8 @@ function HomeUILayerDataManager:GetDataById(id)
 end
 
 ---=========================================================================
---- 根据层级ID获取UI显示顺序
+---@brief  根据层级ID获取UI显示顺序
+---@type fun(id:EGameMainUIPushSortOrder):number
 ---@param id EGameMainUIPushSortOrder UI层级ID
 ---@return number 排序值（数值越小越先显示）
 ---=========================================================================
@@ -69,5 +81,6 @@ function HomeUILayerDataManager:GetOrderById(id)
     end
     return data.Order or 0
 end
+--endregion
 
 return HomeUILayerDataManager

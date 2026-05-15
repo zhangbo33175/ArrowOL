@@ -24,8 +24,12 @@
 
 local GameCoreManagerUseItem = class("GameCoreManagerUseItem")
 
+--region 构造 & 初始化
+---=========================================================================
 --- 构造函数
+---@brief 初始化道具管理状态、缓存容器
 ---@param args table 自定义参数
+---=========================================================================
 function GameCoreManagerUseItem:ctor(args)
     self._isGameWorking = false
     self._cacheWhenLevelNotWorking = nil
@@ -34,20 +38,28 @@ function GameCoreManagerUseItem:ctor(args)
     self._freeTag = {}
 end
 
+---=========================================================================
 --- 静态创建实例
 ---@param args table 自定义参数
 ---@return GameCoreManagerUseItem
+---=========================================================================
 function GameCoreManagerUseItem:Create(args)
     local instance = GameCoreManagerUseItem.new(args)
     return instance
 end
 
+---=========================================================================
 --- 清空运行时数据
+---@brief 切换关卡/重置时清理缓存道具
+---=========================================================================
 function GameCoreManagerUseItem:ClearData()
     self._cacheWhenLevelNotWorking = nil
 end
 
+---=========================================================================
 --- 回收所有常驻特效对象，防止内存泄漏
+---@brief 游戏结束/清理时统一回收常驻特效
+---=========================================================================
 function GameCoreManagerUseItem:RecycleEffectObject()
     if not self._longtimeEffects then
         return
@@ -60,10 +72,15 @@ function GameCoreManagerUseItem:RecycleEffectObject()
     end
     self._longtimeEffects = nil
 end
+--endregion
 
+--region 道具使用（核心流程：缓存 → 扣除 → 应用）
+---=========================================================================
 --- 使用道具（外部统一入口）
+---@brief 关卡未就绪则缓存，就绪则直接使用
 ---@param boosterID string 道具ID
 ---@param num number 使用数量，默认1
+---=========================================================================
 function GameCoreManagerUseItem:OnUsingBooster(boosterID, num)
     if not self._isGameWorking or GameManager:IsGamePaused() then
         self._cacheWhenLevelNotWorking = self._cacheWhenLevelNotWorking or {}
@@ -73,7 +90,10 @@ function GameCoreManagerUseItem:OnUsingBooster(boosterID, num)
     end
 end
 
+---=========================================================================
 --- 预处理缓存道具（关卡初始化时）
+---@brief 预加载/预处理，处理溜冰鞋等动画相关道具
+---=========================================================================
 function GameCoreManagerUseItem:Preconditioning()
     local boosters = self._cacheWhenLevelNotWorking
     if not boosters or #boosters == 0 then
@@ -88,7 +108,10 @@ function GameCoreManagerUseItem:Preconditioning()
     end
 end
 
+---=========================================================================
 --- 尝试扣除前置道具数据
+---@brief 关卡开始前统一扣除道具数量
+---=========================================================================
 function GameCoreManagerUseItem:TryUsePreBoosterDatas()
     local boosters = self._cacheWhenLevelNotWorking
     if not boosters or #boosters == 0 then
@@ -100,7 +123,10 @@ function GameCoreManagerUseItem:TryUsePreBoosterDatas()
     end
 end
 
+---=========================================================================
 --- 应用前置道具效果
+---@brief 关卡开始后统一应用道具表现效果
+---=========================================================================
 function GameCoreManagerUseItem:TryApplyPreBoosters()
     local boosters = self._cacheWhenLevelNotWorking
     if not boosters or #boosters == 0 then
@@ -113,7 +139,10 @@ function GameCoreManagerUseItem:TryApplyPreBoosters()
     self._cacheWhenLevelNotWorking = nil
 end
 
+---=========================================================================
 --- 游戏就绪后执行缓存中的道具
+---@brief 安全执行所有缓存的道具使用请求
+---=========================================================================
 function GameCoreManagerUseItem:TryUseBoosters()
     local boosters = self._cacheWhenLevelNotWorking
     if not boosters or #boosters == 0 then
@@ -125,18 +154,26 @@ function GameCoreManagerUseItem:TryUseBoosters()
     end
     self._cacheWhenLevelNotWorking = nil
 end
+--endregion
 
+--region 道具扣除 & 应用（数据层 + 表现层）
+---=========================================================================
 --- 确认扣除道具（统一扣费接口）
+---@brief 扣除道具数量，支持免费标记（引导专用）
 ---@param boosterID string 道具ID
+---=========================================================================
 function GameCoreManagerUseItem:OnConfirmTakeOffBooster(boosterID)
     ItemManager:OnConfirmUseBooster(boosterID, self._freeTag[boosterID] and 0 or 1)
     self._freeTag[boosterID] = nil
 end
 
+---=========================================================================
 --- 使用道具（仅数据层扣除）
+---@brief 处理：免费标记、Buff映射、数量扣除、记录使用
 ---@param boosterID string 道具ID
 ---@param num number 数量
 ---@return boolean, string 是否成功，最终道具ID
+---=========================================================================
 function GameCoreManagerUseItem:UseBoosterData(boosterID, num)
     if not boosterID then
         return false, nil
@@ -165,9 +202,12 @@ function GameCoreManagerUseItem:UseBoosterData(boosterID, num)
     return true, propId
 end
 
+---=========================================================================
 --- 应用道具效果（表现层）
+---@brief 播放特效、触发逻辑、应用技能效果（子类重写）
 ---@param propId string 道具ID
 ---@return boolean
+---=========================================================================
 function GameCoreManagerUseItem:ApplyBooster(propId)
     if string.isNullOrEmpty(propId) then
         return false
@@ -175,32 +215,44 @@ function GameCoreManagerUseItem:ApplyBooster(propId)
     return false
 end
 
+---=========================================================================
 --- 使用道具（数据 + 效果 统一入口）
+---@brief 先扣数据，再应用表现
 ---@param boosterID string 道具ID
 ---@param num number 数量
+---=========================================================================
 function GameCoreManagerUseItem:UseBooster(boosterID, num)
     local isSuccess, propId = self:UseBoosterData(boosterID, num)
     if isSuccess then
         self:ApplyBooster(propId)
     end
 end
+--endregion
 
 --=========================================================================
 -- region 关卡生命周期
 --=========================================================================
+---=========================================================================
 --- 关卡初始化
+---=========================================================================
 function GameCoreManagerUseItem:OnLeveInit()
     self:Preconditioning()
 end
 
+---=========================================================================
 --- 显示目标后，游戏正式开始
+---@brief 标记游戏可运行，应用前置道具效果
+---=========================================================================
 function GameCoreManagerUseItem:OnBeginGameAfterShowGoal()
     self._isGameWorking = true
     self:ClearEventListener()
     self:TryApplyPreBoosters()
 end
 
+---=========================================================================
 --- UI关闭后尝试执行道具
+---@brief UI关闭后再执行道具，防止冲突
+---=========================================================================
 function GameCoreManagerUseItem:TryUsingAfterUIClose()
     if not PlayHelper:IsInLevelState() then
         return
@@ -208,7 +260,10 @@ function GameCoreManagerUseItem:TryUsingAfterUIClose()
     self:TryUseBoosters()
 end
 
+---=========================================================================
 --- 游戏结束清理
+---@brief 重置状态、清理事件、回收特效、重置道具状态
+---=========================================================================
 function GameCoreManagerUseItem:OnGameOver()
     self._isGameWorking = false
     ClearDictionary(self._freeTag)
@@ -219,17 +274,24 @@ function GameCoreManagerUseItem:OnGameOver()
 end
 -- endregion
 
+--region 免费道具 & 工具方法
+---=========================================================================
 --- 设置免费道具（新手引导专用）
 ---@param boosterID string 道具ID
 ---@param value boolean 是否免费
+---=========================================================================
 function GameCoreManagerUseItem:SetupFreeBooster(boosterID, value)
     self._freeTag[boosterID] = value
 end
+--endregion
 
 --=========================================================================
 -- region 事件监听管理
 --=========================================================================
+---=========================================================================
 --- 清除所有注册的事件，防止泄漏
+---@brief 游戏结束/清理时自动注销所有事件
+---=========================================================================
 function GameCoreManagerUseItem:ClearEventListener()
     if not self._cacheEventFunc then
         return
@@ -240,8 +302,11 @@ function GameCoreManagerUseItem:ClearEventListener()
     self._cacheEventFunc = nil
 end
 
+---=========================================================================
 --- 记录事件函数（自动清理）
+---@brief 注册的事件统一记录，结束时自动注销
 ---@param func function 监听函数
+---=========================================================================
 function GameCoreManagerUseItem:RecordEventFunction(func)
     self._cacheEventFunc = self._cacheEventFunc or {}
     for _, f in ipairs(self._cacheEventFunc) do
@@ -255,6 +320,7 @@ end
 
 ---=========================================================================
 --- 游戏结束 神奇盘子效果回滚（补全缺失方法）
+---@brief 子类重写实现具体回滚逻辑
 ---=========================================================================
 function GameCoreManagerUseItem:GameOverRollbackWonderDish()
     -- 子类重写实现具体回滚逻辑

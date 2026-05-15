@@ -27,7 +27,11 @@
 
 local GameCoreManager = class("GameCoreManager")
 
+--region 生命周期 & 构造/初始化
+---=========================================================================
 --- 构造函数
+---@brief 初始化状态、队列、子模块
+---=========================================================================
 function GameCoreManager:ctor(args)
     -- 游戏状态
     self._IsPlaying = false
@@ -52,15 +56,20 @@ function GameCoreManager:ctor(args)
     self._GameCoreManagerEffect = require("GameCoreManagerEffect"):Create()
 end
 
+---=========================================================================
 --- 创建实例
----@return GameCoreManager
+---@return GameCoreManager 实例
+---=========================================================================
 function GameCoreManager:Create(args)
     local instance = GameCoreManager.new(args)
     PrintInfo("[GameCoreManager] 初始化完成")
     return instance
 end
 
+---=========================================================================
 --- 清空数据（切换关卡/重置时调用）
+---@brief 重置所有状态、队列、子模块数据
+---=========================================================================
 function GameCoreManager:ClearData()
     -- 状态重置
     self._IsPlaying = false
@@ -84,12 +93,16 @@ function GameCoreManager:ClearData()
 
     PrintInfo("[GameCoreManager] 数据已清空")
 end
+--endregion
 
 --=========================================================================
 --region 游戏胜负逻辑
 --=========================================================================
 
+---=========================================================================
 --- 游戏胜利
+---@brief 触发胜利流程、任务进度、结算流程
+---=========================================================================
 function GameCoreManager:OnGameVictory()
     -- 发送任务进度
     self:SendQuestFinishProgress()
@@ -102,29 +115,72 @@ function GameCoreManager:OnGameVictory()
     PrintInfo("[GameCoreManager] 关卡胜利")
 end
 
+---=========================================================================
 --- 发送关卡完成任务进度
+---@brief 关卡胜利后同步任务进度到服务器/存档
+---=========================================================================
 function GameCoreManager:SendQuestFinishProgress()
 end
 
+---=========================================================================
 --- 游戏失败
 ---@param eGameOverType EGameOverType 失败类型
+---=========================================================================
 function GameCoreManager:DoGameFailed(eGameOverType)
 end
 
+---=========================================================================
 --- 游戏复活
+---@brief 复活重置游戏状态，继续游戏
+---=========================================================================
 function GameCoreManager:DoGameRevive()
 end
 
+---=========================================================================
 --- 获取游戏结束原因
----@return EGameOverType
+---@return EGameOverType 结束类型
+---=========================================================================
 function GameCoreManager:GetGameOverType()
     return self._eGameOverType
 end
 
 --endregion
 
+--=========================================================================
+--region 关卡信息
+--=========================================================================
+
+---=========================================================================
+--- 获取当前关卡配置
+---@return Tables.LevelData_Item 关卡数据表
+---=========================================================================
+function GameCoreManager:GetCurLevelData()
+    return self._CurLevelData
+end
+
+---=========================================================================
+--- 是否无限客人关卡
+---@return boolean
+---=========================================================================
+function GameCoreManager:IsUnlimitedGuests()
+    return self._CurLevelData and self._CurLevelData.UnlimitedGuests == 1
+end
+
+---=========================================================================
+--- 是否最新章节关卡
+---@return boolean
+---=========================================================================
+function GameCoreManager:IsLatestChapter()
+    if not self._CurLevelData then
+        return false
+    end
+    return self._CurLevelData.ChapterId == ChapterListMgr:GetLatestChapterId()
+end
+
+---=========================================================================
 --- 是否在挑战关卡
 ---@return boolean
+---=========================================================================
 function GameCoreManager:IsInChallengeLevel()
     if self._CurLevelData == nil then
         return false
@@ -132,35 +188,12 @@ function GameCoreManager:IsInChallengeLevel()
     return self._CurLevelData.Difficulty == ELevelDifficultyType.Challenge
 end
 
+---=========================================================================
 --- 体力是否足够
 ---@return boolean
+---=========================================================================
 function GameCoreManager:IsLifeEnough()
     return true
-end
-
---=========================================================================
---region 关卡信息
---=========================================================================
-
---- 获取当前关卡配置
----@return Tables.LevelData_Item
-function GameCoreManager:GetCurLevelData()
-    return self._CurLevelData
-end
-
---- 是否无限客人关卡
----@return boolean
-function GameCoreManager:IsUnlimitedGuests()
-    return self._CurLevelData and self._CurLevelData.UnlimitedGuests == 1
-end
-
---- 是否最新章节关卡
----@return boolean
-function GameCoreManager:IsLatestChapter()
-    if not self._CurLevelData then
-        return false
-    end
-    return self._CurLevelData.ChapterId == ChapterListMgr:GetLatestChapterId()
 end
 
 --endregion
@@ -169,14 +202,18 @@ end
 --region 游戏状态
 --=========================================================================
 
+---=========================================================================
 --- 是否游戏结束
 ---@return boolean
+---=========================================================================
 function GameCoreManager:IsGameOver()
     return self._IsGameOver
 end
 
+---=========================================================================
 --- 是否正在游戏中
 ---@return boolean
+---=========================================================================
 function GameCoreManager:IsPlaying()
     return self._IsPlaying
 end
@@ -187,33 +224,45 @@ end
 --region 游戏结束判定 & 消息队列（核心机制）
 --=========================================================================
 
+---=========================================================================
 --- 触发游戏结束
 ---@param eGameOverType EGameOverType 结束类型
 ---@param bounds LuaBoundsData 区域数据
+---=========================================================================
 function GameCoreManager:TriggerGameOver(eGameOverType, bounds)
 end
 
+---=========================================================================
 --- 添加游戏结束消息到队列
+---@brief 安全队列，防止多端同时触发结束
 ---@param eGameOverType EGameOverType
 ---@param bounds LuaBoundsData
+---=========================================================================
 function GameCoreManager:AddHandleGameOverMsg(eGameOverType, bounds)
 end
 
+---=========================================================================
 --- 检查游戏结果
 ---@param eGameOverType EGameOverType
 ---@param bounds LuaBoundsData
+---=========================================================================
 function GameCoreManager:CheckGameResult(eGameOverType, bounds)
 end
 
+---=========================================================================
 --- 检查关卡目标是否完成
 ---@param hasCoins boolean 是否包含金币
 ---@param eGameOverType EGameOverType
 ---@param bounds LuaBoundsData
+---=========================================================================
 function GameCoreManager:CheckGoalReach(hasCoins, eGameOverType, bounds)
 end
 
+---=========================================================================
 --- 等待金币收集动画完成（安全遮罩 + 延时回调）
+---@brief 防止玩家在结算过程中操作
 ---@param finishCallback function 完成回调
+---=========================================================================
 function GameCoreManager:WaitCollectCoinsAnim(finishCallback)
     -- 显示遮罩防止操作
     GameMainRoot.UI:AddUIMaskLayerRef("WaitCollectCoinsAnim")
@@ -233,7 +282,10 @@ function GameCoreManager:WaitCollectCoinsAnim(finishCallback)
     end)
 end
 
+---=========================================================================
 --- 启动游戏结束消息队列
+---@brief 启动协程，有序处理结束事件
+---=========================================================================
 function GameCoreManager:StartCheckGameOverMsgQueue()
     self:StopCheckGameOverMsgQueue()
 
@@ -242,7 +294,10 @@ function GameCoreManager:StartCheckGameOverMsgQueue()
     end)
 end
 
+---=========================================================================
 --- 停止游戏结束消息队列
+---@brief 清理协程与队列，防止内存泄漏
+---=========================================================================
 function GameCoreManager:StopCheckGameOverMsgQueue()
     if self._HandleGameOverMsgQueueCoroutine then
         HonorCoroutineHelper:StopAlone(self._HandleGameOverMsgQueueCoroutine)
@@ -251,7 +306,10 @@ function GameCoreManager:StopCheckGameOverMsgQueue()
     self._HandleGameOverMsgQueue:Clear()
 end
 
+---=========================================================================
 --- 协程：处理游戏结束消息队列（安全、有序、防重入）
+---@brief 核心机制：确保游戏结束只触发一次，流程可控
+---=========================================================================
 function GameCoreManager:CheckGameOverMsgQueueCoroutine()
     local waitUtil1, waitUtil2
     local data
@@ -286,9 +344,11 @@ function GameCoreManager:CheckGameOverMsgQueueCoroutine()
     end
 end
 
+---=========================================================================
 --- 触发游戏失败事件
 ---@param gameOverType EGameOverType
 ---@param bounds LuaBoundsData
+---=========================================================================
 function GameCoreManager:FireTriggerGameOver(gameOverType, bounds)
 end
 
@@ -298,35 +358,50 @@ end
 --region 游戏生命周期
 --=========================================================================
 
+---=========================================================================
 --- 初始化游戏
+---=========================================================================
 function GameCoreManager:OnInitGame()
 end
 
+---=========================================================================
 --- 进入游戏
+---@brief 准备阶段，重置状态
+---=========================================================================
 function GameCoreManager:OnEnterGame()
     self._IsPlaying = false
     self._IsExitGame = false
 end
 
+---=========================================================================
 --- 游戏开始
+---@brief 正式进入游戏逻辑
+---=========================================================================
 function GameCoreManager:OnBeginGame()
 end
 
+---=========================================================================
 --- 游戏暂停
+---=========================================================================
 function GameCoreManager:OnPauseGame()
     if not PlayHelper:IsInLevelState() then
         return
     end
 end
 
+---=========================================================================
 --- 游戏恢复
+---=========================================================================
 function GameCoreManager:OnResumeGame()
     if not PlayHelper:IsInLevelState() then
         return
     end
 end
 
+---=========================================================================
 --- 游戏结束
+---@brief 统一结束入口：停止队列、清理状态、音效
+---=========================================================================
 function GameCoreManager:OnGameOver()
     self._IsPlaying = false
     self._IsExitGame = false
@@ -343,13 +418,17 @@ function GameCoreManager:OnGameOver()
     PrintInfo("[GameCoreManager] 游戏结束")
 end
 
+---=========================================================================
 --- 退出游戏
+---=========================================================================
 function GameCoreManager:OnExitGame()
     self._IsPlaying = false
     self._IsExitGame = true
 end
 
+---=========================================================================
 --- 重新开始游戏
+---=========================================================================
 function GameCoreManager:OnRePlayGame()
     self:OnBeginGame()
 end
@@ -360,8 +439,11 @@ end
 --region 体力 / 复活管理
 --=========================================================================
 
+---=========================================================================
 --- 返还体力
+---@brief 根据关卡结果与地图类型返还体力
 ---@param isSuccess boolean 是否通关成功
+---=========================================================================
 function GameCoreManager:GiveBackLife(isSuccess)
     if not isSuccess or not self._GameCoreManagerData._LifeCost then
         return
@@ -375,18 +457,26 @@ function GameCoreManager:GiveBackLife(isSuccess)
     end
 end
 
+---=========================================================================
 --- 当前关卡是否消耗体力
 ---@return boolean
+---=========================================================================
 function GameCoreManager:GetLevelLifeCost()
     return self._GameCoreManagerData._LifeCost
 end
 
+---=========================================================================
 --- 记录复活次数
+---@return number 最新次数
+---=========================================================================
 function GameCoreManager:RecordRevive()
     return self._GameCoreManagerData:RecordRevive()
 end
 
+---=========================================================================
 --- 获取当前复活次数
+---@return number
+---=========================================================================
 function GameCoreManager:GetReviveNumberOfTimes()
     return self._GameCoreManagerData:GetReviveNumberOfTimes()
 end
@@ -397,20 +487,27 @@ end
 --region 退出二次确认提示
 --=========================================================================
 
+---=========================================================================
 --- 获取退出提示列表
+---@return table
+---=========================================================================
 function GameCoreManager:GetExitSureTip()
     return self._ExitSureTip
 end
 
+---=========================================================================
 --- 是否存在退出提示
 ---@return boolean
+---=========================================================================
 function GameCoreManager:HasExitSureTip()
     return not TableIsEmpty(self._ExitSureTip)
 end
 
+---=========================================================================
 --- 注册退出提示
 ---@param id any 提示ID
 ---@param strNum string 提示文本编号
+---=========================================================================
 function GameCoreManager:RegisterExitSureTip(id, strNum)
     local tip = self:FindExitSureTip(id)
     if tip then
@@ -420,8 +517,10 @@ function GameCoreManager:RegisterExitSureTip(id, strNum)
     end
 end
 
+---=========================================================================
 --- 移除退出提示
 ---@param id any 提示ID
+---=========================================================================
 function GameCoreManager:UnRegisterExitSureTip(id)
     for i, t in ipairs(self._ExitSureTip) do
         if t.id == id then
@@ -431,9 +530,11 @@ function GameCoreManager:UnRegisterExitSureTip(id)
     end
 end
 
+---=========================================================================
 --- 查找提示（内部方法）
 ---@param id any 提示ID
 ---@return table
+---=========================================================================
 function GameCoreManager:FindExitSureTip(id)
     for _, t in ipairs(self._ExitSureTip) do
         if t.id == id then
@@ -449,8 +550,10 @@ end
 --region 目标进度（主/副目标）
 --=========================================================================
 
+---=========================================================================
 --- 获取主目标配置与进度
 ---@return number, number, number 目标ID, 目标总数, 当前进度
+---=========================================================================
 function GameCoreManager:GetMainGoalCfg()
     local mainId = self._GameCoreManagerData:CurRootGoalID()
     local mainNum = self._GameCoreManagerData:TotalRootGoalCount()
@@ -458,9 +561,11 @@ function GameCoreManager:GetMainGoalCfg()
     return mainId, mainNum, mainProgress
 end
 
+---=========================================================================
 --- 根据ID获取副目标进度
 ---@param goalId string 副目标ID
 ---@return number, number 总数, 当前进度
+---=========================================================================
 function GameCoreManager:GetAdditionalGoalProgressById(goalId)
     if not self._GameCoreManagerData:IsEnableAdditionalGoal(goalId) then
         return nil, nil
@@ -477,9 +582,11 @@ end
 --region 道具 & 技能
 --=========================================================================
 
+---=========================================================================
 --- 请求使用技能/道具
 ---@param boosterID string 道具ID
 ---@param num number 数量
+---=========================================================================
 function GameCoreManager:OnRequestUsingSkill(boosterID, num)
     if not boosterID then
         return
@@ -487,9 +594,12 @@ function GameCoreManager:OnRequestUsingSkill(boosterID, num)
     self._GameCoreManagerUseItem:OnUsingBooster(boosterID, num)
 end
 
+---=========================================================================
 --- 是否允许使用道具
+---@brief 按道具ID做规则校验：次数、状态、关卡限制
 ---@param boosterID string 道具ID
 ---@return boolean
+---=========================================================================
 function GameCoreManager:AllowUsingBooster(boosterID)
     if boosterID == EResourceIDs.Candy then
         return self._GameCoreManagerUseItem:AllowUsingCandy()
@@ -504,16 +614,20 @@ function GameCoreManager:AllowUsingBooster(boosterID)
     return false
 end
 
+---=========================================================================
 --- 是否冻结道具生效中
 ---@return boolean
+---=========================================================================
 function GameCoreManager:IsFreezeInEffect()
     return ItemManager:InActive(EResourceIDs.Freeze)
 end
 
 --endregion
 
+---=========================================================================
 --- 设置正在进行的关卡标记（用于异常恢复）
 ---@param levelInfo string 关卡信息
+---=========================================================================
 function GameCoreManager:SetPlayingLevelTag(levelInfo)
     SaveRootData.GameData.playingLevelTag = levelInfo
     SaveIO.GameData.Save_playingLevelTag()

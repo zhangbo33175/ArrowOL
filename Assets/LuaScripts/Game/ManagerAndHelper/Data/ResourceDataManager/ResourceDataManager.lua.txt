@@ -1,7 +1,8 @@
 --=====================================================================================================
--- @brief  资源物品表格数据管理中心
--- @desc   读取物品配置表、按类型/子类型获取道具列表、获取资源类型、缓存分类道具数据
--- @feat   全局单例、自动缓存、安全查询、分类排序、配置容错
+-- @brief:     资源物品表格数据管理中心
+-- @desc:      读取物品配置表、按类型/子类型获取道具列表、获取资源类型、缓存分类道具数据
+-- @feat:      全局单例、自动缓存、安全查询、分类排序、配置容错
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 物品资源配置管理
 --=====================================================================================================
 
 ---@class ResourceID
@@ -12,32 +13,42 @@
 ---@field _resources table<EResourceType, ResourceID[]> 按资源类型缓存的道具ID列表
 local ResourceDataManager = class("ResourceDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function ResourceDataManager:ctor()
     ResourceDataManager.super.ctor(self)
     self:Init()
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():ResourceDataManager
 ---@return ResourceDataManager
 function ResourceDataManager:Create()
     return ResourceDataManager.new()
 end
+--endregion
 
---- 初始化（清空缓存）
+--region 初始化 & 生命周期
+---@brief 初始化（清空缓存）
+---@type fun():void
 function ResourceDataManager:Init()
     self._boosterIDs = nil
-    self._resources = nil
+    self._resources  = nil
 end
 
---- 清理数据（切号/重载）
+---@brief 清理数据（切号/重载）
+---@type fun():void
 function ResourceDataManager:ClearData()
     ResourceDataManager.super.ClearData(self)
     self:Init()
 end
+--endregion
 
+--region 物品配置获取
 ---=========================================================================
---- 获取物品资源总表
+---@brief  获取物品资源总表
+---@type fun():Tables.Resource_Item[]
 ---@return Tables.Resource_Item[]
 ---=========================================================================
 function ResourceDataManager:GetResourceDatas()
@@ -49,7 +60,8 @@ function ResourceDataManager:GetResourceDatas()
 end
 
 ---=========================================================================
---- 根据资源ID获取物品配置
+---@brief  根据资源ID获取物品配置
+---@type fun(resID:string):Tables.Resource_Item|nil
 ---@param resID string 资源ID
 ---@return Tables.Resource_Item|nil
 ---=========================================================================
@@ -58,9 +70,12 @@ function ResourceDataManager:GetResourceData(resID)
     local items = self:GetResourceDatas()
     return items[tostring(resID)]
 end
+--endregion
 
+--region 资源类型获取
 ---=========================================================================
---- 根据资源ID获取资源类型
+---@brief  根据资源ID获取资源类型
+---@type fun(resID:string):EResourceType|nil
 ---@param resID string 资源ID
 ---@return EResourceType|nil
 ---=========================================================================
@@ -68,9 +83,12 @@ function ResourceDataManager:GetResourceTypeById(resID)
     local data = self:GetResourceData(resID)
     return data and data.Type or nil
 end
+--endregion
 
+--region 按子类型/资源类型获取道具列表
 ---=========================================================================
---- 获取指定子类型的所有道具ID（已排序）
+---@brief  获取指定子类型的所有道具ID（已排序）
+---@type fun(boosterSubType:EItemSubType):ResourceID[]
 ---@param boosterSubType EItemSubType
 ---@return ResourceID[]
 ---=========================================================================
@@ -79,7 +97,7 @@ function ResourceDataManager:GetBoosterIDs(boosterSubType)
 
     self._boosterIDs = self._boosterIDs or {}
     if not self._boosterIDs[boosterSubType] then
-        local list = {}
+        local list  = {}
         local items = self:GetResourceDatas()
 
         for k, v in pairs(items) do
@@ -102,7 +120,8 @@ function ResourceDataManager:GetBoosterIDs(boosterSubType)
 end
 
 ---=========================================================================
---- 获取指定资源类型的所有道具ID（已排序）
+---@brief  获取指定资源类型的所有道具ID（已排序）
+---@type fun(resType:EResourceType):ResourceID[]
 ---@param resType EResourceType
 ---@return ResourceID[]
 ---=========================================================================
@@ -111,7 +130,7 @@ function ResourceDataManager:GetResourceIDs(resType)
 
     self._resources = self._resources or {}
     if not self._resources[resType] then
-        local list = {}
+        local list  = {}
         local items = self:GetResourceDatas()
 
         for k, v in pairs(items) do
@@ -132,5 +151,6 @@ function ResourceDataManager:GetResourceIDs(resType)
 
     return self._resources[resType] or {}
 end
+--endregion
 
 return ResourceDataManager

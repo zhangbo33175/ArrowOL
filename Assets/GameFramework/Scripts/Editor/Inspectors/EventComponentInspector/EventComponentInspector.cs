@@ -1,5 +1,6 @@
 ﻿using Honor.Runtime;
 using UnityEditor;
+using UnityEngine;
 
 namespace Honor.Editor
 {
@@ -11,9 +12,10 @@ namespace Honor.Editor
     [CustomEditor(typeof(EventComponent))]
     public class EventComponentInspector : HonorComponentInspector
     {
-        /// <summary>
-        /// 绘制Inspector面板
-        /// </summary>
+        #region 【编辑器生命周期】
+        //=========================================================================
+        // 绘制Inspector面板
+        //=========================================================================
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -42,11 +44,12 @@ namespace Honor.Editor
             Repaint();
         }
 
-        /// <summary>
-        /// 启用时（无需初始化）
-        /// </summary>
+        //=========================================================================
+        // 启用时（无需初始化）
+        //=========================================================================
         private void OnEnable()
         {
         }
+        #endregion
     }
 }

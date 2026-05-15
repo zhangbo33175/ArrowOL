@@ -1,11 +1,13 @@
 --=====================================================================================================
--- descrip:   全局桥接方法
+-- Description: 全局桥接方法
 --              核心作用：提供 Lua 与 C# 交互的底层通用函数，包括调试器、类创建、UI事件绑定
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
+--region EmmyLua 调试器初始化
 --- EmmyLua 断点调试器初始化（仅编辑器环境生效）
 --- 功能：根据配置文件自动选择调试模式，连接 Rider/IDE 进行 Lua 断点调试
----@type fun():void
 function __DEBUGGER__()
     if IsEditor == true then
         local debugType = Honor.GameDefinitions.DebugMode.None
@@ -30,31 +32,14 @@ function __DEBUGGER__()
             end
         end
     end
-
-    -- 重复代码段（保留原逻辑，未做修改）
-    if IsEditor == true then
-        local debugType = Honor.GameDefinitions.DebugMode.None
-        if io.exists(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath()) == true then
-            local content = io.readfile(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath())
-            debugType = Honor.GameDefinitions.DebugMode.__CastFrom(tonumber(content))
-            package.cpath = package.cpath .. ';C:/Users/Administrator/AppData/Roaming/JetBrains/Rider2026.1/plugins/IntelliJ-EmmyLua/debugger/emmy/windows/x64/?.dll'
-            if debugType == Honor.GameDefinitions.DebugMode.IDEFirst then
-                local dbg = require('emmy_core')
-                dbg.tcpConnect('localhost', 9966)
-            elseif debugType == Honor.GameDefinitions.DebugMode.UnityFirst then
-                local dbg = require('emmy_core')
-                dbg.tcpListen('localhost', 9966)
-                dbg.waitIDE()
-            end
-        end
-    end
 end
 -- 启动调试器
 __DEBUGGER__()
+--endregion
 
+--region C# → Lua 类创建（生命周期绑定）
 --- 从 C# 层创建 Lua 业务类（绑定生命周期）
 --- 功能：C# 的 LuaBehaviour 调用此函数创建 Lua 类，并绑定 Awake/Start/Update/OnDestroy 等周期
----@type fun(_env:table, _luaScriptName:string):table
 ---@param _env table C#传递的环境表，用于绑定生命周期函数
 ---@param _luaScriptName string Lua脚本名称（require用）
 ---@return table 创建好的Lua类实例
@@ -93,7 +78,6 @@ end
 
 --- 从 C# 层创建流程(Procedure)Lua类
 --- 功能：专门用于流程（场景/状态）的创建，绑定流程生命周期
----@type fun(_env:table, _luaScriptName:string):table
 ---@param _env table 环境表
 ---@param _luaScriptName string 流程类名
 ---@return table 流程实例
@@ -107,10 +91,11 @@ function CreatePocedureLuaClassFromCS(_env, _luaScriptName)
 
     return _createdClass
 end
+--endregion
 
+--region UI 自动事件绑定（框架核心）
 --- 为UI注入对象注册事件监听（按钮、Toggle、输入框、列表等自动绑定）
 --- 功能：框架核心函数，C#可视化配置的事件自动绑定到Lua函数
----@type fun(_injectionObj:userdata, _injectionCmd:string, _handler:handler):void
 ---@param _injectionObj userdata C#注入的UI对象（Button/Toggle/Input等）
 ---@param _injectionCmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_开头的事件
 ---@param _handler handler Lua回调函数（handler包装）
@@ -219,7 +204,6 @@ function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
 end
 
 --- 移除UI注入对象的监听
----@type fun(_injectionObj:userdata, _injectionCmd:string, _handler:handler):void
 ---@param _injectionObj userdata UI对象
 ---@param _injectionCmd string 事件类型
 ---@param _handler handler 要移除的回调
@@ -241,3 +225,4 @@ function OnRemoveListener(_injectionObj, _injectionCmd, _handler)
         addUIListenerInfos[_injectionObj]._interactTargetTimes = nil
     end
 end
+--endregion

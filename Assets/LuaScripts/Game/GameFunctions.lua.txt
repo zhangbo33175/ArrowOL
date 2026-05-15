@@ -5,6 +5,10 @@
 -- @date:      2025
 --=====================================================================================================
 
+--region DOTween 缓动类型转换
+--=========================================================================
+-- DOTween 缓动类型转换
+--=========================================================================
 --- 将数字类型的缓动类型 转换成 DOTween 枚举 Ease
 ---@type fun(intEaseType:number):DG.Tweening.Ease
 ---@param intEaseType number 数字缓动类型
@@ -50,7 +54,12 @@ function ParseEaseByInt(intEaseType)
     }
     return easeMap[intEaseType] or DG.Tweening.Ease.Linear
 end
+--endregion
 
+--region 对象池工具
+--=========================================================================
+-- 对象池工具
+--=========================================================================
 --- 获取对象池根节点 GameObject
 ---@type fun():UnityEngine.GameObject
 ---@return UnityEngine.GameObject 对象池根节点
@@ -73,7 +82,12 @@ function CreateNewPoolRoot()
     newRoot.transform.localPosition = Vector3.zero
     return newRoot
 end
+--endregion
 
+--region 屏幕边界计算
+--=========================================================================
+-- 屏幕边界计算
+--=========================================================================
 --- 获取屏幕左边界世界坐标 X
 ---@type fun(sceneCamera:UnityEngine.Camera):number
 ---@param sceneCamera UnityEngine.Camera 场景相机
@@ -117,7 +131,12 @@ function GetScreenBorderBottomWorldY(sceneCamera)
     end
     return sceneCamera:ViewportToWorldPoint(Vector3(0, 0, 0)).y
 end
+--endregion
 
+--region 字符串工具
+--=========================================================================
+-- 字符串工具
+--=========================================================================
 --- 判断字符串是否以指定内容开头
 ---@type fun(str:string, startStr:string):boolean
 ---@param str string 原字符串
@@ -137,8 +156,12 @@ function StringEndsWith(str, endStr)
     if not str or not endStr then return false end
     return string.sub(str, -string.len(endStr)) == endStr
 end
+--endregion
 
---====================== Spine 动画相关工具 ======================
+--region Spine 动画工具
+--=========================================================================
+-- Spine 动画工具
+--=========================================================================
 --- 获取 Spine.SkeletonAnimation 动画时长
 ---@type fun(spineAnim:Spine.Unity.SkeletonAnimation, animName:string):number
 ---@param spineAnim Spine.Unity.SkeletonAnimation Spine动画组件
@@ -197,7 +220,12 @@ function DelayPlaySpineAnimation(skeletonGraphic, animName, delay, loop)
     if IsNull(skeletonGraphic) or IsNull(skeletonGraphic.AnimationState) then return nil end
     return skeletonGraphic.AnimationState:AddAnimation(0, animName, loop, delay)
 end
+--endregion
 
+--region 飞星 / 贝塞尔动画
+--=========================================================================
+-- 飞星 / 贝塞尔动画
+--=========================================================================
 --- 打开飞星界面并播放飞星效果
 ---@type fun(cfg:StarFlyConfig):void
 ---@param cfg StarFlyConfig 飞星配置数据
@@ -295,7 +323,12 @@ function DOPathAndWait(go, pathPoints, preDelay, duration, ease)
 
     return sequence
 end
+--endregion
 
+--region UI 文本 / 适配工具
+--=========================================================================
+-- UI 文本 / 适配工具
+--=========================================================================
 --- 获取文本宽度（根据内容）
 ---@type fun(text:TMPro.TextMeshProUGUI, content:string):number
 ---@param text TMPro.TextMeshProUGUI 文本组件
@@ -364,7 +397,12 @@ function GetRealScreenHeightByDesign(designHeight)
 
     return (designHeight * UnityEngine.Screen.height) / canvasHeight
 end
+--endregion
 
+--region 数组 / 表工具
+--=========================================================================
+-- 数组 / 表工具
+--=========================================================================
 --- 判断 table 是否为空
 ---@type fun(t:table):boolean
 ---@param t table 目标表
@@ -388,22 +426,37 @@ function ArrayConvert(source, converter)
     return result
 end
 
---- 获取 UI 中心点世界坐标
----@type fun(rectTransform:UnityEngine.RectTransform):UnityEngine.Vector3
----@param rectTransform UnityEngine.RectTransform UI矩形变换
----@return UnityEngine.Vector3 中心点世界坐标
-function GetRectTransformCenterWorldPos(rectTransform)
-    if IsNull(rectTransform) then return Vector3.zero end
-
-    local pivot = rectTransform.pivot
-    if math.abs(pivot.x - 0.5) < 0.001 and math.abs(pivot.y - 0.5) < 0.001 then
-        return rectTransform.position
+--- 清空数组（高效）
+---@type fun(array:table):void
+---@param array table 目标数组
+function ClearArray(array)
+    if not array then return end
+    while #array > 0 do
+        table.remove(array)
     end
+end
 
-    local offsetPivot = Vector2(0.5, 0.5) - pivot
-    local size = rectTransform.sizeDelta
-    local offset = Vector2(size.x * offsetPivot.x, size.y * offsetPivot.y)
-    return rectTransform:TransformPoint(Vector3(offset.x, offset.y, 0))
+--- 清空字典
+---@type fun(dict:table):void
+---@param dict table 目标字典
+function ClearDictionary(dict)
+    if not dict then return end
+    for k, _ in pairs(dict) do
+        dict[k] = nil
+    end
+end
+
+--- Fisher-Yates 打乱数组
+---@type fun(array:table):void
+---@param array table 目标数组
+function ShuffleArray(array)
+    if not array or #array <= 1 then return end
+    local i = #array
+    while i > 1 do
+        local j = math.random(i)
+        array[i], array[j] = array[j], array[i]
+        i = i - 1
+    end
 end
 
 --- 二分法插入有序数组
@@ -441,6 +494,29 @@ function BinaryInsertSortedArray(array, item, sortField)
         table.insert(array, min + 1, item)
     end
 end
+--endregion
+
+--region Transform / 坐标工具
+--=========================================================================
+-- Transform / 坐标工具
+--=========================================================================
+--- 获取 UI 中心点世界坐标
+---@type fun(rectTransform:UnityEngine.RectTransform):UnityEngine.Vector3
+---@param rectTransform UnityEngine.RectTransform UI矩形变换
+---@return UnityEngine.Vector3 中心点世界坐标
+function GetRectTransformCenterWorldPos(rectTransform)
+    if IsNull(rectTransform) then return Vector3.zero end
+
+    local pivot = rectTransform.pivot
+    if math.abs(pivot.x - 0.5) < 0.001 and math.abs(pivot.y - 0.5) < 0.001 then
+        return rectTransform.position
+    end
+
+    local offsetPivot = Vector2(0.5, 0.5) - pivot
+    local size = rectTransform.sizeDelta
+    local offset = Vector2(size.x * offsetPivot.x, size.y * offsetPivot.y)
+    return rectTransform:TransformPoint(Vector3(offset.x, offset.y, 0))
+end
 
 --- 等比缩放限制尺寸
 ---@type fun(origin:Vector2, maxWidth:number, maxHeight:number):Vector2
@@ -462,17 +538,58 @@ function ScaleToFitSize(origin, maxWidth, maxHeight)
     return Vector2(origin.x, origin.y)
 end
 
---- 安全执行函数（捕获异常）
----@type fun(func:function, errorMsg:string):void
----@param func function 执行函数
----@param errorMsg string 错误提示信息
-function SafeInvoke(func, errorMsg)
-    if not func then return end
-    xpcall(func, function(msg)
-        PrintError(string.format("[SafeInvoke] %s => %s", errorMsg or "Error", debug.traceback(msg, 4)))
-    end)
+--- 检查父节点是否隐藏（最多查几层）
+---@type fun(transform:UnityEngine.Transform, maxDepth:number):boolean
+---@param transform UnityEngine.Transform 目标变换
+---@param maxDepth number 检查深度
+---@return boolean 是否有父节点隐藏
+function IsAnyParentInactive(transform, maxDepth)
+    if IsNull(transform) then return true end
+    maxDepth = math.min(maxDepth or 3, 5)
+    local parent = transform.parent
+
+    while not IsNull(parent) and maxDepth > 0 do
+        maxDepth = maxDepth - 1
+        if not parent.gameObject.activeSelf then return true end
+        parent = parent.parent
+    end
+    return false
 end
 
+--- 复制物体并设为子节点
+---@type fun(parent:UnityEngine.GameObject, original:UnityEngine.GameObject):UnityEngine.GameObject
+---@param parent UnityEngine.GameObject 父物体
+---@param original UnityEngine.GameObject 原始物体
+---@return UnityEngine.GameObject 复制后的物体
+function InstantiateChild(parent, original)
+    if IsNull(parent) or IsNull(original) then return nil end
+    local go = UnityEngine.Object.Instantiate(original)
+    go:SetActive(true)
+    go.transform:SetParent(parent.transform)
+    go.transform.localScale = Vector3.one
+    go.transform.localPosition = Vector3.zero
+    go.transform.localEulerAngles = Vector3.zero
+    return go
+end
+
+--- 设置父子关系并重置Transform
+---@type fun(parent:UnityEngine.GameObject, child:UnityEngine.GameObject):void
+---@param parent UnityEngine.GameObject 父物体
+---@param child UnityEngine.GameObject 子物体
+function SetTransformChild(parent, child)
+    if IsNull(parent) or IsNull(child) then return end
+    child:SetActive(true)
+    child.transform:SetParent(parent.transform)
+    child.transform.localScale = Vector3.one
+    child.transform.localEulerAngles = Vector3.zero
+    child.transform.localPosition = Vector3.zero
+end
+--endregion
+
+--region 包围盒工具
+--=========================================================================
+-- 包围盒工具
+--=========================================================================
 --- 获取模型屏幕包围盒
 ---@type fun(meshFilter:UnityEngine.MeshFilter):table
 ---@param meshFilter UnityEngine.MeshFilter 网格过滤器
@@ -537,255 +654,21 @@ function GetRectTransformScreenBounds(rectTransform, camera)
         size = maxScreen - minScreen
     }
 end
+--endregion
 
---- 清空数组（高效）
----@type fun(array:table):void
----@param array table 目标数组
-function ClearArray(array)
-    if not array then return end
-    while #array > 0 do
-        table.remove(array)
-    end
-end
-
---- 清空字典
----@type fun(dict:table):void
----@param dict table 目标字典
-function ClearDictionary(dict)
-    if not dict then return end
-    for k, _ in pairs(dict) do
-        dict[k] = nil
-    end
-end
-
---- Fisher-Yates 打乱数组
----@type fun(array:table):void
----@param array table 目标数组
-function ShuffleArray(array)
-    if not array or #array <= 1 then return end
-    local i = #array
-    while i > 1 do
-        local j = math.random(i)
-        array[i], array[j] = array[j], array[i]
-        i = i - 1
-    end
-end
-
---- 加载关卡准备界面活动图标
----@type fun(parent:UnityEngine.Transform, enableAnimator:boolean, entryType:EActivityEnterFormPosType):table
----@param parent UnityEngine.Transform 父节点
----@param enableAnimator boolean 是否启用动画
----@param entryType EActivityEnterFormPosType 入口类型
----@return table 活动图标Lua类
-function TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
-    if IsNull(parent) then return nil end
-    local activities = ActivityMgr and ActivityMgr:GetActivityDatas() or {}
-    local validActivities = {}
-
-    for _, activity in pairs(activities) do
-        local config = EventDataManager and EventDataManager:GetEventDataById(activity.activityId)
-        if not config then goto continue end
-
-        local resOk = ActivityMgr:GetActivityHotfixResState(activity.activityId)
-        local running = ActivityMgr:IsActivityRunning(activity)
-        if not resOk or not running then goto continue end
-
-        local iconPage = config.IconPage
-        if (iconPage == EActivityIconPage.ONLY_MAIN_AND_LEVEL_PREPARE and entryType == EActivityEnterFormPosType.LEVEL_PREPARE) or
-                (iconPage == EActivityIconPage.LEVEL_PREPARE or iconPage == EActivityIconPage.MAIN_AND_ICON_IN_LEVEL_PREPARE) then
-            table.insert(validActivities, activity)
-        end
-
-        ::continue::
-    end
-
-    if #validActivities <= 0 then return nil end
-
-    local go = PoolManager:Get(RES.GameObject_CollectionActivityIcon.Name, parent)
-    local lua = go:GetComponent("LuaBehaviour").ValidLuaClass
-    if lua then
-        lua.LeftAnimator.enabled = enableAnimator
-        lua.RightAnimator.enabled = enableAnimator
-        lua:LoadActivityIcon(validActivities)
-    end
-    return lua
-end
-
---- 播放 Spine 显示 → Idle → 隐藏 整套动画
----@type fun(spine:Spine.Unity.SkeletonGraphic, idleDuration:number, showAnim:string, idleAnim:string, hideAnim:string, onHideStart:function, onHideComplete:function):void
----@param spine Spine.Unity.SkeletonGraphic UI Spine组件
----@param idleDuration number Idle停留时长
----@param showAnim string 显示动画
----@param idleAnim string 循环Idle动画
----@param hideAnim string 隐藏动画
----@param onHideStart function 隐藏开始回调
----@param onHideComplete function 隐藏完成回调
-function PlaySpineShowIdleHide(spine, idleDuration, showAnim, idleAnim, hideAnim, onHideStart, onHideComplete)
-    if IsNull(spine) then return end
-
-    spine.Skeleton:SetSlotsToSetupPose()
-    spine.AnimationState:ClearTracks()
-
-    local showEntry = spine.AnimationState:SetAnimation(0, showAnim, false)
-    showEntry:AddComplete(function()
-        if IsNull(spine.gameObject) then return end
-        spine.AnimationState:SetAnimation(0, idleAnim, true)
-
-        -- Idle 延迟后隐藏
-        DG.Tweening.DOTween.Sequence()
-          :SetUpdate(true)
-          :AppendInterval(idleDuration)
-          :AppendCallback(function()
-            if IsNull(spine.gameObject) then return end
-            if onHideStart then SafeInvoke(onHideStart) end
-
-            local hideEntry = spine.AnimationState:SetAnimation(0, hideAnim, false)
-            hideEntry.TimeScale = 2
-            hideEntry:AddComplete(function()
-                if onHideComplete then SafeInvoke(onHideComplete) end
-            end)
-        end)
+--region 安全调用 / 延迟工具
+--=========================================================================
+-- 安全调用 / 延迟工具
+--=========================================================================
+--- 安全执行函数（捕获异常）
+---@type fun(func:function, errorMsg:string):void
+---@param func function 执行函数
+---@param errorMsg string 错误提示信息
+function SafeInvoke(func, errorMsg)
+    if not func then return end
+    xpcall(func, function(msg)
+        PrintError(string.format("[SafeInvoke] %s => %s", errorMsg or "Error", debug.traceback(msg, 4)))
     end)
-end
-
---- 根据资源类型获取预设名
----@type fun(resType:EResourceType):string
----@param resType EResourceType 资源类型
----@return string 预设名称
-function GetItemPrefabNameByType(resType)
-    if resType == EResourceType.CURRENCY then
-        return "GameObject_CurrencyProto"
-    elseif resType == EResourceType.ITEM then
-        return "GameObject_BoosterProto"
-    elseif resType == EResourceType.BUFF then
-        return "GameObject_BuffProto"
-    end
-    return "GameObject_ItemProto"
-end
-
---- 直接发放道具
----@type fun(itemId:string, count:number, areaId:string):void
----@param itemId string 道具ID
----@param count number 数量
----@param areaId string 区域ID
-function GrantItem(itemId, count, areaId)
-    if string.isNullOrEmpty(itemId) or not count or count <= 0 then
-        PrintError("GrantItem failed: invalid params")
-        return
-    end
-
-    local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
-    if not data then return end
-
-    if data.Type == EResourceType.Currency then
-        if CurrencyMgr then CurrencyMgr:AddNum(itemId, count, areaId) end
-    elseif data.Type == EResourceType.Item or data.Type == EResourceType.Profile then
-        if ItemManager then ItemManager:AddNum(itemId, count) end
-    elseif data.Type == EResourceType.Buff then
-        if BuffManager then BuffManager:AddBuff(itemId, count) end
-    elseif data.Type == EResourceType.Card then
-        if CollectionMgr then CollectionMgr:AddPack(itemId, count) end
-    else
-        if ItemManager then ItemManager:AddNum(itemId, count) end
-    end
-end
-
---- 批量发放奖励
----@type fun(rewardList:table, areaId:string):void
----@param rewardList table 奖励列表
----@param areaId string 区域ID
-function GrantRewardList(rewardList, areaId)
-    if not rewardList or not rewardList.items then return end
-    for _, v in ipairs(rewardList.items) do
-        GrantItem(v.Id, v.Num, areaId)
-    end
-end
-
---- 单个奖励统计打点
----@type fun(itemId:string, count:number, reason:number, purchaseId:string, areaId:string):void
----@param itemId string 道具ID
----@param count number 数量
----@param reason number 获取原因
----@param purchaseId string 购买ID
----@param areaId string 区域ID
-function TrackReward(itemId, count, reason, purchaseId, areaId)
-    local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
-    if not data then return end
-
-    if data.Type == EResourceType.Currency then
-        if data.ID == EResourceIDs.Coin then
-            if AchievementSys then AchievementSys:OnCoinGet(count, reason, purchaseId) end
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCoinGetted(reason, CurrencyMgr:GetCoinKey(areaId), count, purchaseId, areaId) end
-        elseif data.ID == EResourceIDs.Gem then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnGemGet(reason, count, purchaseId) end
-        elseif data.ID == EResourceIDs.Star then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnStarGet(reason, count, purchaseId) end
-        elseif data.ID == EResourceIDs.CollectionToken then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCollectionTokenGet(reason, count, purchaseId) end
-        elseif data.ID == EResourceIDs.Ticket then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnTicketGet(reason, count, purchaseId) end
-        end
-    else
-        if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnBoosterGet(reason, itemId, count, purchaseId) end
-    end
-end
-
---- 批量奖励打点
----@type fun(rewardList:table, reason:number, purchaseId:string, areaId:string):void
----@param rewardList table 奖励列表
----@param reason number 获取原因
----@param purchaseId string 购买ID
----@param areaId string 区域ID
-function TrackRewardList(rewardList, reason, purchaseId, areaId)
-    if not rewardList or not rewardList.items then return end
-    for _, r in ipairs(rewardList.items) do
-        TrackReward(r.Id, r.Num, reason, purchaseId, areaId)
-    end
-end
-
---- 格式化道具数量显示
----@type fun(itemId:string, count:number, showPrefix:boolean):string
----@param itemId string 道具ID
----@param count number 数量
----@param showPrefix boolean 是否显示前缀x
----@return string 格式化后字符串
-function FormatItemCountDisplay(itemId, count, showPrefix)
-    showPrefix = showPrefix ~= nil and showPrefix or true
-    local format = showPrefix and "x%d" or "%d"
-
-    if string.isNullOrEmpty(itemId) then return string.format(format, count) end
-    local data = ResourceDataManager:GetResourceData(itemId)
-    if not data then return string.format(format, count) end
-
-    if data.Type == EResourceType.Buff then
-        return GameTimeHelper and GameTimeHelper:FormatTimeInCommonRule(count, false) or tostring(count)
-    else
-        return string.format(format, count)
-    end
-end
-
---- 从RewardData格式化数量
----@type fun(reward:table):string
----@param reward table 奖励数据
----@return string 格式化数量字符串
-function FormatRewardCount(reward)
-    return reward and FormatItemCountDisplay(reward.Id, reward.Num) or ""
-end
-
---- 敏感词匹配检查
----@type fun(content:string, word:string):boolean
----@param content string 检查内容
----@param word string 敏感词
----@return boolean 是否包含敏感词
-function ContainsBadWord(content, word)
-    if not content or not word then return false end
-    local success, match = xpcall(function()
-        return string.find(content, word, 1, true) ~= nil
-    end, function(err)
-        PrintError(debug.traceback(err, 3))
-        return false
-    end)
-    return success and match
 end
 
 --- DOTween 延迟执行
@@ -872,54 +755,12 @@ function DelayFrameInvoke(frameCount, callback, param)
         callback(param)
     end)
 end
+--endregion
 
---- 检查父节点是否隐藏（最多查几层）
----@type fun(transform:UnityEngine.Transform, maxDepth:number):boolean
----@param transform UnityEngine.Transform 目标变换
----@param maxDepth number 检查深度
----@return boolean 是否有父节点隐藏
-function IsAnyParentInactive(transform, maxDepth)
-    if IsNull(transform) then return true end
-    maxDepth = math.min(maxDepth or 3, 5)
-    local parent = transform.parent
-
-    while not IsNull(parent) and maxDepth > 0 do
-        maxDepth = maxDepth - 1
-        if not parent.gameObject.activeSelf then return true end
-        parent = parent.parent
-    end
-    return false
-end
-
---- 复制物体并设为子节点
----@type fun(parent:UnityEngine.GameObject, original:UnityEngine.GameObject):UnityEngine.GameObject
----@param parent UnityEngine.GameObject 父物体
----@param original UnityEngine.GameObject 原始物体
----@return UnityEngine.GameObject 复制后的物体
-function InstantiateChild(parent, original)
-    if IsNull(parent) or IsNull(original) then return nil end
-    local go = UnityEngine.Object.Instantiate(original)
-    go:SetActive(true)
-    go.transform:SetParent(parent.transform)
-    go.transform.localScale = Vector3.one
-    go.transform.localPosition = Vector3.zero
-    go.transform.localEulerAngles = Vector3.zero
-    return go
-end
-
---- 设置父子关系并重置Transform
----@type fun(parent:UnityEngine.GameObject, child:UnityEngine.GameObject):void
----@param parent UnityEngine.GameObject 父物体
----@param child UnityEngine.GameObject 子物体
-function SetTransformChild(parent, child)
-    if IsNull(parent) or IsNull(child) then return end
-    child:SetActive(true)
-    child.transform:SetParent(parent.transform)
-    child.transform.localScale = Vector3.one
-    child.transform.localEulerAngles = Vector3.zero
-    child.transform.localPosition = Vector3.zero
-end
-
+--region 关卡 / 解锁工具
+--=========================================================================
+-- 关卡 / 解锁工具
+--=========================================================================
 --- 判断是否解锁章节/关卡
 ---@type fun(unlockChapter:number, unlockLevel:number, currentChapter:number, currentLevel:number):boolean
 ---@param unlockChapter number 解锁章节
@@ -935,7 +776,12 @@ function IsLevelUnlocked(unlockChapter, unlockLevel, currentChapter, currentLeve
     if currentChapter == unlockChapter and currentLevel >= unlockLevel then return true end
     return false
 end
+--endregion
 
+--region 任务 / 事件派发
+--=========================================================================
+-- 任务 / 事件派发
+--=========================================================================
 --- 派发任务进度更新事件
 ---@type fun(subType:EDailyQuestSubType, value:number, isLatestChapter:boolean):void
 ---@param subType EDailyQuestSubType 任务子类型
@@ -954,7 +800,12 @@ function DispatchQuestProgressClear(subType, isLatestChapter)
     HonorEventHelper:Fire(EventCmd.OnClearQuestProgress, subType, isLatestChapter)
     PrintInfo(string.format("[Quest] Progress cleared: %s", subType))
 end
+--endregion
 
+--region 数据解析工具
+--=========================================================================
+-- 数据解析工具
+--=========================================================================
 --- 解析奖励表
 ---@type fun(rewardTable:table):HonorList
 ---@param rewardTable table 奖励表数据
@@ -984,14 +835,6 @@ function ParseRewardData(str)
         Id = parts[1],
         Num = tonumber(parts[2]) or 0
     }
-end
-
---- 判断Unity对象是否为空
----@type fun(obj:UnityEngine.Object):boolean
----@param obj UnityEngine.Object Unity对象
----@return boolean 是否为空
-function IsNull(obj)
-    return not obj or GameLib.ObjectCommon.IsObjectEmpty(obj)
 end
 
 --- 解析二元组数组
@@ -1024,6 +867,161 @@ function ParseStruct2(str)
         Item2 = parts[2]
     }
 end
+--endregion
+
+--region 道具 / 奖励发放
+--=========================================================================
+-- 道具 / 奖励发放
+--=========================================================================
+--- 根据资源类型获取预设名
+---@type fun(resType:EResourceType):string
+---@param resType EResourceType 资源类型
+---@return string 预设名称
+function GetItemPrefabNameByType(resType)
+    if resType == EResourceType.CURRENCY then
+        return "GameObject_CurrencyProto"
+    elseif resType == EResourceType.ITEM then
+        return "GameObject_BoosterProto"
+    elseif resType == EResourceType.BUFF then
+        return "GameObject_BuffProto"
+    end
+    return "GameObject_ItemProto"
+end
+
+--- 直接发放道具
+---@type fun(itemId:string, count:number, areaId:string):void
+---@param itemId string 道具ID
+---@param count number 数量
+---@param areaId string 区域ID
+function GrantItem(itemId, count, areaId)
+    if string.isNullOrEmpty(itemId) or not count or count <= 0 then
+        PrintError("GrantItem failed: invalid params")
+        return
+    end
+
+    local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
+    if not data then return end
+
+    if data.Type == EResourceType.Currency then
+        if CurrencyMgr then CurrencyMgr:AddNum(itemId, count, areaId) end
+    elseif data.Type == EResourceType.Item or data.Type == EResourceType.Profile then
+        if ItemManager then ItemManager:AddNum(itemId, count) end
+    elseif data.Type == EResourceType.Buff then
+        if BuffManager then BuffManager:AddBuff(itemId, count) end
+    elseif data.Type == EResourceType.Card then
+        if CollectionMgr then CollectionMgr:AddPack(itemId, count) end
+    else
+        if ItemManager then ItemManager:AddNum(itemId, count) end
+    end
+end
+
+--- 批量发放奖励
+---@type fun(rewardList:table, areaId:string):void
+---@param rewardList table 奖励列表
+---@param areaId string 区域ID
+function GrantRewardList(rewardList, areaId)
+    if not rewardList or not rewardList.items then return end
+    for _, v in ipairs(rewardList.items) do
+        GrantItem(v.Id, v.Num, areaId)
+    end
+end
+
+--- 格式化道具数量显示
+---@type fun(itemId:string, count:number, showPrefix:boolean):string
+---@param itemId string 道具ID
+---@param count number 数量
+---@param showPrefix boolean 是否显示前缀x
+---@return string 格式化后字符串
+function FormatItemCountDisplay(itemId, count, showPrefix)
+    showPrefix = showPrefix ~= nil and showPrefix or true
+    local format = showPrefix and "x%d" or "%d"
+
+    if string.isNullOrEmpty(itemId) then return string.format(format, count) end
+    local data = ResourceDataManager:GetResourceData(itemId)
+    if not data then return string.format(format, count) end
+
+    if data.Type == EResourceType.Buff then
+        return GameTimeHelper and GameTimeHelper:FormatTimeInCommonRule(count, false) or tostring(count)
+    else
+        return string.format(format, count)
+    end
+end
+
+--- 从RewardData格式化数量
+---@type fun(reward:table):string
+---@param reward table 奖励数据
+---@return string 格式化数量字符串
+function FormatRewardCount(reward)
+    return reward and FormatItemCountDisplay(reward.Id, reward.Num) or ""
+end
+--endregion
+
+--region 埋点 / 统计
+--=========================================================================
+-- 埋点 / 统计
+--=========================================================================
+--- 单个奖励统计打点
+---@type fun(itemId:string, count:number, reason:number, purchaseId:string, areaId:string):void
+---@param itemId string 道具ID
+---@param count number 数量
+---@param reason number 获取原因
+---@param purchaseId string 购买ID
+---@param areaId string 区域ID
+function TrackReward(itemId, count, reason, purchaseId, areaId)
+    local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
+    if not data then return end
+
+    if data.Type == EResourceType.Currency then
+        if data.ID == EResourceIDs.Coin then
+            if AchievementSys then AchievementSys:OnCoinGet(count, reason, purchaseId) end
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCoinGetted(reason, CurrencyMgr:GetCoinKey(areaId), count, purchaseId, areaId) end
+        elseif data.ID == EResourceIDs.Gem then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnGemGet(reason, count, purchaseId) end
+        elseif data.ID == EResourceIDs.Star then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnStarGet(reason, count, purchaseId) end
+        elseif data.ID == EResourceIDs.CollectionToken then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCollectionTokenGet(reason, count, purchaseId) end
+        elseif data.ID == EResourceIDs.Ticket then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnTicketGet(reason, count, purchaseId) end
+        end
+    else
+        if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnBoosterGet(reason, itemId, count, purchaseId) end
+    end
+end
+
+--- 批量奖励打点
+---@type fun(rewardList:table, reason:number, purchaseId:string, areaId:string):void
+---@param rewardList table 奖励列表
+---@param reason number 获取原因
+---@param purchaseId string 购买ID
+---@param areaId string 区域ID
+function TrackRewardList(rewardList, reason, purchaseId, areaId)
+    if not rewardList or not rewardList.items then return end
+    for _, r in ipairs(rewardList.items) do
+        TrackReward(r.Id, r.Num, reason, purchaseId, areaId)
+    end
+end
+--endregion
+
+--region 其他工具
+--=========================================================================
+-- 其他工具
+--=========================================================================
+--- 敏感词匹配检查
+---@type fun(content:string, word:string):boolean
+---@param content string 检查内容
+---@param word string 敏感词
+---@return boolean 是否包含敏感词
+function ContainsBadWord(content, word)
+    if not content or not word then return false end
+    local success, match = xpcall(function()
+        return string.find(content, word, 1, true) ~= nil
+    end, function(err)
+        PrintError(debug.traceback(err, 3))
+        return false
+    end)
+    return success and match
+end
 
 --- 分批遍历（防卡顿）
 ---@type fun(data:table, batchCount:number, callback:function):void
@@ -1045,3 +1043,89 @@ function BatchProcess(data, batchCount, callback)
         ClearArray(batch)
     end
 end
+
+--- 判断Unity对象是否为空
+---@type fun(obj:UnityEngine.Object):boolean
+---@param obj UnityEngine.Object Unity对象
+---@return boolean 是否为空
+function IsNull(obj)
+    return not obj or GameLib.ObjectCommon.IsObjectEmpty(obj)
+end
+
+--- 播放 Spine 显示 → Idle → 隐藏 整套动画
+---@type fun(spine:Spine.Unity.SkeletonGraphic, idleDuration:number, showAnim:string, idleAnim:string, hideAnim:string, onHideStart:function, onHideComplete:function):void
+---@param spine Spine.Unity.SkeletonGraphic UI Spine组件
+---@param idleDuration number Idle停留时长
+---@param showAnim string 显示动画
+---@param idleAnim string 循环Idle动画
+---@param hideAnim string 隐藏动画
+---@param onHideStart function 隐藏开始回调
+---@param onHideComplete function 隐藏完成回调
+function PlaySpineShowIdleHide(spine, idleDuration, showAnim, idleAnim, hideAnim, onHideStart, onHideComplete)
+    if IsNull(spine) then return end
+
+    spine.Skeleton:SetSlotsToSetupPose()
+    spine.AnimationState:ClearTracks()
+
+    local showEntry = spine.AnimationState:SetAnimation(0, showAnim, false)
+    showEntry:AddComplete(function()
+        if IsNull(spine.gameObject) then return end
+        spine.AnimationState:SetAnimation(0, idleAnim, true)
+
+        -- Idle 延迟后隐藏
+        DG.Tweening.DOTween.Sequence()
+          :SetUpdate(true)
+          :AppendInterval(idleDuration)
+          :AppendCallback(function()
+            if IsNull(spine.gameObject) then return end
+            if onHideStart then SafeInvoke(onHideStart) end
+
+            local hideEntry = spine.AnimationState:SetAnimation(0, hideAnim, false)
+            hideEntry.TimeScale = 2
+            hideEntry:AddComplete(function()
+                if onHideComplete then SafeInvoke(onHideComplete) end
+            end)
+        end)
+    end)
+end
+
+--- 加载关卡准备界面活动图标
+---@type fun(parent:UnityEngine.Transform, enableAnimator:boolean, entryType:EActivityEnterFormPosType):table
+---@param parent UnityEngine.Transform 父节点
+---@param enableAnimator boolean 是否启用动画
+---@param entryType EActivityEnterFormPosType 入口类型
+---@return table 活动图标Lua类
+function TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
+    if IsNull(parent) then return nil end
+    local activities = ActivityMgr and ActivityMgr:GetActivityDatas() or {}
+    local validActivities = {}
+
+    for _, activity in pairs(activities) do
+        local config = EventDataManager and EventDataManager:GetEventDataById(activity.activityId)
+        if not config then goto continue end
+
+        local resOk = ActivityMgr:GetActivityHotfixResState(activity.activityId)
+        local running = ActivityMgr:IsActivityRunning(activity)
+        if not resOk or not running then goto continue end
+
+        local iconPage = config.IconPage
+        if (iconPage == EActivityIconPage.ONLY_MAIN_AND_LEVEL_PREPARE and entryType == EActivityEnterFormPosType.LEVEL_PREPARE) or
+                (iconPage == EActivityIconPage.LEVEL_PREPARE or iconPage == EActivityIconPage.MAIN_AND_ICON_IN_LEVEL_PREPARE) then
+            table.insert(validActivities, activity)
+        end
+
+        ::continue::
+    end
+
+    if #validActivities <= 0 then return nil end
+
+    local go = PoolManager:Get(RES.GameObject_CollectionActivityIcon.Name, parent)
+    local lua = go:GetComponent("LuaBehaviour").ValidLuaClass
+    if lua then
+        lua.LeftAnimator.enabled = enableAnimator
+        lua.RightAnimator.enabled = enableAnimator
+        lua:LoadActivityIcon(validActivities)
+    end
+    return lua
+end
+--endregion

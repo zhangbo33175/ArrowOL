@@ -1,35 +1,46 @@
 --=====================================================================================================
--- @brief  主界面坐标图标数据源管理器
--- @desc   读取主界面图标配置表，根据图标ID获取位置、样式、显示逻辑等数据
--- @feat   安全查询、错误捕获、全局单例、日志输出
+-- @brief:     主界面坐标图标数据源管理器
+-- @desc:      读取主界面图标配置表，根据图标ID获取位置、样式、显示逻辑等数据
+-- @feat:      安全查询、错误捕获、全局单例、日志输出
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 主界面图标数据管理
 --=====================================================================================================
 
 ---@class HomeIconsDataManager : Singleton @主界面图标数据源管理器
 local HomeIconsDataManager = class("HomeIconsDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function HomeIconsDataManager:ctor()
     HomeIconsDataManager.super.ctor(self)
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():HomeIconsDataManager
 ---@return HomeIconsDataManager
 function HomeIconsDataManager:Create()
     return HomeIconsDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function HomeIconsDataManager:Init()
     HomeIconsDataManager.super.Init(self)
 end
 
---- 清理数据
+---@brief 清理数据
+---@type fun():void
 function HomeIconsDataManager:ClearData()
     HomeIconsDataManager.super.ClearData(self)
 end
+--endregion
 
+--region 图标配置获取
 ---=========================================================================
---- 根据图标ID获取主界面图标配置数据
+---@brief  根据图标ID获取主界面图标配置数据
+---@type fun(homeIconId:string|number):Tables.HomeIcons_Item|nil
 ---@param homeIconId string | number 桌面图标ID
 ---@return Tables.HomeIcons_Item | nil 图标配置数据
 ---=========================================================================
@@ -53,5 +64,6 @@ function HomeIconsDataManager:GetHomeIconDataById(homeIconId)
 
     return data
 end
+--endregion
 
 return HomeIconsDataManager

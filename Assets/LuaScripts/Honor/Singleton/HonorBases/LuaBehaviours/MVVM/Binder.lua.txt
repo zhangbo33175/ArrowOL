@@ -1,15 +1,17 @@
 --=====================================================================================================
--- descrip:   绑定器（MVVM 双向绑定桥梁）
+-- Description: 绑定器（MVVM 双向绑定桥梁）
 --              作用：管理 View 上所有的监听函数，并统一绑定/解绑到 ViewModel 的可绑定值上
 --              服务于 ViewSuper，实现 View <-> ViewModel 自动解耦、安全释放
 --              核心：自动管理 BindValue 监听，防止内存泄漏、空引用
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class Binder @MVVM 视图绑定器（管理 View 与 ViewModel 的绑定关系）
+--region MVVM 绑定管理器 - Binder
+---@class Binder MVVM 视图绑定器（管理 View 与 ViewModel 的绑定关系）
 local Binder = class("Binder")
 
 --- 构造函数
----@type fun():void
 function Binder:ctor()
 	---@type table<string, function[]> 绑定关系表：key=属性名，value=回调函数数组
 	self._binders = {}
@@ -18,7 +20,6 @@ function Binder:ctor()
 end
 
 --- 创建绑定器实例
----@type fun():Binder
 ---@return Binder 绑定器对象
 function Binder:Create()
 	local obj = Binder.new()
@@ -26,14 +27,12 @@ function Binder:Create()
 end
 
 --- 设置要绑定的 ViewModel
----@type fun(viewModel:ViewModelSuper):void
 ---@param viewModel ViewModelSuper 视图模型对象
 function Binder:SetViewModel(viewModel)
 	self._viewModel = viewModel
 end
 
 --- 添加一个属性绑定
----@type fun(name:string, handler:function):void
 ---@param name string ViewModel 中 BindValue 属性名称
 ---@param handler function 属性值变化时的回调函数
 function Binder:Add(name, handler)
@@ -46,7 +45,6 @@ function Binder:Add(name, handler)
 end
 
 --- 将所有注册的回调【绑定】到 ViewModel 的 BindValue
----@type fun():void
 function Binder:BindToViewModel()
 	if self._viewModel ~= nil then
 		-- 遍历 ViewModel 所有可绑定属性
@@ -64,7 +62,6 @@ function Binder:BindToViewModel()
 end
 
 --- 将所有回调从 ViewModel 【解绑】（安全释放、防止泄漏）
----@type fun():void
 function Binder:UnbindFromViewModel()
 	if self._viewModel ~= nil then
 		for name, bindValue in pairs(self._viewModel._bindValues) do
@@ -79,11 +76,11 @@ function Binder:UnbindFromViewModel()
 end
 
 --- 清空所有绑定记录（完全释放）
----@type fun():void
 function Binder:Clear()
 	self:UnbindFromViewModel()
 	self._binders = {}
 	self._viewModel = nil
 end
+--endregion
 
 return Binder

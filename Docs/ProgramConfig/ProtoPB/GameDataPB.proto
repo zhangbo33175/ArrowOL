@@ -58,5 +58,6 @@ message GameData{
   SettingInfo settingInfo = 7;                            // 设置数据
   string boosterTriggered = 8;                           // 已达成触发条件的局内道具
   int32 maxChapterId = 9;                                // 玩家当前记录的最大章节id
+  repeated LocalActivityData localActivityData = 10;     // 本地活动数据
 
 }

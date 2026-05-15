@@ -2,13 +2,17 @@
 -- @brief  章节列表管理器
 -- @desc   管理章节/区域的解锁、运行时状态、存档、进度、关卡等级
 -- @scope  全局唯一单例，主界面 + 关卡 + 活动 + 解锁系统都依赖它
+-- @规范    Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class ChapterListManager : Singleton @ 章节&区域全局管理器
 local ChapterListManager = class("ChapterListManager", import("Singleton"))
 
+--region 构造 & 初始化
+---=========================================================================
 --- 构造函数
 ---@param args table 初始化参数
+---=========================================================================
 function ChapterListManager:ctor(args)
     ChapterListManager.super.ctor(self, args)
     self._runtimeAreaID = ""            ---@type string 当前运行时区域ID
@@ -16,15 +20,19 @@ function ChapterListManager:ctor(args)
     self._changeChapterFunc = nil       ---@type function 切章节回调
 end
 
+---=========================================================================
 --- 创建单例
 ---@param args table 初始化参数
 ---@return ChapterListManager 章节管理器实例
+---=========================================================================
 function ChapterListManager:Create(args)
     return ChapterListManager.new(args)
 end
 
+---=========================================================================
 --- 清理数据
 ---@desc 切换场景/重置时调用，清空运行时状态
+---=========================================================================
 function ChapterListManager:ClearData()
     ChapterListManager.super.ClearData(self)
     self._runtimeAreaID = ""
@@ -32,8 +40,10 @@ function ChapterListManager:ClearData()
     self._changeChapterFunc = nil
 end
 
+---=========================================================================
 --- 初始化
 ---@desc 监听事件 + 初始化默认章节
+---=========================================================================
 function ChapterListManager:Init()
     ChapterListManager.super.Init(self)
 
@@ -46,8 +56,10 @@ function ChapterListManager:Init()
     self:SetupMaxChapterID()
 end
 
+---=========================================================================
 --- 记录配置表中的最大章节ID
 ---@desc 用于解锁边界判断，自动同步存档
+---=========================================================================
 function ChapterListManager:SetupMaxChapterID()
     local cfgMax = ChapterDataManager:GetConfigMaxChapterID()
     if SaveRootData.GameData.maxChapterId ~= cfgMax then
@@ -56,16 +68,20 @@ function ChapterListManager:SetupMaxChapterID()
     end
 end
 
+---=========================================================================
 --- 解锁新章节时检查礼包结束
 ---@desc 跨章节时触发礼包结束逻辑
+---=========================================================================
 function ChapterListManager:CheckChapterBundleEndWhenUnlockNewChapter()
 end
+--endregion
 
 --region 公共方法：解锁、完成、判断
-
+---=========================================================================
 --- 是否满足解锁指定章节的条件
 ---@param chapterId string 章节ID
 ---@return boolean 是否满足解锁条件
+---=========================================================================
 function ChapterListManager:MeetConditionForUnlock(chapterId)
     local prevChapterId = tostring(tonumber(chapterId) - 1)
     local lastChapterData = ChapterDataManager:GetChapterDataByChapterType(prevChapterId)
@@ -78,14 +94,18 @@ function ChapterListManager:MeetConditionForUnlock(chapterId)
     return lastChapterLv >= unlockNextLv
 end
 
+---=========================================================================
 --- 解锁指定章节
 ---@param chapterId string 目标章节ID
+---=========================================================================
 function ChapterListManager:UnlockChapter(chapterId)
 end
 
+---=========================================================================
 --- 创建章节初始存档数据
 ---@param chapterId string 章节ID
 ---@return table 章节初始存档结构
+---=========================================================================
 function ChapterListManager:CreateChapterInitData(chapterId)
     ---@type SaveMsgDef.SaveGameData.MachineInfo @机器的默认信息
     local saveLevelProgress = {
@@ -103,8 +123,10 @@ function ChapterListManager:CreateChapterInitData(chapterId)
     return saveChapterInfo
 end
 
+---=========================================================================
 --- GM：完成指定章节之前的所有章节
 ---@param chapterId string 目标章节ID
+---=========================================================================
 function ChapterListManager:GMCompleteChapterBefore(chapterId)
     local chapters = Tables.Chapters
     ---@type SaveMsgDef.SaveGameData.ChapterInfo
@@ -122,16 +144,20 @@ function ChapterListManager:GMCompleteChapterBefore(chapterId)
     SaveIO.GameData.Save_chapterInfos()
 end
 
+---=========================================================================
 --- 是否已经解锁该章节
 ---@param chapterId string 章节ID
 ---@return boolean true-已解锁
+---=========================================================================
 function ChapterListManager:IsUnlockedChapter(chapterId)
     return tonumber(chapterId) <= tonumber(self:GetLatestChapterId())
 end
 
+---=========================================================================
 --- 是否已完成该章节
 ---@param chapterId string 章节ID
 ---@return boolean true-已完成
+---=========================================================================
 function ChapterListManager:IsChapterCompleted(chapterId)
     local curLv = self:GetRuntimeChapterLvByChapterId(chapterId)
     local chapterData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
@@ -143,9 +169,11 @@ function ChapterListManager:IsChapterCompleted(chapterId)
     return curLv >= unlockNextLv
 end
 
+---=========================================================================
 --- 是否完成某个区域下所有章节
 ---@param areaId string 区域ID
 ---@return boolean true-全部完成
+---=========================================================================
 function ChapterListManager:IsAllChaptersCompleted(areaId)
     local areaData = ChapterDataManager:GetAreaDataByAreaId(areaId)
     if not areaData or not areaData.ChaptersID then
@@ -159,14 +187,14 @@ function ChapterListManager:IsAllChaptersCompleted(areaId)
     end
     return true
 end
-
 --endregion
 
 --region 运行时：当前正在显示/游玩的章节/区域
-
+---=========================================================================
 --- 设置当前运行时章节
 ---@desc 自动设置对应区域
 ---@param chapterId string 章节ID
+---=========================================================================
 function ChapterListManager:SetRuntimeChapter(chapterId)
     local areaData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
     if areaData then
@@ -175,8 +203,10 @@ function ChapterListManager:SetRuntimeChapter(chapterId)
     end
 end
 
+---=========================================================================
 --- 设置运行时区域ID
 ---@param areaId string 区域ID
+---=========================================================================
 function ChapterListManager:SetRuntimeAreaId(areaId)
     if self._runtimeAreaID ~= areaId then
         self._runtimeAreaID = areaId
@@ -184,39 +214,49 @@ function ChapterListManager:SetRuntimeAreaId(areaId)
     end
 end
 
+---=========================================================================
 --- 获取当前运行时区域ID
 ---@return string 区域ID
+---=========================================================================
 function ChapterListManager:GetRuntimeAreaId()
     return self._runtimeAreaID
 end
 
+---=========================================================================
 --- 设置运行时章节ID
 ---@param chapterId string 章节ID
+---=========================================================================
 function ChapterListManager:SetRuntimeChapterId(chapterId)
     self._runtimeChapterID = chapterId or "1"
 end
 
+---=========================================================================
 --- 获取运行时章节ID
 ---@desc 无值时默认返回最新解锁章节
 ---@return string 章节ID
+---=========================================================================
 function ChapterListManager:GetRuntimeChapterId()
     return self._runtimeChapterID or self:GetLatestChapterId()
 end
 
+---=========================================================================
 --- 获取章节当前等级
 ---@desc 从玩家存档中读取
 ---@param chapterId string 章节ID
 ---@return number 章节等级
+---=========================================================================
 function ChapterListManager:GetRuntimeChapterLvByChapterId(chapterId)
     local info = SaveRootData.GameData.chapterInfos[chapterId]
     return info and info.lv or 0
 end
 
+---=========================================================================
 --- 获取章节指定指标的进度
 ---@desc 带配置表系数计算
 ---@param chapterId string 章节ID
 ---@param progressIndex number 进度索引
 ---@return number 计算后进度值
+---=========================================================================
 function ChapterListManager:GetRuntimeChapterProgressByChapterId(chapterId, progressIndex)
     local progress = 0
     local chapterInfo = SaveRootData.GameData.chapterInfos[chapterId]
@@ -238,22 +278,24 @@ function ChapterListManager:GetRuntimeChapterProgressByChapterId(chapterId, prog
     local result = progress * cfg.Coef
     return tonumber(string.format("%.2f", result))
 end
-
 --endregion
 
 --region 存档相关：最新解锁章节/区域
-
+---=========================================================================
 --- 获取当前最新解锁的区域ID
 ---@return string 区域ID
+---=========================================================================
 function ChapterListManager:GetLatestAreaId()
     local chapterId = self:GetLatestChapterId()
     local chapterData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
     return chapterData and chapterData.AreaID or "1"
 end
 
+---=========================================================================
 --- 获取最新解锁的章节ID
 ---@desc 从存档读取，为空则默认1
 ---@return string 章节ID
+---=========================================================================
 function ChapterListManager:GetLatestChapterId()
     local chapterId = SaveRootData.GameData.latestChapterId
     if string.isNullOrEmpty(chapterId) then
@@ -263,15 +305,15 @@ function ChapterListManager:GetLatestChapterId()
     end
     return chapterId
 end
-
 --endregion
 
 --region 章节等级比较
-
+---=========================================================================
 --- 目标章节等级 > 最新章节等级
 ---@param targetChapterLv table 目标章节等级数据
 ---@param latestChapterLv table 最新章节等级数据
 ---@return boolean 比较结果
+---=========================================================================
 function ChapterListManager:LargeThanLatestChapterLv(targetChapterLv, latestChapterLv)
     latestChapterLv = latestChapterLv or GamerDataManager:GetLatestChapterLevel()
     local lessOrEqual = targetChapterLv.Chapter < latestChapterLv.Chapter
@@ -279,15 +321,16 @@ function ChapterListManager:LargeThanLatestChapterLv(targetChapterLv, latestChap
     return not lessOrEqual
 end
 
+---=========================================================================
 --- 目标章节等级 < 最新章节等级
 ---@param targetChapterLv table 目标章节等级数据
 ---@param latestChapterLv table 最新章节等级数据
 ---@return boolean 比较结果
+---=========================================================================
 function ChapterListManager:LessThanChapterLv(targetChapterLv, latestChapterLv)
     latestChapterLv = latestChapterLv or GamerDataManager:GetLatestChapterLevel()
     return targetChapterLv.Chapter < latestChapterLv.Chapter or (targetChapterLv.Chapter == latestChapterLv.Chapter and targetChapterLv.Level < latestChapterLv.Level)
 end
-
 --endregion
 
 return ChapterListManager

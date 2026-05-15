@@ -1,40 +1,51 @@
 --=====================================================================================================
--- @brief  全局常量管理器
--- @desc   统一管理游戏全局常量、配置常数、静态参数（便于集中维护与扩展）
--- @feat   全局单例、集中配置、无GC、无状态、工程级规范
+-- @brief:     全局常量管理器
+-- @desc:      统一管理游戏全局常量、配置常数、静态参数（便于集中维护与扩展）
+-- @feat:      全局单例、集中配置、无GC、无状态、工程级规范
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 常量配置管理
 --=====================================================================================================
 
 ---@class ConstantsDataManager : Singleton 全局常量管理器
 local ConstantsDataManager = class("ConstantsDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function ConstantsDataManager:ctor()
     ConstantsDataManager.super.ctor(self)
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():ConstantsDataManager
 ---@return ConstantsDataManager 常量管理器实例
 function ConstantsDataManager:Create()
     return ConstantsDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function ConstantsDataManager:Init()
     ConstantsDataManager.super.Init(self)
 end
 
---- 根据常量Key获取配置数据
+---@brief 清理数据
+---@type fun():void
+---@desc 常量类无需清理数据，保留空实现保证生命周期统一
+function ConstantsDataManager:ClearData()
+    ConstantsDataManager.super.ClearData(self)
+end
+--endregion
+
+--region 常量数据获取
+---@brief 根据常量Key获取配置数据
 ---@type fun(key:string):Tables.Constants_Item
 ---@param key string 常量配置Key
 ---@return Tables.Constants_Item 常量配置数据
 function ConstantsDataManager:GetDataById(key)
     return Tables.Constants[key]
 end
-
---- 清理数据
----@desc 常量类无需清理数据，保留空实现保证生命周期统一
-function ConstantsDataManager:ClearData()
-    ConstantsDataManager.super.ClearData(self)
-end
+--endregion
 
 return ConstantsDataManager

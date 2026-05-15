@@ -1,0 +1,24 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableLocalEvents
+-- descrip:   本地活动表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.LocalEvents_Item @本地活动表条目
+---@field Id number @序号
+---@field EventID string @活动ID
+---@field LocalEventGroup number @互斥活动组
+---@field OpenOrder number @开放优先次序
+---@field HomeIconID string @主界面入口ID
+---@field GroupNames table @AB包分组名称
+---@field LoginPopup number @登录后是否弹出
+---@field PopupLevel number @主动弹出关卡间隔
+---@field HomeUIOrderId string @弹窗顺序key
+
+---@class Tables.LocalEvents @本地活动表
+Tables.LocalEvents = {
+    [1] = {Id = 1, EventID = "101", LocalEventGroup = 1, OpenOrder = 1, HomeIconID = "2", GroupNames ={} , LoginPopup = 1, PopupLevel = 3, HomeUIOrderId = "NewPlayerGiftUI"},
+}

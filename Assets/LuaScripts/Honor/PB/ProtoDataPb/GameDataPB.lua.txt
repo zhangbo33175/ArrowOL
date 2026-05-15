@@ -51,6 +51,9 @@ SaveRootData.GameData.boosterTriggered = ''
 ---@type number @玩家当前记录的最大章节id
 SaveRootData.GameData.maxChapterId = 0
 
+---@type table @本地活动数据
+SaveRootData.GameData.localActivityData = {}
+
 
 SaveIO = SaveIO and SaveIO or {}
 SaveIO.GameData = {}
@@ -65,6 +68,7 @@ SaveIO.GameData.LoadAll = function()
     SaveIO.GameData.Load_settingInfo()
     SaveIO.GameData.Load_boosterTriggered()
     SaveIO.GameData.Load_maxChapterId()
+    SaveIO.GameData.Load_localActivityData()
 end
 SaveIO.GameData.Load_isInit = function()
     if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit') then
@@ -109,6 +113,11 @@ SaveIO.GameData.Load_maxChapterId = function()
         SaveRootData.GameData.maxChapterId = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId'))
     end
 end
+SaveIO.GameData.Load_localActivityData = function()
+    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData') then
+         SaveRootData.GameData.localActivityData = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData'))
+    end
+end
 SaveIO.GameData.Load_resourceInfo_nums = function()
     if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums') then
          SaveRootData.GameData.resourceInfo.nums = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums'))
@@ -140,6 +149,7 @@ SaveIO.GameData.SaveAll = function()
     SaveIO.GameData.Save_settingInfo()
     SaveIO.GameData.Save_boosterTriggered()
     SaveIO.GameData.Save_maxChapterId()
+    SaveIO.GameData.Save_localActivityData()
 end
 SaveIO.GameData.Save_isInit = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit', SaveRootData.GameData.isInit == true and 'true' or 'false')
@@ -169,6 +179,9 @@ SaveIO.GameData.Save_boosterTriggered = function()
 end
 SaveIO.GameData.Save_maxChapterId = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId', tostring(SaveRootData.GameData.maxChapterId))
+end
+SaveIO.GameData.Save_localActivityData = function()
+    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData', JsonEncode(SaveRootData.GameData.localActivityData))
 end
 SaveIO.GameData.Save_resourceInfo_nums = function()
     GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums', JsonEncode(SaveRootData.GameData.resourceInfo.nums))
@@ -213,6 +226,9 @@ end
 SaveIO.GameData.Serialize_maxChapterId = function()
     return JsonEncode(SaveRootData.GameData.maxChapterId)
 end
+SaveIO.GameData.Serialize_localActivityData = function()
+    return JsonEncode(SaveRootData.GameData.localActivityData)
+end
 SaveIO.GameData.Serialize_resourceInfo_nums = function()
     return JsonEncode(SaveRootData.GameData.resourceInfo.nums)
 end
@@ -255,6 +271,9 @@ SaveIO.GameData.Deserialize_boosterTriggered = function(jsonString)
 end
 SaveIO.GameData.Deserialize_maxChapterId = function(jsonString)
     SaveRootData.GameData.maxChapterId = JsonDecode(jsonString)
+end
+SaveIO.GameData.Deserialize_localActivityData = function(jsonString)
+    SaveRootData.GameData.localActivityData = JsonDecode(jsonString)
 end
 SaveIO.GameData.Deserialize_resourceInfo_nums = function(jsonString)
     SaveRootData.GameData.resourceInfo.nums = JsonDecode(jsonString)

@@ -222,21 +222,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3a84f6e549054b499de90a34f530326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ChapterId: 
-  m_LevelId: 0
+  m_ChapterId: 1
+  m_LevelId: 1
   mapBounds: {fileID: 4550662171828505143}
   m_MapType: 0
   m_IsPad: 0
   m_NormalCamData:
-    size: 1024
+    size: 612
     posX: 0
     posY: 0
   m_PlayCamData:
-    size: 512
+    size: 0
     posX: 0
     posY: 0
   m_ExitPlayCamData:
-    size: 1024
+    size: 0
     posX: 0
     posY: 0
   m_MainHudMaxHeight: 768

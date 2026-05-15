@@ -1,38 +1,49 @@
 --=====================================================================================================
--- @brief  活动数据管理器
--- @desc   读取全局活动配置表、获取活动属性、类型、代币、提示、解锁条件等
--- @feat   全局单例、安全查询、空值防护、配置校验、增量包管理
+-- @brief:     活动数据管理器
+-- @desc:      读取全局活动配置表、获取活动属性、类型、代币、提示、解锁条件等
+-- @feat:      全局单例、安全查询、空值防护、配置校验、增量包管理
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 活动配置管理
 --=====================================================================================================
 
 ---@class EventDataManager : Singleton 活动数据管理器
 local EventDataManager = class("EventDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function EventDataManager:ctor()
     EventDataManager.super.ctor(self)
     self._AllIncreaserGroups = {} ---@type string[] 所有服装增量组名
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():EventDataManager
 ---@return EventDataManager
 function EventDataManager:Create()
     return EventDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function EventDataManager:Init()
     EventDataManager.super.Init(self)
     self._AllIncreaserGroups = {}
 end
 
---- 清理数据
+---@brief 清理数据
+---@type fun():void
 function EventDataManager:ClearData()
     EventDataManager.super.ClearData(self)
     self._AllIncreaserGroups = {}
 end
+--endregion
 
+--region 活动配置数据获取
 ---=========================================================================
---- 获取所有活动配置数据
+---@brief  获取所有活动配置数据
+---@type fun():table
 ---@return Tables.Events_Item[]
 ---=========================================================================
 function EventDataManager:GetEventData()
@@ -44,7 +55,8 @@ function EventDataManager:GetEventData()
 end
 
 ---=========================================================================
---- 根据活动ID获取单条活动配置
+---@brief  根据活动ID获取单条活动配置
+---@type fun(eventId:EActivityId):Tables.Events_Item|nil
 ---@param eventId EActivityId 活动ID
 ---@return Tables.Events_Item|nil
 ---=========================================================================
@@ -53,15 +65,18 @@ function EventDataManager:GetEventDataById(eventId)
         return nil
     end
 
-    local data = self:GetEventDatas()[eventId]
+    local data = self:GetEventData()[eventId]
     if not data then
         PrintError("[EventDataManager] 活动数据不存在，eventId = " .. tostring(eventId))
     end
     return data
 end
+--endregion
 
+--region 活动属性获取
 ---=========================================================================
---- 活动是否受关卡难度影响
+---@brief  活动是否受关卡难度影响
+---@type fun(eventId:EActivityId):boolean
 ---@param eventId EActivityId
 ---@return boolean
 ---=========================================================================
@@ -71,7 +86,8 @@ function EventDataManager:HasLevelDiffAffect(eventId)
 end
 
 ---=========================================================================
---- 获取活动退出时的二次提示ID
+---@brief  获取活动退出时的二次提示ID
+---@type fun(eventId:EActivityId):string|nil
 ---@param eventId EActivityId
 ---@return string|nil
 ---=========================================================================
@@ -81,7 +97,8 @@ function EventDataManager:GetExitTipsId(eventId)
 end
 
 ---=========================================================================
---- 活动结束后是否显示 Finished 状态
+---@brief  活动结束后是否显示 Finished 状态
+---@type fun(eventId:EActivityId):boolean
 ---@param eventId EActivityId
 ---@return boolean
 ---=========================================================================
@@ -91,7 +108,8 @@ function EventDataManager:CanShowFinishedState(eventId)
 end
 
 ---=========================================================================
---- 获取活动类型
+---@brief  获取活动类型
+---@type fun(eventId:EActivityId):EActivityType
 ---@param eventId EActivityId
 ---@return EActivityType
 ---=========================================================================
@@ -101,7 +119,8 @@ function EventDataManager:GetActivityType(eventId)
 end
 
 ---=========================================================================
---- 活动是否支持预览界面
+---@brief  活动是否支持预览界面
+---@type fun(eventId:EActivityId):boolean
 ---@param eventId EActivityId
 ---@return boolean
 ---=========================================================================
@@ -111,7 +130,8 @@ function EventDataManager:HasPreview(eventId)
 end
 
 ---=========================================================================
---- 获取活动预览的解锁条件
+---@brief  获取活动预览的解锁条件
+---@type fun(eventId:EActivityId):UnlockData|nil
 ---@param eventId EActivityId
 ---@return UnlockData|nil
 ---=========================================================================
@@ -121,7 +141,8 @@ function EventDataManager:GetPreviewUnlockData(eventId)
 end
 
 ---=========================================================================
---- 获取活动所属分组ID
+---@brief  获取活动所属分组ID
+---@type fun(eventId:EActivityId):number
 ---@param eventId EActivityId
 ---@return number
 ---=========================================================================
@@ -129,13 +150,17 @@ function EventDataManager:GetActivityGroupId(eventId)
     local data = self:GetEventDataById(eventId)
     return data and data.EventGroup or 0
 end
+--endregion
 
+--region 增量包管理
 ---=========================================================================
---- 获取所有事件的增量包名字（服装资源分组）
+---@brief  获取所有事件的增量包名字（服装资源分组）
+---@type fun():string[]
 ---@return string[]
 ---=========================================================================
 function EventDataManager:GetAllIncreaserGroups()
     return self._AllIncreaserGroups
 end
+--endregion
 
 return EventDataManager

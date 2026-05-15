@@ -1,15 +1,17 @@
 --=====================================================================================================
--- descrip:   视图模型通用父类（MVVM - ViewModel 层基类）
+-- Description: 视图模型通用父类（MVVM - ViewModel 层基类）
 --              作用：所有界面的逻辑、数据、状态、业务处理中心
 --              特点：不直接操作 View，只通过 BindValue 双向绑定驱动界面刷新
 --              职责：业务逻辑、数据管理、状态驱动、事件处理、跨VM通信
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class ViewModelSuper @MVVM 视图模型基类（所有 VM 的父类）
+--region MVVM ViewModel 层基类
+---@class ViewModelSuper MVVM 视图模型基类（所有 VM 的父类）
 local ViewModelSuper = class("ViewModelSuper")
 
 --- 构造函数
----@type fun(args:table):void
 ---@param args table 构造参数 { args:外部参数, params:配置参数 }
 function ViewModelSuper:ctor(args)
 	self._args = args.args								                -- 外部传入的初始化参数
@@ -26,7 +28,7 @@ function ViewModelSuper:ctor(args)
 end
 
 --- 创建实例
----@type fun(args:table):ViewModelSuper
+---@param args table
 ---@return ViewModelSuper VM实例
 function ViewModelSuper:Create(args)
 	local obj = ViewModelSuper.new(args)
@@ -34,19 +36,16 @@ function ViewModelSuper:Create(args)
 end
 
 --- 唤醒（VM 被创建时调用）
----@type fun():void
 function ViewModelSuper:Awake()
 
 end
 
 --- 启用（界面显示时调用）
----@type fun():void
 function ViewModelSuper:OnEnable()
 
 end
 
 --- 初始化回调（VM 第一次绑定到 View 时调用）
----@type fun():void
 function ViewModelSuper:OnInit()
 	-- 初始化所有绑定数据的值
 	for _, bindValue in pairs(self._bindValues) do
@@ -55,32 +54,27 @@ function ViewModelSuper:OnInit()
 end
 
 --- 开始（View Start 时同步调用）
----@type fun():void
 function ViewModelSuper:Start()
 
 end
 
 --- 帧更新（每帧执行）
----@type fun():void
 function ViewModelSuper:Proc()
 
 end
 
 --- 禁用（界面隐藏时调用）
----@type fun():void
 function ViewModelSuper:OnDisable()
 
 end
 
 --- 销毁（自动释放事件，防止内存泄漏）
----@type fun():void
 function ViewModelSuper:OnDestroy()
 	-- 自动销毁当前 VM 注册的所有事件
 	HonorEventHelper:RemoveListenerByTarget(self)
 end
 
 --- 注册事件（子类重写）
----@type fun():void
 function ViewModelSuper:OnAddListeners()
 
 end
@@ -90,7 +84,6 @@ end
 --------------------------------------------------------------------------------
 
 --- 添加可绑定变量（创建一个能被 View 监听的数据）
----@type fun(name:string, value:any, isTrigger:boolean):BindValue
 ---@param name string 变量名
 ---@param value any 初始值
 ---@param isTrigger boolean 是否为触发型（自动复位）
@@ -105,7 +98,8 @@ function ViewModelSuper:AddBindValue(name, value, isTrigger)
 end
 
 --- 设置绑定变量的值（自动通知 View 刷新）
----@type fun(name:string, value:any):void
+---@param name string
+---@param value any
 function ViewModelSuper:SetBindValue(name, value)
 	if self._bindValues[name] then
 		self._bindValues[name]:SetValue(value)
@@ -113,7 +107,8 @@ function ViewModelSuper:SetBindValue(name, value)
 end
 
 --- 获取绑定变量的值
----@type fun(name:string):any
+---@param name string
+---@return any
 function ViewModelSuper:GetBindValue(name)
 	if self._bindValues[name] then
 		return self._bindValues[name]:GetValue()
@@ -126,7 +121,9 @@ end
 --------------------------------------------------------------------------------
 
 --- 设置列表指定下标的元素
----@type fun(name:string, index:number, itemValue:any):void
+---@param name string
+---@param index number
+---@param itemValue any
 function ViewModelSuper:SetBindValueItem(name, index, itemValue)
 	if self._bindValues[name] then
 		self._bindValues[name]:SetValueItem(index, itemValue)
@@ -134,7 +131,9 @@ function ViewModelSuper:SetBindValueItem(name, index, itemValue)
 end
 
 --- 获取列表指定下标的元素
----@type fun(name:string, index:number):any
+---@param name string
+---@param index number
+---@return any
 function ViewModelSuper:GetBindValueItem(name, index)
 	if self._bindValues[name] then
 		return self._bindValues[name]:GetValueItem(index)
@@ -143,7 +142,8 @@ function ViewModelSuper:GetBindValueItem(name, index)
 end
 
 --- 获取列表数量
----@type fun(name:string):number
+---@param name string
+---@return number
 function ViewModelSuper:GetBindValueItemsCount(name)
 	if self._bindValues[name] then
 		return self._bindValues[name]:GetValueItemsCount()
@@ -152,7 +152,8 @@ function ViewModelSuper:GetBindValueItemsCount(name)
 end
 
 --- 添加元素到列表
----@type fun(name:string, itemValue:any):void
+---@param name string
+---@param itemValue any
 function ViewModelSuper:AddBindValueItem(name, itemValue)
 	if self._bindValues[name] then
 		self._bindValues[name]:AddValueItem(itemValue)
@@ -160,7 +161,9 @@ function ViewModelSuper:AddBindValueItem(name, itemValue)
 end
 
 --- 插入元素到列表
----@type fun(name:string, index:number, itemValue:any):void
+---@param name string
+---@param index number
+---@param itemValue any
 function ViewModelSuper:InsertBindValueItem(name, index, itemValue)
 	if self._bindValues[name] then
 		self._bindValues[name]:InsertValueItem(index, itemValue)
@@ -168,7 +171,10 @@ function ViewModelSuper:InsertBindValueItem(name, index, itemValue)
 end
 
 --- 移除指定元素
----@type fun(name:string, itemValue:any, removeAll:boolean):boolean
+---@param name string
+---@param itemValue any
+---@param removeAll boolean
+---@return boolean
 function ViewModelSuper:RemoveBindValueItem(name, itemValue, removeAll)
 	if self._bindValues[name] then
 		return self._bindValues[name]:RemoveValueItem(itemValue, removeAll)
@@ -177,7 +183,9 @@ function ViewModelSuper:RemoveBindValueItem(name, itemValue, removeAll)
 end
 
 --- 移除指定下标元素
----@type fun(name:string, index:number):boolean
+---@param name string
+---@param index number
+---@return boolean
 function ViewModelSuper:RemoveBindValueItemAt(name, index)
 	if self._bindValues[name] then
 		return self._bindValues[name]:RemoveValueItemAt(index)
@@ -186,7 +194,7 @@ function ViewModelSuper:RemoveBindValueItemAt(name, index)
 end
 
 --- 清空列表
----@type fun(name:string):void
+---@param name string
 function ViewModelSuper:RemoveAllBindValueItems(name)
 	if self._bindValues[name] then
 		self._bindValues[name]:RemoveAllValueItems()
@@ -194,7 +202,9 @@ function ViewModelSuper:RemoveAllBindValueItems(name)
 end
 
 --- 是否包含元素
----@type fun(name:string, itemValue:any):boolean
+---@param name string
+---@param itemValue any
+---@return boolean
 function ViewModelSuper:ContainsBindValueItem(name, itemValue)
 	if self._bindValues[name] then
 		return self._bindValues[name]:ContainsValueItem(itemValue)
@@ -203,7 +213,9 @@ function ViewModelSuper:ContainsBindValueItem(name, itemValue)
 end
 
 --- 获取元素下标
----@type fun(name:string, itemValue:any):number
+---@param name string
+---@param itemValue any
+---@return number
 function ViewModelSuper:IndexOfBindValueItem(name, itemValue)
 	if self._bindValues[name] then
 		return self._bindValues[name]:IndexOfValueItem(itemValue)
@@ -216,7 +228,6 @@ end
 --------------------------------------------------------------------------------
 
 --- 向上查找指定名称的祖先 ViewModel（用于共享数据）
----@type fun(name:string):ViewModelSuper
 ---@param name string 目标VM类名
 ---@return ViewModelSuper 找到的父VM
 function ViewModelSuper:Ancestors(name)
@@ -237,7 +248,6 @@ end
 --------------------------------------------------------------------------------
 
 --- 被绑定到 View 之前调用
----@type fun():void
 function ViewModelSuper:OnBeforeUse()
 	if self._initOver == false then
 		self:OnAddListeners()
@@ -245,7 +255,6 @@ function ViewModelSuper:OnBeforeUse()
 end
 
 --- 被绑定到 View 之后调用（执行初始化）
----@type fun():void
 function ViewModelSuper:OnAfterUse()
 	if self._initOver == false then
 		self:OnInit()
@@ -254,27 +263,24 @@ function ViewModelSuper:OnAfterUse()
 end
 
 --- 界面打开时
----@type fun():void
 function ViewModelSuper:OnOpen()
 
 end
 
 --- 界面打开完成
----@type fun():void
 function ViewModelSuper:OnOpenOver()
 
 end
 
 --- 界面关闭时
----@type fun():void
 function ViewModelSuper:OnClose()
 
 end
 
 --- 界面关闭完成
----@type fun():void
 function ViewModelSuper:OnCloseOver()
 
 end
+--endregion
 
 return ViewModelSuper

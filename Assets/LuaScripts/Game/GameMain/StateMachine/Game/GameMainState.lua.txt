@@ -4,61 +4,68 @@
 -- @desc:      管理主界面初始化、相机定位、音乐播放、UI打开、活动/签到/商店/礼包等系统入口
 -- @author:    Unity Standard
 -- @date:      2025
+-- @feat:      主界面生命周期、相机定位、背景音乐、系统弹窗、自治实体、UI管理
+-- @规范:       Unity Lua 商业项目编码标准 / 游戏状态机规范
 --=====================================================================================================
 
 ---@class GameMainState : GameStateBase 游戏主界面状态
 local GameStateBase = require("GameStateBase")
 local GameMainState = class('GameMainState', GameStateBase)
 
----构造函数
+--region 【构造 & 实例化】
+---@brief 构造函数
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
 function GameMainState:ctor(stateType)
     GameMainState.super.ctor(self, stateType)
 end
 
----创建状态实例
+---@brief 创建状态实例
 ---@type fun(stateType:GameStateCmd):GameMainState
 ---@param stateType GameStateCmd 状态类型
 ---@return GameMainState 状态实例
 function GameMainState:Create(stateType)
     return GameMainState.new(stateType)
 end
+--endregion
 
----进入主界面状态（入口）
+--region 【状态进入】
+---@brief 进入主界面状态（入口）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameMainState:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
 
-    --- 关闭多点触摸
+    -- 关闭多点触摸
     GameLib.Util.SetMultiTouchEnabled(false)
-    --- 添加UI遮罩，防止操作
+    -- 添加UI遮罩，防止操作
     GameMainRoot.UI:AddUIMaskLayerRef("GameMainState:OnStateEnter")
 
-    --- 本地活动热更资源状态更新
+    -- 本地活动热更资源状态更新
     LocalActivityManager:UpdateActivityHotfixResStates()
-    --- 尝试开启本地活动
+    -- 尝试开启本地活动
     LocalActivityManager:TryOpenActivities()
 
-    --- 播放章节主界面背景音乐
+    -- 播放章节主界面背景音乐
     local chapterData = ChapterDataManager:GetChapterDataByChapterType(MapManager.CurLoadChapterId)
     if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
         SoundManager:PlayBGM(chapterData.MapMusic.outgame)
     end
 
-    --- 相机定位到主界面
+    -- 相机定位到主界面
     self:_LocateCamera(finishCallback)
 end
+--endregion
 
----相机定位总入口
+--region 【相机定位】
+---@brief 相机定位总入口
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:_LocateCamera(finishCallback)
     self:_LocateNormalShowChapterMap(finishCallback)
 end
 
----首次进入非第一章地图（备用逻辑）
+---@brief 首次进入非第一章地图（备用逻辑）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:_LocateFirstShowChapterMap(finishCallback)
@@ -66,48 +73,35 @@ function GameMainState:_LocateFirstShowChapterMap(finishCallback)
     GameMapMotion:PauseMapMotion()
 end
 
----正常回到章节地图（主逻辑）
+---@brief 正常回到章节地图（主逻辑）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:_LocateNormalShowChapterMap(finishCallback)
     local mapData = MapManager.CurMapData
 
-    --- 如果相机已经在正确位置，直接进入
-    if GameLib.MapCamHelper.IsEqualMapCamData(mapData.normalCamData) then
-        GameMainRoot.Effect.efCamera.orthographicSize = mapData.normalCamData.size
+    -- 如果相机已经在正确位置，直接进入
+    if GameLib.MapCamHelper.IsEqualMapCamData(mapData.m_NormalCamData) then
         self:DoStateEnter(finishCallback)
-    else
-        --- 先从战斗相机切回退出相机，再回到主界面相机
-        --GameLib.MapCamHelper.LookMap(mapData.exitPlayCamData, Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.MainIn, function()
-        --    GameLib.MapCamHelper.LookMap(mapData.normalCamData, Tables.Constants.CAM_LOOK_MAP_ANIM_TIME.Value.Main, function()
-        --        self:DoStateEnter(finishCallback)
-        --    end)
-        --end)
     end
 end
+--endregion
 
----主界面真正初始化逻辑（相机到位后执行）
+--region 【主界面初始化】
+---@brief 主界面真正初始化逻辑（相机到位后执行）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:DoStateEnter(finishCallback)
-    --- 打开主界面HUD
-    OpenUISync(UIs.UIMainHud)
-    --- 移除遮罩
+    -- 打开主界面HUD
+    OpenUISync(UIs.UIMainPlaying)
+    -- 移除遮罩
     GameMainRoot.UI:SubUIMaskLayerRef()
 
-    --- 登录流程
+    -- 登录流程
     LoginManager:TryLoginInMainHud()
-    --- 每日签到
-    DailyRewardManager:TrySignin()
-    --- 道具促销
-    BoosterSaleManager:TryOpenBoosterSaleUI()
-    --- 刷新升级时间
-    UpgradeMapManager:RefreshTimeStamp()
-
-    --- 本地活动弹窗
+    -- 本地活动弹窗
     LocalActivityManager:TryOpenPopupActivityUI()
 
-    --- 如果从关卡胜利回来，自动打开升级界面
+    -- 从关卡胜利回来 → 自动打开升级界面
     local preStateType = GameStateMachine:PreStateType()
     if preStateType and
             preStateType == GameStateCmd.PlayingState and
@@ -115,44 +109,45 @@ function GameMainState:DoStateEnter(finishCallback)
         UpgradeMapMgr:CheckAndAutoOpenUpgradeUI(ChapterListManager:GetRuntimeChapterId())
     end
 
-    --- UI推送队列进入主界面状态
+    -- UI推送队列进入主界面状态
     GameMainUIPushManager:OnEnterMainState()
-    --- 关闭自动点击选择
+    -- 关闭自动点击选择
     GameManager:SetupEasyTouchAutoSelect(false)
-    --- 创建地图自治实体（客人、NPC等）
+    -- 创建地图自治实体（客人、NPC等）
     MapManager.CurGameMapBase:CreateAutonomousEntitys()
 
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+--endregion
 
----离开主界面状态
+--region 【状态退出 & 更新】
+---@brief 离开主界面状态
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameMainState:OnStateExit(finishCallback)
     PrintInfo("OnStateExit --> GameState: {0} ", tostring(self:GetStateType()))
 
-    --- 清理特效
-    EffectManager:ClearData()
-    --- 停止BGM
+    -- 清理特效
+    GameEffectManager:ClearData()
+    -- 停止BGM
     SoundManager:StopCurBGM()
-    --- 停止升级计时
-    UpgradeMapManager:StopTimeStamp()
-    --- 推送队列离开主界面
+    -- 推送队列离开主界面
     GameMainUIPushManager:OnLeaveMainState()
-    --- 关闭主界面HUD
-    CloseUI(UIs.UIMainHud)
+    -- 关闭主界面HUD
+    CloseUI(UIs.UIMainPlaying)
 
     pcall(finishCallback)
 end
 
----帧更新
+---@brief 帧更新
 ---@type fun():void
 function GameMainState:OnUpdate()
     GameMainState.super.OnUpdate(self)
-    --- 地图移动更新
+    -- 地图移动更新
     GameMapMotion:OnUpdate()
 end
+--endregion
 
 return GameMainState

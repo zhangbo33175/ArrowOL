@@ -4,34 +4,41 @@
 -- @desc:      所有游戏状态（Login/LoadMap/Main/Playing等）的统一父类，提供基础生命周期
 -- @author:    Unity Standard
 -- @date:      2025
+-- @feat:      状态生命周期、安全回调、通用接口、框架基础
+-- @规范:       Unity Lua 商业项目编码标准 / 核心基类规范
 --=====================================================================================================
 
 ---@class GameStateBase 游戏业务状态基类（所有状态的父类）
 local GameStateBase = class('GameStateBase')
 
----构造函数
+--region 【构造 & 实例化】
+---@brief 构造函数
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型枚举
 function GameStateBase:ctor(stateType)
     self._stateType = stateType  ---@type GameStateCmd 当前状态类型
 end
 
----创建状态实例
+---@brief 创建状态实例
 ---@type fun(stateType:GameStateCmd):GameStateBase
 ---@param stateType GameStateCmd 状态类型枚举
 ---@return GameStateBase 状态基类实例
 function GameStateBase:Create(stateType)
     return GameStateBase.new(stateType)
 end
+--endregion
 
----获取当前状态类型
+--region 【状态类型】
+---@brief 获取当前状态类型
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 当前状态枚举值
 function GameStateBase:GetStateType()
     return self._stateType
 end
+--endregion
 
----进入状态（子类重写）
+--region 【状态生命周期 - 子类可重写】
+---@brief 进入状态（子类重写）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameStateBase:OnStateEnter(finishCallback)
@@ -40,7 +47,7 @@ function GameStateBase:OnStateEnter(finishCallback)
     end
 end
 
----离开状态（子类重写）
+---@brief 离开状态（子类重写）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameStateBase:OnStateExit(finishCallback)
@@ -49,16 +56,16 @@ function GameStateBase:OnStateExit(finishCallback)
     end
 end
 
----帧更新（子类重写）
+---@brief 帧更新（子类重写）
 ---@type fun():void
 function GameStateBase:OnUpdate()
-
 end
 
----清理缓存数据（子类重写）
+---@brief 清理缓存数据（子类重写）
 ---@type fun():void
 function GameStateBase:ClearCacheData()
-    --- 清理特效等临时数据（预留）
+    -- 清理特效等临时数据（预留）
 end
+--endregion
 
 return GameStateBase

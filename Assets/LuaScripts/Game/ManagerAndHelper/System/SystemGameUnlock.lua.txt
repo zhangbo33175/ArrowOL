@@ -7,10 +7,16 @@
 --=====================================================================================================
 
 ---@class SystemGameUnlock : Singleton @游戏系统解锁查询管理器
+---@field map table<string, boolean> @系统解锁状态表 key: 系统名(ESystemName) value: 是否已解锁
+---@field unlockLv table<string, table> @系统解锁配置表 key: 系统名 value: {Chapter, Level} 解锁所需条件
 local SystemGameUnlock = class("SystemGameUnlock", import("Singleton"))
 
+--region 生命周期 & 基础函数
+---=========================================================================
 --- 构造函数
+---@brief 初始化解锁状态表与配置表容器
 ---@param args table 自定义参数
+---=========================================================================
 function SystemGameUnlock:ctor(args)
     SystemGameUnlock.super.ctor(self, args)
 
@@ -21,13 +27,36 @@ function SystemGameUnlock:ctor(args)
     self.unlockLv = {}
 end
 
+---=========================================================================
 --- 创建单例
 ---@param args table 自定义参数
----@return SystemGameUnlock
+---@return SystemGameUnlock 单例实例
+---=========================================================================
 function SystemGameUnlock:Create(args)
     return SystemGameUnlock.new(args)
 end
 
+---=========================================================================
+--- 单例优先级（越高越早初始化）
+---@brief 定义模块初始化顺序
+---@return number 优先级数值
+---=========================================================================
+function SystemGameUnlock:Priority()
+    return ESingletonPriority.GAME_SYS_UNLOCK
+end
+
+---=========================================================================
+--- 清理数据（切号/重载游戏时使用）
+---@brief 重置所有解锁状态与配置，释放引用
+---=========================================================================
+function SystemGameUnlock:ClearData()
+    SystemGameUnlock.super.ClearData(self)
+    self.map = {}
+    self.unlockLv = {}
+end
+--endregion
+
+--region 对外查询接口
 ---=========================================================================
 --- 【对外接口】查询某个系统是否已解锁
 ---@param sys string 系统名称（来自 ESystemName 枚举）
@@ -39,9 +68,12 @@ function SystemGameUnlock:SystemIsUnlock(sys)
     end
     return self.map[sys] == true
 end
+--endregion
 
+--region 事件监听 & 解锁逻辑
 ---=========================================================================
 --- 【监听】关卡胜利 → 刷新所有系统解锁状态
+---@brief 关卡通关后自动检测并更新系统解锁状态
 ---@param chapterLv ChapterLevel 最新章节关卡数据
 ---@private
 ---=========================================================================
@@ -87,23 +119,19 @@ end
 
 ---=========================================================================
 --- 【监听】新章节解锁 → 刷新系统解锁状态
+---@brief 章节解锁时同步更新所有系统解锁状态
 ---@private
 ---=========================================================================
 function SystemGameUnlock:_ListenChapterUnlock()
     local latestChapterLv = GamerDataManager:GetLatestChapterLevel()
     self:_ListenLevelSuccess(latestChapterLv)
 end
+--endregion
 
----=========================================================================
---- 单例优先级（越高越早初始化）
----@return number 优先级数值
----=========================================================================
-function SystemGameUnlock:Priority()
-    return ESingletonPriority.GAME_SYS_UNLOCK
-end
-
+--region 初始化逻辑
 ---=========================================================================
 --- 初始化：读取配置 → 注册事件监听 → 初始化解锁状态
+---@brief 模块主初始化入口，加载解锁条件并初始化状态
 ---=========================================================================
 function SystemGameUnlock:Init()
     SystemGameUnlock.super.Init(self)
@@ -150,14 +178,6 @@ function SystemGameUnlock:Init()
     --    HonorEventHelper:AddListener(EventCmd.OnNewChapterUnlockEvent, handler(self, self._ListenChapterUnlock))
     --end
 end
-
----=========================================================================
---- 清理数据（切号/重载游戏时使用）
----=========================================================================
-function SystemGameUnlock:ClearData()
-    SystemGameUnlock.super.ClearData(self)
-    self.map = {}
-    self.unlockLv = {}
-end
+--endregion
 
 return SystemGameUnlock

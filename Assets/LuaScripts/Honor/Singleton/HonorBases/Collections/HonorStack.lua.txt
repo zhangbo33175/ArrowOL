@@ -1,22 +1,23 @@
 --=====================================================================================================
--- descrip:   栈结构（Stack）
+-- Description: 栈结构（Stack）
 --              规则：后进先出 LIFO (Last In First Out)
 --              用途：UI面板栈、场景返回栈、状态回溯、操作撤销、层级管理
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class HonorStack @通用栈容器（LIFO 后进先出）
----@field items table @内部存储元素的数组
+--region 通用栈容器（LIFO 后进先出）
+---@class HonorStack 通用栈容器（LIFO 后进先出）
+---@field items table 内部存储元素的数组
 local HonorStack = class("HonorStack")
 
 --- 构造函数
----@type fun():void
 function HonorStack:ctor()
     ---@type table 栈元素数组
     self.items = {}
 end
 
 --- 创建栈实例
----@type fun():HonorStack
 ---@return HonorStack 新的栈对象
 function HonorStack:Create()
     local obj = HonorStack.new()
@@ -24,7 +25,6 @@ function HonorStack:Create()
 end
 
 --- 获取栈顶元素（仅查看，不弹出）
----@type fun():any
 ---@return any 栈顶元素，空栈返回 nil
 function HonorStack:Peek()
     if self:IsEmpty() then
@@ -34,14 +34,12 @@ function HonorStack:Peek()
 end
 
 --- 元素入栈（压入栈顶）
----@type fun(item:any):void
 ---@param item any 任意类型要压入的元素
 function HonorStack:Push(item)
     table.insert(self.items, item)
 end
 
 --- 元素出栈（弹出栈顶并返回）
----@type fun():any
 ---@return any 出栈元素，空栈返回 nil
 function HonorStack:Pop()
     if self:IsEmpty() then
@@ -52,21 +50,18 @@ function HonorStack:Pop()
 end
 
 --- 获取栈内元素数量
----@type fun():number
 ---@return number 元素个数
 function HonorStack:Count()
     return #self.items
 end
 
 --- 判断栈是否为空
----@type fun():boolean
 ---@return boolean true=空, false=非空
 function HonorStack:IsEmpty()
     return self:Count() == 0
 end
 
 --- 判断栈是否包含指定元素
----@type fun(item:any):boolean
 ---@param item any 要查找的元素
 ---@return boolean 是否包含
 function HonorStack:Contains(item)
@@ -79,9 +74,9 @@ function HonorStack:Contains(item)
 end
 
 --- 清空整个栈
----@type fun():void
 function HonorStack:Clear()
     self.items = {}
 end
+--endregion
 
 return HonorStack

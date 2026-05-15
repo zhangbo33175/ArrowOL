@@ -15,26 +15,38 @@ namespace Honor.Editor
     [CustomEditor(typeof(AssetComponent))]
     public class AssetComponentInspector : HonorComponentInspector
     {
-        // ======================= 常量配置 =======================
+        #region 【常量配置】
+        //=========================================================================
+        // 常量配置
+        //=========================================================================
         /// <summary>资源最大延迟卸载帧数（1小时=36000帧）</summary>
         private const int UnloadAssetDelayFrameNumMax = 36000;
         /// <summary>触发GC的最大累计加载资源数量</summary>
         private const int LoadedMaxNumToCleanMemeryMax = 1000;
+        #endregion
 
-        // ======================= 序列化字段 =======================
+        #region 【序列化字段】
+        //=========================================================================
+        // 序列化字段
+        //=========================================================================
         /// <summary>资源延迟卸载帧数</summary>
         private SerializedProperty m_UnloadAssetDelayFrameNum = null;
         /// <summary>触发清理内存的累计加载数量</summary>
         private SerializedProperty m_LoadedMaxNumToCleanMemery = null;
+        #endregion
 
-        // ======================= 折叠面板状态 =======================
+        #region 【折叠面板状态】
+        //=========================================================================
+        // 折叠面板状态
+        //=========================================================================
         /// <summary>记录编辑器面板展开状态（运行时）</summary>
         private readonly HashSet<string> m_OpenedItems = new HashSet<string>();
+        #endregion
 
-        // ======================= 编辑器生命周期 =======================
-        /// <summary>
-        /// 绘制Inspector面板
-        /// </summary>
+        #region 【编辑器生命周期】
+        //=========================================================================
+        // 绘制Inspector面板
+        //=========================================================================
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -51,9 +63,9 @@ namespace Honor.Editor
 
             // 滑动条：资源最小过期帧数
             int unloadAssetDelayFrameNum = (int)EditorGUILayout.Slider(
-                AorTxt.Format("Asset最小过期帧数"), 
-                m_UnloadAssetDelayFrameNum.intValue, 
-                0, 
+                AorTxt.Format("Asset最小过期帧数"),
+                m_UnloadAssetDelayFrameNum.intValue,
+                0,
                 UnloadAssetDelayFrameNumMax
             );
             if (unloadAssetDelayFrameNum != m_UnloadAssetDelayFrameNum.intValue)
@@ -66,9 +78,9 @@ namespace Honor.Editor
 
             // 滑动条：每轮GC所需累计加载数量
             int loadedMaxNumToCleanMemery = (int)EditorGUILayout.Slider(
-                "每轮GC所需异步加载完成资源的累计数量", 
-                m_LoadedMaxNumToCleanMemery.intValue, 
-                0, 
+                "每轮GC所需异步加载完成资源的累计数量",
+                m_LoadedMaxNumToCleanMemery.intValue,
+                0,
                 LoadedMaxNumToCleanMemeryMax
             );
             if (loadedMaxNumToCleanMemery != m_LoadedMaxNumToCleanMemery.intValue)
@@ -99,18 +111,18 @@ namespace Honor.Editor
             Repaint();
         }
 
-        /// <summary>
-        /// 编译完成回调
-        /// </summary>
+        //=========================================================================
+        // 编译完成回调
+        //=========================================================================
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
             RefreshTypeNames();
         }
 
-        /// <summary>
-        /// 启用时初始化绑定序列化属性
-        /// </summary>
+        //=========================================================================
+        // 启用时初始化绑定序列化属性
+        //=========================================================================
         private void OnEnable()
         {
             m_UnloadAssetDelayFrameNum    = serializedObject.FindProperty("m_UnloadAssetDelayFrameNum");
@@ -118,11 +130,12 @@ namespace Honor.Editor
 
             RefreshTypeNames();
         }
+        #endregion
 
-        // ======================= 绘制列表 =======================
-        /// <summary>
-        /// 绘制Prefab加载列表
-        /// </summary>
+        #region 【绘制列表】
+        //=========================================================================
+        // 绘制Prefab加载列表
+        //=========================================================================
         private void DrawPrefabList(string listName)
         {
             AssetComponent t = (AssetComponent)target;
@@ -176,9 +189,9 @@ namespace Honor.Editor
             }
         }
 
-        /// <summary>
-        /// 绘制普通资源列表（预加载/加载中/已完成/待卸载）
-        /// </summary>
+        //=========================================================================
+        // 绘制普通资源列表（预加载/加载中/已完成/待卸载）
+        //=========================================================================
         private void DrawAssetList(string listName)
         {
             AssetComponent t = (AssetComponent)target;
@@ -261,9 +274,9 @@ namespace Honor.Editor
             }
         }
 
-        /// <summary>
-        /// 绘制AssetBundle列表
-        /// </summary>
+        //=========================================================================
+        // 绘制AssetBundle列表
+        //=========================================================================
         private void DrawABList(string listName)
         {
             AssetComponent t = (AssetComponent)target;
@@ -316,9 +329,12 @@ namespace Honor.Editor
                 EditorGUILayout.Separator();
             }
         }
+        #endregion
 
-        // ======================= CSV 导出 =======================
-        /// <summary>导出Prefab列表</summary>
+        #region 【CSV 导出】
+        //=========================================================================
+        // 导出Prefab列表
+        //=========================================================================
         private void ExportPrefabListToCSV(string listName, Dictionary<string, PrefabObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -341,7 +357,9 @@ namespace Honor.Editor
             }
         }
 
-        /// <summary>导出普通资源</summary>
+        //=========================================================================
+        // 导出普通资源
+        //=========================================================================
         private void ExportAssetListToCSV(string listName, Dictionary<string, AssetObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -365,7 +383,9 @@ namespace Honor.Editor
             }
         }
 
-        /// <summary>导出预加载资源</summary>
+        //=========================================================================
+        // 导出预加载资源
+        //=========================================================================
         private void ExportPreloadAssetToCSV(string listName, Queue<PreloadAssetObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -388,7 +408,9 @@ namespace Honor.Editor
             }
         }
 
-        /// <summary>导出AB列表</summary>
+        //=========================================================================
+        // 导出AB列表
+        //=========================================================================
         private void ExportABListToCSV(string listName, Dictionary<string, AssetBundleObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -411,14 +433,20 @@ namespace Honor.Editor
                 Log.Error($"导出失败：{e}");
             }
         }
+        #endregion
 
-        // ======================= 工具方法 =======================
+        #region 【工具方法】
+        //=========================================================================
+        // 刷新类型名称
+        //=========================================================================
         private void RefreshTypeNames()
         {
             serializedObject.ApplyModifiedProperties();
         }
 
-        /// <summary>获取来源类型名称</summary>
+        //=========================================================================
+        // 获取来源类型名称
+        //=========================================================================
         private string GetOriginTypeName(OriginType type)
         {
             return type switch
@@ -431,12 +459,15 @@ namespace Honor.Editor
             };
         }
 
-        /// <summary>补齐空格格式化显示</summary>
+        //=========================================================================
+        // 补齐空格格式化显示
+        //=========================================================================
         private string FillGap(string word, int length = 15)
         {
             if (word.Length >= length)
                 return word.Substring(0, length);
             return word.PadRight(length);
         }
+        #endregion
     }
 }

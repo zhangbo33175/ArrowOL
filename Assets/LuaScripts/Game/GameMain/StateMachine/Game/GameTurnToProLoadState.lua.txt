@@ -2,44 +2,53 @@
 -- @filename:  GameTurnToProLoadState.lua
 -- @brief:     切换至预加载流程状态
 -- @desc:      负责关闭全部UI、卸载旧地图、清理画布，完成游戏场景 -> 预加载流程的安全过渡
+-- @author:    Unity Standard
+-- @date:      2025
+-- @feat:      全量UI关闭、地图卸载、画布清理、流程安全过渡
+-- @规范:       Unity Lua 商业项目编码标准 / 游戏状态机规范
 --=====================================================================================================
 
 ---@class GameTurnToProLoadState : GameStateBase 切换至预加载流程状态
 local GameTurnToProLoadState = class('GameTurnToProLoadState', import('GameStateBase'))
 
----构造函数
+--region 【构造 & 实例化】
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 状态传入参数
 function GameTurnToProLoadState:ctor(args)
     GameTurnToProLoadState.super.ctor(self, args)
 end
 
----创建状态实例（静态工厂）
+---@brief 创建状态实例（静态工厂）
 ---@type fun(args:table):GameTurnToProLoadState
 ---@param args table 传入参数
 ---@return GameTurnToProLoadState 状态实例
 function GameTurnToProLoadState:Create(args)
     return GameTurnToProLoadState.new(args)
 end
+--endregion
 
----进入状态：执行场景切换前的清理工作
+--region 【状态生命周期】
+---@brief 进入状态：执行场景切换前的清理工作
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态进入完成回调
 function GameTurnToProLoadState:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
+
     -- 关闭所有打开的UI界面
     GameManager:CloseAllUI(true)
     -- 卸载当前旧地图资源
     MapManager:UnloadOldMap()
     -- 执行全量UI关闭后的画布清理与后续操作
     GameManager:OnAfterCanvasCloseAll()
+
     -- 执行完成回调
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
 
----离开状态：状态退出清理
+---@brief 离开状态：状态退出清理
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态退出完成回调
 function GameTurnToProLoadState:OnStateExit(finishCallback)
@@ -47,17 +56,20 @@ function GameTurnToProLoadState:OnStateExit(finishCallback)
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+--endregion
 
----打开地图加载界面
+--region 【加载界面控制】
+---@brief 打开地图加载界面
 ---@type fun():void
 function GameTurnToProLoadState:OpenLoadingUI()
     OpenUISync(UIs.UILoadMap)
 end
 
----关闭地图加载界面
+---@brief 关闭地图加载界面
 ---@type fun():void
 function GameTurnToProLoadState:CloseLoadingUI()
     CloseUI(UIs.UILoadMap)
 end
+--endregion
 
 return GameTurnToProLoadState

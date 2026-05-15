@@ -33,21 +33,22 @@ local SystemMd5 = {
 -- 字符串操作函数简写
 local char, byte, format, rep, sub = string.char, string.byte, string.format, string.rep, string.sub
 
--- 位运算变量定义（会根据环境自动赋值）
+-- 位运算变量定义（自动适配环境）
 local bit_or, bit_and, bit_not, bit_xor, bit_rshift, bit_lshift
 
 --=====================================================================================================
--- 位运算兼容层（自动适配：bit库 / bit32库 / 纯Lua实现）
--- 保证在任何 Lua 环境下都能正常运行
+-- 位运算兼容层
+-- 自动适配：LuaJIT bit库 / Lua5.2+ bit32库 / 纯Lua模拟
+-- 保证在任何 Lua 环境下正常运行
 --=====================================================================================================
 local ok, bit = pcall(require, 'bit')
 if ok then
-    -- LuaJIT / luabit 库
+    -- LuaJIT / luabit
     bit_or, bit_and, bit_not, bit_xor, bit_rshift, bit_lshift = bit.bor, bit.band, bit.bnot, bit.bxor, bit.rshift, bit.lshift
 else
     ok, bit = pcall(require, 'bit32')
     if ok then
-        -- Lua 5.2 / 5.3 原生 bit32 库
+        -- Lua 5.2 / 5.3 原生 bit32
         bit_not = bit.bnot
         local tobit = function(n)
             return n <= 0x7fffffff and n or -(bit_not(n) + 1)
@@ -58,7 +59,7 @@ else
         bit_or, bit_and, bit_xor = normalize(bit.bor), normalize(bit.band), normalize(bit.bxor)
         bit_rshift, bit_lshift = normalize(bit.rshift), normalize(bit.lshift)
     else
-        -- 无任何位库 → 纯 Lua 模拟位运算
+        -- 无位运算库 → 纯 Lua 模拟实现
         local function tbl2number(tbl)
             local result = 0
             local power = 1
@@ -80,6 +81,7 @@ else
         end
 
         local to_bits
+
         -- 按位取反
         bit_not = function(n)
             local tbl = to_bits(n)
@@ -105,7 +107,7 @@ else
             return tbl
         end
 
-        -- 或运算
+        -- 按位或
         bit_or = function(m, n)
             local tbl_m = to_bits(m)
             local tbl_n = to_bits(n)
@@ -117,7 +119,7 @@ else
             return tbl2number(tbl)
         end
 
-        -- 与运算
+        -- 按位与
         bit_and = function(m, n)
             local tbl_m = to_bits(m)
             local tbl_n = to_bits(n)
@@ -129,7 +131,7 @@ else
             return tbl2number(tbl)
         end
 
-        -- 异或运算
+        -- 按位异或
         bit_xor = function(m, n)
             local tbl_m = to_bits(m)
             local tbl_n = to_bits(n)
@@ -170,11 +172,13 @@ else
 end
 
 --=====================================================================================================
--- 字节序转换工具（MD5 内部使用）
+-- 字节序转换工具（MD5 内部专用）
 --=====================================================================================================
--- 小端 32 位数字 → 4 字节字符串
+-- 小端32位数字 → 4字节字符串
 local function lei2str(i)
-    local f = function(s) return char(bit_and(bit_rshift(i, s), 255)) end
+    local f = function(s)
+        return char(bit_and(bit_rshift(i, s), 255))
+    end
     return f(0)..f(8)..f(16)..f(24)
 end
 
@@ -196,7 +200,7 @@ local function str2lei(s)
     return v
 end
 
--- 切割小端字符串
+-- 按长度截取小端字符串并转数字
 local function cut_le_str(s, ...)
     local o, r = 1, {}
     local args = {...}
@@ -208,10 +212,12 @@ local function cut_le_str(s, ...)
 end
 
 -- 字节序交换
-local swap = function(w) return str2bei(lei2str(w)) end
+local swap = function(w)
+    return str2bei(lei2str(w))
+end
 
 --=====================================================================================================
--- MD5 核心常量 & 运算函数
+-- MD5 核心常量与运算函数
 --=====================================================================================================
 local CONSTS = {
     0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
@@ -233,7 +239,7 @@ local CONSTS = {
     0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
 }
 
--- MD5 4 种基础位运算
+-- MD5 四种基础位运算
 local f = function(x,y,z) return bit_or(bit_and(x,y), bit_and(-x-1,z)) end
 local g = function(x,y,z) return bit_or(bit_and(x,z), bit_and(y,-z-1)) end
 local h = function(x,y,z) return bit_xor(x, bit_xor(y,z)) end
@@ -245,7 +251,7 @@ local z = function(ff,a,b,c,d,x,s,ac)
     return bit_or(bit_lshift(bit_and(a, bit_rshift(0xFFFFFFFF,s)), s), bit_rshift(a,32-s)) + b
 end
 
--- MD5 核心变换函数（64 轮运算）
+-- MD5 64轮核心变换
 local function transform(A,B,C,D,X)
     local a,b,c,d = A,B,C,D
     local t = CONSTS
@@ -323,14 +329,14 @@ local function transform(A,B,C,D,X)
     b=z(i,b,c,d,a,X[9],21,t[64])
 
     return bit_and(A+a,0xFFFFFFFF), bit_and(B+b,0xFFFFFFFF),
-           bit_and(C+c,0xFFFFFFFF), bit_and(D+d,0xFFFFFFFF)
+    bit_and(C+c,0xFFFFFFFF), bit_and(D+d,0xFFFFFFFF)
 end
 
 --=====================================================================================================
 -- MD5 对外接口
 --=====================================================================================================
 
--- 数据更新（分块计算）
+-- 分块更新数据
 local function md5_update(self, s)
     self.pos = self.pos + #s
     s = self.buf .. s
@@ -343,7 +349,7 @@ local function md5_update(self, s)
     return self
 end
 
--- 结束计算，返回 MD5 原始字节串
+-- 完成计算，返回16字节原始串
 local function md5_finish(self)
     local msgLen = self.pos
     local padLen = 56 - msgLen % 64
@@ -352,8 +358,8 @@ local function md5_finish(self)
     if padLen == 0 then padLen = 64 end
 
     local s = char(128) .. rep(char(0), padLen-1)
-        .. lei2str(bit_and(8*msgLen, 0xFFFFFFFF))
-        .. lei2str(math.floor(msgLen/0x20000000))
+            .. lei2str(bit_and(8*msgLen, 0xFFFFFFFF))
+            .. lei2str(math.floor(msgLen/0x20000000))
     md5_update(self, s)
 
     return lei2str(self.a) .. lei2str(self.b) .. lei2str(self.c) .. lei2str(self.d)
@@ -370,16 +376,16 @@ function SystemMd5.new()
     }
 end
 
--- 原始字节串 → 32 位小写十六进制串
+-- 16字节原始串 → 32位小写十六进制
 function SystemMd5.tohex(s)
     return format("%08x%08x%08x%08x",
-        str2bei(sub(s, 1, 4)),
-        str2bei(sub(s, 5, 8)),
-        str2bei(sub(s, 9, 12)),
-        str2bei(sub(s, 13, 16)))
+            str2bei(sub(s, 1, 4)),
+            str2bei(sub(s, 5, 8)),
+            str2bei(sub(s, 9, 12)),
+            str2bei(sub(s, 13, 16)))
 end
 
--- 计算字符串 MD5（原始字节）
+-- 计算字符串 MD5（原始16字节）
 function SystemMd5.sum(s)
     return SystemMd5.new():update(s):finish()
 end

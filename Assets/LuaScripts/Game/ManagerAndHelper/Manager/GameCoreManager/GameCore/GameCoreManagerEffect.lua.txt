@@ -2,30 +2,41 @@
 -- @brief  关卡内特效管理类
 -- @desc   负责关卡运行时所有特效的创建、播放、回收、清理等生命周期管理
 -- @author 标准规范版 | 空安全 | 可维护 | 无崩溃风险
+-- @规范    Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class GameCoreManagerEffect @ 关卡内特效管理核心类
 local GameCoreManagerEffect = class("GameCoreManagerEffect")
 
----@brief 构造函数
+--region 构造 & 初始化
+---=========================================================================
+--- 构造函数
 ---@param args table @外部传入的初始化参数
+---=========================================================================
 function GameCoreManagerEffect:ctor(args)
     -- 初始化特效缓存容器（预留结构，便于后续扩展）
 end
 
+---=========================================================================
 --- 静态创建实例
 ---@param args table 初始化参数
 ---@return GameCoreManagerEffect 特效管理器实例对象
+---=========================================================================
 function GameCoreManagerEffect:Create(args)
     local instance = GameCoreManagerEffect.new(args)
     PrintInfo("[GameCoreManagerEffect] 初始化完成")
     return instance
 end
+--endregion
 
----@brief 清理当前管理器所有数据与特效资源
+--region 数据清理 & 生命周期
+---=========================================================================
+--- 清理当前管理器所有数据与特效资源
 ---@desc 释放特效对象、停止播放、清空缓存、解除引用，用于场景切换/重置时调用
+---=========================================================================
 function GameCoreManagerEffect:ClearData()
     -- 清空所有特效缓存、停止播放、释放资源
 end
+--endregion
 
 return GameCoreManagerEffect

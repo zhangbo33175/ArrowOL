@@ -1,35 +1,46 @@
 --=====================================================================================================
--- @brief  主界面元素UI气泡执行顺序数据管理器
--- @desc   管理主界面UI气泡、提示、红点的显示层级与执行顺序
--- @feat   优先级排序、层级配置、自动容错、全局单例、安全访问
+-- @brief:     主界面元素UI气泡执行顺序数据管理器
+-- @desc:      管理主界面UI气泡、提示、红点的显示层级与执行顺序
+-- @feat:      优先级排序、层级配置、自动容错、全局单例、安全访问
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / UI气泡层级管理
 --=====================================================================================================
 
 ---@class HomeUIBubbleLayerDataManager : Singleton @主界面UI气泡层级数据管理器
 local HomeUIBubbleLayerDataManager = class("HomeUIBubbleLayerDataManager", import("Singleton"))
 
---- 构造函数
+--region 构造 & 实例化
+---@brief 构造函数
+---@type fun():void
 function HomeUIBubbleLayerDataManager:ctor()
     HomeUIBubbleLayerDataManager.super.ctor(self)
 end
 
---- 创建单例
+---@brief 创建单例
+---@type fun():HomeUIBubbleLayerDataManager
 ---@return HomeUIBubbleLayerDataManager
 function HomeUIBubbleLayerDataManager:Create()
     return HomeUIBubbleLayerDataManager.new()
 end
+--endregion
 
---- 初始化
+--region 初始化 & 生命周期
+---@brief 初始化
+---@type fun():void
 function HomeUIBubbleLayerDataManager:Init()
     HomeUIBubbleLayerDataManager.super.Init(self)
 end
 
---- 清理数据
+---@brief 清理数据
+---@type fun():void
 function HomeUIBubbleLayerDataManager:ClearData()
     HomeUIBubbleLayerDataManager.super.ClearData(self)
 end
+--endregion
 
+--region UI气泡层级配置获取
 ---=========================================================================
---- 根据气泡类型ID获取层级配置
+---@brief  根据气泡类型ID获取层级配置
+---@type fun(id:EGameElementUIBubbleType):Tables.HomeUIBubbleLayers_Item
 ---@param id EGameElementUIBubbleType 气泡类型ID
 ---@return Tables.HomeUIBubbleLayers_Item 气泡层级配置
 ---=========================================================================
@@ -57,7 +68,8 @@ function HomeUIBubbleLayerDataManager:GetDataById(id)
 end
 
 ---=========================================================================
---- 根据气泡类型ID获取执行顺序
+---@brief  根据气泡类型ID获取执行顺序
+---@type fun(id:EGameElementUIBubbleType):number
 ---@param id EGameElementUIBubbleType 气泡类型ID
 ---@return number 排序值（越小优先级越高）
 ---=========================================================================
@@ -69,5 +81,6 @@ function HomeUIBubbleLayerDataManager:GetOrderById(id)
     end
     return data.Order or 0
 end
+--endregion
 
 return HomeUIBubbleLayerDataManager

@@ -1,14 +1,19 @@
 --=====================================================================================================
--- descrip:   全局框架变量（Lua 访问 C# 桥接全量定义）
+-- Description: 全局框架变量（Lua 访问 C# 桥接全量定义）
 --              作用：统一封装 C# 命名空间、插件、枚举、全局常量，方便 Lua 层调用
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
+--region Unity 核心命名空间
 ---@type UnityEngine @CS层：Unity引擎核心命名空间
 Unity = CS.UnityEngine
 
 ---@type UnityEngine.UI @CS层：Unity UI系统命名空间
 UnityUI = Unity.UI
+--endregion
 
+--region 第三方插件命名空间
 ---@type Spine.Unity @CS层：Spine动画插件命名空间
 Spine = CS.Spine.Unity
 
@@ -29,7 +34,9 @@ LoopType = DGTweening.LoopType
 
 ---@type BehaviorDesigner.Runtime @CS层：行为树插件命名空间
 BT = CS.BehaviorDesigner.Runtime
+--endregion
 
+--region 项目自研框架
 ---@type Honor.Runtime @CS层：项目自研框架核心命名空间
 Honor = CS.Honor.Runtime
 
@@ -41,7 +48,9 @@ GameMainRoot = Honor.GameMainRoot
 
 ---@type CS.IAPWrapper @CS层：内购支付封装模块
 IAPWrapper = CS.IAPWrapper
+--endregion
 
+--region 全局平台与环境常量
 ---@type string @当前构建平台名称：Android / iOS / WebGL
 BuildPlatformName = GameMainRoot.Config:GetCurBuildPlatformName()
 
@@ -53,44 +62,10 @@ IsMacEditor = Unity.Application.platform == Unity.RuntimePlatform.OSXEditor
 
 ---@type boolean @是否运行在 Unity 编辑器环境
 IsEditor = IsWindowEditor or IsMacEditor
+--endregion
 
+--region DOTween 缓动曲线（Lua 简化别名）
 ---@class Ease @DOTween 动画缓动曲线枚举（Lua 层简化别名）
----@field Unset number @未设置
----@field Linear number @线性
----@field InSine number @正弦缓动-入
----@field OutSine number @正弦缓动-出
----@field InOutSine number @正弦缓动-入出
----@field InQuad number @二次方缓动-入
----@field OutQuad number @二次方缓动-出
----@field InOutQuad number @二次方缓动-入出
----@field InCubic number @三次方缓动-入
----@field OutCubic number @三次方缓动-出
----@field InOutCubic number @三次方缓动-入出
----@field InQuart number @四次方缓动-入
----@field OutQuart number @四次方缓动-出
----@field InOutQuart number @四次方缓动-入出
----@field InQuint number @五次方缓动-入
----@field OutQuint number @五次方缓动-出
----@field InOutQuint number @五次方缓动-入出
----@field InExpo number @指数缓动-入
----@field OutExpo number @指数缓动-出
----@field InOutExpo number @指数缓动-入出
----@field InCirc number @圆形缓动-入
----@field OutCirc number @圆形缓动-出
----@field InOutCirc number @圆形缓动-入出
----@field InElastic number @弹性缓动-入
----@field OutElastic number @弹性缓动-出
----@field InOutElastic number @弹性缓动-入出
----@field InBack number @回退缓动-入
----@field OutBack number @回退缓动-出
----@field InOutBack number @回退缓动-入出
----@field InBounce number @弹跳缓动-入
----@field OutBounce number @弹跳缓动-出
----@field InOutBounce number @弹跳缓动-入出
----@field Flash number @闪烁
----@field InFlash number @闪烁-入
----@field OutFlash number @闪烁-出
----@field InOutFlash number @闪烁-入出
 Ease = {
     Unset = DGTweening.Ease.Unset,
     Linear = DGTweening.Ease.Linear,
@@ -129,15 +104,10 @@ Ease = {
     OutFlash = DGTweening.Ease.OutFlash,
     InOutFlash = DGTweening.Ease.InOutFlash,
 }
+--endregion
 
+--region 框架内置枚举定义
 ---@class HonorTweenType @Lua层UI动画类型定义（框架内置动画）
----@field None string @无动画
----@field PrefabUIBottomMaskLayerOpenAnimation string @底部遮罩打开
----@field PrefabUIBottomMaskLayerCloseAnimation string @底部遮罩关闭
----@field PrefabUIAlphaOpenAnimation string @透明度打开
----@field PrefabUIAlphaCloseAnimation string @透明度关闭
----@field PrefabRootOpenAnimation string @根节点打开
----@field PrefabRootCloseAnimation string @根节点关闭
 HonorTweenType = {
     None = "None",
     PrefabUIBottomMaskLayerOpenAnimation = "PrefabUIBottomMaskLayerOpenAnimation",
@@ -149,13 +119,6 @@ HonorTweenType = {
 }
 
 ---@class BindValueOperate @MVVM数据绑定操作类型（数据变更事件）
----@field None string @无操作
----@field ValueChanged string @值整体变更
----@field ValueItemChanged string @子项变更
----@field ValueItemAdded string @子项添加
----@field ValueItemInserted string @子项插入
----@field ValueItemRemoved string @子项移除
----@field ValueItemsAllRemoved string @全部清空
 BindValueOperate = {
     None = "None",
     ValueChanged = "ValueChanged",
@@ -167,13 +130,6 @@ BindValueOperate = {
 }
 
 ---@class FwEventCmd @框架全局事件定义（全局消息CMD）
----@field ChangeProcedure string @切换流程/场景
----@field AcrossDayUTC0 string @UTC0时区跨天
----@field AcrossDayLocal string @本地时区跨天
----@field AcrossDayPST string @PST时区跨天
----@field ScreenOrientationChanged string @屏幕方向旋转
----@field UIViewOpen string @UI界面打开
----@field UIViewClose string @UI界面关闭
 FwEventCmd = {
     ChangeProcedure = "ChangeProcedure",
     AcrossDayUTC0 = "AcrossDayUTC0",
@@ -183,3 +139,4 @@ FwEventCmd = {
     UIViewOpen = "UIViewOpen",
     UIViewClose = "UIViewClose",
 }
+--endregion

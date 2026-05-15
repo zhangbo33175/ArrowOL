@@ -1,39 +1,52 @@
 --=====================================================================================================
--- @brief:     RectTransform 工具类
--- @desc:      封装 UGUI RectTransform 常用操作，简化坐标、位置设置
+-- @brief  RectTransform 工具类
+-- @desc   封装 UGUI RectTransform 常用操作，简化坐标、位置设置
+-- @规范   Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 --=====================================================================================================
 
 ---@class RectTransformHelper RectTransform 工具类：封装 UGUI 常用操作
 local RectTransformHelper = class("RectTransformHelper")
 
----@brief 构造函数
+--region 构造 & 实例化
+---=========================================================================
+--- 构造函数
 ---@param args table 预留扩展参数
+---=========================================================================
 function RectTransformHelper:ctor(args)
 end
 
----@brief 创建工具类实例
+---=========================================================================
+--- 创建工具类实例
 ---@param args table 预留扩展参数
 ---@return RectTransformHelper
+---=========================================================================
 function RectTransformHelper:Create(args)
     return RectTransformHelper.new(args)
 end
+--endregion
 
----@brief 设置锚点位置 X 坐标
+--region 锚点位置操作
+---=========================================================================
+--- 设置锚点位置 X 坐标
 ---@param rectTransform UnityEngine.RectTransform 目标组件
 ---@param posX number 目标 X 值
+---=========================================================================
 function RectTransformHelper:SetAnchoredPositionX(rectTransform, posX)
     local anchoredPos = rectTransform.anchoredPosition
     anchoredPos.x = posX
     rectTransform.anchoredPosition = anchoredPos
 end
 
----@brief 设置锚点位置 Y 坐标
+---=========================================================================
+--- 设置锚点位置 Y 坐标
 ---@param rectTransform UnityEngine.RectTransform 目标组件
 ---@param posY number 目标 Y 值
+---=========================================================================
 function RectTransformHelper:SetAnchoredPositionY(rectTransform, posY)
     local anchoredPos = rectTransform.anchoredPosition
     anchoredPos.y = posY
     rectTransform.anchoredPosition = anchoredPos
 end
+--endregion
 
 return RectTransformHelper

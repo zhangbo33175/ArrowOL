@@ -1,14 +1,17 @@
 --=====================================================================================================
--- descrip:   代理器（事件委托/多播委托）
+-- Description: 代理器（事件委托/多播委托）
 --              功能：支持添加、移除、广播多个回调函数，类似 C# Delegate / UnityEvent
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
+
+--region 多播委托（C# 风格 Delegate）
 local SystemSet = require("SystemSet")
 
 local SystemDelegate = {}
 SystemDelegate.__index = SystemDelegate
 
 --- 委托实例直接调用：delegate(...) 触发所有监听
----@type fun(t:Delegate, ...:any):void
 ---@param self Delegate
 ---@param ... 事件参数
 SystemDelegate.__call = function(t, ...)
@@ -19,7 +22,6 @@ SystemDelegate.__call = function(t, ...)
 end
 
 --- 创建一个新的代理器实例
----@type fun():Delegate
 ---@return Delegate 代理器实例
 function SystemDelegate.new()
     ---@class Delegate
@@ -30,7 +32,6 @@ function SystemDelegate.new()
 end
 
 --- 添加监听函数（自动去重，重复添加会报错）
----@type fun(self:Delegate, f:fun):void
 ---@param self Delegate 代理器实例
 ---@param f function 要注册的回调函数
 function SystemDelegate.add(self, f)
@@ -39,7 +40,6 @@ function SystemDelegate.add(self, f)
 end
 
 --- 移除监听函数
----@type fun(self:Delegate, f:fun):boolean
 ---@param self Delegate 代理器实例
 ---@param f function 要取消注册的回调函数
 ---@return boolean 成功返回true，失败返回false
@@ -48,12 +48,12 @@ function SystemDelegate.remove(self, f)
 end
 
 --- 判断是否包含某个监听函数
----@type fun(self:Delegate, f:fun):boolean
 ---@param self Delegate 代理器实例
 ---@param f function 查询的回调函数
 ---@return boolean 包含返回true，否则false
 function SystemDelegate.has(self, f)
     return self._listeners:has(f)
 end
+--endregion
 
 return SystemDelegate

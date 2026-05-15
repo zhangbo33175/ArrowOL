@@ -1,27 +1,32 @@
 --=====================================================================================================
+-- @filename:  DataCenter.lua
 -- @brief:     全局数据中心（单例）
 -- @desc:      统一创建、管理所有子数据模块（登录、玩家、关卡、背包等）
 -- @author:    Unity Standard
 -- @date:      2025
+-- @feat:      全局数据模块管理、子数据实例化、数据访问入口
+-- @规范:       Unity Lua 商业项目编码标准 / 数据中心规范
 --=====================================================================================================
 
 ---@class DataCenter 全局数据中心
 local DataCenter = class("DataCenter")
 
----构造函数
+--region 【构造 & 实例化】
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 自定义参数
 function DataCenter:ctor(args)
-    --- 登录数据模块
+    -- 登录数据模块
     self.loginData = require("LoginData"):Create()
 end
 
----创建数据中心实例
+---@brief 创建数据中心实例
 ---@type fun(args:table):DataCenter
 ---@param args table 自定义参数
 ---@return DataCenter 数据中心实例
 function DataCenter:Create(args)
     return DataCenter.new(args)
 end
+--endregion
 
 return DataCenter

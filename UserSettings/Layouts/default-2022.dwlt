@@ -40,11 +40,11 @@ MonoBehaviour:
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 852
+    y: 744
     width: 1257
-    height: 429
-  m_MinSize: {x: 101, y: 121}
-  m_MaxSize: {x: 4001, y: 4021}
+    height: 537
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 13}
@@ -173,7 +173,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 150}
   m_MaxSize: {x: 8096, y: 24288}
   vertical: 1
-  controlID: 17
+  controlID: 48
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -296,7 +296,7 @@ MonoBehaviour:
     x: 0
     y: 172
     width: 1257
-    height: 680
+    height: 572
   m_MinSize: {x: 201, y: 221}
   m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 17}
@@ -325,9 +325,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 9
-    y: 934
+    y: 826
     width: 1256
-    height: 408
+    height: 516
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -375,9 +375,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: de650000
-      m_LastClickedID: 26078
-      m_ExpandedIDs: e4faffff9a650000a0650000c0650000d8650000f6650000006600000e66000022660000
+      m_SelectedIDs: ac650000
+      m_LastClickedID: 26028
+      m_ExpandedIDs: 2cfbffff4c6500008a650000b2650000c0650000d4650000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -483,7 +483,7 @@ MonoBehaviour:
     m_SaveData: []
     m_OverlaysVisible: 1
   m_SearchFilter:
-    m_NameFilter: GamerDataManager
+    m_NameFilter: SoundManager
     m_ClassNames: []
     m_AssetLabels: []
     m_AssetBundleNames: []
@@ -495,7 +495,7 @@ MonoBehaviour:
     m_Folders:
     - Assets/LuaScripts/Game/GameMain
     m_Globs: []
-    m_OriginalText: GamerDataManager
+    m_OriginalText: SoundManager
     m_ImportLogFlags: 0
     m_FilterByTypeIntersection: 0
   m_ViewMode: 1
@@ -507,10 +507,10 @@ MonoBehaviour:
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 154}
-    m_SelectedIDs: b2660000
-    m_LastClickedID: 26290
-    m_ExpandedIDs: 00000000626600006466000066660000686600006a6600006c6600006e66000070660000726600007466000076660000786600007a6600007c6600007e66000080660000826600008466000086660000886600008a6600008c6600008e66000090660000926600009466000096660000986600009a6600009c6600009e660000a066000000ca9a3b
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: ae660000
+    m_LastClickedID: 26286
+    m_ExpandedIDs: 000000001466000016660000186600001a6600001c6600001e66000020660000226600002466000026660000286600002a6600002c6600002e66000030660000326600003466000036660000386600003a6600003c6600003e66000040660000426600004466000046660000486600004a6600004c6600004e660000506600005266000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -538,7 +538,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000626600006466000066660000686600006a6600006c6600006e66000070660000726600007466000076660000786600007a6600007c6600007e66000080660000826600008466000086660000886600008a6600008c6600008e66000090660000926600009466000096660000986600009a6600009c6600009e660000a0660000
+    m_ExpandedIDs: 000000001466000016660000186600001a6600001c6600001e66000020660000226600002466000026660000286600002a6600002c6600002e66000030660000326600003466000036660000386600003a6600003c6600003e66000040660000426600004466000046660000486600004a6600004c6600004e6600005066000052660000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -617,7 +617,7 @@ MonoBehaviour:
     x: 9
     y: 254
     width: 1256
-    height: 659
+    height: 551
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -671,22 +671,22 @@ MonoBehaviour:
       x: 0
       y: 21
       width: 1256
-      height: 638
-    m_Scale: {x: 0.47826084, y: 0.47826087}
-    m_Translation: {x: 628, y: 319}
+      height: 530
+    m_Scale: {x: 0.39730135, y: 0.39730135}
+    m_Translation: {x: 628, y: 265}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -1313.091
+      x: -1580.6642
       y: -667
-      width: 2626.182
+      width: 3161.3284
       height: 1334
     m_MinimalGUI: 1
-  m_defaultScale: 0.47826087
-  m_LastWindowPixelSize: {x: 1256, y: 659}
+  m_defaultScale: 0.39730135
+  m_LastWindowPixelSize: {x: 1256, y: 551}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000

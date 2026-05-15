@@ -7,24 +7,33 @@
 --=====================================================================================================
 
 ---@class UIStackManager : Singleton @UI栈管理器（支持多分组栈隔离管理）
----@field _dict table<string, Stack> 多栈容器：key=栈名称(EUIStackName)，value=栈实例
+---@field _dict table<string, Stack> @多栈容器：key=栈名称(EUIStackName)，value=栈实例
 local UIStackManager = class("UIStackManager", import("Singleton"))
 
+--region 生命周期 & 基础函数
+---=========================================================================
 --- 构造函数
+---@brief 初始化多栈容器
 ---@param args table 自定义参数
+---=========================================================================
 function UIStackManager:ctor(args)
     UIStackManager.super.ctor(self, args)
     self._dict = {}
 end
 
+---=========================================================================
 --- 创建单例
 ---@param args table 自定义参数
----@return UIStackManager
+---@return UIStackManager 单例实例
+---=========================================================================
 function UIStackManager:Create(args)
     return UIStackManager.new(args)
 end
 
+---=========================================================================
 --- 清理数据（切号/重载/重启时调用）
+---@brief 清空所有栈并释放资源，重置管理器状态
+---=========================================================================
 function UIStackManager:ClearData()
     UIStackManager.super.ClearData(self)
     -- 清空所有栈并触发回调
@@ -33,11 +42,12 @@ function UIStackManager:ClearData()
     end
     self._dict = {}
 end
+--endregion
 
+--region 栈操作核心接口
 ---=========================================================================
 --- 【压入 UI 到指定栈】
---- 自动创建不存在的栈
---- 触发 UI.OnStackPush()
+---@brief 自动创建不存在的栈，压入UI并触发OnStackPush
 ---@param name string 栈名称（使用 EUIStackName 枚举）
 ---@param ui any UI实例
 ---=========================================================================
@@ -67,6 +77,7 @@ end
 
 ---=========================================================================
 --- 【获取栈顶 UI（不弹出）】
+---@brief 查看栈顶UI但不修改栈结构
 ---@param name string 栈名称
 ---@return any 栈顶UI / nil
 ---=========================================================================
@@ -81,7 +92,7 @@ end
 
 ---=========================================================================
 --- 【弹出栈顶 UI】
---- 触发 UI.OnStackPop()
+---@brief 移除栈顶UI并触发OnStackPop回调
 ---@param name string 栈名称
 ---@return any 弹出的UI
 ---=========================================================================
@@ -107,7 +118,7 @@ end
 
 ---=========================================================================
 --- 【清空整个栈】
---- 依次弹出所有 UI，逐个触发 OnStackPop
+---@brief 依次弹出所有UI，逐个触发OnStackPop
 ---@param name string 栈名称
 ---=========================================================================
 function UIStackManager:Clear(name)
@@ -126,5 +137,6 @@ function UIStackManager:Clear(name)
         end, function(err) end)
     end
 end
+--endregion
 
 return UIStackManager

@@ -4,12 +4,15 @@
 -- @desc:      注册、管理、切换所有游戏状态（登录/加载地图/主界面/战斗/选关/返回预加载）
 -- @author:    Unity Standard
 -- @date:      2025
+-- @feat:      全局状态管理、安全切换、生命周期调度、异常保护、日志输出
+-- @规范:       Unity Lua 商业项目编码标准 / 核心框架规范
 --=====================================================================================================
 
 ---@class GameStateMachine 游戏业务状态机（全局唯一）
 local GameStateMachine = class('GameStateMachine')
 
----构造函数
+--region 【构造 & 单例】
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 自定义参数
 function GameStateMachine:ctor(args)
@@ -17,7 +20,7 @@ function GameStateMachine:ctor(args)
     self._currentState = nil    ---@type GameStateBase 当前正在运行的状态
     self._preState = nil        ---@type GameStateBase 上一个运行的状态
 
-    --- 注册所有游戏状态
+    -- 注册所有游戏状态
     self._stateMap[GameStateCmd.LoginState]         = require("GameLoginState"):Create(GameStateCmd.LoginState)
     self._stateMap[GameStateCmd.LoadMapState]       = require("GameLoadMapState"):Create(GameStateCmd.LoadMapState)
     self._stateMap[GameStateCmd.MainState]          = require("GameMainState"):Create(GameStateCmd.MainState)
@@ -26,15 +29,17 @@ function GameStateMachine:ctor(args)
     self._stateMap[GameStateCmd.ChooseLevel]        = require("ChooseLevelState"):Create(GameStateCmd.ChooseLevel)
 end
 
----创建单例实例
+---@brief 创建单例实例
 ---@type fun(args:table):GameStateMachine
 ---@param args table 自定义参数
 ---@return GameStateMachine 状态机实例
 function GameStateMachine:Create(args)
     return GameStateMachine.new(args)
 end
+--endregion
 
----获取当前状态类型
+--region 【状态获取】
+---@brief 获取当前状态类型
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 当前状态枚举
 function GameStateMachine:CurrentStateType()
@@ -44,7 +49,7 @@ function GameStateMachine:CurrentStateType()
     return nil
 end
 
----获取上一个状态类型
+---@brief 获取上一个状态类型
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 上一个状态枚举
 function GameStateMachine:PreStateType()
@@ -53,15 +58,17 @@ function GameStateMachine:PreStateType()
     end
     return nil
 end
+--endregion
 
----切换游戏状态（外部调用唯一入口）
+--region 【状态切换 - 外部唯一入口】
+---@brief 切换游戏状态
 ---@type fun(nextStateCmd:GameStateCmd, finishCallback:function):void
 ---@param nextStateCmd GameStateCmd 要切换的目标状态
 ---@param finishCallback function 切换完成回调
 function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
     PrintInfo("currentState [{0}] ChangeState to ---> [{1}]", tostring(self:CurrentStateType()), tostring(nextStateCmd))
 
-    --- 1. 如果已经是目标状态，直接返回
+    -- 1. 已经是目标状态，直接返回
     if nextStateCmd == self:CurrentStateType() then
         PrintWarning("游戏状态已经是 [{0}]", tostring(nextStateCmd))
         if finishCallback then
@@ -70,7 +77,7 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
         return
     end
 
-    --- 2. 获取目标状态
+    -- 2. 获取目标状态
     local nextState = self._stateMap[nextStateCmd]
     if not nextState then
         PrintError("游戏状态没有注册 [{0}]  -- 切换状态失败", tostring(nextStateCmd))
@@ -80,7 +87,7 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
         return
     end
 
-    --- 3. 退出当前状态 → 进入新状态
+    -- 3. 退出当前状态 → 进入新状态
     if self._currentState then
         self._currentState:OnStateExit(function()
             self:DoPreStateExitAfter(self._currentState, nextState, finishCallback)
@@ -89,8 +96,10 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
         self:DoPreStateExitAfter(self._currentState, nextState, finishCallback)
     end
 end
+--endregion
 
----前状态退出完成后，执行进入新状态
+--region 【状态切换内部流程】
+---@brief 前状态退出完成后，进入新状态
 ---@type fun(currentState:GameStateBase, nextState:GameStateBase, finishCallback:function):void
 ---@param currentState GameStateBase 要退出的当前状态
 ---@param nextState GameStateBase 要进入的下一个状态
@@ -102,13 +111,16 @@ function GameStateMachine:DoPreStateExitAfter(currentState, nextState, finishCal
         self._currentState:OnStateEnter(finishCallback)
     end)
 end
+--endregion
 
----状态机帧更新（驱动当前状态Update）
+--region 【帧更新】
+---@brief 状态机帧更新（驱动当前状态Update）
 ---@type fun():void
 function GameStateMachine:OnUpdate()
     if self._currentState ~= nil then
         self._currentState:OnUpdate()
     end
 end
+--endregion
 
 return GameStateMachine

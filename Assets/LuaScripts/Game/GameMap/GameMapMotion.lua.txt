@@ -4,9 +4,12 @@
 -- @desc:      解决 Screen position out of view frustum 报错，单位与地图匹配；
 --              支持移动端拖拽 + PC 左键拖动 + 双指/滚轮缩放 + 边界限制 + 惯性滑动
 -- @author:    Unity Standard Comment Edition
+-- @date:      2025
+-- @feat:      安全边界、惯性滑动、双指缩放、鼠标拖动、缩放后自动防黑边
+-- @规范:       Unity Lua 商业项目编码标准 / 地图控制器规范
 --=====================================================================================================
 
----@class MapMotionRange 地图滑动范围结构
+---@class MapMotionRange
 ---@field min number X 轴最小边界
 ---@field max number X 轴最大边界
 
@@ -55,8 +58,11 @@ local GameMapMotion = {
     IsPinching = false,
 }
 
----帧更新：驱动相机平滑跟随、视差滚动、惯性、缩放、鼠标拖动
+--region 【核心更新逻辑】
+---=========================================================================
+---@brief 帧更新：驱动相机平滑跟随、视差滚动、惯性、缩放、鼠标拖动
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:OnUpdate()
     if GameManager:IsGamePaused() or not self.IsMapWork then
         return
@@ -97,9 +103,13 @@ function GameMapMotion:OnUpdate()
     -- 鼠标左键拖动
     self:UpdateMouseDrag()
 end
+--endregion
 
----PC 鼠标左键拖动控制逻辑
+--region 【PC鼠标拖动】
+---=========================================================================
+---@brief PC 鼠标左键拖动控制逻辑
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:UpdateMouseDrag()
     -- 鼠标按下
     if CS.UnityEngine.Input.GetMouseButtonDown(0) then
@@ -160,17 +170,25 @@ function GameMapMotion:UpdateMouseDrag()
         self.SwipeSmoothStepNum = 0.3
     end
 end
+--endregion
 
----判断当前触摸是否在UI之上
+--region 【触摸检测】
+---=========================================================================
+---@brief 判断当前触摸是否在UI之上
 ---@type fun():boolean
 ---@return boolean 在UI上返回true
+---=========================================================================
 function GameMapMotion:IsPointerOverGameObject()
     return GameLib.RSetupLuaTableValue.IsPointerOverUIObject()
 end
+--endregion
 
----触摸滑动开始回调
+--region 【移动端滑动】
+---=========================================================================
+---@brief 触摸滑动开始回调
 ---@type fun(gesture:any):void
----@param gesture 手势对象
+---@param gesture any 手势对象
+---=========================================================================
 function GameMapMotion:OnSwipeBegin(gesture)
     if GameManager:IsGamePaused() then
         return
@@ -186,9 +204,11 @@ function GameMapMotion:OnSwipeBegin(gesture)
     self.Vector3Num.y = 0
 end
 
----触摸滑动中回调
+---=========================================================================
+---@brief 触摸滑动中回调
 ---@type fun(gesture:any):void
----@param gesture 手势对象
+---@param gesture any 手势对象
+---=========================================================================
 function GameMapMotion:OnSwipe(gesture)
     if GameManager:IsGamePaused() or self.PointStartFromUI or not self.IsMapWork then
         return
@@ -223,9 +243,11 @@ function GameMapMotion:OnSwipe(gesture)
     end
 end
 
----触摸滑动结束回调
+---=========================================================================
+---@brief 触摸滑动结束回调
 ---@type fun(gesture:any):void
----@param gesture 手势对象
+---@param gesture any 手势对象
+---=========================================================================
 function GameMapMotion:OnSwipeEnd(gesture)
     if GameManager:IsGamePaused() then
         return
@@ -242,10 +264,14 @@ function GameMapMotion:OnSwipeEnd(gesture)
     self.InertialSlidingFactor = 1 - self.SwipeSmoothStepNum
     self.SwipeSmoothStepNum = 0.3
 end
+--endregion
 
----惯性滑动逻辑
+--region 【惯性滑动】
+---=========================================================================
+---@brief 惯性滑动逻辑
 ---@type fun(factor:number):void
----@param factor 惯性系数
+---@param factor number 惯性系数
+---=========================================================================
 function GameMapMotion:OnInertialSliding(factor)
     self.InertialSlidingVector.x = self.Vector3Num.x * self.InertialSlidingFactor
     self:MovingFollowPosition(self.InertialSlidingVector)
@@ -256,15 +282,19 @@ function GameMapMotion:OnInertialSliding(factor)
             0.75, 1
     )
 end
+--endregion
 
----执行相机移动并限制边界，同步更新视差层
+--region 【相机移动与边界限制】
+---=========================================================================
+---@brief 执行相机移动并限制边界，同步更新视差层
 ---@type fun(worldDelta:table):void
----@param worldDelta 世界坐标系偏移量
+---@param worldDelta table 世界坐标系偏移量
+---=========================================================================
 function GameMapMotion:MovingFollowPosition(worldDelta)
     local aspect = self.ScreenCamera.aspect
     local orthoSize = self.ScreenCamera.orthographicSize
     local halfW = aspect * orthoSize
-    local halfH = orthoSize -- 相机半高 = orthographicSize
+    local halfH = orthoSize
 
     -- 计算无黑边安全边界
     local minX = self.MapCenterX - self.MapHalfWidth + halfW
@@ -283,14 +313,14 @@ function GameMapMotion:MovingFollowPosition(worldDelta)
     -- 坐标精度优化
     self.FollowPosition.x = math.floor(self.FollowPosition.x * 1000) / 1000
     self.FollowPosition.y = math.floor(self.FollowPosition.y * 1000) / 1000
-
-    -- 打印日志，验证边界是否正确
-    print("边界: minX=" .. minX .. ", maxX=" .. maxX .. ", minY=" .. minY .. ", maxY=" .. maxY)
-    print("相机目标: x=" .. self.FollowPosition.x .. ", y=" .. self.FollowPosition.y)
 end
+--endregion
 
----移动端双指缩放逻辑
+--region 【缩放控制】
+---=========================================================================
+---@brief 移动端双指缩放逻辑
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:CheckPinchZoom()
     if not self.ScreenCamera or not self.IsMapWork or self.PointStartFromUI then
         return
@@ -328,19 +358,23 @@ function GameMapMotion:CheckPinchZoom()
     end
 end
 
----计算两个触摸点之间的距离
+---=========================================================================
+---@brief 计算两个触摸点之间的距离
 ---@type fun(t1:any, t2:any):number
----@param t1 触摸点1
----@param t2 触摸点2
+---@param t1 any 触摸点1
+---@param t2 any 触摸点2
 ---@return number 两点间距离
+---=========================================================================
 function GameMapMotion:GetTwoTouchDistance(t1, t2)
     local dx = t1.position.x - t2.position.x
     local dy = t1.position.y - t2.position.y
     return math.sqrt(dx * dx + dy * dy)
 end
 
----PC 鼠标滚轮缩放
+---=========================================================================
+---@brief PC 鼠标滚轮缩放
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:UpdateMouseScrollZoom()
     if not self.ScreenCamera or not self.IsMapWork then
         return
@@ -359,8 +393,10 @@ function GameMapMotion:UpdateMouseScrollZoom()
     self:ClampCameraAfterZoom()
 end
 
----缩放后自动修正相机位置，防止出现黑边
+---=========================================================================
+---@brief 缩放后自动修正相机位置，防止出现黑边
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:ClampCameraAfterZoom()
     local aspect = self.ScreenCamera.aspect
     local orthoSize = self.ScreenCamera.orthographicSize
@@ -374,16 +410,15 @@ function GameMapMotion:ClampCameraAfterZoom()
 
     self.FollowPosition.x = math.clamp(self.FollowPosition.x, minX, maxX)
     self.FollowPosition.y = math.clamp(self.FollowPosition.y, minY, maxY)
-
-    print("Camera OrthoSize:", self.ScreenCamera.orthographicSize)
-    print("Camera Aspect:", self.ScreenCamera.aspect)
-    print("minX, maxX:", minX, maxX)
-    print("FollowPosition:", self.FollowPosition.x, self.FollowPosition.y)
 end
+--endregion
 
----注册或注销触摸事件
+--region 【触摸事件注册】
+---=========================================================================
+---@brief 注册或注销触摸事件
 ---@type fun(action:string):void
----@param action 注册/注销标记
+---@param action string 注册/注销标记
+---=========================================================================
 function GameMapMotion:RegisterTouchEvents(action)
     if action == "+" then
         self.SwipeBegin = self.SwipeBegin or function(g)
@@ -407,9 +442,13 @@ function GameMapMotion:RegisterTouchEvents(action)
         end
     end
 end
+--endregion
 
----恢复地图交互功能
+--region 【地图控制开关】
+---=========================================================================
+---@brief 恢复地图交互功能
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:ResumeMapMotion()
     if self.IsMapWork then
         return
@@ -426,8 +465,10 @@ function GameMapMotion:ResumeMapMotion()
     self.PointStartFromUI = false
 end
 
----暂停地图交互功能
+---=========================================================================
+---@brief 暂停地图交互功能
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:PauseMapMotion()
     self.IsMapWork = false
     self.IsMouseDown = false
@@ -437,10 +478,14 @@ function GameMapMotion:PauseMapMotion()
         self.ScreenCamera.transform:GetPositionZ()
     }
 end
+--endregion
 
----地图控制器初始化
+--region 【初始化与销毁】
+---=========================================================================
+---@brief 地图控制器初始化
 ---@type fun(mapTrans:UnityEngine.Transform):void
----@param mapTrans 地图根节点Transform
+---@param mapTrans UnityEngine.Transform 地图根节点Transform
+---=========================================================================
 function GameMapMotion:OnMapStart(mapTrans)
     if not mapTrans then
         return
@@ -482,12 +527,14 @@ function GameMapMotion:OnMapStart(mapTrans)
     self:RegisterTouchEvents("+")
 end
 
----限制并返回合法的X轴位置
+---=========================================================================
+---@brief 限制并返回合法的X轴位置
 ---@type fun(posX:number, aspect:number, orthographicSize:number):number
----@param posX 目标X
----@param aspect 相机宽高比
----@param orthographicSize 相机大小
+---@param posX number 目标X
+---@param aspect number 相机宽高比
+---@param orthographicSize number 相机大小
 ---@return number 合法位置
+---=========================================================================
 function GameMapMotion:ResetPositionX(posX, aspect, orthographicSize)
     local halfWidth = aspect * orthographicSize
     local min = self.MapCenterX - self.MapHalfWidth + halfWidth
@@ -495,11 +542,13 @@ function GameMapMotion:ResetPositionX(posX, aspect, orthographicSize)
     return math.clamp(posX, min, max)
 end
 
----限制并返回合法的Y轴位置
+---=========================================================================
+---@brief 限制并返回合法的Y轴位置
 ---@type fun(posY:number, orthographicSize:number):number
----@param posY 目标Y
----@param orthographicSize 相机大小
+---@param posY number 目标Y
+---@param orthographicSize number 相机大小
 ---@return number 合法位置
+---=========================================================================
 function GameMapMotion:ResetPositionY(posY, orthographicSize)
     local halfHeigh = orthographicSize
     local min = self.MapCenterY - self.MapHalfHeigh + halfHeigh
@@ -507,18 +556,23 @@ function GameMapMotion:ResetPositionY(posY, orthographicSize)
     return math.clamp(posY, min, max)
 end
 
----获取当前地图边界
+---=========================================================================
+---@brief 获取当前地图边界
 ---@type fun():UnityEngine.Bounds
 ---@return UnityEngine.Bounds 地图Bounds
+---=========================================================================
 function GameMapMotion:GetCurrMapRect()
     return self.MapBounds
 end
 
----销毁并清理控制器
+---=========================================================================
+---@brief 销毁并清理控制器
 ---@type fun():void
+---=========================================================================
 function GameMapMotion:OnMapEnd()
     self:RegisterTouchEvents("-")
     self:PauseMapMotion()
 end
+--endregion
 
 return GameMapMotion

@@ -4,176 +4,196 @@
 -- @desc:      游戏主界面地图的基类，管理地图交互、图标、自治体、气泡、生命周期等
 -- @author:    Unity Standard
 -- @date:      2025
+-- @feat:      自治工人管理、延时调用安全清理、地图生命周期、UI交互基类
+-- @规范:       Unity Lua 商业项目编码标准 / UI地图基类规范
 --=====================================================================================================
 
 ---@class UIMapBase : GameMapBase UI地图基础类
 ---@field name string 动画名称
 ---@field delay number 延时
+---@field _delayCallIds table 延迟调用ID列表（切换地图时需要清理）
+---@field _insiderAutonomousWorker table 内部自治工人
+---@field _outsiderAutonomousWorker table 外部自治工人
 local UIMapBase = class('UIMapBase', import('GameMapBase'))
 
----构造函数
+--region 【构造 & 实例化】
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 自定义参数
 function UIMapBase:ctor(args)
     UIMapBase.super.ctor(self, args)
-
-    self._delayCallIds = {}                 ---@type table 延迟调用ID列表（切换地图时需要清理）
+    self._delayCallIds = {}
 end
 
----创建实例
+---@brief 创建实例
 ---@type fun(args:table):UIMapBase
 ---@param args table 自定义参数
 ---@return UIMapBase UIMapBase实例
 function UIMapBase:Create(args)
     return UIMapBase.new(args)
 end
+--endregion
 
----注册事件监听（父类自动注销）
+--region 【事件 & 初始化】
+---@brief 注册事件监听（父类自动注销）
 ---@type fun():void
 function UIMapBase:OnAddListeners()
     UIMapBase.super.OnAddListeners(self)
 end
 
----初始化
+---@brief 初始化
 ---@type fun():void
 function UIMapBase:Init()
     UIMapBase.super.Init(self)
 end
 
----唤醒回调
+---@brief 唤醒回调
 ---@type fun():void
 function UIMapBase:Awake()
     UIMapBase.super.Awake(self)
-
 end
+--endregion
 
----销毁回调
----@type fun():void
-function UIMapBase:OnDestroy()
-    UIMapBase.super.OnDestroy(self)
-end
-
----游戏初始化
+--region 【游戏生命周期】
+---@brief 游戏初始化
 ---@type fun():void
 function UIMapBase:OnInitGame()
     UIMapBase.super.OnInitGame(self)
 end
 
----进入游戏
+---@brief 进入游戏
 ---@type fun():void
 function UIMapBase:OnEnterGame()
     UIMapBase.super.OnEnterGame(self)
 
-    --- 内部自治工人
+    -- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnEnterGame()
     end
 
-    --- 外部自治工人
+    -- 外部自治工人
     if self._outsiderAutonomousWorker then
         self._outsiderAutonomousWorker:OnEnterGame()
     end
-
 end
 
----游戏开始
+---@brief 游戏开始
 ---@type fun():void
 function UIMapBase:OnBeginGame()
     UIMapBase.super.OnBeginGame(self)
 end
 
----游戏暂停
+---@brief 游戏暂停
 ---@type fun():void
 function UIMapBase:OnPauseGame()
     UIMapBase.super.OnPauseGame(self)
 end
 
----游戏恢复
+---@brief 游戏恢复
 ---@type fun():void
 function UIMapBase:OnResumeGame()
     UIMapBase.super.OnResumeGame(self)
 end
 
----游戏结束
+---@brief 游戏结束
 ---@type fun():void
 function UIMapBase:OnGameOver()
     UIMapBase.super.OnGameOver(self)
 end
 
----退出游戏
+---@brief 退出游戏
 ---@type fun():void
 function UIMapBase:OnExitGame()
     UIMapBase.super.OnExitGame(self)
 
-    --- 内部自治工人
+    -- 内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:OnExitGame()
     end
 
-    --- 外部自治工人
+    -- 外部自治工人
     if self._outsiderAutonomousWorker then
         self._outsiderAutonomousWorker:OnExitGame()
     end
 end
 
----游戏重玩
+---@brief 游戏重玩
 ---@type fun():void
 function UIMapBase:OnRePlayGame()
     UIMapBase.super.OnRePlayGame(self)
 end
+--endregion
 
----卸载地图前清理（核心资源释放）
+--region 【地图卸载 & 资源清理】
+---@brief 卸载地图前清理（核心资源释放）
 ---@type fun():void
 function UIMapBase:UnloadMapBeforeClear()
     UIMapBase.super.UnloadMapBeforeClear(self)
 
-    --- 结束地图控制
+    -- 结束地图控制
     GameMapMotion:OnMapEnd()
 
-    --- 销毁内部自治工人
+    -- 销毁内部自治工人
     if self._insiderAutonomousWorker then
         self._insiderAutonomousWorker:Dispose()
         self._insiderAutonomousWorker = nil
     end
 
-    --- 销毁外部自治工人
+    -- 销毁外部自治工人
     if self._outsiderAutonomousWorker then
         self._outsiderAutonomousWorker:Dispose()
         self._outsiderAutonomousWorker = nil
     end
 
-    --- 清理所有延迟调用
-    for id,_ in pairs(self._delayCallIds) do
+    -- 清理所有延迟调用
+    for id, _ in pairs(self._delayCallIds) do
         DOTween.Kill(id)
     end
     ClearDictionary(self._delayCallIds)
-
 end
 
----地图卸载后清理
+---@brief 地图卸载后清理
 ---@type fun():void
 function UIMapBase:UnloadMapAfterClear()
     UIMapBase.super.UnloadMapAfterClear(self)
 end
+--endregion
 
----每日奖励签到刷新（重置日历）
----@type fun():void
-function UIMapBase:OnDailyRewardSignin()
-    self:InitCalendar()
-end
-
----添加延迟调用ID（用于统一清理）
+--region 【延时调用管理】
+---@brief 添加延迟调用ID（用于统一清理）
 ---@type fun(id:string):void
 ---@param id string Dotween延时ID
 function UIMapBase:AddDelayCallId(id)
     self._delayCallIds[id] = id
 end
 
----移除延迟调用ID
+---@brief 移除延迟调用ID
 ---@type fun(id:string):void
 ---@param id string Dotween延时ID
 function UIMapBase:RemoveDelayCallId(id)
     self._delayCallIds[id] = nil
 end
+--endregion
+
+--region 【奖励 & 图标】
+---@brief 每日奖励签到刷新（重置日历）
+---@type fun():void
+function UIMapBase:OnDailyRewardSignin()
+    self:InitCalendar()
+end
+
+---@brief 创建自治实体
+---@type fun():void
+function UIMapBase:CreateAutonomousEntitys()
+end
+--endregion
+
+--region 【销毁】
+---@brief 销毁回调
+---@type fun():void
+function UIMapBase:OnDestroy()
+    UIMapBase.super.OnDestroy(self)
+end
+--endregion
 
 return UIMapBase

@@ -1,8 +1,11 @@
 --=====================================================================================================
--- descrip:   单例基类
+-- Description: 单例基类
 --              所有业务/框架单例的父类，自动注册、生命周期管理
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
+--region 单例基类
 ---@class Singleton 单例基类（所有单例必须继承）
 local Singleton = class("Singleton")
 
@@ -39,5 +42,6 @@ end
 function Singleton:Priority()
     return ESingletonPriority.DEFAULT
 end
+--endregion
 
 return Singleton

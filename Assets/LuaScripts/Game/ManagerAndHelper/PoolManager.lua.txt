@@ -10,30 +10,44 @@
 ---@field maxItemCountOfOnePool number @单个池最大缓存数量（超过直接销毁）
 local PoolManager = class("PoolManager", import("Singleton"))
 
---- 构造函数（初始化池容器）
+--region 生命周期 & 基础函数
+---=========================================================================
+--- 构造函数
+---@brief 初始化对象池容器与默认配置
+---=========================================================================
 function PoolManager:ctor()
     PoolManager.super.ctor(self)
     self.pools = {}
     self.maxItemCountOfOnePool = 30  -- 单个对象池最大缓存数量
 end
 
+---=========================================================================
 --- 创建单例实例
----@return PoolManager
+---@return PoolManager 单例对象
+---=========================================================================
 function PoolManager:Create()
     return PoolManager.new()
 end
 
+---=========================================================================
 --- 初始化（重写Singleton）
+---@brief 单例初始化入口
+---=========================================================================
 function PoolManager:Init()
     PoolManager.super.Init(self)
 end
 
+---=========================================================================
 --- 清空所有数据（销毁所有池）
+---@brief 全局清理接口，清空所有对象池与资源
+---=========================================================================
 function PoolManager:ClearData()
     PoolManager.super.ClearData(self)
     self:DestroyAllPools()
 end
+--endregion
 
+--region 预热功能
 ---=========================================================================
 --- 【预热接口】预加载指定数量对象到池，避免运行时卡顿
 ---@param resName string 资源名（必须在RES表中配置）
@@ -64,7 +78,9 @@ function PoolManager:Prewarm(resName, count)
         newPool:Prewarm(count)
     end
 end
+--endregion
 
+--region 获取对象
 ---=========================================================================
 --- 【获取对象】从池获取，无池则自动创建（最简接口）
 ---@param resName string 资源名
@@ -80,7 +96,7 @@ end
 ---@param resName string 资源名
 ---@param newParent Transform 父物体
 ---@param resetHandler function 物体激活时的重置逻辑
----@return GameObject
+---@return GameObject 获取到的游戏对象
 ---=========================================================================
 function PoolManager:GetWithHandle(resName, newParent, resetHandler)
     if string.isNullOrEmpty(resName) then
@@ -109,10 +125,12 @@ function PoolManager:GetWithHandle(resName, newParent, resetHandler)
 
     return nil
 end
+--endregion
 
+--region 回收对象
 ---=========================================================================
 --- 【回收对象】将GameObject放回池（超过上限则直接销毁）
----@param go GameObject
+---@param go GameObject 需要回收的游戏对象
 ---=========================================================================
 function PoolManager:Put(go)
     if IsNull(go) or not UnityApplication.isPlaying then
@@ -140,14 +158,16 @@ function PoolManager:Put(go)
         DestroyPrefabWithGO(go)
     end
 end
+--endregion
 
+--region 池管理（私有）
 ---=========================================================================
 --- 【私有】创建一个新对象池
 ---@param name string 池名
 ---@param resDefItem table 资源配置
 ---@param preParent Transform 默认父节点
 ---@param resetHandler function 重置回调
----@return Pool
+---@return Pool 创建完成的对象池
 ---@private
 ---=========================================================================
 function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
@@ -179,11 +199,13 @@ function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
 
     return self.pools[name]
 end
+--endregion
 
+--region 池查询 & 统计
 ---=========================================================================
 --- 【获取指定对象池】
 ---@param name string 池名
----@return Pool
+---@return Pool 对应资源的对象池
 ---=========================================================================
 function PoolManager:GetPool(name)
     return self.pools[name]
@@ -191,7 +213,7 @@ end
 
 ---=========================================================================
 --- 【获取当前池数量】
----@return number
+---@return number 当前已创建的对象池总数
 ---=========================================================================
 function PoolManager:Count()
     local count = 0
@@ -200,11 +222,13 @@ function PoolManager:Count()
     end
     return count
 end
+--endregion
 
+--region 销毁功能
 ---=========================================================================
 --- 【销毁指定池】
 ---@param name string 池名
----@return boolean 是否成功
+---@return boolean 是否成功销毁
 ---=========================================================================
 function PoolManager:DestroyPool(name)
     if self.pools[name] then
@@ -219,6 +243,7 @@ end
 
 ---=========================================================================
 --- 【销毁所有池 + 清理根节点】
+---@brief 完全释放所有对象池资源
 ---=========================================================================
 function PoolManager:DestroyAllPools()
     -- 安全销毁所有池
@@ -240,6 +265,7 @@ end
 
 ---=========================================================================
 --- 【只销毁未使用的缓存对象】（保留池结构，优化内存）
+---@brief 场景切换/低内存时调用
 ---=========================================================================
 function PoolManager:DestroyAllPoolsUnused()
     for _, pool in pairs(self.pools) do
@@ -248,5 +274,6 @@ function PoolManager:DestroyAllPoolsUnused()
         end, function(err) end)
     end
 end
+--endregion
 
-return PoolManager
+return PoolManager  

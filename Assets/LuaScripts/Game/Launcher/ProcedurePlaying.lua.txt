@@ -4,25 +4,33 @@
 -- @desc:      游戏运行时核心流程，管理UI开关、流程切换、状态机驱动、进入登录状态
 -- @author:    Unity 规范自动生成
 -- @date:      2025
+-- @feat:      事件安全注册、状态机驱动、UI全局记录、流程跳转、内存泄漏防护
+-- @规范:       Unity Lua 商业项目编码标准 / 流程框架规范
 --=====================================================================================================
 
 ---@class ProcedurePlaying : ProcedureSuper 游戏主运行流程
 local ProcedurePlaying = class('ProcedurePlaying', import('ProcedureSuper'))
 
+--region 【构造 & 实例化】
 ---@brief 构造函数
+---@type fun(args:table):void
 ---@param args table 外部传入参数
 function ProcedurePlaying:ctor(args)
     ProcedurePlaying.super.ctor(self, args)
 end
 
 ---@brief 创建流程实例
+---@type fun(args:table):ProcedurePlaying
 ---@param args table 外部参数
 ---@return ProcedurePlaying 实例对象
 function ProcedurePlaying:Create(args)
     return ProcedurePlaying.new(args)
 end
+--endregion
 
+--region 【流程生命周期】
 ---@brief 进入主流程生命周期
+---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 流程状态机
 function ProcedurePlaying:OnEnter(ownerMachine)
     ProcedurePlaying.super.OnEnter(self, ownerMachine)
@@ -52,16 +60,8 @@ function ProcedurePlaying:OnEnter(ownerMachine)
     self:GotoLoginState()
 end
 
----@brief 切换到登录状态
-function ProcedurePlaying:GotoLoginState()
-    if GameStateMachine and GameStateMachine.ChangeState then
-        GameStateMachine:ChangeState(GameStateCmd.LoginState, nil)
-    else
-        PrintError("[ProcedurePlaying] GameStateMachine 未初始化，无法进入登录状态")
-    end
-end
-
 ---@brief 主流程帧更新
+---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 状态机对象
 function ProcedurePlaying:OnUpdate(ownerMachine)
     ProcedurePlaying.super.OnUpdate(self, ownerMachine)
@@ -73,6 +73,7 @@ function ProcedurePlaying:OnUpdate(ownerMachine)
 end
 
 ---@brief 离开主流程生命周期
+---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 状态机对象
 function ProcedurePlaying:OnLeave(ownerMachine)
     ProcedurePlaying.super.OnLeave(self, ownerMachine)
@@ -82,8 +83,23 @@ function ProcedurePlaying:OnLeave(ownerMachine)
     HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
     HonorEventHelper:RemoveListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
 end
+--endregion
 
+--region 【状态跳转】
+---@brief 切换到登录状态
+---@type fun():void
+function ProcedurePlaying:GotoLoginState()
+    if GameStateMachine and GameStateMachine.ChangeState then
+        GameStateMachine:ChangeState(GameStateCmd.LoginState, nil)
+    else
+        PrintError("[ProcedurePlaying] GameStateMachine 未初始化，无法进入登录状态")
+    end
+end
+--endregion
+
+--region 【事件回调】
 ---@brief 流程切换事件回调
+---@type fun(args:table):void
 ---@param args table 事件参数
 function ProcedurePlaying:ChangeProcedureEventCallback(args)
     if self.cs and self.cs.PrepareToNextProcedure and typeof(Honor.ProcedurePreload) then
@@ -92,6 +108,7 @@ function ProcedurePlaying:ChangeProcedureEventCallback(args)
 end
 
 ---@brief UI 关闭事件回调
+---@type fun(args:string):void
 ---@param args string UI名称
 function ProcedurePlaying:UiViewCloseEventCallback(args)
     if not args then return end
@@ -102,6 +119,7 @@ function ProcedurePlaying:UiViewCloseEventCallback(args)
 end
 
 ---@brief UI 打开事件回调
+---@type fun(args:string):void
 ---@param args string UI名称
 function ProcedurePlaying:UiViewOpenEventCallback(args)
     if not args then return end
@@ -110,5 +128,6 @@ function ProcedurePlaying:UiViewOpenEventCallback(args)
         HonorEventHelper:Fire(EventCmd.UIGameViewOpen)
     end
 end
+--endregion
 
 return ProcedurePlaying

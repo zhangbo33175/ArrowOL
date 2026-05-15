@@ -1,14 +1,17 @@
 --=====================================================================================================
--- descrip:   账户助手（游戏账号体系 + 云存档核心）
+-- Description: 账户助手（游戏账号体系 + 云存档核心）
 --              功能：
 --              1. 账号注册 / 登录 / 自动登录
 --              2. 设备ID / 第三方账号（Facebook/Google等）绑定
 --              3. 玩家数据云端存储、读取
 --              4. 登录信息本地缓存
 --              5. 广告归因（AF）数据获取
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class HonorAccountHelper @全局账户管理助手
+--region 全局账户管理助手
+---@class HonorAccountHelper 全局账户管理助手
 local HonorAccountHelper = class("HonorAccountHelper")
 
 --- 构造函数
@@ -16,6 +19,8 @@ function HonorAccountHelper:ctor(args)
 end
 
 --- 创建单例实例
+---@param args table
+---@return HonorAccountHelper
 function HonorAccountHelper:Create(args)
 	local obj = HonorAccountHelper.new(args)
 	return obj
@@ -63,5 +68,6 @@ end
 ---@param callback 回调返回归因信息（渠道、广告包、转化数据）
 function HonorAccountHelper:GetAFConvertData(callback)
 end
+--endregion
 
 return HonorAccountHelper

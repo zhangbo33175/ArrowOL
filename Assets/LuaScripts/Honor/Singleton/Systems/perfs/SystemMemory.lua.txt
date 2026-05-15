@@ -1,15 +1,17 @@
---[[
-    模块功能：Lua 内存监控工具（已废弃，仅做兼容保留）
-    所属：xLua 框架
-    版权：腾讯 (C) 2016 THL A29 Limited
-    协议：MIT License
-    说明：本模块所有功能均已废弃，调用会直接抛出错误，引导使用内存泄漏检测器
-]]--
+--=====================================================================================================
+-- Description: Lua 内存监控工具（已废弃，仅做兼容保留）
+--              所属：xLua 框架
+--              版权：腾讯 (C) 2016 THL A29 Limited
+--              协议：MIT License
+--              说明：本模块所有功能均已废弃，调用会直接抛出错误，引导使用内存泄漏检测器
+-- Author: Tencent xLua / 规范整理：Unity Standard
+-- Date: 2025
+--=====================================================================================================
 
+--region 废弃内存监控（仅兼容保留）
 --- 内存快照函数（已废弃）
 --- 功能：原本用于获取 Lua 内存使用快照
 --- 现状：已废弃，强制抛出错误，提示使用 memory leak checker
----@type fun()
 local function snapshot()
     error('use memory leak checker instead!')
 end
@@ -18,7 +20,6 @@ end
 --- 功能：原本用于返回 Lua 正在使用的总内存（单位 KB）
 --- 现状：已废弃，强制抛出错误，提示使用 memory leak checker
 ---@return number 总内存(KB)
----@type fun():number
 local function total()
     error('use memory leak checker instead!')
 end
@@ -31,3 +32,4 @@ return {
     snapshot = snapshot,   -- 内存快照（废弃）
     total = total          -- 获取总内存（废弃）
 }
+--endregion

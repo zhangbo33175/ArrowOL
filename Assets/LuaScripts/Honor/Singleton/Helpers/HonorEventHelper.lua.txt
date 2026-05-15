@@ -1,12 +1,15 @@
 --=====================================================================================================
--- descrip:   事件助手（全局事件中心）
+-- Description: 事件助手（全局事件中心）
 --              作用：模块间解耦通信，支持同步/异步（下一帧）事件派发
 --              模式：发布 - 订阅（Publish-Subscribe）
 --              特点：安全、防重复注册、支持批量移除、异常捕获
 --              适用：UI界面、业务模块、逻辑组件跨模块通信
+-- Author:     Unity Standard
+-- @date:      2025
 --=====================================================================================================
 
----@class HonorEventHelper @全局事件管理助手（发布-订阅模式）
+--region 全局事件管理助手（发布-订阅模式）
+---@class HonorEventHelper 全局事件管理助手（发布-订阅模式）
 local HonorEventHelper = class("HonorEventHelper")
 
 --- 构造函数
@@ -19,8 +22,8 @@ function HonorEventHelper:ctor(args)
 end
 
 --- 创建单例/实例对象
----@param args table @初始化参数（可选）
----@return HonorEventHelper @事件助手实例
+---@param args table 初始化参数（可选）
+---@return HonorEventHelper 事件助手实例
 function HonorEventHelper:Create(args)
     local obj = HonorEventHelper.new(args)
     return obj
@@ -52,8 +55,8 @@ function HonorEventHelper:ProcessEventAsync()
 end
 
 --- 注册事件监听
----@param evtCmd string @事件名称（唯一标识）
----@param targetHandler table @回调处理器（包含target/method/func）
+---@param evtCmd string 事件名称（唯一标识）
+---@param targetHandler table 回调处理器（包含target/method/func）
 ---@remark 自带防重复注册、参数安全校验
 function HonorEventHelper:AddListener(evtCmd, targetHandler)
     -- 安全校验
@@ -78,8 +81,8 @@ function HonorEventHelper:AddListener(evtCmd, targetHandler)
 end
 
 --- 移除指定事件监听
----@param evtCmd string @事件名称
----@param targetHandler table @需要移除的回调处理器
+---@param evtCmd string 事件名称
+---@param targetHandler table 需要移除的回调处理器
 function HonorEventHelper:RemoveListener(evtCmd, targetHandler)
     if type(evtCmd) ~= "string" or not targetHandler then return end
     if self._targetHandlers[evtCmd] then
@@ -93,7 +96,7 @@ function HonorEventHelper:RemoveListener(evtCmd, targetHandler)
 end
 
 --- 根据事件名移除该事件的所有监听
----@param evtCmd string @事件名称
+---@param evtCmd string 事件名称
 function HonorEventHelper:RemoveListenerByEventID(evtCmd)
     if self._targetHandlers[evtCmd] then
         self._targetHandlers[evtCmd] = {}
@@ -101,7 +104,7 @@ function HonorEventHelper:RemoveListenerByEventID(evtCmd)
 end
 
 --- 根据对象移除该对象绑定的所有事件监听
----@param target table @监听对象（常用：界面销毁时调用）
+---@param target table 监听对象（常用：界面销毁时调用）
 function HonorEventHelper:RemoveListenerByTarget(target)
     if not target then return end
     for _, handlers in pairs(self._targetHandlers) do
@@ -114,7 +117,7 @@ function HonorEventHelper:RemoveListenerByTarget(target)
 end
 
 --- 根据回调函数移除监听
----@param method function @回调函数
+---@param method function 回调函数
 function HonorEventHelper:RemoveListenerByFunc(method)
     if not method then return end
     for _, handlers in pairs(self._targetHandlers) do
@@ -127,8 +130,8 @@ function HonorEventHelper:RemoveListenerByFunc(method)
 end
 
 --- 【立即同步派发】事件
----@param evtCmd string @事件名称
----@param ... any @传递的事件参数
+---@param evtCmd string 事件名称
+---@param ... any 传递的事件参数
 ---@remark 立即执行所有注册的回调，适合同步逻辑
 function HonorEventHelper:FireNow(evtCmd, ...)
     if type(evtCmd) ~= "string" then return end
@@ -144,8 +147,8 @@ function HonorEventHelper:FireNow(evtCmd, ...)
 end
 
 --- 【下一帧异步派发】事件
----@param evtCmd string @事件名称
----@param ... any @传递的事件参数
+---@param evtCmd string 事件名称
+---@param ... any 传递的事件参数
 ---@remark 不卡当前帧，自带xpcall异常捕获，单个回调报错不影响其他
 function HonorEventHelper:Fire(evtCmd, ...)
     if type(evtCmd) ~= "string" then return end
@@ -165,5 +168,6 @@ function HonorEventHelper:Cleanup()
     self._targetHandlers = {}
     self._eventsCallNextFrame = {}
 end
+--endregion
 
 return HonorEventHelper
