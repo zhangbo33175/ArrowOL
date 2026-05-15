@@ -2,6 +2,7 @@ using System;
 
 namespace Honor.Runtime
 {
+    #region 预制体详细类型枚举
     /// <summary>
     /// 预制体详细类型（用于区分UI与普通游戏对象，做差异化管理）
     /// </summary>
@@ -22,4 +23,5 @@ namespace Honor.Runtime
         /// </summary>
         GameObject,
     }
+    #endregion
 }

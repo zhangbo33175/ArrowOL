@@ -7,9 +7,10 @@ namespace Honor.Runtime
 {
     public sealed partial class AssetBundleLoadManager
     {
+        #region 内部同步加载 AssetBundle
         /// <summary>
         /// 内部同步加载 AssetBundle
-        /// 会自动处理已加载、加载中、准备中三种状态，并递归加载依赖
+        /// 自动处理已加载、加载中、准备中状态，递归加载依赖包
         /// </summary>
         /// <param name="abFormatPath">AB 格式化路径</param>
         /// <returns>AB 包装对象</returns>
@@ -108,10 +109,12 @@ namespace Honor.Runtime
 
             return assetBundleObj;
         }
+        #endregion
 
+        #region 内部异步加载 AssetBundle
         /// <summary>
         /// 内部异步加载 AssetBundle
-        /// 自动处理依赖加载、并发限制、状态管理
+        /// 自动处理依赖加载、并发限制、多状态管理
         /// </summary>
         /// <param name="abFormatPath">AB 格式化路径</param>
         /// <param name="abLoadOverCallback">加载完成回调</param>
@@ -207,10 +210,12 @@ namespace Honor.Runtime
 
             return assetBundleObj;
         }
+        #endregion
 
+        #region 内部异步卸载 AssetBundle
         /// <summary>
         /// 内部异步卸载 AssetBundle
-        /// 递归减少自身与依赖引用计数，计数为 0 时加入卸载队列
+        /// 递归减少自身与依赖引用计数，计数为0时加入卸载队列
         /// </summary>
         /// <param name="abFormatPath">AB 格式化路径</param>
         private void InternalUnloadAssetBundleAsync(string abFormatPath)
@@ -259,10 +264,12 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region WebGL 平台专用：从 Web 加载 AssetBundle
         /// <summary>
         /// WebGL 平台专用：从 Web 加载 AssetBundle
-        /// 会阻塞主线程等待加载完成
+        /// 阻塞主线程等待加载完成
         /// </summary>
         /// <param name="abFormatPath">AB 格式化路径</param>
         /// <returns>加载完成的 AB</returns>
@@ -290,17 +297,22 @@ namespace Honor.Runtime
             m_WebGLRequest = null;
             return ab;
         }
+        #endregion
 
+        #region WebGL 异步请求赋值（异步线程）
         /// <summary>
-        /// WebGL 异步请求赋值（异步线程）
+        /// WebGL 异步请求赋值
+        /// 运行在异步线程
         /// </summary>
         private async void InternalEvaluateWebRequestFromWebGL(string abFormatPath)
         {
             m_WebGLRequest = await InternalGetWebRequestFromWebGL(abFormatPath);
         }
+        #endregion
 
+        #region WebGL 创建 WebRequest 任务
         /// <summary>
-        /// WebGL 创建 WebRequest 任务
+        /// WebGL 创建 WebRequest 异步任务
         /// </summary>
         private Task<UnityWebRequest> InternalGetWebRequestFromWebGL(string abFormatPath)
         {
@@ -309,10 +321,14 @@ namespace Honor.Runtime
 
             return taskSource.Task;
         }
+        #endregion
 
+        #region AB 自身 + 所有依赖 引用计数 +1（递归）
         /// <summary>
-        /// AB 自身 + 所有依赖 引用计数 +1（递归）
+        /// AB 自身与所有依赖 引用计数 +1
+        /// 递归处理所有依赖包
         /// </summary>
+        /// <param name="assetBundleObj">AB 包装对象</param>
         private void AddSelfAndDependsRef(AssetBundleObject assetBundleObj)
         {
             assetBundleObj.RefCount++;
@@ -323,10 +339,14 @@ namespace Honor.Runtime
                 AddSelfAndDependsRef(dpObj);
             }
         }
+        #endregion
 
+        #region 执行异步加载 AB
         /// <summary>
         /// 执行异步加载 AB
+        /// 创建异步加载请求
         /// </summary>
+        /// <param name="assetBundleObj">AB 包装对象</param>
         private void DoLoadAsync(AssetBundleObject assetBundleObj)
         {
             string path;
@@ -341,10 +361,14 @@ namespace Honor.Runtime
 
             assetBundleObj.Origin = origin;
         }
+        #endregion
 
+        #region 执行卸载 AB（包含内存卸载）
         /// <summary>
-        /// 执行卸载 AB（包含内存卸载）
+        /// 执行卸载 AB
+        /// 卸载资源并释放内存
         /// </summary>
+        /// <param name="assetBundleObj">AB 包装对象</param>
         private void DoUnload(AssetBundleObject assetBundleObj)
         {
             if (assetBundleObj.AssetBundles == null)
@@ -356,11 +380,14 @@ namespace Honor.Runtime
             assetBundleObj.AssetBundles.Unload(true);
             assetBundleObj.AssetBundles = null;
         }
+        #endregion
 
+        #region 正常/强制完成加载，并触发所有回调
         /// <summary>
-        /// 正常/强制完成加载，并触发所有回调
-        /// 可将异步加载转为同步
+        /// 正常/强制完成加载并触发回调
+        /// 支持异步转同步加载
         /// </summary>
+        /// <param name="assetBundleObj">AB 包装对象</param>
         private void NormalOrForceLoadOverAndCallBack(AssetBundleObject assetBundleObj)
         {
             // 从异步中提取ab
@@ -390,11 +417,16 @@ namespace Honor.Runtime
 
             assetBundleObj.AssetBundleLoadOverCallbacksList.Clear();
         }
+        #endregion
 
+        #region 获取 AB 在磁盘中的实际路径
         /// <summary>
         /// 获取 AB 在磁盘中的实际路径
-        /// 优先 Persistent，其次 Streaming
+        /// 优先加载持久化目录，其次加载流资源目录
         /// </summary>
+        /// <param name="formatPath">AB 格式化路径</param>
+        /// <param name="path">输出实际加载路径</param>
+        /// <param name="origin">输出资源来源类型</param>
         private void GetABLoadPathOnDisk(string formatPath, out string path, out OriginType origin)
         {
             // 优先检查读写区域的资源是否存在，如果存在则加载读写区域的资源，否则加载只读区域
@@ -410,9 +442,12 @@ namespace Honor.Runtime
                 origin = OriginType.Streaming;
             }
         }
+        #endregion
 
+        #region Update 驱动：管理加载中列表
         /// <summary>
-        ///  Update 驱动：管理加载中列表，完成后触发回调
+        /// Update 驱动：管理加载中列表
+        /// 检测加载完成的AB并执行回调
         /// </summary>
         private void UpdateLoadingList()
         {
@@ -437,9 +472,12 @@ namespace Honor.Runtime
                 NormalOrForceLoadOverAndCallBack(abObj);
             }
         }
+        #endregion
 
+        #region Update 驱动：管理卸载列表
         /// <summary>
         /// Update 驱动：管理卸载列表
+        /// 执行引用计数为0的AB卸载
         /// </summary>
         private void UpdateUnLoadList()
         {
@@ -469,9 +507,12 @@ namespace Honor.Runtime
                 m_UnloadAssetBundleList.Remove(abObj.FormatPath);
             }
         }
+        #endregion
 
+        #region Update 驱动：管理准备列表
         /// <summary>
-        /// Update 驱动：管理准备列表，控制并发加载数量
+        /// Update 驱动：管理准备列表
+        /// 控制并发加载数量，依次启动准备队列中的加载
         /// </summary>
         private void UpdateReadyList()
         {
@@ -497,5 +538,6 @@ namespace Honor.Runtime
                 _mReadyAssetBundleList.Remove(abObj.FormatPath);
             }
         }
+        #endregion
     }
 }

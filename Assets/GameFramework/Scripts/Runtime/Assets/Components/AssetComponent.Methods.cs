@@ -2,49 +2,45 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
-    //=========================================================================
-    // 预制体加载完成回调
-    //=========================================================================
+    #region 预制体加载完成回调
     /// <summary>
-    /// 预制体加载完成回调
+    /// 预制体加载完成回调委托
     /// </summary>
-    /// <param name="prefabObject">预制体资源对象</param>
-    /// <param name="gameObject">实例化后的GameObject</param>
+    /// <param name="prefabObject">预制体资源包装对象</param>
+    /// <param name="gameObject">实例化后的游戏对象</param>
     public delegate void PrefabLoadOverCallback(PrefabObject prefabObject, GameObject gameObject);
+    #endregion
 
-    //=========================================================================
-    // 普通资源加载完成回调
-    //=========================================================================
+    #region 普通资源加载完成回调
     /// <summary>
-    /// 普通资源加载完成回调
+    /// 普通资源加载完成回调委托
     /// </summary>
-    /// <param name="assetObject">资源对象</param>
-    /// <param name="asset">加载到的资源</param>
+    /// <param name="assetObject">资源包装对象</param>
+    /// <param name="asset">加载成功的资源对象</param>
     public delegate void AssetLoadOverCallback(AssetObject assetObject, Object asset);
+    #endregion
 
-    //=========================================================================
-    // 资源卸载完成回调
-    //=========================================================================
+    #region 资源卸载完成回调
     /// <summary>
-    /// 资源卸载完成回调
+    /// 资源卸载完成回调委托
     /// </summary>
-    /// <param name="assetObject">已卸载的资源对象</param>
+    /// <param name="assetObject">已完成卸载的资源包装对象</param>
     public delegate void AssetUnloadOverCallback(AssetObject assetObject);
+    #endregion
 
-    //=========================================================================
-    // AssetBundle 加载完成回调
-    //=========================================================================
+    #region AssetBundle 加载完成回调
     /// <summary>
-    /// AssetBundle 加载完成回调
+    /// AssetBundle加载完成回调委托
     /// </summary>
-    /// <param name="assetBundleObject">AB包对象</param>
-    /// <param name="ab">加载完成的AssetBundle</param>
+    /// <param name="assetBundleObject">AB包包装对象</param>
+    /// <param name="ab">加载完成的AssetBundle实例</param>
     public delegate void AssetBundleLoadOverCallBack(AssetBundleObject assetBundleObject, AssetBundle ab);
+    #endregion
 
-    #region 【资源管理组件 - 声明部分】
+    #region 资源管理组件 - 声明部分
     /// <summary>
     /// 资源管理组件（声明部分）
-    /// 包含所有资源加载相关的委托定义与组件声明
+    /// 包含所有资源加载相关的委托定义与分部类声明
     /// </summary>
     public sealed partial class AssetComponent : GameComponent
     {

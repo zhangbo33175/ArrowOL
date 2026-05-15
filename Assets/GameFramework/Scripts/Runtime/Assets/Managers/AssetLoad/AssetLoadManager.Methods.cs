@@ -5,6 +5,7 @@ namespace Honor.Runtime
 {
     public sealed partial class AssetLoadManager
     {
+        #region 全局解绑加载完成回调
         /// <summary>
         /// 根据回调委托，全局解绑加载完成回调
         /// 遍历加载中/已加载列表，移除指定回调
@@ -32,7 +33,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 执行资源加载完成回调
         /// <summary>
         /// 执行资源加载完成回调
         /// 先锁定回调数量，防止回调体内再次修改列表导致异常
@@ -67,7 +70,9 @@ namespace Honor.Runtime
 
             assetObj.AssetLoadOverCallbackList.RemoveRange(0, count);
         }
+        #endregion
 
+        #region 内部执行资源卸载逻辑
         /// <summary>
         /// 内部执行资源卸载逻辑
         /// 处理场景卸载、AB包引用递减、实例ID清理、卸载回调
@@ -111,7 +116,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 预加载队列帧更新
         /// <summary>
         /// 预加载队列帧更新
         /// 当加载队列为空时，从预加载队列取一个进行加载
@@ -152,7 +159,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 异步加载完成回调派发
         /// <summary>
         /// 异步加载完成回调派发
         /// 统一触发已加载完成资源的回调
@@ -183,7 +192,9 @@ namespace Honor.Runtime
                 System.GC.Collect();
             }
         }
+        #endregion
 
+        #region 加载中列表帧更新
         /// <summary>
         /// 加载中列表帧更新
         /// 检测异步加载完成的资源，移入已加载列表并触发回调
@@ -303,7 +314,9 @@ namespace Honor.Runtime
                 DoAssetCallback(assetObj);
             }
         }
+        #endregion
 
+        #region 卸载列表帧更新
         /// <summary>
         /// 卸载列表帧更新
         /// 处理延迟卸载、引用计数恢复、弱引用资源释放
@@ -343,7 +356,9 @@ namespace Honor.Runtime
                 m_UnloadList.Remove(assetObj.AssetPath);
             }
         }
+        #endregion
 
+        #region 根据场景对象查找资源包装对象
         /// <summary>
         /// 根据场景对象，查找对应的资源包装对象
         /// </summary>
@@ -357,5 +372,6 @@ namespace Honor.Runtime
             });
             return result;
         }
+        #endregion
     }
 }

@@ -7,6 +7,7 @@ namespace Honor.Runtime
 {
     public sealed partial class AssetLoadManager
     {
+        #region 构造函数
         /// <summary>
         /// 资源加载管理器构造方法
         /// </summary>
@@ -36,7 +37,9 @@ namespace Honor.Runtime
 
             _mAssetBundleLoadManager = new AssetBundleLoadManager();
         }
+        #endregion
 
+        #region 同步加载资源
         /// <summary>
         /// 同步加载资源
         /// 支持普通资源/场景，自动处理异步转同步、已加载、加载中等状态
@@ -264,7 +267,9 @@ namespace Honor.Runtime
 
             return assetObj.Asset;
         }
+        #endregion
 
+        #region 异步加载资源
         /// <summary>
         /// 异步加载资源
         /// 自动处理依赖、并发、回调合并
@@ -371,7 +376,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 异步预加载资源
         /// <summary>
         /// 异步预加载资源
         /// 支持弱引用（自动卸载）/强引用（常驻内存）
@@ -423,7 +430,9 @@ namespace Honor.Runtime
 
             m_PreloadedAsyncList.Enqueue(plAssetObj);
         }
+        #endregion
 
+        #region 卸载资源（统一入口）
         /// <summary>
         /// 卸载资源（统一入口）
         /// 支持场景/普通对象，自动管理引用计数
@@ -525,7 +534,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 强制卸载所有未使用资源
         /// <summary>
         /// 强制卸载所有未使用资源
         /// 会触发 GC，适合场景切换时调用
@@ -566,7 +577,9 @@ namespace Honor.Runtime
                 overcallback?.Invoke();
             };
         }
+        #endregion
 
+        #region 管理器帧更新
         /// <summary>
         /// 管理器帧更新
         /// 驱动预加载、异步完成、卸载、AB管理器更新
@@ -579,7 +592,9 @@ namespace Honor.Runtime
             UpdateUnload();
             _mAssetBundleLoadManager.Update();
         }
+        #endregion
 
+        #region 判断资源是否存在
         /// <summary>
         /// 判断资源是否存在
         /// Editor模式检查文件，运行时检查AB清单
@@ -596,7 +611,9 @@ namespace Honor.Runtime
                 return _mAssetBundleLoadManager.IsABExist(abPath);
             }
         }
+        #endregion
 
+        #region 获取资源文件后缀
         /// <summary>
         /// 获取资源文件后缀
         /// </summary>
@@ -613,7 +630,9 @@ namespace Honor.Runtime
 
             return suffix;
         }
+        #endregion
 
+        #region 将外部资源加入管理器统一管理
         /// <summary>
         /// 将外部资源加入管理器统一管理
         /// </summary>
@@ -649,7 +668,9 @@ namespace Honor.Runtime
 
             m_LoadedList.Add(assetObj.AssetPath, assetObj);
         }
+        #endregion
 
+        #region 手动增加资源引用计数
         /// <summary>
         /// 手动增加资源引用计数
         /// </summary>
@@ -670,7 +691,9 @@ namespace Honor.Runtime
             var assetObj = m_LoadedList[assetPath];
             assetObj.RefCount++;
         }
+        #endregion
 
+        #region 移除资源加载回调
         /// <summary>
         /// 移除资源加载回调
         /// </summary>
@@ -703,7 +726,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 获取资源绝对路径（Editor专用）
         /// <summary>
         /// 获取资源绝对路径（Editor专用）
         /// </summary>
@@ -740,7 +765,9 @@ namespace Honor.Runtime
                 return fileFullPaths[0].Replace('\\', '/');
             }
         }
+        #endregion
 
+        #region 获取资源相对路径（Assets 开头）
         /// <summary>
         /// 获取资源相对路径（Assets 开头）
         /// </summary>
@@ -750,7 +777,9 @@ namespace Honor.Runtime
             string relativeFullPath = absoluteFullPath.Substring(Application.dataPath.Length - s_AssetsStringLength);
             return relativeFullPath;
         }
+        #endregion
 
+        #region 生成资源唯一标识路径
         /// <summary>
         /// 生成资源唯一标识路径
         /// </summary>
@@ -758,7 +787,9 @@ namespace Honor.Runtime
         {
             return AorTxt.Format("{0}/{1}{2}", abPath, assetName, GetAssetSuffix(typeName));
         }
+        #endregion
 
+        #region 获取加载中的资源包装对象
         /// <summary>
         /// 获取加载中的资源包装对象
         /// </summary>
@@ -772,7 +803,9 @@ namespace Honor.Runtime
 
             return null;
         }
+        #endregion
 
+        #region 获取已加载的资源包装对象
         /// <summary>
         /// 获取已加载的资源包装对象
         /// </summary>
@@ -786,7 +819,9 @@ namespace Honor.Runtime
 
             return null;
         }
+        #endregion
 
+        #region 获取等待卸载的资源包装对象
         /// <summary>
         /// 获取等待卸载的资源包装对象
         /// </summary>
@@ -800,5 +835,6 @@ namespace Honor.Runtime
 
             return null;
         }
+        #endregion
     }
 }

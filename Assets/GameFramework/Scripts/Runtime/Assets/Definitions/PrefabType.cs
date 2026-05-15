@@ -2,6 +2,7 @@ using System;
 
 namespace Honor.Runtime
 {
+    #region 预制体类型枚举
     /// <summary>
     /// 预制体类型枚举（用于资源加载、实例化、管理逻辑区分）
     /// </summary>
@@ -18,4 +19,5 @@ namespace Honor.Runtime
         /// </summary>
         Entity,
     }
+    #endregion
 }

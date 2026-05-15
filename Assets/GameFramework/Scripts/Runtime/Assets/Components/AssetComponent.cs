@@ -16,6 +16,9 @@ namespace Honor.Runtime
         //=========================================================================
         // 初始化资源管理器
         //=========================================================================
+        /// <summary>
+        /// 组件唤醒初始化
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
@@ -49,6 +52,9 @@ namespace Honor.Runtime
         //=========================================================================
         // 启动回调
         //=========================================================================
+        /// <summary>
+        /// 组件启动回调
+        /// </summary>
         private void Start()
         {
         }
@@ -56,6 +62,9 @@ namespace Honor.Runtime
         //=========================================================================
         // 每帧更新管理器（执行异步任务、延迟卸载、内存清理）
         //=========================================================================
+        /// <summary>
+        /// 每帧更新，驱动子管理器执行异步任务与内存管理
+        /// </summary>
         private void Update()
         {
             if (m_AssetLoadManager != null)
@@ -72,6 +81,9 @@ namespace Honor.Runtime
         //=========================================================================
         // 销毁回调
         //=========================================================================
+        /// <summary>
+        /// 组件销毁回调
+        /// </summary>
         private void OnDestroy()
         {
         }
@@ -81,6 +93,9 @@ namespace Honor.Runtime
         //=========================================================================
         // 加载 AssetBundle 清单文件（非编辑器模式下必须调用）
         //=========================================================================
+        /// <summary>
+        /// 加载AssetBundle清单文件，非编辑器模式下必须调用
+        /// </summary>
         public void LoadManifest()
         {
             if (!m_LauncherComponent.EditorResourceMode)
@@ -97,6 +112,14 @@ namespace Honor.Runtime
         //=========================================================================
         // 同步加载 Prefab 并自动实例化
         //=========================================================================
+        /// <summary>
+        /// 同步加载预制体并自动实例化
+        /// </summary>
+        /// <param name="abPath">AssetBundle路径，必须以Assets开头</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="parent">实例化父物体</param>
+        /// <param name="luaParams">Lua传递的参数，可选</param>
+        /// <returns>实例化后的游戏对象</returns>
         public GameObject LoadPrefabSync(string abPath, string assetName, Transform parent, LuaTable luaParams = null)
         {
             if (string.IsNullOrEmpty(abPath))
@@ -129,6 +152,14 @@ namespace Honor.Runtime
         //=========================================================================
         // 异步加载 Prefab 并自动实例化
         //=========================================================================
+        /// <summary>
+        /// 异步加载预制体并自动实例化
+        /// </summary>
+        /// <param name="abPath">AssetBundle路径，必须以Assets开头</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="parent">实例化父物体</param>
+        /// <param name="luaParams">Lua传递的参数，可选</param>
+        /// <param name="overCallback">加载完成回调</param>
         public void LoadPrefabAsync(string abPath, string assetName, Transform parent, LuaTable luaParams = null,
             PrefabLoadOverCallback overCallback = null)
         {
@@ -168,6 +199,13 @@ namespace Honor.Runtime
         //=========================================================================
         // 直接克隆 GameObject
         //=========================================================================
+        /// <summary>
+        /// 直接克隆游戏对象，支持Lua参数传递
+        /// </summary>
+        /// <param name="parent">克隆目标父物体</param>
+        /// <param name="childTemplateGO">模板游戏对象</param>
+        /// <param name="luaParams">Lua传递的参数，可选</param>
+        /// <returns>克隆后的游戏对象</returns>
         public GameObject InstantiateGO(Transform parent, GameObject childTemplateGO, LuaTable luaParams = null)
         {
             if (parent == null)
@@ -190,6 +228,13 @@ namespace Honor.Runtime
         //=========================================================================
         // 同步加载任意资源（非实例化，仅加载原始资源）
         //=========================================================================
+        /// <summary>
+        /// 同步加载任意类型资源（仅加载资源，不实例化）
+        /// </summary>
+        /// <param name="typeName">资源类型名称</param>
+        /// <param name="abPath">AssetBundle路径，必须以Assets开头</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>加载完成的资源对象</returns>
         public UnityEngine.Object LoadAssetSync(string typeName, string abPath, string assetName)
         {
             if (string.IsNullOrEmpty(typeName))
@@ -221,6 +266,13 @@ namespace Honor.Runtime
         //=========================================================================
         // 异步加载任意资源
         //=========================================================================
+        /// <summary>
+        /// 异步加载任意类型资源
+        /// </summary>
+        /// <param name="typeName">资源类型名称</param>
+        /// <param name="abPath">AssetBundle路径，必须以Assets开头</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="overCallback">加载完成回调</param>
         public void LoadAssetAsync(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback)
         {
             if (overCallback == null)
@@ -259,6 +311,14 @@ namespace Honor.Runtime
         //=========================================================================
         // 异步预加载资源
         //=========================================================================
+        /// <summary>
+        /// 异步预加载资源，支持弱引用缓存
+        /// </summary>
+        /// <param name="typeName">资源类型名称</param>
+        /// <param name="abPath">AssetBundle路径，必须以Assets开头</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="overCallback">加载完成回调</param>
+        /// <param name="isWeak">是否使用弱引用，默认true</param>
         public void PreLoadAssetAsync(string typeName, string abPath, string assetName,
             AssetLoadOverCallback overCallback, bool isWeak = true)
         {
@@ -294,6 +354,12 @@ namespace Honor.Runtime
         //=========================================================================
         // 卸载资源
         //=========================================================================
+        /// <summary>
+        /// 卸载指定资源，支持立即卸载/延迟卸载
+        /// </summary>
+        /// <param name="asset">需要卸载的资源对象</param>
+        /// <param name="overCallback">卸载完成回调，可选</param>
+        /// <param name="rightNow">是否立即卸载，默认false</param>
         public void UnloadAsset(UnityEngine.Object asset, AssetUnloadOverCallback overCallback = null,
             bool rightNow = false)
         {
@@ -309,6 +375,10 @@ namespace Honor.Runtime
         //=========================================================================
         // 强制卸载所有未使用资源
         //=========================================================================
+        /// <summary>
+        /// 强制卸载所有未使用的资源，释放内存
+        /// </summary>
+        /// <param name="overCallback">卸载完成回调，可选</param>
         public void ForceUnloadUnusedAssets(Action overCallback = null)
         {
             m_AssetLoadManager.ForceUnloadUnusedAssets(overCallback);
@@ -319,6 +389,11 @@ namespace Honor.Runtime
         //=========================================================================
         // 同步加载场景
         //=========================================================================
+        /// <summary>
+        /// 同步加载场景
+        /// </summary>
+        /// <param name="abPath">场景所在AB包路径，必须以Assets开头</param>
+        /// <param name="sceneName">场景名称</param>
         public void LoadSceneSync(string abPath, string sceneName)
         {
             if (string.IsNullOrEmpty(abPath))
@@ -345,6 +420,12 @@ namespace Honor.Runtime
         //=========================================================================
         // 异步加载场景
         //=========================================================================
+        /// <summary>
+        /// 异步加载场景
+        /// </summary>
+        /// <param name="abPath">场景所在AB包路径，必须以Assets开头</param>
+        /// <param name="sceneName">场景名称</param>
+        /// <param name="overCallback">加载完成回调</param>
         public void LoadSceneAsync(string abPath, string sceneName, AssetLoadOverCallback overCallback)
         {
             if (overCallback == null)
@@ -377,6 +458,13 @@ namespace Honor.Runtime
         //=========================================================================
         // 异步预加载场景
         //=========================================================================
+        /// <summary>
+        /// 异步预加载场景，支持弱引用缓存
+        /// </summary>
+        /// <param name="abPath">场景所在AB包路径，必须以Assets开头</param>
+        /// <param name="sceneName">场景名称</param>
+        /// <param name="overCallback">加载完成回调</param>
+        /// <param name="isWeak">是否使用弱引用，默认true</param>
         public void PreLoadSceneAsync(string abPath, string sceneName, AssetLoadOverCallback overCallback,
             bool isWeak = true)
         {
@@ -404,6 +492,11 @@ namespace Honor.Runtime
         //=========================================================================
         // 卸载场景
         //=========================================================================
+        /// <summary>
+        /// 卸载指定场景
+        /// </summary>
+        /// <param name="sceneName">场景名称</param>
+        /// <param name="overCallback">卸载完成回调，可选</param>
         public void UnloadScene(string sceneName, AssetUnloadOverCallback overCallback = null)
         {
             if (string.IsNullOrEmpty(sceneName))
@@ -429,6 +522,13 @@ namespace Honor.Runtime
         //=========================================================================
         // 判断资源是否存在
         //=========================================================================
+        /// <summary>
+        /// 判断指定资源是否存在
+        /// </summary>
+        /// <param name="typeName">资源类型名称</param>
+        /// <param name="abPath">AssetBundle路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>存在返回true，不存在返回false</returns>
         public bool IsAssetExist(string typeName, string abPath, string assetName)
         {
             if (string.IsNullOrEmpty(typeName))

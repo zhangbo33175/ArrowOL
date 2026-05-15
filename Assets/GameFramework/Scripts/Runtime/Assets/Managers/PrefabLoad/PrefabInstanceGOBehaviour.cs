@@ -2,12 +2,14 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    #region Prefab 实例化对象管理脚本
     /// <summary>
     /// Prefab 实例化对象挂载脚本
     /// 用于管理通过克隆/动态加载生成的 GameObject，维护资源引用计数与自动销毁
     /// </summary>
     public class PrefabInstanceGOBehaviour : MonoBehaviour
     {
+        #region 公共字段
         /// <summary>
         /// 资源实例ID（用于在资源管理器中定位资源对象）
         /// </summary>
@@ -34,7 +36,9 @@ namespace Honor.Runtime
         /// 绑定的 Lua 逻辑脚本（业务层使用）
         /// </summary>
         public LuaBehaviour LuaBehaviour = null;
+        #endregion
 
+        #region 生命周期函数
         /// <summary>
         /// 激活时执行
         /// 处理【GameObject.Instantiate】克隆方式创建的对象，手动增加引用计数
@@ -70,5 +74,7 @@ namespace Honor.Runtime
                 GameMainRoot.Asset.PrefabLoadManager.Destroy(gameObject, RightNowDestroyOnAsset);
             }
         }
+        #endregion
     }
+    #endregion
 }

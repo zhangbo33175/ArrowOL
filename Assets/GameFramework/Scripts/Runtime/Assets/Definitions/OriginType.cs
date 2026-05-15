@@ -2,6 +2,7 @@ using System;
 
 namespace Honor.Runtime
 {
+    #region 资源来源路径枚举
     /// <summary>
     /// 资源来源路径枚举（标记资源加载的磁盘位置）
     /// </summary>
@@ -28,4 +29,5 @@ namespace Honor.Runtime
         /// </summary>
         Streaming,
     }
+    #endregion
 }

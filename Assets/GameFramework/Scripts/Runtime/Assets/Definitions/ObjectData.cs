@@ -4,6 +4,7 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    #region 预制体资源封装对象
     /// <summary>
     /// 预制体资源封装对象
     /// 管理Prefab加载、实例化、回调、引用计数与实例ID
@@ -64,7 +65,9 @@ namespace Honor.Runtime
         /// </summary>
         public HashSet<int> GOInstanceIDs = new HashSet<int>();
     }
+    #endregion
 
+    #region AssetBundle 封装对象
     /// <summary>
     /// AssetBundle 封装对象
     /// 管理AB包加载、依赖、引用计数、回调与资源本体
@@ -112,7 +115,9 @@ namespace Honor.Runtime
         public readonly List<AssetBundleLoadOverCallBack> AssetBundleLoadOverCallbacksList =
             new List<AssetBundleLoadOverCallBack>();
     }
+    #endregion
 
+    #region 普通资源封装对象
     /// <summary>
     /// 普通资源封装对象
     /// 管理资源加载、卸载、引用、弱引用、延迟释放、异步回调
@@ -199,7 +204,9 @@ namespace Honor.Runtime
         /// </summary>
         public int UnloadTickNum;
     }
+    #endregion
 
+    #region 预加载资源封装对象
     /// <summary>
     /// 预加载资源封装对象
     /// 用于预加载队列，记录预加载信息与完成回调
@@ -243,4 +250,5 @@ namespace Honor.Runtime
         /// </summary>
         public AssetLoadOverCallback AssetLoadOverCallback = null;
     }
+    #endregion
 }

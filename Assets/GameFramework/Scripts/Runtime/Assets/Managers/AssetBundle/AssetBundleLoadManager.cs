@@ -6,6 +6,7 @@ namespace Honor.Runtime
 {
     public sealed partial class AssetBundleLoadManager
     {
+        #region 构造函数
         /// <summary>
         /// 构造函数：初始化所有AB包管理容器
         /// </summary>
@@ -19,7 +20,9 @@ namespace Honor.Runtime
             m_UnloadAssetBundleList = new Dictionary<string, AssetBundleObject>();
             m_AssetBundleFormatPathCaches = new Dictionary<string, string>();
         }
+        #endregion
 
+        #region 管理器帧更新
         /// <summary>
         /// 每帧更新：驱动加载、就绪、卸载流程
         /// </summary>
@@ -29,7 +32,9 @@ namespace Honor.Runtime
             UpdateReadyList();
             UpdateUnLoadList();
         }
+        #endregion
 
+        #region 加载AB依赖清单
         /// <summary>
         /// 加载AB依赖清单文件（AssetBundleManifest）
         /// 读取所有AB包的依赖关系，存入全局依赖表
@@ -72,69 +77,81 @@ namespace Honor.Runtime
 
             Log.Info("AB加载管理器中全局依赖资源数量：{0}", m_DependsDataList.Count);
         }
+        #endregion
 
+        #region 同步加载AB包
         /// <summary>
         /// 同步加载AB包
         /// </summary>
-        /// <param name="abPath">原始AB路径</param>
-        /// <returns>加载完成的AB包</returns>
+        /// <param name="abPath">原始AB包路径</param>
+        /// <returns>加载完成的AssetBundle实例</returns>
         public AssetBundle LoadSync(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
-            var abObj = InternalLoadAssetBundleSync(formatPath);
+            AssetBundleObject abObj = InternalLoadAssetBundleSync(formatPath);
             return abObj.AssetBundles;
         }
+        #endregion
 
+        #region 异步加载AB包
         /// <summary>
         /// 异步加载AB包
         /// </summary>
-        /// <param name="abPath">原始AB路径</param>
-        /// <param name="abLoadOverCallback">加载完成回调</param>
+        /// <param name="abPath">原始AB包路径</param>
+        /// <param name="abLoadOverCallback">AB包加载完成回调</param>
         public void LoadAsync(string abPath, AssetBundleLoadOverCallBack abLoadOverCallback)
         {
             string formatPath = GetABFormatPath(abPath);
             InternalLoadAssetBundleAsync(formatPath, abLoadOverCallback);
         }
+        #endregion
 
+        #region 异步卸载AB包
         /// <summary>
         /// 异步卸载AB包
         /// </summary>
-        /// <param name="abPath">原始AB路径</param>
+        /// <param name="abPath">原始AB包路径</param>
         public void Unload(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
             InternalUnloadAssetBundleAsync(formatPath);
         }
+        #endregion
 
+        #region 判断AB包是否存在
         /// <summary>
         /// 判断AB包是否存在（依赖表中存在）
         /// </summary>
-        /// <param name="abPath">原始AB路径</param>
-        /// <returns>是否存在</returns>
+        /// <param name="abPath">原始AB包路径</param>
+        /// <returns>存在返回true，不存在返回false</returns>
         public bool IsABExist(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
             return m_DependsDataList.ContainsKey(formatPath);
         }
+        #endregion
 
+        #region 判断AB包是否存在于持久化目录
         /// <summary>
         /// 判断AB包是否存在于可读写目录(Persistent)
         /// </summary>
-        /// <param name="abPath">原始AB路径</param>
-        /// <returns>是否存在</returns>
+        /// <param name="abPath">原始AB包路径</param>
+        /// <returns>存在返回true，不存在返回false</returns>
         public bool IsABExistInPersistentDataPath(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
             string filePath = GamePathUtils.AB.Persistent.GetFileFullPath(formatPath);
             return File.Exists(filePath);
         }
+        #endregion
 
+        #region 获取格式化AB路径
         /// <summary>
         /// 获取格式化后的AB包路径（统一命名规则）
         /// 格式：路径替换@符号 + 小写 + .bundle
         /// </summary>
-        /// <param name="abPath">原始AB路径</param>
-        /// <returns>格式化路径</returns>
+        /// <param name="abPath">原始AB包路径</param>
+        /// <returns>格式化后的标准AB路径</returns>
         public string GetABFormatPath(string abPath)
         {
             if (!m_AssetBundleFormatPathCaches.ContainsKey(abPath))
@@ -144,12 +161,14 @@ namespace Honor.Runtime
 
             return m_AssetBundleFormatPathCaches[abPath];
         }
+        #endregion
 
+        #region 还原AB原始路径
         /// <summary>
         /// 将格式化路径还原为原始AB路径
         /// </summary>
-        /// <param name="abFormatPath">格式化路径</param>
-        /// <returns>还原后的原始路径</returns>
+        /// <param name="abFormatPath">格式化后的AB路径</param>
+        /// <returns>还原后的原始资源路径</returns>
         public string GetABRestoredPath(string abFormatPath)
         {
             string restoredPath = string.Empty;
@@ -174,5 +193,6 @@ namespace Honor.Runtime
 
             return restoredPath;
         }
+        #endregion
     }
 }
