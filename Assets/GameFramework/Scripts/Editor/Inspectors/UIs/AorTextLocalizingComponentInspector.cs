@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Game
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextLocalizingComponentInspector.cs
+ * author:    云毅
+ * created:
+ * descrip:   Honor框架 多语言Text组件Inspector扩展
+ *            支持多语言Key配置、字体标记下拉选择、实时预览
+ ***************************************************************/
+
+using System.Collections.Generic;
 using System.IO;
 using Honor.Runtime;
 using Newtonsoft.Json.Linq;
@@ -7,6 +18,7 @@ using UnityEngine;
 
 namespace Honor.Editor.Inspectors.UIs
 {
+    #region 多语言Text组件编辑器扩展
     /// <summary>
     /// 多语言文本组件（AorTextLocalizing）的编辑器扩展
     /// 功能：在 Inspector 面板可视化配置多语言 Key、字体标记，自动读取字体配置表
@@ -16,6 +28,7 @@ namespace Honor.Editor.Inspectors.UIs
     [CanEditMultipleObjects]
     public class AorTextLocalizingComponentInspector : HonorComponentInspector
     {
+        #region 序列化字段
         /// <summary>
         /// 多语言 Key 名称（对应多语言表中的字段）
         /// </summary>
@@ -30,7 +43,9 @@ namespace Honor.Editor.Inspectors.UIs
         /// 当前语言（用于预览）
         /// </summary>
         private SerializedProperty m_EnableLang;
+        #endregion
 
+        #region 下拉列表数据
         /// <summary>
         /// 字体标记下拉列表数据
         /// </summary>
@@ -40,7 +55,9 @@ namespace Honor.Editor.Inspectors.UIs
         /// 下拉列表选中索引
         /// </summary>
         private int m_MarkListSelectedIndex;
+        #endregion
 
+        #region 编辑器初始化
         /// <summary>
         /// 编辑器激活时：读取配置 + 绑定序列化属性
         /// </summary>
@@ -78,7 +95,9 @@ namespace Honor.Editor.Inspectors.UIs
             });
             m_MarkListSelectedIndex = Mathf.Max(m_MarkListSelectedIndex, 0);
         }
+        #endregion
 
+        #region Inspector 绘制
         /// <summary>
         /// 绘制 Inspector 面板
         /// </summary>
@@ -102,5 +121,7 @@ namespace Honor.Editor.Inspectors.UIs
 
             serializedObject.ApplyModifiedProperties();
         }
+        #endregion
     }
+    #endregion
 }

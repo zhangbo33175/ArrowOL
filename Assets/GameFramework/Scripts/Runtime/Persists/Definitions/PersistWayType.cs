@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PersistWayType.cs
+ * author:    云毅
+ * created:
+ * descrip:   持久化存储方式枚举定义
+ ***************************************************************/
+
 using System;
 
 namespace Honor.Runtime
@@ -19,6 +29,6 @@ namespace Honor.Runtime
         /// PlayerPrefs 存储
         /// 轻量级键值对本地存储
         /// </summary>
-        PlayerPrefs = 1,
+        PlayerPrefs = 1
     }
 }

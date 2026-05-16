@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AndroidInterface.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Android 原生交互代理类
+ *            继承 AndroidJavaProxy，接收安卓回调并转发 C#
+ ***************************************************************/
+
 using System;
 using UnityEngine;
 
@@ -10,6 +21,11 @@ namespace Honor.Runtime
     /// </summary>
     public class AndroidInterface : AndroidJavaProxy
     {
+        //=========================================================================
+        // 回调委托定义
+        //=========================================================================
+        #region 回调委托
+
         /// <summary>
         /// AndroidJavaObject 类型回调（返回安卓对象）
         /// </summary>
@@ -50,6 +66,13 @@ namespace Honor.Runtime
         /// </summary>
         public Action<bool> boolCallBack;
 
+        #endregion
+
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        #region 构造函数
+
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -57,6 +80,13 @@ namespace Honor.Runtime
         public AndroidInterface(string interfaceName) : base(interfaceName)
         {
         }
+
+        #endregion
+
+        //=========================================================================
+        // 安卓回调方法
+        //=========================================================================
+        #region 安卓回调方法
 
         /// <summary>
         /// 安卓回调：返回 AndroidJavaObject
@@ -122,5 +152,7 @@ namespace Honor.Runtime
         {
             debugCallBack?.Invoke(_data);
         }
+
+        #endregion
     }
 }

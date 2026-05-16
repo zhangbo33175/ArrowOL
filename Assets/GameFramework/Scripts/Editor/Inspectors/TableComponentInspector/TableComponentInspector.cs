@@ -1,4 +1,15 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Game
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  TableComponentInspector.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Honor框架 配置表系统编辑器扩展
+ *            可视化管理Excel配置表，支持搜索、批量导出、自定义导出
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +19,7 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    #region 配置表系统编辑器面板
     /// <summary>
     /// 【配置表系统编辑器面板】
     /// 功能：可视化管理 Excel 配置表，支持一键导出 Lua/Json、搜索、自定义导出、目录树展示
@@ -17,6 +29,7 @@ namespace Honor.Editor
     [CustomEditor(typeof(TableComponent))]
     internal sealed class TableComponentInspector : HonorComponentInspector
     {
+        #region 目录结构记录类
         /// <summary>
         /// 【目录结构记录类】
         /// 递归存储 Excel 文件夹结构、文件列表、深度、路径
@@ -31,40 +44,74 @@ namespace Honor.Editor
                 DirectoryName = string.Empty;
             }
 
-            // 子目录列表
+            /// <summary>
+            /// 子目录列表
+            /// </summary>
             public List<DirectoryContentsRecorder> DirectoryContentsRecorders;
-            // 当前目录下的 Excel 文件名
+            
+            /// <summary>
+            /// 当前目录下的 Excel 文件名
+            /// </summary>
             public List<string> ExcelFileNames;
-            // 目录名
+            
+            /// <summary>
+            /// 目录名
+            /// </summary>
             public string DirectoryName;
-            // 完整路径
+            
+            /// <summary>
+            /// 完整路径
+            /// </summary>
             public string DirectoryFullPath;
-            // 层级深度（用于缩进显示）
+            
+            /// <summary>
+            /// 层级深度（用于缩进显示）
+            /// </summary>
             public int Depth = 0;
         }
+        #endregion
 
-        // 自定义导出用路径
+        #region 私有字段
+        /// <summary>
+        /// 自定义导出用路径
+        /// </summary>
         private string m_customExcelPath = null;
         private string m_customLuaPath = null;
 
-        // 目录树根节点
+        /// <summary>
+        /// 目录树根节点
+        /// </summary>
         private DirectoryContentsRecorder m_DirectoryContentsRecorder;
-        // Excel 文件总数
+        
+        /// <summary>
+        /// Excel 文件总数
+        /// </summary>
         private int m_ExcelFileCount = 0;
 
-        // 已生成的 Lua 表名缓存
+        /// <summary>
+        /// 已生成的 Lua 表名缓存
+        /// </summary>
         private Dictionary<string, bool> m_LuaFileNames;
-        // 折叠面板状态
+        
+        /// <summary>
+        /// 折叠面板状态
+        /// </summary>
         private Dictionary<string, bool> m_ExcelFoldoutSections;
 
-        // 框架路径（Lua/Excel 根目录）
+        /// <summary>
+        /// 框架路径（Lua/Excel 根目录）
+        /// </summary>
         private string m_LuaDirectoryPath = string.Empty;
         private string m_ExcelDirectoryPath = string.Empty;
 
-        // 搜索相关
+        /// <summary>
+        /// 搜索相关
+        /// </summary>
         private string m_SearchExcelName = string.Empty;
         private Dictionary<string, DirectoryContentsRecorder> m_SearchExcelDetailInfo;
+        #endregion
 
+        #region 初始化
         /// <summary>
         /// 初始化：加载目录、缓存文件列表
         /// </summary>
@@ -81,7 +128,9 @@ namespace Honor.Editor
             UpdateExcelDirectoryContentsRecorder();
             UpdateLuaFileNames();
         }
+        #endregion
 
+        #region Inspector 绘制
         /// <summary>
         /// 绘制 Inspector 面板
         /// </summary>
@@ -90,15 +139,48 @@ namespace Honor.Editor
             base.OnInspectorGUI();
             serializedObject.Update();
 
-            // ====================== 统计信息 ======================
+            DrawInfoStatistics();
+            DrawBatchOperateButtons();
+            DrawSearchBar();
+            DrawDirectoryOrSearchResult();
+            DrawCustomExportTools();
+
+            serializedObject.ApplyModifiedProperties();
+            Repaint();
+        }
+        #endregion
+
+        #region 编译回调
+        protected override void OnCompileStart()
+        {
+        }
+
+        protected override void OnCompileComplete()
+        {
+        }
+        #endregion
+
+        #region 绘制 - 信息统计
+        /// <summary>
+        /// 绘制文件数量统计信息
+        /// </summary>
+        private void DrawInfoStatistics()
+        {
             EditorGUILayout.BeginHorizontal("box");
             {
                 EditorGUILayout.LabelField("Excel数据表数量", m_ExcelFileCount.ToString());
                 EditorGUILayout.LabelField("Lua数据表数量", (m_LuaFileNames.Count).ToString());
             }
             EditorGUILayout.EndHorizontal();
+        }
+        #endregion
 
-            // ====================== 批量操作按钮 ======================
+        #region 绘制 - 批量操作
+        /// <summary>
+        /// 绘制批量导出、打开目录等按钮
+        /// </summary>
+        private void DrawBatchOperateButtons()
+        {
             EditorGUILayout.BeginHorizontal("box");
             {
                 if (GUILayout.Button("导出所有数据表Excel到Lua"))
@@ -116,8 +198,15 @@ namespace Honor.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
+        }
+        #endregion
 
-            // ====================== 搜索框 ======================
+        #region 绘制 - 搜索框
+        /// <summary>
+        /// 绘制 Excel 搜索框
+        /// </summary>
+        private void DrawSearchBar()
+        {
             GUILayout.Space(5);
             EditorGUILayout.BeginHorizontal("box");
             {
@@ -126,6 +215,7 @@ namespace Honor.Editor
                 {
                     m_SearchExcelName = searchText;
                     m_SearchExcelDetailInfo.Clear();
+                    
                     if (!string.IsNullOrEmpty(m_SearchExcelName))
                         UpdateSearchExcelDetailInfo(m_DirectoryContentsRecorder, m_SearchExcelName.ToLower());
                 }
@@ -137,8 +227,15 @@ namespace Honor.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
+        }
+        #endregion
 
-            // ====================== 目录树 / 搜索结果 ======================
+        #region 绘制 - 目录树/搜索结果
+        /// <summary>
+        /// 绘制目录结构或搜索结果区域
+        /// </summary>
+        private void DrawDirectoryOrSearchResult()
+        {
             GUILayout.Space(5);
             EditorGUILayout.BeginVertical("box");
             {
@@ -148,8 +245,15 @@ namespace Honor.Editor
                     CreateSearchExcelView();
             }
             EditorGUILayout.EndVertical();
+        }
+        #endregion
 
-            // ====================== 自定义导出 ======================
+        #region 绘制 - 自定义导出工具
+        /// <summary>
+        /// 绘制自定义 Excel 导出功能区
+        /// </summary>
+        private void DrawCustomExportTools()
+        {
             EditorGUILayout.Separator();
             EditorGUILayout.LabelField("自定义数据表Excel导出配置", EditorStyles.boldLabel);
 
@@ -175,28 +279,36 @@ namespace Honor.Editor
             if (GUILayout.Button("打开自定义Excel所在文件夹"))
             {
                 string dir = Path.GetDirectoryName(m_customExcelPath);
-                if (Directory.Exists(dir)) TableExportEditorUtility.OpenDirectory(dir);
+                if (Directory.Exists(dir))
+                    TableExportEditorUtility.OpenDirectory(dir);
                 GUIUtility.ExitGUI();
             }
 
             if (GUILayout.Button("导出自定义Excel → Lua"))
             {
-                string toPath = EditorUtility.SaveFilePanel("导出Lua", Application.dataPath, Path.GetFileNameWithoutExtension(m_customExcelPath), "lua.txt");
-                if (!string.IsNullOrEmpty(toPath)) TableExportEditorUtility.ExportExcelToLua(m_customExcelPath, toPath);
+                string toPath = EditorUtility.SaveFilePanel("导出Lua", Application.dataPath, 
+                    Path.GetFileNameWithoutExtension(m_customExcelPath), "lua.txt");
+                
+                if (!string.IsNullOrEmpty(toPath))
+                    TableExportEditorUtility.ExportExcelToLua(m_customExcelPath, toPath);
+                
                 GUIUtility.ExitGUI();
             }
 
             if (GUILayout.Button("导出自定义Excel → Json"))
             {
-                string toPath = EditorUtility.SaveFilePanel("导出Json", Application.dataPath, Path.GetFileNameWithoutExtension(m_customExcelPath), "json");
-                if (!string.IsNullOrEmpty(toPath)) TableExportEditorUtility.ExportExcelToJson(m_customExcelPath, toPath);
+                string toPath = EditorUtility.SaveFilePanel("导出Json", Application.dataPath, 
+                    Path.GetFileNameWithoutExtension(m_customExcelPath), "json");
+                
+                if (!string.IsNullOrEmpty(toPath))
+                    TableExportEditorUtility.ExportExcelToJson(m_customExcelPath, toPath);
+                
                 GUIUtility.ExitGUI();
             }
-
-            serializedObject.ApplyModifiedProperties();
-            Repaint();
         }
+        #endregion
 
+        #region 目录数据更新
         /// <summary>
         /// 递归刷新目录结构
         /// </summary>
@@ -244,6 +356,7 @@ namespace Honor.Editor
         private void UpdateLuaFileNames()
         {
             m_LuaFileNames.Clear();
+            
             foreach (string f in Directory.GetFiles(m_LuaDirectoryPath, "*.lua.txt", SearchOption.AllDirectories))
             {
                 string name = Path.GetFileName(f);
@@ -251,13 +364,16 @@ namespace Honor.Editor
                     m_LuaFileNames[name[0..^8]] = true;
             }
         }
+        #endregion
 
+        #region 导出执行
         /// <summary>
         /// 递归导出整个目录
         /// </summary>
         private void RunDirectoryContentsRecorderToLua(DirectoryContentsRecorder root)
         {
-            if (!Directory.Exists(m_LuaDirectoryPath)) Directory.CreateDirectory(m_LuaDirectoryPath);
+            if (!Directory.Exists(m_LuaDirectoryPath))
+                Directory.CreateDirectory(m_LuaDirectoryPath);
 
             foreach (string excel in root.ExcelFileNames)
                 RunExcelToLua(excel, root.DirectoryFullPath, m_ExcelDirectoryPath, m_LuaDirectoryPath);
@@ -274,9 +390,12 @@ namespace Honor.Editor
             string excelPath = $"{excelDir}/{excelName}.xlsm";
             string subDir = excelDir.Replace(rootExcelDir, "");
             string luaPath = $"{rootLuaDir}/{subDir}/{excelName}.lua.txt";
+            
             TableExportEditorUtility.ExportExcelToLua(excelPath, luaPath);
         }
+        #endregion
 
+        #region 绘制 - 目录与文件视图
         /// <summary>
         /// 绘制目录树
         /// </summary>
@@ -288,6 +407,7 @@ namespace Honor.Editor
                 {
                     m_ExcelFoldoutSections[child.DirectoryFullPath] =
                         EditorGUILayout.Foldout(m_ExcelFoldoutSections[child.DirectoryFullPath], child.DirectoryName);
+                    
                     if (m_ExcelFoldoutSections[child.DirectoryFullPath])
                         CreateDirectoryContentsRecorderView(child);
                 }
@@ -321,12 +441,17 @@ namespace Honor.Editor
                     GUIUtility.ExitGUI();
                 }
 
-                string tip = m_LuaFileNames.ContainsKey(excelName) ? $"<color=green>{excelName}.lua</color>" : "<color=red>Lua未生成</color>";
+                string tip = m_LuaFileNames.ContainsKey(excelName) 
+                    ? $"<color=green>{excelName}.lua</color>" 
+                    : "<color=red>Lua未生成</color>";
+                
                 EditorGUILayout.LabelField(tip);
             }
             EditorGUILayout.EndHorizontal();
         }
+        #endregion
 
+        #region 搜索功能
         /// <summary>
         /// 搜索匹配 Excel
         /// </summary>
@@ -350,8 +475,7 @@ namespace Honor.Editor
             foreach (var pair in m_SearchExcelDetailInfo)
                 CreateExcelView(pair.Key, pair.Value, true);
         }
-
-        protected override void OnCompileStart() { }
-        protected override void OnCompileComplete() { }
+        #endregion
     }
+    #endregion
 }

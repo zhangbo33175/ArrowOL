@@ -46,24 +46,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            
-			try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				if(LuaAPI.lua_gettop(L) == 1)
-				{
-					
-					Honor.Runtime.LuaFileWatcher gen_ret = new Honor.Runtime.LuaFileWatcher();
-					translator.Push(L, gen_ret);
-                    
-					return 1;
-				}
-				
-			}
-			catch(System.Exception gen_e) {
-				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-			}
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.LuaFileWatcher constructor!");
-            
+            return LuaAPI.luaL_error(L, "Honor.Runtime.LuaFileWatcher does not have a constructor!");
         }
         
 		

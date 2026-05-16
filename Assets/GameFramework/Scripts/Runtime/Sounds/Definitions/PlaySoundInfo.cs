@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  PlaySoundInfo.cs
+ * author:  云毅
+ * created:
+ * descrip:   声音播放信息实体类 —— 存储单次播放的全部数据，用于跟踪与控制
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -31,43 +40,28 @@ namespace Honor.Runtime
         /// </summary>
         public PlaySoundInfo()
         {
-            m_SerialID = 0;
-            m_SoundGroup = null;
-            m_PlaySoundParams = null;
-            m_PlaySoundInfoShell = null;
+            Clear();
         }
 
         /// <summary>
         /// 声音唯一ID（只读）
         /// </summary>
-        public int SerialID
-        {
-            get => m_SerialID;
-        }
+        public int SerialID => m_SerialID;
 
         /// <summary>
         /// 所属声音组（只读）
         /// </summary>
-        public SoundGroup SoundGroup
-        {
-            get => m_SoundGroup;
-        }
+        public SoundGroup SoundGroup => m_SoundGroup;
 
         /// <summary>
         /// 播放参数（只读）
         /// </summary>
-        public PlaySoundParams PlaySoundParams
-        {
-            get => m_PlaySoundParams;
-        }
+        public PlaySoundParams PlaySoundParams => m_PlaySoundParams;
 
         /// <summary>
         /// 扩展信息外壳（位置/绑定对象等）
         /// </summary>
-        public object PlaySoundInfoShell
-        {
-            get => m_PlaySoundInfoShell;
-        }
+        public PlaySoundInfoShell PlaySoundInfoShell => m_PlaySoundInfoShell;
 
         /// <summary>
         /// 创建播放信息实例（静态工厂方式，规范且安全）

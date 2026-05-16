@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LauncherComponent.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   框架启动器组件 - 核心初始化与生命周期
+ ***************************************************************/
+
 using UnityEngine;
 
 namespace Honor.Runtime
@@ -9,6 +19,10 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class LauncherComponent : GameComponent
     {
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region MonoBehaviour
         /// <summary>
         /// 框架初始化（Awake 生命周期）
         /// 初始化资源模式、脚本模式、性能选项、注册系统事件
@@ -48,6 +62,9 @@ namespace Honor.Runtime
             Log.Info("APP版本号: {0}", Application.version);
         }
 
+        /// <summary>
+        /// 生命周期 Start（暂未使用）
+        /// </summary>
         private void Start()
         {
         }
@@ -59,7 +76,12 @@ namespace Honor.Runtime
         {
             Application.lowMemory -= OnLowMemory;
         }
+        #endregion
 
+        //=========================================================================
+        // 应用生命周期回调
+        //=========================================================================
+        #region Application Events
         /// <summary>
         /// 应用挂起/恢复回调
         /// </summary>
@@ -87,7 +109,12 @@ namespace Honor.Runtime
             }
             Log.Info("APP退出。");
         }
+        #endregion
 
+        //=========================================================================
+        // 游戏速度控制
+        //=========================================================================
+        #region Game Speed Control
         /// <summary>
         /// 暂停游戏（缓存当前速度并设为 0）
         /// </summary>
@@ -121,7 +148,12 @@ namespace Honor.Runtime
 
             GameSpeed = 1f;
         }
+        #endregion
 
+        //=========================================================================
+        // 框架关闭
+        //=========================================================================
+        #region Shutdown
         /// <summary>
         /// 完全关闭框架并退出游戏
         /// 销毁组件、清空管理器、退出应用
@@ -143,5 +175,7 @@ namespace Honor.Runtime
             UnityEditor.EditorApplication.isPlaying = false;
 #endif
         }
+        #endregion
+        
     }
 }

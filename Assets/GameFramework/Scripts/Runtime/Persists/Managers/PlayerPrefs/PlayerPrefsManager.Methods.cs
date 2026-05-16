@@ -1,10 +1,29 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PlayerPrefsManager.Implement.cs
+ * author:    云毅
+ * created:
+ * descrip:   加密 PlayerPrefs 管理器 - 索引加载与刷新（内部实现）
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 加密 PlayerPrefs 管理器 - 内部索引方法实现
+    /// </summary>
     public sealed partial class PlayerPrefsManager
     {
+        //=========================================================================
+
+        #region 内部索引管理（加载 / 刷新 / 保存分类与键名）
+
+        //=========================================================================
+
         /// <summary>
         /// 从本地存储中加载【分类列表 + 各分类下的键名列表】
         /// 用于启动时重建内存索引
@@ -88,5 +107,7 @@ namespace Honor.Runtime
                 }
             }
         }
+
+        #endregion
     }
 }

@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SceneComponent.cs
+ * author:  云毅
+ * created:
+ * descrip:   场景管理组件 - 场景加载/卸载/清理、多相机管理、相机动画控制
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +22,9 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class SceneComponent : GameComponent
     {
+        #region 生命周期
+        //=========================================================================
+
         protected override void Awake()
         {
             base.Awake();
@@ -34,6 +46,12 @@ namespace Honor.Runtime
         {
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 场景对象清理
+        //=========================================================================
+
         /// <summary>
         /// 销毁场景根节点下所有对象
         /// 会自动调用LuaBehaviour的关闭逻辑，防止资源泄漏
@@ -42,7 +60,8 @@ namespace Honor.Runtime
         public void DestroyAllSceneGOs(GameObject root = null)
         {
             bool isDefault = root == null;
-            if (root == null) root = m_SceneRootGO;
+            if (root == null) 
+                root = m_SceneRootGO;
 
             // 收集所有子物体
             List<GameObject> gameObjects = new List<GameObject>();
@@ -61,7 +80,6 @@ namespace Honor.Runtime
                         return true;
                     }
                 }
-
                 return false;
             });
 
@@ -80,8 +98,15 @@ namespace Honor.Runtime
             });
 
             // 如果不是默认根节点，销毁传入的根节点
-            if (!isDefault) Destroy(root);
+            if (!isDefault) 
+                Destroy(root);
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 场景加载/卸载
+        //=========================================================================
 
         /// <summary>
         /// 异步预加载场景（后台加载，不激活）
@@ -156,19 +181,11 @@ namespace Honor.Runtime
         /// 获取已加载/加载中/卸载中的场景列表
         /// </summary>
         public List<List<string>> GetLoadedSceneAssetNames() => m_SceneManager.GetLoadedSceneAssetNames();
-
-        public void GetLoadedSceneAssetNames(List<List<string>> results) =>
-            m_SceneManager.GetLoadedSceneAssetNames(results);
-
+        public void GetLoadedSceneAssetNames(List<List<string>> results) => m_SceneManager.GetLoadedSceneAssetNames(results);
         public List<List<string>> GetLoadingSceneAssetNames() => m_SceneManager.GetLoadingSceneAssetNames();
-
-        public void GetLoadingSceneAssetNames(List<List<string>> results) =>
-            m_SceneManager.GetLoadingSceneAssetNames(results);
-
+        public void GetLoadingSceneAssetNames(List<List<string>> results) => m_SceneManager.GetLoadingSceneAssetNames(results);
         public List<List<string>> GetUnloadingSceneAssetNames() => m_SceneManager.GetUnloadingSceneAssetNames();
-
-        public void GetUnloadingSceneAssetNames(List<List<string>> results) =>
-            m_SceneManager.GetUnloadingSceneAssetNames(results);
+        public void GetUnloadingSceneAssetNames(List<List<string>> results) => m_SceneManager.GetUnloadingSceneAssetNames(results);
 
         /// <summary>
         /// 检查场景是否已加载
@@ -178,7 +195,11 @@ namespace Honor.Runtime
             return m_SceneManager.HasScene(abPath, assetName);
         }
 
+        #endregion
+
+        //=========================================================================
         #region 场景相机管理
+        //=========================================================================
 
         /// <summary>
         /// 添加相机到场景相机列表
@@ -278,13 +299,14 @@ namespace Honor.Runtime
 
         #endregion
 
+        //=========================================================================
         #region 相机动画控制
+        //=========================================================================
 
         /// <summary>
         /// 初始化相机（无动画）
         /// </summary>
-        public void InitSceneCamera(int sceneCameraIndex, Vector3 originalPosition, Quaternion originalRotation,
-            float sizeOrField)
+        public void InitSceneCamera(int sceneCameraIndex, Vector3 originalPosition, Quaternion originalRotation, float sizeOrField)
         {
             if (sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
             {
@@ -301,8 +323,8 @@ namespace Honor.Runtime
             Vector3 originalPosition,
             Quaternion originalRotation,
             float originalSizeOrField,
-            Vector3 targetPosition = default(Vector3),
-            Quaternion targetRotation = default(Quaternion),
+            Vector3 targetPosition = default,
+            Quaternion targetRotation = default,
             float targetSizeOrField = -1f,
             float targetDuration = 2f,
             bool canInterruptByGestures = false,
@@ -310,12 +332,16 @@ namespace Honor.Runtime
         {
             if (sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
             {
-                if (targetPosition == default(Vector3)) targetPosition = originalPosition;
-                if (targetSizeOrField == -1f) targetSizeOrField = originalSizeOrField;
+                if (targetPosition == default) 
+                    targetPosition = originalPosition;
+                if (targetSizeOrField == -1f) 
+                    targetSizeOrField = originalSizeOrField;
 
                 SceneCameraActor actor = m_SceneCameras[sceneCameraIndex].GetOrAddComponent<SceneCameraActor>();
-                actor.InitWithAnimation(originalPosition, originalRotation, originalSizeOrField, targetPosition,
-                    targetRotation, targetSizeOrField, targetDuration, canInterruptByGestures, overCallback);
+                actor.InitWithAnimation(
+                    originalPosition, originalRotation, originalSizeOrField,
+                    targetPosition, targetRotation, targetSizeOrField,
+                    targetDuration, canInterruptByGestures, overCallback);
             }
         }
 
@@ -334,7 +360,8 @@ namespace Honor.Runtime
             if (sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
             {
                 SceneCameraActor actor = m_SceneCameras[sceneCameraIndex].GetOrAddComponent<SceneCameraActor>();
-                actor.PlayAnimationToTarget(duration, targetPosition, targetRotation, targetSizeOrField,
+                actor.PlayAnimationToTarget(
+                    duration, targetPosition, targetRotation, targetSizeOrField,
                     canInterruptByGestures, overCallback);
             }
         }

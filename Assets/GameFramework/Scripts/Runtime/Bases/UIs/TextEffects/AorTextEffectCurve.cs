@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextEffectCurve.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   文本曲线弯曲特效 | 弧形文字 | 基于UGUI网格修改实现
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     [AddComponentMenu("UI/Honor/文本曲线弯曲特效")]
     public class AorTextEffectCurve : BaseMeshEffect
     {
+        //=========================================================================
+        // 公开配置字段
+        //=========================================================================
+        #region Field - 弯曲参数
         /// <summary>
         /// 弯曲圆弧半径
         /// 值越大，弯曲弧度越小；值越小，弯曲越明显
@@ -24,7 +38,12 @@ namespace Honor.Runtime
         /// </summary>
         [Header("字符间距系数")]
         public float spaceCoff = 1f;
+        #endregion
 
+        //=========================================================================
+        // 重写方法 - 网格修改
+        //=========================================================================
+        #region Method - 网格弯曲计算
         /// <summary>
         /// 重写网格修改方法，对UI顶点进行弧形变换
         /// </summary>
@@ -33,9 +52,7 @@ namespace Honor.Runtime
         {
             // 组件未激活 或 弯曲半径为0，不执行任何效果
             if (!IsActive() || radius == 0)
-            {
                 return;
-            }
 
             // 定义单个字符的四个顶点：左下、左上、右上、右下
             UIVertex lb = new UIVertex();
@@ -55,25 +72,25 @@ namespace Honor.Runtime
 
                 // 计算当前字符的中心点
                 Vector3 center = Vector3.Lerp(lb.position, rt.position, 0.5f);
-                
+
                 // 位移矩阵：将字符中心点移至坐标原点
                 Matrix4x4 move = Matrix4x4.TRS(center * -1, Quaternion.identity, Vector3.one);
-                
+
                 // 计算当前字符在圆弧上对应的弧度
                 float rad = Mathf.PI / 2 - center.x * spaceCoff / radius;
 
                 // 计算圆弧上的目标位置
                 Vector3 pos = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
-                
+
                 // 计算字符旋转角度（使字符朝向圆弧中心）
                 Quaternion rotation = Quaternion.Euler(0, 0, rad * 180 / Mathf.PI - 90);
-                
+
                 // 旋转矩阵
                 Matrix4x4 rotate = Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one);
-                
+
                 // 放置矩阵：将字符放置到圆弧目标位置
                 Matrix4x4 place = Matrix4x4.TRS(pos, Quaternion.identity, Vector3.one);
-                
+
                 // 组合最终变换矩阵：位移 → 旋转 → 放置
                 Matrix4x4 transform = place * rotate * move;
 
@@ -97,5 +114,6 @@ namespace Honor.Runtime
                 vh.SetUIVertex(rb, i * 4 + 3);
             }
         }
+        #endregion
     }
 }

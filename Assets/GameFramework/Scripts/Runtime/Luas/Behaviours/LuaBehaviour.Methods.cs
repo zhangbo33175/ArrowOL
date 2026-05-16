@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviour.Inject.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   LuaBehaviour - 注入初始化 & Gizmos 绘制
+ ***************************************************************/
+
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -8,29 +18,34 @@ namespace Honor.Runtime
 {
     public partial class LuaBehaviour : MonoBehaviour
     {
+        //=========================================================================
+        // Lua 环境初始化与注入
+        //=========================================================================
+        #region Lua Env Initialize & Injection
         /// <summary>
         /// 初始化Lua环境
         /// </summary>
         /// <param name="index">Lua脚本独立环境数组下标</param>
         private void InitLuaEnv(int index)
         {
-            // 实例化Lua脚本的独立环境
+            // 实例化 Lua 独立环境
             OwnLuaEnvs[index] = m_LuaComponent.Env.NewTable();
             LuaTable meta = m_LuaComponent.Env.NewTable();
             meta.Set("__index", m_LuaComponent.Env.Global);
             OwnLuaEnvs[index].SetMetaTable(meta);
             meta.Dispose();
 
-            // 向Lua脚本独立环境中注入lua对象（自身lua环境为lua）
+            // 注入自身环境
             OwnLuaEnvs[index].Set("lua", OwnLuaEnvs[index]);
             OwnLuaEnvs[index].Set("cs", this);
 
-            // 向Lua脚本独立环境中注入所有必需对象
+            // 临时容器
             List<Object> objs = new List<Object>();
             List<string> variants = new List<string>();
             List<object> keys = new List<object>();
             List<string> infoExs = new List<string>();
 
+            // 遍历所有注入项
             for (int injectionIndex = 0; injectionIndex < m_Injections.Count; injectionIndex++)
             {
                 LuaInjection injection = m_Injections[injectionIndex];
@@ -42,9 +57,10 @@ namespace Honor.Runtime
                 keys.Clear();
                 infoExs.Clear();
 
-                if (injection.IsArray)
+                // 填充数据
+                if (isArray)
                 {
-                    for(int idx = 0; idx < injection.ElementsObjs.Count; idx++)
+                    for (int idx = 0; idx < injection.ElementsObjs.Count; idx++)
                     {
                         objs.Add(injection.ElementsObjs[idx]);
                         variants.Add(injection.ElementsVariants[idx]);
@@ -60,6 +76,7 @@ namespace Honor.Runtime
                     infoExs.Add(injection.InfoEx);
                 }
 
+                // 游戏对象注入
                 if (injection.InjectionTypeName == LuaInjection.InjectionType.GameObject)
                 {
                     for (int idx = 0; idx < objs.Count; idx++)
@@ -78,6 +95,7 @@ namespace Honor.Runtime
                         }
                     }
                 }
+                // LuaBehaviour 注入
                 else if (injection.InjectionTypeName == LuaInjection.InjectionType.LuaBehaviour)
                 {
                     for (int idx = 0; idx < objs.Count; idx++)
@@ -144,6 +162,7 @@ namespace Honor.Runtime
                         }
                     }
                 }
+                // 组件 & 基础类型注入
                 else
                 {
                     for (int idx = 0; idx < objs.Count; idx++)
@@ -186,10 +205,12 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
-        /// <summary>
-        /// Gizmo绘制
-        /// </summary>
+        //=========================================================================
+        // Gizmos 绘制
+        //=========================================================================
+        #region Gizmos
         private void OnDrawGizmos()
         {
             if(m_ShowRaycastTargetsGizmos)
@@ -211,7 +232,8 @@ namespace Honor.Runtime
                 }
             }
         }
-
+        #endregion
+        
     }
 }
 

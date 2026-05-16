@@ -1,16 +1,42 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBTDecorator.cs
+ * author:    云毅
+ * created:   2026   2026年
+ * descrip:   行为树Lua装饰节点桥接类，承接Behavior Designer Decorator节点生命周期
+ *            自动将节点回调转发至Lua层，实现C#与Lua逻辑解耦
+ ***************************************************************/
 
 using Honor.Runtime;
 using UnityEngine;
 using XLua;
 
 #if BEHAVIOR_DESIGNER_ENABLE
+//=========================================================================
+// 命名空间：BehaviorDesigner.Runtime.Tasks
+// 描述：Behavior Designer 行为树任务核心命名空间
+//=========================================================================
 namespace BehaviorDesigner.Runtime.Tasks
 {
+    #region 行为树Lua装饰节点桥接类
+    /// <summary>
+    /// Honor自定义Lua层行为树Decorator节点组件
+    /// 该组件在合适的时机将自动触发行为树节点的生命周期函数与各种回调到Lua脚本中，
+    /// 以确保行为树节点的逻辑通过调度Lua层代码及时完成。
+    /// </summary>
     [TaskDescription("Honor自定义Lua层行为树Decorator节点组件，该组件在合适的时机将自动触发行为树节点的生命周期函数与各种回调到Lua脚本中，以确保行为树节点的逻辑通过调度Lua层代码及时完成。")]
     public partial class LuaBTDecorator : Decorator
     {
+        #region 生命周期方法
+        /// <summary>
+        /// 行为树节点唤醒
+        /// 自动获取LuaBehaviour组件，创建Lua装饰节点实例，绑定所有Lua回调函数
+        /// </summary>
         public override void OnAwake()
         {
+            // 自动获取LuaBehaviour组件
             if (m_LuaBehaviour == null)
             {
                 m_LuaBehaviour = gameObject.GetComponent<LuaBehaviour>();
@@ -26,13 +52,15 @@ namespace BehaviorDesigner.Runtime.Tasks
                 args.Set("luaBTName", m_LuaBTDecoratorName);
                 args.Set("csClass", this);
 
+                // 创建Lua层装饰节点实例
                 m_LuaClass = createBTAction.Func<LuaTable, LuaTable, LuaTable>(m_LuaBehaviour.luaClass, args);
-                if(m_LuaClass == null)
+                if (m_LuaClass == null)
                 {
                     Honor.Runtime.Log.Fatal("行为树Lua脚本：{0} 创建失败。", m_LuaBTDecoratorName);
                     return;
                 }
 
+                // 绑定所有Lua生命周期与回调方法
                 m_LuaClass.Get("OnAwakeBT", out m_OnAwakeBT);
                 m_LuaClass.Get("OnStartBT", out m_OnStartBT);
                 m_LuaClass.Get("OnUpdateBT", out m_OnUpdateBT);
@@ -72,7 +100,8 @@ namespace BehaviorDesigner.Runtime.Tasks
                 m_LuaClass.Get("OverrideStatus0BT", out m_OverrideStatus0BT);
             }
 
-            if(m_OnAwakeBT != null)
+            // 执行Lua层唤醒回调
+            if (m_OnAwakeBT != null)
             {
                 m_OnAwakeBT.Action(m_LuaClass);
             }
@@ -82,6 +111,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 行为树节点开始执行
+        /// </summary>
         public override void OnStart()
         {
             if (m_OnStartBT != null)
@@ -94,6 +126,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 行为树节点帧更新
+        /// </summary>
+        /// <returns>任务执行状态</returns>
         public override TaskStatus OnUpdate()
         {
             if (m_OnUpdateBT != null)
@@ -103,6 +139,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.OnUpdate();
         }
 
+        /// <summary>
+        /// 行为树节点暂停/恢复
+        /// </summary>
+        /// <param name="paused">是否暂停</param>
         public override void OnPause(bool paused)
         {
             if (m_OnPauseBT != null)
@@ -115,6 +155,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 行为树节点重置
+        /// </summary>
         public override void OnReset()
         {
             if (m_OnResetBT != null)
@@ -125,9 +168,11 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnReset();
             }
-            
         }
 
+        /// <summary>
+        /// 行为树节点执行结束
+        /// </summary>
         public override void OnEnd()
         {
             if (m_OnEndBT != null)
@@ -140,6 +185,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 固定时间步更新
+        /// </summary>
         public override void OnFixedUpdate()
         {
             if (m_OnFixedUpdateBT != null)
@@ -152,6 +200,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 延迟帧更新
+        /// </summary>
         public override void OnLateUpdate()
         {
             if (m_OnLateUpdateBT != null)
@@ -162,9 +213,11 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnLateUpdate();
             }
-            
         }
 
+        /// <summary>
+        /// 整个行为树执行完成回调
+        /// </summary>
         public override void OnBehaviorComplete()
         {
             if (m_OnBehaviorCompleteBT != null)
@@ -177,6 +230,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 行为树重启回调
+        /// </summary>
         public override void OnBehaviorRestart()
         {
             if (m_OnBehaviorRestartBT != null)
@@ -188,7 +244,13 @@ namespace BehaviorDesigner.Runtime.Tasks
                 base.OnBehaviorRestart();
             }
         }
+        #endregion
 
+        #region 优先级 & 效用值
+        /// <summary>
+        /// 获取节点优先级
+        /// </summary>
+        /// <returns>优先级数值</returns>
         public override float GetPriority()
         {
             if (m_GetPriorityBT != null)
@@ -198,6 +260,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.GetPriority();
         }
 
+        /// <summary>
+        /// 获取节点效用值
+        /// </summary>
+        /// <returns>效用值数值</returns>
         public override float GetUtility()
         {
             if (m_GetUtilityBT != null)
@@ -206,7 +272,12 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
             return base.GetUtility();
         }
+        #endregion
 
+        #region 动画 & 碰撞 & 触发回调
+        /// <summary>
+        /// 动画IK回调
+        /// </summary>
         public override void OnAnimatorIK()
         {
             if (m_OnAnimatorIKBT != null)
@@ -219,6 +290,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 3D碰撞进入
+        /// </summary>
+        /// <param name="collision">碰撞信息</param>
         public override void OnCollisionEnter(Collision collision)
         {
             if (m_OnCollisionEnterBT != null)
@@ -231,6 +306,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D碰撞进入
+        /// </summary>
+        /// <param name="collision">2D碰撞信息</param>
         public override void OnCollisionEnter2D(Collision2D collision)
         {
             if (m_OnCollisionEnter2DBT != null)
@@ -243,6 +322,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 3D碰撞退出
+        /// </summary>
+        /// <param name="collision">碰撞信息</param>
         public override void OnCollisionExit(Collision collision)
         {
             if (m_OnCollisionExitBT != null)
@@ -255,6 +338,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D碰撞退出
+        /// </summary>
+        /// <param name="collision">2D碰撞信息</param>
         public override void OnCollisionExit2D(Collision2D collision)
         {
             if (m_OnCollisionExit2DBT != null)
@@ -267,6 +354,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 条件中止（无参）
+        /// </summary>
         public override void OnConditionalAbort()
         {
             if (m_OnConditionalAbort0BT != null)
@@ -277,9 +367,12 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnConditionalAbort();
             }
-
         }
 
+        /// <summary>
+        /// 控制器碰撞触发
+        /// </summary>
+        /// <param name="hit">碰撞信息</param>
         public override void OnControllerColliderHit(ControllerColliderHit hit)
         {
             if (m_OnControllerColliderHitBT != null)
@@ -290,9 +383,11 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnControllerColliderHit(hit);
             }
-
         }
 
+        /// <summary>
+        /// Gizmos绘制
+        /// </summary>
         public override void OnDrawGizmos()
         {
             if (m_OnDrawGizmosBT != null)
@@ -305,6 +400,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 绘制节点文本
+        /// </summary>
+        /// <returns>显示文本</returns>
         public override string OnDrawNodeText()
         {
             if (m_OnDrawNodeTextBT != null)
@@ -314,6 +413,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.OnDrawNodeText();
         }
 
+        /// <summary>
+        /// 3D触发器进入
+        /// </summary>
+        /// <param name="other">碰撞体</param>
         public override void OnTriggerEnter(Collider other)
         {
             if (m_OnTriggerEnterBT != null)
@@ -326,6 +429,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D触发器进入
+        /// </summary>
+        /// <param name="other">2D碰撞体</param>
         public override void OnTriggerEnter2D(Collider2D other)
         {
             if (m_OnTriggerEnter2DBT != null)
@@ -338,6 +445,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 3D触发器退出
+        /// </summary>
+        /// <param name="other">碰撞体</param>
         public override void OnTriggerExit(Collider other)
         {
             if (m_OnTriggerExitBT != null)
@@ -350,6 +461,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D触发器退出
+        /// </summary>
+        /// <param name="other">2D碰撞体</param>
         public override void OnTriggerExit2D(Collider2D other)
         {
             if (m_OnTriggerExit2DBT != null)
@@ -361,7 +476,13 @@ namespace BehaviorDesigner.Runtime.Tasks
                 base.OnTriggerExit2D(other);
             }
         }
+        #endregion
 
+        #region 装饰节点核心逻辑
+        /// <summary>
+        /// 是否可以执行节点
+        /// </summary>
+        /// <returns>是否可执行</returns>
         public override bool CanExecute()
         {
             if (m_CanExecuteBT != null)
@@ -371,6 +492,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.CanExecute();
         }
 
+        /// <summary>
+        /// 是否可以重新评估
+        /// </summary>
+        /// <returns>是否可重新评估</returns>
         public override bool CanReevaluate()
         {
             if (m_CanReevaluateBT != null)
@@ -380,6 +505,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.CanReevaluate();
         }
 
+        /// <summary>
+        /// 是否允许子节点并行运行
+        /// </summary>
+        /// <returns>是否并行</returns>
         public override bool CanRunParallelChildren()
         {
             if (m_CanRunParallelChildrenBT != null)
@@ -389,15 +518,24 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.CanRunParallelChildren();
         }
 
+        /// <summary>
+        /// 获取当前子节点索引
+        /// </summary>
+        /// <returns>子节点索引</returns>
         public override int CurrentChildIndex()
         {
             if (m_CurrentChildIndexBT != null)
             {
-               return m_CurrentChildIndexBT.Func<LuaTable, int>(m_LuaClass);
+                return m_CurrentChildIndexBT.Func<LuaTable, int>(m_LuaClass);
             }
             return base.CurrentChildIndex();
         }
 
+        /// <summary>
+        /// 装饰任务状态
+        /// </summary>
+        /// <param name="status">原始状态</param>
+        /// <returns>装饰后状态</returns>
         public override TaskStatus Decorate(TaskStatus status)
         {
             if (m_DecorateBT != null)
@@ -407,6 +545,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.Decorate(status);
         }
 
+        /// <summary>
+        /// 获取最大子节点数量
+        /// </summary>
+        /// <returns>子节点数量上限</returns>
         public override int MaxChildren()
         {
             if (m_MaxChildrenBT != null)
@@ -416,6 +558,11 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.MaxChildren();
         }
 
+        /// <summary>
+        /// 子节点执行完成（带索引+状态）
+        /// </summary>
+        /// <param name="childIndex">子节点索引</param>
+        /// <param name="childStatus">子节点状态</param>
         public override void OnChildExecuted(int childIndex, TaskStatus childStatus)
         {
             if (m_OnChildExecuted2BT != null)
@@ -428,6 +575,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 子节点执行完成（仅状态）
+        /// </summary>
+        /// <param name="childStatus">子节点状态</param>
         public override void OnChildExecuted(TaskStatus childStatus)
         {
             if (m_OnChildExecuted1BT != null)
@@ -440,6 +591,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 子节点开始执行（无参）
+        /// </summary>
         public override void OnChildStarted()
         {
             if (m_OnChildStarted0BT != null)
@@ -452,6 +606,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 子节点开始执行（带索引）
+        /// </summary>
+        /// <param name="childIndex">子节点索引</param>
         public override void OnChildStarted(int childIndex)
         {
             if (m_OnChildStarted1BT != null)
@@ -464,6 +622,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 条件中止（带子节点索引）
+        /// </summary>
+        /// <param name="childIndex">子节点索引</param>
         public override void OnConditionalAbort(int childIndex)
         {
             if (m_OnConditionalAbort1BT != null)
@@ -476,6 +638,11 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 重写任务状态（带参数）
+        /// </summary>
+        /// <param name="status">原始状态</param>
+        /// <returns>重写后状态</returns>
         public override TaskStatus OverrideStatus(TaskStatus status)
         {
             if (m_OverrideStatus1BT != null)
@@ -485,6 +652,10 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.OverrideStatus(status);
         }
 
+        /// <summary>
+        /// 重写任务状态（无参）
+        /// </summary>
+        /// <returns>重写后状态</returns>
         public override TaskStatus OverrideStatus()
         {
             if (m_OverrideStatus0BT != null)
@@ -493,8 +664,8 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
             return base.OverrideStatus();
         }
-
+        #endregion
     }
+    #endregion
 }
-
 #endif

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaDelegates.cs
+ * author:    云毅
+ * created:   2026   2025-12-29
+ * descrip:   C# 与 Lua 互调全局委托定义（CSharpCallLua）
+ ***************************************************************/
+
 #if BEST_HTTP_ENABLE
 using BestHTTP.WebSocket;
 #endif
@@ -11,6 +21,12 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+
+    #region Lua 面向对象创建委托
+
+    //=========================================================================
+
     /// <summary>
     /// 【C# → Lua】创建 LuaBehaviour 面向对象类
     /// </summary>
@@ -21,12 +37,6 @@ namespace Honor.Runtime
     public delegate LuaTable LuaCreateLuaClassFromCSEventDelegate(LuaTable env, string luaScriptName);
 
     /// <summary>
-    /// 【C# → Lua】关联本地化语言表数据
-    /// </summary>
-    [CSharpCallLua]
-    public delegate void LuaRelateLocalizationTableDataFromCSEventDelegate();
-
-    /// <summary>
     /// 【C# → Lua】创建流程（Procedure）Lua 类
     /// </summary>
     /// <param name="env">Lua 环境</param>
@@ -34,6 +44,14 @@ namespace Honor.Runtime
     /// <returns>Lua 类实例</returns>
     [CSharpCallLua]
     public delegate LuaTable LuaCreateProcedureLuaClassFromCSEventDelegate(LuaTable env, string luaScriptName);
+
+    #endregion
+
+    //=========================================================================
+
+    #region 应用生命周期委托
+
+    //=========================================================================
 
     /// <summary>
     /// 【C# → Lua】应用暂停/唤醒
@@ -48,12 +66,28 @@ namespace Honor.Runtime
     [CSharpCallLua]
     public delegate void LuaApplicationQuitFromCSEventDelegate();
 
+    #endregion
+
+    //=========================================================================
+
+    #region 输入事件委托
+
+    //=========================================================================
+
     /// <summary>
     /// 【C# → Lua】键盘按键抬起
     /// </summary>
     /// <param name="keyCode">按键</param>
     [CSharpCallLua]
     public delegate void LuaKeysUpFromCSEventDelegate(KeyCode keyCode);
+
+    #endregion
+
+    //=========================================================================
+
+    #region 登录授权委托
+
+    //=========================================================================
 
     /// <summary>
     /// 【C# → Lua】Apple 登录结果回调
@@ -68,6 +102,20 @@ namespace Honor.Runtime
     /// <param name="stateTable">状态表</param>
     [CSharpCallLua]
     public delegate void LuaSignInWithAppleStateCSEventDelegate(LuaTable stateTable);
+
+    #endregion
+
+    //=========================================================================
+
+    #region 业务事件与本地化
+
+    //=========================================================================
+
+    /// <summary>
+    /// 【C# → Lua】关联本地化语言表数据
+    /// </summary>
+    [CSharpCallLua]
+    public delegate void LuaRelateLocalizationTableDataFromCSEventDelegate();
 
     /// <summary>
     /// 【C# → Lua】接收 C# 事件派发
@@ -91,4 +139,6 @@ namespace Honor.Runtime
     /// <returns>本地化文本</returns>
     [CSharpCallLua]
     public delegate string LuaLocalizingCSEventDelegate(string localizingKeyName);
+
+    #endregion
 }

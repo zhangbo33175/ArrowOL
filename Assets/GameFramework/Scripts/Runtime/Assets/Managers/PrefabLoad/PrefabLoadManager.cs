@@ -1,9 +1,23 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PrefabLoadManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Prefab 加载管理器
+ *            负责 Prefab 同步/异步加载、实例化、引用计数、自动销毁、Lua 绑定
+ ***************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
 using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Prefab 加载管理器（密封分部类）
+    /// 基于 AssetLoadManager 封装，专门管理 GameObject 实例化与生命周期
+    /// </summary>
     public sealed partial class PrefabLoadManager
     {
         /// <summary>
@@ -56,7 +70,7 @@ namespace Honor.Runtime
                 if (prefabObj.Asset == null)
                 {
                     prefabObj.Asset = m_AssetLoadManager.LoadSync("GameObject", abPath, assetName);
-                    var newGo = InstanceGO(prefabObj, parent, luaParams);
+                    GameObject newGo = InstanceGO(prefabObj, parent, luaParams);
                     m_AssetLoadManager.Unload(prefabObj.Asset);
                     prefabObj.Asset = null;
                     return newGo;
@@ -102,6 +116,7 @@ namespace Honor.Runtime
                 prefabObj.PrefabLoadLuaTableParamList.Add(luaParams);
                 prefabObj.PrefabInstancingGOParentList.Add(parent);
                 prefabObj.RefCount++;
+                
                 if (prefabObj.Asset != null)
                 {
                     m_LoadedAsyncTmpAgentList.Add(prefabObj);
@@ -142,8 +157,8 @@ namespace Honor.Runtime
         /// <returns>克隆后的对象</returns>
         public GameObject InstantiateGO(Transform parent, GameObject childTemplateGO, LuaTable luaParams)
         {
-            GameObject go = GameObject.Instantiate(childTemplateGO, parent, false) as GameObject;
-            go.name = go.name.Replace("(Clone)", "");
+            GameObject go = GameObject.Instantiate(childTemplateGO, parent, false);
+            go.name = go.name.Replace("(Clone)", string.Empty);
             PrefabInstanceGOBehaviour goBehaviour = go.AddComponent<PrefabInstanceGOBehaviour>();
 
             // 强制激活一次确保 Awake/OnDestroy 正常执行
@@ -163,9 +178,7 @@ namespace Honor.Runtime
                 List<LuaBehaviour> childBehaviours = new List<LuaBehaviour>();
                 go.GetComponentsInChildren(true, childBehaviours);
                 childBehaviours.Sort((child1, child2) =>
-                {
-                    return child2.transform.GetRouteNum() - child1.transform.GetRouteNum();
-                });
+                    child2.transform.GetRouteNum() - child1.transform.GetRouteNum());
 
                 foreach (var childBehaviour in childBehaviours)
                 {
@@ -182,8 +195,8 @@ namespace Honor.Runtime
                             {
                                 GameObject nearestInactiveParentInHierarchy =
                                     GetNearestInactiveParentInHierarchy(childBehaviour.gameObject);
-                                nearestInactiveParentInHierarchy.gameObject.SetActive(true);
-                                nearestInactiveParentInHierarchy.gameObject.SetActive(false);
+                                nearestInactiveParentInHierarchy.SetActive(true);
+                                nearestInactiveParentInHierarchy.SetActive(false);
                             }
                         }
 
@@ -213,7 +226,7 @@ namespace Honor.Runtime
             UpdateLoadedAsync();
         }
 
-        /// <summary
+        /// <summary>
         /// 手动增加资源引用计数（用于克隆对象）
         /// </summary>
         /// <param name="abPath">AB 路径</param>
@@ -224,13 +237,11 @@ namespace Honor.Runtime
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
 
             if (!m_LoadedList.ContainsKey(assetPath))
-            {
                 return;
-            }
 
             PrefabObject prefabObj = m_LoadedList[assetPath];
-
             int instanceID = go.GetInstanceID();
+            
             if (!m_GOInstanceIDList.ContainsKey(instanceID))
             {
                 prefabObj.RefCount++;
@@ -247,25 +258,18 @@ namespace Honor.Runtime
         /// <param name="rightNow">是否立即卸载</param>
         public void Destroy(GameObject go, bool rightNow = false)
         {
-            if (go == null) return;
+            if (go == null) 
+                return;
 
             int instanceID = go.GetInstanceID();
 
             if (!m_GOInstanceIDList.ContainsKey(instanceID))
             {
-                if (go is GameObject)
-                {
-                    UnityEngine.Object.Destroy(go);
-                }
-                else
-                {
-                    Log.Error("PrefabLoadMgr destroy 无GameObject name = {0} type = {1} ", go.name, go.GetType().Name);
-                }
-
+                UnityEngine.Object.Destroy(go);
                 return;
             }
 
-            var prefabObj = m_GOInstanceIDList[instanceID];
+            PrefabObject prefabObj = m_GOInstanceIDList[instanceID];
             if (prefabObj.GOInstanceIDs.Contains(instanceID))
             {
                 prefabObj.RefCount--;
@@ -304,11 +308,12 @@ namespace Honor.Runtime
         /// <param name="overCallback">回调</param>
         public void RemoveCallBack(string abPath, string assetName, PrefabLoadOverCallback overCallback)
         {
-            if (overCallback == null) return;
+            if (overCallback == null) 
+                return;
 
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
-
             PrefabObject prefabObj = null;
+            
             if (m_LoadedList.ContainsKey(assetPath))
             {
                 prefabObj = m_LoadedList[assetPath];

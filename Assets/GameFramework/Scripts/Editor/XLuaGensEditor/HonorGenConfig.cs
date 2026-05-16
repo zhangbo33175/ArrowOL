@@ -3,8 +3,10 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  HonorGenConfig.cs
+ * author:    云毅
+ * created:   2026
  * descrip:   Honor框架 XLua 绑定代码自动生成配置
- *           作用：配置 Lua 可调用的 C# 类型、过滤不需要生成的类型、配置黑白名单
+ *            作用：配置 Lua 可调用的 C# 类型、过滤不需要生成的类型、配置黑白名单
  ***************************************************************/
 
 using CSObjectWrapEditor;
@@ -25,6 +27,7 @@ using System.Collections.Generic;
 using System.Security.Permissions;
 using Honor.Runtime;
 
+#region XLua 绑定代码自动生成配置
 /// <summary>
 /// XLua 绑定代码自动生成配置类（编辑器-only）
 /// 功能：
@@ -36,6 +39,7 @@ using Honor.Runtime;
 [InitializeOnLoad]
 public static class HonorGenConfig
 {
+    #region 过滤配置
     /// <summary>
     /// 【过滤黑名单】
     /// 不希望 XLua 生成绑定的类型关键字（包含即过滤）
@@ -173,7 +177,9 @@ public static class HonorGenConfig
         "AIHelpCore",
         "SafeAreaUtils"
     };
+    #endregion
 
+    #region 静态构造
     /// <summary>
     /// 静态构造：编辑器启动时注册更新检查
     /// </summary>
@@ -181,7 +187,9 @@ public static class HonorGenConfig
     {
         EditorApplication.update += () => { CheckXLuaGen(); };
     }
+    #endregion
 
+    #region 自动生成检测
     /// <summary>
     /// 检查 XLua 绑定代码是否需要生成
     /// 若生成目录为空，则自动执行 GenAll()
@@ -200,10 +208,14 @@ public static class HonorGenConfig
             CompilationPipeline.RequestScriptCompilation();
         }
     }
+    #endregion
 
+    #region 类型过滤方法
     /// <summary>
     /// 类型过滤方法：判断是否需要排除
     /// </summary>
+    /// <param name="type">待检测的类型</param>
+    /// <returns>true：需要排除  false：保留</returns>
     static bool isExcluded(Type type)
     {
         var fullName = type.FullName;
@@ -217,7 +229,9 @@ public static class HonorGenConfig
 
         return false;
     }
+    #endregion
 
+    #region 命名空间白名单
     /// <summary>
     /// 【命名空间白名单】
     /// 按命名空间批量开放：Lua 可以调用这些命名空间下的所有 C# 类
@@ -260,7 +274,9 @@ public static class HonorGenConfig
             return unityTypes.Concat(customTypes);
         }
     }
+    #endregion
 
+    #region 单个类型白名单
     /// <summary>
     /// 【单个类型白名单】
     /// 手动指定 Lua 能调用的 C# 类型（基础类、UI、动画、委托、列表等）
@@ -314,13 +330,17 @@ public static class HonorGenConfig
         typeof(WaitForSeconds),
         typeof(WaitForEndOfFrame),
     };
+    #endregion
 
+    #region C# 调用 Lua 委托配置
     /// <summary>
     /// 【C# 调用 Lua 委托】
     /// 配置 C# 可以调用的 Lua 函数类型（与白名单共用）
     /// </summary>
     [CSharpCallLua] public static List<Type> CSharpCallLua = LuaCallCSharp;
+    #endregion
 
+    #region 终极黑名单
     /// <summary>
     /// 【终极黑名单】
     /// 精确屏蔽某个类的某个方法（即使在白名单也无法调用）
@@ -346,4 +366,6 @@ public static class HonorGenConfig
         // UIExtension
         new List<string>() { "UnityEngine.UI.Extensions.UISquircle+UISquircleEditor", "UISquircle" },
     };
+    #endregion
 }
+#endregion

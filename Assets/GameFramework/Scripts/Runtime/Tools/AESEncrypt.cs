@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AESEncrypt.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   AES 加密解密工具类
+ *            支持固定/随机密钥、Base64/字节数组、CBC/PKCS7
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -16,6 +27,11 @@ namespace Honor.Runtime
     /// </summary>
     public static class AESEncrypt
     {
+        //=========================================================================
+        // 常量 & 缓存
+        //=========================================================================
+        #region 常量 & 缓存
+
         /// <summary>
         /// 密钥/向量长度（固定 16 字节 = 128位）
         /// AES 要求必须为 16 字节
@@ -25,7 +41,14 @@ namespace Honor.Runtime
         /// <summary>
         /// 临时字节缓存（复用减少 GC）
         /// </summary>
-        private static List<byte> m_sTempBytes = new List<byte>();
+        private static readonly List<byte> m_sTempBytes = new List<byte>();
+
+        #endregion
+
+        //=========================================================================
+        // 公开接口 - 字符串加密解密
+        //=========================================================================
+        #region 字符串加密解密
 
         /// <summary>
         /// AES 加密字符串 → Base64 字符串
@@ -91,54 +114,60 @@ namespace Honor.Runtime
                 m_sTempBytes.Clear();
                 m_sTempBytes.AddRange(bytes);
 
-                if (m_sTempBytes.Count > 0)
+                if (m_sTempBytes.Count <= 0) 
+                    return string.Empty;
+                
+                byte[] keyArray = null;
+                byte[] ivArray = null;
+                int tempSecretLength = 0;
+
+                // 从密文提取随机 Key 或 使用固定 Key
+                if (specialKey != null)
+                    keyArray = Encoding.UTF8.GetBytes(specialKey);
+                else
                 {
-                    byte[] keyArray = null;
-                    byte[] ivArray = null;
-                    int tempSecretLength = 0;
-
-                    // 从密文提取随机 Key 或 使用固定 Key
-                    if (specialKey != null)
-                        keyArray = Encoding.UTF8.GetBytes(specialKey);
-                    else
-                    {
-                        keyArray = m_sTempBytes.GetRange(0, SecretBytesLength).ToArray();
-                        tempSecretLength += SecretBytesLength;
-                    }
-
-                    // 从密文提取随机 IV 或 使用固定 IV
-                    if (specialIv != null)
-                        ivArray = Encoding.UTF8.GetBytes(specialIv);
-                    else
-                    {
-                        ivArray = m_sTempBytes.GetRange(SecretBytesLength, SecretBytesLength).ToArray();
-                        tempSecretLength += SecretBytesLength;
-                    }
-
-                    // 提取真实密文
-                    byte[] encodedArray = m_sTempBytes.GetRange(tempSecretLength, m_sTempBytes.Count - tempSecretLength).ToArray();
-
-                    // 解密
-                    RijndaelManaged rDel = new RijndaelManaged();
-                    rDel.Key = keyArray;
-                    rDel.IV = ivArray;
-                    rDel.Mode = CipherMode.CBC;
-                    rDel.Padding = PaddingMode.PKCS7;
-
-                    ICryptoTransform cTransform = rDel.CreateDecryptor();
-                    byte[] resultArray = cTransform.TransformFinalBlock(encodedArray, 0, encodedArray.Length);
-                    cTransform.Dispose();
-
-                    return Encoding.UTF8.GetString(resultArray);
+                    keyArray = m_sTempBytes.GetRange(0, SecretBytesLength).ToArray();
+                    tempSecretLength += SecretBytesLength;
                 }
+
+                // 从密文提取随机 IV 或 使用固定 IV
+                if (specialIv != null)
+                    ivArray = Encoding.UTF8.GetBytes(specialIv);
+                else
+                {
+                    ivArray = m_sTempBytes.GetRange(SecretBytesLength, SecretBytesLength).ToArray();
+                    tempSecretLength += SecretBytesLength;
+                }
+
+                // 提取真实密文
+                byte[] encodedArray = m_sTempBytes.GetRange(tempSecretLength, m_sTempBytes.Count - tempSecretLength).ToArray();
+
+                // 解密
+                RijndaelManaged rDel = new RijndaelManaged();
+                rDel.Key = keyArray;
+                rDel.IV = ivArray;
+                rDel.Mode = CipherMode.CBC;
+                rDel.Padding = PaddingMode.PKCS7;
+
+                ICryptoTransform cTransform = rDel.CreateDecryptor();
+                byte[] resultArray = cTransform.TransformFinalBlock(encodedArray, 0, encodedArray.Length);
+                cTransform.Dispose();
+
+                return Encoding.UTF8.GetString(resultArray);
             }
             catch (Exception e)
             {
                 Log.Error($"DecodeFromBase64 执行出错，error = {e} content = {content} specialKey = {specialKey} specialIv = {specialIv}");
                 return string.Empty;
             }
-            return string.Empty;
         }
+
+        #endregion
+
+        //=========================================================================
+        // 公开接口 - 字节数组加密解密
+        //=========================================================================
+        #region 字节数组加密解密
 
         /// <summary>
         /// AES 加密字节数组 → 字节数组
@@ -192,51 +221,57 @@ namespace Honor.Runtime
                 m_sTempBytes.Clear();
                 m_sTempBytes.AddRange(content);
 
-                if (m_sTempBytes.Count > 0)
+                if (m_sTempBytes.Count <= 0)
+                    return Array.Empty<byte>();
+                
+                byte[] keyArray = null;
+                byte[] ivArray = null;
+                int tempSecretLength = 0;
+
+                if (specialKey != null)
+                    keyArray = Encoding.ASCII.GetBytes(specialKey);
+                else
                 {
-                    byte[] keyArray = null;
-                    byte[] ivArray = null;
-                    int tempSecretLength = 0;
-
-                    if (specialKey != null)
-                        keyArray = Encoding.ASCII.GetBytes(specialKey);
-                    else
-                    {
-                        keyArray = m_sTempBytes.GetRange(0, SecretBytesLength).ToArray();
-                        tempSecretLength += SecretBytesLength;
-                    }
-
-                    if (specialIv != null)
-                        ivArray = Encoding.ASCII.GetBytes(specialIv);
-                    else
-                    {
-                        ivArray = m_sTempBytes.GetRange(SecretBytesLength, SecretBytesLength).ToArray();
-                        tempSecretLength += SecretBytesLength;
-                    }
-
-                    byte[] encodedArray = m_sTempBytes.GetRange(tempSecretLength, m_sTempBytes.Count - tempSecretLength).ToArray();
-
-                    // 解密
-                    RijndaelManaged rDel = new RijndaelManaged();
-                    rDel.Key = keyArray;
-                    rDel.IV = ivArray;
-                    rDel.Mode = CipherMode.CBC;
-                    rDel.Padding = PaddingMode.PKCS7;
-
-                    ICryptoTransform cTransform = rDel.CreateDecryptor();
-                    byte[] resultArray = cTransform.TransformFinalBlock(encodedArray, 0, encodedArray.Length);
-                    cTransform.Dispose();
-
-                    return resultArray;
+                    keyArray = m_sTempBytes.GetRange(0, SecretBytesLength).ToArray();
+                    tempSecretLength += SecretBytesLength;
                 }
+
+                if (specialIv != null)
+                    ivArray = Encoding.ASCII.GetBytes(specialIv);
+                else
+                {
+                    ivArray = m_sTempBytes.GetRange(SecretBytesLength, SecretBytesLength).ToArray();
+                    tempSecretLength += SecretBytesLength;
+                }
+
+                byte[] encodedArray = m_sTempBytes.GetRange(tempSecretLength, m_sTempBytes.Count - tempSecretLength).ToArray();
+
+                // 解密
+                RijndaelManaged rDel = new RijndaelManaged();
+                rDel.Key = keyArray;
+                rDel.IV = ivArray;
+                rDel.Mode = CipherMode.CBC;
+                rDel.Padding = PaddingMode.PKCS7;
+
+                ICryptoTransform cTransform = rDel.CreateDecryptor();
+                byte[] resultArray = cTransform.TransformFinalBlock(encodedArray, 0, encodedArray.Length);
+                cTransform.Dispose();
+
+                return resultArray;
             }
             catch (Exception e)
             {
                 Log.Error($"DecodeToBytes 执行出错，error = {e}");
                 return null;
             }
-            return Array.Empty<byte>();
         }
+
+        #endregion
+
+        //=========================================================================
+        // 工具方法 - 随机密钥生成
+        //=========================================================================
+        #region 随机密钥生成
 
         /// <summary>
         /// 生成 16 字节随机密钥/向量
@@ -259,5 +294,7 @@ namespace Honor.Runtime
             byte[] iv = GetRandomSecretBytes();
             return Encoding.ASCII.GetString(iv);
         }
+
+        #endregion
     }
 }

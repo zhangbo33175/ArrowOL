@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTreeData.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   UI 树形列表 - 节点数据模型
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 
@@ -10,6 +20,10 @@ namespace Honor.Runtime
     /// </summary>
     public class AorTreeData
     {
+        //=========================================================================
+        // 公共字段
+        //=========================================================================
+        #region Fields
         /// <summary>
         /// 父节点数据
         /// </summary>
@@ -36,7 +50,12 @@ namespace Honor.Runtime
         /// 节点显示名称
         /// </summary>
         public string Name;
+        #endregion
 
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        #region Constructor
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -61,7 +80,12 @@ namespace Honor.Runtime
             // 递归设置所有子节点的层级与父引用
             ResetChildren(this);
         }
+        #endregion
 
+        //=========================================================================
+        // 父子节点管理
+        //=========================================================================
+        #region Parent & Children
         /// <summary>
         /// 设置节点的父节点
         /// 自动处理旧父节点移除、层级更新、子节点添加
@@ -125,7 +149,7 @@ namespace Honor.Runtime
                 {
                     if (child == ChildNodes[i])
                     {
-                        ChildNodes.Remove(ChildNodes[i]);
+                        ChildNodes.RemoveAt(i);
                         break;
                     }
                 }
@@ -137,9 +161,14 @@ namespace Honor.Runtime
         /// </summary>
         public void ClearChildren()
         {
-            ChildNodes = null;
+            ChildNodes.Clear();
         }
+        #endregion
 
+        //=========================================================================
+        // 私有递归方法
+        //=========================================================================
+        #region Private
         /// <summary>
         /// 递归重置子节点的父引用与层级深度
         /// 保证树结构层级关系正确
@@ -147,16 +176,20 @@ namespace Honor.Runtime
         /// <param name="aorTreeData">需要重置子节点的根节点</param>
         private void ResetChildren(AorTreeData aorTreeData)
         {
-            for (int i = 0; i < aorTreeData.ChildNodes.Count; i++)
+            foreach (AorTreeData node in aorTreeData.ChildNodes)
             {
-                AorTreeData node = aorTreeData.ChildNodes[i];
                 node.Parent = aorTreeData;
                 node.Layer = aorTreeData.Layer + 1;
                 // 递归处理深层子节点
                 ResetChildren(node);
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 重写方法
+        //=========================================================================
+        #region Override
         /// <summary>
         /// 重写相等判断
         /// 根据【名称 + 层级】判断是否为同一节点
@@ -165,9 +198,8 @@ namespace Honor.Runtime
         {
             AorTreeData other = obj as AorTreeData;
             if (other == null)
-            {
                 return false;
-            }
+            
             return other.Name.Equals(Name) && other.Layer.Equals(Layer);
         }
 
@@ -186,5 +218,6 @@ namespace Honor.Runtime
                 return hashCode;
             }
         }
+        #endregion
     }
 }

@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameSerializer.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   序列化器基类 - 支持多版本注册、头部校验、回调扩展
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,6 +14,9 @@ using System.Text;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 
+    //=========================================================================
     /// <summary>
     /// 序列化器基类。
     /// </summary>
@@ -16,17 +28,10 @@ namespace Honor.Runtime
         private readonly Dictionary<byte, TryGetValueCallback> m_TryGetValueCallbacks;
         private byte m_LatestSerializeCallbackVersion;
 
-        /// <summary>
-        /// 初始化序列化器基类的新实例。
-        /// </summary>
-        public GameSerializer()
-        {
-            m_SerializeCallbacks = new Dictionary<byte, SerializeCallback>();
-            m_DeserializeCallbacks = new Dictionary<byte, DeserializeCallback>();
-            m_TryGetValueCallbacks = new Dictionary<byte, TryGetValueCallback>();
-            m_LatestSerializeCallbackVersion = 0;
-        }
-
+        #region 委托定义
+        //=========================================================================
+        // 委托定义
+        //=========================================================================
         /// <summary>
         /// 序列化回调函数。
         /// </summary>
@@ -50,7 +55,28 @@ namespace Honor.Runtime
         /// <param name="value">指定键的值。</param>
         /// <returns>从指定流获取指定键的值是否成功。</returns>
         public delegate bool TryGetValueCallback(BinaryReader binaryReader, string key, out object value);
+        #endregion
 
+        #region 构造函数
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        /// <summary>
+        /// 初始化序列化器基类的新实例。
+        /// </summary>
+        public GameSerializer()
+        {
+            m_SerializeCallbacks = new Dictionary<byte, SerializeCallback>();
+            m_DeserializeCallbacks = new Dictionary<byte, DeserializeCallback>();
+            m_TryGetValueCallbacks = new Dictionary<byte, TryGetValueCallback>();
+            m_LatestSerializeCallbackVersion = 0;
+        }
+        #endregion
+
+        #region 回调注册
+        //=========================================================================
+        // 回调注册
+        //=========================================================================
         /// <summary>
         /// 注册序列化回调函数。
         /// </summary>
@@ -101,7 +127,12 @@ namespace Honor.Runtime
 
             m_TryGetValueCallbacks[version] = callback;
         }
+        #endregion
 
+        #region 序列化
+        //=========================================================================
+        // 序列化
+        //=========================================================================
         /// <summary>
         /// 序列化数据到目标流中。
         /// </summary>
@@ -151,7 +182,12 @@ namespace Honor.Runtime
                 return callback(binaryWriter, data, flag);
             }
         }
+        #endregion
 
+        #region 反序列化
+        //=========================================================================
+        // 反序列化
+        //=========================================================================
         /// <summary>
         /// 从指定流反序列化数据。
         /// </summary>
@@ -187,7 +223,12 @@ namespace Honor.Runtime
                 return callback(binaryReader, flag);
             }
         }
+        #endregion
 
+        #region 快速取值
+        //=========================================================================
+        // 快速取值
+        //=========================================================================
         /// <summary>
         /// 尝试从指定流获取指定键的值。
         /// </summary>
@@ -227,11 +268,17 @@ namespace Honor.Runtime
                 return callback(binaryReader, key, out value);
             }
         }
+        #endregion
 
+        #region 抽象方法
+        //=========================================================================
+        // 抽象方法
+        //=========================================================================
         /// <summary>
         /// 获取数据头标识。
         /// </summary>
         /// <returns>数据头标识。</returns>
         protected abstract byte[] GetHeader();
+        #endregion
     }
 }

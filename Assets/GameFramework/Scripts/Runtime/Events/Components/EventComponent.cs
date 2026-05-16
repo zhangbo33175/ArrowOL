@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventComponent.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   全局事件系统组件 - 核心逻辑
+ ***************************************************************/
+
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +22,10 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class EventComponent : GameComponent
     {
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region MonoBehaviour
         /// <summary>
         /// 框架初始化
         /// </summary>
@@ -28,6 +42,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 生命周期 Start（暂未使用）
+        /// </summary>
         private void Start()
         {
         }
@@ -39,7 +56,12 @@ namespace Honor.Runtime
         {
             m_EventManager?.Update();
         }
+        #endregion
 
+        //=========================================================================
+        // 公共接口 - 事件管理
+        //=========================================================================
+        #region Method - 事件接口
         /// <summary>
         /// 检查指定事件是否已注册对应的回调
         /// </summary>
@@ -97,5 +119,6 @@ namespace Honor.Runtime
         {
             m_EventManager.FireNow(sender, new EventParams(cmd, objects));
         }
+        #endregion
     }
 }

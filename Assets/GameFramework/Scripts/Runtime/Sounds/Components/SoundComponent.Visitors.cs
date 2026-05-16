@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SoundComponent.Property.cs
+ * author:  云毅
+ * created:
+ * descrip:   音频组件 - 变量与属性定义分部类（编辑器配置 + 对外接口）
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -9,23 +18,29 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class SoundComponent : GameComponent
     {
+        //=========================================================================
+        #region 序列化字段（Inspector 配置）
+        //=========================================================================
+
         /// <summary>
         /// 音频混音器（Unity AudioMixer）
         /// 用于分组控制音量、静音、混音效果，编辑器配置
         /// </summary>
-        [SerializeField]
+        [SerializeField] 
         private AudioMixer m_AudioMixer = null;
-        public AudioMixer AudioMixer
-        {
-            get => m_AudioMixer;
-        }
 
         /// <summary>
         /// 声音组配置数组（编辑器配置）
         /// 用于在Inspector中预设声音组：BGM、Effect、UI、Voice等
         /// </summary>
-        [SerializeField]
+        [SerializeField] 
         private SoundGroupShell[] m_SoundGroupShells = null;
+
+        #endregion
+
+        //=========================================================================
+        #region 私有成员变量
+        //=========================================================================
 
         /// <summary>
         /// 声音管理器（底层逻辑核心）
@@ -39,12 +54,22 @@ namespace Honor.Runtime
         /// </summary>
         private AudioListener m_AudioListener = null;
 
+        #endregion
+
+        //=========================================================================
+        #region 公共属性（对外只读）
+        //=========================================================================
+
         /// <summary>
-        /// 当前声音组数量（对外只读）
+        /// 音频混音器
         /// </summary>
-        public int SoundGroupCount
-        {
-            get => m_SoundManager.SoundGroupCount;
-        }
+        public AudioMixer AudioMixer => m_AudioMixer;
+
+        /// <summary>
+        /// 当前声音组数量
+        /// </summary>
+        public int SoundGroupCount => m_SoundManager.SoundGroupCount;
+
+        #endregion
     }
 }

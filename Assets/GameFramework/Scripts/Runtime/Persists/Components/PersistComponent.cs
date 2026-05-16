@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PersistComponent.cs
+ * author:    云毅
+ * created:
+ * descrip:   全局持久化存储组件，统一封装文件存储 + PlayerPrefs
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +22,13 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class PersistComponent : GameComponent
     {
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
+
+        /// <summary>
+        /// 组件初始化
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
@@ -56,13 +73,25 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 启动逻辑
+        /// </summary>
         private void Start()
         {
         }
 
+        /// <summary>
+        /// 销毁逻辑
+        /// </summary>
         private void OnDestroy()
         {
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 保存操作
+        //=========================================================================
 
         /// <summary>
         /// 保存数据（全量）
@@ -104,6 +133,12 @@ namespace Honor.Runtime
                 m_PlayerPrefsManager.Save();
             }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 数据查询
+        //=========================================================================
 
         /// <summary>
         /// 获取某分类下所有键名（数组）
@@ -165,6 +200,12 @@ namespace Honor.Runtime
 
             return false;
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 删除操作
+        //=========================================================================
 
         /// <summary>
         /// 删除单条数据
@@ -229,6 +270,12 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
+        //=========================================================================
+        #region Bool 存取
+        //=========================================================================
+
         /// <summary>
         /// 读取 bool（无默认值）
         /// </summary>
@@ -290,6 +337,12 @@ namespace Honor.Runtime
                 SavePlayerPrefsDataAfterFrameEnd();
             }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region Int 存取
+        //=========================================================================
 
         /// <summary>
         /// 读取 int（无默认值）
@@ -353,6 +406,12 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
+        //=========================================================================
+        #region Float 存取
+        //=========================================================================
+
         /// <summary>
         /// 读取 float（无默认值）
         /// </summary>
@@ -415,6 +474,12 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
+        //=========================================================================
+        #region String 存取
+        //=========================================================================
+
         /// <summary>
         /// 读取 string（无默认值）
         /// </summary>
@@ -476,5 +541,7 @@ namespace Honor.Runtime
                 SavePlayerPrefsDataAfterFrameEnd();
             }
         }
+
+        #endregion
     }
 }

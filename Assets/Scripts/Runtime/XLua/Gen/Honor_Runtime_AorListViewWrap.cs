@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.AorListView);
-			Utils.BeginObjectRegister(type, L, translator, 0, 28, 25, 10);
+			Utils.BeginObjectRegister(type, L, translator, 0, 20, 25, 10);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetItemPrefabConfData", _m_GetItemPrefabConfData);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnItemPrefabChanged", _m_OnItemPrefabChanged);
@@ -29,27 +29,19 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetListView", _m_ResetListView);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetListItemCount", _m_SetListItemCount);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetShownItemByItemIndex", _m_GetShownItemByItemIndex);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetShownItemNearestItemIndex", _m_GetShownItemNearestItemIndex);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetShownItemByIndex", _m_GetShownItemByIndex);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetShownItemByIndexWithoutCheck", _m_GetShownItemByIndexWithoutCheck);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetIndexInShownItemList", _m_GetIndexInShownItemList);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DoActionForEachShownItem", _m_DoActionForEachShownItem);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NewListViewItem", _m_NewListViewItem);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnItemSizeChanged", _m_OnItemSizeChanged);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RefreshItemByItemIndex", _m_RefreshItemByItemIndex);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "FinishSnapImmediately", _m_FinishSnapImmediately);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "MovePanelToItemIndex", _m_MovePanelToItemIndex);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RefreshAllShownItem", _m_RefreshAllShownItem);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RefreshAllShownItemWithFirstIndex", _m_RefreshAllShownItemWithFirstIndex);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RefreshAllShownItemWithFirstIndexAndPos", _m_RefreshAllShownItemWithFirstIndexAndPos);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ForceSnapUpdateCheck", _m_ForceSnapUpdateCheck);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ClearSnapData", _m_ClearSnapData);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetSnapTargetItemIndex", _m_SetSnapTargetItemIndex);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnBeginDrag", _m_OnBeginDrag);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnEndDrag", _m_OnEndDrag);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnDrag", _m_OnDrag);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetItemCornerPosInViewPort", _m_GetItemCornerPosInViewPort);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAllShownItemSnapData", _m_UpdateAllShownItemSnapData);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ClearSnapData", _m_ClearSnapData);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetSnapTargetItemIndex", _m_SetSnapTargetItemIndex);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ForceSnapUpdateCheck", _m_ForceSnapUpdateCheck);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateListView", _m_UpdateListView);
 			
 			
@@ -67,11 +59,11 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ItemSnapEnable", _g_get_ItemSnapEnable);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SupportScrollBar", _g_get_SupportScrollBar);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SnapMoveDefaultMaxAbsVec", _g_get_SnapMoveDefaultMaxAbsVec);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurSnapNearestItemIndex", _g_get_CurSnapNearestItemIndex);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ShownItemCount", _g_get_ShownItemCount);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ViewPortSize", _g_get_ViewPortSize);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ViewPortWidth", _g_get_ViewPortWidth);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ViewPortHeight", _g_get_ViewPortHeight);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurSnapNearestItemIndex", _g_get_CurSnapNearestItemIndex);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "mOnBeginDragAction", _g_get_mOnBeginDragAction);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "mOnDragingAction", _g_get_mOnDragingAction);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "mOnEndDragAction", _g_get_mOnEndDragAction);
@@ -208,9 +200,9 @@ namespace XLua.CSObjectWrap
                 {
                     int _itemTotalCount = LuaAPI.xlua_tointeger(L, 2);
                     Honor.Runtime.OnListViewGetItemByIndex _onGetItemByIndex = translator.GetDelegate<Honor.Runtime.OnListViewGetItemByIndex>(L, 3);
-                    Honor.Runtime.ListViewInitParam _initParam = (Honor.Runtime.ListViewInitParam)translator.GetObject(L, 4, typeof(Honor.Runtime.ListViewInitParam));
+                    Honor.Runtime.ListViewInitParam _param = (Honor.Runtime.ListViewInitParam)translator.GetObject(L, 4, typeof(Honor.Runtime.ListViewInitParam));
                     
-                    gen_to_be_invoked.InitListView( _itemTotalCount, _onGetItemByIndex, _initParam );
+                    gen_to_be_invoked.InitListView( _itemTotalCount, _onGetItemByIndex, _param );
                     
                     
                     
@@ -292,10 +284,10 @@ namespace XLua.CSObjectWrap
             
                 if(gen_param_count == 3&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 3)) 
                 {
-                    int _itemCount = LuaAPI.xlua_tointeger(L, 2);
+                    int _count = LuaAPI.xlua_tointeger(L, 2);
                     bool _resetPos = LuaAPI.lua_toboolean(L, 3);
                     
-                    gen_to_be_invoked.SetListItemCount( _itemCount, _resetPos );
+                    gen_to_be_invoked.SetListItemCount( _count, _resetPos );
                     
                     
                     
@@ -303,9 +295,9 @@ namespace XLua.CSObjectWrap
                 }
                 if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
                 {
-                    int _itemCount = LuaAPI.xlua_tointeger(L, 2);
+                    int _count = LuaAPI.xlua_tointeger(L, 2);
                     
-                    gen_to_be_invoked.SetListItemCount( _itemCount );
+                    gen_to_be_invoked.SetListItemCount( _count );
                     
                     
                     
@@ -333,159 +325,14 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    int _itemIndex = LuaAPI.xlua_tointeger(L, 2);
-                    
-                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.GetShownItemByItemIndex( _itemIndex );
-                        translator.Push(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetShownItemNearestItemIndex(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    int _itemIndex = LuaAPI.xlua_tointeger(L, 2);
-                    
-                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.GetShownItemNearestItemIndex( _itemIndex );
-                        translator.Push(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetShownItemByIndex(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
                     int _index = LuaAPI.xlua_tointeger(L, 2);
                     
-                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.GetShownItemByIndex( _index );
+                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.GetShownItemByItemIndex( _index );
                         translator.Push(L, gen_ret);
                     
                     
                     
                     return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetShownItemByIndexWithoutCheck(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    int _index = LuaAPI.xlua_tointeger(L, 2);
-                    
-                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.GetShownItemByIndexWithoutCheck( _index );
-                        translator.Push(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetIndexInShownItemList(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    Honor.Runtime.AorListViewItem _item = (Honor.Runtime.AorListViewItem)translator.GetObject(L, 2, typeof(Honor.Runtime.AorListViewItem));
-                    
-                        int gen_ret = gen_to_be_invoked.GetIndexInShownItemList( _item );
-                        LuaAPI.xlua_pushinteger(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_DoActionForEachShownItem(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    System.Action<Honor.Runtime.AorListViewItem, object> _action = translator.GetDelegate<System.Action<Honor.Runtime.AorListViewItem, object>>(L, 2);
-                    object _param = translator.GetObject(L, 3, typeof(object));
-                    
-                    gen_to_be_invoked.DoActionForEachShownItem( _action, _param );
-                    
-                    
-                    
-                    return 0;
                 }
                 
             } catch(System.Exception gen_e) {
@@ -507,9 +354,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string _itemPrefabName = LuaAPI.lua_tostring(L, 2);
+                    string _prefabName = LuaAPI.lua_tostring(L, 2);
                     
-                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.NewListViewItem( _itemPrefabName );
+                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.NewListViewItem( _prefabName );
                         translator.Push(L, gen_ret);
                     
                     
@@ -536,64 +383,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    int _itemIndex = LuaAPI.xlua_tointeger(L, 2);
+                    int _index = LuaAPI.xlua_tointeger(L, 2);
                     
-                    gen_to_be_invoked.OnItemSizeChanged( _itemIndex );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_RefreshItemByItemIndex(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    int _itemIndex = LuaAPI.xlua_tointeger(L, 2);
-                    
-                    gen_to_be_invoked.RefreshItemByItemIndex( _itemIndex );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_FinishSnapImmediately(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.FinishSnapImmediately(  );
+                    gen_to_be_invoked.OnItemSizeChanged( _index );
                     
                     
                     
@@ -619,10 +411,10 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    int _itemIndex = LuaAPI.xlua_tointeger(L, 2);
+                    int _index = LuaAPI.xlua_tointeger(L, 2);
                     float _offset = (float)LuaAPI.lua_tonumber(L, 3);
                     
-                    gen_to_be_invoked.MovePanelToItemIndex( _itemIndex, _offset );
+                    gen_to_be_invoked.MovePanelToItemIndex( _index, _offset );
                     
                     
                     
@@ -675,9 +467,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    int _firstItemIndex = LuaAPI.xlua_tointeger(L, 2);
+                    int _first = LuaAPI.xlua_tointeger(L, 2);
                     
-                    gen_to_be_invoked.RefreshAllShownItemWithFirstIndex( _firstItemIndex );
+                    gen_to_be_invoked.RefreshAllShownItemWithFirstIndex( _first );
                     
                     
                     
@@ -703,10 +495,10 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    int _firstItemIndex = LuaAPI.xlua_tointeger(L, 2);
+                    int _first = LuaAPI.xlua_tointeger(L, 2);
                     UnityEngine.Vector3 _pos;translator.Get(L, 3, out _pos);
                     
-                    gen_to_be_invoked.RefreshAllShownItemWithFirstIndexAndPos( _firstItemIndex, _pos );
+                    gen_to_be_invoked.RefreshAllShownItemWithFirstIndexAndPos( _first, _pos );
                     
                     
                     
@@ -716,6 +508,103 @@ namespace XLua.CSObjectWrap
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ForceSnapUpdateCheck(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.ForceSnapUpdateCheck(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ClearSnapData(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.ClearSnapData(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetSnapTargetItemIndex(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)) 
+                {
+                    int _index = LuaAPI.xlua_tointeger(L, 2);
+                    float _maxVec = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                    gen_to_be_invoked.SetSnapTargetItemIndex( _index, _maxVec );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
+                {
+                    int _index = LuaAPI.xlua_tointeger(L, 2);
+                    
+                    gen_to_be_invoked.SetSnapTargetItemIndex( _index );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.AorListView.SetSnapTargetItemIndex!");
             
         }
         
@@ -732,9 +621,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    UnityEngine.EventSystems.PointerEventData _eventData = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
+                    UnityEngine.EventSystems.PointerEventData _e = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
                     
-                    gen_to_be_invoked.OnBeginDrag( _eventData );
+                    gen_to_be_invoked.OnBeginDrag( _e );
                     
                     
                     
@@ -760,9 +649,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    UnityEngine.EventSystems.PointerEventData _eventData = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
+                    UnityEngine.EventSystems.PointerEventData _e = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
                     
-                    gen_to_be_invoked.OnEndDrag( _eventData );
+                    gen_to_be_invoked.OnEndDrag( _e );
                     
                     
                     
@@ -788,9 +677,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    UnityEngine.EventSystems.PointerEventData _eventData = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
+                    UnityEngine.EventSystems.PointerEventData _e = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
                     
-                    gen_to_be_invoked.OnDrag( _eventData );
+                    gen_to_be_invoked.OnDrag( _e );
                     
                     
                     
@@ -849,130 +738,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_UpdateAllShownItemSnapData(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.UpdateAllShownItemSnapData(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ClearSnapData(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.ClearSnapData(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_SetSnapTargetItemIndex(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-			    int gen_param_count = LuaAPI.lua_gettop(L);
-            
-                if(gen_param_count == 3&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)) 
-                {
-                    int _itemIndex = LuaAPI.xlua_tointeger(L, 2);
-                    float _moveMaxAbsVec = (float)LuaAPI.lua_tonumber(L, 3);
-                    
-                    gen_to_be_invoked.SetSnapTargetItemIndex( _itemIndex, _moveMaxAbsVec );
-                    
-                    
-                    
-                    return 0;
-                }
-                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
-                {
-                    int _itemIndex = LuaAPI.xlua_tointeger(L, 2);
-                    
-                    gen_to_be_invoked.SetSnapTargetItemIndex( _itemIndex );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.AorListView.SetSnapTargetItemIndex!");
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ForceSnapUpdateCheck(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.ForceSnapUpdateCheck(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_UpdateListView(RealStatePtr L)
         {
 		    try {
@@ -985,12 +750,12 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    float _distanceForRecycle0 = (float)LuaAPI.lua_tonumber(L, 2);
-                    float _distanceForRecycle1 = (float)LuaAPI.lua_tonumber(L, 3);
-                    float _distanceForNew0 = (float)LuaAPI.lua_tonumber(L, 4);
-                    float _distanceForNew1 = (float)LuaAPI.lua_tonumber(L, 5);
+                    float _dr0 = (float)LuaAPI.lua_tonumber(L, 2);
+                    float _dr1 = (float)LuaAPI.lua_tonumber(L, 3);
+                    float _dn0 = (float)LuaAPI.lua_tonumber(L, 4);
+                    float _dn1 = (float)LuaAPI.lua_tonumber(L, 5);
                     
-                    gen_to_be_invoked.UpdateListView( _distanceForRecycle0, _distanceForRecycle1, _distanceForNew0, _distanceForNew1 );
+                    gen_to_be_invoked.UpdateListView( _dr0, _dr1, _dn0, _dn1 );
                     
                     
                     
@@ -1203,6 +968,20 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_CurSnapNearestItemIndex(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
+                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.CurSnapNearestItemIndex);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_ShownItemCount(RealStatePtr L)
         {
 		    try {
@@ -1252,20 +1031,6 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.ViewPortHeight);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_CurSnapNearestItemIndex(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.AorListView gen_to_be_invoked = (Honor.Runtime.AorListView)translator.FastGetCSObj(L, 1);
-                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.CurSnapNearestItemIndex);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

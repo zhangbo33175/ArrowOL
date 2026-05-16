@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  CameraOutlineBuffer.cs
+ * author:    云毅
+ * created:   2026   2025年
+ * descrip:   全局描边渲染单例管理器，使用CommandBuffer实现高效物体轮廓描边
+ ***************************************************************/
+
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
@@ -5,6 +15,9 @@ using UnityEngine.XR;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 全局描边渲染管理器
+    //=========================================================================
     /// <summary>
     /// 全局描边渲染管理器（单例）
     /// 功能：使用 CommandBuffer 渲染物体轮廓，实现高效全屏描边效果
@@ -13,16 +26,21 @@ namespace Honor.Runtime
     [RequireComponent(typeof(Camera))]
     public class CameraOutlineBuffer : MonoBehaviour
     {
+        #region 单例实例
         /// <summary>
         /// 全局唯一实例
         /// </summary>
         public static CameraOutlineBuffer Instance { get; private set; }
+        #endregion
 
+        #region 描边对象集合
         /// <summary>
         /// 已注册的描边物体集合
         /// </summary>
         private readonly GameLinkedSet<ObjectOutline> m_Outlines = new GameLinkedSet<ObjectOutline>();
+        #endregion
 
+        #region  Inspector 配置
         [Header("描边基础设置")]
         [Range(1.0f, 6.0f)]
         public float LineThickness = 1.25f;
@@ -56,7 +74,9 @@ namespace Honor.Runtime
         public bool FlipY;
         public Camera SourceCamera;
         public bool AutoEnableOutlines;
+        #endregion
 
+        #region 内部引用
         [HideInInspector]
         public Camera OutlineCamera;
 
@@ -80,10 +100,14 @@ namespace Honor.Runtime
         private CommandBuffer m_CommandBuffer;
         private List<Material> m_MaterialBuffer = new List<Material>();
         private bool m_RenderTheNextFrame;
+        #endregion
 
+        #region 材质获取工具
         /// <summary>
         /// 根据颜色ID获取对应材质
         /// </summary>
+        /// <param name="id">颜色索引ID</param>
+        /// <returns>对应描边材质</returns>
         private Material GetMaterialFromID(int id)
         {
             switch (id)
@@ -98,6 +122,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 创建描边专用材质
         /// </summary>
+        /// <param name="emissionColor">自发光颜色</param>
+        /// <returns>描边材质</returns>
         private Material CreateMaterial(Color emissionColor)
         {
             Material mat = new Material(m_OutlineBufferShader);
@@ -111,7 +137,12 @@ namespace Honor.Runtime
             mat.renderQueue = 3000;
             return mat;
         }
+        #endregion
 
+        #region 生命周期
+        /// <summary>
+        /// 单例初始化
+        /// </summary>
         private void Awake()
         {
             // 单例安全检测
@@ -124,6 +155,9 @@ namespace Honor.Runtime
             Instance = this;
         }
 
+        /// <summary>
+        /// 初始化材质、相机、渲染纹理、命令缓冲
+        /// </summary>
         private void Start()
         {
             CreateMaterialsIfNeeded();
@@ -174,6 +208,47 @@ namespace Honor.Runtime
             OutlineCamera.AddCommandBuffer(CameraEvent.BeforeImageEffects, m_CommandBuffer);
         }
 
+        /// <summary>
+        /// 启用时自动收集场景描边对象
+        /// </summary>
+        private void OnEnable()
+        {
+            ObjectOutline[] allOutlines = FindObjectsOfType<ObjectOutline>();
+
+            if (AutoEnableOutlines)
+            {
+                foreach (var o in allOutlines)
+                {
+                    o.enabled = false;
+                    o.enabled = true;
+                }
+            }
+            else
+            {
+                foreach (var o in allOutlines)
+                {
+                    if (!m_Outlines.Contains(o))
+                        m_Outlines.Add(o);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 销毁时释放资源
+        /// </summary>
+        private void OnDestroy()
+        {
+            // 释放渲染纹理
+            if (RenderTexture != null) RenderTexture.Release();
+            if (ExtraRenderTexture != null) ExtraRenderTexture.Release();
+
+            // 销毁材质
+            DestroyMaterials();
+            Instance = null;
+        }
+        #endregion
+
+        #region 渲染逻辑
         /// <summary>
         /// 相机预渲染：绘制所有描边物体到 RT
         /// </summary>
@@ -268,39 +343,6 @@ namespace Honor.Runtime
             OutlineCamera.Render();
         }
 
-        private void OnEnable()
-        {
-            ObjectOutline[] allOutlines = FindObjectsOfType<ObjectOutline>();
-
-            if (AutoEnableOutlines)
-            {
-                foreach (var o in allOutlines)
-                {
-                    o.enabled = false;
-                    o.enabled = true;
-                }
-            }
-            else
-            {
-                foreach (var o in allOutlines)
-                {
-                    if (!m_Outlines.Contains(o))
-                        m_Outlines.Add(o);
-                }
-            }
-        }
-
-        private void OnDestroy()
-        {
-            // 释放渲染纹理
-            if (RenderTexture != null) RenderTexture.Release();
-            if (ExtraRenderTexture != null) ExtraRenderTexture.Release();
-
-            // 销毁材质
-            DestroyMaterials();
-            Instance = null;
-        }
-
         /// <summary>
         /// 全屏图像后处理：将描边RT合成到屏幕
         /// </summary>
@@ -323,7 +365,9 @@ namespace Honor.Runtime
 
             Graphics.Blit(source, destination, OutlineShaderMaterial, 1);
         }
+        #endregion
 
+        #region 材质管理
         /// <summary>
         /// 确保所有材质已创建
         /// </summary>
@@ -360,7 +404,9 @@ namespace Honor.Runtime
             DestroyImmediate(m_Outline2Material);
             DestroyImmediate(m_Outline3Material);
         }
+        #endregion
 
+        #region 公共更新接口
         /// <summary>
         /// 更新描边材质参数
         /// </summary>
@@ -414,15 +460,20 @@ namespace Honor.Runtime
             OutlineCamera.enabled = false;
             OutlineCamera.allowHDR = false;
         }
+        #endregion
 
+        #region 描边对象管理
         /// <summary>
         /// 添加描边对象
         /// </summary>
+        /// <param name="outline">描边组件</param>
         public void AddOutline(ObjectOutline outline) => m_Outlines.Add(outline);
 
         /// <summary>
         /// 移除描边对象
         /// </summary>
+        /// <param name="outline">描边组件</param>
         public void RemoveOutline(ObjectOutline outline) => m_Outlines.Remove(outline);
+        #endregion
     }
 }

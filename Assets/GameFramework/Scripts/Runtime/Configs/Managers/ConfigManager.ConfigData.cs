@@ -1,5 +1,18 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ConfigManager.Data.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   配置管理器 - 配置数据实体（partial）
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 配置管理器 - 数据实体部分
+    /// </summary>
     public sealed partial class ConfigManager
     {
         /// <summary>
@@ -9,6 +22,10 @@ namespace Honor.Runtime
         /// </summary>
         public class ConfigData
         {
+            //=========================================================================
+            // 只读字段
+            //=========================================================================
+            #region Readonly Fields
             /// <summary>
             /// 布尔类型配置值
             /// </summary>
@@ -28,7 +45,12 @@ namespace Honor.Runtime
             /// 字符串类型配置值
             /// </summary>
             private readonly string m_StringValue;
+            #endregion
 
+            //=========================================================================
+            // 构造函数
+            //=========================================================================
+            #region Constructor
             /// <summary>
             /// 构造函数：初始化所有类型的配置值
             /// </summary>
@@ -38,43 +60,37 @@ namespace Honor.Runtime
             /// <param name="stringValue">字符串值</param>
             public ConfigData(bool boolValue, int intValue, float floatValue, string stringValue)
             {
-                m_BoolValue = boolValue;
-                m_IntValue = intValue;
-                m_FloatValue = floatValue;
-                m_StringValue = stringValue;
+                m_BoolValue    = boolValue;
+                m_IntValue     = intValue;
+                m_FloatValue   = floatValue;
+                m_StringValue  = stringValue;
             }
+            #endregion
 
+            //=========================================================================
+            // 公共属性
+            //=========================================================================
+            #region Properties
             /// <summary>
             /// 获取布尔类型值
             /// </summary>
-            public bool BoolValue
-            {
-                get { return m_BoolValue; }
-            }
+            public bool BoolValue => m_BoolValue;
 
             /// <summary>
             /// 获取整数类型值
             /// </summary>
-            public int IntValue
-            {
-                get { return m_IntValue; }
-            }
+            public int IntValue => m_IntValue;
 
             /// <summary>
             /// 获取浮点数类型值
             /// </summary>
-            public float FloatValue
-            {
-                get { return m_FloatValue; }
-            }
+            public float FloatValue => m_FloatValue;
 
             /// <summary>
             /// 获取字符串类型值
             /// </summary>
-            public string StringValue
-            {
-                get { return m_StringValue; }
-            }
+            public string StringValue => m_StringValue;
+            #endregion
         }
     }
 }

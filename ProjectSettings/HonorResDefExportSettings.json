@@ -382,13 +382,6 @@
     },
     {
       "ResType": "Sprite",
-      "AliasName": "Sprite_头像",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/头像",
-      "AssetName": "头像",
-      "AssetGUID": "c19fcb262ea4d924a8444a213f0780e5"
-    },
-    {
-      "ResType": "Sprite",
       "AliasName": "Sprite_拼图1",
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图1",
       "AssetName": "拼图1",
@@ -442,20 +435,6 @@
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/皮肤",
       "AssetName": "皮肤",
       "AssetGUID": "073028024835a2541a55080a8ba1e658"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_签到",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/签到",
-      "AssetName": "签到",
-      "AssetGUID": "ca344dc3feee8a142a7195bb9b2f2247"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_转盘",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/转盘",
-      "AssetName": "转盘",
-      "AssetGUID": "38254a522c1a0ba4ebed7f807af7cc37"
     }
   ]
 }

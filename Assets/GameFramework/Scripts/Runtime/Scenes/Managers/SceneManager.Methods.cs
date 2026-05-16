@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SceneManager.Util.cs
+ * author:  云毅
+ * created:
+ * descrip:   场景管理器 - 工具方法分部类（列表查找、移除、状态判断）
+ ***************************************************************/
+
 using System.Collections.Generic;
 
 namespace Honor.Runtime
@@ -8,6 +17,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class SceneManager
     {
+        //=========================================================================
+        #region 列表工具方法
+        //=========================================================================
+
         /// <summary>
         /// 从场景列表中移除指定的场景记录
         /// 特殊处理：卸载列表只匹配场景名，其他列表匹配 abPath + assetName
@@ -113,5 +126,7 @@ namespace Honor.Runtime
 
             return false;
         }
+
+        #endregion
     }
 }

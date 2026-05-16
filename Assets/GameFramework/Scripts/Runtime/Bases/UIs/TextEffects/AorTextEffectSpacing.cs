@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextEffectSpacing.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   文本字符间距调整组件 | 支持左/中/右对齐 | 基于UGUI网格修改
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,7 +22,10 @@ namespace Honor.Runtime
     [AddComponentMenu("UI/Honor/自定义文本字符间距调整组件")]
     public class AorTextEffectSpacing : BaseMeshEffect
     {
-        #region Struct
+        //=========================================================================
+        // 枚举 & 结构定义
+        //=========================================================================
+        #region Enum & Struct
         /// <summary>
         /// 文本水平对齐类型
         /// </summary>
@@ -32,19 +45,19 @@ namespace Honor.Runtime
             /// <summary>
             /// 该行文本起始顶点索引
             /// </summary>
-            public int StartVertexIndex { get { return _startVertexIndex; } }
+            public int StartVertexIndex => _startVertexIndex;
             private int _startVertexIndex = 0;
 
             /// <summary>
             /// 该行文本结束顶点索引
             /// </summary>
-            public int EndVertexIndex { get { return _endVertexIndex; } }
+            public int EndVertexIndex => _endVertexIndex;
             private int _endVertexIndex = 0;
 
             /// <summary>
             /// 该行文本总顶点数量
             /// </summary>
-            public int VertexCount { get { return _vertexCount; } }
+            public int VertexCount => _vertexCount;
             private int _vertexCount = 0;
 
             /// <summary>
@@ -61,12 +74,21 @@ namespace Honor.Runtime
         }
         #endregion
 
+        //=========================================================================
+        // 公共字段
+        //=========================================================================
+        #region Field - 间距设置
         /// <summary>
         /// 字符间距值
         /// 正数增大间距，负数缩小间距
         /// </summary>
         public float Spacing = 1f;
+        #endregion
 
+        //=========================================================================
+        // 重写方法 - 网格修改
+        //=========================================================================
+        #region Method - 网格顶点调整
         /// <summary>
         /// 重写网格修改方法，调整文本字符顶点位置实现间距效果
         /// </summary>
@@ -75,9 +97,7 @@ namespace Honor.Runtime
         {
             // 组件未激活或无顶点数据时，不执行逻辑
             if (!IsActive() || vh.currentVertCount == 0)
-            {
                 return;
-            }
 
             // 获取挂载的Text组件
             var text = GetComponent<Text>();
@@ -89,11 +109,11 @@ namespace Honor.Runtime
 
             // 根据Text的对齐方式，确定当前水平对齐类型
             HorizontalAligmentType alignment;
-            if (text.alignment == TextAnchor.LowerLeft || text.alignment == TextAnchor.MiddleLeft || text.alignment == TextAnchor.UpperLeft)
+            if (text.alignment is TextAnchor.LowerLeft or TextAnchor.MiddleLeft or TextAnchor.UpperLeft)
             {
                 alignment = HorizontalAligmentType.Left;
             }
-            else if (text.alignment == TextAnchor.LowerCenter || text.alignment == TextAnchor.MiddleCenter || text.alignment == TextAnchor.UpperCenter)
+            else if (text.alignment is TextAnchor.LowerCenter or TextAnchor.MiddleCenter or TextAnchor.UpperCenter)
             {
                 alignment = HorizontalAligmentType.Center;
             }
@@ -139,12 +159,10 @@ namespace Honor.Runtime
 
                     vt = vertexs[j];
                     var charCount = lines[i].EndVertexIndex - lines[i].StartVertexIndex;
-                    
+
                     // 最后一行补充顶点数量
                     if (i == lines.Length - 1)
-                    {
                         charCount += 6;
-                    }
 
                     // 根据不同对齐方式，计算顶点偏移量
                     if (alignment == HorizontalAligmentType.Left)
@@ -165,16 +183,13 @@ namespace Honor.Runtime
 
                     // 将修改后的顶点回写到网格（处理Text顶点索引规则）
                     if (j % 6 <= 2)
-                    {
                         vh.SetUIVertex(vt, (j / 6) * 4 + j % 6);
-                    }
 
                     if (j % 6 == 4)
-                    {
                         vh.SetUIVertex(vt, (j / 6) * 4 + j % 6 - 1);
-                    }
                 }
             }
         }
+        #endregion
     }
 }

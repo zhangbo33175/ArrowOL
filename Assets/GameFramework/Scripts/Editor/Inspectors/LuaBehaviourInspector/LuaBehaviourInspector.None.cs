@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviourInspector.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   LuaBehaviour 编辑器面板拓展 - None模式配置、Lua代码生成与刷新
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,24 +16,43 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// LuaBehaviour 编辑器检视面板
+    /// <remarks>partial 分部类，仅包含 None 模式核心逻辑</remarks>
+    /// </summary>
     internal sealed partial class LuaBehaviourInspector : HonorComponentInspector
     {
-        private SerializedProperty m_LuaScriptNamesNone = null;
-        private SerializedProperty m_LuaSuperScriptNamesNone = null;
-        private List<string> m_TextLuaSuperScriptNamesNone = null;
+        #region 序列化字段定义
+        /// <summary>
+        /// None模式Lua脚本名称数组
+        /// </summary>
+        private SerializedProperty m_LuaScriptNamesNone;
 
         /// <summary>
-        /// 初始化None设计模式
+        /// None模式Lua父类脚本名称数组
+        /// </summary>
+        private SerializedProperty m_LuaSuperScriptNamesNone;
+
+        /// <summary>
+        /// 编辑器文本缓存：Lua父类脚本名称
+        /// </summary>
+        private List<string> m_TextLuaSuperScriptNamesNone;
+        #endregion
+
+        #region 初始化模块 - None 模式
+        /// <summary>
+        /// 初始化 None 设计模式
+        /// <para>初始化序列化数组、设置默认值、同步数据到缓存</para>
         /// </summary>
         private void InitPatternNone()
         {
             m_LuaScriptNamesNone = serializedObject.FindProperty("m_LuaScriptNamesNone");
             if (m_LuaScriptNamesNone.arraySize == 0)
             {
-                for (int index = 0; index < (int)NonePatternType.TotalNum; index++)
+                for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
                 {
-                    m_LuaScriptNamesNone.InsertArrayElementAtIndex(index);
-                    m_LuaScriptNamesNone.GetArrayElementAtIndex(index).stringValue = string.Empty;
+                    m_LuaScriptNamesNone.InsertArrayElementAtIndex(i);
+                    m_LuaScriptNamesNone.GetArrayElementAtIndex(i).stringValue = string.Empty;
                 }
             }
 
@@ -36,768 +64,584 @@ namespace Honor.Editor
 
             if (m_LuaSuperScriptNamesNone.arraySize == 0)
             {
-                for (int index = 0; index < (int)NonePatternType.TotalNum; index++)
+                for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
                 {
-                    m_LuaSuperScriptNamesNone.InsertArrayElementAtIndex(index);
+                    m_LuaSuperScriptNamesNone.InsertArrayElementAtIndex(i);
                 }
             }
 
-            for (int index = 0; index < (int)NonePatternType.TotalNum; index++)
+            for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
             {
-                if (string.IsNullOrEmpty(m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(index).stringValue))
+                if (string.IsNullOrEmpty(m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(i).stringValue))
                 {
-                    m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(index).stringValue = "LuaBehaviourSuper";
+                    m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(i).stringValue = "LuaBehaviourSuper";
                 }
             }
 
             m_TextLuaSuperScriptNamesNone = new List<string>();
-            for (int index = 0; index < (int)NonePatternType.TotalNum; index++)
+            for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
             {
-                m_TextLuaSuperScriptNamesNone.Add(m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(index).stringValue);
+                m_TextLuaSuperScriptNamesNone.Add(m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(i).stringValue);
             }
 
             serializedObject.ApplyModifiedProperties();
         }
+        #endregion
 
+        #region 面板绘制模块 - None 模式
         /// <summary>
-        /// None设计模式Lua名称GUI
+        /// None 模式 Lua 名称配置界面绘制
+        /// <para>绘制脚本名称/父类输入框，提供非法输入红色提示</para>
         /// </summary>
         private void OnPatternNoneLuaScriptNameInspectorGUI()
         {
-            SerializedProperty luaScriptName =
-                m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default);
+            SerializedProperty luaScript = m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default);
 
-            if (string.IsNullOrEmpty(luaScriptName.stringValue)) GUI.color = Color.red;
-            luaScriptName.stringValue = EditorGUILayout.TextField("Lua脚本名称", luaScriptName.stringValue);
-            GUI.color = Color.white;
-
-            if (string.IsNullOrEmpty(m_TextLuaSuperScriptNamesNone[(int)NonePatternType.Default]))
+            if (string.IsNullOrEmpty(luaScript.stringValue))
                 GUI.color = Color.red;
-            string luaSuperScriptName = EditorGUILayout.TextField("Lua脚本名称（父类）",
-                m_TextLuaSuperScriptNamesNone[(int)NonePatternType.Default]);
+
+            luaScript.stringValue = EditorGUILayout.TextField("Lua脚本名称", luaScript.stringValue);
             GUI.color = Color.white;
 
-            m_TextLuaSuperScriptNamesNone[(int)NonePatternType.Default] = luaSuperScriptName;
-            m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue =
-                luaSuperScriptName;
+            string superName = m_TextLuaSuperScriptNamesNone[(int)NonePatternType.Default];
+            if (string.IsNullOrEmpty(superName))
+                GUI.color = Color.red;
 
-            if (!string.IsNullOrEmpty(luaScriptName.stringValue) && !luaScriptName.stringValue.StartsWith(".lua") &&
-                !luaScriptName.stringValue.EndsWith(".lua") &&
-                !string.IsNullOrEmpty(luaSuperScriptName) && !luaSuperScriptName.StartsWith(".lua") &&
-                !luaSuperScriptName.EndsWith(".lua"))
-            {
-                m_LuaCanGenerate = true;
-            }
+            superName = EditorGUILayout.TextField("Lua脚本名称（父类）", superName);
+            GUI.color = Color.white;
+
+            m_TextLuaSuperScriptNamesNone[(int)NonePatternType.Default] = superName;
+            m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue = superName;
+
+            // 合法性检查
+            m_LuaCanGenerate = !string.IsNullOrEmpty(luaScript.stringValue)
+                            && !luaScript.stringValue.EndsWith(".lua")
+                            && !string.IsNullOrEmpty(superName)
+                            && !superName.EndsWith(".lua");
         }
+        #endregion
 
+        #region 代码生成模块 - 注释头部
         /// <summary>
-        /// 生成None设计模式下Lua注释行信息
+        /// 生成 None 模式 Lua 文件头部注释
         /// </summary>
+        /// <returns>拼接完成的注释字符串构建器</returns>
         private StringBuilder GeneratePatternNoneCommentLines()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
+            string scriptName = m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
+            string author = m_LuaAuthorName.stringValue;
+            string desc = m_LuaDescript.stringValue;
 
-            string luaScriptName =
-                m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
-            string luaAuthor = m_LuaAuthorName.stringValue;
-            string luaDescript = m_LuaDescript.stringValue;
+            sb.AppendLine("--=====================================================================================================")
+              .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+              .AppendLine("-- All Rights Reserved.")
+              .AppendLine("-- ----------------------------------------------------------------------------------------------------")
+              .AppendLine($"-- filename:  {scriptName}.lua")
+              .AppendLine($"-- author:    {author}")
+              .AppendLine($"-- descrip:   {desc}")
+              .AppendLine("--=====================================================================================================")
+              .AppendLine();
 
-            stringBuilder
-                .AppendLine(AorTxt.Format(
-                    "--====================================================================================================="))
-                .AppendLine(AorTxt.Format("-- (c) copyright 2026 - 2030, Honor.Game"))
-                .AppendLine(AorTxt.Format("-- All Rights Reserved."))
-                .AppendLine(AorTxt.Format(
-                    "-- ----------------------------------------------------------------------------------------------------"))
-                .AppendLine(AorTxt.Format("-- filename:  {0}.lua", luaScriptName))
-                .AppendLine(AorTxt.Format("-- author:    {0}", luaAuthor))
-                .AppendLine(AorTxt.Format("-- descrip:   {0}", AorTxt.Format("{0}{1}", luaDescript, string.Empty)))
-                .AppendLine(AorTxt.Format(
-                    "--====================================================================================================="))
-                .AppendLine(AorTxt.Format(""));
-            return stringBuilder;
+            return sb;
         }
+        #endregion
 
+        #region 代码生成模块 - 全新 Lua 模板
         /// <summary>
-        /// 生成None设计模式下Lua空行
+        /// 生成 None 模式完整空白 Lua 代码模板
+        /// <para>包含类定义、生命周期、注入字段、UI监听、碰撞函数等</para>
         /// </summary>
+        /// <returns>完整Lua代码字符串构建器</returns>
         private StringBuilder GeneratePatternNoneEmptyCodeLines()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
+            string scriptName = m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
+            string superName = m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
+            string desc = m_LuaDescript.stringValue;
 
-            string luaScriptName =
-                m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
-            string luaSuperScriptName = m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default)
-                .stringValue;
-            string luaAuthor = m_LuaAuthorName.stringValue;
-            string luaDescript = m_LuaDescript.stringValue;
-            string luaName = luaScriptName;
+            // 类声明
+            sb.AppendLine($"---@class {scriptName} : {superName}");
+            sb.AppendLine("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour");
 
-            stringBuilder.AppendLine(AorTxt.Format("---@class {0} : {1}", luaName, luaSuperScriptName));
-            stringBuilder.AppendLine(AorTxt.Format("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour"));
+            // 采集注入信息
+            CollectInfoExInfos(out List<string> injectNames, out List<string> injectComments,
+                out List<string> funcNames, out List<string> funcParams, out List<string> cmds);
 
-            // 采集InfoEx辅助信息
-            List<string> luaInjectNames = null;
-            List<string> luaInjectComments = null;
-            List<string> luaInjectFunctionNames = null;
-            List<string> luaInjectFunctionParams = null;
-            List<string> luaInjectCmds = null;
-            CollectInfoExInfos(out luaInjectNames, out luaInjectComments, out luaInjectFunctionNames,
-                out luaInjectFunctionParams, out luaInjectCmds);
-
-            // 生成注入对象的定义声明
+            // 注入字段
             if (m_Injections != null && m_Injections.arraySize > 0)
             {
-                for (int index = 0; index < m_Injections.arraySize; index++)
+                for (int i = 0; i < m_Injections.arraySize; i++)
                 {
-                    string comment = !string.IsNullOrEmpty(m_InterInjectionComments[index].stringValue)
-                        ? m_InterInjectionComments[index].stringValue
-                        : string.Empty;
-                    string fieldName = m_InterInjectionNames[index].stringValue;
-                    string typeName = string.Empty;
-                    string isValid = string.Empty;
-                    string infoEx = string.Empty;
-                    if (m_InterInjectionIsArrays[index].boolValue)
+                    string comment = m_InterInjectionComments[i].stringValue ?? "";
+                    string field = m_InterInjectionNames[i].stringValue;
+                    string type = "";
+                    string valid = "";
+                    string infoEx = "";
+
+                    if (m_InterInjectionIsArrays[i].boolValue)
                     {
-                        typeName =
-                            $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[index].enumValueIndex]}[]";
-                        isValid = "√";
-                        infoEx = string.Empty;
-                        for (int elementIndex = 0;
-                             elementIndex < m_InterInjectionElementsObjs[index].arraySize;
-                             elementIndex++)
+                        type = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex]}[]";
+                        valid = "√";
+                        for (int j = 0; j < m_InterInjectionElementsObjs[i].arraySize; j++)
                         {
-                            if (m_InterInjectionElementsObjs[index].GetArrayElementAtIndex(elementIndex)
-                                    .objectReferenceValue == null)
+                            if (m_InterInjectionElementsObjs[i].GetArrayElementAtIndex(j).objectReferenceValue == null)
                             {
-                                isValid = "×";
-                                infoEx = string.Empty;
+                                valid = "×";
                                 break;
                             }
                         }
                     }
                     else
                     {
-                        typeName = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[index].enumValueIndex];
-                        isValid =
-                            (m_InterInjectionTypeNames[index].enumValueIndex < (int)LuaInjection.InjectionType.Int32 ||
-                             m_InterInjectionTypeNames[index].enumValueIndex > (int)LuaInjection.InjectionType.Boolean)
-                                ? (m_InterInjectionObjs[index].objectReferenceValue != null ? "√" : "×")
-                                : (string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
-                                    ? "×"
-                                    : m_InterInjectionVariants[index].stringValue);
-                        infoEx = m_InterInjectionInfoExs[index].stringValue;
+                        type = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex];
+                        valid = (m_InterInjectionTypeNames[i].enumValueIndex is < (int)LuaInjection.InjectionType.Int32 or > (int)LuaInjection.InjectionType.Boolean)
+                            ? (m_InterInjectionObjs[i].objectReferenceValue != null ? "√" : "×")
+                            : (string.IsNullOrEmpty(m_InterInjectionVariants[i].stringValue) ? "×" : m_InterInjectionVariants[i].stringValue);
+
+                        infoEx = m_InterInjectionInfoExs[i].stringValue;
                     }
 
-                    if (typeName.Equals("UnityEngine.GameObject") && !string.IsNullOrEmpty(infoEx))
+                    // 类型修正
+                    if (type == "UnityEngine.GameObject" && !string.IsNullOrEmpty(infoEx))
                     {
-                        var findTypeName = Assembly.GetType(infoEx);
-                        typeName = findTypeName == null ? "any" : findTypeName.FullName;
+                        Type t = Type.GetType(infoEx);
+                        type = t?.FullName ?? "any";
                     }
-                    else if (typeName.Equals("Honor.Runtime.LuaBehaviour") && !string.IsNullOrEmpty(infoEx))
+                    else if (type == "Honor.Runtime.LuaBehaviour" && !string.IsNullOrEmpty(infoEx))
                     {
-                        typeName = infoEx;
+                        type = infoEx;
                     }
 
-                    while (fieldName.Length < 35) fieldName += " ";
-                    while (typeName.Length < 30) typeName += " ";
-                    while (isValid.Length < 10) isValid += " ";
+                    // 对齐排版
+                    while (field.Length < 35) field += " ";
+                    while (type.Length < 30) type += " ";
+                    while (valid.Length < 10) valid += " ";
                     while (infoEx.Length < 15) infoEx += " ";
 
-                    stringBuilder.AppendLine(AorTxt.Format("---@field {0}{1}{2}{3}{4}", fieldName, typeName, isValid,
-                        infoEx, comment));
+                    sb.AppendLine($"---@field {field}{type}{valid}{infoEx}{comment}");
                 }
             }
 
-            stringBuilder.AppendLine(AorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName,
-                luaSuperScriptName));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(AorTxt.Format("---构造函数"));
-            stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):void"));
-            stringBuilder.AppendLine(AorTxt.Format("---@param args table @自定义参数"));
-            stringBuilder.AppendLine(AorTxt.Format("function {0}:ctor(args)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    {0}.super.ctor(self, args)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(AorTxt.Format("end"));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(AorTxt.Format("---创建函数"));
-            stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):{0}", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("---@param args table @自定义参数"));
-            stringBuilder.AppendLine(AorTxt.Format("---@return {0} @{1}实例", luaName, luaName));
-            stringBuilder.AppendLine(AorTxt.Format("function {0}:Create(args)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    local obj = {0}.new(args)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    return obj"));
-            stringBuilder.AppendLine(AorTxt.Format("end"));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(
-                AorTxt.Format("---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）"));
-            stringBuilder.AppendLine(AorTxt.Format("---@type fun():void"));
-            stringBuilder.AppendLine(AorTxt.Format("function {0}:OnAddListeners()", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    {0}.super.OnAddListeners(self)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(AorTxt.Format("end"));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(AorTxt.Format("---唤醒"));
-            stringBuilder.AppendLine(AorTxt.Format("---@type fun():void"));
-            stringBuilder.AppendLine(AorTxt.Format("function {0}:Awake()", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    {0}.super.Awake(self)", luaName));
-            stringBuilder.AppendLine(
-                "-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-            if (luaInjectFunctionNames.Count > 0)
+            // 类定义
+            sb.AppendLine($"local {scriptName} = class('{scriptName}', import('{superName}'))");
+            sb.AppendLine();
+
+            // 构造
+            sb.AppendLine("---构造函数")
+              .AppendLine("---@type fun(args:table):void")
+              .AppendLine("---@param args table @自定义参数")
+              .AppendLine($"function {scriptName}:ctor(args)")
+              .AppendLine($"    {scriptName}.super.ctor(self, args)")
+              .AppendLine()
+              .AppendLine("end")
+              .AppendLine();
+
+            // Create
+            sb.AppendLine("---创建函数")
+              .AppendLine($"---@type fun(args:table):{scriptName}")
+              .AppendLine("---@param args table @自定义参数")
+              .AppendLine($"---@return {scriptName} @实例")
+              .AppendLine($"function {scriptName}:Create(args)")
+              .AppendLine($"    local obj = {scriptName}.new(args)")
+              .AppendLine("    return obj")
+              .AppendLine("end")
+              .AppendLine();
+
+            // 监听
+            sb.AppendLine("---注册监听（自动注销）")
+              .AppendLine("---@type fun():void")
+              .AppendLine($"function {scriptName}:OnAddListeners()")
+              .AppendLine($"    {scriptName}.super.OnAddListeners(self)")
+              .AppendLine()
+              .AppendLine("end")
+              .AppendLine();
+
+            // Awake
+            sb.AppendLine("---唤醒")
+              .AppendLine("---@type fun():void")
+              .AppendLine($"function {scriptName}:Awake()")
+              .AppendLine($"    {scriptName}.super.Awake(self)")
+              .AppendLine("-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            if (funcNames.Count > 0)
             {
-                for (int index = 0; index < luaInjectFunctionNames.Count; index++)
+                for (int i = 0; i < funcNames.Count; i++)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format(
-                        "    AddUIListenerFunction(self.{0}, '{1}', handler(self, self.{2}))", luaInjectNames[index],
-                        luaInjectCmds[index], luaInjectFunctionNames[index]));
+                    sb.AppendLine($"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
                 }
             }
             else
             {
-                stringBuilder.AppendLine(AorTxt.Format("-- 无自动注册内容。"));
+                sb.AppendLine("-- 无自动注册内容。");
             }
 
-            stringBuilder.AppendLine(
-                "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2");
-            stringBuilder.AppendLine(AorTxt.Format(""))
-                .AppendLine(AorTxt.Format("end"))
-                .AppendLine(AorTxt.Format(""))
-                .AppendLine(AorTxt.Format("---开始"))
-                .AppendLine(AorTxt.Format("---@type fun():void"))
-                .AppendLine(AorTxt.Format("function {0}:Start()", luaName))
-                .AppendLine(AorTxt.Format("    {0}.super.Start(self)", luaName))
-                .AppendLine(AorTxt.Format(""))
-                .AppendLine(AorTxt.Format("end"))
-                .AppendLine(AorTxt.Format(""));
+            sb.AppendLine("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2")
+              .AppendLine()
+              .AppendLine("end")
+              .AppendLine();
 
+            // Start
+            sb.AppendLine("---开始")
+              .AppendLine("---@type fun():void")
+              .AppendLine($"function {scriptName}:Start()")
+              .AppendLine($"    {scriptName}.super.Start(self)")
+              .AppendLine()
+              .AppendLine("end")
+              .AppendLine();
+
+            // Proc
             if (m_UseProc.boolValue)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---心跳（自定义）"))
-                    .AppendLine(AorTxt.Format("---@type fun():void"))
-                    .AppendLine(AorTxt.Format("function {0}:Proc()", luaName))
-                    .AppendLine(AorTxt.Format("    {0}.super.Proc(self)", luaName))
-                    .AppendLine(AorTxt.Format(""))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
+                sb.AppendLine("---心跳（自定义）")
+                  .AppendLine("---@type fun():void")
+                  .AppendLine($"function {scriptName}:Proc()")
+                  .AppendLine($"    {scriptName}.super.Proc(self)")
+                  .AppendLine()
+                  .AppendLine("end")
+                  .AppendLine();
             }
 
-            stringBuilder.AppendLine(AorTxt.Format("---销毁"))
-                .AppendLine(AorTxt.Format("---@type fun():void"))
-                .AppendLine(AorTxt.Format("function {0}:OnDestroy()", luaName))
-                .AppendLine(AorTxt.Format("    {0}.super.OnDestroy(self)", luaName));
+            // Destroy
+            sb.AppendLine("---销毁")
+              .AppendLine("---@type fun():void")
+              .AppendLine($"function {scriptName}:OnDestroy()")
+              .AppendLine($"    {scriptName}.super.OnDestroy(self)")
+              .AppendLine("-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-            stringBuilder.AppendLine(AorTxt.Format(
-                "-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"));
-            if (luaInjectFunctionNames.Count > 0)
+            if (funcNames.Count > 0)
             {
-                for (int index = 0; index < luaInjectFunctionNames.Count; index++)
+                for (int i = 0; i < funcNames.Count; i++)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format(
-                        "    OnRemoveListener(self.{0}, '{1}', handler(self, self.{2}))", luaInjectNames[index],
-                        luaInjectCmds[index], luaInjectFunctionNames[index]));
+                    sb.AppendLine($"    OnRemoveListener(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
                 }
             }
             else
             {
-                stringBuilder.AppendLine(AorTxt.Format("-- 无自动注销内容。"));
+                sb.AppendLine("-- 无自动注销内容。");
             }
 
-            stringBuilder.AppendLine(AorTxt.Format(
-                "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3"));
+            sb.AppendLine("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3")
+              .AppendLine()
+              .AppendLine("end")
+              .AppendLine();
 
-            stringBuilder.AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(AorTxt.Format("end"));
-            stringBuilder.AppendLine(AorTxt.Format(""));
+            // 动画
+            sb.AppendLine("---播放打开动画（可重写）")
+              .AppendLine("---@type fun():void")
+              .AppendLine($"function {scriptName}:OnPlayOpenAnimation()")
+              .AppendLine($"    {scriptName}.super.OnPlayOpenAnimation(self)")
+              .AppendLine("end")
+              .AppendLine();
 
-            stringBuilder.AppendLine(AorTxt.Format("---播放打开动画回调（可重写该父类方法）"))
-                .AppendLine(AorTxt.Format("---@type fun():void"))
-                .AppendLine(AorTxt.Format("function {0}:OnPlayOpenAnimation()", luaName))
-                .AppendLine(AorTxt.Format("    {0}.super.OnPlayOpenAnimation(self)", luaName))
-                .AppendLine(AorTxt.Format("end"))
-                .AppendLine(AorTxt.Format(""));
-            stringBuilder.AppendLine(AorTxt.Format("---播放关闭动画回调（可重写该父类方法）"))
-                .AppendLine(AorTxt.Format("---@type fun():void"))
-                .AppendLine(AorTxt.Format("function {0}:OnPlayCloseAnimation()", luaName))
-                .AppendLine(AorTxt.Format("    {0}.super.OnPlayCloseAnimation(self)", luaName))
-                .AppendLine(AorTxt.Format("end"))
-                .AppendLine(AorTxt.Format(""));
+            sb.AppendLine("---播放关闭动画（可重写）")
+              .AppendLine("---@type fun():void")
+              .AppendLine($"function {scriptName}:OnPlayCloseAnimation()")
+              .AppendLine($"    {scriptName}.super.OnPlayCloseAnimation(self)")
+              .AppendLine("end")
+              .AppendLine();
 
+            // UI 专用
             if (m_PrefabType.enumValueIndex == (int)Runtime.PrefabType.UI)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---被追加的N层UI子节点销毁回调"))
-                    .AppendLine(AorTxt.Format("---@type fun(luaClass: XLua.LuaTable):void"))
-                    .AppendLine(AorTxt.Format("---@param luaClass XLua.LuaTable @luaClass"))
-                    .AppendLine(AorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName))
-                    .AppendLine(AorTxt.Format("    {0}.super.OnAddedUIDestroyed(self, luaClass)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
+                sb.AppendLine("---子UI销毁回调")
+                  .AppendLine("---@type fun(luaClass:XLua.LuaTable):void")
+                  .AppendLine("---@param luaClass XLua.LuaTable")
+                  .AppendLine($"function {scriptName}:OnAddedUIDestroyed(luaClass)")
+                  .AppendLine($"    {scriptName}.super.OnAddedUIDestroyed(self, luaClass)")
+                  .AppendLine("end")
+                  .AppendLine();
             }
 
-            // Collider2D/3D碰撞器生命周期函数
+            // 2D 碰撞
             if (m_UseCollider2DLifeCycles.boolValue)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---进入碰撞2D"))
-                    .AppendLine(AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
-                    .AppendLine(AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnCollisionEnter2D(collision2D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---停留碰撞2D"))
-                    .AppendLine(AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
-                    .AppendLine(AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnCollisionStay2D(collision2D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---退出碰撞2D"))
-                    .AppendLine(AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
-                    .AppendLine(AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnCollisionExit2D(collision2D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
+                sb.AppendLine("---进入碰撞2D")
+                  .AppendLine("---@type fun(c:UnityEngine.Collision2D):void")
+                  .AppendLine($"function {scriptName}:OnCollisionEnter2D(c)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---停留碰撞2D")
+                  .AppendLine("---@type fun(c:UnityEngine.Collision2D):void")
+                  .AppendLine($"function {scriptName}:OnCollisionStay2D(c)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---退出碰撞2D")
+                  .AppendLine("---@type fun(c:UnityEngine.Collision2D):void")
+                  .AppendLine($"function {scriptName}:OnCollisionExit2D(c)")
+                  .AppendLine("end")
+                  .AppendLine();
             }
 
+            // 3D 碰撞
             if (m_UseCollider3DLifeCycles.boolValue)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---进入碰撞3D"))
-                    .AppendLine(AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
-                    .AppendLine(AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnCollisionEnter3D(collision3D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---停留碰撞3D"))
-                    .AppendLine(AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
-                    .AppendLine(AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnCollisionStay3D(collision3D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---退出碰撞3D"))
-                    .AppendLine(AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
-                    .AppendLine(AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnCollisionExit3D(collision3D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
+                sb.AppendLine("---进入碰撞3D")
+                  .AppendLine("---@type fun(c:UnityEngine.Collision):void")
+                  .AppendLine($"function {scriptName}:OnCollisionEnter3D(c)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---停留碰撞3D")
+                  .AppendLine("---@type fun(c:UnityEngine.Collision):void")
+                  .AppendLine($"function {scriptName}:OnCollisionStay3D(c)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---退出碰撞3D")
+                  .AppendLine("---@type fun(c:UnityEngine.Collision):void")
+                  .AppendLine($"function {scriptName}:OnCollisionExit3D(c)")
+                  .AppendLine("end")
+                  .AppendLine();
             }
 
-            // Trigger2D/3D触发器生命周期函数
+            // 2D 触发
             if (m_UseTrigger2DLifeCycles.boolValue)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---进入触发2D"))
-                    .AppendLine(AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
-                    .AppendLine(AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnTriggerEnter2D(other2D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---停留触发2D"))
-                    .AppendLine(AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
-                    .AppendLine(AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnTriggerStay2D(other2D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---退出触发2D"))
-                    .AppendLine(AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
-                    .AppendLine(AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnTriggerExit2D(other2D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
+                sb.AppendLine("---进入触发2D")
+                  .AppendLine("---@type fun(o:UnityEngine.Collider2D):void")
+                  .AppendLine($"function {scriptName}:OnTriggerEnter2D(o)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---停留触发2D")
+                  .AppendLine("---@type fun(o:UnityEngine.Collider2D):void")
+                  .AppendLine($"function {scriptName}:OnTriggerStay2D(o)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---退出触发2D")
+                  .AppendLine("---@type fun(o:UnityEngine.Collider2D):void")
+                  .AppendLine($"function {scriptName}:OnTriggerExit2D(o)")
+                  .AppendLine("end")
+                  .AppendLine();
             }
 
+            // 3D 触发
             if (m_UseTrigger3DLifeCycles.boolValue)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---进入触发3D"))
-                    .AppendLine(AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
-                    .AppendLine(AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnTriggerEnter3D(other3D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---停留触发3D"))
-                    .AppendLine(AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
-                    .AppendLine(AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnTriggerStay3D(other3D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---退出触发3D"))
-                    .AppendLine(AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
-                    .AppendLine(AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
-                    .AppendLine(AorTxt.Format("function {0}:OnTriggerExit3D(other3D)", luaName))
-                    .AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
+                sb.AppendLine("---进入触发3D")
+                  .AppendLine("---@type fun(o:UnityEngine.Collider):void")
+                  .AppendLine($"function {scriptName}:OnTriggerEnter3D(o)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---停留触发3D")
+                  .AppendLine("---@type fun(o:UnityEngine.Collider):void")
+                  .AppendLine($"function {scriptName}:OnTriggerStay3D(o)")
+                  .AppendLine("end")
+                  .AppendLine();
+
+                sb.AppendLine("---退出触发3D")
+                  .AppendLine("---@type fun(o:UnityEngine.Collider):void")
+                  .AppendLine($"function {scriptName}:OnTriggerExit3D(o)")
+                  .AppendLine("end")
+                  .AppendLine();
             }
 
-            // UI交互监听
-            for (int index = 0; index < luaInjectFunctionNames.Count; index++)
+            // UI 方法
+            for (int i = 0; i < funcNames.Count; i++)
             {
-                bool hasContained = false;
-                for (int checkIdx = 0; checkIdx < index; checkIdx++)
+                bool repeat = false;
+                for (int j = 0; j < i; j++)
                 {
-                    if (luaInjectFunctionNames[checkIdx] == luaInjectFunctionNames[index])
+                    if (funcNames[j] == funcNames[i])
                     {
-                        hasContained = true;
+                        repeat = true;
                         break;
                     }
                 }
+                if (repeat) continue;
 
-                if (hasContained)
+                string[] paramArr = funcParams[i].Replace(" ", "").Split(',');
+                string paramDesc = string.Join(", ", Array.ConvertAll(paramArr, p => $"{p}:any"));
+                string paramList = string.Join(", ", paramArr);
+
+                sb.AppendLine($"---{injectComments[i]}")
+                  .AppendLine($"---@type fun({paramDesc}):void")
+                  .AppendLine($"function {scriptName}:{funcNames[i]}({paramList})");
+
+                if (funcNames[i].EndsWith("GettingItem"))
                 {
-                    continue;
-                }
-
-                string[] paramsArray = luaInjectFunctionParams[index].Replace(" ", string.Empty).Split(',');
-                string funcDesc = string.Empty;
-                string funcParams = string.Empty;
-                foreach (var param in paramsArray)
-                {
-                    funcDesc += ((string.IsNullOrEmpty(funcDesc) ? "" : ", ") + param + ":any");
-                    funcParams += ((string.IsNullOrEmpty(funcParams) ? "" : ", ") + param);
-                }
-
-                stringBuilder.AppendLine(AorTxt.Format("---{0}", luaInjectComments[index]))
-                    .AppendLine(AorTxt.Format("---@type fun({0}):void", funcDesc))
-                    .AppendLine(AorTxt.Format("function {0}:{1}({2})", luaName, luaInjectFunctionNames[index],
-                        funcParams));
-
-                if (luaInjectFunctionNames[index].EndsWith("GettingItem"))
-                {
-                    stringBuilder.AppendLine(AorTxt.Format(
-                        $"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end"));
-                    stringBuilder.AppendLine(
-                        AorTxt.Format($"    local item = self.{luaInjectNames[index]}:NewListViewItem('Item')"));
-                    stringBuilder.AppendLine(AorTxt.Format(
-                        $"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end"));
-                    stringBuilder.AppendLine(AorTxt.Format($"    return item"));
+                    sb.AppendLine($"    if itemIndex < 0 or itemIndex >= self.{injectNames[i]}.MaxItemNum then return nil end")
+                      .AppendLine($"    local item = self.{injectNames[i]}:NewListViewItem('Item')")
+                      .AppendLine($"    if not item.IsInitHandlerCalled then item.IsInitHandlerCalled = true end")
+                      .AppendLine("    return item");
                 }
                 else
                 {
-                    stringBuilder.AppendLine(AorTxt.Format(""));
+                    sb.AppendLine();
                 }
 
-                stringBuilder.AppendLine(AorTxt.Format("end"))
-                    .AppendLine(AorTxt.Format(""));
+                sb.AppendLine("end")
+                  .AppendLine();
             }
 
-            stringBuilder.AppendLine(AorTxt.Format("return {0}", luaName));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-
-            return stringBuilder;
+            sb.AppendLine($"return {scriptName}");
+            return sb;
         }
-        
+        #endregion
+
+        #region 代码生成模块 - 刷新现有 Lua
         /// <summary>
-        /// 刷新None设计模式下已有Lua代码行
+        /// 刷新 None 模式已有 Lua 文件
+        /// <para>增量更新：保留手写代码，仅更新自动生成区域</para>
         /// </summary>
-        /// <param name="fullPath">全路径</param>
-        /// <returns></returns>
-     private StringBuilder GeneratePatternNoneCodeLines(string fullPath)
-{
-    try
-    {
-        // ↓↓↓↓↓↓ 你的所有代码 完全原样保留 ↓↓↓↓↓↓
-
-        string luaScriptName = m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
-        string luaSuperScriptName = m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
-        string luaAuthor = m_LuaAuthorName.stringValue;
-        string luaDescript = m_LuaDescript.stringValue;
-        string luaName = luaScriptName;
-
-        string commentStr = "--=====================================================================================================";
-        string end1Str = AorTxt.Format("local {0} = class", luaName);
-        string start2RightStr = "-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-        string end2Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2";
-        string start3RightStr = "-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-        string end3Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3";
-
-        string content = System.IO.File.ReadAllText(fullPath);
-
-        int endCommentStrIndex = content.LastIndexOf(commentStr) + commentStr.Length + 4;
-        int start1RightStrIndex = endCommentStrIndex;
-        int end1LeftStrIndex = content.LastIndexOf(end1Str);
-        int end1RightStrIndex = content.LastIndexOf(end1Str) + end1Str.Length + 4;
-        int start2RightStrIndex = content.LastIndexOf(start2RightStr) + start2RightStr.Length + 1;
-        int end2LeftStrIndex = content.LastIndexOf(end2Str);
-        int start3RightStrIndex = content.LastIndexOf(start3RightStr) + start3RightStr.Length + 1;
-        int end3LeftStrIndex = content.LastIndexOf(end3Str);
-
-        // 移除1号区域的信息
-        content = content.Remove(start1RightStrIndex, end1LeftStrIndex - start1RightStrIndex);
-
-        // 刷新标记的位置
-        endCommentStrIndex = content.LastIndexOf(commentStr) + commentStr.Length + 4;
-        start1RightStrIndex = endCommentStrIndex;
-        end1LeftStrIndex = content.LastIndexOf(end1Str);
-        end1RightStrIndex = content.LastIndexOf(end1Str) + end1Str.Length + 4;
-        start2RightStrIndex = content.LastIndexOf(start2RightStr) + start2RightStr.Length + 1;
-        end2LeftStrIndex = content.LastIndexOf(end2Str);
-        start3RightStrIndex = content.LastIndexOf(start3RightStr) + start3RightStr.Length + 1;
-        end3LeftStrIndex = content.LastIndexOf(end3Str);
-
-        // 移除3号区域的信息
-        content = content.Remove(start3RightStrIndex, end3LeftStrIndex - start3RightStrIndex);
-
-        // 移除2号区域的信息
-        content = content.Remove(start2RightStrIndex, end2LeftStrIndex - start2RightStrIndex);
-
-        // 移除1号区域的信息
-        content = content.Remove(start1RightStrIndex, end1LeftStrIndex - start1RightStrIndex);
-
-        // 刷新标记的位置
-        endCommentStrIndex = content.LastIndexOf(commentStr) + commentStr.Length + 4;
-        start1RightStrIndex = endCommentStrIndex;
-        end1LeftStrIndex = content.LastIndexOf(end1Str);
-        end1RightStrIndex = content.LastIndexOf(end1Str) + end1Str.Length + 4;
-        start2RightStrIndex = content.LastIndexOf(start2RightStr) + start2RightStr.Length + 1;
-        end2LeftStrIndex = content.LastIndexOf(end2Str);
-        start3RightStrIndex = content.LastIndexOf(start3RightStr) + start3RightStr.Length + 1;
-        end3LeftStrIndex = content.LastIndexOf(end3Str);
-
-        // 采集InfoEx辅助信息
-        List<string> luaInjectNames = null;
-        List<string> luaInjectComments = null;
-        List<string> luaInjectFunctionNames = null;
-        List<string> luaInjectFunctionParams = null;
-        List<string> luaInjectCmds = null;
-        CollectInfoExInfos(out luaInjectNames, out luaInjectComments, out luaInjectFunctionNames, out luaInjectFunctionParams, out luaInjectCmds);
-
-        // 先插入3号区域的注销代码
-        if (luaInjectFunctionNames.Count > 0)
+        /// <param name="fullPath">Lua文件完整路径</param>
+        /// <returns>更新后的Lua代码构建器</returns>
+        private StringBuilder GeneratePatternNoneCodeLines(string fullPath)
         {
-            for (int index = 0; index < luaInjectFunctionNames.Count; index++)
+            try
             {
-                content = content.Insert(end3LeftStrIndex, AorTxt.Format("    RemoveListener(self.{0}, '{1}', handler(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
-                end3LeftStrIndex = content.LastIndexOf(end3Str);
-            }
-        }
-        else
-        {
-            content = content.Insert(end3LeftStrIndex, "-- 无自动注销内容。\n");
-            end3LeftStrIndex = content.LastIndexOf(end3Str);
-        }
+                string scriptName = m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
+                string superName = m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
+                string commentFlag = "--=====================================================================================================";
+                string classFlag = $"local {scriptName} = class";
+                string regStart = "-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+                string regEnd = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2";
+                string unRegStart = "-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+                string unRegEnd = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3";
 
-        // 再插入2号区域的注册代码
-        if (luaInjectFunctionNames.Count > 0)
-        {
-            for (int index = 0; index < luaInjectFunctionNames.Count; index++)
-            {
-                content = content.Insert(end2LeftStrIndex, AorTxt.Format("    AddUIListenerFunction(self.{0}, '{1}', handler(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
-                end2LeftStrIndex = content.LastIndexOf(end2Str);
-            }
-        }
-        else
-        {
-            content = content.Insert(end2LeftStrIndex, "-- 无自动注册内容。\n");
-            end2LeftStrIndex = content.LastIndexOf(end2Str);
-        }
+                string content = System.IO.File.ReadAllText(fullPath);
 
-        // 再插入1号区域的注入提示信息（先2后1，1的标记位置不变）
-        if (m_Injections != null && m_Injections.arraySize > 0)
-        {
-            // 刷新标记的位置
-            endCommentStrIndex = content.LastIndexOf(commentStr) + commentStr.Length + 4;
-            start1RightStrIndex = endCommentStrIndex;
-            end1LeftStrIndex = content.LastIndexOf(end1Str);
-            end1RightStrIndex = content.LastIndexOf(end1Str) + end1Str.Length + 4;
-            start2RightStrIndex = content.LastIndexOf(start2RightStr) + start2RightStr.Length + 1;
-            end2LeftStrIndex = content.LastIndexOf(end2Str);
-            start3RightStrIndex = content.LastIndexOf(start3RightStr) + start3RightStr.Length + 1;
-            end3LeftStrIndex = content.LastIndexOf(end3Str);
+                // 清理自动生成区域
+                int commentEnd = content.LastIndexOf(commentFlag) + commentFlag.Length + 4;
+                int classStart = content.LastIndexOf(classFlag);
+                int regStartIdx = content.LastIndexOf(regStart) + regStart.Length + 1;
+                int regEndIdx = content.LastIndexOf(regEnd);
+                int unRegStartIdx = content.LastIndexOf(unRegStart) + unRegStart.Length + 1;
+                int unRegEndIdx = content.LastIndexOf(unRegEnd);
 
-            // 从后往前插入，逆向插入
-            for (int index = m_Injections.arraySize - 1; index >= 0; index--)
-            {
-                string comment = !string.IsNullOrEmpty(m_InterInjectionComments[index].stringValue) ? m_InterInjectionComments[index].stringValue : string.Empty;
-                string fieldName = m_InterInjectionNames[index].stringValue;
-                string typeName = string.Empty;
-                string isValid = string.Empty;
-                string infoEx = string.Empty;
+                content = content.Remove(commentEnd, classStart - commentEnd);
+                content = content.Remove(regStartIdx, regEndIdx - regStartIdx);
+                content = content.Remove(unRegStartIdx, unRegEndIdx - unRegStartIdx);
 
-                if (m_InterInjectionIsArrays[index].boolValue)
+                // 采集注入
+                CollectInfoExInfos(out List<string> injectNames, out _, out List<string> funcNames, out _, out List<string> cmds);
+
+                // 插入注销
+                if (funcNames.Count > 0)
                 {
-                    typeName = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[index].enumValueIndex]}[]";
-                    isValid = "√";
-                    infoEx = string.Empty;
-                    for (int elementIndex = 0; elementIndex < m_InterInjectionElementsObjs[index].arraySize; elementIndex++)
+                    for (int i = 0; i < funcNames.Count; i++)
                     {
-                        if (m_InterInjectionElementsObjs[index].GetArrayElementAtIndex(elementIndex).objectReferenceValue == null)
-                        {
-                            isValid = "×";
-                            infoEx = string.Empty;
-                            break;
-                        }
+                        content = content.Insert(unRegEndIdx, $"    OnRemoveListener(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))\n");
                     }
                 }
                 else
                 {
-                    typeName = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[index].enumValueIndex];
-                    isValid = (m_InterInjectionTypeNames[index].enumValueIndex < (int)LuaInjection.InjectionType.Int32 || m_InterInjectionTypeNames[index].enumValueIndex > (int)LuaInjection.InjectionType.Boolean) ? (m_InterInjectionObjs[index].objectReferenceValue != null ? "√" : "×") : (string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue) ? "×" : m_InterInjectionVariants[index].stringValue);
-                    infoEx = m_InterInjectionInfoExs[index].stringValue;
+                    content = content.Insert(unRegEndIdx, "-- 无自动注销内容。\n");
                 }
 
-                if (typeName.Equals("UnityEngine.GameObject") && !string.IsNullOrEmpty(infoEx))
+                // 插入注册
+                if (funcNames.Count > 0)
                 {
-                    var findTypeName = Assembly.GetType(infoEx);
-                    typeName = findTypeName == null ? "any" : findTypeName.FullName;
-                }
-                else if (typeName.Equals("Honor.Runtime.LuaBehaviour") && !string.IsNullOrEmpty(infoEx))
-                {
-                    typeName = infoEx;
-                }
-
-                while (fieldName.Length < 35) fieldName += " ";
-                while (typeName.Length < 30) typeName += " ";
-                while (isValid.Length < 10) isValid += " ";
-                while (infoEx.Length < 15) infoEx += " ";
-
-                content = content.Insert(start1RightStrIndex, AorTxt.Format("---@field {0}{1}{2}{3}{4}\n", fieldName, typeName, isValid, infoEx, comment));
-            }
-        }
-        content = content.Insert(start1RightStrIndex, AorTxt.Format("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour\n"));
-        content = content.Insert(start1RightStrIndex, AorTxt.Format("---@class {0} : {1}\n", luaName, luaSuperScriptName));
-
-        // 追加新的Function定义
-        int returnRowIndex = content.LastIndexOf(AorTxt.Format("return {0}", luaName));
-        string functionDef = string.Empty;
-        if (m_UseProc.boolValue)
-        {
-            if (!content.Contains(AorTxt.Format("function {0}:Proc()", luaName)))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---心跳（自定义）"), AorTxt.Format("---@type fun():void"), AorTxt.Format("function {0}:Proc()", luaName), AorTxt.Format("    {0}.super.Proc(self)", luaName));
-            }
-        }
-
-        // 判断OnAddedUIDestroyed是否存在
-        if (m_PrefabType.enumValueIndex == (int)Runtime.PrefabType.UI)
-        {
-            if (!content.Contains(AorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName)))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n{5}\n\nend\n\n", functionDef, AorTxt.Format("---被追加的N层UI子节点销毁回调"), AorTxt.Format("---@type fun(luaClass:XLua.LuaTable):void"), AorTxt.Format("---@param luaClass XLua.LuaTable @luaClass"), AorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName), AorTxt.Format("    {0}.super.OnAddedUIDestroyed(self, luaClass)", luaName));
-            }
-        }
-
-        // UI交互回调
-        for (int index = 0; index < luaInjectFunctionNames.Count; index++)
-        {
-            string[] paramsArray = luaInjectFunctionParams[index].Replace(" ", string.Empty).Split(',');
-            string funcDesc = string.Empty;
-            string funcParams = string.Empty;
-            foreach (var param in paramsArray)
-            {
-                funcDesc += ((string.IsNullOrEmpty(funcDesc) ? "" : ", ") + param + ":any");
-                funcParams += ((string.IsNullOrEmpty(funcParams) ? "" : ", ") + param);
-            }
-
-            string checkContent = AorTxt.Format("function {0}:{1}({2})", luaName, luaInjectFunctionNames[index], funcParams);
-            if (!content.Contains(checkContent) && !functionDef.Contains(checkContent))
-            {
-                if (luaInjectFunctionNames[index].EndsWith("GettingItem"))
-                {
-                    functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n", functionDef, AorTxt.Format("---{0}", luaInjectComments[index]), AorTxt.Format("---@type fun({0}):void", funcDesc), checkContent);
-                    functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end");
-                    functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    local item = self.{luaInjectNames[index]}:NewListViewItem('Item')");
-                    functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end");
-                    functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    return item");
-                    functionDef = AorTxt.Format("{0}end\n\n", functionDef);
+                    for (int i = 0; i < funcNames.Count; i++)
+                    {
+                        content = content.Insert(regEndIdx, $"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))\n");
+                    }
                 }
                 else
                 {
-                    functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n\nend\n\n", functionDef, AorTxt.Format("---{0}", luaInjectComments[index]), AorTxt.Format("---@type fun({0}):void", funcDesc), checkContent);
+                    content = content.Insert(regEndIdx, "-- 无自动注册内容。\n");
                 }
+
+                // 插入字段
+                if (m_Injections != null && m_Injections.arraySize > 0)
+                {
+                    for (int i = m_Injections.arraySize - 1; i >= 0; i--)
+                    {
+                        string field = m_InterInjectionNames[i].stringValue;
+                        string type = "";
+                        string valid = "";
+                        string infoEx = "";
+                        string comment = m_InterInjectionComments[i].stringValue ?? "";
+
+                        if (m_InterInjectionIsArrays[i].boolValue)
+                        {
+                            type = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex]}[]";
+                            valid = "√";
+                            for (int j = 0; j < m_InterInjectionElementsObjs[i].arraySize; j++)
+                            {
+                                if (m_InterInjectionElementsObjs[i].GetArrayElementAtIndex(j).objectReferenceValue == null)
+                                {
+                                    valid = "×";
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            type = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex];
+                            valid = (m_InterInjectionTypeNames[i].enumValueIndex is < (int)LuaInjection.InjectionType.Int32 or > (int)LuaInjection.InjectionType.Boolean)
+                                ? (m_InterInjectionObjs[i].objectReferenceValue != null ? "√" : "×")
+                                : (string.IsNullOrEmpty(m_InterInjectionVariants[i].stringValue) ? "×" : m_InterInjectionVariants[i].stringValue);
+
+                            infoEx = m_InterInjectionInfoExs[i].stringValue;
+                        }
+
+                        if (type == "UnityEngine.GameObject" && !string.IsNullOrEmpty(infoEx))
+                        {
+                            Type t = Type.GetType(infoEx);
+                            type = t?.FullName ?? "any";
+                        }
+                        else if (type == "Honor.Runtime.LuaBehaviour" && !string.IsNullOrEmpty(infoEx))
+                        {
+                            type = infoEx;
+                        }
+
+                        while (field.Length < 35) field += " ";
+                        while (type.Length < 30) type += " ";
+                        while (valid.Length < 10) valid += " ";
+                        while (infoEx.Length < 15) infoEx += " ";
+
+                        content = content.Insert(commentEnd, $"---@field {field}{type}{valid}{infoEx}{comment}\n");
+                    }
+                }
+
+                // 插入类头
+                content = content.Insert(commentEnd, $"---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour\n");
+                content = content.Insert(commentEnd, $"---@class {scriptName} : {superName}\n");
+
+                // 追加方法
+                int returnIdx = content.LastIndexOf($"return {scriptName}");
+                string funcAppend = "";
+
+                // Proc
+                if (m_UseProc.boolValue && !content.Contains($"function {scriptName}:Proc()"))
+                {
+                    funcAppend += "---心跳（自定义）\n---@type fun():void\n" +
+                                  $"function {scriptName}:Proc()\n    {scriptName}.super.Proc(self)\n\nend\n\n";
+                }
+
+                // UI 专用
+                if (m_PrefabType.enumValueIndex == (int)Runtime.PrefabType.UI &&
+                    !content.Contains($"function {scriptName}:OnAddedUIDestroyed"))
+                {
+                    funcAppend += "---子UI销毁\n---@type fun(luaClass:XLua.LuaTable):void\n" +
+                                  $"function {scriptName}:OnAddedUIDestroyed(luaClass)\n    {scriptName}.super.OnAddedUIDestroyed(self, luaClass)\n\nend\n\n";
+                }
+
+                // 插入
+                if (!string.IsNullOrEmpty(funcAppend))
+                    content = content.Insert(returnIdx, funcAppend);
+
+                // 更新类定义
+                int classDefIdx = content.LastIndexOf($"local {scriptName} = class('{scriptName}'");
+                int lineEnd = content.IndexOf('\n', classDefIdx);
+                if (lineEnd > classDefIdx)
+                    content = content.Remove(classDefIdx, lineEnd - classDefIdx);
+
+                content = content.Insert(classDefIdx, $"local {scriptName} = class('{scriptName}', import('{superName}'))");
+
+                return new StringBuilder(content, commentEnd, content.Length - commentEnd, content.Length * 2);
+            }
+            catch
+            {
+                return new StringBuilder();
             }
         }
-
-        // Collider2D/3D碰撞器生命周期函数
-        if (m_UseCollider2DLifeCycles.boolValue)
-        {
-            string checkContent = AorTxt.Format("function {0}:OnCollisionEnter2D(collision2D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入碰撞2D"), AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnCollisionStay2D(collision2D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留碰撞2D"), AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnCollisionExit2D(collision2D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出碰撞2D"), AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
-            }
-        }
-        if (m_UseCollider3DLifeCycles.boolValue)
-        {
-            string checkContent = AorTxt.Format("function {0}:OnCollisionEnter3D(collision3D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入碰撞3D"), AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnCollisionStay3D(collision3D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留碰撞3D"), AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnCollisionExit3D(collision3D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出碰撞3D"), AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
-            }
-        }
-
-        // Trigger2D/3D触发器生命周期函数
-        if (m_UseTrigger2DLifeCycles.boolValue)
-        {
-            string checkContent = AorTxt.Format("function {0}:OnTriggerEnter2D(other2D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入触发2D"), AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnTriggerStay2D(other2D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留触发2D"), AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnTriggerExit2D(other2D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出触发2D"), AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
-            }
-        }
-        if (m_UseTrigger3DLifeCycles.boolValue)
-        {
-            string checkContent = AorTxt.Format("function {0}:OnTriggerEnter3D(other3D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入触发3D"), AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnTriggerStay3D(other3D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留触发3D"), AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
-            }
-            checkContent = AorTxt.Format("function {0}:OnTriggerExit3D(other3D)", luaName);
-            if (!content.Contains(checkContent))
-            {
-                functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出触发3D"), AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
-            }
-        }
-
-        content = content.Insert(returnRowIndex, functionDef);
-
-        // 更新类的头部定义
-        int classNameDefIndex = content.LastIndexOf(AorTxt.Format("local {0} = class('{1}', import", luaName, luaName));
-        int defCharCount = 0;
-        while (content[classNameDefIndex + defCharCount] != '\n')
-        {
-            defCharCount++;
-        }
-        content = content.Remove(classNameDefIndex, defCharCount);
-        content = content.Insert(classNameDefIndex, AorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName, luaSuperScriptName));
-
-        StringBuilder stringBuilderCodeLines = new StringBuilder(content, endCommentStrIndex, content.Length - endCommentStrIndex, content.Length * 2);
-        return stringBuilderCodeLines;
-
-        // ↑↑↑↑↑↑ 你的所有代码 完全原样保留 ↑↑↑↑↑↑
-    }
-    catch
-    {
-        return new StringBuilder();
-    }
-}
+        #endregion
     }
 }

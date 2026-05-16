@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextPicMixed.Detail.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   图文混排 - 详情格式图片标签解析（partial）
+ ***************************************************************/
+
 #if UIEXTENSION_ENABLE
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -5,8 +15,12 @@ using UnityEngine.UI.Extensions;
 
 namespace Honor.Runtime
 {
-    public partial class AorTextPicMixed : TextPic
+    public partial class AorTextPicMixed
     {
+        //=========================================================================
+        // 正则表达式
+        //=========================================================================
+        #region Regex - 图片标签匹配
         /// <summary>
         /// 详情格式图片正则匹配表达式
         /// 匹配格式：#__资源路径&图片名&缩放&X偏移&Y偏移__#
@@ -15,15 +29,20 @@ namespace Honor.Runtime
         private static readonly Regex s_PicRegexOnDetailFormat = new Regex(
             AorTxt.Format(
                 @"{0}(([\w]+/)*[\w]+){1}(?<fname>[\w]+){2}((([0-9]\d*)(.)([0-9]\d*))|([0-9]\d*)){3}((([0-9]\d*)(.)([0-9]\d*))|([0-9]\d*)){4}((([0-9]\d*)(.)([0-9]\d*))|([0-9]\d*)){5}",
-                IDENTIFIERS_START, 
-                SEPARATOR, 
-                SEPARATOR, 
-                SEPARATOR, 
-                SEPARATOR, 
+                IDENTIFIERS_START,
+                SEPARATOR,
+                SEPARATOR,
+                SEPARATOR,
+                SEPARATOR,
                 IDENTIFIERS_END
             )
         );
+        #endregion
 
+        //=========================================================================
+        // 图片标签解析（详情格式）
+        //=========================================================================
+        #region Method - 详情格式解析
         /// <summary>
         /// 解析文本中的【详情格式】图片标签
         /// 格式规则：#__AB包路径&图片名称&缩放值&X偏移&Y偏移__#
@@ -89,6 +108,7 @@ namespace Honor.Runtime
                 inspectorIconList = iconList.ToArray();
             }
         }
+        #endregion
     }
 }
 #endif

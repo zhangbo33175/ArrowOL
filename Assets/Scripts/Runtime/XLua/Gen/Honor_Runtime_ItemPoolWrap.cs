@@ -25,10 +25,10 @@ namespace XLua.CSObjectWrap
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Init", _m_Init);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetItem", _m_GetItem);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DestroyAllItem", _m_DestroyAllItem);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CreateItem", _m_CreateItem);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RecycleItem", _m_RecycleItem);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ClearTmpRecycledItem", _m_ClearTmpRecycledItem);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DestroyAllItem", _m_DestroyAllItem);
 			
 			
 			
@@ -138,33 +138,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_DestroyAllItem(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ItemPool gen_to_be_invoked = (Honor.Runtime.ItemPool)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.DestroyAllItem(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_CreateItem(RealStatePtr L)
         {
 		    try {
@@ -235,6 +208,33 @@ namespace XLua.CSObjectWrap
                 {
                     
                     gen_to_be_invoked.ClearTmpRecycledItem(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_DestroyAllItem(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.ItemPool gen_to_be_invoked = (Honor.Runtime.ItemPool)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.DestroyAllItem(  );
                     
                     
                     

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetDelegateDefine.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   资源系统委托定义文件 - 所有加载/卸载回调委托声明
+ ***************************************************************/
+
 using UnityEngine;
 
 namespace Honor.Runtime
@@ -37,14 +47,14 @@ namespace Honor.Runtime
     public delegate void AssetBundleLoadOverCallBack(AssetBundleObject assetBundleObject, AssetBundle ab);
     #endregion
 
-    #region 资源管理组件 - 声明部分
+    #region 资源管理组件 - 分部类声明
     /// <summary>
-    /// 资源管理组件（声明部分）
+    /// 资源管理组件 - 分部类声明（委托定义部分）
     /// 包含所有资源加载相关的委托定义与分部类声明
     /// </summary>
     public sealed partial class AssetComponent : GameComponent
     {
-
+        
     }
     #endregion
 }

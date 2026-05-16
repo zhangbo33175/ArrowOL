@@ -1,8 +1,26 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetLoadManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   资源加载管理器 - 内部工具方法 & 帧更新驱动实现
+ *            回调管理、卸载逻辑、预加载、Update驱动流程
+ ***************************************************************/
 using System;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 资源加载管理器 - 内部实现 & 帧更新逻辑
+    // 回调处理、卸载执行、预加载调度、Update 驱动
+    //=========================================================================
+    /// <summary>
+    /// 资源加载管理器（内部逻辑分部类）
+    /// 包含异步回调、资源卸载、帧更新驱动、场景查找等内部实现
+    /// </summary>
     public sealed partial class AssetLoadManager
     {
         #region 全局解绑加载完成回调
@@ -15,7 +33,9 @@ namespace Honor.Runtime
         {
             foreach (var assetObj in m_LoadingList.Values)
             {
-                if (assetObj.AssetLoadOverCallbackList.Count == 0) continue;
+                if (assetObj.AssetLoadOverCallbackList.Count == 0) 
+                    continue;
+
                 int index = assetObj.AssetLoadOverCallbackList.IndexOf(overCallback);
                 if (index >= 0)
                 {
@@ -25,7 +45,9 @@ namespace Honor.Runtime
 
             foreach (var assetObj in m_LoadedList.Values)
             {
-                if (assetObj.AssetLoadOverCallbackList.Count == 0) continue;
+                if (assetObj.AssetLoadOverCallbackList.Count == 0) 
+                    continue;
+
                 int index = assetObj.AssetLoadOverCallbackList.IndexOf(overCallback);
                 if (index >= 0)
                 {
@@ -44,9 +66,7 @@ namespace Honor.Runtime
         private void DoAssetCallback(AssetObject assetObj)
         {
             if (assetObj.AssetLoadOverCallbackList.Count == 0)
-            {
                 return;
-            }
 
             // 先提取count，保证回调中有加载需求不影响本次执行
             int count = assetObj.LockCallbackCount;
@@ -109,10 +129,7 @@ namespace Honor.Runtime
             {
                 foreach (AssetUnloadOverCallback overCallback in assetObj.AssetUnloadOverCallbackList)
                 {
-                    if (overCallback != null)
-                    {
-                        overCallback(assetObj);
-                    }
+                    overCallback?.Invoke(assetObj);
                 }
             }
         }
@@ -126,9 +143,7 @@ namespace Honor.Runtime
         private void UpdatePreload()
         {
             if (m_LoadingList.Count > 0 || m_PreloadedAsyncList.Count == 0)
-            {
                 return;
-            }
 
             PreloadAssetObject plAssetObj = null;
             while (m_PreloadedAsyncList.Count > 0 && plAssetObj == null)
@@ -146,8 +161,8 @@ namespace Honor.Runtime
                 }
                 else
                 {
-                    LoadAsync(plAssetObj.TypeName, plAssetObj.AssetBundlePath, plAssetObj.AssetName,
-                        plAssetObj.AssetLoadOverCallback);
+                    LoadAsync(plAssetObj.TypeName, plAssetObj.AssetBundlePath, plAssetObj.AssetName, plAssetObj.AssetLoadOverCallback);
+                    
                     if (m_LoadingList.ContainsKey(plAssetObj.AssetPath))
                     {
                         m_LoadingList[plAssetObj.AssetPath].IsWeak = plAssetObj.IsWeak;
@@ -168,14 +183,14 @@ namespace Honor.Runtime
         /// </summary>
         private void UpdateLoadedAsync()
         {
-            if (m_LoadedAsyncTmpAgentList.Count == 0) return;
+            if (m_LoadedAsyncTmpAgentList.Count == 0) 
+                return;
 
             int count = m_LoadedAsyncTmpAgentList.Count;
             for (int i = 0; i < count; i++)
             {
                 // 锁定回调数量，防止异步过程中列表变化
-                m_LoadedAsyncTmpAgentList[i].LockCallbackCount =
-                    m_LoadedAsyncTmpAgentList[i].AssetLoadOverCallbackList.Count;
+                m_LoadedAsyncTmpAgentList[i].LockCallbackCount = m_LoadedAsyncTmpAgentList[i].AssetLoadOverCallbackList.Count;
             }
 
             for (int i = 0; i < count; i++)
@@ -189,7 +204,7 @@ namespace Honor.Runtime
             if (m_LoadingList.Count == 0 && m_LoadingIntervalCount > m_LoadedMaxNumToCleanMemery)
             {
                 m_LoadingIntervalCount = 0;
-                System.GC.Collect();
+                GC.Collect();
             }
         }
         #endregion
@@ -201,7 +216,8 @@ namespace Honor.Runtime
         /// </summary>
         private void UpdateLoading()
         {
-            if (m_LoadingList.Count == 0) return;
+            if (m_LoadingList.Count == 0) 
+                return;
 
             m_TempLoadeds.Clear();
             foreach (var assetObj in m_LoadingList.Values)
@@ -220,18 +236,16 @@ namespace Honor.Runtime
                     }
                     else
                     {
-                        string assetRelativeFullPath = GetAssetRelativeFullPath(assetObj.TypeName,
-                            assetObj.AssetBundlePath, assetObj.AssetName);
+                        string assetRelativeFullPath = GetAssetRelativeFullPath(assetObj.TypeName, assetObj.AssetBundlePath, assetObj.AssetName);
                         Type assetType = Assembly.GetType(AorTxt.Format("UnityEngine.{0}", assetObj.TypeName));
+                        
                         if (assetType != null)
                         {
-                            assetObj.Asset =
-                                UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath, assetType);
+                            assetObj.Asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath, assetType);
                         }
                         else
                         {
-                            assetObj.Asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath,
-                                typeof(UnityEngine.Object));
+                            assetObj.Asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetRelativeFullPath, typeof(UnityEngine.Object));
                         }
 
                         if (assetObj.Asset == null)
@@ -248,9 +262,7 @@ namespace Honor.Runtime
                         }
                         else
                         {
-                            Log.Error(
-                                "AssetLoadManager.UpdateLoading assetObj.InstanceID '{0}' 已存在。Name: {1} 请检查AB配置",
-                                assetObj.InstanceID, assetObj.AssetName);
+                            Log.Error("AssetLoadManager.UpdateLoading assetObj.InstanceID '{0}' 已存在。Name: {1} 请检查AB配置", assetObj.InstanceID, assetObj.AssetName);
                         }
 
                         assetObj.Request = null;
@@ -287,8 +299,7 @@ namespace Honor.Runtime
                             }
                             else
                             {
-                                Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已存在。",
-                                    assetObj.InstanceID);
+                                Log.Error("AssetLoadManager.LoadSync assetObj.InstanceID '{0}' 已存在。", assetObj.InstanceID);
                             }
                         }
 
@@ -323,7 +334,8 @@ namespace Honor.Runtime
         /// </summary>
         private void UpdateUnload()
         {
-            if (m_UnloadList.Count == 0) return;
+            if (m_UnloadList.Count == 0) 
+                return;
 
             m_TempLoadeds.Clear();
             foreach (var assetObj in m_UnloadList.Values)
@@ -366,10 +378,7 @@ namespace Honor.Runtime
         /// <returns>匹配的AssetObject</returns>
         private AssetObject GetSceneAssetObjectByScene(UnityEngine.SceneManagement.Scene scene)
         {
-            AssetObject result = m_Scenes.Find((assetObject) =>
-            {
-                return assetObject.AssetName == scene.name;
-            });
+            AssetObject result = m_Scenes.Find(assetObject => assetObject.AssetName == scene.name);
             return result;
         }
         #endregion

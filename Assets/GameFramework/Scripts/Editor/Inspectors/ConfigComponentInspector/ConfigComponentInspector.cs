@@ -1,4 +1,14 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ConfigComponentInspector.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   配置组件编辑器
+ *            一键导出 Excel → 加密 JsonBytes，支持查看、打开、定位
+ ***************************************************************/
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
@@ -41,7 +51,6 @@ namespace Honor.Editor
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-
             serializedObject.Update();
 
             // ====================== 功能按钮区 ======================
@@ -79,7 +88,7 @@ namespace Honor.Editor
                 EditorGUILayout.LabelField("开发环境配置");
                 foreach (var itr in m_ConfigDatas)
                 {
-                    EditorGUILayout.LabelField(itr.Key, itr.Value[0].ToString());
+                    EditorGUILayout.LabelField(itr.Key, itr.Value[0]);
                 }
                 EditorGUILayout.EndVertical();
 
@@ -88,7 +97,7 @@ namespace Honor.Editor
                 EditorGUILayout.LabelField("生产环境配置");
                 foreach (var itr in m_ConfigDatas)
                 {
-                    EditorGUILayout.LabelField(itr.Key, itr.Value[1].ToString());
+                    EditorGUILayout.LabelField(itr.Key, itr.Value[1]);
                 }
                 EditorGUILayout.EndVertical();
             }
@@ -129,9 +138,9 @@ namespace Honor.Editor
             m_ConfigDatas.Clear();
 
             // 配置文件路径
-            string jsonFilePath = AorTxt.Format("{0}/{1}/{2}", 
-                Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length), 
-                GamePathUtils.Json.GetRootDirectoryRelativePath(), 
+            string jsonFilePath = AorTxt.Format("{0}/{1}/{2}",
+                Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
+                GamePathUtils.Json.GetRootDirectoryRelativePath(),
                 "Configs.bytes");
 
             if (File.Exists(jsonFilePath))
@@ -147,7 +156,7 @@ namespace Honor.Editor
                 {
                     if (!m_ConfigDatas.ContainsKey(configItr.Key))
                     {
-                        var configData = new List<string>();
+                        List<string> configData = new List<string>();
                         m_ConfigDatas.Add(configItr.Key, configData);
                     }
 
@@ -157,6 +166,7 @@ namespace Honor.Editor
                         m_ConfigDatas[configItr.Key].Add(elementItr.ToString());
                     }
                 }
+
                 return true;
             }
 
@@ -177,7 +187,7 @@ namespace Honor.Editor
 
             // 2. 输出目标路径
             string strSubJsonDirectoryPath = GamePathUtils.Json.GetRootDirectoryFullPath();
-            string strFilePathList = strSubJsonDirectoryPath + "/" + openExcelNamePre + ".bytes";
+            string strFilePathList = $"{strSubJsonDirectoryPath}/{openExcelNamePre}.bytes";
 
             if (!Directory.Exists(strSubJsonDirectoryPath))
             {
@@ -191,9 +201,7 @@ namespace Honor.Editor
             int rows = result.Tables[0].Rows.Count;
             for (int i = 4; i < rows; i++) // 第5行开始是真实配置
             {
-                string thisRow = "    \"" + result.Tables[0].Rows[i][1].ToString() + "\":[\"" +
-                                 result.Tables[0].Rows[i][3].ToString() + "\",\"" +
-                                 result.Tables[0].Rows[i][4].ToString() + "\"]";
+                string thisRow = $"    \"{result.Tables[0].Rows[i][1]}\":[\"{result.Tables[0].Rows[i][3]}\",\"{result.Tables[0].Rows[i][4]}\"]";
 
                 if (i < rows - 1)
                 {

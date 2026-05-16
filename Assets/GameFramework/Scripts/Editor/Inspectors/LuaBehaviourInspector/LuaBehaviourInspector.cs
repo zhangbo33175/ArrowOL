@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviourInspector.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   LuaBehaviour 自定义编辑器检视面板，负责Lua组件的Inspector可视化编辑、
+ *            注入配置、事件绑定、Lua脚本自动生成
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +25,6 @@ namespace Honor.Editor
     internal sealed partial class LuaBehaviourInspector : HonorComponentInspector
     {
         #region 注入模板配置缓存
-
         /// <summary>
         /// 注入类型模板列表
         /// </summary>
@@ -44,7 +53,6 @@ namespace Honor.Editor
         #endregion
 
         #region 序列化属性 - 基础配置
-
         /// <summary>
         /// 设计模式类型
         /// </summary>
@@ -138,7 +146,6 @@ namespace Honor.Editor
         #endregion
 
         #region 序列化属性 - 注入数据集合
-
         /// <summary>
         /// 注入配置数组根属性
         /// </summary>
@@ -217,7 +224,6 @@ namespace Honor.Editor
         #endregion
 
         #region 注入列表操作索引缓存
-
         /// <summary>
         /// 注入项插入位置索引
         /// </summary>
@@ -247,11 +253,9 @@ namespace Honor.Editor
         /// 注入项下移目标位置索引
         /// </summary>
         private int m_InnerInjectionDownwardTargetPosIndex = -1;
-
         #endregion
 
         #region GUI样式资源
-
         /// <summary>
         /// 注入项背景图
         /// </summary>
@@ -275,7 +279,6 @@ namespace Honor.Editor
         #endregion
 
         #region 编辑器状态缓存
-
         /// <summary>
         /// 展开的折叠项集合
         /// </summary>
@@ -288,6 +291,7 @@ namespace Honor.Editor
 
         #endregion
 
+        #region 生命周期方法
         /// <summary>
         /// 编辑器启用时初始化：加载样式、注册事件模板、获取序列化属性、初始化数据
         /// </summary>
@@ -665,7 +669,9 @@ namespace Honor.Editor
         {
             base.OnCompileComplete();
         }
+        #endregion
 
+        #region 注入项操作处理
         /// <summary>
         /// 处理注入项的行操作：插入、删除、上移、下移
         /// </summary>
@@ -723,7 +729,9 @@ namespace Honor.Editor
 
             serializedObject.Update();
         }
+        #endregion
 
+        #region 注入列表绘制
         /// <summary>
         /// 绘制注入列表表头：数量、添加、删除按钮
         /// </summary>
@@ -1656,7 +1664,9 @@ namespace Honor.Editor
             }
             GUILayout.EndVertical();
         }
+        #endregion
 
+        #region 公共工具方法
         /// <summary>
         /// 创建或刷新Lua脚本文件
         /// </summary>
@@ -2134,5 +2144,6 @@ namespace Honor.Editor
                 }
             }
         }
+        #endregion
     }
 }

@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Game
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIComponentInspector.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Honor框架 UI组件编辑器扩展
+ *            提供UI配置、Excel导出、运行时调试、画布/相机管理
+ ***************************************************************/
+
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
@@ -9,6 +20,7 @@ using UnityEngine.UI;
 
 namespace Honor.Editor
 {
+    #region UI组件编辑器面板
     /// <summary>
     /// 【UI 系统编辑器面板】
     /// 功能：提供 UI 框架的可视化配置、调试、Excel 导出、运行时监控
@@ -18,15 +30,21 @@ namespace Honor.Editor
     [CustomEditor(typeof(UIComponent))]
     internal sealed class UIComponentInspector : HonorComponentInspector
     {
-        // 等待界面（Loading）默认配置
-        private string m_WaitingABPathDefault = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
-        private string m_WaitingAssetNameDefault = "UIWaitingDefault";
+        #region 常量定义
+        /// <summary>
+        /// 等待界面（Loading）默认配置
+        /// </summary>
+        private readonly string m_WaitingABPathDefault = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
+        private readonly string m_WaitingAssetNameDefault = "UIWaitingDefault";
 
-        // 飘字界面默认配置
-        private string m_FloatWordsABPathDefault = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
-        private string m_FloatWordsAssetNameDefault = "UIFloatWordsDefault";
+        /// <summary>
+        /// 飘字界面默认配置
+        /// </summary>
+        private readonly string m_FloatWordsABPathDefault = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
+        private readonly string m_FloatWordsAssetNameDefault = "UIFloatWordsDefault";
+        #endregion
 
-        // 序列化字段（绑定 UIComponent 中的变量）
+        #region 序列化字段
         private SerializedProperty m_ScreenDesignedResolution = null;
         private SerializedProperty m_ScreenWidthHeightMatchValue = null;
         private SerializedProperty m_DestroyMaxNumPerFrame = null;
@@ -49,40 +67,48 @@ namespace Honor.Editor
         private SerializedProperty m_CheckOrientationState = null;
 
         private SerializedProperty m_CheckTextLocalizings = null;
+        #endregion
 
-        // 折叠面板状态缓存（运行时调试面板）
+        #region 私有变量
+        /// <summary>
+        /// 折叠面板状态缓存（运行时调试面板）
+        /// </summary>
         private readonly HashSet<string> m_OpenedItems = new HashSet<string>();
+        #endregion
 
+        #region 初始化
         /// <summary>
         /// 初始化：绑定序列化属性
         /// </summary>
         private void OnEnable()
         {
-            m_ScreenDesignedResolution = serializedObject.FindProperty("m_ScreenDesignedResolution");
-            m_ScreenWidthHeightMatchValue = serializedObject.FindProperty("m_ScreenWidthHeightMatchValue");
-            m_DestroyMaxNumPerFrame = serializedObject.FindProperty("m_DestroyMaxNumPerFrame");
+            m_ScreenDesignedResolution      = serializedObject.FindProperty("m_ScreenDesignedResolution");
+            m_ScreenWidthHeightMatchValue   = serializedObject.FindProperty("m_ScreenWidthHeightMatchValue");
+            m_DestroyMaxNumPerFrame         = serializedObject.FindProperty("m_DestroyMaxNumPerFrame");
 
-            m_WaitingUIABPath = serializedObject.FindProperty("m_WaitingUIABPath");
-            m_WaitingUIAssetName = serializedObject.FindProperty("m_WaitingUIAssetName");
+            m_WaitingUIABPath               = serializedObject.FindProperty("m_WaitingUIABPath");
+            m_WaitingUIAssetName            = serializedObject.FindProperty("m_WaitingUIAssetName");
 
-            m_FloatWordsUIABPath = serializedObject.FindProperty("m_FloatWordsUIABPath");
-            m_FloatWordsUIAssetName = serializedObject.FindProperty("m_FloatWordsUIAssetName");
-            m_FloatWordsDuration = serializedObject.FindProperty("m_FloatWordsDuration");
+            m_FloatWordsUIABPath            = serializedObject.FindProperty("m_FloatWordsUIABPath");
+            m_FloatWordsUIAssetName         = serializedObject.FindProperty("m_FloatWordsUIAssetName");
+            m_FloatWordsDuration            = serializedObject.FindProperty("m_FloatWordsDuration");
 
-            m_ButtonInteractDuration = serializedObject.FindProperty("m_ButtonInteractDuration");
+            m_ButtonInteractDuration        = serializedObject.FindProperty("m_ButtonInteractDuration");
 
-            m_ScreenUICameras = serializedObject.FindProperty("m_ScreenUICameras");
-            m_SceneUICameras = serializedObject.FindProperty("m_SceneUICameras");
+            m_ScreenUICameras               = serializedObject.FindProperty("m_ScreenUICameras");
+            m_SceneUICameras                = serializedObject.FindProperty("m_SceneUICameras");
 
-            m_ScreenUICanvas = serializedObject.FindProperty("m_ScreenUICanvas");
-            m_SceneUICanvas = serializedObject.FindProperty("m_SceneUICanvas");
+            m_ScreenUICanvas                = serializedObject.FindProperty("m_ScreenUICanvas");
+            m_SceneUICanvas                 = serializedObject.FindProperty("m_SceneUICanvas");
 
-            m_WebUICanvas = serializedObject.FindProperty("m_WebUICanvas");
-            m_CheckOrientationState = serializedObject.FindProperty("m_CheckOrientationState");
+            m_WebUICanvas                   = serializedObject.FindProperty("m_WebUICanvas");
+            m_CheckOrientationState         = serializedObject.FindProperty("m_CheckOrientationState");
 
-            m_CheckTextLocalizings = serializedObject.FindProperty("m_CheckTextLocalizings");
+            m_CheckTextLocalizings          = serializedObject.FindProperty("m_CheckTextLocalizings");
         }
+        #endregion
 
+        #region Inspector 绘制
         /// <summary>
         /// 绘制 Inspector 面板
         /// </summary>
@@ -91,7 +117,43 @@ namespace Honor.Editor
             base.OnInspectorGUI();
             serializedObject.Update();
 
-            // ====================== 表格操作按钮 ======================
+            DrawExcelToolBar();
+            EditorGUILayout.Separator();
+
+            DrawUICameraAndCanvas();
+            EditorGUILayout.Separator();
+
+            DrawUICoreSettings();
+            EditorGUILayout.Separator();
+
+            if (Application.isPlaying)
+            {
+                DrawRuntimeDebugPanel();
+            }
+
+            serializedObject.ApplyModifiedProperties();
+            Repaint();
+        }
+        #endregion
+
+        #region 编译回调
+        protected override void OnCompileStart()
+        {
+            base.OnCompileStart();
+        }
+
+        protected override void OnCompileComplete()
+        {
+            base.OnCompileComplete();
+        }
+        #endregion
+
+        #region 绘制 - Excel 工具栏
+        /// <summary>
+        /// 绘制表格操作按钮区域
+        /// </summary>
+        private void DrawExcelToolBar()
+        {
             EditorGUILayout.BeginVertical("box");
             {
                 EditorGUILayout.BeginHorizontal("box");
@@ -104,8 +166,7 @@ namespace Honor.Editor
 
                     if (GUILayout.Button("导出UI表Excel到Lua"))
                     {
-                        ExportExcelToLuaFromUI(
-                            System.IO.Path.GetFileNameWithoutExtension(GamePathUtils.UI.GetExcelFileFullPath()));
+                        ExportExcelToLuaFromUI(Path.GetFileNameWithoutExtension(GamePathUtils.UI.GetExcelFileFullPath()));
                         GUIUtility.ExitGUI();
                     }
 
@@ -118,56 +179,90 @@ namespace Honor.Editor
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndVertical();
+        }
+        #endregion
 
-            EditorGUILayout.Separator();
-
-            // ====================== UI 相机 & 画布 ======================
+        #region 绘制 - UI相机与画布
+        /// <summary>
+        /// 绘制UI相机与画布配置
+        /// </summary>
+        private void DrawUICameraAndCanvas()
+        {
             EditorGUILayout.BeginVertical("box");
             {
                 EditorGUILayout.PropertyField(m_ScreenUICameras, new GUIContent("屏幕UI相机"));
                 EditorGUILayout.PropertyField(m_SceneUICameras, new GUIContent("场景UI相机"));
 
-                m_ScreenUICanvas.objectReferenceValue = EditorGUILayout.ObjectField("屏幕UI画布", m_ScreenUICanvas.objectReferenceValue, typeof(Canvas), true);
-                m_SceneUICanvas.objectReferenceValue = EditorGUILayout.ObjectField("场景UI画布", m_SceneUICanvas.objectReferenceValue, typeof(Canvas), true);
+                m_ScreenUICanvas.objectReferenceValue = EditorGUILayout.ObjectField(
+                    "屏幕UI画布", m_ScreenUICanvas.objectReferenceValue, typeof(Canvas), true);
+                
+                m_SceneUICanvas.objectReferenceValue = EditorGUILayout.ObjectField(
+                    "场景UI画布", m_SceneUICanvas.objectReferenceValue, typeof(Canvas), true);
 
-                EditorGUILayout.HelpBox("可根据项目实际情况对上述各类'画布'进行修改。（可修改为Honor树形结构外的其他节点）", MessageType.Info);
+                EditorGUILayout.HelpBox(
+                    "可根据项目实际情况对上述各类'画布'进行修改。（可修改为Honor树形结构外的其他节点）", 
+                    MessageType.Info);
             }
             EditorGUILayout.EndVertical();
+        }
+        #endregion
 
-            EditorGUILayout.Separator();
-
-            // ====================== UI 系统核心配置 ======================
+        #region 绘制 - UI核心配置
+        /// <summary>
+        /// 绘制UI系统核心配置项
+        /// </summary>
+        private void DrawUICoreSettings()
+        {
             EditorGUILayout.BeginVertical("box");
             {
-                m_ScreenDesignedResolution.vector2Value =EditorGUILayout.Vector2Field("屏幕设计分辨率", m_ScreenDesignedResolution.vector2Value);
-                
-                ((Canvas)m_ScreenUICanvas.objectReferenceValue).GetComponent<CanvasScaler>().referenceResolution =
-                    m_ScreenDesignedResolution.vector2Value;
-                
-                m_ScreenWidthHeightMatchValue.floatValue = EditorGUILayout.Slider("屏幕宽高适配比例阀值（W-----H）",
-                    m_ScreenWidthHeightMatchValue.floatValue, 0f, 1f);
-                
-                ((Canvas)m_ScreenUICanvas.objectReferenceValue).GetComponent<CanvasScaler>().matchWidthOrHeight =
-                    m_ScreenWidthHeightMatchValue.floatValue;
-                
-                m_DestroyMaxNumPerFrame.intValue =EditorGUILayout.IntField("每帧最多销毁UI数量", m_DestroyMaxNumPerFrame.intValue);
-               
-                m_CheckOrientationState.boolValue =EditorGUILayout.Toggle("监测屏幕方向变动", m_CheckOrientationState.boolValue);
-               
-                EditorGUILayout.HelpBox("启用监测后，请在Lua中监听事件：FwEventCmd.ScreenOrientationChanged，屏幕翻转时将告知前次与当次的屏幕方向，以及屏幕画布中刘海的尺寸。",
+                // 设计分辨率
+                m_ScreenDesignedResolution.vector2Value = 
+                    EditorGUILayout.Vector2Field("屏幕设计分辨率", m_ScreenDesignedResolution.vector2Value);
+
+                if (m_ScreenUICanvas.objectReferenceValue != null)
+                {
+                    ((Canvas)m_ScreenUICanvas.objectReferenceValue).GetComponent<CanvasScaler>().referenceResolution =
+                        m_ScreenDesignedResolution.vector2Value;
+                }
+
+                // 宽高适配
+                m_ScreenWidthHeightMatchValue.floatValue = EditorGUILayout.Slider(
+                    "屏幕宽高适配比例阀值（W-----H）", m_ScreenWidthHeightMatchValue.floatValue, 0f, 1f);
+
+                if (m_ScreenUICanvas.objectReferenceValue != null)
+                {
+                    ((Canvas)m_ScreenUICanvas.objectReferenceValue).GetComponent<CanvasScaler>().matchWidthOrHeight =
+                        m_ScreenWidthHeightMatchValue.floatValue;
+                }
+
+                // 每帧销毁数量
+                m_DestroyMaxNumPerFrame.intValue = 
+                    EditorGUILayout.IntField("每帧最多销毁UI数量", m_DestroyMaxNumPerFrame.intValue);
+
+                // 屏幕方向监测
+                m_CheckOrientationState.boolValue = 
+                    EditorGUILayout.Toggle("监测屏幕方向变动", m_CheckOrientationState.boolValue);
+
+                EditorGUILayout.HelpBox(
+                    "启用监测后，请在Lua中监听事件：FwEventCmd.ScreenOrientationChanged，屏幕翻转时将告知前次与当次的屏幕方向，以及屏幕画布中刘海的尺寸。",
                     MessageType.Info);
-                
-                m_CheckTextLocalizings.boolValue =EditorGUILayout.Toggle("监测TextLocalizing脚本", m_CheckTextLocalizings.boolValue);
-                
-                EditorGUILayout.HelpBox("启用监测后，运行游戏时未挂载TextLocalizing脚本的文本对象所在路径将以错误信息的形式输出。\n注意：该选项有性能损耗，上线前请做关闭处理。",
+
+                // TextLocalizing 监测
+                m_CheckTextLocalizings.boolValue = 
+                    EditorGUILayout.Toggle("监测TextLocalizing脚本", m_CheckTextLocalizings.boolValue);
+
+                EditorGUILayout.HelpBox(
+                    "启用监测后，运行游戏时未挂载TextLocalizing脚本的文本对象所在路径将以错误信息的形式输出。\n注意：该选项有性能损耗，上线前请做关闭处理。",
                     MessageType.Info);
 
                 EditorGUILayout.Separator();
 
-                // 等待界面（Loading）配置
-                m_WaitingUIABPath.stringValue = EditorGUILayout.TextField("菊花等待界面AB路径", m_WaitingUIABPath.stringValue);
+                // 等待界面配置
+                m_WaitingUIABPath.stringValue = 
+                    EditorGUILayout.TextField("菊花等待界面AB路径", m_WaitingUIABPath.stringValue);
                 m_WaitingUIAssetName.stringValue =
                     EditorGUILayout.TextField("菊花等待界面Asset资源名称", m_WaitingUIAssetName.stringValue);
+                
                 if (GUILayout.Button("使用框架默认菊花等待界面"))
                 {
                     m_WaitingUIABPath.stringValue = m_WaitingABPathDefault;
@@ -178,11 +273,13 @@ namespace Honor.Editor
 
                 EditorGUILayout.Separator();
 
-                m_FloatWordsUIABPath.stringValue =EditorGUILayout.TextField("飘字界面AB路径", m_FloatWordsUIABPath.stringValue);
-                
-                m_FloatWordsUIAssetName.stringValue =EditorGUILayout.TextField("飘字界面Asset资源名称", m_FloatWordsUIAssetName.stringValue);
-                
-                m_FloatWordsDuration.floatValue =EditorGUILayout.FloatField("飘字界面持续时间", m_FloatWordsDuration.floatValue);
+                // 飘字界面配置
+                m_FloatWordsUIABPath.stringValue = 
+                    EditorGUILayout.TextField("飘字界面AB路径", m_FloatWordsUIABPath.stringValue);
+                m_FloatWordsUIAssetName.stringValue = 
+                    EditorGUILayout.TextField("飘字界面Asset资源名称", m_FloatWordsUIAssetName.stringValue);
+                m_FloatWordsDuration.floatValue = 
+                    EditorGUILayout.FloatField("飘字界面持续时间", m_FloatWordsDuration.floatValue);
 
                 if (GUILayout.Button("使用框架默认飘字界面"))
                 {
@@ -194,338 +291,248 @@ namespace Honor.Editor
 
                 EditorGUILayout.Separator();
 
-                m_ButtonInteractDuration.floatValue =EditorGUILayout.FloatField("按钮点击有效间隔", m_ButtonInteractDuration.floatValue);
-                
-                EditorGUILayout.HelpBox("可有效响应按钮连续点击的最小时间间隔，可起到UI按钮防爆击效果，默认值为0", MessageType.Info);
+                // 按钮间隔
+                m_ButtonInteractDuration.floatValue = 
+                    EditorGUILayout.FloatField("按钮点击有效间隔", m_ButtonInteractDuration.floatValue);
+                EditorGUILayout.HelpBox(
+                    "可有效响应按钮连续点击的最小时间间隔，可起到UI按钮防爆击效果，默认值为0", 
+                    MessageType.Info);
             }
             EditorGUILayout.EndVertical();
+        }
+        #endregion
 
-            // ====================== 运行时调试面板 ======================
-            if (Application.isPlaying)
+        #region 绘制 - 运行时调试面板
+        /// <summary>
+        /// 绘制运行时调试信息
+        /// </summary>
+        private void DrawRuntimeDebugPanel()
+        {
+            UIComponent uiComp = (UIComponent)target;
+
+            // 等待界面引用计数
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("[屏幕UI-菊花等待]UI引用计数", uiComp.WaitingUIRefCount.ToString());
+            EditorGUILayout.EndVertical();
+
+            // 模态UI
+            DrawModalUIInfo(uiComp);
+            // 非模态UI
+            DrawUnModalUIList(uiComp);
+            // 场景UI
+            DrawSceneUIList(uiComp);
+            // 附加UI
+            DrawSubUIList(uiComp);
+            // 卸载列表
+            DrawUnloadUIList(uiComp);
+        }
+        #endregion
+
+        #region 绘制 - 各类调试列表
+        private void DrawModalUIInfo(UIComponent uiComp)
+        {
+            if (uiComp.CurModalUI == null)
+                return;
+
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.ObjectField("[屏幕UI-模态]当前UI实例对象", uiComp.CurModalUI.gameObject, typeof(GameObject), true);
+            EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例ID", uiComp.CurModalUI.PrefabInstanceGOBehaviour.InstanceID.ToString());
+            EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例Asset资源名称", uiComp.CurModalUI.UIInfo.AssetName);
+            EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例AB资源路径", uiComp.CurModalUI.UIInfo.ABPath);
+            EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例ZOrder层级", uiComp.CurModalUI.UIInfo.ZOrder.ToString());
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawUnModalUIList(UIComponent uiComp)
+        {
+            if (uiComp.UnModalUIList == null)
+                return;
+
+            string listName = "[屏幕UI-非模态]UI实例队列";
+            bool lastState = m_OpenedItems.Contains(listName);
+            bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, uiComp.UnModalUIList.Count));
+
+            UpdateFoldoutState(listName, lastState, currentState);
+            if (!currentState) return;
+
+            EditorGUILayout.BeginVertical("box");
             {
-                UIComponent uiComp = (UIComponent)target;
-
-                // 等待界面引用计数
-                EditorGUILayout.BeginVertical("box");
-                EditorGUILayout.LabelField("[屏幕UI-菊花等待]UI引用计数", uiComp.WaitingUIRefCount.ToString());
-                EditorGUILayout.EndVertical();
-
-                // 模态UI相关信息
-                if (uiComp.CurModalUI != null)
+                if (uiComp.UnModalUIList.Count <= 0)
                 {
+                    GUILayout.Label("列表为空 ...");
+                    EditorGUILayout.EndVertical();
+                    return;
+                }
+
+                for (int index = 0; index < uiComp.UnModalUIList.Count; index++)
+                {
+                    var ui = uiComp.UnModalUIList[index];
                     EditorGUILayout.BeginVertical("box");
-                    EditorGUILayout.ObjectField("[屏幕UI-模态]当前UI实例对象", uiComp.CurModalUI.gameObject, typeof(GameObject), true);
-                    EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例ID",
-                        uiComp.CurModalUI.PrefabInstanceGOBehaviour.InstanceID.ToString());
-                    EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例Asset资源名称", uiComp.CurModalUI.UIInfo.AssetName);
-                    EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例AB资源路径", uiComp.CurModalUI.UIInfo.ABPath);
-                    EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例ZOrder层级", uiComp.CurModalUI.UIInfo.ZOrder.ToString());
+                    EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index), ui.gameObject, typeof(GameObject), true);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index), ui.PrefabInstanceGOBehaviour.InstanceID.ToString());
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index), ui.UIInfo.AssetName);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index), ui.UIInfo.ABPath);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index), ui.GetComponent<Canvas>().sortingOrder.ToString());
                     EditorGUILayout.EndVertical();
                 }
+            }
+            EditorGUILayout.EndVertical();
+        }
 
-                if (uiComp.ModalUIInfoList != null)
+        private void DrawSceneUIList(UIComponent uiComp)
+        {
+            if (uiComp.SceneUIList == null)
+                return;
+
+            string listName = "[场景UI-普通]UI实例队列";
+            bool lastState = m_OpenedItems.Contains(listName);
+            bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, uiComp.SceneUIList.Count));
+
+            UpdateFoldoutState(listName, lastState, currentState);
+            if (!currentState) return;
+
+            EditorGUILayout.BeginVertical("box");
+            {
+                if (uiComp.SceneUIList.Count <= 0)
                 {
-                    string listName = "[屏幕UI-模态]UI信息缓冲队列";
-                    bool lastState = m_OpenedItems.Contains(listName);
-                    bool currentState = EditorGUILayout.Foldout(lastState,
-                        AorTxt.Format("{0}({1})", listName, uiComp.ModalUIInfoList.Count));
-                    if (currentState != lastState)
-                    {
-                        if (currentState)
-                        {
-                            m_OpenedItems.Add(listName);
-                        }
-                        else
-                        {
-                            m_OpenedItems.Remove(listName);
-                        }
-                    }
-
-                    if (currentState)
-                    {
-                        EditorGUILayout.BeginVertical("box");
-                        {
-                            if (uiComp.ModalUIInfoList.Count > 0)
-                            {
-                                for (int index = 0; index < uiComp.ModalUIInfoList.Count; index++)
-                                {
-                                    EditorGUILayout.BeginVertical("box");
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index),
-                                        uiComp.ModalUIInfoList[index].AssetName);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index),
-                                        uiComp.ModalUIInfoList[index].ABPath);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index),
-                                        uiComp.ModalUIInfoList[index].ZOrder.ToString());
-                                    EditorGUILayout.EndVertical();
-                                }
-                            }
-                            else
-                            {
-                                GUILayout.Label("列表为空 ...");
-                            }
-                        }
-                        EditorGUILayout.EndVertical();
-                    }
+                    GUILayout.Label("列表为空 ...");
+                    EditorGUILayout.EndVertical();
+                    return;
                 }
 
-                // 非模态UI相关信息
-                if (uiComp.UnModalUIList != null)
+                for (int index = 0; index < uiComp.SceneUIList.Count; index++)
                 {
-                    string listName = "[屏幕UI-非模态]UI实例队列";
-                    bool lastState = m_OpenedItems.Contains(listName);
-                    bool currentState = EditorGUILayout.Foldout(lastState,
-                        AorTxt.Format("{0}({1})", listName, uiComp.UnModalUIList.Count));
-                    if (currentState != lastState)
-                    {
-                        if (currentState)
-                        {
-                            m_OpenedItems.Add(listName);
-                        }
-                        else
-                        {
-                            m_OpenedItems.Remove(listName);
-                        }
-                    }
-
-                    if (currentState)
-                    {
-                        EditorGUILayout.BeginVertical("box");
-                        {
-                            if (uiComp.UnModalUIList.Count > 0)
-                            {
-                                for (int index = 0; index < uiComp.UnModalUIList.Count; index++)
-                                {
-                                    EditorGUILayout.BeginVertical("box");
-                                    EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index),
-                                        uiComp.UnModalUIList[index].gameObject, typeof(GameObject), true);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index),
-                                        uiComp.UnModalUIList[index].PrefabInstanceGOBehaviour.InstanceID.ToString());
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index),
-                                        uiComp.UnModalUIList[index].UIInfo.AssetName);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index),
-                                        uiComp.UnModalUIList[index].UIInfo.ABPath);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index),
-                                        uiComp.UnModalUIList[index].GetComponent<Canvas>().sortingOrder.ToString());
-                                    EditorGUILayout.EndVertical();
-                                }
-                            }
-                            else
-                            {
-                                GUILayout.Label("列表为空 ...");
-                            }
-                        }
-                        EditorGUILayout.EndVertical();
-                    }
-                }
-
-                // 场景UI相关信息
-                if (uiComp.SceneUIList != null)
-                {
-                    string listName = "[场景UI-普通]UI实例队列";
-                    bool lastState = m_OpenedItems.Contains(listName);
-                    bool currentState = EditorGUILayout.Foldout(lastState,
-                        AorTxt.Format("{0}({1})", listName, uiComp.SceneUIList.Count));
-                    if (currentState != lastState)
-                    {
-                        if (currentState)
-                        {
-                            m_OpenedItems.Add(listName);
-                        }
-                        else
-                        {
-                            m_OpenedItems.Remove(listName);
-                        }
-                    }
-
-                    if (currentState)
-                    {
-                        EditorGUILayout.BeginVertical("box");
-                        {
-                            if (uiComp.SceneUIList.Count > 0)
-                            {
-                                for (int index = 0; index < uiComp.SceneUIList.Count; index++)
-                                {
-                                    EditorGUILayout.BeginVertical("box");
-                                    EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index),
-                                        uiComp.SceneUIList[index].gameObject, typeof(GameObject), true);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index),
-                                        uiComp.SceneUIList[index].PrefabInstanceGOBehaviour.InstanceID.ToString());
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index),
-                                        uiComp.SceneUIList[index].UIInfo.AssetName);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index),
-                                        uiComp.SceneUIList[index].UIInfo.ABPath);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index),
-                                        uiComp.SceneUIList[index].GetComponent<Canvas>().sortingOrder.ToString());
-                                    EditorGUILayout.EndVertical();
-                                }
-                            }
-                            else
-                            {
-                                GUILayout.Label("列表为空 ...");
-                            }
-                        }
-                        EditorGUILayout.EndVertical();
-                    }
-                }
-
-                // 附加UI相关信息
-                if (uiComp.SubUIList != null)
-                {
-                    foreach (var itr in uiComp.SubUIList)
-                    {
-                        string listName = itr.Key == UIType.Screen ? "[附加UI-屏幕]UI实例队列" : "[附加UI-场景]UI实例队列";
-                        bool lastState = m_OpenedItems.Contains(listName);
-                        bool currentState = EditorGUILayout.Foldout(lastState,
-                            AorTxt.Format("{0}({1})", listName, itr.Value.Count));
-                        if (currentState != lastState)
-                        {
-                            if (currentState)
-                            {
-                                m_OpenedItems.Add(listName);
-                            }
-                            else
-                            {
-                                m_OpenedItems.Remove(listName);
-                            }
-                        }
-
-                        if (currentState)
-                        {
-                            EditorGUILayout.BeginVertical("box");
-                            {
-                                if (itr.Value.Count > 0)
-                                {
-                                    for (int index = 0; index < itr.Value.Count; index++)
-                                    {
-                                        EditorGUILayout.BeginVertical("box");
-                                        EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index),
-                                            itr.Value[index].gameObject, typeof(GameObject), true);
-                                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index),
-                                            itr.Value[index].PrefabInstanceGOBehaviour
-                                                ? itr.Value[index].PrefabInstanceGOBehaviour.InstanceID.ToString()
-                                                : "---");
-                                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index),
-                                            itr.Value[index].UIInfo != null
-                                                ? itr.Value[index].UIInfo.AssetName
-                                                : "---");
-                                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index),
-                                            itr.Value[index].UIInfo != null ? itr.Value[index].UIInfo.ABPath : "---");
-                                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index),
-                                            itr.Value[index].GetComponent<Canvas>()
-                                                ? itr.Value[index].GetComponent<Canvas>().sortingOrder.ToString()
-                                                : "---");
-                                        EditorGUILayout.EndVertical();
-                                    }
-                                }
-                                else
-                                {
-                                    GUILayout.Label("列表为空 ...");
-                                }
-                            }
-                            EditorGUILayout.EndVertical();
-                        }
-                    }
-                }
-
-                // UI卸载列表相关
-                if (uiComp.UnloadUIList != null)
-                {
-                    string listName = "UI卸载列表";
-                    bool lastState = m_OpenedItems.Contains(listName);
-                    bool currentState = EditorGUILayout.Foldout(lastState,
-                        AorTxt.Format("{0}({1})", listName, uiComp.UnloadUIList.Count));
-                    if (currentState != lastState)
-                    {
-                        if (currentState)
-                        {
-                            m_OpenedItems.Add(listName);
-                        }
-                        else
-                        {
-                            m_OpenedItems.Remove(listName);
-                        }
-                    }
-
-                    if (currentState)
-                    {
-                        EditorGUILayout.BeginVertical("box");
-                        {
-                            if (uiComp.UnloadUIList.Count > 0)
-                            {
-                                for (int index = 0; index < uiComp.UnloadUIList.Count; index++)
-                                {
-                                    EditorGUILayout.BeginVertical("box");
-                                    EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index),
-                                        uiComp.UnloadUIList[index].gameObject, typeof(GameObject), true);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index),
-                                        uiComp.UnloadUIList[index].PrefabInstanceGOBehaviour.InstanceID.ToString());
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index),
-                                        uiComp.UnloadUIList[index].UIInfo.AssetName);
-                                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index),
-                                        uiComp.UnloadUIList[index].UIInfo.ABPath);
-                                    EditorGUILayout.EndVertical();
-                                }
-                            }
-                            else
-                            {
-                                GUILayout.Label("列表为空 ...");
-                            }
-                        }
-                        EditorGUILayout.EndVertical();
-                    }
+                    var ui = uiComp.SceneUIList[index];
+                    EditorGUILayout.BeginVertical("box");
+                    EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index), ui.gameObject, typeof(GameObject), true);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index), ui.PrefabInstanceGOBehaviour.InstanceID.ToString());
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index), ui.UIInfo.AssetName);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index), ui.UIInfo.ABPath);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index), ui.GetComponent<Canvas>().sortingOrder.ToString());
+                    EditorGUILayout.EndVertical();
                 }
             }
-
-            serializedObject.ApplyModifiedProperties();
-
-            Repaint();
+            EditorGUILayout.EndVertical();
         }
 
-        protected override void OnCompileStart()
+        private void DrawSubUIList(UIComponent uiComp)
         {
-            base.OnCompileStart();
+            if (uiComp.SubUIList == null)
+                return;
+
+            foreach (var itr in uiComp.SubUIList)
+            {
+                string listName = itr.Key == UIType.Screen ? "[附加UI-屏幕]UI实例队列" : "[附加UI-场景]UI实例队列";
+                bool lastState = m_OpenedItems.Contains(listName);
+                bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, itr.Value.Count));
+
+                UpdateFoldoutState(listName, lastState, currentState);
+                if (!currentState) continue;
+
+                EditorGUILayout.BeginVertical("box");
+                {
+                    if (itr.Value.Count <= 0)
+                    {
+                        GUILayout.Label("列表为空 ...");
+                        EditorGUILayout.EndVertical();
+                        continue;
+                    }
+
+                    for (int index = 0; index < itr.Value.Count; index++)
+                    {
+                        var ui = itr.Value[index];
+                        EditorGUILayout.BeginVertical("box");
+                        EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index), ui.gameObject, typeof(GameObject), true);
+                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index), ui.PrefabInstanceGOBehaviour ? ui.PrefabInstanceGOBehaviour.InstanceID.ToString() : "---");
+                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index), ui.UIInfo != null ? ui.UIInfo.AssetName : "---");
+                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index), ui.UIInfo != null ? ui.UIInfo.ABPath : "---");
+                        EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index), ui.GetComponent<Canvas>() ? ui.GetComponent<Canvas>().sortingOrder.ToString() : "---");
+                        EditorGUILayout.EndVertical();
+                    }
+                }
+                EditorGUILayout.EndVertical();
+            }
         }
 
-        protected override void OnCompileComplete()
+        private void DrawUnloadUIList(UIComponent uiComp)
         {
-            base.OnCompileComplete();
+            if (uiComp.UnloadUIList == null)
+                return;
+
+            string listName = "UI卸载列表";
+            bool lastState = m_OpenedItems.Contains(listName);
+            bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, uiComp.UnloadUIList.Count));
+
+            UpdateFoldoutState(listName, lastState, currentState);
+            if (!currentState) return;
+
+            EditorGUILayout.BeginVertical("box");
+            {
+                if (uiComp.UnloadUIList.Count <= 0)
+                {
+                    GUILayout.Label("列表为空 ...");
+                    EditorGUILayout.EndVertical();
+                    return;
+                }
+
+                for (int index = 0; index < uiComp.UnloadUIList.Count; index++)
+                {
+                    var ui = uiComp.UnloadUIList[index];
+                    EditorGUILayout.BeginVertical("box");
+                    EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index), ui.gameObject, typeof(GameObject), true);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index), ui.PrefabInstanceGOBehaviour.InstanceID.ToString());
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index), ui.UIInfo.AssetName);
+                    EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index), ui.UIInfo.ABPath);
+                    EditorGUILayout.EndVertical();
+                }
+            }
+            EditorGUILayout.EndVertical();
         }
 
+        /// <summary>
+        /// 更新折叠面板状态
+        /// </summary>
+        private void UpdateFoldoutState(string listName, bool lastState, bool currentState)
+        {
+            if (currentState != lastState)
+            {
+                if (currentState) m_OpenedItems.Add(listName);
+                else m_OpenedItems.Remove(listName);
+            }
+        }
+        #endregion
+
+        #region 表格导出
         /// <summary>
         /// 【核心导出】UI Excel 表 → Lua 配置文件
         /// 自动生成 UIs.lua，供 Lua 层直接使用
         /// </summary>
-        /// <param name="openExcelNamePre">UI表格名称</param>
-        /// <returns></returns>
         public bool ExportExcelToLuaFromUI(string openExcelNamePre)
         {
-            // 获取表格内容
             DataSet result = TableExportEditorUtility.GetExcelData(GamePathUtils.UI.GetExcelFileFullPath());
             string strLuaName = "UIs";
             string directoryPath = GamePathUtils.UI.GetLuaScriptRootDirectoryFullPath();
             string luaPath = AorTxt.Format("{0}/{1}", directoryPath, "UIs.lua.txt");
+            
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
             }
 
-            // 获取表格说明
             string tableDetail = result.Tables[0].Rows[0][1].ToString();
-            // 开始添加文件头
             StringBuilder stringBuilder = new StringBuilder();
+            
+            // 文件头
             stringBuilder
-                .AppendLine(
-                    "--=====================================================================================================")
+                .AppendLine("--=====================================================================================================")
                 .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
                 .AppendLine("-- All Rights Reserved.")
-                .AppendLine(
-                    "-- ----------------------------------------------------------------------------------------------------")
+                .AppendLine("-- ----------------------------------------------------------------------------------------------------")
                 .AppendLine(AorTxt.Format("-- filename:  {0}.lua", strLuaName))
                 .AppendLine(AorTxt.Format("-- descrip:   {0}", tableDetail))
                 .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
-                .AppendLine(
-                    "--=====================================================================================================")
-                .AppendLine("");
+                .AppendLine("--=====================================================================================================")
+                .AppendLine();
 
             stringBuilder.AppendLine("---@class Tables.UIs_Item @UI配置项条目");
 
@@ -533,20 +540,21 @@ namespace Honor.Editor
             int rows = result.Tables[0].Rows.Count;
             List<string> colKeys = new List<string>();
             List<string> colTypes = new List<string>();
+
             for (int col = 1; col < columns; col++)
             {
                 string curColKey = result.Tables[0].Rows[1][col].ToString();
                 string curColType = result.Tables[0].Rows[2][col].ToString();
-                string curColDesc = result.Tables[0].Rows[3][col].ToString().Replace("\r", string.Empty)
-                    .Replace("\n", string.Empty);
+                string curColDesc = result.Tables[0].Rows[3][col].ToString().Replace("\r", "").Replace("\n", "");
+                
                 colKeys.Add(curColKey);
                 colTypes.Add(curColType);
                 stringBuilder.AppendLine($"---@field {curColKey} {curColType} @{curColDesc}");
             }
 
-            stringBuilder.AppendLine("");
-
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine("---@class UIs @界面配置汇总");
+
             for (int curRow = 4; curRow < rows; curRow++)
             {
                 string nameStr = result.Tables[0].Rows[curRow][1].ToString();
@@ -559,6 +567,7 @@ namespace Honor.Editor
             {
                 string curName = result.Tables[0].Rows[curRow][1].ToString();
                 stringBuilder.AppendLine($"    {curName} = " + "{");
+                
                 for (int curCol = 1; curCol < columns; curCol++)
                 {
                     string curValue = result.Tables[0].Rows[curRow][curCol].ToString();
@@ -570,13 +579,15 @@ namespace Honor.Editor
             }
 
             stringBuilder.AppendLine("}");
-
-            File.WriteAllText(luaPath, stringBuilder.ToString(), new System.Text.UTF8Encoding(false));
-            Runtime.Log.Info("表格 " + openExcelNamePre + " 数据导出完成");
-
+            File.WriteAllText(luaPath, stringBuilder.ToString(), new UTF8Encoding(false));
+            
+            Log.Info("表格 " + openExcelNamePre + " 数据导出完成");
             AssetDatabase.Refresh();
             Log.Info("UI 表导出完成：" + luaPath);
+            
             return true;
         }
+        #endregion
     }
+    #endregion
 }

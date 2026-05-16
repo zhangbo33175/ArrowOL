@@ -2,6 +2,7 @@
 
 namespace Honor.Runtime
 {
+    #region 游戏框架 - 隐藏属性特性
     /// <summary>
     /// 游戏框架 - 隐藏属性特性
     /// 用于标记在类上，指定需要在 Inspector 中隐藏的属性名称
@@ -10,11 +11,17 @@ namespace Honor.Runtime
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class GameHiddenPropertiesAttribute : Attribute
     {
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 需要隐藏的属性名称数组
         /// </summary>
         public string[] PropertiesNames { get; }
 
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -24,4 +31,5 @@ namespace Honor.Runtime
             PropertiesNames = propertiesNames;
         }
     }
+    #endregion
 }

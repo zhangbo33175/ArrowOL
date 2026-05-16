@@ -39,28 +39,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp1()
-		{
-#if THREAD_SAFE || HOTFIX_ENABLE
-            lock (luaEnv.luaEnvLock)
-            {
-#endif
-                RealStatePtr L = luaEnv.rawL;
-                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
-                
-                
-                PCall(L, 0, 0, errFunc);
-                
-                
-                
-                LuaAPI.lua_settop(L, errFunc - 1);
-                
-#if THREAD_SAFE || HOTFIX_ENABLE
-            }
-#endif
-		}
-        
-		public void __Gen_Delegate_Imp2(bool p0)
+		public void __Gen_Delegate_Imp1(bool p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -72,6 +51,27 @@ namespace XLua
                 LuaAPI.lua_pushboolean(L, p0);
                 
                 PCall(L, 1, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp2()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                
+                
+                PCall(L, 0, 0, errFunc);
                 
                 
                 
@@ -371,34 +371,34 @@ namespace XLua
 			    return new Honor.Runtime.LuaCreateProcedureLuaClassFromCSEventDelegate(__Gen_Delegate_Imp0);
 			}
 		
-		    if (type == typeof(Honor.Runtime.LuaRelateLocalizationTableDataFromCSEventDelegate))
-			{
-			    return new Honor.Runtime.LuaRelateLocalizationTableDataFromCSEventDelegate(__Gen_Delegate_Imp1);
-			}
-		
-		    if (type == typeof(Honor.Runtime.LuaApplicationQuitFromCSEventDelegate))
-			{
-			    return new Honor.Runtime.LuaApplicationQuitFromCSEventDelegate(__Gen_Delegate_Imp1);
-			}
-		
-		    if (type == typeof(UnityEngine.Events.UnityAction))
-			{
-			    return new UnityEngine.Events.UnityAction(__Gen_Delegate_Imp1);
-			}
-		
-		    if (type == typeof(System.Action))
-			{
-			    return new System.Action(__Gen_Delegate_Imp1);
-			}
-		
 		    if (type == typeof(Honor.Runtime.LuaApplicationPauseFromCSEventDelegate))
 			{
-			    return new Honor.Runtime.LuaApplicationPauseFromCSEventDelegate(__Gen_Delegate_Imp2);
+			    return new Honor.Runtime.LuaApplicationPauseFromCSEventDelegate(__Gen_Delegate_Imp1);
 			}
 		
 		    if (type == typeof(System.Action<bool>))
 			{
-			    return new System.Action<bool>(__Gen_Delegate_Imp2);
+			    return new System.Action<bool>(__Gen_Delegate_Imp1);
+			}
+		
+		    if (type == typeof(Honor.Runtime.LuaApplicationQuitFromCSEventDelegate))
+			{
+			    return new Honor.Runtime.LuaApplicationQuitFromCSEventDelegate(__Gen_Delegate_Imp2);
+			}
+		
+		    if (type == typeof(Honor.Runtime.LuaRelateLocalizationTableDataFromCSEventDelegate))
+			{
+			    return new Honor.Runtime.LuaRelateLocalizationTableDataFromCSEventDelegate(__Gen_Delegate_Imp2);
+			}
+		
+		    if (type == typeof(UnityEngine.Events.UnityAction))
+			{
+			    return new UnityEngine.Events.UnityAction(__Gen_Delegate_Imp2);
+			}
+		
+		    if (type == typeof(System.Action))
+			{
+			    return new System.Action(__Gen_Delegate_Imp2);
 			}
 		
 		    if (type == typeof(Honor.Runtime.LuaKeysUpFromCSEventDelegate))

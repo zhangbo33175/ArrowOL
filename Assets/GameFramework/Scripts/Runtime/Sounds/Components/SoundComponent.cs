@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SoundComponent.cs
+ * author:  云毅
+ * created:
+ * descrip:   音频管理组件 - 游戏全局声音总入口（分组/播放/暂停/停止/淡入淡出/Lua）
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -13,6 +22,10 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class SoundComponent : GameComponent
     {
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
+
         protected override void Awake()
         {
             base.Awake();
@@ -51,7 +64,11 @@ namespace Honor.Runtime
         {
         }
 
+        #endregion
+
+        //=========================================================================
         #region 声音组管理
+        //=========================================================================
 
         /// <summary>
         /// 是否存在指定声音组
@@ -87,8 +104,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool AddSoundGroup(string soundGroupName, int soundAgentCount)
         {
-            return AddSoundGroup(soundGroupName, false, SoundConstant.DefaultMute, SoundConstant.DefaultVolume,
-                soundAgentCount);
+            return AddSoundGroup(soundGroupName, false, SoundConstant.DefaultMute, SoundConstant.DefaultVolume, soundAgentCount);
         }
 
         /// <summary>
@@ -119,8 +135,7 @@ namespace Honor.Runtime
             // 绑定 AudioMixer 分组
             if (m_AudioMixer != null)
             {
-                AudioMixerGroup[] audioMixerGroups =
-                    m_AudioMixer.FindMatchingGroups(AorTxt.Format("Master/{0}", soundGroupName));
+                AudioMixerGroup[] audioMixerGroups = m_AudioMixer.FindMatchingGroups(AorTxt.Format("Master/{0}", soundGroupName));
                 soundGroupHelper.AudioMixerGroup = audioMixerGroups.Length > 0
                     ? audioMixerGroups[0]
                     : m_AudioMixer.FindMatchingGroups("Master")[0];
@@ -143,7 +158,9 @@ namespace Honor.Runtime
 
         #endregion
 
+        //=========================================================================
         #region 加载状态查询
+        //=========================================================================
 
         /// <summary>
         /// 获取所有正在加载的声音ID
@@ -168,7 +185,9 @@ namespace Honor.Runtime
 
         #endregion
 
+        //=========================================================================
         #region 播放声音
+        //=========================================================================
 
         /// <summary>
         /// Lua 调用播放声音（自动解析参数表）
@@ -209,7 +228,7 @@ namespace Honor.Runtime
         /// 播放声音（C# 标准接口）
         /// </summary>
         public int PlaySound(string abPath, string assetName, string soundGroupName,
-            PlaySoundParams playSoundParams = null, Vector3 worldPosition = default(Vector3))
+            PlaySoundParams playSoundParams = null, Vector3 worldPosition = default)
         {
             return m_SoundManager.PlaySound(abPath, assetName, soundGroupName, playSoundParams,
                 PlaySoundInfoShell.Create(worldPosition));
@@ -217,7 +236,9 @@ namespace Honor.Runtime
 
         #endregion
 
+        //=========================================================================
         #region 停止声音
+        //=========================================================================
 
         /// <summary>
         /// 停止指定声音
@@ -258,7 +279,9 @@ namespace Honor.Runtime
 
         #endregion
 
+        //=========================================================================
         #region 暂停 / 恢复
+        //=========================================================================
 
         /// <summary>
         /// 暂停声音
@@ -288,7 +311,9 @@ namespace Honor.Runtime
 
         #endregion
 
+        //=========================================================================
         #region 分组控制
+        //=========================================================================
 
         /// <summary>
         /// 暂停整个声音组
@@ -316,7 +341,9 @@ namespace Honor.Runtime
 
         #endregion
 
+        //=========================================================================
         #region 音量控制
+        //=========================================================================
 
         /// <summary>
         /// 设置指定组的全局音量

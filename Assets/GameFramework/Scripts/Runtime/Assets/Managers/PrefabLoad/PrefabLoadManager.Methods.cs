@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PrefabLoadManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Prefab 加载管理器 - 内部实例化 & 回调实现
+ *            包含 GameObject 实例化、Lua 绑定、异步回调派发、层级修复
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +15,9 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Prefab 加载管理器（内部实现分部类）
+    /// </summary>
     public sealed partial class PrefabLoadManager
     {
         /// <summary>
@@ -76,10 +89,12 @@ namespace Honor.Runtime
                                 nearestInactiveParentInHierarchy.gameObject.SetActive(false);
                             }
                         }
+
                         childBehaviour.AwakeAppended();
                         childBehaviour.OnEnableAppended();
                     }
                 }
+
                 if (luaBehaviour != null)
                 {
                     goBehaviour.LuaBehaviour = luaBehaviour;
@@ -158,16 +173,17 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 向上查找 Hierarchy 中**最近的未激活父物体**
+        /// 向上查找 Hierarchy 中最近的未激活父物体
         /// 用于修复非激活节点无法触发 Awake 的问题
         /// </summary>
         private GameObject GetNearestInactiveParentInHierarchy(GameObject go)
         {
             Transform parent = go.transform.parent;
-            while(parent.gameObject.activeSelf || !parent.parent.gameObject.activeSelf)
+            while (parent.gameObject.activeSelf || !parent.parent.gameObject.activeSelf)
             {
                 parent = parent.parent;
             }
+
             return parent.gameObject;
         }
     }

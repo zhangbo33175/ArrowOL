@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkManager.cs
+ * author:    云毅
+ * created:
+ * descrip:   网络底层核心管理器，负责网络状态、连接、WebSocket 管理
+ ***************************************************************/
+
 #if BEST_HTTP_ENABLE
 using BestHTTP.WebSocket;
 #endif
@@ -12,6 +22,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class NetworkManager
     {
+        //=========================================================================
+        #region 构造函数
+        //=========================================================================
+
         /// <summary>
         /// 构造函数
         /// 初始化Lua组件、超时时间、WebSocket容器
@@ -34,6 +48,12 @@ namespace Honor.Runtime
             m_WebSockets = new Dictionary<string, WebSocket>();
 #endif
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 网络状态
+        //=========================================================================
 
         /// <summary>
         /// 检查当前设备网络是否可用
@@ -60,5 +80,7 @@ namespace Honor.Runtime
             
             return false;
         }
+
+        #endregion
     }
 }

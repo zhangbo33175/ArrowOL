@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ProcedureComponent.cs
+ * author:    云毅
+ * created:
+ * descrip:   游戏流程状态机核心组件 - 流程管理、状态切换、Lua绑定、日志记录
+ ***************************************************************/
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +24,10 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class ProcedureComponent : GameComponent
     {
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
+
         protected override void Awake()
         {
             base.Awake();
@@ -91,6 +105,12 @@ namespace Honor.Runtime
             //}
         }
 
+        #endregion
+
+        //=========================================================================
+        #region Lua 绑定
+        //=========================================================================
+
         /// <summary>
         /// 初始化所有流程的 Lua 脚本绑定
         /// 白名单内的流程会自动关联对应 Lua 逻辑
@@ -111,6 +131,12 @@ namespace Honor.Runtime
                 }
             }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 流程控制
+        //=========================================================================
 
         /// <summary>
         /// 启动指定类型的流程
@@ -149,6 +175,12 @@ namespace Honor.Runtime
             return (ProcedureState)m_ProcedureStateMachine.GetState(procedureType);
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 运行时日志记录
+        //=========================================================================
+
         /// <summary>
         /// 记录流程运行时信息（用于日志、打点、调试）
         /// </summary>
@@ -161,5 +193,7 @@ namespace Honor.Runtime
                 m_RuntimeProcedureRecordInfos.Add(AorTxt.Format("{0}\t（{1:N2}秒）", procedureTypeName, time));
             }
         }
+
+        #endregion
     }
 }

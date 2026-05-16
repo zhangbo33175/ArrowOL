@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviour.MVVM.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   LuaBehaviour - MVVM 模式专用字段与声明
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,12 +15,12 @@ using XLua;
 
 namespace Honor.Runtime
 {
-    /// <summary>
-    /// Lua 逻辑挂载脚本（MVVM 模式）
-    /// 负责 Lua 脚本加载、生命周期管理、UI 数据绑定
-    /// </summary>
-    public partial class LuaBehaviour : MonoBehaviour
+    public partial class LuaBehaviour
     {
+        //=========================================================================
+        // MVVM 模式 - 序列化字段
+        //=========================================================================
+        #region MVVM Serialized Fields
         /// <summary>
         /// MVVM 模式：Lua 脚本公共名称（配置用）
         /// </summary>
@@ -34,6 +44,15 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField]
         private List<LuaBindValue> m_BindValues;
+        #endregion
+
+        //=========================================================================
+        // MVVM 模式 - 运行时数据
+        //=========================================================================
+        #region MVVM Runtime Data
+        /// <summary>
+        /// 绑定数据集合（只读）
+        /// </summary>
         public List<LuaBindValue> BindValues => m_BindValues;
 
         /// <summary>
@@ -46,10 +65,12 @@ namespace Honor.Runtime
         /// MVVM 模式：Lua Class 实例
         /// </summary>
         private LuaTable[] m_OwnLuaClassesMVVM;
+        #endregion
 
-        // ==============================================
-        // Lua 生命周期回调（MVVM 多脚本支持）
-        // ==============================================
+        //=========================================================================
+        // MVVM 模式 - Lua 生命周期回调
+        //=========================================================================
+        #region MVVM Lua Lifecycle Callbacks
         /// <summary>
         /// Lua 生命周期：Awake
         /// </summary>
@@ -79,5 +100,6 @@ namespace Honor.Runtime
         /// Lua 生命周期：OnDestroy
         /// </summary>
         private Action[] m_LuaOnDestroysMVVM;
+        #endregion
     }
 }

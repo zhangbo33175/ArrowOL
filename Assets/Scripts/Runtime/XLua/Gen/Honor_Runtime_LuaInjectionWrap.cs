@@ -63,20 +63,16 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 4, 4);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 5, 0, 0);
 			
 			
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LuaInjectionType", Honor.Runtime.LuaInjection.LuaInjectionType);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "DisplayInjectionTypeString", Honor.Runtime.LuaInjection.DisplayInjectionTypeString);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "InjectionTypeDisplayToRealMapping", Honor.Runtime.LuaInjection.InjectionTypeDisplayToRealMapping);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "InjectionTypeRealToDisplayMapping", Honor.Runtime.LuaInjection.InjectionTypeRealToDisplayMapping);
             
-			Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "LuaInjectionType", _g_get_LuaInjectionType);
-            Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "DisplayInjectionTypeString", _g_get_DisplayInjectionTypeString);
-            Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "InjectionTypeDisplayToRealMapping", _g_get_InjectionTypeDisplayToRealMapping);
-            Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "InjectionTypeRealToDisplayMapping", _g_get_InjectionTypeRealToDisplayMapping);
-            
-			Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "LuaInjectionType", _s_set_LuaInjectionType);
-            Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "DisplayInjectionTypeString", _s_set_DisplayInjectionTypeString);
-            Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "InjectionTypeDisplayToRealMapping", _s_set_InjectionTypeDisplayToRealMapping);
-            Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "InjectionTypeRealToDisplayMapping", _s_set_InjectionTypeRealToDisplayMapping);
-            
+			
+			
 			
 			Utils.EndClassRegister(type, L, translator);
         }
@@ -229,54 +225,6 @@ namespace XLua.CSObjectWrap
         
         
         
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaInjectionType(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    translator.Push(L, Honor.Runtime.LuaInjection.LuaInjectionType);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_DisplayInjectionTypeString(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    translator.Push(L, Honor.Runtime.LuaInjection.DisplayInjectionTypeString);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_InjectionTypeDisplayToRealMapping(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    translator.Push(L, Honor.Runtime.LuaInjection.InjectionTypeDisplayToRealMapping);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_InjectionTypeRealToDisplayMapping(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    translator.Push(L, Honor.Runtime.LuaInjection.InjectionTypeRealToDisplayMapping);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_Comment(RealStatePtr L)
@@ -475,58 +423,6 @@ namespace XLua.CSObjectWrap
         }
         
         
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_LuaInjectionType(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    Honor.Runtime.LuaInjection.LuaInjectionType = (string[])translator.GetObject(L, 1, typeof(string[]));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_DisplayInjectionTypeString(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    Honor.Runtime.LuaInjection.DisplayInjectionTypeString = (string[])translator.GetObject(L, 1, typeof(string[]));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_InjectionTypeDisplayToRealMapping(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    Honor.Runtime.LuaInjection.InjectionTypeDisplayToRealMapping = (System.Collections.Generic.Dictionary<int, int>)translator.GetObject(L, 1, typeof(System.Collections.Generic.Dictionary<int, int>));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_InjectionTypeRealToDisplayMapping(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    Honor.Runtime.LuaInjection.InjectionTypeRealToDisplayMapping = (System.Collections.Generic.Dictionary<int, int>)translator.GetObject(L, 1, typeof(System.Collections.Generic.Dictionary<int, int>));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_Comment(RealStatePtr L)

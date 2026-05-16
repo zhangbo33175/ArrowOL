@@ -1,8 +1,24 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetLoadManager.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   资源加载管理器 - 成员变量 & 属性定义分部类
+ *            包含所有缓存集合、配置、管理器引用、状态标记
+ ***************************************************************/
 using System.Collections.Generic;
 
 namespace Honor.Runtime
-
 {
+    //=========================================================================
+    // 资源加载管理器 - 成员变量 & 属性定义
+    // 所有字段、集合、配置、对外属性统一声明
+    //=========================================================================
+    /// <summary>
+    /// 资源加载管理器（成员定义分部类）
+    /// </summary>
     public sealed partial class AssetLoadManager
     {
         #region 自动卸载延迟配置
@@ -11,16 +27,13 @@ namespace Honor.Runtime
         /// 计算公式：60 * 60 = 1分钟（基于60帧）
         /// </summary>
         private int m_UnloadAssetDelayFrameNum = 60 * 60;
-        
+
         /// <summary>
         /// 设置资源自动卸载延迟帧数
         /// </summary>
         public int UnloadAssetDelayFrameNum
         {
-            set
-            {
-                m_UnloadAssetDelayFrameNum = value;
-            }
+            set => m_UnloadAssetDelayFrameNum = value;
         }
         #endregion
 
@@ -30,16 +43,13 @@ namespace Honor.Runtime
         /// 累计加载此数量后自动 GC
         /// </summary>
         private int m_LoadedMaxNumToCleanMemery = 50;
-        
+
         /// <summary>
         /// 设置自动内存清理上限
         /// </summary>
         public int LoadedMaxNumToCleanMemery
         {
-            set
-            {
-                m_LoadedMaxNumToCleanMemery = value;
-            }
+            set => m_LoadedMaxNumToCleanMemery = value;
         }
         #endregion
 
@@ -58,16 +68,13 @@ namespace Honor.Runtime
         /// Key：资源唯一路径
         /// </summary>
         private readonly Dictionary<string, AssetObject> m_LoadingList;
-        
+
         /// <summary>
         /// 获取异步加载中列表
         /// </summary>
         public Dictionary<string, AssetObject> LoadingList
         {
-            get
-            {
-                return m_LoadingList;
-            }
+            get => m_LoadingList;
         }
         #endregion
 
@@ -77,16 +84,13 @@ namespace Honor.Runtime
         /// 存储加载成功、可正常使用的资源对象
         /// </summary>
         private readonly Dictionary<string, AssetObject> m_LoadedList;
-        
+
         /// <summary>
         /// 获取已加载完成列表
         /// </summary>
         public Dictionary<string, AssetObject> LoadedList
         {
-            get
-            {
-                return m_LoadedList;
-            }
+            get => m_LoadedList;
         }
         #endregion
 
@@ -96,16 +100,13 @@ namespace Honor.Runtime
         /// 引用计数为0，等待延迟卸载的资源
         /// </summary>
         private readonly Dictionary<string, AssetObject> m_UnloadList;
-        
+
         /// <summary>
         /// 获取等待卸载列表
         /// </summary>
         public Dictionary<string, AssetObject> UnloadList
         {
-            get
-            {
-                return m_UnloadList;
-            }
+            get => m_UnloadList;
         }
         #endregion
 
@@ -115,16 +116,13 @@ namespace Honor.Runtime
         /// 空闲时按顺序预加载，不阻塞主线程
         /// </summary>
         private readonly Queue<PreloadAssetObject> m_PreloadedAsyncList;
-        
+
         /// <summary>
         /// 获取异步预加载队列
         /// </summary>
         public Queue<PreloadAssetObject> PreloadedAsyncList
         {
-            get
-            {
-                return m_PreloadedAsyncList;
-            }
+            get => m_PreloadedAsyncList;
         }
         #endregion
 
@@ -138,16 +136,13 @@ namespace Honor.Runtime
         /// AssetBundle 加载管理器
         /// </summary>
         private readonly AssetBundleLoadManager _mAssetBundleLoadManager = null;
-        
+
         /// <summary>
         /// 获取 AssetBundle 加载管理器
         /// </summary>
         public AssetBundleLoadManager AssetBundleLoadManager
         {
-            get
-            {
-                return _mAssetBundleLoadManager;
-            }
+            get => _mAssetBundleLoadManager;
         }
         #endregion
 
@@ -174,16 +169,13 @@ namespace Honor.Runtime
         /// 不包含启动场景 Launching.unity
         /// </summary>
         private List<AssetObject> m_Scenes;
-        
+
         /// <summary>
         /// 获取已加载场景列表
         /// </summary>
         public List<AssetObject> Scenes
         {
-            get
-            {
-                return m_Scenes;
-            }
+            get => m_Scenes;
         }
         #endregion
 

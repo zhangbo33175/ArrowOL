@@ -1,9 +1,26 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LauncherComponent.Fields.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   框架启动器 - 序列化字段与公共属性（partial）
+ ***************************************************************/
+
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 框架启动器 - 字段与属性部分
+    /// </summary>
     public sealed partial class LauncherComponent : GameComponent
     {
+        //=========================================================================
+        // 序列化字段（Inspector 配置）
+        //=========================================================================
+        #region Serialized Fields
         /// <summary>
         /// 编辑器资源模式
         /// 是否以编辑器资源模式运行（仅编辑器内有效），在手机上时会自动校正归为false
@@ -38,7 +55,7 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField]
         private bool m_LuaHotReloadMode = false;
-        
+
         /// <summary>
         /// 运行帧率
         /// 游戏运行时每秒的最高帧数
@@ -68,90 +85,104 @@ namespace Honor.Runtime
         private bool m_NeverSleep = true;
 
         /// <summary>
+        /// 自定义设备分级/评级
+        /// </summary>
+        [SerializeField]
+        private bool m_CustomDevicePerformance = false;
+
+        /// <summary>
+        /// 开启设备分级/评级
+        /// </summary>
+        [SerializeField]
+        private bool m_UseDevicePerformance = false;
+
+        /// <summary>
+        /// 编辑器性能配置
+        /// </summary>
+        [SerializeField]
+        private DevicePerformanceData m_EditorPerformance = new DevicePerformanceData(2, 4000, 2000, 8000, 4000);
+
+        /// <summary>
+        /// iOS 性能配置
+        /// </summary>
+        [SerializeField]
+        private DevicePerformanceData m_iOSPerformance = new DevicePerformanceData(2, 4000, 2000, 8000, 4000);
+
+        /// <summary>
+        /// Android 性能配置
+        /// </summary>
+        [SerializeField]
+        private DevicePerformanceData m_AndroidPerformance = new DevicePerformanceData(4, 6000, 2000, 8000, 4000);
+
+        /// <summary>
+        /// 调试界面皮肤
+        /// </summary>
+        [SerializeField]
+        private GUISkin debugSkin = null;
+        #endregion
+
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        #region Private Fields
+        /// <summary>
         /// 游戏缓存速率（用于取消暂停时游戏速率的恢复）
         /// </summary>
         private float m_GameSpeedCache = 1f;
-        public float GameSpeedCache
-        {
-            get
-            {
-                return m_GameSpeedCache;
-            }
-        }
-        
+        #endregion
+
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        #region Public Properties
         /// <summary>
-        /// 获取或设置是否使用编辑器资源模式（仅编辑器内有效）。
+        /// 游戏缓存速度（只读）
+        /// </summary>
+        public float GameSpeedCache => m_GameSpeedCache;
+
+        /// <summary>
+        /// 获取或设置是否使用编辑器资源模式（仅编辑器内有效）
         /// </summary>
         public bool EditorResourceMode
         {
-            get
-            {
-                return m_EditorResourceMode;
-            }
-            set
-            {
-                m_EditorResourceMode = value;
-            }
+            get => m_EditorResourceMode;
+            set => m_EditorResourceMode = value;
         }
 
         /// <summary>
-        /// 获取或设置编辑器启动语言（仅编辑器内有效）。
+        /// 获取或设置编辑器启动语言（仅编辑器内有效）
         /// </summary>
         public GameDefinitions.Language EditorLanguage
         {
-            get
-            {
-                return m_EditorLanguage;
-            }
-            set
-            {
-                m_EditorLanguage = value;
-            }
+            get => m_EditorLanguage;
+            set => m_EditorLanguage = value;
         }
 
         /// <summary>
-        /// 获取或设置开发模式。
+        /// 获取或设置开发模式
         /// </summary>
         public bool DevelopMode
         {
-            get
-            {
-                return m_DevelopMode;
-            }
-            set
-            {
-                m_DevelopMode = value;
-            }
+            get => m_DevelopMode;
+            set => m_DevelopMode = value;
         }
 
         /// <summary>
-        /// 获取或设置Luac模式。
+        /// 获取或设置Luac模式
         /// </summary>
         public bool LuacMode
         {
-            get
-            {
-                return m_LuacMode;
-            }
-            set
-            {
-                m_LuacMode = value;
-            }
+            get => m_LuacMode;
+            set => m_LuacMode = value;
         }
 
         /// <summary>
-        /// 获取或设置Lua热重载模式。
+        /// 获取或设置Lua热重载模式
         /// </summary>
         public bool LuaHotReloadMode
         {
-            get
-            {
-                return m_LuaHotReloadMode;
-            }
-            set
-            {
-                m_LuaHotReloadMode = value;
-            }
+            get => m_LuaHotReloadMode;
+            set => m_LuaHotReloadMode = value;
         }
 
         /// <summary>
@@ -159,65 +190,47 @@ namespace Honor.Runtime
         /// </summary>
         public int FrameRate
         {
-            get
-            {
-                return m_FrameRate;
-            }
+            get => m_FrameRate;
             set
             {
-                Application.targetFrameRate = m_FrameRate = value;
+                m_FrameRate = value;
+                Application.targetFrameRate = m_FrameRate;
             }
         }
-        
+
         /// <summary>
         /// 获取或设置游戏速度
         /// </summary>
         public float GameSpeed
         {
-            get
-            {
-                return m_GameSpeed;
-            }
+            get => m_GameSpeed;
             set
             {
-                Time.timeScale = m_GameSpeed = value >= 0f ? value : 0f;
+                m_GameSpeed = value >= 0f ? value : 0f;
+                Time.timeScale = m_GameSpeed;
             }
         }
 
         /// <summary>
         /// 获取游戏是否暂停
         /// </summary>
-        public bool IsGamePaused
-        {
-            get
-            {
-                return m_GameSpeed <= 0f;
-            }
-        }
+        public bool IsGamePaused => m_GameSpeed <= 0f;
 
         /// <summary>
         /// 获取是否正常游戏速度
         /// </summary>
-        public bool IsNormalGameSpeed
-        {
-            get
-            {
-                return m_GameSpeed == 1f;
-            }
-        }
+        public bool IsNormalGameSpeed => m_GameSpeed == 1f;
 
         /// <summary>
         /// 获取或设置是否允许后台运行
         /// </summary>
         public bool RunInBackground
         {
-            get
-            {
-                return m_RunInBackground;
-            }
+            get => m_RunInBackground;
             set
             {
-                Application.runInBackground = m_RunInBackground = value;
+                m_RunInBackground = value;
+                Application.runInBackground = m_RunInBackground;
             }
         }
 
@@ -226,10 +239,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool NeverSleep
         {
-            get
-            {
-                return m_NeverSleep;
-            }
+            get => m_NeverSleep;
             set
             {
                 m_NeverSleep = value;
@@ -255,85 +265,47 @@ namespace Honor.Runtime
         /// <summary>
         /// 自定义设备分级/评级
         /// </summary>
-        [SerializeField]
-        private bool m_CustomDevicePerformance = false;
         public bool CustomDevicePerformance
-        { 
-            set 
-            { 
-                m_CustomDevicePerformance = value; 
-            }
-            get 
-            { 
-                return m_CustomDevicePerformance; 
-            }
+        {
+            get => m_CustomDevicePerformance;
+            set => m_CustomDevicePerformance = value;
         }
 
         /// <summary>
         /// 开启设备分级/评级
         /// </summary>
-        [SerializeField]
-        private bool m_UseDevicePerformance = false;
         public bool UseDevicePerformance
         {
-            set
-            {
-                m_UseDevicePerformance = value;
-            }
-            get
-            {
-                return m_UseDevicePerformance;
-            }
+            get => m_UseDevicePerformance;
+            set => m_UseDevicePerformance = value;
         }
 
-        [SerializeField]
-        private DevicePerformanceData m_EditorPerformance = new DevicePerformanceData(2, 4000, 2000, 8000, 4000);
+        /// <summary>
+        /// 编辑器性能配置
+        /// </summary>
         public DevicePerformanceData EditorPerformance
-        { 
-            set 
-            { 
-                m_EditorPerformance = value; 
-            }
-            get 
-            { 
-                return m_EditorPerformance; 
-            }
+        {
+            get => m_EditorPerformance;
+            set => m_EditorPerformance = value;
         }
 
-        [SerializeField]
-        private DevicePerformanceData m_iOSPerformance = new DevicePerformanceData(2, 4000, 2000, 8000, 4000);
+        /// <summary>
+        /// iOS 性能配置
+        /// </summary>
         public DevicePerformanceData iOSPerformance
         {
-            set
-            {
-                m_iOSPerformance = value;
-            }
-            get
-            {
-                return m_iOSPerformance;
-            }
+            get => m_iOSPerformance;
+            set => m_iOSPerformance = value;
         }
 
-
-        [SerializeField]
-        private DevicePerformanceData m_AndroidPerformance = new DevicePerformanceData(4, 6000, 2000, 8000, 4000);
+        /// <summary>
+        /// Android 性能配置
+        /// </summary>
         public DevicePerformanceData AndroidPerformance
         {
-            set
-            {
-                m_AndroidPerformance = value;
-            }
-            get
-            {
-                return m_AndroidPerformance;
-            }
+            get => m_AndroidPerformance;
+            set => m_AndroidPerformance = value;
         }
-
-        [SerializeField]
-        private GUISkin debugSkin = null;
-        
+        #endregion
     }
-
 }
-
-

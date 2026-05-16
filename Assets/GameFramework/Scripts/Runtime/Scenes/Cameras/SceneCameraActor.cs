@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SceneCameraActor.cs
+ * author:  云毅
+ * created:
+ * descrip:   场景相机控制器 - 统一管理主相机位移/旋转/缩放/动画/触摸控制
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     using DG.Tweening;
@@ -15,15 +24,15 @@ namespace Honor.Runtime
     [RequireComponent(typeof(Camera))]
     public sealed partial class SceneCameraActor : MonoBehaviour
     {
+        //=========================================================================
+        #region 成员变量
+        //=========================================================================
+
         /// <summary>
         /// 场景主相机
         /// </summary>
         private Camera m_Camera;
-
-        public Camera Camera
-        {
-            get { return m_Camera; }
-        }
+        public Camera Camera => m_Camera;
 
         /// <summary>
         /// 触摸管理组件
@@ -83,10 +92,16 @@ namespace Honor.Runtime
         /// </summary>
         private bool m_ScaleCanInterruptByGestures;
 
+        #endregion
+
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
+
         /// <summary>
         /// 初始化：获取相机与触摸组件
         /// </summary>
-        void Awake()
+        private void Awake()
         {
             m_TouchComponent = GameComponentsGroup.GetComponent<TouchComponent>();
             if (m_TouchComponent == null)
@@ -106,7 +121,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 启动：绑定手势控制器
         /// </summary>
-        void Start()
+        private void Start()
         {
 #if EASY_TOUCH_ENABLE
             m_Gestures2D = m_TouchComponent.Gestures2D;
@@ -114,13 +129,14 @@ namespace Honor.Runtime
 #endif
         }
 
-        void OnEnable()
-        {
-        }
+        private void OnEnable() { }
+        private void OnDisable() { }
 
-        void OnDisable()
-        {
-        }
+        #endregion
+
+        //=========================================================================
+        #region 初始化相机
+        //=========================================================================
 
         /// <summary>
         /// 初始化相机（无动画）
@@ -176,6 +192,12 @@ namespace Honor.Runtime
                 canInterruptByGestures,
                 overCallback);
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 相机动画
+        //=========================================================================
 
         /// <summary>
         /// 播放相机综合动画（位移+旋转+缩放）
@@ -317,6 +339,12 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 触摸控制
+        //=========================================================================
+
         /// <summary>
         /// 增加禁止触摸引用（禁用触摸）
         /// </summary>
@@ -345,5 +373,7 @@ namespace Honor.Runtime
                 Log.Error("SceneCameraActor 禁止触摸引用计数异常 < 0");
 #endif
         }
+
+        #endregion
     }
 }

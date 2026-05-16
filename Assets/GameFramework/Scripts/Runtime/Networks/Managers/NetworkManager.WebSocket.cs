@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkManager.WebSocket.cs
+ * author:    云毅
+ * created:
+ * descrip:   网络底层管理器 - WebSocket 长连接实现（基于 BestHTTP）
+ ***************************************************************/
+
 #if BEST_HTTP_ENABLE
 using BestHTTP;
 using BestHTTP.WebSocket;
@@ -6,9 +16,17 @@ using System;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 网络底层管理器 - WebSocket 长连接模块
+    /// </summary>
     public sealed partial class NetworkManager
     {
+      
 #if BEST_HTTP_ENABLE
+        //=========================================================================
+        #region WebSocket 连接管理
+        //=========================================================================
+
         /// <summary>
         /// 创建并建立 WebSocket 连接
         /// 自动去重、绑定事件、开启心跳、管理连接池
@@ -128,6 +146,12 @@ namespace Honor.Runtime
             return m_WebSockets[wsName];
         }
 
+        #endregion
+
+        //=========================================================================
+        #region WebSocket 生命周期回调
+        //=========================================================================
+
         /// <summary>
         /// WebSocket 连接成功回调
         /// </summary>
@@ -199,6 +223,9 @@ namespace Honor.Runtime
                 m_LuaComponent.LuaWebSocketErrorCSEventDelegate(ws, error);
             }
         }
+    #endregion
 #endif
+
+    
     }
 }

@@ -21,9 +21,10 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.Collider3DLifeCyclesBehaviour);
-			Utils.BeginObjectRegister(type, L, translator, 0, 1, 0, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 2, 0, 0);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LuaBinding", _m_LuaBinding);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LuaUnBinding", _m_LuaUnBinding);
 			
 			
 			
@@ -88,6 +89,33 @@ namespace XLua.CSObjectWrap
                     XLua.LuaTable _luaEnv = (XLua.LuaTable)translator.GetObject(L, 2, typeof(XLua.LuaTable));
                     
                     gen_to_be_invoked.LuaBinding( _luaEnv );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_LuaUnBinding(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.Collider3DLifeCyclesBehaviour gen_to_be_invoked = (Honor.Runtime.Collider3DLifeCyclesBehaviour)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.LuaUnBinding(  );
                     
                     
                     

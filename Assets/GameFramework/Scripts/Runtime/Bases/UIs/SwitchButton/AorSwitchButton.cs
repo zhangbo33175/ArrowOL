@@ -1,5 +1,15 @@
-using UnityEngine.UI;
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorSwitchButton.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   自定义开关切换按钮 | 基于UGUI Toggle扩展 | 无动画 | 支持Text/TMP
+ ***************************************************************/
+
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 namespace Honor.Runtime
@@ -11,48 +21,68 @@ namespace Honor.Runtime
     /// </summary>
     public class AorSwitchButton : Toggle
     {
+        //=========================================================================
+        // 字段成员
+        //=========================================================================
+        #region Field - Text Label
         /// <summary>
         /// UGUI 文本标签，用于显示开关文字
         /// </summary>
         [SerializeField]
         private Text m_Label;
-        
-        /// <summary>
-        /// 外部访问UGUI文本标签
-        /// </summary>
-        public Text Label
-        {
-            get { return m_Label; }
-            set { m_Label = value; }
-        }
+        #endregion
 
+        #region Field - TMP Text Label
         /// <summary>
         /// TextMeshPro 文本标签，用于显示开关文字
         /// </summary>
         [SerializeField]
         private TextMeshProUGUI m_TMPLabel;
-        
+        #endregion
+
+        //=========================================================================
+        // 属性成员
+        //=========================================================================
+        #region Property - UGUI Text Label
         /// <summary>
-        /// 外部访问TextMeshPro文本标签
+        /// 外部访问 UGUI 文本标签
+        /// </summary>
+        public Text Label
+        {
+            get => m_Label;
+            set => m_Label = value;
+        }
+        #endregion
+
+        #region Property - TMP Text Label
+        /// <summary>
+        /// 外部访问 TextMeshPro 文本标签
         /// </summary>
         public TextMeshProUGUI TMPLabel
         {
-            set { m_TMPLabel = value; }
-            get { return m_TMPLabel; }
+            get => m_TMPLabel;
+            set => m_TMPLabel = value;
         }
+        #endregion
 
+        //=========================================================================
+        // 生命周期方法
+        //=========================================================================
+        #region MonoBehaviour - Awake
         /// <summary>
-        /// 重写Awake方法，初始化开关基础配置
+        /// 重写 Awake 方法，初始化开关基础配置
         /// </summary>
         protected override void Awake()
         {
-            // 调用父类Awake逻辑
+            // 调用父类 Awake 逻辑
             base.Awake();
-            
-            // 禁用UGUI默认的状态过渡动画（颜色/缩放/精灵切换）
+
+            // 禁用 UGUI 默认的状态过渡动画（颜色/缩放/精灵切换）
             transition = Transition.None;
-            // 禁用Toggle自带的切换过渡效果
+
+            // 禁用 Toggle 自带的切换过渡效果
             toggleTransition = ToggleTransition.None;
         }
+        #endregion
     }
 }

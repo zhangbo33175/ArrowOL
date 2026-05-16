@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SoundAgent.cs
+ * author:  云毅
+ * created:
+ * descrip:   声音代理 —— 封装单个AudioSource，负责实际播放、暂停、停止、重置
+ ***************************************************************/
+
 using System;
 
 namespace Honor.Runtime
@@ -19,11 +28,6 @@ namespace Honor.Runtime
         /// </summary>
         private readonly SoundGroup m_SoundGroup;
 
-        public SoundGroup SoundGroup
-        {
-            get => m_SoundGroup;
-        }
-
         /// <summary>
         /// 声音辅助器（封装 AudioSource 具体操作）
         /// </summary>
@@ -34,12 +38,6 @@ namespace Honor.Runtime
         /// </summary>
         private int m_SerialID;
 
-        public int SerialID
-        {
-            get => m_SerialID;
-            set => m_SerialID = value;
-        }
-
         /// <summary>
         /// 当前播放的音频资源
         /// </summary>
@@ -49,11 +47,6 @@ namespace Honor.Runtime
         /// 设置音频资源的时间（用于优先级淘汰）
         /// </summary>
         private DateTime m_SetSoundAssetTime;
-
-        public DateTime SetSoundAssetTime
-        {
-            get => m_SetSoundAssetTime;
-        }
 
         /// <summary>
         /// 本组内单独静音标记
@@ -66,40 +59,33 @@ namespace Honor.Runtime
         private float m_VolumeInSoundGroup;
 
         /// <summary>
-        /// 构造函数：初始化声音播放器
+        /// 所属声音组
         /// </summary>
-        public SoundAgent(SoundGroup soundGroup, SoundManager soundManager, SoundAgentHelper soundAgentHelper)
-        {
-            if (soundGroup == null)
-                throw new GameException("Sound group 无效。");
-            if (soundManager == null)
-                throw new GameException("Sound manager 无效。");
-            if (soundAgentHelper == null)
-                throw new GameException("Sound agent helper 无效。");
+        public SoundGroup SoundGroup => m_SoundGroup;
 
-            m_SoundManager = soundManager;
-            m_SoundGroup = soundGroup;
-            m_SoundAgentHelper = soundAgentHelper;
-            m_SerialID = 0;
-            m_SoundAsset = null;
-            Reset();
+        /// <summary>
+        /// 声音唯一序列ID
+        /// </summary>
+        public int SerialID
+        {
+            get => m_SerialID;
+            set => m_SerialID = value;
         }
+
+        /// <summary>
+        /// 设置音频资源的时间
+        /// </summary>
+        public DateTime SetSoundAssetTime => m_SetSoundAssetTime;
 
         /// <summary>
         /// 当前是否正在播放
         /// </summary>
-        public bool IsPlaying
-        {
-            get => m_SoundAgentHelper.IsPlaying;
-        }
+        public bool IsPlaying => m_SoundAgentHelper.IsPlaying;
 
         /// <summary>
         /// 音频长度
         /// </summary>
-        public float Length
-        {
-            get => m_SoundAgentHelper.Length;
-        }
+        public float Length => m_SoundAgentHelper.Length;
 
         /// <summary>
         /// 播放位置（时间）
@@ -113,10 +99,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 当前是否静音（最终结果）
         /// </summary>
-        public bool Mute
-        {
-            get => m_SoundAgentHelper.Mute;
-        }
+        public bool Mute => m_SoundAgentHelper.Mute;
 
         /// <summary>
         /// 本组内单独静音
@@ -152,10 +135,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 最终音量（组音量 * 自身音量）
         /// </summary>
-        public float Volume
-        {
-            get => m_SoundAgentHelper.Volume;
-        }
+        public float Volume => m_SoundAgentHelper.Volume;
 
         /// <summary>
         /// 本组内相对音量
@@ -218,9 +198,26 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取辅助器对象
         /// </summary>
-        public SoundAgentHelper Helper
+        public SoundAgentHelper Helper => m_SoundAgentHelper;
+
+        /// <summary>
+        /// 构造函数：初始化声音播放器
+        /// </summary>
+        public SoundAgent(SoundGroup soundGroup, SoundManager soundManager, SoundAgentHelper soundAgentHelper)
         {
-            get => m_SoundAgentHelper;
+            if (soundGroup == null)
+                throw new GameException("Sound group 无效。");
+            if (soundManager == null)
+                throw new GameException("Sound manager 无效。");
+            if (soundAgentHelper == null)
+                throw new GameException("Sound agent helper 无效。");
+
+            m_SoundManager = soundManager;
+            m_SoundGroup = soundGroup;
+            m_SoundAgentHelper = soundAgentHelper;
+            m_SerialID = 0;
+            m_SoundAsset = null;
+            Reset();
         }
 
         /// <summary>
@@ -228,7 +225,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Play()
         {
-            m_SoundAgentHelper.Play(SoundConstant.DefaultFadeInSeconds);
+            Play(SoundConstant.DefaultFadeInSeconds);
         }
 
         /// <summary>
@@ -244,7 +241,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Stop()
         {
-            m_SoundAgentHelper.Stop(SoundConstant.DefaultFadeOutSeconds);
+            Stop(SoundConstant.DefaultFadeOutSeconds);
         }
 
         /// <summary>
@@ -260,7 +257,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Pause()
         {
-            m_SoundAgentHelper.Pause(SoundConstant.DefaultFadeOutSeconds);
+            Pause(SoundConstant.DefaultFadeOutSeconds);
         }
 
         /// <summary>
@@ -276,7 +273,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Resume()
         {
-            m_SoundAgentHelper.Resume(SoundConstant.DefaultFadeInSeconds);
+            Resume(SoundConstant.DefaultFadeInSeconds);
         }
 
         /// <summary>

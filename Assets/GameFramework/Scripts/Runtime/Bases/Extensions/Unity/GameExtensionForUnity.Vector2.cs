@@ -1,15 +1,31 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameExtensionForUnity.VectorPhysics.cs
+ * author:    云毅
+ * created:   2025
+ * descrip:   向量转换 & 2D物理射线检测扩展方法
+ ***************************************************************/
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 
+    //=========================================================================
     /// <summary>
     /// Unity 向量 & 2D 物理射线检测扩展方法
-    /// 提供 Vector2/Vector3 转换、屏幕坐标转世界坐标射线、线检测、球形检测等便捷功能
+    /// <para>提供 Vector2/Vector3 转换、屏幕坐标转世界坐标射线、线检测、球形检测等便捷功能</para>
     /// </summary>
     public static partial class GameExtensionForUnity
     {
+        #region Vector 向量转换扩展
+        //=========================================================================
+        // Vector2 与 Vector3 快捷转换
+        //=========================================================================
         /// <summary>
         /// 将 Vector2 转换为 Vector3，Y 轴固定为 0
         /// 格式：(x, y) → (x, 0, y)
@@ -32,7 +48,12 @@ namespace Honor.Runtime
         {
             return new Vector3(vector2.x, y, vector2.y);
         }
+        #endregion
 
+        #region 2D 射线检测扩展（单点检测）
+        //=========================================================================
+        // 屏幕坐标 2D 射线检测（获取单个碰撞物体）
+        //=========================================================================
         /// <summary>
         /// 屏幕 2D 坐标发射 2D 射线，返回第一个碰撞到的 Transform
         /// 适用于鼠标/触摸点击检测 2D 物体
@@ -40,7 +61,6 @@ namespace Honor.Runtime
         /// <param name="screenPos">屏幕坐标（如 Input.mousePosition）</param>
         /// <param name="camera">照射使用的相机（默认为 Camera.main）</param>
         /// <returns>碰撞到的 Transform，无碰撞返回 null</returns>
-        /// <exception cref="System.NullReferenceException">camera 为 null 时抛出</exception>
         public static Transform GetRaycastHit2DTransform(this Vector2 screenPos, Camera camera)
         {
             if (camera == null) return null;
@@ -50,7 +70,12 @@ namespace Honor.Runtime
 
             return hit ? hit.transform : null;
         }
+        #endregion
 
+        #region 2D 射线检测扩展（全部检测）
+        //=========================================================================
+        // 屏幕坐标 2D 射线检测（获取所有碰撞物体）
+        //=========================================================================
         /// <summary>
         /// 屏幕 2D 坐标发射 2D 射线，返回所有碰撞到的 Transform 数组
         /// </summary>
@@ -69,7 +94,12 @@ namespace Honor.Runtime
                 .Select(hit => hit.transform)
                 .ToArray();
         }
+        #endregion
 
+        #region 2D 线段检测扩展（Linecast）
+        //=========================================================================
+        // 屏幕两点 2D 线段检测
+        //=========================================================================
         /// <summary>
         /// 屏幕两点之间执行 2D 线段检测（Linecast），返回第一个碰撞物体
         /// </summary>
@@ -114,7 +144,12 @@ namespace Honor.Runtime
                 .Select(hit => hit.transform)
                 .ToArray();
         }
+        #endregion
 
+        #region 2D 球形投射扩展（CircleCast）
+        //=========================================================================
+        // 屏幕两点 2D 球形投射检测
+        //=========================================================================
         /// <summary>
         /// 屏幕两点之间执行 2D 球形投射检测（CircleCast），返回第一个碰撞物体
         /// </summary>
@@ -169,5 +204,6 @@ namespace Honor.Runtime
                 .Select(hit => hit.transform)
                 .ToArray();
         }
+        #endregion
     }
 }

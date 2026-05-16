@@ -1553,17 +1553,17 @@ namespace XLua
 		
 		delegate string __GEN_DELEGATE10( string s);
 		
-		delegate int __GEN_DELEGATE11( string richText);
+		delegate string __GEN_DELEGATE11( string title);
 		
-		delegate string __GEN_DELEGATE12( string title);
+		delegate string __GEN_DELEGATE12( string s);
 		
-		delegate string __GEN_DELEGATE13( string s);
+		delegate int __GEN_DELEGATE13( string richText);
 		
 		delegate float __GEN_DELEGATE14( string timeInStringNotation);
 		
-		delegate int __GEN_DELEGATE15( string s);
+		delegate string __GEN_DELEGATE15( float t,  bool displayHours,  bool displayMinutes,  bool displaySeconds,  bool displayMilliseconds);
 		
-		delegate string __GEN_DELEGATE16( float t,  bool displayHours,  bool displayMinutes,  bool displaySeconds,  bool displayMilliseconds);
+		delegate int __GEN_DELEGATE16( string s);
 		
 		delegate void __GEN_DELEGATE17( UnityEngine.RectTransform rectTransform,  float left);
 		
@@ -1985,21 +1985,21 @@ namespace XLua
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE11(Honor.Runtime.GameExtension.RichTextLength)
+				  new __GEN_DELEGATE11(Honor.Runtime.GameExtension.ToTitleCase)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE12(Honor.Runtime.GameExtension.ToTitleCase)
+				  new __GEN_DELEGATE12(Honor.Runtime.GameExtension.RemoveExtraSpaces)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE13(Honor.Runtime.GameExtension.RemoveExtraSpaces)
+				  new __GEN_DELEGATE13(Honor.Runtime.GameExtension.RichTextLength)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
@@ -2013,7 +2013,7 @@ namespace XLua
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE15(Honor.Runtime.GameExtension.GetChineseNum)
+				  new __GEN_DELEGATE16(Honor.Runtime.GameExtension.GetChineseNum)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
@@ -2024,7 +2024,7 @@ namespace XLua
 				
 				{typeof(float), new List<MethodInfo>(){
 				
-				  new __GEN_DELEGATE16(Honor.Runtime.GameExtension.FloatToTimeString)
+				  new __GEN_DELEGATE15(Honor.Runtime.GameExtension.FloatToTimeString)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else

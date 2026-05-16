@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  OriginTypeDefine.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   资源来源路径枚举定义 - 标记资源加载的磁盘位置
+ ***************************************************************/
+
 using System;
 
 namespace Honor.Runtime

@@ -1,5 +1,6 @@
 namespace Honor.Runtime
 {
+    #region 游戏框架全局常量定义
     /// <summary>
     /// 游戏框架全局常量定义
     /// 统一管理版本、UI层级、持久化键值等全局不变的配置
@@ -7,6 +8,9 @@ namespace Honor.Runtime
     /// </summary>
     public static partial class GameConstants
     {
+        //=========================================================================
+        // 版本常量
+        //=========================================================================
         /// <summary>
         /// 游戏支持的最低版本号
         /// </summary>
@@ -17,12 +21,14 @@ namespace Honor.Runtime
         /// </summary>
         public const string HonorVersion = "1.1.0";
 
+        //=========================================================================
+        // UI 层级常量
+        //=========================================================================
         /// <summary>
         /// 全局系统级 UI 层级（ZOrder）定义
         /// 层级数值越大，显示越靠前
         /// </summary>
         public const int LaunchUIZOrder = 32755; // 启动UI
-
         public const int SplashUIZOrder = 32756; // 闪屏UI
         public const int HotfixUIZOrder = 32757; // 热更新UI
         public const int HotfixErrorUIZOrder = 32758; // 热更新错误提示UI
@@ -36,6 +42,9 @@ namespace Honor.Runtime
         public const int AppFeedbackUIZOrder = 32766; // 应用内反馈UI
         public const int FloatWordsUIZOrder = 32767; // 顶部飘字UI（最高优先级）
 
+        //=========================================================================
+        // 持久化常量
+        //=========================================================================
         /// <summary>
         /// 持久化（存储）相关常量
         /// 统一管理所有存储路径、分类名、Key值
@@ -154,4 +163,5 @@ namespace Honor.Runtime
             }
         }
     }
+    #endregion
 }

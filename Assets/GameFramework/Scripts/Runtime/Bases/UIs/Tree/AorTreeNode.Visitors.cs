@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTreeNode.Fields.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   UI 树形列表 - 节点字段定义（partial）
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class AorTreeNode : UIBehaviour
     {
+        //=========================================================================
+        // 私有字段 & 组件引用
+        //=========================================================================
+        #region Field - 节点核心引用
         /// <summary>
         /// 当前节点绑定的数据模型（名称、层级、父子关系）
         /// </summary>
@@ -20,6 +34,27 @@ namespace Honor.Runtime
         /// 所属的树形菜单根管理器
         /// </summary>
         private AorTree _mAorTree;
+
+        /// <summary>
+        /// 自身节点 Transform 缓存
+        /// </summary>
+        private Transform m_MyTransform;
+
+        /// <summary>
+        /// 子节点 UI 对象列表
+        /// </summary>
+        private List<GameObject> m_Children;
+        #endregion
+
+        //=========================================================================
+        // UI 组件引用
+        //=========================================================================
+        #region Field - UI 组件
+        /// <summary>
+        /// 节点容器按钮（点击区域）
+        /// 承载 Toggle、Icon、Text 等子元素
+        /// </summary>
+        private Button m_ContainerButton;
 
         /// <summary>
         /// 展开/关闭 开关组件
@@ -40,21 +75,6 @@ namespace Honor.Runtime
         /// 箭头图标对象（用于旋转动画）
         /// </summary>
         private Transform m_ToggleTransform;
-
-        /// <summary>
-        /// 自身节点 Transform 缓存
-        /// </summary>
-        private Transform m_MyTransform;
-
-        /// <summary>
-        /// 节点容器按钮（点击区域）
-        /// 承载 Toggle、Icon、Text 等子元素
-        /// </summary>
-        private Button m_ContainerButton;
-
-        /// <summary>
-        /// 子节点 UI 对象列表
-        /// </summary>
-        private List<GameObject> m_Children;
+        #endregion
     }
 }

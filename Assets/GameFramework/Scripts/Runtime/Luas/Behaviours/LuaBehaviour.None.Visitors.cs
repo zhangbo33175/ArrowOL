@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviour.Normal.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   LuaBehaviour - 标准模式（None）专用字段与声明
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,8 +15,12 @@ using XLua;
 
 namespace Honor.Runtime
 {
-    public partial class LuaBehaviour : MonoBehaviour
+    public partial class LuaBehaviour
     {
+        //=========================================================================
+        // 标准模式 - 序列化字段
+        //=========================================================================
+        #region Normal Serialized Fields
         /// <summary>
         /// 标准模式：Lua 脚本名称列表
         /// </summary>
@@ -18,7 +32,12 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField]
         private List<string> m_LuaSuperScriptNamesNone;
+        #endregion
 
+        //=========================================================================
+        // 标准模式 - 运行时数据
+        //=========================================================================
+        #region Normal Runtime Data
         /// <summary>
         /// 标准模式：Lua 独立运行环境（隔离作用域）
         /// 每个脚本独立环境，防止变量/函数冲突
@@ -29,10 +48,12 @@ namespace Honor.Runtime
         /// 标准模式：Lua Class 实例
         /// </summary>
         private LuaTable[] m_OwnLuaClassesNone;
+        #endregion
 
-        // ==============================================
-        // Lua 生命周期回调（标准模式）
-        // ==============================================
+        //=========================================================================
+        // 标准模式 - Lua 生命周期回调
+        //=========================================================================
+        #region Normal Lua Lifecycle Callbacks
         /// <summary>
         /// Lua 生命周期：Awake
         /// </summary>
@@ -62,5 +83,6 @@ namespace Honor.Runtime
         /// Lua 生命周期：OnDestroy
         /// </summary>
         private Action[] m_LuaOnDestroysNone;
+        #endregion
     }
 }

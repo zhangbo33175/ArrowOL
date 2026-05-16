@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Assembly.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   程序集反射工具类 - 全局程序集/类型缓存，高性能反射
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 
@@ -10,16 +20,28 @@ namespace Honor.Runtime
     /// </summary>
     public static class Assembly
     {
+        //=========================================================================
+        // 静态缓存
+        //=========================================================================
+        #region 静态缓存
+
         /// <summary>
         /// 全局缓存的所有程序集（静态构造时初始化）
         /// </summary>
-        private static readonly System.Reflection.Assembly[] s_Assemblies = null;
+        private static readonly System.Reflection.Assembly[] s_Assemblies;
 
         /// <summary>
         /// 类型缓存字典（全名 → Type）
         /// 避免重复从程序集遍历查找类型，大幅提升反射性能
         /// </summary>
         private static readonly Dictionary<string, Type> s_CachedTypes = new Dictionary<string, Type>();
+
+        #endregion
+
+        //=========================================================================
+        // 静态构造
+        //=========================================================================
+        #region 静态构造
 
         /// <summary>
         /// 静态构造函数
@@ -29,6 +51,13 @@ namespace Honor.Runtime
         {
             s_Assemblies = AppDomain.CurrentDomain.GetAssemblies();
         }
+
+        #endregion
+
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
+        #region 公共方法
 
         /// <summary>
         /// 获取所有已加载的程序集
@@ -110,5 +139,7 @@ namespace Honor.Runtime
             // 未找到
             return null;
         }
+
+        #endregion
     }
 }

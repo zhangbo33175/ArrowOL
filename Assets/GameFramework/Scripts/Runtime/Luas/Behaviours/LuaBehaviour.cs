@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviour.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   Lua 脚本生命周期调度核心组件，负责 C# <=> Lua 交互
+ ***************************************************************/
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +18,10 @@ namespace Honor.Runtime
 {
     public partial class LuaBehaviour : MonoBehaviour
     {
+        //=========================================================================
+        // Unity 生命周期
+        //=========================================================================
+        #region Unity Lifecycle
         private void Awake()
         {
             if (!Application.isEditor)
@@ -83,6 +97,7 @@ namespace Honor.Runtime
 
         private void OnDestroy()
         {
+            // 执行销毁回调
             Action[] luaOnDestroys = LuaOnDestroys;
             if (luaOnDestroys != null)
             {
@@ -95,6 +110,7 @@ namespace Honor.Runtime
                 }
             }
 
+            // 释放 Lua 资源
             LuaTable[] ownLuaEnvs = OwnLuaEnvs;
             if (ownLuaEnvs != null)
             {
@@ -119,6 +135,7 @@ namespace Honor.Runtime
                 }
             }
 
+            // 清空所有引用（防泄漏）
             LuaOnDestroys = null;
             LuaOnDisables = null;
             LuaProcs = null;
@@ -129,9 +146,14 @@ namespace Honor.Runtime
             OwnLuaEnvs = null;
             m_Injections = null;
         }
+        #endregion
 
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
+        #region Public Methods
         /// <summary>
-        /// 附加式Awake调用
+        /// 每帧驱动 Lua 更新
         /// </summary>
         public void AwakeAppended()
         {
@@ -171,6 +193,7 @@ namespace Honor.Runtime
                 }
             }
 
+            // 初始化数组
             int subPatternTypeTotalNum = 1;
             OwnLuaEnvs = new LuaTable[subPatternTypeTotalNum];
             OwnLuaClasses = new LuaTable[m_PatternType == PatternType.None ? (int)NonePatternType.TotalNum : (int)MVVMPatternType.TotalNum];
@@ -181,6 +204,7 @@ namespace Honor.Runtime
             LuaOnDisables = new Action[subPatternTypeTotalNum];
             LuaOnDestroys = new Action[subPatternTypeTotalNum];
 
+            // 创建 Lua 环境
             InitLuaEnv(index);
             OwnLuaClasses[index] = m_LuaComponent.LuaCreateLuaClassFromCSEventDelegate(OwnLuaEnvs[index], LuaScriptNames[index]);
 
@@ -232,11 +256,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 附加式OnEnable调用
+        /// 附加式 OnEnable 调用
         /// </summary>
         public void OnEnableAppended(bool isAuto = false)
         {
-            // 自动调用进入 或 已经完成调用情况下的手动调用进入
             if (isAuto || !m_EnableOver)
             {
                 if (m_AwakeOver && enabled && gameObject.activeInHierarchy)
@@ -259,10 +282,8 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有直系孩子节点（不包括自身）
-        /// 直系包括相邻和不相邻的首个LuaBehaviour子节点
+        /// 获取所有直系子节点 LuaBehaviour
         /// </summary>
-        /// <returns></returns>
         public List<LuaBehaviour> GetAllDirectChildren()
         {
             List<LuaBehaviour> allDirectChildren = new List<LuaBehaviour>();
@@ -279,7 +300,6 @@ namespace Honor.Runtime
                         allDirectChildren.RemoveAt(index);
                         break;
                     }
-
                     parent = parent.parent;
                 }
             }
@@ -288,7 +308,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 调用Lua层关闭方法
+        /// 调用 Lua 层 Close 方法
         /// </summary>
         public void CallLuaClose()
         {
@@ -301,5 +321,6 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }

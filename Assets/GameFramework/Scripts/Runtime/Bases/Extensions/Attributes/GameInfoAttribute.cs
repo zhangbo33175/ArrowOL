@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    #region 自定义提示信息特性
     /// <summary>
     /// 自定义提示信息特性
     /// 配合自定义编辑器绘制，在 Inspector 面板展示提示文本
@@ -9,6 +10,9 @@ namespace Honor.Runtime
     /// </summary>
     public class GameInfoAttribute : PropertyAttribute
     {
+        //=========================================================================
+        // 提示类型枚举
+        //=========================================================================
         /// <summary>
         /// 提示类型：普通信息/警告/错误/无样式
         /// </summary>
@@ -32,6 +36,9 @@ namespace Honor.Runtime
             Error
         }
 
+        //=========================================================================
+        // 公共字段
+        //=========================================================================
         /// <summary>
         /// 提示文案内容
         /// </summary>
@@ -49,6 +56,9 @@ namespace Honor.Runtime
         /// </summary>
         public bool MessageAfterProperty;
 
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -62,4 +72,5 @@ namespace Honor.Runtime
             MessageAfterProperty = messageAfterProperty;
         }
     }
+    #endregion
 }

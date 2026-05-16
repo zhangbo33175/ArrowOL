@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetComponentInspector.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   资源管理组件编辑器面板
+ *            运行时可视化监控 Asset/AB/Prefab 加载、卸载、引用计数，支持导出CSV
+ ***************************************************************/
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -21,6 +31,7 @@ namespace Honor.Editor
         //=========================================================================
         /// <summary>资源最大延迟卸载帧数（1小时=36000帧）</summary>
         private const int UnloadAssetDelayFrameNumMax = 36000;
+        
         /// <summary>触发GC的最大累计加载资源数量</summary>
         private const int LoadedMaxNumToCleanMemeryMax = 1000;
         #endregion
@@ -31,6 +42,7 @@ namespace Honor.Editor
         //=========================================================================
         /// <summary>资源延迟卸载帧数</summary>
         private SerializedProperty m_UnloadAssetDelayFrameNum = null;
+        
         /// <summary>触发清理内存的累计加载数量</summary>
         private SerializedProperty m_LoadedMaxNumToCleanMemery = null;
         #endregion
@@ -68,6 +80,7 @@ namespace Honor.Editor
                 0,
                 UnloadAssetDelayFrameNumMax
             );
+            
             if (unloadAssetDelayFrameNum != m_UnloadAssetDelayFrameNum.intValue)
             {
                 if (EditorApplication.isPlaying)
@@ -83,6 +96,7 @@ namespace Honor.Editor
                 0,
                 LoadedMaxNumToCleanMemeryMax
             );
+            
             if (loadedMaxNumToCleanMemery != m_LoadedMaxNumToCleanMemery.intValue)
             {
                 if (EditorApplication.isPlaying)
@@ -125,8 +139,8 @@ namespace Honor.Editor
         //=========================================================================
         private void OnEnable()
         {
-            m_UnloadAssetDelayFrameNum    = serializedObject.FindProperty("m_UnloadAssetDelayFrameNum");
-            m_LoadedMaxNumToCleanMemery   = serializedObject.FindProperty("m_LoadedMaxNumToCleanMemery");
+            m_UnloadAssetDelayFrameNum  = serializedObject.FindProperty("m_UnloadAssetDelayFrameNum");
+            m_LoadedMaxNumToCleanMemery = serializedObject.FindProperty("m_LoadedMaxNumToCleanMemery");
 
             RefreshTypeNames();
         }
@@ -151,10 +165,13 @@ namespace Honor.Editor
             // 折叠栏
             bool lastState = m_OpenedItems.Contains(listName);
             bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, prefabList.Count));
+            
             if (currentState != lastState)
             {
-                if (currentState) m_OpenedItems.Add(listName);
-                else m_OpenedItems.Remove(listName);
+                if (currentState) 
+                    m_OpenedItems.Add(listName);
+                else 
+                    m_OpenedItems.Remove(listName);
             }
 
             if (currentState)
@@ -210,10 +227,13 @@ namespace Honor.Editor
             int count = preloadedAssetList == null ? assetList.Count : preloadedAssetList.Count;
             bool lastState = m_OpenedItems.Contains(listName);
             bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, count));
+            
             if (currentState != lastState)
             {
-                if (currentState) m_OpenedItems.Add(listName);
-                else m_OpenedItems.Remove(listName);
+                if (currentState) 
+                    m_OpenedItems.Add(listName);
+                else 
+                    m_OpenedItems.Remove(listName);
             }
 
             if (currentState)
@@ -292,10 +312,13 @@ namespace Honor.Editor
 
             bool lastState = m_OpenedItems.Contains(listName);
             bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, abList.Count));
+            
             if (currentState != lastState)
             {
-                if (currentState) m_OpenedItems.Add(listName);
-                else m_OpenedItems.Remove(listName);
+                if (currentState) 
+                    m_OpenedItems.Add(listName);
+                else 
+                    m_OpenedItems.Remove(listName);
             }
 
             if (currentState)
@@ -338,7 +361,8 @@ namespace Honor.Editor
         private void ExportPrefabListToCSV(string listName, Dictionary<string, PrefabObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path)) 
+                return;
 
             try
             {
@@ -363,7 +387,8 @@ namespace Honor.Editor
         private void ExportAssetListToCSV(string listName, Dictionary<string, AssetObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path)) 
+                return;
 
             try
             {
@@ -389,7 +414,8 @@ namespace Honor.Editor
         private void ExportPreloadAssetToCSV(string listName, Queue<PreloadAssetObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path)) 
+                return;
 
             try
             {
@@ -414,7 +440,8 @@ namespace Honor.Editor
         private void ExportABListToCSV(string listName, Dictionary<string, AssetBundleObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path)) 
+                return;
 
             try
             {

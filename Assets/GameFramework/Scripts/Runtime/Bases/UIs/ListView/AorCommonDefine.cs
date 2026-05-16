@@ -1,8 +1,23 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIDefineEnums.cs
+ * author:    云毅
+ * created:   2026   2025年
+ * descrip:   UI/布局系统通用枚举定义文件，包含吸附、方位、排列、网格布局等枚举
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // UI & 布局系统 通用枚举定义
+    //=========================================================================
+
+    #region 吸附/对齐状态枚举
     /// <summary>
     /// 吸附/对齐状态枚举
     /// 用于标记UI/物体的吸附移动生命周期状态
@@ -13,23 +28,25 @@ namespace Honor.Runtime
         /// 未设置吸附目标
         /// </summary>
         NoTargetSet = 0,
-        
+
         /// <summary>
         /// 已设置吸附目标
         /// </summary>
         TargetHasSet = 1,
-        
+
         /// <summary>
         /// 正在执行吸附移动
         /// </summary>
         SnapMoving = 2,
-        
+
         /// <summary>
         /// 吸附移动完成
         /// </summary>
         SnapMoveFinish = 3
     }
+    #endregion
 
+    #region 物品/UI元素四角方位枚举
     /// <summary>
     /// 物品/UI元素四角方位枚举
     /// 用于定义物体四个角落的位置类型
@@ -40,23 +57,25 @@ namespace Honor.Runtime
         /// 左下角
         /// </summary>
         LeftBottom = 0,
-        
+
         /// <summary>
         /// 左上角
         /// </summary>
         LeftTop,
-        
+
         /// <summary>
         /// 右上角
         /// </summary>
         RightTop,
-        
+
         /// <summary>
         /// 右下角
         /// </summary>
         RightBottom
     }
+    #endregion
 
+    #region 列表项排列方向类型
     /// <summary>
     /// 列表项排列方向类型
     /// 用于控制线性列表（List）的子项布局方向
@@ -67,23 +86,25 @@ namespace Honor.Runtime
         /// 从上到下垂直排列
         /// </summary>
         TopToBottom = 0,
-        
+
         /// <summary>
         /// 从下到上垂直排列
         /// </summary>
         BottomToTop,
-        
+
         /// <summary>
         /// 从左到右水平排列
         /// </summary>
         LeftToRight,
-        
+
         /// <summary>
         /// 从右到左水平排列
         /// </summary>
         RightToLeft
     }
+    #endregion
 
+    #region 网格项排列方向类型
     /// <summary>
     /// 网格项排列方向类型
     /// 用于控制网格布局（Grid）的子项起始位置与排布方向
@@ -94,23 +115,25 @@ namespace Honor.Runtime
         /// 左上起点 → 向右向下排布
         /// </summary>
         TopLeftToBottomRight = 0,
-        
+
         /// <summary>
         /// 左下起点 → 向右向上排布
         /// </summary>
         BottomLeftToTopRight,
-        
+
         /// <summary>
         /// 右上起点 → 向左向下排布
         /// </summary>
         TopRightToBottomLeft,
-        
+
         /// <summary>
         /// 右下起点 → 向左向上排布
         /// </summary>
         BottomRightToTopLeft
     }
+    #endregion
 
+    #region 网格固定约束类型
     /// <summary>
     /// 网格固定约束类型
     /// 用于定义网格布局是固定列数还是固定行数
@@ -121,13 +144,15 @@ namespace Honor.Runtime
         /// 固定列数，自动计算行数
         /// </summary>
         ColumnCountFixed = 0,
-        
-        ///<summary>
+
+        /// <summary>
         /// 固定行数，自动计算列数
-        ///</summary>
+        /// </summary>
         RowCountFixed
     }
+    #endregion
 
+    #region 行列索引结构体
     /// <summary>
     /// 行列索引结构体
     /// 用于存储网格布局中的行号与列号，支持等值比较
@@ -139,7 +164,7 @@ namespace Honor.Runtime
         /// 行索引
         /// </summary>
         public int mRow;
-        
+
         /// <summary>
         /// 列索引
         /// </summary>
@@ -198,4 +223,5 @@ namespace Honor.Runtime
             return obj is RowColumnPair other && Equals(other);
         }
     }
+    #endregion
 }

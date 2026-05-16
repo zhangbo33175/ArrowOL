@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTree.Core.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   UI 树形列表/折叠菜单 - 核心逻辑（partial）
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
@@ -12,6 +22,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class AorTree : UIBehaviour
     {
+        //=========================================================================
+        // 初始化 & 数据解析
+        //=========================================================================
+        #region Method - 初始化
         /// <summary>
         /// 初始化树形结构
         /// 解析JSON格式的树配置数据，构建树节点数据并注入显示
@@ -21,9 +35,7 @@ namespace Honor.Runtime
         {
             // 空数据直接返回
             if (string.IsNullOrEmpty(jsonTreeInfos))
-            {
                 return;
-            }
 
             int curIndexCount = 0;
             // 解析JSON数组
@@ -33,7 +45,12 @@ namespace Honor.Runtime
             // 注入树结构，生成UI
             Inject(data);
         }
+        #endregion
 
+        //=========================================================================
+        // 对象池 - 节点展开（Pop）
+        //=========================================================================
+        #region Method - 节点展开
         /// <summary>
         /// 批量展开一组分支节点（逆序展开）
         /// 从列表末尾向前依次创建节点并插入UI
@@ -84,7 +101,12 @@ namespace Honor.Runtime
 
             return treeNode;
         }
+        #endregion
 
+        //=========================================================================
+        // 对象池 - 节点回收（Push）
+        //=========================================================================
+        #region Method - 节点回收
         /// <summary>
         /// 批量回收一组节点到对象池
         /// </summary>
@@ -116,5 +138,6 @@ namespace Honor.Runtime
             // 加入缓存列表
             m_Pool.Add(treeNode);
         }
+        #endregion
     }
 }

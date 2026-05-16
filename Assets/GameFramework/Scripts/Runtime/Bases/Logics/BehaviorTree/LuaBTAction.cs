@@ -1,13 +1,66 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBTAction.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   行为树自定义Lua Action节点，全生命周期转发到Lua层
+ ***************************************************************/
 using Honor.Runtime;
 using UnityEngine;
 using XLua;
 
 #if BEHAVIOR_DESIGNER_ENABLE
+
+
 namespace BehaviorDesigner.Runtime.Tasks
 {
-    [TaskDescription("Honor自定义Lua层行为树Action节点组件，该组件在合适的时机将自动触发行为树节点的生命周期函数与各种回调到Lua脚本中，以确保行为树节点的逻辑通过调度Lua层代码及时完成。")]
+    /// <summary>
+    /// Honor自定义Lua层行为树Action节点组件
+    /// 该组件在合适的时机将自动触发行为树节点的生命周期函数与各种回调到Lua脚本中，
+    /// 以确保行为树节点的逻辑通过调度Lua层代码及时完成。
+    /// </summary>
     public partial class LuaBTAction : Action
     {
+        [Tooltip("Lua行为树节点名称")]
+        public string m_LuaBTActionName = string.Empty;
+
+        private LuaBehaviour m_LuaBehaviour;
+        private LuaTable m_LuaClass;
+
+        #region Lua 回调函数缓存
+        private LuaFunction m_OnAwakeBT;
+        private LuaFunction m_OnStartBT;
+        private LuaFunction m_OnUpdateBT;
+        private LuaFunction m_OnPauseBT;
+        private LuaFunction m_OnResetBT;
+        private LuaFunction m_OnEndBT;
+        private LuaFunction m_OnFixedUpdateBT;
+        private LuaFunction m_OnLateUpdateBT;
+        private LuaFunction m_OnBehaviorCompleteBT;
+        private LuaFunction m_OnBehaviorRestartBT;
+        private LuaFunction m_GetPriorityBT;
+        private LuaFunction m_GetUtilityBT;
+        private LuaFunction m_OnAnimatorIKBT;
+        private LuaFunction m_OnCollisionEnterBT;
+        private LuaFunction m_OnCollisionEnter2DBT;
+        private LuaFunction m_OnCollisionExitBT;
+        private LuaFunction m_OnCollisionExit2DBT;
+        private LuaFunction m_OnConditionalAbort0BT;
+        private LuaFunction m_OnControllerColliderHitBT;
+        private LuaFunction m_OnDrawGizmosBT;
+        private LuaFunction m_OnDrawNodeTextBT;
+        private LuaFunction m_OnTriggerEnterBT;
+        private LuaFunction m_OnTriggerEnter2DBT;
+        private LuaFunction m_OnTriggerExitBT;
+        private LuaFunction m_OnTriggerExit2DBT;
+        #endregion
+
+        #region 生命周期
+        /// <summary>
+        /// 行为树节点唤醒
+        /// </summary>
         public override void OnAwake()
         {
             if (m_LuaBehaviour == null)
@@ -69,6 +122,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 节点开始执行
+        /// </summary>
         public override void OnStart()
         {
             if (m_OnStartBT != null)
@@ -81,6 +137,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 节点每帧更新
+        /// </summary>
         public override TaskStatus OnUpdate()
         {
             if (m_OnUpdateBT != null)
@@ -90,6 +149,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.OnUpdate();
         }
 
+        /// <summary>
+        /// 节点暂停
+        /// </summary>
         public override void OnPause(bool paused)
         {
             if (m_OnPauseBT != null)
@@ -102,6 +164,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 节点重置
+        /// </summary>
         public override void OnReset()
         {
             if (m_OnResetBT != null)
@@ -112,9 +177,11 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnReset();
             }
-            
         }
 
+        /// <summary>
+        /// 节点结束
+        /// </summary>
         public override void OnEnd()
         {
             if (m_OnEndBT != null)
@@ -126,7 +193,12 @@ namespace BehaviorDesigner.Runtime.Tasks
                 base.OnEnd();
             }
         }
+        #endregion
 
+        #region 定时更新
+        /// <summary>
+        /// 物理帧更新
+        /// </summary>
         public override void OnFixedUpdate()
         {
             if (m_OnFixedUpdateBT != null)
@@ -139,6 +211,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 延迟帧更新
+        /// </summary>
         public override void OnLateUpdate()
         {
             if (m_OnLateUpdateBT != null)
@@ -149,9 +224,13 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnLateUpdate();
             }
-            
         }
+        #endregion
 
+        #region 行为树全局事件
+        /// <summary>
+        /// 行为树执行完成
+        /// </summary>
         public override void OnBehaviorComplete()
         {
             if (m_OnBehaviorCompleteBT != null)
@@ -164,6 +243,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 行为树重启
+        /// </summary>
         public override void OnBehaviorRestart()
         {
             if (m_OnBehaviorRestartBT != null)
@@ -175,7 +257,12 @@ namespace BehaviorDesigner.Runtime.Tasks
                 base.OnBehaviorRestart();
             }
         }
+        #endregion
 
+        #region 优先级与决策
+        /// <summary>
+        /// 获取节点优先级
+        /// </summary>
         public override float GetPriority()
         {
             if (m_GetPriorityBT != null)
@@ -185,6 +272,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             return base.GetPriority();
         }
 
+        /// <summary>
+        /// 获取效用值
+        /// </summary>
         public override float GetUtility()
         {
             if (m_GetUtilityBT != null)
@@ -193,7 +283,12 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
             return base.GetUtility();
         }
+        #endregion
 
+        #region 动画与物理回调
+        /// <summary>
+        /// 动画IK回调
+        /// </summary>
         public override void OnAnimatorIK()
         {
             if (m_OnAnimatorIKBT != null)
@@ -206,6 +301,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 3D碰撞进入
+        /// </summary>
         public override void OnCollisionEnter(Collision collision)
         {
             if (m_OnCollisionEnterBT != null)
@@ -218,6 +316,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D碰撞进入
+        /// </summary>
         public override void OnCollisionEnter2D(Collision2D collision)
         {
             if (m_OnCollisionEnter2DBT != null)
@@ -230,6 +331,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 3D碰撞退出
+        /// </summary>
         public override void OnCollisionExit(Collision collision)
         {
             if (m_OnCollisionExitBT != null)
@@ -242,6 +346,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D碰撞退出
+        /// </summary>
         public override void OnCollisionExit2D(Collision2D collision)
         {
             if (m_OnCollisionExit2DBT != null)
@@ -254,6 +361,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 条件中断
+        /// </summary>
         public override void OnConditionalAbort()
         {
             if (m_OnConditionalAbort0BT != null)
@@ -266,6 +376,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 控制器碰撞
+        /// </summary>
         public override void OnControllerColliderHit(ControllerColliderHit hit)
         {
             if (m_OnControllerColliderHitBT != null)
@@ -276,30 +389,13 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnControllerColliderHit(hit);
             }
-
         }
+        #endregion
 
-        public override void OnDrawGizmos()
-        {
-            if (m_OnDrawGizmosBT != null)
-            {
-                m_OnDrawGizmosBT.Action(m_LuaClass);
-            }
-            else
-            {
-                base.OnDrawGizmos();
-            }
-        }
-
-        public override string OnDrawNodeText()
-        {
-            if (m_OnDrawNodeTextBT != null)
-            {
-                return m_OnDrawNodeTextBT.Func<LuaTable, string>(m_LuaClass);
-            }
-            return base.OnDrawNodeText();
-        }
-
+        #region 触发与绘制
+        /// <summary>
+        /// 3D触发进入
+        /// </summary>
         public override void OnTriggerEnter(Collider other)
         {
             if (m_OnTriggerEnterBT != null)
@@ -312,6 +408,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D触发进入
+        /// </summary>
         public override void OnTriggerEnter2D(Collider2D other)
         {
             if (m_OnTriggerEnter2DBT != null)
@@ -324,6 +423,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 3D触发退出
+        /// </summary>
         public override void OnTriggerExit(Collider other)
         {
             if (m_OnTriggerExitBT != null)
@@ -336,6 +438,9 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// 2D触发退出
+        /// </summary>
         public override void OnTriggerExit2D(Collider2D other)
         {
             if (m_OnTriggerExit2DBT != null)
@@ -348,6 +453,33 @@ namespace BehaviorDesigner.Runtime.Tasks
             }
         }
 
+        /// <summary>
+        /// Gizmos 绘制
+        /// </summary>
+        public override void OnDrawGizmos()
+        {
+            if (m_OnDrawGizmosBT != null)
+            {
+                m_OnDrawGizmosBT.Action(m_LuaClass);
+            }
+            else
+            {
+                base.OnDrawGizmos();
+            }
+        }
+
+        /// <summary>
+        /// 节点文本绘制
+        /// </summary>
+        public override string OnDrawNodeText()
+        {
+            if (m_OnDrawNodeTextBT != null)
+            {
+                return m_OnDrawNodeTextBT.Func<LuaTable, string>(m_LuaClass);
+            }
+            return base.OnDrawNodeText();
+        }
+        #endregion
     }
 }
 

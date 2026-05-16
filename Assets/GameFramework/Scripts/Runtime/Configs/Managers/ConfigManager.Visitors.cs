@@ -1,9 +1,26 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ConfigManager.Fields.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   配置管理器 - 字段与属性定义（partial）
+ ***************************************************************/
+
 using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 配置管理器 - 字段定义部分
+    /// </summary>
     public sealed partial class ConfigManager
     {
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        #region Field
         /// <summary>
         /// 启动器组件（控制开发/正式模式、本地服务器开关）
         /// </summary>
@@ -20,13 +37,16 @@ namespace Honor.Runtime
         /// Value：配置数据列表（0=开发模式，1=正式模式）
         /// </summary>
         private readonly Dictionary<string, List<ConfigData>> m_ConfigDatas;
+        #endregion
 
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        #region Property
         /// <summary>
         /// 当前已加载的配置项总数量
         /// </summary>
-        public int Count
-        {
-            get { return m_ConfigDatas.Count; }
-        }
+        public int Count => m_ConfigDatas.Count;
+        #endregion
     }
 }

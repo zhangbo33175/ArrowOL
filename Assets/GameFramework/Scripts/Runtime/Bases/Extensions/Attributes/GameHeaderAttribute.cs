@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    #region 自定义头部标题特性
     /// <summary>
     /// 自定义头部标题特性
     /// 用于在Inspector面板自定义绘制分组标题文本
@@ -11,11 +12,17 @@ namespace Honor.Runtime
     [Serializable]
     public class GameHeaderAttribute : PropertyAttribute
     {
+        //=========================================================================
+        // 公共字段
+        //=========================================================================
         /// <summary>
         /// 标题文本内容
         /// </summary>
         public readonly string Header;
 
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 构造自定义标题特性
         /// </summary>
@@ -25,4 +32,5 @@ namespace Honor.Runtime
             Header = header;
         }
     }
+    #endregion
 }

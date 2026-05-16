@@ -1,4 +1,14 @@
-﻿using Honor.Runtime;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventComponentInspector.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   事件组件编辑器面板
+ *            运行时实时查看事件注册、待派发数量，用于事件系统调试
+ ***************************************************************/
+using Honor.Runtime;
 using UnityEditor;
 using UnityEngine;
 

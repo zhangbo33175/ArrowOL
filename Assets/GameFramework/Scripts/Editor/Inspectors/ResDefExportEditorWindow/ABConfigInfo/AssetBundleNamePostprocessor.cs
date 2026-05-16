@@ -1,4 +1,13 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetBundleNamePostprocessor.cs
+ * author:    云毅
+ * created:   2026-04-01
+ * descrip:   AssetBundle 自动命名、打包规则配置、增量分组管理工具
+ ***************************************************************/
+using System.Collections.Generic;
 using System.IO;
 using Honor.Runtime;
 using Newtonsoft.Json.Linq;
@@ -7,81 +16,93 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// AssetBundle 命名自动处理器
+    /// 根据配置自动设置资源 AB 包名、增量分组、公用分组等信息
+    /// </summary>
     public class AssetBundleNamePostprocessor : AssetPostprocessor
     {
+        #region 静态配置缓存
         /// <summary>
-        /// AB配置信息
-        /// <Path, ABConfigInfo>
+        /// AB 配置信息映射 <资源路径, ABConfigInfo>
         /// </summary>
         public static Dictionary<string, ABConfigInfo> s_ABConfigs = new Dictionary<string, ABConfigInfo>();
 
         /// <summary>
-        /// 所有AB是否为增量包的信息
-        /// <abName, 是否为增量包>
+        /// AB 是否为增量包 <abName, bool>
         /// </summary>
         private static Dictionary<string, bool> s_ABIsIncreaser = new Dictionary<string, bool>();
 
         /// <summary>
-        /// 所有AB是否为公用增量包的信息
-        /// <abName, 是否为公用增量包>
+        /// AB 是否为公用增量包 <abName, bool>
         /// </summary>
         private static Dictionary<string, bool> s_ABIsCommonIncreaser = new Dictionary<string, bool>();
 
         /// <summary>
-        /// 所有AB对应的分组名称
-        /// <abName, 分组名称>
+        /// AB 对应分组名称 <abName, groupName>
         /// </summary>
         private static Dictionary<string, string> s_ABGroupName = new Dictionary<string, string>();
+        #endregion
 
+        #region 配置刷新
         /// <summary>
-        /// 收集ABConfig信息
+        /// 从 ABConfigs.json 重新加载所有 AB 配置
         /// </summary>
         public static void RefreshABConfigs()
         {
-            string filePathList = Runtime.GamePathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
-            string content = File.ReadAllText(filePathList);
-            if (string.IsNullOrEmpty(content))
-            {
-                return;
-            }
-            JObject jObject = JObject.Parse(content);
+            string filePath = GamePathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
+            string content = File.ReadAllText(filePath);
 
+            if (string.IsNullOrEmpty(content))
+                return;
+
+            JObject jObject = JObject.Parse(content);
             s_ABConfigs.Clear();
 
-            foreach (var itr in jObject)
+            foreach (var item in jObject)
             {
-                JToken data = itr.Value;
-                string path = data["Path"].ToString(); // 取出路径
+                JToken data = item.Value;
+                string path = data["Path"].ToString();
+
                 if (!s_ABConfigs.ContainsKey(path))
                 {
-                    s_ABConfigs.Add(path,
-                        new ABConfigInfo(int.Parse(data["ID"].ToString()), path,
-                            int.Parse(data["PackageMeasureType"].ToString()), data["Rename"].ToString(),
-                            data["GroupName"].ToString(), bool.Parse(data["IsIncreaserGroup"].ToString()),
-                            bool.Parse(data["IsCommonIncreaserGroup"].ToString())));
+                    ABConfigInfo info = new ABConfigInfo(
+                        int.Parse(data["ID"].ToString()),
+                        path,
+                        int.Parse(data["PackageMeasureType"].ToString()),
+                        data["Rename"].ToString(),
+                        data["GroupName"].ToString(),
+                        bool.Parse(data["IsIncreaserGroup"].ToString()),
+                        bool.Parse(data["IsCommonIncreaserGroup"].ToString())
+                    );
+
+                    s_ABConfigs.Add(path, info);
                 }
             }
         }
 
         /// <summary>
-        /// 清除所有AssetBundle名称
+        /// 清空工程中所有 AssetBundle 名称
         /// </summary>
         public static void CleanAllAsssetBundleNames()
         {
             RefreshABConfigs();
-            string[] assetBundleNames = AssetDatabase.GetAllAssetBundleNames();
-            for (int j = 0; j < assetBundleNames.Length; j++)
+
+            string[] bundleNames = AssetDatabase.GetAllAssetBundleNames();
+            for (int i = 0; i < bundleNames.Length; i++)
             {
-                AssetDatabase.RemoveAssetBundleName(assetBundleNames[j], true);
+                AssetDatabase.RemoveAssetBundleName(bundleNames[i], true);
             }
 
             AssetDatabase.Refresh();
         }
+        #endregion
 
+        #region 自动设置 AB 包名（核心）
         /// <summary>
-        /// 刷新所有AssetBundle名称
+        /// 根据配置自动刷新所有资源的 AssetBundle 名称
         /// </summary>
-        /// <param name="forceCheckPath">是否进行路径的强制检测</param>
+        /// <param name="forceCheckPath">是否强制校验路径有效性</param>
         public static void RefreshAllAssetBundleNames(bool forceCheckPath = false)
         {
             CleanAllAsssetBundleNames();
@@ -94,559 +115,319 @@ namespace Honor.Editor
             {
                 ABConfigInfo info = config.Value;
 
-                // 将Path文件/目录单独作为一个AB进行打包
+                // 0 = 文件/目录单独打包
                 if (info.PackageMeasureType == 0)
                 {
-                    if (info.IsPlatformManifest || File.Exists(info.Path) || Directory.Exists(info.Path))
-                    {
-                        AssetImporter importer = AssetImporter.GetAtPath(info.Path);
-                        if (importer)
-                        {
-                            if (!string.IsNullOrEmpty(info.Rename))
-                            {
-                                importer.assetBundleName = info.Rename.ToLower();
-                            }
-                            else
-                            {
-                                int indexOfSuffixFlag = info.Path.LastIndexOf('.');
-                                indexOfSuffixFlag = indexOfSuffixFlag < 0 ? info.Path.Length : indexOfSuffixFlag;
-                                importer.assetBundleName = AorTxt.Format("{0}.bundle",
-                                    info.Path.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                            }
-
-                            if (!s_ABIsIncreaser.ContainsKey(importer.assetBundleName))
-                            {
-                                s_ABIsIncreaser.Add(importer.assetBundleName, info.IsIncreaserGroup);
-                            }
-
-                            if (!s_ABIsCommonIncreaser.ContainsKey(importer.assetBundleName))
-                            {
-                                s_ABIsCommonIncreaser.Add(importer.assetBundleName, info.IsCommonIncreaserGroup);
-                            }
-
-                            if (!s_ABGroupName.ContainsKey(importer.assetBundleName))
-                            {
-                                s_ABGroupName.Add(importer.assetBundleName, info.GroupName);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (forceCheckPath)
-                        {
-                            Log.Error(
-                                $"[Editor] RefreshAllAssetBundleNames() 中 ID : {info.ID} 的 Path : {info.Path} 并不是一个已存在的文件或目录。");
-                        }
-                    }
+                    ProcessPackageType_SingleFileOrDir(info, forceCheckPath);
                 }
-                // 将Path目录下每个文件单独作为一个AB进行打包
+                // 1 = 目录下每个文件单独打包
                 else if (info.PackageMeasureType == 1)
                 {
-                    if (Directory.Exists(info.Path))
-                    {
-                        string[] fullPaths = Directory.GetFiles(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
-                        {
-                            if (!fullPath.EndsWith(".meta"))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string filePath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(filePath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = filePath.LastIndexOf('.');
-                                    indexOfSuffixFlag = indexOfSuffixFlag < 0 ? filePath.Length : indexOfSuffixFlag;
-                                    importer.assetBundleName = AorTxt.Format("{0}.bundle",
-                                        filePath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABIsIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsIncreaser.Add(importer.assetBundleName, info.IsIncreaserGroup);
-                                    }
-
-                                    if (!s_ABIsCommonIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsCommonIncreaser.Add(importer.assetBundleName,
-                                            info.IsCommonIncreaserGroup);
-                                    }
-
-                                    if (!s_ABGroupName.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABGroupName.Add(importer.assetBundleName, info.GroupName);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (forceCheckPath)
-                        {
-                            Log.Error(
-                                $"[Editor] RefreshAllAssetBundleNames() 中 ID : {info.ID} 的 Path : {info.Path} 并不是一个已存在的目录。");
-                        }
-                    }
+                    ProcessPackageType_EachFile(info, forceCheckPath);
                 }
-                // 将Path目录下每个第一级文件夹单独作为一个AB进行打包
+                // 2 = 目录下一级子目录单独打包
                 else if (info.PackageMeasureType == 2)
                 {
-                    if (Directory.Exists(info.Path))
-                    {
-                        string[] fullPaths = Directory.GetDirectories(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
-                        {
-                            if (Directory.Exists(fullPath))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string directoryPath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(directoryPath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = directoryPath.LastIndexOf('.');
-                                    indexOfSuffixFlag =
-                                        indexOfSuffixFlag < 0 ? directoryPath.Length : indexOfSuffixFlag;
-                                    importer.assetBundleName = AorTxt.Format("{0}.bundle",
-                                        directoryPath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABIsIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsIncreaser.Add(importer.assetBundleName, info.IsIncreaserGroup);
-                                    }
-
-                                    if (!s_ABIsCommonIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsCommonIncreaser.Add(importer.assetBundleName,
-                                            info.IsCommonIncreaserGroup);
-                                    }
-
-                                    if (!s_ABGroupName.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABGroupName.Add(importer.assetBundleName, info.GroupName);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (forceCheckPath)
-                        {
-                            Log.Error(
-                                $"[Editor] RefreshAllAssetBundleNames() 中 ID : {info.ID} 的 Path : {info.Path} 并不是一个已存在的目录。");
-                        }
-                    }
+                    ProcessPackageType_EachSubDir(info, forceCheckPath);
                 }
-                // 将Path目录下每个第一级文件与文件夹单独作为一个AB进行打包
+                // 3 = 目录下一级文件 + 子目录分别打包
                 else if (info.PackageMeasureType == 3)
                 {
-                    if (Directory.Exists(info.Path))
-                    {
-                        // 先处理文件
-                        string[] fullPaths = Directory.GetFiles(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
-                        {
-                            if (!fullPath.EndsWith(".meta"))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string filePath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(filePath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = filePath.LastIndexOf('.');
-                                    indexOfSuffixFlag = indexOfSuffixFlag < 0 ? filePath.Length : indexOfSuffixFlag;
-                                    importer.assetBundleName = AorTxt.Format("{0}.bundle",
-                                        filePath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABIsIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsIncreaser.Add(importer.assetBundleName, info.IsIncreaserGroup);
-                                    }
-
-                                    if (!s_ABIsCommonIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsCommonIncreaser.Add(importer.assetBundleName,
-                                            info.IsCommonIncreaserGroup);
-                                    }
-
-                                    if (!s_ABGroupName.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABGroupName.Add(importer.assetBundleName, info.GroupName);
-                                    }
-                                }
-                            }
-                        }
-
-                        // 再处理文件夹
-                        fullPaths = Directory.GetDirectories(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
-                        {
-                            if (Directory.Exists(fullPath))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string directoryPath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(directoryPath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = directoryPath.LastIndexOf('.');
-                                    indexOfSuffixFlag =
-                                        indexOfSuffixFlag < 0 ? directoryPath.Length : indexOfSuffixFlag;
-                                    importer.assetBundleName = AorTxt.Format("{0}.bundle",
-                                        directoryPath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABIsIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsIncreaser.Add(importer.assetBundleName, info.IsIncreaserGroup);
-                                    }
-
-                                    if (!s_ABIsCommonIncreaser.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABIsCommonIncreaser.Add(importer.assetBundleName,
-                                            info.IsCommonIncreaserGroup);
-                                    }
-
-                                    if (!s_ABGroupName.ContainsKey(importer.assetBundleName))
-                                    {
-                                        s_ABGroupName.Add(importer.assetBundleName, info.GroupName);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (forceCheckPath)
-                        {
-                            Log.Error(
-                                $"[Editor] RefreshAllAssetBundleNames() 中 ID : {info.ID} 的 Path : {info.Path} 并不是一个已存在的目录。");
-                        }
-                    }
+                    ProcessPackageType_FileAndSubDir(info, forceCheckPath);
                 }
-                // 小游戏打包类型（小游戏下每个文件夹单独打包ab，其中Lua相关文件夹仅打包LuacScripts为ab，Textures下每个文件夹单独成ab且仅打包非Atlas文件夹）
+                // 4 = 小游戏专用打包规则
                 else if (info.PackageMeasureType == 4)
                 {
-                    if (Directory.Exists(info.Path))
-                    {
-                        string miniGameFullPath = System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/');
-                        RemoveDirectoryMetaFileAssetBundleName(miniGameFullPath, true);
-                        string assetBundleName = AorTxt.Format("{0}.bundle", info.Path.Replace('/', '@').ToLower());
-                        string[] fullPaths = Directory.GetDirectories(miniGameFullPath);
-                        foreach (string fullPath in fullPaths)
-                        {
-                            if (Directory.Exists(fullPath))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string directoryPath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                string directoryName = System.IO.Path.GetFileNameWithoutExtension(directoryPath);
-
-                                if (directoryName == "LuaScripts") //  lua不添加到bundle里
-                                {
-                                    continue;
-                                }
-                                else if (directoryName == "Common")
-                                {
-                                    string[] commonFullPaths = Directory.GetDirectories(formatFullPath);
-                                    foreach (string commonFullPath in commonFullPaths)
-                                    {
-                                        if (Directory.Exists(commonFullPath))
-                                        {
-                                            string commonFormatFullPath = commonFullPath.Replace('\\', '/');
-                                            string commonDirectoryPath = AorTxt.Format("Assets/{0}",
-                                                commonFormatFullPath.Substring(Application.dataPath.Length + 1,
-                                                    commonFormatFullPath.Length - (Application.dataPath.Length + 1)));
-                                            string commonDirectoryName =
-                                                System.IO.Path.GetFileNameWithoutExtension(commonDirectoryPath);
-                                            if (commonDirectoryName == "LuaScripts") //  lua不添加到bundle里
-                                            {
-                                                continue;
-                                            }
-
-                                            AssetImporter importer1 = AssetImporter.GetAtPath(commonDirectoryPath);
-                                            if (importer1)
-                                            {
-                                                importer1.assetBundleName = assetBundleName;
-                                            }
-                                        }
-                                    }
-
-                                    continue;
-                                }
-                                else if (directoryName == "Textures") // textures要去除Atlas目录
-                                {
-                                    string[] texturesFullPaths = Directory.GetDirectories(formatFullPath);
-                                    foreach (string texturesFullPath in texturesFullPaths)
-                                    {
-                                        if (Directory.Exists(texturesFullPath))
-                                        {
-                                            string textureFormatFullPath = texturesFullPath.Replace('\\', '/');
-                                            string textureDirectoryPath = AorTxt.Format("Assets/{0}",
-                                                textureFormatFullPath.Substring(Application.dataPath.Length + 1,
-                                                    textureFormatFullPath.Length - (Application.dataPath.Length + 1)));
-                                            string textureDirectoryName =
-                                                System.IO.Path.GetFileNameWithoutExtension(textureDirectoryPath);
-                                            if (textureDirectoryName == "Atlas") //  合图文件不添加到bundle里
-                                            {
-                                                continue;
-                                            }
-
-                                            AssetImporter importer1 = AssetImporter.GetAtPath(textureDirectoryPath);
-                                            if (importer1)
-                                            {
-                                                importer1.assetBundleName = assetBundleName;
-                                            }
-                                        }
-                                    }
-
-                                    continue;
-                                }
-
-                                AssetImporter importer2 = AssetImporter.GetAtPath(directoryPath);
-                                if (importer2)
-                                {
-                                    importer2.assetBundleName = assetBundleName;
-                                }
-                            }
-                        }
-
-                        if (!s_ABIsIncreaser.ContainsKey(assetBundleName))
-                        {
-                            s_ABIsIncreaser.Add(assetBundleName, info.IsIncreaserGroup);
-                        }
-
-                        if (!s_ABIsCommonIncreaser.ContainsKey(assetBundleName))
-                        {
-                            s_ABIsCommonIncreaser.Add(assetBundleName, info.IsCommonIncreaserGroup);
-                        }
-
-                        if (!s_ABGroupName.ContainsKey(assetBundleName))
-                        {
-                            s_ABGroupName.Add(assetBundleName, info.GroupName);
-                        }
-                    }
-                    else
-                    {
-                        if (forceCheckPath)
-                        {
-                            Log.Error(
-                                $"[Editor] RefreshAllAssetBundleNames() 中 ID : {info.ID} 的 Path : {info.Path} 并不是一个已存在的目录。");
-                        }
-                    }
+                    ProcessPackageType_MiniGame(info, forceCheckPath);
                 }
             }
 
             AssetDatabase.Refresh();
         }
+        #endregion
+
+        #region 各种打包规则实现
+        /// <summary>
+        /// 类型0：单个文件/目录打包
+        /// </summary>
+        private static void ProcessPackageType_SingleFileOrDir(ABConfigInfo info, bool forceCheckPath)
+        {
+            if (info.IsPlatformManifest || File.Exists(info.Path) || Directory.Exists(info.Path))
+            {
+                AssetImporter importer = AssetImporter.GetAtPath(info.Path);
+                if (importer == null) return;
+
+                if (!string.IsNullOrEmpty(info.Rename))
+                {
+                    importer.assetBundleName = info.Rename.ToLower();
+                }
+                else
+                {
+                    int suffixIndex = info.Path.LastIndexOf('.');
+                    suffixIndex = suffixIndex < 0 ? info.Path.Length : suffixIndex;
+                    string bundleName = $"{info.Path.Substring(0, suffixIndex).Replace('/', '@').ToLower()}.bundle";
+                    importer.assetBundleName = bundleName;
+                }
+
+                CacheABInfo(importer.assetBundleName, info);
+            }
+            else
+            {
+                if (forceCheckPath)
+                    Log.Error($"[AB打包] ID:{info.ID} 路径无效：{info.Path}");
+            }
+        }
 
         /// <summary>
-        /// 是否为增量捆绑包
+        /// 类型1：目录下每个文件单独打包
         /// </summary>
-        /// <param name="assetBundleName"></param>
-        /// <returns></returns>
+        private static void ProcessPackageType_EachFile(ABConfigInfo info, bool forceCheckPath)
+        {
+            if (!Directory.Exists(info.Path))
+            {
+                if (forceCheckPath) Log.Error($"[AB打包] ID:{info.ID} 目录无效：{info.Path}");
+                return;
+            }
+
+            string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
+            string[] files = Directory.GetFiles(root);
+
+            foreach (string fullPath in files)
+            {
+                if (fullPath.EndsWith(".meta")) continue;
+
+                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                if (importer == null) continue;
+
+                int suffixIndex = assetPath.LastIndexOf('.');
+                suffixIndex = suffixIndex < 0 ? assetPath.Length : suffixIndex;
+                string bundleName = $"{assetPath.Substring(0, suffixIndex).Replace('/', '@').ToLower()}.bundle";
+                importer.assetBundleName = bundleName;
+
+                CacheABInfo(bundleName, info);
+            }
+        }
+
+        /// <summary>
+        /// 类型2：一级子目录单独打包
+        /// </summary>
+        private static void ProcessPackageType_EachSubDir(ABConfigInfo info, bool forceCheckPath)
+        {
+            if (!Directory.Exists(info.Path))
+            {
+                if (forceCheckPath) Log.Error($"[AB打包] ID:{info.ID} 目录无效：{info.Path}");
+                return;
+            }
+
+            string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
+            string[] dirs = Directory.GetDirectories(root);
+
+            foreach (string fullPath in dirs)
+            {
+                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                if (importer == null) continue;
+
+                string bundleName = $"{assetPath.Replace('/', '@').ToLower()}.bundle";
+                importer.assetBundleName = bundleName;
+
+                CacheABInfo(bundleName, info);
+            }
+        }
+
+        /// <summary>
+        /// 类型3：一级文件 + 子目录分别打包
+        /// </summary>
+        private static void ProcessPackageType_FileAndSubDir(ABConfigInfo info, bool forceCheckPath)
+        {
+            if (!Directory.Exists(info.Path))
+            {
+                if (forceCheckPath) Log.Error($"[AB打包] ID:{info.ID} 目录无效：{info.Path}");
+                return;
+            }
+
+            string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
+
+            // 文件
+            foreach (string fullPath in Directory.GetFiles(root))
+            {
+                if (fullPath.EndsWith(".meta")) continue;
+                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                if (importer == null) continue;
+
+                int suffixIndex = assetPath.LastIndexOf('.');
+                suffixIndex = suffixIndex < 0 ? assetPath.Length : suffixIndex;
+                string bundleName = $"{assetPath.Substring(0, suffixIndex).Replace('/', '@').ToLower()}.bundle";
+                importer.assetBundleName = bundleName;
+                CacheABInfo(bundleName, info);
+            }
+
+            // 目录
+            foreach (string fullPath in Directory.GetDirectories(root))
+            {
+                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                if (importer == null) continue;
+
+                string bundleName = $"{assetPath.Replace('/', '@').ToLower()}.bundle";
+                importer.assetBundleName = bundleName;
+                CacheABInfo(bundleName, info);
+            }
+        }
+
+        /// <summary>
+        /// 类型4：小游戏专用打包规则（Lua/Atlas/Textures 特殊处理）
+        /// </summary>
+        private static void ProcessPackageType_MiniGame(ABConfigInfo info, bool forceCheckPath)
+        {
+            if (!Directory.Exists(info.Path))
+            {
+                if (forceCheckPath) Log.Error($"[AB打包] ID:{info.ID} 目录无效：{info.Path}");
+                return;
+            }
+
+            string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
+            RemoveDirectoryMetaFileAssetBundleName(root, true);
+
+            string bundleName = $"{info.Path.Replace('/', '@').ToLower()}.bundle";
+            string[] subDirs = Directory.GetDirectories(root);
+
+            foreach (string dir in subDirs)
+            {
+                string assetPath = "Assets/" + dir[(Application.dataPath.Length + 1)..];
+                string dirName = Path.GetFileNameWithoutExtension(assetPath);
+
+                // 跳过 Lua
+                if (dirName == "LuaScripts") continue;
+
+                // 公用目录
+                if (dirName == "Common")
+                {
+                    foreach (string commonDir in Directory.GetDirectories(dir))
+                    {
+                        string commonAssetPath = "Assets/" + commonDir[(Application.dataPath.Length + 1)..];
+                        string commonDirName = Path.GetFileNameWithoutExtension(commonAssetPath);
+                        if (commonDirName == "LuaScripts") continue;
+
+                        AssetImporter importer = AssetImporter.GetAtPath(commonAssetPath);
+                        if (importer != null) importer.assetBundleName = bundleName;
+                    }
+                    continue;
+                }
+
+                // 贴图目录（跳过 Atlas）
+                if (dirName == "Textures")
+                {
+                    foreach (string texDir in Directory.GetDirectories(dir))
+                    {
+                        string texAssetPath = "Assets/" + texDir[(Application.dataPath.Length + 1)..];
+                        string texDirName = Path.GetFileNameWithoutExtension(texAssetPath);
+                        if (texDirName == "Atlas") continue;
+
+                        AssetImporter importer = AssetImporter.GetAtPath(texAssetPath);
+                        if (importer != null) importer.assetBundleName = bundleName;
+                    }
+                    continue;
+                }
+
+                // 普通目录
+                AssetImporter imp = AssetImporter.GetAtPath(assetPath);
+                if (imp != null) imp.assetBundleName = bundleName;
+            }
+
+            CacheABInfo(bundleName, info);
+        }
+
+        /// <summary>
+        /// 缓存 AB 包的增量/公用/分组信息
+        /// </summary>
+        private static void CacheABInfo(string bundleName, ABConfigInfo info)
+        {
+            if (!s_ABIsIncreaser.ContainsKey(bundleName))
+                s_ABIsIncreaser.Add(bundleName, info.IsIncreaserGroup);
+
+            if (!s_ABIsCommonIncreaser.ContainsKey(bundleName))
+                s_ABIsCommonIncreaser.Add(bundleName, info.IsCommonIncreaserGroup);
+
+            if (!s_ABGroupName.ContainsKey(bundleName))
+                s_ABGroupName.Add(bundleName, info.GroupName);
+        }
+        #endregion
+
+        #region 外部查询接口
+        /// <summary>
+        /// 判断 AB 是否为增量包
+        /// </summary>
         public static bool IsIncreaserAssetBundle(string assetBundleName)
         {
-            if (!string.IsNullOrEmpty(assetBundleName))
-            {
-                if (s_ABIsIncreaser.Count == 0)
-                {
-                    RefreshAllAssetBundleNames();
-                }
-
-                if (s_ABIsIncreaser.ContainsKey(assetBundleName))
-                {
-                    return s_ABIsIncreaser[assetBundleName];
-                }
-            }
-
-            return false;
+            if (string.IsNullOrEmpty(assetBundleName)) return false;
+            if (s_ABIsIncreaser.Count == 0) RefreshAllAssetBundleNames();
+            return s_ABIsIncreaser.TryGetValue(assetBundleName, out bool res) && res;
         }
 
         /// <summary>
-        /// 是否为公用增量捆绑包
+        /// 判断 AB 是否为公用增量包
         /// </summary>
-        /// <param name="assetBundleName"></param>
-        /// <returns></returns>
         public static bool IsCommonIncreaserAssetBundle(string assetBundleName)
         {
-            if (!string.IsNullOrEmpty(assetBundleName))
-            {
-                if (s_ABIsCommonIncreaser.Count == 0)
-                {
-                    RefreshAllAssetBundleNames();
-                }
-
-                if (s_ABIsCommonIncreaser.ContainsKey(assetBundleName))
-                {
-                    return s_ABIsCommonIncreaser[assetBundleName];
-                }
-            }
-
-            return false;
+            if (string.IsNullOrEmpty(assetBundleName)) return false;
+            if (s_ABIsCommonIncreaser.Count == 0) RefreshAllAssetBundleNames();
+            return s_ABIsCommonIncreaser.TryGetValue(assetBundleName, out bool res) && res;
         }
 
         /// <summary>
-        /// 是否为相同分组
+        /// 判断两个 AB 是否属于同一分组
         /// </summary>
-        /// <param name="assetBundleName1"></param>
-        /// <param name="assetBundleName2"></param>
-        /// <returns></returns>
         public static bool IsAssetBundleInSameGroup(string assetBundleName1, string assetBundleName2)
         {
-            if (!string.IsNullOrEmpty(assetBundleName1) && !string.IsNullOrEmpty(assetBundleName2))
-            {
-                if (s_ABGroupName.Count == 0)
-                {
-                    RefreshAllAssetBundleNames();
-                }
+            if (string.IsNullOrEmpty(assetBundleName1) || string.IsNullOrEmpty(assetBundleName2))
+                return false;
 
-                string groupName1 = s_ABGroupName.ContainsKey(assetBundleName1)
-                    ? s_ABGroupName[assetBundleName1]
-                    : string.Empty;
-                string groupName2 = s_ABGroupName.ContainsKey(assetBundleName2)
-                    ? s_ABGroupName[assetBundleName2]
-                    : string.Empty;
-                bool isSameGroupName = groupName1.Equals(groupName2);
-                return isSameGroupName;
-            }
+            if (s_ABGroupName.Count == 0)
+                RefreshAllAssetBundleNames();
 
-            return false;
+            s_ABGroupName.TryGetValue(assetBundleName1, out string g1);
+            s_ABGroupName.TryGetValue(assetBundleName2, out string g2);
+            return g1 == g2;
         }
+        #endregion
 
+        #region Meta 文件清理
         /// <summary>
-        /// 删除meta文件的AssetBundleName
+        /// 清除单个 meta 文件中的 assetBundleName
         /// </summary>
-        /// <param name="mateFilePath"></param>
-        private static void RemoveMetaFileAssetBundleName(string mateFilePath)
+        private static void RemoveMetaFileAssetBundleName(string metaPath)
         {
-            if (File.Exists(mateFilePath))
-            {
-                string matchString = "assetBundleName:";
-                string metaContent = File.ReadAllText(mateFilePath);
-                int startIndex = metaContent.IndexOf(matchString);
+            if (!File.Exists(metaPath)) return;
 
-                if (startIndex >= 0)
-                {
-                    int endIndex = metaContent.IndexOf('\n', startIndex);
-                    if (endIndex - startIndex - matchString.Length > 2)
-                    {
-                        metaContent = metaContent.Remove(startIndex + matchString.Length,
-                            endIndex - startIndex - matchString.Length);
-                        File.WriteAllText(mateFilePath, metaContent);
-                    }
-                }
+            string content = File.ReadAllText(metaPath);
+            string key = "assetBundleName:";
+            int start = content.IndexOf(key);
+
+            if (start < 0) return;
+
+            int end = content.IndexOf('\n', start);
+            if (end - start - key.Length > 2)
+            {
+                content = content.Remove(start + key.Length, end - start - key.Length);
+                File.WriteAllText(metaPath, content);
             }
         }
 
-
         /// <summary>
-        /// 删除文件夹里所有meta文件的AssetBundleName
+        /// 清除目录下所有 meta 的 AB 名称
         /// </summary>
-        /// <param name="directoryPath">目标文件夹</param>
-        /// <param name="isIncludeSelf">是否包含删除自身</param>
         private static void RemoveDirectoryMetaFileAssetBundleName(string directoryPath, bool isIncludeSelf = false)
         {
-            var matchFileArray = Directory.GetFiles(directoryPath, "*.meta", System.IO.SearchOption.AllDirectories);
-            foreach (var mateFilePath in matchFileArray)
-            {
-                RemoveMetaFileAssetBundleName(mateFilePath);
-            }
+            string[] metas = Directory.GetFiles(directoryPath, "*.meta", SearchOption.AllDirectories);
+            foreach (string meta in metas)
+                RemoveMetaFileAssetBundleName(meta);
 
             if (isIncludeSelf)
-            {
                 RemoveMetaFileAssetBundleName(directoryPath + ".meta");
-            }
         }
-
-        ///// <summary>
-        ///// 个别资源变动回调
-        ///// </summary>
-        ///// <param name="imported">导入资源路径集合</param>
-        ///// <param name="deleted">删除资源路径集合</param>
-        ///// <param name="moved">移动资源路径集合</param>
-        ///// <param name="movedFromAssetPaths">移动资源来源路径集合</param>
-        //public static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFromAssetPaths)
-        //{
-        //    RefreshABConfigs();
-
-        //    string abConfigsFilePathList = Runtime.Path.Json.GetRootDirectoryRelativePath() + "/ABConfigs.json";
-        //    for (int index = 0; index < imported.Length; index++)
-        //    {
-        //        if(imported[index] == abConfigsFilePathList)
-        //        {
-        //            RefreshAllAsssetBundleNames();
-        //            AssetDatabase.Refresh();
-        //            return;
-        //        }
-        //    }
-
-        //    // 清除需要被清除的assetbundleName
-        //    List<string> needRemovePaths = new List<string>();
-        //    for(int index = 0; index < deleted.Length; index++)
-        //    {
-        //        if(!needRemovePaths.Contains(deleted[index]))
-        //        {
-        //            needRemovePaths.Add(deleted[index]);
-        //        }
-        //    }
-        //    for (int index = 0; index < movedFromAssetPaths.Length; index++)
-        //    {
-        //        if (!needRemovePaths.Contains(movedFromAssetPaths[index]))
-        //        {
-        //            needRemovePaths.Add(movedFromAssetPaths[index]);
-        //        }
-        //    }
-
-        //    List<string> assetBundleNames = new List<string>(AssetDatabase.GetAllAssetBundleNames());
-        //    needRemovePaths.ForEach((needRemovePath) =>
-        //    {
-        //        int indexOfSuffixFlag = needRemovePath.LastIndexOf('.');
-        //        indexOfSuffixFlag = indexOfSuffixFlag < 0 ? needRemovePath.Length : indexOfSuffixFlag;
-        //        string assetBundleName = needRemovePath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower();
-        //        assetBundleNames.ForEach((checkBundleName) =>
-        //        {
-        //            if (checkBundleName == assetBundleName)
-        //            {
-        //                AssetDatabase.RemoveAssetBundleName(assetBundleName, true);
-        //            }
-        //        });
-        //    });
-
-        //    List<string> modifiedPaths = new List<string>();
-        //    for (int index = 0; index < imported.Length; index++)
-        //    {
-        //        if (!modifiedPaths.Contains(imported[index]))
-        //        {
-        //            modifiedPaths.Add(imported[index]);
-        //        }
-        //    }
-        //    for (int index = 0; index < moved.Length; index++)
-        //    {
-        //        if (!modifiedPaths.Contains(moved[index]))
-        //        {
-        //            modifiedPaths.Add(moved[index]);
-        //        }
-        //    }
-
-        //    if (modifiedPaths.Count > 0)
-        //    {
-        //        RefreshAllAsssetBundleNames();
-        //    }
-
-        //    AssetDatabase.Refresh();
-        //}
+        #endregion
     }
 }

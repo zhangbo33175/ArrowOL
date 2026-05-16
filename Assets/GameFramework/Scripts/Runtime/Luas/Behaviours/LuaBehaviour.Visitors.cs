@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviour.Properties.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   LuaBehaviour - 属性、公共访问器、字段定义
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +17,12 @@ namespace Honor.Runtime
 {
     public partial class LuaBehaviour : MonoBehaviour
     {
+        //=========================================================================
+        // 序列化配置字段
+        //=========================================================================
+
+        #region Serialized Fields
+
         /// <summary>
         /// 设计模式类型
         /// </summary>
@@ -247,9 +263,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua 传入参数
+        /// Lua 脚本名称集合
         /// </summary>
         private LuaTable m_LuaParams;
+
         public LuaTable LuaParams
         {
             set
@@ -263,7 +280,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 公开 Lua 环境（供 Lua 层访问：cs.lua）
+        /// Lua 父类脚本名称集合
         /// </summary>
         public LuaTable lua
         {
@@ -279,7 +296,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 标准模式 Lua Class
+        /// 是否启用 Proc 逻辑更新
         /// </summary>
         public LuaTable luaClass
         {
@@ -290,7 +307,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// MVVM 模式 View Class
+        /// 是否使用遮罩层
         /// </summary>
         public LuaTable luaClassView
         {
@@ -301,7 +318,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// MVVM 模式 ViewModel Class
+        /// 是否使用关闭动画
         /// </summary>
         public LuaTable luaClassViewModel
         {
@@ -312,7 +329,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取有效 Lua Class（自动适配模式）
+        /// 是否绘制射线检测目标 Gizmo
         /// </summary>
         public LuaTable ValidLuaClass
         {
@@ -335,7 +352,6 @@ namespace Honor.Runtime
                     case PatternType.None: m_OwnLuaEnvsNone = value; break;
                     default: m_OwnLuaEnvsNone = value; break;
                 }
-                
             }
             get
             {
@@ -373,9 +389,14 @@ namespace Honor.Runtime
             }
         }
 
-        // ==============================================
+        #endregion
+
+        //=========================================================================
         // 生命周期回调访问器
-        // ==============================================
+        //=========================================================================
+
+        #region Lifecycle Accessors
+
         public Action[] LuaAwakes
         {
             set
@@ -508,6 +529,8 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
         // ==============================================
         // 碰撞/触发组件
         // ==============================================
@@ -561,6 +584,7 @@ namespace Honor.Runtime
         /// 生命周期标记
         /// </summary>
         private bool m_AwakeOver;
+
         private bool m_EnableOver;
         private bool m_StartOver;
 

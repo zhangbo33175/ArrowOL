@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SoundComponent.Private.cs
+ * author:  云毅
+ * created:
+ * descrip:   音频组件 - 私有工具方法分部类（声音代理、监听器管理）
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -9,6 +18,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class SoundComponent : GameComponent
     {
+        //=========================================================================
+        #region 私有工具方法
+        //=========================================================================
+
         /// <summary>
         /// 添加声音代理（AudioSource 播放器）
         /// 每个声音代理对应一个 AudioSource，用于播放音频
@@ -52,12 +65,14 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 刷新音频监听器状态
-        /// 确保全局只有一个 AudioListener 生效，避免声音异常
+        /// 确保全局只有一个 AudioListener 生效，避免声音异常、定位错误
         /// </summary>
         private void RefreshAudioListener()
         {
             // 如果场景中只有一个 AudioListener，则启用；否则禁用自身
             m_AudioListener.enabled = Object.FindObjectsOfType<AudioListener>().Length <= 1;
         }
+
+        #endregion
     }
 }

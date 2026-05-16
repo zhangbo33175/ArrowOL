@@ -41,14 +41,13 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 1, 1);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
 			
 			
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LuaBindValueType", Honor.Runtime.LuaBindValue.LuaBindValueType);
             
-			Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "LuaBindValueType", _g_get_LuaBindValueType);
-            
-			Utils.RegisterFunc(L, Utils.CLS_SETTER_IDX, "LuaBindValueType", _s_set_LuaBindValueType);
-            
+			
+			
 			
 			Utils.EndClassRegister(type, L, translator);
         }
@@ -85,18 +84,6 @@ namespace XLua.CSObjectWrap
         
         
         
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaBindValueType(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    translator.Push(L, Honor.Runtime.LuaBindValue.LuaBindValueType);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_Comment(RealStatePtr L)
@@ -169,19 +156,6 @@ namespace XLua.CSObjectWrap
         }
         
         
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_LuaBindValueType(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			    Honor.Runtime.LuaBindValue.LuaBindValueType = (string[])translator.GetObject(L, 1, typeof(string[]));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_Comment(RealStatePtr L)

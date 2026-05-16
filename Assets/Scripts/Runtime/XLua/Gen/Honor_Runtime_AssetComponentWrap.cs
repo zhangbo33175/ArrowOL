@@ -39,11 +39,13 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "IsAssetExist", _m_IsAssetExist);
 			
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "LauncherComponent", _g_get_LauncherComponent);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "StrictCheck", _g_get_StrictCheck);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LauncherComponent", _g_get_LauncherComponent);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "AssetLoadManager", _g_get_AssetLoadManager);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrefabLoadManager", _g_get_PrefabLoadManager);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "DependsDataList", _g_get_DependsDataList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "EditorResourceMode", _g_get_EditorResourceMode);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "DependsDataList", _g_get_DependsDataList);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "Scenes", _g_get_Scenes);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LoadedPrefabList", _g_get_LoadedPrefabList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LoadingAssetList", _g_get_LoadingAssetList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LoadedAssetList", _g_get_LoadedAssetList);
@@ -53,8 +55,6 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LoadingABList", _g_get_LoadingABList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LoadedABList", _g_get_LoadedABList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UnloadABList", _g_get_UnloadABList);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "Scenes", _g_get_Scenes);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "StrictCheck", _g_get_StrictCheck);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "UnloadAssetDelayFrameNum", _s_set_UnloadAssetDelayFrameNum);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "LoadedMaxNumToCleanMemery", _s_set_LoadedMaxNumToCleanMemery);
@@ -679,6 +679,20 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_StrictCheck(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.StrictCheck);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_LauncherComponent(RealStatePtr L)
         {
 		    try {
@@ -721,6 +735,20 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_EditorResourceMode(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.EditorResourceMode);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_DependsDataList(RealStatePtr L)
         {
 		    try {
@@ -735,13 +763,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_EditorResourceMode(RealStatePtr L)
+        static int _g_get_Scenes(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.EditorResourceMode);
+                translator.Push(L, gen_to_be_invoked.Scenes);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -868,34 +896,6 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
                 translator.Push(L, gen_to_be_invoked.UnloadABList);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_Scenes(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.Scenes);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_StrictCheck(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.StrictCheck);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

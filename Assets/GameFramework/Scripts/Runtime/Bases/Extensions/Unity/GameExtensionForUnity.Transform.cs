@@ -1,19 +1,32 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameExtensionForUnity.Transform.cs
+ * author:    云毅
+ * created:   2025
+ * descrip:   Transform 扩展方法 - 位置/旋转/缩放/层级路径操作
+ ***************************************************************/
 using UnityEngine;
+
 
 namespace Honor.Runtime
 {
     /// <summary>
     /// Unity Transform 组件扩展方法工具类
-    /// 提供位置、缩放、旋转、层级路径等常用便捷操作
+    /// <para>提供位置、缩放、旋转、层级路径等常用便捷操作</para>
     /// </summary>
     public static partial class GameExtensionForUnity
     {
+        #region Transform 世界坐标操作
+        //=========================================================================
+        // 世界坐标 X/Y/Z 单轴设置与增量修改
+        //=========================================================================
         /// <summary>
         /// 设置物体世界坐标的 X 轴分量
         /// </summary>
         /// <param name="transform">目标 Transform 组件</param>
         /// <param name="newValue">新的 X 坐标值</param>
-        /// <exception cref="System.NullReferenceException">transform 为 null 时抛出</exception>
         public static void SetPositionX(this Transform transform, float newValue)
         {
             Vector3 position = transform.position;
@@ -80,7 +93,12 @@ namespace Honor.Runtime
             position.z += deltaValue;
             transform.position = position;
         }
+        #endregion
 
+        #region Transform 局部坐标操作
+        //=========================================================================
+        // 局部坐标 X/Y/Z 单轴设置与增量修改
+        //=========================================================================
         /// <summary>
         /// 设置物体局部坐标（相对父物体）的 X 轴分量
         /// </summary>
@@ -152,7 +170,12 @@ namespace Honor.Runtime
             localPosition.z += deltaValue;
             transform.localPosition = localPosition;
         }
+        #endregion
 
+        #region Transform 局部缩放操作
+        //=========================================================================
+        // 局部缩放 X/Y/Z 单轴设置与增量修改
+        //=========================================================================
         /// <summary>
         /// 设置物体局部缩放的 X 轴分量
         /// </summary>
@@ -224,16 +247,19 @@ namespace Honor.Runtime
             localScale.z += deltaValue;
             transform.localScale = localScale;
         }
+        #endregion
 
+        #region Transform 2D朝向与旋转
+        //=========================================================================
+        // 2D 空间朝向与旋转操作
+        //=========================================================================
         /// <summary>
         /// 2D 空间中使物体朝向目标点（基于世界坐标，修正原逻辑错误）
-        /// 适用于 Top-Down / 平面 2D 游戏
+        /// <para>适用于 Top-Down / 平面 2D 游戏</para>
         /// </summary>
         /// <param name="transform">当前物体 Transform</param>
         /// <param name="lookAtPoint2D">目标 2D 坐标点</param>
-        /// <remarks>
-        /// 旋转轴为 Z 轴（2D 标准朝向），忽略 Y 轴高度差异
-        /// </remarks>
+        /// <remarks>旋转轴为 Z 轴（2D 标准朝向），忽略 Y 轴高度差异</remarks>
         public static void LookAt2D(this Transform transform, Vector2 lookAtPoint2D)
         {
             // 计算方向向量（世界空间）
@@ -248,7 +274,12 @@ namespace Honor.Runtime
                 transform.rotation = Quaternion.Euler(0, -angle, 0);
             }
         }
+        #endregion
 
+        #region Transform 层级路径与深度
+        //=========================================================================
+        // 物体层级路径、父级数量获取
+        //=========================================================================
         /// <summary>
         /// 获取物体从根节点到自身的完整层级路径
         /// </summary>
@@ -292,5 +323,6 @@ namespace Honor.Runtime
 
             return layerCount;
         }
+        #endregion
     }
 }

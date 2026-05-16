@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventComponent.Fields.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   全局事件系统组件 - 字段与属性（partial）
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -6,33 +16,40 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class EventComponent : GameComponent
     {
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        #region Field
         /// <summary>
         /// 事件管理器实例
         /// </summary>
-        private EventManager m_EventManager = null;
+        private EventManager m_EventManager;
+        #endregion
 
+        //=========================================================================
+        // 公共属性 & 接口
+        //=========================================================================
+        #region Property
         /// <summary>
         /// 获取事件管理器实例（只读）
         /// </summary>
-        public EventManager EventManager
-        {
-            get
-            {
-                return m_EventManager;
-            }
-        }
+        public EventManager EventManager => m_EventManager;
 
         /// <summary>
         /// 已注册的事件类型数量（只读）
         /// </summary>
-        public int SubscribedEventTypeCount
-        {
-            get
-            {
-                return m_EventManager.SubscribedEventTypeCount;
-            }
-        }
+        public int SubscribedEventTypeCount => m_EventManager.SubscribedEventTypeCount;
 
+        /// <summary>
+        /// 等待派发的事件数量（事件队列长度）
+        /// </summary>
+        public int EventsForFireCount => m_EventManager.EventsForFireCount;
+        #endregion
+
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
+        #region Method
         /// <summary>
         /// 获取指定事件已注册的回调函数数量
         /// </summary>
@@ -42,16 +59,6 @@ namespace Honor.Runtime
         {
             return m_EventManager.SubscribedEventCount(cmd);
         }
-
-        /// <summary>
-        /// 等待派发的事件数量（事件队列长度）
-        /// </summary>
-        public int EventsForFireCount
-        {
-            get
-            {
-                return m_EventManager.EventsForFireCount;
-            }
-        }
+        #endregion
     }
 }

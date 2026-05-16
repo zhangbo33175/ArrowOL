@@ -1,10 +1,27 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  FileFragmentForWebGLManager.Implement.cs
+ * author:    云毅
+ * created:
+ * descrip:   WebGL 存储管理器 - 内部索引实现（加载/刷新分类与键名）
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// WebGL 专用文件片段存储管理器 - 内部方法实现
+    /// </summary>
     public sealed partial class FileFragmentForWebGLManager
     {
+        //=========================================================================
+        #region 内部索引管理（加载 / 刷新 / 保存）
+        //=========================================================================
+
         /// <summary>
         /// 从本地存储中加载所有分类与键名索引（内存索引重建）
         /// 读取分类列表 → 读取每个分类下的键名列表 → 构建内存结构
@@ -81,5 +98,7 @@ namespace Honor.Runtime
                 }
             }
         }
+
+        #endregion
     }
 }

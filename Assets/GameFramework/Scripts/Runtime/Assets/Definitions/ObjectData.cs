@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetObjectDefine.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   资源系统实体类定义
+ *            包含 PrefabObject / AssetBundleObject / AssetObject / PreloadAssetObject
+ ***************************************************************/
+
+using System.Collections.Generic;
 using UnityEngine;
 using XLua;
 

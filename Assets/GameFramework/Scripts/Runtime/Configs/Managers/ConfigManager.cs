@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ConfigManager.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   配置管理器 - 核心逻辑层
+ ***************************************************************/
+
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class ConfigManager
     {
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        #region Constructor
         /// <summary>
         /// 构造函数：初始化依赖组件与配置字典
         /// </summary>
@@ -35,7 +49,12 @@ namespace Honor.Runtime
             // 初始化配置字典
             m_ConfigDatas = new Dictionary<string, List<ConfigData>>();
         }
+        #endregion
 
+        //=========================================================================
+        // 配置加载 & 解析
+        //=========================================================================
+        #region Method - 加载配置
         /// <summary>
         /// 加载全局加密配置文件
         /// 从AB包加载 → XOR解密 → 解析JSON → 存入配置字典
@@ -92,7 +111,12 @@ namespace Honor.Runtime
             // 卸载配置资源
             m_AssetComponent.UnloadAsset(configJsonAsset, null, true);
         }
+        #endregion
 
+        //=========================================================================
+        // 配置管理（增删查）
+        //=========================================================================
+        #region Method - 配置管理
         /// <summary>
         /// 获取所有配置项名称
         /// </summary>
@@ -146,7 +170,12 @@ namespace Honor.Runtime
         {
             m_ConfigDatas.Clear();
         }
+        #endregion
 
+        //=========================================================================
+        // 配置获取（Bool / Int / Float / String）
+        //=========================================================================
+        #region Method - 获取配置
         /// <summary>
         /// 获取布尔配置（自动切换开发/正式模式）
         /// </summary>
@@ -195,6 +224,13 @@ namespace Honor.Runtime
 
             return configData[m_LauncherComponent.DevelopMode ? 0 : 1].StringValue;
         }
+        #endregion
+
+        //=========================================================================
+        // 工具属性
+        //=========================================================================
+        #region Property - 工具属性
+       
 
         /// <summary>
         /// 是否为开发模式（只读属性）
@@ -205,6 +241,6 @@ namespace Honor.Runtime
         /// 是否使用本地服务器（只读属性）
         /// </summary>
         public bool IsLocalServer => m_LauncherComponent != null && m_LauncherComponent.IsLocalServer;
-        
+        #endregion
     }
 }

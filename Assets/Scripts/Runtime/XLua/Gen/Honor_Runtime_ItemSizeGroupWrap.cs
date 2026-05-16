@@ -28,9 +28,9 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetItemSize", _m_SetItemSize);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetItemCount", _m_SetItemCount);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RecalcGroupSize", _m_RecalcGroupSize);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetItemIndexByPos", _m_GetItemIndexByPos);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UpdateAllItemStartPos", _m_UpdateAllItemStartPos);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ClearOldData", _m_ClearOldData);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetItemIndexByPos", _m_GetItemIndexByPos);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "IsDirty", _g_get_IsDirty);
@@ -238,35 +238,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_GetItemIndexByPos(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ItemSizeGroup gen_to_be_invoked = (Honor.Runtime.ItemSizeGroup)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    float _pos = (float)LuaAPI.lua_tonumber(L, 2);
-                    
-                        int gen_ret = gen_to_be_invoked.GetItemIndexByPos( _pos );
-                        LuaAPI.xlua_pushinteger(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_UpdateAllItemStartPos(RealStatePtr L)
         {
 		    try {
@@ -312,6 +283,35 @@ namespace XLua.CSObjectWrap
                     
                     
                     return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetItemIndexByPos(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.ItemSizeGroup gen_to_be_invoked = (Honor.Runtime.ItemSizeGroup)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    float _pos = (float)LuaAPI.lua_tonumber(L, 2);
+                    
+                        int gen_ret = gen_to_be_invoked.GetItemIndexByPos( _pos );
+                        LuaAPI.xlua_pushinteger(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
                 }
                 
             } catch(System.Exception gen_e) {

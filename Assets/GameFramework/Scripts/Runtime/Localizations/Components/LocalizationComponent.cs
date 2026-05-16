@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LocalizationComponent.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   多语言本地化组件 - 核心逻辑
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class LocalizationComponent : GameComponent
     {
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region MonoBehaviour
         /// <summary>
         /// 框架初始化
         /// </summary>
@@ -47,10 +61,18 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 生命周期 Start（暂未使用）
+        /// </summary>
         private void Start()
         {
         }
+        #endregion
 
+        //=========================================================================
+        // 语言初始化与设置
+        //=========================================================================
+        #region Language Initialize & Set
         /// <summary>
         /// 初始化当前语言类型
         /// 编辑器模式优先使用编辑器设置，真机优先使用持久化存储，否则使用系统语言
@@ -111,10 +133,7 @@ namespace Honor.Runtime
 
             // 通知 Lua 刷新本地化表
             LuaComponent luaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-            if (luaComponent != null)
-            {
-                luaComponent.LuaRelateLocalizationTableDataFromCSEventDelegate?.Invoke();
-            }
+            luaComponent?.LuaRelateLocalizationTableDataFromCSEventDelegate?.Invoke();
 
             // 刷新字体
             UIComponent uiComponent = GameComponentsGroup.GetComponent<UIComponent>();
@@ -130,7 +149,12 @@ namespace Honor.Runtime
 
             Log.Info("保存语言类型 '{0}' 到持久化存档数据。", m_Language);
         }
+        #endregion
 
+        //=========================================================================
+        // 语言列表管理
+        //=========================================================================
+        #region Language List Management
         /// <summary>
         /// 加载默认支持的语言列表
         /// </summary>
@@ -154,7 +178,12 @@ namespace Honor.Runtime
         {
             m_LocalizationManager.RemoveAllDefaultLanguages();
         }
+        #endregion
 
+        //=========================================================================
+        // 本地化文本管理
+        //=========================================================================
+        #region Localization Text Management
         /// <summary>
         /// 加载当前语言的默认本地化数据
         /// </summary>
@@ -204,7 +233,12 @@ namespace Honor.Runtime
         {
             return m_LocalizationManager.GetDefaultData(m_Language, keyName);
         }
+        #endregion
 
+        //=========================================================================
+        // 字体管理
+        //=========================================================================
+        #region Font Management
         /// <summary>
         /// 加载字体配置文件
         /// </summary>
@@ -252,5 +286,7 @@ namespace Honor.Runtime
                 fontDatas = null;
             }
         }
+        #endregion
+        
     }
 }

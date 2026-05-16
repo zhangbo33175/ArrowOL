@@ -1,9 +1,26 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventPool.Fields.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   泛型事件池 - 字段与属性定义（partial）
+ ***************************************************************/
+
 using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 泛型事件池 - 字段与属性部分
+    /// </summary>
     public sealed partial class EventPool<T> where T : EventParams
     {
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        #region Field
         /// <summary>
         /// Lua 脚本组件，用于事件转发至 Lua 层
         /// </summary>
@@ -29,12 +46,27 @@ namespace Honor.Runtime
         /// 临时缓存节点，用于安全地取消事件订阅
         /// </summary>
         private readonly Dictionary<T, LinkedListNode<Dictionary<object, HonorEventHandler<T>>>> m_TempNodes;
+        #endregion
 
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        #region Property
         /// <summary>
         /// 当前已注册的**事件类型数量**
         /// </summary>
         public int SubscribedEventTypeCount => m_SubscribedEventHandlers.Count;
 
+        /// <summary>
+        /// 当前等待主线程派发的事件数量
+        /// </summary>
+        public int EventsForFireCount => m_EventsForFire.Count;
+        #endregion
+
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
+        #region Method
         /// <summary>
         /// 获取指定事件 ID 注册的回调数量
         /// </summary>
@@ -42,17 +74,12 @@ namespace Honor.Runtime
         /// <returns>注册的回调个数</returns>
         public int SubscribedEventCount(GameEventCmd cmd)
         {
-            GameLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range = null;
-            if (m_SubscribedEventHandlers.TryGetValue(cmd, out range))
+            if (m_SubscribedEventHandlers.TryGetValue(cmd, out GameLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range))
             {
                 return range.Count;
             }
             return 0;
         }
-
-        /// <summary>
-        /// 当前等待主线程派发的事件数量
-        /// </summary>
-        public int EventsForFireCount => m_EventsForFire.Count;
+        #endregion
     }
 }

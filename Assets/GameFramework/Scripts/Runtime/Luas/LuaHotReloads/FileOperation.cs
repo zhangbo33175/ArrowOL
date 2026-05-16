@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  FileOperation.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   文件操作工具类，安全读取文件，防止占用与异常，用于 Lua 热重载
+ ***************************************************************/
+
 using System;
 using System.IO;
 using UnityEngine;
@@ -8,11 +18,17 @@ namespace Honor.Runtime
     /// 文件操作工具类（安全读取、防止文件占用/异常）
     /// 主要用于 Lua 热重载、配置文件读取
     /// </summary>
-    public class FileOperation
+    public static class FileOperation
     {
-        /// <summary>
+        //=========================================================================
+        #region 公共静态方法
+        //=========================================================================
+
+        /// <summary
         /// 安全读取文件字节数组（捕获异常、防止崩溃）
         /// </summary>
+        /// <param name="inFile">文件完整路径</param>
+        /// <returns>文件字节数组，读取失败返回 null</returns>
         public static byte[] SafeReadAllBytes(string inFile)
         {
             try
@@ -37,5 +53,7 @@ namespace Honor.Runtime
                 return null;
             }
         }
+
+        #endregion
     }
 }

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkComponent.Http.cs
+ * author:    云毅
+ * created:
+ * descrip:   网络组件 - HTTP 请求接口层（基于 BestHTTP）
+ ***************************************************************/
+
 #if BEST_HTTP_ENABLE
 using BestHTTP;
 #endif
@@ -11,7 +21,12 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class NetworkComponent : GameComponent
     {
+        //=========================================================================
+        #region HTTP 请求接口（BestHTTP）
+        //=========================================================================
+
 #if BEST_HTTP_ENABLE
+
         /// <summary>
         /// GET 请求
         /// </summary>
@@ -153,6 +168,9 @@ namespace Honor.Runtime
                 connectTimeout,
                 headerInfos);
         }
+
 #endif
+
+        #endregion
     }
 }

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTreeNode.Core.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   UI 树形列表 - 节点核心逻辑（partial）
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class AorTreeNode : UIBehaviour
     {
+        //=========================================================================
+        // 数据注入 & 初始化
+        //=========================================================================
+        #region Method - 注入数据
         /// <summary>
         /// 注入树节点数据，初始化节点显示状态
         /// </summary>
@@ -36,11 +50,11 @@ namespace Honor.Runtime
             m_ContainerButton.onClick.AddListener(OpenOrClose);
 
             // 根据层级设置缩进（向右偏移 = 层级 × 单元格高度）
-            m_ContainerButton.transform.localPosition += 
-                new Vector3(_mAorTree.Container.GetComponent<GridLayoutGroup>().cellSize.y * _mAorTreeData.Layer, 0, 0);
+            float cellHeight = _mAorTree.Container.GetComponent<GridLayoutGroup>().cellSize.y;
+            m_ContainerButton.transform.localPosition += new Vector3(cellHeight * _mAorTreeData.Layer, 0, 0);
 
             // 判断是否为叶子节点（无子节点）
-            if (data.ChildNodes.Count.Equals(0))
+            if (data.ChildNodes.Count == 0)
             {
                 // 隐藏展开箭头
                 m_ToggleTransform.gameObject.SetActive(false);
@@ -53,7 +67,12 @@ namespace Honor.Runtime
                 m_Icon.sprite = m_Toggle.isOn ? _mAorTree.OpenIcon : _mAorTree.CloseIcon;
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 展开 / 关闭 子节点
+        //=========================================================================
+        #region Method - 展开关闭逻辑
         /// <summary>
         /// 打开/关闭子节点分支
         /// 切换开关状态、显示/隐藏子节点、切换图标、触发选中回调
@@ -88,5 +107,7 @@ namespace Honor.Runtime
                 _mAorTree.onChosen(_mAorTreeData.IndexDesc);
             }
         }
+        #endregion
+        
     }
 }

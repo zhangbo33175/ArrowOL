@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    #region 游戏框架组件基类
     /// <summary>
     /// 游戏框架组件基类
     /// 所有需要自动注册到 GameComponentsGroup 的 MonoBehaviour 组件都应继承此类
@@ -9,6 +10,9 @@ namespace Honor.Runtime
     /// </summary>
     public abstract class GameComponent : MonoBehaviour
     {
+        //=========================================================================
+        // 生命周期函数
+        //=========================================================================
         /// <summary>
         /// Unity 生命周期：Awake
         /// 用于组件初始化，第一时间将自身注册到游戏组件管理组
@@ -20,4 +24,5 @@ namespace Honor.Runtime
             GameComponentsGroup.RegisterComponent(this);
         }
     }
+    #endregion
 }

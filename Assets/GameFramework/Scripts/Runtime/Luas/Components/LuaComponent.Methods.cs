@@ -1,7 +1,25 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaComponent.ABLoader.cs
+ * author:    云毅
+ * created:   2026   2025-12-29
+ * descrip:   Lua 脚本 AB 包加载校验工具模块
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// Lua 组件 - AB 包加载校验模块
+    /// 提供 Lua 脚本资源包的加载权限判断
+    /// </summary>
     public sealed partial class LuaComponent : GameComponent
     {
+        //=========================================================================
+        #region AB 包加载校验
+        //=========================================================================
+
         /// <summary>
         /// 判断 Lua 脚本的 AB 包是否可以加载
         /// 增量 Lua 脚本必须确保在 Persistent 读写路径下存在对应的 AB 资源才允许加载
@@ -34,5 +52,7 @@ namespace Honor.Runtime
 
             return true;
         }
+
+        #endregion
     }
 }

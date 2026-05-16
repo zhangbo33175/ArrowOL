@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  FileFragmentItemGroup.cs
+ * author:    云毅
+ * created:
+ * descrip:   文件片段存储分组 - 单个分类数据容器（序列化/加解密/压缩）
+ ***************************************************************/
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,26 +21,23 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class FileFragmentItemGroup
     {
+        //=========================================================================
+        #region 字段 & 属性
+        //=========================================================================
+
         /// <summary>
         /// 键值对数据集合
         /// Key：条目名称
         /// Value：数据内容（字符串存储）
         /// </summary>
         private readonly SortedDictionary<string, string> m_Items = new SortedDictionary<string, string>();
-        public SortedDictionary<string, string> Items
-        {
-            get
-            {
-                return m_Items;
-            }
-        }
 
         /// <summary>
-        /// 构造方法
+        /// 获取数据集合（只读）
         /// </summary>
-        public FileFragmentItemGroup()
+        public SortedDictionary<string, string> Items
         {
-
+            get { return m_Items; }
         }
 
         /// <summary>
@@ -38,11 +45,27 @@ namespace Honor.Runtime
         /// </summary>
         public int Count
         {
-            get
-            {
-                return m_Items.Count;
-            }
+            get { return m_Items.Count; }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 构造方法
+        //=========================================================================
+
+        /// <summary>
+        /// 构造方法
+        /// </summary>
+        public FileFragmentItemGroup()
+        {
+        }
+
+        #endregion
+
+        //=========================================================================
+        #region 数据查询
+        //=========================================================================
 
         /// <summary>
         /// 获取所有条目的名称（数组）
@@ -83,6 +106,12 @@ namespace Honor.Runtime
             return m_Items.ContainsKey(itemName);
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 删除操作
+        //=========================================================================
+
         /// <summary>
         /// 删除指定条目
         /// </summary>
@@ -98,6 +127,12 @@ namespace Honor.Runtime
         {
             m_Items.Clear();
         }
+
+        #endregion
+
+        //=========================================================================
+        #region Bool 存取
+        //=========================================================================
 
         /// <summary>
         /// 读取布尔值（不存在则警告）
@@ -136,6 +171,12 @@ namespace Honor.Runtime
             m_Items[itemName] = value ? "1" : "0";
         }
 
+        #endregion
+
+        //=========================================================================
+        #region Int 存取
+        //=========================================================================
+
         /// <summary>
         /// 读取整数（不存在则警告）
         /// </summary>
@@ -172,6 +213,12 @@ namespace Honor.Runtime
         {
             m_Items[itemName] = value.ToString();
         }
+
+        #endregion
+
+        //=========================================================================
+        #region Float 存取
+        //=========================================================================
 
         /// <summary>
         /// 读取浮点数（不存在则警告）
@@ -210,6 +257,12 @@ namespace Honor.Runtime
             m_Items[itemName] = value.ToString();
         }
 
+        #endregion
+
+        //=========================================================================
+        #region String 存取
+        //=========================================================================
+
         /// <summary>
         /// 读取字符串（不存在则警告）
         /// </summary>
@@ -246,6 +299,12 @@ namespace Honor.Runtime
         {
             m_Items[itemName] = value;
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 序列化 & 反序列化
+        //=========================================================================
 
         /// <summary>
         /// 序列化数据到文件流
@@ -286,5 +345,6 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
     }
 }

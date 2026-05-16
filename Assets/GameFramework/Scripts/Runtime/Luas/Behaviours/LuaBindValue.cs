@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBindValue.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   Lua 数据绑定配置类（Inspector 序列化使用）
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -7,6 +17,9 @@ namespace Honor.Runtime
     [System.Serializable]
     public class LuaBindValue
     {
+        //=========================================================================
+        // 绑定数据类型枚举
+        //=========================================================================
         /// <summary>
         /// 绑定数据类型
         /// </summary>
@@ -22,10 +35,13 @@ namespace Honor.Runtime
             Trigger     = 7,
         }
 
+        //=========================================================================
+        // 静态常量
+        //=========================================================================
         /// <summary>
         /// 类型对应的 Lua 类型字符串
         /// </summary>
-        public static string[] LuaBindValueType =
+        public static readonly string[] LuaBindValueType =
         {
             "number",
             "number",
@@ -37,8 +53,11 @@ namespace Honor.Runtime
             "trigger",
         };
 
+        //=========================================================================
+        // 序列化字段
+        //=========================================================================
         /// <summary>
-        /// 注释说明（仅编辑用）
+        /// 注释说明（仅编辑器使用）
         /// </summary>
         public string Comment;
 
@@ -53,7 +72,7 @@ namespace Honor.Runtime
         public string Name;
 
         /// <summary>
-        /// 变量值（基础类型使用字符串存储）
+        /// 变量值（基础类型统一用字符串存储）
         /// </summary>
         public string Variant;
 

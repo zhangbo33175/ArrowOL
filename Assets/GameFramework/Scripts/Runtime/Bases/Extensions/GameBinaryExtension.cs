@@ -1,20 +1,42 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameBinaryExtension.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   二进制流扩展方法 - 7Bit编码读写、XOR加密字符串读写
+ ***************************************************************/
 using System;
 using System.IO;
 using UnityEngine;
 
+
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 
+    //=========================================================================
     /// <summary>
     /// 二进制流扩展方法
-    /// 提供 7Bit 编码整数读写、异或加密字符串读写功能
+    /// <para>提供 7Bit 编码整数读写、异或加密字符串读写功能</para>
     /// </summary>
     public static class GameBinaryExtension
     {
+        #region 静态缓存
+        //=========================================================================
+        // 静态缓存（避免频繁 GC 分配）
+        //=========================================================================
         /// <summary>
         /// 缓存字节数组（避免频繁 GC 分配）
         /// </summary>
         private static readonly byte[] s_CachedBytes = new byte[byte.MaxValue];
+        #endregion
 
+        #region 7Bit 编码 Int32 读写
+        //=========================================================================
+        // 7Bit 编码 Int32 / UInt32 读写
+        //=========================================================================
         /// <summary>
         /// 从二进制流读取 7Bit 编码的 32 位有符号整数
         /// </summary>
@@ -68,6 +90,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 从二进制流读取 7Bit 编码的 32 位无符号整数
         /// </summary>
+        /// <param name="binaryReader">二进制读取器</param>
+        /// <returns>解码后的 uint 值</returns>
         public static uint Read7BitEncodedUInt32(this BinaryReader binaryReader)
         {
             return (uint)Read7BitEncodedInt32(binaryReader);
@@ -76,14 +100,25 @@ namespace Honor.Runtime
         /// <summary>
         /// 向二进制流写入 7Bit 编码的 32 位无符号整数
         /// </summary>
+        /// <param name="binaryWriter">二进制写入器</param>
+        /// <param name="value">要写入的 uint 值</param>
         public static void Write7BitEncodedUInt32(this BinaryWriter binaryWriter, uint value)
         {
             Write7BitEncodedInt32(binaryWriter, (int)value);
         }
+        #endregion
 
+        #region 7Bit 编码 Int64 读写
+        //=========================================================================
+        // 7Bit 编码 Int64 / UInt64 读写
+        //=========================================================================
         /// <summary>
         /// 从二进制流读取 7Bit 编码的 64 位有符号整数
         /// </summary>
+        /// <param name="binaryReader">二进制读取器</param>
+        /// <returns>解码后的 long 值</returns>
+        /// <exception cref="ArgumentNullException">binaryReader 为 null 时抛出</exception>
+        /// <exception cref="InvalidDataException">7Bit 编码数据无效时抛出</exception>
         public static long Read7BitEncodedInt64(this BinaryReader binaryReader)
         {
             if (binaryReader == null)
@@ -110,6 +145,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 向二进制流写入 7Bit 编码的 64 位有符号整数
         /// </summary>
+        /// <param name="binaryWriter">二进制写入器</param>
+        /// <param name="value">要写入的 long 值</param>
+        /// <exception cref="ArgumentNullException">binaryWriter 为 null 时抛出</exception>
         public static void Write7BitEncodedInt64(this BinaryWriter binaryWriter, long value)
         {
             if (binaryWriter == null)
@@ -127,6 +165,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 从二进制流读取 7Bit 编码的 64 位无符号整数
         /// </summary>
+        /// <param name="binaryReader">二进制读取器</param>
+        /// <returns>解码后的 ulong 值</returns>
         public static ulong Read7BitEncodedUInt64(this BinaryReader binaryReader)
         {
             return (ulong)Read7BitEncodedInt64(binaryReader);
@@ -135,11 +175,18 @@ namespace Honor.Runtime
         /// <summary>
         /// 向二进制流写入 7Bit 编码的 64 位无符号整数
         /// </summary>
+        /// <param name="binaryWriter">二进制写入器</param>
+        /// <param name="value">要写入的 ulong 值</param>
         public static void Write7BitEncodedUInt64(this BinaryWriter binaryWriter, ulong value)
         {
             Write7BitEncodedInt64(binaryWriter, (long)value);
         }
+        #endregion
 
+        #region XOR 加密字符串读写
+        //=========================================================================
+        // XOR 自加密字符串读写扩展
+        //=========================================================================
         /// <summary>
         /// 读取经过 XOR 自加密的字符串
         /// </summary>
@@ -182,6 +229,8 @@ namespace Honor.Runtime
         /// <param name="binaryWriter">二进制写入器</param>
         /// <param name="value">要写入的字符串</param>
         /// <param name="encryptKey">加密密钥字节数组</param>
+        /// <exception cref="ArgumentNullException">参数为空时抛出</exception>
+        /// <exception cref="InvalidOperationException">密钥为空或字符串超长时抛出</exception>
         public static void WriteEncryptedString(this BinaryWriter binaryWriter, string value, byte[] encryptKey)
         {
             if (binaryWriter == null)
@@ -211,5 +260,6 @@ namespace Honor.Runtime
             binaryWriter.Write((byte)rawBytes.Length);
             binaryWriter.Write(rawBytes);
         }
+        #endregion
     }
 }

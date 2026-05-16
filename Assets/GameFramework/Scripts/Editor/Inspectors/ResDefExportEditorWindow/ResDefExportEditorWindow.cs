@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ResDefExportEditorWindow.cs
+ * author:    云毅
+ * created:   2026-04-01
+ * descrip:   资源配置导出工具 - 编辑器界面绘制（分部类）
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +21,9 @@ namespace Honor.Editor
 {
     public partial class ResDefExportEditorWindow : BaseEditorWindow<ResDefExportEditorWindow>
     {
+        #region 生命周期
         /// <summary>
-        /// 启用
+        /// 启用初始化
         /// </summary>
         protected void OnEnable()
         {
@@ -22,6 +33,8 @@ namespace Honor.Editor
             m_AllDefaultTextures = new List<Texture2D>();
             m_SearchResDefItemInfo = new List<ResDefItem>();
             m_ErrorResDefItemInfo = new List<ResDefItem>();
+
+            // 初始化所有类型折叠项
             Array.ForEach(Enum.GetNames(typeof(GameDefinitions.AssetType)),
                 (assetType) => m_AllShowFoldout[assetType] = new TopItemInfo());
             m_AllShowFoldout.Add(m_SearchTag, new TopItemInfo() { OnePageCount = 16, IsShowFoldout = true });
@@ -34,6 +47,9 @@ namespace Honor.Editor
             LoadDefaultTextures();
         }
 
+        /// <summary>
+        /// 界面绘制
+        /// </summary>
         protected override void OnGUI()
         {
             base.OnGUI();
@@ -79,9 +95,11 @@ namespace Honor.Editor
 
             Repaint();
         }
+        #endregion
 
+        #region 左侧 - 查找模块
         /// <summary>
-        /// 查找模块View
+        /// 查找与追加资源界面
         /// </summary>
         public void FindingView()
         {
@@ -150,9 +168,11 @@ namespace Honor.Editor
             }
             GUILayout.EndHorizontal();
         }
+        #endregion
 
+        #region 左侧 - 导出配置
         /// <summary>
-        /// 配置模块View
+        /// 导出配置界面
         /// </summary>
         public void ExportConfigView()
         {
@@ -184,9 +204,11 @@ namespace Honor.Editor
             }
             GUILayout.EndHorizontal();
         }
+        #endregion
 
+        #region 左侧 - 删除与工具
         /// <summary>
-        /// 删除模块
+        /// 删除与校准功能区
         /// </summary>
         public void DeletingView()
         {
@@ -237,9 +259,11 @@ namespace Honor.Editor
             }
             GUILayout.EndHorizontal();
         }
+        #endregion
 
+        #region 左侧 - 日志显示
         /// <summary>
-        /// 文本显示区域View
+        /// 结果日志显示
         /// </summary>
         public void ResultTextView()
         {
@@ -272,9 +296,11 @@ namespace Honor.Editor
             }
             GUILayout.EndVertical();
         }
+        #endregion
 
+        #region 左侧 - 拖拽区域
         /// <summary>
-        /// 拖动区域
+        /// 拖拽文件区域
         /// </summary>
         public void DragFilesView()
         {
@@ -298,9 +324,11 @@ namespace Honor.Editor
                     break;
             }
         }
+        #endregion
 
+        #region 左侧 - 缓冲区列表
         /// <summary>
-        /// 临时缓冲区域View
+        /// 临时缓冲区显示
         /// </summary>
         public void TempFilesView()
         {
@@ -361,7 +389,7 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 创建临时缓冲区ScrollView的item
+        /// 创建缓冲区列表项
         /// </summary>
         public void CreateTempScrollViewItem(string id, string alias, string abPath, string fileName, string fileType,
             string delString, ResDefItem resDefItem, bool isSameName = false)
@@ -420,9 +448,11 @@ namespace Honor.Editor
             }
             EditorGUILayout.EndVertical();
         }
+        #endregion
 
+        #region 右侧 - 资源详情
         /// <summary>
-        /// 所有资源详情界面
+        /// 右侧所有资源详情界面
         /// </summary>
         public void AllResDetailsView()
         {
@@ -500,7 +530,7 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 创建Res的显示View
+        /// 搜索框
         /// </summary>
         public void CreateResView(string titleName, List<ResDefItem> resDefItems)
         {
@@ -580,7 +610,7 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 创建主仓库ScrollView的item
+        /// 创建资源列表项
         /// </summary>
         public void CreateScrollViewItem(string id, string alias, string abPath, string fileName, string fileType,
             string delString, string resetPath, ResDefItem resDefItem, bool invalidPath = false,
@@ -689,7 +719,7 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 更新title数据
+        /// 更新折叠栏标题
         /// </summary>
         public void UpdateFoldoutTitle(string key, int count)
         {
@@ -747,5 +777,6 @@ namespace Honor.Editor
             }
             EditorGUILayout.EndHorizontal();
         }
+        #endregion
     }
 }

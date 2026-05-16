@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaFileWatcher.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Lua 脚本文件热重载监听模块
+ ***************************************************************/
+
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -15,23 +25,50 @@ namespace Honor.Runtime
     /// </summary>
     public delegate void ReloadDelegate(string path);
 
-    public class LuaFileWatcher
+    /// <summary>
+    /// Lua 文件热重载管理器
+    /// </summary>
+    public static class LuaFileWatcher
     {
+        //=========================================================================
+        #region 静态成员
+        //=========================================================================
+
+        /// <summary>
+        /// Lua 层重载回调委托
+        /// </summary>
         private static ReloadDelegate s_ReloadFunction;
+
+        /// <summary>
+        /// 待处理的变更文件集合
+        /// </summary>
         private static readonly HashSet<string> s_ChangedFiles = new HashSet<string>();
+
+        /// <summary>
+        /// 待重载的文件路径映射
+        /// </summary>
         private static readonly Dictionary<string, string> s_ReloadFiles = new Dictionary<string, string>();
+
+        #endregion
+
+        //=========================================================================
+        #region 监听器创建
+        //=========================================================================
 
         /// <summary>
         /// 创建 Lua 文件监听器
         /// </summary>
+        /// <param name="luaEnv">Lua 虚拟机实例</param>
         public static void CreateLuaFileWatcher(LuaEnv luaEnv)
         {
             System.Environment.SetEnvironmentVariable("MONO_MANAGED_WATCHER", "enabled");
 
             // 监听游戏业务 Lua 脚本
-            new DirectoryWatcher(GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true),
+            new DirectoryWatcher(
+                GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true),
                 "*.lua.txt",
-                LuaFileOnChanged);
+                LuaFileOnChanged
+            );
 
             // 获取 Lua 层重载函数
             s_ReloadFunction = luaEnv.Global.Get<ReloadDelegate>("__RELOAD_LUA_HOTFIX__");
@@ -41,6 +78,12 @@ namespace Honor.Runtime
             EditorApplication.update += Reload;
 #endif
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 文件变更监听
+        //=========================================================================
 
         /// <summary>
         /// 文件变化回调
@@ -58,6 +101,12 @@ namespace Honor.Runtime
             string fileName = Path.GetFileNameWithoutExtension(fullPath);
             s_ReloadFiles[fileName] = fullPath;
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 热重载执行
+        //=========================================================================
 
         /// <summary>
         /// 编辑器主线程重载
@@ -84,9 +133,18 @@ namespace Honor.Runtime
 #endif
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 工具方法
+        //=========================================================================
+
         /// <summary>
         /// 获取需要重载的文件路径
         /// </summary>
+        /// <param name="fileName">文件名</param>
+        /// <param name="fullPath">输出完整路径</param>
+        /// <returns>是否找到</returns>
         public static bool TryGetReloadFile(string fileName, out string fullPath)
         {
             if (s_ReloadFiles.TryGetValue(fileName, out fullPath))
@@ -98,5 +156,7 @@ namespace Honor.Runtime
             fullPath = null;
             return false;
         }
+
+        #endregion
     }
 }

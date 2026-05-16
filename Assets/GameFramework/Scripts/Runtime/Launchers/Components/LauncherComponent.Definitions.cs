@@ -1,7 +1,20 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LauncherComponent.Performance.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   框架启动器 - 设备性能配置类（partial）
+ ***************************************************************/
+
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 框架启动器 - 设备性能配置部分
+    /// </summary>
     public sealed partial class LauncherComponent : GameComponent
     {
         /// <summary>
@@ -11,23 +24,10 @@ namespace Honor.Runtime
         [System.Serializable]
         public class DevicePerformanceData
         {
-            /// <summary>
-            /// 构造设备性能数据
-            /// </summary>
-            /// <param name="processorCount">CPU核心数</param>
-            /// <param name="graphicsMemorySizeHighBase">高档GPU显存阈值</param>
-            /// <param name="graphicsMemorySizeMidBase">中档GPU显存阈值</param>
-            /// <param name="systemMemorySizeHighBase">高档运行内存阈值</param>
-            /// <param name="systemMemorySizeMidBase">中档运行内存阈值</param>
-            public DevicePerformanceData(int processorCount, int graphicsMemorySizeHighBase, int graphicsMemorySizeMidBase, int systemMemorySizeHighBase, int systemMemorySizeMidBase)
-            {
-                ProcessorCount = processorCount;
-                GraphicsMemorySizeHighBase = graphicsMemorySizeHighBase;
-                GraphicsMemorySizeMidBase = graphicsMemorySizeMidBase;
-                SystemMemorySizeHighBase = systemMemorySizeHighBase;
-                SystemMemorySizeMidBase = systemMemorySizeMidBase;
-            }
-
+            //=========================================================================
+            // 公共字段
+            //=========================================================================
+            #region Public Fields
             /// <summary>
             /// CPU 核心数
             /// </summary>
@@ -52,6 +52,34 @@ namespace Honor.Runtime
             /// 中档设备 运行内存阈值（MB）
             /// </summary>
             public int SystemMemorySizeMidBase;
+            #endregion
+
+            //=========================================================================
+            // 构造函数
+            //=========================================================================
+            #region Constructor
+            /// <summary>
+            /// 构造设备性能数据
+            /// </summary>
+            /// <param name="processorCount">CPU核心数</param>
+            /// <param name="graphicsMemorySizeHighBase">高档GPU显存阈值</param>
+            /// <param name="graphicsMemorySizeMidBase">中档GPU显存阈值</param>
+            /// <param name="systemMemorySizeHighBase">高档运行内存阈值</param>
+            /// <param name="systemMemorySizeMidBase">中档运行内存阈值</param>
+            public DevicePerformanceData(
+                int processorCount, 
+                int graphicsMemorySizeHighBase, 
+                int graphicsMemorySizeMidBase, 
+                int systemMemorySizeHighBase, 
+                int systemMemorySizeMidBase)
+            {
+                ProcessorCount              = processorCount;
+                GraphicsMemorySizeHighBase   = graphicsMemorySizeHighBase;
+                GraphicsMemorySizeMidBase    = graphicsMemorySizeMidBase;
+                SystemMemorySizeHighBase     = systemMemorySizeHighBase;
+                SystemMemorySizeMidBase      = systemMemorySizeMidBase;
+            }
+            #endregion
         }
     }
 }

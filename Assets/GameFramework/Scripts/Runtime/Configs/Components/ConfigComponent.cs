@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ConfigComponent.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   全局配置管理组件 - 核心逻辑
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class ConfigComponent : GameComponent
     {
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region MonoBehaviour
         /// <summary>
         /// 初始化：获取依赖组件、创建配置管理器
         /// </summary>
@@ -48,7 +62,12 @@ namespace Honor.Runtime
         private void OnDestroy()
         {
         }
+        #endregion
 
+        //=========================================================================
+        // 配置加载 & 管理
+        //=========================================================================
+        #region Method - 配置管理
         /// <summary>
         /// 加载全局配置文件
         /// 从指定路径加载所有Configs配置
@@ -104,7 +123,12 @@ namespace Honor.Runtime
         {
             m_ConfigManager.RemoveAllConfigs();
         }
+        #endregion
 
+        //=========================================================================
+        // 配置获取（Bool / Int / Float / String）
+        //=========================================================================
+        #region Method - 配置获取
         /// <summary>
         /// 获取布尔型配置
         /// </summary>
@@ -164,7 +188,12 @@ namespace Honor.Runtime
             }
             return m_ConfigManager.GetString(configName);
         }
+        #endregion
 
+        //=========================================================================
+        // 平台相关
+        //=========================================================================
+        #region Method - 平台判断
         /// <summary>
         /// 获取当前构建平台名称（用于差异化配置）
         /// </summary>
@@ -179,5 +208,6 @@ namespace Honor.Runtime
             return GameMainRoot.Launcher.IsAmazonStore ? "Amazon" : "Android";
 #endif
         }
+        #endregion
     }
 }

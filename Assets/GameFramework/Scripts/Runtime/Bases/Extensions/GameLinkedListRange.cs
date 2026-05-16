@@ -1,9 +1,23 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameLinkedListRange.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   游戏框架链表范围（区间遍历专用）
+ ***************************************************************/
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
+
+
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 
+    //=========================================================================
     /// <summary>
     /// 游戏框架链表范围
     /// 表示链表中从 First 到 Terminal（不包含）的一段区间
@@ -14,6 +28,10 @@ namespace Honor.Runtime
         private readonly LinkedListNode<T> m_First;
         private readonly LinkedListNode<T> m_Terminal;
 
+        #region 构造函数
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 初始化游戏框架链表范围的新实例
         /// </summary>
@@ -29,7 +47,12 @@ namespace Honor.Runtime
             m_First = first;
             m_Terminal = terminal;
         }
+        #endregion
 
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 获取链表范围是否有效
         /// </summary>
@@ -66,7 +89,12 @@ namespace Honor.Runtime
                 return count;
             }
         }
+        #endregion
 
+        #region 公共方法
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
         /// <summary>
         /// 检查是否包含指定值
         /// </summary>
@@ -88,10 +116,16 @@ namespace Honor.Runtime
 
             return false;
         }
+        #endregion
 
+        #region 枚举器
+        //=========================================================================
+        // 枚举器
+        //=========================================================================
         /// <summary>
         /// 返回循环访问集合的枚举数
         /// </summary>
+        /// <returns>枚举数</returns>
         public Enumerator GetEnumerator()
         {
             return new Enumerator(this);
@@ -168,5 +202,6 @@ namespace Honor.Runtime
                 m_CurrentValue = default;
             }
         }
+        #endregion
     }
 }

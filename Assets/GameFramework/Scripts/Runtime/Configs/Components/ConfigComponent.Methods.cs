@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ConfigComponent.Struct.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   全局配置管理组件 - 结构占位（partial）
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>

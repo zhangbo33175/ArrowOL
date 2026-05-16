@@ -1,4 +1,14 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GridManager.cs
+ * author:    云毅
+ * created:
+ * descrip:   网格管理系统 - 坐标转换、格子占用、路径追踪、调试绘制
+ ***************************************************************/
+
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Honor.Runtime
@@ -11,8 +21,11 @@ namespace Honor.Runtime
     [AddComponentMenu("Honor Core/Manager/GridManager")]
     public class GridManager : MonoSingleton<GridManager>
     {
-        [GameHeader("网格")]
+        //=========================================================================
+        #region 序列化字段（Inspector 配置）
+        //=========================================================================
 
+        [GameHeader("网格")]
         [GameTitle("参考根节点")]
         [Tooltip("网格在世界空间下的原始点。")]
         public Transform GridOrigin;
@@ -22,7 +35,6 @@ namespace Honor.Runtime
         public float GridUnitSize = 1f;
 
         [GameHeader("调试")]
-
         [GameTitle("绘制调试网格")]
         [Tooltip("作为是否绘制调试网格的总开关。")]
         public bool DrawDebugGrid = true;
@@ -47,6 +59,12 @@ namespace Honor.Runtime
         [Tooltip("网格绘制用到的网格填充色。")]
         public Color InnerColor = new Color(60f, 221f, 255f, 0.3f);
 
+        #endregion
+
+        //=========================================================================
+        #region 运行时数据（隐藏 Inspector）
+        //=========================================================================
+
         /// <summary>
         /// 所有已被占用的格子世界坐标列表
         /// </summary>
@@ -65,13 +83,22 @@ namespace Honor.Runtime
         [HideInInspector]
         public Dictionary<GameObject, Vector3Int> NextPositions;
 
-        /// <summary>
-        /// 临时计算变量，避免频繁 GC
-        /// </summary>
+        #endregion
+
+        //=========================================================================
+        #region 临时计算变量（避免 GC）
+        //=========================================================================
+
         protected Vector3 m_NewGridPosition;
         protected Vector3 m_DebugOrigin = Vector3.zero;
         protected Vector3 m_DebugDestination = Vector3.zero;
         protected Vector3Int m_WorkCoordinate = Vector3Int.zero;
+
+        #endregion
+
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
 
         /// <summary>
         /// 初始化所有网格管理容器
@@ -82,6 +109,12 @@ namespace Honor.Runtime
             LastPositions = new Dictionary<GameObject, Vector3Int>();
             NextPositions = new Dictionary<GameObject, Vector3Int>();
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 格子占用管理
+        //=========================================================================
 
         /// <summary>
         /// 判断指定格子是否被占用
@@ -115,6 +148,12 @@ namespace Honor.Runtime
                 OccupiedGridCells.Remove(cellCoordinates);
             }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 对象位置追踪
+        //=========================================================================
 
         /// <summary>
         /// 设置对象的下一个目标网格位置
@@ -150,6 +189,12 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 坐标转换
+        //=========================================================================
+
         /// <summary>
         /// 世界坐标 → 网格索引坐标
         /// </summary>
@@ -176,13 +221,19 @@ namespace Honor.Runtime
             return m_NewGridPosition;
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 调试绘制
+        //=========================================================================
+
         /// <summary>
         /// 绘制调试网格 Gizmos
         /// 支持 2D / 3D 模式
         /// </summary>
         protected virtual void OnDrawGizmos()
         {
-            if (!DrawDebugGrid)
+            if (!DrawDebugGrid || GridOrigin == null)
             {
                 return;
             }
@@ -191,94 +242,97 @@ namespace Honor.Runtime
 
             if (DebugDrawMode == GameDefinitions.DimensionMode.Three)
             {
-                int i = -DebugGridSize;
-
-                // 绘制 3D 网格线
-                while (i <= DebugGridSize)
-                {
-                    m_DebugOrigin.x = GridOrigin.position.x - DebugGridSize * GridUnitSize;
-                    m_DebugOrigin.y = GridOrigin.position.y;
-                    m_DebugOrigin.z = GridOrigin.position.z + i * GridUnitSize;
-
-                    m_DebugDestination.x = GridOrigin.position.x + DebugGridSize * GridUnitSize;
-                    m_DebugDestination.y = GridOrigin.position.y;
-                    m_DebugDestination.z = GridOrigin.position.z + i * GridUnitSize;
-
-                    Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
-
-                    m_DebugOrigin.x = GridOrigin.position.x + i * GridUnitSize;
-                    m_DebugOrigin.y = GridOrigin.position.y;
-                    m_DebugOrigin.z = GridOrigin.position.z - DebugGridSize * GridUnitSize;
-
-                    m_DebugDestination.x = GridOrigin.position.x + i * GridUnitSize;
-                    m_DebugDestination.y = GridOrigin.position.y;
-                    m_DebugDestination.z = GridOrigin.position.z + DebugGridSize * GridUnitSize;
-
-                    Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
-
-                    i++;
-                }
-
-                // 绘制 3D 棋盘格填充
-                Gizmos.color = InnerColor;
-                for (int col = -DebugGridSize; col < DebugGridSize; col++)
-                {
-                    for (int row = -DebugGridSize; row < DebugGridSize; row++)
-                    {
-                        if ((col % 2 == 0) && (row % 2 != 0))
-                        {
-                            DrawCell3D(col, row);
-                        }
-                        if ((col % 2 != 0) && (row % 2 == 0))
-                        {
-                            DrawCell3D(col, row);
-                        }
-                    }
-                }
+                Draw3DDebugGrid();
             }
             else
             {
-                int i = -DebugGridSize;
-                // 绘制 2D 网格线
-                while (i <= DebugGridSize)
+                Draw2DDebugGrid();
+            }
+        }
+
+        /// <summary>
+        /// 绘制 2D 调试网格
+        /// </summary>
+        protected virtual void Draw2DDebugGrid()
+        {
+            int i = -DebugGridSize;
+            while (i <= DebugGridSize)
+            {
+                m_DebugOrigin.x = GridOrigin.position.x - DebugGridSize * GridUnitSize;
+                m_DebugOrigin.y = GridOrigin.position.y + i * GridUnitSize;
+                m_DebugOrigin.z = GridOrigin.position.z;
+
+                m_DebugDestination.x = GridOrigin.position.x + DebugGridSize * GridUnitSize;
+                m_DebugDestination.y = GridOrigin.position.y + i * GridUnitSize;
+                m_DebugDestination.z = GridOrigin.position.z;
+
+                Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
+
+                m_DebugOrigin.x = GridOrigin.position.x + i * GridUnitSize;
+                m_DebugOrigin.y = GridOrigin.position.y - DebugGridSize * GridUnitSize;
+                m_DebugOrigin.z = GridOrigin.position.z;
+
+                m_DebugDestination.x = GridOrigin.position.x + i * GridUnitSize;
+                m_DebugDestination.y = GridOrigin.position.y + DebugGridSize * GridUnitSize;
+                m_DebugDestination.z = GridOrigin.position.z;
+
+                Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
+
+                i++;
+            }
+
+            Gizmos.color = InnerColor;
+            for (int col = -DebugGridSize; col < DebugGridSize; col++)
+            {
+                for (int row = -DebugGridSize; row < DebugGridSize; row++)
                 {
-                    m_DebugOrigin.x = GridOrigin.position.x - DebugGridSize * GridUnitSize;
-                    m_DebugOrigin.y = GridOrigin.position.y + i * GridUnitSize;
-                    m_DebugOrigin.z = GridOrigin.position.z;
-
-                    m_DebugDestination.x = GridOrigin.position.x + DebugGridSize * GridUnitSize;
-                    m_DebugDestination.y = GridOrigin.position.y + i * GridUnitSize;
-                    m_DebugDestination.z = GridOrigin.position.z;
-
-                    Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
-
-                    m_DebugOrigin.x = GridOrigin.position.x + i * GridUnitSize;
-                    m_DebugOrigin.y = GridOrigin.position.y - DebugGridSize * GridUnitSize; ;
-                    m_DebugOrigin.z = GridOrigin.position.z;
-
-                    m_DebugDestination.x = GridOrigin.position.x + i * GridUnitSize;
-                    m_DebugDestination.y = GridOrigin.position.y + DebugGridSize * GridUnitSize;
-                    m_DebugDestination.z = GridOrigin.position.z;
-
-                    Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
-
-                    i++;
-                }
-
-                // 绘制 2D 棋盘格填充
-                Gizmos.color = InnerColor;
-                for (int col = -DebugGridSize; col < DebugGridSize; col++)
-                {
-                    for (int row = -DebugGridSize; row < DebugGridSize; row++)
+                    if ((col % 2 == 0 && row % 2 != 0) || (col % 2 != 0 && row % 2 == 0))
                     {
-                        if ((col % 2 == 0) && (row % 2 != 0))
-                        {
-                            DrawCell2D(col, row);
-                        }
-                        if ((col % 2 != 0) && (row % 2 == 0))
-                        {
-                            DrawCell2D(col, row);
-                        }
+                        DrawCell2D(col, row);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 绘制 3D 调试网格
+        /// </summary>
+        protected virtual void Draw3DDebugGrid()
+        {
+            int i = -DebugGridSize;
+            while (i <= DebugGridSize)
+            {
+                m_DebugOrigin.x = GridOrigin.position.x - DebugGridSize * GridUnitSize;
+                m_DebugOrigin.y = GridOrigin.position.y;
+                m_DebugOrigin.z = GridOrigin.position.z + i * GridUnitSize;
+
+                m_DebugDestination.x = GridOrigin.position.x + DebugGridSize * GridUnitSize;
+                m_DebugDestination.y = GridOrigin.position.y;
+                m_DebugDestination.z = GridOrigin.position.z + i * GridUnitSize;
+
+                Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
+
+                m_DebugOrigin.x = GridOrigin.position.x + i * GridUnitSize;
+                m_DebugOrigin.y = GridOrigin.position.y;
+                m_DebugOrigin.z = GridOrigin.position.z - DebugGridSize * GridUnitSize;
+
+                m_DebugDestination.x = GridOrigin.position.x + i * GridUnitSize;
+                m_DebugDestination.y = GridOrigin.position.y;
+                m_DebugDestination.z = GridOrigin.position.z + DebugGridSize * GridUnitSize;
+
+                Debug.DrawLine(m_DebugOrigin, m_DebugDestination, CellBorderColor);
+
+                i++;
+            }
+
+            Gizmos.color = InnerColor;
+            for (int col = -DebugGridSize; col < DebugGridSize; col++)
+            {
+                for (int row = -DebugGridSize; row < DebugGridSize; row++)
+                {
+                    if ((col % 2 == 0 && row % 2 != 0) || (col % 2 != 0 && row % 2 == 0))
+                    {
+                        DrawCell3D(col, row);
                     }
                 }
             }
@@ -305,5 +359,7 @@ namespace Honor.Runtime
             m_DebugOrigin.z = GridOrigin.position.z + row * GridUnitSize + GridUnitSize / 2f;
             Gizmos.DrawCube(m_DebugOrigin, GridUnitSize * new Vector3(1f, 0f, 1f));
         }
+
+        #endregion
     }
 }

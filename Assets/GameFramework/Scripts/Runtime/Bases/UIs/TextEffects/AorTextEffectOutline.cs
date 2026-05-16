@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextEffectOutline.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   高品质文本描边特效 | 支持字间距 + 多行对齐 + Shader 描边
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -12,6 +22,10 @@ namespace Honor.Runtime
     [AddComponentMenu("UI/Honor/自定义文本描边效果")]
     public class AorTextEffectOutline : BaseMeshEffect
     {
+        //=========================================================================
+        // 序列化字段 & 公共配置
+        //=========================================================================
+        #region Field - 描边配置
         /// <summary>
         /// 描边颜色
         /// </summary>
@@ -26,7 +40,12 @@ namespace Honor.Runtime
         /// 文本字符间距（0~50）
         /// </summary>
         [Range(0, 50)] public float Spacing = 0f;
+        #endregion
 
+        //=========================================================================
+        // 私有成员 & 缓存
+        //=========================================================================
+        #region Field - 缓存 & 静态
         /// <summary>
         /// 静态顶点缓存列表（减少GC）
         /// </summary>
@@ -36,9 +55,12 @@ namespace Honor.Runtime
         /// 所属Canvas（用于开启Shader通道）
         /// </summary>
         private Canvas m_canvas = null;
+        #endregion
 
-        #region Struct
-
+        //=========================================================================
+        // 嵌套结构 & 枚举
+        //=========================================================================
+        #region Struct & Enum
         /// <summary>
         /// 文本水平对齐类型
         /// </summary>
@@ -57,31 +79,19 @@ namespace Honor.Runtime
             /// <summary>
             /// 起点顶点索引
             /// </summary>
-            public int StartVertexIndex
-            {
-                get { return _startVertexIndex; }
-            }
-
+            public int StartVertexIndex => _startVertexIndex;
             private int _startVertexIndex = 0;
 
             /// <summary>
             /// 终点顶点索引
             /// </summary>
-            public int EndVertexIndex
-            {
-                get { return _endVertexIndex; }
-            }
-
+            public int EndVertexIndex => _endVertexIndex;
             private int _endVertexIndex = 0;
 
             /// <summary>
             /// 该行总顶点数量
             /// </summary>
-            public int VertexCount
-            {
-                get { return _vertexCount; }
-            }
-
+            public int VertexCount => _vertexCount;
             private int _vertexCount = 0;
 
             /// <summary>
@@ -96,9 +106,12 @@ namespace Honor.Runtime
                 _vertexCount = length * 6;
             }
         }
-
         #endregion
 
+        //=========================================================================
+        // 生命周期 & 初始化
+        //=========================================================================
+        #region MonoBehaviour - 初始化
         /// <summary>
         /// 初始化：获取Canvas、创建材质、设置Shader通道、更新描边参数
         /// </summary>
@@ -116,10 +129,39 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 销毁时清空材质引用，防止内存泄漏
+        /// </summary>
+        private void OnDestroy()
+        {
+            if (graphic)
+                graphic.material = null;
+        }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// 编辑器模式：参数修改时自动更新效果
+        /// </summary>
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            if (CheckShader())
+            {
+                SetParams();
+                _Refresh();
+            }
+        }
+#endif
+        #endregion
+
+        //=========================================================================
+        // 材质 & Shader 管理
+        //=========================================================================
+        #region Method - 材质与Shader
+        /// <summary>
         /// 检查Graphic与Material是否有效
         /// </summary>
         /// <returns>检查结果</returns>
-        bool CheckShader()
+        private bool CheckShader()
         {
             if (graphic == null)
             {
@@ -137,9 +179,18 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 创建并绑定自定义描边Shader材质
+        /// </summary>
+        private void AddMaterial()
+        {
+            var shader1 = Shader.Find("Honor/UI/UIOutlineShader");
+            graphic.material = new Material(shader1);
+        }
+
+        /// <summary>
         /// 向Shader设置描边颜色与宽度
         /// </summary>
-        void SetParams()
+        private void SetParams()
         {
             if (graphic.material != null)
             {
@@ -151,7 +202,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 开启Canvas所需的额外Shader通道（TexCoord1、TexCoord2）
         /// </summary>
-        void SetShaderChannels()
+        private void SetShaderChannels()
         {
             if (m_canvas)
             {
@@ -169,7 +220,12 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 刷新 & 网格更新
+        //=========================================================================
+        #region Method - 刷新与网格
         /// <summary>
         /// 刷新文本网格（标记顶点为脏）
         /// </summary>
@@ -177,21 +233,6 @@ namespace Honor.Runtime
         {
             graphic.SetVerticesDirty();
         }
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// 编辑器模式：参数修改时自动更新效果
-        /// </summary>
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-            if (CheckShader())
-            {
-                SetParams();
-                _Refresh();
-            }
-        }
-#endif
 
         /// <summary>
         /// 重写UGUI网格修改方法
@@ -208,7 +249,12 @@ namespace Honor.Runtime
             vh.Clear();
             vh.AddUIVertexTriangleStream(m_VetexList);
         }
+        #endregion
 
+        //=========================================================================
+        // 描边顶点计算
+        //=========================================================================
+        #region Method - 描边顶点处理
         /// <summary>
         /// 处理所有三角形顶点：计算中心点、方向、UV，执行描边偏移
         /// </summary>
@@ -254,9 +300,9 @@ namespace Honor.Runtime
                 var uvMax = _Max(v1.uv0, v2.uv0, v3.uv0);
 
                 // 为每个顶点应用新的位置与UV
-                v1 = _SetNewPosAndUV(v1, this.OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
-                v2 = _SetNewPosAndUV(v2, this.OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
-                v3 = _SetNewPosAndUV(v3, this.OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
+                v1 = _SetNewPosAndUV(v1, OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
+                v2 = _SetNewPosAndUV(v2, OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
+                v3 = _SetNewPosAndUV(v3, OutlineWidth, posCenter, triX, triY, uvX, uvY, uvMin, uvMax);
 
                 // 回写顶点
                 m_VetexList[i] = v1;
@@ -300,7 +346,12 @@ namespace Honor.Runtime
 
             return pVertex;
         }
+        #endregion
 
+        //=========================================================================
+        // 数学工具方法
+        //=========================================================================
+        #region Method - 数学工具
         /// <summary>
         /// 取三个float中的最小值
         /// </summary>
@@ -332,24 +383,12 @@ namespace Honor.Runtime
         {
             return new Vector2(_Max(pA.x, pB.x, pC.x), _Max(pA.y, pB.y, pC.y));
         }
+        #endregion
 
-        /// <summary>
-        /// 销毁时清空材质引用，防止内存泄漏
-        /// </summary>
-        private void OnDestroy()
-        {
-            if (graphic) graphic.material = null;
-        }
-
-        /// <summary>
-        /// 创建并绑定自定义描边Shader材质
-        /// </summary>
-        private void AddMaterial()
-        {
-            var shader1 = Shader.Find("Honor/UI/UIOutlineShader");
-            graphic.material = new Material(shader1);
-        }
-
+        //=========================================================================
+        // 字间距 & 文本对齐
+        //=========================================================================
+        #region Method - 字间距调整
         /// <summary>
         /// 修改文本网格：根据对齐方式调整字符间距（支持左/中/右对齐）
         /// </summary>
@@ -426,15 +465,12 @@ namespace Honor.Runtime
                     }
                     else if (alignment == HorizontalAligmentType.Right)
                     {
-                        vt.position += new Vector3(Spacing * (-(charCount - j + lines[i].StartVertexIndex) / 6 + 1), 0,
-                            0);
+                        vt.position += new Vector3(Spacing * (-(charCount - j + lines[i].StartVertexIndex) / 6 + 1), 0, 0);
                     }
                     else if (alignment == HorizontalAligmentType.Center)
                     {
                         var offset = (charCount / 6) % 2 == 0 ? 0.5f : 0f;
-                        vt.position +=
-                            new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6 - charCount / 12 + offset), 0,
-                                0);
+                        vt.position += new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6 - charCount / 12 + offset), 0, 0);
                     }
 
                     vertexs[j] = vt;
@@ -447,5 +483,6 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }

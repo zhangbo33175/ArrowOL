@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  ProcedurePreload.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   游戏预加载流程 - 闪屏、Lua初始化、资源预加载、进度管理、模式检查
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using GameLib;
@@ -11,6 +20,10 @@ namespace Honor.Runtime
     /// </summary>
     public class ProcedurePreload : ProcedureState
     {
+        //=========================================================================
+        #region 常量
+        //=========================================================================
+
         /// <summary>
         /// 持久化Key：最后一次游戏运行模式（开发/发布）
         /// </summary>
@@ -20,6 +33,12 @@ namespace Honor.Runtime
         /// 持久化Key：游戏模式分类名
         /// </summary>
         private const string GAME_MODE_CLASS_NAME = "gameModeClaseName";
+
+        #endregion
+
+        //=========================================================================
+        #region 私有变量
+        //=========================================================================
 
         /// <summary>
         /// 闪屏 UI 组件
@@ -46,6 +65,12 @@ namespace Honor.Runtime
         /// </summary>
         private bool m_StartLoading;
 
+        #endregion
+
+        //=========================================================================
+        #region 公共属性
+        //=========================================================================
+
         /// <summary>
         /// 外部控制是否开始加载
         /// </summary>
@@ -54,6 +79,12 @@ namespace Honor.Runtime
             get => m_StartLoading;
             set => m_StartLoading = value;
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
 
         /// <summary>
         /// 流程初始化：设置名称、初始化步骤队列
@@ -107,18 +138,17 @@ namespace Honor.Runtime
                     m_CurStepIndex++;
 
                     // 广播加载进度（给UI进度条使用）
-                    Dictionary<string, object> progressData = new Dictionary<string, object>();
-                    progressData["progress"] = m_CurStepIndex * 1.0f / m_Steps.Count;
-                    progressData["descContent"] = string.Empty;
+                    Dictionary<string, object> progressData = new Dictionary<string, object>
+                    {
+                        ["progress"] = m_CurStepIndex * 1.0f / m_Steps.Count,
+                        ["descContent"] = string.Empty
+                    };
                     GameMainRoot.Event.FireNow(this, GameEventCmd.LoadProgress, progressData);
                 }
             }
 
             // 执行Lua层逻辑
-            if (m_LuaOnUpdate != null)
-            {
-                m_LuaOnUpdate(ownerMachine);
-            }
+            m_LuaOnUpdate?.Invoke(ownerMachine);
 
             base.OnUpdate(ownerMachine);
         }
@@ -129,16 +159,8 @@ namespace Honor.Runtime
         /// </summary>
         public override void OnLeave(StateMachine<ProcedureComponent> ownerMachine, bool isShutdown)
         {
-            // 启动/重置时初始化SDK（注释备用）
-            if (IsLaunch() || IsReset)
-            {
-            }
-
             // 执行Lua离开逻辑
-            if (m_LuaOnLeave != null)
-            {
-                m_LuaOnLeave(ownerMachine);
-            }
+            m_LuaOnLeave?.Invoke(ownerMachine);
 
             // 关闭闪屏界面
             if (_mUILauncherView != null)
@@ -159,6 +181,12 @@ namespace Honor.Runtime
 
             base.OnLeave(ownerMachine, isShutdown);
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 核心逻辑
+        //=========================================================================
 
         /// <summary>
         /// 是否从启动流程进入（首次启动游戏）
@@ -197,10 +225,7 @@ namespace Honor.Runtime
                 }
 
                 // 执行Lua层进入逻辑
-                if (m_LuaOnEnter != null)
-                {
-                    m_LuaOnEnter(m_OwnerMachine);
-                }
+                m_LuaOnEnter?.Invoke(m_OwnerMachine);
             }
 
             // 首次从Launch进入：显示闪屏 → 初始化Lua → 进入预加载
@@ -242,6 +267,12 @@ namespace Honor.Runtime
                 callback();
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 过渡动画重写
+        //=========================================================================
+
         /// <summary>
         /// 重写：显示流程进入过渡（直接调用UI层）
         /// </summary>
@@ -258,7 +289,11 @@ namespace Honor.Runtime
             GameMainRoot.UI.ShowProcedureTransitionExit(forceOver, duration, blockRaycast);
         }
 
+        #endregion
+
+        //=========================================================================
         #region 游戏模式检查（开发/发布）
+        //=========================================================================
 
         /// <summary>
         /// 检查游戏模式是否变更，变更则清空所有存档
@@ -296,8 +331,7 @@ namespace Honor.Runtime
         /// </summary>
         private EGameMode GetLastGameMode()
         {
-            int mode = GameMainRoot.Persist.GetInt(PersistWayType.FileFragment, GAME_MODE_CLASS_NAME,
-                LAST_GAME_SERVER_MODE);
+            int mode = GameMainRoot.Persist.GetInt(PersistWayType.FileFragment, GAME_MODE_CLASS_NAME, LAST_GAME_SERVER_MODE);
             return (EGameMode)mode;
         }
 
@@ -309,8 +343,7 @@ namespace Honor.Runtime
             bool isDev = GameMainRoot.Launcher.DevelopMode;
             EGameMode currentMode = isDev ? EGameMode.EDevelopMode : EGameMode.EPublishMode;
 
-            GameMainRoot.Persist.SetInt(PersistWayType.FileFragment, GAME_MODE_CLASS_NAME, LAST_GAME_SERVER_MODE,
-                (int)currentMode);
+            GameMainRoot.Persist.SetInt(PersistWayType.FileFragment, GAME_MODE_CLASS_NAME, LAST_GAME_SERVER_MODE, (int)currentMode);
             GameMainRoot.Persist.Save(PersistWayType.FileFragment, GAME_MODE_CLASS_NAME);
             Log.Info($"保存游戏模式: {currentMode}");
         }

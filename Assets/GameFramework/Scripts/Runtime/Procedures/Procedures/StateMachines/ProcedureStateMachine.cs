@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ProcedureStateMachine.cs
+ * author:    云毅
+ * created:
+ * descrip:   流程状态机 - 游戏流程核心驱动，统一管理流程切换与更新
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -6,6 +16,10 @@ namespace Honor.Runtime
     /// </summary>
     public class ProcedureStateMachine : StateMachine<ProcedureComponent>
     {
+        //=========================================================================
+        #region 构造函数
+        //=========================================================================
+
         /// <summary>
         /// 流程状态机构造函数
         /// </summary>
@@ -14,8 +28,14 @@ namespace Honor.Runtime
         public ProcedureStateMachine(ProcedureComponent owner, params State<ProcedureComponent>[] states)
             : base(owner, states)
         {
-
+            
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
 
         /// <summary>
         /// 状态机每帧更新
@@ -34,5 +54,7 @@ namespace Honor.Runtime
         {
             base.Shutdown();
         }
+
+        #endregion
     }
 }

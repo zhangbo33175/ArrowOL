@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  SoundManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   声音总管理器 - 音频系统顶层核心，负责声音组管理、资源加载、播放调度
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,8 +19,12 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class SoundManager
     {
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
-        /// 声音组字典（key=组名，value=声音组实例）
+        /// 声音管理器构造函数
+        /// 初始化容器、获取全局依赖组件
         /// </summary>
         public SoundManager()
         {
@@ -28,8 +42,12 @@ namespace Honor.Runtime
             }
         }
 
+        //=========================================================================
+        // 生命周期与全局控制
+        //=========================================================================
+        #region 生命周期与全局控制
         /// <summary>
-        /// 声音组数量
+        /// 关闭音频系统，释放所有声音资源
         /// </summary>
         public int SoundGroupCount
         {
@@ -48,8 +66,42 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否存在指定声音组
+        /// 停止所有已加载的声音（使用默认淡出时间）
         /// </summary>
+        public void StopAllLoadedSounds()
+        {
+            StopAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
+        }
+
+        /// <summary>
+        /// 停止所有已加载的声音
+        /// </summary>
+        /// <param name="fadeOutSeconds">淡出时间</param>
+        public void StopAllLoadedSounds(float fadeOutSeconds)
+        {
+            foreach (var pair in m_SoundGroups)
+                pair.Value.StopAllLoadedSounds(fadeOutSeconds);
+        }
+
+        /// <summary>
+        /// 停止所有正在加载中的声音
+        /// </summary>
+        public void StopAllLoadingSounds()
+        {
+            foreach (int serialID in m_SoundsLoading)
+                m_SoundsToReleaseOnLoad.Add(serialID);
+        }
+        #endregion
+
+        //=========================================================================
+        // 声音组管理
+        //=========================================================================
+        #region 声音组管理
+        /// <summary>
+        /// 检查是否存在指定名称的声音组
+        /// </summary>
+        /// <param name="soundGroupName">声音组名称</param>
+        /// <returns>是否存在</returns>
         public bool HasSoundGroup(string soundGroupName)
         {
             if (string.IsNullOrEmpty(soundGroupName))
@@ -59,8 +111,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取指定声音组
+        /// 获取指定名称的声音组
         /// </summary>
+        /// <param name="soundGroupName">声音组名称</param>
+        /// <returns>声音组实例</returns>
         public SoundGroup GetSoundGroup(string soundGroupName)
         {
             if (string.IsNullOrEmpty(soundGroupName))
@@ -71,8 +125,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有声音组
+        /// 获取所有声音组（数组版本）
         /// </summary>
+        /// <returns>声音组数组</returns>
         public SoundGroup[] GetAllSoundGroups()
         {
             int index = 0;
@@ -84,8 +139,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取所有声音组（List 版本）
+        /// 获取所有声音组（List版本）
         /// </summary>
+        /// <param name="results">结果列表</param>
         public void GetAllSoundGroups(List<SoundGroup> results)
         {
             if (results == null)
@@ -97,8 +153,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 添加声音组（默认参数）
+        /// 添加声音组（使用默认参数）
         /// </summary>
+        /// <param name="soundGroupName">声音组名称</param>
+        /// <param name="soundGroupHelper">声音组辅助对象</param>
+        /// <returns>是否添加成功</returns>
         public bool AddSoundGroup(string soundGroupName, SoundGroupHelper soundGroupHelper)
         {
             return AddSoundGroup(
@@ -112,6 +171,12 @@ namespace Honor.Runtime
         /// <summary>
         /// 添加声音组（完整参数）
         /// </summary>
+        /// <param name="soundGroupName">声音组名称</param>
+        /// <param name="soundGroupAvoidBeingReplacedBySamePriority">同优先级是否禁止替换</param>
+        /// <param name="soundGroupMute">是否静音</param>
+        /// <param name="soundGroupVolume">默认音量</param>
+        /// <param name="soundGroupHelper">声音组辅助对象</param>
+        /// <returns>是否添加成功</returns>
         public bool AddSoundGroup(
             string soundGroupName,
             bool soundGroupAvoidBeingReplacedBySamePriority,
@@ -138,8 +203,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 给指定声音组添加一个声音播放器（AudioSource）
+        /// 为指定声音组添加声音播放器代理
         /// </summary>
+        /// <param name="soundGroupName">声音组名称</param>
+        /// <param name="soundAgentHelper">声音代理辅助器</param>
         public void AddSoundAgent(string soundGroupName, SoundAgentHelper soundAgentHelper)
         {
             SoundGroup soundGroup = GetSoundGroup(soundGroupName);
@@ -148,18 +215,25 @@ namespace Honor.Runtime
 
             soundGroup.AddSoundAgent(this, soundAgentHelper);
         }
+        #endregion
 
+        //=========================================================================
+        // 加载状态管理
+        //=========================================================================
+        #region 加载状态管理
         /// <summary>
-        /// 获取所有正在加载的声音ID
+        /// 获取所有正在加载的声音ID（数组版本）
         /// </summary>
+        /// <returns>加载中声音ID数组</returns>
         public int[] GetAllLoadingSoundSerialIDs()
         {
             return m_SoundsLoading.ToArray();
         }
 
         /// <summary>
-        /// 获取所有正在加载的声音ID（List 版本）
+        /// 获取所有正在加载的声音ID（List版本）
         /// </summary>
+        /// <param name="results">结果列表</param>
         public void GetAllLoadingSoundSerialIDs(List<int> results)
         {
             if (results == null)
@@ -170,16 +244,28 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 某个声音是否正在加载中
+        /// 检查指定声音是否正在加载
         /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <returns>是否正在加载</returns>
         public bool IsLoadingSound(int serialID)
         {
             return m_SoundsLoading.Contains(serialID);
         }
+        #endregion
 
+        //=========================================================================
+        // 核心播放接口
+        //=========================================================================
+        #region 核心播放接口
         /// <summary>
         /// 【核心接口】播放声音（异步加载AB包 + 自动调度播放器）
         /// </summary>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="soundGroupName">目标声音组</param>
+        /// <param name="playSoundParams">播放参数</param>
+        /// <param name="playSoundInfoShell">播放信息外壳</param>
         /// <returns>声音唯一ID，用于暂停/停止</returns>
         public int PlaySound(
             string abPath,
@@ -250,18 +336,28 @@ namespace Honor.Runtime
 
             return serialID;
         }
+        #endregion
 
+        //=========================================================================
+        // 单个声音控制
+        //=========================================================================
+        #region 单个声音控制
         /// <summary>
-        /// 停止声音（默认淡出）
+        /// 停止声音（使用默认淡出时间）
         /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <returns>是否执行成功</returns>
         public bool StopSound(int serialID)
         {
             return StopSound(serialID, SoundConstant.DefaultFadeOutSeconds);
         }
 
         /// <summary>
-        /// 停止声音（支持淡出）
+        /// 停止声音
         /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <param name="fadeOutSeconds">淡出时间</param>
+        /// <returns>是否执行成功</returns>
         public bool StopSound(int serialID, float fadeOutSeconds)
         {
             // 如果正在加载，标记加载完成后自动释放
@@ -283,42 +379,19 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 停止所有已加载声音
+        /// 暂停声音（使用默认淡出时间）
         /// </summary>
-        public void StopAllLoadedSounds()
-        {
-            StopAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
-        }
-
-        /// <summary>
-        /// 停止所有已加载声音（带淡出）
-        /// </summary>
-        public void StopAllLoadedSounds(float fadeOutSeconds)
-        {
-            foreach (var pair in m_SoundGroups)
-                pair.Value.StopAllLoadedSounds(fadeOutSeconds);
-        }
-
-        /// <summary>
-        /// 停止所有正在加载的声音
-        /// </summary>
-        public void StopAllLoadingSounds()
-        {
-            foreach (int serialID in m_SoundsLoading)
-                m_SoundsToReleaseOnLoad.Add(serialID);
-        }
-
-        /// <summary>
-        /// 暂停声音（默认淡出）
-        /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
         public void PauseSound(int serialID)
         {
             PauseSound(serialID, SoundConstant.DefaultFadeOutSeconds);
         }
 
         /// <summary>
-        /// 暂停声音（支持淡出）
+        /// 暂停声音
         /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <param name="fadeOutSeconds">淡出时间</param>
         public void PauseSound(int serialID, float fadeOutSeconds)
         {
             foreach (var pair in m_SoundGroups)
@@ -331,8 +404,43 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 恢复声音（使用默认淡入时间）
+        /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <returns>是否执行成功</returns>
+        public bool ResumeSound(int serialID)
+        {
+            return ResumeSound(serialID, SoundConstant.DefaultFadeInSeconds);
+        }
+
+        /// <summary>
+        /// 恢复声音
+        /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <param name="fadeInSeconds">淡入时间</param>
+        /// <returns>是否执行成功</returns>
+        public bool ResumeSound(int serialID, float fadeInSeconds)
+        {
+            foreach (var pair in m_SoundGroups)
+            {
+                if (pair.Value.ResumeSound(serialID, fadeInSeconds))
+                    return true;
+            }
+
+            Log.Warning(AorTxt.Format("无法找到 Sound '{0}'。", serialID));
+            return false;
+        }
+        #endregion
+
+        //=========================================================================
+        // 声音组批量控制
+        //=========================================================================
+        #region 声音组批量控制
+        /// <summary>
         /// 暂停整个声音组
         /// </summary>
+        /// <param name="groupName">组名</param>
+        /// <returns>是否执行成功</returns>
         public bool PauseGroupSound(string groupName)
         {
             foreach (var pair in m_SoundGroups)
@@ -350,31 +458,10 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 恢复声音（默认淡入）
-        /// </summary>
-        public bool ResumeSound(int serialID)
-        {
-            return ResumeSound(serialID, SoundConstant.DefaultFadeInSeconds);
-        }
-
-        /// <summary>
-        /// 恢复声音（支持淡入）
-        /// </summary>
-        public bool ResumeSound(int serialID, float fadeInSeconds)
-        {
-            foreach (var pair in m_SoundGroups)
-            {
-                if (pair.Value.ResumeSound(serialID, fadeInSeconds))
-                    return true;
-            }
-
-            Log.Warning(AorTxt.Format("无法找到 Sound '{0}'。", serialID));
-            return false;
-        }
-
-        /// <summary>
         /// 恢复整个声音组
         /// </summary>
+        /// <param name="groupName">组名</param>
+        /// <returns>是否执行成功</returns>
         public bool ResumeGroupSound(string groupName)
         {
             foreach (var pair in m_SoundGroups)
@@ -394,6 +481,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 停止整个声音组
         /// </summary>
+        /// <param name="groupName">组名</param>
+        /// <returns>是否执行成功</returns>
         public bool StopGroupSound(string groupName)
         {
             foreach (var pair in m_SoundGroups)
@@ -409,10 +498,16 @@ namespace Honor.Runtime
             Log.Error($"停止声音组音乐播放 未找到要设置的音乐组  name = {groupName}");
             return false;
         }
+        #endregion
 
+        //=========================================================================
+        // 资源与音量管理
+        //=========================================================================
+        #region 资源与音量管理
         /// <summary>
         /// 释放音频资源（交给资源组件卸载）
         /// </summary>
+        /// <param name="soundAsset">音频资源对象</param>
         public void ReleaseSoundAsset(Object soundAsset)
         {
             m_AssetComponent.UnloadAsset(soundAsset);
@@ -421,6 +516,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 设置指定声音组的全局音量
         /// </summary>
+        /// <param name="newVolume">新音量值</param>
+        /// <param name="groupName">目标组名</param>
         public void SetAllSoundVolume(float newVolume, string groupName)
         {
             foreach (var pair in m_SoundGroups)
@@ -435,5 +532,6 @@ namespace Honor.Runtime
 
             Log.Error($"设置音乐组音量 未找到要设置的音乐组  name = {groupName}");
         }
+        #endregion
     }
 }

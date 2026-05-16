@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ResDefExportEditorWindow.cs
+ * author:    云毅
+ * created:   2026-04-01
+ * descrip:   资源配置导出工具 - 数据结构定义（分部类）
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,134 +22,150 @@ namespace Honor.Editor
 {
     public partial class ResDefExportEditorWindow : BaseEditorWindow<ResDefExportEditorWindow>
     {
+        #region 资源配置数据管理
         /// <summary>
-        /// 资源集合
+        /// 资源配置集合（静态数据类）
         /// </summary>
         public class ResDefInfos
         {
             /// <summary>
-            /// Lua导出路径
+            /// Lua 导出目录
             /// </summary>
-            public static string LuaExportFolderPath = Runtime.GamePathUtils.Editor.ResDef.LuaFolderPath;
+            public static string LuaExportFolderPath = GamePathUtils.Editor.ResDef.LuaFolderPath;
 
             /// <summary>
-            /// 存储所有类型的ResDefItem数据
+            /// 所有资源配置数据列表
             /// </summary>
             public static List<ResDefItem> ConvertData = new List<ResDefItem>();
 
             /// <summary>
-            /// 写Json文件
+            /// 写入 JSON 配置文件
             /// </summary>
             public static void WriteJson()
             {
-                using (FileStream fs = new FileStream(Runtime.GamePathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath(), FileMode.Create, FileAccess.Write))
+                string path = GamePathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath();
+                
+                using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
                 {
-                    var resDefExportSettings = new ResDefExportSettings();
-                    resDefExportSettings.LuaExportFolderPath = LuaExportFolderPath;
-                    resDefExportSettings.DefaultSheetCount = m_OneSheetMaxCount;
-                    resDefExportSettings.ConvertData = ConvertData;
-                    var bytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(resDefExportSettings,Formatting.Indented));
+                    ResDefExportSettings settings = new ResDefExportSettings
+                    {
+                        LuaExportFolderPath = LuaExportFolderPath,
+                        DefaultSheetCount = m_OneSheetMaxCount,
+                        ConvertData = ConvertData
+                    };
+
+                    string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(json);
                     fs.Write(bytes, 0, bytes.Length);
                 }
             }
 
             /// <summary>
-            /// 转换json数据到变量
+            /// 读取并解析 JSON 配置
             /// </summary>
             public static void ConvertJson()
             {
-                string filePath = Runtime.GamePathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath();
-                if (File.Exists(filePath))
+                string path = GamePathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath();
+                if (!File.Exists(path))
                 {
-                    var file = File.ReadAllText(filePath);
-                    try
-                    {
-                        var resDefExportSettings = JsonConvert.DeserializeObject<ResDefExportSettings>(file);
-                        int idCounter = 1;
-                        foreach (var item in resDefExportSettings.ConvertData)
-                        {
-                            item.ID = idCounter++;
-                        }
-                        LuaExportFolderPath = resDefExportSettings.LuaExportFolderPath;
-                        ConvertData = resDefExportSettings.ConvertData;
-                        m_OneSheetMaxCount = resDefExportSettings.DefaultSheetCount;
-                    
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error( $"[Editor] {filePath} 加载失败，错误信息：{ex} 。");
-                    }
-
-                    // 获取当前最大的ResID
-                    var curMaxData = GetMaxResID();
-                    // 矫正重复的ID,去除每个重复的数组的第一个元素
-                    var sortConvertData = ConvertData.GroupBy(item => item.ID).Where(group => group.Count() > 1).SelectMany(group => group.Skip(1)).ToList();
-                    // 重新给ID赋值
-                    foreach (var resDefItem in sortConvertData)
-                    {
-                        resDefItem.ID = ++curMaxData;
-                    }
+                    WriteJson();
+                    return;
                 }
 
-                ConvertData.ForEach(resDefItem =>
+                try
                 {
-                    if (string.IsNullOrEmpty(resDefItem.AssetGUID))
+                    string content = File.ReadAllText(path);
+                    ResDefExportSettings settings = JsonConvert.DeserializeObject<ResDefExportSettings>(content);
+
+                    // 重新排序 ID
+                    int id = 1;
+                    foreach (ResDefItem item in settings.ConvertData)
                     {
-                        var GUIDArray = AssetDatabase.FindAssets(resDefItem.AssetName, new string[] { resDefItem.ABPath });
-                        if (GUIDArray.Length > 0)
+                        item.ID = id++;
+                    }
+
+                    LuaExportFolderPath = settings.LuaExportFolderPath;
+                    ConvertData = settings.ConvertData;
+                    m_OneSheetMaxCount = settings.DefaultSheetCount;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"[Editor] 配置文件加载失败：{path}\n{ex}");
+                }
+
+                // 修复重复 ID
+                int maxId = GetMaxResID();
+                List<ResDefItem> duplicateItems = ConvertData
+                    .GroupBy(item => item.ID)
+                    .Where(g => g.Count() > 1)
+                    .SelectMany(g => g.Skip(1))
+                    .ToList();
+
+                foreach (ResDefItem item in duplicateItems)
+                {
+                    item.ID = ++maxId;
+                }
+
+                // 自动补全 AssetGUID
+                foreach (ResDefItem item in ConvertData)
+                {
+                    if (string.IsNullOrEmpty(item.AssetGUID))
+                    {
+                        string[] guids = AssetDatabase.FindAssets(item.AssetName, new[] { item.ABPath });
+                        foreach (string guid in guids)
                         {
-                            foreach (var GUID in GUIDArray)
+                            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                            if (Path.GetFileNameWithoutExtension(assetPath) == item.AssetName)
                             {
-                                var assetPath = AssetDatabase.GUIDToAssetPath(GUID);
-                                if (System.IO.Path.GetFileNameWithoutExtension(assetPath) == resDefItem.AssetName) // 文件名字一致，则可以进行guid赋值
-                                {
-                                    resDefItem.AssetGUID = GUID;
-                                }
+                                item.AssetGUID = guid;
+                                break;
                             }
                         }
                     }
-                });
+                }
+
                 WriteJson();
             }
 
             /// <summary>
-            /// 得到存档中的最大的ResID
+            /// 获取当前最大资源 ID
             /// </summary>
             public static int GetMaxResID()
             {
-                var maxResID = 0;
-                foreach (var resDefItemInfo in ConvertData)
+                int maxId = 0;
+                foreach (ResDefItem item in ConvertData)
                 {
-                    maxResID = Math.Max(maxResID, resDefItemInfo.ID);
+                    maxId = Math.Max(maxId, item.ID);
                 }
-
-                return maxResID;
+                return maxId;
             }
         }
+        #endregion
 
+        #region 数据结构定义
         /// <summary>
-        /// 资源的信息定义
+        /// 单个资源配置项
         /// </summary>
         public class ResDefItem
         {
             /// <summary>
-            /// 资源的编号ID （每次启动时初始化编号）
+            /// 资源 ID（运行时编号，不序列化）
             /// </summary>
             [JsonIgnore]
             public int ID = -1;
 
             /// <summary>
-            /// 资源的类型
+            /// 资源类型
             /// </summary>
             public string ResType;
 
             /// <summary>
-            /// 资源的别名
+            /// 资源别名
             /// </summary>
             public string AliasName;
 
             /// <summary>
-            /// AB路径
+            /// AB 包路径
             /// </summary>
             public string ABPath;
 
@@ -149,14 +175,13 @@ namespace Honor.Editor
             public string AssetName;
 
             /// <summary>
-            /// 资源的uid
+            /// 资源 GUID
             /// </summary>
             public string AssetGUID;
         }
 
-        
         /// <summary>
-        /// 导出数据的数据结构
+        /// 导出配置文件结构
         /// </summary>
         public class ResDefExportSettings
         {
@@ -166,56 +191,56 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 右侧导出项的信息标记
+        /// 右侧面板折叠项信息
         /// </summary>
         public class TopItemInfo
         {
             /// <summary>
-            /// 是否是折叠状态
+            /// 是否展开
             /// </summary>
             public bool IsShowFoldout = false;
 
             /// <summary>
-            /// 当前page下表
+            /// 当前页码
             /// </summary>
             public int CurPageIndex = 1;
 
             /// <summary>
-            /// page的总数量
+            /// 总页数
             /// </summary>
             public int PageCount = 3;
 
             /// <summary>
-            /// 是否是全部展开状态
+            /// 是否全部展开
             /// </summary>
             public bool IsShowAll = false;
 
             /// <summary>
-            /// 一页显示多少个
+            /// 单页显示数量
             /// </summary>
             public int OnePageCount = 12;
         }
 
-
         /// <summary>
-        /// 文件的使用状态
+        /// 文件处理状态
         /// </summary>
         public enum FileUseState
         {
             /// <summary>
-            /// 文件加载成功
+            /// 加载成功
             /// </summary>
             LoadSuccess = 0,
 
             /// <summary>
-            /// 文件追加成功
+            /// 导出成功
             /// </summary>
             ExportSuccess = 1,
 
             /// <summary>
-            /// 文件追加失败-同名
+            /// 导出失败 - 重名
             /// </summary>
-            ExportFailedToSameName = 2,
+            ExportFailedToSameName = 2
         }
+        #endregion
     }
 }

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventManager.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   全局事件管理器 - 对外入口层
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -6,6 +16,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class EventManager
     {
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        #region Constructor
         /// <summary>
         /// 初始化事件管理器
         /// </summary>
@@ -13,7 +27,12 @@ namespace Honor.Runtime
         {
             m_EventPool = new EventPool<EventParams>();
         }
+        #endregion
 
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region Lifecycle
         /// <summary>
         /// 帧更新，驱动事件池执行事件派发
         /// </summary>
@@ -29,7 +48,12 @@ namespace Honor.Runtime
         {
             m_EventPool.Shutdown();
         }
+        #endregion
 
+        //=========================================================================
+        // 公共事件接口
+        //=========================================================================
+        #region Public Event Methods
         /// <summary>
         /// 检查指定事件是否已注册对应的回调
         /// </summary>
@@ -85,5 +109,6 @@ namespace Honor.Runtime
         {
             m_EventPool.FireNow(sender, e);
         }
+        #endregion
     }
 }

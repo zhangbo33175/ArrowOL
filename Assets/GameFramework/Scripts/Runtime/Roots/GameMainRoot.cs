@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  GameMainRoot.cs
+ * author:  云毅
+ * created:
+ * descrip:   游戏全局根管理器 - 唯一核心入口，统一管理所有核心系统组件
+ ***************************************************************/
+
 using System.Globalization;
 using System.Threading;
 using GameLib;
@@ -12,6 +21,12 @@ namespace Honor.Runtime
     /// </summary>
     public partial class GameMainRoot : MonoBehaviour
     {
+        //=========================================================================
+
+        #region 静态系统组件（全局访问点）
+
+        //=========================================================================
+
         /// <summary>
         /// 启动器组件（游戏初始化、运行模式）
         /// </summary>
@@ -97,6 +112,14 @@ namespace Honor.Runtime
         /// </summary>
         public static GameManager gameManager { get; private set; }
 
+        #endregion
+
+        //=========================================================================
+
+        #region 生命周期
+
+        //=========================================================================
+
         /// <summary>
         /// Awake：初始化文化信息（防止数字、格式解析异常）
         /// </summary>
@@ -132,6 +155,14 @@ namespace Honor.Runtime
             Vibrate = GameComponentsGroup.GetComponent<VibrateComponent>();
         }
 
+        #endregion
+
+        //=========================================================================
+
+        #region 文化信息初始化
+
+        //=========================================================================
+
         /// <summary>
         /// 设置全局文化信息
         /// 解决不同国家语言环境下，日期、数字、字符串格式不统一导致的BUG
@@ -150,5 +181,7 @@ namespace Honor.Runtime
                 Log.Error(e);
             }
         }
+
+        #endregion
     }
 }

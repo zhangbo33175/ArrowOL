@@ -1,8 +1,26 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetBundleLoadManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   AssetBundle 加载管理器 - 成员变量与常量定义部分
+ *            包含加载队列、缓存、并发限制、依赖管理、平台专用变量
+ ***************************************************************/
 using System.Collections.Generic;
 using UnityEngine.Networking;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // AssetBundle 加载管理器 - 成员常量 & 字段 & 属性
+    // 核心缓存容器、并发限制、状态列表定义
+    //=========================================================================
+    /// <summary>
+    /// AssetBundle 加载管理器（成员定义分部类）
+    /// 管理所有AB包加载相关的常量、缓存集合、状态字典与公开属性
+    /// </summary>
     public sealed partial class AssetBundleLoadManager
     {
         #region 异步加载并发限制常量
@@ -37,16 +55,13 @@ namespace Honor.Runtime
         /// Value：依赖的AB路径数组
         /// </summary>
         private readonly Dictionary<string, string[]> m_DependsDataList;
-        
+
         /// <summary>
         /// 获取全局AB依赖表
         /// </summary>
         public Dictionary<string, string[]> DependsDataList
         {
-            get
-            {
-                return m_DependsDataList;
-            }
+            get { return m_DependsDataList; }
         }
         #endregion
 
@@ -56,16 +71,13 @@ namespace Honor.Runtime
         /// 超出最大加载数量时，暂存等待的AB包
         /// </summary>
         private readonly Dictionary<string, AssetBundleObject> _mReadyAssetBundleList;
-        
+
         /// <summary>
         /// 获取等待加载的AB列表
         /// </summary>
         public Dictionary<string, AssetBundleObject> ReadyAssetBundleList
         {
-            get
-            {
-                return _mReadyAssetBundleList;
-            }
+            get { return _mReadyAssetBundleList; }
         }
         #endregion
 
@@ -75,16 +87,13 @@ namespace Honor.Runtime
         /// 正在异步加载的AB包对象
         /// </summary>
         private readonly Dictionary<string, AssetBundleObject> m_LoadingAssetBundleList;
-        
+
         /// <summary>
         /// 获取正在异步加载的AB列表
         /// </summary>
         public Dictionary<string, AssetBundleObject> LoadingAssetBundleList
         {
-            get
-            {
-                return m_LoadingAssetBundleList;
-            }
+            get { return m_LoadingAssetBundleList; }
         }
         #endregion
 
@@ -94,16 +103,13 @@ namespace Honor.Runtime
         /// 加载成功、可正常使用的AB包对象
         /// </summary>
         private readonly Dictionary<string, AssetBundleObject> m_LoadedAssetBundleList;
-        
+
         /// <summary>
         /// 获取已加载完成的AB列表
         /// </summary>
         public Dictionary<string, AssetBundleObject> LoadedAssetBundleList
         {
-            get
-            {
-                return m_LoadedAssetBundleList;
-            }
+            get { return m_LoadedAssetBundleList; }
         }
         #endregion
 
@@ -113,16 +119,13 @@ namespace Honor.Runtime
         /// 引用计数为0，等待帧更新自动卸载的AB包
         /// </summary>
         private readonly Dictionary<string, AssetBundleObject> m_UnloadAssetBundleList;
-        
+
         /// <summary>
         /// 获取等待卸载的AB列表
         /// </summary>
         public Dictionary<string, AssetBundleObject> UnloadAssetBundleList
         {
-            get
-            {
-                return m_UnloadAssetBundleList;
-            }
+            get { return m_UnloadAssetBundleList; }
         }
         #endregion
 

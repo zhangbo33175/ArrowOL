@@ -1,7 +1,19 @@
-﻿using UnityEngine;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Game
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EditorPath.Localization.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Honor框架 编辑器路径配置 - 多语言模块专用路径
+ *            统一管理多语言Excel、导出目录、热更路径等常量
+ ***************************************************************/
+
+using UnityEngine;
 
 namespace Honor.Editor
 {
+    #region 编辑器全局路径配置
     /// <summary>
     /// 编辑器路径配置（静态全局类）
     /// 专门存放【多语言系统】的所有路径常量
@@ -9,6 +21,7 @@ namespace Honor.Editor
     /// </summary>
     public static partial class EditorPath
     {
+        #region 多语言模块路径配置
         /// <summary>
         /// 多语言（Localization）模块专用路径配置
         /// </summary>
@@ -55,6 +68,8 @@ namespace Honor.Editor
             /// Lua 脚本根目录
             /// </summary>
             public static string LuaScriptsFolderFullPath = $"{Application.dataPath}/LuaScripts";
-        }  
-    } 
+        }
+        #endregion
+    }
+    #endregion
 }

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextEffectGradient.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   UI 垂直渐变特效 | 支持 Text/Image 顶点颜色渐变
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +22,10 @@ namespace Honor.Runtime
     [AddComponentMenu("UI/Honor/UI文本/图像垂直渐变效果组件")]
     public class AorTextEffectGradient : BaseMeshEffect
     {
+        //=========================================================================
+        // 序列化字段
+        //=========================================================================
+        #region Field - 渐变颜色
         /// <summary>
         /// 渐变顶部颜色
         /// </summary>
@@ -23,7 +37,12 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField]
         private Color32 bottomColor = Color.black;
+        #endregion
 
+        //=========================================================================
+        // 重写方法 - 网格修改
+        //=========================================================================
+        #region Method - 渐变顶点计算
         /// <summary>
         /// 重写网格修改方法，修改顶点颜色实现渐变效果
         /// </summary>
@@ -32,9 +51,7 @@ namespace Honor.Runtime
         {
             // 组件未激活时不执行效果
             if (!IsActive())
-            {
                 return;
-            }
 
             // 获取当前网格总顶点数量
             int count = vh.currentVertCount;
@@ -54,6 +71,7 @@ namespace Honor.Runtime
             // 遍历顶点，计算文本的顶部和底部Y坐标边界
             float topY = vertexs[0].position.y;
             float bottomY = vertexs[0].position.y;
+
             for (int i = 1; i < count; i++)
             {
                 float y = vertexs[i].position.y;
@@ -82,5 +100,6 @@ namespace Honor.Runtime
                 vh.SetUIVertex(vertex, i);
             }
         }
+        #endregion
     }
 }

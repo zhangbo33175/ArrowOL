@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkComponent.WebSocket.cs
+ * author:    云毅
+ * created:
+ * descrip:   网络组件 - WebSocket 接口层（基于 BestHTTP）
+ ***************************************************************/
+
 using System;
 #if BEST_HTTP_ENABLE
 using BestHTTP.WebSocket;
@@ -5,9 +15,17 @@ using BestHTTP.WebSocket;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 网络组件 - WebSocket 长连接接口模块
+    /// </summary>
     public sealed partial class NetworkComponent : GameComponent
     {
+        //=========================================================================
+        #region WebSocket 接口（BestHTTP）
+        //=========================================================================
+
 #if BEST_HTTP_ENABLE
+
         /// <summary>
         /// 创建并建立 WebSocket 长连接
         /// 底层交由 NetworkManager 管理
@@ -90,6 +108,9 @@ namespace Honor.Runtime
             }
             return m_NetworkManager.GetWebSocket(wsName);
         }
+
 #endif
+
+        #endregion
     }
 }

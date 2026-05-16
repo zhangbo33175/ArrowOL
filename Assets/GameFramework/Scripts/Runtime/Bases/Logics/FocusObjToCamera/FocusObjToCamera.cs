@@ -1,15 +1,32 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  FocusObjToCamera.cs
+ * author:    云毅
+ * created:   2026   2025年
+ * descrip:   物体始终朝向相机（广告牌效果），用于头顶血条、3D UI、名称等
+ ***************************************************************/
+
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 物体始终朝向相机（广告牌效果）
+    //=========================================================================
     /// <summary>
     /// 物体始终朝向相机（广告牌效果）
     /// 常用于：角色血条、头顶名称、3D UI、特效等需要始终面向相机的物体
     /// </summary>
     public class FocusObjToCamera : MonoBehaviour
     {
-        [Header("指定朝向的目标相机，不指定则自动使用场景默认相机")] public Camera FaceCamera;
+        #region 字段配置
+        [Header("指定朝向的目标相机，不指定则自动使用场景默认相机")]
+        public Camera FaceCamera;
+        #endregion
 
+        #region 生命周期
         /// <summary>
         /// 初始化：自动获取默认场景相机
         /// </summary>
@@ -41,5 +58,6 @@ namespace Honor.Runtime
                 FaceCamera.transform.rotation * Vector3.up
             );
         }
+        #endregion
     }
 }

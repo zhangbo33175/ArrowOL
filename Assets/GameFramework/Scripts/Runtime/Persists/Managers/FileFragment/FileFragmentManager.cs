@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  FileFragmentManager.cs
+ * author:    云毅
+ * created:
+ * descrip:   非WebGL平台文件片段存储管理器 - 多分类文件、加密、压缩
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class FileFragmentManager
     {
+        #region 构造 & 初始化
+
+        //=========================================================================
+
         /// <summary>
         /// 构造方法
         /// 初始化目录 → 扫描 .dat 文件 → 构建内存索引
@@ -38,8 +52,15 @@ namespace Honor.Runtime
                 m_FileFragmentNames.Add(name);
                 m_ItemGroups.Add(name, new FileFragmentItemGroup());
             }
-
         }
+
+        #endregion
+
+        //=========================================================================
+
+        #region 加载 & 保存
+
+        //=========================================================================
 
         /// <summary>
         /// 加载所有文件片段数据（从文件读到内存）
@@ -57,6 +78,7 @@ namespace Honor.Runtime
                     {
                         continue;
                     }
+
                     Deserialize(filePath, fileFragmentName);
                 }
                 catch (Exception exception)
@@ -65,6 +87,7 @@ namespace Honor.Runtime
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -84,6 +107,7 @@ namespace Honor.Runtime
                     File.Delete(fullPath);
                 }
             }
+
             m_FileFragmentNamesForDelete.Clear();
 
             // 保存所有文件
@@ -96,6 +120,7 @@ namespace Honor.Runtime
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -113,6 +138,7 @@ namespace Honor.Runtime
                 {
                     File.Delete(fullPath);
                 }
+
                 m_FileFragmentNamesForDelete.Remove(fileFragmentName);
                 return true;
             }
@@ -126,10 +152,20 @@ namespace Honor.Runtime
                 {
                     return false;
                 }
+
                 return true;
             }
+
             return false;
         }
+
+        #endregion
+
+        //=========================================================================
+
+        #region 数据查询
+
+        //=========================================================================
 
         /// <summary>
         /// 获取指定分类的条目的名称集合。
@@ -142,6 +178,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetAllItemNames();
             }
+
             return null;
         }
 
@@ -170,8 +207,17 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].HasItem(itemName);
             }
+
             return false;
         }
+
+        #endregion
+
+        //=========================================================================
+
+        #region 删除操作
+
+        //=========================================================================
 
         /// <summary>
         /// 删除指定键（删完自动检查空分类并移除）
@@ -187,6 +233,7 @@ namespace Honor.Runtime
                 result = m_ItemGroups[fileFragmentName].RemoveItem(itemName);
                 CheckRemoveContainer(fileFragmentName);
             }
+
             return result;
         }
 
@@ -204,6 +251,7 @@ namespace Honor.Runtime
                 {
                     Directory.Delete(m_FileFragmentsRootDirectoryFullPath, true);
                 }
+
                 Directory.CreateDirectory(m_FileFragmentsRootDirectoryFullPath);
 
                 m_ItemGroups.Clear();
@@ -220,8 +268,15 @@ namespace Honor.Runtime
                     CheckRemoveContainer(fileFragmentName);
                 }
             }
-
         }
+
+        #endregion
+
+        //=========================================================================
+
+        #region Bool 存取
+
+        //=========================================================================
 
         /// <summary>
         /// 从指定条目中读取布尔值。
@@ -235,6 +290,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetBool(itemName);
             }
+
             return false;
         }
 
@@ -251,6 +307,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetBool(itemName, defaultValue);
             }
+
             return defaultValue;
         }
 
@@ -266,6 +323,14 @@ namespace Honor.Runtime
             m_ItemGroups[fileFragmentName].SetBool(itemName, value);
         }
 
+        #endregion
+
+        //=========================================================================
+
+        #region Int 存取
+
+        //=========================================================================
+
         /// <summary>
         /// 从指定条目中读取整数值。
         /// </summary>
@@ -278,6 +343,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetInt(itemName);
             }
+
             return 0;
         }
 
@@ -294,6 +360,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetInt(itemName, defaultValue);
             }
+
             return defaultValue;
         }
 
@@ -309,6 +376,14 @@ namespace Honor.Runtime
             m_ItemGroups[fileFragmentName].SetInt(itemName, value);
         }
 
+        #endregion
+
+        //=========================================================================
+
+        #region Float 存取
+
+        //=========================================================================
+
         /// <summary>
         /// 从指定条目中读取浮点数值。
         /// </summary>
@@ -321,6 +396,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetFloat(itemName);
             }
+
             return 0f;
         }
 
@@ -337,6 +413,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetFloat(itemName, defaultValue);
             }
+
             return defaultValue;
         }
 
@@ -352,6 +429,14 @@ namespace Honor.Runtime
             m_ItemGroups[fileFragmentName].SetFloat(itemName, value);
         }
 
+        #endregion
+
+        //=========================================================================
+
+        #region String 存取
+
+        //=========================================================================
+
         /// <summary>
         /// 从指定条目中读取字符串值。
         /// </summary>
@@ -364,6 +449,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetString(itemName);
             }
+
             return null;
         }
 
@@ -380,6 +466,7 @@ namespace Honor.Runtime
             {
                 return m_ItemGroups[fileFragmentName].GetString(itemName, defaultValue);
             }
+
             return defaultValue;
         }
 
@@ -394,6 +481,14 @@ namespace Honor.Runtime
             CheckAddContainer(fileFragmentName);
             m_ItemGroups[fileFragmentName].SetString(itemName, value);
         }
+
+        #endregion
+
+        //=========================================================================
+
+        #region 序列化 & 反序列化
+
+        //=========================================================================
 
         /// <summary>
         /// 序列化文件片段
@@ -423,10 +518,10 @@ namespace Honor.Runtime
             {
                 m_ItemGroups[fileFragmentName].Deserialize(reader);
             }
+
             return m_ItemGroups[fileFragmentName];
         }
+
+        #endregion
     }
-
 }
-
-

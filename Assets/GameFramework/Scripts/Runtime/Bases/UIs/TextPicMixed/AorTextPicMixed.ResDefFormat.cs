@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextPicMixed.ResDef.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   图文混排 - 别名格式图片标签解析（partial）
+ ***************************************************************/
+
 #if UIEXTENSION_ENABLE
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -7,8 +17,12 @@ using XLua;
 
 namespace Honor.Runtime
 {
-    public partial class AorTextPicMixed : TextPic
+    public partial class AorTextPicMixed
     {
+        //=========================================================================
+        // 正则表达式
+        //=========================================================================
+        #region Regex - 图片别名标签匹配
         /// <summary>
         /// 别名格式图片正则匹配表达式
         /// 匹配格式：#__图片别名&缩放&X偏移&Y偏移__#
@@ -24,12 +38,22 @@ namespace Honor.Runtime
                 IDENTIFIERS_END
             )
         );
+        #endregion
 
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        #region Field - Lua 组件
         /// <summary>
         /// Lua 组件引用（用于读取资源配置表）
         /// </summary>
         private LuaComponent m_LuaComponent;
+        #endregion
 
+        //=========================================================================
+        // 图片标签解析（别名格式）
+        //=========================================================================
+        #region Method - 别名格式解析
         /// <summary>
         /// 解析文本中的【别名格式】图片标签
         /// 格式规则：#__图片别名&缩放值&X偏移&Y偏移__#
@@ -40,9 +64,7 @@ namespace Honor.Runtime
         {
             // 编辑模式下不执行解析逻辑
             if (!Application.isPlaying)
-            {
                 return;
-            }
 
             // 获取全局Lua组件
             if (m_LuaComponent == null)
@@ -98,8 +120,7 @@ namespace Honor.Runtime
                         float offsetY = float.Parse(contents[3]);
 
                         // 收集图标信息
-                        nextMatch = CollectIcon(iconList, originalContent, abPath, assetName, scaleXY, offsetX,
-                            offsetY);
+                        nextMatch = CollectIcon(iconList, originalContent, abPath, assetName, scaleXY, offsetX, offsetY);
                     }
                 }
 
@@ -124,6 +145,7 @@ namespace Honor.Runtime
                 inspectorIconList = iconList.ToArray();
             }
         }
+        #endregion
     }
 }
 #endif

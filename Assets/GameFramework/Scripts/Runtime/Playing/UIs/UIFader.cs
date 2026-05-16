@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIFader.cs
+ * author:    云毅
+ * created:
+ * descrip:   UI 全局淡入淡出控制器 - 事件驱动、DOTween 动画、全屏遮罩
+ ***************************************************************/
+
 using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
@@ -52,7 +62,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class UIFadeOutEvent
     {
-        private static new readonly GameEventCmd cmd = GameEventCmd.UIFadeOut;
+        private static readonly GameEventCmd cmd = GameEventCmd.UIFadeOut;
 
         public static void Subscribe(object userData, HonorEventHandler<EventParams> handler)
         {
@@ -80,7 +90,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class UIFadeStopEvent
     {
-        private static new readonly GameEventCmd cmd = GameEventCmd.UIFadeStop;
+        private static readonly GameEventCmd cmd = GameEventCmd.UIFadeStop;
 
         public static void Subscribe(object userData, HonorEventHandler<EventParams> handler)
         {
@@ -130,14 +140,16 @@ namespace Honor.Runtime
             Inactive
         }
 
-        [GameHeader("标识")]
+        //=========================================================================
+        #region 序列化字段（Inspector 配置）
+        //=========================================================================
 
+        [GameHeader("标识")]
         [GameTitle("ID")]
         [Tooltip("唯一标识，用于事件匹配")]
         public int ID = 0;
 
         [GameHeader("色值")]
-
         [GameTitle("遮罩层颜色")]
         [Tooltip("遮罩层颜色值")]
         public Color ImageColor = Color.black;
@@ -155,17 +167,15 @@ namespace Honor.Runtime
         public InitState InitialState = InitState.Inactive;
 
         [GameHeader("时间")]
-
         [GameTitle("渐变时长")]
         [Tooltip("淡入淡出动画持续时间")]
         public float Duration = 0.2f;
 
         [GameTitle("加速度类型")]
         [Tooltip("动画曲线类型")]
-        public DG.Tweening.Ease TweenEase = DG.Tweening.Ease.Linear;
+        public Ease TweenEase = Ease.Linear;
 
         [GameHeader("交互")]
-
         [GameTitle("阻塞射线")]
         [Tooltip("显示时是否拦截点击事件")]
         public bool ShouldBlockRaycasts = false;
@@ -178,6 +188,12 @@ namespace Honor.Runtime
         public bool TestFaderStopButton;
         [GameInspectorButton("TestFadeReset")]
         public bool TestFaderResetButton;
+
+        #endregion
+
+        //=========================================================================
+        #region 保护变量
+        //=========================================================================
 
         /// <summary>
         /// 画布组，用于控制整体透明度与射线
@@ -207,12 +223,18 @@ namespace Honor.Runtime
         /// <summary>
         /// 当前动画曲线
         /// </summary>
-        protected DG.Tweening.Ease m_CurrentTweenEase;
+        protected Ease m_CurrentTweenEase;
 
         /// <summary>
         /// 是否正在播放动画
         /// </summary>
-        protected bool m_IsFading = false;
+        protected bool m_IsFading;
+
+        #endregion
+
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
 
         /// <summary>
         /// 启用时订阅事件
@@ -241,23 +263,31 @@ namespace Honor.Runtime
         {
             m_CanvasGroup = gameObject.GetOrAddComponent<CanvasGroup>();
             m_Image = gameObject.GetOrAddComponent<Image>();
+            
             m_Image.rectTransform().SetSizeWithCurrentAnchors(Axis.Horizontal, Screen.width);
             m_Image.rectTransform().SetSizeWithCurrentAnchors(Axis.Vertical, Screen.height);
             m_Image.color = ImageColor;
 
-            if (InitialState == InitState.Inactive)
+            switch (InitialState)
             {
-                m_CanvasGroup.alpha = InactiveAlpha;
-                m_Image.enabled = false;
-            }
-            else if (InitialState == InitState.Active)
-            {
-                m_CanvasGroup.alpha = ActiveAlpha;
-                m_Image.enabled = true;
+                case InitState.Inactive:
+                    m_CanvasGroup.alpha = InactiveAlpha;
+                    m_Image.enabled = false;
+                    break;
+                case InitState.Active:
+                    m_CanvasGroup.alpha = ActiveAlpha;
+                    m_Image.enabled = true;
+                    break;
             }
         }
 
         protected virtual void Start() { }
+
+        #endregion
+
+        //=========================================================================
+        #region 事件处理
+        //=========================================================================
 
         /// <summary>
         /// 全局事件回调
@@ -266,16 +296,27 @@ namespace Honor.Runtime
         protected virtual void EventCallback(object sender, object userData, EventParams e)
         {
             int id = e.GetInt("ID");
-            if(id == ID)
+            if (id != ID) return;
+            
+            switch (e.Cmd)
             {
-                switch (e.Cmd)
-                {
-                    case GameEventCmd.UIFadeStop: StopFading(); break;
-                    case GameEventCmd.UIFadeIn: FadeIn(); break;
-                    case GameEventCmd.UIFadeOut: FadeOut(); break;
-                }
+                case GameEventCmd.UIFadeStop:
+                    StopFading();
+                    break;
+                case GameEventCmd.UIFadeIn:
+                    FadeIn();
+                    break;
+                case GameEventCmd.UIFadeOut:
+                    FadeOut();
+                    break;
             }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 淡入淡出控制
+        //=========================================================================
 
         /// <summary>
         /// 执行淡入（显示）
@@ -301,7 +342,8 @@ namespace Honor.Runtime
             DOTween.Kill(GameDOTweenTypes.UIFader + GetInstanceID());
             m_CanvasGroup.alpha = m_CurrentTargetAlpha;
             m_IsFading = false;
-            if (m_CanvasGroup.alpha == InactiveAlpha)
+            
+            if (Mathf.Approximately(m_CanvasGroup.alpha, InactiveAlpha))
             {
                 DisableFader();
             }
@@ -314,7 +356,7 @@ namespace Honor.Runtime
         /// <param name="endAlpha">目标透明度</param>
         /// <param name="duration">时长</param>
         /// <param name="tweenEase">动画曲线</param>
-        protected virtual void StartFading(float initialAlpha, float endAlpha, float duration, DG.Tweening.Ease tweenEase)
+        protected virtual void StartFading(float initialAlpha, float endAlpha, float duration, Ease tweenEase)
         {
             EnableFader();
             m_IsFading = true;
@@ -325,11 +367,18 @@ namespace Honor.Runtime
 
             m_CanvasGroup.alpha = m_InitialAlpha;
             DOTween.Kill(GameDOTweenTypes.UIFader + GetInstanceID());
-            DOTween.To(()=>m_CanvasGroup.alpha, alpha => m_CanvasGroup.alpha = alpha, m_CurrentTargetAlpha, m_CurrentDuration)
+            
+            DOTween.To(() => m_CanvasGroup.alpha, alpha => m_CanvasGroup.alpha = alpha, m_CurrentTargetAlpha, m_CurrentDuration)
                 .SetEase(m_CurrentTweenEase)
-                .OnComplete(()=> { StopFading(); })
+                .OnComplete(StopFading)
                 .id = GameDOTweenTypes.UIFader + GetInstanceID();
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 状态开关
+        //=========================================================================
 
         /// <summary>
         /// 启用遮罩、开启射线拦截（如配置）
@@ -337,10 +386,7 @@ namespace Honor.Runtime
         protected virtual void EnableFader()
         {
             m_Image.enabled = true;
-            if (ShouldBlockRaycasts)
-            {
-                m_CanvasGroup.blocksRaycasts = true;
-            }
+            m_CanvasGroup.blocksRaycasts = ShouldBlockRaycasts;
         }
 
         /// <summary>
@@ -349,13 +395,15 @@ namespace Honor.Runtime
         protected virtual void DisableFader()
         {
             m_Image.enabled = false;
-            if (ShouldBlockRaycasts)
-            {
-                m_CanvasGroup.blocksRaycasts = false;
-            }
+            m_CanvasGroup.blocksRaycasts = false;
         }
 
+        #endregion
+
+        //=========================================================================
         #region 编辑器测试方法
+        //=========================================================================
+
         /// <summary>
         /// 测试：淡入
         /// </summary>
@@ -392,6 +440,7 @@ namespace Honor.Runtime
             DOTween.Kill(GameDOTweenTypes.UIFader + GetInstanceID());
             m_CanvasGroup.alpha = InactiveAlpha;
         }
+
         #endregion
     }
 }

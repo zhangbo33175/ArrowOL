@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PlayingComponent.cs
+ * author:    云毅
+ * created:
+ * descrip:   游戏运行时核心组件 - 流程控制、状态管理、逻辑驱动
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -6,13 +16,17 @@ namespace Honor.Runtime
     /// </summary>
     public partial class PlayingComponent : GameComponent
     {
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
+
         /// <summary>
         /// 初始化：组件唤醒时执行
         /// 用于初始化引用、注册事件、预加载资源
         /// </summary>
         private void Awake()
         {
-
+            
         }
 
         /// <summary>
@@ -21,7 +35,9 @@ namespace Honor.Runtime
         /// </summary>
         private void Start()
         {
-
+            
         }
+
+        #endregion
     }
 }

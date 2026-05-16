@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventParams.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   全局事件参数类 - 封装事件ID与参数
+ ***************************************************************/
+
 using System.Collections.Generic;
 
 namespace Honor.Runtime
@@ -8,6 +18,10 @@ namespace Honor.Runtime
     /// </summary>
     public class EventParams
     {
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        #region Properties
         /// <summary>
         /// 事件命令ID（事件类型）
         /// </summary>
@@ -17,7 +31,12 @@ namespace Honor.Runtime
         /// 事件参数键值对（string -> object）
         /// </summary>
         public Dictionary<string, object> Objects { get; set; }
+        #endregion
 
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        #region Constructor
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -28,7 +47,12 @@ namespace Honor.Runtime
             Cmd = cmd;
             Objects = objects;
         }
+        #endregion
 
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
+        #region Public Methods
         /// <summary>
         /// 清理参数引用，重置事件数据
         /// </summary>
@@ -107,5 +131,6 @@ namespace Honor.Runtime
             }
             return null;
         }
+        #endregion
     }
 }

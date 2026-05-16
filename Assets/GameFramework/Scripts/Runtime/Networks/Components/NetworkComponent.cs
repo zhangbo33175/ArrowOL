@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkComponent.cs
+ * author:    云毅
+ * created:
+ * descrip:   全局网络管理组件，提供网络检测、URL编码、Web请求下载
+ ***************************************************************/
+
 using System;
 using System.Collections;
 using System.Text;
@@ -14,6 +24,13 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class NetworkComponent : GameComponent
     {
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
+
+        /// <summary>
+        /// 组件初始化
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
@@ -27,10 +44,19 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 启动逻辑
+        /// </summary>
         private void Start()
         {
 
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 公共方法
+        //=========================================================================
 
         /// <summary>
         /// 检查网络是否可用（连接/数据状态）
@@ -102,5 +128,7 @@ namespace Honor.Runtime
 
             StartCoroutine(DownloadFromUrl(url, finishCallback, timeout));
         }
+
+        #endregion
     }
 }

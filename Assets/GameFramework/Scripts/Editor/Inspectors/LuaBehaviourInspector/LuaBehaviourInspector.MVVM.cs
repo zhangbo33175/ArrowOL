@@ -1,4 +1,12 @@
-
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaBehaviourInspector.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   LuaBehaviour MVVM模式编辑器拓展 - 可视化配置、代码生成
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,8 +16,13 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// MVVM模式LuaBehaviour编辑器拓展
+    /// 提供可视化配置、绑定数据管理、Lua代码自动生成与刷新功能
+    /// </summary>
     internal sealed partial class LuaBehaviourInspector : HonorComponentInspector
     {
+        #region MVVM序列化属性
         /// <summary>
         /// Lua脚本公共名称
         /// </summary>
@@ -29,7 +42,9 @@ namespace Honor.Editor
         /// 绑定型数据（数组）
         /// </summary>
         private SerializedProperty m_BindValues = null;
+        #endregion
 
+        #region 绑定数据子属性集合
         /// <summary>
         /// 所有绑定数据的注释集合
         /// </summary>
@@ -54,7 +69,9 @@ namespace Honor.Editor
         /// 所有绑定数据对应的注入对象集合
         /// </summary>
         private List<SerializedProperty> m_InterBindValueOnInjections = null;
+        #endregion
 
+        #region 绑定数据操作索引标记
         /// <summary>
         /// 绑定数据当前插入的位置索引
         /// 设置后在刷新界面时将对具体显示列表进行刷新
@@ -90,14 +107,19 @@ namespace Honor.Editor
         /// 设置后在刷新界面时将对具体显示列表进行刷新
         /// </summary>
         private int m_InnerBindValueDownwardTargetPosIndex = -1;
+        #endregion
 
+        #region MVVM初始化
         /// <summary>
         /// 初始化MVVM设计模式
+        /// 加载序列化属性、初始化默认数据、构建绑定数据分组
         /// </summary>
         private void InitPatternMVVM()
         {
             m_LuaScriptCommonNameMVVM = serializedObject.FindProperty("m_LuaScriptCommonNameMVVM");
             m_LuaScriptNamesMVVM = serializedObject.FindProperty("m_LuaScriptNamesMVVM");
+            
+            // 初始化Lua脚本名称列表
             if (m_LuaScriptNamesMVVM.arraySize == 0)
             {
                 for (int index = 0; index < (int)MVVMPatternType.TotalNum; index++)
@@ -106,7 +128,10 @@ namespace Honor.Editor
                     m_LuaScriptNamesMVVM.GetArrayElementAtIndex(index).stringValue = string.Empty;
                 }
             }
+
             m_LuaSuperScriptNamesMVVM = serializedObject.FindProperty("m_LuaSuperScriptNamesMVVM");
+            
+            // 初始化父类脚本名称列表
             if (m_LuaSuperScriptNamesMVVM.arraySize > (int)MVVMPatternType.TotalNum)
             {
                 m_LuaSuperScriptNamesMVVM.ClearArray();
@@ -118,6 +143,8 @@ namespace Honor.Editor
                     m_LuaSuperScriptNamesMVVM.InsertArrayElementAtIndex(index);
                 }
             }
+
+            // 设置默认父类名称
             if (string.IsNullOrEmpty(m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue))
             {
                 m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue = "ViewSuper";
@@ -127,14 +154,14 @@ namespace Honor.Editor
                 m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue = "ViewModelSuper";
             }
 
-            // 获取绑定数据集合属性
+            // 初始化绑定数据集合
             m_InterBindValueComments = new List<SerializedProperty>();
             m_InterBindValueTypeNames = new List<SerializedProperty>();
             m_InterBindValueNames = new List<SerializedProperty>();
             m_InterBindValueVariants = new List<SerializedProperty>();
             m_InterBindValueOnInjections = new List<SerializedProperty>();
 
-            // 根据绑定数据集合属性进行程序内部的分类分组存放
+            // 分类分组绑定数据属性
             m_BindValues = serializedObject.FindProperty("m_BindValues");
             for (int index = 0; index < m_BindValues.arraySize; index++)
             {
@@ -146,13 +173,15 @@ namespace Honor.Editor
                 m_InterBindValueOnInjections.Add(bindValue.FindPropertyRelative("OnInjections"));
             }
 
-            // 应用变化的属性
+            // 应用属性修改
             serializedObject.ApplyModifiedProperties();
-
         }
+        #endregion
 
+        #region 绑定数据行操作处理
         /// <summary>
         /// 处理绑定数据的行操作
+        /// 包含插入、删除、上移、下移逻辑
         /// </summary>
         private void DisposeBindValueLineOperation()
         {
@@ -192,9 +221,12 @@ namespace Honor.Editor
 
             serializedObject.Update();
         }
+        #endregion
 
+        #region MVVM编辑器GUI绘制
         /// <summary>
-        /// MVVM设计模式Lua名称GUI
+        /// MVVM设计模式Lua名称GUI绘制
+        /// 配置Lua脚本公有名称、View/ViewModel名称、父类名称
         /// </summary>
         private void OnPatternMVVMLuaScriptNameInspectorGUI()
         {
@@ -204,12 +236,14 @@ namespace Honor.Editor
 
             if (!string.IsNullOrEmpty(m_LuaScriptCommonNameMVVM.stringValue))
             {
+                // 自动生成View/ViewModel名称
                 m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue = AorTxt.Format("{0}View", m_LuaScriptCommonNameMVVM.stringValue);
                 m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue = AorTxt.Format("{0}ViewModel", m_LuaScriptCommonNameMVVM.stringValue);
 
                 EditorGUILayout.LabelField("Lua-View脚本名称", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue);
                 EditorGUILayout.LabelField("Lua-ViewModel脚本名称", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue);
 
+                // 父类名称配置
                 if (string.IsNullOrEmpty(m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue)) GUI.color = Color.red;
                 m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue = EditorGUILayout.TextField("Lua-View脚本名称（父类）", m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue);
                 GUI.color = Color.white;
@@ -219,6 +253,7 @@ namespace Honor.Editor
                 GUI.color = Color.white;
             }
 
+            // 校验生成条件
             if (!string.IsNullOrEmpty(m_LuaScriptCommonNameMVVM.stringValue) && !m_LuaScriptCommonNameMVVM.stringValue.StartsWith(".lua") && !m_LuaScriptCommonNameMVVM.stringValue.EndsWith(".lua") &&
                 !string.IsNullOrEmpty(m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue) && !m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue.StartsWith(".lua") && !m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue.EndsWith(".lua") &&
                 !string.IsNullOrEmpty(m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue) && !m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue.StartsWith(".lua") && !m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue.EndsWith(".lua"))
@@ -314,6 +349,7 @@ namespace Honor.Editor
                     {
                         GUILayout.BeginVertical(m_BindItemStyle);
                         {
+                            // 行操作按钮区域
                             GUILayout.BeginHorizontal("box");
                             {
                                 GUI.color = Color.cyan;
@@ -328,18 +364,18 @@ namespace Honor.Editor
                                     m_InnerBindValueInsertPosIndex = index;
                                     GUIUtility.ExitGUI();
                                 }
-                                if (GUILayout.Button("-")) // 减
+                                if (GUILayout.Button("-"))
                                 {
                                     m_InnerBindValueDeletePosIndex = index;
                                     GUIUtility.ExitGUI();
                                 }
-                                if (GUILayout.Button('\u25B2'.ToString())) // 上
+                                if (GUILayout.Button('\u25B2'.ToString()))
                                 {
                                     m_InnerBindValueUpwardOriPosIndex = index;
                                     m_InnerBindValueUpwardTargetPosIndex = index - 1 < 0 ? 0 : (index - 1);
                                     GUIUtility.ExitGUI();
                                 }
-                                if (GUILayout.Button('\u25BC'.ToString())) // 下
+                                if (GUILayout.Button('\u25BC'.ToString()))
                                 {
                                     m_InnerBindValueDownwardOriPosIndex = index;
                                     m_InnerBindValueDownwardTargetPosIndex = index + 1 >= m_BindValues.arraySize ? (m_BindValues.arraySize - 1) : (index + 1);
@@ -348,8 +384,10 @@ namespace Honor.Editor
                             }
                             GUILayout.EndHorizontal();
 
+                            // 数据配置区域
                             GUILayout.BeginHorizontal("box");
                             {
+                                // 绑定数据类型
                                 int newBindValueTypeNameSelectedIndex = EditorGUILayout.Popup(m_InterBindValueTypeNames[index].enumValueIndex, Enum.GetNames(typeof(LuaBindValue.BindValueType)), new GUILayoutOption[] { GUILayout.Width(70) });
                                 if (newBindValueTypeNameSelectedIndex != m_InterBindValueTypeNames[index].enumValueIndex)
                                 {
@@ -358,19 +396,22 @@ namespace Honor.Editor
                                 }
                                 m_InterBindValueTypeNames[index].enumValueIndex = newBindValueTypeNameSelectedIndex;
                                 
+                                // 绑定数据名称
                                 if (string.IsNullOrEmpty(m_InterBindValueNames[index].stringValue)) GUI.color = Color.red;
                                 m_InterBindValueNames[index].stringValue = EditorGUILayout.TextField(m_InterBindValueNames[index].stringValue, new GUILayoutOption[] { GUILayout.Width(150) });
                                 GUI.color = Color.white;
 
+                                // 非Any/Trigger类型显示值与注入绑定
                                 if (m_InterBindValueTypeNames[index].enumValueIndex != (int)LuaBindValue.BindValueType.Any && m_InterBindValueTypeNames[index].enumValueIndex != (int)LuaBindValue.BindValueType.Trigger)
                                 {
+                                    // 默认值
                                     if (string.IsNullOrEmpty(m_InterBindValueVariants[index].stringValue)) GUI.color = Color.red;
                                     m_InterBindValueVariants[index].stringValue = EditorGUILayout.TextField(m_InterBindValueVariants[index].stringValue, new GUILayoutOption[] { GUILayout.Width(120) });
                                     GUI.color = Color.white;
 
+                                    // 注入对象选择
                                     List<string> interInjectionNames = new List<string>();
                                     interInjectionNames.Add("请选择绑定的注入对象");
-                                    // 构建"请选择绑定的注入对象"下拉列表中每类注入对象的绑定方式
                                     for (int i = 0; i < m_InterInjectionNames.Count; i++)
                                     {
                                         interInjectionNames.AddRange(GetBindingInjectionPaths(i));
@@ -397,10 +438,14 @@ namespace Honor.Editor
             }
             GUILayout.EndVertical();
         }
+        #endregion
 
+        #region Lua代码生成
         /// <summary>
         /// 生成MVVM设计模式下Lua注释行信息
         /// </summary>
+        /// <param name="typeEnumIndex">MVVM类型索引</param>
+        /// <returns>注释字符串构建器</returns>
         private StringBuilder GeneratePatternMVVMCommentLines(int typeEnumIndex)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -423,8 +468,10 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 生成MVVM设计模式下Lua空行
+        /// 生成MVVM设计模式下Lua空行与基础结构代码
         /// </summary>
+        /// <param name="typeEnumIndex">MVVM类型索引</param>
+        /// <returns>代码字符串构建器</returns>
         private StringBuilder GeneratePatternMVVMEmptyCodeLines(int typeEnumIndex)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -439,7 +486,7 @@ namespace Honor.Editor
                 stringBuilder.AppendLine(AorTxt.Format("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour"));
             }
 
-            // 采集InfoEx辅助信息
+            // 采集注入与绑定信息
             List<string> luaInjectNames = null;
             List<string> luaInjectComments = null;
             List<string> luaInjectFunctionNames = null;
@@ -447,7 +494,6 @@ namespace Honor.Editor
             List<string> luaInjectCmds = null;
             CollectInfoExInfos(out luaInjectNames, out luaInjectComments, out luaInjectFunctionNames, out luaInjectFunctionParams, out luaInjectCmds);
 
-            // 采集绑定数据与注入对象之间的各类信息
             SortedDictionary<string, List<string>> luaBindValueOnInjectionNames = null;
             SortedDictionary<string, List<string>> luaBindValueOnInjectionWays = null;
             SortedDictionary<string, List<string>> luaBindValueOnInjectionSides = null;
@@ -456,6 +502,7 @@ namespace Honor.Editor
             SortedDictionary<string, string> luaBindValueTypeNames = null;
             CollectBindingInfosOnInjections(out luaBindValueOnInjectionNames, out luaBindValueOnInjectionWays, out luaBindValueOnInjectionSides, out luaBindValueComments, out luaBindValueFunctionNames, out luaBindValueTypeNames);
 
+            // View注入字段声明
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.View)
             {
                 if (m_Injections != null && m_Injections.arraySize > 0)
@@ -467,6 +514,7 @@ namespace Honor.Editor
                         string typeName = string.Empty;
                         string isValid = string.Empty;
                         string infoEx = string.Empty;
+                        
                         if(m_InterInjectionIsArrays[index].boolValue)
                         {
                             typeName = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[index].enumValueIndex]}[]";
@@ -489,6 +537,7 @@ namespace Honor.Editor
                             infoEx = m_InterInjectionInfoExs[index].stringValue;
                         }
 
+                        // 类型修正
                         if (typeName.Equals("UnityEngine.GameObject") && !string.IsNullOrEmpty(infoEx))
                         {
                             var findTypeName = Assembly.GetType(infoEx);
@@ -499,6 +548,7 @@ namespace Honor.Editor
                             typeName = infoEx;
                         }
 
+                        // 格式化对齐
                         while (fieldName.Length < 35) fieldName += " ";
                         while (typeName.Length < 30) typeName += " ";
                         while (isValid.Length < 10) isValid += " ";
@@ -509,9 +559,11 @@ namespace Honor.Editor
                 }
             }
 
+            // 类定义
             stringBuilder.AppendLine(AorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName, luaSuperScriptName));
             stringBuilder.AppendLine(AorTxt.Format(""));
 
+            // 绑定值Key定义
             stringBuilder.AppendLine(AorTxt.Format("---绑定值Key名称"));
             stringBuilder.AppendLine(AorTxt.Format("---@class {0}.BVKey", luaName));
             string bvkeyContent = "{";
@@ -523,11 +575,14 @@ namespace Honor.Editor
             stringBuilder.AppendLine(AorTxt.Format("{0}.BVKey = {1}", luaName, bvkeyContent));
             stringBuilder.AppendLine(AorTxt.Format(""));
 
+            // 构造函数
             stringBuilder.AppendLine(AorTxt.Format("---构造函数"));
             stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):void"));
             stringBuilder.AppendLine(AorTxt.Format("---@param args table @自定义参数"));
             stringBuilder.AppendLine(AorTxt.Format("function {0}:ctor(args)", luaName));
             stringBuilder.AppendLine(AorTxt.Format("    {0}.super.ctor(self, args)", luaName));
+            
+            // ViewModel绑定数据初始化
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
             {
                 stringBuilder.AppendLine("-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
@@ -553,6 +608,7 @@ namespace Honor.Editor
                         }
                         else
                         {
+                            // 根据类型生成初始化代码
                             switch ((LuaBindValue.BindValueType)m_InterBindValueTypeNames[index].enumValueIndex)
                             {
                                 case LuaBindValue.BindValueType.Int32: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
@@ -575,6 +631,8 @@ namespace Honor.Editor
             }
             stringBuilder.AppendLine(AorTxt.Format("end"));
             stringBuilder.AppendLine(AorTxt.Format(""));
+            
+            // Create函数
             stringBuilder.AppendLine(AorTxt.Format("---创建函数"));
             stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):{0}", luaName));
             stringBuilder.AppendLine(AorTxt.Format("---@param args table @自定义参数"));
@@ -585,8 +643,10 @@ namespace Honor.Editor
             stringBuilder.AppendLine(AorTxt.Format("end"));
             stringBuilder.AppendLine(AorTxt.Format(""));
 
+            // View生命周期与逻辑
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.View)
             {
+                // Awake
                 stringBuilder.AppendLine(AorTxt.Format("---唤醒"));
                 stringBuilder.AppendLine(AorTxt.Format("---@type fun():void"));
                 stringBuilder.AppendLine(AorTxt.Format("function {0}:Awake()", luaName));
@@ -608,6 +668,7 @@ namespace Honor.Editor
                              .AppendLine(AorTxt.Format("end"))
                              .AppendLine(AorTxt.Format(""));
 
+                // OnInit
                 stringBuilder.AppendLine(AorTxt.Format("---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）"))
                              .AppendLine(AorTxt.Format("---@type fun(viewModel:{0}):void", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue))
                              .AppendLine(AorTxt.Format("---@param viewModel {0} @ViewModel", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue))
@@ -1066,9 +1127,12 @@ namespace Honor.Editor
 
             return stringBuilder;
         }
+        #endregion
 
+        #region Lua代码刷新
         /// <summary>
         /// 刷新MVVM设计模式下已有Lua代码行
+        /// 增量更新注入、绑定、函数代码，不覆盖用户自定义逻辑
         /// </summary>
         /// <param name="fullPath">全路径</param>
         /// <returns></returns>
@@ -1729,9 +1793,8 @@ namespace Honor.Editor
             return null;
         }
 
-
         /// <summary>
-        /// 刷新index
+        /// 刷新代码标记索引
         /// </summary>
         /// <param name="luaName"></param>
         /// <param name="content"></param>
@@ -1785,12 +1848,14 @@ namespace Honor.Editor
             start6RightStrIndex = content.LastIndexOf(start6RightStr) + start6RightStr.Length + 1;
             end6LeftStrIndex = content.LastIndexOf(end6Str);
         }
+        #endregion
 
+        #region 工具方法
         /// <summary>
         /// 根据注入对象名称获取其类型名称
         /// </summary>
-        /// <param name="injectionName"></param>
-        /// <returns></returns>
+        /// <param name="injectionName">注入名称</param>
+        /// <returns>类型全名</returns>
         private string GetInjectionTypeByName(string injectionName)
         {
             if(injectionName.IndexOf("[") >= 0)
@@ -1810,8 +1875,8 @@ namespace Honor.Editor
         /// <summary>
         /// 根据绑定数据名称获取其类型名称
         /// </summary>
-        /// <param name="bindValueName"></param>
-        /// <returns></returns>
+        /// <param name="bindValueName">绑定名称</param>
+        /// <returns>类型名称</returns>
         private string GetBindValueTypeByName(string bindValueName)
         {
             for (int index = 0; index < m_InterBindValueNames.Count; index++)
@@ -1883,8 +1948,8 @@ namespace Honor.Editor
         /// <summary>
         /// 获取数据绑定时用到的单个注入条目的所有路径信息
         /// </summary>
-        /// <param name="index">注入条目index</param>
-        /// <returns></returns>
+        /// <param name="index">注入索引</param>
+        /// <returns>路径列表</returns>
         private List<string> GetBindingInjectionPaths(int index)
         {
             List<string> paths = new List<string>();
@@ -2065,5 +2130,6 @@ namespace Honor.Editor
             }
             return paths;
         }
+        #endregion
     }
 }

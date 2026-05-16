@@ -23,11 +23,11 @@ namespace XLua.CSObjectWrap
 			System.Type type = typeof(Honor.Runtime.AorClickEventListener);
 			Utils.BeginObjectRegister(type, L, translator, 0, 7, 1, 0);
 			
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnPointerClick", _m_OnPointerClick);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetClickEventHandler", _m_SetClickEventHandler);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetDoubleClickEventHandler", _m_SetDoubleClickEventHandler);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetPointerDownHandler", _m_SetPointerDownHandler);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetPointerUpHandler", _m_SetPointerUpHandler);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnPointerClick", _m_OnPointerClick);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnPointerDown", _m_OnPointerDown);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnPointerUp", _m_OnPointerUp);
 			
@@ -99,34 +99,6 @@ namespace XLua.CSObjectWrap
                     
                     
                     return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OnPointerClick(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.AorClickEventListener gen_to_be_invoked = (Honor.Runtime.AorClickEventListener)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    UnityEngine.EventSystems.PointerEventData _eventData = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
-                    
-                    gen_to_be_invoked.OnPointerClick( _eventData );
-                    
-                    
-                    
-                    return 0;
                 }
                 
             } catch(System.Exception gen_e) {
@@ -235,6 +207,34 @@ namespace XLua.CSObjectWrap
                     System.Action<UnityEngine.GameObject> _handler = translator.GetDelegate<System.Action<UnityEngine.GameObject>>(L, 2);
                     
                     gen_to_be_invoked.SetPointerUpHandler( _handler );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_OnPointerClick(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.AorClickEventListener gen_to_be_invoked = (Honor.Runtime.AorClickEventListener)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.EventSystems.PointerEventData _eventData = (UnityEngine.EventSystems.PointerEventData)translator.GetObject(L, 2, typeof(UnityEngine.EventSystems.PointerEventData));
+                    
+                    gen_to_be_invoked.OnPointerClick( _eventData );
                     
                     
                     

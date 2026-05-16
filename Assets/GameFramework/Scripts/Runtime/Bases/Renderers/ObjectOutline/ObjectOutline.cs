@@ -1,7 +1,20 @@
-﻿using UnityEngine;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ObjectOutline.cs
+ * author:    云毅
+ * created:   2026   2025年
+ * descrip:   物体描边组件，挂载到需要描边的物体上，配合CameraOutlineBuffer使用
+ ***************************************************************/
+
+using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 物体描边组件
+    //=========================================================================
     /// <summary>
     /// 物体描边组件
     /// 挂载到需要显示描边的物体上，配合 CameraOutlineBuffer 使用
@@ -9,6 +22,7 @@ namespace Honor.Runtime
     [RequireComponent(typeof(Renderer))]
     public class ObjectOutline : MonoBehaviour
     {
+        #region 渲染器引用
         /// <summary>
         /// 渲染器组件
         /// </summary>
@@ -28,13 +42,17 @@ namespace Honor.Runtime
         /// 网格过滤器（静态模型）
         /// </summary>
         public MeshFilter MeshFilter { get; private set; }
+        #endregion
 
+        #region 配置参数
         [Header("描边颜色ID 0/1/2 对应三种颜色")]
         public int color;
 
         [Header("是否为擦除模式（用于镂空/遮挡）")]
         public bool eraseRenderer;
+        #endregion
 
+        #region 材质缓存
         /// <summary>
         /// 缓存的共享材质数组
         /// </summary>
@@ -54,7 +72,9 @@ namespace Honor.Runtime
                 return m_SharedMaterials;
             }
         }
+        #endregion
 
+        #region 生命周期
         private void Awake()
         {
             CacheComponents();
@@ -88,5 +108,6 @@ namespace Honor.Runtime
                 CameraOutlineBuffer.Instance.RemoveOutline(this);
             }
         }
+        #endregion
     }
 }

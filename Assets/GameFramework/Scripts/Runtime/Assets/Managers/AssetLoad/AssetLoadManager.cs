@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetLoadManager.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   资源加载管理器 - 上层资源加载核心类
+ *            提供同步/异步/预加载、引用计数、自动卸载、场景管理、编辑器兼容
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,6 +15,14 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 资源加载管理器
+    // 上层业务资源加载核心，基于 AssetBundle 封装，支持引用计数、自动卸载
+    //=========================================================================
+    /// <summary>
+    /// 资源加载管理器（密封分部类）
+    /// 统一管理游戏内所有资源的加载、卸载、引用计数、生命周期
+    /// </summary>
     public sealed partial class AssetLoadManager
     {
         #region 构造函数
@@ -599,6 +617,10 @@ namespace Honor.Runtime
         /// 判断资源是否存在
         /// Editor模式检查文件，运行时检查AB清单
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>是否存在</returns>
         public bool IsFileExist(string typeName, string abPath, string assetName)
         {
             if (m_EditorResourceMode)
@@ -617,6 +639,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取资源文件后缀
         /// </summary>
+        /// <param name="typeName">资源类型名称</param>
+        /// <returns>文件后缀</returns>
         public string GetAssetSuffix(string typeName)
         {
             string suffix = string.Empty;
@@ -636,6 +660,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 将外部资源加入管理器统一管理
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="asset">资源对象</param>
         public void AddAsset(string typeName, string abPath, string assetName, UnityEngine.Object asset)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -674,6 +702,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 手动增加资源引用计数
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
         public void AddAssetRef(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -697,6 +728,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 移除资源加载回调
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <param name="overCallback">加载回调</param>
         public void RemoveCallBack(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback)
         {
             if (overCallback == null) return;
@@ -732,6 +767,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取资源绝对路径（Editor专用）
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>绝对路径</returns>
         public string GetAssetAbsoluteFullPath(string typeName, string abPath, string assetName)
         {
             string abFullPath = AorTxt.Format("{0}{1}",Application.dataPath.Substring(0, Application.dataPath.Length - s_AssetsStringLength), abPath);
@@ -771,6 +810,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取资源相对路径（Assets 开头）
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>项目内相对路径</returns>
         public string GetAssetRelativeFullPath(string typeName, string abPath, string assetName)
         {
             string absoluteFullPath = GetAssetAbsoluteFullPath(typeName, abPath, assetName);
@@ -783,6 +826,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 生成资源唯一标识路径
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>唯一标识路径</returns>
         public string GetAssetPath(string typeName, string abPath, string assetName)
         {
             return AorTxt.Format("{0}/{1}{2}", abPath, assetName, GetAssetSuffix(typeName));
@@ -793,6 +840,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取加载中的资源包装对象
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>资源对象</returns>
         public AssetObject GetLoadingAssetObjectFromList(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -809,6 +860,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取已加载的资源包装对象
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>资源对象</returns>
         public AssetObject GetLoadedAssetObjectFromList(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);
@@ -825,6 +880,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取等待卸载的资源包装对象
         /// </summary>
+        /// <param name="typeName">资源类型</param>
+        /// <param name="abPath">AB包路径</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>资源对象</returns>
         public AssetObject GetUnLoadAssetObjectFromList(string typeName, string abPath, string assetName)
         {
             string assetPath = GetAssetPath(typeName, abPath, assetName);

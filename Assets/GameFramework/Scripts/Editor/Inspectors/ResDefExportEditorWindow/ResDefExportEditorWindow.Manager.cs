@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ResDefExportEditorWindow.cs
+ * author:    云毅
+ * created:   2026-04-01
+ * descrip:   资源配置导出工具 - 核心逻辑实现（分部类）
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,30 +27,32 @@ namespace Honor.Editor
 {
     public partial class ResDefExportEditorWindow : BaseEditorWindow<ResDefExportEditorWindow>
     {
+        #region 通用提示
         /// <summary>
         /// 显示通知
         /// </summary>
-        /// <param name="notification"></param>
         public void ShowNotification(string notification)
         {
             ShowNotification(new GUIContent(notification));
         }
+        #endregion
 
+        #region Lua 导出
         /// <summary>
-        /// 输出lua文件
+        /// 输出 Lua 资源定义文件
         /// </summary>
         public static void WriteOutputGDefsFile(List<List<ResDefItem>> allResultDetailInfo)
         {
-            // 清理历史Table脚本
-            string[] oldFilesPaths =Directory.GetFiles(Application.dataPath, "LoadResDefs*.lua.txt", SearchOption.AllDirectories);
-            foreach (var path in oldFilesPaths)
+            // 清理旧文件
+            string[] oldFiles = Directory.GetFiles(Application.dataPath, "LoadResDefs*.lua.txt", SearchOption.AllDirectories);
+            foreach (string path in oldFiles)
             {
                 File.Delete(path);
             }
 
             if (string.IsNullOrEmpty(ResDefInfos.LuaExportFolderPath))
             {
-                ResDefInfos.LuaExportFolderPath = Runtime.GamePathUtils.Editor.ResDef.LuaFolderPath;
+                ResDefInfos.LuaExportFolderPath = GamePathUtils.Editor.ResDef.LuaFolderPath;
             }
 
             if (!Directory.Exists(ResDefInfos.LuaExportFolderPath))
@@ -48,156 +60,148 @@ namespace Honor.Editor
                 Directory.CreateDirectory(ResDefInfos.LuaExportFolderPath);
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
-            var sheetString = new List<string>();
-            var resDefItemIndex = 0;
-            var sheetCount = 0;
-            allResultDetailInfo.ForEach(detailInfoList =>
+            StringBuilder sb = new StringBuilder();
+            int resIndex = 0;
+            int sheet = 0;
+
+            allResultDetailInfo.ForEach(detailList =>
             {
-                detailInfoList.ForEach(detailInfo =>
+                detailList.ForEach(item =>
                 {
-                    if (resDefItemIndex == 0)
+                    if (resIndex == 0)
                     {
-                        stringBuilder
-                            .AppendLine(
-                                "--=====================================================================================================")
-                            .AppendLine("-- (c) copyright 2026 - 2030, GDResources")
-                            .AppendLine("-- All Rights Reserved.")
-                            .AppendLine(
-                                "-- ----------------------------------------------------------------------------------------------------")
-                            .AppendLine($"-- filename:  LoadResDefs_{sheetCount + 1}.lua")
-                            .AppendLine($"-- descrip:   资源全局定义")
-                            .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
-                            .AppendLine(
-                                "--=====================================================================================================")
-                            .AppendLine("");
+                        sb.AppendLine("--=====================================================================================================")
+                          .AppendLine("-- (c) copyright 2026 - 2030, GDResources")
+                          .AppendLine("-- All Rights Reserved.")
+                          .AppendLine("-- ----------------------------------------------------------------------------------------------------")
+                          .AppendLine($"-- filename:  LoadResDefs_{sheet + 1}.lua")
+                          .AppendLine($"-- descrip:   资源全局定义")
+                          .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
+                          .AppendLine("--=====================================================================================================")
+                          .AppendLine();
                     }
 
-                    stringBuilder.AppendLine(AorTxt.Format("---@field {0} LOAD_RES_DEF_ITEM @文件 {1}", detailInfo.AliasName,
-                        detailInfo.AssetName));
-                    stringBuilder.AppendLine(AorTxt.Format(
-                        "LoadRes[\"{0}\"] = {{ Name = \"{1}\", TypeName = \"{2}\", ABPath = \"{3}\", AssetName = \"{4}\" }}",
-                        detailInfo.AliasName, detailInfo.AliasName, detailInfo.ResType, detailInfo.ABPath,
-                        detailInfo.AssetName));
-                    stringBuilder.AppendLine("");
-                    resDefItemIndex++;
-                    if (resDefItemIndex >= m_OneSheetMaxCount)
+                    sb.AppendLine(AorTxt.Format("---@field {0} LOAD_RES_DEF_ITEM @文件 {1}", item.AliasName, item.AssetName));
+                    sb.AppendLine(AorTxt.Format("LoadRes[\"{0}\"] = {{ Name = \"{1}\", TypeName = \"{2}\", ABPath = \"{3}\", AssetName = \"{4}\" }}",
+                        item.AliasName, item.AliasName, item.ResType, item.ABPath, item.AssetName));
+                    sb.AppendLine();
+
+                    resIndex++;
+                    if (resIndex >= m_OneSheetMaxCount)
                     {
-                        string luaExportFilePath =$"{ResDefInfos.LuaExportFolderPath}/LoadResDefs_{sheetCount + 1}.lua.txt";
-                        File.WriteAllText(luaExportFilePath, stringBuilder.ToString(), new UTF8Encoding(false));
-                        stringBuilder.Clear();
-                        resDefItemIndex = 0;
-                        sheetCount++;
+                        string path = $"{ResDefInfos.LuaExportFolderPath}/LoadResDefs_{sheet + 1}.lua.txt";
+                        File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
+                        sb.Clear();
+                        resIndex = 0;
+                        sheet++;
                     }
                 });
             });
 
-            if (stringBuilder.ToString() != string.Empty)
+            if (!string.IsNullOrEmpty(sb.ToString()))
             {
-                File.WriteAllText($"{ResDefInfos.LuaExportFolderPath}/LoadResDefs_{sheetCount + 1}.lua.txt",
-                    stringBuilder.ToString(), new UTF8Encoding(false));
+                string path = $"{ResDefInfos.LuaExportFolderPath}/LoadResDefs_{sheet + 1}.lua.txt";
+                File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
             }
             else
             {
-                sheetCount--;
+                sheet--;
             }
 
-            stringBuilder.Clear();
-            stringBuilder
-                .AppendLine(
-                    "--=====================================================================================================")
-                .AppendLine("-- (c) copyright 2026 - 2030, GDResources")
-                .AppendLine("-- All Rights Reserved.")
-                .AppendLine(
-                    "-- ----------------------------------------------------------------------------------------------------")
-                .AppendLine(AorTxt.Format($"-- filename:  LoadResDefs.lua"))
-                .AppendLine(AorTxt.Format($"-- descrip:   资源全局定义"))
-                .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
-                .AppendLine(
-                    "--=====================================================================================================")
-                .AppendLine($"---@class LOAD_RES_DEF_ITEM @资源条目定义")
-                .AppendLine($"---@field Name string @资源名称")
-                .AppendLine($"---@field TypeName string @类型名称")
-                .AppendLine($"---@field ABPath string @ab路径")
-                .AppendLine($"---@field AssetName string @Asset名称")
-                .AppendLine($"")
-                .AppendLine($"---@class LoadRES @资源全局定义")
-                .AppendLine($"---@type table<string, LOAD_RES_DEF_ITEM> @数据格式")
-                .AppendLine("")
-                .AppendLine("LoadRes = {}");
-            for (int idx = 0; idx <= sheetCount; idx++)
+            // 生成主入口
+            sb.Clear();
+            sb.AppendLine("--=====================================================================================================")
+              .AppendLine("-- (c) copyright 2026 - 2030, GDResources")
+              .AppendLine("-- All Rights Reserved.")
+              .AppendLine("-- ----------------------------------------------------------------------------------------------------")
+              .AppendLine("-- filename:  LoadResDefs.lua")
+              .AppendLine("-- descrip:   资源全局定义")
+              .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
+              .AppendLine("--=====================================================================================================")
+              .AppendLine("---@class LOAD_RES_DEF_ITEM @资源条目定义")
+              .AppendLine("---@field Name string @资源名称")
+              .AppendLine("---@field TypeName string @类型名称")
+              .AppendLine("---@field ABPath string @AB包路径")
+              .AppendLine("---@field AssetName string @资源名称")
+              .AppendLine()
+              .AppendLine("---@class LoadRES @资源全局定义")
+              .AppendLine("---@type table<string, LOAD_RES_DEF_ITEM>")
+              .AppendLine()
+              .AppendLine("LoadRes = {}");
+
+            for (int i = 0; i <= sheet; i++)
             {
-                stringBuilder.AppendLine($"require('LoadResDefs_{idx + 1}')");
+                sb.AppendLine($"require('LoadResDefs_{i + 1}')");
             }
 
-            string luaExportFilePath = $"{ResDefInfos.LuaExportFolderPath}/LoadResDefs.lua.txt";
-            File.WriteAllText(luaExportFilePath, stringBuilder.ToString(), new UTF8Encoding(false));
-            Log.Debug($"[Editor] 导出 {luaExportFilePath} 完成。");
+            string mainPath = $"{ResDefInfos.LuaExportFolderPath}/LoadResDefs.lua.txt";
+            File.WriteAllText(mainPath, sb.ToString(), new UTF8Encoding(false));
+            Log.Debug($"[Editor] 导出完成：{mainPath}");
             AssetDatabase.Refresh();
         }
+        #endregion
 
+        #region AB 路径检查
         /// <summary>
-        /// 检查某个文件的ABPath
+        /// 检查文件对应的 AB 路径
         /// </summary>
-        /// <param name="fullPath"></param>
-        /// <param name="fileABPath"></param>
-        /// <returns></returns>
         public bool CheckFileABPath(string fullPath, out string fileABPath)
         {
-            fileABPath = String.Empty;
-            var assetBundleName = AssetDatabase.GetImplicitAssetBundleName(fullPath);
-            if (s_ABConfigs.ContainsKey(assetBundleName))
+            fileABPath = string.Empty;
+            string abName = AssetDatabase.GetImplicitAssetBundleName(fullPath);
+            if (s_ABConfigs.ContainsKey(abName))
             {
-                fileABPath = s_ABConfigs[assetBundleName];
+                fileABPath = s_ABConfigs[abName];
                 return true;
             }
-
             return false;
         }
+        #endregion
 
+        #region 字符串正则匹配
         /// <summary>
-        /// 匹配首尾中间部分的字符串 
+        /// 截取开始与结束字符串之间的内容
         /// </summary>
-        /// <param name="mathString">需要匹配的字符串</param>
-        /// <param name="startString">匹配开始字符串</param>
-        /// <param name="endString">匹配结束字符串</param>
-        /// <returns></returns>
         public string GetMatchString(string mathString, string startString, string endString)
         {
             string regx = string.Format("(?<=({0}))[.\\s\\S]*?(?=({1}))", startString, endString);
-            if (string.IsNullOrWhiteSpace(mathString)) return string.Empty;
-            bool isMatch = Regex.IsMatch(mathString, regx);
-            if (!isMatch) return string.Empty;
-            return Regex.Match(mathString, regx).Value.Trim();
+            if (string.IsNullOrWhiteSpace(mathString)) 
+                return string.Empty;
+
+            return Regex.IsMatch(mathString, regx) 
+                ? Regex.Match(mathString, regx).Value.Trim() 
+                : string.Empty;
         }
+        #endregion
 
-
+        #region 文件查找与收集
         /// <summary>
-        /// 更新找到的文本数据信息
+        /// 更新查找的资源文件
         /// </summary>
         public bool UpdateFindAllFileData(Object findTargetAsset)
         {
             string fullPath = AssetDatabase.GetAssetPath(findTargetAsset);
             bool isHaveAbPath = false;
             string suffix = GameDefinitions.AssetSuffix[(GameDefinitions.AssetType)m_SelectResType];
+
             if (Directory.Exists(fullPath))
             {
-                var matchFileArray = Directory.GetFiles(fullPath, "*" + suffix, System.IO.SearchOption.AllDirectories);
-                foreach (var fileFullPath in matchFileArray)
+                string[] files = Directory.GetFiles(fullPath, "*" + suffix, SearchOption.AllDirectories);
+                foreach (string filePath in files)
                 {
-                    if (CheckFileABPath(fileFullPath, out string fileABPath))
+                    if (CheckFileABPath(filePath, out string abPath))
                     {
-                        m_FindFileFullPathList.Add(fileFullPath, FileUseState.LoadSuccess);
+                        m_FindFileFullPathList.Add(filePath, FileUseState.LoadSuccess);
                         isHaveAbPath = true;
                     }
                 }
             }
             else
             {
-                var fileName = System.IO.Path.GetFileName(fullPath);
+                string fileName = Path.GetFileName(fullPath);
                 if (fileName.Contains(suffix))
                 {
-                    if (CheckFileABPath(fullPath, out string fileABPath))
+                    if (CheckFileABPath(fullPath, out string abPath))
                     {
                         m_FindFileFullPathList.Add(fullPath, FileUseState.LoadSuccess);
                         isHaveAbPath = true;
@@ -219,9 +223,8 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 更新拖拽选择的多文件
+        /// 批量添加选择的对象
         /// </summary>
-        /// <param name="objects"></param>
         public void UpdateAllSelectedFileData(Object[] objects)
         {
             m_FindFileFullPathList.Clear();
@@ -230,674 +233,549 @@ namespace Honor.Editor
                 SetFindTargetAsset(obj, false);
             }
         }
+        #endregion
 
+        #region 删除资源
         /// <summary>
-        /// 删除某个资源信息
+        /// 删除指定 ID 范围的资源
         /// </summary>
-        /// <param name="startID"></param>
-        /// <param name="endID"></param>
         public void DeleteResInfo(int startID, int endID)
         {
-            m_TempResDefItems.RemoveAll(x => (x.ID >= startID && x.ID <= endID));
-            var removeCount = ResDefInfos.ConvertData.RemoveAll(item => item.ID >= startID && item.ID <= endID);
-            Log.Debug($"[Editor] ID 从 {startID} 到 {endID} 共删除: {removeCount} 个数据。");
-            ShowNotification($"ID 从 {startID} 到 {endID} 共删除: {removeCount} 个数据。");
+            m_TempResDefItems.RemoveAll(x => x.ID >= startID && x.ID <= endID);
+            int removeCount = ResDefInfos.ConvertData.RemoveAll(item => item.ID >= startID && item.ID <= endID);
+            
+            Log.Debug($"[Editor] 删除 ID {startID} - {endID}，共 {removeCount} 条");
+            ShowNotification($"删除成功：{removeCount} 条");
+            
             ResDefInfos.WriteJson();
             UpdateResultInfo();
         }
 
         /// <summary>
-        /// 删除所有失效链接
+        /// 删除所有失效资源
         /// </summary>
         public void DeleteAllInvalidResInfo()
         {
-            if (m_ResultInvalidPath != null)
+            if (m_ResultInvalidPath == null) 
+                return;
+
+            foreach (var dic in m_ResultInvalidPath.Values.ToList())
             {
-                m_ResultInvalidPath.Values.ToList().ForEach((dicInvalid) =>
+                foreach (int id in dic.Keys.ToList())
                 {
-                    dicInvalid.Keys.ToList().ForEach(itemId =>
-                    {
-                        var finResDefItem = m_TempResDefItems.Find(item => item.ID == itemId);
-                        if (finResDefItem != null)
-                        {
-                            m_TempResDefItems.Remove(finResDefItem);
-                        }
-                        else
-                        {
-                            ResDefInfos.ConvertData.RemoveAll(item => item.ID == itemId);
-                        }
-                    });
-                    dicInvalid.Clear();
-                });
-
-                ResDefInfos.WriteJson();
-                UpdateResultInfo();
+                    ResDefItem item = m_TempResDefItems.Find(x => x.ID == id);
+                    if (item != null)
+                        m_TempResDefItems.Remove(item);
+                    else
+                        ResDefInfos.ConvertData.RemoveAll(x => x.ID == id);
+                }
+                dic.Clear();
             }
-        }
 
+            ResDefInfos.WriteJson();
+            UpdateResultInfo();
+        }
+        #endregion
+
+        #region 重名检查
         /// <summary>
-        /// 得到当前面板上和存档里面是否含有重复的别名
+        /// 获取所有重复别名
         /// </summary>
         public Dictionary<string, bool> GetAllSameResInfo()
         {
-            var allCheckResInfo = m_TempResDefItems.Concat(ResDefInfos.ConvertData).ToList();
-            return allCheckResInfo.GroupBy(m => m.AliasName).Where(m => m.Count() > 1).Select(m => m.Key)
-                .ToDictionary(key => key, value => true);
+            var allItems = m_TempResDefItems.Concat(ResDefInfos.ConvertData).ToList();
+            return allItems
+                .GroupBy(m => m.AliasName)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToDictionary(k => k, _ => true);
         }
 
         /// <summary>
-        /// 检测某个别名是否包含
+        /// 检查别名是否重复
         /// </summary>
-        /// <param name="aliasName"></param>
-        /// <returns></returns>
         public bool IsHaveSameAliasName(string aliasName)
         {
-            foreach (var resDefItem in m_TempResDefItems)
-            {
-                if (resDefItem.AliasName == aliasName)
-                {
-                    return true;
-                }
-            }
-
-            foreach (var resDefItem in ResDefInfos.ConvertData)
-            {
-                if (resDefItem.AliasName == aliasName)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return m_TempResDefItems.Any(x => x.AliasName == aliasName) 
+                || ResDefInfos.ConvertData.Any(x => x.AliasName == aliasName);
         }
+        #endregion
 
-
+        #region 结果数据构建
         /// <summary>
-        /// 得到结果的面板上所有的丢失路径
+        /// 获取失效路径
         /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, Dictionary<int, Boolean>> GetResultInvalidPathInfo()
+        public Dictionary<string, Dictionary<int, bool>> GetResultInvalidPathInfo()
         {
-            var resultInvalidPath = new Dictionary<string, Dictionary<int, Boolean>>();
-            resultInvalidPath.Add(m_SearchTag, new Dictionary<int, bool>());
-            resultInvalidPath.Add(m_ErrorTag, new Dictionary<int, bool>());
-            foreach (var resDataValue in ResDefInfos.ConvertData)
+            var result = new Dictionary<string, Dictionary<int, bool>>
             {
-                if (resultInvalidPath.ContainsKey(resDataValue.ResType) == false)
-                {
-                    resultInvalidPath.Add(resDataValue.ResType, new Dictionary<int, bool>());
-                }
+                { m_SearchTag, new Dictionary<int, bool>() },
+                { m_ErrorTag, new Dictionary<int, bool>() }
+            };
 
-                if (!string.IsNullOrEmpty(resDataValue.AliasName))
+            foreach (var item in ResDefInfos.ConvertData)
+            {
+                if (!result.ContainsKey(item.ResType))
+                    result[item.ResType] = new Dictionary<int, bool>();
+
+                // 别名异常
+                if (!string.IsNullOrEmpty(item.AliasName))
                 {
-                    var arr = resDataValue.AliasName.Split("_", 2);
-                    if (arr != null && arr.Length == 2 && !arr[1].Equals(resDataValue.AssetName) &&
-                        resultInvalidPath[resDataValue.ResType].ContainsKey(resDataValue.ID))
+                    string[] arr = item.AliasName.Split("_", 2);
+                    if (arr != null && arr.Length == 2 && !arr[1].Equals(item.AssetName) 
+                        && !result[item.ResType].ContainsKey(item.ID))
                     {
-                        // 别名不为空，且别名和资源名字不一致
-                        resultInvalidPath[resDataValue.ResType].Add(resDataValue.ID, true);
-                        resultInvalidPath[m_SearchTag].Add(resDataValue.ID, true);
-                        resultInvalidPath[m_ErrorTag].Add(resDataValue.ID, true);
+                        result[item.ResType][item.ID] = true;
+                        result[m_SearchTag][item.ID] = true;
+                        result[m_ErrorTag][item.ID] = true;
                     }
                 }
 
-                if (Directory.Exists(resDataValue.ABPath)) // 如果abPath是目录
+                // 路径/文件异常
+                if (Directory.Exists(item.ABPath))
                 {
-                    var files = Directory.GetFiles(resDataValue.ABPath,
-                        resDataValue.AssetName + GetAssetsSuffixByType(resDataValue.ResType),
-                        SearchOption.AllDirectories);
+                    string[] files = Directory.GetFiles(item.ABPath, 
+                        item.AssetName + GetAssetsSuffixByType(item.ResType), SearchOption.AllDirectories);
+
                     if (files.Length == 0)
                     {
-                        resultInvalidPath[resDataValue.ResType].Add(resDataValue.ID, true);
-                        resultInvalidPath[m_SearchTag].Add(resDataValue.ID, true);
-                        resultInvalidPath[m_ErrorTag].Add(resDataValue.ID, true);
+                        result[item.ResType][item.ID] = true;
+                        result[m_SearchTag][item.ID] = true;
+                        result[m_ErrorTag][item.ID] = true;
                     }
                     else
                     {
-                        var outAbPath = string.Empty;
-                        CheckFileABPath(files[0], out outAbPath);
-                        if (resDataValue.ABPath != outAbPath) // 文件虽然存在，但是ABPath目录发生了变化
+                        CheckFileABPath(files[0], out string newAbPath);
+                        if (item.ABPath != newAbPath)
                         {
-                            resultInvalidPath[resDataValue.ResType].Add(resDataValue.ID, true);
-                            resultInvalidPath[m_SearchTag].Add(resDataValue.ID, true);
-                            resultInvalidPath[m_ErrorTag].Add(resDataValue.ID, true);
+                            result[item.ResType][item.ID] = true;
+                            result[m_SearchTag][item.ID] = true;
+                            result[m_ErrorTag][item.ID] = true;
                         }
                     }
                 }
-                else // 不是目录，则是某个文件
+                else
                 {
-                    if (!(File.Exists(AorTxt.Format("{0}{1}", resDataValue.ABPath,
-                            GetAssetsSuffixByType(resDataValue.ResType)))))
+                    if (!File.Exists(item.ABPath + GetAssetsSuffixByType(item.ResType)))
                     {
-                        resultInvalidPath[resDataValue.ResType].Add(resDataValue.ID, true);
-                        resultInvalidPath[m_SearchTag].Add(resDataValue.ID, true);
-                        resultInvalidPath[m_ErrorTag].Add(resDataValue.ID, true);
+                        result[item.ResType][item.ID] = true;
+                        result[m_SearchTag][item.ID] = true;
+                        result[m_ErrorTag][item.ID] = true;
                     }
                 }
             }
 
-            return resultInvalidPath;
+            return result;
         }
 
         /// <summary>
-        /// 得到结果的面板上所有的存储信息
+        /// 获取结果详情
         /// </summary>
-        /// <returns></returns>
         public Dictionary<string, List<ResDefItem>> GetResultDetailInfo()
         {
-            var resultDetailInfo = new Dictionary<string, List<ResDefItem>>();
-            foreach (var resDataValue in ResDefInfos.ConvertData)
+            var result = new Dictionary<string, List<ResDefItem>>();
+            foreach (var item in ResDefInfos.ConvertData)
             {
-                if (resultDetailInfo.ContainsKey(resDataValue.ResType) == false)
+                if (!result.ContainsKey(item.ResType))
+                    result[item.ResType] = new List<ResDefItem>();
+                
+                result[item.ResType].Add(item);
+            }
+
+            foreach (var pair in result)
+            {
+                if (m_AllShowFoldout.ContainsKey(pair.Key))
                 {
-                    resultDetailInfo.Add(resDataValue.ResType, new List<ResDefItem>());
+                    m_AllShowFoldout[pair.Key].PageCount = Mathf.CeilToInt(pair.Value.Count / 
+                        (float)m_AllShowFoldout[pair.Key].OnePageCount);
                 }
-
-                resultDetailInfo[resDataValue.ResType].Add(resDataValue);
             }
 
-            foreach (var keyValuePair in resultDetailInfo)
+            foreach (var list in result.Values)
             {
-                m_AllShowFoldout[keyValuePair.Key].PageCount = Mathf.CeilToInt(keyValuePair.Value.Count * 1.0f /
-                                                                               m_AllShowFoldout[keyValuePair.Key]
-                                                                                   .OnePageCount);
+                list.Sort((a, b) => StrCmpLogicalW(a.AssetName, b.AssetName));
             }
 
-            resultDetailInfo.Values.ToList().ForEach(list =>
-            {
-                list.Sort((m1, m2) => { return StrCmpLogicalW(m1.AssetName, m2.AssetName); });
-            });
-
-            return resultDetailInfo;
+            return result;
         }
+        #endregion
 
-
+        #region 资源类型工具
         /// <summary>
-        /// 获取某个类型资源的后缀
+        /// 根据类型获取资源后缀
         /// </summary>
-        /// <param name="assetsType"></param>
-        /// <returns></returns>
         public string GetAssetsSuffixByType(string typeName)
         {
-            string suffix = string.Empty;
-            if (Enum.TryParse(typeof(GameDefinitions.AssetType), typeName, out object tmpAssetType))
+            if (Enum.TryParse(typeof(GameDefinitions.AssetType), typeName, out object typeObj))
             {
-                suffix = GameDefinitions.AssetSuffix[(GameDefinitions.AssetType)tmpAssetType];
+                return GameDefinitions.AssetSuffix[(GameDefinitions.AssetType)typeObj];
             }
-
-            return suffix;
+            return string.Empty;
         }
+        #endregion
 
-
+        #region AB 配置加载
         /// <summary>
-        /// 收集ABConfig信息
-        /// </summary>
-        /// <summary>
-        /// 收集ABConfig信息
-        /// </summary>
-        /// <summary>
-        /// 收集ABConfig信息
+        /// 加载 AB 配置映射
         /// </summary>
         public static void LoadABConfigs()
         {
             s_ABConfigs.Clear();
-            string filePathList = Runtime.GamePathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
-            string content = File.ReadAllText(filePathList);
-            if (string.IsNullOrEmpty(content))
-            {
-               return; 
-            }
-            JObject jObject = JObject.Parse(content);
+            string jsonPath = GamePathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
+            
+            if (!File.Exists(jsonPath)) 
+                return;
 
-            var abConfigs = new Dictionary<string, ABConfigInfo>();
-            foreach (var itr in jObject)
+            string content = File.ReadAllText(jsonPath);
+            if (string.IsNullOrEmpty(content)) 
+                return;
+
+            JObject jObj = JObject.Parse(content);
+            Dictionary<string, ABConfigInfo> configs = new Dictionary<string, ABConfigInfo>();
+
+            foreach (var item in jObj)
             {
-                JToken data = itr.Value;
+                JToken data = item.Value;
                 string path = data["Path"].ToString();
 
-                // ========== 这里加安全判断！==========
-                if (!abConfigs.ContainsKey(path))
+                if (!configs.ContainsKey(path))
                 {
-                    abConfigs.Add(path,new ABConfigInfo(int.Parse(data["ID"].ToString()), path,
-                            int.Parse(data["PackageMeasureType"].ToString()), data["Rename"].ToString(),
-                            data["GroupName"].ToString(), bool.Parse(data["IsIncreaserGroup"].ToString()),
-                            bool.Parse(data["IsCommonIncreaserGroup"].ToString())));
+                    configs.Add(path, new ABConfigInfo(
+                        int.Parse(data["ID"].ToString()),
+                        path,
+                        int.Parse(data["PackageMeasureType"].ToString()),
+                        data["Rename"].ToString(),
+                        data["GroupName"].ToString(),
+                        bool.Parse(data["IsIncreaserGroup"].ToString()),
+                        bool.Parse(data["IsCommonIncreaserGroup"].ToString())
+                    ));
                 }
             }
 
-            foreach (var config in abConfigs)
+            // 构建 ABName -> Path 映射
+            foreach (var pair in configs)
             {
-                ABConfigInfo info = config.Value;
+                ABConfigInfo info = pair.Value;
 
-                // 将Path文件/目录单独作为一个AB进行打包
                 if (info.PackageMeasureType == 0)
                 {
-                    if (info.IsPlatformManifest || File.Exists(info.Path) || Directory.Exists(info.Path))
+                    if ((info.IsPlatformManifest || File.Exists(info.Path) || Directory.Exists(info.Path)))
                     {
                         AssetImporter importer = AssetImporter.GetAtPath(info.Path);
-                        if (importer)
+                        if (importer != null && string.IsNullOrEmpty(info.Rename))
                         {
-                            if (string.IsNullOrEmpty(info.Rename))
-                            {
-                                var abName = info.Path.Replace('/', '@').ToLower() + ".bundle";
-                                if (!s_ABConfigs.ContainsKey(abName))
-                                    s_ABConfigs.Add(abName, info.Path);
-                            }
+                            string abName = info.Path.Replace('/', '@').ToLower() + ".bundle";
+                            if (!s_ABConfigs.ContainsKey(abName))
+                                s_ABConfigs[abName] = info.Path;
                         }
                     }
                 }
-                // 将Path目录下每个文件单独作为一个AB进行打包
                 else if (info.PackageMeasureType == 1)
                 {
                     if (Directory.Exists(info.Path))
                     {
-                        string[] fullPaths = Directory.GetFiles(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
+                        string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
+                        foreach (string fullPath in Directory.GetFiles(root))
                         {
-                            if (!fullPath.EndsWith(".meta"))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string filePath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(filePath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = filePath.LastIndexOf('.');
-                                    indexOfSuffixFlag = indexOfSuffixFlag < 0 ? filePath.Length : indexOfSuffixFlag;
-                                    var assetBundleName = AorTxt.Format("{0}.bundle",
-                                        filePath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABConfigs.ContainsKey(assetBundleName))
-                                        s_ABConfigs.Add(assetBundleName, filePath.Substring(0, indexOfSuffixFlag));
-                                }
-                            }
+                            if (fullPath.EndsWith(".meta")) continue;
+
+                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                            if (importer == null) continue;
+
+                            int dotIdx = assetPath.LastIndexOf('.');
+                            dotIdx = dotIdx < 0 ? assetPath.Length : dotIdx;
+                            string name = assetPath.Substring(0, dotIdx).Replace('/', '@').ToLower() + ".bundle";
+                            if (!s_ABConfigs.ContainsKey(name))
+                                s_ABConfigs[name] = assetPath.Substring(0, dotIdx);
                         }
                     }
                 }
-                // 将Path目录下每个第一级文件夹单独作为一个AB进行打包
                 else if (info.PackageMeasureType == 2)
                 {
                     if (Directory.Exists(info.Path))
                     {
-                        string[] fullPaths = Directory.GetDirectories(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
+                        string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
+                        foreach (string fullPath in Directory.GetDirectories(root))
                         {
-                            if (Directory.Exists(fullPath))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string directoryPath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(directoryPath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = directoryPath.LastIndexOf('.');
-                                    indexOfSuffixFlag =
-                                        indexOfSuffixFlag < 0 ? directoryPath.Length : indexOfSuffixFlag;
-                                    var assetBundleName = AorTxt.Format("{0}.bundle",
-                                        directoryPath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABConfigs.ContainsKey(assetBundleName))
-                                        s_ABConfigs.Add(assetBundleName, directoryPath.Substring(0, indexOfSuffixFlag));
-                                }
-                            }
+                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                            if (importer == null) continue;
+
+                            int dotIdx = assetPath.LastIndexOf('.');
+                            dotIdx = dotIdx < 0 ? assetPath.Length : dotIdx;
+                            string name = assetPath.Substring(0, dotIdx).Replace('/', '@').ToLower() + ".bundle";
+                            if (!s_ABConfigs.ContainsKey(name))
+                                s_ABConfigs[name] = assetPath.Substring(0, dotIdx);
                         }
                     }
                 }
-                // 将Path目录下每个第一级文件与文件夹单独作为一个AB进行打包
                 else if (info.PackageMeasureType == 3)
                 {
                     if (Directory.Exists(info.Path))
                     {
-                        // 先处理文件
-                        string[] fullPaths = Directory.GetFiles(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
+                        string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
+
+                        // 文件
+                        foreach (string fullPath in Directory.GetFiles(root))
                         {
-                            if (!fullPath.EndsWith(".meta"))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string filePath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(filePath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = filePath.LastIndexOf('.');
-                                    indexOfSuffixFlag = indexOfSuffixFlag < 0 ? filePath.Length : indexOfSuffixFlag;
-                                    var assetBundleName = AorTxt.Format("{0}.bundle",
-                                        filePath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABConfigs.ContainsKey(assetBundleName))
-                                        s_ABConfigs.Add(assetBundleName, filePath.Substring(0, indexOfSuffixFlag));
-                                }
-                            }
+                            if (fullPath.EndsWith(".meta")) continue;
+
+                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                            if (importer == null) continue;
+
+                            int dotIdx = assetPath.LastIndexOf('.');
+                            dotIdx = dotIdx < 0 ? assetPath.Length : dotIdx;
+                            string name = assetPath.Substring(0, dotIdx).Replace('/', '@').ToLower() + ".bundle";
+                            if (!s_ABConfigs.ContainsKey(name))
+                                s_ABConfigs[name] = assetPath.Substring(0, dotIdx);
                         }
 
-                        // 再处理文件夹
-                        fullPaths = Directory.GetDirectories(System.IO.Path
-                            .Combine(Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                                info.Path).Replace('\\', '/'));
-                        foreach (string fullPath in fullPaths)
+                        // 目录
+                        foreach (string fullPath in Directory.GetDirectories(root))
                         {
-                            if (Directory.Exists(fullPath))
-                            {
-                                string formatFullPath = fullPath.Replace('\\', '/');
-                                string directoryPath = AorTxt.Format("Assets/{0}",
-                                    formatFullPath.Substring(Application.dataPath.Length + 1,
-                                        formatFullPath.Length - (Application.dataPath.Length + 1)));
-                                AssetImporter importer = AssetImporter.GetAtPath(directoryPath);
-                                if (importer)
-                                {
-                                    int indexOfSuffixFlag = directoryPath.LastIndexOf('.');
-                                    indexOfSuffixFlag =
-                                        indexOfSuffixFlag < 0 ? directoryPath.Length : indexOfSuffixFlag;
-                                    var assetBundleName = AorTxt.Format("{0}.bundle",
-                                        directoryPath.Substring(0, indexOfSuffixFlag).Replace('/', '@').ToLower());
-                                    if (!s_ABConfigs.ContainsKey(assetBundleName))
-                                        s_ABConfigs.Add(assetBundleName, directoryPath.Substring(0, indexOfSuffixFlag));
-                                }
-                            }
+                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            AssetImporter importer = AssetImporter.GetAtPath(assetPath);
+                            if (importer == null) continue;
+
+                            int dotIdx = assetPath.LastIndexOf('.');
+                            dotIdx = dotIdx < 0 ? assetPath.Length : dotIdx;
+                            string name = assetPath.Substring(0, dotIdx).Replace('/', '@').ToLower() + ".bundle";
+                            if (!s_ABConfigs.ContainsKey(name))
+                                s_ABConfigs[name] = assetPath.Substring(0, dotIdx);
                         }
                     }
                 }
             }
         }
+        #endregion
 
+        #region 路径工具
         /// <summary>
-        /// 根据ABPath 找到有效的搜索路径
+        /// 获取 AB 对应搜索目录
         /// </summary>
-        /// <param name="abPath"></param>
-        /// <returns></returns>
         public string GetAbPathFullDirPath(string abPath)
         {
-            var searchDirPath = Application.dataPath + abPath.Substring(6);
-            while (searchDirPath != String.Empty)
+            string searchDir = Application.dataPath + abPath.Substring(6);
+            while (!string.IsNullOrEmpty(searchDir))
             {
-                if (Directory.Exists(searchDirPath))
-                {
-                    return searchDirPath;
-                }
-                else
-                {
-                    searchDirPath = System.IO.Path.GetDirectoryName(searchDirPath);
-                }
+                if (Directory.Exists(searchDir))
+                    return searchDir;
+                
+                searchDir = Path.GetDirectoryName(searchDir);
             }
-
             return Application.dataPath;
         }
+        #endregion
 
-        //调用windos 的 DLL
-        [System.Runtime.InteropServices.DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
+        #region Windows 自然排序
+        [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
         private static extern int StrCmpLogicalW(string param1, string param2);
+        #endregion
 
-
+        #region 内置图标加载
         /// <summary>
-        /// 加载所需图片
+        /// 加载默认按钮图标
         /// </summary>
         private void LoadDefaultTextures()
         {
-            var fileNames = new List<string>() { "DefaultLeft", "DefaultRight", "DefaultDown", "DefaultTop" };
-            foreach (var fileName in fileNames)
+            List<string> names = new List<string> { "DefaultLeft", "DefaultRight", "DefaultDown", "DefaultTop" };
+            foreach (string name in names)
             {
-                var texture2D =
-                    AssetDatabase.LoadAssetAtPath<Texture2D>($"Assets/Res/Textures/PicsForEditor/{fileName}.png");
-                m_AllDefaultTextures.Add(texture2D);
+                string path = $"Assets/Res/Textures/PicsForEditor/{name}.png";
+                Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+                m_AllDefaultTextures.Add(tex);
             }
         }
+        #endregion
 
+        #region 结果刷新
         /// <summary>
-        /// 更新结果信息
+        /// 更新所有结果数据
         /// </summary>
         private void UpdateResultInfo()
         {
             m_ResultInvalidPath = GetResultInvalidPathInfo();
             m_ResultDetailInfo = GetResultDetailInfo();
             m_ResultSameResInfo = GetAllSameResInfo();
+
             if (m_OnlyShowError)
-            {
                 UpdateErrorResDefItemInfo();
-            }
 
-            if (m_SearchResName != String.Empty)
-            {
+            if (!string.IsNullOrEmpty(m_SearchResName))
                 UpdateSearchResDefItemInfo(m_SearchResName);
-            }
         }
+        #endregion
 
-
+        #region 自动修复失效链接
         /// <summary>
-        /// 刷新所有失效链接
+        /// 自动刷新所有失效链接
         /// </summary>
         private void AutoRefreshAllInvalidResInfo()
         {
-            var autoRefreshFileCount = 0;
-            if (m_ResultInvalidPath.ContainsKey(m_ErrorTag))
+            int fixCount = 0;
+            if (m_ResultInvalidPath.TryGetValue(m_ErrorTag, out var errorDic))
             {
-                m_ResultInvalidPath[m_ErrorTag].Keys.ToList().ForEach(invalidId =>
+                foreach (int id in errorDic.Keys.ToList())
                 {
-                    var findIndex = ResDefInfos.ConvertData.FindIndex(item => item.ID == invalidId);
-                    if (findIndex >= 0)
+                    int index = ResDefInfos.ConvertData.FindIndex(x => x.ID == id);
+                    if (index < 0) continue;
+
+                    ResDefItem item = ResDefInfos.ConvertData[index];
+                    if (string.IsNullOrEmpty(item.AssetGUID)) continue;
+
+                    string path = AssetDatabase.GUIDToAssetPath(item.AssetGUID);
+                    if (string.IsNullOrEmpty(path)) continue;
+
+                    string fileName = Path.GetFileNameWithoutExtension(path);
+                    string suffix = GetAssetsSuffixByType(item.ResType);
+
+                    if (path.EndsWith(suffix) && CheckFileABPath(path, out string newAbPath))
                     {
-                        var resDefItem = ResDefInfos.ConvertData[findIndex];
-                        if (string.IsNullOrEmpty(resDefItem.AssetGUID) == false)
-                        {
-                            var fullPath = AssetDatabase.GUIDToAssetPath(resDefItem.AssetGUID);
-                            if (fullPath != String.Empty) // 如果发现有fullPath，则文件只是修改了目录
-                            {
-                                var fileName = System.IO.Path.GetFileName(fullPath);
-                                var fileExtensionName = System.IO.Path.GetFileNameWithoutExtension(fullPath);
-                                string suffix = GameDefinitions.AssetSuffix[
-                                    (GameDefinitions.AssetType)Enum.Parse(typeof(GameDefinitions.AssetType),
-                                        resDefItem.ResType)];
-                                if (fileName.Contains(suffix))
-                                {
-                                    if (CheckFileABPath(fullPath, out string fileABPath))
-                                    {
-                                        resDefItem.ABPath = fileABPath;
-                                        resDefItem.AssetName = fileExtensionName;
-                                        Log.Debug($"[Editor] 矫正了文件： {fileExtensionName} 。");
-                                        autoRefreshFileCount++;
-                                    }
-                                }
-                            }
-                        }
+                        item.ABPath = newAbPath;
+                        item.AssetName = fileName;
+                        fixCount++;
                     }
-                });
+                }
             }
 
-            if (autoRefreshFileCount > 0)
+            if (fixCount > 0)
             {
-                ShowNotification($"自动校准成功： 共校准 {autoRefreshFileCount} 个文件");
-                // 更新过后重新刷新失效链接
+                ShowNotification($"自动修复完成：{fixCount} 个");
                 m_ResultInvalidPath = GetResultInvalidPathInfo();
             }
         }
 
         /// <summary>
-        /// 自动矫正失效链接
+        /// 自动矫正单个资源
         /// </summary>
-        public bool AutoRectifyInvalidResInfo(string fileName, string fileType, string abPath, ResDefItem resDefItem,
-            bool autoSaveJson)
+        public bool AutoRectifyInvalidResInfo(string fileName, string fileType, string abPath, ResDefItem item, bool autoSave)
         {
-            // ====================== 安全判断：路径为空直接返回 ======================
             if (string.IsNullOrEmpty(abPath))
-            {
-                Debug.LogWarning("自动矫正失败：abPath 路径为空");
                 return false;
-            }
-            var arr = resDefItem.AliasName.Split("_", 2);
+
+            string[] arr = item.AliasName.Split("_", 2);
             if (arr != null && arr.Length == 2 && !arr[1].Equals(fileName))
             {
-                //别名与文件名不一致,用别名修正文件名
                 fileName = arr[1];
             }
 
-            var fileTypeName = GetAssetsSuffixByType(fileType);
-            // 从abPath中路径中查找文件
-            var guids = AssetDatabase.FindAssets(fileName, new string[] { abPath });
+            string suffix = GetAssetsSuffixByType(fileType);
+            string[] guids = AssetDatabase.FindAssets(fileName, new[] { abPath });
             if (guids == null || guids.Length == 0)
-            {
-                // 从全局查找
                 guids = AssetDatabase.FindAssets(fileName);
-            }
 
-            foreach (var guid in guids)
+            foreach (string guid in guids)
             {
-                var fullPath = AssetDatabase.GUIDToAssetPath(guid);
-                Debug.Log("find name: - " + fullPath);
-                var extensionStr = Path.GetExtension(fullPath);
-                var tempFileName = Path.GetFileNameWithoutExtension(fullPath);
-                if (string.IsNullOrEmpty(extensionStr) || tempFileName.Equals(fileName) == false)
-                {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string ext = Path.GetExtension(path);
+                string name = Path.GetFileNameWithoutExtension(path);
+
+                if (!name.Equals(fileName) || !ext.Equals(suffix))
                     continue;
-                }
 
-                if (extensionStr.Equals(fileTypeName))
+                if (CheckFileABPath(path, out string newAbPath))
                 {
-                    var newABPath = string.Empty;
-                    if (CheckFileABPath(fullPath, out newABPath))
-                    {
-                        resDefItem.AssetName = Path.GetFileNameWithoutExtension(fullPath);
-                        resDefItem.ABPath = newABPath;
-                        if (autoSaveJson)
-                        {
-                            ResDefInfos.WriteJson();
-                        }
-
-                        //ShowNotification("信息矫正成功，文件名字，AB路径都已刷新");
-                        //m_ResultInvalidPath = GetResultInvalidPathInfo();
-                        return true;
-                    }
-                    else
-                    {
-                        // ShowNotification("当前文件没有找到AB配置信息，请检查");
-                        return false;
-                    }
+                    item.AssetName = name;
+                    item.ABPath = newAbPath;
+                    if (autoSave) ResDefInfos.WriteJson();
+                    return true;
                 }
             }
-
             return false;
         }
+        #endregion
 
+        #region 错误/搜索列表
         /// <summary>
-        /// 更新报错相关信息
+        /// 更新错误列表
         /// </summary>
         private void UpdateErrorResDefItemInfo()
         {
             m_ErrorResDefItemInfo.Clear();
-            foreach (var resDataValue in ResDefInfos.ConvertData)
+            foreach (var item in ResDefInfos.ConvertData)
             {
-                if (m_ResultInvalidPath[m_ErrorTag].ContainsKey(resDataValue.ID))
-                {
-                    m_ErrorResDefItemInfo.Add(resDataValue);
-                }
+                if (m_ResultInvalidPath[m_ErrorTag].ContainsKey(item.ID))
+                    m_ErrorResDefItemInfo.Add(item);
             }
 
-            if (m_ErrorResDefItemInfo.Count > 0)
+            if (m_AllShowFoldout.ContainsKey(m_ErrorTag))
             {
                 m_AllShowFoldout[m_ErrorTag].CurPageIndex = 1;
-                m_AllShowFoldout[m_ErrorTag].PageCount = Mathf.CeilToInt(m_ErrorResDefItemInfo.Count * 1.0f /
-                                                                         m_AllShowFoldout[m_ErrorTag].OnePageCount);
-            }
-            else
-            {
-                m_AllShowFoldout[m_ErrorTag].CurPageIndex = 1;
-                m_AllShowFoldout[m_ErrorTag].PageCount = 0;
+                m_AllShowFoldout[m_ErrorTag].PageCount = Mathf.CeilToInt(m_ErrorResDefItemInfo.Count / 
+                    (float)m_AllShowFoldout[m_ErrorTag].OnePageCount);
             }
         }
 
-
         /// <summary>
-        /// 更新搜索的列表信息
+        /// 更新搜索结果
         /// </summary>
-        /// <param name="searchName"></param>
         private void UpdateSearchResDefItemInfo(string searchName)
         {
             m_SearchResDefItemInfo.Clear();
+            string key = searchName.ToLower();
+
             if (m_OnlyShowError)
             {
-                if (m_ErrorResDefItemInfo.Count > 0)
+                m_SearchResDefItemInfo.AddRange(m_ErrorResDefItemInfo.Where(x => 
+                    x.AssetName.ToLower().Contains(key)));
+            }
+            else
+            {
+                foreach (var list in m_ResultDetailInfo.Values)
                 {
-                    m_ErrorResDefItemInfo.ForEach(resDefItem =>
-                    {
-                        if (resDefItem.AssetName.ToLower().Contains(searchName))
-                        {
-                            m_SearchResDefItemInfo.Add(resDefItem);
-                        }
-                    });
+                    m_SearchResDefItemInfo.AddRange(list.Where(x => 
+                        x.AssetName.ToLower().Contains(key)));
                 }
             }
-            else
-            {
-                m_ResultDetailInfo.Values.ToList().ForEach(listResDefItem => listResDefItem.ForEach(resDefItem =>
-                {
-                    if (resDefItem.AssetName.ToLower().Contains(searchName))
-                    {
-                        m_SearchResDefItemInfo.Add(resDefItem);
-                    }
-                }));
-            }
 
-            if (m_SearchResDefItemInfo.Count > 0)
+            if (m_AllShowFoldout.ContainsKey(m_SearchTag))
             {
                 m_AllShowFoldout[m_SearchTag].CurPageIndex = 1;
-                m_AllShowFoldout[m_SearchTag].PageCount = Mathf.CeilToInt(m_SearchResDefItemInfo.Count * 1.0f /
-                                                                          m_AllShowFoldout[m_SearchTag].OnePageCount);
-            }
-            else
-            {
-                m_AllShowFoldout[m_SearchTag].CurPageIndex = 1;
-                m_AllShowFoldout[m_SearchTag].PageCount = 0;
+                m_AllShowFoldout[m_SearchTag].PageCount = Mathf.CeilToInt(m_SearchResDefItemInfo.Count / 
+                    (float)m_AllShowFoldout[m_SearchTag].OnePageCount);
             }
         }
+        #endregion
 
+        #region 查找目标设置
         /// <summary>
-        /// 设置查找到 TargetAsset
+        /// 设置查找对象
         /// </summary>
-        /// <param name="findTargetAsset"></param>
-        /// <param name="isClear"></param>
         private void SetFindTargetAsset(Object findTargetAsset, bool isClear = true)
         {
             if (isClear)
-            {
                 m_FindFileFullPathList.Clear();
-            }
 
             if (findTargetAsset != null)
             {
-                if (UpdateFindAllFileData(findTargetAsset) == false) //检查是否所有的文件里面包含abPath
+                if (!UpdateFindAllFileData(findTargetAsset))
                 {
-                    ShowNotification("当前目录或者文件为空，或没有发现AB配置信息，请检查。");
+                    ShowNotification("当前目录/文件未配置AB");
                 }
             }
             else
             {
-                ShowNotification("当前目录或者文件为空，或没有发现AB配置信息，请检查。");
+                ShowNotification("对象为空");
             }
         }
-        
-        
-        /// <summary>
-        /// 从ABConfig Excel中导出json文件，默认导出第一个sheet
-        /// </summary>
-        /// <param name="openExcelNamePre"></param>
-        /// <returns></returns>
-        public static bool ExportExcelToJsonFromABConfig(string openExcelNamePre)
-        {
-            // 要写入的json文件路径
-            string strSubJsonDirectoryPath = Runtime.GamePathUtils.Json.GetRootDirectoryFullPath();
-            string strFilePathList = $"{strSubJsonDirectoryPath}/{openExcelNamePre}.json";
-            if(!Directory.Exists(strSubJsonDirectoryPath))
-            {
-                Directory.CreateDirectory(strSubJsonDirectoryPath);
-            }
-            return TableExportEditorUtility.ExportExcelToJson(Runtime.GamePathUtils.AB.GetExcelFileFullPath(), strFilePathList);
-        }
+        #endregion
 
-        
+        #region Excel 导出
+        /// <summary>
+        /// 从 Excel 导出 ABConfig 配置
+        /// </summary>
+        public static bool ExportExcelToJsonFromABConfig(string excelName)
+        {
+            string jsonDir = GamePathUtils.Json.GetRootDirectoryFullPath();
+            string jsonPath = $"{jsonDir}/{excelName}.json";
+
+            if (!Directory.Exists(jsonDir))
+                Directory.CreateDirectory(jsonDir);
+
+            return TableExportEditorUtility.ExportExcelToJson(GamePathUtils.AB.GetExcelFileFullPath(), jsonPath);
+        }
+        #endregion
     }
 }

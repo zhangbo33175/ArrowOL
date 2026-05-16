@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  FileFragmentForWebGLManager.cs
+ * author:    云毅
+ * created:
+ * descrip:   WebGL 专用持久化存储管理器（PlayerPrefs + AES + GZip）
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,9 +21,7 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class FileFragmentForWebGLManager
     {
-        /// <summary>
-        /// 分类名称 => 该分类下所有键名的集合（内存索引）
-        /// </summary>
+        #region 构造 & 生命周期
         public FileFragmentForWebGLManager()
         {
             m_ItemNameGroups = new SortedDictionary<string, List<string>>();
@@ -39,7 +47,9 @@ namespace Honor.Runtime
             PlayerPrefs.Save();
             return true;
         }
+        #endregion
 
+        #region 数据查询
         /// <summary>
         /// 获取指定分类下所有键名（数组）
         /// </summary>
@@ -89,7 +99,9 @@ namespace Honor.Runtime
             string key = $"{classifyName}_{itemName}";
             return PlayerPrefs.HasKey(key);
         }
+        #endregion
 
+        #region 删除操作
         /// <summary>
         /// 删除单条数据（同步删除索引）
         /// </summary>
@@ -184,13 +196,12 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region Bool 存取
         /// <summary>
         /// 从指定条目中读取布尔值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的布尔值。</returns>
         public bool GetBool(string classifyName, string itemName)
         {
             string key = $"{classifyName}_{itemName}";
@@ -200,10 +211,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 从指定条目中读取布尔值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的布尔值。</returns>
         public bool GetBool(string classifyName, string itemName, bool defaultValue)
         {
             string key = $"{classifyName}_{itemName}";
@@ -213,9 +220,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 向指定条目写入布尔值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的布尔值。</param>
         public void SetBool(string classifyName, string itemName, bool value)
         {
             string key = $"{classifyName}_{itemName}";
@@ -238,15 +242,13 @@ namespace Honor.Runtime
                 RefreshItemNameListToSave(classifyName);
                 RefreshClassifyNameListToSave();
             }
-
         }
+        #endregion
 
+        #region Int 存取
         /// <summary>
         /// 从指定条目中读取整数值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的整数值。</returns>
         public int GetInt(string classifyName, string itemName)
         {
             string key = $"{classifyName}_{itemName}";
@@ -256,10 +258,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 从指定条目中读取整数值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的整数值。</returns>
         public int GetInt(string classifyName, string itemName, int defaultValue)
         {
             string key = $"{classifyName}_{itemName}";
@@ -269,9 +267,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 向指定条目写入整数值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的整数值。</param>
         public void SetInt(string classifyName, string itemName, int value)
         {
             string key = $"{classifyName}_{itemName}";
@@ -294,15 +289,13 @@ namespace Honor.Runtime
                 RefreshItemNameListToSave(classifyName);
                 RefreshClassifyNameListToSave();
             }
-
         }
+        #endregion
 
+        #region Float 存取
         /// <summary>
         /// 从指定条目中读取浮点数值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的浮点数值。</returns>
         public float GetFloat(string classifyName, string itemName)
         {
             string key = $"{classifyName}_{itemName}";
@@ -312,10 +305,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 从指定条目中读取浮点数值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的浮点数值。</returns>
         public float GetFloat(string classifyName, string itemName, float defaultValue)
         {
             string key = $"{classifyName}_{itemName}";
@@ -325,9 +314,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 向指定条目写入浮点数值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="value">要写入的浮点数值。</param>
         public void SetFloat(string classifyName, string itemName, float value)
         {
             string key = $"{classifyName}_{itemName}";
@@ -350,15 +336,13 @@ namespace Honor.Runtime
                 RefreshItemNameListToSave(classifyName);
                 RefreshClassifyNameListToSave();
             }
-
         }
+        #endregion
 
+        #region String 存取
         /// <summary>
         /// 从指定条目中读取字符串值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <returns>读取的字符串值。</returns>
         public string GetString(string classifyName, string itemName)
         {
             string key = $"{classifyName}_{itemName}";
@@ -368,10 +352,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 从指定条目中读取字符串值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
-        /// <param name="defaultValue">当指定的条目不存在时，返回此默认值。</param>
-        /// <returns>读取的字符串值。</returns>
         public string GetString(string classifyName, string itemName, string defaultValue)
         {
             string key = $"{classifyName}_{itemName}";
@@ -381,8 +361,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 向指定条目写入字符串值。
         /// </summary>
-        /// <param name="classifyName">分类名称。</param>
-        /// <param name="itemName">条目名称。</param>
         public void SetString(string classifyName, string itemName, string value)
         {
             string key = $"{classifyName}_{itemName}";
@@ -405,9 +383,10 @@ namespace Honor.Runtime
                 RefreshItemNameListToSave(classifyName);
                 RefreshClassifyNameListToSave();
             }
-
         }
+        #endregion
 
+        #region 调试方法
         /// <summary>
         /// 调试：打印所有分类与键名索引（方便排查存储问题）
         /// </summary>
@@ -426,8 +405,8 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+    
     }
 }
-
-

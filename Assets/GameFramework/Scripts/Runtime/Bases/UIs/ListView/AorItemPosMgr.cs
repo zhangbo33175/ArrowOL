@@ -1,9 +1,22 @@
-﻿using System.Collections;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorItemPosMgr.cs
+ * author:    云毅
+ * created:   2026   2025年
+ * descrip:   高性能滚动列表项位置&尺寸管理器，支持动态尺寸、分块计算、二分查找
+ ***************************************************************/
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 列表项尺寸分组
+    //=========================================================================
     /// <summary>
     /// 项尺寸分组
     /// 负责管理一组列表项的尺寸、起始位置，提供尺寸修改、位置计算、索引查找等功能
@@ -11,6 +24,7 @@ namespace Honor.Runtime
     /// </summary>
     public class ItemSizeGroup
     {
+        #region 公共字段
         /// <summary>
         /// 组内所有项的尺寸数组
         /// </summary>
@@ -25,11 +39,6 @@ namespace Honor.Runtime
         /// 当前组有效项数量
         /// </summary>
         public int mItemCount = 0;
-
-        /// <summary>
-        /// 脏数据起始索引（从此索引开始需要重新计算位置）
-        /// </summary>
-        private int mDirtyBeginIndex = AorItemPosMgr.mItemMaxCountPerGroup;
 
         /// <summary>
         /// 当前组总尺寸（所有有效项尺寸总和）
@@ -50,6 +59,13 @@ namespace Honor.Runtime
         /// 组索引
         /// </summary>
         public int mGroupIndex = 0;
+        #endregion
+
+        #region 私有字段
+        /// <summary>
+        /// 脏数据起始索引（从此索引开始需要重新计算位置）
+        /// </summary>
+        private int mDirtyBeginIndex = AorItemPosMgr.mItemMaxCountPerGroup;
 
         /// <summary>
         /// 项默认尺寸
@@ -60,7 +76,9 @@ namespace Honor.Runtime
         /// 最大非零尺寸项索引（优化二分查找性能）
         /// </summary>
         private int mMaxNoZeroIndex = 0;
+        #endregion
 
+        #region 构造与初始化
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -107,17 +125,9 @@ namespace Honor.Runtime
                 mDirtyBeginIndex = AorItemPosMgr.mItemMaxCountPerGroup;
             }
         }
+        #endregion
 
-        /// <summary>
-        /// 获取项在整体列表中的绝对起始位置
-        /// </summary>
-        /// <param name="index">组内项索引</param>
-        /// <returns>绝对位置</returns>
-        public float GetItemStartPos(int index)
-        {
-            return mGroupStartPos + mItemStartPosArray[index];
-        }
-
+        #region 属性
         /// <summary>
         /// 是否存在脏数据（需要重新计算位置）
         /// </summary>
@@ -127,6 +137,18 @@ namespace Honor.Runtime
             {
                 return mDirtyBeginIndex < mItemCount;
             }
+        }
+        #endregion
+
+        #region 尺寸与位置计算
+        /// <summary>
+        /// 获取项在整体列表中的绝对起始位置
+        /// </summary>
+        /// <param name="index">组内项索引</param>
+        /// <returns>绝对位置</returns>
+        public float GetItemStartPos(int index)
+        {
+            return mGroupStartPos + mItemStartPosArray[index];
         }
 
         /// <summary>
@@ -199,6 +221,41 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 更新所有脏数据项的起始位置
+        /// </summary>
+        public void UpdateAllItemStartPos()
+        {
+            // 无脏数据，直接返回
+            if (mDirtyBeginIndex >= mItemCount)
+            {
+                return;
+            }
+
+            // 从脏数据起始索引开始计算
+            int startIndex = Mathf.Max(mDirtyBeginIndex, 1);
+            for (int i = startIndex; i < mItemCount; ++i)
+            {
+                mItemStartPosArray[i] = mItemStartPosArray[i - 1] + mItemSizeArray[i - 1];
+            }
+
+            // 清除脏数据标记
+            mDirtyBeginIndex = mItemCount;
+        }
+
+        /// <summary>
+        /// 清除超出有效项范围的旧数据（置为0）
+        /// </summary>
+        public void ClearOldData()
+        {
+            for (int i = mItemCount; i < AorItemPosMgr.mItemMaxCountPerGroup; ++i)
+            {
+                mItemSizeArray[i] = 0;
+            }
+        }
+        #endregion
+
+        #region 位置查找
+        /// <summary>
         /// 根据相对位置查找组内项索引（二分查找优化）
         /// </summary>
         /// <param name="pos">组内相对位置</param>
@@ -243,41 +300,12 @@ namespace Honor.Runtime
 
             return -1;
         }
-
-        /// <summary>
-        /// 更新所有脏数据项的起始位置
-        /// </summary>
-        public void UpdateAllItemStartPos()
-        {
-            // 无脏数据，直接返回
-            if (mDirtyBeginIndex >= mItemCount)
-            {
-                return;
-            }
-
-            // 从脏数据起始索引开始计算
-            int startIndex = Mathf.Max(mDirtyBeginIndex, 1);
-            for (int i = startIndex; i < mItemCount; ++i)
-            {
-                mItemStartPosArray[i] = mItemStartPosArray[i - 1] + mItemSizeArray[i - 1];
-            }
-
-            // 清除脏数据标记
-            mDirtyBeginIndex = mItemCount;
-        }
-
-        /// <summary>
-        /// 清除超出有效项范围的旧数据（置为0）
-        /// </summary>
-        public void ClearOldData()
-        {
-            for (int i = mItemCount; i < AorItemPosMgr.mItemMaxCountPerGroup; ++i)
-            {
-                mItemSizeArray[i] = 0;
-            }
-        }
+        #endregion
     }
 
+    //=========================================================================
+    // 列表项位置管理器
+    //=========================================================================
     /// <summary>
     /// 列表项位置管理器
     /// 核心管理类：分块管理大量列表项的尺寸、位置，提供高效的位置查询与索引查找
@@ -285,11 +313,26 @@ namespace Honor.Runtime
     /// </summary>
     public class AorItemPosMgr
     {
+        #region 常量
         /// <summary>
         /// 每个分组最大项数量（分块优化性能）
         /// </summary>
         public const int mItemMaxCountPerGroup = 100;
+        #endregion
 
+        #region 公共字段
+        /// <summary>
+        /// 所有项总尺寸（列表总滚动长度）
+        /// </summary>
+        public float mTotalSize = 0;
+
+        /// <summary>
+        /// 项默认尺寸
+        /// </summary>
+        public float mItemDefaultSize = 20;
+        #endregion
+
+        #region 私有字段
         /// <summary>
         /// 项尺寸分组列表
         /// </summary>
@@ -301,20 +344,12 @@ namespace Honor.Runtime
         private int mDirtyBeginIndex = int.MaxValue;
 
         /// <summary>
-        /// 所有项总尺寸（列表总滚动长度）
-        /// </summary>
-        public float mTotalSize = 0;
-
-        /// <summary>
-        /// 项默认尺寸
-        /// </summary>
-        public float mItemDefaultSize = 20;
-
-        /// <summary>
         /// 最大非空组索引（优化二分查找）
         /// </summary>
         private int mMaxNotEmptyGroupIndex = 0;
+        #endregion
 
+        #region 构造函数
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -323,7 +358,9 @@ namespace Honor.Runtime
         {
             mItemDefaultSize = itemDefaultSize;
         }
+        #endregion
 
+        #region 列表配置
         /// <summary>
         /// 设置列表最大项数量（初始化/重置分组）
         /// </summary>
@@ -393,7 +430,9 @@ namespace Honor.Runtime
                 mTotalSize += mItemSizeGroupList[i].mGroupSize;
             }
         }
+        #endregion
 
+        #region 项尺寸设置
         /// <summary>
         /// 设置指定项的尺寸
         /// </summary>
@@ -423,7 +462,9 @@ namespace Honor.Runtime
                 mMaxNotEmptyGroupIndex = groupIndex;
             }
         }
+        #endregion
 
+        #region 位置查询
         /// <summary>
         /// 获取指定项的绝对起始位置
         /// </summary>
@@ -510,7 +551,9 @@ namespace Honor.Runtime
             itemStartPos = hitGroup.GetItemStartPos(indexInGroup);
             return true;
         }
+        #endregion
 
+        #region 脏数据更新
         /// <summary>
         /// 更新所有脏数据组的位置信息
         /// </summary>
@@ -551,5 +594,6 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }

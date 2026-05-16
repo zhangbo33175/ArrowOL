@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Collider2DLifeCyclesBehaviour.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   2D 碰撞事件生命周期转发脚本，负责转发至 Lua 层
+ ***************************************************************/
+
 using System;
 using UnityEngine;
 using XLua;
@@ -10,6 +20,10 @@ namespace Honor.Runtime
     /// </summary>
     public partial class Collider2DLifeCyclesBehaviour : MonoBehaviour
     {
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        #region Private Fields
         /// <summary>
         /// 碰撞进入 Lua 回调
         /// </summary>
@@ -24,7 +38,12 @@ namespace Honor.Runtime
         /// 碰撞退出 Lua 回调
         /// </summary>
         private Action<Collision2D> m_OnCollisionExit2DCallback;
+        #endregion
 
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
+        #region Public Methods
         /// <summary>
         /// 绑定 Lua 函数（自动匹配 OnCollisionEnter2D / Stay / Exit）
         /// </summary>
@@ -47,7 +66,11 @@ namespace Honor.Runtime
                 m_OnCollisionEnter2DCallback(collision);
             }
         }
-
+        #endregion
+        //=========================================================================
+        // 碰撞方法
+        //=========================================================================
+        #region Public Methods
         /// <summary>
         /// 停留碰撞
         /// </summary>
@@ -72,7 +95,6 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
     }
 }
-
-

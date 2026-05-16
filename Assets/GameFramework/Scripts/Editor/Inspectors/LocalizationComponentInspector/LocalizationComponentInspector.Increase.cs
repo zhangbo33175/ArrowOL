@@ -1,4 +1,14 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LocalizationComponentInspector.Increase.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   本地化组件编辑器 - 增量导出扩展分部类
+ *            负责：增量对比、版本管理、Lua增量文件生成、Key查重
+ ***************************************************************/
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
@@ -21,70 +31,79 @@ namespace Honor.Editor
         /// <param name="searchPattern">文件搜索匹配规则</param>
         private static void GetIncreaseFileContent(Dictionary<string, string> res, string searchPattern)
         {
-            string pattern = @"^(?:[\w]+)\.([\w]+) = ""(.*)""$";;
+            string pattern = @"^(?:[\w]+)\.([\w]+) = ""(.*)""$";
             string nilPattern = @"^(?:[\w]+)\.([\w]+)";
-            var files = Directory.GetFiles(EditorPath.Localization.LuaScriptsFolderFullPath, searchPattern, SearchOption.AllDirectories);
-            if (files != null && files.Length > 0)
+            
+            string[] files = Directory.GetFiles(
+                EditorPath.Localization.LuaScriptsFolderFullPath, 
+                searchPattern, 
+                SearchOption.AllDirectories
+            );
+
+            if (files == null || files.Length == 0)
+                return;
+
+            // 按文件名长度 + 字典序排序，保证版本顺序正确
+            List<string> sortedFiles = new List<string>(files);
+            sortedFiles.Sort((x, y) =>
             {
-                List<string> toSort = new List<string>(files);
-                toSort.Sort((x, y) =>
+                if (x.Length != y.Length) 
+                    return x.Length - y.Length;
+                
+                return string.Compare(x, y);
+            });
+
+            foreach (string filePath in sortedFiles)
+            {
+                FileInfo fileInfo = new FileInfo(filePath);
+                using (StreamReader reader = fileInfo.OpenText())
                 {
-                    if (x.Length != y.Length) return x.Length - y.Length;
-                    else return string.Compare(x, y);
-                });
-                files = toSort.ToArray();
-                for (int i = 0; i < files.Length; i++)
-                {
-                    FileInfo fi = new FileInfo(files[i]);
-                    // 使用 StreamReader 逐行读取文件内容
-                    using (StreamReader reader = fi.OpenText())
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
+                        if (!line.Contains(" = \"")) 
+                            continue;
+
+                        Match match = Regex.Match(line, pattern);
+                        if (match.Success)
                         {
-                            if (line.Contains(" = \""))
+                            string key = match.Groups[1].Value;
+                            string value = match.Groups[2].Value;
+                            res[key] = value;
+                        }
+                        else
+                        {
+                            match = Regex.Match(line, nilPattern);
+                            if (match.Success)
                             {
-                                Match match = Regex.Match(line, pattern);
-                                if (match.Success)
-                                {
-                                    // 输出匹配到的结果
-                                    string key = match.Groups[1].Value;
-                                    string value = match.Groups[2].Value;
-                                    res[key] = value;
-                                }
-                                else
-                                {
-                                    match = Regex.Match(line, nilPattern);
-                                    if (match.Success)
-                                    {
-                                        // 输出匹配到的结果
-                                        string key = match.Groups[1].Value;
-                                        if (line.Contains("nil")) res[key] = "nil";
-                                        else res[key] = "";
-                                    }
-                                }
+                                string key = match.Groups[1].Value;
+                                res[key] = line.Contains("nil") ? "nil" : string.Empty;
                             }
                         }
                     }
                 }
             }
         }
-        
-        /// <summary
+
+        /// <summary>
         /// 查找指定语言的增量更新文件
         /// </summary>
         /// <param name="keyFileName">语言标识文件名</param>
         /// <returns>匹配到的增量文件名称数组</returns>
         private static string[] FindIncrementalFile(string keyFileName)
         {
-            var res = Directory.GetFiles(EditorPath.Localization.LuaScriptsFolderFullPath, $"Localization{keyFileName}_*Increase.lua.txt", SearchOption.AllDirectories);
-            if (res != null && res.Length > 0)
+            string[] res = Directory.GetFiles(
+                EditorPath.Localization.LuaScriptsFolderFullPath,
+                $"Localization{keyFileName}_*Increase.lua.txt",
+                SearchOption.AllDirectories
+            );
+
+            if (res == null || res.Length == 0)
+                return res;
+
+            for (int i = 0; i < res.Length; i++)
             {
-                for (int i = 0; i < res.Length; i++)
-                {
-                    var fileName = Path.GetFileName(res[i]).Replace(".lua.txt", "");
-                    res[i] = fileName;
-                }
+                res[i] = Path.GetFileName(res[i]).Replace(".lua.txt", string.Empty);
             }
 
             return res;
@@ -97,26 +116,30 @@ namespace Honor.Editor
         /// <returns>下一个可用的增量版本号</returns>
         private static int GetNextIncreaseFileVersion(string keyFileName)
         {
-            // 匹配"_"和"Increase"之间的数字
             string pattern = @"_(\d+)Increase";
-            var files = Directory.GetFiles(EditorPath.Localization.LuaScriptsFolderFullPath, $"Localization{keyFileName}_*Increase.lua.txt", SearchOption.AllDirectories);
-            int res = 0;
-            if (res != null && files.Length > 0)
-            {
-                for (int i = 0; i < files.Length; i++)
-                {
-                    Match match = Regex.Match(files[i], pattern);
+            string[] files = Directory.GetFiles(
+                EditorPath.Localization.LuaScriptsFolderFullPath,
+                $"Localization{keyFileName}_*Increase.lua.txt",
+                SearchOption.AllDirectories
+            );
 
-                    if (match.Success && int.TryParse(match.Groups[1].Value, out int version) && version > res)
+            int maxVersion = 0;
+            if (files != null && files.Length > 0)
+            {
+                foreach (string file in files)
+                {
+                    Match match = Regex.Match(file, pattern);
+                    if (match.Success && int.TryParse(match.Groups[1].Value, out int version))
                     {
-                        res = version;
+                        if (version > maxVersion)
+                            maxVersion = version;
                     }
                 }
             }
-            res++;
-            return res;
+
+            return maxVersion + 1;
         }
-        
+
         /// <summary>
         /// 获取下一个可用的增量文件夹编号（自动递增）
         /// </summary>
@@ -124,15 +147,16 @@ namespace Honor.Editor
         /// <returns>下一个文件夹编号</returns>
         private static int GetNextIncreaseDirector(string exportLuaIncreasePath)
         {
-            int res = 1;
-            var rootPath = exportLuaIncreasePath;//EditorPath.Localization.LuaIncreaseFolder;
-            var dir = rootPath + "/" + res;
-            while (Directory.Exists(dir))
+            int folderIndex = 1;
+            string currentDir = Path.Combine(exportLuaIncreasePath, folderIndex.ToString());
+            
+            while (Directory.Exists(currentDir))
             {
-                res++;
-                dir = rootPath + "/" + res;
+                folderIndex++;
+                currentDir = Path.Combine(exportLuaIncreasePath, folderIndex.ToString());
             }
-            return res;
+
+            return folderIndex;
         }
 
         /// <summary>
@@ -141,97 +165,114 @@ namespace Honor.Editor
         /// <param name="key">待检查的翻译键</param>
         private static void CollectAndCheckKeyRepeat(string key)
         {
-            if(m_AllKey.Contains(key))
+            if (m_AllKey.Contains(key))
                 m_RepeatKey.Add(key);
             else
                 m_AllKey.Add(key);
         }
-        
+
         /// <summary>
         /// 收集并对比新旧翻译数据，筛选出新增、修改、删除的翻译项
         /// </summary>
-        /// <param name="columns">Excel表格总列数</param>
-        /// <param name="fullPaths">Excel文件完整路径集合</param>
-        /// <param name="keyList">语言标识列表</param>
-        /// <param name="tableDetailTidy">表格名称描述</param>
-        /// <param name="langInfo">语言信息数组</param>
-        /// <param name="exportLuaIncreaseSingleVersion">是否启用单版本增量模式</param>
-        /// <param name="exportLuaIncreasePath">增量文件导出路径</param>
-        private static void FindIncrease(int columns, List<string> fullPaths, string[] keyList, string tableDetailTidy, string[] langInfo, bool exportLuaIncreaseSingleVersion, string exportLuaIncreasePath)
+        private static void FindIncrease(
+            int columns, 
+            List<string> fullPaths, 
+            string[] keyList, 
+            string tableDetailTidy, 
+            string[] langInfo, 
+            bool exportLuaIncreaseSingleVersion, 
+            string exportLuaIncreasePath
+        )
         {
-            var targetDir = exportLuaIncreasePath;
+            string targetDir = exportLuaIncreasePath;
+
+            // 单版本模式：清空旧增量目录
             if (exportLuaIncreaseSingleVersion && Directory.Exists(targetDir))
             {
                 Directory.Delete(targetDir, true);
+                AssetDatabase.Refresh();
             }
-            AssetDatabase.Refresh();
-            var version = GetNextIncreaseDirector(exportLuaIncreasePath);
-            for (int i = 6; i < columns; i++)
+
+            int folderVersion = GetNextIncreaseDirector(exportLuaIncreasePath);
+
+            // 遍历所有语言列
+            for (int col = 6; col < columns; col++)
             {
-                if (keyList[i] != string.Empty)
+                if (string.IsNullOrEmpty(keyList[col]))
+                    continue;
+
+                // 1. 读取最新 Excel 数据（新数据）
+                Dictionary<string, DataRow> newDataDict = new Dictionary<string, DataRow>();
+                foreach (string excelPath in fullPaths)
                 {
-                    //最新配置表的翻译 - 新的
-                    Dictionary<string, DataRow> newDatas = new Dictionary<string, DataRow>();
-                    for (int index = 0; index < fullPaths.Count; index++)
-                    {
-                        DataSet excelDatas = TableExportEditorUtility.GetExcelData(fullPaths[index]);
-                        int rows = excelDatas.Tables[0].Rows.Count;
-                        for (int row = 4; row < rows; row++)
-                        {
-                            if (excelDatas.Tables[0].Rows[row][1] != null)
-                            {
-                                var key = excelDatas.Tables[0].Rows[row][1].ToString();
-                                var cell = excelDatas.Tables[0].Rows[row];
-                                newDatas[key] = cell;
-                                if (i == 6)
-                                {
-                                    CollectAndCheckKeyRepeat(key);
-                                }
-                            }
-                        }
-                    }
+                    DataSet excelData = TableExportEditorUtility.GetExcelData(excelPath);
+                    int rowCount = excelData.Tables[0].Rows.Count;
 
-                    //已经导出过的翻译 - 旧的
-                    Dictionary<string, string> oldDatas = new Dictionary<string, string>();
-                    for (int index = 0; index < fullPaths.Count; index++)
+                    for (int row = 4; row < rowCount; row++)
                     {
-                        string fileName = Path.GetFileNameWithoutExtension(fullPaths[index]);
-                        GetIncreaseFileContent(oldDatas, $"LocalPart_{fileName}_{keyList[i]}.lua.txt");
-                    }
-                    GetIncreaseFileContent(oldDatas, $"Localization{keyList[i]}_*Increase.lua.txt");
-                    
-                    Dictionary<string, DataRow> resAddChange = new Dictionary<string, DataRow>();
-                    List<string> resRemove = new List<string>();
-                    foreach (var newData in newDatas)
-                    {
-                        if (oldDatas.TryGetValue(newData.Key, out var oldData))
-                        {
-                            if (oldData != newData.Value[i].ToString()) //修改了
-                            {
-                                resAddChange.Add(newData.Key, newData.Value);
-                            }
-                        }
-                        else//新增
-                        {
-                            resAddChange.Add(newData.Key, newData.Value);
-                        }
-                    }
+                        object keyObj = excelData.Tables[0].Rows[row][1];
+                        if (keyObj == null) 
+                            continue;
 
-                    foreach (var oldData in oldDatas)
-                    {
-                        if (!newDatas.ContainsKey(oldData.Key) && oldData.Value != "nil")//删除了key
-                        {
-                            if (!resRemove.Contains(oldData.Key))
-                            {
-                                resRemove.Add(oldData.Key);
-                            }
-                        }
-                    }
+                        string key = keyObj.ToString();
+                        newDataDict[key] = excelData.Tables[0].Rows[row];
 
-                    if (resAddChange.Count > 0 || resRemove.Count > 0)
-                    {
-                        MakeIncreaseFile(resAddChange, resRemove, keyList[i], tableDetailTidy, langInfo, i, version, exportLuaIncreasePath);
+                        // 仅在第一语言列检查 Key 重复
+                        if (col == 6)
+                            CollectAndCheckKeyRepeat(key);
                     }
+                }
+
+                // 2. 读取已导出的旧数据（历史 + 增量）
+                Dictionary<string, string> oldDataDict = new Dictionary<string, string>();
+                foreach (string excelPath in fullPaths)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(excelPath);
+                    GetIncreaseFileContent(oldDataDict, $"LocalPart_{fileName}_{keyList[col]}.lua.txt");
+                }
+                GetIncreaseFileContent(oldDataDict, $"Localization{keyList[col]}_*Increase.lua.txt");
+
+                // 3. 对比：新增 / 修改
+                Dictionary<string, DataRow> addOrChangeDict = new Dictionary<string, DataRow>();
+                foreach (var pair in newDataDict)
+                {
+                    if (oldDataDict.TryGetValue(pair.Key, out string oldValue))
+                    {
+                        // 内容不一致 = 修改
+                        if (oldValue != pair.Value[col].ToString())
+                            addOrChangeDict[pair.Key] = pair.Value;
+                    }
+                    else
+                    {
+                        // 不存在 = 新增
+                        addOrChangeDict[pair.Key] = pair.Value;
+                    }
+                }
+
+                // 4. 对比：删除（Excel 中已不存在的 Key）
+                List<string> removeKeyList = new List<string>();
+                foreach (var pair in oldDataDict)
+                {
+                    if (!newDataDict.ContainsKey(pair.Key) && pair.Value != "nil")
+                    {
+                        if (!removeKeyList.Contains(pair.Key))
+                            removeKeyList.Add(pair.Key);
+                    }
+                }
+
+                // 5. 有变化则生成增量文件
+                if (addOrChangeDict.Count > 0 || removeKeyList.Count > 0)
+                {
+                    MakeIncreaseFile(
+                        addOrChangeDict, 
+                        removeKeyList, 
+                        keyList[col], 
+                        tableDetailTidy, 
+                        langInfo, 
+                        col, 
+                        folderVersion, 
+                        exportLuaIncreasePath
+                    );
                 }
             }
         }
@@ -239,52 +280,56 @@ namespace Honor.Editor
         /// <summary>
         /// 根据对比结果生成Lua格式的增量更新文件
         /// </summary>
-        /// <param name="resAddChange">新增/修改的翻译数据字典</param>
-        /// <param name="resRemove">删除的翻译键列表</param>
-        /// <param name="keyFileName">语言标识文件名</param>
-        /// <param name="tableDetailTidy">表格名称描述</param>
-        /// <param name="langInfo">语言信息数组</param>
-        /// <param name="col">当前处理的表格列索引</param>
-        /// <param name="versionDir">增量文件夹版本号</param>
-        /// <param name="exportLuaIncreasePath">增量文件导出路径</param>
-        private static void MakeIncreaseFile(Dictionary<string, DataRow> resAddChange, List<string> resRemove, string keyFileName, string tableDetailTidy, string[] langInfo, int col, int versionDir, string exportLuaIncreasePath)
+        private static void MakeIncreaseFile(
+            Dictionary<string, DataRow> addOrChangeDict,
+            List<string> removeKeyList,
+            string keyFileName,
+            string tableDetailTidy,
+            string[] langInfo,
+            int col,
+            int versionDir,
+            string exportLuaIncreasePath
+        )
         {
-            var version = GetNextIncreaseFileVersion(keyFileName);
-            var folder = exportLuaIncreasePath;//EditorPath.Localization.LuaIncreaseFolder;
-            folder = $"{folder}/{versionDir}";
-            if (!Directory.Exists(folder))
+            int fileVersion = GetNextIncreaseFileVersion(keyFileName);
+            string saveFolder = Path.Combine(exportLuaIncreasePath, versionDir.ToString());
+
+            if (!Directory.Exists(saveFolder))
+                Directory.CreateDirectory(saveFolder);
+
+            string fileName = $"Localization{keyFileName}_{fileVersion}Increase.lua.txt";
+            string savePath = Path.Combine(saveFolder, fileName);
+
+            StringBuilder sb = new StringBuilder();
+            MakeLuaFileTitle(sb, fileName, null, $"{tableDetailTidy}: {langInfo[col]}");
+
+            string lowerLangName = keyFileName.ToLower();
+            sb.AppendLine($"---@type Localizations.{keyFileName} @{tableDetailTidy}: {langInfo[col]}");
+            sb.AppendLine($"local {lowerLangName} = Localizations.{keyFileName}");
+            sb.AppendLine();
+
+            // 写入新增/修改
+            foreach (var pair in addOrChangeDict)
             {
-                Directory.CreateDirectory(folder);
+                DataRow row = pair.Value;
+                sb.AppendLine($"---@field {row[1]} string @{row[2]}");
+                sb.AppendLine($"{lowerLangName}.{row[1]} = \"{row[col]}\"");
+                sb.AppendLine();
             }
 
-            string fileName = "Localization" + keyFileName + $"_{version}Increase.lua.txt";
-            string filePath = folder + "/" + fileName;
-            StringBuilder stringBuilder = new StringBuilder();
-            MakeLuaFileTitle(stringBuilder, fileName, null, $"{tableDetailTidy}: {langInfo[col]}");
-
-            string lowerKeyFileName = keyFileName.ToLower();
-            stringBuilder.AppendLine($"---@type Localizations.{keyFileName} @{tableDetailTidy}: {langInfo[col]}");
-            stringBuilder.AppendLine($"local {lowerKeyFileName} = Localizations.{keyFileName}");
-            stringBuilder.AppendLine("");
-            
-            foreach (var iter in resAddChange)
+            // 写入删除（置空 nil）
+            foreach (string key in removeKeyList)
             {
-                stringBuilder.AppendLine($"---@field {iter.Value[1]} string @{iter.Value[2]}");
-                stringBuilder.AppendLine($"{lowerKeyFileName}.{iter.Value[1]} = \"{iter.Value[col]}\"");
-                stringBuilder.AppendLine("");
+                sb.AppendLine($"{lowerLangName}.{key} = nil");
+                sb.AppendLine();
             }
 
-            foreach (var keyRemove in resRemove)
-            {
-                stringBuilder.AppendLine($"{lowerKeyFileName}.{keyRemove} = nil");
-                stringBuilder.AppendLine("");
-            }
-            
-            stringBuilder.AppendLine($"---@type Localizations.{keyFileName} @{tableDetailTidy}: {langInfo[col]}");
-            stringBuilder.AppendLine($"Localization.{keyFileName} = {lowerKeyFileName}");
-            stringBuilder.AppendLine("");
-            
-            File.WriteAllText(filePath, stringBuilder.ToString(), new System.Text.UTF8Encoding(false));
+            sb.AppendLine($"---@type Localizations.{keyFileName} @{tableDetailTidy}: {langInfo[col]}");
+            sb.AppendLine($"Localizations.{keyFileName} = {lowerLangName}");
+            sb.AppendLine();
+
+            // 保存 UTF8 无 BOM
+            File.WriteAllText(savePath, sb.ToString(), new UTF8Encoding(false));
         }
     }
 }

@@ -1,5 +1,18 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventPool.Event.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   泛型事件池 - 内部事件节点类（partial）
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 泛型事件池 - 内部事件节点定义
+    /// </summary>
     public sealed partial class EventPool<T> where T : EventParams
     {
         /// <summary>
@@ -8,6 +21,10 @@ namespace Honor.Runtime
         /// </summary>
         private sealed class Event
         {
+            //=========================================================================
+            // 私有字段
+            //=========================================================================
+            #region Fields
             /// <summary>
             /// 事件发送者
             /// </summary>
@@ -17,7 +34,12 @@ namespace Honor.Runtime
             /// 事件参数
             /// </summary>
             private T m_EventParams;
+            #endregion
 
+            //=========================================================================
+            // 构造函数
+            //=========================================================================
+            #region Constructor
             /// <summary>
             /// 默认构造函数
             /// </summary>
@@ -26,7 +48,12 @@ namespace Honor.Runtime
                 m_Sender = null;
                 m_EventParams = null;
             }
+            #endregion
 
+            //=========================================================================
+            // 公共属性
+            //=========================================================================
+            #region Properties
             /// <summary>
             /// 获取事件发送者
             /// </summary>
@@ -36,7 +63,12 @@ namespace Honor.Runtime
             /// 获取事件参数
             /// </summary>
             public T EventParams => m_EventParams;
+            #endregion
 
+            //=========================================================================
+            // 公共方法
+            //=========================================================================
+            #region Public Methods
             /// <summary>
             /// 创建事件节点（静态工厂方法）
             /// </summary>
@@ -59,6 +91,7 @@ namespace Honor.Runtime
                 m_Sender = null;
                 m_EventParams = null;
             }
+            #endregion
         }
     }
 }

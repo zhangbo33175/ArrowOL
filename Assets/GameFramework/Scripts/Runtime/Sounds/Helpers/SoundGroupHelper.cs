@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SoundGroupHelper.cs
+ * author:  云毅
+ * created:
+ * descrip:   声音组辅助脚本 —— 声音组的GameObject载体，用于绑定AudioMixer分组轨道
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -14,9 +23,12 @@ namespace Honor.Runtime
         /// 音频混音器轨道（用于分组控制音量、静音等）
         /// 例如：Master/BGM、Master/Effect
         /// </summary>
-        [SerializeField]
+        [SerializeField] 
         private AudioMixerGroup m_AudioMixerGroup = null;
 
+        /// <summary>
+        /// 音频混音器轨道
+        /// </summary>
         public AudioMixerGroup AudioMixerGroup
         {
             get => m_AudioMixerGroup;

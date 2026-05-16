@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    #region Inspector 按钮生成特性
     /// <summary>
     /// Inspector 按钮生成特性
     /// 标记在字段上，可在编辑器面板自动生成调用指定方法的按钮
@@ -10,11 +11,17 @@ namespace Honor.Runtime
     [System.AttributeUsage(System.AttributeTargets.Field)]
     public class GameInspectorButtonAttribute : PropertyAttribute
     {
+        //=========================================================================
+        // 公共字段
+        //=========================================================================
         /// <summary>
         /// 按钮点击后调用的方法名
         /// </summary>
         public readonly string MethodName;
 
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -24,4 +31,5 @@ namespace Honor.Runtime
             MethodName = methodName;
         }
     }
+    #endregion
 }

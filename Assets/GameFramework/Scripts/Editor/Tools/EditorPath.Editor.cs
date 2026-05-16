@@ -1,23 +1,32 @@
-﻿using UnityEditor;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Game
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EditorPath.Editor.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Honor框架 编辑器路径配置 - 编辑器模块专用路径
+ ***************************************************************/
+
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Windows;
 
 namespace Honor.Editor
 {
+    #region 编辑器全局路径配置
     public static partial class EditorPath
     {
-        /// <summary>
-        /// Editor编辑器相关路径信息
-        /// </summary>
+        #region 编辑器核心路径配置
         /// <summary>
         /// Editor编辑器相关路径信息
         /// </summary>
         public static class Editor
         {
+            #region 基础目录获取
             /// <summary>
             /// 获取ProjectSetting目录的绝对路径
             /// </summary>
-            /// <returns></returns>
             public static string ProjectSettingFolderFullPath()
             {
                 string projectSettingFolderFullPath = $"{Application.dataPath}/../ProjectSettings/Honor";
@@ -33,7 +42,6 @@ namespace Honor.Editor
             /// <summary>
             /// 获取Library目录的绝对路径
             /// </summary>
-            /// <returns></returns>
             public static string LibraryFolderFullPath()
             {
                 string libraryFolderFullPath = $"{Application.dataPath}/../Library/Honor";
@@ -49,7 +57,6 @@ namespace Honor.Editor
             /// <summary>
             /// 获取Packages目录的绝对路径
             /// </summary>
-            /// <returns></returns>
             public static string PackagesFolderFullPath()
             {
                 return $"{Application.dataPath}/../Packages";
@@ -58,16 +65,16 @@ namespace Honor.Editor
             /// <summary>
             /// 获取Package目录中manifest.json文件的绝对路径
             /// </summary>
-            /// <returns></returns>
             public static string PackageManifestFileFullPath()
             {
                 return $"{PackagesFolderFullPath()}/manifest.json";
             }
+            #endregion
 
+            #region 通用配置路径
             /// <summary>
             /// 获取共享OSS配置文件的绝对路径
             /// </summary>
-            /// <returns></returns>
             public static string SharedOSSProjectSettingFileFullPath()
             {
                 return $"{ProjectSettingFolderFullPath()}/SharedOSSSettings.json";
@@ -82,7 +89,9 @@ namespace Honor.Editor
             /// GitLab-Icon图片资源位置
             /// </summary>
             public static string GitLabIconFilePath = "Assets/Framework/Textures/PicsForEditor/GitLab.png";
-            
+            #endregion
+
+            #region About 相关路径
             /// <summary>
             /// About相关信息
             /// </summary>
@@ -102,7 +111,9 @@ namespace Honor.Editor
                     "Assets/Framework/Textures/PicsForEditor/HonorAnis/B/{0}.png"
                 };
             }
+            #endregion
 
+            #region XLua 相关路径
             /// <summary>
             /// XLua相关路径信息
             /// </summary>
@@ -114,7 +125,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/XLuaAutoGenSettings.json";
             }
+            #endregion
 
+            #region ABGeneration 相关路径
             /// <summary>
             /// ABGeneration相关路径信息
             /// </summary>
@@ -126,7 +139,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/HotfixABSettings.json";
             }
+            #endregion
 
+            #region Table 相关路径
             /// <summary>
             /// Table相关路径信息
             /// </summary>
@@ -138,7 +153,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/TablesSettings.json";
             }
+            #endregion
 
+            #region Localization 相关路径
             /// <summary>
             /// Localization相关路径信息
             /// </summary>
@@ -150,7 +167,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/LocalizationSettings.json";
             }
+            #endregion
 
+            #region UI 相关路径
             /// <summary>
             /// UI相关路径信息
             /// </summary>
@@ -161,7 +180,9 @@ namespace Honor.Editor
                 /// </summary>
                 public static string ProjectSettingFileFullPath = $"{ProjectSettingFolderFullPath()}/UIsSettings.json";
             }
+            #endregion
 
+            #region Network 相关路径
             /// <summary>
             /// Network相关路径信息
             /// </summary>
@@ -173,7 +194,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/NetworkSettings.json";
             }
+            #endregion
 
+            #region ResDef 相关路径
             /// <summary>
             /// 资源信息定义路径信息
             /// </summary>
@@ -190,7 +213,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/ResDefExportSettings.json";
             }
+            #endregion
 
+            #region Hierarchy 展开规则路径
             /// <summary>
             /// Hierarchy展开规则设置工具路径信息
             /// </summary>
@@ -202,7 +227,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/HierarchyExpandSettings.json";
             }
+            #endregion
 
+            #region 字体TMP导出路径
             /// <summary>
             /// 本地化多语言字符集导出配置
             /// </summary>
@@ -214,7 +241,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/FontTMPCharsExportSettings.json";
             }
+            #endregion
 
+            #region ChatGPT 相关路径
             /// <summary>
             /// ChatGPT存档路径信息
             /// </summary>
@@ -273,7 +302,9 @@ namespace Honor.Editor
                 public static string LibraryImageVariationHistoryFileFullPath =
                     $"{LibraryFolderFullPath()}/ChatGPTImageVariationHistory.json";
             }
+            #endregion
 
+            #region CDN 相关路径
             /// <summary>
             /// CDN存档路径信息
             /// </summary>
@@ -284,7 +315,9 @@ namespace Honor.Editor
                 /// </summary>
                 public static string ProjectSettingFileFullPath = $"{ProjectSettingFolderFullPath()}/CDNSettings.json";
             }
+            #endregion
 
+            #region 日志拉取器路径
             /// <summary>
             /// 日志拉取器路径信息
             /// </summary>
@@ -295,7 +328,9 @@ namespace Honor.Editor
                 /// </summary>
                 public static string LibraryLocalLogFolderFullPath = $"{LibraryFolderFullPath()}/FetchedLogs";
             }
+            #endregion
 
+            #region Lua云脚本路径
             /// <summary>
             /// Lua云脚本存档路径信息
             /// </summary>
@@ -312,7 +347,9 @@ namespace Honor.Editor
                 /// </summary>
                 public static string LibraryLocalLuaFileFullPath = $"{LibraryFolderFullPath()}/LuaScript.lua.txt";
             }
+            #endregion
 
+            #region 代码执行器路径
             /// <summary>
             /// CodeExecuter存档路径信息
             /// </summary>
@@ -323,7 +360,9 @@ namespace Honor.Editor
                 /// </summary>
                 public static string LibraryFileFullPath = $"{LibraryFolderFullPath()}/CodeExecuterConfigs.json";
             }
+            #endregion
 
+            #region 缓存包信息路径
             /// <summary>
             /// 缓存的包名路径信息
             /// </summary>
@@ -335,7 +374,9 @@ namespace Honor.Editor
                 public static string ProjectConfigFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/CachedPackageInfo.json";
             }
+            #endregion
 
+            #region 版本升级检查器路径
             /// <summary>
             /// 版本升级检查器路径信息
             /// </summary>
@@ -346,7 +387,9 @@ namespace Honor.Editor
                 /// </summary>
                 public static string LibraryFileFullPath = $"{LibraryFolderFullPath()}/VersionUpdateChecker.json";
             }
+            #endregion
 
+            #region 版本更新工具路径
             /// <summary>
             /// 版本更新路径信息
             /// </summary>
@@ -371,7 +414,8 @@ namespace Honor.Editor
                 /// <summary>
                 /// 云端文件测试绝对路径
                 /// </summary>
-                ///public static string ServerFileFullPath = "https://Honor-framework.oss-cn-beijing.aliyuncs.com/HonorDevelop/UnitypackagesTest/{0}";
+                //public static string ServerFileFullPath = "https://Honor-framework.oss-cn-beijing.aliyuncs.com/HonorDevelop/UnitypackagesTest/{0}";
+                
                 /// <summary>
                 /// 获取 VersionUpdater 在Library目录下存档配置文件的绝对路径
                 /// </summary>
@@ -397,7 +441,9 @@ namespace Honor.Editor
                 /// </summary>
                 public static string LibraryUnzipGameLuasFolderFullPath = $"{LibraryFolderFullPath()}/GameLuas";
             }
+            #endregion
 
+            #region 版本发布工具路径
             /// <summary>
             /// 版本发布路径信息
             /// </summary>
@@ -449,7 +495,9 @@ namespace Honor.Editor
                     $"{Application.dataPath}/Plugins/Android/Honor.androidlib",
                 };
             }
+            #endregion
 
+            #region AB浏览器路径
             /// <summary>
             /// AssetBundleBrowser存档路径信息
             /// </summary>
@@ -461,7 +509,9 @@ namespace Honor.Editor
                 public static string ProjectSettingFileFullPath =
                     $"{ProjectSettingFolderFullPath()}/AssetBundleBrowserSettings.json";
             }
+            #endregion
 
+            #region 打包输出路径
             /// <summary>
             /// Android平台打包出的AAB存档文件夹
             /// </summary>
@@ -470,7 +520,6 @@ namespace Honor.Editor
                 /// <summary>
                 /// 获取Native文件夹
                 /// </summary>
-                /// <returns></returns>
                 public static string BuildNativeFolderFullPath()
                 {
                     string nativePath = Application.dataPath.Replace("Assets", "Natives");
@@ -486,7 +535,6 @@ namespace Honor.Editor
                 /// <summary>
                 /// 获取Android平台AAB文件默认生成文件夹
                 /// </summary>
-                /// <returns></returns>
                 public static string BuildAABFolderFullPath()
                 {
                     string exportAABsPath = $"{BuildNativeFolderFullPath()}/AAB";
@@ -500,9 +548,8 @@ namespace Honor.Editor
                 }
 
                 /// <summary>
-                /// 获取Android平台AAB文件默认生成文件夹
+                /// 获取Android平台APK文件默认生成文件夹
                 /// </summary>
-                /// <returns></returns>
                 public static string BuildAPKFolderFullPath()
                 {
                     string exportAPKsPath = $"{BuildNativeFolderFullPath()}/APK";
@@ -515,7 +562,9 @@ namespace Honor.Editor
                     return exportAPKsPath;
                 }
             }
+            #endregion
 
+            #region 代码裁切工具路径
             /// <summary>
             /// 代码裁切相关路径信息
             /// </summary>
@@ -531,7 +580,6 @@ namespace Honor.Editor
                 /// 获取云端指定文件绝对路径
                 /// </summary>
                 /// <param name="filePathRelativeToCodeVersions">相对于CodeVersions的文件路径（携带后缀名）</param>
-                /// <returns></returns>
                 public static string GetServerFileFullPath(string filePathRelativeToCodeVersions)
                 {
                     return $"{CodeVersionsServerUrl}/{filePathRelativeToCodeVersions}";
@@ -540,7 +588,6 @@ namespace Honor.Editor
                 /// <summary>
                 /// 获取本地代码配置文件夹绝对路径
                 /// </summary>
-                /// <returns></returns>
                 public static string GetCodeConfigsLocalFolderFullPath()
                 {
                     return $"{Application.dataPath}/Framework/ThirdLibs/CodeConfigs";
@@ -550,7 +597,6 @@ namespace Honor.Editor
                 /// 获取本地代码配置文件绝对路径
                 /// </summary>
                 /// <param name="configFileName">配置文件名称（携带.json后缀名）</param>
-                /// <returns></returns>
                 public static string GetCodeConfigLocalFileFullPath(string configFileName)
                 {
                     return $"{GetCodeConfigsLocalFolderFullPath()}/{configFileName}";
@@ -560,12 +606,14 @@ namespace Honor.Editor
                 /// 获取下载代码所在文件夹绝对路径
                 /// </summary>
                 /// <param name="codeName">代码名称</param>
-                /// <returns></returns>
                 public static string GetDownloadedCodeFolderFullPath(string codeName)
                 {
                     return $"{PackagesFolderFullPath()}/{codeName}";
                 }
             }
+            #endregion
         }
+        #endregion
     }
+    #endregion
 }

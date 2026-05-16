@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2025, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  ProcedurePlaying.cs
+ * author: 云毅
+ * created:
+ * descrip:   游戏主运行流程 - 游戏核心逻辑流程，Lua热更为主，C#仅做生命周期转发
+ ***************************************************************/
+
 using UnityEngine;
 
 namespace Honor.Runtime
@@ -9,6 +18,10 @@ namespace Honor.Runtime
     /// </summary>
     public class ProcedurePlaying : ProcedureState
     {
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
+
         /// <summary>
         /// 初始化流程：设置流程名称
         /// </summary>
@@ -30,10 +43,7 @@ namespace Honor.Runtime
             RemoveAllContentsOnProcedureTransition = true;
 
             // 执行Lua绑定的进入逻辑
-            if (m_LuaOnEnter != null)
-            {
-                m_LuaOnEnter(ownerMachine);
-            }
+            m_LuaOnEnter?.Invoke(ownerMachine);
         }
 
         /// <summary>
@@ -43,13 +53,11 @@ namespace Honor.Runtime
         public override void OnUpdate(StateMachine<ProcedureComponent> ownerMachine)
         {
             // 等待流程过渡动画完成
-            if (!m_EnterOver) return;
+            if (!m_EnterOver) 
+                return;
 
             // 执行Lua绑定的帧更新逻辑
-            if (m_LuaOnUpdate != null)
-            {
-                m_LuaOnUpdate(ownerMachine);
-            }
+            m_LuaOnUpdate?.Invoke(ownerMachine);
 
             base.OnUpdate(ownerMachine);
         }
@@ -61,12 +69,11 @@ namespace Honor.Runtime
         public override void OnLeave(StateMachine<ProcedureComponent> ownerMachine, bool isShutdown)
         {
             // 执行Lua绑定的离开逻辑
-            if (m_LuaOnLeave != null)
-            {
-                m_LuaOnLeave(ownerMachine);
-            }
+            m_LuaOnLeave?.Invoke(ownerMachine);
 
             base.OnLeave(ownerMachine, isShutdown);
         }
+
+        #endregion
     }
 }

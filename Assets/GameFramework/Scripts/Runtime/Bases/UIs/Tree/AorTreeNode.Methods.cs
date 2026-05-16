@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTreeNode.cs
+ * author:    云毅
+ * created:   2026 2025
+ * descrip:   UI 树形菜单节点 UI 行为类
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class AorTreeNode : UIBehaviour
     {
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region MonoBehaviour
         /// <summary>
         /// 生命周期：Awake
         /// 初始化子节点对象列表
@@ -19,15 +33,20 @@ namespace Honor.Runtime
         {
             m_Children = new List<GameObject>();
         }
+        #endregion
 
+        //=========================================================================
+        // 组件获取 & 重置
+        //=========================================================================
+        #region Method - 组件管理
         /// <summary>
         /// 获取节点所需的所有 UI 组件引用
         /// 包括按钮、Toggle、图标、文本、箭头、根树组件
         /// </summary>
         private void GetComponentInfos()
         {
-            m_MyTransform = this.transform;
-            
+            m_MyTransform = transform;
+
             // 节点容器按钮
             m_ContainerButton = m_MyTransform.Find("ContainerButton").GetComponent<Button>();
             // 展开/关闭开关
@@ -55,7 +74,12 @@ namespace Honor.Runtime
             // 显示箭头
             m_ToggleTransform.gameObject.SetActive(true);
         }
+        #endregion
 
+        //=========================================================================
+        // 子节点展开 / 关闭
+        //=========================================================================
+        #region Method - 子节点操作
         /// <summary>
         /// 展开子节点
         /// 调用树管理器的 Pop 方法，创建/复用子节点 UI
@@ -65,16 +89,16 @@ namespace Honor.Runtime
             m_Children = _mAorTree.Pop(_mAorTreeData.ChildNodes, transform.GetSiblingIndex());
         }
 
-        /// <summary <
+        /// <summary>
         /// 关闭子节点
         /// 递归关闭所有子节点，移除监听，回收对象池
         /// </summary>
-        protected void CloseChildren()
+        private void CloseChildren()
         {
             // 递归关闭所有子节点
-            for (int i = 0; i < m_Children.Count; i++)
+            foreach (var child in m_Children)
             {
-                AorTreeNode node = m_Children[i].GetComponent<AorTreeNode>();
+                AorTreeNode node = child.GetComponent<AorTreeNode>();
                 node.RemoveListener();
                 node.CloseChildren();
             }
@@ -82,9 +106,14 @@ namespace Honor.Runtime
             // 回收所有子节点到对象池
             _mAorTree.Push(m_Children);
             // 清空列表
-            m_Children = new List<GameObject>();
+            m_Children.Clear();
         }
+        #endregion
 
+        //=========================================================================
+        // 事件监听
+        //=========================================================================
+        #region Method - 监听管理
         /// <summary>
         /// 移除节点点击事件监听
         /// 防止对象池复用后多次注册
@@ -93,5 +122,6 @@ namespace Honor.Runtime
         {
             m_ContainerButton.onClick.RemoveListener(OpenOrClose);
         }
+        #endregion
     }
 }

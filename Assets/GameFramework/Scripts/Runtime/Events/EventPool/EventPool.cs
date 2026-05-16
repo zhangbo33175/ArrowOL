@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  EventPool.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   泛型事件池 - 核心事件驱动模块
+ ***************************************************************/
+
 using System.Collections.Generic;
 
 namespace Honor.Runtime
@@ -9,6 +19,10 @@ namespace Honor.Runtime
     /// <typeparam name="T">事件参数类型，必须继承自 EventParams</typeparam>
     public sealed partial class EventPool<T> where T : EventParams
     {
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        #region Constructor
         /// <summary>
         /// 初始化事件池实例
         /// </summary>
@@ -26,7 +40,12 @@ namespace Honor.Runtime
             m_CachedNodes = new Dictionary<T, LinkedListNode<Dictionary<object, HonorEventHandler<T>>>>();
             m_TempNodes = new Dictionary<T, LinkedListNode<Dictionary<object, HonorEventHandler<T>>>>();
         }
+        #endregion
 
+        //=========================================================================
+        // 生命周期 & 队列驱动
+        //=========================================================================
+        #region MonoBehaviour
         /// <summary>
         /// 事件池帧更新（主线程派发队列事件）
         /// </summary>
@@ -42,7 +61,12 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 公共管理接口
+        //=========================================================================
+        #region Public Methods
         /// <summary>
         /// 关闭并完全清理事件池
         /// </summary>
@@ -64,7 +88,12 @@ namespace Honor.Runtime
                 m_EventsForFire.Clear();
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 订阅 / 取消订阅 / 检查
+        //=========================================================================
+        #region Subscribe & Unsubscribe
         /// <summary>
         /// 检查指定事件是否已注册对应回调
         /// </summary>
@@ -187,7 +216,12 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 事件派发
+        //=========================================================================
+        #region Fire Events
         /// <summary>
         /// 线程安全抛出事件（入队，下一帧派发）
         /// </summary>
@@ -221,5 +255,7 @@ namespace Honor.Runtime
 
             HandleEvent(sender, e);
         }
+        #endregion
+
     }
 }

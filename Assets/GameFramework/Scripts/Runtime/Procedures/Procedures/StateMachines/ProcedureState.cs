@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ProcedureState.cs
+ * author:    云毅
+ * created:
+ * descrip:   游戏流程抽象基类 - 所有流程必须继承，提供Lua绑定、状态切换、过渡动画
+ ***************************************************************/
+
 using System;
 using XLua;
 
@@ -10,15 +20,31 @@ namespace Honor.Runtime
     /// </summary>
     public abstract class ProcedureState : State<ProcedureComponent>
     {
+        //=========================================================================
+        #region 常量
+        //=========================================================================
+
         /// <summary>
         /// 切换流程时最大等待帧数（防止帧等待死循环）
         /// </summary>
         private const int MAX_NEXT_PROCEDURE_WAIT_FRAME_NUM = 5;
 
+        #endregion
+
+        //=========================================================================
+        #region 静态变量
+        //=========================================================================
+
         /// <summary>
         /// 全局复位标记（置true会自动重启到Preload流程）
         /// </summary>
         public static bool IsReset;
+
+        #endregion
+
+        //=========================================================================
+        #region 保护变量
+        //=========================================================================
 
         /// <summary>
         /// 所属状态机
@@ -29,7 +55,6 @@ namespace Honor.Runtime
         /// 流程名称
         /// </summary>
         protected string m_Name = null;
-        public string Name { get => m_Name; }
 
         /// <summary>
         /// 绑定的Lua脚本名
@@ -80,27 +105,16 @@ namespace Honor.Runtime
         /// 准备切换时携带的自定义参数（LuaTable）
         /// </summary>
         protected LuaTable m_PrepareArgsFromChanging;
-        public LuaTable PrepareArgsFromChanging
-        {
-            get => m_PrepareArgsFromChanging;
-            set => m_PrepareArgsFromChanging = value;
-        }
 
         /// <summary>
         /// 切换完成后传入的自定义参数
         /// </summary>
         protected LuaTable m_ArgsFromChanging;
-        public LuaTable ArgsFromChanging
-        {
-            get => m_ArgsFromChanging;
-            set => m_ArgsFromChanging = value;
-        }
 
         /// <summary>
         /// 流程进入完成标记（过渡动画结束）
         /// </summary>
         protected bool m_EnterOver;
-        public bool EnterOver { set => m_EnterOver = value; get => m_EnterOver; }
 
         /// <summary>
         /// 切换流程前等待的帧数
@@ -111,6 +125,48 @@ namespace Honor.Runtime
         /// 流程切换时是否清空所有UI/场景资源
         /// </summary>
         protected bool m_RemoveAllContentsOnProcedureTransition;
+
+        #endregion
+
+        //=========================================================================
+        #region 公共属性
+        //=========================================================================
+
+        /// <summary>
+        /// 流程名称
+        /// </summary>
+        public string Name => m_Name;
+
+        /// <summary>
+        /// 准备切换时携带的自定义参数（LuaTable）
+        /// </summary>
+        public LuaTable PrepareArgsFromChanging
+        {
+            get => m_PrepareArgsFromChanging;
+            set => m_PrepareArgsFromChanging = value;
+        }
+
+        /// <summary>
+        /// 切换完成后传入的自定义参数
+        /// </summary>
+        public LuaTable ArgsFromChanging
+        {
+            get => m_ArgsFromChanging;
+            set => m_ArgsFromChanging = value;
+        }
+
+        /// <summary>
+        /// 流程进入完成标记（过渡动画结束）
+        /// </summary>
+        public bool EnterOver
+        {
+            set => m_EnterOver = value;
+            get => m_EnterOver;
+        }
+
+        /// <summary>
+        /// 流程切换时是否清空所有UI/场景资源
+        /// </summary>
         public bool RemoveAllContentsOnProcedureTransition
         {
             set => m_RemoveAllContentsOnProcedureTransition = value;
@@ -120,10 +176,13 @@ namespace Honor.Runtime
         /// <summary>
         /// 公开给Lua访问的CS环境（lua.cs = this）
         /// </summary>
-        public LuaTable lua
-        {
-            get => m_OwnEnv;
-        }
+        public LuaTable lua => m_OwnEnv;
+
+        #endregion
+
+        //=========================================================================
+        #region Lua 绑定
+        //=========================================================================
 
         /// <summary>
         /// 初始化Lua绑定：创建独立环境、加载脚本、绑定生命周期
@@ -159,6 +218,12 @@ namespace Honor.Runtime
             m_OwnEnv.Get("OnUpdate", out m_LuaOnUpdate);
             m_OwnEnv.Get("OnLeave", out m_LuaOnLeave);
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 状态生命周期
+        //=========================================================================
 
         /// <summary>
         /// 状态初始化（只执行一次）
@@ -244,6 +309,12 @@ namespace Honor.Runtime
             GameMainRoot.Event.Unsubscribe(GameEventCmd.ProcedureTransitionExitOver, this, OnProcedureTransitionExitOverEventCallback);
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 流程切换
+        //=========================================================================
+
         /// <summary>
         /// 切换流程：记录运行时信息
         /// </summary>
@@ -260,6 +331,12 @@ namespace Honor.Runtime
         {
             ChangeState(ownerMachine, Type.GetType($"Honor.Runtime.{stateName}"));
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 事件回调
+        //=========================================================================
 
         /// <summary>
         /// 过渡进入结束事件回调
@@ -279,6 +356,12 @@ namespace Honor.Runtime
             RemoveAllContents();
             m_NextProcedureType = m_PrepareNextProcedureType;
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 流程过渡控制
+        //=========================================================================
 
         /// <summary>
         /// 准备切换到下一流程：播放退出过渡
@@ -320,6 +403,12 @@ namespace Honor.Runtime
             GameMainRoot.UI.ShowProcedureTransitionExit(forceOver, duration, blockRaycast);
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 资源清理
+        //=========================================================================
+
         /// <summary>
         /// 清空所有场景/UI/资源（流程切换时）
         /// </summary>
@@ -333,5 +422,7 @@ namespace Honor.Runtime
                 GameMainRoot.UI.UnloadFonts(true);
             }
         }
+
+        #endregion
     }
 }

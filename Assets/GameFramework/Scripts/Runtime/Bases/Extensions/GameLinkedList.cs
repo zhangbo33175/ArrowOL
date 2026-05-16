@@ -1,9 +1,21 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameLinkedList.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   游戏框架链表类（带节点缓存，减少GC）
+ ***************************************************************/
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 
+    //=========================================================================
     /// <summary>
     /// 游戏框架链表类（带节点缓存，减少GC）
     /// </summary>
@@ -13,6 +25,10 @@ namespace Honor.Runtime
         private readonly LinkedList<T> m_LinkedList;
         private readonly Queue<LinkedListNode<T>> m_CachedNodes;
 
+        #region 构造函数
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 初始化游戏框架链表类的新实例
         /// </summary>
@@ -21,7 +37,12 @@ namespace Honor.Runtime
             m_LinkedList = new LinkedList<T>();
             m_CachedNodes = new Queue<LinkedListNode<T>>();
         }
+        #endregion
 
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 获取链表中实际包含的结点数量
         /// </summary>
@@ -56,10 +77,16 @@ namespace Honor.Runtime
         /// 获取一个值，该值指示是否同步对 ICollection 的访问（线程安全）
         /// </summary>
         public bool IsSynchronized => ((ICollection)m_LinkedList).IsSynchronized;
+        #endregion
 
+        #region 添加节点
+        //=========================================================================
+        // 添加节点
+        //=========================================================================
         /// <summary>
         /// 将值添加到 ICollection`1 的结尾处
         /// </summary>
+        /// <param name="value">要添加的值</param>
         public void Add(T value)
         {
             AddLast(value);
@@ -68,6 +95,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表中指定的现有结点后添加包含指定值的新结点
         /// </summary>
+        /// <param name="node">基准节点</param>
+        /// <param name="value">新节点值</param>
+        /// <returns>新创建的节点</returns>
         public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T value)
         {
             LinkedListNode<T> newNode = AcquireNode(value);
@@ -78,6 +108,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表中指定的现有结点后添加指定的新结点
         /// </summary>
+        /// <param name="node">基准节点</param>
+        /// <param name="newNode">要添加的新节点</param>
         public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
         {
             m_LinkedList.AddAfter(node, newNode);
@@ -86,6 +118,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表中指定的现有结点前添加包含指定值的新结点
         /// </summary>
+        /// <param name="node">基准节点</param>
+        /// <param name="value">新节点值</param>
+        /// <returns>新创建的节点</returns>
         public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T value)
         {
             LinkedListNode<T> newNode = AcquireNode(value);
@@ -96,6 +131,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表中指定的现有结点前添加指定的新结点
         /// </summary>
+        /// <param name="node">基准节点</param>
+        /// <param name="newNode">要添加的新节点</param>
         public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
         {
             m_LinkedList.AddBefore(node, newNode);
@@ -104,6 +141,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表的开头处添加包含指定值的新结点
         /// </summary>
+        /// <param name="value">节点值</param>
+        /// <returns>新创建的节点</returns>
         public LinkedListNode<T> AddFirst(T value)
         {
             LinkedListNode<T> node = AcquireNode(value);
@@ -114,6 +153,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表的开头处添加指定的新结点
         /// </summary>
+        /// <param name="node">要添加的节点</param>
         public void AddFirst(LinkedListNode<T> node)
         {
             m_LinkedList.AddFirst(node);
@@ -122,6 +162,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表的结尾处添加包含指定值的新结点
         /// </summary>
+        /// <param name="value">节点值</param>
+        /// <returns>新创建的节点</returns>
         public LinkedListNode<T> AddLast(T value)
         {
             LinkedListNode<T> node = AcquireNode(value);
@@ -132,11 +174,17 @@ namespace Honor.Runtime
         /// <summary>
         /// 在链表的结尾处添加指定的新结点
         /// </summary>
+        /// <param name="node">要添加的节点</param>
         public void AddLast(LinkedListNode<T> node)
         {
             m_LinkedList.AddLast(node);
         }
+        #endregion
 
+        #region 清空与清理
+        //=========================================================================
+        // 清空与清理
+        //=========================================================================
         /// <summary>
         /// 从链表中移除所有结点
         /// </summary>
@@ -160,34 +208,27 @@ namespace Honor.Runtime
         {
             m_CachedNodes.Clear();
         }
+        #endregion
 
+        #region 查找与判断
+        //=========================================================================
+        // 查找与判断
+        //=========================================================================
         /// <summary>
         /// 确定某值是否在链表中
         /// </summary>
+        /// <param name="value">要查找的值</param>
+        /// <returns>是否存在</returns>
         public bool Contains(T value)
         {
             return m_LinkedList.Contains(value);
         }
 
         /// <summary>
-        /// 从目标数组的指定索引处开始将整个链表复制到兼容的一维数组
-        /// </summary>
-        public void CopyTo(T[] array, int index)
-        {
-            m_LinkedList.CopyTo(array, index);
-        }
-
-        /// <summary>
-        /// 从特定的 ICollection 索引开始，将数组的元素复制到一个数组中
-        /// </summary>
-        public void CopyTo(Array array, int index)
-        {
-            ((ICollection)m_LinkedList).CopyTo(array, index);
-        }
-
-        /// <summary>
         /// 查找包含指定值的第一个结点
         /// </summary>
+        /// <param name="value">要查找的值</param>
+        /// <returns>找到的节点</returns>
         public LinkedListNode<T> Find(T value)
         {
             return m_LinkedList.Find(value);
@@ -196,14 +237,48 @@ namespace Honor.Runtime
         /// <summary>
         /// 查找包含指定值的最后一个结点
         /// </summary>
+        /// <param name="value">要查找的值</param>
+        /// <returns>找到的节点</returns>
         public LinkedListNode<T> FindLast(T value)
         {
             return m_LinkedList.FindLast(value);
         }
+        #endregion
 
+        #region 复制操作
+        //=========================================================================
+        // 复制操作
+        //=========================================================================
+        /// <summary>
+        /// 从目标数组的指定索引处开始将整个链表复制到兼容的一维数组
+        /// </summary>
+        /// <param name="array">目标数组</param>
+        /// <param name="index">起始索引</param>
+        public void CopyTo(T[] array, int index)
+        {
+            m_LinkedList.CopyTo(array, index);
+        }
+
+        /// <summary>
+        /// 从特定的 ICollection 索引开始，将数组的元素复制到一个数组中
+        /// </summary>
+        /// <param name="array">目标数组</param>
+        /// <param name="index">起始索引</param>
+        public void CopyTo(Array array, int index)
+        {
+            ((ICollection)m_LinkedList).CopyTo(array, index);
+        }
+        #endregion
+
+        #region 移除节点
+        //=========================================================================
+        // 移除节点
+        //=========================================================================
         /// <summary>
         /// 从链表中移除指定值的第一个匹配项
         /// </summary>
+        /// <param name="value">要移除的值</param>
+        /// <returns>是否移除成功</returns>
         public bool Remove(T value)
         {
             LinkedListNode<T> node = m_LinkedList.Find(value);
@@ -220,6 +295,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 从链表中移除指定的结点
         /// </summary>
+        /// <param name="node">要移除的节点</param>
         public void Remove(LinkedListNode<T> node)
         {
             if (node == null)
@@ -258,15 +334,12 @@ namespace Honor.Runtime
             m_LinkedList.RemoveLast();
             ReleaseNode(last);
         }
+        #endregion
 
-        /// <summary>
-        /// 返回循环访问集合的枚举数
-        /// </summary>
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(m_LinkedList);
-        }
-
+        #region 节点缓存池
+        //=========================================================================
+        // 节点缓存池
+        //=========================================================================
         private LinkedListNode<T> AcquireNode(T value)
         {
             LinkedListNode<T> node;
@@ -289,6 +362,20 @@ namespace Honor.Runtime
             
             node.Value = default;
             m_CachedNodes.Enqueue(node);
+        }
+        #endregion
+
+        #region 枚举器
+        //=========================================================================
+        // 枚举器
+        //=========================================================================
+        /// <summary>
+        /// 返回循环访问集合的枚举数
+        /// </summary>
+        /// <returns>枚举数</returns>
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(m_LinkedList);
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -352,5 +439,6 @@ namespace Honor.Runtime
                 ((IEnumerator)m_Enumerator).Reset();
             }
         }
+        #endregion
     }
 }

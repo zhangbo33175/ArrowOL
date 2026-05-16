@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetBundleLoadManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   AssetBundle 加载管理器 - 内部实现部分
+ *            同步/异步加载、依赖管理、异步卸载、WebGL专用加载、
+ *            并发控制、生命周期管理
+ ***************************************************************/
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -5,6 +16,14 @@ using UnityEngine.Networking;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // AssetBundle 加载管理器 - 内部实现
+    // 核心加载/卸载逻辑、状态调度、WebGL支持、依赖处理
+    //=========================================================================
+    /// <summary>
+    /// AssetBundle 加载管理器（内部实现分部类）
+    /// 包含同步/异步加载、卸载、并发控制、WebGL平台加载、Update驱动逻辑
+    /// </summary>
     public sealed partial class AssetBundleLoadManager
     {
         #region 内部同步加载 AssetBundle
@@ -119,8 +138,7 @@ namespace Honor.Runtime
         /// <param name="abFormatPath">AB 格式化路径</param>
         /// <param name="abLoadOverCallback">加载完成回调</param>
         /// <returns>AB 包装对象</returns>
-        private AssetBundleObject InternalLoadAssetBundleAsync(string abFormatPath,
-            AssetBundleLoadOverCallBack abLoadOverCallback)
+        private AssetBundleObject InternalLoadAssetBundleAsync(string abFormatPath, AssetBundleLoadOverCallBack abLoadOverCallback)
         {
             AssetBundleObject assetBundleObj = null;
 
@@ -170,26 +188,25 @@ namespace Honor.Runtime
                 foreach (var dpFormatName in dependsData)
                 {
                     var dpObj = InternalLoadAssetBundleAsync(dpFormatName, (AssetBundleObject abObject, AssetBundle _ab) =>
+                    {
+                        if (assetBundleObj.DependLoadingCount <= 0)
                         {
-                            if (assetBundleObj.DependLoadingCount <= 0)
-                            {
-                                Log.Error("加载依赖AB错误，ab名称:{0}", abFormatPath);
-                                return;
-                            }
+                            Log.Error("加载依赖AB错误，ab名称:{0}", abFormatPath);
+                            return;
+                        }
 
-                            // 完成1个依赖资源的加载后，数量-1
-                            assetBundleObj.DependLoadingCount--;
+                        // 完成1个依赖资源的加载后，数量-1
+                        assetBundleObj.DependLoadingCount--;
 
-                            // 当所有依赖全部加载完毕后，触发正常加载完成的逻辑并触发回调
-                            if (assetBundleObj.DependLoadingCount == 0)
+                        // 当所有依赖全部加载完毕后，触发正常加载完成的逻辑并触发回调
+                        if (assetBundleObj.DependLoadingCount == 0)
+                        {
+                            if (assetBundleObj.Request != null && assetBundleObj.Request.isDone)
                             {
-                                if (assetBundleObj.Request != null && assetBundleObj.Request.isDone)
-                                {
-                                    NormalOrForceLoadOverAndCallBack(assetBundleObj);
-                                }
+                                NormalOrForceLoadOverAndCallBack(assetBundleObj);
                             }
                         }
-                    );
+                    });
                     // 将依赖资源记录到当前新创建的ab资源中
                     assetBundleObj.Depends.Add(dpObj);
                 }
@@ -304,6 +321,7 @@ namespace Honor.Runtime
         /// WebGL 异步请求赋值
         /// 运行在异步线程
         /// </summary>
+        /// <param name="abFormatPath">AB格式化路径</param>
         private async void InternalEvaluateWebRequestFromWebGL(string abFormatPath)
         {
             m_WebGLRequest = await InternalGetWebRequestFromWebGL(abFormatPath);
@@ -314,6 +332,8 @@ namespace Honor.Runtime
         /// <summary>
         /// WebGL 创建 WebRequest 异步任务
         /// </summary>
+        /// <param name="abFormatPath">AB格式化路径</param>
+        /// <returns>UnityWebRequest异步任务</returns>
         private Task<UnityWebRequest> InternalGetWebRequestFromWebGL(string abFormatPath)
         {
             TaskCompletionSource<UnityWebRequest> taskSource = new TaskCompletionSource<UnityWebRequest>();

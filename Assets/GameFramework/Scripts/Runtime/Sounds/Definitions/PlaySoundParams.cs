@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  PlaySoundParams.cs
+ * author:  云毅
+ * created:
+ * descrip:   声音播放参数类 —— 统一封装音量、循环、优先级、3D音效等全部参数
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -67,17 +76,7 @@ namespace Honor.Runtime
         /// </summary>
         public PlaySoundParams()
         {
-            m_Time = SoundConstant.DefaultTime;
-            m_MuteInSoundGroup = SoundConstant.DefaultMute;
-            m_Loop = SoundConstant.DefaultLoop;
-            m_Priority = SoundConstant.DefaultPriority;
-            m_VolumeInSoundGroup = SoundConstant.DefaultVolume;
-            m_FadeInSeconds = SoundConstant.DefaultFadeInSeconds;
-            m_Pitch = SoundConstant.DefaultPitch;
-            m_PanStereo = SoundConstant.DefaultPanStereo;
-            m_SpatialBlend = SoundConstant.DefaultSpatialBlend;
-            m_MaxDistance = SoundConstant.DefaultMaxDistance;
-            m_DopplerLevel = SoundConstant.DefaultDopplerLevel;
+            Clear();
         }
 
         /// <summary>
@@ -85,14 +84,8 @@ namespace Honor.Runtime
         /// </summary>
         public float Time
         {
-            get
-            {
-                return m_Time;
-            }
-            set
-            {
-                m_Time = value;
-            }
+            get => m_Time;
+            set => m_Time = value;
         }
 
         /// <summary>
@@ -100,14 +93,8 @@ namespace Honor.Runtime
         /// </summary>
         public bool MuteInSoundGroup
         {
-            get
-            {
-                return m_MuteInSoundGroup;
-            }
-            set
-            {
-                m_MuteInSoundGroup = value;
-            }
+            get => m_MuteInSoundGroup;
+            set => m_MuteInSoundGroup = value;
         }
 
         /// <summary>
@@ -115,14 +102,8 @@ namespace Honor.Runtime
         /// </summary>
         public bool Loop
         {
-            get
-            {
-                return m_Loop;
-            }
-            set
-            {
-                m_Loop = value;
-            }
+            get => m_Loop;
+            set => m_Loop = value;
         }
 
         /// <summary>
@@ -130,14 +111,8 @@ namespace Honor.Runtime
         /// </summary>
         public int Priority
         {
-            get
-            {
-                return m_Priority;
-            }
-            set
-            {
-                m_Priority = value;
-            }
+            get => m_Priority;
+            set => m_Priority = value;
         }
 
         /// <summary>
@@ -145,14 +120,8 @@ namespace Honor.Runtime
         /// </summary>
         public float VolumeInSoundGroup
         {
-            get
-            {
-                return m_VolumeInSoundGroup;
-            }
-            set
-            {
-                m_VolumeInSoundGroup = value;
-            }
+            get => m_VolumeInSoundGroup;
+            set => m_VolumeInSoundGroup = value;
         }
 
         /// <summary>
@@ -160,14 +129,8 @@ namespace Honor.Runtime
         /// </summary>
         public float FadeInSeconds
         {
-            get
-            {
-                return m_FadeInSeconds;
-            }
-            set
-            {
-                m_FadeInSeconds = value;
-            }
+            get => m_FadeInSeconds;
+            set => m_FadeInSeconds = value;
         }
 
         /// <summary>
@@ -175,14 +138,8 @@ namespace Honor.Runtime
         /// </summary>
         public float Pitch
         {
-            get
-            {
-                return m_Pitch;
-            }
-            set
-            {
-                m_Pitch = value;
-            }
+            get => m_Pitch;
+            set => m_Pitch = value;
         }
 
         /// <summary>
@@ -190,14 +147,8 @@ namespace Honor.Runtime
         /// </summary>
         public float PanStereo
         {
-            get
-            {
-                return m_PanStereo;
-            }
-            set
-            {
-                m_PanStereo = value;
-            }
+            get => m_PanStereo;
+            set => m_PanStereo = value;
         }
 
         /// <summary>
@@ -205,14 +156,8 @@ namespace Honor.Runtime
         /// </summary>
         public float SpatialBlend
         {
-            get
-            {
-                return m_SpatialBlend;
-            }
-            set
-            {
-                m_SpatialBlend = value;
-            }
+            get => m_SpatialBlend;
+            set => m_SpatialBlend = value;
         }
 
         /// <summary>
@@ -220,14 +165,8 @@ namespace Honor.Runtime
         /// </summary>
         public float MaxDistance
         {
-            get
-            {
-                return m_MaxDistance;
-            }
-            set
-            {
-                m_MaxDistance = value;
-            }
+            get => m_MaxDistance;
+            set => m_MaxDistance = value;
         }
 
         /// <summary>
@@ -235,14 +174,8 @@ namespace Honor.Runtime
         /// </summary>
         public float DopplerLevel
         {
-            get
-            {
-                return m_DopplerLevel;
-            }
-            set
-            {
-                m_DopplerLevel = value;
-            }
+            get => m_DopplerLevel;
+            set => m_DopplerLevel = value;
         }
 
         /// <summary>
@@ -250,8 +183,7 @@ namespace Honor.Runtime
         /// </summary>
         public static PlaySoundParams Create()
         {
-            PlaySoundParams playSoundParams = new PlaySoundParams();
-            return playSoundParams;
+            return new PlaySoundParams();
         }
 
         /// <summary>
@@ -259,19 +191,17 @@ namespace Honor.Runtime
         /// </summary>
         public void Clear()
         {
-            m_Time = SoundConstant.DefaultTime;
-            m_MuteInSoundGroup = SoundConstant.DefaultMute;
-            m_Loop = SoundConstant.DefaultLoop;
-            m_Priority = SoundConstant.DefaultPriority;
-            m_VolumeInSoundGroup = SoundConstant.DefaultVolume;
-            m_FadeInSeconds = SoundConstant.DefaultFadeInSeconds;
-            m_Pitch = SoundConstant.DefaultPitch;
-            m_PanStereo = SoundConstant.DefaultPanStereo;
-            m_SpatialBlend = SoundConstant.DefaultSpatialBlend;
-            m_MaxDistance = SoundConstant.DefaultMaxDistance;
-            m_DopplerLevel = SoundConstant.DefaultDopplerLevel;
+            m_Time                  = SoundConstant.DefaultTime;
+            m_MuteInSoundGroup      = SoundConstant.DefaultMute;
+            m_Loop                  = SoundConstant.DefaultLoop;
+            m_Priority              = SoundConstant.DefaultPriority;
+            m_VolumeInSoundGroup    = SoundConstant.DefaultVolume;
+            m_FadeInSeconds         = SoundConstant.DefaultFadeInSeconds;
+            m_Pitch                 = SoundConstant.DefaultPitch;
+            m_PanStereo             = SoundConstant.DefaultPanStereo;
+            m_SpatialBlend          = SoundConstant.DefaultSpatialBlend;
+            m_MaxDistance           = SoundConstant.DefaultMaxDistance;
+            m_DopplerLevel          = SoundConstant.DefaultDopplerLevel;
         }
     }
 }
-
-

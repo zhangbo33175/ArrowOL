@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SoundGroup.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   声音组 —— 管理BGM/音效/UI等分组，负责播放器调度、优先级、音量统一控制
+ ***************************************************************/
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,19 +22,11 @@ namespace Honor.Runtime
         /// 声音组名称（如 BGM、Effect、UI）
         /// </summary>
         private readonly string m_Name;
-        public string Name
-        {
-            get => m_Name;
-        }
 
         /// <summary>
         /// 声音组辅助对象（挂载在 GameObject 上）
         /// </summary>
         private readonly SoundGroupHelper m_SoundGroupHelper;
-        public SoundGroupHelper SoundGroupHelper
-        {
-            get => m_SoundGroupHelper;
-        }
 
         /// <summary>
         /// 本组所有声音播放器列表（对象池）
@@ -33,17 +34,38 @@ namespace Honor.Runtime
         private readonly List<SoundAgent> m_SoundAgents;
 
         /// <summary>
+        /// 同优先级声音是否禁止互相替换
+        /// </summary>
+        private bool m_AvoidBeingReplacedBySamePriority;
+
+        /// <summary>
+        /// 本组全局静音
+        /// </summary>
+        private bool m_Mute;
+
+        /// <summary>
+        /// 本组全局音量
+        /// </summary>
+        private float m_Volume;
+
+        /// <summary>
+        /// 声音组名称
+        /// </summary>
+        public string Name => m_Name;
+
+        /// <summary>
+        /// 声音组辅助对象
+        /// </summary>
+        public SoundGroupHelper SoundGroupHelper => m_SoundGroupHelper;
+
+        /// <summary>
         /// 本组播放器数量
         /// </summary>
-        public int SoundAgentCount
-        {
-            get => m_SoundAgents.Count;
-        }
+        public int SoundAgentCount => m_SoundAgents.Count;
 
         /// <summary>
         /// 同优先级声音是否禁止互相替换
         /// </summary>
-        private bool m_AvoidBeingReplacedBySamePriority;
         public bool AvoidBeingReplacedBySamePriority
         {
             get => m_AvoidBeingReplacedBySamePriority;
@@ -54,7 +76,6 @@ namespace Honor.Runtime
         /// 本组全局静音
         /// 设置时自动刷新所有播放器
         /// </summary>
-        private bool m_Mute;
         public bool Mute
         {
             get => m_Mute;
@@ -72,7 +93,6 @@ namespace Honor.Runtime
         /// 本组全局音量
         /// 设置时自动刷新所有播放器
         /// </summary>
-        private float m_Volume;
         public float Volume
         {
             get => m_Volume;

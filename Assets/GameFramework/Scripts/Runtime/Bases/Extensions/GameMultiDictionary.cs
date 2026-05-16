@@ -1,8 +1,20 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameMultiDictionary.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   游戏框架多值字典类（一对多、链表+字典实现）
+ ***************************************************************/
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 
+    //=========================================================================
     /// <summary>
     /// 游戏框架多值字典类
     /// 功能：一个主键对应多个值，底层使用链表+字典组合实现，高效存储与遍历同键多值数据
@@ -22,6 +34,10 @@ namespace Honor.Runtime
         /// </summary>
         private readonly Dictionary<TKey, GameLinkedListRange<TValue>> m_Dictionary;
 
+        #region 构造函数
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 初始化游戏框架多值字典类的新实例
         /// </summary>
@@ -30,17 +46,16 @@ namespace Honor.Runtime
             m_LinkedList = new GameLinkedList<TValue>();
             m_Dictionary = new Dictionary<TKey, GameLinkedListRange<TValue>>();
         }
+        #endregion
 
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 获取多值字典中实际包含的【主键总数】
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return m_Dictionary.Count;
-            }
-        }
+        public int Count => m_Dictionary.Count;
 
         /// <summary>
         /// 索引器：通过主键获取对应的链表区间
@@ -56,7 +71,12 @@ namespace Honor.Runtime
                 return range;
             }
         }
+        #endregion
 
+        #region 清空操作
+        //=========================================================================
+        // 清空操作
+        //=========================================================================
         /// <summary>
         /// 清空多值字典所有数据（清空字典+清空链表）
         /// </summary>
@@ -65,7 +85,12 @@ namespace Honor.Runtime
             m_Dictionary.Clear();
             m_LinkedList.Clear();
         }
+        #endregion
 
+        #region 包含判断
+        //=========================================================================
+        // 包含判断
+        //=========================================================================
         /// <summary>
         /// 检查字典中是否包含指定主键
         /// </summary>
@@ -92,7 +117,12 @@ namespace Honor.Runtime
 
             return false;
         }
+        #endregion
 
+        #region 获取操作
+        //=========================================================================
+        // 获取操作
+        //=========================================================================
         /// <summary>
         /// 尝试根据主键获取对应的链表区间（安全获取，不抛异常）
         /// </summary>
@@ -103,7 +133,12 @@ namespace Honor.Runtime
         {
             return m_Dictionary.TryGetValue(key, out range);
         }
+        #endregion
 
+        #region 添加操作
+        //=========================================================================
+        // 添加操作
+        //=========================================================================
         /// <summary>
         /// 向指定主键添加一个值
         /// 规则：主键已存在 → 追加到对应区间；主键不存在 → 新建区间并添加值
@@ -127,7 +162,12 @@ namespace Honor.Runtime
                 m_Dictionary.Add(key, new GameLinkedListRange<TValue>(first, terminal));
             }
         }
+        #endregion
 
+        #region 移除操作
+        //=========================================================================
+        // 移除操作
+        //=========================================================================
         /// <summary>
         /// 从指定主键中移除【第一个匹配】的值
         /// </summary>
@@ -199,7 +239,12 @@ namespace Honor.Runtime
 
             return false;
         }
+        #endregion
 
+        #region 枚举器
+        //=========================================================================
+        // 枚举器
+        //=========================================================================
         /// <summary>
         /// 获取自定义枚举器，用于遍历字典中的键值对
         /// </summary>
@@ -255,24 +300,12 @@ namespace Honor.Runtime
             /// <summary>
             /// 获取当前遍历到的键值对（泛型版本）
             /// </summary>
-            public KeyValuePair<TKey, GameLinkedListRange<TValue>> Current
-            {
-                get
-                {
-                    return m_Enumerator.Current;
-                }
-            }
+            public KeyValuePair<TKey, GameLinkedListRange<TValue>> Current => m_Enumerator.Current;
 
             /// <summary>
             /// 获取当前遍历到的键值对（非泛型接口版本）
             /// </summary>
-            object IEnumerator.Current
-            {
-                get
-                {
-                    return m_Enumerator.Current;
-                }
-            }
+            object IEnumerator.Current => m_Enumerator.Current;
 
             /// <summary>
             /// 释放枚举器资源
@@ -299,5 +332,6 @@ namespace Honor.Runtime
                 ((IEnumerator<KeyValuePair<TKey, GameLinkedListRange<TValue>>>)m_Enumerator).Reset();
             }
         }
+        #endregion
     }
 }

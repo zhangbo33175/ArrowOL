@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorTextPicMixed.Collect.cs
+ * author:    云毅
+ * created:   2026   2025
+ * descrip:   图文混排 - 图标采集与资源加载（partial）
+ ***************************************************************/
+
 #if UIEXTENSION_ENABLE
 using System.Collections.Generic;
 using System.IO;
@@ -6,8 +16,12 @@ using UnityEngine.UI.Extensions;
 
 namespace Honor.Runtime
 {
-    public partial class AorTextPicMixed : TextPic
+    public partial class AorTextPicMixed
     {
+        //=========================================================================
+        // 图标采集与资源加载
+        //=========================================================================
+        #region Method - 图标采集
         /// <summary>
         /// 采集并加载图标信息，加入图标列表
         /// 运行时：从AB包同步加载
@@ -27,12 +41,7 @@ namespace Honor.Runtime
             // 检查图标是否已存在，避免重复添加
             int index = iconList.FindIndex((icon) =>
             {
-                if (icon.name.Equals(name))
-                {
-                    return true;
-                }
-
-                return false;
+                return icon.name.Equals(name);
             });
 
             if (index < 0)
@@ -83,7 +92,12 @@ namespace Honor.Runtime
 
             return true;
         }
+        #endregion
 
+        //=========================================================================
+        // 编辑器路径搜索
+        //=========================================================================
+        #region Method - 编辑器资源路径
         /// <summary>
         /// 编辑器专用：获取Sprite的完整资源路径
         /// 自动搜索目录下的图片，解决AB路径与实际文件路径不一致的问题
@@ -131,6 +145,7 @@ namespace Honor.Runtime
 
             return null;
         }
+        #endregion
     }
 }
 #endif

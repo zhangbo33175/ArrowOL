@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PersistComponentInspector.cs
+ * author:    云毅
+ * created:   2026   自动生成
+ * descrip:   持久化组件编辑器检视面板 - 存档数据编辑、Proto导出、序列化管理
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,8 +25,12 @@ namespace Honor.Editor
     /// 提供存档数据编辑、Proto协议导出、数据序列化/反序列化、运行时数据查看功能
     /// </summary>
     [CustomEditor(typeof(PersistComponent))]
-    internal sealed partial class PersistComponentInspector: HonorComponentInspector
+    internal sealed partial class PersistComponentInspector : HonorComponentInspector
     {
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        #region 字段定义
         /// <summary>
         /// 展开的分类项集合
         /// </summary>
@@ -81,8 +95,13 @@ namespace Honor.Editor
         /// <summary>
         /// 运行时Proto协议结构信息
         /// </summary>
-        Dictionary<string, Dictionary<string, string>> m_RuntimeClassInterFieldTypes = new Dictionary<string, Dictionary<string, string>>();
+        private Dictionary<string, Dictionary<string, string>> m_RuntimeClassInterFieldTypes = new Dictionary<string, Dictionary<string, string>>();
+        #endregion
 
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region 生命周期方法
         /// <summary>
         /// 启用时初始化数据与状态
         /// </summary>
@@ -123,7 +142,6 @@ namespace Honor.Editor
             {
                 LoadDatasOnRuntimeMode(PersistWayType.PlayerPrefs);
             }
-
         }
 
         /// <summary>
@@ -186,10 +204,14 @@ namespace Honor.Editor
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-
             RefreshTypeNames();
         }
+        #endregion
 
+        //=========================================================================
+        // 公共操作 - 文件夹/类型刷新
+        //=========================================================================
+        #region 公共操作方法
         /// <summary>
         /// 打开Proto协议存放文件夹
         /// </summary>
@@ -216,7 +238,12 @@ namespace Honor.Editor
         {
             serializedObject.ApplyModifiedProperties();
         }
+        #endregion
 
+        //=========================================================================
+        // Proto解析与结构解析
+        //=========================================================================
+        #region Proto结构解析
         /// <summary>
         /// 解析Proto文件，获取主结构字段详情
         /// </summary>
@@ -340,7 +367,7 @@ namespace Honor.Editor
                         descNoteSaveDataUnderRoot.Add(classDescNote);
 
                         string fullName = className.Split('.')[1];
-                        string structorName = fullName;// className.Split(".")[className.Split(".").Length - 1];
+                        string structorName = fullName;
                         classInterFieldTypes.Add(fullName, new Dictionary<string, string>());
 
                         ___recusive(className, structorName, "", classFieldTypes, classInterFieldTypes[fullName]);
@@ -351,7 +378,12 @@ namespace Honor.Editor
             }
             return classInterFieldTypes;
         }
+        #endregion
 
+        //=========================================================================
+        // PB数据编码/解码
+        //=========================================================================
+        #region PB编解码
         /// <summary>
         /// PB消息数据编码（Base64+Protobuf）
         /// </summary>
@@ -416,7 +448,12 @@ namespace Honor.Editor
 
             return null;
         }
+        #endregion
 
+        //=========================================================================
+        // 数据加载（Editor + Runtime）
+        //=========================================================================
+        #region 数据加载
         /// <summary>
         /// 编辑器模式下加载持久化数据
         /// </summary>
@@ -526,7 +563,12 @@ namespace Honor.Editor
                 m_RuntimeClassInterFieldTypes = GetPbFileMainStructorDetailInfos(runtimeLuaFilesDeclaresLines);
             }
         }
+        #endregion
 
+        //=========================================================================
+        // GUI绘制（Editor + Runtime）
+        //=========================================================================
+        #region GUI绘制
         /// <summary>
         /// 编辑器模式刷新GUI
         /// </summary>
@@ -543,7 +585,7 @@ namespace Honor.Editor
                 persistWayName = "文件片段持久化（Editor）";
             }
             bool persistWayLastState = m_OpenedItems.Contains(persistWayName);
-            bool persistWayCurrentState = EditorGUILayout.Foldout(persistWayLastState, persistWayName);// AorTxt.Format("{0}({1})", listName, prefabList.Count));
+            bool persistWayCurrentState = EditorGUILayout.Foldout(persistWayLastState, persistWayName);
             if (persistWayCurrentState != persistWayLastState)
             {
                 if (persistWayCurrentState)
@@ -809,7 +851,7 @@ namespace Honor.Editor
                 persistWayName = "文件片段持久化（Runtime）（只读）";
             }
             bool persistWayLastState = m_OpenedItems.Contains(persistWayName);
-            bool persistWayCurrentState = EditorGUILayout.Foldout(persistWayLastState, persistWayName);// AorTxt.Format("{0}({1})", listName, prefabList.Count));
+            bool persistWayCurrentState = EditorGUILayout.Foldout(persistWayLastState, persistWayName);
             if (persistWayCurrentState != persistWayLastState)
             {
                 if (persistWayCurrentState)
@@ -974,7 +1016,12 @@ namespace Honor.Editor
                 EditorGUILayout.EndVertical();
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 序列化/反序列化（文件存储）
+        //=========================================================================
+        #region 序列化与反序列化
         /// <summary>
         /// 序列化文件片段数据（AES+GZIP压缩）
         /// </summary>
@@ -1026,7 +1073,12 @@ namespace Honor.Editor
                 }
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 运行时数据刷新
+        //=========================================================================
+        #region 运行时数据刷新
         /// <summary>
         /// 运行时刷新PlayerPrefs数据显示
         /// </summary>
@@ -1043,7 +1095,12 @@ namespace Honor.Editor
                 m_RuntimeLastDecodedPbValue[classifyName][itemName] = SwitchToReadableFormat(itemValue);
             }
         }
+        #endregion
 
+        //=========================================================================
+        // Editor模式 - PlayerPrefs树形结构展示
+        //=========================================================================
+        #region PlayerPrefs树形展示
         /// <summary>
         /// 编辑器模式展示PlayerPrefs层级结构
         /// </summary>
@@ -1051,7 +1108,7 @@ namespace Honor.Editor
         private void ShowPlayerPrefsItemsOnEditorMode(string classifyName)
         {
             // 递归链表
-            List<Node> list = new List<Node>();  // 队列中的每个node都是classifyName下的根节点
+            List<Node> list = new List<Node>();
             foreach(var itr in m_ValueList[PersistWayType.PlayerPrefs][classifyName])
             {
                 string[] picesNames = itr.Key.Split('.');
@@ -1128,9 +1185,7 @@ namespace Honor.Editor
                             m_ValueList[persistWay][classifyName][itemName] = SwitchToTidyFormat(m_EditValueList[persistWay][classifyName][itemName]);
 
                             string key = AorTxt.Format("{0}_{1}", classifyName, itemName);
-                            // 获取所有存档Proto协议数据结构
                             GenerateLuaDeclares(out List<List<string>> luaFilesDeclaresLines, false);
-                            // 获取Pb文件主结构的详细信息
                             Dictionary<string, Dictionary<string, string>> classInterFieldTypes = GetPbFileMainStructorDetailInfos(luaFilesDeclaresLines);
                             string[] itemArray = classInterFieldTypes[classifyName][itemName].Split('.');
                             string itemType = itemArray[itemArray.Length - 1];
@@ -1256,13 +1311,17 @@ namespace Honor.Editor
                     EditorGUILayout.EndVertical();
                 }
             }
-
         }
-        
+        #endregion
+
+        //=========================================================================
+        // 内部树形节点结构
+        //=========================================================================
+        #region 树形节点结构
         /// <summary>
         /// 树形节点结构类
         /// </summary>
-        class Node
+        private class Node
         {
             public Node(string name, string key)
             {
@@ -1270,30 +1329,38 @@ namespace Honor.Editor
                 Key = key;
                 NextNodes = new List<Node>();
             }
+
             /// <summary>
             /// 节点名称
             /// </summary>
             public string Name;
+            
             /// <summary>
             /// 节点完整键
             /// </summary>
             public string Key;
+            
             /// <summary>
             /// 子节点列表
             /// </summary>
             public List<Node> NextNodes;
+            
             /// <summary>
             /// 节点描述
             /// </summary>
-            public string Desc { get => Name + "(" + NextNodes.Count + ")"; }
+            public string Desc => Name + "(" + NextNodes.Count + ")";
+            
             /// <summary>
             /// 是否为叶子节点
             /// </summary>
-            public bool IsLeaf { get => NextNodes.Count == 0; }
+            public bool IsLeaf => NextNodes.Count == 0;
         }
+        #endregion
 
+        //=========================================================================
+        // 数据格式化工具（可读/压缩格式）
+        //=========================================================================
         #region 数据格式化工具
-
         /// <summary>
         /// 转换为带缩进的可读格式
         /// </summary>
@@ -1469,7 +1536,6 @@ namespace Honor.Editor
 
             return tabStr;
         }
-
         #endregion
     }
 }

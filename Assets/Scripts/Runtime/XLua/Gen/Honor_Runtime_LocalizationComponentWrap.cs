@@ -46,10 +46,10 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "RuntimeLastLanguage", _g_get_RuntimeLastLanguage);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "RuntimeLastLanguageName", _g_get_RuntimeLastLanguageName);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "RuntimeLastLanguageIndex", _g_get_RuntimeLastLanguageIndex);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SystemLanguage", _g_get_SystemLanguage);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "AutoFontAdapt", _g_get_AutoFontAdapt);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SystemLanguageName", _g_get_SystemLanguageName);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SystemLanguageIndex", _g_get_SystemLanguageIndex);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "AutoFontAdapt", _g_get_AutoFontAdapt);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SystemLanguage", _g_get_SystemLanguage);
             
 			
 			
@@ -621,13 +621,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_SystemLanguage(RealStatePtr L)
+        static int _g_get_AutoFontAdapt(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.LocalizationComponent gen_to_be_invoked = (Honor.Runtime.LocalizationComponent)translator.FastGetCSObj(L, 1);
-                translator.PushHonorRuntimeGameDefinitionsLanguage(L, gen_to_be_invoked.SystemLanguage);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.AutoFontAdapt);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -663,13 +663,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_AutoFontAdapt(RealStatePtr L)
+        static int _g_get_SystemLanguage(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.LocalizationComponent gen_to_be_invoked = (Honor.Runtime.LocalizationComponent)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.AutoFontAdapt);
+                translator.PushHonorRuntimeGameDefinitionsLanguage(L, gen_to_be_invoked.SystemLanguage);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

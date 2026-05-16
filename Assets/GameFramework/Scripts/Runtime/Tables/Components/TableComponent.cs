@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  TableComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   表格配置组件 - 游戏策划表/Excel表管理载体组件
+ *            C#仅做组件承载，实际逻辑全部由Lua层实现
+ ***************************************************************/
+
 using UnityEngine;
 
 namespace Honor.Runtime
@@ -7,9 +18,14 @@ namespace Honor.Runtime
     /// 归属：GameFramework 游戏核心组件
     /// 说明：C# 层仅作为组件载体，实际表格解析、VBA 生成、配置读取均转移至 Lua 层
     /// </summary>
-    [DisallowMultipleComponent] // 禁止同一物体挂载多个此组件
+    [DisallowMultipleComponent]
     public sealed partial class TableComponent : GameComponent
     {
+        //=========================================================================
+        // 生命周期函数
+        //=========================================================================
+        #region 生命周期
+
         /// <summary>
         /// 初始化组件（C#层无业务逻辑）
         /// </summary>
@@ -24,17 +40,19 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 启动（无逻辑）
+        /// 启动（C#层无业务逻辑）
         /// </summary>
         private void Start()
         {
         }
 
         /// <summary>
-        /// 销毁（无逻辑）
+        /// 销毁（C#层无业务逻辑）
         /// </summary>
         private void OnDestroy()
         {
         }
+
+        #endregion
     }
 }

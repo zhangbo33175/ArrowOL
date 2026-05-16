@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  SoundManager.Variable.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   声音管理器 - 成员变量分部类
+ *           存放音频系统核心全局变量，与逻辑实现分离，结构更清晰
+ ***************************************************************/
+
 using System.Collections.Generic;
 
 namespace Honor.Runtime
@@ -8,6 +19,11 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class SoundManager
     {
+        //=========================================================================
+        // 核心成员变量
+        //=========================================================================
+        #region 核心成员变量
+        
         /// <summary>
         /// 声音组字典
         /// 键：声音组名称（如 BGM、Effect、UI、Voice）
@@ -38,5 +54,7 @@ namespace Honor.Runtime
         /// 每播放一个声音就+1，用于全局唯一标识、控制播放/暂停/停止
         /// </summary>
         private int m_Serial;
+
+        #endregion
     }
 }

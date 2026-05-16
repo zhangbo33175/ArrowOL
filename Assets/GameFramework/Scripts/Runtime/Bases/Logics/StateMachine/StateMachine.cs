@@ -1,9 +1,22 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  StateMachine.cs
+ * author:    云毅
+ * created:   2026   2025年
+ * descrip:   有限状态机抽象基类，管理状态生命周期、切换与轮询
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 有限状态机抽象基类
+    //=========================================================================
     /// <summary>
     /// 有限状态机抽象基类
     /// 负责管理一组状态的生命周期、切换、轮询与运行时数据
@@ -11,6 +24,7 @@ namespace Honor.Runtime
     /// <typeparam name="T">状态机持有者类型</typeparam>
     public abstract class StateMachine<T> where T : class
     {
+        #region 私有字段
         /// <summary>
         /// 状态机名称
         /// </summary>
@@ -50,12 +64,15 @@ namespace Honor.Runtime
         /// 是否已销毁
         /// </summary>
         protected bool m_IsDestroyed;
+        #endregion
 
+        #region 构造函数
         /// <summary>
         /// 创建状态机
         /// </summary>
         /// <param name="owner">持有者</param>
         /// <param name="states">状态机包含的所有状态</param>
+        /// <exception cref="GameException">参数无效时抛出异常</exception>
         public StateMachine(T owner, params State<T>[] states)
         {
             if (owner == null)
@@ -94,7 +111,9 @@ namespace Honor.Runtime
                 state.OnInit(this);
             }
         }
+        #endregion
 
+        #region 公共属性
         /// <summary>
         /// 状态机名称
         /// </summary>
@@ -158,7 +177,9 @@ namespace Honor.Runtime
         /// 当前状态已持续时间
         /// </summary>
         public float CurrentStateTime => m_CurrentStateTime;
+        #endregion
 
+        #region 状态机控制
         /// <summary>
         /// 清空并销毁状态机
         /// </summary>
@@ -188,6 +209,7 @@ namespace Honor.Runtime
         /// 启动状态机
         /// </summary>
         /// <param name="stateType">初始状态类型</param>
+        /// <exception cref="GameException">状态机已运行或状态无效时抛出异常</exception>
         public void Start(Type stateType)
         {
             if (IsRunning)
@@ -217,8 +239,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 关闭并销毁状态机
+        /// </summary>
+        public virtual void Shutdown()
+        {
+            Clear();
+        }
+        #endregion
+
+        #region 状态操作
+        /// <summary>
         /// 是否包含指定状态
         /// </summary>
+        /// <param name="stateType">状态类型</param>
+        /// <returns>是否包含</returns>
         public bool HasState(Type stateType)
         {
             if (stateType == null)
@@ -237,6 +271,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取指定状态
         /// </summary>
+        /// <param name="stateType">状态类型</param>
+        /// <returns>状态实例</returns>
         public State<T> GetState(Type stateType)
         {
             if (stateType == null)
@@ -256,6 +292,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取所有状态
         /// </summary>
+        /// <returns>状态数组</returns>
         public State<T>[] GetAllStates()
         {
             int index = 0;
@@ -270,6 +307,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取所有状态（不分配数组，更高效）
         /// </summary>
+        /// <param name="results">接收结果的列表</param>
         public void GetAllStates(List<State<T>> results)
         {
             if (results == null)
@@ -287,6 +325,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 切换状态
         /// </summary>
+        /// <param name="stateType">目标状态类型</param>
+        /// <exception cref="GameException">状态机未运行或状态无效时抛出异常</exception>
         public void ChangeState(Type stateType)
         {
             if (m_CurrentState == null)
@@ -307,7 +347,9 @@ namespace Honor.Runtime
             m_CurrentState = state;
             m_CurrentState.OnEnter(this);
         }
+        #endregion
 
+        #region 生命周期更新
         /// <summary>
         /// 每帧轮询状态机
         /// </summary>
@@ -319,13 +361,6 @@ namespace Honor.Runtime
             m_CurrentStateTime += Time.deltaTime;
             m_CurrentState.OnUpdate(this);
         }
-
-        /// <summary>
-        /// 关闭并销毁状态机
-        /// </summary>
-        public virtual void Shutdown()
-        {
-            Clear();
-        }
+        #endregion
     }
 }

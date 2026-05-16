@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  TableComponent.Variable.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   表格配置组件 - 成员变量分部类
+ *            仅存放变量定义，业务逻辑分离管理
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -7,6 +18,13 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class TableComponent : GameComponent
     {
+        //=========================================================================
+        // 成员变量
+        //=========================================================================
+        #region 成员变量
+
         // （当前无需要声明的成员变量）
+
+        #endregion
     }
 }

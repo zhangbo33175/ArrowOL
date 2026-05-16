@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ProcedureComponent.Config.cs
+ * author:    云毅
+ * created:
+ * descrip:   流程状态机组件 - 序列化配置、属性、过渡动画参数
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +16,10 @@ namespace Honor.Runtime
 {
     public sealed partial class ProcedureComponent : GameComponent
     {
+        //=========================================================================
+        #region 序列化配置（Inspector 可见）
+        //=========================================================================
+
         /// <summary>
         /// 所有流程的完整类型名称集合（用于反射实例化）
         /// </summary>
@@ -95,6 +109,58 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField]
         private string m_UITransitionABPath;
+
+        /// <summary>
+        /// 流程切换过渡界面资源名称
+        /// </summary>
+        [SerializeField]
+        private string m_UITransitionAssetName;
+
+        /// <summary>
+        /// 闪屏界面 AB 包路径
+        /// </summary>
+        [SerializeField]
+        private string m_UISplashABPath;
+
+        /// <summary>
+        /// 闪屏界面资源名称
+        /// </summary>
+        [SerializeField]
+        private string m_UISplashAssetName;
+
+        /// <summary>
+        /// 闪屏流程默认显示时长（秒）
+        /// </summary>
+        [SerializeField]
+        private int m_SplashProcedureDuration = 5;
+
+        /// <summary>
+        /// 是否启用预加载界面
+        /// </summary>
+        [SerializeField]
+        private bool m_UseUIPreload;
+
+        /// <summary>
+        /// 预加载界面 AB 包路径
+        /// </summary>
+        [SerializeField]
+        private string m_UIPreloadABPath;
+
+        /// <summary>
+        /// 预加载界面资源名称
+        /// </summary>
+        [SerializeField]
+        private string m_UIPreloadAssetName;
+
+        #endregion
+
+        //=========================================================================
+        #region 公共属性（外部访问）
+        //=========================================================================
+
+        /// <summary>
+        /// 流程切换过渡界面 AB 包路径
+        /// </summary>
         public string UITransitionABPath
         {
             get { return m_UITransitionABPath; }
@@ -103,8 +169,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 流程切换过渡界面资源名称
         /// </summary>
-        [SerializeField]
-        private string m_UITransitionAssetName;
         public string UITransitionAssetName
         {
             get { return m_UITransitionAssetName; }
@@ -113,8 +177,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 闪屏界面 AB 包路径
         /// </summary>
-        [SerializeField]
-        private string m_UISplashABPath;
         public string UISplashABPath
         {
             get { return m_UISplashABPath; }
@@ -123,8 +185,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 闪屏界面资源名称
         /// </summary>
-        [SerializeField]
-        private string m_UISplashAssetName;
         public string UISplashAssetName
         {
             get { return m_UISplashAssetName; }
@@ -133,8 +193,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 闪屏流程默认显示时长（秒）
         /// </summary>
-        [SerializeField]
-        private int m_SplashProcedureDuration = 5;
         public int SplashProcedureDuration
         {
             get { return m_SplashProcedureDuration; }
@@ -143,8 +201,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 是否启用预加载界面
         /// </summary>
-        [SerializeField]
-        private bool m_UseUIPreload;
         public bool UseUIPreload
         {
             get { return m_UseUIPreload; }
@@ -153,8 +209,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 预加载界面 AB 包路径
         /// </summary>
-        [SerializeField]
-        private string m_UIPreloadABPath;
         public string UIPreloadABPath
         {
             get { return m_UIPreloadABPath; }
@@ -163,12 +217,16 @@ namespace Honor.Runtime
         /// <summary>
         /// 预加载界面资源名称
         /// </summary>
-        [SerializeField]
-        private string m_UIPreloadAssetName;
         public string UIPreloadAssetName
         {
             get { return m_UIPreloadAssetName; }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 静态配置
+        //=========================================================================
 
         /// <summary>
         /// Lua 脚本白名单（仅白名单内流程可绑定 Lua 逻辑）
@@ -178,6 +236,12 @@ namespace Honor.Runtime
             "ProcedurePreload",
             "ProcedurePlaying",
         };
+
+        #endregion
+
+        //=========================================================================
+        #region 运行时私有变量
+        //=========================================================================
 
         /// <summary>
         /// 流程状态机（核心驱动）
@@ -193,6 +257,16 @@ namespace Honor.Runtime
         /// 运行时流程切换记录（用于日志/打点/调试）
         /// </summary>
         private List<string> m_RuntimeProcedureRecordInfos = null;
+
+        #endregion
+
+        //=========================================================================
+        #region 运行时只读属性
+        //=========================================================================
+
+        /// <summary>
+        /// 运行时流程切换记录（用于日志/打点/调试）
+        /// </summary>
         public List<string> RuntimeProcedureRecordInfos
         {
             get { return m_RuntimeProcedureRecordInfos; }
@@ -373,5 +447,7 @@ namespace Honor.Runtime
         {
             get { return m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix; }
         }
+
+        #endregion
     }
 }

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkComponent.cs
+ * author:    云毅
+ * created:
+ * descrip:   网络管理组件 - 结构占位分部类
+ ***************************************************************/
+
 namespace Honor.Runtime
 {
     /// <summary>
@@ -7,6 +17,9 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class NetworkComponent : GameComponent
     {
+        //=========================================================================
+        #region 字段
         // 本文件为结构占位文件，无成员变量
+        #endregion
     }
 }

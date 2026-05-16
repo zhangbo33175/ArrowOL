@@ -1,9 +1,26 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  FileFragmentManager.Fields.cs
+ * author:    云毅
+ * created:
+ * descrip:   文件片段管理器 - 字段、属性与计数接口
+ ***************************************************************/
+
 using System.Collections.Generic;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 文件片段存储管理器 - 字段与属性模块
+    /// </summary>
     public sealed partial class FileFragmentManager
     {
+        //=========================================================================
+        #region 字段 & 属性
+        //=========================================================================
+
         /// <summary>
         /// 文件片段根目录绝对路径
         /// </summary>
@@ -15,10 +32,7 @@ namespace Honor.Runtime
         private readonly List<string> m_FileFragmentNames = null;
         public List<string> FileFragmentNames
         {
-            get
-            {
-                return m_FileFragmentNames;
-            }
+            get { return m_FileFragmentNames; }
         }
 
         /// <summary>
@@ -27,10 +41,7 @@ namespace Honor.Runtime
         private readonly List<string> m_FileFragmentNamesForDelete = null;
         public List<string> FileFragmentNamesForDelete
         {
-            get
-            {
-                return m_FileFragmentNamesForDelete;
-            }
+            get { return m_FileFragmentNamesForDelete; }
         }
 
         /// <summary>
@@ -39,10 +50,7 @@ namespace Honor.Runtime
         private readonly List<string> m_FilePaths = null;
         public List<string> FilePaths
         {
-            get
-            {
-                return m_FilePaths;
-            }
+            get { return m_FilePaths; }
         }
 
         /// <summary>
@@ -53,11 +61,14 @@ namespace Honor.Runtime
         private readonly SortedDictionary<string, FileFragmentItemGroup> m_ItemGroups = null;
         public SortedDictionary<string, FileFragmentItemGroup> ItemGroups
         {
-            get
-            {
-                return m_ItemGroups;
-            }
+            get { return m_ItemGroups; }
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 公共方法
+        //=========================================================================
 
         /// <summary>
         /// 获取指定文件片段内的数据条目数量
@@ -70,5 +81,7 @@ namespace Honor.Runtime
                 ? m_ItemGroups[fileFragmentName].Count 
                 : 0;
         }
+
+        #endregion
     }
 }

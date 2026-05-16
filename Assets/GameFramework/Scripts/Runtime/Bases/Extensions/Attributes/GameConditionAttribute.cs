@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    #region 游戏框架条件显示特性
     /// <summary>
     /// 游戏框架条件显示特性（Honor 框架编辑器扩展专用）
     /// 用于在 Inspector 面板根据布尔变量值，动态显示/隐藏字段
@@ -11,6 +12,9 @@ namespace Honor.Runtime
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
     public class GameConditionAttribute : PropertyAttribute
     {
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 用于判断的布尔变量名称（必须是当前类中的 bool 成员）
         /// </summary>
@@ -21,6 +25,9 @@ namespace Honor.Runtime
         /// </summary>
         public bool Hidden { get; private set; }
 
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 构造函数 - 默认不满足条件时变灰（不隐藏）
         /// </summary>
@@ -42,4 +49,5 @@ namespace Honor.Runtime
             Hidden = hideInInspector;
         }
     }
+    #endregion
 }

@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * -------------------------------------------------------------
+ * filename:  SoundAgentHelper.cs
+ * author:  云毅
+ * created:
+ * descrip:   声音代理辅助器 —— 封装Unity AudioSource，实现播放/暂停/淡入淡出/3D定位
+ ***************************************************************/
+
 using System;
 using System.Collections;
 using UnityEngine;
@@ -15,41 +24,35 @@ namespace Honor.Runtime
         /// <summary>
         /// 缓存 Transform，提升性能
         /// </summary>
-        private Transform m_CachedTransform = null;
+        private Transform m_CachedTransform;
 
         /// <summary>
         /// Unity 官方音频播放组件
         /// </summary>
-        private AudioSource m_AudioSource = null;
+        private AudioSource m_AudioSource;
 
         /// <summary>
         /// 暂停前保存的音量，用于恢复
         /// </summary>
-        private float m_VolumeWhenPause = 0f;
+        private float m_VolumeWhenPause;
 
         /// <summary>
         /// 当前是否正在播放
         /// </summary>
-        public bool IsPlaying
-        {
-            get { return m_AudioSource.isPlaying; }
-        }
+        public bool IsPlaying => m_AudioSource.isPlaying;
 
         /// <summary>
         /// 音频长度（秒）
         /// </summary>
-        public float Length
-        {
-            get { return m_AudioSource.clip != null ? m_AudioSource.clip.length : 0f; }
-        }
+        public float Length => m_AudioSource.clip != null ? m_AudioSource.clip.length : 0f;
 
         /// <summary>
         /// 当前播放时间位置
         /// </summary>
         public float Time
         {
-            get { return m_AudioSource.time; }
-            set { m_AudioSource.time = value; }
+            get => m_AudioSource.time;
+            set => m_AudioSource.time = value;
         }
 
         /// <summary>
@@ -57,8 +60,8 @@ namespace Honor.Runtime
         /// </summary>
         public bool Mute
         {
-            get { return m_AudioSource.mute; }
-            set { m_AudioSource.mute = value; }
+            get => m_AudioSource.mute;
+            set => m_AudioSource.mute = value;
         }
 
         /// <summary>
@@ -66,17 +69,17 @@ namespace Honor.Runtime
         /// </summary>
         public bool Loop
         {
-            get { return m_AudioSource.loop; }
-            set { m_AudioSource.loop = value; }
+            get => m_AudioSource.loop;
+            set => m_AudioSource.loop = value;
         }
 
         /// <summary>
-        /// 声音优先级（做了值反转，方便外部使用：数字越大优先级越高）
+        /// 声音优先级（外部：数字越大优先级越高）
         /// </summary>
         public int Priority
         {
-            get { return 128 - m_AudioSource.priority; }
-            set { m_AudioSource.priority = 128 - value; }
+            get => 128 - m_AudioSource.priority;
+            set => m_AudioSource.priority = 128 - value;
         }
 
         /// <summary>
@@ -84,8 +87,8 @@ namespace Honor.Runtime
         /// </summary>
         public float Volume
         {
-            get { return m_AudioSource.volume; }
-            set { m_AudioSource.volume = value; }
+            get => m_AudioSource.volume;
+            set => m_AudioSource.volume = value;
         }
 
         /// <summary>
@@ -93,11 +96,11 @@ namespace Honor.Runtime
         /// </summary>
         public float Pitch
         {
-            get { return m_AudioSource.pitch; }
+            get => m_AudioSource.pitch;
             set
             {
                 m_AudioSource.pitch = value;
-                m_AudioSource.time *= value; // 同步时间轴，防止变速跳变
+                m_AudioSource.time *= value; // 变速同步时间轴，防止跳变
             }
         }
 
@@ -106,8 +109,8 @@ namespace Honor.Runtime
         /// </summary>
         public float PanStereo
         {
-            get { return m_AudioSource.panStereo; }
-            set { m_AudioSource.panStereo = value; }
+            get => m_AudioSource.panStereo;
+            set => m_AudioSource.panStereo = value;
         }
 
         /// <summary>
@@ -115,8 +118,8 @@ namespace Honor.Runtime
         /// </summary>
         public float SpatialBlend
         {
-            get { return m_AudioSource.spatialBlend; }
-            set { m_AudioSource.spatialBlend = value; }
+            get => m_AudioSource.spatialBlend;
+            set => m_AudioSource.spatialBlend = value;
         }
 
         /// <summary>
@@ -124,8 +127,8 @@ namespace Honor.Runtime
         /// </summary>
         public float MaxDistance
         {
-            get { return m_AudioSource.maxDistance; }
-            set { m_AudioSource.maxDistance = value; }
+            get => m_AudioSource.maxDistance;
+            set => m_AudioSource.maxDistance = value;
         }
 
         /// <summary>
@@ -133,8 +136,8 @@ namespace Honor.Runtime
         /// </summary>
         public float DopplerLevel
         {
-            get { return m_AudioSource.dopplerLevel; }
-            set { m_AudioSource.dopplerLevel = value; }
+            get => m_AudioSource.dopplerLevel;
+            set => m_AudioSource.dopplerLevel = value;
         }
 
         /// <summary>
@@ -142,8 +145,8 @@ namespace Honor.Runtime
         /// </summary>
         public AudioMixerGroup AudioMixerGroup
         {
-            get { return m_AudioSource.outputAudioMixerGroup; }
-            set { m_AudioSource.outputAudioMixerGroup = value; }
+            get => m_AudioSource.outputAudioMixerGroup;
+            set => m_AudioSource.outputAudioMixerGroup = value;
         }
 
         /// <summary>
@@ -156,9 +159,9 @@ namespace Honor.Runtime
 
             if (fadeInSeconds > 0f)
             {
-                float volume = m_AudioSource.volume;
+                float finalVolume = m_AudioSource.volume;
                 m_AudioSource.volume = 0f;
-                StartCoroutine(FadeToVolume(m_AudioSource, volume, fadeInSeconds));
+                StartCoroutine(FadeToVolume(finalVolume, fadeInSeconds));
             }
         }
 
@@ -197,7 +200,7 @@ namespace Honor.Runtime
             m_AudioSource.UnPause();
 
             if (fadeInSeconds > 0f)
-                StartCoroutine(FadeToVolume(m_AudioSource, m_VolumeWhenPause, fadeInSeconds));
+                StartCoroutine(FadeToVolume(m_VolumeWhenPause, fadeInSeconds));
         }
 
         /// <summary>
@@ -205,8 +208,12 @@ namespace Honor.Runtime
         /// </summary>
         public void Reset()
         {
-            if (m_CachedTransform) m_CachedTransform.localPosition = Vector3.zero;
-            if (m_AudioSource) m_AudioSource.clip = null;
+            if (m_CachedTransform)
+                m_CachedTransform.localPosition = Vector3.zero;
+            
+            if (m_AudioSource)
+                m_AudioSource.clip = null;
+            
             m_VolumeWhenPause = 0f;
         }
 
@@ -216,7 +223,8 @@ namespace Honor.Runtime
         public bool SetSoundAsset(object soundAsset)
         {
             AudioClip audioClip = soundAsset as AudioClip;
-            if (audioClip == null) return false;
+            if (audioClip == null)
+                return false;
 
             m_AudioSource.clip = audioClip;
             return true;
@@ -238,44 +246,40 @@ namespace Honor.Runtime
             m_AudioSource.rolloffMode = AudioRolloffMode.Custom;
         }
 
-        private void Update()
-        {
-        }
-
         /// <summary>
-        /// 淡出后停止协程
+        /// 淡出后停止
         /// </summary>
         private IEnumerator StopCo(float fadeOutSeconds)
         {
-            yield return FadeToVolume(m_AudioSource, 0f, fadeOutSeconds);
+            yield return FadeToVolume(0f, fadeOutSeconds);
             m_AudioSource.Stop();
         }
 
         /// <summary>
-        /// 淡出后暂停协程
+        /// 淡出后暂停
         /// </summary>
         private IEnumerator PauseCo(float fadeOutSeconds)
         {
-            yield return FadeToVolume(m_AudioSource, 0f, fadeOutSeconds);
+            yield return FadeToVolume(0f, fadeOutSeconds);
             m_AudioSource.Pause();
         }
 
         /// <summary>
-        /// 通用音量渐变
+        /// 音量渐变通用协程
         /// </summary>
-        private IEnumerator FadeToVolume(AudioSource audioSource, float volume, float duration)
+        private IEnumerator FadeToVolume(float targetVolume, float duration)
         {
-            float time = 0f;
-            float originalVolume = audioSource.volume;
+            float elapsed = 0f;
+            float startVolume = m_AudioSource.volume;
 
-            while (time < duration)
+            while (elapsed < duration)
             {
-                time += UnityEngine.Time.deltaTime;
-                audioSource.volume = Mathf.Lerp(originalVolume, volume, time / duration);
-                yield return new WaitForEndOfFrame();
+                elapsed += UnityEngine.Time.deltaTime;
+                m_AudioSource.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+                yield return null;
             }
 
-            audioSource.volume = volume;
+            m_AudioSource.volume = targetVolume;
         }
     }
 }

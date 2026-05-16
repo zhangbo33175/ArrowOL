@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LocalizationComponentInspector.cs
+ * author:    云毅
+ * created:   2026   2026
+ * descrip:   本地化组件编辑器
+ *            多语言Excel导出、Lua生成、TMP字符集生成、增量导出、Key查重一体化工具
+ ***************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -191,7 +201,7 @@ namespace Honor.Editor
                 "Localization*.lua.txt", SearchOption.AllDirectories);
             for (int index = 0; index < luaFileFullPaths.Length; index++)
             {
-                string name1 = System.IO.Path.GetFileNameWithoutExtension(luaFileFullPaths[index]);
+                string name1 = Path.GetFileNameWithoutExtension(luaFileFullPaths[index]);
                 string name = name1.Substring(0, name1.Length - ".lua".Length);
                 if (!name.Equals("Localizations") && !name.Equals("LocalizationFonts") && !name.EndsWith("Increase") &&
                     !name.EndsWith("LocalizationSettingDataMgr"))
@@ -214,7 +224,7 @@ namespace Honor.Editor
             }
 
             // 获取自定义多语言表格路径集合
-            List<string> customExcelsFullPaths =new List<string>(Directory.GetFiles(EditorPath.Localization.ExcelFolderFullPath, "*.xlsm",
+            List<string> customExcelsFullPaths = new List<string>(Directory.GetFiles(EditorPath.Localization.ExcelFolderFullPath, "*.xlsm",
                     SearchOption.TopDirectoryOnly));
             customExcelsFullPaths.RemoveAll(path =>
             {
@@ -332,7 +342,7 @@ namespace Honor.Editor
                     for (int index = 0; index < customExcelsFullPaths.Count; index++)
                     {
                         string path = customExcelsFullPaths[index].Replace("\\", "/");
-                        string name = System.IO.Path.GetFileNameWithoutExtension(path);
+                        string name = Path.GetFileNameWithoutExtension(path);
                         EditorGUILayout.BeginHorizontal("box");
                         {
                             EditorGUILayout.LabelField(name);
@@ -386,10 +396,10 @@ namespace Honor.Editor
 
             if (Directory.Exists(jsonRootDirPath))
             {
-                string[] jsonFileFullPaths = System.IO.Directory.GetFiles(jsonRootDirPath, "*.json");
+                string[] jsonFileFullPaths = Directory.GetFiles(jsonRootDirPath, "*.json");
                 for (int index = 0; index < jsonFileFullPaths.Length; index++)
                 {
-                    string name = System.IO.Path.GetFileNameWithoutExtension(jsonFileFullPaths[index]);
+                    string name = Path.GetFileNameWithoutExtension(jsonFileFullPaths[index]);
                     if (name.StartsWith("LocalizationDefault") && !name.Equals("LocalizationDefaultLanguages"))
                     {
                         jsonFileNames.Add(name);
@@ -456,9 +466,9 @@ namespace Honor.Editor
                 Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
                 GamePathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationFonts.json");
 
-            if (System.IO.File.Exists(jsonFilePath))
+            if (File.Exists(jsonFilePath))
             {
-                string content = System.IO.File.ReadAllText(jsonFilePath);
+                string content = File.ReadAllText(jsonFilePath);
                 JObject jsonData = JsonConvert.DeserializeObject<JObject>(content);
                 foreach (var configName in jsonData)
                 {
@@ -567,7 +577,7 @@ namespace Honor.Editor
 
                 if (m_UseTMP)
                 {
-                    if (System.IO.File.Exists(jsonFilePath))
+                    if (File.Exists(jsonFilePath))
                     {
                         if (TMPFontNameList.Count == 0)
                         {
@@ -672,13 +682,13 @@ namespace Honor.Editor
         /// <returns>导出是否成功</returns>
         public static bool ExportExcelFontsToJson()
         {
-            string openExcelNamePre =Path.GetFileNameWithoutExtension(EditorPath.Localization.ExcelFontFileFullPath);
+            string openExcelNamePre = Path.GetFileNameWithoutExtension(EditorPath.Localization.ExcelFontFileFullPath);
             // Excel路径
             string excelPath = $"{EditorPath.Localization.ExcelFolderFullPath}/{openExcelNamePre}.xlsm";
             // Json保存路径
             string strSubJsonFilePath = EditorPath.Json.FolderFullPath;
             string strFilePathList = strSubJsonFilePath + "/" + openExcelNamePre + ".json";
-            
+
             // 清理旧文件
             if (Directory.Exists(strSubJsonFilePath))
             {
@@ -702,11 +712,11 @@ namespace Honor.Editor
         /// <returns>导出是否成功</returns>
         public static bool ExportExcelDefaultLanguageToJson()
         {
-            string openExcelNamePre =Path.GetFileNameWithoutExtension(EditorPath.Localization.ExcelDefaultFileFullPath);
+            string openExcelNamePre = Path.GetFileNameWithoutExtension(EditorPath.Localization.ExcelDefaultFileFullPath);
             string excelPath = $"{EditorPath.Localization.ExcelFolderFullPath}/{openExcelNamePre}.xlsm";
             DataSet result = TableExportEditorUtility.GetExcelData(excelPath);
             string toJsonRootPath = EditorPath.Json.FolderFullPath;
-            
+
             // 清理旧文件
             if (Directory.Exists(toJsonRootPath))
             {
@@ -735,7 +745,7 @@ namespace Honor.Editor
             string[] typeList = new string[columns];
             keyList[0] = "";
             typeList[0] = "";
-            
+
             // 解析表头
             for (int excleCol = 1; excleCol < columns; excleCol++)
             {
@@ -808,7 +818,7 @@ namespace Honor.Editor
                     File.Delete(jsonFile);
                 }
 
-                File.WriteAllText(jsonFile, stringBuilder.ToString(), new System.Text.UTF8Encoding(false));
+                File.WriteAllText(jsonFile, stringBuilder.ToString(), new UTF8Encoding(false));
                 Log.Debug($"{jsonFile} 转换完成。");
             }
 
@@ -819,7 +829,7 @@ namespace Honor.Editor
                 File.Delete(jsonFileMain);
             }
 
-            File.WriteAllText(jsonFileMain, stringBuilderMain.ToString(), new System.Text.UTF8Encoding(false));
+            File.WriteAllText(jsonFileMain, stringBuilderMain.ToString(), new UTF8Encoding(false));
 
             AssetDatabase.Refresh();
 
@@ -879,7 +889,7 @@ namespace Honor.Editor
             MakeLuaFileTitle(stringBuilder, mainExcelName, null, tableDetailTidy);
             stringBuilder.AppendLine(strClassDef0)
                 .AppendLine(strClassDef1);
-            
+
             // 注册语言字段
             for (int i = 6; i < columns; i++)
             {
@@ -909,7 +919,7 @@ namespace Honor.Editor
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("---Lua层本地化语言表数据关联回调全局事件派发(由C#回调回来)(此处自动生成，请不要手动修改！)");
             stringBuilder.AppendLine("---@type fun():void");
-            
+
             // 生成语言切换逻辑
             stringBuilder.AppendLine("function Relate_Localization_Table_Data()");
             int Index = 1;
@@ -941,7 +951,7 @@ namespace Honor.Editor
             stringBuilder.AppendLine("Relate_Localization_Table_Data()");
 
             string luaRegFileName = exportFolderPaths["Main"] + "/Localizations.lua.txt";
-            File.WriteAllText(luaRegFileName, stringBuilder.ToString(), new System.Text.UTF8Encoding(false));
+            File.WriteAllText(luaRegFileName, stringBuilder.ToString(), new UTF8Encoding(false));
             stringBuilder.Clear();
         }
 
@@ -985,7 +995,7 @@ namespace Honor.Editor
 
                     StringBuilder luaBuilder = null;
                     var isArabic = keyList[i] == GameDefinitions.Language.Arabic.ToString();
-                    
+
                     // 遍历所有Excel表
                     for (int index = 0; index < fullPaths.Count; index++)
                     {
@@ -1061,7 +1071,7 @@ namespace Honor.Editor
                         luaBuilder.AppendLine("");
 
                         string makingFilePath = $"{exportFolderPath}/LocalPart_{fileNames[index]}_{keyList[i]}.lua.txt";
-                        File.WriteAllText(makingFilePath, luaBuilder.ToString(), new System.Text.UTF8Encoding(false));
+                        File.WriteAllBytes(makingFilePath, new UTF8Encoding(false).GetBytes(luaBuilder.ToString()));
                     }
 
                     // 生成语言主文件
@@ -1075,7 +1085,7 @@ namespace Honor.Editor
                     }
 
                     string exportFilePath = $"{exportFolderPath}/Localization{keyList[i]}.lua.txt";
-                    File.WriteAllText(exportFilePath, luaBuilder.ToString(), new System.Text.UTF8Encoding(false));
+                    File.WriteAllBytes(exportFilePath, new UTF8Encoding(false).GetBytes(luaBuilder.ToString()));
                     Log.Debug($"多语言文案 {keyList[i]} 导出成功。");
                 }
             }
@@ -1141,14 +1151,14 @@ namespace Honor.Editor
             List<string> fileNames = new List<string>();
 
             string mainExcelFullPath = EditorPath.Localization.ExcelFileFullPath;
-            string mainExcelName = System.IO.Path.GetFileNameWithoutExtension(mainExcelFullPath);
+            string mainExcelName = Path.GetFileNameWithoutExtension(mainExcelFullPath);
 
             fullPaths.Add(mainExcelFullPath);
             fileNames.Add(mainExcelName);
             customExcelsFullPaths.ForEach(customExcelFullPath =>
             {
                 customExcelFullPath = customExcelFullPath.Replace("\\", "/");
-                string customExcelName = System.IO.Path.GetFileNameWithoutExtension(customExcelFullPath);
+                string customExcelName = Path.GetFileNameWithoutExtension(customExcelFullPath);
                 fullPaths.Add(customExcelFullPath);
                 fileNames.Add(customExcelName);
             });
@@ -1272,14 +1282,14 @@ namespace Honor.Editor
             Dictionary<string, string> assetFileNameDic = new Dictionary<string, string>();
 
             string mainExcelFullPath = EditorPath.Localization.ExcelFileFullPath;
-            string mainExcelName = System.IO.Path.GetFileNameWithoutExtension(mainExcelFullPath);
+            string mainExcelName = Path.GetFileNameWithoutExtension(mainExcelFullPath);
 
             fullPaths.Add(mainExcelFullPath);
             fileNames.Add(mainExcelName);
             customExcelsFullPaths.ForEach(customExcelFullPath =>
             {
                 customExcelFullPath = customExcelFullPath.Replace("\\", "/");
-                string customExcelName = System.IO.Path.GetFileNameWithoutExtension(customExcelFullPath);
+                string customExcelName = Path.GetFileNameWithoutExtension(customExcelFullPath);
                 fullPaths.Add(customExcelFullPath);
                 fileNames.Add(customExcelName);
             });
@@ -1432,7 +1442,7 @@ namespace Honor.Editor
             JObject configJsonData = null;
             if (File.Exists(configFilePath))
             {
-                string content = System.IO.File.ReadAllText(configFilePath);
+                string content = File.ReadAllText(configFilePath);
                 configJsonData = JsonConvert.DeserializeObject<JObject>(content);
             }
 
@@ -1483,7 +1493,7 @@ namespace Honor.Editor
             localizationExcelList.RemoveAll(path =>
             {
                 path = path.Replace("\\", "/");
-                if (System.IO.Path.GetFileNameWithoutExtension(path).StartsWith("~"))
+                if (Path.GetFileNameWithoutExtension(path).StartsWith("~"))
                 {
                     return true;
                 }
@@ -1519,7 +1529,7 @@ namespace Honor.Editor
             excelFullPaths.ForEach(perPath =>
             {
                 fullPaths.Add(perPath.Replace("\\", "/"));
-                fileNames.Add(System.IO.Path.GetFileNameWithoutExtension(perPath));
+                fileNames.Add(Path.GetFileNameWithoutExtension(perPath));
             });
 
             // 初始化语言字符容器

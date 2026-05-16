@@ -1,9 +1,22 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ItemPool.cs
+ * author:    云毅
+ * created:   2026   2025年
+ * descrip:   列表项对象池，负责AorListViewItem的创建、获取、回收、销毁，优化滚动列表性能
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 列表项对象池
+    //=========================================================================
     /// <summary>
     /// 列表项对象池
     /// 负责列表项（AorListViewItem）的创建、获取、回收、销毁
@@ -11,6 +24,7 @@ namespace Honor.Runtime
     /// </summary>
     public class ItemPool
     {
+        #region 私有字段
         /// <summary>
         /// 项预制体
         /// </summary>
@@ -55,11 +69,15 @@ namespace Honor.Runtime
         /// 项父节点（RectTransform）
         /// </summary>
         private RectTransform mItemParent = null;
+        #endregion
 
+        #region 构造函数
         public ItemPool()
         {
         }
+        #endregion
 
+        #region 初始化
         /// <summary>
         /// 初始化对象池
         /// </summary>
@@ -94,7 +112,9 @@ namespace Honor.Runtime
                 RecycleItemReal(item);
             }
         }
+        #endregion
 
+        #region 获取与创建项
         /// <summary>
         /// 从对象池获取一个可用项
         /// 优先从临时回收池取，再从常驻池取，无可用对象则创建新项
@@ -137,24 +157,6 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 销毁池内所有项（清空对象池）
-        /// </summary>
-        public void DestroyAllItem()
-        {
-            // 先清空临时回收项
-            ClearTmpRecycledItem();
-
-            // 销毁常驻池所有对象
-            int count = mPooledItemList.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                GameObject.DestroyImmediate(mPooledItemList[i].gameObject);
-            }
-
-            mPooledItemList.Clear();
-        }
-
-        /// <summary>
         /// 创建新的列表项
         /// </summary>
         /// <returns>新创建的列表项</returns>
@@ -191,7 +193,9 @@ namespace Honor.Runtime
 
             return listItem;
         }
+        #endregion
 
+        #region 回收项
         /// <summary>
         /// 真正执行回收（隐藏并加入常驻池）
         /// </summary>
@@ -230,5 +234,26 @@ namespace Honor.Runtime
 
             mTmpPooledItemList.Clear();
         }
+        #endregion
+
+        #region 销毁管理
+        /// <summary>
+        /// 销毁池内所有项（清空对象池）
+        /// </summary>
+        public void DestroyAllItem()
+        {
+            // 先清空临时回收项
+            ClearTmpRecycledItem();
+
+            // 销毁常驻池所有对象
+            int count = mPooledItemList.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                GameObject.DestroyImmediate(mPooledItemList[i].gameObject);
+            }
+
+            mPooledItemList.Clear();
+        }
+        #endregion
     }
 }

@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ProcedureLaunch.cs
+ * author:    云毅
+ * created:
+ * descrip:   游戏启动流程 - 游戏入口第一个流程，负责版本升级、初始化、跳转到预加载
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,10 +21,20 @@ namespace Honor.Runtime
     /// </summary>
     public class ProcedureLaunch : ProcedureState
     {
+        //=========================================================================
+        #region 私有变量
+        //=========================================================================
+
         /// <summary>
         /// WebGL 启动加载界面组件
         /// </summary>
         private UILauncherLoadingView _mUILauncherLoadingView;
+
+        #endregion
+
+        //=========================================================================
+        #region 生命周期
+        //=========================================================================
 
         /// <summary>
         /// 流程初始化：设置流程名称
@@ -89,6 +109,12 @@ namespace Honor.Runtime
             GameMainRoot.Event.Unsubscribe(GameEventCmd.GDPROver, this, OnGDPRStateChanged);
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 核心初始化逻辑
+        //=========================================================================
+
         /// <summary>
         /// 初始化启动核心逻辑（全平台通用）
         /// 性能设置 → 资源清单 → 配置表 → 多语言 → 字体 → 跳转预加载
@@ -132,6 +158,12 @@ namespace Honor.Runtime
             PrepareToNextProcedure(typeof(ProcedurePreload));
         }
 
+        #endregion
+
+        //=========================================================================
+        #region 事件回调
+        //=========================================================================
+
         /// <summary>
         /// GDPR 完成回调：隐私政策确认后进入游戏
         /// </summary>
@@ -151,6 +183,12 @@ namespace Honor.Runtime
             if (userData != this) return;
             InitLaunch(m_OwnerMachine);
         }
+
+        #endregion
+
+        //=========================================================================
+        #region 版本管理
+        //=========================================================================
 
         /// <summary>
         /// 刷新本地版本记录：包体版本变化时自动更新存档版本
@@ -178,5 +216,7 @@ namespace Honor.Runtime
                     GameConstants.Persist.Common.ClassifyName);
             }
         }
+
+        #endregion
     }
 }

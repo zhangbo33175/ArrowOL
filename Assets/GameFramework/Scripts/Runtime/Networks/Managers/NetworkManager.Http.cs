@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkManager.Http.cs
+ * author:    云毅
+ * created:
+ * descrip:   网络底层管理器 - HTTP 请求实现（基于 BestHTTP）
+ ***************************************************************/
+
 #if BEST_HTTP_ENABLE
 using BestHTTP;
 using LitJson;
@@ -7,9 +17,17 @@ using System;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 网络底层管理器 - HTTP 请求模块
+    /// </summary>
     public sealed partial class NetworkManager
     {
+        //=========================================================================
+        #region HTTP 请求实现（BestHTTP）
+        //=========================================================================
+
 #if BEST_HTTP_ENABLE
+
         /// <summary>
         /// GET 方式 HTTP 请求
         /// </summary>
@@ -272,6 +290,9 @@ namespace Honor.Runtime
             // 发送
             request.Send();
         }
+
 #endif
+
+        #endregion
     }
 }

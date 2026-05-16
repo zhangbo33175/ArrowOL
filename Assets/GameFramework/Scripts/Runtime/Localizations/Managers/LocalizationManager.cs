@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LocalizationManager.cs
+ * author:    云毅
+ * created: 2025
+ * descrip:   本地化管理器 - 核心逻辑层
+ ***************************************************************/
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class LocalizationManager
     {
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        #region Constructor
         /// <summary>
         /// 构造函数：初始化组件与数据容器
         /// </summary>
@@ -34,7 +48,12 @@ namespace Honor.Runtime
             m_DefaultDatas = new Dictionary<GameDefinitions.Language, Dictionary<string, string>>();
             m_FontDatas = new Dictionary<GameDefinitions.Language, List<LocalizationFontData>>();
         }
+        #endregion
 
+        //=========================================================================
+        // 语言列表管理
+        //=========================================================================
+        #region Language Management
         /// <summary>
         /// 从 JSON 加载支持的语言列表
         /// </summary>
@@ -67,7 +86,12 @@ namespace Honor.Runtime
         {
             m_DefaultLanguages.Clear();
         }
+        #endregion
 
+        //=========================================================================
+        // 本地化文本管理
+        //=========================================================================
+        #region Localization Text Management
         /// <summary>
         /// 加载指定语言的本地化文本数据
         /// </summary>
@@ -168,7 +192,12 @@ namespace Honor.Runtime
 
             return content;
         }
+        #endregion
 
+        //=========================================================================
+        // 字体管理
+        //=========================================================================
+        #region Font Management
         /// <summary>
         /// 从 JSON 加载多语言字体配置
         /// </summary>
@@ -246,5 +275,6 @@ namespace Honor.Runtime
             
             m_FontDatas.TryGetValue(language, out fontDatas);
         }
+        #endregion
     }
 }

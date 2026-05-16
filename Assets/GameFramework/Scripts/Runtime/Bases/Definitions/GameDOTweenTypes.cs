@@ -1,5 +1,6 @@
 namespace Honor.Runtime
 {
+    #region 游戏全局 DOTween 动画唯一标识常量
     /// <summary>
     /// 游戏全局 DOTween 动画唯一标识常量
     /// 用于统一管理所有 Tween 动画的 ID，方便缓存、管理、强制回收
@@ -7,6 +8,9 @@ namespace Honor.Runtime
     /// </summary>
     public static partial class GameDOTweenTypes
     {
+        //=========================================================================
+        // 流程切换动画
+        //=========================================================================
         /// <summary>
         /// 流程切换 - 进入过渡动画 ID
         /// </summary>
@@ -17,11 +21,17 @@ namespace Honor.Runtime
         /// </summary>
         public const string ProcedureTransitionExitAnimation = "__DOTween__ProcedureTransitionExitAnimation__";
 
+        //=========================================================================
+        // 闪屏界面动画
+        //=========================================================================
         /// <summary>
         /// 闪屏界面 - 延时展示动画 ID
         /// </summary>
         public const string SplashDurationAnimation = "__DOTween__SplashDurationAnimation__";
 
+        //=========================================================================
+        // 相机相关动画
+        //=========================================================================
         /// <summary>
         /// 相机综合动画 ID
         /// </summary>
@@ -42,6 +52,9 @@ namespace Honor.Runtime
         /// </summary>
         public const string CameraScaleAnimation = "__DOTween__CameraScaleAnimation__";
 
+        //=========================================================================
+        // 震动效果动画
+        //=========================================================================
         /// <summary>
         /// 自定义震动 - 前置延时计时器 ID
         /// </summary>
@@ -62,6 +75,9 @@ namespace Honor.Runtime
         /// </summary>
         public const string EmphasisVibrateDuration = "__DOTween__EmphasisVibrateDuration__";
 
+        //=========================================================================
+        // MAX 广告动画
+        //=========================================================================
         /// <summary>
         /// MAX 广告 - 插屏广告计时器 ID
         /// </summary>
@@ -77,14 +93,21 @@ namespace Honor.Runtime
         /// </summary>
         public const string MaxHelperRVAd = "__DOTween__MaxHelperRVAd__";
 
+        //=========================================================================
+        // UI 通用动画
+        //=========================================================================
         /// <summary>
         /// UI 淡入淡出器动画 ID
         /// </summary>
         public const string UIFader = "__DOTween__UIFader__";
 
+        //=========================================================================
+        // 调试工具动画
+        //=========================================================================
         /// <summary>
         /// 调试工具 - 上传日志文字动画 ID
         /// </summary>
         public const string DebuggerUploadWordsChanging = "__DOTween__DebuggerUploadWordsChanging__";
     }
+    #endregion
 }
