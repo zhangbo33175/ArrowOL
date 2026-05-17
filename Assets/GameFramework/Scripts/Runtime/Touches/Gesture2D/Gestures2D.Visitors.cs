@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Gestures2D.Config.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   2D相机手势控制器 - 配置与字段分部类
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 namespace Honor.Runtime
 {
@@ -5,8 +14,12 @@ namespace Honor.Runtime
     using System.Collections.Generic;
     using UnityEngine;
 
+    //=========================================================================
+    // 2D 相机手势控制器 - 配置与私有字段分部类
+    //=========================================================================
     public sealed partial class Gestures2D : MonoBehaviour
     {
+        #region 相机基础配置
         /// <summary>
         /// 场景相机在场景相机列表中的index
         /// </summary>
@@ -68,7 +81,9 @@ namespace Honor.Runtime
                 return m_GestureCameraDistance;
             }
         }
+        #endregion
 
+        #region 总开关与功能开关
         /// <summary>
         /// 总开关
         /// </summary>
@@ -177,7 +192,9 @@ namespace Honor.Runtime
                 return m_DragSwitch;
             }
         }
+        #endregion
 
+        #region 空间与弹性配置
         /// <summary>
         /// 有效空间内中心位置
         /// </summary>
@@ -267,7 +284,9 @@ namespace Honor.Runtime
                 return m_SpaceVerticalEdgeMoveElasticLength;
             }
         }
+        #endregion
 
+        #region 缩放参数配置
         /// <summary>
         /// 缩放因子
         /// </summary>
@@ -357,7 +376,9 @@ namespace Honor.Runtime
                 return m_SpaceEdgeScaleElasticValue;
             }
         }
+        #endregion
 
+        #region 选中与拖拽配置
         /// <summary>
         /// 滑动或缩放手势结束后的安全时间间隔
         /// </summary>
@@ -451,7 +472,9 @@ namespace Honor.Runtime
                 return m_PressTimeOfSelectingObj;
             }
         }
+        #endregion
 
+        #region 射线检测与排序配置
         /// <summary>
         /// 2D/3D碰撞器选中检测
         /// </summary>
@@ -544,7 +567,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 选中拖拽行为的LuaBehaviour中的Lua类名-在自身中查询"
+        /// 选中拖拽行为的LuaBehaviour中的Lua类名-在自身中查询
         /// </summary>
         [SerializeField]
         [GameTitle("选中拖拽行为的Lua类名-在自身中查询 (FindSelectingTypesOnSelf)")]
@@ -560,7 +583,6 @@ namespace Honor.Runtime
                 return m_FindSelectingTypesOnSelf;
             }
         }
-
 
         /// <summary>
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在父对象中查询
@@ -597,7 +619,9 @@ namespace Honor.Runtime
                 return m_FindSelectingTypesOnChildren;
             }
         }
+        #endregion
 
+        #region 公共引用
         /// <summary>
         /// Lua组件
         /// </summary>
@@ -614,7 +638,9 @@ namespace Honor.Runtime
                 return m_SceneCamera;
             }
         }
+        #endregion
 
+        #region 运行时私有状态字段
         /// <summary>
         ///【滑动】滑动坐标
         /// </summary>
@@ -714,6 +740,7 @@ namespace Honor.Runtime
         /// 因为缩放导致忽略选中物体手势的标记位
         /// </summary>
         private bool m_IgnoreSelectObjByPinch = false;
+        #endregion
     }
 }
 #endif

@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  LuaBTConditional.cs
  * author:    云毅
- * created:   2026   2026年
+ * created:   2026
  * descrip:   行为树Lua条件节点桥接类，承接Behavior Designer Conditional节点生命周期
  *            自动将节点回调转发至Lua层，实现C#与Lua逻辑解耦
  ***************************************************************/

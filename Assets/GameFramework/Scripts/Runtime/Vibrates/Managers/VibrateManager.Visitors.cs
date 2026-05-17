@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  VibrateManager.Define.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   震动管理器 - 成员变量、属性定义分部类
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 #if NICEVIBRATIONS_ENABLE

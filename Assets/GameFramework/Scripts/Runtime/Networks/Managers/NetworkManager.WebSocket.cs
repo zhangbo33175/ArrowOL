@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  NetworkManager.WebSocket.cs
  * author:    云毅
- * created:
+ * created:   2026
  * descrip:   网络底层管理器 - WebSocket 长连接实现（基于 BestHTTP）
  ***************************************************************/
 

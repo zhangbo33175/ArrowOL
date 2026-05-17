@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIFlagBehaviour.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 标识行为组件 - 每个UI实例必备标记类
+ ***************************************************************/
 using UnityEngine;
 
 namespace Honor.Runtime

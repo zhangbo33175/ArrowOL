@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Gestures2D.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   2D相机手势控制器，基于EasyTouch实现触摸/滑动/缩放/拖拽
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 using UnityEngine.EventSystems;
 namespace Honor.Runtime
@@ -9,6 +18,9 @@ namespace Honor.Runtime
     using UnityEngine;
     using XLua;
 
+    //=========================================================================
+    // 2D 相机手势控制器
+    //=========================================================================
     /// <summary>
     /// 2D 相机手势控制器
     /// 基于 EasyTouch 实现：单指滑动、双指缩放、边界弹性、对象选中与拖拽
@@ -16,6 +28,7 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class Gestures2D : MonoBehaviour
     {
+        #region 生命周期初始化
         /// <summary>
         /// 初始化：创建所有 Lua 回调列表
         /// </summary>
@@ -120,7 +133,9 @@ namespace Honor.Runtime
             EasyTouch.On_Drag -= OnDrag;
             EasyTouch.On_DragEnd -= OnDragEnd;
         }
+        #endregion
 
+        #region 公开重置接口
         /// <summary>
         /// 手动复位滑动状态
         /// </summary>
@@ -145,7 +160,9 @@ namespace Honor.Runtime
             m_IgnoreSelectObjByPinch = false;
             m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
         }
+        #endregion
 
+        #region 单指触摸事件
         /// <summary>
         /// 单指触摸开始
         /// </summary>
@@ -255,7 +272,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 双指触摸事件
         /// <summary>
         /// 双指触摸开始（中点坐标）
         /// </summary>
@@ -332,7 +351,9 @@ namespace Honor.Runtime
                 m_SkipFirstPinchFrame = true;
             }
         }
+        #endregion
 
+        #region 滑动手势事件
         /// <summary>
         /// 单指滑动开始
         /// </summary>
@@ -465,7 +486,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 缩放手势事件
         /// <summary>
         /// 双指缩放（支持焦点缩放 + 边界限制 + 弹性）
         /// </summary>
@@ -551,6 +574,10 @@ namespace Honor.Runtime
                             m_SceneCamera.orthographicSize = scale;
                         else
                             m_SceneCamera.fieldOfView = scale;
+                    }
+                    else
+                    {
+                        m_SkipFirstPinchFrame = false;
                     }
 
                     // 对焦偏移
@@ -695,7 +722,9 @@ namespace Honor.Runtime
             m_IgnoreSelectObjByPinch = false;
             m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
         }
+        #endregion
 
+        #region 对象拖拽事件
         /// <summary>
         /// 选中对象拖拽开始
         /// </summary>
@@ -798,7 +827,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 帧更新逻辑
         /// <summary>
         /// 每帧更新
         /// 处理安全时间、选中持续回调、鼠标滚轮
@@ -934,6 +965,7 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }
 #endif

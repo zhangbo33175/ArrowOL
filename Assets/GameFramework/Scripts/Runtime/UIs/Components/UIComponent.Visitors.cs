@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIComponent.Config.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 核心管理组件 - 配置字段与属性
+ ***************************************************************/
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +15,7 @@ namespace Honor.Runtime
 {
     public sealed partial class UIComponent : GameComponent
     {
+        #region 序列化配置 - 屏幕适配
         /// <summary>
         /// UI 设计基准分辨率（屏幕UI适配用）
         /// </summary>
@@ -45,7 +55,9 @@ namespace Honor.Runtime
             }
             get => m_DestroyMaxNumPerFrame;
         }
+        #endregion
 
+        #region 序列化配置 - 内置UI路径
         /// <summary>
         /// 等待菊花UI的AB包路径
         /// </summary>
@@ -84,7 +96,9 @@ namespace Honor.Runtime
             }
             get => m_FloatWordsDuration;
         }
+        #endregion
 
+        #region 序列化配置 - 交互与检测
         /// <summary>
         /// 按钮防重复点击有效间隔
         /// </summary>
@@ -96,6 +110,30 @@ namespace Honor.Runtime
             get => m_ButtonInteractDuration;
         }
 
+        /// <summary>
+        /// 是否开启屏幕方向变化检测
+        /// </summary>
+        [SerializeField]
+        private bool m_CheckOrientationState;
+        public bool CheckOrientationState
+        {
+            set => m_CheckOrientationState = value;
+            get => m_CheckOrientationState;
+        }
+
+        /// <summary>
+        /// 是否开启TextLocalizing脚本检测（多语言文本）
+        /// </summary>
+        [SerializeField]
+        private bool m_CheckTextLocalizings;
+        public bool CheckTextLocalizings
+        {
+            get => m_CheckTextLocalizings;
+            set => m_CheckTextLocalizings = value;
+        }
+        #endregion
+
+        #region 序列化配置 - 相机与Canvas
         /// <summary>
         /// 屏幕层UI相机列表
         /// </summary>
@@ -138,29 +176,9 @@ namespace Honor.Runtime
             set => m_SceneUICanvas = value;
             get => m_SceneUICanvas;
         }
+        #endregion
 
-        /// <summary>
-        /// 是否开启屏幕方向变化检测
-        /// </summary>
-        [SerializeField]
-        private bool m_CheckOrientationState;
-        public bool CheckOrientationState
-        {
-            set => m_CheckOrientationState = value;
-            get => m_CheckOrientationState;
-        }
-
-        /// <summary>
-        /// 是否开启TextLocalizing脚本检测（多语言文本）
-        /// </summary>
-        [SerializeField]
-        private bool m_CheckTextLocalizings;
-        public bool CheckTextLocalizings
-        {
-            get => m_CheckTextLocalizings;
-            set => m_CheckTextLocalizings = value;
-        }
-
+        #region 只读属性 - 运行时状态
         /// <summary>
         /// UI刘海屏安全区域尺寸
         /// </summary>
@@ -219,7 +237,9 @@ namespace Honor.Runtime
         /// 屏幕层 - 模态UI等待队列
         /// </summary>
         public List<UIInfo> ModalUIInfoList => m_UIManager.ModalUIInfoList;
+        #endregion
 
+        #region 私有成员 - 组件与管理器
         /// <summary>
         /// 资源管理组件
         /// </summary>
@@ -244,5 +264,6 @@ namespace Honor.Runtime
         /// LuaTable 转 UIInfo 专用缓存对象
         /// </summary>
         private JObject m_CachedJsonObject;
+        #endregion
     }
 }

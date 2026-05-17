@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIComponent.Extend.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 核心管理组件 - 扩展功能接口
+ ***************************************************************/
 using System;
 using UnityEngine;
 
@@ -5,6 +14,7 @@ namespace Honor.Runtime
 {
     public sealed partial class UIComponent : GameComponent
     {
+        #region 等待 Loading 接口
         /// <summary>
         /// 等待菊花（Loading）引用计数 +1
         /// </summary>
@@ -38,7 +48,9 @@ namespace Honor.Runtime
         {
             m_UIManager.SetWaitingDescText(text);
         }
+        #endregion
 
+        #region WebView 接口
         /// <summary>
         /// 关闭 WebView 网页视图（跨平台兼容）
         /// WebGL：直接删除节点
@@ -49,7 +61,9 @@ namespace Honor.Runtime
         {
             m_UIManager.CloseWebView(closeView);
         }
+        #endregion
 
+        #region 流程转场接口
         /// <summary>
         /// 显示流程切换的进入转场动画（黑屏/遮罩）
         /// </summary>
@@ -71,7 +85,9 @@ namespace Honor.Runtime
         {
             m_UIManager.ShowProcedureTransitionExit(forceOver, duration, blockRaycast);
         }
+        #endregion
 
+        #region 飘字接口
         /// <summary>
         /// 显示屏幕飘字（提示文字）
         /// </summary>
@@ -83,7 +99,9 @@ namespace Honor.Runtime
         {
             m_UIManager.ShowFloatWords(text, duration, blockUITouches, overCallback);
         }
+        #endregion
 
+        #region 启动与更新界面
         /// <summary>
         /// 显示启动闪屏界面（Splash）
         /// </summary>
@@ -133,7 +151,9 @@ namespace Honor.Runtime
         {
             m_UIManager.HideLoading(uiLauncher);
         }
+        #endregion
 
+        #region 应用评分与反馈
         /// <summary>
         /// 打开应用商店评分弹窗
         /// </summary>
@@ -153,5 +173,6 @@ namespace Honor.Runtime
         {
             return m_UIManager.ShowAppFeedback(starNum, locationDescForDot);
         }
+        #endregion
     }
 }

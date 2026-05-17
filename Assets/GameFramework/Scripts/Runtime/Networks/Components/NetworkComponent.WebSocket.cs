@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  NetworkComponent.WebSocket.cs
  * author:    云毅
- * created:
+ * created:   2026
  * descrip:   网络组件 - WebSocket 接口层（基于 BestHTTP）
  ***************************************************************/
 

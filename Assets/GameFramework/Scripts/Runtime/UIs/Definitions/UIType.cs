@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIType.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 层级类型枚举
+ ***************************************************************/
 using System;
 
 namespace Honor.Runtime
@@ -17,11 +26,11 @@ namespace Honor.Runtime
         /// <summary>
         /// 屏幕 UI（常驻屏幕、2D 界面）
         /// </summary>
-        Screen,
+        Screen = 1,
 
         /// <summary>
         /// 场景 UI（世界空间、3D 界面）
         /// </summary>
-        Scene,
+        Scene = 2,
     }
 }

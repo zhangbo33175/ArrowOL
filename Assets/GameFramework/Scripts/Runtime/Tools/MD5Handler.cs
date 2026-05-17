@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MD5Handler.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   MD5加密工具类，支持文件/字符串/字节/安卓签名校验
+ ***************************************************************/
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -6,6 +15,9 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // MD5 加密工具类
+    //=========================================================================
     /// <summary>
     /// MD5 加密工具类
     /// 提供：文件MD5、字符串MD5、字节数组MD5、Android签名MD5/Base64获取
@@ -13,6 +25,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class MD5Handler
     {
+        #region 基础MD5计算
         /// <summary>
         /// 计算文件的 MD5 值（热更/资源校验专用）
         /// </summary>
@@ -68,7 +81,9 @@ namespace Honor.Runtime
 
             return string.Empty;
         }
+        #endregion
 
+        #region 安卓签名校验
         /// <summary>
         /// 获取 Android 包签名的 MD5（可带分隔符，用于校验签名）
         /// </summary>
@@ -95,7 +110,7 @@ namespace Honor.Runtime
             return null;
         }
 
-        /// <summary
+        /// <summary>
         /// 获取 Android 安装包签名原始字节数组
         /// </summary>
         /// <returns>签名字节</returns>
@@ -134,5 +149,6 @@ namespace Honor.Runtime
 #endif
             return string.Empty;
         }
+        #endregion
     }
 }

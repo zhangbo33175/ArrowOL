@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIManager.Utils.cs
+ * author:  云毅
+ * created: 2026
+ * descrip:   UI 管理器 - 私有工具方法与内部逻辑
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -9,6 +18,7 @@ namespace Honor.Runtime
 {
     public sealed partial class UIManager
     {
+        #region 帧更新逻辑
         /// <summary>
         /// 当前模态 UI 帧更新（心跳）
         /// 执行启用 UseProc 的 Lua 逻辑更新
@@ -83,7 +93,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 附加/子 UI 列表帧更新
         /// </summary>
-        /// <param name="uiType">UI 类型（屏幕/场景）</param>
         private void UpdateSubUIList(UIType uiType)
         {
             if (m_SubUIList == null || !m_SubUIList.ContainsKey(uiType)) return;
@@ -122,12 +131,12 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region UI 创建辅助
         /// <summary>
         /// 为 WebGL 平台自动添加输入框兼容组件
-        /// 仅在 WebGL 非编辑器环境生效
         /// </summary>
-        /// <param name="go">UI 对象</param>
         private void AddWebGLInput(GameObject go)
         {
             if (go == null) return;
@@ -146,10 +155,7 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 为新创建的 UI 添加 Canvas 相关组件
-        /// 配置排序层级、射线拦截、覆盖排序等
         /// </summary>
-        /// <param name="go">UI 对象</param>
-        /// <param name="uiInfo">UI 信息</param>
         private void AddCanvas(GameObject go, UIInfo uiInfo)
         {
             if (go == null || uiInfo == null) return;
@@ -174,11 +180,7 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 添加 UI 标记组件
-        /// 绑定 Lua 脚本、预制体实例、UI 配置
         /// </summary>
-        /// <param name="go">UI 对象</param>
-        /// <param name="uiInfo">UI 信息</param>
-        /// <returns>UIFlagBehaviour 实例</returns>
         private UIFlagBehaviour AddFlagBehaviour(GameObject go, UIInfo uiInfo)
         {
             if (go == null) return null;
@@ -192,10 +194,7 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 为子对象自动添加 UI 标记
-        /// 只处理挂载了 LuaBehaviour 且类型为 UI 的子节点
         /// </summary>
-        /// <param name="go">根 UI 对象</param>
-        /// <returns>子节点标记列表</returns>
         private List<UIFlagBehaviour> AddChildrenFlagBehaviours(GameObject go)
         {
             List<UIFlagBehaviour> childrenFlagBehaviours = new List<UIFlagBehaviour>();
@@ -226,11 +225,7 @@ namespace Honor.Runtime
 
         /// <summary>
         /// UI 异步创建完成回调
-        /// 触发外部传入的回调并传递 Lua 实例
         /// </summary>
-        /// <param name="go">UI 对象</param>
-        /// <param name="uiInfo">UI 信息</param>
-        /// <param name="prefabObject">预制体资源对象</param>
         private void DoUICreateOverCallbackOnAsync(GameObject go, UIInfo uiInfo, PrefabObject prefabObject)
         {
             if (uiInfo == null || uiInfo.OverCallback == null || go == null || prefabObject == null)
@@ -244,10 +239,11 @@ namespace Honor.Runtime
             }
             uiInfo.OverCallback(prefabObject.AssetBundlePath, prefabObject.AssetName, validLuaClass, go);
         }
+        #endregion
 
+        #region 输入与按键
         /// <summary>
         /// 检测全局按键抬起事件
-        /// 当前仅处理返回键（ESC），用于关闭顶层 UI
         /// </summary>
         private void CheckKeysUp()
         {
@@ -260,7 +256,6 @@ namespace Honor.Runtime
                 {
                     List<LuaBehaviour> luaBehaviours = new List<LuaBehaviour>();
 
-                    // 收集所有可响应返回键的 UI
                     if (m_CurModalUI != null && m_CurModalUI.LuaBehaviour != null)
                         luaBehaviours.Add(m_CurModalUI.LuaBehaviour);
 
@@ -272,7 +267,6 @@ namespace Honor.Runtime
 
                     if (luaBehaviours.Count > 0)
                     {
-                        // 按 ZOrder 从低到高排序
                         luaBehaviours.Sort((a, b) =>
                         {
                             if (a == null || b == null) return 0;
@@ -282,7 +276,6 @@ namespace Honor.Runtime
                             return flagA.UIInfo.ZOrder - flagB.UIInfo.ZOrder;
                         });
 
-                        // 关闭最顶层可关闭 UI
                         var topLua = luaBehaviours[luaBehaviours.Count - 1];
                         if (topLua != null)
                         {
@@ -293,16 +286,14 @@ namespace Honor.Runtime
                             }
                         }
 
-                        // 派发按键事件到 Lua
                         luaComponent.LuaKeysUpFromCSEventDelegate(KeyCode.Escape);
                     }
                 }
             }
         }
+        #endregion
 
-        /// <summary>
-        /// 根据目标 Flag 查找匹配的 UI 对象
-        /// </summary>
+        #region 匹配与查找工具
         private GameObject GetMatchedGOGameObject(UIFlagBehaviour objectForChecking, UIFlagBehaviour targetFlagBehaviour)
         {
             if (objectForChecking == null || targetFlagBehaviour == null) return null;
@@ -325,9 +316,6 @@ namespace Honor.Runtime
             return result;
         }
 
-        /// <summary>
-        /// 根据 UIInfo 查找单个匹配的 UI 对象
-        /// </summary>
         private GameObject GetMatchedUIInfoGameObject(UIFlagBehaviour objectForChecking, UIInfo targetUIInfo)
         {
             if (objectForChecking == null || targetUIInfo == null) return null;
@@ -347,9 +335,6 @@ namespace Honor.Runtime
             return result;
         }
 
-        /// <summary>
-        /// 根据 UIInfo 查找所有匹配的根 UI（去重子对象）
-        /// </summary>
         private List<GameObject> GetAllMatchedUIInfoGameObjects(UIFlagBehaviour objectForChecking, UIInfo targetUIInfo)
         {
             List<GameObject> result = new List<GameObject>();
@@ -358,7 +343,6 @@ namespace Honor.Runtime
             List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
             objectForChecking.GetComponentsInChildren(true, uiBehaviours);
 
-            // 剔除子对象，只保留顶层父 UI
             uiBehaviours.RemoveAll(behaviour =>
             {
                 if (behaviour == null) return true;
@@ -379,9 +363,6 @@ namespace Honor.Runtime
             return result;
         }
 
-        /// <summary>
-        /// 获取所有非模态、非追加的 UI
-        /// </summary>
         private List<GameObject> GetAllMatchedUnModalGameObjects(UIFlagBehaviour objectForChecking)
         {
             List<GameObject> result = new List<GameObject>();
@@ -410,9 +391,6 @@ namespace Honor.Runtime
             return result;
         }
 
-        /// <summary>
-        /// 获取所有场景 UI（非追加）
-        /// </summary>
         private List<GameObject> GetAllMatchedSceneUIGameObjects(UIFlagBehaviour objectForChecking)
         {
             List<GameObject> result = new List<GameObject>();
@@ -441,9 +419,6 @@ namespace Honor.Runtime
             return result;
         }
 
-        /// <summary>
-        /// 从模态队列移除单个匹配 UI
-        /// </summary>
         private void RemoveMatchedUIInfoFromModalUIInfoList(UIInfo targetUIInfo)
         {
             if (targetUIInfo == null) return;
@@ -452,18 +427,12 @@ namespace Honor.Runtime
                 m_ModalUIInfoList.RemoveAt(index);
         }
 
-        /// <summary>
-        /// 从模态队列移除所有匹配 UI
-        /// </summary>
         private void RemoveAllMatchedUIInfosFromModalUIInfoList(UIInfo targetUIInfo)
         {
             if (targetUIInfo == null) return;
             m_ModalUIInfoList.RemoveAll(uiInfo => uiInfo != null && uiInfo.Equals(targetUIInfo));
         }
 
-        /// <summary>
-        /// 获取有效（未被销毁）的单个匹配 UI
-        /// </summary>
         private GameObject GetMatchedUIInfoValidGameObject(UIFlagBehaviour objectForChecking, UIInfo targetUIInfo)
         {
             if (objectForChecking == null || targetUIInfo == null) return null;
@@ -483,9 +452,6 @@ namespace Honor.Runtime
             return result;
         }
 
-        /// <summary>
-        /// 获取所有有效（未被销毁）匹配 UI
-        /// </summary>
         private List<GameObject> GetAllMatchedUIInfoValidGameObjects(UIFlagBehaviour objectForChecking, UIInfo targetUIInfo)
         {
             List<GameObject> result = new List<GameObject>();
@@ -502,9 +468,6 @@ namespace Honor.Runtime
             return result;
         }
 
-        /// <summary>
-        /// 根据 UI 类型获取所有有效 UI
-        /// </summary>
         private List<GameObject> GetAllMatchedUITypeValidGameObjects(UIFlagBehaviour objectForChecking, UIType targetUIType, bool isAppend)
         {
             List<GameObject> result = new List<GameObject>();
@@ -520,10 +483,11 @@ namespace Honor.Runtime
             }
             return result;
         }
+        #endregion
 
+        #region 销毁与关闭
         /// <summary>
         /// 内部关闭 UI（统一入口）
-        /// 支持立即销毁/等待动画销毁
         /// </summary>
         private void InnerCloseUIByGO(GameObject go, bool rightNowDestroy)
         {
@@ -555,7 +519,6 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 内部销毁 UI（真正执行销毁）
-        /// 从所有管理列表移除，并通知父 UI
         /// </summary>
         private void InnerDestroyUIByFlag(UIFlagBehaviour flagBehaviour, bool destroyImmediate = false)
         {
@@ -566,7 +529,6 @@ namespace Honor.Runtime
                 flagBehaviour.PrefabInstanceGOBehaviour.RightNowDestroyOnAsset = true;
             }
 
-            // 从管理容器移除
             if (m_CurModalUI == flagBehaviour)
             {
                 m_CurModalUI = null;
@@ -591,7 +553,6 @@ namespace Honor.Runtime
 
             m_UnloadUIList.Remove(flagBehaviour);
 
-            // 追加 UI 销毁 → 通知父 UI
             if (flagBehaviour.LuaBehaviour != null && flagBehaviour.UIInfo != null && flagBehaviour.UIInfo.IsAppend)
             {
                 List<UIFlagBehaviour> parentFlags = new List<UIFlagBehaviour>();
@@ -617,7 +578,6 @@ namespace Honor.Runtime
                 }
             }
 
-            // 销毁对象
             if (!flagBehaviour.FollowParentDestroy && flagBehaviour.gameObject != null)
             {
                 if (destroyImmediate)
@@ -626,16 +586,16 @@ namespace Honor.Runtime
                     GameObject.Destroy(flagBehaviour.gameObject);
             }
         }
+        #endregion
 
+        #region 字体与多语言
         /// <summary>
         /// 刷新所有文本组件（字体、大小、位置、多语言适配）
-        /// 支持 Unity 原生 Text 与 TMP 文本
         /// </summary>
         private void RefreshTextComponentsAdaptationParams(GameObject go, List<LocalizationFontData> fontDatas)
         {
             if (go == null || fontDatas == null || fontDatas.Count == 0) return;
 
-            // 多语言检测：检查是否挂载 TextLocalizing
             if (m_CheckTextLocalizings)
             {
                 List<MaskableGraphic> graphics = new List<MaskableGraphic>();
@@ -674,7 +634,6 @@ namespace Honor.Runtime
                 UnityEngine.Object font = Fonts[index];
                 if (!Enum.TryParse(fontData.FontType, out GameDefinitions.AssetType fontType)) continue;
 
-                // 计算缩放偏移
                 float scale = 1;
                 Vector2 offset = Vector2.zero;
                 if (local.Language != GameDefinitions.Language.Unspecified && local.Language != GameMainRoot.Localization.Language)
@@ -692,7 +651,6 @@ namespace Honor.Runtime
                     scale = fontData.FontSizeScaleRatio;
                 }
 
-                // 原生 Text
                 if (fontType == GameDefinitions.AssetType.Font)
                 {
                     if (!uiInfo.MultiTypeTextCompsCoexist && tmp) tmp.enabled = false;
@@ -710,7 +668,6 @@ namespace Honor.Runtime
                         local.Language = GameMainRoot.Localization.Language;
                     }
                 }
-                // TMP 文本
                 else if (fontType == GameDefinitions.AssetType.FontTMP)
                 {
                     if (!uiInfo.MultiTypeTextCompsCoexist && text) text.enabled = false;
@@ -752,5 +709,6 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }

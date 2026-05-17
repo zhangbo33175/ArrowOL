@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIComponent.Core.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 核心管理组件 - 初始化与工具方法
+ ***************************************************************/
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -16,6 +25,7 @@ namespace Honor.Runtime
 
     public sealed partial class UIComponent : GameComponent
     {
+        #region 初始化核心
         /// <summary>
         /// UI 组件初始化入口
         /// 获取依赖组件、创建 UI 管理器、初始化配置
@@ -50,14 +60,24 @@ namespace Honor.Runtime
             m_CachedJsonObject = new JObject();
 
             // 创建 UI 核心管理器
-            m_UIManager = new UIManager(m_AssetComponent, m_LocalizationComponent, this,
-                m_ScreenUICameras, m_SceneUICameras,
-                m_ScreenUICanvas, m_SceneUICanvas,
-                m_ScreenDesignedResolution, m_ScreenWidthHeightMatchValue,
+            m_UIManager = new UIManager(
+                m_AssetComponent, 
+                m_LocalizationComponent, 
+                this,
+                m_ScreenUICameras, 
+                m_SceneUICameras,
+                m_ScreenUICanvas, 
+                m_SceneUICanvas,
+                m_ScreenDesignedResolution, 
+                m_ScreenWidthHeightMatchValue,
                 m_DestroyMaxNumPerFrame,
                 m_CheckTextLocalizings,
-                m_WaitingUIABPath, m_WaitingUIAssetName,
-                m_FloatWordsUIABPath, m_FloatWordsUIAssetName, m_FloatWordsDuration);
+                m_WaitingUIABPath, 
+                m_WaitingUIAssetName,
+                m_FloatWordsUIABPath, 
+                m_FloatWordsUIAssetName, 
+                m_FloatWordsDuration
+            );
 
             if (m_UIManager == null)
             {
@@ -65,7 +85,9 @@ namespace Honor.Runtime
                 return;
             }
         }
+        #endregion
 
+        #region 工具方法
         /// <summary>
         /// 将 LuaTable 转换成 UIInfo 结构
         /// 用于 C# 与 XLua 之间的 UI 配置传递
@@ -74,14 +96,16 @@ namespace Honor.Runtime
         /// <param name="luaParams">传递给 UI 的自定义参数</param>
         /// <param name="overCallback">UI 加载完成回调</param>
         /// <returns>构造完成的 UIInfo</returns>
-        private UIInfo GenerateUIInfo(LuaTable luaTable, LuaTable luaParams = null,
-            UILoadOverCallback overCallback = null)
+        private UIInfo GenerateUIInfo(LuaTable luaTable, LuaTable luaParams = null, UILoadOverCallback overCallback = null)
         {
             // 清空缓存 JSON 对象
             m_CachedJsonObject.RemoveAll();
 
             // 遍历 LuaTable，转为 JObject
-            luaTable.ForEach<string, object>((key, value) => { m_CachedJsonObject.Add(new JProperty(key, value)); });
+            luaTable.ForEach<string, object>((key, value) => 
+            { 
+                m_CachedJsonObject.Add(new JProperty(key, value)); 
+            });
 
             // JSON 反序列化为 UIInfo
             UIInfo uiInfo = JsonConvert.DeserializeObject<UIInfo>(m_CachedJsonObject.ToString());
@@ -92,5 +116,6 @@ namespace Honor.Runtime
 
             return uiInfo;
         }
+        #endregion
     }
 }

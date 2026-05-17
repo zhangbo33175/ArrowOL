@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  VibrateManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   震动管理器 - 基于 Nice Vibrations，支持预设/自定义/组合/Lua震动
+ ***************************************************************/
 using DG.Tweening;
 #if NICEVIBRATIONS_ENABLE
 using Lofelt.NiceVibrations;
@@ -21,7 +30,7 @@ namespace Honor.Runtime
         /// </summary>
         public VibrateManager()
         {
-            m_CustomVibratesGroup = new Dictionary<string, List<VibrateInfo>>();
+            m_CustomVibratesGroup   = new Dictionary<string, List<VibrateInfo>>();
             m_EmphasisVibratesGroup = new Dictionary<string, List<VibrateInfo>>();
         }
 
@@ -46,7 +55,7 @@ namespace Honor.Runtime
 #endif
         }
 
-        /// <summary>
+        /// <summary
         /// 播放自定义连续震动
         /// </summary>
         /// <param name="intensity">强度</param>
@@ -92,10 +101,10 @@ namespace Honor.Runtime
                 // 循环读取所有震动片段
                 while (vibrateLuabTable != null)
                 {
-                    vibrateLuabTable.Get("Intensity", out float intensity);
-                    vibrateLuabTable.Get("Sharpness", out float sharpness);
+                    vibrateLuabTable.Get("Intensity",   out float intensity);
+                    vibrateLuabTable.Get("Sharpness",   out float sharpness);
                     vibrateLuabTable.Get("PreDuration", out float preDuration);
-                    vibrateLuabTable.Get("Duration", out float duration);
+                    vibrateLuabTable.Get("Duration",    out float duration);
 
                     m_CustomVibratesGroup[name].Add(new VibrateInfo(intensity, sharpness, preDuration, duration));
 
@@ -112,8 +121,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 播放点震动（短促、冲击型震动，适合点击/打击反馈）
         /// </summary>
-        public void PlayEmphasis(float amplitude, float frequency, float preDuration, float interval,
-            Action overCallback)
+        public void PlayEmphasis(float amplitude, float frequency, float preDuration, float interval, Action overCallback)
         {
 #if NICEVIBRATIONS_ENABLE
             if (GetEnable())
@@ -145,10 +153,10 @@ namespace Honor.Runtime
 
                 while (vibrateLuabTable != null)
                 {
-                    vibrateLuabTable.Get("Amplitude", out float amplitude);
-                    vibrateLuabTable.Get("Frequency", out float frequency);
-                    vibrateLuabTable.Get("PreDuration", out float preDuration);
-                    vibrateLuabTable.Get("Interval", out float interval);
+                    vibrateLuabTable.Get("Amplitude",  out float amplitude);
+                    vibrateLuabTable.Get("Frequency",  out float frequency);
+                    vibrateLuabTable.Get("PreDuration",out float preDuration);
+                    vibrateLuabTable.Get("Interval",   out float interval);
 
                     m_EmphasisVibratesGroup[name].Add(new VibrateInfo(amplitude, frequency, preDuration, interval));
 

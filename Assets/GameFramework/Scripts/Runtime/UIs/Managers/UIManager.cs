@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIManager.Core.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 管理器 - 核心逻辑实现
+ ***************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,26 +16,11 @@ namespace Honor.Runtime
 {
     public sealed partial class UIManager
     {
+        #region 构造与初始化
         /// <summary>
         /// UI 管理器构造函数
         /// 初始化所有组件、根节点、分辨率适配、UI 容器、默认状态等
         /// </summary>
-        /// <param name="assetComponent">资源管理组件</param>
-        /// <param name="localizationComponent">多语言管理组件</param>
-        /// <param name="uiComponent">顶层 UI 组件</param>
-        /// <param name="screenUICameras">屏幕 UI 相机列表</param>
-        /// <param name="sceneUICameras">场景 UI 相机列表</param>
-        /// <param name="screenUICanvas">屏幕 UI 根画布</param>
-        /// <param name="sceneUICanvas">场景 UI 根画布</param>
-        /// <param name="screenDesignedResolution">设计分辨率</param>
-        /// <param name="screenWidthHeightMatchValue">宽高匹配值</param>
-        /// <param name="destroyMaxNumPerFrame">每帧最大销毁数量</param>
-        /// <param name="checkTextLocalizings">是否开启多语言检测</param>
-        /// <param name="waitingUIABPath">等待 UI AB 包路径</param>
-        /// <param name="waitingUIAssetName">等待 UI 资源名</param>
-        /// <param name="floatWordsUIABPath">飘字 UI AB 包路径</param>
-        /// <param name="floatWordsUIAssetName">飘字 UI 资源名</param>
-        /// <param name="floatWordsDuration">飘字默认显示时长</param>
         public UIManager(AssetComponent assetComponent, LocalizationComponent localizationComponent, UIComponent uiComponent,
                          List<Camera> screenUICameras, List<Camera> sceneUICameras,
                          Canvas screenUICanvas, Canvas sceneUICanvas,
@@ -117,7 +111,9 @@ namespace Honor.Runtime
             m_SubUIList[UIType.Scene] = new List<UIFlagBehaviour>();
             m_UnloadUIList = new List<UIFlagBehaviour>();
         }
+        #endregion
 
+        #region 生命周期更新
         /// <summary>
         /// UI 管理器帧更新（心跳）
         /// 按优先级更新所有 UI 生命周期、队列、销毁、输入、屏幕状态
@@ -134,12 +130,13 @@ namespace Honor.Runtime
             CheckKeysUp();
             CheckScreenOrientationState();
         }
+        #endregion
 
+        #region 打开 UI（异步/同步）
         /// <summary>
         /// 异步打开 UI 界面（根据 UI 信息）
         /// 自动区分屏幕/场景、模态/非模态，支持队列与优先级
         /// </summary>
-        /// <param name="uiInfo">UI 配置信息</param>
         public void OpenUIAsyncByInfo(UIInfo uiInfo)
         {
             if (uiInfo.UIType == UIType.Screen)
@@ -199,8 +196,6 @@ namespace Honor.Runtime
         /// 同步打开 UI 界面（根据 UI 信息）
         /// 立即加载并返回 UI 对象，阻塞执行
         /// </summary>
-        /// <param name="uiInfo">UI 配置信息</param>
-        /// <returns>创建的 UI GameObject</returns>
         public GameObject OpenUISyncByInfo(UIInfo uiInfo)
         {
             if (uiInfo.UIType == UIType.Screen)
@@ -246,13 +241,13 @@ namespace Honor.Runtime
                 return go;
             }
         }
+        #endregion
 
+        #region 追加子 UI（异步/同步）
         /// <summary>
         /// 异步追加子 UI 到指定父节点（附加式 UI）
         /// 不独立管理生命周期，跟随父 UI
         /// </summary>
-        /// <param name="uiInfo">UI 信息</param>
-        /// <param name="parent">父节点 Transform</param>
         public void AddUIAsyncByInfo(UIInfo uiInfo, Transform parent)
         {
             m_AssetComponent.LoadPrefabAsync(uiInfo.ABPath, uiInfo.AssetName, parent, uiInfo.LuaParams, (PrefabObject prefabObject, GameObject go) =>
@@ -269,9 +264,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 同步追加子 UI 到指定父节点（附加式 UI）
         /// </summary>
-        /// <param name="uiInfo">UI 信息</param>
-        /// <param name="parent">父节点 Transform</param>
-        /// <returns>创建的 UI GameObject</returns>
         public GameObject AddUISyncByInfo(UIInfo uiInfo, Transform parent)
         {
             GameObject go = m_AssetComponent.LoadPrefabSync(uiInfo.ABPath, uiInfo.AssetName, parent, uiInfo.LuaParams);
@@ -282,13 +274,13 @@ namespace Honor.Runtime
             m_UIComponent.RefreshFontsForUI(go);
             return go;
         }
+        #endregion
 
+        #region 关闭 UI（单个/批量）
         /// <summary>
         /// 根据 GameObject 关闭 UI
         /// 自动跳过常驻 UI，支持立即/延时关闭
         /// </summary>
-        /// <param name="targetGO">目标 UI 对象</param>
-        /// <param name="rightNow">是否立即关闭（不等待动画）</param>
         public void CloseUIByGO(GameObject targetGO, bool rightNow)
         {
             if (targetGO == null) return;
@@ -329,8 +321,6 @@ namespace Honor.Runtime
         /// 根据 UI 信息关闭单个 UI
         /// 找到第一个匹配项立即关闭并返回
         /// </summary>
-        /// <param name="targetUIInfo">UI 信息</param>
-        /// <param name="rightNow">是否立即关闭</param>
         public void CloseUIByInfo(UIInfo targetUIInfo, bool rightNow)
         {
             if (targetUIInfo == null) return;
@@ -373,8 +363,6 @@ namespace Honor.Runtime
         /// 根据 UI 信息关闭所有匹配的 UI
         /// 批量关闭，全部匹配后统一执行
         /// </summary>
-        /// <param name="targetUIInfo">UI 信息</param>
-        /// <param name="rightNow">是否立即关闭</param>
         public void CloseUIsByInfo(UIInfo targetUIInfo, bool rightNow)
         {
             if (targetUIInfo == null) return;
@@ -404,18 +392,16 @@ namespace Honor.Runtime
         /// <summary>
         /// 移除追加式 UI（同关闭 UI）
         /// </summary>
-        /// <param name="uiGO">UI 对象</param>
-        /// <param name="rightNow">是否立即移除</param>
         public void RemoveUIByGO(GameObject uiGO, bool rightNow)
         {
             CloseUIByGO(uiGO, rightNow);
         }
+        #endregion
 
+        #region 获取 UI
         /// <summary>
         /// 根据 UI 信息获取单个 UI 对象
         /// </summary>
-        /// <param name="targetUIInfo">UI 信息</param>
-        /// <returns>匹配的 UI GameObject</returns>
         public GameObject GetUIByInfo(UIInfo targetUIInfo)
         {
             if (targetUIInfo == null) return null;
@@ -448,8 +434,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 根据 UI 信息获取所有匹配的 UI 数组
         /// </summary>
-        /// <param name="targetUIInfo">UI 信息</param>
-        /// <returns>UI GameObject 数组</returns>
         public GameObject[] GetUIsByInfo(UIInfo targetUIInfo)
         {
             List<GameObject> results = new List<GameObject>();
@@ -460,8 +444,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 根据 UI 信息获取所有匹配的 UI（列表版）
         /// </summary>
-        /// <param name="targetUIInfo">UI 信息</param>
-        /// <param name="result">输出结果列表</param>
         public void GetUIsByInfo(UIInfo targetUIInfo, List<GameObject> result)
         {
             if (targetUIInfo == null || result == null) return;
@@ -485,9 +467,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 根据 UI 类型获取所有 UI 数组
         /// </summary>
-        /// <param name="targetUIType">UI 类型</param>
-        /// <param name="isAppend">是否为追加式 UI</param>
-        /// <returns>UI GameObject 数组</returns>
         public GameObject[] GetUIsByUIType(UIType targetUIType, bool isAppend)
         {
             List<GameObject> result = new List<GameObject>();
@@ -498,9 +477,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 根据 UI 类型获取所有 UI（列表版）
         /// </summary>
-        /// <param name="targetUIType">UI 类型</param>
-        /// <param name="isAppend">是否为追加式 UI</param>
-        /// <param name="result">输出结果列表</param>
         public void GetUIsByUIType(UIType targetUIType, bool isAppend, List<GameObject> result)
         {
             if (result == null) return;
@@ -520,12 +496,13 @@ namespace Honor.Runtime
                     result.AddRange(GetAllMatchedUITypeValidGameObjects(sceneUI, targetUIType, isAppend));
             }
         }
+        #endregion
 
+        #region 批量关闭
         /// <summary>
         /// 关闭所有模态 UI（屏幕 UI）
         /// 清空当前模态与等待队列
         /// </summary>
-        /// <param name="rightNow">是否立即关闭</param>
         public void CloseAllModalUIs(bool rightNow)
         {
             if (m_CurModalUI != null)
@@ -537,7 +514,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 关闭所有非模态 UI（屏幕 UI）
         /// </summary>
-        /// <param name="rightNow">是否立即关闭</param>
         public void CloseAllUnModalUIs(bool rightNow)
         {
             List<GameObject> result = new List<GameObject>();
@@ -555,7 +531,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 关闭所有场景 UI
         /// </summary>
-        /// <param name="rightNow">是否立即关闭</param>
         public void CloseAllSceneUIs(bool rightNow)
         {
             List<GameObject> result = new List<GameObject>();
@@ -567,11 +542,9 @@ namespace Honor.Runtime
             result.ForEach(go => InnerCloseUIByGO(go, rightNow));
         }
 
-        /// <summary
+        /// <summary>
         /// 关闭指定类型的所有 UI
         /// </summary>
-        /// <param name="uiType">UI 类型</param>
-        /// <param name="rightNow">是否立即关闭</param>
         public void CloseAllUIs(UIType uiType, bool rightNow)
         {
             if (uiType == UIType.Screen)
@@ -584,12 +557,13 @@ namespace Honor.Runtime
                 CloseAllSceneUIs(rightNow);
             }
         }
+        #endregion
 
+        #region 工具与状态
         /// <summary>
         /// 将 UI 加入待卸载列表
         /// 用于分帧销毁，避免卡顿
         /// </summary>
-        /// <param name="flagBehaviour">UI 标记组件</param>
         public void AddFlagToUnloadUIList(UIFlagBehaviour flagBehaviour)
         {
             if(flagBehaviour != null && !m_UnloadUIList.Contains(flagBehaviour))
@@ -599,8 +573,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 判断指定 UI 是否存在于模态 UI 体系中
         /// </summary>
-        /// <param name="uiInfo">UI 信息</param>
-        /// <returns>是否存在</returns>
         public bool IsUIExistInModalUIs(UIInfo uiInfo)
         {
             if (uiInfo.UIType == UIType.Screen)
@@ -625,8 +597,6 @@ namespace Honor.Runtime
         /// 全局/指定 UI 替换字体
         /// 支持多语言字体切换，自动刷新所有文本
         /// </summary>
-        /// <param name="fontDatas">字体数据列表</param>
-        /// <param name="ui">目标 UI（null 表示全局）</param>
         public void SetFont(List<LocalizationFontData> fontDatas, GameObject ui)
         {
             if (ui == null)
@@ -661,7 +631,6 @@ namespace Honor.Runtime
         /// 刷新屏幕宽高匹配值
         /// 动态调整分辨率适配比例
         /// </summary>
-        /// <param name="matchValue">宽高匹配值</param>
         public void RefreshScreenMatchValue(float matchValue)
         {
             m_ScreenUICanvasScaler.matchWidthOrHeight = matchValue;
@@ -738,5 +707,6 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }

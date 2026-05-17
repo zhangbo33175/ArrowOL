@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GZip.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   GZip压缩解压工具类，支持字节/字符串/Base64格式互转
+ ***************************************************************/
 using ICSharpCode.SharpZipLib.GZip;
 using System;
 using System.IO;
@@ -5,6 +14,9 @@ using System.Text;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // GZip 压缩解压工具类
+    //=========================================================================
     /// <summary>
     /// GZip 压缩解压工具类
     /// 提供字符串/字节数组的压缩、解压，并支持 Base64 编码转换
@@ -12,6 +24,10 @@ namespace Honor.Runtime
     /// </summary>
     public static class GZip
     {
+        #region 字符串压缩解压（Base64）
+        //=========================================================================
+        // 字符串压缩解压（Base64）
+        //=========================================================================
         /// <summary>
         /// 将字符串压缩并转换为 Base64 字符串
         /// </summary>
@@ -50,7 +66,12 @@ namespace Honor.Runtime
             byte[] uncompressed = ms.ToArray();
             return Encoding.UTF8.GetString(uncompressed);
         }
+        #endregion
 
+        #region 字节数组压缩解压
+        //=========================================================================
+        // 字节数组压缩解压
+        //=========================================================================
         /// <summary>
         /// 压缩字节数组
         /// </summary>
@@ -87,5 +108,6 @@ namespace Honor.Runtime
 
             return ms.ToArray();
         }
+        #endregion
     }
 }

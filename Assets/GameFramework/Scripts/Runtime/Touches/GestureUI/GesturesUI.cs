@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GesturesUI.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI手势交互控制器 - 核心逻辑与生命周期
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 using UnityEngine.EventSystems;
 
@@ -10,9 +19,13 @@ namespace Honor.Runtime
     using UnityEngine;
     using XLua;
 
+    //=========================================================================
+    // UI 手势交互控制器 - 核心逻辑
+    //=========================================================================
     public sealed partial class GesturesUI : MonoBehaviour
     {
-        void Awake()
+        #region Unity 生命周期
+        private void Awake()
         {
             m_UITouchCoverCallbacks = new List<LuaTable>();
             m_UITouchEndCallbacks = new List<LuaTable>();
@@ -24,7 +37,7 @@ namespace Honor.Runtime
             m_SelectedObjDragEndCallbacks = new List<LuaTable>();
         }
 
-        void Start()
+        private void Start()
         {
             m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
             if (m_LuaComponent == null)
@@ -37,7 +50,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 启用回调
         /// </summary>
-        void OnEnable()
+        private void OnEnable()
         {
             // 清理缓存数据
             CleanCaches();
@@ -45,19 +58,87 @@ namespace Honor.Runtime
             // UI对象-触摸-回调注册
             EasyTouch.On_OverUIElement += OnUIElementTouchCover;
             EasyTouch.On_UIElementTouchUp += OnUIElementTouchEnd;
-
         }
 
         /// <summary>
         /// 禁用回调
         /// </summary>
-        void OnDisable()
+        private void OnDisable()
         {
             // UI对象-触摸-回调注销
             EasyTouch.On_OverUIElement -= OnUIElementTouchCover;
             EasyTouch.On_UIElementTouchUp -= OnUIElementTouchEnd;
         }
 
+        private void Update()
+        {
+            if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
+            {
+                // 持续选中回调
+                Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(m_SelectedObjGesture.position.x, m_SelectedObjGesture.position.y, m_UICamera.nearClipPlane));
+                foreach (var callback in m_UpdateSelectedObjCallbacks)
+                {
+                    LuaTable args = m_LuaComponent.Env.NewTable();
+                    args.Set("gesture", m_SelectedObjGesture);
+                    args.Set("worldPosition", worldPosition);
+                    args.Set("selectedObjType", m_SelectedObjType);
+                    args.Set("selectedObj", m_SelectedObj);
+                    LuaHandler.Callback(callback, args);
+                }
+
+                Gesture gesture = EasyTouch.current;
+                if (gesture != null && gesture.touchCount == 1)
+                {
+                    if (m_DragSwitch)
+                    {
+                        worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
+                        if (gesture.deltaPosition != Vector2.zero)
+                        {
+                            // 拖拽开始回调
+                            if (m_CurDragStateOnThisRound == DragState.None && m_IsDraging == false)
+                            {
+                                m_IsDraging = true;
+
+                                Vector3 deltaWorldPosition = Vector3.zero;
+                                foreach (var callback in m_SelectedObjDragBeginCallbacks)
+                                {
+                                    LuaTable args = m_LuaComponent.Env.NewTable();
+                                    args.Set("gesture", m_SelectedObjGesture);
+                                    args.Set("worldPosition", worldPosition);
+                                    args.Set("deltaWorldPosition", deltaWorldPosition);
+                                    args.Set("selectedObjType", m_SelectedObjType);
+                                    args.Set("selectedObj", m_SelectedObj);
+                                    LuaHandler.Callback(callback, args);
+                                }
+                                m_LastWorldPosition = worldPosition;
+                                m_CurDragStateOnThisRound = DragState.Begin;
+                            }
+                            else if (m_CurDragStateOnThisRound == DragState.Begin || m_CurDragStateOnThisRound == DragState.OnGoing)
+                            {
+                                m_SelectedObjGesture = gesture;
+
+                                Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
+                                foreach (var callback in m_SelectedObjDragCallbacks)
+                                {
+                                    LuaTable args = m_LuaComponent.Env.NewTable();
+                                    args.Set("gesture", gesture);
+                                    args.Set("worldPosition", worldPosition);
+                                    args.Set("deltaWorldPosition", deltaWorldPosition);
+                                    args.Set("selectedObjType", m_SelectedObjType);
+                                    args.Set("selectedObj", m_SelectedObj);
+                                    LuaHandler.Callback(callback, args);
+                                }
+                                m_LastWorldPosition = worldPosition;
+                                m_CurDragStateOnThisRound = DragState.OnGoing;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region UI 触摸事件
         /// <summary>
         /// UI元素覆盖中
         /// 仅作用于开启RaycastTarget的UI元素
@@ -78,7 +159,6 @@ namespace Honor.Runtime
                 }
                 CheckSelect(gesture);
             }
-
         }
 
         /// <summary>
@@ -109,7 +189,6 @@ namespace Honor.Runtime
                 // 拖拽结束
                 if (m_IsDraging == true)
                 {
-                    //Log.Info("Drag End!");
                     Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
                     foreach (var callback in m_SelectedObjDragEndCallbacks)
                     {
@@ -145,7 +224,6 @@ namespace Honor.Runtime
                     (m_SelectHoldMode && m_SelectReboundAfterDragEndInSelectHoldMode && m_IsDraging) ||
                     (!m_SelectHoldMode))
                 {
-                    //Log.Info("{0} is UnSelected!", m_SelectedObjType);
                     foreach (var callback in m_UnselectedObjCallbacks)
                     {
                         LuaTable args = m_LuaComponent.Env.NewTable();
@@ -170,76 +248,7 @@ namespace Honor.Runtime
                 m_IsDraging = false;
             }
         }
-
-        void Update()
-        {
-            if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
-            {
-                // 持续选中回调
-                Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(m_SelectedObjGesture.position.x, m_SelectedObjGesture.position.y, m_UICamera.nearClipPlane));
-                foreach (var callback in m_UpdateSelectedObjCallbacks)
-                {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
-                    args.Set("gesture", m_SelectedObjGesture);
-                    args.Set("worldPosition", worldPosition);
-                    args.Set("selectedObjType", m_SelectedObjType);
-                    args.Set("selectedObj", m_SelectedObj);
-                    LuaHandler.Callback(callback, args);
-                }
-
-                Gesture gesture = EasyTouch.current;
-                if (gesture != null && gesture.touchCount == 1)
-                {
-                    if (m_DragSwitch)
-                    {
-                        worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
-                        if (gesture.deltaPosition != Vector2.zero)
-                        {
-                            // 拖拽开始回调
-                            if (m_CurDragStateOnThisRound == DragState.None && m_IsDraging == false)
-                            {
-                                //Log.Info("Drag Begin!");
-                                m_IsDraging = true;
-
-                                Vector3 deltaWorldPosition = Vector3.zero;
-                                foreach (var callback in m_SelectedObjDragBeginCallbacks)
-                                {
-                                    LuaTable args = m_LuaComponent.Env.NewTable();
-                                    args.Set("gesture", m_SelectedObjGesture);
-                                    args.Set("worldPosition", worldPosition);
-                                    args.Set("deltaWorldPosition", deltaWorldPosition);
-                                    args.Set("selectedObjType", m_SelectedObjType);
-                                    args.Set("selectedObj", m_SelectedObj);
-                                    LuaHandler.Callback(callback, args);
-                                }
-                                m_LastWorldPosition = worldPosition;
-                                m_CurDragStateOnThisRound = DragState.Begin;
-                            }
-                            else if (m_CurDragStateOnThisRound == DragState.Begin || m_CurDragStateOnThisRound == DragState.OnGoing) // 拖拽中回调
-                            {
-                                //Log.Info("Drag!");
-                                m_SelectedObjGesture = gesture;
-
-                                Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
-                                foreach (var callback in m_SelectedObjDragCallbacks)
-                                {
-                                    LuaTable args = m_LuaComponent.Env.NewTable();
-                                    args.Set("gesture", gesture);
-                                    args.Set("worldPosition", worldPosition);
-                                    args.Set("deltaWorldPosition", deltaWorldPosition);
-                                    args.Set("selectedObjType", m_SelectedObjType);
-                                    args.Set("selectedObj", m_SelectedObj);
-                                    LuaHandler.Callback(callback, args);
-                                }
-                                m_LastWorldPosition = worldPosition;
-                                m_CurDragStateOnThisRound = DragState.OnGoing;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        #endregion
     }
 }
-
 #endif

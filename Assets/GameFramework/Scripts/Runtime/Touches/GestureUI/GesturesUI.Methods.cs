@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GesturesUI.Logic.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI手势交互控制器 - 核心工具逻辑分部类
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 namespace Honor.Runtime
 {
@@ -7,8 +16,12 @@ namespace Honor.Runtime
     using UnityEngine;
     using XLua;
 
+    //=========================================================================
+    // UI 手势交互控制器 - 核心工具逻辑
+    //=========================================================================
     public sealed partial class GesturesUI : MonoBehaviour
     {
+        #region 缓存与状态管理
         /// <summary>
         /// 清理缓存数据
         /// </summary>
@@ -22,11 +35,13 @@ namespace Honor.Runtime
             m_CurDragStateOnThisRound = DragState.None;
             m_LastWorldPosition = Vector3.zero;
         }
+        #endregion
 
+        #region UI选中检测逻辑
         /// <summary>
         /// 检查选中逻辑
         /// </summary>
-        /// <param name="gesture"></param>
+        /// <param name="gesture">手势数据</param>
         private void CheckSelect(Gesture gesture)
         {
             if (!m_SelectSwitch) return;
@@ -243,6 +258,7 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }
 #endif

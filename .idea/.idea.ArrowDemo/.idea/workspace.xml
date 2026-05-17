@@ -28,56 +28,21 @@
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/PersistComponentInspector/PersistComponentInspector.Export.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/PersistComponentInspector/PersistComponentInspector.Export.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/PersistComponentInspector/PersistComponentInspector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/PersistComponentInspector/PersistComponentInspector.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ProcedureComponentInspector/ProcedureComponentInspector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ProcedureComponentInspector/ProcedureComponentInspector.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/ABConfigInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/ABConfigInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/AssetBundleNamePostprocessor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/AssetBundleNamePostprocessor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Data.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Data.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportMenuOptions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportMenuOptions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/SoundComponentInspector/SoundComponentInspector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/SoundComponentInspector/SoundComponentInspector.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/TableComponentInspector/TableComponentInspector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/TableComponentInspector/TableComponentInspector.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/UIComponentInspector/UIComponentInspector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/UIComponentInspector/UIComponentInspector.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/UIs/AorTextLocalizingComponentInspector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/UIs/AorTextLocalizingComponentInspector.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/AorType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/AorType.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/BaseEditorWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/BaseEditorWindow.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.Editor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.Editor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.Json.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.Json.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.Localization.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.Localization.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Tools/EditorPath.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Utilities/TableExportEditorUtility.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Utilities/TableExportEditorUtility.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/XLuaGensEditor/HonorGenConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/XLuaGensEditor/HonorGenConfig.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Components/AssetComponent.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Components/AssetComponent.Methods.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Components/AssetComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Components/AssetComponent.Visitors.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Components/AssetComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Components/AssetComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/ObjectData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/ObjectData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/OriginType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/OriginType.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/PrefabDetailType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/PrefabDetailType.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/PrefabType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Definitions/PrefabType.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetBundle/AssetBundleLoadManager.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetBundle/AssetBundleLoadManager.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetBundle/AssetBundleLoadManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetBundle/AssetBundleLoadManager.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetBundle/AssetBundleLoadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetBundle/AssetBundleLoadManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Methods.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Visitors.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabInstanceGOBehaviour.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabInstanceGOBehaviour.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/GameComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/GameComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/GameComponentsGroup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/GameComponentsGroup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/TimerComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/TimerComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameConstants.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameConstants.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameDOTweenTypes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameDOTweenTypes.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameDefinitions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameDefinitions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameEventCmd.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Definitions/GameEventCmd.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameConditionAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameConditionAttribute.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameHeaderAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameHeaderAttribute.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameHiddenPropertiesAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameHiddenPropertiesAttribute.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameInfoAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameInfoAttribute.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameInspectorButtonAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameInspectorButtonAttribute.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameReadOnlyAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameReadOnlyAttribute.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameTitleAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Attributes/GameTitleAttribute.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/GameBinaryExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/GameBinaryExtension.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/GameException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/GameException.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/GameExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/GameExtension.cs" afterDir="false" />
@@ -89,11 +54,6 @@
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Animator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Animator.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Component.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Component.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.GameObject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.GameObject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.RectTransform.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.RectTransform.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Spine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Spine.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Transform.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Transform.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Vector2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Vector2.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Vector3.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.Vector3.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Logics/Animation/AnimationStateBehaviour.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Logics/Animation/AnimationStateBehaviour.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Logics/BehaviorTree/LuaBTAction.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Logics/BehaviorTree/LuaBTAction.Visitors.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Logics/BehaviorTree/LuaBTAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Logics/BehaviorTree/LuaBTAction.cs" afterDir="false" />
@@ -201,69 +161,59 @@
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Persists/Managers/PlayerPrefs/PlayerPrefsManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Persists/Managers/PlayerPrefs/PlayerPrefsManager.Visitors.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Persists/Managers/PlayerPrefs/PlayerPrefsManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Persists/Managers/PlayerPrefs/PlayerPrefsManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Playing/Components/PlayingComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Playing/Components/PlayingComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Playing/Managers/GridManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Playing/Managers/GridManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Playing/UIs/UIFader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Playing/UIs/UIFader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Components/ProcedureComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Components/ProcedureComponent.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Components/ProcedureComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Components/ProcedureComponent.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedureLaunch.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedureLaunch.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedurePlaying.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedurePlaying.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedurePreload.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedurePreload.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/StateMachines/ProcedureState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/StateMachines/ProcedureState.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/StateMachines/ProcedureStateMachine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/StateMachines/ProcedureStateMachine.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Roots/GameMainRoot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Roots/GameMainRoot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Cameras/SceneCameraActor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Cameras/SceneCameraActor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Managers/SceneManager.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Managers/SceneManager.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Managers/SceneManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Managers/SceneManager.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Managers/SceneManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Managers/SceneManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/MonoSingleton.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/MonoSingleton.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/Singleton.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/Singleton.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/PlaySoundErrorCode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/PlaySoundErrorCode.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/PlaySoundInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/PlaySoundInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/PlaySoundParams.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/PlaySoundParams.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/SoundConstant.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Definitions/SoundConstant.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundAgent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundAgent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundAgentHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundAgentHelper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundGroup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundGroup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundGroupHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Helpers/SoundGroupHelper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Managers/SoundManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Managers/SoundManager.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Managers/SoundManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Managers/SoundManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Shells/PlaySoundInfoShell.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Shells/PlaySoundInfoShell.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Shells/SoundGroupShell.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Shells/SoundGroupShell.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tables/Components/TableComponent.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tables/Components/TableComponent.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tables/Components/TableComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tables/Components/TableComponent.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tables/Components/TableComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tables/Components/TableComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/AESEncrypt.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/AESEncrypt.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Txt/AorTxt.Cache.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Txt/AorTxt.Cache.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Txt/AorTxt.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Txt/AorTxt.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/DelegatesGensBridge.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/DelegatesGensBridge.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_AorClickEventListenerWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_AorClickEventListenerWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_AorListViewWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_AorListViewWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_AssetComponentWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_AssetComponentWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Collider3DLifeCyclesBehaviourWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Collider3DLifeCyclesBehaviourWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_FileOperationWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_FileOperationWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ItemPoolWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ItemPoolWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ItemSizeGroupWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ItemSizeGroupWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LocalizationComponentWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LocalizationComponentWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaBindValueWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaBindValueWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaComponentWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaComponentWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaFileWatcherWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaFileWatcherWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaInjectionWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_LuaInjectionWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Trigger2DLifeCyclesBehaviourWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Trigger2DLifeCyclesBehaviourWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Trigger3DLifeCyclesBehaviourWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Trigger3DLifeCyclesBehaviourWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/XLuaGenAutoRegister.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/XLuaGenAutoRegister.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Converter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Converter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/DevicePerformance.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/DevicePerformance.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Encryption.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Encryption.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GZip.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GZip.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GaussianBlur.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GaussianBlur.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Log.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Log.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/LuaHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/LuaHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/MD5Handler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/MD5Handler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Timer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/Timer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Components/TouchComponent.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Components/TouchComponent.Methods.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Components/TouchComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Components/TouchComponent.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Components/TouchComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Components/TouchComponent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.Events.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.Events.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.Methods.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture2D/Gestures2D.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.Events.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.Events.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.Methods.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/Gesture3D/Gestures3D.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Definitions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Definitions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Events.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Events.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Methods.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Touches/GestureUI/GesturesUI.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.Methods.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.SpecialUIs.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.SpecialUIs.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Components/UIComponent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Definitions/UIType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Definitions/UIType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIFlagBehaviour.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIFlagBehaviour.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Methods.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.SpecialUIs.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.SpecialUIs.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/UIInfo/UIInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/UIInfo/UIInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/UIWebGL/UIWebGLWebView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/UIWebGL/UIWebGLWebView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Components/VibrateComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Components/VibrateComponent.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Components/VibrateComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Components/VibrateComponent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Definitions/VibrateType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Definitions/VibrateType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Managers/VibrateManager.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Managers/VibrateManager.Methods.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Managers/VibrateManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Managers/VibrateManager.Visitors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Managers/VibrateManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/Managers/VibrateManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/VibrateInfo/VibrateInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Vibrates/VibrateInfo/VibrateInfo.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.ref.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.ref.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" afterDir="false" />
@@ -272,7 +222,6 @@
       <change beforePath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/expandedItems" beforeDir="false" afterPath="$PROJECT_DIR$/Library/expandedItems" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/HonorResDefExportSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/HonorResDefExportSettings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -504,7 +453,8 @@
       <workItem from="1778630707932" duration="23688000" />
       <workItem from="1778715642027" duration="12342000" />
       <workItem from="1778807773758" duration="20055000" />
-      <workItem from="1778886120545" duration="33206000" />
+      <workItem from="1778886120545" duration="34061000" />
+      <workItem from="1778981155170" duration="5054000" />
     </task>
     <servers />
   </component>
@@ -677,11 +627,6 @@
           <line>223</line>
           <option name="timeStamp" value="547" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoginView/UILoginView.lua.txt</url>
-          <line>68</line>
-          <option name="timeStamp" value="548" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.Methods.cs</url>
           <line>59</line>
@@ -798,97 +743,6 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="253" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs</url>
-          <line>379</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.cs" containingFunctionPresentation="Method 'CloseUIsByInfo'">
-            <startOffsets>
-              <option value="16014" />
-            </startOffsets>
-            <endOffsets>
-              <option value="16039" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="261" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs</url>
-          <line>410</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.cs" containingFunctionPresentation="Method 'RemoveUIByGO'">
-            <startOffsets>
-              <option value="17238" />
-            </startOffsets>
-            <endOffsets>
-              <option value="17266" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="262" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Methods.cs</url>
-          <line>551</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.Methods.cs" containingFunctionPresentation="Method 'InnerCloseUIByGO'">
-            <startOffsets>
-              <option value="20383" />
-            </startOffsets>
-            <endOffsets>
-              <option value="20449" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="270" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Methods.cs</url>
-          <line>546</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\UIs\Managers\UIManager.Methods.cs" containingFunctionPresentation="Method 'InnerCloseUIByGO'">
-            <startOffsets>
-              <option value="20275" />
-            </startOffsets>
-            <endOffsets>
-              <option value="20303" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="275" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs</url>
-          <line>438</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Tools\GamePathUtils.cs" containingFunctionPresentation="Method 'GetRootDirectoryFullPath'">
-            <startOffsets>
-              <option value="17694" />
-            </startOffsets>
-            <endOffsets>
-              <option value="17762" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="411" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs</url>
-          <line>435</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Tools\GamePathUtils.cs" containingFunctionPresentation="Method 'GetRootDirectoryFullPath'">
-            <startOffsets>
-              <option value="17418" />
-            </startOffsets>
-            <endOffsets>
-              <option value="17486" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="414" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GamePathUtils.cs</url>
-          <line>1157</line>
-          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Runtime\Tools\GamePathUtils.cs" containingFunctionPresentation="Method 'GetResDefLuaFullPath'">
-            <startOffsets>
-              <option value="40696" />
-            </startOffsets>
-            <endOffsets>
-              <option value="40810" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="415" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/MapCamHelper.cs</url>

@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Gestures2D.Logic.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   2D相机手势控制器 - 核心逻辑分部类
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 namespace Honor.Runtime
 {
@@ -8,8 +17,12 @@ namespace Honor.Runtime
     using UnityEngine.Rendering;
     using XLua;
 
+    //=========================================================================
+    // 2D 相机手势控制器 - 核心逻辑分部类
+    //=========================================================================
     public sealed partial class Gestures2D : MonoBehaviour
     {
+        #region 缓存与状态管理
         /// <summary>
         /// 清理缓存数据
         /// </summary>
@@ -36,7 +49,9 @@ namespace Honor.Runtime
             m_IgnoreSelectObjBySwipe = false;
             m_IgnoreSelectObjByPinch = false;
         }
+        #endregion
 
+        #region 滑动弹性逻辑
         /// <summary>
         /// 滑动到弹性区（松手释放时）
         /// 当已经进入弹性区时，则不需要惯性速度了，只需要设置一个反弹速度
@@ -44,7 +59,6 @@ namespace Honor.Runtime
         private void SwipeToElasticOnReleased()
         {
             m_IsFingerSwiping = false;
-
             m_SwipePosition = Vector2.zero;
 
             // 有效空间内水平方向左侧边缘X坐标值
@@ -99,13 +113,14 @@ namespace Honor.Runtime
                     m_SwipeOffset.y = -0.05f;
                 }
             }
-
         }
+        #endregion
 
+        #region 对象选中逻辑
         /// <summary>
         /// 检查选中逻辑
         /// </summary>
-        /// <param name="gesture"></param>
+        /// <param name="gesture">手势数据</param>
         private void CheckSelect(Gesture gesture)
         {
             if (!m_SelectSwitch) return;
@@ -347,7 +362,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 设备兼容修复
         /// <summary>
         /// 修复有可能存在的特殊机型上事件丢失问题导致的逻辑异常
         /// </summary>
@@ -360,6 +377,7 @@ namespace Honor.Runtime
                 m_SafeTimeCounterOnGestureOver = 0;
             }
         }
+        #endregion
     }
 }
 #endif

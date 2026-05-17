@@ -1,7 +1,19 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Timer.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   时间戳工具类，提供UTC0/本地时间戳、时间互转功能
+ ***************************************************************/
 using System;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 时间戳工具类
+    //=========================================================================
     /// <summary>
     /// 时间戳工具类
     /// 提供 UTC0 时间戳、本地时间戳、秒数转 DateTime 的常用封装
@@ -9,6 +21,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class Timer
     {
+        #region 时间戳获取
         /// <summary>
         /// 获取当前 UTC0 时间戳（1970-01-01 至今的秒数）
         /// 临时方案：后续需统一改为服务器下发时间戳
@@ -32,7 +45,9 @@ namespace Honor.Runtime
 
             return (int)Math.Floor((dateTime - new DateTime(1970, 1, 1)).TotalSeconds);
         }
+        #endregion
 
+        #region 时间戳转换
         /// <summary>
         /// 将秒级时间戳转为 DateTime（UTC0）
         /// </summary>
@@ -45,5 +60,6 @@ namespace Honor.Runtime
 
             return new DateTime(1970, 1, 1).AddSeconds(seconds);
         }
+        #endregion
     }
 }

@@ -1,27 +1,68 @@
-﻿using UnityEngine;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  DevicePerformance.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   设备性能检测工具类 - 自动判断硬件等级、设置Unity画质参数、
+ *            提供性能等级对应UI显示颜色
+ ***************************************************************/
+using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 设备硬件性能等级枚举
+    //=========================================================================
     /// <summary>
     /// 设备硬件性能等级
     /// </summary>
     public enum DevicePerformanceLevel
     {
-        Low, // 低端机
-        Mid, // 中端机
-        High // 高端机
+        /// <summary>
+        /// 低端设备
+        /// </summary>
+        Low,
+        
+        /// <summary>
+        /// 中端设备
+        /// </summary>
+        Mid,
+        
+        /// <summary>
+        /// 高端设备
+        /// </summary>
+        High
     }
 
+    //=========================================================================
+    // 画面质量等级枚举
+    //=========================================================================
     /// <summary>
     /// 画面质量等级（与设备性能对应）
     /// </summary>
     public enum QualityLevel
     {
-        Low, // 低画质
-        Mid, // 中画质
-        High // 高画质
+        /// <summary>
+        /// 低画质
+        /// </summary>
+        Low,
+        
+        /// <summary>
+        /// 中画质
+        /// </summary>
+        Mid,
+        
+        /// <summary>
+        /// 高画质
+        /// </summary>
+        High
     }
 
+    //=========================================================================
+    // 设备性能检测与画质设置工具类
+    //=========================================================================
     /// <summary>
     /// 设备性能检测 & 自动画质设置工具类
     /// 功能：
@@ -31,6 +72,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class DevicePerformance
     {
+        #region 设备性能等级判断
         /// <summary>
         /// 获取设备硬件性能评级（核心判断逻辑）
         /// 判断依据：显卡类型 → CPU核心数 → 显存 + 内存大小
@@ -108,7 +150,9 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
 
+        #region 画质等级设置
         /// <summary>
         /// 根据设备性能自动设置 Unity 质量等级（直接使用项目内置画质配置）
         /// </summary>
@@ -194,10 +238,14 @@ namespace Honor.Runtime
                     break;
             }
         }
+        #endregion
 
+        #region 性能等级颜色获取
         /// <summary>
         /// 获取性能等级对应的显示颜色（用于UI展示）
         /// </summary>
+        /// <param name="level">设备性能等级</param>
+        /// <returns>等级对应UI颜色</returns>
         public static Color GetDevicePerformanceLevelColor(DevicePerformanceLevel level)
         {
             switch (level)
@@ -215,5 +263,6 @@ namespace Honor.Runtime
 
             return Color.red;
         }
+        #endregion
     }
 }

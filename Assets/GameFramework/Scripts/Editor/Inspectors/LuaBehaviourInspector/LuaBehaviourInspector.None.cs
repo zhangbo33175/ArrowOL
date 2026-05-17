@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  LuaBehaviourInspector.cs
  * author:    云毅
- * created:   2026   2026
+ *  created:   2026
  * descrip:   LuaBehaviour 编辑器面板拓展 - None模式配置、Lua代码生成与刷新
  ***************************************************************/
 using System;

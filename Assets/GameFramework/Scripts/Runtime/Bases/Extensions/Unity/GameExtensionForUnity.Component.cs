@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  GameExtensionForUnity.Component.cs
  * author:    云毅  
- * created:   2026   2026
+ * created:   2026
  * descrip:   Unity 组件/GameObject 通用扩展方法
  *           提供：获取/添加组件、Lua脚本查找、RectTransform快捷访问等功能
  ***************************************************************/

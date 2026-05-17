@@ -1,8 +1,20 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Log.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   游戏全局分级日志工具，支持条件编译剥离，带帧计数输出
+ ***************************************************************/
 using System.Diagnostics;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 游戏全局日志工具类
+    //=========================================================================
     /// <summary>
     /// 游戏全局日志工具类
     /// 提供分级日志输出：Debug / Info / Warning / Error / Fatal
@@ -10,6 +22,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class Log
     {
+        #region 日志等级定义
         /// <summary>
         /// 日志等级枚举
         /// </summary>
@@ -40,8 +53,9 @@ namespace Honor.Runtime
             /// </summary>
             Fatal
         }
+        #endregion
 
-        #region Debug 日志
+        #region Debug 级别日志
         /// <summary>
         /// 打印调试级别日志
         /// 仅在开启 ENABLE_LOG / ENABLE_DEBUG_LOG / ENABLE_DEBUG_AND_ABOVE_LOG 时生效
@@ -123,7 +137,7 @@ namespace Honor.Runtime
         }
         #endregion
 
-        #region Info 日志
+        #region Info 级别日志
         /// <summary>
         /// 打印信息级别日志
         /// </summary>
@@ -199,7 +213,7 @@ namespace Honor.Runtime
         }
         #endregion
 
-        #region Warning 日志
+        #region Warning 级别日志
         /// <summary>
         /// 打印警告级别日志
         /// 局部功能异常，不影响主流程
@@ -280,7 +294,7 @@ namespace Honor.Runtime
         }
         #endregion
 
-        #region Error 日志
+        #region Error 级别日志
         /// <summary>
         /// 打印错误级别日志
         /// 功能逻辑异常，需要修复
@@ -367,7 +381,7 @@ namespace Honor.Runtime
         }
         #endregion
 
-        #region Fatal 日志
+        #region Fatal 级别日志
         /// <summary>
         /// 打印致命错误级别日志
         /// 可能导致游戏崩溃
@@ -460,6 +474,7 @@ namespace Honor.Runtime
         }
         #endregion
 
+        #region 内部日志实现
         /// <summary>
         /// 日志内部实现方法
         /// 根据等级输出不同颜色与类型的日志
@@ -501,5 +516,6 @@ namespace Honor.Runtime
             int frameCount = Time.frameCount;
             return AorTxt.Format("<color=#30F5FB>[{0}]</color>,{1}", frameCount, msg);
         }
+        #endregion
     }
 }

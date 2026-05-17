@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GesturesUI.Enums.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI手势交互控制器 - 枚举定义分部类
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 namespace Honor.Runtime
 {
@@ -5,8 +14,12 @@ namespace Honor.Runtime
     using System.Collections.Generic;
     using UnityEngine;
 
+    //=========================================================================
+    // UI 手势交互控制器 - 枚举定义
+    //=========================================================================
     public sealed partial class GesturesUI : MonoBehaviour
     {
+        #region 局部枚举定义
         /// <summary>
         /// 局部拖拽状态定义
         /// </summary>
@@ -32,8 +45,7 @@ namespace Honor.Runtime
             /// </summary>
             End,
         }
-
+        #endregion
     }
-
 }
 #endif

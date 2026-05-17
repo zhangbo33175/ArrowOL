@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Converter.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   通用数据转换工具类，提供单位互转、基础类型与字节数组互转、
+ *            纹理转字节流、文件编码处理、Base64验证等功能
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +18,9 @@ using XLua;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 通用数据转换工具类
+    //=========================================================================
     /// <summary>
     /// 通用数据转换工具类（静态）
     /// 功能：
@@ -45,6 +58,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 像素 → 厘米
         /// </summary>
+        /// <param name="pixels">像素值</param>
+        /// <returns>厘米值</returns>
+        /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetCentimetersFromPixels(float pixels)
         {
             if (ScreenDpi <= 0)
@@ -58,6 +74,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 厘米 → 像素
         /// </summary>
+        /// <param name="centimeters">厘米值</param>
+        /// <returns>像素值</returns>
+        /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetPixelsFromCentimeters(float centimeters)
         {
             if (ScreenDpi <= 0)
@@ -71,6 +90,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 像素 → 英寸
         /// </summary>
+        /// <param name="pixels">像素值</param>
+        /// <returns>英寸值</returns>
+        /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetInchesFromPixels(float pixels)
         {
             if (ScreenDpi <= 0)
@@ -84,6 +106,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 英寸 → 像素
         /// </summary>
+        /// <param name="inches">英寸值</param>
+        /// <returns>像素值</returns>
+        /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetPixelsFromInches(float inches)
         {
             if (ScreenDpi <= 0)
@@ -99,6 +124,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 布尔值 → 字节数组
         /// </summary>
+        /// <param name="value">布尔值</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByBoolean(bool value)
         {
             byte[] buffer = new byte[1];
@@ -106,11 +133,23 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// 布尔值写入字节数组
+        /// </summary>
+        /// <param name="value">布尔值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByBoolean(bool value, byte[] buffer)
         {
             GetBytesByBoolean(value, buffer, 0);
         }
 
+        /// <summary>
+        /// 布尔值写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">布尔值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static void GetBytesByBoolean(bool value, byte[] buffer, int startIndex)
         {
             if (buffer == null)
@@ -129,11 +168,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → 布尔值
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>布尔值</returns>
         public static bool GetBoolean(byte[] value)
         {
             return BitConverter.ToBoolean(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → 布尔值
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>布尔值</returns>
         public static bool GetBoolean(byte[] value, int startIndex)
         {
             return BitConverter.ToBoolean(value, startIndex);
@@ -144,6 +191,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 字符 → 字节数组
         /// </summary>
+        /// <param name="value">字符</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByChar(char value)
         {
             byte[] buffer = new byte[2];
@@ -151,11 +200,22 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// 字符写入字节数组
+        /// </summary>
+        /// <param name="value">字符</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByChar(char value, byte[] buffer)
         {
             GetBytesByShort((short)value, buffer, 0);
         }
 
+        /// <summary>
+        /// 字符写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">字符</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
         public static void GetBytesByChar(char value, byte[] buffer, int startIndex)
         {
             GetBytesByShort((short)value, buffer, startIndex);
@@ -164,11 +224,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → 字符
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>字符</returns>
         public static char GetChar(byte[] value)
         {
             return BitConverter.ToChar(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → 字符
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>字符</returns>
         public static char GetChar(byte[] value, int startIndex)
         {
             return BitConverter.ToChar(value, startIndex);
@@ -179,6 +247,8 @@ namespace Honor.Runtime
         /// <summary>
         /// short → 字节数组
         /// </summary>
+        /// <param name="value">short数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByShort(short value)
         {
             byte[] buffer = new byte[2];
@@ -186,11 +256,23 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// short写入字节数组
+        /// </summary>
+        /// <param name="value">short数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByShort(short value, byte[] buffer)
         {
             GetBytesByShort(value, buffer, 0);
         }
 
+        /// <summary>
+        /// short写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">short数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static unsafe void GetBytesByShort(short value, byte[] buffer, int startIndex)
         {
             if (buffer == null)
@@ -212,11 +294,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → short
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>short数值</returns>
         public static short GetInt16(byte[] value)
         {
             return BitConverter.ToInt16(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → short
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>short数值</returns>
         public static short GetInt16(byte[] value, int startIndex)
         {
             return BitConverter.ToInt16(value, startIndex);
@@ -225,6 +315,8 @@ namespace Honor.Runtime
         /// <summary>
         /// ushort → 字节数组
         /// </summary>
+        /// <param name="value">ushort数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByUShort(ushort value)
         {
             byte[] buffer = new byte[2];
@@ -232,11 +324,22 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// ushort写入字节数组
+        /// </summary>
+        /// <param name="value">ushort数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByUShort(ushort value, byte[] buffer)
         {
             GetBytesByShort((short)value, buffer, 0);
         }
 
+        /// <summary>
+        /// ushort写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">ushort数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
         public static void GetBytesByUShort(ushort value, byte[] buffer, int startIndex)
         {
             GetBytesByShort((short)value, buffer, startIndex);
@@ -245,11 +348,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → ushort
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>ushort数值</returns>
         public static ushort GetUInt16(byte[] value)
         {
             return BitConverter.ToUInt16(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → ushort
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>ushort数值</returns>
         public static ushort GetUInt16(byte[] value, int startIndex)
         {
             return BitConverter.ToUInt16(value, startIndex);
@@ -260,6 +371,8 @@ namespace Honor.Runtime
         /// <summary>
         /// int → 字节数组
         /// </summary>
+        /// <param name="value">int数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByInt(int value)
         {
             byte[] buffer = new byte[4];
@@ -267,11 +380,23 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// int写入字节数组
+        /// </summary>
+        /// <param name="value">int数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByInt(int value, byte[] buffer)
         {
             GetBytesByInt(value, buffer, 0);
         }
 
+        /// <summary>
+        /// int写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">int数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static unsafe void GetBytesByInt(int value, byte[] buffer, int startIndex)
         {
             if (buffer == null)
@@ -293,11 +418,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → int
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>int数值</returns>
         public static int GetInt32(byte[] value)
         {
             return BitConverter.ToInt32(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → int
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>int数值</returns>
         public static int GetInt32(byte[] value, int startIndex)
         {
             return BitConverter.ToInt32(value, startIndex);
@@ -306,6 +439,8 @@ namespace Honor.Runtime
         /// <summary>
         /// uint → 字节数组
         /// </summary>
+        /// <param name="value">uint数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByUInt(uint value)
         {
             byte[] buffer = new byte[4];
@@ -313,11 +448,22 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// uint写入字节数组
+        /// </summary>
+        /// <param name="value">uint数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByUInt(uint value, byte[] buffer)
         {
             GetBytesByInt((int)value, buffer, 0);
         }
 
+        /// <summary>
+        /// uint写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">uint数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
         public static void GetBytesByUInt(uint value, byte[] buffer, int startIndex)
         {
             GetBytesByInt((int)value, buffer, startIndex);
@@ -326,11 +472,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → uint
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>uint数值</returns>
         public static uint GetUInt32(byte[] value)
         {
             return BitConverter.ToUInt32(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → uint
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>uint数值</returns>
         public static uint GetUInt32(byte[] value, int startIndex)
         {
             return BitConverter.ToUInt32(value, startIndex);
@@ -341,6 +495,8 @@ namespace Honor.Runtime
         /// <summary>
         /// long → 字节数组
         /// </summary>
+        /// <param name="value">long数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByLong(long value)
         {
             byte[] buffer = new byte[8];
@@ -348,11 +504,23 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// long写入字节数组
+        /// </summary>
+        /// <param name="value">long数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByLong(long value, byte[] buffer)
         {
             GetBytesByLong(value, buffer, 0);
         }
 
+        /// <summary>
+        /// long写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">long数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static unsafe void GetBytesByLong(long value, byte[] buffer, int startIndex)
         {
             if (buffer == null)
@@ -374,11 +542,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → long
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>long数值</returns>
         public static long GetInt64(byte[] value)
         {
             return BitConverter.ToInt64(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → long
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>long数值</returns>
         public static long GetInt64(byte[] value, int startIndex)
         {
             return BitConverter.ToInt64(value, startIndex);
@@ -387,6 +563,8 @@ namespace Honor.Runtime
         /// <summary>
         /// ulong → 字节数组
         /// </summary>
+        /// <param name="value">ulong数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByULong(ulong value)
         {
             byte[] buffer = new byte[8];
@@ -394,11 +572,22 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// ulong写入字节数组
+        /// </summary>
+        /// <param name="value">ulong数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static void GetBytesByULong(ulong value, byte[] buffer)
         {
             GetBytesByLong((long)value, buffer, 0);
         }
 
+        /// <summary>
+        /// ulong写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">ulong数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
         public static void GetBytesByULong(ulong value, byte[] buffer, int startIndex)
         {
             GetBytesByLong((long)value, buffer, startIndex);
@@ -407,11 +596,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → ulong
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>ulong数值</returns>
         public static ulong GetUInt64(byte[] value)
         {
             return BitConverter.ToUInt64(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → ulong
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>ulong数值</returns>
         public static ulong GetUInt64(byte[] value, int startIndex)
         {
             return BitConverter.ToUInt64(value, startIndex);
@@ -422,6 +619,8 @@ namespace Honor.Runtime
         /// <summary>
         /// float → 字节数组（指针强转）
         /// </summary>
+        /// <param name="value">float数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static unsafe byte[] GetBytesByFloat(float value)
         {
             byte[] buffer = new byte[4];
@@ -429,11 +628,22 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// float写入字节数组
+        /// </summary>
+        /// <param name="value">float数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static unsafe void GetBytesByFloat(float value, byte[] buffer)
         {
             GetBytesByInt(*(int*)&value, buffer, 0);
         }
 
+        /// <summary>
+        /// float写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">float数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
         public static unsafe void GetBytesByFloat(float value, byte[] buffer, int startIndex)
         {
             GetBytesByInt(*(int*)&value, buffer, startIndex);
@@ -442,11 +652,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → float
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>float数值</returns>
         public static float GetSingle(byte[] value)
         {
             return BitConverter.ToSingle(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → float
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>float数值</returns>
         public static float GetSingle(byte[] value, int startIndex)
         {
             return BitConverter.ToSingle(value, startIndex);
@@ -457,6 +675,8 @@ namespace Honor.Runtime
         /// <summary>
         /// double → 字节数组（指针强转）
         /// </summary>
+        /// <param name="value">double数值</param>
+        /// <returns>转换后的字节数组</returns>
         public static unsafe byte[] GetBytesByDouble(double value)
         {
             byte[] buffer = new byte[8];
@@ -464,11 +684,22 @@ namespace Honor.Runtime
             return buffer;
         }
 
+        /// <summary>
+        /// double写入字节数组
+        /// </summary>
+        /// <param name="value">double数值</param>
+        /// <param name="buffer">目标字节数组</param>
         public static unsafe void GetBytesByDouble(double value, byte[] buffer)
         {
             GetBytesByLong(*(long*)&value, buffer, 0);
         }
 
+        /// <summary>
+        /// double写入字节数组指定位置
+        /// </summary>
+        /// <param name="value">double数值</param>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
         public static unsafe void GetBytesByDouble(double value, byte[] buffer, int startIndex)
         {
             GetBytesByLong(*(long*)&value, buffer, startIndex);
@@ -477,11 +708,19 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → double
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>double数值</returns>
         public static double GetDouble(byte[] value)
         {
             return BitConverter.ToDouble(value, 0);
         }
 
+        /// <summary>
+        /// 字节数组指定位置 → double
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <returns>double数值</returns>
         public static double GetDouble(byte[] value, int startIndex)
         {
             return BitConverter.ToDouble(value, startIndex);
@@ -492,6 +731,8 @@ namespace Honor.Runtime
         /// <summary>
         /// UTF8字符串 → 字节数组
         /// </summary>
+        /// <param name="value">字符串</param>
+        /// <returns>UTF8字节数组</returns>
         public static byte[] GetBytesByString(string value)
         {
             return Encoding.UTF8.GetBytes(value);
@@ -500,6 +741,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → UTF8字符串
         /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <returns>UTF8字符串</returns>
+        /// <exception cref="Exception">字节数组为空时抛出异常</exception>
         public static string GetString(byte[] value)
         {
             if (value == null)
@@ -509,6 +753,14 @@ namespace Honor.Runtime
             return Encoding.UTF8.GetString(value);
         }
 
+        /// <summary>
+        /// 字节数组指定区间 → UTF8字符串
+        /// </summary>
+        /// <param name="value">字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <param name="length">读取长度</param>
+        /// <returns>UTF8字符串</returns>
+        /// <exception cref="Exception">字节数组为空时抛出异常</exception>
         public static string GetString(byte[] value, int startIndex, int length)
         {
             if (value == null)
@@ -524,6 +776,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 单字节 → 十六进制字符串（00~FF）
         /// </summary>
+        /// <param name="b">字节数据</param>
+        /// <returns>两位十六进制字符串</returns>
         public static string ToHex(this byte b)
         {
             return b.ToString("X2");
@@ -532,6 +786,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 字节数组 → 连续十六进制字符串
         /// </summary>
+        /// <param name="bytes">字节数组</param>
+        /// <returns>十六进制字符串</returns>
         public static string ToHex(this byte[] bytes)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -542,6 +798,12 @@ namespace Honor.Runtime
             return stringBuilder.ToString();
         }
 
+        /// <summary>
+        /// 字节数组按自定义格式 → 十六进制字符串
+        /// </summary>
+        /// <param name="bytes">字节数组</param>
+        /// <param name="format">格式化字符串</param>
+        /// <returns>格式化后的十六进制字符串</returns>
         public static string ToHex(this byte[] bytes, string format)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -552,6 +814,13 @@ namespace Honor.Runtime
             return stringBuilder.ToString();
         }
 
+        /// <summary>
+        /// 字节数组指定区间 → 十六进制字符串
+        /// </summary>
+        /// <param name="bytes">字节数组</param>
+        /// <param name="offset">起始偏移量</param>
+        /// <param name="count">转换长度</param>
+        /// <returns>十六进制字符串</returns>
         public static string ToHex(this byte[] bytes, int offset, int count)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -567,6 +836,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 批量将目录下指定后缀文件转为 UTF8 无 BOM 编码
         /// </summary>
+        /// <param name="dirName">目标目录</param>
+        /// <param name="suffixInfos">文件后缀匹配符</param>
         public static void ToNoBOMUTF8(string dirName, string suffixInfos)
         {
             string[] fileFullPaths = Directory.GetFiles(dirName, suffixInfos, SearchOption.AllDirectories);
@@ -582,6 +853,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 纹理转 PNG/JPG 字节流（支持非可读纹理）
         /// </summary>
+        /// <param name="texture">纹理对象</param>
+        /// <param name="isJpeg">是否为JPEG格式</param>
+        /// <returns>纹理字节流</returns>
         public static byte[] GetTextureBytes(Texture2D texture, bool isJpeg)
         {
             try
@@ -603,6 +877,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 非可读纹理 → 拷贝为可读纹理 → 转字节流
         /// </summary>
+        /// <param name="texture">非可读纹理</param>
+        /// <param name="isJpeg">是否为JPEG格式</param>
+        /// <returns>纹理字节流</returns>
         private static byte[] GetTextureBytesFromCopy(Texture2D texture, bool isJpeg)
         {
             Debug.LogWarning("Saving non-readable textures is slower than saving readable textures");
@@ -652,6 +929,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 验证字符串是否符合 Base64 格式
         /// </summary>
+        /// <param name="content">待验证字符串</param>
+        /// <returns>是否为合法Base64格式</returns>
         public static bool IsBase64String(string content)
         {
             return Regex.IsMatch(content, @"^[a-zA-Z0-9\+/]*={0,2}$");
@@ -660,6 +939,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 验证字节数组是否为 Base64 编码
         /// </summary>
+        /// <param name="content">待验证字节数组</param>
+        /// <returns>是否为合法Base64编码</returns>
         public static bool IsBase64Bytes(byte[] content)
         {
             return IsBase64String(Converter.GetString(content));

@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 核心管理组件 - 生命周期与外部接口
+ ***************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
 using XLua;
@@ -12,6 +21,7 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class UIComponent : GameComponent
     {
+        #region Unity 生命周期
         /// <summary>
         /// 初始化：框架生命周期入口
         /// </summary>
@@ -52,15 +62,16 @@ namespace Honor.Runtime
         private void OnDestroy()
         {
         }
+        #endregion
 
+        #region 外部接口 - UI 打开
         /// <summary>
         /// 通过 LuaTable 异步打开 UI
         /// </summary>
         /// <param name="luaTable">Lua 配置表</param>
         /// <param name="luaParams">传递参数</param>
         /// <param name="overCallback">加载完成回调</param>
-        public void OpenUIAsyncByLuaTable(LuaTable luaTable, LuaTable luaParams = null,
-            UILoadOverCallback overCallback = null)
+        public void OpenUIAsyncByLuaTable(LuaTable luaTable, LuaTable luaParams = null, UILoadOverCallback overCallback = null)
         {
             if (luaTable == null)
             {
@@ -141,7 +152,9 @@ namespace Honor.Runtime
 
             return m_UIManager.OpenUISyncByInfo(uiInfo);
         }
+        #endregion
 
+        #region 外部接口 - UI 追加
         /// <summary>
         /// 通过 LuaTable 异步追加子 UI 到指定父节点
         /// </summary>
@@ -149,8 +162,7 @@ namespace Honor.Runtime
         /// <param name="parent">父节点</param>
         /// <param name="luaParams">参数</param>
         /// <param name="overCallback">完成回调</param>
-        public void AddUIAsyncByLuaTable(LuaTable luaTable, Transform parent, LuaTable luaParams = null,
-            UILoadOverCallback overCallback = null)
+        public void AddUIAsyncByLuaTable(LuaTable luaTable, Transform parent, LuaTable luaParams = null, UILoadOverCallback overCallback = null)
         {
             if (luaTable == null)
             {
@@ -240,7 +252,9 @@ namespace Honor.Runtime
 
             return m_UIManager.AddUISyncByInfo(uiInfo, parent);
         }
+        #endregion
 
+        #region 外部接口 - UI 关闭
         /// <summary>
         /// 通过 GameObject 关闭 UI
         /// </summary>
@@ -350,7 +364,9 @@ namespace Honor.Runtime
 
             m_UIManager.RemoveUIByGO(uiGO, rightNow);
         }
+        #endregion
 
+        #region 外部接口 - UI 获取
         /// <summary>
         /// 通过 LuaTable 获取 UI 对象
         /// </summary>
@@ -504,7 +520,9 @@ namespace Honor.Runtime
 
             m_UIManager.GetUIsByUIType(uiType, isAppend, uis);
         }
+        #endregion
 
+        #region 外部接口 - 批量关闭
         /// <summary>
         /// 关闭所有模态窗口
         /// </summary>
@@ -528,7 +546,9 @@ namespace Honor.Runtime
         {
             m_UIManager.CloseAllUIs(uiType, rightNow);
         }
+        #endregion
 
+        #region 外部接口 - 标记与状态
         /// <summary>
         /// 将 UI 标记为可卸载
         /// </summary>
@@ -582,7 +602,9 @@ namespace Honor.Runtime
 
             return m_UIManager.IsUIExistInModalUIs(uiInfo);
         }
+        #endregion
 
+        #region 外部接口 - 场景 UI 相机
         /// <summary>
         /// 添加场景 UI 相机
         /// </summary>
@@ -678,7 +700,9 @@ namespace Honor.Runtime
                 GetSceneUICamera(index).enabled = enabled;
             }
         }
+        #endregion
 
+        #region 外部接口 - 屏幕 UI 相机
         /// <summary>
         /// 添加屏幕 UI 相机
         /// </summary>
@@ -774,7 +798,9 @@ namespace Honor.Runtime
                 GetScreenUICamera(index).enabled = enabled;
             }
         }
+        #endregion
 
+        #region 外部接口 - 字体与适配
         /// <summary>
         /// 加载多语言字体（自动适配）
         /// </summary>
@@ -787,8 +813,7 @@ namespace Honor.Runtime
 
             if (m_UIManager.Fonts.Count == 0)
             {
-                m_LocalizationComponent.GetFontData(m_LocalizationComponent.Language,
-                    out List<LocalizationFontData> fontDatas);
+                m_LocalizationComponent.GetFontData(m_LocalizationComponent.Language, out List<LocalizationFontData> fontDatas);
 
                 if (fontDatas == null || fontDatas.Count == 0)
                 {
@@ -835,8 +860,7 @@ namespace Honor.Runtime
 
             if (m_UIManager.Fonts.Count > 0)
             {
-                m_LocalizationComponent.GetFontData(m_LocalizationComponent.Language,
-                    out List<LocalizationFontData> fontDatas);
+                m_LocalizationComponent.GetFontData(m_LocalizationComponent.Language, out List<LocalizationFontData> fontDatas);
 
                 if (fontDatas == null || fontDatas.Count == 0)
                 {
@@ -865,5 +889,6 @@ namespace Honor.Runtime
                 m_UIManager.InitBangsSize();
             }
         }
+        #endregion
     }
 }

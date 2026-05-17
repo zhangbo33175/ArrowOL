@@ -1,15 +1,31 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Encryption.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   异或加密工具类 - 提供二进制数据快速异或加密/解密功能
+ ***************************************************************/
 using System;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 异或加密工具类
+    //=========================================================================
     /// <summary>
     /// 异或加密工具类
     /// 提供二进制流快速异或运算，用于数据加密与解密
     /// </summary>
     public static partial class Encryption
     {
+        /// <summary>
+        /// 快速加密长度标识（小于0表示处理整个二进制流）
+        /// </summary>
         internal const int QuickEncryptLength = -1;
 
+        #region 快速异或加密（外部调用）
         /// <summary>
         /// 将 bytes 使用 code 做异或运算的快速版本
         /// </summary>
@@ -23,7 +39,7 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 将 bytes 使用 code 做异或运算的快速版本
-        /// 此方法将复用并改写传入的 bytes 作为返回值，而不额外分配内存空间
+        /// 此方法将复用并改写传入的 bytes 作为返回值，不额外分配内存空间
         /// </summary>
         /// <param name="bytes">原始及异或后的二进制流（即是输入也是输出）</param>
         /// <param name="code">异或二进制流</param>
@@ -31,7 +47,9 @@ namespace Honor.Runtime
         {
             GetSelfXorBytes(bytes, code, QuickEncryptLength);
         }
+        #endregion
 
+        #region 标准异或加密（无指定长度）
         /// <summary>
         /// 将 bytes 使用 code 做异或运算
         /// </summary>
@@ -45,7 +63,7 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 将 bytes 使用 code 做异或运算
-        /// 此方法将复用并改写传入的 bytes 作为返回值，而不额外分配内存空间
+        /// 此方法将复用并改写传入的 bytes 作为返回值，不额外分配内存空间
         /// </summary>
         /// <param name="bytes">原始及异或后的二进制流（即是输入也是输出）</param>
         /// <param name="code">异或二进制流</param>
@@ -53,9 +71,11 @@ namespace Honor.Runtime
         {
             GetSelfXorBytes(bytes, code, -1);
         }
+        #endregion
 
+        #region 核心异或加密实现（指定长度）
         /// <summary>
-        /// 将 bytes 使用 code 做异或运算
+        /// 将 bytes 使用 code 做异或运算（指定处理长度）
         /// </summary>
         /// <param name="bytes">原始二进制流</param>
         /// <param name="code">异或二进制流</param>
@@ -76,12 +96,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 将 bytes 使用 code 做异或运算
-        /// 此方法将复用并改写传入的 bytes 作为返回值，而不额外分配内存空间
+        /// 将 bytes 使用 code 做异或运算（指定处理长度）
+        /// 此方法将复用并改写传入的 bytes 作为返回值，不额外分配内存空间
         /// </summary>
         /// <param name="bytes">原始及异或后的二进制流（即是输入也是输出）</param>
         /// <param name="code">异或二进制流</param>
         /// <param name="length">异或计算长度，若小于 0，则计算整个二进制流</param>
+        /// <exception cref="GameException">异或密钥无效时抛出异常</exception>
         public static void GetSelfXorBytes(byte[] bytes, byte[] code, int length)
         {
             if (bytes == null)
@@ -113,5 +134,6 @@ namespace Honor.Runtime
                 codeIndex %= codeLength;
             }
         }
+        #endregion
     }
 }

@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  VibrateComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   震动管理组件 - 设备震动控制、Lua 调用、参数校验
+ ***************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -31,12 +40,12 @@ namespace Honor.Runtime
 
         private void Start()
         {
-
+            // 初始化逻辑
         }
 
         private void OnDestroy()
         {
-
+            // 资源清理
         }
 
         /// <summary>
@@ -166,7 +175,7 @@ namespace Honor.Runtime
             m_VibrateManager.StopAll();
         }
 
-        /// <summary
+        /// <summary>
         /// 设置震动总开关
         /// </summary>
         public void SetEnable(bool enable)

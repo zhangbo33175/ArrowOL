@@ -12,7 +12,7 @@ using UnityEditor;
  * -------------------------------------------------------------
  * filename:  PersistComponentInspector.cs
  * author:    云毅
- * created:   2026   2025
+ *  created:   2026
  * descrip:   持久化组件Inspector面板扩展 - Proto协议自动生成Lua存档结构
  ***************************************************************/
 

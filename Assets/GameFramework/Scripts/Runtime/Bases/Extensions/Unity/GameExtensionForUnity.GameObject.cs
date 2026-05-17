@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  GameExtensionForUnity.cs
  * author:    云毅
- * created:   2026   2026
+ * created:   2026
  * descrip:   GameObject 通用扩展方法 - 安全获取组件、无GC查找、Lua查找、层级设置
  ***************************************************************/
 using System;

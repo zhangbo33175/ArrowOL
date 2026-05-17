@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Gestures2D.Callbacks.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   2D相机手势控制器 - 回调事件定义分部类
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 
 namespace Honor.Runtime
@@ -7,8 +16,12 @@ namespace Honor.Runtime
     using UnityEngine;
     using XLua;
 
+    //=========================================================================
+    // 2D 相机手势控制器 - 回调事件分部类
+    //=========================================================================
     public sealed partial class Gestures2D : MonoBehaviour
     {
+        #region 触摸回调事件
         /// <summary>
         ///【自定义回调】单指点击开始
         /// LuaTable：Lua中handler
@@ -17,10 +30,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_TouchBeginCallbacks;
         public List<LuaTable> TouchBeginCallbacks
         {
-            get
-            {
-                return m_TouchBeginCallbacks;
-            }
+            get => m_TouchBeginCallbacks;
         }
 
         /// <summary>
@@ -31,10 +41,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_TouchDownCallbacks;
         public List<LuaTable> TouchDownCallbacks
         {
-            get
-            {
-                return m_TouchDownCallbacks;
-            }
+            get => m_TouchDownCallbacks;
         }
 
         /// <summary>
@@ -45,10 +52,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_TouchEndCallbacks;
         public List<LuaTable> TouchEndCallbacks
         {
-            get
-            {
-                return m_TouchEndCallbacks;
-            }
+            get => m_TouchEndCallbacks;
         }
 
         /// <summary>
@@ -59,10 +63,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_TouchesBeginCallbacks;
         public List<LuaTable> TouchesBeginCallbacks
         {
-            get
-            {
-                return m_TouchesBeginCallbacks;
-            }
+            get => m_TouchesBeginCallbacks;
         }
 
         /// <summary>
@@ -73,10 +74,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_TouchesDownCallbacks;
         public List<LuaTable> TouchesDownCallbacks
         {
-            get
-            {
-                return m_TouchesDownCallbacks;
-            }
+            get => m_TouchesDownCallbacks;
         }
 
         /// <summary>
@@ -87,12 +85,11 @@ namespace Honor.Runtime
         private List<LuaTable> m_TouchesEndCallbacks;
         public List<LuaTable> TouchesEndCallbacks
         {
-            get
-            {
-                return m_TouchesEndCallbacks;
-            }
+            get => m_TouchesEndCallbacks;
         }
+        #endregion
 
+        #region 滑动回调事件
         /// <summary>
         ///【自定义回调】单指滑动开始
         /// LuaTable：Lua中handler
@@ -101,10 +98,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_SwipeBeginCallbacks;
         public List<LuaTable> SwipeBeginCallbacks
         {
-            get
-            {
-                return m_SwipeBeginCallbacks;
-            }
+            get => m_SwipeBeginCallbacks;
         }
 
         /// <summary>
@@ -115,10 +109,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_SwipeCallbacks;
         public List<LuaTable> SwipeCallbacks
         {
-            get
-            {
-                return m_SwipeCallbacks;
-            }
+            get => m_SwipeCallbacks;
         }
 
         /// <summary>
@@ -129,10 +120,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_SwipeEndCallbacks;
         public List<LuaTable> SwipeEndCallbacks
         {
-            get
-            {
-                return m_SwipeEndCallbacks;
-            }
+            get => m_SwipeEndCallbacks;
         }
 
         /// <summary>
@@ -144,12 +132,11 @@ namespace Honor.Runtime
         private List<LuaTable> m_SwipeStableCallbacks;
         public List<LuaTable> SwipeStableCallbacks
         {
-            get
-            {
-                return m_SwipeStableCallbacks;
-            }
+            get => m_SwipeStableCallbacks;
         }
+        #endregion
 
+        #region 缩放回调事件
         /// <summary>
         ///【自定义回调】缩放
         /// LuaTable：Lua中handler
@@ -158,10 +145,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_PinchCallbacks;
         public List<LuaTable> PinchCallbacks
         {
-            get
-            {
-                return m_PinchCallbacks;
-            }
+            get => m_PinchCallbacks;
         }
 
         /// <summary>
@@ -173,12 +157,11 @@ namespace Honor.Runtime
         private List<LuaTable> m_PinchStableCallbacks;
         public List<LuaTable> PinchStableCallbacks
         {
-            get
-            {
-                return m_PinchStableCallbacks;
-            }
+            get => m_PinchStableCallbacks;
         }
+        #endregion
 
+        #region 对象选中与拖拽回调事件
         /// <summary>
         ///【自定义回调】选中对象
         /// LuaTable：Lua中handler
@@ -187,10 +170,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_SelectedObjCallbacks;
         public List<LuaTable> SelectedObjCallbacks
         {
-            get
-            {
-                return m_SelectedObjCallbacks;
-            }
+            get => m_SelectedObjCallbacks;
         }
 
         /// <summary>
@@ -201,10 +181,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_UpdateSelectedObjCallbacks;
         public List<LuaTable> UpdateSelectedObjCallbacks
         {
-            get
-            {
-                return m_UpdateSelectedObjCallbacks;
-            }
+            get => m_UpdateSelectedObjCallbacks;
         }
 
         /// <summary>
@@ -215,10 +192,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_UnselectedObjCallbacks;
         public List<LuaTable> UnselectedObjCallbacks
         {
-            get
-            {
-                return m_UnselectedObjCallbacks;
-            }
+            get => m_UnselectedObjCallbacks;
         }
 
         /// <summary>
@@ -229,10 +203,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_SelectedObjDragBeginCallbacks;
         public List<LuaTable> SelectedObjDragBeginCallbacks
         {
-            get
-            {
-                return m_SelectedObjDragBeginCallbacks;
-            }
+            get => m_SelectedObjDragBeginCallbacks;
         }
 
         /// <summary>
@@ -243,10 +214,7 @@ namespace Honor.Runtime
         private List<LuaTable> m_SelectedObjDragCallbacks;
         public List<LuaTable> SelectedObjDragCallbacks
         {
-            get
-            {
-                return m_SelectedObjDragCallbacks;
-            }
+            get => m_SelectedObjDragCallbacks;
         }
 
         /// <summary>
@@ -257,11 +225,9 @@ namespace Honor.Runtime
         private List<LuaTable> m_SelectedObjDragEndCallbacks;
         public List<LuaTable> SelectedObjDragEndCallbacks
         {
-            get
-            {
-                return m_SelectedObjDragEndCallbacks;
-            }
+            get => m_SelectedObjDragEndCallbacks;
         }
+        #endregion
     }
 }
 #endif

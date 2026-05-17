@@ -210,10 +210,10 @@ namespace Honor.Runtime
         {
             if (m_CachedTransform)
                 m_CachedTransform.localPosition = Vector3.zero;
-            
+
             if (m_AudioSource)
                 m_AudioSource.clip = null;
-            
+
             m_VolumeWhenPause = 0f;
         }
 

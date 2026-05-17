@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  VibrateType.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   设备震动反馈类型枚举 - 对应 Nice Vibrations 预设效果
+ ***************************************************************/
 namespace Honor.Runtime
 {
     /// <summary>
@@ -12,7 +21,7 @@ namespace Honor.Runtime
         None = 0,
 
         /// <summary>
-        /// 极轻微震动（用于按钮点击、选项切换等轻量反馈）
+        /// 极轻微震动（按钮点击、选项切换等轻量反馈）
         /// </summary>
         Selection,
 

@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  TouchComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   触摸输入管理组件，基于EasyTouch封装，统一手势交互管理
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 using HedgehogTeam.EasyTouch;
 #endif
@@ -5,6 +14,9 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    //=========================================================================
+    // 触摸输入管理组件
+    //=========================================================================
     /// <summary>
     /// 触摸输入管理组件
     /// 基于 EasyTouch 插件进行封装，统一管理 2D / 3D / UI 相机手势交互
@@ -13,6 +25,7 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class TouchComponent : GameComponent
     {
+        #region 私有成员字段
         /// <summary>
         /// 组件初始化
         /// 缓存所有手势相关组件实例，并刷新组件开关状态
@@ -48,5 +61,6 @@ namespace Honor.Runtime
         private void OnDestroy()
         {
         }
+        #endregion
     }
 }

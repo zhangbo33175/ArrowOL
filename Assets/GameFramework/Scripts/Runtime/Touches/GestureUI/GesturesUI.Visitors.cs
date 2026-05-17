@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GesturesUI.Config.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI手势交互控制器 - 配置与私有字段分部类
+ ***************************************************************/
 #if EASY_TOUCH_ENABLE
 namespace Honor.Runtime
 {
@@ -5,8 +14,12 @@ namespace Honor.Runtime
     using System.Collections.Generic;
     using UnityEngine;
 
+    //=========================================================================
+    // UI 手势交互控制器 - 配置与私有字段
+    //=========================================================================
     public sealed partial class GesturesUI : MonoBehaviour
     {
+        #region 相机配置
         /// <summary>
         /// UI相机在UI相机列表中的index
         /// </summary>
@@ -31,6 +44,20 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// UI相机
+        /// </summary>
+        private Camera m_UICamera;
+        public Camera UICamera
+        {
+            get
+            {
+                return m_UICamera;
+            }
+        }
+        #endregion
+
+        #region 总开关与功能开关
         /// <summary>
         /// 总开关
         /// </summary>
@@ -103,7 +130,9 @@ namespace Honor.Runtime
                 return m_DragSwitch;
             }
         }
+        #endregion
 
+        #region 选中与拖拽配置
         /// <summary>
         /// 常选中模式
         /// 常选中模式：具体流程：选中->开始拖拽->拖拽中->结束拖拽->切换目标->结束选中
@@ -179,7 +208,9 @@ namespace Honor.Runtime
                 return m_PressTimeOfSelectingObj;
             }
         }
+        #endregion
 
+        #region Lua 检测配置
         /// <summary>
         /// 选中拖拽行为的LuaBehaviour中的Lua类名集合
         /// 必须按照响应优先级从高到底的顺序设置
@@ -200,7 +231,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 选中拖拽行为的LuaBehaviour中的Lua类名-在自身中查询"
+        /// 选中拖拽行为的LuaBehaviour中的Lua类名-在自身中查询
         /// </summary>
         [SerializeField]
         [GameTitle("选中拖拽行为的Lua类名-在自身中查询 (FindSelectingTypesOnSelf)")]
@@ -216,7 +247,6 @@ namespace Honor.Runtime
                 return m_FindSelectingTypesOnSelf;
             }
         }
-
 
         /// <summary>
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在父对象中查询
@@ -253,24 +283,16 @@ namespace Honor.Runtime
                 return m_FindSelectingTypesOnChildren;
             }
         }
+        #endregion
 
+        #region 公共组件
         /// <summary>
         /// Lua组件
         /// </summary>
         private LuaComponent m_LuaComponent;
+        #endregion
 
-        /// <summary>
-        /// UI相机
-        /// </summary>
-        private Camera m_UICamera;
-        public Camera UICamera
-        {
-            get
-            {
-                return m_UICamera;
-            }
-        }
-
+        #region 运行时状态字段
         /// <summary>
         /// 当前选中的对象
         /// </summary>
@@ -305,8 +327,7 @@ namespace Honor.Runtime
         /// 上一次拖拽Obj手势所在世界坐标
         /// </summary>
         private Vector3 m_LastWorldPosition = Vector3.zero;
-
+        #endregion
     }
 }
-
 #endif

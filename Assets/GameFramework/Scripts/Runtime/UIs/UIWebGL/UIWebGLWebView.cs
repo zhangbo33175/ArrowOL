@@ -1,3 +1,12 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIWebGLWebView.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   多平台 WebView 组件 - 自动适配 WebGL/Android/iOS
+ ***************************************************************/
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,9 +49,9 @@ namespace Honor.Runtime
         /// <param name="message">附加消息</param>
         public LoadEventArgs(T type, float progress, string message = "")
         {
-            Type = type;
+            Type     = type;
             Progress = progress;
-            Message = message;
+            Message  = message;
         }
 
         /// <summary>
@@ -98,7 +107,7 @@ namespace Honor.Runtime
             set => m_WebView = value;
         }
 #else
-        /// <summary
+        /// <summary>
         /// UniWebView 实例（原生平台）
         /// </summary>
         private UniWebView m_WebView;
@@ -139,7 +148,7 @@ namespace Honor.Runtime
 
         private void OnDestroy()
         {
-            // 清理逻辑
+            // 平台相关资源清理
         }
 
         /// <summary>
@@ -148,7 +157,8 @@ namespace Honor.Runtime
         public void OnWebGLVuplexViewInitialized(object sender = null, object userData = null, EventParams e = null)
         {
 #if UNITY_WEBGL
-            if (m_WebGLVuplexViewInitialized) return;
+            if (m_WebGLVuplexViewInitialized) 
+                return;
 
             var vuplexWebView = m_WebView;
             vuplexWebView.WebView.CloseRequested += (_, _) =>
