@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  AssetBundleNamePostprocessor.cs
  * author:    云毅
- * created:   2026-04-01
+ * created:   2026
  * descrip:   AssetBundle 自动命名、打包规则配置、增量分组管理工具
  ***************************************************************/
 using System.Collections.Generic;

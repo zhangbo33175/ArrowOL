@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  AorTextLocalizingComponentInspector.cs
  * author:    云毅
- * created:
+ * created:   2026
  * descrip:   Honor框架 多语言Text组件Inspector扩展
  *            支持多语言Key配置、字体标记下拉选择、实时预览
  ***************************************************************/

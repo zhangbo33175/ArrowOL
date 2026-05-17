@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  LuaComponentInspector.cs
  * author:    云毅
- *  created:   2026
+ * created:   2026
  * descrip:   LuaComponent 自定义Inspector面板
  *            提供：XLua脚本生成、性能分析、快捷创建Lua模板
  ***************************************************************/

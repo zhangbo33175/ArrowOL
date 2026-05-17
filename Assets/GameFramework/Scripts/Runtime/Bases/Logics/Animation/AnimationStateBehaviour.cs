@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  AnimationStateBehaviour.cs
  * author:    云毅
- *  created:   2026
+ * created:   2026
  * descrip:   动画状态机回调适配器 - 转发Animator事件到Lua
  ***************************************************************/
 using UnityEngine;

@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameDefinitions.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   游戏框架全局枚举与核心定义文件
+ *            统一管理维度、资源、路径、语言、状态等全局枚举与映射关系
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 
@@ -6,9 +17,11 @@ namespace Honor.Runtime
     #region 游戏框架全局枚举 & 定义
     /// <summary>
     /// 游戏框架全局枚举 & 定义
-    /// 统一管理游戏内所有类型、资源、路径、语言、状态等枚举
-    /// 属于框架核心常量定义文件
     /// </summary>
+    /// <remarks>
+    /// 统一管理游戏内所有类型、资源、路径、语言、状态等枚举
+    /// 属于框架核心常量定义文件，全局共享使用
+    /// </remarks>
     public static partial class GameDefinitions
     {
         //=========================================================================
@@ -35,8 +48,8 @@ namespace Honor.Runtime
         //=========================================================================
         /// <summary>
         /// 资源（Asset）类型枚举
-        /// 对应 Unity 各类资源文件
         /// </summary>
+        /// <remarks>对应 Unity 引擎内各类资源文件类型</remarks>
         public enum AssetType
         {
             GameObject,
@@ -61,9 +74,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 资源类型 → 对应文件后缀名 映射表
-        /// 用于资源加载、热更、文件校验时匹配后缀
+        /// 资源类型与文件后缀名映射表
         /// </summary>
+        /// <remarks>用于资源加载、热更新、文件校验时匹配文件后缀</remarks>
         public static readonly Dictionary<AssetType, string> AssetSuffix = new Dictionary<AssetType, string>()
         {
             { AssetType.GameObject,          ".prefab" },
@@ -92,8 +105,8 @@ namespace Honor.Runtime
         //=========================================================================
         /// <summary>
         /// 路径类型
-        /// 区分资源读取的不同路径来源
         /// </summary>
+        /// <remarks>区分资源读取的不同路径来源</remarks>
         public enum PathType
         {
             /// <summary>
@@ -121,44 +134,44 @@ namespace Honor.Runtime
         // 下载步骤状态
         //=========================================================================
         /// <summary>
-        /// 下载步骤状态（支持位标记）
-        /// 用于热更新、资源下载流程状态管理
+        /// 下载步骤状态
         /// </summary>
+        /// <remarks>支持位标记运算，用于热更新、资源下载流程状态管理</remarks>
         [Flags]
         public enum DownloadStep : byte
         {
             /// <summary>
-            /// 无状态 / 无效
+            /// 无状态 / 无效状态
             /// </summary>
             None        = 0,
 
             /// <summary>
-            /// 待机空闲
+            /// 待机空闲状态
             /// </summary>
             Idle        = 1,
 
             /// <summary>
-            /// 下载/处理中
+            /// 下载/处理中状态
             /// </summary>
             Processing  = 2,
 
             /// <summary>
-            /// 全部完成
+            /// 全部完成状态
             /// </summary>
             AllOver     = 4,
 
             /// <summary>
-            /// 已跳过
+            /// 已跳过状态
             /// </summary>
             Skip        = 8,
 
             /// <summary>
-            /// 发生错误
+            /// 发生错误状态
             /// </summary>
             Error       = 16,
 
             /// <summary>
-            /// 版本/资源检测错误
+            /// 版本/资源检测错误状态
             /// </summary>
             CheckError  = 32
         }
@@ -168,8 +181,8 @@ namespace Honor.Runtime
         //=========================================================================
         /// <summary>
         /// 调试启动模式
-        /// 用于编辑器下区分不同启动逻辑
         /// </summary>
+        /// <remarks>用于编辑器下区分不同的启动逻辑</remarks>
         public enum DebugMode
         {
             /// <summary>
@@ -250,9 +263,9 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 语言名称描述（对应 Language 枚举）
-        /// 用于显示、日志、调试
+        /// 语言名称描述数组
         /// </summary>
+        /// <remarks>与 Language 枚举一一对应，用于UI显示、日志打印、调试</remarks>
         public static readonly string[] LanguageDesc = new string[(int)Language.TotalNum]
         {
             "未指定",

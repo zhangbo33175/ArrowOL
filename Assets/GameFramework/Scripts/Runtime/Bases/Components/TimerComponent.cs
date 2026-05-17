@@ -1,4 +1,15 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  TimerComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   全局计时器管理组件，提供延时、复用、自动销毁、查找删除等计时器功能
+ *            基于MonoBehaviour驱动，继承框架组件自动注册管理
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,24 +18,26 @@ namespace Honor.Runtime
     #region 全局计时器组件
     /// <summary>
     /// 全局计时器组件
-    /// 负责管理所有延时计时器，基于 MonoBehaviour 更新驱动
-    /// 继承 GameComponent 自动注册到框架
     /// </summary>
+    /// <remarks>
+    /// 负责管理所有延时计时器，基于 MonoBehaviour 更新驱动
+    /// 继承 GameComponent 自动注册到框架，支持自动销毁、复用、查找删除
+    /// </remarks>
     public class TimerComponent : GameComponent
     {
         //=========================================================================
         // 私有成员变量
         //=========================================================================
         /// <summary>
-        /// 存储所有正在运行的计时器
+        /// 运行中的计时器集合
         /// </summary>
         private readonly List<TimerCounter> _timers = new List<TimerCounter>();
 
         //=========================================================================
-        // 公共清空方法
+        // 公共管理方法
         //=========================================================================
         /// <summary>
-        /// 清空所有计时器
+        /// 清空所有运行中的计时器
         /// </summary>
         public void Clear()
         {
@@ -32,15 +45,15 @@ namespace Honor.Runtime
         }
 
         //=========================================================================
-        // 生命周期更新
+        // Unity 生命周期
         //=========================================================================
         /// <summary>
-        /// 每帧更新所有计时器
-        /// 倒序遍历，防止移除元素导致的索引越界
+        /// Unity 每帧更新
         /// </summary>
+        /// <remarks>驱动所有计时器计时，倒序遍历保证安全删除元素</remarks>
         private void Update()
         {
-            // 倒序遍历，安全删除元素
+            // 倒序遍历，防止移除元素导致的索引越界
             for (int i = _timers.Count - 1; i >= 0; i--)
             {
                 TimerCounter timer = _timers[i];
@@ -59,10 +72,10 @@ namespace Honor.Runtime
                     continue;
                 }
 
-                // 累加时间
+                // 累加帧时间
                 timer.DeltaTime += Time.deltaTime;
 
-                // 时间到达，触发回调
+                // 时间到达触发回调，并移除计时器
                 if (timer.DeltaTime >= timer.DelayTime)
                 {
                     timer.Del?.Invoke(timer.Owner);
@@ -72,10 +85,10 @@ namespace Honor.Runtime
         }
 
         //=========================================================================
-        // 移除指定计时器
+        // 计时器移除
         //=========================================================================
         /// <summary>
-        /// 根据所有者标识移除计时器
+        /// 根据唯一标识移除指定计时器
         /// </summary>
         /// <param name="owner">计时器唯一标识</param>
         public void RemoveTimer(string owner)
@@ -94,13 +107,13 @@ namespace Honor.Runtime
         }
 
         //=========================================================================
-        // 获取指定计时器
+        // 计时器查找
         //=========================================================================
         /// <summary>
-        /// 根据所有者获取计时器
+        /// 根据唯一标识获取计时器实例
         /// </summary>
-        /// <param name="owner">唯一标识</param>
-        /// <returns>找到的计时器，没有则返回null</returns>
+        /// <param name="owner">计时器唯一标识</param>
+        /// <returns>匹配的计时器实例，未找到返回null</returns>
         public TimerCounter GetTimerCounter(string owner)
         {
             foreach (var timer in _timers)
@@ -113,40 +126,40 @@ namespace Honor.Runtime
         }
 
         //=========================================================================
-        // 添加/复用计时器
+        // 计时器创建与复用
         //=========================================================================
         /// <summary>
-        /// 添加/复用一个延时计时器
-        /// 相同owner会复用，不会重复创建
+        /// 添加或复用延时计时器
         /// </summary>
-        /// <param name="time">延迟时间（秒）</param>
-        /// <param name="del">回调委托</param>
-        /// <param name="obj">绑定的GameObject（物体销毁则计时器自动失效）</param>
-        /// <param name="owner">唯一标识，用于查找/删除</param>
-        /// <returns>创建或复用的计时器</returns>
+        /// <param name="time">延迟执行时间（秒）</param>
+        /// <param name="del">计时完成回调委托</param>
+        /// <param name="obj">绑定的GameObject，物体销毁则计时器自动失效</param>
+        /// <param name="owner">计时器唯一标识，用于复用/查找/删除</param>
+        /// <returns>创建或复用后的计时器实例</returns>
         public TimerCounter AddTimerCounter(float time, Action<string> del, GameObject obj, string owner = "")
         {
             if (obj == null)
                 return null;
 
-            // 尝试复用已有计时器
             TimerCounter timerCounter = null;
+            
+            // 存在唯一标识时尝试复用
             if (!string.IsNullOrEmpty(owner))
             {
                 timerCounter = GetTimerCounter(owner);
             }
 
+            // 复用已有计时器
             if (timerCounter != null)
             {
-                // 复用：重置参数
                 timerCounter.DelayTime = time;
                 timerCounter.Del = del;
                 timerCounter.DelObj = obj;
                 timerCounter.DeltaTime = 0f;
             }
+            // 创建新计时器
             else
             {
-                // 新建计时器
                 timerCounter = new TimerCounter
                 {
                     Owner = owner,
@@ -167,50 +180,52 @@ namespace Honor.Runtime
     #region 计时器数据结构
     /// <summary>
     /// 计时器数据结构
-    /// 存储延时、回调、绑定对象、唯一标识等信息
     /// </summary>
+    /// <remarks>存储计时器的延时、回调、绑定对象、唯一标识等核心数据</remarks>
     [Serializable]
     public class TimerCounter
     {
         /// <summary>
-        /// 计时结束回调
+        /// 计时完成回调委托
         /// </summary>
         public Action<string> Del;
 
         /// <summary>
-        /// 延迟时间（秒）
+        /// 目标延迟时间（秒）
         /// </summary>
         public float DelayTime;
 
         /// <summary>
-        /// 当前已计时时间
+        /// 当前累计计时时间
         /// </summary>
         public float DeltaTime;
 
         /// <summary>
-        /// 所有者标识（唯一ID）
+        /// 计时器唯一标识
         /// </summary>
         public string Owner = string.Empty;
 
         /// <summary>
-        /// 绑定的GameObject（物体销毁则自动停止计时）
+        /// 绑定的GameObject
         /// </summary>
         public GameObject DelObj;
 
         //=========================================================================
-        // 公共方法
+        // 公共工具方法
         //=========================================================================
         /// <summary>
-        /// 获取剩余时间
+        /// 获取当前计时器剩余时间
         /// </summary>
+        /// <returns>剩余时间（秒）</returns>
         public float GetLeftTime()
         {
             return DelayTime - DeltaTime;
         }
 
         /// <summary>
-        /// 设置回调方法
+        /// 设置计时器完成回调
         /// </summary>
+        /// <param name="func">新的回调委托</param>
         public void SetCallBack(Action<string> func)
         {
             Del = func;

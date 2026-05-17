@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  LuaBehaviourInspector.cs
  * author:    云毅
- *  created:   2026
+ * created:   2026
  * descrip:   LuaBehaviour MVVM模式编辑器拓展 - 可视化配置、代码生成
  ***************************************************************/
 using System;
