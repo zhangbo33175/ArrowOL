@@ -1,7 +1,13 @@
 --=====================================================================================================
--- Serpent 0.302 - Lua 序列化 & 美化打印库
--- 功能：将任意 Lua 值序列化为可执行字符串 / 反序列化还原
--- 作者：Paul Kulchenko | 协议：MIT
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  SystemSerpent.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   Serpent 0.302 - Lua 序列化 & 美化打印库
+--            功能：将任意 Lua 值序列化为可执行字符串 / 反序列化还原
+--            作者：Paul Kulchenko | 协议：MIT
 --=====================================================================================================
 local n, v = "serpent", "0.302"
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"

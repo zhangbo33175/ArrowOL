@@ -1,7 +1,13 @@
 --=====================================================================================================
--- @brief  RectTransform 工具类
--- @desc   封装 UGUI RectTransform 常用操作，简化坐标、位置设置
--- @规范   Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  RectTransformHelper.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     RectTransform 工具类
+-- @desc      封装 UGUI RectTransform 常用操作，简化坐标、位置设置
+-- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, GlobalUtility
 --=====================================================================================================
 
 ---@class RectTransformHelper RectTransform 工具类：封装 UGUI 常用操作

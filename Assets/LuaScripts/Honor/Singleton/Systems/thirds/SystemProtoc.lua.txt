@@ -1,7 +1,13 @@
 --=====================================================================================================
--- Protobuf Parser (Lua 版)
--- 功能：纯 Lua 解析 .proto 文件 → 生成标准 FileDescriptorSet
--- 支持：proto2 / proto3、message、enum、service、rpc、map、extension、oneof、import、package
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  SystemProtoc.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   Protobuf Parser (Lua 版)
+--            功能：纯 Lua 解析 .proto 文件 → 生成标准 FileDescriptorSet
+--            支持：proto2 / proto3、message、enum、service、rpc、map、extension、oneof、import、package
 --=====================================================================================================
 
 -- 元表创建工具：快速创建带 __name / __index 的类

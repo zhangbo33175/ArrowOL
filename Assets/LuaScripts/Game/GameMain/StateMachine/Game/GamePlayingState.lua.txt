@@ -1,11 +1,15 @@
 --=====================================================================================================
--- @filename:  GamePlayingState.lua
--- @brief:     游戏运行状态
--- @desc:      关卡正式运行的核心状态，管理UI、相机、触摸、音效、引导、HUD、活动同步
--- @author:    Unity Standard
--- @date:      2025
--- @feat:      相机动画、UI管理、触摸控制、引导触发、HUD生命周期
--- @规范:       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GamePlayingState.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     游戏运行状态
+-- @desc      关卡正式运行的核心状态，管理UI、相机、触摸、音效、引导、HUD、活动同步
+-- @feat      相机动画、UI管理、触摸控制、引导触发、HUD生命周期
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
+-- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- @dependency StateBase, GameEntry, UIManager, MapManager, EventManager, GuideManager
 --=====================================================================================================
 
 ---@class GamePlayingState : GameStateBase 游戏运行状态

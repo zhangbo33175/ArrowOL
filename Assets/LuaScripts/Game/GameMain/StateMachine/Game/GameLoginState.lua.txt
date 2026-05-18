@@ -1,11 +1,15 @@
 --=====================================================================================================
--- @filename:  GameLoginState.lua
--- @brief:     游戏登录状态
--- @desc:      管理游戏登录流程，打开/关闭登录界面
--- @author:    Unity Standard
--- @date:      2025
--- @feat:      登录UI管理、背景音乐控制、状态过渡
--- @规范:       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameLoginState.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     游戏登录状态
+-- @desc      管理游戏登录流程，打开/关闭登录界面
+-- @feat      登录UI管理、背景音乐控制、状态过渡
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
+-- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- @dependency StateBase, GameEntry, UIManager, AudioManager, EventManager
 --=====================================================================================================
 
 ---@class GameLoginState : GameStateBase 游戏登录状态

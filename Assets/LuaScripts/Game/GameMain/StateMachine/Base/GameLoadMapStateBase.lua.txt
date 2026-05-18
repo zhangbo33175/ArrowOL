@@ -1,11 +1,15 @@
 --=====================================================================================================
--- @filename:  GameLoadMapStateBase.lua
--- @brief:     加载地图状态基类
--- @desc:      提供地图加载的通用逻辑：卸载旧地图、加载新地图、协程控制、LoadingUI管理
--- @author:    Unity Standard
--- @date:      2025
--- @feat:      通用地图加载流程、协程管理、重复加载过滤、体验优化
--- @规范:       Unity Lua 商业项目编码标准 / 核心基类规范
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameLoadMapStateBase.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     加载地图状态基类
+-- @desc      提供地图加载的通用逻辑：卸载旧地图、加载新地图、协程控制、LoadingUI管理
+-- @feat      通用地图加载流程、协程管理、重复加载过滤、体验优化
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
+-- @规范       Unity Lua 商业项目编码标准 / 核心基类规范
+-- @dependency GameStateBase, GameEntry, MapManager, UIManager, Timer
 --=====================================================================================================
 
 ---@class GameLoadMapStateBase : GameStateBase 加载地图状态基类

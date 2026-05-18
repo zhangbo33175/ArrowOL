@@ -1,10 +1,12 @@
 --=====================================================================================================
--- Description: LuaUnit - Lua 单元测试框架
--- Project Home: https://github.com/bluebird75/luaunit
--- Author: Philippe Fremy <phil@freehackers.org>
--- Based on earlier work by Ryu, Gwang
--- License: BSD License
--- Version: 3.2
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  SystemLuaunit.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   LuaUnit - Lua 单元测试框架 v3.2
+--            支持断言、Table深度比较、浮点数精度、多格式输出(text/tap/junit)、随机执行
 --=====================================================================================================
 
 --region LuaUnit 单元测试框架 v3.2

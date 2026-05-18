@@ -1,9 +1,14 @@
 --=====================================================================================================
--- @brief  主界面弹出任务管理器
--- @desc   主界面自动弹出任务队列（UI、动效、机器升级、元素收集、气泡）
--- @core   优先级队列、协程调度、主界面状态感知、去重、阻塞、恢复
--- @scope  所有需要在主界面“自动弹出”的内容，统一调度
--- @dependency Singleton, HonorEventHelper, GameStateMachine, DOTween, GuideContext
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameMainUIPushManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     主界面弹出任务管理器
+-- @desc      主界面自动弹出任务队列（UI、动效、机器升级、元素收集、气泡）
+-- @core      优先级队列、协程调度、主界面状态感知、去重、阻塞、恢复
+-- @scope     所有需要在主界面“自动弹出”的内容，统一调度
+-- @dependency Singleton, EventManager, CoroutineHelper, ProcedureManager, GlobalUtility
 --=====================================================================================================
 
 ---@class CommonOpenUITaskParam : table @ 通用打开UI任务参数

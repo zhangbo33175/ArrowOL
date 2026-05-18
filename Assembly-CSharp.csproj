@@ -885,7 +885,7 @@
     <None Include="Library\PackageCache\com.unity.modules.unityanalytics@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameDefinitions.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.rider@3.0.40\package.json" />
-    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\System\BubbleManager.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\System\UIBubbleManager.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\ChineseTraditional.txt" />
     <None Include="Library\PackageCache\com.unity.modules.video@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UILevelView\UILevelViewViewModel.lua.txt" />

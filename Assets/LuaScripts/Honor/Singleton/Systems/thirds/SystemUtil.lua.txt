@@ -1,18 +1,22 @@
 --=====================================================================================================
--- XLua 工具库 - 腾讯开源
--- 功能：XLua 开发常用工具集（异步同步化、热更新、协程、C# 交互、调试）
--- 协议：MIT License | Copyright (C) 2016 THL A29 Limited, a Tencent company.
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  SystemUtil.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   XLua 工具库 - 腾讯开源
+--            功能：XLua 开发常用工具集（异步同步化、热更新、协程、C# 交互、调试）
+--            协议：MIT License | Copyright (C) 2016 THL A29 Limited, a Tencent company.
 --=====================================================================================================
 
 local unpack = unpack or table.unpack
 
----
---- 异步函数 转 同步调用
+--- 异步函数转同步调用
 --- 作用：将 C# 异步回调转为 Lua 协程同步写法，消除回调嵌套
 --- @param async_func 异步函数
 --- @param callback_pos 回调参数位置（默认最后一位）
 --- @return 同步调用函数
----
 local function async_to_sync(async_func, callback_pos)
     return function(...)
         local _co = coroutine.running() or error('this function must be run in coroutine')
@@ -40,10 +44,8 @@ local function async_to_sync(async_func, callback_pos)
     end
 end
 
----
 --- 协程包装调用
 --- 自动创建并启动协程，简化调用写法
----
 local function coroutine_call(func)
     return function(...)
         local co = coroutine.create(func)
@@ -53,10 +55,8 @@ end
 
 local move_end = {}
 
----
 --- C# 迭代器适配元表（IEnumerator）
 --- 用于 Unity 协程系统兼容
----
 local generator_mt = {
     __index = {
         MoveNext = function(self)
@@ -74,10 +74,8 @@ local generator_mt = {
     }
 }
 
----
 --- 生成 C# 可使用的迭代器
 --- 让 Lua 函数可以直接作为 Unity StartCoroutine 参数
----
 local function cs_generator(func, ...)
     local params = {...}
     local generator = setmetatable({
@@ -90,10 +88,8 @@ local function cs_generator(func, ...)
     return generator
 end
 
----
 --- 手动加载模块
 --- 兼容 Lua 标准模块搜索机制
----
 local function loadpackage(...)
     for _, loader in ipairs(package.searchers) do
         local func = loader(...)
@@ -103,10 +99,8 @@ local function loadpackage(...)
     end
 end
 
----
 --- 自动 ID 映射（热更新优化）
 --- 内部优化：加速热更新函数绑定
----
 local function auto_id_map()
     local hotfix_id_map = require 'hotfix_id_map'
     local org_hotfix = xlua.hotfix
@@ -133,10 +127,8 @@ local function auto_id_map()
     end
 end
 
----
 --- 增强版热更新
 --- 支持在热更函数中调用原始 C# 函数
----
 local function hotfix_ex(cs, field, func)
     assert(
             type(field) == 'string' and type(func) == 'function',
@@ -153,20 +145,16 @@ local function hotfix_ex(cs, field, func)
     xlua.hotfix(cs, field, func_after)
 end
 
----
 --- 绑定函数到对象
 --- 固定 self/this 指针，类似 C# 闭包绑定
----
 local function bind(func, obj)
     return function(...)
         return func(obj, ...)
     end
 end
 
----
 --- 枚举位或运算（兼容 LuaJIT）
 --- 简化 C# 标记枚举使用
----
 local enum_or_op = debug.getmetatable(CS.System.Reflection.BindingFlags.Public).__bor
 local function enum_or_op_ex(first, ...)
     for _, e in ipairs({...}) do
@@ -175,10 +163,8 @@ local function enum_or_op_ex(first, ...)
     return first
 end
 
----
 --- C# 反射创建委托
 --- XLua 高级用法：直接创建 C# 委托，避免装箱拆箱
----
 local function createdelegate(delegate_cls, obj, impl_cls, method_name, parameter_type_list)
     local flag = enum_or_op_ex(
             CS.System.Reflection.BindingFlags.Public,
@@ -194,10 +180,8 @@ local function createdelegate(delegate_cls, obj, impl_cls, method_name, paramete
     return CS.System.Delegate.CreateDelegate(typeof(delegate_cls), obj, m)
 end
 
----
 --- 给 C# 对象绑定 Lua 状态表
 --- 扩展 C# 对象：添加 Lua 字段、方法、状态
----
 local function state(csobj, state)
     local csobj_mt = getmetatable(csobj)
     for k, v in pairs(csobj_mt) do
@@ -222,10 +206,8 @@ local function state(csobj, state)
     return state
 end
 
----
 --- 打印被 C# 引用的 Lua 函数
 --- 调试用途：检查内存泄漏、未释放的 Lua 函数
----
 local function print_func_ref_by_csharp()
     local registry = debug.getregistry()
     for k, v in pairs(registry) do
@@ -236,9 +218,7 @@ local function print_func_ref_by_csharp()
     end
 end
 
----
 --- 导出工具函数表
----
 return {
     async_to_sync = async_to_sync,
     coroutine_call = coroutine_call,

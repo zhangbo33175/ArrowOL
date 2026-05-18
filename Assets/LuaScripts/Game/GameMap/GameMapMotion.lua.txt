@@ -1,12 +1,16 @@
 --=====================================================================================================
--- @filename:  GameMapMotion.lua
--- @brief:     地图跟随控制器（相机不动，地图移动）—— 报错修复版 + 新增PC左键拖动
--- @desc:      解决 Screen position out of view frustum 报错，单位与地图匹配；
---              支持移动端拖拽 + PC 左键拖动 + 双指/滚轮缩放 + 边界限制 + 惯性滑动
--- @author:    Unity Standard Comment Edition
--- @date:      2025
--- @feat:      安全边界、惯性滑动、双指缩放、鼠标拖动、缩放后自动防黑边
--- @规范:       Unity Lua 商业项目编码标准 / 地图控制器规范
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameMapMotion.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     地图跟随控制器（相机不动，地图移动）—— 报错修复版 + 新增PC左键拖动
+-- @desc      解决 Screen position out of view frustum 报错，单位与地图匹配；
+--            支持移动端拖拽 + PC 左键拖动 + 双指/滚轮缩放 + 边界限制 + 惯性滑动
+-- @feat      安全边界、惯性滑动、双指缩放、鼠标拖动、缩放后自动防黑边
+-- @author    商业项目规范版 | 注释完整 | 报错修复 | 性能优化
+-- @规范       Unity Lua 商业项目编码标准 / 地图控制器规范
+-- @dependency GameEntry, MonoBehaviour, InputUtility, Vector3, RectTransform
 --=====================================================================================================
 
 ---@class MapMotionRange

@@ -1,9 +1,14 @@
 --=====================================================================================================
--- @brief  本地活动管理器
--- @desc   管理所有本地活动（礼包、周卡、免费钻石、银行等）
--- @feat   活动互斥、组管理、生命周期、热更资源、弹窗顺序、本地存储
--- @struct 基于 LocalActivityBase 子类驱动
--- @dependency Singleton, LocalActivityBase, LocalEventDataManager, SaveIO, HonorEventHelper
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  LocalActivityManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     本地活动管理器
+-- @desc      管理所有本地活动（礼包、周卡、免费钻石、银行等）
+-- @feat      活动互斥、组管理、生命周期、热更资源、弹窗顺序、本地存储
+-- @struct    基于 LocalActivityBase 子类驱动
+-- @dependency Singleton, LocalActivityBase, EventManager, GlobalUtility, GlobalDefine
 --=====================================================================================================
 
 ---@class ELocalActivityId @本地活动ID枚举

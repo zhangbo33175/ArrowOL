@@ -1,8 +1,13 @@
 --=====================================================================================================
--- @brief  游戏全局特效管理器
--- @desc   负责所有游戏特效的创建、播放、回收、生命周期管理，基于对象池
--- @core   对象池复用、延时自动回收、坐标转换、UI/场景/特效层分离
--- @dependency Singleton, PoolManager, DOTween, LayerHelper, UIs
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameEffectManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     游戏全局特效管理器
+-- @desc      负责所有游戏特效的创建、播放、回收、生命周期管理，基于对象池
+-- @core      对象池复用、延时自动回收、坐标转换、UI/场景/特效层分离
+-- @dependency Singleton, PoolManager, CoroutineHelper, GlobalUtility, UIManager
 --=====================================================================================================
 
 ---@class GameEffectManager : Singleton @ 特效管理器（单例）

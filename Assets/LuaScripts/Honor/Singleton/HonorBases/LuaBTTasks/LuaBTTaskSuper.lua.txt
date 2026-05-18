@@ -1,9 +1,13 @@
 --=====================================================================================================
--- Description: Lua行为树Task节点通用父类
---              作用：所有自定义行为树节点（Action/Conditional/Composite等）都必须继承此类
---              地位：行为树框架顶层基类，所有Lua BT节点的父类
--- Author:     Unity Standard
--- @date:      2025
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  LuaBTTaskSuper.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   Lua行为树Task节点通用父类
+--            作用：所有自定义行为树节点（Action/Conditional/Composite等）都必须继承此类
+--            地位：行为树框架顶层基类，所有Lua BT节点的父类
 --=====================================================================================================
 
 --region Lua行为树节点基类

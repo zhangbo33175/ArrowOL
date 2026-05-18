@@ -1,11 +1,15 @@
 --=====================================================================================================
--- @filename:  GameTurnToProLoadState.lua
--- @brief:     切换至预加载流程状态
--- @desc:      负责关闭全部UI、卸载旧地图、清理画布，完成游戏场景 -> 预加载流程的安全过渡
--- @author:    Unity Standard
--- @date:      2025
--- @feat:      全量UI关闭、地图卸载、画布清理、流程安全过渡
--- @规范:       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameTurnToProLoadState.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     切换至预加载流程状态
+-- @desc      负责关闭全部UI、卸载旧地图、清理画布，完成游戏场景 -> 预加载流程的安全过渡
+-- @feat      全量UI关闭、地图卸载、画布清理、流程安全过渡
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
+-- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- @dependency StateBase, GameEntry, UIManager, MapManager, EventManager
 --=====================================================================================================
 
 ---@class GameTurnToProLoadState : GameStateBase 切换至预加载流程状态

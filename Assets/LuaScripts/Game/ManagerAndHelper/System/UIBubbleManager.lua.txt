@@ -1,8 +1,13 @@
 --=====================================================================================================
--- @brief  全局气泡管理器
--- @desc   管理游戏内所有提示气泡（跟随目标、自动消失、互斥显示、对象池复用）
--- @feat   支持UGUI/场景物体跟随、屏幕约束、互斥显示、自动回收、Key去重、对象池安全
--- @dependency Singleton, PoolManager, UIBubble, RES, GameMainRoot
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UIBubbleManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     全局气泡管理器
+-- @desc      管理游戏内所有提示气泡（跟随目标、自动消失、互斥显示、对象池复用）
+-- @feat      支持UGUI/场景物体跟随、屏幕约束、互斥显示、Key去重、自动回收、对象池安全
+-- @dependency Singleton, PoolManager, GlobalUtility, GlobalDefine, UIBubble
 --=====================================================================================================
 
 ---@class BubbleGenerateConfig : table @ 气泡生成配置
@@ -19,10 +24,10 @@
 ---@field onlyOneTag string @ 互斥Tag（同Tag只显示一个）
 ---@field nearCenter boolean @ 是否靠近屏幕中心
 
----@class BubbleManager : Singleton @气泡生成与关闭管理器
+---@class UIBubbleManager : Singleton @气泡生成与关闭管理器
 ---@field _activeBubble table<string, UIBubble> @ 当前活跃气泡字典
 ---@field _autoGrowID number @ 自增ID生成器
-local BubbleManager = class("BubbleManager", import("Singleton"))
+local UIBubbleManager = class("UIBubbleManager", import("Singleton"))
 
 --region 生命周期 & 基础函数
 ---=========================================================================
@@ -30,8 +35,8 @@ local BubbleManager = class("BubbleManager", import("Singleton"))
 ---@brief 初始化活跃气泡容器与自增ID
 ---@param args table 自定义参数
 ---=========================================================================
-function BubbleManager:ctor(args)
-    BubbleManager.super.ctor(self, args)
+function UIBubbleManager:ctor(args)
+    UIBubbleManager.super.ctor(self, args)
     self._activeBubble = {}   --- 活跃气泡列表
     self._autoGrowID = 10086 --- 自增ID初始值
 end
@@ -41,16 +46,16 @@ end
 ---@param args table 自定义参数
 ---@return BubbleManager 单例实例
 ---=========================================================================
-function BubbleManager:Create(args)
-    return BubbleManager.new(args)
+function UIBubbleManager:Create(args)
+    return UIBubbleManager.new(args)
 end
 
 ---=========================================================================
 --- 清理数据（切号/重载）
 ---@brief 清空所有气泡并重置管理器状态
 ---=========================================================================
-function BubbleManager:ClearData()
-    BubbleManager.super.ClearData(self)
+function UIBubbleManager:ClearData()
+    UIBubbleManager.super.ClearData(self)
     self:CloseAllBubble()
     self._autoGrowID = 10086
 end
@@ -59,7 +64,7 @@ end
 --- 释放资源
 ---@brief 统一释放接口，关闭所有气泡
 ---=========================================================================
-function BubbleManager:Dispose()
+function UIBubbleManager:Dispose()
     self:CloseAllBubble()
 end
 --endregion
@@ -69,7 +74,7 @@ end
 --- 【全局接口】关闭所有活跃气泡
 ---@brief 安全回收所有气泡至对象池，清空活跃列表
 ---=========================================================================
-function BubbleManager:CloseAllBubble()
+function UIBubbleManager:CloseAllBubble()
     if not self._activeBubble or TableIsEmpty(self._activeBubble) then
         return
     end
@@ -91,7 +96,7 @@ end
 ---@brief 根据Key立即销毁气泡并回收
 ---@param bubbleKey string 气泡Key
 ---=========================================================================
-function BubbleManager:ForceCloseBubble(bubbleKey)
+function UIBubbleManager:ForceCloseBubble(bubbleKey)
     if string.isNullOrEmpty(bubbleKey) then return end
 
     local bubble = self._activeBubble[bubbleKey]
@@ -109,7 +114,7 @@ end
 ---@brief 传入气泡实例进行回收关闭
 ---@param bubble UIBubble 气泡实例
 ---=========================================================================
-function BubbleManager:CloseBubble(bubble)
+function UIBubbleManager:CloseBubble(bubble)
     if not bubble then return end
     xpcall(function()
         bubble:OnPutToPool()
@@ -122,7 +127,7 @@ end
 ---@param bubbleKey string 气泡唯一Key
 ---@private
 ---=========================================================================
-function BubbleManager:OnBubbleClose(bubbleKey)
+function UIBubbleManager:OnBubbleClose(bubbleKey)
     if string.isNullOrEmpty(bubbleKey) then return end
 
     local bubble = self._activeBubble[bubbleKey]
@@ -146,10 +151,10 @@ end
 ---@param bubbleGenerateConfig BubbleGenerateConfig 气泡配置
 ---@return UIBubble 生成的气泡实例
 ---=========================================================================
-function BubbleManager:GenerateBubble(bubbleGenerateConfig)
+function UIBubbleManager:GenerateBubble(bubbleGenerateConfig)
     -- 安全校验
     if not bubbleGenerateConfig or string.isNullOrEmpty(bubbleGenerateConfig.key) then
-        PrintError("[BubbleManager] GenerateBubble failed: invalid config or empty key!")
+        PrintError("[UIBubbleManager] GenerateBubble failed: invalid config or empty key!")
         return nil
     end
 
@@ -165,7 +170,7 @@ function BubbleManager:GenerateBubble(bubbleGenerateConfig)
                         bubble:OnPutToPool()
                     end
                 end, function(msg)
-                    PrintError("[BubbleManager] Close mutex bubble failed: " .. debug.traceback(msg, 5))
+                    PrintError("[UIBubbleManager] Close mutex bubble failed: " .. debug.traceback(msg, 5))
                 end)
             end
             ::continue::
@@ -198,7 +203,7 @@ function BubbleManager:GenerateBubble(bubbleGenerateConfig)
             self._activeBubble[bubbleGenerateConfig.key] = bubble
         end
     end, function(msg)
-        PrintError("[BubbleManager] Create bubble failed: " .. debug.traceback(msg, 5))
+        PrintError("[UIBubbleManager] Create bubble failed: " .. debug.traceback(msg, 5))
     end)
 
     return bubble
@@ -211,10 +216,10 @@ end
 ---@brief 生成气泡唯一自增ID
 ---@return number 新ID
 ---=========================================================================
-function BubbleManager:GetNewBubbleID()
+function UIBubbleManager:GetNewBubbleID()
     self._autoGrowID = self._autoGrowID + 1
     return self._autoGrowID
 end
 --endregion
 
-return BubbleManager
+return UIBubbleManager

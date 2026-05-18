@@ -1,8 +1,13 @@
 --=====================================================================================================
--- @brief  全局对象池管理器
--- @desc   管理所有 GameObject 的缓存、复用、销毁，大幅减少 Instantiate/Destroy 开销
--- @feat   自动创建池、预热、上限控制、安全回收、内存优化
--- @dependency Singleton、Pool、RES 资源配置表
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  PoolManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief:    全局对象池管理器
+-- @desc:     管理所有 GameObject 的缓存、复用、销毁，大幅减少 Instantiate/Destroy 开销
+-- @feat:     自动创建池、预热、上限控制、安全回收、内存优化
+-- @dependency: Singleton、GlobalUtility、GlobalDefine
 --=====================================================================================================
 
 ---@class PoolManager : Singleton @游戏内的对象加载/缓存管理器

@@ -1,16 +1,22 @@
 --=====================================================================================================
--- Description: 全局事件定义（C# <-> Lua 互通）
--- Author:     优化版 - 遵循 Unity 规范 + 通用事件标准
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  EventCodes.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   全局事件定义（C# <-> Lua 互通）
+--            提供跨语言通用事件字符串，用于框架消息通信
 --=====================================================================================================
 
 --region 全局通用事件 C# <-> Lua
---- 全局事件定义（C# <-> Lua 通用）
+--- 全局事件定义（C# <-> Lua 互通）
 ---@class EventCodes
 EventCodes = {
     --- 服务器时间校正事件
     --- 参数：IsTimeCorrectionByServer(boolean)
-    ---       true = 服务器校正
-    ---       false = 客户端校正
+    --- true  = 服务器校正
+    --- false = 客户端校正
     S_OnTimeCorrectionByServer = "S_OnTimeCorrectionByServer",
 
     --- 全局通知消息回调

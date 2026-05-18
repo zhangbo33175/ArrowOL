@@ -1,9 +1,14 @@
 --=====================================================================================================
--- @brief  UI 栈管理器
--- @desc   对 UI 进行分组栈管理（支持多栈），控制显示层级、返回逻辑、历史记录、弹窗序列
--- @struct 多栈隔离：不同业务栈互不干扰
--- @life   内置生命周期：OnStackPush / OnStackPop
--- @dependency Singleton, Stack, EUIStackName
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UIStackManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     UI 栈管理器
+-- @desc      对 UI 进行分组栈管理（支持多栈），控制显示层级、返回逻辑、历史记录、弹窗序列
+-- @struct    多栈隔离：不同业务栈互不干扰
+-- @life      内置生命周期：OnStackPush / OnStackPop
+-- @dependency Singleton, GlobalUtility, GlobalDefine, EventManager
 --=====================================================================================================
 
 ---@class UIStackManager : Singleton @UI栈管理器（支持多分组栈隔离管理）

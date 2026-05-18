@@ -1,8 +1,13 @@
 --=====================================================================================================
--- @brief  全局音效/音乐播放管理中心
--- @desc   统一管理BGM、音效播放、音量控制、静音开关、暂停/恢复/停止
--- @feat   支持BGM播放、音效分组、音量控制、暂停/恢复/停止、设置开关联动
--- @dependency Singleton, Tables, EventHelper, SettingDataManager, GameMainRoot
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  SoundManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     全局音效/音乐播放管理中心
+-- @desc      统一管理BGM、音效播放、音量控制、静音开关、暂停/恢复/停止
+-- @feat      支持BGM播放、音效分组、音量控制、暂停/恢复/停止、设置开关联动
+-- @dependency Singleton, GlobalDefine, EventManager, SettingDataManager
 --=====================================================================================================
 
 ---@class SoundManager : Singleton @全局音效音乐管理中心

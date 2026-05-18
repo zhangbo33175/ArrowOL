@@ -1,11 +1,15 @@
 --=====================================================================================================
--- @filename:  GameLoadMapState.lua
--- @brief:     游戏加载地图状态
--- @desc:      负责地图加载、LoadingUI显示、首次创角流程、新手第一关跳转、主界面切换
--- @author:    Unity Standard
--- @date:      2025
--- @feat:      地图加载管理、新手流程、普通流程、加载界面控制
--- @规范:       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameLoadMapState.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     游戏加载地图状态
+-- @desc      负责地图加载、LoadingUI显示、首次创角流程、新手第一关跳转、主界面切换
+-- @feat      地图加载管理、新手流程、普通流程、加载界面控制
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
+-- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
+-- @dependency StateBase, GameEntry, MapManager, UIManager, PlayerDataManager
 --=====================================================================================================
 
 ---@class GameLoadMapState : GameLoadMapStateBase 游戏加载地图状态

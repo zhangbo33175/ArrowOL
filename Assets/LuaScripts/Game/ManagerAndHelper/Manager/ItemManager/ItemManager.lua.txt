@@ -1,9 +1,14 @@
 --=====================================================================================================
--- @brief  道具管理中心
--- @desc   全游戏道具/体力/Buff/前置道具/局内道具 统一管理
--- @core   解锁判断、数量缓存、使用流程、事件抛出、体力系统、碎片合成
--- @struct 存档数据 + 缓存层 + 显示层 分离
--- @dependency Singleton, ResourceDataManager, GamerDataManager, HonorEventHelper, SaveIO, DOTween
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ItemManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     道具管理中心
+-- @desc      全游戏道具/体力/Buff/前置道具/局内道具 统一管理
+-- @core      解锁判断、数量缓存、使用流程、事件抛出、体力系统、碎片合成
+-- @struct    存档数据 + 缓存层 + 显示层 分离
+-- @dependency Singleton, EventManager, GlobalUtility, GlobalDefine, PlayerDataManager
 --=====================================================================================================
 
 ---@class LifeChange @体力变更

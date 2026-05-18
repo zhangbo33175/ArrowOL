@@ -1,6 +1,12 @@
 --=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  SingletonManager.lua.txt
+-- author:    云毅
+-- created:   2026
 -- descrip:   单例管理器
---              管理所有单例的注册、排序、初始化、数据清理（框架级核心）
+--            管理所有单例的注册、排序、初始化、数据清理（框架级核心）
 --=====================================================================================================
 
 ---@class SingletonManager 单例管理器（全局唯一）
@@ -22,23 +28,23 @@ function SingletonManager:Create(args)
     return obj
 end
 
---- 添加一个单例到管理列表
----@param singleton Singleton 要添加的单例
+--- 添加单例到管理列表
+---@param singleton Singleton 待添加的单例对象
 function SingletonManager:AddSingleton(singleton)
     if singleton then
         self._singletonList:Add(singleton)
     end
 end
 
---- 从管理列表移除一个单例
----@param singleton Singleton 要移除的单例
+--- 从管理列表移除单例
+---@param singleton Singleton 待移除的单例对象
 function SingletonManager:RemoveSingleton(singleton)
     if singleton then
         self._singletonList:Remove(singleton)
     end
 end
 
---- 清理所有单例的数据（切换账号/重启游戏时调用）
+--- 清理所有单例数据（切换账号/重启游戏时调用）
 function SingletonManager:ClearAllSingleData()
     Try(function()
         -- 清理所有动画
@@ -64,8 +70,8 @@ function SingletonManager:ClearAllSingleData()
     end)
 end
 
---- 初始化所有单例（预加载流程中按步骤执行）
----@param preload ProcedurePreload 预加载流程
+--- 初始化所有单例（预加载流程分步执行）
+---@param preload ProcedurePreload 预加载流程对象
 function SingletonManager:InitAllSingleForStep(preload)
     -- 按优先级【升序】初始化（先框架后业务）
     self:OrderSingleton(false)
@@ -79,7 +85,7 @@ function SingletonManager:InitAllSingleForStep(preload)
     end
 end
 
---- 对单例按优先级排序
+--- 单例按优先级排序
 ---@param isDescending boolean 是否降序（true=降序 false=升序）
 function SingletonManager:OrderSingleton(isDescending)
     if isDescending == nil then
