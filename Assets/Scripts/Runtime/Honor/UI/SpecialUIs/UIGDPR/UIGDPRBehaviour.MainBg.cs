@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIGDPRBehaviour_Main.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   GDPR隐私政策弹窗 - 主界面分部类
+ *            授权开关、协议链接、开始游戏、界面动画逻辑
+ ***************************************************************/
+
 using DG.Tweening;
 using System;
 using TMPro;
@@ -12,6 +23,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class UIGDPRBehaviour : MonoBehaviour
     {
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 主界面画布组（控制显隐+动画）
         /// </summary>
@@ -88,47 +103,14 @@ namespace Honor.Runtime
         [SerializeField] private Button m_GDPRLinkButton;
 
         /// <summary>
-        /// GDPR 链接点击回调（外部）
-        /// </summary>
-        private Action m_OnGDPRLinkButtonClickedCallback;
-
-        public Action OnGDPRLinkButtonClickedCallback
-        {
-            set => m_OnGDPRLinkButtonClickedCallback = value;
-            get => m_OnGDPRLinkButtonClickedCallback;
-        }
-
-        /// <summary>
         /// CCPA 隐私政策链接按钮
         /// </summary>
         [SerializeField] private Button m_CCPALinkButton;
 
         /// <summary>
-        /// CCPA 链接点击回调（外部）
-        /// </summary>
-        private Action m_OnCCPALinkButtonClickedCallback;
-
-        public Action OnCCPALinkButtonClickedCallback
-        {
-            set => m_OnCCPALinkButtonClickedCallback = value;
-            get => m_OnCCPALinkButtonClickedCallback;
-        }
-
-        /// <summary>
         /// COPPA 隐私政策链接按钮
         /// </summary>
         [SerializeField] private Button m_COPPALinkButton;
-
-        /// <summary>
-        /// COPPA 链接点击回调（外部）
-        /// </summary>
-        private Action m_OnCOPPALinkButtonClickedCallback;
-
-        public Action OnCOPPALinkButtonClickedCallback
-        {
-            set => m_OnCOPPALinkButtonClickedCallback = value;
-            get => m_OnCOPPALinkButtonClickedCallback;
-        }
 
         /// <summary>
         /// 开始游戏按钮
@@ -159,7 +141,59 @@ namespace Honor.Runtime
         /// 了解更多按钮文字（TMP）
         /// </summary>
         [SerializeField] private TextMeshProUGUI m_MoreButtonTextTMP;
+        #endregion
 
+        #region 私有字段 & 公共属性
+        //=========================================================================
+        // 私有字段 & 公共属性
+        //=========================================================================
+        /// <summary>
+        /// GDPR 链接点击回调（外部）
+        /// </summary>
+        private Action m_OnGDPRLinkButtonClickedCallback;
+
+        /// <summary>
+        /// CCPA 链接点击回调（外部）
+        /// </summary>
+        private Action m_OnCCPALinkButtonClickedCallback;
+
+        /// <summary>
+        /// COPPA 链接点击回调（外部）
+        /// </summary>
+        private Action m_OnCOPPALinkButtonClickedCallback;
+
+        /// <summary>
+        /// GDPR 链接点击回调（外部）
+        /// </summary>
+        public Action OnGDPRLinkButtonClickedCallback
+        {
+            set => m_OnGDPRLinkButtonClickedCallback = value;
+            get => m_OnGDPRLinkButtonClickedCallback;
+        }
+
+        /// <summary>
+        /// CCPA 链接点击回调（外部）
+        /// </summary>
+        public Action OnCCPALinkButtonClickedCallback
+        {
+            set => m_OnCCPALinkButtonClickedCallback = value;
+            get => m_OnCCPALinkButtonClickedCallback;
+        }
+
+        /// <summary>
+        /// COPPA 链接点击回调（外部）
+        /// </summary>
+        public Action OnCOPPALinkButtonClickedCallback
+        {
+            set => m_OnCOPPALinkButtonClickedCallback = value;
+            get => m_OnCOPPALinkButtonClickedCallback;
+        }
+        #endregion
+
+        #region 主界面初始化
+        //=========================================================================
+        // 主界面初始化
+        //=========================================================================
         /// <summary>
         /// 初始化主界面：多语言、开关状态、布局刷新
         /// </summary>
@@ -247,7 +281,12 @@ namespace Honor.Runtime
             LayoutRebuilder.ForceRebuildLayoutImmediate(m_MainBg.rectTransform());
             m_MainBg.gameObject.SetActive(!InGame);
         }
+        #endregion
 
+        #region UI交互事件
+        //=========================================================================
+        // UI交互事件
+        //=========================================================================
         /// <summary>
         /// COPPA 开关变化时控制开始按钮是否可点击
         /// </summary>
@@ -330,7 +369,12 @@ namespace Honor.Runtime
             SetMainBgAnimationVisible(false);
             SetMoreBgAnimationVisible(true);
         }
+        #endregion
 
+        #region 界面动画控制
+        //=========================================================================
+        // 界面动画控制
+        //=========================================================================
         /// <summary>
         /// 主界面显隐动画（滑入/滑出）
         /// </summary>
@@ -378,5 +422,6 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }

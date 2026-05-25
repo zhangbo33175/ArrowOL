@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIFloatWordsBehaviour.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   浮动提示文本（飘字）UI组件
+ *            淡入上移淡出动画，支持Text/TMP，可阻塞点击、自定义时长、回调
+ ***************************************************************/
+
 using DG.Tweening;
 using System;
 using TMPro;
@@ -13,11 +24,38 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class UIFloatWordsBehaviour : MonoBehaviour
     {
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 提示文字组件（UGUI Text）
         /// </summary>
         [SerializeField] private Text m_WordsText;
 
+        /// <summary>
+        /// 提示文字组件（TextMeshProUGUI）
+        /// </summary>
+        [SerializeField] private TextMeshProUGUI m_WordsTextTMP;
+
+        /// <summary>
+        /// 底部背景遮罩
+        /// </summary>
+        [SerializeField] private Image m_BottomMaskLayer;
+
+        /// <summary>
+        /// 顶部点击遮罩（用于阻塞触摸）
+        /// </summary>
+        [SerializeField] private Image m_TopMaskLayer;
+        #endregion
+
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        /// <summary>
+        /// 提示文字组件（UGUI Text）
+        /// </summary>
         public Text WordsText
         {
             get => m_WordsText;
@@ -26,8 +64,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 提示文字组件（TextMeshProUGUI）
         /// </summary>
-        [SerializeField] private TextMeshProUGUI m_WordsTextTMP;
-
         public TextMeshProUGUI WordsTextTMP
         {
             get => m_WordsTextTMP;
@@ -36,18 +72,14 @@ namespace Honor.Runtime
         /// <summary>
         /// 底部背景遮罩
         /// </summary>
-        [SerializeField] private Image m_BottomMaskLayer;
-
         public Image BottomMaskLayer
         {
             get => m_BottomMaskLayer;
         }
 
         /// <summary>
-        /// 顶部点击遮罩（用于阻塞触摸）
+        /// 顶部点击遮罩
         /// </summary>
-        [SerializeField] private Image m_TopMaskLayer;
-
         public Image TopMaskLayer
         {
             get => m_TopMaskLayer;
@@ -56,8 +88,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 提示持续时间（动画完成后等待多久）
         /// </summary>
-        private float m_Duration;
-
         public float Duration
         {
             set => m_Duration = value;
@@ -67,8 +97,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 是否阻塞 UI 触摸事件
         /// </summary>
-        private bool m_BlockUITouches;
-
         public bool BlockUITouches
         {
             set => m_BlockUITouches = value;
@@ -77,13 +105,36 @@ namespace Honor.Runtime
         /// <summary>
         /// 动画结束回调
         /// </summary>
-        private Action m_OverCallback;
-
         public Action OverCallback
         {
             set => m_OverCallback = value;
         }
+        #endregion
 
+        #region 私有字段
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
+        /// <summary>
+        /// 提示持续时间
+        /// </summary>
+        private float m_Duration;
+
+        /// <summary>
+        /// 是否阻塞UI触摸
+        /// </summary>
+        private bool m_BlockUITouches;
+
+        /// <summary>
+        /// 结束回调
+        /// </summary>
+        private Action m_OverCallback;
+        #endregion
+
+        #region 生命周期
+        //=========================================================================
+        // MonoBehaviour 生命周期
+        //=========================================================================
         private void Awake()
         {
             // 必须至少有一个文本组件
@@ -168,5 +219,6 @@ namespace Honor.Runtime
         private void OnDestroy()
         {
         }
+        #endregion
     }
 }

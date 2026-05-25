@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  CSharpLuaTableBridge.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   C# 与 Lua 配置表桥接工具
+ *            运行时/编辑器通用，读取 Lua 表格配置，供地图编辑器使用
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using Honor.Runtime;
@@ -13,6 +24,10 @@ namespace GameLib
     /// </summary>
     public static class CSharpLuaTableBridge
     {
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 获取当前 Lua 环境（运行时/编辑器 自动适配）
         /// 运行时：使用游戏主 LuaEnv
@@ -37,7 +52,12 @@ namespace GameLib
                 return env;
             }
         }
+        #endregion
 
+        #region 公共读取方法
+        //=========================================================================
+        // 公共读取方法
+        //=========================================================================
         /// <summary>
         /// 从 Lua 表中获取指定 ID 的配置项，并转为 C# 类
         /// </summary>
@@ -66,7 +86,12 @@ namespace GameLib
         {
             return GetTableInGlobal<T>(GetCurrEnv, tablePath, requireDefault);
         }
+        #endregion
 
+        #region 核心私有方法
+        //=========================================================================
+        // 核心私有方法
+        //=========================================================================
         /// <summary>
         /// 【核心】从 Lua 全局环境中获取表数据
         /// 运行时：直接读取
@@ -92,5 +117,6 @@ namespace GameLib
                 return luaEnv.Global.GetInPath<T>(tableSearchKey);
             }
         }
+        #endregion
     }
 }

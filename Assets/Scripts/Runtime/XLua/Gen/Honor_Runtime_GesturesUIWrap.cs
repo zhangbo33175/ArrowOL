@@ -27,15 +27,16 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnUIElementTouchEnd", _m_OnUIElementTouchEnd);
 			
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "SelectedObjCallbacks", _g_get_SelectedObjCallbacks);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "UITouchCoverCallbacks", _g_get_UITouchCoverCallbacks);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "UITouchEndCallbacks", _g_get_UITouchEndCallbacks);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SelectedObjCallbacks", _g_get_SelectedObjCallbacks);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UpdateSelectedObjCallbacks", _g_get_UpdateSelectedObjCallbacks);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UnselectedObjCallbacks", _g_get_UnselectedObjCallbacks);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SelectedObjDragBeginCallbacks", _g_get_SelectedObjDragBeginCallbacks);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SelectedObjDragCallbacks", _g_get_SelectedObjDragCallbacks);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SelectedObjDragEndCallbacks", _g_get_SelectedObjDragEndCallbacks);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "UITouchCoverCallbacks", _g_get_UITouchCoverCallbacks);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "UITouchEndCallbacks", _g_get_UITouchEndCallbacks);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UICameraIndex", _g_get_UICameraIndex);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "UICamera", _g_get_UICamera);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "EnableSwitch", _g_get_EnableSwitch);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UISwitch", _g_get_UISwitch);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SelectSwitch", _g_get_SelectSwitch);
@@ -48,7 +49,6 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "FindSelectingTypesOnSelf", _g_get_FindSelectingTypesOnSelf);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "FindSelectingTypesOnParent", _g_get_FindSelectingTypesOnParent);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "FindSelectingTypesOnChildren", _g_get_FindSelectingTypesOnChildren);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "UICamera", _g_get_UICamera);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "UICameraIndex", _s_set_UICameraIndex);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "EnableSwitch", _s_set_EnableSwitch);
@@ -168,6 +168,34 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_UITouchCoverCallbacks(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.UITouchCoverCallbacks);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_UITouchEndCallbacks(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.UITouchEndCallbacks);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_SelectedObjCallbacks(RealStatePtr L)
         {
 		    try {
@@ -252,34 +280,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_UITouchCoverCallbacks(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.UITouchCoverCallbacks);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_UITouchEndCallbacks(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.UITouchEndCallbacks);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_UICameraIndex(RealStatePtr L)
         {
 		    try {
@@ -287,6 +287,20 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
                 LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.UICameraIndex);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_UICamera(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.UICamera);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -455,20 +469,6 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushboolean(L, gen_to_be_invoked.FindSelectingTypesOnChildren);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_UICamera(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.GesturesUI gen_to_be_invoked = (Honor.Runtime.GesturesUI)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.UICamera);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

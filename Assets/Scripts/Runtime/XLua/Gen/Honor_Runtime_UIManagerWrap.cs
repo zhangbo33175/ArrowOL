@@ -67,10 +67,10 @@ namespace XLua.CSObjectWrap
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "Fonts", _g_get_Fonts);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LastFonts", _g_get_LastFonts);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CheckTextLocalizings", _g_get_CheckTextLocalizings);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "BlockModalUIsSwitch", _g_get_BlockModalUIsSwitch);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "BlockAllUIsKeyUpSwitch", _g_get_BlockAllUIsKeyUpSwitch);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ConnectionWaitingUIConnection", _g_get_ConnectionWaitingUIConnection);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "WaitingUIRefCount", _g_get_WaitingUIRefCount);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "TransitionUI", _g_get_TransitionUI);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurModalUI", _g_get_CurModalUI);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ModalUIInfoList", _g_get_ModalUIInfoList);
@@ -79,7 +79,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SubUIList", _g_get_SubUIList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UnloadUIList", _g_get_UnloadUIList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "DestroyMaxNumPerFrame", _g_get_DestroyMaxNumPerFrame);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CheckTextLocalizings", _g_get_CheckTextLocalizings);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "WaitingUIRefCount", _g_get_WaitingUIRefCount);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "FloatWordsDuration", _g_get_FloatWordsDuration);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UIBangsSize", _g_get_UIBangsSize);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ScreenOrientation", _g_get_ScreenOrientation);
@@ -90,8 +90,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "LastFonts", _s_set_LastFonts);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "BlockModalUIsSwitch", _s_set_BlockModalUIsSwitch);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "BlockAllUIsKeyUpSwitch", _s_set_BlockAllUIsKeyUpSwitch);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "WaitingUIRefCount", _s_set_WaitingUIRefCount);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "DestroyMaxNumPerFrame", _s_set_DestroyMaxNumPerFrame);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "WaitingUIRefCount", _s_set_WaitingUIRefCount);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "FloatWordsDuration", _s_set_FloatWordsDuration);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "UIBangsSize", _s_set_UIBangsSize);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "ScreenOrientation", _s_set_ScreenOrientation);
@@ -1404,6 +1404,20 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_CheckTextLocalizings(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.CheckTextLocalizings);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_BlockModalUIsSwitch(RealStatePtr L)
         {
 		    try {
@@ -1439,20 +1453,6 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
                 translator.Push(L, gen_to_be_invoked.ConnectionWaitingUIConnection);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_WaitingUIRefCount(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
-                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.WaitingUIRefCount);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -1572,13 +1572,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_CheckTextLocalizings(RealStatePtr L)
+        static int _g_get_WaitingUIRefCount(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.CheckTextLocalizings);
+                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.WaitingUIRefCount);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -1731,13 +1731,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_WaitingUIRefCount(RealStatePtr L)
+        static int _s_set_DestroyMaxNumPerFrame(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.WaitingUIRefCount = LuaAPI.xlua_tointeger(L, 2);
+                gen_to_be_invoked.DestroyMaxNumPerFrame = LuaAPI.xlua_tointeger(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
@@ -1746,13 +1746,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_DestroyMaxNumPerFrame(RealStatePtr L)
+        static int _s_set_WaitingUIRefCount(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.DestroyMaxNumPerFrame = LuaAPI.xlua_tointeger(L, 2);
+                gen_to_be_invoked.WaitingUIRefCount = LuaAPI.xlua_tointeger(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

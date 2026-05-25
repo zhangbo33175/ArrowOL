@@ -1,4 +1,15 @@
-﻿using System.Collections;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PersistComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   持久化存储组件
+ *            提供 PlayerPrefs / 分类数据保存、删除、延迟存储功能
+ ***************************************************************/
+
+using System.Collections;
 using UnityEngine;
 
 namespace Honor.Runtime
@@ -9,11 +20,20 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class PersistComponent
     {
+        #region 私有字段
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
         /// <summary>
         /// 保存PlayerPrefs数据的协程引用
         /// </summary>
         private Coroutine _SavePlayerPrefsDataCoroutine;
+        #endregion
 
+        #region 公共方法
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
         /// <summary>
         /// 根据分类名称保存指定类型的数据
         /// </summary>
@@ -47,7 +67,12 @@ namespace Honor.Runtime
                 _SavePlayerPrefsDataCoroutine = StartCoroutine(CoSaveGameDataAfterFrameEnd());
             }
         }
+        #endregion
 
+        #region 私有协程
+        //=========================================================================
+        // 私有协程
+        //=========================================================================
         /// <summary>
         /// 帧结束后 真正执行保存的协程
         /// </summary>
@@ -64,5 +89,6 @@ namespace Honor.Runtime
             // 重置协程引用，允许下次调用
             _SavePlayerPrefsDataCoroutine = null;
         }
+        #endregion
     }
 }

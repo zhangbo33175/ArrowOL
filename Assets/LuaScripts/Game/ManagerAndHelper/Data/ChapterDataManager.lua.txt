@@ -109,7 +109,7 @@ function ChapterDataManager:GetChapterNameByChapterId(chapterId)
     if not data or not data.ChapterTitle then
         return tostring(chapterId)
     end
-    return GetLang(data.ChapterTitle)
+    return GetLocalization(data.ChapterTitle)
 end
 
 ---=========================================================================

@@ -25,10 +25,10 @@ namespace XLua.CSObjectWrap
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetLoadingMode", _m_SetLoadingMode);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RefreshViews", _m_RefreshViews);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetVisible", _m_SetVisible);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnStartButtonClicked", _m_OnStartButtonClicked);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnRetryButtonClicked", _m_OnRetryButtonClicked);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnCloseButtonClicked", _m_OnCloseButtonClicked);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetVisible", _m_SetVisible);
 			
 			
 			
@@ -210,6 +210,34 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetVisible(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    bool _visible = LuaAPI.lua_toboolean(L, 2);
+                    
+                    gen_to_be_invoked.SetVisible( _visible );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_OnStartButtonClicked(RealStatePtr L)
         {
 		    try {
@@ -278,34 +306,6 @@ namespace XLua.CSObjectWrap
                 {
                     
                     gen_to_be_invoked.OnCloseButtonClicked(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_SetVisible(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    bool _visible = LuaAPI.lua_toboolean(L, 2);
-                    
-                    gen_to_be_invoked.SetVisible( _visible );
                     
                     
                     

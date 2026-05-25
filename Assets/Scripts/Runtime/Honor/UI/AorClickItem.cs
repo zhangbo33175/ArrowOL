@@ -1,4 +1,15 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorClickItem.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   通用点击交互组件
+ *            支持单击、长按、连续长按、选中/取消选中
+ ***************************************************************/
+
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,6 +22,10 @@ namespace GameLib
     public class AorClickItem : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler,
         ISelectHandler, IDeselectHandler
     {
+        #region 公共回调委托
+        //=========================================================================
+        // 公共回调委托
+        //=========================================================================
         /// <summary>
         /// 单击回调
         /// </summary>
@@ -40,7 +55,12 @@ namespace GameLib
         /// 取消选中回调
         /// </summary>
         public Action onDeselect;
+        #endregion
 
+        #region 序列化字段 & 公共变量
+        //=========================================================================
+        // 序列化字段 & 公共变量
+        //=========================================================================
         [Header("基础设置")]
         /// <summary>
         /// 点击间隔（防连点）
@@ -58,7 +78,12 @@ namespace GameLib
         /// </summary>
         [SerializeField]
         private bool isContinuousTriggerLongClick = false;
+        #endregion
 
+        #region 私有字段
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
         /// <summary>
         /// 上次点击时间（用于间隔判断）
         /// </summary>
@@ -88,7 +113,12 @@ namespace GameLib
         /// 是否已触发过长按
         /// </summary>
         private bool isTriggerLongClick;
+        #endregion
 
+        #region 生命周期
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
         /// <summary>
         /// 禁用时重置状态
         /// </summary>
@@ -98,6 +128,74 @@ namespace GameLib
             isPointerDown = false;
         }
 
+        /// <summary>
+        /// 长按检测（每帧判断）
+        /// </summary>
+        public virtual void Update()
+        {
+            if (!canInteraction) return;
+
+            // 按住状态才检测长按
+            if (isPointerDown)
+            {
+                tempPointerDownTime += Time.unscaledDeltaTime;
+
+                // 达到长按时间
+                if (tempPointerDownTime >= longClickTriggerTime)
+                {
+                    // 非连续模式：只触发一次
+                    if (!isContinuousTriggerLongClick && isTriggerLongClick)
+                        return;
+
+                    // 连续模式：重置计时循环触发
+                    tempPointerDownTime = longClickTriggerTime - longClickTriggerInterval;
+                    isTriggerLongClick = true;
+                    onLongClick?.Invoke();
+                }
+            }
+        }
+        #endregion
+
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        /// <summary>
+        /// 长按触发时间（安全属性，自动修正非法值）
+        /// </summary>
+        public float LongClickTriggerTime
+        {
+            get { return longClickTriggerTime <= 0 ? 0.3f : longClickTriggerTime; }
+            set { longClickTriggerTime = value <= 0 ? 0.3f : value; }
+        }
+        #endregion
+
+        #region 公共方法
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
+        /// <summary>
+        /// 重置长按状态
+        /// </summary>
+        public void ResetLongClickState()
+        {
+            tempPointerDownTime = 0f;
+            isTriggerLongClick = false;
+        }
+
+        /// <summary>
+        /// 强制设置为选中状态（用于弹窗自动选中）
+        /// </summary>
+        public void ForceSetSelected()
+        {
+            EventSystem.current.SetSelectedGameObject(gameObject);
+        }
+        #endregion
+
+        #region 事件接口实现
+        //=========================================================================
+        // 事件接口实现
+        //=========================================================================
         /// <summary>
         /// 点击（抬起时触发）
         /// </summary>
@@ -145,51 +243,6 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 长按触发时间（安全属性，自动修正非法值）
-        /// </summary>
-        public float LongClickTriggerTime
-        {
-            get { return longClickTriggerTime <= 0 ? 0.3f : longClickTriggerTime; }
-            set { longClickTriggerTime = value <= 0 ? 0.3f : value; }
-        }
-
-        /// <summary>
-        /// 重置长按状态
-        /// </summary>
-        public void ResetLongClickState()
-        {
-            tempPointerDownTime = 0f;
-            isTriggerLongClick = false;
-        }
-
-        /// <summary>
-        /// 长按检测（每帧判断）
-        /// </summary>
-        public virtual void Update()
-        {
-            if (!canInteraction) return;
-
-            // 按住状态才检测长按
-            if (isPointerDown)
-            {
-                tempPointerDownTime += Time.unscaledDeltaTime;
-
-                // 达到长按时间
-                if (tempPointerDownTime >= longClickTriggerTime)
-                {
-                    // 非连续模式：只触发一次
-                    if (!isContinuousTriggerLongClick && isTriggerLongClick)
-                        return;
-
-                    // 连续模式：重置计时循环触发
-                    tempPointerDownTime = longClickTriggerTime - longClickTriggerInterval;
-                    isTriggerLongClick = true;
-                    onLongClick?.Invoke();
-                }
-            }
-        }
-
-        /// <summary>
         /// 选中触发
         /// </summary>
         public void OnSelect(BaseEventData eventData)
@@ -204,13 +257,6 @@ namespace GameLib
         {
             onDeselect?.Invoke();
         }
-
-        /// <summary>
-        /// 强制设置为选中状态（用于弹窗自动选中）
-        /// </summary>
-        public void ForceSetSelected()
-        {
-            EventSystem.current.SetSelectedGameObject(gameObject);
-        }
+        #endregion
     }
 }

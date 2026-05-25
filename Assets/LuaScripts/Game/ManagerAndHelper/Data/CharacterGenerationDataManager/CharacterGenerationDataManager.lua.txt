@@ -9,13 +9,13 @@
 -- @feat      全局缓存、类型分组、安全查询、空值防护、日志规范
 -- @usage     获取角色配置、按类型筛选角色列表
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
--- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @规范       Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, TableComponent, EventManager, GlobalUtility
 --=====================================================================================================
 
----@class CharacterDataManager @角色数据管理器
+---@class CharacterGenerationDataManager @角色数据管理器
 ---@field _cacheByType table<ECharacterType, List<Tables.Characters_Item>> @按角色类型缓存
-local CharacterDataManager = class("CharacterDataManager")
+local CharacterGenerationDataManager = class("CharacterGenerationDataManager")
 
 --region 【构造与创建】
 ---=========================================================================
@@ -23,18 +23,18 @@ local CharacterDataManager = class("CharacterDataManager")
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 ---=========================================================================
-function CharacterDataManager:ctor(args)
+function CharacterGenerationDataManager:ctor(args)
     self._cacheByType = {}
 end
 
 ---=========================================================================
 ---@brief  创建实例
----@type fun(args:table):CharacterDataManager
+---@type fun(args:table):CharacterGenerationDataManager
 ---@param args table @自定义参数
----@return CharacterDataManager @角色数据管理器实例
+---@return CharacterGenerationDataManager @角色数据管理器实例
 ---=========================================================================
-function CharacterDataManager:Create(args)
-    return CharacterDataManager.new(args)
+function CharacterGenerationDataManager:Create(args)
+    return CharacterGenerationDataManager.new(args)
 end
 --endregion
 
@@ -45,7 +45,7 @@ end
 ---@param characterId string @角色ID
 ---@return Tables.Characters_Item @角色配置
 ---=========================================================================
-function CharacterDataManager:GetDataById(characterId)
+function CharacterGenerationDataManager:GetDataById(characterId)
     if table.kIn(Tables.Characters, characterId) then
         return Tables.Characters[characterId]
     else
@@ -54,27 +54,6 @@ function CharacterDataManager:GetDataById(characterId)
     end
 end
 
----=========================================================================
----@brief  根据角色类型获取角色列表
----@type fun(characterType:ECharacterType):List<Tables.Characters_Item>
----@param characterType ECharacterType @角色类型
----@return List<Tables.Characters_Item> @角色列表
----=========================================================================
-function CharacterDataManager:GetListByType(characterType)
-    if self._cacheByType[characterType] then
-        return self._cacheByType[characterType]
-    end
-
-    local list = HonorList:Create()
-    for _, characterCfg in pairs(Tables.Characters) do
-        if characterCfg.CharType == characterType then
-            list:Add(characterCfg)
-        end
-    end
-
-    self._cacheByType[characterType] = list
-    return list
-end
 --endregion
 
-return CharacterDataManager
+return CharacterGenerationDataManager

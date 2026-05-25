@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  Util.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   通用工具类
+ *            提供视图尺寸、列表打印、正则过滤、多点触控控制等通用功能
+ ***************************************************************/
+
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -10,6 +21,10 @@ namespace GameLib
     /// </summary>
     public static class Util
     {
+        #region 屏幕/视图尺寸
+        //=========================================================================
+        // 屏幕/视图尺寸
+        //=========================================================================
         /// <summary>
         /// 获取游戏窗口分辨率
         /// 编辑器下：取Game视图大小
@@ -23,14 +38,18 @@ namespace GameLib
             // 编辑器模式：获取 Game 窗口大小
             size = UnityEditor.Handles.GetMainGameViewSize();
 #else
-        // 运行时模式：获取设备屏幕大小
-        size.x = Screen.width;
-        size.y = Screen.height;
+            // 运行时模式：获取设备屏幕大小
+            size.x = Screen.width;
+            size.y = Screen.height;
 #endif
-
             return size;
         }
+        #endregion
 
+        #region 调试/日志
+        //=========================================================================
+        // 调试/日志
+        //=========================================================================
         /// <summary>
         /// 扩展方法：打印 List 所有内容，方便日志调试
         /// 输出格式：[元素1,元素2,元素3]
@@ -46,11 +65,15 @@ namespace GameLib
                 if (i != list.Count - 1)
                     stringBuilder.Append(',');
             }
-
             stringBuilder.Append(']');
             return stringBuilder.ToString();
         }
+        #endregion
 
+        #region 正则/字符串处理
+        //=========================================================================
+        // 正则/字符串处理
+        //=========================================================================
         /// <summary>
         /// 正则表达式匹配
         /// </summary>
@@ -71,7 +94,12 @@ namespace GameLib
             // [^\p{L}\p{N}\s]  =  非(字母/数字/空格) 的字符都替换为空
             return System.Text.RegularExpressions.Regex.Replace(origin, @"[^\p{L}\p{N}\s]", "");
         }
+        #endregion
 
+        #region 输入控制
+        //=========================================================================
+        // 输入控制
+        //=========================================================================
         /// <summary>
         /// 设置是否启用多点触控
         /// </summary>
@@ -87,5 +115,6 @@ namespace GameLib
         {
             return Input.multiTouchEnabled;
         }
+        #endregion
     }
 }

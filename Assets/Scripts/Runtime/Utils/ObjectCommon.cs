@@ -1,4 +1,15 @@
-﻿using UnityEngine;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ObjectCommon.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Unity 对象通用工具类
+ *            提供查找子节点、设置父子关系、空值判断、获取子物体等通用功能
+ ***************************************************************/
+
+using UnityEngine;
 
 namespace GameLib
 {
@@ -8,6 +19,10 @@ namespace GameLib
     /// </summary>
     public static class ObjectCommon
     {
+        #region 子物体查找
+        //=========================================================================
+        // 子物体查找
+        //=========================================================================
         /// <summary>
         /// 查找 GameObject 的指定子物体（支持路径查找）
         /// </summary>
@@ -22,7 +37,12 @@ namespace GameLib
             Transform childTransform = go.transform.Find(childName);
             return childTransform != null ? childTransform.gameObject : null;
         }
+        #endregion
 
+        #region 父子关系设置
+        //=========================================================================
+        // 父子关系设置
+        //=========================================================================
         /// <summary>
         /// 设置子物体，并重置其 Transform（位置、旋转、缩放归零）
         /// </summary>
@@ -39,7 +59,12 @@ namespace GameLib
             child.transform.localEulerAngles = Vector3.zero;
             child.transform.localPosition = Vector3.zero;
         }
+        #endregion
 
+        #region 子物体获取
+        //=========================================================================
+        // 子物体获取
+        //=========================================================================
         /// <summary>
         /// 获取物体所有子节点的 Transform 组件
         /// </summary>
@@ -53,7 +78,12 @@ namespace GameLib
 
             return go.GetComponentsInChildren<Transform>(includeInactive);
         }
+        #endregion
 
+        #region 空值判断
+        //=========================================================================
+        // 空值判断
+        //=========================================================================
         /// <summary>
         /// 判断Unity对象是否为兼容Destroy后的对象
         /// </summary>
@@ -63,5 +93,6 @@ namespace GameLib
         {
             return obj == null || obj.Equals(null);
         }
+        #endregion
     }
 }

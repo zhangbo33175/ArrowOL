@@ -29,11 +29,14 @@ function GameMapBase:ctor(args)
     self.ScreenCamera = GameLib.MapCamHelper.MapCamera  ---@type UnityEngine.Camera 地图相机
 
     self._IsPlaySwipeSound = false            ---@type boolean 是否正在播放滑动音效
-
+   
+    self.GameMapRoot=self.cs.transform:Find("RawImage/Root")
     --- 全局当前地图实例
     MapManager.CurGameMapBase = self
     --- 获取当前地图配置组件
     MapManager.CurMapData = self.cs:GetComponent("MapData")
+    
+    self:LoadCharacterByMapData()
 end
 
 ---@brief 创建实例
@@ -248,6 +251,34 @@ end
 ---@param gesture HedgehogTeam.EasyTouch.Gesture 点击手势
 function GameMapBase:OnSimpleTap(gesture)
     self:CheckOrderMachines(gesture, false)
+end
+--endregion
+
+--region 加载地图寻找物信息
+---根据地图配置数据生成角色实体并初始化显示
+function GameMapBase:LoadCharacterByMapData()
+    -- 获取地图根配置数据
+    local _mapData = GameManager.GetMapRootData()
+
+    -- 遍历所有地图角色数据
+    for _, v in ipairs(_mapData.MapData) do
+        -- 生成角色实体
+        local CharacterBase = CharacterGenerationManager:CharacterGeneration(v.Id, self.GameMapRoot)
+
+        -- 设置角色位置（字符串转Vector3）
+        CharacterBase._GameObject.transform.localPosition = StringToVector3(v.Position)
+
+        -- 获取角色图标UI对象
+        local CharacterIcon = CharacterBase._GameObject.transform:Find("CharacterIcon")
+        local uiImage = CharacterIcon.transform:GetComponent(typeof(CS.UnityEngine.UI.Image))
+
+        -- 获取角色配置数据并刷新图标
+        local catData = CharacterGenerationDataManager:GetDataById(v.Id)
+        PlayHelper:RefreshImageSprite(CharacterBase, uiImage, catData.Icon)
+
+        -- 将角色存入全局管理器列表
+        GameManager.CharacterList[v.Id] = CharacterBase
+    end
 end
 --endregion
 

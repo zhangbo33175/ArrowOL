@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIConnectionWaitingView.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   网络连接等待/加载中弹窗UI组件
+ *            显示旋转加载动画、提示文本、顶层遮罩防点击，兼容UGUI/TMP
+ ***************************************************************/
+
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -12,6 +23,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class UIConnectionWaitingView : MonoBehaviour
     {
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 旋转加载动画（菊花图）
         /// </summary>
@@ -31,7 +46,12 @@ namespace Honor.Runtime
         /// 顶层遮罩（阻挡点击）
         /// </summary>
         [SerializeField] private Image m_TopMaskLayer;
+        #endregion
 
+        #region 生命周期
+        //=========================================================================
+        // MonoBehaviour 生命周期
+        //=========================================================================
         private void Awake()
         {
             // 组件空值校验
@@ -81,10 +101,16 @@ namespace Honor.Runtime
         private void OnDestroy()
         {
         }
+        #endregion
 
+        #region 公共控制方法
+        //=========================================================================
+        // 公共控制方法
+        //=========================================================================
         /// <summary>
         /// 设置界面可见性
         /// </summary>
+        /// <param name="visible">是否显示</param>
         public void SetVisible(bool visible)
         {
             gameObject.SetActive(visible);
@@ -93,6 +119,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取当前是否可见
         /// </summary>
+        /// <returns>当前可见状态</returns>
         public bool IsVisible()
         {
             return gameObject.activeSelf;
@@ -101,6 +128,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 动态设置等待提示文本
         /// </summary>
+        /// <param name="text">提示文本内容</param>
         public void SetWaitingDescText(string text)
         {
             if (m_DescText != null)
@@ -109,5 +137,6 @@ namespace Honor.Runtime
             if (m_DescTextTMP != null)
                 m_DescTextTMP.text = text;
         }
+        #endregion
     }
 }

@@ -7,7 +7,7 @@
 -- @brief     章节列表管理器
 -- @desc      管理章节/区域的解锁、运行时状态、存档、进度、关卡等级
 -- @scope     全局唯一单例，主界面 + 关卡 + 活动 + 解锁系统都依赖它
--- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @规范       Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, PlayerDataManager, EventManager, GlobalUtility, GameSystemUnlockManager
 --=====================================================================================================
 
@@ -23,7 +23,8 @@ function ChapterListManager:ctor(args)
     ChapterListManager.super.ctor(self, args)
     self._runtimeAreaID = ""            ---@type string 当前运行时区域ID
     self._runtimeChapterID = "1"        ---@type string 当前运行时章节ID
-    self._changeChapterFunc = nil       ---@type function 切章节回调
+    self._changeChapterFunc = nil       ---@type function 切章节回调 
+    self.LevelData=nil
 end
 
 ---=========================================================================
@@ -52,10 +53,8 @@ end
 ---=========================================================================
 function ChapterListManager:Init()
     ChapterListManager.super.Init(self)
-
     -- 关卡胜利事件
     HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
-
     -- 默认设置当前章节 = 最新解锁章节
     self:SetRuntimeChapter(self:GetLatestChapterId())
     -- 记录配置表最大章节ID
@@ -174,25 +173,6 @@ function ChapterListManager:IsChapterCompleted(chapterId)
     local unlockNextLv = chapterData.UnlockNextLevel or 1
     return curLv >= unlockNextLv
 end
-
----=========================================================================
---- 是否完成某个区域下所有章节
----@param areaId string 区域ID
----@return boolean true-全部完成
----=========================================================================
-function ChapterListManager:IsAllChaptersCompleted(areaId)
-    local areaData = ChapterDataManager:GetAreaDataByAreaId(areaId)
-    if not areaData or not areaData.ChaptersID then
-        return true
-    end
-
-    for _, chapterId in pairs(areaData.ChaptersID) do
-        if not self:IsChapterCompleted(chapterId) then
-            return false
-        end
-    end
-    return true
-end
 --endregion
 
 --region 运行时：当前正在显示/游玩的章节/区域
@@ -256,34 +236,6 @@ function ChapterListManager:GetRuntimeChapterLvByChapterId(chapterId)
     return info and info.lv or 0
 end
 
----=========================================================================
---- 获取章节指定指标的进度
----@desc 带配置表系数计算
----@param chapterId string 章节ID
----@param progressIndex number 进度索引
----@return number 计算后进度值
----=========================================================================
-function ChapterListManager:GetRuntimeChapterProgressByChapterId(chapterId, progressIndex)
-    local progress = 0
-    local chapterInfo = SaveRootData.GameData.chapterInfos[chapterId]
-    if chapterInfo and chapterInfo.progress then
-        progress = chapterInfo.progress[progressIndex] or 0
-    end
-
-    local chapterData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
-    if not chapterData or not chapterData.ChapterInfoID then
-        return progress
-    end
-
-    local infoId = chapterData.ChapterInfoID[progressIndex]
-    local cfg = ChapterDataManager:GetChapterInfoDataByChapterInfoId(infoId)
-    if not cfg then
-        return progress
-    end
-
-    local result = progress * cfg.Coef
-    return tonumber(string.format("%.2f", result))
-end
 --endregion
 
 --region 存档相关：最新解锁章节/区域
@@ -327,16 +279,6 @@ function ChapterListManager:LargeThanLatestChapterLv(targetChapterLv, latestChap
     return not lessOrEqual
 end
 
----=========================================================================
---- 目标章节等级 < 最新章节等级
----@param targetChapterLv table 目标章节等级数据
----@param latestChapterLv table 最新章节等级数据
----@return boolean 比较结果
----=========================================================================
-function ChapterListManager:LessThanChapterLv(targetChapterLv, latestChapterLv)
-    latestChapterLv = latestChapterLv or GamerDataManager:GetLatestChapterLevel()
-    return targetChapterLv.Chapter < latestChapterLv.Chapter or (targetChapterLv.Chapter == latestChapterLv.Chapter and targetChapterLv.Level < latestChapterLv.Level)
-end
 --endregion
 
 return ChapterListManager

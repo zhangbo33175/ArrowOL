@@ -1,0 +1,191 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  CharacterBase.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     游戏角色基础类
+-- @desc      所有角色（玩家/怪物/NPC）的统一父类，提供通用功能、点击、音效、位置接口
+-- @dependency LuaBehaviourSuper, GameStateMachine, EventHelper, SoundMgr
+--=====================================================================================================
+
+---@class CharacterBase : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field _CharacterIcon UnityEngine.Transform @角色
+---@field _CharData Tables.Characters_Item @角色配置数据
+---@field _GameObject UnityEngine.GameObject @角色配置数据
+---@field _WaitFrame GameLib.WaitForFrames @帧等待对象
+---@field _ClickItem GameLib.AorClickItem @点击组件
+---@field _LastSoundSerialID number @最后播放的音效ID
+---@field _name string @角色名称
+local CharacterBase = class('CharacterBase', import('LuaBehaviourSuper'))
+
+--=====================================================================================================
+-- 构造与创建
+--=====================================================================================================
+--region Constructor & Create
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function CharacterBase:ctor(args)
+    CharacterBase.super.ctor(self, args)
+    self._CharData          = nil
+    self._GameObject        = nil
+    self._ClickItem         =nil
+    self._CharacterIcon     =self.cs.transform:Find("CharacterIcon")
+    ---@type GameLib.WaitForFrames @ 公共的
+    self._WaitFrame         = GameLib.WaitForFrames(1)
+end
+
+---创建函数
+---@type fun(args:table):CharacterBase
+---@param args table @自定义参数
+---@return CharacterBase @CharacterBase实例
+function CharacterBase:Create(args)
+    local obj = CharacterBase.new(args)
+    return obj
+end
+--endregion
+
+--=====================================================================================================
+-- 生命周期
+--=====================================================================================================
+--region LifeCycle
+---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@type fun():void
+function CharacterBase:OnAddListeners()
+    CharacterBase.super.OnAddListeners(self)
+    if self._ClickItem then
+        self._ClickItem.onClick  = function()
+            handler(self, self:OnClickCharacter())
+        end
+    end
+end
+
+---唤醒
+---@type fun():void
+function CharacterBase:Awake()
+    if self._CharacterIcon then
+        self._ClickItem = self._CharacterIcon.gameObject:GetOrAddComponent(typeof(GameLib.AorClickItem))
+        self._ClickItem.clickInterval = 0.1
+    end
+    CharacterBase.super.Awake(self)
+end
+
+---开始
+---@type fun():void
+function CharacterBase:Start()
+    CharacterBase.super.Start(self)
+end
+
+---销毁
+---@type fun():void
+function CharacterBase:OnDestroy()
+    CharacterBase.super.OnDestroy(self)
+end
+--endregion
+
+--=====================================================================================================
+-- 点击交互
+--=====================================================================================================
+--region Click Event
+---点击了角色
+---@type fun():void
+function CharacterBase:OnClickCharacter()
+    if GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
+        --主界面允许点击角色
+        PrintInfo("CharacterBase:OnClickCharacter name:{0}", self._CharData.ID)
+        HonorEventHelper:Fire(EventCmd.OnClickCharacter, self._CharData)
+    end
+end
+--endregion
+
+--=====================================================================================================
+-- 数据与清理
+--=====================================================================================================
+--region Data & Clear
+---清理数据
+---@type fun():void
+function CharacterBase:Clear()
+    self._CharData = nil
+    self._ClickItem=nil
+    self._CharacterIcon=nil
+    self._GameObject   = nil
+end
+--endregion
+
+--=====================================================================================================
+-- 位置与坐标
+--=====================================================================================================
+--region Transform & Position
+---获取自身的世界坐标点
+---@type fun():UnityEngine.Vector3
+---@return UnityEngine.Vector3
+function CharacterBase:GetFootPos()
+    return self.cs.transform.position
+end
+--endregion
+
+--=====================================================================================================
+-- 行为树回调方法（由子类继承实现）
+--=====================================================================================================
+--region Behaviour Tree Callback
+---是否游戏结束
+---@type fun():boolean
+---@return boolean @是否游戏结束
+function CharacterBase:IsGameOver()
+    return GameCoreManager._IsGameOver
+end
+
+---获取坐标点
+---@type fun(posName:string):UnityEngine.Vector3
+---@param posName string @坐标点名称
+---@return UnityEngine.Vector3 @坐标点
+function CharacterBase:GetDesPosBTAction(posName)
+end
+
+---游戏结束Action
+function CharacterBase:OnGameOverBTAction()
+    
+end
+--endregion
+
+--=====================================================================================================
+-- 音效播放
+--=====================================================================================================
+--region Audio & Sound
+---播放音效
+---@type fun(name:string)
+---@param name string @ Tables.Characters_Item 里面的字段
+function CharacterBase:PlaySound(name)
+    if self._CharData ~= nil and self._CharData[name] ~= nil then
+        if self._LastSoundSerialID ~= nil then
+            SoundManager:StopSound(self._LastSoundSerialID)
+        end
+        self._LastSoundSerialID = SoundManager:PlaySound(self._CharData[name])
+    end
+end
+--endregion
+
+--=====================================================================================================
+-- 公共获取接口
+--=====================================================================================================
+--region Public Getter
+---@type fun():string
+---@return string @ 角色ID
+function CharacterBase:GetCharID()
+    if not self._CharData then
+        PrintWarning(string.format("%s without CharData", self.cs.gameObject.name))
+        return '-1'
+    end
+    return self._CharData.ID
+end
+
+---@type fun():ECharacterType
+---@return number @ 角色类型
+function CharacterBase:GetCharType()
+    return self._CharData.CharType
+end
+--endregion
+
+return CharacterBase

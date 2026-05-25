@@ -1,4 +1,15 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapMotionLayer.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图运动层组件
+ *            定义地图包围盒，支持编辑器一键自动计算边界
+ ***************************************************************/
+
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -10,12 +21,21 @@ namespace GameLib
     /// </summary>
     public class MapMotionLayer : MonoBehaviour
     {
+        #region 公共字段
+        //=========================================================================
+        // 公共字段
+        //=========================================================================
         /// <summary>
         /// 地图区域包围盒（2D平面使用，忽略Z轴）
         /// </summary>
-        [FormerlySerializedAs("areaBounds")] 
+        [FormerlySerializedAs("areaBounds")]
         public Bounds m_AreaBounds;
+        #endregion
 
+        #region 场景绘制
+        //=========================================================================
+        // 场景绘制
+        //=========================================================================
         /// <summary>
         /// Scene视图绘制包围盒线框，用于可视化编辑
         /// </summary>
@@ -23,6 +43,7 @@ namespace GameLib
         {
             Gizmos.DrawWireCube(m_AreaBounds.center, m_AreaBounds.size);
         }
+        #endregion
     }
 
 #if UNITY_EDITOR
@@ -33,11 +54,20 @@ namespace GameLib
     [CustomEditor(typeof(MapMotionLayer))]
     public class MapMotionLayerEditor : Editor
     {
+        #region 静态缓存
+        //=========================================================================
+        // 静态缓存
+        //=========================================================================
         /// <summary>
         /// 子物体渲染器缓存列表，预分配容量减少GC
         /// </summary>
         private static readonly List<Renderer> childRenderers = new List<Renderer>(128);
+        #endregion
 
+        #region 编辑器绘制
+        //=========================================================================
+        // 编辑器绘制
+        //=========================================================================
         /// <summary>
         /// 绘制Inspector面板
         /// </summary>
@@ -54,7 +84,12 @@ namespace GameLib
                 RegenerateBounds();
             }
         }
+        #endregion
 
+        #region 私有功能方法
+        //=========================================================================
+        // 私有功能方法
+        //=========================================================================
         /// <summary>
         /// 自动遍历所有子物体渲染器，生成合并后的包围盒
         /// 自动跳过粒子系统渲染器，保持2D平面尺寸
@@ -100,6 +135,7 @@ namespace GameLib
             motionLayer.m_AreaBounds = resultBounds;
             EditorUtility.SetDirty(motionLayer);
         }
+        #endregion
     }
 #endif
 }

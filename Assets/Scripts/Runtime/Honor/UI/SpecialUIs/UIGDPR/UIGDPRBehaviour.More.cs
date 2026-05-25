@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIGDPRBehaviour_More.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   GDPR隐私政策弹窗 - 了解更多详情页
+ *            详细隐私说明、返回主界面、滑入滑出动画
+ ***************************************************************/
+
 using DG.Tweening;
 using System;
 using TMPro;
@@ -12,6 +23,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class UIGDPRBehaviour : MonoBehaviour
     {
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 了解更多界面画布组（动画+显隐控制）
         /// </summary>
@@ -91,18 +106,31 @@ namespace Honor.Runtime
         /// 返回按钮文字（TMP）
         /// </summary>
         [SerializeField] private TextMeshProUGUI m_MoreBackButtonTextTMP;
+        #endregion
 
+        #region 私有字段 & 公共属性
+        //=========================================================================
+        // 私有字段 & 公共属性
+        //=========================================================================
         /// <summary>
         /// 返回按钮点击回调（外部注册）
         /// </summary>
         private Action m_OnBackButtonClickedCallback;
 
+        /// <summary>
+        /// 返回按钮点击回调（外部注册）
+        /// </summary>
         public Action OnBackButtonClickedCallback
         {
             set => m_OnBackButtonClickedCallback = value;
             get => m_OnBackButtonClickedCallback;
         }
+        #endregion
 
+        #region 详情页初始化
+        //=========================================================================
+        // 详情页初始化
+        //=========================================================================
         /// <summary>
         /// 初始化详情页：多语言文本、布局刷新、默认隐藏
         /// </summary>
@@ -172,7 +200,12 @@ namespace Honor.Runtime
             LayoutRebuilder.ForceRebuildLayoutImmediate(m_MoreBg.rectTransform());
             m_MoreBg.gameObject.SetActive(false);
         }
+        #endregion
 
+        #region UI交互事件
+        //=========================================================================
+        // UI交互事件
+        //=========================================================================
         /// <summary>
         /// 返回按钮点击：回到主界面
         /// </summary>
@@ -181,7 +214,12 @@ namespace Honor.Runtime
             SetMainBgAnimationVisible(true);
             SetMoreBgAnimationVisible(false);
         }
+        #endregion
 
+        #region 界面动画控制
+        //=========================================================================
+        // 界面动画控制
+        //=========================================================================
         /// <summary>
         /// 详情页显隐动画：右侧滑入/滑出 + 淡入淡出
         /// </summary>
@@ -229,5 +267,6 @@ namespace Honor.Runtime
                 }
             }
         }
+        #endregion
     }
 }

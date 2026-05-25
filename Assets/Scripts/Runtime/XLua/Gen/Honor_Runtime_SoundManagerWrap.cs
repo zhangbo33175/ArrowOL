@@ -24,6 +24,8 @@ namespace XLua.CSObjectWrap
 			Utils.BeginObjectRegister(type, L, translator, 0, 19, 1, 0);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Shutdown", _m_Shutdown);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "StopAllLoadedSounds", _m_StopAllLoadedSounds);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "StopAllLoadingSounds", _m_StopAllLoadingSounds);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HasSoundGroup", _m_HasSoundGroup);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetSoundGroup", _m_GetSoundGroup);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetAllSoundGroups", _m_GetAllSoundGroups);
@@ -33,11 +35,9 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "IsLoadingSound", _m_IsLoadingSound);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlaySound", _m_PlaySound);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "StopSound", _m_StopSound);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "StopAllLoadedSounds", _m_StopAllLoadedSounds);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "StopAllLoadingSounds", _m_StopAllLoadingSounds);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PauseSound", _m_PauseSound);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PauseGroupSound", _m_PauseGroupSound);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResumeSound", _m_ResumeSound);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PauseGroupSound", _m_PauseGroupSound);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResumeGroupSound", _m_ResumeGroupSound);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "StopGroupSound", _m_StopGroupSound);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ReleaseSoundAsset", _m_ReleaseSoundAsset);
@@ -106,6 +106,74 @@ namespace XLua.CSObjectWrap
                 {
                     
                     gen_to_be_invoked.Shutdown(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_StopAllLoadedSounds(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SoundManager gen_to_be_invoked = (Honor.Runtime.SoundManager)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 1) 
+                {
+                    
+                    gen_to_be_invoked.StopAllLoadedSounds(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
+                {
+                    float _fadeOutSeconds = (float)LuaAPI.lua_tonumber(L, 2);
+                    
+                    gen_to_be_invoked.StopAllLoadedSounds( _fadeOutSeconds );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SoundManager.StopAllLoadedSounds!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_StopAllLoadingSounds(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SoundManager gen_to_be_invoked = (Honor.Runtime.SoundManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.StopAllLoadingSounds(  );
                     
                     
                     
@@ -477,74 +545,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_StopAllLoadedSounds(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.SoundManager gen_to_be_invoked = (Honor.Runtime.SoundManager)translator.FastGetCSObj(L, 1);
-            
-            
-			    int gen_param_count = LuaAPI.lua_gettop(L);
-            
-                if(gen_param_count == 1) 
-                {
-                    
-                    gen_to_be_invoked.StopAllLoadedSounds(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
-                {
-                    float _fadeOutSeconds = (float)LuaAPI.lua_tonumber(L, 2);
-                    
-                    gen_to_be_invoked.StopAllLoadedSounds( _fadeOutSeconds );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SoundManager.StopAllLoadedSounds!");
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_StopAllLoadingSounds(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.SoundManager gen_to_be_invoked = (Honor.Runtime.SoundManager)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.StopAllLoadingSounds(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_PauseSound(RealStatePtr L)
         {
 		    try {
@@ -584,35 +584,6 @@ namespace XLua.CSObjectWrap
             }
             
             return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SoundManager.PauseSound!");
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_PauseGroupSound(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.SoundManager gen_to_be_invoked = (Honor.Runtime.SoundManager)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    string _groupName = LuaAPI.lua_tostring(L, 2);
-                    
-                        bool gen_ret = gen_to_be_invoked.PauseGroupSound( _groupName );
-                        LuaAPI.lua_pushboolean(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
             
         }
         
@@ -658,6 +629,35 @@ namespace XLua.CSObjectWrap
             }
             
             return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SoundManager.ResumeSound!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_PauseGroupSound(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SoundManager gen_to_be_invoked = (Honor.Runtime.SoundManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _groupName = LuaAPI.lua_tostring(L, 2);
+                    
+                        bool gen_ret = gen_to_be_invoked.PauseGroupSound( _groupName );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
             
         }
         

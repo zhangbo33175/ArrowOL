@@ -1347,22 +1347,22 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(RMapIconType), RMapIconTypeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(RMapData), RMapDataWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(RMapChapterTypeData), RMapChapterTypeDataWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(RMapPlayHudPosType), RMapPlayHudPosTypeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(MapCamData), MapCamDataWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(RMapType), RMapTypeWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(RMapCamPosType), RMapCamPosTypeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(RMapData), RMapDataWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(RMapChapterTypeData), RMapChapterTypeDataWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(MapCamData), MapCamDataWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(MapData), MapDataWrap.__Register);

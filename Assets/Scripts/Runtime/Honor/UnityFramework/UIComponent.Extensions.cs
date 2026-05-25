@@ -1,10 +1,29 @@
-﻿using GameLib;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI组件（分部类）
+ *            提供遮罩层管理、引用计数、屏幕缩放等核心UI接口
+ ***************************************************************/
+
+using GameLib;
 using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// UI管理组件（分部类）
+    /// 提供遮罩层、引用计数、屏幕适配等对外接口
+    /// </summary>
     public sealed partial class UIComponent
     {
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// [屏幕UI] 遮罩UI（常驻内存）
         /// </summary>
@@ -20,9 +39,14 @@ namespace Honor.Runtime
         {
             get { return m_UIManager.MaskLayerUIRefCount; }
         }
+        #endregion
 
+        #region 公共方法
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
         /// <summary>
-        /// MaskLayer界面ref+1
+        /// 遮罩层界面引用计数 +1
         /// </summary>
         public void AddUIMaskLayerRef(string name)
         {
@@ -30,7 +54,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// MaskLayer界面ref-1
+        /// 遮罩层界面引用计数 -1
         /// </summary>
         public void SubUIMaskLayerRef()
         {
@@ -38,7 +62,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取MaskLayer界面的可见性
+        /// 获取遮罩层当前可见状态
         /// </summary>
         public bool IsUIMaskLayerVisible()
         {
@@ -46,7 +70,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 关闭UIMaskLayer(异常情况下，立即关闭)
+        /// 强制关闭遮罩层（异常情况下立即关闭）
         /// </summary>
         public void CloseUIMaskLayer()
         {
@@ -54,12 +78,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取屏幕缩放比例
+        /// 获取当前屏幕适配缩放比例
         /// </summary>
-        /// <returns></returns>
         public float GetScreenScale()
         {
             return m_UIManager.GetScreenScale();
         }
+        #endregion
     }
 }

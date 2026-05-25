@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIAppDownloadBehaviour.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   APP应用内下载/更新弹窗UI组件
+ *            支持强制/非强制更新、多语言文本、Text/TMP兼容显示
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -13,6 +24,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class UIAppDownloadBehaviour : MonoBehaviour
     {
+        #region 序列化字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 标题文本（UGUI Text）
         /// </summary>
@@ -62,12 +77,27 @@ namespace Honor.Runtime
         /// 描述文本（TextMeshProUGUI）
         /// </summary>
         [SerializeField] private TextMeshProUGUI m_DescTextTMP;
+        #endregion
 
+        #region 私有字段
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
         /// <summary>
         /// 是否显示关闭按钮（默认显示 = 非强制更新）
         /// </summary>
         private bool isShowCloseBtn = true;
 
+        /// <summary>
+        /// 描述内容（如：当前下载的文件名/进度信息）
+        /// </summary>
+        private string m_DescContent;
+        #endregion
+
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 设置是否显示关闭按钮
         /// </summary>
@@ -79,14 +109,17 @@ namespace Honor.Runtime
         /// <summary>
         /// 描述内容（如：当前下载的文件名/进度信息）
         /// </summary>
-        private string m_DescContent;
-
         public string DescContent
         {
             set => m_DescContent = value;
             get => m_DescContent;
         }
+        #endregion
 
+        #region 生命周期
+        //=========================================================================
+        // MonoBehaviour 生命周期
+        //=========================================================================
         private void Awake()
         {
             // 初始化预留
@@ -124,7 +157,12 @@ namespace Honor.Runtime
         {
             // 销毁预留
         }
+        #endregion
 
+        #region 按钮点击事件
+        //=========================================================================
+        // UI按钮点击事件
+        //=========================================================================
         /// <summary>
         /// 开始按钮点击（去更新/下载）
         /// </summary>
@@ -152,7 +190,12 @@ namespace Honor.Runtime
             // 放行流程（非强制更新时）
             GameMainRoot.Event.Fire(this, GameEventCmd.FlowPermit);
         }
+        #endregion
 
+        #region 公共方法
+        //=========================================================================
+        // 公共业务方法
+        //=========================================================================
         /// <summary>
         /// 初始化界面显示
         /// </summary>
@@ -168,5 +211,6 @@ namespace Honor.Runtime
                 { "update_type", updateTypeInt }
             });*/
         }
+        #endregion
     }
 }

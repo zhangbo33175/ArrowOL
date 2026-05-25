@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIGDPRBehaviour_Reset.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   GDPR隐私政策弹窗 - 重置/设置界面
+ *            游戏内重新修改隐私授权、保存设置、关闭界面
+ ***************************************************************/
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class UIGDPRBehaviour : MonoBehaviour
     {
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 重置界面画布组（动画+显隐控制）
         /// </summary>
@@ -104,7 +119,12 @@ namespace Honor.Runtime
         /// 关闭按钮文字（TMP）
         /// </summary>
         [SerializeField] private TextMeshProUGUI m_CloseButtonTextTMP;
+        #endregion
 
+        #region 重置界面初始化
+        //=========================================================================
+        // 重置界面初始化
+        //=========================================================================
         /// <summary>
         /// 初始化重置界面：多语言、开关状态、布局刷新
         /// </summary>
@@ -186,7 +206,12 @@ namespace Honor.Runtime
                 m_ResetBg.rectTransform().anchoredPosition = Vector2.zero;
             }
         }
+        #endregion
 
+        #region UI交互事件
+        //=========================================================================
+        // UI交互事件
+        //=========================================================================
         /// <summary>
         /// 打开 GDPR 隐私政策链接
         /// </summary>
@@ -247,5 +272,6 @@ namespace Honor.Runtime
                 m_OnOverButtonClickedCallback();
             }
         }
+        #endregion
     }
 }

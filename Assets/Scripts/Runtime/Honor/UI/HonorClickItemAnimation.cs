@@ -1,4 +1,15 @@
-﻿using DG.Tweening;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  HonorClickItemAnimation.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   荣誉按钮点击动画（缩放效果）
+ *            继承通用点击组件，实现按下缩小、抬起还原的动画效果
+ ***************************************************************/
+
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -10,6 +21,10 @@ namespace GameLib
     /// </summary>
     public class HonorClickItemAnimation : AorClickItem
     {
+        #region 序列化字段
+        //=========================================================================
+        // 序列化字段
+        //=========================================================================
         /// <summary>
         /// 按下时的目标缩放值
         /// </summary>
@@ -24,7 +39,12 @@ namespace GameLib
         /// 缩放动画时长
         /// </summary>
         [SerializeField] protected float scaleDuration = 0.1f;
+        #endregion
 
+        #region 生命周期
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
         /// <summary>
         /// 启用时重置缩放为原始大小
         /// </summary>
@@ -40,7 +60,12 @@ namespace GameLib
         {
             DOTween.Kill(transform);
         }
+        #endregion
 
+        #region 重写点击事件
+        //=========================================================================
+        // 重写点击事件
+        //=========================================================================
         /// <summary>
         /// 重写点击事件
         /// </summary>
@@ -73,5 +98,6 @@ namespace GameLib
             // 播放还原动画，不受游戏暂停影响
             transform.DOScale(Vector3.one, scaleDuration).SetEase(scaleEase).SetUpdate(true);
         }
+        #endregion
     }
 }

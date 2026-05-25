@@ -1,4 +1,15 @@
-﻿using UnityEngine;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorUIFullScreenImage.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   全屏图片自适应适配脚本
+ *            使Image保持原始宽高比，自动缩放以完全铺满父物体（无拉伸、无裁剪）
+ ***************************************************************/
+
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameLib
@@ -10,19 +21,30 @@ namespace GameLib
     [DisallowMultipleComponent]
     public class AorUIFullScreenImage : MonoBehaviour
     {
+        #region 序列化字段
+        //=========================================================================
+        // 序列化字段
+        //=========================================================================
         /// <summary>
         /// 需要进行全屏适配的目标Image组件
         /// </summary>
-        [Header("目标图片")] [Tooltip("拖拽需要适配的Image组件到此字段")]
+        [Header("目标图片")]
+        [Tooltip("拖拽需要适配的Image组件到此字段")]
         public Image image;
 
         /// <summary>
         /// 作为适配基准的父物体RectTransform
         /// 图片将根据该物体的尺寸进行缩放适配
         /// </summary>
-        [Header("父物体适配区域")] [Tooltip("图片的父物体RectTransform，作为适配的尺寸参考")]
+        [Header("父物体适配区域")]
+        [Tooltip("图片的父物体RectTransform，作为适配的尺寸参考")]
         public RectTransform parentRectTransform;
+        #endregion
 
+        #region 生命周期
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
         /// <summary>
         /// 初始化时执行图片适配逻辑
         /// </summary>
@@ -37,7 +59,12 @@ namespace GameLib
 
             AdaptToFullScreen();
         }
+        #endregion
 
+        #region 私有适配方法
+        //=========================================================================
+        // 私有适配方法
+        //=========================================================================
         /// <summary>
         /// 图片全屏适配核心方法
         /// 计算图片原始宽高比与父物体尺寸比例，自动缩放保证无拉伸铺满父物体
@@ -65,5 +92,6 @@ namespace GameLib
             // 应用缩放
             transform.localScale = Vector3.one * finalScale;
         }
+        #endregion
     }
 }

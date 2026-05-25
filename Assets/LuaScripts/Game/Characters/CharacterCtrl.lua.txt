@@ -1,0 +1,91 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  CharacterCtrl.lua
+-- author:    云毅
+-- descrip:   角色的控制器
+--=====================================================================================================
+
+---@class CharacterCtrl : CharacterBase
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+local CharacterCtrl = class('CharacterCtrl', import('CharacterBase'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function CharacterCtrl:ctor(args)
+    CharacterCtrl.super.ctor(self, args)
+
+end
+
+---创建函数
+---@type fun(args:table):CharacterCtrl
+---@param args table @自定义参数
+---@return CharacterCtrl @实例
+function CharacterCtrl:Create(args)
+    local obj = CharacterCtrl.new(args)
+    return obj
+end
+
+---注册监听（自动注销）
+---@type fun():void
+function CharacterCtrl:OnAddListeners()
+    CharacterCtrl.super.OnAddListeners(self)
+
+end
+
+---唤醒
+---@type fun():void
+function CharacterCtrl:Awake()
+    CharacterCtrl.super.Awake(self)
+-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 无自动注册内容。
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+
+end
+
+---开始
+---@type fun():void
+function CharacterCtrl:Start()
+    CharacterCtrl.super.Start(self)
+
+end
+
+---销毁
+---@type fun():void
+function CharacterCtrl:OnDestroy()
+    CharacterCtrl.super.OnDestroy(self)
+-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 无自动注销内容。
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+
+end
+
+---播放打开动画（可重写）
+---@type fun():void
+function CharacterCtrl:OnPlayOpenAnimation()
+    CharacterCtrl.super.OnPlayOpenAnimation(self)
+end
+
+---播放关闭动画（可重写）
+---@type fun():void
+function CharacterCtrl:OnPlayCloseAnimation()
+    CharacterCtrl.super.OnPlayCloseAnimation(self)
+end
+
+---子UI销毁回调
+---@type fun(luaClass:XLua.LuaTable):void
+---@param luaClass XLua.LuaTable
+function CharacterCtrl:OnAddedUIDestroyed(luaClass)
+    CharacterCtrl.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+---@type fun(position:UnityEngine.Vector3):void
+---@param position UnityEngine.Vector3 @ 目标坐标
+function CharacterCtrl:SetPosition(position)
+   
+end
+
+
+return CharacterCtrl

@@ -1,12 +1,12 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  PlayHelper.lua
--- author:    云毅
--- created:   2026
--- @brief     开始游戏帮助类
--- @desc      封装游戏关卡、界面、特效、奖励、道具、状态判断等核心游戏逻辑
--- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- filename:   PlayHelper.lua
+-- author:     云毅
+-- created:    2026
+-- @brief      开始游戏帮助类
+-- @desc       封装游戏关卡、界面、特效、奖励、道具、状态判断等核心游戏逻辑
+-- @规范        Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, GameManager, ChapterManager, LevelCoreManager, UIManager, EffectManager, AudioManager
 --=====================================================================================================
 
@@ -18,7 +18,6 @@ local PlayHelper = class("PlayHelper")
 ---@type fun():void
 ---@brief 构造函数：初始化常量配置、颜色配置、格式字符串
 function PlayHelper:ctor()
-    --self._loopLevelHelper = require("LoopLevelHelper"):Create()
     self._mainMinChapterId = 1                                          ---@type number                                 ---主线最小章节ID
     self._mainMaxChapterId = 1000                                       ---@type number                                 ---主线最大章节ID
     self._goldenTicketPlayNameTextColorConfigData = nil                 ---@type TextColorConfigData                    ---金票玩家名字颜色配置
@@ -75,36 +74,6 @@ end
 ---@param levelId number 关卡ID
 ---@return boolean 是否显示
 function PlayHelper:IsPlayShowPrepareLevel(chapterId, levelId)
-    --local data = Tables.Constants.ShowPrepareLevel.Value
-    --local chapterIdNum = tonumber(chapterId)
-    --if chapterIdNum > data.Chapter then
-    --    return true
-    --end
-    --if chapterIdNum == data.Chapter and levelId >= data.Level then
-    --    return true
-    --end
-    return false
-end
-
----@type fun(chapterId:number,levelId:number):boolean
----@brief 判断关卡是否已解锁
----@param chapterId number 章节ID（数字）
----@param levelId number 关卡ID
----@return boolean 是否已解锁
-function PlayHelper:IsUnlock(chapterId, levelId)
-    local lastChapterId = ChapterListMgr:GetLatestChapterId()
-    local lastChapterIdNum = tonumber(lastChapterId)
-    if lastChapterIdNum > chapterId then
-        return true
-    end
-
-    if lastChapterIdNum == chapterId then
-        local lastLevelId = tonumber(GamerDataMgr:GetLevelLvByChapterId(lastChapterId))
-        if lastLevelId >= levelId then
-            return true
-        end
-    end
-
     return false
 end
 
@@ -117,131 +86,6 @@ end
 --endregion
 
 --region 【UI 打开与界面管理】
----@type fun():void
----@brief 打开最新章节的物品升级界面
-function PlayHelper:OpenLastLevelUpgradeUI()
-    local curChapterId = GamerDataManager:GetCurChapterId()
-    local latest = ChapterListMgr:GetLatestChapterId()
-    if latest ~= curChapterId then
-        local isReady = IncreaserHotfixHelper:IsReadyGroupRes(latest)
-        if isReady then
-            self:LoadMainMap(latest, function()
-                self:OpenLevelUpgradeUI(latest)
-            end)
-        else
-            IncreaserHotfixHelper:SetNeedAutoOpenDownloadUpdateUI(true)
-            IncreaserHotfixHelper:OpenUIIncreaserUpdate()
-        end
-    else
-        self:OpenLevelUpgradeUI(curChapterId)
-    end
-end
-
----@type fun(chapterId:string):void
----@brief 打开指定章节的物品升级面板
----@param chapterId string 章节ID
-function PlayHelper:OpenLevelUpgradeUI(chapterId)
-    OpenUISync(UIs.UIUpgrade, { chapterId = chapterId })
-end
-
----@type fun(openFrom:EOpenUILevelPrepareFrom):void
----@brief 打开最后一关的准备关卡面板
----@param openFrom EOpenUILevelPrepareFrom 打开来源，默认Other
-function PlayHelper:OpenLastLevelPrepareUI(openFrom)
-    if openFrom == nil then
-        openFrom = EOpenUILevelPrepareFrom.Other
-    end
-    local curChapterId = GamerDataManager:GetCurChapterId()
-    local curLevelId = GamerDataManager:GetLevelLvByChapterId(curChapterId, true)
-    if not self:IsPlayShowPrepareLevel(curChapterId, curLevelId) then
-        local levelData = self:LoadLevelData(curChapterId, curLevelId)
-        self:CommonOnPlayGame(levelData)
-    else
-        local latest = ChapterListMgr:GetLatestChapterId()
-        if latest ~= curChapterId then
-            local isReady = IncreaserHotfixHelper:IsReadyGroupRes(latest)
-            if isReady then
-                self:LoadMainMap(latest, function()
-                    self:OpenLevelPrepareUI(latest, GamerDataMgr:GetLevelLvByChapterId(latest, true), openFrom)
-                end)
-            else
-                IncreaserHotfixHelper:SetNeedAutoOpenDownloadUpdateUI(true)
-                IncreaserHotfixHelper:OpenUIIncreaserUpdate()
-            end
-        else
-            self:OpenLevelPrepareUI(curChapterId, curLevelId, openFrom)
-        end
-    end
-end
-
----@type fun(chapterId:string,levelId:string,openFrom:EOpenUILevelPrepareFrom):void
----@brief 打开指定关卡的准备面板
----@param chapterId string 章节ID
----@param levelId string 关卡ID
----@param openFrom EOpenUILevelPrepareFrom 打开来源
-function PlayHelper:OpenLevelPrepareUI(chapterId, levelId, openFrom)
-    if GameMainRoot.UI:GetUIByLuaTable(UIs.UILevelPrepare) then
-        return
-    end
-    OpenUISync(UIs.UILevelPrepare, { chapterId = chapterId, levelId = levelId, openFrom = openFrom })
-end
-
----@type fun(isManual:boolean):void
----@brief 打开关卡暂停界面
----@param isManual boolean 是否手动打开
-function PlayHelper:OpenLevelPauseUI(isManual)
-    if GameMainRoot.UI:GetUIByLuaTable(UIs.UILevelPause) then
-        return
-    end
-    OpenUISync(UIs.UILevelPause, { isManual = isManual })
-end
-
----@type fun(position:number):void
----@brief 打开账号进度保存界面
----@param position number 位置：1=Loading，2=设置
-function PlayHelper:OpenUISaveProgress(position)
-    OpenUISync(UIs.UISaveProgress, { position = position })
-end
-
----@type fun(isSuccess:boolean,iconName:string,finishCallback:function):void
----@brief 打开购买结果界面
----@param isSuccess boolean 是否成功
----@param iconName string 图标
----@param finishCallback function 完成回调
-function PlayHelper:OpenBuyResultUI(isSuccess, iconName, finishCallback)
-    if isSuccess then
-        OpenUISync(UIs.UIBuyResults, { type = "Success", resDef = iconName, callback = finishCallback })
-        SoundManager:PlaySound("UI_PurchaseSuccess")
-    else
-        OpenUISync(UIs.UIBuyResults, { type = "Failed", resDef = iconName, callback = finishCallback })
-    end
-end
-
----@type fun(isSuccess:boolean):void
----@brief 打开恢复购买结果界面
----@param isSuccess boolean 是否成功
-function PlayHelper:OpenReStorePurchaseResultUI(isSuccess)
-    OpenUISync(UIs.UIRestorationResult, { isSuccess = isSuccess })
-end
-
----@type fun(title:string, topTip:string, content:string, tokenList:table[], onQuitCallback:function, onStayCallback:function):void
----@brief 打开活动退出确认界面
----@param title string 标题
----@param topTip string 顶部提示
----@param content string 内容
----@param tokenList table[] 道具列表
----@param onQuitCallback function 退出回调
----@param onStayCallback function 留下回调
-function PlayHelper:OpenActivityQuitConfirmUI(title, topTip, content, tokenList, onQuitCallback, onStayCallback)
-    OpenUISync(UIs.UIActivityQuitConfirm, {
-        title = title,
-        topTip = topTip,
-        content = content,
-        tokenList = tokenList,
-        onQuit = onQuitCallback,
-        onStay = onStayCallback
-    })
-end
 --endregion
 
 --region 【关卡数据与难度奖励】
@@ -256,7 +100,6 @@ function PlayHelper:LoadLevelData(chapterId, levelId)
     if chapterConfig and chapterConfig.MainLevels and not ChallengeLevelHelper:IsChallengeLevel(levelId) and levelId > chapterConfig.MainLevels[2] then
         return nil
     end
-
     local levelName = table.concat({ "LevelData_", chapterId, "_", levelId })
     local levelData = Tables[levelName]
     return levelData
@@ -766,7 +609,6 @@ function PlayHelper:LoadMainMap(chapterId, callback, refuseAd)
         PrintError("没有找到章节所在区域数据:" .. chapterId)
         return
     end
-
     MapManager:SwitchMap(chapterId, callback, refuseAd)
 end
 --endregion
@@ -789,9 +631,10 @@ end
 function PlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
     if ui and uiImage then
         ---@type RES_DEF_ITEM
-        local info = LoadRes[spriteName]
+        local info = LoadRes["Sprite_"..spriteName]
         if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
             uiImage.sprite = ui:LoadAsset(info)
+            uiImage:SetNativeSize()
         end
     end
 end
@@ -839,24 +682,8 @@ function PlayHelper:InitPropIcon(ui, iconImg, propId, areaId)
     if ui and iconImg and not string.isNullOrEmpty(propId) then
         local itemData = ResourceDataManager:GetResourceData(propId)
         if itemData then
-            if itemData.ID == EResourceIDs.Coin then
-                self:SetCoinIconViewImage(ui, iconImg, areaId)
-            else
-                self:SetPropIconViewImageByItemData(ui, iconImg, itemData)
-            end
+            self:SetPropIconViewImageByItemData(ui, iconImg, itemData)
         end
-    end
-end
-
----@type fun(ui:LuaBehaviourSuper, image:UnityEngine.UI.Image, areaId:string):void
----@brief 设置金币图标（按区域）
-function PlayHelper:SetCoinIconViewImage(ui, image, areaId)
-    if ui and image then
-        if areaId == nil then
-            areaId = ChapterListMgr:GetLatestAreaId()
-        end
-        local coinIconName = CoinsDataMgr:GetAreaCoinData(areaId).ImageStack
-        self:RefreshImageSprite(ui, image, coinIconName)
     end
 end
 
@@ -870,18 +697,6 @@ end
 ---@brief 通过名称设置图标
 function PlayHelper:SetPropIconViewImageByName(ui, image, name)
     self:RefreshImageSprite(ui, image, name)
-end
---endregion
-
---region 【游戏时间】
----@type fun():number
----@brief 获取关卡内已游玩时间
----@return number 秒数
-function PlayHelper:GetTimeOfInLevel()
-    if self:IsInLevelState() and GameCoreManager:IsPlaying() then
-        return GameCoreManager._GameCoreManagerData:GetDurationTime()
-    end
-    return 0
 end
 --endregion
 

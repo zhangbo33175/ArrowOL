@@ -105,7 +105,7 @@ LocalActivityManager = require('LocalActivityManager'):Create()
 SystemGameUnlock = require('SystemGameUnlock'):Create()
 
 ---@type BubbleManager 气泡提示管理器
-BubbleManager = require('BubbleManager'):Create()
+UIBubbleManager = require('UIBubbleManager'):Create()
 
 ---@type ItemManager 道具管理器
 ItemManager = require("ItemManager"):Create()

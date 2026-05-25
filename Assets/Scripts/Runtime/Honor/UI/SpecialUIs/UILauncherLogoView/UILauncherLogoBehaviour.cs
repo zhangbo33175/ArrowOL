@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UILauncherLogoBehaviour.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   启动器 Logo 界面行为脚本
+ *            控制启动 Logo 的淡入、淡出全屏过渡动画
+ ***************************************************************/
+
 using DG.Tweening;
 using UnityEngine;
 
@@ -10,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class UILauncherLogoBehaviour : UILauncherLogoView
     {
+        #region 公共动画方法
+        //=========================================================================
+        // 公共动画方法
+        //=========================================================================
         /// <summary>
         /// 进入动画：背景从黑色 渐亮 → 透明
         /// </summary>
@@ -80,5 +95,6 @@ namespace Honor.Runtime
         {
             base.ExitOver();
         }
+        #endregion
     }
 }

@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIAppFeedbackBehaviour.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   APP内用户反馈界面UI行为脚本
+ *            支持评分、邮箱/问题输入、提交反馈、界面关闭，兼容UGUI/TMP
+ ***************************************************************/
+
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,6 +23,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class UIAppFeedbackBehaviour : MonoBehaviour
     {
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 标题文本（UGUI）
         /// </summary>
@@ -101,12 +116,45 @@ namespace Honor.Runtime
         /// 问题描述占位符文本（TMP）
         /// </summary>
         [SerializeField] private TextMeshProUGUI m_IssueInputPlaceholderTextTMP;
+        #endregion
 
+        #region 私有字段
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
         /// <summary>
         /// 评分星星数量
         /// </summary>
         private int m_StarNum;
 
+        /// <summary>
+        /// 打点/位置描述（用于反馈定位）
+        /// </summary>
+        private string m_LocationDescForDot;
+
+        /// <summary>
+        /// 邮箱内容
+        /// </summary>
+        private string m_EmailContent;
+
+        /// <summary>
+        /// 问题描述内容
+        /// </summary>
+        private string m_IssueContent;
+
+        /// <summary>
+        /// 是否已提交
+        /// </summary>
+        private bool m_IsSubmit;
+        #endregion
+
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        /// <summary>
+        /// 评分星星数量
+        /// </summary>
         public int StarNum
         {
             set => m_StarNum = value;
@@ -116,8 +164,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 打点/位置描述（用于反馈定位）
         /// </summary>
-        private string m_LocationDescForDot;
-
         public string LocationDescForDot
         {
             set => m_LocationDescForDot = value;
@@ -127,8 +173,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 邮箱内容
         /// </summary>
-        private string m_EmailContent;
-
         public string EmailContent
         {
             get => m_EmailContent;
@@ -137,18 +181,16 @@ namespace Honor.Runtime
         /// <summary>
         /// 问题描述内容
         /// </summary>
-        private string m_IssueContent;
-
         public string IssueContent
         {
             get => m_IssueContent;
         }
+        #endregion
 
-        /// <summary>
-        /// 是否已提交
-        /// </summary>
-        private bool m_IsSubmit;
-
+        #region 生命周期
+        //=========================================================================
+        // MonoBehaviour 生命周期
+        //=========================================================================
         private void Awake()
         {
         }
@@ -198,7 +240,12 @@ namespace Honor.Runtime
         private void OnDestroy()
         {
         }
+        #endregion
 
+        #region UI按钮点击事件
+        //=========================================================================
+        // UI按钮点击事件
+        //=========================================================================
         /// <summary>
         /// 提交按钮点击
         /// </summary>
@@ -221,10 +268,16 @@ namespace Honor.Runtime
         {
             GameMainRoot.UI.CloseUIByGO(gameObject);
         }
+        #endregion
 
+        #region 输入框回调事件
+        //=========================================================================
+        // 输入框回调事件
+        //=========================================================================
         /// <summary>
         /// 邮箱输入结束回调
         /// </summary>
+        /// <param name="valueEndEdit">输入完成的邮箱内容</param>
         public void OnEmailInputValueEndEdit(string valueEndEdit)
         {
             m_EmailContent = valueEndEdit;
@@ -236,6 +289,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 问题描述输入结束回调
         /// </summary>
+        /// <param name="valueEndEdit">输入完成的问题内容</param>
         public void OnIssueInputValueEndEdit(string valueEndEdit)
         {
             m_IssueContent = valueEndEdit;
@@ -243,5 +297,6 @@ namespace Honor.Runtime
             // 问题描述长度 >=3 才可提交
             m_SubmitButton.interactable = !(string.IsNullOrEmpty(m_IssueContent) || m_IssueContent.Length < 3);
         }
+        #endregion
     }
 }

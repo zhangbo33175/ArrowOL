@@ -77,7 +77,6 @@ function GameLoadMapState:LoadMapOver(finishCallback)
         ItemManager:FullLife()
         -- 加载第一关数据
         local levelData = PlayHelper:LoadLevelData(chapterId, levelId)
-
         if PlayHelper:PlayLevel(levelData) then
             -- 进入主状态（战斗）
             GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)

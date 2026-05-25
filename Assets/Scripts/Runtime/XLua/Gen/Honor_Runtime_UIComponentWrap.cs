@@ -90,12 +90,12 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "DestroyMaxNumPerFrame", _g_get_DestroyMaxNumPerFrame);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "FloatWordsDuration", _g_get_FloatWordsDuration);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ButtonInteractDuration", _g_get_ButtonInteractDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CheckOrientationState", _g_get_CheckOrientationState);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CheckTextLocalizings", _g_get_CheckTextLocalizings);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ScreenUICameras", _g_get_ScreenUICameras);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SceneUICameras", _g_get_SceneUICameras);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ScreenUICanvas", _g_get_ScreenUICanvas);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SceneUICanvas", _g_get_SceneUICanvas);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CheckOrientationState", _g_get_CheckOrientationState);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CheckTextLocalizings", _g_get_CheckTextLocalizings);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UIBangsSize", _g_get_UIBangsSize);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "BlockModalUIsSwitch", _g_get_BlockModalUIsSwitch);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ConnectionWaitingUIConnection", _g_get_ConnectionWaitingUIConnection);
@@ -114,11 +114,11 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "DestroyMaxNumPerFrame", _s_set_DestroyMaxNumPerFrame);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "FloatWordsDuration", _s_set_FloatWordsDuration);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "ButtonInteractDuration", _s_set_ButtonInteractDuration);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "CheckOrientationState", _s_set_CheckOrientationState);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "CheckTextLocalizings", _s_set_CheckTextLocalizings);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "ScreenUICameras", _s_set_ScreenUICameras);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "ScreenUICanvas", _s_set_ScreenUICanvas);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "SceneUICanvas", _s_set_SceneUICanvas);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "CheckOrientationState", _s_set_CheckOrientationState);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "CheckTextLocalizings", _s_set_CheckTextLocalizings);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "BlockModalUIsSwitch", _s_set_BlockModalUIsSwitch);
             
 			
@@ -2404,6 +2404,34 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_CheckOrientationState(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.CheckOrientationState);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_CheckTextLocalizings(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.CheckTextLocalizings);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_ScreenUICameras(RealStatePtr L)
         {
 		    try {
@@ -2453,34 +2481,6 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
                 translator.Push(L, gen_to_be_invoked.SceneUICanvas);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_CheckOrientationState(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.CheckOrientationState);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_CheckTextLocalizings(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.CheckTextLocalizings);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -2732,6 +2732,36 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_CheckOrientationState(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.CheckOrientationState = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_CheckTextLocalizings(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.CheckTextLocalizings = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_ScreenUICameras(RealStatePtr L)
         {
 		    try {
@@ -2769,36 +2799,6 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.SceneUICanvas = (UnityEngine.Canvas)translator.GetObject(L, 2, typeof(UnityEngine.Canvas));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_CheckOrientationState(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.CheckOrientationState = LuaAPI.lua_toboolean(L, 2);
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_CheckTextLocalizings(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.UIComponent gen_to_be_invoked = (Honor.Runtime.UIComponent)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.CheckTextLocalizings = LuaAPI.lua_toboolean(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

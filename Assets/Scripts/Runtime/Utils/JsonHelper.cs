@@ -1,4 +1,15 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  JsonHelper.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   LitJson 封装工具类
+ *            提供对象序列化/反序列化、格式化输出、GC优化
+ ***************************************************************/
+
+using System;
 using System.Text;
 using LitJson;
 
@@ -10,11 +21,20 @@ namespace GameLib
     /// </summary>
     public static class JsonHelper
     {
+        #region 静态缓存（减少GC）
+        //=========================================================================
+        // 静态缓存（减少GC）
+        //=========================================================================
         /// <summary>
-        /// 静态字符串构建器，减少GC开销
+        /// 静态字符串构建器，复用减少GC开销
         /// </summary>
-        private static StringBuilder m_StringBuilder = new StringBuilder();
+        private static readonly StringBuilder m_StringBuilder = new StringBuilder();
+        #endregion
 
+        #region 序列化（对象 → JSON）
+        //=========================================================================
+        // 序列化（对象 → JSON）
+        //=========================================================================
         /// <summary>
         /// 对象 转换为 JSON字符串
         /// </summary>
@@ -40,7 +60,12 @@ namespace GameLib
                 return m_StringBuilder.ToString();
             }
         }
+        #endregion
 
+        #region 反序列化（JSON → 对象）
+        //=========================================================================
+        // 反序列化（JSON → 对象）
+        //=========================================================================
         /// <summary>
         /// JSON字符串 转换为 强类型对象
         /// </summary>
@@ -62,5 +87,6 @@ namespace GameLib
         {
             return JsonMapper.ToObject(objectType, json);
         }
+        #endregion
     }
 }

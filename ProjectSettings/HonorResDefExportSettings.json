@@ -435,6 +435,13 @@
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/皮肤",
       "AssetName": "皮肤",
       "AssetGUID": "073028024835a2541a55080a8ba1e658"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_Character",
+      "ABPath": "Assets/Res/Prefabs",
+      "AssetName": "Character",
+      "AssetGUID": "db41971c9b8c82544af257fa2499eb28"
     }
   ]
 }

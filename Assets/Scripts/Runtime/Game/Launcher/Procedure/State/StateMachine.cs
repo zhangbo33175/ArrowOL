@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  StateMachine.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   通用有限状态机基类（FSM）
+ *            负责状态管理、状态切换、生命周期驱动、更新轮询
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using Honor.Runtime;
@@ -5,6 +16,9 @@ using UnityEngine;
 
 namespace GameLib
 {
+    //=========================================================================
+    // 通用有限状态机基类
+    //=========================================================================
     /// <summary>
     /// 通用有限状态机基类 (FSM)
     /// 管理一组状态的切换、更新、生命周期
@@ -12,6 +26,10 @@ namespace GameLib
     /// <typeparam name="T">状态机持有者（拥有者）的类型</typeparam>
     public abstract class StateMachine<T> where T : class
     {
+        #region 私有/保护字段
+        //=========================================================================
+        // 保护字段
+        //=========================================================================
         /// <summary>
         /// 状态机名称（用于标识、调试）
         /// </summary>
@@ -33,7 +51,7 @@ namespace GameLib
         protected State<T> m_LastState;
 
         /// <summary>
-        /// 上一个状态持续了多久
+        /// 上一个状态持续时长
         /// </summary>
         protected float m_LastStateTime;
 
@@ -43,7 +61,7 @@ namespace GameLib
         protected State<T> m_CurrentState;
 
         /// <summary>
-        /// 当前状态持续了多久
+        /// 当前状态持续时长
         /// </summary>
         protected float m_CurrentStateTime;
 
@@ -51,7 +69,12 @@ namespace GameLib
         /// 是否已销毁
         /// </summary>
         protected bool m_IsDestroyed;
+        #endregion
 
+        #region 构造函数
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
         /// <summary>
         /// 构造函数：初始化状态机
         /// </summary>
@@ -96,7 +119,12 @@ namespace GameLib
                 state.OnInit(this);
             }
         }
+        #endregion
 
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 状态机名称
         /// </summary>
@@ -193,7 +221,12 @@ namespace GameLib
         {
             get { return m_CurrentStateTime; }
         }
+        #endregion
 
+        #region 公共方法 - 状态机控制
+        //=========================================================================
+        // 公共方法 - 状态机控制
+        //=========================================================================
         /// <summary>
         /// 清空状态机（退出当前状态、销毁所有状态）
         /// </summary>
@@ -252,80 +285,6 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 是否包含某个状态
-        /// </summary>
-        public bool HasState(Type stateType)
-        {
-            if (stateType == null)
-            {
-                throw new Exception("State type 无效。");
-            }
-
-            if (!typeof(State<T>).IsAssignableFrom(stateType))
-            {
-                throw new Exception(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
-            }
-
-            return m_States.ContainsKey(stateType);
-        }
-
-        /// <summary>
-        /// 获取指定状态
-        /// </summary>
-        public State<T> GetState(Type stateType)
-        {
-            if (stateType == null)
-            {
-                throw new Exception("State type 无效。");
-            }
-
-            if (!typeof(State<T>).IsAssignableFrom(stateType))
-            {
-                throw new Exception(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
-            }
-
-            State<T> state = null;
-            if (m_States.TryGetValue(stateType, out state))
-            {
-                return state;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// 获取所有状态（数组）
-        /// </summary>
-        public State<T>[] GetAllStates()
-        {
-            int index = 0;
-            State<T>[] results = new State<T>[m_States.Count];
-            foreach (KeyValuePair<Type, State<T>> state in m_States)
-            {
-                results[index++] = state.Value;
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// 获取所有状态（List）
-        /// </summary>
-        public void GetAllStates(List<State<T>> results)
-        {
-            if (results == null)
-            {
-                throw new Exception("Results 无效。");
-            }
-
-            results.Clear();
-            foreach (KeyValuePair<Type, State<T>> state in m_States)
-            {
-                results.Add(state.Value);
-            }
-        }
-
-        /// <summary>
         /// 切换状态
         /// </summary>
         /// <param name="stateType">目标状态类型</param>
@@ -376,5 +335,86 @@ namespace GameLib
         public virtual void Shutdown()
         {
         }
+        #endregion
+
+        #region 公共方法 - 状态查询
+        //=========================================================================
+        // 公共方法 - 状态查询
+        //=========================================================================
+        /// <summary>
+        /// 是否包含某个状态
+        /// </summary>
+        /// <param name="stateType">状态类型</param>
+        /// <returns>是否包含</returns>
+        public bool HasState(Type stateType)
+        {
+            if (stateType == null)
+            {
+                throw new Exception("State type 无效。");
+            }
+
+            if (!typeof(State<T>).IsAssignableFrom(stateType))
+            {
+                throw new Exception(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+            }
+
+            return m_States.ContainsKey(stateType);
+        }
+
+        /// <summary>
+        /// 获取指定状态
+        /// </summary>
+        /// <param name="stateType">状态类型</param>
+        /// <returns>状态实例</returns>
+        public State<T> GetState(Type stateType)
+        {
+            if (stateType == null)
+            {
+                throw new Exception("State type 无效。");
+            }
+
+            if (!typeof(State<T>).IsAssignableFrom(stateType))
+            {
+                throw new Exception(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+            }
+
+            m_States.TryGetValue(stateType, out State<T> state);
+            return state;
+        }
+
+        /// <summary>
+        /// 获取所有状态（数组）
+        /// </summary>
+        /// <returns>状态数组</returns>
+        public State<T>[] GetAllStates()
+        {
+            int index = 0;
+            State<T>[] results = new State<T>[m_States.Count];
+            foreach (KeyValuePair<Type, State<T>> state in m_States)
+            {
+                results[index++] = state.Value;
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// 获取所有状态（List）
+        /// </summary>
+        /// <param name="results">接收结果的列表</param>
+        public void GetAllStates(List<State<T>> results)
+        {
+            if (results == null)
+            {
+                throw new Exception("Results 无效。");
+            }
+
+            results.Clear();
+            foreach (KeyValuePair<Type, State<T>> state in m_States)
+            {
+                results.Add(state.Value);
+            }
+        }
+        #endregion
     }
 }

@@ -1,4 +1,16 @@
-﻿using UnityEngine;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AorExtendImage.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   扩展Image组件
+ *            支持九宫格图片的水平/垂直进度填充（切片裁剪模式）
+ *            解决原生Image填充模式下九宫格图片拉伸变形的问题
+ ***************************************************************/
+
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameLib
@@ -11,12 +23,36 @@ namespace GameLib
     [AddComponentMenu("UI/AorExtendImage")]
     public class AorExtendImage : Image
     {
+        #region 序列化字段
+        //=========================================================================
+        // 序列化字段
+        //=========================================================================
         /// <summary>
         /// 是否启用九宫格切片填充模式
         /// 启用后：水平/垂直填充时保持九宫格边框不拉伸
         /// </summary>
         [SerializeField] private bool m_SlicedClipMode = true;
+        #endregion
 
+        #region 私有静态字段
+        //=========================================================================
+        // 私有静态字段
+        //=========================================================================
+        /// <summary>
+        /// 临时存储顶点坐标的数组
+        /// </summary>
+        private Vector2[] s_VertScratch = new Vector2[4];
+
+        /// <summary>
+        /// 临时存储UV坐标的数组
+        /// </summary>
+        private Vector2[] s_UVScratch = new Vector2[4];
+        #endregion
+
+        #region 重写方法
+        //=========================================================================
+        // 重写方法
+        //=========================================================================
         /// <summary>
         /// 重写网格生成方法
         /// 根据图片类型和填充方式选择对应的网格生成逻辑
@@ -38,17 +74,12 @@ namespace GameLib
                     break;
             }
         }
+        #endregion
 
-        /// <summary>
-        /// 临时存储顶点坐标的数组
-        /// </summary>
-        private Vector2[] s_VertScratch = new Vector2[4];
-
-        /// <summary>
-        /// 临时存储UV坐标的数组
-        /// </summary>
-        private Vector2[] s_UVScratch = new Vector2[4];
-
+        #region 私有方法
+        //=========================================================================
+        // 私有方法
+        //=========================================================================
         /// <summary>
         /// 生成九宫格切片填充的网格数据
         /// 核心逻辑：根据填充进度计算顶点与UV，实现无损九宫格填充效果
@@ -214,31 +245,6 @@ namespace GameLib
         }
 
         /// <summary>
-        /// 向顶点辅助类中添加一个四边形（UI基础绘制单元）
-        /// </summary>
-        /// <param name="vertexHelper">顶点操作对象</param>
-        /// <param name="posMin">四边形左下角坐标</param>
-        /// <param name="posMax">四边形右上角坐标</param>
-        /// <param name="color">顶点颜色</param>
-        /// <param name="uvMin">UV左下角坐标</param>
-        /// <param name="uvMax">UV右上角坐标</param>
-        static void AddQuad(VertexHelper vertexHelper, Vector2 posMin, Vector2 posMax, Color32 color, Vector2 uvMin,
-            Vector2 uvMax)
-        {
-            int startIndex = vertexHelper.currentVertCount;
-
-            // 添加四个顶点
-            vertexHelper.AddVert(new Vector3(posMin.x, posMin.y, 0), color, new Vector2(uvMin.x, uvMin.y));
-            vertexHelper.AddVert(new Vector3(posMin.x, posMax.y, 0), color, new Vector2(uvMin.x, uvMax.y));
-            vertexHelper.AddVert(new Vector3(posMax.x, posMax.y, 0), color, new Vector2(uvMax.x, uvMax.y));
-            vertexHelper.AddVert(new Vector3(posMax.x, posMin.y, 0), color, new Vector2(uvMax.x, uvMin.y));
-
-            // 构建两个三角形组成四边形
-            vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
-            vertexHelper.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
-        }
-
-        /// <summary>
         /// 计算适配当前矩形的九宫格边框
         /// 防止边框超出矩形范围，保证边框比例正确
         /// </summary>
@@ -274,5 +280,36 @@ namespace GameLib
 
             return border;
         }
+        #endregion
+
+        #region 静态工具方法
+        //=========================================================================
+        // 静态工具方法
+        //=========================================================================
+        /// <summary>
+        /// 向顶点辅助类中添加一个四边形（UI基础绘制单元）
+        /// </summary>
+        /// <param name="vertexHelper">顶点操作对象</param>
+        /// <param name="posMin">四边形左下角坐标</param>
+        /// <param name="posMax">四边形右上角坐标</param>
+        /// <param name="color">顶点颜色</param>
+        /// <param name="uvMin">UV左下角坐标</param>
+        /// <param name="uvMax">UV右上角坐标</param>
+        static void AddQuad(VertexHelper vertexHelper, Vector2 posMin, Vector2 posMax, Color32 color, Vector2 uvMin,
+            Vector2 uvMax)
+        {
+            int startIndex = vertexHelper.currentVertCount;
+
+            // 添加四个顶点
+            vertexHelper.AddVert(new Vector3(posMin.x, posMin.y, 0), color, new Vector2(uvMin.x, uvMin.y));
+            vertexHelper.AddVert(new Vector3(posMin.x, posMax.y, 0), color, new Vector2(uvMin.x, uvMax.y));
+            vertexHelper.AddVert(new Vector3(posMax.x, posMax.y, 0), color, new Vector2(uvMax.x, uvMax.y));
+            vertexHelper.AddVert(new Vector3(posMax.x, posMin.y, 0), color, new Vector2(uvMax.x, uvMin.y));
+
+            // 构建两个三角形组成四边形
+            vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
+            vertexHelper.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
+        }
+        #endregion
     }
 }

@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIGDPRBehaviour.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   GDPR欧盟隐私政策授权弹窗UI组件
+ *            显示隐私授权界面、协议确认、授权状态存储管理
+ ***************************************************************/
+
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class UIGDPRBehaviour : MonoBehaviour
     {
+        #region 序列化字段 & 公共变量
+        //=========================================================================
+        // 序列化字段 & 公共变量
+        //=========================================================================
         /// <summary>
         /// 顶部遮罩层（防止点击穿透）
         /// </summary>
@@ -19,23 +34,36 @@ namespace Honor.Runtime
         /// 是否为游戏中重复进入（区分首次启动 / 中途打开）
         /// </summary>
         [HideInInspector] public bool InGame;
+        #endregion
 
+        #region 私有字段 & 公共属性
+        //=========================================================================
+        // 私有字段 & 公共属性
+        //=========================================================================
         /// <summary>
         /// 完成按钮点击回调（外部注册，关闭后执行）
         /// </summary>
         private Action m_OnOverButtonClickedCallback;
-
-        public Action OnOverButtonClickedCallback
-        {
-            set => m_OnOverButtonClickedCallback = value;
-            get => m_OnOverButtonClickedCallback;
-        }
 
         /// <summary>
         /// 持久化数据组件（存储 GDPR 授权状态）
         /// </summary>
         private PersistComponent m_PersistComponent;
 
+        /// <summary>
+        /// 完成按钮点击回调（外部注册，关闭后执行）
+        /// </summary>
+        public Action OnOverButtonClickedCallback
+        {
+            set => m_OnOverButtonClickedCallback = value;
+            get => m_OnOverButtonClickedCallback;
+        }
+        #endregion
+
+        #region 生命周期
+        //=========================================================================
+        // MonoBehaviour 生命周期
+        //=========================================================================
         private void Awake()
         {
             // 获取全局持久化数据组件
@@ -61,5 +89,6 @@ namespace Honor.Runtime
         private void OnDestroy()
         {
         }
+        #endregion
     }
 }

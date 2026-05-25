@@ -7,7 +7,7 @@
 -- @brief     挑战关卡管理单例
 -- @desc      负责挑战关卡判断、当前关卡记录、异常退出清理、胜利发放额外奖励等逻辑
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
--- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @规范       Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, PlayerDataManager, ItemManager, UIManager, EventManager, GameTimeUtil
 --=====================================================================================================
 

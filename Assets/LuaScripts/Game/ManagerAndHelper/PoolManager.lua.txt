@@ -78,7 +78,7 @@ function PoolManager:Prewarm(resName, count)
     end
 
     -- 创建新池并预热
-    local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, function() end)
+    local newPool = self:CreatePool(resName, resDefItem, CreateNewPoolRoot().transform, function() end)
     if newPool then
         newPool:Prewarm(count)
     end
@@ -123,7 +123,7 @@ function PoolManager:GetWithHandle(resName, newParent, resetHandler)
         return nil
     end
 
-    local newPool = self:CreatePool(resName, resDefItem, GetNewPoolRoot().transform, resetHandler)
+    local newPool = self:CreatePool(resName, resDefItem, CreateNewPoolRoot().transform, resetHandler)
     if newPool then
         return newPool:Get(newParent)
     end
@@ -193,7 +193,7 @@ function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
 
     -- 创建Pool实例
     local ok, pool = xpcall(function()
-        return require("Pool"):Create(name, resDefItem, preParent, resetHandler)
+        return require("HonorPool"):Create(name, resDefItem, preParent, resetHandler)
     end, function(err)
         PrintError("【对象池】创建池失败: " .. tostring(err))
     end)

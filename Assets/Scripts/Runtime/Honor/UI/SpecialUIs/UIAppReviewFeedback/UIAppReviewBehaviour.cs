@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIAppReviewBehaviour.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   APP应用内评分界面UI行为脚本
+ *            五星评分、提交评分、星级跳转商店/反馈，兼容UGUI/TMP
+ ***************************************************************/
+
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,6 +23,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class UIAppReviewBehaviour : MonoBehaviour
     {
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 标题文本（UGUI Text）
         /// </summary>
@@ -71,18 +86,36 @@ namespace Honor.Runtime
         /// 提交按钮文字（TextMeshProUGUI）
         /// </summary>
         [SerializeField] private TextMeshProUGUI m_SubmitButtonTextTMP;
+        #endregion
 
+        #region 私有字段
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
         /// <summary>
         /// 描述内容（备用扩展字段）
         /// </summary>
         private string m_DescContent;
+        #endregion
 
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        /// <summary>
+        /// 描述内容（备用扩展字段）
+        /// </summary>
         public string DescContent
         {
             set => m_DescContent = value;
             get => m_DescContent;
         }
+        #endregion
 
+        #region 生命周期
+        //=========================================================================
+        // MonoBehaviour 生命周期
+        //=========================================================================
         private void Awake()
         {
         }
@@ -123,7 +156,12 @@ namespace Honor.Runtime
             // 埋点：关闭评分界面
             /*Root.SDK.TGAHelper.Track("Honor_rating_close");*/
         }
+        #endregion
 
+        #region UI按钮点击事件
+        //=========================================================================
+        // UI按钮点击事件
+        //=========================================================================
         /// <summary>
         /// 星星按钮点击（点亮星级）
         /// </summary>
@@ -177,10 +215,16 @@ namespace Honor.Runtime
         {
             GameMainRoot.UI.CloseUIByGO(gameObject);
         }
+        #endregion
 
+        #region 私有工具方法
+        //=========================================================================
+        // 私有工具方法
+        //=========================================================================
         /// <summary>
         /// 计算当前点亮的星星数量
         /// </summary>
+        /// <returns>星星数量</returns>
         private int ComputeStarNum()
         {
             int starNum = 0;
@@ -194,5 +238,6 @@ namespace Honor.Runtime
 
             return starNum;
         }
+        #endregion
     }
 }

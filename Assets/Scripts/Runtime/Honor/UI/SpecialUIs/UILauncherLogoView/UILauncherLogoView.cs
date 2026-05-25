@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UILauncherLogoView.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   启动器Logo视图抽象基类
+ *            提供Logo界面的基础组件、生命周期、遮罩和事件触发封装
+ ***************************************************************/
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +20,10 @@ namespace Honor.Runtime
     /// </summary>
     public abstract class UILauncherLogoView : MonoBehaviour
     {
+        #region 序列化字段
+        //=========================================================================
+        // 序列化字段
+        //=========================================================================
         /// <summary>
         /// 背景图（用于淡入淡出动画）
         /// </summary>
@@ -29,16 +44,31 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField] protected bool m_BlockRaycastOnEntering = false;
 
+        /// <summary>
+        /// 退出动画期间是否阻塞射线（点击）
+        /// </summary>
+        [SerializeField] protected bool m_BlockRaycastOnExiting = true;
+
+        /// <summary>
+        /// 进入动画时长
+        /// </summary>
+        [SerializeField] protected float m_EnterDuration;
+
+        /// <summary>
+        /// 退出动画时长
+        /// </summary>
+        [SerializeField] protected float m_ExitDuration;
+        #endregion
+
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         public bool BlockRaycastOnEntering
         {
             set => m_BlockRaycastOnEntering = value;
             get => m_BlockRaycastOnEntering;
         }
-
-        /// <summary>
-        /// 退出动画期间是否阻塞射线（点击）
-        /// </summary>
-        [SerializeField] protected bool m_BlockRaycastOnExiting = true;
 
         public bool BlockRaycastOnExiting
         {
@@ -46,28 +76,23 @@ namespace Honor.Runtime
             get => m_BlockRaycastOnExiting;
         }
 
-        /// <summary>
-        /// 进入动画时长
-        /// </summary>
-        [SerializeField] protected float m_EnterDuration;
-
         public float EnterDuration
         {
             set => m_EnterDuration = value;
             get => m_EnterDuration;
         }
 
-        /// <summary>
-        /// 退出动画时长
-        /// </summary>
-        [SerializeField] protected float m_ExitDuration;
-
         public float ExitDuration
         {
             set => m_ExitDuration = value;
             get => m_ExitDuration;
         }
+        #endregion
 
+        #region 生命周期方法
+        //=========================================================================
+        // 生命周期方法
+        //=========================================================================
         /// <summary>
         /// 进入切换（显示界面 + 开启遮罩）
         /// </summary>
@@ -107,5 +132,6 @@ namespace Honor.Runtime
             m_TopMaskLayer.raycastTarget = false;
             GameMainRoot.Event.FireNow(this, GameEventCmd.ProcedureTransitionExitOver);
         }
+        #endregion
     }
 }

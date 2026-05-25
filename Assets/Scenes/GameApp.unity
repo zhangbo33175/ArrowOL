@@ -1282,13 +1282,13 @@ MonoBehaviour:
   m_FloatWordsUIAssetName: 
   m_FloatWordsDuration: 0
   m_ButtonInteractDuration: 0.15
+  m_CheckOrientationState: 1
+  m_CheckTextLocalizings: 0
   m_ScreenUICameras:
   - {fileID: 1164564392}
   m_SceneUICameras: []
   m_ScreenUICanvas: {fileID: 243836987}
   m_SceneUICanvas: {fileID: 1787250803}
-  m_CheckOrientationState: 1
-  m_CheckTextLocalizings: 0
 --- !u!1 &1533501504
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,32 +4,32 @@
 -- filename:  GameCoreManager.lua
 -- author:    云毅
 -- created:   2026
--- @brief     【游戏核心管理器】关卡内全局总控
+-- @brief    【游戏核心管理器】关卡内全局总控
 -- @desc      负责：游戏状态、胜负判定、结束流程、体力/复活/道具、目标进度、游戏结束消息队列
 -- @core      所有关卡内核心规则统一调度、状态安全、流程可控
 -- @struct    子模块解耦：数据 / 结束流程 / 技能 / 道具 / 特效
--- @规范      Unity Lua 商业项目标准 / 注释完整 / 健壮性 / 性能优化
+-- @规范       Unity Lua 商业项目标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, EventManager, ItemManager, ProcedureManager, CoroutineHelper, GlobalDefine
 --=====================================================================================================
 
 ---@class GameCoreManager @ 关卡核心管理器：游戏状态、胜负、体力、道具、目标、结束流程总控
----@field _GameCoreManagerWaiter         GameCoreManagerWaiter     指令调度器
----@field _GameCoreManagerData          GameCoreManagerData      核心数据模块
----@field _GameCoreManagerLevelFinish   GameCoreManagerLevelFinish 关卡结束流程
----@field _GameCoreManagerSkill         GameCoreManagerSkill     技能管理
----@field _GameCoreManagerUseProp       GameCoreManagerUseProp   道具使用
----@field _GameCoreManagerUseItem       GameCoreManagerUseItem   道具使用（旧）
----@field _GameCoreManagerEffect        GameCoreManagerEffect    特效管理
----@field _CurLevelData                 Tables.LevelData_Item    当前关卡配置
----@field _IsPlaying                    boolean                  是否游戏进行中
----@field _IsGameOver                   boolean                  是否游戏结束
----@field _IsExitGame                   boolean                  是否退出游戏
----@field _IsSuccessFinishGame          boolean                  是否成功通关
----@field _eGameOverType                EGameOverType            游戏结束类型
----@field _HandleGameOverMsgQueue       HonorQueue               游戏结束消息队列
----@field _HandleGameOverMsgQueueCoroutine  table                结束队列协程
----@field _ExitSureTip                  table                    退出二次提示配置
----@field _ExitSureTipAgain             table                    退出多次提示配置
+---@field _GameCoreManagerWaiter            GameCoreManagerWaiter       指令调度器
+---@field _GameCoreManagerData              GameCoreManagerData         核心数据模块
+---@field _GameCoreManagerLevelFinish       GameCoreManagerLevelFinish  关卡结束流程
+---@field _GameCoreManagerSkill             GameCoreManagerSkill        技能管理
+---@field _GameCoreManagerUseProp           GameCoreManagerUseProp      道具使用
+---@field _GameCoreManagerUseItem           GameCoreManagerUseItem      道具使用（旧）
+---@field _GameCoreManagerEffect            GameCoreManagerEffect       特效管理
+---@field _CurLevelData                     Tables.LevelData_Item       当前关卡配置
+---@field _IsPlaying                        boolean                     是否游戏进行中
+---@field _IsGameOver                       boolean                     是否游戏结束
+---@field _IsExitGame                       boolean                     是否退出游戏
+---@field _IsSuccessFinishGame              boolean                     是否成功通关
+---@field _eGameOverType                    EGameOverType               游戏结束类型
+---@field _HandleGameOverMsgQueue           HonorQueue                  游戏结束消息队列
+---@field _HandleGameOverMsgQueueCoroutine  table                       结束队列协程
+---@field _ExitSureTip                      table                       退出二次提示配置
+---@field _ExitSureTipAgain                 table                       退出多次提示配置
 
 local GameCoreManager = class("GameCoreManager")
 
@@ -165,14 +165,6 @@ function GameCoreManager:GetCurLevelData()
 end
 
 ---=========================================================================
---- 是否无限客人关卡
----@return boolean
----=========================================================================
-function GameCoreManager:IsUnlimitedGuests()
-    return self._CurLevelData and self._CurLevelData.UnlimitedGuests == 1
-end
-
----=========================================================================
 --- 是否最新章节关卡
 ---@return boolean
 ---=========================================================================
@@ -180,7 +172,7 @@ function GameCoreManager:IsLatestChapter()
     if not self._CurLevelData then
         return false
     end
-    return self._CurLevelData.ChapterId == ChapterListMgr:GetLatestChapterId()
+    return self._CurLevelData.ChapterId == ChapterListManager:GetLatestChapterId()
 end
 
 ---=========================================================================
@@ -262,30 +254,6 @@ end
 ---@param bounds LuaBoundsData
 ---=========================================================================
 function GameCoreManager:CheckGoalReach(hasCoins, eGameOverType, bounds)
-end
-
----=========================================================================
---- 等待金币收集动画完成（安全遮罩 + 延时回调）
----@brief 防止玩家在结算过程中操作
----@param finishCallback function 完成回调
----=========================================================================
-function GameCoreManager:WaitCollectCoinsAnim(finishCallback)
-    -- 显示遮罩防止操作
-    GameMainRoot.UI:AddUIMaskLayerRef("WaitCollectCoinsAnim")
-
-    -- 等待动画时间
-    local waitTime = Tables.Constants.GoalsCollectTime.Value[1] + Tables.Constants.GoalsBarFillTime.Value[1]
-    DOTween.Sequence()
-           :AppendInterval(waitTime)
-           :SetUpdate(true) -- 不受游戏暂停影响
-           :AppendCallback(function()
-        -- 移除遮罩
-        GameMainRoot.UI:SubUIMaskLayerRef()
-        -- 安全执行回调
-        if finishCallback then
-            pcall(finishCallback)
-        end
-    end)
 end
 
 ---=========================================================================
@@ -419,7 +387,7 @@ function GameCoreManager:OnGameOver()
     self._GameCoreManagerUseProp:OnGameOver()
 
     -- 停止背景音乐
-    SoundMgr:StopCurBGM()
+    SoundManager:StopCurBGM()
 
     PrintInfo("[GameCoreManager] 游戏结束")
 end
@@ -454,13 +422,7 @@ function GameCoreManager:GiveBackLife(isSuccess)
     if not isSuccess or not self._GameCoreManagerData._LifeCost then
         return
     end
-
-    -- 根据地图类型返还体力
-    if MapManager.CurLoadMapType == MapType.FoodTruck then
-        FoodTruckPlayHelper:AddLife(1)
-    else
-        ItemManager:AddLife()
-    end
+    ItemManager:AddLife()
 end
 
 ---=========================================================================

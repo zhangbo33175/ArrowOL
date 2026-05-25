@@ -4,10 +4,10 @@
 -- filename:  GameManager.lua
 -- author:    云毅
 -- created:   2026
--- @brief     【游戏总管理器】
+-- @brief    【游戏总管理器】
 -- @desc      游戏全局核心控制中心
 -- @focus     游戏暂停/恢复、UI栈管理、全屏UI相机优化、版本号、设备性能、全局状态控制
--- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @规范       Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, EventManager, UIManager, UIStackManager, ProcedureManager, GlobalDefine
 --=====================================================================================================
 
@@ -35,6 +35,10 @@ function GameManager:ctor(args)
     self._openOverCanvasArray = {}                  -- 已打开完成的UI数组
     self._devicePerformanceLevel = nil              -- 设备性能缓存
     self._waitForFrames = GameLib.WaitForFrames(6)  -- 公共等待6帧
+    self.CharacterList={}    --可选选中物的集合
+    self.CharacterChooseList={}    --选中物的集合
+    self.NumberOfPropsUsed=0    --道具剩余次数
+    self.LifeNumber=3    --生命次数
 end
 
 ---=========================================================================
@@ -52,7 +56,7 @@ end
 ---=========================================================================
 function GameManager:Init()
     GameManager.super.Init(self)
-    self:ResetNormalGame()
+    self:RegisterEvents()
 end
 
 ---=========================================================================
@@ -61,7 +65,7 @@ end
 ---=========================================================================
 function GameManager:ClearData()
     GameManager.super.ClearData(self)
-    self:ResetNormalGame()
+    self:UnregisterEvents()
 end
 
 ---=========================================================================
@@ -87,64 +91,68 @@ end
 function GameManager:GetLevelMode()
     return self.CurrentMode
 end
+
+---=========================================================================
+--- 获取当前关卡数据信息
+---@return ELevelMode 关卡模式枚举
+---=========================================================================
+function GameManager:GetMapRootData()
+    local chapterId = ChapterListManager:GetRuntimeChapterId()
+    if chapterId then
+        local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
+        return PlayHelper:LoadLevelData(chapterId, levelId)
+    end
+    return nil
+end
+
+---获取总角色数量
+---@return number 角色总数量
+function GameManager:GetCharacterList()
+    return GetTableCount(self.CharacterList)
+end
+
+---获取已选中角色数量
+---@return number 选中角色数量
+function GameManager:GetCharacterChooseList()
+    return GetTableCount(self.CharacterChooseList)
+end
+
+---获取已使用道具数量
+---@return number 已使用道具数
+function GameManager:GetNumberOfPropsUsed()
+    return self.NumberOfPropsUsed
+end
+
+---获取剩余生命值
+---@return number 生命值数量
+function GameManager:GetLifeNumber()
+    return self.LifeNumber
+end
+
+--- 注册全局事件监听
+function GameManager:RegisterEvents()
+    HonorEventHelper:AddListener(EventCmd.OnClickCharacter, handler(self, self.OnClickCharacter))
+end
+
+--- 取消全局事件监听
+function GameManager:UnregisterEvents()
+    HonorEventHelper:RemoveListener(EventCmd.OnClickCharacter, handler(self, self.OnClickCharacter))
+end
+---@type fun(character):void
+---@param character CharacterBase @ 被点击的角色
+function GameManager:OnClickCharacter(character)
+
+    if  ContainsKey(self.CharacterChooseList,character.ID)==false then
+        self.CharacterChooseList[character.ID]=character
+    else
+        
+    end
+end
 --endregion
 
 --=========================================================================
 --region 游戏暂停/恢复（引用计数，支持多层嵌套暂停）
 --=========================================================================
-
----=========================================================================
---- 暂停游戏（引用计数 +1）
----@brief 支持弹窗、多界面嵌套暂停，安全可靠
----=========================================================================
-function GameManager:PauseGame()
-    self._pauseGameRef = self._pauseGameRef + 1
-
-    if self._pauseGameRef >= 1 then
-        GameMainRoot.Launcher:PauseGame()
-        GameCoreManager:OnPauseGame()
-        SoundManager:PauseAllSound()
-        PrintInfo("[GameManager] 游戏暂停，计数：{0}", self._pauseGameRef)
-    end
-end
-
----=========================================================================
---- 延迟恢复游戏（等待6帧，避免UI闪屏）
----@brief 优化体验：等待UI动画完成再恢复游戏
----=========================================================================
-function GameManager:ResumeGame()
-    HonorCoroutineHelper:StartAlone(function()
-        HonorCoroutineHelper:WaitForFrame(self._waitForFrames)
-        self:ResumeGameImmediately()
-    end)
-end
-
----=========================================================================
---- 立即恢复游戏（引用计数 -1）
----@brief 计数归0时才真正恢复，防止嵌套恢复异常
----=========================================================================
-function GameManager:ResumeGameImmediately()
-    if self._pauseGameRef <= 0 then
-        return
-    end
-
-    self._pauseGameRef = self._pauseGameRef - 1
-    if self._pauseGameRef == 0 then
-        GameMainRoot.Launcher:ResumeGame()
-        GameCoreManager:OnResumeGame()
-        SoundManager:ResumeAllSound()
-    end
-
-    PrintInfo("[GameManager] 游戏恢复，计数：{0}", self._pauseGameRef)
-end
-
----=========================================================================
---- 重置游戏正常状态（清空暂停计数、恢复正常速度）
----=========================================================================
-function GameManager:ResetNormalGame()
-    self._pauseGameRef = 0
-    GameMainRoot.Launcher:ResetNormalGameSpeed()
-end
 
 ---=========================================================================
 --- 游戏当前是否处于暂停状态
@@ -191,7 +199,6 @@ end
 function GameManager:CloseAllUI(rightNow)
     GameMainRoot.UI:CloseAllUIs(Honor.UIType.Screen, rightNow)
     GameMainRoot.UI:CloseAllUIs(Honor.UIType.Scene, rightNow)
-    self:ResetNormalGame()
 end
 
 --endregion

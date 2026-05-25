@@ -186,7 +186,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.PlaySoundInfo gen_to_be_invoked = (Honor.Runtime.PlaySoundInfo)translator.FastGetCSObj(L, 1);
-                translator.PushAny(L, gen_to_be_invoked.PlaySoundInfoShell);
+                translator.Push(L, gen_to_be_invoked.PlaySoundInfoShell);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

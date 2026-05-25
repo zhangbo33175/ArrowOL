@@ -7,6 +7,9 @@
 -- notices:   该文件自动生成，请不要手动修改！
 --=====================================================================================================
 
+---@field GameObject_Character LOAD_RES_DEF_ITEM @文件 Character
+LoadRes["GameObject_Character"] = { Name = "GameObject_Character", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "Character" }
+
 ---@field GameObject_GameMainMap LOAD_RES_DEF_ITEM @文件 GameMainMap
 LoadRes["GameObject_GameMainMap"] = { Name = "GameObject_GameMainMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "GameMainMap" }
 
@@ -190,15 +193,6 @@ LoadRes["Sprite_拼图4"] = { Name = "Sprite_拼图4", TypeName = "Sprite", ABPa
 ---@field Sprite_拼图底 LOAD_RES_DEF_ITEM @文件 拼图底
 LoadRes["Sprite_拼图底"] = { Name = "Sprite_拼图底", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/拼图底", AssetName = "拼图底" }
 
----@field Sprite_签到 LOAD_RES_DEF_ITEM @文件 签到
-LoadRes["Sprite_签到"] = { Name = "Sprite_签到", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/签到", AssetName = "签到" }
-
----@field Sprite_头像 LOAD_RES_DEF_ITEM @文件 头像
-LoadRes["Sprite_头像"] = { Name = "Sprite_头像", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/头像", AssetName = "头像" }
-
 ---@field Sprite_主界面 LOAD_RES_DEF_ITEM @文件 主界面
 LoadRes["Sprite_主界面"] = { Name = "Sprite_主界面", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/主界面", AssetName = "主界面" }
-
----@field Sprite_转盘 LOAD_RES_DEF_ITEM @文件 转盘
-LoadRes["Sprite_转盘"] = { Name = "Sprite_转盘", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/转盘", AssetName = "转盘" }
 

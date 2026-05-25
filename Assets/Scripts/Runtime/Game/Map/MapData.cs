@@ -1,8 +1,22 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapData.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图系统核心数据类
+ *            管理地图配置、相机参数、视图边界、图标数据等核心逻辑
+ ***************************************************************/
+
 using UnityEngine;
 using System.Collections.Generic;
 using GameLib;
 using UnityEngine.Serialization;
 
+//=========================================================================
+// 地图枚举定义
+//=========================================================================
 /// <summary>
 /// 地图图标显示效果类型
 /// </summary>
@@ -19,6 +33,62 @@ public enum RMapIconType
     Dissipate = 1
 }
 
+/// <summary>
+/// 关卡游玩时HUD界面对齐方式
+/// </summary>
+public enum RMapPlayHudPosType
+{
+    /// <summary>
+    /// 左对齐
+    /// </summary>
+    Left = 0,
+
+    /// <summary>
+    /// 居中对齐
+    /// </summary>
+    Center = 1
+}
+
+/// <summary>
+/// 地图功能类型
+/// </summary>
+public enum RMapType
+{
+    /// <summary>
+    /// 常规主线地图
+    /// </summary>
+    Normal = 0,
+
+    /// <summary>
+    /// 每日挑战地图
+    /// </summary>
+    DailyLevel = 1
+}
+
+/// <summary>
+/// 地图默认相机初始位置类型
+/// </summary>
+public enum RMapCamPosType
+{
+    /// <summary>
+    /// 相机默认靠左
+    /// </summary>
+    Left = 0,
+
+    /// <summary>
+    /// 相机默认靠右
+    /// </summary>
+    Right = 1,
+
+    /// <summary>
+    /// 相机居中对齐
+    /// </summary>
+    Center = 2
+}
+
+//=========================================================================
+// 地图数据实体类
+//=========================================================================
 /// <summary>
 /// 地图单个图标/节点数据实体
 /// </summary>
@@ -124,22 +194,6 @@ public class RMapChapterTypeData
 }
 
 /// <summary>
-/// 关卡游玩时HUD界面对齐方式
-/// </summary>
-public enum RMapPlayHudPosType
-{
-    /// <summary>
-    /// 左对齐
-    /// </summary>
-    Left = 0,
-
-    /// <summary>
-    /// 居中对齐
-    /// </summary>
-    Center = 1
-}
-
-/// <summary>
 /// 地图相机参数数据
 /// 负责相机尺寸、位置计算与多状态适配
 /// </summary>
@@ -161,6 +215,7 @@ public class MapCamData
     /// </summary>
     public float posY;
 
+    #region 相机位置计算方法
     /// <summary>
     /// 标准化调整相机Y轴位置
     /// </summary>
@@ -227,51 +282,19 @@ public class MapCamData
     {
         posY = distance * 0.01f - (normalCamData.size - size) + normalCamData.posY;
     }
+    #endregion
 }
 
-/// <summary>
-/// 地图功能类型
-/// </summary>
-public enum RMapType
-{
-    /// <summary>
-    /// 常规主线地图
-    /// </summary>
-    Normal = 0,
-
-    /// <summary>
-    /// 每日挑战地图
-    /// </summary>
-    DailyLevel = 1
-}
-
-/// <summary>
-/// 地图默认相机初始位置类型
-/// </summary>
-public enum RMapCamPosType
-{
-    /// <summary>
-    /// 相机默认靠左
-    /// </summary>
-    Left = 0,
-
-    /// <summary>
-    /// 相机默认靠右
-    /// </summary>
-    Right = 1,
-
-    /// <summary>
-    /// 相机居中对齐
-    /// </summary>
-    Center = 2
-}
-
+//=========================================================================
+// 地图核心组件
+//=========================================================================
 /// <summary>
 /// 地图核心配置组件
 /// 管理地图参数、相机配置、视图边界计算
 /// </summary>
 public class MapData : MonoBehaviour
 {
+    #region 公开字段
     /// <summary>
     /// 所属章节ID
     /// </summary>
@@ -347,14 +370,18 @@ public class MapData : MonoBehaviour
     /// </summary>
     [Tooltip("滚轮缩放灵敏度")]
     public float m_ScrollSensitivity = 0.5f;
+    #endregion
 
+    #region 生命周期
     /// <summary>
     /// 初始化
     /// </summary>
     private void Awake()
     {
     }
+    #endregion
 
+    #region 公共工具方法
     /// <summary>
     /// 获取大厅标准相机正交Size
     /// </summary>
@@ -390,4 +417,5 @@ public class MapData : MonoBehaviour
         var viewBoundPosX = viewWidth / 200;
         return m_PlayCamData.posX - viewBoundPosX;
     }
+    #endregion
 }

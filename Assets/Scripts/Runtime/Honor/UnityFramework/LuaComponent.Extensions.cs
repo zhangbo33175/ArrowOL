@@ -1,4 +1,15 @@
-﻿using XLua;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaComponent.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Lua 交互组件
+ *            提供 C# 与 Lua 之间的音效事件委托绑定与调用
+ ***************************************************************/
+
+using XLua;
 
 namespace Honor.Runtime
 {
@@ -16,11 +27,20 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class LuaComponent
     {
+        #region 私有字段
+        //=========================================================================
+        // 私有字段
+        //=========================================================================
         /// <summary>
         /// Lua 层音效全局事件委托实例
         /// </summary>
         private LuaSoundCSEventDelegate m_LuaSoundCSEventDelegate;
+        #endregion
 
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
         /// <summary>
         /// 对外只读访问：Lua 音效事件委托
         /// </summary>
@@ -28,7 +48,12 @@ namespace Honor.Runtime
         {
             get { return m_LuaSoundCSEventDelegate; }
         }
+        #endregion
 
+        #region 公共方法
+        //=========================================================================
+        // 公共方法
+        //=========================================================================
         /// <summary>
         /// 初始化游戏 Lua 绑定（获取全局委托、检查有效性）
         /// </summary>
@@ -44,5 +69,6 @@ namespace Honor.Runtime
                 return;
             }
         }
+        #endregion
     }
 }

@@ -44,7 +44,7 @@ end
 ---=========================================================================
 function CharacterGenerationManager:SpawnIdle(characterId, newParent)
     local data = CharacterDataManager.Instance:GetDataById(characterId)
-    return self:SpawnByData(data, newParent, true)
+    return self:CharacterGenerationByData(data, newParent, true)
 end
 
 ---=========================================================================
@@ -68,9 +68,9 @@ end
 ---@param newParent UnityEngine.Transform @父节点
 ---@return CharacterBase @角色实例
 ---=========================================================================
-function CharacterGenerationManager:Spawn(characterId, newParent)
-    local data = CharacterDataManager.Instance:GetDataById(characterId)
-    return self:SpawnByData(data, newParent)
+function CharacterGenerationManager:CharacterGeneration(characterId, newParent)
+    local data = CharacterGenerationDataManager:GetDataById(characterId)
+    return self:CharacterGenerationByData(data, newParent)
 end
 
 ---=========================================================================
@@ -81,20 +81,20 @@ end
 ---@param isIdle boolean @是否为闲置角色
 ---@return CharacterBase @角色实例
 ---=========================================================================
-function CharacterGenerationManager:SpawnByData(characterData, newParent, isIdle)
+function CharacterGenerationManager:CharacterGenerationByData(characterData, newParent, isIdle)
     if characterData then
         if characterData.ResName == nil or characterData.ResName == '' then
             PrintError("角色id:{0},没有配置资源名字", characterData.ID)
             return nil
         end
-        local go = PoolMgr:Get(characterData.ResName, newParent)
+        local go = PoolManager:Get(characterData.ResName, newParent)
         ---@type Solar.Runtime.LuaBehaviour
         local luaBehaviour = go:GetComponent("LuaBehaviour")
         ---@type CharacterBase
         local characterBase = luaBehaviour.luaClass
         characterBase:Clear()
         characterBase._CharData = characterData
-
+        characterBase._GameObject = go
         if not isIdle then
             self._characterBaseTable:Add(characterBase)
         end
@@ -107,11 +107,11 @@ end
 ---@type fun(characterBase:CharacterBase):void
 ---@param characterBase CharacterBase @角色实例
 ---=========================================================================
-function CharacterGenerationManager:Despawn(characterBase)
+function CharacterGenerationManager:DesCharacterGeneration(characterBase)
     if characterBase ~= nil then
         self._characterBaseTable:Remove(characterBase)
         PrintInfo("Despawn -> characterBase:{0} 剩余:{1}", characterBase.cs.gameObject.name, self._characterBaseTable:Count())
-        PoolMgr:Put(characterBase.cs.gameObject)
+        PoolManager:Put(characterBase.cs.gameObject)
         characterBase:Clear()
     end
 end
@@ -120,11 +120,11 @@ end
 --- 销毁所有角色(放回对象池)
 ---@type fun():void
 ---=========================================================================
-function CharacterGenerationManager:DespawnAll()
+function CharacterGenerationManager:DesCharacterGenerationAll()
     for i = 1, self._characterBaseTable:Count() do
         ---@type CharacterBase
         local characterBase = self._characterBaseTable.items[i]
-        PoolMgr:Put(characterBase.cs.gameObject)
+        PoolManager:Put(characterBase.cs.gameObject)
         characterBase:Clear()
     end
     self._characterBaseTable:Clear()
@@ -139,7 +139,7 @@ end
 ---@return List<CharacterBase> @角色实例列表
 ---=========================================================================
 function CharacterGenerationManager:GetCharactersByType(characterType)
-    local list = List:Create()
+    local list = HonorList:Create()
     for i = 1, self._characterBaseTable:Count() do
         ---@type CharacterBase
         local characterBase = self._characterBaseTable.items[i]

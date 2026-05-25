@@ -9,11 +9,11 @@
 ---@class LOAD_RES_DEF_ITEM @资源条目定义
 ---@field Name string @资源名称
 ---@field TypeName string @类型名称
----@field ABPath string @ab路径
----@field AssetName string @Asset名称
+---@field ABPath string @AB包路径
+---@field AssetName string @资源名称
 
 ---@class LoadRES @资源全局定义
----@type table<string, LOAD_RES_DEF_ITEM> @数据格式
+---@type table<string, LOAD_RES_DEF_ITEM>
 
 LoadRes = {}
 require('LoadResDefs_1')

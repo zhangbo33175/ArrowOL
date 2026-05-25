@@ -1,3 +1,14 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UILauncherLoadingView.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   启动器加载界面（热更新 + 预加载）
+ *            热更下载进度、预加载进度、按钮控制、多语言、事件监听
+ ***************************************************************/
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +21,10 @@ namespace Honor.Runtime
     /// </summary>
     public sealed class UILauncherLoadingView : MonoBehaviour
     {
+        #region 枚举定义
+        //=========================================================================
+        // 枚举定义
+        //=========================================================================
         /// <summary>
         /// 加载模式
         /// </summary>
@@ -30,7 +45,12 @@ namespace Honor.Runtime
             /// </summary>
             Preload,
         }
+        #endregion
 
+        #region 序列化UI引用字段
+        //=========================================================================
+        // 序列化UI引用字段
+        //=========================================================================
         /// <summary>
         /// 开始游戏按钮
         /// </summary>
@@ -120,7 +140,12 @@ namespace Honor.Runtime
         /// 描述文本（TMP）
         /// </summary>
         [SerializeField] private TextMeshProUGUI m_DescTextTMP;
+        #endregion
 
+        #region 私有字段 & 公共属性
+        //=========================================================================
+        // 私有字段 & 公共属性
+        //=========================================================================
         /// <summary>
         /// 当前加载模式
         /// </summary>
@@ -156,11 +181,19 @@ namespace Honor.Runtime
         /// </summary>
         private string m_DescContent;
 
+        /// <summary>
+        /// 描述内容
+        /// </summary>
         public string DescContent
         {
             set => m_DescContent = value;
         }
+        #endregion
 
+        #region 生命周期
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
         private void OnEnable()
         {
             // 注册事件：加载进度
@@ -204,7 +237,12 @@ namespace Honor.Runtime
                 m_CloseButtonTextTMP.text =
                     IsWebGL() ? "Close" : GameMainRoot.Localization.GetDefaultData("Hotfix_CloseButton_Text");
         }
+        #endregion
 
+        #region 公共控制方法
+        //=========================================================================
+        // 公共控制方法
+        //=========================================================================
         /// <summary>
         /// 设置加载模式（热更/预加载）
         /// </summary>
@@ -317,6 +355,19 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 设置界面显隐
+        /// </summary>
+        public void SetVisible(bool visible)
+        {
+            gameObject.SetActive(visible);
+        }
+        #endregion
+
+        #region UI按钮点击事件
+        //=========================================================================
+        // UI按钮点击事件
+        //=========================================================================
+        /// <summary>
         /// 开始按钮点击
         /// </summary>
         public void OnStartButtonClicked()
@@ -336,7 +387,12 @@ namespace Honor.Runtime
         public void OnCloseButtonClicked()
         {
         }
+        #endregion
 
+        #region 私有刷新/设置方法
+        //=========================================================================
+        // 私有刷新/设置方法
+        //=========================================================================
         /// <summary>
         /// 设置进度条与百分比
         /// </summary>
@@ -405,13 +461,18 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 设置界面显隐
+        /// 是否WebGL平台（用于文本差异化）
         /// </summary>
-        public void SetVisible(bool visible)
+        private bool IsWebGL()
         {
-            gameObject.SetActive(visible);
+            return false;
         }
+        #endregion
 
+        #region 事件回调
+        //=========================================================================
+        // 事件回调
+        //=========================================================================
         /// <summary>
         /// 事件：加载进度回调
         /// </summary>
@@ -465,13 +526,6 @@ namespace Honor.Runtime
             if (userData != this) return;
             string fileName = e.GetString("fileName");
         }
-
-        /// <summary>
-        /// 是否WebGL平台（用于文本差异化）
-        /// </summary>
-        private bool IsWebGL()
-        {
-            return false;
-        }
+        #endregion
     }
 }

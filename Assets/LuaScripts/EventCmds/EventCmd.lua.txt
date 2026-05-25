@@ -60,10 +60,6 @@ EventCmd = {
     ----------------------------------------------------------------------------------------------------
     -- 地图 / 区域
     ----------------------------------------------------------------------------------------------------
-    ---@type string 区域离线金币CD结束
-    TimerAreaOfflineCoinCDOver           = "TimerAreaOfflineCoinCDOver",
-    ---@type string 区域离线金币结算结束
-    AreaOfflineCoinCDOver                = "AreaOfflineCoinCDOver",
     ---@type string 运行时地图区域变化
     OnRuntimeAreaChanged                 = "OnRuntimeAreaChanged",
 
@@ -140,4 +136,10 @@ EventCmd = {
     ----------------------------------------------------------------------------------------------------
     ---@type string 切换背景音乐（关联：SoundManager）
     OnPlayBGMKeyChanged                  = "OnPlayBGMKeyChanged",
+
+
+    OnComboCountChange = "OnComboCountChange",
+
+    ---角色点击消息
+    OnClickCharacter = 'OnClickCharacter', --在主界面角色被点击到
 }

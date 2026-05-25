@@ -66,7 +66,7 @@ end
 ---@type fun():UnityEngine.GameObject
 ---@return UnityEngine.GameObject 对象池根节点
 function GetPoolRoot()
-    return UnityEngine.GameObject.Find("PoolRoot")
+    return Unity.GameObject.Find("PoolRoot")
 end
 
 --- 创建一个新的对象池子节点
@@ -75,13 +75,13 @@ end
 function CreateNewPoolRoot()
     local poolRootGo = GetPoolRoot()
     if IsNull(poolRootGo) then
-        poolRootGo = UnityEngine.GameObject("PoolRoot")
+        poolRootGo = Unity.GameObject("PoolRoot")
     end
 
-    local newRoot = UnityEngine.GameObject("PoolNew")
+    local newRoot = Unity.GameObject("PoolNew")
     newRoot.transform:SetParent(poolRootGo.transform)
-    newRoot.transform.localScale = Vector3.one
-    newRoot.transform.localPosition = Vector3.zero
+    newRoot.transform.localScale = Unity.Vector3.one
+    newRoot.transform.localPosition = Unity.Vector3.zero
     return newRoot
 end
 --endregion
@@ -1131,3 +1131,57 @@ function TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
     return lua
 end
 --endregion
+--===================== 字符串转Vector3 =====================--
+---将字符串格式的坐标转换为Unity Vector3
+---支持格式: (1,2,3) 、1,2,3、(-1.5, 2.0, 3.7)
+---@param str string 坐标字符串
+---@return UnityEngine.Vector3 转换后的三维坐标
+function StringToVector3(str)
+    if not str or str == "" then
+        return CS.UnityEngine.Vector3.zero
+    end
+
+    -- 去除括号
+    str = string.gsub(str, "[()]", "")
+
+    -- 正则匹配 x,y,z
+    local x, y, z = string.match(str, "([%d%.%-]+),%s*([%d%.%-]+),%s*([%d%.%-]+)")
+
+    -- 转换为数字，空值则为0
+    x = tonumber(x) or 0
+    y = tonumber(y) or 0
+    z = tonumber(z) or 0
+
+    -- 返回Unity Vector3
+    return CS.UnityEngine.Vector3(x, y, z)
+end
+
+--===================== 通用表长度计算 =====================--
+---安全获取表长度（支持数组、哈希表、空表、不连续表）
+---@param _table table 目标表
+---@return number 表中元素数量
+function GetTableCount(_table)
+    local count = 0
+    if _table ~= nil then
+        for k, v in pairs(_table) do
+            count = count + 1
+        end
+    end
+    return count
+end
+
+--=========================================================================
+--- 检查表中是否包含指定Key（通用字典包含判断）
+---@param _table table 目标表
+---@param key any 要判断的Key
+---@return boolean 是否包含
+--=========================================================================
+function ContainsKey(_table, key)
+    if type(_table) ~= "table" or key == nil then
+        return false
+    end
+    if _table[key] ~= nil then
+        return true
+    end
+    return  false
+end

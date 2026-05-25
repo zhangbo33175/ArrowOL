@@ -1,0 +1,77 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableCharacters
+-- descrip:   喵喵列表信息
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@class Tables.Characters_Item @喵喵列表信息条目
+---@field ID number @序号
+---@field Icon string @图片名称
+---@field ResName string @资源ResDef的名字
+
+---@class Tables.Characters @喵喵列表信息
+Tables.Characters = {
+    [1001] = {ID = 1001, Icon = "main_level1_cat1", ResName = "GameObject_Character"},
+    [1002] = {ID = 1002, Icon = "main_level1_cat2", ResName = "GameObject_Character"},
+    [1003] = {ID = 1003, Icon = "main_level1_cat3", ResName = "GameObject_Character"},
+    [1004] = {ID = 1004, Icon = "main_level1_cat4", ResName = "GameObject_Character"},
+    [1005] = {ID = 1005, Icon = "main_level1_cat5", ResName = "GameObject_Character"},
+    [1006] = {ID = 1006, Icon = "main_level1_cat6", ResName = "GameObject_Character"},
+    [1007] = {ID = 1007, Icon = "main_level1_cat7", ResName = "GameObject_Character"},
+    [1008] = {ID = 1008, Icon = "main_level1_cat8", ResName = "GameObject_Character"},
+    [1009] = {ID = 1009, Icon = "main_level1_cat9", ResName = "GameObject_Character"},
+    [1010] = {ID = 1010, Icon = "main_level1_cat10", ResName = "GameObject_Character"},
+    [1011] = {ID = 1011, Icon = "main_level1_cat11", ResName = "GameObject_Character"},
+    [1012] = {ID = 1012, Icon = "main_level1_cat12", ResName = "GameObject_Character"},
+    [1013] = {ID = 1013, Icon = "main_level1_cat13", ResName = "GameObject_Character"},
+    [1014] = {ID = 1014, Icon = "main_level1_cat14", ResName = "GameObject_Character"},
+    [1015] = {ID = 1015, Icon = "main_level1_cat15", ResName = "GameObject_Character"},
+    [1016] = {ID = 1016, Icon = "main_level1_cat16", ResName = "GameObject_Character"},
+    [1017] = {ID = 1017, Icon = "main_level1_cat17", ResName = "GameObject_Character"},
+    [1018] = {ID = 1018, Icon = "main_level1_cat18", ResName = "GameObject_Character"},
+    [1019] = {ID = 1019, Icon = "main_level1_cat19", ResName = "GameObject_Character"},
+    [1020] = {ID = 1020, Icon = "main_level1_cat20", ResName = "GameObject_Character"},
+    [1021] = {ID = 1021, Icon = "main_level1_cat21", ResName = "GameObject_Character"},
+    [1022] = {ID = 1022, Icon = "main_level1_cat22", ResName = "GameObject_Character"},
+    [1023] = {ID = 1023, Icon = "main_level1_cat23", ResName = "GameObject_Character"},
+    [1024] = {ID = 1024, Icon = "main_level1_cat24", ResName = "GameObject_Character"},
+    [1025] = {ID = 1025, Icon = "main_level1_cat25", ResName = "GameObject_Character"},
+    [1026] = {ID = 1026, Icon = "main_level1_cat26", ResName = "GameObject_Character"},
+    [1027] = {ID = 1027, Icon = "main_level1_cat27", ResName = "GameObject_Character"},
+    [1028] = {ID = 1028, Icon = "main_level1_cat28", ResName = "GameObject_Character"},
+    [1029] = {ID = 1029, Icon = "main_level1_cat29", ResName = "GameObject_Character"},
+    [1030] = {ID = 1030, Icon = "main_level1_cat30", ResName = "GameObject_Character"},
+    [1031] = {ID = 1031, Icon = "main_level2_cat1", ResName = "GameObject_Character"},
+    [1032] = {ID = 1032, Icon = "main_level2_cat2", ResName = "GameObject_Character"},
+    [1033] = {ID = 1033, Icon = "main_level2_cat3", ResName = "GameObject_Character"},
+    [1034] = {ID = 1034, Icon = "main_level2_cat4", ResName = "GameObject_Character"},
+    [1035] = {ID = 1035, Icon = "main_level2_cat5", ResName = "GameObject_Character"},
+    [1036] = {ID = 1036, Icon = "main_level2_cat6", ResName = "GameObject_Character"},
+    [1037] = {ID = 1037, Icon = "main_level2_cat7", ResName = "GameObject_Character"},
+    [1038] = {ID = 1038, Icon = "main_level2_cat8", ResName = "GameObject_Character"},
+    [1039] = {ID = 1039, Icon = "main_level2_cat9", ResName = "GameObject_Character"},
+    [1040] = {ID = 1040, Icon = "main_level2_cat10", ResName = "GameObject_Character"},
+    [1041] = {ID = 1041, Icon = "main_level2_cat11", ResName = "GameObject_Character"},
+    [1042] = {ID = 1042, Icon = "main_level2_cat12", ResName = "GameObject_Character"},
+    [1043] = {ID = 1043, Icon = "main_level2_cat13", ResName = "GameObject_Character"},
+    [1044] = {ID = 1044, Icon = "main_level2_cat14", ResName = "GameObject_Character"},
+    [1045] = {ID = 1045, Icon = "main_level2_cat15", ResName = "GameObject_Character"},
+    [1046] = {ID = 1046, Icon = "main_level2_cat16", ResName = "GameObject_Character"},
+    [1047] = {ID = 1047, Icon = "main_level2_cat17", ResName = "GameObject_Character"},
+    [1048] = {ID = 1048, Icon = "main_level2_cat18", ResName = "GameObject_Character"},
+    [1049] = {ID = 1049, Icon = "main_level2_cat19", ResName = "GameObject_Character"},
+    [1050] = {ID = 1050, Icon = "main_level2_cat20", ResName = "GameObject_Character"},
+    [2001] = {ID = 2001, Icon = "main_level1_cat2001", ResName = "GameObject_Character"},
+    [2002] = {ID = 2002, Icon = "main_level1_cat2002", ResName = "GameObject_Character"},
+    [2003] = {ID = 2003, Icon = "main_level1_cat2003", ResName = "GameObject_Character"},
+    [2004] = {ID = 2004, Icon = "main_level1_cat2004", ResName = "GameObject_Character"},
+    [2005] = {ID = 2005, Icon = "main_level1_cat2005", ResName = "GameObject_Character"},
+    [2006] = {ID = 2006, Icon = "main_level1_cat2006", ResName = "GameObject_Character"},
+    [2007] = {ID = 2007, Icon = "main_level1_cat2007", ResName = "GameObject_Character"},
+    [2008] = {ID = 2008, Icon = "main_level1_cat2008", ResName = "GameObject_Character"},
+    [2009] = {ID = 2009, Icon = "main_level1_cat2009", ResName = "GameObject_Character"},
+    [2010] = {ID = 2010, Icon = "main_level1_cat2010", ResName = "GameObject_Character"},
+}

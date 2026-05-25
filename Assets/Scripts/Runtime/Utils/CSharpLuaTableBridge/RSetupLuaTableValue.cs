@@ -1,4 +1,16 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  RSetupLuaTableValue.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   Lua ↔ C# 交互工具类
+ *            提供坐标转换、时间计算、UI检测、时间戳转换等通用接口
+ *            专供 Lua 脚本调用，实现跨语言功能互通
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,6 +25,10 @@ namespace GameLib
     /// </summary>
     public static class RSetupLuaTableValue
     {
+        #region 坐标转换
+        //=========================================================================
+        // 坐标转换
+        //=========================================================================
         /// <summary>
         /// 屏幕坐标转世界坐标（结果写入LuaTable）
         /// </summary>
@@ -29,7 +45,12 @@ namespace GameLib
             worldPosition.Set("y", result.y);
             worldPosition.Set("z", result.z);
         }
+        #endregion
 
+        #region 时间获取
+        //=========================================================================
+        // 时间获取
+        //=========================================================================
         /// <summary>
         /// 获取帧间隔时间 deltaTime
         /// </summary>
@@ -45,9 +66,12 @@ namespace GameLib
         {
             return Time.realtimeSinceStartup;
         }
+        #endregion
 
-        #region 是否点击到了UI
-
+        #region UI 检测
+        //=========================================================================
+        // UI 检测
+        //=========================================================================
         private static List<RaycastResult> _isPointerOverUIObjectResult;
 
         /// <summary>
@@ -67,11 +91,12 @@ namespace GameLib
                    _isPointerOverUIObjectResult.Exists(ui =>
                        ui.gameObject && ui.gameObject.layer == LayerMask.NameToLayer("UI"));
         }
-
         #endregion
 
-        #region 日期时间结构（供Lua获取时间使用）
-
+        #region 日期时间工具
+        //=========================================================================
+        // 日期时间工具
+        //=========================================================================
         /// <summary>
         /// 年月日时分秒包装类
         /// Lua获取时间的通用数据结构
@@ -242,7 +267,6 @@ namespace GameLib
         {
             return new DateTime(1970, 1, 1).AddSeconds(timeStamp).ToString(format);
         }
-
         #endregion
     }
 }

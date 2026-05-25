@@ -1,4 +1,15 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, GameLib
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapCamHelper.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图相机工具类
+ *            提供相机动画、视野可见性检测、射线层级、渲染层级管理
+ ***************************************************************/
+
+using System;
 using DG.Tweening;
 using Honor.Runtime;
 using UnityEngine;
@@ -12,20 +23,29 @@ namespace GameLib
     /// </summary>
     public static class MapCamHelper
     {
+        #region 静态缓存字段
+        //=========================================================================
+        // 静态缓存字段
+        //=========================================================================
         /// <summary>
         /// 相机视锥体裁剪平面数组
         /// </summary>
-        private static Plane[] planes = new Plane[6];
-
-        /// <summary>
-        /// 地图主相机（场景相机列表第一位）
-        /// </summary>
-        public static Camera MapCamera => GameMainRoot.Scene.SceneCameras[0];
+        private static readonly Plane[] planes = new Plane[6];
 
         /// <summary>
         /// 场景2D物理射线检测器
         /// </summary>
         private static Physics2DRaycaster _sceneRaycaster;
+        #endregion
+
+        #region 公共属性
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        /// <summary>
+        /// 地图主相机（场景相机列表第一位）
+        /// </summary>
+        public static Camera MapCamera => GameMainRoot.Scene.SceneCameras[0];
 
         /// <summary>
         /// 当前相机正交大小
@@ -36,10 +56,13 @@ namespace GameLib
         /// 当前相机本地位置
         /// </summary>
         public static Vector3 CurCamPos => MapCamera.transform.localPosition;
+        #endregion
 
-        #region 相机动画
-
-        /// <summary
+        #region 相机动画控制
+        //=========================================================================
+        // 相机动画控制
+        //=========================================================================
+        /// <summary>
         /// 初始化地图相机参数（位置+大小）
         /// </summary>
         /// <param name="normalCamData">相机配置数据</param>
@@ -81,11 +104,6 @@ namespace GameLib
         /// <summary>
         /// 播放相机位置+大小动画
         /// </summary>
-        /// <param name="posX">目标X坐标</param>
-        /// <param name="posY">目标Y坐标</param>
-        /// <param name="size">目标正交大小</param>
-        /// <param name="animTime">动画时长</param>
-        /// <param name="finishCallback">完成回调</param>
         public static void LookMapPositionAndSize(float posX, float posY, float size, float animTime,
             Action finishCallback)
         {
@@ -109,9 +127,6 @@ namespace GameLib
         /// <summary>
         /// 直接设置相机位置和大小（无动画）
         /// </summary>
-        /// <param name="posX">X坐标</param>
-        /// <param name="posY">Y坐标</param>
-        /// <param name="size">正交大小</param>
         public static void SetupMapPositionAndSize(float posX, float posY, float size)
         {
             MapCamera.transform.localPosition = new Vector3(posX, posY, CurCamPos.z);
@@ -121,10 +136,6 @@ namespace GameLib
         /// <summary>
         /// 仅播放相机位置移动动画
         /// </summary>
-        /// <param name="posX">目标X</param>
-        /// <param name="posY">目标Y</param>
-        /// <param name="animTime">时长</param>
-        /// <param name="finishCallback">回调</param>
         public static void LookMapPosition(float posX, float posY, float animTime, Action finishCallback)
         {
             if (MapCamera == null)
@@ -147,9 +158,6 @@ namespace GameLib
         /// <summary>
         /// 仅播放相机大小缩放动画
         /// </summary>
-        /// <param name="size">目标大小</param>
-        /// <param name="animTime">时长</param>
-        /// <param name="finishCallback">回调</param>
         public static void LookMapSizeAnim(float size, float animTime, Action finishCallback)
         {
             var camPos = CurCamPos;
@@ -167,10 +175,6 @@ namespace GameLib
         /// <summary>
         /// 播放相机Y坐标+大小动画
         /// </summary>
-        /// <param name="posY">目标Y</param>
-        /// <param name="size">目标大小</param>
-        /// <param name="animTime">时长</param>
-        /// <param name="finishCallback">回调</param>
         public static void LookMapSizeAndPosYAnim(float posY, float size, float animTime, Action finishCallback)
         {
             var camPos = CurCamPos;
@@ -188,10 +192,6 @@ namespace GameLib
         /// <summary>
         /// 播放相机X坐标+大小动画
         /// </summary>
-        /// <param name="posX">目标X</param>
-        /// <param name="size">目标大小</param>
-        /// <param name="animTime">时长</param>
-        /// <param name="finishCallback">回调</param>
         public static void LookMapSizeAndPosXAnim(float posX, float size, float animTime, Action finishCallback)
         {
             var camPos = CurCamPos;
@@ -209,25 +209,18 @@ namespace GameLib
         /// <summary>
         /// 判断当前相机数据是否与目标数据完全一致
         /// </summary>
-        /// <param name="newMapCamData">目标相机数据</param>
-        /// <returns>是否相等</returns>
         public static bool IsEqualMapCamData(MapCamData newMapCamData)
         {
             if (newMapCamData == null) return false;
             var mapCamPos = CurCamPos;
             return Mathf.Approximately(mapCamPos.x, newMapCamData.posX) &&
-                   Mathf.Approximately(mapCamPos.y, newMapCamData.posY) &&          
+                   Mathf.Approximately(mapCamPos.y, newMapCamData.posY) &&
                    Mathf.Approximately(CurCamSize, newMapCamData.size);
         }
 
         /// <summary>
         /// 构建相机位移动画序列（内部使用）
         /// </summary>
-        /// <param name="posX">目标X</param>
-        /// <param name="posY">目标Y</param>
-        /// <param name="size">目标大小</param>
-        /// <param name="animTime">时长</param>
-        /// <returns>动画序列</returns>
         private static Sequence LookMapAnim(float posX, float posY, float size, float animTime)
         {
             var mapCamPos = CurCamPos;
@@ -250,16 +243,15 @@ namespace GameLib
                 return null;
             }
         }
-
         #endregion
 
         #region 可见性判断
-
+        //=========================================================================
+        // 可见性判断
+        //=========================================================================
         /// <summary>
         /// 判断Bounds是否在相机视锥体内
         /// </summary>
-        /// <param name="bounds">包围盒</param>
-        /// <returns>是否可见</returns>
         public static bool IsInCam(Bounds bounds)
         {
             GeometryUtility.CalculateFrustumPlanes(MapCamera, planes);
@@ -269,8 +261,6 @@ namespace GameLib
         /// <summary>
         /// 判断世界坐标点是否在相机可视范围内
         /// </summary>
-        /// <param name="pos">世界坐标</param>
-        /// <returns>是否可见</returns>
         public static bool IsVisableInCamera(Vector3 pos)
         {
             Vector3 viewPos = MapCamera.WorldToViewportPoint(pos);
@@ -281,8 +271,6 @@ namespace GameLib
         /// <summary>
         /// 判断包围盒是否有任意顶点在相机可视范围内
         /// </summary>
-        /// <param name="bounds">包围盒</param>
-        /// <returns>是否可见</returns>
         public static bool IsBoundsVisableInCamera(Bounds bounds)
         {
             if (bounds != null)
@@ -305,15 +293,15 @@ namespace GameLib
 
             return false;
         }
-
         #endregion
 
         #region 相机射线层级
-
+        //=========================================================================
+        // 相机射线层级
+        //=========================================================================
         /// <summary>
         /// 获取场景射线检测器（自动缓存）
         /// </summary>
-        /// <returns>Physics2DRaycaster</returns>
         private static Physics2DRaycaster SceneRaycaster()
         {
             if (_sceneRaycaster == null)
@@ -327,7 +315,6 @@ namespace GameLib
         /// <summary>
         /// 开启射线可检测的层
         /// </summary>
-        /// <param name="layerNumber">层编号</param>
         public static void OpenSceneRaycasterLayer(int layerNumber)
         {
             if (SceneRaycaster() != null)
@@ -339,22 +326,22 @@ namespace GameLib
         /// <summary>
         /// 关闭射线可检测的层
         /// </summary>
-        /// <param name="layerNumber">层编号</param>
         public static void CloseSceneRaycasterLayer(int layerNumber)
         {
             if (SceneRaycaster() != null)
             {
-                SceneRaycaster().eventMask &= ~ (1 << layerNumber);
+                SceneRaycaster().eventMask &= ~(1 << layerNumber);
             }
         }
-
         #endregion
 
+        #region 相机渲染与尺寸
+        //=========================================================================
+        // 相机渲染与尺寸
+        //=========================================================================
         /// <summary>
         /// 根据相机大小计算当前可见场景宽度
         /// </summary>
-        /// <param name="size">相机正交大小</param>
-        /// <returns>可见宽度（世界单位）</returns>
         public static float GetSceneWidthByCamSize(float size)
         {
             var viewSize = Util.GameViewSize();
@@ -365,7 +352,6 @@ namespace GameLib
         /// <summary>
         /// 添加相机渲染层
         /// </summary>
-        /// <param name="layerNumber">层编号</param>
         public static void SetCameraRenderLayer(int layerNumber)
         {
             MapCamera.cullingMask |= 1 << layerNumber;
@@ -374,10 +360,10 @@ namespace GameLib
         /// <summary>
         /// 移除相机渲染层
         /// </summary>
-        /// <param name="layerNumber">层编号</param>
         public static void CloseCameraRenderLayer(int layerNumber)
         {
-            MapCamera.cullingMask &= ~ (1 << layerNumber);
+            MapCamera.cullingMask &= ~(1 << layerNumber);
         }
+        #endregion
     }
 }
