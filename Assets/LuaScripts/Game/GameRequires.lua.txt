@@ -170,6 +170,10 @@ CharacterGenerationDataManager = require("CharacterGenerationDataManager"):Creat
 ---@type CharacterGenerationManager 角色生成管理器
 CharacterGenerationManager = require("CharacterGenerationManager"):Create()
 
+---@type PlayGameplayCycle 玩法周期
+PlayGameplayCycle = require("PlayGameplayCycle"):Create()
+
+
 --=========================================================================
 -- 11. 已注释 / 备用模块
 --=========================================================================
@@ -187,8 +191,7 @@ CharacterGenerationManager = require("CharacterGenerationManager"):Create()
 -- 推送通知
 -- RNotificationHelper = require('RNotificationHelper'):Create()
 
--- 玩法周期
--- PlayHudCycle = require("PlayHudCycle"):Create()
+
 -- 指令提示管理器
 -- CommandTipMgr = require("CommandTipMgr"):Create()
 

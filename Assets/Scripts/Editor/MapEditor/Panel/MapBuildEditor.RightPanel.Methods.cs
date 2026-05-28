@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapBuildEditor.Interaction.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 鼠标交互/物体选中拖拽/自动对齐核心模块
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -12,8 +22,10 @@ namespace Editor.MapEditor
     /// </summary>
     public sealed partial class MapBuildEditor
     {
-        #region 鼠标交互处理（核心：统一坐标转换 + 防抖精准判断）
-
+        //=========================================================================
+        // 鼠标交互处理（核心：统一坐标转换 + 防抖精准判断）
+        //=========================================================================
+        #region Mouse Interaction Handling
         /// <summary>
         /// 处理预览面板的所有鼠标输入：点击、拖拽、缩放、选中
         /// </summary>
@@ -146,12 +158,12 @@ namespace Editor.MapEditor
                 graphic.color = Color.white;
             }
         }
-
         #endregion
 
-
-        #region 点击检测（获取鼠标下物体）
-
+        //=========================================================================
+        // 点击检测（获取鼠标下物体）
+        //=========================================================================
+        #region Click Detection
         /// <summary>
         /// 获取鼠标点击的物体（通过距离判断，UI坐标完全统一）
         /// </summary>
@@ -193,12 +205,12 @@ namespace Editor.MapEditor
             );
             return m_RenderCam.ViewportPointToRay(viewportPos);
         }
-
         #endregion
 
-
-        #region 预览相机更新（平移 + 缩放）
-
+        //=========================================================================
+        // 预览相机更新（平移 + 缩放）
+        //=========================================================================
+        #region Preview Camera Update
         /// <summary>
         /// 更新相机位置与正交大小，实现地图平移、缩放、边界限制
         /// </summary>
@@ -220,12 +232,12 @@ namespace Editor.MapEditor
             m_RenderCam.transform.position = m_BaseCameraPos + new Vector3(m_DragOffset.x, m_DragOffset.y, 0);
             m_RenderCam.orthographicSize = currentOrthoSize;
         }
-
         #endregion
 
-
-        #region 统一坐标转换（核心：保证所有操作坐标不错位）
-
+        //=========================================================================
+        // 统一坐标转换（核心：保证所有操作坐标不错位）
+        //=========================================================================
+        #region Coordinate Conversion
         /// <summary>
         /// 编辑器 GUI 鼠标坐标 → 地图 UI 本地坐标
         /// 所有点击、拖拽、添加物体统一使用此方法
@@ -255,12 +267,12 @@ namespace Editor.MapEditor
             // 世界坐标 → 地图根节点本地坐标
             return m_MapRoot != null ? m_MapRoot.InverseTransformPoint(worldPos) : worldPos;
         }
-
         #endregion
 
-
-        #region 物体选中 / 取消选中
-
+        //=========================================================================
+        // 物体选中 / 取消选中
+        //=========================================================================
+        #region Object Selection
         /// <summary>
         /// 选中物体：变色高亮 + 同步坐标显示
         /// </summary>
@@ -296,12 +308,12 @@ namespace Editor.MapEditor
             m_SelectedObject = null;
             m_IsDraggingObject = false;
         }
-
         #endregion
 
-
-        #region 清空所有添加的物体
-
+        //=========================================================================
+        // 清空所有添加的物体
+        //=========================================================================
+        #region Clear Objects
         /// <summary>
         /// 清空地图上所有添加的物体，并同步清除数据记录
         /// </summary>
@@ -322,12 +334,12 @@ namespace Editor.MapEditor
             m_AddObjects.Clear();
             Repaint();
         }
-
         #endregion
 
-
-        #region 删除选中物体功能
-
+        //=========================================================================
+        // 删除选中物体功能
+        //=========================================================================
+        #region Delete Selected Object
         /// <summary>
         /// 删除当前选中物体（带确认弹窗 + 数据同步清理）
         /// </summary>
@@ -353,12 +365,12 @@ namespace Editor.MapEditor
             Debug.Log($"<color=red>已删除选中物体</color>");
             Repaint();
         }
-
         #endregion
 
-
-        #region 自动匹配背景图片 + 自动对齐重合（坐标100%精准版）
-
+        //=========================================================================
+        // 自动匹配背景图片 + 自动对齐重合（坐标100%精准版）
+        //=========================================================================
+        #region Auto Align Objects
         private bool _isAligning; // 是否正在自动对齐
         private int _currentObjIndex; // 当前处理的物体索引
         private int _x, _y; // 背景图遍历坐标
@@ -634,7 +646,6 @@ namespace Editor.MapEditor
 
             return null;
         }
-
         #endregion
     }
 }

@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapBuildEditor.Core.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 界面/预览/加载/保存核心模块
+ ***************************************************************/
+
+using System;
 using System.IO;
 using Editor.Utility;
 using UnityEditor;
@@ -15,6 +25,10 @@ namespace Editor.MapEditor
     /// </summary>
     public sealed partial class MapBuildEditor
     {
+        //=========================================================================
+        // 核心成员变量
+        //=========================================================================
+        #region Core Fields
         /// <summary>
         /// 预览渲染相机
         /// </summary>
@@ -79,13 +93,20 @@ namespace Editor.MapEditor
         /// 上一帧鼠标位置（计算平移增量）
         /// </summary>
         private Vector2 m_LastMousePos;
+        #endregion
 
+        //=========================================================================
+        // 右侧面板UI绘制
+        //=========================================================================
+        #region Right Panel UI
         /// <summary>
         /// 绘制右侧面板：预览窗口 + 状态栏 + 功能按钮
         /// </summary>
         private void SetRightPanel()
         {
-            // ===================== 右侧总容器 =====================
+            //=========================================================================
+            // 右侧总容器
+            //=========================================================================
             GUILayout.BeginVertical(GUILayout.Width(1133));
 
             // 工具栏标签
@@ -97,7 +118,9 @@ namespace Editor.MapEditor
             GUI.backgroundColor = Color.white;
             GUILayout.EndHorizontal();
 
-            // ===================== 地图预览区域 =====================
+            //=========================================================================
+            // 地图预览区域
+            //=========================================================================
             SetPreviewRect();
 
             // 黑色分割线
@@ -105,7 +128,9 @@ namespace Editor.MapEditor
             GUILayout.Box("", GUILayout.Height(5), GUILayout.ExpandWidth(true));
             GUILayout.Space(2);
 
-            // ===================== 状态栏（缩放、鼠标坐标显示） =====================
+            //=========================================================================
+            // 状态栏（缩放、鼠标坐标显示）
+            //=========================================================================
             GUILayout.BeginHorizontal(GUILayout.Height(39));
             GUILayout.Space(15);
             GUILayout.Label("属性", EditorStyles.boldLabel, GUILayout.Width(40));
@@ -128,7 +153,9 @@ namespace Editor.MapEditor
             GUILayout.Box("", GUILayout.Height(2), GUILayout.ExpandWidth(true));
             GUILayout.Space(2);
 
-            // ===================== 底部功能按钮栏 =====================
+            //=========================================================================
+            // 底部功能按钮栏
+            //=========================================================================
             GUILayout.BeginHorizontal();
 
             // 左侧按钮组
@@ -195,12 +222,21 @@ namespace Editor.MapEditor
             GUILayout.FlexibleSpace();
 
             GUILayout.EndHorizontal();
-            // ===================== 状态栏结束 =====================
+            //=========================================================================
+            // 状态栏结束
+            //=========================================================================
 
             GUILayout.EndVertical();
-            // ===================== 右侧容器结束 =====================
+            //=========================================================================
+            // 右侧容器结束
+            //=========================================================================
         }
+        #endregion
 
+        //=========================================================================
+        // 数据保存与加载
+        //=========================================================================
+        #region Data Save & Load
         /// <summary>
         /// 保存地图数据（JSON + Lua双格式）
         /// </summary>
@@ -288,7 +324,12 @@ namespace Editor.MapEditor
             // 加载预制体并刷新预览
             LoadMapPrefab(prefab, SetPreviewRect);
         }
+        #endregion
 
+        //=========================================================================
+        // 预览渲染与相机控制
+        //=========================================================================
+        #region Preview Render & Camera
         /// <summary>
         /// 绘制地图预览区域 + 处理鼠标交互（拖动、缩放、点击）
         /// </summary>
@@ -387,9 +428,12 @@ namespace Editor.MapEditor
             GUI.DrawTexture(m_PreviewRect, m_RenderTexture, ScaleMode.StretchToFill, false);
             Repaint();
         }
+        #endregion
 
-        #region 替换地图背景
-
+        //=========================================================================
+        // 背景图片替换
+        //=========================================================================
+        #region Background Replace
         /// <summary>
         /// 获取地图背景替换指定地图的背景图
         /// </summary>
@@ -459,11 +503,12 @@ namespace Editor.MapEditor
                 Debug.LogError($"❌ 替换背景图片异常：{e}");
             }
         }
-
         #endregion
 
-        #region 地图预制体加载
-
+        //=========================================================================
+        // 地图预制体加载
+        //=========================================================================
+        #region Map Prefab Load
         /// <summary>
         /// 加载地图Prefab并初始化预览环境
         /// </summary>
@@ -560,11 +605,12 @@ namespace Editor.MapEditor
             rect.position = Vector3.zero;
             rect.rotation = Quaternion.identity;
         }
-
         #endregion
 
-        #region 添加预制体到地图
-
+        //=========================================================================
+        // 物体添加与配置
+        //=========================================================================
+        #region Object Add & Configure
         /// <summary>
         /// 添加预制体到地图预览界面
         /// </summary>
@@ -648,7 +694,6 @@ namespace Editor.MapEditor
                 graphic.material = Canvas.GetDefaultCanvasMaterial();
             }
         }
-
         #endregion
     }
 }

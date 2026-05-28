@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapBuildEditor.Global.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 全局变量、配置、工具类、路径管理
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,6 +29,10 @@ namespace Editor.MapEditor
     /// </summary>
     public sealed partial class MapBuildEditor
     {
+        //=========================================================================
+        // 全局成员变量
+        //=========================================================================
+        #region Global Variables
         /// <summary>
         /// 地图文件列表滚动位置
         /// </summary>
@@ -143,9 +157,12 @@ namespace Editor.MapEditor
         /// 点击防抖间隔
         /// </summary>
         private static float _clickDetectionThreshold = 0.1f;
+        #endregion
 
-        #region 表格配置数据
-
+        //=========================================================================
+        // 表格配置数据 & 路径
+        //=========================================================================
+        #region Table Config Data & Paths
         /// <summary>
         /// 主关卡配置表
         /// </summary>
@@ -160,6 +177,11 @@ namespace Editor.MapEditor
         /// 每日/小节关卡配置表
         /// </summary>
         private static List<LevelDataEditor> m_TableDailyLevelsList;
+
+        /// <summary>
+        /// 章节信息
+        /// </summary>
+        private static List<TableChapterEditor> m_TableChapterList;
 
         /// <summary>
         /// 当前选中的主关卡数据
@@ -185,19 +207,25 @@ namespace Editor.MapEditor
         /// 主关卡Excel路径
         /// </summary>
         private static string m_TableMainLevelsPath => Path.Combine(Application.dataPath,
-            "../Docs/Designs/Excels/Tables/AlTables/Maps/TableMainLevels.xlsm");
+            "../Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableMainLevels.xlsm");
 
         /// <summary>
         /// 物品Excel路径
         /// </summary>
-        private static string m_TableItemsPath => Path.Combine(Application.dataPath,
-            "../Docs/Designs/Excels/Tables/AlTables/Maps/TableItems.xlsm");
+        private static string m_TableCharactersPath => Path.Combine(Application.dataPath,
+            "../Docs/Designs/Excels/Tables/AlTables/Character/TableCharacters.xlsm");
 
         /// <summary>
         /// 每日关卡Excel路径
         /// </summary>
         private static string m_TableDailyLevelsPath => Path.Combine(Application.dataPath,
-            "../Docs/Designs/Excels/Tables/AlTables/Maps/TableDailyLevels.xlsm");
+            "../Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableDailyLevels.xlsm");
+
+        /// <summary>
+        /// 章节Excel路径
+        /// </summary>
+        private static string m_TableChaptersPath => Path.Combine(Application.dataPath,
+            "../Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableChapters.xlsm");
 
         /// <summary>
         /// JSON保存根路径
@@ -209,9 +237,12 @@ namespace Editor.MapEditor
         /// </summary>
         private static string levelLuaSavePath =>
             Path.Combine(GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath(), "Levels");
-
         #endregion
 
+        //=========================================================================
+        // 数据结构定义
+        //=========================================================================
+        #region Data Structures
         /// <summary>
         /// 地图JSON文件信息结构
         /// </summary>
@@ -230,9 +261,14 @@ namespace Editor.MapEditor
         public enum Type
         {
             LoadBackground, // 加载背景图
-            LoadingIcon // 加载图标
+            LoadingIcon     // 加载图标
         }
+        #endregion
 
+        //=========================================================================
+        // 路径工具类
+        //=========================================================================
+        #region Path Utility
         /// <summary>
         /// 路径工具类（统一管理资源路径）
         /// </summary>
@@ -278,7 +314,12 @@ namespace Editor.MapEditor
                 return AorTxt.Format("{0}/{1}.png", "Assets/Res/Textures/Map/Icon", _iconName);
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 通用工具类
+        //=========================================================================
+        #region Common Utility
         /// <summary>
         /// 通用工具类：加载、替换图片、解析数据、获取预制体
         /// </summary>
@@ -331,7 +372,6 @@ namespace Editor.MapEditor
             }
 
             #region 图片替换工具
-
             /// <summary>
             /// 替换预制体上指定节点的图片
             /// </summary>
@@ -421,7 +461,6 @@ namespace Editor.MapEditor
                 Debug.LogError($"图片不存在: {imagePath}");
                 return null;
             }
-
             #endregion
 
             /// <summary>
@@ -471,7 +510,12 @@ namespace Editor.MapEditor
                 return clean.Split(',').Where(s => !string.IsNullOrWhiteSpace(s)).Select(int.Parse).ToArray();
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 预览相机工具
+        //=========================================================================
+        #region Preview Camera Utility
         /// <summary>
         /// 预览相机初始化工具
         /// </summary>
@@ -500,7 +544,12 @@ namespace Editor.MapEditor
                 _lastClickTime = 0;
             }
         }
+        #endregion
 
+        //=========================================================================
+        // Excel配置加载
+        //=========================================================================
+        #region Excel Config Load
         /// <summary>
         /// Excel配置表加载工具
         /// </summary>
@@ -511,18 +560,30 @@ namespace Editor.MapEditor
             /// </summary>
             public static void LoadConfigs()
             {
-                m_TableMainLevelsList = TableExportEditorUtility.GetExcelData(m_TableMainLevelsPath)
-                    .ToList<TableMainLevelsEditor>();
-                m_TableItemsList = TableExportEditorUtility.GetExcelData(m_TableItemsPath).ToList<TableItemEditor>();
-                m_TableDailyLevelsList = TableExportEditorUtility.GetExcelData(m_TableDailyLevelsPath)
-                    .ToList<LevelDataEditor>();
+                try
+                {
+                    m_TableChapterList = TableExportEditorUtility.GetExcelData(m_TableChaptersPath).ToList<TableChapterEditor>();
+                    m_TableMainLevelsList = TableExportEditorUtility.GetExcelData(m_TableMainLevelsPath).ToList<TableMainLevelsEditor>();
+                    m_TableItemsList = TableExportEditorUtility.GetExcelData(m_TableCharactersPath).ToList<TableItemEditor>();
+                    m_TableDailyLevelsList = TableExportEditorUtility.GetExcelData(m_TableDailyLevelsPath).ToList<LevelDataEditor>();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
 
             public static void SetMapList()
             {
             }
         }
+        #endregion
 
+        //=========================================================================
+        // 数据保存（JSON + Lua）
+        //=========================================================================
+        #region Data Save (JSON + Lua)
         /// <summary>
         /// 保存配置（JSON + Lua）
         /// </summary>
@@ -541,10 +602,10 @@ namespace Editor.MapEditor
                     return Path.Combine(LevelSaveRootPath, _mTableMainLevelsEditor.ID);
                 }
             }
+
             /// <summary>
             /// 获取目前选择的关卡类型数据
             /// </summary>
-            /// <returns></returns>
             private static TableMainLevelsEditor GetCurLevelTypeEditorData()
             {
                 return GetLevelTypeEditorDataByIndex(Convert.ToInt32(_mTableMainLevelsEditor.ID));
@@ -553,8 +614,6 @@ namespace Editor.MapEditor
             /// <summary>
             /// 通过索引获取关卡类型数据
             /// </summary>
-            /// <param name="index"></param>
-            /// <returns></returns>
             private static TableMainLevelsEditor GetLevelTypeEditorDataByIndex(int index)
             {
                 if (index < 0 || index >= m_TableMainLevelsList.Count)
@@ -564,6 +623,7 @@ namespace Editor.MapEditor
 
                 return m_TableMainLevelsList[index];
             }
+
             /// <summary>
             /// 保存Lua表格文件
             /// </summary>
@@ -578,18 +638,59 @@ namespace Editor.MapEditor
                 string indexPath = $"{levelLuaSavePath}/TableLevelData.lua.txt";
                 StringBuilder sb = new StringBuilder();
 
-                sb.AppendLine(
-                    "--=====================================================================================================");
+                sb.AppendLine("--=====================================================================================================");
                 sb.AppendLine("-- Auto-Generated by MapBuildEditor");
                 sb.AppendLine("-- 关卡配置信息表");
-                sb.AppendLine(
-                    "--=====================================================================================================");
+                sb.AppendLine("--=====================================================================================================");
                 sb.AppendLine();
 
-                File.WriteAllText(indexPath, sb.ToString(), new System.Text.UTF8Encoding(false));
+                File.WriteAllText(indexPath, sb.ToString(), new UTF8Encoding(false));
                 MapLevelDataUtil.SaveDataLua(data, luaPath);
                 AssetDatabase.Refresh();
             }
         }
+        #endregion
+
+        //=========================================================================
+        // 类型转换工具
+        //=========================================================================
+        #region Type Conversion Utility
+        public static class SetTypeConversion
+        {
+            /// <summary>
+            /// 安全地把类似 "[1,2,3]" 的字符串转 int[]
+            /// 解析失败的项直接丢弃，不补0；空/无效返回空数组
+            /// </summary>
+            public static int[] OnStringToInt(string s)
+            {
+                // 空值直接返回空数组
+                if (string.IsNullOrWhiteSpace(s))
+                    return Array.Empty<int>();
+
+                // 核心：清理所有不需要的符号 { } " , 空格
+                string clean = s
+                    .Replace("{", "")
+                    .Replace("}", "")
+                    .Replace("\"", "")
+                    .Replace(" ", "")
+                    .Trim();
+
+                // 分割成字符串数组
+                string[] parts = clean.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                // 转 int
+                List<int> result = new List<int>();
+                foreach (string part in parts)
+                {
+                    if (int.TryParse(part, out int num))
+                    {
+                        result.Add(num);
+                    }
+                }
+
+                return result.ToArray();
+            }
+        }
+        #endregion
     }
 }

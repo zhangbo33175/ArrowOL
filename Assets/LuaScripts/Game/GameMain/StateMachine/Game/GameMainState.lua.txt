@@ -53,53 +53,23 @@ function GameMainState:OnStateEnter(finishCallback)
     -- 播放章节主界面背景音乐
     local chapterData = ChapterDataManager:GetChapterDataByChapterType(MapManager.CurLoadChapterId)
     if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
-        SoundManager:PlayBGM(chapterData.MapMusic.outgame)
+        SoundManager:PlayBgm(chapterData.MapMusic.outgame)
     end
 
     -- 相机定位到主界面
-    self:_LocateCamera(finishCallback)
-end
---endregion
-
---region 【相机定位】
----@brief 相机定位总入口
----@type fun(finishCallback:function):void
----@param finishCallback function 回调函数
-function GameMainState:_LocateCamera(finishCallback)
-    self:_LocateNormalShowChapterMap(finishCallback)
-end
-
----@brief 首次进入非第一章地图（备用逻辑）
----@type fun(finishCallback:function):void
----@param finishCallback function 回调函数
-function GameMainState:_LocateFirstShowChapterMap(finishCallback)
-    local mapData = MapManager.CurMapData
-    GameMapMotion:PauseMapMotion()
-end
-
----@brief 正常回到章节地图（主逻辑）
----@type fun(finishCallback:function):void
----@param finishCallback function 回调函数
-function GameMainState:_LocateNormalShowChapterMap(finishCallback)
-    local mapData = MapManager.CurMapData
-
-    -- 如果相机已经在正确位置，直接进入
-    if GameLib.MapCamHelper.IsEqualMapCamData(mapData.m_NormalCamData) then
-        self:DoStateEnter(finishCallback)
-    end
+    self:DoStateEnter(finishCallback)
 end
 --endregion
 
 --region 【主界面初始化】
----@brief 主界面真正初始化逻辑（相机到位后执行）
+---@brief 主界面真正初始化逻辑
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 回调函数
 function GameMainState:DoStateEnter(finishCallback)
     -- 打开主界面HUD
-    OpenUISync(UIs.UIMainPlaying)
+    OpenUISync(UIs.UIMainStateView)
     -- 移除遮罩
     GameMainRoot.UI:SubUIMaskLayerRef()
-
     -- 登录流程
     LoginManager:TryLoginInMainHud()
     -- 本地活动弹窗
@@ -107,8 +77,7 @@ function GameMainState:DoStateEnter(finishCallback)
 
     -- 从关卡胜利回来 → 自动打开升级界面
     local preStateType = GameStateMachine:PreStateType()
-    if preStateType and
-            preStateType == GameStateCmd.PlayingState and
+    if preStateType and preStateType == GameStateCmd.PlayingState and
             GameCoreManager:GetGameOverType() ~= EGameOverType.PlayerGiveUp then
         UpgradeMapMgr:CheckAndAutoOpenUpgradeUI(ChapterListManager:GetRuntimeChapterId())
     end
@@ -117,9 +86,6 @@ function GameMainState:DoStateEnter(finishCallback)
     GameMainUIPushManager:OnEnterMainState()
     -- 关闭自动点击选择
     GameManager:SetupEasyTouchAutoSelect(false)
-    -- 创建地图自治实体（客人、NPC等）
-    MapManager.CurGameMapBase:CreateAutonomousEntitys()
-
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
@@ -136,21 +102,13 @@ function GameMainState:OnStateExit(finishCallback)
     -- 清理特效
     GameEffectManager:ClearData()
     -- 停止BGM
-    SoundManager:StopCurBGM()
+    SoundManager:StopCurrentBgm()
     -- 推送队列离开主界面
     GameMainUIPushManager:OnLeaveMainState()
     -- 关闭主界面HUD
-    CloseUI(UIs.UIMainPlaying)
+    CloseUI(UIs.UIMainStateView)
 
     pcall(finishCallback)
-end
-
----@brief 帧更新
----@type fun():void
-function GameMainState:OnUpdate()
-    GameMainState.super.OnUpdate(self)
-    -- 地图移动更新
-    GameMapMotion:OnUpdate()
 end
 --endregion
 

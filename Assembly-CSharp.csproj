@@ -211,11 +211,11 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Proto_SaveWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_LuaInjectionWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Editor_HierarchyExpandSettingsWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_ControlPlayableAssetWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetBundleObjectWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_AppDownloadWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_ControlPlayableAssetWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\Gesture3D\Gestures3D.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Persists\Managers\FileFragment\WebGL\FileFragmentForWebGLManager.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetBundleObjectWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\AorExtendImage.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_MathfWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Src\CopyByValue.cs" />
@@ -260,10 +260,10 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Persists\Components\PersistComponent.Visitors.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_ParticleControlPlayableWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Procedures\Procedures\StateMachines\ProcedureStateMachine.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\DG_Tweening_Color2Wrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_SoundAgentHelperWrap.cs" />
-    <Compile Include="Assets\GameFramework\Scripts\Runtime\Assets\Definitions\OriginType.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Editor_AssetBundleBrowserWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\DG_Tweening_Color2Wrap.cs" />
+    <Compile Include="Assets\GameFramework\Scripts\Runtime\Assets\Definitions\OriginType.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_SoundAgentHelperWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SkeletonUtilityConstraintWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Launchers\Components\LauncherComponent.Definitions.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UIGDPR\UIGDPRBehaviour.ResetBg.cs" />
@@ -481,12 +481,12 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Sounds\Helpers\SoundAgentHelper.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\Logics\BehaviorTree\LuaBTDecorator.Visitors.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_TablesBridge_TableCustomizeItemWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_FileFragmentItemGroupWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_MeshRendererBuffers_SmartMeshWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_ProcedurePlayingWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UIGDPR\UIGDPRBehaviour.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SkeletonUtilityWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_FileFragmentItemGroupWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Networks\Managers\NetworkManager.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_ProcedurePlayingWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AorTextEffectOutlineWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_UIInfoWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_AB_CachingWrap.cs" />
@@ -714,8 +714,8 @@
     <Compile Include="Assets\Scripts\Runtime\Utils\MapInBounds.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_UILauncherLogoViewWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_CachedPackageInfoWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_AorUIFullScreenImageWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_MD5HandlerWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_AorUIFullScreenImageWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Events_UnityEventWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Src\ObjectPool.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SpineAtlasAssetWrap.cs" />
@@ -889,7 +889,6 @@
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\System\UIBubbleManager.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\ChineseTraditional.txt" />
     <None Include="Library\PackageCache\com.unity.modules.video@1.0.0\package.json" />
-    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UILevelView\UILevelViewViewModel.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\libs\SystemBridges.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.rider@3.0.40\ValidationExceptions.json" />
@@ -906,7 +905,6 @@
     <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\BindValue.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\Russian.txt" />
     <None Include="Library\PackageCache\com.unity.modules.particlesystem@1.0.0\package.json" />
-    <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\ChooseLevelState.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMap\GameMapBase.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Helper\PauseableCoroutineHelper\PauseableCoroutineHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationEnglish\LocalPart_Localizations_English.lua.txt" />
@@ -937,6 +935,7 @@
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Base\GameStateMachine.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.umbra@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\HomeUILayerDataManager\HomeUILayerDataManager.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIMainStateView\UIMainStateViewViewModel.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationFrenchFontTMPChars.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameCoreManager\GameManager\GameManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameCoreManager\MapManager\MapManager.lua.txt" />
@@ -948,7 +947,6 @@
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Helper\UITextHelper\UITextHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\UserDataPB.proto.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\SoundManager\SoundManager.lua.txt" />
-    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UILevelView\UILevelViewView.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.audio@1.0.0\package.json" />
     <None Include="Library\PackageCache\com.unity.modules.physics@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\GamePlayingState.lua.txt" />
@@ -1019,9 +1017,10 @@
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\thirds\SystemSerpent.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationItalianFontTMPChars.txt" />
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\PackageConversionData_Assets.json" />
-    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UILevelView\SectionItem.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIMainStateView\SectionItem.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\Events\TableLocalEvents.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationItalian\LocalizationItalian.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIMainStateView\UIMainStateViewView.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.animation@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Helpers\HonorAccountHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\SaveRootData.lua.txt" />
@@ -1039,7 +1038,7 @@
     <None Include="Assets\LuaScripts\Honor\EventCodes.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultLanguages.json" />
     <None Include="Library\PackageCache\com.unity.modules.unitywebrequest@1.0.0\package.json" />
-    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UILevelView\Manager\LevelManager.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIMainStateView\Manager\LevelManager.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.uielements@1.0.0\package.json" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\English.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\LevelConfigs\TableChapters.lua.txt" />
@@ -1050,6 +1049,7 @@
     <None Include="Library\PackageCache\com.unity.modules.ui@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\HomeUIBubbleLayerDataManager\HomeUIBubbleLayerDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\None\LuaBehaviourSuper.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameCoreManager\PlayGameplayCycle.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.vscode@1.2.5\package.json" />
     <Reference Include="UnityEngine">
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>

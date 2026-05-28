@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaTxtToLuaConverter.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   编辑器工具 - 批量将 .lua 重命名为 .lua.txt
+ ***************************************************************/
+
 using UnityEditor;
 using System.IO;
 using UnityEngine;
@@ -8,6 +18,10 @@ using UnityEngine;
 /// </summary>
 public class LuaTxtToLuaConverter : EditorWindow
 {
+    //=========================================================================
+    // 菜单入口 & 转换逻辑
+    //=========================================================================
+    #region Menu & Convert Logic
     /// <summary>
     /// 编辑器菜单：Tools -> Convert All .lua to .lua.txt
     /// </summary>
@@ -44,4 +58,5 @@ public class LuaTxtToLuaConverter : EditorWindow
         // 弹出完成提示
         EditorUtility.DisplayDialog("完成", "所有 .lua 已转为 .lua.txt！", "OK");
     }
+    #endregion
 }

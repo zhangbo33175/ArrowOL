@@ -1,4 +1,14 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UtilDataSet.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   配置表解析工具 - DataSet 转强类型实体 List<T>
+ ***************************************************************/
+
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -6,8 +16,16 @@ using Honor.Runtime;
 
 namespace Editor.MapEditor
 {
+    /// <summary>
+    /// DataSet 扩展工具类
+    /// 用于 Excel 配置表解析：自动将 DataSet 转为强类型实体列表
+    /// </summary>
     public static class UtilDataSet
     {
+        //=========================================================================
+        // DataSet 转实体列表
+        //=========================================================================
+        #region DataSet To List<T>
         /// <summary>
         /// DataSet 转换为 C# 对象列表
         /// 用途：将配置表DataSet（Excel导出）自动解析为强类型List<T>
@@ -87,5 +105,6 @@ namespace Editor.MapEditor
 
             return list;
         }
+        #endregion
     }
 }

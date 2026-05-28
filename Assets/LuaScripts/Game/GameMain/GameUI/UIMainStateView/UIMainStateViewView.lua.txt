@@ -2,12 +2,12 @@
 -- (c) copyright 2026 - 2030, Honor.Game
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
--- filename:  UILevelViewView.lua
--- author:    云毅
+-- filename:  UIMainStateViewView.lua
+-- author:    zb
 -- descrip:   关卡界面View
 --=====================================================================================================
 
----@class UILevelViewView : ViewSuper
+---@class UIMainStateViewView : ViewSuper
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
 ---@field LevelTMPText                       TMPro.TextMeshProUGUI         √                        当前关卡信息
 ---@field CatButton                          UnityEngine.UI.Image          √                        猫猫头
@@ -23,32 +23,32 @@
 ---@field TurntableButton                    UnityEngine.UI.Button         √         Clicked        转盘
 ---@field CatBedButton                       UnityEngine.UI.Button         √         Clicked        猫窝
 ---@field InvitationButton                   UnityEngine.UI.Button         √         Clicked        通关奖励
-local UILevelViewView = class('UILevelViewView', import('ViewSuper'))
+local UIMainStateViewView = class('UIMainStateViewView', import('ViewSuper'))
 
 ---绑定值Key名称
----@class UILevelViewView.BVKey
-UILevelViewView.BVKey = {}
+---@class UIMainStateViewView.BVKey
+UIMainStateViewView.BVKey = {}
 
 ---构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
-function UILevelViewView:ctor(args)
-    UILevelViewView.super.ctor(self, args)
+function UIMainStateViewView:ctor(args)
+    UIMainStateViewView.super.ctor(self, args)
 end
 
 ---创建函数
----@type fun(args:table):UILevelViewView
+---@type fun(args:table):UIMainStateViewView
 ---@param args table @自定义参数
----@return UILevelViewView @UILevelViewView实例
-function UILevelViewView:Create(args)
-    local obj = UILevelViewView.new(args)
+---@return UIMainStateViewView @UIMainStateViewView实例
+function UIMainStateViewView:Create(args)
+    local obj = UIMainStateViewView.new(args)
     return obj
 end
 
 ---唤醒
 ---@type fun():void
-function UILevelViewView:Awake()
-    UILevelViewView.super.Awake(self)
+function UIMainStateViewView:Awake()
+    UIMainStateViewView.super.Awake(self)
 -- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     AddUIListenerFunction(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
@@ -65,10 +65,10 @@ function UILevelViewView:Awake()
 end
 
 ---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）
----@type fun(viewModel:UILevelViewViewModel):void
----@param viewModel UILevelViewViewModel @ViewModel
-function UILevelViewView:OnInit(viewModel)
-    UILevelViewView.super.OnInit(self, viewModel)
+---@type fun(viewModel:UIMainStateViewViewModel):void
+---@param viewModel UIMainStateViewViewModel @ViewModel
+function UIMainStateViewView:OnInit(viewModel)
+    UIMainStateViewView.super.OnInit(self, viewModel)
 -- 4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     -- 无数据变化监听
     self.LevelTMPText.text=viewModel.GetChapterLevel()
@@ -77,15 +77,15 @@ end
 
 ---开始
 ---@type fun():void
-function UILevelViewView:Start()
-    UILevelViewView.super.Start(self)
+function UIMainStateViewView:Start()
+    UIMainStateViewView.super.Start(self)
 
 end
 
 ---销毁
 ---@type fun():void
-function UILevelViewView:OnDestroy()
-    UILevelViewView.super.OnDestroy(self)
+function UIMainStateViewView:OnDestroy()
+    UIMainStateViewView.super.OnDestroy(self)
 -- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     OnRemoveListener(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
@@ -103,23 +103,23 @@ end
 
 ---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
 ---@type fun():void
-function UILevelViewView:OnAddListeners()
-    UILevelViewView.super.OnAddListeners(self)
+function UIMainStateViewView:OnAddListeners()
+    UIMainStateViewView.super.OnAddListeners(self)
 
 end
 
 ---获取ViewModel
----@type fun():UILevelViewViewModel
----@return UILevelViewViewModel @ViewModel
-function UILevelViewView:GetViewModel()
-    return UILevelViewView.super.GetViewModel(self)
+---@type fun():UIMainStateViewViewModel
+---@return UIMainStateViewViewModel @ViewModel
+function UIMainStateViewView:GetViewModel()
+    return UIMainStateViewView.super.GetViewModel(self)
 end
 
 ---被追加的N层UI子节点销毁回调
 ---@type fun(luaClass: XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable @luaClass
-function UILevelViewView:OnAddedUIDestroyed(luaClass)
-    UILevelViewView.super.OnAddedUIDestroyed(self, luaClass)
+function UIMainStateViewView:OnAddedUIDestroyed(luaClass)
+    UIMainStateViewView.super.OnAddedUIDestroyed(self, luaClass)
 end
 
 -- 5>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -127,63 +127,63 @@ end
 ---设置-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnSettingButtonClicked(args)
+function UIMainStateViewView:OnSettingButtonClicked(args)
 end
 
 ---玩一玩-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnPlayAroundButtonClicked(args)
+function UIMainStateViewView:OnPlayAroundButtonClicked(args)
 end
 
 ---关卡按钮-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnLevelButtonClicked(args)
+function UIMainStateViewView:OnLevelButtonClicked(args)
     LevelManager:SetLevelMode(ELevelMode.NORMAL)
 end
 
 ---每日挑战按钮-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnDailyChallengeButtonClicked(args)
+function UIMainStateViewView:OnDailyChallengeButtonClicked(args)
     LevelManager:SetLevelMode(ELevelMode.DAILY)
 end
 
 ---皮肤按钮-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnSkinButtonClicked(args)
+function UIMainStateViewView:OnSkinButtonClicked(args)
 end
 
 ---排行按钮-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnRankingButtonClicked(args)
+function UIMainStateViewView:OnRankingButtonClicked(args)
 end
 
 ---签到-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnCheckInButtonClicked(args)
+function UIMainStateViewView:OnCheckInButtonClicked(args)
 end
 
 ---转盘-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnTurntableButtonClicked(args)
+function UIMainStateViewView:OnTurntableButtonClicked(args)
 end
 
 ---猫窝-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnCatBedButtonClicked(args)
+function UIMainStateViewView:OnCatBedButtonClicked(args)
 end
 
 ---通关奖励-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
-function UILevelViewView:OnInvitationButtonClicked(args)
+function UIMainStateViewView:OnInvitationButtonClicked(args)
 end
 
 -- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<5
@@ -192,5 +192,5 @@ end
 
 -- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<6
 
-return UILevelViewView
+return UIMainStateViewView
 

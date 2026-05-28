@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapBuildEditor.IconList.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 图标列表管理模块（图标加载、列表绘制、选中交互）
+ ***************************************************************/
+
+using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -7,8 +17,12 @@ using UnityEngine.UIElements;
 
 namespace Editor.MapEditor
 {
+    /// <summary>
+    /// 地图编辑器 partial 类 - 图标列表管理部分
+    /// </summary>
     public sealed partial class MapBuildEditor
     {
+        #region 图标列表私有字段
         /// <summary>
         /// 当前在图标列表中选中的UI元素（VisualElement版本，用于新版UIToolkit）
         /// </summary>
@@ -58,7 +72,9 @@ namespace Editor.MapEditor
         /// 图标列表是否已完成初始化（避免重复加载）
         /// </summary>
         private bool m_IsInitIconList = false;
+        #endregion
 
+        #region 图标列表核心方法
         /// <summary>
         /// 【核心方法】初始化/刷新图标列表
         /// 加载所有图标资源、创建列表项、绑定选中事件、设置列表显示内容
@@ -73,9 +89,9 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 更具地址生成图片信息
+        /// 根据文件夹路径加载并生成图标数据
         /// </summary>
-        /// <param name="folderPath"></param>
+        /// <param name="folderPath">图标资源文件夹路径</param>
         private void GetIconPath(string folderPath)
         {
             try
@@ -132,9 +148,6 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 绘制ICON预览列表
-        /// </summary>
-        /// <summary>
         /// 绘制ICON预览列表（修复重叠，正确自动换行）
         /// </summary>
         private void DrawIconPreviewList()
@@ -181,9 +194,9 @@ namespace Editor.MapEditor
 
         /// <summary>
         /// 绘制单个ICON Item（支持点击选中，适配截图样式）
-        /// <param name="dataEditor">ICON预览数据</param>
-        /// <param name="index">ITEM索引</param>
         /// </summary>
+        /// <param name="dataEditor">图标数据</param>
+        /// <param name="index">列表项索引</param>
         private void CreateIconItem(ItemIconDataEditor dataEditor, int index)
         {
             // 最安全的写法：固定宽度 + 固定高度
@@ -254,9 +267,9 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 更具选择添加预制体
+        /// 根据选中的图标项生成并添加预制体到地图
         /// </summary>
-        /// <param name="dataEditor"></param>
+        /// <param name="dataEditor">选中的图标数据</param>
         private void ChooseIconItem(ItemIconDataEditor dataEditor)
         {
             Debug.Log($"选中Icon图：{dataEditor.m_IconName}");
@@ -274,12 +287,13 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 清空所有Item元素
+        /// 清空所有Item元素与列表数据
         /// </summary>
         private void ClearAllItemElements()
         {
             if (m_IconList == null) return;
             m_IconList.Clear();
         }
+        #endregion
     }
 }

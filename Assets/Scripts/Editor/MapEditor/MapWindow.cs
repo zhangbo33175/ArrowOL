@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapWindow.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 新建地图弹窗（配置、路径、JSON创建）
+ ***************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -12,6 +22,10 @@ namespace Editor.MapEditor
     /// </summary>
     public class MapWindow : EditorWindow
     {
+        //=========================================================================
+        // 窗口参数
+        //=========================================================================
+        #region Window Parameters
         /// <summary>
         /// 地图名称（默认前缀）
         /// </summary>
@@ -35,8 +49,13 @@ namespace Editor.MapEditor
         /// <summary>
         /// 地图创建成功回调（通知主窗口刷新）
         /// </summary>
-        public System.Action OnMapCreated;
+        public Action OnMapCreated;
+        #endregion
 
+        //=========================================================================
+        // 窗口显示
+        //=========================================================================
+        #region Show Window
         /// <summary>
         /// 打开新建地图弹窗（模态窗口，阻塞主界面）
         /// </summary>
@@ -50,7 +69,12 @@ namespace Editor.MapEditor
             window.ShowModal();
             return window;
         }
+        #endregion
 
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        #region Lifecycle
         /// <summary>
         /// 窗口启用时初始化默认路径
         /// </summary>
@@ -59,7 +83,12 @@ namespace Editor.MapEditor
             // 默认使用地图编辑器配置的关卡保存目录
             _mapSavePath = MapBuildEditor.PathUtils.GetLevelDirectoryFullPath();
         }
+        #endregion
 
+        //=========================================================================
+        // GUI 绘制
+        //=========================================================================
+        #region GUI Drawing
         /// <summary>
         /// 绘制窗口UI界面
         /// </summary>
@@ -85,7 +114,6 @@ namespace Editor.MapEditor
                     _mapSavePath = selectPath + "/";
                 }
             }
-
             GUILayout.EndHorizontal();
             GUILayout.Space(3);
 
@@ -101,7 +129,6 @@ namespace Editor.MapEditor
                     _bgImagePath = selectPath;
                 }
             }
-
             GUILayout.EndHorizontal();
             GUILayout.Space(3);
 
@@ -117,7 +144,6 @@ namespace Editor.MapEditor
                     _bgIconPath = folderPath;
                 }
             }
-
             GUILayout.EndHorizontal();
 
             GUILayout.Space(8);
@@ -145,7 +171,12 @@ namespace Editor.MapEditor
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
         }
+        #endregion
 
+        //=========================================================================
+        // 新建地图逻辑
+        //=========================================================================
+        #region Create New Map Logic
         /// <summary>
         /// 执行新建地图逻辑
         /// 1. 检查路径
@@ -212,5 +243,6 @@ namespace Editor.MapEditor
                 EditorUtility.DisplayDialog("错误", $"创建地图失败：{e.Message}", "确定");
             }
         }
+        #endregion
     }
 }

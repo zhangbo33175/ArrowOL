@@ -79,7 +79,7 @@ function GameLoadMapState:LoadMapOver(finishCallback)
         local levelData = PlayHelper:LoadLevelData(chapterId, levelId)
         if PlayHelper:PlayLevel(levelData) then
             -- 进入主状态（战斗）
-            GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+            GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
         else
             -- 失败保护：回到主界面
             GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)

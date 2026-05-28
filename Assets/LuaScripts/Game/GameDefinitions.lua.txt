@@ -208,6 +208,28 @@ EPlayOnceCutsceneType = {
 }
 --endregion
 
+
+---@class EPlayHudCycleAction @游戏内循环周期事件
+---@field InitGame number @初始化游戏关卡
+---@field EnterGame number @进入游戏关卡
+---@field BeginGame number @游戏开始
+---@field PauseGame number @游戏暂停
+---@field ResumeGame number @游戏从暂停状态恢复
+---@field GameOver number @游戏结束
+---@field ExitGame number @离开游戏关卡
+---@field RePlayGame number @重新开始游戏关卡
+EPlayHudCycleAction = {
+    InitGame = 0,
+    EnterGame = 1,
+    BeginGame = 2,
+    PauseGame = 3,
+    ResumeGame = 4,
+    GameOver = 5,
+    ExitGame = 6,
+    RePlayGame = 7
+}
+
+
 --region 地图 & 关卡
 --==================================================
 -- 地图 & 关卡

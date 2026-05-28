@@ -105,35 +105,6 @@ function PlayHelper:LoadLevelData(chapterId, levelId)
     return levelData
 end
 
----@type fun():number
----@brief 查询关卡难度对应的奖励倍率
----@return number 关卡倍率奖励
-function PlayHelper:SearchLevelHardLevelReward(diff)
-    --if Tables.Constants.HardLevelReward and Tables.Constants.HardLevelReward.Value[diff] then
-    --    return Tables.Constants.HardLevelReward.Value[diff]
-    --end
-    return 1
-end
-
----@type fun(levelDifficultyType:ELevelDifficultyType):number
----@brief 根据难度获取奖励倍率
----@param levelDifficultyType ELevelDifficultyType 难度
----@return number 倍率
-function PlayHelper:GetRateByLevelDifficulty(levelDifficultyType)
-    PrintInfo("根据难度获取奖励倍率")
-    --local diffDatas = Tables.Constants.HardLevelEventReward.Value
-    --if levelDifficultyType == ELevelDifficultyType.Normal then
-    --    return diffDatas[1]
-    --elseif levelDifficultyType == ELevelDifficultyType.Hard then
-    --    return diffDatas[2]
-    --elseif levelDifficultyType == ELevelDifficultyType.SuperHard then
-    --    return diffDatas[3]
-    --elseif levelDifficultyType == ELevelDifficultyType.Challenge then
-    --    return diffDatas[4]
-    --else
-    --    return diffDatas[1]
-    --end
-end
 --endregion
 
 --region 【游戏开始/结束/退出逻辑】

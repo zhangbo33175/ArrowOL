@@ -1,89 +1,120 @@
-﻿using System.IO;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapBuildEditor.LeftPanel.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 左侧功能面板（地图管理 + 图标素材管理）
+ ***************************************************************/
+
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 namespace Editor.MapEditor
 {
+    /// <summary>
+    /// 地图编辑器 - 左侧面板UI绘制模块
+    /// </summary>
     public sealed partial class MapBuildEditor
     {
+        #region 左侧面板整体绘制
         /// <summary>
         /// 绘制编辑器【左侧功能面板】整体UI
         /// 包含：地图操作按钮、地图配置列表、物件操作按钮、图标素材列表
         /// </summary>
         private void SetLeftPanel()
         {
-            // ===================== 左侧面板 总布局 =====================
+            //=========================================================================
+            // 左侧面板 总布局
+            //=========================================================================
             GUILayout.BeginVertical(GUILayout.Width(200), GUILayout.Height(860));
 
-            // -------------------- 上方：地图管理区域 --------------------
+            //=========================================================================
+            // 上方：地图管理区域
+            //=========================================================================
             GUI.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1);
-            GUILayout.BeginVertical("Box"); // 面板容器 1
+            GUILayout.BeginVertical("Box");
             GUILayout.Space(5);
 
             // 新建 / 删除 按钮行
-            GUILayout.BeginHorizontal(); // 按钮容器 2
+            GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
+            
             if (GUILayout.Button("新建", GUILayout.Width(80), GUILayout.Height(24)))
             {
-                BuildMap(); // 打开新建地图窗口
+                BuildMap();
             }
-
+            
             if (GUILayout.Button("删除", GUILayout.Width(80), GUILayout.Height(24)))
             {
-                DeleteSelectedObject(); // 删除选中的地图配置
+                DeleteSelectedObject();
             }
 
             GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal(); // 关闭按钮容器 2
+            GUILayout.EndHorizontal();
 
             // 地图配置列表区域
             GUI.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 0.2f);
-            GUILayout.BeginVertical("Box", GUILayout.Height(276)); // 列表容器 3
-            OnSetMapJsonList(); // 绘制地图JSON配置列表
-            GUILayout.EndVertical(); // 关闭列表容器 3
+            GUILayout.BeginVertical("Box", GUILayout.Height(276));
+            OnSetMapJsonList();
+            GUILayout.EndVertical();
 
-            GUILayout.EndVertical(); // 关闭面板容器 1
-            // -------------------- 上方区域结束 --------------------
+            GUILayout.EndVertical();
+            //=========================================================================
+            // 上方区域结束
+            //=========================================================================
 
             // 分割线
             GUILayout.Space(5);
             GUILayout.Box("", GUILayout.Height(3), GUILayout.ExpandWidth(true));
             GUILayout.Space(5);
 
-            // -------------------- 下方：物件/图标管理区域 --------------------
+            //=========================================================================
+            // 下方：物件/图标管理区域
+            //=========================================================================
             GUI.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1);
-            GUILayout.BeginVertical("Box"); // 面板容器 4
+            GUILayout.BeginVertical("Box");
 
             // 物件 / 刷新 按钮行
-            GUILayout.BeginHorizontal(); // 按钮容器 5
+            GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
+            
             if (GUILayout.Button("物件", GUILayout.Width(80), GUILayout.Height(24)))
             {
-                CreateObjectItem(); // 加载/显示可拖拽的物件图标
+                CreateObjectItem();
             }
 
             GUILayout.Space(10);
+            
             if (GUILayout.Button("刷新", GUILayout.Width(80), GUILayout.Height(24)))
             {
-                RefreshMapList(); // 刷新整个地图配置数据
+                RefreshMapList();
             }
 
             GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal(); // 关闭按钮容器 5
+            GUILayout.EndHorizontal();
 
-            // 图标素材列表区域（可点击选中，用于添加到地图）
+            // 图标素材列表区域
             GUI.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1);
-            GUILayout.BeginVertical("Box", GUILayout.Height(710)); // 列表容器 6
-            OnSetIconList(); // 绘制图标素材列表
-            GUILayout.EndVertical(); // 关闭列表容器 6
+            GUILayout.BeginVertical("Box", GUILayout.Height(710));
+            OnSetIconList();
+            GUILayout.EndVertical();
 
-            GUILayout.EndVertical(); // 关闭面板容器 4
-            // -------------------- 下方区域结束 --------------------
+            GUILayout.EndVertical();
+            //=========================================================================
+            // 下方区域结束
+            //=========================================================================
 
-            GUILayout.EndVertical(); // 关闭最外层总布局
-            // ===================== 左侧面板结束 =====================
+            GUILayout.EndVertical();
+            //=========================================================================
+            // 左侧面板结束
+            //=========================================================================
         }
+        #endregion
 
+        #region 地图操作功能
         /// <summary>
         /// 删除【选中的地图配置文件】
         /// 从磁盘删除JSON文件，并自动刷新列表
@@ -117,21 +148,12 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 加载/显示【可拖拽物件图标列表】
-        /// 读取图标路径并构建预览列表
-        /// </summary>
-        private void CreateObjectItem()
-        {
-            Debug.Log("CreateObjectItem");
-            GetIconPath("");
-        }
-
-        /// <summary>
         /// 打开【新建地图】配置窗口
         /// </summary>
         private void BuildMap()
         {
             Debug.Log("BuildMap");
+            
             // 打开新建地图弹窗
             var mapWindow = MapWindow.ShowWindow();
             // 绑定创建成功回调：创建完成后自动刷新地图列表
@@ -145,8 +167,23 @@ namespace Editor.MapEditor
         private void RefreshMapList()
         {
             Debug.Log("刷新地图列表");
-            LoadConfig.LoadConfigs(); // 读取地图配置
-            LoadPrefabAndExtractImages(PathUtils.GetMapGameMapPath()); // 加载预制体并提取图片
+            
+            LoadConfig.LoadConfigs();
+            LoadPrefabAndExtractImages(PathUtils.GetMapGameMapPath());
         }
+        #endregion
+
+        #region 图标素材操作
+        /// <summary>
+        /// 加载/显示【可拖拽物件图标列表】
+        /// 读取图标路径并构建预览列表
+        /// </summary>
+        private void CreateObjectItem()
+        {
+            Debug.Log("CreateObjectItem");
+            
+            GetIconPath("");
+        }
+        #endregion
     }
 }

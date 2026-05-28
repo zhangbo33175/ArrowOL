@@ -1,4 +1,14 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapBuildEditor.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 主窗口入口（布局、GUI、生命周期）
+ ***************************************************************/
+
+using System.Collections.Generic;
 using System.IO;
 using ExcelDataReader.Log;
 using Honor.Editor;
@@ -14,6 +24,10 @@ namespace Editor.MapEditor
     /// </summary>
     public sealed partial class MapBuildEditor : EditorWindow
     {
+        //=========================================================================
+        // 编辑器入口
+        //=========================================================================
+        #region Editor Entry
         /// <summary>
         /// 【编辑器入口】打开地图编辑器窗口
         /// 菜单路径：Tools / 地图编辑器
@@ -30,7 +44,12 @@ namespace Editor.MapEditor
 
             window.Show();
         }
+        #endregion
 
+        //=========================================================================
+        // GUI 绘制与主循环
+        //=========================================================================
+        #region GUI & Main Loop
         /// <summary>
         /// 编辑器GUI主绘制方法（每帧执行）
         /// 初始化样式、监听事件、绘制左右面板
@@ -56,7 +75,9 @@ namespace Editor.MapEditor
             // 初始化预览渲染相机（确保渲染环境正常）
             SetShowCameraView.InitRenderUtility();
 
-            // ====================== 根布局：左右面板横向排列 ======================
+            //=========================================================================
+            // 根布局：左右面板横向排列
+            //=========================================================================
             GUILayout.BeginHorizontal(GUILayout.Width(1336), GUILayout.Height(860));
 
             // 左侧面板：地图列表、物件列表、操作按钮
@@ -66,9 +87,13 @@ namespace Editor.MapEditor
             SetRightPanel();
 
             GUILayout.EndHorizontal();
-            // ====================================================================
         }
+        #endregion
 
+        //=========================================================================
+        // 生命周期与资源释放
+        //=========================================================================
+        #region Lifecycle & Cleanup
         /// <summary>
         /// 窗口关闭/禁用时：释放所有临时资源，防止内存泄漏
         /// 销毁预览实例、相机、渲染纹理
@@ -90,5 +115,6 @@ namespace Editor.MapEditor
             if (m_RenderTexture != null)
                 DestroyImmediate(m_RenderTexture);
         }
+        #endregion
     }
 }

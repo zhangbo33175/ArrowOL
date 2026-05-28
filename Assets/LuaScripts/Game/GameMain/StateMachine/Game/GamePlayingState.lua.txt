@@ -57,16 +57,19 @@ function GamePlayingState:OnStateEnter(finishCallback)
             function()
                 -- 相机动画完成后的回调
                 local closeUICallback = function()
+                    PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
                     -- 触发引导事件
-                    GuideNewContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
+                    --GuideNewContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
                 end
 
                 -- 移除UI遮罩
                 GameMainRoot.UI:SubUIMaskLayerRef()
                 -- 恢复地图交互
                 GameMapMotion:ResumeMapMotion()
+                --- 进入游戏
+                PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
                 -- 打开游戏内核心UI
-                OpenUISync(UIs.UIMainPlaying)
+                OpenUISync(UIs.UIMainPlaying,{ callback = closeUICallback })
             end
     )
 
@@ -86,10 +89,10 @@ function GamePlayingState:OnStateExit(finishCallback)
     GameCoreManager._GameCoreManagerEffect:ClearData()
     -- 清理特效、停止音乐
     GameEffectManager:ClearData()
-    SoundManager:StopCurBGM()
+    SoundManager:StopCurrentBgm()
 
     -- 关闭战斗UI
-    CloseUI(UIs.UIPlayingHud)
+    CloseUI(UIs.UIMainPlaying)
     CloseUI(UIs.UIPlayingHudCollect)
     CloseUI(UIs.UILevelSuccessBg)
 
@@ -102,5 +105,11 @@ function GamePlayingState:OnStateExit(finishCallback)
     end
 end
 --endregion
-
+---@brief 帧更新
+---@type fun():void
+function GamePlayingState:OnUpdate()
+    GamePlayingState.super.OnUpdate(self)
+    -- 地图移动更新
+    GameMapMotion:OnUpdate()
+end
 return GamePlayingState

@@ -431,6 +431,7 @@
 "Assets/Scripts/Editor/LevelData/LevelDataEditor.cs"
 "Assets/Scripts/Editor/LevelData/LevelTypeDataEditor.cs"
 "Assets/Scripts/Editor/LevelData/UnlockLevelDataEditor.cs"
+"Assets/Scripts/Editor/LevelEditor/TableChapterEditor.cs"
 "Assets/Scripts/Editor/LevelEditor/TableItemEditor.cs"
 "Assets/Scripts/Editor/LevelEditor/TableMainLevelsEditor.cs"
 "Assets/Scripts/Editor/LuaTxtToLuaConverter.cs"

@@ -71,14 +71,17 @@ function GameMapMotion:OnUpdate()
     if GameManager:IsGamePaused() or not self.IsMapWork then
         return
     end
+    if self.ScreenCamera.orthographicSize==0 then
+        self.ScreenCamera.orthographicSize = (self.MinOrthoSize + self.MaxOrthoSize) / 2
 
-    -- 限制相机缩放范围
-    self.ScreenCamera.orthographicSize = math.clamp(
-            self.ScreenCamera.orthographicSize,
-            self.MinOrthoSize,
-            self.MaxOrthoSize
-    )
-
+    else
+        -- 限制相机缩放范围
+        self.ScreenCamera.orthographicSize = math.clamp(
+                self.ScreenCamera.orthographicSize,
+                self.MinOrthoSize,
+                self.MaxOrthoSize
+        )  
+    end
     -- 相机 X 轴平滑跟随
     local currCameraX = self.ScreenCamera.transform:GetPositionX()
     if not math.Approximately(currCameraX, self.FollowPosition.x) then
@@ -109,7 +112,7 @@ function GameMapMotion:OnUpdate()
 end
 --endregion
 
---region 【PC鼠标拖动】
+--region 【PC鼠标拖动】 —— 已加入屏幕坐标安全检查，彻底修复报错
 ---=========================================================================
 ---@brief PC 鼠标左键拖动控制逻辑
 ---@type fun():void
@@ -123,9 +126,15 @@ function GameMapMotion:UpdateMouseDrag()
             return
         end
 
+        local mousePos = CS.UnityEngine.Input.mousePosition
+        if mousePos.x < 0 or mousePos.y < 0 or mousePos.x > CS.UnityEngine.Screen.width or mousePos.y > CS.UnityEngine.Screen.height then
+            self.IsMouseDown = false
+            return
+        end
+
         self.IsMouseDown = true
-        self.MouseLastScreenPos.x = CS.UnityEngine.Input.mousePosition.x
-        self.MouseLastScreenPos.y = CS.UnityEngine.Input.mousePosition.y
+        self.MouseLastScreenPos.x = mousePos.x
+        self.MouseLastScreenPos.y = mousePos.y
 
         self.InertialSlidingFactor = 0
         self.SwipeSmoothStepNum = 0
@@ -135,8 +144,15 @@ function GameMapMotion:UpdateMouseDrag()
 
     -- 鼠标拖动中
     if CS.UnityEngine.Input.GetMouseButton(0) and self.IsMouseDown and not self.PointStartFromUI then
-        local currMouseX = CS.UnityEngine.Input.mousePosition.x
-        local currMouseY = CS.UnityEngine.Input.mousePosition.y
+        local currMousePos = CS.UnityEngine.Input.mousePosition
+
+        -- 核心修复：坐标非法直接跳过，绝不执行 ScreenToWorldPoint
+        if currMousePos.x < 0 or currMousePos.y < 0 or currMousePos.x > CS.UnityEngine.Screen.width or currMousePos.y > CS.UnityEngine.Screen.height then
+            return
+        end
+
+        local currMouseX = currMousePos.x
+        local currMouseY = currMousePos.y
 
         self.Vector3Num.x = currMouseX
         self.Vector3Num.y = currMouseY
@@ -187,7 +203,7 @@ function GameMapMotion:IsPointerOverGameObject()
 end
 --endregion
 
---region 【移动端滑动】
+--region 【移动端滑动】 —— 已加入屏幕坐标安全检查
 ---=========================================================================
 ---@brief 触摸滑动开始回调
 ---@type fun(gesture:any):void
@@ -223,12 +239,20 @@ function GameMapMotion:OnSwipe(gesture)
     end
 
     if gesture.touchCount == 1 then
-        self.Vector3Num.x = gesture:GetPositionX()
-        self.Vector3Num.y = gesture:GetPositionY()
+        local tx = gesture:GetPositionX()
+        local ty = gesture:GetPositionY()
+
+        -- 核心修复：触摸坐标越界直接 return
+        if tx < 0 or ty < 0 or tx > CS.UnityEngine.Screen.width or ty > CS.UnityEngine.Screen.height then
+            return
+        end
+
+        self.Vector3Num.x = tx
+        self.Vector3Num.y = ty
         GameLib.RSetupLuaTableValue.RScreenToWorldPoint(self.ScreenCamera, self.Vector3Num, self.VectorContainer1)
 
-        self.Vector3Num.x = gesture:GetPositionX() - gesture:GetDeltaPositionX()
-        self.Vector3Num.y = gesture:GetPositionY() - gesture:GetDeltaPositionY()
+        self.Vector3Num.x = tx - gesture:GetDeltaPositionX()
+        self.Vector3Num.y = ty - gesture:GetDeltaPositionY()
         GameLib.RSetupLuaTableValue.RScreenToWorldPoint(self.ScreenCamera, self.Vector3Num, self.VectorContainer2)
 
         local deltaWorldX = self.VectorContainer1.x - self.VectorContainer2.x
@@ -529,6 +553,7 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.ScreenCameraAspect = self.ScreenCamera.aspect
     self.ScreenCameraOrthographicSize = self.ScreenCamera.orthographicSize
     self:RegisterTouchEvents("+")
+    self:ClampCameraAfterZoom()
 end
 
 ---=========================================================================

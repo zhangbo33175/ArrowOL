@@ -1,4 +1,14 @@
-﻿using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  TableExportEditorUtilityTool.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   编辑器工具 - 文本/字符集/TXT 导出工具（合并/分文件/去重）
+ ***************************************************************/
+
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,6 +25,10 @@ namespace GameLib
     /// </summary>
     public static class TableExportEditorUtilityTool
     {
+        //=========================================================================
+        // 通用 TXT 导出
+        //=========================================================================
+        #region Common TXT Export
         /// <summary>
         /// 导出字符串数据到 TXT 文件（通用版）
         /// </summary>
@@ -93,7 +107,12 @@ namespace GameLib
 
             return true;
         }
+        #endregion
 
+        //=========================================================================
+        // 文本专用 TXT 导出
+        //=========================================================================
+        #region Text Only TXT Export
         /// <summary>
         /// 导出字符串数据到 TXT 文件（文本专用版）
         /// 逻辑与上一方法完全一致，仅做方法区分
@@ -162,5 +181,6 @@ namespace GameLib
 
             return true;
         }
+        #endregion
     }
 }

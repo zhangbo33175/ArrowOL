@@ -30,7 +30,6 @@ function GameStateMachine:ctor(args)
     self._stateMap[GameStateCmd.MainState]          = require("GameMainState"):Create(GameStateCmd.MainState)
     self._stateMap[GameStateCmd.PlayingState]       = require("GamePlayingState"):Create(GameStateCmd.PlayingState)
     self._stateMap[GameStateCmd.TurnToPreloadState] = require("GameTurnToProLoadState"):Create(GameStateCmd.TurnToPreloadState)
-    self._stateMap[GameStateCmd.ChooseLevel]        = require("ChooseLevelState"):Create(GameStateCmd.ChooseLevel)
 end
 
 ---@brief 创建单例实例

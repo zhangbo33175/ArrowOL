@@ -32,6 +32,7 @@
 ---@field UIFirstLoadMap Tables.UIs_Item @加载地图Loading页面
 ---@field UILevelView Tables.UIs_Item @关卡选择界面
 ---@field UIPlayingAnimated Tables.UIs_Item @动画收集界面
+---@field UIMainStateView Tables.UIs_Item @关卡主界面
 UIs = {
     UILoginView = {
         Name = "UILoginView",
@@ -158,6 +159,21 @@ UIs = {
         Comment = "动画收集界面",
         ABPath = "Assets/Res/Prefabs/UIs/UIPlayingAnimated",
         AssetName = "UIPlayingAnimated",
+        UIType = 1,
+        ZOrder = 1,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = true,
+    },
+    UIMainStateView = {
+        Name = "UIMainStateView",
+        Comment = "关卡主界面",
+        ABPath = "Assets/Res/Prefabs/UIs/UIMainStateView",
+        AssetName = "UIMainStateView",
         UIType = 1,
         ZOrder = 1,
         IsModal = false,

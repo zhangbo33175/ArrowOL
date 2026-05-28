@@ -1,0 +1,171 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  PlayGameplayCycle.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     游戏内部玩法生命周期
+-- @desc      统一管理游戏玩法流程：初始化、进入、开始、暂停、恢复、结束、退出、重玩
+-- @trigger   流程状态切换时调用
+-- @event     InitGameEvent、BeginGameEvent、OverGameEvent、ExitGameEvent、RePlayGameEvent
+-- @dependency CorePlayMgr, CharacterSpawnMgr, MapMgr, GuideContext, EventHelper
+--=====================================================================================================
+
+---@class PlayGameplayCycle @游戏内部玩法周期
+local PlayGameplayCycle = class("PlayGameplayCycle")
+
+---=========================================================================
+--- 构造与创建
+---=========================================================================
+--region 构造与创建
+---构造函数
+---@type fun(args:table):void
+function PlayGameplayCycle:ctor()
+
+end
+
+---创建函数
+---@type fun(args:table):PlayGameplayCycle
+---@return PlayGameplayCycle @游戏内部玩法周期实例
+function PlayGameplayCycle:Create()
+    local obj = PlayGameplayCycle.new()
+    return obj
+end
+--endregion
+
+---=========================================================================
+--- 生命周期入口
+---=========================================================================
+--region 生命周期入口
+---执行玩法周期
+---@type fun(ePlayHudCycleAction:EPlayHudCycleAction):void
+---@param ePlayHudCycleAction EPlayHudCycleAction
+function PlayGameplayCycle:OnAction(ePlayHudCycleAction)
+    PrintInfo("进入周期 ---> {0}", ePlayHudCycleAction)
+    Try(function()
+        if ePlayHudCycleAction == EPlayHudCycleAction.InitGame then
+            self:OnInitGame()
+            self:InitGameEvent()
+        elseif ePlayHudCycleAction == EPlayHudCycleAction.EnterGame then
+            self:OnEnterGame()
+        elseif ePlayHudCycleAction == EPlayHudCycleAction.BeginGame then
+            self:OnBeginGame()
+            self:BeginGameEvent()
+        elseif ePlayHudCycleAction == EPlayHudCycleAction.PauseGame then
+            self:OnPauseGame()
+        elseif ePlayHudCycleAction == EPlayHudCycleAction.ResumeGame then
+            self:OnResumeGame()
+        elseif ePlayHudCycleAction == EPlayHudCycleAction.GameOver then
+            self:OnGameOver()
+            self:OverGameEvent()
+        elseif ePlayHudCycleAction == EPlayHudCycleAction.ExitGame then
+            self:OnExitGame()
+            self:ExitGameEvent()
+        elseif ePlayHudCycleAction == EPlayHudCycleAction.RePlayGame then
+            self:OnRePlayGame()
+        end
+    end)
+end
+--endregion
+
+---=========================================================================
+--- 生命周期执行逻辑
+---=========================================================================
+--region 生命周期执行方法
+---游戏初始化
+function PlayGameplayCycle:OnInitGame()
+    GameCoreManager:OnInitGame()
+    CharacterGenerationManager:OnInitGame()
+    MapManager:OnInitGame()
+end
+
+---进入游戏
+function PlayGameplayCycle:OnEnterGame()
+    GameCoreManager:OnEnterGame()
+    CharacterGenerationManager:OnEnterGame()
+    MapManager:OnEnterGame()
+end
+
+---游戏开始
+function PlayGameplayCycle:OnBeginGame()
+    GameCoreManager:OnBeginGame()
+    CharacterGenerationManager:OnBeginGame()
+    MapManager:OnBeginGame()
+end
+
+---游戏暂停
+function PlayGameplayCycle:OnPauseGame()
+    GameCoreManager:OnPauseGame()
+    CharacterGenerationManager:OnPauseGame()
+    MapManager:OnPauseGame()
+end
+
+---游戏恢复
+function PlayGameplayCycle:OnResumeGame()
+    GameCoreManager:OnResumeGame()
+    CharacterGenerationManager:OnResumeGame()
+    MapManager:OnResumeGame()
+end
+
+---游戏结束
+function PlayGameplayCycle:OnGameOver()
+    GameCoreManager:OnGameOver()
+    CharacterGenerationManager:OnGameOver()
+    MapManager:OnGameOver()
+end
+
+---游戏退出
+function PlayGameplayCycle:OnExitGame()
+    GameCoreManager:OnExitGame()
+    CharacterGenerationManager:OnExitGame()
+    MapManager:OnExitGame()
+end
+
+---游戏重玩
+function PlayGameplayCycle:OnRePlayGame()
+    GameCoreManager:OnInitGame()
+    self:RePlayGameEvent() -- 发送事件，重置UI
+    MapManager:OnRePlayGame()
+    CharacterGenerationManager:OnRePlayGameBefore()
+    --GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalReady)
+    local closeUICallback = function()
+        GameCoreManager:OnRePlayGame()
+        CharacterGenerationManagerv:OnRePlayGame()
+        self:BeginGameEvent()
+        GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
+    end
+    --OpenUISync(UIs.UIGoalTips, { callback = closeUICallback })
+end
+--endregion
+
+---=========================================================================
+--- 事件派发
+---=========================================================================
+--region 全局事件派发
+---游戏初始化事件
+function PlayGameplayCycle:InitGameEvent()
+    EventHelper:FireNow(EventCmd.InitGameEvent, nil)
+end
+
+---游戏开始事件
+function PlayGameplayCycle:BeginGameEvent()
+    EventHelper:FireNow(EventCmd.BeginGameEvent, nil)
+end
+
+---游戏结束事件
+function PlayGameplayCycle:OverGameEvent()
+    EventHelper:FireNow(EventCmd.OverGameEvent, nil)
+end
+
+---游戏退出事件
+function PlayGameplayCycle:ExitGameEvent()
+    EventHelper:FireNow(EventCmd.ExitGameEvent, nil)
+end
+
+---游戏重玩事件
+function PlayGameplayCycle:RePlayGameEvent()
+    EventHelper:FireNow(EventCmd.RePlayGameEvent, nil)
+end
+--endregion
+
+return PlayGameplayCycle

@@ -74,6 +74,7 @@
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\LauncherComponentInspector\LauncherComponentInspector.cs" />
     <Compile Include="Assets\Scripts\Editor\Utility\UtilDataSet.cs" />
     <Compile Include="Assets\Scripts\Editor\LevelEditor\TableItemEditor.cs" />
+    <Compile Include="Assets\Scripts\Editor\LevelEditor\TableChapterEditor.cs" />
     <Compile Include="Assets\Scripts\Editor\MapEditor\Panel\MapBuildEditor.LeftPanel.cs" />
     <Compile Include="Assets\Scripts\Editor\Utility\TableExportEditorUtilityTool.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.cs" />

@@ -1,0 +1,77 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UIMainStateViewViewModel.lua
+-- author:    zb
+-- descrip:   关卡界面ViewModel
+--=====================================================================================================
+
+---@class UIMainStateViewViewModel : ViewModelSuper
+local UIMainStateViewViewModel = class('UIMainStateViewViewModel', import('ViewModelSuper'))
+
+---绑定值Key名称
+---@class UIMainStateViewViewModel.BVKey
+UIMainStateViewViewModel.BVKey = {}
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function UIMainStateViewViewModel:ctor(args)
+    UIMainStateViewViewModel.super.ctor(self, args)
+-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    -- 无添加绑定数据成员
+    LevelManager:GetCurrentLevelInfo()
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+end
+
+---创建函数
+---@type fun(args:table):UIMainStateViewViewModel
+---@param args table @自定义参数
+---@return UIMainStateViewViewModel @UIMainStateViewViewModel实例
+function UIMainStateViewViewModel:Create(args)
+    local obj = UIMainStateViewViewModel.new(args)
+    return obj
+end
+
+---唤醒
+---@type fun():void
+function UIMainStateViewViewModel:Awake()
+    UIMainStateViewViewModel.super.Awake(self)
+
+end
+
+---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）
+---@type fun():void
+function UIMainStateViewViewModel:OnInit()
+    UIMainStateViewViewModel.super.OnInit(self)
+
+end
+
+---开始
+---@type fun():void
+function UIMainStateViewViewModel:Start()
+    UIMainStateViewViewModel.super.Start(self)
+
+end
+
+---销毁
+---@type fun():void
+function UIMainStateViewViewModel:OnDestroy()
+    UIMainStateViewViewModel.super.OnDestroy(self)
+
+end
+
+---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@type fun():void
+function UIMainStateViewViewModel:OnAddListeners()
+    UIMainStateViewViewModel.super.OnAddListeners(self)
+
+end
+
+function UIMainStateViewViewModel:GetChapterLevel()
+    return LevelManager:GetChapterLevel()
+end
+
+return UIMainStateViewViewModel
+
