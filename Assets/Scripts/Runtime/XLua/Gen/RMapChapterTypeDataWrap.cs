@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(RMapChapterTypeData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 0, 9, 9);
+			Utils.BeginObjectRegister(type, L, translator, 0, 0, 7, 7);
 			
 			
 			
@@ -30,9 +30,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LevelId", _g_get_LevelId);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_BackgroundPath", _g_get_m_BackgroundPath);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MapObjectData", _g_get_m_MapObjectData);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_CcreateTime", _g_get_m_CcreateTime);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MapWidth", _g_get_m_MapWidth);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MapHeight", _g_get_m_MapHeight);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_CreateTime", _g_get_m_CreateTime);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SavePath", _g_get_SavePath);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MapName", _s_set_m_MapName);
@@ -40,9 +38,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "LevelId", _s_set_LevelId);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_BackgroundPath", _s_set_m_BackgroundPath);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MapObjectData", _s_set_m_MapObjectData);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_CcreateTime", _s_set_m_CcreateTime);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MapWidth", _s_set_m_MapWidth);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MapHeight", _s_set_m_MapHeight);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_CreateTime", _s_set_m_CreateTime);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "SavePath", _s_set_SavePath);
             
 			
@@ -163,41 +159,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_m_CcreateTime(RealStatePtr L)
+        static int _g_get_m_CreateTime(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
-                LuaAPI.lua_pushstring(L, gen_to_be_invoked.m_CcreateTime);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_m_MapWidth(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
-                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.m_MapWidth);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_m_MapHeight(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
-                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.m_MapHeight);
+                LuaAPI.lua_pushstring(L, gen_to_be_invoked.m_CreateTime);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -296,43 +264,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_m_CcreateTime(RealStatePtr L)
+        static int _s_set_m_CreateTime(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.m_CcreateTime = LuaAPI.lua_tostring(L, 2);
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_m_MapWidth(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.m_MapWidth = LuaAPI.xlua_tointeger(L, 2);
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_m_MapHeight(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.m_MapHeight = LuaAPI.xlua_tointeger(L, 2);
+                gen_to_be_invoked.m_CreateTime = LuaAPI.lua_tostring(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

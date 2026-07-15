@@ -1,0 +1,100 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UILevelFailedView.lua
+-- author:    云毅
+-- descrip:   结算失败界面
+--=====================================================================================================
+
+---@class UILevelFailedView : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field MainButton                         UnityEngine.UI.Button         √         Clicked        返回管卡界面
+---@field RecoverStaminaButton               UnityEngine.UI.Button         √         Clicked        回复体力
+local UILevelFailedView = class('UILevelFailedView', import('LuaBehaviourSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function UILevelFailedView:ctor(args)
+    UILevelFailedView.super.ctor(self, args)
+
+end
+
+---创建函数
+---@type fun(args:table):UILevelFailedView
+---@param args table @自定义参数
+---@return UILevelFailedView @实例
+function UILevelFailedView:Create(args)
+    local obj = UILevelFailedView.new(args)
+    return obj
+end
+
+---注册监听（自动注销）
+---@type fun():void
+function UILevelFailedView:OnAddListeners()
+    UILevelFailedView.super.OnAddListeners(self)
+
+end
+
+---唤醒
+---@type fun():void
+function UILevelFailedView:Awake()
+    UILevelFailedView.super.Awake(self)
+-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    AddUIListenerFunction(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
+    AddUIListenerFunction(self.RecoverStaminaButton, 'Clicked', handler(self, self.OnRecoverStaminaButtonClicked))
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+
+end
+
+---开始
+---@type fun():void
+function UILevelFailedView:Start()
+    UILevelFailedView.super.Start(self)
+
+end
+
+---销毁
+---@type fun():void
+function UILevelFailedView:OnDestroy()
+    UILevelFailedView.super.OnDestroy(self)
+-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    OnRemoveListener(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
+    OnRemoveListener(self.RecoverStaminaButton, 'Clicked', handler(self, self.OnRecoverStaminaButtonClicked))
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+
+end
+
+---播放打开动画（可重写）
+---@type fun():void
+function UILevelFailedView:OnPlayOpenAnimation()
+    UILevelFailedView.super.OnPlayOpenAnimation(self)
+end
+
+---播放关闭动画（可重写）
+---@type fun():void
+function UILevelFailedView:OnPlayCloseAnimation()
+    UILevelFailedView.super.OnPlayCloseAnimation(self)
+end
+
+---子UI销毁回调
+---@type fun(luaClass:XLua.LuaTable):void
+---@param luaClass XLua.LuaTable
+function UILevelFailedView:OnAddedUIDestroyed(luaClass)
+    UILevelFailedView.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+---返回管卡界面-交互回调
+---@type fun(args:any):void
+function UILevelFailedView:OnMainButtonClicked(args)
+  PlayHelper:GameExitPlayHud()
+end
+
+---回复体力-交互回调
+---@type fun(args:any):void
+function UILevelFailedView:OnRecoverStaminaButtonClicked(args)
+
+end
+
+return UILevelFailedView

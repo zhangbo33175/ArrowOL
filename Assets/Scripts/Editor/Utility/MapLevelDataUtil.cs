@@ -89,30 +89,28 @@ namespace Editor.Utility
             // 基础关卡配置
             sb.AppendLine($"    ChapterId = \"{data.ChapterId}\",");
             sb.AppendLine($"    LevelId= {data.LevelId},");
-            sb.AppendLine($"    BackgroundPath = \"{data.m_BackgroundPath}\",");
-            sb.AppendLine($"    Time = \"{data.m_CcreateTime}\",");
-            sb.AppendLine($"    SavePath =\" {data.SavePath}\",");
-            sb.AppendLine($"    MapWidth = {data.m_MapWidth},");
-            sb.AppendLine($"    MapHeight = {data.m_MapHeight},");
-
+            sb.AppendLine($"    BgName = \"{data.m_BackgroundPath}\",");
+            sb.AppendLine($"    Time = \"{data.m_CreateTime}\",");
+            sb.AppendLine($"    MapName =\"{data.m_MapName}\",");
+            sb.AppendLine($"    SavePath =\"{data.SavePath}\",");
             // 附加目标数据
             sb.AppendLine($"    MapData= {{");
             for (int idx = 0; idx < data.m_MapObjectData.Count; idx++)
             {
                 var obj = data.m_MapObjectData[idx];
-                string pos = obj.m_Position.ToString("F2");
-                string rot = obj.m_Rotation.ToString("F2");
-                string scale = obj.m_Scale.ToString("F2");
-                string size = obj.m_Size.ToString("F2");
+                string pos = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Position);
+                string rot = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Rotation);
+                string scale = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Scale);
+                string size = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Size);
 
                 sb.AppendLine($"       [{idx + 1}] = {{Id = {obj.m_Id}, " +
                               $"Type = \"{obj.m_Type}\"," +
-                              $"Position = \"{pos}\"," +
-                              $"Rotation = \"{rot}\"," +
-                              $"Scale = \"{scale}\"," +
+                              $"Position = {pos}," +
+                              $"Rotation = {rot}," +
+                              $"Scale = {scale}," +
                               $"Sprite = \"{obj.m_Sprite}\"," +
                               $"Name = \"{obj.m_Name}\"," +
-                              $"Size = \"{size}\"," +
+                              $"Size = {size}," +
                               $"IsChoose = {obj.m_IsChoose.ToString().ToLower()}}},");
             }
 

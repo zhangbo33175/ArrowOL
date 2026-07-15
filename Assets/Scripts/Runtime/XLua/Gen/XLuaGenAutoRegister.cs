@@ -1368,6 +1368,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(MapData), MapDataWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(AorBoxCollider2DAutoFit), AorBoxCollider2DAutoFitWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(MapController), MapControllerWrap.__Register);
         
         
@@ -1427,13 +1430,13 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(GameLib.MapCamHelper), GameLibMapCamHelperWrap.__Register);
         
-        
-            translator.DelayWrapLoader(typeof(GameLib.MapInBounds), GameLibMapInBoundsWrap.__Register);
-        
         }
         
         static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
         {
+        
+            translator.DelayWrapLoader(typeof(GameLib.MapInBounds), GameLibMapInBoundsWrap.__Register);
+        
         
             translator.DelayWrapLoader(typeof(GameLib.ObjectCommon), GameLibObjectCommonWrap.__Register);
         

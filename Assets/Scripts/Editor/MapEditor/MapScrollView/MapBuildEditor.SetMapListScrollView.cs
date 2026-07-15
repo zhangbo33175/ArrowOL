@@ -76,9 +76,9 @@ namespace Editor.MapEditor
         /// 绘制单个可点击的地图列表项（支持展开小节）
         /// 根据选中状态切换样式，点击后触发选中逻辑
         /// </summary>
-        /// <param name="tableMainLevelsEditor">当前项的地图配置数据</param>
+        /// <param name="tableChapterEditor">当前项的地图配置数据</param>
         /// <param name="index">当前项在列表中的索引</param>
-        private void DrawClickableListItem(TableChapterEditor tableMainLevelsEditor, int index)
+        private void DrawClickableListItem(TableChapterEditor tableChapterEditor, int index)
         {
             // 安全判断：防止越界
             if (index < 0 || m_TableChapterList == null || index >= m_TableChapterList.Count)
@@ -93,7 +93,7 @@ namespace Editor.MapEditor
                 GUILayout.BeginHorizontal();
                 {
                     // 左对齐关键：去掉固定宽度，使用 Left 对齐
-                    if (GUILayout.Button($"第 {tableMainLevelsEditor.ID} 章", 
+                    if (GUILayout.Button($"第 {tableChapterEditor.ID} 章", 
                             EditorStyles.label, 
                             GUILayout.ExpandWidth(true)))
                     {
@@ -113,7 +113,7 @@ namespace Editor.MapEditor
                     GUILayout.Space(20);
                     GUILayout.BeginVertical();
                     {
-                        int[] subLevelIds = SetTypeConversion.OnStringToInt(tableMainLevelsEditor.ChapterInfoID);
+                        int[] subLevelIds = SetTypeConversion.OnStringToInt(tableChapterEditor.ChapterInfoID);
                 
                         if (subLevelIds.Length == 0)
                         {
@@ -133,14 +133,15 @@ namespace Editor.MapEditor
                                 if (GUILayout.Button($"第 {subId} 节", style, GUILayout.ExpandWidth(true)))
                                 {
                                     _selectedSubId = subId;
-                                    Debug.Log($"已选中 → 第 {tableMainLevelsEditor.ID} 章 ----->第 {subId} 节");
+                                    Debug.Log($"已选中 → 第 {tableChapterEditor.ID} 章 ----->第 {subId} 节");
         
                                     // 安全判断：防止越界
                                     if (subId-1 < 0 || m_TableMainLevelsList == null || subId-1 >= m_TableMainLevelsList.Count)
                                         return;
                                     
+                                    
                                     // 选中小节后的逻辑
-                                    ChooseItem(m_TableMainLevelsList[subId-1]);
+                                    ChooseItem(m_TableMainLevelsList[subId-1],tableChapterEditor);
                                 }
                             }
                         }
@@ -158,7 +159,7 @@ namespace Editor.MapEditor
         /// 【选中回调】点击列表项后执行：加载对应地图、切换背景、刷新图标列表
         /// </summary>
         /// <param name="tableMainLevelsEditor">选中的地图配置数据</param>
-        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor)
+        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor,TableChapterEditor tableChapterEditor)
         {
             try
             {
@@ -171,10 +172,16 @@ namespace Editor.MapEditor
                     // 加载地图预制体，完成后刷新预览区域
                     LoadMapPrefab(prefabPath, () => { SetPreviewRect(); });
                 }
-
+                _mTablesElectedLevelsEditor = new TablesElectedLevelsEditor();
+                //地图章节ID
+                _mTablesElectedLevelsEditor.ChapterId=tableChapterEditor.ID;
+                //地图预制体名称
+                _mTablesElectedLevelsEditor.MapName=tableChapterEditor.MapName;
+                
+                _mTablesElectedLevelsEditor.LevelId=tableMainLevelsEditor.ID.ToString();
                 // 保存当前选中的地图数据
-                _mTableMainLevelsEditor = tableMainLevelsEditor;
-                mapName = tableMainLevelsEditor.LevelID;
+                mapName = tableMainLevelsEditor.Level_bg;
+                _mTablesElectedLevelsEditor.Background = tableMainLevelsEditor.Level_bg;
                 mapId = tableMainLevelsEditor.ID;
 
                 // 重置图标列表标记，刷新图标显示

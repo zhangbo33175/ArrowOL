@@ -4,12 +4,15 @@
 -- filename:  GameFunctions.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   全局通用工具函数库 | 遵循 Unity/XLua 规范 | 无GC 无Bug 商业级
+-- @brief     全局通用工具函数库
+-- @desc      遵循 Unity/XLua 规范 | 无GC 无Bug 商业级工具集，包含动画、对象池、坐标、UI、字符串、数据解析等全品类通用方法
+-- @trigger   全局任意业务模块调用
+-- @dependency DG.Tweening, Spine, UnityEngine, GameMainRoot, HonorRuntime
 --=====================================================================================================
 
 --region DOTween 缓动类型转换
 --=========================================================================
--- DOTween 缓动类型转换
+-- DOTween 缓动类型转换：数字 <-> Ease 枚举映射
 --=========================================================================
 --- 将数字类型的缓动类型 转换成 DOTween 枚举 Ease
 ---@type fun(intEaseType:number):DG.Tweening.Ease
@@ -60,7 +63,7 @@ end
 
 --region 对象池工具
 --=========================================================================
--- 对象池工具
+-- 对象池管理工具：根节点获取、子节点创建
 --=========================================================================
 --- 获取对象池根节点 GameObject
 ---@type fun():UnityEngine.GameObject
@@ -88,7 +91,7 @@ end
 
 --region 屏幕边界计算
 --=========================================================================
--- 屏幕边界计算
+-- 屏幕边界计算：获取相机视口世界坐标
 --=========================================================================
 --- 获取屏幕左边界世界坐标 X
 ---@type fun(sceneCamera:UnityEngine.Camera):number
@@ -137,7 +140,7 @@ end
 
 --region 字符串工具
 --=========================================================================
--- 字符串工具
+-- 字符串通用工具：开头/结尾匹配判断
 --=========================================================================
 --- 判断字符串是否以指定内容开头
 ---@type fun(str:string, startStr:string):boolean
@@ -162,7 +165,7 @@ end
 
 --region Spine 动画工具
 --=========================================================================
--- Spine 动画工具
+-- Spine 动画工具：时长获取、播放、状态控制
 --=========================================================================
 --- 获取 Spine.SkeletonAnimation 动画时长
 ---@type fun(spineAnim:Spine.Unity.SkeletonAnimation, animName:string):number
@@ -226,7 +229,7 @@ end
 
 --region 飞星 / 贝塞尔动画
 --=========================================================================
--- 飞星 / 贝塞尔动画
+-- 飞星/贝塞尔动画：金币/道具飞行动画、路径动画
 --=========================================================================
 --- 打开飞星界面并播放飞星效果
 ---@type fun(cfg:StarFlyConfig):void
@@ -259,7 +262,7 @@ function StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, 
         return
     end
 
-    -- 默认参数
+    -- 默认参数初始化
     realTime = realTime or false
     tweenId = tweenId or ECustomTweenID.ON_COLLECT_GOAL_ANIM_FLY .. starFly.gameObject:GetInstanceID()
     ease = ease or DG.Tweening.Ease.Linear
@@ -268,7 +271,7 @@ function StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, 
     minOffsetX = minOffsetX or 0
     maxOffsetX = maxOffsetX or 0
 
-    -- 坐标转换
+    -- 世界坐标转局部坐标
     local localStart = parentTransform:InverseTransformPoint(startPos)
     local localTarget = parentTransform:InverseTransformPoint(targetPos)
     starFly.startPoint = Vector2(localStart.x, localStart.y)
@@ -276,7 +279,7 @@ function StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, 
     starFly:ResetCtrlPoints()
     starFly:SetProgress(0)
 
-    -- 控制点偏移
+    -- 控制点偏移计算
     if starFly.ctrlPoints then
         local offsetX = (minOffsetX ~= 0 or maxOffsetX ~= 0) and math.random(minOffsetX, maxOffsetX) or 0
         for i = 0, starFly.ctrlPoints.Count - 1 do
@@ -290,7 +293,7 @@ function StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, 
         end
     end
 
-    -- 执行Tween
+    -- 执行DOTween动画
     DG.Tweening.DOTween.Kill(tweenId, true)
     DG.Tweening.DOTween.To(
             function() return starFly:GetProgress() end,
@@ -329,7 +332,7 @@ end
 
 --region UI 文本 / 适配工具
 --=========================================================================
--- UI 文本 / 适配工具
+-- UI工具：文本计算、多语言、屏幕适配转换
 --=========================================================================
 --- 获取文本宽度（根据内容）
 ---@type fun(text:TMPro.TextMeshProUGUI, content:string):number
@@ -403,7 +406,7 @@ end
 
 --region 数组 / 表工具
 --=========================================================================
--- 数组 / 表工具
+-- 表/数组工具：空判断、转换、清空、打乱、二分插入
 --=========================================================================
 --- 判断 table 是否为空
 ---@type fun(t:table):boolean
@@ -500,7 +503,7 @@ end
 
 --region Transform / 坐标工具
 --=========================================================================
--- Transform / 坐标工具
+-- Transform工具：坐标、缩放、父节点、复制
 --=========================================================================
 --- 获取 UI 中心点世界坐标
 ---@type fun(rectTransform:UnityEngine.RectTransform):UnityEngine.Vector3
@@ -590,7 +593,7 @@ end
 
 --region 包围盒工具
 --=========================================================================
--- 包围盒工具
+-- 包围盒工具：3D/2D/UI 屏幕包围盒计算
 --=========================================================================
 --- 获取模型屏幕包围盒
 ---@type fun(meshFilter:UnityEngine.MeshFilter):table
@@ -660,7 +663,7 @@ end
 
 --region 安全调用 / 延迟工具
 --=========================================================================
--- 安全调用 / 延迟工具
+-- 安全调用/延迟工具：异常捕获、延时执行、协程延迟
 --=========================================================================
 --- 安全执行函数（捕获异常）
 ---@type fun(func:function, errorMsg:string):void
@@ -761,7 +764,7 @@ end
 
 --region 关卡 / 解锁工具
 --=========================================================================
--- 关卡 / 解锁工具
+-- 关卡解锁工具：章节/关卡解锁条件判断
 --=========================================================================
 --- 判断是否解锁章节/关卡
 ---@type fun(unlockChapter:number, unlockLevel:number, currentChapter:number, currentLevel:number):boolean
@@ -782,7 +785,7 @@ end
 
 --region 任务 / 事件派发
 --=========================================================================
--- 任务 / 事件派发
+-- 任务事件工具：任务进度派发、清空事件
 --=========================================================================
 --- 派发任务进度更新事件
 ---@type fun(subType:EDailyQuestSubType, value:number, isLatestChapter:boolean):void
@@ -806,7 +809,7 @@ end
 
 --region 数据解析工具
 --=========================================================================
--- 数据解析工具
+-- 数据解析工具：奖励、二元组字符串解析
 --=========================================================================
 --- 解析奖励表
 ---@type fun(rewardTable:table):HonorList
@@ -873,7 +876,7 @@ end
 
 --region 道具 / 奖励发放
 --=========================================================================
--- 道具 / 奖励发放
+-- 道具奖励工具：发放、显示格式化、批量处理
 --=========================================================================
 --- 根据资源类型获取预设名
 ---@type fun(resType:EResourceType):string
@@ -960,7 +963,7 @@ end
 
 --region 埋点 / 统计
 --=========================================================================
--- 埋点 / 统计
+-- 数据埋点工具：奖励获取统计上报
 --=========================================================================
 --- 单个奖励统计打点
 ---@type fun(itemId:string, count:number, reason:number, purchaseId:string, areaId:string):void
@@ -1007,7 +1010,7 @@ end
 
 --region 其他工具
 --=========================================================================
--- 其他工具
+-- 通用杂项工具：敏感词、分批处理、空判断、Spine整套动画
 --=========================================================================
 --- 敏感词匹配检查
 ---@type fun(content:string, word:string):boolean
@@ -1074,7 +1077,7 @@ function PlaySpineShowIdleHide(spine, idleDuration, showAnim, idleAnim, hideAnim
         if IsNull(spine.gameObject) then return end
         spine.AnimationState:SetAnimation(0, idleAnim, true)
 
-        -- Idle 延迟后隐藏
+        -- Idle 延迟后执行隐藏
         DG.Tweening.DOTween.Sequence()
           :SetUpdate(true)
           :AppendInterval(idleDuration)
@@ -1131,32 +1134,49 @@ function TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
     return lua
 end
 --endregion
---===================== 字符串转Vector3 =====================--
+
+--region 坐标转换工具
+--=========================================================================
+-- 坐标转换：字符串/Table转Vector3
+--=========================================================================
 ---将字符串格式的坐标转换为Unity Vector3
 ---支持格式: (1,2,3) 、1,2,3、(-1.5, 2.0, 3.7)
 ---@param str string 坐标字符串
 ---@return UnityEngine.Vector3 转换后的三维坐标
 function StringToVector3(str)
+    -- 类型兼容：自动转换table结构
+    if type(str) == "table" then
+        return TableToVector3(str)
+    end
     if not str or str == "" then
         return CS.UnityEngine.Vector3.zero
     end
-
-    -- 去除括号
-    str = string.gsub(str, "[()]", "")
-
-    -- 正则匹配 x,y,z
-    local x, y, z = string.match(str, "([%d%.%-]+),%s*([%d%.%-]+),%s*([%d%.%-]+)")
-
-    -- 转换为数字，空值则为0
+    str = string.gsub(str, "[{}%s\"]", "")
+    local x, y, z = string.match(str, "([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)")
     x = tonumber(x) or 0
     y = tonumber(y) or 0
     z = tonumber(z) or 0
-
-    -- 返回Unity Vector3
     return CS.UnityEngine.Vector3(x, y, z)
 end
 
---===================== 通用表长度计算 =====================--
+---Table转Unity Vector3
+---@param t table 坐标表 {x,y,z}
+---@return UnityEngine.Vector3 转换后的三维坐标
+function TableToVector3(t)
+    if type(t) ~= "table" then
+        return CS.UnityEngine.Vector3.zero
+    end
+    local x = tonumber(t[1]) or 0
+    local y = tonumber(t[2]) or 0
+    local z = tonumber(t[3]) or 0
+    return CS.UnityEngine.Vector3(x, y, z)
+end
+--endregion
+
+--region 表通用工具
+--=========================================================================
+-- 表通用工具：计数、Key包含判断
+--=========================================================================
 ---安全获取表长度（支持数组、哈希表、空表、不连续表）
 ---@param _table table 目标表
 ---@return number 表中元素数量
@@ -1170,18 +1190,14 @@ function GetTableCount(_table)
     return count
 end
 
---=========================================================================
 --- 检查表中是否包含指定Key（通用字典包含判断）
 ---@param _table table 目标表
 ---@param key any 要判断的Key
 ---@return boolean 是否包含
---=========================================================================
 function ContainsKey(_table, key)
     if type(_table) ~= "table" or key == nil then
         return false
     end
-    if _table[key] ~= nil then
-        return true
-    end
-    return  false
+    return _table[key] ~= nil
 end
+--endregion

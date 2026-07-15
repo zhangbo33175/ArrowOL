@@ -61,7 +61,6 @@ function GamePlayingState:OnStateEnter(finishCallback)
                     -- 触发引导事件
                     --GuideNewContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
                 end
-
                 -- 移除UI遮罩
                 GameMainRoot.UI:SubUIMaskLayerRef()
                 -- 恢复地图交互
@@ -90,14 +89,13 @@ function GamePlayingState:OnStateExit(finishCallback)
     -- 清理特效、停止音乐
     GameEffectManager:ClearData()
     SoundManager:StopCurrentBgm()
-
     -- 关闭战斗UI
     CloseUI(UIs.UIMainPlaying)
-    CloseUI(UIs.UIPlayingHudCollect)
-    CloseUI(UIs.UILevelSuccessBg)
+    CloseUI(UIs.UILevelVictoryView)
+    CloseUI(UIs.UILevelFailedView)
 
     -- 退出游戏逻辑
-    PlayHudCycle:OnAction(EPlayHudCycleAction.ExitGame)
+    PlayGameplayCycle:OnAction(EPlayHudCycleAction.ExitGame)
 
     -- 执行完成回调
     if finishCallback then

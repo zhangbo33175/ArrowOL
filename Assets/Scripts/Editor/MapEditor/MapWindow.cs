@@ -212,7 +212,7 @@ namespace Editor.MapEditor
                     m_MapName = _mapName,
                     m_MapObjectData = new List<RMapData>(), // 空物体列表
                     m_BackgroundPath = _bgImagePath, // 背景图路径
-                    m_CcreateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") // 创建时间
+                    m_CreateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") // 创建时间
                 };
 
                 // 构建JSON文件信息

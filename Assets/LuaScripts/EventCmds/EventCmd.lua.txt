@@ -142,4 +142,7 @@ EventCmd = {
 
     ---角色点击消息
     OnClickCharacter = 'OnClickCharacter', --在主界面角色被点击到
+
+    ---新章节解锁事件
+    OnNewChapterUnlockEvent = "OnNewChapterUnlockEvent",
 }

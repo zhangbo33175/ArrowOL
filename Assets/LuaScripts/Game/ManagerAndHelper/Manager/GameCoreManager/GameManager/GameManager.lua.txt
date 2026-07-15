@@ -129,6 +129,13 @@ function GameManager:GetLifeNumber()
     return self.LifeNumber
 end
 
+---获取剩余生命值
+---@return number 生命值数量
+function GameManager:OnGetLifeNumber()
+    self.LifeNumber=self.LifeNumber-1
+end
+
+
 --- 注册全局事件监听
 function GameManager:RegisterEvents()
     HonorEventHelper:AddListener(EventCmd.OnClickCharacter, handler(self, self.OnClickCharacter))
@@ -138,14 +145,24 @@ end
 function GameManager:UnregisterEvents()
     HonorEventHelper:RemoveListener(EventCmd.OnClickCharacter, handler(self, self.OnClickCharacter))
 end
+
 ---@type fun(character):void
 ---@param character CharacterBase @ 被点击的角色
 function GameManager:OnClickCharacter(character)
 
-    if  ContainsKey(self.CharacterChooseList,character.ID)==false then
-        self.CharacterChooseList[character.ID]=character
+    if character then
+        if  ContainsKey(self.CharacterChooseList,character.ID)==false then
+            self.CharacterChooseList[character.ID]=character
+            self.CharacterList[character.ID]:OnDestroy()
+        end
+        if self:GetCharacterChooseList()==self:GetCharacterList() then
+            GameCoreManager:OnGameVictory()
+        end
     else
-        
+        self:OnGetLifeNumber()
+        if self.LifeNumber==0 then
+            GameCoreManager:OnGameVictory()
+        end
     end
 end
 --endregion

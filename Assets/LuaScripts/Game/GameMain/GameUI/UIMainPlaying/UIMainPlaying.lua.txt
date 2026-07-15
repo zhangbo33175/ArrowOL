@@ -48,19 +48,42 @@ function UIMainPlaying:Awake()
     -- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     -- 无自动注册内容。
     -- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
-    
+    HonorEventHelper:AddListener(EventCmd.OnClickCharacter, handler(self, self.OnSelectedResult))
 end
 
-
+function UIMainPlaying:OnSelectedResult(data)
+    if data then
+        self:OnSetCompleteNumber()
+    else
+        if GameManager:GetLifeNumber()==0 then
+            OpenUISync(UIs.UISettlementView)
+        else
+            self.LifeNumber.text = GameManager:GetLifeNumber()
+        end
+    end
+end
 
 
 ---初始化逻辑
 ---@type fun():void
 function UIMainPlaying:Init()
+   self:OnSetCompleteNumber()
+    self:OnSetUsedNumber()
+    self:OnSetLifeNumber()
+end
+
+function UIMainPlaying:OnSetCompleteNumber()
     self.CompleteNumber.text = GameManager:GetCharacterChooseList() .. "/" .. GameManager:GetCharacterList()
+end
+
+function UIMainPlaying:OnSetUsedNumber()
     self.UsedNumber.text = GameManager:GetNumberOfPropsUsed()
+end
+
+function UIMainPlaying:OnSetLifeNumber()
     self.LifeNumber.text = GameManager:GetLifeNumber()
 end
+
 
 ---开始
 ---@type fun():void

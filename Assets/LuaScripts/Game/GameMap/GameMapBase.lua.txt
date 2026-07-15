@@ -26,7 +26,7 @@ function GameMapBase:ctor(args)
     self.SwipeEnd = nil                       ---@type function(HedgehogTeam.EasyTouch.Gesture) 滑动结束回调
     self.SimpleTap = nil                      ---@type function(HedgehogTeam.EasyTouch.Gesture) 点击回调
     self.SwipePos = Unity.Vector3(0, 0, 0)    ---@type UnityEngine.Vector3 滑动位置
-    self.ScreenCamera = GameLib.MapCamHelper.MapCamera  ---@type UnityEngine.Camera 地图相机
+    self.ScreenCamera = self:GetSafeScreenCamera()  ---@type UnityEngine.Camera 地图相机
 
     self._IsPlaySwipeSound = false            ---@type boolean 是否正在播放滑动音效
    
@@ -37,6 +37,18 @@ function GameMapBase:ctor(args)
     MapManager.CurMapData = self.cs:GetComponent("MapData")
     
     self:LoadCharacterByMapData()
+end
+
+
+---@brief 安全获取地图相机，自动判空
+---@return UnityEngine.Camera|nil
+function GameMapBase:GetSafeScreenCamera()
+    local cam = GameLib.MapCamHelper.MapCamera
+    if cam == nil then
+        print("[GameMapBase] 警告：MapCamera 为空")
+        return nil
+    end
+    return cam
 end
 
 ---@brief 创建实例

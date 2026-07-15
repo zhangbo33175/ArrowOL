@@ -21,12 +21,15 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(MapCamData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 5, 3, 3);
+			Utils.BeginObjectRegister(type, L, translator, 0, 8, 3, 3);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustPosY", _m_NormalAdjustPosY);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustLeftPosX", _m_NormalAdjustLeftPosX);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustLeftPosX_Viewport", _m_NormalAdjustLeftPosX_Viewport);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustRightPosX", _m_NormalAdjustRightPosX);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustRightPosX_Viewport", _m_NormalAdjustRightPosX_Viewport);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ExitPlayAdjustPosX", _m_ExitPlayAdjustPosX);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ExitPlayAdjustPosX_Viewport", _m_ExitPlayAdjustPosX_Viewport);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlayAdjustPosY", _m_PlayAdjustPosY);
 			
 			
@@ -140,6 +143,35 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_NormalAdjustLeftPosX_Viewport(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector2 _viewportSize;translator.Get(L, 2, out _viewportSize);
+                    float _mapLeftWorldPosX = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                    gen_to_be_invoked.NormalAdjustLeftPosX_Viewport( _viewportSize, _mapLeftWorldPosX );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_NormalAdjustRightPosX(RealStatePtr L)
         {
 		    try {
@@ -156,6 +188,35 @@ namespace XLua.CSObjectWrap
                     float _mapRightWorldPosX = (float)LuaAPI.lua_tonumber(L, 3);
                     
                     gen_to_be_invoked.NormalAdjustRightPosX( _viewSize, _mapRightWorldPosX );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_NormalAdjustRightPosX_Viewport(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector2 _viewportSize;translator.Get(L, 2, out _viewportSize);
+                    float _mapRightWorldPosX = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                    gen_to_be_invoked.NormalAdjustRightPosX_Viewport( _viewportSize, _mapRightWorldPosX );
                     
                     
                     
@@ -187,6 +248,37 @@ namespace XLua.CSObjectWrap
                     RMapPlayHudPosType _mapPlayHudPosType;translator.Get(L, 5, out _mapPlayHudPosType);
                     
                     gen_to_be_invoked.ExitPlayAdjustPosX( _viewSize, _playPosX, _mapRightWorldPosX, _mapPlayHudPosType );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ExitPlayAdjustPosX_Viewport(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Vector2 _viewportSize;translator.Get(L, 2, out _viewportSize);
+                    float _playPosX = (float)LuaAPI.lua_tonumber(L, 3);
+                    float _mapRightWorldPosX = (float)LuaAPI.lua_tonumber(L, 4);
+                    RMapPlayHudPosType _mapPlayHudPosType;translator.Get(L, 5, out _mapPlayHudPosType);
+                    
+                    gen_to_be_invoked.ExitPlayAdjustPosX_Viewport( _viewportSize, _playPosX, _mapRightWorldPosX, _mapPlayHudPosType );
                     
                     
                     

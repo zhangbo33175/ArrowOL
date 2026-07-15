@@ -82,6 +82,10 @@ end
 ---@type fun():void
 function CharacterBase:OnDestroy()
     CharacterBase.super.OnDestroy(self)
+    -- 先判断CS对象是否存活
+    if self._GameObject.gameObject then
+        self._GameObject.gameObject:SetActive(false)
+    end
 end
 --endregion
 
@@ -92,7 +96,7 @@ end
 ---点击了角色
 ---@type fun():void
 function CharacterBase:OnClickCharacter()
-    if GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
+    if GameStateMachine:CurrentStateType() == GameStateCmd.PlayingState then
         --主界面允许点击角色
         PrintInfo("CharacterBase:OnClickCharacter name:{0}", self._CharData.ID)
         HonorEventHelper:Fire(EventCmd.OnClickCharacter, self._CharData)

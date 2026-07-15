@@ -63,6 +63,7 @@
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\AssetComponentInspector\AssetComponentInspector.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\ConfigComponentInspector\ConfigComponentInspector.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\PersistComponentInspector\PersistComponentInspector.cs" />
+    <Compile Include="Assets\Scripts\Editor\LevelEditor\TablesElectedLevelsEditor.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Tools\BaseEditorWindow.cs" />
     <Compile Include="Assets\Scripts\Editor\MapEditor\MapScrollView\MapBuildEditor.SetMapListScrollView.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\LuaBehaviourInspector\LuaBehaviourInspector.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Assets\Scripts\Editor\LuaTxtToLuaConverter.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\LuaBehaviourInspector\LuaBehaviourInspector.MVVM.cs" />
     <Compile Include="Assets\Scripts\Editor\MapEditor\MapWindow.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Src\Editor\Report.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\SoundComponentInspector\SoundComponentInspector.cs" />
     <None Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Localization\clientcommon.ja.txt" />
     <None Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Localization\i3.es.txt" />

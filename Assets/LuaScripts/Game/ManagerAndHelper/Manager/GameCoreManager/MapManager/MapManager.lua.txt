@@ -107,7 +107,7 @@ function MapManager:OnSetSwitchMap(chapterId, finishCallback, refuseAd)
         return
     end
 
-    local adShown = ADMgr:TryShowInterAd(EInterAdID.ChangeChapter, function()
+    local adShown = ADMgr:TryShowInterAd(EInterAdID.CHANGE_CHAPTER, function()
         self:ReadyToLoadMap(chapterId, finishCallback)
     end)
 
@@ -153,7 +153,6 @@ function MapManager:LoadMapById(chapterId, luaParams)
     self.CurLoadChapterId = chapterId
     self.CurLoadMapType = self:GetMapType(chapterId)
     GamerDataManager:SetCurChapterId(chapterId)
-
     self.CurLoadMapGo = self:LoadMapResByName(mapName, luaParams)
     return true
 end
@@ -192,7 +191,6 @@ function MapManager:UnloadOldMap()
     if string.isNullOrEmpty(self.CurLoadChapterId) or IsNull(self.CurLoadMapGo) then
         return
     end
-
     GameEffectManager:ClearData()
     self:UnloadMapBeforeClear()
     DestroyPrefabWithGO(self.CurLoadMapGo)

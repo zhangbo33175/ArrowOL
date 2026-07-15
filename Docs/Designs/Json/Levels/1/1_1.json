@@ -1,0 +1,271 @@
+
+{
+    "m_MapName" : "GameMainMap",
+    "ChapterId" : "1",
+    "LevelId"   : 1,
+    "m_BackgroundPath" : "Level_bg_main_1",
+    "m_MapObjectData"  : [
+        {
+            "m_Id" : 2001,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : 295.6073,
+                "y" : 700.0142,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2001",
+            "m_Name"     : "ItemMap_Instance_0",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2003,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : 474.6949,
+                "y" : 392.9498,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2003",
+            "m_Name"     : "ItemMap_Instance_1",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2002,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : 64.53555,
+                "y" : 351.3602,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2002",
+            "m_Name"     : "ItemMap_Instance_2",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2004,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : -704.1547,
+                "y" : 332.7166,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2004",
+            "m_Name"     : "ItemMap_Instance_3",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2005,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : 275.3802,
+                "y" : -858.6169,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2005",
+            "m_Name"     : "ItemMap_Instance_4",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2006,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : -365.0152,
+                "y" : -773.9922,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2006",
+            "m_Name"     : "ItemMap_Instance_5",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2007,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : -719.3731,
+                "y" : -614.1315,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2007",
+            "m_Name"     : "ItemMap_Instance_6",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2008,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : -357.0222,
+                "y" : -451.6064,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2008",
+            "m_Name"     : "ItemMap_Instance_7",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2009,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : -771.3278,
+                "y" : 614.1315,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2009",
+            "m_Name"     : "ItemMap_Instance_8",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 2010,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : 82.45096,
+                "y" : -79.93034,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat2010",
+            "m_Name"     : "ItemMap_Instance_9",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        }
+    ],
+    "m_CreateTime"     : "2026-05-28 17:28:58",
+    "SavePath"         : ""
+}

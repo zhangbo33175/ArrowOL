@@ -11,27 +11,27 @@
 ---@field ID string @章节ID
 ---@field ChapterTitle string @章节名
 ---@field ChapterInfoID table @章节信息ID
----@field MainLevels table @主线关卡
+---@field UnlockNextLevel number @可解锁下一章关卡号
 ---@field MapName string @地图资源名字
 
 ---@class Tables.Chapters @章节地图表
 Tables.Chapters = {
-    ["1"] = {ID = "1", ChapterTitle = "ChapterName1", ChapterInfoID = {"1","2","3"}, MainLevels = {1,90}, MapName = "MGameMainMapap1"},
-    ["2"] = {ID = "2", ChapterTitle = "ChapterName2", ChapterInfoID = {"4","5","6"}, MainLevels = {1,113}, MapName = "MGameMainMapap1"},
-    ["3"] = {ID = "3", ChapterTitle = "ChapterName3", ChapterInfoID = {"7","8","9"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["4"] = {ID = "4", ChapterTitle = "ChapterName4", ChapterInfoID = {"10","11","12"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["5"] = {ID = "5", ChapterTitle = "ChapterName5", ChapterInfoID = {"13","14","15"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["6"] = {ID = "6", ChapterTitle = "ChapterName6", ChapterInfoID = {"16","17","18"}, MainLevels = {1,60}, MapName = "MGameMainMapap1"},
-    ["7"] = {ID = "7", ChapterTitle = "ChapterName7", ChapterInfoID = {"19","20","21"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["8"] = {ID = "8", ChapterTitle = "ChapterName8", ChapterInfoID = {"22","23","24"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["9"] = {ID = "9", ChapterTitle = "ChapterName9", ChapterInfoID = {"25","26","27"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["10"] = {ID = "10", ChapterTitle = "ChapterName10", ChapterInfoID = {"28","29","30"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["11"] = {ID = "11", ChapterTitle = "ChapterName11", ChapterInfoID = {"31","32","33"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["12"] = {ID = "12", ChapterTitle = "ChapterName12", ChapterInfoID = {"34","35","36"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["13"] = {ID = "13", ChapterTitle = "ChapterName13", ChapterInfoID = {"37","38","39"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["14"] = {ID = "14", ChapterTitle = "ChapterName14", ChapterInfoID = {"40","41","42"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["15"] = {ID = "15", ChapterTitle = "ChapterName15", ChapterInfoID = {"43","44","45"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["16"] = {ID = "16", ChapterTitle = "ChapterName16", ChapterInfoID = {"46","47","48"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["17"] = {ID = "17", ChapterTitle = "ChapterName17", ChapterInfoID = {"49","50","51"}, MainLevels = {1,80}, MapName = "MGameMainMapap1"},
-    ["18"] = {ID = "18", ChapterTitle = "ChapterName18", ChapterInfoID = {"52","53","54"}, MainLevels = {1,60}, MapName = "MGameMainMapap1"},
+    ["1"] = {ID = "1", ChapterTitle = "ChapterName1", ChapterInfoID = {"1","2","3"}, UnlockNextLevel = 2, MapName = "GameMainMap"},
+    ["2"] = {ID = "2", ChapterTitle = "ChapterName2", ChapterInfoID = {"4","5","6"}, UnlockNextLevel = 3, MapName = "GameMainMap"},
+    ["3"] = {ID = "3", ChapterTitle = "ChapterName3", ChapterInfoID = {"7","8","9"}, UnlockNextLevel = 4, MapName = "GameMainMap"},
+    ["4"] = {ID = "4", ChapterTitle = "ChapterName4", ChapterInfoID = {"10","11","12"}, UnlockNextLevel = 5, MapName = "GameMainMap"},
+    ["5"] = {ID = "5", ChapterTitle = "ChapterName5", ChapterInfoID = {"13","14","15"}, UnlockNextLevel = 6, MapName = "GameMainMap"},
+    ["6"] = {ID = "6", ChapterTitle = "ChapterName6", ChapterInfoID = {"16","17","18"}, UnlockNextLevel = 7, MapName = "GameMainMap"},
+    ["7"] = {ID = "7", ChapterTitle = "ChapterName7", ChapterInfoID = {"19","20","21"}, UnlockNextLevel = 8, MapName = "GameMainMap"},
+    ["8"] = {ID = "8", ChapterTitle = "ChapterName8", ChapterInfoID = {"22","23","24"}, UnlockNextLevel = 9, MapName = "GameMainMap"},
+    ["9"] = {ID = "9", ChapterTitle = "ChapterName9", ChapterInfoID = {"25","26","27"}, UnlockNextLevel = 10, MapName = "GameMainMap"},
+    ["10"] = {ID = "10", ChapterTitle = "ChapterName10", ChapterInfoID = {"28","29","30"}, UnlockNextLevel = 11, MapName = "GameMainMap"},
+    ["11"] = {ID = "11", ChapterTitle = "ChapterName11", ChapterInfoID = {"31","32","33"}, UnlockNextLevel = 12, MapName = "GameMainMap"},
+    ["12"] = {ID = "12", ChapterTitle = "ChapterName12", ChapterInfoID = {"34","35","36"}, UnlockNextLevel = 13, MapName = "GameMainMap"},
+    ["13"] = {ID = "13", ChapterTitle = "ChapterName13", ChapterInfoID = {"37","38","39"}, UnlockNextLevel = 14, MapName = "GameMainMap"},
+    ["14"] = {ID = "14", ChapterTitle = "ChapterName14", ChapterInfoID = {"40","41","42"}, UnlockNextLevel = 15, MapName = "GameMainMap"},
+    ["15"] = {ID = "15", ChapterTitle = "ChapterName15", ChapterInfoID = {"43","44","45"}, UnlockNextLevel = 16, MapName = "GameMainMap"},
+    ["16"] = {ID = "16", ChapterTitle = "ChapterName16", ChapterInfoID = {"46","47","48"}, UnlockNextLevel = 17, MapName = "GameMainMap"},
+    ["17"] = {ID = "17", ChapterTitle = "ChapterName17", ChapterInfoID = {"49","50","51"}, UnlockNextLevel = 18, MapName = "GameMainMap"},
+    ["18"] = {ID = "18", ChapterTitle = "ChapterName18", ChapterInfoID = {"52","53","54"}, UnlockNextLevel = 19, MapName = "GameMainMap"},
 }

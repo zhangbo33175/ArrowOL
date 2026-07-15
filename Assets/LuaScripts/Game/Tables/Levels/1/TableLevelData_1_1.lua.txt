@@ -1,0 +1,30 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableLevelData_1_1
+-- descrip:   关卡配置信息表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@type Tables.LevelData_Item
+Tables.LevelData_1_1 = { 
+    ChapterId = "1",
+    LevelId= 1,
+    BgName = "Level_bg_main_1",
+    Time = "2026-05-28 17:28:58",
+    MapName ="GameMainMap",
+    SavePath ="",
+    MapData= {
+       [1] = {Id = 2001, Type = "Dissipate",Position = {"295.61","700.01","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2001",Name = "ItemMap_Instance_0",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [2] = {Id = 2003, Type = "Dissipate",Position = {"474.69","392.95","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2003",Name = "ItemMap_Instance_1",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [3] = {Id = 2002, Type = "Dissipate",Position = {"64.54","351.36","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2002",Name = "ItemMap_Instance_2",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [4] = {Id = 2004, Type = "Dissipate",Position = {"-704.15","332.72","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2004",Name = "ItemMap_Instance_3",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [5] = {Id = 2005, Type = "Dissipate",Position = {"275.38","-858.62","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2005",Name = "ItemMap_Instance_4",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [6] = {Id = 2006, Type = "Dissipate",Position = {"-365.02","-773.99","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2006",Name = "ItemMap_Instance_5",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [7] = {Id = 2007, Type = "Dissipate",Position = {"-719.37","-614.13","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2007",Name = "ItemMap_Instance_6",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [8] = {Id = 2008, Type = "Dissipate",Position = {"-357.02","-451.61","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2008",Name = "ItemMap_Instance_7",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [9] = {Id = 2009, Type = "Dissipate",Position = {"-771.33","614.13","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2009",Name = "ItemMap_Instance_8",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [10] = {Id = 2010, Type = "Dissipate",Position = {"82.45","-79.93","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2010",Name = "ItemMap_Instance_9",Size = {"35.00","39.00","0.00"},IsChoose = false},
+    },
+ }

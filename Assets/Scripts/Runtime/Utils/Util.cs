@@ -22,13 +22,14 @@ namespace GameLib
     public static class Util
     {
         #region 屏幕/视图尺寸
+
         //=========================================================================
         // 屏幕/视图尺寸
         //=========================================================================
         /// <summary>
-        /// 获取游戏窗口分辨率
+        /// 获取游戏窗口完整分辨率（全屏，包含上下标题UI）
         /// 编辑器下：取Game视图大小
-        /// 运行时：取屏幕真实宽高
+        /// 运行时：取设备屏幕真实宽高
         /// </summary>
         public static Vector2 GameViewSize()
         {
@@ -44,9 +45,39 @@ namespace GameLib
 #endif
             return size;
         }
-        #endregion
 
+        /// <summary>
+        /// 获取中间地图红框视口尺寸（剔除顶部标题、底部操作UI高度）
+        /// 专门用于地图相机缩放、边界约束计算
+        /// </summary>
+        /// <param name="topHudPixelHeight">顶部标题UI像素高度</param>
+        /// <param name="bottomHudPixelHeight">底部道具/提示UI像素高度</param>
+        /// <returns>仅地图可视区域宽高，宽=全屏宽，高=总高-顶部高-底部高</returns>
+        public static Vector2 GetMapViewportSize(float topHudPixelHeight, float bottomHudPixelHeight)
+        {
+            Vector2 fullSize = GameViewSize();
+            float usableHeight = fullSize.y - topHudPixelHeight - bottomHudPixelHeight;
+            // 防止数值异常小于0
+            usableHeight = Mathf.Max(usableHeight, 1f);
+            return new Vector2(fullSize.x, usableHeight);
+        }
+
+        /// <summary>
+        /// 重载：直接从MapData组件读取HUD高度，一键获取地图视口尺寸
+        /// 供Lua层调用，简化传参
+        /// </summary>
+        /// <param name="mapData">当前地图MapData组件实例</param>
+        public static Vector2 GetMapViewportSize(MapData mapData)
+        {
+            if (mapData == null)
+                return GameViewSize();
+
+            return GetMapViewportSize(mapData.m_TopHudPixelHeight, mapData.m_BottomHudPixelHeight);
+        }
+        #endregion
+        
         #region 调试/日志
+
         //=========================================================================
         // 调试/日志
         //=========================================================================
@@ -65,12 +96,15 @@ namespace GameLib
                 if (i != list.Count - 1)
                     stringBuilder.Append(',');
             }
+
             stringBuilder.Append(']');
             return stringBuilder.ToString();
         }
+
         #endregion
 
         #region 正则/字符串处理
+
         //=========================================================================
         // 正则/字符串处理
         //=========================================================================
@@ -94,9 +128,11 @@ namespace GameLib
             // [^\p{L}\p{N}\s]  =  非(字母/数字/空格) 的字符都替换为空
             return System.Text.RegularExpressions.Regex.Replace(origin, @"[^\p{L}\p{N}\s]", "");
         }
+
         #endregion
 
         #region 输入控制
+
         //=========================================================================
         // 输入控制
         //=========================================================================
@@ -115,6 +151,7 @@ namespace GameLib
         {
             return Input.multiTouchEnabled;
         }
+
         #endregion
     }
 }

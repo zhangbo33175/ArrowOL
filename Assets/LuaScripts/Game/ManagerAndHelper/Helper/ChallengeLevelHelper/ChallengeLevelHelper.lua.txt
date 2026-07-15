@@ -150,12 +150,7 @@ end
 ---@brief 挑战关卡胜利，发放配置表额外奖励
 ---@type fun():void
 function ChallengeLevelHelper:GiveExtraReward()
-    -- 解析常量配置表奖励
-    local rewardList = ParseRewardTable(Tables.Constants.ChallengeExtraReward.Value)
-    -- 生成奖励物品
-    PlacingItemByRewardData(rewardList)
-    -- 数据埋点
-    AnalyticsRewards(rewardList, TrackProperty.ResGetMethod.level_win)
+
 end
 --endregion
 

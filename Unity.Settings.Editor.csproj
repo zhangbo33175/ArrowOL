@@ -56,8 +56,8 @@
     <Compile Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\ProjectUserSettings.cs" />
     <Compile Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\UserSettingsRepository.cs" />
     <Compile Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\UserSetting.cs" />
-    <Compile Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\UserSettingsProvider.cs" />
     <Compile Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\UserSettings.cs" />
+    <Compile Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\UserSettingsProvider.cs" />
     <Compile Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\Settings.cs" />
     <None Include="Library\PackageCache\com.unity.settings-manager@2.0.1\Editor\Unity.Settings.Editor.asmdef" />
     <Reference Include="UnityEngine">

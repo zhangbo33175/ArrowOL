@@ -21,11 +21,15 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(MapData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 3, 13, 13);
+			Utils.BeginObjectRegister(type, L, translator, 0, 7, 16, 16);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalCamSize", _m_NormalCamSize);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetMapViewportSize", _m_GetMapViewportSize);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CalcAutoMinCamSize", _m_CalcAutoMinCamSize);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlayHudRightViewWorldPosX", _m_PlayHudRightViewWorldPosX);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlayHudRightViewWorldPosX_Viewport", _m_PlayHudRightViewWorldPosX_Viewport);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlayHudLeftViewWorldPosX", _m_PlayHudLeftViewWorldPosX);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlayHudLeftViewWorldPosX_Viewport", _m_PlayHudLeftViewWorldPosX_Viewport);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_ChapterId", _g_get_m_ChapterId);
@@ -41,6 +45,9 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MinCamSize", _g_get_m_MinCamSize);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MaxCamSize", _g_get_m_MaxCamSize);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_ScrollSensitivity", _g_get_m_ScrollSensitivity);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_TopHudPixelHeight", _g_get_m_TopHudPixelHeight);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_BottomHudPixelHeight", _g_get_m_BottomHudPixelHeight);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MinScaleLockCenter", _g_get_m_MinScaleLockCenter);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_ChapterId", _s_set_m_ChapterId);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_LevelId", _s_set_m_LevelId);
@@ -55,6 +62,9 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MinCamSize", _s_set_m_MinCamSize);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MaxCamSize", _s_set_m_MaxCamSize);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_ScrollSensitivity", _s_set_m_ScrollSensitivity);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_TopHudPixelHeight", _s_set_m_TopHudPixelHeight);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_BottomHudPixelHeight", _s_set_m_BottomHudPixelHeight);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MinScaleLockCenter", _s_set_m_MinScaleLockCenter);
             
 			
 			Utils.EndObjectRegister(type, L, translator, null, null,
@@ -130,6 +140,62 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetMapViewportSize(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        UnityEngine.Vector2 gen_ret = gen_to_be_invoked.GetMapViewportSize(  );
+                        translator.PushUnityEngineVector2(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_CalcAutoMinCamSize(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        float gen_ret = gen_to_be_invoked.CalcAutoMinCamSize(  );
+                        LuaAPI.lua_pushnumber(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_PlayHudRightViewWorldPosX(RealStatePtr L)
         {
 		    try {
@@ -158,6 +224,34 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_PlayHudRightViewWorldPosX_Viewport(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        float gen_ret = gen_to_be_invoked.PlayHudRightViewWorldPosX_Viewport(  );
+                        LuaAPI.lua_pushnumber(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_PlayHudLeftViewWorldPosX(RealStatePtr L)
         {
 		    try {
@@ -172,6 +266,34 @@ namespace XLua.CSObjectWrap
                 {
                     
                         float gen_ret = gen_to_be_invoked.PlayHudLeftViewWorldPosX(  );
+                        LuaAPI.lua_pushnumber(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_PlayHudLeftViewWorldPosX_Viewport(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        float gen_ret = gen_to_be_invoked.PlayHudLeftViewWorldPosX_Viewport(  );
                         LuaAPI.lua_pushnumber(L, gen_ret);
                     
                     
@@ -370,6 +492,48 @@ namespace XLua.CSObjectWrap
             return 1;
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_TopHudPixelHeight(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.m_TopHudPixelHeight);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_BottomHudPixelHeight(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.m_BottomHudPixelHeight);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_MinScaleLockCenter(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.m_MinScaleLockCenter);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -561,6 +725,51 @@ namespace XLua.CSObjectWrap
 			
                 MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.m_ScrollSensitivity = (float)LuaAPI.lua_tonumber(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_TopHudPixelHeight(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_TopHudPixelHeight = (float)LuaAPI.lua_tonumber(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_BottomHudPixelHeight(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_BottomHudPixelHeight = (float)LuaAPI.lua_tonumber(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_MinScaleLockCenter(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_MinScaleLockCenter = LuaAPI.lua_toboolean(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

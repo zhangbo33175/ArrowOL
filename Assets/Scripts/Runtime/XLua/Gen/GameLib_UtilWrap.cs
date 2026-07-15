@@ -31,8 +31,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 6, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 7, 0, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "GameViewSize", _m_GameViewSize_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "GetMapViewportSize", _m_GetMapViewportSize_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "IsRegexMatch", _m_IsRegexMatch_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "ReplaceSymbolInName", _m_ReplaceSymbolInName_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "SetMultiTouchEnabled", _m_SetMultiTouchEnabled_xlua_st_);
@@ -82,6 +83,49 @@ namespace XLua.CSObjectWrap
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetMapViewportSize_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 1)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
+                {
+                    float _topHudPixelHeight = (float)LuaAPI.lua_tonumber(L, 1);
+                    float _bottomHudPixelHeight = (float)LuaAPI.lua_tonumber(L, 2);
+                    
+                        UnityEngine.Vector2 gen_ret = GameLib.Util.GetMapViewportSize( _topHudPixelHeight, _bottomHudPixelHeight );
+                        translator.PushUnityEngineVector2(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 1&& translator.Assignable<MapData>(L, 1)) 
+                {
+                    MapData _mapData = (MapData)translator.GetObject(L, 1, typeof(MapData));
+                    
+                        UnityEngine.Vector2 gen_ret = GameLib.Util.GetMapViewportSize( _mapData );
+                        translator.PushUnityEngineVector2(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to GameLib.Util.GetMapViewportSize!");
             
         }
         

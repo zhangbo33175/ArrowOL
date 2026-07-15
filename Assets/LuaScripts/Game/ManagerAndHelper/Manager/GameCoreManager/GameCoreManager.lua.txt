@@ -112,7 +112,6 @@ end
 function GameCoreManager:OnGameVictory()
     -- 发送任务进度
     self:SendQuestFinishProgress()
-
     -- 游戏胜利标记
     PlayHelper:GameOver(true)
     self._GameCoreManagerLevelFinish:OnGameOverAfter()
@@ -183,7 +182,7 @@ function GameCoreManager:IsInChallengeLevel()
     if self._CurLevelData == nil then
         return false
     end
-    return self._CurLevelData.Difficulty == ELevelDifficultyType.Challenge
+    return true --self._CurLevelData.Difficulty == ELevelDifficultyType.Challenge
 end
 
 ---=========================================================================
@@ -191,6 +190,7 @@ end
 ---@return boolean
 ---=========================================================================
 function GameCoreManager:IsLifeEnough()
+    
     return true
 end
 
@@ -598,7 +598,7 @@ end
 ---=========================================================================
 function GameCoreManager:SetPlayingLevelTag(levelInfo)
     SaveRootData.GameData.playingLevelTag = levelInfo
-    SaveIO.GameData.Save_playingLevelTag()
+    --SaveIO.GameData.Save_playingLevelTag()
 end
 
 return GameCoreManager

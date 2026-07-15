@@ -7,6 +7,7 @@
  * created:   2026
  * descrip:   地图系统核心数据类
  *            管理地图配置、相机参数、视图边界、图标数据等核心逻辑
+ *            新增：剔除上下HUD的红框视口计算、动态自适应最小缩放尺寸
  ***************************************************************/
 
 using UnityEngine;
@@ -121,7 +122,7 @@ public class RMapData
     public Vector3 m_Scale;
 
     /// <summary>
-    /// 精灵图片资源路径
+    /// 图片名字
     /// </summary>
     public string m_Sprite;
 
@@ -171,22 +172,10 @@ public class RMapChapterTypeData
     /// 地图子物体数据列表
     /// </summary>
     public List<RMapData> m_MapObjectData = new List<RMapData>();
-
     /// <summary>
     /// 配置创建时间
     /// </summary>
-    public string m_CcreateTime;
-
-    /// <summary>
-    /// 地图宽度（像素/单位）
-    /// </summary>
-    public int m_MapWidth;
-
-    /// <summary>
-    /// 地图高度（像素/单位）
-    /// </summary>
-    public int m_MapHeight;
-
+    public string m_CreateTime;
     /// <summary>
     /// 配置保存路径
     /// </summary>
@@ -226,7 +215,7 @@ public class MapCamData
     }
 
     /// <summary>
-    /// 左对齐模式下标准化相机X轴位置
+    /// 左对齐模式下标准化相机X轴位置（全屏尺寸旧接口，保留兼容旧逻辑）
     /// </summary>
     /// <param name="viewSize">视图尺寸</param>
     /// <param name="mapLeftWorldPosX">地图左边界世界X坐标</param>
@@ -238,7 +227,17 @@ public class MapCamData
     }
 
     /// <summary>
-    /// 右对齐模式下标准化相机X轴位置
+    /// 左对齐模式标准化X（仅中间地图红框视口，剔除上下UI，推荐新逻辑使用）
+    /// </summary>
+    public void NormalAdjustLeftPosX_Viewport(Vector2 viewportSize, float mapLeftWorldPosX)
+    {
+        var viewWidth = viewportSize.x / viewportSize.y * size * 2 * 100;
+        var viewBoundPosX = viewWidth / 200;
+        posX = mapLeftWorldPosX + viewBoundPosX;
+    }
+
+    /// <summary>
+    /// 右对齐模式下标准化相机X轴位置（全屏尺寸旧接口）
     /// </summary>
     /// <param name="viewSize">视图尺寸</param>
     /// <param name="mapRightWorldPosX">地图右边界世界X坐标</param>
@@ -250,7 +249,17 @@ public class MapCamData
     }
 
     /// <summary>
-    /// 退出关卡时修正相机X位置，防止超出地图边界
+    /// 右对齐模式标准化X（仅中间地图红框视口，剔除上下UI）
+    /// </summary>
+    public void NormalAdjustRightPosX_Viewport(Vector2 viewportSize, float mapRightWorldPosX)
+    {
+        var viewWidth = viewportSize.x / viewportSize.y * size * 2 * 100;
+        var viewBoundPosX = viewWidth / 200;
+        posX = mapRightWorldPosX - viewBoundPosX;
+    }
+
+    /// <summary>
+    /// 退出关卡时修正相机X位置，防止超出地图边界（全屏旧接口）
     /// </summary>
     /// <param name="viewSize">屏幕分辨率</param>
     /// <param name="playPosX">游玩状态相机X坐标</param>
@@ -265,6 +274,26 @@ public class MapCamData
         }
 
         var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
+        var viewBoundPosX = playPosX + viewWidth / 200;
+
+        if (viewBoundPosX > mapRightWorldPosX)
+            posX = playPosX + mapRightWorldPosX - viewBoundPosX;
+        else
+            posX = playPosX;
+    }
+
+    /// <summary>
+    /// 退出关卡修正X（仅中间地图红框视口）
+    /// </summary>
+    public void ExitPlayAdjustPosX_Viewport(Vector2 viewportSize, float playPosX, float mapRightWorldPosX, RMapPlayHudPosType mapPlayHudPosType)
+    {
+        if (mapPlayHudPosType == RMapPlayHudPosType.Center)
+        {
+            posX = playPosX;
+            return;
+        }
+
+        var viewWidth = viewportSize.x / viewportSize.y * size * 2 * 100;
         var viewBoundPosX = playPosX + viewWidth / 200;
 
         if (viewBoundPosX > mapRightWorldPosX)
@@ -356,7 +385,7 @@ public class MapData : MonoBehaviour
     /// <summary>
     /// 相机最小正交Size（限制相机的最大放大倍数）
     /// </summary>
-    [Tooltip("最小相机正交Size(相机可放大到的最大值，数值越大画面显示内容越少)")]
+    [Tooltip("兜底最小尺寸，动态计算尺寸不会小于该值")]
     public float m_MinCamSize = 250f;
 
     /// <summary>
@@ -370,6 +399,16 @@ public class MapData : MonoBehaviour
     /// </summary>
     [Tooltip("滚轮缩放灵敏度")]
     public float m_ScrollSensitivity = 0.5f;
+    
+    [Header("中间地图红框视口配置（剔除上下标题UI）")]
+    [Tooltip("顶部标题HUD固定高度（屏幕像素）")]
+    public float m_TopHudPixelHeight = 160f;
+
+    [Tooltip("底部道具HUD固定高度（屏幕像素）")]
+    public float m_BottomHudPixelHeight = 180f;
+
+    [Tooltip("最小缩放是否强制居中地图，锁定不可拖动")]
+    public bool m_MinScaleLockCenter = true;
     #endregion
 
     #region 生命周期
@@ -393,9 +432,42 @@ public class MapData : MonoBehaviour
     }
 
     /// <summary>
-    /// 获取游玩相机可视区域右边界世界X坐标
+    /// 获取中间地图红框Viewport尺寸（扣除顶部标题、底部UI高度）
+    /// 统一调用Util工具类，全项目单数据源
     /// </summary>
-    /// <returns>右边界X</returns>
+    public Vector2 GetMapViewportSize()
+    {
+        return Util.GetMapViewportSize(this);
+    }
+
+    /// <summary>
+    /// 动态计算适配红框的最小相机正交Size
+    /// 保证整张地图完整显示在中间红框视口，无溢出无裁切
+    /// </summary>
+    public float CalcAutoMinCamSize()
+    {
+        if (mapBounds == null)
+            return m_MinCamSize;
+
+        Vector2 viewport = GetMapViewportSize();
+        float viewAspect = viewport.x / viewport.y;
+
+        // 地图包围盒半宽/半高（世界单位）
+        float mapHalfW = mapBounds.m_AreaBounds.extents.x;
+        float mapHalfH = mapBounds.m_AreaBounds.extents.y;
+
+        // 两种适配维度：按高度铺满 / 按宽度铺满
+        float sizeByHeight = mapHalfH;
+        float sizeByWidth = mapHalfW / viewAspect;
+
+        // 取最大值保证完整容纳，兜底不小于面板配置最小尺寸
+        float autoMinSize = Mathf.Max(sizeByHeight, sizeByWidth);
+        return Mathf.Max(autoMinSize, m_MinCamSize);
+    }
+
+    /// <summary>
+    /// 获取游玩相机可视区域右边界世界X坐标（旧全屏尺寸逻辑，兼容历史代码）
+    /// </summary>
     public float PlayHudRightViewWorldPosX()
     {
         var viewSize = Util.GameViewSize();
@@ -406,12 +478,35 @@ public class MapData : MonoBehaviour
     }
 
     /// <summary>
-    /// 获取游玩相机可视区域左边界世界X坐标
+    /// 获取游玩相机可视区域右边界世界X坐标（新：仅中间红框地图视口，剔除上下UI）
     /// </summary>
-    /// <returns>左边界X</returns>
+    public float PlayHudRightViewWorldPosX_Viewport()
+    {
+        var viewSize = GetMapViewportSize();
+        var size = m_PlayCamData.size;
+        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
+        var viewBoundPosX = viewWidth / 200;
+        return m_PlayCamData.posX + viewBoundPosX;
+    }
+
+    /// <summary>
+    /// 获取游玩相机可视区域左边界世界X坐标（旧全屏尺寸逻辑）
+    /// </summary>
     public float PlayHudLeftViewWorldPosX()
     {
         var viewSize = Util.GameViewSize();
+        var size = m_PlayCamData.size;
+        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
+        var viewBoundPosX = viewWidth / 200;
+        return m_PlayCamData.posX - viewBoundPosX;
+    }
+
+    /// <summary>
+    /// 获取游玩相机可视区域左边界世界X坐标（新：仅中间红框地图视口）
+    /// </summary>
+    public float PlayHudLeftViewWorldPosX_Viewport()
+    {
+        var viewSize = GetMapViewportSize();
         var size = m_PlayCamData.size;
         var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
         var viewBoundPosX = viewWidth / 200;

@@ -61,13 +61,16 @@ namespace Editor.MapEditor
         /// <summary>
         /// 当前编辑的地图/关卡名称
         /// </summary>
-        private string mapName;
+        private static string mapName;
 
         /// <summary>
         /// 当前编辑的地图/关卡ID
         /// </summary>
-        private string mapId;
-
+        private static string mapId;
+        /// <summary>
+        /// 当前编辑的地图关卡ID
+        /// </summary>
+        private static string mapLevelId;
         /// <summary>
         /// 地图预览缩放比例
         /// </summary>
@@ -203,6 +206,13 @@ namespace Editor.MapEditor
         /// </summary>
         private static LevelDataEditor _mLevelDataEditor;
 
+        
+        /// <summary>
+        /// 当前选中的主关卡数据
+        /// </summary>
+        private static TablesElectedLevelsEditor _mTablesElectedLevelsEditor;
+        
+        
         /// <summary>
         /// 主关卡Excel路径
         /// </summary>
@@ -469,9 +479,11 @@ namespace Editor.MapEditor
             public static RMapChapterTypeData GetCurLevelTypeEditorData()
             {
                 RMapChapterTypeData data = new RMapChapterTypeData();
-                data.m_MapWidth = m_MapWidth;
-                data.m_MapHeight = m_MapHeight;
-
+                data.ChapterId = _mTablesElectedLevelsEditor.ChapterId;
+                data.LevelId = int.Parse(_mTablesElectedLevelsEditor.LevelId);
+                data.m_MapName = _mTablesElectedLevelsEditor.MapName;
+                data.m_CreateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                data.m_BackgroundPath=_mTablesElectedLevelsEditor.Background;
                 List<RMapData> objList = new List<RMapData>();
                 foreach (GameObject go in m_AddObjects)
                 {
@@ -598,15 +610,15 @@ namespace Editor.MapEditor
                 {
                     var data = Utils.GetCurLevelTypeEditorData();
                     if (!string.IsNullOrEmpty(data?.SavePath))
-                        return Path.Combine(LevelSaveRootPath, _mTableMainLevelsEditor.ID, data.SavePath);
-                    return Path.Combine(LevelSaveRootPath, _mTableMainLevelsEditor.ID);
+                        return Path.Combine(LevelSaveRootPath, _mTablesElectedLevelsEditor.ChapterId, data.SavePath);
+                    return Path.Combine(LevelSaveRootPath, _mTablesElectedLevelsEditor.ChapterId);
                 }
             }
 
             /// <summary>
             /// 获取目前选择的关卡类型数据
             /// </summary>
-            private static TableMainLevelsEditor GetCurLevelTypeEditorData()
+            private static TableChapterEditor GetCurLevelTypeEditorData()
             {
                 return GetLevelTypeEditorDataByIndex(Convert.ToInt32(_mTableMainLevelsEditor.ID));
             }
@@ -614,14 +626,14 @@ namespace Editor.MapEditor
             /// <summary>
             /// 通过索引获取关卡类型数据
             /// </summary>
-            private static TableMainLevelsEditor GetLevelTypeEditorDataByIndex(int index)
+            private static TableChapterEditor GetLevelTypeEditorDataByIndex(int index)
             {
-                if (index < 0 || index >= m_TableMainLevelsList.Count)
+                if (index < 0 || index >= m_TableChapterList.Count)
                 {
                     return null;
                 }
 
-                return m_TableMainLevelsList[index];
+                return m_TableChapterList[index];
             }
 
             /// <summary>
@@ -654,7 +666,7 @@ namespace Editor.MapEditor
         //=========================================================================
         // 类型转换工具
         //=========================================================================
-        #region Type Conversion Utility
+        #region 类型转换工具
         public static class SetTypeConversion
         {
             /// <summary>
@@ -689,6 +701,66 @@ namespace Editor.MapEditor
                 }
 
                 return result.ToArray();
+            }
+            
+            /// <summary>
+            /// 把 "(296.17, 693.17, 0.00)" 格式转成字符串数组 { "296.17", "693.17", "0.00" }
+            /// </summary>
+            public static string[] ParseVectorString(string str)
+            {
+                if (string.IsNullOrEmpty(str))
+                    return new string[0];
+
+                // 去掉括号 ( )
+                string clean = str.Trim('(', ')');
+
+                // 按逗号分割
+                string[] parts = clean.Split(',');
+
+                // 去掉每个值前后空格
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    parts[i] = parts[i].Trim();
+                }
+
+                return parts;
+            }
+
+            /// <summary>
+            /// 把 "(296.17, 693.17, 0.00)" 直接转 float[]
+            /// </summary>
+            public static float[] ParseVectorToFloat(string str)
+            {
+                var parts = ParseVectorString(str);
+                float[] result = new float[parts.Length];
+
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    float.TryParse(parts[i], out result[i]);
+                }
+
+                return result;
+            }
+            
+            /// <summary>
+            /// 将 Vector3 转换为保留2位小数的字符串数组：{ "x", "y", "z" }
+            /// 格式：296.17、693.17、0.00
+            /// </summary>
+            public static string[] Vector3ToStringArray(Vector3 vec)
+            {
+                return new[]
+                {
+                    vec.x.ToString("F2"),
+                    vec.y.ToString("F2"),
+                    vec.z.ToString("F2")
+                };
+            }
+            /// <summary>
+            /// Vector3 → string：{"296.17","693.17","0.00"}
+            /// </summary>
+            public static string Vector3ToLuaString(Vector3 vec)
+            {
+                return $"{{\"{vec.x:F2}\",\"{vec.y:F2}\",\"{vec.z:F2}\"}}";
             }
         }
         #endregion

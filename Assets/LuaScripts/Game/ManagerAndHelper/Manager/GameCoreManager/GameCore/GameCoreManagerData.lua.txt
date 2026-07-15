@@ -25,14 +25,14 @@ function GameCoreManagerData:ctor()
     self._RemainGuestCount = 0                  ---@type number                         剩余寻找物数量
 
     --- 关卡限制条件
-    self._LimitCheckData = nil                  ---@type Tables.LimitCheck_Item[]       关卡限制条件配置
+    self._LimitCheckData = nil                  ---@type Tables.LimitCheck_Item[]      关卡限制条件配置
     self._LimitTriggered = nil                  ---@type string[]                      已触发的限制条件
     self._TutorialIgnoreLimitGoal = nil         ---@type table                         引导中忽略的限制条件
 
     --- 关卡基础信息
     self._ComboCount = 0                        ---@type number                         连击次数
     self._LevelDifficulty = 1                   ---@type number                         关卡难度系数
-    self._LevelMode = 0                          ---@type number                         关卡玩法模式
+    self._LevelMode = 0                          ---@type number                        关卡玩法模式
     self._LevelID = 0                           ---@type number                         当前关卡ID
 
     --- 道具 & 复活 & 体力
@@ -75,8 +75,8 @@ end
 ---@desc 包含星级、货币、道具使用等关键进度数据
 ---=========================================================================
 function GameCoreManagerData:SaveData()
-    self:SaveStarCount()
-    self:SaveTotalMoney()
+    --self:SaveStarCount()
+    --self:SaveTotalMoney()
 end
 
 ---=========================================================================

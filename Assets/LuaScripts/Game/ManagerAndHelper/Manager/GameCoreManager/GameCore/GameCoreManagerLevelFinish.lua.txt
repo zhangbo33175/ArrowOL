@@ -138,12 +138,12 @@ end
 ---=========================================================================
 function GameCoreManagerLevelFinish:ShowLevelFinishUI()
     -- 停止所有音效
-    SoundMgr:StopAllSound()
+    SoundManager:StopAllSound()
 
     if GameCoreManager._IsSuccessFinishGame then
         -- 胜利流程
-        OpenUISync(UIs.UILevelSuccessBg)
-        OpenUISync(UIs.UILevelSuccess, self:GetLevelSuccessInfo())
+        --OpenUISync(UIs.UILevelSuccessBg)
+        OpenUISync(UIs.UILevelVictoryView, self:GetLevelSuccessInfo())
     else
         -- 失败流程：判断是否显示前置道具推荐
         if PreBoosterRecommendMgr:CanShowPreBoosterRecommend() then

@@ -1,0 +1,23 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableLevelData_1_2
+-- descrip:   关卡配置信息表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@type Tables.LevelData_Item
+Tables.LevelData_1_2 = { 
+    ChapterId = "1",
+    LevelId= 2,
+    BgName = "Level_bg_main2",
+    Time = "2026-05-28 17:18:14",
+    MapName =" GameMainMap",
+    SavePath =" ",
+    MapData= {
+       [1] = {Id = 1002, Type = "Dissipate",Position = {"3.15","311.93","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2",Name = "ItemMap_Instance_0",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [2] = {Id = 1003, Type = "Dissipate",Position = {"472.62","-519.88","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat3",Name = "ItemMap_Instance_1",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [3] = {Id = 1005, Type = "Dissipate",Position = {"-289.87","-352.89","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat5",Name = "ItemMap_Instance_2",Size = {"35.00","39.00","0.00"},IsChoose = false},
+    },
+ }

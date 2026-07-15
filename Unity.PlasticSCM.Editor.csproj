@@ -323,8 +323,8 @@
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\PlasticPluginIsEnabledPreference.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\Views\Diff\UnityDiffTree.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\Views\History\HistorySelection.cs" />
-    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\AssetsUtils\Processor\AssetsProcessor.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\Views\Diff\DiffTreeViewMenu.cs" />
+    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\AssetsUtils\Processor\AssetsProcessor.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\Views\Diff\Dialogs\GetRestorePathDialog.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\UI\EnumPopupSetting.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\Editor\PlasticSCM\Views\Changesets\ChangesetListViewItem.cs" />

@@ -236,6 +236,7 @@
 		<type fullname="RMapChapterTypeData" preserve="all"/>
 		<type fullname="MapCamData" preserve="all"/>
 		<type fullname="MapData" preserve="all"/>
+		<type fullname="AorBoxCollider2DAutoFit" preserve="all"/>
 		<type fullname="MapController" preserve="all"/>
 		<type fullname="MapMarker" preserve="all"/>
 		<type fullname="MapPathDrawer" preserve="all"/>

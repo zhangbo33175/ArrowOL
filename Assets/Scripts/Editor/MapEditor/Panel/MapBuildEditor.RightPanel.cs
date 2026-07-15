@@ -288,8 +288,8 @@ namespace Editor.MapEditor
             // 清空旧物体
             ClearAddedObjects();
 
-            m_MapWidth = chapterTypeData.m_MapWidth;
-            m_MapHeight = chapterTypeData.m_MapHeight;
+            // m_MapWidth = chapterTypeData.m_MapWidth;
+            // m_MapHeight = chapterTypeData.m_MapHeight;
 
             // 遍历加载所有物体
             foreach (var objData in chapterTypeData.m_MapObjectData)

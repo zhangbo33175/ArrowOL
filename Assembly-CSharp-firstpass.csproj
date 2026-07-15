@@ -159,8 +159,8 @@
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader.DataSet\Portable\ExtensionAttribute.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\TabNavigationHelper.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\HorizontalScrollSnap.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\UIVerticalScroller.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\NumberFormat\ExponentialSection.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\UIVerticalScroller.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ExtentionMethods.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurlyUI\CUIBezierCurve.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Primitives\UICircle.cs" />
@@ -296,8 +296,8 @@
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\Gradient.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UIHighlightable.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsWorksheet.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\BoxSlider.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\OpenXmlFormat\XlsxWorksheet.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\BoxSlider.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\ETCBase.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\MenuSystem\Menu.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView\ScrollRect\FancyScrollRectContext.cs" />
@@ -350,11 +350,11 @@
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsSSTStringHeader.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\Plugins\ETCDPad.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsWorkbook.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UISelectableExtension.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\CurlyUI\CUIMisc.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\UI_Knob.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\SVBoxSlider.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouch\Plugins\Engine\BaseFinger.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\UISelectableExtension.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\EncodingHelper.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\LitJson\IJsonWrapper.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsBiffFilePass.cs" />
@@ -397,6 +397,7 @@
     <None Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Resources\Shaders\UI Particle VertexLit Blended.shader" />
     <None Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Resources\Shaders\UI Particle MultiplyDouble.shader" />
+    <None Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Shaders\TMP_TextOutlineOverlay.shader" />
     <None Include="Assets\Plugins\ThirdLibs\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Resources\Shaders\UI Particle AddMultiply.shader" />
     <None Include="Assets\Plugins\ThirdLibs\EasyTouchBundle\EasyTouchControls\ReleaseNotes.txt" />

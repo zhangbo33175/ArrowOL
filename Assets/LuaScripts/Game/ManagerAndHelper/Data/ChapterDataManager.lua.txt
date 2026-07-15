@@ -83,6 +83,21 @@ function ChapterDataManager:GetChapterDataByChapterId(chapterId)
     return Tables.MainLevels[tostring(chapterId)]
 end
 
+
+---=========================================================================
+---@brief  根据章节ID获取主线章节配置
+---@type fun(chapterId:string):Tables.Chapters_Item|nil
+---@param chapterId string 章节Id
+---@return Tables.Chapters_Item|nil 章节配置数据
+---=========================================================================
+function ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+    if not chapterId or not Tables or not Tables.Chapters then
+        return nil
+    end
+    return Tables.Chapters[tostring(chapterId)]
+end
+
+
 ---=========================================================================
 ---@brief  根据章节ID获取每日挑战章节配置
 ---@type fun(chapterId:string):Tables.Chapters_Item|nil

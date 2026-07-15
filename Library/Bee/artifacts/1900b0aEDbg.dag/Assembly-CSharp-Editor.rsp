@@ -434,6 +434,7 @@
 "Assets/Scripts/Editor/LevelEditor/TableChapterEditor.cs"
 "Assets/Scripts/Editor/LevelEditor/TableItemEditor.cs"
 "Assets/Scripts/Editor/LevelEditor/TableMainLevelsEditor.cs"
+"Assets/Scripts/Editor/LevelEditor/TablesElectedLevelsEditor.cs"
 "Assets/Scripts/Editor/LuaTxtToLuaConverter.cs"
 "Assets/Scripts/Editor/MapEditor/InitStyles/MapBuildEditor.InitStyles.cs"
 "Assets/Scripts/Editor/MapEditor/MapBuildEditor.cs"
@@ -451,6 +452,7 @@
 "Assets/Scripts/Runtime/XLua/Src/Editor/Generator.cs"
 "Assets/Scripts/Runtime/XLua/Src/Editor/Hotfix.cs"
 "Assets/Scripts/Runtime/XLua/Src/Editor/LinkXmlGen/LinkXmlGen.cs"
+"Assets/Scripts/Runtime/XLua/Src/Editor/Report.cs"
 "Assets/Scripts/Runtime/XLua/Src/Editor/TemplateRef.cs"
 -langversion:9.0
 /unsafe+
