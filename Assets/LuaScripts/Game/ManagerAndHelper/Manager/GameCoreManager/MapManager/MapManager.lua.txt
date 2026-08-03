@@ -80,7 +80,6 @@ function MapManager:UnloadMapAfterClear()
     self.CurMapData = nil
     self.CurGameMapBase = nil
     self.CurMapMachines = {}
-
     GameMainUIPushManager:ClearElementData()
 end
 --endregion
@@ -191,6 +190,7 @@ function MapManager:UnloadOldMap()
     if string.isNullOrEmpty(self.CurLoadChapterId) or IsNull(self.CurLoadMapGo) then
         return
     end
+    CharacterGenerationManager:DesCharacterGenerationAll()
     GameEffectManager:ClearData()
     self:UnloadMapBeforeClear()
     DestroyPrefabWithGO(self.CurLoadMapGo)

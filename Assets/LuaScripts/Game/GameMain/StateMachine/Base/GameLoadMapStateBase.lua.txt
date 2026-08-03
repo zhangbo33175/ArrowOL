@@ -48,6 +48,7 @@ function GameLoadMapStateBase:OnStateEnter(finishCallback)
         -- 目标地图与当前相同 → 不重复加载
         if MapManager.CurLoadChapterId == MapManager.ReadyLoadChapterId then
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
+         
             self:LoadMapOver(finishCallback)
         else
             -- 卸载旧地图
@@ -116,6 +117,9 @@ end
 ---@type fun(chapterId:string):void
 ---@param chapterId string 即将加载的章节ID
 function GameLoadMapStateBase:OnReadyToLoadMap(chapterId)
+    --- 设置当前运行章节
+    ChapterListManager:SetRuntimeChapter(chapterId)
+    GameCoreManager:OnRePlayGame()
 end
 --endregion
 

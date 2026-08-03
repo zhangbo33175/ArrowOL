@@ -89,11 +89,12 @@ function GamePlayingState:OnStateExit(finishCallback)
     -- 清理特效、停止音乐
     GameEffectManager:ClearData()
     SoundManager:StopCurrentBgm()
+    GameCoreManager:ClearData()
     -- 关闭战斗UI
     CloseUI(UIs.UIMainPlaying)
     CloseUI(UIs.UILevelVictoryView)
     CloseUI(UIs.UILevelFailedView)
-
+    MapManager:UnloadOldMap()
     -- 退出游戏逻辑
     PlayGameplayCycle:OnAction(EPlayHudCycleAction.ExitGame)
 

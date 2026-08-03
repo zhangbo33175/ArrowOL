@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using XLua;
 
 namespace Honor.Runtime
@@ -367,5 +368,43 @@ namespace Honor.Runtime
         }
 
         #endregion
+        
+        // 在SceneComponent相机管理区新增创建绑定RenderTexture的方法
+        private Dictionary<Camera, RenderTexture> _cameraRtMap = new Dictionary<Camera, RenderTexture>();
+
+        /// <summary>
+        /// 将相机绑定到指定裁剪UI的RawImage，实现画面限定在红框内
+        /// </summary>
+        /// <param name="cameraIndex">场景相机索引</param>
+        /// <param name="targetRawImage">红框内的RawImage组件</param>
+        /// <param name="rtWidth">纹理宽度</param>
+        /// <param name="rtHeight">纹理高度</param>
+        public void BindCameraToClipRawImage(int cameraIndex, RawImage targetRawImage, int rtWidth = 1024, int rtHeight = 1024)
+        {
+            Camera cam = GetSceneCamera(cameraIndex);
+            if (cam == null || targetRawImage == null) return;
+
+            // 创建适配尺寸的RenderTexture
+            RenderTexture rt = RenderTexture.GetTemporary(rtWidth, rtHeight, 24);
+            rt.antiAliasing = 4;
+            cam.targetTexture = rt;
+
+            // 把渲染纹理赋值给RawImage，画面就会被父RectMask2D裁剪在红框里
+            targetRawImage.texture = rt;
+            _cameraRtMap[cam] = rt;
+        }
+
+        /// <summary>
+        /// 释放相机绑定的渲染纹理（卸载场景调用，防内存泄漏）
+        /// </summary>
+        public void ReleaseCameraRt(Camera cam)
+        {
+            if (_cameraRtMap.TryGetValue(cam, out RenderTexture rt))
+            {
+                RenderTexture.ReleaseTemporary(rt);
+                _cameraRtMap.Remove(cam);
+                cam.targetTexture = null;
+            }
+        }
     }
 }

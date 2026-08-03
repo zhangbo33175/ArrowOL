@@ -11,56 +11,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b0524f1-5a94-4f3a-b57c-f763ada3c38c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/LevelEditor/TablesElectedLevelsEditor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-firstpass.Player.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-firstpass.Player.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-firstpass.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-firstpass.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assembly-CSharp.Player.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.Player.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/EventCmds/EventCmd.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/EventCmds/EventCmd.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Characters/CharacterBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Characters/CharacterBase.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameFunctions.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameFunctions.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePreload.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePreload.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/ChallengeLevelHelper/ChallengeLevelHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/ChallengeLevelHelper/ChallengeLevelHelper.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerData.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerData.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameManager/GameManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameManager/GameManager.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/TableLevelData_1_1.lua.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/UIScripts/UIs/UIs.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/UIScripts/UIs/UIs.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#E55600.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#E55600.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#EA9E8B_CS.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#EA9E8B_CS.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/Character/Character.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/Character/Character.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/Map/GameMap.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/Map/GameMap.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainStateView/UIMainStateView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainStateView/UIMainStateView.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameApp.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameApp.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapBuildEditor.Utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapBuildEditor.Utils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapScrollView/MapBuildEditor.SetMapListScrollView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapScrollView/MapBuildEditor.SetMapListScrollView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/Utility/MapLevelDataUtil.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/Utility/MapLevelDataUtil.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/Game/Map/MapData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/Game/Map/MapData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapChapterTypeDataWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapChapterTypeDataWrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableChapters.xlsm" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableChapters.xlsm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docs/Designs/Excels/UIs/UIConfigs.xlsm" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/Designs/Excels/UIs/UIConfigs.xlsm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docs/Designs/Json/Levels/1/_0.json" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/Designs/Json/Levels/1/_0.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/PlayGameplayCycle.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/PlayGameplayCycle.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorCoroutineHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorCoroutineHelper.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.ref.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.ref.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/LuaDebugMode.dat" beforeDir="false" afterPath="$PROJECT_DIR$/Library/LuaDebugMode.dat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" afterDir="false" />
@@ -70,15 +37,7 @@
       <change beforePath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/b5/b57a4e23ae1f0d9afa91f6744f1e67db.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/b5/b57a4e23ae1f0d9afa91f6744f1e67db.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/UIElements/EditorWindows/UnityEditor.InspectorWindow.pref" beforeDir="false" afterPath="$PROJECT_DIR$/Library/UIElements/EditorWindows/UnityEditor.InspectorWindow.pref" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/expandedItems" beforeDir="false" afterPath="$PROJECT_DIR$/Library/expandedItems" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.PlasticSCM.Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.PlasticSCM.Editor.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.Settings.Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.Settings.Editor.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.Editor.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.Player.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.Player.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -325,6 +284,7 @@
       <workItem from="1780303087301" duration="2591000" />
       <workItem from="1780883828105" duration="10021000" />
       <workItem from="1782464215722" duration="4274000" />
+      <workItem from="1784800905077" duration="6748000" />
     </task>
     <servers />
   </component>

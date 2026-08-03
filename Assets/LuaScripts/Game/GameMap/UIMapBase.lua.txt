@@ -16,8 +16,7 @@
 ---@field name string 动画名称
 ---@field delay number 延时
 ---@field _delayCallIds table 延迟调用ID列表（切换地图时需要清理）
----@field _insiderAutonomousWorker table 内部自治工人
----@field _outsiderAutonomousWorker table 外部自治工人
+
 local UIMapBase = class('UIMapBase', import('GameMapBase'))
 
 --region 【构造 & 实例化】
@@ -69,16 +68,6 @@ end
 ---@type fun():void
 function UIMapBase:OnEnterGame()
     UIMapBase.super.OnEnterGame(self)
-
-    -- 内部自治工人
-    if self._insiderAutonomousWorker then
-        self._insiderAutonomousWorker:OnEnterGame()
-    end
-
-    -- 外部自治工人
-    if self._outsiderAutonomousWorker then
-        self._outsiderAutonomousWorker:OnEnterGame()
-    end
 end
 
 ---@brief 游戏开始
@@ -109,16 +98,6 @@ end
 ---@type fun():void
 function UIMapBase:OnExitGame()
     UIMapBase.super.OnExitGame(self)
-
-    -- 内部自治工人
-    if self._insiderAutonomousWorker then
-        self._insiderAutonomousWorker:OnExitGame()
-    end
-
-    -- 外部自治工人
-    if self._outsiderAutonomousWorker then
-        self._outsiderAutonomousWorker:OnExitGame()
-    end
 end
 
 ---@brief 游戏重玩
@@ -136,19 +115,7 @@ function UIMapBase:UnloadMapBeforeClear()
 
     -- 结束地图控制
     GameMapMotion:OnMapEnd()
-
-    -- 销毁内部自治工人
-    if self._insiderAutonomousWorker then
-        self._insiderAutonomousWorker:Dispose()
-        self._insiderAutonomousWorker = nil
-    end
-
-    -- 销毁外部自治工人
-    if self._outsiderAutonomousWorker then
-        self._outsiderAutonomousWorker:Dispose()
-        self._outsiderAutonomousWorker = nil
-    end
-
+    
     -- 清理所有延迟调用
     for id, _ in pairs(self._delayCallIds) do
         DOTween.Kill(id)

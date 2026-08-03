@@ -55,10 +55,10 @@ function UIMainPlaying:OnSelectedResult(data)
     if data then
         self:OnSetCompleteNumber()
     else
-        if GameManager:GetLifeNumber()==0 then
+        if GameCoreManager:IsLifeEnough() then  
             OpenUISync(UIs.UISettlementView)
         else
-            self.LifeNumber.text = GameManager:GetLifeNumber()
+            self.LifeNumber.text = GameCoreManager:GetLifeNumber()
         end
     end
 end
@@ -73,15 +73,15 @@ function UIMainPlaying:Init()
 end
 
 function UIMainPlaying:OnSetCompleteNumber()
-    self.CompleteNumber.text = GameManager:GetCharacterChooseList() .. "/" .. GameManager:GetCharacterList()
+    self.CompleteNumber.text =  GameCoreManager:GetCharacterAndChooseListCount()
 end
 
 function UIMainPlaying:OnSetUsedNumber()
-    self.UsedNumber.text = GameManager:GetNumberOfPropsUsed()
+    self.UsedNumber.text = GameCoreManager:GetNumberOfPropsUsed()
 end
 
 function UIMainPlaying:OnSetLifeNumber()
-    self.LifeNumber.text = GameManager:GetLifeNumber()
+    self.LifeNumber.text = GameCoreManager:GetLifeNumber()
 end
 
 

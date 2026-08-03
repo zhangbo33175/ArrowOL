@@ -138,7 +138,7 @@ end
 ---@param go GameObject 需要回收的游戏对象
 ---=========================================================================
 function PoolManager:Put(go)
-    if IsNull(go) or not UnityApplication.isPlaying then
+    if IsNull(go) or not Unity.Application.isPlaying then
         return
     end
 

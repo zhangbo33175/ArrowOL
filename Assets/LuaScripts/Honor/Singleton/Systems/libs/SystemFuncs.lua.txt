@@ -816,8 +816,28 @@ end
 ---@type fun(luaClass:table):void
 ---@param luaClass table UI对象LuaBehaviour组件的luaClass
 function DestroyPrefabWithLuaClass(luaClass)
-    if luaClass ~= nil then
-        luaClass:Close()
+    if luaClass == nil then
+        PrintWarn("[Tool] DestroyPrefabWithLuaClass luaClass 为空，跳过销毁")
+        return
+    end
+
+    -- 执行业务关闭逻辑，pcall捕获异常防止单界面报错阻断销毁流程
+    local closeSuccess, err = pcall(function()
+        if type(luaClass.Close) == "function" then
+            luaClass:Close()
+        end
+    end)
+    if not closeSuccess then
+        PrintError(string.format("[Tool] luaClass:Close() 执行异常:%s", err))
+    end
+
+    -- 销毁底层GameObject预制体
+    local targetObj = luaClass.cs.gameObject
+    if not IsNull(targetObj) then
+        CS.UnityEngine.Object.Destroy(targetObj)
+        PrintInfo("[Tool] 已销毁LuaClass绑定预制体")
+    else
+        PrintWarn("[Tool] luaClass.gameObject 为空，无法销毁预制体")
     end
 end
 

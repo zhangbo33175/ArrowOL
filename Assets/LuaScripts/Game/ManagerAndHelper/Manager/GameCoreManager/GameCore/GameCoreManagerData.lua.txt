@@ -6,51 +6,57 @@
 -- created:   2026
 -- @brief     游戏玩法核心数据管理类
 -- @desc      统一管理关卡运行时的所有关键数据：目标进度、关卡信息、道具使用、复活、难度、星级等
--- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
--- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @author    商业项目规范版 | 完整标准化注释 | 多层空安全防护 | 低内存泄漏设计 | 性能优化
+-- @规范      Unity XLua 商业项目编码标准 | 全函数结构化文档注释 | 字段类型标注 | 边界数值保护
 -- @dependency Singleton, ItemManager, EventManager, GlobalUtility
 --=====================================================================================================
 
----@class GameCoreManagerData @ 关卡核心运行时数据管理类
+---@class GameCoreManagerData @ 关卡核心运行时数据管理类，GameCoreManager内部数据载体
 local GameCoreManagerData = class("GameCoreManagerData")
 
---region 构造 & 初始化
+--region 构造 & 实例初始化
 ---=========================================================================
---- 构造函数：初始化所有运行时数据默认值
+--- 构造函数
+---@brief 实例新建时初始化所有运行时数据默认初始值，统一字段类型
+---@type fun(args:table):void
+---@param args table 构造自定义入参（预留扩展）
 ---=========================================================================
 function GameCoreManagerData:ctor()
-    --- 主目标配置
-    self._RootGoalData = nil                    ---@type Tables.Goals_Item              主目标配置
-    self._TotalRootGoalCount = 0                ---@type number                         主目标总需求数量
-    self._RemainGuestCount = 0                  ---@type number                         剩余寻找物数量
+    -- 地图寻找物/角色收集相关集合
+    self._CharacterList = {}                       ---@type table<string, table> 本局全部可收集角色/寻找物总集合，ID为Key
+    self._CharacterChooseList = {}                 ---@type table<string, table> 本局玩家已收集完成的角色/寻找物集合
+    self._NumberOfPropsUsed = 0                    ---@type number 本局累计使用道具总数量
+    self._LifeNumber = 3                           ---@type number 本局初始剩余可操作生命值
 
-    --- 关卡限制条件
-    self._LimitCheckData = nil                  ---@type Tables.LimitCheck_Item[]      关卡限制条件配置
-    self._LimitTriggered = nil                  ---@type string[]                      已触发的限制条件
-    self._TutorialIgnoreLimitGoal = nil         ---@type table                         引导中忽略的限制条件
+    --- 关卡通关限制条件配置缓存
+    self._LimitCheckData = nil                    ---@type Tables.LimitCheck_Item[] 关卡全部限制规则静态表数据数组
+    self._LimitTriggered = nil                    ---@type string[] 本局已经触发过的限制条件ID列表
+    self._TutorialIgnoreLimitGoal = nil           ---@type table<string,boolean> 新手引导阶段临时忽略的限制条件ID标记
 
-    --- 关卡基础信息
-    self._ComboCount = 0                        ---@type number                         连击次数
-    self._LevelDifficulty = 1                   ---@type number                         关卡难度系数
-    self._LevelMode = 0                          ---@type number                        关卡玩法模式
-    self._LevelID = 0                           ---@type number                         当前关卡ID
+    --- 关卡基础运行参数
+    self._ComboCount = 0                          ---@type number 当前实时连击计数
+    self._LevelDifficulty = 1                     ---@type number 本局关卡难度系数，影响判定、积分、生成逻辑
+    self._LevelMode = 0                           ---@type number 关卡玩法模式ID，区分普通/限时/挑战等分支逻辑
+    self._LevelID = 0                             ---@type number 当前加载关卡唯一静态ID
 
-    --- 道具 & 复活 & 体力
-    self._ReviveNum = 0                         ---@type number                         复活次数
-    self._LevelBoosterUsed = nil                ---@type table<string, number>          道具使用统计
-    self._LifeCost = false                      ---@type boolean                        是否消耗体力
-    self._UseDoublePoints = false               ---@type boolean                        是否双倍积分
+    --- 复活、道具、积分开关标记
+    self._ReviveNum = 0                           ---@type number 本局玩家观看广告复活总次数
+    self._LevelBoosterUsed = nil                  ---@type table<string, number> 道具使用记录映射表，key=道具ID value=使用数量
+    self._LifeCost = false                        ---@type boolean 本局完成通关是否消耗主界面体力
+    self._UseDoublePoints = false                 ---@type boolean 是否开启双倍积分加成道具效果
 
-    --- 关卡结果
-    self._StarCount = 0                         ---@type number                         获得星星数量
-    self._IsLatestChapterLevel = false          ---@type boolean                        是否最新章节关卡
-    self._watchReviveAdvertiseCount = 0         ---@type number                         复活广告观看次数
-    self._showWatchAdvertiseButtonCount = 0     ---@type number                         复活广告显示次数
+    --- 结算星级与广告统计
+    self._StarCount = 0                           ---@type number 本局最终达成星级数量
+    self._watchReviveAdvertiseCount = 0           ---@type number 本局成功观看复活广告总次数
+    self._showWatchAdvertiseButtonCount = 0        ---@type number 复活广告弹窗弹出展示总次数
 end
 
 ---=========================================================================
---- 静态创建实例
----@return GameCoreManagerData
+--- 静态创建实例对外入口
+---@brief 统一实例化创建接口，隔离new直接调用
+---@type fun(args:table):GameCoreManagerData
+---@param args table 自定义构造参数（预留）
+---@return GameCoreManagerData 全新空数据实例
 ---=========================================================================
 function GameCoreManagerData:Create()
     local instance = GameCoreManagerData.new()
@@ -58,21 +64,95 @@ function GameCoreManagerData:Create()
 end
 
 ---=========================================================================
---- 根据关卡配置初始化核心数据
----@param levelData Tables.LevelData_Item 关卡配置
+--- 基于关卡静态配置初始化本局全部运行数据
+---@brief 加载关卡预制配置，重置所有临时计数、初始化限制规则、清空收集列表
+---@type fun(levelData:Tables.LevelData_Item):void
+---@param levelData Tables.LevelData_Item 关卡静态配表行数据
 ---=========================================================================
 function GameCoreManagerData:InitData(levelData)
+    -- 空配置拦截，避免空索引报错
+    if levelData == nil then
+        print("[GameCoreManagerData] InitData 传入关卡配置为空，初始化中断")
+        return
+    end
+
+    -- 本局临时计数全部重置归零
+    self._ComboCount = 0
+    self._ReviveNum = 0
+    self._StarCount = 0
+    self._watchReviveAdvertiseCount = 0
+    self._showWatchAdvertiseButtonCount = 0
+    self._NumberOfPropsUsed = 0
+    self._LifeNumber = 3
+
+    -- 读取关卡基础标识与难度配置
+    self._LevelID = levelData.Id
+    self._LevelMode = levelData.LevelMode
+    self._LevelDifficulty = levelData.Difficulty
+    self._LifeCost = levelData.LifeCost == 1
+    self._UseDoublePoints = false
+
+    -- 初始化关卡限制条件容器
+    self._LimitCheckData = {}
+    self._LimitTriggered = {}
+    self._TutorialIgnoreLimitGoal = {}
+    -- 遍历配置内限制ID，加载对应静态表数据存入缓存
+    if levelData.LimitCheckIds and #levelData.LimitCheckIds > 0 then
+        for _, limitId in ipairs(levelData.LimitCheckIds) do
+            local limitItem = Tables.LimitCheck[limitId]
+            if limitItem then
+                table.insert(self._LimitCheckData, limitItem)
+            end
+        end
+    end
+
+    -- 重置本局道具使用记录表
+    self._LevelBoosterUsed = {}
+
+    -- 清空收集物列表，等待地图生成角色填充
+    self._CharacterList = {}
+    self._CharacterChooseList = {}
+
+    -- 默认非章节最新解锁关卡，业务层按需修改赋值
+    self._IsLatestChapterLevel = false
 end
 
 ---=========================================================================
---- 清空运行时数据（关卡退出/重置时调用）
+--- 清空本局全部运行时数据
+---@brief 关卡退出、重玩、通关失败/成功统一调用；table容器置空切断引用，防止内存泄漏
+---@type fun():void
 ---=========================================================================
 function GameCoreManagerData:ClearData()
+    -- 集合容器置空释放引用
+    self._CharacterList = {}
+    self._CharacterChooseList = {}
+    self._LevelBoosterUsed = nil
+    self._LimitCheckData = nil
+    self._LimitTriggered = nil
+    self._TutorialIgnoreLimitGoal = nil
+
+    -- 数值类全部归零恢复初始值
+    self._NumberOfPropsUsed = 0
+    self._LifeNumber = 3
+    self._ComboCount = 0
+    self._LevelDifficulty = 1
+    self._LevelMode = 0
+    self._LevelID = 0
+    self._ReviveNum = 0
+    self._StarCount = 0
+    self._watchReviveAdvertiseCount = 0
+    self._showWatchAdvertiseButtonCount = 0
+
+    -- 布尔状态重置为默认false
+    self._LifeCost = false
+    self._UseDoublePoints = false
+    self._IsLatestChapterLevel = false
 end
 
 ---=========================================================================
---- 保存玩家游戏数据到本地存档
----@desc 包含星级、货币、道具使用等关键进度数据
+--- 持久化保存本局关卡进度数据至本地存档
+---@brief 通关后调用，存储星级、货币、道具使用等可复用进度数据
+---@type fun():void
 ---=========================================================================
 function GameCoreManagerData:SaveData()
     --self:SaveStarCount()
@@ -80,138 +160,107 @@ function GameCoreManagerData:SaveData()
 end
 
 ---=========================================================================
---- 动态设置关卡难度系数
+--- 动态重新计算设置本局难度系数
+---@brief 可根据章节进度、连续通关、道具加成、星级动态调整难度数值
+---@type fun():void
 ---=========================================================================
 function GameCoreManagerData:SetupDifficultyFactor()
+    -- 示例逻辑：可根据章节、连胜、星级计算难度
+    -- self._LevelDifficulty = GlobalUtility:GetDifficultyByChapter()
 end
 --endregion
 
 --========================================================================
--- region 主目标相关
+--region 角色/寻找物收集列表 对外只读查询接口
 --========================================================================
-
 ---=========================================================================
---- 获取当前已完成的主目标数量
----@return number
+--- 获取本局全部可收集角色/寻找物总集合
+---@type fun():table<string, table>
+---@return table<string, table> 角色ID为Key的完整角色字典
 ---=========================================================================
-function GameCoreManagerData:CurRootGoalCount()
-    -- 根据目标类型动态计算已完成数量
-    return 0
+function GameCoreManagerData:GetCharacterList()
+    return self._CharacterList
 end
 
 ---=========================================================================
---- 获取当前主目标ID
----@return string
+--- 获取本局玩家已收集完成的角色/寻找物集合
+---@type fun():table<string, table>
+---@return table<string, table> 已收集角色字典
 ---=========================================================================
-function GameCoreManagerData:CurRootGoalID()
-    return self._RootGoalData and self._RootGoalData.ID or ""
+function GameCoreManagerData:GetCharacterChooseList()
+    return self._CharacterChooseList
 end
 
 ---=========================================================================
---- 获取主目标总需求数量
----@return number
+--- 获取本局所有可收集角色总数量
+---@type fun():number
+---@return number 总角色条目计数
 ---=========================================================================
-function GameCoreManagerData:TotalRootGoalCount()
-    return self._TotalRootGoalCount
+function GameCoreManagerData:GetCharacterListCount()
+    return GetTableCount(self._CharacterList)
 end
 
 ---=========================================================================
---- 主目标是否已完成
----@return boolean
+--- 获取本局当前已成功收集的角色数量
+---@type fun():number
+---@return number 已收集角色条目计数
 ---=========================================================================
-function GameCoreManagerData:IsRootGoalReach()
-    return self:CurRootGoalCount() >= self._TotalRootGoalCount
+function GameCoreManagerData:GetCharacterChooseListCount()
+    return GetTableCount(self._CharacterChooseList)
 end
 
 ---=========================================================================
---- 是否为特殊客人关卡
----@return boolean
+--- 获取收集进度文本（已收集/总数量），直接用于UI文本展示
+---@type fun():string
+---@return string 拼接后的进度字符串，格式 "已收集数/总数"
 ---=========================================================================
-function GameCoreManagerData:IsSpecialGuest()
-    local curGoalId = self:CurRootGoalID()
-    return curGoalId == EGoalId.specialGuestCount or self:IsEnableAdditionalGoal(EGoalId.specialGuestCount)
+function GameCoreManagerData:GetCharacterAndChooseListCount()
+    return GetTableCount(self._CharacterChooseList).."/"..GetTableCount(self._CharacterList)
 end
 
--- endregion
+---=========================================================================
+--- 获取本局累计使用道具总数量
+---@type fun():number
+---@return number 全局道具使用合计数值
+---=========================================================================
+function GameCoreManagerData:GetNumberOfPropsUsed()
+    return self._NumberOfPropsUsed
+end
+
+---=========================================================================
+--- 查询当前剩余可操作生命值
+---@type fun():number
+---@return number 剩余生命点数，最低为0
+---=========================================================================
+function GameCoreManagerData:GetLifeNumber()
+    return self._LifeNumber
+end
+
+---=========================================================================
+--- 扣除一点操作生命值，做下限保护最低0，并返回扣除后数值
+---@type fun():number
+---@return number 扣除后剩余生命值
+---=========================================================================
+function GameCoreManagerData:SubLifeNumber()
+    self._LifeNumber = math.max(0, self._LifeNumber - 1)
+    return self._LifeNumber
+end
+--endregion
 
 --========================================================================
--- region 寻找物数量相关
+--region 关卡道具使用记录 业务接口
 --========================================================================
-
 ---=========================================================================
---- 减少剩余寻找物数量，并派发事件
----=========================================================================
-function GameCoreManagerData:SubRemainGuestCount()
-    self._RemainGuestCount = math.max(0, self._RemainGuestCount - 1)
-    HonorEventHelper:Fire(EventCmd.ChangeOnTheNumberOfRemainingSearchItems)
-end
-
--- endregion
-
---========================================================================
--- region 道具使用统计
---========================================================================
-
----=========================================================================
---- 获取关卡内道具使用明细列表
----@return table[]
----=========================================================================
-function GameCoreManagerData:GetBoosterUse()
-    if not self._LevelBoosterUsed then
-        return nil
-    end
-
-    local result = {}
-    for id, num in pairs(self._LevelBoosterUsed) do
-        table.insert(result, { id = id, num = num })
-    end
-    return result
-end
-
----=========================================================================
---- 是否使用过任意【关内道具】
----@return boolean
----=========================================================================
-function GameCoreManagerData:IsUsedBooster()
-    if not self._LevelBoosterUsed then
-        return false
-    end
-
-    for id, num in pairs(self._LevelBoosterUsed) do
-        if ItemManager:IsBooster(id) then
-            return true
-        end
-    end
-    return false
-end
-
----=========================================================================
---- 是否使用过任意【前置道具】
----@return boolean
----=========================================================================
-function GameCoreManagerData:IsUsedPreBooster()
-    if not self._LevelBoosterUsed then
-        return false
-    end
-
-    for id, num in pairs(self._LevelBoosterUsed) do
-        if ItemManager:IsPreBooster(id) then
-            return true
-        end
-    end
-    return false
-end
-
----=========================================================================
---- 记录关卡内道具使用数量
----@param id string 道具ID
----@param num number 使用数量
+--- 记录单次道具使用，自动累加对应道具计数与全局道具总数
+---@type fun(id:string, num:number):void
+---@param id string 道具静态配置唯一ID
+---@param num number 本次使用道具数量
 ---=========================================================================
 function GameCoreManagerData:RecordLevelBoosterUse(id, num)
     self._LevelBoosterUsed = self._LevelBoosterUsed or {}
     self._LevelBoosterUsed[id] = (self._LevelBoosterUsed[id] or 0) + num
+    self._NumberOfPropsUsed = self._NumberOfPropsUsed + num
 end
-
--- endregion
+--endregion
 
 return GameCoreManagerData

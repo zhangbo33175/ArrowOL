@@ -117,7 +117,7 @@ function HonorCoroutineHelper:WaitForSeconds(waitTime)
     -- 无缓存则新建
     if not cache or #cache == 0 then
         cache = {}
-        table.insert(cache, UnityWaitForSeconds(waitTime))
+        table.insert(cache, Unity.WaitForSeconds(waitTime))
         self.waitForSeconds.waitForSeconds[waitTime] = cache
     end
     -- 取出、等待、回收（完全无GC）

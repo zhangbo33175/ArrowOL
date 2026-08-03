@@ -144,27 +144,27 @@ end
 --region 全局事件派发
 ---游戏初始化事件
 function PlayGameplayCycle:InitGameEvent()
-    EventHelper:FireNow(EventCmd.InitGameEvent, nil)
+    HonorEventHelper:FireNow(EventCmd.InitGameEvent, nil)
 end
 
 ---游戏开始事件
 function PlayGameplayCycle:BeginGameEvent()
-    EventHelper:FireNow(EventCmd.BeginGameEvent, nil)
+    HonorEventHelper:FireNow(EventCmd.BeginGameEvent, nil)
 end
 
 ---游戏结束事件
 function PlayGameplayCycle:OverGameEvent()
-    EventHelper:FireNow(EventCmd.OverGameEvent, nil)
+    HonorEventHelper:FireNow(EventCmd.OverGameEvent, nil)
 end
 
 ---游戏退出事件
 function PlayGameplayCycle:ExitGameEvent()
-    EventHelper:FireNow(EventCmd.ExitGameEvent, nil)
+    HonorEventHelper:FireNow(EventCmd.ExitGameEvent, nil)
 end
 
 ---游戏重玩事件
 function PlayGameplayCycle:RePlayGameEvent()
-    EventHelper:FireNow(EventCmd.RePlayGameEvent, nil)
+    HonorEventHelper:FireNow(EventCmd.RePlayGameEvent, nil)
 end
 --endregion
 

@@ -62,7 +62,7 @@ local GameMapMotion = {
 --region 【核心更新逻辑】每帧驱动
 ---@brief 地图控制主更新函数
 function GameMapMotion:OnUpdate()
-    if GameManager:IsGamePaused() or not self.IsMapWork then
+    if  not self.IsMapWork then
         return
     end
 
@@ -304,7 +304,7 @@ end
 
 ---@brief 滑动中
 function GameMapMotion:OnSwipe(gesture)
-    if GameManager:IsGamePaused() or self.PointStartFromUI or not self.IsMapWork then return end
+    if  self.PointStartFromUI or not self.IsMapWork then return end
     if gesture.touchCount >= 2 then return end
 
     if gesture.touchCount == 1 then
