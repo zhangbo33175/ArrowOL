@@ -16,6 +16,7 @@
 local GameLoginState = class('GameLoginState', import('GameStateBase'))
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
@@ -30,9 +31,11 @@ end
 function GameLoginState:Create(stateType)
     return GameLoginState.new(stateType)
 end
+
 --endregion
 
 --region 【状态生命周期】
+
 ---@brief 进入登录状态（打开登录界面）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态进入完成回调
@@ -48,9 +51,11 @@ function GameLoginState:OnStateExit(finishCallback)
     self:CloseLoginUI()
     pcall(finishCallback)
 end
+
 --endregion
 
 --region 【UI & 音乐控制】
+
 ---@brief 打开登录界面
 ---@type fun():void
 function GameLoginState:OpenLoginUI()
@@ -64,6 +69,7 @@ function GameLoginState:CloseLoginUI()
     SoundManager:StopCurrentBgm()
     CloseUI(UIs.UILoginView)
 end
+
 --endregion
 
 return GameLoginState

@@ -16,6 +16,7 @@
 local HomeUILayerDataManager = class("HomeUILayerDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function HomeUILayerDataManager:ctor()
@@ -28,9 +29,11 @@ end
 function HomeUILayerDataManager:Create()
     return HomeUILayerDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function HomeUILayerDataManager:Init()
@@ -42,9 +45,11 @@ end
 function HomeUILayerDataManager:ClearData()
     HomeUILayerDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region UI层级配置获取
+
 ---=========================================================================
 ---@brief  根据层级ID获取UI层级配置
 ---@type fun(id:EGameMainUIPushSortOrder):Tables.HomeUILayers_Item
@@ -88,6 +93,7 @@ function HomeUILayerDataManager:GetOrderById(id)
     end
     return data.Order or 0
 end
+
 --endregion
 
 return HomeUILayerDataManager

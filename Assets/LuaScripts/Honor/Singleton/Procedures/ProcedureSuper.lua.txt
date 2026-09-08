@@ -1,32 +1,47 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
--- -------------------------------------------------------------
--- filename:  ProcedureSuper.lua.txt
--- author:    云毅
--- created:   2026
--- descrip:   流程基类（游戏状态机/流程管理基类）
---            作用：所有游戏流程（登录/主城/战斗/过场）必须继承此类
---            地位：游戏核心状态机基类，管理全局流程切换与生命周期
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   ProcedureSuper.lua
+-- author:     云毅
+-- created:    2026
+-- descrip:    流程基类（游戏状态机/流程管理基类）
+--             作用：所有游戏流程（登录/主城/战斗/过场）必须继承此类
+--             地位：游戏核心状态机基类，管理全局流程切换与生命周期
 --=====================================================================================================
 
 --region 流程状态机基类
+
 ---@class ProcedureSuper 流程状态机基类（所有游戏流程父类）
+---@field _args table 初始化参数（ctor 保存）
+---@field cs userdata C# 状态机桥接对象（由 env 环境表注入）
 local ProcedureSuper = class("ProcedureSuper")
 
---- 构造函数
+--=====================================================================================================
+-- 生命周期：构造函数
+--=====================================================================================================
+
+---@brief 构造函数
+---@desc 绑定 C# 传递的环境变量到自身，并保存初始化参数
 ---@param args table 构造参数（必须包含 env 环境表）
 function ProcedureSuper:ctor(args)
-    -- 绑定 C# 传递的环境变量
+    -- 绑定 C# 传递的环境变量（env 中的键值直接挂载到 self，如 cs 等桥接对象）
     if args ~= nil and args.env ~= nil then
         for __, v in pairs(args.env) do
             self[__] = v
         end
     end
-    self._args = args  -- 保存初始化参数
+
+    -- 保存初始化参数
+    self._args = args
 end
 
---- 创建实例（框架内部调用）
+--=====================================================================================================
+-- 工厂方法：创建实例
+--=====================================================================================================
+
+---@brief 创建实例（框架内部调用）
+---@desc 通过类方法创建并返回一个新的流程实例
 ---@param args table 自定义参数
 ---@return ProcedureSuper 流程实例
 function ProcedureSuper:Create(args)
@@ -34,46 +49,60 @@ function ProcedureSuper:Create(args)
     return obj
 end
 
---- 初始化（全局只执行一次）
+--=====================================================================================================
+-- 生命周期钩子：初始化 / 销毁 / 进入 / 更新 / 离开（子类可重写）
+--=====================================================================================================
+
+---@brief 初始化（全局只执行一次）
+---@desc 流程首次创建时调用，子类可重写以完成一次性初始化
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnInit(ownerMachine)
-
 end
 
---- 销毁（流程彻底释放时调用）
+---@brief 销毁（流程彻底释放时调用）
+---@desc 释放流程持有的引用，防止内存泄漏，子类可重写扩展清理逻辑
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnDestroy(ownerMachine)
     -- 释放引用，防止内存泄漏
     self._args = nil
 end
 
---- 进入流程（每次切换进入都会调用）
+---@brief 进入流程（每次切换进入都会调用）
+---@desc 自动注册当前流程的定时器，子类可重写扩展进入逻辑
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnEnter(ownerMachine)
     -- 自动注册当前流程的定时器
     HonorTimerHelper:OnEnter(self)
 end
 
---- 帧更新（每帧执行）
+---@brief 帧更新（每帧执行）
+---@desc 每帧自动更新定时器，子类可重写扩展帧逻辑
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnUpdate(ownerMachine)
     -- 自动更新定时器
     HonorTimerHelper:OnUpdate(self)
 end
 
---- 离开流程（切换到其他流程时调用）
+---@brief 离开流程（切换到其他流程时调用）
+---@desc 自动清理当前流程的所有定时器，子类可重写扩展离开逻辑
 ---@param ownerMachine userdata 状态机宿主对象
 function ProcedureSuper:OnLeave(ownerMachine)
     -- 自动清理当前流程的所有定时器
     HonorTimerHelper:OnLeave(self)
 end
 
---- 切换到其他流程
+--=====================================================================================================
+-- 流程切换
+--=====================================================================================================
+
+---@brief 切换到其他流程
+---@desc 通过 C# 桥接对象切换到指定名称的目标流程
 ---@param ownerMachine userdata 状态机宿主对象
 ---@param procedureName string 目标流程类名
 function ProcedureSuper:ChangeState(ownerMachine, procedureName)
     self.cs:ChangeState(ownerMachine, procedureName)
 end
+
 --endregion
 
 return ProcedureSuper

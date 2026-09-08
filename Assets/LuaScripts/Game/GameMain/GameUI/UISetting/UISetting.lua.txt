@@ -1,0 +1,84 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Game
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UISetting.lua
+-- author:    云毅
+-- descrip:   设置界面
+--=====================================================================================================
+
+---@class UISetting : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+local UISetting = class('UISetting', import('LuaBehaviourSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function UISetting:ctor(args)
+    UISetting.super.ctor(self, args)
+
+end
+
+---创建函数
+---@type fun(args:table):UISetting
+---@param args table @自定义参数
+---@return UISetting @实例
+function UISetting:Create(args)
+    local obj = UISetting.new(args)
+    return obj
+end
+
+---注册监听（自动注销）
+---@type fun():void
+function UISetting:OnAddListeners()
+    UISetting.super.OnAddListeners(self)
+
+end
+
+---唤醒
+---@type fun():void
+function UISetting:Awake()
+    UISetting.super.Awake(self)
+-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 无自动注册内容。
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+
+end
+
+---开始
+---@type fun():void
+function UISetting:Start()
+    UISetting.super.Start(self)
+
+end
+
+---销毁
+---@type fun():void
+function UISetting:OnDestroy()
+    UISetting.super.OnDestroy(self)
+-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 无自动注销内容。
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+
+end
+
+---播放打开动画（可重写）
+---@type fun():void
+function UISetting:OnPlayOpenAnimation()
+    UISetting.super.OnPlayOpenAnimation(self)
+end
+
+---播放关闭动画（可重写）
+---@type fun():void
+function UISetting:OnPlayCloseAnimation()
+    UISetting.super.OnPlayCloseAnimation(self)
+end
+
+---子UI销毁回调
+---@type fun(luaClass:XLua.LuaTable):void
+---@param luaClass XLua.LuaTable
+function UISetting:OnAddedUIDestroyed(luaClass)
+    UISetting.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+return UISetting

@@ -19,6 +19,7 @@
 local BuffManager = class("BuffManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---=========================================================================
 --- 构造函数
 ---@param args table 自定义参数
@@ -36,9 +37,11 @@ function BuffManager:Create(args)
     local obj = BuffManager.new(args)
     return obj
 end
+
 --endregion
 
 --region 前置道具判断
+
 ---=========================================================================
 --- 是否为前置道具 Buff
 ---@param boosterID string 道具 ID
@@ -55,9 +58,11 @@ function BuffManager:IsBuffPreBooster(boosterID)
     end
     return false
 end
+
 --endregion
 
 --region Buff 有效性 & 剩余时间
+
 ---=========================================================================
 --- Buff 是否有效（剩余时间 > 0）
 ---@param id string Buff ID
@@ -85,9 +90,11 @@ function BuffManager:GetRemainTime(id)
 
     return endTimeStamp - nowUTC0
 end
+
 --endregion
 
 --region 添加 & 设置 Buff 时间
+
 ---=========================================================================
 --- 添加 Buff（延长时间）
 ---@desc 已存在则延长，不存在则重新开始计时
@@ -150,9 +157,11 @@ function BuffManager:SetBuffTime(id, endTimeStamp, oldEndTimeStamp)
 
     return self:GetRemainTime(id)
 end
+
 --endregion
 
 --region 时间注册 & 后续处理
+
 ---=========================================================================
 --- 注册 Buff 结束时间监听
 ---@param id string Buff ID
@@ -178,9 +187,11 @@ function BuffManager:SetBuffTimeAfter(id)
         ItemMgr:AddLife(ItemMgr:GetMaxLifeNum())
     end
 end
+
 --endregion
 
 --region 初始化 & 清理 & 每秒更新
+
 ---=========================================================================
 --- 初始化所有 Buff 计时
 ---@desc 注册结束事件、启动每秒 Tick
@@ -227,6 +238,7 @@ function BuffManager:OnBufferDeltaTimeTickEvent()
         end
     end
 end
+
 --endregion
 
 return BuffManager

@@ -88,7 +88,7 @@ end
 ---返回管卡界面-交互回调
 ---@type fun(args:any):void
 function UILevelFailedView:OnMainButtonClicked(args)
-  PlayHelper:GameExitPlayHud()
+  GamePlayHelper:GameExitPlayHud()
 end
 
 ---回复体力-交互回调

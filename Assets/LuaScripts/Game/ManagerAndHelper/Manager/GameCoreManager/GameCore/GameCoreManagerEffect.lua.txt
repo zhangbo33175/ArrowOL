@@ -15,6 +15,7 @@
 local GameCoreManagerEffect = class("GameCoreManagerEffect")
 
 --region 构造 & 初始化
+
 ---=========================================================================
 --- 构造函数
 ---@param args table @外部传入的初始化参数
@@ -33,9 +34,11 @@ function GameCoreManagerEffect:Create(args)
     PrintInfo("[GameCoreManagerEffect] 初始化完成")
     return instance
 end
+
 --endregion
 
 --region 数据清理 & 生命周期
+
 ---=========================================================================
 --- 清理当前管理器所有数据与特效资源
 ---@desc 释放特效对象、停止播放、清空缓存、解除引用，用于场景切换/重置时调用
@@ -43,6 +46,7 @@ end
 function GameCoreManagerEffect:ClearData()
     -- 清空所有特效缓存、停止播放、释放资源
 end
+
 --endregion
 
 return GameCoreManagerEffect

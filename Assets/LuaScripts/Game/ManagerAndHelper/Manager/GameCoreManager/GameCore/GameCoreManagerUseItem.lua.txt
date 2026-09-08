@@ -27,10 +27,10 @@
 ---@field _cacheEventFunc function[]    事件监听缓存（自动清理）
 ---@field _longtimeEffects UnityEngine.GameObject[]  常驻特效对象
 ---@field _freeTag table<string, boolean>  引导免费道具标记
-
 local GameCoreManagerUseItem = class("GameCoreManagerUseItem")
 
 --region 构造 & 初始化
+
 ---=========================================================================
 --- 构造函数
 ---@brief 初始化道具管理状态、缓存容器
@@ -78,9 +78,11 @@ function GameCoreManagerUseItem:RecycleEffectObject()
     end
     self._longtimeEffects = nil
 end
+
 --endregion
 
 --region 道具使用（核心流程：缓存 → 扣除 → 应用）
+
 ---=========================================================================
 --- 使用道具（外部统一入口）
 ---@brief 关卡未就绪则缓存，就绪则直接使用
@@ -160,9 +162,11 @@ function GameCoreManagerUseItem:TryUseBoosters()
     end
     self._cacheWhenLevelNotWorking = nil
 end
+
 --endregion
 
 --region 道具扣除 & 应用（数据层 + 表现层）
+
 ---=========================================================================
 --- 确认扣除道具（统一扣费接口）
 ---@brief 扣除道具数量，支持免费标记（引导专用）
@@ -233,14 +237,12 @@ function GameCoreManagerUseItem:UseBooster(boosterID, num)
         self:ApplyBooster(propId)
     end
 end
+
 --endregion
 
---=========================================================================
--- region 关卡生命周期
---=========================================================================
----=========================================================================
---- 关卡初始化
----=========================================================================
+--region 关卡生命周期
+
+---@brief 关卡初始化
 function GameCoreManagerUseItem:OnLeveInit()
     self:Preconditioning()
 end
@@ -260,7 +262,7 @@ end
 ---@brief UI关闭后再执行道具，防止冲突
 ---=========================================================================
 function GameCoreManagerUseItem:TryUsingAfterUIClose()
-    if not PlayHelper:IsInLevelState() then
+    if not GamePlayHelper:IsInLevelState() then
         return
     end
     self:TryUseBoosters()
@@ -278,9 +280,11 @@ function GameCoreManagerUseItem:OnGameOver()
     self:GameOverRollbackWonderDish()
     ItemManager:OnEndUseBooster()
 end
--- endregion
+
+--endregion
 
 --region 免费道具 & 工具方法
+
 ---=========================================================================
 --- 设置免费道具（新手引导专用）
 ---@param boosterID string 道具ID
@@ -289,11 +293,11 @@ end
 function GameCoreManagerUseItem:SetupFreeBooster(boosterID, value)
     self._freeTag[boosterID] = value
 end
+
 --endregion
 
---=========================================================================
--- region 事件监听管理
---=========================================================================
+--region 事件监听管理
+
 ---=========================================================================
 --- 清除所有注册的事件，防止泄漏
 ---@brief 游戏结束/清理时自动注销所有事件
@@ -322,7 +326,8 @@ function GameCoreManagerUseItem:RecordEventFunction(func)
     end
     table.insert(self._cacheEventFunc, func)
 end
--- endregion
+
+--endregion
 
 ---=========================================================================
 --- 游戏结束 神奇盘子效果回滚（补全缺失方法）

@@ -18,26 +18,28 @@ local PlayGameplayCycle = class("PlayGameplayCycle")
 --- 构造与创建
 ---=========================================================================
 --region 构造与创建
----构造函数
+
+--- 构造函数
 ---@type fun(args:table):void
 function PlayGameplayCycle:ctor()
-
 end
 
----创建函数
+--- 创建函数
 ---@type fun(args:table):PlayGameplayCycle
 ---@return PlayGameplayCycle @游戏内部玩法周期实例
 function PlayGameplayCycle:Create()
     local obj = PlayGameplayCycle.new()
     return obj
 end
+
 --endregion
 
 ---=========================================================================
 --- 生命周期入口
 ---=========================================================================
 --region 生命周期入口
----执行玩法周期
+
+--- 执行玩法周期
 ---@type fun(ePlayHudCycleAction:EPlayHudCycleAction):void
 ---@param ePlayHudCycleAction EPlayHudCycleAction
 function PlayGameplayCycle:OnAction(ePlayHudCycleAction)
@@ -66,106 +68,103 @@ function PlayGameplayCycle:OnAction(ePlayHudCycleAction)
         end
     end)
 end
+
 --endregion
 
 ---=========================================================================
 --- 生命周期执行逻辑
 ---=========================================================================
 --region 生命周期执行方法
----游戏初始化
+
+---@brief 游戏初始化
 function PlayGameplayCycle:OnInitGame()
     GameCoreManager:OnInitGame()
     CharacterGenerationManager:OnInitGame()
     MapManager:OnInitGame()
 end
 
----进入游戏
+---@brief 进入游戏
 function PlayGameplayCycle:OnEnterGame()
     GameCoreManager:OnEnterGame()
     CharacterGenerationManager:OnEnterGame()
     MapManager:OnEnterGame()
 end
 
----游戏开始
+---@brief 游戏开始
 function PlayGameplayCycle:OnBeginGame()
     GameCoreManager:OnBeginGame()
     CharacterGenerationManager:OnBeginGame()
     MapManager:OnBeginGame()
 end
 
----游戏暂停
+---@brief 游戏暂停
 function PlayGameplayCycle:OnPauseGame()
     GameCoreManager:OnPauseGame()
     CharacterGenerationManager:OnPauseGame()
     MapManager:OnPauseGame()
 end
 
----游戏恢复
+---@brief 游戏恢复
 function PlayGameplayCycle:OnResumeGame()
     GameCoreManager:OnResumeGame()
     CharacterGenerationManager:OnResumeGame()
     MapManager:OnResumeGame()
 end
 
----游戏结束
+---@brief 游戏结束
 function PlayGameplayCycle:OnGameOver()
     GameCoreManager:OnGameOver()
     CharacterGenerationManager:OnGameOver()
     MapManager:OnGameOver()
 end
 
----游戏退出
+---@brief 游戏退出
 function PlayGameplayCycle:OnExitGame()
     GameCoreManager:OnExitGame()
     CharacterGenerationManager:OnExitGame()
     MapManager:OnExitGame()
 end
 
----游戏重玩
+---@brief 游戏重玩
 function PlayGameplayCycle:OnRePlayGame()
     GameCoreManager:OnInitGame()
     self:RePlayGameEvent() -- 发送事件，重置UI
     MapManager:OnRePlayGame()
     CharacterGenerationManager:OnRePlayGameBefore()
-    --GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalReady)
-    local closeUICallback = function()
-        GameCoreManager:OnRePlayGame()
-        CharacterGenerationManagerv:OnRePlayGame()
-        self:BeginGameEvent()
-        GuideContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
-    end
-    --OpenUISync(UIs.UIGoalTips, { callback = closeUICallback })
 end
+
 --endregion
 
 ---=========================================================================
 --- 事件派发
 ---=========================================================================
 --region 全局事件派发
----游戏初始化事件
+
+---@brief 游戏初始化事件
 function PlayGameplayCycle:InitGameEvent()
     HonorEventHelper:FireNow(EventCmd.InitGameEvent, nil)
 end
 
----游戏开始事件
+---@brief 游戏开始事件
 function PlayGameplayCycle:BeginGameEvent()
     HonorEventHelper:FireNow(EventCmd.BeginGameEvent, nil)
 end
 
----游戏结束事件
+---@brief 游戏结束事件
 function PlayGameplayCycle:OverGameEvent()
     HonorEventHelper:FireNow(EventCmd.OverGameEvent, nil)
 end
 
----游戏退出事件
+---@brief 游戏退出事件
 function PlayGameplayCycle:ExitGameEvent()
     HonorEventHelper:FireNow(EventCmd.ExitGameEvent, nil)
 end
 
----游戏重玩事件
+---@brief 游戏重玩事件
 function PlayGameplayCycle:RePlayGameEvent()
     HonorEventHelper:FireNow(EventCmd.RePlayGameEvent, nil)
 end
+
 --endregion
 
 return PlayGameplayCycle

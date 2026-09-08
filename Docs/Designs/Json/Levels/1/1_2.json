@@ -9,8 +9,8 @@
             "m_Id" : 1002,
             "m_Type" : 1,
             "m_Position" : {
-                "x" : 3.15071,
-                "y" : 311.9261,
+                "x" : -261.5138,
+                "y" : 712.0738,
                 "z" : 0
             },
             "m_Rotation" : {
@@ -32,11 +32,11 @@
             "m_IsChoose" : false
         },
         {
-            "m_Id" : 1003,
+            "m_Id" : 1019,
             "m_Type" : 1,
             "m_Position" : {
-                "x" : 472.6153,
-                "y" : -519.8769,
+                "x" : 412.7507,
+                "y" : -579.7415,
                 "z" : 0
             },
             "m_Rotation" : {
@@ -49,34 +49,8 @@
                 "y" : 0,
                 "z" : 0
             },
-            "m_Sprite"   : "main_level1_cat3",
+            "m_Sprite"   : "main_level1_cat19",
             "m_Name"     : "ItemMap_Instance_1",
-            "m_Size"     : {
-                "x" : 35,
-                "y" : 39
-            },
-            "m_IsChoose" : false
-        },
-        {
-            "m_Id" : 1005,
-            "m_Type" : 1,
-            "m_Position" : {
-                "x" : -289.8708,
-                "y" : -352.8862,
-                "z" : 0
-            },
-            "m_Rotation" : {
-                "x" : 0,
-                "y" : 0,
-                "z" : 0
-            },
-            "m_Scale"    : {
-                "x" : 0,
-                "y" : 0,
-                "z" : 0
-            },
-            "m_Sprite"   : "main_level1_cat5",
-            "m_Name"     : "ItemMap_Instance_2",
             "m_Size"     : {
                 "x" : 35,
                 "y" : 39
@@ -84,6 +58,6 @@
             "m_IsChoose" : false
         }
     ],
-    "m_CreateTime"     : "2026-05-28 17:18:14",
+    "m_CreateTime"     : "2026-08-20 18:30:17",
     "SavePath"         : ""
 }

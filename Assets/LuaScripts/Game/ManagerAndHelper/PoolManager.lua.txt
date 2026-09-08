@@ -16,6 +16,7 @@
 local PoolManager = class("PoolManager", import("Singleton"))
 
 --region 生命周期 & 基础函数
+
 ---=========================================================================
 --- 构造函数
 ---@brief 初始化对象池容器与默认配置
@@ -50,9 +51,11 @@ function PoolManager:ClearData()
     PoolManager.super.ClearData(self)
     self:DestroyAllPools()
 end
+
 --endregion
 
 --region 预热功能
+
 ---=========================================================================
 --- 【预热接口】预加载指定数量对象到池，避免运行时卡顿
 ---@param resName string 资源名（必须在RES表中配置）
@@ -83,9 +86,11 @@ function PoolManager:Prewarm(resName, count)
         newPool:Prewarm(count)
     end
 end
+
 --endregion
 
 --region 获取对象
+
 ---=========================================================================
 --- 【获取对象】从池获取，无池则自动创建（最简接口）
 ---@param resName string 资源名
@@ -130,9 +135,11 @@ function PoolManager:GetWithHandle(resName, newParent, resetHandler)
 
     return nil
 end
+
 --endregion
 
 --region 回收对象
+
 ---=========================================================================
 --- 【回收对象】将GameObject放回池（超过上限则直接销毁）
 ---@param go GameObject 需要回收的游戏对象
@@ -163,9 +170,11 @@ function PoolManager:Put(go)
         DestroyPrefabWithGO(go)
     end
 end
+
 --endregion
 
 --region 池管理（私有）
+
 ---=========================================================================
 --- 【私有】创建一个新对象池
 ---@param name string 池名
@@ -204,9 +213,11 @@ function PoolManager:CreatePool(name, resDefItem, preParent, resetHandler)
 
     return self.pools[name]
 end
+
 --endregion
 
 --region 池查询 & 统计
+
 ---=========================================================================
 --- 【获取指定对象池】
 ---@param name string 池名
@@ -227,9 +238,11 @@ function PoolManager:Count()
     end
     return count
 end
+
 --endregion
 
 --region 销毁功能
+
 ---=========================================================================
 --- 【销毁指定池】
 ---@param name string 池名
@@ -279,6 +292,7 @@ function PoolManager:DestroyAllPoolsUnused()
         end, function(err) end)
     end
 end
+
 --endregion
 
-return PoolManager  
+return PoolManager

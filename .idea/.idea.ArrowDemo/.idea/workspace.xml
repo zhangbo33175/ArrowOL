@@ -11,34 +11,153 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b0524f1-5a94-4f3a-b57c-f763ada3c38c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISetting/UISetting.lua.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Textures/home_bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UILoadMap/loa_bar.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UILoadMap/loa_pro.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UILoadMap/loading2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UILoadMap/logo1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_01.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_02.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_03.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_04.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_05.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_06.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_panel.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_pop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/效果图_设置.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/EventCmds/EventCmd.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/EventCmds/EventCmd.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ArrowDemo.sln" beforeDir="false" afterPath="$PROJECT_DIR$/ArrowDemo.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-Editor-firstpass.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-Editor-firstpass.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-firstpass.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-firstpass.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameApiExtend.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameApiExtend.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameDefinitions.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameDefinitions.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameFunctions.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameFunctions.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoadMapView/UILoadMapView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoadMapView/UILoadMapView.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoginView/Manager/LoginManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoginView/Manager/LoginManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelFailedView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelFailedView.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelVictoryView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelVictoryView.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/Guide/GuideNewContext.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/Guide/GuideNewContext.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameLoadMapStateBase.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameStateBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameStateBase.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameStateCmd.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameStateCmd.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameStateMachine.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Base/GameStateMachine.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoginState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoginState.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameMainState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameMainState.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameTurnToProLoadState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameTurnToProLoadState.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/Map/UIMap.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/Map/UIMap.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/UIMapBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/UIMapBase.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameRequires.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameRequires.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePlaying.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePlaying.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePreload.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePreload.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/CharacterGenerationDataManager/CharacterGenerationDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/CharacterGenerationDataManager/CharacterGenerationDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ConstantsDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ConstantsDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/EventDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/EventDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GoalDataManager/GoalDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GoalDataManager/GoalDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/HomeIconsDataManager/HomeIconsDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/HomeIconsDataManager/HomeIconsDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/HomeUIBubbleLayerDataManager/HomeUIBubbleLayerDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/HomeUIBubbleLayerDataManager/HomeUIBubbleLayerDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/HomeUILayerDataManager/HomeUILayerDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/HomeUILayerDataManager/HomeUILayerDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/LanguageSettingDataManager/LanguageSettingDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/LanguageSettingDataManager/LanguageSettingDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/LocalEventDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/LocalEventDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/PlayerInfoDataManager/PlayerInfoDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/PlayerInfoDataManager/PlayerInfoDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ResourceDataManager/ResourceDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ResourceDataManager/ResourceDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/AnimatorHelper/AnimatorHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/AnimatorHelper/AnimatorHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/ChallengeLevelHelper/ChallengeLevelHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/ChallengeLevelHelper/ChallengeLevelHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GameTimeHelper/GameTimeHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GameTimeHelper/GameTimeHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PauseableCoroutineHelper/PauseableCoroutineHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PauseableCoroutineHelper/PauseableCoroutineHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GamePlayHelper/GamePlayHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/RectTransformHelper/RectTransformHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/RectTransformHelper/RectTransformHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/SaveDataHelper/SaveDataHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/SaveDataHelper/SaveDataHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/UITextHelper/UITextHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/UITextHelper/UITextHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/BuffManager/BuffManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/BuffManager/BuffManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/CharacterGenerationManager/CharacterGenerationManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/CharacterGenerationManager/CharacterGenerationManager.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerData.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerData.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerEffect.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerEffect.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerUseItem.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerUseItem.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameManager/GameManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameManager/GameManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/PlayGameplayCycle.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/PlayGameplayCycle.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorCoroutineHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorCoroutineHelper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/PoolManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/PoolManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/1/TableLevelData_1_2.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/1/TableLevelData_1_2.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/TableLevelData.lua.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBTTasks/LuaBTTaskSuper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBTTasks/LuaBTTaskSuper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBehaviours/None/LuaBehaviourSuper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/HonorBases/LuaBehaviours/None/LuaBehaviourSuper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Procedures/ProcedureSuper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Procedures/ProcedureSuper.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Singleton.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Singleton.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/SingletonManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/SingletonManager.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/StartGame.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/StartGame.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/SystemReqs.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/SystemReqs.lua.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILoadMapView/UILoadMapView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILoadMapView/UILoadMapView.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Docs/Designs/Json/Levels/1/1_2.json" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/Designs/Json/Levels/1/1_2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Docs/ProgramConfig/ProtoPB/GameDataPB.proto" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/ProgramConfig/ProtoPB/GameDataPB.proto" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.dll.mvfrm.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.dll.mvfrm.rsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll.mvfrm.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll.mvfrm.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.rsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.dll.mvfrm.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.dll.mvfrm.rsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll.mvfrm.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll.mvfrm.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/LuaDebugMode.dat" beforeDir="false" afterPath="$PROJECT_DIR$/Library/LuaDebugMode.dat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/6d/6da29d87f1f3f689400022ce7561b3a0.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/6d/6da29d87f1f3f689400022ce7561b3a0.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/78/785cec27e58cd6c4910af06b6d4f9ca1.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/78/785cec27e58cd6c4910af06b6d4f9ca1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/87/8700ee2e74ab91b41c771cc1b2b30f7a.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/87/8700ee2e74ab91b41c771cc1b2b30f7a.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/aa/aa2a3fc9ccdfccb0551f14536a132bf3.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/aa/aa2a3fc9ccdfccb0551f14536a132bf3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/bd/bdc8ce96d180bdbfa76c00f1014c0102.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/bd/bdc8ce96d180bdbfa76c00f1014c0102.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/c8/c890e653bdb3b2620772fa1ee7d3f234.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/c8/c890e653bdb3b2620772fa1ee7d3f234.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/e8/e8dbb0d01512e6c529df4514e56c3f46.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/e8/e8dbb0d01512e6c529df4514e56c3f46.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/f0/f0ce25fa3d23734854ca54823ffd07be.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/f0/f0ce25fa3d23734854ca54823ffd07be.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/5c/5c2f11c1f6894bd8f3e043343d83b6d4.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/5c/5c2f11c1f6894bd8f3e043343d83b6d4.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/b5/b57a4e23ae1f0d9afa91f6744f1e67db.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/b5/b57a4e23ae1f0d9afa91f6744f1e67db.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/UIElements/EditorWindows/UnityEditor.InspectorWindow.pref" beforeDir="false" afterPath="$PROJECT_DIR$/Library/UIElements/EditorWindows/UnityEditor.InspectorWindow.pref" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/expandedItems" beforeDir="false" afterPath="$PROJECT_DIR$/Library/expandedItems" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/HonorResDefExportSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/HonorResDefExportSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.Editor.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.Player.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.Player.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.Rider.Editor.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.Rider.Editor.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.TextMeshPro.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.TextMeshPro.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Editor.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Editor.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Player.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Player.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/UnityEditor.UI.EditorTests.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/UnityEditor.UI.EditorTests.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/spine-csharp.Player.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/spine-csharp.Player.csproj.AssemblyReference.cache" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -285,6 +404,12 @@
       <workItem from="1780883828105" duration="10021000" />
       <workItem from="1782464215722" duration="4274000" />
       <workItem from="1784800905077" duration="6748000" />
+      <workItem from="1786353495676" duration="8320000" />
+      <workItem from="1786523930467" duration="4883000" />
+      <workItem from="1787051643344" duration="341000" />
+      <workItem from="1787094385049" duration="26006000" />
+      <workItem from="1787540541531" duration="8633000" />
+      <workItem from="1788143828487" duration="22869000" />
     </task>
     <servers />
   </component>
@@ -318,23 +443,13 @@
           <option name="timeStamp" value="70" />
         </breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt</url>
-          <line>45</line>
-          <option name="timeStamp" value="84" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/SettingDataManager/SettingDataManager.lua.txt</url>
-          <line>73</line>
-          <option name="timeStamp" value="86" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/TimerHelper/TimerHelper.lua.txt</url>
           <line>193</line>
           <option name="timeStamp" value="206" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GameTimeHelper/GameTimeHelper.lua.txt</url>
-          <line>247</line>
+          <line>266</line>
           <option name="timeStamp" value="212" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
@@ -363,143 +478,168 @@
           <option name="timeStamp" value="533" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameMainState.lua.txt</url>
-          <line>55</line>
-          <option name="timeStamp" value="534" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/BuffManager/BuffManager.lua.txt</url>
           <option name="timeStamp" value="548" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/Characters/CharacterCtrl.lua.txt</url>
-          <line>80</line>
-          <option name="timeStamp" value="553" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/PoolManager.lua.txt</url>
-          <line>199</line>
-          <option name="timeStamp" value="596" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
-          <line>252</line>
+          <line>257</line>
           <option name="timeStamp" value="602" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt</url>
-          <line>151</line>
-          <option name="timeStamp" value="652" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
-          <line>129</line>
-          <option name="timeStamp" value="653" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
-          <line>135</line>
-          <option name="timeStamp" value="654" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
-          <line>138</line>
-          <option name="timeStamp" value="655" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePreload.lua.txt</url>
-          <line>156</line>
+          <line>163</line>
           <option name="timeStamp" value="656" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePreload.lua.txt</url>
-          <line>151</line>
+          <line>158</line>
           <option name="timeStamp" value="671" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
-          <line>151</line>
-          <option name="timeStamp" value="672" />
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelVictoryView.lua.txt</url>
+          <line>101</line>
+          <option name="timeStamp" value="734" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt</url>
+          <line>131</line>
+          <option name="timeStamp" value="767" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
+          <line>217</line>
+          <option name="timeStamp" value="768" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/LocalActivityManager/LocalActivityManager.lua.txt</url>
+          <line>245</line>
+          <option name="timeStamp" value="771" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelVictoryView.lua.txt</url>
+          <line>102</line>
+          <option name="timeStamp" value="773" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GamePlayHelper/GamePlayHelper.lua.txt</url>
+          <line>220</line>
+          <option name="timeStamp" value="774" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GamePlayHelper/GamePlayHelper.lua.txt</url>
+          <line>225</line>
+          <option name="timeStamp" value="777" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>98</line>
+          <option name="timeStamp" value="781" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt</url>
+          <line>182</line>
+          <option name="timeStamp" value="793" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
+          <line>202</line>
+          <option name="timeStamp" value="794" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt</url>
+          <line>76</line>
+          <option name="timeStamp" value="796" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GamePlayHelper/GamePlayHelper.lua.txt</url>
+          <line>95</line>
+          <option name="timeStamp" value="798" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
-          <line>147</line>
-          <option name="timeStamp" value="675" />
+          <line>145</line>
+          <option name="timeStamp" value="801" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
-          <line>146</line>
-          <option name="timeStamp" value="676" />
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt</url>
+          <line>123</line>
+          <option name="timeStamp" value="804" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/ChapterDataManager.lua.txt</url>
+          <line>219</line>
+          <option name="timeStamp" value="805" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt</url>
-          <line>600</line>
-          <option name="timeStamp" value="716" />
+          <line>240</line>
+          <option name="timeStamp" value="808" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>238</line>
+          <option name="timeStamp" value="810" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>170</line>
+          <option name="timeStamp" value="819" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>200</line>
+          <option name="timeStamp" value="820" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>157</line>
+          <option name="timeStamp" value="821" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>82</line>
+          <option name="timeStamp" value="824" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt</url>
+          <line>61</line>
+          <option name="timeStamp" value="825" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
+          <line>204</line>
+          <option name="timeStamp" value="839" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GamePlayHelper/GamePlayHelper.lua.txt</url>
+          <line>102</line>
+          <option name="timeStamp" value="840" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/Manager/LevelManager.lua.txt</url>
+          <line>96</line>
+          <option name="timeStamp" value="841" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
+          <line>83</line>
+          <option name="timeStamp" value="864" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="lua-line">
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/MapManager/MapManager.lua.txt</url>
+          <line>234</line>
+          <option name="timeStamp" value="867" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>60</line>
-          <option name="timeStamp" value="717" />
+          <line>62</line>
+          <option name="timeStamp" value="871" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>59</line>
-          <option name="timeStamp" value="718" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>66</line>
-          <option name="timeStamp" value="719" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>67</line>
-          <option name="timeStamp" value="720" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>94</line>
-          <option name="timeStamp" value="721" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>116</line>
-          <option name="timeStamp" value="722" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>95</line>
-          <option name="timeStamp" value="724" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>118</line>
-          <option name="timeStamp" value="725" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>120</line>
-          <option name="timeStamp" value="726" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>122</line>
-          <option name="timeStamp" value="727" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>140</line>
-          <option name="timeStamp" value="728" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>119</line>
-          <option name="timeStamp" value="729" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>142</line>
-          <option name="timeStamp" value="730" />
+          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt</url>
+          <line>241</line>
+          <option name="timeStamp" value="872" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapScrollView/MapBuildEditor.SetMapListScrollView.cs</url>
@@ -552,6 +692,45 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="650" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>654</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'AutoRectifyInvalidResInfo'">
+            <startOffsets>
+              <option value="25372" />
+            </startOffsets>
+            <endOffsets>
+              <option value="25405" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="851" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs</url>
+          <line>676</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.cs" containingFunctionPresentation="Method 'CreateScrollViewItem'">
+            <startOffsets>
+              <option value="28521" />
+            </startOffsets>
+            <endOffsets>
+              <option value="28597" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="853" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs</url>
+          <line>559</line>
+          <properties documentPath="E:\Game\ArrowDemo\Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" containingFunctionPresentation="Method 'GetAbPathFullDirPath'">
+            <startOffsets>
+              <option value="22061" />
+            </startOffsets>
+            <endOffsets>
+              <option value="22123" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="858" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

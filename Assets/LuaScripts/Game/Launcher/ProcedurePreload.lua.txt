@@ -16,6 +16,7 @@
 local ProcedurePreload = class('ProcedurePreload', import('ProcedureSuper'))
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 外部传入参数
@@ -40,9 +41,11 @@ end
 function ProcedurePreload:Create(args)
     return ProcedurePreload.new(args)
 end
+
 --endregion
 
 --region 【流程生命周期】
+
 ---@brief 进入流程生命周期
 ---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 流程状态机
@@ -76,9 +79,11 @@ end
 function ProcedurePreload:OnLeave(ownerMachine)
     ProcedurePreload.super.OnLeave(self, ownerMachine)
 end
+
 --endregion
 
 --region 【启动时间初始化】
+
 ---@brief 初始化游戏启动时间数据（上次启动时间 / 当前启动时间）
 ---@type fun():void
 function ProcedurePreload:InitLaunchTimeData()
@@ -132,9 +137,11 @@ function ProcedurePreload:InitLaunchTimeData()
         end
     end
 end
+
 --endregion
 
 --region 【游戏设置 & 账号初始化】
+
 ---@brief 初始化游戏基础设置（多点触摸等）
 ---@type fun():void
 function ProcedurePreload:InitGameSetting()
@@ -181,9 +188,11 @@ function ProcedurePreload:InitGameDataFirstLaunchTime()
         end, function() end)
     end
 end
+
 --endregion
 
 --region 【加载 & 设备分级】
+
 ---@brief 执行分步加载逻辑（单例、Lua、资源、跳转）
 ---@type fun():void
 function ProcedurePreload:LoadAddSteps()
@@ -222,9 +231,11 @@ function ProcedurePreload:LoadCountPreFrame()
     end
     return self._loadCountPerFrameOfMedium
 end
+
 --endregion
 
 --region 【异常退出检测】
+
 ---@brief 检查游戏是否异常退出（未正常结束关卡）
 ---@type fun():void
 function ProcedurePreload:CheckIsUnusualExitLevel()
@@ -246,9 +257,11 @@ function ProcedurePreload:CheckIsUnusualExitLevel()
     HonorEventHelper:Fire(EventCmd.OnLevelUnusualExit, arr[1], tonumber(arr[2]))
     GameCoreManager:SetPlayingLevelTag('')
 end
+
 --endregion
 
 --region 【隐私弹窗】
+
 ---@brief 尝试显示隐私政策弹窗
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 显示完成回调
@@ -270,6 +283,7 @@ function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
         end
     end
 end
+
 --endregion
 
 return ProcedurePreload

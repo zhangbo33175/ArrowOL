@@ -16,6 +16,7 @@
 local GameTurnToProLoadState = class('GameTurnToProLoadState', import('GameStateBase'))
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 状态传入参数
@@ -30,9 +31,11 @@ end
 function GameTurnToProLoadState:Create(args)
     return GameTurnToProLoadState.new(args)
 end
+
 --endregion
 
 --region 【状态生命周期】
+
 ---@brief 进入状态：执行场景切换前的清理工作
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态进入完成回调
@@ -60,9 +63,11 @@ function GameTurnToProLoadState:OnStateExit(finishCallback)
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+
 --endregion
 
 --region 【加载界面控制】
+
 ---@brief 打开地图加载界面
 ---@type fun():void
 function GameTurnToProLoadState:OpenLoadingUI()
@@ -74,6 +79,7 @@ end
 function GameTurnToProLoadState:CloseLoadingUI()
     CloseUI(UIs.UILoadMap)
 end
+
 --endregion
 
 return GameTurnToProLoadState

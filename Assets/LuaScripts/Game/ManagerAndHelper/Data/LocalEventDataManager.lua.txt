@@ -16,6 +16,7 @@
 local LocalEventDataManager = class("LocalEventDataManager", import("Singleton"))
 
 --region 【构造与生命周期】
+
 ---=========================================================================
 --- 构造函数
 ---@type fun():void
@@ -49,9 +50,11 @@ end
 function LocalEventDataManager:ClearData()
     LocalEventDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region 【本地活动数据获取】
+
 ---=========================================================================
 --- 获取全部本地活动配置
 ---@type fun():Tables.LocalEvents_Item[]
@@ -108,6 +111,7 @@ function LocalEventDataManager:GetActivityOrder(eventId)
     local data = self:GetEventDataById(eventId)
     return data and data.OpenOrder or 0
 end
+
 --endregion
 
 return LocalEventDataManager

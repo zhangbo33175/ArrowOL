@@ -15,6 +15,7 @@
 local GameMapBase = class('GameMapBase', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数，初始化基础触摸、相机、地图根节点、全局静态地图引用
 ---@type fun(args:table):void
 ---@param args table 实例自定义入参
@@ -38,6 +39,7 @@ function GameMapBase:ctor(args)
     ---@type UnityEngine.Transform 地图根物体Transform
     self.GameMapRoot = self.cs.transform:Find("RawImage/Root")
 
+    self.RawImage = self.cs.transform:Find("RawImage")
     -- 覆盖全局静态地图实例
     MapManager.CurGameMapBase = self
     -- 读取当前挂载的地图配置组件
@@ -47,8 +49,8 @@ function GameMapBase:ctor(args)
     self:LoadCharacterByMapData()
 end
 
-
 ---@brief 安全获取地图相机，多层判空，相机缺失打印警告并返回nil防止崩溃
+---@type fun():UnityEngine.Camera|nil
 ---@return UnityEngine.Camera|nil 地图主相机对象
 function GameMapBase:GetSafeScreenCamera()
     local cam = GameLib.MapCamHelper.MapCamera
@@ -66,9 +68,11 @@ end
 function GameMapBase:Create(args)
     return GameMapBase.new(args)
 end
+
 --endregion
 
 --region 【事件注册 & 生命周期初始化】
+
 ---@brief 父类重写：添加全局事件监听，父类自动在销毁时统一注销
 ---@type fun():void
 function GameMapBase:OnAddListeners()
@@ -115,11 +119,12 @@ function GameMapBase:OnDestroy()
     -- 清空全局静态残留，防止内存泄漏
     MapManager.CurGameMapBase = nil
     MapManager.CurMapData = nil
-    
 end
+
 --endregion
 
 --region 【完整游戏业务生命周期】
+
 ---@brief 游戏数据初始化，重置所有关卡进度、角色、机器状态
 ---@type fun():void
 function GameMapBase:OnInitGame()
@@ -174,10 +179,6 @@ end
 ---@brief 地图卸载前置清理（切换关卡前执行）
 ---@type fun():void
 function GameMapBase:UnloadMapBeforeClear()
-
-  
-    
-    
 end
 
 ---@brief 地图卸载后置兜底清理，强制清空全局静态引用
@@ -187,9 +188,11 @@ function GameMapBase:UnloadMapAfterClear()
     MapManager.CurGameMapBase = nil
     MapManager.CurMapData = nil
 end
+
 --endregion
 
 --region 【胜利/失败动画与音效表现】
+
 ---@brief 游戏胜利统一表现：播放通关音效+全屏彩带粒子特效
 ---@type fun():void
 function GameMapBase:GameOverSuccessAni()
@@ -205,9 +208,11 @@ function GameMapBase:GameOverFailedAni()
         SoundManager:PlaySound(Tables.Sounds.Level_Failed.Name)
     end
 end
+
 --endregion
 
 --region 【EasyTouch 触摸滑动与点击交互逻辑】
+
 ---@brief 清空所有触摸回调、标记状态，释放函数引用防泄漏
 ---@type fun():void
 function GameMapBase:ClearSwipeData()
@@ -287,10 +292,13 @@ end
 function GameMapBase:OnSimpleTap(gesture)
     self:CheckOrderMachines(gesture, false)
 end
+
 --endregion
 
 --region 地图角色实体自动加载逻辑
+
 ---@brief 根据地图配置批量生成所有角色实体，初始化图标、坐标、全局列表缓存
+---@type fun():void
 function GameMapBase:LoadCharacterByMapData()
     -- 获取关卡根配置数据
     local _mapData = GameManager.GetMapRootData()
@@ -298,7 +306,6 @@ function GameMapBase:LoadCharacterByMapData()
         print("[GameMapBase] 地图角色配置为空，跳过角色生成")
         return
     end
-
     -- 遍历所有角色配置条目
     for _, v in ipairs(_mapData.MapData) do
         if not v or not v.Id then
@@ -329,7 +336,7 @@ function GameMapBase:LoadCharacterByMapData()
         -- 读取角色静态表并刷新图标精灵
         local catData = CharacterGenerationDataManager:GetDataById(v.Id)
         if catData and catData.Icon then
-            PlayHelper:RefreshImageSprite(CharacterBase, uiImage, catData.Icon)
+            GamePlayHelper:RefreshImageSprite(CharacterBase, uiImage, catData.Icon)
         end
 
         -- 存入全局角色管理列表
@@ -341,6 +348,12 @@ function GameMapBase:LoadCharacterByMapData()
         ::continue::
     end
 end
+
+---@brief 加载地图背景（预留扩展）
+---@type fun():void
+function GameMapBase:LoadMapBrankground()
+end
+
 --endregion
 
 return GameMapBase

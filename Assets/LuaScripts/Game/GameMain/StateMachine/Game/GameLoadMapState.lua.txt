@@ -7,98 +7,116 @@
 -- @brief     游戏加载地图状态
 -- @desc      负责地图加载、LoadingUI显示、首次创角流程、新手第一关跳转、主界面切换
 -- @feat      地图加载管理、新手流程、普通流程、加载界面控制
--- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
--- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
--- @dependency StateBase, GameEntry, MapManager, UIManager, PlayerDataManager
+-- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
+-- @dependency GameLoadMapStateBase, GameEntry, MapManager, UIManager, PlayerDataManager
 --=====================================================================================================
 
----@class GameLoadMapState : GameLoadMapStateBase 游戏加载地图状态
+---@class GameLoadMapState : GameLoadMapStateBase @游戏加载地图状态
 local GameLoadMapState = class('GameLoadMapState', import('GameLoadMapStateBase'))
 
 --region 【构造 & 实例化】
+
+---=========================================================================
 ---@brief 构造函数
----@type fun(stateType:GameStateCmd):void
----@param stateType GameStateCmd 状态类型
+---@param stateType GameStateCmd 状态枚举类型
+---=========================================================================
 function GameLoadMapState:ctor(stateType)
     GameLoadMapState.super.ctor(self, stateType)
 end
 
----@brief 创建状态实例
----@type fun(stateType:GameStateCmd):GameLoadMapState
----@param stateType GameStateCmd 状态类型
----@return GameLoadMapState 状态实例
+---=========================================================================
+---@brief 创建状态实例对外工厂入口
+---@param stateType GameStateCmd 状态枚举类型
+---@return GameLoadMapState 状态实例对象
+---=========================================================================
 function GameLoadMapState:Create(stateType)
     local obj = GameLoadMapState.new(stateType)
     return obj
 end
+
 --endregion
 
 --region 【状态生命周期】
----@brief 进入状态
----@type fun(finishCallback:function):void
----@param finishCallback function 进入完成回调
+
+---=========================================================================
+---@brief 进入加载地图状态
+---@param finishCallback function|nil 进入完成回调函数
+---=========================================================================
 function GameLoadMapState:OnStateEnter(finishCallback)
     GameLoadMapState.super.OnStateEnter(self, finishCallback)
 end
 
----@brief 离开状态
----@type fun(finishCallback:function):void
----@param finishCallback function 退出完成回调
+---=========================================================================
+---@brief 离开加载地图状态
+---@param finishCallback function|nil 退出完成回调函数
+---=========================================================================
 function GameLoadMapState:OnStateExit(finishCallback)
     GameLoadMapState.super.OnStateExit(self, finishCallback)
 end
+
 --endregion
 
 --region 【加载界面控制】
----@brief 打开加载UI
----@type fun():void
+
+---=========================================================================
+---@brief 打开地图加载UI
+---=========================================================================
 function GameLoadMapState:OpenLoadingUI()
     OpenUISync(UIs.UILoadMapView)
 end
 
----@brief 关闭加载UI
----@type fun():void
+---=========================================================================
+---@brief 关闭地图加载UI
+---=========================================================================
 function GameLoadMapState:CloseLoadingUI()
     CloseUI(UIs.UILoadMapView)
 end
+
 --endregion
 
 --region 【地图加载完成逻辑】
----@brief 地图加载完毕（核心：新手流程 / 正常流程）
----@type fun(finishCallback:function):void
----@param finishCallback function 加载完成回调
+
+---=========================================================================
+---@brief 地图加载完毕入口，分流新手首次游戏流程 / 普通正常流程
+---@param finishCallback function|nil 加载完成回调函数
+---=========================================================================
 function GameLoadMapState:LoadMapOver(finishCallback)
     local chapterId = ChapterListManager:GetRuntimeChapterId()
 
-    -- ====================== 新手首次游戏流程 ======================
-    if PlayHelper:IsPlayFirstLevel() then
+    -- 新手首次游戏流程
+    if GamePlayHelper:IsPlayFirstLevel() then
         local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
         -- 补满体力
         ItemManager:FullLife()
-        -- 加载第一关数据
-        local levelData = PlayHelper:LoadLevelData(chapterId, levelId)
-        if PlayHelper:PlayLevel(levelData) then
-            -- 进入主状态（战斗）
+        -- 加载关卡数据
+        local levelData = GamePlayHelper:LoadLevelData(chapterId, levelId)
+        if GamePlayHelper:PlayLevel(levelData) then
+            -- 切换至战斗游玩状态
             GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
         else
-            -- 失败保护：回到主界面
+            -- 失败保护：回退到主界面状态
             GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
-            PrintError("默认进入第一关失败，改为进入主页面")
+            PrintError("[GameLoadMapState] 默认进入第一关失败，改为进入主页面")
         end
     else
-        -- ====================== 正常流程：直接回到主界面 ======================
-        GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+        -- 正常流程：直接进入战斗游玩状态
+        GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
+        --GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
     end
 end
+
 --endregion
 
 --region 【准备加载地图】
----@brief 准备加载地图（设置运行章节）
----@type fun(chapterId:string):void
+
+---=========================================================================
+---@brief 准备加载地图，设置运行时章节ID
 ---@param chapterId string 要加载的章节ID
+---=========================================================================
 function GameLoadMapState:OnReadyToLoadMap(chapterId)
     ChapterListManager:SetRuntimeChapter(chapterId)
 end
+
 --endregion
 
 return GameLoadMapState

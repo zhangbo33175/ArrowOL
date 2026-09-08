@@ -16,6 +16,7 @@
 local LanguageSettingDataManager = class("LanguageSettingDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function LanguageSettingDataManager:ctor()
@@ -29,9 +30,11 @@ end
 function LanguageSettingDataManager:Create()
     return LanguageSettingDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function LanguageSettingDataManager:Init()
@@ -45,9 +48,11 @@ function LanguageSettingDataManager:ClearData()
     LanguageSettingDataManager.super.ClearData(self)
     self._useLangs = nil
 end
+
 --endregion
 
 --region 多语言配置获取
+
 ---=========================================================================
 ---@brief  获取游戏中已启用的语言类型列表（自动缓存）
 ---@type fun():table
@@ -77,6 +82,7 @@ function LanguageSettingDataManager:GetInUseLangs()
 
     return self._useLangs
 end
+
 --endregion
 
 return LanguageSettingDataManager

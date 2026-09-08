@@ -26,6 +26,7 @@
 local GameManager = class("GameManager", import("Singleton"))
 
 --region 生命周期：构造、初始化、清理、单例创建
+
 ---=========================================================================
 --- @brief 构造函数，初始化所有成员变量默认值
 --- @param args table 外部传入构造参数表
@@ -89,9 +90,11 @@ function GameManager:ClearData()
         mainCamera:SetActive(true)
     end
 end
+
 --endregion
 
 --region 全局基础状态接口：开发模式、关卡模式、关卡配置、角色点击事件
+
 ---=========================================================================
 --- @brief 判断当前是否为开发者调试模式
 --- @return boolean true=开发模式，false=正式包
@@ -140,7 +143,7 @@ function GameManager:GetMapRootData()
         return nil
     end
 
-    return PlayHelper:LoadLevelData(chapterId, levelId)
+    return GamePlayHelper:LoadLevelData(chapterId, levelId)
 end
 
 ---=========================================================================
@@ -168,9 +171,11 @@ function GameManager:OnClickCharacter(character)
     end
     GameCoreManager:SetOnGameplay(character)
 end
+
 --endregion
 
 --region UI栈管理封装接口
+
 ---=========================================================================
 --- @brief 获取UI栈栈顶界面，不弹出
 --- @return UIBase|nil 栈顶UI实例，无界面返回nil
@@ -216,9 +221,11 @@ function GameManager:CloseAllUI(rightNow)
     GameMainRoot.UI:CloseAllUIs(Honor.UIType.Scene, rightNow)
     self:OnAfterCanvasCloseAll()
 end
+
 --endregion
 
 --region 版本号管理接口：资源版本、主包版本、完整拼接版本
+
 ---=========================================================================
 --- @brief 获取热更资源版本号
 --- @return number 资源版本数字
@@ -254,9 +261,11 @@ function GameManager:GetGameVersion()
     local resVer = self:GetResVersion()
     return string.format("%s.%s", mainVer, resVer)
 end
+
 --endregion
 
 --region 设备性能与触摸输入配置
+
 ---=========================================================================
 --- @brief 配置EasyTouch自动拾取UI/物体开关
 --- @param enable boolean 开启/关闭自动选择检测
@@ -306,9 +315,11 @@ function GameManager:GetDevicePerformanceLevelNumber()
         return 0
     end
 end
+
 --endregion
 
 --region 全屏UI渲染性能优化核心逻辑（画布/相机自动管理）
+
 ---=========================================================================
 --- @brief UI打开完成回调，全屏UI自动隐藏下层画布降低渲染开销
 --- @param canvas UnityEngine.Canvas UI画布组件
@@ -469,9 +480,11 @@ function GameManager:HasFullScreenUI()
     end
     return false
 end
+
 --endregion
 
 --region 本地存档关卡标记（断线重连恢复使用）
+
 ---=========================================================================
 --- @brief 写入本地存档标记当前正在游玩的关卡标识
 --- @param levelInfo string 关卡唯一标识字符串
@@ -483,6 +496,7 @@ function GameManager:SetPlayingLevelTag(levelInfo)
     SaveRootData.GameData.playingLevelTag = levelInfo
     --SaveIO.GameData.Save_playingLevelTag()
 end
+
 --endregion
 
 return GameManager

@@ -17,6 +17,7 @@
 local GoalDataManager = class("GoalDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function GoalDataManager:ctor()
@@ -29,9 +30,11 @@ end
 function GoalDataManager:Create()
     return GoalDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function GoalDataManager:Init()
@@ -43,9 +46,11 @@ end
 function GoalDataManager:ClearData()
     GoalDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region 目标配置获取
+
 ---=========================================================================
 ---@brief  【核心接口】根据目标ID获取目标配置表数据
 ---@type fun(goalId:string|number):Tables.Goals_Item|nil
@@ -94,6 +99,7 @@ function GoalDataManager:GetGoalDataList(goalIdList)
 
     return result
 end
+
 --endregion
 
 return GoalDataManager

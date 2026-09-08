@@ -16,6 +16,7 @@
 local ConstantsDataManager = class("ConstantsDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function ConstantsDataManager:ctor()
@@ -28,9 +29,11 @@ end
 function ConstantsDataManager:Create()
     return ConstantsDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function ConstantsDataManager:Init()
@@ -43,9 +46,11 @@ end
 function ConstantsDataManager:ClearData()
     ConstantsDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region 常量数据获取
+
 ---@brief 根据常量Key获取配置数据
 ---@type fun(key:string):Tables.Constants_Item
 ---@param key string 常量配置Key
@@ -53,6 +58,7 @@ end
 function ConstantsDataManager:GetDataById(key)
     return Tables.Constants[key]
 end
+
 --endregion
 
 return ConstantsDataManager

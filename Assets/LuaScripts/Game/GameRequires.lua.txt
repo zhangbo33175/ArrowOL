@@ -125,8 +125,8 @@ PoolManager = require("PoolManager"):Create()
 ---@type PauseableCoroutineHelper 可暂停协程工具
 PauseableCoroutineHelper = require('PauseableCoroutineHelper'):Create()
 
----@type PlayHelper 游戏玩法工具
-PlayHelper = require("PlayHelper"):Create()
+---@type GamePlayHelper 游戏玩法工具
+GamePlayHelper = require("GamePlayHelper"):Create()
 
 ---@type GameTimeHelper 游戏时间工具
 GameTimeHelper = require("GameTimeHelper"):Create()

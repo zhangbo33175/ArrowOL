@@ -16,6 +16,7 @@
 local HomeUIBubbleLayerDataManager = class("HomeUIBubbleLayerDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function HomeUIBubbleLayerDataManager:ctor()
@@ -28,9 +29,11 @@ end
 function HomeUIBubbleLayerDataManager:Create()
     return HomeUIBubbleLayerDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function HomeUIBubbleLayerDataManager:Init()
@@ -42,9 +45,11 @@ end
 function HomeUIBubbleLayerDataManager:ClearData()
     HomeUIBubbleLayerDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region UI气泡层级配置获取
+
 ---=========================================================================
 ---@brief  根据气泡类型ID获取层级配置
 ---@type fun(id:EGameElementUIBubbleType):Tables.HomeUIBubbleLayers_Item
@@ -88,6 +93,7 @@ function HomeUIBubbleLayerDataManager:GetOrderById(id)
     end
     return data.Order or 0
 end
+
 --endregion
 
 return HomeUIBubbleLayerDataManager

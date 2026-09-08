@@ -35,6 +35,7 @@ function CharacterGenerationManager:Create()
 end
 
 --region 【角色生成/销毁接口】
+
 ---=========================================================================
 --- 生成闲置角色(对象池管理)
 ---@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase
@@ -53,7 +54,7 @@ end
 ---@param characterBase CharacterBase @角色实例
 ---=========================================================================
 function CharacterGenerationManager:DespawnIdle(characterBase)
-    if characterBase ~= nil  then
+    if characterBase ~= nil then
         if not IsNull(characterBase.cs) then
             PoolMgr:Put(characterBase.cs.gameObject)
         end
@@ -129,9 +130,11 @@ function CharacterGenerationManager:DesCharacterGenerationAll()
     end
     self._characterBaseTable:Clear()
 end
+
 --endregion
 
 --region 【角色获取接口】
+
 ---=========================================================================
 --- 根据角色类型获取已生成的角色列表
 ---@type fun(characterType:ECharacterType):List<CharacterBase>
@@ -160,7 +163,7 @@ function CharacterGenerationManager:GetCharacterConfigsByType(characterType)
     local result = self._characterCfg[characterType]
     if not result then
         result = {}
-        for _,cfg in pairs(Tables.Characters) do
+        for _, cfg in pairs(Tables.Characters) do
             if cfg.CharType == characterType then
                 table.insert(result, cfg)
             end
@@ -177,7 +180,7 @@ end
 ---@param result table @目标容器
 ---=========================================================================
 function CharacterGenerationManager:CopyCharacterConfigsByType(characterType, result)
-    for _,cfg in pairs(Tables.Characters) do
+    for _, cfg in pairs(Tables.Characters) do
         if cfg.CharType == characterType then
             table.insert(result, cfg)
         end
@@ -225,9 +228,11 @@ function CharacterGenerationManager:GetCharacterByCharaId(characterType, id)
     end
     return nil
 end
+
 --endregion
 
 --region 【游戏生命周期】
+
 ---=========================================================================
 --- 游戏初始化
 ---@type fun():void
@@ -314,6 +319,7 @@ function CharacterGenerationManager:OnRePlayGameBefore()
         v:OnRePlayGame()
     end
 end
+
 --endregion
 
 return CharacterGenerationManager

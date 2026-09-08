@@ -11,6 +11,7 @@
 --=====================================================================================================
 
 --region 时间格式枚举定义
+
 ---@class ETimeCustomFormat @自定义时间格式枚举
 ---@field Time_0m00s number @0m 00s 格式
 ---@field Time_0_00 number @0:00 格式
@@ -30,16 +31,20 @@ EFormatTimeString = {
     Time_0m00s = "%sm %02ds", --- 分钟 秒
     Time_0_00  = "%s:%02d",    --- 分:秒
 }
+
 --endregion
 
 --region 数据结构定义
+
 ---@class TimestampRecorder @定时任务记录结构
 ---@field timestamp number @ UTC时间戳
 ---@field callback function @ 到达时间回调
 ---@field key string @ 任务唯一标识（用于取消）
+
 --endregion
 
 --region 类定义
+
 ---@class GameTimeHelper : Singleton @游戏时间管理单例
 ---@field timestampRecords table @已排序定时任务列表（二分插入）
 ---@field waitingExecute table @待执行回调缓存
@@ -51,21 +56,27 @@ EFormatTimeString = {
 ---@field minStr string @多语言：分钟
 ---@field secStr string @多语言：秒
 local GameTimeHelper = class("GameTimeHelper", import("Singleton"))
+
 --endregion
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function GameTimeHelper:ctor(args)
     GameTimeHelper.super.ctor(self, args)
 
-    self.timestampRecords      = {}     --- 定时任务有序列表（按时间戳升序）
-    self.waitingExecute        = {}     --- 待执行任务缓存
-    self.timestampRecordsCache = {}     --- 任务注册缓存队列
+    self.timestampRecords      = {}
+    --- 定时任务有序列表（按时间戳升序）
+    self.waitingExecute        = {}
+    --- 待执行任务缓存
+    self.timestampRecordsCache = {}
+    --- 任务注册缓存队列
     self.eventCmdProcSecond    = "EventCmd_ProcSecond"
-    self.futureTimeStamp       = 0      --- 防时间作弊基准时间戳
+    self.futureTimeStamp       = 0
 
+    --- 防时间作弊基准时间戳
     self.dayStr   = nil
     self.hourStr  = nil
     self.minStr   = nil
@@ -83,9 +94,11 @@ function GameTimeHelper:Create(args)
     local obj = GameTimeHelper.new(args)
     return obj
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化（注册事件、启动每秒定时器）
 ---@type fun():void
 function GameTimeHelper:Init()
@@ -119,9 +132,11 @@ function GameTimeHelper:ClearData()
     --- 重置防作弊基准时间
     self:SetupFutureTimeStamp()
 end
+
 --endregion
 
 --region 多语言时间单位
+
 ---@brief 多语言切换刷新事件
 ---@type fun():void
 function GameTimeHelper:_OnLanguageChange()
@@ -136,9 +151,11 @@ function GameTimeHelper:_InitLanguageText()
     self.minStr   = GetLocalization('TimeShowMin')
     self.secStr   = GetLocalization('TimeShowSec')
 end
+
 --endregion
 
 --region 定时任务：注册 / 取消 / 插入
+
 ---@brief 二分法插入有序任务列表（保证按时间戳升序）
 ---@type fun(record :TimestampRecorder) :void
 ---@param record TimestampRecorder @ 定时任务
@@ -199,9 +216,11 @@ function GameTimeHelper:UnRegisterTime(key)
         end
     end
 end
+
 --endregion
 
 --region 每秒任务执行
+
 ---@brief 每秒执行：检查并执行所有到期任务
 ---@type fun():void
 function GameTimeHelper:ProcSecond()
@@ -248,9 +267,11 @@ function GameTimeHelper:ProcSecond()
 
     ClearArray(self.waitingExecute)
 end
+
 --endregion
 
 --region 时间格式化
+
 ---@brief 固定格式时间格式化
 ---@type fun(time:number,format:ETimeCustomFormat):string
 ---@param time number @总秒数
@@ -304,9 +325,11 @@ function GameTimeHelper:FormatTimeInCommonRule(time, inTick)
         return string.format("%02d%s", second, self.secStr)
     end
 end
+
 --endregion
 
 --region 防篡改时间戳（防止玩家修改本地时间作弊）
+
 ---@brief 登录时初始化基准未来时间戳
 ---@type fun():void
 function GameTimeHelper:SetupFutureTimeStamp()
@@ -352,6 +375,7 @@ function GameTimeHelper:GetUTC0FutureTimeStamp()
 
     return self.futureTimeStamp + Unity.Time.realtimeSinceStartup
 end
+
 --endregion
 
 return GameTimeHelper

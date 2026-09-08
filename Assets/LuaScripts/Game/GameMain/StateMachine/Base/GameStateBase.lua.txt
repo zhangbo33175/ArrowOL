@@ -16,6 +16,7 @@
 local GameStateBase = class('GameStateBase')
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型枚举
@@ -30,18 +31,22 @@ end
 function GameStateBase:Create(stateType)
     return GameStateBase.new(stateType)
 end
+
 --endregion
 
 --region 【状态类型】
+
 ---@brief 获取当前状态类型
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 当前状态枚举值
 function GameStateBase:GetStateType()
     return self._stateType
 end
+
 --endregion
 
 --region 【状态生命周期 - 子类可重写】
+
 ---@brief 进入状态（子类重写）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
@@ -70,6 +75,7 @@ end
 function GameStateBase:ClearCacheData()
     -- 清理特效等临时数据（预留）
 end
+
 --endregion
 
 return GameStateBase

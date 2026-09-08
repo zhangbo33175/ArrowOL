@@ -277,13 +277,6 @@
     },
     {
       "ResType": "Sprite",
-      "AliasName": "Sprite_Level_bg_main2",
-      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main2",
-      "AssetName": "Level_bg_main2",
-      "AssetGUID": "3d23e689dd665524dab868340914ea10"
-    },
-    {
-      "ResType": "Sprite",
       "AliasName": "Sprite_Level_bg_main3",
       "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main3",
       "AssetName": "Level_bg_main3",
@@ -442,6 +435,13 @@
       "ABPath": "Assets/Res/Prefabs",
       "AssetName": "Character",
       "AssetGUID": "db41971c9b8c82544af257fa2499eb28"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main2",
+      "ABPath": "",
+      "AssetName": "Level_bg_main2",
+      "AssetGUID": "3d23e689dd665524dab868340914ea10"
     }
   ]
 }

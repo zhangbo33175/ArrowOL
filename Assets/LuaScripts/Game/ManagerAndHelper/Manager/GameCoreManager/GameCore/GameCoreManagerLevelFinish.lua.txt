@@ -19,6 +19,7 @@
 local GameCoreManagerLevelFinish = class("GameCoreManagerLevelFinish")
 
 --region 构造 & 初始化
+
 ---=========================================================================
 --- 构造函数
 ---@brief 初始化结算流程协程容器
@@ -46,9 +47,11 @@ end
 function GameCoreManagerLevelFinish:ClearData()
     self:StopAloneLevelFinishProcess()
 end
+
 --endregion
 
 --region 游戏结束后统一逻辑
+
 ---=========================================================================
 --- 游戏结束后统一逻辑（胜利/失败）
 ---@brief 负责：进度保存、奖励发放、挑战关卡处理、数据持久化
@@ -63,10 +66,6 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
         GamerDataManager:AddLevelLvByChapterId(curChapterId)
         -- 保存核心数据
         coreData:SaveData()
-        -- 挑战关卡成功 → 发放额外奖励
-        if GameCoreManager:IsInChallengeLevel() then
-            ChallengeLevelHelper:GiveExtraReward()
-        end
     else
         -- 失败 → 清空连胜
         SaveRootData.GameData.playerInfo.winStreak = 0
@@ -83,9 +82,11 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
         )
     end
 end
+
 --endregion
 
 --region 结算流程协程管理
+
 ---=========================================================================
 --- 启动独立协程执行关卡结束流程
 ---@brief 安全启动，自动停止旧协程
@@ -115,7 +116,6 @@ end
 function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     -- UI遮罩，防止操作穿透
     GameMainRoot.UI:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
-
     local startTime = Unity.Time.realtimeSinceStartup
     local delayTime = Tables.Constants.GameEndTime.Value[1]
     local remainTime = delayTime - (Unity.Time.realtimeSinceStartup - startTime)
@@ -129,9 +129,11 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     -- 显示结算界面
     self:ShowLevelFinishUI()
 end
+
 --endregion
 
 --region 结算界面展示
+
 ---=========================================================================
 --- 显示关卡结算界面（胜利/失败）
 ---@brief 统一入口：停止音效 → 区分胜负 → 打开对应UI
@@ -139,10 +141,7 @@ end
 function GameCoreManagerLevelFinish:ShowLevelFinishUI()
     -- 停止所有音效
     SoundManager:StopAllSound()
-
     if GameCoreManager._IsSuccessFinishGame then
-        -- 胜利流程
-        --OpenUISync(UIs.UILevelSuccessBg)
         OpenUISync(UIs.UILevelVictoryView, self:GetLevelSuccessInfo())
     else
         -- 失败流程：判断是否显示前置道具推荐
@@ -170,9 +169,11 @@ function GameCoreManagerLevelFinish:OpenLevelFailureUI(preBoosterId)
         })
     end
 end
+
 --endregion
 
 --region 结算数据扩展（子类重写）
+
 ---=========================================================================
 --- 获取关卡成功结算数据（子类可重写扩展）
 ---@return table 结算数据
@@ -192,6 +193,7 @@ function GameCoreManagerLevelFinish:GetLevelFailureInfo()
     local result = {}
     return result
 end
+
 --endregion
 
 return GameCoreManagerLevelFinish

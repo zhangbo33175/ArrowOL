@@ -19,28 +19,31 @@
 ---@field CurMapData table 当前地图配置数据
 ---@field CurGameMapBase GameMapBase 当前地图逻辑实例
 ---@field CurMapMachines table<string, MachineBase> 场景机器实例字典
-local MapManager = class("MapManager")
+local MapManager = class("MapManager", import("Singleton"))
 
 --region 构造 & 初始化
+
 ---=========================================================================
 --- 构造函数
 ---@brief 初始化地图状态、配置、缓存容器
 ---=========================================================================
 function MapManager:ctor()
-    --- 准备加载的章节ID（预加载目标）
-    self.ReadyLoadChapterId = SaveRootData.GameData.latestChapterId
-    --- 当前加载中的章节ID
-    self.CurLoadChapterId = nil
-    --- 当前地图类型（默认主线）
-    self.CurLoadMapType = EMapType.Main
-    --- 当前加载的地图GameObject
-    self.CurLoadMapGo = nil
-    --- 地图数据配置
-    self.CurMapData = nil
-    --- 地图逻辑基类实例
-    self.CurGameMapBase = nil
-    --- 场景内所有机器实例字典
-    self.CurMapMachines = {}
+    MapManager.super.ctor(self)
+
+    -- 准备加载的章节ID（预加载目标）
+    self.ReadyLoadChapterId     = SaveRootData.GameData.latestChapterId
+    -- 当前加载中的章节ID
+    self.CurLoadChapterId       = nil
+    -- 当前地图类型（默认主线）
+    self.CurLoadMapType         = EMapType.Main
+    -- 当前加载的地图GameObject
+    self.CurLoadMapGo           = nil
+    -- 地图数据配置
+    self.CurMapData             = nil
+    -- 地图逻辑基类实例
+    self.CurGameMapBase         = nil
+    -- 场景内所有机器实例字典
+    self.CurMapMachines         = {}
 end
 
 ---=========================================================================
@@ -52,9 +55,11 @@ function MapManager:Create()
     PrintInfo("[MapManager] 初始化完成")
     return instance
 end
+
 --endregion
 
 --region 地图卸载清理（前后两段）
+
 ---=========================================================================
 --- 卸载地图【前】清理
 ---@brief 调用地图自身预清理逻辑（行为树、协程、监听）
@@ -80,37 +85,38 @@ function MapManager:UnloadMapAfterClear()
     self.CurMapData = nil
     self.CurGameMapBase = nil
     self.CurMapMachines = {}
+
     GameMainUIPushManager:ClearElementData()
 end
+
 --endregion
 
 --region 地图加载/切换/卸载（核心流程）
+
 ---=========================================================================
 --- 获取地图类型（目前固定为主线地图）
 ---@param chapterId number 章节ID
 ---@return EMapType 地图类型
 ---=========================================================================
 function MapManager:GetMapType(chapterId)
-    return EMapType.Main
+    -- 如果不是挑战图全部是主线图
+    return EMapType.MAIN
 end
 
 ---=========================================================================
 --- 切换地图（外部统一入口）
 ---@param chapterId number 目标章节ID
----@param finishCallback function 加载完成回调
+---@param finishCallback function|nil 加载完成回调
 ---@param refuseAd boolean 是否跳过广告
 ---=========================================================================
 function MapManager:OnSetSwitchMap(chapterId, finishCallback, refuseAd)
     if self.CurLoadChapterId == chapterId then
-        if finishCallback then finishCallback() end
+        if finishCallback then
+            finishCallback()
+        end
         return
     end
-
-    local adShown = ADMgr:TryShowInterAd(EInterAdID.CHANGE_CHAPTER, function()
-        self:ReadyToLoadMap(chapterId, finishCallback)
-    end)
-
-    if refuseAd or not adShown then
+    if refuseAd then
         self:ReadyToLoadMap(chapterId, finishCallback)
     end
 end
@@ -119,7 +125,7 @@ end
 --- 准备加载地图：切换到加载状态
 ---@brief 进入LoadMapState，由状态机接管加载流程
 ---@param chapterId number 目标章节ID
----@param finishCallback function 完成回调
+---@param finishCallback function|nil 完成回调
 ---=========================================================================
 function MapManager:ReadyToLoadMap(chapterId, finishCallback)
     self.ReadyLoadChapterId = chapterId
@@ -131,8 +137,39 @@ end
 ---@param luaParams table 加载参数
 ---=========================================================================
 function MapManager:LoadReadyMap(luaParams)
-    if self.ReadyLoadChapterId then
-        self:LoadMapById(self.ReadyLoadChapterId, luaParams)
+    if not self.ReadyLoadChapterId then
+        return
+    end
+    local loadSuccess = self:LoadMapById(self.ReadyLoadChapterId, luaParams)
+    if loadSuccess then
+        self:LoadMapImageSprite()
+    end
+end
+
+---=========================================================================
+--- 加载地图背景图Sprite
+---@brief 从关卡配置读取BgName，刷新RawImage/Image背景
+---=========================================================================
+function MapManager:LoadMapImageSprite()
+    if IsNull(self.CurLoadMapGo) then
+        return
+    end
+
+    local mapData = GameManager:GetMapRootData()
+    if not mapData then
+        PrintWarn("[MapManager] LoadMapImageSprite mapData为空，跳过背景加载")
+        return
+    end
+
+    local rawImageTrans = self.CurLoadMapGo.transform:Find("RawImage")
+    if IsNull(rawImageTrans) then
+        PrintWarn("[MapManager] LoadMapImageSprite 找不到RawImage节点")
+        return
+    end
+
+    local bgImage = rawImageTrans:GetComponent(typeof(CS.UnityEngine.UI.Image))
+    if not IsNull(bgImage) then
+        GamePlayHelper:RefreshImageSprite(self.CurGameMapBase, bgImage, mapData.BgName)
     end
 end
 
@@ -145,7 +182,7 @@ end
 function MapManager:LoadMapById(chapterId, luaParams)
     local mapName = self:GetLoadMapResName(chapterId)
     if not mapName then
-        PrintError("[MapManager] 加载地图失败，资源名为空：" .. chapterId)
+        PrintError("[MapManager] 加载地图失败，资源名为空：" .. tostring(chapterId))
         return false
     end
 
@@ -171,14 +208,15 @@ end
 ---=========================================================================
 --- 根据章节ID获取配置的地图资源名
 ---@param chapterId number 章节ID
----@return string 地图资源名
+---@return string|nil 地图资源名
 ---=========================================================================
 function MapManager:GetLoadMapResName(chapterId)
     local chapterData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
     if chapterData then
         return chapterData.MapName
     end
-    PrintError("[MapManager] 未找到章节配置：" .. chapterId)
+
+    PrintError("[MapManager] 未找到章节配置：" .. tostring(chapterId))
     return nil
 end
 
@@ -187,25 +225,26 @@ end
 ---@brief 清理特效 → 预清理 → 销毁物体 → 后清理
 ---=========================================================================
 function MapManager:UnloadOldMap()
-    if string.isNullOrEmpty(self.CurLoadChapterId) or IsNull(self.CurLoadMapGo) then
+    if string.isNullOrEmpty(tostring(self.CurLoadChapterId)) or IsNull(self.CurLoadMapGo) then
         return
     end
+
     CharacterGenerationManager:DesCharacterGenerationAll()
     GameEffectManager:ClearData()
     self:UnloadMapBeforeClear()
     DestroyPrefabWithGO(self.CurLoadMapGo)
     self:UnloadMapAfterClear()
 end
+
 --endregion
 
 --region 游戏生命周期（统一转发给地图 + 所有机器）
----@brief 关卡生命周期统一调度：地图逻辑 + 所有机器行为树
 
----=========================================================================
---- 游戏初始化
----=========================================================================
+---@brief 游戏初始化
 function MapManager:OnInitGame()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnInitGame()
@@ -213,11 +252,11 @@ function MapManager:OnInitGame()
     self.CurGameMapBase:OnInitGame()
 end
 
----=========================================================================
---- 进入游戏
----=========================================================================
+---@brief 进入游戏
 function MapManager:OnEnterGame()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnEnterGame()
@@ -225,11 +264,11 @@ function MapManager:OnEnterGame()
     self.CurGameMapBase:OnEnterGame()
 end
 
----=========================================================================
---- 游戏开始
----=========================================================================
+---@brief 游戏开始
 function MapManager:OnBeginGame()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnBeginGame()
@@ -237,11 +276,11 @@ function MapManager:OnBeginGame()
     self.CurGameMapBase:OnBeginGame()
 end
 
----=========================================================================
---- 游戏暂停
----=========================================================================
+---@brief 游戏暂停
 function MapManager:OnPauseGame()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnPauseGame()
@@ -249,11 +288,11 @@ function MapManager:OnPauseGame()
     self.CurGameMapBase:OnPauseGame()
 end
 
----=========================================================================
---- 游戏恢复
----=========================================================================
+---@brief 游戏恢复
 function MapManager:OnResumeGame()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnResumeGame()
@@ -261,11 +300,11 @@ function MapManager:OnResumeGame()
     self.CurGameMapBase:OnResumeGame()
 end
 
----=========================================================================
---- 游戏结束
----=========================================================================
+---@brief 游戏结束
 function MapManager:OnGameOver()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnGameOver()
@@ -273,11 +312,11 @@ function MapManager:OnGameOver()
     self.CurGameMapBase:OnGameOver()
 end
 
----=========================================================================
---- 退出游戏
----=========================================================================
+---@brief 退出游戏
 function MapManager:OnExitGame()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnExitGame()
@@ -285,11 +324,11 @@ function MapManager:OnExitGame()
     self.CurGameMapBase:OnExitGame()
 end
 
----=========================================================================
---- 重新开始游戏
----=========================================================================
+---@brief 重新开始游戏
 function MapManager:OnRePlayGame()
-    if not self.CurGameMapBase then return end
+    if not self.CurGameMapBase then
+        return
+    end
 
     for _, machine in pairs(self.CurMapMachines) do
         machine:OnInitGame()
@@ -297,6 +336,7 @@ function MapManager:OnRePlayGame()
     end
     self.CurGameMapBase:OnRePlayGame()
 end
+
 --endregion
 
 return MapManager

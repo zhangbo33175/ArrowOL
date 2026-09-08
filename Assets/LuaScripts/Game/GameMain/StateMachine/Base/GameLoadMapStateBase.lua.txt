@@ -16,6 +16,7 @@
 local GameLoadMapStateBase = class('GameLoadMapStateBase', import('GameStateBase'))
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
@@ -31,9 +32,11 @@ end
 function GameLoadMapStateBase:Create(stateType)
     return GameLoadMapStateBase.new(stateType)
 end
+
 --endregion
 
 --region 【状态进入 - 核心加载流程】
+
 ---@brief 进入状态（核心加载逻辑）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
@@ -48,7 +51,6 @@ function GameLoadMapStateBase:OnStateEnter(finishCallback)
         -- 目标地图与当前相同 → 不重复加载
         if MapManager.CurLoadChapterId == MapManager.ReadyLoadChapterId then
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
-         
             self:LoadMapOver(finishCallback)
         else
             -- 卸载旧地图
@@ -77,9 +79,11 @@ function GameLoadMapStateBase:OnStateEnter(finishCallback)
         end
     end)
 end
+
 --endregion
 
 --region 【状态退出】
+
 ---@brief 离开状态
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
@@ -89,9 +93,11 @@ function GameLoadMapStateBase:OnStateExit(finishCallback)
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+
 --endregion
 
 --region 【加载界面（子类可重写）】
+
 ---@brief 打开加载UI
 ---@type fun():void
 function GameLoadMapStateBase:OpenLoadingUI()
@@ -103,9 +109,11 @@ end
 function GameLoadMapStateBase:CloseLoadingUI()
     CloseUI(UIs.UILoadMapView)
 end
+
 --endregion
 
 --region 【地图加载生命周期（子类重写）】
+
 ---@brief 地图加载完毕（默认切主界面）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 完成回调
@@ -121,6 +129,7 @@ function GameLoadMapStateBase:OnReadyToLoadMap(chapterId)
     ChapterListManager:SetRuntimeChapter(chapterId)
     GameCoreManager:OnRePlayGame()
 end
+
 --endregion
 
 return GameLoadMapStateBase

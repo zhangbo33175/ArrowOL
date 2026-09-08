@@ -16,6 +16,7 @@
 local GameStateMachine = class('GameStateMachine')
 
 --region 【构造 & 单例】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 自定义参数
@@ -39,9 +40,11 @@ end
 function GameStateMachine:Create(args)
     return GameStateMachine.new(args)
 end
+
 --endregion
 
 --region 【状态获取】
+
 ---@brief 获取当前状态类型
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 当前状态枚举
@@ -61,9 +64,11 @@ function GameStateMachine:PreStateType()
     end
     return nil
 end
+
 --endregion
 
 --region 【状态切换 - 外部唯一入口】
+
 ---@brief 切换游戏状态
 ---@type fun(nextStateCmd:GameStateCmd, finishCallback:function):void
 ---@param nextStateCmd GameStateCmd 要切换的目标状态
@@ -99,9 +104,11 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
         self:DoPreStateExitAfter(self._currentState, nextState, finishCallback)
     end
 end
+
 --endregion
 
 --region 【状态切换内部流程】
+
 ---@brief 前状态退出完成后，进入新状态
 ---@type fun(currentState:GameStateBase, nextState:GameStateBase, finishCallback:function):void
 ---@param currentState GameStateBase 要退出的当前状态
@@ -114,9 +121,11 @@ function GameStateMachine:DoPreStateExitAfter(currentState, nextState, finishCal
         self._currentState:OnStateEnter(finishCallback)
     end)
 end
+
 --endregion
 
 --region 【帧更新】
+
 ---@brief 状态机帧更新（驱动当前状态Update）
 ---@type fun():void
 function GameStateMachine:OnUpdate()
@@ -124,6 +133,7 @@ function GameStateMachine:OnUpdate()
         self._currentState:OnUpdate()
     end
 end
+
 --endregion
 
 return GameStateMachine

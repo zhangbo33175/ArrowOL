@@ -11,9 +11,11 @@
 --=====================================================================================================
 
 --region DOTween 缓动类型转换
---=========================================================================
+
+--=====================================================================================================
 -- DOTween 缓动类型转换：数字 <-> Ease 枚举映射
---=========================================================================
+--=====================================================================================================
+
 --- 将数字类型的缓动类型 转换成 DOTween 枚举 Ease
 ---@type fun(intEaseType:number):DG.Tweening.Ease
 ---@param intEaseType number 数字缓动类型
@@ -59,12 +61,15 @@ function ParseEaseByInt(intEaseType)
     }
     return easeMap[intEaseType] or DG.Tweening.Ease.Linear
 end
+
 --endregion
 
 --region 对象池工具
---=========================================================================
+
+--=====================================================================================================
 -- 对象池管理工具：根节点获取、子节点创建
---=========================================================================
+--=====================================================================================================
+
 --- 获取对象池根节点 GameObject
 ---@type fun():UnityEngine.GameObject
 ---@return UnityEngine.GameObject 对象池根节点
@@ -87,12 +92,15 @@ function CreateNewPoolRoot()
     newRoot.transform.localPosition = Unity.Vector3.zero
     return newRoot
 end
+
 --endregion
 
 --region 屏幕边界计算
---=========================================================================
+
+--=====================================================================================================
 -- 屏幕边界计算：获取相机视口世界坐标
---=========================================================================
+--=====================================================================================================
+
 --- 获取屏幕左边界世界坐标 X
 ---@type fun(sceneCamera:UnityEngine.Camera):number
 ---@param sceneCamera UnityEngine.Camera 场景相机
@@ -136,12 +144,15 @@ function GetScreenBorderBottomWorldY(sceneCamera)
     end
     return sceneCamera:ViewportToWorldPoint(Vector3(0, 0, 0)).y
 end
+
 --endregion
 
 --region 字符串工具
---=========================================================================
+
+--=====================================================================================================
 -- 字符串通用工具：开头/结尾匹配判断
---=========================================================================
+--=====================================================================================================
+
 --- 判断字符串是否以指定内容开头
 ---@type fun(str:string, startStr:string):boolean
 ---@param str string 原字符串
@@ -161,12 +172,15 @@ function StringEndsWith(str, endStr)
     if not str or not endStr then return false end
     return string.sub(str, -string.len(endStr)) == endStr
 end
+
 --endregion
 
 --region Spine 动画工具
---=========================================================================
+
+--=====================================================================================================
 -- Spine 动画工具：时长获取、播放、状态控制
---=========================================================================
+--=====================================================================================================
+
 --- 获取 Spine.SkeletonAnimation 动画时长
 ---@type fun(spineAnim:Spine.Unity.SkeletonAnimation, animName:string):number
 ---@param spineAnim Spine.Unity.SkeletonAnimation Spine动画组件
@@ -225,12 +239,15 @@ function DelayPlaySpineAnimation(skeletonGraphic, animName, delay, loop)
     if IsNull(skeletonGraphic) or IsNull(skeletonGraphic.AnimationState) then return nil end
     return skeletonGraphic.AnimationState:AddAnimation(0, animName, loop, delay)
 end
+
 --endregion
 
 --region 飞星 / 贝塞尔动画
---=========================================================================
+
+--=====================================================================================================
 -- 飞星/贝塞尔动画：金币/道具飞行动画、路径动画
---=========================================================================
+--=====================================================================================================
+
 --- 打开飞星界面并播放飞星效果
 ---@type fun(cfg:StarFlyConfig):void
 ---@param cfg StarFlyConfig 飞星配置数据
@@ -328,12 +345,15 @@ function DOPathAndWait(go, pathPoints, preDelay, duration, ease)
 
     return sequence
 end
+
 --endregion
 
 --region UI 文本 / 适配工具
---=========================================================================
+
+--=====================================================================================================
 -- UI工具：文本计算、多语言、屏幕适配转换
---=========================================================================
+--=====================================================================================================
+
 --- 获取文本宽度（根据内容）
 ---@type fun(text:TMPro.TextMeshProUGUI, content:string):number
 ---@param text TMPro.TextMeshProUGUI 文本组件
@@ -402,12 +422,15 @@ function GetRealScreenHeightByDesign(designHeight)
 
     return (designHeight * UnityEngine.Screen.height) / canvasHeight
 end
+
 --endregion
 
 --region 数组 / 表工具
---=========================================================================
+
+--=====================================================================================================
 -- 表/数组工具：空判断、转换、清空、打乱、二分插入
---=========================================================================
+--=====================================================================================================
+
 --- 判断 table 是否为空
 ---@type fun(t:table):boolean
 ---@param t table 目标表
@@ -499,12 +522,15 @@ function BinaryInsertSortedArray(array, item, sortField)
         table.insert(array, min + 1, item)
     end
 end
+
 --endregion
 
 --region Transform / 坐标工具
---=========================================================================
+
+--=====================================================================================================
 -- Transform工具：坐标、缩放、父节点、复制
---=========================================================================
+--=====================================================================================================
+
 --- 获取 UI 中心点世界坐标
 ---@type fun(rectTransform:UnityEngine.RectTransform):UnityEngine.Vector3
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
@@ -589,12 +615,15 @@ function SetTransformChild(parent, child)
     child.transform.localEulerAngles = Vector3.zero
     child.transform.localPosition = Vector3.zero
 end
+
 --endregion
 
 --region 包围盒工具
---=========================================================================
+
+--=====================================================================================================
 -- 包围盒工具：3D/2D/UI 屏幕包围盒计算
---=========================================================================
+--=====================================================================================================
+
 --- 获取模型屏幕包围盒
 ---@type fun(meshFilter:UnityEngine.MeshFilter):table
 ---@param meshFilter UnityEngine.MeshFilter 网格过滤器
@@ -659,12 +688,15 @@ function GetRectTransformScreenBounds(rectTransform, camera)
         size = maxScreen - minScreen
     }
 end
+
 --endregion
 
 --region 安全调用 / 延迟工具
---=========================================================================
+
+--=====================================================================================================
 -- 安全调用/延迟工具：异常捕获、延时执行、协程延迟
---=========================================================================
+--=====================================================================================================
+
 --- 安全执行函数（捕获异常）
 ---@type fun(func:function, errorMsg:string):void
 ---@param func function 执行函数
@@ -760,12 +792,15 @@ function DelayFrameInvoke(frameCount, callback, param)
         callback(param)
     end)
 end
+
 --endregion
 
 --region 关卡 / 解锁工具
---=========================================================================
+
+--=====================================================================================================
 -- 关卡解锁工具：章节/关卡解锁条件判断
---=========================================================================
+--=====================================================================================================
+
 --- 判断是否解锁章节/关卡
 ---@type fun(unlockChapter:number, unlockLevel:number, currentChapter:number, currentLevel:number):boolean
 ---@param unlockChapter number 解锁章节
@@ -781,12 +816,15 @@ function IsLevelUnlocked(unlockChapter, unlockLevel, currentChapter, currentLeve
     if currentChapter == unlockChapter and currentLevel >= unlockLevel then return true end
     return false
 end
+
 --endregion
 
 --region 任务 / 事件派发
---=========================================================================
+
+--=====================================================================================================
 -- 任务事件工具：任务进度派发、清空事件
---=========================================================================
+--=====================================================================================================
+
 --- 派发任务进度更新事件
 ---@type fun(subType:EDailyQuestSubType, value:number, isLatestChapter:boolean):void
 ---@param subType EDailyQuestSubType 任务子类型
@@ -805,12 +843,15 @@ function DispatchQuestProgressClear(subType, isLatestChapter)
     HonorEventHelper:Fire(EventCmd.OnClearQuestProgress, subType, isLatestChapter)
     PrintInfo(string.format("[Quest] Progress cleared: %s", subType))
 end
+
 --endregion
 
 --region 数据解析工具
---=========================================================================
+
+--=====================================================================================================
 -- 数据解析工具：奖励、二元组字符串解析
---=========================================================================
+--=====================================================================================================
+
 --- 解析奖励表
 ---@type fun(rewardTable:table):HonorList
 ---@param rewardTable table 奖励表数据
@@ -872,12 +913,15 @@ function ParseStruct2(str)
         Item2 = parts[2]
     }
 end
+
 --endregion
 
 --region 道具 / 奖励发放
---=========================================================================
+
+--=====================================================================================================
 -- 道具奖励工具：发放、显示格式化、批量处理
---=========================================================================
+--=====================================================================================================
+
 --- 根据资源类型获取预设名
 ---@type fun(resType:EResourceType):string
 ---@param resType EResourceType 资源类型
@@ -959,12 +1003,15 @@ end
 function FormatRewardCount(reward)
     return reward and FormatItemCountDisplay(reward.Id, reward.Num) or ""
 end
+
 --endregion
 
 --region 埋点 / 统计
---=========================================================================
+
+--=====================================================================================================
 -- 数据埋点工具：奖励获取统计上报
---=========================================================================
+--=====================================================================================================
+
 --- 单个奖励统计打点
 ---@type fun(itemId:string, count:number, reason:number, purchaseId:string, areaId:string):void
 ---@param itemId string 道具ID
@@ -1006,12 +1053,15 @@ function TrackRewardList(rewardList, reason, purchaseId, areaId)
         TrackReward(r.Id, r.Num, reason, purchaseId, areaId)
     end
 end
+
 --endregion
 
 --region 其他工具
---=========================================================================
+
+--=====================================================================================================
 -- 通用杂项工具：敏感词、分批处理、空判断、Spine整套动画
---=========================================================================
+--=====================================================================================================
+
 --- 敏感词匹配检查
 ---@type fun(content:string, word:string):boolean
 ---@param content string 检查内容
@@ -1133,14 +1183,18 @@ function TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
     end
     return lua
 end
+
 --endregion
 
 --region 坐标转换工具
---=========================================================================
+
+--=====================================================================================================
 -- 坐标转换：字符串/Table转Vector3
---=========================================================================
----将字符串格式的坐标转换为Unity Vector3
----支持格式: (1,2,3) 、1,2,3、(-1.5, 2.0, 3.7)
+--=====================================================================================================
+
+--- 将字符串格式的坐标转换为Unity Vector3
+--- 支持格式: (1,2,3) 、1,2,3、(-1.5, 2.0, 3.7)
+---@type fun(str:string|table):UnityEngine.Vector3
 ---@param str string 坐标字符串
 ---@return UnityEngine.Vector3 转换后的三维坐标
 function StringToVector3(str)
@@ -1159,7 +1213,8 @@ function StringToVector3(str)
     return CS.UnityEngine.Vector3(x, y, z)
 end
 
----Table转Unity Vector3
+--- Table转Unity Vector3
+---@type fun(t:table):UnityEngine.Vector3
 ---@param t table 坐标表 {x,y,z}
 ---@return UnityEngine.Vector3 转换后的三维坐标
 function TableToVector3(t)
@@ -1171,13 +1226,17 @@ function TableToVector3(t)
     local z = tonumber(t[3]) or 0
     return CS.UnityEngine.Vector3(x, y, z)
 end
+
 --endregion
 
 --region 表通用工具
---=========================================================================
+
+--=====================================================================================================
 -- 表通用工具：计数、Key包含判断
---=========================================================================
----安全获取表长度（支持数组、哈希表、空表、不连续表）
+--=====================================================================================================
+
+--- 安全获取表长度（支持数组、哈希表、空表、不连续表）
+---@type fun(_table:table):number
 ---@param _table table 目标表
 ---@return number 表中元素数量
 function GetTableCount(_table)
@@ -1191,6 +1250,7 @@ function GetTableCount(_table)
 end
 
 --- 检查表中是否包含指定Key（通用字典包含判断）
+---@type fun(_table:table, key:any):boolean
 ---@param _table table 目标表
 ---@param key any 要判断的Key
 ---@return boolean 是否包含
@@ -1200,4 +1260,5 @@ function ContainsKey(_table, key)
     end
     return _table[key] ~= nil
 end
+
 --endregion

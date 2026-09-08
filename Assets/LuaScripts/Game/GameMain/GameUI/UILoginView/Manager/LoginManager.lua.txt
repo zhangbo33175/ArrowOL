@@ -218,7 +218,7 @@ function LoginManager:ErrorCodeDiagnosis(errorCode, req, resp, cmd, returnData)
         self:Login(true, self._loginFinishCallback)
 
     elseif errorCode == NetCode.UIDSignToOtherDevices[1] then
-        if not PlayHelper:IsInLevelState() then
+        if not GamePlayHelper:IsInLevelState() then
             self._loginState = ELoginState.MultiLogin
             self:OpenLoginConflict()
         else

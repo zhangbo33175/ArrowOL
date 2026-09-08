@@ -1,0 +1,21 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableLevelData_2_5
+-- descrip:   关卡配置信息表
+-- notices:   该文件自动生成，请不要手动修改！
+--=====================================================================================================
+
+---@type Tables.LevelData_Item
+Tables.LevelData_2_5 = { 
+    ChapterId = "2",
+    LevelId= 5,
+    BgName = "Level_bg_main5",
+    Time = "2026-09-06 10:18:34",
+    MapName ="GameMainMap",
+    SavePath ="",
+    MapData= {
+       [1] = {Id = 1010, Type = "Dissipate",Position = {"0.00","0.00","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat10",Name = "ItemMap_Instance_0",Size = {"35.00","39.00","0.00"},IsChoose = false},
+    },
+ }

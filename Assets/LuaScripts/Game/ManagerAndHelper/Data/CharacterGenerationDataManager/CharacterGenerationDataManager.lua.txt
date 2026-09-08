@@ -18,6 +18,7 @@
 local CharacterGenerationDataManager = class("CharacterGenerationDataManager")
 
 --region 【构造与创建】
+
 ---=========================================================================
 ---@brief  构造函数
 ---@type fun(args:table):void
@@ -36,9 +37,11 @@ end
 function CharacterGenerationDataManager:Create(args)
     return CharacterGenerationDataManager.new(args)
 end
+
 --endregion
 
 --region 【数据获取接口】
+
 ---=========================================================================
 ---@brief  根据角色ID获取角色配置
 ---@type fun(characterId:string):Tables.Characters_Item

@@ -772,6 +772,7 @@
     <None Include="Library\PackageCache\com.unity.settings-manager@2.0.1\package.json" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\NotificationDataPB.proto.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.subsystems@1.0.0\package.json" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\2\TableLevelData_2_5.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultItalian.json" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\thirds\SystemProtoc.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\perfs\SystemMemory.lua.txt" />
@@ -803,12 +804,13 @@
     <None Include="Assets\LuaScripts\Config\LuaJson\ABConfigs.json" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultKorean.json" />
     <None Include="Assets\LuaScripts\Game\GameMap\UIMapBase.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UISetting\UISetting.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.assetbundle@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationSpanish\LocalizationSpanish.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\ChapterListManager\ChapterListManager.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultChineseSimplified.json" />
     <None Include="Assets\Res\Fonts\TMPTxt\lang_es.txt" />
-    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Helper\PlayHelper\PlayHelper.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Helper\GamePlayHelper\GamePlayHelper.lua.txt" />
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\package.json" />
     <None Include="Library\PackageCache\com.unity.modules.imgui@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Helper\ChallengeLevelHelper\ChallengeLevelHelper.lua.txt" />
@@ -852,6 +854,7 @@
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Base\GameLoadMapStateBase.lua.txt" />
     <None Include="Library\PackageCache\com.unity.visualscripting@1.9.0\package.json" />
     <None Include="Library\PackageCache\com.unity.editorcoroutines@1.0.0\package.json" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\TableLevelData.lua.txt" />
     <None Include="Library\PackageCache\com.unity.timeline@1.7.5\ValidationExceptions.json" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\GameEffectManager\GameEffectManager.lua.txt" />
     <None Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\package.json" />
@@ -896,6 +899,7 @@
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UISettlementView\UILevelFailedView.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.rider@3.0.40\ValidationExceptions.json" />
     <None Include="Library\PackageCache\com.unity.test-framework@1.1.33\package.json" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\3\TableLevelData_3_7.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\UserDataPB.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\SystemConfigDataPB.proto.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPTxt\lang_pt.txt" />
@@ -945,6 +949,7 @@
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Helper\SaveDataHelper\SaveDataHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\Levels\1\TableLevelData_1_2.lua.txt" />
     <None Include="Assets\Scripts\Runtime\XLua\Gen\link.xml" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\3\TableLevelData_3_8.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Base\GameStateBase.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\GameTurnToProLoadState.lua.txt" />
     <None Include="Assets\Res\json\MapData1.json" />
@@ -967,7 +972,6 @@
     <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\ViewSuper.lua.txt" />
     <None Include="Library\PackageCache\com.unity.testtools.codecoverage@1.2.4\package.json" />
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationJapaneseFontTMPChars.txt" />
-    <None Include="Assets\LuaScripts\Game\Tables\Levels\TableLevelData.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationChineseTraditionalFontTMPChars.txt" />
     <None Include="Library\PackageCache\com.unity.modules.unitywebrequestwww@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\TableItems.lua.txt" />
@@ -979,6 +983,7 @@
     <None Include="Assets\LuaScripts\Game\Launcher\ProcedurePreload.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Base\GameStateCmd.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\Spanish.txt" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\2\TableLevelData_2_6.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Manager\UIStackManager\UIStackManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\GameMainState.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\Guide\GuideNewContext.lua.txt" />
@@ -1004,7 +1009,9 @@
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\Editor Resources\Shaders\TMP_SDF Internal Editor.shader" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\NotificationDataPB.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\LocalEventDataManager.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\3\TableLevelData_3_9.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.director@1.0.0\package.json" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\2\TableLevelData_2_4.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultFrench.json" />
     <None Include="Library\PackageCache\com.unity.ide.vscode@1.2.5\ValidationExceptions.json" />
     <None Include="Library\PackageCache\com.unity.visualscripting@1.9.0\ValidationConfig.json" />
@@ -1015,6 +1022,7 @@
     <None Include="Assets\LuaScripts\Game\GameMap\GameMapMotion.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\Binder.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.terrain@1.0.0\package.json" />
+    <None Include="Library\PackageCache\com.unity.2d.sprite@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\EventCmds\EventCmd.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\Korean.txt" />
     <None Include="Library\PackageCache\com.unity.modules.androidjni@1.0.0\package.json" />
@@ -1023,6 +1031,7 @@
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\PackageConversionData_Assets.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIMainStateView\SectionItem.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\Events\TableLocalEvents.lua.txt" />
+    <None Include="Assets\LuaScripts\Game\Tables\Levels\1\TableLevelData_1_3.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationItalian\LocalizationItalian.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIMainStateView\UIMainStateViewView.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.animation@1.0.0\package.json" />
@@ -1812,6 +1821,10 @@
     <ProjectReference Include="Unity.VSCode.Editor.csproj">
       <Project>{49fb754b-5b9a-8310-edc9-603118bf3e20}</Project>
       <Name>Unity.VSCode.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.2D.Sprite.Editor.csproj">
+      <Project>{4b73017a-4391-263c-7314-f96491fadd43}</Project>
+      <Name>Unity.2D.Sprite.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="spine-unity.csproj">
       <Project>{ea09a4b0-9ea1-d3c6-7ef1-d9288a5bea85}</Project>

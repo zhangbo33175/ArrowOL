@@ -16,10 +16,10 @@
 ---@field name string 动画名称
 ---@field delay number 延时
 ---@field _delayCallIds table 延迟调用ID列表（切换地图时需要清理）
-
 local UIMapBase = class('UIMapBase', import('GameMapBase'))
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 自定义参数
@@ -35,9 +35,11 @@ end
 function UIMapBase:Create(args)
     return UIMapBase.new(args)
 end
+
 --endregion
 
 --region 【事件 & 初始化】
+
 ---@brief 注册事件监听（父类自动注销）
 ---@type fun():void
 function UIMapBase:OnAddListeners()
@@ -55,9 +57,11 @@ end
 function UIMapBase:Awake()
     UIMapBase.super.Awake(self)
 end
+
 --endregion
 
 --region 【游戏生命周期】
+
 ---@brief 游戏初始化
 ---@type fun():void
 function UIMapBase:OnInitGame()
@@ -105,9 +109,11 @@ end
 function UIMapBase:OnRePlayGame()
     UIMapBase.super.OnRePlayGame(self)
 end
+
 --endregion
 
 --region 【地图卸载 & 资源清理】
+
 ---@brief 卸载地图前清理（核心资源释放）
 ---@type fun():void
 function UIMapBase:UnloadMapBeforeClear()
@@ -115,7 +121,7 @@ function UIMapBase:UnloadMapBeforeClear()
 
     -- 结束地图控制
     GameMapMotion:OnMapEnd()
-    
+
     -- 清理所有延迟调用
     for id, _ in pairs(self._delayCallIds) do
         DOTween.Kill(id)
@@ -128,9 +134,11 @@ end
 function UIMapBase:UnloadMapAfterClear()
     UIMapBase.super.UnloadMapAfterClear(self)
 end
+
 --endregion
 
 --region 【延时调用管理】
+
 ---@brief 添加延迟调用ID（用于统一清理）
 ---@type fun(id:string):void
 ---@param id string Dotween延时ID
@@ -144,9 +152,11 @@ end
 function UIMapBase:RemoveDelayCallId(id)
     self._delayCallIds[id] = nil
 end
+
 --endregion
 
 --region 【奖励 & 图标】
+
 ---@brief 每日奖励签到刷新（重置日历）
 ---@type fun():void
 function UIMapBase:OnDailyRewardSignin()
@@ -157,14 +167,17 @@ end
 ---@type fun():void
 function UIMapBase:CreateAutonomousEntitys()
 end
+
 --endregion
 
 --region 【销毁】
+
 ---@brief 销毁回调
 ---@type fun():void
 function UIMapBase:OnDestroy()
     UIMapBase.super.OnDestroy(self)
 end
+
 --endregion
 
 return UIMapBase

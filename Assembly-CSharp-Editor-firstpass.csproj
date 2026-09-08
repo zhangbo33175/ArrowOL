@@ -896,6 +896,10 @@
       <Project>{49fb754b-5b9a-8310-edc9-603118bf3e20}</Project>
       <Name>Unity.VSCode.Editor</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.2D.Sprite.Editor.csproj">
+      <Project>{4b73017a-4391-263c-7314-f96491fadd43}</Project>
+      <Name>Unity.2D.Sprite.Editor</Name>
+    </ProjectReference>
     <ProjectReference Include="spine-unity.csproj">
       <Project>{ea09a4b0-9ea1-d3c6-7ef1-d9288a5bea85}</Project>
       <Name>spine-unity</Name>

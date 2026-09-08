@@ -1,46 +1,50 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
--- -------------------------------------------------------------
--- filename:  StartGame.lua.txt
--- author:    云毅
--- created:   2026
--- descrip:   框架初始化入口（Lua 最顶层入口）
---            系统初始化、GC 优化、依赖加载、全局回调注册
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   StartGame.lua
+-- author:     云毅
+-- created:    2026
+-- descrip:    框架初始化入口（Lua 最顶层入口）
+--             系统初始化、GC 优化、依赖加载、全局回调注册
 --=====================================================================================================
 
 --region Lua 内存与GC优化设置
---- 启动时全量GC回收
+
+---@brief 启动时全量GC回收
 collectgarbage("collect")
 
---- 设置GC暂停率：GC完成后立即开启下一轮
+---@brief 设置GC暂停率：GC完成后立即开启下一轮
 collectgarbage("setpause", 100)
 
---- 设置GC步进倍率：加速GC回收，防止内存泄漏
+---@brief 设置GC步进倍率：加速GC回收，防止内存泄漏
 collectgarbage("setstepmul", 5000)
+
 --endregion
 
 --region 核心依赖模块加载
---- 运行库 API 加载
+
+---@brief 运行库 API 加载
 require("SystemApis")
 
---- 全局框架常量/枚举定义
+---@brief 全局框架常量/枚举定义
 require("SystemDefs")
 
---- 全局通用工具方法
+---@brief 全局通用工具方法
 require("SystemFuncs")
 
---- 全局桥接方法（C# / Lua 互调）
+---@brief 全局桥接方法（C# / Lua 互调）
 require("SystemBridges")
 
---- 全局事件定义
+---@brief 全局事件定义
 require("EventCmd")
 
---- 框架核心模块加载
+---@brief 框架核心模块加载
 require("SystemReqs")
 
---- 游戏业务主入口
+---@brief 游戏业务主入口
 require("GameMain")
+
 --endregion
 
 -- 调试：打印当前加载文件路径
@@ -48,13 +52,15 @@ require("GameMain")
 
 PrintInfo("回调 Lua 应用挂起 lua界面 ")
 
--- ==========================================================
--- 全局系统回调（由 C# 层调用）
--- ==========================================================
 --region C# -> Lua 全局回调
 
---- 应用挂起/恢复回调
---- @param pause boolean true=挂起 false=恢复
+--=====================================================================================================
+-- 全局系统回调（由 C# 层调用）
+--=====================================================================================================
+
+---@brief 应用挂起/恢复回调
+---@desc 应用挂起/恢复时由 C# 调用；恢复时延迟 0.5 秒重置时间戳，避免切后台时间异常
+---@param pause boolean 是否挂起（true=挂起 false=恢复）
 function ApplicationPauseCallback(pause)
     -- 应用挂起
     if pause == true then
@@ -71,22 +77,25 @@ function ApplicationPauseCallback(pause)
     GameApplicationPauseCallback(pause)
 end
 
---- 应用退出回调
+---@brief 应用退出回调
+---@desc 应用退出时由 C# 调用，转发至游戏业务层
 function ApplicationQuitCallback()
     PrintInfo("回调 Lua 应用退出")
     GameApplicationQuitCallback()
 end
 
---- 原生按键抬起回调（Android 返回键等）
---- @param keyCode table 按键类型
+---@brief 原生按键抬起回调（Android 返回键等）
+---@desc 原生按键抬起时由 C# 调用，暂仅支持 Escape 按键回调
+---@param keyCode table 按键类型
 function KeyboardsUpCallback(keyCode)
-    PrintInfo("回调 Lua 原生按键抬起：keyCode = "..keyCode:GetHashCode())
+    PrintInfo("回调 Lua 原生按键抬起：keyCode = " .. keyCode:GetHashCode())
     -- 暂仅支持 Escape 按键回调
     GameKeyboardsUpCallback(keyCode)
 end
 
---- 接收 C# 全局事件并转发
---- @param eventArgs table C# 事件参数
+---@brief 接收 C# 全局事件并转发
+---@desc 监听屏幕旋转事件并转发至 Lua 事件系统，其余事件转发至游戏业务层
+---@param eventArgs table C# 事件参数
 function ReceiveCsEventCallback(eventArgs)
     -- 监听屏幕旋转事件 → 转发至 Lua 事件系统
     if eventArgs.Cmd == Honor.EventCmd.ScreenOrientationChanged then
@@ -101,17 +110,20 @@ function ReceiveCsEventCallback(eventArgs)
     GameReceiveCsToEventCallback(eventArgs)
 end
 
---- 获取资源配置信息（C# 调用）
---- @param name string 资源别名
---- @return table 资源配置
+---@brief 获取资源配置信息（C# 调用）
+---@desc 根据资源别名返回对应的资源配置
+---@param name string 资源别名
+---@return table 资源配置
 function GetResDefInfoCallback(name)
     return LoadRes[name]
 end
 
---- 获取音效配置（C# 调用）
---- @param soundKeyName string 音效Key
---- @return table 音效配置表
+---@brief 获取音效配置（C# 调用）
+---@desc 根据音效 Key 返回对应的音效配置表
+---@param soundKeyName string 音效Key
+---@return table 音效配置表
 function GameSoundCallback(soundKeyName)
     return Tables.Sounds[soundKeyName]
 end
+
 --endregion

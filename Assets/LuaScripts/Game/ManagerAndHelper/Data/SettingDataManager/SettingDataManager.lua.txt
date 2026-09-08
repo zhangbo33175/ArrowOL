@@ -16,6 +16,7 @@
 local SettingDataManager = class("SettingDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function SettingDataManager:ctor()
@@ -28,9 +29,11 @@ end
 function SettingDataManager:Create()
     return SettingDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function SettingDataManager:Init()
@@ -42,9 +45,11 @@ end
 function SettingDataManager:ClearData()
     SettingDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region 设置开关获取 & 设置
+
 ---=========================================================================
 ---@brief  获取存档中记录的设置开关状态
 ---@type fun(settingType:ESettingType):boolean
@@ -106,9 +111,11 @@ function SettingDataManager:SetSettingNewState(settingType, newState)
         end, function() end)
     end
 end
+
 --endregion
 
 --region 推送权限矫正
+
 ---=========================================================================
 ---@brief  使用系统推送权限状态，矫正本地存档的推送开关
 ---@type fun():void
@@ -119,6 +126,7 @@ function SettingDataManager:CorrectNotificationState()
         -- 可扩展：系统权限同步逻辑
     end
 end
+
 --endregion
 
 return SettingDataManager

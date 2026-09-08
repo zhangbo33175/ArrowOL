@@ -16,6 +16,7 @@
 local PlayerInfoDataManager = class("PlayerInfoDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function PlayerInfoDataManager:ctor()
@@ -28,9 +29,11 @@ end
 function PlayerInfoDataManager:Create()
     return PlayerInfoDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function PlayerInfoDataManager:Init()
@@ -42,9 +45,11 @@ end
 function PlayerInfoDataManager:ClearData()
     PlayerInfoDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region 用户名管理
+
 ---=========================================================================
 ---@brief  获取玩家当前显示的用户名（自动判断默认名/自定义名）
 ---@type fun():string
@@ -101,6 +106,7 @@ function PlayerInfoDataManager:SetPlayerInfoUserName(newName)
         PrintError("[PlayerInfoDataManager] 保存失败：存档接口不存在")
     end
 end
+
 --endregion
 
 return PlayerInfoDataManager

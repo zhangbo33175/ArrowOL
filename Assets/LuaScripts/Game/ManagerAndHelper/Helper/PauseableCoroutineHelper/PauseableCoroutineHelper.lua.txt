@@ -11,6 +11,7 @@
 --=====================================================================================================
 
 --region 内部元表与暂停信号定义
+
 ---@type boolean[]
 ---@brief 全局暂停信号数组 1=通用全局暂停(Any) 2=关卡逻辑暂停(Level)
 local _pauseSignal = { false, false }
@@ -48,6 +49,7 @@ local _pauseableCoroutineMetaTable = {
         end
     }
 }
+
 --endregion
 
 ---@class PauseableCoroutineHelper 可暂停协程工具类（关卡专用）
@@ -56,6 +58,7 @@ local _pauseableCoroutineMetaTable = {
 local PauseableCoroutineHelper = class("PauseableCoroutineHelper")
 
 --region 构造与实例化
+
 ---@type fun():void
 ---@brief 构造函数
 function PauseableCoroutineHelper:ctor()
@@ -69,9 +72,11 @@ end
 function PauseableCoroutineHelper:Create()
     return PauseableCoroutineHelper.new()
 end
+
 --endregion
 
 --region 内部协程构造
+
 ---@type fun(func:function,pauseSignal:number,from:any):table
 ---@brief 内部：创建可暂停协程迭代器
 ---@param func function 协程函数
@@ -91,9 +96,11 @@ function PauseableCoroutineHelper:_createPauseableEnumerator(func, pauseSignal, 
     enumerator:Reset()
     return enumerator
 end
+
 --endregion
 
 --region 协程启动/停止
+
 ---@type fun(handler:handler,pauseSignal:number,from:any):UnityEngine.Coroutine
 ---@brief 启动可暂停协程
 ---@param handler handler 方法包装器
@@ -120,9 +127,11 @@ function PauseableCoroutineHelper:StopPauseableCoroutine(cor)
         GameMainRoot.Launcher:StopCoroutine(cor)
     end
 end
+
 --endregion
 
 --region 分组暂停/恢复
+
 ---@type fun(pauseSignal:number):void
 ---@brief 暂停一组协程
 ---@param pauseSignal number 信号类型
@@ -138,6 +147,7 @@ function PauseableCoroutineHelper:ResumeCoroutineGroup(pauseSignal)
     pauseSignal = pauseSignal or self.Any
     _pauseSignal[pauseSignal] = false
 end
+
 --endregion
 
 return PauseableCoroutineHelper

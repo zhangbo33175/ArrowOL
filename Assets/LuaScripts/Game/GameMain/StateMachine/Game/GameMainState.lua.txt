@@ -7,109 +7,127 @@
 -- @brief     游戏主界面状态
 -- @desc      管理主界面初始化、相机定位、音乐播放、UI打开、活动/签到/商店/礼包等系统入口
 -- @feat      主界面生命周期、相机定位、背景音乐、系统弹窗、自治实体、UI管理
--- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
--- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
--- @dependency StateBase, GameEntry, UIManager, MainMapMgr, EventManager, AudioManager
+-- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
+-- @dependency GameStateBase, GameEntry, UIManager, MainMapMgr, EventManager, AudioManager
 --=====================================================================================================
 
----@class GameMainState : GameStateBase 游戏主界面状态
+---@class GameMainState : GameStateBase @游戏主界面状态
 local GameStateBase = require("GameStateBase")
 local GameMainState = class('GameMainState', GameStateBase)
 
 --region 【构造 & 实例化】
----@brief 构造函数
----@type fun(stateType:GameStateCmd):void
----@param stateType GameStateCmd 状态类型
+
+---=========================================================================
+--- 构造函数
+---@brief 状态实例构造
+---@param stateType GameStateCmd 状态枚举类型
+---=========================================================================
 function GameMainState:ctor(stateType)
     GameMainState.super.ctor(self, stateType)
 end
 
----@brief 创建状态实例
----@type fun(stateType:GameStateCmd):GameMainState
----@param stateType GameStateCmd 状态类型
----@return GameMainState 状态实例
+---=========================================================================
+--- 创建状态实例对外工厂入口
+---@brief 状态工厂创建接口
+---@param stateType GameStateCmd 状态枚举类型
+---@return GameMainState 状态实例对象
+---=========================================================================
 function GameMainState:Create(stateType)
     return GameMainState.new(stateType)
 end
+
 --endregion
 
 --region 【状态进入】
----@brief 进入主界面状态（入口）
----@type fun(finishCallback:function):void
----@param finishCallback function 进入完成回调
+
+---=========================================================================
+--- 进入主界面状态（状态机入口）
+---@brief 状态机进入回调，初始化触摸、遮罩、背景音乐，调用内部初始化
+---@param finishCallback function|nil 进入完成回调函数
+---=========================================================================
 function GameMainState:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
 
     -- 关闭多点触摸
     GameLib.Util.SetMultiTouchEnabled(false)
-    -- 添加UI遮罩，防止操作
+    -- 添加UI遮罩，防止未初始化完成时用户操作
     GameMainRoot.UI:AddUIMaskLayerRef("GameMainState:OnStateEnter")
 
     -- 本地活动热更资源状态更新
-    LocalActivityManager:UpdateActivityHotfixResStates()
+    --LocalActivityManager:UpdateActivityHotfixResStates()
     -- 尝试开启本地活动
-    LocalActivityManager:TryOpenActivities()
+    --LocalActivityManager:TryOpenActivities()
 
     -- 播放章节主界面背景音乐
-    local chapterData = ChapterDataManager:GetChapterDataByChapterType(MapManager.CurLoadChapterId)
-    if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
-        SoundManager:PlayBgm(chapterData.MapMusic.outgame)
+    local chapterId = MapManager.CurLoadChapterId
+    if chapterId then
+        local chapterData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
+        if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
+            SoundManager:PlayBgm(chapterData.MapMusic.outgame)
+        end
     end
 
-    -- 相机定位到主界面
+    -- 执行主界面内部初始化逻辑
     self:DoStateEnter(finishCallback)
 end
+
 --endregion
 
 --region 【主界面初始化】
----@brief 主界面真正初始化逻辑
----@type fun(finishCallback:function):void
----@param finishCallback function 回调函数
+
+---=========================================================================
+--- 主界面真正初始化逻辑
+---@brief 打开主UI、解除遮罩、登录逻辑、弹窗处理、关卡返回特殊分支
+---@param finishCallback function|nil 完成回调函数
+---=========================================================================
 function GameMainState:DoStateEnter(finishCallback)
     -- 打开主界面HUD
     OpenUISync(UIs.UIMainStateView)
-    -- 移除遮罩
+    -- 移除UI遮罩，允许用户交互
     GameMainRoot.UI:SubUIMaskLayerRef()
-    -- 登录流程
+    -- 主HUD内执行登录流程
     LoginManager:TryLoginInMainHud()
-    -- 本地活动弹窗
+    -- 弹出本地活动弹窗
     LocalActivityManager:TryOpenPopupActivityUI()
 
-    -- 从关卡胜利回来 → 自动打开升级界面
-    local preStateType = GameStateMachine:PreStateType()
-    if preStateType and preStateType == GameStateCmd.PlayingState and
-            GameCoreManager:GetGameOverType() ~= EGameOverType.PlayerGiveUp then
-        UpgradeMapMgr:CheckAndAutoOpenUpgradeUI(ChapterListManager:GetRuntimeChapterId())
-    end
-
-    -- UI推送队列进入主界面状态
+    -- UI推送队列切换为主界面模式
     GameMainUIPushManager:OnEnterMainState()
-    -- 关闭自动点击选择
+    -- 关闭场景物体自动点击选择
     GameManager:SetupEasyTouchAutoSelect(false)
+
+    -- 安全执行完成回调
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+
 --endregion
 
 --region 【状态退出 & 更新】
----@brief 离开主界面状态
----@type fun(finishCallback:function):void
----@param finishCallback function 退出完成回调
+
+---=========================================================================
+--- 离开主界面状态
+---@brief 状态机退出回调，清理特效、音乐、推送队列、关闭主UI
+---@param finishCallback function|nil 退出完成回调函数
+---=========================================================================
 function GameMainState:OnStateExit(finishCallback)
     PrintInfo("OnStateExit --> GameState: {0} ", tostring(self:GetStateType()))
 
-    -- 清理特效
+    -- 清理全局特效
     GameEffectManager:ClearData()
-    -- 停止BGM
+    -- 停止当前背景音乐
     SoundManager:StopCurrentBgm()
-    -- 推送队列离开主界面
+    -- UI推送队列离开主界面状态
     GameMainUIPushManager:OnLeaveMainState()
     -- 关闭主界面HUD
     CloseUI(UIs.UIMainStateView)
 
-    pcall(finishCallback)
+    -- 安全执行回调，使用xpcall携带堆栈捕获，统一项目规范
+    if finishCallback then
+        xpcall(finishCallback, __G__TRACK_BACK__)
+    end
 end
+
 --endregion
 
 return GameMainState

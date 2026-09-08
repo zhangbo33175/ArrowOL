@@ -15,6 +15,7 @@
 local ChallengeLevelHelper = class('ChallengeLevelHelper', import('Singleton'))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 构造参数
@@ -34,9 +35,11 @@ end
 function ChallengeLevelHelper:Create(args)
     return ChallengeLevelHelper.new(args)
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化（覆写父类）
 ---@type fun():void
 function ChallengeLevelHelper:Init()
@@ -52,9 +55,11 @@ function ChallengeLevelHelper:ClearData()
     -- 移除全局事件监听
     self:RemoveGameEventListeners()
 end
+
 --endregion
 
 --region 事件监听
+
 ---@brief 注册游戏全局事件监听
 ---@type fun():void
 function ChallengeLevelHelper:AddGameEventListeners()
@@ -68,9 +73,11 @@ function ChallengeLevelHelper:RemoveGameEventListeners()
     HonorEventHelper:RemoveListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
     HonorEventHelper:RemoveListener(EventCmd.OnLevelUnusualExit, handler(self, self.OnLevelUnusualExit))
 end
+
 --endregion
 
 --region 关卡状态判断
+
 ---@brief 判断是否为挑战关卡
 ---@type fun(levelId:number):boolean
 ---@param levelId number 关卡 ID
@@ -78,9 +85,11 @@ end
 function ChallengeLevelHelper:IsChallengeLevel(levelId)
     return levelId >= self._minChallengeLevelId and levelId <= self._maxChallengeLevelId
 end
+
 --endregion
 
 --region 关卡回调事件
+
 ---@brief 关卡异常退出回调（闪退 / 切后台 / 强制退出）
 ---@type fun(chapterId:string,levelId:number):void
 ---@param chapterId string 章节 ID
@@ -100,9 +109,11 @@ function ChallengeLevelHelper:OnLevelSuccess(lvInfo)
         return
     end
 end
+
 --endregion
 
 --region 挑战关卡数据管理（存储/读取/清除）
+
 ---@brief 获取当前记录的挑战关卡 ID
 ---@type fun(chapterId:string):number
 ---@param chapterId string 章节 ID
@@ -144,14 +155,16 @@ function ChallengeLevelHelper:SetCurrentChallengeLevel(chapterId, levelId)
     SaveRootData.GameData.challengeLevelData = challengeData
     SaveIO.GameData.Save_challengeLevelData()
 end
+
 --endregion
 
 --region 奖励发放
+
 ---@brief 挑战关卡胜利，发放配置表额外奖励
 ---@type fun():void
 function ChallengeLevelHelper:GiveExtraReward()
-
 end
+
 --endregion
 
 return ChallengeLevelHelper

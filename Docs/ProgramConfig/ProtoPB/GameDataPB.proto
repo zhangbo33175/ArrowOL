@@ -23,7 +23,7 @@ message ChapterInfo{
   int32 lv = 1;                                           // 玩家所在章节等级
   repeated int32 currentChapterData = 2;                  // 当前章节信息
   LevelProgress levelProgress = 3;                        // 关卡进度
-  map<string,int32> CareerDataStatistics = 4;             // 生涯数据统计
+  map<string,int32> CareerDataStatistics = 4;             // 地图信息
 }
 
 // 设置内容

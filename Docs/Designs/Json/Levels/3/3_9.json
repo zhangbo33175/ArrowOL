@@ -1,0 +1,63 @@
+
+{
+    "m_MapName" : "GameMainMap",
+    "ChapterId" : "3",
+    "LevelId"   : 9,
+    "m_BackgroundPath" : "Level_bg_main9",
+    "m_MapObjectData"  : [
+        {
+            "m_Id" : 1013,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat13",
+            "m_Name"     : "ItemMap_Instance_0",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        },
+        {
+            "m_Id" : 1015,
+            "m_Type" : 1,
+            "m_Position" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Rotation" : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Scale"    : {
+                "x" : 0,
+                "y" : 0,
+                "z" : 0
+            },
+            "m_Sprite"   : "main_level1_cat15",
+            "m_Name"     : "ItemMap_Instance_1",
+            "m_Size"     : {
+                "x" : 35,
+                "y" : 39
+            },
+            "m_IsChoose" : false
+        }
+    ],
+    "m_CreateTime"     : "2026-09-06 10:19:00",
+    "SavePath"         : ""
+}

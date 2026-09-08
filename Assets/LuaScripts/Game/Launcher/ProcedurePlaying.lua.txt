@@ -16,6 +16,7 @@
 local ProcedurePlaying = class('ProcedurePlaying', import('ProcedureSuper'))
 
 --region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 外部传入参数
@@ -30,9 +31,11 @@ end
 function ProcedurePlaying:Create(args)
     return ProcedurePlaying.new(args)
 end
+
 --endregion
 
 --region 【流程生命周期】
+
 ---@brief 进入主流程生命周期
 ---@type fun(ownerMachine:userdata):void
 ---@param ownerMachine userdata 流程状态机
@@ -87,9 +90,11 @@ function ProcedurePlaying:OnLeave(ownerMachine)
     HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
     HonorEventHelper:RemoveListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
 end
+
 --endregion
 
 --region 【状态跳转】
+
 ---@brief 切换到登录状态
 ---@type fun():void
 function ProcedurePlaying:GotoLoginState()
@@ -99,9 +104,11 @@ function ProcedurePlaying:GotoLoginState()
         PrintError("[ProcedurePlaying] GameStateMachine 未初始化，无法进入登录状态")
     end
 end
+
 --endregion
 
 --region 【事件回调】
+
 ---@brief 流程切换事件回调
 ---@type fun(args:table):void
 ---@param args table 事件参数
@@ -132,6 +139,7 @@ function ProcedurePlaying:UiViewOpenEventCallback(args)
         HonorEventHelper:Fire(EventCmd.UIGameViewOpen)
     end
 end
+
 --endregion
 
 return ProcedurePlaying

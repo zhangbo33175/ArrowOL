@@ -7,47 +7,54 @@
 -- @brief     游戏存档管理器
 -- @desc      管理：当前章节、关卡进度、挑战关卡、玩家存档数据、区域数据、关卡次数统计
 -- @feat      全局单例、存档安全、自动初始化、空值防护、错误捕获
--- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
--- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @规范      Unity XLua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, GlobalUtility, GameTimeUtil, EventManager
 --=====================================================================================================
 
----@class GamerDataManager : Singleton 游戏存档管理器
+---@class GamerDataManager : Singleton @游戏存档管理器
 local GamerDataManager = class("GamerDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
+---=========================================================================
 ---@brief 构造函数
----@type fun():void
+---=========================================================================
 function GamerDataManager:ctor()
     GamerDataManager.super.ctor(self)
 end
 
----@brief 创建单例
----@type fun():GamerDataManager
+---=========================================================================
+---@brief 创建单例实例工厂
 ---@return GamerDataManager 存档管理器实例
+---=========================================================================
 function GamerDataManager:Create()
     return GamerDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
----@brief 初始化
----@type fun():void
+
+---=========================================================================
+---@brief 管理器初始化
+---=========================================================================
 function GamerDataManager:Init()
     GamerDataManager.super.Init(self)
 end
 
----@brief 清理数据
----@type fun():void
+---=========================================================================
+---@brief 清理运行时数据
+---=========================================================================
 function GamerDataManager:ClearData()
     GamerDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region 章节ID 管理
+
 ---=========================================================================
 ---@brief  获取最新解锁的章节ID（存档记录）
----@type fun():string
 ---@return string 章节Id
 ---=========================================================================
 function GamerDataManager:GetLatestChapterId()
@@ -60,7 +67,7 @@ function GamerDataManager:GetLatestChapterId()
         SaveRootData.GameData.latestChapterId = "1"
         xpcall(function()
             SaveIO.GameData.Save_latestChapterId()
-        end, function() end)
+        end, __G__TRACK_BACK__)
         return "1"
     end
     return chapterId
@@ -68,7 +75,6 @@ end
 
 ---=========================================================================
 ---@brief  获取当前选中/正在游玩的章节ID
----@type fun():string
 ---@return string 章节Id
 ---=========================================================================
 function GamerDataManager:GetCurChapterId()
@@ -81,7 +87,7 @@ function GamerDataManager:GetCurChapterId()
         SaveRootData.GameData.curChapterId = "1"
         xpcall(function()
             SaveIO.GameData.Save_curChapterId()
-        end, function() end)
+        end, __G__TRACK_BACK__)
         return "1"
     end
     return chapterId
@@ -89,33 +95,30 @@ end
 
 ---=========================================================================
 ---@brief  设置当前游玩的章节ID
----@type fun(chapterId:string):void
 ---@param chapterId string 目标章节ID
 ---=========================================================================
 function GamerDataManager:SetCurChapterId(chapterId)
-    if not chapterId or not SaveRootData or not SaveRootData.GameData then
+    if string.isNullOrEmpty(chapterId) or not SaveRootData or not SaveRootData.GameData then
         return
     end
 
     SaveRootData.GameData.curChapterId = chapterId
-    xpcall(function()
-        SaveIO.GameData.Save_curChapterId()
-    end, function() end)
+    SaveIO.GameData.Save_curChapterId()
 end
+
 --endregion
 
 --region 关卡等级管理
+
 ---=========================================================================
 ---@brief  根据章节ID获取当前关卡等级
----@type fun(chapterId:string,checkChallengeLevel:boolean):number
 ---@param chapterId string 章节ID
----@param checkChallengeLevel boolean 是否检查挑战关卡
+---@param checkChallengeLevel boolean|nil 是否检查挑战关卡
 ---@return number 关卡等级
 ---=========================================================================
 function GamerDataManager:GetLevelLvByChapterId(chapterId, checkChallengeLevel)
-    if not chapterId then return 1 end
+    if string.isNullOrEmpty(chapterId) then return 1 end
     checkChallengeLevel = checkChallengeLevel or false
-
     -- 优先检查挑战关卡
     if checkChallengeLevel and ChallengeLevelHelper then
         local challengeLevelId = ChallengeLevelHelper:GetCurChallengeLevel(chapterId)
@@ -136,7 +139,6 @@ end
 
 ---=========================================================================
 ---@brief  直接设置当前章节的关卡等级
----@type fun(lv:number):boolean
 ---@param lv number 目标等级
 ---@return boolean 设置结果
 ---=========================================================================
@@ -159,13 +161,12 @@ function GamerDataManager:SetLevelLv(lv)
 
     xpcall(function()
         SaveIO.GameData.Save_chapterInfos()
-    end, function() end)
+    end, __G__TRACK_BACK__)
     return true
 end
 
 ---=========================================================================
 ---@brief  增加章节关卡等级
----@type fun(chapterId:string):boolean
 ---@param chapterId string 章节ID
 ---@return boolean 是否增加成功
 ---=========================================================================
@@ -175,20 +176,33 @@ end
 
 ---=========================================================================
 ---@brief  增加主线章节的关卡等级
----@type fun(chapterId:string):boolean
 ---@param chapterId string 章节ID
 ---@return boolean 是否增加成功
 ---=========================================================================
 function GamerDataManager:AddLevelLvOfMainChapter(chapterId)
+    if not SaveRootData or not SaveRootData.GameData then
+        PrintError("[GamerDataManager] SaveRootData.GameData 为空，无法升级关卡")
+        return false
+    end
+    local chapterInfos = SaveRootData.GameData.chapterInfos
+    if chapterInfos and table.kIn(chapterInfos, chapterId) then
+        ---@type SaveMsgDef.SaveGameData.ChapterInfo
+        local chapterInfo = chapterInfos[chapterId]
+        chapterInfo.lv = (chapterInfo.lv or 0) + 1
+        SaveIO.GameData.Save_chapterInfos()
+        return true
+    end
+    PrintError("[GamerDataManager] 升级过程中，没有找到章节Id为" .. chapterId .. "的关卡数据")
     return false
 end
+
 --endregion
 
 --region 进度判断 & 组合数据
+
 ---=========================================================================
 ---@brief  判断当前所在章节与关卡是否等于玩家最大进度
----@type fun():boolean
----@return boolean true-是最新进度
+---@return boolean true‑是最新进度
 ---=========================================================================
 function GamerDataManager:CurrentChapterLevelIsLatest()
     local latestChapter = self:GetLatestChapterId()
@@ -205,10 +219,12 @@ end
 
 ---=========================================================================
 ---@brief  获取玩家已解锁的最大章节ID
----@type fun():string
 ---@return string 最大章节ID
 ---=========================================================================
 function GamerDataManager:GetCurMaxChapterId()
+    if not SaveRootData or not SaveRootData.GameData then
+        return "1"
+    end
     local chapterInfos = SaveRootData.GameData.chapterInfos
     if not chapterInfos then return "1" end
 
@@ -220,13 +236,14 @@ function GamerDataManager:GetCurMaxChapterId()
     end)
     return keys[1]
 end
+
 --endregion
 
 --region 章节关卡结构数据
+
 ---=========================================================================
 ---@brief  获取玩家最大进度的章节&关卡
----@type fun():table
----@return ChapterLevel 章节等级结构{Chapter, Level}
+---@return table ChapterLevel 章节等级结构{Chapter, Level}
 ---=========================================================================
 function GamerDataManager:GetLatestChapterLevel()
     local chapterId = self:GetLatestChapterId()
@@ -236,9 +253,8 @@ end
 
 ---=========================================================================
 ---@brief  获取指定章节的当前关卡
----@type fun(chapterId:string):table
 ---@param chapterId string 章节ID
----@return ChapterLevel 章节等级结构{Chapter, Level}
+---@return table ChapterLevel 章节等级结构{Chapter, Level}
 ---=========================================================================
 function GamerDataManager:GetTargetChapterLevel(chapterId)
     local level = self:GetLevelLvByChapterId(chapterId)
@@ -247,9 +263,8 @@ end
 
 ---=========================================================================
 ---@brief  获取当前章节&关卡
----@type fun(checkChallengeLevel:boolean):table
----@param checkChallengeLevel boolean 是否检查挑战关卡
----@return ChapterLevel 章节等级结构{Chapter, Level}
+---@param checkChallengeLevel boolean|nil 是否检查挑战关卡
+---@return table ChapterLevel 章节等级结构{Chapter, Level}
 ---=========================================================================
 function GamerDataManager:GetChapterLevel(checkChallengeLevel)
     checkChallengeLevel = checkChallengeLevel or false
@@ -265,18 +280,23 @@ function GamerDataManager:GetChapterLevel(checkChallengeLevel)
     local level = self:GetLevelLvByChapterId(chapterId)
     return { Chapter = tonumber(chapterId) or 1, Level = level }
 end
+
 --endregion
 
 --region 玩家信息
+
 ---=========================================================================
 ---@brief  获取玩家首次注册时间
----@type fun():number
 ---@return number 注册时间戳
 ---=========================================================================
 function GamerDataManager:GetFirstRegUserTime()
+    if not SaveRootData or not SaveRootData.GameData then
+        return 0
+    end
     local info = SaveRootData.GameData.playerInfo
     return info and info.regUserTime or 0
 end
+
 --endregion
 
 return GamerDataManager

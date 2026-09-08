@@ -19,6 +19,7 @@
 local ChapterDataManager = class("ChapterDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function ChapterDataManager:ctor()
@@ -34,9 +35,11 @@ end
 function ChapterDataManager:Create()
     return ChapterDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function ChapterDataManager:Init()
@@ -53,36 +56,33 @@ function ChapterDataManager:ClearData()
     self._chapterInfos = {}
     self._chapterSorts = nil
 end
+
 --endregion
 
 --region 关卡模式获取对应章节配置
+
 ---=========================================================================
 ---@brief  根据当前关卡模式获取对应章节配置
----@type fun(chapterId:string):Tables.Chapters_Item|nil
----@param chapterId string 章节Id
+---@type fun(SectionId:string):Tables.Chapters_Item|nil
+---@param SectionId string 小节Id
 ---@return Tables.Chapters_Item|nil 章节配置数据
 ---=========================================================================
-function ChapterDataManager:GetChapterDataByChapterType(chapterId)
-    if GameManager:GetLevelMode() == ELevelMode.NORMAL then
-        return self:GetChapterDataByChapterId(chapterId)
-    else
-        return self:GetDailyLevelsDataByChapterId(chapterId)
-    end
+function ChapterDataManager:GetChapterDataByChapterType(SectionId)
+    return self:GetChapterDataBySectionId(SectionId)
 end
 
 ---=========================================================================
 ---@brief  根据章节ID获取主线章节配置
----@type fun(chapterId:string):Tables.Chapters_Item|nil
----@param chapterId string 章节Id
+---@type fun(SectionId:string):Tables.Chapters_Item|nil
+---@param SectionId string 小节Id
 ---@return Tables.Chapters_Item|nil 章节配置数据
 ---=========================================================================
-function ChapterDataManager:GetChapterDataByChapterId(chapterId)
-    if not chapterId or not Tables or not Tables.MainLevels then
+function ChapterDataManager:GetChapterDataBySectionId(SectionId)
+    if not SectionId or not Tables or not Tables.MainLevels then
         return nil
     end
-    return Tables.MainLevels[tostring(chapterId)]
+    return Tables.MainLevels[tostring(SectionId)]
 end
-
 
 ---=========================================================================
 ---@brief  根据章节ID获取主线章节配置
@@ -97,7 +97,6 @@ function ChapterDataManager:GetChaptersDataByChapterId(chapterId)
     return Tables.Chapters[tostring(chapterId)]
 end
 
-
 ---=========================================================================
 ---@brief  根据章节ID获取每日挑战章节配置
 ---@type fun(chapterId:string):Tables.Chapters_Item|nil
@@ -110,9 +109,11 @@ function ChapterDataManager:GetDailyLevelsDataByChapterId(chapterId)
     end
     return Tables.DailyLevels[tostring(chapterId)]
 end
+
 --endregion
 
 --region 章节名称 & 信息
+
 ---=========================================================================
 ---@brief  根据章节ID获取多语言章节名称
 ---@type fun(chapterId:string):string
@@ -134,10 +135,10 @@ end
 ---@return Tables.ChapterInfos_Item|nil 章节信息配置
 ---=========================================================================
 function ChapterDataManager:GetChapterInfoDataByChapterInfoId(chapterInfoId)
-    if not chapterInfoId or not Tables.ChapterInfos then
+    if not chapterInfoId or not Tables.Chapters then
         return nil
     end
-    return Tables.ChapterInfos[chapterInfoId]
+    return Tables.Chapters[chapterInfoId]
 end
 
 ---=========================================================================
@@ -176,9 +177,11 @@ function ChapterDataManager:GetChapterInfoListDataByChapterID(chapterId)
 
     return result
 end
+
 --endregion
 
 --region 章节ID & 区域配置
+
 ---=========================================================================
 ---@brief  获取配置表中最大章节ID
 ---@type fun():number
@@ -216,9 +219,11 @@ end
 function ChapterDataManager:GetAreaDataByChapterId(chapterId)
     return self:GetChapterDataByChapterType(chapterId)
 end
+
 --endregion
 
 --region 增量包 & 统计
+
 ---=========================================================================
 ---@brief  获取所有增量更新资源组名
 ---@type fun():string[]
@@ -273,9 +278,11 @@ function ChapterDataManager:CalculateUnlockedChapterTotalCount()
     end
     return count
 end
+
 --endregion
 
 --region 章节排序
+
 ---=========================================================================
 ---@brief  获取排序后的所有章节配置
 ---@type fun():Tables.Chapters_Item[]
@@ -298,6 +305,7 @@ function ChapterDataManager:GetAllChapterSort()
 
     return self._chapterSorts
 end
+
 --endregion
 
 return ChapterDataManager

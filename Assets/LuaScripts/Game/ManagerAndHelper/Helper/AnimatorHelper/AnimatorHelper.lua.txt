@@ -15,6 +15,7 @@
 local AnimatorHelper = class("AnimatorHelper")
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table 构造参数
@@ -28,9 +29,11 @@ end
 function AnimatorHelper:Create(args)
     return AnimatorHelper.new(args)
 end
+
 --endregion
 
 --region 动画时长获取
+
 ---@brief 获取单个动画片段时长
 ---@type fun(animator:UnityEngine.Animator,clipName:string):number
 ---@param animator UnityEngine.Animator 动画控制器
@@ -69,9 +72,11 @@ function AnimatorHelper:GetTotalAnimationLength(animator)
     end
     return totalTime
 end
+
 --endregion
 
 --region 动画播放控制
+
 ---@brief 从头播放指定动画
 ---@type fun(animator:UnityEngine.Animator,stateName:string):void
 ---@param animator UnityEngine.Animator 动画控制器
@@ -120,6 +125,7 @@ function AnimatorHelper:SafePlayAnimation(animator, stateName)
         self:PlayAnimation(animator, stateName)
     end
 end
+
 --endregion
 
 return AnimatorHelper

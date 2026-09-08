@@ -5,6 +5,8 @@
  * author:  云毅
  * created:
  * descrip:   商业级 MonoBehaviour 单例基类（线程安全、防报错、跨场景留存）
+ * 优化记录: 替换过时查找API(FindObjectOfType→FindFirstObjectByType)；
+ *           修复编辑器域重载后退出标记不重置的残留BUG；运行时销毁安全化
  ***************************************************************/
 
 using System.Collections;
@@ -17,9 +19,16 @@ namespace Honor.Runtime
     /// 解决：DontDestroyOnLoad 子物体报错、重复实例、多线程访问、退出空引用
     /// 所有需要全局唯一、跨场景留存的脚本都应继承此类
     /// </summary>
+    /// <remarks>
+    /// 线程安全：Instance 使用 lock 保证多线程访问安全；
+    /// 域重载：通过 RuntimeInitializeOnLoadMethod 在每次进入 Play 模式前重置静态状态，
+    ///         避免编辑器停用域重载（Enter Play Mode Options）后退出标记残留导致单例失效。
+    /// </remarks>
     /// <typeparam name="T">单例类型</typeparam>
     public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
     {
+        #region 静态字段
+
         /// <summary>
         /// 单例静态实例
         /// </summary>
@@ -34,6 +43,30 @@ namespace Honor.Runtime
         /// 应用是否正在退出（防止退出后继续创建单例）
         /// </summary>
         private static bool m_IsApplicationQuitting = false;
+
+        #endregion
+
+        #region 域重载重置（编辑器专用）
+
+        /// <summary>
+        /// 域重载重置：每次进入 Play 模式前调用，清理残留的静态状态
+        /// </summary>
+        /// <remarks>
+        /// 解决：编辑器开启 "Enter Play Mode Options - Reload Domain" 关闭时，
+        /// 静态字段不会随退出播放而清空，导致 m_IsApplicationQuitting 残留为 true，
+        /// 下次进入播放模式所有单例 Instance 永久返回 null 的严重BUG。
+        /// 该回调在 SubsystemRegistration 阶段执行，早于任何场景物体 Awake。
+        /// </remarks>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticStateOnDomainReload()
+        {
+            m_Instance = null;
+            m_IsApplicationQuitting = false;
+        }
+
+        #endregion
+
+        #region 全局访问点
 
         /// <summary>
         /// 全局单例访问点
@@ -54,8 +87,8 @@ namespace Honor.Runtime
                 {
                     if (m_Instance == null)
                     {
-                        // 先从场景中查找
-                        m_Instance = FindObjectOfType(typeof(T)) as T;
+                        // 先从场景中查找（泛型重载，避免非泛型版本的装箱与类型转换开销）
+                        m_Instance = FindFirstObjectByType<T>();
 
                         // 找不到则自动创建
                         if (m_Instance == null)
@@ -68,6 +101,10 @@ namespace Honor.Runtime
                 return m_Instance;
             }
         }
+
+        #endregion
+
+        #region 生命周期
 
         /// <summary>
         /// 手动启动初始化（按需调用）
@@ -91,7 +128,7 @@ namespace Honor.Runtime
             }
             else if (m_Instance != this)
             {
-                // 重复实例直接销毁
+                // 重复实例直接销毁（维持立即销毁语义，避免场景中短暂存在重复实例）
                 DestroyImmediate(gameObject);
             }
         }
@@ -104,13 +141,34 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 应用退出标记
+        /// </summary>
+        protected virtual void OnApplicationQuit()
+        {
+            m_IsApplicationQuitting = true;
+        }
+
+        #endregion
+
+        #region 销毁
+
+        /// <summary>
         /// 协程方式销毁自身
         /// </summary>
         public IEnumerator CoDestroySelf()
         {
             yield return CoDispose();
-            m_Instance = null;
-            DestroyImmediate(gameObject);
+
+            lock (m_Lock)
+            {
+                m_Instance = null;
+            }
+
+            // 应用退出中禁止调用销毁（Unity 会报 Destroying object during quit 警告）
+            if (!m_IsApplicationQuitting)
+            {
+                DestroyImmediate(gameObject);
+            }
         }
 
         /// <summary>
@@ -119,8 +177,17 @@ namespace Honor.Runtime
         public void DestroySelf()
         {
             Dispose();
-            m_Instance = null;
-            DestroyImmediate(gameObject);
+
+            lock (m_Lock)
+            {
+                m_Instance = null;
+            }
+
+            // 应用退出中禁止调用销毁（Unity 会报 Destroying object during quit 警告）
+            if (!m_IsApplicationQuitting)
+            {
+                DestroyImmediate(gameObject);
+            }
         }
 
         /// <summary>
@@ -138,12 +205,6 @@ namespace Honor.Runtime
             yield return null;
         }
 
-        /// <summary>
-        /// 应用退出标记
-        /// </summary>
-        protected virtual void OnApplicationQuit()
-        {
-            m_IsApplicationQuitting = true;
-        }
+        #endregion
     }
 }

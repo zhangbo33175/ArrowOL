@@ -16,6 +16,7 @@
 local EventDataManager = class("EventDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function EventDataManager:ctor()
@@ -29,9 +30,11 @@ end
 function EventDataManager:Create()
     return EventDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function EventDataManager:Init()
@@ -45,9 +48,11 @@ function EventDataManager:ClearData()
     EventDataManager.super.ClearData(self)
     self._AllIncreaserGroups = {}
 end
+
 --endregion
 
 --region 活动配置数据获取
+
 ---=========================================================================
 ---@brief  获取所有活动配置数据
 ---@type fun():table
@@ -78,9 +83,11 @@ function EventDataManager:GetEventDataById(eventId)
     end
     return data
 end
+
 --endregion
 
 --region 活动属性获取
+
 ---=========================================================================
 ---@brief  活动是否受关卡难度影响
 ---@type fun(eventId:EActivityId):boolean
@@ -157,9 +164,11 @@ function EventDataManager:GetActivityGroupId(eventId)
     local data = self:GetEventDataById(eventId)
     return data and data.EventGroup or 0
 end
+
 --endregion
 
 --region 增量包管理
+
 ---=========================================================================
 ---@brief  获取所有事件的增量包名字（服装资源分组）
 ---@type fun():string[]
@@ -168,6 +177,7 @@ end
 function EventDataManager:GetAllIncreaserGroups()
     return self._AllIncreaserGroups
 end
+
 --endregion
 
 return EventDataManager

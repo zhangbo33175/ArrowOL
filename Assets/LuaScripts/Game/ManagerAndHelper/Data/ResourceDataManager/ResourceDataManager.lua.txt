@@ -21,6 +21,7 @@
 local ResourceDataManager = class("ResourceDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function ResourceDataManager:ctor()
@@ -34,9 +35,11 @@ end
 function ResourceDataManager:Create()
     return ResourceDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化（清空缓存）
 ---@type fun():void
 function ResourceDataManager:Init()
@@ -50,9 +53,11 @@ function ResourceDataManager:ClearData()
     ResourceDataManager.super.ClearData(self)
     self:Init()
 end
+
 --endregion
 
 --region 物品配置获取
+
 ---=========================================================================
 ---@brief  获取物品资源总表
 ---@type fun():Tables.Resource_Item[]
@@ -77,9 +82,11 @@ function ResourceDataManager:GetResourceData(resID)
     local items = self:GetResourceDatas()
     return items[tostring(resID)]
 end
+
 --endregion
 
 --region 资源类型获取
+
 ---=========================================================================
 ---@brief  根据资源ID获取资源类型
 ---@type fun(resID:string):EResourceType|nil
@@ -90,9 +97,11 @@ function ResourceDataManager:GetResourceTypeById(resID)
     local data = self:GetResourceData(resID)
     return data and data.Type or nil
 end
+
 --endregion
 
 --region 按子类型/资源类型获取道具列表
+
 ---=========================================================================
 ---@brief  获取指定子类型的所有道具ID（已排序）
 ---@type fun(boosterSubType:EItemSubType):ResourceID[]
@@ -158,6 +167,7 @@ function ResourceDataManager:GetResourceIDs(resType)
 
     return self._resources[resType] or {}
 end
+
 --endregion
 
 return ResourceDataManager

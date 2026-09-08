@@ -15,6 +15,7 @@
 local UITextHelper = class("UITextHelper")
 
 --region 构造 & 实例化
+
 ---=========================================================================
 --- 构造函数
 ---=========================================================================
@@ -28,9 +29,11 @@ end
 function UITextHelper:Create(args)
     return UITextHelper.new(args)
 end
+
 --endregion
 
 --region 数字动画对外接口
+
 ---=========================================================================
 --- 播放数字动画（推荐：绑定 UI，关闭时自动停止协程，安全无泄漏）
 ---@param luaBehaviour LuaBehaviourSuper 脚本宿主
@@ -113,9 +116,11 @@ function UITextHelper:PlayNumberAnimationAlone(
         )
     end)
 end
+
 --endregion
 
 --region 数字动画协程核心
+
 ---=========================================================================
 --- 数字滚动动画协程主逻辑（支持所有文本类型）
 ---@param textComponent UnityEngine.UI.MaskableGraphic
@@ -249,6 +254,7 @@ function UITextHelper:CoroutineNumberAnimation(
         xpcall(onComplete, __G__TRACK_BACK__, targetValue)
     end
 end
+
 --endregion
 
 return UITextHelper

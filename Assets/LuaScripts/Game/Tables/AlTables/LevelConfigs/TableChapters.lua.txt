@@ -16,9 +16,9 @@
 
 ---@class Tables.Chapters @章节地图表
 Tables.Chapters = {
-    ["1"] = {ID = "1", ChapterTitle = "ChapterName1", ChapterInfoID = {"1","2","3"}, UnlockNextLevel = 2, MapName = "GameMainMap"},
-    ["2"] = {ID = "2", ChapterTitle = "ChapterName2", ChapterInfoID = {"4","5","6"}, UnlockNextLevel = 3, MapName = "GameMainMap"},
-    ["3"] = {ID = "3", ChapterTitle = "ChapterName3", ChapterInfoID = {"7","8","9"}, UnlockNextLevel = 4, MapName = "GameMainMap"},
+    ["1"] = {ID = "1", ChapterTitle = "ChapterName1", ChapterInfoID = {"1","2","3"}, UnlockNextLevel = 4, MapName = "GameMainMap"},
+    ["2"] = {ID = "2", ChapterTitle = "ChapterName2", ChapterInfoID = {"4","5","6"}, UnlockNextLevel = 7, MapName = "GameMainMap"},
+    ["3"] = {ID = "3", ChapterTitle = "ChapterName3", ChapterInfoID = {"7","8","9"}, UnlockNextLevel = 10, MapName = "GameMainMap"},
     ["4"] = {ID = "4", ChapterTitle = "ChapterName4", ChapterInfoID = {"10","11","12"}, UnlockNextLevel = 5, MapName = "GameMainMap"},
     ["5"] = {ID = "5", ChapterTitle = "ChapterName5", ChapterInfoID = {"13","14","15"}, UnlockNextLevel = 6, MapName = "GameMainMap"},
     ["6"] = {ID = "6", ChapterTitle = "ChapterName6", ChapterInfoID = {"16","17","18"}, UnlockNextLevel = 7, MapName = "GameMainMap"},

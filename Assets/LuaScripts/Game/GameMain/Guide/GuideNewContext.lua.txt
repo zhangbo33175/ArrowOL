@@ -30,6 +30,7 @@
 local GuideNewContext = class("GuideNewContext", import("Singleton"))
 
 --region 【构造 & 单例】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
@@ -46,9 +47,11 @@ function GuideNewContext:Create(args)
     local obj = GuideNewContext.new(args)
     return obj
 end
+
 --endregion
 
 --region 【清理 & 释放】
+
 ---@brief 清理数据
 ---@type fun():void
 function GuideNewContext:ClearData()
@@ -61,6 +64,7 @@ function GuideNewContext:ClearData()
 end
 
 ---@brief 释放所有资源
+---@type fun():void
 function GuideNewContext:Dispose()
     if self._levelListener then
         self._levelListener:Dispose()
@@ -100,15 +104,19 @@ function GuideNewContext:Dispose()
     self._waittingExecute = nil
     self._waittingExecuteParam = nil
 end
+
 --endregion
 
 --region 【GM & 强制关闭】
+
 ---@brief GM指令直接完成当前正在执行的引导
+---@type fun():void
 function GuideNewContext:GMCloseRunning()
     self:ForceCloseTutorial()
 end
 
 ---@brief 如果某引导执行步骤执行失败，强制跳过该引导，防止卡死
+---@type fun():void
 function GuideNewContext:ForceCloseTutorial()
     self:TryForceCloseTutorialByID()
     if GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
@@ -145,10 +153,13 @@ function GuideNewContext:TryForceCloseTutorialByID(id)
     self._stepWorker:ExecuteComplete()
     self._stepWorker:Dispose()
 end
+
 --endregion
 
 --region 【初始化 & 存档】
+
 ---@brief 初始化引导进度
+---@type fun():void
 function GuideNewContext:Init()
     GuideNewContext.super.Init(self)
 
@@ -172,6 +183,7 @@ function GuideNewContext:Init()
 end
 
 ---@brief 检查存档格式，给存档加前后下划线
+---@type fun():void
 function GuideNewContext:CheckDataFormat()
     if not StringStart(SaveRootData.GameData.guidesCompleted, "_") then
         SaveRootData.GameData.guidesCompleted = string.format("_%s", SaveRootData.GameData.guidesCompleted)
@@ -180,9 +192,11 @@ function GuideNewContext:CheckDataFormat()
         SaveRootData.GameData.guidesCompleted = string.format("%s_", SaveRootData.GameData.guidesCompleted)
     end
 end
+
 --endregion
 
 --region 【状态查询】
+
 ---@brief 获取当前引导步骤执行者
 ---@type fun():GuideStepExecuteContext
 ---@return GuideStepExecuteContext
@@ -220,10 +234,13 @@ end
 function GuideNewContext:Priority()
     return ESingletonPriority.GUIDE_MGR
 end
+
 --endregion
 
 --region 【游戏暂停/恢复（关内逻辑）】
+
 ---@brief 步骤开始执行时，暂停关卡内计时器
+---@type fun():void
 function GuideNewContext:TryPauseLevelTime()
     self._pauseLevelTime = true
 
@@ -243,6 +260,7 @@ function GuideNewContext:TryPauseLevelTime()
 end
 
 ---@brief 引导结束后恢复游戏
+---@type fun():void
 function GuideNewContext:TryResumeLevelTime()
     self._pauseLevelTime = false
 
@@ -288,11 +306,15 @@ function GuideNewContext:TryResumeOrPauseInWaitEvent(isResume)
         end
     end
 end
+
 --endregion
 
 --region 【动画管理】
+
 ---@brief 注册可暂停动画
 ---@type fun(sq:DG.Tweening.Sequence,resumeInWaitState:boolean):void
+---@param sq DG.Tweening.Sequence 待注册的动画序列
+---@param resumeInWaitState boolean 是否在等待状态下恢复
 function GuideNewContext:InsertTweenToPauseableTable(sq, resumeInWaitState)
     sq:AppendCallback(function()
         self:RemoveTweenFromPauseableTable(sq)
@@ -308,6 +330,7 @@ end
 
 ---@brief 移除非活动动画
 ---@type fun(sq:DG.Tweening.Sequence):void
+---@param sq DG.Tweening.Sequence 待移除的动画序列
 function GuideNewContext:RemoveTweenFromPauseableTable(sq)
     if not self._pauseableTweenCollection then
         return
@@ -317,6 +340,7 @@ end
 
 ---@brief 按名称移除动画
 ---@type fun(name:string):void
+---@param name string 动画名称
 function GuideNewContext:RemoveTweenFromPauseableTableByName(name)
     if not self._pauseableTweenCollection then
         return
@@ -328,11 +352,14 @@ function GuideNewContext:RemoveTweenFromPauseableTableByName(name)
         end
     end
 end
+
 --endregion
 
 --region 【引导事件封装】
+
 ---@brief 尝试派发引导事件
 ---@type fun(eventCmd:string,...):void
+---@param eventCmd string 事件命令
 function GuideNewContext:TryDispatchEvent(eventCmd, ...)
     if not self._dispatcher then
         return
@@ -342,6 +369,8 @@ end
 
 ---@brief 监听引导事件
 ---@type fun(eventCmd:string,handler:function):void
+---@param eventCmd string 事件命令
+---@param handler function 事件处理函数
 function GuideNewContext:ListenGuideEvent(eventCmd, handler)
     self._dispatcher = self._dispatcher or require("GuideEvent"):Create()
     self._dispatcher:Listen(eventCmd, handler)
@@ -349,17 +378,22 @@ end
 
 ---@brief 移除引导事件
 ---@type fun(eventCmd:string,handler:function):void
+---@param eventCmd string 事件命令
+---@param handler function 事件处理函数
 function GuideNewContext:RemoveGuideEvent(eventCmd, handler)
     if not self._dispatcher then
         return
     end
     self._dispatcher:Remove(eventCmd, handler)
 end
+
 --endregion
 
 --region 【触发器创建 & 状态解析】
+
 ---@brief 创建引导触发器
 ---@type fun(guide:Tables.GuideList_Item):void
+---@param guide Tables.GuideList_Item 引导配置
 function GuideNewContext:CreateTutorialTrigger(guide)
     local state = self:ParseGuideState(guide)
 
@@ -378,6 +412,7 @@ end
 
 ---@brief 创建条件触发器
 ---@type fun(guide:Tables.GuideList_Item):void
+---@param guide Tables.GuideList_Item 引导配置
 function GuideNewContext:CreateGuideCondition(guide)
     if self._conditions and self._conditions[guide] then
         PrintInfo("不能重复创建触发器：" .. guide.ID)
@@ -402,6 +437,7 @@ end
 
 ---@brief 创建强制设置器
 ---@type fun(guide:Tables.GuideList_Item):void
+---@param guide Tables.GuideList_Item 引导配置
 function GuideNewContext:CreateGuideForceSetup(guide)
     if not guide.GuidePreparation or guide.GuidePreparation == "" then
         return
@@ -428,6 +464,8 @@ end
 
 ---@brief 引导是否已完成
 ---@type fun(guideID:string):boolean
+---@param guideID string 引导ID
+---@return boolean 是否已完成
 function GuideNewContext:IsTutorialComplete(guideID)
     local completed = SaveRootData.GameData.guidesCompleted
     local cfg = Tables.GuideList[guideID]
@@ -444,6 +482,8 @@ end
 
 ---@brief 解析引导状态
 ---@type fun(guideItem:Tables.GuideList_Item):EGuideState
+---@param guideItem Tables.GuideList_Item 引导配置
+---@return EGuideState 引导状态枚举
 function GuideNewContext:ParseGuideState(guideItem)
     if self:IsTutorialComplete(guideItem.ID) then
         return EGuideState.Executed
@@ -469,11 +509,15 @@ function GuideNewContext:ParseGuideState(guideItem)
 
     return EGuideState.Lock
 end
+
 --endregion
 
 --region 【步骤执行 & 遮罩】
+
 ---@brief 生成引导步骤列表
 ---@type fun(guideItem:Tables.GuideList_Item):Tables.GuideContent_Item[]
+---@param guideItem Tables.GuideList_Item 引导配置
+---@return Tables.GuideContent_Item[] 引导步骤列表
 function GuideNewContext:GenerateGuideSteps(guideItem)
     local steps = {}
     for _, step in pairs(Tables.GuideContent) do
@@ -486,6 +530,7 @@ end
 
 ---@brief 引导是否允许点击检测（如收金币）
 ---@type fun():boolean
+---@return boolean
 function GuideNewContext:IsTutorialAllowCheck()
     if not self._stepWorker then return false end
     local currStep = self._stepWorker:GetCurrent()
@@ -494,6 +539,8 @@ end
 
 ---@brief 引导遮罩屏蔽点击
 ---@type fun(screenSpacePosition:UnityEngine.Vector3):boolean
+---@param screenSpacePosition UnityEngine.Vector3 屏幕空间坐标
+---@return boolean 是否屏蔽点击
 function GuideNewContext:IsTutorialBlockClicks(screenSpacePosition)
     if not self._stepWorker then return false end
 
@@ -515,11 +562,14 @@ function GuideNewContext:IsTutorialBlockClicks(screenSpacePosition)
     return screenSpacePosition.x < min.x or screenSpacePosition.y < min.y
             or screenSpacePosition.x > max.x or screenSpacePosition.y > max.y
 end
+
 --endregion
 
 --region 【触发 & 完成流程】
+
 ---@brief 强制设置完成
 ---@type fun(setter:GuideForceSetup):void
+---@param setter GuideForceSetup 设置器实例
 function GuideNewContext:ForceSetupComplete(setter)
     if self._setter and self._setter[setter.guideItem] then
         self._setter[setter.guideItem]:CloseListener()
@@ -527,6 +577,7 @@ function GuideNewContext:ForceSetupComplete(setter)
 end
 
 ---@brief 执行一帧内优先级最高的引导
+---@type fun():void
 function GuideNewContext:ExecuteTriggedTutorial()
     local condition = self._waittingExecute
     local param = self._waittingExecuteParam
@@ -558,6 +609,8 @@ end
 
 ---@brief 触发引导
 ---@type fun(condition:GuideCondition,param:table):void
+---@param condition GuideCondition 触发条件
+---@param param table 触发参数
 function GuideNewContext:TriggerTriggering(condition, param)
     if self._executing and not TableIsEmpty(self._executing) then
         PrintWarning(string.format("Tutorial->Repeated triggering: %s", condition.guideItem.ID))
@@ -589,6 +642,7 @@ end
 
 ---@brief 步骤执行完成
 ---@type fun(steps:Tables.GuideContent_Item[]):void
+---@param steps Tables.GuideContent_Item[] 引导步骤列表
 function GuideNewContext:GuideStepsExecuteComplete(steps)
     local condition = self._executing[steps]
     if condition then
@@ -621,6 +675,7 @@ end
 
 ---@brief 标记引导完成并写入存档
 ---@type fun(steps:Tables.GuideContent_Item[]):void
+---@param steps Tables.GuideContent_Item[] 引导步骤列表
 function GuideNewContext:GuideStepsExecutedCompleteTagStep(steps)
     local condition = self._executing[steps]
     if not condition then return end
@@ -643,6 +698,8 @@ end
 
 ---@brief 关闭关联引导
 ---@type fun(tutorialStrs:string[],currTutorial:string):void
+---@param tutorialStrs string[] 关联引导ID数组
+---@param currTutorial string 当前引导ID
 function GuideNewContext:CloseConnectTutorial(tutorialStrs, currTutorial)
     for _, str in ipairs(tutorialStrs) do
         if str ~= currTutorial then
@@ -660,6 +717,7 @@ end
 
 ---@brief 移除已完成引导（GM/调试）
 ---@type fun(removeId:string):void
+---@param removeId string 待移除的引导ID
 function GuideNewContext:RemoveCompletedTutorial(removeId)
     self:CheckDataFormat()
     local completed = SaveRootData.GameData.guidesCompleted
@@ -676,6 +734,7 @@ function GuideNewContext:RemoveCompletedTutorial(removeId)
         self:CreateTutorialTrigger(guide)
     end
 end
+
 --endregion
 
 return GuideNewContext

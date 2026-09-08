@@ -1,20 +1,30 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
--- -------------------------------------------------------------
--- filename:  LuaBTTaskSuper.lua.txt
--- author:    云毅
--- created:   2026
--- descrip:   Lua行为树Task节点通用父类
---            作用：所有自定义行为树节点（Action/Conditional/Composite等）都必须继承此类
---            地位：行为树框架顶层基类，所有Lua BT节点的父类
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   LuaBTTaskSuper.lua
+-- author:     云毅
+-- created:    2026
+-- descrip:    Lua行为树Task节点通用父类
+--             作用：所有自定义行为树节点（Action/Conditional/Composite等）都必须继承此类
+--             地位：行为树框架顶层基类，所有Lua BT节点的父类
 --=====================================================================================================
 
 --region Lua行为树节点基类
+
 ---@class LuaBTTaskSuper Lua行为树节点基类（所有BT节点继承此类）
+---@field _args table 初始化参数
+---@field _name string 节点类名（调试/日志用）
+---@field _lua LuaBehaviourSuper 归属的 LuaBehaviour 脚本
+---@field _cs userdata 归属的 C# 行为树节点对象
 local LuaBTTaskSuper = class("LuaBTTaskSuper")
 
---- 构造函数
+--=====================================================================================================
+-- 生命周期：构造函数
+--=====================================================================================================
+
+---@brief 构造函数
+---@desc 绑定环境变量，并保存初始化参数、节点类名、归属的 LuaBehaviour 与 C# 节点对象
 ---@param args table 构造参数（包含 luaBehaviour: 所属Lua脚本, cs: C#节点对象）
 function LuaBTTaskSuper:ctor(args)
 	-- 绑定环境变量（兼容C#传递的运行环境）
@@ -24,13 +34,18 @@ function LuaBTTaskSuper:ctor(args)
 		end
 	end
 
-	self._args = args                                           -- 初始化参数
-	self._name = self.__cname                                   -- 节点类名（调试/日志用）
-	self._lua = self._args.luaBehaviour                         -- 归属的 LuaBehaviour 脚本
-	self._cs = self._args.cs                                    -- 归属的 C# 行为树节点对象
+	self._args = args                              -- 初始化参数
+	self._name = self.__cname                      -- 节点类名（调试/日志用）
+	self._lua = self._args.luaBehaviour            -- 归属的 LuaBehaviour 脚本
+	self._cs = self._args.cs                       -- 归属的 C# 行为树节点对象
 end
 
---- 创建实例（框架内部调用）
+--=====================================================================================================
+-- 工厂方法：创建实例
+--=====================================================================================================
+
+---@brief 创建实例（框架内部调用）
+---@desc 通过类方法创建并返回一个新的行为树节点实例
 ---@param args table 节点参数
 ---@return LuaBTTaskSuper 行为树节点实例
 function LuaBTTaskSuper:Create(args)
@@ -38,7 +53,12 @@ function LuaBTTaskSuper:Create(args)
 	return obj
 end
 
---- 节点销毁（自动释放资源、事件，防止内存泄漏）
+--=====================================================================================================
+-- 生命周期：销毁
+--=====================================================================================================
+
+---@brief 节点销毁（自动释放资源、事件，防止内存泄漏）
+---@desc 释放全部引用，并自动移除当前节点注册的所有事件
 function LuaBTTaskSuper:OnDestroy()
 	self._args = nil
 	self._lua = nil
@@ -47,6 +67,7 @@ function LuaBTTaskSuper:OnDestroy()
 	-- 自动释放当前节点注册的所有事件
 	HonorEventHelper:RemoveListenerByTarget(self)
 end
+
 --endregion
 
 return LuaBTTaskSuper

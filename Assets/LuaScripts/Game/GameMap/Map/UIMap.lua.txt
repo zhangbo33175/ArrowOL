@@ -1,7 +1,6 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
+-- (c) copyright 2026 - 2030, Honor.Game -- All Rights Reserved.
+--=====================================================================================================
 -- @filename:  UIMap.lua
 -- @author:    云毅
 -- @brief:     地图界面
@@ -13,12 +12,14 @@
 local UIMap = class('UIMap', import('UIMapBase'))
 
 ---@brief 构造函数
+---@type fun(args:table):void
 ---@param args table 自定义参数
 function UIMap:ctor(args)
     UIMap.super.ctor(self, args)
 end
 
 ---@brief 创建实例
+---@type fun(args:table):UIMap
 ---@param args table 自定义参数
 ---@return UIMap UIMap实例
 function UIMap:Create(args)
@@ -26,38 +27,45 @@ function UIMap:Create(args)
 end
 
 ---@brief 注册事件监听
+---@type fun():void
 function UIMap:OnAddListeners()
     UIMap.super.OnAddListeners(self)
 end
 
 ---@brief 唤醒回调
+---@type fun():void
 function UIMap:Awake()
     UIMap.super.Awake(self)
     -- 无自动注册内容
 end
 
 ---@brief 开始回调
+---@type fun():void
 function UIMap:Start()
     UIMap.super.Start(self)
 end
 
 ---@brief 销毁回调
+---@type fun():void
 function UIMap:OnDestroy()
     UIMap.super.OnDestroy(self)
     -- 无自动注销内容
 end
 
 ---@brief 播放打开动画（可重写）
+---@type fun():void
 function UIMap:OnPlayOpenAnimation()
     UIMap.super.OnPlayOpenAnimation(self)
 end
 
 ---@brief 播放关闭动画（可重写）
+---@type fun():void
 function UIMap:OnPlayCloseAnimation()
     UIMap.super.OnPlayCloseAnimation(self)
 end
 
 ---@brief 追加UI销毁回调
+---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable Lua类对象
 function UIMap:OnAddedUIDestroyed(luaClass)
     UIMap.super.OnAddedUIDestroyed(self, luaClass)

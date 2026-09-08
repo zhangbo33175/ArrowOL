@@ -1,18 +1,24 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
--- -------------------------------------------------------------
--- filename:  SingletonManager.lua.txt
--- author:    云毅
--- created:   2026
--- descrip:   单例管理器
---            管理所有单例的注册、排序、初始化、数据清理（框架级核心）
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   SingletonManager.lua
+-- author:     云毅
+-- created:    2026
+-- descrip:    单例管理器
+--             管理所有单例的注册、排序、初始化、数据清理（框架级核心）
 --=====================================================================================================
 
 ---@class SingletonManager 单例管理器（全局唯一）
+---@field _singletonList HonorList 单例列表 List<Singleton>
 local SingletonManager = class("SingletonManager")
 
---- 构造函数
+--=====================================================================================================
+-- 生命周期：构造函数
+--=====================================================================================================
+
+---@brief 构造函数
+---@desc 创建单例管理器实例，并初始化内部单例管理列表
 ---@param args table 自定义参数
 function SingletonManager:ctor(args)
     --- 单例列表 List<Singleton>
@@ -20,15 +26,25 @@ function SingletonManager:ctor(args)
     self._singletonList = HonorList:Create()
 end
 
---- 创建单例管理器实例
+--=====================================================================================================
+-- 工厂方法：创建实例
+--=====================================================================================================
+
+---@brief 创建单例管理器实例
+---@desc 通过类方法创建并返回一个新的单例管理器对象，作为全局单例的创建入口
 ---@param args table 自定义参数
----@return SingletonManager
+---@return SingletonManager 创建的单例管理器实例
 function SingletonManager:Create(args)
     local obj = SingletonManager.new(args)
     return obj
 end
 
---- 添加单例到管理列表
+--=====================================================================================================
+-- 单例注册与注销
+--=====================================================================================================
+
+---@brief 添加单例到管理列表
+---@desc 将指定单例对象注册到管理列表，交由管理器统一执行初始化与数据清理
 ---@param singleton Singleton 待添加的单例对象
 function SingletonManager:AddSingleton(singleton)
     if singleton then
@@ -36,7 +52,8 @@ function SingletonManager:AddSingleton(singleton)
     end
 end
 
---- 从管理列表移除单例
+---@brief 从管理列表移除单例
+---@desc 将指定单例对象从管理列表中移除，取消其统一生命周期管理
 ---@param singleton Singleton 待移除的单例对象
 function SingletonManager:RemoveSingleton(singleton)
     if singleton then
@@ -44,25 +61,32 @@ function SingletonManager:RemoveSingleton(singleton)
     end
 end
 
---- 清理所有单例数据（切换账号/重启游戏时调用）
+--=====================================================================================================
+-- 数据清理：清空所有单例数据
+--=====================================================================================================
+
+---@brief 清理所有单例数据（切换账号/重启游戏时调用）
+---@desc 停止全部动画、协程、定时器、通知与事件处理，再按优先级【降序】依次清理所有单例数据
 function SingletonManager:ClearAllSingleData()
     Try(function()
         -- 清理所有动画
         DOTween.KillAll(false)
 
-        --------------- 框架级单例数据清理 ----------------------
+        ----------------------------------------
+        -- 框架级单例数据清理
+        ----------------------------------------
         HonorCoroutineHelper:StopAll()
         HonorTimerHelper:UnregisterAll(true)
         HonorNotificationHelper:ClearNotificationData()
         HonorEventHelper:Cleanup()
         -- 重启异步事件处理协程
         HonorEventHelper:StartProcessEventAsyncCoroutine()
-        -------------------------------------------------------
+        ----------------------------------------
 
         -- 按优先级【降序】清理（先业务后框架）
         self:OrderSingleton(true)
 
-        --- 遍历所有单例并执行 ClearData
+        -- 遍历所有单例并执行 ClearData
         ---@param v Singleton
         for _, v in ipairs(self._singletonList.items) do
             v:ClearData()
@@ -70,12 +94,18 @@ function SingletonManager:ClearAllSingleData()
     end)
 end
 
---- 初始化所有单例（预加载流程分步执行）
+--=====================================================================================================
+-- 初始化：分步预加载初始化所有单例
+--=====================================================================================================
+
+---@brief 初始化所有单例（预加载流程分步执行）
+---@desc 按优先级【升序】对全部单例排序，并将每个单例的 Init 作为独立步骤加入预加载流程
 ---@param preload ProcedurePreload 预加载流程对象
 function SingletonManager:InitAllSingleForStep(preload)
     -- 按优先级【升序】初始化（先框架后业务）
     self:OrderSingleton(false)
 
+    -- 遍历所有单例并依次加入预加载步骤
     ---@param v Singleton
     for _, v in ipairs(self._singletonList.items) do
         -- 加入预加载步骤
@@ -85,7 +115,12 @@ function SingletonManager:InitAllSingleForStep(preload)
     end
 end
 
---- 单例按优先级排序
+--=====================================================================================================
+-- 排序：按优先级重排单例列表
+--=====================================================================================================
+
+---@brief 单例按优先级排序
+---@desc 依据各单例返回的 Priority() 值对管理列表进行排序，决定初始化/清理的执行顺序
 ---@param isDescending boolean 是否降序（true=降序 false=升序）
 function SingletonManager:OrderSingleton(isDescending)
     if isDescending == nil then

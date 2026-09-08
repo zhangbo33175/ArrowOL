@@ -16,6 +16,7 @@
 local HomeIconsDataManager = class("HomeIconsDataManager", import("Singleton"))
 
 --region 构造 & 实例化
+
 ---@brief 构造函数
 ---@type fun():void
 function HomeIconsDataManager:ctor()
@@ -28,9 +29,11 @@ end
 function HomeIconsDataManager:Create()
     return HomeIconsDataManager.new()
 end
+
 --endregion
 
 --region 初始化 & 生命周期
+
 ---@brief 初始化
 ---@type fun():void
 function HomeIconsDataManager:Init()
@@ -42,9 +45,11 @@ end
 function HomeIconsDataManager:ClearData()
     HomeIconsDataManager.super.ClearData(self)
 end
+
 --endregion
 
 --region 图标配置获取
+
 ---=========================================================================
 ---@brief  根据图标ID获取主界面图标配置数据
 ---@type fun(homeIconId:string|number):Tables.HomeIcons_Item|nil
@@ -71,6 +76,7 @@ function HomeIconsDataManager:GetHomeIconDataById(homeIconId)
 
     return data
 end
+
 --endregion
 
 return HomeIconsDataManager

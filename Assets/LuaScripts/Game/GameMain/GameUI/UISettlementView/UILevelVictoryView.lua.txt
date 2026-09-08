@@ -92,13 +92,18 @@ end
 ---返回管卡界面-交互回调
 ---@type fun(args:any):void
 function UILevelVictoryView:OnMainButtonClicked(args)
-    PlayHelper:GameExitPlayHud()
+    GamePlayHelper:GameExitPlayHud()
 end
 
 ---下一关-交互回调
 ---@type fun(args:any):void
 function UILevelVictoryView:OnNextLevelButtonClicked(args)
-
+    self._id= ChapterListManager:GetRuntimeChapterId()
+    if not string.isNullOrEmpty(self._id) then
+        GamePlayHelper:LoadMainMap(self._id,function()
+           
+        end,true)
+    end
 end
 
 return UILevelVictoryView

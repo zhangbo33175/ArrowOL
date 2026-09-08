@@ -7,36 +7,44 @@
 -- @brief     游戏运行状态
 -- @desc      关卡正式运行的核心状态，管理UI、相机、触摸、音效、引导、HUD、活动同步
 -- @feat      相机动画、UI管理、触摸控制、引导触发、HUD生命周期
--- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
--- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
--- @dependency StateBase, GameEntry, UIManager, MapManager, EventManager, GuideManager
+-- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
+-- @dependency GameStateBase, GameEntry, UIManager, MapManager, EventManager, GuideManager
 --=====================================================================================================
 
----@class GamePlayingState : GameStateBase 游戏运行状态
+---@class GamePlayingState : GameStateBase @游戏运行状态：关卡正式游玩状态机节点
 local GamePlayingState = class('GamePlayingState', import('GameStateBase'))
 
 --region 【构造 & 实例化】
----@brief 构造函数
----@type fun(stateType:GameStateCmd):void
----@param stateType GameStateCmd 状态类型
+
+---=========================================================================
+--- 构造函数
+---@brief 状态实例构造
+---@param stateType GameStateCmd 状态枚举类型
+---=========================================================================
 function GamePlayingState:ctor(stateType)
     GamePlayingState.super.ctor(self, stateType)
 end
 
----@brief 创建状态实例
----@type fun(stateType:GameStateCmd):GamePlayingState
----@param stateType GameStateCmd 状态类型
----@return GamePlayingState 状态实例
+---=========================================================================
+--- 创建状态实例对外入口
+---@brief 状态工厂创建接口
+---@param stateType GameStateCmd 状态枚举类型
+---@return GamePlayingState 状态实例对象
+---=========================================================================
 function GamePlayingState:Create(stateType)
     local obj = GamePlayingState.new(stateType)
     return obj
 end
+
 --endregion
 
 --region 【状态进入 - 关卡正式开始】
----@brief 进入游戏运行状态
----@type fun(finishCallback:function):void
----@param finishCallback function 进入完成回调
+
+---=========================================================================
+--- 进入游戏运行状态
+---@brief 状态机进入回调，执行相机过渡、UI加载、交互初始化
+---@param finishCallback function|nil 进入完成回调函数
+---=========================================================================
 function GamePlayingState:OnStateEnter(finishCallback)
     -- 开启多点触摸
     GameLib.Util.SetMultiTouchEnabled(true)
@@ -51,49 +59,69 @@ function GamePlayingState:OnStateEnter(finishCallback)
 
     -- 相机移动到关卡战斗位置
     local mapData = MapManager.CurMapData
-    GameLib.MapCamHelper.LookMap(
-            mapData.m_PlayCamData,
-            1.3,
-            function()
-                -- 相机动画完成后的回调
-                local closeUICallback = function()
-                    PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
-                    -- 触发引导事件
-                    --GuideNewContext:TryDispatchEvent(EventCmd.OnLevelShowGoalComplete)
+    if mapData and mapData.m_PlayCamData then
+        GameLib.MapCamHelper.LookMap(
+                mapData.m_PlayCamData,
+                1.3,
+                function()
+                    -- 相机动画完成后的回调
+                    local closeUICallback = function()
+                        PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
+                    end
+                    -- 移除UI遮罩
+                    GameMainRoot.UI:SubUIMaskLayerRef()
+                    -- 恢复地图交互
+                    GameMapMotion:ResumeMapMotion()
+                    -- 进入游戏
+                    PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
+                    -- 打开游戏内核心UI
+                    OpenUISync(UIs.UIMainPlaying, { callback = closeUICallback })
                 end
-                -- 移除UI遮罩
-                GameMainRoot.UI:SubUIMaskLayerRef()
-                -- 恢复地图交互
-                GameMapMotion:ResumeMapMotion()
-                --- 进入游戏
-                PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
-                -- 打开游戏内核心UI
-                OpenUISync(UIs.UIMainPlaying,{ callback = closeUICallback })
+        )
+    else
+        PrintWarn("[GamePlayingState] 当前地图数据或游玩相机数据为空，跳过相机视角切换")
+        GameMainRoot.UI:SubUIMaskLayerRef()
+        PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
+        OpenUISync(UIs.UIMainPlaying, {
+            callback = function()
+                PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
             end
-    )
+        })
+    end
 
     -- 执行完成回调
     if finishCallback then
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+
 --endregion
 
 --region 【状态退出 - 退出关卡】
----@brief 离开游戏运行状态（退出关卡）
----@type fun(finishCallback:function):void
----@param finishCallback function 退出完成回调
+
+---=========================================================================
+--- 离开游戏运行状态（退出关卡）
+---@brief 状态机退出回调，清理管理器、UI、地图、音效资源
+---@param finishCallback function|nil 退出完成回调函数
+---=========================================================================
 function GamePlayingState:OnStateExit(finishCallback)
-    -- 清空核心管理器数据
-    GameCoreManager._GameCoreManagerEffect:ClearData()
+    -- 安全访问子模块，增加空防护
+    if GameCoreManager and GameCoreManager._GameCoreManagerEffect then
+        GameCoreManager._GameCoreManagerEffect:ClearData()
+    end
     -- 清理特效、停止音乐
     GameEffectManager:ClearData()
     SoundManager:StopCurrentBgm()
-    GameCoreManager:ClearData()
+
+    if GameCoreManager then
+        GameCoreManager:ClearData()
+    end
+
     -- 关闭战斗UI
     CloseUI(UIs.UIMainPlaying)
     CloseUI(UIs.UILevelVictoryView)
     CloseUI(UIs.UILevelFailedView)
+
     MapManager:UnloadOldMap()
     -- 退出游戏逻辑
     PlayGameplayCycle:OnAction(EPlayHudCycleAction.ExitGame)
@@ -103,12 +131,21 @@ function GamePlayingState:OnStateExit(finishCallback)
         xpcall(finishCallback, __G__TRACK_BACK__)
     end
 end
+
 --endregion
----@brief 帧更新
----@type fun():void
+
+--region 【帧更新】
+
+---=========================================================================
+--- 状态帧更新
+---@brief 每帧驱动地图运动逻辑
+---=========================================================================
 function GamePlayingState:OnUpdate()
     GamePlayingState.super.OnUpdate(self)
     -- 地图移动更新
     GameMapMotion:OnUpdate()
 end
+
+--endregion
+
 return GamePlayingState
