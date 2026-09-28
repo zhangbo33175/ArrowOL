@@ -21,13 +21,14 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(RMapChapterTypeData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 0, 7, 7);
+			Utils.BeginObjectRegister(type, L, translator, 0, 0, 8, 8);
 			
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MapName", _g_get_m_MapName);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ChapterId", _g_get_ChapterId);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LevelId", _g_get_LevelId);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "MaplId", _g_get_MaplId);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_BackgroundPath", _g_get_m_BackgroundPath);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_MapObjectData", _g_get_m_MapObjectData);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_CreateTime", _g_get_m_CreateTime);
@@ -36,6 +37,7 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MapName", _s_set_m_MapName);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "ChapterId", _s_set_ChapterId);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "LevelId", _s_set_LevelId);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "MaplId", _s_set_MaplId);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_BackgroundPath", _s_set_m_BackgroundPath);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_MapObjectData", _s_set_m_MapObjectData);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_CreateTime", _s_set_m_CreateTime);
@@ -124,6 +126,20 @@ namespace XLua.CSObjectWrap
 			
                 RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
                 LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.LevelId);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_MaplId(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
+                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.MaplId);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -226,6 +242,21 @@ namespace XLua.CSObjectWrap
 			
                 RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.LevelId = LuaAPI.xlua_tointeger(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_MaplId(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapChapterTypeData gen_to_be_invoked = (RMapChapterTypeData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.MaplId = LuaAPI.xlua_tointeger(L, 2);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

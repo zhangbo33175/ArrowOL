@@ -2392,6 +2392,64 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
+    public class HonorRuntimeGraphicsUtilsEScreenTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Width", Honor.Runtime.GraphicsUtils.EScreenType.Width);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Height", Honor.Runtime.GraphicsUtils.EScreenType.Height);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, (Honor.Runtime.GraphicsUtils.EScreenType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Width"))
+                {
+                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Width);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Height"))
+                {
+                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Height);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GraphicsUtils.EScreenType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GraphicsUtils.EScreenType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
     public class HonorRuntimeLuaBindValueBindValueTypeWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -2670,6 +2728,254 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.Log.LogLevel! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class HonorRuntimeHonorDefPlayerPrefsKeyWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDef.PlayerPrefsKey), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDef.PlayerPrefsKey), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDef.PlayerPrefsKey), L, null, 10, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_FPS", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_FPS);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_Resolution", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_Resolution);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_GraphicsQuality", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_GraphicsQuality);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_CPU", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_CPU);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_GPU", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_GPU);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_OpenGLVersion", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_OpenGLVersion);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_AndroidAPILevel", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_AndroidAPILevel);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_DeviceLevel", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_DeviceLevel);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PPK_SourceVersion", Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_SourceVersion);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDef.PlayerPrefsKey), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, (Honor.Runtime.HonorDef.PlayerPrefsKey)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_FPS"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_FPS);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_Resolution"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_Resolution);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_GraphicsQuality"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_GraphicsQuality);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_CPU"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_CPU);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_GPU"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_GPU);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_OpenGLVersion"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_OpenGLVersion);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_AndroidAPILevel"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_AndroidAPILevel);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_DeviceLevel"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_DeviceLevel);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PPK_SourceVersion"))
+                {
+                    translator.PushHonorRuntimeHonorDefPlayerPrefsKey(L, Honor.Runtime.HonorDef.PlayerPrefsKey.PPK_SourceVersion);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorDef.PlayerPrefsKey!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDef.PlayerPrefsKey! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class HonorRuntimeResPathsPathsEnumWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.ResPaths.PathsEnum), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.ResPaths.PathsEnum), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.ResPaths.PathsEnum), L, null, 18, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Font", Honor.Runtime.ResPaths.PathsEnum.Font);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Atlas", Honor.Runtime.ResPaths.PathsEnum.Atlas);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UI", Honor.Runtime.ResPaths.PathsEnum.UI);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Model", Honor.Runtime.ResPaths.PathsEnum.Model);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Audio", Honor.Runtime.ResPaths.PathsEnum.Audio);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GameConfig", Honor.Runtime.ResPaths.PathsEnum.GameConfig);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "BattleConfig", Honor.Runtime.ResPaths.PathsEnum.BattleConfig);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Config", Honor.Runtime.ResPaths.PathsEnum.Config);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ConfigByte", Honor.Runtime.ResPaths.PathsEnum.ConfigByte);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "XLua", Honor.Runtime.ResPaths.PathsEnum.XLua);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Scene", Honor.Runtime.ResPaths.PathsEnum.Scene);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Effect", Honor.Runtime.ResPaths.PathsEnum.Effect);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Texture", Honor.Runtime.ResPaths.PathsEnum.Texture);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OtherRes", Honor.Runtime.ResPaths.PathsEnum.OtherRes);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "CommonWidgets", Honor.Runtime.ResPaths.PathsEnum.CommonWidgets);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RefMat", Honor.Runtime.ResPaths.PathsEnum.RefMat);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Map", Honor.Runtime.ResPaths.PathsEnum.Map);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.ResPaths.PathsEnum), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeResPathsPathsEnum(L, (Honor.Runtime.ResPaths.PathsEnum)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Font"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Font);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Atlas"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Atlas);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "UI"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.UI);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Model"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Model);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Audio"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Audio);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "GameConfig"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.GameConfig);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "BattleConfig"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.BattleConfig);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Config"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Config);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "ConfigByte"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.ConfigByte);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "XLua"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.XLua);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Scene"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Scene);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Effect"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Effect);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Texture"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Texture);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "OtherRes"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.OtherRes);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "CommonWidgets"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.CommonWidgets);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "RefMat"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.RefMat);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Map"))
+                {
+                    translator.PushHonorRuntimeResPathsPathsEnum(L, Honor.Runtime.ResPaths.PathsEnum.Map);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.ResPaths.PathsEnum!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.ResPaths.PathsEnum! Expect number or string, got + " + lua_type);
             }
 
             return 1;

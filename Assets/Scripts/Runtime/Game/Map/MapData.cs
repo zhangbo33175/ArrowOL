@@ -451,23 +451,32 @@ public class MapData : MonoBehaviour
     /// </summary>
     public float CalcAutoMinCamSize()
     {
-        if (mapBounds == null)
-            return m_MinCamSize;
+        float screenH = Screen.height;
+        float viewH = screenH - m_TopHudPixelHeight - m_BottomHudPixelHeight;
+        if (viewH <= 0) viewH = screenH;
+        float ratio = viewH / screenH;
+        float autoSize = m_NormalCamData.size * ratio;
+        return Mathf.Max(autoSize, m_MinCamSize);
+    }
 
-        Vector2 viewport = GetMapViewportSize();
-        float viewAspect = viewport.x / viewport.y;
+    /// <summary>
+    /// 设置底部UI高度（运行时动态调整，底部UI隐藏时传0）
+    /// </summary>
+    /// <param name="pixelHeight">底部UI像素高度</param>
+    public void SetBottomHudHeight(float pixelHeight)
+    {
+        m_BottomHudPixelHeight = Mathf.Max(pixelHeight, 0f);
+    }
 
-        // 地图包围盒半宽/半高（世界单位）
-        float mapHalfW = mapBounds.m_AreaBounds.extents.x;
-        float mapHalfH = mapBounds.m_AreaBounds.extents.y;
-
-        // 两种适配维度：按高度铺满 / 按宽度铺满
-        float sizeByHeight = mapHalfH;
-        float sizeByWidth = mapHalfW / viewAspect;
-
-        // 取最大值保证完整容纳，兜底不小于面板配置最小尺寸
-        float autoMinSize = Mathf.Max(sizeByHeight, sizeByWidth);
-        return Mathf.Max(autoMinSize, m_MinCamSize);
+    /// <summary>
+    /// 重新计算大厅相机参数（根据当前视口自动适配地图完整显示）
+    /// 调用后m_NormalCamData会被更新为适配后的size和posY
+    /// </summary>
+    public void RecalcNormalCamData()
+    {
+        float autoSize = CalcAutoMinCamSize();
+        m_NormalCamData.size = autoSize;
+        m_NormalCamData.NormalAdjustPosY(m_MainHudMaxHeight);
     }
 
     /// <summary>

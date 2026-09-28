@@ -30,6 +30,74 @@ namespace GameLib
         /// </summary>
         [FormerlySerializedAs("areaBounds")]
         public Bounds m_AreaBounds;
+
+        /// <summary>
+        /// 是否在Awake时自动根据子物体重算包围盒
+        /// </summary>
+        public bool m_AutoRecalculateOnAwake = false;
+
+        #endregion
+
+        #region 生命周期
+        //=========================================================================
+        // 生命周期
+        //=========================================================================
+        private void Awake()
+        {
+            if (m_AutoRecalculateOnAwake)
+            {
+                RecalculateBounds();
+            }
+        }
+
+        /// <summary>
+        /// 运行时根据所有子物体Renderers和UI Image重算包围盒
+        /// </summary>
+        public void RecalculateBounds()
+        {
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+            Bounds resultBounds = new Bounds(transform.position, Vector2.one);
+
+            bool hasAny = false;
+            foreach (var renderer in renderers)
+            {
+                if (renderer == null || renderer is ParticleSystemRenderer) continue;
+                if (!hasAny)
+                {
+                    resultBounds = renderer.bounds;
+                    hasAny = true;
+                }
+                else
+                {
+                    resultBounds.Encapsulate(renderer.bounds);
+                }
+            }
+
+            UnityEngine.UI.Image[] images = GetComponentsInChildren<UnityEngine.UI.Image>();
+            foreach (var image in images)
+            {
+                if (image == null || !image.enabled) continue;
+                RectTransform rt = image.rectTransform;
+                Vector3[] corners = new Vector3[4];
+                rt.GetWorldCorners(corners);
+                if (!hasAny)
+                {
+                    resultBounds = new Bounds(corners[0], Vector3.zero);
+                    hasAny = true;
+                }
+                for (int i = 0; i < 4; i++)
+                {
+                    resultBounds.Encapsulate(corners[i]);
+                }
+            }
+
+            if (hasAny)
+            {
+                resultBounds.size = new Vector3(resultBounds.size.x, resultBounds.size.y, 0);
+                m_AreaBounds = resultBounds;
+                Debug.Log($"[MapMotionLayer] RecalculateBounds: center={resultBounds.center} extents={resultBounds.extents}");
+            }
+        }
         #endregion
 
         #region 场景绘制
@@ -98,41 +166,7 @@ namespace GameLib
         {
             MapMotionLayer motionLayer = target as MapMotionLayer;
             if (motionLayer == null) return;
-
-            childRenderers.Clear();
-            motionLayer.GetComponentsInChildren(childRenderers);
-
-            // 新增：获取所有UI Image/RawImage
-            List<UnityEngine.UI.Image> uiImages = new List<UnityEngine.UI.Image>();
-            motionLayer.GetComponentsInChildren(uiImages);
-
-            Bounds resultBounds = new Bounds(motionLayer.transform.position, Vector2.one);
-
-            // 合并Renderer的Bounds
-            foreach (var renderer in childRenderers)
-            {
-                if (renderer == null || renderer is ParticleSystemRenderer) continue;
-                resultBounds.Encapsulate(renderer.bounds);
-            }
-
-            // 新增：合并UI Image的Bounds
-            foreach (var image in uiImages)
-            {
-                RectTransform rectTransform = image.rectTransform;
-                Vector3[] corners = new Vector3[4];
-                rectTransform.GetWorldCorners(corners);
-
-                // 计算UI世界坐标的包围盒
-                Bounds uiBounds = new Bounds(corners[0], Vector3.zero);
-                for (int i = 0; i < 4; i++)
-                {
-                    uiBounds.Encapsulate(corners[i]);
-                }
-                resultBounds.Encapsulate(uiBounds);
-            }
-
-            resultBounds.size = new Vector3(resultBounds.size.x, resultBounds.size.y, 0);
-            motionLayer.m_AreaBounds = resultBounds;
+            motionLayer.RecalculateBounds();
             EditorUtility.SetDirty(motionLayer);
         }
         #endregion

@@ -16,6 +16,10 @@
 ---@field UsedNumber                         TMPro.TextMeshProUGUI         √                        显示道具次数
 ---@field SettingButton                      UnityEngine.UI.Button         √         Clicked        设置按钮
 ---@field SearchButton                       UnityEngine.UI.Button         √         Clicked        搜索按钮
+---@field LifeTransform                      UnityEngine.GameObject        √                        生命值显示父类
+---@field AdDisplayGameObject                UnityEngine.GameObject        √                        广告背景展示
+---@field xianshi                            UnityEngine.UI.Button         √         Clicked        显示背景
+---@field yinchang                           UnityEngine.UI.Button         √         Clicked        隐藏背景
 ---@field Bg                                 UnityEngine.UI.Image          √                        界面bg图
 local UIMainPlaying = class('UIMainPlaying', import('LuaBehaviourSuper'))
 
@@ -50,23 +54,20 @@ function UIMainPlaying:Awake()
     -- 2=====================================================================================================
     AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     AddUIListenerFunction(self.SearchButton, 'Clicked', handler(self, self.OnSearchButtonClicked))
+    AddUIListenerFunction(self.xianshi, 'Clicked', handler(self, self.OnXianshiClicked))
+    AddUIListenerFunction(self.yinchang, 'Clicked', handler(self, self.OnYinchangClicked))
 -- ====================================================================================================2
+
+    -- 给Top和Down节点添加透明Image拦截点击穿透
+    self:AddRaycastBlocker("Top")
+    self:AddRaycastBlocker("Down")
     HonorEventHelper:AddListener(EventCmd.LifeTransformation, handler(self, self.OnSelectedResult))
 end
 
 function UIMainPlaying:OnSelectedResult(data)
-    if data then
-        self:OnSetCompleteNumber()
-    else
-        if  GameCoreManager:IsLifeEnough() then  
-            self.LifeNumber.text = GameCoreManager:GetLifeNumber()
-        else
-            OpenUISync(UIs.UILevelFailedView)
-        end
-    end
+
 
     for i = 1, MainPlayingManager:GetLifeNumber() do
-        
         
     end
     
@@ -110,6 +111,8 @@ function UIMainPlaying:OnDestroy()
     -- 3=====================================================================================================
     OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     OnRemoveListener(self.SearchButton, 'Clicked', handler(self, self.OnSearchButtonClicked))
+    OnRemoveListener(self.xianshi, 'Clicked', handler(self, self.OnXianshiClicked))
+    OnRemoveListener(self.yinchang, 'Clicked', handler(self, self.OnYinchangClicked))
 -- ====================================================================================================3
     HonorEventHelper:RemoveListener(EventCmd.LifeTransformation, handler(self, self.OnSelectedResult))
 end
@@ -143,6 +146,35 @@ end
 ---@type fun(args:any):void
 function UIMainPlaying:OnSearchButtonClicked(args)
     GameMapMotion:MoveToCenter(MainPlayingManager:GetCharacterLocalPosition(),0.02)
+end
+
+---显示-交互回调
+---@type fun(args:any):void
+function UIMainPlaying:OnXianshiClicked(args)
+    local img = self.AdDisplayGameObject -- __BgImage
+    if img then img:SetActive(true) end
+    GameMapMotion:UpdateCameraRect(199.237)
+end
+
+---给指定节点添加透明Image拦截点击穿透
+function UIMainPlaying:AddRaycastBlocker(nodeName)
+    local node = self.cs.transform:Find(nodeName)
+    if not node then print("[RaycastBlocker] not found: "..nodeName); return end
+    local img = node:GetComponent(typeof(CS.UnityEngine.UI.Image))
+    if not img then
+        img = node.gameObject:AddComponent(typeof(CS.UnityEngine.UI.Image))
+        img.color = CS.UnityEngine.Color(1, 1, 1, 0)
+        img.raycastTarget = true
+        print("[RaycastBlocker] added to "..nodeName)
+    end
+end
+
+---隐藏背景-交互回调
+---@type fun(args:any):void
+function UIMainPlaying:OnYinchangClicked(args)
+    local img = self.AdDisplayGameObject  -- __BgImage
+    if img then img:SetActive(false) end
+    GameMapMotion:UpdateCameraRect(0)
 end
 
 return UIMainPlaying

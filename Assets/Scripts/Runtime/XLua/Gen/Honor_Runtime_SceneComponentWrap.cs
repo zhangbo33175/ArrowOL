@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.SceneComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 18, 8, 1);
+			Utils.BeginObjectRegister(type, L, translator, 0, 20, 8, 1);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DestroyAllSceneGOs", _m_DestroyAllSceneGOs);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PreLoadSceneAsync", _m_PreLoadSceneAsync);
@@ -41,6 +41,8 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitSceneCamera", _m_InitSceneCamera);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitSceneCameraWithAnimation", _m_InitSceneCameraWithAnimation);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlaySceneCameraAnimationToTarget", _m_PlaySceneCameraAnimationToTarget);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "BindCameraToClipRawImage", _m_BindCameraToClipRawImage);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ReleaseCameraRt", _m_ReleaseCameraRt);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "SceneCameras", _g_get_SceneCameras);
@@ -859,6 +861,92 @@ namespace XLua.CSObjectWrap
             }
             
             return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SceneComponent.PlaySceneCameraAnimationToTarget!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_BindCameraToClipRawImage(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SceneComponent gen_to_be_invoked = (Honor.Runtime.SceneComponent)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 5&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& translator.Assignable<UnityEngine.UI.RawImage>(L, 3)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)) 
+                {
+                    int _cameraIndex = LuaAPI.xlua_tointeger(L, 2);
+                    UnityEngine.UI.RawImage _targetRawImage = (UnityEngine.UI.RawImage)translator.GetObject(L, 3, typeof(UnityEngine.UI.RawImage));
+                    int _rtWidth = LuaAPI.xlua_tointeger(L, 4);
+                    int _rtHeight = LuaAPI.xlua_tointeger(L, 5);
+                    
+                    gen_to_be_invoked.BindCameraToClipRawImage( _cameraIndex, _targetRawImage, _rtWidth, _rtHeight );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 4&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& translator.Assignable<UnityEngine.UI.RawImage>(L, 3)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 4)) 
+                {
+                    int _cameraIndex = LuaAPI.xlua_tointeger(L, 2);
+                    UnityEngine.UI.RawImage _targetRawImage = (UnityEngine.UI.RawImage)translator.GetObject(L, 3, typeof(UnityEngine.UI.RawImage));
+                    int _rtWidth = LuaAPI.xlua_tointeger(L, 4);
+                    
+                    gen_to_be_invoked.BindCameraToClipRawImage( _cameraIndex, _targetRawImage, _rtWidth );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 3&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& translator.Assignable<UnityEngine.UI.RawImage>(L, 3)) 
+                {
+                    int _cameraIndex = LuaAPI.xlua_tointeger(L, 2);
+                    UnityEngine.UI.RawImage _targetRawImage = (UnityEngine.UI.RawImage)translator.GetObject(L, 3, typeof(UnityEngine.UI.RawImage));
+                    
+                    gen_to_be_invoked.BindCameraToClipRawImage( _cameraIndex, _targetRawImage );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.SceneComponent.BindCameraToClipRawImage!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ReleaseCameraRt(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SceneComponent gen_to_be_invoked = (Honor.Runtime.SceneComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    UnityEngine.Camera _camera = (UnityEngine.Camera)translator.GetObject(L, 2, typeof(UnityEngine.Camera));
+                    
+                    gen_to_be_invoked.ReleaseCameraRt( _camera );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
             
         }
         

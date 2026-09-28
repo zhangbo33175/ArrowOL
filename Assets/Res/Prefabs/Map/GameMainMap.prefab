@@ -244,15 +244,17 @@ MonoBehaviour:
     m_MapName: 
     ChapterId: 
     LevelId: 0
+    MaplId: 0
     m_BackgroundPath: 
     m_MapObjectData: []
-    m_CcreateTime: 
-    m_MapWidth: 0
-    m_MapHeight: 0
+    m_CreateTime: 
     SavePath: 
   m_MinCamSize: 300
   m_MaxCamSize: 1024
   m_ScrollSensitivity: 0.5
+  m_TopHudPixelHeight: 160
+  m_BottomHudPixelHeight: 190
+  m_MinScaleLockCenter: 1
 --- !u!114 &653882414796917212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,6 +313,7 @@ MonoBehaviour:
   m_AreaBounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 1024, y: 1024, z: 0}
+  m_AutoRecalculateOnAwake: 1
 --- !u!222 &5524489678749013941
 CanvasRenderer:
   m_ObjectHideFlags: 0

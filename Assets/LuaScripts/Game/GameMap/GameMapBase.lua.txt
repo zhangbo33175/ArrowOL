@@ -96,10 +96,32 @@ function GameMapBase:Awake()
 
     -- 初始化相机参数，增加MapData空安全保护
     if MapManager.CurMapData ~= nil then
+        -- 根据当前视口自动计算适配尺寸，让地图完整贴合中间区域
+        MapManager.CurMapData:RecalcNormalCamData()
         GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.m_NormalCamData)
     end
     -- 初始化所有机器到游戏初始待机状态
     MapManager:OnInitGame()
+end
+
+---@brief 动态调整底部UI高度并重算相机（底部UI隐藏时传0，地图自动填满）
+---@type fun(bottomPixelHeight:number, animate:boolean):void
+---@param bottomPixelHeight number 底部UI像素高度，隐藏时传0
+---@param animate boolean 是否播放相机动画过渡，默认true
+function GameMapBase:AdjustBottomHud(bottomPixelHeight, animate)
+    if MapManager.CurMapData == nil then return end
+    animate = animate ~= false
+    MapManager.CurMapData:SetBottomHudHeight(bottomPixelHeight)
+    -- 同步更新相机渲染区域，底部UI隐藏时地图向下延伸填满
+    if GameMapMotion and GameMapMotion.UpdateCameraRect then
+        GameMapMotion:UpdateCameraRect(bottomPixelHeight)
+    end
+    MapManager.CurMapData:RecalcNormalCamData()
+    if animate then
+        GameLib.MapCamHelper.LookMap(MapManager.CurMapData.m_NormalCamData, 0.3)
+    else
+        GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.m_NormalCamData)
+    end
 end
 
 ---@brief MonoBehaviour Start生命周期，Awake后下一帧执行

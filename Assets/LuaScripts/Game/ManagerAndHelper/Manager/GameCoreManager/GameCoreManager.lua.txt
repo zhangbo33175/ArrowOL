@@ -114,7 +114,7 @@ end
 function GameCoreManager:OnGameVictory()
     -- 防止重复触发通关逻辑
     if self._IsGameOver then
-        PrintWarn("[GameCoreManager] 当前已结束，重复触发胜利，拦截")
+        PrintWarning("[GameCoreManager] 当前已结束，重复触发胜利，拦截")
         return
     end
     self._IsSuccessFinishGame = true
@@ -136,7 +136,7 @@ end
 function GameCoreManager:DoGameFailed(eGameOverType)
     -- 防止重复触发失败逻辑
     if self._IsGameOver then
-        PrintWarn("[GameCoreManager] 游戏已结束，重复触发失败，拦截")
+        PrintWarning("[GameCoreManager] 游戏已结束，重复触发失败，拦截")
         return
     end
     self._eGameOverType = eGameOverType
@@ -154,7 +154,7 @@ end
 function GameCoreManager:DoGameRevive()
     -- 未结束时禁止复活调用
     if not self._IsGameOver then
-        PrintWarn("[GameCoreManager] 游戏未结束，无法执行复活")
+        PrintWarning("[GameCoreManager] 游戏未结束，无法执行复活")
         return
     end
     self._IsGameOver = false

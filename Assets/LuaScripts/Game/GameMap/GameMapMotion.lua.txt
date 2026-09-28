@@ -605,6 +605,9 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.MapMotionLayer = mapTrans:GetComponent("GameLib.MapMotionLayer")
     if not self.MapMotionLayer then return end
 
+    -- 运行时根据子物体自动重算包围盒（此时地图内容已加载）
+    self.MapMotionLayer:RecalculateBounds()
+
     -- 基础配置
     self.ScreenCamera = GameLib.MapCamHelper.MapCamera
     self.IsMapWork = true
@@ -612,9 +615,20 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.IsMouseDown = false
     self.IsPressing = false
 
-    -- 相机初始尺寸
-    self.ScreenCamera.orthographicSize = (self.MinOrthoSize + self.MaxOrthoSize) / 2
-    self.InitialOrthoSize = self.ScreenCamera.orthographicSize
+    -- 相机渲染区域：只显示中间红框区域（扣除顶部/底部UI）
+    local topHud = 116.7621  -- 顶部Bg实际高度（设计分辨率）
+    local botHud = 199.237  -- 底部Image实际高度（设计分辨率）
+    local canvasH = 1334  -- Canvas设计分辨率高度
+    -- Camera.rect 归一化坐标（从左下角算）
+    local rectY = botHud / canvasH
+    local rectH = (canvasH - topHud - botHud) / canvasH
+    self.ScreenCamera.rect = CS.UnityEngine.Rect(0, rectY, 1, rectH)
+    print("[CameraDebug] rect: y="..rectY.." h="..rectH)
+    print('[CameraDebug] size='..self.ScreenCamera.orthographicSize..' halfW='..self.MapMotionLayer.m_AreaBounds.extents.x..' halfH='..self.MapMotionLayer.m_AreaBounds.extents.y..' centerY='..self.MapMotionLayer.m_AreaBounds.center.y)
+    if MapManager.CurMapData ~= nil then
+        local vp = MapManager.CurMapData:GetMapViewportSize()
+        print('[CameraDebug] viewport='..vp.x..'x'..vp.y..' topHud='..MapManager.CurMapData.m_TopHudPixelHeight..' botHud='..MapManager.CurMapData.m_BottomHudPixelHeight)
+    end
 
     -- 地图边界数据
     self.MapHalfWidth = self.MapMotionLayer.m_AreaBounds.extents.x
@@ -642,6 +656,19 @@ function GameMapMotion:OnMapStart(mapTrans)
     -- 注册触摸
     self:RegisterTouchEvents("+")
     self:ClampCameraAfterZoom()
+end
+
+
+-- 更新相机渲染区域（底部UI隐藏/显示时调用）
+-- 更新相机渲染区域（底部UI隐藏/显示时调用）
+function GameMapMotion:UpdateCameraRect(bottomHudHeight)
+    local topHud = 116.7621
+    local canvasH = 1334
+    local botHud = bottomHudHeight or 199.237
+    local rectY = botHud / canvasH
+    local rectH = (canvasH - topHud - botHud) / canvasH
+    self.ScreenCamera.rect = CS.UnityEngine.Rect(0, rectY, 1, rectH)
+    print("[CameraDebug] UpdateRect: botHud="..botHud.." rectY="..rectY.." rectH="..rectH)
 end
 
 ---@brief 重置X坐标（带边界）

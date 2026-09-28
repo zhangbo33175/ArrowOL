@@ -11,454 +11,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b0524f1-5a94-4f3a-b57c-f763ada3c38c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Editor/PackerTools/TexturePackerEditor.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabCache/CachePrefab.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabCache/PrefabCacheManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Extensions/Unity/GameExtensionForUnity.HonorUtils.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/CameraShake.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/FX/FxBase.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/FX/FxDeath.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/FX/FxDelay.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/FX/FxDisplayIn.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/FX/FxDissolve.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/GraphicsUtils.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/PostEffects/PostEffectDissolve.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/PostEffects/PostEffectSwitchScene.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/PostEffects/PostEffectsBase.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/Scene/HideEffect.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/ShaderManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Graphics/TextureProcessing/TextureBlur.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Collections/BetterList.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Collections/MyList.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/DefLayer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/HonorDef.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Platform.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/ResPaths.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/EventDelegate.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/RealTime.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/SpringPosition.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/TweenActive.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/TweenAlpha.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/TweenColor.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/TweenPosition.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/TweenRotation.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/TweenScale.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/Tweening/UITweener.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Utils/UIUtils.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFrameworkDelivery/GameFramework_Architecture_Full.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GameFrameworkDelivery/架构总览与代码规范说明.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaRankDelivery/Lua_Rank_Code.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaRankDelivery/ModifiedFiles/GameRequires.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaRankDelivery/ModifiedFiles/RankDataManager.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaRankDelivery/ModifiedFiles/RankItem.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaRankDelivery/ModifiedFiles/UIMainStateViewView.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaRankDelivery/ModifiedFiles/UIRankView.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaRankDelivery/修改说明.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIRankView/RankItem.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIRankView/UIRankView.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettingView/UISettingView.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/RankDataManager/RankDataManager.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/MainPlayingManager/MainPlayingManager.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/1/TableLevelData_1_1.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/1/TableLevelData_1_2.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/1/TableLevelData_1_3.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/TableLevelData.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/20260424-121016.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/Icon_Cat.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/Icon_Explore.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/Icon_Life.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/btn1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/btn2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/头像.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/排行.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/猫窝.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/皮肤.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/签到.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/设置.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/...Sprite/转盘.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/ChooseCampAtlas.tps" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/ChooseCampAtlas.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Atlas/ChooseCampAtlas/ChooseCampAtlasTex.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/Commons/ArrowGameZevHeiTCBold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/Commons/ArrowGameZevHeiTCNormal.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Bold.asset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Bold__NoOutline.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Bold__NoOutline_Underlay.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Bold__Outline__#000000.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Bold__Outline__#5b2b14.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Bold__Outline__#753f16.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Bold__Outline__#cf7029.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static__NoOutline.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static__NoOutline_Underlay.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static__Outline__#000000.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static__Outline__#5b2b14.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static__Outline__#753f16.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static__Outline__#cf7029.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainStateView/FishItem.prefab" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UISettingView/UISettingView.prefab" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/CollectIcon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/PhotographIcon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn_b.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn_g-1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn_g.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn_p.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn_r.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/close.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/home_puzzle_frame.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/icon_cat.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/icon_fish.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/icon_home.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/icon_search.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/icon_set.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/loa_bar.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/loa_pro.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/num_panel.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/profile_cat_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/profile_frame_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/safe_panel.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/set_panel.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/sign_r.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/sign_y.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_14.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_16.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_panel1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Textures/home_pic.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_circle.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assembly-CSharp.Player.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.Player.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/GameConfigComponentInspector/GameConfigComponentInspector.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/GameConfigComponentInspector/GameConfigComponentInspector.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaBehaviourInspector.MVVM.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaBehaviourInspector.MVVM.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaBehaviourInspector.None.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaBehaviourInspector.None.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaComponentInspector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaComponentInspector.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/AssetBundleNamePostprocessor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ABConfigInfo/AssetBundleNamePostprocessor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.Manager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/AssetLoad/AssetLoadManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Assets/Managers/PrefabLoad/PrefabLoadManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/GameComponentsGroup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/GameComponentsGroup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/TimerComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Components/TimerComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Renderers/ObjectOutline/CameraOutlineBuffer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/Renderers/ObjectOutline/CameraOutlineBuffer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/ListView/AorListView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/ListView/AorListView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/TextArea/AorTextArea.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/TextArea/AorTextArea.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/TextEffects/AorTextEffectOutline.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/TextEffects/AorTextEffectOutline.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/TextEffects/AorTextEffectSpacing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/TextEffects/AorTextEffectSpacing.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTree.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTree.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTree.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTree.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTreeNode.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTreeNode.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTreeNode.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTreeNode.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTreeNode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Bases/UIs/Tree/AorTreeNode.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedureLaunch.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedureLaunch.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedurePreload.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Procedures/Procedures/ProcedurePreload.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Roots/GameMainRoot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Roots/GameMainRoot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Scenes/Components/SceneComponent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/MonoSingleton.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/MonoSingleton.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/Singleton.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Singleton/Singleton.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.Methods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Sounds/Components/SoundComponent.Methods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GaussianBlur.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/Tools/GaussianBlur.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.SpecialUIs.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.SpecialUIs.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Visitors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.Visitors.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GameFramework/Scripts/Runtime/UIs/Managers/UIManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Config/LoadResDefs/LoadResDefs_1.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Config/LoadResDefs/LoadResDefs_1.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Config/LuaJson/ABConfigs.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Config/LuaJson/ABConfigs.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Config/LuaJson/Configs.bytes" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Config/LuaJson/Configs.bytes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/EventCmds/EventCmd.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/EventCmds/EventCmd.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Characters/CharacterCtrl.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Characters/CharacterCtrl.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameDefinitions.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameDefinitions.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoadMapView/UILoadMapView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UILoadMapView/UILoadMapView.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/Manager/LevelManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/Manager/LevelManager.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/SectionItem.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/SectionItem.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/UIMainStateViewView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/UIMainStateViewView.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/UIMainStateViewViewModel.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/UIMainStateViewViewModel.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISetting/UISetting.lua.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelFailedView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelFailedView.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelVictoryView.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UISettlementView/UILevelVictoryView.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GameLoadMapState.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/StateMachine/Game/GamePlayingState.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameRequires.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameRequires.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/ChallengeLevelHelper/ChallengeLevelHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/ChallengeLevelHelper/ChallengeLevelHelper.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/PlayHelper/PlayHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Helper/GamePlayHelper/GamePlayHelper.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/ChapterListManager/ChapterListManager.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerData.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerData.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCoreManager.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameMainUIPushManager/GameMainUIPushManager.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameMainUIPushManager/GameMainUIPushManager.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/TableLocalEvents.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/TableLocalEvents.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableDailyLevels.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableDailyLevels.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableMainLevels.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableMainLevels.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/1/TableLevelData_1_1.lua.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/1/TableLevelData_1_2.lua.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/1/TableLevelData_1_3.lua.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/2/TableLevelData_2_4.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/2/TableLevelData_2_1.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/2/TableLevelData_2_5.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/2/TableLevelData_2_3.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/2/TableLevelData_2_6.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/2/TableLevelData_2_2.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/3/TableLevelData_3_7.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/3/TableLevelData_3_1.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/3/TableLevelData_3_8.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/3/TableLevelData_3_2.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/3/TableLevelData_3_9.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/AlTables/Events/Levels/3/TableLevelData_3_3.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/Tables/Levels/TableLevelData.lua.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/UIScripts/UIs/UIs.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/UIScripts/UIs/UIs.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorEventHelper.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Helpers/HonorEventHelper.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemBridges.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemBridges.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/Commons/ArrowGameGrilledCheeseFont.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/Commons/MergeProBold.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/ChineseSimplified.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/ChineseSimplified.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/English.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/French.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/German.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/Italian.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/Japanese.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/Korean.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/PortuguesePortugal.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/Russian.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSources/ArrowGame_SDF_Static/Spanish.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationEnglishFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationFrenchFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationGermanFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationItalianFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationJapaneseFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationKoreanFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationPortuguesePortugalFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationRussianFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPSourcesTxt/LocalizationSpanishFontTMPChars.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Dynamic.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_ChineseSimplified.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_ChineseTraditional.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_French.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_German.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Italian.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Japanese.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Korean.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Portuguese.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Russian.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Spanish.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Symbols_EN.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static_Symbols_ZH.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___NoOutline.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___NoOutline_Underlay.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#000000.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#000000_Alpha.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#0075C7.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#0090AF.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#009DBF.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#00A97F.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#06836D.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#097400.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#175E83.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#183346.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#1B8E00.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#1E5A10.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#2D8538.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#49717D.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#5220A2.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#582500.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#657174.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#6E473B.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#742600.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#8E00B1.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#8E3212.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#8E8888.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#91482E.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#B1501A.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#B21100.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#BEFAFF.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#C37B4A.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#C95352.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#D3201D.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#D419A1.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#DA002C.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#DA4800.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#DA6C00.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#E55600.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#E88D21.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#EA9E8B_CS.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#EA9E8B_CS_Under.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#FF587.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#FFC98F.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#FFF600.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#FFFFFF.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#FFFFFF_Bold.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Fonts/TMPs/ArrowGame_SDF_Static___Outline_#FFFFFF_Underlay.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/Map/GameMap.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/Map/GameMap.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILevelView/SectionItem.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILevelView/SectionItem.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILoadMapView/UILoadMapView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILoadMapView/UILoadMapView.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILogin/UILoginView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UILogin/UILoginView.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/Map/GameMainMap.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/Map/GameMainMap.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainPlaying/UIMainPlaying.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainPlaying/UIMainPlaying.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainStateView/UIMainStateView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainStateView/UIMainStateView.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainView/UIMainView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMainView/UIMainView.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMaskLayer/UIMaskLayer.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UIMaskLayer/UIMaskLayer.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UISetting/UISetting.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UISettlementView/UILevelFailedView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UISettlementView/UILevelFailedView.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UISettlementView/UILevelVictoryView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Prefabs/UIs/UISettlementView/UILevelVictoryView.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/20260424-121016.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/btn2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/主界面.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/开始游戏.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Common/拼图底.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Textures/home_bg.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/Textures/home_bg.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_01.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_01.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_02.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_02.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_03.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_03.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_04.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_04.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_05.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_05.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_06.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_icon_06.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_panel.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Res/Textures/PicsForEditor/Common/UISetting/set_panel.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Res/Textures/背景.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameApp.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameApp.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/LevelEditor/TablesElectedLevelsEditor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/LevelEditor/TablesElectedLevelsEditor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapBuildEditor.Utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapBuildEditor.Utils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapScrollView/MapBuildEditor.SetMapListScrollView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/MapScrollView/MapBuildEditor.SetMapListScrollView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/MapEditor/Panel/MapBuildEditor.RightPanel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/Utility/MapLevelDataUtil.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/Utility/MapLevelDataUtil.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/Game/Map/MapData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/Game/Map/MapData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docs/Designs/Excels/ABConfigs/ABConfigs.xlsm" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/Designs/Excels/ABConfigs/ABConfigs.xlsm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableMainLevels.xlsm" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableMainLevels.xlsm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docs/Designs/Excels/UIs/UIConfigs.xlsm" beforeDir="false" afterPath="$PROJECT_DIR$/Docs/Designs/Excels/UIs/UIConfigs.xlsm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/0a/0a72485e665ddac5a99575a62d8d76dd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/15/150879eb5b45066233f84e397c3166fc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/16/16f60ebd6df931759058244721c6e1a8" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/1d/1df4d1710ec7447979c8047a63de8fdd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/1e/1e8e938d3235c84783035b3387b12794" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/25/25932d3bda762958add1b2def2db42c6" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/28/28863a15337a643dc7899cae14e248e2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/2d/2d5d244c29bcab22ae3eacda1e369feb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/30/30a29088f1476e724a61aa22607b0708" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/34/34e84097652568090db2336f7558cc0f" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/3b/3b66e02f9332d66ed0a999caaaeeb6ca" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/40/40f290f3842a42cc7bd7d7e50051335f" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/42/42605856f6ba280e836813ab75b69068" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/59/597c511d363df972d42e42aff1b9a84d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/5a/5a63e9c0eb09a56c3d91adc337c0bcce" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/65/65185b1dc9309ae694fbe2b5a6d93000" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/66/662a92154fd2efb80ee91ecd0bba6876" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/68/683dce9133686445074f13985ce64c76" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/6f/6f0b4de58c287636c6de6b850e2dc252" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/6f/6fcfac5c922d9d095a518e146a5c1780" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/75/7588d09e5558e08f9aa64114689b21a8" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/8a/8af9366def1a52635c16370790e03060" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/8b/8b4b964a650b916daccf5bdae9fb45f4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/93/93aa990808397a71fc4e5f1d629685e8" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/96/96af0b7952839543d72d107283058a02" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/9c/9c70eb511cd90989f3ed8117993b9597" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/9c/9c7c1821d3ad5583af5227fa83e9657f" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/9e/9ea93eb4ca813eca0fdb2f70ad02e2e3" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/a1/a187a04292feb6dfd54752313680f319" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/a1/a18881b1dff6b27b9e0c6f13c83b86de" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/a7/a7591b1d47fa78e4d646590c91631fac" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/aa/aaf458fb45a5709a775d0ef0193de1b8" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/b4/b441720ab0db9f2fe1ddbfc047529a80" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/b7/b74fd09c8da7dcc4a59ccd6ff6ccd65d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/b8/b8731d068a803f2667b50d9a88fe1494" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/be/beb605890b5631763418bd721713c6fb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/c9/c94c3bb1178af1924bcafb911451e42f" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/c9/c95dc5576429c724be1f7c94f75f1716" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/c9/c9acca4f4900a960c8d9c973cbe4ecc0" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/cb/cb9e32df9f7d0d495d142c40a5b18a43" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/cc/cc4724d0fb0a37697c3fdec3596d466e" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/d2/d2796a5e839f20fb3368686d6940a27a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/e8/e88462cb26e65e3e43df2e90915b1639" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/f7/f7a3fab8debbd470ef10c0037387d021" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/f9/f9d3268d5f34c1e20ad94eb93a8115e9" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/fc/fcefc1e50c47a9756282b2c345f59084" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Artifacts/fe/feb45df61f9f5b6dd2e22b11995f4a77" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/089ecbd7150db85dc3d0559c14a4d220_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/330678455b46c1dfde54965a8a2ac03f_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/34e5cdc0ba0e59ea04fd789a1aeb4b96_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/4797c3f7a0ceaf9330563047eaa7e53f_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/4c0ad649b8db664932fe4bb59e4bd56e_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/4df201f080e3254dcdf949f4ebab85ce_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/50f831b2394eceac269fb8ae949100d2_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/578a2054618b514ffe6df9e9f1c2ba93_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/6a2451ae08cc948bb2c2f7028f8c4d35_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/7efdc1f0a95a905db3e8c0172cb73650_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/87cd7573ad9fd960dca26494afc180f3_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/8b9e5c2d71085910bcea1a177370b69d_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/920059c1c375b1458125d4c8f4725e28_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/9439ce5b456b87dc66ff4f136f3a3ef1_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/95a2abf204dd162e9fc05050b6c5cb34_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/9e80ed11850633fc5bcef3d9d87a1f87_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/a6e61ab9570c8829ee8bb095885e8fe7_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/b486974dee73dcc76954f0bfcd4a67e9_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/be6d6af25a9e5094c9935f7f854f8b4c_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/c8721476e681de031c1a57c6aab3c050_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/d0a0613877340224d7aa672835152e64_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/eb8700a19f316740e5aeba0911588661_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/edd81f8fbb878f865244d48862d195b9_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/f23f98202c596d2d6a410c5b45178935_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/f3d295e435295d3df6399ccf5185cc17_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/CachedNodeOutput/feb5402272470112fcf0c0ae4138fa02_out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/Honor/UI/MapMotionLayer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/Honor/UI/MapMotionLayer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/EnumWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/EnumWrap.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_SceneComponentWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_SceneComponentWrap.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/MapDataWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/MapDataWrap.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapChapterTypeDataWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/RMapChapterTypeDataWrap.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/UnityEngine_TransformWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/UnityEngine_TransformWrap.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/UnityEngine_UI_ScrollRectWrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/UnityEngine_UI_ScrollRectWrap.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/WrapPusher.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/WrapPusher.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/XLuaGenAutoRegister.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/XLuaGenAutoRegister.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/link.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/link.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/TundraBuildState.state.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.ref.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.ref.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor.rsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.rsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Bee/backend1.traceevents" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/39/399dc907e13ac5bcfbeaa52fe2aa331a.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/39/399dc907e13ac5bcfbeaa52fe2aa331a.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/6d/6da29d87f1f3f689400022ce7561b3a0.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/6d/6da29d87f1f3f689400022ce7561b3a0.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/78/785cec27e58cd6c4910af06b6d4f9ca1.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/78/785cec27e58cd6c4910af06b6d4f9ca1.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/87/8700ee2e74ab91b41c771cc1b2b30f7a.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/87/8700ee2e74ab91b41c771cc1b2b30f7a.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/91/91a6cb7b8fa02d4d9cb0283377392c98.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/91/91a6cb7b8fa02d4d9cb0283377392c98.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/aa/aa2a3fc9ccdfccb0551f14536a132bf3.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/aa/aa2a3fc9ccdfccb0551f14536a132bf3.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/bd/bdc8ce96d180bdbfa76c00f1014c0102.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/bd/bdc8ce96d180bdbfa76c00f1014c0102.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/c8/c890e653bdb3b2620772fa1ee7d3f234.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/c8/c890e653bdb3b2620772fa1ee7d3f234.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/dc/dced8d3ae01c4505a7183500ebe6802c.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/dc/dced8d3ae01c4505a7183500ebe6802c.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/e8/e8dbb0d01512e6c529df4514e56c3f46.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/e8/e8dbb0d01512e6c529df4514e56c3f46.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/fa/fa9d6bb331d39b52712a2510a3ff83c2.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/PrefabStageHierarchy/fa/fa9d6bb331d39b52712a2510a3ff83c2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/01/014cba0a78378ff89866c4a9fd3bce10.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/01/014cba0a78378ff89866c4a9fd3bce10.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/0e/0e80cf0e0e619a6b0d999d798dc3cc4f.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/0e/0e80cf0e0e619a6b0d999d798dc3cc4f.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/3f/3f66415dbaef12170832af57c44d4392.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/3f/3f66415dbaef12170832af57c44d4392.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/b5/b57a4e23ae1f0d9afa91f6744f1e67db.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/b5/b57a4e23ae1f0d9afa91f6744f1e67db.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/c1/c1344f8dcf4632ad1fb75010da103833.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/c1/c1344f8dcf4632ad1fb75010da103833.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/StateCache/SceneView/e2/e23a09fca08a4d1d956a3724f9660bc3.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/SceneView/e2/e23a09fca08a4d1d956a3724f9660bc3.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/UIElements/EditorWindows/UnityEditor.InspectorWindow.pref" beforeDir="false" afterPath="$PROJECT_DIR$/Library/UIElements/EditorWindows/UnityEditor.InspectorWindow.pref" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Library/com.unity.ide.rider/PersistedState.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/expandedItems" beforeDir="false" afterPath="$PROJECT_DIR$/Library/expandedItems" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/HonorResDefExportSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/HonorResDefExportSettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.Editor.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.Player.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.Player.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Unity.VisualScripting.Core.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Unity.VisualScripting.Core.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/default-2022.dwlt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.Rider.Editor.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.Rider.Editor.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.TextMeshPro.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.TextMeshPro.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Editor.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Editor.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Player.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Core.Player.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Flow.Editor.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Unity.VisualScripting.Flow.Editor.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/UnityEditor.UI.EditorTests.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/UnityEditor.UI.EditorTests.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/spine-csharp.Player.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/spine-csharp.Player.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spine-unity.Player.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/spine-unity.Player.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spine-unity.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/spine-unity.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -522,6 +111,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Honor/UI/AorUIMaskLayerBehaviour.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/JsonHelper.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/Utils/MapCamHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_SceneCameraActorWrap.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../EmpireOL/Assets/Scripts/Core/Startup/GameBootstrap.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../EmpireOL/Assets/Scripts/Core/UI/UIManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../EmpireOL/Assets/Scripts/Data/MapData.cs" root0="FORCE_HIGHLIGHTING" />
@@ -720,7 +310,7 @@
       <workItem from="1788848704320" duration="4406000" />
       <workItem from="1789284455367" duration="600000" />
       <workItem from="1789524246876" duration="12299000" />
-      <workItem from="1790299249980" duration="12918000" />
+      <workItem from="1790299249980" duration="20288000" />
     </task>
     <servers />
   </component>
@@ -781,11 +371,6 @@
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/BuffManager/BuffManager.lua.txt</url>
           <option name="timeStamp" value="548" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapBase.lua.txt</url>
-          <line>277</line>
-          <option name="timeStamp" value="602" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/Launcher/ProcedurePreload.lua.txt</url>
@@ -891,11 +476,6 @@
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainStateView/Manager/LevelManager.lua.txt</url>
           <line>96</line>
           <option name="timeStamp" value="841" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="lua-line">
-          <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Manager/GameCoreManager/GameCore/GameCoreManagerLevelFinish.lua.txt</url>
-          <line>62</line>
-          <option name="timeStamp" value="871" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="lua-line">
           <url>file://$PROJECT_DIR$/Assets/LuaScripts/Game/ManagerAndHelper/Data/GamerDataManager.lua.txt</url>

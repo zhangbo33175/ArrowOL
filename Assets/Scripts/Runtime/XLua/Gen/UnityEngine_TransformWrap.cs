@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(UnityEngine.Transform);
-			Utils.BeginObjectRegister(type, L, translator, 0, 81, 19, 13);
+			Utils.BeginObjectRegister(type, L, translator, 0, 85, 19, 13);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetParent", _m_SetParent);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetPositionAndRotation", _m_SetPositionAndRotation);
@@ -47,6 +47,10 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "IsChildOf", _m_IsChildOf);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetEnumerator", _m_GetEnumerator);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetChild", _m_GetChild);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetHierarchyPath", _m_GetHierarchyPath);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetLayer", _m_SetLayer);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetLayerAndSaveDic", _m_SetLayerAndSaveDic);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetLayerByDic", _m_SetLayerByDic);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetPositionX", _m_SetPositionX);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetPositionY", _m_SetPositionY);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetPositionZ", _m_SetPositionZ);
@@ -1131,6 +1135,134 @@ namespace XLua.CSObjectWrap
                     
                     
                     return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetHierarchyPath(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Transform gen_to_be_invoked = (UnityEngine.Transform)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        string gen_ret = gen_to_be_invoked.GetHierarchyPath(  );
+                        LuaAPI.lua_pushstring(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetLayer(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Transform gen_to_be_invoked = (UnityEngine.Transform)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)) 
+                {
+                    int _layer = LuaAPI.xlua_tointeger(L, 2);
+                    int _ignoreLayer = LuaAPI.xlua_tointeger(L, 3);
+                    
+                    gen_to_be_invoked.SetLayer( _layer, _ignoreLayer );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
+                {
+                    int _layer = LuaAPI.xlua_tointeger(L, 2);
+                    
+                    gen_to_be_invoked.SetLayer( _layer );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to UnityEngine.Transform.SetLayer!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetLayerAndSaveDic(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Transform gen_to_be_invoked = (UnityEngine.Transform)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    int _layer = LuaAPI.xlua_tointeger(L, 2);
+                    System.Collections.Generic.Dictionary<int, int> _layerDic = (System.Collections.Generic.Dictionary<int, int>)translator.GetObject(L, 3, typeof(System.Collections.Generic.Dictionary<int, int>));
+                    
+                    gen_to_be_invoked.SetLayerAndSaveDic( _layer, _layerDic );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetLayerByDic(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                UnityEngine.Transform gen_to_be_invoked = (UnityEngine.Transform)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    System.Collections.Generic.Dictionary<int, int> _layerDic = (System.Collections.Generic.Dictionary<int, int>)translator.GetObject(L, 2, typeof(System.Collections.Generic.Dictionary<int, int>));
+                    
+                    gen_to_be_invoked.SetLayerByDic( _layerDic );
+                    
+                    
+                    
+                    return 0;
                 }
                 
             } catch(System.Exception gen_e) {
