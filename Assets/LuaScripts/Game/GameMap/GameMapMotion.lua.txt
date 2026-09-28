@@ -623,6 +623,12 @@ function GameMapMotion:OnMapStart(mapTrans)
     local rectY = botHud / canvasH
     local rectH = (canvasH - topHud - botHud) / canvasH
     self.ScreenCamera.rect = CS.UnityEngine.Rect(0, rectY, 1, rectH)
+
+    -- 禁用物理射线检测：游戏点击由 TriggerClick 手动遍历 BoxCollider2D 处理，
+    -- 不需要 Physics2DRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
+    self.ScreenCamera.eventMask = 0
+    local raycaster = self.ScreenCamera:GetComponent(typeof(CS.UnityEngine.EventSystems.Physics2DRaycaster))
+    if raycaster then raycaster.enabled = false end
     print("[CameraDebug] rect: y="..rectY.." h="..rectH)
     print('[CameraDebug] size='..self.ScreenCamera.orthographicSize..' halfW='..self.MapMotionLayer.m_AreaBounds.extents.x..' halfH='..self.MapMotionLayer.m_AreaBounds.extents.y..' centerY='..self.MapMotionLayer.m_AreaBounds.center.y)
     if MapManager.CurMapData ~= nil then
@@ -636,6 +642,19 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.MapCenterX = self.MapMotionLayer.m_AreaBounds.center.x
     self.MapCenterY = self.MapMotionLayer.m_AreaBounds.center.y
     self.MapBounds = self.MapMotionLayer.m_AreaBounds
+
+    -- 动态计算最大缩放：缩到地图刚好填满视口（无黑边）即停止
+    -- 原理：地图是正方形(1920x1920)，视口是竖屏(768x1042)
+    --   neededH=960 → 高度刚好填满，宽度溢出（左右可拖动），无黑边
+    --   neededW=1303 → 宽度刚好填满，但高度不够，出现上下黑边
+    -- 取 min：保证地图完全覆盖视口，不出现黑边
+    local camAspect = self.ScreenCamera.aspect
+    local neededW = self.MapHalfWidth / camAspect
+    local neededH = self.MapHalfHeigh
+    self.MaxOrthoSize = math.min(neededW, neededH)
+    -- 立即clamp当前相机尺寸到动态范围
+    self.ScreenCamera.orthographicSize = math.clamp(self.ScreenCamera.orthographicSize, self.MinOrthoSize, self.MaxOrthoSize)
+    print("[CameraDebug] dynamic MaxOrthoSize="..self.MaxOrthoSize.." neededW="..neededW.." neededH="..neededH.." aspect="..camAspect)
 
     -- 初始位置
     self.FollowPosition = {

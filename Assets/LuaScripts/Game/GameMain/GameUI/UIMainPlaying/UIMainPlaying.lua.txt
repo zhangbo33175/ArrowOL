@@ -158,15 +158,46 @@ end
 
 ---给指定节点添加透明Image拦截点击穿透
 function UIMainPlaying:AddRaycastBlocker(nodeName)
-    local node = self.cs.transform:Find(nodeName)
-    if not node then print("[RaycastBlocker] not found: "..nodeName); return end
+    local node = nil
+
+    -- 1. 优先使用框架自动绑定字段（如 self.Top）
+    if self[nodeName] ~= nil then
+        local bound = self[nodeName]
+        -- 绑定字段可能是 Transform 或 GameObject，统一取 transform
+        if bound.gameObject then
+            node = bound.transform
+        else
+            node = bound
+        end
+    end
+
+    -- 2. 在 self.cs.transform 下直接查找
+    if not node then
+        node = self.cs.transform:Find(nodeName)
+    end
+
+    -- 3. 向上遍历到根节点，再从根查找该子节点（Top/Down 是根节点的直接子节点）
+    if not node then
+        local root = self.cs.transform
+        while root.parent do
+            root = root.parent
+        end
+        node = root:Find(nodeName)
+    end
+
+    if not node then
+        print("[RaycastBlocker] not found: "..nodeName)
+        return
+    end
+
+    -- 添加透明 Image 拦截点击（如果已有 Image 则只确保 raycastTarget=true）
     local img = node:GetComponent(typeof(CS.UnityEngine.UI.Image))
     if not img then
         img = node.gameObject:AddComponent(typeof(CS.UnityEngine.UI.Image))
         img.color = CS.UnityEngine.Color(1, 1, 1, 0)
-        img.raycastTarget = true
-        print("[RaycastBlocker] added to "..nodeName)
     end
+    img.raycastTarget = true
+    print("[RaycastBlocker] OK on "..nodeName.." ("..node.name..")")
 end
 
 ---隐藏背景-交互回调
