@@ -12,7 +12,6 @@
   <component name="ChangeListManager">
     <list default="true" id="7b0524f1-5a94-4f3a-b57c-f763ada3c38c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ArrowDemo/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMain/GameUI/UIMainPlaying/UIMainPlaying.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/LuaScripts/Game/GameMap/GameMapMotion.lua.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" beforeDir="false" afterPath="$PROJECT_DIR$/Library/StateCache/MainStageHierarchy/5a/5af6a972c9789668b1a09ba2c385f429.json" afterDir="false" />
     </list>
@@ -277,7 +276,7 @@
       <workItem from="1788848704320" duration="4406000" />
       <workItem from="1789284455367" duration="600000" />
       <workItem from="1789524246876" duration="12299000" />
-      <workItem from="1790299249980" duration="21407000" />
+      <workItem from="1790299249980" duration="22496000" />
     </task>
     <servers />
   </component>
