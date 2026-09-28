@@ -68,6 +68,11 @@ function HonorEventHelper:AddListener(evtCmd, targetHandler)
         return
     end
     if not targetHandler then return end
+    -- 防御：method 为 nil 的处理器（如 handler(obj, nil)）拒绝注册，避免运行时调用 nil 崩溃
+    if targetHandler.method == nil then
+        PrintWarning("[Event] 忽略 method 为 nil 的监听: " .. evtCmd)
+        return
+    end
 
     -- 初始化事件列表
     if not self._targetHandlers[evtCmd] then
@@ -143,7 +148,7 @@ function HonorEventHelper:FireNow(evtCmd, ...)
 
     -- 遍历执行所有回调
     for _, info in pairs(handlers) do
-        if info.func then
+        if info.func and info.method ~= nil then
             info.func(...)
         end
     end

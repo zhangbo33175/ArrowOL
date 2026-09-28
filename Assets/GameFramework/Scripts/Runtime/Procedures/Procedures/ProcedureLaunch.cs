@@ -28,7 +28,7 @@ namespace Honor.Runtime
         /// <summary>
         /// WebGL 启动加载界面组件
         /// </summary>
-        private UILauncherLoadingView _mUILauncherLoadingView;
+        private UILauncherLoadingView m_UILauncherLoadingView;
 
         #endregion
 

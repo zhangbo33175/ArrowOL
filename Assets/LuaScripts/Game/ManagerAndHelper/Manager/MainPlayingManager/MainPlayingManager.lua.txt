@@ -1,0 +1,105 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  MainPlayingManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     主玩法管理器
+-- @desc      管理主玩法流程与运行时状态，统一承载主玩法相关业务
+-- @scope     全局唯一单例，注册于GameRequires，主玩法业务统一挂载本管理器
+-- @dependency Singleton
+--=====================================================================================================
+
+---@class MainPlayingManager : Singleton @主玩法管理器，负责主玩法流程与运行时状态管理
+local MainPlayingManager = class("MainPlayingManager", import("Singleton"))
+
+--region 构造 & 初始化
+
+---=========================================================================
+--- @brief 构造函数
+--- @param args table 初始化参数
+--- @desc 初始化运行时成员变量，业务初始化交由Init执行
+---=========================================================================
+function MainPlayingManager:ctor(args)
+    MainPlayingManager.super.ctor(self, args)
+end
+
+---=========================================================================
+--- @brief 创建管理器单例实例
+--- @param args table 初始化参数
+--- @return MainPlayingManager 主玩法管理器实例对象
+---=========================================================================
+function MainPlayingManager:Create(args)
+    return MainPlayingManager.new(args)
+end
+
+---=========================================================================
+--- @brief 清理运行时数据
+--- @desc 切换场景、游戏重置时调用，仅清空内存运行时状态，不修改持久化存档
+---=========================================================================
+function MainPlayingManager:ClearData()
+    MainPlayingManager.super.ClearData(self)
+end
+
+---=========================================================================
+--- @brief 管理器初始化
+--- @desc 注册全局事件、初始化主玩法运行时状态（业务挂载点）
+---=========================================================================
+function MainPlayingManager:Init()
+    MainPlayingManager.super.Init(self)
+end
+
+--endregion
+
+--region 玩法数据接口
+
+---=========================================================================
+--- @brief 获取角色本地坐标
+--- @return UnityEngine.Vector3|nil 角色本地坐标；无角色或未生成时返回nil
+--- @desc 主玩法界面数据接口，读取角色列表中第一个角色的localPosition
+--- @note 已做空值防护：角色列表为空、首个角色缺失、角色实体或GameObject未生成时返回nil
+---=========================================================================
+function MainPlayingManager:GetCharacterLocalPosition()
+    local CharacterList = GameCoreManager:GetCharacterList()
+    if not CharacterList then
+        return nil
+    end
+    -- 取角色字典中的第一个元素（兼容任意ID key）
+    local _, firstEntry = next(CharacterList)
+    local CharacterBase = firstEntry and firstEntry.Character
+    if not CharacterBase or not CharacterBase._GameObject then
+        return nil
+    end
+    return CharacterBase._GameObject.transform.localPosition
+end
+
+---=========================================================================
+--- @brief 获取已收集完成数量
+--- @return number 完成数量（角色&选择列表总数）
+--- @desc 直接读取GameCoreManager实时数据，供UI/业务查询使用
+---=========================================================================
+function MainPlayingManager:GetCharacterAndChooseListCount()
+    return GameCoreManager:GetCharacterAndChooseListCount()
+end
+
+---=========================================================================
+--- @brief 获取已使用道具数量
+--- @return number 已使用道具数量
+--- @desc 直接读取GameCoreManager实时数据，供UI/业务查询使用
+---=========================================================================
+function MainPlayingManager:GetNumberOfPropsUsed()
+    return GameCoreManager:GetNumberOfPropsUsed()
+end
+
+---=========================================================================
+--- @brief 获取当前生命数量
+--- @return number 生命数量
+--- @desc 直接读取GameCoreManager实时数据，供UI/业务查询使用
+---=========================================================================
+function MainPlayingManager:GetLifeNumber()
+    return GameCoreManager:GetLifeNumber()
+end
+
+--endregion
+
+return MainPlayingManager

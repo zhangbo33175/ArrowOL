@@ -45,20 +45,20 @@ namespace Honor.Runtime
             /// <summary>
             /// 该行文本起始顶点索引
             /// </summary>
-            public int StartVertexIndex => _startVertexIndex;
-            private int _startVertexIndex = 0;
+            public int StartVertexIndex => m_StartVertexIndex;
+            private int m_StartVertexIndex = 0;
 
             /// <summary>
             /// 该行文本结束顶点索引
             /// </summary>
-            public int EndVertexIndex => _endVertexIndex;
-            private int _endVertexIndex = 0;
+            public int EndVertexIndex => m_EndVertexIndex;
+            private int m_EndVertexIndex = 0;
 
             /// <summary>
             /// 该行文本总顶点数量
             /// </summary>
-            public int VertexCount => _vertexCount;
-            private int _vertexCount = 0;
+            public int VertexCount => m_VertexCount;
+            private int m_VertexCount = 0;
 
             /// <summary>
             /// 构造函数：初始化一行文本的顶点信息
@@ -67,9 +67,9 @@ namespace Honor.Runtime
             /// <param name="length">当前行字符数量</param>
             public Line(int startVertexIndex, int length)
             {
-                _startVertexIndex = startVertexIndex;
-                _endVertexIndex = length * 6 - 1 + startVertexIndex;
-                _vertexCount = length * 6;
+                m_StartVertexIndex = startVertexIndex;
+                m_EndVertexIndex = length * 6 - 1 + startVertexIndex;
+                m_VertexCount = length * 6;
             }
         }
         #endregion

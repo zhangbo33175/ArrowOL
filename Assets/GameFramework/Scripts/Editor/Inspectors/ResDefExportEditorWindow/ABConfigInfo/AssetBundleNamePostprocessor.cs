@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -196,7 +196,7 @@ namespace Honor.Editor
             {
                 if (fullPath.EndsWith(".meta")) continue;
 
-                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                 AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                 if (importer == null) continue;
 
@@ -225,7 +225,7 @@ namespace Honor.Editor
 
             foreach (string fullPath in dirs)
             {
-                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                 AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                 if (importer == null) continue;
 
@@ -253,7 +253,7 @@ namespace Honor.Editor
             foreach (string fullPath in Directory.GetFiles(root))
             {
                 if (fullPath.EndsWith(".meta")) continue;
-                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                 AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                 if (importer == null) continue;
 
@@ -267,7 +267,7 @@ namespace Honor.Editor
             // 目录
             foreach (string fullPath in Directory.GetDirectories(root))
             {
-                string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                 AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                 if (importer == null) continue;
 

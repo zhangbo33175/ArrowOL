@@ -56,6 +56,7 @@
     <Compile Include="Assets\Scripts\Editor\MapEditor\InitStyles\MapBuildEditor.InitStyles.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\GameConfigComponentInspector\GameConfigComponentInspector.Methods.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\ResDefExportEditorWindow\ResDefExportEditorWindow.Manager.cs" />
+    <Compile Include="Assets\Scripts\Editor\LuaScriptCreateMenu.cs" />
     <Compile Include="Assets\Scripts\Editor\LevelData\UnlockLevelDataEditor.cs" />
     <Compile Include="Assets\Scripts\Editor\Utility\MapLevelDataUtil.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Tools\EditorPath.Editor.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Assets\GameFramework\Scripts\Editor\XLuaGensEditor\HonorGenConfig.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Editor\Inspectors\LauncherComponentInspector\LauncherComponentInspector.cs" />
     <Compile Include="Assets\Scripts\Editor\Utility\UtilDataSet.cs" />
+    <Compile Include="Assets\Editor\PackerTools\TexturePackerEditor.cs" />
     <Compile Include="Assets\Scripts\Editor\LevelEditor\TableItemEditor.cs" />
     <Compile Include="Assets\Scripts\Editor\LevelEditor\TableChapterEditor.cs" />
     <Compile Include="Assets\Scripts\Editor\MapEditor\Panel\MapBuildEditor.LeftPanel.cs" />

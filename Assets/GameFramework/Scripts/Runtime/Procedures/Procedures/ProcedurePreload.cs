@@ -43,12 +43,12 @@ namespace Honor.Runtime
         /// <summary>
         /// 闪屏 UI 组件
         /// </summary>
-        private UILauncherView _mUILauncherView;
+        private UILauncherView m_UILauncherView;
 
         /// <summary>
         /// 预加载 Loading 界面组件
         /// </summary>
-        private UILauncherLoadingView _mUILauncherLoadingView;
+        private UILauncherLoadingView m_UILauncherLoadingView;
 
         /// <summary>
         /// 预加载步骤队列（按顺序执行）
@@ -163,17 +163,17 @@ namespace Honor.Runtime
             m_LuaOnLeave?.Invoke(ownerMachine);
 
             // 关闭闪屏界面
-            if (_mUILauncherView != null)
+            if (m_UILauncherView != null)
             {
-                GameMainRoot.UI.CloseUIByGO(_mUILauncherView.gameObject, true);
-                _mUILauncherView = null;
+                GameMainRoot.UI.CloseUIByGO(m_UILauncherView.gameObject, true);
+                m_UILauncherView = null;
             }
 
             // 关闭加载界面
-            if (_mUILauncherLoadingView)
+            if (m_UILauncherLoadingView)
             {
-                GameMainRoot.UI.HideLoading(_mUILauncherLoadingView);
-                _mUILauncherLoadingView = null;
+                GameMainRoot.UI.HideLoading(m_UILauncherLoadingView);
+                m_UILauncherLoadingView = null;
             }
 
             // 重置全局复位标记
@@ -221,7 +221,7 @@ namespace Honor.Runtime
                 // 显示预加载进度条
                 if (GameMainRoot.Procedure.UseUIPreload)
                 {
-                    _mUILauncherLoadingView = GameMainRoot.UI.ShowLoading(UILauncherLoadingView.LoadingMode.Preload);
+                    m_UILauncherLoadingView = GameMainRoot.UI.ShowLoading(UILauncherLoadingView.LoadingMode.Preload);
                 }
 
                 // 执行Lua层进入逻辑
@@ -231,7 +231,7 @@ namespace Honor.Runtime
             // 首次从Launch进入：显示闪屏 → 初始化Lua → 进入预加载
             if (IsLaunch())
             {
-                _mUILauncherView = GameMainRoot.UI.ShowSplash(() =>
+                m_UILauncherView = GameMainRoot.UI.ShowSplash(() =>
                 {
                     __OnLaunchEnter();
                     __OnEnter();

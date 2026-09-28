@@ -121,8 +121,9 @@ namespace Editor.MapEditor
                         }
                         else
                         {
-                            foreach (int subId in subLevelIds)
+                            for (int i = 0; i < subLevelIds.Length; i++)
                             {
+                                var subId=subLevelIds[i];
                                 // 判断当前小节是否被选中
                                 bool isSubSelected = _selectedSubId == subId;
 
@@ -141,7 +142,7 @@ namespace Editor.MapEditor
                                     
                                     
                                     // 选中小节后的逻辑
-                                    ChooseItem(m_TableMainLevelsList[subId-1],tableChapterEditor);
+                                    ChooseItem(m_TableMainLevelsList[subId-1],tableChapterEditor,i);
                                 }
                             }
                         }
@@ -159,7 +160,7 @@ namespace Editor.MapEditor
         /// 【选中回调】点击列表项后执行：加载对应地图、切换背景、刷新图标列表
         /// </summary>
         /// <param name="tableMainLevelsEditor">选中的地图配置数据</param>
-        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor,TableChapterEditor tableChapterEditor)
+        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor,TableChapterEditor tableChapterEditor,int MapId)
         {
             try
             {
@@ -179,11 +180,12 @@ namespace Editor.MapEditor
                 _mTablesElectedLevelsEditor.MapName=tableChapterEditor.MapName;
                 
                 _mTablesElectedLevelsEditor.LevelId=tableMainLevelsEditor.ID.ToString();
+                _mTablesElectedLevelsEditor.MapId = MapId+1;
                 // 保存当前选中的地图数据
                 mapName = tableMainLevelsEditor.Level_bg;
                 _mTablesElectedLevelsEditor.Background = tableMainLevelsEditor.Level_bg;
+                
                 mapId = tableMainLevelsEditor.ID;
-
                 // 重置图标列表标记，刷新图标显示
                 m_IsInitIconList = false;
                 SetIconItem(tableMainLevelsEditor);

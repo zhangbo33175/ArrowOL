@@ -57,7 +57,7 @@ namespace Honor.Runtime
             }
 
             // 获取根节点组件
-            _mAorTreeRootNode = m_Container.GetChild(0).GetComponent<AorTreeNode>();
+            m_AorTreeRootNode = m_Container.GetChild(0).GetComponent<AorTreeNode>();
         }
         #endregion
 
@@ -144,7 +144,7 @@ namespace Honor.Runtime
             }
 
             // 数据注入根节点
-            _mAorTreeRootNode.Inject(rootData);
+            m_AorTreeRootNode.Inject(rootData);
         }
         #endregion
 

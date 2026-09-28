@@ -89,6 +89,9 @@ GoalDataManager = require("GoalDataManager"):Create()
 ---@type HomeIconsDataManager 主界面图标管理器
 HomeIconsDataManager = require('HomeIconsDataManager'):Create()
 
+---@type MainPlayingManager 主玩法管理器
+MainPlayingManager = require('MainPlayingManager'):Create()
+
 --=========================================================================
 -- 6. 活动 & 本地活动
 --=========================================================================
@@ -172,6 +175,9 @@ CharacterGenerationManager = require("CharacterGenerationManager"):Create()
 
 ---@type PlayGameplayCycle 玩法周期
 PlayGameplayCycle = require("PlayGameplayCycle"):Create()
+
+---@type RankDataManager 排行榜数据管理器
+RankDataManager = require("RankDataManager"):Create()
 
 
 --=========================================================================

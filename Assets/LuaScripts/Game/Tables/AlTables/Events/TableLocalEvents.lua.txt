@@ -20,5 +20,5 @@
 
 ---@class Tables.LocalEvents @本地活动表
 Tables.LocalEvents = {
-    [1] = {Id = 1, EventID = "101", LocalEventGroup = 1, OpenOrder = 1, HomeIconID = "2", GroupNames ={} , LoginPopup = 1, PopupLevel = 3, HomeUIOrderId = "NewPlayerGiftUI"},
+    [1] = {Id = 1, EventID = "101", LocalEventGroup = 1, OpenOrder = 1, HomeIconID = "2", GroupNames = , LoginPopup = 1, PopupLevel = 3, HomeUIOrderId = "NewPlayerGiftUI"},
 }

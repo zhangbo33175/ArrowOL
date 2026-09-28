@@ -28,7 +28,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 临时顶点数组，用于UI网格生成（优化，避免频繁GC）
         /// </summary>
-        private readonly UIVertex[] _tmpVerts = new UIVertex[4];
+        private readonly UIVertex[] m_TmpVerts = new UIVertex[4];
         #endregion
 
         //=========================================================================
@@ -49,7 +49,7 @@ namespace Honor.Runtime
         /// 执行文本自适应缩放逻辑
         /// 根据设置的最大/最小字号，自动调整到能完整显示所有文本的最大字号
         /// </summary>
-        private void _UseFitSettings()
+        private void UseFitSettings()
         {
             // 获取文本生成配置
             TextGenerationSettings settings = GetGenerationSettings(rectTransform.rect.size);
@@ -99,7 +99,7 @@ namespace Honor.Runtime
             m_DisableFontTextureRebuiltCallback = true;
 
             // 执行文本自适应大小逻辑
-            _UseFitSettings();
+            UseFitSettings();
 
             // 获取文本生成的顶点数据
             IList<UIVertex> vertexList = cachedTextGenerator.verts;
@@ -124,14 +124,14 @@ namespace Honor.Runtime
                 for (int i = 0; i < vertexCount; ++i)
                 {
                     int tempVertsIndex = i & 3;
-                    _tmpVerts[tempVertsIndex] = vertexList[i];
-                    _tmpVerts[tempVertsIndex].position *= unitsPerPixel;
-                    _tmpVerts[tempVertsIndex].position.x += roundingOffset.x;
-                    _tmpVerts[tempVertsIndex].position.y += roundingOffset.y;
+                    m_TmpVerts[tempVertsIndex] = vertexList[i];
+                    m_TmpVerts[tempVertsIndex].position *= unitsPerPixel;
+                    m_TmpVerts[tempVertsIndex].position.x += roundingOffset.x;
+                    m_TmpVerts[tempVertsIndex].position.y += roundingOffset.y;
 
                     // 每4个顶点组成一个四边形，添加到网格
                     if (tempVertsIndex == 3)
-                        toFill.AddUIVertexQuad(_tmpVerts);
+                        toFill.AddUIVertexQuad(m_TmpVerts);
                 }
             }
             else
@@ -139,11 +139,11 @@ namespace Honor.Runtime
                 for (int i = 0; i < vertexCount; ++i)
                 {
                     int tempVertsIndex = i & 3;
-                    _tmpVerts[tempVertsIndex] = vertexList[i];
-                    _tmpVerts[tempVertsIndex].position *= unitsPerPixel;
+                    m_TmpVerts[tempVertsIndex] = vertexList[i];
+                    m_TmpVerts[tempVertsIndex].position *= unitsPerPixel;
 
                     if (tempVertsIndex == 3)
-                        toFill.AddUIVertexQuad(_tmpVerts);
+                        toFill.AddUIVertexQuad(m_TmpVerts);
                 }
             }
 

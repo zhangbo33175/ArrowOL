@@ -191,14 +191,14 @@ namespace Honor.Runtime
         /// <summary>
         /// 网络等待加载 UI 实例
         /// </summary>
-        private UIConnectionWaitingView _mConnectionWaitingUIConnection;
+        private UIConnectionWaitingView m_ConnectionWaitingUIConnection;
 
         /// <summary>
         /// 获取网络等待加载 UI 实例
         /// </summary>
         public UIConnectionWaitingView ConnectionWaitingUIConnection
         {
-            get => _mConnectionWaitingUIConnection;
+            get => m_ConnectionWaitingUIConnection;
         }
 
         /// <summary>

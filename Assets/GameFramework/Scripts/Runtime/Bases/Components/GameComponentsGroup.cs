@@ -31,7 +31,7 @@ namespace Honor.Runtime
         /// 全局注册的框架组件链表
         /// </summary>
         /// <remarks>线程不安全，仅在Unity主线程中操作</remarks>
-        private static readonly GameLinkedList<GameComponent> _gameComponents = new GameLinkedList<GameComponent>();
+        private static readonly GameLinkedList<GameComponent> m_GameComponents = new GameLinkedList<GameComponent>();
 
         //=========================================================================
         // 公共获取方法 - 泛型获取
@@ -62,7 +62,7 @@ namespace Honor.Runtime
                 return null;
             }
 
-            LinkedListNode<GameComponent> currentNode = _gameComponents.First;
+            LinkedListNode<GameComponent> currentNode = m_GameComponents.First;
             while (currentNode != null)
             {
                 if (currentNode.Value.GetType() == type)
@@ -91,7 +91,7 @@ namespace Honor.Runtime
                 return null;
             }
 
-            LinkedListNode<GameComponent> currentNode = _gameComponents.First;
+            LinkedListNode<GameComponent> currentNode = m_GameComponents.First;
             while (currentNode != null)
             {
                 Type componentType = currentNode.Value.GetType();
@@ -125,7 +125,7 @@ namespace Honor.Runtime
             Type componentType = component.GetType();
 
             // 校验组件是否重复注册
-            LinkedListNode<GameComponent> currentNode = _gameComponents.First;
+            LinkedListNode<GameComponent> currentNode = m_GameComponents.First;
             while (currentNode != null)
             {
                 if (currentNode.Value.GetType() == componentType)
@@ -137,7 +137,7 @@ namespace Honor.Runtime
             }
 
             // 将组件添加到链表末尾
-            _gameComponents.AddLast(component);
+            m_GameComponents.AddLast(component);
         }
 
         //=========================================================================
@@ -149,7 +149,7 @@ namespace Honor.Runtime
         /// <remarks>适用于场景切换、游戏重启等资源释放场景</remarks>
         public static void Clear()
         {
-            _gameComponents.Clear();
+            m_GameComponents.Clear();
         }
     }
     #endregion

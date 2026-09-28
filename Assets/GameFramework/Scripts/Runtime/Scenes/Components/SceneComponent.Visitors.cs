@@ -54,6 +54,13 @@ namespace Honor.Runtime
         /// </summary>
         private TouchComponent m_TouchComponent;
 
+        /// <summary>
+        /// 相机-渲染纹理映射表
+        /// 记录通过 BindCameraToClipRawImage 绑定到裁剪UI的相机与其专属 RenderTexture，
+        /// 用于场景卸载时精确释放，防止渲染纹理泄漏
+        /// </summary>
+        private readonly Dictionary<Camera, RenderTexture> m_CameraRtMap = new Dictionary<Camera, RenderTexture>();
+
         #endregion
 
         //=========================================================================

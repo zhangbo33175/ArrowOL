@@ -11,5 +11,6 @@
     "10" : {"ID":10,"Desc":"使用大图背景纹理","Path":"Assets/Res/Textures/Map/LevelBackground","PackageMeasureType":1,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
     "11" : {"ID":11,"Desc":"lua脚本","Path":"Assets/LuaScripts","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
     "12" : {"ID":12,"Desc":"字体文件","Path":"Assets/Res/Fonts/Commons","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
-    "13" : {"ID":13,"Desc":"TMP字体文件","Path":"Assets/Res/Fonts/TMPs","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false}
+    "13" : {"ID":13,"Desc":"TMP字体文件","Path":"Assets/Res/Fonts/TMPs","PackageMeasureType":0,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false},
+    "14" : {"ID":14,"Desc":"主界面信息展示","Path":"Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1","PackageMeasureType":1,"Rename":"","GroupName":"common","IsIncreaserGroup":false,"IsCommonIncreaserGroup":false}
 }

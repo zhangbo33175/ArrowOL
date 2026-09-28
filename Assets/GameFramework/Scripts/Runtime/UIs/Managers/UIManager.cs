@@ -602,8 +602,8 @@ namespace Honor.Runtime
             if (ui == null)
             {
                 // 全局刷新所有已打开 UI
-                if (_mConnectionWaitingUIConnection != null)
-                    RefreshTextComponentsAdaptationParams(_mConnectionWaitingUIConnection.gameObject, fontDatas);
+                if (m_ConnectionWaitingUIConnection != null)
+                    RefreshTextComponentsAdaptationParams(m_ConnectionWaitingUIConnection.gameObject, fontDatas);
 
                 if (m_TransitionUI != null)
                     RefreshTextComponentsAdaptationParams(m_TransitionUI.gameObject, fontDatas);

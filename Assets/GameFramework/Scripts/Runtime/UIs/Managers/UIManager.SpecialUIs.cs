@@ -31,7 +31,7 @@ namespace Honor.Runtime
             m_WaitingUIRefCount++;
             if (m_WaitingUIRefCount > 0)
             {
-                if (_mConnectionWaitingUIConnection == null)
+                if (m_ConnectionWaitingUIConnection == null)
                 {
                     UIInfo uiInfo = new UIInfo()
                     {
@@ -54,15 +54,15 @@ namespace Honor.Runtime
                         Log.Error("WaitingUIGO 无效。");
                         return;
                     }
-                    _mConnectionWaitingUIConnection = waitingUIGO.GetComponent<UIConnectionWaitingView>();
-                    if (_mConnectionWaitingUIConnection == null)
+                    m_ConnectionWaitingUIConnection = waitingUIGO.GetComponent<UIConnectionWaitingView>();
+                    if (m_ConnectionWaitingUIConnection == null)
                     {
                         Log.Error("WaitingUI 无效。");
                         return;
                     }
                     m_PermanentUIs.Add(waitingUIGO);
                 }
-                _mConnectionWaitingUIConnection.SetVisible(true);
+                m_ConnectionWaitingUIConnection.SetVisible(true);
             }
         }
 
@@ -80,7 +80,7 @@ namespace Honor.Runtime
             }
             if (m_WaitingUIRefCount == 0)
             {
-                _mConnectionWaitingUIConnection.SetVisible(false);
+                m_ConnectionWaitingUIConnection.SetVisible(false);
             }
         }
 
@@ -89,8 +89,8 @@ namespace Honor.Runtime
         /// </summary>
         public bool IsWaitingVisible()
         {
-            if (_mConnectionWaitingUIConnection != null)
-                return _mConnectionWaitingUIConnection.IsVisible();
+            if (m_ConnectionWaitingUIConnection != null)
+                return m_ConnectionWaitingUIConnection.IsVisible();
             
             return false;
         }
@@ -100,7 +100,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetWaitingDescText(string text)
         {
-            _mConnectionWaitingUIConnection?.SetWaitingDescText(text);
+            m_ConnectionWaitingUIConnection?.SetWaitingDescText(text);
         }
         #endregion
 

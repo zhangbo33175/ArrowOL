@@ -213,7 +213,7 @@ namespace Honor.Runtime
         /// </summary>
         private void OnEnable()
         {
-            ObjectOutline[] allOutlines = FindObjectsOfType<ObjectOutline>();
+            ObjectOutline[] allOutlines = FindObjectsByType<ObjectOutline>(FindObjectsSortMode.None);
 
             if (AutoEnableOutlines)
             {

@@ -70,6 +70,13 @@ namespace Honor.Runtime
                 if (prefabObj.Asset == null)
                 {
                     prefabObj.Asset = m_AssetLoadManager.LoadSync("GameObject", abPath, assetName);
+
+                    if (prefabObj.Asset == null)
+                    {
+                        Log.Error("[PrefabLoadManager] 缓存命中但资源重新加载失败，已中止实例化：ABPath:{0} / AssetName:{1} / AssetPath:{2}", abPath, assetName, assetPath);
+                        return null;
+                    }
+
                     GameObject newGo = InstanceGO(prefabObj, parent, luaParams);
                     m_AssetLoadManager.Unload(prefabObj.Asset);
                     prefabObj.Asset = null;
@@ -89,11 +96,17 @@ namespace Honor.Runtime
             prefabObj.RefCount = 1;
             prefabObj.Asset = m_AssetLoadManager.LoadSync("GameObject", abPath, assetName);
 
+            // [补丁] 资源加载失败 → 明确报错并中止，避免 Instantiate(null) 裸异常
+            if (prefabObj.Asset == null)
+            {
+                Log.Error("[PrefabLoadManager] 资源加载失败，已中止实例化：ABPath:{0} / AssetName:{1} / AssetPath:{2}", abPath, assetName, assetPath);
+                return null;
+            }
+
             m_LoadedList.Add(assetPath, prefabObj);
 
             return InstanceGO(prefabObj, parent, luaParams);
         }
-
         /// <summary>
         /// 异步加载 Prefab 并实例化
         /// 支持批量回调、父节点缓存、参数缓存

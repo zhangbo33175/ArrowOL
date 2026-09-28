@@ -12,8 +12,10 @@
 ---@field Top                                UnityEngine.RectTransform     √                        Top
 ---@field Right                              UnityEngine.RectTransform     √                        Right
 ---@field CompleteNumber                     TMPro.TextMeshProUGUI         √                        目标完成显示
----@field LifeNumber                         TMPro.TextMeshProUGUI         √                        当前体力显示
+---@field LifeTransform                      UnityEngine.Transform         √                        当前体力显示
 ---@field UsedNumber                         TMPro.TextMeshProUGUI         √                        显示道具次数
+---@field SettingButton                      UnityEngine.UI.Button         √         Clicked        设置按钮
+---@field SearchButton                       UnityEngine.UI.Button         √         Clicked        搜索按钮
 ---@field Bg                                 UnityEngine.UI.Image          √                        界面bg图
 local UIMainPlaying = class('UIMainPlaying', import('LuaBehaviourSuper'))
 
@@ -22,7 +24,7 @@ local UIMainPlaying = class('UIMainPlaying', import('LuaBehaviourSuper'))
 ---@param args table @自定义参数
 function UIMainPlaying:ctor(args)
     UIMainPlaying.super.ctor(self, args)
-
+    self:Init()
 end
 
 ---创建函数
@@ -45,43 +47,52 @@ end
 ---@type fun():void
 function UIMainPlaying:Awake()
     UIMainPlaying.super.Awake(self)
-    -- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    -- 无自动注册内容。
-    -- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
-    HonorEventHelper:AddListener(EventCmd.OnClickCharacter, handler(self, self.OnSelectedResult))
+    -- 2=====================================================================================================
+    AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
+    AddUIListenerFunction(self.SearchButton, 'Clicked', handler(self, self.OnSearchButtonClicked))
+-- ====================================================================================================2
+    HonorEventHelper:AddListener(EventCmd.LifeTransformation, handler(self, self.OnSelectedResult))
 end
 
 function UIMainPlaying:OnSelectedResult(data)
     if data then
         self:OnSetCompleteNumber()
     else
-        if GameCoreManager:IsLifeEnough() then  
-            OpenUISync(UIs.UISettlementView)
-        else
+        if  GameCoreManager:IsLifeEnough() then  
             self.LifeNumber.text = GameCoreManager:GetLifeNumber()
+        else
+            OpenUISync(UIs.UILevelFailedView)
         end
     end
+
+    for i = 1, MainPlayingManager:GetLifeNumber() do
+        
+        
+    end
+    
+    
+    
 end
 
 
 ---初始化逻辑
 ---@type fun():void
 function UIMainPlaying:Init()
-   self:OnSetCompleteNumber()
+    self:OnSetCompleteNumber()
     self:OnSetUsedNumber()
-    self:OnSetLifeNumber()
+  
 end
 
 function UIMainPlaying:OnSetCompleteNumber()
-    self.CompleteNumber.text =  GameCoreManager:GetCharacterAndChooseListCount()
+    self.CompleteNumber.text =  MainPlayingManager:GetCharacterAndChooseListCount()
 end
 
 function UIMainPlaying:OnSetUsedNumber()
-    self.UsedNumber.text = GameCoreManager:GetNumberOfPropsUsed()
+    self.UsedNumber.text = MainPlayingManager:GetNumberOfPropsUsed()
 end
 
 function UIMainPlaying:OnSetLifeNumber()
-    self.LifeNumber.text = GameCoreManager:GetLifeNumber()
+    self.LifeNumber.text = MainPlayingManager:GetLifeNumber()
 end
 
 
@@ -96,10 +107,11 @@ end
 ---@type fun():void
 function UIMainPlaying:OnDestroy()
     UIMainPlaying.super.OnDestroy(self)
-    -- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    -- 无自动注销内容。
-    -- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
-
+    -- 3=====================================================================================================
+    OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
+    OnRemoveListener(self.SearchButton, 'Clicked', handler(self, self.OnSearchButtonClicked))
+-- ====================================================================================================3
+    HonorEventHelper:RemoveListener(EventCmd.LifeTransformation, handler(self, self.OnSelectedResult))
 end
 
 ---播放打开动画（可重写）
@@ -119,6 +131,18 @@ end
 ---@param luaClass XLua.LuaTable
 function UIMainPlaying:OnAddedUIDestroyed(luaClass)
     UIMainPlaying.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+---设置按钮-交互回调
+---@type fun(args:any):void
+function UIMainPlaying:OnSettingButtonClicked(args)
+    OpenUIAsync(UIs.UISettingView)
+end
+
+---搜索按钮-交互回调
+---@type fun(args:any):void
+function UIMainPlaying:OnSearchButtonClicked(args)
+    GameMapMotion:MoveToCenter(MainPlayingManager:GetCharacterLocalPosition(),0.02)
 end
 
 return UIMainPlaying

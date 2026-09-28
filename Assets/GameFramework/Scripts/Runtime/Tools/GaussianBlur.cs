@@ -32,29 +32,29 @@ public class GaussianBlur : MonoBehaviour
 
     [Header("引用设置")]
     [SerializeField] 
-    private Material _material;
+    private Material m_Material;
     #endregion
 
     #region 私有成员字段
     /// <summary>
     /// 承载模糊画面的UI组件
     /// </summary>
-    private RawImage _blurImage;
+    private RawImage m_BlurImage;
 
     /// <summary>
     /// 模糊专用渲染相机
     /// </summary>
-    private Camera _camera;
+    private Camera m_Camera;
 
     /// <summary>
     /// 场景主相机
     /// </summary>
-    private Camera _sceneCamera;
+    private Camera m_SceneCamera;
 
     /// <summary>
     /// 运行时实例化材质，避免改动原始资源
     /// </summary>
-    private Material _instanceMaterial;
+    private Material m_InstanceMaterial;
     #endregion
 
     #region 全局单例与Shader缓存
@@ -66,7 +66,7 @@ public class GaussianBlur : MonoBehaviour
     /// <summary>
     /// 模糊大小Shader属性ID，预缓存优化性能
     /// </summary>
-    private readonly int _blurSizeId = Shader.PropertyToID("_BlurSize");
+    private readonly int m_BlurSizeId = Shader.PropertyToID("_BlurSize");
     #endregion
 
     //=========================================================================
@@ -92,10 +92,10 @@ public class GaussianBlur : MonoBehaviour
     /// </summary>
     private void Start()
     {
-        _sceneCamera = Camera.main;
-        _camera = GetComponent<Camera>();
+        m_SceneCamera = Camera.main;
+        m_Camera = GetComponent<Camera>();
         // 关闭相机自动渲染，由代码手动控制渲染流程
-        _camera.enabled = false;
+        m_Camera.enabled = false;
     }
 
     /// <summary>
@@ -103,8 +103,8 @@ public class GaussianBlur : MonoBehaviour
     /// </summary>
     private void InitMaterial()
     {
-        if (_material != null)
-            _instanceMaterial = Instantiate(_material);
+        if (m_Material != null)
+            m_InstanceMaterial = Instantiate(m_Material);
     }
     #endregion
 
@@ -120,12 +120,12 @@ public class GaussianBlur : MonoBehaviour
     {
         if (image == null) return;
 
-        _blurImage = image;
-        if(_sceneCamera == null) _sceneCamera = Camera.main;
+        m_BlurImage = image;
+        if(m_SceneCamera == null) m_SceneCamera = Camera.main;
         // 同步主相机视角与渲染参数
-        _camera.CopyFrom(_sceneCamera);
+        m_Camera.CopyFrom(m_SceneCamera);
         // 手动执行相机渲染
-        _camera.Render();
+        m_Camera.Render();
     }
 
     /// <summary>
@@ -134,8 +134,8 @@ public class GaussianBlur : MonoBehaviour
     /// <param name="image">目标UI对象</param>
     public void RemoveBlurImage(RawImage image)
     {
-        if (_blurImage == image)
-            _blurImage = null;
+        if (m_BlurImage == image)
+            m_BlurImage = null;
     }
     #endregion
 
@@ -150,7 +150,7 @@ public class GaussianBlur : MonoBehaviour
     /// <param name="dest">输出目标纹理</param>
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        if (_instanceMaterial == null)
+        if (m_InstanceMaterial == null)
         {
             Graphics.Blit(src, dest);
             return;
@@ -169,25 +169,25 @@ public class GaussianBlur : MonoBehaviour
         for (int i = 0; i < iterations; i++)
         {
             float blurSize = 1.0f + i * blurSpread;
-            _instanceMaterial.SetFloat(_blurSizeId, blurSize);
+            m_InstanceMaterial.SetFloat(m_BlurSizeId, blurSize);
 
             // 执行垂直方向模糊
             RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
-            Graphics.Blit(buffer0, buffer1, _instanceMaterial, 0);
+            Graphics.Blit(buffer0, buffer1, m_InstanceMaterial, 0);
             RenderTexture.ReleaseTemporary(buffer0);
             buffer0 = buffer1;
 
             // 执行水平方向模糊
             buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
-            Graphics.Blit(buffer0, buffer1, _instanceMaterial, 1);
+            Graphics.Blit(buffer0, buffer1, m_InstanceMaterial, 1);
             RenderTexture.ReleaseTemporary(buffer0);
             buffer0 = buffer1;
         }
 
         // 将最终模糊纹理赋值给UI
-        if (_blurImage != null)
+        if (m_BlurImage != null)
         {
-            _blurImage.texture = buffer0;
+            m_BlurImage.texture = buffer0;
         }
 
         // 释放临时纹理资源，杜绝内存泄漏
@@ -208,8 +208,8 @@ public class GaussianBlur : MonoBehaviour
     private void OnDestroy()
     {
         // 销毁运行时创建的材质实例
-        if (_instanceMaterial != null)
-            Destroy(_instanceMaterial);
+        if (m_InstanceMaterial != null)
+            Destroy(m_InstanceMaterial);
 
         // 清空单例引用
         if (Instance == this)

@@ -68,7 +68,7 @@ namespace Editor.Utility
                 Directory.CreateDirectory(dir);
 
             // 生成 Lua 表名
-            var luaFileName = AorTxt.Format($"TableLevelData_{data.ChapterId}_{data.LevelId}");
+            var luaFileName = AorTxt.Format($"TableLevelData_{data.ChapterId}_{data.MaplId}");
             var sb = new StringBuilder();
 
             // ===================== 头部注释 =====================
@@ -84,7 +84,7 @@ namespace Editor.Utility
 
             // ===================== 数据主体 =====================
             sb.AppendLine("---@type Tables.LevelData_Item");
-            sb.AppendLine(AorTxt.Format($"Tables.LevelData_{data.ChapterId}_{data.LevelId} = ") + "{ ");
+            sb.AppendLine(AorTxt.Format($"Tables.LevelData_{data.ChapterId}_{data.MaplId} = ") + "{ ");
 
             // 基础关卡配置
             sb.AppendLine($"    ChapterId = \"{data.ChapterId}\",");

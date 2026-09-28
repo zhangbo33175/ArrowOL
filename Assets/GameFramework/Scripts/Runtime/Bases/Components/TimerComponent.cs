@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -31,7 +31,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 运行中的计时器集合
         /// </summary>
-        private readonly List<TimerCounter> _timers = new List<TimerCounter>();
+        private readonly List<TimerCounter> m_Timers = new List<TimerCounter>();
 
         //=========================================================================
         // 公共管理方法
@@ -41,7 +41,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Clear()
         {
-            _timers.Clear();
+            m_Timers.Clear();
         }
 
         //=========================================================================
@@ -54,21 +54,21 @@ namespace Honor.Runtime
         private void Update()
         {
             // 倒序遍历，防止移除元素导致的索引越界
-            for (int i = _timers.Count - 1; i >= 0; i--)
+            for (int i = m_Timers.Count - 1; i >= 0; i--)
             {
-                TimerCounter timer = _timers[i];
+                TimerCounter timer = m_Timers[i];
 
                 // 计时器为空，直接移除
                 if (timer == null)
                 {
-                    _timers.RemoveAt(i);
+                    m_Timers.RemoveAt(i);
                     continue;
                 }
 
                 // 绑定物体已销毁，自动清理计时器
                 if (timer.DelObj == null || timer.DelObj.Equals(null))
                 {
-                    _timers.RemoveAt(i);
+                    m_Timers.RemoveAt(i);
                     continue;
                 }
 
@@ -79,7 +79,7 @@ namespace Honor.Runtime
                 if (timer.DeltaTime >= timer.DelayTime)
                 {
                     timer.Del?.Invoke(timer.Owner);
-                    _timers.RemoveAt(i);
+                    m_Timers.RemoveAt(i);
                 }
             }
         }
@@ -96,11 +96,20 @@ namespace Honor.Runtime
             if (string.IsNullOrEmpty(owner))
                 return;
 
-            for (int i = _timers.Count - 1; i >= 0; i--)
+            for (int i = m_Timers.Count - 1; i >= 0; i--)
             {
-                if (_timers[i].Owner == owner)
+                TimerCounter timer = m_Timers[i];
+
+                // 空计时器防御（正常情况下由 Update 逐帧清理，此处兜底）
+                if (timer == null)
                 {
-                    _timers.RemoveAt(i);
+                    m_Timers.RemoveAt(i);
+                    continue;
+                }
+
+                if (timer.Owner == owner)
+                {
+                    m_Timers.RemoveAt(i);
                     break;
                 }
             }
@@ -116,8 +125,14 @@ namespace Honor.Runtime
         /// <returns>匹配的计时器实例，未找到返回null</returns>
         public TimerCounter GetTimerCounter(string owner)
         {
-            foreach (var timer in _timers)
+            for (int i = 0; i < m_Timers.Count; i++)
             {
+                TimerCounter timer = m_Timers[i];
+
+                // 空计时器防御
+                if (timer == null)
+                    continue;
+
                 if (timer.Owner == owner)
                     return timer;
             }
@@ -169,7 +184,7 @@ namespace Honor.Runtime
                     DeltaTime = 0f
                 };
 
-                _timers.Add(timerCounter);
+                m_Timers.Add(timerCounter);
             }
 
             return timerCounter;

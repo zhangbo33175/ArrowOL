@@ -162,7 +162,12 @@ public class RMapChapterTypeData
     /// 关卡ID
     /// </summary>
     public int LevelId;
-
+    
+    /// <summary>
+    /// 地图ID
+    /// </summary>
+    public int MaplId;
+    
     /// <summary>
     /// 背景图片资源路径
     /// </summary>

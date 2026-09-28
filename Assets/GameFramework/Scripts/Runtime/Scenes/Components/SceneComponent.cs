@@ -5,6 +5,8 @@
  * author:  云毅
  * created:
  * descrip:   场景管理组件 - 场景加载/卸载/清理、多相机管理、相机动画控制
+ * 优化记录: 修复裁剪UI渲染纹理长期占用临时纹理池的泄漏；重复绑定先释放旧纹理；
+ *           销毁逻辑O(n²)过滤改为O(n)；补充相机空值防御
  ***************************************************************/
 
 using System;
@@ -30,15 +32,11 @@ namespace Honor.Runtime
         {
             base.Awake();
 
-            // 初始化场景管理器
+            // 初始化场景管理器（纯C#管理器，负责场景加载/卸载/预加载的核心逻辑）
             m_SceneManager = new SceneManager();
-            if (m_SceneManager == null)
-            {
-                Log.Fatal("SceneManager 无效。");
-                return;
-            }
         }
 
+        // 保留空实现：作为框架扩展点，子业务可在此挂载场景初始化/收尾逻辑
         private void Start()
         {
         }
@@ -58,35 +56,41 @@ namespace Honor.Runtime
         /// 会自动调用LuaBehaviour的关闭逻辑，防止资源泄漏
         /// </summary>
         /// <param name="root">指定根节点，默认使用场景根节点</param>
+        /// <remarks>
+        /// 优化说明：使用哈希集合收集所有严格后代，将过滤嵌套子物体的复杂度由 O(n²) 降为 O(n)。
+        /// 注意：LuaBehaviour 对象仅调用 Lua 侧 Close 回调，是否销毁 GameObject 由 Lua 业务自行决定。
+        /// </remarks>
         public void DestroyAllSceneGOs(GameObject root = null)
         {
             bool isDefault = root == null;
-            if (root == null) 
+            if (root == null)
                 root = m_SceneRootGO;
 
-            // 收集所有子物体
-            List<GameObject> gameObjects = new List<GameObject>();
-            for (int index = 0; index < root.transform.childCount; index++)
+            // 收集所有直接子物体，并记录全部严格后代变换集合（用于过滤嵌套物体）
+            int childCount = root.transform.childCount;
+            List<GameObject> topLevelObjects = new List<GameObject>(childCount);
+            HashSet<Transform> descendantSet = new HashSet<Transform>();
+
+            for (int index = 0; index < childCount; index++)
             {
-                gameObjects.Add(root.transform.GetChild(index).gameObject);
+                Transform child = root.transform.GetChild(index);
+                topLevelObjects.Add(child.gameObject);
+
+                // GetComponentsInChildren 索引0为自身，其余为严格后代
+                Transform[] allTransforms = child.GetComponentsInChildren<Transform>(true);
+                for (int i = 1; i < allTransforms.Length; i++)
+                {
+                    descendantSet.Add(allTransforms[i]);
+                }
             }
 
-            // 过滤掉子物体（只保留顶级对象）
-            gameObjects.RemoveAll((tmp) =>
-            {
-                foreach (var tmp1 in gameObjects)
-                {
-                    if (tmp != tmp1 && tmp.transform.IsChildOf(tmp1.transform))
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            });
+            // 只保留顶级对象（移除嵌套在其他直接子物体之下的子物体）
+            topLevelObjects.RemoveAll(go => descendantSet.Contains(go.transform));
 
             // 销毁对象：Lua对象走Lua关闭，普通对象直接销毁
-            gameObjects.ForEach((go) =>
+            for (int i = 0; i < topLevelObjects.Count; i++)
             {
+                GameObject go = topLevelObjects[i];
                 LuaBehaviour luaBehaviour = go.GetComponent<LuaBehaviour>();
                 if (luaBehaviour != null)
                 {
@@ -96,10 +100,10 @@ namespace Honor.Runtime
                 {
                     Destroy(go);
                 }
-            });
+            }
 
             // 如果不是默认根节点，销毁传入的根节点
-            if (!isDefault) 
+            if (!isDefault)
                 Destroy(root);
         }
 
@@ -290,7 +294,15 @@ namespace Honor.Runtime
 
             if (index == -1)
             {
-                m_SceneCameras.ForEach(cam => cam.enabled = enabled);
+                // 全量开关（for循环替代Lambda，避免闭包分配，并对已销毁相机做空值防御）
+                for (int i = 0; i < m_SceneCameras.Count; i++)
+                {
+                    Camera camera = m_SceneCameras[i];
+                    if (camera != null)
+                    {
+                        camera.enabled = enabled;
+                    }
+                }
             }
             else
             {
@@ -333,9 +345,9 @@ namespace Honor.Runtime
         {
             if (sceneCameraIndex >= 0 && sceneCameraIndex < m_SceneCameras.Count)
             {
-                if (targetPosition == default) 
+                if (targetPosition == default)
                     targetPosition = originalPosition;
-                if (targetSizeOrField == -1f) 
+                if (targetSizeOrField == -1f)
                     targetSizeOrField = originalSizeOrField;
 
                 SceneCameraActor actor = m_SceneCameras[sceneCameraIndex].GetOrAddComponent<SceneCameraActor>();
@@ -368,9 +380,10 @@ namespace Honor.Runtime
         }
 
         #endregion
-        
-        // 在SceneComponent相机管理区新增创建绑定RenderTexture的方法
-        private Dictionary<Camera, RenderTexture> _cameraRtMap = new Dictionary<Camera, RenderTexture>();
+
+        //=========================================================================
+        #region 相机裁剪UI渲染纹理（红框画面限定）
+        //=========================================================================
 
         /// <summary>
         /// 将相机绑定到指定裁剪UI的RawImage，实现画面限定在红框内
@@ -379,32 +392,53 @@ namespace Honor.Runtime
         /// <param name="targetRawImage">红框内的RawImage组件</param>
         /// <param name="rtWidth">纹理宽度</param>
         /// <param name="rtHeight">纹理高度</param>
+        /// <remarks>
+        /// 优化说明：长期持有的渲染纹理必须用 new RenderTexture 创建，
+        /// 不能用 GetTemporary（临时纹理池仅适合短期借用，长期占用会导致池耗尽）。
+        /// 重复绑定同一相机时会先释放旧纹理，防止泄漏。
+        /// </remarks>
         public void BindCameraToClipRawImage(int cameraIndex, RawImage targetRawImage, int rtWidth = 1024, int rtHeight = 1024)
         {
-            Camera cam = GetSceneCamera(cameraIndex);
-            if (cam == null || targetRawImage == null) return;
+            Camera camera = GetSceneCamera(cameraIndex);
+            if (camera == null || targetRawImage == null)
+                return;
 
-            // 创建适配尺寸的RenderTexture
-            RenderTexture rt = RenderTexture.GetTemporary(rtWidth, rtHeight, 24);
-            rt.antiAliasing = 4;
-            cam.targetTexture = rt;
+            // 重复绑定时先释放旧纹理，避免相机纹理被覆盖后旧纹理泄漏
+            ReleaseCameraRt(camera);
+
+            // 创建适配尺寸的专属渲染纹理（带深度缓冲，抗锯齿）
+            RenderTexture rt = new RenderTexture(rtWidth, rtHeight, 24)
+            {
+                antiAliasing = 4,
+                name = $"SceneCameraRt_{camera.name}",
+            };
+            camera.targetTexture = rt;
 
             // 把渲染纹理赋值给RawImage，画面就会被父RectMask2D裁剪在红框里
             targetRawImage.texture = rt;
-            _cameraRtMap[cam] = rt;
+            m_CameraRtMap[camera] = rt;
         }
 
         /// <summary>
         /// 释放相机绑定的渲染纹理（卸载场景调用，防内存泄漏）
         /// </summary>
-        public void ReleaseCameraRt(Camera cam)
+        /// <param name="camera">待释放纹理的场景相机</param>
+        public void ReleaseCameraRt(Camera camera)
         {
-            if (_cameraRtMap.TryGetValue(cam, out RenderTexture rt))
+            if (camera == null)
+                return;
+
+            if (m_CameraRtMap.TryGetValue(camera, out RenderTexture rt))
             {
-                RenderTexture.ReleaseTemporary(rt);
-                _cameraRtMap.Remove(cam);
-                cam.targetTexture = null;
+                m_CameraRtMap.Remove(camera);
+                camera.targetTexture = null;
+
+                // 配套释放：Release 归还GPU显存，Destroy 销毁托管包装
+                rt.Release();
+                Destroy(rt);
             }
         }
+
+        #endregion
     }
 }

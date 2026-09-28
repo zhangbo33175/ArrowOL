@@ -131,7 +131,7 @@ namespace Honor.Runtime
         private int mCurReadyMaxItemIndex = 0;
         private bool mNeedCheckNextMinItem = true;
         private bool mNeedCheckNextMaxItem = true;
-        private AorItemPosMgr _mAorItemPosMgr = null;
+        private AorItemPosMgr m_AorItemPosMgr = null;
         #endregion
 
         #region 字段 - 回收/创建距离
@@ -171,7 +171,7 @@ namespace Honor.Runtime
         private int mLeftSnapUpdateExtraCount = 1;
         [SerializeField] private Vector2 mViewPortSnapPivot = Vector2.zero;
         [SerializeField] private Vector2 mItemSnapPivot = Vector2.zero;
-        private AorClickEventListener _mScrollBarAorClickEventListener = null;
+        private AorClickEventListener m_ScrollBarAorClickEventListener = null;
         private SnapData mCurSnapData = new SnapData();
         private Vector3 mLastSnapCheckPos = Vector3.zero;
         #endregion
@@ -260,7 +260,7 @@ namespace Honor.Runtime
 
             mScrollRect = GetComponent<ScrollRect>();
             mCurSnapData.Clear();
-            _mAorItemPosMgr = new AorItemPosMgr(mItemDefaultWithPaddingSize);
+            m_AorItemPosMgr = new AorItemPosMgr(mItemDefaultWithPaddingSize);
             mScrollRectTransform = mScrollRect.GetComponent<RectTransform>();
             mContainerTrans = mScrollRect.content;
             mViewPortRectTransform = mScrollRect.viewport ?? mScrollRectTransform;
@@ -279,7 +279,7 @@ namespace Honor.Runtime
             ResetListView();
             mItemTotalCount = itemTotalCount;
             mSupportScrollBar = itemTotalCount >= 0;
-            _mAorItemPosMgr.SetItemMaxCount(mSupportScrollBar ? mItemTotalCount : 0);
+            m_AorItemPosMgr.SetItemMaxCount(mSupportScrollBar ? mItemTotalCount : 0);
             UpdateContentSize();
         }
 
@@ -295,7 +295,7 @@ namespace Honor.Runtime
             mCurSnapData.Clear();
             mItemTotalCount = count;
             mSupportScrollBar = count >= 0;
-            _mAorItemPosMgr.SetItemMaxCount(mSupportScrollBar ? count : 0);
+            m_AorItemPosMgr.SetItemMaxCount(mSupportScrollBar ? count : 0);
 
             if (count == 0)
             {
@@ -517,7 +517,7 @@ namespace Honor.Runtime
 
         private void SetItemSize(int index, float size, float padding)
         {
-            _mAorItemPosMgr.SetItemSize(index, size + padding);
+            m_AorItemPosMgr.SetItemSize(index, size + padding);
             mLastItemIndex = index;
             mLastItemPadding = padding;
         }
@@ -600,7 +600,7 @@ namespace Honor.Runtime
             if (mItemList.Count == 0) return;
             if (mIsVertList)
             {
-                float y = mSupportScrollBar ? -_mAorItemPosMgr.GetItemPos(mItemList[0].ItemIndex) : 0;
+                float y = mSupportScrollBar ? -m_AorItemPosMgr.GetItemPos(mItemList[0].ItemIndex) : 0;
                 foreach (var i in mItemList)
                 {
                     i.CachedRectTransform.anchoredPosition3D = new Vector3(i.StartPosOffset, y, 0);
@@ -618,7 +618,7 @@ namespace Honor.Runtime
 
         private float GetContentPanelSize()
         {
-            if (mSupportScrollBar) return Mathf.Max(_mAorItemPosMgr.mTotalSize - mLastItemPadding, 0);
+            if (mSupportScrollBar) return Mathf.Max(m_AorItemPosMgr.mTotalSize - mLastItemPadding, 0);
             if (mItemList.Count == 0) return 0;
             float s = 0;
             for (int i = 0; i < mItemList.Count - 1; i++) s += mItemList[i].ItemSizeWithPadding;
@@ -650,7 +650,7 @@ namespace Honor.Runtime
         private void Update()
         {
             if (!mListViewInited) return;
-            if (mSupportScrollBar) _mAorItemPosMgr.Update(false);
+            if (mSupportScrollBar) m_AorItemPosMgr.Update(false);
             UpdateSnapMove();
             UpdateListView(mDistanceForRecycle0, mDistanceForRecycle1, mDistanceForNew0, mDistanceForNew1);
             ClearAllTmpRecycledItem();

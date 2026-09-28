@@ -145,6 +145,32 @@ EUITaskOpenSource = {
 
 --endregion
 
+
+
+---@class EGameMainUIPUshRunningType @ 工作类型，值既是Type也是优先级数值
+---@field OnUIMainHudOpen string @ 主界面打开
+---@field OnEnterMainState string @ 游戏状态机切换到MainState
+---@field OnInsertUITask string @ 自动弹出一个UI
+---@field OnInertNotUITask string @ 自动弹出一个非UI任务
+EGameMainUIPUshRunningType = {
+    OnUIMainHudOpen = "OnUIMainHudOpen",
+    OnEnterMainState = "OnEnterMainState",
+    OnInsertUITask = "OnInsertUITask",
+    OnInertNotUITask = "OnInertNotUITask",
+}
+
+---@class EGameMainUIPushType @ 工作类型，值无意义
+---@field MachineUpgradeUI number @ 物品升级UI（钱够就弹出的一个UI）
+---@field ElementCollection number @ 主界面Icon收集动画表现
+---@field UI number @ 普通的UI弹窗
+---@field CommonTask number @ 通用任务
+EGameMainUIPushType = {
+    MachineUpgradeUIFromFail = 12,
+    ElementCollection = 10,
+    UI = 6,
+    MachineUpgradeUI = 4,
+    CommonTask = 3,
+}
 --region 输入按键
 
 --=====================================================================================================

@@ -149,6 +149,11 @@ namespace Honor.Editor
         {
             fileABPath = string.Empty;
             string abName = AssetDatabase.GetImplicitAssetBundleName(fullPath);
+            UnityEngine.Debug.Log($"[ABCheck] path={fullPath} abName=[{abName}] dictCount={s_ABConfigs.Count}");
+            if (!string.IsNullOrEmpty(abName) && !s_ABConfigs.ContainsKey(abName))
+            {
+                foreach (var k in s_ABConfigs.Keys) if (k.Contains("puzzle")) UnityEngine.Debug.Log($"[ABCheck] dictKey={k}");
+            }
             if (s_ABConfigs.ContainsKey(abName))
             {
                 fileABPath = s_ABConfigs[abName];
@@ -479,7 +484,7 @@ namespace Honor.Editor
                         {
                             if (fullPath.EndsWith(".meta")) continue;
 
-                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                             AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                             if (importer == null) continue;
 
@@ -498,7 +503,7 @@ namespace Honor.Editor
                         string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
                         foreach (string fullPath in Directory.GetDirectories(root))
                         {
-                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                             AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                             if (importer == null) continue;
 
@@ -521,7 +526,7 @@ namespace Honor.Editor
                         {
                             if (fullPath.EndsWith(".meta")) continue;
 
-                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                             AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                             if (importer == null) continue;
 
@@ -535,7 +540,7 @@ namespace Honor.Editor
                         // 目录
                         foreach (string fullPath in Directory.GetDirectories(root))
                         {
-                            string assetPath = "Assets/" + fullPath[(Application.dataPath.Length + 1)..];
+                            string assetPath = ("Assets/" + fullPath[(Application.dataPath.Length + 1)..]).Replace('\\', '/');
                             AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                             if (importer == null) continue;
 
@@ -557,6 +562,7 @@ namespace Honor.Editor
         /// </summary>
         public string GetAbPathFullDirPath(string abPath)
         {
+            if (string.IsNullOrEmpty(abPath) || abPath.Length <= 6) return Application.dataPath;
             string searchDir = Application.dataPath + abPath.Substring(6);
             while (!string.IsNullOrEmpty(searchDir))
             {
@@ -652,9 +658,6 @@ namespace Honor.Editor
         /// </summary>
         public bool AutoRectifyInvalidResInfo(string fileName, string fileType, string abPath, ResDefItem item, bool autoSave)
         {
-            if (string.IsNullOrEmpty(abPath))
-                return false;
-
             string[] arr = item.AliasName.Split("_", 2);
             if (arr != null && arr.Length == 2 && !arr[1].Equals(fileName))
             {
@@ -662,7 +665,9 @@ namespace Honor.Editor
             }
 
             string suffix = GetAssetsSuffixByType(fileType);
-            string[] guids = AssetDatabase.FindAssets(fileName, new[] { abPath });
+            string[] guids = null;
+            if (!string.IsNullOrEmpty(abPath) && Directory.Exists(abPath))
+                guids = AssetDatabase.FindAssets(fileName, new[] { abPath });
             if (guids == null || guids.Length == 0)
                 guids = AssetDatabase.FindAssets(fileName);
 

@@ -85,6 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7869881248973367135}
   - component: {fileID: 8420089483747976620}
+  - component: {fileID: 3999784220721673726}
   m_Layer: 5
   m_Name: UILoadMapView
   m_TagString: Untagged
@@ -212,6 +213,20 @@ MonoBehaviour:
   m_Collider3DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger2DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger3DLifeCyclesBehaviour: {fileID: 0}
+--- !u!114 &3999784220721673726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705388526218237005}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ceaacb033cb46889e6274cea10f8536, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  image: {fileID: 5166830427936245639}
+  parentRectTransform: {fileID: 3157483216738949345}
 --- !u!1 &2734652449312472355
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,8 +370,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 50%
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 575bab837141d1042868cfaeb7f75aef, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 863962790ed02af44935b43fa973798a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5b1af0de1a97a634da63b4f16d3d3800, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 7a035ec7a0797884cb6dd110220d63f7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -746,7 +761,6 @@ GameObject:
   - component: {fileID: 8382989582026219137}
   - component: {fileID: 4702286785902824190}
   - component: {fileID: 5166830427936245639}
-  - component: {fileID: 7014704066677509441}
   m_Layer: 5
   m_Name: BG
   m_TagString: Untagged
@@ -813,17 +827,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7014704066677509441
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8737848894410425294}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ceaacb033cb46889e6274cea10f8536, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  image: {fileID: 5166830427936245639}
-  parentRectTransform: {fileID: 3157483216738949345}

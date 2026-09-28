@@ -49,7 +49,7 @@ namespace Honor.Runtime
         /// 树形结构根节点（顶层节点）
         /// </summary>
         [HideInInspector]
-        private AorTreeNode _mAorTreeRootNode;
+        private AorTreeNode m_AorTreeRootNode;
 
         /// <summary>
         /// 树节点容器（Viewport/Content）
@@ -81,8 +81,8 @@ namespace Honor.Runtime
         /// </summary>
         public AorTreeNode AorTreeRootNode
         {
-            get => _mAorTreeRootNode;
-            set => _mAorTreeRootNode = value;
+            get => m_AorTreeRootNode;
+            set => m_AorTreeRootNode = value;
         }
 
         /// <summary>

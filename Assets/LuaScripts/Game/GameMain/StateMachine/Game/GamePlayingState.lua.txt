@@ -62,7 +62,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
     if mapData and mapData.m_PlayCamData then
         GameLib.MapCamHelper.LookMap(
                 mapData.m_PlayCamData,
-                1.3,
+                0,--相机放大缩小地图效果
                 function()
                     -- 相机动画完成后的回调
                     local closeUICallback = function()

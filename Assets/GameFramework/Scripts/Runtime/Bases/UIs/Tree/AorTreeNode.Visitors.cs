@@ -28,12 +28,12 @@ namespace Honor.Runtime
         /// <summary>
         /// 当前节点绑定的数据模型（名称、层级、父子关系）
         /// </summary>
-        private AorTreeData _mAorTreeData;
+        private AorTreeData m_AorTreeData;
 
         /// <summary>
         /// 所属的树形菜单根管理器
         /// </summary>
-        private AorTree _mAorTree;
+        private AorTree m_AorTree;
 
         /// <summary>
         /// 自身节点 Transform 缓存

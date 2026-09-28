@@ -135,14 +135,14 @@ namespace Honor.Runtime
         /// <summary>
         /// AssetBundle 加载管理器
         /// </summary>
-        private readonly AssetBundleLoadManager _mAssetBundleLoadManager = null;
+        private readonly AssetBundleLoadManager m_AssetBundleLoadManager = null;
 
         /// <summary>
         /// 获取 AssetBundle 加载管理器
         /// </summary>
         public AssetBundleLoadManager AssetBundleLoadManager
         {
-            get => _mAssetBundleLoadManager;
+            get => m_AssetBundleLoadManager;
         }
         #endregion
 

@@ -68,8 +68,8 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
         coreData:SaveData()
     else
         -- 失败 → 清空连胜
-        SaveRootData.GameData.playerInfo.winStreak = 0
-        SaveIO.GameData.Save_playerInfo_winStreak()
+       -- SaveRootData.GameData.playerInfo.winStreak = 0
+       -- SaveIO.GameData.Save_playerInfo_winStreak()
         -- 挑战关卡失败 → 清空挑战进度
         if GameCoreManager:IsInChallengeLevel() then
             ChallengeLevelHelper:ClearCurChallengeLevel()

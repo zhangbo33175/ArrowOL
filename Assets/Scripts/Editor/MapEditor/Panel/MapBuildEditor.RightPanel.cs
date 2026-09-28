@@ -251,9 +251,9 @@ namespace Editor.MapEditor
             }
 
             // 保存JSON
-            string jsonPath = Path.Combine(SaveConfig.LevelSavePath, $"{data.ChapterId}_{data.LevelId}.json");
+            string jsonPath = Path.Combine(SaveConfig.LevelSavePath, $"{data.ChapterId}_{data.MaplId}.json");
             MapLevelDataUtil.SaveDataJson(data, jsonPath);
-            ShowNotification(new GUIContent($"保存关卡 {data.ChapterId}_{data.LevelId} 文件：{jsonPath}"));
+            ShowNotification(new GUIContent($"保存关卡 {data.ChapterId}_{data.MaplId} 文件：{jsonPath}"));
 
             // 创建保存目录
             if (!Directory.Exists(levelLuaSavePath))

@@ -35,6 +35,7 @@
 ---@field UIMainStateView Tables.UIs_Item @关卡主界面
 ---@field UILevelFailedView Tables.UIs_Item @关卡结算失败界面
 ---@field UILevelVictoryView Tables.UIs_Item @关卡结算成功界面
+---@field UISettingView Tables.UIs_Item @设置界面
 UIs = {
     UILoginView = {
         Name = "UILoginView",
@@ -206,6 +207,21 @@ UIs = {
         Comment = "关卡结算成功界面",
         ABPath = "Assets/Res/Prefabs/UIs/UISettlementView",
         AssetName = "UILevelVictoryView",
+        UIType = 1,
+        ZOrder = 10000,
+        IsModal = false,
+        Priority = 0,
+        CloseOnEscapeKeyUp = false,
+        BlockingMask = "Everything",
+        BlockingObjects = 0,
+        MultiTypeTextCompsCoexist = false,
+        IsFullScreenUI = true,
+    },
+    UISettingView = {
+        Name = "UISettingView",
+        Comment = "设置界面",
+        ABPath = "Assets/Res/Prefabs/UIs/UISettingView",
+        AssetName = "UISettingView",
         UIType = 1,
         ZOrder = 10000,
         IsModal = false,

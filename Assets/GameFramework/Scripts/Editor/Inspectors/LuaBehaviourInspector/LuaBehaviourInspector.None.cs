@@ -7,6 +7,7 @@
  * created:   2026
  * descrip:   LuaBehaviour 编辑器面板拓展 - None模式配置、Lua代码生成与刷新
  ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -173,6 +174,12 @@ namespace Honor.Editor
             {
                 for (int i = 0; i < m_Injections.arraySize; i++)
                 {
+                    // 名称未填写的注入项不生成字段，避免生成空行脏数据
+                    if (string.IsNullOrEmpty(m_InterInjectionNames[i].stringValue))
+                    {
+                        continue;
+                    }
+
                     string comment = m_InterInjectionComments[i].stringValue ?? "";
                     string field = m_InterInjectionNames[i].stringValue;
                     string type = "";
@@ -262,7 +269,7 @@ namespace Honor.Editor
               .AppendLine("---@type fun():void")
               .AppendLine($"function {scriptName}:Awake()")
               .AppendLine($"    {scriptName}.super.Awake(self)")
-              .AppendLine("-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+              .AppendLine("-- 2=====================================================================================================");
 
             if (funcNames.Count > 0)
             {
@@ -276,7 +283,7 @@ namespace Honor.Editor
                 sb.AppendLine("-- 无自动注册内容。");
             }
 
-            sb.AppendLine("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2")
+            sb.AppendLine("-- ====================================================================================================2")
               .AppendLine()
               .AppendLine("end")
               .AppendLine();
@@ -307,7 +314,7 @@ namespace Honor.Editor
               .AppendLine("---@type fun():void")
               .AppendLine($"function {scriptName}:OnDestroy()")
               .AppendLine($"    {scriptName}.super.OnDestroy(self)")
-              .AppendLine("-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+              .AppendLine("-- 3=====================================================================================================");
 
             if (funcNames.Count > 0)
             {
@@ -321,7 +328,7 @@ namespace Honor.Editor
                 sb.AppendLine("-- 无自动注销内容。");
             }
 
-            sb.AppendLine("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3")
+            sb.AppendLine("-- ====================================================================================================3")
               .AppendLine()
               .AppendLine("end")
               .AppendLine();
@@ -488,159 +495,244 @@ namespace Honor.Editor
         /// <summary>
         /// 刷新 None 模式已有 Lua 文件
         /// <para>增量更新：保留手写代码，仅更新自动生成区域</para>
+        /// <remarks>
+        /// 修复说明：
+        /// 1. 移除原 "catch { return new StringBuilder(); }" —— 任何异常都会把原文件覆盖为"只有头注释"。
+        ///    现在异常向上抛出，由 CreateOrRefreshLuaFile 记录 Log.Error 并保留原文件。
+        /// 2. 原实现用"修改前"的索引做多处 Remove/Insert，删除字段区后注册/注销区索引全部漂移，
+        ///    导致删除错位或 ArgumentOutOfRange。现在从后往前清理，且每次操作都重新定位锚点。
+        /// 3. 刷新时补全缺失的事件回调函数骨架（只补不覆盖），新增按钮刷新后即可直接编辑。
+        /// </remarks>
         /// </summary>
         /// <param name="fullPath">Lua文件完整路径</param>
-        /// <returns>更新后的Lua代码构建器</returns>
+        /// <returns>更新后的Lua代码构建器（不含头部注释，由外层统一重写头部）</returns>
         private StringBuilder GeneratePatternNoneCodeLines(string fullPath)
         {
-            try
+            string scriptName = m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
+            string superName = m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
+            string commentFlag = "--=====================================================================================================";
+            string classFlag = $"local {scriptName} = class";
+            string regStart = "-- 2=====================================================================================================";
+            string regEnd = "-- ====================================================================================================2";
+            string unRegStart = "-- 3=====================================================================================================";
+            string unRegEnd = "-- ====================================================================================================3";
+
+            string content = System.IO.File.ReadAllText(fullPath);
+
+            // ========== 第1步：清理"自动注销"块内部（保留两个标记行，先处理位置靠后的块） ==========
+            int unRegStartIdx = content.LastIndexOf(unRegStart);
+            int unRegEndIdx = content.LastIndexOf(unRegEnd);
+            if (unRegStartIdx < 0 || unRegEndIdx <= unRegStartIdx)
             {
-                string scriptName = m_LuaScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
-                string superName = m_LuaSuperScriptNamesNone.GetArrayElementAtIndex((int)NonePatternType.Default).stringValue;
-                string commentFlag = "--=====================================================================================================";
-                string classFlag = $"local {scriptName} = class";
-                string regStart = "-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-                string regEnd = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2";
-                string unRegStart = "-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-                string unRegEnd = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3";
+                throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到注销标记，已中止刷新以保护原文件");
+            }
+            int unRegInnerStart = SkipLineBreaks(content, unRegStartIdx + unRegStart.Length);
+            content = content.Remove(unRegInnerStart, unRegEndIdx - unRegInnerStart);
 
-                string content = System.IO.File.ReadAllText(fullPath);
+            // ========== 第2步：清理"自动注册"块内部（重新定位锚点，避免受第1步影响） ==========
+            int regStartIdx = content.LastIndexOf(regStart);
+            int regEndIdx = content.LastIndexOf(regEnd);
+            if (regStartIdx < 0 || regEndIdx <= regStartIdx)
+            {
+                throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到注册标记，已中止刷新以保护原文件");
+            }
+            int regInnerStart = SkipLineBreaks(content, regStartIdx + regStart.Length);
+            content = content.Remove(regInnerStart, regEndIdx - regInnerStart);
 
-                // 清理自动生成区域
-                int commentEnd = content.LastIndexOf(commentFlag) + commentFlag.Length + 4;
-                int classStart = content.LastIndexOf(classFlag);
-                int regStartIdx = content.LastIndexOf(regStart) + regStart.Length + 1;
-                int regEndIdx = content.LastIndexOf(regEnd);
-                int unRegStartIdx = content.LastIndexOf(unRegStart) + unRegStart.Length + 1;
-                int unRegEndIdx = content.LastIndexOf(unRegEnd);
+            // ========== 第3步：清理旧字段注释区（---@class / ---@field），随后统一重建 ==========
+            int headerEndIdx = content.LastIndexOf(commentFlag);
+            int classDefIdx = content.LastIndexOf(classFlag);
+            if (headerEndIdx < 0 || classDefIdx <= headerEndIdx)
+            {
+                throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到头部注释或类定义标记，已中止刷新以保护原文件");
+            }
+            int fieldsStart = SkipLineBreaks(content, headerEndIdx + commentFlag.Length);
+            content = content.Remove(fieldsStart, classDefIdx - fieldsStart);
 
-                content = content.Remove(commentEnd, classStart - commentEnd);
-                content = content.Remove(regStartIdx, regEndIdx - regStartIdx);
-                content = content.Remove(unRegStartIdx, unRegEndIdx - unRegStartIdx);
+            // 采集注入信息（空名称注入项已在 CollectInfoExInfos 内跳过）
+            CollectInfoExInfos(out List<string> injectNames, out List<string> injectComments,
+                out List<string> funcNames, out List<string> funcParams, out List<string> cmds);
 
-                // 采集注入
-                CollectInfoExInfos(out List<string> injectNames, out _, out List<string> funcNames, out _, out List<string> cmds);
-
-                // 插入注销
-                if (funcNames.Count > 0)
+            // 重建字段注释区
+            StringBuilder fieldsBuilder = new StringBuilder();
+            fieldsBuilder.AppendLine($"---@class {scriptName} : {superName}");
+            fieldsBuilder.AppendLine("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour");
+            if (m_Injections != null && m_Injections.arraySize > 0)
+            {
+                for (int i = 0; i < m_Injections.arraySize; i++)
                 {
-                    for (int i = 0; i < funcNames.Count; i++)
+                    // 名称未填写的注入项不生成字段，避免空行脏数据
+                    if (string.IsNullOrEmpty(m_InterInjectionNames[i].stringValue))
                     {
-                        content = content.Insert(unRegEndIdx, $"    OnRemoveListener(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))\n");
+                        continue;
                     }
-                }
-                else
-                {
-                    content = content.Insert(unRegEndIdx, "-- 无自动注销内容。\n");
-                }
 
-                // 插入注册
-                if (funcNames.Count > 0)
-                {
-                    for (int i = 0; i < funcNames.Count; i++)
+                    string field = m_InterInjectionNames[i].stringValue;
+                    string type = "";
+                    string valid = "";
+                    string infoEx = "";
+                    string comment = m_InterInjectionComments[i].stringValue ?? "";
+
+                    if (m_InterInjectionIsArrays[i].boolValue)
                     {
-                        content = content.Insert(regEndIdx, $"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))\n");
-                    }
-                }
-                else
-                {
-                    content = content.Insert(regEndIdx, "-- 无自动注册内容。\n");
-                }
-
-                // 插入字段
-                if (m_Injections != null && m_Injections.arraySize > 0)
-                {
-                    for (int i = m_Injections.arraySize - 1; i >= 0; i--)
-                    {
-                        string field = m_InterInjectionNames[i].stringValue;
-                        string type = "";
-                        string valid = "";
-                        string infoEx = "";
-                        string comment = m_InterInjectionComments[i].stringValue ?? "";
-
-                        if (m_InterInjectionIsArrays[i].boolValue)
+                        type = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex]}[]";
+                        valid = "√";
+                        for (int j = 0; j < m_InterInjectionElementsObjs[i].arraySize; j++)
                         {
-                            type = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex]}[]";
-                            valid = "√";
-                            for (int j = 0; j < m_InterInjectionElementsObjs[i].arraySize; j++)
+                            if (m_InterInjectionElementsObjs[i].GetArrayElementAtIndex(j).objectReferenceValue == null)
                             {
-                                if (m_InterInjectionElementsObjs[i].GetArrayElementAtIndex(j).objectReferenceValue == null)
-                                {
-                                    valid = "×";
-                                    break;
-                                }
+                                valid = "×";
+                                break;
                             }
                         }
-                        else
-                        {
-                            type = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex];
-                            valid = (m_InterInjectionTypeNames[i].enumValueIndex is < (int)LuaInjection.InjectionType.Int32 or > (int)LuaInjection.InjectionType.Boolean)
-                                ? (m_InterInjectionObjs[i].objectReferenceValue != null ? "√" : "×")
-                                : (string.IsNullOrEmpty(m_InterInjectionVariants[i].stringValue) ? "×" : m_InterInjectionVariants[i].stringValue);
-
-                            infoEx = m_InterInjectionInfoExs[i].stringValue;
-                        }
-
-                        if (type == "UnityEngine.GameObject" && !string.IsNullOrEmpty(infoEx))
-                        {
-                            Type t = Type.GetType(infoEx);
-                            type = t?.FullName ?? "any";
-                        }
-                        else if (type == "Honor.Runtime.LuaBehaviour" && !string.IsNullOrEmpty(infoEx))
-                        {
-                            type = infoEx;
-                        }
-
-                        while (field.Length < 35) field += " ";
-                        while (type.Length < 30) type += " ";
-                        while (valid.Length < 10) valid += " ";
-                        while (infoEx.Length < 15) infoEx += " ";
-
-                        content = content.Insert(commentEnd, $"---@field {field}{type}{valid}{infoEx}{comment}\n");
                     }
+                    else
+                    {
+                        type = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex];
+                        valid = (m_InterInjectionTypeNames[i].enumValueIndex is < (int)LuaInjection.InjectionType.Int32 or > (int)LuaInjection.InjectionType.Boolean)
+                            ? (m_InterInjectionObjs[i].objectReferenceValue != null ? "√" : "×")
+                            : (string.IsNullOrEmpty(m_InterInjectionVariants[i].stringValue) ? "×" : m_InterInjectionVariants[i].stringValue);
+
+                        infoEx = m_InterInjectionInfoExs[i].stringValue;
+                    }
+
+                    if (type == "UnityEngine.GameObject" && !string.IsNullOrEmpty(infoEx))
+                    {
+                        Type t = Type.GetType(infoEx);
+                        type = t?.FullName ?? "any";
+                    }
+                    else if (type == "Honor.Runtime.LuaBehaviour" && !string.IsNullOrEmpty(infoEx))
+                    {
+                        type = infoEx;
+                    }
+
+                    while (field.Length < 35) field += " ";
+                    while (type.Length < 30) type += " ";
+                    while (valid.Length < 10) valid += " ";
+                    while (infoEx.Length < 15) infoEx += " ";
+
+                    fieldsBuilder.AppendLine($"---@field {field}{type}{valid}{infoEx}{comment}");
                 }
-
-                // 插入类头
-                content = content.Insert(commentEnd, $"---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour\n");
-                content = content.Insert(commentEnd, $"---@class {scriptName} : {superName}\n");
-
-                // 追加方法
-                int returnIdx = content.LastIndexOf($"return {scriptName}");
-                string funcAppend = "";
-
-                // Proc
-                if (m_UseProc.boolValue && !content.Contains($"function {scriptName}:Proc()"))
-                {
-                    funcAppend += "---心跳（自定义）\n---@type fun():void\n" +
-                                  $"function {scriptName}:Proc()\n    {scriptName}.super.Proc(self)\n\nend\n\n";
-                }
-
-                // UI 专用
-                if (m_PrefabType.enumValueIndex == (int)Runtime.PrefabType.UI &&
-                    !content.Contains($"function {scriptName}:OnAddedUIDestroyed"))
-                {
-                    funcAppend += "---子UI销毁\n---@type fun(luaClass:XLua.LuaTable):void\n" +
-                                  $"function {scriptName}:OnAddedUIDestroyed(luaClass)\n    {scriptName}.super.OnAddedUIDestroyed(self, luaClass)\n\nend\n\n";
-                }
-
-                // 插入
-                if (!string.IsNullOrEmpty(funcAppend))
-                    content = content.Insert(returnIdx, funcAppend);
-
-                // 更新类定义
-                int classDefIdx = content.LastIndexOf($"local {scriptName} = class('{scriptName}'");
-                int lineEnd = content.IndexOf('\n', classDefIdx);
-                if (lineEnd > classDefIdx)
-                    content = content.Remove(classDefIdx, lineEnd - classDefIdx);
-
-                content = content.Insert(classDefIdx, $"local {scriptName} = class('{scriptName}', import('{superName}'))");
-
-                return new StringBuilder(content, commentEnd, content.Length - commentEnd, content.Length * 2);
             }
-            catch
+            content = content.Insert(fieldsStart, fieldsBuilder.ToString());
+
+            // ========== 第4步：更新类定义行（父类名可能变化） ==========
+            int classLineStart = content.LastIndexOf(classFlag);
+            int classLineEnd = content.IndexOf('\n', classLineStart);
+            if (classLineEnd > classLineStart)
             {
-                return new StringBuilder();
+                content = content.Remove(classLineStart, classLineEnd - classLineStart);
             }
+            content = content.Insert(classLineStart, $"local {scriptName} = class('{scriptName}', import('{superName}'))");
+
+            // ========== 第5步：插入注销行（在注销end标记之前，锚点重新定位） ==========
+            int unRegInsIdx = content.LastIndexOf(unRegEnd);
+            StringBuilder unRegBuilder = new StringBuilder();
+            if (funcNames.Count > 0)
+            {
+                for (int i = 0; i < funcNames.Count; i++)
+                {
+                    unRegBuilder.AppendLine($"    OnRemoveListener(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
+                }
+            }
+            else
+            {
+                unRegBuilder.AppendLine("-- 无自动注销内容。");
+            }
+            content = content.Insert(unRegInsIdx, unRegBuilder.ToString());
+
+            // ========== 第6步：插入注册行（在注册end标记之前，锚点重新定位） ==========
+            int regInsIdx = content.LastIndexOf(regEnd);
+            StringBuilder regBuilder = new StringBuilder();
+            if (funcNames.Count > 0)
+            {
+                for (int i = 0; i < funcNames.Count; i++)
+                {
+                    regBuilder.AppendLine($"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
+                }
+            }
+            else
+            {
+                regBuilder.AppendLine("-- 无自动注册内容。");
+            }
+            content = content.Insert(regInsIdx, regBuilder.ToString());
+
+            // ========== 第7步：追加缺失的方法（只补不覆盖，保护手写内容） ==========
+            int returnIdx = content.LastIndexOf($"return {scriptName}");
+            if (returnIdx < 0)
+            {
+                throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 return 语句，已中止刷新以保护原文件");
+            }
+
+            string funcAppend = "";
+
+            // Proc
+            if (m_UseProc.boolValue && !content.Contains($"function {scriptName}:Proc()"))
+            {
+                funcAppend += "---心跳（自定义）\n---@type fun():void\n" +
+                              $"function {scriptName}:Proc()\n    {scriptName}.super.Proc(self)\n\nend\n\n";
+            }
+
+            // UI 专用
+            if (m_PrefabType.enumValueIndex == (int)Runtime.PrefabType.UI &&
+                !content.Contains($"function {scriptName}:OnAddedUIDestroyed"))
+            {
+                funcAppend += "---子UI销毁\n---@type fun(luaClass:XLua.LuaTable):void\n" +
+                              $"function {scriptName}:OnAddedUIDestroyed(luaClass)\n    {scriptName}.super.OnAddedUIDestroyed(self, luaClass)\n\nend\n\n";
+            }
+
+            // 缺失的事件回调函数骨架（新增按钮/事件刷新后即可直接编辑）
+            for (int i = 0; i < funcNames.Count; i++)
+            {
+                if (content.Contains($"function {scriptName}:{funcNames[i]}("))
+                {
+                    continue;
+                }
+
+                string[] paramArr = funcParams[i].Replace(" ", "").Split(',');
+                string paramDesc = string.Join(", ", Array.ConvertAll(paramArr, p => $"{p}:any"));
+                string paramList = string.Join(", ", paramArr);
+
+                funcAppend += $"---{injectComments[i]}\n";
+                funcAppend += $"---@type fun({paramDesc}):void\n";
+                funcAppend += $"function {scriptName}:{funcNames[i]}({paramList})\n";
+                if (funcNames[i].EndsWith("GettingItem"))
+                {
+                    funcAppend += $"    if itemIndex < 0 or itemIndex >= self.{injectNames[i]}.MaxItemNum then return nil end\n";
+                    funcAppend += $"    local item = self.{injectNames[i]}:NewListViewItem('Item')\n";
+                    funcAppend += $"    if not item.IsInitHandlerCalled then item.IsInitHandlerCalled = true end\n";
+                    funcAppend += "    return item\n";
+                }
+                else
+                {
+                    funcAppend += "\n";
+                }
+                funcAppend += "end\n\n";
+            }
+
+            if (!string.IsNullOrEmpty(funcAppend))
+            {
+                content = content.Insert(returnIdx, funcAppend);
+            }
+
+            // 返回"头部注释之后"的正文（外层 GeneratePatternNoneCommentLines 会统一重写头部）
+            return new StringBuilder(content.Substring(fieldsStart));
+        }
+
+        /// <summary>
+        /// 跳过字符串指定位置开始的换行符（兼容 \r\n 与 \n），返回首个非换行字符下标
+        /// </summary>
+        /// <param name="content">目标字符串</param>
+        /// <param name="start">起始下标</param>
+        /// <returns>首个非换行字符下标</returns>
+        private static int SkipLineBreaks(string content, int start)
+        {
+            int idx = start;
+            while (idx < content.Length && (content[idx] == '\r' || content[idx] == '\n'))
+            {
+                idx++;
+            }
+            return idx;
         }
         #endregion
     }

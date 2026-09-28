@@ -3,7 +3,7 @@
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIMainStateViewView.lua
--- author:    zb
+-- author:    云毅
 -- descrip:   关卡界面View
 --=====================================================================================================
 
@@ -12,17 +12,10 @@
 ---@field LevelTMPText                       TMPro.TextMeshProUGUI         √                        当前关卡信息
 ---@field CatButton                          UnityEngine.UI.Image          √                        猫猫头
 ---@field SettingButton                      UnityEngine.UI.Button         √         Clicked        设置
----@field PlayAroundButton                   UnityEngine.UI.Button         √         Clicked        玩一玩
 ---@field LevelButton                        UnityEngine.UI.Button         √         Clicked        关卡按钮
 ---@field LevelTxt                           TMPro.TextMeshProUGUI         √                        关卡提示
 ---@field DailyChallengeButton               UnityEngine.UI.Button         √         Clicked        每日挑战按钮
 ---@field TextLegacy                         TMPro.TextMeshProUGUI         √                        每日挑战TXT
----@field SkinButton                         UnityEngine.UI.Button         √         Clicked        皮肤按钮
----@field RankingButton                      UnityEngine.UI.Button         √         Clicked        排行按钮
----@field CheckInButton                      UnityEngine.UI.Button         √         Clicked        签到
----@field TurntableButton                    UnityEngine.UI.Button         √         Clicked        转盘
----@field CatBedButton                       UnityEngine.UI.Button         √         Clicked        猫窝
----@field InvitationButton                   UnityEngine.UI.Button         √         Clicked        通关奖励
 local UIMainStateViewView = class('UIMainStateViewView', import('ViewSuper'))
 
 ---绑定值Key名称
@@ -49,18 +42,10 @@ end
 ---@type fun():void
 function UIMainStateViewView:Awake()
     UIMainStateViewView.super.Awake(self)
--- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
-    AddUIListenerFunction(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
+-- 2=====================================================================================================    AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     AddUIListenerFunction(self.LevelButton, 'Clicked', handler(self, self.OnLevelButtonClicked))
     AddUIListenerFunction(self.DailyChallengeButton, 'Clicked', handler(self, self.OnDailyChallengeButtonClicked))
-    AddUIListenerFunction(self.SkinButton, 'Clicked', handler(self, self.OnSkinButtonClicked))
-    AddUIListenerFunction(self.RankingButton, 'Clicked', handler(self, self.OnRankingButtonClicked))
-    AddUIListenerFunction(self.CheckInButton, 'Clicked', handler(self, self.OnCheckInButtonClicked))
-    AddUIListenerFunction(self.TurntableButton, 'Clicked', handler(self, self.OnTurntableButtonClicked))
-    AddUIListenerFunction(self.CatBedButton, 'Clicked', handler(self, self.OnCatBedButtonClicked))
-    AddUIListenerFunction(self.InvitationButton, 'Clicked', handler(self, self.OnInvitationButtonClicked))
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+-- ====================================================================================================2
 
 end
 
@@ -69,35 +54,26 @@ end
 ---@param viewModel UIMainStateViewViewModel @ViewModel
 function UIMainStateViewView:OnInit(viewModel)
     UIMainStateViewView.super.OnInit(self, viewModel)
--- 4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    -- 无数据变化监听
-    self.LevelTMPText.text=viewModel.GetChapterLevel()
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4
+-- 4=====================================================================================================    -- 无数据变化监听
+-- ====================================================================================================4
+    LevelManager:GetCurrentLevelInfo()
+    self.LevelTxt.text=viewModel:GetChapterLevel()
 end
 
 ---开始
 ---@type fun():void
 function UIMainStateViewView:Start()
     UIMainStateViewView.super.Start(self)
-
 end
 
 ---销毁
 ---@type fun():void
 function UIMainStateViewView:OnDestroy()
     UIMainStateViewView.super.OnDestroy(self)
--- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
-    OnRemoveListener(self.PlayAroundButton, 'Clicked', handler(self, self.OnPlayAroundButtonClicked))
+-- 3=====================================================================================================    OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
     OnRemoveListener(self.LevelButton, 'Clicked', handler(self, self.OnLevelButtonClicked))
     OnRemoveListener(self.DailyChallengeButton, 'Clicked', handler(self, self.OnDailyChallengeButtonClicked))
-    OnRemoveListener(self.SkinButton, 'Clicked', handler(self, self.OnSkinButtonClicked))
-    OnRemoveListener(self.RankingButton, 'Clicked', handler(self, self.OnRankingButtonClicked))
-    OnRemoveListener(self.CheckInButton, 'Clicked', handler(self, self.OnCheckInButtonClicked))
-    OnRemoveListener(self.TurntableButton, 'Clicked', handler(self, self.OnTurntableButtonClicked))
-    OnRemoveListener(self.CatBedButton, 'Clicked', handler(self, self.OnCatBedButtonClicked))
-    OnRemoveListener(self.InvitationButton, 'Clicked', handler(self, self.OnInvitationButtonClicked))
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+-- ====================================================================================================3
 
 end
 
@@ -122,12 +98,13 @@ function UIMainStateViewView:OnAddedUIDestroyed(luaClass)
     UIMainStateViewView.super.OnAddedUIDestroyed(self, luaClass)
 end
 
--- 5>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 5=====================================================================================================
 
 ---设置-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnSettingButtonClicked(args)
+    OpenUISync(UIs.UISettingView)
 end
 
 ---玩一玩-交互回调
@@ -160,6 +137,7 @@ end
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnRankingButtonClicked(args)
+    OpenUISync(UIs.UIRankView)
 end
 
 ---签到-交互回调
@@ -186,11 +164,11 @@ end
 function UIMainStateViewView:OnInvitationButtonClicked(args)
 end
 
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<5
+-- ====================================================================================================5
 
--- 6>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 6=====================================================================================================
 
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<6
+-- ====================================================================================================6
 
 return UIMainStateViewView
 

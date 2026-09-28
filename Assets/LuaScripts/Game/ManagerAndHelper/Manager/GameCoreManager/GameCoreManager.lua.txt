@@ -119,8 +119,6 @@ function GameCoreManager:OnGameVictory()
     end
     self._IsSuccessFinishGame = true
     self._IsGameOver = true
-    -- 同步通关任务进度
-    self:SendQuestFinishProgress()
     -- 底层游戏结束标记
     GamePlayHelper:GameOver(true)
     -- 结算后置动画、弹窗逻辑
@@ -128,15 +126,6 @@ function GameCoreManager:OnGameVictory()
     self._GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
 
     PrintInfo("[GameCoreManager] 关卡胜利，开启结算流程")
-end
-
----=========================================================================
---- 同步关卡完成任务进度
----@brief 通关后上报关卡星级、完成进度、任务完成状态至服务器/本地存档
----=========================================================================
-function GameCoreManager:SendQuestFinishProgress()
-    -- 业务拓展：同步关卡完成进度、星级、任务完成标记
-    PrintInfo("[GameCoreManager] 同步关卡完成任务进度")
 end
 
 ---=========================================================================
@@ -186,6 +175,16 @@ function GameCoreManager:GetGameOverType()
 end
 
 --endregion
+
+
+function GameCoreManager:GetLevelData(chapterId)
+    local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
+    if levelId ~=nil then
+        local levelData = GamePlayHelper:LoadLevelData(chapterId, levelId) 
+        return levelData
+    end
+    return nil
+end
 
 --region 关卡信息
 
@@ -651,20 +650,18 @@ function GameCoreManager:SetOnGameplay(character)
                 characterList[character.ID].Character:OnDestroy()
             end
         end
-
         -- 已收集数量等于总数量则直接通关
         if self:GetCharacterChooseListCount() == self:GetCharacterListCount() then
-            self:OnGameVictory()
+            self:CheckGameResult(EGameOverType.Success)
         end
     else
         -- 点击空白无匹配角色，扣除生命值
         self:SubLifeNumber()
-        HonorEventHelper:Fire(EventCmd.OnClickCharacter)
-
+        HonorEventHelper:Fire(EventCmd.LifeTransformation)
         -- 生命值清零触发失败流程
         local remainLife = self:GetLifeNumber()
         if remainLife == 0 then
-            --self:FindExitSureTip(EGameOverType.Failure)
+            self:CheckGameResult(EGameOverType.Failure)
         end
     end
 end

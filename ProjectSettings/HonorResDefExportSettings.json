@@ -340,94 +340,10 @@
     },
     {
       "ResType": "Sprite",
-      "AliasName": "Sprite_20260424-121016",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/20260424-121016",
-      "AssetName": "20260424-121016",
-      "AssetGUID": "53ee7dca67c1ed84a9b03633cc62a7a9"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_btn1",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn1",
-      "AssetName": "btn1",
-      "AssetGUID": "33c8dd1c81e1e1348922dbf960892dcf"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_btn2",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn2",
-      "AssetName": "btn2",
-      "AssetGUID": "59a3f4914d40f7b4d891cd810d8d3b30"
-    },
-    {
-      "ResType": "Sprite",
       "AliasName": "Sprite_Tile",
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/Tile",
       "AssetName": "Tile",
       "AssetGUID": "dc6569c0e841b6949b1c4811c291a708"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_主界面",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/主界面",
-      "AssetName": "主界面",
-      "AssetGUID": "616939fd1e0d6174f9d8b61f6996592b"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_拼图1",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图1",
-      "AssetName": "拼图1",
-      "AssetGUID": "c3a657beab33a9746907f635c9d0bb68"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_拼图2",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图2",
-      "AssetName": "拼图2",
-      "AssetGUID": "4cdfc4716caedd444a9fa5978fca1c9e"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_拼图3",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图3",
-      "AssetName": "拼图3",
-      "AssetGUID": "7fda2dcad6dacac458098da049477a5c"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_拼图4",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图4",
-      "AssetName": "拼图4",
-      "AssetGUID": "ca970eda385526044a413816bec8a681"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_拼图底",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图底",
-      "AssetName": "拼图底",
-      "AssetGUID": "278abd07ce1083d42bf1473b8f68d3c7"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_排行",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/排行",
-      "AssetName": "排行",
-      "AssetGUID": "effd18e0cf427e347af92eb8cad11c45"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_猫窝",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/猫窝",
-      "AssetName": "猫窝",
-      "AssetGUID": "bc85985c05096de4c939c94d0535bae0"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_皮肤",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/皮肤",
-      "AssetName": "皮肤",
-      "AssetGUID": "073028024835a2541a55080a8ba1e658"
     },
     {
       "ResType": "GameObject",
@@ -437,11 +353,137 @@
       "AssetGUID": "db41971c9b8c82544af257fa2499eb28"
     },
     {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_FishItem",
+      "ABPath": "Assets/Res/Prefabs",
+      "AssetName": "FishItem",
+      "AssetGUID": "d695f77cbf07c3e4a8e14eb82fc52cac"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_SectionItem",
+      "ABPath": "Assets/Res/Prefabs",
+      "AssetName": "SectionItem",
+      "AssetGUID": "0d329158846a2054e8c41603a84b76c3"
+    },
+    {
       "ResType": "Sprite",
-      "AliasName": "Sprite_Level_bg_main2",
-      "ABPath": "",
-      "AssetName": "Level_bg_main2",
-      "AssetGUID": "3d23e689dd665524dab868340914ea10"
+      "AliasName": "Sprite_puzzle_1_1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_1",
+      "AssetName": "puzzle_1_1",
+      "AssetGUID": "7a52a67910bedc3498fa66c3ff77e776"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_2",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_2",
+      "AssetName": "puzzle_1_2",
+      "AssetGUID": "76dd34ff6bf1d304194e0ed73569d75a"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_10",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_10",
+      "AssetName": "puzzle_1_10",
+      "AssetGUID": "13d290a4e82041c46ab326e5544a2e25"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_11",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_11",
+      "AssetName": "puzzle_1_11",
+      "AssetGUID": "7b4a2b0f6f4194f43b6dce83bffb76ac"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_12",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_12",
+      "AssetName": "puzzle_1_12",
+      "AssetGUID": "6203fb06694902c438d6fdd3bbd144fd"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_13",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_13",
+      "AssetName": "puzzle_1_13",
+      "AssetGUID": "802b375a17c9f514fb72fffefd9e7f30"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_14",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_14",
+      "AssetName": "puzzle_1_14",
+      "AssetGUID": "92590e2992359c140ba8e10030d75ba1"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_15",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_15",
+      "AssetName": "puzzle_1_15",
+      "AssetGUID": "d7d01de2d11fed64b8b17ca4417ee081"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_16",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_16",
+      "AssetName": "puzzle_1_16",
+      "AssetGUID": "7bb4b4746c095a348a96f88ffd6942cc"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_3",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_3",
+      "AssetName": "puzzle_1_3",
+      "AssetGUID": "08ee0e0186f466b44854719ce50e4d90"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_4",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_4",
+      "AssetName": "puzzle_1_4",
+      "AssetGUID": "1ebdf22829e2971489298972a1f3b713"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_5",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_5",
+      "AssetName": "puzzle_1_5",
+      "AssetGUID": "72af380f1b5e2d14daa433986de4cdd4"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_6",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_6",
+      "AssetName": "puzzle_1_6",
+      "AssetGUID": "2d80c2ac91db0c24780fe7e8d1b68012"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_7",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_7",
+      "AssetName": "puzzle_1_7",
+      "AssetGUID": "a6712c10f9083bd469e1f9bc2b16ad7e"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_8",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_8",
+      "AssetName": "puzzle_1_8",
+      "AssetGUID": "dd7e1976dbedc7043a97b1719c306a2d"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_9",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_9",
+      "AssetName": "puzzle_1_9",
+      "AssetGUID": "811fea1bd0efe2a4b94137f6aa2edb2a"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_panel1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_panel1",
+      "AssetName": "puzzle_panel1",
+      "AssetGUID": "9e15cc773430d5d4da5f16b86fa3aa37"
     }
   ]
 }

@@ -69,9 +69,9 @@ function GameCoreManagerData:InitData(levelData)
     self._LifeNumber = 3
 
     -- 读取关卡基础标识与难度配置
-    self._LevelID = levelData.Id
-    self._LevelMode = levelData.LevelMode
-    self._LevelDifficulty = levelData.Difficulty
+    self._LevelID = levelData.LevelId
+    --self._LevelMode = levelData.LevelMode
+    --self._LevelDifficulty = levelData.Difficulty
 
     -- 初始化关卡限制条件容器
     self._LimitCheckData = {}
@@ -90,7 +90,6 @@ function GameCoreManagerData:InitData(levelData)
     -- 清空收集物列表，等待地图生成角色填充
     self._CharacterList = {}
     self._CharacterChooseList = {}
-
     -- 默认非章节最新解锁关卡，业务层按需修改赋值
     self._IsLatestChapterLevel = false
 end

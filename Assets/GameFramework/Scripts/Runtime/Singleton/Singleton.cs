@@ -25,7 +25,7 @@ namespace Honor.Runtime
     /// 从而省去 Instance 中的 as 类型转换，避免每次获取时的多余判断。
     /// </remarks>
     /// <typeparam name="T">子类类型，必须继承 Singleton&lt;T&gt; 且有无参构造</typeparam>
-    public abstract class Singleton<T> where T : class, Singleton<T>, new()
+    public abstract class Singleton<T> where T : Singleton<T>, new()
     {
         #region 私有常量与静态字段
 

@@ -82,14 +82,12 @@ end
 ---=========================================================================
 function GameLoadMapState:LoadMapOver(finishCallback)
     local chapterId = ChapterListManager:GetRuntimeChapterId()
-
+    local levelData = GameCoreManager:GetLevelData(chapterId)
     -- 新手首次游戏流程
     if GamePlayHelper:IsPlayFirstLevel() then
-        local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
         -- 补满体力
         ItemManager:FullLife()
         -- 加载关卡数据
-        local levelData = GamePlayHelper:LoadLevelData(chapterId, levelId)
         if GamePlayHelper:PlayLevel(levelData) then
             -- 切换至战斗游玩状态
             GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
@@ -99,9 +97,12 @@ function GameLoadMapState:LoadMapOver(finishCallback)
             PrintError("[GameLoadMapState] 默认进入第一关失败，改为进入主页面")
         end
     else
-        -- 正常流程：直接进入战斗游玩状态
-        GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
-        --GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+        if GameCoreManager:IsLatestChapter() then
+            -- 正常流程：直接进入战斗游玩状态
+            GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
+        else
+            GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+        end
     end
 end
 

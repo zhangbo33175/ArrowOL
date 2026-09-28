@@ -416,6 +416,45 @@ end
 
 --endregion
 
+--region 【移动到目标点】
+
+---@brief 将指定坐标点平滑移动到画面中心
+---@type fun(targetPos:table, smooth:number):void
+---@param targetPos table 目标坐标，支持 {"0.00","0.00","0.00"} 或 {x=..,y=..}
+---@param smooth number 平滑系数，越小移动越慢，默认0.05
+function GameMapMotion:MoveToCenter(targetPos, smooth)
+    if not targetPos or not self.ScreenCamera or not self.FollowPosition or not self.IsMapWork then
+        return
+    end
+
+    -- 解析目标坐标（兼容字符串数组与字段表）
+    local tx = targetPos.x or tonumber(targetPos[1])
+    local ty = targetPos.y or tonumber(targetPos[2])
+    if not tx or not ty then
+        return
+    end
+
+    -- 目标点边界限制（与MovingFollowPosition同口径）
+    local aspect = self.ScreenCamera.aspect
+    local ortho = self.ScreenCamera.orthographicSize
+    local hw = aspect * ortho
+    local hh = ortho
+    local minX = self.MapCenterX - self.MapHalfWidth + hw
+    local maxX = self.MapCenterX + self.MapHalfWidth - hw
+    local minY = self.MapCenterY - self.MapHalfHeigh + hh
+    local maxY = self.MapCenterY + self.MapHalfHeigh - hh
+
+    self.FollowPosition.x = math.clamp(tx, minX, maxX)
+    self.FollowPosition.y = math.clamp(ty, minY, maxY)
+
+    -- 平滑系数控制移动速度（越小越慢，OnUpdate每帧逼近）
+    self.SwipeSmoothStepNum = smooth or 0.05
+    -- 取消惯性残留，避免叠加
+    self.InertialSlidingFactor = 0
+end
+
+--endregion
+
 --region 【双指缩放 + 鼠标滚轮缩放】
 
 ---@brief 移动端双指缩放检测

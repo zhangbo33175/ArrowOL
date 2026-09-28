@@ -255,6 +255,7 @@ namespace Honor.Editor
                     string filePath = Runtime.GamePathUtils.AB.GetExcelFileFullPath();
                     ExportExcelToJsonFromABConfig(System.IO.Path.GetFileNameWithoutExtension(filePath));
                     AssetBundleNamePostprocessor.RefreshAllAssetBundleNames();
+                    LoadABConfigs();
                 }
             }
             GUILayout.EndHorizontal();

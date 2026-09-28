@@ -7,6 +7,7 @@
  * descrip:   游戏全局根管理器 - 唯一核心入口，统一管理所有核心系统组件
  ***************************************************************/
 
+using System;
 using System.Globalization;
 using System.Threading;
 using GameLib;
@@ -176,7 +177,7 @@ namespace Honor.Runtime
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
                 Thread.CurrentThread.CurrentUICulture = cultureInfo;
             }
-            catch (GameException e)
+            catch (Exception e)
             {
                 Log.Error(e);
             }

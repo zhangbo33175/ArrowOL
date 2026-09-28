@@ -10,8 +10,10 @@
 --=====================================================================================================
 
 --region EmmyLua 调试器初始化
---- EmmyLua 断点调试器初始化（仅编辑器环境生效）
---- 功能：根据配置文件自动选择调试模式，连接 Rider/IDE 进行 Lua 断点调试
+---=========================================================================
+--- @brief EmmyLua 断点调试器初始化
+--- @desc 仅编辑器环境生效，根据配置文件自动选择调试模式，连接 Rider/IDE 进行 Lua 断点调试
+---=========================================================================
 function __DEBUGGER__()
     if IsEditor == true then
         local debugType = Honor.GameDefinitions.DebugMode.None
@@ -28,8 +30,8 @@ function __DEBUGGER__()
                 dbg.tcpConnect('localhost', 9966)
                 print("<color=green>[EmmyLua] 调试器启动成功！</color>")
 
-                -- 模式2：Unity 等待 IDE 连接
             elseif debugType == Honor.GameDefinitions.DebugMode.UnityFirst then
+                -- 模式2：Unity 等待 IDE 连接
                 local dbg = require('emmy_core')
                 dbg.tcpListen('localhost', 9966)
                 dbg.waitIDE()
@@ -42,11 +44,13 @@ __DEBUGGER__()
 --endregion
 
 --region C# → Lua 类创建（生命周期绑定）
---- 从 C# 层创建 Lua 业务类（绑定生命周期）
---- 功能：C# 的 LuaBehaviour 调用此函数创建 Lua 类，并绑定 Awake/Start/Update/OnDestroy 等周期
----@param _env table C#传递的环境表，用于绑定生命周期函数
----@param _luaScriptName string Lua脚本名称（require用）
----@return table 创建好的Lua类实例
+---=========================================================================
+--- @brief 从 C# 层创建 Lua 业务类（绑定生命周期）
+--- @param _env table C#传递的环境表，用于绑定生命周期函数
+--- @param _luaScriptName string Lua脚本名称（require用）
+--- @return table 创建好的Lua类实例
+--- @desc C# 的 LuaBehaviour 调用此函数创建 Lua 类，并绑定 Awake/Start/Update/OnDestroy 等周期
+---=========================================================================
 function CreateLuaClassFromCS(_env, _luaScriptName)
     -- 创建Lua类实例
     local _createdClass     = require(_luaScriptName):Create({ env = _env })
@@ -80,11 +84,13 @@ function CreateLuaClassFromCS(_env, _luaScriptName)
     return _createdClass
 end
 
---- 从 C# 层创建流程(Procedure)Lua类
---- 功能：专门用于流程（场景/状态）的创建，绑定流程生命周期
----@param _env table 环境表
----@param _luaScriptName string 流程类名
----@return table 流程实例
+---=========================================================================
+--- @brief 从 C# 层创建流程(Procedure)Lua类
+--- @param _env table 环境表
+--- @param _luaScriptName string 流程类名
+--- @return table 流程实例
+--- @desc 专门用于流程（场景/状态）的创建，绑定流程生命周期
+---=========================================================================
 function CreatePocedureLuaClassFromCS(_env, _luaScriptName)
     local _createdClass = require(_luaScriptName):Create({ env = _env })
 
@@ -98,11 +104,13 @@ end
 --endregion
 
 --region UI 自动事件绑定（框架核心）
---- 为UI注入对象注册事件监听（按钮、Toggle、输入框、列表等自动绑定）
---- 功能：框架核心函数，C#可视化配置的事件自动绑定到Lua函数
----@param _injectionObj userdata C#注入的UI对象（Button/Toggle/Input等）
----@param _injectionCmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_开头的事件
----@param _handler handler Lua回调函数（handler包装）
+---=========================================================================
+--- @brief 为UI注入对象注册事件监听（按钮、Toggle、输入框、列表等自动绑定）
+--- @param _injectionObj userdata C#注入的UI对象（Button/Toggle/Input等）
+--- @param _injectionCmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_开头的事件
+--- @param _handler handler Lua回调函数（handler包装）
+--- @desc 框架核心函数，C#可视化配置的事件自动绑定到Lua函数
+---=========================================================================
 function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
     -- 全局注册容器初始化
     if addUIListenerInfos == nil then
@@ -207,10 +215,13 @@ function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
     end
 end
 
---- 移除UI注入对象的监听
----@param _injectionObj userdata UI对象
----@param _injectionCmd string 事件类型
----@param _handler handler 要移除的回调
+---=========================================================================
+--- @brief 移除UI注入对象的监听
+--- @param _injectionObj userdata UI对象
+--- @param _injectionCmd string 事件类型
+--- @param _handler handler 要移除的回调
+--- @desc 从全局注册容器中移除指定回调，并清理空表
+---=========================================================================
 function OnRemoveListener(_injectionObj, _injectionCmd, _handler)
     if addUIListenerInfos ~= nil and addUIListenerInfos[_injectionObj] ~= nil and addUIListenerInfos[_injectionObj]._handlerList ~= nil and addUIListenerInfos[_injectionObj]._interactTargetTimes ~= nil then
         for __, __v in pairs(addUIListenerInfos[_injectionObj]._handlerList) do

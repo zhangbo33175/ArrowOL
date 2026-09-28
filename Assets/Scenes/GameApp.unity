@@ -123,78 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &12240858
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 12240859}
-  - component: {fileID: 12240860}
-  - component: {fileID: 12240861}
-  m_Layer: 0
-  m_Name: MapManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &12240859
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 12240858}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 242576483}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &12240860
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 12240858}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba6bba0d0a86b5c4a8e051c5eaa4db5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  size: 10
-  cellWidth: 1
-  cellHeight: 0.5
---- !u!114 &12240861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 12240858}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d06993d7d08d7704181feaecc5e1997c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridWidth: 10
-  gridHeight: 10
-  m_GridSize: 1
-  m_GridWidth: 10
-  m_GridHeight: 10
-  m_CellWidth: 1
-  m_CellHeight: 0.5
-  m_NormalColor: {r: 1, g: 1, b: 1, a: 0.1}
-  m_WalkableColor: {r: 1, g: 1, b: 1, a: 0.1}
-  m_BlockedColor: {r: 1, g: 1, b: 1, a: 0.1}
-  m_ShowGrid: 0
-  m_Grid: {fileID: 0}
 --- !u!1 &53260060
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,7 +253,6 @@ Transform:
   - {fileID: 1325806118}
   - {fileID: 400789284}
   - {fileID: 1027725692}
-  - {fileID: 12240859}
   m_Father: {fileID: 1051954316}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &242576484
@@ -1658,7 +1585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Language: 0
-  m_AutoFontAdapt: 1
+  m_AutoFontAdapt: 0
 --- !u!1 &2138721970
 GameObject:
   m_ObjectHideFlags: 0

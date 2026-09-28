@@ -41,10 +41,10 @@ end
 ---@type fun():void
 function UILevelFailedView:Awake()
     UILevelFailedView.super.Awake(self)
--- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 2=====================================================================================================
     AddUIListenerFunction(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
     AddUIListenerFunction(self.RecoverStaminaButton, 'Clicked', handler(self, self.OnRecoverStaminaButtonClicked))
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+-- ====================================================================================================2
 
 end
 
@@ -59,10 +59,10 @@ end
 ---@type fun():void
 function UILevelFailedView:OnDestroy()
     UILevelFailedView.super.OnDestroy(self)
--- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 3=====================================================================================================
     OnRemoveListener(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
     OnRemoveListener(self.RecoverStaminaButton, 'Clicked', handler(self, self.OnRecoverStaminaButtonClicked))
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+-- ====================================================================================================3
 
 end
 

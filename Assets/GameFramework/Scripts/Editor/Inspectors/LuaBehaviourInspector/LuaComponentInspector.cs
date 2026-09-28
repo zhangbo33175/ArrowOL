@@ -18,6 +18,20 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
+    /// <summary>
+    /// LuaComponent 自定义检视面板
+    /// 提供：XLua脚本生成、性能分析、快捷创建Lua模板
+    /// <remarks>
+    /// 修复说明（与 LuaBehaviourInspector 修复版同一批次）：
+    /// 1. GenerateCodeLines 中 return 行 / 类定义 / 头注释标记缺失时，原实现直接 Insert(-1)/Remove(-1)
+    ///    越界抛异常，被 RefreshExistLuaFile 的 catch 吞掉 → "点了刷新没反应"的静默失败。
+    ///    现在锚点缺失改为抛出带明确信息的 InvalidOperationException，刷新中止且原文件保持不变。
+    /// 2. 刷新写入改为"先写临时文件再 File.Replace 原子替换"，写入中断不会损坏原文件。
+    /// 3. AutoInsertSuperCall 在函数位于文件末尾且无换行时 lineEnd=-1，原实现会把 super 调用
+    ///    插到文件头；改为插到文件末尾。
+    /// 4. ExportProfilerCSV 增加空结果防御，避免 DoString 返回空数组时越界。
+    /// </remarks>
+    /// </summary>
     [CustomEditor(typeof(LuaComponent))]
     internal sealed class LuaComponentInspector : HonorComponentInspector
     {
@@ -148,6 +162,14 @@ namespace Honor.Editor
             try
             {
                 var result = luaComp.Env.DoString("return __lua_profiler.report()");
+
+                // 修复：报告为空时明确提示，避免 result[0] 越界
+                if (result == null || result.Length == 0)
+                {
+                    Log.Error("导出 CSV 失败：__lua_profiler.report() 未返回数据。");
+                    return;
+                }
+
                 System.IO.File.WriteAllText(fileName, result[0].ToString(), new UTF8Encoding(false));
                 Log.Debug($"导出 CSV 数据到 '{fileName}' 成功。");
             }
@@ -155,8 +177,10 @@ namespace Honor.Editor
             {
                 Log.Error($"导出 CSV 失败：{ex}");
             }
-
-            GUIUtility.ExitGUI();
+            finally
+            {
+                GUIUtility.ExitGUI();
+            }
         }
         #endregion
 
@@ -206,7 +230,6 @@ namespace Honor.Editor
             return !string.IsNullOrEmpty(name) && (name.StartsWith(".lua") || name.EndsWith(".lua"));
         }
         #endregion
-
         #region Lua文件生成/刷新逻辑
         /// <summary>
         /// 生成或刷新Lua文件
@@ -248,18 +271,35 @@ namespace Honor.Editor
             if (string.IsNullOrEmpty(savePath))
                 return;
 
+            // 修复：先生成内容，再写入；写入失败时清理残留并明确报错
+            string content = string.Empty;
             try
             {
                 string comment = GenerateCommentLines().ToString();
                 string code = GenerateEmptyCodeLines().ToString();
-                System.IO.File.WriteAllText(savePath, comment + code, new UTF8Encoding(false));
+                content = comment + code;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"生成失败：{ex.Message}\n未写入任何文件，请检查输入后重试。");
+                return;
+            }
 
+            string tempPath = savePath + ".tmp";
+            try
+            {
+                System.IO.File.WriteAllText(tempPath, content, new UTF8Encoding(false));
+                System.IO.File.Replace(tempPath, savePath, null);
                 Log.Debug($"生成 {savePath} 成功！");
                 AssetDatabase.Refresh();
             }
             catch (Exception ex)
             {
-                Log.Error($"生成失败：{ex}");
+                Log.Error($"生成失败：{ex.Message}");
+                if (System.IO.File.Exists(tempPath))
+                {
+                    try { System.IO.File.Delete(tempPath); } catch { }
+                }
             }
         }
 
@@ -268,18 +308,37 @@ namespace Honor.Editor
         /// </summary>
         private void RefreshExistLuaFile(string path)
         {
+            // 修复：生成与写入分离。生成阶段（读取+锚点定位+拼接）异常时，
+            // 明确提示"原文件未做任何修改"，不再静默失败，也不会写入残缺内容。
+            string content = string.Empty;
             try
             {
                 string comment = GenerateCommentLines().ToString();
                 string code = GenerateCodeLines(path).ToString();
+                content = comment + code;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"刷新失败：{ex.Message}\n原文件未做任何修改，请检查后重试。");
+                return;
+            }
 
-                System.IO.File.WriteAllText(path, comment + code, new UTF8Encoding(false));
+            // 修复：先写临时文件，再原子替换原文件，写入中断不会损坏原文件
+            string tempPath = path + ".tmp";
+            try
+            {
+                System.IO.File.WriteAllText(tempPath, content, new UTF8Encoding(false));
+                System.IO.File.Replace(tempPath, path, null);
                 Log.Debug($"刷新 {path} 成功！");
                 AssetDatabase.Refresh();
             }
             catch (Exception ex)
             {
-                Log.Error($"刷新失败：{ex}");
+                Log.Error($"刷新失败：{ex.Message}");
+                if (System.IO.File.Exists(tempPath))
+                {
+                    try { System.IO.File.Delete(tempPath); } catch { }
+                }
             }
         }
 
@@ -412,10 +471,25 @@ namespace Honor.Editor
             string commentFlag = "--=====================================================================================================";
 
             string content = System.IO.File.ReadAllText(fullPath);
-            int commentEnd = content.LastIndexOf(commentFlag) + commentFlag.Length + 4;
+
+            // 修复：头注释标记缺失时抛明确异常，避免 commentEnd 越界
+            int commentFlagIndex = content.LastIndexOf(commentFlag);
+            if (commentFlagIndex < 0)
+            {
+                throw new InvalidOperationException($"[LuaComponentInspector] 刷新失败：{fullPath} 未找到文件头注释标记，已中止刷新以保护原文件");
+            }
+            int commentEnd = commentFlagIndex + commentFlag.Length + 4;
+            if (commentEnd > content.Length)
+            {
+                commentEnd = content.Length;
+            }
 
             // 自动补全 Proc
             int returnIndex = content.LastIndexOf($"return {scriptName}");
+            if (returnIndex < 0)
+            {
+                throw new InvalidOperationException($"[LuaComponentInspector] 刷新失败：{fullPath} 未找到 return {scriptName} 语句，已中止刷新以保护原文件");
+            }
             string procFunc = string.Empty;
 
             if (m_UseProc && !content.Contains($"function {scriptName}:Proc()"))
@@ -437,19 +511,23 @@ namespace Honor.Editor
                     content = content.Remove(classCommentIdx, lineEnd - classCommentIdx + 1);
             }
 
-            // 替换类定义
-            int classDefIdx = content.LastIndexOf($"local {scriptName} = class('{scriptName}'");
-            if (classDefIdx != -1)
+            // 替换类定义（修复：类定义缺失时抛明确异常，避免 Insert(-1) 越界）
+            int classDefIdx = content.LastIndexOf($"local {scriptName} = class");
+            if (classDefIdx < 0)
+            {
+                throw new InvalidOperationException($"[LuaComponentInspector] 刷新失败：{fullPath} 未找到 {scriptName} 类定义，已中止刷新以保护原文件");
+            }
             {
                 int lineEnd = content.IndexOf('\n', classDefIdx);
                 if (lineEnd > classDefIdx)
                     content = content.Remove(classDefIdx, lineEnd - classDefIdx);
             }
 
-            // 重新插入类定义
+            // 重新插入类定义（修复：描述为空时注释不再带尾随 @）
+            string descSuffix = string.IsNullOrEmpty(m_LuaDescript) ? string.Empty : $" @{m_LuaDescript}";
             if (!string.IsNullOrEmpty(superName))
             {
-                content = content.Insert(classDefIdx, $"---@class {scriptName} : {superName} @{m_LuaDescript}\nlocal {scriptName} = class('{scriptName}', import('{superName}'))");
+                content = content.Insert(classDefIdx, $"---@class {scriptName} : {superName}{descSuffix}\nlocal {scriptName} = class('{scriptName}', import('{superName}'))");
                 AutoInsertSuperCall(ref content, scriptName, "ctor");
                 AutoInsertSuperCall(ref content, scriptName, "Init");
                 AutoInsertSuperCall(ref content, scriptName, "Proc");
@@ -457,7 +535,7 @@ namespace Honor.Editor
             }
             else
             {
-                content = content.Insert(classDefIdx, $"---@class {scriptName} @{m_LuaDescript}\nlocal {scriptName} = class('{scriptName}')");
+                content = content.Insert(classDefIdx, $"---@class {scriptName}{descSuffix}\nlocal {scriptName} = class('{scriptName}')");
                 AutoRemoveSuperCall(ref content, scriptName, "ctor");
                 AutoRemoveSuperCall(ref content, scriptName, "Init");
                 AutoRemoveSuperCall(ref content, scriptName, "Proc");
@@ -482,8 +560,10 @@ namespace Honor.Editor
 
             if (!content.Contains(superLine))
             {
+                // 修复：函数位于文件末尾且无换行时 lineEnd=-1，原实现会 Insert(0) 插到文件头；改为插到文件末尾
                 int lineEnd = content.IndexOf('\n', idx);
-                content = content.Insert(lineEnd + 1, $"    {superLine}\n");
+                int insertPos = lineEnd < 0 ? content.Length : lineEnd + 1;
+                content = content.Insert(insertPos, $"    {superLine}\n");
             }
         }
 

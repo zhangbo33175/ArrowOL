@@ -1,6 +1,6 @@
---=====================================================================================================
+--===================================================================================================== 
 -- (c) copyright 2026 - 2030, Honor.Runtime
---=====================================================================================================
+--===================================================================================================== 
 -- filename:  GameMapBase.lua
 -- author:     云毅
 -- created:    2026
@@ -9,7 +9,7 @@
 -- @feat       完整生命周期管理、EasyTouch触摸交互、地图相机边界控制、胜利失败表现、地图角色资源自动加载、全局静态引用安全释放
 -- @规范       Unity XLua 商业项目编码标准 | 全函数XML注释 | 多层判空防护 | 无内存泄漏 | 解耦静态全局变量
 -- @dependency LuaBehaviourSuper, GameMapMotion, UIBase, MapManager, GameCoreManager, EasyTouch, GameEffectManager, SoundManager
---=====================================================================================================
+--===================================================================================================== 
 
 ---@class GameMapBase : LuaBehaviourSuper 地图基类，所有场景地图父类
 local GameMapBase = class('GameMapBase', import('LuaBehaviourSuper'))
@@ -35,11 +35,15 @@ function GameMapBase:ctor(args)
 
     ---@type boolean 是否正在播放滑动音效，防止重复播放
     self._IsPlaySwipeSound = false
+    ---@type boolean 游戏是否已结束，防止 OnGameOver 被重复触发
+    self._IsGameOver = false
 
     ---@type UnityEngine.Transform 地图根物体Transform
     self.GameMapRoot = self.cs.transform:Find("RawImage/Root")
 
+    -- 供子类引用的地图UI根节点（基类不使用，保留以兼容子类扩展）
     self.RawImage = self.cs.transform:Find("RawImage")
+
     -- 覆盖全局静态地图实例
     MapManager.CurGameMapBase = self
     -- 读取当前挂载的地图配置组件
@@ -116,9 +120,11 @@ function GameMapBase:OnDestroy()
     self:ClearSwipeData()
     -- 销毁相机缓存，切断对象引用
     self.ScreenCamera = nil
-    -- 清空全局静态残留，防止内存泄漏
-    MapManager.CurGameMapBase = nil
-    MapManager.CurMapData = nil
+    -- 仅当自身仍持有全局静态引用时才清空，避免误清新地图的引用
+    if MapManager.CurGameMapBase == self then
+        MapManager.CurGameMapBase = nil
+        MapManager.CurMapData = nil
+    end
 end
 
 --endregion
@@ -127,13 +133,11 @@ end
 
 ---@brief 游戏数据初始化，重置所有关卡进度、角色、机器状态
 ---@type fun():void
-function GameMapBase:OnInitGame()
-end
+function GameMapBase:OnInitGame() end
 
 ---@brief 玩家进入关卡准备阶段
 ---@type fun():void
-function GameMapBase:OnEnterGame()
-end
+function GameMapBase:OnEnterGame() end
 
 ---@brief 正式开始游戏，注册触摸交互事件
 ---@type fun():void
@@ -143,22 +147,26 @@ end
 
 ---@brief 游戏暂停，弹窗/剧情/切UI时触发
 ---@type fun():void
-function GameMapBase:OnPauseGame()
-end
+function GameMapBase:OnPauseGame() end
 
 ---@brief 暂停解除，恢复游戏交互
 ---@type fun():void
-function GameMapBase:OnResumeGame()
-end
+function GameMapBase:OnResumeGame() end
 
----@brief 游戏结束统一入口，注销触摸并播放胜负表现
+---@brief 游戏结束统一入口，注销触摸并播放胜负表现（幂等，重复调用只生效一次）
 ---@type fun():void
 function GameMapBase:OnGameOver()
+    -- 幂等保护：避免重复注销与重复播放胜负表现
+    if self._IsGameOver then
+        return
+    end
+    self._IsGameOver = true
+
     -- 注销所有触摸监听
     self:RegOrUnRegEvent('-')
 
     -- 根据全局游戏结束状态播放胜利/失败动画音效
-    if GameCoreManager._IsSuccessFinishGame == true then
+    if GameCoreManager._IsSuccessFinishGame then
         self:GameOverSuccessAni()
     else
         self:GameOverFailedAni()
@@ -167,26 +175,28 @@ end
 
 ---@brief 玩家主动退出关卡
 ---@type fun():void
-function GameMapBase:OnExitGame()
-end
+function GameMapBase:OnExitGame() end
 
----@brief 重玩当前关卡，重新注册触摸交互
+---@brief 重玩当前关卡，重置结束标记并重新注册触摸交互
 ---@type fun():void
 function GameMapBase:OnRePlayGame()
+    -- 重置结束标记，允许新一轮胜负表现
+    self._IsGameOver = false
     self:RegOrUnRegEvent('+')
 end
 
 ---@brief 地图卸载前置清理（切换关卡前执行）
 ---@type fun():void
-function GameMapBase:UnloadMapBeforeClear()
-end
+function GameMapBase:UnloadMapBeforeClear() end
 
----@brief 地图卸载后置兜底清理，强制清空全局静态引用
+---@brief 地图卸载后置兜底清理，仅清空自身持有的全局静态引用
 ---@type fun():void
 function GameMapBase:UnloadMapAfterClear()
     GameMapMotion:OnMapEnd()
-    MapManager.CurGameMapBase = nil
-    MapManager.CurMapData = nil
+    if MapManager.CurGameMapBase == self then
+        MapManager.CurGameMapBase = nil
+        MapManager.CurMapData = nil
+    end
 end
 
 --endregion
@@ -235,19 +245,29 @@ function GameMapBase:CheckOrderMachines(gesture, isSwipe)
     if self.ScreenCamera == nil then
         return
     end
-
     -- 单指触摸才处理交互
-    if gesture.touchCount == 1 then
-        -- 缓存屏幕触摸坐标
-        self.SwipePos.x = gesture.position.x
-        self.SwipePos.y = gesture.position.y
-        self.SwipePos.z = 0
-
-        -- 屏幕坐标转世界坐标
-        local worldPosition = self.ScreenCamera:ScreenToWorldPoint(self.SwipePos)
-        worldPosition.z = -1
+    if gesture.touchCount ~= 1 then
+        return
     end
+
+    -- 缓存屏幕触摸坐标
+    self.SwipePos.x = gesture.position.x
+    self.SwipePos.y = gesture.position.y
+    self.SwipePos.z = 0
+
+    -- 屏幕坐标转世界坐标
+    local worldPosition = self.ScreenCamera:ScreenToWorldPoint(self.SwipePos)
+    worldPosition.z = -1
+
+    -- 基类只负责坐标转换，具体左右区域机器判定由子类覆写 OnOrderMachine 实现
+    self:OnOrderMachine(worldPosition, isSwipe)
 end
+
+---@brief 虚拟方法：子类覆写，根据世界坐标实现左右区域机器交互判定
+---@type fun(worldPosition:UnityEngine.Vector3, isSwipe:boolean):void
+---@param worldPosition UnityEngine.Vector3 触摸点世界坐标
+---@param isSwipe boolean true=滑动 false=单点点击
+function GameMapBase:OnOrderMachine(worldPosition, isSwipe) end
 
 ---@brief 触摸事件注册/反注册统一入口
 ---@type fun(action:string):void
@@ -270,8 +290,8 @@ function GameMapBase:RegOrUnRegEvent(action)
         CS.HedgehogTeam.EasyTouch.EasyTouch.On_UIElementTouchUp('+', self.SwipeEnd)
         CS.HedgehogTeam.EasyTouch.EasyTouch.On_OverUIElement('+', self.SimpleTap)
     elseif action == '-' then
-        -- 存在回调才执行注销，防止空调用报错
-        if self.Swipe and self.SimpleTap then
+        -- 三个回调均存在才执行注销，防止空调用报错
+        if self.Swipe and self.SwipeEnd and self.SimpleTap then
             CS.HedgehogTeam.EasyTouch.EasyTouch.On_Swipe('-', self.Swipe)
             CS.HedgehogTeam.EasyTouch.EasyTouch.On_UIElementTouchUp('-', self.SwipeEnd)
             CS.HedgehogTeam.EasyTouch.EasyTouch.On_OverUIElement('-', self.SimpleTap)
@@ -300,12 +320,27 @@ end
 ---@brief 根据地图配置批量生成所有角色实体，初始化图标、坐标、全局列表缓存
 ---@type fun():void
 function GameMapBase:LoadCharacterByMapData()
+    -- 地图根节点空安全保护
+    if self.GameMapRoot == nil then
+        print("[GameMapBase] 警告：地图根节点 RawImage/Root 缺失，跳过角色生成")
+        return
+    end
+
     -- 获取关卡根配置数据
     local _mapData = GameManager.GetMapRootData()
     if not _mapData or not _mapData.MapData then
         print("[GameMapBase] 地图角色配置为空，跳过角色生成")
         return
     end
+    GameCoreManager:SetCurLevelData(_mapData)
+    -- 先清空旧角色列表，防止重载/重玩时残留脏数据
+    local CharacterList = GameCoreManager:GetCharacterList()
+    if CharacterList ~= nil then
+        for k in pairs(CharacterList) do
+            CharacterList[k] = nil
+        end
+    end
+
     -- 遍历所有角色配置条目
     for _, v in ipairs(_mapData.MapData) do
         if not v or not v.Id then
@@ -339,19 +374,15 @@ function GameMapBase:LoadCharacterByMapData()
             GamePlayHelper:RefreshImageSprite(CharacterBase, uiImage, catData.Icon)
         end
 
-        -- 存入全局角色管理列表
-        local CharacterList = GameCoreManager:GetCharacterList()
-        CharacterList[v.Id] = {}
-        CharacterList[v.Id].ID = v.Id
-        CharacterList[v.Id].Character = CharacterBase
+        -- 存入全局角色管理列表（列表可能为空表，需判空兜底）
+        if CharacterList ~= nil then
+            CharacterList[v.Id] = {}
+            CharacterList[v.Id].ID = v.Id
+            CharacterList[v.Id].Character = CharacterBase
+        end
 
         ::continue::
     end
-end
-
----@brief 加载地图背景（预留扩展）
----@type fun():void
-function GameMapBase:LoadMapBrankground()
 end
 
 --endregion

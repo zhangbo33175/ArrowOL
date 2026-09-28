@@ -41,7 +41,7 @@ namespace Honor.Runtime
             ResetComponentInfos();
 
             // 绑定数据
-            _mAorTreeData = data;
+            m_AorTreeData = data;
             // 设置显示文本
             m_Text.text = data.Name;
             // 默认关闭状态
@@ -50,8 +50,8 @@ namespace Honor.Runtime
             m_ContainerButton.onClick.AddListener(OpenOrClose);
 
             // 根据层级设置缩进（向右偏移 = 层级 × 单元格高度）
-            float cellHeight = _mAorTree.Container.GetComponent<GridLayoutGroup>().cellSize.y;
-            m_ContainerButton.transform.localPosition += new Vector3(cellHeight * _mAorTreeData.Layer, 0, 0);
+            float cellHeight = m_AorTree.Container.GetComponent<GridLayoutGroup>().cellSize.y;
+            m_ContainerButton.transform.localPosition += new Vector3(cellHeight * m_AorTreeData.Layer, 0, 0);
 
             // 判断是否为叶子节点（无子节点）
             if (data.ChildNodes.Count == 0)
@@ -59,12 +59,12 @@ namespace Honor.Runtime
                 // 隐藏展开箭头
                 m_ToggleTransform.gameObject.SetActive(false);
                 // 设置叶子节点图标
-                m_Icon.sprite = _mAorTree.FinalIcon;
+                m_Icon.sprite = m_AorTree.FinalIcon;
             }
             else
             {
                 // 根据开关状态设置展开/关闭图标
-                m_Icon.sprite = m_Toggle.isOn ? _mAorTree.OpenIcon : _mAorTree.CloseIcon;
+                m_Icon.sprite = m_Toggle.isOn ? m_AorTree.OpenIcon : m_AorTree.CloseIcon;
             }
         }
         #endregion
@@ -93,18 +93,18 @@ namespace Honor.Runtime
             }
 
             // 有子节点时，更新箭头旋转角度和图标
-            if (_mAorTreeData.ChildNodes.Count > 0)
+            if (m_AorTreeData.ChildNodes.Count > 0)
             {
                 // 箭头旋转：打开0度，关闭90度
                 m_ToggleTransform.localEulerAngles = m_Toggle.isOn ? new Vector3(0, 0, 0) : new Vector3(0, 0, 90);
                 // 切换打开/关闭图标
-                m_Icon.sprite = m_Toggle.isOn ? _mAorTree.OpenIcon : _mAorTree.CloseIcon;
+                m_Icon.sprite = m_Toggle.isOn ? m_AorTree.OpenIcon : m_AorTree.CloseIcon;
             }
 
             // 触发节点选中回调（向外传递IndexDesc）
-            if (_mAorTree.onChosen != null)
+            if (m_AorTree.onChosen != null)
             {
-                _mAorTree.onChosen(_mAorTreeData.IndexDesc);
+                m_AorTree.onChosen(m_AorTreeData.IndexDesc);
             }
         }
         #endregion

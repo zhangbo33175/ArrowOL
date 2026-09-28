@@ -317,11 +317,37 @@ function ChapterListManager:GetLatestChapterId()
     end
     return chapterId
 end
+--endregion
+ 
+--region 关卡等级
 
+---=========================================================================
+--- @brief 根据章节等级获取当前关卡配置ID
+--- @return string 关卡ID
+--- @desc 读取运行时章节等级，从章节配置表中取出对应关卡ID
+--- @note 依赖存档章节等级与章节配置ChapterInfoID字段
+---=========================================================================
+function ChapterListManager:GetLevelId()
+    local chapterId = self:GetRuntimeChapterId()
+    local chapterInfos = SaveRootData.GameData.chapterInfos
+    local levelId = "1"
+    if chapterInfos ~= nil then
+        -- 空值防护：章节无存档数据时回退默认等级1
+        local level = chapterInfos[chapterId] and chapterInfos[chapterId].lv or 1
+        -- 空值防护：章节配置缺失时保持默认关卡ID
+        local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+        if chapterData and chapterData.ChapterInfoID then
+            local configLevelId = chapterData.ChapterInfoID[level]
+            if configLevelId then
+                levelId = configLevelId
+            end
+        end
+    end
+    return levelId
+end
 --endregion
 
 --region 章节等级比较工具
-
 ---=========================================================================
 --- @brief 比较目标章节等级是否大于最新章节等级
 --- @param targetChapterLv table 目标章节等级数据 {Chapter:number, Level:number}
@@ -334,7 +360,6 @@ function ChapterListManager:LargeThanLatestChapterLv(targetChapterLv, latestChap
             or (targetChapterLv.Chapter == latestChapterLv.Chapter and targetChapterLv.Level <= latestChapterLv.Level)
     return not lessOrEqual
 end
-
 --endregion
 
 return ChapterListManager

@@ -7,6 +7,7 @@
  * created:   2026
  * descrip:   LuaBehaviour MVVM模式编辑器拓展 - 可视化配置、代码生成
  ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +20,20 @@ namespace Honor.Editor
     /// <summary>
     /// MVVM模式LuaBehaviour编辑器拓展
     /// 提供可视化配置、绑定数据管理、Lua代码自动生成与刷新功能
+    /// <remarks>
+    /// 修复说明（与 None 模式修复版同一批次）：
+    /// 1. DisposeBindValueLineOperation 末尾 serializedObject.Update() 会丢弃未 Apply 的数组改动，
+    ///    导致行内"+"插入/删除/上移/下移不生效，已改为 ApplyModifiedProperties()。
+    /// 2. GeneratePatternMVVMCodeLines 的 while (content[...] != '\n') 无边界检查，
+    ///    且 LastIndexOf 找不到锚点时 Insert(-1)/Remove(-1) 越界抛异常；
+    ///    新增 CheckRefreshAnchors 预检 + FindLineEnd 安全行尾查找，锚点缺失即抛出明确异常，
+    ///    由外层中止刷新以保护原文件（不写空/残缺内容覆盖）。
+    /// 3. 绑定数据名称为空时：CollectBindingInfosOnInjections 会因字典重复键抛异常、
+    ///    生成 "self.BVKey." 非法代码、BVKey 定义出现 "{ = \"\", }" 脏数据；
+    ///    空名称绑定数据一律跳过采集与生成。
+    /// 4. ViewModel 分支 Proc 追加使用 "\r\n" 硬编码搜索锚点，文件为 \n 换行时 LastIndexOf 返回 -1
+    ///    导致 Insert(-1) 越界；改为宽松锚点 "---销毁" 定位。
+    /// </remarks>
     /// </summary>
     internal sealed partial class LuaBehaviourInspector : HonorComponentInspector
     {
@@ -118,7 +133,7 @@ namespace Honor.Editor
         {
             m_LuaScriptCommonNameMVVM = serializedObject.FindProperty("m_LuaScriptCommonNameMVVM");
             m_LuaScriptNamesMVVM = serializedObject.FindProperty("m_LuaScriptNamesMVVM");
-            
+
             // 初始化Lua脚本名称列表
             if (m_LuaScriptNamesMVVM.arraySize == 0)
             {
@@ -130,7 +145,7 @@ namespace Honor.Editor
             }
 
             m_LuaSuperScriptNamesMVVM = serializedObject.FindProperty("m_LuaSuperScriptNamesMVVM");
-            
+
             // 初始化父类脚本名称列表
             if (m_LuaSuperScriptNamesMVVM.arraySize > (int)MVVMPatternType.TotalNum)
             {
@@ -219,10 +234,11 @@ namespace Honor.Editor
                 m_InnerBindValueDownwardTargetPosIndex = -1;
             }
 
-            serializedObject.Update();
+            // 修复：原为 serializedObject.Update()，会把上面未 Apply 的数组改动全部丢弃，
+            // 导致行内"+"插入/删除/移动不生效；必须 ApplyModifiedProperties 才能持久化。
+            serializedObject.ApplyModifiedProperties();
         }
         #endregion
-
         #region MVVM编辑器GUI绘制
         /// <summary>
         /// MVVM设计模式Lua名称GUI绘制
@@ -395,7 +411,7 @@ namespace Honor.Editor
                                     m_InterBindValueOnInjections[index].stringValue = string.Empty;
                                 }
                                 m_InterBindValueTypeNames[index].enumValueIndex = newBindValueTypeNameSelectedIndex;
-                                
+
                                 // 绑定数据名称
                                 if (string.IsNullOrEmpty(m_InterBindValueNames[index].stringValue)) GUI.color = Color.red;
                                 m_InterBindValueNames[index].stringValue = EditorGUILayout.TextField(m_InterBindValueNames[index].stringValue, new GUILayoutOption[] { GUILayout.Width(150) });
@@ -439,7 +455,6 @@ namespace Honor.Editor
             GUILayout.EndVertical();
         }
         #endregion
-
         #region Lua代码生成
         /// <summary>
         /// 生成MVVM设计模式下Lua注释行信息
@@ -514,15 +529,21 @@ namespace Honor.Editor
                         string typeName = string.Empty;
                         string isValid = string.Empty;
                         string infoEx = string.Empty;
-                        
-                        if(m_InterInjectionIsArrays[index].boolValue)
+
+                        // 修复：名称未填写的注入项不生成字段，避免空行脏数据
+                        if (string.IsNullOrEmpty(fieldName))
+                        {
+                            continue;
+                        }
+
+                        if (m_InterInjectionIsArrays[index].boolValue)
                         {
                             typeName = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[index].enumValueIndex]}[]";
                             isValid = "√";
                             infoEx = string.Empty;
                             for (int elementIndex = 0; elementIndex < m_InterInjectionElementsObjs[index].arraySize; elementIndex++)
                             {
-                                if(m_InterInjectionElementsObjs[index].GetArrayElementAtIndex(elementIndex).objectReferenceValue == null)
+                                if (m_InterInjectionElementsObjs[index].GetArrayElementAtIndex(elementIndex).objectReferenceValue == null)
                                 {
                                     isValid = "×";
                                     infoEx = string.Empty;
@@ -569,6 +590,11 @@ namespace Honor.Editor
             string bvkeyContent = "{";
             foreach (var bindValueName in m_InterBindValueNames)
             {
+                // 修复：空名称跳过，避免 "{ = \"\", }" 非法脏数据
+                if (string.IsNullOrEmpty(bindValueName.stringValue))
+                {
+                    continue;
+                }
                 bvkeyContent = AorTxt.Format("{0}{1} = \"{2}\", ", bvkeyContent, bindValueName.stringValue, bindValueName.stringValue);
             }
             bvkeyContent += "}";
@@ -581,22 +607,28 @@ namespace Honor.Editor
             stringBuilder.AppendLine(AorTxt.Format("---@param args table @自定义参数"));
             stringBuilder.AppendLine(AorTxt.Format("function {0}:ctor(args)", luaName));
             stringBuilder.AppendLine(AorTxt.Format("    {0}.super.ctor(self, args)", luaName));
-            
+
             // ViewModel绑定数据初始化
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
             {
-                stringBuilder.AppendLine("-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-                if(m_InterBindValueNames.Count > 0)
+                stringBuilder.AppendLine("-- 2=====================================================================================================");
+                if (m_InterBindValueNames.Count > 0)
                 {
                     for (int index = 0; index < m_InterBindValueNames.Count; index++)
                     {
+                        // 修复：空名称绑定数据不生成，避免 "self.BVKey." 非法代码
+                        if (string.IsNullOrEmpty(m_InterBindValueNames[index].stringValue))
+                        {
+                            continue;
+                        }
+
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
                             stringBuilder.AppendLine(AorTxt.Format("    -- 添加绑定数据成员：{0}，数据类型：{1}", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
                         }
 
                         if (string.IsNullOrEmpty(m_InterBindValueVariants[index].stringValue))
-                        {                           
+                        {
                             if ((LuaBindValue.BindValueType)m_InterBindValueTypeNames[index].enumValueIndex == LuaBindValue.BindValueType.Trigger)
                             {
                                 stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)", m_InterBindValueNames[index].stringValue));
@@ -627,11 +659,11 @@ namespace Honor.Editor
                 {
                     stringBuilder.AppendLine(AorTxt.Format("    -- 无添加绑定数据成员"));
                 }
-                stringBuilder.AppendLine("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2");
+                stringBuilder.AppendLine("-- ====================================================================================================2");
             }
             stringBuilder.AppendLine(AorTxt.Format("end"));
             stringBuilder.AppendLine(AorTxt.Format(""));
-            
+
             // Create函数
             stringBuilder.AppendLine(AorTxt.Format("---创建函数"));
             stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):{0}", luaName));
@@ -651,7 +683,7 @@ namespace Honor.Editor
                 stringBuilder.AppendLine(AorTxt.Format("---@type fun():void"));
                 stringBuilder.AppendLine(AorTxt.Format("function {0}:Awake()", luaName));
                 stringBuilder.AppendLine(AorTxt.Format("    {0}.super.Awake(self)", luaName));
-                stringBuilder.AppendLine("-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                stringBuilder.AppendLine("-- 2=====================================================================================================");
                 if (luaInjectFunctionNames.Count > 0)
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
@@ -663,7 +695,7 @@ namespace Honor.Editor
                 {
                     stringBuilder.AppendLine(AorTxt.Format("-- 无自动注册内容。"));
                 }
-                stringBuilder.AppendLine("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2");
+                stringBuilder.AppendLine("-- ====================================================================================================2");
                 stringBuilder.AppendLine(AorTxt.Format(""))
                              .AppendLine(AorTxt.Format("end"))
                              .AppendLine(AorTxt.Format(""));
@@ -674,11 +706,17 @@ namespace Honor.Editor
                              .AppendLine(AorTxt.Format("---@param viewModel {0} @ViewModel", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue))
                              .AppendLine(AorTxt.Format("function {0}:OnInit(viewModel)", luaName))
                              .AppendLine(AorTxt.Format("    {0}.super.OnInit(self, viewModel)", luaName))
-                             .AppendLine("-- 4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                             .AppendLine("-- 4=====================================================================================================");
                 if (m_InterBindValueNames.Count > 0)
                 {
                     for (int index = 0; index < m_InterBindValueNames.Count; index++)
                     {
+                        // 修复：空名称跳过，避免 luaBindValueFunctionNames 字典键不存在导致异常
+                        if (string.IsNullOrEmpty(m_InterBindValueNames[index].stringValue))
+                        {
+                            continue;
+                        }
+
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
                             stringBuilder.AppendLine(AorTxt.Format("    -- 添加数据变化监听：{0}，数据类型：{1}", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
@@ -690,10 +728,9 @@ namespace Honor.Editor
                 {
                     stringBuilder.AppendLine(AorTxt.Format("    -- 无数据变化监听"));
                 }
-                stringBuilder.AppendLine("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4")
+                stringBuilder.AppendLine("-- ====================================================================================================4")
                              .AppendLine(AorTxt.Format("end"))
                              .AppendLine(AorTxt.Format(""));
-
                 stringBuilder.AppendLine(AorTxt.Format("---开始"))
                              .AppendLine(AorTxt.Format("---@type fun():void"))
                              .AppendLine(AorTxt.Format("function {0}:Start()", luaName))
@@ -704,18 +741,18 @@ namespace Honor.Editor
                 if (m_UseProc.boolValue)
                 {
                     stringBuilder.AppendLine(AorTxt.Format("---心跳（自定义）"))
-                                    .AppendLine(AorTxt.Format("---@type fun():void"))
-                                    .AppendLine(AorTxt.Format("function {0}:Proc()", luaName))
-                                    .AppendLine(AorTxt.Format("    {0}.super.Proc(self)", luaName))
-                                    .AppendLine(AorTxt.Format(""))
-                                    .AppendLine(AorTxt.Format("end"))
-                                    .AppendLine(AorTxt.Format(""));
+                                 .AppendLine(AorTxt.Format("---@type fun():void"))
+                                 .AppendLine(AorTxt.Format("function {0}:Proc()", luaName))
+                                 .AppendLine(AorTxt.Format("    {0}.super.Proc(self)", luaName))
+                                 .AppendLine(AorTxt.Format(""))
+                                 .AppendLine(AorTxt.Format("end"))
+                                 .AppendLine(AorTxt.Format(""));
                 }
                 stringBuilder.AppendLine(AorTxt.Format("---销毁"))
                              .AppendLine(AorTxt.Format("---@type fun():void"))
                              .AppendLine(AorTxt.Format("function {0}:OnDestroy()", luaName))
                              .AppendLine(AorTxt.Format("    {0}.super.OnDestroy(self)", luaName));
-                stringBuilder.AppendLine(AorTxt.Format("-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"));
+                stringBuilder.AppendLine(AorTxt.Format("-- 3====================================================================================================="));
                 if (luaInjectFunctionNames.Count > 0)
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
@@ -727,7 +764,7 @@ namespace Honor.Editor
                 {
                     stringBuilder.AppendLine(AorTxt.Format("-- 无自动注销内容。"));
                 }
-                stringBuilder.AppendLine(AorTxt.Format("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3"));
+                stringBuilder.AppendLine(AorTxt.Format("-- ====================================================================================================3"));
 
                 stringBuilder.AppendLine(AorTxt.Format(""));
                 stringBuilder.AppendLine(AorTxt.Format("end"));
@@ -846,7 +883,7 @@ namespace Honor.Editor
                 }
 
                 // UI交互监听
-                stringBuilder.AppendLine(AorTxt.Format("-- 5>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"));
+                stringBuilder.AppendLine(AorTxt.Format("-- 5====================================================================================================="));
                 stringBuilder.AppendLine(AorTxt.Format(""));
                 for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                 {
@@ -876,7 +913,7 @@ namespace Honor.Editor
                                  .AppendLine(AorTxt.Format("---@type fun({0}):void", funcDesc));
                     if (!string.IsNullOrEmpty(luaInjectFunctionParams[index]))
                     {
-                        foreach(var param in paramsArray)
+                        foreach (var param in paramsArray)
                         {
                             stringBuilder.AppendLine(AorTxt.Format("---@param {0} any @UI交互内容", param));
                         }
@@ -910,7 +947,7 @@ namespace Honor.Editor
                         }
                     }
 
-                    if(luaInjectFunctionNames[index].EndsWith("GettingItem"))
+                    if (luaInjectFunctionNames[index].EndsWith("GettingItem"))
                     {
                         stringBuilder.AppendLine(AorTxt.Format($"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end"));
                         stringBuilder.AppendLine(AorTxt.Format($"    local item = self.{luaInjectNames[index]}:NewListViewItem('Item')"));
@@ -921,11 +958,11 @@ namespace Honor.Editor
                     stringBuilder.AppendLine(AorTxt.Format("end"));
                     stringBuilder.AppendLine(AorTxt.Format(""));
                 }
-                stringBuilder.AppendLine(AorTxt.Format("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<5"));
+                stringBuilder.AppendLine(AorTxt.Format("-- ====================================================================================================5"));
                 stringBuilder.AppendLine(AorTxt.Format(""));
 
                 // 绑定数据变化监听
-                stringBuilder.AppendLine(AorTxt.Format("-- 6>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"));
+                stringBuilder.AppendLine(AorTxt.Format("-- 6====================================================================================================="));
                 stringBuilder.AppendLine(AorTxt.Format(""));
                 foreach (var luaBindValueFunctionName in luaBindValueFunctionNames)
                 {
@@ -1065,10 +1102,10 @@ namespace Honor.Editor
                     stringBuilder.AppendLine(AorTxt.Format("end"));
                     stringBuilder.AppendLine(AorTxt.Format(""));
                 }
-                stringBuilder.AppendLine(AorTxt.Format("-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<6"));
+                stringBuilder.AppendLine(AorTxt.Format("-- ====================================================================================================6"));
                 stringBuilder.AppendLine(AorTxt.Format(""));
             }
-            else if((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
+            else if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
             {
                 stringBuilder.AppendLine(AorTxt.Format("---唤醒"))
                              .AppendLine(AorTxt.Format("---@type fun():void"))
@@ -1128,14 +1165,22 @@ namespace Honor.Editor
             return stringBuilder;
         }
         #endregion
-
         #region Lua代码刷新
         /// <summary>
         /// 刷新MVVM设计模式下已有Lua代码行
         /// 增量更新注入、绑定、函数代码，不覆盖用户自定义逻辑
+        /// <remarks>
+        /// 修复说明：
+        /// 1. 新增锚点预检 CheckRefreshAnchors：任一区域标记缺失（如手工破坏了文件）立即抛异常，
+        ///    由外层中止刷新，原文件保持不变，不再出现"越界异常被吞 → 静默失败/写残缺内容"。
+        /// 2. while (content[...] != '\n') 无边界检查已替换为 FindLineEnd（兼容 \r\n 与 \n）。
+        /// 3. 空名称绑定数据跳过插入与 Key 定义，避免 "self.BVKey." 非法代码与字典重复键异常。
+        /// 4. ViewModel 分支 Proc 锚点由 "\r\n" 硬编码改为 "---销毁"，不再受换行风格影响。
+        /// </remarks>
         /// </summary>
         /// <param name="fullPath">全路径</param>
-        /// <returns></returns>
+        /// <param name="typeEnumIndex">MVVM类型索引</param>
+        /// <returns>更新后的Lua代码构建器（不含头部注释，由外层统一重写头部）</returns>
         private StringBuilder GeneratePatternMVVMCodeLines(string fullPath, int typeEnumIndex)
         {
             string luaScriptName = m_LuaScriptNamesMVVM.GetArrayElementAtIndex(typeEnumIndex).stringValue;
@@ -1162,6 +1207,22 @@ namespace Honor.Editor
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.View)
             {
                 string content = System.IO.File.ReadAllText(fullPath);
+
+                // ===== 修复：预检区域标记，缺失任一锚点即中止刷新以保护原文件 =====
+                string commentStr = "--=====================================================================================================";
+                string end1Str = AorTxt.Format("local {0} = class", luaName);
+                string start2RightStr = "-- 2=====================================================================================================";
+                string end2Str = "-- ====================================================================================================2";
+                string start3RightStr = "-- 3=====================================================================================================";
+                string end3Str = "-- ====================================================================================================3";
+                string start4RightStr = "-- 4=====================================================================================================";
+                string end4Str = "-- ====================================================================================================4";
+                string start5RightStr = "-- 5=====================================================================================================";
+                string end5Str = "-- ====================================================================================================5";
+                string start6RightStr = "-- 6=====================================================================================================";
+                string end6Str = "-- ====================================================================================================6";
+                CheckRefreshAnchors(content, fullPath, new string[] { commentStr, end1Str, start2RightStr, end2Str, start3RightStr, end3Str, start4RightStr, end4Str, start5RightStr, end5Str, start6RightStr, end6Str });
+
                 int endCommentStrIndex = 0, start1RightStrIndex = 0, end1LeftStrIndex = 0, end1RightStrIndex = 0;
                 int start2RightStrIndex = 0, end2LeftStrIndex = 0, start3RightStrIndex = 0, end3LeftStrIndex = 0;
                 int start4RightStrIndex = 0, end4LeftStrIndex = 0, start5LeftStrIndex = 0, start5RightStrIndex = 0, end5LeftStrIndex = 0;
@@ -1207,6 +1268,11 @@ namespace Honor.Editor
                 {
                     for (int index = 0; index < m_InterBindValueNames.Count; index++)
                     {
+                        // 修复：空名称绑定数据不生成监听代码，避免字典键不存在
+                        if (string.IsNullOrEmpty(m_InterBindValueNames[index].stringValue))
+                        {
+                            continue;
+                        }
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
                             content = content.Insert(end4LeftStrIndex, AorTxt.Format("    -- 添加数据变化监听：{0}，数据类型：{1}\n", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
@@ -1251,6 +1317,12 @@ namespace Honor.Editor
                     // 从后往前插入，逆向插入
                     for (int index = m_Injections.arraySize - 1; index >= 0; index--)
                     {
+                        // 修复：名称未填写的注入项不生成字段，避免空行脏数据
+                        if (string.IsNullOrEmpty(m_InterInjectionNames[index].stringValue))
+                        {
+                            continue;
+                        }
+
                         string comment = !string.IsNullOrEmpty(m_InterInjectionComments[index].stringValue) ? m_InterInjectionComments[index].stringValue : string.Empty;
                         string fieldName = m_InterInjectionNames[index].stringValue;
                         string typeName = string.Empty;
@@ -1325,7 +1397,6 @@ namespace Honor.Editor
                 RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
 
                 functionDef = string.Empty;
-
                 // UI交互监听，5号区域（已存在的func不做处理，仅针对不存在的func进行插入生成）
                 for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                 {
@@ -1346,12 +1417,12 @@ namespace Honor.Editor
                             tmp += AorTxt.Format("---@param {0} any @UI交互内容\n", param);
                         }
 
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}{4}\n", 
-                                                functionDef, 
-                                                AorTxt.Format("---{0}", luaInjectComments[index]), 
-                                                AorTxt.Format("---@type fun({0}):void", funcDesc),
-                                                tmp,
-                                                checkContent);
+                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}{4}\n",
+                                                    functionDef,
+                                                    AorTxt.Format("---{0}", luaInjectComments[index]),
+                                                    AorTxt.Format("---@type fun({0}):void", funcDesc),
+                                                    tmp,
+                                                    checkContent);
 
                         foreach (var injectionName in luaBindValueOnInjectionNames)
                         {
@@ -1406,17 +1477,17 @@ namespace Honor.Editor
                 // 绑定数据变化监听，6号区域（已存在的func不做处理，仅针对不存在的func进行插入生成）
                 foreach (var luaBindValueFunctionName in luaBindValueFunctionNames)
                 {
-                    string bindValueName = luaBindValueFunctionName.Key;                    
-                    if(luaBindValueTypeNames[bindValueName] == "trigger")
+                    string bindValueName = luaBindValueFunctionName.Key;
+                    if (luaBindValueTypeNames[bindValueName] == "trigger")
                     {
                         string checkContent = AorTxt.Format("function {0}:{1}()", luaName, luaBindValueFunctionName.Value);
-                        if(!content.Contains(checkContent))
+                        if (!content.Contains(checkContent))
                         {
                             functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\nend\n\n",
-                                            functionDef,
-                                            AorTxt.Format("---{0}", luaBindValueComments[bindValueName]),
-                                            AorTxt.Format("---@type fun():void"),
-                                            checkContent);
+                                                        functionDef,
+                                                        AorTxt.Format("---{0}", luaBindValueComments[bindValueName]),
+                                                        AorTxt.Format("---@type fun():void"),
+                                                        checkContent);
                         }
                     }
                     else
@@ -1552,7 +1623,7 @@ namespace Honor.Editor
                                                         checkContent,
                                                         innerContent);
                         }
-                    }   
+                    }
                 }
 
                 content = content.Insert(end6LeftStrIndex, functionDef);
@@ -1561,7 +1632,6 @@ namespace Honor.Editor
                 RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
 
                 functionDef = string.Empty;
-
                 // Collider2D/3D碰撞器生命周期函数
                 if (m_UseCollider2DLifeCycles.boolValue)
                 {
@@ -1638,49 +1708,65 @@ namespace Honor.Editor
                     }
                 }
 
+                // 修复：return 锚点缺失时抛异常保护原文件，不再 Insert(-1) 越界
                 int returnRowIndex = content.LastIndexOf(AorTxt.Format("return {0}", luaName));
+                if (returnRowIndex < 0)
+                {
+                    throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 return {luaName} 语句，已中止刷新以保护原文件");
+                }
                 content = content.Insert(returnRowIndex, functionDef);
 
                 // 刷新标记的位置
                 RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
 
-                // 更新绑定值Key名称定义
-                int bvKeyDefIndex = content.LastIndexOf(AorTxt.Format("{0}.BVKey = ", luaName));
-                int defCharCount = 0;
-                while (content[bvKeyDefIndex + defCharCount] != '\n')
+                // 更新绑定值Key名称定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
+                string bvKeyAnchor = AorTxt.Format("{0}.BVKey = ", luaName);
+                int bvKeyDefIndex = content.LastIndexOf(bvKeyAnchor);
+                if (bvKeyDefIndex < 0)
                 {
-                    defCharCount++;
+                    throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 {luaName}.BVKey 定义，已中止刷新以保护原文件");
                 }
-                content = content.Remove(bvKeyDefIndex, defCharCount);
-                string bvkeyContent = "{";
+                int bvKeyLineEnd = FindLineEnd(content, bvKeyDefIndex);
+                content = content.Remove(bvKeyDefIndex, bvKeyLineEnd - bvKeyDefIndex);
+                StringBuilder bvkeyBuilder = new StringBuilder();
+                bvkeyBuilder.Append("{");
                 foreach (var bindValueName in m_InterBindValueNames)
                 {
-                    bvkeyContent = AorTxt.Format("{0}{1} = \"{2}\", ", bvkeyContent, bindValueName.stringValue, bindValueName.stringValue);
+                    // 修复：空名称跳过，避免 "{ = \"\", }" 非法脏数据
+                    if (string.IsNullOrEmpty(bindValueName.stringValue))
+                    {
+                        continue;
+                    }
+                    bvkeyBuilder.Append(AorTxt.Format("{0} = \"{1}\", ", bindValueName.stringValue, bindValueName.stringValue));
                 }
-                bvkeyContent += "}";
-                content = content.Insert(bvKeyDefIndex, AorTxt.Format("{0}.BVKey = {1}", luaName, bvkeyContent));
+                bvkeyBuilder.Append("}");
+                content = content.Insert(bvKeyDefIndex, AorTxt.Format("{0}.BVKey = {1}\n", luaName, bvkeyBuilder.ToString()));
 
-                // 更新类的头部定义
-                int classNameDefIndex = content.LastIndexOf(AorTxt.Format("local {0} = class('{1}', import", luaName, luaName));
-                defCharCount = 0;
-                while (content[classNameDefIndex + defCharCount] != '\n')
+                // 更新类的头部定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
+                string classAnchor = AorTxt.Format("local {0} = class('{1}', import", luaName, luaName);
+                int classNameDefIndex = content.LastIndexOf(classAnchor);
+                if (classNameDefIndex < 0)
                 {
-                    defCharCount++;
+                    throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 {luaName} 类定义，已中止刷新以保护原文件");
                 }
-                content = content.Remove(classNameDefIndex, defCharCount);
-                content = content.Insert(classNameDefIndex, AorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName, luaSuperScriptName));
+                int classNameLineEnd = FindLineEnd(content, classNameDefIndex);
+                content = content.Remove(classNameDefIndex, classNameLineEnd - classNameDefIndex);
+                content = content.Insert(classNameDefIndex, AorTxt.Format("local {0} = class('{1}', import('{2}'))\n", luaName, luaName, luaSuperScriptName));
 
                 StringBuilder stringBuilderCodeLines = new StringBuilder(content, endCommentStrIndex, content.Length - endCommentStrIndex, content.Length * 2);
                 return stringBuilderCodeLines;
             }
-            else if((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
+            else if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
             {
                 string commentStr = "--=====================================================================================================";
                 string end1Str = AorTxt.Format("local {0} = class", luaName);
-                string start2RightStr = "-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-                string end2Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2";
-                
+                string start2RightStr = "-- 2=====================================================================================================";
+                string end2Str = "-- ====================================================================================================2";
+
                 string content = System.IO.File.ReadAllText(fullPath);
+
+                // ===== 修复：预检区域标记，缺失任一锚点即中止刷新以保护原文件 =====
+                CheckRefreshAnchors(content, fullPath, new string[] { commentStr, end1Str, start2RightStr, end2Str });
 
                 int endCommentStrIndex = content.LastIndexOf(commentStr) + commentStr.Length + 4;
                 int start1RightStrIndex = endCommentStrIndex;
@@ -1708,12 +1794,17 @@ namespace Honor.Editor
                 {
                     for (int index = 0; index < m_InterBindValueNames.Count; index++)
                     {
+                        // 修复：空名称绑定数据不生成，避免 "self.BVKey." 非法代码
+                        if (string.IsNullOrEmpty(m_InterBindValueNames[index].stringValue))
+                        {
+                            continue;
+                        }
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
                             content = content.Insert(end2LeftStrIndex, AorTxt.Format("    -- 添加绑定数据成员：{0}，数据类型：{1}\n", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
                             end2LeftStrIndex = content.LastIndexOf(end2Str);
                         }
-                        if(string.IsNullOrEmpty(m_InterBindValueVariants[index].stringValue))
+                        if (string.IsNullOrEmpty(m_InterBindValueVariants[index].stringValue))
                         {
                             if ((LuaBindValue.BindValueType)m_InterBindValueTypeNames[index].enumValueIndex == LuaBindValue.BindValueType.Trigger)
                             {
@@ -1750,38 +1841,50 @@ namespace Honor.Editor
                 // 再插入1号区域的注入提示信息（先2后1，1的标记位置不变）
                 content = content.Insert(start1RightStrIndex, AorTxt.Format("---@class {0} : {1}\n", luaName, luaSuperScriptName));
 
-                // 更新绑定值Key名称定义
-                int bvKeyDefIndex = content.LastIndexOf(AorTxt.Format("{0}.BVKey = ", luaName));
-                int defCharCount = 0;
-                while (content[bvKeyDefIndex + defCharCount] != '\n')
+                // 更新绑定值Key名称定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
+                string bvKeyAnchor = AorTxt.Format("{0}.BVKey = ", luaName);
+                int bvKeyDefIndex = content.LastIndexOf(bvKeyAnchor);
+                if (bvKeyDefIndex < 0)
                 {
-                    defCharCount++;
+                    throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 {luaName}.BVKey 定义，已中止刷新以保护原文件");
                 }
-                content = content.Remove(bvKeyDefIndex, defCharCount);
-                string bvkeyContent = "{";
+                int bvKeyLineEnd = FindLineEnd(content, bvKeyDefIndex);
+                content = content.Remove(bvKeyDefIndex, bvKeyLineEnd - bvKeyDefIndex);
+                StringBuilder bvkeyBuilder = new StringBuilder();
+                bvkeyBuilder.Append("{");
                 foreach (var bindValueName in m_InterBindValueNames)
                 {
-                    bvkeyContent = AorTxt.Format("{0}{1} = \"{2}\", ", bvkeyContent, bindValueName.stringValue, bindValueName.stringValue);
+                    // 修复：空名称跳过，避免 "{ = \"\", }" 非法脏数据
+                    if (string.IsNullOrEmpty(bindValueName.stringValue))
+                    {
+                        continue;
+                    }
+                    bvkeyBuilder.Append(AorTxt.Format("{0} = \"{1}\", ", bindValueName.stringValue, bindValueName.stringValue));
                 }
-                bvkeyContent += "}";
-                content = content.Insert(bvKeyDefIndex, AorTxt.Format("{0}.BVKey = {1}", luaName, bvkeyContent));
+                bvkeyBuilder.Append("}");
+                content = content.Insert(bvKeyDefIndex, AorTxt.Format("{0}.BVKey = {1}\n", luaName, bvkeyBuilder.ToString()));
 
-                // 更新类的头部定义
-                int classNameDefIndex = content.LastIndexOf(AorTxt.Format("local {0} = class('{1}', import", luaName, luaName));
-                defCharCount = 0;
-                while (content[classNameDefIndex + defCharCount] != '\n')
+                // 更新类的头部定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
+                string classAnchor = AorTxt.Format("local {0} = class('{1}', import", luaName, luaName);
+                int classNameDefIndex = content.LastIndexOf(classAnchor);
+                if (classNameDefIndex < 0)
                 {
-                    defCharCount++;
+                    throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 {luaName} 类定义，已中止刷新以保护原文件");
                 }
-                content = content.Remove(classNameDefIndex, defCharCount);
-                content = content.Insert(classNameDefIndex, AorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName, luaSuperScriptName));
+                int classNameLineEnd = FindLineEnd(content, classNameDefIndex);
+                content = content.Remove(classNameDefIndex, classNameLineEnd - classNameDefIndex);
+                content = content.Insert(classNameDefIndex, AorTxt.Format("local {0} = class('{1}', import('{2}'))\n", luaName, luaName, luaSuperScriptName));
 
-                // 追加Proc定义
+                // 追加Proc定义（修复：锚点由 "\r\n" 硬编码改为 "---销毁"，兼容 \n 换行风格）
                 if (m_UseProc.boolValue)
                 {
                     if (!content.Contains(AorTxt.Format("function {0}:Proc()", luaName)))
                     {
-                        int onDestroyDefIndex = content.LastIndexOf(AorTxt.Format("---销毁\r\n---@type fun():void\r\nfunction {0}:OnDestroy()\r\n", luaName));
+                        int onDestroyDefIndex = content.LastIndexOf(AorTxt.Format("---销毁"));
+                        if (onDestroyDefIndex < 0)
+                        {
+                            throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 OnDestroy 注释锚点，已中止刷新以保护原文件");
+                        }
                         string procDef = AorTxt.Format("{0}\n{1}\n{2}\n{3}\n\nend\n\n", AorTxt.Format("---心跳（自定义）"), AorTxt.Format("---@type fun():void"), AorTxt.Format("function {0}:Proc()", luaName), AorTxt.Format("    {0}.super.Proc(self)", luaName));
                         content = content.Insert(onDestroyDefIndex, procDef);
                     }
@@ -1790,9 +1893,10 @@ namespace Honor.Editor
                 StringBuilder stringBuilderCodeLines = new StringBuilder(content, endCommentStrIndex, content.Length - endCommentStrIndex, content.Length * 2);
                 return stringBuilderCodeLines;
             }
-            return null;
-        }
 
+            // 修复：非法类型索引不再静默返回 null（避免外层 ToString() 空引用），改为明确异常
+            throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：不支持的 MVVM 类型索引 {typeEnumIndex}，已中止刷新以保护原文件");
+        }
         /// <summary>
         /// 刷新代码标记索引
         /// </summary>
@@ -1813,24 +1917,24 @@ namespace Honor.Editor
         /// <param name="end5LeftStrIndex"></param>
         /// <param name="start6RightStrIndex"></param>
         /// <param name="end6LeftStrIndex"></param>
-        void RefreshIndexes(string luaName, string content, 
-            out int endCommentStrIndex, out int start1RightStrIndex, out int end1LeftStrIndex, out int end1RightStrIndex, 
-            out int start2RightStrIndex, out int end2LeftStrIndex, out int start3RightStrIndex, out int end3LeftStrIndex, 
-            out int start4RightStrIndex, out int end4LeftStrIndex, out int start5LeftStrIndex, out int start5RightStrIndex, out int end5LeftStrIndex, 
+        void RefreshIndexes(string luaName, string content,
+            out int endCommentStrIndex, out int start1RightStrIndex, out int end1LeftStrIndex, out int end1RightStrIndex,
+            out int start2RightStrIndex, out int end2LeftStrIndex, out int start3RightStrIndex, out int end3LeftStrIndex,
+            out int start4RightStrIndex, out int end4LeftStrIndex, out int start5LeftStrIndex, out int start5RightStrIndex, out int end5LeftStrIndex,
             out int start6RightStrIndex, out int end6LeftStrIndex)
         {
             string commentStr = "--=====================================================================================================";
             string end1Str = AorTxt.Format("local {0} = class", luaName);
-            string start2RightStr = "-- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-            string end2Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2";
-            string start3RightStr = "-- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-            string end3Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3";
-            string start4RightStr = "-- 4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-            string end4Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4";
-            string start5RightStr = "-- 5>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-            string end5Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<5";
-            string start6RightStr = "-- 6>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-            string end6Str = "-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<6";
+            string start2RightStr = "-- 2=====================================================================================================";
+            string end2Str = "-- ====================================================================================================2";
+            string start3RightStr = "-- 3=====================================================================================================";
+            string end3Str = "-- ====================================================================================================3";
+            string start4RightStr = "-- 4=====================================================================================================";
+            string end4Str = "-- ====================================================================================================4";
+            string start5RightStr = "-- 5=====================================================================================================";
+            string end5Str = "-- ====================================================================================================5";
+            string start6RightStr = "-- 6=====================================================================================================";
+            string end6Str = "-- ====================================================================================================6";
 
             endCommentStrIndex = content.LastIndexOf(commentStr) + commentStr.Length + 4;
             start1RightStrIndex = endCommentStrIndex;
@@ -1848,6 +1952,42 @@ namespace Honor.Editor
             start6RightStrIndex = content.LastIndexOf(start6RightStr) + start6RightStr.Length + 1;
             end6LeftStrIndex = content.LastIndexOf(end6Str);
         }
+
+        /// <summary>
+        /// 校验刷新锚点是否完整
+        /// 缺失任一锚点即抛异常（中止刷新以保护原文件，避免越界破坏内容）
+        /// </summary>
+        /// <param name="content">目标内容</param>
+        /// <param name="fullPath">文件全路径（用于错误提示）</param>
+        /// <param name="anchors">必须存在的锚点集合</param>
+        private static void CheckRefreshAnchors(string content, string fullPath, string[] anchors)
+        {
+            foreach (string anchor in anchors)
+            {
+                if (content.LastIndexOf(anchor) < 0)
+                {
+                    string preview = anchor.Length > 10 ? anchor.Substring(0, 10) : anchor;
+                    throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 缺少区域标记 “{preview}…”，已中止刷新以保护原文件");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取 startIndex 所在行的行尾下标（含换行符，兼容 \r\n 与 \n）
+        /// 越界或不存在换行符时返回 content.Length，保证 Remove/Insert 不越界
+        /// </summary>
+        /// <param name="content">目标内容</param>
+        /// <param name="startIndex">起始下标</param>
+        /// <returns>行尾下标（含换行符）</returns>
+        private static int FindLineEnd(string content, int startIndex)
+        {
+            if (startIndex < 0 || startIndex >= content.Length)
+            {
+                return content.Length;
+            }
+            int lineEnd = content.IndexOf('\n', startIndex);
+            return lineEnd < 0 ? content.Length : lineEnd + 1;
+        }
         #endregion
 
         #region 工具方法
@@ -1858,13 +1998,13 @@ namespace Honor.Editor
         /// <returns>类型全名</returns>
         private string GetInjectionTypeByName(string injectionName)
         {
-            if(injectionName.IndexOf("[") >= 0)
+            if (injectionName.IndexOf("[") >= 0)
             {
                 injectionName = injectionName.Substring(0, injectionName.IndexOf("["));
             }
             for (int index = 0; index < m_InterInjectionNames.Count; index++)
             {
-                if(m_InterInjectionNames[index].stringValue == injectionName)
+                if (m_InterInjectionNames[index].stringValue == injectionName)
                 {
                     return LuaInjection.LuaInjectionType[m_InterInjectionTypeNames[index].enumValueIndex];
                 }
@@ -1914,9 +2054,15 @@ namespace Honor.Editor
             luaBindValueTypeNames = new SortedDictionary<string, string>();
             for (int index = 0; index < m_InterBindValueOnInjections.Count; index++)
             {
-                luaBindValueOnInjectionNames.Add(m_InterBindValueNames[index].stringValue, new List<string>());
-                luaBindValueOnInjectionWays.Add(m_InterBindValueNames[index].stringValue, new List<string>());
-                luaBindValueOnInjectionSides.Add(m_InterBindValueNames[index].stringValue, new List<string>());
+                string bindValueName = m_InterBindValueNames[index].stringValue;
+                // 修复：空名称绑定数据不参与采集，避免字典重复键异常
+                if (string.IsNullOrEmpty(bindValueName))
+                {
+                    continue;
+                }
+                luaBindValueOnInjectionNames.Add(bindValueName, new List<string>());
+                luaBindValueOnInjectionWays.Add(bindValueName, new List<string>());
+                luaBindValueOnInjectionSides.Add(bindValueName, new List<string>());
                 if (!string.IsNullOrEmpty(m_InterBindValueOnInjections[index].stringValue))
                 {
                     List<string> names = new List<string>();
@@ -1930,14 +2076,19 @@ namespace Honor.Editor
                         ways.Add(infos[1]);
                         sides.Add(infos[2]);
                     }
-                    luaBindValueOnInjectionNames[m_InterBindValueNames[index].stringValue].AddRange(names);
-                    luaBindValueOnInjectionWays[m_InterBindValueNames[index].stringValue].AddRange(ways);
-                    luaBindValueOnInjectionSides[m_InterBindValueNames[index].stringValue].AddRange(sides);
+                    luaBindValueOnInjectionNames[bindValueName].AddRange(names);
+                    luaBindValueOnInjectionWays[bindValueName].AddRange(ways);
+                    luaBindValueOnInjectionSides[bindValueName].AddRange(sides);
                 }
             }
             for (int index = 0; index < m_InterBindValueNames.Count; index++)
             {
                 string bindValueName = m_InterBindValueNames[index].stringValue;
+                // 修复：空名称绑定数据不参与采集，避免字典重复键异常
+                if (string.IsNullOrEmpty(bindValueName))
+                {
+                    continue;
+                }
                 string bindValueComment = m_InterBindValueComments[index].stringValue;
                 luaBindValueComments.Add(bindValueName, $"绑定数据-{bindValueName}-{bindValueComment}-变化监听回调");
                 luaBindValueTypeNames.Add(bindValueName, GetBindValueTypeByName(bindValueName));
@@ -1969,7 +2120,7 @@ namespace Honor.Editor
             switch ((LuaInjection.InjectionType)m_InterInjectionTypeNames[index].enumValueIndex)
             {
                 case LuaInjection.InjectionType.GameObject:
-                    foreach(string middlePathDesc in middlePathDescs)
+                    foreach (string middlePathDesc in middlePathDescs)
                     {
                         paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }

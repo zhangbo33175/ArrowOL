@@ -45,10 +45,10 @@ end
 ---@type fun():void
 function UILevelVictoryView:Awake()
     UILevelVictoryView.super.Awake(self)
--- 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 2=====================================================================================================
     AddUIListenerFunction(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
     AddUIListenerFunction(self.NextLevelButton, 'Clicked', handler(self, self.OnNextLevelButtonClicked))
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2
+-- ====================================================================================================2
 
 end
 
@@ -63,10 +63,10 @@ end
 ---@type fun():void
 function UILevelVictoryView:OnDestroy()
     UILevelVictoryView.super.OnDestroy(self)
--- 3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 3=====================================================================================================
     OnRemoveListener(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
     OnRemoveListener(self.NextLevelButton, 'Clicked', handler(self, self.OnNextLevelButtonClicked))
--- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3
+-- ====================================================================================================3
 
 end
 
@@ -101,7 +101,6 @@ function UILevelVictoryView:OnNextLevelButtonClicked(args)
     self._id= ChapterListManager:GetRuntimeChapterId()
     if not string.isNullOrEmpty(self._id) then
         GamePlayHelper:LoadMainMap(self._id,function()
-           
         end,true)
     end
 end

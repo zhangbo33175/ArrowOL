@@ -676,7 +676,11 @@ function OpenUISync(uiInfo, params)
             return luaClass
         end
     end, function(e)
-        PrintError("OpenUISync异常，请检查相关资源配置，Name: " .. uiInfo.Name .. " ABPath: " .. uiInfo.ABPath .. " AssetName: " .. uiInfo.AssetName)
+        local desc = "uiInfo=nil"
+        if uiInfo ~= nil then
+            desc = "Name: " .. tostring(uiInfo.Name) .. " ABPath: " .. tostring(uiInfo.ABPath) .. " AssetName: " .. tostring(uiInfo.AssetName)
+        end
+        PrintError("OpenUISync异常，请检查相关资源配置，" .. desc .. " 异常详情: " .. tostring(e))
     end)
     return luaClass
 end

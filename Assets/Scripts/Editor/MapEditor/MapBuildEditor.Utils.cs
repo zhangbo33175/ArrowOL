@@ -450,6 +450,11 @@ namespace Editor.MapEditor
             }
 
             /// <summary>
+            /// 已提示过缺失的图片路径缓存（避免同一张缺图重复刷屏）
+            /// </summary>
+            private static readonly HashSet<string> m_MissingImageLogged = new HashSet<string>();
+
+            /// <summary>
             /// 从本地/AB包路径加载图片
             /// </summary>
             public static Texture2D LoadImageTexture(string imagePath)
@@ -468,7 +473,12 @@ namespace Editor.MapEditor
                     return tex;
                 }
 
-                Debug.LogError($"图片不存在: {imagePath}");
+                // 同一张缺图只提示一次，避免编辑器每帧刷新刷屏
+                //（图片缺失多为表格配置或资源未导入问题，非致命错误，用 Warning 保留可见性）
+                if (m_MissingImageLogged.Add(imagePath))
+                {
+                    Debug.LogWarning($"图片不存在: {imagePath}（仅提示一次，请检查表格 Icon 配置或补充资源）");
+                }
                 return null;
             }
             #endregion
@@ -481,6 +491,7 @@ namespace Editor.MapEditor
                 RMapChapterTypeData data = new RMapChapterTypeData();
                 data.ChapterId = _mTablesElectedLevelsEditor.ChapterId;
                 data.LevelId = int.Parse(_mTablesElectedLevelsEditor.LevelId);
+                data.MaplId = _mTablesElectedLevelsEditor.MapId;
                 data.m_MapName = _mTablesElectedLevelsEditor.MapName;
                 data.m_CreateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 data.m_BackgroundPath=_mTablesElectedLevelsEditor.Background;
@@ -641,7 +652,7 @@ namespace Editor.MapEditor
             /// </summary>
             public static void MapSaveLua(RMapChapterTypeData data, bool hasLevelTypeSavePath = false)
             {
-                string fileName = $"TableLevelData_{data.ChapterId}_{data.LevelId}";
+                string fileName = $"TableLevelData_{data.ChapterId}_{data.MaplId}";
                 string luaPath = $"{levelLuaSavePath}/{data.ChapterId}/{fileName}.lua.txt";
 
                 if (hasLevelTypeSavePath)

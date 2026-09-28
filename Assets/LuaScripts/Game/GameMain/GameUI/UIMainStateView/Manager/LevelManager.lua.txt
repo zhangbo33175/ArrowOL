@@ -39,6 +39,7 @@ end
 ---@return LevelManager 关卡管理器实例
 function LevelManager:Create(args)
     return LevelManager.new(args)
+
 end
 
 ---@brief 初始化（覆写父类）
@@ -67,7 +68,7 @@ end
 ---@return table 关卡信息数据
 function LevelManager:GetCurrentLevelInfo()
     -- 扩展：当前章节、关卡、星级、解锁状态、奖励配置等
-    self._chapterLevel = ChapterListManager:GetRuntimeChapterId()
+    self._chapterLevel = ChapterListManager:GetLevelId()
 end
 
 ---@brief 设置关卡模式

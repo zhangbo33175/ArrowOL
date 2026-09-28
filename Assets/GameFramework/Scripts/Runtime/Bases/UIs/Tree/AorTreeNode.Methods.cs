@@ -58,7 +58,7 @@ namespace Honor.Runtime
             // 箭头旋转对象
             m_ToggleTransform = m_Toggle.transform.Find("Image");
             // 获取顶层树管理组件
-            _mAorTree = m_MyTransform.parent.parent.parent.GetComponent<AorTree>();
+            m_AorTree = m_MyTransform.parent.parent.parent.GetComponent<AorTree>();
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Honor.Runtime
         /// </summary>
         private void OpenChildren()
         {
-            m_Children = _mAorTree.Pop(_mAorTreeData.ChildNodes, transform.GetSiblingIndex());
+            m_Children = m_AorTree.Pop(m_AorTreeData.ChildNodes, transform.GetSiblingIndex());
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Honor.Runtime
             }
 
             // 回收所有子节点到对象池
-            _mAorTree.Push(m_Children);
+            m_AorTree.Push(m_Children);
             // 清空列表
             m_Children.Clear();
         }

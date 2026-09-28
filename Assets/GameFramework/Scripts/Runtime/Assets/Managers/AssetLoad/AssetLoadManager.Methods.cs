@@ -107,7 +107,7 @@ namespace Honor.Runtime
 
             if (!m_EditorResourceMode)
             {
-                _mAssetBundleLoadManager.Unload(assetObj.AssetBundlePath);
+                m_AssetBundleLoadManager.Unload(assetObj.AssetBundlePath);
             }
 
             assetObj.Asset = null;

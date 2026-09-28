@@ -70,7 +70,7 @@ namespace Honor.Runtime
         private void RefreshAudioListener()
         {
             // 如果场景中只有一个 AudioListener，则启用；否则禁用自身
-            m_AudioListener.enabled = Object.FindObjectsOfType<AudioListener>().Length <= 1;
+            m_AudioListener.enabled = Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Length <= 1;
         }
 
         #endregion

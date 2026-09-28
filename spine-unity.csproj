@@ -81,8 +81,8 @@
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Components\SkeletonUtility\ActivateBasedOnFlipDirection.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Utility\SkeletonExtensions.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Components\SkeletonRenderer.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Utility\MathUtilities.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Components\RootMotion\SkeletonRootMotion.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Utility\MathUtilities.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Components\RootMotion\SkeletonMecanimRootMotion.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Asset Types\RegionlessAttachmentLoader.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-unity\Asset Types\SpineAtlasAsset.cs" />

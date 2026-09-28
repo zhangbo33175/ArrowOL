@@ -13,6 +13,11 @@ namespace Editor.MapEditor
         /// 章节唯一标识 ID
         /// </summary>
         public string LevelId = string.Empty;
+        
+        /// <summary>
+        /// 地图标识 ID
+        /// </summary>
+        public int MapId = 0;
         /// <summary>
         /// 章节显示标题名称
         /// </summary>

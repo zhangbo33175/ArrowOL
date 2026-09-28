@@ -38,6 +38,20 @@ end
 
 --endregion
 
+
+---清除当前挑战关卡，进入挑战关卡时就可以清除了
+---@type fun():void
+function ChallengeLevelHelper:ClearCurChallengeLevel()
+    ---@type SaveMsgDef.SaveGameData.ChallengeLevelData
+    --local data = SaveRootData.GameData.challengeLevelData or {}
+    --data.chapterId = ""
+    --data.challengeLevelId = 0
+    --
+    --SaveRootData.GameData.challengeLevelData = data
+    --SaveIO.GameData.Save_challengeLevelData()
+end
+
+
 --region 初始化 & 生命周期
 
 ---@brief 初始化（覆写父类）

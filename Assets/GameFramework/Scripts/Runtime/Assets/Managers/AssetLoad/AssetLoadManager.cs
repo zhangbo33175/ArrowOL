@@ -53,7 +53,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            _mAssetBundleLoadManager = new AssetBundleLoadManager();
+            m_AssetBundleLoadManager = new AssetBundleLoadManager();
         }
         #endregion
 
@@ -129,7 +129,7 @@ namespace Honor.Runtime
                     }
                     else
                     {
-                        AssetBundle ab = _mAssetBundleLoadManager.LoadSync(abPath);
+                        AssetBundle ab = m_AssetBundleLoadManager.LoadSync(abPath);
 
                         if (assetObj.IsScene)
                         {
@@ -150,7 +150,7 @@ namespace Honor.Runtime
                         }
 
                         // 修正异步转同步带来的额外引用计数
-                        _mAssetBundleLoadManager.Unload(abPath);
+                        m_AssetBundleLoadManager.Unload(abPath);
                     }
                 }
 
@@ -225,9 +225,9 @@ namespace Honor.Runtime
             }
             else
             {
-                if (_mAssetBundleLoadManager.IsABExist(abPath))
+                if (m_AssetBundleLoadManager.IsABExist(abPath))
                 {
-                    AssetBundle ab = _mAssetBundleLoadManager.LoadSync(abPath);
+                    AssetBundle ab = m_AssetBundleLoadManager.LoadSync(abPath);
                     if (assetObj.IsScene)
                     {
                         UnityEngine.SceneManagement.SceneManager.LoadScene(assetName,
@@ -246,8 +246,8 @@ namespace Honor.Runtime
                         }
                     }
 
-                    assetObj.Origin = _mAssetBundleLoadManager
-                        .LoadedAssetBundleList[_mAssetBundleLoadManager.GetABFormatPath(assetObj.AssetBundlePath)]
+                    assetObj.Origin = m_AssetBundleLoadManager
+                        .LoadedAssetBundleList[m_AssetBundleLoadManager.GetABFormatPath(assetObj.AssetBundlePath)]
                         .Origin;
                 }
             }
@@ -346,10 +346,10 @@ namespace Honor.Runtime
             }
             else
             {
-                if (_mAssetBundleLoadManager.IsABExist(abPath))
+                if (m_AssetBundleLoadManager.IsABExist(abPath))
                 {
                     m_LoadingList.Add(assetPath, assetObj);
-                    _mAssetBundleLoadManager.LoadAsync(abPath, (AssetBundleObject abObject, AssetBundle ab) =>
+                    m_AssetBundleLoadManager.LoadAsync(abPath, (AssetBundleObject abObject, AssetBundle ab) =>
                     {
                         if (ab == null)
                         {
@@ -608,7 +608,7 @@ namespace Honor.Runtime
             UpdateLoadedAsync();
             UpdateLoading();
             UpdateUnload();
-            _mAssetBundleLoadManager.Update();
+            m_AssetBundleLoadManager.Update();
         }
         #endregion
 
@@ -630,7 +630,7 @@ namespace Honor.Runtime
             }
             else
             {
-                return _mAssetBundleLoadManager.IsABExist(abPath);
+                return m_AssetBundleLoadManager.IsABExist(abPath);
             }
         }
         #endregion

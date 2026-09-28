@@ -1,4 +1,14 @@
-﻿/*using System;
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameConfigComponentInspector.Methods.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   配置组件Inspector - 方法实现分部类
+ ***************************************************************/
+
+/*using System;
 using GameLib;
 using Honor.Runtime;
 using UnityEditor;
