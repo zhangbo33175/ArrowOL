@@ -54,7 +54,7 @@ namespace Honor.Runtime
             if (!IsActive() || radius == 0)
                 return;
 
-            // 定义单个字符的四个顶点：左下、左上、右上、右下
+            // 定义单个字符的四个顶点：左下、左上、右上、右下（循环外复用，避免逐字符分配）
             UIVertex lb = new UIVertex();
             UIVertex lt = new UIVertex();
             UIVertex rt = new UIVertex();
@@ -64,55 +64,69 @@ namespace Honor.Runtime
             int charCount = vh.currentVertCount / 4;
             for (int i = 0; i < charCount; i++)
             {
-                // 获取当前字符的四个顶点数据
-                vh.PopulateUIVertex(ref lb, i * 4);
-                vh.PopulateUIVertex(ref lt, i * 4 + 1);
-                vh.PopulateUIVertex(ref rt, i * 4 + 2);
-                vh.PopulateUIVertex(ref rb, i * 4 + 3);
-
-                // 计算当前字符的中心点
-                Vector3 center = Vector3.Lerp(lb.position, rt.position, 0.5f);
-
-                // 位移矩阵：将字符中心点移至坐标原点
-                Matrix4x4 move = Matrix4x4.TRS(center * -1, Quaternion.identity, Vector3.one);
-
-                // 计算当前字符在圆弧上对应的弧度
-                float rad = Mathf.PI / 2 - center.x * spaceCoff / radius;
-
-                // 计算圆弧上的目标位置
-                Vector3 pos = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
-
-                // 计算字符旋转角度（使字符朝向圆弧中心）
-                Quaternion rotation = Quaternion.Euler(0, 0, rad * 180 / Mathf.PI - 90);
-
-                // 旋转矩阵
-                Matrix4x4 rotate = Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one);
-
-                // 放置矩阵：将字符放置到圆弧目标位置
-                Matrix4x4 place = Matrix4x4.TRS(pos, Quaternion.identity, Vector3.one);
-
-                // 组合最终变换矩阵：位移 → 旋转 → 放置
-                Matrix4x4 transform = place * rotate * move;
-
-                // 对四个顶点应用矩阵变换
-                lb.position = transform.MultiplyPoint(lb.position);
-                lt.position = transform.MultiplyPoint(lt.position);
-                rt.position = transform.MultiplyPoint(rt.position);
-                rb.position = transform.MultiplyPoint(rb.position);
-
-                // Y轴偏移校正，统一文本基线位置
-                float offsetY = -radius + center.y;
-                lb.position.y += offsetY;
-                lt.position.y += offsetY;
-                rt.position.y += offsetY;
-                rb.position.y += offsetY;
-
-                // 将修改后的顶点数据设置回网格
-                vh.SetUIVertex(lb, i * 4);
-                vh.SetUIVertex(lt, i * 4 + 1);
-                vh.SetUIVertex(rt, i * 4 + 2);
-                vh.SetUIVertex(rb, i * 4 + 3);
+                BendCharacterToArc(vh, i, ref lb, ref lt, ref rt, ref rb);
             }
+        }
+
+        /// <summary>
+        /// 对单个字符的四个顶点应用弧形变换并回写网格
+        /// </summary>
+        /// <param name="vh">UI顶点辅助器</param>
+        /// <param name="i">字符下标</param>
+        /// <param name="lb">左下顶点</param>
+        /// <param name="lt">左上顶点</param>
+        /// <param name="rt">右上顶点</param>
+        /// <param name="rb">右下顶点</param>
+        private void BendCharacterToArc(VertexHelper vh, int i, ref UIVertex lb, ref UIVertex lt, ref UIVertex rt, ref UIVertex rb)
+        {
+            // 获取当前字符的四个顶点数据
+            vh.PopulateUIVertex(ref lb, i * 4);
+            vh.PopulateUIVertex(ref lt, i * 4 + 1);
+            vh.PopulateUIVertex(ref rt, i * 4 + 2);
+            vh.PopulateUIVertex(ref rb, i * 4 + 3);
+
+            // 计算当前字符的中心点
+            Vector3 center = Vector3.Lerp(lb.position, rt.position, 0.5f);
+
+            // 位移矩阵：将字符中心点移至坐标原点
+            Matrix4x4 move = Matrix4x4.TRS(center * -1, Quaternion.identity, Vector3.one);
+
+            // 计算当前字符在圆弧上对应的弧度
+            float rad = Mathf.PI / 2 - center.x * spaceCoff / radius;
+
+            // 计算圆弧上的目标位置
+            Vector3 pos = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
+
+            // 计算字符旋转角度（使字符朝向圆弧中心）
+            Quaternion rotation = Quaternion.Euler(0, 0, rad * 180 / Mathf.PI - 90);
+
+            // 旋转矩阵
+            Matrix4x4 rotate = Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one);
+
+            // 放置矩阵：将字符放置到圆弧目标位置
+            Matrix4x4 place = Matrix4x4.TRS(pos, Quaternion.identity, Vector3.one);
+
+            // 组合最终变换矩阵：位移 → 旋转 → 放置
+            Matrix4x4 transform = place * rotate * move;
+
+            // 对四个顶点应用矩阵变换
+            lb.position = transform.MultiplyPoint(lb.position);
+            lt.position = transform.MultiplyPoint(lt.position);
+            rt.position = transform.MultiplyPoint(rt.position);
+            rb.position = transform.MultiplyPoint(rb.position);
+
+            // Y轴偏移校正，统一文本基线位置
+            float offsetY = -radius + center.y;
+            lb.position.y += offsetY;
+            lt.position.y += offsetY;
+            rt.position.y += offsetY;
+            rb.position.y += offsetY;
+
+            // 将修改后的顶点数据设置回网格
+            vh.SetUIVertex(lb, i * 4);
+            vh.SetUIVertex(lt, i * 4 + 1);
+            vh.SetUIVertex(rt, i * 4 + 2);
+            vh.SetUIVertex(rb, i * 4 + 3);
         }
         #endregion
     }

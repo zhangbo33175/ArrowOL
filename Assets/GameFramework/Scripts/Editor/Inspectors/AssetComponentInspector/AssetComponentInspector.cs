@@ -8,6 +8,7 @@
  * descrip:   资源管理组件编辑器面板
  *            运行时可视化监控 Asset/AB/Prefab 加载、卸载、引用计数，支持导出CSV
  ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,9 +57,10 @@ namespace Honor.Editor
         #endregion
 
         #region 【编辑器生命周期】
-        //=========================================================================
-        // 绘制Inspector面板
-        //=========================================================================
+        /// <summary>
+        /// 绘制 Inspector 面板
+        /// <para>配置资源过期帧数与 GC 阈值，运行时绘制 Prefab/Asset/AB 各阶段列表</para>
+        /// </summary>
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -125,18 +127,19 @@ namespace Honor.Editor
             Repaint();
         }
 
-        //=========================================================================
-        // 编译完成回调
-        //=========================================================================
+        /// <summary>
+        /// 脚本编译完成回调
+        /// </summary>
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
             RefreshTypeNames();
         }
 
-        //=========================================================================
-        // 启用时初始化绑定序列化属性
-        //=========================================================================
+        /// <summary>
+        /// 编辑器启用回调
+        /// <para>绑定序列化属性并刷新类型名缓存</para>
+        /// </summary>
         private void OnEnable()
         {
             m_UnloadAssetDelayFrameNum  = serializedObject.FindProperty("m_UnloadAssetDelayFrameNum");
@@ -147,9 +150,10 @@ namespace Honor.Editor
         #endregion
 
         #region 【绘制列表】
-        //=========================================================================
-        // 绘制Prefab加载列表
-        //=========================================================================
+        /// <summary>
+        /// 绘制 Prefab 加载完成列表
+        /// </summary>
+        /// <param name="listName">列表显示名称</param>
         private void DrawPrefabList(string listName)
         {
             AssetComponent t = (AssetComponent)target;
@@ -206,9 +210,11 @@ namespace Honor.Editor
             }
         }
 
-        //=========================================================================
-        // 绘制普通资源列表（预加载/加载中/已完成/待卸载）
-        //=========================================================================
+        /// <summary>
+        /// 绘制普通资源列表
+        /// <para>预加载 / 加载中 / 已完成 / 待卸载四种列表</para>
+        /// </summary>
+        /// <param name="listName">列表显示名称</param>
         private void DrawAssetList(string listName)
         {
             AssetComponent t = (AssetComponent)target;
@@ -294,9 +300,11 @@ namespace Honor.Editor
             }
         }
 
-        //=========================================================================
-        // 绘制AssetBundle列表
-        //=========================================================================
+        /// <summary>
+        /// 绘制 AssetBundle 列表
+        /// <para>准备 / 加载中 / 已完成 / 待卸载四种列表</para>
+        /// </summary>
+        /// <param name="listName">列表显示名称</param>
         private void DrawABList(string listName)
         {
             AssetComponent t = (AssetComponent)target;
@@ -355,9 +363,11 @@ namespace Honor.Editor
         #endregion
 
         #region 【CSV 导出】
-        //=========================================================================
-        // 导出Prefab列表
-        //=========================================================================
+        /// <summary>
+        /// 导出 Prefab 列表到 CSV
+        /// </summary>
+        /// <param name="listName">列表名称（用于文件名）</param>
+        /// <param name="data">Prefab 数据集合</param>
         private void ExportPrefabListToCSV(string listName, Dictionary<string, PrefabObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -381,9 +391,11 @@ namespace Honor.Editor
             }
         }
 
-        //=========================================================================
-        // 导出普通资源
-        //=========================================================================
+        /// <summary>
+        /// 导出普通资源列表到 CSV
+        /// </summary>
+        /// <param name="listName">列表名称（用于文件名）</param>
+        /// <param name="data">Asset 数据集合</param>
         private void ExportAssetListToCSV(string listName, Dictionary<string, AssetObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -408,9 +420,11 @@ namespace Honor.Editor
             }
         }
 
-        //=========================================================================
-        // 导出预加载资源
-        //=========================================================================
+        /// <summary>
+        /// 导出预加载资源队列到 CSV
+        /// </summary>
+        /// <param name="listName">列表名称（用于文件名）</param>
+        /// <param name="data">预加载资源队列</param>
         private void ExportPreloadAssetToCSV(string listName, Queue<PreloadAssetObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -434,9 +448,11 @@ namespace Honor.Editor
             }
         }
 
-        //=========================================================================
-        // 导出AB列表
-        //=========================================================================
+        /// <summary>
+        /// 导出 AssetBundle 列表到 CSV
+        /// </summary>
+        /// <param name="listName">列表名称（用于文件名）</param>
+        /// <param name="data">AB 数据集合</param>
         private void ExportABListToCSV(string listName, Dictionary<string, AssetBundleObject> data)
         {
             string path = EditorUtility.SaveFilePanel("导出 CSV", "", $"{listName} {DateTime.Now:yyyy-MM-dd HH-mm-ss}.csv", "");
@@ -463,17 +479,19 @@ namespace Honor.Editor
         #endregion
 
         #region 【工具方法】
-        //=========================================================================
-        // 刷新类型名称
-        //=========================================================================
+        /// <summary>
+        /// 刷新类型名称缓存（应用序列化属性变更）
+        /// </summary>
         private void RefreshTypeNames()
         {
             serializedObject.ApplyModifiedProperties();
         }
 
-        //=========================================================================
-        // 获取来源类型名称
-        //=========================================================================
+        /// <summary>
+        /// 获取资源来源类型的短名称
+        /// </summary>
+        /// <param name="type">资源来源类型</param>
+        /// <returns>单字符来源标识</returns>
         private string GetOriginTypeName(OriginType type)
         {
             return type switch
@@ -486,11 +504,16 @@ namespace Honor.Editor
             };
         }
 
-        //=========================================================================
-        // 补齐空格格式化显示
-        //=========================================================================
+        /// <summary>
+        /// 补齐空格格式化显示（固定列宽）
+        /// <para>防御性处理：入参为 null 时按空串处理，避免面板绘制时空引用</para>
+        /// </summary>
+        /// <param name="word">原始文本</param>
+        /// <param name="length">目标列宽</param>
+        /// <returns>对齐后的文本</returns>
         private string FillGap(string word, int length = 15)
         {
+            word ??= string.Empty;
             if (word.Length >= length)
                 return word.Substring(0, length);
             return word.PadRight(length);

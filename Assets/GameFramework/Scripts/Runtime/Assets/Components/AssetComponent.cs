@@ -23,7 +23,6 @@ namespace Honor.Runtime
     [DisallowMultipleComponent]
     public sealed partial class AssetComponent : GameComponent
     {
-
         #region 生命周期函数
         //=========================================================================
         // 初始化资源管理器
@@ -57,7 +56,6 @@ namespace Honor.Runtime
             if (m_PrefabLoadManager == null)
             {
                 Log.Fatal("PrefabLoadManager 无效。");
-                return;
             }
         }
 
@@ -101,6 +99,49 @@ namespace Honor.Runtime
         }
         #endregion
 
+        #region 内部参数校验
+        /// <summary>
+        /// 校验资源路径非空且以 "Assets" 开头
+        /// </summary>
+        /// <param name="abPath">资源AB路径</param>
+        /// <param name="caller">调用方标识（用于日志）</param>
+        /// <returns>合法返回 true，否则记录错误并返回 false</returns>
+        private static bool CheckAssetPath(string abPath, string caller)
+        {
+            if (string.IsNullOrEmpty(abPath))
+            {
+                Log.Error("{0} abPath 无效。", caller);
+                return false;
+            }
+
+            if (!abPath.StartsWith("Assets"))
+            {
+                Log.Error("{0} abPath: {1} 未以Assets开头。", caller, abPath);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 校验命名型参数（资源名/场景名/类型名）非空
+        /// </summary>
+        /// <param name="name">待校验名称</param>
+        /// <param name="caller">调用方标识（用于日志）</param>
+        /// <param name="label">参数字段名（用于日志）</param>
+        /// <returns>合法返回 true，否则记录错误并返回 false</returns>
+        private static bool CheckNameNonEmpty(string name, string caller, string label)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                Log.Error("{0} {1} 无效。", caller, label);
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
+
         #region AssetBundle 清单管理
         //=========================================================================
         // 加载 AssetBundle 清单文件（非编辑器模式下必须调用）
@@ -110,12 +151,9 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadManifest()
         {
-            if (!m_LauncherComponent.EditorResourceMode)
+            if (!m_LauncherComponent.EditorResourceMode && m_AssetLoadManager != null)
             {
-                if (m_AssetLoadManager != null)
-                {
-                    m_AssetLoadManager.AssetBundleLoadManager.LoadManifest();
-                }
+                m_AssetLoadManager.AssetBundleLoadManager.LoadManifest();
             }
         }
         #endregion
@@ -134,27 +172,21 @@ namespace Honor.Runtime
         /// <returns>实例化后的游戏对象</returns>
         public GameObject LoadPrefabSync(string abPath, string assetName, Transform parent, LuaTable luaParams = null)
         {
-            if (string.IsNullOrEmpty(abPath))
+            const string tag = "AssetComponent.LoadPrefabSync";
+
+            if (!CheckAssetPath(abPath, tag))
             {
-                Log.Error("AssetComponent.LoadPrefabSync abPath 无效。");
                 return null;
             }
 
-            if (!abPath.StartsWith("Assets"))
+            if (!CheckNameNonEmpty(assetName, tag, "assetName"))
             {
-                Log.Error("AssetComponent.LoadPrefabSync abPath {0} 未以Assets开头。", abPath);
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(assetName))
-            {
-                Log.Error("AssetComponent.LoadPrefabSync assetName 无效。");
                 return null;
             }
 
             if (parent == null)
             {
-                Log.Error("AssetComponent.LoadPrefabSync parent 无效。");
+                Log.Error("{0} parent 无效。", tag);
                 return null;
             }
 
@@ -175,33 +207,22 @@ namespace Honor.Runtime
         public void LoadPrefabAsync(string abPath, string assetName, Transform parent, LuaTable luaParams = null,
             PrefabLoadOverCallback overCallback = null)
         {
+            const string tag = "AssetComponent.LoadPrefabAsync";
+
             if (overCallback == null)
             {
-                Log.Error("AssetComponent.LoadPrefabAsync overCallback 无效。");
+                Log.Error("{0} overCallback 无效。", tag);
                 return;
             }
 
-            if (string.IsNullOrEmpty(abPath))
+            if (!CheckAssetPath(abPath, tag) || !CheckNameNonEmpty(assetName, tag, "assetName"))
             {
-                Log.Error("AssetComponent.LoadPrefabAsync abPath 无效。");
-                return;
-            }
-
-            if (!abPath.StartsWith("Assets"))
-            {
-                Log.Error("AssetComponent.LoadPrefabAsync abPath: {0} 未以Assets开头。", abPath);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(assetName))
-            {
-                Log.Error("AssetComponent.LoadPrefabAsync assetName 无效。");
                 return;
             }
 
             if (parent == null)
             {
-                Log.Error("AssetComponent.LoadPrefabAsync parent 无效。");
+                Log.Error("{0} parent 无效。", tag);
                 return;
             }
 
@@ -220,15 +241,17 @@ namespace Honor.Runtime
         /// <returns>克隆后的游戏对象</returns>
         public GameObject InstantiateGO(Transform parent, GameObject childTemplateGO, LuaTable luaParams = null)
         {
+            const string tag = "AssetComponent.Instantiate";
+
             if (parent == null)
             {
-                Log.Error("AssetComponent.Instantiate parent 无效。");
+                Log.Error("{0} parent 无效。", tag);
                 return null;
             }
 
             if (childTemplateGO == null)
             {
-                Log.Error("AssetComponent.Instantiate childTemplateGO 无效。");
+                Log.Error("{0} childTemplateGO 无效。", tag);
                 return null;
             }
 
@@ -249,26 +272,12 @@ namespace Honor.Runtime
         /// <returns>加载完成的资源对象</returns>
         public UnityEngine.Object LoadAssetSync(string typeName, string abPath, string assetName)
         {
-            if (string.IsNullOrEmpty(typeName))
-            {
-                return null;
-            }
+            const string tag = "AssetComponent.LoadAssetSync";
 
-            if (string.IsNullOrEmpty(abPath))
+            if (!CheckNameNonEmpty(typeName, tag, "typeName")
+                || !CheckAssetPath(abPath, tag)
+                || !CheckNameNonEmpty(assetName, tag, "assetName"))
             {
-                Log.Error("AssetComponent.LoadAssetSync abPath 无效。");
-                return null;
-            }
-
-            if (!abPath.StartsWith("Assets"))
-            {
-                Log.Error("AssetComponent.LoadAssetSync abPath {0} 未以Assets开头。", abPath);
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(assetName))
-            {
-                Log.Error("AssetComponent.LoadAssetSync assetName 无效。");
                 return null;
             }
 
@@ -287,33 +296,18 @@ namespace Honor.Runtime
         /// <param name="overCallback">加载完成回调</param>
         public void LoadAssetAsync(string typeName, string abPath, string assetName, AssetLoadOverCallback overCallback)
         {
+            const string tag = "AssetComponent.LoadAssetAsync";
+
             if (overCallback == null)
             {
-                Log.Error("AssetComponent.LoadAssetAsync overCallback 无效。");
+                Log.Error("{0} overCallback 无效。", tag);
                 return;
             }
 
-            if (string.IsNullOrEmpty(typeName))
+            if (!CheckNameNonEmpty(typeName, tag, "typeName")
+                || !CheckAssetPath(abPath, tag)
+                || !CheckNameNonEmpty(assetName, tag, "assetName"))
             {
-                Log.Error("AssetComponent.LoadAssetAsync typeName 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(abPath))
-            {
-                Log.Error("AssetComponent.LoadAssetAsync abPath 无效。");
-                return;
-            }
-
-            if (!abPath.StartsWith("Assets"))
-            {
-                Log.Error("AssetComponent.LoadAssetAsync abPath: {0} 未以Assets开头。", abPath);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(assetName))
-            {
-                Log.Error("AssetComponent.LoadAssetAsync assetName 无效。");
                 return;
             }
 
@@ -334,27 +328,12 @@ namespace Honor.Runtime
         public void PreLoadAssetAsync(string typeName, string abPath, string assetName,
             AssetLoadOverCallback overCallback, bool isWeak = true)
         {
-            if (string.IsNullOrEmpty(typeName))
-            {
-                Log.Error("AssetComponent.PreLoadAssetAsync typeName 无效。");
-                return;
-            }
+            const string tag = "AssetComponent.PreLoadAssetAsync";
 
-            if (string.IsNullOrEmpty(abPath))
+            if (!CheckNameNonEmpty(typeName, tag, "typeName")
+                || !CheckAssetPath(abPath, tag)
+                || !CheckNameNonEmpty(assetName, tag, "assetName"))
             {
-                Log.Error("AssetComponent.PreLoadAssetAsync abPath 无效。");
-                return;
-            }
-
-            if (!abPath.StartsWith("Assets"))
-            {
-                Log.Error("AssetComponent.PreLoadAssetAsync abPath: {0} 未以Assets开头。", abPath);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(assetName))
-            {
-                Log.Error("AssetComponent.PreLoadAssetAsync assetName 无效。");
                 return;
             }
 
@@ -408,21 +387,10 @@ namespace Honor.Runtime
         /// <param name="sceneName">场景名称</param>
         public void LoadSceneSync(string abPath, string sceneName)
         {
-            if (string.IsNullOrEmpty(abPath))
-            {
-                Log.Error("AssetComponent.LoadSceneSync abPath 无效。");
-                return;
-            }
+            const string tag = "AssetComponent.LoadSceneSync";
 
-            if (!abPath.StartsWith("Assets"))
+            if (!CheckAssetPath(abPath, tag) || !CheckNameNonEmpty(sceneName, tag, "sceneName"))
             {
-                Log.Error("AssetComponent.LoadSceneSync abPath: {0} 未以Assets开头。", abPath);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(sceneName))
-            {
-                Log.Error("AssetComponent.LoadSceneSync sceneName 无效。");
                 return;
             }
 
@@ -440,27 +408,16 @@ namespace Honor.Runtime
         /// <param name="overCallback">加载完成回调</param>
         public void LoadSceneAsync(string abPath, string sceneName, AssetLoadOverCallback overCallback)
         {
+            const string tag = "AssetComponent.LoadSceneAsync";
+
             if (overCallback == null)
             {
-                Log.Error("AssetComponent.LoadSceneAsync overCallback 无效。");
+                Log.Error("{0} overCallback 无效。", tag);
                 return;
             }
 
-            if (string.IsNullOrEmpty(abPath))
+            if (!CheckAssetPath(abPath, tag) || !CheckNameNonEmpty(sceneName, tag, "sceneName"))
             {
-                Log.Error("AssetComponent.LoadSceneAsync abPath 无效。");
-                return;
-            }
-
-            if (!abPath.StartsWith("Assets"))
-            {
-                Log.Error("AssetComponent.LoadSceneAsync abPath: {0} 未以Assets开头。", abPath);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(sceneName))
-            {
-                Log.Error("AssetComponent.LoadSceneAsync sceneName 无效。");
                 return;
             }
 
@@ -480,21 +437,10 @@ namespace Honor.Runtime
         public void PreLoadSceneAsync(string abPath, string sceneName, AssetLoadOverCallback overCallback,
             bool isWeak = true)
         {
-            if (string.IsNullOrEmpty(abPath))
-            {
-                Log.Error("AssetComponent.PreLoadSceneAsync abPath 无效。");
-                return;
-            }
+            const string tag = "AssetComponent.PreLoadSceneAsync";
 
-            if (!abPath.StartsWith("Assets"))
+            if (!CheckAssetPath(abPath, tag) || !CheckNameNonEmpty(sceneName, tag, "sceneName"))
             {
-                Log.Error("AssetComponent.PreLoadSceneAsync abPath: {0} 未以Assets开头。", abPath);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(sceneName))
-            {
-                Log.Error("AssetComponent.PreLoadSceneAsync sceneName 无效。");
                 return;
             }
 
@@ -511,18 +457,19 @@ namespace Honor.Runtime
         /// <param name="overCallback">卸载完成回调，可选</param>
         public void UnloadScene(string sceneName, AssetUnloadOverCallback overCallback = null)
         {
-            if (string.IsNullOrEmpty(sceneName))
+            const string tag = "AssetComponent.UnloadScene";
+
+            if (!CheckNameNonEmpty(sceneName, tag, "sceneName"))
             {
-                Log.Error("AssetComponent.UnloadScene sceneName 无效。");
                 return;
             }
 
             UnityEngine.SceneManagement.Scene
                 scene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(sceneName);
 
-            if (scene == null)
+            if (!scene.IsValid())
             {
-                Log.Error("AssetComponent.UnloadScene scene 无效。");
+                Log.Error("{0} scene 无效。", tag);
                 return;
             }
 
@@ -543,17 +490,9 @@ namespace Honor.Runtime
         /// <returns>存在返回true，不存在返回false</returns>
         public bool IsAssetExist(string typeName, string abPath, string assetName)
         {
-            if (string.IsNullOrEmpty(typeName))
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(abPath))
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(assetName))
+            if (!CheckNameNonEmpty(typeName, "AssetComponent.IsAssetExist", "typeName")
+                || !CheckNameNonEmpty(abPath, "AssetComponent.IsAssetExist", "abPath")
+                || !CheckNameNonEmpty(assetName, "AssetComponent.IsAssetExist", "assetName"))
             {
                 return false;
             }

@@ -53,7 +53,7 @@ namespace Honor.Runtime
                 throw new GameException("格式无效。");
             }
 
-            CheckCachedStringBuilder();
+            EnsureCachedBuilder();
             s_CachedStringBuilder.Length = 0;
             s_CachedStringBuilder.AppendFormat(format, arg0);
             return s_CachedStringBuilder.ToString();
@@ -73,7 +73,7 @@ namespace Honor.Runtime
                 throw new GameException("格式无效。");
             }
 
-            CheckCachedStringBuilder();
+            EnsureCachedBuilder();
             s_CachedStringBuilder.Length = 0;
             s_CachedStringBuilder.AppendFormat(format, arg0, arg1);
             return s_CachedStringBuilder.ToString();
@@ -94,7 +94,7 @@ namespace Honor.Runtime
                 throw new GameException("格式无效。");
             }
 
-            CheckCachedStringBuilder();
+            EnsureCachedBuilder();
             s_CachedStringBuilder.Length = 0;
             s_CachedStringBuilder.AppendFormat(format, arg0, arg1, arg2);
             return s_CachedStringBuilder.ToString();
@@ -118,7 +118,7 @@ namespace Honor.Runtime
                 throw new GameException("参数无效。");
             }
 
-            CheckCachedStringBuilder();
+            EnsureCachedBuilder();
             s_CachedStringBuilder.Length = 0;
             s_CachedStringBuilder.AppendFormat(format, args);
             return s_CachedStringBuilder.ToString();
@@ -135,7 +135,7 @@ namespace Honor.Runtime
         /// 检查并初始化缓存 StringBuilder
         /// 默认容量 1024，避免频繁扩容
         /// </summary>
-        private static void CheckCachedStringBuilder()
+        private static void EnsureCachedBuilder()
         {
             if (s_CachedStringBuilder == null)
             {

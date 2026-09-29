@@ -94,11 +94,7 @@ namespace Honor.Runtime
         /// <returns>是否存在</returns>
         public bool HasConfig(string configName, bool onPlatform = false)
         {
-            if (onPlatform)
-            {
-                configName = AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName());
-            }
-            return m_ConfigManager.HasConfig(configName);
+            return m_ConfigManager.HasConfig(ResolvePlatformName(configName, onPlatform));
         }
 
         /// <summary>
@@ -109,11 +105,7 @@ namespace Honor.Runtime
         /// <returns>是否移除成功</returns>
         public bool RemoveConfig(string configName, bool onPlatform = false)
         {
-            if (onPlatform)
-            {
-                configName = AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName());
-            }
-            return m_ConfigManager.RemoveConfig(configName);
+            return m_ConfigManager.RemoveConfig(ResolvePlatformName(configName, onPlatform));
         }
 
         /// <summary>
@@ -137,11 +129,7 @@ namespace Honor.Runtime
         /// <returns>布尔值</returns>
         public bool GetBool(string configName, bool onPlatform = false)
         {
-            if (onPlatform)
-            {
-                configName = AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName());
-            }
-            return m_ConfigManager.GetBool(configName);
+            return m_ConfigManager.GetBool(ResolvePlatformName(configName, onPlatform));
         }
 
         /// <summary>
@@ -152,11 +140,7 @@ namespace Honor.Runtime
         /// <returns>整型值</returns>
         public int GetInt(string configName, bool onPlatform = false)
         {
-            if (onPlatform)
-            {
-                configName = AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName());
-            }
-            return m_ConfigManager.GetInt(configName);
+            return m_ConfigManager.GetInt(ResolvePlatformName(configName, onPlatform));
         }
 
         /// <summary>
@@ -167,11 +151,7 @@ namespace Honor.Runtime
         /// <returns>浮点值</returns>
         public float GetFloat(string configName, bool onPlatform = false)
         {
-            if (onPlatform)
-            {
-                configName = AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName());
-            }
-            return m_ConfigManager.GetFloat(configName);
+            return m_ConfigManager.GetFloat(ResolvePlatformName(configName, onPlatform));
         }
 
         /// <summary>
@@ -182,11 +162,7 @@ namespace Honor.Runtime
         /// <returns>字符串值</returns>
         public string GetString(string configName, bool onPlatform = false)
         {
-            if (onPlatform)
-            {
-                configName = AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName());
-            }
-            return m_ConfigManager.GetString(configName);
+            return m_ConfigManager.GetString(ResolvePlatformName(configName, onPlatform));
         }
         #endregion
 
@@ -194,6 +170,17 @@ namespace Honor.Runtime
         // 平台相关
         //=========================================================================
         #region Method - 平台判断
+        /// <summary>
+        /// 按需为配置名拼接当前平台后缀
+        /// </summary>
+        /// <param name="configName">原始配置名</param>
+        /// <param name="onPlatform">是否拼接平台后缀</param>
+        /// <returns>实际查询用的配置名</returns>
+        private string ResolvePlatformName(string configName, bool onPlatform)
+        {
+            return onPlatform ? AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName()) : configName;
+        }
+
         /// <summary>
         /// 获取当前构建平台名称（用于差异化配置）
         /// </summary>

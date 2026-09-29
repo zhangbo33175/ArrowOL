@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaBehaviour.Normal.cs
+ * filename:  LuaBehaviour.None.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   LuaBehaviour - 标准模式（None）专用字段与声明

@@ -70,16 +70,29 @@ namespace Honor.Runtime
         // 触发消息函数
         //=========================================================================
         #region Trigger Messages
+
+        /// <summary>
+        /// 触发进入
+        /// </summary>
+        /// <param name="other">对方碰撞体</param>
         private void OnTriggerEnter(Collider other)
         {
             m_OnTriggerEnter3DCallback?.Invoke(other);
         }
 
+        /// <summary>
+        /// 触发停留
+        /// </summary>
+        /// <param name="other">对方碰撞体</param>
         private void OnTriggerStay(Collider other)
         {
             m_OnTriggerStay3DCallback?.Invoke(other);
         }
 
+        /// <summary>
+        /// 触发退出
+        /// </summary>
+        /// <param name="other">对方碰撞体</param>
         private void OnTriggerExit(Collider other)
         {
             m_OnTriggerExit3DCallback?.Invoke(other);

@@ -135,6 +135,9 @@ namespace Honor.Runtime
         //=========================================================================
         // MonoBehaviour 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒时校验文本组件与时长有效性
+        /// </summary>
         private void Awake()
         {
             // 必须至少有一个文本组件
@@ -152,6 +155,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 启动时按配置开启遮罩并播放淡入上移淡出动画
+        /// </summary>
         private void Start()
         {
             // 根据配置决定是否开启遮罩阻挡点击
@@ -164,58 +170,79 @@ namespace Honor.Runtime
             // 播放 UGUI Text 动画
             if (m_WordsText != null && m_WordsText.enabled)
             {
-                // 初始化：透明 + 下移
-                m_WordsText.color = new Color(m_WordsText.color.r, m_WordsText.color.g, m_WordsText.color.b, 0f);
-                m_WordsText.transform.rectTransform().anchoredPosition = new Vector2(0f, -60f);
-
-                // 淡入 + 上移
-                DOTween.Sequence()
-                    .Append(m_WordsText.DOColor(
-                        new Color(m_WordsText.color.r, m_WordsText.color.g, m_WordsText.color.b, 1f), fadeDuration))
-                    .Insert(0, m_WordsText.transform.rectTransform().DOLocalMoveY(0, fadeDuration));
-
-                // 等待 + 淡出 + 关闭
-                DOTween.Sequence()
-                    .AppendInterval(fadeDuration + m_Duration)
-                    .Append(m_WordsText.DOColor(
-                        new Color(m_WordsText.color.r, m_WordsText.color.g, m_WordsText.color.b, 0f), fadeDuration))
-                    .AppendCallback(() =>
-                    {
-                        m_OverCallback?.Invoke();
-                        GameMainRoot.UI.CloseUIByGO(gameObject, true);
-                    });
+                PlayTextAnimation(fadeDuration);
             }
             // 播放 TMP 动画
             else if (m_WordsTextTMP != null && m_WordsTextTMP.enabled)
             {
-                // 初始化：透明 + 下移
-                m_WordsTextTMP.color = new Color(m_WordsTextTMP.color.r, m_WordsTextTMP.color.g, m_WordsTextTMP.color.b,
-                    0f);
-                m_WordsTextTMP.transform.rectTransform().anchoredPosition = new Vector2(0f, -60f);
-
-                // 淡入 + 上移
-                DOTween.Sequence()
-                    .Append(m_WordsTextTMP.DOColor(
-                        new Color(m_WordsTextTMP.color.r, m_WordsTextTMP.color.g, m_WordsTextTMP.color.b, 1f),
-                        fadeDuration))
-                    .Insert(0, m_WordsTextTMP.transform.rectTransform().DOLocalMoveY(0, fadeDuration))
-                    .SetUpdate(true);
-
-                // 等待 + 淡出 + 关闭
-                DOTween.Sequence()
-                    .AppendInterval(fadeDuration + m_Duration)
-                    .Append(m_WordsTextTMP.DOColor(
-                        new Color(m_WordsTextTMP.color.r, m_WordsTextTMP.color.g, m_WordsTextTMP.color.b, 0f),
-                        fadeDuration))
-                    .AppendCallback(() =>
-                    {
-                        m_OverCallback?.Invoke();
-                        GameMainRoot.UI.CloseUIByGO(gameObject, true);
-                    })
-                    .SetUpdate(true);
+                PlayTMPAnimation(fadeDuration);
             }
         }
 
+        /// <summary>
+        /// 播放 UGUI Text 版飘字动画（淡入上移 → 等待 → 淡出关闭）
+        /// </summary>
+        /// <param name="fadeDuration">淡入/淡出单次时长</param>
+        private void PlayTextAnimation(float fadeDuration)
+        {
+            // 初始化：透明 + 下移
+            m_WordsText.color = new Color(m_WordsText.color.r, m_WordsText.color.g, m_WordsText.color.b, 0f);
+            m_WordsText.transform.rectTransform().anchoredPosition = new Vector2(0f, -60f);
+
+            // 淡入 + 上移
+            DOTween.Sequence()
+                .Append(m_WordsText.DOColor(
+                    new Color(m_WordsText.color.r, m_WordsText.color.g, m_WordsText.color.b, 1f), fadeDuration))
+                .Insert(0, m_WordsText.transform.rectTransform().DOLocalMoveY(0, fadeDuration));
+
+            // 等待 + 淡出 + 关闭
+            DOTween.Sequence()
+                .AppendInterval(fadeDuration + m_Duration)
+                .Append(m_WordsText.DOColor(
+                    new Color(m_WordsText.color.r, m_WordsText.color.g, m_WordsText.color.b, 0f), fadeDuration))
+                .AppendCallback(() =>
+                {
+                    m_OverCallback?.Invoke();
+                    GameMainRoot.UI.CloseUIByGO(gameObject, true);
+                });
+        }
+
+        /// <summary>
+        /// 播放 TextMeshProUGUI 版飘字动画（淡入上移 → 等待 → 淡出关闭，Timescale 无关）
+        /// </summary>
+        /// <param name="fadeDuration">淡入/淡出单次时长</param>
+        private void PlayTMPAnimation(float fadeDuration)
+        {
+            // 初始化：透明 + 下移
+            m_WordsTextTMP.color = new Color(m_WordsTextTMP.color.r, m_WordsTextTMP.color.g, m_WordsTextTMP.color.b,
+                0f);
+            m_WordsTextTMP.transform.rectTransform().anchoredPosition = new Vector2(0f, -60f);
+
+            // 淡入 + 上移
+            DOTween.Sequence()
+                .Append(m_WordsTextTMP.DOColor(
+                    new Color(m_WordsTextTMP.color.r, m_WordsTextTMP.color.g, m_WordsTextTMP.color.b, 1f),
+                    fadeDuration))
+                .Insert(0, m_WordsTextTMP.transform.rectTransform().DOLocalMoveY(0, fadeDuration))
+                .SetUpdate(true);
+
+            // 等待 + 淡出 + 关闭
+            DOTween.Sequence()
+                .AppendInterval(fadeDuration + m_Duration)
+                .Append(m_WordsTextTMP.DOColor(
+                    new Color(m_WordsTextTMP.color.r, m_WordsTextTMP.color.g, m_WordsTextTMP.color.b, 0f),
+                    fadeDuration))
+                .AppendCallback(() =>
+                {
+                    m_OverCallback?.Invoke();
+                    GameMainRoot.UI.CloseUIByGO(gameObject, true);
+                })
+                .SetUpdate(true);
+        }
+
+        /// <summary>
+        /// 销毁（预留）
+        /// </summary>
         private void OnDestroy()
         {
         }

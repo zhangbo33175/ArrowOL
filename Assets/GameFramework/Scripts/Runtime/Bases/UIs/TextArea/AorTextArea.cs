@@ -119,6 +119,27 @@ namespace Honor.Runtime
             toFill.Clear();
 
             // 构建文本四边形顶点，处理像素对齐
+            FillVertexQuads(toFill, vertexList, unitsPerPixel, vertexCount, roundingOffset);
+
+            // 恢复纹理回调
+            m_DisableFontTextureRebuiltCallback = false;
+
+            // 赋值当前可见的文本行数
+            VisibleLines = cachedTextGenerator.lineCount;
+        }
+
+        /// <summary>
+        /// 将文本顶点按每4个一组构建四边形写入网格，按需叠加像素对齐偏移
+        /// </summary>
+        /// <param name="toFill">顶点辅助器</param>
+        /// <param name="vertexList">文本生成的顶点列表</param>
+        /// <param name="unitsPerPixel">每像素单位换算</param>
+        /// <param name="vertexCount">顶点总数</param>
+        /// <param name="roundingOffset">像素对齐偏移量</param>
+        private void FillVertexQuads(VertexHelper toFill, IList<UIVertex> vertexList, float unitsPerPixel, int vertexCount,
+            Vector2 roundingOffset)
+        {
+            // 构建文本四边形顶点，处理像素对齐
             if (roundingOffset != Vector2.zero)
             {
                 for (int i = 0; i < vertexCount; ++i)
@@ -146,12 +167,6 @@ namespace Honor.Runtime
                         toFill.AddUIVertexQuad(m_TmpVerts);
                 }
             }
-
-            // 恢复纹理回调
-            m_DisableFontTextureRebuiltCallback = false;
-
-            // 赋值当前可见的文本行数
-            VisibleLines = cachedTextGenerator.lineCount;
         }
         #endregion
     }

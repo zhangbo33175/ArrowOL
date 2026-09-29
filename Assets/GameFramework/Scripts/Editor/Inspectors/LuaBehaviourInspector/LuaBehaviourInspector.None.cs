@@ -50,7 +50,7 @@ namespace Honor.Editor
             m_LuaScriptNamesNone = serializedObject.FindProperty("m_LuaScriptNamesNone");
             if (m_LuaScriptNamesNone.arraySize == 0)
             {
-                for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
+                for (int i = 0; i < (int)NonePatternType.TotalCount; i++)
                 {
                     m_LuaScriptNamesNone.InsertArrayElementAtIndex(i);
                     m_LuaScriptNamesNone.GetArrayElementAtIndex(i).stringValue = string.Empty;
@@ -58,20 +58,20 @@ namespace Honor.Editor
             }
 
             m_LuaSuperScriptNamesNone = serializedObject.FindProperty("m_LuaSuperScriptNamesNone");
-            if (m_LuaSuperScriptNamesNone.arraySize > (int)NonePatternType.TotalNum)
+            if (m_LuaSuperScriptNamesNone.arraySize > (int)NonePatternType.TotalCount)
             {
                 m_LuaSuperScriptNamesNone.ClearArray();
             }
 
             if (m_LuaSuperScriptNamesNone.arraySize == 0)
             {
-                for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
+                for (int i = 0; i < (int)NonePatternType.TotalCount; i++)
                 {
                     m_LuaSuperScriptNamesNone.InsertArrayElementAtIndex(i);
                 }
             }
 
-            for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
+            for (int i = 0; i < (int)NonePatternType.TotalCount; i++)
             {
                 if (string.IsNullOrEmpty(m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(i).stringValue))
                 {
@@ -80,7 +80,7 @@ namespace Honor.Editor
             }
 
             m_TextLuaSuperScriptNamesNone = new List<string>();
-            for (int i = 0; i < (int)NonePatternType.TotalNum; i++)
+            for (int i = 0; i < (int)NonePatternType.TotalCount; i++)
             {
                 m_TextLuaSuperScriptNamesNone.Add(m_LuaSuperScriptNamesNone.GetArrayElementAtIndex(i).stringValue);
             }
@@ -170,65 +170,7 @@ namespace Honor.Editor
                 out List<string> funcNames, out List<string> funcParams, out List<string> cmds);
 
             // 注入字段
-            if (m_Injections != null && m_Injections.arraySize > 0)
-            {
-                for (int i = 0; i < m_Injections.arraySize; i++)
-                {
-                    // 名称未填写的注入项不生成字段，避免生成空行脏数据
-                    if (string.IsNullOrEmpty(m_InterInjectionNames[i].stringValue))
-                    {
-                        continue;
-                    }
-
-                    string comment = m_InterInjectionComments[i].stringValue ?? "";
-                    string field = m_InterInjectionNames[i].stringValue;
-                    string type = "";
-                    string valid = "";
-                    string infoEx = "";
-
-                    if (m_InterInjectionIsArrays[i].boolValue)
-                    {
-                        type = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex]}[]";
-                        valid = "√";
-                        for (int j = 0; j < m_InterInjectionElementsObjs[i].arraySize; j++)
-                        {
-                            if (m_InterInjectionElementsObjs[i].GetArrayElementAtIndex(j).objectReferenceValue == null)
-                            {
-                                valid = "×";
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        type = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex];
-                        valid = (m_InterInjectionTypeNames[i].enumValueIndex is < (int)LuaInjection.InjectionType.Int32 or > (int)LuaInjection.InjectionType.Boolean)
-                            ? (m_InterInjectionObjs[i].objectReferenceValue != null ? "√" : "×")
-                            : (string.IsNullOrEmpty(m_InterInjectionVariants[i].stringValue) ? "×" : m_InterInjectionVariants[i].stringValue);
-
-                        infoEx = m_InterInjectionInfoExs[i].stringValue;
-                    }
-
-                    // 类型修正
-                    if (type == "UnityEngine.GameObject" && !string.IsNullOrEmpty(infoEx))
-                    {
-                        Type t = Type.GetType(infoEx);
-                        type = t?.FullName ?? "any";
-                    }
-                    else if (type == "Honor.Runtime.LuaBehaviour" && !string.IsNullOrEmpty(infoEx))
-                    {
-                        type = infoEx;
-                    }
-
-                    // 对齐排版
-                    while (field.Length < 35) field += " ";
-                    while (type.Length < 30) type += " ";
-                    while (valid.Length < 10) valid += " ";
-                    while (infoEx.Length < 15) infoEx += " ";
-
-                    sb.AppendLine($"---@field {field}{type}{valid}{infoEx}{comment}");
-                }
-            }
+            AppendNoneInjectionFields(sb);
 
             // 类定义
             sb.AppendLine($"local {scriptName} = class('{scriptName}', import('{superName}'))");
@@ -360,6 +302,90 @@ namespace Honor.Editor
                   .AppendLine();
             }
 
+            // 2D/3D 碰撞与触发器生命周期函数
+            AppendNoneColliderTriggerLifeCycles(sb, scriptName);
+
+            // UI 交互方法
+            AppendNoneUIInteractionMethods(sb, scriptName, injectNames, injectComments, funcNames, funcParams);
+
+            sb.AppendLine($"return {scriptName}");
+            return sb;
+        }
+
+        /// <summary>
+        /// 追加None模式注入对象字段声明（---@field）代码
+        /// </summary>
+        /// <param name="sb">代码构建器</param>
+        private void AppendNoneInjectionFields(StringBuilder sb)
+        {
+            if (m_Injections != null && m_Injections.arraySize > 0)
+            {
+                for (int i = 0; i < m_Injections.arraySize; i++)
+                {
+                    // 名称未填写的注入项不生成字段，避免生成空行脏数据
+                    if (string.IsNullOrEmpty(m_InterInjectionNames[i].stringValue))
+                    {
+                        continue;
+                    }
+
+                    string comment = m_InterInjectionComments[i].stringValue ?? "";
+                    string field = m_InterInjectionNames[i].stringValue;
+                    string type = "";
+                    string valid = "";
+                    string infoEx = "";
+
+                    if (m_InterInjectionIsArrays[i].boolValue)
+                    {
+                        type = $"{LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex]}[]";
+                        valid = "√";
+                        for (int j = 0; j < m_InterInjectionElementsObjs[i].arraySize; j++)
+                        {
+                            if (m_InterInjectionElementsObjs[i].GetArrayElementAtIndex(j).objectReferenceValue == null)
+                            {
+                                valid = "×";
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        type = LuaInjection.LuaInjectionType[(int)m_InterInjectionTypeNames[i].enumValueIndex];
+                        valid = (m_InterInjectionTypeNames[i].enumValueIndex is < (int)LuaInjection.InjectionType.Int32 or > (int)LuaInjection.InjectionType.Boolean)
+                            ? (m_InterInjectionObjs[i].objectReferenceValue != null ? "√" : "×")
+                            : (string.IsNullOrEmpty(m_InterInjectionVariants[i].stringValue) ? "×" : m_InterInjectionVariants[i].stringValue);
+
+                        infoEx = m_InterInjectionInfoExs[i].stringValue;
+                    }
+
+                    // 类型修正
+                    if (type == "UnityEngine.GameObject" && !string.IsNullOrEmpty(infoEx))
+                    {
+                        Type t = Type.GetType(infoEx);
+                        type = t?.FullName ?? "any";
+                    }
+                    else if (type == "Honor.Runtime.LuaBehaviour" && !string.IsNullOrEmpty(infoEx))
+                    {
+                        type = infoEx;
+                    }
+
+                    // 对齐排版
+                    while (field.Length < 35) field += " ";
+                    while (type.Length < 30) type += " ";
+                    while (valid.Length < 10) valid += " ";
+                    while (infoEx.Length < 15) infoEx += " ";
+
+                    sb.AppendLine($"---@field {field}{type}{valid}{infoEx}{comment}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 追加None模式2D/3D碰撞与触发器生命周期函数骨架代码（按开关决定是否输出）
+        /// </summary>
+        /// <param name="sb">代码构建器</param>
+        /// <param name="scriptName">Lua脚本名称</param>
+        private void AppendNoneColliderTriggerLifeCycles(StringBuilder sb, string scriptName)
+        {
             // 2D 碰撞
             if (m_UseCollider2DLifeCycles.boolValue)
             {
@@ -447,8 +473,19 @@ namespace Honor.Editor
                   .AppendLine("end")
                   .AppendLine();
             }
+        }
 
-            // UI 方法
+        /// <summary>
+        /// 追加None模式UI交互监听函数骨架代码（按注入去重，GettingItem生成列表项返回骨架）
+        /// </summary>
+        /// <param name="sb">代码构建器</param>
+        /// <param name="scriptName">Lua脚本名称</param>
+        /// <param name="injectNames">注入对象名称列表</param>
+        /// <param name="injectComments">注入对象注释列表</param>
+        /// <param name="funcNames">注入回调函数名列表</param>
+        /// <param name="funcParams">注入回调参数列表</param>
+        private void AppendNoneUIInteractionMethods(StringBuilder sb, string scriptName, List<string> injectNames, List<string> injectComments, List<string> funcNames, List<string> funcParams)
+        {
             for (int i = 0; i < funcNames.Count; i++)
             {
                 bool repeat = false;
@@ -485,9 +522,6 @@ namespace Honor.Editor
                 sb.AppendLine("end")
                   .AppendLine();
             }
-
-            sb.AppendLine($"return {scriptName}");
-            return sb;
         }
         #endregion
 
@@ -627,35 +661,11 @@ namespace Honor.Editor
 
             // ========== 第5步：插入注销行（在注销end标记之前，锚点重新定位） ==========
             int unRegInsIdx = content.LastIndexOf(unRegEnd);
-            StringBuilder unRegBuilder = new StringBuilder();
-            if (funcNames.Count > 0)
-            {
-                for (int i = 0; i < funcNames.Count; i++)
-                {
-                    unRegBuilder.AppendLine($"    OnRemoveListener(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
-                }
-            }
-            else
-            {
-                unRegBuilder.AppendLine("-- 无自动注销内容。");
-            }
-            content = content.Insert(unRegInsIdx, unRegBuilder.ToString());
+            content = content.Insert(unRegInsIdx, BuildNoneListenerLines(false, injectNames, cmds, funcNames));
 
             // ========== 第6步：插入注册行（在注册end标记之前，锚点重新定位） ==========
             int regInsIdx = content.LastIndexOf(regEnd);
-            StringBuilder regBuilder = new StringBuilder();
-            if (funcNames.Count > 0)
-            {
-                for (int i = 0; i < funcNames.Count; i++)
-                {
-                    regBuilder.AppendLine($"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
-                }
-            }
-            else
-            {
-                regBuilder.AppendLine("-- 无自动注册内容。");
-            }
-            content = content.Insert(regInsIdx, regBuilder.ToString());
+            content = content.Insert(regInsIdx, BuildNoneListenerLines(true, injectNames, cmds, funcNames));
 
             // ========== 第7步：追加缺失的方法（只补不覆盖，保护手写内容） ==========
             int returnIdx = content.LastIndexOf($"return {scriptName}");
@@ -717,6 +727,38 @@ namespace Honor.Editor
 
             // 返回"头部注释之后"的正文（外层 GeneratePatternNoneCommentLines 会统一重写头部）
             return new StringBuilder(content.Substring(fieldsStart));
+        }
+
+        /// <summary>
+        /// 构建None模式自动注册/注销监听代码行（注册与注销共用，按方向输出不同函数名）
+        /// </summary>
+        /// <param name="isRegister">true=注册(AddUIListenerFunction)，false=注销(OnRemoveListener)</param>
+        /// <param name="injectNames">注入对象名称列表</param>
+        /// <param name="cmds">注入事件命令列表</param>
+        /// <param name="funcNames">注入回调函数名列表</param>
+        /// <returns>拼接后的监听代码文本</returns>
+        private string BuildNoneListenerLines(bool isRegister, List<string> injectNames, List<string> cmds, List<string> funcNames)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (funcNames.Count > 0)
+            {
+                for (int i = 0; i < funcNames.Count; i++)
+                {
+                    if (isRegister)
+                    {
+                        sb.AppendLine($"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"    OnRemoveListener(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
+                    }
+                }
+            }
+            else
+            {
+                sb.AppendLine(isRegister ? "-- 无自动注册内容。" : "-- 无自动注销内容。");
+            }
+            return sb.ToString();
         }
 
         /// <summary>

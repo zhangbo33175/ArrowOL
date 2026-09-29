@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaComponent.Events.cs
+ * filename:  LuaComponent.EventDelegates.cs
  * author:    云毅
  * created:   2026
  * descrip:   Lua 全局事件绑定模块，负责 C# 与 Lua 之间的跨语言通信、生命周期事件派发、全局委托绑定
@@ -217,68 +217,47 @@ namespace Honor.Runtime
         public void InitLuaBindings()
         {
             // 获取Lua层的面向对象Class创建回调
-            m_LuaCreateLuaClassFromCSEventDelegate = GetGlobalValue<LuaCreateLuaClassFromCSEventDelegate>("CreateLuaClassFromCS");
-            if (m_LuaCreateLuaClassFromCSEventDelegate == null)
-            {
-                Log.Fatal("LuaCreateLuaClassFromCSEventDelegate 绑定失败");
-                return;
-            }
+            if (!TryBindGlobalDelegate("CreateLuaClassFromCS", "LuaCreateLuaClassFromCSEventDelegate 绑定失败", out m_LuaCreateLuaClassFromCSEventDelegate)) return;
 
             // 本地化表关联
-            m_LuaRelateLocalizationTableDataFromCSEventDelegate = GetGlobalValue<LuaRelateLocalizationTableDataFromCSEventDelegate>("Relate_Localization_Table_Data");
-            if (m_LuaRelateLocalizationTableDataFromCSEventDelegate == null)
-            {
-                Log.Fatal("LuaRelateLocalizationTableDataFromCSEventDelegate 无效。");
-                return;
-            }
+            if (!TryBindGlobalDelegate("Relate_Localization_Table_Data", "LuaRelateLocalizationTableDataFromCSEventDelegate 无效。", out m_LuaRelateLocalizationTableDataFromCSEventDelegate)) return;
 
             // 创建流程 Lua 类
-            m_LuaCreateProcedureLuaClassFromCSEventDelegate = GetGlobalValue<LuaCreateProcedureLuaClassFromCSEventDelegate>("CreatePocedureLuaClassFromCS");
-            if (m_LuaCreateProcedureLuaClassFromCSEventDelegate == null)
-            {
-                Log.Fatal("LuaCreateProcedureLuaClassFromCSEventDelegate 绑定失败");
-                return;
-            }
+            if (!TryBindGlobalDelegate("CreatePocedureLuaClassFromCS", "LuaCreateProcedureLuaClassFromCSEventDelegate 绑定失败", out m_LuaCreateProcedureLuaClassFromCSEventDelegate)) return;
 
             // 应用暂停
-            m_LuaApplicationPauseFromCSEventDelegate = GetGlobalValue<LuaApplicationPauseFromCSEventDelegate>("ApplicationPauseCallback");
-            if (m_LuaApplicationPauseFromCSEventDelegate == null)
-            {
-                Log.Fatal("LuaApplicationPauseFromCSEventDelegate 无效。");
-                return;
-            }
+            if (!TryBindGlobalDelegate("ApplicationPauseCallback", "LuaApplicationPauseFromCSEventDelegate 无效。", out m_LuaApplicationPauseFromCSEventDelegate)) return;
 
             // 应用退出
-            m_LuaApplicationQuitFromCSEventDelegate = GetGlobalValue<LuaApplicationQuitFromCSEventDelegate>("ApplicationQuitCallback");
-            if (m_LuaApplicationQuitFromCSEventDelegate == null)
-            {
-                Log.Fatal("LuaApplicationQuitFromCSEventDelegate 绑定失败");
-                return;
-            }
+            if (!TryBindGlobalDelegate("ApplicationQuitCallback", "LuaApplicationQuitFromCSEventDelegate 绑定失败", out m_LuaApplicationQuitFromCSEventDelegate)) return;
 
             // 按键抬起
-            m_LuaKeysUpFromCSEventDelegate = GetGlobalValue<LuaKeysUpFromCSEventDelegate>("KeyboardsUpCallback");
-            if (m_LuaKeysUpFromCSEventDelegate == null)
-            {
-                Log.Fatal("LuaKeysUpFromCSEventDelegate 绑定失败");
-                return;
-            }
+            if (!TryBindGlobalDelegate("KeyboardsUpCallback", "LuaKeysUpFromCSEventDelegate 绑定失败", out m_LuaKeysUpFromCSEventDelegate)) return;
 
             // 获取Lua层接收C#事件回调全局派发
-            m_LuaReceiveEventCSEventDelegate = GetGlobalValue<LuaReceiveEventCSEventDelegate>("ReceiveCsEventCallback");
-            if (m_LuaReceiveEventCSEventDelegate == null)
-            {
-                Log.Fatal("m_LuaReceiveEventCSEventDelegate 无效。");
-                return;
-            }
+            if (!TryBindGlobalDelegate("ReceiveCsEventCallback", "m_LuaReceiveEventCSEventDelegate 无效。", out m_LuaReceiveEventCSEventDelegate)) return;
 
             // c#获取lua层的ResDefInfo事件全局派发
-            m_LuaGetResDefInfoEventDelegate = GetGlobalValue<LuaGetResDefInfoEventDelegate>("GetResDefInfoCallback");
-            if (m_LuaGetResDefInfoEventDelegate == null)
+            if (!TryBindGlobalDelegate("GetResDefInfoCallback", "m_LuaGetResDefInfoEventDelegate 无效。", out m_LuaGetResDefInfoEventDelegate)) return;
+        }
+
+        /// <summary>
+        /// 从Lua虚拟机获取全局委托，获取失败时打印致命错误并返回false
+        /// </summary>
+        /// <typeparam name="T">委托类型</typeparam>
+        /// <param name="luaName">Lua全局函数名</param>
+        /// <param name="fatalMsg">失败时的致命错误日志</param>
+        /// <param name="del">输出绑定到的委托字段</param>
+        /// <returns>是否绑定成功</returns>
+        private bool TryBindGlobalDelegate<T>(string luaName, string fatalMsg, out T del)
+        {
+            del = GetGlobalValue<T>(luaName);
+            if (del == null)
             {
-                Log.Fatal("m_LuaGetResDefInfoEventDelegate 无效。");
-                return;
+                Log.Fatal(fatalMsg);
+                return false;
             }
+            return true;
         }
 
         #endregion

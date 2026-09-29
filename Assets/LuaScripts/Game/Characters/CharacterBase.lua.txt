@@ -24,7 +24,7 @@ local CharacterBase = class('CharacterBase', import('LuaBehaviourSuper'))
 --- 构造与创建
 ---=========================================================================
 --region Constructor & Create
----构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function CharacterBase:ctor(args)
@@ -37,7 +37,7 @@ function CharacterBase:ctor(args)
     self._WaitFrame         = GameLib.WaitForFrames(1)
 end
 
----创建函数
+---@brief 创建函数
 ---@type fun(args:table):CharacterBase
 ---@param args table @自定义参数
 ---@return CharacterBase @CharacterBase实例
@@ -51,7 +51,7 @@ end
 --- 生命周期
 ---=========================================================================
 --region LifeCycle
----注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@brief 注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
 ---@type fun():void
 function CharacterBase:OnAddListeners()
     CharacterBase.super.OnAddListeners(self)
@@ -62,7 +62,7 @@ function CharacterBase:OnAddListeners()
     end
 end
 
----唤醒
+---@brief 唤醒
 ---@type fun():void
 function CharacterBase:Awake()
     if self._CharacterIcon then
@@ -72,13 +72,13 @@ function CharacterBase:Awake()
     CharacterBase.super.Awake(self)
 end
 
----开始
+---@brief 开始
 ---@type fun():void
 function CharacterBase:Start()
     CharacterBase.super.Start(self)
 end
 
----销毁
+---@brief 销毁
 ---@type fun():void
 function CharacterBase:OnDestroy()
     CharacterBase.super.OnDestroy(self)
@@ -93,7 +93,7 @@ end
 --- 点击交互
 ---=========================================================================
 --region Click Event
----点击了角色
+---@brief 点击了角色
 ---@type fun():void
 function CharacterBase:OnClickCharacter()
     if GameStateMachine:CurrentStateType() == GameStateCmd.PlayingState then
@@ -108,7 +108,7 @@ end
 --- 数据与清理
 ---=========================================================================
 --region Data & Clear
----清理数据
+---@brief 清理数据
 ---@type fun():void
 function CharacterBase:Clear()
     self._CharData = nil
@@ -122,21 +122,21 @@ end
 --- 行为树回调方法（由子类继承实现）
 ---=========================================================================
 --region Behaviour Tree Callback
----是否游戏结束
+---@brief 是否游戏结束
 ---@type fun():boolean
 ---@return boolean @是否游戏结束
 function CharacterBase:IsGameOver()
     return GameCoreManager._IsGameOver
 end
 
----获取坐标点
+---@brief 获取坐标点
 ---@type fun(posName:string):UnityEngine.Vector3
 ---@param posName string @坐标点名称
 ---@return UnityEngine.Vector3 @坐标点
 function CharacterBase:GetDesPosBTAction(posName)
 end
 
----游戏结束Action
+---@brief 游戏结束Action
 function CharacterBase:OnGameOverBTAction()
 
 end
@@ -146,7 +146,7 @@ end
 --- 音效播放
 ---=========================================================================
 --region Audio & Sound
----播放音效
+---@brief 播放音效
 ---@type fun(name:string)
 ---@param name string @ Tables.Characters_Item 里面的字段
 function CharacterBase:PlaySound(name)
@@ -163,7 +163,7 @@ end
 --- 公共获取接口
 ---=========================================================================
 --region Public Getter
----获取角色ID
+---@brief 获取角色ID
 ---@type fun():string
 ---@return string @ 角色ID
 function CharacterBase:GetCharID()
@@ -174,7 +174,7 @@ function CharacterBase:GetCharID()
     return self._CharData.ID
 end
 
----获取角色类型
+---@brief 获取角色类型
 ---@type fun():ECharacterType
 ---@return number @ 角色类型
 function CharacterBase:GetCharType()
@@ -186,42 +186,42 @@ end
 --- 游戏生命周期接口
 ---=========================================================================
 --region 游戏点击物生命周期
----初始化游戏
+---@brief 初始化游戏
 function CharacterBase:OnInitGame()
 
 end
 
----进入游戏
+---@brief 进入游戏
 function CharacterBase:OnEnterGame()
 
 end
 
----游戏开始
+---@brief 游戏开始
 function CharacterBase:OnBeginGame()
 
 end
 
----游戏暂停
+---@brief 游戏暂停
 function CharacterBase:OnPauseGame()
 
 end
 
----游戏恢复
+---@brief 游戏恢复
 function CharacterBase:OnResumeGame()
 
 end
 
----游戏结束
+---@brief 游戏结束
 function CharacterBase:OnGameOver()
 
 end
 
----游戏退出
+---@brief 游戏退出
 function CharacterBase:OnExitGame()
 
 end
 
----游戏重玩
+---@brief 游戏重玩
 function CharacterBase:OnRePlayGame()
 
 end

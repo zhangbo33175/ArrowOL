@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  ConfigComponent.Fields.cs
+ * filename:  ConfigComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   全局配置管理组件 - 字段定义（partial）

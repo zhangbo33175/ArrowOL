@@ -458,22 +458,8 @@ namespace Honor.Editor
             // 重置生成标记
             m_LuaCanGenerate = false;
 
-            // 绘制设计模式选择
-            m_PatternType.enumValueIndex = EditorGUILayout.Popup("设计模式", m_PatternType.enumValueIndex,
-                Enum.GetNames(typeof(PatternType)));
-
-            // 根据设计模式绘制预制体类型
-            switch ((PatternType)m_PatternType.enumValueIndex)
-            {
-                case PatternType.None:
-                    m_PrefabType.enumValueIndex = EditorGUILayout.Popup("预制体类型", m_PrefabType.enumValueIndex,
-                        Enum.GetNames(typeof(Runtime.PrefabType)));
-                    break;
-                case PatternType.MVVM:
-                    m_PrefabType.enumValueIndex =
-                        EditorGUILayout.Popup("预制体类型", 0, new string[] { Runtime.PrefabType.UI.ToString() });
-                    break;
-            }
+            // 绘制设计模式与预制体类型选择
+            DrawPatternAndPrefabTypeSection();
 
             EditorGUILayout.Separator();
 
@@ -490,116 +476,50 @@ namespace Honor.Editor
             EditorGUILayout.Separator();
 
             // 绘制Proc使用选项
-            m_UseProc.boolValue = EditorGUILayout.Toggle("使用Proc", m_UseProc.boolValue);
-            EditorGUILayout.HelpBox(
-                "LuaBehaviour已禁用了Update，由Proc取代。\n若不使用Proc，请关闭该选项，心跳将不会被调用，以节省回调开销。\n若使用Proc，心跳的调用顺序将由Proc的调用时机控制。\n所有形式的LuaBehaviour（默认挂载与动态挂载）均由框架自动管理，无需自行调用。",
-                MessageType.Info);
+            DrawProcSection();
 
             EditorGUILayout.Separator();
 
             // UI预制体专属配置
-            if ((Runtime.PrefabType)m_PrefabType.enumValueIndex == Runtime.PrefabType.UI)
-            {
-                m_MaskLayer.boolValue = EditorGUILayout.Toggle("使用前后遮罩层", m_MaskLayer.boolValue);
-                EditorGUILayout.HelpBox("注意：使用前后遮罩层，Awake时前后层遮罩将会被激活，不同阶段过程中将产生屏蔽触摸的作用。", MessageType.Info);
-
-                m_BottomCloseLayer.boolValue = EditorGUILayout.Toggle("使用关闭背景层", m_BottomCloseLayer.boolValue);
-                EditorGUILayout.HelpBox("注意：使用关闭背景层，入场动画稳定时该层会被激活，点击UI界面非底板区域时将触发UI关闭逻辑。", MessageType.Info);
-            }
+            DrawUISpecificSection();
 
             EditorGUILayout.Separator();
 
             // 绘制碰撞器生命周期注入选项
             GUILayout.BeginHorizontal("box");
             {
-                m_UseCollider2DLifeCycles.boolValue =
-                    EditorGUILayout.Toggle("注入Collider2D生命周期函数", m_UseCollider2DLifeCycles.boolValue);
-                if (m_UseCollider2DLifeCycles.boolValue)
-                {
-                    m_Collider2DLifeCyclesBehaviour.objectReferenceValue = ((LuaBehaviour)target).gameObject
-                        .GetOrAddComponent<Collider2DLifeCyclesBehaviour>();
-                }
-                else
-                {
-                    DestroyImmediate(((LuaBehaviour)target).gameObject.GetComponent<Collider2DLifeCyclesBehaviour>());
-                    m_Collider2DLifeCyclesBehaviour.objectReferenceValue = null;
-                }
-
-                m_UseCollider3DLifeCycles.boolValue =
-                    EditorGUILayout.Toggle("注入Collider3D生命周期函数", m_UseCollider3DLifeCycles.boolValue);
-                if (m_UseCollider3DLifeCycles.boolValue)
-                {
-                    m_Collider3DLifeCyclesBehaviour.objectReferenceValue = ((LuaBehaviour)target).gameObject
-                        .GetOrAddComponent<Collider3DLifeCyclesBehaviour>();
-                }
-                else
-                {
-                    DestroyImmediate(((LuaBehaviour)target).gameObject.GetComponent<Collider3DLifeCyclesBehaviour>());
-                    m_Collider3DLifeCyclesBehaviour.objectReferenceValue = null;
-                }
+                DrawLifeCycleInjectionToggle(m_UseCollider2DLifeCycles, m_Collider2DLifeCyclesBehaviour,
+                    "注入Collider2D生命周期函数", typeof(Collider2DLifeCyclesBehaviour));
+                DrawLifeCycleInjectionToggle(m_UseCollider3DLifeCycles, m_Collider3DLifeCyclesBehaviour,
+                    "注入Collider3D生命周期函数", typeof(Collider3DLifeCyclesBehaviour));
             }
             GUILayout.EndHorizontal();
 
             // 绘制触发器生命周期注入选项
             GUILayout.BeginHorizontal("box");
             {
-                m_UseTrigger2DLifeCycles.boolValue =
-                    EditorGUILayout.Toggle("注入Trigger2D生命周期函数", m_UseTrigger2DLifeCycles.boolValue);
-                if (m_UseTrigger2DLifeCycles.boolValue)
-                {
-                    m_Trigger2DLifeCyclesBehaviour.objectReferenceValue = ((LuaBehaviour)target).gameObject
-                        .GetOrAddComponent<Trigger2DLifeCyclesBehaviour>();
-                }
-                else
-                {
-                    DestroyImmediate(((LuaBehaviour)target).gameObject.GetComponent<Trigger2DLifeCyclesBehaviour>());
-                    m_Trigger2DLifeCyclesBehaviour.objectReferenceValue = null;
-                }
-
-                m_UseTrigger3DLifeCycles.boolValue =
-                    EditorGUILayout.Toggle("注入Trigger3D生命周期函数", m_UseTrigger3DLifeCycles.boolValue);
-                if (m_UseTrigger3DLifeCycles.boolValue)
-                {
-                    m_Trigger3DLifeCyclesBehaviour.objectReferenceValue = ((LuaBehaviour)target).gameObject
-                        .GetOrAddComponent<Trigger3DLifeCyclesBehaviour>();
-                }
-                else
-                {
-                    DestroyImmediate(((LuaBehaviour)target).gameObject.GetComponent<Trigger3DLifeCyclesBehaviour>());
-                    m_Trigger3DLifeCyclesBehaviour.objectReferenceValue = null;
-                }
+                DrawLifeCycleInjectionToggle(m_UseTrigger2DLifeCycles, m_Trigger2DLifeCyclesBehaviour,
+                    "注入Trigger2D生命周期函数", typeof(Trigger2DLifeCyclesBehaviour));
+                DrawLifeCycleInjectionToggle(m_UseTrigger3DLifeCycles, m_Trigger3DLifeCyclesBehaviour,
+                    "注入Trigger3D生命周期函数", typeof(Trigger3DLifeCyclesBehaviour));
             }
             GUILayout.EndHorizontal();
 
             EditorGUILayout.Separator();
 
             // 绘制动画开关
-            GUILayout.BeginHorizontal("box");
-            {
-                m_OpenAnimation.boolValue = EditorGUILayout.Toggle("使用打开/出场动画", m_OpenAnimation.boolValue);
-                m_CloseAnimation.boolValue = EditorGUILayout.Toggle("使用关闭/退场动画", m_CloseAnimation.boolValue);
-            }
-            GUILayout.EndHorizontal();
+            DrawAnimationSection();
 
             EditorGUILayout.Separator();
 
             // 绘制Gizmo显示选项
-            m_ShowRaycastTargetsGizmos.boolValue =
-                EditorGUILayout.Toggle("绘制Gizmo-RaycastTargets", m_ShowRaycastTargetsGizmos.boolValue);
-            EditorGUILayout.HelpBox(
-                "1.绘制Gizmos信息以辅助提示当前对象所有子节点中的raycastTarget组件。\n2.Android/iOS移动设备该选项会被自动禁用。\n3.该选项默认关闭。",
-                MessageType.Info);
+            DrawGizmoSection();
 
             EditorGUILayout.Separator();
 
             // 绘制作者与描述输入框
-            if (string.IsNullOrEmpty(m_LuaAuthorName.stringValue)) GUI.color = Color.red;
-            m_LuaAuthorName.stringValue = EditorGUILayout.TextField("Lua脚本作者", m_LuaAuthorName.stringValue);
-            GUI.color = Color.white;
-
-            if (string.IsNullOrEmpty(m_LuaDescript.stringValue)) GUI.color = Color.red;
-            m_LuaDescript.stringValue = EditorGUILayout.TextField("Lua脚本描述", m_LuaDescript.stringValue);
-            GUI.color = Color.white;
+            DrawRequiredTextField(m_LuaAuthorName, "Lua脚本作者");
+            DrawRequiredTextField(m_LuaDescript, "Lua脚本描述");
 
             EditorGUILayout.Separator();
 
@@ -623,6 +543,92 @@ namespace Honor.Editor
             EditorGUILayout.Separator();
 
             // 绘制生成/刷新Lua脚本按钮
+            DrawGenerateLuaButtonSection();
+
+            // 应用所有修改
+            serializedObject.ApplyModifiedProperties();
+            Repaint();
+        }
+
+        /// <summary>
+        /// 绘制设计模式下拉与联动的预制体类型下拉
+        /// </summary>
+        private void DrawPatternAndPrefabTypeSection()
+        {
+            // 绘制设计模式选择
+            m_PatternType.enumValueIndex = EditorGUILayout.Popup("设计模式", m_PatternType.enumValueIndex,
+                Enum.GetNames(typeof(PatternType)));
+
+            // 根据设计模式绘制预制体类型
+            switch ((PatternType)m_PatternType.enumValueIndex)
+            {
+                case PatternType.None:
+                    m_PrefabType.enumValueIndex = EditorGUILayout.Popup("预制体类型", m_PrefabType.enumValueIndex,
+                        Enum.GetNames(typeof(Runtime.PrefabType)));
+                    break;
+                case PatternType.MVVM:
+                    m_PrefabType.enumValueIndex =
+                        EditorGUILayout.Popup("预制体类型", 0, new string[] { Runtime.PrefabType.UI.ToString() });
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 绘制Proc开关与说明
+        /// </summary>
+        private void DrawProcSection()
+        {
+            m_UseProc.boolValue = EditorGUILayout.Toggle("使用Proc", m_UseProc.boolValue);
+            EditorGUILayout.HelpBox(
+                "LuaBehaviour已禁用了Update，由Proc取代。\n若不使用Proc，请关闭该选项，心跳将不会被调用，以节省回调开销。\n若使用Proc，心跳的调用顺序将由Proc的调用时机控制。\n所有形式的LuaBehaviour（默认挂载与动态挂载）均由框架自动管理，无需自行调用。",
+                MessageType.Info);
+        }
+
+        /// <summary>
+        /// 绘制UI预制体专属的遮罩层/关闭背景层配置
+        /// </summary>
+        private void DrawUISpecificSection()
+        {
+            if ((Runtime.PrefabType)m_PrefabType.enumValueIndex == Runtime.PrefabType.UI)
+            {
+                m_MaskLayer.boolValue = EditorGUILayout.Toggle("使用前后遮罩层", m_MaskLayer.boolValue);
+                EditorGUILayout.HelpBox("注意：使用前后遮罩层，Awake时前后层遮罩将会被激活，不同阶段过程中将产生屏蔽触摸的作用。", MessageType.Info);
+
+                m_BottomCloseLayer.boolValue = EditorGUILayout.Toggle("使用关闭背景层", m_BottomCloseLayer.boolValue);
+                EditorGUILayout.HelpBox("注意：使用关闭背景层，入场动画稳定时该层会被激活，点击UI界面非底板区域时将触发UI关闭逻辑。", MessageType.Info);
+            }
+        }
+
+        /// <summary>
+        /// 绘制打开/关闭动画开关
+        /// </summary>
+        private void DrawAnimationSection()
+        {
+            GUILayout.BeginHorizontal("box");
+            {
+                m_OpenAnimation.boolValue = EditorGUILayout.Toggle("使用打开/出场动画", m_OpenAnimation.boolValue);
+                m_CloseAnimation.boolValue = EditorGUILayout.Toggle("使用关闭/退场动画", m_CloseAnimation.boolValue);
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 绘制Gizmo显示开关与说明
+        /// </summary>
+        private void DrawGizmoSection()
+        {
+            m_ShowRaycastTargetsGizmos.boolValue =
+                EditorGUILayout.Toggle("绘制Gizmo-RaycastTargets", m_ShowRaycastTargetsGizmos.boolValue);
+            EditorGUILayout.HelpBox(
+                "1.绘制Gizmos信息以辅助提示当前对象所有子节点中的raycastTarget组件。\n2.Android/iOS移动设备该选项会被自动禁用。\n3.该选项默认关闭。",
+                MessageType.Info);
+        }
+
+        /// <summary>
+        /// 绘制生成/刷新Lua脚本按钮及状态提示
+        /// </summary>
+        private void DrawGenerateLuaButtonSection()
+        {
             if (m_LuaCanGenerate)
             {
                 if (GUILayout.Button("生成/刷新Lua脚本"))
@@ -648,10 +654,47 @@ namespace Honor.Editor
             {
                 EditorGUILayout.HelpBox("请先解决输入问题才能生成/刷新Lua脚本。", MessageType.Warning);
             }
+        }
 
-            // 应用所有修改
-            serializedObject.ApplyModifiedProperties();
-            Repaint();
+        /// <summary>
+        /// 绘制生命周期注入开关：开启时确保组件存在并绑定，关闭时销毁组件并清空引用
+        /// </summary>
+        /// <param name="useFlag">启用开关序列化属性</param>
+        /// <param name="behaviourRef">组件引用序列化属性</param>
+        /// <param name="label">开关显示文本</param>
+        /// <param name="behaviourType">目标生命周期组件类型</param>
+        private void DrawLifeCycleInjectionToggle(SerializedProperty useFlag, SerializedProperty behaviourRef,
+            string label, Type behaviourType)
+        {
+            useFlag.boolValue = EditorGUILayout.Toggle(label, useFlag.boolValue);
+            GameObject targetGo = ((LuaBehaviour)target).gameObject;
+            if (useFlag.boolValue)
+            {
+                behaviourRef.objectReferenceValue = targetGo.GetComponent(behaviourType) ??
+                                                    targetGo.AddComponent(behaviourType);
+            }
+            else
+            {
+                Component existing = targetGo.GetComponent(behaviourType);
+                if (existing != null)
+                {
+                    DestroyImmediate(existing);
+                }
+
+                behaviourRef.objectReferenceValue = null;
+            }
+        }
+
+        /// <summary>
+        /// 绘制必填文本框：内容为空时红色提示，绘制后恢复默认颜色
+        /// </summary>
+        /// <param name="field">字符串序列化属性</param>
+        /// <param name="label">字段显示文本</param>
+        private void DrawRequiredTextField(SerializedProperty field, string label)
+        {
+            if (string.IsNullOrEmpty(field.stringValue)) GUI.color = Color.red;
+            field.stringValue = EditorGUILayout.TextField(label, field.stringValue);
+            GUI.color = Color.white;
         }
 
         /// <summary>
@@ -863,806 +906,815 @@ namespace Honor.Editor
                 {
                     for (int index = 0; index < m_Injections.arraySize; index++)
                     {
-                        GUILayout.BeginVertical(m_InjectionItemStyle);
-                        {
-                            // 绘制行操作按钮
-                            GUILayout.BeginHorizontal("box");
-                            {
-                                GUI.color = Color.cyan;
-                                GUILayout.Label($"({index + 1})", new GUILayoutOption[] { GUILayout.Width(30) });
-                                GUI.color = Color.white;
-
-                                if (string.IsNullOrEmpty(m_InterInjectionComments[index].stringValue))
-                                    GUI.color = Color.red;
-                                m_InterInjectionComments[index].stringValue = GUILayout.TextField(
-                                    m_InterInjectionComments[index].stringValue,
-                                    new GUILayoutOption[] { GUILayout.Width(300) });
-                                GUI.color = Color.white;
-
-                                if (GUILayout.Button("+"))
-                                {
-                                    m_InnerInjectionInsertPosIndex = index;
-                                    GUIUtility.ExitGUI();
-                                }
-
-                                if (GUILayout.Button("-"))
-                                {
-                                    m_InnerInjectionDeletePosIndex = index;
-                                    GUIUtility.ExitGUI();
-                                }
-
-                                if (GUILayout.Button('\u25B2'.ToString()))
-                                {
-                                    m_InnerInjectionUpwardOriPosIndex = index;
-                                    m_InnerInjectionUpwardTargetPosIndex = index - 1 < 0 ? 0 : (index - 1);
-                                    GUIUtility.ExitGUI();
-                                }
-
-                                if (GUILayout.Button('\u25BC'.ToString()))
-                                {
-                                    m_InnerInjectionDownwardOriPosIndex = index;
-                                    m_InnerInjectionDownwardTargetPosIndex = index + 1 >= m_Injections.arraySize
-                                        ? (m_Injections.arraySize - 1)
-                                        : (index + 1);
-                                    GUIUtility.ExitGUI();
-                                }
-                            }
-                            GUILayout.EndHorizontal();
-
-                            // 数组模式
-                            if (m_InterInjectionIsArrays[index].boolValue)
-                            {
-                                GUILayout.BeginHorizontal("box");
-                                {
-                                    ShowInjectionItemListCommonInfos(index);
-                                }
-                                GUILayout.EndHorizontal();
-
-                                // 折叠面板
-                                bool lastState = m_OpenedItems.Contains(m_InterInjectionNames[index].stringValue);
-                                bool currentState = EditorGUILayout.Foldout(lastState,
-                                    AorTxt.Format("元素列表清单({0})", m_InterInjectionElementsObjs[index].arraySize));
-                                if (currentState != lastState)
-                                {
-                                    if (currentState)
-                                        m_OpenedItems.Add(m_InterInjectionNames[index].stringValue);
-                                    else
-                                        m_OpenedItems.Remove(m_InterInjectionNames[index].stringValue);
-                                }
-
-                                if (currentState)
-                                {
-                                    for (int elementIndex = 0;
-                                         elementIndex < m_InterInjectionElementsObjs[index].arraySize;
-                                         elementIndex++)
-                                    {
-                                        GUILayout.BeginHorizontal("box");
-                                        {
-                                            EditorGUILayout.LabelField($"[{(elementIndex + 1).ToString()}]",
-                                                new GUILayoutOption[] { GUILayout.Width(30) });
-                                            EditorGUI.BeginDisabledGroup(true);
-                                            {
-                                                EditorGUILayout.Popup(
-                                                    LuaInjection.InjectionTypeRealToDisplayMapping[
-                                                        m_InterInjectionTypeNames[index].enumValueIndex],
-                                                    LuaInjection.DisplayInjectionTypeString,
-                                                    new GUILayoutOption[] { GUILayout.Width(180) });
-                                                EditorGUILayout.TextField(
-                                                    $"{m_InterInjectionNames[index].stringValue}[{elementIndex + 1}]",
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            }
-                                            EditorGUI.EndDisabledGroup();
-
-                                            UnityEngine.Object historyObject = m_InterInjectionElementsObjs[index]
-                                                .GetArrayElementAtIndex(elementIndex).objectReferenceValue;
-                                            if (string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
-                                                    .GetArrayElementAtIndex(elementIndex).stringValue) &&
-                                                m_InterInjectionElementsObjs[index].GetArrayElementAtIndex(elementIndex)
-                                                    .objectReferenceValue == null)
-                                                GUI.color = Color.red;
-
-                                            // 根据类型绘制对象/值字段
-                                            switch (m_InterInjectionTypeNames[index].enumValueIndex)
-                                            {
-                                                case (int)LuaInjection.InjectionType.GameObject:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.GameObject), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Transform:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.Transform), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.RectTransform:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.RectTransform), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.LuaBehaviour:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(LuaBehaviour), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.SpriteRenderer:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.SpriteRenderer), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Tilemap:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.Tilemaps.Tilemap), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Text:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.Text), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Text_TextMeshPro:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(TMPro.TextMeshProUGUI), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Dropdown_TextMeshPro:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(TMPro.TMP_Dropdown), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_InputField_TextMeshPro:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(TMPro.TMP_InputField), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_TextPicMixed:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(AorTextPicMixed), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Image:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.Image), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Button:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.Button), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Scrollbar:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.Scrollbar), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_ScrollRect:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.ScrollRect), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Toggle:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.Toggle), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Slider:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.Slider), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Dropdown:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.Dropdown), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_InputField:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.UI.InputField), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_Tree:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(AorTree), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_ListView:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(AorListView), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.UI_SwitchButton:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(AorSwitchButton), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Canvas:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.Canvas), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Camera:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.Camera), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.ParticleSystem:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.ParticleSystem), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Light:
-                                                    m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
-                                                        EditorGUILayout.ObjectField(
-                                                            m_InterInjectionElementsObjs[index]
-                                                                .GetArrayElementAtIndex(elementIndex)
-                                                                .objectReferenceValue,
-                                                            typeof(UnityEngine.Light), true,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) });
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Int32:
-                                                    m_InterInjectionElementsVariants[index]
-                                                            .GetArrayElementAtIndex(elementIndex).stringValue =
-                                                        EditorGUILayout.IntField(
-                                                            string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
-                                                                .GetArrayElementAtIndex(elementIndex).stringValue)
-                                                                ? 0
-                                                                : int.Parse(m_InterInjectionElementsVariants[index]
-                                                                    .GetArrayElementAtIndex(elementIndex).stringValue),
-                                                            new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Float:
-                                                    m_InterInjectionElementsVariants[index]
-                                                            .GetArrayElementAtIndex(elementIndex).stringValue =
-                                                        EditorGUILayout.FloatField(
-                                                            string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
-                                                                .GetArrayElementAtIndex(elementIndex).stringValue)
-                                                                ? 0
-                                                                : float.Parse(m_InterInjectionElementsVariants[index]
-                                                                    .GetArrayElementAtIndex(elementIndex).stringValue),
-                                                            new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.String:
-                                                    m_InterInjectionElementsVariants[index]
-                                                            .GetArrayElementAtIndex(elementIndex).stringValue =
-                                                        EditorGUILayout.TextField(
-                                                            string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
-                                                                .GetArrayElementAtIndex(elementIndex).stringValue)
-                                                                ? string.Empty
-                                                                : m_InterInjectionElementsVariants[index]
-                                                                    .GetArrayElementAtIndex(elementIndex).stringValue,
-                                                            new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                                    break;
-                                                case (int)LuaInjection.InjectionType.Boolean:
-                                                    m_InterInjectionElementsVariants[index]
-                                                            .GetArrayElementAtIndex(elementIndex).stringValue =
-                                                        EditorGUILayout.Toggle(
-                                                            string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
-                                                                .GetArrayElementAtIndex(elementIndex).stringValue)
-                                                                ? false
-                                                                : bool.Parse(m_InterInjectionElementsVariants[index]
-                                                                    .GetArrayElementAtIndex(elementIndex).stringValue),
-                                                            new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                                    break;
-                                            }
-
-                                            GUI.color = Color.white;
-                                            m_InterInjectionElementsInfoExs[index].GetArrayElementAtIndex(elementIndex)
-                                                .stringValue = EditorGUILayout.TextField(
-                                                m_InterInjectionElementsInfoExs[index]
-                                                    .GetArrayElementAtIndex(elementIndex).stringValue);
-
-                                            // 对象变更时自动填充CMD
-                                            if (m_InterInjectionTypeNames[index].enumValueIndex <
-                                                (int)LuaInjection.InjectionType.Int32 ||
-                                                m_InterInjectionTypeNames[index].enumValueIndex >
-                                                (int)LuaInjection.InjectionType.Boolean)
-                                            {
-                                                if (m_InterInjectionElementsObjs[index]
-                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue !=
-                                                    historyObject)
-                                                {
-                                                    if (m_InterInjectionElementsObjs[index]
-                                                            .GetArrayElementAtIndex(elementIndex)
-                                                            .objectReferenceValue != null)
-                                                    {
-                                                        m_InterInjectionElementsInfoExs[index]
-                                                                .GetArrayElementAtIndex(elementIndex).stringValue =
-                                                            string.Empty;
-                                                        for (int templeteIndex = 0;
-                                                             templeteIndex < m_InfoExTypeNameTempletes.Count;
-                                                             templeteIndex++)
-                                                        {
-                                                            if ((int)m_InfoExTypeNameTempletes[templeteIndex] ==
-                                                                m_InterInjectionTypeNames[index].enumValueIndex)
-                                                            {
-                                                                if (string.IsNullOrEmpty(
-                                                                        m_InterInjectionElementsInfoExs[index]
-                                                                            .GetArrayElementAtIndex(elementIndex)
-                                                                            .stringValue))
-                                                                    m_InterInjectionElementsInfoExs[index]
-                                                                            .GetArrayElementAtIndex(elementIndex)
-                                                                            .stringValue =
-                                                                        m_InfoExCmdTempletes[templeteIndex];
-                                                                else
-                                                                    m_InterInjectionElementsInfoExs[index]
-                                                                            .GetArrayElementAtIndex(elementIndex)
-                                                                            .stringValue +=
-                                                                        ("," + m_InfoExCmdTempletes[templeteIndex]);
-                                                            }
-                                                        }
-
-                                                        m_InterInjectionElementsExtendsEnableds[index]
-                                                            .GetArrayElementAtIndex(elementIndex).boolValue = false;
-                                                        m_InterInjectionElementsExtends[index]
-                                                                .GetArrayElementAtIndex(elementIndex).stringValue =
-                                                            string.Empty;
-                                                    }
-                                                }
-                                            }
-
-                                            GUILayout.FlexibleSpace();
-                                            // 显示扩展按钮
-                                            if (NeedShowExtendButton(
-                                                    (LuaInjection.InjectionType)m_InterInjectionTypeNames[index]
-                                                        .enumValueIndex))
-                                            {
-                                                if (m_InterInjectionElementsExtendsEnableds[index]
-                                                    .GetArrayElementAtIndex(elementIndex).boolValue)
-                                                    GUI.color = Color.cyan;
-                                                m_InterInjectionElementsExtendsEnableds[index]
-                                                        .GetArrayElementAtIndex(elementIndex).boolValue =
-                                                    EditorGUILayout.ToggleLeft("扩展",
-                                                        m_InterInjectionElementsExtendsEnableds[index]
-                                                            .GetArrayElementAtIndex(elementIndex).boolValue,
-                                                        new GUILayoutOption[] { GUILayout.Width(50) });
-                                                GUI.color = Color.white;
-                                            }
-                                        }
-                                        GUILayout.EndHorizontal();
-
-                                        // 绘制扩展详情
-                                        if (NeedShowExtendDetailInfo(index, elementIndex))
-                                        {
-                                            GUILayout.BeginHorizontal("box");
-                                            {
-                                                ShowExtendDetailInfos(index, elementIndex);
-                                            }
-                                            GUILayout.EndHorizontal();
-                                        }
-                                    }
-                                }
-                            }
-                            // 非数组模式
-                            else
-                            {
-                                GUILayout.BeginHorizontal("box");
-                                {
-                                    ShowInjectionItemListCommonInfos(index);
-
-                                    UnityEngine.Object historyObject = m_InterInjectionObjs[index].objectReferenceValue;
-
-                                    if (string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue) &&
-                                        m_InterInjectionObjs[index].objectReferenceValue == null)
-                                        GUI.color = Color.red;
-
-                                    // 根据类型绘制对象/值字段
-                                    switch (m_InterInjectionTypeNames[index].enumValueIndex)
-                                    {
-                                        case (int)LuaInjection.InjectionType.GameObject:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.GameObject), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Transform:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.Transform), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.RectTransform:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.RectTransform), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.LuaBehaviour:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(LuaBehaviour), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.SpriteRenderer:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.SpriteRenderer), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Tilemap:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.Tilemaps.Tilemap), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Text:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.Text), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Text_TextMeshPro:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(TMPro.TextMeshProUGUI), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Dropdown_TextMeshPro:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(TMPro.TMP_Dropdown), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_InputField_TextMeshPro:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(TMPro.TMP_InputField), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_TextPicMixed:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(AorTextPicMixed), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Image:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.Image), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Button:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.Button), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Scrollbar:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.Scrollbar), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_ScrollRect:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.ScrollRect), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Toggle:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.Toggle), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Slider:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.Slider), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Dropdown:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.Dropdown), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_InputField:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.UI.InputField), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_Tree:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue, typeof(AorTree),
-                                                    true, new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_ListView:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(AorListView), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.UI_SwitchButton:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(AorSwitchButton), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Canvas:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.Canvas), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Camera:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.Camera), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.ParticleSystem:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.ParticleSystem), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Light:
-                                            m_InterInjectionObjs[index].objectReferenceValue =
-                                                EditorGUILayout.ObjectField(
-                                                    m_InterInjectionObjs[index].objectReferenceValue,
-                                                    typeof(UnityEngine.Light), true,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) });
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Int32:
-                                            m_InterInjectionVariants[index].stringValue = EditorGUILayout
-                                                .IntField(
-                                                    string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
-                                                        ? 0
-                                                        : int.Parse(m_InterInjectionVariants[index].stringValue),
-                                                    new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Float:
-                                            m_InterInjectionVariants[index].stringValue = EditorGUILayout
-                                                .FloatField(
-                                                    string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
-                                                        ? 0
-                                                        : float.Parse(m_InterInjectionVariants[index].stringValue),
-                                                    new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                            break;
-                                        case (int)LuaInjection.InjectionType.String:
-                                            m_InterInjectionVariants[index].stringValue = EditorGUILayout
-                                                .TextField(
-                                                    string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
-                                                        ? string.Empty
-                                                        : m_InterInjectionVariants[index].stringValue,
-                                                    new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                            break;
-                                        case (int)LuaInjection.InjectionType.Boolean:
-                                            m_InterInjectionVariants[index].stringValue = EditorGUILayout
-                                                .Toggle(
-                                                    string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
-                                                        ? false
-                                                        : bool.Parse(m_InterInjectionVariants[index].stringValue),
-                                                    new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
-                                            break;
-                                    }
-
-                                    GUI.color = Color.white;
-                                    m_InterInjectionInfoExs[index].stringValue =
-                                        EditorGUILayout.TextField(m_InterInjectionInfoExs[index].stringValue);
-
-                                    // 对象变更时自动填充名称与CMD
-                                    if (m_InterInjectionTypeNames[index].enumValueIndex <
-                                        (int)LuaInjection.InjectionType.Int32 ||
-                                        m_InterInjectionTypeNames[index].enumValueIndex >
-                                        (int)LuaInjection.InjectionType.Boolean)
-                                    {
-                                        if (m_InterInjectionObjs[index].objectReferenceValue != historyObject)
-                                        {
-                                            if (m_InterInjectionObjs[index].objectReferenceValue != null)
-                                            {
-                                                m_InterInjectionNames[index].stringValue = m_InterInjectionObjs[index]
-                                                    .objectReferenceValue.name.Replace(" ", string.Empty)
-                                                    .Replace("(", string.Empty).Replace(")", string.Empty);
-                                                m_InterInjectionInfoExs[index].stringValue = string.Empty;
-                                                for (int templeteIndex = 0;
-                                                     templeteIndex < m_InfoExTypeNameTempletes.Count;
-                                                     templeteIndex++)
-                                                {
-                                                    if ((int)m_InfoExTypeNameTempletes[templeteIndex] ==
-                                                        m_InterInjectionTypeNames[index].enumValueIndex)
-                                                    {
-                                                        if (string.IsNullOrEmpty(m_InterInjectionInfoExs[index]
-                                                                .stringValue))
-                                                            m_InterInjectionInfoExs[index].stringValue =
-                                                                m_InfoExCmdTempletes[templeteIndex];
-                                                        else
-                                                            m_InterInjectionInfoExs[index].stringValue +=
-                                                                ("," + m_InfoExCmdTempletes[templeteIndex]);
-                                                    }
-                                                }
-
-                                                m_InterInjectionExtendsEnabled[index].boolValue = false;
-                                                m_InterInjectionExtends[index].stringValue = string.Empty;
-                                            }
-                                        }
-                                    }
-
-                                    GUILayout.FlexibleSpace();
-                                    // 显示扩展按钮
-                                    if (NeedShowExtendButton(
-                                            (LuaInjection.InjectionType)m_InterInjectionTypeNames[index]
-                                                .enumValueIndex))
-                                    {
-                                        if (m_InterInjectionExtendsEnabled[index].boolValue)
-                                            GUI.color = Color.cyan;
-                                        m_InterInjectionExtendsEnabled[index].boolValue =
-                                            EditorGUILayout.ToggleLeft("扩展",
-                                                m_InterInjectionExtendsEnabled[index].boolValue,
-                                                new GUILayoutOption[] { GUILayout.Width(50) });
-                                        GUI.color = Color.white;
-                                    }
-                                }
-                                GUILayout.EndHorizontal();
-
-                                // 绘制扩展详情
-                                if (NeedShowExtendDetailInfo(index))
-                                {
-                                    GUILayout.BeginHorizontal("box");
-                                    {
-                                        ShowExtendDetailInfos(index);
-                                    }
-                                    GUILayout.EndHorizontal();
-                                }
-                            }
-                        }
-                        GUILayout.EndVertical();
-                        GUILayout.Space(10);
+                        DrawSingleInjectionItem(index);
                     }
                 }
             }
             GUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// 绘制单个注入项卡片（含行操作按钮、数组/普通对象字段、扩展详情）
+        /// </summary>
+        /// <param name="index">注入项索引</param>
+        private void DrawSingleInjectionItem(int index)
+        {
+                    GUILayout.BeginVertical(m_InjectionItemStyle);
+                    {
+                        // 绘制行操作按钮
+                        GUILayout.BeginHorizontal("box");
+                        {
+                            GUI.color = Color.cyan;
+                            GUILayout.Label($"({index + 1})", new GUILayoutOption[] { GUILayout.Width(30) });
+                            GUI.color = Color.white;
+
+                            if (string.IsNullOrEmpty(m_InterInjectionComments[index].stringValue))
+                                GUI.color = Color.red;
+                            m_InterInjectionComments[index].stringValue = GUILayout.TextField(
+                                m_InterInjectionComments[index].stringValue,
+                                new GUILayoutOption[] { GUILayout.Width(300) });
+                            GUI.color = Color.white;
+
+                            if (GUILayout.Button("+"))
+                            {
+                                m_InnerInjectionInsertPosIndex = index;
+                                GUIUtility.ExitGUI();
+                            }
+
+                            if (GUILayout.Button("-"))
+                            {
+                                m_InnerInjectionDeletePosIndex = index;
+                                GUIUtility.ExitGUI();
+                            }
+
+                            if (GUILayout.Button('\u25B2'.ToString()))
+                            {
+                                m_InnerInjectionUpwardOriPosIndex = index;
+                                m_InnerInjectionUpwardTargetPosIndex = index - 1 < 0 ? 0 : (index - 1);
+                                GUIUtility.ExitGUI();
+                            }
+
+                            if (GUILayout.Button('\u25BC'.ToString()))
+                            {
+                                m_InnerInjectionDownwardOriPosIndex = index;
+                                m_InnerInjectionDownwardTargetPosIndex = index + 1 >= m_Injections.arraySize
+                                    ? (m_Injections.arraySize - 1)
+                                    : (index + 1);
+                                GUIUtility.ExitGUI();
+                            }
+                        }
+                        GUILayout.EndHorizontal();
+
+                        // 数组模式
+                        if (m_InterInjectionIsArrays[index].boolValue)
+                        {
+                            GUILayout.BeginHorizontal("box");
+                            {
+                                ShowInjectionItemListCommonInfos(index);
+                            }
+                            GUILayout.EndHorizontal();
+
+                            // 折叠面板
+                            bool lastState = m_OpenedItems.Contains(m_InterInjectionNames[index].stringValue);
+                            bool currentState = EditorGUILayout.Foldout(lastState,
+                                AorTxt.Format("元素列表清单({0})", m_InterInjectionElementsObjs[index].arraySize));
+                            if (currentState != lastState)
+                            {
+                                if (currentState)
+                                    m_OpenedItems.Add(m_InterInjectionNames[index].stringValue);
+                                else
+                                    m_OpenedItems.Remove(m_InterInjectionNames[index].stringValue);
+                            }
+
+                            if (currentState)
+                            {
+                                for (int elementIndex = 0;
+                                     elementIndex < m_InterInjectionElementsObjs[index].arraySize;
+                                     elementIndex++)
+                                {
+                                    GUILayout.BeginHorizontal("box");
+                                    {
+                                        EditorGUILayout.LabelField($"[{(elementIndex + 1).ToString()}]",
+                                            new GUILayoutOption[] { GUILayout.Width(30) });
+                                        EditorGUI.BeginDisabledGroup(true);
+                                        {
+                                            EditorGUILayout.Popup(
+                                                LuaInjection.InjectionTypeRealToDisplayMapping[
+                                                    m_InterInjectionTypeNames[index].enumValueIndex],
+                                                LuaInjection.DisplayInjectionTypeString,
+                                                new GUILayoutOption[] { GUILayout.Width(180) });
+                                            EditorGUILayout.TextField(
+                                                $"{m_InterInjectionNames[index].stringValue}[{elementIndex + 1}]",
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        }
+                                        EditorGUI.EndDisabledGroup();
+
+                                        UnityEngine.Object historyObject = m_InterInjectionElementsObjs[index]
+                                            .GetArrayElementAtIndex(elementIndex).objectReferenceValue;
+                                        if (string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
+                                                .GetArrayElementAtIndex(elementIndex).stringValue) &&
+                                            m_InterInjectionElementsObjs[index].GetArrayElementAtIndex(elementIndex)
+                                                .objectReferenceValue == null)
+                                            GUI.color = Color.red;
+
+                                        // 根据类型绘制对象/值字段
+                                        switch (m_InterInjectionTypeNames[index].enumValueIndex)
+                                        {
+                                            case (int)LuaInjection.InjectionType.GameObject:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.GameObject), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Transform:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.Transform), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.RectTransform:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.RectTransform), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.LuaBehaviour:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(LuaBehaviour), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.SpriteRenderer:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.SpriteRenderer), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Tilemap:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.Tilemaps.Tilemap), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Text:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.Text), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Text_TextMeshPro:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(TMPro.TextMeshProUGUI), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Dropdown_TextMeshPro:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(TMPro.TMP_Dropdown), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_InputField_TextMeshPro:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(TMPro.TMP_InputField), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_TextPicMixed:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(AorTextPicMixed), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Image:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.Image), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Button:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.Button), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Scrollbar:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.Scrollbar), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_ScrollRect:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.ScrollRect), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Toggle:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.Toggle), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Slider:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.Slider), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Dropdown:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.Dropdown), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_InputField:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.UI.InputField), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_Tree:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(AorTree), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_ListView:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(AorListView), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.UI_SwitchButton:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(AorSwitchButton), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Canvas:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.Canvas), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Camera:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.Camera), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.ParticleSystem:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.ParticleSystem), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Light:
+                                                m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex).objectReferenceValue =
+                                                    EditorGUILayout.ObjectField(
+                                                        m_InterInjectionElementsObjs[index]
+                                                            .GetArrayElementAtIndex(elementIndex)
+                                                            .objectReferenceValue,
+                                                        typeof(UnityEngine.Light), true,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) });
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Int32:
+                                                m_InterInjectionElementsVariants[index]
+                                                        .GetArrayElementAtIndex(elementIndex).stringValue =
+                                                    EditorGUILayout.IntField(
+                                                        string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
+                                                            .GetArrayElementAtIndex(elementIndex).stringValue)
+                                                            ? 0
+                                                            : int.Parse(m_InterInjectionElementsVariants[index]
+                                                                .GetArrayElementAtIndex(elementIndex).stringValue),
+                                                        new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Float:
+                                                m_InterInjectionElementsVariants[index]
+                                                        .GetArrayElementAtIndex(elementIndex).stringValue =
+                                                    EditorGUILayout.FloatField(
+                                                        string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
+                                                            .GetArrayElementAtIndex(elementIndex).stringValue)
+                                                            ? 0
+                                                            : float.Parse(m_InterInjectionElementsVariants[index]
+                                                                .GetArrayElementAtIndex(elementIndex).stringValue),
+                                                        new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                                break;
+                                            case (int)LuaInjection.InjectionType.String:
+                                                m_InterInjectionElementsVariants[index]
+                                                        .GetArrayElementAtIndex(elementIndex).stringValue =
+                                                    EditorGUILayout.TextField(
+                                                        string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
+                                                            .GetArrayElementAtIndex(elementIndex).stringValue)
+                                                            ? string.Empty
+                                                            : m_InterInjectionElementsVariants[index]
+                                                                .GetArrayElementAtIndex(elementIndex).stringValue,
+                                                        new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                                break;
+                                            case (int)LuaInjection.InjectionType.Boolean:
+                                                m_InterInjectionElementsVariants[index]
+                                                        .GetArrayElementAtIndex(elementIndex).stringValue =
+                                                    EditorGUILayout.Toggle(
+                                                        string.IsNullOrEmpty(m_InterInjectionElementsVariants[index]
+                                                            .GetArrayElementAtIndex(elementIndex).stringValue)
+                                                            ? false
+                                                            : bool.Parse(m_InterInjectionElementsVariants[index]
+                                                                .GetArrayElementAtIndex(elementIndex).stringValue),
+                                                        new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                                break;
+                                        }
+
+                                        GUI.color = Color.white;
+                                        m_InterInjectionElementsInfoExs[index].GetArrayElementAtIndex(elementIndex)
+                                            .stringValue = EditorGUILayout.TextField(
+                                            m_InterInjectionElementsInfoExs[index]
+                                                .GetArrayElementAtIndex(elementIndex).stringValue);
+
+                                        // 对象变更时自动填充CMD
+                                        if (m_InterInjectionTypeNames[index].enumValueIndex <
+                                            (int)LuaInjection.InjectionType.Int32 ||
+                                            m_InterInjectionTypeNames[index].enumValueIndex >
+                                            (int)LuaInjection.InjectionType.Boolean)
+                                        {
+                                            if (m_InterInjectionElementsObjs[index]
+                                                    .GetArrayElementAtIndex(elementIndex).objectReferenceValue !=
+                                                historyObject)
+                                            {
+                                                if (m_InterInjectionElementsObjs[index]
+                                                        .GetArrayElementAtIndex(elementIndex)
+                                                        .objectReferenceValue != null)
+                                                {
+                                                    m_InterInjectionElementsInfoExs[index]
+                                                            .GetArrayElementAtIndex(elementIndex).stringValue =
+                                                        string.Empty;
+                                                    for (int templeteIndex = 0;
+                                                         templeteIndex < m_InfoExTypeNameTempletes.Count;
+                                                         templeteIndex++)
+                                                    {
+                                                        if ((int)m_InfoExTypeNameTempletes[templeteIndex] ==
+                                                            m_InterInjectionTypeNames[index].enumValueIndex)
+                                                        {
+                                                            if (string.IsNullOrEmpty(
+                                                                    m_InterInjectionElementsInfoExs[index]
+                                                                        .GetArrayElementAtIndex(elementIndex)
+                                                                        .stringValue))
+                                                                m_InterInjectionElementsInfoExs[index]
+                                                                        .GetArrayElementAtIndex(elementIndex)
+                                                                        .stringValue =
+                                                                    m_InfoExCmdTempletes[templeteIndex];
+                                                            else
+                                                                m_InterInjectionElementsInfoExs[index]
+                                                                        .GetArrayElementAtIndex(elementIndex)
+                                                                        .stringValue +=
+                                                                    ("," + m_InfoExCmdTempletes[templeteIndex]);
+                                                        }
+                                                    }
+
+                                                    m_InterInjectionElementsExtendsEnableds[index]
+                                                        .GetArrayElementAtIndex(elementIndex).boolValue = false;
+                                                    m_InterInjectionElementsExtends[index]
+                                                            .GetArrayElementAtIndex(elementIndex).stringValue =
+                                                        string.Empty;
+                                                }
+                                            }
+                                        }
+
+                                        GUILayout.FlexibleSpace();
+                                        // 显示扩展按钮
+                                        if (NeedShowExtendButton(
+                                                (LuaInjection.InjectionType)m_InterInjectionTypeNames[index]
+                                                    .enumValueIndex))
+                                        {
+                                            if (m_InterInjectionElementsExtendsEnableds[index]
+                                                .GetArrayElementAtIndex(elementIndex).boolValue)
+                                                GUI.color = Color.cyan;
+                                            m_InterInjectionElementsExtendsEnableds[index]
+                                                    .GetArrayElementAtIndex(elementIndex).boolValue =
+                                                EditorGUILayout.ToggleLeft("扩展",
+                                                    m_InterInjectionElementsExtendsEnableds[index]
+                                                        .GetArrayElementAtIndex(elementIndex).boolValue,
+                                                    new GUILayoutOption[] { GUILayout.Width(50) });
+                                            GUI.color = Color.white;
+                                        }
+                                    }
+                                    GUILayout.EndHorizontal();
+
+                                    // 绘制扩展详情
+                                    if (NeedShowExtendDetailInfo(index, elementIndex))
+                                    {
+                                        GUILayout.BeginHorizontal("box");
+                                        {
+                                            ShowExtendDetailInfos(index, elementIndex);
+                                        }
+                                        GUILayout.EndHorizontal();
+                                    }
+                                }
+                            }
+                        }
+                        // 非数组模式
+                        else
+                        {
+                            GUILayout.BeginHorizontal("box");
+                            {
+                                ShowInjectionItemListCommonInfos(index);
+
+                                UnityEngine.Object historyObject = m_InterInjectionObjs[index].objectReferenceValue;
+
+                                if (string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue) &&
+                                    m_InterInjectionObjs[index].objectReferenceValue == null)
+                                    GUI.color = Color.red;
+
+                                // 根据类型绘制对象/值字段
+                                switch (m_InterInjectionTypeNames[index].enumValueIndex)
+                                {
+                                    case (int)LuaInjection.InjectionType.GameObject:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.GameObject), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Transform:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.Transform), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.RectTransform:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.RectTransform), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.LuaBehaviour:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(LuaBehaviour), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.SpriteRenderer:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.SpriteRenderer), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Tilemap:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.Tilemaps.Tilemap), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Text:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.Text), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Text_TextMeshPro:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(TMPro.TextMeshProUGUI), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Dropdown_TextMeshPro:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(TMPro.TMP_Dropdown), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_InputField_TextMeshPro:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(TMPro.TMP_InputField), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_TextPicMixed:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(AorTextPicMixed), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Image:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.Image), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Button:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.Button), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Scrollbar:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.Scrollbar), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_ScrollRect:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.ScrollRect), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Toggle:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.Toggle), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Slider:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.Slider), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Dropdown:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.Dropdown), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_InputField:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.UI.InputField), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_Tree:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue, typeof(AorTree),
+                                                true, new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_ListView:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(AorListView), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.UI_SwitchButton:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(AorSwitchButton), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Canvas:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.Canvas), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Camera:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.Camera), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.ParticleSystem:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.ParticleSystem), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Light:
+                                        m_InterInjectionObjs[index].objectReferenceValue =
+                                            EditorGUILayout.ObjectField(
+                                                m_InterInjectionObjs[index].objectReferenceValue,
+                                                typeof(UnityEngine.Light), true,
+                                                new GUILayoutOption[] { GUILayout.Width(120) });
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Int32:
+                                        m_InterInjectionVariants[index].stringValue = EditorGUILayout
+                                            .IntField(
+                                                string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
+                                                    ? 0
+                                                    : int.Parse(m_InterInjectionVariants[index].stringValue),
+                                                new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Float:
+                                        m_InterInjectionVariants[index].stringValue = EditorGUILayout
+                                            .FloatField(
+                                                string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
+                                                    ? 0
+                                                    : float.Parse(m_InterInjectionVariants[index].stringValue),
+                                                new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                        break;
+                                    case (int)LuaInjection.InjectionType.String:
+                                        m_InterInjectionVariants[index].stringValue = EditorGUILayout
+                                            .TextField(
+                                                string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
+                                                    ? string.Empty
+                                                    : m_InterInjectionVariants[index].stringValue,
+                                                new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                        break;
+                                    case (int)LuaInjection.InjectionType.Boolean:
+                                        m_InterInjectionVariants[index].stringValue = EditorGUILayout
+                                            .Toggle(
+                                                string.IsNullOrEmpty(m_InterInjectionVariants[index].stringValue)
+                                                    ? false
+                                                    : bool.Parse(m_InterInjectionVariants[index].stringValue),
+                                                new GUILayoutOption[] { GUILayout.Width(120) }).ToString();
+                                        break;
+                                }
+
+                                GUI.color = Color.white;
+                                m_InterInjectionInfoExs[index].stringValue =
+                                    EditorGUILayout.TextField(m_InterInjectionInfoExs[index].stringValue);
+
+                                // 对象变更时自动填充名称与CMD
+                                if (m_InterInjectionTypeNames[index].enumValueIndex <
+                                    (int)LuaInjection.InjectionType.Int32 ||
+                                    m_InterInjectionTypeNames[index].enumValueIndex >
+                                    (int)LuaInjection.InjectionType.Boolean)
+                                {
+                                    if (m_InterInjectionObjs[index].objectReferenceValue != historyObject)
+                                    {
+                                        if (m_InterInjectionObjs[index].objectReferenceValue != null)
+                                        {
+                                            m_InterInjectionNames[index].stringValue = m_InterInjectionObjs[index]
+                                                .objectReferenceValue.name.Replace(" ", string.Empty)
+                                                .Replace("(", string.Empty).Replace(")", string.Empty);
+                                            m_InterInjectionInfoExs[index].stringValue = string.Empty;
+                                            for (int templeteIndex = 0;
+                                                 templeteIndex < m_InfoExTypeNameTempletes.Count;
+                                                 templeteIndex++)
+                                            {
+                                                if ((int)m_InfoExTypeNameTempletes[templeteIndex] ==
+                                                    m_InterInjectionTypeNames[index].enumValueIndex)
+                                                {
+                                                    if (string.IsNullOrEmpty(m_InterInjectionInfoExs[index]
+                                                            .stringValue))
+                                                        m_InterInjectionInfoExs[index].stringValue =
+                                                            m_InfoExCmdTempletes[templeteIndex];
+                                                    else
+                                                        m_InterInjectionInfoExs[index].stringValue +=
+                                                            ("," + m_InfoExCmdTempletes[templeteIndex]);
+                                                }
+                                            }
+
+                                            m_InterInjectionExtendsEnabled[index].boolValue = false;
+                                            m_InterInjectionExtends[index].stringValue = string.Empty;
+                                        }
+                                    }
+                                }
+
+                                GUILayout.FlexibleSpace();
+                                // 显示扩展按钮
+                                if (NeedShowExtendButton(
+                                        (LuaInjection.InjectionType)m_InterInjectionTypeNames[index]
+                                            .enumValueIndex))
+                                {
+                                    if (m_InterInjectionExtendsEnabled[index].boolValue)
+                                        GUI.color = Color.cyan;
+                                    m_InterInjectionExtendsEnabled[index].boolValue =
+                                        EditorGUILayout.ToggleLeft("扩展",
+                                            m_InterInjectionExtendsEnabled[index].boolValue,
+                                            new GUILayoutOption[] { GUILayout.Width(50) });
+                                    GUI.color = Color.white;
+                                }
+                            }
+                            GUILayout.EndHorizontal();
+
+                            // 绘制扩展详情
+                            if (NeedShowExtendDetailInfo(index))
+                            {
+                                GUILayout.BeginHorizontal("box");
+                                {
+                                    ShowExtendDetailInfos(index);
+                                }
+                                GUILayout.EndHorizontal();
+                            }
+                        }
+                    }
+                    GUILayout.EndVertical();
+                    GUILayout.Space(10);
         }
         #endregion
 

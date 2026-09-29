@@ -7,6 +7,7 @@
  * created:   2026
  * descrip:   游戏全局分级日志工具，支持条件编译剥离，带帧计数输出
  ***************************************************************/
+using System;
 using System.Diagnostics;
 using UnityEngine;
 
@@ -66,7 +67,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_DEBUG_AND_ABOVE_LOG")]
         public static void Debug(object message)
         {
-            InternalLog(LogLevel.Debug, message);
+            RouteToUnityLogger(LogLevel.Debug, message);
         }
 
         /// <summary>
@@ -78,7 +79,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_DEBUG_AND_ABOVE_LOG")]
         public static void Debug(string message)
         {
-            InternalLog(LogLevel.Debug, message);
+            RouteToUnityLogger(LogLevel.Debug, message);
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_DEBUG_AND_ABOVE_LOG")]
         public static void Debug(string format, object arg0)
         {
-            InternalLog(LogLevel.Debug, AorTxt.Format(format, arg0));
+            RouteToUnityLogger(LogLevel.Debug, AorTxt.Format(format, arg0));
         }
 
         /// <summary>
@@ -105,7 +106,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_DEBUG_AND_ABOVE_LOG")]
         public static void Debug(string format, object arg0, object arg1)
         {
-            InternalLog(LogLevel.Debug, AorTxt.Format(format, arg0, arg1));
+            RouteToUnityLogger(LogLevel.Debug, AorTxt.Format(format, arg0, arg1));
         }
 
         /// <summary>
@@ -120,7 +121,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_DEBUG_AND_ABOVE_LOG")]
         public static void Debug(string format, object arg0, object arg1, object arg2)
         {
-            InternalLog(LogLevel.Debug, AorTxt.Format(format, arg0, arg1, arg2));
+            RouteToUnityLogger(LogLevel.Debug, AorTxt.Format(format, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -133,7 +134,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_DEBUG_AND_ABOVE_LOG")]
         public static void Debug(string format, params object[] args)
         {
-            InternalLog(LogLevel.Debug, AorTxt.Format(format, args));
+            RouteToUnityLogger(LogLevel.Debug, AorTxt.Format(format, args));
         }
         #endregion
 
@@ -148,7 +149,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_INFO_AND_ABOVE_LOG")]
         public static void Info(object message)
         {
-            InternalLog(LogLevel.Info, message);
+            RouteToUnityLogger(LogLevel.Info, message);
         }
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_INFO_AND_ABOVE_LOG")]
         public static void Info(string message)
         {
-            InternalLog(LogLevel.Info, message);
+            RouteToUnityLogger(LogLevel.Info, message);
         }
 
         /// <summary>
@@ -173,7 +174,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_INFO_AND_ABOVE_LOG")]
         public static void Info(string format, object arg0)
         {
-            InternalLog(LogLevel.Info, AorTxt.Format(format, arg0));
+            RouteToUnityLogger(LogLevel.Info, AorTxt.Format(format, arg0));
         }
 
         /// <summary>
@@ -185,7 +186,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_INFO_AND_ABOVE_LOG")]
         public static void Info(string format, object arg0, object arg1)
         {
-            InternalLog(LogLevel.Info, AorTxt.Format(format, arg0, arg1));
+            RouteToUnityLogger(LogLevel.Info, AorTxt.Format(format, arg0, arg1));
         }
 
         /// <summary>
@@ -197,7 +198,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_INFO_AND_ABOVE_LOG")]
         public static void Info(string format, object arg0, object arg1, object arg2)
         {
-            InternalLog(LogLevel.Info, AorTxt.Format(format, arg0, arg1, arg2));
+            RouteToUnityLogger(LogLevel.Info, AorTxt.Format(format, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -209,7 +210,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_INFO_AND_ABOVE_LOG")]
         public static void Info(string format, params object[] args)
         {
-            InternalLog(LogLevel.Info, AorTxt.Format(format, args));
+            RouteToUnityLogger(LogLevel.Info, AorTxt.Format(format, args));
         }
         #endregion
 
@@ -225,7 +226,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_WARNING_AND_ABOVE_LOG")]
         public static void Warning(object message)
         {
-            InternalLog(LogLevel.Warning, message);
+            RouteToUnityLogger(LogLevel.Warning, message);
         }
 
         /// <summary>
@@ -238,7 +239,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_WARNING_AND_ABOVE_LOG")]
         public static void Warning(string message)
         {
-            InternalLog(LogLevel.Warning, message);
+            RouteToUnityLogger(LogLevel.Warning, message);
         }
 
         /// <summary>
@@ -251,7 +252,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_WARNING_AND_ABOVE_LOG")]
         public static void Warning(string format, object arg0)
         {
-            InternalLog(LogLevel.Warning, AorTxt.Format(format, arg0));
+            RouteToUnityLogger(LogLevel.Warning, AorTxt.Format(format, arg0));
         }
 
         /// <summary>
@@ -264,7 +265,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_WARNING_AND_ABOVE_LOG")]
         public static void Warning(string format, object arg0, object arg1)
         {
-            InternalLog(LogLevel.Warning, AorTxt.Format(format, arg0, arg1));
+            RouteToUnityLogger(LogLevel.Warning, AorTxt.Format(format, arg0, arg1));
         }
 
         /// <summary>
@@ -277,7 +278,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_WARNING_AND_ABOVE_LOG")]
         public static void Warning(string format, object arg0, object arg1, object arg2)
         {
-            InternalLog(LogLevel.Warning, AorTxt.Format(format, arg0, arg1, arg2));
+            RouteToUnityLogger(LogLevel.Warning, AorTxt.Format(format, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -290,7 +291,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_WARNING_AND_ABOVE_LOG")]
         public static void Warning(string format, params object[] args)
         {
-            InternalLog(LogLevel.Warning, AorTxt.Format(format, args));
+            RouteToUnityLogger(LogLevel.Warning, AorTxt.Format(format, args));
         }
         #endregion
 
@@ -307,7 +308,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_ERROR_AND_ABOVE_LOG")]
         public static void Error(object message)
         {
-            InternalLog(LogLevel.Error, message);
+            RouteToUnityLogger(LogLevel.Error, message);
         }
 
         /// <summary>
@@ -321,7 +322,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_ERROR_AND_ABOVE_LOG")]
         public static void Error(string message)
         {
-            InternalLog(LogLevel.Error, message);
+            RouteToUnityLogger(LogLevel.Error, message);
         }
 
         /// <summary>
@@ -335,7 +336,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_ERROR_AND_ABOVE_LOG")]
         public static void Error(string format, object arg0)
         {
-            InternalLog(LogLevel.Error, AorTxt.Format(format, arg0));
+            RouteToUnityLogger(LogLevel.Error, AorTxt.Format(format, arg0));
         }
 
         /// <summary>
@@ -349,7 +350,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_ERROR_AND_ABOVE_LOG")]
         public static void Error(string format, object arg0, object arg1)
         {
-            InternalLog(LogLevel.Error, AorTxt.Format(format, arg0, arg1));
+            RouteToUnityLogger(LogLevel.Error, AorTxt.Format(format, arg0, arg1));
         }
 
         /// <summary>
@@ -363,7 +364,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_ERROR_AND_ABOVE_LOG")]
         public static void Error(string format, object arg0, object arg1, object arg2)
         {
-            InternalLog(LogLevel.Error, AorTxt.Format(format, arg0, arg1, arg2));
+            RouteToUnityLogger(LogLevel.Error, AorTxt.Format(format, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -377,7 +378,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_ERROR_AND_ABOVE_LOG")]
         public static void Error(string format, params object[] args)
         {
-            InternalLog(LogLevel.Error, AorTxt.Format(format, args));
+            RouteToUnityLogger(LogLevel.Error, AorTxt.Format(format, args));
         }
         #endregion
 
@@ -395,7 +396,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_FATAL_AND_ABOVE_LOG")]
         public static void Fatal(object message)
         {
-            InternalLog(LogLevel.Fatal, message);
+            RouteToUnityLogger(LogLevel.Fatal, message);
         }
 
         /// <summary>
@@ -410,7 +411,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_FATAL_AND_ABOVE_LOG")]
         public static void Fatal(string message)
         {
-            InternalLog(LogLevel.Fatal, message);
+            RouteToUnityLogger(LogLevel.Fatal, message);
         }
 
         /// <summary>
@@ -425,7 +426,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_FATAL_AND_ABOVE_LOG")]
         public static void Fatal(string format, object arg0)
         {
-            InternalLog(LogLevel.Fatal, AorTxt.Format(format, arg0));
+            RouteToUnityLogger(LogLevel.Fatal, AorTxt.Format(format, arg0));
         }
 
         /// <summary>
@@ -440,7 +441,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_FATAL_AND_ABOVE_LOG")]
         public static void Fatal(string format, object arg0, object arg1)
         {
-            InternalLog(LogLevel.Fatal, AorTxt.Format(format, arg0, arg1));
+            RouteToUnityLogger(LogLevel.Fatal, AorTxt.Format(format, arg0, arg1));
         }
 
         /// <summary>
@@ -455,7 +456,7 @@ namespace Honor.Runtime
         [Conditional("ENABLE_FATAL_AND_ABOVE_LOG")]
         public static void Fatal(string format, object arg0, object arg1, object arg2)
         {
-            InternalLog(LogLevel.Fatal, AorTxt.Format(format, arg0, arg1, arg2));
+            RouteToUnityLogger(LogLevel.Fatal, AorTxt.Format(format, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -470,51 +471,79 @@ namespace Honor.Runtime
         [Conditional("ENABLE_FATAL_AND_ABOVE_LOG")]
         public static void Fatal(string format, params object[] args)
         {
-            InternalLog(LogLevel.Fatal, AorTxt.Format(format, args));
+            RouteToUnityLogger(LogLevel.Fatal, AorTxt.Format(format, args));
         }
         #endregion
 
         #region 内部日志实现
         /// <summary>
-        /// 日志内部实现方法
-        /// 根据等级输出不同颜色与类型的日志
+        /// 各等级的文本装饰器：在追加帧号前对原文做着色等处理
+        /// </summary>
+        private static readonly Func<string, string>[] LevelDecorators = BuildLevelDecorators();
+
+        /// <summary>
+        /// 各等级最终写入 Unity 控制台的委托
+        /// </summary>
+        private static readonly Action<string>[] LevelWriters = BuildLevelWriters();
+
+        /// <summary>
+        /// 构建等级装饰表（与 LogLevel 数值一一对应）
+        /// </summary>
+        private static Func<string, string>[] BuildLevelDecorators()
+        {
+            return new Func<string, string>[]
+            {
+                raw => AorTxt.Format("<color=#888888>{0}</color>", raw), // Debug：灰色
+                raw => raw,                                              // Info
+                raw => raw,                                              // Warning
+                raw => raw,                                              // Error
+            };
+        }
+
+        /// <summary>
+        /// 构建等级写入表（与 LogLevel 数值一一对应）
+        /// </summary>
+        private static Action<string>[] BuildLevelWriters()
+        {
+            return new Action<string>[]
+            {
+                line => UnityEngine.Debug.Log(line),        // Debug
+                line => UnityEngine.Debug.Log(line),        // Info
+                line => UnityEngine.Debug.LogWarning(line), // Warning
+                line => UnityEngine.Debug.LogError(line),   // Error
+            };
+        }
+
+        /// <summary>
+        /// 日志内部实现方法：按等级查表分发到对应的 Unity 写入接口
         /// </summary>
         /// <param name="level">日志等级</param>
         /// <param name="message">日志内容</param>
-        private static void InternalLog(LogLevel level, object message)
+        private static void RouteToUnityLogger(LogLevel level, object message)
         {
-            switch (level)
+            string rawText = message.ToString();
+            int slot = (int)level;
+
+            if (slot < 0 || slot >= LevelDecorators.Length)
             {
-                case LogLevel.Debug:
-                    UnityEngine.Debug.Log(FormattingFrameCount(AorTxt.Format("<color=#888888>{0}</color>", message.ToString())));
-                    break;
-
-                case LogLevel.Info:
-                    UnityEngine.Debug.Log(FormattingFrameCount(message.ToString()));
-                    break;
-
-                case LogLevel.Warning:
-                    UnityEngine.Debug.LogWarning(FormattingFrameCount(message.ToString()));
-                    break;
-
-                case LogLevel.Error:
-                    UnityEngine.Debug.LogError(FormattingFrameCount(message.ToString()));
-                    break;
-
-                default:
-                    throw new GameException(FormattingFrameCount(message.ToString()));
+                // Fatal 及其它未定义等级：直接抛出游戏异常
+                throw new GameException(DecorateWithFrameTag(rawText));
             }
+
+            string colored = LevelDecorators[slot](rawText);
+            string line = DecorateWithFrameTag(colored);
+            LevelWriters[slot](line);
         }
 
         /// <summary>
         /// 为日志添加帧计数格式化（便于定位时序问题）
         /// </summary>
-        /// <param name="msg">原始日志</param>
+        /// <param name="rawText">原始日志</param>
         /// <returns>带帧号的格式化日志</returns>
-        private static string FormattingFrameCount(string msg)
+        private static string DecorateWithFrameTag(string rawText)
         {
-            int frameCount = Time.frameCount;
-            return AorTxt.Format("<color=#30F5FB>[{0}]</color>,{1}", frameCount, msg);
+            int currentFrame = Time.frameCount;
+            return AorTxt.Format("<color=#30F5FB>[{0}]</color>,{1}", currentFrame, rawText);
         }
         #endregion
     }

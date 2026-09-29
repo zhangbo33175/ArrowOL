@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  GesturesUI.Config.cs
+ * filename:  GesturesUI.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI手势交互控制器 - 配置与私有字段分部类
@@ -17,6 +17,9 @@ namespace Honor.Runtime
     //=========================================================================
     // UI 手势交互控制器 - 配置与私有字段
     //=========================================================================
+    /// <summary>
+    /// UI 手势交互控制器 - 配置与私有字段分部类
+    /// </summary>
     public sealed partial class GesturesUI : MonoBehaviour
     {
         #region 相机配置

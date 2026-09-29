@@ -39,10 +39,25 @@ namespace GameLib
         public static bool CreateTableExportTxt(string exportDirectory, bool mulToOne, string exportOneFileName,
             Dictionary<string, List<string>> assetChars)
         {
+            return ExportTableTxtInternal(exportDirectory, mulToOne, exportOneFileName, assetChars, "CreateTableExportTxt");
+        }
+
+        /// <summary>
+        /// TXT导出通用内部实现（合并/分文件导出，自动去重、删除旧文件）
+        /// </summary>
+        /// <param name="exportDirectory">导出目标文件夹</param>
+        /// <param name="mulToOne">是否合并为一个文件</param>
+        /// <param name="exportOneFileName">合并后的文件名</param>
+        /// <param name="assetChars">文件名 -> 字符串列表</param>
+        /// <param name="logTag">日志前缀标签（区分调用方）</param>
+        /// <returns>导出是否成功</returns>
+        private static bool ExportTableTxtInternal(string exportDirectory, bool mulToOne, string exportOneFileName,
+            Dictionary<string, List<string>> assetChars, string logTag)
+        {
             // 路径为空校验
             if (string.IsNullOrEmpty(exportDirectory))
             {
-                Log.Error("CreateTableExportTxt 时传入的路径为空");
+                Log.Error($"{logTag} 时传入的路径为空");
                 return false;
             }
 
@@ -53,7 +68,7 @@ namespace GameLib
             // 删除旧的合并文件
             if (File.Exists(oneFilePath))
             {
-                Log.Info($"CreateTableExportTxt 删除旧的TMP字符集文件{oneFilePath}");
+                Log.Info($"{logTag} 删除旧的TMP字符集文件{oneFilePath}");
                 File.Delete(oneFilePath);
             }
 
@@ -63,7 +78,7 @@ namespace GameLib
                 string perFilePath = $"{assetFilePath}/{item.Key}.txt";
                 if (File.Exists(perFilePath))
                 {
-                    Log.Info($"CreateTableExportTxt 删除旧的TMP字符集文件{perFilePath}");
+                    Log.Info($"{logTag} 删除旧的TMP字符集文件{perFilePath}");
                     File.Delete(perFilePath);
                 }
             }
@@ -124,62 +139,7 @@ namespace GameLib
         public static bool CreateTableExportTextTxt(string exportDirectory, bool mulToOne, string exportOneFileName,
             Dictionary<string, List<string>> assetChars)
         {
-            if (string.IsNullOrEmpty(exportDirectory))
-            {
-                Log.Error("CreateTableExportTextTxt 时传入的路径为空");
-                return false;
-            }
-
-            string assetFilePath = exportDirectory.Substring(exportDirectory.IndexOf("/Assets") + 1);
-            string oneFilePath = $"{assetFilePath}/{exportOneFileName}.txt";
-
-            if (File.Exists(oneFilePath))
-            {
-                Log.Info($"CreateTableExportTextTxt 删除旧的TMP字符集文件{oneFilePath}");
-                File.Delete(oneFilePath);
-            }
-
-            foreach (var item in assetChars)
-            {
-                string perFilePath = $"{assetFilePath}/{item.Key}.txt";
-                if (File.Exists(perFilePath))
-                {
-                    Log.Info($"CreateTableExportTextTxt 删除旧的TMP字符集文件{perFilePath}");
-                    File.Delete(perFilePath);
-                }
-            }
-
-            if (mulToOne)
-            {
-                string tmpChars = "";
-                foreach (var item in assetChars)
-                {
-                    List<string> assetStringArray = item.Value.Distinct().ToList();
-                    tmpChars = $"{tmpChars}{string.Join("", assetStringArray)}";
-                }
-
-                var filePath = AorTxt.Format("{0}/{1}",
-                    Application.dataPath.Substring(0, Application.dataPath.Length - "Assets/".Length), oneFilePath);
-                File.WriteAllText(filePath, tmpChars, new UTF8Encoding(false));
-                AssetDatabase.Refresh();
-            }
-            else
-            {
-                foreach (var item in assetChars)
-                {
-                    string perFilePath = $"{assetFilePath}/{item.Key}.txt";
-                    List<string> assetStringArray = item.Value.Distinct().ToList();
-                    string tempStr = string.Join("", assetStringArray);
-
-                    var filePath = AorTxt.Format("{0}/{1}",
-                        Application.dataPath.Substring(0, Application.dataPath.Length - "Assets/".Length), perFilePath);
-                    File.WriteAllText(filePath, tempStr, new UTF8Encoding(false));
-                }
-
-                AssetDatabase.Refresh();
-            }
-
-            return true;
+            return ExportTableTxtInternal(exportDirectory, mulToOne, exportOneFileName, assetChars, "CreateTableExportTextTxt");
         }
         #endregion
     }

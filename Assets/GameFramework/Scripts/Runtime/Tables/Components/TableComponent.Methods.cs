@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  TableComponent.Variable.cs
+ * filename:  TableComponent.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   表格配置组件 - 成员变量分部类

@@ -16,7 +16,7 @@
 local CharacterGenerationManager = class("CharacterGenerationManager")
 
 ---=========================================================================
---- 构造函数
+---@brief 构造函数
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:ctor()
@@ -25,7 +25,7 @@ function CharacterGenerationManager:ctor()
 end
 
 ---=========================================================================
---- 创建实例
+---@brief 创建实例
 ---@type fun():CharacterGenerationManager
 ---@return CharacterGenerationManager @角色生成管理器实例
 ---=========================================================================
@@ -37,7 +37,7 @@ end
 --region 【角色生成/销毁接口】
 
 ---=========================================================================
---- 生成闲置角色(对象池管理)
+---@brief 生成闲置角色(对象池管理)
 ---@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase
 ---@param characterId string @角色ID
 ---@param newParent UnityEngine.Transform @父节点
@@ -49,7 +49,7 @@ function CharacterGenerationManager:SpawnIdle(characterId, newParent)
 end
 
 ---=========================================================================
---- 销毁闲置角色(放回对象池)
+---@brief 销毁闲置角色(放回对象池)
 ---@type fun(characterBase:CharacterBase):void
 ---@param characterBase CharacterBase @角色实例
 ---=========================================================================
@@ -63,7 +63,7 @@ function CharacterGenerationManager:DespawnIdle(characterBase)
 end
 
 ---=========================================================================
---- 生成角色
+---@brief 生成角色
 ---@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase
 ---@param characterId string @角色ID
 ---@param newParent UnityEngine.Transform @父节点
@@ -75,7 +75,7 @@ function CharacterGenerationManager:CharacterGeneration(characterId, newParent)
 end
 
 ---=========================================================================
---- 根据角色数据生成角色
+---@brief 根据角色数据生成角色
 ---@type fun(characterData:Tables.Characters_Item,newParent:UnityEngine.Transform,isIdle:boolean):CharacterBase
 ---@param characterData Tables.Characters_Item @角色配置数据
 ---@param newParent UnityEngine.Transform @父节点
@@ -104,7 +104,7 @@ function CharacterGenerationManager:CharacterGenerationByData(characterData, new
 end
 
 ---=========================================================================
---- 销毁角色(放回对象池)
+---@brief 销毁角色(放回对象池)
 ---@type fun(characterBase:CharacterBase):void
 ---@param characterBase CharacterBase @角色实例
 ---=========================================================================
@@ -118,7 +118,7 @@ function CharacterGenerationManager:DesCharacterGeneration(characterBase)
 end
 
 ---=========================================================================
---- 销毁所有角色(放回对象池)
+---@brief 销毁所有角色(放回对象池)
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:DesCharacterGenerationAll()
@@ -136,7 +136,7 @@ end
 --region 【角色获取接口】
 
 ---=========================================================================
---- 根据角色类型获取已生成的角色列表
+---@brief 根据角色类型获取已生成的角色列表
 ---@type fun(characterType:ECharacterType):List<CharacterBase>
 ---@param characterType ECharacterType @角色类型
 ---@return List<CharacterBase> @角色实例列表
@@ -154,7 +154,7 @@ function CharacterGenerationManager:GetCharactersByType(characterType)
 end
 
 ---=========================================================================
---- 按类型获取角色配置列表
+---@brief 按类型获取角色配置列表
 ---@type fun(characterType:ECharacterType):Tables.Characters_Item[]
 ---@param characterType ECharacterType @角色类型
 ---@return Tables.Characters_Item[] @角色配置数组
@@ -174,7 +174,7 @@ function CharacterGenerationManager:GetCharacterConfigsByType(characterType)
 end
 
 ---=========================================================================
---- 按类型拷贝角色配置到目标容器
+---@brief 按类型拷贝角色配置到目标容器
 ---@type fun(characterType:ECharacterType,result:table):void
 ---@param characterType ECharacterType @角色类型
 ---@param result table @目标容器
@@ -188,7 +188,7 @@ function CharacterGenerationManager:CopyCharacterConfigsByType(characterType, re
 end
 
 ---=========================================================================
---- 根据角色类型与客人ID获取角色
+---@brief 根据角色类型与客人ID获取角色
 ---@type fun(characterType:ECharacterType,id : number):CharacterBase
 ---@param characterType ECharacterType @角色类型
 ---@param id number @客人ID
@@ -209,7 +209,7 @@ function CharacterGenerationManager:GetCharacter(characterType, id)
 end
 
 ---=========================================================================
---- 根据角色类型与配置ID获取角色
+---@brief 根据角色类型与配置ID获取角色
 ---@type fun(characterType:ECharacterType,id : number):CharacterBase
 ---@param characterType ECharacterType @角色类型
 ---@param id number @角色配置ID
@@ -234,7 +234,7 @@ end
 --region 【游戏生命周期】
 
 ---=========================================================================
---- 游戏初始化
+---@brief 游戏初始化
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnInitGame()
@@ -244,7 +244,7 @@ function CharacterGenerationManager:OnInitGame()
 end
 
 ---=========================================================================
---- 进入游戏
+---@brief 进入游戏
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnEnterGame()
@@ -254,7 +254,7 @@ function CharacterGenerationManager:OnEnterGame()
 end
 
 ---=========================================================================
---- 游戏开始
+---@brief 游戏开始
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnBeginGame()
@@ -264,7 +264,7 @@ function CharacterGenerationManager:OnBeginGame()
 end
 
 ---=========================================================================
---- 游戏暂停
+---@brief 游戏暂停
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnPauseGame()
@@ -274,7 +274,7 @@ function CharacterGenerationManager:OnPauseGame()
 end
 
 ---=========================================================================
---- 游戏恢复
+---@brief 游戏恢复
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnResumeGame()
@@ -284,7 +284,7 @@ function CharacterGenerationManager:OnResumeGame()
 end
 
 ---=========================================================================
---- 游戏结束
+---@brief 游戏结束
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnGameOver()
@@ -294,7 +294,7 @@ function CharacterGenerationManager:OnGameOver()
 end
 
 ---=========================================================================
---- 游戏退出
+---@brief 游戏退出
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnExitGame()
@@ -304,14 +304,14 @@ function CharacterGenerationManager:OnExitGame()
 end
 
 ---=========================================================================
---- 游戏重玩
+---@brief 游戏重玩
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnRePlayGame()
 end
 
 ---=========================================================================
---- 重玩前初始化地图中剩余角色
+---@brief 重玩前初始化地图中剩余角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnRePlayGameBefore()

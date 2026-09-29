@@ -31,8 +31,8 @@ namespace Honor.Runtime
             base.Awake();
 
             // 初始化音频管理器
-            m_SoundManager = new SoundManager();
-            if (m_SoundManager == null)
+            m_AudioService = new SoundManager();
+            if (m_AudioService == null)
             {
                 Log.Fatal("Sound manager 无效。");
                 return;
@@ -45,18 +45,19 @@ namespace Honor.Runtime
         private void Start()
         {
             // 初始化配置的所有声音组
-            for (int i = 0; i < m_SoundGroupShells.Length; i++)
+            foreach (SoundGroupShell shell in m_SoundGroupShells)
             {
-                if (!AddSoundGroup(
-                        m_SoundGroupShells[i].Name,
-                        m_SoundGroupShells[i].AvoidBeingReplacedBySamePriority,
-                        m_SoundGroupShells[i].Mute,
-                        m_SoundGroupShells[i].Volume,
-                        m_SoundGroupShells[i].AgentCount))
+                if (AddSoundGroup(
+                        shell.Name,
+                        shell.AvoidBeingReplacedBySamePriority,
+                        shell.Mute,
+                        shell.Volume,
+                        shell.AgentCount))
                 {
-                    Log.Warning("添加 Sound Group '{0}' 失败。", m_SoundGroupShells[i].Name);
                     continue;
                 }
+
+                Log.Warning("添加 Sound Group '{0}' 失败。", shell.Name);
             }
         }
 
@@ -75,7 +76,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool HasSoundGroup(string soundGroupName)
         {
-            return m_SoundManager.HasSoundGroup(soundGroupName);
+            return m_AudioService.HasSoundGroup(soundGroupName);
         }
 
         /// <summary>
@@ -83,7 +84,7 @@ namespace Honor.Runtime
         /// </summary>
         public SoundGroup GetSoundGroup(string soundGroupName)
         {
-            return m_SoundManager.GetSoundGroup(soundGroupName);
+            return m_AudioService.GetSoundGroup(soundGroupName);
         }
 
         /// <summary>
@@ -91,12 +92,16 @@ namespace Honor.Runtime
         /// </summary>
         public SoundGroup[] GetAllSoundGroups()
         {
-            return m_SoundManager.GetAllSoundGroups();
+            return m_AudioService.GetAllSoundGroups();
         }
 
+        /// <summary>
+        /// 获取所有声音组（填充到外部 List，避免分配数组）
+        /// </summary>
+        /// <param name="results">结果列表（会被清空后填充）</param>
         public void GetAllSoundGroups(List<SoundGroup> results)
         {
-            m_SoundManager.GetAllSoundGroups(results);
+            m_AudioService.GetAllSoundGroups(results);
         }
 
         /// <summary>
@@ -118,7 +123,7 @@ namespace Honor.Runtime
             int soundAgentCount)
         {
             // 防重复添加
-            if (m_SoundManager.HasSoundGroup(soundGroupName))
+            if (m_AudioService.HasSoundGroup(soundGroupName))
                 return false;
 
             // 创建声音组节点
@@ -135,14 +140,13 @@ namespace Honor.Runtime
             // 绑定 AudioMixer 分组
             if (m_AudioMixer != null)
             {
-                AudioMixerGroup[] audioMixerGroups = m_AudioMixer.FindMatchingGroups(AorTxt.Format("Master/{0}", soundGroupName));
-                soundGroupHelper.AudioMixerGroup = audioMixerGroups.Length > 0
-                    ? audioMixerGroups[0]
-                    : m_AudioMixer.FindMatchingGroups("Master")[0];
+                AudioMixerGroup masterGroup = m_AudioMixer.FindMatchingGroups("Master")[0];
+                soundGroupHelper.AudioMixerGroup = ResolveMixerGroup(
+                    AorTxt.Format("Master/{0}", soundGroupName), masterGroup);
             }
 
             // 添加到管理器
-            if (!m_SoundManager.AddSoundGroup(soundGroupName, soundGroupAvoidBeingReplacedBySamePriority,
+            if (!m_AudioService.AddSoundGroup(soundGroupName, soundGroupAvoidBeingReplacedBySamePriority,
                     soundGroupMute, soundGroupVolume, soundGroupHelper))
                 return false;
 
@@ -167,12 +171,16 @@ namespace Honor.Runtime
         /// </summary>
         public int[] GetAllLoadingSoundSerialIDs()
         {
-            return m_SoundManager.GetAllLoadingSoundSerialIDs();
+            return m_AudioService.GetAllLoadingSoundSerialIDs();
         }
 
+        /// <summary>
+        /// 获取所有正在加载的声音ID（填充到外部 List）
+        /// </summary>
+        /// <param name="results">结果列表（会被清空后填充）</param>
         public void GetAllLoadingSoundSerialIDs(List<int> results)
         {
-            m_SoundManager.GetAllLoadingSoundSerialIDs(results);
+            m_AudioService.GetAllLoadingSoundSerialIDs(results);
         }
 
         /// <summary>
@@ -180,7 +188,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool IsLoadingSound(int serialID)
         {
-            return m_SoundManager.IsLoadingSound(serialID);
+            return m_AudioService.IsLoadingSound(serialID);
         }
 
         #endregion
@@ -230,7 +238,7 @@ namespace Honor.Runtime
         public int PlaySound(string abPath, string assetName, string soundGroupName,
             PlaySoundParams playSoundParams = null, Vector3 worldPosition = default)
         {
-            return m_SoundManager.PlaySound(abPath, assetName, soundGroupName, playSoundParams,
+            return m_AudioService.PlaySound(abPath, assetName, soundGroupName, playSoundParams,
                 PlaySoundInfoShell.Create(worldPosition));
         }
 
@@ -245,7 +253,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool StopSound(int serialID)
         {
-            return m_SoundManager.StopSound(serialID);
+            return m_AudioService.StopSound(serialID);
         }
 
         /// <summary>
@@ -253,7 +261,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool StopSound(int serialID, float fadeOutSeconds)
         {
-            return m_SoundManager.StopSound(serialID, fadeOutSeconds);
+            return m_AudioService.StopSound(serialID, fadeOutSeconds);
         }
 
         /// <summary>
@@ -261,12 +269,16 @@ namespace Honor.Runtime
         /// </summary>
         public void StopAllLoadedSounds()
         {
-            m_SoundManager.StopAllLoadedSounds();
+            m_AudioService.StopAllLoadedSounds();
         }
 
+        /// <summary>
+        /// 停止所有已加载声音（带淡出）
+        /// </summary>
+        /// <param name="fadeOutSeconds">淡出时间（秒）</param>
         public void StopAllLoadedSounds(float fadeOutSeconds)
         {
-            m_SoundManager.StopAllLoadedSounds(fadeOutSeconds);
+            m_AudioService.StopAllLoadedSounds(fadeOutSeconds);
         }
 
         /// <summary>
@@ -274,7 +286,7 @@ namespace Honor.Runtime
         /// </summary>
         public void StopAllLoadingSounds()
         {
-            m_SoundManager.StopAllLoadingSounds();
+            m_AudioService.StopAllLoadingSounds();
         }
 
         #endregion
@@ -288,12 +300,17 @@ namespace Honor.Runtime
         /// </summary>
         public void PauseSound(int serialID)
         {
-            m_SoundManager.PauseSound(serialID);
+            m_AudioService.PauseSound(serialID);
         }
 
+        /// <summary>
+        /// 暂停声音（带淡出）
+        /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <param name="fadeOutSeconds">淡出时间（秒）</param>
         public void PauseSound(int serialID, float fadeOutSeconds)
         {
-            m_SoundManager.PauseSound(serialID, fadeOutSeconds);
+            m_AudioService.PauseSound(serialID, fadeOutSeconds);
         }
 
         /// <summary>
@@ -301,12 +318,17 @@ namespace Honor.Runtime
         /// </summary>
         public bool ResumeSound(int serialID)
         {
-            return m_SoundManager.ResumeSound(serialID);
+            return m_AudioService.ResumeSound(serialID);
         }
 
+        /// <summary>
+        /// 恢复声音（带淡入）
+        /// </summary>
+        /// <param name="serialID">声音唯一ID</param>
+        /// <param name="fadeInSeconds">淡入时间（秒）</param>
         public bool ResumeSound(int serialID, float fadeInSeconds)
         {
-            return m_SoundManager.ResumeSound(serialID, fadeInSeconds);
+            return m_AudioService.ResumeSound(serialID, fadeInSeconds);
         }
 
         #endregion
@@ -320,7 +342,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool PauseGourpSound(string groupName)
         {
-            return m_SoundManager.PauseGroupSound(groupName);
+            return m_AudioService.PauseGroupSound(groupName);
         }
 
         /// <summary>
@@ -328,7 +350,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool ResumeGroupSound(string groupName)
         {
-            return m_SoundManager.ResumeGroupSound(groupName);
+            return m_AudioService.ResumeGroupSound(groupName);
         }
 
         /// <summary>
@@ -336,7 +358,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool StopGroupSound(string groupName)
         {
-            return m_SoundManager.StopGroupSound(groupName);
+            return m_AudioService.StopGroupSound(groupName);
         }
 
         #endregion
@@ -350,7 +372,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetAllSoundVolume(float newVolume, string groupName)
         {
-            m_SoundManager.SetAllSoundVolume(newVolume, groupName);
+            m_AudioService.SetAllSoundVolume(newVolume, groupName);
         }
 
         #endregion

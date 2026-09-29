@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  TouchComponent.Partial.cs
+ * filename:  TouchComponent.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   触摸输入管理组件 - 扩展分部类

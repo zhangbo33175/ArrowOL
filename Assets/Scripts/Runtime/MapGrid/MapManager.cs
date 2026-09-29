@@ -1,4 +1,14 @@
-﻿using UnityEngine;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapManager.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   正方形网格地图管理核心类（网格生成、坐标转换、物体放置/移除）
+ ***************************************************************/
+
+using UnityEngine;
 
 namespace GameLib
 {
@@ -42,6 +52,8 @@ namespace GameLib
     /// </summary>
     public class MapManager : MonoBehaviour
     {
+        #region 序列化配置字段
+
         [Header("地图设置")]
         /// <summary>
         /// 正方形地图边长（格子数量）
@@ -58,24 +70,36 @@ namespace GameLib
         /// </summary>
         public float cellHeight = 0.5f;
 
+        #endregion
+
+        #region 私有字段
+
         /// <summary>
         /// 二维网格数组（存储所有格子数据）
         /// </summary>
         private GridCell[,] grid;
 
+        #endregion
+
+        #region Unity 生命周期
+
         /// <summary>
         /// 初始化：生成地图网格
         /// </summary>
-        void Awake()
+        private void Awake()
         {
             GenerateGrid();
         }
+
+        #endregion
+
+        #region 网格生成
 
         /// <summary>
         /// 生成正方形网格
         /// 初始化所有格子数据
         /// </summary>
-        void GenerateGrid()
+        private void GenerateGrid()
         {
             grid = new GridCell[size, size];
             for (int x = 0; x < size; x++)
@@ -86,6 +110,10 @@ namespace GameLib
                 }
             }
         }
+
+        #endregion
+
+        #region 坐标转换
 
         /// <summary>
         /// 世界坐标转换为网格坐标
@@ -113,6 +141,10 @@ namespace GameLib
             float worldY = gridPos.x * (cellHeight / 2) + gridPos.y * (cellHeight / 2);
             return new Vector3(worldX, worldY, 0);
         }
+
+        #endregion
+
+        #region 占用检测与物体操作
 
         /// <summary>
         /// 检查指定网格是否被占用
@@ -158,11 +190,15 @@ namespace GameLib
             grid[gridPos.x, gridPos.y].Occupant = null;
         }
 
+        #endregion
+
+        #region Gizmos 绘制
+
         /// <summary>
         /// 在Scene视图绘制网格Gizmos
         /// 绿色=未占用 红色=已占用
         /// </summary>
-        void OnDrawGizmos()
+        private void OnDrawGizmos()
         {
             if (grid == null)
                 GenerateGrid();
@@ -177,5 +213,7 @@ namespace GameLib
                 }
             }
         }
+
+        #endregion
     }
 }

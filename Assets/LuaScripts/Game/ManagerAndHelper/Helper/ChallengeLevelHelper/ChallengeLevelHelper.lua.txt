@@ -39,7 +39,7 @@ end
 --endregion
 
 
----清除当前挑战关卡，进入挑战关卡时就可以清除了
+---@brief 清除当前挑战关卡，进入挑战关卡时就可以清除了
 ---@type fun():void
 function ChallengeLevelHelper:ClearCurChallengeLevel()
     ---@type SaveMsgDef.SaveGameData.ChallengeLevelData

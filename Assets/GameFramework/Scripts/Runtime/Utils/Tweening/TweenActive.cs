@@ -34,6 +34,10 @@ namespace Honor.Runtime
 
         #region 插值
 
+        /// <summary>
+        /// 按进度切换 GameObject 激活状态（越过阈值时翻转）
+        /// </summary>
+        /// <param name="factor">曲线修正后的 0~1 进度</param>
         protected override void ApplyValue(float factor)
         {
             // 正向播放：越过阈值后激活；反向播放：低于阈值后取消激活

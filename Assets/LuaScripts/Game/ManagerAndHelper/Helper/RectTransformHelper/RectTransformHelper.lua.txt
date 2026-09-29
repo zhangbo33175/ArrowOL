@@ -16,14 +16,14 @@ local RectTransformHelper = class("RectTransformHelper")
 --region 构造 & 实例化
 
 ---=========================================================================
---- 构造函数
+---@brief 构造函数
 ---@param args table 预留扩展参数
 ---=========================================================================
 function RectTransformHelper:ctor(args)
 end
 
 ---=========================================================================
---- 创建工具类实例
+---@brief 创建工具类实例
 ---@param args table 预留扩展参数
 ---@return RectTransformHelper
 ---=========================================================================
@@ -36,7 +36,7 @@ end
 --region 锚点位置操作
 
 ---=========================================================================
---- 设置锚点位置 X 坐标
+---@brief 设置锚点位置 X 坐标
 ---@param rectTransform UnityEngine.RectTransform 目标组件
 ---@param posX number 目标 X 值
 ---=========================================================================
@@ -47,7 +47,7 @@ function RectTransformHelper:SetAnchoredPositionX(rectTransform, posX)
 end
 
 ---=========================================================================
---- 设置锚点位置 Y 坐标
+---@brief 设置锚点位置 Y 坐标
 ---@param rectTransform UnityEngine.RectTransform 目标组件
 ---@param posY number 目标 Y 值
 ---=========================================================================

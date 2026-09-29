@@ -30,19 +30,25 @@ namespace Honor.Runtime
             base.Awake();
 
             // 创建震动管理器实例
-            m_VibrateManager = new VibrateManager();
-            if (m_VibrateManager == null)
+            m_HapticService = new VibrateManager();
+            if (m_HapticService == null)
             {
                 Log.Fatal("Vibrate manager 无效。");
                 return;
             }
         }
 
+        /// <summary>
+        /// 启动逻辑（暂未使用）
+        /// </summary>
         private void Start()
         {
             // 初始化逻辑
         }
 
+        /// <summary>
+        /// 销毁时清理资源（暂未使用）
+        /// </summary>
         private void OnDestroy()
         {
             // 资源清理
@@ -53,7 +59,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Play()
         {
-            m_VibrateManager.Play();
+            m_HapticService.Play();
         }
 
         /// <summary>
@@ -62,7 +68,7 @@ namespace Honor.Runtime
         /// <param name="type">震动类型枚举</param>
         public void Play(VibrateType type)
         {
-            m_VibrateManager.Play(type);
+            m_HapticService.Play(type);
         }
 
         /// <summary>
@@ -75,31 +81,24 @@ namespace Honor.Runtime
         public void PlayCustom(float intensity, float sharpness, float preDuration = 0f, float duration = 0f)
         {
             // 参数合法性校验
-            if (intensity < 0f || intensity > 1f)
+            if (!CheckRatio(intensity, nameof(intensity)))
             {
-                Log.Error("VibrateComponent.PlayCustom intensity 无效。");
+                return;
+            }
+            if (!CheckRatio(sharpness, nameof(sharpness)))
+            {
+                return;
+            }
+            if (!CheckNonNegative(preDuration, nameof(preDuration)))
+            {
+                return;
+            }
+            if (!CheckNonNegative(duration, nameof(duration)))
+            {
                 return;
             }
 
-            if (sharpness < 0f || sharpness > 1f)
-            {
-                Log.Error("VibrateComponent.PlayCustom sharpness 无效。");
-                return;
-            }
-
-            if (preDuration < 0f)
-            {
-                Log.Error("VibrateComponent.PlayCustom preDuration 无效。");
-                return;
-            }
-
-            if (duration < 0f)
-            {
-                Log.Error("VibrateComponent.PlayCustom duration 无效。");
-                return;
-            }
-
-            m_VibrateManager.PlayCustom(intensity, sharpness, preDuration, duration, null);
+            m_HapticService.PlayCustom(intensity, sharpness, preDuration, duration, null);
         }
 
         /// <summary>
@@ -108,13 +107,12 @@ namespace Honor.Runtime
         /// <param name="luaTable">Lua配置表</param>
         public void PlayCustomGroup(LuaTable luaTable)
         {
-            if (luaTable == null)
+            if (!CheckLuaTable(luaTable, nameof(PlayCustomGroup)))
             {
-                Log.Error("VibrateComponent.PlayCustomGroup luaTable 无效。");
                 return;
             }
 
-            m_VibrateManager.PlayCustomGroup(luaTable);
+            m_HapticService.PlayCustomGroup(luaTable);
         }
 
         /// <summary>
@@ -126,31 +124,24 @@ namespace Honor.Runtime
         /// <param name="interval">间隔</param>
         public void PlayEmphasis(float amplitude, float frequency, float preDuration = 0f, float interval = 0f)
         {
-            if (amplitude < 0f || amplitude > 1f)
+            if (!CheckRatio(amplitude, nameof(amplitude)))
             {
-                Log.Error("VibrateComponent.PlayEmphasis amplitude 无效。");
+                return;
+            }
+            if (!CheckRatio(frequency, nameof(frequency)))
+            {
+                return;
+            }
+            if (!CheckNonNegative(preDuration, nameof(preDuration)))
+            {
+                return;
+            }
+            if (!CheckNonNegative(interval, nameof(interval)))
+            {
                 return;
             }
 
-            if (frequency < 0f || frequency > 1f)
-            {
-                Log.Error("VibrateComponent.PlayEmphasis frequency 无效。");
-                return;
-            }
-
-            if (preDuration < 0f)
-            {
-                Log.Error("VibrateComponent.PlayEmphasis preDuration 无效。");
-                return;
-            }
-
-            if (interval < 0f)
-            {
-                Log.Error("VibrateComponent.PlayEmphasis interval 无效。");
-                return;
-            }
-
-            m_VibrateManager.PlayEmphasis(amplitude, frequency, preDuration, interval, null);
+            m_HapticService.PlayEmphasis(amplitude, frequency, preDuration, interval, null);
         }
 
         /// <summary>
@@ -158,13 +149,12 @@ namespace Honor.Runtime
         /// </summary>
         public void PlayEmphasisGroup(LuaTable luaTable)
         {
-            if (luaTable == null)
+            if (!CheckLuaTable(luaTable, nameof(PlayEmphasisGroup)))
             {
-                Log.Error("VibrateComponent.PlayEmphasisGroup luaTable 无效。");
                 return;
             }
 
-            m_VibrateManager.PlayEmphasisGroup(luaTable);
+            m_HapticService.PlayEmphasisGroup(luaTable);
         }
 
         /// <summary>
@@ -172,7 +162,7 @@ namespace Honor.Runtime
         /// </summary>
         public void StopAll()
         {
-            m_VibrateManager.StopAll();
+            m_HapticService.StopAll();
         }
 
         /// <summary>
@@ -180,7 +170,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetEnable(bool enable)
         {
-            m_VibrateManager.SetEnable(enable);
+            m_HapticService.SetEnable(enable);
         }
 
         /// <summary>
@@ -188,7 +178,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool GetEnable()
         {
-            return m_VibrateManager.GetEnable();
+            return m_HapticService.GetEnable();
         }
 
         /// <summary>
@@ -196,7 +186,52 @@ namespace Honor.Runtime
         /// </summary>
         public bool IsSupported()
         {
-            return m_VibrateManager.IsSupported();
+            return m_HapticService.IsSupported();
+        }
+
+        /// <summary>
+        /// 校验取值是否落在 [0,1] 区间，越界则记录错误并返回 false
+        /// </summary>
+        /// <param name="value">待校验数值</param>
+        /// <param name="paramName">参数名（用于错误日志）</param>
+        private static bool CheckRatio(float value, string paramName)
+        {
+            if (value < 0f || value > 1f)
+            {
+                Log.Error($"VibrateComponent.{paramName} 须在 0~1 之间，当前 {value}。");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 校验取值是否为非负数，为负则记录错误并返回 false
+        /// </summary>
+        /// <param name="value">待校验数值</param>
+        /// <param name="paramName">参数名（用于错误日志）</param>
+        private static bool CheckNonNegative(float value, string paramName)
+        {
+            if (value < 0f)
+            {
+                Log.Error($"VibrateComponent.{paramName} 不能为负，当前 {value}。");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 校验Lua配置表是否为空，为空则记录错误并返回 false
+        /// </summary>
+        /// <param name="luaTable">待校验Lua表</param>
+        /// <param name="methodName">调用方法名（用于错误日志）</param>
+        private static bool CheckLuaTable(LuaTable luaTable, string methodName)
+        {
+            if (luaTable == null)
+            {
+                Log.Error($"VibrateComponent.{methodName} luaTable 无效。");
+                return false;
+            }
+            return true;
         }
     }
 }

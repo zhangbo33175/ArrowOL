@@ -47,7 +47,7 @@ function MapManager:ctor()
 end
 
 ---=========================================================================
---- 创建管理器单例实例
+---@brief 创建管理器单例实例
 ---@return MapManager 地图管理器实例
 ---=========================================================================
 function MapManager:Create()
@@ -94,7 +94,7 @@ end
 --region 地图加载/切换/卸载（核心流程）
 
 ---=========================================================================
---- 获取地图类型（目前固定为主线地图）
+---@brief 获取地图类型（目前固定为主线地图）
 ---@param chapterId number 章节ID
 ---@return EMapType 地图类型
 ---=========================================================================
@@ -104,7 +104,7 @@ function MapManager:GetMapType(chapterId)
 end
 
 ---=========================================================================
---- 切换地图（外部统一入口）
+---@brief 切换地图（外部统一入口）
 ---@param chapterId number 目标章节ID
 ---@param finishCallback function|nil 加载完成回调
 ---@param refuseAd boolean 是否跳过广告
@@ -133,7 +133,7 @@ function MapManager:ReadyToLoadMap(chapterId, finishCallback)
 end
 
 ---=========================================================================
---- 加载预准备好的地图（状态机内部调用）
+---@brief 加载预准备好的地图（状态机内部调用）
 ---@param luaParams table 加载参数
 ---=========================================================================
 function MapManager:LoadReadyMap(luaParams)
@@ -174,7 +174,7 @@ function MapManager:LoadMapImageSprite()
 end
 
 ---=========================================================================
---- 根据章节ID加载地图
+---@brief 根据章节ID加载地图
 ---@param chapterId number 章节ID
 ---@param luaParams table 加载参数
 ---@return boolean 是否加载成功
@@ -194,7 +194,7 @@ function MapManager:LoadMapById(chapterId, luaParams)
 end
 
 ---=========================================================================
---- 同步加载地图Prefab到场景
+---@brief 同步加载地图Prefab到场景
 ---@param mapName string 地图资源名
 ---@param luaParams table 实例化参数
 ---@return UnityEngine.GameObject
@@ -206,7 +206,7 @@ function MapManager:LoadMapResByName(mapName, luaParams)
 end
 
 ---=========================================================================
---- 根据章节ID获取配置的地图资源名
+---@brief 根据章节ID获取配置的地图资源名
 ---@param chapterId number 章节ID
 ---@return string|nil 地图资源名
 ---=========================================================================

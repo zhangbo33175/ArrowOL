@@ -294,11 +294,22 @@ namespace Honor.Runtime
         // 扩展信息工具方法
         //=========================================================================
         /// <summary>
+        /// 按 '#' 分隔原始扩展串；空串或 null 返回 null
+        /// </summary>
+        /// <param name="raw">原始扩展串</param>
+        /// <returns>分隔后的段数组，无内容时为 null</returns>
+        private static string[] SplitExtends(string raw)
+        {
+            return string.IsNullOrEmpty(raw) ? null : raw.Split('#');
+        }
+
+        /// <summary>
         /// 获取当前扩展信息分段数量
         /// </summary>
         public int GetExtendsCount()
         {
-            return string.IsNullOrEmpty(Extends) ? 0 : Extends.Split('#').Length;
+            string[] parts = SplitExtends(Extends);
+            return parts == null ? 0 : parts.Length;
         }
 
         /// <summary>
@@ -306,11 +317,8 @@ namespace Honor.Runtime
         /// </summary>
         public string GetExtendsInfo(int index)
         {
-            if (string.IsNullOrEmpty(Extends))
-                return null;
-            
-            string[] infos = Extends.Split('#');
-            return index >= 0 && index < infos.Length ? infos[index] : null;
+            string[] parts = SplitExtends(Extends);
+            return (parts != null && index >= 0 && index < parts.Length) ? parts[index] : null;
         }
 
         /// <summary>
@@ -320,9 +328,9 @@ namespace Honor.Runtime
         {
             if (elementIndex < 0 || elementIndex >= ElementsExtends.Count)
                 return -1;
-            
-            var str = ElementsExtends[elementIndex];
-            return string.IsNullOrEmpty(str) ? 0 : str.Split('#').Length;
+
+            string[] parts = SplitExtends(ElementsExtends[elementIndex]);
+            return parts == null ? 0 : parts.Length;
         }
 
         /// <summary>
@@ -333,12 +341,8 @@ namespace Honor.Runtime
             if (elementIndex < 0 || elementIndex >= ElementsExtends.Count)
                 return null;
 
-            var str = ElementsExtends[elementIndex];
-            if (string.IsNullOrEmpty(str))
-                return null;
-
-            string[] infos = str.Split('#');
-            return index >= 0 && index < infos.Length ? infos[index] : null;
+            string[] parts = SplitExtends(ElementsExtends[elementIndex]);
+            return (parts != null && index >= 0 && index < parts.Length) ? parts[index] : null;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 错误：声音组内 AudioSource 代理数量不足，无法播放新声音
         /// </summary>
-        SoundGroupHasNotEnoughAgent,
+        SoundGroupInsufficientAgents,
 
         /// <summary>
         /// 错误：音频资源加载失败（AB包/路径/文件问题）

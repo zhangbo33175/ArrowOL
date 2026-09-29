@@ -27,12 +27,12 @@ namespace Honor.Runtime
         /// <summary>
         /// 全局存储所有值的双向链表，所有键对应的值都存在这个链表中
         /// </summary>
-        private readonly GameLinkedList<TValue> m_LinkedList;
+        private readonly GameLinkedList<TValue> m_ValueChain;
 
         /// <summary>
         /// 主键映射到链表区间的字典，实现键到多值的快速查找
         /// </summary>
-        private readonly Dictionary<TKey, GameLinkedListRange<TValue>> m_Dictionary;
+        private readonly Dictionary<TKey, GameLinkedListRange<TValue>> m_KeyIndex;
 
         #region 构造函数
         //=========================================================================
@@ -43,8 +43,8 @@ namespace Honor.Runtime
         /// </summary>
         public GameMultiDictionary()
         {
-            m_LinkedList = new GameLinkedList<TValue>();
-            m_Dictionary = new Dictionary<TKey, GameLinkedListRange<TValue>>();
+            m_ValueChain = new GameLinkedList<TValue>();
+            m_KeyIndex = new Dictionary<TKey, GameLinkedListRange<TValue>>();
         }
         #endregion
 
@@ -55,7 +55,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取多值字典中实际包含的【主键总数】
         /// </summary>
-        public int Count => m_Dictionary.Count;
+        public int Count => m_KeyIndex.Count;
 
         /// <summary>
         /// 索引器：通过主键获取对应的链表区间
@@ -67,7 +67,7 @@ namespace Honor.Runtime
             get
             {
                 GameLinkedListRange<TValue> range = default(GameLinkedListRange<TValue>);
-                m_Dictionary.TryGetValue(key, out range);
+                m_KeyIndex.TryGetValue(key, out range);
                 return range;
             }
         }
@@ -82,8 +82,8 @@ namespace Honor.Runtime
         /// </summary>
         public void Clear()
         {
-            m_Dictionary.Clear();
-            m_LinkedList.Clear();
+            m_KeyIndex.Clear();
+            m_ValueChain.Clear();
         }
         #endregion
 
@@ -98,7 +98,7 @@ namespace Honor.Runtime
         /// <returns>包含返回true，否则false</returns>
         public bool Contains(TKey key)
         {
-            return m_Dictionary.ContainsKey(key);
+            return m_KeyIndex.ContainsKey(key);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Honor.Runtime
         public bool Contains(TKey key, TValue value)
         {
             GameLinkedListRange<TValue> range = default(GameLinkedListRange<TValue>);
-            if (m_Dictionary.TryGetValue(key, out range))
+            if (m_KeyIndex.TryGetValue(key, out range))
             {
                 return range.Contains(value);
             }
@@ -131,7 +131,7 @@ namespace Honor.Runtime
         /// <returns>获取成功返回true，否则false</returns>
         public bool TryGetValue(TKey key, out GameLinkedListRange<TValue> range)
         {
-            return m_Dictionary.TryGetValue(key, out range);
+            return m_KeyIndex.TryGetValue(key, out range);
         }
         #endregion
 
@@ -148,18 +148,18 @@ namespace Honor.Runtime
         public void Add(TKey key, TValue value)
         {
             GameLinkedListRange<TValue> range = default(GameLinkedListRange<TValue>);
-            if (m_Dictionary.TryGetValue(key, out range))
+            if (m_KeyIndex.TryGetValue(key, out range))
             {
                 // 键已存在，将值添加到区间结束节点之前
-                m_LinkedList.AddBefore(range.Terminal, value);
+                m_ValueChain.AddBefore(range.Terminal, value);
             }
             else
             {
                 // 键不存在，创建新的链表节点组：首节点+结束标记节点
-                LinkedListNode<TValue> first = m_LinkedList.AddLast(value);
-                LinkedListNode<TValue> terminal = m_LinkedList.AddLast(default(TValue));
+                LinkedListNode<TValue> first = m_ValueChain.AddLast(value);
+                LinkedListNode<TValue> terminal = m_ValueChain.AddLast(default(TValue));
                 // 将新区间存入字典
-                m_Dictionary.Add(key, new GameLinkedListRange<TValue>(first, terminal));
+                m_KeyIndex.Add(key, new GameLinkedListRange<TValue>(first, terminal));
             }
         }
         #endregion
@@ -177,7 +177,7 @@ namespace Honor.Runtime
         public bool Remove(TKey key, TValue value)
         {
             GameLinkedListRange<TValue> range = default(GameLinkedListRange<TValue>);
-            if (m_Dictionary.TryGetValue(key, out range))
+            if (m_KeyIndex.TryGetValue(key, out range))
             {
                 // 遍历当前主键对应的链表区间
                 for (LinkedListNode<TValue> current = range.First; current != null && current != range.Terminal; current = current.Next)
@@ -192,18 +192,18 @@ namespace Honor.Runtime
                             // 移除后区间为空，删除结束节点并从字典移除键
                             if (next == range.Terminal)
                             {
-                                m_LinkedList.Remove(next);
-                                m_Dictionary.Remove(key);
+                                m_ValueChain.Remove(next);
+                                m_KeyIndex.Remove(key);
                             }
                             else
                             {
                                 // 更新区间首节点
-                                m_Dictionary[key] = new GameLinkedListRange<TValue>(next, range.Terminal);
+                                m_KeyIndex[key] = new GameLinkedListRange<TValue>(next, range.Terminal);
                             }
                         }
 
                         // 从全局链表中移除当前节点
-                        m_LinkedList.Remove(current);
+                        m_ValueChain.Remove(current);
                         return true;
                     }
                 }
@@ -220,17 +220,17 @@ namespace Honor.Runtime
         public bool RemoveAll(TKey key)
         {
             GameLinkedListRange<TValue> range = default(GameLinkedListRange<TValue>);
-            if (m_Dictionary.TryGetValue(key, out range))
+            if (m_KeyIndex.TryGetValue(key, out range))
             {
                 // 先从字典中移除主键
-                m_Dictionary.Remove(key);
+                m_KeyIndex.Remove(key);
 
                 // 遍历并删除该主键对应的所有链表节点
                 LinkedListNode<TValue> current = range.First;
                 while (current != null)
                 {
                     LinkedListNode<TValue> next = current != range.Terminal ? current.Next : null;
-                    m_LinkedList.Remove(current);
+                    m_ValueChain.Remove(current);
                     current = next;
                 }
 
@@ -251,7 +251,7 @@ namespace Honor.Runtime
         /// <returns>自定义枚举器实例</returns>
         public Enumerator GetEnumerator()
         {
-            return new Enumerator(m_Dictionary);
+            return new Enumerator(m_KeyIndex);
         }
 
         /// <summary>

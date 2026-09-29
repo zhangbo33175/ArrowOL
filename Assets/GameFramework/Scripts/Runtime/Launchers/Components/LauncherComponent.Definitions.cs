@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LauncherComponent.Performance.cs
+ * filename:  LauncherComponent.Definitions.cs
  * author:    云毅
  * created:   2026
  * descrip:   框架启动器 - 设备性能配置类（partial）

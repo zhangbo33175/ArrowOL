@@ -75,12 +75,12 @@ namespace Honor.Runtime
         /// 禁止触摸引用计数
         /// >0：禁止触摸   =0：恢复触摸
         /// </summary>
-        private int m_ForbidenEasyTouchRef;
+        private int m_TouchBlockRefCount;
 
         /// <summary>
         /// 禁止触摸前的原始触摸状态备份
         /// </summary>
-        private bool m_HistoryEasyTouchEnabledBak;
+        private bool m_TouchEnabledBeforeBlock;
 
         /// <summary>
         /// 移动动画是否可被手势打断
@@ -233,13 +233,13 @@ namespace Honor.Runtime
         {
             // 如果正在播放不可中断动画，先恢复触摸
             if (DOTween.IsTweening(GameDOTweenTypes.CameraMoveAnimation) && !m_MoveCanInterruptByGestures)
-                SubForbidenEasyTouchRef();
+                ReleaseTouchBlockRef();
 
             m_MoveCanInterruptByGestures = canInterruptByGestures;
 
             // 不可中断则禁用触摸
             if (!m_MoveCanInterruptByGestures)
-                AddFobidenEasyTouchRef();
+                AddTouchBlockRef();
 
 #if EASY_TOUCH_ENABLE
             m_Gestures2D.ResetSwipe();
@@ -257,7 +257,7 @@ namespace Honor.Runtime
                 .OnComplete(() =>
                 {
                     if (!m_MoveCanInterruptByGestures)
-                        SubForbidenEasyTouchRef();
+                        ReleaseTouchBlockRef();
                     overCallback?.Invoke();
                 })
                 .id = GameDOTweenTypes.CameraMoveAnimation;
@@ -289,12 +289,12 @@ namespace Honor.Runtime
             Action overCallback = null)
         {
             if (DOTween.IsTweening(GameDOTweenTypes.CameraScaleAnimation) && !m_ScaleCanInterruptByGestures)
-                SubForbidenEasyTouchRef();
+                ReleaseTouchBlockRef();
 
             m_ScaleCanInterruptByGestures = canInterruptByGestures;
 
             if (!m_ScaleCanInterruptByGestures)
-                AddFobidenEasyTouchRef();
+                AddTouchBlockRef();
 
 #if EASY_TOUCH_ENABLE
             m_Gestures2D.ResetPinch();
@@ -315,7 +315,7 @@ namespace Honor.Runtime
                     .OnComplete(() =>
                     {
                         if (!m_ScaleCanInterruptByGestures)
-                            SubForbidenEasyTouchRef();
+                            ReleaseTouchBlockRef();
                         overCallback?.Invoke();
                     })
                     .id = GameDOTweenTypes.CameraScaleAnimation;
@@ -332,7 +332,7 @@ namespace Honor.Runtime
                     .OnComplete(() =>
                     {
                         if (!m_ScaleCanInterruptByGestures)
-                            SubForbidenEasyTouchRef();
+                            ReleaseTouchBlockRef();
                         overCallback?.Invoke();
                     })
                     .id = GameDOTweenTypes.CameraScaleAnimation;
@@ -348,14 +348,14 @@ namespace Honor.Runtime
         /// <summary>
         /// 增加禁止触摸引用（禁用触摸）
         /// </summary>
-        private void AddFobidenEasyTouchRef()
+        private void AddTouchBlockRef()
         {
 #if EASY_TOUCH_ENABLE
-            if (m_ForbidenEasyTouchRef == 0)
-                m_HistoryEasyTouchEnabledBak = EasyTouch.GetEnabled();
+            if (m_TouchBlockRefCount == 0)
+                m_TouchEnabledBeforeBlock = EasyTouch.GetEnabled();
             
-            m_ForbidenEasyTouchRef++;
-            if (m_ForbidenEasyTouchRef > 0)
+            m_TouchBlockRefCount++;
+            if (m_TouchBlockRefCount > 0)
                 EasyTouch.SetEnabled(false);
 #endif
         }
@@ -363,13 +363,13 @@ namespace Honor.Runtime
         /// <summary>
         /// 减少禁止触摸引用（恢复触摸）
         /// </summary>
-        private void SubForbidenEasyTouchRef()
+        private void ReleaseTouchBlockRef()
         {
 #if EASY_TOUCH_ENABLE
-            m_ForbidenEasyTouchRef--;
-            if (m_ForbidenEasyTouchRef == 0)
-                EasyTouch.SetEnabled(m_HistoryEasyTouchEnabledBak);
-            else if (m_ForbidenEasyTouchRef < 0)
+            m_TouchBlockRefCount--;
+            if (m_TouchBlockRefCount == 0)
+                EasyTouch.SetEnabled(m_TouchEnabledBeforeBlock);
+            else if (m_TouchBlockRefCount < 0)
                 Log.Error("SceneCameraActor 禁止触摸引用计数异常 < 0");
 #endif
         }

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIGDPRBehaviour_Main.cs
+ * filename:  UIGDPRBehaviour.MainBg.cs
  * author:    云毅
  * created:   2026
  * descrip:   GDPR隐私政策弹窗 - 主界面分部类
@@ -199,6 +199,24 @@ namespace Honor.Runtime
         /// </summary>
         private void InitMainBg()
         {
+            // 设置多语言文本（标题/描述/协议/按钮）
+            SetupMainTitleDescTexts();
+            SetupPolicyDescTexts();
+            SetupButtonTexts();
+
+            // 从持久化数据读取开关状态
+            SetupTogglesFromPersist();
+
+            // 强制刷新布局
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_MainBg.rectTransform());
+            m_MainBg.gameObject.SetActive(!InGame);
+        }
+
+        /// <summary>
+        /// 设置主界面标题与描述的多语言文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupMainTitleDescTexts()
+        {
             // 设置多语言标题
             if (m_MainTitleText != null)
                 m_MainTitleText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MainTitle_Text"),
@@ -216,7 +234,13 @@ namespace Honor.Runtime
             if (m_MainDescTextTMP != null)
                 m_MainDescTextTMP.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MainDesc_Text"),
                     Application.productName, Application.productName, Application.productName);
+        }
 
+        /// <summary>
+        /// 设置 GDPR/CCPA/COPPA 协议说明文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupPolicyDescTexts()
+        {
             // GDPR 文字
             if (m_GDPRText != null)
                 m_GDPRText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_GDPRDesc_Text"));
@@ -239,7 +263,13 @@ namespace Honor.Runtime
             if (m_COPPATextTMP != null)
                 m_COPPATextTMP.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_COPPADesc_Text"),
                     Application.productName);
+        }
 
+        /// <summary>
+        /// 设置"开始游戏"与"了解更多"按钮的多语言文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupButtonTexts()
+        {
             // 开始游戏按钮文字
             if (m_StartGameButtonText != null)
                 m_StartGameButtonText.text =
@@ -256,7 +286,13 @@ namespace Honor.Runtime
             if (m_MoreButtonTextTMP != null)
                 m_MoreButtonTextTMP.text =
                     AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreButton_Text"));
+        }
 
+        /// <summary>
+        /// 从持久化数据读取 GDPR/CCPA/COPPA 开关的初始状态
+        /// </summary>
+        private void SetupTogglesFromPersist()
+        {
             // 从持久化数据读取开关状态
             if (m_GDPRToggle != null)
             {
@@ -276,10 +312,6 @@ namespace Honor.Runtime
                     GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.IsAgeReachStandard,
                     true);
             }
-
-            // 强制刷新布局
-            LayoutRebuilder.ForceRebuildLayoutImmediate(m_MainBg.rectTransform());
-            m_MainBg.gameObject.SetActive(!InGame);
         }
         #endregion
 

@@ -56,6 +56,18 @@ namespace Honor.Runtime
 
         #region 像素 / 厘米 / 英寸 转换
         /// <summary>
+        /// 校验屏幕 DPI 是否已初始化
+        /// </summary>
+        /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
+        private static void EnsureScreenDpiReady()
+        {
+            if (ScreenDpi <= 0)
+            {
+                throw new Exception("必须先设置屏幕每英寸点数ScreenDpi。");
+            }
+        }
+
+        /// <summary>
         /// 像素 → 厘米
         /// </summary>
         /// <param name="pixels">像素值</param>
@@ -63,11 +75,7 @@ namespace Honor.Runtime
         /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetCentimetersFromPixels(float pixels)
         {
-            if (ScreenDpi <= 0)
-            {
-                throw new Exception("必须先设置屏幕每英寸点数ScreenDpi。");
-            }
-
+            EnsureScreenDpiReady();
             return InchesToCentimeters * pixels / ScreenDpi;
         }
 
@@ -79,11 +87,7 @@ namespace Honor.Runtime
         /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetPixelsFromCentimeters(float centimeters)
         {
-            if (ScreenDpi <= 0)
-            {
-                throw new Exception("必须先设置屏幕每英寸点数ScreenDpi。");
-            }
-
+            EnsureScreenDpiReady();
             return CentimetersToInches * centimeters * ScreenDpi;
         }
 
@@ -95,11 +99,7 @@ namespace Honor.Runtime
         /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetInchesFromPixels(float pixels)
         {
-            if (ScreenDpi <= 0)
-            {
-                throw new Exception("必须先设置屏幕每英寸点数ScreenDpi。");
-            }
-
+            EnsureScreenDpiReady();
             return pixels / ScreenDpi;
         }
 
@@ -111,12 +111,30 @@ namespace Honor.Runtime
         /// <exception cref="Exception">未设置ScreenDpi时抛出异常</exception>
         public static float GetPixelsFromInches(float inches)
         {
-            if (ScreenDpi <= 0)
+            EnsureScreenDpiReady();
+            return inches * ScreenDpi;
+        }
+        #endregion
+
+        #region 缓冲区写入校验
+        /// <summary>
+        /// 校验目标缓冲区非空、且从 startIndex 起可容纳 requiredBytes 个字节
+        /// </summary>
+        /// <param name="buffer">目标字节数组</param>
+        /// <param name="startIndex">起始索引</param>
+        /// <param name="requiredBytes">所需字节数</param>
+        /// <exception cref="Exception">缓冲区为空或索引越界时抛出异常</exception>
+        private static void EnsureWritableRange(byte[] buffer, int startIndex, int requiredBytes)
+        {
+            if (buffer == null)
             {
-                throw new Exception("必须先设置屏幕每英寸点数ScreenDpi。");
+                throw new Exception("Buffer 无效。");
             }
 
-            return inches * ScreenDpi;
+            if (startIndex < 0 || startIndex + requiredBytes > buffer.Length)
+            {
+                throw new Exception("startIndex 无效。");
+            }
         }
         #endregion
 
@@ -128,9 +146,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByBoolean(bool value)
         {
-            byte[] buffer = new byte[1];
-            GetBytesByBoolean(value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[1];
+            GetBytesByBoolean(value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -152,16 +170,7 @@ namespace Honor.Runtime
         /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static void GetBytesByBoolean(bool value, byte[] buffer, int startIndex)
         {
-            if (buffer == null)
-            {
-                throw new Exception("Buffer 无效。");
-            }
-
-            if (startIndex < 0 || startIndex + 1 > buffer.Length)
-            {
-                throw new Exception("startIndex 无效。");
-            }
-
+            EnsureWritableRange(buffer, startIndex, 1);
             buffer[startIndex] = value ? (byte)1 : (byte)0;
         }
 
@@ -195,9 +204,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByChar(char value)
         {
-            byte[] buffer = new byte[2];
-            GetBytesByShort((short)value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[2];
+            GetBytesByShort((short)value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -251,9 +260,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByShort(short value)
         {
-            byte[] buffer = new byte[2];
-            GetBytesByShort(value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[2];
+            GetBytesByShort(value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -275,19 +284,11 @@ namespace Honor.Runtime
         /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static unsafe void GetBytesByShort(short value, byte[] buffer, int startIndex)
         {
-            if (buffer == null)
-            {
-                throw new Exception("Buffer 无效。");
-            }
+            EnsureWritableRange(buffer, startIndex, 2);
 
-            if (startIndex < 0 || startIndex + 2 > buffer.Length)
+            fixed (byte* ptr = buffer)
             {
-                throw new Exception("startIndex 无效。");
-            }
-
-            fixed (byte* valueRef = buffer)
-            {
-                *(short*)(valueRef + startIndex) = value;
+                *(short*)(ptr + startIndex) = value;
             }
         }
 
@@ -319,9 +320,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByUShort(ushort value)
         {
-            byte[] buffer = new byte[2];
-            GetBytesByShort((short)value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[2];
+            GetBytesByShort((short)value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -375,9 +376,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByInt(int value)
         {
-            byte[] buffer = new byte[4];
-            GetBytesByInt(value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[4];
+            GetBytesByInt(value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -399,19 +400,11 @@ namespace Honor.Runtime
         /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static unsafe void GetBytesByInt(int value, byte[] buffer, int startIndex)
         {
-            if (buffer == null)
-            {
-                throw new Exception("Buffer 无效。");
-            }
+            EnsureWritableRange(buffer, startIndex, 4);
 
-            if (startIndex < 0 || startIndex + 4 > buffer.Length)
+            fixed (byte* ptr = buffer)
             {
-                throw new Exception("Start index 无效。");
-            }
-
-            fixed (byte* valueRef = buffer)
-            {
-                *(int*)(valueRef + startIndex) = value;
+                *(int*)(ptr + startIndex) = value;
             }
         }
 
@@ -443,9 +436,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByUInt(uint value)
         {
-            byte[] buffer = new byte[4];
-            GetBytesByInt((int)value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[4];
+            GetBytesByInt((int)value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -499,9 +492,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByLong(long value)
         {
-            byte[] buffer = new byte[8];
-            GetBytesByLong(value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[8];
+            GetBytesByLong(value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -523,19 +516,11 @@ namespace Honor.Runtime
         /// <exception cref="Exception">缓冲区无效或索引越界时抛出异常</exception>
         public static unsafe void GetBytesByLong(long value, byte[] buffer, int startIndex)
         {
-            if (buffer == null)
-            {
-                throw new Exception("Buffer 无效。");
-            }
+            EnsureWritableRange(buffer, startIndex, 8);
 
-            if (startIndex < 0 || startIndex + 8 > buffer.Length)
+            fixed (byte* ptr = buffer)
             {
-                throw new Exception("Start index 无效。");
-            }
-
-            fixed (byte* valueRef = buffer)
-            {
-                *(long*)(valueRef + startIndex) = value;
+                *(long*)(ptr + startIndex) = value;
             }
         }
 
@@ -567,9 +552,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static byte[] GetBytesByULong(ulong value)
         {
-            byte[] buffer = new byte[8];
-            GetBytesByLong((long)value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[8];
+            GetBytesByLong((long)value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -623,9 +608,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static unsafe byte[] GetBytesByFloat(float value)
         {
-            byte[] buffer = new byte[4];
-            GetBytesByInt(*(int*)&value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[4];
+            GetBytesByInt(*(int*)&value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -679,9 +664,9 @@ namespace Honor.Runtime
         /// <returns>转换后的字节数组</returns>
         public static unsafe byte[] GetBytesByDouble(double value)
         {
-            byte[] buffer = new byte[8];
-            GetBytesByLong(*(long*)&value, buffer, 0);
-            return buffer;
+            byte[] dest = new byte[8];
+            GetBytesByLong(*(long*)&value, dest, 0);
+            return dest;
         }
 
         /// <summary>
@@ -790,12 +775,12 @@ namespace Honor.Runtime
         /// <returns>十六进制字符串</returns>
         public static string ToHex(this byte[] bytes)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (byte b in bytes)
+            StringBuilder builder = new StringBuilder(bytes.Length * 2);
+            foreach (byte byteItem in bytes)
             {
-                stringBuilder.Append(b.ToString("X2"));
+                builder.Append(byteItem.ToString("X2"));
             }
-            return stringBuilder.ToString();
+            return builder.ToString();
         }
 
         /// <summary>
@@ -806,12 +791,12 @@ namespace Honor.Runtime
         /// <returns>格式化后的十六进制字符串</returns>
         public static string ToHex(this byte[] bytes, string format)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (byte b in bytes)
+            StringBuilder builder = new StringBuilder(bytes.Length * 2);
+            foreach (byte byteItem in bytes)
             {
-                stringBuilder.Append(b.ToString(format));
+                builder.Append(byteItem.ToString(format));
             }
-            return stringBuilder.ToString();
+            return builder.ToString();
         }
 
         /// <summary>
@@ -823,12 +808,13 @@ namespace Honor.Runtime
         /// <returns>十六进制字符串</returns>
         public static string ToHex(this byte[] bytes, int offset, int count)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = offset; i < offset + count; ++i)
+            StringBuilder builder = new StringBuilder(count * 2);
+            int end = offset + count;
+            for (int cursor = offset; cursor < end; ++cursor)
             {
-                stringBuilder.Append(bytes[i].ToString("X2"));
+                builder.Append(bytes[cursor].ToString("X2"));
             }
-            return stringBuilder.ToString();
+            return builder.ToString();
         }
         #endregion
 
@@ -840,11 +826,12 @@ namespace Honor.Runtime
         /// <param name="suffixInfos">文件后缀匹配符</param>
         public static void ToNoBOMUTF8(string dirName, string suffixInfos)
         {
-            string[] fileFullPaths = Directory.GetFiles(dirName, suffixInfos, SearchOption.AllDirectories);
-            for (int index = 0; index < fileFullPaths.Length; index++)
+            string[] matchedFiles = Directory.GetFiles(dirName, suffixInfos, SearchOption.AllDirectories);
+            UTF8Encoding utf8NoBom = new UTF8Encoding(false);
+            for (int cursor = 0; cursor < matchedFiles.Length; cursor++)
             {
-                string content = File.ReadAllText(fileFullPaths[index]);
-                File.WriteAllText(fileFullPaths[index], content, new System.Text.UTF8Encoding(false));
+                string text = File.ReadAllText(matchedFiles[cursor]);
+                File.WriteAllText(matchedFiles[cursor], text, utf8NoBom);
             }
         }
         #endregion
@@ -864,14 +851,12 @@ namespace Honor.Runtime
             }
             catch (UnityException)
             {
-                return GetTextureBytesFromCopy(texture, isJpeg);
+                return EncodeViaCopy(texture, isJpeg);
             }
             catch (ArgumentException)
             {
-                return GetTextureBytesFromCopy(texture, isJpeg);
+                return EncodeViaCopy(texture, isJpeg);
             }
-
-            return null;
         }
 
         /// <summary>
@@ -880,47 +865,47 @@ namespace Honor.Runtime
         /// <param name="texture">非可读纹理</param>
         /// <param name="isJpeg">是否为JPEG格式</param>
         /// <returns>纹理字节流</returns>
-        private static byte[] GetTextureBytesFromCopy(Texture2D texture, bool isJpeg)
+        private static byte[] EncodeViaCopy(Texture2D texture, bool isJpeg)
         {
             Debug.LogWarning("Saving non-readable textures is slower than saving readable textures");
 
-            Texture2D sourceTexReadable = null;
-            RenderTexture rt = RenderTexture.GetTemporary(texture.width, texture.height);
-            RenderTexture activeRT = RenderTexture.active;
+            Texture2D readableCopy = null;
+            RenderTexture tempRT = RenderTexture.GetTemporary(texture.width, texture.height);
+            RenderTexture prevActiveRT = RenderTexture.active;
 
             try
             {
-                Graphics.Blit(texture, rt);
-                RenderTexture.active = rt;
+                Graphics.Blit(texture, tempRT);
+                RenderTexture.active = tempRT;
 
-                sourceTexReadable = new Texture2D(texture.width, texture.height, isJpeg ? TextureFormat.RGB24 : TextureFormat.RGBA32, false);
-                sourceTexReadable.ReadPixels(new Rect(0, 0, texture.width, texture.height), 0, 0, false);
-                sourceTexReadable.Apply(false, false);
+                readableCopy = new Texture2D(texture.width, texture.height, isJpeg ? TextureFormat.RGB24 : TextureFormat.RGBA32, false);
+                readableCopy.ReadPixels(new Rect(0, 0, texture.width, texture.height), 0, 0, false);
+                readableCopy.Apply(false, false);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Debug.LogException(e);
-                UnityEngine.Object.DestroyImmediate(sourceTexReadable);
+                Debug.LogException(exception);
+                UnityEngine.Object.DestroyImmediate(readableCopy);
                 return null;
             }
             finally
             {
-                RenderTexture.active = activeRT;
-                RenderTexture.ReleaseTemporary(rt);
+                RenderTexture.active = prevActiveRT;
+                RenderTexture.ReleaseTemporary(tempRT);
             }
 
             try
             {
-                return isJpeg ? sourceTexReadable.EncodeToJPG(100) : sourceTexReadable.EncodeToPNG();
+                return isJpeg ? readableCopy.EncodeToJPG(100) : readableCopy.EncodeToPNG();
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Debug.LogException(e);
+                Debug.LogException(exception);
                 return null;
             }
             finally
             {
-                UnityEngine.Object.DestroyImmediate(sourceTexReadable);
+                UnityEngine.Object.DestroyImmediate(readableCopy);
             }
         }
         #endregion

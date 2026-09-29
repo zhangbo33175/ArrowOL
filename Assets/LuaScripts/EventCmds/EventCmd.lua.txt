@@ -149,6 +149,7 @@ EventCmd = {
     ---@type string 主城镇/地图内角色实体被玩家点击
     OnClickCharacter = 'OnClickCharacter',
 
+    ---@type string 角色变身/形态切换事件
     LifeTransformation='LifeTransformation',
     ----------------------------------------------------------------------------------------------------
     -- 章节解锁

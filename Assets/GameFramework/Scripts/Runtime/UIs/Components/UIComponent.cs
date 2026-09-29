@@ -88,21 +88,8 @@ namespace Honor.Runtime
         /// <param name="uiInfo">UI 配置信息</param>
         public void OpenUIAsyncByInfo(UIInfo uiInfo)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "OpenUIAsyncByInfo"))
             {
-                Log.Error("UIComponent.OpenUIAsyncByInfo uiInfo 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.OpenUIAsyncByInfo uiInfo.ABPath 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.OpenUIAsyncByInfo uiInfo.AssetName 无效。");
                 return;
             }
 
@@ -132,21 +119,8 @@ namespace Honor.Runtime
         /// <returns>UI 实例对象</returns>
         public GameObject OpenUISyncByInfo(UIInfo uiInfo)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "OpenUISyncByInfo"))
             {
-                Log.Error("UIComponent.OpenUISyncByInfo uiInfo 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.OpenUISyncByInfo uiInfo.ABPath 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.OpenUISyncByInfo uiInfo.AssetName 无效。");
                 return null;
             }
 
@@ -180,21 +154,8 @@ namespace Honor.Runtime
         /// <param name="parent">父节点</param>
         public void AddUIAsyncByInfo(UIInfo uiInfo, Transform parent)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "AddUIAsyncByInfo"))
             {
-                Log.Error("UIComponent.AddUIAsyncByInfo uiInfo 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.AddUIAsyncByInfo uiInfo.ABPath 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.AddUIAsyncByInfo uiInfo.AssetName 无效。");
                 return;
             }
 
@@ -226,21 +187,8 @@ namespace Honor.Runtime
         /// </summary>
         public GameObject AddUISyncByInfo(UIInfo uiInfo, Transform parent)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "AddUISyncByInfo"))
             {
-                Log.Error("UIComponent.AddUISyncByInfo uiInfo 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.AddUISyncByInfo uiInfo.ABPath 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.AddUISyncByInfo uiInfo.AssetName 无效。");
                 return null;
             }
 
@@ -290,21 +238,8 @@ namespace Honor.Runtime
         /// </summary>
         public void CloseUIByInfo(UIInfo uiInfo, bool rightNow = false)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "CloseUIByInfo"))
             {
-                Log.Error("UIComponent.CloseUIByInfo uiInfo 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.CloseUIByInfo uiInfo.ABPath 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.CloseUIByInfo uiInfo.AssetName 无效。");
                 return;
             }
 
@@ -330,21 +265,8 @@ namespace Honor.Runtime
         /// </summary>
         public void CloseUIsByInfo(UIInfo uiInfo, bool rightNow = false)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "CloseUIsByInfo"))
             {
-                Log.Error("UIComponent.CloseUIsByInfo uiInfo 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.CloseUIsByInfo uiInfo.ABPath 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.CloseUIsByInfo uiInfo.AssetName 无效。");
                 return;
             }
 
@@ -386,21 +308,8 @@ namespace Honor.Runtime
         /// </summary>
         public GameObject GetUIByInfo(UIInfo uiInfo)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "GetUIByInfo"))
             {
-                Log.Error("UIComponent.GetUIByInfo uiInfo 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.GetUIByInfo uiInfo.ABPath 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.GetUIByInfo uiInfo.AssetName 无效。");
                 return null;
             }
 
@@ -446,21 +355,8 @@ namespace Honor.Runtime
         /// </summary>
         public GameObject[] GetUIsByInfo(UIInfo uiInfo)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "GetUIsByInfo"))
             {
-                Log.Error("UIComponent.GetUIsByInfo uiInfo 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.GetUIsByInfo uiInfo.ABPath 无效。");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.GetUIsByInfo uiInfo.AssetName 无效。");
                 return null;
             }
 
@@ -472,21 +368,8 @@ namespace Honor.Runtime
         /// </summary>
         public void GetUIsByInfo(UIInfo uiInfo, List<GameObject> uis)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "GetUIsByInfo"))
             {
-                Log.Error("UIComponent.GetUIsByInfo uiInfo 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.GetUIsByInfo uiInfo.ABPath 无效。");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.GetUIsByInfo uiInfo.AssetName 无效。");
                 return;
             }
 
@@ -582,21 +465,8 @@ namespace Honor.Runtime
         /// </summary>
         public bool IsUIExistInModalUIs(UIInfo uiInfo)
         {
-            if (uiInfo == null)
+            if (ValidateUIInfo(uiInfo, "IsUIExistInModalUIs"))
             {
-                Log.Error("UIComponent.IsUIExistInModalUIs uiInfo 无效。");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.ABPath))
-            {
-                Log.Error("UIComponent.IsUIExistInModalUIs uiInfo.ABPath 无效。");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(uiInfo.AssetName))
-            {
-                Log.Error("UIComponent.IsUIExistInModalUIs uiInfo.AssetName 无效。");
                 return false;
             }
 
@@ -610,18 +480,7 @@ namespace Honor.Runtime
         /// </summary>
         public int AddSceneUICamera(Camera camera)
         {
-            if (camera == null)
-            {
-                Log.Error("UIComponent.AddSceneUICamera camera 无效。");
-                return -1;
-            }
-
-            if (!m_SceneUICameras.Contains(camera))
-            {
-                m_SceneUICameras.Add(camera);
-            }
-
-            return m_SceneUICameras.FindIndex((obj) => { return obj == camera; });
+            return AddUICameraToList(m_SceneUICameras, camera, "UIComponent.AddSceneUICamera camera 无效。");
         }
 
         /// <summary>
@@ -629,13 +488,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool RemoveSceneUICamera(Camera camera)
         {
-            if (camera == null)
-            {
-                Log.Error("UIComponent.RemoveSceneUICamera camera 无效。");
-                return false;
-            }
-
-            return m_SceneUICameras.Remove(camera);
+            return RemoveUICameraFromList(m_SceneUICameras, camera, "UIComponent.RemoveSceneUICamera camera 无效。");
         }
 
         /// <summary>
@@ -643,14 +496,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool RemoveSceneUICameraByIndex(int index)
         {
-            if (index < 0 || index >= m_SceneUICameras.Count)
-            {
-                Log.Error("UIComponent.RemoveSceneUICameraByIndex index 无效。");
-                return false;
-            }
-
-            m_SceneUICameras.RemoveAt(index);
-            return true;
+            return RemoveUICameraFromListByIndex(m_SceneUICameras, index, "UIComponent.RemoveSceneUICameraByIndex index 无效。");
         }
 
         /// <summary>
@@ -658,13 +504,7 @@ namespace Honor.Runtime
         /// </summary>
         public int GetSceneUICameraIndex(Camera camera)
         {
-            if (camera == null)
-            {
-                Log.Error("UIComponent.GetSceneUICameraIndex camera 无效。");
-                return -1;
-            }
-
-            return m_SceneUICameras.FindIndex((obj) => { return obj == camera; });
+            return GetUICameraIndexInList(m_SceneUICameras, camera, "UIComponent.GetSceneUICameraIndex camera 无效。");
         }
 
         /// <summary>
@@ -672,13 +512,7 @@ namespace Honor.Runtime
         /// </summary>
         public Camera GetSceneUICamera(int index)
         {
-            if (index < 0 || index >= m_SceneUICameras.Count)
-            {
-                Log.Error("UIComponent.GetSceneUICamera index 无效。");
-                return null;
-            }
-
-            return m_SceneUICameras[index];
+            return GetUICameraInList(m_SceneUICameras, index, "UIComponent.GetSceneUICamera index 无效。");
         }
 
         /// <summary>
@@ -686,19 +520,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetSceneUICameraEnable(bool enabled, int index = -1)
         {
-            if (index < -1 || index >= m_SceneUICameras.Count)
-            {
-                Log.Error("UIComponent.SetSceneUICameraEnable index 无效。");
-            }
-
-            if (index == -1)
-            {
-                m_SceneUICameras.ForEach(camera => camera.enabled = enabled);
-            }
-            else
-            {
-                GetSceneUICamera(index).enabled = enabled;
-            }
+            SetUICameraListEnable(m_SceneUICameras, enabled, index, "UIComponent.SetSceneUICameraEnable index 无效。");
         }
         #endregion
 
@@ -708,18 +530,7 @@ namespace Honor.Runtime
         /// </summary>
         public int AddScreenUICamera(Camera camera)
         {
-            if (camera == null)
-            {
-                Log.Error("UIComponent.AddScreenUICamera camera 无效。");
-                return -1;
-            }
-
-            if (!m_ScreenUICameras.Contains(camera))
-            {
-                m_ScreenUICameras.Add(camera);
-            }
-
-            return m_ScreenUICameras.FindIndex((obj) => { return obj == camera; });
+            return AddUICameraToList(m_ScreenUICameras, camera, "UIComponent.AddScreenUICamera camera 无效。");
         }
 
         /// <summary>
@@ -727,13 +538,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool RemoveScreenUICamera(Camera camera)
         {
-            if (camera == null)
-            {
-                Log.Error("UIComponent.RemoveScreenUICamera camera 无效。");
-                return false;
-            }
-
-            return m_ScreenUICameras.Remove(camera);
+            return RemoveUICameraFromList(m_ScreenUICameras, camera, "UIComponent.RemoveScreenUICamera camera 无效。");
         }
 
         /// <summary>
@@ -741,14 +546,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool RemoveScreenUICameraByIndex(int index)
         {
-            if (index < 0 || index >= m_ScreenUICameras.Count)
-            {
-                Log.Error("UIComponent.RemoveScreenUICameraByIndex index 无效。");
-                return false;
-            }
-
-            m_ScreenUICameras.RemoveAt(index);
-            return true;
+            return RemoveUICameraFromListByIndex(m_ScreenUICameras, index, "UIComponent.RemoveScreenUICameraByIndex index 无效。");
         }
 
         /// <summary>
@@ -756,13 +554,7 @@ namespace Honor.Runtime
         /// </summary>
         public int GetScreenUICameraIndex(Camera camera)
         {
-            if (camera == null)
-            {
-                Log.Error("UIComponent.GetScreenUICameraIndex camera 无效。");
-                return -1;
-            }
-
-            return m_ScreenUICameras.FindIndex((obj) => { return obj == camera; });
+            return GetUICameraIndexInList(m_ScreenUICameras, camera, "UIComponent.GetScreenUICameraIndex camera 无效。");
         }
 
         /// <summary>
@@ -770,13 +562,7 @@ namespace Honor.Runtime
         /// </summary>
         public Camera GetScreenUICamera(int index)
         {
-            if (index < 0 || index >= m_ScreenUICameras.Count)
-            {
-                Log.Error("UIComponent.GetScreenUICamera index 无效。");
-                return null;
-            }
-
-            return m_ScreenUICameras[index];
+            return GetUICameraInList(m_ScreenUICameras, index, "UIComponent.GetScreenUICamera index 无效。");
         }
 
         /// <summary>
@@ -784,20 +570,165 @@ namespace Honor.Runtime
         /// </summary>
         public void SetScreenUICameraEnable(bool enabled, int index = -1)
         {
-            if (index < -1 || index >= m_ScreenUICameras.Count)
+            SetUICameraListEnable(m_ScreenUICameras, enabled, index, "UIComponent.SetScreenUICameraEnable index 无效。");
+        }
+        #endregion
+
+        #region 内部 - UIInfo 合法性校验
+
+        //=========================================================================
+
+        /// <summary>
+        /// 校验 UIInfo 基础字段是否合法（空引用 / 资源路径 / 资源名）
+        /// </summary>
+        /// <param name="uiInfo">待校验的 UI 信息。</param>
+        /// <param name="methodName">调用方方法名（用于错误日志）。</param>
+        /// <returns>校验不通过返回 true（调用方应直接返回）。</returns>
+        private static bool ValidateUIInfo(UIInfo uiInfo, string methodName)
+        {
+            if (uiInfo == null)
             {
-                Log.Error("UIComponent.SetScreenUICameraEnable index 无效。");
+                Log.Error($"UIComponent.{methodName} uiInfo 无效。");
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(uiInfo.ABPath))
+            {
+                Log.Error($"UIComponent.{methodName} uiInfo.ABPath 无效。");
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(uiInfo.AssetName))
+            {
+                Log.Error($"UIComponent.{methodName} uiInfo.AssetName 无效。");
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region 内部 - UI 相机列表操作（Scene / Screen 共用）
+
+        //=========================================================================
+
+        /// <summary>
+        /// 向相机列表追加相机并返回其索引（列表去重）
+        /// </summary>
+        /// <param name="list">目标相机列表。</param>
+        /// <param name="camera">待添加相机。</param>
+        /// <param name="message">相机为空时的错误日志。</param>
+        private static int AddUICameraToList(List<Camera> list, Camera camera, string message)
+        {
+            if (camera == null)
+            {
+                Log.Error(message);
+                return -1;
+            }
+
+            if (!list.Contains(camera))
+            {
+                list.Add(camera);
+            }
+
+            return list.FindIndex((obj) => { return obj == camera; });
+        }
+
+        /// <summary>
+        /// 从相机列表移除指定相机
+        /// </summary>
+        /// <param name="list">目标相机列表。</param>
+        /// <param name="camera">待移除相机。</param>
+        /// <param name="message">相机为空时的错误日志。</param>
+        private static bool RemoveUICameraFromList(List<Camera> list, Camera camera, string message)
+        {
+            if (camera == null)
+            {
+                Log.Error(message);
+                return false;
+            }
+
+            return list.Remove(camera);
+        }
+
+        /// <summary>
+        /// 按索引从相机列表移除相机
+        /// </summary>
+        /// <param name="list">目标相机列表。</param>
+        /// <param name="index">相机索引。</param>
+        /// <param name="message">索引越界时的错误日志。</param>
+        private static bool RemoveUICameraFromListByIndex(List<Camera> list, int index, string message)
+        {
+            if (index < 0 || index >= list.Count)
+            {
+                Log.Error(message);
+                return false;
+            }
+
+            list.RemoveAt(index);
+            return true;
+        }
+
+        /// <summary>
+        /// 获取相机在列表中的索引
+        /// </summary>
+        /// <param name="list">目标相机列表。</param>
+        /// <param name="camera">待查找相机。</param>
+        /// <param name="message">相机为空时的错误日志。</param>
+        private static int GetUICameraIndexInList(List<Camera> list, Camera camera, string message)
+        {
+            if (camera == null)
+            {
+                Log.Error(message);
+                return -1;
+            }
+
+            return list.FindIndex((obj) => { return obj == camera; });
+        }
+
+        /// <summary>
+        /// 按索引从相机列表获取相机
+        /// </summary>
+        /// <param name="list">目标相机列表。</param>
+        /// <param name="index">相机索引。</param>
+        /// <param name="message">索引越界时的错误日志。</param>
+        private static Camera GetUICameraInList(List<Camera> list, int index, string message)
+        {
+            if (index < 0 || index >= list.Count)
+            {
+                Log.Error(message);
+                return null;
+            }
+
+            return list[index];
+        }
+
+        /// <summary>
+        /// 设置相机列表启用状态（index=-1 表示全部）
+        /// </summary>
+        /// <param name="list">目标相机列表。</param>
+        /// <param name="enabled">是否启用。</param>
+        /// <param name="index">相机索引，-1 表示全部。</param>
+        /// <param name="message">索引越界时的错误日志。</param>
+        private static void SetUICameraListEnable(List<Camera> list, bool enabled, int index, string message)
+        {
+            if (index < -1 || index >= list.Count)
+            {
+                Log.Error(message);
+                return;
             }
 
             if (index == -1)
             {
-                m_ScreenUICameras.ForEach(camera => camera.enabled = enabled);
+                list.ForEach(camera => camera.enabled = enabled);
             }
             else
             {
-                GetScreenUICamera(index).enabled = enabled;
+                list[index].enabled = enabled;
             }
         }
+
         #endregion
 
         #region 外部接口 - 字体与适配

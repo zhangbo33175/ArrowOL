@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  Gestures2D.Callbacks.cs
+ * filename:  Gestures2D.Events.cs
  * author:    云毅
  * created:   2026
  * descrip:   2D相机手势控制器 - 回调事件定义分部类

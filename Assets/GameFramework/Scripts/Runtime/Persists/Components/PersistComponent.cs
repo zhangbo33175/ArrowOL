@@ -27,50 +27,14 @@ namespace Honor.Runtime
         //=========================================================================
 
         /// <summary>
-        /// 组件初始化
+        /// 组件初始化：按平台创建文件分片存储，并加载 PlayerPrefs
         /// </summary>
         protected override void Awake()
         {
             base.Awake();
 
-            // 初始化文件存储（WebGL 特殊处理）
-#if UNITY_WEBGL && !UNITY_EDITOR
-            m_FileFragmentForWebGLManager = new FileFragmentForWebGLManager();
-            if (m_FileFragmentForWebGLManager == null)
-            {
-                Log.Fatal("FileFragmentForWebGLManager manager 无效。");
-                return;
-            }
-
-            if (!m_FileFragmentForWebGLManager.Load())
-            {
-                Log.Error("读取FileFragmentForWebGL数据失败。");
-            }
-#else
-            m_FileFragmentManager = new FileFragmentManager();
-            if (m_FileFragmentManager == null)
-            {
-                Log.Fatal("FileFragment manager 无效。");
-                return;
-            }
-
-            if (!m_FileFragmentManager.Load())
-            {
-                Log.Error("读取FileFragment数据失败。");
-            }
-#endif
-            // 初始化 PlayerPrefs
-            m_PlayerPrefsManager = new PlayerPrefsManager();
-            if (m_PlayerPrefsManager == null)
-            {
-                Log.Error("PlayerPrefs manager 无效。");
-                return;
-            }
-
-            if (!m_PlayerPrefsManager.Load())
-            {
-                Log.Error("读取PlayerPrefs数据失败。");
-            }
+            InitFragmentStore();
+            InitPlayerPrefsStore();
         }
 
         /// <summary>
@@ -87,6 +51,38 @@ namespace Honor.Runtime
         {
         }
 
+        /// <summary>
+        /// 创建并加载文件分片存储（WebGL 与常规平台互斥）
+        /// </summary>
+        private void InitFragmentStore()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            m_WebGLFragmentStore = new FileFragmentForWebGLManager();
+            if (!m_WebGLFragmentStore.Load())
+            {
+                Log.Error("读取FileFragmentForWebGL数据失败。");
+            }
+#else
+            m_DiskFragmentStore = new FileFragmentManager();
+            if (!m_DiskFragmentStore.Load())
+            {
+                Log.Error("读取FileFragment数据失败。");
+            }
+#endif
+        }
+
+        /// <summary>
+        /// 创建并加载 PlayerPrefs 存储
+        /// </summary>
+        private void InitPlayerPrefsStore()
+        {
+            m_PlayerPrefsStore = new PlayerPrefsManager();
+            if (!m_PlayerPrefsStore.Load())
+            {
+                Log.Error("读取PlayerPrefs数据失败。");
+            }
+        }
+
         #endregion
 
         //=========================================================================
@@ -99,17 +95,22 @@ namespace Honor.Runtime
         /// <param name="wayType">存储方式</param>
         public void Save(PersistWayType wayType)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.Save();
+                    m_WebGLFragmentStore.Save();
 #else
-                m_FileFragmentManager.Save();
+                    m_DiskFragmentStore.Save();
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.Save();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.Save();
+                    break;
+                }
             }
         }
 
@@ -120,17 +121,22 @@ namespace Honor.Runtime
         /// <param name="classifyName">分类名</param>
         public void Save(PersistWayType wayType, string classifyName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.Save();
+                    m_WebGLFragmentStore.Save();
 #else
-                m_FileFragmentManager.Save(classifyName);
+                    m_DiskFragmentStore.Save(classifyName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.Save();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.Save();
+                    break;
+                }
             }
         }
 
@@ -145,17 +151,20 @@ namespace Honor.Runtime
         /// </summary>
         public string[] GetAllItemNames(PersistWayType wayType, string classifyName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetAllItemNames(classifyName);
+                    return m_WebGLFragmentStore.GetAllItemNames(classifyName);
 #else
-                return m_FileFragmentManager.GetAllItemNames(classifyName);
+                    return m_DiskFragmentStore.GetAllItemNames(classifyName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetAllItemNames(classifyName);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetAllItemNames(classifyName);
+                }
             }
 
             return null;
@@ -166,17 +175,22 @@ namespace Honor.Runtime
         /// </summary>
         public void GetAllItemNames(PersistWayType wayType, string classifyName, List<string> results)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.GetAllItemNames(classifyName, results);
+                    m_WebGLFragmentStore.GetAllItemNames(classifyName, results);
 #else
-                m_FileFragmentManager.GetAllItemNames(classifyName, results);
+                    m_DiskFragmentStore.GetAllItemNames(classifyName, results);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.GetAllItemNames(classifyName, results);
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.GetAllItemNames(classifyName, results);
+                    break;
+                }
             }
         }
 
@@ -185,17 +199,20 @@ namespace Honor.Runtime
         /// </summary>
         public bool HasItem(PersistWayType wayType, string classifyName, string itemName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.HasItem(classifyName, itemName);
+                    return m_WebGLFragmentStore.HasItem(classifyName, itemName);
 #else
-                return m_FileFragmentManager.HasItem(classifyName, itemName);
+                    return m_DiskFragmentStore.HasItem(classifyName, itemName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.HasItem(classifyName, itemName);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.HasItem(classifyName, itemName);
+                }
             }
 
             return false;
@@ -212,19 +229,22 @@ namespace Honor.Runtime
         /// </summary>
         public bool RemoveItem(PersistWayType wayType, string classifyName, string itemName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.RemoveItem(classifyName, itemName);
+                    return m_WebGLFragmentStore.RemoveItem(classifyName, itemName);
 #else
-                return m_FileFragmentManager.RemoveItem(classifyName, itemName);
+                    return m_DiskFragmentStore.RemoveItem(classifyName, itemName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                var result = m_PlayerPrefsManager.RemoveItem(classifyName, itemName);
-                SavePlayerPrefsDataAfterFrameEnd();
-                return result;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    bool removed = m_PlayerPrefsStore.RemoveItem(classifyName, itemName);
+                    SavePlayerPrefsDataAfterFrameEnd();
+                    return removed;
+                }
             }
 
             return false;
@@ -235,18 +255,23 @@ namespace Honor.Runtime
         /// </summary>
         public void RemoveAllItems(PersistWayType wayType)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.RemoveAllItems(null);
+                    m_WebGLFragmentStore.RemoveAllItems(null);
 #else
-                m_FileFragmentManager.RemoveAllItems(null);
+                    m_DiskFragmentStore.RemoveAllItems(null);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.RemoveAllItems(null);
-                SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.RemoveAllItems(null);
+                    SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
             }
         }
 
@@ -255,18 +280,23 @@ namespace Honor.Runtime
         /// </summary>
         public void RemoveAllItems(PersistWayType wayType, string classifyName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.RemoveAllItems(classifyName);
+                    m_WebGLFragmentStore.RemoveAllItems(classifyName);
 #else
-                m_FileFragmentManager.RemoveAllItems(classifyName);
+                    m_DiskFragmentStore.RemoveAllItems(classifyName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.RemoveAllItems(classifyName);
-                SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.RemoveAllItems(classifyName);
+                    SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
             }
         }
 
@@ -281,17 +311,20 @@ namespace Honor.Runtime
         /// </summary>
         public bool GetBool(PersistWayType wayType, string classifyName, string itemName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetBool(classifyName, itemName);
+                    return m_WebGLFragmentStore.GetBool(classifyName, itemName);
 #else
-                return m_FileFragmentManager.GetBool(classifyName, itemName);
+                    return m_DiskFragmentStore.GetBool(classifyName, itemName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetBool(classifyName, itemName);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetBool(classifyName, itemName);
+                }
             }
 
             return false;
@@ -302,17 +335,20 @@ namespace Honor.Runtime
         /// </summary>
         public bool GetBool(PersistWayType wayType, string classifyName, string itemName, bool defaultValue)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetBool(classifyName, itemName, defaultValue);
+                    return m_WebGLFragmentStore.GetBool(classifyName, itemName, defaultValue);
 #else
-                return m_FileFragmentManager.GetBool(classifyName, itemName, defaultValue);
+                    return m_DiskFragmentStore.GetBool(classifyName, itemName, defaultValue);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetBool(classifyName, itemName, defaultValue);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetBool(classifyName, itemName, defaultValue);
+                }
             }
 
             return defaultValue;
@@ -323,18 +359,23 @@ namespace Honor.Runtime
         /// </summary>
         public void SetBool(PersistWayType wayType, string classifyName, string itemName, bool value)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.SetBool(classifyName, itemName, value);
+                    m_WebGLFragmentStore.SetBool(classifyName, itemName, value);
 #else
-                m_FileFragmentManager.SetBool(classifyName, itemName, value);
+                    m_DiskFragmentStore.SetBool(classifyName, itemName, value);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.SetBool(classifyName, itemName, value);
-                SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.SetBool(classifyName, itemName, value);
+                    SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
             }
         }
 
@@ -349,17 +390,20 @@ namespace Honor.Runtime
         /// </summary>
         public int GetInt(PersistWayType wayType, string classifyName, string itemName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetInt(classifyName, itemName);
+                    return m_WebGLFragmentStore.GetInt(classifyName, itemName);
 #else
-                return m_FileFragmentManager.GetInt(classifyName, itemName);
+                    return m_DiskFragmentStore.GetInt(classifyName, itemName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetInt(classifyName, itemName);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetInt(classifyName, itemName);
+                }
             }
 
             return 0;
@@ -370,17 +414,20 @@ namespace Honor.Runtime
         /// </summary>
         public int GetInt(PersistWayType wayType, string classifyName, string itemName, int defaultValue)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetInt(classifyName, itemName, defaultValue);
+                    return m_WebGLFragmentStore.GetInt(classifyName, itemName, defaultValue);
 #else
-                return m_FileFragmentManager.GetInt(classifyName, itemName, defaultValue);
+                    return m_DiskFragmentStore.GetInt(classifyName, itemName, defaultValue);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetInt(classifyName, itemName, defaultValue);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetInt(classifyName, itemName, defaultValue);
+                }
             }
 
             return defaultValue;
@@ -391,18 +438,23 @@ namespace Honor.Runtime
         /// </summary>
         public void SetInt(PersistWayType wayType, string classifyName, string itemName, int value)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.SetInt(classifyName, itemName, value);
+                    m_WebGLFragmentStore.SetInt(classifyName, itemName, value);
 #else
-                m_FileFragmentManager.SetInt(classifyName, itemName, value);
+                    m_DiskFragmentStore.SetInt(classifyName, itemName, value);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.SetInt(classifyName, itemName, value);
-                SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.SetInt(classifyName, itemName, value);
+                    SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
             }
         }
 
@@ -417,17 +469,20 @@ namespace Honor.Runtime
         /// </summary>
         public float GetFloat(PersistWayType wayType, string classifyName, string itemName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetFloat(classifyName, itemName);
+                    return m_WebGLFragmentStore.GetFloat(classifyName, itemName);
 #else
-                return m_FileFragmentManager.GetFloat(classifyName, itemName);
+                    return m_DiskFragmentStore.GetFloat(classifyName, itemName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetFloat(classifyName, itemName);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetFloat(classifyName, itemName);
+                }
             }
 
             return 0f;
@@ -438,17 +493,20 @@ namespace Honor.Runtime
         /// </summary>
         public float GetFloat(PersistWayType wayType, string classifyName, string itemName, float defaultValue)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetFloat(classifyName, itemName, defaultValue);
+                    return m_WebGLFragmentStore.GetFloat(classifyName, itemName, defaultValue);
 #else
-                return m_FileFragmentManager.GetFloat(classifyName, itemName, defaultValue);
+                    return m_DiskFragmentStore.GetFloat(classifyName, itemName, defaultValue);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetFloat(classifyName, itemName, defaultValue);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetFloat(classifyName, itemName, defaultValue);
+                }
             }
 
             return defaultValue;
@@ -459,18 +517,23 @@ namespace Honor.Runtime
         /// </summary>
         public void SetFloat(PersistWayType wayType, string classifyName, string itemName, float value)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.SetFloat(classifyName, itemName, value);
+                    m_WebGLFragmentStore.SetFloat(classifyName, itemName, value);
 #else
-                m_FileFragmentManager.SetFloat(classifyName, itemName, value);
+                    m_DiskFragmentStore.SetFloat(classifyName, itemName, value);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.SetFloat(classifyName, itemName, value);
-                SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.SetFloat(classifyName, itemName, value);
+                    SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
             }
         }
 
@@ -485,17 +548,20 @@ namespace Honor.Runtime
         /// </summary>
         public string GetString(PersistWayType wayType, string classifyName, string itemName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetString(classifyName, itemName);
+                    return m_WebGLFragmentStore.GetString(classifyName, itemName);
 #else
-                return m_FileFragmentManager.GetString(classifyName, itemName);
+                    return m_DiskFragmentStore.GetString(classifyName, itemName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetString(classifyName, itemName);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetString(classifyName, itemName);
+                }
             }
 
             return null;
@@ -506,17 +572,20 @@ namespace Honor.Runtime
         /// </summary>
         public string GetString(PersistWayType wayType, string classifyName, string itemName, string defaultValue)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.GetString(classifyName, itemName, defaultValue);
+                    return m_WebGLFragmentStore.GetString(classifyName, itemName, defaultValue);
 #else
-                return m_FileFragmentManager.GetString(classifyName, itemName, defaultValue);
+                    return m_DiskFragmentStore.GetString(classifyName, itemName, defaultValue);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.GetString(classifyName, itemName, defaultValue);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.GetString(classifyName, itemName, defaultValue);
+                }
             }
 
             return defaultValue;
@@ -527,18 +596,23 @@ namespace Honor.Runtime
         /// </summary>
         public void SetString(PersistWayType wayType, string classifyName, string itemName, string value)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                m_FileFragmentForWebGLManager.SetString(classifyName, itemName, value);
+                    m_WebGLFragmentStore.SetString(classifyName, itemName, value);
 #else
-                m_FileFragmentManager.SetString(classifyName, itemName, value);
+                    m_DiskFragmentStore.SetString(classifyName, itemName, value);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                m_PlayerPrefsManager.SetString(classifyName, itemName, value);
-                SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    m_PlayerPrefsStore.SetString(classifyName, itemName, value);
+                    SavePlayerPrefsDataAfterFrameEnd();
+                    break;
+                }
             }
         }
 

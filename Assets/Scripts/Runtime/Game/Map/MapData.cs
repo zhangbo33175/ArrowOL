@@ -185,6 +185,32 @@ public class RMapChapterTypeData
     /// 配置保存路径
     /// </summary>
     public string SavePath = string.Empty;
+
+    //=========================================================================
+
+    /// <summary>
+    /// 新建地图章节配置数据实体
+    /// </summary>
+    /// <param name="chapterId">所属章节ID</param>
+    /// <param name="levelId">关卡ID</param>
+    /// <param name="maplId">地图ID</param>
+    /// <param name="mapName">地图名称</param>
+    /// <param name="createTime">配置创建时间</param>
+    /// <param name="backgroundPath">背景图片资源路径</param>
+    /// <returns>填充好字段的章节配置数据</returns>
+    public static RMapChapterTypeData Create(string chapterId, int levelId, int maplId, string mapName,
+        string createTime, string backgroundPath)
+    {
+        return new RMapChapterTypeData
+        {
+            ChapterId = chapterId,
+            LevelId = levelId,
+            MaplId = maplId,
+            m_MapName = mapName,
+            m_CreateTime = createTime,
+            m_BackgroundPath = backgroundPath,
+        };
+    }
 }
 
 /// <summary>

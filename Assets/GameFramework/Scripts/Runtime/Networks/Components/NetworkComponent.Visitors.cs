@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  NetworkComponent.Fields.cs
+ * filename:  NetworkComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   网络组件 - 字段、属性定义分部类
@@ -67,7 +67,7 @@ namespace Honor.Runtime
         /// 底层网络管理实例
         /// 负责网络状态、请求、连接的实际管理
         /// </summary>
-        private NetworkManager m_NetworkManager;
+        private NetworkManager m_Network;
 
         #endregion
     }

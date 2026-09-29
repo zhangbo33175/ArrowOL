@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LauncherComponent.Fields.cs
+ * filename:  LauncherComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   框架启动器 - 序列化字段与公共属性（partial）

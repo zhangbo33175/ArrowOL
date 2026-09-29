@@ -135,8 +135,44 @@ namespace Honor.Runtime
         public SoundAgent PlaySound(int serialID, Object soundAsset, PlaySoundParams playSoundParams, out PlaySoundErrorCode? errorCode)
         {
             errorCode = null;
-            SoundAgent candidateAgent = null;
             int busyCount = 0;
+
+            // 遍历所有播放器，找最合适的
+            SoundAgent candidateAgent = SelectCandidateAgent(playSoundParams, ref busyCount);
+
+            // 没有可用播放器
+            if (candidateAgent == null)
+            {
+                errorCode = busyCount == m_SoundAgents.Count
+                    ? PlaySoundErrorCode.SoundGroupInsufficientAgents
+                    : PlaySoundErrorCode.IgnoredDueToLowPriority;
+                return null;
+            }
+
+            // 设置音频资源失败
+            if (!candidateAgent.SetSoundAsset(soundAsset))
+            {
+                errorCode = PlaySoundErrorCode.SetSoundAssetFailure;
+                return null;
+            }
+
+            // 赋值播放参数
+            ApplyPlaySoundParams(candidateAgent, serialID, playSoundParams);
+
+            // 开始播放
+            candidateAgent.Play(playSoundParams.FadeInSeconds);
+            return candidateAgent;
+        }
+
+        /// <summary>
+        /// 按"空闲优先→低优先级可顶替→同优先级最早播放"策略挑选候选播放器
+        /// </summary>
+        /// <param name="playSoundParams">播放参数</param>
+        /// <param name="busyCount">忙碌播放器计数输出</param>
+        /// <returns>选中的候选播放器</returns>
+        private SoundAgent SelectCandidateAgent(PlaySoundParams playSoundParams, ref int busyCount)
+        {
+            SoundAgent candidateAgent = null;
 
             // 遍历所有播放器，找最合适的
             foreach (SoundAgent agent in m_SoundAgents)
@@ -164,22 +200,17 @@ namespace Honor.Runtime
                 }
             }
 
-            // 没有可用播放器
-            if (candidateAgent == null)
-            {
-                errorCode = busyCount == m_SoundAgents.Count 
-                    ? PlaySoundErrorCode.SoundGroupHasNotEnoughAgent 
-                    : PlaySoundErrorCode.IgnoredDueToLowPriority;
-                return null;
-            }
+            return candidateAgent;
+        }
 
-            // 设置音频资源失败
-            if (!candidateAgent.SetSoundAsset(soundAsset))
-            {
-                errorCode = PlaySoundErrorCode.SetSoundAssetFailure;
-                return null;
-            }
-
+        /// <summary>
+        /// 将播放参数赋值到候选播放器
+        /// </summary>
+        /// <param name="candidateAgent">候选播放器</param>
+        /// <param name="serialID">声音序列ID</param>
+        /// <param name="playSoundParams">播放参数</param>
+        private void ApplyPlaySoundParams(SoundAgent candidateAgent, int serialID, PlaySoundParams playSoundParams)
+        {
             // 赋值播放参数
             candidateAgent.SerialID = serialID;
             candidateAgent.Time = playSoundParams.Time;
@@ -192,10 +223,6 @@ namespace Honor.Runtime
             candidateAgent.SpatialBlend = playSoundParams.SpatialBlend;
             candidateAgent.MaxDistance = playSoundParams.MaxDistance;
             candidateAgent.DopplerLevel = playSoundParams.DopplerLevel;
-            
-            // 开始播放
-            candidateAgent.Play(playSoundParams.FadeInSeconds);
-            return candidateAgent;
         }
 
         /// <summary>

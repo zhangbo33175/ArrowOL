@@ -34,18 +34,18 @@ namespace Honor.Runtime
         /// <param name="requestTimeout">请求超时（秒）</param>
         public NetworkManager(float connectTimeout, float requestTimeout)
         {
-            m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-            if (m_LuaComponent == null)
+            m_LuaBridge = GameComponentsGroup.GetComponent<LuaComponent>();
+            if (m_LuaBridge == null)
             {
                 Log.Fatal("Lua Component 无效。");
                 return;
             }
 
-            m_ConnectTimeout = connectTimeout;
-            m_RequestTimeout = requestTimeout;
+            m_ConnTimeoutSec = connectTimeout;
+            m_ReqTimeoutSec = requestTimeout;
 
 #if BEST_HTTP_ENABLE
-            m_WebSockets = new Dictionary<string, WebSocket>();
+            m_SocketTable = new Dictionary<string, WebSocket>();
 #endif
         }
 
@@ -62,23 +62,8 @@ namespace Honor.Runtime
         /// <returns>true 网络可用，false 不可用</returns>
         public bool CheckNetworkActive()
         {
-            // 无网络
-            if (Application.internetReachability == NetworkReachability.NotReachable)
-            {
-                return false;
-            }
-            // 移动数据网络（4/5G）
-            else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork)
-            {
-                return true;
-            }
-            // WiFi 网络
-            else if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
-            {
-                return true;
-            }
-            
-            return false;
+            // 仅 NotReachable 视为离线；其余（移动数据 / WiFi）均视为在线
+            return Application.internetReachability != NetworkReachability.NotReachable;
         }
 
         #endregion

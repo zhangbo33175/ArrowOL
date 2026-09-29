@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  EventManager.Stats.cs
+ * filename:  EventManager.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   全局事件管理器 - 统计查询接口（partial）

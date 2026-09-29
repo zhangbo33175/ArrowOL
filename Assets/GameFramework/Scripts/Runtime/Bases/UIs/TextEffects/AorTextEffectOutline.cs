@@ -407,27 +407,49 @@ namespace Honor.Runtime
             }
 
             // 判断水平对齐方式
-            HorizontalAligmentType alignment;
-            if (text.alignment == TextAnchor.LowerLeft || text.alignment == TextAnchor.MiddleLeft ||
-                text.alignment == TextAnchor.UpperLeft)
-            {
-                alignment = HorizontalAligmentType.Left;
-            }
-            else if (text.alignment == TextAnchor.LowerCenter || text.alignment == TextAnchor.MiddleCenter ||
-                     text.alignment == TextAnchor.UpperCenter)
-            {
-                alignment = HorizontalAligmentType.Center;
-            }
-            else
-            {
-                alignment = HorizontalAligmentType.Right;
-            }
+            HorizontalAligmentType alignment = ResolveTextAlignment(text.alignment);
 
             var vertexs = new List<UIVertex>();
             vh.GetUIVertexStream(vertexs);
 
-            // 按换行符分割行
+            // 按换行符分割行并构建每一行的顶点索引范围
             var lineTexts = text.text.Split('\n');
+            var lines = BuildTextLines(lineTexts);
+
+            // 逐行逐顶点应用间距偏移并回写网格
+            ApplyTextSpacingToVertices(vh, vertexs, lines, alignment);
+        }
+
+        /// <summary>
+        /// 根据Text锚点对齐方式解析水平对齐类型
+        /// </summary>
+        /// <param name="anchor">Text的对齐锚点</param>
+        /// <returns>水平对齐类型</returns>
+        private HorizontalAligmentType ResolveTextAlignment(TextAnchor anchor)
+        {
+            if (anchor == TextAnchor.LowerLeft || anchor == TextAnchor.MiddleLeft ||
+                anchor == TextAnchor.UpperLeft)
+            {
+                return HorizontalAligmentType.Left;
+            }
+            else if (anchor == TextAnchor.LowerCenter || anchor == TextAnchor.MiddleCenter ||
+                     anchor == TextAnchor.UpperCenter)
+            {
+                return HorizontalAligmentType.Center;
+            }
+            else
+            {
+                return HorizontalAligmentType.Right;
+            }
+        }
+
+        /// <summary>
+        /// 按换行文本构建每行对应的顶点范围
+        /// </summary>
+        /// <param name="lineTexts">按换行符切分的文本行</param>
+        /// <returns>每行顶点范围数组</returns>
+        private Line[] BuildTextLines(string[] lineTexts)
+        {
             var lines = new Line[lineTexts.Length];
 
             // 构建每一行的顶点索引范围
@@ -447,6 +469,18 @@ namespace Honor.Runtime
                 }
             }
 
+            return lines;
+        }
+
+        /// <summary>
+        /// 逐行遍历顶点，按对齐方式计算水平偏移并回写网格
+        /// </summary>
+        /// <param name="vh">顶点辅助器</param>
+        /// <param name="vertexs">顶点列表</param>
+        /// <param name="lines">每行顶点范围数组</param>
+        /// <param name="alignment">水平对齐类型</param>
+        private void ApplyTextSpacingToVertices(VertexHelper vh, List<UIVertex> vertexs, Line[] lines, HorizontalAligmentType alignment)
+        {
             UIVertex vt;
             for (var i = 0; i < lines.Length; i++)
             {
@@ -459,19 +493,7 @@ namespace Honor.Runtime
                     if (i == lines.Length - 1) charCount += 6;
 
                     // 根据对齐方式应用间距偏移
-                    if (alignment == HorizontalAligmentType.Left)
-                    {
-                        vt.position += new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6), 0, 0);
-                    }
-                    else if (alignment == HorizontalAligmentType.Right)
-                    {
-                        vt.position += new Vector3(Spacing * (-(charCount - j + lines[i].StartVertexIndex) / 6 + 1), 0, 0);
-                    }
-                    else if (alignment == HorizontalAligmentType.Center)
-                    {
-                        var offset = (charCount / 6) % 2 == 0 ? 0.5f : 0f;
-                        vt.position += new Vector3(Spacing * ((j - lines[i].StartVertexIndex) / 6 - charCount / 12 + offset), 0, 0);
-                    }
+                    vt.position += new Vector3(CalculateTextOffsetX(alignment, lines[i], j, charCount), 0, 0);
 
                     vertexs[j] = vt;
 
@@ -481,6 +503,31 @@ namespace Honor.Runtime
                     if (j % 6 == 4)
                         vh.SetUIVertex(vt, (j / 6) * 4 + j % 6 - 1);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 按对齐方式计算单个顶点的水平偏移量
+        /// </summary>
+        /// <param name="alignment">水平对齐类型</param>
+        /// <param name="line">当前行顶点范围</param>
+        /// <param name="j">当前顶点索引</param>
+        /// <param name="charCount">当前行字符对应的顶点数</param>
+        /// <returns>水平偏移量</returns>
+        private float CalculateTextOffsetX(HorizontalAligmentType alignment, Line line, int j, int charCount)
+        {
+            if (alignment == HorizontalAligmentType.Left)
+            {
+                return Spacing * ((j - line.StartVertexIndex) / 6);
+            }
+            else if (alignment == HorizontalAligmentType.Right)
+            {
+                return Spacing * (-(charCount - j + line.StartVertexIndex) / 6 + 1);
+            }
+            else
+            {
+                var offset = (charCount / 6) % 2 == 0 ? 0.5f : 0f;
+                return Spacing * ((j - line.StartVertexIndex) / 6 - charCount / 12 + offset);
             }
         }
         #endregion

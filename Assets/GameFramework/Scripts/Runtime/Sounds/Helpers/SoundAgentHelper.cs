@@ -238,6 +238,9 @@ namespace Honor.Runtime
             m_CachedTransform.position = worldPosition;
         }
 
+        /// <summary>
+        /// 初始化：缓存 Transform，获取或添加 AudioSource 并设置默认参数
+        /// </summary>
         private void Awake()
         {
             m_CachedTransform = transform;

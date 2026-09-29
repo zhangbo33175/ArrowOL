@@ -47,7 +47,7 @@ namespace Honor.Runtime
         //=========================================================================
         #region 生命周期与全局控制
         /// <summary>
-        /// 关闭音频系统，释放所有声音资源
+        /// 当前已注册的声音组数量
         /// </summary>
         public int SoundGroupCount
         {
@@ -290,7 +290,7 @@ namespace Honor.Runtime
             }
             else if (soundGroup.SoundAgentCount <= 0)
             {
-                errorCode = PlaySoundErrorCode.SoundGroupHasNotEnoughAgent;
+                errorCode = PlaySoundErrorCode.SoundGroupInsufficientAgents;
                 errorMessage = AorTxt.Format("Sound group '{0}' 没有足够的 sound agent，errorCode = '{1}'", soundGroupName, errorCode);
             }
 
@@ -306,35 +306,50 @@ namespace Honor.Runtime
             // 异步加载音频资源
             m_AssetComponent.LoadAssetAsync("Sound", abPath, assetName, (AssetObject assetObject, Object soundAsset) =>
             {
-                // 如果加载过程中被标记为释放，直接卸载
-                if (m_SoundsToReleaseOnLoad.Contains(playSoundInfo.SerialID))
-                {
-                    m_SoundsToReleaseOnLoad.Remove(playSoundInfo.SerialID);
-                    ReleaseSoundAsset(soundAsset);
-                    return;
-                }
-
-                // 加载完成，移除加载标记
-                m_SoundsLoading.Remove(playSoundInfo.SerialID);
-
-                // 交给声音组播放
-                SoundAgent soundAgent = playSoundInfo.SoundGroup.PlaySound(
-                    playSoundInfo.SerialID,
-                    soundAsset,
-                    playSoundInfo.PlaySoundParams,
-                    out errorCode);
-
-                // 播放失败 → 释放资源
-                if (soundAgent == null)
-                {
-                    ReleaseSoundAsset(soundAsset);
-                    errorMessage = AorTxt.Format("Sound group '{0}' 播放声音 '{1}' 失败，errorCode = '{2}'",
-                        playSoundInfo.SoundGroup.Name, assetName, errorCode);
-                    Log.Warning(errorMessage);
-                }
+                HandleSoundLoaded(assetObject, soundAsset, playSoundInfo, assetName);
             });
 
             return serialID;
+        }
+
+        /// <summary>
+        /// 音频资源异步加载完成回调：处理加载中释放、移除加载标记并交给声音组播放
+        /// </summary>
+        /// <param name="assetObject">加载完成的资产对象</param>
+        /// <param name="soundAsset">音频资源</param>
+        /// <param name="playSoundInfo">播放信息外壳</param>
+        /// <param name="assetName">资源名称</param>
+        private void HandleSoundLoaded(AssetObject assetObject, Object soundAsset, PlaySoundInfo playSoundInfo, string assetName)
+        {
+            PlaySoundErrorCode? errorCode = null;
+            string errorMessage = null;
+
+            // 如果加载过程中被标记为释放，直接卸载
+            if (m_SoundsToReleaseOnLoad.Contains(playSoundInfo.SerialID))
+            {
+                m_SoundsToReleaseOnLoad.Remove(playSoundInfo.SerialID);
+                ReleaseSoundAsset(soundAsset);
+                return;
+            }
+
+            // 加载完成，移除加载标记
+            m_SoundsLoading.Remove(playSoundInfo.SerialID);
+
+            // 交给声音组播放
+            SoundAgent soundAgent = playSoundInfo.SoundGroup.PlaySound(
+                playSoundInfo.SerialID,
+                soundAsset,
+                playSoundInfo.PlaySoundParams,
+                out errorCode);
+
+            // 播放失败 → 释放资源
+            if (soundAgent == null)
+            {
+                ReleaseSoundAsset(soundAsset);
+                errorMessage = AorTxt.Format("Sound group '{0}' 播放声音 '{1}' 失败，errorCode = '{2}'",
+                    playSoundInfo.SoundGroup.Name, assetName, errorCode);
+                Log.Warning(errorMessage);
+            }
         }
         #endregion
 

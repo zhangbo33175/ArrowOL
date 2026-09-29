@@ -52,6 +52,9 @@ namespace Honor.Runtime
         //=========================================================================
         // MonoBehaviour 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒时校验组件引用、设置提示文本并启动加载旋转动画
+        /// </summary>
         private void Awake()
         {
             // 组件空值校验
@@ -94,10 +97,16 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 启动（预留）
+        /// </summary>
         private void Start()
         {
         }
 
+        /// <summary>
+        /// 销毁（预留）
+        /// </summary>
         private void OnDestroy()
         {
         }

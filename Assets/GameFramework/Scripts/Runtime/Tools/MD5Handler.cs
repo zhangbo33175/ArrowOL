@@ -33,14 +33,16 @@ namespace Honor.Runtime
         /// <returns>32位大写MD5字符串</returns>
         public static string FileMD5(string filePath)
         {
-            byte[] retVal;
-            using (FileStream file = new FileStream(filePath, FileMode.Open))
+            byte[] digest;
+            using (FileStream stream = new FileStream(filePath, FileMode.Open))
             {
-                MD5 md5 = new MD5CryptoServiceProvider();
-                retVal = md5.ComputeHash(file);
+                using (MD5 hasher = new MD5CryptoServiceProvider())
+                {
+                    digest = hasher.ComputeHash(stream);
+                }
             }
 
-            return retVal.ToHex("X2");
+            return digest.ToHex("X2");
         }
 
         /// <summary>
@@ -50,14 +52,8 @@ namespace Honor.Runtime
         /// <returns>32位大写MD5</returns>
         public static string GetMD5HashFromString(string input)
         {
-            byte[] resultByte;
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] inputByte = Encoding.ASCII.GetBytes(input);
-                resultByte = md5.ComputeHash(inputByte);
-            }
-
-            return resultByte.ToHex("X2");
+            byte[] source = Encoding.ASCII.GetBytes(input);
+            return ComputeDigestText(source);
         }
 
         /// <summary>
@@ -69,17 +65,31 @@ namespace Honor.Runtime
         {
             try
             {
-                using (MD5 md5 = new MD5CryptoServiceProvider())
+                using (MD5 hasher = new MD5CryptoServiceProvider())
                 {
-                    return md5.ComputeHash(bytes).ToHex("X2");
+                    return hasher.ComputeHash(bytes).ToHex("X2");
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Log.Error(ex);
+                Log.Error(exception);
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// 对原始字节计算 MD5 摘要并格式化为十六进制文本
+        /// </summary>
+        /// <param name="source">原始字节数据</param>
+        /// <returns>32位大写十六进制摘要</returns>
+        private static string ComputeDigestText(byte[] source)
+        {
+            using (MD5 hasher = MD5.Create())
+            {
+                byte[] digest = hasher.ComputeHash(source);
+                return digest.ToHex("X2");
+            }
         }
         #endregion
 
@@ -92,20 +102,28 @@ namespace Honor.Runtime
         public static string GetAndroidSignatureMD5Hash(char split = '\0')
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            byte[] bytes = GetAndroidSignture();
-            if (bytes != null)
+            byte[] signatureBytes = GetAndroidSignture();
+            if (signatureBytes == null)
             {
-                var md5String = GetMD5HashFromBytes(bytes);
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < md5String.Length; ++i) {
-                    if (split != '\0' && i > 0 && i % 2 == 0)
-                    {
-                        sb.Append(split);
-                    }
-                    sb.Append(md5String[i]);
-                }
-                return sb.ToString();
+                return null;
             }
+
+            string digest = GetMD5HashFromBytes(signatureBytes);
+            if (split == '\0')
+            {
+                return digest;
+            }
+
+            StringBuilder builder = new StringBuilder(digest.Length + digest.Length / 2);
+            for (int cursor = 0; cursor < digest.Length; ++cursor)
+            {
+                if (cursor > 0 && cursor % 2 == 0)
+                {
+                    builder.Append(split);
+                }
+                builder.Append(digest[cursor]);
+            }
+            return builder.ToString();
 #endif
             return null;
         }
@@ -117,18 +135,18 @@ namespace Honor.Runtime
         public static byte[] GetAndroidSignture()
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            var player = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            var activity = player.GetStatic<AndroidJavaObject>("currentActivity");
-            var PackageManager = new AndroidJavaClass("android.content.pm.PackageManager");
-            var packageName = activity.Call<string>("getPackageName");
-            var GET_SIGNATURES = PackageManager.GetStatic<int>("GET_SIGNATURES");
-            var packageManager = activity.Call<AndroidJavaObject>("getPackageManager");
-            var packageInfo = packageManager.Call<AndroidJavaObject>("getPackageInfo", packageName, GET_SIGNATURES);
-            var signatures = packageInfo.Get<AndroidJavaObject[]>("signatures");
-            
-            if (signatures != null && signatures.Length > 0)
+            var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            var packageManagerClass = new AndroidJavaClass("android.content.pm.PackageManager");
+            var pkgName = currentActivity.Call<string>("getPackageName");
+            var signaturesFlag = packageManagerClass.GetStatic<int>("GET_SIGNATURES");
+            var pkgManager = currentActivity.Call<AndroidJavaObject>("getPackageManager");
+            var pkgInfo = pkgManager.Call<AndroidJavaObject>("getPackageInfo", pkgName, signaturesFlag);
+            var sigEntries = pkgInfo.Get<AndroidJavaObject[]>("signatures");
+
+            if (sigEntries != null && sigEntries.Length > 0)
             {
-                return signatures[0].Call<byte[]>("toByteArray");
+                return sigEntries[0].Call<byte[]>("toByteArray");
             }
 #endif
             return null;
@@ -141,10 +159,10 @@ namespace Honor.Runtime
         public static string GetAndroidSigntureBase64Value()
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            byte[] bytes = GetAndroidSignture();
-            if (bytes != null)
+            byte[] signatureBytes = GetAndroidSignture();
+            if (signatureBytes != null)
             {
-                return Convert.ToBase64String(bytes);
+                return Convert.ToBase64String(signatureBytes);
             }
 #endif
             return string.Empty;

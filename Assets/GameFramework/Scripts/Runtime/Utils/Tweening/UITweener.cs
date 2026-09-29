@@ -79,6 +79,9 @@ namespace Honor.Runtime
 
         #region 生命周期
 
+        /// <summary>
+        /// 组件激活时回调：重置真实时间基准，必要时自动播放
+        /// </summary>
         protected virtual void OnEnable()
         {
             // 每次激活都使用真实时间基准（避免 timeScale 影响）
@@ -90,11 +93,17 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 组件失活时回调：停止播放
+        /// </summary>
         protected virtual void OnDisable()
         {
             m_Playing = false;
         }
 
+        /// <summary>
+        /// 每帧更新：推进进度、应用插值并处理完成/循环逻辑
+        /// </summary>
         protected virtual void Update()
         {
             float delta = RealTime.deltaTime;

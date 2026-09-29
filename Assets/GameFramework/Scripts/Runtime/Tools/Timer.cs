@@ -21,6 +21,11 @@ namespace Honor.Runtime
     /// </summary>
     public static class Timer
     {
+        /// <summary>
+        /// Unix 纪元起点（1970-01-01 00:00:00 UTC）
+        /// </summary>
+        private static readonly DateTime s_UnixEpoch = new DateTime(1970, 1, 1);
+
         #region 时间戳获取
         /// <summary>
         /// 获取当前 UTC0 时间戳（1970-01-01 至今的秒数）
@@ -29,7 +34,8 @@ namespace Honor.Runtime
         /// <returns>UTC0 时间戳（秒）</returns>
         public static int GetUTC0TimeStamp()
         {
-            return (int)Math.Floor((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
+            TimeSpan elapsed = DateTime.UtcNow - s_UnixEpoch;
+            return (int)Math.Floor(elapsed.TotalSeconds);
         }
 
         /// <summary>
@@ -39,11 +45,11 @@ namespace Honor.Runtime
         /// <returns>本地时区时间戳（秒）</returns>
         public static int GetLocalTimeStamp(int utc0Seconds = 0)
         {
-            DateTime dateTime = utc0Seconds == 0 
-                ? DateTime.Now 
-                : new DateTime(1970, 1, 1).AddSeconds(utc0Seconds).ToLocalTime();
+            DateTime origin = utc0Seconds == 0
+                ? DateTime.Now
+                : s_UnixEpoch.AddSeconds(utc0Seconds).ToLocalTime();
 
-            return (int)Math.Floor((dateTime - new DateTime(1970, 1, 1)).TotalSeconds);
+            return (int)Math.Floor((origin - s_UnixEpoch).TotalSeconds);
         }
         #endregion
 
@@ -55,10 +61,7 @@ namespace Honor.Runtime
         /// <returns>UTC0 对应的 DateTime，seconds≤0 返回默认值</returns>
         public static DateTime GetDateTime(int seconds)
         {
-            if (seconds <= 0)
-                return default;
-
-            return new DateTime(1970, 1, 1).AddSeconds(seconds);
+            return seconds > 0 ? s_UnixEpoch.AddSeconds(seconds) : default;
         }
         #endregion
     }

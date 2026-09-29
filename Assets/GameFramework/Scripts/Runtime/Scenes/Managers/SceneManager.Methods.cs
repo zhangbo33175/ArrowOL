@@ -1,7 +1,7 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
- * filename:  SceneManager.Util.cs
+ * filename:  SceneManager.Methods.cs
  * author:  云毅
  * created:
  * descrip:   场景管理器 - 工具方法分部类（列表查找、移除、状态判断）

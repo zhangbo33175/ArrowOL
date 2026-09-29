@@ -1,7 +1,7 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
- * filename:  SceneManager.Field.cs
+ * filename:  SceneManager.Visitors.cs
  * author:  云毅
  * created:
  * descrip:   场景管理器 - 成员变量与属性分部类

@@ -194,6 +194,9 @@ namespace Honor.Runtime
         //=========================================================================
         // 生命周期
         //=========================================================================
+        /// <summary>
+        /// 启用时注册加载进度与热更相关事件
+        /// </summary>
         private void OnEnable()
         {
             // 注册事件：加载进度
@@ -206,6 +209,9 @@ namespace Honor.Runtime
             GameMainRoot.Event.Subscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
         }
 
+        /// <summary>
+        /// 禁用时注销加载进度与热更相关事件
+        /// </summary>
         private void OnDisable()
         {
             // 注销事件
@@ -215,6 +221,9 @@ namespace Honor.Runtime
             GameMainRoot.Event.Unsubscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
         }
 
+        /// <summary>
+        /// 启动时按平台与多语言设置各按钮文本
+        /// </summary>
         private void Start()
         {
             // 多语言按钮文本（WebGL特殊处理）
@@ -292,56 +301,8 @@ namespace Honor.Runtime
             // 热更新模式
             if (m_LoadingMode == LoadingMode.HotfixLauncher || m_LoadingMode == LoadingMode.HotfixIncreaser)
             {
-                // 多语言提示文本
-                string textReadyDownload = IsWebGL()
-                    ? "Ready to download."
-                    : GameMainRoot.Localization.GetDefaultData("Hotfix_Ready_Download_Text");
-                string textDownloading = IsWebGL()
-                    ? "Downloading: "
-                    : GameMainRoot.Localization.GetDefaultData("Hotfix_Downloading_Text");
-                string textDownloadAllOver = IsWebGL()
-                    ? "It's downloaded."
-                    : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_AllOver_Text");
-                string textDownloadFailedToSkip = IsWebGL()
-                    ? "Download failed, ready to enter the game."
-                    : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_Failed_To_Skip_Text");
-                string textDownloadError = IsWebGL()
-                    ? "Download abnormal!Please try again."
-                    : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_Error_Text");
-
-                SetProgress(progress);
-
-                // 根据下载状态切换显示
-                if (downloadStep == GameDefinitions.DownloadStep.Idle)
-                {
-                    SetProgressDescContent(textReadyDownload);
-                    SetButtonsVisible(true, false, true);
-                }
-                else if (downloadStep == GameDefinitions.DownloadStep.Processing)
-                {
-                    if (string.IsNullOrEmpty(descContent))
-                        SetProgressDescContent(descContent);
-                    else
-                        SetProgressDescContent(AorTxt.Format("{0} [{1:N2}M/{2:N2}M] {3:N0}%", textDownloading,
-                            curBytes / 1024f / 1024f, totalBytes / 1024f / 1024f, progress * 100));
-
-                    SetButtonsVisible(false, false, false);
-                }
-                else if (downloadStep == GameDefinitions.DownloadStep.AllOver)
-                {
-                    SetProgressDescContent(textDownloadAllOver);
-                    SetButtonsVisible(false, false, false);
-                }
-                else if (downloadStep == GameDefinitions.DownloadStep.Skip)
-                {
-                    SetProgressDescContent(textDownloadFailedToSkip);
-                    SetButtonsVisible(false, false, false);
-                }
-                else if (downloadStep == GameDefinitions.DownloadStep.Error)
-                {
-                    SetProgressDescContent(textDownloadError);
-                    SetButtonsVisible(false, true, false);
-                }
+                RefreshHotfixModeViews(descContent, progress, downloadStep, curFileNum, totalFileNum, curBytes,
+                    totalBytes);
             }
             // 预加载模式
             else if (m_LoadingMode == LoadingMode.Preload)
@@ -351,6 +312,72 @@ namespace Honor.Runtime
                 SetBytesNums(curBytes, totalBytes);
                 SetDescContent(descContent);
                 SetButtonsVisible(false, false, false);
+            }
+        }
+
+        /// <summary>
+        /// 热更新模式下刷新界面：按下载步骤切换描述文本与按钮显隐
+        /// </summary>
+        /// <param name="descContent">描述内容</param>
+        /// <param name="progress">进度值0~1</param>
+        /// <param name="downloadStep">当前下载步骤</param>
+        /// <param name="curFileNum">已下载文件数</param>
+        /// <param name="totalFileNum">待下载文件总数</param>
+        /// <param name="curBytes">已下载字节数</param>
+        /// <param name="totalBytes">待下载总字节数</param>
+        private void RefreshHotfixModeViews(string descContent, float progress,
+            GameDefinitions.DownloadStep downloadStep, int curFileNum, int totalFileNum, float curBytes,
+            float totalBytes)
+        {
+            // 多语言提示文本
+            string textReadyDownload = IsWebGL()
+                ? "Ready to download."
+                : GameMainRoot.Localization.GetDefaultData("Hotfix_Ready_Download_Text");
+            string textDownloading = IsWebGL()
+                ? "Downloading: "
+                : GameMainRoot.Localization.GetDefaultData("Hotfix_Downloading_Text");
+            string textDownloadAllOver = IsWebGL()
+                ? "It's downloaded."
+                : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_AllOver_Text");
+            string textDownloadFailedToSkip = IsWebGL()
+                ? "Download failed, ready to enter the game."
+                : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_Failed_To_Skip_Text");
+            string textDownloadError = IsWebGL()
+                ? "Download abnormal!Please try again."
+                : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_Error_Text");
+
+            SetProgress(progress);
+
+            // 根据下载状态切换显示
+            if (downloadStep == GameDefinitions.DownloadStep.Idle)
+            {
+                SetProgressDescContent(textReadyDownload);
+                SetButtonsVisible(true, false, true);
+            }
+            else if (downloadStep == GameDefinitions.DownloadStep.Processing)
+            {
+                if (string.IsNullOrEmpty(descContent))
+                    SetProgressDescContent(descContent);
+                else
+                    SetProgressDescContent(AorTxt.Format("{0} [{1:N2}M/{2:N2}M] {3:N0}%", textDownloading,
+                        curBytes / 1024f / 1024f, totalBytes / 1024f / 1024f, progress * 100));
+
+                SetButtonsVisible(false, false, false);
+            }
+            else if (downloadStep == GameDefinitions.DownloadStep.AllOver)
+            {
+                SetProgressDescContent(textDownloadAllOver);
+                SetButtonsVisible(false, false, false);
+            }
+            else if (downloadStep == GameDefinitions.DownloadStep.Skip)
+            {
+                SetProgressDescContent(textDownloadFailedToSkip);
+                SetButtonsVisible(false, false, false);
+            }
+            else if (downloadStep == GameDefinitions.DownloadStep.Error)
+            {
+                SetProgressDescContent(textDownloadError);
+                SetButtonsVisible(false, true, false);
             }
         }
 

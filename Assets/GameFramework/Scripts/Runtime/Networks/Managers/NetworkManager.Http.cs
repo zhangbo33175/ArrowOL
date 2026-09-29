@@ -23,10 +23,10 @@ namespace Honor.Runtime
     public sealed partial class NetworkManager
     {
         //=========================================================================
+#if BEST_HTTP_ENABLE
+        //=========================================================================
         #region HTTP 请求实现（BestHTTP）
         //=========================================================================
-
-#if BEST_HTTP_ENABLE
 
         /// <summary>
         /// GET 方式 HTTP 请求
@@ -40,54 +40,12 @@ namespace Honor.Runtime
         public void HttpRequestOnGet(string url, OnRequestFinishedDelegate finishedCallback, bool keepAlive, float requestTimeout, float connectTimeout, string headerInfos)
         {
             Log.Info("请求网络 HttpRequestOnGet url: " + url);
-            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Get, (HTTPRequest req, HTTPResponse resp) =>
-            {
-                switch (req.State)
-                {
-                    case HTTPRequestStates.Finished:
-                        break;
-                    case HTTPRequestStates.Error:
-                        Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
-                        break;
-                    case HTTPRequestStates.Aborted:
-                        Log.Warning("Request Aborted!");
-                        break;
-                    case HTTPRequestStates.ConnectionTimedOut:
-                        Log.Warning("Connection Timed Out!");
-                        break;
-                    case HTTPRequestStates.TimedOut:
-                        Log.Warning("Processing the request Timed Out!");
-                        break;
-                }
+            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Get, WrapResponseCallback(url, "HttpRequestOnGet", finishedCallback));
 
-                // 执行上层回调
-                if (finishedCallback != null)
-                {
-                    Log.Info("请求网络 返回 HttpRequestOnGet url: " + url);
-                    finishedCallback(req, resp);
-                }
-            });
+            ApplyCommonSettings(request, keepAlive, requestTimeout, connectTimeout);
+            AttachCustomHeaders(request, headerInfos);
 
-            // 基础配置
-            request.IsKeepAlive = keepAlive;
-            request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? m_RequestTimeout : requestTimeout);
-            request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? m_ConnectTimeout : connectTimeout);
-
-            // 解析并添加请求头
-            if (headerInfos != null)
-            {
-                JObject headerJson = JObject.Parse(headerInfos);
-                foreach (var itr in headerJson)
-                {
-                    request.AddHeader(itr.Key, itr.Value.ToString());
-                }
-            }
-
-            // 发送请求
-            if (request != null)
-            {
-                request.Send();
-            }
+            request.Send();
         }
 
         /// <summary>
@@ -103,53 +61,13 @@ namespace Honor.Runtime
         public void HttpRequestOnPost(string url, string contentString, OnRequestFinishedDelegate finishedCallback, bool keepAlive, float requestTimeout, float connectTimeout, string headerInfos)
         {
             Log.Info("请求网络 HttpRequestOnPost url: " + url + " contentString: " + contentString);
-            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, (HTTPRequest req, HTTPResponse resp) =>
-            {
-                switch (req.State)
-                {
-                    case HTTPRequestStates.Finished:
-                        break;
-                    case HTTPRequestStates.Error:
-                        Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
-                        break;
-                    case HTTPRequestStates.Aborted:
-                        Log.Warning("Request Aborted!");
-                        break;
-                    case HTTPRequestStates.ConnectionTimedOut:
-                        Log.Warning("Connection Timed Out!");
-                        break;
-                    case HTTPRequestStates.TimedOut:
-                        Log.Warning("Processing the request Timed Out!");
-                        break;
-                }
+            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, WrapResponseCallback(url, "HttpRequestOnPost", finishedCallback));
 
-                if (finishedCallback != null)
-                {
-                    Log.Info("请求网络 返回 HttpRequestOnPost url: " + url);
-                    finishedCallback(req, resp);
-                }
-            });
-
-            // 设置原始数据
             request.RawData = Converter.GetBytesByString(contentString);
-            request.IsKeepAlive = keepAlive;
-            request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? m_RequestTimeout : requestTimeout);
-            request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? m_ConnectTimeout : connectTimeout);
+            ApplyCommonSettings(request, keepAlive, requestTimeout, connectTimeout);
+            AttachCustomHeaders(request, headerInfos);
 
-            // 添加请求头
-            if (headerInfos != null)
-            {
-                JObject headerJson = JObject.Parse(headerInfos);
-                foreach (var itr in headerJson)
-                {
-                    request.AddHeader(itr.Key, itr.Value.ToString());
-                }
-            }
-
-            if (request != null)
-            {
-                request.Send();
-            }
+            request.Send();
         }
 
         /// <summary>
@@ -166,51 +84,13 @@ namespace Honor.Runtime
         public void HttpRequestOnPostWithRawData(string url, byte[] contentBytes, OnRequestFinishedDelegate finishedCallback, bool keepAlive, float requestTimeout, float connectTimeout, string headerInfos)
         {
             Log.Info("请求网络 HttpRequestOnPostWithRawData url: " + url);
-            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, (HTTPRequest req, HTTPResponse resp) =>
-            {
-                switch (req.State)
-                {
-                    case HTTPRequestStates.Finished:
-                        break;
-                    case HTTPRequestStates.Error:
-                        Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
-                        break;
-                    case HTTPRequestStates.Aborted:
-                        Log.Warning("Request Aborted!");
-                        break;
-                    case HTTPRequestStates.ConnectionTimedOut:
-                        Log.Warning("Connection Timed Out!");
-                        break;
-                    case HTTPRequestStates.TimedOut:
-                        Log.Warning("Processing the request Timed Out!");
-                        break;
-                }
-
-                if (finishedCallback != null)
-                {
-                    Log.Info("请求网络 返回 HttpRequestOnPostWithRawData url: " + url);
-                    finishedCallback(req, resp);
-                }
-            });
+            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, WrapResponseCallback(url, "HttpRequestOnPostWithRawData", finishedCallback));
 
             request.RawData = contentBytes;
-            request.IsKeepAlive = keepAlive;
-            request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? m_RequestTimeout : requestTimeout);
-            request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? m_ConnectTimeout : connectTimeout);
+            ApplyCommonSettings(request, keepAlive, requestTimeout, connectTimeout);
+            AttachCustomHeaders(request, headerInfos);
 
-            if (headerInfos != null)
-            {
-                JObject headerJson = JObject.Parse(headerInfos);
-                foreach (var itr in headerJson)
-                {
-                    request.AddHeader(itr.Key, itr.Value.ToString());
-                }
-            }
-
-            if (request != null)
-            {
-                request.Send();
-            }
+            request.Send();
         }
 
         /// <summary>
@@ -227,32 +107,125 @@ namespace Honor.Runtime
         /// <param name="headerInfos">头信息</param>
         public void HttpRequestOnPostWithFile(string url, string customJsonData, byte[] fileBytes, string fileName, OnRequestFinishedDelegate finishedCallback = null, bool keepAlive = true, float requestTimeout = -1f, float connectTimeout = -1f, string headerInfos = null)
         {
-            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, (HTTPRequest req, HTTPResponse resp) =>
+            HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post, (req, resp) =>
             {
-                switch (req.State)
-                {
-                    case HTTPRequestStates.Finished:
-                        break;
-                    case HTTPRequestStates.Error:
-                        Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
-                        break;
-                    case HTTPRequestStates.Aborted:
-                        Log.Warning("Request Aborted!");
-                        break;
-                    case HTTPRequestStates.ConnectionTimedOut:
-                        Log.Warning("Connection Timed Out!");
-                        break;
-                    case HTTPRequestStates.TimedOut:
-                        Log.Warning("Processing the request Timed Out!");
-                        break;
-                }
+                HandlePostFileRequestFinished(req, resp, finishedCallback);
+            });
+
+            // 构建表单：添加自定义字段 + 文件数据
+            request.SetForm(BuildPostForm(customJsonData, fileBytes, fileName));
+
+            // 超时设置
+            request.IsKeepAlive = keepAlive;
+            request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? 30f : requestTimeout);
+            request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? 10f : connectTimeout);
+
+            // 默认开启 gzip 压缩 + 自定义请求头
+            ApplyRequestHeaders(request, headerInfos);
+
+            // 发送
+            request.Send();
+        }
+
+        #endregion
+
+        //=========================================================================
+        #region HTTP 内部辅助
+        //=========================================================================
+
+        /// <summary>
+        /// 配置保活与超时（-1 表示使用管理器默认值）
+        /// </summary>
+        private void ApplyCommonSettings(HTTPRequest request, bool keepAlive, float requestTimeout, float connectTimeout)
+        {
+            request.IsKeepAlive = keepAlive;
+            request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? m_ReqTimeoutSec : requestTimeout);
+            request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? m_ConnTimeoutSec : connectTimeout);
+        }
+
+        /// <summary>
+        /// 解析自定义请求头 Json 并逐条附加到请求
+        /// </summary>
+        private void AttachCustomHeaders(HTTPRequest request, string headerInfos)
+        {
+            if (headerInfos == null)
+            {
+                return;
+            }
+
+            JObject headerJson = JObject.Parse(headerInfos);
+            foreach (var pair in headerJson)
+            {
+                request.AddHeader(pair.Key, pair.Value.ToString());
+            }
+        }
+
+        /// <summary>
+        /// 统一包装响应回调：先按状态打印日志，再转发业务回调
+        /// </summary>
+        private OnRequestFinishedDelegate WrapResponseCallback(string url, string tag, OnRequestFinishedDelegate finishedCallback)
+        {
+            return (req, resp) =>
+            {
+                LogResponseState(req);
 
                 if (finishedCallback != null)
                 {
+                    Log.Info("请求网络 返回 " + tag + " url: " + url);
                     finishedCallback(req, resp);
                 }
-            });
+            };
+        }
 
+        /// <summary>
+        /// 按请求状态打印告警日志
+        /// </summary>
+        private static void LogResponseState(HTTPRequest req)
+        {
+            switch (req.State)
+            {
+                case HTTPRequestStates.Finished:
+                    break;
+                case HTTPRequestStates.Error:
+                    Log.Warning(AorTxt.Format("Request Finished with Error! {0}", (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception")));
+                    break;
+                case HTTPRequestStates.Aborted:
+                    Log.Warning("Request Aborted!");
+                    break;
+                case HTTPRequestStates.ConnectionTimedOut:
+                    Log.Warning("Connection Timed Out!");
+                    break;
+                case HTTPRequestStates.TimedOut:
+                    Log.Warning("Processing the request Timed Out!");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 处理文件上传请求的完成回调：按请求状态打印日志并转发业务回调
+        /// </summary>
+        /// <param name="req">HTTP请求对象</param>
+        /// <param name="resp">HTTP响应对象</param>
+        /// <param name="finishedCallback">业务完成回调</param>
+        private void HandlePostFileRequestFinished(HTTPRequest req, HTTPResponse resp, OnRequestFinishedDelegate finishedCallback)
+        {
+            LogResponseState(req);
+
+            if (finishedCallback != null)
+            {
+                finishedCallback(req, resp);
+            }
+        }
+
+        /// <summary>
+        /// 构建multipart表单：解析自定义Json字段并附加文件二进制数据
+        /// </summary>
+        /// <param name="customJsonData">自定义表单 Json</param>
+        /// <param name="fileBytes">文件字节</param>
+        /// <param name="fileName">文件名</param>
+        /// <returns>构建好的表单对象</returns>
+        private HTTPMultiPartForm BuildPostForm(string customJsonData, byte[] fileBytes, string fileName)
+        {
             // 构建表单：添加自定义字段 + 文件数据
             HTTPMultiPartForm form = new HTTPMultiPartForm();
             if (!string.IsNullOrEmpty(customJsonData))
@@ -260,39 +233,32 @@ namespace Honor.Runtime
                 JObject jObject = JObject.Parse(customJsonData);
                 if (jObject != null)
                 {
-                    foreach (var itr in jObject)
+                    foreach (var pair in jObject)
                     {
-                        form.AddField(itr.Key, itr.Value.ToString());
+                        form.AddField(pair.Key, pair.Value.ToString());
                     }
                 }
             }
             form.AddBinaryData("file", fileBytes, fileName, "multipart/form-data");
-            request.SetForm(form);
+            return form;
+        }
 
-            // 超时设置
-            request.IsKeepAlive = keepAlive;
-            request.Timeout = TimeSpan.FromSeconds(requestTimeout == -1f ? 30f : requestTimeout);
-            request.ConnectTimeout = TimeSpan.FromSeconds(connectTimeout == -1f ? 10f : connectTimeout);
-
+        /// <summary>
+        /// 应用默认gzip头并解析自定义请求头
+        /// </summary>
+        /// <param name="request">HTTP请求对象</param>
+        /// <param name="headerInfos">自定义请求头Json字符串</param>
+        private void ApplyRequestHeaders(HTTPRequest request, string headerInfos)
+        {
             // 默认开启 gzip 压缩
             request.AddHeader("Accept-Encoding", "gzip");
 
             // 自定义请求头
-            if (!string.IsNullOrEmpty(headerInfos))
-            {
-                JObject headerJson = JObject.Parse(headerInfos);
-                foreach (var itr in headerJson)
-                {
-                    request.AddHeader(itr.Key, itr.Value.ToString());
-                }
-            }
-
-            // 发送
-            request.Send();
+            AttachCustomHeaders(request, headerInfos);
         }
 
+        #endregion
 #endif
 
-        #endregion
     }
 }

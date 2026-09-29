@@ -23,9 +23,12 @@ namespace Honor.Runtime
     {
         #region 构造 & 生命周期
 
+        /// <summary>
+        /// 构造方法：初始化内存索引字典
+        /// </summary>
         public PlayerPrefsManager()
         {
-            m_ItemNameGroups = new SortedDictionary<string, List<string>>();
+            m_NameIndex = new SortedDictionary<string, List<string>>();
         }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool Load()
         {
-            LoadItemNameGroups();
+            RebuildIndexFromStorage();
             return true;
         }
 
@@ -48,6 +51,50 @@ namespace Honor.Runtime
 
         #endregion
 
+        #region 内部读写辅助
+
+        /// <summary>
+        /// 拼接分类+条目的 PlayerPrefs 物理键
+        /// </summary>
+        private static string BuildKey(string classifyName, string itemName)
+        {
+            return $"{classifyName}_{itemName}";
+        }
+
+        /// <summary>
+        /// 读取并解密字符串（无默认值，缺失时由 PlayerPrefs 返回空串）
+        /// </summary>
+        private static string ReadEncrypted(string key)
+        {
+            return AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key));
+        }
+
+        /// <summary>
+        /// 读取并解密字符串（带默认值，默认值先加密后入库）
+        /// </summary>
+        private static string ReadEncrypted(string key, string defaultValue)
+        {
+            return AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key, AESEncrypt.EncodeToBase64(defaultValue)));
+        }
+
+        /// <summary>
+        /// 写入一条加密字符串并维护内存索引
+        /// 仅当索引发生变化时才刷新落盘列表
+        /// </summary>
+        private void WriteEntry(string classifyName, string itemName, string plainValue)
+        {
+            string key = BuildKey(classifyName, itemName);
+            PlayerPrefs.SetString(key, AESEncrypt.EncodeToBase64(plainValue));
+
+            if (CommonUtility.RegisterItemIntoGroups(m_NameIndex, classifyName, itemName))
+            {
+                PersistItemIndex(classifyName);
+                PersistClassifyIndex();
+            }
+        }
+
+        #endregion
+
         #region 数据查询
 
         /// <summary>
@@ -55,13 +102,7 @@ namespace Honor.Runtime
         /// </summary>
         public string[] GetAllItemNames(string classifyName)
         {
-            List<string> range = null;
-            if (m_ItemNameGroups.TryGetValue(classifyName, out range))
-            {
-                return range.ToArray();
-            }
-
-            return null;
+            return CommonUtility.GetItemNamesByGroup(m_NameIndex, classifyName);
         }
 
         /// <summary>
@@ -71,20 +112,7 @@ namespace Honor.Runtime
         /// <param name="results">条目名称集合。</param>
         public void GetAllItemNames(string classifyName, List<string> results)
         {
-            if (results == null)
-            {
-                throw new Exception("Results 无效。");
-            }
-
-            results.Clear();
-
-            List<string> range = null;
-            if (m_ItemNameGroups.TryGetValue(classifyName, out range))
-            {
-                results = range;
-            }
-
-            return;
+            CommonUtility.AppendItemNamesByGroup(m_NameIndex, classifyName, results);
         }
 
         /// <summary>
@@ -95,8 +123,7 @@ namespace Honor.Runtime
         /// <returns>指定的条目是否存在。</returns>
         public bool HasItem(string classifyName, string itemName)
         {
-            string key = $"{classifyName}_{itemName}";
-            return PlayerPrefs.HasKey(key);
+            return CommonUtility.HasPlayerPrefsItem(classifyName, itemName);
         }
 
         #endregion
@@ -111,7 +138,7 @@ namespace Honor.Runtime
         /// <returns>是否移除指定条目成功。</returns>
         public bool RemoveItem(string classifyName, string itemName)
         {
-            string key = $"{classifyName}_{itemName}";
+            string key = BuildKey(classifyName, itemName);
             if (!PlayerPrefs.HasKey(key))
             {
                 return false;
@@ -119,20 +146,10 @@ namespace Honor.Runtime
 
             PlayerPrefs.DeleteKey(key);
 
-            if (m_ItemNameGroups.ContainsKey(classifyName))
-            {
-                if (m_ItemNameGroups[classifyName].Contains(itemName))
-                {
-                    m_ItemNameGroups[classifyName].Remove(itemName);
-                    if (m_ItemNameGroups[classifyName].Count == 0)
-                    {
-                        m_ItemNameGroups.Remove(classifyName);
-                    }
-                }
-            }
+            CommonUtility.RemoveItemFromGroups(m_NameIndex, classifyName, itemName);
 
-            RefreshItemNameListToSave(classifyName);
-            RefreshClassifyNameListToSave();
+            PersistItemIndex(classifyName);
+            PersistClassifyIndex();
 
             return true;
         }
@@ -147,34 +164,28 @@ namespace Honor.Runtime
             if (string.IsNullOrEmpty(classifyName))
             {
                 PlayerPrefs.DeleteAll();
-                m_ItemNameGroups.Clear();
-                RefreshItemNameListToSave(null);
-                RefreshClassifyNameListToSave();
+                m_NameIndex.Clear();
+                PersistItemIndex(null);
+                PersistClassifyIndex();
+                return;
             }
-            else
+
+            if (!m_NameIndex.TryGetValue(classifyName, out List<string> namesInGroup))
             {
-                List<string> range = null;
-                if (m_ItemNameGroups.TryGetValue(classifyName, out range))
-                {
-                    List<string> names = new List<string>();
-                    foreach (var name in range)
-                    {
-                        string key = $"{classifyName}_{name}";
-                        PlayerPrefs.DeleteKey(key);
-                        names.Add(name);
-                    }
-
-                    names.ForEach((name) => { m_ItemNameGroups[classifyName].Remove(name); });
-
-                    if (m_ItemNameGroups[classifyName].Count == 0)
-                    {
-                        m_ItemNameGroups.Remove(classifyName);
-                    }
-
-                    RefreshItemNameListToSave(classifyName);
-                    RefreshClassifyNameListToSave();
-                }
+                return;
             }
+
+            // 快照后逐个删除物理键
+            List<string> snapshot = new List<string>(namesInGroup);
+            foreach (string name in snapshot)
+            {
+                PlayerPrefs.DeleteKey(BuildKey(classifyName, name));
+            }
+
+            m_NameIndex.Remove(classifyName);
+
+            PersistItemIndex(classifyName);
+            PersistClassifyIndex();
         }
 
         #endregion
@@ -186,8 +197,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool GetBool(string classifyName, string itemName)
         {
-            string key = $"{classifyName}_{itemName}";
-            return bool.Parse(AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key)));
+            return bool.Parse(ReadEncrypted(BuildKey(classifyName, itemName)));
         }
 
         /// <summary>
@@ -195,9 +205,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool GetBool(string classifyName, string itemName, bool defaultValue)
         {
-            string key = $"{classifyName}_{itemName}";
-            return bool.Parse(AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key,
-                AESEncrypt.EncodeToBase64(defaultValue.ToString()))));
+            return bool.Parse(ReadEncrypted(BuildKey(classifyName, itemName), defaultValue.ToString()));
         }
 
         /// <summary>
@@ -205,27 +213,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetBool(string classifyName, string itemName, bool value)
         {
-            string key = $"{classifyName}_{itemName}";
-            PlayerPrefs.SetString(key, AESEncrypt.EncodeToBase64(value.ToString()));
-
-            bool modified = false;
-            if (!m_ItemNameGroups.ContainsKey(classifyName))
-            {
-                m_ItemNameGroups.Add(classifyName, new List<string>());
-                modified = true;
-            }
-
-            if (!m_ItemNameGroups[classifyName].Contains(itemName))
-            {
-                m_ItemNameGroups[classifyName].Add(itemName);
-                modified = true;
-            }
-
-            if (modified)
-            {
-                RefreshItemNameListToSave(classifyName);
-                RefreshClassifyNameListToSave();
-            }
+            WriteEntry(classifyName, itemName, value.ToString());
         }
 
         #endregion
@@ -237,8 +225,7 @@ namespace Honor.Runtime
         /// </summary>
         public int GetInt(string classifyName, string itemName)
         {
-            string key = $"{classifyName}_{itemName}";
-            return int.Parse(AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key)));
+            return int.Parse(ReadEncrypted(BuildKey(classifyName, itemName)));
         }
 
         /// <summary>
@@ -246,9 +233,7 @@ namespace Honor.Runtime
         /// </summary>
         public int GetInt(string classifyName, string itemName, int defaultValue)
         {
-            string key = $"{classifyName}_{itemName}";
-            return int.Parse(AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key,
-                AESEncrypt.EncodeToBase64(defaultValue.ToString()))));
+            return int.Parse(ReadEncrypted(BuildKey(classifyName, itemName), defaultValue.ToString()));
         }
 
         /// <summary>
@@ -256,27 +241,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetInt(string classifyName, string itemName, int value)
         {
-            string key = $"{classifyName}_{itemName}";
-            PlayerPrefs.SetString(key, AESEncrypt.EncodeToBase64(value.ToString()));
-
-            bool modified = false;
-            if (!m_ItemNameGroups.ContainsKey(classifyName))
-            {
-                m_ItemNameGroups.Add(classifyName, new List<string>());
-                modified = true;
-            }
-
-            if (!m_ItemNameGroups[classifyName].Contains(itemName))
-            {
-                m_ItemNameGroups[classifyName].Add(itemName);
-                modified = true;
-            }
-
-            if (modified)
-            {
-                RefreshItemNameListToSave(classifyName);
-                RefreshClassifyNameListToSave();
-            }
+            WriteEntry(classifyName, itemName, value.ToString());
         }
 
         #endregion
@@ -288,8 +253,7 @@ namespace Honor.Runtime
         /// </summary>
         public float GetFloat(string classifyName, string itemName)
         {
-            string key = $"{classifyName}_{itemName}";
-            return float.Parse(AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key)));
+            return float.Parse(ReadEncrypted(BuildKey(classifyName, itemName)));
         }
 
         /// <summary>
@@ -297,9 +261,7 @@ namespace Honor.Runtime
         /// </summary>
         public float GetFloat(string classifyName, string itemName, float defaultValue)
         {
-            string key = $"{classifyName}_{itemName}";
-            return float.Parse(AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key,
-                AESEncrypt.EncodeToBase64(defaultValue.ToString()))));
+            return float.Parse(ReadEncrypted(BuildKey(classifyName, itemName), defaultValue.ToString()));
         }
 
         /// <summary>
@@ -307,27 +269,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetFloat(string classifyName, string itemName, float value)
         {
-            string key = $"{classifyName}_{itemName}";
-            PlayerPrefs.SetString(key, AESEncrypt.EncodeToBase64(value.ToString()));
-
-            bool modified = false;
-            if (!m_ItemNameGroups.ContainsKey(classifyName))
-            {
-                m_ItemNameGroups.Add(classifyName, new List<string>());
-                modified = true;
-            }
-
-            if (!m_ItemNameGroups[classifyName].Contains(itemName))
-            {
-                m_ItemNameGroups[classifyName].Add(itemName);
-                modified = true;
-            }
-
-            if (modified)
-            {
-                RefreshItemNameListToSave(classifyName);
-                RefreshClassifyNameListToSave();
-            }
+            WriteEntry(classifyName, itemName, value.ToString());
         }
 
         #endregion
@@ -339,8 +281,7 @@ namespace Honor.Runtime
         /// </summary>
         public string GetString(string classifyName, string itemName)
         {
-            string key = $"{classifyName}_{itemName}";
-            return AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key));
+            return ReadEncrypted(BuildKey(classifyName, itemName));
         }
 
         /// <summary>
@@ -348,8 +289,7 @@ namespace Honor.Runtime
         /// </summary>
         public string GetString(string classifyName, string itemName, string defaultValue)
         {
-            string key = $"{classifyName}_{itemName}";
-            return AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key, AESEncrypt.EncodeToBase64(defaultValue)));
+            return ReadEncrypted(BuildKey(classifyName, itemName), defaultValue);
         }
 
         /// <summary>
@@ -357,27 +297,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetString(string classifyName, string itemName, string value)
         {
-            string key = $"{classifyName}_{itemName}";
-            PlayerPrefs.SetString(key, AESEncrypt.EncodeToBase64(value));
-
-            bool modified = false;
-            if (!m_ItemNameGroups.ContainsKey(classifyName))
-            {
-                m_ItemNameGroups.Add(classifyName, new List<string>());
-                modified = true;
-            }
-
-            if (!m_ItemNameGroups[classifyName].Contains(itemName))
-            {
-                m_ItemNameGroups[classifyName].Add(itemName);
-                modified = true;
-            }
-
-            if (modified)
-            {
-                RefreshItemNameListToSave(classifyName);
-                RefreshClassifyNameListToSave();
-            }
+            WriteEntry(classifyName, itemName, value);
         }
 
         #endregion
@@ -391,17 +311,19 @@ namespace Honor.Runtime
         {
             string classifyAllNameList = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString("ClassifyNameList"));
             Log.Info($"ClassifyNameList = {classifyAllNameList}");
-            if (!string.IsNullOrEmpty(classifyAllNameList))
+            if (string.IsNullOrEmpty(classifyAllNameList))
             {
-                string[] classifyNameList = classifyAllNameList.Split(',');
-                for (int classifyNameIndex = 0; classifyNameIndex < classifyNameList.Length; classifyNameIndex++)
-                {
-                    string classifyName = classifyNameList[classifyNameIndex];
-                    string classifyXXXXXNameListText = AESEncrypt.DecodeFromBase64(
-                        PlayerPrefs.GetString($"Classify_{classifyName}_ItemNameList",
-                            AESEncrypt.EncodeToBase64(string.Empty)));
-                    Log.Info($"Classify_{classifyName}_ItemNameList = {classifyXXXXXNameListText}");
-                }
+                return;
+            }
+
+            string[] classifyNameList = classifyAllNameList.Split(',');
+            for (int slot = 0; slot < classifyNameList.Length; slot++)
+            {
+                string classifyName = classifyNameList[slot];
+                string itemNameListText = AESEncrypt.DecodeFromBase64(
+                    PlayerPrefs.GetString($"Classify_{classifyName}_ItemNameList",
+                        AESEncrypt.EncodeToBase64(string.Empty)));
+                Log.Info($"Classify_{classifyName}_ItemNameList = {itemNameListText}");
             }
         }
 

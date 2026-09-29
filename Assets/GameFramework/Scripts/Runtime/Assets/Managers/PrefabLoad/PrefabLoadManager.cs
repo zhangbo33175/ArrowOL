@@ -28,7 +28,7 @@ namespace Honor.Runtime
         public PrefabLoadManager(AssetLoadManager assetLoadManager)
         {
             m_LoadedList = new Dictionary<string, PrefabObject>();
-            m_LoadedAsyncTmpAgentList = new List<PrefabObject>();
+            m_DeferredAsyncAgents = new List<PrefabObject>();
             m_GOInstanceIDList = new Dictionary<int, PrefabObject>();
 
             if (assetLoadManager == null)
@@ -89,11 +89,7 @@ namespace Honor.Runtime
             }
 
             // 全新加载
-            prefabObj = new PrefabObject();
-            prefabObj.AssetBundlePath = abPath;
-            prefabObj.AssetName = assetName;
-            prefabObj.AssetPath = assetPath;
-            prefabObj.RefCount = 1;
+            prefabObj = PrefabObject.CreatePrefabObject(abPath, assetName, assetPath);
             prefabObj.Asset = m_AssetLoadManager.LoadSync("GameObject", abPath, assetName);
 
             // [补丁] 资源加载失败 → 明确报错并中止，避免 Instantiate(null) 裸异常
@@ -132,21 +128,17 @@ namespace Honor.Runtime
                 
                 if (prefabObj.Asset != null)
                 {
-                    m_LoadedAsyncTmpAgentList.Add(prefabObj);
+                    m_DeferredAsyncAgents.Add(prefabObj);
                 }
 
                 return;
             }
 
             // 新建异步加载对象
-            prefabObj = new PrefabObject();
-            prefabObj.AssetBundlePath = abPath;
-            prefabObj.AssetName = assetName;
-            prefabObj.AssetPath = assetPath;
+            prefabObj = PrefabObject.CreatePrefabObject(abPath, assetName, assetPath);
             prefabObj.PrefabLoadOverCallbackList.Add(overCallback);
             prefabObj.PrefabLoadLuaTableParamList.Add(luaParams);
             prefabObj.PrefabInstancingGOParentList.Add(parent);
-            prefabObj.RefCount = 1;
 
             m_LoadedList.Add(assetPath, prefabObj);
 
@@ -175,59 +167,67 @@ namespace Honor.Runtime
             PrefabInstanceGOBehaviour goBehaviour = go.AddComponent<PrefabInstanceGOBehaviour>();
 
             // 强制激活一次确保 Awake/OnDestroy 正常执行
-            if (!go.activeSelf)
-            {
-                LuaBehaviour luaBehaviour = go.GetComponent<LuaBehaviour>();
-                go.SetActive(true);
-                go.SetActive(false);
-            }
+            ForceActiveOnceIfNeeded(go);
 
             int instanceID = go.GetInstanceID();
             if (goBehaviour != null)
             {
-                goBehaviour.InstanceID = instanceID;
-
-                LuaBehaviour luaBehaviour = go.GetComponent<LuaBehaviour>();
-                List<LuaBehaviour> childBehaviours = new List<LuaBehaviour>();
-                go.GetComponentsInChildren(true, childBehaviours);
-                childBehaviours.Sort((child1, child2) =>
-                    child2.transform.GetRouteNum() - child1.transform.GetRouteNum());
-
-                foreach (var childBehaviour in childBehaviours)
-                {
-                    if (childBehaviour != luaBehaviour)
-                    {
-                        if (!childBehaviour.gameObject.activeSelf)
-                        {
-                            childBehaviour.gameObject.SetActive(true);
-                            childBehaviour.gameObject.SetActive(false);
-                        }
-                        else
-                        {
-                            if (!childBehaviour.gameObject.activeInHierarchy)
-                            {
-                                GameObject nearestInactiveParentInHierarchy =
-                                    GetNearestInactiveParentInHierarchy(childBehaviour.gameObject);
-                                nearestInactiveParentInHierarchy.SetActive(true);
-                                nearestInactiveParentInHierarchy.SetActive(false);
-                            }
-                        }
-
-                        childBehaviour.AwakeAppended();
-                        childBehaviour.OnEnableAppended();
-                    }
-                }
-
-                if (luaBehaviour != null)
-                {
-                    goBehaviour.LuaBehaviour = luaBehaviour;
-                    luaBehaviour.LuaParams = luaParams;
-                    luaBehaviour.AwakeAppended();
-                    luaBehaviour.OnEnableAppended();
-                }
+                SetupUnmanagedLuaBehaviours(go, goBehaviour, instanceID, luaParams);
             }
 
             return go;
+        }
+
+        /// <summary>
+        /// 为非托管克隆对象绑定LuaBehaviour并触发生命周期
+        /// </summary>
+        /// <param name="go">克隆出的对象</param>
+        /// <param name="goBehaviour">实例挂载的PrefabBehaviour</param>
+        /// <param name="instanceID">实例ID</param>
+        /// <param name="luaParams">Lua 参数</param>
+        private void SetupUnmanagedLuaBehaviours(GameObject go, PrefabInstanceGOBehaviour goBehaviour, int instanceID,
+            LuaTable luaParams)
+        {
+            goBehaviour.InstanceID = instanceID;
+
+            LuaBehaviour luaBehaviour = go.GetComponent<LuaBehaviour>();
+            List<LuaBehaviour> childBehaviours = new List<LuaBehaviour>();
+            go.GetComponentsInChildren(true, childBehaviours);
+            childBehaviours.Sort((child1, child2) =>
+                child2.transform.GetRouteNum() - child1.transform.GetRouteNum());
+
+            foreach (var childBehaviour in childBehaviours)
+            {
+                if (childBehaviour != luaBehaviour)
+                {
+                    if (!childBehaviour.gameObject.activeSelf)
+                    {
+                        childBehaviour.gameObject.SetActive(true);
+                        childBehaviour.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        if (!childBehaviour.gameObject.activeInHierarchy)
+                        {
+                            GameObject nearestInactiveParentInHierarchy =
+                                GetNearestInactiveParentInHierarchy(childBehaviour.gameObject);
+                            nearestInactiveParentInHierarchy.SetActive(true);
+                            nearestInactiveParentInHierarchy.SetActive(false);
+                        }
+                    }
+
+                    childBehaviour.AwakeAppended();
+                    childBehaviour.OnEnableAppended();
+                }
+            }
+
+            if (luaBehaviour != null)
+            {
+                goBehaviour.LuaBehaviour = luaBehaviour;
+                luaBehaviour.LuaParams = luaParams;
+                luaBehaviour.AwakeAppended();
+                luaBehaviour.OnEnableAppended();
+            }
         }
 
         /// <summary>

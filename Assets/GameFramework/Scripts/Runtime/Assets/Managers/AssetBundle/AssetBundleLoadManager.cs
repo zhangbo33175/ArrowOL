@@ -67,39 +67,37 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadManifest()
         {
-            string abFormatPath = AorTxt.Format("{0}.bundle", GamePathUtils.PlatformName);
-            GetABLoadPathOnDisk(abFormatPath, out string path, out OriginType origin);
+            string manifestFormatPath = AorTxt.Format("{0}.bundle", GamePathUtils.PlatformName);
+            GetABLoadPathOnDisk(manifestFormatPath, out string diskPath, out OriginType origin);
 
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(diskPath))
             {
                 return;
             }
 
             m_DependsDataList.Clear();
 
-            AssetBundle ab = AssetBundle.LoadFromFile(path);
-            if (ab == null)
+            AssetBundle manifestBundle = AssetBundle.LoadFromFile(diskPath);
+            if (manifestBundle == null)
             {
                 Log.Error("加载AB包{0}错误！", GamePathUtils.PlatformName);
                 return;
             }
 
-            AssetBundleManifest mainfest = ab.LoadAsset("AssetBundleManifest") as AssetBundleManifest;
-            if (mainfest == null)
+            AssetBundleManifest manifest = manifestBundle.LoadAsset("AssetBundleManifest") as AssetBundleManifest;
+            if (manifest == null)
             {
                 Log.Error("加载{0}.Manifest信息错误！", GamePathUtils.PlatformName);
                 return;
             }
 
-            string[] assetBundleNames = mainfest.GetAllAssetBundles();
-            foreach (string assetBundleName in assetBundleNames)
+            foreach (string bundleName in manifest.GetAllAssetBundles())
             {
-                string[] dpsNames = mainfest.GetAllDependencies(assetBundleName);
-                m_DependsDataList.Add(assetBundleName, dpsNames);
+                string[] depNames = manifest.GetAllDependencies(bundleName);
+                m_DependsDataList.Add(bundleName, depNames);
             }
 
-            ab.Unload(true);
-            ab = null;
+            manifestBundle.Unload(true);
 
             Log.Info("AB加载管理器中全局依赖资源数量：{0}", m_DependsDataList.Count);
         }
@@ -192,12 +190,13 @@ namespace Honor.Runtime
         /// <returns>格式化后的标准路径</returns>
         public string GetABFormatPath(string abPath)
         {
-            if (!m_AssetBundleFormatPathCaches.ContainsKey(abPath))
+            if (!m_AssetBundleFormatPathCaches.TryGetValue(abPath, out string cachedFormat))
             {
-                m_AssetBundleFormatPathCaches.Add(abPath, $"{abPath.Replace('/', '@').ToLower()}.bundle");
+                cachedFormat = $"{abPath.Replace('/', '@').ToLower()}.bundle";
+                m_AssetBundleFormatPathCaches.Add(abPath, cachedFormat);
             }
 
-            return m_AssetBundleFormatPathCaches[abPath];
+            return cachedFormat;
         }
 
         #endregion
@@ -213,22 +212,22 @@ namespace Honor.Runtime
         public string GetABRestoredPath(string abFormatPath)
         {
             string restoredPath = string.Empty;
-            foreach (var itr in m_AssetBundleFormatPathCaches)
+            foreach (KeyValuePair<string, string> entry in m_AssetBundleFormatPathCaches)
             {
-                if (itr.Value.Equals(abFormatPath))
+                if (entry.Value.Equals(abFormatPath))
                 {
-                    restoredPath = itr.Key;
+                    restoredPath = entry.Key;
                     break;
                 }
             }
 
             if (string.IsNullOrEmpty(restoredPath))
             {
-                string[] picesNames = abFormatPath.Replace(".bundle", string.Empty).Split('@');
-                foreach (var piceName in picesNames)
+                string[] pieces = abFormatPath.Replace(".bundle", string.Empty).Split('@');
+                foreach (string piece in pieces)
                 {
-                    string name = $"{piceName.Substring(0, 1).ToUpper()}{piceName.Substring(1)}";
-                    restoredPath = string.IsNullOrEmpty(restoredPath) ? name : $"{restoredPath}/{name}";
+                    string segment = $"{piece.Substring(0, 1).ToUpper()}{piece.Substring(1)}";
+                    restoredPath = string.IsNullOrEmpty(restoredPath) ? segment : $"{restoredPath}/{segment}";
                 }
             }
 

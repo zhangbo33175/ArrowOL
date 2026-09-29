@@ -34,6 +34,9 @@ namespace Honor.Runtime
 
         #region 生命周期
 
+        /// <summary>
+        /// 初始化显形特效
+        /// </summary>
         protected override void Start()
         {
             base.Start();

@@ -83,11 +83,18 @@ namespace Honor.Runtime
 
         #region 初始化与插值
 
+        /// <summary>
+        /// 初始化：以当前颜色作为起始颜色
+        /// </summary>
         protected override void Init()
         {
             fromColor = Color;
         }
 
+        /// <summary>
+        /// 按进度插值设置颜色
+        /// </summary>
+        /// <param name="factor">曲线修正后的 0~1 进度</param>
         protected override void ApplyValue(float factor)
         {
             Color = UnityEngine.Color.LerpUnclamped(fromColor, toColor, factor);

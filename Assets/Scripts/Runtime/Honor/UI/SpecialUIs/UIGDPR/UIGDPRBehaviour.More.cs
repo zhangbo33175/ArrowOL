@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIGDPRBehaviour_More.cs
+ * filename:  UIGDPRBehaviour.More.cs
  * author:    云毅
  * created:   2026
  * descrip:   GDPR隐私政策弹窗 - 了解更多详情页
@@ -136,6 +136,21 @@ namespace Honor.Runtime
         /// </summary>
         private void InitMoreBg()
         {
+            // 设置多语言文本（标题/顶部说明/各段落/返回按钮）
+            SetupMoreTitleDescTexts();
+            SetupMoreParagraphTexts();
+            SetupMoreBackButtonText();
+
+            // 强制刷新布局并默认隐藏
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_MoreBg.rectTransform());
+            m_MoreBg.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 设置详情页标题与顶部说明的多语言文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupMoreTitleDescTexts()
+        {
             // 标题多语言
             if (m_MoreTitleText != null)
                 m_MoreTitleText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreTitle_Text"),
@@ -153,7 +168,13 @@ namespace Honor.Runtime
             if (m_MoreStartDescTextTMP != null)
                 m_MoreStartDescTextTMP.text =
                     AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreStartDesc_Text"));
+        }
 
+        /// <summary>
+        /// 设置详情页详细段落1/2/3及底部总结的多语言文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupMoreParagraphTexts()
+        {
             // 段落1
             if (m_MoreDesc1Text != null)
                 m_MoreDesc1Text.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreDesc1_Text"));
@@ -186,7 +207,13 @@ namespace Honor.Runtime
             if (m_MoreFinalDescTextTMP != null)
                 m_MoreFinalDescTextTMP.text =
                     AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreFinalDesc_Text"));
+        }
 
+        /// <summary>
+        /// 设置"返回"按钮的多语言文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupMoreBackButtonText()
+        {
             // 返回按钮
             if (m_MoreBackButtonText != null)
                 m_MoreBackButtonText.text =
@@ -195,10 +222,6 @@ namespace Honor.Runtime
             if (m_MoreBackButtonTextTMP != null)
                 m_MoreBackButtonTextTMP.text =
                     AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreBackButton_Text"));
-
-            // 强制刷新布局并默认隐藏
-            LayoutRebuilder.ForceRebuildLayoutImmediate(m_MoreBg.rectTransform());
-            m_MoreBg.gameObject.SetActive(false);
         }
         #endregion
 

@@ -811,6 +811,7 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_MeshRendererBuffersWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PostEffectSwitchSceneWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Configs\Managers\ConfigManager.ConfigData.cs" />
+    <Compile Include="Assets\GameFramework\Scripts\Runtime\Tools\CommonUtility.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Persists\Managers\PlayerPrefs\PlayerPrefsManager.Visitors.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_ColorWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\Extensions\Attributes\GameInfoAttribute.cs" />

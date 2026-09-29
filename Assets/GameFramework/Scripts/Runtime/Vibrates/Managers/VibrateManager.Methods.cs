@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  VibrateManager.Implement.cs
+ * filename:  VibrateManager.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   震动管理器 - 组合震动链式播放、类型映射分部实现
@@ -28,38 +28,44 @@ namespace Honor.Runtime
         /// 递归播放【自定义连续震动组合】中的下一个片段
         /// 实现多段震动按顺序连续播放
         /// </summary>
-        /// <param name="name">组合名称</param>
-        /// <param name="index">当前播放的片段索引</param>
-        private void StartCustomGroupItem(string name, int index)
+        /// <param name="groupName">组合名称</param>
+        /// <param name="clipIndex">当前播放的片段索引</param>
+        private void PlayCustomChain(string groupName, int clipIndex)
         {
-            // 索引越界则停止
-            if (index >= m_CustomVibratesGroup[name].Count)
-                return;
+            List<VibrateInfo> clips = m_CustomClipLibrary[groupName];
 
-            VibrateInfo info = m_CustomVibratesGroup[name][index];
-            // 播放当前片段，结束后自动播放下一个
-            PlayCustom(info.Intensity, info.Sharpness, info.PreDuration, info.Duration, () =>
+            // 索引越界则整条链结束
+            if (clipIndex >= clips.Count)
             {
-                StartCustomGroupItem(name, index + 1);
+                return;
+            }
+
+            VibrateInfo clip = clips[clipIndex];
+            // 播放当前片段，结束后自动衔接下一段
+            PlayCustom(clip.Intensity, clip.Sharpness, clip.PreDuration, clip.Duration, () =>
+            {
+                PlayCustomChain(groupName, clipIndex + 1);
             });
         }
 
         /// <summary>
         /// 递归播放【点震动/短促震动组合】中的下一个片段
         /// </summary>
-        /// <param name="name">组合名称</param>
-        /// <param name="index">当前播放的片段索引</param>
-        private void StartEmphasisGroupItem(string name, int index)
+        /// <param name="groupName">组合名称</param>
+        /// <param name="clipIndex">当前播放的片段索引</param>
+        private void PlayEmphasisChain(string groupName, int clipIndex)
         {
-            // 索引越界则停止
-            if (index >= m_EmphasisVibratesGroup[name].Count)
-                return;
+            List<VibrateInfo> clips = m_EmphasisClipLibrary[groupName];
 
-            VibrateInfo info = m_EmphasisVibratesGroup[name][index];
-            // 播放当前片段，结束后自动播放下一个
-            PlayEmphasis(info.Intensity, info.Sharpness, info.PreDuration, info.Duration, () =>
+            if (clipIndex >= clips.Count)
             {
-                StartEmphasisGroupItem(name, index + 1);
+                return;
+            }
+
+            VibrateInfo clip = clips[clipIndex];
+            PlayEmphasis(clip.Intensity, clip.Sharpness, clip.PreDuration, clip.Duration, () =>
+            {
+                PlayEmphasisChain(groupName, clipIndex + 1);
             });
         }
 
@@ -69,20 +75,20 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="type">内部震动类型枚举</param>
         /// <returns>插件对应的预设震动类型</returns>
-        private HapticPatterns.PresetType GetHapticType(VibrateType type)
+        private HapticPatterns.PresetType ToPresetType(VibrateType type)
         {
             return type switch
             {
-                VibrateType.Selection     => HapticPatterns.PresetType.Selection,
-                VibrateType.Success       => HapticPatterns.PresetType.Success,
-                VibrateType.Warning       => HapticPatterns.PresetType.Warning,
-                VibrateType.Failure       => HapticPatterns.PresetType.Failure,
-                VibrateType.LightImpact   => HapticPatterns.PresetType.LightImpact,
-                VibrateType.MediumImpact  => HapticPatterns.PresetType.MediumImpact,
-                VibrateType.HeavyImpact   => HapticPatterns.PresetType.HeavyImpact,
-                VibrateType.RigidImpact   => HapticPatterns.PresetType.RigidImpact,
-                VibrateType.SoftImpact    => HapticPatterns.PresetType.SoftImpact,
-                _                         => HapticPatterns.PresetType.None,
+                VibrateType.Selection    => HapticPatterns.PresetType.Selection,
+                VibrateType.Success      => HapticPatterns.PresetType.Success,
+                VibrateType.Warning      => HapticPatterns.PresetType.Warning,
+                VibrateType.Failure      => HapticPatterns.PresetType.Failure,
+                VibrateType.LightImpact  => HapticPatterns.PresetType.LightImpact,
+                VibrateType.MediumImpact => HapticPatterns.PresetType.MediumImpact,
+                VibrateType.HeavyImpact  => HapticPatterns.PresetType.HeavyImpact,
+                VibrateType.RigidImpact  => HapticPatterns.PresetType.RigidImpact,
+                VibrateType.SoftImpact   => HapticPatterns.PresetType.SoftImpact,
+                _                        => HapticPatterns.PresetType.None,
             };
         }
 #endif

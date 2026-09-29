@@ -51,12 +51,16 @@ namespace Honor.Runtime
         /// <summary>是否显示（控制渲染器开关）</summary>
         public bool show = true;
 
+        /// <summary>上一帧显示状态（用于检测切换）</summary>
         private bool m_LastShowState;
 
+        /// <summary>当前消散高度（写入材质）</summary>
         private float m_Height;
-        private float m_HeightMin;
-        private float m_HeightMax;
+
+        /// <summary>消散起始高度</summary>
         private float m_HeightInit;
+
+        /// <summary>消散高度区间跨度</summary>
         private float m_HeightSize;
 
         /// <summary>角色渲染器集合</summary>
@@ -107,12 +111,18 @@ namespace Honor.Runtime
 
         #region 生命周期
 
+        /// <summary>
+        /// 初始化：采集渲染器并替换材质
+        /// </summary>
         protected override void Start()
         {
             base.Start();
             InitState();
         }
 
+        /// <summary>
+        /// 每帧更新显示状态切换与消散高度
+        /// </summary>
         protected override void Update()
         {
             base.Update();
@@ -157,6 +167,33 @@ namespace Honor.Runtime
         /// </summary>
         private void InitState()
         {
+            if (!CollectRenderers()) return;
+
+            if (smrs.Length == 0)
+            {
+                return;
+            }
+
+            enableRendererList.Clear();
+            disableRendererList.Clear();
+            originMats = new Material[smrs.Length][];
+
+            for (int i = 0; i < smrs.Length; ++i)
+            {
+                ReplaceRendererMaterials(i);
+            }
+
+            // 应用初始显示状态
+            m_LastShowState = show;
+            SetRenderersActive(show);
+        }
+
+        /// <summary>
+        /// 按外部对象→子节点→父级反查角色根的顺序收集渲染器
+        /// </summary>
+        /// <returns>是否成功取得渲染器集合</returns>
+        private bool CollectRenderers()
+        {
             if (setRoleObj != null)
             {
                 if (!setRoleObj.activeSelf)
@@ -173,7 +210,7 @@ namespace Honor.Runtime
                     roleRootTrans = GraphicsUtils.GetRoleRootTransform(transform, LayerMask.GetMask(DefLayer.Role));
                     if (roleRootTrans == null)
                     {
-                        return;
+                        return false;
                     }
                 }
 
@@ -184,84 +221,88 @@ namespace Honor.Runtime
                 smrs = GetComponentsInChildren<Renderer>();
             }
 
-            if (smrs.Length == 0)
+            return true;
+        }
+
+        /// <summary>
+        /// 为指定渲染器逐材质构建替换材质数组并回写
+        /// </summary>
+        /// <param name="i">渲染器下标</param>
+        private void ReplaceRendererMaterials(int i)
+        {
+            originMats[i] = smrs[i].sharedMaterials;
+            Material[] tmpMats = new Material[originMats[i].Length];
+
+            for (int j = 0; j < originMats[i].Length; ++j)
             {
-                return;
-            }
-
-            enableRendererList.Clear();
-            disableRendererList.Clear();
-            originMats = new Material[smrs.Length][];
-
-            for (int i = 0; i < smrs.Length; ++i)
-            {
-                originMats[i] = smrs[i].sharedMaterials;
-                Material[] tmpMats = new Material[originMats[i].Length];
-
-                for (int j = 0; j < originMats[i].Length; ++j)
+                Material originMat = originMats[i][j];
+                if (originMat == null)
                 {
-                    Material originMat = originMats[i][j];
-                    if (originMat == null)
-                    {
-                        tmpMats[j] = null;
-                        continue;
-                    }
-
-                    if (originMat.HasProperty("_RoleClip"))
-                    {
-                        // 支持角色裁切：复制材质并开启裁切关键字
-                        Material clipMat = new Material(originMat);
-                        clipMat.EnableKeyword("_ROLECLIP_ON");
-                        tmpMats[j] = clipMat;
-                        fxMatList.Add(clipMat);
-                        newMatList.Add(clipMat);
-                        if (!enableRendererList.Contains(smrs[i]))
-                        {
-                            enableRendererList.Add(smrs[i]);
-                        }
-                    }
-                    else if (originMat.shader != null && originMat.shader.name == "Honor/FX/FX_Shield")
-                    {
-                        // 护盾材质替换为空材质
-                        Material emptyMat = new Material(ShaderManager.Find("Honor/Model/Empty"));
-                        tmpMats[j] = emptyMat;
-                        newMatList.Add(emptyMat);
-                    }
-                    else
-                    {
-                        // 其余材质尝试匹配 _Clip 变体
-                        string clipName = originMat.shader != null ? originMat.shader.name + "_Clip" : null;
-                        Shader clipShader = clipName != null ? ShaderManager.Find(clipName) : null;
-                        if (clipShader != null)
-                        {
-                            Material clipMat = new Material(clipShader);
-                            clipMat.CopyPropertiesFromMaterial(originMat);
-                            tmpMats[j] = clipMat;
-                            fxMatList.Add(clipMat);
-                            newMatList.Add(clipMat);
-                            if (!enableRendererList.Contains(smrs[i]))
-                            {
-                                enableRendererList.Add(smrs[i]);
-                            }
-                        }
-                        else
-                        {
-                            // 无裁切变体：直接关闭该渲染器
-                            tmpMats[j] = originMat;
-                            if (!disableRendererList.Contains(smrs[i]))
-                            {
-                                disableRendererList.Add(smrs[i]);
-                            }
-                        }
-                    }
+                    tmpMats[j] = null;
+                    continue;
                 }
 
-                smrs[i].sharedMaterials = tmpMats;
+                tmpMats[j] = ResolveReplacementMaterial(smrs[i], originMat);
             }
 
-            // 应用初始显示状态
-            m_LastShowState = show;
-            SetRenderersActive(show);
+            smrs[i].sharedMaterials = tmpMats;
+        }
+
+        /// <summary>
+        /// 按材质属性/Shader决定替换材质，并维护启用/禁用渲染器列表
+        /// </summary>
+        /// <param name="renderer">所属渲染器</param>
+        /// <param name="originMat">原始材质</param>
+        /// <returns>替换后使用的材质</returns>
+        private Material ResolveReplacementMaterial(Renderer renderer, Material originMat)
+        {
+            if (originMat.HasProperty("_RoleClip"))
+            {
+                // 支持角色裁切：复制材质并开启裁切关键字
+                Material clipMat = new Material(originMat);
+                clipMat.EnableKeyword("_ROLECLIP_ON");
+                fxMatList.Add(clipMat);
+                newMatList.Add(clipMat);
+                if (!enableRendererList.Contains(renderer))
+                {
+                    enableRendererList.Add(renderer);
+                }
+                return clipMat;
+            }
+            else if (originMat.shader != null && originMat.shader.name == "Honor/FX/FX_Shield")
+            {
+                // 护盾材质替换为空材质
+                Material emptyMat = new Material(ShaderManager.Find("Honor/Model/Empty"));
+                newMatList.Add(emptyMat);
+                return emptyMat;
+            }
+            else
+            {
+                // 其余材质尝试匹配 _Clip 变体
+                string clipName = originMat.shader != null ? originMat.shader.name + "_Clip" : null;
+                Shader clipShader = clipName != null ? ShaderManager.Find(clipName) : null;
+                if (clipShader != null)
+                {
+                    Material clipMat = new Material(clipShader);
+                    clipMat.CopyPropertiesFromMaterial(originMat);
+                    fxMatList.Add(clipMat);
+                    newMatList.Add(clipMat);
+                    if (!enableRendererList.Contains(renderer))
+                    {
+                        enableRendererList.Add(renderer);
+                    }
+                    return clipMat;
+                }
+                else
+                {
+                    // 无裁切变体：直接关闭该渲染器
+                    if (!disableRendererList.Contains(renderer))
+                    {
+                        disableRendererList.Add(renderer);
+                    }
+                    return originMat;
+                }
+            }
         }
 
         /// <summary>批量开关渲染器</summary>

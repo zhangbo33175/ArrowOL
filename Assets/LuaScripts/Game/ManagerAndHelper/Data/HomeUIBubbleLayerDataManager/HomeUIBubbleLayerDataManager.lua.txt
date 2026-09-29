@@ -57,26 +57,9 @@ end
 ---@return Tables.HomeUIBubbleLayers_Item 气泡层级配置
 ---=========================================================================
 function HomeUIBubbleLayerDataManager:GetDataById(id)
-    -- 配置表不存在直接返回默认
-    if not Tables or not Tables.HomeUIBubbleLayers then
-        PrintError("[HomeUIBubbleLayerDataManager] Tables.HomeUIBubbleLayers 配置表缺失！")
-        return nil
-    end
-
-    -- 空ID → 返回默认普通气泡
-    if id == nil then
-        PrintError("[HomeUIBubbleLayerDataManager] GetDataById id is nil → 使用默认 NormalUIBubble")
-        return Tables.HomeUIBubbleLayers[EGameElementUIBubbleType.NormalUIBubble]
-    end
-
-    local cfg = Tables.HomeUIBubbleLayers[id]
-    -- 配置不存在 → 降级为默认
-    if not cfg then
-        PrintDebug("[HomeUIBubbleLayerDataManager] 未找到类型:"..tostring(id).." → 使用默认")
-        return Tables.HomeUIBubbleLayers[EGameElementUIBubbleType.NormalUIBubble]
-    end
-
-    return cfg
+    -- 表缺失/nil id/未命中 三级降级逻辑抽离至 GameFunctions.SafeGetTableEntry
+    return SafeGetTableEntry(Tables, "HomeUIBubbleLayers", id,
+        EGameElementUIBubbleType.NormalUIBubble, "[HomeUIBubbleLayerDataManager]")
 end
 
 ---=========================================================================

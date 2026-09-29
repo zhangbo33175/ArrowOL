@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  AorTextPicMixed.Collect.cs
+ * filename:  AorTextPicMixed.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   图文混排 - 图标采集与资源加载（partial）

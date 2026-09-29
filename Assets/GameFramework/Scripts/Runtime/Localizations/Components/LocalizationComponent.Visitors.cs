@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LocalizationComponent.Fields.cs
+ * filename:  LocalizationComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   多语言本地化组件 - 字段与属性（partial）

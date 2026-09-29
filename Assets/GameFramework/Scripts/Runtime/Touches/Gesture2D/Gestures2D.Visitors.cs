@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  Gestures2D.Config.cs
+ * filename:  Gestures2D.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   2D相机手势控制器 - 配置与字段分部类
@@ -690,11 +690,6 @@ namespace Honor.Runtime
         ///【缩放】缩放惯性稳定回调是否已经结束
         /// </summary>
         private bool m_IsPinchStableCallbackOver = true;
-
-        /// <summary>
-        ///【滑动、缩放】本轮是否已经滑动或缩放过
-        /// </summary>
-        private bool m_AlreadySwipedOrPinchedOnThisRound = false;
 
         /// <summary>
         ///【滑动、缩放】滑动缩放手势结束后的安全时间间隔计数器

@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Honor.Runtime
 {
@@ -30,14 +31,14 @@ namespace Honor.Runtime
         /// Key：条目名称
         /// Value：数据内容（字符串存储）
         /// </summary>
-        private readonly SortedDictionary<string, string> m_Items = new SortedDictionary<string, string>();
+        private readonly SortedDictionary<string, string> m_Store = new SortedDictionary<string, string>();
 
         /// <summary>
         /// 获取数据集合（只读）
         /// </summary>
         public SortedDictionary<string, string> Items
         {
-            get { return m_Items; }
+            get { return m_Store; }
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace Honor.Runtime
         /// </summary>
         public int Count
         {
-            get { return m_Items.Count; }
+            get { return m_Store.Count; }
         }
 
         #endregion
@@ -72,15 +73,7 @@ namespace Honor.Runtime
         /// </summary>
         public string[] GetAllItemNames()
         {
-            string[] allItemNames = new string[m_Items.Count];
-
-            int index = 0;
-            foreach (KeyValuePair<string, string> item in m_Items)
-            {
-                allItemNames[index++] = item.Key;
-            }
-
-            return allItemNames;
+            return m_Store.Keys.ToArray();
         }
 
         /// <summary>
@@ -94,7 +87,7 @@ namespace Honor.Runtime
                 throw new Exception("Results 无效。");
             }
             results.Clear();
-            results.AddRange(m_Items.Keys);
+            results.AddRange(m_Store.Keys);
         }
 
         /// <summary>
@@ -103,7 +96,7 @@ namespace Honor.Runtime
         /// <param name="itemName">条目名称</param>
         public bool HasItem(string itemName)
         {
-            return m_Items.ContainsKey(itemName);
+            return m_Store.ContainsKey(itemName);
         }
 
         #endregion
@@ -117,7 +110,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool RemoveItem(string itemName)
         {
-            return m_Items.Remove(itemName);
+            return m_Store.Remove(itemName);
         }
 
         /// <summary>
@@ -125,7 +118,35 @@ namespace Honor.Runtime
         /// </summary>
         public void RemoveAllItems()
         {
-            m_Items.Clear();
+            m_Store.Clear();
+        }
+
+        #endregion
+
+        //=========================================================================
+        #region 内部读取辅助
+        //=========================================================================
+
+        /// <summary>
+        /// 尝试读取条目的原始字符串值
+        /// </summary>
+        /// <param name="itemName">条目名称</param>
+        /// <param name="warnIfMissing">条目缺失时是否打印告警</param>
+        /// <param name="raw">命中时输出原始字符串</param>
+        /// <returns>命中返回 true</returns>
+        private bool TryReadRaw(string itemName, bool warnIfMissing, out string raw)
+        {
+            if (m_Store.TryGetValue(itemName, out raw))
+            {
+                return true;
+            }
+
+            if (warnIfMissing)
+            {
+                Log.Warning("条目 '{0}' 不存在。", itemName);
+            }
+
+            return false;
         }
 
         #endregion
@@ -139,14 +160,12 @@ namespace Honor.Runtime
         /// </summary>
         public bool GetBool(string itemName)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
+            if (!TryReadRaw(itemName, true, out string raw))
             {
-                Log.Warning("条目 '{0}' 不存在。", itemName);
                 return false;
             }
 
-            return int.Parse(value) != 0;
+            return int.Parse(raw) != 0;
         }
 
         /// <summary>
@@ -154,13 +173,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool GetBool(string itemName, bool defaultValue)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
-            {
-                return defaultValue;
-            }
-
-            return int.Parse(value) != 0;
+            return TryReadRaw(itemName, false, out string raw) ? int.Parse(raw) != 0 : defaultValue;
         }
 
         /// <summary>
@@ -168,7 +181,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetBool(string itemName, bool value)
         {
-            m_Items[itemName] = value ? "1" : "0";
+            m_Store[itemName] = value ? "1" : "0";
         }
 
         #endregion
@@ -182,14 +195,12 @@ namespace Honor.Runtime
         /// </summary>
         public int GetInt(string itemName)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
+            if (!TryReadRaw(itemName, true, out string raw))
             {
-                Log.Warning("条目 '{0}' 不存在。", itemName);
                 return 0;
             }
 
-            return int.Parse(value);
+            return int.Parse(raw);
         }
 
         /// <summary>
@@ -197,13 +208,7 @@ namespace Honor.Runtime
         /// </summary>
         public int GetInt(string itemName, int defaultValue)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
-            {
-                return defaultValue;
-            }
-
-            return int.Parse(value);
+            return TryReadRaw(itemName, false, out string raw) ? int.Parse(raw) : defaultValue;
         }
 
         /// <summary>
@@ -211,7 +216,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetInt(string itemName, int value)
         {
-            m_Items[itemName] = value.ToString();
+            m_Store[itemName] = value.ToString();
         }
 
         #endregion
@@ -225,14 +230,12 @@ namespace Honor.Runtime
         /// </summary>
         public float GetFloat(string itemName)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
+            if (!TryReadRaw(itemName, true, out string raw))
             {
-                Log.Warning("条目 '{0}' 不存在。", itemName);
                 return 0f;
             }
 
-            return float.Parse(value);
+            return float.Parse(raw);
         }
 
         /// <summary>
@@ -240,13 +243,7 @@ namespace Honor.Runtime
         /// </summary>
         public float GetFloat(string itemName, float defaultValue)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
-            {
-                return defaultValue;
-            }
-
-            return float.Parse(value);
+            return TryReadRaw(itemName, false, out string raw) ? float.Parse(raw) : defaultValue;
         }
 
         /// <summary>
@@ -254,7 +251,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetFloat(string itemName, float value)
         {
-            m_Items[itemName] = value.ToString();
+            m_Store[itemName] = value.ToString();
         }
 
         #endregion
@@ -268,14 +265,12 @@ namespace Honor.Runtime
         /// </summary>
         public string GetString(string itemName)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
+            if (!TryReadRaw(itemName, true, out string raw))
             {
-                Log.Warning("条目 '{0}' 不存在。", itemName);
                 return null;
             }
 
-            return value;
+            return raw;
         }
 
         /// <summary>
@@ -283,13 +278,7 @@ namespace Honor.Runtime
         /// </summary>
         public string GetString(string itemName, string defaultValue)
         {
-            string value = null;
-            if (!m_Items.TryGetValue(itemName, out value))
-            {
-                return defaultValue;
-            }
-
-            return value;
+            return TryReadRaw(itemName, false, out string raw) ? raw : defaultValue;
         }
 
         /// <summary>
@@ -297,7 +286,7 @@ namespace Honor.Runtime
         /// </summary>
         public void SetString(string itemName, string value)
         {
-            m_Items[itemName] = value;
+            m_Store[itemName] = value;
         }
 
         #endregion
@@ -313,14 +302,15 @@ namespace Honor.Runtime
         /// <param name="fs">文件流</param>
         public bool Serialize(FileStream fs)
         {
-            JObject jObject = new JObject();
-            foreach (var item in m_Items)
+            JObject json = new JObject();
+            foreach (KeyValuePair<string, string> entry in m_Store)
             {
-                jObject[item.Key] = item.Value;
+                json[entry.Key] = entry.Value;
             }
-            string encodedContent = AESEncrypt.EncodeToBase64(GZip.CompressToBase64(jObject.ToString()));
-            byte[] bytes = Converter.GetBytesByString(encodedContent);
-            fs.Write(bytes, 0, bytes.Length);
+
+            string encoded = AESEncrypt.EncodeToBase64(GZip.CompressToBase64(json.ToString()));
+            byte[] rawBytes = Converter.GetBytesByString(encoded);
+            fs.Write(rawBytes, 0, rawBytes.Length);
             return true;
         }
 
@@ -331,17 +321,19 @@ namespace Honor.Runtime
         /// <param name="reader">流读取器</param>
         public void Deserialize(StreamReader reader)
         {
-            m_Items.Clear();
+            m_Store.Clear();
             string content = reader.ReadToEnd();
-            if (!string.IsNullOrEmpty(content))
+            if (string.IsNullOrEmpty(content))
             {
-                string decodedContent = AESEncrypt.DecodeFromBase64(content);
-                string uncompressedContent = GZip.UncompressFromBase64(decodedContent);
-                JObject jObject = JObject.Parse(uncompressedContent);
-                foreach (var itr in jObject)
-                {
-                    m_Items.Add(itr.Key, itr.Value.ToString());
-                }
+                return;
+            }
+
+            string decoded = AESEncrypt.DecodeFromBase64(content);
+            string plain = GZip.UncompressFromBase64(decoded);
+            JObject json = JObject.Parse(plain);
+            foreach (var pair in json)
+            {
+                m_Store.Add(pair.Key, pair.Value.ToString());
             }
         }
 

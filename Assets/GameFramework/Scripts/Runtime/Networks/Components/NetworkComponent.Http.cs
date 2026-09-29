@@ -22,6 +22,47 @@ namespace Honor.Runtime
     public sealed partial class NetworkComponent : GameComponent
     {
         //=========================================================================
+        #region 参数校验辅助
+        //=========================================================================
+
+#if BEST_HTTP_ENABLE
+        /// <summary>
+        /// 校验请求地址是否非空
+        /// </summary>
+        /// <param name="url">待校验地址</param>
+        /// <returns>地址有效返回 true，否则记录错误并返回 false</returns>
+        private bool EnsureRequestUrl(string url)
+        {
+            if (!string.IsNullOrEmpty(url))
+            {
+                return true;
+            }
+
+            Log.Error("NetworkComponent HTTP 请求地址 url 无效。");
+            return false;
+        }
+
+        /// <summary>
+        /// 校验引用型参数是否非空
+        /// </summary>
+        /// <param name="arg">待校验参数</param>
+        /// <param name="argName">参数名（用于错误日志）</param>
+        /// <returns>非空返回 true，否则记录错误并返回 false</returns>
+        private bool EnsureArgNotNull(object arg, string argName)
+        {
+            if (arg != null)
+            {
+                return true;
+            }
+
+            Log.Error($"NetworkComponent HTTP 请求参数 {argName} 无效。");
+            return false;
+        }
+#endif
+
+        #endregion
+
+        //=========================================================================
         #region HTTP 请求接口（BestHTTP）
         //=========================================================================
 
@@ -44,13 +85,12 @@ namespace Honor.Runtime
             float connectTimeout = -1f,
             string headerInfos = null)
         {
-            if (string.IsNullOrEmpty(url))
+            if (!EnsureRequestUrl(url))
             {
-                Log.Error("NetworkComponent.HttpRequestOnGet url 无效。");
                 return;
             }
 
-            m_NetworkManager.HttpRequestOnGet(
+            m_Network.HttpRequestOnGet(
                 url,
                 finishedCallback,
                 keepAlive,
@@ -71,18 +111,17 @@ namespace Honor.Runtime
             float connectTimeout = -1f,
             string headerInfos = null)
         {
-            if (string.IsNullOrEmpty(url))
+            if (!EnsureRequestUrl(url))
             {
-                Log.Error("NetworkComponent.HttpRequestOnPostWithData url 无效。");
                 return;
             }
             if (string.IsNullOrEmpty(contentString))
             {
-                Log.Error("NetworkComponent.HttpRequestOnPostWithData jsonString 无效。");
+                Log.Error("NetworkComponent HTTP 请求内容 contentString 无效。");
                 return;
             }
 
-            m_NetworkManager.HttpRequestOnPost(
+            m_Network.HttpRequestOnPost(
                 url,
                 contentString,
                 finishedCallback,
@@ -105,18 +144,16 @@ namespace Honor.Runtime
             float connectTimeout = -1f,
             string headerInfos = null)
         {
-            if (string.IsNullOrEmpty(url))
+            if (!EnsureRequestUrl(url))
             {
-                Log.Error("NetworkComponent.HttpRequestOnPostWithRawData url 无效。");
                 return;
             }
-            if (contentBytes == null)
+            if (!EnsureArgNotNull(contentBytes, "contentBytes"))
             {
-                Log.Error("NetworkComponent.HttpRequestOnPostWithRawData contentBytes 无效。");
                 return;
             }
 
-            m_NetworkManager.HttpRequestOnPostWithRawData(
+            m_Network.HttpRequestOnPostWithRawData(
                 url,
                 contentBytes,
                 finishedCallback,
@@ -141,23 +178,21 @@ namespace Honor.Runtime
             float connectTimeout = -1f,
             string headerInfos = null)
         {
-            if (string.IsNullOrEmpty(url))
+            if (!EnsureRequestUrl(url))
             {
-                Log.Error("NetworkComponent.HttpRequestOnPostWithFile url 无效。");
                 return;
             }
-            if (fileBytes == null)
+            if (!EnsureArgNotNull(fileBytes, "fileBytes"))
             {
-                Log.Error("NetworkComponent.HttpRequestOnPostWithFile fileBytes 无效。");
                 return;
             }
             if (string.IsNullOrEmpty(fileName))
             {
-                Log.Error("NetworkComponent.HttpRequestOnPostWithFile fileName 无效。");
+                Log.Error("NetworkComponent HTTP 上传文件名 fileName 无效。");
                 return;
             }
 
-            m_NetworkManager.HttpRequestOnPostWithFile(
+            m_Network.HttpRequestOnPostWithFile(
                 url,
                 customJsonData,
                 fileBytes,

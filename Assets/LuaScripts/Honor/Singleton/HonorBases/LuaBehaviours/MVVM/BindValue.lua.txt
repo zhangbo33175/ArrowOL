@@ -17,254 +17,254 @@ local BindValue = class("BindValue")
 
 --- 操作类型枚举（值变化 / 列表增删改查）
 BindValueOperate = {
-	ValueChanged         = "ValueChanged",           -- 普通值变化
-	ValueItemChanged     = "ValueItemChanged",       -- 列表元素修改
-	ValueItemAdded       = "ValueItemAdded",         -- 列表元素添加
-	ValueItemInserted    = "ValueItemInserted",      -- 列表元素插入
-	ValueItemRemoved     = "ValueItemRemoved",       -- 列表元素移除
-	ValueItemsAllRemoved = "ValueItemsAllRemoved"    -- 列表清空
+    ValueChanged         = "ValueChanged",           -- 普通值变化
+    ValueItemChanged     = "ValueItemChanged",       -- 列表元素修改
+    ValueItemAdded       = "ValueItemAdded",         -- 列表元素添加
+    ValueItemInserted    = "ValueItemInserted",      -- 列表元素插入
+    ValueItemRemoved     = "ValueItemRemoved",       -- 列表元素移除
+    ValueItemsAllRemoved = "ValueItemsAllRemoved"    -- 列表清空
 }
 
---- 构造函数
+---@brief 构造函数
 ---@param args table {name:变量名, value:初始值, isTrigger:是否触发型}
 function BindValue:ctor(args)
-	self._args = args                                       -- 构造参数
-	self._handlers = {}                                     -- 数据变化回调函数列表
+    self._args = args                                       -- 构造参数
+    self._handlers = {}                                     -- 数据变化回调函数列表
 
-	-- 数据实体
-	self._data = {
-		name = args.name,
-		value = nil,
-		isTrigger = args.isTrigger or false
-	}
+    -- 数据实体
+    self._data = {
+        name = args.name,
+        value = nil,
+        isTrigger = args.isTrigger or false
+    }
 
-	-- 触发器类型默认值为 false
-	if self._data.isTrigger then
-		self._data.value = false
-	end
+    -- 触发器类型默认值为 false
+    if self._data.isTrigger then
+        self._data.value = false
+    end
 
-	-- 元表拦截赋值，实现自动监听
-	self._guiderData = {}
-	setmetatable(self._guiderData, {
-		__index = function(t, k)
-			return self._data[k]
-		end,
-		__newindex = function(t, k, v)
-			if self._data[k] ~= v then
-				local old = self._data[k]
-				self._data[k] = v
-				-- 触发变化事件
-				self:_OnChanged(old, v, BindValueOperate.ValueChanged, nil)
-				-- 触发型变量自动复位
-				if self._data.isTrigger then
-					self._data[k] = false
-				end
-			end
-		end
-	})
+    -- 元表拦截赋值，实现自动监听
+    self._guiderData = {}
+    setmetatable(self._guiderData, {
+        __index = function(t, k)
+            return self._data[k]
+        end,
+        __newindex = function(t, k, v)
+            if self._data[k] ~= v then
+                local old = self._data[k]
+                self._data[k] = v
+                -- 触发变化事件
+                self:_OnChanged(old, v, BindValueOperate.ValueChanged, nil)
+                -- 触发型变量自动复位
+                if self._data.isTrigger then
+                    self._data[k] = false
+                end
+            end
+        end
+    })
 end
 
---- 创建实例
+---@brief 创建实例
 ---@param args table
 ---@return BindValue
 function BindValue:Create(args)
-	local obj = BindValue.new(args)
-	return obj
+    local obj = BindValue.new(args)
+    return obj
 end
 
 --------------------------------------------------------------------------------
 -- 【基础值操作】
 --------------------------------------------------------------------------------
 
---- 设置值（自动触发变化）
+---@brief 设置值（自动触发变化）
 ---@param value any
 function BindValue:SetValue(value)
-	self._guiderData.value = value
+    self._guiderData.value = value
 end
 
---- 获取值
+---@brief 获取值
 ---@return any
 function BindValue:GetValue()
-	return self._guiderData.value
+    return self._guiderData.value
 end
 
 --------------------------------------------------------------------------------
 -- 【数组/列表操作】
 --------------------------------------------------------------------------------
 
---- 设置列表指定下标元素
+---@brief 设置列表指定下标元素
 ---@param index number
 ---@param itemValue any
 function BindValue:SetValueItem(index, itemValue)
-	if self._guiderData.value == nil then
-		self._guiderData.value = {}
-	end
-	if type(self._guiderData.value) == "table" then
-		if self._guiderData.value[index] ~= itemValue then
-			self._guiderData.value[index] = itemValue
-			self:_OnChanged(nil, nil, BindValueOperate.ValueItemChanged, itemValue)
-		end
-	end
+    if self._guiderData.value == nil then
+        self._guiderData.value = {}
+    end
+    if type(self._guiderData.value) == "table" then
+        if self._guiderData.value[index] ~= itemValue then
+            self._guiderData.value[index] = itemValue
+            self:_OnChanged(nil, nil, BindValueOperate.ValueItemChanged, itemValue)
+        end
+    end
 end
 
---- 获取列表指定下标元素
+---@brief 获取列表指定下标元素
 ---@param index number
 ---@return any
 function BindValue:GetValueItem(index)
-	if type(self._guiderData.value) == "table" then
-		return self._guiderData.value[index]
-	end
-	return nil
+    if type(self._guiderData.value) == "table" then
+        return self._guiderData.value[index]
+    end
+    return nil
 end
 
---- 获取列表数量
+---@brief 获取列表数量
 ---@return number
 function BindValue:GetValueItemsCount()
-	if type(self._guiderData.value) == "table" then
-		return #self._guiderData.value
-	end
-	return 0
+    if type(self._guiderData.value) == "table" then
+        return #self._guiderData.value
+    end
+    return 0
 end
 
---- 添加元素到列表
+---@brief 添加元素到列表
 ---@param itemValue any
 function BindValue:AddValueItem(itemValue)
-	if self._guiderData.value == nil then
-		self._guiderData.value = {}
-	end
-	if type(self._guiderData.value) == "table" then
-		table.insert(self._guiderData.value, itemValue)
-		self:_OnChanged(nil, nil, BindValueOperate.ValueItemAdded, itemValue)
-	end
+    if self._guiderData.value == nil then
+        self._guiderData.value = {}
+    end
+    if type(self._guiderData.value) == "table" then
+        table.insert(self._guiderData.value, itemValue)
+        self:_OnChanged(nil, nil, BindValueOperate.ValueItemAdded, itemValue)
+    end
 end
 
---- 插入元素到列表
+---@brief 插入元素到列表
 ---@param index number
 ---@param itemValue any
 function BindValue:InsertValueItem(index, itemValue)
-	if self._guiderData.value == nil then
-		self._guiderData.value = {}
-	end
-	if type(self._guiderData.value) == "table" then
-		if index >= 1 and index <= #self._guiderData.value + 1 then
-			table.insert(self._guiderData.value, index, itemValue)
-			self:_OnChanged(nil, nil, BindValueOperate.ValueItemInserted, itemValue)
-		end
-	end
+    if self._guiderData.value == nil then
+        self._guiderData.value = {}
+    end
+    if type(self._guiderData.value) == "table" then
+        if index >= 1 and index <= #self._guiderData.value + 1 then
+            table.insert(self._guiderData.value, index, itemValue)
+            self:_OnChanged(nil, nil, BindValueOperate.ValueItemInserted, itemValue)
+        end
+    end
 end
 
---- 移除指定元素
+---@brief 移除指定元素
 ---@param itemValue any
 ---@param removeAll boolean
 ---@return boolean
 function BindValue:RemoveValueItem(itemValue, removeAll)
-	if type(self._guiderData.value) == "table" then
-		if itemValue ~= nil then
-			removeAll = removeAll or false
-			if table.removebyvalue and table.removebyvalue(self._guiderData.value, itemValue, removeAll) > 0 then
-				self:_OnChanged(nil, nil, BindValueOperate.ValueItemRemoved, itemValue)
-				return true
-			end
-		end
-	end
-	return false
+    if type(self._guiderData.value) == "table" then
+        if itemValue ~= nil then
+            removeAll = removeAll or false
+            if table.removebyvalue and table.removebyvalue(self._guiderData.value, itemValue, removeAll) > 0 then
+                self:_OnChanged(nil, nil, BindValueOperate.ValueItemRemoved, itemValue)
+                return true
+            end
+        end
+    end
+    return false
 end
 
---- 移除指定下标元素
+---@brief 移除指定下标元素
 ---@param index number
 ---@return boolean
 function BindValue:RemoveValueItemAt(index)
-	if type(self._guiderData.value) == "table" then
-		if index >= 1 and index <= #self._guiderData.value then
-			local itemValue = self._guiderData.value[index]
-			table.remove(self._guiderData.value, index)
-			self:_OnChanged(nil, nil, BindValueOperate.ValueItemRemoved, itemValue)
-			return true
-		end
-	end
-	return false
+    if type(self._guiderData.value) == "table" then
+        if index >= 1 and index <= #self._guiderData.value then
+            local itemValue = self._guiderData.value[index]
+            table.remove(self._guiderData.value, index)
+            self:_OnChanged(nil, nil, BindValueOperate.ValueItemRemoved, itemValue)
+            return true
+        end
+    end
+    return false
 end
 
---- 清空列表
+---@brief 清空列表
 function BindValue:RemoveAllValueItems()
-	if type(self._guiderData.value) == "table" then
-		for i = #self._guiderData.value, 1, -1 do
-			table.remove(self._guiderData.value, i)
-		end
-		self:_OnChanged(nil, nil, BindValueOperate.ValueItemsAllRemoved, nil)
-	end
+    if type(self._guiderData.value) == "table" then
+        for i = #self._guiderData.value, 1, -1 do
+            table.remove(self._guiderData.value, i)
+        end
+        self:_OnChanged(nil, nil, BindValueOperate.ValueItemsAllRemoved, nil)
+    end
 end
 
---- 是否包含元素
+---@brief 是否包含元素
 ---@param itemValue any
 ---@return boolean
 function BindValue:ContainsValueItem(itemValue)
-	if type(self._guiderData.value) == "table" then
-		if FindValueInTable and FindValueInTable(self._guiderData.value, itemValue) ~= nil then
-			return true
-		end
-	end
-	return false
+    if type(self._guiderData.value) == "table" then
+        if FindValueInTable and FindValueInTable(self._guiderData.value, itemValue) ~= nil then
+            return true
+        end
+    end
+    return false
 end
 
---- 获取元素下标
+---@brief 获取元素下标
 ---@param itemValue any
 ---@return number
 function BindValue:IndexOfValueItem(itemValue)
-	if type(self._guiderData.value) == "table" then
-		if FindValueInTable then
-			local index = FindValueInTable(self._guiderData.value, itemValue)
-			return index or 0
-		end
-	end
-	return 0
+    if type(self._guiderData.value) == "table" then
+        if FindValueInTable then
+            local index = FindValueInTable(self._guiderData.value, itemValue)
+            return index or 0
+        end
+    end
+    return 0
 end
 
 --------------------------------------------------------------------------------
 -- 【回调事件】
 --------------------------------------------------------------------------------
 
---- 添加变化监听
+---@brief 添加变化监听
 ---@param handler table
 function BindValue:AddHandler(handler)
-	if not handler then return end
-	for _, h in ipairs(self._handlers) do
-		if h.target == handler.target and h.method == handler.method then
-			return
-		end
-	end
-	table.insert(self._handlers, handler)
+    if not handler then return end
+    for _, h in ipairs(self._handlers) do
+        if h.target == handler.target and h.method == handler.method then
+            return
+        end
+    end
+    table.insert(self._handlers, handler)
 end
 
---- 移除监听
+---@brief 移除监听
 ---@param handler table
 function BindValue:DeleteHandler(handler)
-	if not handler then return end
-	for i = #self._handlers, 1, -1 do
-		local h = self._handlers[i]
-		if h.target == handler.target and h.method == handler.method then
-			table.remove(self._handlers, i)
-			break
-		end
-	end
+    if not handler then return end
+    for i = #self._handlers, 1, -1 do
+        local h = self._handlers[i]
+        if h.target == handler.target and h.method == handler.method then
+            table.remove(self._handlers, i)
+            break
+        end
+    end
 end
 
---- 清空所有监听
+---@brief 清空所有监听
 function BindValue:CleanAllHandlers()
-	self._handlers = {}
+    self._handlers = {}
 end
 
---- 数据变化内部回调（触发所有注册函数）
+---@brief 数据变化内部回调（触发所有注册函数）
 ---@param old any
 ---@param new any
 ---@param operate string
 ---@param valueItem any
 function BindValue:_OnChanged(old, new, operate, valueItem)
-	for _, handler in ipairs(self._handlers) do
-		if handler and handler.func then
-			handler.func(old, new, operate, valueItem)
-		end
-	end
+    for _, handler in ipairs(self._handlers) do
+        if handler and handler.func then
+            handler.func(old, new, operate, valueItem)
+        end
+    end
 end
 --endregion
 

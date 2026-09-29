@@ -25,7 +25,10 @@ namespace Honor.Runtime
         /// <summary>噪点纹理（溶解随机源）</summary>
         public Texture noiseTexture;
 
+        /// <summary>溶解后处理 Shader</summary>
         private Shader m_PeShader;
+
+        /// <summary>溶解后处理材质</summary>
         private Material m_PeMat;
 
         /// <summary>溶解帧数</summary>
@@ -81,6 +84,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 初始化遮罩推进速度并激活底层相机
+        /// </summary>
         private void Start()
         {
             m_Mask = initMask;
@@ -121,6 +127,9 @@ namespace Honor.Runtime
             return true;
         }
 
+        /// <summary>
+        /// 每帧推进遮罩，低于 -1 后销毁自身
+        /// </summary>
         private void Update()
         {
 #if UNITY_EDITOR
@@ -142,6 +151,11 @@ namespace Honor.Runtime
 
         #region 渲染
 
+        /// <summary>
+        /// 渲染回调：应用溶解材质参数后 Blit 到目标
+        /// </summary>
+        /// <param name="source">源渲染纹理</param>
+        /// <param name="destination">目标渲染纹理</param>
         private void OnRenderImage(RenderTexture source, RenderTexture destination)
         {
             if (!CheckResources())
@@ -164,6 +178,9 @@ namespace Honor.Runtime
             Graphics.Blit(source, destination, m_PeMat);
         }
 
+        /// <summary>
+        /// 销毁时释放材质并还原底层相机
+        /// </summary>
         private void OnDestroy()
         {
             if (m_PeMat != null)

@@ -21,7 +21,7 @@
 ---@field resetHandler function 对象取出时的重置函数（重置状态、位置、动画等）
 local HonorPool = class("HonorPool")
 
---- 构造函数
+---@brief 构造函数
 ---@param name string 对象池唯一名称
 ---@param resDefItem RES_DEF_ITEM 资源配置数据
 ---@param preParent UnityEngine.Transform 空闲对象父节点
@@ -37,14 +37,14 @@ function HonorPool:ctor(name, resDefItem, preParent, resetHandler)
     self.preParent.gameObject.name = "HonorPool:" .. self.name .. "(" .. self.unusedQueue:Count() .. ")"
 end
 
---- 创建对象池实例（工厂方法）
+---@brief 创建对象池实例（工厂方法）
 ---@return HonorPool 对象池实例
 function HonorPool:Create(name, resDefItem, preParent, resetHandler)
     local obj = HonorPool.new(name, resDefItem, preParent, resetHandler)
     return obj
 end
 
---- 预热对象池（预创建指定数量对象，避免游戏运行中卡顿）
+---@brief 预热对象池（预创建指定数量对象，避免游戏运行中卡顿）
 ---@param count number 预创建的对象数量
 function HonorPool:Prewarm(count)
     for _ = 1, count do
@@ -55,7 +55,7 @@ function HonorPool:Prewarm(count)
     end
 end
 
---- 回收对象（将使用中的对象放回对象池）
+---@brief 回收对象（将使用中的对象放回对象池）
 ---@param go UnityEngine.GameObject 要回收的游戏对象
 function HonorPool:Put(go)
     if IsNull(self.preParent) then
@@ -78,7 +78,7 @@ function HonorPool:Put(go)
     end
 end
 
---- 获取对象（无空闲则创建，有空闲则复用）
+---@brief 获取对象（无空闲则创建，有空闲则复用）
 ---@param newParent UnityEngine.Transform 新父节点（不传则使用池默认父节点）
 ---@return UnityEngine.GameObject 可用的游戏对象
 function HonorPool:Get(newParent)
@@ -118,7 +118,7 @@ function HonorPool:Get(newParent)
     return go
 end
 
---- 回收所有正在使用的对象（一键回收）
+---@brief 回收所有正在使用的对象（一键回收）
 function HonorPool:RecycleAll()
     local count = self.usedList:Count()
     -- 倒序遍历安全回收
@@ -129,7 +129,7 @@ function HonorPool:RecycleAll()
     self.usedList:Clear()
 end
 
---- 销毁整个对象池（释放全部内存，场景切换时调用）
+---@brief 销毁整个对象池（释放全部内存，场景切换时调用）
 function HonorPool:Destroy()
     -- 先回收所有活跃对象
     self:RecycleAll()
@@ -149,7 +149,7 @@ function HonorPool:Destroy()
     end
 end
 
---- 仅销毁空闲对象（释放闲置内存，不影响正在使用的对象）
+---@brief 仅销毁空闲对象（释放闲置内存，不影响正在使用的对象）
 function HonorPool:DestroyUnused()
     for _ = self.unusedQueue:Count(), 1, -1 do
         local go = self.unusedQueue:Dequeue()

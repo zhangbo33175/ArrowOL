@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  NetworkComponent.cs
+ * filename:  NetworkComponent.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   网络管理组件 - 结构占位分部类

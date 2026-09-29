@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  PrefabDetailTypeDefine.cs
+ * filename:  PrefabDetailType.cs
  * author:    云毅
  * created:   2026
  * descrip:   预制体详细类型枚举 - 区分UI与普通GameObject，用于差异化管理

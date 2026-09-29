@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  GameExtensionForUnity.Physics3D.cs
+ * filename:  GameExtensionForUnity.Vector3.cs
  * author:    云毅
  * created:   2025
  * descrip:   3D物理射线检测扩展方法
@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
-   /// <summary>
+    /// <summary>
     /// Unity 3D 物理检测扩展方法
     /// <para>提供 3D 射线检测、物体碰撞检测等便捷功能</para>
     /// </summary>

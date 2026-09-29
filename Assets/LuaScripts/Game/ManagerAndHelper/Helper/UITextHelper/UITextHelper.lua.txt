@@ -17,13 +17,13 @@ local UITextHelper = class("UITextHelper")
 --region 构造 & 实例化
 
 ---=========================================================================
---- 构造函数
+---@brief 构造函数
 ---=========================================================================
 function UITextHelper:ctor(args)
 end
 
 ---=========================================================================
---- 创建工具类实例
+---@brief 创建工具类实例
 ---@return UITextHelper
 ---=========================================================================
 function UITextHelper:Create(args)
@@ -35,7 +35,7 @@ end
 --region 数字动画对外接口
 
 ---=========================================================================
---- 播放数字动画（推荐：绑定 UI，关闭时自动停止协程，安全无泄漏）
+---@brief 播放数字动画（推荐：绑定 UI，关闭时自动停止协程，安全无泄漏）
 ---@param luaBehaviour LuaBehaviourSuper 脚本宿主
 ---@param textComponent UnityEngine.UI.MaskableGraphic 文本组件
 ---@param startValue number 起始数字
@@ -79,7 +79,7 @@ function UITextHelper:PlayNumberAnimation(
 end
 
 ---=========================================================================
---- 播放独立数字动画（不绑定 UI，需手动管理，可能泄漏）
+---@brief 播放独立数字动画（不绑定 UI，需手动管理，可能泄漏）
 ---@param textComponent UnityEngine.UI.MaskableGraphic 文本组件
 ---@param startValue number 起始数字
 ---@param targetValue number 目标数字
@@ -122,7 +122,7 @@ end
 --region 数字动画协程核心
 
 ---=========================================================================
---- 数字滚动动画协程主逻辑（支持所有文本类型）
+---@brief 数字滚动动画协程主逻辑（支持所有文本类型）
 ---@param textComponent UnityEngine.UI.MaskableGraphic
 ---@param startValue number
 ---@param targetValue number

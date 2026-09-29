@@ -2,9 +2,9 @@
 -- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- -------------------------------------------------------------
--- filename:  SystemConfig.lua.txt
+-- filename:  SystemConfigHelper.lua.txt
 -- author:    云毅
--- created:    2026
+-- created:   2026
 -- descrip:   系统配置助手
 --            作用：统一管理、读取游戏全局系统配置（GM 后台配置、功能开关、全局参数）
 --            来源：服务器配置表 + GM 后台配置（key=SystemConfig）
@@ -15,50 +15,50 @@
 ---@class SystemConfigHelper 全局系统配置管理助手（GM后台 + 服务器配置统一入口）
 local SystemConfigHelper = class("SystemConfigHelper")
 
---- 构造函数
---- 初始化配置存储容器
+---@brief 构造函数
+---@desc 初始化配置存储容器
 ---@param args table 可选初始化参数
 function SystemConfigHelper:ctor(args)
-	---@type table<string, any> 全局系统配置数据表（Key-Value结构，从服务器/GM后台拉取）
-	self._systemConfigData = {}
+    ---@type table<string, any> 全局系统配置数据表（Key-Value结构，从服务器/GM后台拉取）
+    self._systemConfigData = {}
 end
 
---- 创建系统配置助手实例
+---@brief 创建系统配置助手实例
 ---@param args table 可选初始化参数
 ---@return SystemConfigHelper 配置管理实例
 function SystemConfigHelper:Create(args)
-	local obj = SystemConfigHelper.new(args)
-	return obj
+    local obj = SystemConfigHelper.new(args)
+    return obj
 end
 
---- 从服务器获取并缓存全局系统配置
---- 注：GM 后台必须在【应用配置 - key = SystemConfig】下配置
+---@brief 从服务器获取并缓存全局系统配置
+---@desc 注：GM 后台必须在【应用配置 - key = SystemConfig】下配置
 ---@param configTable table 服务器下发的完整配置表
 function SystemConfigHelper:SetServerSystemConfig(configTable)
-	if type(configTable) == "table" then
-		self._systemConfigData = configTable
-	end
+    if type(configTable) == "table" then
+        self._systemConfigData = configTable
+    end
 end
 
---- 获取完整的全局系统配置表
+---@brief 获取完整的全局系统配置表
 ---@return table 全量系统配置表
 function SystemConfigHelper:GetServerSystemConfig()
-	return self._systemConfigData or {}
+    return self._systemConfigData or {}
 end
 
---- 根据 Key 获取指定系统配置（支持布尔/数字/字符串）
+---@brief 根据 Key 获取指定系统配置（支持布尔/数字/字符串）
 ---@param key string 配置项名称（GM后台配置的Key）
 ---@return any 配置值（boolean/number/string），不存在返回 nil
 function SystemConfigHelper:GetSystemConfig(key)
-	if not key or not self._systemConfigData then
-		return nil
-	end
-	return self._systemConfigData[key]
+    if not key or not self._systemConfigData then
+        return nil
+    end
+    return self._systemConfigData[key]
 end
 
---- 清空所有系统配置（游戏重置/登出时使用）
+---@brief 清空所有系统配置（游戏重置/登出时使用）
 function SystemConfigHelper:Clear()
-	self._systemConfigData = {}
+    self._systemConfigData = {}
 end
 --endregion
 

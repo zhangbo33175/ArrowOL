@@ -14,7 +14,7 @@
 -- Table 扩展工具
 --=====================================================================================================
 
---- 判断键是否存在于表中
+---@brief 判断键是否存在于表中
 ---@param tbl table 目标表
 ---@param key any 键
 ---@return boolean 是否存在
@@ -25,7 +25,7 @@ function table.kIn(tbl, key)
     return tbl[key] ~= nil
 end
 
---- 判断值是否存在于表中
+---@brief 判断值是否存在于表中
 ---@param tbl table 目标表
 ---@param value any 值
 ---@return boolean 是否存在
@@ -41,7 +41,7 @@ function table.vIn(tbl, value)
     return false
 end
 
---- 判断表是否包含子表所有值
+---@brief 判断表是否包含子表所有值
 ---@param tbl table 主表
 ---@param valueTable table 子表
 ---@return boolean 是否全部包含
@@ -57,7 +57,7 @@ function table.tableIn(tbl, valueTable)
     return true
 end
 
---- 判断是否为纯数组（连续数字索引）
+---@brief 判断是否为纯数组（连续数字索引）
 ---@param t table 目标表
 ---@return boolean 是否为纯数组
 function table.isArrayTable(t)
@@ -73,7 +73,7 @@ function table.isArrayTable(t)
     return true
 end
 
---- 递归打印表（调试专用）
+---@brief 递归打印表（调试专用）
 ---@param t table 目标表
 ---@return string 格式化字符串
 function table.PrintDicTable(t)
@@ -89,7 +89,7 @@ function table.PrintDicTable(t)
     return table.concat(result, "\n")
 end
 
---- 无序比较两个数组是否相等
+---@brief 无序比较两个数组是否相等
 ---@param t1 table 数组1
 ---@param t2 table 数组2
 ---@return boolean 是否相等
@@ -108,7 +108,7 @@ function table.compareTablesWithDisorder(t1, t2)
     return true
 end
 
---- 数组安全过滤删除（遍历过程中安全删除元素）
+---@brief 数组安全过滤删除（遍历过程中安全删除元素）
 ---@param t table 数组
 ---@param predicate function 判定函数(key, value):boolean 满足条件保留，不满足删除
 function table.filterRemove(t, predicate)
@@ -125,7 +125,7 @@ function table.filterRemove(t, predicate)
     end
 end
 
---- 判断 t1 是否包含 t2 所有元素
+---@brief 判断 t1 是否包含 t2 所有元素
 ---@param t1 table 主表
 ---@param t2 table 子表
 ---@return boolean 是否全部包含
@@ -141,7 +141,7 @@ function table.isContains(t1, t2)
     return true
 end
 
---- Fisher-Yates 打乱数组（原地修改）
+---@brief Fisher-Yates 打乱数组（原地修改）
 ---@param t table 数组
 function table.shuffle(t)
     if type(t) ~= "table" or #t <= 1 then
@@ -155,7 +155,7 @@ function table.shuffle(t)
     end
 end
 
---- 求两个数组的交集
+---@brief 求两个数组的交集
 ---@param arr1 table 数组1
 ---@param arr2 table 数组2
 ---@return table 交集结果数组
@@ -184,7 +184,7 @@ end
 -- Math 扩展
 --=====================================================================================================
 
---- 数值限制在 [min, max]
+---@brief 数值限制在 [min, max]
 ---@param value number 输入值
 ---@param min number 最小值
 ---@param max number 最大值
@@ -195,14 +195,14 @@ function math.clamp(value, min, max)
     return value
 end
 
---- 四舍五入
+---@brief 四舍五入
 ---@param value number 输入值
 ---@return number 四舍五入结果
 function math.roundToNearest(value)
     return value >= 0 and math.floor(value + 0.5) or math.ceil(value - 0.5)
 end
 
---- 保留 N 位小数（截断）
+---@brief 保留 N 位小数（截断）
 ---@param value number 原数值
 ---@param decimals number 保留位数，默认0
 ---@return number 截断后数值
@@ -215,7 +215,7 @@ function math.GetPreciseDecimal(value, decimals)
     return math.floor(value * multiplier) / multiplier
 end
 
---- 浮点数近似相等判断
+---@brief 浮点数近似相等判断
 ---@param a number 数值A
 ---@param b number 数值B
 ---@return boolean 是否近似相等
@@ -223,14 +223,14 @@ function math.Approximately(a, b)
     return math.abs(a - b) < 1e-6
 end
 
---- 限制值在 0~1 之间
+---@brief 限制值在 0~1 之间
 ---@param value number 输入值
 ---@return number 0~1 之间的值
 function math.Clamp01(value)
     return math.clamp(value, 0, 1)
 end
 
---- 平滑插值 SmoothStep（Unity 标准平滑曲线）
+---@brief 平滑插值 SmoothStep（Unity 标准平滑曲线）
 ---@param from number 起始值
 ---@param to number 目标值
 ---@param t number 0~1 插值系数
@@ -249,7 +249,7 @@ end
 -- String 扩展
 --=====================================================================================================
 
---- 查找子串第一次出现的索引，找不到返回-1
+---@brief 查找子串第一次出现的索引，找不到返回-1
 ---@param str string 原字符串
 ---@param substr string 子串
 ---@param startIndex number 起始位置，默认1
@@ -263,7 +263,7 @@ function string.indexOf(str, substr, startIndex)
     return pos or -1
 end
 
---- 判断字符串是否为空或 nil
+---@brief 判断字符串是否为空或 nil
 ---@param str string 目标字符串
 ---@return boolean 是否为空
 function string.isNullOrEmpty(str)

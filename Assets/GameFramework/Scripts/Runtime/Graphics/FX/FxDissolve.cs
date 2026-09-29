@@ -90,16 +90,25 @@ namespace Honor.Runtime
 
         #region 生命周期
 
+        /// <summary>
+        /// 启用时初始化溶解材质与区间
+        /// </summary>
         private void OnEnable()
         {
             InitState();
         }
 
+        /// <summary>
+        /// 禁用时还原材质并清理
+        /// </summary>
         private void OnDisable()
         {
             Clear();
         }
 
+        /// <summary>
+        /// 每帧推进溶解高度并写入材质参数
+        /// </summary>
         private void Update()
         {
             if (m_FxMat == null)

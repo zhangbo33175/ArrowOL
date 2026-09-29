@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIComponent.Config.cs
+ * filename:  UIComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI 核心管理组件 - 配置字段与属性

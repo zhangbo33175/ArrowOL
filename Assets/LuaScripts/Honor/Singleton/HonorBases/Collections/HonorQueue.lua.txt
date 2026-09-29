@@ -16,32 +16,32 @@
 ---@field items table 内部存储元素的数组
 local HonorQueue = class("HonorQueue")
 
---- 构造函数
+---@brief 构造函数
 function HonorQueue:ctor()
     ---@type table 队列元素数组
     self.items = {}
 end
 
---- 创建队列实例
+---@brief 创建队列实例
 ---@return HonorQueue 新队列对象
 function HonorQueue:Create()
     local queue = HonorQueue.new()
     return queue
 end
 
---- 获取队首元素（仅查看，不移除）
+---@brief 获取队首元素（仅查看，不移除）
 ---@return any 队首元素，空队列返回 nil
 function HonorQueue:Peek()
     return self.items[1]
 end
 
---- 元素入队（添加到队尾）
+---@brief 元素入队（添加到队尾）
 ---@param item any 任意类型要入队的元素
 function HonorQueue:Enqueue(item)
     table.insert(self.items, item)
 end
 
---- 元素出队（从队首移除并返回）
+---@brief 元素出队（从队首移除并返回）
 ---@return any 出队的元素，空队列返回 nil
 function HonorQueue:Dequeue()
     if self:Count() <= 0 then
@@ -52,19 +52,19 @@ function HonorQueue:Dequeue()
     return item
 end
 
---- 获取队列元素数量
+---@brief 获取队列元素数量
 ---@return number 队列元素个数
 function HonorQueue:Count()
     return #self.items
 end
 
---- 判断队列是否为空
+---@brief 判断队列是否为空
 ---@return boolean true=空, false=非空
 function HonorQueue:IsEmpty()
     return self:Count() == 0
 end
 
---- 清空整个队列
+---@brief 清空整个队列
 function HonorQueue:Clear()
     self.items = {}
 end

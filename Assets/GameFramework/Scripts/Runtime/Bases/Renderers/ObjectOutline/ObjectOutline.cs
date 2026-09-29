@@ -75,6 +75,9 @@ namespace Honor.Runtime
         #endregion
 
         #region 生命周期
+        /// <summary>
+        /// 初始化：缓存所需渲染器组件
+        /// </summary>
         private void Awake()
         {
             CacheComponents();
@@ -91,6 +94,9 @@ namespace Honor.Runtime
             MeshFilter = GetComponent<MeshFilter>();
         }
 
+        /// <summary>
+        /// 启用时注册到描边相机
+        /// </summary>
         private void OnEnable()
         {
             // 注册到描边相机
@@ -100,6 +106,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 禁用时从描边相机移除
+        /// </summary>
         private void OnDisable()
         {
             // 从描边相机移除

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  MapBuildEditor.Interaction.cs
+ * filename:  MapBuildEditor.RightPanel.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   地图编辑器 - 鼠标交互/物体选中拖拽/自动对齐核心模块

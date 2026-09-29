@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIDefineEnums.cs
+ * filename:  AorCommonDefine.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI/布局系统通用枚举定义文件，包含吸附、方位、排列、网格布局等枚举

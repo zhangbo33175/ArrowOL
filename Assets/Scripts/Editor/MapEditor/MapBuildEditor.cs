@@ -100,6 +100,15 @@ namespace Editor.MapEditor
         /// </summary>
         private void OnDisable()
         {
+            // 若自动对齐仍在进行，注销其帧回调并清理进度条，
+            // 避免窗口关闭后 EditorApplication.update 仍持有回调继续执行而访问已销毁对象
+            if (_isAligning)
+            {
+                EditorApplication.update -= OnTick;
+                _isAligning = false;
+                EditorUtility.ClearProgressBar();
+            }
+
             // 清空所有添加的物体
             ClearAddedObjects();
 

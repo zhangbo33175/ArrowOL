@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -110,15 +110,19 @@ namespace Honor.Editor
                 EditorGUILayout.LabelField("导入资源类型：", new[] { GUILayout.Width(100), GUILayout.Height(20) });
 
                 // 数据的类型，选择类型有变化，则更新显示信息
-                Array array = Enum.GetValues(typeof(GameDefinitions.AssetType));
-                int[] assetTypeValues = new int[array.Length];
-                for (int index = 0; index < array.Length; index++) assetTypeValues[index] = (int)array.GetValue(index);
-                int selectResType = EditorGUILayout.IntPopup((int)m_SelectResType,
-                    Enum.GetNames(typeof(GameDefinitions.AssetType)), assetTypeValues,
-                    new[] { GUILayout.Width(150), GUILayout.Height(20) });
-                if (selectResType != m_SelectResType)
+                Array assetTypeEnumValues = Enum.GetValues(typeof(GameDefinitions.AssetType));
+                int[] assetTypeIntValues = new int[assetTypeEnumValues.Length];
+                for (int index = 0; index < assetTypeEnumValues.Length; index++)
                 {
-                    m_SelectResType = selectResType;
+                    assetTypeIntValues[index] = (int)assetTypeEnumValues.GetValue(index);
+                }
+
+                int selectedTypeIndex = EditorGUILayout.IntPopup((int)m_SelectResType,
+                    Enum.GetNames(typeof(GameDefinitions.AssetType)), assetTypeIntValues,
+                    new[] { GUILayout.Width(150), GUILayout.Height(20) });
+                if (selectedTypeIndex != m_SelectResType)
+                {
+                    m_SelectResType = selectedTypeIndex;
                     FindTargetAsset = null;
                     m_FindFileFullPathList.Clear();
                 }
@@ -141,13 +145,11 @@ namespace Honor.Editor
                         CheckFileABPath(fullPath, out string fileABPath);
                         if (IsHaveSameAliasName(aliasName) == false)
                         {
-                            var resDefItem = new ResDefItem();
-                            resDefItem.ID = CurMaxResID;
-                            resDefItem.ResType = ((GameDefinitions.AssetType)m_SelectResType).ToString();
-                            resDefItem.AliasName = aliasName;
-                            resDefItem.ABPath = fileABPath;
-                            resDefItem.AssetName = fileName;
-                            resDefItem.AssetGUID = AssetDatabase.AssetPathToGUID(fullPath);
+                            var resDefItem = ResDefItem.Create(
+                                CurMaxResID,
+                                ((GameDefinitions.AssetType)m_SelectResType).ToString(),
+                                aliasName, fileABPath, fileName,
+                                AssetDatabase.AssetPathToGUID(fullPath));
                             m_TempResDefItems.Add(resDefItem);
                             Log.Debug("[Editor] 资源别名: {0} ，成功追加到缓冲区。", aliasName);
                             m_FindFileFullPathList[fullPath] = FileUseState.ExportSuccess;
@@ -222,22 +224,22 @@ namespace Honor.Editor
                 EditorGUILayout.LabelField(" ~ ", new[] { GUILayout.Width(20), GUILayout.Height(20) });
                 m_InputDelEndID = EditorGUILayout.IntField(m_InputDelEndID, options);
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("删除", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
+                if (DrawActionButton("删除"))
                 {
                     DeleteResInfo(m_InputDelStartID, m_InputDelEndID);
                 }
 
-                if (GUILayout.Button("删除所有", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
+                if (DrawActionButton("删除所有"))
                 {
                     DeleteResInfo(0, Int32.MaxValue);
                 }
 
-                if (GUILayout.Button("删除所有失效", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
+                if (DrawActionButton("删除所有失效"))
                 {
                     DeleteAllInvalidResInfo();
                 }
 
-                if (GUILayout.Button("自动校准失效", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
+                if (DrawActionButton("自动校准失效"))
                 {
                     AutoRefreshAllInvalidResInfo();
                 }
@@ -260,6 +262,16 @@ namespace Honor.Editor
             }
             GUILayout.EndHorizontal();
         }
+
+        /// <summary>
+        /// 绘制标准宽度(90x20)操作按钮，返回本帧是否被点击
+        /// </summary>
+        /// <param name="label">按钮文本</param>
+        /// <true>按钮被点击</returns>
+        private static bool DrawActionButton(string label)
+        {
+            return GUILayout.Button(label, new[] { GUILayout.Width(90), GUILayout.Height(20) });
+        }
         #endregion
 
         #region 左侧 - 日志显示
@@ -274,28 +286,38 @@ namespace Honor.Editor
             {
                 m_TextScrollViewPosition = GUILayout.BeginScrollView(m_TextScrollViewPosition, false, true);
                 {
-                    foreach (var keyValuePairs in m_FindFileFullPathList)
+                    foreach (KeyValuePair<string, FileUseState> entry in m_FindFileFullPathList)
                     {
-                        var fileFullPath = keyValuePairs.Key;
-                        if (keyValuePairs.Value == FileUseState.LoadSuccess)
-                        {
-                            EditorGUILayout.LabelField(fileFullPath.Replace("\\", "/") + " 加载成功");
-                        }
-                        else if (keyValuePairs.Value == FileUseState.ExportSuccess)
-                        {
-                            EditorGUILayout.LabelField(fileFullPath.Replace("\\", "/") + " 导出成功");
-                        }
-                        else if (keyValuePairs.Value == FileUseState.ExportFailedToSameName)
-                        {
-                            EditorGUILayout.LabelField(fileFullPath.Replace("\\", "/") + " 导出失败",
-                                new GUIStyle() { normal = new GUIStyleState() { textColor = Color.red } });
-                        }
+                        DrawFileStateLine(entry.Key, entry.Value);
                     }
                 }
                 GUILayout.EndScrollView();
                 GUILayout.FlexibleSpace();
             }
             GUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// 按文件导出状态绘制一行带颜色的日志
+        /// </summary>
+        /// <param name="fileFullPath">资源文件完整路径</param>
+        /// <param name="state">当前文件的处理状态</param>
+        private static void DrawFileStateLine(string fileFullPath, FileUseState state)
+        {
+            string normalizedPath = fileFullPath.Replace("\\", "/");
+            switch (state)
+            {
+                case FileUseState.LoadSuccess:
+                    EditorGUILayout.LabelField(normalizedPath + " 加载成功");
+                    break;
+                case FileUseState.ExportSuccess:
+                    EditorGUILayout.LabelField(normalizedPath + " 导出成功");
+                    break;
+                case FileUseState.ExportFailedToSameName:
+                    EditorGUILayout.LabelField(normalizedPath + " 导出失败",
+                        new GUIStyle { normal = new GUIStyleState { textColor = Color.red } });
+                    break;
+            }
         }
         #endregion
 
@@ -305,18 +327,18 @@ namespace Honor.Editor
         /// </summary>
         public void DragFilesView()
         {
-            Event evt = Event.current;
-            Rect dropArea = GUILayoutUtility.GetLastRect();
-            switch (evt.type)
+            Event dragEvent = Event.current;
+            Rect dropRect = GUILayoutUtility.GetLastRect();
+            switch (dragEvent.type)
             {
                 case EventType.DragUpdated:
                 case EventType.DragPerform:
-                    if (!dropArea.Contains(evt.mousePosition))
+                    if (!dropRect.Contains(dragEvent.mousePosition))
                         return;
 
                     DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
 
-                    if (evt.type == EventType.DragPerform)
+                    if (dragEvent.type == EventType.DragPerform)
                     {
                         DragAndDrop.AcceptDrag();
                         UpdateAllSelectedFileData(DragAndDrop.objectReferences);

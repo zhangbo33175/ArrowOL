@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaDelegates.cs
+ * filename:  LuaEventDelegates.cs
  * author:    云毅
  * created:   2026
  * descrip:   C# 与 Lua 互调全局委托定义（CSharpCallLua）

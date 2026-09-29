@@ -70,16 +70,29 @@ namespace Honor.Runtime
         // 碰撞消息函数
         //=========================================================================
         #region Collision Messages
+
+        /// <summary>
+        /// 碰撞进入
+        /// </summary>
+        /// <param name="collision">碰撞</param>
         private void OnCollisionEnter(Collision collision)
         {
             m_OnCollisionEnter3DCallback?.Invoke(collision);
         }
 
+        /// <summary>
+        /// 碰撞停留
+        /// </summary>
+        /// <param name="collision">碰撞</param>
         private void OnCollisionStay(Collision collision)
         {
             m_OnCollisionStay3DCallback?.Invoke(collision);
         }
 
+        /// <summary>
+        /// 碰撞退出
+        /// </summary>
+        /// <param name="collision">碰撞</param>
         private void OnCollisionExit(Collision collision)
         {
             m_OnCollisionExit3DCallback?.Invoke(collision);

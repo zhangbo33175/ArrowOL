@@ -113,6 +113,9 @@ namespace Honor.Runtime
         {
         }
 
+        /// <summary>
+        /// Unity 生命周期 Awake：登记单例、跨场景留存，并销毁重复实例
+        /// </summary>
         protected virtual void Awake()
         {
             if (m_Instance == null)

@@ -244,11 +244,7 @@ namespace Honor.Editor
             {
                 EditorGUILayout.BeginHorizontal("box");
                 {
-                    if (GUILayout.Button("打开多语言主表Excel"))
-                    {
-                        TableExportEditorUtility.OpenExcel(EditorPath.Localization.ExcelFileFullPath);
-                        GUIUtility.ExitGUI();
-                    }
+                    DrawOpenExcelButton("打开多语言主表Excel", EditorPath.Localization.ExcelFileFullPath);
 
                     // 导出所有多语言表到Lua
                     EditorGUI.BeginDisabledGroup(!canExport);
@@ -276,38 +272,20 @@ namespace Honor.Editor
 
                     EditorGUI.EndDisabledGroup();
 
-                    if (GUILayout.Button("打开多语言表Excel所在文件夹"))
-                    {
-                        TableExportEditorUtility.OpenDirectory(EditorPath.Localization.ExcelFolderFullPath);
-                        GUIUtility.ExitGUI();
-                    }
+                    DrawOpenFolderButton("打开多语言表Excel所在文件夹", EditorPath.Localization.ExcelFolderFullPath);
                 }
                 EditorGUILayout.EndHorizontal();
 
                 // 增量导出配置开关
                 EditorGUILayout.BeginHorizontal();
                 {
-                    bool enableExportLuaIncrease =
-                        EditorGUILayout.ToggleLeft($"增量导出Excel到Lua - 对比现有Excel与上次Lua,增量生成需要更新的多语言配置到Lua",
-                            m_EnableExportLuaIncrease);
-                    if (enableExportLuaIncrease != m_EnableExportLuaIncrease)
-                    {
-                        m_EnableExportLuaIncrease = enableExportLuaIncrease;
-                        SaveLocalizationSettings(m_EnableExportLuaIncrease, m_EnableExportLuaIncreaseSingleVersion,
-                            m_ExportLuaIncreasePath);
-                    }
+                    DrawLocalizationBoolToggle(ref m_EnableExportLuaIncrease,
+                        $"增量导出Excel到Lua - 对比现有Excel与上次Lua,增量生成需要更新的多语言配置到Lua");
                 }
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.BeginHorizontal();
                 {
-                    bool enableExportLuaIncreaseSingleVersion =
-                        EditorGUILayout.ToggleLeft($"生成单版本增量Lua文件", m_EnableExportLuaIncreaseSingleVersion);
-                    if (enableExportLuaIncreaseSingleVersion != m_EnableExportLuaIncreaseSingleVersion)
-                    {
-                        m_EnableExportLuaIncreaseSingleVersion = enableExportLuaIncreaseSingleVersion;
-                        SaveLocalizationSettings(m_EnableExportLuaIncrease, m_EnableExportLuaIncreaseSingleVersion,
-                            m_ExportLuaIncreasePath);
-                    }
+                    DrawLocalizationBoolToggle(ref m_EnableExportLuaIncreaseSingleVersion, $"生成单版本增量Lua文件");
                 }
                 EditorGUILayout.EndHorizontal();
 
@@ -346,11 +324,7 @@ namespace Honor.Editor
                         EditorGUILayout.BeginHorizontal("box");
                         {
                             EditorGUILayout.LabelField(name);
-                            if (GUILayout.Button("打开Excel"))
-                            {
-                                TableExportEditorUtility.OpenExcel(path);
-                                GUIUtility.ExitGUI();
-                            }
+                            DrawOpenExcelButton("打开Excel", path);
 
                             if (GUILayout.Button("删除Excel"))
                             {
@@ -367,17 +341,7 @@ namespace Honor.Editor
 
                 for (int index = 0; index < luaFileNames.Count; index++)
                 {
-                    EditorGUILayout.BeginHorizontal("box");
-                    {
-                        EditorGUILayout.LabelField(luaFileNames[index]);
-                        string name = luaFileNames[index].Substring("Localization".Length,
-                            luaFileNames[index].Length - "Localization".Length);
-                        int nameIndex =
-                            (int)(GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), name);
-                        string nameDesc = GameDefinitions.LanguageDesc[nameIndex];
-                        EditorGUILayout.LabelField(nameDesc);
-                    }
-                    EditorGUILayout.EndHorizontal();
+                    DrawLanguageNameRow(luaFileNames[index], "Localization");
                 }
 
                 // 缺失主文件提示
@@ -411,11 +375,7 @@ namespace Honor.Editor
             {
                 EditorGUILayout.BeginHorizontal("box");
                 {
-                    if (GUILayout.Button("打开默认多语言表Excel"))
-                    {
-                        TableExportEditorUtility.OpenExcel(EditorPath.Localization.ExcelDefaultFileFullPath);
-                        GUIUtility.ExitGUI();
-                    }
+                    DrawOpenExcelButton("打开默认多语言表Excel", EditorPath.Localization.ExcelDefaultFileFullPath);
 
                     // 导出默认多语言表到Json
                     EditorGUI.BeginDisabledGroup(!canExport);
@@ -427,11 +387,7 @@ namespace Honor.Editor
 
                     EditorGUI.EndDisabledGroup();
 
-                    if (GUILayout.Button("打开默认多语言表Excel所在文件夹"))
-                    {
-                        TableExportEditorUtility.OpenDirectory(EditorPath.Localization.ExcelFolderFullPath);
-                        GUIUtility.ExitGUI();
-                    }
+                    DrawOpenFolderButton("打开默认多语言表Excel所在文件夹", EditorPath.Localization.ExcelFolderFullPath);
                 }
                 EditorGUILayout.EndHorizontal();
 
@@ -439,17 +395,7 @@ namespace Honor.Editor
                 EditorGUILayout.LabelField("默认多语言类型数量", jsonFileNames.Count.ToString());
                 for (int index = 0; index < jsonFileNames.Count; index++)
                 {
-                    EditorGUILayout.BeginHorizontal("box");
-                    {
-                        EditorGUILayout.LabelField(jsonFileNames[index]);
-                        string name = jsonFileNames[index].Substring("LocalizationDefault".Length,
-                            jsonFileNames[index].Length - "LocalizationDefault".Length);
-                        int nameIndex =
-                            (int)(GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), name);
-                        string nameDesc = GameDefinitions.LanguageDesc[nameIndex];
-                        EditorGUILayout.LabelField(nameDesc);
-                    }
-                    EditorGUILayout.EndHorizontal();
+                    DrawLanguageNameRow(jsonFileNames[index], "LocalizationDefault");
                 }
             }
             EditorGUILayout.EndVertical();
@@ -523,11 +469,7 @@ namespace Honor.Editor
             {
                 EditorGUILayout.BeginHorizontal("box");
                 {
-                    if (GUILayout.Button("打开字体表Excel"))
-                    {
-                        TableExportEditorUtility.OpenExcel(EditorPath.Localization.ExcelFontFileFullPath);
-                        GUIUtility.ExitGUI();
-                    }
+                    DrawOpenExcelButton("打开字体表Excel", EditorPath.Localization.ExcelFontFileFullPath);
 
                     // 导出字体表到Json
                     if (GUILayout.Button("导出字体表Excel到Json"))
@@ -536,11 +478,7 @@ namespace Honor.Editor
                         GUIUtility.ExitGUI();
                     }
 
-                    if (GUILayout.Button("打开字体表Excel所在文件夹"))
-                    {
-                        TableExportEditorUtility.OpenDirectory(EditorPath.Localization.ExcelFolderFullPath);
-                        GUIUtility.ExitGUI();
-                    }
+                    DrawOpenFolderButton("打开字体表Excel所在文件夹", EditorPath.Localization.ExcelFolderFullPath);
                 }
                 EditorGUILayout.EndHorizontal();
 
@@ -661,19 +599,65 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 编译开始时的回调
+        /// 绘制增量导出布尔开关，变更时立即持久化本地化配置
         /// </summary>
-        protected override void OnCompileStart()
+        /// <param name="current">当前开关值（引用传递）</param>
+        /// <param name="label">开关显示文本</param>
+        private void DrawLocalizationBoolToggle(ref bool current, string label)
         {
-            base.OnCompileStart();
+            bool next = EditorGUILayout.ToggleLeft(label, current);
+            if (next != current)
+            {
+                current = next;
+                SaveLocalizationSettings(m_EnableExportLuaIncrease, m_EnableExportLuaIncreaseSingleVersion,
+                    m_ExportLuaIncreasePath);
+            }
         }
 
         /// <summary>
-        /// 编译完成时的回调
+        /// 绘制一行"语言文件名 -> 语言描述"映射行（Localization*.lua 列表）
         /// </summary>
-        protected override void OnCompileComplete()
+        /// <param name="fullName">完整Lua文件名（不含扩展名）</param>
+        /// <param name="prefix">用于截取语言短名的前缀</param>
+        private static void DrawLanguageNameRow(string fullName, string prefix)
         {
-            base.OnCompileComplete();
+            EditorGUILayout.BeginHorizontal("box");
+            {
+                EditorGUILayout.LabelField(fullName);
+                string shortName = fullName.Substring(prefix.Length, fullName.Length - prefix.Length);
+                int nameIndex = (int)(GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), shortName);
+                string nameDesc = GameDefinitions.LanguageDesc[nameIndex];
+                EditorGUILayout.LabelField(nameDesc);
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 绘制"用Excel打开指定文件"按钮，点击后退出当前GUI重绘
+        /// </summary>
+        /// <param name="label">按钮文本</param>
+        /// <param name="excelPath">待打开的Excel文件完整路径</param>
+        private static void DrawOpenExcelButton(string label, string excelPath)
+        {
+            if (GUILayout.Button(label))
+            {
+                TableExportEditorUtility.OpenExcel(excelPath);
+                GUIUtility.ExitGUI();
+            }
+        }
+
+        /// <summary>
+        /// 绘制"在资源管理器中打开目录"按钮，点击后退出当前GUI重绘
+        /// </summary>
+        /// <param name="label">按钮文本</param>
+        /// <param name="folderPath">待打开的目录完整路径</param>
+        private static void DrawOpenFolderButton(string label, string folderPath)
+        {
+            if (GUILayout.Button(label))
+            {
+                TableExportEditorUtility.OpenDirectory(folderPath);
+                GUIUtility.ExitGUI();
+            }
         }
 
         /// <summary>

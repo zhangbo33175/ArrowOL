@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  ConfigManager.Data.cs
+ * filename:  ConfigManager.ConfigData.cs
  * author:    云毅
  * created:   2026
  * descrip:   配置管理器 - 配置数据实体（partial）

@@ -1,7 +1,7 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
- * filename:  PatternEnums.cs
+ * filename:  PatternType.cs
  * author:    云毅
  * created:   2026
  * descrip:  框架设计模式相关枚举定义
@@ -38,7 +38,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 总数量（用于数组长度）
         /// </summary>
-        TotalNum = 1,
+        TotalCount = 1,
     }
 
     /// <summary>
@@ -59,6 +59,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 总数量（用于数组长度）
         /// </summary>
-        TotalNum = 2,
+        TotalCount = 2,
     }
 }

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIComponent.cs
+ * filename:  UIComponent.Extensions.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI组件（分部类）

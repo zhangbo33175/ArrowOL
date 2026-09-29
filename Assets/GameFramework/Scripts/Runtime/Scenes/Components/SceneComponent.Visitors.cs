@@ -1,7 +1,7 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
- * filename:  SceneComponent.Property.cs
+ * filename:  SceneComponent.Visitors.cs
  * author:  云毅
  * created:
  * descrip:   场景组件 - 属性定义分部类（编辑器配置 + 外部访问接口）

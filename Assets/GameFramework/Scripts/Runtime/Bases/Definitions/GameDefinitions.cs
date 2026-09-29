@@ -259,14 +259,14 @@ namespace Honor.Runtime
             Turkish,
             Ukrainian,
             Vietnamese,
-            TotalNum
+            TotalCount
         }
 
         /// <summary>
         /// 语言名称描述数组
         /// </summary>
         /// <remarks>与 Language 枚举一一对应，用于UI显示、日志打印、调试</remarks>
-        public static readonly string[] LanguageDesc = new string[(int)Language.TotalNum]
+        public static readonly string[] LanguageDesc = new string[(int)Language.TotalCount]
         {
             "未指定",
             "南非荷兰语",

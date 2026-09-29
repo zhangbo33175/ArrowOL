@@ -32,11 +32,18 @@ namespace Honor.Runtime
 
         #region 初始化与插值
 
+        /// <summary>
+        /// 初始化：以当前本地欧拉角作为起始角度
+        /// </summary>
         protected override void Init()
         {
             fromRotation = transform.localEulerAngles;
         }
 
+        /// <summary>
+        /// 按进度插值设置本地欧拉角
+        /// </summary>
+        /// <param name="factor">曲线修正后的 0~1 进度</param>
         protected override void ApplyValue(float factor)
         {
             transform.localEulerAngles = Vector3.LerpUnclamped(fromRotation, toRotation, factor);

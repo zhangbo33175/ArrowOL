@@ -191,10 +191,16 @@ namespace Honor.Runtime
         //=========================================================================
         // MonoBehaviour 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒（预留）
+        /// </summary>
         private void Awake()
         {
         }
 
+        /// <summary>
+        /// 启动时按多语言初始化文本，并禁用提交按钮
+        /// </summary>
         private void Start()
         {
             // 多语言自动赋值（兼容 UGUI / TMP）
@@ -237,6 +243,9 @@ namespace Honor.Runtime
             m_IsSubmit = false;
         }
 
+        /// <summary>
+        /// 销毁（预留）
+        /// </summary>
         private void OnDestroy()
         {
         }

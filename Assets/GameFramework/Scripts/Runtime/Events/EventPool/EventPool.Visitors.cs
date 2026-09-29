@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  EventPool.Fields.cs
+ * filename:  EventPool.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   泛型事件池 - 字段与属性定义（partial）

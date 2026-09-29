@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIManager.cs
+ * filename:  UIManager.Extension.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI管理器扩展（遮罩层管理）
@@ -133,11 +133,17 @@ namespace Honor.Runtime
             {
                 Log.Error("MaskLayer 引用计数不可为负数，请检查引用计数的加减调用。当前引用计数为：{0}", m_MaskLayerUIRefCount);
                 m_MaskLayerUIRefCount = 0;
-                m_MaskLayerUI.SetVisible(false);
+                if (m_MaskLayerUI != null)
+                {
+                    m_MaskLayerUI.SetVisible(false);
+                }
             }
             else if (m_MaskLayerUIRefCount == 0)
             {
-                m_MaskLayerUI.SetVisible(false);
+                if (m_MaskLayerUI != null)
+                {
+                    m_MaskLayerUI.SetVisible(false);
+                }
             }
         }
 
@@ -149,7 +155,10 @@ namespace Honor.Runtime
         {
             Log.Error("UIMaskLayer 异常情况 使用CloseUIMaskLayer 关闭 ：{0}", m_MaskLayerUIRefCount);
             m_MaskLayerUIRefCount = 0;
-            m_MaskLayerUI.SetVisible(false);
+            if (m_MaskLayerUI != null)
+            {
+                m_MaskLayerUI.SetVisible(false);
+            }
         }
 
         /// <summary>

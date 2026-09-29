@@ -103,6 +103,26 @@ namespace Editor.MapEditor
             GUILayout.Space(3);
 
             // 地图保存路径 + 选择文件夹按钮
+            DrawMapSavePathRow();
+
+            // 背景图片路径 + 选择文件按钮
+            DrawBgImagePathRow();
+
+            // Item图标文件夹路径 + 选择文件夹按钮
+            DrawIconFolderPathRow();
+
+            GUILayout.Space(8);
+
+            // 底部：取消 / 创建 按钮
+            DrawBottomButtons();
+        }
+
+        /// <summary>
+        /// 绘制地图保存路径行（输入框 + 选择文件夹按钮）
+        /// </summary>
+        private void DrawMapSavePathRow()
+        {
+            // 地图保存路径 + 选择文件夹按钮
             GUILayout.Label("地图保存路径", EditorStyles.label);
             GUILayout.BeginHorizontal();
             GUILayout.TextField(_mapSavePath, GUILayout.Height(24), GUILayout.ExpandWidth(true));
@@ -116,7 +136,13 @@ namespace Editor.MapEditor
             }
             GUILayout.EndHorizontal();
             GUILayout.Space(3);
+        }
 
+        /// <summary>
+        /// 绘制背景图片路径行（输入框 + 选择图片文件按钮）
+        /// </summary>
+        private void DrawBgImagePathRow()
+        {
             // 背景图片路径 + 选择文件按钮
             GUILayout.Label("背景图片路径", EditorStyles.label);
             GUILayout.BeginHorizontal();
@@ -131,7 +157,13 @@ namespace Editor.MapEditor
             }
             GUILayout.EndHorizontal();
             GUILayout.Space(3);
+        }
 
+        /// <summary>
+        /// 绘制Item图标文件夹路径行（输入框 + 选择文件夹按钮）
+        /// </summary>
+        private void DrawIconFolderPathRow()
+        {
             // Item图标文件夹路径 + 选择文件夹按钮
             GUILayout.Label("Item图片信息", EditorStyles.label);
             GUILayout.BeginHorizontal();
@@ -145,9 +177,13 @@ namespace Editor.MapEditor
                 }
             }
             GUILayout.EndHorizontal();
+        }
 
-            GUILayout.Space(8);
-
+        /// <summary>
+        /// 绘制底部取消/创建按钮行（创建按钮在名称与路径为空时禁用）
+        /// </summary>
+        private void DrawBottomButtons()
+        {
             // 底部：取消 / 创建 按钮
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();

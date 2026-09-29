@@ -30,70 +30,102 @@ namespace Honor.Editor.Inspectors.UIs
     {
         #region 序列化字段
         /// <summary>
-        /// 多语言 Key 名称（对应多语言表中的字段）
+        /// 多语言 Key 名称序列化对象（对应多语言表中的字段）
         /// </summary>
-        private SerializedProperty m_LocalizingKeyName;
+        private SerializedProperty m_KeyNameProperty;
 
         /// <summary>
-        /// 本地化字体标记（用于指定使用哪种字体）
+        /// 本地化字体标记序列化对象（用于指定使用哪种字体）
         /// </summary>
-        private SerializedProperty m_LocalizingFontMark;
+        private SerializedProperty m_FontMarkProperty;
 
         /// <summary>
-        /// 当前语言（用于预览）
+        /// 当前语言序列化对象（用于预览）
         /// </summary>
-        private SerializedProperty m_EnableLang;
+        private SerializedProperty m_LanguageProperty;
         #endregion
 
         #region 下拉列表数据
         /// <summary>
-        /// 字体标记下拉列表数据
+        /// 字体标记下拉列表可选项
         /// </summary>
-        private string[] m_MarkList;
+        private string[] m_AvailableMarks;
 
         /// <summary>
-        /// 下拉列表选中索引
+        /// 下拉列表当前选中索引
         /// </summary>
-        private int m_MarkListSelectedIndex;
+        private int m_SelectedMarkIndex;
         #endregion
 
         #region 编辑器初始化
         /// <summary>
-        /// 编辑器激活时：读取配置 + 绑定序列化属性
+        /// 编辑器激活时：绑定序列化属性并读取字体配置表
         /// </summary>
         private void OnEnable()
         {
-            // 绑定组件序列化字段
-            m_LocalizingKeyName = serializedObject.FindProperty("m_LocalizingKeyName");
-            m_LocalizingFontMark = serializedObject.FindProperty("m_LocalizingFontMark");
-            m_EnableLang = serializedObject.FindProperty("m_Language");
+            BindSerializedProperties();
+            LoadAvailableFontMarks();
+        }
 
+        /// <summary>
+        /// 绑定组件上的序列化字段（字段名与运行时组件保持一致）
+        /// </summary>
+        private void BindSerializedProperties()
+        {
+            m_KeyNameProperty = serializedObject.FindProperty("m_LocalizingKeyName");
+            m_FontMarkProperty = serializedObject.FindProperty("m_LocalizingFontMark");
+            m_LanguageProperty = serializedObject.FindProperty("m_Language");
+        }
+
+        /// <summary>
+        /// 读取 LocalizationFonts.json，构建字体标记下拉列表并定位当前选中项
+        /// </summary>
+        private void LoadAvailableFontMarks()
+        {
             // 读取项目多语言字体配置表 LocalizationFonts.json
             string fontConfigPath = Runtime.GamePathUtils.Json.GetRootDirectoryRelativePath() + "/LocalizationFonts.json";
-            string localizationFonts = File.ReadAllText(fontConfigPath);
-            JObject jsonData = JObject.Parse(localizationFonts);
+            string fontConfigText = File.ReadAllText(fontConfigPath);
+            JObject fontConfig = JObject.Parse(fontConfigText);
 
-            // 解析所有字体 Mark 标记，构建下拉列表
-            List<string> markList = new List<string>();
-            foreach (var data in jsonData)
+            List<string> markOptions = CollectMarkEntries(fontConfig);
+            m_AvailableMarks = markOptions.ToArray();
+
+            // 根据当前已配置的字体标记定位下拉选中项，未命中时回退到第一项
+            string currentMark = m_FontMarkProperty.stringValue;
+            int selectedIndex = markOptions.FindIndex(mark => mark == currentMark);
+            m_SelectedMarkIndex = Mathf.Max(selectedIndex, 0);
+        }
+
+        /// <summary>
+        /// 从字体配置表第一组分组中顺序收集 Mark0、Mark1… 标记条目
+        /// </summary>
+        /// <param name="fontConfig">字体配置表 JSON 根对象</param>
+        /// <returns>按配置顺序排列的字体标记列表</returns>
+        private static List<string> CollectMarkEntries(JObject fontConfig)
+        {
+            List<string> markOptions = new List<string>();
+
+            // 字体配置表中只有第一组分组内存在 Mark 序列，取其全部条目
+            JProperty firstGroup = null;
+            foreach (JProperty group in fontConfig.Properties())
             {
-                int index = 0;
-                while (data.Value[$"Mark{index}"] != null)
-                {
-                    markList.Add(data.Value[$"Mark{index}"].ToString());
-                    index++;
-                }
+                firstGroup = group;
                 break;
             }
 
-            m_MarkList = markList.ToArray();
-
-            // 设置当前选中项
-            m_MarkListSelectedIndex = markList.FindIndex((markName) =>
+            if (firstGroup == null)
             {
-                return m_LocalizingFontMark.stringValue.Equals(markName);
-            });
-            m_MarkListSelectedIndex = Mathf.Max(m_MarkListSelectedIndex, 0);
+                return markOptions;
+            }
+
+            int markSeq = 0;
+            while (firstGroup.Value[$"Mark{markSeq}"] != null)
+            {
+                markOptions.Add(firstGroup.Value[$"Mark{markSeq}"].ToString());
+                markSeq++;
+            }
+
+            return markOptions;
         }
         #endregion
 
@@ -107,14 +139,14 @@ namespace Honor.Editor.Inspectors.UIs
             serializedObject.Update();
 
             // 显示当前预览语言
-            EditorGUILayout.LabelField($"展示多语言: {((GameDefinitions.Language)m_EnableLang.enumValueIndex).ToString()}");
+            EditorGUILayout.LabelField($"展示多语言: {((GameDefinitions.Language)m_LanguageProperty.enumValueIndex).ToString()}");
 
             // 多语言 Key 输入框
-            EditorGUILayout.PropertyField(m_LocalizingKeyName, new GUIContent("本地化字段名称"));
+            EditorGUILayout.PropertyField(m_KeyNameProperty, new GUIContent("本地化字段名称"));
 
             // 字体标记下拉选择框
-            m_MarkListSelectedIndex = EditorGUILayout.Popup("本地化字体标记", m_MarkListSelectedIndex, m_MarkList);
-            m_LocalizingFontMark.stringValue = m_MarkList[m_MarkListSelectedIndex];
+            m_SelectedMarkIndex = EditorGUILayout.Popup("本地化字体标记", m_SelectedMarkIndex, m_AvailableMarks);
+            m_FontMarkProperty.stringValue = m_AvailableMarks[m_SelectedMarkIndex];
 
             // 提示信息
             EditorGUILayout.HelpBox("此处请填写本地化字体表中的自定义标记，留空表示使用主字体。", MessageType.Info);

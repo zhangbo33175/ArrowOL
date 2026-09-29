@@ -317,9 +317,10 @@ namespace GameLib
         /// </summary>
         public static void OpenSceneRaycasterLayer(int layerNumber)
         {
-            if (SceneRaycaster() != null)
+            Physics2DRaycaster raycaster = SceneRaycaster();
+            if (raycaster != null)
             {
-                SceneRaycaster().eventMask |= 1 << layerNumber;
+                raycaster.eventMask |= 1 << layerNumber;
             }
         }
 
@@ -328,9 +329,10 @@ namespace GameLib
         /// </summary>
         public static void CloseSceneRaycasterLayer(int layerNumber)
         {
-            if (SceneRaycaster() != null)
+            Physics2DRaycaster raycaster = SceneRaycaster();
+            if (raycaster != null)
             {
-                SceneRaycaster().eventMask &= ~(1 << layerNumber);
+                raycaster.eventMask &= ~(1 << layerNumber);
             }
         }
         #endregion

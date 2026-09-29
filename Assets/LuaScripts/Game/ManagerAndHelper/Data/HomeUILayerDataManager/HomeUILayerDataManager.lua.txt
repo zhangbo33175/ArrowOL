@@ -57,26 +57,9 @@ end
 ---@return Tables.HomeUILayers_Item UI层级配置
 ---=========================================================================
 function HomeUILayerDataManager:GetDataById(id)
-    -- 配置表不存在防护
-    if not Tables or not Tables.HomeUILayers then
-        PrintError("[HomeUILayerDataManager] Tables.HomeUILayers 配置表不存在！")
-        return nil
-    end
-
-    -- 空ID → 返回默认NormalUI
-    if id == nil then
-        PrintError("[HomeUILayerDataManager] GetDataById id is nil → 使用默认 NormalUI")
-        return Tables.HomeUILayers[EGameMainUIPushSortOrder.NormalUI]
-    end
-
-    local cfg = Tables.HomeUILayers[id]
-    -- 配置不存在 → 降级默认
-    if not cfg then
-        PrintDebug("[HomeUILayerDataManager] 未找到ID: " .. tostring(id) .. " → 使用默认 NormalUI")
-        return Tables.HomeUILayers[EGameMainUIPushSortOrder.NormalUI]
-    end
-
-    return cfg
+    -- 表缺失/nil id/未命中 三级降级逻辑抽离至 GameFunctions.SafeGetTableEntry
+    return SafeGetTableEntry(Tables, "HomeUILayers", id,
+        EGameMainUIPushSortOrder.NormalUI, "[HomeUILayerDataManager]")
 end
 
 ---=========================================================================

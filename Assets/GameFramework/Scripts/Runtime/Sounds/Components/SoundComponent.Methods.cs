@@ -1,7 +1,7 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
- * filename:  SoundComponent.Private.cs
+ * filename:  SoundComponent.Methods.cs
  * author:  云毅
  * created:
  * descrip:   音频组件 - 私有工具方法分部类（声音代理、监听器管理）
@@ -14,7 +14,7 @@ namespace Honor.Runtime
 {
     /// <summary>
     /// 音频管理组件（私有方法分部类）
-    /// 包含：声音代理创建、音频监听器管理等工具方法
+    /// 包含：声音代理创建、音频监听器管理、混音轨道解析等工具方法
     /// </summary>
     public sealed partial class SoundComponent : GameComponent
     {
@@ -28,14 +28,14 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="soundGroupName">声音组名称</param>
         /// <param name="soundGroupHelper">声音组辅助对象</param>
-        /// <param name="index">当前代理序号</param>
+        /// <param name="agentIndex">当前代理序号</param>
         /// <returns>是否创建成功</returns>
-        private bool AddSoundAgent(string soundGroupName, SoundGroupHelper soundGroupHelper, int index)
+        private bool AddSoundAgent(string soundGroupName, SoundGroupHelper soundGroupHelper, int agentIndex)
         {
             // 创建声音代理对象
             SoundAgentHelper soundAgentHelper = new GameObject(
-                AorTxt.Format("SoundAgent - {0} - {1}", soundGroupName, index.ToString())
-            ).AddComponent<SoundAgentHelper>();
+                AorTxt.Format("SoundAgent - {0} - {1}", soundGroupName, agentIndex))
+            .AddComponent<SoundAgentHelper>();
 
             if (soundAgentHelper == null)
             {
@@ -46,21 +46,33 @@ namespace Honor.Runtime
             // 设置父物体，保持层级整洁
             soundAgentHelper.transform.SetParent(soundGroupHelper.transform);
 
-            // 绑定 AudioMixer 混音器轨道（支持按代理分组）
+            // 绑定 AudioMixer 混音器轨道（优先独立代理轨道，否则回退到组轨道）
             if (m_AudioMixer != null)
             {
-                // 优先找独立的混音轨道
-                AudioMixerGroup[] audioMixerGroups =
-                    m_AudioMixer.FindMatchingGroups($"Master/{soundGroupName}/{soundGroupName}_{index}");
-                // 找不到则使用组轨道
-                soundAgentHelper.AudioMixerGroup = audioMixerGroups.Length > 0
-                    ? audioMixerGroups[0]
-                    : soundGroupHelper.AudioMixerGroup;
+                string agentRoute = AorTxt.Format("Master/{0}/{0}_{1}", soundGroupName, agentIndex);
+                soundAgentHelper.AudioMixerGroup = ResolveMixerGroup(agentRoute, soundGroupHelper.AudioMixerGroup);
             }
 
             // 将代理添加到管理器中统一调度
-            m_SoundManager.AddSoundAgent(soundGroupName, soundAgentHelper);
+            m_AudioService.AddSoundAgent(soundGroupName, soundAgentHelper);
             return true;
+        }
+
+        /// <summary>
+        /// 在 AudioMixer 中按路由路径解析分组轨道；找不到时回退到默认轨道
+        /// </summary>
+        /// <param name="routePath">混音器内的路由路径</param>
+        /// <param name="fallbackGroup">未匹配到时使用的回退轨道</param>
+        /// <returns>解析到的混音轨道；无混音器时返回 null</returns>
+        private AudioMixerGroup ResolveMixerGroup(string routePath, AudioMixerGroup fallbackGroup)
+        {
+            if (m_AudioMixer == null)
+            {
+                return null;
+            }
+
+            AudioMixerGroup[] matchedGroups = m_AudioMixer.FindMatchingGroups(routePath);
+            return matchedGroups.Length > 0 ? matchedGroups[0] : fallbackGroup;
         }
 
         /// <summary>

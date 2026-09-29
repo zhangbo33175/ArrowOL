@@ -54,27 +54,27 @@ namespace Honor.Runtime
                 return;
 
             // 获取当前网格总顶点数量
-            int count = vh.currentVertCount;
-            if (count == 0)
+            int vertCount = vh.currentVertCount;
+            if (vertCount == 0)
                 return;
 
             // 存储所有顶点数据
-            List<UIVertex> vertexs = new List<UIVertex>();
-            for (int i = 0; i < count; i++)
+            List<UIVertex> vertices = new List<UIVertex>();
+            for (int i = 0; i < vertCount; i++)
             {
                 UIVertex vertex = new UIVertex();
                 // 从顶点辅助器中读取对应索引的顶点数据
                 vh.PopulateUIVertex(ref vertex, i);
-                vertexs.Add(vertex);
+                vertices.Add(vertex);
             }
 
             // 遍历顶点，计算文本的顶部和底部Y坐标边界
-            float topY = vertexs[0].position.y;
-            float bottomY = vertexs[0].position.y;
+            float topY = vertices[0].position.y;
+            float bottomY = vertices[0].position.y;
 
-            for (int i = 1; i < count; i++)
+            for (int i = 1; i < vertCount; i++)
             {
-                float y = vertexs[i].position.y;
+                float y = vertices[i].position.y;
                 if (y > topY)
                 {
                     topY = y;
@@ -89,9 +89,9 @@ namespace Honor.Runtime
             float height = topY - bottomY;
 
             // 根据顶点Y轴坐标插值计算渐变颜色，并重新设置顶点
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < vertCount; i++)
             {
-                UIVertex vertex = vertexs[i];
+                UIVertex vertex = vertices[i];
                 // 根据高度比例在底部颜色和顶部颜色之间插值
                 Color32 color = Color32.Lerp(bottomColor, topColor, (vertex.position.y - bottomY) / height);
                 vertex.color = color;

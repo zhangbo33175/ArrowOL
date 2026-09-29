@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  AssetDelegateDefine.cs
+ * filename:  AssetComponent.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   资源系统委托定义文件 - 所有加载/卸载回调委托声明

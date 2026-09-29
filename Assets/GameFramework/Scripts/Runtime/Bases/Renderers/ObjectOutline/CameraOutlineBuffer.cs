@@ -265,15 +265,7 @@ namespace Honor.Runtime
             CreateMaterialsIfNeeded();
 
             // 屏幕尺寸变化时重建RT
-            if (RenderTexture == null || RenderTexture.width != SourceCamera.pixelWidth || RenderTexture.height != SourceCamera.pixelHeight)
-            {
-                if (RenderTexture != null) RenderTexture.Release();
-                if (ExtraRenderTexture != null) ExtraRenderTexture.Release();
-
-                RenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
-                ExtraRenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
-                OutlineCamera.targetTexture = RenderTexture;
-            }
+            RebuildRenderTargetIfNeeded();
 
             UpdateMaterialsPublicProperties();
             UpdateOutlineCameraFromSource();
@@ -290,57 +282,107 @@ namespace Honor.Runtime
                 if ((SourceCamera.cullingMask & (1 << outline.gameObject.layer)) == 0)
                     continue;
 
-                for (int v = 0; v < outline.SharedMaterials.Length; v++)
-                {
-                    Material mat = null;
-                    Material srcMat = outline.SharedMaterials[v];
-
-                    // 带贴图的物体需要缓存材质
-                    if (srcMat != null && srcMat.HasProperty("_MainTex") && srcMat.mainTexture != null)
-                    {
-                        foreach (Material g in m_MaterialBuffer)
-                        {
-                            if (g.mainTexture == srcMat.mainTexture)
-                            {
-                                if (outline.eraseRenderer && g.color == m_OutlineEraseMaterial.color)
-                                    mat = g;
-                                else if (!outline.eraseRenderer && g.color == GetMaterialFromID(outline.color).color)
-                                    mat = g;
-                            }
-                        }
-
-                        if (mat == null)
-                        {
-                            mat = outline.eraseRenderer ? new Material(m_OutlineEraseMaterial) : new Material(GetMaterialFromID(outline.color));
-                            mat.mainTexture = srcMat.mainTexture;
-                            m_MaterialBuffer.Add(mat);
-                        }
-                    }
-                    else
-                    {
-                        mat = outline.eraseRenderer ? m_OutlineEraseMaterial : GetMaterialFromID(outline.color);
-                    }
-
-                    // 剔除模式
-                    mat.SetInt("_Culling", BackfaceCulling ? (int)CullMode.Back : (int)CullMode.Off);
-
-                    // 绘制渲染器
-                    if (outline.MeshFilter != null && outline.MeshFilter.sharedMesh != null && v < outline.MeshFilter.sharedMesh.subMeshCount)
-                    {
-                        m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
-                    }
-                    else if (outline.SkinnedMeshRenderer != null && outline.SkinnedMeshRenderer.sharedMesh != null && v < outline.SkinnedMeshRenderer.sharedMesh.subMeshCount)
-                    {
-                        m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
-                    }
-                    else if (outline.SpriteRenderer != null)
-                    {
-                        m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
-                    }
-                }
+                RenderOutlineToBuffer(outline);
             }
 
             OutlineCamera.Render();
+        }
+
+        /// <summary>
+        /// 屏幕尺寸变化时释放并重建描边RT与额外RT
+        /// </summary>
+        private void RebuildRenderTargetIfNeeded()
+        {
+            // 屏幕尺寸变化时重建RT
+            if (RenderTexture == null || RenderTexture.width != SourceCamera.pixelWidth || RenderTexture.height != SourceCamera.pixelHeight)
+            {
+                if (RenderTexture != null) RenderTexture.Release();
+                if (ExtraRenderTexture != null) ExtraRenderTexture.Release();
+
+                RenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
+                ExtraRenderTexture = new RenderTexture(SourceCamera.pixelWidth, SourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
+                OutlineCamera.targetTexture = RenderTexture;
+            }
+        }
+
+        /// <summary>
+        /// 遍历描边对象的所有材质子网格，解析材质并写入命令缓冲
+        /// </summary>
+        /// <param name="outline">描边对象</param>
+        private void RenderOutlineToBuffer(ObjectOutline outline)
+        {
+            for (int v = 0; v < outline.SharedMaterials.Length; v++)
+            {
+                Material srcMat = outline.SharedMaterials[v];
+                Material mat = ResolveOutlineMaterial(outline, srcMat);
+
+                // 剔除模式
+                mat.SetInt("_Culling", BackfaceCulling ? (int)CullMode.Back : (int)CullMode.Off);
+
+                DrawOutlineRenderer(outline, v, mat);
+            }
+        }
+
+        /// <summary>
+        /// 按是否带贴图解析描边材质：带贴图的走材质缓存，否则直接取共享材质
+        /// </summary>
+        /// <param name="outline">描边对象</param>
+        /// <param name="srcMat">原始共享材质</param>
+        /// <returns>用于绘制的材质</returns>
+        private Material ResolveOutlineMaterial(ObjectOutline outline, Material srcMat)
+        {
+            Material mat = null;
+
+            // 带贴图的物体需要缓存材质
+            if (srcMat != null && srcMat.HasProperty("_MainTex") && srcMat.mainTexture != null)
+            {
+                foreach (Material g in m_MaterialBuffer)
+                {
+                    if (g.mainTexture == srcMat.mainTexture)
+                    {
+                        if (outline.eraseRenderer && g.color == m_OutlineEraseMaterial.color)
+                            mat = g;
+                        else if (!outline.eraseRenderer && g.color == GetMaterialFromID(outline.color).color)
+                            mat = g;
+                    }
+                }
+
+                if (mat == null)
+                {
+                    mat = outline.eraseRenderer ? new Material(m_OutlineEraseMaterial) : new Material(GetMaterialFromID(outline.color));
+                    mat.mainTexture = srcMat.mainTexture;
+                    m_MaterialBuffer.Add(mat);
+                }
+            }
+            else
+            {
+                mat = outline.eraseRenderer ? m_OutlineEraseMaterial : GetMaterialFromID(outline.color);
+            }
+
+            return mat;
+        }
+
+        /// <summary>
+        /// 按网格类型（MeshFilter/SkinnedMesh/Sprite）将子网格写入命令缓冲
+        /// </summary>
+        /// <param name="outline">描边对象</param>
+        /// <param name="v">子网格下标</param>
+        /// <param name="mat">绘制材质</param>
+        private void DrawOutlineRenderer(ObjectOutline outline, int v, Material mat)
+        {
+            // 绘制渲染器
+            if (outline.MeshFilter != null && outline.MeshFilter.sharedMesh != null && v < outline.MeshFilter.sharedMesh.subMeshCount)
+            {
+                m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
+            }
+            else if (outline.SkinnedMeshRenderer != null && outline.SkinnedMeshRenderer.sharedMesh != null && v < outline.SkinnedMeshRenderer.sharedMesh.subMeshCount)
+            {
+                m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
+            }
+            else if (outline.SpriteRenderer != null)
+            {
+                m_CommandBuffer.DrawRenderer(outline.Renderer, mat, v, 0);
+            }
         }
 
         /// <summary>

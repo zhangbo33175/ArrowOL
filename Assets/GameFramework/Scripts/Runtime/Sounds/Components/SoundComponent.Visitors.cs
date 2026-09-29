@@ -1,7 +1,7 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
- * filename:  SoundComponent.Property.cs
+ * filename:  SoundComponent.Visitors.cs
  * author:  云毅
  * created:
  * descrip:   音频组件 - 变量与属性定义分部类（编辑器配置 + 对外接口）
@@ -46,7 +46,7 @@ namespace Honor.Runtime
         /// 声音管理器（底层逻辑核心）
         /// 真正处理声音播放、暂停、停止、池化的逻辑类
         /// </summary>
-        private SoundManager m_SoundManager = null;
+        private SoundManager m_AudioService = null;
 
         /// <summary>
         /// 音频监听器
@@ -68,7 +68,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 当前声音组数量
         /// </summary>
-        public int SoundGroupCount => m_SoundManager.SoundGroupCount;
+        public int SoundGroupCount => m_AudioService.SoundGroupCount;
 
         #endregion
     }

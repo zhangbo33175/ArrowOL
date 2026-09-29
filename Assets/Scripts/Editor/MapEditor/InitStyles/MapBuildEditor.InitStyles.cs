@@ -1,7 +1,7 @@
 ﻿/***************************************************************
 (c) copyright 2026 - 2030, Honor.Runtime
 All Rights Reserved.
-filename: MapBuildEditor.cs
+filename: MapBuildEditor.InitStyles.cs
 author: 云毅
 created: 2026
 descrip: 地图编辑器 - 界面样式定义与初始化模块

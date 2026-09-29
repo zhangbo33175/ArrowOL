@@ -31,6 +31,7 @@ message SettingInfo{
   bool   colseMusic = 1;                                      // 音乐开启状态
   bool   closeSound = 2;                                      // 音效开启状态
   bool   closeNotification = 3;                               // 推送开启状态
+  bool   closeVibration = 4;                               	  // 震动开启状态
 }
 
 
@@ -56,8 +57,8 @@ message GameData{
   map<string, ChapterInfo> chapterInfos = 5;              // 章节信息 [key]章节ID [value]章节信息
   map<string, int32> timestamps  = 6;                     // 各种时间戳 [key]字符串 [value]时间戳
   SettingInfo settingInfo = 7;                            // 设置数据
-  string boosterTriggered = 8;                           // 已达成触发条件的局内道具
-  int32 maxChapterId = 9;                                // 玩家当前记录的最大章节id
-  repeated LocalActivityData localActivityData = 10;     // 本地活动数据
+  string boosterTriggered = 8;                            // 已达成触发条件的局内道具
+  int32 maxChapterId = 9;                                 // 玩家当前记录的最大章节id
+  repeated LocalActivityData localActivityData = 10;      // 本地活动数据
 
 }

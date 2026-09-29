@@ -26,21 +26,69 @@ namespace Honor.Runtime
         //=========================================================================
         #region Constructor
         /// <summary>
+        /// 从组件组获取必需组件，缺失时输出致命错误
+        /// </summary>
+        /// <typeparam name="T">游戏组件类型（必须为 GameComponent 子类）</typeparam>
+        /// <returns>解析到的组件；缺失为 null</returns>
+        private T RequireComponent<T>() where T : GameComponent
+        {
+            T component = GameComponentsGroup.GetComponent<T>();
+            if (component == null)
+            {
+                Log.Fatal($"{typeof(T).Name} 无效。");
+            }
+            return component;
+        }
+
+        /// <summary>
+        /// 校验语言入参合法（非 Unspecified）
+        /// </summary>
+        private static void ValidateLanguage(GameDefinitions.Language language)
+        {
+            if (language == GameDefinitions.Language.Unspecified)
+            {
+                throw new GameException("language 无效。");
+            }
+        }
+
+        /// <summary>
+        /// 校验本地化 Key 非空
+        /// </summary>
+        private static void ValidateKeyName(string keyName)
+        {
+            if (string.IsNullOrEmpty(keyName))
+            {
+                throw new GameException("keyName 无效。");
+            }
+        }
+
+        /// <summary>
+        /// 获取或初始化某个键下的集合（键不存在时自动 new 并挂入映射）
+        /// </summary>
+        private static TCol GetOrAddCollection<TKey, TCol>(Dictionary<TKey, TCol> map, TKey key) where TCol : new()
+        {
+            if (!map.TryGetValue(key, out TCol collection))
+            {
+                collection = new TCol();
+                map.Add(key, collection);
+            }
+            return collection;
+        }
+
+        /// <summary>
         /// 构造函数：初始化组件与数据容器
         /// </summary>
         public LocalizationManager()
         {
-            m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
+            m_LauncherComponent = RequireComponent<LauncherComponent>();
             if (m_LauncherComponent == null)
             {
-                Log.Fatal("Launcher Component 无效。");
                 return;
             }
 
-            m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
+            m_AssetComponent = RequireComponent<AssetComponent>();
             if (m_AssetComponent == null)
             {
-                Log.Fatal("Asset Component 无效。");
                 return;
             }
 
@@ -55,19 +103,30 @@ namespace Honor.Runtime
         //=========================================================================
         #region Language Management
         /// <summary>
+        /// 从 AB 包同步加载 Json 文本资源，读取文本后立即卸载
+        /// </summary>
+        /// <param name="abPath">AB 路径</param>
+        /// <param name="assetName">资源名</param>
+        /// <returns>Json 文本内容</returns>
+        private string ReadJsonText(string abPath, string assetName)
+        {
+            TextAsset jsonAsset = (TextAsset)m_AssetComponent.LoadAssetSync("JsonAsset", abPath, assetName);
+            string jsonText = jsonAsset.text;
+            m_AssetComponent.UnloadAsset(jsonAsset, null, true);
+            return jsonText;
+        }
+
+        /// <summary>
         /// 从 JSON 加载支持的语言列表
         /// </summary>
         public void LoadDefaultLanguages()
         {
-            TextAsset languagesJsonAsset = (TextAsset)m_AssetComponent.LoadAssetSync("JsonAsset", GamePathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationDefaultLanguages");
-            JArray jArray = JArray.Parse(languagesJsonAsset.text);
-            
-            foreach (var name in jArray)
+            JArray languageArray = JArray.Parse(ReadJsonText(GamePathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationDefaultLanguages"));
+
+            foreach (var entry in languageArray)
             {
-                m_DefaultLanguages.Add((GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), name.ToString()));
+                m_DefaultLanguages.Add((GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), entry.ToString()));
             }
-            
-            m_AssetComponent.UnloadAsset(languagesJsonAsset, null, true);
         }
 
         /// <summary>
@@ -100,15 +159,12 @@ namespace Honor.Runtime
         /// <param name="assetName">资源名</param>
         public void LoadDefaultDatas(GameDefinitions.Language language, string abPath, string assetName)
         {
-            TextAsset configJsonAsset = (TextAsset)m_AssetComponent.LoadAssetSync("JsonAsset", abPath, assetName);
-            JObject jObject = JObject.Parse(configJsonAsset.text);
+            JObject dataRoot = JObject.Parse(ReadJsonText(abPath, assetName));
 
-            foreach (var item in jObject)
+            foreach (var entry in dataRoot)
             {
-                AddDefaultData(language, item.Key, item.Value.ToString());
+                AddDefaultData(language, entry.Key, entry.Value.ToString());
             }
-
-            m_AssetComponent.UnloadAsset(configJsonAsset, null, true);
         }
 
         /// <summary>
@@ -124,14 +180,14 @@ namespace Honor.Runtime
         /// </summary>
         public void AddDefaultData(GameDefinitions.Language language, string keyName, string content)
         {
-            string data = GetDefaultData(language, keyName);
-            if (data == null)
+            ValidateLanguage(language);
+            ValidateKeyName(keyName);
+
+            Dictionary<string, string> languageContents = GetOrAddCollection(m_DefaultDatas, language);
+
+            if (!languageContents.ContainsKey(keyName))
             {
-                if (!m_DefaultDatas.ContainsKey(language))
-                {
-                    m_DefaultDatas.Add(language, new Dictionary<string, string>());
-                }
-                m_DefaultDatas[language].Add(keyName, content);
+                languageContents.Add(keyName, content);
             }
         }
 
@@ -175,19 +231,11 @@ namespace Honor.Runtime
         /// <returns>本地化文本内容</returns>
         public string GetDefaultData(GameDefinitions.Language language, string keyName)
         {
-            if (language == GameDefinitions.Language.Unspecified)
-            {
-                throw new GameException("language 无效。");
-            }
-
-            if (string.IsNullOrEmpty(keyName))
-            {
-                throw new GameException("keyName 无效。");
-            }
+            ValidateLanguage(language);
+            ValidateKeyName(keyName);
 
             string content = null;
-            Dictionary<string, string> languageContents = null;
-            m_DefaultDatas.TryGetValue(language, out languageContents);
+            m_DefaultDatas.TryGetValue(language, out Dictionary<string, string> languageContents);
             languageContents?.TryGetValue(keyName, out content);
 
             return content;
@@ -203,30 +251,28 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadFontDatas(string abPath, string assetName)
         {
-            TextAsset configJsonAsset = (TextAsset)m_AssetComponent.LoadAssetSync("JsonAsset", abPath, assetName);
-            JObject jObject = JObject.Parse(configJsonAsset.text);
-            
-            foreach (var item in jObject)
+            JObject fontRoot = JObject.Parse(ReadJsonText(abPath, assetName));
+
+            foreach (var entry in fontRoot)
             {
-                GameDefinitions.Language language = (GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), item.Key);
-                string fontType = item.Value["FontType"].ToString();
-                int index = 0;
-                
-                while (item.Value[$"Mark{index}"] != null && !string.IsNullOrEmpty(item.Value[$"Mark{index}"].ToString()))
+                GameDefinitions.Language language = (GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), entry.Key);
+                string fontType = entry.Value["FontType"].ToString();
+                JToken marks = entry.Value;
+                int markIndex = 0;
+
+                while (marks[$"Mark{markIndex}"] != null && !string.IsNullOrEmpty(marks[$"Mark{markIndex}"].ToString()))
                 {
-                    string itemMark = item.Value[$"Mark{index}"].ToString();
-                    string itemABPath = item.Value[$"ABPath{index}"].ToString();
-                    string itemAssetName = item.Value[$"AssetName{index}"].ToString();
-                    string itemCustomMaterialName = item.Value[$"CustomMaterialName{index}"].ToString();
-                    float itemFontSizeScaleRatio = float.Parse(item.Value[$"FontSizeScaleRatio{index}"].ToString());
-                    
-                    LocalizationFontData fontData = new LocalizationFontData(fontType, itemMark, itemABPath, itemAssetName, itemCustomMaterialName, itemFontSizeScaleRatio);
+                    string markText = marks[$"Mark{markIndex}"].ToString();
+                    string markAbPath = marks[$"ABPath{markIndex}"].ToString();
+                    string markAssetName = marks[$"AssetName{markIndex}"].ToString();
+                    string customMaterialName = marks[$"CustomMaterialName{markIndex}"].ToString();
+                    float fontSizeScaleRatio = float.Parse(marks[$"FontSizeScaleRatio{markIndex}"].ToString());
+
+                    LocalizationFontData fontData = new LocalizationFontData(fontType, markText, markAbPath, markAssetName, customMaterialName, fontSizeScaleRatio);
                     AddFontData(language, fontData);
-                    index++;
+                    markIndex++;
                 }
             }
-
-            m_AssetComponent.UnloadAsset(configJsonAsset, null, true);
         }
 
         /// <summary>
@@ -234,23 +280,18 @@ namespace Honor.Runtime
         /// </summary>
         public void AddFontData(GameDefinitions.Language language, LocalizationFontData fontData)
         {
-            GetFontDatas(language, out List<LocalizationFontData> tmpfontDatas);
-            
-            if (tmpfontDatas != null)
+            GetFontDatas(language, out List<LocalizationFontData> existingList);
+
+            if (existingList != null)
             {
-                foreach (var data in tmpfontDatas)
+                foreach (var data in existingList)
                 {
                     if (data.Equals(fontData))
                         return;
                 }
             }
 
-            if (!m_FontDatas.ContainsKey(language))
-            {
-                m_FontDatas.Add(language, new List<LocalizationFontData>());
-            }
-            
-            m_FontDatas[language].Add(fontData);
+            GetOrAddCollection(m_FontDatas, language).Add(fontData);
         }
 
         /// <summary>
@@ -268,11 +309,8 @@ namespace Honor.Runtime
         /// <param name="fontDatas">输出字体列表</param>
         public void GetFontDatas(GameDefinitions.Language language, out List<LocalizationFontData> fontDatas)
         {
-            if (language == GameDefinitions.Language.Unspecified)
-            {
-                throw new GameException("language 无效。");
-            }
-            
+            ValidateLanguage(language);
+
             m_FontDatas.TryGetValue(language, out fontDatas);
         }
         #endregion

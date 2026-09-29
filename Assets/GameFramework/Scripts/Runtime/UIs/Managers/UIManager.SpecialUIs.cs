@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIManager.Extensions.cs
+ * filename:  UIManager.SpecialUIs.cs
  * author:  云毅
  * created: 2026
  * descrip:   UI 管理器 - 扩展功能：等待界面、WebView、流程转场、浮窗、系统弹窗
@@ -80,7 +80,8 @@ namespace Honor.Runtime
             }
             if (m_WaitingUIRefCount == 0)
             {
-                m_ConnectionWaitingUIConnection.SetVisible(false);
+                // AddWaitingRef 创建失败时 m_ConnectionWaitingUIConnection 可能仍为 null，做空值保护
+                m_ConnectionWaitingUIConnection?.SetVisible(false);
             }
         }
 

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  VibrateManager.Define.cs
+ * filename:  VibrateManager.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   震动管理器 - 成员变量、属性定义分部类
@@ -26,13 +26,13 @@ namespace Honor.Runtime
         /// 自定义连续震动组合字典
         /// Key：组合名称 / Value：震动片段列表
         /// </summary>
-        private readonly Dictionary<string, List<VibrateInfo>> m_CustomVibratesGroup;
+        private readonly Dictionary<string, List<VibrateInfo>> m_CustomClipLibrary;
 
         /// <summary>
         /// 短促点震动组合字典
         /// Key：组合名称 / Value：震动片段列表
         /// </summary>
-        private readonly Dictionary<string, List<VibrateInfo>> m_EmphasisVibratesGroup;
+        private readonly Dictionary<string, List<VibrateInfo>> m_EmphasisClipLibrary;
 
 #if NICEVIBRATIONS_ENABLE
         /// <summary>

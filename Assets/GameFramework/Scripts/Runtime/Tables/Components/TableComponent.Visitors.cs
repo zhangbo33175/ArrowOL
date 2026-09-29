@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  TableComponent.Partial.cs
+ * filename:  TableComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   表格配置组件 - 分部类结构占位文件

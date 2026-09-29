@@ -28,6 +28,9 @@ namespace Honor.Runtime
         #region 生命周期
         //=========================================================================
 
+        /// <summary>
+        /// 组件初始化
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();
@@ -42,29 +45,29 @@ namespace Honor.Runtime
             m_RuntimeProcedureRecordInfos = new List<string>();
 
             // 根据配置的流程类型名称数组，批量实例化流程类
-            ProcedureState[] procedures = new ProcedureState[m_ProcedureTypeNames.Length];
-            for (int i = 0; i < m_ProcedureTypeNames.Length; i++)
+            ProcedureState[] stateInstances = new ProcedureState[m_ProcedureTypeNames.Length];
+            for (int cursor = 0; cursor < m_ProcedureTypeNames.Length; cursor++)
             {
                 // 反射获取流程类型
-                Type procedureType = Type.GetType(m_ProcedureTypeNames[i]);
-                if (procedureType == null)
+                Type resolvedType = Type.GetType(m_ProcedureTypeNames[cursor]);
+                if (resolvedType == null)
                 {
-                    Log.Error("无法找到 procedure 类型 '{0}'.", m_ProcedureTypeNames[i]);
+                    Log.Error("无法找到 procedure 类型 '{0}'.", m_ProcedureTypeNames[cursor]);
                     return;
                 }
 
                 // 反射创建流程实例
-                procedures[i] = (ProcedureState)Activator.CreateInstance(procedureType);
-                if (procedures[i] == null)
+                stateInstances[cursor] = (ProcedureState)Activator.CreateInstance(resolvedType);
+                if (stateInstances[cursor] == null)
                 {
-                    Log.Error("无法创建 procedure 实例 '{0}'.", m_ProcedureTypeNames[i]);
+                    Log.Error("无法创建 procedure 实例 '{0}'.", m_ProcedureTypeNames[cursor]);
                     return;
                 }
 
                 // 匹配并记录入口流程
-                if (m_EntryProcedureTypeName == m_ProcedureTypeNames[i])
+                if (m_EntryProcedureTypeName == m_ProcedureTypeNames[cursor])
                 {
-                    m_EntryProcedure = procedures[i];
+                    m_EntryProcedure = stateInstances[cursor];
                 }
             }
 
@@ -76,7 +79,7 @@ namespace Honor.Runtime
             }
 
             // 初始化流程状态机
-            m_ProcedureStateMachine = new ProcedureStateMachine(this, procedures);
+            m_ProcedureStateMachine = new ProcedureStateMachine(this, stateInstances);
 
             // 启动入口流程
             StartProcedure(m_EntryProcedure.GetType());
@@ -118,16 +121,16 @@ namespace Honor.Runtime
         public void InitLuaBindings()
         {
             var procedures = m_ProcedureStateMachine.GetAllStates();
-            for (int i = 0; i < m_ProcedureTypeNames.Length; i++)
+            for (int cursor = 0; cursor < m_ProcedureTypeNames.Length; cursor++)
             {
                 // 截取类型名称作为脚本名
-                string[] words = m_ProcedureTypeNames[i].Split('.');
+                string[] words = m_ProcedureTypeNames[cursor].Split('.');
                 string luaScriptName = words[words.Length - 1];
 
                 // 白名单内流程执行 Lua 绑定
                 if (LuaScriptWhiteNameList.Contains(luaScriptName))
                 {
-                    ((ProcedureState)procedures[i]).InitLuaBindings(luaScriptName);
+                    ((ProcedureState)procedures[cursor]).InitLuaBindings(luaScriptName);
                 }
             }
         }
@@ -139,15 +142,23 @@ namespace Honor.Runtime
         //=========================================================================
 
         /// <summary>
-        /// 启动指定类型的流程
+        /// 校验状态机已初始化，否则抛出异常
         /// </summary>
-        /// <param name="procedureType">流程类型</param>
-        private void StartProcedure(Type procedureType)
+        private void EnsureStateMachineReady()
         {
             if (m_ProcedureStateMachine == null)
             {
                 throw new GameException("必须先初始化 ProcedureStateMachine。");
             }
+        }
+
+        /// <summary>
+        /// 启动指定类型的流程
+        /// </summary>
+        /// <param name="procedureType">流程类型</param>
+        private void StartProcedure(Type procedureType)
+        {
+            EnsureStateMachineReady();
             m_ProcedureStateMachine.Start(procedureType);
         }
 
@@ -156,10 +167,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool HasProcedure(Type procedureType)
         {
-            if (m_ProcedureStateMachine == null)
-            {
-                throw new GameException("必须先初始化 ProcedureStateMachine。");
-            }
+            EnsureStateMachineReady();
             return m_ProcedureStateMachine.HasState(procedureType);
         }
 
@@ -168,10 +176,7 @@ namespace Honor.Runtime
         /// </summary>
         public ProcedureState GetProcedure(Type procedureType)
         {
-            if (m_ProcedureStateMachine == null)
-            {
-                throw new GameException("必须先初始化 ProcedureStateMachine。");
-            }
+            EnsureStateMachineReady();
             return (ProcedureState)m_ProcedureStateMachine.GetState(procedureType);
         }
 

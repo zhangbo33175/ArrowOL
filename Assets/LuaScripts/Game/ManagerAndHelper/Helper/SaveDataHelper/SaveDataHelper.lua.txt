@@ -17,7 +17,7 @@ local SaveDataHelper = class("SaveDataHelper")
 --region 构造 & 实例化
 
 ---=========================================================================
---- 构造函数
+---@brief 构造函数
 ---=========================================================================
 function SaveDataHelper:ctor(args)
     ---@type string 登录鉴权 Token
@@ -25,7 +25,7 @@ function SaveDataHelper:ctor(args)
 end
 
 ---=========================================================================
---- 创建单例实例
+---@brief 创建单例实例
 ---@return SaveDataHelper
 ---=========================================================================
 function SaveDataHelper:Create(args)
@@ -37,7 +37,7 @@ end
 --region 登录信息本地保存
 
 ---=========================================================================
---- 保存登录返回的用户信息（UID、注册时间、登录时间、绑定时间）
+---@brief 保存登录返回的用户信息（UID、注册时间、登录时间、绑定时间）
 ---@param returnData table 登录返回数据
 ---=========================================================================
 function SaveDataHelper:SaveSignInInfos(returnData)
@@ -82,7 +82,7 @@ function SaveDataHelper:SaveSignInInfos(returnData)
 end
 
 ---=========================================================================
---- 仅保存登录 Token
+---@brief 仅保存登录 Token
 ---@param returnData table 登录数据
 ---=========================================================================
 function SaveDataHelper:SaveToken(returnData)
@@ -92,7 +92,7 @@ function SaveDataHelper:SaveToken(returnData)
 end
 
 ---=========================================================================
---- 保存云端第三方账号信息
+---@brief 保存云端第三方账号信息
 ---@param returnData table 服务器数据
 ---=========================================================================
 function SaveDataHelper:SaveSignInAid(returnData)
@@ -107,7 +107,7 @@ end
 --region 云端存档 → 本地覆盖
 
 ---=========================================================================
---- 动态重载存档结构并替换数据
+---@brief 动态重载存档结构并替换数据
 ---@param otherGameData table 外部数据
 ---@return table 新的游戏数据
 ---=========================================================================
@@ -121,7 +121,7 @@ function SaveDataHelper:DynamicReplacementGameData(otherGameData)
 end
 
 ---=========================================================================
---- 递归复制存档表（云端 → 本地）
+---@brief 递归复制存档表（云端 → 本地）
 ---@param dest table 目标表
 ---@param source table 源表
 ---=========================================================================
@@ -137,7 +137,7 @@ function SaveDataHelper:CopyGameDataTable(dest, source)
 end
 
 ---=========================================================================
---- 登录成功后：保存信息 + 自动全量同步
+---@brief 登录成功后：保存信息 + 自动全量同步
 ---@param returnData table 登录数据
 ---@param completeCallback function 完成回调
 ---=========================================================================

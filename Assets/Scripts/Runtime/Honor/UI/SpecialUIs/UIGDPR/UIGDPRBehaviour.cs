@@ -64,6 +64,9 @@ namespace Honor.Runtime
         //=========================================================================
         // MonoBehaviour 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒时获取全局持久化组件并校验有效性
+        /// </summary>
         private void Awake()
         {
             // 获取全局持久化数据组件
@@ -75,6 +78,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 启动时初始化各子界面（主界面 / 详情页 / 重置页）
+        /// </summary>
         private void Start()
         {
             // 初始化背景相关界面
@@ -86,6 +92,9 @@ namespace Honor.Runtime
             /*if(!InGame) Root.SDK.TGAHelper.Track("Honor_gdpr_open");*/
         }
 
+        /// <summary>
+        /// 销毁（预留）
+        /// </summary>
         private void OnDestroy()
         {
         }

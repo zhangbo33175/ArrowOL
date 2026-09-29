@@ -55,26 +55,10 @@ namespace Honor.Editor
         {
             if (s_Instance == null)
             {
-                s_Instance = GetWindow<T>() as BaseEditorWindow<T>;
-                s_Instance.titleContent = s_Instance.Title;
-
-                if (s_Instance.MinSize != Vector2.zero)
-                {
-                    s_Instance.minSize = s_Instance.MinSize;
-                }
-
-                if (s_Instance.MaxSize != Vector2.zero)
-                {
-                    s_Instance.maxSize = s_Instance.MaxSize;
-                }
+                s_Instance = CreateSingletonWindow();
             }
 
-            if (s_Instance != null)
-            {
-                s_Instance.ShowCall?.Invoke();
-                s_Instance.Focus();
-            }
-
+            BringToFront(s_Instance);
             return s_Instance as T;
         }
 
@@ -89,27 +73,60 @@ namespace Honor.Editor
                 return Open();
             }
 
-            BaseEditorWindow<T> win = CreateInstance<T>() as BaseEditorWindow<T>;
-
-            if (win != null)
+            BaseEditorWindow<T> detachedWindow = CreateInstance<T>() as BaseEditorWindow<T>;
+            if (detachedWindow == null)
             {
-                win.titleContent = win.Title;
-
-                if (win.MinSize != Vector2.zero)
-                {
-                    win.minSize = win.MinSize;
-                }
-
-                if (win.MaxSize != Vector2.zero)
-                {
-                    win.maxSize = win.MaxSize;
-                }
-
-                win.ShowCall?.Invoke();
-                win.Focus();
+                return null;
             }
 
-            return win as T;
+            InitializeWindowFrame(detachedWindow);
+            BringToFront(detachedWindow);
+            return detachedWindow as T;
+        }
+
+        /// <summary>
+        /// 创建并初始化全局唯一的单例窗口
+        /// </summary>
+        /// <returns>新建的单例窗口实例</returns>
+        private static BaseEditorWindow<T> CreateSingletonWindow()
+        {
+            BaseEditorWindow<T> singleton = GetWindow<T>() as BaseEditorWindow<T>;
+            InitializeWindowFrame(singleton);
+            return singleton;
+        }
+
+        /// <summary>
+        /// 设置窗口标题与最小/最大尺寸
+        /// </summary>
+        /// <param name="targetWindow">待初始化的窗口实例</param>
+        private static void InitializeWindowFrame(BaseEditorWindow<T> targetWindow)
+        {
+            targetWindow.titleContent = targetWindow.Title;
+
+            if (targetWindow.MinSize != Vector2.zero)
+            {
+                targetWindow.minSize = targetWindow.MinSize;
+            }
+
+            if (targetWindow.MaxSize != Vector2.zero)
+            {
+                targetWindow.maxSize = targetWindow.MaxSize;
+            }
+        }
+
+        /// <summary>
+        /// 触发窗口显示委托并使其获得焦点
+        /// </summary>
+        /// <param name="targetWindow">需要前置显示的窗口实例</param>
+        private static void BringToFront(BaseEditorWindow<T> targetWindow)
+        {
+            if (targetWindow == null)
+            {
+                return;
+            }
+
+            targetWindow.ShowCall?.Invoke();
+            targetWindow.Focus();
         }
 
         /// <summary>
@@ -118,8 +135,7 @@ namespace Honor.Editor
         protected virtual void OnGUI()
         {
             // 鼠标点击时清空控件焦点，避免输入框残留
-            Event currentEvent = Event.current;
-            if (currentEvent.type == EventType.MouseDown)
+            if (Event.current.type == EventType.MouseDown)
             {
                 GUI.FocusControl(null);
             }

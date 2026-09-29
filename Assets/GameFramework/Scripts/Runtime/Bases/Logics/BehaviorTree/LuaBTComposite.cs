@@ -41,66 +41,12 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 m_LuaBehaviour = gameObject.GetComponent<LuaBehaviour>();
             }
-            
+
             // 初始化LuaBTComposite并绑定Lua层对应生命周期函数与回调方法
             if (m_LuaBehaviour != null)
             {
-                LuaFunction createBTAction;
-                m_LuaBehaviour.luaClass.Get("CreateBTComposite", out createBTAction);
-
-                LuaTable args = Root.Lua.Env.NewTable();
-                args.Set("luaBTName", m_LuaBTCompositeName);
-                args.Set("csClass", this);
-
-                // 创建Lua层组合节点实例
-                m_LuaClass = createBTAction.Func<LuaTable, LuaTable, LuaTable>(m_LuaBehaviour.luaClass, args);
-                if(m_LuaClass == null)
-                {
-                    Honor.Runtime.Log.Fatal("行为树Lua脚本：{0} 创建失败。", m_LuaBTCompositeName);
-                    return;
-                }
-
-                // 绑定所有Lua生命周期与回调方法
-                m_LuaClass.Get("OnAwakeBT", out m_OnAwakeBT);
-                m_LuaClass.Get("OnStartBT", out m_OnStartBT);
-                m_LuaClass.Get("OnUpdateBT", out m_OnUpdateBT);
-                m_LuaClass.Get("OnPauseBT", out m_OnPauseBT);
-                m_LuaClass.Get("OnResetBT", out m_OnResetBT);
-                m_LuaClass.Get("OnEndBT", out m_OnEndBT);
-                m_LuaClass.Get("OnFixedUpdateBT", out m_OnFixedUpdateBT);
-                m_LuaClass.Get("OnLateUpdateBT", out m_OnLateUpdateBT);
-                m_LuaClass.Get("OnBehaviorCompleteBT", out m_OnBehaviorCompleteBT);
-                m_LuaClass.Get("OnBehaviorRestartBT", out m_OnBehaviorRestartBT);
-                m_LuaClass.Get("GetPriorityBT", out m_GetPriorityBT);
-                m_LuaClass.Get("GetUtilityBT", out m_GetUtilityBT);
-                m_LuaClass.Get("OnAnimatorIKBT", out m_OnAnimatorIKBT);
-                m_LuaClass.Get("OnCollisionEnterBT", out m_OnCollisionEnterBT);
-                m_LuaClass.Get("OnCollisionEnter2DBT", out m_OnCollisionEnter2DBT);
-                m_LuaClass.Get("OnCollisionExitBT", out m_OnCollisionExitBT);
-                m_LuaClass.Get("OnCollisionExit2DBT", out m_OnCollisionExit2DBT);
-                m_LuaClass.Get("OnConditionalAbort0BT", out m_OnConditionalAbort0BT);
-                m_LuaClass.Get("OnControllerColliderHitBT", out m_OnControllerColliderHitBT);
-                m_LuaClass.Get("OnDrawGizmosBT", out m_OnDrawGizmosBT);
-                m_LuaClass.Get("OnDrawNodeTextBT", out m_OnDrawNodeTextBT);
-                m_LuaClass.Get("OnTriggerEnterBT", out m_OnTriggerEnterBT);
-                m_LuaClass.Get("OnTriggerEnter2DBT", out m_OnTriggerEnter2DBT);
-                m_LuaClass.Get("OnTriggerExitBT", out m_OnTriggerExitBT);
-                m_LuaClass.Get("OnTriggerExit2DBT", out m_OnTriggerExit2DBT);
-                m_LuaClass.Get("CanExecuteBT", out m_CanExecuteBT);
-                m_LuaClass.Get("CanReevaluateBT", out m_CanReevaluateBT);
-                m_LuaClass.Get("CanRunParallelChildrenBT", out m_CanRunParallelChildrenBT);
-                m_LuaClass.Get("CurrentChildIndexBT", out m_CurrentChildIndexBT);
-                m_LuaClass.Get("DecorateBT", out m_DecorateBT);
-                m_LuaClass.Get("MaxChildrenBT", out m_MaxChildrenBT);
-                m_LuaClass.Get("OnChildExecuted2BT", out m_OnChildExecuted2BT);
-                m_LuaClass.Get("OnChildExecuted1BT", out m_OnChildExecuted1BT);
-                m_LuaClass.Get("OnChildStarted0BT", out m_OnChildStarted0BT);
-                m_LuaClass.Get("OnChildStarted1BT", out m_OnChildStarted1BT);
-                m_LuaClass.Get("OnConditionalAbort1BT", out m_OnConditionalAbort1BT);
-                m_LuaClass.Get("OverrideStatus1BT", out m_OverrideStatus1BT);
-                m_LuaClass.Get("OverrideStatus0BT", out m_OverrideStatus0BT);
-                m_LuaClass.Get("OnReevaluationEndedBT", out m_OnReevaluationEndedBT);
-                m_LuaClass.Get("OnReevaluationStartedBT", out m_OnReevaluationStartedBT);
+                if (!SetupLuaBTInstance()) return;
+                BindAllBTCallbacks();
             }
 
             // 执行Lua层唤醒回调
@@ -112,6 +58,78 @@ namespace BehaviorDesigner.Runtime.Tasks
             {
                 base.OnAwake();
             }
+        }
+
+        /// <summary>
+        /// 创建Lua层组合节点实例并校验，失败时打印致命日志
+        /// </summary>
+        /// <returns>Lua实例是否创建成功</returns>
+        private bool SetupLuaBTInstance()
+        {
+            LuaFunction createBTAction;
+            m_LuaBehaviour.luaClass.Get("CreateBTComposite", out createBTAction);
+
+            LuaTable args = Root.Lua.Env.NewTable();
+            args.Set("luaBTName", m_LuaBTCompositeName);
+            args.Set("csClass", this);
+
+            // 创建Lua层组合节点实例
+            m_LuaClass = createBTAction.Func<LuaTable, LuaTable, LuaTable>(m_LuaBehaviour.luaClass, args);
+            if(m_LuaClass == null)
+            {
+                Honor.Runtime.Log.Fatal("行为树Lua脚本：{0} 创建失败。", m_LuaBTCompositeName);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 从Lua实例绑定所有行为树生命周期与回调委托字段
+        /// </summary>
+        private void BindAllBTCallbacks()
+        {
+            // 绑定所有Lua生命周期与回调方法
+            m_LuaClass.Get("OnAwakeBT", out m_OnAwakeBT);
+            m_LuaClass.Get("OnStartBT", out m_OnStartBT);
+            m_LuaClass.Get("OnUpdateBT", out m_OnUpdateBT);
+            m_LuaClass.Get("OnPauseBT", out m_OnPauseBT);
+            m_LuaClass.Get("OnResetBT", out m_OnResetBT);
+            m_LuaClass.Get("OnEndBT", out m_OnEndBT);
+            m_LuaClass.Get("OnFixedUpdateBT", out m_OnFixedUpdateBT);
+            m_LuaClass.Get("OnLateUpdateBT", out m_OnLateUpdateBT);
+            m_LuaClass.Get("OnBehaviorCompleteBT", out m_OnBehaviorCompleteBT);
+            m_LuaClass.Get("OnBehaviorRestartBT", out m_OnBehaviorRestartBT);
+            m_LuaClass.Get("GetPriorityBT", out m_GetPriorityBT);
+            m_LuaClass.Get("GetUtilityBT", out m_GetUtilityBT);
+            m_LuaClass.Get("OnAnimatorIKBT", out m_OnAnimatorIKBT);
+            m_LuaClass.Get("OnCollisionEnterBT", out m_OnCollisionEnterBT);
+            m_LuaClass.Get("OnCollisionEnter2DBT", out m_OnCollisionEnter2DBT);
+            m_LuaClass.Get("OnCollisionExitBT", out m_OnCollisionExitBT);
+            m_LuaClass.Get("OnCollisionExit2DBT", out m_OnCollisionExit2DBT);
+            m_LuaClass.Get("OnConditionalAbort0BT", out m_OnConditionalAbort0BT);
+            m_LuaClass.Get("OnControllerColliderHitBT", out m_OnControllerColliderHitBT);
+            m_LuaClass.Get("OnDrawGizmosBT", out m_OnDrawGizmosBT);
+            m_LuaClass.Get("OnDrawNodeTextBT", out m_OnDrawNodeTextBT);
+            m_LuaClass.Get("OnTriggerEnterBT", out m_OnTriggerEnterBT);
+            m_LuaClass.Get("OnTriggerEnter2DBT", out m_OnTriggerEnter2DBT);
+            m_LuaClass.Get("OnTriggerExitBT", out m_OnTriggerExitBT);
+            m_LuaClass.Get("OnTriggerExit2DBT", out m_OnTriggerExit2DBT);
+            m_LuaClass.Get("CanExecuteBT", out m_CanExecuteBT);
+            m_LuaClass.Get("CanReevaluateBT", out m_CanReevaluateBT);
+            m_LuaClass.Get("CanRunParallelChildrenBT", out m_CanRunParallelChildrenBT);
+            m_LuaClass.Get("CurrentChildIndexBT", out m_CurrentChildIndexBT);
+            m_LuaClass.Get("DecorateBT", out m_DecorateBT);
+            m_LuaClass.Get("MaxChildrenBT", out m_MaxChildrenBT);
+            m_LuaClass.Get("OnChildExecuted2BT", out m_OnChildExecuted2BT);
+            m_LuaClass.Get("OnChildExecuted1BT", out m_OnChildExecuted1BT);
+            m_LuaClass.Get("OnChildStarted0BT", out m_OnChildStarted0BT);
+            m_LuaClass.Get("OnChildStarted1BT", out m_OnChildStarted1BT);
+            m_LuaClass.Get("OnConditionalAbort1BT", out m_OnConditionalAbort1BT);
+            m_LuaClass.Get("OverrideStatus1BT", out m_OverrideStatus1BT);
+            m_LuaClass.Get("OverrideStatus0BT", out m_OverrideStatus0BT);
+            m_LuaClass.Get("OnReevaluationEndedBT", out m_OnReevaluationEndedBT);
+            m_LuaClass.Get("OnReevaluationStartedBT", out m_OnReevaluationStartedBT);
         }
 
         /// <summary>

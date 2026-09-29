@@ -21,7 +21,6 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class NetworkManager
     {
-      
 #if BEST_HTTP_ENABLE
         //=========================================================================
         #region WebSocket 连接管理
@@ -36,43 +35,43 @@ namespace Honor.Runtime
         /// <returns>WebSocket 实例</returns>
         public WebSocket CreateWebSocketConnection(string wsName, string url)
         {
-            // 连接已存在，直接返回
-            if(m_WebSockets.ContainsKey(wsName))
+            // 连接已存在，直接返回（TryGetValue 单次查找）
+            if (m_SocketTable.TryGetValue(wsName, out WebSocket existing))
             {
                 Log.Warning($"[Network]WebSocket连接({wsName})已经存在，无需重建，直接返回。");
-                return m_WebSockets[wsName];
+                return existing;
             }
 
             // 创建 WebSocket 实例
-            WebSocket ws = new WebSocket(new Uri(url));
-            ws.Name = wsName;
+            WebSocket socket = new WebSocket(new Uri(url));
+            socket.Name = wsName;
 
 #if !UNITY_WEBGL || UNITY_EDITOR
             // 非 WebGL 平台开启独立线程 Ping 保活
-            ws.StartPingThread = true;
+            socket.StartPingThread = true;
 
 #if !BESTHTTP_DISABLE_PROXY
             // 代理配置
             if (HTTPManager.Proxy != null)
             {
-                ws.OnInternalRequestCreated = (ws, internalRequest) => internalRequest.Proxy = new HTTPProxy(HTTPManager.Proxy.Address, HTTPManager.Proxy.Credentials, false);
+                socket.OnInternalRequestCreated = (sock, internalRequest) => internalRequest.Proxy = new HTTPProxy(HTTPManager.Proxy.Address, HTTPManager.Proxy.Credentials, false);
             }
 #endif
 #endif
             // 注册所有生命周期事件
-            ws.OnOpen += OnWebSocketOpen;
-            ws.OnMessage += OnWebSocketMessageReceived;
-            ws.OnBinary += OnWebSocketBinaryReceived;
-            ws.OnClosed += OnWebSocketClosed;
-            ws.OnError += OnWebSocketError;
+            socket.OnOpen += HandleSocketOpened;
+            socket.OnMessage += HandleSocketTextReceived;
+            socket.OnBinary += HandleSocketBinaryReceived;
+            socket.OnClosed += HandleSocketClosed;
+            socket.OnError += HandleSocketError;
 
             // 发起连接
-            ws.Open();
+            socket.Open();
 
             // 存入连接池
-            m_WebSockets.Add(wsName, ws);
+            m_SocketTable.Add(wsName, socket);
 
-            return ws;
+            return socket;
         }
 
         /// <summary>
@@ -84,20 +83,20 @@ namespace Honor.Runtime
         /// <param name="message">关闭消息</param>
         public void CloseWebSocketConnection(string wsName, UInt16 code, string message)
         {
-            if (!m_WebSockets.ContainsKey(wsName))
+            if (!m_SocketTable.TryGetValue(wsName, out WebSocket target))
             {
                 Log.Warning($"[Network]WebSocket连接({wsName})不存在。");
                 return;
             }
 
-            // 使用默认或自定义参数关闭
+            // 无自定义参数时走默认关闭，否则带码与消息关闭
             if (code == default(UInt16) && string.IsNullOrEmpty(message))
             {
-                m_WebSockets[wsName].Close();
+                target.Close();
             }
             else
             {
-                m_WebSockets[wsName].Close(code, message);
+                target.Close(code, message);
             }
         }
 
@@ -108,12 +107,12 @@ namespace Honor.Runtime
         /// <param name="message">文本内容</param>
         public void SendWebSocketMessage(string wsName, string message)
         {
-            if (!m_WebSockets.ContainsKey(wsName))
+            if (!m_SocketTable.TryGetValue(wsName, out WebSocket target))
             {
                 Log.Error($"[Network]WebSocket连接({wsName})不存在。");
                 return;
             }
-            m_WebSockets[wsName].Send(message);
+            target.Send(message);
         }
 
         /// <summary>
@@ -123,12 +122,12 @@ namespace Honor.Runtime
         /// <param name="datas">字节数组</param>
         public void SendWebSocketBinary(string wsName, byte[] datas)
         {
-            if (!m_WebSockets.ContainsKey(wsName))
+            if (!m_SocketTable.TryGetValue(wsName, out WebSocket target))
             {
                 Log.Error($"[Network]WebSocket连接({wsName})不存在。");
                 return;
             }
-            m_WebSockets[wsName].Send(datas);
+            target.Send(datas);
         }
 
         /// <summary>
@@ -138,12 +137,12 @@ namespace Honor.Runtime
         /// <returns>WebSocket 实例</returns>
         public WebSocket GetWebSocket(string wsName)
         {
-            if (!m_WebSockets.ContainsKey(wsName))
+            if (!m_SocketTable.TryGetValue(wsName, out WebSocket target))
             {
                 Log.Warning($"[Network]WebSocket连接({wsName})不存在。");
                 return null;
             }
-            return m_WebSockets[wsName];
+            return target;
         }
 
         #endregion
@@ -155,37 +154,37 @@ namespace Honor.Runtime
         /// <summary>
         /// WebSocket 连接成功回调
         /// </summary>
-        private void OnWebSocketOpen(WebSocket ws)
+        private void HandleSocketOpened(WebSocket socket)
         {
-            Log.Info($"[Network]WebSocket连接({ws.Name})建立成功。");
+            Log.Info($"[Network]WebSocket连接({socket.Name})建立成功。");
             // 通知 Lua 层
-            if(m_LuaComponent.LuaWebSocketOpenCSEventDelegate != null)
+            if (m_LuaBridge.LuaWebSocketOpenCSEventDelegate != null)
             {
-                m_LuaComponent.LuaWebSocketOpenCSEventDelegate(ws);
+                m_LuaBridge.LuaWebSocketOpenCSEventDelegate(socket);
             }
         }
 
         /// <summary>
         /// 收到文本消息回调
         /// </summary>
-        private void OnWebSocketMessageReceived(WebSocket ws, string message)
+        private void HandleSocketTextReceived(WebSocket socket, string message)
         {
-            Log.Info($"[Network]WebSocket连接({ws.Name})收到文本信息。Message = {message}。");
-            if (m_LuaComponent.LuaWebSocketMessageReceivedCSEventDelegate != null)
+            Log.Info($"[Network]WebSocket连接({socket.Name})收到文本信息。Message = {message}。");
+            if (m_LuaBridge.LuaWebSocketMessageReceivedCSEventDelegate != null)
             {
-                m_LuaComponent.LuaWebSocketMessageReceivedCSEventDelegate(ws, message);
+                m_LuaBridge.LuaWebSocketMessageReceivedCSEventDelegate(socket, message);
             }
         }
 
         /// <summary>
         /// 收到二进制消息回调
         /// </summary>
-        private void OnWebSocketBinaryReceived(WebSocket ws, byte[] datas)
+        private void HandleSocketBinaryReceived(WebSocket socket, byte[] datas)
         {
-            Log.Info($"[Network]WebSocket连接({ws.Name})收到字节流信息。Datas = {datas}。");
-            if (m_LuaComponent.LuaWebSocketBinaryReceivedCSEventDelegate != null)
+            Log.Info($"[Network]WebSocket连接({socket.Name})收到字节流信息。Datas = {datas}。");
+            if (m_LuaBridge.LuaWebSocketBinaryReceivedCSEventDelegate != null)
             {
-                m_LuaComponent.LuaWebSocketBinaryReceivedCSEventDelegate(ws, datas);
+                m_LuaBridge.LuaWebSocketBinaryReceivedCSEventDelegate(socket, datas);
             }
         }
 
@@ -193,17 +192,14 @@ namespace Honor.Runtime
         /// WebSocket 正常关闭回调
         /// 自动从连接池移除
         /// </summary>
-        private void OnWebSocketClosed(WebSocket ws, UInt16 code, string message)
+        private void HandleSocketClosed(WebSocket socket, UInt16 code, string message)
         {
-            Log.Info($"[Network]WebSocket连接({ws.Name})连接关闭。Code = {code}，Message = {message}。");
-            // 从管理字典中移除
-            if(m_WebSockets.ContainsKey(ws.Name))
+            Log.Info($"[Network]WebSocket连接({socket.Name})连接关闭。Code = {code}，Message = {message}。");
+            // 从管理字典中移除（不存在时 Remove 无副作用）
+            m_SocketTable.Remove(socket.Name);
+            if (m_LuaBridge.LuaWebSocketClosedCSEventDelegate != null)
             {
-                m_WebSockets.Remove(ws.Name);
-            }
-            if (m_LuaComponent.LuaWebSocketClosedCSEventDelegate != null)
-            {
-                m_LuaComponent.LuaWebSocketClosedCSEventDelegate(ws, code, message);
+                m_LuaBridge.LuaWebSocketClosedCSEventDelegate(socket, code, message);
             }
         }
 
@@ -211,21 +207,18 @@ namespace Honor.Runtime
         /// WebSocket 错误回调
         /// 自动断开并从连接池移除
         /// </summary>
-        private void OnWebSocketError(WebSocket ws, string error)
+        private void HandleSocketError(WebSocket socket, string error)
         {
-            Log.Warning($"[Network]WebSocket连接({ws.Name})发生错误。Error = {error}。");
-            if (m_WebSockets.ContainsKey(ws.Name))
+            Log.Warning($"[Network]WebSocket连接({socket.Name})发生错误。Error = {error}。");
+            m_SocketTable.Remove(socket.Name);
+            if (m_LuaBridge.LuaWebSocketErrorCSEventDelegate != null)
             {
-                m_WebSockets.Remove(ws.Name);
-            }
-            if (m_LuaComponent.LuaWebSocketErrorCSEventDelegate != null)
-            {
-                m_LuaComponent.LuaWebSocketErrorCSEventDelegate(ws, error);
+                m_LuaBridge.LuaWebSocketErrorCSEventDelegate(socket, error);
             }
         }
-    #endregion
+
+        #endregion
 #endif
 
-    
     }
 }

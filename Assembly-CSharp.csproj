@@ -811,6 +811,7 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_MeshRendererBuffersWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PostEffectSwitchSceneWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Configs\Managers\ConfigManager.ConfigData.cs" />
+    <Compile Include="Assets\GameFramework\Scripts\Runtime\Tools\CommonUtility.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Persists\Managers\PlayerPrefs\PlayerPrefsManager.Visitors.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_ColorWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\Extensions\Attributes\GameInfoAttribute.cs" />
@@ -901,7 +902,6 @@
     <None Include="Assets\LuaScripts\Game\Tables\Tables.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\libs\SystemSet.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.visualstudio@2.0.18\ValidationConfig.json" />
-    <None Include="Assets\LuaRankDelivery\ModifiedFiles\RankDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationGerman\LocalizationGerman.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationFrench\LocalizationFrench.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.terrainphysics@1.0.0\package.json" />
@@ -977,7 +977,6 @@
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\TableHomeIcons.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\Declarations\DeclareSystemConfigDataPB.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSourcesTxt\LocalizationChineseSimplifiedFontTMPChars.txt" />
-    <None Include="Assets\LuaRankDelivery\ModifiedFiles\UIMainStateViewView.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.physics2d@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\perfs\SystemProfiler.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPTxt\lang_fr.txt" />
@@ -1046,7 +1045,6 @@
     <None Include="Assets\LuaScripts\Honor\PB\Declarations\DeclareUserDataPB.lua.txt" />
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\Editor Resources\Shaders\TMP_SDF_SSD.cginc" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\SystemConfigDataPB.lua.txt" />
-    <None Include="Assets\LuaRankDelivery\ModifiedFiles\RankItem.lua.txt" />
     <None Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\ValidationConfig.json" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationPortuguesePortugal\LocalizationPortuguesePortugal.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\Events\SpaceMission\TableAIName.lua.txt" />
@@ -1066,7 +1064,6 @@
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\Editor Resources\Shaders\TMP_SDF Internal Editor.shader" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\NotificationDataPB.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\LocalEventDataManager.lua.txt" />
-    <None Include="Assets\LuaRankDelivery\ModifiedFiles\UIRankView.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIRankView\RankItem.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.director@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultFrench.json" />
@@ -1115,7 +1112,6 @@
     <None Include="Library\PackageCache\com.unity.modules.uielements@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UISettlementView\UILevelVictoryView.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\LevelConfigs\TableChapters.lua.txt" />
-    <None Include="Assets\LuaRankDelivery\ModifiedFiles\GameRequires.lua.txt" />
     <None Include="Assets\LuaScripts\Game\ManagerAndHelper\Data\ConstantsDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\Singleton\Systems\libs\SystemApis.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.ui@1.0.0\package.json" />

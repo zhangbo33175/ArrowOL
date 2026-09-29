@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  MapBuildEditor.IconList.cs
+ * filename:  MapBuildEditor.SetMapIconScrollView.cs
  * author:    云毅
  * created:   2026
  * descrip:   地图编辑器 - 图标列表管理模块（图标加载、列表绘制、选中交互）
@@ -183,9 +183,10 @@ namespace Editor.MapEditor
             }
 
             // 最后如果还有没闭合的行，强制闭合
+            //（每行以 BeginVertical 开始，必须配对 EndVertical，与上方行容器一致）
             if (currentCount % itemsPerRow != 0)
             {
-                GUILayout.EndHorizontal();
+                GUILayout.EndVertical();
             }
 
             GUILayout.EndVertical();
@@ -212,31 +213,14 @@ namespace Editor.MapEditor
                 itemRect.y + 5,
                 40, 40
             );
-            Texture2D m_IconTexture = null;
 
-            if (dataEditor.m_IconAssetPath != null)
-            {
-                m_IconTexture = Utils.LoadImageTexture(PathUtils.GetItemIconPath(dataEditor.m_IconAssetPath));
-            }
-
-            // 绘制图标
-            if (m_IconTexture != null)
-            {
-                GUI.DrawTexture(iconRect, m_IconTexture, ScaleMode.ScaleToFit);
-            }
-            else
-            {
-                EditorGUI.DrawRect(iconRect, Color.gray);
-                GUI.Label(iconRect, "?", new GUIStyle { alignment = TextAnchor.MiddleCenter });
-            }
+            // 加载并绘制图标（无图时画灰色占位）
+            LoadAndDrawIcon(iconRect, dataEditor.m_IconAssetPath);
 
             // 选中红色边框
             if (_selectedIconIndex == index)
             {
-                EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.y, iconRect.width, 2), Color.red);
-                EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.y, 2, iconRect.height), Color.red);
-                EditorGUI.DrawRect(new Rect(iconRect.xMax - 2, iconRect.y, 2, iconRect.height), Color.red);
-                EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.yMax - 2, iconRect.width, 2), Color.red);
+                DrawSelectedBorder(iconRect);
             }
 
             // 文字在图标右侧（横向布局）
@@ -264,6 +248,44 @@ namespace Editor.MapEditor
                 e.Use();
                 Repaint();
             }
+        }
+
+        /// <summary>
+        /// 加载图标纹理并绘制到指定区域；加载失败时绘制灰色占位与问号
+        /// </summary>
+        /// <param name="iconRect">图标绘制区域</param>
+        /// <param name="assetPath">图标资源路径</param>
+        private void LoadAndDrawIcon(Rect iconRect, string assetPath)
+        {
+            Texture2D iconTexture = null;
+
+            if (assetPath != null)
+            {
+                iconTexture = Utils.LoadImageTexture(PathUtils.GetItemIconPath(assetPath));
+            }
+
+            // 绘制图标
+            if (iconTexture != null)
+            {
+                GUI.DrawTexture(iconRect, iconTexture, ScaleMode.ScaleToFit);
+            }
+            else
+            {
+                EditorGUI.DrawRect(iconRect, Color.gray);
+                GUI.Label(iconRect, "?", new GUIStyle { alignment = TextAnchor.MiddleCenter });
+            }
+        }
+
+        /// <summary>
+        /// 绘制选中项的红色四周边框
+        /// </summary>
+        /// <param name="iconRect">图标区域，边框围绕其四周</param>
+        private void DrawSelectedBorder(Rect iconRect)
+        {
+            EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.y, iconRect.width, 2), Color.red);
+            EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.y, 2, iconRect.height), Color.red);
+            EditorGUI.DrawRect(new Rect(iconRect.xMax - 2, iconRect.y, 2, iconRect.height), Color.red);
+            EditorGUI.DrawRect(new Rect(iconRect.x, iconRect.yMax - 2, iconRect.width, 2), Color.red);
         }
 
         /// <summary>

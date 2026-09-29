@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaComponent.cs
+ * filename:  LuaComponent.Extensions.cs
  * author:    云毅
  * created:   2026
  * descrip:   Lua 交互组件

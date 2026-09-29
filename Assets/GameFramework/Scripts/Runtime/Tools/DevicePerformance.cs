@@ -24,12 +24,12 @@ namespace Honor.Runtime
         /// 低端设备
         /// </summary>
         Low,
-        
+
         /// <summary>
         /// 中端设备
         /// </summary>
         Mid,
-        
+
         /// <summary>
         /// 高端设备
         /// </summary>
@@ -48,12 +48,12 @@ namespace Honor.Runtime
         /// 低画质
         /// </summary>
         Low,
-        
+
         /// <summary>
         /// 中画质
         /// </summary>
         Mid,
-        
+
         /// <summary>
         /// 高画质
         /// </summary>
@@ -72,6 +72,16 @@ namespace Honor.Runtime
     /// </summary>
     public static class DevicePerformance
     {
+        /// <summary>
+        /// 各性能等级对应的 UI 显示颜色（下标与 DevicePerformanceLevel 数值一致）
+        /// </summary>
+        private static readonly Color32[] s_LevelColors = new Color32[]
+        {
+            new Color32(0x89, 0x0, 0xA4, 0xFF), // Low：紫色
+            new Color32(0xFF, 0xEB, 0x29, 0xFF), // Mid：黄色
+            new Color32(0x0, 0x82, 0x1A, 0xFF), // High：绿色
+        };
+
         #region 设备性能等级判断
         /// <summary>
         /// 获取设备硬件性能评级（核心判断逻辑）
@@ -85,70 +95,69 @@ namespace Honor.Runtime
             {
                 return DevicePerformanceLevel.Low;
             }
-            else // NVIDIA / AMD 独立显卡
-            {
-                // 第一步：按 CPU 核心数判断（不同平台阈值不同）
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-                if (SystemInfo.processorCount <= GameMainRoot.Launcher.EditorPerformance.ProcessorCount)
-#elif UNITY_STANDALONE_OSX || UNITY_IOS
-                if (SystemInfo.processorCount < Root.Launcher.iOSPerformance.ProcessorCount)
-#elif UNITY_ANDROID
-                if (SystemInfo.processorCount <= Root.Launcher.AndroidPerformance.ProcessorCount)
-#endif
-                {
-                    // CPU 核心数不足 → 低端机
-                    return DevicePerformanceLevel.Low;
-                }
-                else
-                {
-                    // 第二步：使用 显存 + 内存 综合判断中/高端
-                    int graphicsMemorySize = SystemInfo.graphicsMemorySize;
-                    int systemMemorySize = SystemInfo.systemMemorySize;
 
+            // 第一步：按 CPU 核心数判断（不同平台阈值不同）
+            bool cpuInsufficient;
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
-                    if (graphicsMemorySize >= GameMainRoot.Launcher.EditorPerformance.GraphicsMemorySizeHighBase &&
-                        systemMemorySize >= GameMainRoot.Launcher.EditorPerformance.SystemMemorySizeHighBase)
-                    {
-                        return DevicePerformanceLevel.High;
-                    }
-                    else if (graphicsMemorySize >= GameMainRoot.Launcher.EditorPerformance.GraphicsMemorySizeMidBase &&
-                             systemMemorySize >= GameMainRoot.Launcher.EditorPerformance.SystemMemorySizeMidBase)
-                    {
-                        return DevicePerformanceLevel.Mid;
-                    }
-                    else
-                    {
-                        return DevicePerformanceLevel.Low;
-                    }
+            cpuInsufficient = SystemInfo.processorCount <= GameMainRoot.Launcher.EditorPerformance.ProcessorCount;
 #elif UNITY_STANDALONE_OSX || UNITY_IOS
-                    if (graphicsMemorySize >= Root.Launcher.iOSPerformance.GraphicsMemorySizeHighBase && systemMemorySize >= Root.Launcher.iOSPerformance.SystemMemorySizeHighBase)
-                    {
-                        return DevicePerformanceLevel.High;
-                    }
-                    else if (graphicsMemorySize >= Root.Launcher.iOSPerformance.GraphicsMemorySizeMidBase && systemMemorySize >= Root.Launcher.iOSPerformance.SystemMemorySizeMidBase)
-                    {
-                        return DevicePerformanceLevel.Mid;
-                    }
-                    else
-                    {
-                        return DevicePerformanceLevel.Low;
-                    }
+            cpuInsufficient = SystemInfo.processorCount < Root.Launcher.iOSPerformance.ProcessorCount;
 #elif UNITY_ANDROID
-                    if (graphicsMemorySize >= Root.Launcher.AndroidPerformance.GraphicsMemorySizeHighBase && systemMemorySize >= Root.Launcher.AndroidPerformance.SystemMemorySizeHighBase)
-                    {
-                        return DevicePerformanceLevel.High;
-                    }
-                    else if (graphicsMemorySize >= Root.Launcher.AndroidPerformance.GraphicsMemorySizeMidBase && systemMemorySize >= Root.Launcher.AndroidPerformance.SystemMemorySizeMidBase)
-                    {
-                        return DevicePerformanceLevel.Mid;
-                    }
-                    else
-                    {
-                        return DevicePerformanceLevel.Low;
-                    }
+            cpuInsufficient = SystemInfo.processorCount <= Root.Launcher.AndroidPerformance.ProcessorCount;
+#else
+            cpuInsufficient = false;
 #endif
-                }
+            if (cpuInsufficient)
+            {
+                return DevicePerformanceLevel.Low;
             }
+
+            // 第二步：使用 显存 + 内存 综合判断中/高端
+            return ResolveMemoryPerformanceLevel(SystemInfo.graphicsMemorySize, SystemInfo.systemMemorySize);
+        }
+
+        /// <summary>
+        /// 依据显存与内存大小综合判定中/高/低端（按平台取不同阈值）
+        /// </summary>
+        /// <param name="graphicsMemorySize">显存大小(MB)</param>
+        /// <param name="systemMemorySize">内存大小(MB)</param>
+        /// <returns>设备性能等级</returns>
+        private static DevicePerformanceLevel ResolveMemoryPerformanceLevel(int graphicsMemorySize, int systemMemorySize)
+        {
+            int highGfx;
+            int highSys;
+            int midGfx;
+            int midSys;
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+            highGfx = GameMainRoot.Launcher.EditorPerformance.GraphicsMemorySizeHighBase;
+            highSys = GameMainRoot.Launcher.EditorPerformance.SystemMemorySizeHighBase;
+            midGfx = GameMainRoot.Launcher.EditorPerformance.GraphicsMemorySizeMidBase;
+            midSys = GameMainRoot.Launcher.EditorPerformance.SystemMemorySizeMidBase;
+#elif UNITY_STANDALONE_OSX || UNITY_IOS
+            highGfx = Root.Launcher.iOSPerformance.GraphicsMemorySizeHighBase;
+            highSys = Root.Launcher.iOSPerformance.SystemMemorySizeHighBase;
+            midGfx = Root.Launcher.iOSPerformance.GraphicsMemorySizeMidBase;
+            midSys = Root.Launcher.iOSPerformance.SystemMemorySizeMidBase;
+#elif UNITY_ANDROID
+            highGfx = Root.Launcher.AndroidPerformance.GraphicsMemorySizeHighBase;
+            highSys = Root.Launcher.AndroidPerformance.SystemMemorySizeHighBase;
+            midGfx = Root.Launcher.AndroidPerformance.GraphicsMemorySizeMidBase;
+            midSys = Root.Launcher.AndroidPerformance.SystemMemorySizeMidBase;
+#else
+            return DevicePerformanceLevel.Low;
+#endif
+
+            if (graphicsMemorySize >= highGfx && systemMemorySize >= highSys)
+            {
+                return DevicePerformanceLevel.High;
+            }
+
+            if (graphicsMemorySize >= midGfx && systemMemorySize >= midSys)
+            {
+                return DevicePerformanceLevel.Mid;
+            }
+
+            return DevicePerformanceLevel.Low;
         }
         #endregion
 
@@ -162,18 +171,13 @@ namespace Honor.Runtime
         public static void ModifyQualityLevelsBasedOnPerformanceLevel(int lowQuality, int midQuality, int highQuality)
         {
             DevicePerformanceLevel level = GetDevicePerformanceLevel();
-            switch (level)
+            int selected = level switch
             {
-                case DevicePerformanceLevel.Low:
-                    QualitySettings.SetQualityLevel(lowQuality, true);
-                    break;
-                case DevicePerformanceLevel.Mid:
-                    QualitySettings.SetQualityLevel(midQuality, true);
-                    break;
-                case DevicePerformanceLevel.High:
-                    QualitySettings.SetQualityLevel(highQuality, true);
-                    break;
-            }
+                DevicePerformanceLevel.Low => lowQuality,
+                DevicePerformanceLevel.Mid => midQuality,
+                _ => highQuality,
+            };
+            QualitySettings.SetQualityLevel(selected, true);
         }
 
         /// <summary>
@@ -182,18 +186,8 @@ namespace Honor.Runtime
         public static void ModifyQualitySettingsBasedOnPerformanceLevel()
         {
             DevicePerformanceLevel level = GetDevicePerformanceLevel();
-            switch (level)
-            {
-                case DevicePerformanceLevel.Low:
-                    SetQualitySettings(QualityLevel.Low);
-                    break;
-                case DevicePerformanceLevel.Mid:
-                    SetQualitySettings(QualityLevel.Mid);
-                    break;
-                case DevicePerformanceLevel.High:
-                    SetQualitySettings(QualityLevel.High);
-                    break;
-            }
+            // DevicePerformanceLevel 与 QualityLevel 枚举数值一一对应（Low/Mid/High）
+            SetQualitySettings((QualityLevel)(int)level);
         }
 
         /// <summary>
@@ -248,17 +242,10 @@ namespace Honor.Runtime
         /// <returns>等级对应UI颜色</returns>
         public static Color GetDevicePerformanceLevelColor(DevicePerformanceLevel level)
         {
-            switch (level)
+            int index = (int)level;
+            if (index >= 0 && index < s_LevelColors.Length)
             {
-                case DevicePerformanceLevel.High:
-                    // 绿色
-                    return new Color32(0x0, 0x82, 0x1A, 0xFF);
-                case DevicePerformanceLevel.Mid:
-                    // 黄色
-                    return new Color32(0xFF, 0xEB, 0x29, 0xFF);
-                case DevicePerformanceLevel.Low:
-                    // 紫色
-                    return new Color32(0x89, 0x0, 0xA4, 0xFF);
+                return s_LevelColors[index];
             }
 
             return Color.red;

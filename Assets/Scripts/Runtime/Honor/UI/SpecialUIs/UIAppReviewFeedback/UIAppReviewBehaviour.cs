@@ -116,10 +116,16 @@ namespace Honor.Runtime
         //=========================================================================
         // MonoBehaviour 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒（预留）
+        /// </summary>
         private void Awake()
         {
         }
 
+        /// <summary>
+        /// 启动时按多语言初始化各文本
+        /// </summary>
         private void Start()
         {
             // 自动设置多语言文本（兼容 UGUI / TMP）
@@ -151,6 +157,9 @@ namespace Honor.Runtime
             /*Root.SDK.TGAHelper.Track("Honor_rating_show");*/
         }
 
+        /// <summary>
+        /// 销毁时埋点（关闭评分界面）
+        /// </summary>
         private void OnDestroy()
         {
             // 埋点：关闭评分界面

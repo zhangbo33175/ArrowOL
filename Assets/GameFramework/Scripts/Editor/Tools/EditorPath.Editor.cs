@@ -25,18 +25,27 @@ namespace Honor.Editor
         {
             #region 基础目录获取
             /// <summary>
+            /// 确保指定目录存在：不存在时创建并刷新 AssetDatabase，最后原样返回路径
+            /// </summary>
+            /// <param name="directoryPath">待校验的目录绝对路径</param>
+            /// <returns>传入的目录绝对路径</returns>
+            private static string EnsureDirectory(string directoryPath)
+            {
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                    AssetDatabase.Refresh();
+                }
+
+                return directoryPath;
+            }
+
+            /// <summary>
             /// 获取ProjectSetting目录的绝对路径
             /// </summary>
             public static string ProjectSettingFolderFullPath()
             {
-                string projectSettingFolderFullPath = $"{Application.dataPath}/../ProjectSettings/Honor";
-                if (!Directory.Exists(projectSettingFolderFullPath))
-                {
-                    Directory.CreateDirectory(projectSettingFolderFullPath);
-                    AssetDatabase.Refresh();
-                }
-
-                return projectSettingFolderFullPath;
+                return EnsureDirectory($"{Application.dataPath}/../ProjectSettings/Honor");
             }
 
             /// <summary>
@@ -44,14 +53,7 @@ namespace Honor.Editor
             /// </summary>
             public static string LibraryFolderFullPath()
             {
-                string libraryFolderFullPath = $"{Application.dataPath}/../Library/Honor";
-                if (!Directory.Exists(libraryFolderFullPath))
-                {
-                    Directory.CreateDirectory(libraryFolderFullPath);
-                    AssetDatabase.Refresh();
-                }
-
-                return libraryFolderFullPath;
+                return EnsureDirectory($"{Application.dataPath}/../Library/Honor");
             }
 
             /// <summary>
@@ -523,13 +525,7 @@ namespace Honor.Editor
                 public static string BuildNativeFolderFullPath()
                 {
                     string nativePath = Application.dataPath.Replace("Assets", "Natives");
-                    if (!Directory.Exists(nativePath))
-                    {
-                        Directory.CreateDirectory(nativePath);
-                        AssetDatabase.Refresh();
-                    }
-
-                    return nativePath;
+                    return EnsureDirectory(nativePath);
                 }
 
                 /// <summary>
@@ -537,14 +533,7 @@ namespace Honor.Editor
                 /// </summary>
                 public static string BuildAABFolderFullPath()
                 {
-                    string exportAABsPath = $"{BuildNativeFolderFullPath()}/AAB";
-                    if (!Directory.Exists(exportAABsPath))
-                    {
-                        Directory.CreateDirectory(exportAABsPath);
-                        AssetDatabase.Refresh();
-                    }
-
-                    return exportAABsPath;
+                    return EnsureDirectory($"{BuildNativeFolderFullPath()}/AAB");
                 }
 
                 /// <summary>
@@ -552,14 +541,7 @@ namespace Honor.Editor
                 /// </summary>
                 public static string BuildAPKFolderFullPath()
                 {
-                    string exportAPKsPath = $"{BuildNativeFolderFullPath()}/APK";
-                    if (!Directory.Exists(exportAPKsPath))
-                    {
-                        Directory.CreateDirectory(exportAPKsPath);
-                        AssetDatabase.Refresh();
-                    }
-
-                    return exportAPKsPath;
+                    return EnsureDirectory($"{BuildNativeFolderFullPath()}/APK");
                 }
             }
             #endregion

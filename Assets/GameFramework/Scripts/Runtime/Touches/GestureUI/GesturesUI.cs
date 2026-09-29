@@ -25,6 +25,9 @@ namespace Honor.Runtime
     public sealed partial class GesturesUI : MonoBehaviour
     {
         #region Unity 生命周期
+        /// <summary>
+        /// 初始化：创建所有 Lua 回调列表
+        /// </summary>
         private void Awake()
         {
             m_UITouchCoverCallbacks = new List<LuaTable>();
@@ -37,6 +40,9 @@ namespace Honor.Runtime
             m_SelectedObjDragEndCallbacks = new List<LuaTable>();
         }
 
+        /// <summary>
+        /// 启动：获取 Lua 环境组件
+        /// </summary>
         private void Start()
         {
             m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
@@ -70,70 +76,83 @@ namespace Honor.Runtime
             EasyTouch.On_UIElementTouchUp -= OnUIElementTouchEnd;
         }
 
+        /// <summary>
+        /// 每帧更新：持续选中回调与拖拽中逻辑
+        /// </summary>
         private void Update()
         {
-            if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
+            if (m_SelectedObj == null || string.IsNullOrEmpty(m_SelectedObjType)) return;
+
+            FireUpdateSelectedCallbacks();
+            HandleDragOnSelected();
+        }
+
+        /// <summary>
+        /// 触发持续选中状态的Lua回调列表（每次回调新建参数表）
+        /// </summary>
+        private void FireUpdateSelectedCallbacks()
+        {
+            // 持续选中回调
+            Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(m_SelectedObjGesture.position.x, m_SelectedObjGesture.position.y, m_UICamera.nearClipPlane));
+            foreach (var callback in m_UpdateSelectedObjCallbacks)
             {
-                // 持续选中回调
-                Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(m_SelectedObjGesture.position.x, m_SelectedObjGesture.position.y, m_UICamera.nearClipPlane));
-                foreach (var callback in m_UpdateSelectedObjCallbacks)
+                LuaTable args = m_LuaComponent.Env.NewTable();
+                args.Set("gesture", m_SelectedObjGesture);
+                args.Set("worldPosition", worldPosition);
+                args.Set("selectedObjType", m_SelectedObjType);
+                args.Set("selectedObj", m_SelectedObj);
+                LuaHandler.Callback(callback, args);
+            }
+        }
+
+        /// <summary>
+        /// 处理选中对象的拖拽开始与拖拽中逻辑
+        /// </summary>
+        private void HandleDragOnSelected()
+        {
+            Gesture gesture = EasyTouch.current;
+            if (gesture == null || gesture.touchCount != 1) return;
+            if (!m_DragSwitch) return;
+
+            Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
+            if (gesture.deltaPosition == Vector2.zero) return;
+
+            // 拖拽开始回调
+            if (m_CurDragStateOnThisRound == DragState.None && m_IsDraging == false)
+            {
+                m_IsDraging = true;
+
+                Vector3 deltaWorldPosition = Vector3.zero;
+                foreach (var callback in m_SelectedObjDragBeginCallbacks)
                 {
                     LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", m_SelectedObjGesture);
                     args.Set("worldPosition", worldPosition);
+                    args.Set("deltaWorldPosition", deltaWorldPosition);
                     args.Set("selectedObjType", m_SelectedObjType);
                     args.Set("selectedObj", m_SelectedObj);
                     LuaHandler.Callback(callback, args);
                 }
+                m_LastWorldPosition = worldPosition;
+                m_CurDragStateOnThisRound = DragState.Begin;
+            }
+            else if (m_CurDragStateOnThisRound == DragState.Begin || m_CurDragStateOnThisRound == DragState.OnGoing)
+            {
+                m_SelectedObjGesture = gesture;
 
-                Gesture gesture = EasyTouch.current;
-                if (gesture != null && gesture.touchCount == 1)
+                Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
+                foreach (var callback in m_SelectedObjDragCallbacks)
                 {
-                    if (m_DragSwitch)
-                    {
-                        worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
-                        if (gesture.deltaPosition != Vector2.zero)
-                        {
-                            // 拖拽开始回调
-                            if (m_CurDragStateOnThisRound == DragState.None && m_IsDraging == false)
-                            {
-                                m_IsDraging = true;
-
-                                Vector3 deltaWorldPosition = Vector3.zero;
-                                foreach (var callback in m_SelectedObjDragBeginCallbacks)
-                                {
-                                    LuaTable args = m_LuaComponent.Env.NewTable();
-                                    args.Set("gesture", m_SelectedObjGesture);
-                                    args.Set("worldPosition", worldPosition);
-                                    args.Set("deltaWorldPosition", deltaWorldPosition);
-                                    args.Set("selectedObjType", m_SelectedObjType);
-                                    args.Set("selectedObj", m_SelectedObj);
-                                    LuaHandler.Callback(callback, args);
-                                }
-                                m_LastWorldPosition = worldPosition;
-                                m_CurDragStateOnThisRound = DragState.Begin;
-                            }
-                            else if (m_CurDragStateOnThisRound == DragState.Begin || m_CurDragStateOnThisRound == DragState.OnGoing)
-                            {
-                                m_SelectedObjGesture = gesture;
-
-                                Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
-                                foreach (var callback in m_SelectedObjDragCallbacks)
-                                {
-                                    LuaTable args = m_LuaComponent.Env.NewTable();
-                                    args.Set("gesture", gesture);
-                                    args.Set("worldPosition", worldPosition);
-                                    args.Set("deltaWorldPosition", deltaWorldPosition);
-                                    args.Set("selectedObjType", m_SelectedObjType);
-                                    args.Set("selectedObj", m_SelectedObj);
-                                    LuaHandler.Callback(callback, args);
-                                }
-                                m_LastWorldPosition = worldPosition;
-                                m_CurDragStateOnThisRound = DragState.OnGoing;
-                            }
-                        }
-                    }
+                    LuaTable args = m_LuaComponent.Env.NewTable();
+                    args.Set("gesture", gesture);
+                    args.Set("worldPosition", worldPosition);
+                    args.Set("deltaWorldPosition", deltaWorldPosition);
+                    args.Set("selectedObjType", m_SelectedObjType);
+                    args.Set("selectedObj", m_SelectedObj);
+                    LuaHandler.Callback(callback, args);
                 }
+                m_LastWorldPosition = worldPosition;
+                m_CurDragStateOnThisRound = DragState.OnGoing;
             }
         }
         #endregion
@@ -172,80 +191,127 @@ namespace Honor.Runtime
 
             if (gesture.touchCount == 1)
             {
-                Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
-                foreach (var callback in m_UITouchEndCallbacks)
-                {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
+                FireUITouchEndCallback(gesture);
             }
 
             if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
             {
-                Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
+                HandleSelectedTouchEnd(gesture);
+            }
+        }
 
-                // 拖拽结束
-                if (m_IsDraging == true)
+        /// <summary>
+        /// 触发UI元素抬起的Lua回调列表（每次回调新建参数表）
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        private void FireUITouchEndCallback(Gesture gesture)
+        {
+            Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
+            foreach (var callback in m_UITouchEndCallbacks)
+            {
+                LuaTable args = m_LuaComponent.Env.NewTable();
+                args.Set("gesture", gesture);
+                args.Set("worldPosition", worldPosition);
+                LuaHandler.Callback(callback, args);
+            }
+        }
+
+        /// <summary>
+        /// 处理抬起时已选中对象的拖拽结束、反弹状态切换与取消选中
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        private void HandleSelectedTouchEnd(Gesture gesture)
+        {
+            Vector3 worldPosition = m_UICamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_UICamera.nearClipPlane));
+
+            // 拖拽结束
+            if (m_IsDraging == true)
+            {
+                FireDragEndCallbacks(gesture, worldPosition);
+                m_LastWorldPosition = worldPosition;
+                m_CurDragStateOnThisRound = DragState.End;
+            }
+
+            // 设置常选中模式下的反弹状态
+            UpdateReboundStateOnTouchEnd();
+
+            // 常选中模式下：当对象处于被选中状态时，再次点击可以将选中状态反弹回未选中状态
+            // 常选中模式下：当对象拖拽结束时，可以将选中状态反弹回未选中状态
+            // 非常选中模式下：自动切换回未选中状态
+            if ((m_SelectHoldMode && m_SelectReboundInSelectHoldMode && m_CanEnterSelectReboundInSelectHoldMode) ||
+                (m_SelectHoldMode && m_SelectReboundAfterDragEndInSelectHoldMode && m_IsDraging) ||
+                (!m_SelectHoldMode))
+            {
+                UnselectOnTouchEnd(gesture, worldPosition);
+            }
+
+            m_IsDraging = false;
+        }
+
+        /// <summary>
+        /// 触发拖拽结束的Lua回调列表（每次回调新建参数表）
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        /// <param name="worldPosition">手势对应的世界坐标</param>
+        private void FireDragEndCallbacks(Gesture gesture, Vector3 worldPosition)
+        {
+            Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
+            foreach (var callback in m_SelectedObjDragEndCallbacks)
+            {
+                LuaTable args = m_LuaComponent.Env.NewTable();
+                args.Set("gesture", gesture);
+                args.Set("worldPosition", worldPosition);
+                args.Set("deltaWorldPosition", deltaWorldPosition);
+                args.Set("selectedObjType", m_SelectedObjType);
+                args.Set("selectedObj", m_SelectedObj);
+                LuaHandler.Callback(callback, args);
+            }
+        }
+
+        /// <summary>
+        /// 更新常选中模式下的反弹进入状态
+        /// </summary>
+        private void UpdateReboundStateOnTouchEnd()
+        {
+            // 设置常选中模式下的反弹状态
+            if (m_SelectHoldMode && m_SelectReboundInSelectHoldMode)
+            {
+                if (m_IsDraging)
                 {
-                    Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
-                    foreach (var callback in m_SelectedObjDragEndCallbacks)
-                    {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
-                        args.Set("gesture", gesture);
-                        args.Set("worldPosition", worldPosition);
-                        args.Set("deltaWorldPosition", deltaWorldPosition);
-                        args.Set("selectedObjType", m_SelectedObjType);
-                        args.Set("selectedObj", m_SelectedObj);
-                        LuaHandler.Callback(callback, args);
-                    }
-                    m_LastWorldPosition = worldPosition;
-                    m_CurDragStateOnThisRound = DragState.End;
+                    m_CanEnterSelectReboundInSelectHoldMode = false;
                 }
-
-                // 设置常选中模式下的反弹状态
-                if (m_SelectHoldMode && m_SelectReboundInSelectHoldMode)
+                else
                 {
-                    if (m_IsDraging)
-                    {
-                        m_CanEnterSelectReboundInSelectHoldMode = false;
-                    }
-                    else
-                    {
-                        m_CanEnterSelectReboundInSelectHoldMode = !m_CanEnterSelectReboundInSelectHoldMode;
-                    }
+                    m_CanEnterSelectReboundInSelectHoldMode = !m_CanEnterSelectReboundInSelectHoldMode;
                 }
+            }
+        }
 
-                // 常选中模式下：当对象处于被选中状态时，再次点击可以将选中状态反弹回未选中状态
-                // 常选中模式下：当对象拖拽结束时，可以将选中状态反弹回未选中状态
-                // 非常选中模式下：自动切换回未选中状态
-                if ((m_SelectHoldMode && m_SelectReboundInSelectHoldMode && m_CanEnterSelectReboundInSelectHoldMode) ||
-                    (m_SelectHoldMode && m_SelectReboundAfterDragEndInSelectHoldMode && m_IsDraging) ||
-                    (!m_SelectHoldMode))
-                {
-                    foreach (var callback in m_UnselectedObjCallbacks)
-                    {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
-                        args.Set("gesture", gesture);
-                        args.Set("worldPosition", worldPosition);
-                        args.Set("selectedObjType", m_SelectedObjType);
-                        args.Set("selectedObj", m_SelectedObj);
-                        LuaHandler.Callback(callback, args);
-                    }
+        /// <summary>
+        /// 触发取消选中回调并清空选中状态
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        /// <param name="worldPosition">手势对应的世界坐标</param>
+        private void UnselectOnTouchEnd(Gesture gesture, Vector3 worldPosition)
+        {
+            foreach (var callback in m_UnselectedObjCallbacks)
+            {
+                LuaTable args = m_LuaComponent.Env.NewTable();
+                args.Set("gesture", gesture);
+                args.Set("worldPosition", worldPosition);
+                args.Set("selectedObjType", m_SelectedObjType);
+                args.Set("selectedObj", m_SelectedObj);
+                LuaHandler.Callback(callback, args);
+            }
 
-                    m_LastWorldPosition = Vector3.zero;
+            m_LastWorldPosition = Vector3.zero;
 
-                    m_SelectedObjType = null;
-                    m_SelectedObj = null;
-                    m_SelectedObjGesture = null;
-                    if (m_SelectHoldMode)
-                    {
-                        m_CanEnterSelectReboundInSelectHoldMode = true;
-                    }
-                }
-
-                m_IsDraging = false;
+            m_SelectedObjType = null;
+            m_SelectedObj = null;
+            m_SelectedObjGesture = null;
+            if (m_SelectHoldMode)
+            {
+                m_CanEnterSelectReboundInSelectHoldMode = true;
             }
         }
         #endregion

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LauncherComponent.cs
+ * filename:  LauncherComponent.Extensions.cs
  * author:    云毅
  * created:   2026
  * descrip:   启动器组件配置

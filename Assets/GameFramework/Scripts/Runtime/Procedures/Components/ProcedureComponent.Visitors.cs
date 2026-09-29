@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  ProcedureComponent.Config.cs
+ * filename:  ProcedureComponent.Visitors.cs
  * author:    云毅
  * created:
  * descrip:   流程状态机组件 - 序列化配置、属性、过渡动画参数
@@ -14,6 +14,9 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
+    /// <summary>
+    /// 流程状态机组件 - 序列化配置、属性与过渡动画参数分部类
+    /// </summary>
     public sealed partial class ProcedureComponent : GameComponent
     {
         //=========================================================================
@@ -299,19 +302,32 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 在类型名配置数组中定位当前运行流程对应的下标
+        /// </summary>
+        /// <returns>命中返回下标，未命中返回 -1</returns>
+        private int FindCurrentProcedureIndex()
+        {
+            Type currentType = m_ProcedureStateMachine.CurrentState.GetType();
+            for (int index = 0; index < m_ProcedureTypeNames.Length; index++)
+            {
+                if (Type.GetType(m_ProcedureTypeNames[index]) == currentType)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
         /// 当前流程是否需要【进入式】过渡
         /// </summary>
         public bool CurrentProcedureTransitionEnterFlag
         {
             get
             {
-                for (int index = 0; index < m_ProcedureTypeNames.Length; index++)
-                {
-                    Type procedureType = Type.GetType(m_ProcedureTypeNames[index]);
-                    if (m_ProcedureStateMachine.CurrentState.GetType() == procedureType)
-                        return m_ProcedureTransitionEnterFlags[index];
-                }
-                return false;
+                int hit = FindCurrentProcedureIndex();
+                return hit >= 0 && m_ProcedureTransitionEnterFlags[hit];
             }
         }
 
@@ -322,13 +338,8 @@ namespace Honor.Runtime
         {
             get
             {
-                for (int index = 0; index < m_ProcedureTypeNames.Length; index++)
-                {
-                    Type procedureType = Type.GetType(m_ProcedureTypeNames[index]);
-                    if (m_ProcedureStateMachine.CurrentState.GetType() == procedureType)
-                        return m_ProcedureTransitionEnterDurations[index];
-                }
-                return 0f;
+                int hit = FindCurrentProcedureIndex();
+                return hit >= 0 ? m_ProcedureTransitionEnterDurations[hit] : 0f;
             }
         }
 
@@ -339,13 +350,8 @@ namespace Honor.Runtime
         {
             get
             {
-                for (int index = 0; index < m_ProcedureTypeNames.Length; index++)
-                {
-                    Type procedureType = Type.GetType(m_ProcedureTypeNames[index]);
-                    if (m_ProcedureStateMachine.CurrentState.GetType() == procedureType)
-                        return m_ProcedureTransitionEnterBlockRaycasts[index];
-                }
-                return false;
+                int hit = FindCurrentProcedureIndex();
+                return hit >= 0 && m_ProcedureTransitionEnterBlockRaycasts[hit];
             }
         }
 
@@ -356,13 +362,8 @@ namespace Honor.Runtime
         {
             get
             {
-                for (int index = 0; index < m_ProcedureTypeNames.Length; index++)
-                {
-                    Type procedureType = Type.GetType(m_ProcedureTypeNames[index]);
-                    if (m_ProcedureStateMachine.CurrentState.GetType() == procedureType)
-                        return m_ProcedureTransitionExitFlags[index];
-                }
-                return false;
+                int hit = FindCurrentProcedureIndex();
+                return hit >= 0 && m_ProcedureTransitionExitFlags[hit];
             }
         }
 
@@ -373,13 +374,8 @@ namespace Honor.Runtime
         {
             get
             {
-                for (int index = 0; index < m_ProcedureTypeNames.Length; index++)
-                {
-                    Type procedureType = Type.GetType(m_ProcedureTypeNames[index]);
-                    if (m_ProcedureStateMachine.CurrentState.GetType() == procedureType)
-                        return m_ProcedureTransitionExitDurations[index];
-                }
-                return 0f;
+                int hit = FindCurrentProcedureIndex();
+                return hit >= 0 ? m_ProcedureTransitionExitDurations[hit] : 0f;
             }
         }
 
@@ -390,13 +386,8 @@ namespace Honor.Runtime
         {
             get
             {
-                for (int index = 0; index < m_ProcedureTypeNames.Length; index++)
-                {
-                    Type procedureType = Type.GetType(m_ProcedureTypeNames[index]);
-                    if (m_ProcedureStateMachine.CurrentState.GetType() == procedureType)
-                        return m_ProcedureTransitionExitBlockRaycasts[index];
-                }
-                return false;
+                int hit = FindCurrentProcedureIndex();
+                return hit >= 0 && m_ProcedureTransitionExitBlockRaycasts[hit];
             }
         }
 

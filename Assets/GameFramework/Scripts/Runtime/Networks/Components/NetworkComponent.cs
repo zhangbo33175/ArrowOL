@@ -36,12 +36,7 @@ namespace Honor.Runtime
             base.Awake();
 
             // 初始化底层网络管理器
-            m_NetworkManager = new NetworkManager(m_ConnectTimeout, m_RequestTimeout);
-            if (m_NetworkManager == null)
-            {
-                Log.Fatal("NetworkManager 无效。");
-                return;
-            }
+            m_Network = new NetworkManager(m_ConnectTimeout, m_RequestTimeout);
         }
 
         /// <summary>
@@ -49,7 +44,6 @@ namespace Honor.Runtime
         /// </summary>
         private void Start()
         {
-
         }
 
         #endregion
@@ -64,7 +58,7 @@ namespace Honor.Runtime
         /// <returns>true 网络正常，false 不可用</returns>
         public bool CheckNetworkActive()
         {
-            return m_NetworkManager.CheckNetworkActive();
+            return m_Network.CheckNetworkActive();
         }
 
         /// <summary>
@@ -74,13 +68,13 @@ namespace Honor.Runtime
         /// <returns>URL 编码后的结果</returns>
         public string UrlEncode(string str)
         {
-            StringBuilder sb = new StringBuilder();
-            byte[] byStr = System.Text.Encoding.UTF8.GetBytes(str);
-            for (int i = 0; i < byStr.Length; i++)
+            StringBuilder builder = new StringBuilder();
+            byte[] utf8Bytes = System.Text.Encoding.UTF8.GetBytes(str);
+            foreach (byte b in utf8Bytes)
             {
-                sb.Append(@"%" + Convert.ToString(byStr[i], 16));
+                builder.Append(@"%" + Convert.ToString(b, 16));
             }
-            return sb.ToString();
+            return builder.ToString();
         }
 
         /// <summary>
@@ -92,41 +86,39 @@ namespace Honor.Runtime
         /// <param name="timeout">超时时间，-1 使用默认值</param>
         public void GetTextFromUrl(string url, Action<string> finishCallback = null, int timeout = -1)
         {
-            // 局部协程：下载文本并回调
-            IEnumerator DownloadFromUrl(string url, Action<string> finishCallback, int timeout)
+            StartCoroutine(DownloadTextRoutine(url, finishCallback, timeout));
+        }
+
+        /// <summary>
+        /// 下载文本协程：发起请求、等待结束、按结果回调并释放资源
+        /// </summary>
+        private IEnumerator DownloadTextRoutine(string url, Action<string> finishCallback, int timeout)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(url);
+
+            // 设置超时
+            if (timeout >= 0)
             {
-                UnityWebRequest uwr = UnityWebRequest.Get(url);
-                
-                // 设置超时
-                if (timeout >= 0)
-                {
-                    uwr.timeout = timeout;
-                }
-
-                // 发送请求并等待完成
-                yield return uwr.SendWebRequest();
-                while (!uwr.isDone)
-                {
-                    yield return null;
-                }
-
-                // 网络错误判断
-                if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError)
-                {
-                    Log.Warning("[Hotfix] 下载文件 {0} 时出错！", url);
-                    finishCallback?.Invoke(null);
-                }
-                else
-                {
-                    // 成功返回文本
-                    finishCallback?.Invoke(uwr.downloadHandler.text);
-                }
-
-                // 释放 WebRequest 资源
-                uwr.Dispose();
+                request.timeout = timeout;
             }
 
-            StartCoroutine(DownloadFromUrl(url, finishCallback, timeout));
+            // 发送请求并等待完成（异步操作本身即阻塞协程至结束）
+            yield return request.SendWebRequest();
+
+            // 网络错误判断
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Log.Warning("[Hotfix] 下载文件 {0} 时出错！", url);
+                finishCallback?.Invoke(null);
+            }
+            else
+            {
+                // 成功返回文本
+                finishCallback?.Invoke(request.downloadHandler.text);
+            }
+
+            // 释放 WebRequest 资源
+            request.Dispose();
         }
 
         #endregion

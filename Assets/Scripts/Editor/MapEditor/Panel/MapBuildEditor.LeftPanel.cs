@@ -34,6 +34,29 @@ namespace Editor.MapEditor
             //=========================================================================
             // 上方：地图管理区域
             //=========================================================================
+            DrawMapManageArea();
+
+            // 分割线
+            GUILayout.Space(5);
+            GUILayout.Box("", GUILayout.Height(3), GUILayout.ExpandWidth(true));
+            GUILayout.Space(5);
+
+            //=========================================================================
+            // 下方：物件/图标管理区域
+            //=========================================================================
+            DrawObjectIconManageArea();
+
+            GUILayout.EndVertical();
+            //=========================================================================
+            // 左侧面板结束
+            //=========================================================================
+        }
+
+        /// <summary>
+        /// 绘制左侧面板上方地图管理区域（新建/删除按钮 + 地图配置列表）
+        /// </summary>
+        private void DrawMapManageArea()
+        {
             GUI.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1);
             GUILayout.BeginVertical("Box");
             GUILayout.Space(5);
@@ -41,12 +64,12 @@ namespace Editor.MapEditor
             // 新建 / 删除 按钮行
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            
+
             if (GUILayout.Button("新建", GUILayout.Width(80), GUILayout.Height(24)))
             {
                 BuildMap();
             }
-            
+
             if (GUILayout.Button("删除", GUILayout.Width(80), GUILayout.Height(24)))
             {
                 DeleteSelectedObject();
@@ -62,32 +85,27 @@ namespace Editor.MapEditor
             GUILayout.EndVertical();
 
             GUILayout.EndVertical();
-            //=========================================================================
-            // 上方区域结束
-            //=========================================================================
+        }
 
-            // 分割线
-            GUILayout.Space(5);
-            GUILayout.Box("", GUILayout.Height(3), GUILayout.ExpandWidth(true));
-            GUILayout.Space(5);
-
-            //=========================================================================
-            // 下方：物件/图标管理区域
-            //=========================================================================
+        /// <summary>
+        /// 绘制左侧面板下方物件/图标管理区域（物件/刷新按钮 + 图标素材列表）
+        /// </summary>
+        private void DrawObjectIconManageArea()
+        {
             GUI.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1);
             GUILayout.BeginVertical("Box");
 
             // 物件 / 刷新 按钮行
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            
+
             if (GUILayout.Button("物件", GUILayout.Width(80), GUILayout.Height(24)))
             {
                 CreateObjectItem();
             }
 
             GUILayout.Space(10);
-            
+
             if (GUILayout.Button("刷新", GUILayout.Width(80), GUILayout.Height(24)))
             {
                 RefreshMapList();
@@ -103,14 +121,6 @@ namespace Editor.MapEditor
             GUILayout.EndVertical();
 
             GUILayout.EndVertical();
-            //=========================================================================
-            // 下方区域结束
-            //=========================================================================
-
-            GUILayout.EndVertical();
-            //=========================================================================
-            // 左侧面板结束
-            //=========================================================================
         }
         #endregion
 

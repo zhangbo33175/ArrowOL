@@ -179,8 +179,6 @@ namespace Honor.Editor
 
             EditorGUILayout.EndHorizontal();
 
-            PersistComponent t = (PersistComponent)target;
-
             // 运行时逻辑处理（读取程序中的数据结构）
             if (EditorApplication.isPlaying)
             {
@@ -238,6 +236,74 @@ namespace Honor.Editor
         {
             serializedObject.ApplyModifiedProperties();
         }
+
+        /// <summary>
+        /// 绘制折叠项并同步展开状态缓存，返回当前是否展开
+        /// </summary>
+        /// <param name="label">折叠项显示文本（同时作为缓存键）</param>
+        /// <returns>折叠项当前是否展开</returns>
+        private bool DrawTrackedFoldout(string label)
+        {
+            return DrawTrackedFoldout(label, label);
+        }
+
+        /// <summary>
+        /// 绘制折叠项并同步展开状态缓存，返回当前是否展开
+        /// </summary>
+        /// <param name="cacheKey">展开状态缓存键</param>
+        /// <param name="displayLabel">折叠项显示文本</param>
+        /// <returns>折叠项当前是否展开</returns>
+        private bool DrawTrackedFoldout(string cacheKey, string displayLabel)
+        {
+            bool lastState = m_OpenedItems.Contains(cacheKey);
+            bool currentState = EditorGUILayout.Foldout(lastState, displayLabel);
+            if (currentState != lastState)
+            {
+                if (currentState)
+                {
+                    m_OpenedItems.Add(cacheKey);
+                }
+                else
+                {
+                    m_OpenedItems.Remove(cacheKey);
+                }
+            }
+
+            return currentState;
+        }
+
+        /// <summary>
+        /// 清空指定持久化方式下的全部编辑/显示缓存映射
+        /// </summary>
+        /// <param name="persistWay">持久化方式</param>
+        private void ClearPersistMaps(PersistWayType persistWay)
+        {
+            m_ValueList[persistWay].Clear();
+            m_EditStateList[persistWay].Clear();
+            m_EditValueList[persistWay].Clear();
+            m_EditValueCacheList[persistWay].Clear();
+            m_EditScrollViewPositionList[persistWay].Clear();
+        }
+
+        /// <summary>
+        /// 在系统资源管理器中打开指定目录（Windows/macOS 编辑器专用）
+        /// </summary>
+        /// <param name="folderFullPath">待打开的目录绝对路径</param>
+        private static void OpenPersistentFolderInOS(string folderFullPath)
+        {
+            string quoted = AorTxt.Format("\"{0}\"", folderFullPath);
+            switch (Application.platform)
+            {
+                case RuntimePlatform.WindowsEditor:
+                    Process.Start("Explorer.exe", quoted.Replace('/', '\\'));
+                    break;
+                case RuntimePlatform.OSXEditor:
+                    Process.Start("open", quoted);
+                    break;
+                default:
+                    throw new Exception(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
+            }
+        }
         #endregion
 
         //=========================================================================
@@ -251,14 +317,14 @@ namespace Honor.Editor
         /// <returns>结构字段类型字典</returns>
         private Dictionary<string, Dictionary<string, string>> GetPbFileMainStructorDetailInfos(List<List<string>> totalList)
         {
-            void ___recusive(string className, string structorName, string prefix, Dictionary<string, Dictionary<string, string>> classFieldTypes, Dictionary<string, string> baseInterFieldTypes)
+            void CollectFieldsRecursively(string className, string structorName, string prefix, Dictionary<string, Dictionary<string, string>> classFieldTypes, Dictionary<string, string> baseInterFieldTypes)
             {
                 foreach (var itr in classFieldTypes[className])
                 {
                     string tmpPrefix = prefix + (string.IsNullOrEmpty(prefix) ? $"{itr.Key}" : $".{itr.Key}");
                     if (itr.Value.StartsWith("SavePBMsgDef.") && !itr.Value.EndsWith("[]"))
                     {
-                        ___recusive(itr.Value, structorName, tmpPrefix, classFieldTypes, baseInterFieldTypes);
+                        CollectFieldsRecursively(itr.Value, structorName, tmpPrefix, classFieldTypes, baseInterFieldTypes);
                     }
                     else
                     {
@@ -370,7 +436,7 @@ namespace Honor.Editor
                         string structorName = fullName;
                         classInterFieldTypes.Add(fullName, new Dictionary<string, string>());
 
-                        ___recusive(className, structorName, "", classFieldTypes, classInterFieldTypes[fullName]);
+                        CollectFieldsRecursively(className, structorName, "", classFieldTypes, classInterFieldTypes[fullName]);
 
                         break;
                     }
@@ -584,19 +650,7 @@ namespace Honor.Editor
             {
                 persistWayName = "文件片段持久化（Editor）";
             }
-            bool persistWayLastState = m_OpenedItems.Contains(persistWayName);
-            bool persistWayCurrentState = EditorGUILayout.Foldout(persistWayLastState, persistWayName);
-            if (persistWayCurrentState != persistWayLastState)
-            {
-                if (persistWayCurrentState)
-                {
-                    m_OpenedItems.Add(persistWayName);
-                }
-                else
-                {
-                    m_OpenedItems.Remove(persistWayName);
-                }
-            }
+            bool persistWayCurrentState = DrawTrackedFoldout(persistWayName);
 
             if (persistWayCurrentState)
             {
@@ -609,11 +663,7 @@ namespace Honor.Editor
                             PlayerPrefs.DeleteAll();
                             PlayerPrefs.SetString("ClassifyNameList", AESEncrypt.EncodeToBase64(string.Empty));
                             PlayerPrefs.Save();
-                            m_ValueList[persistWay].Clear();
-                            m_EditStateList[persistWay].Clear();
-                            m_EditValueList[persistWay].Clear();
-                            m_EditValueCacheList[persistWay].Clear();
-                            m_EditScrollViewPositionList[persistWay].Clear();
+                            ClearPersistMaps(persistWay);
                             GUIUtility.ExitGUI();
                         }
                     }
@@ -627,28 +677,12 @@ namespace Honor.Editor
                                 System.IO.Directory.Delete(m_FileFragmentsRootDirectoryFullPath, true);
                             }
                             System.IO.Directory.CreateDirectory(m_FileFragmentsRootDirectoryFullPath);
-                            m_ValueList[persistWay].Clear();
-                            m_EditStateList[persistWay].Clear();
-                            m_EditValueList[persistWay].Clear();
-                            m_EditValueCacheList[persistWay].Clear();
-                            m_EditScrollViewPositionList[persistWay].Clear();
+                            ClearPersistMaps(persistWay);
                             GUIUtility.ExitGUI();
                         }
                         if (GUILayout.Button("打开文件片段所在文件夹"))
                         {
-                            string folder = AorTxt.Format("\"{0}\"", Runtime.GamePathUtils.FileFragment.GetRootDirectoryFullPath());
-                            switch (Application.platform)
-                            {
-                                case RuntimePlatform.WindowsEditor:
-                                    Process.Start("Explorer.exe", folder.Replace('/', '\\'));
-                                    break;
-
-                                case RuntimePlatform.OSXEditor:
-                                    Process.Start("open", folder);
-                                    break;
-                                default:
-                                    throw new Exception(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
-                            }
+                            OpenPersistentFolderInOS(Runtime.GamePathUtils.FileFragment.GetRootDirectoryFullPath());
                             GUIUtility.ExitGUI();
                         }
                         EditorGUILayout.EndHorizontal();
@@ -660,19 +694,7 @@ namespace Honor.Editor
                         for (int classifyNameIndex = 0; classifyNameIndex < classifyNames.Count; classifyNameIndex++)
                         {
                             string classifyName = classifyNames[classifyNameIndex];
-                            bool classifyNameLastState = m_OpenedItems.Contains(classifyName);
-                            bool classifyNameCurrentState = EditorGUILayout.Foldout(classifyNameLastState, classifyName);
-                            if (classifyNameCurrentState != classifyNameLastState)
-                            {
-                                if (classifyNameCurrentState)
-                                {
-                                    m_OpenedItems.Add(classifyName);
-                                }
-                                else
-                                {
-                                    m_OpenedItems.Remove(classifyName);
-                                }
-                            }
+                            bool classifyNameCurrentState = DrawTrackedFoldout(classifyName);
 
                             if (classifyNameCurrentState)
                             {
@@ -850,19 +872,7 @@ namespace Honor.Editor
             {
                 persistWayName = "文件片段持久化（Runtime）（只读）";
             }
-            bool persistWayLastState = m_OpenedItems.Contains(persistWayName);
-            bool persistWayCurrentState = EditorGUILayout.Foldout(persistWayLastState, persistWayName);
-            if (persistWayCurrentState != persistWayLastState)
-            {
-                if (persistWayCurrentState)
-                {
-                    m_OpenedItems.Add(persistWayName);
-                }
-                else
-                {
-                    m_OpenedItems.Remove(persistWayName);
-                }
-            }
+            bool persistWayCurrentState = DrawTrackedFoldout(persistWayName);
 
             if (persistWayCurrentState)
             {
@@ -874,20 +884,7 @@ namespace Honor.Editor
                     {
                         if (GUILayout.Button("打开文件片段所在文件夹"))
                         {
-                            string folder = AorTxt.Format("\"{0}\"", Runtime.GamePathUtils.FileFragment.GetRootDirectoryFullPath());
-                            switch (Application.platform)
-                            {
-                                case RuntimePlatform.WindowsEditor:
-                                    Process.Start("Explorer.exe", folder.Replace('/', '\\'));
-                                    break;
-
-                                case RuntimePlatform.OSXEditor:
-                                    Process.Start("open", folder);
-                                    break;
-
-                                default:
-                                    throw new Exception(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
-                                }
+                            OpenPersistentFolderInOS(Runtime.GamePathUtils.FileFragment.GetRootDirectoryFullPath());
                             GUIUtility.ExitGUI();
                         }
                         if (t.FileFragmentManager.ItemGroups.Keys.Count > 0)
@@ -895,19 +892,7 @@ namespace Honor.Editor
                             foreach (var itr in t.FileFragmentManager.ItemGroups)
                             {
                                 string classifyName = itr.Key;
-                                bool classifyNameLastState = m_OpenedItems.Contains(classifyName);
-                                bool classifyNameCurrentState = EditorGUILayout.Foldout(classifyNameLastState, AorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
-                                if (classifyNameCurrentState != classifyNameLastState)
-                                {
-                                    if (classifyNameCurrentState)
-                                    {
-                                        m_OpenedItems.Add(classifyName);
-                                    }
-                                    else
-                                    {
-                                        m_OpenedItems.Remove(classifyName);
-                                    }
-                                }
+                                bool classifyNameCurrentState = DrawTrackedFoldout(classifyName, AorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
 
                                 if (classifyNameCurrentState)
                                 {
@@ -946,24 +931,11 @@ namespace Honor.Editor
                             foreach (var itr in t.PlayerPrefsManager.ItemNameGroups)
                             {
                                 string classifyName = itr.Key;
-                                bool classifyNameLastState = m_OpenedItems.Contains(classifyName);
-                                bool classifyNameCurrentState = EditorGUILayout.Foldout(classifyNameLastState, AorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
+                                bool classifyNameCurrentState = DrawTrackedFoldout(classifyName, AorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
 
                                 if (!m_RuntimeLastDecodedPbValue.ContainsKey(classifyName))
                                 {
                                     m_RuntimeLastDecodedPbValue.Add(classifyName, new Dictionary<string, string>());
-                                }
-
-                                if (classifyNameCurrentState != classifyNameLastState)
-                                {
-                                    if (classifyNameCurrentState)
-                                    {
-                                        m_OpenedItems.Add(classifyName);
-                                    }
-                                    else
-                                    {
-                                        m_OpenedItems.Remove(classifyName);
-                                    }
                                 }
 
                                 if (classifyNameCurrentState)
@@ -1285,19 +1257,7 @@ namespace Honor.Editor
             }
             else
             {
-                bool nameLastState = m_OpenedItems.Contains(node.Desc);
-                bool nameCurrentState = EditorGUILayout.Foldout(nameLastState, node.Desc);
-                if (nameCurrentState != nameLastState)
-                {
-                    if (nameCurrentState)
-                    {
-                        m_OpenedItems.Add(node.Desc);
-                    }
-                    else
-                    {
-                        m_OpenedItems.Remove(node.Desc);
-                    }
-                }
+                bool nameCurrentState = DrawTrackedFoldout(node.Desc);
 
                 if (nameCurrentState)
                 {

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  MapBuildEditor.IconModule.cs
+ * filename:  MapBuildEditor.LeftPanel.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   地图编辑器 - 图标列表管理模块（根据地图配置动态加载图标）

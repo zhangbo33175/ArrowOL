@@ -178,6 +178,32 @@ namespace Honor.Editor
             /// 资源 GUID
             /// </summary>
             public string AssetGUID;
+
+            //=========================================================================
+
+            /// <summary>
+            /// 新建单个资源配置项
+            /// </summary>
+            /// <param name="id">资源 ID</param>
+            /// <param name="resType">资源类型</param>
+            /// <param name="aliasName">资源别名</param>
+            /// <param name="abPath">AB 包路径</param>
+            /// <param name="assetName">资源名称</param>
+            /// <param name="assetGuid">资源 GUID</param>
+            /// <returns>填充好字段的资源配置项</returns>
+            public static ResDefItem Create(int id, string resType, string aliasName, string abPath,
+                string assetName, string assetGuid)
+            {
+                return new ResDefItem
+                {
+                    ID = id,
+                    ResType = resType,
+                    AliasName = aliasName,
+                    ABPath = abPath,
+                    AssetName = assetName,
+                    AssetGUID = assetGuid,
+                };
+            }
         }
 
         /// <summary>

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  MapBuildEditor.Core.cs
+ * filename:  MapBuildEditor.RightPanel.cs
  * author:    云毅
  * created:   2026
  * descrip:   地图编辑器 - 界面/预览/加载/保存核心模块
@@ -110,13 +110,7 @@ namespace Editor.MapEditor
             GUILayout.BeginVertical(GUILayout.Width(1133));
 
             // 工具栏标签
-            GUILayout.BeginHorizontal(GUILayout.Height(30));
-            if (GUILayout.Button("场景编辑", EditorStyles.toolbarButton))
-            {
-            }
-
-            GUI.backgroundColor = Color.white;
-            GUILayout.EndHorizontal();
+            DrawRightToolbar();
 
             //=========================================================================
             // 地图预览区域
@@ -131,6 +125,44 @@ namespace Editor.MapEditor
             //=========================================================================
             // 状态栏（缩放、鼠标坐标显示）
             //=========================================================================
+            DrawRightStatusBar();
+
+            // 分割线
+            GUI.backgroundColor = Color.black;
+            GUILayout.Box("", GUILayout.Height(2), GUILayout.ExpandWidth(true));
+            GUILayout.Space(2);
+
+            //=========================================================================
+            // 底部功能按钮栏
+            //=========================================================================
+            DrawBottomButtonBar();
+
+            GUILayout.EndVertical();
+            //=========================================================================
+            // 右侧容器结束
+            //=========================================================================
+        }
+
+        /// <summary>
+        /// 绘制右侧面板顶部工具栏标签
+        /// </summary>
+        private void DrawRightToolbar()
+        {
+            // 工具栏标签
+            GUILayout.BeginHorizontal(GUILayout.Height(30));
+            if (GUILayout.Button("场景编辑", EditorStyles.toolbarButton))
+            {
+            }
+
+            GUI.backgroundColor = Color.white;
+            GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 绘制右侧面板状态栏（缩放、鼠标坐标显示）
+        /// </summary>
+        private void DrawRightStatusBar()
+        {
             GUILayout.BeginHorizontal(GUILayout.Height(39));
             GUILayout.Space(15);
             GUILayout.Label("属性", EditorStyles.boldLabel, GUILayout.Width(40));
@@ -147,17 +179,45 @@ namespace Editor.MapEditor
             int mouseY = (int)Event.current.mousePosition.y;
             mouseY = EditorGUILayout.IntField(mouseY, GUILayout.Width(60));
             GUILayout.EndHorizontal();
+        }
 
-            // 分割线
-            GUI.backgroundColor = Color.black;
-            GUILayout.Box("", GUILayout.Height(2), GUILayout.ExpandWidth(true));
-            GUILayout.Space(2);
-
+        /// <summary>
+        /// 绘制右侧面板底部功能按钮栏
+        /// </summary>
+        private void DrawBottomButtonBar()
+        {
             //=========================================================================
             // 底部功能按钮栏
             //=========================================================================
             GUILayout.BeginHorizontal();
 
+            // 左侧按钮组
+            DrawBottomLeftButtons();
+
+            // 分割线
+            GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
+
+            // 场景名 / 场景ID
+            DrawSceneNameIdFields();
+
+            // 分割线
+            GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
+
+            // 地图宽 / 高
+            DrawMapSizeFields();
+
+            // 分割线
+            GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
+            GUILayout.FlexibleSpace();
+
+            GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 绘制底部左侧操作按钮组（更新地图/保存/对齐背景/删除选中物体）
+        /// </summary>
+        private void DrawBottomLeftButtons()
+        {
             // 左侧按钮组
             GUILayout.BeginVertical(GUILayout.Width(120));
             if (GUILayout.Button("更新地图"))
@@ -180,10 +240,13 @@ namespace Editor.MapEditor
             }
 
             GUILayout.EndVertical();
+        }
 
-            // 分割线
-            GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
-
+        /// <summary>
+        /// 绘制场景名/场景ID输入框及更换地图背景按钮
+        /// </summary>
+        private void DrawSceneNameIdFields()
+        {
             // 场景名 / 场景ID
             GUILayout.BeginVertical(GUILayout.Width(200));
             GUILayout.BeginHorizontal();
@@ -201,10 +264,13 @@ namespace Editor.MapEditor
             }
 
             GUILayout.EndVertical();
+        }
 
-            // 分割线
-            GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
-
+        /// <summary>
+        /// 绘制地图宽/高输入字段
+        /// </summary>
+        private void DrawMapSizeFields()
+        {
             // 地图宽 / 高
             GUILayout.BeginVertical(GUILayout.Width(200));
             GUILayout.BeginHorizontal();
@@ -216,20 +282,6 @@ namespace Editor.MapEditor
             m_MapHeight = EditorGUILayout.IntField(m_MapHeight, GUILayout.Width(80));
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
-
-            // 分割线
-            GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
-            GUILayout.FlexibleSpace();
-
-            GUILayout.EndHorizontal();
-            //=========================================================================
-            // 状态栏结束
-            //=========================================================================
-
-            GUILayout.EndVertical();
-            //=========================================================================
-            // 右侧容器结束
-            //=========================================================================
         }
         #endregion
 
@@ -459,6 +511,22 @@ namespace Editor.MapEditor
 
             try
             {
+                // 4. 执行背景图替换流程
+                PerformBackgroundReplace(imagePath);
+            }
+            catch (Exception e)
+            {
+                EditorUtility.DisplayDialog("异常", $"替换背景失败：{e.Message}", "确定");
+                Debug.LogError($"❌ 替换背景图片异常：{e}");
+            }
+        }
+
+        /// <summary>
+        /// 执行地图背景图片替换的具体流程（路径校验、加载纹理、替换RawImage）
+        /// </summary>
+        /// <param name="imagePath">用户选择的图片绝对路径</param>
+        private void PerformBackgroundReplace(string imagePath)
+        {
                 // 4. 转换为 Unity 工程相对路径（必须用相对路径加载资源）
                 string projectRelativePath = FileUtil.GetProjectRelativePath(imagePath);
 
@@ -496,12 +564,6 @@ namespace Editor.MapEditor
 
                 // 10. 刷新编辑器预览
                 Repaint();
-            }
-            catch (Exception e)
-            {
-                EditorUtility.DisplayDialog("异常", $"替换背景失败：{e.Message}", "确定");
-                Debug.LogError($"❌ 替换背景图片异常：{e}");
-            }
         }
         #endregion
 
@@ -545,11 +607,7 @@ namespace Editor.MapEditor
             }
 
             // 配置相机
-            if (m_RenderCam != null)
-            {
-                m_RenderCam.orthographic = true;
-                m_RenderCam.orthographicSize = m_BaseOrthoSize;
-            }
+            ConfigurePreviewCamera();
 
             // 配置Canvas
             ConfigureCanvasForPreview(canvas);
@@ -559,13 +617,7 @@ namespace Editor.MapEditor
             m_MapBoundsSize = new Vector2(m_BaseOrthoSize * 2, m_BaseOrthoSize * 2);
 
             // 初始化背景图
-            RawImage bgImage = m_UiInstance.GetComponentInChildren<RawImage>();
-            if (bgImage != null)
-            {
-                bgImage.material = Canvas.GetDefaultCanvasMaterial();
-                bgImage.color = Color.white;
-                bgImage.raycastTarget = false;
-            }
+            SetupPreviewBackgroundImage();
 
             // 显示对象
             m_UiInstance.SetActive(true);
@@ -579,6 +631,33 @@ namespace Editor.MapEditor
             Debug.Log($"==================== 地图加载完成，根节点：{m_MapRoot.name} ====================");
             Repaint();
             onLoaded?.Invoke();
+        }
+
+        /// <summary>
+        /// 配置预览渲染相机为正交模式
+        /// </summary>
+        private void ConfigurePreviewCamera()
+        {
+            if (m_RenderCam != null)
+            {
+                m_RenderCam.orthographic = true;
+                m_RenderCam.orthographicSize = m_BaseOrthoSize;
+            }
+        }
+
+        /// <summary>
+        /// 初始化地图实例中的背景RawImage组件
+        /// </summary>
+        private void SetupPreviewBackgroundImage()
+        {
+            // 初始化背景图
+            RawImage bgImage = m_UiInstance.GetComponentInChildren<RawImage>();
+            if (bgImage != null)
+            {
+                bgImage.material = Canvas.GetDefaultCanvasMaterial();
+                bgImage.color = Color.white;
+                bgImage.raycastTarget = false;
+            }
         }
 
         /// <summary>

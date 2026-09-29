@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  FileFragmentForWebGLManager.Fields.cs
+ * filename:  FileFragmentForWebGLManager.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   WebGL 存储管理器 - 字段、属性与计数接口
@@ -26,14 +26,14 @@ namespace Honor.Runtime
         /// Key：分类名称
         /// Value：该分类下所有存储键名列表
         /// </summary>
-        private readonly SortedDictionary<string, List<string>> m_ItemNameGroups = null;
+        private readonly SortedDictionary<string, List<string>> m_NameIndex = null;
 
         /// <summary>
         /// 获取分类与键名索引字典（只读）
         /// </summary>
         public SortedDictionary<string, List<string>> ItemNameGroups
         {
-            get { return m_ItemNameGroups; }
+            get { return m_NameIndex; }
         }
 
         #endregion
@@ -49,11 +49,7 @@ namespace Honor.Runtime
         /// <returns>条目数量</returns>
         public int Count(string classifyName)
         {
-            if (m_ItemNameGroups != null && m_ItemNameGroups.ContainsKey(classifyName))
-            {
-                return m_ItemNameGroups[classifyName].Count;
-            }
-            return 0;
+            return CommonUtility.CountItemsByGroup(m_NameIndex, classifyName);
         }
 
         #endregion

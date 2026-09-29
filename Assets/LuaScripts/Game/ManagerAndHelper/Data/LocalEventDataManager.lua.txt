@@ -18,7 +18,7 @@ local LocalEventDataManager = class("LocalEventDataManager", import("Singleton")
 --region 【构造与生命周期】
 
 ---=========================================================================
---- 构造函数
+---@brief 构造函数
 ---@type fun():void
 ---=========================================================================
 function LocalEventDataManager:ctor()
@@ -26,7 +26,7 @@ function LocalEventDataManager:ctor()
 end
 
 ---=========================================================================
---- 创建单例
+---@brief 创建单例
 ---@type fun():LocalEventDataManager
 ---@return LocalEventDataManager @本地活动数据管理器实例
 ---=========================================================================
@@ -35,7 +35,7 @@ function LocalEventDataManager:Create()
 end
 
 ---=========================================================================
---- 初始化
+---@brief 初始化
 ---@type fun():void
 ---=========================================================================
 function LocalEventDataManager:Init()
@@ -43,7 +43,7 @@ function LocalEventDataManager:Init()
 end
 
 ---=========================================================================
---- 清理数据
+---@brief 清理数据
 ---@type fun():void
 ---@desc 切换场景/重置时调用，无实际数据需要清理，保持生命周期统一
 ---=========================================================================
@@ -56,7 +56,7 @@ end
 --region 【本地活动数据获取】
 
 ---=========================================================================
---- 获取全部本地活动配置
+---@brief 获取全部本地活动配置
 ---@type fun():Tables.LocalEvents_Item[]
 ---@return Tables.LocalEvents_Item[] @本地活动配置数组
 ---=========================================================================
@@ -69,7 +69,7 @@ function LocalEventDataManager:GetEventData()
 end
 
 ---=========================================================================
---- 根据活动ID获取对应配置
+---@brief 根据活动ID获取对应配置
 ---@type fun(eventId:ELocalActivityId):Tables.LocalEvents_Item|nil
 ---@param eventId ELocalActivityId @本地活动ID
 ---@return Tables.LocalEvents_Item|nil @本地活动配置数据
@@ -91,7 +91,7 @@ function LocalEventDataManager:GetEventDataById(eventId)
 end
 
 ---=========================================================================
---- 根据活动ID获取活动组ID
+---@brief 根据活动ID获取活动组ID
 ---@type fun(eventId:ELocalActivityId):number
 ---@param eventId ELocalActivityId @本地活动ID
 ---@return number @活动组ID（获取失败返回0）
@@ -102,7 +102,7 @@ function LocalEventDataManager:GetActivityGroupId(eventId)
 end
 
 ---=========================================================================
---- 根据活动ID获取活动开启顺序
+---@brief 根据活动ID获取活动开启顺序
 ---@type fun(eventId:ELocalActivityId):number
 ---@param eventId ELocalActivityId @本地活动ID
 ---@return number @活动开启顺序（获取失败返回0）

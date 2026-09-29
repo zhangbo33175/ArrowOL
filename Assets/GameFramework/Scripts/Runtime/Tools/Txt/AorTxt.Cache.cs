@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  AorTxt.Type.cs
+ * filename:  AorTxt.Cache.cs
  * author:    云毅
  * created:   2026
  * descrip:   字符串工具类 - 类型名称格式化扩展
@@ -48,14 +48,16 @@ namespace Honor.Runtime
             // 懒加载初始化字典
             s_TypeNameToUnityEngine ??= new Dictionary<string, string>();
 
-            // 尝试从缓存获取，不存在则创建并缓存
-            if (!s_TypeNameToUnityEngine.TryGetValue(typeName, out var res))
+            // 命中缓存直接返回
+            if (s_TypeNameToUnityEngine.TryGetValue(typeName, out string fullName))
             {
-                res = $"UnityEngine.{typeName}";
-                s_TypeNameToUnityEngine[typeName] = res;
+                return fullName;
             }
 
-            return res;
+            // 未命中则拼接并写入缓存
+            fullName = "UnityEngine." + typeName;
+            s_TypeNameToUnityEngine.Add(typeName, fullName);
+            return fullName;
         }
 
         #endregion

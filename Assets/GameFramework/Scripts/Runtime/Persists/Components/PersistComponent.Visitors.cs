@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  PersistComponent.Fields.cs
+ * filename:  PersistComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   持久化组件 - 字段与属性定义
@@ -22,17 +22,17 @@ namespace Honor.Runtime
         /// <summary>
         /// WebGL 专用文件片段存储管理器
         /// </summary>
-        private FileFragmentForWebGLManager m_FileFragmentForWebGLManager = null;
+        private FileFragmentForWebGLManager m_WebGLFragmentStore = null;
 
         /// <summary>
         /// 常规平台文件片段存储管理器
         /// </summary>
-        private FileFragmentManager m_FileFragmentManager = null;
+        private FileFragmentManager m_DiskFragmentStore = null;
 
         /// <summary>
         /// PlayerPrefs 存储管理器
         /// </summary>
-        private PlayerPrefsManager m_PlayerPrefsManager = null;
+        private PlayerPrefsManager m_PlayerPrefsStore = null;
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace Honor.Runtime
         /// </summary>
         public FileFragmentForWebGLManager FileFragmentForWebGLManager
         {
-            get { return m_FileFragmentForWebGLManager; }
+            get { return m_WebGLFragmentStore; }
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Honor.Runtime
         /// </summary>
         public FileFragmentManager FileFragmentManager
         {
-            get { return m_FileFragmentManager; }
+            get { return m_DiskFragmentStore; }
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Honor.Runtime
         /// </summary>
         public PlayerPrefsManager PlayerPrefsManager
         {
-            get { return m_PlayerPrefsManager; }
+            get { return m_PlayerPrefsStore; }
         }
 
         #endregion
@@ -78,17 +78,20 @@ namespace Honor.Runtime
         /// <returns>条目数量</returns>
         public int Count(PersistWayType wayType, string classifyName)
         {
-            if (wayType == PersistWayType.FileFragment)
+            switch (wayType)
             {
+                case PersistWayType.FileFragment:
+                {
 #if UNITY_WEBGL && !UNITY_EDITOR
-                return m_FileFragmentForWebGLManager.Count(classifyName);
+                    return m_WebGLFragmentStore.Count(classifyName);
 #else
-                return m_FileFragmentManager.Count(classifyName);
+                    return m_DiskFragmentStore.Count(classifyName);
 #endif
-            }
-            else if (wayType == PersistWayType.PlayerPrefs)
-            {
-                return m_PlayerPrefsManager.Count(classifyName);
+                }
+                case PersistWayType.PlayerPrefs:
+                {
+                    return m_PlayerPrefsStore.Count(classifyName);
+                }
             }
 
             return 0;

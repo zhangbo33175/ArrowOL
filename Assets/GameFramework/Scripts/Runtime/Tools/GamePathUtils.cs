@@ -34,6 +34,39 @@ namespace Honor.Runtime
         public static string PlatformName = "Android";
 #endif
 
+        #region 内部路径拼接辅助
+        /// <summary>
+        /// 拼接 Application.dataPath 与相对子路径
+        /// </summary>
+        /// <param name="relative">相对 Assets 目录的路径</param>
+        /// <returns>拼接后的绝对路径</returns>
+        private static string UnderDataPath(string relative)
+        {
+            return AorTxt.Format("{0}/{1}", Application.dataPath, relative);
+        }
+
+        /// <summary>
+        /// 统一将路径中的反斜杠替换为斜杠
+        /// </summary>
+        /// <param name="path">原始路径</param>
+        /// <returns>使用 '/' 分隔的路径</returns>
+        private static string ToSlash(string path)
+        {
+            return path.Replace('\\', '/');
+        }
+
+        /// <summary>
+        /// 读取当前是否处于 Luac（编译后 Lua）模式
+        /// </summary>
+        /// <returns>Luac 模式开关</returns>
+        private static bool IsLuacMode()
+        {
+            return GameMainRoot.Launcher != null
+                ? GameMainRoot.Launcher.LuacMode
+                : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
+        }
+        #endregion
+
         #region 应用下载相关路径
         /// <summary>
         /// 应用大版本更新、应用商店下载相关路径
@@ -85,7 +118,7 @@ namespace Honor.Runtime
             /// <returns>Excel配置根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/ABConfigs");
+                return UnderDataPath("../Docs/Designs/Excels/ABConfigs");
             }
 
             /// <summary>
@@ -95,7 +128,7 @@ namespace Honor.Runtime
             /// <returns>Excel配置文件路径</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/ABConfigs/ABConfigs.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/ABConfigs/ABConfigs.xlsm");
             }
 
             /// <summary>
@@ -121,7 +154,7 @@ namespace Honor.Runtime
                 /// <returns>平台根目录</returns>
                 public static string GetPlatformFolderFullPath(string platformName)
                 {
-                    return $"{Application.dataPath}/../AssetBundles/{platformName}".Replace('\\', '/');
+                    return ToSlash($"{Application.dataPath}/../AssetBundles/{platformName}");
                 }
 
                 /// <summary>
@@ -133,7 +166,7 @@ namespace Honor.Runtime
                 /// <returns>AB根目录</returns>
                 public static string GetRootDirectoryFullPath(string platformName, string appVersion, int resMinor)
                 {
-                    return AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}", Application.dataPath, platformName, appVersion, resMinor).Replace('\\', '/');
+                    return ToSlash(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}", Application.dataPath, platformName, appVersion, resMinor));
                 }
 
                 /// <summary>
@@ -145,7 +178,7 @@ namespace Honor.Runtime
                 /// <returns>版本文件路径</returns>
                 public static string GetVersionFileFullPath(string platformName, string appVersion, int resMinor)
                 {
-                    return AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}/{4}", Application.dataPath, platformName, appVersion, resMinor, VersionFileName).Replace('\\', '/');
+                    return ToSlash(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}/{4}", Application.dataPath, platformName, appVersion, resMinor, VersionFileName));
                 }
 
                 /// <summary>
@@ -156,7 +189,7 @@ namespace Honor.Runtime
                 /// <returns>版本文件路径</returns>
                 public static string GetVersionFileFullPath(string platformName, string version)
                 {
-                    return $"{Application.dataPath}/../AssetBundles/{platformName}/{version}/{VersionFileName}".Replace('\\', '/');
+                    return ToSlash($"{Application.dataPath}/../AssetBundles/{platformName}/{version}/{VersionFileName}");
                 }
 
                 /// <summary>
@@ -169,7 +202,7 @@ namespace Honor.Runtime
                 /// <returns>AB文件路径</returns>
                 public static string GetFileFullPath(string platformName, string appVersion, int resMinor, string formatPath)
                 {
-                    return Path.Combine(GetRootDirectoryFullPath(platformName, appVersion, resMinor), formatPath).Replace('\\', '/');
+                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(platformName, appVersion, resMinor), formatPath));
                 }
             }
             #endregion
@@ -188,9 +221,10 @@ namespace Honor.Runtime
                 public static string GetRootDirectoryFullPath(string platformName = null)
                 {
                     if (string.IsNullOrEmpty(platformName))
-                        return Path.Combine(Application.persistentDataPath, DirectoryPrefix).Replace('\\', '/');
-                    else
-                        return Path.Combine(Application.persistentDataPath, AorTxt.Format("AssetBundles/{0}", platformName)).Replace('\\', '/');
+                    {
+                        return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix));
+                    }
+                    return ToSlash(Path.Combine(Application.persistentDataPath, AorTxt.Format("AssetBundles/{0}", platformName)));
                 }
 
                 /// <summary>
@@ -199,7 +233,7 @@ namespace Honor.Runtime
                 /// <returns>版本文件路径</returns>
                 public static string GetVersionFileFullPath()
                 {
-                    return Path.Combine(Application.persistentDataPath, DirectoryPrefix, VersionFileName).Replace('\\', '/');
+                    return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix, VersionFileName));
                 }
 
                 /// <summary>
@@ -209,7 +243,7 @@ namespace Honor.Runtime
                 /// <returns>AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return Path.Combine(GetRootDirectoryFullPath(), formatPath).Replace('\\', '/');
+                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -226,7 +260,7 @@ namespace Honor.Runtime
                 /// <returns>临时AB根目录</returns>
                 public static string GetRootDirectoryFullPath()
                 {
-                    return Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___").Replace('\\', '/');
+                    return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___"));
                 }
 
                 /// <summary>
@@ -235,7 +269,7 @@ namespace Honor.Runtime
                 /// <returns>临时版本文件路径</returns>
                 public static string GetVersionFileFullPath()
                 {
-                    return Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___", VersionFileName).Replace('\\', '/');
+                    return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___", VersionFileName));
                 }
 
                 /// <summary>
@@ -245,7 +279,7 @@ namespace Honor.Runtime
                 /// <returns>临时AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return System.IO.Path.Combine(GetRootDirectoryFullPath(), formatPath).Replace('\\', '/');
+                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -262,7 +296,7 @@ namespace Honor.Runtime
                 /// <returns>缓存根目录</returns>
                 public static string GetRootDirectoryFullPath()
                 {
-                    return System.IO.Path.Combine(UnityEngine.Caching.currentCacheForWriting.path).Replace('\\', '/');
+                    return ToSlash(UnityEngine.Caching.currentCacheForWriting.path);
                 }
 
                 /// <summary>
@@ -272,7 +306,7 @@ namespace Honor.Runtime
                 /// <returns>缓存AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return System.IO.Path.Combine(GetRootDirectoryFullPath(), formatPath).Replace('\\', '/');
+                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -291,32 +325,20 @@ namespace Honor.Runtime
                 public static string GetRootDirectoryFullPath(string platformName = null)
                 {
 #if UNITY_IOS && !UNITY_EDITOR
-                    if (string.IsNullOrEmpty(platformName))
-                    {
-                        return Txt.Format("{0}{1}{2}", Application.dataPath, "/Raw/", DirectoryPrefix).Replace('\\', '/');
-                    }
-                    else
-                    {
-                        return Txt.Format("{0}{1}{2}", Application.dataPath, "/Raw/", Txt.Format("AssetBundles/{0}", platformName)).Replace('\\', '/');
-                    }
+                    string subFolder = string.IsNullOrEmpty(platformName)
+                        ? DirectoryPrefix
+                        : AorTxt.Format("AssetBundles/{0}", platformName);
+                    return ToSlash(Txt.Format("{0}{1}{2}", Application.dataPath, "/Raw/", subFolder));
 #elif UNITY_WEBGL && UNITY_EDITOR
-                    if (string.IsNullOrEmpty(platformName))
-                    {
-                        return Txt.Format("{0}{1}{2}", Application.dataPath, "/StreamingAssets/", DirectoryPrefix).Replace('\\', '/');
-                    }
-                    else
-                    {
-                        return Txt.Format("{0}{1}{2}", Application.dataPath, "/StreamingAssets/", Txt.Format("AssetBundles/{0}", platformName)).Replace('\\', '/');
-                    }
+                    string subFolder = string.IsNullOrEmpty(platformName)
+                        ? DirectoryPrefix
+                        : AorTxt.Format("AssetBundles/{0}", platformName);
+                    return ToSlash(Txt.Format("{0}{1}{2}", Application.dataPath, "/StreamingAssets/", subFolder));
 #else
-                    if (string.IsNullOrEmpty(platformName))
-                    {
-                        return System.IO.Path.Combine(Application.streamingAssetsPath, DirectoryPrefix).Replace('\\', '/');
-                    }
-                    else
-                    {
-                        return System.IO.Path.Combine(Application.streamingAssetsPath, AorTxt.Format("AssetBundles/{0}", platformName)).Replace('\\', '/');
-                    }
+                    string subFolder = string.IsNullOrEmpty(platformName)
+                        ? DirectoryPrefix
+                        : AorTxt.Format("AssetBundles/{0}", platformName);
+                    return ToSlash(Path.Combine(Application.streamingAssetsPath, subFolder));
 #endif
                 }
 
@@ -329,7 +351,7 @@ namespace Honor.Runtime
 #if UNITY_IOS && !UNITY_EDITOR
                     return Txt.Format("{0}{1}{2}{3}{4}{5}", "file://", Application.dataPath, "/Raw/", DirectoryPrefix, "/", VersionFileName);
 #elif (UNITY_ANDROID || UNITY_WEBGL) && !UNITY_EDITOR
-                    return System.IO.Path.Combine(Application.streamingAssetsPath, DirectoryPrefix, VersionFileName).Replace('\\', '/');
+                    return ToSlash(Path.Combine(Application.streamingAssetsPath, DirectoryPrefix, VersionFileName));
 #else
                     return AorTxt.Format("{0}{1}{2}{3}{4}{5}", "file://", Application.dataPath, "/StreamingAssets/", DirectoryPrefix, "/", VersionFileName);
 #endif
@@ -342,7 +364,7 @@ namespace Honor.Runtime
                 /// <returns>只读AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return System.IO.Path.Combine(GetRootDirectoryFullPath(), formatPath).Replace('\\', '/');
+                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -380,7 +402,7 @@ namespace Honor.Runtime
             /// <returns>文件片段根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return System.IO.Path.Combine(Application.persistentDataPath, "PersistFileFragments").Replace('\\', '/');
+                return ToSlash(Path.Combine(Application.persistentDataPath, "PersistFileFragments"));
             }
         }
         #endregion
@@ -407,18 +429,8 @@ namespace Honor.Runtime
                     {
                         return "Assets/Framework/LuaScripts";
                     }
-                    else
-                    {
-                        bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
-                        if (luacMode)
-                        {
-                            return "Assets/Framework/LuacScripts";
-                        }
-                        else
-                        {
-                            return "Assets/Framework/LuaScripts";
-                        }
-                    }
+
+                    return IsLuacMode() ? "Assets/Framework/LuacScripts" : "Assets/Framework/LuaScripts";
                 }
 
                 /// <summary>
@@ -428,22 +440,8 @@ namespace Honor.Runtime
                 /// <returns>绝对路径</returns>
                 public static string GetRootDirectoryFullPath(bool isEditorTool = false)
                 {
-                    if (isEditorTool)
-                    {
-                        return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/XLua");
-                    }
-                    else
-                    {
-                        bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
-                        if (luacMode)
-                        {
-                            return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/XLua");
-                        }
-                        else
-                        {
-                            return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/XLua");
-                        }
-                    }
+                    // 框架侧 Lua 与 Luac 的绝对路径均指向同一物理目录
+                    return UnderDataPath("LuaScripts/Game/XLua");
                 }
             }
 
@@ -460,10 +458,11 @@ namespace Honor.Runtime
                 public static string GetRootDirectoryRelativePath(bool isEditorTool = false)
                 {
                     if (isEditorTool)
+                    {
                         return "Assets/LuaScripts";
-                    
-                    bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
-                    return luacMode ? "Assets/LuacScripts" : "Assets/LuaScripts";
+                    }
+
+                    return IsLuacMode() ? "Assets/LuacScripts" : "Assets/LuaScripts";
                 }
 
                 /// <summary>
@@ -473,12 +472,7 @@ namespace Honor.Runtime
                 /// <returns>绝对路径</returns>
                 public static string GetRootDirectoryFullPath(bool isEditorTool = false)
                 {
-                    if (isEditorTool)
-                    {
-                       return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts");
-                    }
-                    bool luacMode = GameMainRoot.Launcher != null ? GameMainRoot.Launcher.LuacMode : GameComponentsGroup.GetComponent<LauncherComponent>().LuacMode;
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts");
+                    return UnderDataPath("LuaScripts");
                 }
             }
         }
@@ -506,7 +500,7 @@ namespace Honor.Runtime
             /// <returns>绝对路径</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Config/LuaJson");
+                return UnderDataPath("LuaScripts/Config/LuaJson");
             }
         }
         #endregion
@@ -532,7 +526,7 @@ namespace Honor.Runtime
             /// <returns>绝对路径</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "Res/Fonts");
+                return UnderDataPath("Res/Fonts");
             }
         }
         #endregion
@@ -558,7 +552,7 @@ namespace Honor.Runtime
             /// <returns>绝对路径</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "Res/Prefabs");
+                return UnderDataPath("Res/Prefabs");
             }
 
             /// <summary>
@@ -576,7 +570,7 @@ namespace Honor.Runtime
             /// <returns>框架预制体绝对路径</returns>
             public static string GetFrameworkRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "Res/Prefabs");
+                return UnderDataPath("Res/Prefabs");
             }
         }
         #endregion
@@ -602,7 +596,7 @@ namespace Honor.Runtime
             /// <returns>绝对路径</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "Res/Textures");
+                return UnderDataPath("Res/Textures");
             }
         }
         #endregion
@@ -628,7 +622,7 @@ namespace Honor.Runtime
             /// <returns>绝对路径</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "Res/Textures/PicsForAtlas");
+                return UnderDataPath("Res/Textures/PicsForAtlas");
             }
         }
         #endregion
@@ -646,7 +640,7 @@ namespace Honor.Runtime
             /// <returns>Lua多语言根目录</returns>
             public static string GetLuaScriptRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/Localizations");
+                return UnderDataPath("LuaScripts/Game/Localizations");
             }
 
             /// <summary>
@@ -656,7 +650,7 @@ namespace Honor.Runtime
             /// <returns>多语言Excel路径</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Localizations/Localizations.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Localizations/Localizations.xlsm");
             }
 
             /// <summary>
@@ -666,7 +660,7 @@ namespace Honor.Runtime
             /// <returns>默认多语言Excel路径</returns>
             public static string GetExcelDefaultFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Localizations/LocalizationsDefault.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Localizations/LocalizationsDefault.xlsm");
             }
 
             /// <summary>
@@ -676,7 +670,7 @@ namespace Honor.Runtime
             /// <returns>多语言字体Excel路径</returns>
             public static string GetExcelFontFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Localizations/LocalizationFonts.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Localizations/LocalizationFonts.xlsm");
             }
 
             /// <summary>
@@ -686,7 +680,7 @@ namespace Honor.Runtime
             /// <returns>多语言Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Localizations");
+                return UnderDataPath("../Docs/Designs/Excels/Localizations");
             }
         }
         #endregion
@@ -704,7 +698,7 @@ namespace Honor.Runtime
             /// <returns>配置表Lua根目录</returns>
             public static string GetLuaScriptRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/Tables");
+                return UnderDataPath("LuaScripts/Game/Tables");
             }
 
             /// <summary>
@@ -714,7 +708,7 @@ namespace Honor.Runtime
             /// <returns>配置表Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Tables");
+                return UnderDataPath("../Docs/Designs/Excels/Tables");
             }
         }
         #endregion
@@ -737,7 +731,7 @@ namespace Honor.Runtime
                 /// <returns>网络协议根目录</returns>
                 public static string GetRootDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Programs/NetProtos");
+                    return UnderDataPath("../Docs/Programs/NetProtos");
                 }
 
                 /// <summary>
@@ -747,7 +741,7 @@ namespace Honor.Runtime
                 /// <returns>网络协议Lua目录</returns>
                 public static string GetLuaScriptRootDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/RScripts/NetCmds/Protos");
+                    return UnderDataPath("LuaScripts/Game/RScripts/NetCmds/Protos");
                 }
 
                 /// <summary>
@@ -757,7 +751,7 @@ namespace Honor.Runtime
                 /// <returns>网络协议定义目录</returns>
                 public static string GetLuaScriptDeclarationsDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/RScripts/NetCmds/Declarations");
+                    return UnderDataPath("LuaScripts/Game/RScripts/NetCmds/Declarations");
                 }
             }
 
@@ -773,7 +767,7 @@ namespace Honor.Runtime
                 /// <returns>存档协议根目录</returns>
                 public static string GetRootDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/ProgramConfig/ProtoPB");
+                    return UnderDataPath("../Docs/ProgramConfig/ProtoPB");
                 }
 
                 /// <summary>
@@ -783,7 +777,7 @@ namespace Honor.Runtime
                 /// <returns>存档协议Lua目录</returns>
                 public static string GetLuaScriptProtosDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Honor/PB/ProtoDataPb");
+                    return UnderDataPath("LuaScripts/Honor/PB/ProtoDataPb");
                 }
 
                 /// <summary>
@@ -793,7 +787,7 @@ namespace Honor.Runtime
                 /// <returns>存档协议定义目录</returns>
                 public static string GetLuaScriptDeclarationsDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Honor/PB/Declarations");
+                    return UnderDataPath("LuaScripts/Honor/PB/Declarations");
                 }
             }
         }
@@ -812,7 +806,7 @@ namespace Honor.Runtime
             /// <returns>网络配置Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Networks");
+                return UnderDataPath("../Docs/Designs/Excels/Networks");
             }
 
             /// <summary>
@@ -822,7 +816,7 @@ namespace Honor.Runtime
             /// <returns>网络命令Excel文件</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Networks/NetCmds.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Networks/NetCmds.xlsm");
             }
 
             /// <summary>
@@ -832,7 +826,7 @@ namespace Honor.Runtime
             /// <returns>网络命令Lua目录</returns>
             public static string GetLuaScriptRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/RScripts/NetCmds");
+                return UnderDataPath("LuaScripts/Game/RScripts/NetCmds");
             }
         }
         #endregion
@@ -850,7 +844,7 @@ namespace Honor.Runtime
             /// <returns>存档Lua目录</returns>
             public static string GetLuaScriptRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Honor/PB/ProtoDataPb");
+                return UnderDataPath("LuaScripts/Honor/PB/ProtoDataPb");
             }
         }
         #endregion
@@ -868,7 +862,7 @@ namespace Honor.Runtime
             /// <returns>项目配置Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Configs");
+                return UnderDataPath("../Docs/Designs/Excels/Configs");
             }
 
             /// <summary>
@@ -878,7 +872,7 @@ namespace Honor.Runtime
             /// <returns>项目配置Excel文件</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Configs/Configs.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Configs/Configs.xlsm");
             }
         }
         #endregion
@@ -896,7 +890,7 @@ namespace Honor.Runtime
             /// <returns>UI配置Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/UIs");
+                return UnderDataPath("../Docs/Designs/Excels/UIs");
             }
 
             /// <summary>
@@ -906,7 +900,7 @@ namespace Honor.Runtime
             /// <returns>UI配置Excel文件</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/UIs/UIConfigs.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/UIs/UIConfigs.xlsm");
             }
 
             /// <summary>
@@ -916,7 +910,7 @@ namespace Honor.Runtime
             /// <returns>UI逻辑Lua目录</returns>
             public static string GetLuaScriptRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "LuaScripts/Game/UIScripts/UIs");
+                return UnderDataPath("LuaScripts/Game/UIScripts/UIs");
             }
 
             /// <summary>
@@ -925,7 +919,7 @@ namespace Honor.Runtime
             /// <returns>UI组件库目录</returns>
             public static string GetComponentLibRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "Res/Prefabs/UILibs");
+                return UnderDataPath("Res/Prefabs/UILibs");
             }
         }
         #endregion
@@ -943,7 +937,7 @@ namespace Honor.Runtime
             /// <returns>音效Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Sounds");
+                return UnderDataPath("../Docs/Designs/Excels/Sounds");
             }
 
             /// <summary>
@@ -953,7 +947,7 @@ namespace Honor.Runtime
             /// <returns>音效配置Excel文件</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Sounds/Sounds.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Sounds/Sounds.xlsm");
             }
         }
         #endregion
@@ -971,7 +965,7 @@ namespace Honor.Runtime
             /// <returns>震动Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Vibrates");
+                return UnderDataPath("../Docs/Designs/Excels/Vibrates");
             }
 
             /// <summary>
@@ -981,7 +975,7 @@ namespace Honor.Runtime
             /// <returns>震动配置Excel文件</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Vibrates/Vibrates.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Vibrates/Vibrates.xlsm");
             }
         }
         #endregion
@@ -999,7 +993,7 @@ namespace Honor.Runtime
             /// <returns>Lua调试配置文件</returns>
             public static string GetLuaDebugModeLibraryConfigFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", System.IO.Path.GetFullPath("."), "Library/LuaDebugMode.dat").Replace("\\", "/");
+                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LuaDebugMode.dat"));
             }
         }
         #endregion
@@ -1017,7 +1011,7 @@ namespace Honor.Runtime
             /// <returns>AAB工具配置文件</returns>
             public static string GetLibraryAABToolsConfigFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", System.IO.Path.GetFullPath("."), "Library/AABTools.dat").Replace("\\", "/");
+                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/AABTools.dat"));
             }
 
             /// <summary>
@@ -1027,7 +1021,7 @@ namespace Honor.Runtime
             /// <returns>日志根目录</returns>
             public static string GetLibraryLogsRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", System.IO.Path.GetFullPath("."), "Library/LogFiles").Replace("\\", "/");
+                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LogFiles"));
             }
         }
         #endregion
@@ -1045,7 +1039,7 @@ namespace Honor.Runtime
             /// <returns>内购Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Purchases");
+                return UnderDataPath("../Docs/Designs/Excels/Purchases");
             }
 
             /// <summary>
@@ -1055,7 +1049,7 @@ namespace Honor.Runtime
             /// <returns>内购配置Excel文件</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Purchases/Purchases.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Purchases/Purchases.xlsm");
             }
         }
         #endregion
@@ -1073,7 +1067,7 @@ namespace Honor.Runtime
             /// <returns>埋点Excel根目录</returns>
             public static string GetExcelRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Tracks");
+                return UnderDataPath("../Docs/Designs/Excels/Tracks");
             }
 
             /// <summary>
@@ -1083,7 +1077,7 @@ namespace Honor.Runtime
             /// <returns>埋点配置Excel文件</returns>
             public static string GetExcelFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Designs/Excels/Tracks/Tracks.xlsm");
+                return UnderDataPath("../Docs/Designs/Excels/Tracks/Tracks.xlsm");
             }
         }
         #endregion
@@ -1101,7 +1095,7 @@ namespace Honor.Runtime
             /// <returns>包信息缓存文件</returns>
             public static string GetCachedPackageInfoProjectSettingsConfigFileFullPath()
             {
-                return AorTxt.Format("{0}/{1}", System.IO.Path.GetFullPath("."), "ProjectSettings/CachedPackageInfo.dat").Replace("\\", "/");
+                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "ProjectSettings/CachedPackageInfo.dat"));
             }
         }
         #endregion
@@ -1118,7 +1112,7 @@ namespace Honor.Runtime
             /// <returns>工程根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/../", Application.dataPath).Replace('\\', '/');
+                return ToSlash(AorTxt.Format("{0}/../", Application.dataPath));
             }
 
             /// <summary>
@@ -1127,10 +1121,10 @@ namespace Honor.Runtime
             /// <returns>VS解决方案文件</returns>
             public static string GetVSProjectFileFullPath()
             {
-                string[] fileFullPaths = Directory.GetFiles(GetRootDirectoryFullPath(), "*.sln", SearchOption.AllDirectories);
-                if (fileFullPaths != null && fileFullPaths.Length > 0)
+                string[] foundSolutions = Directory.GetFiles(GetRootDirectoryFullPath(), "*.sln", SearchOption.AllDirectories);
+                if (foundSolutions != null && foundSolutions.Length > 0)
                 {
-                    return fileFullPaths[0];
+                    return foundSolutions[0];
                 }
                 return string.Empty;
             }
@@ -1155,7 +1149,7 @@ namespace Honor.Runtime
                 /// <returns>iOS原生工程目录</returns>
                 public static string GetProjectRootDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "../Natives/iOS");
+                    return UnderDataPath("../Natives/iOS");
                 }
             }
 
@@ -1171,7 +1165,7 @@ namespace Honor.Runtime
                 /// <returns>Android原生工程目录</returns>
                 public static string GetProjectRootDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "../Natives/Android");
+                    return UnderDataPath("../Natives/Android");
                 }
 
                 /// <summary>
@@ -1181,7 +1175,7 @@ namespace Honor.Runtime
                 /// <returns>安卓签名文件目录</returns>
                 public static string GetSignatureDirectoryFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", Application.dataPath, "../Docs/Programs/Certificates/Android");
+                    return UnderDataPath("../Docs/Programs/Certificates/Android");
                 }
             }
         }
@@ -1199,7 +1193,7 @@ namespace Honor.Runtime
             /// <returns>工具根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/../Tools", Application.dataPath).Replace('\\', '/');
+                return ToSlash(AorTxt.Format("{0}/../Tools", Application.dataPath));
             }
 
             /// <summary>
@@ -1225,7 +1219,7 @@ namespace Honor.Runtime
             /// <returns>项目设置目录</returns>
             public static string GetProjectSettingDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/../ProjectSettings", Application.dataPath).Replace('\\', '/');
+                return ToSlash(AorTxt.Format("{0}/../ProjectSettings", Application.dataPath));
             }
 
             /// <summary>
@@ -1239,7 +1233,7 @@ namespace Honor.Runtime
                 /// <returns>资源定义Lua文件</returns>
                 public static string GetResDefLuaFullPath()
                 {
-                   return AorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/Config", "LoadResDefs.lua.txt");
+                    return AorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/Config", "LoadResDefs.lua.txt");
                 }
 
                 /// <summary>
@@ -1314,7 +1308,7 @@ namespace Honor.Runtime
                 /// <returns>ChatGPT配置</returns>
                 public static string GetLibrarySaveFileFullPath()
                 {
-                    return $"{System.IO.Path.GetFullPath(".")}/Library/ChatGPTConfig.dat".Replace("\\", "/");
+                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTConfig.dat");
                 }
 
                 /// <summary>
@@ -1324,7 +1318,7 @@ namespace Honor.Runtime
                 /// <returns>对话历史</returns>
                 public static string GetLibraryChatHistoryFileFullPath()
                 {
-                    return $"{System.IO.Path.GetFullPath(".")}/Library/ChatGPTChatHistory.dat".Replace("\\", "/");
+                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTChatHistory.dat");
                 }
 
                 /// <summary>
@@ -1334,7 +1328,7 @@ namespace Honor.Runtime
                 /// <returns>代码历史</returns>
                 public static string GetLibraryCodeHistoryFileFullPath()
                 {
-                    return $"{System.IO.Path.GetFullPath(".")}/Library/ChatGPTCodeHistory.dat".Replace("\\", "/");
+                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTCodeHistory.dat");
                 }
 
                 /// <summary>
@@ -1344,7 +1338,7 @@ namespace Honor.Runtime
                 /// <returns>图片创建历史</returns>
                 public static string GetLibraryImageCreateHistoryFileFullPath()
                 {
-                    return $"{System.IO.Path.GetFullPath(".")}/Library/ChatGPTImageCreateHistory.dat".Replace("\\", "/");
+                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTImageCreateHistory.dat");
                 }
 
                 /// <summary>
@@ -1354,7 +1348,7 @@ namespace Honor.Runtime
                 /// <returns>图片编辑历史</returns>
                 public static string GetLibraryImageEditHistoryFileFullPath()
                 {
-                    return $"{System.IO.Path.GetFullPath(".")}/Library/ChatGPTImageEditHistory.dat".Replace("\\", "/");
+                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTImageEditHistory.dat");
                 }
 
                 /// <summary>
@@ -1364,7 +1358,7 @@ namespace Honor.Runtime
                 /// <returns>图片变种历史</returns>
                 public static string GetLibraryImageVariationHistoryFileFullPath()
                 {
-                    return $"{System.IO.Path.GetFullPath(".")}/Library/ChatGPTImageVariationHistory.dat".Replace("\\", "/");
+                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTImageVariationHistory.dat");
                 }
             }
 
@@ -1413,7 +1407,7 @@ namespace Honor.Runtime
                 /// <summary>
                 /// 获取Lua脚本在Library目录下文件的绝对路径
                 /// </summary>
-                public static string LibraryLocalLuaFileFullPath = AorTxt.Format("{0}/../Library/LuaScript.lua.txt", Application.dataPath).Replace('\\', '/');
+                public static string LibraryLocalLuaFileFullPath = ToSlash(AorTxt.Format("{0}/../Library/LuaScript.lua.txt", Application.dataPath));
             }
         }
         #endregion
@@ -1427,9 +1421,9 @@ namespace Honor.Runtime
             /// <summary>
             /// 根据名称获取精灵图片
             /// </summary>
-            /// <param name="_spriteName">精灵名称</param>
+            /// <param name="spriteName">精灵名称</param>
             /// <returns>Sprite对象</returns>
-            public static Sprite GetImageByName(string _spriteName)
+            public static Sprite GetImageByName(string spriteName)
             {
                 return null;
             }

@@ -177,6 +177,12 @@ end
 --endregion
 
 
+---=========================================================================
+--- 根据章节ID加载关卡配置数据
+---@brief 查询章节对应关卡ID，并加载返回关卡配置数据
+---@param chapterId number 章节ID
+---@return Tables.LevelData_Item|nil 关卡配置数据，未取到关卡ID时返回 nil
+---=========================================================================
 function GameCoreManager:GetLevelData(chapterId)
     local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
     if levelId ~=nil then

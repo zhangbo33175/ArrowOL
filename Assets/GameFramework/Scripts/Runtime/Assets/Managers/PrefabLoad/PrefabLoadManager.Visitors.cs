@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  PrefabLoadManager.cs
+ * filename:  PrefabLoadManager.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   Prefab 加载管理器 - 成员变量 & 属性定义
@@ -33,11 +33,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 异步加载临时中转列表
+        /// 异步加载延迟中转列表
         /// 用于延迟统一派发回调
         /// 解决：异步调用时资源已加载完成，仍需保证异步回调逻辑
         /// </summary>
-        private readonly List<PrefabObject> m_LoadedAsyncTmpAgentList;
+        private readonly List<PrefabObject> m_DeferredAsyncAgents;
 
         /// <summary>
         /// 实例 ID 映射表

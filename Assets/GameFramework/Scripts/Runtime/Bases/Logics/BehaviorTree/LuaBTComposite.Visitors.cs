@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaBTComposite.cs
+ * filename:  LuaBTComposite.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   行为树Lua组合节点定义类，存储Lua组件引用、Lua类对象及所有回调函数

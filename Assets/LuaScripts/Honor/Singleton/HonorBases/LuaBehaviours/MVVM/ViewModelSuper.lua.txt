@@ -15,70 +15,70 @@
 ---@class ViewModelSuper MVVM 视图模型基类（所有 VM 的父类）
 local ViewModelSuper = class("ViewModelSuper")
 
---- 构造函数
+---@brief 构造函数
 ---@param args table 构造参数 { args:外部参数, params:配置参数 }
 function ViewModelSuper:ctor(args)
-	self._args = args.args								                -- 外部传入的初始化参数
-	self._params = args.params						                    -- C# 配置的自定义参数
-	self._name = self.__cname						                    -- 类名（如：MainViewModel）
-	self._mvvmType = "ViewModel"					                    -- MVVM 类型标记
-	-- 公共名称（自动去掉 ViewModel 后缀，用于匹配 View）
-	self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))
-	self._initOver = false							                    -- 初始化完成标记
-	self._bindValues = {}							                    -- 可绑定数据集合（MVVM 双向绑定核心）
-	-- 父 ViewModel（用于跨界面数据共享、嵌套 VM）
-	self._parentViewModel = args.params ~= nil and args.params.parentViewModel or nil
-	self.cs = self._args.env.cs						                    -- 关联的 C# LuaBehaviour 对象
+    self._args = args.args								                -- 外部传入的初始化参数
+    self._params = args.params						                    -- C# 配置的自定义参数
+    self._name = self.__cname						                    -- 类名（如：MainViewModel）
+    self._mvvmType = "ViewModel"					                    -- MVVM 类型标记
+    -- 公共名称（自动去掉 ViewModel 后缀，用于匹配 View）
+    self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))
+    self._initOver = false							                    -- 初始化完成标记
+    self._bindValues = {}							                    -- 可绑定数据集合（MVVM 双向绑定核心）
+    -- 父 ViewModel（用于跨界面数据共享、嵌套 VM）
+    self._parentViewModel = args.params ~= nil and args.params.parentViewModel or nil
+    self.cs = self._args.env.cs						                    -- 关联的 C# LuaBehaviour 对象
 end
 
---- 创建实例
+---@brief 创建实例
 ---@param args table
 ---@return ViewModelSuper VM实例
 function ViewModelSuper:Create(args)
-	local obj = ViewModelSuper.new(args)
-	return obj
+    local obj = ViewModelSuper.new(args)
+    return obj
 end
 
---- 唤醒（VM 被创建时调用）
+---@brief 唤醒（VM 被创建时调用）
 function ViewModelSuper:Awake()
 
 end
 
---- 启用（界面显示时调用）
+---@brief 启用（界面显示时调用）
 function ViewModelSuper:OnEnable()
 
 end
 
---- 初始化回调（VM 第一次绑定到 View 时调用）
+---@brief 初始化回调（VM 第一次绑定到 View 时调用）
 function ViewModelSuper:OnInit()
-	-- 初始化所有绑定数据的值
-	for _, bindValue in pairs(self._bindValues) do
-		bindValue:SetValue(bindValue._args.value)
-	end
+    -- 初始化所有绑定数据的值
+    for _, bindValue in pairs(self._bindValues) do
+        bindValue:SetValue(bindValue._args.value)
+    end
 end
 
---- 开始（View Start 时同步调用）
+---@brief 开始（View Start 时同步调用）
 function ViewModelSuper:Start()
 
 end
 
---- 帧更新（每帧执行）
+---@brief 帧更新（每帧执行）
 function ViewModelSuper:Proc()
 
 end
 
---- 禁用（界面隐藏时调用）
+---@brief 禁用（界面隐藏时调用）
 function ViewModelSuper:OnDisable()
 
 end
 
---- 销毁（自动释放事件，防止内存泄漏）
+---@brief 销毁（自动释放事件，防止内存泄漏）
 function ViewModelSuper:OnDestroy()
-	-- 自动销毁当前 VM 注册的所有事件
-	HonorEventHelper:RemoveListenerByTarget(self)
+    -- 自动销毁当前 VM 注册的所有事件
+    HonorEventHelper:RemoveListenerByTarget(self)
 end
 
---- 注册事件（子类重写）
+---@brief 注册事件（子类重写）
 function ViewModelSuper:OnAddListeners()
 
 end
@@ -87,201 +87,201 @@ end
 -- 【MVVM 双向绑定核心 API】
 --------------------------------------------------------------------------------
 
---- 添加可绑定变量（创建一个能被 View 监听的数据）
+---@brief 添加可绑定变量（创建一个能被 View 监听的数据）
 ---@param name string 变量名
 ---@param value any 初始值
 ---@param isTrigger boolean 是否为触发型（自动复位）
 ---@return BindValue 可绑定值对象
 function ViewModelSuper:AddBindValue(name, value, isTrigger)
-	if name ~= nil and type(name) == "string" then
-		isTrigger = isTrigger ~= nil and isTrigger or false
-		self._bindValues[name] = require('BindValue'):Create({name = name, value = value, isTrigger = isTrigger})
-		return self._bindValues[name]
-	end
-	return nil
+    if name ~= nil and type(name) == "string" then
+        isTrigger = isTrigger ~= nil and isTrigger or false
+        self._bindValues[name] = require('BindValue'):Create({name = name, value = value, isTrigger = isTrigger})
+        return self._bindValues[name]
+    end
+    return nil
 end
 
---- 设置绑定变量的值（自动通知 View 刷新）
+---@brief 设置绑定变量的值（自动通知 View 刷新）
 ---@param name string
 ---@param value any
 function ViewModelSuper:SetBindValue(name, value)
-	if self._bindValues[name] then
-		self._bindValues[name]:SetValue(value)
-	end
+    if self._bindValues[name] then
+        self._bindValues[name]:SetValue(value)
+    end
 end
 
---- 获取绑定变量的值
+---@brief 获取绑定变量的值
 ---@param name string
 ---@return any
 function ViewModelSuper:GetBindValue(name)
-	if self._bindValues[name] then
-		return self._bindValues[name]:GetValue()
-	end
-	return nil
+    if self._bindValues[name] then
+        return self._bindValues[name]:GetValue()
+    end
+    return nil
 end
 
 --------------------------------------------------------------------------------
 -- 【绑定集合操作 API】
 --------------------------------------------------------------------------------
 
---- 设置列表指定下标的元素
+---@brief 设置列表指定下标的元素
 ---@param name string
 ---@param index number
 ---@param itemValue any
 function ViewModelSuper:SetBindValueItem(name, index, itemValue)
-	if self._bindValues[name] then
-		self._bindValues[name]:SetValueItem(index, itemValue)
-	end
+    if self._bindValues[name] then
+        self._bindValues[name]:SetValueItem(index, itemValue)
+    end
 end
 
---- 获取列表指定下标的元素
+---@brief 获取列表指定下标的元素
 ---@param name string
 ---@param index number
 ---@return any
 function ViewModelSuper:GetBindValueItem(name, index)
-	if self._bindValues[name] then
-		return self._bindValues[name]:GetValueItem(index)
-	end
-	return nil
+    if self._bindValues[name] then
+        return self._bindValues[name]:GetValueItem(index)
+    end
+    return nil
 end
 
---- 获取列表数量
+---@brief 获取列表数量
 ---@param name string
 ---@return number
 function ViewModelSuper:GetBindValueItemsCount(name)
-	if self._bindValues[name] then
-		return self._bindValues[name]:GetValueItemsCount()
-	end
-	return 0
+    if self._bindValues[name] then
+        return self._bindValues[name]:GetValueItemsCount()
+    end
+    return 0
 end
 
---- 添加元素到列表
+---@brief 添加元素到列表
 ---@param name string
 ---@param itemValue any
 function ViewModelSuper:AddBindValueItem(name, itemValue)
-	if self._bindValues[name] then
-		self._bindValues[name]:AddValueItem(itemValue)
-	end
+    if self._bindValues[name] then
+        self._bindValues[name]:AddValueItem(itemValue)
+    end
 end
 
---- 插入元素到列表
+---@brief 插入元素到列表
 ---@param name string
 ---@param index number
 ---@param itemValue any
 function ViewModelSuper:InsertBindValueItem(name, index, itemValue)
-	if self._bindValues[name] then
-		self._bindValues[name]:InsertValueItem(index, itemValue)
-	end
+    if self._bindValues[name] then
+        self._bindValues[name]:InsertValueItem(index, itemValue)
+    end
 end
 
---- 移除指定元素
+---@brief 移除指定元素
 ---@param name string
 ---@param itemValue any
 ---@param removeAll boolean
 ---@return boolean
 function ViewModelSuper:RemoveBindValueItem(name, itemValue, removeAll)
-	if self._bindValues[name] then
-		return self._bindValues[name]:RemoveValueItem(itemValue, removeAll)
-	end
-	return false
+    if self._bindValues[name] then
+        return self._bindValues[name]:RemoveValueItem(itemValue, removeAll)
+    end
+    return false
 end
 
---- 移除指定下标元素
+---@brief 移除指定下标元素
 ---@param name string
 ---@param index number
 ---@return boolean
 function ViewModelSuper:RemoveBindValueItemAt(name, index)
-	if self._bindValues[name] then
-		return self._bindValues[name]:RemoveValueItemAt(index)
-	end
-	return false
+    if self._bindValues[name] then
+        return self._bindValues[name]:RemoveValueItemAt(index)
+    end
+    return false
 end
 
---- 清空列表
+---@brief 清空列表
 ---@param name string
 function ViewModelSuper:RemoveAllBindValueItems(name)
-	if self._bindValues[name] then
-		self._bindValues[name]:RemoveAllValueItems()
-	end
+    if self._bindValues[name] then
+        self._bindValues[name]:RemoveAllValueItems()
+    end
 end
 
---- 是否包含元素
+---@brief 是否包含元素
 ---@param name string
 ---@param itemValue any
 ---@return boolean
 function ViewModelSuper:ContainsBindValueItem(name, itemValue)
-	if self._bindValues[name] then
-		return self._bindValues[name]:ContainsValueItem(itemValue)
-	end
-	return false
+    if self._bindValues[name] then
+        return self._bindValues[name]:ContainsValueItem(itemValue)
+    end
+    return false
 end
 
---- 获取元素下标
+---@brief 获取元素下标
 ---@param name string
 ---@param itemValue any
 ---@return number
 function ViewModelSuper:IndexOfBindValueItem(name, itemValue)
-	if self._bindValues[name] then
-		return self._bindValues[name]:IndexOfValueItem(itemValue)
-	end
-	return 0
+    if self._bindValues[name] then
+        return self._bindValues[name]:IndexOfValueItem(itemValue)
+    end
+    return 0
 end
 
 --------------------------------------------------------------------------------
 -- 【ViewModel 嵌套/共享数据】
 --------------------------------------------------------------------------------
 
---- 向上查找指定名称的祖先 ViewModel（用于共享数据）
+---@brief 向上查找指定名称的祖先 ViewModel（用于共享数据）
 ---@param name string 目标VM类名
 ---@return ViewModelSuper 找到的父VM
 function ViewModelSuper:Ancestors(name)
-	if name ~= nil and type(name) == "string" then
-		local parentViewModel = self._parentViewModel
-		while parentViewModel ~= nil do
-			if parentViewModel._name == name then
-				return parentViewModel
-			end
-			parentViewModel = parentViewModel._parentViewModel
-		end
-	end
-	return nil
+    if name ~= nil and type(name) == "string" then
+        local parentViewModel = self._parentViewModel
+        while parentViewModel ~= nil do
+            if parentViewModel._name == name then
+                return parentViewModel
+            end
+            parentViewModel = parentViewModel._parentViewModel
+        end
+    end
+    return nil
 end
 
 --------------------------------------------------------------------------------
 -- 【MVVM 生命周期】
 --------------------------------------------------------------------------------
 
---- 被绑定到 View 之前调用
+---@brief 被绑定到 View 之前调用
 function ViewModelSuper:OnBeforeUse()
-	if self._initOver == false then
-		self:OnAddListeners()
-	end
+    if self._initOver == false then
+        self:OnAddListeners()
+    end
 end
 
---- 被绑定到 View 之后调用（执行初始化）
+---@brief 被绑定到 View 之后调用（执行初始化）
 function ViewModelSuper:OnAfterUse()
-	if self._initOver == false then
-		self:OnInit()
-		self._initOver = true
-	end
+    if self._initOver == false then
+        self:OnInit()
+        self._initOver = true
+    end
 end
 
---- 界面打开时
+---@brief 界面打开时
 function ViewModelSuper:OnOpen()
 
 end
 
---- 界面打开完成
+---@brief 界面打开完成
 function ViewModelSuper:OnOpenOver()
 
 end
 
---- 界面关闭时
+---@brief 界面关闭时
 function ViewModelSuper:OnClose()
 
 end
 
---- 界面关闭完成
+---@brief 界面关闭完成
 function ViewModelSuper:OnCloseOver()
 
 end

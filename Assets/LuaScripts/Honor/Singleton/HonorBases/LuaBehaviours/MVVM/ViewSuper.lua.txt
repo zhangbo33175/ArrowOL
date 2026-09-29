@@ -15,7 +15,7 @@
 ---@field cs Honor.Runtime.LuaBehaviour 绑定的 C# LuaBehaviour 组件
 local ViewSuper = class("ViewSuper")
 
---- 构造函数
+---@brief 构造函数
 ---@param args table 构造参数
 function ViewSuper:ctor(args)
     -- 绑定环境表变量
@@ -58,7 +58,7 @@ function ViewSuper:ctor(args)
     self._oriPosForUIStack = Unity.Vector3.zero                 -- UI 栈原始位置
 end
 
---- 创建实例
+---@brief 创建实例
 ---@param args table
 ---@return ViewSuper View 实例
 function ViewSuper:Create(args)
@@ -66,7 +66,7 @@ function ViewSuper:Create(args)
     return obj
 end
 
---- 唤醒（Unity 生命周期）
+---@brief 唤醒（Unity 生命周期）
 function ViewSuper:Awake()
     -- 自动查找固定 UI 节点
     local bgImage = self.cs.transform:Find("__BgImage")
@@ -111,21 +111,21 @@ function ViewSuper:Awake()
     self:SetViewModel(viewModel)
 end
 
---- 启用
+---@brief 启用
 function ViewSuper:OnEnable()
     if self:GetViewModel() then
         self:GetViewModel():OnEnable()
     end
 end
 
---- 初始化回调（首次设置 ViewModel 时调用）
+---@brief 初始化回调（首次设置 ViewModel 时调用）
 ---@param viewModel ViewModelSuper
 function ViewSuper:OnInit(viewModel)
     self._binder:SetViewModel(viewModel)
     self._viewModelPackage:AddHandler(handler(self, self.OnViewModelChanged))
 end
 
---- 开始
+---@brief 开始
 function ViewSuper:Start()
     if self:GetViewModel() then
         self:GetViewModel():Start()
@@ -133,21 +133,21 @@ function ViewSuper:Start()
     self:Open()
 end
 
---- 帧更新
+---@brief 帧更新
 function ViewSuper:Proc()
     if self:GetViewModel() then
         self:GetViewModel():Proc()
     end
 end
 
---- 禁用
+---@brief 禁用
 function ViewSuper:OnDisable()
     if self:GetViewModel() then
         self:GetViewModel():OnDisable()
     end
 end
 
---- 销毁（自动释放所有）
+---@brief 销毁（自动释放所有）
 function ViewSuper:OnDestroy()
     if self:GetViewModel() then
         self:GetViewModel():OnDestroy()
@@ -160,11 +160,11 @@ function ViewSuper:OnDestroy()
     HonorCoroutineHelper:StopByGO(self.cs.gameObject)
 end
 
---- 注册事件（子类重写）
+---@brief 注册事件（子类重写）
 function ViewSuper:OnAddListeners()
 end
 
---- 设置 ViewModel
+---@brief 设置 ViewModel
 ---@param viewModel ViewModelSuper
 function ViewSuper:SetViewModel(viewModel)
     if self._initOver == false then
@@ -174,20 +174,20 @@ function ViewSuper:SetViewModel(viewModel)
     self._viewModelPackage:SetValue(viewModel)
 end
 
---- 获取 ViewModel
+---@brief 获取 ViewModel
 ---@return ViewModelSuper 视图模型
 function ViewSuper:GetViewModel()
     return self._viewModelPackage:GetValue()
 end
 
---- 添加绑定回调
+---@brief 添加绑定回调
 ---@param name string
 ---@param handler handler
 function ViewSuper:AddBindHandler(name, handler)
     self._binder:Add(name, handler)
 end
 
---- ViewModel 变化时自动重新绑定
+---@brief ViewModel 变化时自动重新绑定
 ---@param old ViewModelSuper
 ---@param new ViewModelSuper
 ---@param operate string
@@ -204,7 +204,7 @@ function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
     end
 end
 
---- 打开界面
+---@brief 打开界面
 function ViewSuper:Open()
     if self:GetViewModel() then
         self:GetViewModel():OnOpen()
@@ -228,7 +228,7 @@ function ViewSuper:Open()
     end
 end
 
---- 关闭界面
+---@brief 关闭界面
 function ViewSuper:Close()
     if self._isClosing == false then
         self._isClosing = true
@@ -259,7 +259,7 @@ function ViewSuper:Close()
     end
 end
 
---- 播放打开动画
+---@brief 播放打开动画
 function ViewSuper:OnPlayOpenAnimation()
     if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
         local targetColor = self._bottomMaskLayerImage.color
@@ -288,7 +288,7 @@ function ViewSuper:OnPlayOpenAnimation()
     end)).stringId = HonorTweenType.PrefabRootOpenAnimation .. self.cs.gameObject:GetInstanceID()
 end
 
---- 打开完成
+---@brief 打开完成
 function ViewSuper:OnOpenOver()
     if self:GetViewModel() then
         self:GetViewModel():OnOpenOver()
@@ -315,7 +315,7 @@ function ViewSuper:OnOpenOver()
     end
 end
 
---- 播放关闭动画
+---@brief 播放关闭动画
 function ViewSuper:OnPlayCloseAnimation()
     if self._bottomMaskLayerImage ~= nil and self.cs.MaskLayer then
         DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. self._bottomMaskLayerImage.gameObject:GetInstanceID())
@@ -343,7 +343,7 @@ function ViewSuper:OnPlayCloseAnimation()
     end)).stringId = HonorTweenType.PrefabRootCloseAnimation .. self.cs.gameObject:GetInstanceID()
 end
 
---- 关闭完成（自动销毁）
+---@brief 关闭完成（自动销毁）
 function ViewSuper:OnCloseOver()
     if self:GetViewModel() then
         self:GetViewModel():OnCloseOver()
@@ -375,12 +375,12 @@ function ViewSuper:OnCloseOver()
     end
 end
 
---- 子 UI 销毁回调
+---@brief 子 UI 销毁回调
 ---@param luaClass table
 function ViewSuper:OnAddedUIDestroyed(luaClass)
 end
 
---- 同步添加子 UI
+---@brief 同步添加子 UI
 ---@param uiTable table
 ---@param parent UnityEngine.Transform
 ---@param luaParams table
@@ -395,7 +395,7 @@ function ViewSuper:AddUISync(uiTable, parent, luaParams)
     return luaClass, uiGO
 end
 
---- 异步添加子 UI
+---@brief 异步添加子 UI
 ---@param uiTable table
 ---@param parent UnityEngine.Transform
 ---@param luaParams table
@@ -407,7 +407,7 @@ function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
     GameMainRoot.UI:AddUIAsyncByLuaTable(uiTable, parent, luaParams, overCallback)
 end
 
---- 加载资源（自动管理）
+---@brief 加载资源（自动管理）
 ---@param assetInfo table
 ---@return UnityEngine.Object
 function ViewSuper:LoadAsset(assetInfo)
@@ -421,7 +421,7 @@ function ViewSuper:LoadAsset(assetInfo)
     return nil
 end
 
---- 卸载资源
+---@brief 卸载资源
 ---@param assetInfo table
 ---@return boolean
 function ViewSuper:UnloadAsset(assetInfo)
@@ -439,7 +439,7 @@ function ViewSuper:UnloadAsset(assetInfo)
     return false
 end
 
---- 按对象卸载资源
+---@brief 按对象卸载资源
 ---@param asset UnityEngine.Object
 ---@return boolean
 function ViewSuper:UnloadAssetByAsset(asset)
@@ -457,7 +457,7 @@ function ViewSuper:UnloadAssetByAsset(asset)
     return false
 end
 
---- 卸载所有资源
+---@brief 卸载所有资源
 function ViewSuper:UnloadAllAssets()
     if GameMainRoot.Asset ~= nil then
         for _, vAsset in pairs(self._loadedAssets) do
@@ -469,7 +469,7 @@ function ViewSuper:UnloadAllAssets()
     end
 end
 
---- UI 入栈
+---@brief UI 入栈
 function ViewSuper:OnStackPush()
     if self.cs then
         self._oriPosForUIStack = self.cs.transform.localPosition
@@ -477,14 +477,14 @@ function ViewSuper:OnStackPush()
     end
 end
 
---- UI 出栈
+---@brief UI 出栈
 function ViewSuper:OnStackPop()
     if self.cs then
         self.cs.transform.localPosition = self._oriPosForUIStack
     end
 end
 
---- 延迟协程
+---@brief 延迟协程
 ---@param delayTime number
 ---@param isRealTime boolean
 ---@param callback function
@@ -492,7 +492,7 @@ function ViewSuper:CoDelayFunction(delayTime, isRealTime, callback)
     CoDelayFunctionOfG(self, delayTime, isRealTime, callback)
 end
 
---- 延迟帧
+---@brief 延迟帧
 ---@param delayFrame number
 ---@param callback function
 function ViewSuper:CoDelayFrameFunction(delayFrame, callback)

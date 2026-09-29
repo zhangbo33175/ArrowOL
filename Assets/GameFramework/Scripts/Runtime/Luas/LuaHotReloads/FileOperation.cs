@@ -24,7 +24,7 @@ namespace Honor.Runtime
         #region 公共静态方法
         //=========================================================================
 
-        /// <summary
+        /// <summary>
         /// 安全读取文件字节数组（捕获异常、防止崩溃）
         /// </summary>
         /// <param name="inFile">文件完整路径</param>

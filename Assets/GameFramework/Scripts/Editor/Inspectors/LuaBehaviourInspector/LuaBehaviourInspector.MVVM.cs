@@ -137,7 +137,7 @@ namespace Honor.Editor
             // 初始化Lua脚本名称列表
             if (m_LuaScriptNamesMVVM.arraySize == 0)
             {
-                for (int index = 0; index < (int)MVVMPatternType.TotalNum; index++)
+                for (int index = 0; index < (int)MVVMPatternType.TotalCount; index++)
                 {
                     m_LuaScriptNamesMVVM.InsertArrayElementAtIndex(index);
                     m_LuaScriptNamesMVVM.GetArrayElementAtIndex(index).stringValue = string.Empty;
@@ -147,13 +147,13 @@ namespace Honor.Editor
             m_LuaSuperScriptNamesMVVM = serializedObject.FindProperty("m_LuaSuperScriptNamesMVVM");
 
             // 初始化父类脚本名称列表
-            if (m_LuaSuperScriptNamesMVVM.arraySize > (int)MVVMPatternType.TotalNum)
+            if (m_LuaSuperScriptNamesMVVM.arraySize > (int)MVVMPatternType.TotalCount)
             {
                 m_LuaSuperScriptNamesMVVM.ClearArray();
             }
             if (m_LuaSuperScriptNamesMVVM.arraySize == 0)
             {
-                for (int index = 0; index < (int)MVVMPatternType.TotalNum; index++)
+                for (int index = 0; index < (int)MVVMPatternType.TotalCount; index++)
                 {
                     m_LuaSuperScriptNamesMVVM.InsertArrayElementAtIndex(index);
                 }
@@ -518,6 +518,34 @@ namespace Honor.Editor
             CollectBindingInfosOnInjections(out luaBindValueOnInjectionNames, out luaBindValueOnInjectionWays, out luaBindValueOnInjectionSides, out luaBindValueComments, out luaBindValueFunctionNames, out luaBindValueTypeNames);
 
             // View注入字段声明
+            AppendMVVMEmptyViewInjectionFields(stringBuilder, typeEnumIndex);
+
+            // 类定义与绑定值Key定义
+            AppendMVVMClassDefinition(stringBuilder, luaName, luaSuperScriptName);
+
+            // 构造函数
+            AppendMVVMEmptyConstructor(stringBuilder, luaName, typeEnumIndex);
+
+            // Create函数
+            AppendMVVMCreateFunction(stringBuilder, luaName);
+
+            // View/ViewModel生命周期与逻辑
+            AppendMVVMEmptyLifeCycles(stringBuilder, typeEnumIndex, luaName, luaInjectNames, luaInjectComments, luaInjectFunctionNames, luaInjectFunctionParams, luaInjectCmds, luaBindValueOnInjectionNames, luaBindValueOnInjectionWays, luaBindValueOnInjectionSides, luaBindValueComments, luaBindValueFunctionNames, luaBindValueTypeNames);
+
+            stringBuilder.AppendLine(AorTxt.Format("return {0}", luaName));
+            stringBuilder.AppendLine(AorTxt.Format(""));
+
+            return stringBuilder;
+        }
+
+        #region MVVM空模板代码分段生成
+        /// <summary>
+        /// 追加View模式下注入对象字段声明（---@field）代码
+        /// </summary>
+        /// <param name="stringBuilder">代码构建器</param>
+        /// <param name="typeEnumIndex">MVVM类型索引</param>
+        private void AppendMVVMEmptyViewInjectionFields(StringBuilder stringBuilder, int typeEnumIndex)
+        {
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.View)
             {
                 if (m_Injections != null && m_Injections.arraySize > 0)
@@ -579,7 +607,15 @@ namespace Honor.Editor
                     }
                 }
             }
-
+        }
+        /// <summary>
+        /// 追加类定义与绑定值Key（BVKey）声明代码
+        /// </summary>
+        /// <param name="stringBuilder">代码构建器</param>
+        /// <param name="luaName">Lua脚本名称</param>
+        /// <param name="luaSuperScriptName">Lua父类脚本名称</param>
+        private void AppendMVVMClassDefinition(StringBuilder stringBuilder, string luaName, string luaSuperScriptName)
+        {
             // 类定义
             stringBuilder.AppendLine(AorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName, luaSuperScriptName));
             stringBuilder.AppendLine(AorTxt.Format(""));
@@ -600,7 +636,15 @@ namespace Honor.Editor
             bvkeyContent += "}";
             stringBuilder.AppendLine(AorTxt.Format("{0}.BVKey = {1}", luaName, bvkeyContent));
             stringBuilder.AppendLine(AorTxt.Format(""));
-
+        }
+        /// <summary>
+        /// 追加构造函数（含ViewModel绑定数据初始化）代码
+        /// </summary>
+        /// <param name="stringBuilder">代码构建器</param>
+        /// <param name="luaName">Lua脚本名称</param>
+        /// <param name="typeEnumIndex">MVVM类型索引</param>
+        private void AppendMVVMEmptyConstructor(StringBuilder stringBuilder, string luaName, int typeEnumIndex)
+        {
             // 构造函数
             stringBuilder.AppendLine(AorTxt.Format("---构造函数"));
             stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):void"));
@@ -663,7 +707,14 @@ namespace Honor.Editor
             }
             stringBuilder.AppendLine(AorTxt.Format("end"));
             stringBuilder.AppendLine(AorTxt.Format(""));
-
+        }
+        /// <summary>
+        /// 追加Create工厂函数代码
+        /// </summary>
+        /// <param name="stringBuilder">代码构建器</param>
+        /// <param name="luaName">Lua脚本名称</param>
+        private void AppendMVVMCreateFunction(StringBuilder stringBuilder, string luaName)
+        {
             // Create函数
             stringBuilder.AppendLine(AorTxt.Format("---创建函数"));
             stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):{0}", luaName));
@@ -674,8 +725,34 @@ namespace Honor.Editor
             stringBuilder.AppendLine(AorTxt.Format("    return obj"));
             stringBuilder.AppendLine(AorTxt.Format("end"));
             stringBuilder.AppendLine(AorTxt.Format(""));
-
-            // View生命周期与逻辑
+        }
+        /// <summary>
+        /// 追加MVVM空模板View/ViewModel各生命周期函数（Awake/OnInit/Start/Proc/OnDestroy/UI监听/绑定回调等）代码
+        /// </summary>
+        /// <param name="stringBuilder">代码构建器</param>
+        /// <param name="typeEnumIndex">MVVM类型索引</param>
+        /// <param name="luaName">Lua脚本名称</param>
+        /// <param name="luaInjectNames">注入对象名称列表</param>
+        /// <param name="luaInjectComments">注入对象注释列表</param>
+        /// <param name="luaInjectFunctionNames">注入回调函数名列表</param>
+        /// <param name="luaInjectFunctionParams">注入回调参数列表</param>
+        /// <param name="luaInjectCmds">注入事件命令列表</param>
+        /// <param name="luaBindValueOnInjectionNames">绑定值与注入对象名称映射</param>
+        /// <param name="luaBindValueOnInjectionWays">绑定值与绑定方式映射</param>
+        /// <param name="luaBindValueOnInjectionSides">绑定值与绑定方向映射</param>
+        /// <param name="luaBindValueComments">绑定值注释映射</param>
+        /// <param name="luaBindValueFunctionNames">绑定值回调函数名映射</param>
+        /// <param name="luaBindValueTypeNames">绑定值类型映射</param>
+        private void AppendMVVMEmptyLifeCycles(StringBuilder stringBuilder, int typeEnumIndex, string luaName,
+            List<string> luaInjectNames, List<string> luaInjectComments, List<string> luaInjectFunctionNames,
+            List<string> luaInjectFunctionParams, List<string> luaInjectCmds,
+            SortedDictionary<string, List<string>> luaBindValueOnInjectionNames,
+            SortedDictionary<string, List<string>> luaBindValueOnInjectionWays,
+            SortedDictionary<string, List<string>> luaBindValueOnInjectionSides,
+            SortedDictionary<string, string> luaBindValueComments,
+            SortedDictionary<string, string> luaBindValueFunctionNames,
+            SortedDictionary<string, string> luaBindValueTypeNames)
+        {
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.View)
             {
                 // Awake
@@ -1158,12 +1235,134 @@ namespace Honor.Editor
                              .AppendLine(AorTxt.Format("end"))
                              .AppendLine(AorTxt.Format(""));
             }
-
-            stringBuilder.AppendLine(AorTxt.Format("return {0}", luaName));
-            stringBuilder.AppendLine(AorTxt.Format(""));
-
-            return stringBuilder;
         }
+
+        /// <summary>
+        /// 按绑定方式（Active/Interactable/Content/anchoredPosition/列表操作等）追加一段Lua绑定更新语句到 innerContent
+        /// 纯字符串拼接，不改变外部状态；用于MVVM代码刷新与空模板生成两处共享
+        /// </summary>
+        /// <param name="innerContent">已累积的绑定回调函数体内容</param>
+        /// <param name="bindedInjectionName">被绑定的注入对象名称</param>
+        /// <param name="bindedInjectionWay">绑定方式</param>
+        /// <param name="bindValueName">绑定值名称（用于查类型字典）</param>
+        /// <param name="luaBindValueTypeNames">绑定值类型映射</param>
+        /// <returns>追加绑定语句后的新内容</returns>
+        private string BuildMVVMBindWayContent(string innerContent, string bindedInjectionName, string bindedInjectionWay, string bindValueName, SortedDictionary<string, string> luaBindValueTypeNames)
+        {
+            if (bindedInjectionWay == "Active")
+            {
+                innerContent = AorTxt.Format("{0}    self.{1}.gameObject:SetActive(new)\n", innerContent, bindedInjectionName);
+            }
+            else if (bindedInjectionWay == "Interactable")
+            {
+                innerContent = AorTxt.Format("{0}    self.{1}.interactable = new\n", innerContent, bindedInjectionName);
+            }
+            else if (bindedInjectionWay == "Content")
+            {
+                string injectionTypeName = GetInjectionTypeByName(bindedInjectionName);
+                switch (injectionTypeName)
+                {
+                    case "UnityEngine.UI.Text": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "Honor.Runtime.TextPicMixed": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "TMPro.TextMeshProUGUI": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "UnityEngine.UI.Toggle": innerContent = AorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
+                    case "UnityEngine.UI.Slider": innerContent = AorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
+                    case "UnityEngine.UI.Dropdown": innerContent = AorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
+                    case "UnityEngine.UI.InputField": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "Honor.Runtime.SwitchButton": innerContent = AorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
+                }
+            }
+            else if (bindedInjectionWay == "anchoredPosition")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "anchoredPosition3D")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition3D = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "offsetMin")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().offsetMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "offsetMax")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().offsetMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "anchorMin")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchorMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "anchorMax")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchorMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "pivot")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().pivot = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "sizeDelta")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().sizeDelta = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "localEulerAngles")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}.transform.localEulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "eulerAngles")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}.transform.eulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "localScale")
+            {
+                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}.transform.localScale = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+            }
+            else if (bindedInjectionWay == "ItemTotalNum")
+            {
+                innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(new, false)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+            }
+            else if (bindedInjectionWay == "ScrollTo")
+            {
+                innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:MovePanelToItemIndex(new, 0)\n", innerContent, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+            }
+            else if (bindedInjectionWay == "AddItemNum")
+            {
+                innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
+                innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(self.{2}.ItemTotalCount + new, false)\n", innerContent, bindedInjectionName, bindedInjectionName);
+                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+            }
+
+            return innerContent;
+        }
+        #endregion
         #endregion
         #region Lua代码刷新
         /// <summary>
@@ -1501,116 +1700,8 @@ namespace Honor.Editor
                             {
                                 string bindedInjectionName = luaBindValueOnInjectionNames[bindValueName][checkIndex];
                                 string bindedInjectionWay = luaBindValueOnInjectionWays[bindValueName][checkIndex];
-                                if (bindedInjectionWay == "Active")
-                                {
-                                    innerContent = AorTxt.Format("{0}    self.{1}.gameObject:SetActive(new)\n", innerContent, bindedInjectionName);
-                                }
-                                else if (bindedInjectionWay == "Interactable")
-                                {
-                                    innerContent = AorTxt.Format("{0}    self.{1}.interactable = new\n", innerContent, bindedInjectionName);
-                                }
-                                else if (bindedInjectionWay == "Content")
-                                {
-                                    string injectionTypeName = GetInjectionTypeByName(bindedInjectionName);
-                                    switch (injectionTypeName)
-                                    {
-                                        case "UnityEngine.UI.Text": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                                        case "Honor.Runtime.TextPicMixed": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                                        case "TMPro.TextMeshProUGUI": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                                        case "UnityEngine.UI.Toggle": innerContent = AorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
-                                        case "UnityEngine.UI.Slider": innerContent = AorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
-                                        case "UnityEngine.UI.Dropdown": innerContent = AorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
-                                        case "UnityEngine.UI.InputField": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                                        case "Honor.Runtime.SwitchButton": innerContent = AorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
-                                    }
-                                }
-                                else if (bindedInjectionWay == "anchoredPosition")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "anchoredPosition3D")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition3D = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "offsetMin")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().offsetMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "offsetMax")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().offsetMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "anchorMin")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchorMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "anchorMax")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchorMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "pivot")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().pivot = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "sizeDelta")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().sizeDelta = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "localEulerAngles")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}.transform.localEulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "eulerAngles")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}.transform.eulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "localScale")
-                                {
-                                    innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}.transform.localScale = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                }
-                                else if (bindedInjectionWay == "ItemTotalNum")
-                                {
-                                    innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(new, false)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
-                                }
-                                else if (bindedInjectionWay == "ScrollTo")
-                                {
-                                    innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:MovePanelToItemIndex(new, 0)\n", innerContent, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
-                                }
-                                else if (bindedInjectionWay == "AddItemNum")
-                                {
-                                    innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(self.{2}.ItemTotalCount + new, false)\n", innerContent, bindedInjectionName, bindedInjectionName);
-                                    innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                                    innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
-                                }
+                                // 追加当前绑定方式对应的Lua更新语句（按绑定方式分派，纯字符串拼接）
+                                innerContent = BuildMVVMBindWayContent(innerContent, bindedInjectionName, bindedInjectionWay, bindValueName, luaBindValueTypeNames);
                             }
                             functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n{5}\n{6}\n{7}\n{8}end\n\n",
                                                         functionDef,

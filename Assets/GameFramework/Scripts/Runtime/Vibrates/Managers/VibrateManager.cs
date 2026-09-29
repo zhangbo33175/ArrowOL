@@ -26,12 +26,12 @@ namespace Honor.Runtime
     public sealed partial class VibrateManager
     {
         /// <summary>
-        /// 构造函数：初始化震动组合字典
+        /// 构造函数：初始化两类震动组合的缓存字典
         /// </summary>
         public VibrateManager()
         {
-            m_CustomVibratesGroup   = new Dictionary<string, List<VibrateInfo>>();
-            m_EmphasisVibratesGroup = new Dictionary<string, List<VibrateInfo>>();
+            m_CustomClipLibrary   = new Dictionary<string, List<VibrateInfo>>();
+            m_EmphasisClipLibrary = new Dictionary<string, List<VibrateInfo>>();
         }
 
         /// <summary>
@@ -51,11 +51,11 @@ namespace Honor.Runtime
         public void Play(VibrateType type)
         {
 #if NICEVIBRATIONS_ENABLE
-            HapticPatterns.PlayPreset(GetHapticType(type));
+            HapticPatterns.PlayPreset(ToPresetType(type));
 #endif
         }
 
-        /// <summary
+        /// <summary>
         /// 播放自定义连续震动
         /// </summary>
         /// <param name="intensity">强度</param>
@@ -74,48 +74,28 @@ namespace Honor.Runtime
                     // 震动结束后触发回调
                     DOTween.Sequence().AppendInterval(duration).AppendCallback(() => {
                         overCallback?.Invoke();
-                    }).stringId = DOTweenTypes.CustomVibrateDuration;
-                }).stringId = DOTweenTypes.CustomVibratePreDuration;
+                    }).stringId = GameDOTweenTypes.CustomVibrateDuration;
+                }).stringId = GameDOTweenTypes.CustomVibratePreDuration;
             }
 #endif
         }
 
         /// <summary>
         /// 播放自定义震动组合（从Lua配置表读取）
-        /// 支持多段震动按顺序自动播放
+        /// 支持多段震动按顺序自动播放，首次播放后按组合名缓存
         /// </summary>
         /// <param name="luaTable">Lua配置表</param>
         public void PlayCustomGroup(LuaTable luaTable)
         {
-            luaTable.Get("Name", out string name);
+            luaTable.Get("Name", out string groupName);
 
-            // 第一次播放时缓存震动组合
-            if (!m_CustomVibratesGroup.ContainsKey(name))
+            if (!m_CustomClipLibrary.TryGetValue(groupName, out List<VibrateInfo> customClips))
             {
-                m_CustomVibratesGroup.Add(name, new List<VibrateInfo>());
-
-                int index = 1;
-                LuaTable vibrateLuabTable = null;
-                luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
-
-                // 循环读取所有震动片段
-                while (vibrateLuabTable != null)
-                {
-                    vibrateLuabTable.Get("Intensity",   out float intensity);
-                    vibrateLuabTable.Get("Sharpness",   out float sharpness);
-                    vibrateLuabTable.Get("PreDuration", out float preDuration);
-                    vibrateLuabTable.Get("Duration",    out float duration);
-
-                    m_CustomVibratesGroup[name].Add(new VibrateInfo(intensity, sharpness, preDuration, duration));
-
-                    index++;
-                    vibrateLuabTable = null;
-                    luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
-                }
+                customClips = LoadClips(luaTable, ReadCustomClip);
+                m_CustomClipLibrary.Add(groupName, customClips);
             }
 
-            // 开始顺序播放组合
-            StartCustomGroupItem(name, 0);
+            PlayCustomChain(groupName, 0);
         }
 
         /// <summary>
@@ -130,8 +110,8 @@ namespace Honor.Runtime
                     HapticPatterns.PlayEmphasis(amplitude, frequency);
                     DOTween.Sequence().AppendInterval(interval).AppendCallback(() => {
                         overCallback?.Invoke();
-                    }).stringId = DOTweenTypes.EmphasisVibrateDuration;
-                }).stringId = DOTweenTypes.EmphasisVibratePreDuration;
+                    }).stringId = GameDOTweenTypes.EmphasisVibrateDuration;
+                }).stringId = GameDOTweenTypes.EmphasisVibratePreDuration;
             }
 #endif
         }
@@ -141,33 +121,63 @@ namespace Honor.Runtime
         /// </summary>
         public void PlayEmphasisGroup(LuaTable luaTable)
         {
-            luaTable.Get("Name", out string name);
+            luaTable.Get("Name", out string groupName);
 
-            if (!m_EmphasisVibratesGroup.ContainsKey(name))
+            if (!m_EmphasisClipLibrary.TryGetValue(groupName, out List<VibrateInfo> emphasisClips))
             {
-                m_EmphasisVibratesGroup.Add(name, new List<VibrateInfo>());
-
-                int index = 1;
-                LuaTable vibrateLuabTable = null;
-                luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
-
-                while (vibrateLuabTable != null)
-                {
-                    vibrateLuabTable.Get("Amplitude",  out float amplitude);
-                    vibrateLuabTable.Get("Frequency",  out float frequency);
-                    vibrateLuabTable.Get("PreDuration",out float preDuration);
-                    vibrateLuabTable.Get("Interval",   out float interval);
-
-                    m_EmphasisVibratesGroup[name].Add(new VibrateInfo(amplitude, frequency, preDuration, interval));
-
-                    index++;
-                    vibrateLuabTable = null;
-                    luaTable.Get(AorTxt.Format("Vibrate{0}", index), out vibrateLuabTable);
-                }
+                emphasisClips = LoadClips(luaTable, ReadEmphasisClip);
+                m_EmphasisClipLibrary.Add(groupName, emphasisClips);
             }
 
-            // 开始播放点震动组合
-            StartEmphasisGroupItem(name, 0);
+            PlayEmphasisChain(groupName, 0);
+        }
+
+        /// <summary>
+        /// 从Lua配置表顺序读取所有震动片段，通用解析逻辑（自定义/点震动共用）
+        /// </summary>
+        /// <param name="groupTable">组合根表</param>
+        /// <param name="clipReader">单条片段的字段读取委托</param>
+        /// <returns>解析得到的片段列表</returns>
+        private static List<VibrateInfo> LoadClips(LuaTable groupTable, Func<LuaTable, VibrateInfo> clipReader)
+        {
+            var clips = new List<VibrateInfo>();
+            int clipSeq = 1;
+            LuaTable clipTable = null;
+            groupTable.Get(AorTxt.Format("Vibrate{0}", clipSeq), out clipTable);
+
+            while (clipTable != null)
+            {
+                clips.Add(clipReader(clipTable));
+                clipSeq++;
+                clipTable = null;
+                groupTable.Get(AorTxt.Format("Vibrate{0}", clipSeq), out clipTable);
+            }
+
+            return clips;
+        }
+
+        /// <summary>
+        /// 读取单条自定义连续震动片段
+        /// </summary>
+        private static VibrateInfo ReadCustomClip(LuaTable clipTable)
+        {
+            clipTable.Get("Intensity",   out float intensity);
+            clipTable.Get("Sharpness",   out float sharpness);
+            clipTable.Get("PreDuration", out float preDuration);
+            clipTable.Get("Duration",    out float duration);
+            return new VibrateInfo(intensity, sharpness, preDuration, duration);
+        }
+
+        /// <summary>
+        /// 读取单条点震动片段
+        /// </summary>
+        private static VibrateInfo ReadEmphasisClip(LuaTable clipTable)
+        {
+            clipTable.Get("Amplitude",   out float amplitude);
+            clipTable.Get("Frequency",   out float frequency);
+            clipTable.Get("PreDuration", out float preDuration);
+            clipTable.Get("Interval",    out float interval);
+            return new VibrateInfo(amplitude, frequency, preDuration, interval);
         }
 
         /// <summary>

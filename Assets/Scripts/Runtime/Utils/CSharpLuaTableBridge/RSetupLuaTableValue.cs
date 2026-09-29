@@ -87,9 +87,11 @@ namespace GameLib
             EventSystem.current.RaycastAll(eventData, _isPointerOverUIObjectResult);
 
             // 检测是否存在 UI 层的物体
+            // 外提图层号："UI" 层名固定，避免在遍历 lambda 内逐元素重复做字符串层名查找
+            int uiLayer = LayerMask.NameToLayer("UI");
             return _isPointerOverUIObjectResult.Count > 0 &&
                    _isPointerOverUIObjectResult.Exists(ui =>
-                       ui.gameObject && ui.gameObject.layer == LayerMask.NameToLayer("UI"));
+                       ui.gameObject && ui.gameObject.layer == uiLayer);
         }
         #endregion
 

@@ -27,7 +27,7 @@ function GameEffectManager:ctor(args)
 end
 
 ---=========================================================================
---- 创建实例（单例对外接口）
+---@brief 创建实例（单例对外接口）
 ---@param args table 初始化参数
 ---@return GameEffectManager 管理器实例
 ---=========================================================================
@@ -49,7 +49,7 @@ end
 
 --region 核心特效创建 API
 ---=========================================================================
---- 添加特效（核心方法）
+---@brief 添加特效（核心方法）
 ---@param effectName string 特效名称
 ---@param parentTransform UnityEngine.Transform 父节点
 ---@param layerName ELayerName 层级
@@ -113,7 +113,7 @@ end
 
 --region 坐标转换类特效（UI / 场景 / 相机）
 ---=========================================================================
---- 添加 UI 坐标转换特效
+---@brief 添加 UI 坐标转换特效
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 世界坐标
 ---@param durationTime number 持续时间
@@ -127,7 +127,7 @@ function GameEffectManager:AddEffectFromUI(effectName, pos, durationTime, callBa
 end
 
 ---=========================================================================
---- 添加场景坐标转换特效
+---@brief 添加场景坐标转换特效
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 场景坐标
 ---@param durationTime number 持续时间
@@ -141,7 +141,7 @@ function GameEffectManager:AddEFLayerEffectFromScene(effectName, pos, durationTi
 end
 
 ---=========================================================================
---- 添加特效层特效（指定相机转换坐标）
+---@brief 添加特效层特效（指定相机转换坐标）
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 目标坐标
 ---@param durationTime number 持续时间
@@ -160,7 +160,7 @@ end
 
 --region UI动画 & 收集动效
 ---=========================================================================
---- 获取 UI 动画控制器
+---@brief 获取 UI 动画控制器
 ---@return UIPlayingAnimated
 ---=========================================================================
 function GameEffectManager:GetPlayingAnimated()
@@ -177,7 +177,7 @@ function GameEffectManager:GetPlayingAnimated()
 end
 
 ---=========================================================================
---- 添加场景转 UI 动画特效（收集类动效专用）
+---@brief 添加场景转 UI 动画特效（收集类动效专用）
 ---@param effectName string 特效名
 ---@param pos UnityEngine.Vector3 场景起点
 ---@param durationTime number 持续时间
@@ -197,7 +197,7 @@ end
 
 --region 分层快捷创建 API
 ---=========================================================================
---- 添加 UI 层特效
+---@brief 添加 UI 层特效
 ---@param effectName string 特效名
 ---@param parentTransform UnityEngine.Transform 父节点
 ---@param durationTime number 持续时间
@@ -211,7 +211,7 @@ function GameEffectManager:AddUILayerEffect(effectName, parentTransform, duratio
 end
 
 ---=========================================================================
---- 添加地图层特效
+---@brief 添加地图层特效
 ---@param effectName string 特效名
 ---@param parentTransform UnityEngine.Transform 父节点
 ---@param durationTime number 持续时间

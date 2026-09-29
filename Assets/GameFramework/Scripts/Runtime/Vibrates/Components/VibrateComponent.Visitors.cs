@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  VibrateComponent.Define.cs
+ * filename:  VibrateComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   震动组件 - 成员变量定义分部类（与逻辑分离）
@@ -22,6 +22,6 @@ namespace Honor.Runtime
         /// 震动逻辑管理器
         /// 真正执行震动播放、停止、组合逻辑
         /// </summary>
-        private VibrateManager m_VibrateManager = null;
+        private VibrateManager m_HapticService = null;
     }
 }

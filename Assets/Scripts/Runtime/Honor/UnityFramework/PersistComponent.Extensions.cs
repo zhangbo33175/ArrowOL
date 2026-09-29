@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  PersistComponent.cs
+ * filename:  PersistComponent.Extensions.cs
  * author:    云毅
  * created:   2026
  * descrip:   持久化存储组件

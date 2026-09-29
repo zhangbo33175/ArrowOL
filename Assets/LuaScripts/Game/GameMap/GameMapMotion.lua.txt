@@ -155,7 +155,7 @@ function GameMapMotion:OnUpdate()
                 self.MaxOrthoSize
         )
     end
-   
+
     -- 自动扫描时直接匀速移动相机，跳过平滑跟随（避免 waypoint 切换时顿挫）
     if not self.AutoScanActive then
         -- X轴平滑跟随

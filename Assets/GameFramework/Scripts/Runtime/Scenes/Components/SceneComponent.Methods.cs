@@ -1,7 +1,7 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
- * filename:  SceneComponent.Define.cs
+ * filename:  SceneComponent.Methods.cs
  * author:  云毅
  * created:
  * descrip:   场景组件 - 委托定义与分部类声明
@@ -12,22 +12,22 @@ namespace Honor.Runtime
     /// <summary>
     /// 场景加载完成委托
     /// </summary>
-    /// <param name="abPath">场景所在AB包路径</param>
-    /// <param name="assetName">场景资源名称</param>
-    /// <param name="scene">加载完成的场景对象</param>
+    /// <param name="sceneAbPath">场景所在AB包路径</param>
+    /// <param name="sceneAssetName">场景资源名称</param>
+    /// <param name="loadedScene">加载完成的场景对象</param>
     public delegate void SceneLoadOverCallback(
-        string abPath, 
-        string assetName, 
-        UnityEngine.SceneManagement.Scene scene);
+        string sceneAbPath,
+        string sceneAssetName,
+        UnityEngine.SceneManagement.Scene loadedScene);
 
     /// <summary>
     /// 场景卸载完成委托
     /// </summary>
-    /// <param name="abPath">场景所在AB包路径</param>
-    /// <param name="assetName">场景资源名称</param>
+    /// <param name="sceneAbPath">场景所在AB包路径</param>
+    /// <param name="sceneAssetName">场景资源名称</param>
     public delegate void SceneUnloadOverCallback(
-        string abPath, 
-        string assetName);
+        string sceneAbPath,
+        string sceneAssetName);
 
     /// <summary>
     /// 场景管理组件（分部类 - 定义部分）

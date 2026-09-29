@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LauncherComponent.PerformanceLogic.cs
+ * filename:  LauncherComponent.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   框架启动器 - 性能配置与低内存处理（partial）

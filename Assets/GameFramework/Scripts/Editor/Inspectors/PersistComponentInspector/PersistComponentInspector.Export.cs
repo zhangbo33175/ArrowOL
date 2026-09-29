@@ -726,6 +726,48 @@ namespace Honor.Editor
 
         #region Proto文本解析工具
         /// <summary>
+        /// 对单行文本按空格分词后应用类名替换规则，返回替换后重新拼接的文本
+        /// </summary>
+        /// <param name="line">原始Proto行</param>
+        /// <param name="replaceRuleDic">类名替换规则字典</param>
+        /// <returns>替换后重新拼接的行</returns>
+        private static string ApplyReplaceRulesToLine(string line, Dictionary<string, string> replaceRuleDic)
+        {
+            string[] valueStrList = line.Split(' ');
+            bool isContains = false;
+            string ruleKey = string.Empty;
+            string ruleValue = string.Empty;
+
+            foreach (KeyValuePair<string, string> itemRule in replaceRuleDic)
+            {
+                ruleKey = itemRule.Key;
+                ruleValue = itemRule.Value;
+
+                for (int ruleIndex = 0; ruleIndex < valueStrList.Length; ruleIndex++)
+                {
+                    if (valueStrList[ruleIndex].CompareTo(ruleKey) == 0)
+                    {
+                        valueStrList[ruleIndex] = ruleValue;
+                        isContains = true;
+                        break;
+                    }
+                }
+
+                if (isContains)
+                    break;
+            }
+
+            //拼接回来字符串
+            string result = string.Empty;
+            for (int strIndex = 0; strIndex < valueStrList.Length; strIndex++)
+            {
+                result += valueStrList[strIndex] + " ";
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// 拆分Proto源文件数据行，处理嵌套message/enum结构
         /// 自动重命名内部类，避免命名冲突
         /// </summary>
@@ -792,39 +834,7 @@ namespace Honor.Editor
                             {
                                 for (int itemIndex = 0; itemIndex < item.Value.Count; itemIndex++)
                                 {
-                                    string tempValueStr = item.Value[itemIndex];
-                                    string[] valueStrList = tempValueStr.Split(' ');
-                                    bool isContains = false;
-                                    string ruleKey = string.Empty;
-                                    string ruleValue = string.Empty;
-                                    
-                                    foreach (KeyValuePair<string, string> itemRule in replaceRuleDic)
-                                    {
-                                        ruleKey = itemRule.Key;
-                                        ruleValue = itemRule.Value;
-                                        
-                                        for (int ruleIndex = 0; ruleIndex < valueStrList.Length; ruleIndex++)
-                                        {
-                                            if (valueStrList[ruleIndex].CompareTo(ruleKey) == 0)
-                                            {
-                                                valueStrList[ruleIndex] = ruleValue;
-                                                isContains = true;
-                                                break;
-                                            }
-                                        }
-                                        
-                                        if (isContains)
-                                            break;
-                                    }
-
-                                    //拼接回来字符串
-                                    tempValueStr = string.Empty;
-                                    for (int strIndex = 0; strIndex < valueStrList.Length; strIndex++)
-                                    {
-                                        tempValueStr += valueStrList[strIndex] + " ";
-                                    }
-
-                                    item.Value[itemIndex] = tempValueStr;
+                                    item.Value[itemIndex] = ApplyReplaceRulesToLine(item.Value[itemIndex], replaceRuleDic);
                                 }
                             }
 
@@ -832,39 +842,7 @@ namespace Honor.Editor
                             {
                                 for (int itemIndex = 0; itemIndex < item.Value.Count; itemIndex++)
                                 {
-                                    string tempValueStr = item.Value[itemIndex];
-                                    string[] valueStrList = tempValueStr.Split(' ');
-                                    bool isContains = false;
-                                    string ruleKey = string.Empty;
-                                    string ruleValue = string.Empty;
-                                    
-                                    foreach (KeyValuePair<string, string> itemRule in replaceRuleDic)
-                                    {
-                                        ruleKey = itemRule.Key;
-                                        ruleValue = itemRule.Value;
-                                        
-                                        for (int ruleIndex = 0; ruleIndex < valueStrList.Length; ruleIndex++)
-                                        {
-                                            if (valueStrList[ruleIndex].CompareTo(ruleKey) == 0)
-                                            {
-                                                valueStrList[ruleIndex] = ruleValue;
-                                                isContains = true;
-                                                break;
-                                            }
-                                        }
-                                        
-                                        if (isContains)
-                                            break;
-                                    }
-
-                                    //拼接回来字符串
-                                    tempValueStr = string.Empty;
-                                    for (int strIndex = 0; strIndex < valueStrList.Length; strIndex++)
-                                    {
-                                        tempValueStr += valueStrList[strIndex] + " ";
-                                    }
-
-                                    item.Value[itemIndex] = tempValueStr;
+                                    item.Value[itemIndex] = ApplyReplaceRulesToLine(item.Value[itemIndex], replaceRuleDic);
                                 }
                             }
                         }
@@ -907,37 +885,7 @@ namespace Honor.Editor
                     else
                     {
                         //是否要替换类名
-                        string[] valueStrList = curContentTemp.Split(' ');
-                        bool isContains = false;
-                        string ruleKey = string.Empty;
-                        string ruleValue = string.Empty;
-                        
-                        foreach (KeyValuePair<string, string> itemRule in replaceRuleDic)
-                        {
-                            ruleKey = itemRule.Key;
-                            ruleValue = itemRule.Value;
-                            
-                            for (int ruleIndex = 0; ruleIndex < valueStrList.Length; ruleIndex++)
-                            {
-                                if (valueStrList[ruleIndex].CompareTo(ruleKey) == 0)
-                                {
-                                    valueStrList[ruleIndex] = ruleValue;
-                                    isContains = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (isContains)
-                                break;
-                        }
-
-                        //拼接回来字符串
-                        curContentTemp = string.Empty;
-                        for (int strIndex = 0; strIndex < valueStrList.Length; strIndex++)
-                        {
-                            curContentTemp += valueStrList[strIndex] + " ";
-                        }
-
+                        curContentTemp = ApplyReplaceRulesToLine(curContentTemp, replaceRuleDic);
                         cacheLinesDic[curClsIndex].Add(curContentTemp);
                     }
                 }

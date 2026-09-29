@@ -23,7 +23,10 @@ namespace Honor.Runtime
     {
         #region 字段
 
+        /// <summary>切场后处理 Shader</summary>
         private Shader m_PeShader;
+
+        /// <summary>切场后处理材质</summary>
         private Material m_PeMat;
 
         /// <summary>噪点纹理</summary>
@@ -55,8 +58,13 @@ namespace Honor.Runtime
         /// <summary>边缘颜色</summary>
         public Color edgeColor = new Color(1f, 0.72f, 0.09f, 1f);
 
+        /// <summary>当前遮罩值</summary>
         private float m_Mask;
+
+        /// <summary>遮罩推进速度</summary>
         private float m_Speed;
+
+        /// <summary>边缘宽度收窄速度</summary>
         private float m_EdgeSizeSpeed;
 
         /// <summary>转场相机（本组件宿主）</summary>
@@ -91,6 +99,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// Awake：记录宿主相机并初始化遮罩推进参数
+        /// </summary>
         private void Awake()
         {
             m_Cam = GetComponent<Camera>();
@@ -133,6 +144,9 @@ namespace Honor.Runtime
             return true;
         }
 
+        /// <summary>
+        /// 每帧推进遮罩与边缘宽度，低于 -1 后销毁自身
+        /// </summary>
         private void Update()
         {
             m_Mask -= m_Speed;
@@ -147,6 +161,11 @@ namespace Honor.Runtime
 
         #region 渲染
 
+        /// <summary>
+        /// 渲染回调：应用转场材质参数后 Blit 到目标
+        /// </summary>
+        /// <param name="source">源渲染纹理</param>
+        /// <param name="destination">目标渲染纹理</param>
         private void OnRenderImage(RenderTexture source, RenderTexture destination)
         {
             if (!CheckResources())
@@ -164,6 +183,9 @@ namespace Honor.Runtime
             Graphics.Blit(source, destination, m_PeMat);
         }
 
+        /// <summary>
+        /// 销毁时释放材质并还原相机状态
+        /// </summary>
         private void OnDestroy()
         {
             if (m_PeMat != null)

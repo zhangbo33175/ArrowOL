@@ -586,6 +586,7 @@
 "Assets/GameFramework/Scripts/Runtime/Tools/AESEncrypt.cs"
 "Assets/GameFramework/Scripts/Runtime/Tools/AndroidInterface.cs"
 "Assets/GameFramework/Scripts/Runtime/Tools/Assembly.cs"
+"Assets/GameFramework/Scripts/Runtime/Tools/CommonUtility.cs"
 "Assets/GameFramework/Scripts/Runtime/Tools/Converter.cs"
 "Assets/GameFramework/Scripts/Runtime/Tools/DevicePerformance.cs"
 "Assets/GameFramework/Scripts/Runtime/Tools/Encryption.cs"

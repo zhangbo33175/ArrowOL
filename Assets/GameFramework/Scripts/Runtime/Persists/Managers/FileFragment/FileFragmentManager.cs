@@ -31,26 +31,27 @@ namespace Honor.Runtime
         /// </summary>
         public FileFragmentManager()
         {
-            m_FileFragmentsRootDirectoryFullPath = GamePathUtils.FileFragment.GetRootDirectoryFullPath();
-            if (!Directory.Exists(m_FileFragmentsRootDirectoryFullPath))
+            m_RootDir = GamePathUtils.FileFragment.GetRootDirectoryFullPath();
+            if (!Directory.Exists(m_RootDir))
             {
-                Directory.CreateDirectory(m_FileFragmentsRootDirectoryFullPath);
+                Directory.CreateDirectory(m_RootDir);
             }
 
-            m_ItemGroups = new SortedDictionary<string, FileFragmentItemGroup>();
-            m_FilePaths = new List<string>();
-            m_FileFragmentNames = new List<string>();
-            m_FileFragmentNamesForDelete = new List<string>();
+            m_Groups = new SortedDictionary<string, FileFragmentItemGroup>();
+            m_FileFullPaths = new List<string>();
+            m_GroupNames = new List<string>();
+            m_PendingDeleteNames = new List<string>();
 
-            // 扫描目录下所有 .dat 数据文件
-            string[] fileFragmentFullPaths = Directory.GetFiles(m_FileFragmentsRootDirectoryFullPath, "*.dat");
-            for (int index = 0; index < fileFragmentFullPaths.Length; index++)
+            // 扫描目录下所有 .dat 数据文件，建立名称 ↔ 路径 ↔ 内存分组的索引
+            foreach (string scannedPath in Directory.GetFiles(m_RootDir, "*.dat"))
             {
-                m_FilePaths.Add(fileFragmentFullPaths[index].Replace('\\', '/'));
-                int startIndex = m_FilePaths[index].LastIndexOf('/') + 1;
-                string name = m_FilePaths[index].Substring(startIndex, m_FilePaths[index].Length - startIndex - ".dat".Length);
-                m_FileFragmentNames.Add(name);
-                m_ItemGroups.Add(name, new FileFragmentItemGroup());
+                string normalizedPath = scannedPath.Replace('\\', '/');
+                m_FileFullPaths.Add(normalizedPath);
+
+                int slashPos = normalizedPath.LastIndexOf('/') + 1;
+                string groupName = normalizedPath.Substring(slashPos, normalizedPath.Length - slashPos - ".dat".Length);
+                m_GroupNames.Add(groupName);
+                m_Groups.Add(groupName, new FileFragmentItemGroup());
             }
         }
 
@@ -68,18 +69,18 @@ namespace Honor.Runtime
         /// <returns>是否加载文件片段条目成功。</returns>
         public bool Load()
         {
-            for (int index = 0; index < m_FilePaths.Count; index++)
+            for (int slot = 0; slot < m_FileFullPaths.Count; slot++)
             {
-                string filePath = m_FilePaths[index];
-                string fileFragmentName = m_FileFragmentNames[index];
+                string targetPath = m_FileFullPaths[slot];
+                string targetName = m_GroupNames[slot];
                 try
                 {
-                    if (!File.Exists(filePath))
+                    if (!File.Exists(targetPath))
                     {
                         continue;
                     }
 
-                    Deserialize(filePath, fileFragmentName);
+                    Deserialize(targetPath, targetName);
                 }
                 catch (Exception exception)
                 {
@@ -99,23 +100,23 @@ namespace Honor.Runtime
         public bool Save()
         {
             // 删除标记的文件
-            for (int index = 0; index < m_FileFragmentNamesForDelete.Count; index++)
+            for (int slot = 0; slot < m_PendingDeleteNames.Count; slot++)
             {
-                string fullPath = $"{m_FileFragmentsRootDirectoryFullPath}/{m_FileFragmentNamesForDelete[index]}.dat";
-                if (File.Exists(fullPath))
+                string pendingPath = PathCombine(m_PendingDeleteNames[slot]);
+                if (File.Exists(pendingPath))
                 {
-                    File.Delete(fullPath);
+                    File.Delete(pendingPath);
                 }
             }
 
-            m_FileFragmentNamesForDelete.Clear();
+            m_PendingDeleteNames.Clear();
 
             // 保存所有文件
-            for (int index = 0; index < m_FilePaths.Count; index++)
+            for (int slot = 0; slot < m_FileFullPaths.Count; slot++)
             {
-                string filePath = m_FilePaths[index];
-                string fileFragmentName = m_FileFragmentNames[index];
-                if (!Serialize(filePath, fileFragmentName))
+                string targetPath = m_FileFullPaths[slot];
+                string targetName = m_GroupNames[slot];
+                if (!Serialize(targetPath, targetName))
                 {
                     return false;
                 }
@@ -131,29 +132,23 @@ namespace Honor.Runtime
         public bool Save(string fileFragmentName)
         {
             // 如果是标记删除的，先删除
-            if (m_FileFragmentNamesForDelete.Contains(fileFragmentName))
+            if (m_PendingDeleteNames.Remove(fileFragmentName))
             {
-                string fullPath = $"{m_FileFragmentsRootDirectoryFullPath}/{fileFragmentName}.dat";
-                if (File.Exists(fullPath))
+                string pendingPath = PathCombine(fileFragmentName);
+                if (File.Exists(pendingPath))
                 {
-                    File.Delete(fullPath);
+                    File.Delete(pendingPath);
                 }
 
-                m_FileFragmentNamesForDelete.Remove(fileFragmentName);
                 return true;
             }
 
             // 正常保存
-            if (m_FileFragmentNames.Contains(fileFragmentName))
+            int slot = m_GroupNames.IndexOf(fileFragmentName);
+            if (slot >= 0)
             {
-                int index = m_FileFragmentNames.FindIndex((name) => { return name == fileFragmentName; });
-                string filePath = m_FilePaths[index];
-                if (!Serialize(filePath, fileFragmentName))
-                {
-                    return false;
-                }
-
-                return true;
+                string targetPath = m_FileFullPaths[slot];
+                return Serialize(targetPath, fileFragmentName);
             }
 
             return false;
@@ -174,12 +169,9 @@ namespace Honor.Runtime
         /// <returns>条目名称集合。</returns>
         public string[] GetAllItemNames(string fileFragmentName)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetAllItemNames();
-            }
-
-            return null;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetAllItemNames()
+                : null;
         }
 
         /// <summary>
@@ -189,9 +181,9 @@ namespace Honor.Runtime
         /// <param name="results">所有条目的名称。</param>
         public void GetAllItemNames(string fileFragmentName, List<string> results)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
+            if (TryGetGroup(fileFragmentName, out FileFragmentItemGroup group))
             {
-                m_ItemGroups[fileFragmentName].GetAllItemNames(results);
+                group.GetAllItemNames(results);
             }
         }
 
@@ -203,12 +195,7 @@ namespace Honor.Runtime
         /// <returns>指定的条目是否存在。</returns>
         public bool HasItem(string fileFragmentName, string itemName)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].HasItem(itemName);
-            }
-
-            return false;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group) && group.HasItem(itemName);
         }
 
         #endregion
@@ -227,14 +214,14 @@ namespace Honor.Runtime
         /// <returns>是否移除指定条目成功。</returns>
         public bool RemoveItem(string fileFragmentName, string itemName)
         {
-            bool result = true;
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
+            bool removed = true;
+            if (TryGetGroup(fileFragmentName, out FileFragmentItemGroup group))
             {
-                result = m_ItemGroups[fileFragmentName].RemoveItem(itemName);
+                removed = group.RemoveItem(itemName);
                 CheckRemoveContainer(fileFragmentName);
             }
 
-            return result;
+            return removed;
         }
 
         /// <summary>
@@ -247,26 +234,25 @@ namespace Honor.Runtime
             if (string.IsNullOrEmpty(fileFragmentName))
             {
                 // 清空全部：删除目录重建
-                if (Directory.Exists(m_FileFragmentsRootDirectoryFullPath))
+                if (Directory.Exists(m_RootDir))
                 {
-                    Directory.Delete(m_FileFragmentsRootDirectoryFullPath, true);
+                    Directory.Delete(m_RootDir, true);
                 }
 
-                Directory.CreateDirectory(m_FileFragmentsRootDirectoryFullPath);
+                Directory.CreateDirectory(m_RootDir);
 
-                m_ItemGroups.Clear();
-                m_FilePaths.Clear();
-                m_FileFragmentNames.Clear();
-                m_FileFragmentNamesForDelete.Clear();
+                m_Groups.Clear();
+                m_FileFullPaths.Clear();
+                m_GroupNames.Clear();
+                m_PendingDeleteNames.Clear();
+                return;
             }
-            else
+
+            // 清空单个分类
+            if (TryGetGroup(fileFragmentName, out FileFragmentItemGroup group))
             {
-                // 清空单个分类
-                if (m_ItemGroups.ContainsKey(fileFragmentName))
-                {
-                    m_ItemGroups[fileFragmentName].RemoveAllItems();
-                    CheckRemoveContainer(fileFragmentName);
-                }
+                group.RemoveAllItems();
+                CheckRemoveContainer(fileFragmentName);
             }
         }
 
@@ -286,12 +272,9 @@ namespace Honor.Runtime
         /// <returns>读取的布尔值。</returns>
         public bool GetBool(string fileFragmentName, string itemName)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetBool(itemName);
-            }
-
-            return false;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetBool(itemName)
+                : false;
         }
 
         /// <summary>
@@ -303,12 +286,9 @@ namespace Honor.Runtime
         /// <returns>读取的布尔值。</returns>
         public bool GetBool(string fileFragmentName, string itemName, bool defaultValue)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetBool(itemName, defaultValue);
-            }
-
-            return defaultValue;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetBool(itemName, defaultValue)
+                : defaultValue;
         }
 
         /// <summary>
@@ -320,7 +300,7 @@ namespace Honor.Runtime
         public void SetBool(string fileFragmentName, string itemName, bool value)
         {
             CheckAddContainer(fileFragmentName);
-            m_ItemGroups[fileFragmentName].SetBool(itemName, value);
+            m_Groups[fileFragmentName].SetBool(itemName, value);
         }
 
         #endregion
@@ -339,12 +319,9 @@ namespace Honor.Runtime
         /// <returns>读取的整数值。</returns>
         public int GetInt(string fileFragmentName, string itemName)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetInt(itemName);
-            }
-
-            return 0;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetInt(itemName)
+                : 0;
         }
 
         /// <summary>
@@ -356,12 +333,9 @@ namespace Honor.Runtime
         /// <returns>读取的整数值。</returns>
         public int GetInt(string fileFragmentName, string itemName, int defaultValue)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetInt(itemName, defaultValue);
-            }
-
-            return defaultValue;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetInt(itemName, defaultValue)
+                : defaultValue;
         }
 
         /// <summary>
@@ -373,7 +347,7 @@ namespace Honor.Runtime
         public void SetInt(string fileFragmentName, string itemName, int value)
         {
             CheckAddContainer(fileFragmentName);
-            m_ItemGroups[fileFragmentName].SetInt(itemName, value);
+            m_Groups[fileFragmentName].SetInt(itemName, value);
         }
 
         #endregion
@@ -392,12 +366,9 @@ namespace Honor.Runtime
         /// <returns>读取的浮点数值。</returns>
         public float GetFloat(string fileFragmentName, string itemName)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetFloat(itemName);
-            }
-
-            return 0f;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetFloat(itemName)
+                : 0f;
         }
 
         /// <summary>
@@ -409,12 +380,9 @@ namespace Honor.Runtime
         /// <returns>读取的浮点数值。</returns>
         public float GetFloat(string fileFragmentName, string itemName, float defaultValue)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetFloat(itemName, defaultValue);
-            }
-
-            return defaultValue;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetFloat(itemName, defaultValue)
+                : defaultValue;
         }
 
         /// <summary>
@@ -426,7 +394,7 @@ namespace Honor.Runtime
         public void SetFloat(string fileFragmentName, string itemName, float value)
         {
             CheckAddContainer(fileFragmentName);
-            m_ItemGroups[fileFragmentName].SetFloat(itemName, value);
+            m_Groups[fileFragmentName].SetFloat(itemName, value);
         }
 
         #endregion
@@ -445,12 +413,9 @@ namespace Honor.Runtime
         /// <returns>读取的字符串值。</returns>
         public string GetString(string fileFragmentName, string itemName)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetString(itemName);
-            }
-
-            return null;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetString(itemName)
+                : null;
         }
 
         /// <summary>
@@ -462,12 +427,9 @@ namespace Honor.Runtime
         /// <returns>读取的字符串值。</returns>
         public string GetString(string fileFragmentName, string itemName, string defaultValue)
         {
-            if (m_ItemGroups.ContainsKey(fileFragmentName))
-            {
-                return m_ItemGroups[fileFragmentName].GetString(itemName, defaultValue);
-            }
-
-            return defaultValue;
+            return TryGetGroup(fileFragmentName, out FileFragmentItemGroup group)
+                ? group.GetString(itemName, defaultValue)
+                : defaultValue;
         }
 
         /// <summary>
@@ -479,7 +441,7 @@ namespace Honor.Runtime
         public void SetString(string fileFragmentName, string itemName, string value)
         {
             CheckAddContainer(fileFragmentName);
-            m_ItemGroups[fileFragmentName].SetString(itemName, value);
+            m_Groups[fileFragmentName].SetString(itemName, value);
         }
 
         #endregion
@@ -499,9 +461,9 @@ namespace Honor.Runtime
         private bool Serialize(string filePath, string fileFragmentName = null)
         {
             CheckAddContainer(fileFragmentName);
-            using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
-                return m_ItemGroups[fileFragmentName].Serialize(fs);
+                return m_Groups[fileFragmentName].Serialize(stream);
             }
         }
 
@@ -516,10 +478,10 @@ namespace Honor.Runtime
             CheckAddContainer(fileFragmentName);
             using (StreamReader reader = new StreamReader(filePath))
             {
-                m_ItemGroups[fileFragmentName].Deserialize(reader);
+                m_Groups[fileFragmentName].Deserialize(reader);
             }
 
-            return m_ItemGroups[fileFragmentName];
+            return m_Groups[fileFragmentName];
         }
 
         #endregion

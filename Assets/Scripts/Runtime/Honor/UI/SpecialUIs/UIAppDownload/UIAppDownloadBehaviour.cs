@@ -120,11 +120,17 @@ namespace Honor.Runtime
         //=========================================================================
         // MonoBehaviour 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒（预留）
+        /// </summary>
         private void Awake()
         {
             // 初始化预留
         }
 
+        /// <summary>
+        /// 启动时按多语言初始化各文本（兼容 UGUI / TMP）
+        /// </summary>
         private void Start()
         {
             // 多版本 Text 兼容，自动设置多语言文本
@@ -153,6 +159,9 @@ namespace Honor.Runtime
                 m_CloseButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Download_CloseButton_Text");
         }
 
+        /// <summary>
+        /// 销毁（预留）
+        /// </summary>
         private void OnDestroy()
         {
             // 销毁预留

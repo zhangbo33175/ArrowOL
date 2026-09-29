@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaComponent.ABLoader.cs
+ * filename:  LuaComponent.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   Lua 脚本 AB 包加载校验工具模块

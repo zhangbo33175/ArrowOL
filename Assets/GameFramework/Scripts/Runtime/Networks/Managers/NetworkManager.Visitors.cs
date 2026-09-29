@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  NetworkManager.Fields.cs
+ * filename:  NetworkManager.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   网络底层管理器 - 字段、属性定义模块
@@ -29,19 +29,19 @@ namespace Honor.Runtime
         /// Lua 组件引用
         /// 用于框架内 Lua 交互
         /// </summary>
-        private LuaComponent m_LuaComponent;
+        private LuaComponent m_LuaBridge;
 
         /// <summary>
         /// 网络连接超时时间（单位：秒）
         /// 默认：20 秒
         /// </summary>
-        private float m_ConnectTimeout = 20f;
+        private float m_ConnTimeoutSec = 20f;
 
         /// <summary>
         /// 网络请求超时时间（单位：秒）
         /// 默认：60 秒
         /// </summary>
-        private float m_RequestTimeout = 60f;
+        private float m_ReqTimeoutSec = 60f;
 
 #if BEST_HTTP_ENABLE
         /// <summary>
@@ -49,7 +49,7 @@ namespace Honor.Runtime
         /// Key：连接名称
         /// Value：WebSocket 实例
         /// </summary>
-        private Dictionary<string, WebSocket> m_WebSockets;
+        private Dictionary<string, WebSocket> m_SocketTable;
 #endif
 
         #endregion

@@ -1157,7 +1157,7 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Default", Honor.Runtime.NonePatternType.Default);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TotalNum", Honor.Runtime.NonePatternType.TotalNum);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TotalCount", Honor.Runtime.NonePatternType.TotalCount);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
@@ -1182,9 +1182,9 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimeNonePatternType(L, Honor.Runtime.NonePatternType.Default);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "TotalNum"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "TotalCount"))
                 {
-                    translator.PushHonorRuntimeNonePatternType(L, Honor.Runtime.NonePatternType.TotalNum);
+                    translator.PushHonorRuntimeNonePatternType(L, Honor.Runtime.NonePatternType.TotalCount);
                 }
 				else
                 {
@@ -1217,7 +1217,7 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ViewModel", Honor.Runtime.MVVMPatternType.ViewModel);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TotalNum", Honor.Runtime.MVVMPatternType.TotalNum);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TotalCount", Honor.Runtime.MVVMPatternType.TotalCount);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
@@ -1246,9 +1246,9 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimeMVVMPatternType(L, Honor.Runtime.MVVMPatternType.ViewModel);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "TotalNum"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "TotalCount"))
                 {
-                    translator.PushHonorRuntimeMVVMPatternType(L, Honor.Runtime.MVVMPatternType.TotalNum);
+                    translator.PushHonorRuntimeMVVMPatternType(L, Honor.Runtime.MVVMPatternType.TotalCount);
                 }
 				else
                 {
@@ -1339,7 +1339,7 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoundGroupNotExist", Honor.Runtime.PlaySoundErrorCode.SoundGroupNotExist);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoundGroupHasNotEnoughAgent", Honor.Runtime.PlaySoundErrorCode.SoundGroupHasNotEnoughAgent);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoundGroupInsufficientAgents", Honor.Runtime.PlaySoundErrorCode.SoundGroupInsufficientAgents);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LoadAssetFailure", Honor.Runtime.PlaySoundErrorCode.LoadAssetFailure);
             
@@ -1374,9 +1374,9 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.SoundGroupNotExist);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoundGroupHasNotEnoughAgent"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoundGroupInsufficientAgents"))
                 {
-                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.SoundGroupHasNotEnoughAgent);
+                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.SoundGroupInsufficientAgents);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "LoadAssetFailure"))
                 {

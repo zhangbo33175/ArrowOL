@@ -39,21 +39,33 @@ namespace GameLib
         //=========================================================================
         // 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒时重置计时
+        /// </summary>
         private void Awake()
         {
             tempTime = 0f;
         }
 
+        /// <summary>
+        /// 启用时重置计时
+        /// </summary>
         private void OnEnable()
         {
             tempTime = 0f;
         }
 
+        /// <summary>
+        /// 禁用时重置计时
+        /// </summary>
         private void OnDisable()
         {
             tempTime = 0f;
         }
 
+        /// <summary>
+        /// 每帧累计计时，超时后自动关闭遮罩层
+        /// </summary>
         private void Update()
         {
             tempTime += Time.deltaTime;

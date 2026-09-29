@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIManager.Define.cs
+ * filename:  UIManager.Visitors.cs
  * author:  云毅
  * created: 2026
  * descrip:   UI 管理器 - 成员变量、属性、核心定义
@@ -232,7 +232,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 模态 UI 等待队列
         /// </summary>
-        private readonly List<UIInfo> m_ModalUIInfoList;
+        private List<UIInfo> m_ModalUIInfoList;
 
         /// <summary>
         /// 获取模态 UI 等待队列
@@ -245,7 +245,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 非模态 UI 列表
         /// </summary>
-        private readonly List<UIFlagBehaviour> m_UnModalUIList;
+        private List<UIFlagBehaviour> m_UnModalUIList;
 
         /// <summary>
         /// 获取非模态 UI 列表
@@ -258,7 +258,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 场景 UI 列表
         /// </summary>
-        private readonly List<UIFlagBehaviour> m_SceneUIList;
+        private List<UIFlagBehaviour> m_SceneUIList;
 
         /// <summary>
         /// 获取场景 UI 列表
@@ -271,7 +271,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 子/附加 UI 字典
         /// </summary>
-        private readonly Dictionary<UIType, List<UIFlagBehaviour>> m_SubUIList;
+        private Dictionary<UIType, List<UIFlagBehaviour>> m_SubUIList;
 
         /// <summary>
         /// 获取附加 UI 字典
@@ -284,7 +284,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 待卸载 UI 列表（分帧销毁）
         /// </summary>
-        private readonly List<UIFlagBehaviour> m_UnloadUIList;
+        private List<UIFlagBehaviour> m_UnloadUIList;
 
         /// <summary>
         /// 获取待卸载 UI 列表

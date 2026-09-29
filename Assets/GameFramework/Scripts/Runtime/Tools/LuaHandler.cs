@@ -40,8 +40,8 @@ namespace Honor.Runtime
                 Action<LuaTable> callbackFunc;
                 luaHandler.Get("func", out callbackFunc);
 
-                // 执行 Lua 回调，传递参数
-                callbackFunc(args);
+                // 执行 Lua 回调，传递参数（func 缺失时为 null，做空值保护避免空引用）
+                callbackFunc?.Invoke(args);
             }
         }
         #endregion

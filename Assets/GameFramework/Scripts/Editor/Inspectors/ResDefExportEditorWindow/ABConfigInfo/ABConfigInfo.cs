@@ -89,9 +89,23 @@ namespace Honor.Editor
         /// <summary>
         /// 是否为平台Manifest-AB文件
         /// </summary>
-        public bool IsPlatformManifest
+        public bool IsPlatformManifest => IsPlatformManifestPath(Path);
+        #endregion
+
+        //=========================================================================
+        // 私有工具方法
+        //=========================================================================
+        #region 私有工具方法
+        /// <summary>
+        /// 判断给定路径是否对应某个发布平台的 Manifest 资源分组
+        /// </summary>
+        /// <param name="assetPath">资源分组路径</param>
+        /// <returns>命中 Android/iOS/WebGL 平台名时返回 true</returns>
+        private static bool IsPlatformManifestPath(string assetPath)
         {
-            get { return Path.Equals("Android") || Path.Equals("iOS") || Path.Equals("WebGL"); }
+            return assetPath.Equals("Android")
+                   || assetPath.Equals("iOS")
+                   || assetPath.Equals("WebGL");
         }
         #endregion
     }

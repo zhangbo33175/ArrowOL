@@ -22,10 +22,19 @@ namespace Honor.Runtime
     {
         #region 字段
 
+        /// <summary>模糊运行时材质</summary>
         private Material m_BlurMat;
+
+        /// <summary>原始材质（还原用）</summary>
         private Material m_OriginMat;
+
+        /// <summary>原始主纹理</summary>
         private Texture m_OriginTex;
+
+        /// <summary>宿主 MeshRenderer</summary>
         private MeshRenderer m_MeshRenderer;
+
+        /// <summary>模糊迭代临时缓冲</summary>
         private RenderTexture m_Buffer0;
 
         /// <summary>
@@ -129,6 +138,9 @@ namespace Honor.Runtime
 
         #region 生命周期
 
+        /// <summary>
+        /// 启用时重置计时并执行一次模糊
+        /// </summary>
         private void OnEnable()
         {
             m_Time = 0f;
@@ -136,6 +148,9 @@ namespace Honor.Runtime
             DoBlur();
         }
 
+        /// <summary>
+        /// 每帧推进渐入透明度，非循环时在结束后释放
+        /// </summary>
         private void Update()
         {
             m_Time += Time.deltaTime;
@@ -157,6 +172,9 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 禁用时释放模糊资源
+        /// </summary>
         private void OnDisable()
         {
             Release();

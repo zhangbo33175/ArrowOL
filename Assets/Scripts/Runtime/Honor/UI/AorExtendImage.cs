@@ -87,6 +87,25 @@ namespace GameLib
         /// <param name="toFill">输出的顶点辅助对象</param>
         private void GenerateSlicedSprite(VertexHelper toFill)
         {
+            // 解析精灵UV/边框数据，并初始化顶点与UV临时数组
+            SetupSlicedVertices();
+
+            // 根据填充进度裁剪顶点与UV，得到网格分段数量
+            int xLen = 3, yLen = 3;
+            ApplyFillAmount(ref xLen, ref yLen);
+
+            // 清空原有顶点数据
+            toFill.Clear();
+
+            // 循环生成九宫格网格
+            GenerateSlicedQuads(toFill, xLen, yLen);
+        }
+
+        /// <summary>
+        /// 解析当前生效精灵的UV与边框数据，并初始化顶点/UV临时数组
+        /// </summary>
+        private void SetupSlicedVertices()
+        {
             // 获取当前生效的精灵（优先使用覆盖精灵）
             var activeSprite = overrideSprite ?? sprite;
 
@@ -141,7 +160,15 @@ namespace GameLib
             s_UVScratch[1] = new Vector2(inner.x, inner.y);
             s_UVScratch[2] = new Vector2(inner.z, inner.w);
             s_UVScratch[3] = new Vector2(outer.z, outer.w);
+        }
 
+        /// <summary>
+        /// 根据填充进度裁剪顶点与UV坐标，并计算最终网格分段数量
+        /// </summary>
+        /// <param name="xLen">X方向分段数量（默认3，按填充进度裁剪）</param>
+        /// <param name="yLen">Y方向分段数量（默认3，按填充进度裁剪）</param>
+        private void ApplyFillAmount(ref int xLen, ref int yLen)
+        {
             // 计算总长度与各段比例，用于填充进度计算
             float xLength = s_VertScratch[3].x - s_VertScratch[0].x;
             float yLength = s_VertScratch[3].y - s_VertScratch[0].y;
@@ -155,71 +182,99 @@ namespace GameLib
             // 右侧边框长度缓存
             var l3 = s_VertScratch[3].x - s_VertScratch[2].x;
 
-            // 网格分段数量
-            int xLen = 3, yLen = 3;
-
             // 水平填充逻辑
             if (fillMethod == FillMethod.Horizontal)
             {
-                if (fillAmount >= 1)
-                {
-                    float ratio = 1 - (1 - (len1XRatio + len2XRatio)) / len3XRatio;
-                    s_VertScratch[3].x = s_VertScratch[3].x - (s_VertScratch[3].x - s_VertScratch[2].x) * ratio;
-                    s_UVScratch[3].x = s_UVScratch[3].x - (s_UVScratch[3].x - s_UVScratch[2].x) * ratio;
-                }
-                else if (fillAmount >= len1XRatio)
-                {
-                    xLen = 2;
-                    float ratio = 1 - (fillAmount - len1XRatio) / len2XRatio;
-                    s_VertScratch[2].x = s_VertScratch[2].x - (s_VertScratch[2].x - s_VertScratch[1].x) * ratio;
-
-                    var newMidWidth = s_VertScratch[2].x - l3;
-                    if (newMidWidth >= s_VertScratch[1].x)
-                    {
-                        xLen = 3;
-                        s_VertScratch[2].x = newMidWidth;
-
-                        float ratio3 = 1 - (1 - (len1XRatio + len2XRatio)) / len3XRatio;
-                        s_VertScratch[3].x = s_VertScratch[2].x + l3;
-                        s_UVScratch[3].x = s_UVScratch[3].x - (s_UVScratch[3].x - s_UVScratch[2].x) * ratio3;
-                    }
-                }
-                else
-                {
-                    xLen = 1;
-                    float ratio = 1 - fillAmount / len1XRatio;
-                    s_VertScratch[1].x = s_VertScratch[1].x - (s_VertScratch[1].x - s_VertScratch[0].x) * ratio;
-                    s_UVScratch[1].x = s_UVScratch[1].x - (s_UVScratch[1].x - s_UVScratch[0].x) * ratio;
-                }
+                ApplyHorizontalFill(len1XRatio, len2XRatio, len3XRatio, l3, ref xLen);
             }
             // 垂直填充逻辑
             else if (fillMethod == FillMethod.Vertical)
             {
-                if (fillAmount >= (len1YRatio + len2YRatio))
+                ApplyVerticalFill(len1YRatio, len2YRatio, len3YRatio, ref yLen);
+            }
+        }
+
+        /// <summary>
+        /// 应用水平方向的填充进度，裁剪X方向顶点与UV
+        /// </summary>
+        /// <param name="len1XRatio">左边框占比</param>
+        /// <param name="len2XRatio">中间段占比</param>
+        /// <param name="len3XRatio">右边框占比</param>
+        /// <param name="l3">右侧边框长度</param>
+        /// <param name="xLen">X方向分段数量</param>
+        private void ApplyHorizontalFill(float len1XRatio, float len2XRatio, float len3XRatio, float l3, ref int xLen)
+        {
+            if (fillAmount >= 1)
+            {
+                float ratio = 1 - (1 - (len1XRatio + len2XRatio)) / len3XRatio;
+                s_VertScratch[3].x = s_VertScratch[3].x - (s_VertScratch[3].x - s_VertScratch[2].x) * ratio;
+                s_UVScratch[3].x = s_UVScratch[3].x - (s_UVScratch[3].x - s_UVScratch[2].x) * ratio;
+            }
+            else if (fillAmount >= len1XRatio)
+            {
+                xLen = 2;
+                float ratio = 1 - (fillAmount - len1XRatio) / len2XRatio;
+                s_VertScratch[2].x = s_VertScratch[2].x - (s_VertScratch[2].x - s_VertScratch[1].x) * ratio;
+
+                var newMidWidth = s_VertScratch[2].x - l3;
+                if (newMidWidth >= s_VertScratch[1].x)
                 {
-                    float ratio = 1 - (fillAmount - (len1YRatio + len2YRatio)) / len3YRatio;
-                    s_VertScratch[3].y = s_VertScratch[3].y - (s_VertScratch[3].y - s_VertScratch[2].y) * ratio;
-                    s_UVScratch[3].y = s_UVScratch[3].y - (s_UVScratch[3].y - s_UVScratch[2].y) * ratio;
-                }
-                else if (fillAmount >= len1YRatio)
-                {
-                    yLen = 2;
-                    float ratio = 1 - (fillAmount - len1YRatio) / len2YRatio;
-                    s_VertScratch[2].y = s_VertScratch[2].y - (s_VertScratch[2].y - s_VertScratch[1].y) * ratio;
-                    s_UVScratch[2].y -= (s_UVScratch[2].y - s_UVScratch[1].y) * ratio;
-                }
-                else
-                {
-                    yLen = 1;
-                    float ratio = 1 - fillAmount / len1YRatio;
-                    s_VertScratch[1].y = s_VertScratch[1].y - (s_VertScratch[1].y - s_VertScratch[0].y) * ratio;
-                    s_UVScratch[1].y = s_UVScratch[1].y - (s_UVScratch[1].y - s_UVScratch[0].y) * ratio;
+                    xLen = 3;
+                    s_VertScratch[2].x = newMidWidth;
+
+                    float ratio3 = 1 - (1 - (len1XRatio + len2XRatio)) / len3XRatio;
+                    s_VertScratch[3].x = s_VertScratch[2].x + l3;
+                    s_UVScratch[3].x = s_UVScratch[3].x - (s_UVScratch[3].x - s_UVScratch[2].x) * ratio3;
                 }
             }
+            else
+            {
+                xLen = 1;
+                float ratio = 1 - fillAmount / len1XRatio;
+                s_VertScratch[1].x = s_VertScratch[1].x - (s_VertScratch[1].x - s_VertScratch[0].x) * ratio;
+                s_UVScratch[1].x = s_UVScratch[1].x - (s_UVScratch[1].x - s_UVScratch[0].x) * ratio;
+            }
+        }
 
-            // 清空原有顶点数据
-            toFill.Clear();
+        /// <summary>
+        /// 应用垂直方向的填充进度，裁剪Y方向顶点与UV
+        /// </summary>
+        /// <param name="len1YRatio">下边框占比</param>
+        /// <param name="len2YRatio">中间段占比</param>
+        /// <param name="len3YRatio">上边框占比</param>
+        /// <param name="yLen">Y方向分段数量</param>
+        private void ApplyVerticalFill(float len1YRatio, float len2YRatio, float len3YRatio, ref int yLen)
+        {
+            if (fillAmount >= (len1YRatio + len2YRatio))
+            {
+                float ratio = 1 - (fillAmount - (len1YRatio + len2YRatio)) / len3YRatio;
+                s_VertScratch[3].y = s_VertScratch[3].y - (s_VertScratch[3].y - s_VertScratch[2].y) * ratio;
+                s_UVScratch[3].y = s_UVScratch[3].y - (s_UVScratch[3].y - s_UVScratch[2].y) * ratio;
+            }
+            else if (fillAmount >= len1YRatio)
+            {
+                yLen = 2;
+                float ratio = 1 - (fillAmount - len1YRatio) / len2YRatio;
+                s_VertScratch[2].y = s_VertScratch[2].y - (s_VertScratch[2].y - s_VertScratch[1].y) * ratio;
+                s_UVScratch[2].y -= (s_UVScratch[2].y - s_UVScratch[1].y) * ratio;
+            }
+            else
+            {
+                yLen = 1;
+                float ratio = 1 - fillAmount / len1YRatio;
+                s_VertScratch[1].y = s_VertScratch[1].y - (s_VertScratch[1].y - s_VertScratch[0].y) * ratio;
+                s_UVScratch[1].y = s_UVScratch[1].y - (s_UVScratch[1].y - s_UVScratch[0].y) * ratio;
+            }
+        }
 
+        /// <summary>
+        /// 根据裁剪后的顶点与UV数据，循环生成九宫格网格
+        /// </summary>
+        /// <param name="toFill">输出的顶点辅助对象</param>
+        /// <param name="xLen">X方向分段数量</param>
+        /// <param name="yLen">Y方向分段数量</param>
+        private void GenerateSlicedQuads(VertexHelper toFill, int xLen, int yLen)
+        {
             // 循环生成九宫格网格
             for (int x = 0; x < xLen; ++x)
             {

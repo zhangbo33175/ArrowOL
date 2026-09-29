@@ -42,6 +42,9 @@ namespace GameLib
         //=========================================================================
         // 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒时按配置决定是否自动重算包围盒
+        /// </summary>
         private void Awake()
         {
             if (m_AutoRecalculateOnAwake)
@@ -74,11 +77,12 @@ namespace GameLib
             }
 
             UnityEngine.UI.Image[] images = GetComponentsInChildren<UnityEngine.UI.Image>();
+            // 复用同一缓冲区：GetWorldCorners 每次都会覆盖写入全部 4 个角点，无需逐 Image 重新分配
+            Vector3[] corners = new Vector3[4];
             foreach (var image in images)
             {
                 if (image == null || !image.enabled) continue;
                 RectTransform rt = image.rectTransform;
-                Vector3[] corners = new Vector3[4];
                 rt.GetWorldCorners(corners);
                 if (!hasAny)
                 {

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  ConfigManager.Fields.cs
+ * filename:  ConfigManager.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   配置管理器 - 字段与属性定义（partial）

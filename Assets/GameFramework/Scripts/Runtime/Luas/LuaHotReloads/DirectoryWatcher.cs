@@ -23,11 +23,20 @@ namespace Honor.Runtime
     {
         //=========================================================================
         #region 字段
+        /// <summary>
+        /// 底层文件系统监听器
+        /// </summary>
         private FileSystemWatcher m_Watcher;
         #endregion
 
         //=========================================================================
         #region 构造函数
+        /// <summary>
+        /// 创建目录监听器并立即开始监听
+        /// </summary>
+        /// <param name="dirPath">监听目录</param>
+        /// <param name="filter">文件过滤通配符</param>
+        /// <param name="handler">变更回调</param>
         public DirectoryWatcher(string dirPath, string filter, FileSystemEventHandler handler)
         {
             CreateWatch(dirPath, filter, handler);

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaBehaviour.MVVM.cs
+ * filename:  LuaBehaviour.MVVM.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   LuaBehaviour - MVVM 模式专用字段与声明

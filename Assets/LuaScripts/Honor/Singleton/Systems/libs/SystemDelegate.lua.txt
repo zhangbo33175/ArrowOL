@@ -12,10 +12,11 @@
 --region 多播委托（C# 风格 Delegate）
 local SystemSet = require("SystemSet")
 
+---@class SystemDelegate 多播委托（C# 风格 Delegate）
 local SystemDelegate = {}
 SystemDelegate.__index = SystemDelegate
 
---- 委托实例直接调用：delegate(...) 触发所有监听
+---@brief 委托实例直接调用：delegate(...) 触发所有监听
 ---@param self Delegate
 ---@param ... 事件参数
 SystemDelegate.__call = function(t, ...)
@@ -25,17 +26,17 @@ SystemDelegate.__call = function(t, ...)
     end
 end
 
---- 创建一个新的代理器实例
+---@brief 创建一个新的代理器实例
 ---@return Delegate 代理器实例
 function SystemDelegate.new()
-    ---@class Delegate
+    ---@class Delegate 代理器实例
     ---@field _listeners SystemSet 监听器集合（保证唯一、快速增删）
     local tb = {}
     tb._listeners = SystemSet.new()
     return setmetatable(tb, SystemDelegate)
 end
 
---- 添加监听函数（自动去重，重复添加会报错）
+---@brief 添加监听函数（自动去重，重复添加会报错）
 ---@param self Delegate 代理器实例
 ---@param f function 要注册的回调函数
 function SystemDelegate.add(self, f)
@@ -43,7 +44,7 @@ function SystemDelegate.add(self, f)
     assert(SystemSet.insert(self._listeners, f))
 end
 
---- 移除监听函数
+---@brief 移除监听函数
 ---@param self Delegate 代理器实例
 ---@param f function 要取消注册的回调函数
 ---@return boolean 成功返回true，失败返回false
@@ -51,7 +52,7 @@ function SystemDelegate.remove(self, f)
     return SystemSet.remove(self._listeners, f)
 end
 
---- 判断是否包含某个监听函数
+---@brief 判断是否包含某个监听函数
 ---@param self Delegate 代理器实例
 ---@param f function 查询的回调函数
 ---@return boolean 包含返回true，否则false

@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaComponent.Fields.cs
+ * filename:  LuaComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   LuaComponent 字段、常量、属性定义模块

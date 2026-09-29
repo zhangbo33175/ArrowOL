@@ -377,6 +377,32 @@ namespace Honor.Runtime
 
             int currentGroupCount = mItemSizeGroupList.Count;
 
+            // 调整分组数量
+            AdjustGroupCount(needGroupCount, currentGroupCount);
+
+            // 修正最大非空组索引
+            currentGroupCount = mItemSizeGroupList.Count;
+            mMaxNotEmptyGroupIndex = Mathf.Clamp(mMaxNotEmptyGroupIndex, 0, currentGroupCount - 1);
+
+            if (currentGroupCount == 0)
+            {
+                return;
+            }
+
+            // 设置每组有效项数量
+            SetGroupItemCounts(currentGroupCount, lastGroupItemCount);
+
+            // 计算总尺寸
+            RecalcTotalSize();
+        }
+
+        /// <summary>
+        /// 按所需分组数增删分组，并清空最后一组旧数据
+        /// </summary>
+        /// <param name="needGroupCount">所需分组数</param>
+        /// <param name="currentGroupCount">当前分组数</param>
+        private void AdjustGroupCount(int needGroupCount, int currentGroupCount)
+        {
             // 调整分组数量：删除多余分组
             if (currentGroupCount > needGroupCount)
             {
@@ -407,25 +433,30 @@ namespace Honor.Runtime
                     mItemSizeGroupList[currentGroupCount - 1].ClearOldData();
                 }
             }
+        }
 
-            // 修正最大非空组索引
-            currentGroupCount = mItemSizeGroupList.Count;
-            mMaxNotEmptyGroupIndex = Mathf.Clamp(mMaxNotEmptyGroupIndex, 0, currentGroupCount - 1);
-
-            if (currentGroupCount == 0)
-            {
-                return;
-            }
-
+        /// <summary>
+        /// 设置每组有效项数量，最后一组使用余数项数
+        /// </summary>
+        /// <param name="currentGroupCount">当前分组数</param>
+        /// <param name="lastGroupItemCount">最后一组有效项数</param>
+        private void SetGroupItemCounts(int currentGroupCount, int lastGroupItemCount)
+        {
             // 设置每组有效项数量
             for (int i = 0; i < currentGroupCount - 1; ++i)
             {
                 mItemSizeGroupList[i].SetItemCount(mItemMaxCountPerGroup);
             }
             mItemSizeGroupList[currentGroupCount - 1].SetItemCount(lastGroupItemCount);
+        }
 
+        /// <summary>
+        /// 累加所有分组尺寸得到列表总尺寸
+        /// </summary>
+        private void RecalcTotalSize()
+        {
             // 计算总尺寸
-            for (int i = 0; i < currentGroupCount; ++i)
+            for (int i = 0; i < mItemSizeGroupList.Count; ++i)
             {
                 mTotalSize += mItemSizeGroupList[i].mGroupSize;
             }
@@ -501,6 +532,36 @@ namespace Honor.Runtime
                 return true;
             }
 
+            // 二分查找定位目标组
+            ItemSizeGroup hitGroup = FindHitGroupByPos(pos, groupCount);
+
+            // 未找到目标组
+            if (hitGroup == null)
+            {
+                return false;
+            }
+
+            // 在组内查找项索引
+            int indexInGroup = hitGroup.GetItemIndexByPos(pos - hitGroup.mGroupStartPos);
+            if (indexInGroup < 0)
+            {
+                return false;
+            }
+
+            // 计算全局索引与绝对位置
+            itemIndex = indexInGroup + hitGroup.mGroupIndex * mItemMaxCountPerGroup;
+            itemStartPos = hitGroup.GetItemStartPos(indexInGroup);
+            return true;
+        }
+
+        /// <summary>
+        /// 二分查找覆盖给定位置的尺寸组
+        /// </summary>
+        /// <param name="pos">查找的绝对位置</param>
+        /// <param name="groupCount">尺寸组总数</param>
+        /// <returns>命中的尺寸组，未命中返回null</returns>
+        private ItemSizeGroup FindHitGroupByPos(float pos, int groupCount)
+        {
             ItemSizeGroup hitGroup = null;
             int low = 0;
             int high = groupCount - 1;
@@ -533,23 +594,7 @@ namespace Honor.Runtime
                 }
             }
 
-            // 未找到目标组
-            if (hitGroup == null)
-            {
-                return false;
-            }
-
-            // 在组内查找项索引
-            int indexInGroup = hitGroup.GetItemIndexByPos(pos - hitGroup.mGroupStartPos);
-            if (indexInGroup < 0)
-            {
-                return false;
-            }
-
-            // 计算全局索引与绝对位置
-            itemIndex = indexInGroup + hitGroup.mGroupIndex * mItemMaxCountPerGroup;
-            itemStartPos = hitGroup.GetItemStartPos(indexInGroup);
-            return true;
+            return hitGroup;
         }
         #endregion
 

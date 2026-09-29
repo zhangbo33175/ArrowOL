@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIComponent.Core.cs
+ * filename:  UIComponent.Methods.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI 核心管理组件 - 初始化与工具方法
@@ -27,32 +27,44 @@ namespace Honor.Runtime
     {
         #region 初始化核心
         /// <summary>
+        /// 初始化入口依赖组件：缺失时输出致命错误
+        /// </summary>
+        /// <typeparam name="T">游戏组件类型（必须为 GameComponent 子类，与 GameComponentsGroup.GetComponent 约束一致）</typeparam>
+        /// <returns>解析到的组件；缺失为 null</returns>
+        private T RequireComponent<T>() where T : GameComponent
+        {
+            T component = GameComponentsGroup.GetComponent<T>();
+            if (component == null)
+            {
+                Log.Fatal($"{typeof(T).Name} 无效。");
+            }
+            return component;
+        }
+
+        /// <summary>
         /// UI 组件初始化入口
         /// 获取依赖组件、创建 UI 管理器、初始化配置
         /// </summary>
         private void Initialize()
         {
             // 获取资源管理组件
-            m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
+            m_AssetComponent = RequireComponent<AssetComponent>();
             if (m_AssetComponent == null)
             {
-                Log.Fatal("Asset component 无效。");
                 return;
             }
 
             // 获取多语言管理组件
-            m_LocalizationComponent = GameComponentsGroup.GetComponent<LocalizationComponent>();
+            m_LocalizationComponent = RequireComponent<LocalizationComponent>();
             if (m_LocalizationComponent == null)
             {
-                Log.Fatal("Localization component 无效。");
                 return;
             }
 
             // 获取配置管理组件
-            m_ConfigComponent = GameComponentsGroup.GetComponent<ConfigComponent>();
+            m_ConfigComponent = RequireComponent<ConfigComponent>();
             if (m_ConfigComponent == null)
             {
-                Log.Fatal("Config component 无效。");
                 return;
             }
 

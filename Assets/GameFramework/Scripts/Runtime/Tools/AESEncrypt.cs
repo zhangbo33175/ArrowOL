@@ -46,6 +46,116 @@ namespace Honor.Runtime
         #endregion
 
         //=========================================================================
+        // 内部 - 对称加密对象构造
+        //=========================================================================
+        #region 内部 - Rijndael 构造
+
+        /// <summary>
+        /// 构造 CBC / PKCS7 模式的 Rijndael 加密对象
+        /// </summary>
+        /// <param name="key">密钥字节数组。</param>
+        /// <param name="iv">向量字节数组。</param>
+        /// <returns>已设置 Key/IV/模式/填充的加密对象。</returns>
+        private static RijndaelManaged CreateCipher(byte[] key, byte[] iv)
+        {
+            return new RijndaelManaged
+            {
+                Key = key,
+                IV = iv,
+                Mode = CipherMode.CBC,
+                Padding = PaddingMode.PKCS7,
+            };
+        }
+
+        /// <summary>
+        /// 按传入的固定密钥/向量（或为空时随机生成）解析 Key 与 IV
+        /// </summary>
+        /// <param name="fixedKey">外部固定密钥，为 null 表示动态随机生成</param>
+        /// <param name="fixedIv">外部固定向量，为 null 表示动态随机生成</param>
+        /// <param name="encoding">固定密钥/向量字符串的编码</param>
+        /// <param name="keyBytes">输出密钥字节</param>
+        /// <param name="ivBytes">输出向量字节</param>
+        /// <param name="keyIsRandom">输出密钥是否为本次随机生成</param>
+        /// <param name="ivIsRandom">输出向量是否为本次随机生成</param>
+        private static void ResolveSecretsForEncoding(string fixedKey, string fixedIv, Encoding encoding,
+            out byte[] keyBytes, out byte[] ivBytes, out bool keyIsRandom, out bool ivIsRandom)
+        {
+            keyIsRandom = fixedKey == null;
+            ivIsRandom = fixedIv == null;
+
+            keyBytes = keyIsRandom ? GetRandomSecretBytes() : encoding.GetBytes(fixedKey);
+            ivBytes = ivIsRandom ? GetRandomSecretBytes() : encoding.GetBytes(fixedIv);
+        }
+
+        /// <summary>
+        /// 动态加密时将随机 Key/IV 拼接到密文头部（静态模式不拼接）
+        /// </summary>
+        /// <param name="keyBytes">密钥字节</param>
+        /// <param name="ivBytes">向量字节</param>
+        /// <param name="keyIsRandom">密钥是否随机生成</param>
+        /// <param name="ivIsRandom">向量是否随机生成</param>
+        /// <param name="cipherBytes">已加密的密文</param>
+        /// <returns>拼接后的完整输出字节</returns>
+        private static byte[] AppendRandomSecrets(byte[] keyBytes, byte[] ivBytes, bool keyIsRandom, bool ivIsRandom, byte[] cipherBytes)
+        {
+            m_sTempBytes.Clear();
+            if (keyIsRandom)
+            {
+                m_sTempBytes.AddRange(keyBytes);
+            }
+            if (ivIsRandom)
+            {
+                m_sTempBytes.AddRange(ivBytes);
+            }
+            m_sTempBytes.AddRange(cipherBytes);
+            return m_sTempBytes.ToArray();
+        }
+
+        /// <summary>
+        /// 从待解密字节流中解析 Key/IV（固定则直接转换，随机则从头部读取）
+        /// </summary>
+        /// <param name="raw">完整待解密字节流</param>
+        /// <param name="fixedKey">固定密钥，为 null 表示从密文头部读取随机密钥</param>
+        /// <param name="fixedIv">固定向量，为 null 表示从密文头部读取随机向量</param>
+        /// <param name="encoding">固定密钥/向量字符串的编码</param>
+        /// <param name="keyBytes">输出密钥字节</param>
+        /// <param name="ivBytes">输出向量字节</param>
+        /// <param name="secretHeaderLength">头部随机密钥/向量占用的总长度</param>
+        private static void ParseSecretsFromHeader(byte[] raw, string fixedKey, string fixedIv, Encoding encoding,
+            out byte[] keyBytes, out byte[] ivBytes, out int secretHeaderLength)
+        {
+            m_sTempBytes.Clear();
+            m_sTempBytes.AddRange(raw);
+
+            keyBytes = null;
+            ivBytes = null;
+            secretHeaderLength = 0;
+
+            // 从密文提取随机 Key 或 使用固定 Key
+            if (fixedKey != null)
+            {
+                keyBytes = encoding.GetBytes(fixedKey);
+            }
+            else
+            {
+                keyBytes = m_sTempBytes.GetRange(0, SecretBytesLength).ToArray();
+                secretHeaderLength += SecretBytesLength;
+            }
+
+            // 从密文提取随机 IV 或 使用固定 IV（IV 在头部的偏移恒为一个 SecretBytesLength）
+            if (fixedIv != null)
+            {
+                ivBytes = encoding.GetBytes(fixedIv);
+            }
+            else
+            {
+                ivBytes = m_sTempBytes.GetRange(SecretBytesLength, SecretBytesLength).ToArray();
+                secretHeaderLength += SecretBytesLength;
+            }
+        }
+        #endregion
+
+        //=========================================================================
         // 公开接口 - 字符串加密解密
         //=========================================================================
         #region 字符串加密解密
@@ -60,42 +170,21 @@ namespace Honor.Runtime
         /// <returns>Base64 密文</returns>
         public static string EncodeToBase64(string content, string specialKey = null, string specialIv = null)
         {
-            byte[] keyArray = null;
-            byte[] ivArray = null;
-
-            // 使用指定密钥 或 随机生成
-            if (specialKey != null)
-                keyArray = Encoding.UTF8.GetBytes(specialKey);
-            else
-                keyArray = GetRandomSecretBytes();
-
-            // 使用指定向量 或 随机生成
-            if (specialIv != null)
-                ivArray = Encoding.UTF8.GetBytes(specialIv);
-            else
-                ivArray = GetRandomSecretBytes();
+            ResolveSecretsForEncoding(specialKey, specialIv, Encoding.UTF8,
+                out byte[] keyBytes, out byte[] ivBytes, out bool keyRandom, out bool ivRandom);
 
             // 加密主体
-            byte[] toEncryptArray = Encoding.UTF8.GetBytes(content);
-            RijndaelManaged rDel = new RijndaelManaged();
-            rDel.Key = keyArray;
-            rDel.IV = ivArray;
-            rDel.Mode = CipherMode.CBC;
-            rDel.Padding = PaddingMode.PKCS7;
+            byte[] plainBytes = Encoding.UTF8.GetBytes(content);
+            using (RijndaelManaged cipher = CreateCipher(keyBytes, ivBytes))
+            {
+                ICryptoTransform encryptor = cipher.CreateEncryptor();
+                byte[] cipherBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
+                encryptor.Dispose();
 
-            ICryptoTransform cTransform = rDel.CreateEncryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
-            cTransform.Dispose();
-
-            // 动态模式：将随机 Key/IV 写入密文头部
-            m_sTempBytes.Clear();
-            if (specialKey == null)
-                m_sTempBytes.AddRange(keyArray);
-            if (specialIv == null)
-                m_sTempBytes.AddRange(ivArray);
-            m_sTempBytes.AddRange(resultArray);
-
-            return Convert.ToBase64String(m_sTempBytes.ToArray());
+                // 动态模式：将随机 Key/IV 写入密文头部
+                byte[] output = AppendRandomSecrets(keyBytes, ivBytes, keyRandom, ivRandom, cipherBytes);
+                return Convert.ToBase64String(output);
+            }
         }
 
         /// <summary>
@@ -110,54 +199,29 @@ namespace Honor.Runtime
         {
             try
             {
-                byte[] bytes = Convert.FromBase64String(content);
-                m_sTempBytes.Clear();
-                m_sTempBytes.AddRange(bytes);
-
-                if (m_sTempBytes.Count <= 0) 
+                byte[] raw = Convert.FromBase64String(content);
+                if (raw.Length <= 0)
+                {
                     return string.Empty;
-                
-                byte[] keyArray = null;
-                byte[] ivArray = null;
-                int tempSecretLength = 0;
-
-                // 从密文提取随机 Key 或 使用固定 Key
-                if (specialKey != null)
-                    keyArray = Encoding.UTF8.GetBytes(specialKey);
-                else
-                {
-                    keyArray = m_sTempBytes.GetRange(0, SecretBytesLength).ToArray();
-                    tempSecretLength += SecretBytesLength;
                 }
 
-                // 从密文提取随机 IV 或 使用固定 IV
-                if (specialIv != null)
-                    ivArray = Encoding.UTF8.GetBytes(specialIv);
-                else
-                {
-                    ivArray = m_sTempBytes.GetRange(SecretBytesLength, SecretBytesLength).ToArray();
-                    tempSecretLength += SecretBytesLength;
-                }
+                ParseSecretsFromHeader(raw, specialKey, specialIv, Encoding.UTF8,
+                    out byte[] keyBytes, out byte[] ivBytes, out int headerConsumed);
 
                 // 提取真实密文
-                byte[] encodedArray = m_sTempBytes.GetRange(tempSecretLength, m_sTempBytes.Count - tempSecretLength).ToArray();
+                byte[] cipherBytes = m_sTempBytes.GetRange(headerConsumed, m_sTempBytes.Count - headerConsumed).ToArray();
 
-                // 解密
-                RijndaelManaged rDel = new RijndaelManaged();
-                rDel.Key = keyArray;
-                rDel.IV = ivArray;
-                rDel.Mode = CipherMode.CBC;
-                rDel.Padding = PaddingMode.PKCS7;
-
-                ICryptoTransform cTransform = rDel.CreateDecryptor();
-                byte[] resultArray = cTransform.TransformFinalBlock(encodedArray, 0, encodedArray.Length);
-                cTransform.Dispose();
-
-                return Encoding.UTF8.GetString(resultArray);
+                using (RijndaelManaged cipher = CreateCipher(keyBytes, ivBytes))
+                {
+                    ICryptoTransform decryptor = cipher.CreateDecryptor();
+                    byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
+                    decryptor.Dispose();
+                    return Encoding.UTF8.GetString(plainBytes);
+                }
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Log.Error($"DecodeFromBase64 执行出错，error = {e} content = {content} specialKey = {specialKey} specialIv = {specialIv}");
+                Log.Error($"DecodeFromBase64 执行出错，error = {exception} content = {content} specialKey = {specialKey} specialIv = {specialIv}");
                 return string.Empty;
             }
         }
@@ -175,39 +239,18 @@ namespace Honor.Runtime
         /// </summary>
         public static byte[] EncodeToBytes(byte[] content, string specialKey = null, string specialIv = null)
         {
-            byte[] keyArray = null;
-            byte[] ivArray = null;
+            ResolveSecretsForEncoding(specialKey, specialIv, Encoding.ASCII,
+                out byte[] keyBytes, out byte[] ivBytes, out bool keyRandom, out bool ivRandom);
 
-            if (specialKey != null)
-                keyArray = Encoding.ASCII.GetBytes(specialKey);
-            else
-                keyArray = GetRandomSecretBytes();
+            using (RijndaelManaged cipher = CreateCipher(keyBytes, ivBytes))
+            {
+                ICryptoTransform encryptor = cipher.CreateEncryptor();
+                byte[] cipherBytes = encryptor.TransformFinalBlock(content, 0, content.Length);
+                encryptor.Dispose();
 
-            if (specialIv != null)
-                ivArray = Encoding.ASCII.GetBytes(specialIv);
-            else
-                ivArray = GetRandomSecretBytes();
-
-            // 加密
-            RijndaelManaged rDel = new RijndaelManaged();
-            rDel.Key = keyArray;
-            rDel.IV = ivArray;
-            rDel.Mode = CipherMode.CBC;
-            rDel.Padding = PaddingMode.PKCS7;
-
-            ICryptoTransform cTransform = rDel.CreateEncryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(content, 0, content.Length);
-            cTransform.Dispose();
-
-            // 拼接 Key/IV（动态模式）
-            m_sTempBytes.Clear();
-            if (specialKey == null)
-                m_sTempBytes.AddRange(keyArray);
-            if (specialIv == null)
-                m_sTempBytes.AddRange(ivArray);
-            m_sTempBytes.AddRange(resultArray);
-
-            return m_sTempBytes.ToArray();
+                // 拼接 Key/IV（动态模式）
+                return AppendRandomSecrets(keyBytes, ivBytes, keyRandom, ivRandom, cipherBytes);
+            }
         }
 
         /// <summary>
@@ -218,50 +261,28 @@ namespace Honor.Runtime
         {
             try
             {
-                m_sTempBytes.Clear();
-                m_sTempBytes.AddRange(content);
-
-                if (m_sTempBytes.Count <= 0)
+                // 空字节直接返回空数组；null 交由下方 AddRange 抛出并被 catch 统一返回 null
+                if (content != null && content.Length == 0)
+                {
                     return Array.Empty<byte>();
-                
-                byte[] keyArray = null;
-                byte[] ivArray = null;
-                int tempSecretLength = 0;
-
-                if (specialKey != null)
-                    keyArray = Encoding.ASCII.GetBytes(specialKey);
-                else
-                {
-                    keyArray = m_sTempBytes.GetRange(0, SecretBytesLength).ToArray();
-                    tempSecretLength += SecretBytesLength;
                 }
 
-                if (specialIv != null)
-                    ivArray = Encoding.ASCII.GetBytes(specialIv);
-                else
+                ParseSecretsFromHeader(content, specialKey, specialIv, Encoding.ASCII,
+                    out byte[] keyBytes, out byte[] ivBytes, out int headerConsumed);
+
+                byte[] cipherBytes = m_sTempBytes.GetRange(headerConsumed, m_sTempBytes.Count - headerConsumed).ToArray();
+
+                using (RijndaelManaged cipher = CreateCipher(keyBytes, ivBytes))
                 {
-                    ivArray = m_sTempBytes.GetRange(SecretBytesLength, SecretBytesLength).ToArray();
-                    tempSecretLength += SecretBytesLength;
+                    ICryptoTransform decryptor = cipher.CreateDecryptor();
+                    byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
+                    decryptor.Dispose();
+                    return plainBytes;
                 }
-
-                byte[] encodedArray = m_sTempBytes.GetRange(tempSecretLength, m_sTempBytes.Count - tempSecretLength).ToArray();
-
-                // 解密
-                RijndaelManaged rDel = new RijndaelManaged();
-                rDel.Key = keyArray;
-                rDel.IV = ivArray;
-                rDel.Mode = CipherMode.CBC;
-                rDel.Padding = PaddingMode.PKCS7;
-
-                ICryptoTransform cTransform = rDel.CreateDecryptor();
-                byte[] resultArray = cTransform.TransformFinalBlock(encodedArray, 0, encodedArray.Length);
-                cTransform.Dispose();
-
-                return resultArray;
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Log.Error($"DecodeToBytes 执行出错，error = {e}");
+                Log.Error($"DecodeToBytes 执行出错，error = {exception}");
                 return null;
             }
         }
@@ -278,12 +299,12 @@ namespace Honor.Runtime
         /// </summary>
         public static byte[] GetRandomSecretBytes()
         {
-            byte[] iv = new byte[SecretBytesLength];
-            for (int i = 0; i < iv.Length; i++)
+            byte[] buffer = new byte[SecretBytesLength];
+            for (int index = 0; index < buffer.Length; index++)
             {
-                iv[i] = (byte)UnityEngine.Random.Range(byte.MinValue, byte.MaxValue);
+                buffer[index] = (byte)UnityEngine.Random.Range(byte.MinValue, byte.MaxValue);
             }
-            return iv;
+            return buffer;
         }
 
         /// <summary>
@@ -291,8 +312,8 @@ namespace Honor.Runtime
         /// </summary>
         public static string GetRandomSecretString()
         {
-            byte[] iv = GetRandomSecretBytes();
-            return Encoding.ASCII.GetString(iv);
+            byte[] buffer = GetRandomSecretBytes();
+            return Encoding.ASCII.GetString(buffer);
         }
 
         #endregion

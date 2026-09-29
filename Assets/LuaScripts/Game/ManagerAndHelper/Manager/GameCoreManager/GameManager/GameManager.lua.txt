@@ -28,8 +28,8 @@ local GameManager = class("GameManager", import("Singleton"))
 --region 生命周期：构造、初始化、清理、单例创建
 
 ---=========================================================================
---- @brief 构造函数，初始化所有成员变量默认值
---- @param args table 外部传入构造参数表
+---@brief 构造函数，初始化所有成员变量默认值
+---@param args table 外部传入构造参数表
 ---=========================================================================
 function GameManager:ctor(args)
     GameManager.super.ctor(self, args)
@@ -47,9 +47,9 @@ function GameManager:ctor(args)
 end
 
 ---=========================================================================
---- @brief 创建管理器单例实例，统一入口
---- @param args table 构造入参
---- @return GameManager 全局GameManager单例
+---@brief 创建管理器单例实例，统一入口
+---@param args table 构造入参
+---@return GameManager 全局GameManager单例
 ---=========================================================================
 function GameManager:Create(args)
     local instance = GameManager.new(args)
@@ -58,7 +58,7 @@ function GameManager:Create(args)
 end
 
 ---=========================================================================
---- @brief 管理器初始化，注册全局事件监听
+---@brief 管理器初始化，注册全局事件监听
 ---=========================================================================
 function GameManager:Init()
     GameManager.super.Init(self)
@@ -66,7 +66,7 @@ function GameManager:Init()
 end
 
 ---=========================================================================
---- @brief 切账号/场景重载数据清理，重置所有全局状态
+---@brief 切账号/场景重载数据清理，重置所有全局状态
 ---=========================================================================
 function GameManager:ClearData()
     GameManager.super.ClearData(self)
@@ -96,8 +96,8 @@ end
 --region 全局基础状态接口：开发模式、关卡模式、关卡配置、角色点击事件
 
 ---=========================================================================
---- @brief 判断当前是否为开发者调试模式
---- @return boolean true=开发模式，false=正式包
+---@brief 判断当前是否为开发者调试模式
+---@return boolean true=开发模式，false=正式包
 ---=========================================================================
 function GameManager:IsDevelopMode()
     if not GameMainRoot or not GameMainRoot.Launcher then
@@ -107,24 +107,24 @@ function GameManager:IsDevelopMode()
 end
 
 ---=========================================================================
---- @brief 设置当前关卡运行模式
---- @param eLevelMode ELevelMode 关卡模式枚举值
+---@brief 设置当前关卡运行模式
+---@param eLevelMode ELevelMode 关卡模式枚举值
 ---=========================================================================
 function GameManager:SetLevelMode(eLevelMode)
     self.CurrentMode = eLevelMode
 end
 
 ---=========================================================================
---- @brief 获取当前正在运行的关卡模式
---- @return ELevelMode 关卡模式枚举
+---@brief 获取当前正在运行的关卡模式
+---@return ELevelMode 关卡模式枚举
 ---=========================================================================
 function GameManager:GetLevelMode()
     return self.CurrentMode
 end
 
 ---=========================================================================
---- @brief 获取当前运行关卡的静态配置表数据
---- @return Tables.LevelData_Item|nil 关卡配置，无数据返回nil
+---@brief 获取当前运行关卡的静态配置表数据
+---@return Tables.LevelData_Item|nil 关卡配置，无数据返回nil
 ---=========================================================================
 function GameManager:GetMapRootData()
     if not ChapterListManager then
@@ -147,22 +147,22 @@ function GameManager:GetMapRootData()
 end
 
 ---=========================================================================
---- @brief 注册全局事件回调监听
+---@brief 注册全局事件回调监听
 ---=========================================================================
 function GameManager:RegisterEvents()
     HonorEventHelper:AddListener(EventCmd.OnClickCharacter, handler(self, self.OnClickCharacter))
 end
 
 ---=========================================================================
---- @brief 移除全局事件回调监听
+---@brief 移除全局事件回调监听
 ---=========================================================================
 function GameManager:UnregisterEvents()
     HonorEventHelper:RemoveListener(EventCmd.OnClickCharacter, handler(self, self.OnClickCharacter))
 end
 
 ---=========================================================================
---- @brief 角色点击全局事件回调
---- @param character CharacterBase 被点击的角色实体对象
+---@brief 角色点击全局事件回调
+---@param character CharacterBase 被点击的角色实体对象
 ---=========================================================================
 function GameManager:OnClickCharacter(character)
     if not GameCoreManager then
@@ -177,8 +177,8 @@ end
 --region UI栈管理封装接口
 
 ---=========================================================================
---- @brief 获取UI栈栈顶界面，不弹出
---- @return UIBase|nil 栈顶UI实例，无界面返回nil
+---@brief 获取UI栈栈顶界面，不弹出
+---@return UIBase|nil 栈顶UI实例，无界面返回nil
 ---=========================================================================
 function GameManager:PeekUI()
     if not UIStackManager then
@@ -188,8 +188,8 @@ function GameManager:PeekUI()
 end
 
 ---=========================================================================
---- @brief UI界面压入全局UI栈
---- @param ui UIBase 待入栈UI实例
+---@brief UI界面压入全局UI栈
+---@param ui UIBase 待入栈UI实例
 ---=========================================================================
 function GameManager:PushUI(ui)
     if not UIStackManager or not ui then
@@ -199,8 +199,8 @@ function GameManager:PushUI(ui)
 end
 
 ---=========================================================================
---- @brief 弹出栈顶UI并返回实例
---- @return UIBase|nil 弹出的UI对象，栈空返回nil
+---@brief 弹出栈顶UI并返回实例
+---@return UIBase|nil 弹出的UI对象，栈空返回nil
 ---=========================================================================
 function GameManager:PopUI()
     if not UIStackManager then
@@ -210,8 +210,8 @@ function GameManager:PopUI()
 end
 
 ---=========================================================================
---- @brief 关闭所有全屏/场景类型UI界面
---- @param rightNow boolean true=立即销毁，false=走动画关闭流程
+---@brief 关闭所有全屏/场景类型UI界面
+---@param rightNow boolean true=立即销毁，false=走动画关闭流程
 ---=========================================================================
 function GameManager:CloseAllUI(rightNow)
     if not GameMainRoot or not GameMainRoot.UI then
@@ -227,8 +227,8 @@ end
 --region 版本号管理接口：资源版本、主包版本、完整拼接版本
 
 ---=========================================================================
---- @brief 获取热更资源版本号
---- @return number 资源版本数字
+---@brief 获取热更资源版本号
+---@return number 资源版本数字
 ---=========================================================================
 function GameManager:GetResVersion()
     if not GameMainRoot or not GameMainRoot.Hotfix then
@@ -245,16 +245,16 @@ function GameManager:GetResVersion()
 end
 
 ---=========================================================================
---- @brief 获取应用主包版本字符串（如1.0.0）
---- @return string 主包版本号
+---@brief 获取应用主包版本字符串（如1.0.0）
+---@return string 主包版本号
 ---=========================================================================
 function GameManager:GetMainVersion()
     return Unity.Application.version or "0.0.0"
 end
 
 ---=========================================================================
---- @brief 拼接完整游戏版本：主版本.资源热更版本
---- @return string 完整版本字符串
+---@brief 拼接完整游戏版本：主版本.资源热更版本
+---@return string 完整版本字符串
 ---=========================================================================
 function GameManager:GetGameVersion()
     local mainVer = self:GetMainVersion()
@@ -267,8 +267,8 @@ end
 --region 设备性能与触摸输入配置
 
 ---=========================================================================
---- @brief 配置EasyTouch自动拾取UI/物体开关
---- @param enable boolean 开启/关闭自动选择检测
+---@brief 配置EasyTouch自动拾取UI/物体开关
+---@param enable boolean 开启/关闭自动选择检测
 ---=========================================================================
 function GameManager:SetupEasyTouchAutoSelect(enable)
     local touchIns = CS.HedgehogTeam.EasyTouch.EasyTouch.instance
@@ -281,8 +281,8 @@ function GameManager:SetupEasyTouchAutoSelect(enable)
 end
 
 ---=========================================================================
---- @brief 获取设备性能等级，本地缓存避免重复检测
---- @return Honor.DevicePerformanceLevel 设备性能枚举等级
+---@brief 获取设备性能等级，本地缓存避免重复检测
+---@return Honor.DevicePerformanceLevel 设备性能枚举等级
 ---=========================================================================
 function GameManager:GetDevicePerformanceLevel()
     if self._devicePerformanceLevel ~= nil then
@@ -301,8 +301,8 @@ function GameManager:GetDevicePerformanceLevel()
 end
 
 ---=========================================================================
---- @brief 将性能枚举转为数字标识：0低 / 1中 / 2高
---- @return number 性能等级数字
+---@brief 将性能枚举转为数字标识：0低 / 1中 / 2高
+---@return number 性能等级数字
 ---=========================================================================
 function GameManager:GetDevicePerformanceLevelNumber()
     local level = self:GetDevicePerformanceLevel()
@@ -321,9 +321,9 @@ end
 --region 全屏UI渲染性能优化核心逻辑（画布/相机自动管理）
 
 ---=========================================================================
---- @brief UI打开完成回调，全屏UI自动隐藏下层画布降低渲染开销
---- @param canvas UnityEngine.Canvas UI画布组件
---- @param uiName string UI配置表名称Key
+---@brief UI打开完成回调，全屏UI自动隐藏下层画布降低渲染开销
+---@param canvas UnityEngine.Canvas UI画布组件
+---@param uiName string UI配置表名称Key
 ---=========================================================================
 function GameManager:OnCanvasOpenOver(canvas, uiName)
     -- 先清理缓存中已销毁的空画布引用
@@ -373,8 +373,8 @@ function GameManager:OnCanvasOpenOver(canvas, uiName)
 end
 
 ---=========================================================================
---- @brief 强制立刻移除指定UI缓存记录，不执行画布恢复逻辑
---- @param uiName string UI配置表名称Key
+---@brief 强制立刻移除指定UI缓存记录，不执行画布恢复逻辑
+---@param uiName string UI配置表名称Key
 ---=========================================================================
 function GameManager:OnCanvasCloseRightNow(uiName)
     if not uiName then
@@ -389,9 +389,9 @@ function GameManager:OnCanvasCloseRightNow(uiName)
 end
 
 ---=========================================================================
---- @brief UI关闭内部私有核心逻辑，恢复顶层画布渲染
---- @param uiName string 关闭的UI名称标识
---- @private
+---@brief UI关闭内部私有核心逻辑，恢复顶层画布渲染
+---@param uiName string 关闭的UI名称标识
+---@private
 ---=========================================================================
 function GameManager:_OnCanvasClose(uiName)
     -- 清理失效画布 + 当前关闭UI缓存
@@ -427,8 +427,8 @@ function GameManager:_OnCanvasClose(uiName)
 end
 
 ---=========================================================================
---- @brief UI关闭对外安全接口，捕获异常防止主线程卡死，自动恢复相机
---- @param uiName string 关闭UI的配置名称
+---@brief UI关闭对外安全接口，捕获异常防止主线程卡死，自动恢复相机
+---@param uiName string 关闭UI的配置名称
 ---=========================================================================
 function GameManager:OnCanvasClose(uiName)
     if not uiName then
@@ -454,7 +454,7 @@ function GameManager:OnCanvasClose(uiName)
 end
 
 ---=========================================================================
---- @brief 全部UI关闭兜底清理，强制清空画布缓存、恢复场景相机
+---@brief 全部UI关闭兜底清理，强制清空画布缓存、恢复场景相机
 ---=========================================================================
 function GameManager:OnAfterCanvasCloseAll()
     ClearArray(self._openOverCanvasArray)
@@ -469,8 +469,8 @@ function GameManager:OnAfterCanvasCloseAll()
 end
 
 ---=========================================================================
---- @brief 查询当前缓存列表是否存在全屏UI界面
---- @return boolean true=存在全屏UI，false=仅普通弹窗
+---@brief 查询当前缓存列表是否存在全屏UI界面
+---@return boolean true=存在全屏UI，false=仅普通弹窗
 ---=========================================================================
 function GameManager:HasFullScreenUI()
     for _, data in ipairs(self._openOverCanvasArray) do
@@ -486,8 +486,8 @@ end
 --region 本地存档关卡标记（断线重连恢复使用）
 
 ---=========================================================================
---- @brief 写入本地存档标记当前正在游玩的关卡标识
---- @param levelInfo string 关卡唯一标识字符串
+---@brief 写入本地存档标记当前正在游玩的关卡标识
+---@param levelInfo string 关卡唯一标识字符串
 ---=========================================================================
 function GameManager:SetPlayingLevelTag(levelInfo)
     if not SaveRootData or not SaveRootData.GameData then

@@ -169,24 +169,42 @@ namespace Honor.Runtime
         {
             switch (type)
             {
-                case PathsEnum.Font: return FontRoot;
-                case PathsEnum.Atlas: return AtlasRoot;
-                case PathsEnum.UI: return UIRoot;
-                case PathsEnum.Model: return ModelRoot;
-                case PathsEnum.Audio: return AudioRoot;
-                case PathsEnum.GameConfig: return GameConfigRoot;
-                case PathsEnum.BattleConfig: return BattleConfigRoot;
-                case PathsEnum.Config: return ConfigRoot;
-                case PathsEnum.ConfigByte: return ConfigByteRoot;
-                case PathsEnum.XLua: return XLuaRoot;
-                case PathsEnum.Scene: return SceneRoot;
-                case PathsEnum.Effect: return EffectRoot;
-                case PathsEnum.Texture: return TextureRoot;
-                case PathsEnum.OtherRes: return OtherResRoot;
-                case PathsEnum.CommonWidgets: return CommonWidgetsRoot;
-                case PathsEnum.RefMat: return RefMat;
-                case PathsEnum.Map: return MapRoot;
-                default: return string.Empty;
+                case PathsEnum.Font:
+                    return FontRoot;
+                case PathsEnum.Atlas:
+                    return AtlasRoot;
+                case PathsEnum.UI:
+                    return UIRoot;
+                case PathsEnum.Model:
+                    return ModelRoot;
+                case PathsEnum.Audio:
+                    return AudioRoot;
+                case PathsEnum.GameConfig:
+                    return GameConfigRoot;
+                case PathsEnum.BattleConfig:
+                    return BattleConfigRoot;
+                case PathsEnum.Config:
+                    return ConfigRoot;
+                case PathsEnum.ConfigByte:
+                    return ConfigByteRoot;
+                case PathsEnum.XLua:
+                    return XLuaRoot;
+                case PathsEnum.Scene:
+                    return SceneRoot;
+                case PathsEnum.Effect:
+                    return EffectRoot;
+                case PathsEnum.Texture:
+                    return TextureRoot;
+                case PathsEnum.OtherRes:
+                    return OtherResRoot;
+                case PathsEnum.CommonWidgets:
+                    return CommonWidgetsRoot;
+                case PathsEnum.RefMat:
+                    return RefMat;
+                case PathsEnum.Map:
+                    return MapRoot;
+                default:
+                    return string.Empty;
             }
         }
 

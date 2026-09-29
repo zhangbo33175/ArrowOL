@@ -244,24 +244,42 @@ namespace Honor.Runtime
         #region 状态列表获取
         //=========================================================================
 
+        /// <summary>
+        /// 获取已加载完成的场景列表
+        /// </summary>
         public List<List<string>> GetLoadedSceneAssetNames() => m_LoadedSceneAssetNames;
 
+        /// <summary>
+        /// 填充已加载完成的场景列表到外部容器
+        /// </summary>
         public void GetLoadedSceneAssetNames(List<List<string>> results)
         {
             results.Clear();
             results.AddRange(m_LoadedSceneAssetNames);
         }
 
+        /// <summary>
+        /// 获取正在加载中的场景列表
+        /// </summary>
         public List<List<string>> GetLoadingSceneAssetNames() => m_LoadingSceneAssetNames;
 
+        /// <summary>
+        /// 填充正在加载中的场景列表到外部容器
+        /// </summary>
         public void GetLoadingSceneAssetNames(List<List<string>> results)
         {
             results.Clear();
             results.AddRange(m_LoadingSceneAssetNames);
         }
 
+        /// <summary>
+        /// 获取正在卸载中的场景列表
+        /// </summary>
         public List<List<string>> GetUnloadingSceneAssetNames() => m_UnloadingSceneAssetNames;
 
+        /// <summary>
+        /// 填充正在卸载中的场景列表到外部容器
+        /// </summary>
         public void GetUnloadingSceneAssetNames(List<List<string>> results)
         {
             results.Clear();

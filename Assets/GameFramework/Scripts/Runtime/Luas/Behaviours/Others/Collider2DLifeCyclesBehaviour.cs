@@ -56,12 +56,12 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 解除 Lua 绑定（防止内存泄漏）
+        /// 碰撞进入
         /// </summary>
         /// <param name="collision">碰撞</param>
         void OnCollisionEnter2D(Collision2D collision)
         {
-            if(m_OnCollisionEnter2DCallback != null)
+            if (m_OnCollisionEnter2DCallback != null)
             {
                 m_OnCollisionEnter2DCallback(collision);
             }

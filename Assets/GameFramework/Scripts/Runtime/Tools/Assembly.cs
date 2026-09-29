@@ -72,12 +72,9 @@ namespace Honor.Runtime
         /// </summary>
         public static Type[] GetTypes()
         {
-            List<Type> results = new List<Type>();
-            foreach (System.Reflection.Assembly assembly in s_Assemblies)
-            {
-                results.AddRange(assembly.GetTypes());
-            }
-            return results.ToArray();
+            List<Type> collector = new List<Type>();
+            AppendAllTypes(collector);
+            return collector.ToArray();
         }
 
         /// <summary>
@@ -92,9 +89,18 @@ namespace Honor.Runtime
             }
 
             results.Clear();
-            foreach (System.Reflection.Assembly assembly in s_Assemblies)
+            AppendAllTypes(results);
+        }
+
+        /// <summary>
+        /// 获取所有程序集中的所有类型（List 重载，减少 GC）
+        /// </summary>
+        /// <param name="collector">接收类型结果的列表</param>
+        private static void AppendAllTypes(List<Type> collector)
+        {
+            foreach (System.Reflection.Assembly asm in s_Assemblies)
             {
-                results.AddRange(assembly.GetTypes());
+                collector.AddRange(asm.GetTypes());
             }
         }
 
@@ -112,31 +118,47 @@ namespace Honor.Runtime
             }
 
             // 1. 优先从缓存获取
-            if (s_CachedTypes.TryGetValue(typeFullName, out Type type))
+            if (s_CachedTypes.TryGetValue(typeFullName, out Type cached))
             {
-                return type;
+                return cached;
             }
 
             // 2. 尝试直接获取
-            type = Type.GetType(typeFullName);
-            if (type != null)
+            Type resolved = Type.GetType(typeFullName);
+            if (resolved != null)
             {
-                s_CachedTypes.Add(typeFullName, type);
-                return type;
+                s_CachedTypes[typeFullName] = resolved;
+                return resolved;
             }
 
             // 3. 遍历所有程序集尝试加载
-            foreach (System.Reflection.Assembly assembly in s_Assemblies)
+            resolved = ProbeLoadedAssemblies(typeFullName);
+            if (resolved != null)
             {
-                type = Type.GetType(AorTxt.Format("{0}, {1}", typeFullName, assembly.FullName));
-                if (type != null)
-                {
-                    s_CachedTypes.Add(typeFullName, type);
-                    return type;
-                }
+                s_CachedTypes[typeFullName] = resolved;
+                return resolved;
             }
 
             // 未找到
+            return null;
+        }
+
+        /// <summary>
+        /// 遍历所有已缓存程序集，按"类型全名, 程序集名"的格式尝试加载类型
+        /// </summary>
+        /// <param name="typeFullName">类型全名</param>
+        /// <returns>命中的 Type，未命中返回 null</returns>
+        private static Type ProbeLoadedAssemblies(string typeFullName)
+        {
+            foreach (System.Reflection.Assembly asm in s_Assemblies)
+            {
+                string assemblyQualifiedName = AorTxt.Format("{0}, {1}", typeFullName, asm.FullName);
+                Type found = Type.GetType(assemblyQualifiedName);
+                if (found != null)
+                {
+                    return found;
+                }
+            }
             return null;
         }
 

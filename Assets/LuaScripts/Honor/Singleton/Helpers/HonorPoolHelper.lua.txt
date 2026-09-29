@@ -16,14 +16,14 @@
 ---@field pools table<string, HonorPool> 所有对象池字典：key=唯一池名称，value=HonorPool 实例
 local HonorPoolHelper = class("HonorPoolHelper")
 
---- 构造函数
+---@brief 构造函数
 --- 初始化对象池容器，清空所有池数据
 ---@param args table 可选初始化参数
 function HonorPoolHelper:ctor(args)
     self.pools = {}  ---@type table<string, HonorPool> 存储所有已创建的对象池
 end
 
---- 创建全局对象池管理器实例
+---@brief 创建全局对象池管理器实例
 ---@param args table 可选初始化参数
 ---@return HonorPoolHelper 管理器实例
 function HonorPoolHelper:Create(args)
@@ -31,7 +31,7 @@ function HonorPoolHelper:Create(args)
     return obj
 end
 
---- 创建一个新的 GameObject 对象池
+---@brief 创建一个新的 GameObject 对象池
 ---@param name string 对象池唯一名称（用于查找/销毁）
 ---@param resDefItem RES_DEF_ITEM 资源配置表项（包含路径、类型、预加载数量等）
 ---@param preParent UnityEngine.Transform 对象默认父节点（池内对象统一挂载节点）
@@ -53,14 +53,14 @@ function HonorPoolHelper:CreatePool(name, resDefItem, preParent, resetHandler)
     end
 end
 
---- 根据名称获取已存在的对象池
+---@brief 根据名称获取已存在的对象池
 ---@param name string 对象池名称
 ---@return HonorPool 池实例（不存在则返回 nil）
 function HonorPoolHelper:GetPool(name)
     return self.pools[name]
 end
 
---- 获取当前已创建的对象池总数量
+---@brief 获取当前已创建的对象池总数量
 ---@return number 池数量
 function HonorPoolHelper:Count()
     local count = 0
@@ -70,7 +70,7 @@ function HonorPoolHelper:Count()
     return count
 end
 
---- 销毁指定名称的对象池（释放所有对象+清理内存）
+---@brief 销毁指定名称的对象池（释放所有对象+清理内存）
 ---@param name string 要销毁的池名称
 ---@return boolean 是否销毁成功
 function HonorPoolHelper:DestroyPool(name)
@@ -82,7 +82,7 @@ function HonorPoolHelper:DestroyPool(name)
     return false
 end
 
---- 销毁所有对象池（场景切换、游戏退出时调用）
+---@brief 销毁所有对象池（场景切换、游戏退出时调用）
 function HonorPoolHelper:DestroyAllPools()
     for _, pool in pairs(self.pools) do
         pool:Destroy()
@@ -90,7 +90,7 @@ function HonorPoolHelper:DestroyAllPools()
     self.pools = {}
 end
 
---- 销毁所有池中的【闲置未使用对象】（主动释放内存，不影响正在使用的对象）
+---@brief 销毁所有池中的【闲置未使用对象】（主动释放内存，不影响正在使用的对象）
 function HonorPoolHelper:DestroyPoolUnused()
     for _, pool in pairs(self.pools) do
         pool:DestroyUnused()

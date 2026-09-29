@@ -27,17 +27,17 @@ local LuaBTTaskSuper = class("LuaBTTaskSuper")
 ---@desc 绑定环境变量，并保存初始化参数、节点类名、归属的 LuaBehaviour 与 C# 节点对象
 ---@param args table 构造参数（包含 luaBehaviour: 所属Lua脚本, cs: C#节点对象）
 function LuaBTTaskSuper:ctor(args)
-	-- 绑定环境变量（兼容C#传递的运行环境）
-	if args ~= nil and args.env ~= nil then
-		for __, v in pairs(args.env) do
-			self[__] = v
-		end
-	end
+    -- 绑定环境变量（兼容C#传递的运行环境）
+    if args ~= nil and args.env ~= nil then
+        for __, v in pairs(args.env) do
+            self[__] = v
+        end
+    end
 
-	self._args = args                              -- 初始化参数
-	self._name = self.__cname                      -- 节点类名（调试/日志用）
-	self._lua = self._args.luaBehaviour            -- 归属的 LuaBehaviour 脚本
-	self._cs = self._args.cs                       -- 归属的 C# 行为树节点对象
+    self._args = args                              -- 初始化参数
+    self._name = self.__cname                      -- 节点类名（调试/日志用）
+    self._lua = self._args.luaBehaviour            -- 归属的 LuaBehaviour 脚本
+    self._cs = self._args.cs                       -- 归属的 C# 行为树节点对象
 end
 
 --=====================================================================================================
@@ -49,8 +49,8 @@ end
 ---@param args table 节点参数
 ---@return LuaBTTaskSuper 行为树节点实例
 function LuaBTTaskSuper:Create(args)
-	local obj = LuaBTTaskSuper.new(args)
-	return obj
+    local obj = LuaBTTaskSuper.new(args)
+    return obj
 end
 
 --=====================================================================================================
@@ -60,12 +60,12 @@ end
 ---@brief 节点销毁（自动释放资源、事件，防止内存泄漏）
 ---@desc 释放全部引用，并自动移除当前节点注册的所有事件
 function LuaBTTaskSuper:OnDestroy()
-	self._args = nil
-	self._lua = nil
-	self._cs = nil
+    self._args = nil
+    self._lua = nil
+    self._cs = nil
 
-	-- 自动释放当前节点注册的所有事件
-	HonorEventHelper:RemoveListenerByTarget(self)
+    -- 自动释放当前节点注册的所有事件
+    HonorEventHelper:RemoveListenerByTarget(self)
 end
 
 --endregion

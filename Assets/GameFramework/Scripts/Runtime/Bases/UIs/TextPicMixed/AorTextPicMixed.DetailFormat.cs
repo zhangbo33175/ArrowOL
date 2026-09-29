@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  AorTextPicMixed.Detail.cs
+ * filename:  AorTextPicMixed.DetailFormat.cs
  * author:    云毅
  * created:   2026
  * descrip:   图文混排 - 详情格式图片标签解析（partial）
@@ -55,15 +55,15 @@ namespace Honor.Runtime
             if (inspectorIconList != null)
                 iconList.AddRange(inspectorIconList);
 
-            string textTmp = m_Text;
-            Match match = s_PicRegexOnDetailFormat.Match(textTmp);
-            bool parseFinished = true;
+            string workingText = m_Text;
+            Match picMatch = s_PicRegexOnDetailFormat.Match(workingText);
+            bool allParsed = true;
 
             // 循环匹配所有图片标签
-            while (match.Success)
+            while (picMatch.Success)
             {
                 // 获取完整匹配的原始字符串
-                string originalContent = match.Groups[0].Value;
+                string originalContent = picMatch.Groups[0].Value;
 
                 // 去掉首尾标识符，获取内部内容
                 string matchedContent = originalContent
@@ -71,39 +71,39 @@ namespace Honor.Runtime
                     .Replace(IDENTIFIERS_END, string.Empty);
 
                 // 按分隔符拆分参数
-                string[] contents = matchedContent.Split(SEPARATOR);
-                bool nextMatch = true;
+                string[] parts = matchedContent.Split(SEPARATOR);
+                bool advance = true;
 
                 // 参数格式：路径、名称、缩放、偏移X、偏移Y
-                if (contents.Length == 5)
+                if (parts.Length == 5)
                 {
-                    string abPath = contents[0];
-                    string assetName = contents[1];
-                    float scaleXY = float.Parse(contents[2]);
-                    float offsetX = float.Parse(contents[3]);
-                    float offsetY = float.Parse(contents[4]);
+                    string abPath = parts[0];
+                    string assetName = parts[1];
+                    float scaleXY = float.Parse(parts[2]);
+                    float offsetX = float.Parse(parts[3]);
+                    float offsetY = float.Parse(parts[4]);
 
                     // 收集图标信息到列表
-                    nextMatch = CollectIcon(iconList, originalContent, abPath, assetName, scaleXY, offsetX, offsetY);
+                    advance = CollectIcon(iconList, originalContent, abPath, assetName, scaleXY, offsetX, offsetY);
                 }
 
                 // 继续匹配下一个标签
-                if (nextMatch)
+                if (advance)
                 {
-                    textTmp = textTmp.Substring(match.Index + match.Length);
-                    match = s_PicRegexOnDetailFormat.Match(textTmp);
+                    workingText = workingText.Substring(picMatch.Index + picMatch.Length);
+                    picMatch = s_PicRegexOnDetailFormat.Match(workingText);
                     continue;
                 }
                 else
                 {
                     // 解析失败，终止循环
-                    parseFinished = false;
+                    allParsed = false;
                     break;
                 }
             }
 
             // 全部解析完成后，赋值给基类图标列表
-            if (parseFinished)
+            if (allParsed)
             {
                 inspectorIconList = iconList.ToArray();
             }

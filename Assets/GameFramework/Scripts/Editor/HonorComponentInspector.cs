@@ -22,9 +22,9 @@ namespace Honor.Editor
     {
         #region 私有字段
         /// <summary>
-        /// 标记是否正在编译
+        /// 缓存上一帧的编译状态，用于检测编译开始/完成的跳变沿
         /// </summary>
-        private bool m_IsCompiling = false;
+        private bool m_PreviousCompiling = false;
         #endregion
 
         #region 重写方法
@@ -34,21 +34,32 @@ namespace Honor.Editor
         /// </summary>
         public override void OnInspectorGUI()
         {
-            // 监听：从编译中 → 编译结束
-            if (m_IsCompiling && !EditorApplication.isCompiling)
-            {
-                m_IsCompiling = false;
-                OnCompileComplete();
-            }
-            // 监听：从未编译 → 开始编译
-            else if (!m_IsCompiling && EditorApplication.isCompiling)
-            {
-                m_IsCompiling = true;
-                OnCompileStart();
-            }
+            SyncCompileState();
 
             // 持续刷新面板
             Repaint();
+        }
+
+        /// <summary>
+        /// 对比当前编译状态与上一帧缓存，仅在状态发生跳变时触发对应回调
+        /// </summary>
+        private void SyncCompileState()
+        {
+            bool nowCompiling = EditorApplication.isCompiling;
+            if (m_PreviousCompiling == nowCompiling)
+            {
+                return;
+            }
+
+            m_PreviousCompiling = nowCompiling;
+            if (nowCompiling)
+            {
+                OnCompileStart();
+            }
+            else
+            {
+                OnCompileComplete();
+            }
         }
         #endregion
 
@@ -70,15 +81,17 @@ namespace Honor.Editor
         /// <summary>
         /// 判断物体是否是场景中的预制体（非预制体源文件）
         /// </summary>
-        /// <param name="obj">目标物体</param>
+        /// <param name="targetObject">目标物体</param>
         /// <returns>true：场景预制体实例 false：预制体源文件/空对象</returns>
-        protected bool IsPrefabInHierarchy(UnityEngine.Object obj)
+        protected bool IsPrefabInHierarchy(UnityEngine.Object targetObject)
         {
-            if (obj == null)
+            if (targetObject == null)
+            {
                 return false;
+            }
 
             // 不是预制体源文件 → 就是场景实例
-            return PrefabUtility.GetPrefabAssetType(obj) != PrefabAssetType.Regular;
+            return PrefabUtility.GetPrefabAssetType(targetObject) != PrefabAssetType.Regular;
         }
         #endregion
     }

@@ -11,8 +11,8 @@
 
 --region EmmyLua 调试器初始化
 ---=========================================================================
---- @brief EmmyLua 断点调试器初始化
---- @desc 仅编辑器环境生效，根据配置文件自动选择调试模式，连接 Rider/IDE 进行 Lua 断点调试
+---@brief EmmyLua 断点调试器初始化
+---@desc 仅编辑器环境生效，根据配置文件自动选择调试模式，连接 Rider/IDE 进行 Lua 断点调试
 ---=========================================================================
 function __DEBUGGER__()
     if IsEditor == true then
@@ -45,11 +45,11 @@ __DEBUGGER__()
 
 --region C# → Lua 类创建（生命周期绑定）
 ---=========================================================================
---- @brief 从 C# 层创建 Lua 业务类（绑定生命周期）
---- @param _env table C#传递的环境表，用于绑定生命周期函数
---- @param _luaScriptName string Lua脚本名称（require用）
---- @return table 创建好的Lua类实例
---- @desc C# 的 LuaBehaviour 调用此函数创建 Lua 类，并绑定 Awake/Start/Update/OnDestroy 等周期
+---@brief 从 C# 层创建 Lua 业务类（绑定生命周期）
+---@param _env table C#传递的环境表，用于绑定生命周期函数
+---@param _luaScriptName string Lua脚本名称（require用）
+---@return table 创建好的Lua类实例
+---@desc C# 的 LuaBehaviour 调用此函数创建 Lua 类，并绑定 Awake/Start/Update/OnDestroy 等周期
 ---=========================================================================
 function CreateLuaClassFromCS(_env, _luaScriptName)
     -- 创建Lua类实例
@@ -85,11 +85,11 @@ function CreateLuaClassFromCS(_env, _luaScriptName)
 end
 
 ---=========================================================================
---- @brief 从 C# 层创建流程(Procedure)Lua类
---- @param _env table 环境表
---- @param _luaScriptName string 流程类名
---- @return table 流程实例
---- @desc 专门用于流程（场景/状态）的创建，绑定流程生命周期
+---@brief 从 C# 层创建流程(Procedure)Lua类
+---@param _env table 环境表
+---@param _luaScriptName string 流程类名
+---@return table 流程实例
+---@desc 专门用于流程（场景/状态）的创建，绑定流程生命周期
 ---=========================================================================
 function CreatePocedureLuaClassFromCS(_env, _luaScriptName)
     local _createdClass = require(_luaScriptName):Create({ env = _env })
@@ -105,11 +105,11 @@ end
 
 --region UI 自动事件绑定（框架核心）
 ---=========================================================================
---- @brief 为UI注入对象注册事件监听（按钮、Toggle、输入框、列表等自动绑定）
---- @param _injectionObj userdata C#注入的UI对象（Button/Toggle/Input等）
---- @param _injectionCmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_开头的事件
---- @param _handler handler Lua回调函数（handler包装）
---- @desc 框架核心函数，C#可视化配置的事件自动绑定到Lua函数
+---@brief 为UI注入对象注册事件监听（按钮、Toggle、输入框、列表等自动绑定）
+---@param _injectionObj userdata C#注入的UI对象（Button/Toggle/Input等）
+---@param _injectionCmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_开头的事件
+---@param _handler handler Lua回调函数（handler包装）
+---@desc 框架核心函数，C#可视化配置的事件自动绑定到Lua函数
 ---=========================================================================
 function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
     -- 全局注册容器初始化
@@ -216,11 +216,11 @@ function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
 end
 
 ---=========================================================================
---- @brief 移除UI注入对象的监听
---- @param _injectionObj userdata UI对象
---- @param _injectionCmd string 事件类型
---- @param _handler handler 要移除的回调
---- @desc 从全局注册容器中移除指定回调，并清理空表
+---@brief 移除UI注入对象的监听
+---@param _injectionObj userdata UI对象
+---@param _injectionCmd string 事件类型
+---@param _handler handler 要移除的回调
+---@desc 从全局注册容器中移除指定回调，并清理空表
 ---=========================================================================
 function OnRemoveListener(_injectionObj, _injectionCmd, _handler)
     if addUIListenerInfos ~= nil and addUIListenerInfos[_injectionObj] ~= nil and addUIListenerInfos[_injectionObj]._handlerList ~= nil and addUIListenerInfos[_injectionObj]._interactTargetTimes ~= nil then

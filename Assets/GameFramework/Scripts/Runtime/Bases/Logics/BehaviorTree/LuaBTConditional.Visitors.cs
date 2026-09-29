@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaBTConditional.cs
+ * filename:  LuaBTConditional.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   行为树Lua条件节点字段定义类，存储Lua组件引用、Lua实例及所有回调函数

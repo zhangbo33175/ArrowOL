@@ -244,7 +244,7 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadFontDatas()
         {
-            if(m_AutoFontAdapt)
+            if (m_AutoFontAdapt)
             {
                 m_LocalizationManager.LoadFontDatas(GamePathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationFonts");
             }

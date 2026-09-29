@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  PrefabTypeDefine.cs
+ * filename:  PrefabType.cs
  * author:    云毅
  * created:   2026
  * descrip:   预制体类型枚举定义 - 用于资源加载、实例化、管理逻辑区分

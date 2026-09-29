@@ -19,12 +19,12 @@ local PlayGameplayCycle = class("PlayGameplayCycle")
 ---=========================================================================
 --region 构造与创建
 
---- 构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 function PlayGameplayCycle:ctor()
 end
 
---- 创建函数
+---@brief 创建函数
 ---@type fun(args:table):PlayGameplayCycle
 ---@return PlayGameplayCycle @游戏内部玩法周期实例
 function PlayGameplayCycle:Create()
@@ -39,7 +39,7 @@ end
 ---=========================================================================
 --region 生命周期入口
 
---- 执行玩法周期
+---@brief 执行玩法周期
 ---@type fun(ePlayHudCycleAction:EPlayHudCycleAction):void
 ---@param ePlayHudCycleAction EPlayHudCycleAction
 function PlayGameplayCycle:OnAction(ePlayHudCycleAction)

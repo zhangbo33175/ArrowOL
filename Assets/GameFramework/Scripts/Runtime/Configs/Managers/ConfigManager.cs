@@ -70,46 +70,55 @@ namespace Honor.Runtime
             string contentString = Converter.GetString(Encryption.GetQuickXorBytes(configJsonAsset.bytes, ConfigComponent.s_ConfigEncrytionKey));
 
             // 解析 JSON
-            JObject jObject = JObject.Parse(contentString);
+            JObject configRoot = JObject.Parse(contentString);
 
             // 遍历所有配置项
-            foreach (var data in jObject)
+            foreach (var data in configRoot)
             {
-                if (data.Value.Type == JTokenType.Array)
+                if (data.Value.Type != JTokenType.Array)
                 {
-                    foreach (var jd in data.Value)
-                    {
-                        bool boolValue = false;
-                        int intValue = 0;
-                        float floatValue = 0f;
-                        string stringValue = string.Empty;
+                    continue;
+                }
 
-                        // 解析字符串类型配置，自动识别 bool / int / float / string
-                        if (jd.Type == JTokenType.String)
-                        {
-                            stringValue = jd.ToString();
-                            
-                            // 解析布尔
-                            if (stringValue.Equals("true"))
-                                boolValue = true;
-                            else if (stringValue.Equals("false"))
-                                boolValue = false;
-                            // 解析数字
-                            else
-                            {
-                                int.TryParse(stringValue, out intValue);
-                                float.TryParse(stringValue, out floatValue);
-                            }
-                        }
-                        
-                        // 添加到配置字典
-                        AddConfig(data.Key, boolValue, intValue, floatValue, stringValue);
-                    }
+                foreach (var entry in data.Value)
+                {
+                    ParseConfigEntry(entry, out bool boolValue, out int intValue, out float floatValue, out string stringValue);
+                    AddConfig(data.Key, boolValue, intValue, floatValue, stringValue);
                 }
             }
 
             // 卸载配置资源
             m_AssetComponent.UnloadAsset(configJsonAsset, null, true);
+        }
+
+        /// <summary>
+        /// 解析单条配置 Token，自动识别 bool / int / float / string
+        /// </summary>
+        private static void ParseConfigEntry(JToken entry, out bool boolValue, out int intValue, out float floatValue, out string stringValue)
+        {
+            boolValue = false;
+            intValue = 0;
+            floatValue = 0f;
+            stringValue = string.Empty;
+
+            if (entry.Type != JTokenType.String)
+            {
+                return;
+            }
+
+            stringValue = entry.ToString();
+
+            // 解析布尔
+            if (stringValue.Equals("true"))
+            {
+                boolValue = true;
+            }
+            else if (!stringValue.Equals("false"))
+            {
+                // 解析数字
+                int.TryParse(stringValue, out intValue);
+                float.TryParse(stringValue, out floatValue);
+            }
         }
         #endregion
 
@@ -177,16 +186,33 @@ namespace Honor.Runtime
         //=========================================================================
         #region Method - 获取配置
         /// <summary>
+        /// 取配置列表，不存在则抛出异常
+        /// </summary>
+        private List<ConfigData> RequireConfigData(string configName)
+        {
+            List<ConfigData> configData = GetConfigData(configName);
+            if (configData == null)
+            {
+                throw new GameException(AorTxt.Format("配置项'{0}'不存在。", configName));
+            }
+
+            return configData;
+        }
+
+        /// <summary>
+        /// 取当前模式下的配置项（开发模式取[0]，正式模式取[1]）
+        /// </summary>
+        private ConfigData CurrentEntry(string configName)
+        {
+            return RequireConfigData(configName)[m_LauncherComponent.DevelopMode ? 0 : 1];
+        }
+
+        /// <summary>
         /// 获取布尔配置（自动切换开发/正式模式）
         /// </summary>
         public bool GetBool(string configName)
         {
-            List<ConfigData> configData = GetConfigData(configName);
-            if (configData == null)
-                throw new GameException(AorTxt.Format("配置项'{0}'不存在。", configName));
-            
-            // 开发模式取[0]，正式模式取[1]
-            return configData[m_LauncherComponent.DevelopMode ? 0 : 1].BoolValue;
+            return CurrentEntry(configName).BoolValue;
         }
 
         /// <summary>
@@ -194,11 +220,7 @@ namespace Honor.Runtime
         /// </summary>
         public int GetInt(string configName)
         {
-            List<ConfigData> configData = GetConfigData(configName);
-            if (configData == null)
-                throw new GameException(AorTxt.Format("配置项'{0}'不存在。", configName));
-
-            return configData[m_LauncherComponent.DevelopMode ? 0 : 1].IntValue;
+            return CurrentEntry(configName).IntValue;
         }
 
         /// <summary>
@@ -206,11 +228,7 @@ namespace Honor.Runtime
         /// </summary>
         public float GetFloat(string configName)
         {
-            List<ConfigData> configData = GetConfigData(configName);
-            if (configData == null)
-                throw new GameException(AorTxt.Format("配置项'{0}'不存在。", configName));
-
-            return configData[m_LauncherComponent.DevelopMode ? 0 : 1].FloatValue;
+            return CurrentEntry(configName).FloatValue;
         }
 
         /// <summary>
@@ -218,11 +236,7 @@ namespace Honor.Runtime
         /// </summary>
         public string GetString(string configName)
         {
-            List<ConfigData> configData = GetConfigData(configName);
-            if (configData == null)
-                throw new GameException(AorTxt.Format("配置项'{0}'不存在。", configName));
-
-            return configData[m_LauncherComponent.DevelopMode ? 0 : 1].StringValue;
+            return CurrentEntry(configName).StringValue;
         }
         #endregion
 

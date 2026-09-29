@@ -57,12 +57,19 @@ namespace Honor.Runtime
 
         #region 初始化与插值
 
+        /// <summary>
+        /// 初始化：以当前坐标作为起始坐标
+        /// </summary>
         protected override void Init()
         {
             // from 未赋值时以当前位置为起点
             fromPosition = Position;
         }
 
+        /// <summary>
+        /// 按进度插值设置坐标
+        /// </summary>
+        /// <param name="factor">曲线修正后的 0~1 进度</param>
         protected override void ApplyValue(float factor)
         {
             Position = Vector3.LerpUnclamped(fromPosition, toPosition, factor);

@@ -64,24 +64,36 @@ namespace Honor.Runtime
         //=========================================================================
         // 公共属性
         //=========================================================================
+        /// <summary>
+        /// 进入动画期间是否阻塞射线（点击）
+        /// </summary>
         public bool BlockRaycastOnEntering
         {
             set => m_BlockRaycastOnEntering = value;
             get => m_BlockRaycastOnEntering;
         }
 
+        /// <summary>
+        /// 退出动画期间是否阻塞射线（点击）
+        /// </summary>
         public bool BlockRaycastOnExiting
         {
             set => m_BlockRaycastOnExiting = value;
             get => m_BlockRaycastOnExiting;
         }
 
+        /// <summary>
+        /// 进入动画时长
+        /// </summary>
         public float EnterDuration
         {
             set => m_EnterDuration = value;
             get => m_EnterDuration;
         }
 
+        /// <summary>
+        /// 退出动画时长
+        /// </summary>
         public float ExitDuration
         {
             set => m_ExitDuration = value;

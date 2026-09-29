@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIManager.Core.cs
+ * filename:  UIManager.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI 管理器 - 核心逻辑实现
@@ -45,57 +45,69 @@ namespace Honor.Runtime
             m_FloatWordsUIAssetName = floatWordsUIAssetName;
             m_FloatWordsDuration = floatWordsDuration;
 
-            // 获取并校验屏幕 UI 画布适配组件
-            m_ScreenUICanvasScaler = m_ScreenUICanvas.GetComponent<CanvasScaler>();
-            if (m_ScreenUICanvasScaler == null)
+            // 获取并校验屏幕/场景 UI 画布相关组件并配置适配
+            if (!ValidateCanvasComponents(screenDesignedResolution, screenWidthHeightMatchValue)) return;
+
+            // 初始化所有 UI 管理容器
+            InitUIContainers();
+        }
+
+        /// <summary>
+        /// 从画布上获取必需组件，缺失时打印致命错误
+        /// </summary>
+        /// <typeparam name="T">组件类型</typeparam>
+        /// <param name="canvas">目标画布</param>
+        /// <param name="component">输出获取到的组件字段</param>
+        /// <param name="fatalMsg">缺失时的致命错误日志</param>
+        /// <returns>组件是否获取成功</returns>
+        private bool GetRequiredComponent<T>(Canvas canvas, out T component, string fatalMsg) where T : Component
+        {
+            component = canvas.GetComponent<T>();
+            if (component == null)
             {
-                Log.Fatal("Screen UI Canvas Scaler 无效。");
-                return;
+                Log.Fatal(fatalMsg);
+                return false;
             }
+            return true;
+        }
+
+        /// <summary>
+        /// 获取并校验屏幕/场景 UI 画布上的适配、射线投射、画布组组件
+        /// </summary>
+        /// <param name="screenDesignedResolution">屏幕设计分辨率</param>
+        /// <param name="screenWidthHeightMatchValue">宽高匹配系数</param>
+        /// <returns>所有组件是否校验通过</returns>
+        private bool ValidateCanvasComponents(Vector2 screenDesignedResolution, float screenWidthHeightMatchValue)
+        {
+            // 获取并校验屏幕 UI 画布适配组件
+            if (!GetRequiredComponent(m_ScreenUICanvas, out m_ScreenUICanvasScaler, "Screen UI Canvas Scaler 无效。")) return false;
             // 设置屏幕 UI 分辨率适配
             m_ScreenUICanvasScaler.referenceResolution = screenDesignedResolution;
             m_ScreenUICanvasScaler.matchWidthOrHeight = screenWidthHeightMatchValue;
 
             // 获取并校验屏幕 UI 射线投射组件
-            m_ScreenUIGraphicRaycaster = m_ScreenUICanvas.GetComponent<GraphicRaycaster>();
-            if (m_ScreenUIGraphicRaycaster == null)
-            {
-                Log.Fatal("Screen UI GraphicRaycaster 无效。");
-                return;
-            }
+            if (!GetRequiredComponent(m_ScreenUICanvas, out m_ScreenUIGraphicRaycaster, "Screen UI GraphicRaycaster 无效。")) return false;
 
             // 获取并校验屏幕 UI 画布组组件
-            m_ScreenUICanvasGroup = m_ScreenUICanvas.GetComponent<CanvasGroup>();
-            if (m_ScreenUICanvasGroup == null)
-            {
-                Log.Fatal("Screen UI CanvasGroup 无效。");
-                return;
-            }
+            if (!GetRequiredComponent(m_ScreenUICanvas, out m_ScreenUICanvasGroup, "Screen UI CanvasGroup 无效。")) return false;
 
             // 获取并校验场景 UI 画布适配组件
-            m_SceneUICanvasScaler = m_SceneUICanvas.GetComponent<CanvasScaler>();
-            if (m_SceneUICanvasScaler == null)
-            {
-                Log.Fatal("Scene UI Canvas Scaler 无效。");
-                return;
-            }
+            if (!GetRequiredComponent(m_SceneUICanvas, out m_SceneUICanvasScaler, "Scene UI Canvas Scaler 无效。")) return false;
 
             // 获取并校验场景 UI 射线投射组件
-            m_SceneUIGraphicRaycaster = m_SceneUICanvas.GetComponent<GraphicRaycaster>();
-            if (m_SceneUIGraphicRaycaster == null)
-            {
-                Log.Fatal("Scene UI GraphicRaycaster 无效。");
-                return;
-            }
+            if (!GetRequiredComponent(m_SceneUICanvas, out m_SceneUIGraphicRaycaster, "Scene UI GraphicRaycaster 无效。")) return false;
 
             // 获取并校验场景 UI 画布组组件
-            m_SceneUICanvasGroup = m_SceneUICanvas.GetComponent<CanvasGroup>();
-            if (m_SceneUICanvasGroup == null)
-            {
-                Log.Fatal("Scene UI CanvasGroup 无效。");
-                return;
-            }
+            if (!GetRequiredComponent(m_SceneUICanvas, out m_SceneUICanvasGroup, "Scene UI CanvasGroup 无效。")) return false;
 
+            return true;
+        }
+
+        /// <summary>
+        /// 初始化所有 UI 管理容器与默认状态
+        /// </summary>
+        private void InitUIContainers()
+        {
             // 初始化所有 UI 管理容器
             m_Fonts = new List<Object>();
             m_LastFonts = new List<Object>();

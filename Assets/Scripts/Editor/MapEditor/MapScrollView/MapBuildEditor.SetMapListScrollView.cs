@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  MapBuildEditor.ChapterList.cs
+ * filename:  MapBuildEditor.SetMapListScrollView.cs
  * author:    云毅
  * created:   2026
  * descrip:   地图编辑器 - 章节&小节列表管理模块（列表绘制、选中交互、数据加载）
@@ -83,75 +83,97 @@ namespace Editor.MapEditor
             // 安全判断：防止越界
             if (index < 0 || m_TableChapterList == null || index >= m_TableChapterList.Count)
                 return;
-            
+
             bool isSelected = _selectedIndex == index;
 
             // 整体项容器
             GUILayout.BeginVertical(isSelected ? "Box" : GUIStyle.none);
             {
                 // ===================== 章节标题行（左对齐） =====================
-                GUILayout.BeginHorizontal();
-                {
-                    // 左对齐关键：去掉固定宽度，使用 Left 对齐
-                    if (GUILayout.Button($"第 {tableChapterEditor.ID} 章", 
-                            EditorStyles.label, 
-                            GUILayout.ExpandWidth(true)))
-                    {
-                        _selectedIndex = index;
-                        _selectedSubId = -1;
-                    }
-                }
-                GUILayout.EndHorizontal();
+                DrawChapterTitleRow(tableChapterEditor, index);
 
                 // ===================== 选中时展开小节（左对齐 + 缩进） =====================
                 if (isSelected)
                 {
-                    GUILayout.Space(4);
-            
-                    // 缩进20像素，保证左对齐
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Space(20);
-                    GUILayout.BeginVertical();
-                    {
-                        int[] subLevelIds = SetTypeConversion.OnStringToInt(tableChapterEditor.ChapterInfoID);
-                
-                        if (subLevelIds.Length == 0)
-                        {
-                            GUILayout.Label("暂无小节数据", EditorStyles.miniLabel);
-                        }
-                        else
-                        {
-                            for (int i = 0; i < subLevelIds.Length; i++)
-                            {
-                                var subId=subLevelIds[i];
-                                // 判断当前小节是否被选中
-                                bool isSubSelected = _selectedSubId == subId;
-
-                                // 选中：加粗显示
-                                GUIStyle style = isSubSelected ? EditorStyles.boldLabel : EditorStyles.miniLabel;
-
-                                // 可点击的小节按钮
-                                if (GUILayout.Button($"第 {subId} 节", style, GUILayout.ExpandWidth(true)))
-                                {
-                                    _selectedSubId = subId;
-                                    Debug.Log($"已选中 → 第 {tableChapterEditor.ID} 章 ----->第 {subId} 节");
-        
-                                    // 安全判断：防止越界
-                                    if (subId-1 < 0 || m_TableMainLevelsList == null || subId-1 >= m_TableMainLevelsList.Count)
-                                        return;
-                                    
-                                    
-                                    // 选中小节后的逻辑
-                                    ChooseItem(m_TableMainLevelsList[subId-1],tableChapterEditor,i);
-                                }
-                            }
-                        }
-                    }
-                    GUILayout.EndVertical();
-                    GUILayout.EndHorizontal();
+                    // 小节越界保护要求提前结束本项绘制时，按原行为直接return（保持GUI栈状态不变）
+                    if (!DrawExpandedSubLevels(tableChapterEditor))
+                        return;
                 }
             }
             GUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// 绘制章节标题行（点击切换选中章节并清空小节选中）
+        /// </summary>
+        /// <param name="tableChapterEditor">当前项的地图配置数据</param>
+        /// <param name="index">当前项在列表中的索引</param>
+        private void DrawChapterTitleRow(TableChapterEditor tableChapterEditor, int index)
+        {
+            GUILayout.BeginHorizontal();
+            {
+                // 左对齐关键：去掉固定宽度，使用 Left 对齐
+                if (GUILayout.Button($"第 {tableChapterEditor.ID} 章",
+                        EditorStyles.label,
+                        GUILayout.ExpandWidth(true)))
+                {
+                    _selectedIndex = index;
+                    _selectedSubId = -1;
+                }
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 绘制选中章节下展开的小节列表（缩进显示，点击小节触发选中回调）
+        /// </summary>
+        /// <param name="tableChapterEditor">当前项的地图配置数据</param>
+        /// <returns>是否完整绘制完成；false表示小节越界保护提前返回，调用方应直接return以保持原GUI栈状态</returns>
+        private bool DrawExpandedSubLevels(TableChapterEditor tableChapterEditor)
+        {
+            GUILayout.Space(4);
+
+            // 缩进20像素，保证左对齐
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            GUILayout.BeginVertical();
+            {
+                int[] subLevelIds = SetTypeConversion.OnStringToInt(tableChapterEditor.ChapterInfoID);
+
+                if (subLevelIds.Length == 0)
+                {
+                    GUILayout.Label("暂无小节数据", EditorStyles.miniLabel);
+                }
+                else
+                {
+                    for (int i = 0; i < subLevelIds.Length; i++)
+                    {
+                        var subId = subLevelIds[i];
+                        // 判断当前小节是否被选中
+                        bool isSubSelected = _selectedSubId == subId;
+
+                        // 选中：加粗显示
+                        GUIStyle style = isSubSelected ? EditorStyles.boldLabel : EditorStyles.miniLabel;
+
+                        // 可点击的小节按钮
+                        if (GUILayout.Button($"第 {subId} 节", style, GUILayout.ExpandWidth(true)))
+                        {
+                            _selectedSubId = subId;
+                            Debug.Log($"已选中 → 第 {tableChapterEditor.ID} 章 ----->第 {subId} 节");
+
+                            // 安全判断：防止越界（原行为：直接return结束本项绘制）
+                            if (subId - 1 < 0 || m_TableMainLevelsList == null || subId - 1 >= m_TableMainLevelsList.Count)
+                                return false;
+
+                            // 选中小节后的逻辑
+                            ChooseItem(m_TableMainLevelsList[subId - 1], tableChapterEditor, i);
+                        }
+                    }
+                }
+            }
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
+            return true;
         }
         #endregion
 
@@ -160,7 +182,7 @@ namespace Editor.MapEditor
         /// 【选中回调】点击列表项后执行：加载对应地图、切换背景、刷新图标列表
         /// </summary>
         /// <param name="tableMainLevelsEditor">选中的地图配置数据</param>
-        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor,TableChapterEditor tableChapterEditor,int MapId)
+        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor, TableChapterEditor tableChapterEditor, int MapId)
         {
             try
             {
@@ -175,12 +197,12 @@ namespace Editor.MapEditor
                 }
                 _mTablesElectedLevelsEditor = new TablesElectedLevelsEditor();
                 //地图章节ID
-                _mTablesElectedLevelsEditor.ChapterId=tableChapterEditor.ID;
+                _mTablesElectedLevelsEditor.ChapterId = tableChapterEditor.ID;
                 //地图预制体名称
-                _mTablesElectedLevelsEditor.MapName=tableChapterEditor.MapName;
-                
-                _mTablesElectedLevelsEditor.LevelId=tableMainLevelsEditor.ID.ToString();
-                _mTablesElectedLevelsEditor.MapId = MapId+1;
+                _mTablesElectedLevelsEditor.MapName = tableChapterEditor.MapName;
+
+                _mTablesElectedLevelsEditor.LevelId = tableMainLevelsEditor.ID.ToString();
+                _mTablesElectedLevelsEditor.MapId = MapId + 1;
                 // 保存当前选中的地图数据
                 mapName = tableMainLevelsEditor.Level_bg;
                 _mTablesElectedLevelsEditor.Background = tableMainLevelsEditor.Level_bg;

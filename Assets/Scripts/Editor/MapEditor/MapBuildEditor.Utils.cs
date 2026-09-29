@@ -1,8 +1,8 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  MapBuildEditor.Global.cs
+ * filename:  MapBuildEditor.Utils.cs
  * author:    云毅
  * created:   2026
  * descrip:   地图编辑器 - 全局变量、配置、工具类、路径管理
@@ -488,13 +488,20 @@ namespace Editor.MapEditor
             /// </summary>
             public static RMapChapterTypeData GetCurLevelTypeEditorData()
             {
-                RMapChapterTypeData data = new RMapChapterTypeData();
-                data.ChapterId = _mTablesElectedLevelsEditor.ChapterId;
-                data.LevelId = int.Parse(_mTablesElectedLevelsEditor.LevelId);
-                data.MaplId = _mTablesElectedLevelsEditor.MapId;
-                data.m_MapName = _mTablesElectedLevelsEditor.MapName;
-                data.m_CreateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                data.m_BackgroundPath=_mTablesElectedLevelsEditor.Background;
+                // 未在列表中选中任何关卡时直接返回 null；
+                // 调用方 SaveData / LevelSavePath 已对返回值做空判断，此处避免直接空引用
+                if (_mTablesElectedLevelsEditor == null)
+                {
+                    return null;
+                }
+
+                RMapChapterTypeData data = RMapChapterTypeData.Create(
+                    _mTablesElectedLevelsEditor.ChapterId,
+                    int.Parse(_mTablesElectedLevelsEditor.LevelId),
+                    _mTablesElectedLevelsEditor.MapId,
+                    _mTablesElectedLevelsEditor.MapName,
+                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    _mTablesElectedLevelsEditor.Background);
                 List<RMapData> objList = new List<RMapData>();
                 foreach (GameObject go in m_AddObjects)
                 {
@@ -597,6 +604,9 @@ namespace Editor.MapEditor
                 }
             }
 
+            /// <summary>
+            /// 刷新地图列表（占位方法，暂未实现具体逻辑）
+            /// </summary>
             public static void SetMapList()
             {
             }

@@ -93,12 +93,18 @@ namespace Honor.Runtime
 
         #region 生命周期
 
+        /// <summary>
+        /// 初始化残影状态
+        /// </summary>
         protected override void Start()
         {
             base.Start();
             InitState();
         }
 
+        /// <summary>
+        /// 每帧记录帧缓存并驱动残影回放
+        /// </summary>
         protected override void Update()
         {
             if (mat == null)
@@ -142,31 +148,9 @@ namespace Honor.Runtime
         /// </summary>
         private void InitState()
         {
-            if (m_RootTrans == null)
-            {
-                m_RootTrans = transform.Find("root");
-                if (m_RootTrans == null)
-                {
-                    enabled = false;
-                    return;
-                }
-            }
+            if (!ResolveRootTrans()) return;
 
-            if (shader == null)
-            {
-                if (string.IsNullOrEmpty(shaderName))
-                {
-                    enabled = false;
-                    return;
-                }
-
-                shader = ShaderManager.Find(shaderName);
-                if (shader == null)
-                {
-                    enabled = false;
-                    return;
-                }
-            }
+            if (!ResolveShader()) return;
 
             if (mat == null)
             {
@@ -175,8 +159,65 @@ namespace Honor.Runtime
 
             m_Anim = m_RootTrans.GetComponent<Animator>();
 
-            // 清空旧残影
-            delayDatas.Clear();
+            // 清空旧残影（先销毁旧克隆节点，再清空列表，避免泄漏）
+            ClearOldClones();
+
+            // 创建克隆残影
+            SpawnClones();
+
+            m_FramePos.Clear();
+            m_ShortNames.Clear();
+            m_CurFrame = 0;
+        }
+
+        /// <summary>
+        /// 查找角色根节点，缺失时关闭组件并中止
+        /// </summary>
+        /// <returns>根节点是否有效</returns>
+        private bool ResolveRootTrans()
+        {
+            if (m_RootTrans == null)
+            {
+                m_RootTrans = transform.Find("root");
+                if (m_RootTrans == null)
+                {
+                    enabled = false;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 按名称查找残影Shader，缺失时关闭组件并中止
+        /// </summary>
+        /// <returns>Shader是否有效</returns>
+        private bool ResolveShader()
+        {
+            if (shader == null)
+            {
+                if (string.IsNullOrEmpty(shaderName))
+                {
+                    enabled = false;
+                    return false;
+                }
+
+                shader = ShaderManager.Find(shaderName);
+                if (shader == null)
+                {
+                    enabled = false;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 销毁旧克隆残影节点并清空数据列表
+        /// </summary>
+        private void ClearOldClones()
+        {
+            // 清空旧残影（先销毁旧克隆节点，再清空列表，避免泄漏）
             for (int i = 0; i < delayDatas.Count; i++)
             {
                 if (delayDatas[i].Obj != null)
@@ -184,7 +225,14 @@ namespace Honor.Runtime
                     Destroy(delayDatas[i].Obj);
                 }
             }
+            delayDatas.Clear();
+        }
 
+        /// <summary>
+        /// 按克隆数量生成残影节点并隐藏特效、替换残影材质
+        /// </summary>
+        private void SpawnClones()
+        {
             // 创建克隆残影
             for (int i = 0; i < cloneCount; i++)
             {
@@ -203,10 +251,6 @@ namespace Honor.Runtime
                 HideEffectView(obj);
                 SetFxMaterial(obj.GetComponentsInChildren<Renderer>());
             }
-
-            m_FramePos.Clear();
-            m_ShortNames.Clear();
-            m_CurFrame = 0;
         }
 
         /// <summary>

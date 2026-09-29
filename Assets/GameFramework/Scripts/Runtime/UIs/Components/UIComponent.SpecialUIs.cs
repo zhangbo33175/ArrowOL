@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIComponent.Extend.cs
+ * filename:  UIComponent.SpecialUIs.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI 核心管理组件 - 扩展功能接口

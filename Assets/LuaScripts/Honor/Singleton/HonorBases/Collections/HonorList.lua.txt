@@ -16,38 +16,38 @@
 ---@field items table 内部存储元素的原生数组
 local HonorList = class("HonorList")
 
---- 构造函数
+---@brief 构造函数
 function HonorList:ctor()
     ---@type table 内部元素数组
     self.items = {}
 end
 
---- 创建列表实例（静态工厂方法）
+---@brief 创建列表实例（静态工厂方法）
 ---@return HonorList 新的列表实例
 function HonorList:Create()
     local list = HonorList.new()
     return list
 end
 
---- 添加元素到列表末尾
+---@brief 添加元素到列表末尾
 ---@param item any 要添加的任意类型元素
 function HonorList:Add(item)
     table.insert(self.items, item)
 end
 
---- 获取列表中元素的总数量
+---@brief 获取列表中元素的总数量
 ---@return number 元素个数
 function HonorList:Count()
     return #self.items
 end
 
---- 判断列表是否为空
+---@brief 判断列表是否为空
 ---@return boolean true=空, false=非空
 function HonorList:IsEmpty()
     return self:Count() == 0
 end
 
---- 判断列表是否包含指定元素
+---@brief 判断列表是否包含指定元素
 ---@param item any 要查找的元素
 ---@return boolean 是否存在
 function HonorList:Contains(item)
@@ -59,14 +59,14 @@ function HonorList:Contains(item)
     return false
 end
 
---- 根据索引获取元素
+---@brief 根据索引获取元素
 ---@param index number 索引（从 1 开始）
 ---@return any 对应位置的元素，索引越界返回 nil
 function HonorList:Get(index)
     return self.items[index]
 end
 
---- 根据索引设置元素
+---@brief 根据索引设置元素
 ---@param index number 索引（从 1 开始）
 ---@param item any 要设置的元素
 function HonorList:Set(index, item)
@@ -75,7 +75,7 @@ function HonorList:Set(index, item)
     end
 end
 
---- 移除指定的元素（第一个匹配项）
+---@brief 移除指定的元素（第一个匹配项）
 ---@param item any 要移除的元素
 ---@return boolean 是否移除成功
 function HonorList:Remove(item)
@@ -88,7 +88,7 @@ function HonorList:Remove(item)
     return false
 end
 
---- 移除指定索引位置的元素
+---@brief 移除指定索引位置的元素
 ---@param index number 索引（从 1 开始）
 ---@return boolean 是否移除成功
 function HonorList:RemoveAt(index)
@@ -99,12 +99,12 @@ function HonorList:RemoveAt(index)
     return true
 end
 
---- 清空列表所有元素
+---@brief 清空列表所有元素
 function HonorList:Clear()
     self.items = {}
 end
 
---- 转换为 Lua 原生数组
+---@brief 转换为 Lua 原生数组
 ---@return table 原生数组
 function HonorList:ToArray()
     local array = {}
@@ -114,7 +114,7 @@ function HonorList:ToArray()
     return array
 end
 
---- 遍历列表（安全迭代，不建议在遍历中删除）
+---@brief 遍历列表（安全迭代，不建议在遍历中删除）
 ---@param action fun(index:number, item:any) 遍历回调
 function HonorList:ForEach(action)
     if type(action) ~= "function" then return end

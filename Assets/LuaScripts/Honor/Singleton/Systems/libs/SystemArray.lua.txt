@@ -11,14 +11,15 @@
 --=====================================================================================================
 
 --region 栈式结构数组
+---@class SystemArray 栈式结构数组（支持弱引用）
 local SystemArray = {}
 SystemArray.__index = SystemArray
 
---- 创建数组实例
+---@brief 创建数组实例
 ---@param isweak boolean 是否开启弱引用（value 弱引用，不阻止GC）
 ---@return SystemArray 数组实例
 function SystemArray.new(isweak)
-    ---@class SystemArray
+    ---@class SystemArray 栈式结构数组实例
     ---@field _cur number 当前元素数量（栈顶下标）
     ---@field _data table 数据存储表
     local t = {}
@@ -34,7 +35,7 @@ function SystemArray.new(isweak)
     return t
 end
 
---- 压入元素（栈顶）
+---@brief 压入元素（栈顶）
 ---@param self SystemArray
 ---@param value any 元素
 function SystemArray.push(self, value)
@@ -42,7 +43,7 @@ function SystemArray.push(self, value)
     self._data[self._cur] = value
 end
 
---- 弹出栈顶元素
+---@brief 弹出栈顶元素
 ---@param self SystemArray
 ---@return any
 function SystemArray.pop(self)
@@ -53,7 +54,7 @@ function SystemArray.pop(self)
     return value
 end
 
---- 获取指定下标元素
+---@brief 获取指定下标元素
 ---@param self SystemArray
 ---@param index number 下标 1~size
 ---@return any
@@ -64,7 +65,7 @@ function SystemArray.get(self, index)
     return self._data[index]
 end
 
---- 设置指定下标元素
+---@brief 设置指定下标元素
 ---@param self SystemArray
 ---@param index number
 ---@param value any
@@ -74,7 +75,7 @@ function SystemArray.set(self, index, value)
     end
 end
 
---- 清空数组（高效零GC）
+---@brief 清空数组（高效零GC）
 ---@param self SystemArray
 function SystemArray.clear(self)
     -- 清空引用，避免内存泄漏
@@ -84,21 +85,21 @@ function SystemArray.clear(self)
     self._cur = 0
 end
 
---- 获取元素数量
+---@brief 获取元素数量
 ---@param self SystemArray
 ---@return number
 function SystemArray.size(self)
     return self._cur
 end
 
---- 判断是否为空
+---@brief 判断是否为空
 ---@param self SystemArray
 ---@return boolean
 function SystemArray.empty(self)
     return self._cur == 0
 end
 
---- 遍历数组（安全遍历）
+---@brief 遍历数组（安全遍历）
 ---@param self SystemArray
 ---@param func fun(value:any, index:number)
 function SystemArray.foreach(self, func)
@@ -107,7 +108,7 @@ function SystemArray.foreach(self, func)
     end
 end
 
---- 转换为普通Lua表
+---@brief 转换为普通Lua表
 ---@param self SystemArray
 ---@return table
 function SystemArray.toTable(self)

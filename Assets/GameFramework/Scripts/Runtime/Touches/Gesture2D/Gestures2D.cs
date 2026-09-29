@@ -178,15 +178,12 @@ namespace Honor.Runtime
             DOTween.Kill(GameDOTweenTypes.CameraScaleAnimation);
             if (gesture.touchCount == 1)
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_TouchBeginCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                DispatchCallbacks(m_TouchBeginCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", gesture);
                     args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
-                m_AlreadySwipedOrPinchedOnThisRound = false;
+                });
                 CheckSelect(gesture);
             }
         }
@@ -199,14 +196,12 @@ namespace Honor.Runtime
         {
             if (gesture.touchCount == 1)
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_TouchDownCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                DispatchCallbacks(m_TouchDownCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", gesture);
                     args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
+                });
             }
         }
 
@@ -219,14 +214,12 @@ namespace Honor.Runtime
         {
             if (gesture.touchCount == 1)
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_TouchEndCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                DispatchCallbacks(m_TouchEndCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", gesture);
                     args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
+                });
 
                 if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
                 {
@@ -250,15 +243,13 @@ namespace Honor.Runtime
                     {
                         m_IsFingerSwiping = false;
 
-                        foreach (var callback in m_UnselectedObjCallbacks)
+                        DispatchCallbacks(m_UnselectedObjCallbacks, args =>
                         {
-                            LuaTable args = m_LuaComponent.Env.NewTable();
                             args.Set("gesture", gesture);
                             args.Set("worldPosition", worldPosition);
                             args.Set("selectedObjType", m_SelectedObjType);
                             args.Set("selectedObj", m_SelectedObj);
-                            LuaHandler.Callback(callback, args);
-                        }
+                        });
                         m_SelectedObjType = null;
                         m_SelectedObj = null;
                         m_SelectedObjGesture = null;
@@ -283,14 +274,12 @@ namespace Honor.Runtime
         {
             if (gesture.touchCount == 2)
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_TouchesBeginCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                DispatchCallbacks(m_TouchesBeginCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", gesture);
                     args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
+                });
 
                 m_IsFingerSwiping = false;
                 m_SwipePosition = gesture.position;
@@ -301,7 +290,6 @@ namespace Honor.Runtime
                 m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
 
                 m_SkipFirstPinchFrame = true;
-                m_AlreadySwipedOrPinchedOnThisRound = false;
             }
         }
 
@@ -313,14 +301,12 @@ namespace Honor.Runtime
         {
             if (gesture.touchCount == 2)
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_TouchesDownCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                DispatchCallbacks(m_TouchesDownCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", gesture);
                     args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
+                });
             }
         }
 
@@ -332,14 +318,12 @@ namespace Honor.Runtime
         {
             if (gesture.touchCount == 2)
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_TouchesEndCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                DispatchCallbacks(m_TouchesEndCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", gesture);
                     args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
+                });
 
                 // 松手时回弹到边界
                 SwipeToElasticOnReleased();
@@ -368,14 +352,12 @@ namespace Honor.Runtime
                 m_SwipeOffset = Vector2.zero;
                 m_IsFingerSwiping = true;
 
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_SwipeBeginCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                DispatchCallbacks(m_SwipeBeginCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", gesture);
                     args.Set("worldPosition", worldPosition);
-                    LuaHandler.Callback(callback, args);
-                }
+                });
             }
         }
 
@@ -388,75 +370,30 @@ namespace Honor.Runtime
         {
             if (!m_SwipeSwitch) return;
             if (!m_IsFingerSwiping) return;
+            if (m_SelectedObj != null) return;
+            if (gesture.touchCount != 1) return;
 
-            if (m_SelectedObj == null)
-            {
-                if (gesture.touchCount == 1)
-                {
-                    // 计算滑动偏移
-                    Vector2 startPos = m_SceneCamera.ScreenToWorldPoint(new Vector3(m_SwipePosition.x, m_SwipePosition.y, m_GestureCameraDistance));
-                    Vector2 curPos = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                    m_SwipeOffset = curPos - startPos;
+            // 计算滑动偏移
+            Vector2 startPos = ScreenToGestureWorld(m_SwipePosition);
+            Vector2 curPos = ScreenToGestureWorld(gesture.position);
+            m_SwipeOffset = curPos - startPos;
 
-                    // 边界计算
-                    float spaceHorizontalLeftEdgeX = m_SpaceCenterPosition.x - m_SpaceHorizontalLength / 2;
-                    float spaceHorizontalRightEdgeX = m_SpaceCenterPosition.x + m_SpaceHorizontalLength / 2;
-                    float spaceVerticalTopEdgeY = m_SpaceCenterPosition.y + m_SpaceVerticalLength / 2;
-                    float spaceVerticalBottomEdgeY = m_SpaceCenterPosition.y - m_SpaceVerticalLength / 2;
-                    float spaceHorizontalLeftEdgeXWithElasticLength = spaceHorizontalLeftEdgeX + m_SpaceHorizontalEdgeMoveElasticLength;
-                    float spaceHorizontalRightEdgeXWithElasticLength = spaceHorizontalRightEdgeX - m_SpaceHorizontalEdgeMoveElasticLength;
-                    float spaceVerticalTopEdgeYWithElasticLength = spaceVerticalTopEdgeY - m_SpaceVerticalEdgeMoveElasticLength;
-                    float spaceVerticalBottomEdgeYWithElasticLength = spaceVerticalBottomEdgeY + m_SpaceVerticalEdgeMoveElasticLength;
+            SpaceEdgeBounds bounds = CalcSpaceEdgeBounds();
+            DecaySwipeOffsetByEdges(ref m_SwipeOffset, bounds);
 
-                    // 水平边界弹性衰减
-                    if (m_SpaceHorizontalEdgeMoveElasticLength > 0)
-                    {
-                        if (m_SwipeOffset.x > 0 && m_SceneCamera.transform.position.x <= spaceHorizontalLeftEdgeXWithElasticLength)
-                        {
-                            m_SwipeOffset.x *= (m_SceneCamera.transform.position.x - spaceHorizontalLeftEdgeX) / m_SpaceHorizontalEdgeMoveElasticLength;
-                        }
-                        if (m_SwipeOffset.x < 0 && m_SceneCamera.transform.position.x >= spaceHorizontalRightEdgeXWithElasticLength)
-                        {
-                            m_SwipeOffset.x *= (spaceHorizontalRightEdgeX - m_SceneCamera.transform.position.x) / m_SpaceHorizontalEdgeMoveElasticLength;
-                        }
-                    }
+            // 限制相机在有效区域内
+            Vector3 sceneCameraPos = m_SceneCamera.transform.position - (Vector3)m_SwipeOffset;
+            sceneCameraPos.x = Mathf.Clamp(sceneCameraPos.x, bounds.Left, bounds.Right);
+            sceneCameraPos.y = Mathf.Clamp(sceneCameraPos.y, bounds.Bottom, bounds.Top);
+            m_SceneCamera.transform.SetPositionX(sceneCameraPos.x);
+            m_SceneCamera.transform.SetPositionY(sceneCameraPos.y);
+            m_SceneCamera.transform.SetPositionZ(sceneCameraPos.z);
 
-                    // 垂直边界弹性衰减
-                    if (m_SpaceVerticalEdgeMoveElasticLength > 0)
-                    {
-                        if (m_SwipeOffset.y < 0 && m_SceneCamera.transform.position.y >= spaceVerticalTopEdgeYWithElasticLength)
-                        {
-                            m_SwipeOffset.y *= (spaceVerticalTopEdgeY - m_SceneCamera.transform.position.y) / m_SpaceVerticalEdgeMoveElasticLength;
-                        }
-                        if (m_SwipeOffset.y > 0 && m_SceneCamera.transform.position.y <= spaceVerticalBottomEdgeYWithElasticLength)
-                        {
-                            m_SwipeOffset.y *= (m_SceneCamera.transform.position.y - spaceVerticalBottomEdgeY) / m_SpaceVerticalEdgeMoveElasticLength;
-                        }
-                    }
+            m_SwipePosition = gesture.position;
+            m_IgnoreSelectObjBySwipe = true;
 
-                    // 限制相机在有效区域内
-                    Vector3 sceneCameraPos = m_SceneCamera.transform.position - (Vector3)m_SwipeOffset;
-                    sceneCameraPos.x = Mathf.Clamp(sceneCameraPos.x, spaceHorizontalLeftEdgeX, spaceHorizontalRightEdgeX);
-                    sceneCameraPos.y = Mathf.Clamp(sceneCameraPos.y, spaceVerticalBottomEdgeY, spaceVerticalTopEdgeY);
-                    m_SceneCamera.transform.SetPositionX(sceneCameraPos.x);
-                    m_SceneCamera.transform.SetPositionY(sceneCameraPos.y);
-                    m_SceneCamera.transform.SetPositionZ(sceneCameraPos.z);
-
-                    m_SwipePosition = gesture.position;
-                    m_IgnoreSelectObjBySwipe = true;
-                    m_AlreadySwipedOrPinchedOnThisRound = true;
-
-                    // 触发滑动回调
-                    Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                    foreach (var callback in m_SwipeCallbacks)
-                    {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
-                        args.Set("gesture", gesture);
-                        args.Set("worldPosition", worldPosition);
-                        LuaHandler.Callback(callback, args);
-                    }
-                }
-            }
+            // 触发滑动回调
+            FireSwipeCallback(gesture);
         }
 
         /// <summary>
@@ -475,14 +412,12 @@ namespace Honor.Runtime
                     m_IgnoreSelectObjBySwipe = false;
                     m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
 
-                    Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                    foreach (var callback in m_SwipeEndCallbacks)
+                    Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+                    DispatchCallbacks(m_SwipeEndCallbacks, args =>
                     {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
                         args.Set("gesture", gesture);
                         args.Set("worldPosition", worldPosition);
-                        LuaHandler.Callback(callback, args);
-                    }
+                    });
                 }
             }
         }
@@ -497,168 +432,84 @@ namespace Honor.Runtime
         {
             if (!m_PinchSwitch) return;
             if (m_SelectedObj) return;
+            if (gesture.touchCount != 2) return;
 
-            if (gesture.touchCount == 2)
+            if (m_SwipeSwitch)
             {
-                if (m_SwipeSwitch)
-                {
-                    // 双指同时移动相机
-                    Vector2 startPos = m_SceneCamera.ScreenToWorldPoint(new Vector3(m_SwipePosition.x, m_SwipePosition.y, m_GestureCameraDistance));
-                    Vector2 curPos = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
-                    Vector2 swipeOffset = curPos - startPos;
-
-                    // 边界计算
-                    float spaceHorizontalLeftEdgeX = m_SpaceCenterPosition.x - m_SpaceHorizontalLength / 2;
-                    float spaceHorizontalRightEdgeX = m_SpaceCenterPosition.x + m_SpaceHorizontalLength / 2;
-                    float spaceVerticalTopEdgeY = m_SpaceCenterPosition.y + m_SpaceVerticalLength / 2;
-                    float spaceVerticalBottomEdgeY = m_SpaceCenterPosition.y - m_SpaceVerticalLength / 2;
-                    float spaceHorizontalLeftEdgeXWithElasticLength = spaceHorizontalLeftEdgeX + m_SpaceHorizontalEdgeMoveElasticLength;
-                    float spaceHorizontalRightEdgeXWithElasticLength = spaceHorizontalRightEdgeX - m_SpaceHorizontalEdgeMoveElasticLength;
-                    float spaceVerticalTopEdgeYWithElasticLength = spaceVerticalTopEdgeY - m_SpaceVerticalEdgeMoveElasticLength;
-                    float spaceVerticalBottomEdgeYWithElasticLength = spaceVerticalBottomEdgeY + m_SpaceVerticalEdgeMoveElasticLength;
-
-                    // 边界弹性衰减
-                    if (m_SpaceHorizontalEdgeMoveElasticLength > 0)
-                    {
-                        if (swipeOffset.x > 0 && m_SceneCamera.transform.position.x <= spaceHorizontalLeftEdgeXWithElasticLength)
-                        {
-                            swipeOffset.x *= (m_SceneCamera.transform.position.x - spaceHorizontalLeftEdgeX) / m_SpaceHorizontalEdgeMoveElasticLength;
-                        }
-                        if (swipeOffset.x < 0 && m_SceneCamera.transform.position.x >= spaceHorizontalRightEdgeXWithElasticLength)
-                        {
-                            swipeOffset.x *= (spaceHorizontalRightEdgeX - m_SceneCamera.transform.position.x) / m_SpaceHorizontalEdgeMoveElasticLength;
-                        }
-                    }
-
-                    if (m_SpaceVerticalEdgeMoveElasticLength > 0)
-                    {
-                        if (swipeOffset.y < 0 && m_SceneCamera.transform.position.y >= spaceVerticalTopEdgeYWithElasticLength)
-                        {
-                            swipeOffset.y *= (spaceVerticalTopEdgeY - m_SceneCamera.transform.position.y) / m_SpaceVerticalEdgeMoveElasticLength;
-                        }
-                        if (swipeOffset.y > 0 && m_SceneCamera.transform.position.y <= spaceVerticalBottomEdgeYWithElasticLength)
-                        {
-                            swipeOffset.y *= (m_SceneCamera.transform.position.y - spaceVerticalBottomEdgeY) / m_SpaceVerticalEdgeMoveElasticLength;
-                        }
-                    }
-
-                    var x = m_SceneCamera.transform.position.x - swipeOffset.x;
-                    var y = m_SceneCamera.transform.position.y - swipeOffset.y;
-                    m_SwipePosition = gesture.position;
-
-                    // 计算缩放
-                    float distanceOffset = m_PinchFingersOldDistance - gesture.twoFingerDistance;
-                    float scaleFactor = distanceOffset / m_PinchRatio;
-                    float localScale = m_SceneCamera.orthographic ? m_SceneCamera.orthographicSize : m_SceneCamera.fieldOfView;
-                    float scale = localScale + scaleFactor;
-                    scale = Mathf.Clamp(scale, m_PinchMinScale, m_PinchMaxScale);
-
-                    // 缩放弹性区
-                    if (scale <= m_PinchMinScale)
-                    {
-                        m_TargetScaleElasticValue = m_PinchMinScale + m_SpaceEdgeScaleElasticValue;
-                    }
-                    else if (scale >= m_PinchMaxScale)
-                    {
-                        m_TargetScaleElasticValue = m_PinchMaxScale - m_SpaceEdgeScaleElasticValue;
-                    }
-                    else
-                    {
-                        m_TargetScaleElasticValue = -1f;
-                    }
-
-                    // 应用缩放
-                    if (!m_SkipFirstPinchFrame)
-                    {
-                        if (m_SceneCamera.orthographic)
-                            m_SceneCamera.orthographicSize = scale;
-                        else
-                            m_SceneCamera.fieldOfView = scale;
-                    }
-                    else
-                    {
-                        m_SkipFirstPinchFrame = false;
-                    }
-
-                    // 对焦偏移
-                    Vector3 nowWorldCenter = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
-                    Vector3 worldCenterOffset = m_PinchWorldCenterPosition - nowWorldCenter;
-                    x += worldCenterOffset.x;
-                    y += worldCenterOffset.y;
-
-                    // 限制位置
-                    x = Mathf.Clamp(x, spaceHorizontalLeftEdgeX, spaceHorizontalRightEdgeX);
-                    y = Mathf.Clamp(y, spaceVerticalBottomEdgeY, spaceVerticalTopEdgeY);
-
-                    if (!m_SkipFirstPinchFrame)
-                    {
-                        m_SceneCamera.transform.position = new Vector3(x, y, m_SceneCamera.transform.position.z);
-                    }
-                    else
-                    {
-                        m_SkipFirstPinchFrame = false;
-                    }
-
-                    // 保存状态
-                    m_PinchFingersOldDistance = gesture.twoFingerDistance;
-                    m_PinchScreenCenterPosition = gesture.position;
-                    m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
-
-                    m_IgnoreSelectObjByPinch = false;
-                    m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
-                }
-                else
-                {
-                    // 仅缩放，不移动
-                    float offset = m_PinchFingersOldDistance - gesture.twoFingerDistance;
-                    float scaleFactor = offset / m_PinchRatio;
-                    float localScale = m_SceneCamera.orthographic ? m_SceneCamera.orthographicSize : m_SceneCamera.fieldOfView;
-                    float scale = localScale + scaleFactor;
-                    scale = Mathf.Clamp(scale, m_PinchMinScale, m_PinchMaxScale);
-
-                    if (scale <= m_PinchMinScale)
-                    {
-                        m_TargetScaleElasticValue = m_PinchMinScale + m_SpaceEdgeScaleElasticValue;
-                    }
-                    else if (scale >= m_PinchMaxScale)
-                    {
-                        m_TargetScaleElasticValue = m_PinchMaxScale - m_SpaceEdgeScaleElasticValue;
-                    }
-                    else
-                    {
-                        m_TargetScaleElasticValue = -1f;
-                    }
-
-                    if (!m_SkipFirstPinchFrame)
-                    {
-                        if (m_SceneCamera.orthographic)
-                            m_SceneCamera.orthographicSize = scale;
-                        else
-                            m_SceneCamera.fieldOfView = scale;
-                    }
-                    else
-                    {
-                        m_SkipFirstPinchFrame = false;
-                    }
-
-                    m_PinchFingersOldDistance = gesture.twoFingerDistance;
-                    m_PinchScreenCenterPosition = gesture.position;
-                    m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
-
-                    m_IgnoreSelectObjByPinch = false;
-                    m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
-                }
-
-                m_AlreadySwipedOrPinchedOnThisRound = true;
-
-                // 触发缩放回调
-                foreach (var callback in m_PinchCallbacks)
-                {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
-                    args.Set("gesture", gesture);
-                    LuaHandler.Callback(callback, args);
-                }
+                // 双指同时移动相机
+                ProcessPinchWithCameraMove(gesture);
             }
+            else
+            {
+                // 仅缩放，不移动
+                ProcessPinchScaleOnly(gesture);
+            }
+
+            // 触发缩放回调
+            FirePinchCallback(gesture);
+        }
+
+        /// <summary>
+        /// 双指缩放：同时根据滑动偏移移动相机焦点
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        private void ProcessPinchWithCameraMove(Gesture gesture)
+        {
+            // 双指同时移动相机
+            Vector2 startPos = ScreenToGestureWorld(m_SwipePosition);
+            Vector2 curPos = ScreenToGestureWorld(gesture.position);
+            Vector2 swipeOffset = curPos - startPos;
+
+            SpaceEdgeBounds bounds = CalcSpaceEdgeBounds();
+            DecaySwipeOffsetByEdges(ref swipeOffset, bounds);
+
+            var x = m_SceneCamera.transform.position.x - swipeOffset.x;
+            var y = m_SceneCamera.transform.position.y - swipeOffset.y;
+            m_SwipePosition = gesture.position;
+
+            // 计算缩放
+            float scale = ComputeClampedPinchScale(gesture.twoFingerDistance);
+            UpdatePinchScaleElasticValue(scale);
+            ApplyScaleToCamera(scale);
+
+            // 对焦偏移
+            Vector3 nowWorldCenter = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
+            Vector3 worldCenterOffset = m_PinchWorldCenterPosition - nowWorldCenter;
+            x += worldCenterOffset.x;
+            y += worldCenterOffset.y;
+
+            // 限制位置
+            x = Mathf.Clamp(x, bounds.Left, bounds.Right);
+            y = Mathf.Clamp(y, bounds.Bottom, bounds.Top);
+
+            if (!m_SkipFirstPinchFrame)
+            {
+                m_SceneCamera.transform.position = new Vector3(x, y, m_SceneCamera.transform.position.z);
+            }
+            else
+            {
+                m_SkipFirstPinchFrame = false;
+            }
+
+            // 保存状态
+            SavePinchState(gesture);
+            m_IgnoreSelectObjByPinch = false;
+            m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
+        }
+
+        /// <summary>
+        /// 双指缩放：仅做缩放，不移动相机
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        private void ProcessPinchScaleOnly(Gesture gesture)
+        {
+            float scale = ComputeClampedPinchScale(gesture.twoFingerDistance);
+            UpdatePinchScaleElasticValue(scale);
+            ApplyScaleToCamera(scale);
+
+            SavePinchState(gesture);
+            m_IgnoreSelectObjByPinch = false;
+            m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
         }
 
         /// <summary>
@@ -737,18 +588,16 @@ namespace Honor.Runtime
                 {
                     m_IsDraging = true;
 
-                    Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
+                    Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
                     Vector3 deltaWorldPosition = Vector3.zero;
-                    foreach (var callback in m_SelectedObjDragBeginCallbacks)
+                    DispatchCallbacks(m_SelectedObjDragBeginCallbacks, args =>
                     {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
                         args.Set("gesture", gesture);
                         args.Set("worldPosition", worldPosition);
                         args.Set("deltaWorldPosition", deltaWorldPosition);
                         args.Set("selectedObjType", m_SelectedObjType);
                         args.Set("selectedObj", m_SelectedObj);
-                        LuaHandler.Callback(callback, args);
-                    }
+                    });
                     m_LastWorldPosition = worldPosition;
                 }
             }
@@ -765,18 +614,16 @@ namespace Honor.Runtime
                 if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
                 {
                     m_SelectedObjGesture = gesture;
-                    Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
+                    Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
                     Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
-                    foreach (var callback in m_SelectedObjDragCallbacks)
+                    DispatchCallbacks(m_SelectedObjDragCallbacks, args =>
                     {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
                         args.Set("gesture", gesture);
                         args.Set("worldPosition", worldPosition);
                         args.Set("deltaWorldPosition", deltaWorldPosition);
                         args.Set("selectedObjType", m_SelectedObjType);
                         args.Set("selectedObj", m_SelectedObj);
-                        LuaHandler.Callback(callback, args);
-                    }
+                    });
                     m_LastWorldPosition = worldPosition;
                 }
             }
@@ -791,36 +638,32 @@ namespace Honor.Runtime
 
             if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(gesture.position.x, gesture.position.y, m_GestureCameraDistance));
+                Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
 
                 if (m_IsDraging)
                 {
                     Vector3 deltaWorldPosition = worldPosition - m_LastWorldPosition;
-                    foreach (var callback in m_SelectedObjDragEndCallbacks)
+                    DispatchCallbacks(m_SelectedObjDragEndCallbacks, args =>
                     {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
                         args.Set("gesture", gesture);
                         args.Set("worldPosition", worldPosition);
                         args.Set("deltaWorldPosition", deltaWorldPosition);
                         args.Set("selectedObjType", m_SelectedObjType);
                         args.Set("selectedObj", m_SelectedObj);
-                        LuaHandler.Callback(callback, args);
-                    }
+                    });
                     m_LastWorldPosition = Vector3.zero;
                 }
 
                 // 非常选中模式下自动取消选中
                 if (!m_SelectHoldMode)
                 {
-                    foreach (var callback in m_UnselectedObjCallbacks)
+                    DispatchCallbacks(m_UnselectedObjCallbacks, args =>
                     {
-                        LuaTable args = m_LuaComponent.Env.NewTable();
                         args.Set("gesture", gesture);
                         args.Set("worldPosition", worldPosition);
                         args.Set("selectedObjType", m_SelectedObjType);
                         args.Set("selectedObj", m_SelectedObj);
-                        LuaHandler.Callback(callback, args);
-                    }
+                    });
                     m_SelectedObjType = null;
                     m_SelectedObj = null;
                     m_SelectedObjGesture = null;
@@ -849,16 +692,14 @@ namespace Honor.Runtime
             // 持续选中更新回调
             if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
             {
-                Vector3 worldPosition = m_SceneCamera.ScreenToWorldPoint(new Vector3(m_SelectedObjGesture.position.x, m_SelectedObjGesture.position.y, m_GestureCameraDistance));
-                foreach (var callback in m_UpdateSelectedObjCallbacks)
+                Vector3 worldPosition = ScreenToGestureWorld(m_SelectedObjGesture.position);
+                DispatchCallbacks(m_UpdateSelectedObjCallbacks, args =>
                 {
-                    LuaTable args = m_LuaComponent.Env.NewTable();
                     args.Set("gesture", m_SelectedObjGesture);
                     args.Set("worldPosition", worldPosition);
                     args.Set("selectedObjType", m_SelectedObjType);
                     args.Set("selectedObj", m_SelectedObj);
-                    LuaHandler.Callback(callback, args);
-                }
+                });
             }
 
             // 鼠标滚轮缩放
@@ -964,6 +805,196 @@ namespace Honor.Runtime
                     m_IsPinchStableCallbackOver = false;
                 }
             }
+        }
+        #endregion
+        #region 边界与缩放辅助计算
+        /// <summary>
+        /// 有效空间边界与弹性区坐标（值类型，避免堆分配）
+        /// </summary>
+        private struct SpaceEdgeBounds
+        {
+            public float Left;
+            public float Right;
+            public float Top;
+            public float Bottom;
+            public float LeftElastic;
+            public float RightElastic;
+            public float TopElastic;
+            public float BottomElastic;
+        }
+
+        /// <summary>
+        /// 将屏幕坐标转换为手势平面世界坐标（沿相机方向取 m_GestureCameraDistance 深度）
+        /// </summary>
+        /// <param name="screenPosition">屏幕坐标</param>
+        /// <returns>对应的世界坐标</returns>
+        private Vector3 ScreenToGestureWorld(Vector2 screenPosition)
+        {
+            return m_SceneCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, m_GestureCameraDistance));
+        }
+
+        /// <summary>
+        /// 统一派发 Lua 回调列表：新建参数表 -> 调用填充委托 -> 逐个回调
+        /// </summary>
+        /// <param name="callbacks">目标回调列表</param>
+        /// <param name="fillArgs">向参数表写入具体字段的委托</param>
+        private void DispatchCallbacks(List<LuaTable> callbacks, Action<LuaTable> fillArgs)
+        {
+            if (callbacks == null)
+            {
+                return;
+            }
+
+            foreach (LuaTable callback in callbacks)
+            {
+                LuaTable args = m_LuaComponent.Env.NewTable();
+                fillArgs(args);
+                LuaHandler.Callback(callback, args);
+            }
+        }
+
+        /// <summary>
+        /// 计算有效空间四周边界与对应弹性区坐标
+        /// </summary>
+        /// <returns>边界坐标结构体</returns>
+        private SpaceEdgeBounds CalcSpaceEdgeBounds()
+        {
+            SpaceEdgeBounds bounds;
+            bounds.Left = m_SpaceCenterPosition.x - m_SpaceHorizontalLength / 2;
+            bounds.Right = m_SpaceCenterPosition.x + m_SpaceHorizontalLength / 2;
+            bounds.Top = m_SpaceCenterPosition.y + m_SpaceVerticalLength / 2;
+            bounds.Bottom = m_SpaceCenterPosition.y - m_SpaceVerticalLength / 2;
+            bounds.LeftElastic = bounds.Left + m_SpaceHorizontalEdgeMoveElasticLength;
+            bounds.RightElastic = bounds.Right - m_SpaceHorizontalEdgeMoveElasticLength;
+            bounds.TopElastic = bounds.Top - m_SpaceVerticalEdgeMoveElasticLength;
+            bounds.BottomElastic = bounds.Bottom + m_SpaceVerticalEdgeMoveElasticLength;
+            return bounds;
+        }
+
+        /// <summary>
+        /// 根据相机当前位置对滑动偏移做边界弹性衰减（原地修改偏移量）
+        /// </summary>
+        /// <param name="swipeOffset">当前滑动偏移</param>
+        /// <param name="bounds">有效空间边界坐标</param>
+        private void DecaySwipeOffsetByEdges(ref Vector2 swipeOffset, SpaceEdgeBounds bounds)
+        {
+            // 水平边界弹性衰减
+            if (m_SpaceHorizontalEdgeMoveElasticLength > 0)
+            {
+                if (swipeOffset.x > 0 && m_SceneCamera.transform.position.x <= bounds.LeftElastic)
+                {
+                    swipeOffset.x *= (m_SceneCamera.transform.position.x - bounds.Left) / m_SpaceHorizontalEdgeMoveElasticLength;
+                }
+                if (swipeOffset.x < 0 && m_SceneCamera.transform.position.x >= bounds.RightElastic)
+                {
+                    swipeOffset.x *= (bounds.Right - m_SceneCamera.transform.position.x) / m_SpaceHorizontalEdgeMoveElasticLength;
+                }
+            }
+
+            // 垂直边界弹性衰减
+            if (m_SpaceVerticalEdgeMoveElasticLength > 0)
+            {
+                if (swipeOffset.y < 0 && m_SceneCamera.transform.position.y >= bounds.TopElastic)
+                {
+                    swipeOffset.y *= (bounds.Top - m_SceneCamera.transform.position.y) / m_SpaceVerticalEdgeMoveElasticLength;
+                }
+                if (swipeOffset.y > 0 && m_SceneCamera.transform.position.y <= bounds.BottomElastic)
+                {
+                    swipeOffset.y *= (m_SceneCamera.transform.position.y - bounds.Bottom) / m_SpaceVerticalEdgeMoveElasticLength;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 根据双指距离差计算并夹取缩放值
+        /// </summary>
+        /// <param name="twoFingerDistance">当前双指距离</param>
+        /// <returns>夹取后的缩放值</returns>
+        private float ComputeClampedPinchScale(float twoFingerDistance)
+        {
+            float distanceOffset = m_PinchFingersOldDistance - twoFingerDistance;
+            float scaleFactor = distanceOffset / m_PinchRatio;
+            float localScale = m_SceneCamera.orthographic ? m_SceneCamera.orthographicSize : m_SceneCamera.fieldOfView;
+            float scale = localScale + scaleFactor;
+            return Mathf.Clamp(scale, m_PinchMinScale, m_PinchMaxScale);
+        }
+
+        /// <summary>
+        /// 根据缩放值更新缩放弹性回弹目标值
+        /// </summary>
+        /// <param name="scale">夹取后的缩放值</param>
+        private void UpdatePinchScaleElasticValue(float scale)
+        {
+            // 缩放弹性区
+            if (scale <= m_PinchMinScale)
+            {
+                m_TargetScaleElasticValue = m_PinchMinScale + m_SpaceEdgeScaleElasticValue;
+            }
+            else if (scale >= m_PinchMaxScale)
+            {
+                m_TargetScaleElasticValue = m_PinchMaxScale - m_SpaceEdgeScaleElasticValue;
+            }
+            else
+            {
+                m_TargetScaleElasticValue = -1f;
+            }
+        }
+
+        /// <summary>
+        /// 将缩放值应用到相机（首帧跳过并翻转跳过标记）
+        /// </summary>
+        /// <param name="scale">目标缩放值</param>
+        private void ApplyScaleToCamera(float scale)
+        {
+            // 应用缩放
+            if (!m_SkipFirstPinchFrame)
+            {
+                if (m_SceneCamera.orthographic)
+                    m_SceneCamera.orthographicSize = scale;
+                else
+                    m_SceneCamera.fieldOfView = scale;
+            }
+            else
+            {
+                m_SkipFirstPinchFrame = false;
+            }
+        }
+
+        /// <summary>
+        /// 保存缩放后的双指状态
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        private void SavePinchState(Gesture gesture)
+        {
+            m_PinchFingersOldDistance = gesture.twoFingerDistance;
+            m_PinchScreenCenterPosition = gesture.position;
+            m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
+        }
+
+        /// <summary>
+        /// 触发单指滑动的Lua回调列表（每次回调新建参数表）
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        private void FireSwipeCallback(Gesture gesture)
+        {
+            Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
+            DispatchCallbacks(m_SwipeCallbacks, args =>
+            {
+                args.Set("gesture", gesture);
+                args.Set("worldPosition", worldPosition);
+            });
+        }
+
+        /// <summary>
+        /// 触发双指缩放的Lua回调列表（每次回调新建参数表）
+        /// </summary>
+        /// <param name="gesture">手势数据</param>
+        private void FirePinchCallback(Gesture gesture)
+        {
+            DispatchCallbacks(m_PinchCallbacks, args =>
+            {
+                args.Set("gesture", gesture);
+            });
         }
         #endregion
     }

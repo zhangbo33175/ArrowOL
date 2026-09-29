@@ -27,6 +27,22 @@ namespace Honor.Runtime
 #if BEST_HTTP_ENABLE
 
         /// <summary>
+        /// 校验连接名是否有效
+        /// </summary>
+        /// <param name="wsName">连接名称</param>
+        /// <returns>有效返回 true，否则记录错误并返回 false</returns>
+        private bool EnsureSocketName(string wsName)
+        {
+            if (!string.IsNullOrEmpty(wsName))
+            {
+                return true;
+            }
+
+            Log.Error("NetworkComponent WebSocket 连接名 wsName 无效。");
+            return false;
+        }
+
+        /// <summary>
         /// 创建并建立 WebSocket 长连接
         /// 底层交由 NetworkManager 管理
         /// </summary>
@@ -35,9 +51,8 @@ namespace Honor.Runtime
         /// <returns>WebSocket 实例</returns>
         public WebSocket CreateWebSocketConnection(string wsName, string url)
         {
-            if (string.IsNullOrEmpty(wsName))
+            if (!EnsureSocketName(wsName))
             {
-                Log.Error("NetworkComponent.CreateWebSocketConnection wsName 无效。");
                 return null;
             }
             if (string.IsNullOrEmpty(url))
@@ -45,7 +60,7 @@ namespace Honor.Runtime
                 Log.Error("NetworkComponent.CreateWebSocketConnection url 无效。");
                 return null;
             }
-            return m_NetworkManager.CreateWebSocketConnection(wsName, url);
+            return m_Network.CreateWebSocketConnection(wsName, url);
         }
 
         /// <summary>
@@ -56,12 +71,11 @@ namespace Honor.Runtime
         /// <param name="message">关闭附带消息</param>
         public void CloseWebSocketConnection(string wsName, UInt16 code = default(UInt16), string message = null)
         {
-            if (string.IsNullOrEmpty(wsName))
+            if (!EnsureSocketName(wsName))
             {
-                Log.Error("NetworkComponent.CloseWebSocketConnection wsName 无效。");
                 return;
             }
-            m_NetworkManager.CloseWebSocketConnection(wsName, code, message);
+            m_Network.CloseWebSocketConnection(wsName, code, message);
         }
 
         /// <summary>
@@ -71,12 +85,11 @@ namespace Honor.Runtime
         /// <param name="message">文本内容</param>
         public void SendWebSocketMessage(string wsName, string message)
         {
-            if (string.IsNullOrEmpty(wsName))
+            if (!EnsureSocketName(wsName))
             {
-                Log.Error("NetworkComponent.SendWebSocketMessage wsName 无效。");
                 return;
             }
-            m_NetworkManager.SendWebSocketMessage(wsName, message);
+            m_Network.SendWebSocketMessage(wsName, message);
         }
 
         /// <summary>
@@ -86,12 +99,11 @@ namespace Honor.Runtime
         /// <param name="datas">二进制字节数组</param>
         public void SendWebSocketBinary(string wsName, byte[] datas)
         {
-            if (string.IsNullOrEmpty(wsName))
+            if (!EnsureSocketName(wsName))
             {
-                Log.Error("NetworkComponent.SendWebSocketBinary wsName 无效。");
                 return;
             }
-            m_NetworkManager.SendWebSocketBinary(wsName, datas);
+            m_Network.SendWebSocketBinary(wsName, datas);
         }
 
         /// <summary>
@@ -101,12 +113,11 @@ namespace Honor.Runtime
         /// <returns>WebSocket 实例，不存在则返回 null</returns>
         public WebSocket GetWebSocket(string wsName)
         {
-            if (string.IsNullOrEmpty(wsName))
+            if (!EnsureSocketName(wsName))
             {
-                Log.Error("NetworkComponent.GetWebSocket wsName 无效。");
                 return null;
             }
-            return m_NetworkManager.GetWebSocket(wsName);
+            return m_Network.GetWebSocket(wsName);
         }
 
 #endif

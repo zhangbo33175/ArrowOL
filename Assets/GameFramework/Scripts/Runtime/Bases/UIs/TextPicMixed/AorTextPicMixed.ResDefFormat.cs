@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  AorTextPicMixed.ResDef.cs
+ * filename:  AorTextPicMixed.ResDefFormat.cs
  * author:    云毅
  * created:   2026
  * descrip:   图文混排 - 别名格式图片标签解析（partial）
@@ -67,15 +67,7 @@ namespace Honor.Runtime
                 return;
 
             // 获取全局Lua组件
-            if (m_LuaComponent == null)
-            {
-                m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-                if (m_LuaComponent == null)
-                {
-                    Log.Fatal("Lua Component 无效。");
-                    return;
-                }
-            }
+            if (!EnsureLuaComponent()) return;
 
             // 图标列表，合并编辑器预设图标
             List<IconName> iconList = new List<IconName>();
@@ -101,28 +93,9 @@ namespace Honor.Runtime
 
                 // 按分隔符拆分参数
                 string[] contents = matchedContent.Split(SEPARATOR);
-                bool nextMatch = true;
 
-                // 参数格式：图片别名、缩放、偏移X、偏移Y
-                if (contents.Length == 4)
-                {
-                    // 通过Lua委托，根据别名获取资源配置信息
-                    LuaTable resDefLuaTable = m_LuaComponent.LuaGetResDefInfoEventDelegate(contents[0]);
-                    if (resDefLuaTable != null)
-                    {
-                        // 从Lua表中读取AB路径和资源名称
-                        resDefLuaTable.Get("ABPath", out string abPath);
-                        resDefLuaTable.Get("AssetName", out string assetName);
-
-                        // 解析缩放与偏移参数
-                        float scaleXY = float.Parse(contents[1]);
-                        float offsetX = float.Parse(contents[2]);
-                        float offsetY = float.Parse(contents[3]);
-
-                        // 收集图标信息
-                        nextMatch = CollectIcon(iconList, originalContent, abPath, assetName, scaleXY, offsetX, offsetY);
-                    }
-                }
+                // 处理当前标签并决定是否继续匹配
+                bool nextMatch = ProcessResDefTag(originalContent, contents, iconList);
 
                 // 继续匹配下一个标签
                 if (nextMatch)
@@ -144,6 +117,59 @@ namespace Honor.Runtime
             {
                 inspectorIconList = iconList.ToArray();
             }
+        }
+
+        /// <summary>
+        /// 确保已获取全局Lua组件，缺失时打印致命错误
+        /// </summary>
+        /// <returns>Lua组件是否有效</returns>
+        private bool EnsureLuaComponent()
+        {
+            if (m_LuaComponent == null)
+            {
+                m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
+                if (m_LuaComponent == null)
+                {
+                    Log.Fatal("Lua Component 无效。");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 处理单个【别名格式】图片标签：查Lua配置、解析参数并收集图标
+        /// </summary>
+        /// <param name="originalContent">完整匹配的原始标签字符串</param>
+        /// <param name="contents">按分隔符拆分后的参数数组</param>
+        /// <param name="iconList">收集到的图标列表</param>
+        /// <returns>是否继续匹配下一个标签</returns>
+        private bool ProcessResDefTag(string originalContent, string[] contents, List<IconName> iconList)
+        {
+            bool nextMatch = true;
+
+            // 参数格式：图片别名、缩放、偏移X、偏移Y
+            if (contents.Length == 4)
+            {
+                // 通过Lua委托，根据别名获取资源配置信息
+                LuaTable resDefLuaTable = m_LuaComponent.LuaGetResDefInfoEventDelegate(contents[0]);
+                if (resDefLuaTable != null)
+                {
+                    // 从Lua表中读取AB路径和资源名称
+                    resDefLuaTable.Get("ABPath", out string abPath);
+                    resDefLuaTable.Get("AssetName", out string assetName);
+
+                    // 解析缩放与偏移参数
+                    float scaleXY = float.Parse(contents[1]);
+                    float offsetX = float.Parse(contents[2]);
+                    float offsetY = float.Parse(contents[3]);
+
+                    // 收集图标信息
+                    nextMatch = CollectIcon(iconList, originalContent, abPath, assetName, scaleXY, offsetX, offsetY);
+                }
+            }
+
+            return nextMatch;
         }
         #endregion
     }

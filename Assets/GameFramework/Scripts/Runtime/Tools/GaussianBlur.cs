@@ -20,16 +20,28 @@ using UnityEngine.UI;
 public class GaussianBlur : MonoBehaviour
 {
     #region 模糊配置参数
+    /// <summary>
+    /// 模糊迭代次数（越大越模糊，性能开销越高）
+    /// </summary>
     [Header("模糊基础设置")]
     [Range(0, 4)] 
     public int iterations = 3;
 
+    /// <summary>
+    /// 每次采样的模糊扩散半径
+    /// </summary>
     [Range(0.2f, 3.0f)] 
     public float blurSpread = 0.6f;
 
+    /// <summary>
+    /// 降采样倍数（越大越模糊且越省性能）
+    /// </summary>
     [Range(1, 8)] 
     public int downSample = 2;
 
+    /// <summary>
+    /// 高斯模糊材质（分离高斯：垂直/水平两次采样）
+    /// </summary>
     [Header("引用设置")]
     [SerializeField] 
     private Material m_Material;

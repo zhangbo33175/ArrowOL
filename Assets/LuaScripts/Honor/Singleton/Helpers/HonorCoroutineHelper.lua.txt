@@ -19,7 +19,7 @@ local CoroutineWaitHelper = class("CoroutineWaitHelper")
 ---@class HonorCoroutineHelper 协程管理助手
 local HonorCoroutineHelper = class("HonorCoroutineHelper")
 
---- 构造函数
+---@brief 构造函数
 function HonorCoroutineHelper:ctor(args)
     self._util = require("SystemUtil")         --- xlua 协程工具
     self._coroutines = {}                      --- 协程列表：{target, coroutine}
@@ -29,7 +29,7 @@ function HonorCoroutineHelper:ctor(args)
     self.waitForSeconds.WaitForSecondsRealtime = {}    --- 真实时间等待缓存
 end
 
---- 创建实例
+---@brief 创建实例
 ---@param args table
 ---@return HonorCoroutineHelper
 function HonorCoroutineHelper:Create(args)
@@ -37,7 +37,7 @@ function HonorCoroutineHelper:Create(args)
     return obj
 end
 
---- 启动协程（自动绑定 target，方便后续销毁）
+---@brief 启动协程（自动绑定 target，方便后续销毁）
 ---@param handler table
 ---@return UnityEngine.Coroutine
 function HonorCoroutineHelper:Start(handler)
@@ -51,7 +51,7 @@ function HonorCoroutineHelper:Start(handler)
     return co
 end
 
---- 独立启动协程（不绑定 target）
+---@brief 独立启动协程（不绑定 target）
 ---@param func function
 ---@return UnityEngine.Coroutine
 function HonorCoroutineHelper:StartAlone(func)
@@ -61,7 +61,7 @@ function HonorCoroutineHelper:StartAlone(func)
     return nil
 end
 
---- 停止单个独立协程
+---@brief 停止单个独立协程
 ---@param co UnityEngine.Coroutine
 function HonorCoroutineHelper:StopAlone(co)
     if not co then return end
@@ -70,7 +70,7 @@ function HonorCoroutineHelper:StopAlone(co)
     end
 end
 
---- 停止所有协程
+---@brief 停止所有协程
 function HonorCoroutineHelper:StopAll()
     if GameMainRoot.Launcher then
         GameMainRoot.Launcher:StopAllCoroutines()
@@ -78,7 +78,7 @@ function HonorCoroutineHelper:StopAll()
     self._coroutines = {}
 end
 
---- 停止指定协程
+---@brief 停止指定协程
 ---@param co UnityEngine.Coroutine
 function HonorCoroutineHelper:Stop(co)
     if not co then return end
@@ -90,7 +90,7 @@ function HonorCoroutineHelper:Stop(co)
     end
 end
 
---- 根据 GameObject 停止其所有协程（界面销毁必备）
+---@brief 根据 GameObject 停止其所有协程（界面销毁必备）
 ---@param go UnityEngine.GameObject
 function HonorCoroutineHelper:StopByGO(go)
     if not go then return end
@@ -102,14 +102,14 @@ function HonorCoroutineHelper:StopByGO(go)
     end
 end
 
---- 等待指定帧数
+---@brief 等待指定帧数
 ---@param waitter any
 function HonorCoroutineHelper:WaitForFrame(waitter)
     waitter:Reset()
     coroutine.yield(waitter)
 end
 
---- 等待秒数（带缓存，无GC）
+---@brief 等待秒数（带缓存，无GC）
 ---@param waitTime number
 function HonorCoroutineHelper:WaitForSeconds(waitTime)
     waitTime = math.floor(waitTime * 1000) / 1000  -- 精度处理
@@ -126,7 +126,7 @@ function HonorCoroutineHelper:WaitForSeconds(waitTime)
     table.insert(cache, waitter)
 end
 
---- 等待真实秒数（不受时间缩放影响，带缓存）
+---@brief 等待真实秒数（不受时间缩放影响，带缓存）
 ---@param waitTime number
 function HonorCoroutineHelper:WaitForSecondsRealtime(waitTime)
     waitTime = math.floor(waitTime * 1000) / 1000

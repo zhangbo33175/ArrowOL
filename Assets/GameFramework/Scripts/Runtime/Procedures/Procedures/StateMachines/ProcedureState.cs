@@ -189,29 +189,29 @@ namespace Honor.Runtime
         /// </summary>
         public void InitLuaBindings(string luaScriptName)
         {
-            LuaComponent luaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-            if (luaComponent == null)
+            LuaComponent luaSystem = GameComponentsGroup.GetComponent<LuaComponent>();
+            if (luaSystem == null)
             {
                 Log.Fatal("Lua Component 无效。");
                 return;
             }
 
             m_LuaScriptName = luaScriptName;
-            LuaEnv luaEnv = luaComponent.Env;
+            LuaEnv luaEnv = luaSystem.Env;
 
             // 创建独立环境并绑定元表
             m_OwnEnv = luaEnv.NewTable();
-            LuaTable meta = luaEnv.NewTable();
-            meta.Set("__index", luaEnv.Global);
-            m_OwnEnv.SetMetaTable(meta);
-            meta.Dispose();
+            LuaTable metaTable = luaEnv.NewTable();
+            metaTable.Set("__index", luaEnv.Global);
+            m_OwnEnv.SetMetaTable(metaTable);
+            metaTable.Dispose();
 
             // 向Lua注入自身与环境
             m_OwnEnv.Set("lua", m_OwnEnv);
             m_OwnEnv.Set("cs", this);
 
             // 加载Lua流程类
-            luaComponent.LuaCreateProcedureLuaClassFromCSEventDelegate(m_OwnEnv, m_LuaScriptName);
+            luaSystem.LuaCreateProcedureLuaClassFromCSEventDelegate(m_OwnEnv, m_LuaScriptName);
 
             // 绑定生命周期
             m_OwnEnv.Get("OnEnter", out m_LuaOnEnter);
@@ -253,10 +253,11 @@ namespace Honor.Runtime
             // 记录上一流程与参数
             if (ownerMachine.LastState != null)
             {
-                m_LastProcedureType = ownerMachine.LastState.GetType();
-                m_ArgsFromChanging = ((ProcedureState)ownerMachine.LastState).PrepareArgsFromChanging;
-                ((ProcedureState)ownerMachine.LastState).PrepareArgsFromChanging = null;
-                ((ProcedureState)ownerMachine.LastState).ArgsFromChanging = null;
+                ProcedureState lastState = (ProcedureState)ownerMachine.LastState;
+                m_LastProcedureType = lastState.GetType();
+                m_ArgsFromChanging = lastState.PrepareArgsFromChanging;
+                lastState.PrepareArgsFromChanging = null;
+                lastState.ArgsFromChanging = null;
             }
 
             // 重置状态

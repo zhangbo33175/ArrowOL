@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LuaBehaviour.Properties.cs
+ * filename:  LuaBehaviour.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   LuaBehaviour - 属性、公共访问器、字段定义
@@ -22,6 +22,35 @@ namespace Honor.Runtime
         //=========================================================================
 
         #region Serialized Fields
+
+        /// <summary>
+        /// 按设计模式在 MVVM / None 两套存储之间取值（仅 MVVM 走 mvvm 分支，其余走 none 分支）
+        /// </summary>
+        /// <typeparam name="T">存储值类型</typeparam>
+        /// <param name="mvvmBranch">MVVM 模式取值委托</param>
+        /// <param name="noneBranch">None 及其它模式取值委托</param>
+        /// <returns>对应设计模式下的存储值</returns>
+        private T ResolveByPattern<T>(Func<T> mvvmBranch, Func<T> noneBranch)
+        {
+            return m_PatternType == PatternType.MVVM ? mvvmBranch() : noneBranch();
+        }
+
+        /// <summary>
+        /// 按设计模式在 MVVM / None 两套存储之间赋值
+        /// </summary>
+        /// <param name="mvvmBranch">MVVM 模式赋值委托</param>
+        /// <param name="noneBranch">None 及其它模式赋值委托</param>
+        private void AssignByPattern(Action mvvmBranch, Action noneBranch)
+        {
+            if (m_PatternType == PatternType.MVVM)
+            {
+                mvvmBranch();
+            }
+            else
+            {
+                noneBranch();
+            }
+        }
 
         /// <summary>
         /// 设计模式类型
@@ -49,12 +78,7 @@ namespace Honor.Runtime
         {
             get
             {
-                switch(m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaScriptCommonNameMVVM;
-                    case PatternType.None: return string.Empty;
-                    default:return string.Empty;
-                }
+                return ResolveByPattern(() => m_LuaScriptCommonNameMVVM, () => string.Empty);
             }
         }
 
@@ -65,12 +89,7 @@ namespace Honor.Runtime
         {
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaScriptNamesMVVM;
-                    case PatternType.None: return m_LuaScriptNamesNone;
-                    default: return m_LuaScriptNamesNone;
-                }
+                return ResolveByPattern(() => m_LuaScriptNamesMVVM, () => m_LuaScriptNamesNone);
             }
         }
 
@@ -81,12 +100,7 @@ namespace Honor.Runtime
         {
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaSuperScriptNamesMVVM;
-                    case PatternType.None: return m_LuaSuperScriptNamesNone;
-                    default: return m_LuaSuperScriptNamesNone;
-                }
+                return ResolveByPattern(() => m_LuaSuperScriptNamesMVVM, () => m_LuaSuperScriptNamesNone);
             }
         }
 
@@ -280,23 +294,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// Lua 父类脚本名称集合
+        /// Lua 独立环境表访问器（按设计模式返回对应环境）
         /// </summary>
         public LuaTable lua
         {
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_OwnLuaEnvsMVVM[(int)MVVMPatternType.View];
-                    case PatternType.None: return m_OwnLuaEnvsNone[(int)NonePatternType.Default];
-                    default: return m_OwnLuaEnvsNone[(int)NonePatternType.Default];
-                }
+                return ResolveByPattern(
+                    () => m_OwnLuaEnvsMVVM[(int)MVVMPatternType.View],
+                    () => m_OwnLuaEnvsNone[(int)NonePatternType.Default]);
             }
         }
 
         /// <summary>
-        /// 是否启用 Proc 逻辑更新
+        /// 标准模式（None）下的 Lua Class 实例
         /// </summary>
         public LuaTable luaClass
         {
@@ -307,7 +318,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否使用遮罩层
+        /// MVVM 模式下的 View 层 Lua Class 实例
         /// </summary>
         public LuaTable luaClassView
         {
@@ -318,7 +329,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否使用关闭动画
+        /// MVVM 模式下的 ViewModel 层 Lua Class 实例
         /// </summary>
         public LuaTable luaClassViewModel
         {
@@ -329,7 +340,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否绘制射线检测目标 Gizmo
+        /// 可用的 Lua Class（优先标准模式，其次 MVVM View 层）
         /// </summary>
         public LuaTable ValidLuaClass
         {
@@ -346,21 +357,11 @@ namespace Honor.Runtime
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_OwnLuaEnvsMVVM = value; break;
-                    case PatternType.None: m_OwnLuaEnvsNone = value; break;
-                    default: m_OwnLuaEnvsNone = value; break;
-                }
+                AssignByPattern(() => m_OwnLuaEnvsMVVM = value, () => m_OwnLuaEnvsNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_OwnLuaEnvsMVVM;
-                    case PatternType.None: return m_OwnLuaEnvsNone;
-                    default: return m_OwnLuaEnvsNone;
-                }
+                return ResolveByPattern(() => m_OwnLuaEnvsMVVM, () => m_OwnLuaEnvsNone);
             }
         }
 
@@ -371,21 +372,11 @@ namespace Honor.Runtime
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_OwnLuaClassesMVVM = value; break;
-                    case PatternType.None: m_OwnLuaClassesNone = value; break;
-                    default: m_OwnLuaClassesNone = value; break;
-                }
+                AssignByPattern(() => m_OwnLuaClassesMVVM = value, () => m_OwnLuaClassesNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_OwnLuaClassesMVVM;
-                    case PatternType.None: return m_OwnLuaClassesNone;
-                    default: return m_OwnLuaClassesNone;
-                }
+                return ResolveByPattern(() => m_OwnLuaClassesMVVM, () => m_OwnLuaClassesNone);
             }
         }
 
@@ -397,135 +388,93 @@ namespace Honor.Runtime
 
         #region Lifecycle Accessors
 
+        /// <summary>
+        /// Lua 生命周期：Awake 回调数组（按设计模式转发到对应存储）
+        /// </summary>
         public Action[] LuaAwakes
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_LuaAwakesMVVM = value; break;
-                    case PatternType.None: m_LuaAwakesNone = value; break;
-                    default: m_LuaAwakesNone = value; break;
-                }
+                AssignByPattern(() => m_LuaAwakesMVVM = value, () => m_LuaAwakesNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaAwakesMVVM;
-                    case PatternType.None: return m_LuaAwakesNone;
-                    default: return m_LuaAwakesNone;
-                }
+                return ResolveByPattern(() => m_LuaAwakesMVVM, () => m_LuaAwakesNone);
             }
         }
 
+        /// <summary>
+        /// Lua 生命周期：OnEnable 回调数组
+        /// </summary>
         public Action[] LuaOnEnables
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_LuaOnEnablesMVVM = value; break;
-                    case PatternType.None: m_LuaOnEnablesNone = value; break;
-                    default: m_LuaOnEnablesNone = value; break;
-                }
+                AssignByPattern(() => m_LuaOnEnablesMVVM = value, () => m_LuaOnEnablesNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaOnEnablesMVVM;
-                    case PatternType.None: return m_LuaOnEnablesNone;
-                    default: return m_LuaOnEnablesNone;
-                }
+                return ResolveByPattern(() => m_LuaOnEnablesMVVM, () => m_LuaOnEnablesNone);
             }
         }
 
+        /// <summary>
+        /// Lua 生命周期：Start 回调数组
+        /// </summary>
         public Action[] LuaStarts
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_LuaStartsMVVM = value; break;
-                    case PatternType.None: m_LuaStartsNone = value; break;
-                    default: m_LuaStartsNone = value; break;
-                }
+                AssignByPattern(() => m_LuaStartsMVVM = value, () => m_LuaStartsNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaStartsMVVM;
-                    case PatternType.None: return m_LuaStartsNone;
-                    default: return m_LuaStartsNone;
-                }
+                return ResolveByPattern(() => m_LuaStartsMVVM, () => m_LuaStartsNone);
             }
         }
 
+        /// <summary>
+        /// Lua 自定义逻辑：Proc（逻辑帧更新）回调数组
+        /// </summary>
         public Action[] LuaProcs
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_LuaProcsMVVM = value; break;
-                    case PatternType.None: m_LuaProcsNone = value; break;
-                    default: m_LuaProcsNone = value; break;
-                }
+                AssignByPattern(() => m_LuaProcsMVVM = value, () => m_LuaProcsNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaProcsMVVM;
-                    case PatternType.None: return m_LuaProcsNone;
-                    default: return m_LuaProcsNone;
-                }
+                return ResolveByPattern(() => m_LuaProcsMVVM, () => m_LuaProcsNone);
             }
         }
 
+        /// <summary>
+        /// Lua 生命周期：OnDisable 回调数组
+        /// </summary>
         public Action[] LuaOnDisables
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_LuaOnDisablesMVVM = value; break;
-                    case PatternType.None: m_LuaOnDisablesNone = value; break;
-                    default: m_LuaOnDisablesNone = value; break;
-                }
+                AssignByPattern(() => m_LuaOnDisablesMVVM = value, () => m_LuaOnDisablesNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaOnDisablesMVVM;
-                    case PatternType.None: return m_LuaOnDisablesNone;
-                    default: return m_LuaOnDisablesNone;
-                }
+                return ResolveByPattern(() => m_LuaOnDisablesMVVM, () => m_LuaOnDisablesNone);
             }
         }
 
+        /// <summary>
+        /// Lua 生命周期：OnDestroy 回调数组
+        /// </summary>
         public Action[] LuaOnDestroys
         {
             set
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: m_LuaOnDestroysMVVM = value; break;
-                    case PatternType.None: m_LuaOnDestroysNone = value; break;
-                    default: m_LuaOnDestroysNone = value; break;
-                }
+                AssignByPattern(() => m_LuaOnDestroysMVVM = value, () => m_LuaOnDestroysNone = value);
             }
             get
             {
-                switch (m_PatternType)
-                {
-                    case PatternType.MVVM: return m_LuaOnDestroysMVVM;
-                    case PatternType.None: return m_LuaOnDestroysNone;
-                    default: return m_LuaOnDestroysNone;
-                }
+                return ResolveByPattern(() => m_LuaOnDestroysMVVM, () => m_LuaOnDestroysNone);
             }
         }
 
@@ -534,8 +483,17 @@ namespace Honor.Runtime
         // ==============================================
         // 碰撞/触发组件
         // ==============================================
+        #region 碰撞/触发组件
+
+        /// <summary>
+        /// 2D 碰撞事件转发组件
+        /// </summary>
         [SerializeField]
         private Collider2DLifeCyclesBehaviour m_Collider2DLifeCyclesBehaviour;
+
+        /// <summary>
+        /// 2D 碰撞事件转发组件（只读）
+        /// </summary>
         public Collider2DLifeCyclesBehaviour Collider2DLifeCyclesBehaviour
         {
             get
@@ -544,8 +502,15 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 3D 碰撞事件转发组件
+        /// </summary>
         [SerializeField]
         private Collider3DLifeCyclesBehaviour m_Collider3DLifeCyclesBehaviour;
+
+        /// <summary>
+        /// 3D 碰撞事件转发组件（只读）
+        /// </summary>
         public Collider3DLifeCyclesBehaviour Collider3DLifeCyclesBehaviour
         {
             get
@@ -554,8 +519,15 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 2D 触发事件转发组件
+        /// </summary>
         [SerializeField]
         private Trigger2DLifeCyclesBehaviour m_Trigger2DLifeCyclesBehaviour;
+
+        /// <summary>
+        /// 2D 触发事件转发组件（只读）
+        /// </summary>
         public Trigger2DLifeCyclesBehaviour Trigger2DLifeCyclesBehaviour
         {
             get
@@ -564,8 +536,15 @@ namespace Honor.Runtime
             }
         }
 
+        /// <summary>
+        /// 3D 触发事件转发组件
+        /// </summary>
         [SerializeField]
         private Trigger3DLifeCyclesBehaviour m_Trigger3DLifeCyclesBehaviour;
+
+        /// <summary>
+        /// 3D 触发事件转发组件（只读）
+        /// </summary>
         public Trigger3DLifeCyclesBehaviour Trigger3DLifeCyclesBehaviour
         {
             get
@@ -574,10 +553,21 @@ namespace Honor.Runtime
             }
         }
 
+        #endregion
+
         // ==============================================
         // 内部组件
         // ==============================================
+        #region 内部组件
+
+        /// <summary>
+        /// UI 组件引用
+        /// </summary>
         private UIComponent m_UIComponent;
+
+        /// <summary>
+        /// Lua 组件引用
+        /// </summary>
         private LuaComponent m_LuaComponent;
 
         /// <summary>
@@ -585,12 +575,21 @@ namespace Honor.Runtime
         /// </summary>
         private bool m_AwakeOver;
 
+        /// <summary>
+        /// 生命周期标记：OnEnable 是否已完成
+        /// </summary>
         private bool m_EnableOver;
+
+        /// <summary>
+        /// 生命周期标记：Start 是否已完成
+        /// </summary>
         private bool m_StartOver;
 
         /// <summary>
         /// Gizmo 绘制缓存
         /// </summary>
         private Vector3[] m_RaycastTargetWorldCornersOnDrawGizmos = new Vector3[4];
+
+        #endregion
     }
 }

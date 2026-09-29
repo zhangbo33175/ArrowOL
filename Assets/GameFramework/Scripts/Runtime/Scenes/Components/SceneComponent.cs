@@ -290,6 +290,7 @@ namespace Honor.Runtime
             if (index < -1 || index >= m_SceneCameras.Count)
             {
                 Log.Error("SceneComponent.SetSceneCameraEnable index 无效。");
+                return;
             }
 
             if (index == -1)

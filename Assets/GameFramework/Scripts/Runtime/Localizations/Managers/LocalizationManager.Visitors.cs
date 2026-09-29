@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  LocalizationManager.Fields.cs
+ * filename:  LocalizationManager.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   本地化管理器 - 字段定义（partial）

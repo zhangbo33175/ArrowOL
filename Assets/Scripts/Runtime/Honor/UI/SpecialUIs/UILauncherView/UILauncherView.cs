@@ -35,12 +35,18 @@ namespace Honor.Runtime
         //=========================================================================
         // 生命周期
         //=========================================================================
+        /// <summary>
+        /// 唤醒时清空外部回调，防止引用残留
+        /// </summary>
         private void Awake()
         {
             // 初始化回调为空，防止引用残留
             DurationOverCallback = null;
         }
 
+        /// <summary>
+        /// 启动时播放延时动画，结束后触发外部回调
+        /// </summary>
         private void Start()
         {
             // 播放延时动画：等待配置的时间 → 触发回调
@@ -50,6 +56,9 @@ namespace Honor.Runtime
                 .id = GameDOTweenTypes.SplashDurationAnimation;
         }
 
+        /// <summary>
+        /// 销毁（预留）
+        /// </summary>
         private void OnDestroy()
         {
         }

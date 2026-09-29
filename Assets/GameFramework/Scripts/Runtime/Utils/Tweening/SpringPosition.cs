@@ -47,6 +47,9 @@ namespace Honor.Runtime
 
         #region 生命周期
 
+        /// <summary>
+        /// 每帧更新：驱动弹簧逼近目标位置，到达阈值后停止并触发完成回调
+        /// </summary>
         private void Update()
         {
             if (!m_Playing)

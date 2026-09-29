@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIManager.Utils.cs
+ * filename:  UIManager.Methods.cs
  * author:  云毅
  * created: 2026
  * descrip:   UI 管理器 - 私有工具方法与内部逻辑
@@ -95,11 +95,15 @@ namespace Honor.Runtime
         /// </summary>
         private void UpdateSubUIList(UIType uiType)
         {
-            if (m_SubUIList == null || !m_SubUIList.ContainsKey(uiType)) return;
+            if (m_SubUIList == null) return;
 
-            for (int index = 0; index < m_SubUIList[uiType].Count; index++)
+            // 一次性取出列表引用，避免每帧重复字典查找（ContainsKey + 每次索引器）
+            List<UIFlagBehaviour> subUIList;
+            if (!m_SubUIList.TryGetValue(uiType, out subUIList) || subUIList == null) return;
+
+            for (int index = 0; index < subUIList.Count; index++)
             {
-                UIFlagBehaviour ui = m_SubUIList[uiType][index];
+                UIFlagBehaviour ui = subUIList[index];
                 if (ui != null && ui.LuaBehaviour != null && ui.LuaBehaviour.UseProc && ui.gameObject.activeSelf)
                 {
                     ui.LuaBehaviour.Proc();
@@ -529,6 +533,25 @@ namespace Honor.Runtime
                 flagBehaviour.PrefabInstanceGOBehaviour.RightNowDestroyOnAsset = true;
             }
 
+            RemoveFromUIManagedLists(flagBehaviour);
+
+            NotifyParentUIsOnDestroy(flagBehaviour);
+
+            if (!flagBehaviour.FollowParentDestroy && flagBehaviour.gameObject != null)
+            {
+                if (destroyImmediate)
+                    GameObject.DestroyImmediate(flagBehaviour.gameObject);
+                else
+                    GameObject.Destroy(flagBehaviour.gameObject);
+            }
+        }
+
+        /// <summary>
+        /// 从模态/非模态/场景/子UI/卸载等所有UI管理列表中移除该界面
+        /// </summary>
+        /// <param name="flagBehaviour">待销毁的界面标记</param>
+        private void RemoveFromUIManagedLists(UIFlagBehaviour flagBehaviour)
+        {
             if (m_CurModalUI == flagBehaviour)
             {
                 m_CurModalUI = null;
@@ -552,38 +575,36 @@ namespace Honor.Runtime
             }
 
             m_UnloadUIList.Remove(flagBehaviour);
+        }
 
-            if (flagBehaviour.LuaBehaviour != null && flagBehaviour.UIInfo != null && flagBehaviour.UIInfo.IsAppend)
+        /// <summary>
+        /// 追加式UI销毁时通知其所有父级UI的OnAddedUIDestroyed回调
+        /// </summary>
+        /// <param name="flagBehaviour">待销毁的界面标记</param>
+        private void NotifyParentUIsOnDestroy(UIFlagBehaviour flagBehaviour)
+        {
+            if (flagBehaviour.LuaBehaviour == null || flagBehaviour.UIInfo == null || !flagBehaviour.UIInfo.IsAppend) return;
+
+            List<UIFlagBehaviour> parentFlags = new List<UIFlagBehaviour>();
+            flagBehaviour.GetComponentsInParent(true, parentFlags);
+            parentFlags.Remove(flagBehaviour);
+            parentFlags.Sort((a, b) =>
             {
-                List<UIFlagBehaviour> parentFlags = new List<UIFlagBehaviour>();
-                flagBehaviour.GetComponentsInParent(true, parentFlags);
-                parentFlags.Remove(flagBehaviour);
-                parentFlags.Sort((a, b) =>
-                {
-                    if (a == null || b == null || a.transform == null || b.transform == null) return 0;
-                    return b.transform.GetRouteNum() - a.transform.GetRouteNum();
-                });
+                if (a == null || b == null || a.transform == null || b.transform == null) return 0;
+                return b.transform.GetRouteNum() - a.transform.GetRouteNum();
+            });
 
-                foreach (var parent in parentFlags)
-                {
-                    if (parent == null || parent.LuaBehaviour == null) continue;
+            foreach (var parent in parentFlags)
+            {
+                if (parent == null || parent.LuaBehaviour == null) continue;
 
-                    LuaTable master = parent.LuaBehaviour.ValidLuaClass;
-                    if (master != null)
-                    {
-                        master.Get("OnAddedUIDestroyed", out LuaFunction func);
-                        func?.Action(master, flagBehaviour.LuaBehaviour.ValidLuaClass);
-                        func?.Dispose();
-                    }
+                LuaTable master = parent.LuaBehaviour.ValidLuaClass;
+                if (master != null)
+                {
+                    master.Get("OnAddedUIDestroyed", out LuaFunction func);
+                    func?.Action(master, flagBehaviour.LuaBehaviour.ValidLuaClass);
+                    func?.Dispose();
                 }
-            }
-
-            if (!flagBehaviour.FollowParentDestroy && flagBehaviour.gameObject != null)
-            {
-                if (destroyImmediate)
-                    GameObject.DestroyImmediate(flagBehaviour.gameObject);
-                else
-                    GameObject.Destroy(flagBehaviour.gameObject);
             }
         }
         #endregion
@@ -598,17 +619,7 @@ namespace Honor.Runtime
 
             if (m_CheckTextLocalizings)
             {
-                List<MaskableGraphic> graphics = new List<MaskableGraphic>();
-                graphics.AddRange(go.GetComponentsInChildren<Text>());
-                graphics.AddRange(go.GetComponentsInChildren<TextMeshProUGUI>());
-
-                foreach (var g in graphics)
-                {
-                    if (g != null && !g.GetComponent<AorTextLocalizing>())
-                    {
-                        Log.Error($"多语言组件缺失：{g.transform.GetRoute()}");
-                    }
-                }
+                CheckTextLocalizingComponents(go);
             }
 
             List<string> fontMarks = new List<string>();
@@ -621,92 +632,156 @@ namespace Honor.Runtime
             foreach (var local in locals)
             {
                 if (local == null) continue;
+                ApplyLocalizationToLocalizing(local, uiInfo, fontMarks, fontDatas);
+            }
+        }
 
-                int index = fontMarks.FindIndex(m => m == local.LocalizingFontMark);
-                index = Mathf.Clamp(index, 0, fontDatas.Count - 1);
+        /// <summary>
+        /// 检查界面下所有文本组件是否都挂载了AorTextLocalizing
+        /// </summary>
+        /// <param name="go">界面根节点</param>
+        private void CheckTextLocalizingComponents(GameObject go)
+        {
+            List<MaskableGraphic> graphics = new List<MaskableGraphic>();
+            graphics.AddRange(go.GetComponentsInChildren<Text>());
+            graphics.AddRange(go.GetComponentsInChildren<TextMeshProUGUI>());
 
-                Text text = local.GetComponent<Text>();
-                TextMeshProUGUI tmp = local.GetComponent<TextMeshProUGUI>();
-
-                LocalizationFontData fontData = fontDatas[index];
-                if (fontData == null || index >= Fonts.Count) continue;
-
-                UnityEngine.Object font = Fonts[index];
-                if (!Enum.TryParse(fontData.FontType, out GameDefinitions.AssetType fontType)) continue;
-
-                float scale = 1;
-                Vector2 offset = Vector2.zero;
-                if (local.Language != GameDefinitions.Language.Unspecified && local.Language != GameMainRoot.Localization.Language)
+            foreach (var g in graphics)
+            {
+                if (g != null && !g.GetComponent<AorTextLocalizing>())
                 {
-                    m_LocalizationComponent.GetFontData(local.Language, out List<LocalizationFontData> lastFonts);
-                    if (lastFonts != null && index < lastFonts.Count)
+                    Log.Error($"多语言组件缺失：{g.transform.GetRoute()}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 对单个多语言文本组件应用字体、字号缩放与位置适配
+        /// </summary>
+        /// <param name="local">多语言文本组件</param>
+        /// <param name="uiInfo">界面信息</param>
+        /// <param name="fontMarks">字体标记列表</param>
+        /// <param name="fontDatas">字体数据列表</param>
+        private void ApplyLocalizationToLocalizing(AorTextLocalizing local, UIInfo uiInfo, List<string> fontMarks,
+            List<LocalizationFontData> fontDatas)
+        {
+            int index = fontMarks.FindIndex(m => m == local.LocalizingFontMark);
+            index = Mathf.Clamp(index, 0, fontDatas.Count - 1);
+
+            Text text = local.GetComponent<Text>();
+            TextMeshProUGUI tmp = local.GetComponent<TextMeshProUGUI>();
+
+            LocalizationFontData fontData = fontDatas[index];
+            if (fontData == null || index >= Fonts.Count) return;
+
+            UnityEngine.Object font = Fonts[index];
+            if (!Enum.TryParse(fontData.FontType, out GameDefinitions.AssetType fontType)) return;
+
+            float scale = 1;
+            Vector2 offset = Vector2.zero;
+            if (local.Language != GameDefinitions.Language.Unspecified && local.Language != GameMainRoot.Localization.Language)
+            {
+                m_LocalizationComponent.GetFontData(local.Language, out List<LocalizationFontData> lastFonts);
+                if (lastFonts != null && index < lastFonts.Count)
+                {
+                    var lastData = lastFonts[index];
+                    if (lastData != null && lastData.FontSizeScaleRatio > 0)
+                        scale = fontData.FontSizeScaleRatio / lastData.FontSizeScaleRatio;
+                }
+            }
+            else if (local.Language == GameDefinitions.Language.Unspecified)
+            {
+                scale = fontData.FontSizeScaleRatio;
+            }
+
+            if (fontType == GameDefinitions.AssetType.Font)
+            {
+                ApplyLegacyFontToLocalizing(local, uiInfo, text, tmp, font, scale, offset);
+            }
+            else if (fontType == GameDefinitions.AssetType.FontTMP)
+            {
+                ApplyTMPFontToLocalizing(local, uiInfo, text, tmp, font, fontData, scale, offset);
+            }
+        }
+
+        /// <summary>
+        /// 将旧版UnityFont应用到文本组件
+        /// </summary>
+        /// <param name="local">多语言文本组件</param>
+        /// <param name="uiInfo">界面信息</param>
+        /// <param name="text">旧版文本组件</param>
+        /// <param name="tmp">TMP文本组件</param>
+        /// <param name="font">字体资源</param>
+        /// <param name="scale">字号缩放比</param>
+        /// <param name="offset">位置偏移</param>
+        private void ApplyLegacyFontToLocalizing(AorTextLocalizing local, UIInfo uiInfo, Text text, TextMeshProUGUI tmp,
+            UnityEngine.Object font, float scale, Vector2 offset)
+        {
+            if (!uiInfo.MultiTypeTextCompsCoexist && tmp) tmp.enabled = false;
+            if (text != null && font is Font unityFont)
+            {
+                text.enabled = true;
+                text.font = unityFont;
+                if (local.OpenPosOffset)
+                {
+                    text.fontSize = Mathf.RoundToInt(text.fontSize * scale);
+                    text.resizeTextMinSize = Mathf.RoundToInt(text.resizeTextMinSize * scale);
+                    text.resizeTextMaxSize = Mathf.RoundToInt(text.resizeTextMaxSize * scale);
+                    text.rectTransform.anchoredPosition += offset;
+                }
+                local.Language = GameMainRoot.Localization.Language;
+            }
+        }
+
+        /// <summary>
+        /// 将TMP_FontAsset应用到TMP文本组件，含材质后缀匹配
+        /// </summary>
+        /// <param name="local">多语言文本组件</param>
+        /// <param name="uiInfo">界面信息</param>
+        /// <param name="text">旧版文本组件</param>
+        /// <param name="tmp">TMP文本组件</param>
+        /// <param name="font">字体资源</param>
+        /// <param name="fontData">字体数据</param>
+        /// <param name="scale">字号缩放比</param>
+        /// <param name="offset">位置偏移</param>
+        private void ApplyTMPFontToLocalizing(AorTextLocalizing local, UIInfo uiInfo, Text text, TextMeshProUGUI tmp,
+            UnityEngine.Object font, LocalizationFontData fontData, float scale, Vector2 offset)
+        {
+            if (!uiInfo.MultiTypeTextCompsCoexist && text) text.enabled = false;
+            if (tmp != null && font is TMP_FontAsset tmpFont)
+            {
+                tmp.enabled = true;
+                string sep = "___";
+                Material mat = null;
+
+                if (tmp.fontSharedMaterial != null && tmp.fontSharedMaterial.name.Contains(sep))
+                {
+                    int i = tmp.fontSharedMaterial.name.LastIndexOf(sep);
+                    if (i > 0)
                     {
-                        var lastData = lastFonts[index];
-                        if (lastData != null && lastData.FontSizeScaleRatio > 0)
-                            scale = fontData.FontSizeScaleRatio / lastData.FontSizeScaleRatio;
+                        string suffix = tmp.fontSharedMaterial.name.Substring(i + sep.Length).Replace("(Instance)", "").Replace(" ", "");
+                        if (!string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(fontData.ABPath))
+                        {
+                            mat = (Material)m_AssetComponent.LoadAssetSync("Material", fontData.ABPath, $"{font.name}{sep}{suffix}");
+                        }
                     }
                 }
-                else if (local.Language == GameDefinitions.Language.Unspecified)
+
+                tmp.font = tmpFont;
+                if (mat != null)
                 {
-                    scale = fontData.FontSizeScaleRatio;
+                    tmp.fontMaterial = mat;
+                    m_AssetComponent.UnloadAsset(mat);
                 }
 
-                if (fontType == GameDefinitions.AssetType.Font)
+                if (local.OpenPosOffset)
                 {
-                    if (!uiInfo.MultiTypeTextCompsCoexist && tmp) tmp.enabled = false;
-                    if (text != null && font is Font unityFont)
-                    {
-                        text.enabled = true;
-                        text.font = unityFont;
-                        if (local.OpenPosOffset)
-                        {
-                            text.fontSize = Mathf.RoundToInt(text.fontSize * scale);
-                            text.resizeTextMinSize = Mathf.RoundToInt(text.resizeTextMinSize * scale);
-                            text.resizeTextMaxSize = Mathf.RoundToInt(text.resizeTextMaxSize * scale);
-                            text.rectTransform.anchoredPosition += offset;
-                        }
-                        local.Language = GameMainRoot.Localization.Language;
-                    }
+                    tmp.fontSize = Mathf.RoundToInt(tmp.fontSize * scale);
+                    tmp.fontSizeMin = Mathf.RoundToInt(tmp.fontSizeMin * scale);
+                    tmp.fontSizeMax = Mathf.RoundToInt(tmp.fontSizeMax * scale);
+                    tmp.rectTransform.anchoredPosition += offset;
                 }
-                else if (fontType == GameDefinitions.AssetType.FontTMP)
-                {
-                    if (!uiInfo.MultiTypeTextCompsCoexist && text) text.enabled = false;
-                    if (tmp != null && font is TMP_FontAsset tmpFont)
-                    {
-                        tmp.enabled = true;
-                        string sep = "___";
-                        Material mat = null;
-
-                        if (tmp.fontSharedMaterial != null && tmp.fontSharedMaterial.name.Contains(sep))
-                        {
-                            int i = tmp.fontSharedMaterial.name.LastIndexOf(sep);
-                            if (i > 0)
-                            {
-                                string suffix = tmp.fontSharedMaterial.name.Substring(i + sep.Length).Replace("(Instance)", "").Replace(" ", "");
-                                if (!string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(fontData.ABPath))
-                                {
-                                    mat = (Material)m_AssetComponent.LoadAssetSync("Material", fontData.ABPath, $"{font.name}{sep}{suffix}");
-                                }
-                            }
-                        }
-
-                        tmp.font = tmpFont;
-                        if (mat != null)
-                        {
-                            tmp.fontMaterial = mat;
-                            m_AssetComponent.UnloadAsset(mat);
-                        }
-
-                        if (local.OpenPosOffset)
-                        {
-                            tmp.fontSize = Mathf.RoundToInt(tmp.fontSize * scale);
-                            tmp.fontSizeMin = Mathf.RoundToInt(tmp.fontSizeMin * scale);
-                            tmp.fontSizeMax = Mathf.RoundToInt(tmp.fontSizeMax * scale);
-                            tmp.rectTransform.anchoredPosition += offset;
-                        }
-                        local.Language = GameMainRoot.Localization.Language;
-                    }
-                }
+                local.Language = GameMainRoot.Localization.Language;
             }
         }
         #endregion

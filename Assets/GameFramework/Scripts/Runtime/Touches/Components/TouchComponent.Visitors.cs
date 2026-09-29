@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  TouchComponent.cs
+ * filename:  TouchComponent.Visitors.cs
  * author:    云毅
  * created:   2026
  * descrip:   触摸输入组件，管理游戏内所有触摸、手势相关功能

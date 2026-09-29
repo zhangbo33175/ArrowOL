@@ -35,12 +35,9 @@ namespace Honor.Runtime
         /// <returns>压缩+Base64编码后的字符串</returns>
         public static string CompressToBase64(string content)
         {
-            using MemoryStream ms = new MemoryStream();
-            using GZipOutputStream gzip = new GZipOutputStream(ms);
-            byte[] binary = Encoding.UTF8.GetBytes(content);
-            gzip.Write(binary, 0, binary.Length);
-            gzip.Close();
-            return Convert.ToBase64String(ms.ToArray());
+            byte[] utf8Bytes = Encoding.UTF8.GetBytes(content);
+            byte[] compressed = CompressRaw(utf8Bytes);
+            return Convert.ToBase64String(compressed);
         }
 
         /// <summary>
@@ -50,21 +47,12 @@ namespace Honor.Runtime
         /// <returns>原始明文字符串</returns>
         public static string UncompressFromBase64(string content)
         {
-            byte[] compressedContent = Convert.FromBase64String(content);
-            
-            using MemoryStream compressedMs = new MemoryStream(compressedContent);
-            using GZipInputStream gzip = new GZipInputStream(compressedMs);
-            using MemoryStream ms = new MemoryStream();
-            
-            byte[] data = new byte[256];
-            int count;
-            while ((count = gzip.Read(data, 0, data.Length)) != 0)
-            {
-                ms.Write(data, 0, count);
-            }
+            byte[] compressedBytes = Convert.FromBase64String(content);
+            using MemoryStream input = new MemoryStream(compressedBytes);
+            using GZipInputStream gzipStream = new GZipInputStream(input);
 
-            byte[] uncompressed = ms.ToArray();
-            return Encoding.UTF8.GetString(uncompressed);
+            byte[] plain = DrainAll(gzipStream);
+            return Encoding.UTF8.GetString(plain);
         }
         #endregion
 
@@ -79,13 +67,7 @@ namespace Honor.Runtime
         /// <returns>压缩后的字节数组</returns>
         public static byte[] CompressToBytes(byte[] content)
         {
-            //Profiler.BeginSample("GZip");
-            using MemoryStream ms = new MemoryStream();
-            using GZipOutputStream gzip = new GZipOutputStream(ms);
-            gzip.Write(content, 0, content.Length);
-            gzip.Close();
-            //Profiler.EndSample();
-            return ms.ToArray();
+            return CompressRaw(content);
         }
 
         /// <summary>
@@ -95,18 +77,43 @@ namespace Honor.Runtime
         /// <returns>解压后的原始字节数组</returns>
         public static byte[] UncompressToBytes(byte[] content)
         {
-            using MemoryStream compressedMs = new MemoryStream(content);
-            using GZipInputStream gzip = new GZipInputStream(compressedMs);
-            using MemoryStream ms = new MemoryStream();
-            
-            byte[] data = new byte[256];
-            int count;
-            while ((count = gzip.Read(data, 0, data.Length)) != 0)
-            {
-                ms.Write(data, 0, count);
-            }
+            using MemoryStream input = new MemoryStream(content);
+            using GZipInputStream gzipStream = new GZipInputStream(input);
+            return DrainAll(gzipStream);
+        }
+        #endregion
 
-            return ms.ToArray();
+        #region 内部实现
+        /// <summary>
+        /// 对原始字节执行 GZip 压缩
+        /// </summary>
+        /// <param name="raw">待压缩字节</param>
+        /// <returns>GZip 压缩结果</returns>
+        private static byte[] CompressRaw(byte[] raw)
+        {
+            using MemoryStream output = new MemoryStream();
+            using (GZipOutputStream gzipStream = new GZipOutputStream(output))
+            {
+                gzipStream.Write(raw, 0, raw.Length);
+            }
+            return output.ToArray();
+        }
+
+        /// <summary>
+        /// 从 GZip 输入流循环读取全部解压数据
+        /// </summary>
+        /// <param name="gzipStream">GZip 解压输入流</param>
+        /// <returns>解压后的完整字节</returns>
+        private static byte[] DrainAll(GZipInputStream gzipStream)
+        {
+            using MemoryStream output = new MemoryStream();
+            byte[] buffer = new byte[256];
+            int read;
+            while ((read = gzipStream.Read(buffer, 0, buffer.Length)) != 0)
+            {
+                output.Write(buffer, 0, read);
+            }
+            return output.ToArray();
         }
         #endregion
     }

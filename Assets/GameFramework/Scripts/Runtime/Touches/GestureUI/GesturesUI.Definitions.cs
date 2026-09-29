@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  GesturesUI.Enums.cs
+ * filename:  GesturesUI.Definitions.cs
  * author:    云毅
  * created:   2026
  * descrip:   UI手势交互控制器 - 枚举定义分部类
@@ -17,6 +17,9 @@ namespace Honor.Runtime
     //=========================================================================
     // UI 手势交互控制器 - 枚举定义
     //=========================================================================
+    /// <summary>
+    /// UI 手势交互控制器 - 局部枚举定义分部类
+    /// </summary>
     public sealed partial class GesturesUI : MonoBehaviour
     {
         #region 局部枚举定义

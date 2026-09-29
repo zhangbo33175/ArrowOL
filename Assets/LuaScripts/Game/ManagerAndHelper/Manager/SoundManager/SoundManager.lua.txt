@@ -33,7 +33,7 @@ function SoundManager:ctor(args)
 end
 
 ---=========================================================================
---- 创建单例
+---@brief 创建单例
 ---@param args table @自定义参数
 ---@return SoundManager 单例实例
 ---=========================================================================
@@ -75,7 +75,7 @@ end
 
 --region 对外接口
 ---=========================================================================
---- 对外接口：播放背景音乐
+---@brief 对外接口：播放背景音乐
 ---@param soundKey string @音效配置表中的BGM Key
 ---=========================================================================
 function SoundManager:PlayBgm(soundKey)
@@ -83,7 +83,7 @@ function SoundManager:PlayBgm(soundKey)
 end
 
 ---=========================================================================
---- 对外接口：播放普通音效
+---@brief 对外接口：播放普通音效
 ---@param soundKey string @音效配置表Key
 ---@param speed number @播放速度（默认1.0）
 ---@return number 音效唯一序列ID
@@ -103,7 +103,7 @@ function SoundManager:PlaySound(soundKey, speed)
 end
 
 ---=========================================================================
---- 对外接口：停止指定音效
+---@brief 对外接口：停止指定音效
 ---@param serialId number @音效序列ID
 ---=========================================================================
 function SoundManager:StopSound(serialId)
@@ -111,7 +111,7 @@ function SoundManager:StopSound(serialId)
 end
 
 ---=========================================================================
---- 对外接口：获取音效时长（同步加载）
+---@brief 对外接口：获取音效时长（同步加载）
 ---@param soundKey string @音效配置Key
 ---@return number 音效时长（秒）
 ---=========================================================================
@@ -129,7 +129,7 @@ function SoundManager:GetSoundDuration(soundKey)
 end
 
 ---=========================================================================
---- 对外接口：设置音效总开关状态
+---@brief 对外接口：设置音效总开关状态
 ---@param isMute boolean true=静音关闭 false=正常播放
 ---=========================================================================
 function SoundManager:SetSoundMuteState(isMute)
@@ -159,7 +159,7 @@ function SoundManager:OnPlayBgm(soundKey)
 end
 
 ---=========================================================================
---- 获取当前正在播放的BGM Key
+---@brief 获取当前正在播放的BGM Key
 ---@return string 当前BGM配置Key
 ---=========================================================================
 function SoundManager:GetCurrentBgmKey()

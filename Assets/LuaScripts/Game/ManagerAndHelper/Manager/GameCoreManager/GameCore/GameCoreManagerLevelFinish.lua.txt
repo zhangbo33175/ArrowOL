@@ -31,7 +31,7 @@ function GameCoreManagerLevelFinish:ctor(args)
 end
 
 ---=========================================================================
---- 静态创建实例
+---@brief 静态创建实例
 ---@param args table 初始化参数
 ---@return GameCoreManagerLevelFinish
 ---=========================================================================
@@ -156,7 +156,7 @@ function GameCoreManagerLevelFinish:ShowLevelFinishUI()
 end
 
 ---=========================================================================
---- 打开关卡失败界面
+---@brief 打开关卡失败界面
 ---@param preBoosterId string 推荐的前置道具ID（可选）
 ---=========================================================================
 function GameCoreManagerLevelFinish:OpenLevelFailureUI(preBoosterId)
@@ -175,7 +175,7 @@ end
 --region 结算数据扩展（子类重写）
 
 ---=========================================================================
---- 获取关卡成功结算数据（子类可重写扩展）
+---@brief 获取关卡成功结算数据（子类可重写扩展）
 ---@return table 结算数据
 ---=========================================================================
 function GameCoreManagerLevelFinish:GetLevelSuccessInfo()
@@ -185,7 +185,7 @@ function GameCoreManagerLevelFinish:GetLevelSuccessInfo()
 end
 
 ---=========================================================================
---- 获取关卡失败结算数据（子类可重写扩展）
+---@brief 获取关卡失败结算数据（子类可重写扩展）
 ---@return table 结算数据
 ---=========================================================================
 function GameCoreManagerLevelFinish:GetLevelFailureInfo()

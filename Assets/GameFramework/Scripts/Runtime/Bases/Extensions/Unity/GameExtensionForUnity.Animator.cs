@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  GameExtensionForUnity.cs
+ * filename:  GameExtensionForUnity.Animator.cs
  * author:    云毅  
  * created:   2026
  * descrip:   Unity Animator 组件扩展方法，提供安全、高性能、带参数校验的动画控制接口

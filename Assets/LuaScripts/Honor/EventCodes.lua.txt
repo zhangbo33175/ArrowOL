@@ -10,8 +10,7 @@
 --=====================================================================================================
 
 --region 全局通用事件 C# <-> Lua
---- 全局事件定义（C# <-> Lua 互通）
----@class EventCodes
+---@class EventCodes 全局事件定义（C# <-> Lua 互通）
 EventCodes = {
     --- 服务器时间校正事件
     --- 参数：IsTimeCorrectionByServer(boolean)

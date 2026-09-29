@@ -2,7 +2,7 @@
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
- * filename:  UIGDPRBehaviour_Reset.cs
+ * filename:  UIGDPRBehaviour.ResetBg.cs
  * author:    云毅
  * created:   2026
  * descrip:   GDPR隐私政策弹窗 - 重置/设置界面
@@ -130,6 +130,30 @@ namespace Honor.Runtime
         /// </summary>
         private void InitResetBg()
         {
+            // 设置多语言文本（标题/描述/协议/按钮）
+            SetupResetTitleDescTexts();
+            SetupResetPolicyTexts();
+            SetupResetButtonTexts();
+
+            // 从持久化数据读取开关状态
+            SetupResetTogglesFromPersist();
+
+            // 强制刷新布局
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_ResetBg.rectTransform());
+            // 游戏内打开时显示重置界面，否则隐藏
+            m_ResetBg.gameObject.SetActive(InGame);
+            // 游戏内界面重置位置
+            if (InGame)
+            {
+                m_ResetBg.rectTransform().anchoredPosition = Vector2.zero;
+            }
+        }
+
+        /// <summary>
+        /// 设置重置页标题与描述的多语言文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupResetTitleDescTexts()
+        {
             // 标题多语言
             if (m_ResetTitleText != null)
                 m_ResetTitleText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetTitle_Text"),
@@ -147,7 +171,13 @@ namespace Honor.Runtime
             if (m_ResetDescTextTMP != null)
                 m_ResetDescTextTMP.text =
                     AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetDesc_Text"));
+        }
 
+        /// <summary>
+        /// 设置重置页 GDPR/CCPA 协议说明文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupResetPolicyTexts()
+        {
             // GDPR 说明文字
             if (m_ResetGDPRText != null)
                 m_ResetGDPRText.text =
@@ -165,7 +195,13 @@ namespace Honor.Runtime
             if (m_ResetCCPATextTMP != null)
                 m_ResetCCPATextTMP.text =
                     AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetCCPADesc_Text"));
+        }
 
+        /// <summary>
+        /// 设置"保存"与"关闭"按钮的多语言文本（UGUI Text 与 TMP 双份）
+        /// </summary>
+        private void SetupResetButtonTexts()
+        {
             // 保存按钮文字
             if (m_SaveButtonText != null)
                 m_SaveButtonText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_SaveButton_Text"));
@@ -182,7 +218,13 @@ namespace Honor.Runtime
             if (m_CloseButtonTextTMP != null)
                 m_CloseButtonTextTMP.text =
                     AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_CloseButton_Text"));
+        }
 
+        /// <summary>
+        /// 从持久化数据读取重置页 GDPR/CCPA 开关的初始状态
+        /// </summary>
+        private void SetupResetTogglesFromPersist()
+        {
             // 从持久化数据读取开关状态
             if (m_ResetGDPRToggle != null)
             {
@@ -194,16 +236,6 @@ namespace Honor.Runtime
             {
                 m_ResetCCPAToggle.isOn = m_PersistComponent.GetBool(GameConstants.Persist.GDPR.WayType,
                     GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.IsSell, true);
-            }
-
-            // 强制刷新布局
-            LayoutRebuilder.ForceRebuildLayoutImmediate(m_ResetBg.rectTransform());
-            // 游戏内打开时显示重置界面，否则隐藏
-            m_ResetBg.gameObject.SetActive(InGame);
-            // 游戏内界面重置位置
-            if (InGame)
-            {
-                m_ResetBg.rectTransform().anchoredPosition = Vector2.zero;
             }
         }
         #endregion
