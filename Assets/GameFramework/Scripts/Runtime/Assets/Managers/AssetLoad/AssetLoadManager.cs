@@ -179,7 +179,7 @@ namespace Honor.Runtime
             if (m_EditorResourceMode)
             {
                 LoadAssetInEditorMode(assetObj, typeName, abPath, assetName);
-                assetObj.Origin = OriginType.Editor;
+                assetObj.Origin = OriginType.InEditor;
             }
             else
             {
@@ -361,7 +361,7 @@ namespace Honor.Runtime
                         UnityEngine.SceneManagement.LoadSceneMode.Additive);
                 }
 
-                assetObj.Origin = OriginType.Editor;
+                assetObj.Origin = OriginType.InEditor;
                 m_LoadingList.Add(assetPath, assetObj);
             }
             else

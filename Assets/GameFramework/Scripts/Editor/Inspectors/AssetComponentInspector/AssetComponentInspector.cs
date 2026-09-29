@@ -497,9 +497,9 @@ namespace Honor.Editor
             return type switch
             {
                 OriginType.None => "N",
-                OriginType.Editor => "E",
-                OriginType.Persistent => "P",
-                OriginType.Streaming => "S",
+                OriginType.InEditor => "E",
+                OriginType.PersistentData => "P",
+                OriginType.StreamingAssets => "S",
                 _ => "?"
             };
         }

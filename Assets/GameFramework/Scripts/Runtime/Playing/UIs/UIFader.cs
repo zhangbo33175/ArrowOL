@@ -339,7 +339,7 @@ namespace Honor.Runtime
         /// </summary>
         protected virtual void StopFading()
         {
-            DOTween.Kill(GameDOTweenTypes.UIFader + GetInstanceID());
+            DOTween.Kill(GameDOTweenTypes.UiFadeTween + GetInstanceID());
             m_CanvasGroup.alpha = m_CurrentTargetAlpha;
             m_IsFading = false;
             
@@ -366,12 +366,12 @@ namespace Honor.Runtime
             m_CurrentDuration = duration;
 
             m_CanvasGroup.alpha = m_InitialAlpha;
-            DOTween.Kill(GameDOTweenTypes.UIFader + GetInstanceID());
+            DOTween.Kill(GameDOTweenTypes.UiFadeTween + GetInstanceID());
             
             DOTween.To(() => m_CanvasGroup.alpha, alpha => m_CanvasGroup.alpha = alpha, m_CurrentTargetAlpha, m_CurrentDuration)
                 .SetEase(m_CurrentTweenEase)
                 .OnComplete(StopFading)
-                .id = GameDOTweenTypes.UIFader + GetInstanceID();
+                .id = GameDOTweenTypes.UiFadeTween + GetInstanceID();
         }
 
         #endregion
@@ -437,7 +437,7 @@ namespace Honor.Runtime
         protected virtual void TestFadeReset()
         {
             if (!Application.isPlaying) return;
-            DOTween.Kill(GameDOTweenTypes.UIFader + GetInstanceID());
+            DOTween.Kill(GameDOTweenTypes.UiFadeTween + GetInstanceID());
             m_CanvasGroup.alpha = InactiveAlpha;
         }
 

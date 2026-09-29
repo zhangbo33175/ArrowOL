@@ -26,12 +26,12 @@ namespace Honor.Runtime
         /// <summary>
         /// UI 界面预制体（由 UIManager 管理）
         /// </summary>
-        UI,
+        UIPrefab,
 
         /// <summary>
         /// 普通游戏对象预制体（3D角色/特效/场景物件等）
         /// </summary>
-        GameObject,
+        LogicPrefab,
     }
     #endregion
 }

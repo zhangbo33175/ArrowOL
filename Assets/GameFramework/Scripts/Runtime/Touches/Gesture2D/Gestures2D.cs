@@ -172,10 +172,10 @@ namespace Honor.Runtime
             // 修复特殊机型事件丢失问题
             FixSpecialDevicesEventLoses();
 
-            DOTween.Kill(GameDOTweenTypes.CameraAnimation);
-            DOTween.Kill(GameDOTweenTypes.CameraMoveAnimation);
-            DOTween.Kill(GameDOTweenTypes.CameraRotateAnimation);
-            DOTween.Kill(GameDOTweenTypes.CameraScaleAnimation);
+            DOTween.Kill(GameDOTweenTypes.CameraMasterTween);
+            DOTween.Kill(GameDOTweenTypes.CameraMoveTween);
+            DOTween.Kill(GameDOTweenTypes.CameraRotateTween);
+            DOTween.Kill(GameDOTweenTypes.CameraScaleTween);
             if (gesture.touchCount == 1)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);

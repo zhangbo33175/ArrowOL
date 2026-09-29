@@ -191,17 +191,17 @@ namespace Honor.Runtime
         /// </summary>
         public void Clear()
         {
-            m_Time                  = SoundConstant.DefaultTime;
-            m_MuteInSoundGroup      = SoundConstant.DefaultMute;
-            m_Loop                  = SoundConstant.DefaultLoop;
-            m_Priority              = SoundConstant.DefaultPriority;
-            m_VolumeInSoundGroup    = SoundConstant.DefaultVolume;
-            m_FadeInSeconds         = SoundConstant.DefaultFadeInSeconds;
-            m_Pitch                 = SoundConstant.DefaultPitch;
-            m_PanStereo             = SoundConstant.DefaultPanStereo;
-            m_SpatialBlend          = SoundConstant.DefaultSpatialBlend;
-            m_MaxDistance           = SoundConstant.DefaultMaxDistance;
-            m_DopplerLevel          = SoundConstant.DefaultDopplerLevel;
+            m_Time                  = SoundConstant.InitialTime;
+            m_MuteInSoundGroup      = SoundConstant.InitialMute;
+            m_Loop                  = SoundConstant.InitialLoop;
+            m_Priority              = SoundConstant.InitialPriority;
+            m_VolumeInSoundGroup    = SoundConstant.InitialVolume;
+            m_FadeInSeconds         = SoundConstant.InitialFadeInSeconds;
+            m_Pitch                 = SoundConstant.InitialPitch;
+            m_PanStereo             = SoundConstant.InitialPanStereo;
+            m_SpatialBlend          = SoundConstant.InitialSpatialBlend;
+            m_MaxDistance           = SoundConstant.InitialMaxDistance;
+            m_DopplerLevel          = SoundConstant.InitialDopplerLevel;
         }
     }
 }

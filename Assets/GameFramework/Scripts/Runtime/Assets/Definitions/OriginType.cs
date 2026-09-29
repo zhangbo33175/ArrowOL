@@ -27,17 +27,17 @@ namespace Honor.Runtime
         /// <summary>
         /// 编辑器模式（Editor 环境直接加载）
         /// </summary>
-        Editor,
+        InEditor,
 
         /// <summary>
         /// 可读写目录（热更新资源存放位置）
         /// </summary>
-        Persistent,
+        PersistentData,
 
         /// <summary>
         /// 只读目录（安装包内置资源位置）
         /// </summary>
-        Streaming,
+        StreamingAssets,
     }
     #endregion
 }
