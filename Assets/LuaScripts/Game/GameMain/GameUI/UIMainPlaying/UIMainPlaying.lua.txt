@@ -145,7 +145,8 @@ end
 ---搜索按钮-交互回调
 ---@type fun(args:any):void
 function UIMainPlaying:OnSearchButtonClicked(args)
-    GameMapMotion:MoveToCenter(MainPlayingManager:GetCharacterLocalPosition(),0.02)
+    --GameMapMotion:MoveToCenter(MainPlayingManager:GetCharacterLocalPosition(),0.02)
+    GameMapMotion:StartAutoScan(300)
 end
 
 ---显示-交互回调

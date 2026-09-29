@@ -73,8 +73,8 @@
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\AnimationStateData.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\Attachments\MeshAttachment.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\Attachments\ClippingAttachment.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\Animation.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\BlendMode.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\Animation.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\Triangulator.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\Json.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\Spine\Spine\Runtime\spine-csharp\SkeletonBinary.cs" />

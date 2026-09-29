@@ -155,19 +155,22 @@ function GameMapMotion:OnUpdate()
                 self.MaxOrthoSize
         )
     end
+   
+    -- 自动扫描时直接匀速移动相机，跳过平滑跟随（避免 waypoint 切换时顿挫）
+    if not self.AutoScanActive then
+        -- X轴平滑跟随
+        local currCameraX = self.ScreenCamera.transform:GetPositionX()
+        if not math.Approximately(currCameraX, self.FollowPosition.x) then
+            local smoothX = math.SmoothStep(currCameraX, self.FollowPosition.x, self.SwipeSmoothStepNum)
+            self.ScreenCamera.transform:SetPositionX(smoothX)
+        end
 
-    -- X轴平滑跟随
-    local currCameraX = self.ScreenCamera.transform:GetPositionX()
-    if not math.Approximately(currCameraX, self.FollowPosition.x) then
-        local smoothX = math.SmoothStep(currCameraX, self.FollowPosition.x, self.SwipeSmoothStepNum)
-        self.ScreenCamera.transform:SetPositionX(smoothX)
-    end
-
-    -- Y轴平滑跟随
-    local currCameraY = self.ScreenCamera.transform:GetPositionY()
-    if not math.Approximately(currCameraY, self.FollowPosition.y) then
-        local smoothY = math.SmoothStep(currCameraY, self.FollowPosition.y, self.SwipeSmoothStepNum)
-        self.ScreenCamera.transform:SetPositionY(smoothY)
+        -- Y轴平滑跟随
+        local currCameraY = self.ScreenCamera.transform:GetPositionY()
+        if not math.Approximately(currCameraY, self.FollowPosition.y) then
+            local smoothY = math.SmoothStep(currCameraY, self.FollowPosition.y, self.SwipeSmoothStepNum)
+            self.ScreenCamera.transform:SetPositionY(smoothY)
+        end
     end
 
     -- 惯性滑动
@@ -175,7 +178,20 @@ function GameMapMotion:OnUpdate()
         self:OnInertialSliding(self.InertialSlidingFactor)
     end
 
-    -- 输入控制
+    -- 自动扫描（蛇形扫图找预制体）
+    self:UpdateAutoScan()
+
+    -- 输入控制：用户拖拽/双指时自动停止扫描
+    -- 注意：启动扫描的那一下点击本身也会让 GetMouseButton(0)=true，
+    -- 用一个帧数宽限避免刚启动就被自己的点击停掉
+    if self.AutoScanActive then
+        if self.AutoScanGraceFrames and self.AutoScanGraceFrames > 0 then
+            self.AutoScanGraceFrames = self.AutoScanGraceFrames - 1
+        elseif CS.UnityEngine.Input.GetMouseButton(0) or CS.UnityEngine.Input.touchCount > 0 then
+            self:StopAutoScan()
+        end
+    end
+
     self:CheckPinchZoom()
     self:UpdateMouseScrollZoom()
     self:UpdateMouseDrag()
@@ -462,6 +478,108 @@ function GameMapMotion:MoveToCenter(targetPos, smooth)
     self.SwipeSmoothStepNum = smooth or 0.05
     -- 取消惯性残留，避免叠加
     self.InertialSlidingFactor = 0
+end
+
+---@brief 自动扫描地图：蛇形路径从左上扫到右下，找预制体用
+---@type fun(orthoSize:number):void
+---@param orthoSize number 扫描时的相机尺寸，默认 300
+function GameMapMotion:StartAutoScan(orthoSize)
+    if not self.ScreenCamera or not self.FollowPosition then return end
+    orthoSize = orthoSize or 300
+
+    -- 切到扫描缩放
+    self:ApplyZoom(orthoSize)
+
+    -- 重新算边界（缩放后 hw/hh 变了）
+    local minX, maxX, minY, maxY = self:GetCameraBounds()
+    if minX > maxX or minY > maxY then
+        print("[AutoScan] bounds too tight, skip")
+        return
+    end
+
+    -- 每次横向/纵向步进 = 视野的 80%（留 20% 重叠避免漏看）
+    local aspect = self.ScreenCamera.aspect
+    local stepX = aspect * orthoSize * 2 * 0.8
+    local stepY = orthoSize * 2 * 0.8
+
+    -- 生成蛇形路径点
+    self.AutoScanWaypoints = {}
+    local y = maxY
+    local row = 0
+    while y >= minY - 0.01 do
+        if row % 2 == 0 then
+            -- 从左到右
+            local x = minX
+            while x <= maxX + 0.01 do
+                table.insert(self.AutoScanWaypoints, { x = x, y = y })
+                x = x + stepX
+            end
+            -- 最后一个点对齐 maxX
+            self.AutoScanWaypoints[#self.AutoScanWaypoints] = { x = maxX, y = y }
+        else
+            -- 从右到左
+            local x = maxX
+            while x >= minX - 0.01 do
+                table.insert(self.AutoScanWaypoints, { x = x, y = y })
+                x = x - stepX
+            end
+            self.AutoScanWaypoints[#self.AutoScanWaypoints] = { x = minX, y = y }
+        end
+        y = y - stepY
+        row = row + 1
+    end
+
+    -- 用 DOTween Sequence 串起所有 waypoint，丝滑补间
+    local camTransform = self.ScreenCamera.transform
+    local camZ = camTransform:GetPositionZ()
+
+    -- 先杀掉旧 tween
+    if self.AutoScanSeq then
+        self.AutoScanSeq:Kill()
+        self.AutoScanSeq = nil
+    end
+
+    local seq = CS.DG.Tweening.DOTween.Sequence()
+    for i, wp in ipairs(self.AutoScanWaypoints) do
+        local target = CS.UnityEngine.Vector3(wp.x, wp.y, camZ)
+        -- 每段 1.2 秒，InOutSine 进出缓动丝滑
+        local tween = camTransform:DOMove(target, 1.2)
+        tween:SetEase(CS.DG.Tweening.Ease.InOutSine)
+        seq:Append(tween)
+    end
+
+    -- 完成回调
+    seq:OnComplete(CS.DG.Tweening.TweenCallback(function()
+        print("[AutoScan] done")
+        self:StopAutoScan()
+    end))
+
+    self.AutoScanSeq = seq
+    self.AutoScanActive = true
+    self.AutoScanGraceFrames = 15  -- 宽限帧数，避免启动点击立刻停掉自己
+    print(string.format("[AutoScan] start, %d waypoints, ortho=%.0f bounds=[%.0f..%.0f]x[%.0f..%.0f]",
+        #self.AutoScanWaypoints, orthoSize, minX, maxX, minY, maxY))
+end
+
+---@brief 停止自动扫描
+function GameMapMotion:StopAutoScan()
+    self.AutoScanActive = false
+    self.AutoScanWaypoints = nil
+    self.AutoScanIndex = 0
+    if self.AutoScanSeq then
+        self.AutoScanSeq:Kill()
+        self.AutoScanSeq = nil
+    end
+    -- 同步 FollowPosition 到相机当前位置，防止退出后跳回
+    if self.ScreenCamera then
+        self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
+        self.FollowPosition.y = self.ScreenCamera.transform:GetPositionY()
+    end
+end
+
+---@brief 自动扫描由 DOTween 驱动，这里只做输入检测（用户拖拽即停止）
+function GameMapMotion:UpdateAutoScan()
+    -- 空实现，移动由 DOTween Sequence 处理
 end
 
 --endregion
