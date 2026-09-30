@@ -129,6 +129,7 @@
 		<type fullname="Honor.Runtime.TableComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.AESEncrypt" preserve="all"/>
 		<type fullname="Honor.Runtime.Assembly" preserve="all"/>
+		<type fullname="Honor.Runtime.CommonUtility" preserve="all"/>
 		<type fullname="Honor.Runtime.Converter" preserve="all"/>
 		<type fullname="Honor.Runtime.DevicePerformanceLevel" preserve="all"/>
 		<type fullname="Honor.Runtime.QualityLevel" preserve="all"/>
