@@ -45,8 +45,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 0, 0);
-			
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "CreatePreloadAssetObject", _m_CreatePreloadAssetObject_xlua_st_);
+            
 			
             
 			
@@ -84,6 +85,57 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_CreatePreloadAssetObject_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 6&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 4) || LuaAPI.lua_type(L, 4) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)&& translator.Assignable<Honor.Runtime.AssetLoadOverCallback>(L, 6)) 
+                {
+                    string _typeName = LuaAPI.lua_tostring(L, 1);
+                    string _abPath = LuaAPI.lua_tostring(L, 2);
+                    string _assetName = LuaAPI.lua_tostring(L, 3);
+                    string _assetPath = LuaAPI.lua_tostring(L, 4);
+                    bool _isWeak = LuaAPI.lua_toboolean(L, 5);
+                    Honor.Runtime.AssetLoadOverCallback _overCallback = translator.GetDelegate<Honor.Runtime.AssetLoadOverCallback>(L, 6);
+                    
+                        Honor.Runtime.PreloadAssetObject gen_ret = Honor.Runtime.PreloadAssetObject.CreatePreloadAssetObject( _typeName, _abPath, _assetName, _assetPath, _isWeak, _overCallback );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 4) || LuaAPI.lua_type(L, 4) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 5)) 
+                {
+                    string _typeName = LuaAPI.lua_tostring(L, 1);
+                    string _abPath = LuaAPI.lua_tostring(L, 2);
+                    string _assetName = LuaAPI.lua_tostring(L, 3);
+                    string _assetPath = LuaAPI.lua_tostring(L, 4);
+                    bool _isWeak = LuaAPI.lua_toboolean(L, 5);
+                    
+                        Honor.Runtime.PreloadAssetObject gen_ret = Honor.Runtime.PreloadAssetObject.CreatePreloadAssetObject( _typeName, _abPath, _assetName, _assetPath, _isWeak );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.PreloadAssetObject.CreatePreloadAssetObject!");
+            
+        }
         
         
         

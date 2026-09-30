@@ -231,11 +231,11 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Proto_SaveWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_LuaInjectionWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_Editor_HierarchyExpandSettingsWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetBundleObjectWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_ControlPlayableAssetWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_AppDownloadWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\Gesture3D\Gestures3D.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Persists\Managers\FileFragment\WebGL\FileFragmentForWebGLManager.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetBundleObjectWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\AorExtendImage.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_MathfWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\DG_Tweening_DOTweenVisualManagerWrap.cs" />
@@ -244,8 +244,8 @@
     <Compile Include="Assets\Scripts\Runtime\Honor\UI\SpecialUIs\UIFloatWords\UIFloatWordsBehaviour.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Vector3Wrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PreloadAssetObjectWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_FollowLocationRigidbodyWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PostEffectsBaseWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_FollowLocationRigidbodyWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Tables\Components\TableComponent.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Configs\Managers\ConfigManager.Visitors.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_TablesBridgeWrap.cs" />
@@ -258,8 +258,8 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Graphics\GraphicsUtils.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_LuaBehaviourWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Vibrates\Managers\VibrateManager.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetObjectWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\System_DateTimeWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetObjectWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Assets\Definitions\PrefabDetailType.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_UIManagerWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SkeletonGraphicCustomMaterialsWrap.cs" />
@@ -680,9 +680,9 @@
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Bases\UIs\TextEffects\AorTextEffectOutline.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_Timeline_TrackAssetWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_FontWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_FileFragmentWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_MeshGenerator_SettingsWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_PlayingComponentWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_FileFragmentWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_AssetComponentWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GameConstants_Persist_IAPWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Procedures\Procedures\ProcedureLaunch.cs" />
@@ -794,8 +794,9 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_UI_ScrollRectWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Touches\GestureUI\GesturesUI.Methods.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_SpineAttachment_HierarchyWrap.cs" />
-    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_GridMapManager_MapTileDataWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_CommonUtilityWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\UnityEngine_AnimatorWrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\XLua\Gen\GameLib_GridMapManager_MapTileDataWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\DG_Tweening_EaseFactoryWrap.cs" />
     <Compile Include="Assets\GameFramework\Scripts\Runtime\Graphics\Scene\HideEffect.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Src\ObjectTranslator.cs" />

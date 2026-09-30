@@ -787,6 +787,7 @@
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_CameraShakeWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Collider2DLifeCyclesBehaviourWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_Collider3DLifeCyclesBehaviourWrap.cs"
+"Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_CommonUtilityWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ConfigComponentWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ConfigManagerWrap.cs"
 "Assets/Scripts/Runtime/XLua/Gen/Honor_Runtime_ConfigManager_ConfigDataWrap.cs"

@@ -285,8 +285,8 @@
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Effects\NicerOutline.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\IScrollSnap.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\RangeSlider.cs" />
-    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ExtensionsToggleGroup.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\BinaryFormat\XlsBiffDbCell.cs" />
+    <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Utilities\ExtensionsToggleGroup.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\ExcelIO\ExcelDataReader-master\src\ExcelDataReader\Core\OfficeCrypto\AgileEncryption.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Controls\ColorPicker\ColorValues.cs" />
     <Compile Include="Assets\Plugins\ThirdLibs\com.unity.uiextensions\Runtime\Scripts\Layout\FancyScrollView\GridView\FancyCellGroup.cs" />

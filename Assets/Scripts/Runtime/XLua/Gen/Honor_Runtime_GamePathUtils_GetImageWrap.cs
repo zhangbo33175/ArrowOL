@@ -66,9 +66,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string __spriteName = LuaAPI.lua_tostring(L, 1);
+                    string _spriteName = LuaAPI.lua_tostring(L, 1);
                     
-                        UnityEngine.Sprite gen_ret = Honor.Runtime.GamePathUtils.GetImage.GetImageByName( __spriteName );
+                        UnityEngine.Sprite gen_ret = Honor.Runtime.GamePathUtils.GetImage.GetImageByName( _spriteName );
                         translator.Push(L, gen_ret);
                     
                     
