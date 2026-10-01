@@ -1,0 +1,311 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ChapterDataManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     章节管理器
+-- @desc      管理章节/关卡/区域/装修星星/增量包/解锁状态等配置读取
+-- @feat      全局单例、安全缓存、排序稳定、空值防护、装修星星计算、增量包管理
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
+-- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, TableComponent, PlayerDataManager, EventManager, GlobalUtility
+--=====================================================================================================
+
+---@class ChapterDataManager : Singleton 章节管理器
+---@field _chapterInfos table<string,Tables.ChapterInfos_Item[]> 按章节ID缓存排序后的章节信息列表
+---@field _chapterSorts string[] 排序后的所有章节ID
+---@field Levels table 主线关卡配置表
+local ChapterDataManager = class("ChapterDataManager", import("Singleton"))
+
+--region 构造 & 实例化
+
+---@brief 构造函数
+---@type fun():void
+function ChapterDataManager:ctor()
+    ChapterDataManager.super.ctor(self)
+    self._chapterInfos = {}
+    self._chapterSorts = nil
+    self.Levels = Tables.MainLevels
+end
+
+---@brief 创建单例
+---@type fun():ChapterDataManager
+---@return ChapterDataManager 章节管理器实例
+function ChapterDataManager:Create()
+    return ChapterDataManager.new()
+end
+
+--endregion
+
+--region 初始化 & 生命周期
+
+---@brief 初始化
+---@type fun():void
+function ChapterDataManager:Init()
+    ChapterDataManager.super.Init(self)
+    self._chapterInfos = {}
+    self._chapterSorts = nil
+end
+
+---@brief 清理数据
+---@type fun():void
+---@desc 切号/重载/重置时调用，清空缓存数据
+function ChapterDataManager:ClearData()
+    ChapterDataManager.super.ClearData(self)
+    self._chapterInfos = {}
+    self._chapterSorts = nil
+end
+
+--endregion
+
+--region 关卡模式获取对应章节配置
+
+---=========================================================================
+---@brief  根据当前关卡模式获取对应章节配置
+---@type fun(SectionId:string):Tables.Chapters_Item|nil
+---@param SectionId string 小节Id
+---@return Tables.Chapters_Item|nil 章节配置数据
+---=========================================================================
+function ChapterDataManager:GetChapterDataByChapterType(SectionId)
+    return self:GetChapterDataBySectionId(SectionId)
+end
+
+---=========================================================================
+---@brief  根据章节ID获取主线章节配置
+---@type fun(SectionId:string):Tables.Chapters_Item|nil
+---@param SectionId string 小节Id
+---@return Tables.Chapters_Item|nil 章节配置数据
+---=========================================================================
+function ChapterDataManager:GetChapterDataBySectionId(SectionId)
+    if not SectionId or not Tables or not Tables.MainLevels then
+        return nil
+    end
+    return Tables.MainLevels[tostring(SectionId)]
+end
+
+---=========================================================================
+---@brief  根据章节ID获取主线章节配置
+---@type fun(chapterId:string):Tables.Chapters_Item|nil
+---@param chapterId string 章节Id
+---@return Tables.Chapters_Item|nil 章节配置数据
+---=========================================================================
+function ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+    if not chapterId or not Tables or not Tables.Chapters then
+        return nil
+    end
+    return Tables.Chapters[tostring(chapterId)]
+end
+
+---=========================================================================
+---@brief  根据章节ID获取每日挑战章节配置
+---@type fun(chapterId:string):Tables.Chapters_Item|nil
+---@param chapterId string 章节Id
+---@return Tables.Chapters_Item|nil 每日挑战章节配置
+---=========================================================================
+function ChapterDataManager:GetDailyLevelsDataByChapterId(chapterId)
+    if not chapterId or not Tables.DailyLevels then
+        return nil
+    end
+    return Tables.DailyLevels[tostring(chapterId)]
+end
+
+--endregion
+
+--region 章节名称 & 信息
+
+---=========================================================================
+---@brief  根据章节ID获取多语言章节名称
+---@type fun(chapterId:string):string
+---@param chapterId string 章节Id
+---@return string 多语言章节名称
+---=========================================================================
+function ChapterDataManager:GetChapterNameByChapterId(chapterId)
+    local data = self:GetChapterDataByChapterType(chapterId)
+    if not data or not data.ChapterTitle then
+        return tostring(chapterId)
+    end
+    return GetLocalization(data.ChapterTitle)
+end
+
+---=========================================================================
+---@brief  根据章节信息ID获取单条章节信息配置
+---@type fun(chapterInfoId:string):Tables.ChapterInfos_Item|nil
+---@param chapterInfoId string 章节信息Id
+---@return Tables.ChapterInfos_Item|nil 章节信息配置
+---=========================================================================
+function ChapterDataManager:GetChapterInfoDataByChapterInfoId(chapterInfoId)
+    if not chapterInfoId or not Tables.Chapters then
+        return nil
+    end
+    return Tables.Chapters[chapterInfoId]
+end
+
+---=========================================================================
+---@brief  根据章节ID获取该章节下所有章节信息（已排序）
+---@type fun(chapterId:string):Tables.ChapterInfos_Item[]
+---@param chapterId string 章节Id
+---@return Tables.ChapterInfos_Item[] 章节信息列表
+---=========================================================================
+function ChapterDataManager:GetChapterInfoListDataByChapterID(chapterId)
+    if not chapterId then return {} end
+
+    local result = self._chapterInfos[chapterId]
+    if result then return result end
+
+    result = {}
+    self._chapterInfos[chapterId] = result
+
+    local chapterCfg = Tables.Chapters and Tables.Chapters[chapterId]
+    if not chapterCfg or not chapterCfg.ChapterInfoID then
+        return result
+    end
+
+    for _, chapterInfoID in pairs(chapterCfg.ChapterInfoID) do
+        local info = self:GetChapterInfoDataByChapterInfoId(chapterInfoID)
+        if info then
+            table.insert(result, info)
+        end
+    end
+
+    -- 安全排序
+    table.sort(result, function(a, b)
+        local ida = tonumber(a.ID) or 9999
+        local idb = tonumber(b.ID) or 9999
+        return ida < idb
+    end)
+
+    return result
+end
+
+--endregion
+
+--region 章节ID & 区域配置
+
+---=========================================================================
+---@brief  获取配置表中最大章节ID
+---@type fun():number
+---@return number 最大章节ID
+---=========================================================================
+function ChapterDataManager:GetConfigMaxChapterID()
+    local max = self:GetDefaultMaxChapterID()
+    local chapters = Tables.MainLevels
+    if not chapters then return max end
+
+    for _, chapter in pairs(chapters) do
+        local id = tonumber(chapter.ID)
+        if id then
+            max = math.max(max, id)
+        end
+    end
+    return max
+end
+
+---=========================================================================
+---@brief  获取默认最小最大章节数（保底2章）
+---@type fun():number
+---@return number 默认最大章节ID
+---=========================================================================
+function ChapterDataManager:GetDefaultMaxChapterID()
+    return 2
+end
+
+---=========================================================================
+---@brief  根据章节ID获取对应区域配置
+---@type fun(chapterId:string):Tables.Areas_Item|nil
+---@param chapterId string 章节Id
+---@return Tables.Areas_Item|nil 区域配置数据
+---=========================================================================
+function ChapterDataManager:GetAreaDataByChapterId(chapterId)
+    return self:GetChapterDataByChapterType(chapterId)
+end
+
+--endregion
+
+--region 增量包 & 统计
+
+---=========================================================================
+---@brief  获取所有增量更新资源组名
+---@type fun():string[]
+---@return string[] 资源组名列表
+---=========================================================================
+function ChapterDataManager:GetAllIncreaserGroupNames()
+    local result = {}
+    if not Tables.Chapters then return result end
+
+    for _, chapter in pairs(Tables.Chapters) do
+        if chapter and chapter.ResGroup and type(chapter.ResGroup) == "table" then
+            for _, v in ipairs(chapter.ResGroup) do
+                table.insert(result, v)
+            end
+        end
+    end
+    return result
+end
+
+---=========================================================================
+---@brief  计算已完成的章节总数
+---@type fun():number
+---@return number 已完成章节数量
+---=========================================================================
+function ChapterDataManager:CalculateCompletedChapterTotalCount()
+    local config = Tables.Chapters
+    local count = 0
+    if not config then return 0 end
+
+    for id, _ in pairs(config) do
+        if ChapterListManager and ChapterListManager:IsUnlockedChapter(id) and ChapterListManager:IsChapterCompleted(id) then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+---=========================================================================
+---@brief  计算已解锁的章节总数
+---@type fun():number
+---@return number 已解锁章节数量
+---=========================================================================
+function ChapterDataManager:CalculateUnlockedChapterTotalCount()
+    local config = Tables.Chapters
+    local count = 0
+    if not config then return 0 end
+
+    for id, _ in pairs(config) do
+        if ChapterListManager and ChapterListManager:IsUnlockedChapter(id) then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+--endregion
+
+--region 章节排序
+
+---=========================================================================
+---@brief  获取排序后的所有章节配置
+---@type fun():Tables.Chapters_Item[]
+---@return Tables.Chapters_Item[] 排序后的章节配置数组
+---=========================================================================
+function ChapterDataManager:GetAllChapterSort()
+    if self._chapterSorts then
+        return self._chapterSorts
+    end
+
+    self._chapterSorts = {}
+    local chapters = Tables.Chapters
+    if not chapters then
+        return self._chapterSorts
+    end
+
+    for _, chapter in pairs(chapters) do
+        EasyInsert(self._chapterSorts, chapter, 'ID')
+    end
+
+    return self._chapterSorts
+end
+
+--endregion
+
+return ChapterDataManager

@@ -1,0 +1,153 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:   PauseableCoroutineHelper.lua
+-- @brief:     可暂停协程工具类（关卡专用）
+-- @desc:      支持按信号量分组暂停/恢复，解决关卡弹窗、游戏暂停时冻结逻辑的问题
+-- @author:    云毅 | 商业项目标准规范
+-- created:    2026
+-- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 可暂停协程管理
+-- @dependency: Singleton, CoroutineHelper, GlobalUtility
+--=====================================================================================================
+
+--region 内部元表与暂停信号定义
+
+---@type boolean[]
+---@brief 全局暂停信号数组 1=通用全局暂停(Any) 2=关卡逻辑暂停(Level)
+local _pauseSignal = { false, false }
+
+---@type table
+---@brief 协程结束标记
+local _coroutineEnd = {}
+
+---@type table
+---@brief 可暂停协程迭代器元表
+local _pauseableCoroutineMetaTable = {
+    __index = {
+        ---@type fun():boolean
+        ---@brief 协程每帧迭代
+        ---@return boolean 是否继续迭代
+        MoveNext = function(cor)
+            -- 暂停中：卡住协程
+            if _pauseSignal[cor.pauseSignal] then
+                return true
+            end
+
+            cor.Current = cor.coFunc()
+            if cor.Current == _coroutineEnd then
+                cor.Current = nil
+                return false
+            else
+                return true
+            end
+        end,
+
+        ---@type fun():void
+        ---@brief 重置协程
+        Reset = function(cor)
+            cor.coFunc = coroutine.wrap(cor.originFunc)
+        end
+    }
+}
+
+--endregion
+
+---@class PauseableCoroutineHelper 可暂停协程工具类（关卡专用）
+---@field Any number 通用全局暂停信号
+---@field Level number 关卡逻辑暂停信号
+local PauseableCoroutineHelper = class("PauseableCoroutineHelper")
+
+--region 构造与实例化
+
+---@type fun():void
+---@brief 构造函数
+function PauseableCoroutineHelper:ctor()
+    self.Any = 1       ---@type number 通用全局暂停
+    self.Level = 2     ---@type number 关卡逻辑暂停
+end
+
+---@type fun():PauseableCoroutineHelper
+---@brief 创建实例
+---@return PauseableCoroutineHelper
+function PauseableCoroutineHelper:Create()
+    return PauseableCoroutineHelper.new()
+end
+
+--endregion
+
+--region 内部协程构造
+
+---@type fun(func:function,pauseSignal:number,from:any):table
+---@brief 内部：创建可暂停协程迭代器
+---@param func function 协程函数
+---@param pauseSignal number 暂停信号
+---@param from any 调用来源（调试）
+---@return table 协程迭代器
+function PauseableCoroutineHelper:_createPauseableEnumerator(func, pauseSignal, from)
+    local enumerator = setmetatable({
+        originFunc = function()
+            func()
+            return _coroutineEnd
+        end,
+        pauseSignal = pauseSignal,
+        from = from
+    }, _pauseableCoroutineMetaTable)
+
+    enumerator:Reset()
+    return enumerator
+end
+
+--endregion
+
+--region 协程启动/停止
+
+---@type fun(handler:handler,pauseSignal:number,from:any):UnityEngine.Coroutine
+---@brief 启动可暂停协程
+---@param handler handler 方法包装器
+---@param pauseSignal number 暂停信号类型
+---@param from any 调试来源
+---@return UnityEngine.Coroutine
+function PauseableCoroutineHelper:StartPauseableCoroutine(handler, pauseSignal, from)
+    pauseSignal = pauseSignal or self.Any
+
+    if GameMainRoot.Launcher then
+        local enumerator = self:_createPauseableEnumerator(handler.func, pauseSignal, from)
+        return GameMainRoot.Launcher:StartCoroutine(enumerator)
+    end
+
+    return nil
+end
+
+---@type fun(cor:UnityEngine.Coroutine):void
+---@brief 停止可暂停协程
+---@param cor UnityEngine.Coroutine
+function PauseableCoroutineHelper:StopPauseableCoroutine(cor)
+    if not cor then return end
+    if GameMainRoot.Launcher then
+        GameMainRoot.Launcher:StopCoroutine(cor)
+    end
+end
+
+--endregion
+
+--region 分组暂停/恢复
+
+---@type fun(pauseSignal:number):void
+---@brief 暂停一组协程
+---@param pauseSignal number 信号类型
+function PauseableCoroutineHelper:PauseCoroutineGroup(pauseSignal)
+    pauseSignal = pauseSignal or self.Any
+    _pauseSignal[pauseSignal] = true
+end
+
+---@type fun(pauseSignal:number):void
+---@brief 恢复一组协程
+---@param pauseSignal number 信号类型
+function PauseableCoroutineHelper:ResumeCoroutineGroup(pauseSignal)
+    pauseSignal = pauseSignal or self.Any
+    _pauseSignal[pauseSignal] = false
+end
+
+--endregion
+
+return PauseableCoroutineHelper
