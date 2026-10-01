@@ -18,61 +18,61 @@ namespace Honor.Runtime
         /// <summary>
         /// 默认播放起始时间（从头播放）
         /// </summary>
-        internal const float DefaultTime = 0f;
+        internal const float InitialTime = 0f;
 
         /// <summary>
         /// 默认静音状态（不静音）
         /// </summary>
-        internal const bool DefaultMute = false;
+        internal const bool InitialMute = false;
 
         /// <summary>
         /// 默认循环状态（不循环）
         /// </summary>
-        internal const bool DefaultLoop = false;
+        internal const bool InitialLoop = false;
 
         /// <summary>
         /// 默认声音优先级（0为最高）
         /// </summary>
-        internal const int DefaultPriority = 0;
+        internal const int InitialPriority = 0;
 
         /// <summary>
         /// 默认音量（最大音量1.0）
         /// </summary>
-        internal const float DefaultVolume = 1f;
+        internal const float InitialVolume = 1f;
 
         /// <summary>
         /// 默认淡入时间（无淡入）
         /// </summary>
-        internal const float DefaultFadeInSeconds = 0f;
+        internal const float InitialFadeInSeconds = 0f;
 
         /// <summary>
         /// 默认淡出时间（无淡出）
         /// </summary>
-        internal const float DefaultFadeOutSeconds = 0f;
+        internal const float InitialFadeOutSeconds = 0f;
 
         /// <summary>
         /// 默认音调（正常速度1.0）
         /// </summary>
-        internal const float DefaultPitch = 1f;
+        internal const float InitialPitch = 1f;
 
         /// <summary>
         /// 默认立体声相位（居中）
         /// </summary>
-        internal const float DefaultPanStereo = 0f;
+        internal const float InitialPanStereo = 0f;
 
         /// <summary>
         /// 默认空间混合（2D音效）
         /// </summary>
-        internal const float DefaultSpatialBlend = 0f;
+        internal const float InitialSpatialBlend = 0f;
 
         /// <summary>
         /// 默认3D声音最大距离
         /// </summary>
-        internal const float DefaultMaxDistance = 100f;
+        internal const float InitialMaxDistance = 100f;
 
         /// <summary>
         /// 默认多普勒效果等级
         /// </summary>
-        internal const float DefaultDopplerLevel = 1f;
+        internal const float InitialDopplerLevel = 1f;
     }
 }

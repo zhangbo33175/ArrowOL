@@ -519,11 +519,11 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.OriginType.None);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Editor", Honor.Runtime.OriginType.Editor);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "InEditor", Honor.Runtime.OriginType.InEditor);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Persistent", Honor.Runtime.OriginType.Persistent);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PersistentData", Honor.Runtime.OriginType.PersistentData);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Streaming", Honor.Runtime.OriginType.Streaming);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "StreamingAssets", Honor.Runtime.OriginType.StreamingAssets);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
@@ -548,17 +548,17 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.None);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Editor"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "InEditor"))
                 {
-                    translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.Editor);
+                    translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.InEditor);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Persistent"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PersistentData"))
                 {
-                    translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.Persistent);
+                    translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.PersistentData);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Streaming"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "StreamingAssets"))
                 {
-                    translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.Streaming);
+                    translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.StreamingAssets);
                 }
 				else
                 {
@@ -589,9 +589,9 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.PrefabDetailType.None);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UI", Honor.Runtime.PrefabDetailType.UI);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UIPrefab", Honor.Runtime.PrefabDetailType.UIPrefab);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GameObject", Honor.Runtime.PrefabDetailType.GameObject);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LogicPrefab", Honor.Runtime.PrefabDetailType.LogicPrefab);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
@@ -616,13 +616,13 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimePrefabDetailType(L, Honor.Runtime.PrefabDetailType.None);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "UI"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "UIPrefab"))
                 {
-                    translator.PushHonorRuntimePrefabDetailType(L, Honor.Runtime.PrefabDetailType.UI);
+                    translator.PushHonorRuntimePrefabDetailType(L, Honor.Runtime.PrefabDetailType.UIPrefab);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "GameObject"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "LogicPrefab"))
                 {
-                    translator.PushHonorRuntimePrefabDetailType(L, Honor.Runtime.PrefabDetailType.GameObject);
+                    translator.PushHonorRuntimePrefabDetailType(L, Honor.Runtime.PrefabDetailType.LogicPrefab);
                 }
 				else
                 {
@@ -1611,23 +1611,23 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.VibrateType.None);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Selection", Honor.Runtime.VibrateType.Selection);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SelectionFeedback", Honor.Runtime.VibrateType.SelectionFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Success", Honor.Runtime.VibrateType.Success);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SuccessFeedback", Honor.Runtime.VibrateType.SuccessFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Warning", Honor.Runtime.VibrateType.Warning);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WarningFeedback", Honor.Runtime.VibrateType.WarningFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Failure", Honor.Runtime.VibrateType.Failure);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FailureFeedback", Honor.Runtime.VibrateType.FailureFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LightImpact", Honor.Runtime.VibrateType.LightImpact);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LightImpactFeedback", Honor.Runtime.VibrateType.LightImpactFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MediumImpact", Honor.Runtime.VibrateType.MediumImpact);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MediumImpactFeedback", Honor.Runtime.VibrateType.MediumImpactFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HeavyImpact", Honor.Runtime.VibrateType.HeavyImpact);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HeavyImpactFeedback", Honor.Runtime.VibrateType.HeavyImpactFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RigidImpact", Honor.Runtime.VibrateType.RigidImpact);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RigidImpactFeedback", Honor.Runtime.VibrateType.RigidImpactFeedback);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoftImpact", Honor.Runtime.VibrateType.SoftImpact);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoftImpactFeedback", Honor.Runtime.VibrateType.SoftImpactFeedback);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
@@ -1652,41 +1652,41 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.None);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Selection"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "SelectionFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.Selection);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SelectionFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Success"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "SuccessFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.Success);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SuccessFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Warning"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "WarningFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.Warning);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.WarningFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Failure"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "FailureFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.Failure);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.FailureFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "LightImpact"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "LightImpactFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.LightImpact);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.LightImpactFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "MediumImpact"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "MediumImpactFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.MediumImpact);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.MediumImpactFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "HeavyImpact"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "HeavyImpactFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.HeavyImpact);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.HeavyImpactFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "RigidImpact"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "RigidImpactFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.RigidImpact);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.RigidImpactFeedback);
                 }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoftImpact"))
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoftImpactFeedback"))
                 {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SoftImpact);
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SoftImpactFeedback);
                 }
 				else
                 {

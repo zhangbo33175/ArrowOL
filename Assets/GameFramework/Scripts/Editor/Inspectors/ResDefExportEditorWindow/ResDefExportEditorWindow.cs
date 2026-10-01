@@ -132,43 +132,51 @@ namespace Honor.Editor
 
                 if (GUILayout.Button("追加", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
                 {
-                    // 追加成功的数据条目数
-                    int successAddCount = 0;
-                    // 因同名追加失败的数据条目数
-                    int failedAddCount = 0;
-
-                    foreach (var fullPath in m_FindFileFullPathList.Keys.ToList())
-                    {
-                        var fileName = Path.GetFileNameWithoutExtension(fullPath);
-                        var aliasName = AorTxt.Format("{0}_{1}",
-                            ((GameDefinitions.AssetType)m_SelectResType).ToString(), fileName);
-                        CheckFileABPath(fullPath, out string fileABPath);
-                        if (IsHaveSameAliasName(aliasName) == false)
-                        {
-                            var resDefItem = ResDefItem.Create(
-                                CurMaxResID,
-                                ((GameDefinitions.AssetType)m_SelectResType).ToString(),
-                                aliasName, fileABPath, fileName,
-                                AssetDatabase.AssetPathToGUID(fullPath));
-                            m_TempResDefItems.Add(resDefItem);
-                            Log.Debug("[Editor] 资源别名: {0} ，成功追加到缓冲区。", aliasName);
-                            m_FindFileFullPathList[fullPath] = FileUseState.ExportSuccess;
-                            successAddCount++;
-                        }
-                        else
-                        {
-                            Log.Warning("[Editor] 资源别名: {0} ，因别名重名，追加失败。", aliasName);
-                            m_FindFileFullPathList[fullPath] = FileUseState.ExportFailedToSameName;
-                            failedAddCount++;
-                        }
-                    }
-
-                    ShowNotification(
-                        $"共追加数据：{m_FindFileFullPathList.Keys.Count} 条，其中成功导出 {successAddCount} 条，失败导出 {failedAddCount} 条");
-                    m_FindTargetAsset = null;
+                    AppendFoundFilesToBuffer();
                 }
             }
             GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 将当前查找到的文件按"类型_文件名"别名追加到临时缓冲区，统计成功/重名失败数并弹出提示
+        /// </summary>
+        private void AppendFoundFilesToBuffer()
+        {
+            // 追加成功的数据条目数
+            int successAddCount = 0;
+            // 因同名追加失败的数据条目数
+            int failedAddCount = 0;
+
+            foreach (var fullPath in m_FindFileFullPathList.Keys.ToList())
+            {
+                var fileName = Path.GetFileNameWithoutExtension(fullPath);
+                var aliasName = AorTxt.Format("{0}_{1}",
+                    ((GameDefinitions.AssetType)m_SelectResType).ToString(), fileName);
+                CheckFileABPath(fullPath, out string fileABPath);
+                if (IsHaveSameAliasName(aliasName) == false)
+                {
+                    var resDefItem = ResDefItem.Create(
+                        CurMaxResID,
+                        ((GameDefinitions.AssetType)m_SelectResType).ToString(),
+                        aliasName, fileABPath, fileName,
+                        AssetDatabase.AssetPathToGUID(fullPath));
+                    m_TempResDefItems.Add(resDefItem);
+                    Log.Debug("[Editor] 资源别名: {0} ，成功追加到缓冲区。", aliasName);
+                    m_FindFileFullPathList[fullPath] = FileUseState.ExportSuccess;
+                    successAddCount++;
+                }
+                else
+                {
+                    Log.Warning("[Editor] 资源别名: {0} ，因别名重名，追加失败。", aliasName);
+                    m_FindFileFullPathList[fullPath] = FileUseState.ExportFailedToSameName;
+                    failedAddCount++;
+                }
+            }
+
+            ShowNotification(
+                $"共追加数据：{m_FindFileFullPathList.Keys.Count} 条，其中成功导出 {successAddCount} 条，失败导出 {failedAddCount} 条");
+            m_FindTargetAsset = null;
         }
         #endregion
 

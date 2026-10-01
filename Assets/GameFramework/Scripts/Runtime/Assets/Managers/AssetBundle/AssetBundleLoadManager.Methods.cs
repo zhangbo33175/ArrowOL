@@ -488,12 +488,12 @@ namespace Honor.Runtime
             if (File.Exists(filePersistentPath))
             {
                 diskPath = filePersistentPath;
-                origin = OriginType.Persistent;
+                origin = OriginType.PersistentData;
             }
             else
             {
                 diskPath = GamePathUtils.AB.Streaming.GetFileFullPath(formatPath);
-                origin = OriginType.Streaming;
+                origin = OriginType.StreamingAssets;
             }
         }
         #endregion

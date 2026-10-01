@@ -225,7 +225,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Play()
         {
-            Play(SoundConstant.DefaultFadeInSeconds);
+            Play(SoundConstant.InitialFadeInSeconds);
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Stop()
         {
-            Stop(SoundConstant.DefaultFadeOutSeconds);
+            Stop(SoundConstant.InitialFadeOutSeconds);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Pause()
         {
-            Pause(SoundConstant.DefaultFadeOutSeconds);
+            Pause(SoundConstant.InitialFadeOutSeconds);
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Resume()
         {
-            Resume(SoundConstant.DefaultFadeInSeconds);
+            Resume(SoundConstant.InitialFadeInSeconds);
         }
 
         /// <summary>
@@ -298,16 +298,16 @@ namespace Honor.Runtime
             }
 
             m_SetSoundAssetTime = DateTime.MinValue;
-            Time = SoundConstant.DefaultTime;
-            MuteInSoundGroup = SoundConstant.DefaultMute;
-            Loop = SoundConstant.DefaultLoop;
-            Priority = SoundConstant.DefaultPriority;
-            VolumeInSoundGroup = SoundConstant.DefaultVolume;
-            Pitch = SoundConstant.DefaultPitch;
-            PanStereo = SoundConstant.DefaultPanStereo;
-            SpatialBlend = SoundConstant.DefaultSpatialBlend;
-            MaxDistance = SoundConstant.DefaultMaxDistance;
-            DopplerLevel = SoundConstant.DefaultDopplerLevel;
+            Time = SoundConstant.InitialTime;
+            MuteInSoundGroup = SoundConstant.InitialMute;
+            Loop = SoundConstant.InitialLoop;
+            Priority = SoundConstant.InitialPriority;
+            VolumeInSoundGroup = SoundConstant.InitialVolume;
+            Pitch = SoundConstant.InitialPitch;
+            PanStereo = SoundConstant.InitialPanStereo;
+            SpatialBlend = SoundConstant.InitialSpatialBlend;
+            MaxDistance = SoundConstant.InitialMaxDistance;
+            DopplerLevel = SoundConstant.InitialDopplerLevel;
 
             // 重置辅助器
             m_SoundAgentHelper.Reset();

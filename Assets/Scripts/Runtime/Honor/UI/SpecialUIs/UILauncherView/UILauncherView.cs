@@ -53,7 +53,7 @@ namespace Honor.Runtime
             DOTween.Sequence()
                 .AppendInterval(GameMainRoot.Procedure.SplashProcedureDuration)
                 .AppendCallback(() => { DurationOverCallback?.Invoke(); })
-                .id = GameDOTweenTypes.SplashDurationAnimation;
+                .id = GameDOTweenTypes.SplashShowTween;
         }
 
         /// <summary>
