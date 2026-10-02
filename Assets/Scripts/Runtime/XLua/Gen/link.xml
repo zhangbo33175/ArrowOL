@@ -59,6 +59,9 @@
 		<type fullname="Honor.Runtime.AorTextPicMixed" preserve="all"/>
 		<type fullname="Honor.Runtime.ConfigComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.ConfigManager" preserve="all"/>
+		<type fullname="Honor.Runtime.DebuggerComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.DebuggerActiveWindowType" preserve="all"/>
+		<type fullname="Honor.Runtime.DebuggerManager" preserve="all"/>
 		<type fullname="Honor.Runtime.EventComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.EventParams" preserve="all"/>
 		<type fullname="Honor.Runtime.EventManager" preserve="all"/>
@@ -194,6 +197,8 @@
 		<type fullname="Honor.Runtime.AorTextEffectSpacing+HorizontalAligmentType" preserve="all"/>
 		<type fullname="Honor.Runtime.AorTextEffectSpacing+Line" preserve="all"/>
 		<type fullname="Honor.Runtime.ConfigManager+ConfigData" preserve="all"/>
+		<type fullname="Honor.Runtime.DebuggerComponent+ConsoleWindow" preserve="all"/>
+		<type fullname="Honor.Runtime.DebuggerComponent+LogNode" preserve="all"/>
 		<type fullname="Honor.Runtime.FxDelay+DelayData" preserve="all"/>
 		<type fullname="Honor.Runtime.GraphicsUtils+EScreenType" preserve="all"/>
 		<type fullname="Honor.Runtime.LauncherComponent+DevicePerformanceData" preserve="all"/>

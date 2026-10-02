@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 using XLua;
@@ -83,6 +84,36 @@ namespace Honor.Runtime
         #endregion
 
         //=========================================================================
+        #region 分帧加载状态
+        //=========================================================================
+
+        /// <summary>
+        /// StartGame 顶层依赖模块清单（分帧加载用）
+        /// </summary>
+        /// <remarks>
+        /// 与 StartGame.lua 的顶层 require 保持一致。
+        /// 即使清单与 StartGame.lua 不完全一致也安全：Lua require 幂等，
+        /// 未在清单内的模块会由 StartGame 内联 require 兜底加载（仅分帧不完整，不影响正确性）。
+        /// </remarks>
+        private readonly string[] m_StartGamePreloadModules =
+        {
+            "SystemApis", "SystemDefs", "SystemFuncs", "SystemBridges",
+            "EventCmd", "SystemReqs", "GameMain"
+        };
+
+        /// <summary>
+        /// 分帧加载顶层模块的当前索引
+        /// </summary>
+        private int m_StartGameModuleIndex;
+
+        /// <summary>
+        /// StartGame 主体（GC + 回调定义）是否已执行
+        /// </summary>
+        private bool m_StartGameEntryDone;
+
+        #endregion
+
+        //=========================================================================
         #region 初始化配置
         //=========================================================================
 
@@ -91,10 +122,12 @@ namespace Honor.Runtime
         /// </summary>
         public void InitLuaConfigs()
         {
+            Stopwatch sw = Stopwatch.StartNew();
             if (m_LauncherComponent.EditorResourceMode)
                 InitEditorLuaPathMapping();
             else
                 InitAssetBundleLuaPaths();
+            Log.Info($"[启动耗时] InitLuaConfigs({(m_LauncherComponent.EditorResourceMode ? "Editor" : "AB")}) = {sw.ElapsedMilliseconds}ms");
         }
 
         /// <summary>
@@ -139,7 +172,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 初始化 Lua 虚拟机、加载器、热重载、入口脚本
+        /// 初始化 Lua 虚拟机、加载器、热重载（入口脚本改为分帧加载，见 <see cref="RequireNextStartGameModule"/>）
         /// </summary>
         public void InitLuaEnv()
         {
@@ -160,8 +193,41 @@ namespace Honor.Runtime
                 LuaFileWatcher.CreateLuaFileWatcher(m_Env);
             }
 
-            m_Env.DoString("require 'StartGame'");
+            // 重置分帧加载状态（入口脚本在 Loading 进度中分帧 require，避免一次性阻塞主线程）
+            m_StartGameModuleIndex = 0;
+            m_StartGameEntryDone = false;
             m_LastGCTime = Time.time;
+        }
+
+        /// <summary>
+        /// 分帧加载一个 StartGame 顶层依赖模块
+        /// 每帧调用一次；返回 true 表示所有顶层模块及 StartGame 主体（GC + 回调定义）已加载完成
+        /// </summary>
+        /// <returns>是否全部加载完成</returns>
+        public bool RequireNextStartGameModule()
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            if (!m_StartGameEntryDone)
+            {
+                // 逐个加载顶层依赖模块（分帧，避免一次性阻塞）
+                if (m_StartGameModuleIndex < m_StartGamePreloadModules.Length)
+                {
+                    string moduleName = m_StartGamePreloadModules[m_StartGameModuleIndex];
+                    m_StartGameModuleIndex++;
+                    m_Env.DoString($"require '{moduleName}'");
+                    Log.Info($"[启动耗时] 加载Lua模块 {moduleName} = {sw.ElapsedMilliseconds}ms");
+                    return false;
+                }
+
+                // 顶层模块全部加载完成，执行 StartGame 主体
+                // 其内联 require 因模块已加载均为 no-op，仅执行 GC 优化与全局回调定义
+                m_Env.DoString("require 'StartGame'");
+                m_StartGameEntryDone = true;
+                Log.Info($"[启动耗时] StartGame 主体(GC/回调定义) = {sw.ElapsedMilliseconds}ms");
+            }
+
+            return true;
         }
 
         #endregion

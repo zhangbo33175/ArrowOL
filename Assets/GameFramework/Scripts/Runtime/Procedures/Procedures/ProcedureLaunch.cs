@@ -117,7 +117,8 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 初始化启动核心逻辑（全平台通用）
-        /// 性能设置 → 资源清单 → 配置表 → 多语言 → 字体 → 跳转预加载
+        /// 性能设置 → 加载 AB 清单 → 立即显示启动闪屏 → 跳转预加载
+        /// 配置表/多语言等重活已移入 ProcedurePreload 的分帧加载步骤，避免在闪屏前同步执行造成启动黑屏
         /// </summary>
         private void InitLaunch(StateMachine<ProcedureComponent> ownerMachine)
         {
@@ -127,34 +128,19 @@ namespace Honor.Runtime
                 DevicePerformance.ModifyQualitySettingsBasedOnPerformanceLevel();
             }
 
-            // 加载 AB 清单
+            // 加载 AB 清单（过渡闪屏/UI 的前置依赖，必须先于闪屏加载完成）
             GameMainRoot.Asset.LoadManifest();
+            Log.Info("[启动耗时] ProcedureLaunch 加载AB清单 完成。");
 
-            // 加载全局配置表
-            GameMainRoot.Config.LoadConfigs();
-
-            // 加载支持的语言列表
-            GameMainRoot.Localization.LoadDefaultLanguages();
-
-            // 初始化当前语言
-            GameMainRoot.Localization.InitCurLanguage();
-
-            // 加载默认语言数据
-            GameMainRoot.Localization.LoadDefaultDatas();
-
-            // 加载字体配置
-            GameMainRoot.Localization.LoadFontDatas();
-
-            // 设置语言并刷新
-            GameMainRoot.Localization.SetLanguage(GameMainRoot.Localization.Language, true);
-
-            // 刷新 UI 适配比例
+            // 刷新 UI 适配比例（保证闪屏正确缩放后再显示）
             GameMainRoot.UI.RefreshScreenMatchValue();
 
-            // 调用基类进入逻辑
+            // 立即显示启动闪屏（过渡 UI），避免后续重活（配置表/多语言/Lua）同步阻塞主线程导致黑屏；
+            // 这些重活已移入 ProcedurePreload 的分帧加载步骤，在闪屏与 Loading 进度中后台完成
             base.OnEnter(ownerMachine);
+            Log.Info("[启动耗时] ProcedureLaunch 显示启动闪屏 完成。");
 
-            // 启动流程完成 → 跳转到预加载流程
+            // 启动流程就绪 → 跳转到预加载流程（配置表/多语言/Lua 在 Preload 分帧加载并展示进度）
             PrepareToNextProcedure(typeof(ProcedurePreload));
         }
 

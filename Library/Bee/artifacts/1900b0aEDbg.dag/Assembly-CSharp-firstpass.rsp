@@ -125,6 +125,7 @@
 -define:UIEXTENSION_ENABLE
 -define:SPINE_ENABLE
 -define:EASY_TOUCH_ENABLE
+-define:BEST_HTTP_ENABLE
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
 -r:"Assets/Plugins/DOTween.dll"
@@ -346,6 +347,7 @@
 -r:"E:/Unity/Unity 2022.3.8f1/Editor/Data/PlaybackEngines/AndroidPlayer/Unity.Android.Types.dll"
 -r:"Library/PackageCache/com.unity.testtools.codecoverage@1.2.4/lib/ReportGenerator/ReportGeneratorMerged.dll"
 -r:"Library/PackageCache/com.unity.visualscripting@1.9.0/Runtime/VisualScripting.Flow/Dependencies/NCalc/Unity.VisualScripting.Antlr3.Runtime.dll"
+-r:"Library/Bee/artifacts/1900b0aEDbg.dag/BestHTTP.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/spine-csharp.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/spine-unity-editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/spine-unity.ref.dll"

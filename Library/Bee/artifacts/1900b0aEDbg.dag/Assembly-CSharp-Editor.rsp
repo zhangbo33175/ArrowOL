@@ -122,6 +122,7 @@
 -define:UIEXTENSION_ENABLE
 -define:SPINE_ENABLE
 -define:EASY_TOUCH_ENABLE
+-define:BEST_HTTP_ENABLE
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
 -define:UNITY_EDITOR_ONLY_COMPILATION
@@ -362,6 +363,7 @@
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-Editor-firstpass.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp-firstpass.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.ref.dll"
+-r:"Library/Bee/artifacts/1900b0aEDbg.dag/BestHTTP.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/spine-csharp.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/spine-unity-editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/spine-unity.ref.dll"
@@ -397,6 +399,7 @@
 "Assets/GameFramework/Scripts/Editor/HonorComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/AssetComponentInspector/AssetComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/ConfigComponentInspector/ConfigComponentInspector.cs"
+"Assets/GameFramework/Scripts/Editor/Inspectors/DebuggerComponentInspector/DebuggerComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/EventComponentInspector/EventComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/GameConfigComponentInspector/GameConfigComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/GameConfigComponentInspector/GameConfigComponentInspector.Methods.cs"
@@ -407,6 +410,7 @@
 "Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaBehaviourInspector.MVVM.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaBehaviourInspector.None.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/LuaBehaviourInspector/LuaComponentInspector.cs"
+"Assets/GameFramework/Scripts/Editor/Inspectors/NetworkComponentInspector/NetworkComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/PersistComponentInspector/PersistComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/PersistComponentInspector/PersistComponentInspector.Export.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/ProcedureComponentInspector/ProcedureComponentInspector.cs"
@@ -420,6 +424,8 @@
 "Assets/GameFramework/Scripts/Editor/Inspectors/SoundComponentInspector/SoundComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/TableComponentInspector/TableComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/UIComponentInspector/UIComponentInspector.cs"
+"Assets/GameFramework/Scripts/Editor/Inspectors/UILauncherLoadingViewInspector/UILauncherLoadingViewInspector.cs"
+"Assets/GameFramework/Scripts/Editor/Inspectors/UILauncherLogoBehaviourInspector/UILauncherLogoBehaviourInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Inspectors/UIs/AorTextLocalizingComponentInspector.cs"
 "Assets/GameFramework/Scripts/Editor/Tools/AorType.cs"
 "Assets/GameFramework/Scripts/Editor/Tools/BaseEditorWindow.cs"

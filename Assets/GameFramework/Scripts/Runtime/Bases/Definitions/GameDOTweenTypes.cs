@@ -42,6 +42,11 @@ namespace Honor.Runtime
         /// </summary>
         public const string SplashShowTween = "__DOTween__SplashDurationAnimation__";
 
+        /// <summary>
+        /// 启动加载界面 - 进入/退出过渡动画ID
+        /// </summary>
+        public const string LauncherLoadingViewTween = "__DOTween__LauncherLoadingViewTransition__";
+
         //=========================================================================
         // 相机相关动画
         //=========================================================================

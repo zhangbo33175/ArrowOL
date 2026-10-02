@@ -1924,21 +1924,23 @@ namespace XLua.CSObjectWrap
             
 			    int gen_param_count = LuaAPI.lua_gettop(L);
             
-                if(gen_param_count == 2&& translator.Assignable<System.Action>(L, 2)) 
+                if(gen_param_count == 3&& translator.Assignable<System.Action>(L, 2)&& translator.Assignable<System.Action>(L, 3)) 
                 {
-                    System.Action _durationOverCallback = translator.GetDelegate<System.Action>(L, 2);
+                    System.Action _initStartCallback = translator.GetDelegate<System.Action>(L, 2);
+                    System.Action _durationOverCallback = translator.GetDelegate<System.Action>(L, 3);
                     
-                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash( _durationOverCallback );
+                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash( _initStartCallback, _durationOverCallback );
                         translator.Push(L, gen_ret);
                     
                     
                     
                     return 1;
                 }
-                if(gen_param_count == 1) 
+                if(gen_param_count == 2&& translator.Assignable<System.Action>(L, 2)) 
                 {
+                    System.Action _initStartCallback = translator.GetDelegate<System.Action>(L, 2);
                     
-                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash(  );
+                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash( _initStartCallback );
                         translator.Push(L, gen_ret);
                     
                     

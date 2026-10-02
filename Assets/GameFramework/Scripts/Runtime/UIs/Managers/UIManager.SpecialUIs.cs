@@ -312,7 +312,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 显示启动 Splash 界面
         /// </summary>
-        public UILauncherView ShowSplash(Action durationOverCallback)
+        /// <param name="initStartCallback">首帧渲染后的初始化启动回调（可空，用于提前启动 Lua 初始化，与闪屏展示重叠）</param>
+        /// <param name="durationOverCallback">最短展示时长与初始化就绪后的进入回调（可空）</param>
+        /// <returns>闪屏视图实例</returns>
+        public UILauncherView ShowSplash(Action initStartCallback = null, Action durationOverCallback = null)
         {
             UIInfo uiInfo = new UIInfo()
             {
@@ -331,6 +334,7 @@ namespace Honor.Runtime
             };
             GameObject uiGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
             UILauncherView uiLauncherView = uiGO.GetComponent<UILauncherView>();
+            uiLauncherView.InitStartCallback = initStartCallback;
             uiLauncherView.DurationOverCallback = durationOverCallback;
             return uiLauncherView;
         }

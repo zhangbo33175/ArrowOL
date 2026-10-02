@@ -35,13 +35,18 @@ function HonorTimerHelper:ctor(args)
     self._mainLocalTimerNodes = {}
 
     ---@type number UTC0 当天 23:59:59 时间戳
-    self._curDay24UTC0TimeStamp = nil
-    ---@type number 本地当天 23:59:59 时间戳
-    self._curDay24LocalTimeStamp = nil
+    ---@desc 构造函数即基于当前时间初始化，避免 ProcTiming（446 行）在 OnEnter 未执行时对 nil 做算术运算
+    local utc0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._mainUTC0TimeStamp)
+    self._curDay24UTC0TimeStamp = self:GetUTC0TimeStampByParams(utc0TimeInfo[1], utc0TimeInfo[2], utc0TimeInfo[3], 23, 59, 59)
     ---@type number UTC0 当天 00:00:00 时间戳
-    self._curDay00UTC0TimeStamp = nil
+    self._curDay00UTC0TimeStamp = self:GetUTC0TimeStampByParams(utc0TimeInfo[1], utc0TimeInfo[2], utc0TimeInfo[3], 0, 0, 0)
+
+    ---@type number 本地当天 23:59:59 时间戳
+    ---@desc 同上，防止 ProcTiming（482 行）本地跨天判断在 OnEnter 未执行时崩溃
+    local localTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(self._mainLocalTimeStamp)
+    self._curDay24LocalTimeStamp = self:GetLocalTimeStampByParams(localTimeInfo[1], localTimeInfo[2], localTimeInfo[3], 23, 59, 59)
     ---@type number 本地当天 00:00:00 时间戳
-    self._curDay00LocalTimeStamp = nil
+    self._curDay00LocalTimeStamp = self:GetLocalTimeStampByParams(localTimeInfo[1], localTimeInfo[2], localTimeInfo[3], 0, 0, 0)
 
     ---@type table<string, boolean> 允许派发跨天事件的流程白名单
     self._acrossDayEventProcedureNameFlags = {}

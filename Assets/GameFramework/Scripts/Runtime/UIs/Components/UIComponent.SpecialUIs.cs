@@ -105,11 +105,12 @@ namespace Honor.Runtime
         /// <summary>
         /// 显示启动闪屏界面（Splash）
         /// </summary>
-        /// <param name="durationOverCallback">延时结束回调</param>
+        /// <param name="initStartCallback">首帧渲染后的初始化启动回调（可空）</param>
+        /// <param name="durationOverCallback">最短展示时长与初始化就绪后的进入回调（可空）</param>
         /// <returns>闪屏视图实例</returns>
-        public UILauncherView ShowSplash(Action durationOverCallback = null)
+        public UILauncherView ShowSplash(Action initStartCallback = null, Action durationOverCallback = null)
         {
-            return m_UIManager.ShowSplash(durationOverCallback);
+            return m_UIManager.ShowSplash(initStartCallback, durationOverCallback);
         }
 
         /// <summary>

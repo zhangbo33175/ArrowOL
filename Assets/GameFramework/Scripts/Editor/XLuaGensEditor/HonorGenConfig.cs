@@ -321,6 +321,17 @@ public static class HonorGenConfig
         typeof(SceneLoadOverCallback),
         typeof(UILoadOverCallback),
 
+#if BEST_HTTP_ENABLE
+        // WebSocket 回调委托（C# 调用 Lua）
+        // 注意：此类委托无法被命名空间扫描收录（BaseType 为 MulticastDelegate 会被排除），
+        // 必须在此显式登记，否则运行时 LuaTable.Get<T> 会抛 "This type must add to CSharpCallLua"。
+        typeof(LuaWebSocketOpenCSEventDelegate),
+        typeof(LuaWebSocketMessageReceivedCSEventDelegate),
+        typeof(LuaWebSocketBinaryReceivedCSEventDelegate),
+        typeof(LuaWebSocketClosedCSEventDelegate),
+        typeof(LuaWebSocketErrorCSEventDelegate),
+#endif
+
         // DOTween
         typeof(DG.Tweening.Tween),
         typeof(DG.Tweening.Tweener),
