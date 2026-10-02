@@ -109,3 +109,47 @@ end
 function GameReceiveCsToEventCallback(eventArgs)
     -- C# -> Lua 全局事件处理
 end
+
+--=====================================================================================================
+-- WebSocket 业务回调（C# -> Lua 派发）
+--=====================================================================================================
+
+---@brief WebSocket 建立成功业务回调
+---@desc WebSocket 连接建立成功时由框架层调用，业务处理扩展位
+---@param webSocket userdata WebSocket 连接（C# 引用）
+function GameWebSocketOpenCallback(webSocket)
+    -- WebSocket 建立成功业务处理
+end
+
+---@brief WebSocket 文本消息接收业务回调
+---@desc WebSocket 收到文本消息时由框架层调用，业务处理扩展位
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param message string 接收的文本信息
+function GameWebSocketMessageReceivedCallback(webSocket, message)
+    -- WebSocket 文本消息业务处理
+end
+
+---@brief WebSocket 二进制消息接收业务回调
+---@desc WebSocket 收到字节流消息时由框架层调用，业务处理扩展位
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param datas System.Byte[] 接收的字节流信息
+function GameWebSocketBinaryReceivedCallback(webSocket, datas)
+    -- WebSocket 二进制消息业务处理
+end
+
+---@brief WebSocket 关闭业务回调
+---@desc WebSocket 连接关闭时由框架层调用，业务处理扩展位
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param code number 附带 WebSocket 关闭状态码
+---@param message string 附带 WebSocket 文本信息
+function GameWebSocketClosedCallback(webSocket, code, message)
+    -- WebSocket 关闭业务处理
+end
+
+---@brief WebSocket 错误业务回调
+---@desc WebSocket 连接发生错误时由框架层调用，业务处理扩展位
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param error string 错误信息
+function GameWebSocketErrorCallback(webSocket, error)
+    -- WebSocket 错误业务处理
+end

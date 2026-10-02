@@ -22,7 +22,7 @@ local GameEffectManager = class("GameEffectManager", import("Singleton"))
 function GameEffectManager:ctor(args)
     GameEffectManager.super.ctor(self, args)
 
-    self._efList = HonorList:Create()            ---@type List<UnityEngine.GameObject> 特效对象列表（统一管理&回收）
+    self._efList = HonorList:Create()            ---@type HonorList 特效对象列表（统一管理&回收）
     self._UIPlayingAnimated = nil                ---@type UIPlayingAnimated UI动画控制器
 end
 

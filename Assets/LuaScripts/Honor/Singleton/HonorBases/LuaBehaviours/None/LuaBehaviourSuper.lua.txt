@@ -436,7 +436,7 @@ end
 
 ---@brief 加载资源（自动管理）
 ---@desc 按资源配置同步加载资源并缓存，重复加载直接返回缓存
----@param assetInfo RES_DEF_ITEM 资源配置
+---@param assetInfo LOAD_RES_DEF_ITEM 资源配置
 ---@return UnityEngine.Object 加载的资源对象
 function LuaBehaviourSuper:LoadAsset(assetInfo)
     if assetInfo ~= nil then
@@ -451,7 +451,7 @@ end
 
 ---@brief 卸载单个资源
 ---@desc 按资源配置卸载对应缓存资源，并移除缓存记录
----@param assetInfo RES_DEF_ITEM 资源配置
+---@param assetInfo LOAD_RES_DEF_ITEM 资源配置
 ---@return boolean 是否卸载成功
 function LuaBehaviourSuper:UnloadAsset(assetInfo)
     if assetInfo ~= nil then

@@ -31,10 +31,10 @@ function InitProtoFile(protoLuaFileName)
 end
 
 ---@brief Proto协议序列化（将lua的table数据转换成字节数组）
----@type fun(protoDataName:string, tableData:table):System.Byte[]
+---@type fun(protoDataName:string, tableData:table):userdata
 ---@param protoDataName string proto协议中数据名称
 ---@param tableData table proto协议数据
----@return System.Byte[] 序列化结果
+---@return userdata 序列化结果
 function ProtoEncode(protoDataName, tableData)
     if type(protoDataName) == "string" and protoDataName ~= "" then
         local pb = require "pb"
@@ -45,9 +45,9 @@ function ProtoEncode(protoDataName, tableData)
 end
 
 ---@brief Proto协议反序列化（将字节数组转换成lua的table数据）
----@type fun(protoDataName:string, bytes:System.Byte[]):table
+---@type fun(protoDataName:string, bytes:userdata):table
 ---@param protoDataName string proto协议中数据名称
----@param bytes System.Byte[] proto协议字节流数据
+---@param bytes userdata proto协议字节流数据
 ---@return table 反序列化结果
 function ProtoDecode(protoDataName, bytes)
     if type(protoDataName) == "string" and protoDataName ~= "" then
@@ -158,22 +158,22 @@ end
 
 ---@brief AES加密字节流
 ---传入key与iv时表示使用静态加密/不传key与iv时表示使用动态加密
----@type fun(bytes:System.Byte[], key:string, iv:string):string
----@param bytes System.Byte[] 字节流
+---@type fun(bytes:userdata, key:string, iv:string):string
+---@param bytes userdata 字节流
 ---@param key string 指定的加密key（可不传，默认使用动态加密）
 ---@param iv string 指定的加密iv（可不传，默认使用动态加密）
----@return System.Byte[] 加密结果
+---@return userdata 加密结果
 function AESEncodeToBytes(bytes, key, iv)
     return Honor.AESEncrypt.EncodeToBytes(bytes, key, iv)
 end
 
 ---@brief AES解密字节流
 ---传入key与iv时表示使用静态解密/不传key与iv时表示使用动态解密
----@type fun(bytes:System.Byte[], key:string, iv:string):any
----@param bytes System.Byte[] 密文字节流
+---@type fun(bytes:userdata, key:string, iv:string):any
+---@param bytes userdata 密文字节流
 ---@param key string 指定的解密key
 ---@param iv string 指定的解密iv
----@return System.Byte[] 解密结果
+---@return userdata 解密结果
 function AESDecodeToBytes(bytes, key, iv)
     return Honor.AESEncrypt.DecodeToBytes(bytes, key, iv)
 end
@@ -482,11 +482,11 @@ end
 
 --region LuaTable与C#的转换
 ---@brief LuaTable转C#的Array
----@type fun(luaTable:table):System.Array
+---@type fun(luaTable:table):userdata
 ---@param luaTable table luatable
----@return System.Array 转化结果
+---@return userdata 转化结果
 function LuaTableToCSArray(luaTable)
-    local convertArray = CS.System.Array.CreateInstance(typeof(CS.System.Object), #luaTable)
+    local convertArray = CS.userdata.CreateInstance(typeof(CS.System.Object), #luaTable)
     for index = 0, #luaTable - 1 do
         convertArray[index] = luaTable[index + 1]
     end
@@ -605,8 +605,8 @@ end
 
 --region 资源加载与卸载
 ---@brief 同步加载Asset（支持JsonAsset自动解析）
----@type fun(assetInfo:RES_DEF_ITEM):UnityEngine.Object
----@param assetInfo RES_DEF_ITEM 资源信息
+---@type fun(assetInfo:LOAD_RES_DEF_ITEM):UnityEngine.Object
+---@param assetInfo LOAD_RES_DEF_ITEM 资源信息
 ---@return UnityEngine.Object 资源对象
 function LoadAssetSync(assetInfo)
     local status, asset = xpcall(function()
@@ -625,8 +625,8 @@ function LoadAssetSync(assetInfo)
 end
 
 ---@brief 异步加载Asset
----@type fun(assetInfo:RES_DEF_ITEM, overCallback:handler):void
----@param assetInfo RES_DEF_ITEM 资源信息
+---@type fun(assetInfo:LOAD_RES_DEF_ITEM, overCallback:handler):void
+---@param assetInfo LOAD_RES_DEF_ITEM 资源信息
 ---@param overCallback handler 回调句柄
 function LoadAssetAsync(assetInfo, overCallback)
     local status, _ = xpcall(function()
@@ -746,8 +746,8 @@ end
 
 --region 创建预制体与销毁
 ---@brief 同步创建预制体实例（返回GO对象）
----@type fun(assetInfo:RES_DEF_ITEM, parent:UnityEngine.Transform, params:table):UnityEngine.GameObject
----@param assetInfo RES_DEF_ITEM 资源信息
+---@type fun(assetInfo:LOAD_RES_DEF_ITEM, parent:UnityEngine.Transform, params:table):UnityEngine.GameObject
+---@param assetInfo LOAD_RES_DEF_ITEM 资源信息
 ---@param parent UnityEngine.Transform 父节点Transform
 ---@param params table 自定义参数
 ---@return UnityEngine.GameObject UI对象
@@ -763,8 +763,8 @@ function CreatePrefabGOSync(assetInfo, parent, params)
 end
 
 ---@brief 同步创建预制体实例（返回LuaClass）
----@type fun(assetInfo:RES_DEF_ITEM, parent:UnityEngine.Transform, params:table):table
----@param assetInfo RES_DEF_ITEM 资源信息
+---@type fun(assetInfo:LOAD_RES_DEF_ITEM, parent:UnityEngine.Transform, params:table):table
+---@param assetInfo LOAD_RES_DEF_ITEM 资源信息
 ---@param parent UnityEngine.Transform 父节点Transform
 ---@param params table 自定义参数
 ---@return table UI对象LuaBehaviour组件的luaClass
@@ -782,8 +782,8 @@ function CreatePrefabLuaClassSync(assetInfo, parent, params)
 end
 
 ---@brief 异步创建预制体实例
----@type fun(assetInfo:RES_DEF_ITEM, parent:UnityEngine.Transform, params:table, overCallback:handler):void
----@param assetInfo RES_DEF_ITEM 资源信息
+---@type fun(assetInfo:LOAD_RES_DEF_ITEM, parent:UnityEngine.Transform, params:table, overCallback:handler):void
+---@param assetInfo LOAD_RES_DEF_ITEM 资源信息
 ---@param parent UnityEngine.Transform 父节点Transform
 ---@param params table 自定义参数
 ---@param overCallback handler 回调句柄
@@ -1087,13 +1087,13 @@ function DOPathWithRotation(go, points, preDelay, duration, dotweenEase, finishC
 end
 
 ---@brief 跨相机UI->场景飞行动画（奖励、道具飞行）
----@type fun(sceneGO:UnityEngine.GameObject, pointsGroup:UnityEngine.Vector3[][], durations:number[], dotweenEases:Ease[], targetGO:UnityEngine.GameObject, resDefItems:RES_DEF_ITEM[], params:table, finishCallbacks:handler[]):UnityEngine.GameObject[],DG.Tweening.Sequence[]
+---@type fun(sceneGO:UnityEngine.GameObject, pointsGroup:UnityEngine.Vector3[][], durations:number[], dotweenEases:Ease[], targetGO:UnityEngine.GameObject, resDefItems:LOAD_RES_DEF_ITEM[], params:table, finishCallbacks:handler[]):UnityEngine.GameObject[],DG.Tweening.Sequence[]
 ---@param originGO UnityEngine.GameObject
 ---@param pointsGroup UnityEngine.Vector3[][]
 ---@param durations number[]
 ---@param dotweenEases Ease[]
 ---@param targetParentGO UnityEngine.GameObject
----@param resDefItems RES_DEF_ITEM[]
+---@param resDefItems LOAD_RES_DEF_ITEM[]
 ---@param params table[]
 ---@param finishCallbacks handler[]
 ---@return UnityEngine.GameObject[]|nil, DG.Tweening.Sequence[]|nil

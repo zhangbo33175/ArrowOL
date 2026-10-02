@@ -113,6 +113,11 @@ namespace Honor.Runtime
         /// </summary>
         public static GameManager gameManager { get; private set; }
 
+        /// <summary>
+        /// 调试组件
+        /// </summary>
+        public static DebuggerComponent Debugger { get; private set; }
+
         #endregion
 
         //=========================================================================
@@ -154,6 +159,7 @@ namespace Honor.Runtime
             Sound = GameComponentsGroup.GetComponent<SoundComponent>();
             Playing = GameComponentsGroup.GetComponent<PlayingComponent>();
             Vibrate = GameComponentsGroup.GetComponent<VibrateComponent>();
+            Debugger = GameComponentsGroup.GetComponent<DebuggerComponent>();
         }
 
         #endregion

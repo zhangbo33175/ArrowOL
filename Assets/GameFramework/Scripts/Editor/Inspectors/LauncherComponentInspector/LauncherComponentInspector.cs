@@ -46,9 +46,6 @@ namespace Honor.Editor
         /// <summary>是否开发模式（控制开发/生产环境配置）</summary>
         private SerializedProperty m_DevelopMode;
 
-        /// <summary>是否连接本地测试服务器</summary>
-        private SerializedProperty m_IsLocalServer;
-
         /// <summary>是否启用编辑器下实时调试热更新</summary>
         private SerializedProperty m_IsRealTimeDebuggerHotfixForEditor;
 
@@ -110,7 +107,6 @@ namespace Honor.Editor
             m_EditorResourceMode               = serializedObject.FindProperty("m_EditorResourceMode");
             m_EditorLanguage                   = serializedObject.FindProperty("m_EditorLanguage");
             m_DevelopMode                      = serializedObject.FindProperty("m_DevelopMode");
-            m_IsLocalServer                    = serializedObject.FindProperty("m_IsLocalServer");
             m_IsRealTimeDebuggerHotfixForEditor = serializedObject.FindProperty("m_IsRealTimeDebuggerHotfixForEditor");
             m_LuacMode                         = serializedObject.FindProperty("m_LuacMode");
             m_LuaHotReloadMode                 = serializedObject.FindProperty("m_LuaHotReloadMode");
@@ -167,7 +163,7 @@ namespace Honor.Editor
         private void DrawResourceModeSection()
         {
             // ====================== 编辑器资源模式 ======================
-            m_EditorResourceMode.boolValue = EditorGUILayout.Toggle("编辑器资源模式", m_EditorResourceMode.boolValue);
+            DrawBoolPopup("编辑资源模式", m_EditorResourceMode, EditorResourceModeOptions);
 
             if (!m_EditorResourceMode.boolValue)
                 EditorGUI.BeginDisabledGroup(true);
@@ -175,8 +171,7 @@ namespace Honor.Editor
             {
                 EditorGUILayout.HelpBox("编辑器资源模式仅在编辑器下有效，设备将强制使用AB模式", MessageType.Warning);
 
-                m_IsRealTimeDebuggerHotfixForEditor.boolValue =
-                    EditorGUILayout.Toggle("实时调试热更新", m_IsRealTimeDebuggerHotfixForEditor.boolValue);
+                DrawBoolPopup("实时调试热更新", m_IsRealTimeDebuggerHotfixForEditor, BoolOnOffOptions);
 
                 EditorGUILayout.HelpBox("仅编辑器资源模式下生效，不实际下载热更文件", MessageType.Info);
 
@@ -199,8 +194,31 @@ namespace Honor.Editor
         #endregion
 
         #region 开发模式段
+        /// <summary>两档开关的下拉选项（关闭/开启）</summary>
+        private static readonly string[] BoolOnOffOptions = { "关闭", "开启" };
+
+        /// <summary>开发模式的下拉选项（生产/开发）</summary>
+        private static readonly string[] DevelopModeOptions = { "生产模式", "开发模式" };
+
+        /// <summary>编辑资源模式的下拉选项（AB模式/编辑器模式）</summary>
+        private static readonly string[] EditorResourceModeOptions = { "AB模式", "编辑器模式" };
+
         /// <summary>
-        /// 绘制开发模式、本地服务器、Lua调试、Luac与热重载开关
+        /// 以两档下拉框的形式绘制布尔开关
+        /// </summary>
+        /// <param name="label">控件标签</param>
+        /// <param name="property">布尔序列化属性</param>
+        /// <param name="options">两个下拉选项文字（索引0=false，索引1=true）</param>
+        private static void DrawBoolPopup(string label, SerializedProperty property, string[] options)
+        {
+            int index = property.boolValue ? 1 : 0;
+            int newIndex = EditorGUILayout.Popup(label, index, options);
+            if (newIndex != index)
+                property.boolValue = newIndex == 1;
+        }
+
+        /// <summary>
+        /// 绘制开发模式、Lua调试、Luac与热重载开关
         /// </summary>
         private void DrawDevelopmentSection()
         {
@@ -209,31 +227,25 @@ namespace Honor.Editor
                 EditorGUI.BeginDisabledGroup(true);
 
             {
-                m_DevelopMode.boolValue = EditorGUILayout.Toggle("开发模式", m_DevelopMode.boolValue);
+                DrawBoolPopup("开发模式", m_DevelopMode, DevelopModeOptions);
                 EditorGUILayout.HelpBox("切换开发/生产环境配置", MessageType.Info);
-
-                if (m_DevelopMode.boolValue)
-                {
-                    m_IsLocalServer.boolValue = EditorGUILayout.Toggle("本地服务器", m_IsLocalServer.boolValue);
-                    EditorGUILayout.HelpBox("使用测试服务器[172.16.35.16:8081]", MessageType.Info);
-                }
 
                 DrawLuaDebugModeBlock();
 
                 // Luac 模式
-                m_LuacMode.boolValue = EditorGUILayout.Toggle("Luac模式", m_LuacMode.boolValue);
+                DrawBoolPopup("Luac模式", m_LuacMode, BoolOnOffOptions);
                 EditorGUILayout.HelpBox("设备强制使用Luac字节码", MessageType.Info);
 
                 // Lua热重载
                 if (m_EditorResourceMode.boolValue && !m_LuacMode.boolValue)
                 {
-                    m_LuaHotReloadMode.boolValue = EditorGUILayout.Toggle("Lua热重载模式", m_LuaHotReloadMode.boolValue);
+                    DrawBoolPopup("Lua热重载模式", m_LuaHotReloadMode, BoolOnOffOptions);
                     EditorGUILayout.HelpBox("无需重启运行Lua代码修改", MessageType.Info);
                 }
                 else
                 {
                     EditorGUI.BeginDisabledGroup(true);
-                    EditorGUILayout.Toggle("Lua热重载模式", false);
+                    EditorGUILayout.Popup("Lua热重载模式", 0, BoolOnOffOptions);
                     EditorGUILayout.HelpBox("当前禁用", MessageType.Info);
                     EditorGUI.EndDisabledGroup();
                 }

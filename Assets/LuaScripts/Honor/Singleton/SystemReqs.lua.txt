@@ -43,6 +43,10 @@ HonorAccountHelper = require("HonorAccountHelper"):Create()
 ---@class HonorPoolHelper
 HonorPoolHelper = require("HonorPoolHelper"):Create()
 
+---@brief 内购（IAP）管理助手
+---@class HonorIAPHelper
+HonorIAPHelper = require("HonorIAPHelper"):Create()
+
 --endregion
 
 --=====================================================================================================

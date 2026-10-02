@@ -126,4 +126,49 @@ function GameSoundCallback(soundKeyName)
     return Tables.Sounds[soundKeyName]
 end
 
+---@brief WebSocket 建立成功回调（C# 调用）
+---@desc WebSocket 连接建立成功时由 C# 层调用，转发至游戏业务层
+---@param webSocket userdata WebSocket 连接（C# 引用）
+function framework_websocket_open_callback(webSocket)
+    PrintInfo("[LuaMain] WebSocket 建立成功，转发至业务层")
+    GameWebSocketOpenCallback(webSocket)
+end
+
+---@brief WebSocket 文本消息接收回调（C# 调用）
+---@desc WebSocket 收到文本消息时由 C# 层调用，转发至游戏业务层
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param message string 接收的文本信息
+function framework_websocket_message_received_callback(webSocket, message)
+    PrintInfo("[LuaMain] WebSocket 收到文本消息，转发至业务层")
+    GameWebSocketMessageReceivedCallback(webSocket, message)
+end
+
+---@brief WebSocket 二进制消息接收回调（C# 调用）
+---@desc WebSocket 收到字节流消息时由 C# 层调用，转发至游戏业务层
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param datas userdata 接收的字节流信息
+function framework_websocket_binary_received_callback(webSocket, datas)
+    PrintInfo("[LuaMain] WebSocket 收到字节流消息，转发至业务层")
+    GameWebSocketBinaryReceivedCallback(webSocket, datas)
+end
+
+---@brief WebSocket 关闭回调（C# 调用）
+---@desc WebSocket 连接关闭时由 C# 层调用，转发至游戏业务层
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param code number 附带 WebSocket 关闭状态码
+---@param message string 附带 WebSocket 文本信息
+function framework_websocket_closed_callback(webSocket, code, message)
+    PrintInfo("[LuaMain] WebSocket 连接关闭，转发至业务层")
+    GameWebSocketClosedCallback(webSocket, code, message)
+end
+
+---@brief WebSocket 错误回调（C# 调用）
+---@desc WebSocket 连接发生错误时由 C# 层调用，转发至游戏业务层
+---@param webSocket userdata WebSocket 连接（C# 引用）
+---@param error string 错误信息
+function framework_websocket_error_callback(webSocket, error)
+    PrintInfo("[LuaMain] WebSocket 连接发生错误，转发至业务层")
+    GameWebSocketErrorCallback(webSocket, error)
+end
+
 --endregion

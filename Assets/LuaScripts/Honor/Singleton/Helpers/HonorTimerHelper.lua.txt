@@ -398,7 +398,7 @@ end
 -- ====================================================================================================
 
 ---@brief 每帧执行：驱动所有时间轴、跨天、定时任务
----@param procedure Solar.Runtime.ProcedureState 流程
+---@param procedure Honor.Runtime.ProcedureState 流程
 function HonorTimerHelper:ProcTiming(procedure)
     local realtime = Unity.Time.realtimeSinceStartup
     local deltaTime = self._lastRealTime > 0 and (realtime - self._lastRealTime) or 0

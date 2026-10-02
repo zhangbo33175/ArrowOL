@@ -204,6 +204,75 @@ namespace Honor.Runtime
             get { return m_LuaLocalizingCSEventDelegate; }
         }
 
+#if BEST_HTTP_ENABLE
+
+        /// <summary>
+        /// Lua 层 WebSocket 建立成功回调全局派发委托
+        /// </summary>
+        private LuaWebSocketOpenCSEventDelegate m_LuaWebSocketOpenCSEventDelegate;
+
+        /// <summary>
+        /// Lua 层 WebSocket 建立成功回调全局派发委托（只读属性）
+        /// </summary>
+        public LuaWebSocketOpenCSEventDelegate LuaWebSocketOpenCSEventDelegate
+        {
+            get { return m_LuaWebSocketOpenCSEventDelegate; }
+        }
+
+        /// <summary>
+        /// Lua 层 WebSocket 文本信息接收回调全局派发委托
+        /// </summary>
+        private LuaWebSocketMessageReceivedCSEventDelegate m_LuaWebSocketMessageReceivedCSEventDelegate;
+
+        /// <summary>
+        /// Lua 层 WebSocket 文本信息接收回调全局派发委托（只读属性）
+        /// </summary>
+        public LuaWebSocketMessageReceivedCSEventDelegate LuaWebSocketMessageReceivedCSEventDelegate
+        {
+            get { return m_LuaWebSocketMessageReceivedCSEventDelegate; }
+        }
+
+        /// <summary>
+        /// Lua 层 WebSocket 字节流信息接收回调全局派发委托
+        /// </summary>
+        private LuaWebSocketBinaryReceivedCSEventDelegate m_LuaWebSocketBinaryReceivedCSEventDelegate;
+
+        /// <summary>
+        /// Lua 层 WebSocket 字节流信息接收回调全局派发委托（只读属性）
+        /// </summary>
+        public LuaWebSocketBinaryReceivedCSEventDelegate LuaWebSocketBinaryReceivedCSEventDelegate
+        {
+            get { return m_LuaWebSocketBinaryReceivedCSEventDelegate; }
+        }
+
+        /// <summary>
+        /// Lua 层 WebSocket 关闭回调全局派发委托
+        /// </summary>
+        private LuaWebSocketClosedCSEventDelegate m_LuaWebSocketClosedCSEventDelegate;
+
+        /// <summary>
+        /// Lua 层 WebSocket 关闭回调全局派发委托（只读属性）
+        /// </summary>
+        public LuaWebSocketClosedCSEventDelegate LuaWebSocketClosedCSEventDelegate
+        {
+            get { return m_LuaWebSocketClosedCSEventDelegate; }
+        }
+
+        /// <summary>
+        /// Lua 层 WebSocket 错误回调全局派发委托
+        /// </summary>
+        private LuaWebSocketErrorCSEventDelegate m_LuaWebSocketErrorCSEventDelegate;
+
+        /// <summary>
+        /// Lua 层 WebSocket 错误回调全局派发委托（只读属性）
+        /// </summary>
+        public LuaWebSocketErrorCSEventDelegate LuaWebSocketErrorCSEventDelegate
+        {
+            get { return m_LuaWebSocketErrorCSEventDelegate; }
+        }
+
+#endif
+
         #endregion
 
         //=========================================================================
@@ -239,6 +308,23 @@ namespace Honor.Runtime
 
             // c#获取lua层的ResDefInfo事件全局派发
             if (!TryBindGlobalDelegate("GetResDefInfoCallback", "m_LuaGetResDefInfoEventDelegate 无效。", out m_LuaGetResDefInfoEventDelegate)) return;
+
+#if BEST_HTTP_ENABLE
+            // 获取Lua层WebSocket建立成功回调全局派发
+            if (!TryBindGlobalDelegate("framework_websocket_open_callback", "LuaWebSocketOpenCSEventDelegate 无效。", out m_LuaWebSocketOpenCSEventDelegate)) return;
+
+            // 获取Lua层WebSocket文本信息接收回调全局派发
+            if (!TryBindGlobalDelegate("framework_websocket_message_received_callback", "LuaWebSocketMessageReceivedCSEventDelegate 无效。", out m_LuaWebSocketMessageReceivedCSEventDelegate)) return;
+
+            // 获取Lua层WebSocket字节流信息接收回调全局派发
+            if (!TryBindGlobalDelegate("framework_websocket_binary_received_callback", "LuaWebSocketBinaryReceivedCSEventDelegate 无效。", out m_LuaWebSocketBinaryReceivedCSEventDelegate)) return;
+
+            // 获取Lua层WebSocket关闭回调全局派发
+            if (!TryBindGlobalDelegate("framework_websocket_closed_callback", "LuaWebSocketClosedCSEventDelegate 无效。", out m_LuaWebSocketClosedCSEventDelegate)) return;
+
+            // 获取Lua层WebSocket错误回调全局派发
+            if (!TryBindGlobalDelegate("framework_websocket_error_callback", "LuaWebSocketErrorCSEventDelegate 无效。", out m_LuaWebSocketErrorCSEventDelegate)) return;
+#endif
         }
 
         /// <summary>

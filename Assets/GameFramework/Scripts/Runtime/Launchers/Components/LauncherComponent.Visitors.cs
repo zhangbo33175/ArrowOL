@@ -57,6 +57,24 @@ namespace Honor.Runtime
         private bool m_LuaHotReloadMode = false;
 
         /// <summary>
+        /// 调试窗口
+        /// 调试窗口激活类型
+        /// </summary>
+        [SerializeField]
+        private DebuggerActiveWindowType m_DebuggerActiveWindow = DebuggerActiveWindowType.AlwaysOpen;
+        public DebuggerActiveWindowType DebuggerActiveWindow
+        {
+            get
+            {
+                return m_DebuggerActiveWindow;
+            }
+            set
+            {
+                m_DebuggerActiveWindow = value;
+            }
+        }
+
+        /// <summary>
         /// 运行帧率
         /// 游戏运行时每秒的最高帧数
         /// </summary>

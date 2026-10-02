@@ -31,6 +31,17 @@ namespace Honor.Runtime
         {
             base.Awake();
 
+            // 获取Debugger组件并初始化Debugger的激活窗口
+            DebuggerComponent debuggerComponent = GameComponentsGroup.GetComponent<DebuggerComponent>();
+            if (debuggerComponent == null)
+            {
+                Log.Fatal("Debugger Component 无效。");
+            }
+            else
+            {
+                debuggerComponent.SetActiveWindow();
+            }
+
             // 编辑器资源模式仅在编辑器内生效
             m_EditorResourceMode &= Application.isEditor;
             Log.Info(m_EditorResourceMode 

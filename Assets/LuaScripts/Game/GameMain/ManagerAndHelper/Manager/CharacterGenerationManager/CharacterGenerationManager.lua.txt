@@ -11,7 +11,7 @@
 --=====================================================================================================
 
 ---@class CharacterGenerationManager @角色生成管理器
----@field _characterBaseTable List<CharacterBase> @角色实例列表
+---@field _characterBaseTable HonorList @角色实例列表
 ---@field _characterCfg table<ECharacterType, Tables.Characters_Item[]> @按角色类型缓存配置
 local CharacterGenerationManager = class("CharacterGenerationManager")
 
@@ -89,7 +89,7 @@ function CharacterGenerationManager:CharacterGenerationByData(characterData, new
             return nil
         end
         local go = PoolManager:Get(characterData.ResName, newParent)
-        ---@type Solar.Runtime.LuaBehaviour
+        ---@type Honor.Runtime.LuaBehaviour
         local luaBehaviour = go:GetComponent("LuaBehaviour")
         ---@type CharacterBase
         local characterBase = luaBehaviour.luaClass
@@ -137,9 +137,9 @@ end
 
 ---=========================================================================
 ---@brief 根据角色类型获取已生成的角色列表
----@type fun(characterType:ECharacterType):List<CharacterBase>
+---@type fun(characterType:ECharacterType):HonorList
 ---@param characterType ECharacterType @角色类型
----@return List<CharacterBase> @角色实例列表
+---@return HonorList @角色实例列表
 ---=========================================================================
 function CharacterGenerationManager:GetCharactersByType(characterType)
     local list = HonorList:Create()

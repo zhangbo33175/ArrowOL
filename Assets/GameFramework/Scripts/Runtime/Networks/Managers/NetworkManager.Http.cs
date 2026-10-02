@@ -14,6 +14,7 @@ using LitJson;
 using Newtonsoft.Json.Linq;
 #endif
 using System;
+using BestHTTP.Forms;
 
 namespace Honor.Runtime
 {
