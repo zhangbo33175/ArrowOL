@@ -1947,6 +1947,16 @@ namespace XLua.CSObjectWrap
                     
                     return 1;
                 }
+                if(gen_param_count == 1) 
+                {
+                    
+                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash(  );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
                 
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

@@ -8,19 +8,19 @@
 --=====================================================================================================
 
 ---@field GameObject_Character LOAD_RES_DEF_ITEM @文件 Character
-LoadRes["GameObject_Character"] = { Name = "GameObject_Character", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "Character" }
+LoadRes["GameObject_Character"] = { Name = "GameObject_Character", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/Character/Character", AssetName = "Character" }
 
 ---@field GameObject_FishItem LOAD_RES_DEF_ITEM @文件 FishItem
-LoadRes["GameObject_FishItem"] = { Name = "GameObject_FishItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "FishItem" }
+LoadRes["GameObject_FishItem"] = { Name = "GameObject_FishItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UIMainStateView/FishItem", AssetName = "FishItem" }
 
 ---@field GameObject_GameMainMap LOAD_RES_DEF_ITEM @文件 GameMainMap
-LoadRes["GameObject_GameMainMap"] = { Name = "GameObject_GameMainMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "GameMainMap" }
+LoadRes["GameObject_GameMainMap"] = { Name = "GameObject_GameMainMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/Map/GameMainMap", AssetName = "GameMainMap" }
 
 ---@field GameObject_ItemMap LOAD_RES_DEF_ITEM @文件 ItemMap
-LoadRes["GameObject_ItemMap"] = { Name = "GameObject_ItemMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "ItemMap" }
+LoadRes["GameObject_ItemMap"] = { Name = "GameObject_ItemMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/Item/ItemMap", AssetName = "ItemMap" }
 
 ---@field GameObject_SectionItem LOAD_RES_DEF_ITEM @文件 SectionItem
-LoadRes["GameObject_SectionItem"] = { Name = "GameObject_SectionItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "SectionItem" }
+LoadRes["GameObject_SectionItem"] = { Name = "GameObject_SectionItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UILevelView/SectionItem", AssetName = "SectionItem" }
 
 ---@field Sprite_Level_bg_main_1 LOAD_RES_DEF_ITEM @文件 Level_bg_main_1
 LoadRes["Sprite_Level_bg_main_1"] = { Name = "Sprite_Level_bg_main_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main_1", AssetName = "Level_bg_main_1" }

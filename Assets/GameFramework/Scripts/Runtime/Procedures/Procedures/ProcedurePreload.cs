@@ -77,6 +77,27 @@ namespace Honor.Runtime
         private bool m_StartLoading;
 
         /// <summary>
+        /// 加载启动时首批步骤总数（快照）
+        /// 启动后 Lua 游戏逻辑可能通过 AddStep 动态追加步骤，导致 m_Steps.Count 增长；
+        /// 若进度直接按 cur/total 实时计算，追加步骤会使分母变大、进度百分比瞬时回落（进度条倒退）。
+        /// 故以启动时快照为首批基准，并为动态追加步骤预留尾部进度份额，保证进度单调递增。
+        /// </summary>
+        private int m_InitialStepTotal;
+
+        /// <summary>
+        /// 是否已完成首批步骤总数快照（避免加载启动前被重复捕获）
+        /// </summary>
+        private bool m_InitialStepTotalCaptured;
+
+        /// <summary>
+        /// 首批步骤在进度条中占用的最大份额
+        /// 预留 1 - 该值 的尾部区间给运行中动态追加的步骤（如 StartGame 的 Lua 加载步骤），
+        /// 使追加步骤平滑推进到最后而不再造成进度回退。
+        /// 可按项目实际步骤比例调整（无动态步骤时首批会走满 0~1，不受影响）。
+        /// </summary>
+        private const float c_InitialBatchShare = 0.7f;
+
+        /// <summary>
         /// Lua 层 OnEnter 是否已执行
         /// 用于门控 Lua OnUpdate：确保 Lua OnEnter（含 HonorTimerHelper 等状态初始化）先于 Lua OnUpdate 执行，
         /// 避免启动流程中“OnUpdate 先于 OnEnter 触发”崩溃
@@ -222,16 +243,33 @@ namespace Honor.Runtime
 
                 // 提前拉起：闪屏播放到淡出起始点（停留约 3s 后）即提前显示 Loading，与闪屏淡出衔接
                 bool splashFading = elapsed >= CurrentSplashFadeOutStart;
-                // 闪屏已隐藏（EnterOver 事件）或超时兜底
-                bool logoOver = m_EnterOver || splashFading || elapsed >= m_EnterOverMaxWait;
+                // 闪屏完全淡出（EnterOver 事件）或超时兜底
+                bool logoOver = m_EnterOver || elapsed >= m_EnterOverMaxWait;
 
-                if (logoOver)
+                // 1) 显示 Loading 界面：闪屏淡出起始点提前浮现（此时进度条保持 0），与闪屏淡出衔接；
+                //    splashFading 或 logoOver 任一满足即显示，保证任何时序下界面都会出现
+                if ((splashFading || logoOver) && m_UILauncherLoadingView == null)
                 {
                     if (GameMainRoot.Procedure.UseUIPreload)
                     {
                         m_UILauncherLoadingView = GameMainRoot.UI.ShowLoading(UILauncherLoadingView.LoadingMode.Preload);
                     }
+                }
+
+                // 2) 开始执行预加载步骤：必须等 Loading 界面完全展示（闪屏彻底淡出、EnterOver）后，
+                //    保证进度条从 0 随界面可见而增长，避免在闪屏停留/淡出期间步骤提前推进到非零，
+                //    造成“一进加载界面进度条就有值”的体验问题
+                if (logoOver)
+                {
                     m_StartLoading = true;
+
+                    // 快照首批步骤总数：作为进度基准。之后 Lua 动态 AddStep 追加的步骤不改变首批基准，
+                    // 而是映射到预留的尾部进度区间，避免进度条因分母增大而倒退
+                    if (!m_InitialStepTotalCaptured)
+                    {
+                        m_InitialStepTotal = m_Steps.Count;
+                        m_InitialStepTotalCaptured = true;
+                    }
                 }
             }
 
@@ -256,9 +294,12 @@ namespace Honor.Runtime
                     }
 
                     // 广播加载进度（给UI进度条使用，附带当前步骤描述；分帧步骤未完成时进度保持当前值，下一帧继续）
+                    // 进度采用"首批基准 + 预留尾部份额"计算，保证单调递增：运行中追加的步骤被映射到
+                    // (c_InitialBatchShare, 1] 尾部，进度只前进、永不再现倒退
+                    float progress = CalculateProgress();
                     Dictionary<string, object> progressData = new Dictionary<string, object>
                     {
-                        ["progress"] = m_CurStepIndex * 1.0f / m_Steps.Count,
+                        ["progress"] = progress,
                         ["descContent"] = stepDesc
                     };
                     GameMainRoot.Event.FireNow(this, GameEventCmd.LoadProgress, progressData);
@@ -396,6 +437,41 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 计算当前加载进度（0~1），保证单调递增、不回退
+        /// 启动后 Lua 游戏逻辑会动态 AddStep 追加步骤（StartGame 的 Lua 加载步骤），使 m_Steps.Count 增长。
+        /// 若实时按 cur/total 计算，追加会使分母变大、百分比瞬时回落（进度条倒退）。
+        /// 规则：
+        ///   1) 首批步骤（启动时快照总数 m_InitialStepTotal）恒映射到 [0, c_InitialBatchShare]；
+        ///   2) 运行中动态追加的步骤恒映射到 (c_InitialBatchShare, 1]。
+        /// 说明：统一恒用份额映射、不在"全 0~1 与份额"之间切换，避免出现动态步骤后
+        ///   首批已按全 0~1 显示（如 92%）又回退到份额值（如 70%）的进度跳变；
+        ///   由于加载流程必有动态追加步骤（StartGame 追加 Lua 加载步骤），尾部区间总会被占满到 100%。
+        /// </summary>
+        /// <returns>单调递增的加载进度（0~1）</returns>
+        private float CalculateProgress()
+        {
+            int idx = m_CurStepIndex;
+            int total = m_Steps.Count;
+            int initialTotal = m_InitialStepTotal;
+
+            // 首批基准未建立或为空：退化为当前比例，避免除零（理论上启动后即已快照，仅作防御）
+            if (initialTotal <= 0)
+                return total <= 0 ? 0f : Mathf.Clamp01(idx * 1.0f / total);
+
+            // 首批步骤恒占 [0, c_InitialBatchShare]；动态追加步骤恒占 (c_InitialBatchShare, 1]
+            int dynamicTotal = total - initialTotal;
+            if (idx < initialTotal)
+            {
+                // 首批执行中：占 [0, share]
+                return c_InitialBatchShare * idx / initialTotal;
+            }
+
+            // 首批已完成，进入追加步骤：share → 1（idx 从 initialTotal 递增到 total）
+            return c_InitialBatchShare
+                   + (1 - c_InitialBatchShare) * (idx - initialTotal) / Mathf.Max(1, dynamicTotal);
+        }
+
+        /// <summary>
         /// 排队 Lua 启动步骤（将同步 Lua 初始化拆分到加载进度中展示）
         /// 顺序：配置/多语言 → 清理环境 → 配置 → 环境 → 分帧加载入口(顶层模块→StartGame主体) → 绑定回调 → Lua OnEnter
         /// </summary>
@@ -407,11 +483,31 @@ namespace Honor.Runtime
             AddStep("清理Lua环境", () => GameMainRoot.Lua.Clear());
             AddStep("初始化Lua配置", () => GameMainRoot.Lua.InitLuaConfigs());
             AddStep("初始化Lua环境", () => GameMainRoot.Lua.InitLuaEnv());
-            // 分帧加载 Lua 入口：每帧 require 一个顶层模块，直到 StartGame 主体（回调定义）完成
-            AddStep("加载Lua入口脚本", () => GameMainRoot.Lua.RequireNextStartGameModule());
-            AddStep("绑定框架回调", () => GameMainRoot.Lua.InitLuaBindings());
-            AddStep("绑定游戏回调", () => GameMainRoot.Lua.InitGameLuaBindings());
-            AddStep("绑定流程回调", () => GameMainRoot.Procedure.InitLuaBindings());
+            // 逐文件预取 Lua 脚本：跨帧预热 AB 路径缓存与源码字节缓存，
+            // 把重模块 require 的一次性全量扫描全部 AB 路径（长阻塞）拆成逐文件平滑进度
+            GameMainRoot.Lua.EnsureLuaScriptPathsBuilt();
+            int luaPrefetchCount = GameMainRoot.Lua.LuaPrefetchModuleCount;
+            for (int i = 0; i < luaPrefetchCount; i++)
+            {
+                // 回调不捕获循环变量 i（仅调用有状态方法 PrefetchNextLuaModule；描述文案注册时即求值）
+                AddStep($"预取Lua脚本({i + 1}/{luaPrefetchCount})", () => GameMainRoot.Lua.PrefetchNextLuaModule());
+            }
+            // 分帧加载 Lua 入口：构建拓扑执行计划后逐文件 require（依赖先于依赖者，单文件跨帧编译+执行），
+            // 替代原先"整模块 require"——重模块整棵依赖树同步编译+执行会造成主线程长阻塞冻结进度条
+            AddStep("构建Lua执行计划", () => GameMainRoot.Lua.BuildLuaPreloadExecutionPlan());
+            for (int i = 0; i < luaPrefetchCount; i++)
+            {
+                // 回调不捕获循环变量 i（仅调用有状态方法 ExecuteNextLuaPreloadModule；描述文案注册时即求值）
+                // 注意：ExecuteNextLuaPreloadModule 在"计划已全部走完"时返回 false 表示"本次未执行模块"，
+                // 但 ProcedurePreload 将返回 false 视为"步骤未完成"会永久重试卡住进度；
+                // 故此处始终返回 true，保证执行步骤（含计划走完后的跳过步）每帧完成、进度正常推进
+                AddStep($"执行Lua脚本({i + 1}/{luaPrefetchCount})",
+                    () => { GameMainRoot.Lua.ExecuteNextLuaPreloadModule(); return true; });
+            }
+            AddStep("加载Lua入口主体", () => { GameMainRoot.Lua.ExecuteStartGameBody(); return true; });
+            AddStep("绑定框架回调", () => RunDiagnosticStep("绑定框架回调", () => GameMainRoot.Lua.InitLuaBindings()));
+            AddStep("绑定游戏回调", () => RunDiagnosticStep("绑定游戏回调", () => GameMainRoot.Lua.InitGameLuaBindings()));
+            AddStep("绑定流程回调", () => RunDiagnosticStep("绑定流程回调", () => GameMainRoot.Procedure.InitLuaBindings()));
             EnqueueLuaEnterStep();
         }
 
@@ -467,9 +563,40 @@ namespace Honor.Runtime
         {
             AddStep("初始化游戏流程", () =>
             {
-                m_LuaOnEnter?.Invoke(m_OwnerMachine);
+                Log.Info("[LuaExec] 开始 Lua OnEnter(初始化游戏流程)");
+                Stopwatch sw = Stopwatch.StartNew();
+                try
+                {
+                    m_LuaOnEnter?.Invoke(m_OwnerMachine);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"[Lua] Lua OnEnter 初始化游戏流程异常：{e}");
+                }
+                Log.Info($"[启动耗时] Lua OnEnter(初始化游戏流程) = {sw.ElapsedMilliseconds}ms");
                 m_LuaOnEnterDone = true;
+                return true;
             });
+        }
+
+        /// <summary>
+        /// 【临时诊断】执行单个 Lua 绑定/初始化步骤并打点耗时，异常不中断加载
+        /// 验证完成后删除
+        /// </summary>
+        private bool RunDiagnosticStep(string name, Action action)
+        {
+            Log.Info($"[LuaExec] 开始 {name}");
+            Stopwatch sw = Stopwatch.StartNew();
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Lua] {name} 异常：{e}");
+            }
+            Log.Info($"[启动耗时] {name} = {sw.ElapsedMilliseconds}ms");
+            return true;
         }
 
         #endregion

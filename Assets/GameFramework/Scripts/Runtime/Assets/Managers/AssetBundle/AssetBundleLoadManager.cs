@@ -9,6 +9,7 @@
  *            异步卸载、依赖清单管理、路径格式化与还原等功能
  ***************************************************************/
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -185,14 +186,33 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取标准化格式化 AB 路径
         /// 规则：替换 / 为 @ + 全小写 + 添加 .bundle 后缀
+        /// 说明：打包器的 bundle 名相对 Assets/Res（如 Prefabs/UIs/... → prefabs@uis@...）。
+        ///       为兼容历史/手动配置中带 "Assets/Res/" 前缀或多余斜杠的路径（如
+        ///       "Assets/Res//Prefabs/UIs/..."），此处先剥掉前缀并清理开头多余 '/'，
+        ///       使带前缀与不带前缀的传入路径都命中同一 bundle。
         /// </summary>
         /// <param name="abPath">原始 AB 包路径</param>
         /// <returns>格式化后的标准路径</returns>
         public string GetABFormatPath(string abPath)
         {
+            if (abPath == null)
+                return null;
+
             if (!m_AssetBundleFormatPathCaches.TryGetValue(abPath, out string cachedFormat))
             {
-                cachedFormat = $"{abPath.Replace('/', '@').ToLower()}.bundle";
+                // 1. 统一反斜杠为正斜杠
+                string normalized = abPath.Replace('\\', '/');
+
+                // 2. 剥掉 "Assets/Res/" 前缀（打包器 bundle 名相对该根目录）
+                const string resRoot = "Assets/Res/";
+                if (normalized.StartsWith(resRoot, StringComparison.OrdinalIgnoreCase))
+                    normalized = normalized.Substring(resRoot.Length);
+
+                // 3. 清理开头多余 '/'，避免 "Assets/Res//Prefabs" 产生 "assets@res@@prefabs"
+                normalized = normalized.TrimStart('/');
+
+                // 4. 格式化：'/' → '@'，全小写，加后缀
+                cachedFormat = $"{normalized.Replace('/', '@').ToLower()}.bundle";
                 m_AssetBundleFormatPathCaches.Add(abPath, cachedFormat);
             }
 

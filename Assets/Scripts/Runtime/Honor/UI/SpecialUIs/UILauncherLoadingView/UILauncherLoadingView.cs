@@ -214,7 +214,7 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField]
         [Tooltip("退出式-切换过渡：隐藏加载界面时是否播放淡出动画")]
-        private bool m_ExitTransitionEnabled = true;
+        private bool m_ExitTransitionEnabled = false;
 
         /// <summary>
         /// 退出过渡时长（秒）
@@ -274,6 +274,12 @@ namespace Honor.Runtime
         /// 进度值 0~1
         /// </summary>
         private float m_ProgressValue;
+
+        /// <summary>
+        /// 目标进度值 0~1（进度事件设置，UI 在 Update 中每帧平滑收敛到该值）
+        /// 与 m_ProgressValue（Slider 当前显示值）分离，使进度事件频繁触发时进度条平滑前进、不因中断而卡滞
+        /// </summary>
+        private float m_ProgressTargetValue;
 
         /// <summary>
         /// 当前已下载总字节数
@@ -577,39 +583,76 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 进度条平滑动画ID（避免与其他过渡动画冲突）
+        /// 进度条平滑收敛速率（指数插值系数，单位 1/秒）
+        /// 越大贴合目标越快；该值下远离目标时进度快速跟进、接近时自然放缓，视觉丝滑且不卡滞。
+        /// 原实现用固定时长的 DOValue 短动画并频繁 Kill/重启，进度事件密集时进度条反复追赶停滞；
+        /// 改为目标值 + 每帧指数收敛，事件再频繁也只更新目标、从不中断动画。
         /// </summary>
-        private const string ProgressTweenId = "__UILauncherLoadingView_ProgressTween__";
+        private const float ProgressSmoothRate = 8f;
 
         /// <summary>
-        /// 进度条平滑动画时长（秒）：把底层的跳变进度转为平滑滑行，使加载过程更丝滑
-        /// </summary>
-        private const float ProgressSmoothDuration = 0.35f;
-
-        /// <summary>
-        /// 设置进度条与百分比（带平滑动画，避免直接跳变）
-        /// 说明：底层进度事件可能大步跳变（重活集中在结尾），直接赋值会让进度条"走一次就跳满"；
-        ///       这里改为向目标进度平滑滑动，并在动画过程中同步百分比文字，保证滑块与文字一致。
+        /// 设置进度条与百分比（目标值驱动，不直接驱动动画）
+        /// 说明：只更新目标进度 m_ProgressTargetValue，由 <see cref="Update"/> 每帧指数收敛到该值，
+        ///       避免进度事件密集（预取/执行阶段每帧触发）时 Kill/重启短动画造成进度条反复追赶停滞。
+        ///       初始归零（progress<=0）必须瞬时赋值，避免从预制体默认值（Slider m_Value=1）平滑滑下，
+        ///       造成加载界面一出现就显示非零进度。
         /// </summary>
         /// <param name="progress">目标进度值 0~1</param>
         private void SetProgress(float progress)
         {
-            m_ProgressValue = progress;
+            m_ProgressTargetValue = progress;
 
             if (m_ProgressSlider != null)
             {
-                // 平滑过渡到目标进度；连续事件到达时取消上一次动画，向最新目标滑动
-                DOTween.Kill(ProgressTweenId);
-                m_ProgressSlider.DOValue(progress, ProgressSmoothDuration)
-                    .SetEase(Ease.OutQuad)
-                    .SetUpdate(true) // 不受游戏暂停影响
-                    .SetId(ProgressTweenId)
-                    .OnUpdate(() => RefreshProgressText(m_ProgressSlider.value));
+                // 归零/复位：瞬时跳变，保证界面出现即从 0 开始
+                if (progress <= 0f)
+                {
+                    m_ProgressSlider.value = 0f;
+                    m_ProgressValue = 0f;
+                    RefreshProgressText(0f);
+                    return;
+                }
+
+                // 非零进度：仅记录目标值，动画交给 Update 平滑收敛（百分比文字随之同步）
             }
             else
             {
                 RefreshProgressText(progress);
             }
+        }
+
+        /// <summary>
+        /// 每帧驱动进度条向目标值平滑收敛（指数插值）
+        /// 进度事件只更新目标（SetProgress），此处持续逼近：远离目标时快速跟进、接近时自然放缓，
+        /// 事件再密集也不会中断动画，保证进度条平滑前进、不卡滞；不受游戏暂停影响（unscaledDeltaTime）。
+        /// </summary>
+        private void Update()
+        {
+            // 无进度条或目标未建立（尚未开始/已归零）时不处理
+            if (m_ProgressSlider == null || m_ProgressTargetValue <= 0f)
+                return;
+
+            float cur = m_ProgressSlider.value;
+            float target = m_ProgressTargetValue;
+
+            // 已贴合目标：同步一次文字后退出，避免每帧空转
+            if (Mathf.Approximately(cur, target))
+            {
+                RefreshProgressText(target);
+                return;
+            }
+
+            // 指数收敛：t = 1 - e^(-rate*dt)，rate 大则更快贴合；接近目标时步长自然变小，视觉丝滑
+            float t = 1f - Mathf.Exp(-ProgressSmoothRate * Time.unscaledDeltaTime);
+            float next = Mathf.Lerp(cur, target, t);
+
+            // 收敛到足够近时吸附到目标，避免无限逼近、百分比永远差一点
+            if (Mathf.Abs(next - target) < 0.0005f)
+                next = target;
+
+            m_ProgressSlider.value = next;
+            m_ProgressValue = next;
+            RefreshProgressText(next);
         }
 
         /// <summary>

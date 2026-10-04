@@ -13,6 +13,7 @@ using CSObjectWrapEditor;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using TMPro;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -376,6 +377,82 @@ public static class HonorGenConfig
 
         // UIExtension
         new List<string>() { "UnityEngine.UI.Extensions.UISquircle+UISquircleEditor", "UISquircle" },
+    };
+    #endregion
+
+    #region 手动重生成菜单
+    /// <summary>
+    /// 菜单：手动重新生成 XLua 绑定代码
+    /// 说明：生成器会应用 HonorGenConfig 的全部白名单/黑名单/编辑器专属成员过滤器，
+    ///       重新扫描当前 Spine/Unity API，生成与运行环境匹配的 Wrap
+    /// </summary>
+    [MenuItem("Honor/XLua/Generate Code", false, 200)]
+    public static void GenerateXLuaCode()
+    {
+        if (!EditorUtility.DisplayDialog("XLua", "确定重新生成 XLua 绑定代码吗？", "生成", "取消"))
+            return;
+
+        Generator.GenAll();
+        CompilationPipeline.RequestScriptCompilation();
+        UnityEngine.Debug.Log("[XLua] 绑定代码已重新生成，请等待编译完成。");
+    }
+    #endregion
+
+    #region 编辑器专属成员过滤器（打 Player 必加，否则编译失败）
+    /// <summary>
+    /// 【编辑器专属成员过滤器】
+    /// 排除源码中由 #if UNITY_EDITOR 保护、仅在编辑器存在的成员。
+    /// 原因：XLua 生成器在编辑器里反射这些类型时会把它们一起生成进 Wrap，
+    ///      而打 Player 时（UNITY_EDITOR 未定义）这些成员被剥离，Wrap 引用报
+    ///      CS1061/CS0117/CS0122。此过滤器按"声明类型命名空间 + 成员名"精确排除，
+    ///      无需签名即可同时作用于方法/属性/字段/事件。
+    /// </summary>
+    [BlackList] public static Func<MemberInfo, bool> BlackListEditorOnlyMembers = (MemberInfo mb) =>
+    {
+        Type t = mb.DeclaringType;
+        if (t == null || t.FullName == null)
+            return false;
+
+        string fullName = t.FullName;
+        string name = mb.Name;
+
+        // ===== Spine 编辑器专属成员（#if UNITY_EDITOR 保护）=====
+        if (fullName.StartsWith("Spine.Unity"))
+        {
+            if (name.StartsWith("Editor") ||                       // EditorSkipSkinSync / EditorUpdateMeshFilterHideFlags
+                name.StartsWith("fixPrefabOverride") ||            // fixPrefabOverrideViaMeshFilter(Global)
+                name == "errorIfSkeletonFileNullGlobal" ||
+                name == "EditReferenceRect" ||
+                name == "RectTransformSize" ||
+                name == "ResetRectToReferenceRectSize" ||
+                name == "GetReferenceRectSize" ||
+                name == "TransferSettingsFrom" ||
+                name == "UpdateBlendmodeMaterialsRequiredState" ||
+                name == "RegionsNeedLoading" ||
+                name == "AnySpriteAtlasNeedsRegionsLoaded" ||
+                name == "UpdateWhenEditorPlayModeStarted" ||
+                name == "UpdateByStartingEditorPlayMode" ||
+                name == "LoadRegionsInEditorPlayMode" ||
+                name == "AccessPackedTextureEditor")
+                return true;
+        }
+
+        // ===== UnityEngine.UI.Text 内部重绘事件 =====
+        if (fullName == "UnityEngine.UI.Text" && name == "OnRebuildRequested")
+            return true;
+
+        // ===== Timeline 编辑器 LiveLink 成员 =====
+        if (fullName == "UnityEngine.Timeline.AnimationPlayableAsset" && name == "LiveLink")
+            return true;
+
+        // ===== Tilemap 编辑器预览 API（SetEditorPreview*/GetEditorPreview*/editorPreview* 等）=====
+        if (fullName == "UnityEngine.Tilemaps.Tilemap" &&
+            (name.StartsWith("SetEditorPreview") || name.StartsWith("GetEditorPreview") ||
+             name.StartsWith("HasEditorPreview") || name.StartsWith("EditorPreview") ||
+             name.StartsWith("ClearAllEditorPreview") || name.StartsWith("editorPreview")))
+            return true;
+
+        return false;
     };
     #endregion
 }

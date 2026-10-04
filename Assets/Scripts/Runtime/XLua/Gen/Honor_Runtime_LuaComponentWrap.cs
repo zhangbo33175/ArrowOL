@@ -21,10 +21,11 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.LuaComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 8, 23, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 9, 23, 0);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaConfigs", _m_InitLuaConfigs);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaEnv", _m_InitLuaEnv);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RequireNextStartGameModule", _m_RequireNextStartGameModule);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CustomLuaLoader", _m_CustomLuaLoader);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetLua", _m_ResetLua);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Clear", _m_Clear);
@@ -150,6 +151,34 @@ namespace XLua.CSObjectWrap
                     
                     
                     return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_RequireNextStartGameModule(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        bool gen_ret = gen_to_be_invoked.RequireNextStartGameModule(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
                 }
                 
             } catch(System.Exception gen_e) {

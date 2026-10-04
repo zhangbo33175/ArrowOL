@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.ProcedureComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 4, 23, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 4, 24, 0);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaBindings", _m_InitLuaBindings);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HasProcedure", _m_HasProcedure);
@@ -39,6 +39,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UIPreloadAssetName", _g_get_UIPreloadAssetName);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "RuntimeProcedureRecordInfos", _g_get_RuntimeProcedureRecordInfos);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurrentProcedure", _g_get_CurrentProcedure);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurrentProcedureOrNull", _g_get_CurrentProcedureOrNull);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurrentProcedureTime", _g_get_CurrentProcedureTime);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurrentProcedureTransitionEnterFlag", _g_get_CurrentProcedureTransitionEnterFlag);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "CurrentProcedureTransitionEnterDuration", _g_get_CurrentProcedureTransitionEnterDuration);
@@ -351,6 +352,20 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.ProcedureComponent gen_to_be_invoked = (Honor.Runtime.ProcedureComponent)translator.FastGetCSObj(L, 1);
                 translator.Push(L, gen_to_be_invoked.CurrentProcedure);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_CurrentProcedureOrNull(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.ProcedureComponent gen_to_be_invoked = (Honor.Runtime.ProcedureComponent)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.CurrentProcedureOrNull);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

@@ -233,7 +233,9 @@ namespace XLua.CSObjectWrap
                 Honor.Runtime.ProcedurePreload gen_to_be_invoked = (Honor.Runtime.ProcedurePreload)translator.FastGetCSObj(L, 1);
             
             
-                
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 2&& translator.Assignable<System.Action>(L, 2)) 
                 {
                     System.Action _callback = translator.GetDelegate<System.Action>(L, 2);
                     
@@ -243,10 +245,34 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
+                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Action>(L, 3)) 
+                {
+                    string _description = LuaAPI.lua_tostring(L, 2);
+                    System.Action _callback = translator.GetDelegate<System.Action>(L, 3);
+                    
+                    gen_to_be_invoked.AddStep( _description, _callback );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Func<bool>>(L, 3)) 
+                {
+                    string _description = LuaAPI.lua_tostring(L, 2);
+                    System.Func<bool> _callback = translator.GetDelegate<System.Func<bool>>(L, 3);
+                    
+                    gen_to_be_invoked.AddStep( _description, _callback );
+                    
+                    
+                    
+                    return 0;
+                }
                 
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.ProcedurePreload.AddStep!");
             
         }
         
