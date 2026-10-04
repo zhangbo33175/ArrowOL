@@ -33,7 +33,7 @@ end
 
 ---@brief 创建一个新的 GameObject 对象池
 ---@param name string 对象池唯一名称（用于查找/销毁）
----@param resDefItem RES_DEF_ITEM 资源配置表项（包含路径、类型、预加载数量等）
+---@param resDefItem LOAD_RES_DEF_ITEM 资源配置表项（包含路径、类型、预加载数量等）
 ---@param preParent UnityEngine.Transform 对象默认父节点（池内对象统一挂载节点）
 ---@param resetHandler function 对象从池取出时的重置函数（重置状态/位置/动画等）
 ---@return HonorPool 创建成功返回池实例，失败返回 nil

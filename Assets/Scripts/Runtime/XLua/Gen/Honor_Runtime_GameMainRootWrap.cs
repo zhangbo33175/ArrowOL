@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 17, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 18, 0);
 			
 			
             
@@ -52,6 +52,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Playing", _g_get_Playing);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Vibrate", _g_get_Vibrate);
             Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "gameManager", _g_get_gameManager);
+            Utils.RegisterFunc(L, Utils.CLS_GETTER_IDX, "Debugger", _g_get_Debugger);
             
 			
 			
@@ -289,6 +290,18 @@ namespace XLua.CSObjectWrap
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			    translator.Push(L, Honor.Runtime.GameMainRoot.gameManager);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_Debugger(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			    translator.Push(L, Honor.Runtime.GameMainRoot.Debugger);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

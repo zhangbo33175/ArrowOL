@@ -550,11 +550,11 @@ function GetRectTransformCenterWorldPos(rectTransform)
 end
 
 ---@brief 等比缩放限制尺寸
----@type fun(origin:Vector2, maxWidth:number, maxHeight:number):Vector2
----@param origin Vector2 原始尺寸
+---@type fun(origin:UnityEngine.Vector2, maxWidth:number, maxHeight:number):UnityEngine.Vector2
+---@param origin UnityEngine.Vector2 原始尺寸
 ---@param maxWidth number 最大宽度
 ---@param maxHeight number 最大高度
----@return Vector2 缩放后尺寸
+---@return UnityEngine.Vector2 缩放后尺寸
 function ScaleToFitSize(origin, maxWidth, maxHeight)
     if origin.y > maxHeight then
         local scale = maxHeight / origin.y

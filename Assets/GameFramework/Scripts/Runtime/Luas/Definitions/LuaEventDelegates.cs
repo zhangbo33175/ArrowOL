@@ -141,4 +141,51 @@ namespace Honor.Runtime
     public delegate string LuaLocalizingCSEventDelegate(string localizingKeyName);
 
     #endregion
+
+    //=========================================================================
+
+    #region WebSocket 委托
+
+    //=========================================================================
+
+#if BEST_HTTP_ENABLE
+
+    /// <summary>
+    /// Lua层WebSocket建立成功回调全局派发
+    /// </summary>
+    /// <param name="ws">WebSocket连接</param>
+    public delegate void LuaWebSocketOpenCSEventDelegate(WebSocket ws);
+
+    /// <summary>
+    /// Lua层WebSocket文本信息接收回调全局派发
+    /// </summary>
+    /// <param name="ws">WebSocket连接</param>
+    /// <param name="message">接收的文本信息</param>
+    public delegate void LuaWebSocketMessageReceivedCSEventDelegate(WebSocket ws, string message);
+
+    /// <summary>
+    /// Lua层WebSocket字节流信息接收回调全局派发
+    /// </summary>
+    /// <param name="ws">WebSocket连接</param>
+    /// <param name="datas">接收的字节流信息</param>
+    public delegate void LuaWebSocketBinaryReceivedCSEventDelegate(WebSocket ws, byte[] datas);
+
+    /// <summary>
+    /// Lua层WebSocket关闭回调全局派发
+    /// </summary>
+    /// <param name="ws">WebSocket连接</param>
+    /// <param name="code">附带WebSocket-code</param>
+    /// <param name="message">附带WebSocket文本信息</param>
+    public delegate void LuaWebSocketClosedCSEventDelegate(WebSocket ws, UInt16 code, string message);
+
+    /// <summary>
+    /// Lua层WebSocket错误回调全局派发
+    /// </summary>
+    /// <param name="ws">WebSocket连接</param>
+    /// <param name="error">错误信息</param>
+    public delegate void LuaWebSocketErrorCSEventDelegate(WebSocket ws, string error);
+
+#endif
+
+    #endregion
 }

@@ -267,6 +267,14 @@ namespace Honor.Editor
                     AssetBundleNamePostprocessor.RefreshAllAssetBundleNames();
                     LoadABConfigs();
                 }
+				//TODO
+                GUILayout.Space(20);
+
+                if (GUILayout.Button("打开AB打包工具", new[] { GUILayout.Width(120), GUILayout.Height(20) }))
+                {
+                    // 打开新接入的 AB 打包工具窗口（支持配置目录粒度/一键打包/增量打包/清理输出）
+                    BuildPackage.BuildPackage_EditorWindow.OpenWindow();
+                }
             }
             GUILayout.EndHorizontal();
         }

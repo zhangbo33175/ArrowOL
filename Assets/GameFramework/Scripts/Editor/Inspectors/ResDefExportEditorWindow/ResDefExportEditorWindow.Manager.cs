@@ -145,20 +145,33 @@ namespace Honor.Editor
         /// <summary>
         /// 检查文件对应的 AB 路径
         /// </summary>
+        /// <param name="fullPath">资源完整路径（Assets/ 开头）</param>
+        /// <param name="fileABPath">解析出的 AB 路径（完整资源路径去扩展名，或目录路径）</param>
+        /// <returns>是否成功映射到 AB 配置</returns>
         public bool CheckFileABPath(string fullPath, out string fileABPath)
         {
             fileABPath = string.Empty;
+			//TODO
+            if (string.IsNullOrEmpty(fullPath)) return false;
+
             string abName = AssetDatabase.GetImplicitAssetBundleName(fullPath);
-            UnityEngine.Debug.Log($"[ABCheck] path={fullPath} abName=[{abName}] dictCount={s_ABConfigs.Count}");
-            if (!string.IsNullOrEmpty(abName) && !s_ABConfigs.ContainsKey(abName))
-            {
-                foreach (var k in s_ABConfigs.Keys) if (k.Contains("puzzle")) UnityEngine.Debug.Log($"[ABCheck] dictKey={k}");
-            }
-            if (s_ABConfigs.ContainsKey(abName))
+            if (!string.IsNullOrEmpty(abName) && s_ABConfigs.ContainsKey(abName))
             {
                 fileABPath = s_ABConfigs[abName];
                 return true;
             }
+			//TODO
+
+            // 兜底：若 Unity 尚未为资源设置 bundle 名（如新增资源后未刷新 AB 名称），
+            // 直接按“完整资源路径去扩展名”计算 bundle 名并查映射，避免依赖刷新时机。
+            int dotIdx = fullPath.LastIndexOf('.');
+            if (dotIdx > fullPath.LastIndexOf('/'))
+            {
+                string fallback = fullPath.Substring(0, dotIdx).Replace('/', '@').ToLower() + ".bundle";
+                if (s_ABConfigs.TryGetValue(fallback, out fileABPath))
+                    return true;
+            }
+
             return false;
         }
         #endregion
@@ -479,8 +492,12 @@ namespace Honor.Editor
                 {
                     if (Directory.Exists(info.Path))
                     {
+						//TODO
+                        // 每文件粒度：递归遍历整个目录树，映射"每文件 bundle 名 -> 完整资源路径(去扩展名)"
+                        // 与 AssetBundleNamePostprocessor.ProcessPackageType_EachFile 及打包工具
+                        // BuildPackage_Config EachFile 完全一致，保证生成的 ABPath 能被运行时精确命中。
                         string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
-                        foreach (string fullPath in Directory.GetFiles(root))
+                        foreach (string fullPath in Directory.GetFiles(root, "*.*", SearchOption.AllDirectories))
                         {
                             if (fullPath.EndsWith(".meta")) continue;
 

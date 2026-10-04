@@ -31,14 +31,31 @@ namespace Honor.Runtime
         {
             base.Awake();
 
+            // 获取Debugger组件并初始化Debugger的激活窗口
+            DebuggerComponent debuggerComponent = GameComponentsGroup.GetComponent<DebuggerComponent>();
+            if (debuggerComponent == null)
+            {
+                Log.Fatal("Debugger Component 无效。");
+            }
+            else
+            {
+                debuggerComponent.SetActiveWindow();
+            }
+
             // 编辑器资源模式仅在编辑器内生效
             m_EditorResourceMode &= Application.isEditor;
             Log.Info(m_EditorResourceMode 
                 ? "运行过程中框架将使用【编辑器资源】文件模式。" 
                 : "运行过程中框架将使用【AssetBundle资源】文件模式。");
 
-            // 非编辑器环境只能使用 Luac 模式
-            m_LuacMode = Application.isEditor ? m_LuacMode : true;
+            // Lua 脚本模式：按用户决策暂以明文 lua 运行（打包侧 Assets/LuaScripts 明文）。
+            // 注意：场景 GameApp.unity 的 m_LuacMode 曾误置为 true，导致运行时按 assets@luacscripts
+            //       查找，与明文产物 assets@luascripts 不匹配，8 个 Lua 模块全部加载失败。
+            //       此处强制明文以对齐产物（不改场景开关，避免内存场景覆盖磁盘改动）。
+            // 如需恢复生产级加密：打包器产出 Assets/LuacScripts/**/*.lua.bytes（用运行时密钥
+            //   LuaComponent.s_LuacEncrytionKey XOR 加密，按 assets@luacscripts 命名），
+            //   届时把本行改回 m_LuacMode = 场景值即可。
+            m_LuacMode = false;
             Log.Info(m_LuacMode 
                 ? "运行过程中框架将使用 Luac 脚本。" 
                 : "运行过程中框架将使用 Lua 脚本。");

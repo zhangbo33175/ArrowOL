@@ -16,14 +16,14 @@
 ---@field name string 池名称（唯一标识）
 ---@field unusedQueue HonorQueue 空闲对象队列（等待复用，隐藏状态）
 ---@field usedList HonorList 正在使用的对象列表（活跃状态）
----@field resDefItem RES_DEF_ITEM 资源配置表项（路径、类型、预加载数量）
+---@field resDefItem LOAD_RES_DEF_ITEM 资源配置表项（路径、类型、预加载数量）
 ---@field preParent UnityEngine.Transform 对象池父节点（统一管理空闲对象）
 ---@field resetHandler function 对象取出时的重置函数（重置状态、位置、动画等）
 local HonorPool = class("HonorPool")
 
 ---@brief 构造函数
 ---@param name string 对象池唯一名称
----@param resDefItem RES_DEF_ITEM 资源配置数据
+---@param resDefItem LOAD_RES_DEF_ITEM 资源配置数据
 ---@param preParent UnityEngine.Transform 空闲对象父节点
 ---@param resetHandler function 从对象池取出对象时的重置逻辑
 function HonorPool:ctor(name, resDefItem, preParent, resetHandler)

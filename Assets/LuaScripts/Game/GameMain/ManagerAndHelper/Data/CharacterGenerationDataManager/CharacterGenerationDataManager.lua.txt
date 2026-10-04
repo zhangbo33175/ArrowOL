@@ -14,7 +14,7 @@
 --=====================================================================================================
 
 ---@class CharacterGenerationDataManager @角色数据管理器
----@field _cacheByType table<ECharacterType, List<Tables.Characters_Item>> @按角色类型缓存
+---@field _cacheByType table<ECharacterType, HonorList> @按角色类型缓存
 local CharacterGenerationDataManager = class("CharacterGenerationDataManager")
 
 --region 【构造与创建】

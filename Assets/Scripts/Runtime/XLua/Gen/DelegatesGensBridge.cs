@@ -352,6 +352,98 @@ namespace XLua
 #endif
 		}
         
+		public void __Gen_Delegate_Imp15(BestHTTP.WebSocket.WebSocket p0)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.Push(L, p0);
+                
+                PCall(L, 1, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp16(BestHTTP.WebSocket.WebSocket p0, string p1)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.Push(L, p0);
+                LuaAPI.lua_pushstring(L, p1);
+                
+                PCall(L, 2, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp17(BestHTTP.WebSocket.WebSocket p0, byte[] p1)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.Push(L, p0);
+                LuaAPI.lua_pushstring(L, p1);
+                
+                PCall(L, 2, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp18(BestHTTP.WebSocket.WebSocket p0, ushort p1, string p2)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.Push(L, p0);
+                LuaAPI.xlua_pushinteger(L, p1);
+                LuaAPI.lua_pushstring(L, p2);
+                
+                PCall(L, 3, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
         
 		static DelegateBridge()
 		{
@@ -464,6 +556,31 @@ namespace XLua
 		    if (type == typeof(Honor.Runtime.UILoadOverCallback))
 			{
 			    return new Honor.Runtime.UILoadOverCallback(__Gen_Delegate_Imp14);
+			}
+		
+		    if (type == typeof(Honor.Runtime.LuaWebSocketOpenCSEventDelegate))
+			{
+			    return new Honor.Runtime.LuaWebSocketOpenCSEventDelegate(__Gen_Delegate_Imp15);
+			}
+		
+		    if (type == typeof(Honor.Runtime.LuaWebSocketMessageReceivedCSEventDelegate))
+			{
+			    return new Honor.Runtime.LuaWebSocketMessageReceivedCSEventDelegate(__Gen_Delegate_Imp16);
+			}
+		
+		    if (type == typeof(Honor.Runtime.LuaWebSocketErrorCSEventDelegate))
+			{
+			    return new Honor.Runtime.LuaWebSocketErrorCSEventDelegate(__Gen_Delegate_Imp16);
+			}
+		
+		    if (type == typeof(Honor.Runtime.LuaWebSocketBinaryReceivedCSEventDelegate))
+			{
+			    return new Honor.Runtime.LuaWebSocketBinaryReceivedCSEventDelegate(__Gen_Delegate_Imp17);
+			}
+		
+		    if (type == typeof(Honor.Runtime.LuaWebSocketClosedCSEventDelegate))
+			{
+			    return new Honor.Runtime.LuaWebSocketClosedCSEventDelegate(__Gen_Delegate_Imp18);
 			}
 		
 		    return null;
