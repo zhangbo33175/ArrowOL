@@ -94,8 +94,8 @@ end
 ---=========================================================================
 ---@brief 【获取对象】从池获取，无池则自动创建（最简接口）
 ---@param resName string 资源名
----@param newParent Transform 父物体
----@return GameObject 复用/新建的对象
+---@param newParent UnityEngine.Transform 父物体
+---@return UnityEngine.GameObject 复用/新建的对象
 ---=========================================================================
 function PoolManager:Get(resName, newParent)
     return self:GetWithHandle(resName, newParent, function() end)
@@ -104,9 +104,9 @@ end
 ---=========================================================================
 ---@brief 【获取对象（带重置回调）】
 ---@param resName string 资源名
----@param newParent Transform 父物体
+---@param newParent UnityEngine.Transform 父物体
 ---@param resetHandler function 物体激活时的重置逻辑
----@return GameObject 获取到的游戏对象
+---@return UnityEngine.GameObject 获取到的游戏对象
 ---=========================================================================
 function PoolManager:GetWithHandle(resName, newParent, resetHandler)
     if string.isNullOrEmpty(resName) then
@@ -142,7 +142,7 @@ end
 
 ---=========================================================================
 ---@brief 【回收对象】将GameObject放回池（超过上限则直接销毁）
----@param go GameObject 需要回收的游戏对象
+---@param go UnityEngine.GameObject 需要回收的游戏对象
 ---=========================================================================
 function PoolManager:Put(go)
     if IsNull(go) or not Unity.Application.isPlaying then
@@ -179,7 +179,7 @@ end
 ---@brief 【私有】创建一个新对象池
 ---@param name string 池名
 ---@param resDefItem table 资源配置
----@param preParent Transform 默认父节点
+---@param preParent UnityEngine.Transform 默认父节点
 ---@param resetHandler function 重置回调
 ---@return Pool 创建完成的对象池
 ---@private

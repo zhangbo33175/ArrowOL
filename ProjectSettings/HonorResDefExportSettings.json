@@ -5,14 +5,14 @@
     {
       "ResType": "GameObject",
       "AliasName": "GameObject_GameMainMap",
-      "ABPath": "Assets/Res/Prefabs",
+      "ABPath": "Assets/Res/Prefabs/Map/GameMainMap",
       "AssetName": "GameMainMap",
       "AssetGUID": "dd9947a0f04f64e48ab5a5e5876eb1b7"
     },
     {
       "ResType": "GameObject",
       "AliasName": "GameObject_ItemMap",
-      "ABPath": "Assets/Res/Prefabs",
+      "ABPath": "Assets/Res/Prefabs/Item/ItemMap",
       "AssetName": "ItemMap",
       "AssetGUID": "0c636324cfd576541aa96f21cb027792"
     },
@@ -348,21 +348,21 @@
     {
       "ResType": "GameObject",
       "AliasName": "GameObject_Character",
-      "ABPath": "Assets/Res/Prefabs",
+      "ABPath": "Assets/Res/Prefabs/Character/Character",
       "AssetName": "Character",
       "AssetGUID": "db41971c9b8c82544af257fa2499eb28"
     },
     {
       "ResType": "GameObject",
       "AliasName": "GameObject_FishItem",
-      "ABPath": "Assets/Res/Prefabs",
+      "ABPath": "Assets/Res/Prefabs/UIs/UIMainStateView/FishItem",
       "AssetName": "FishItem",
       "AssetGUID": "d695f77cbf07c3e4a8e14eb82fc52cac"
     },
     {
       "ResType": "GameObject",
       "AliasName": "GameObject_SectionItem",
-      "ABPath": "Assets/Res/Prefabs",
+      "ABPath": "Assets/Res/Prefabs/UIs/UILevelView/SectionItem",
       "AssetName": "SectionItem",
       "AssetGUID": "0d329158846a2054e8c41603a84b76c3"
     },

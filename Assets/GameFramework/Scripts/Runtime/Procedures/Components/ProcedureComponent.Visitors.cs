@@ -289,6 +289,14 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 当前运行中的流程（状态机未初始化时返回 null，供编辑器或安全访问使用）
+        /// </summary>
+        public ProcedureState CurrentProcedureOrNull
+        {
+            get { return m_ProcedureStateMachine == null ? null : (ProcedureState)m_ProcedureStateMachine.CurrentState; }
+        }
+
+        /// <summary>
         /// 当前流程已运行时长
         /// </summary>
         public float CurrentProcedureTime

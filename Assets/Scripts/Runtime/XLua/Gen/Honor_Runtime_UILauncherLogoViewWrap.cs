@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UILauncherLogoView);
-			Utils.BeginObjectRegister(type, L, translator, 0, 4, 4, 4);
+			Utils.BeginObjectRegister(type, L, translator, 0, 4, 11, 4);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Enter", _m_Enter);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "EnterOver", _m_EnterOver);
@@ -29,7 +29,14 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ExitOver", _m_ExitOver);
 			
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "BlockRaycastOnEntering", _g_get_BlockRaycastOnEntering);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashBlackHoldDuration", _g_get_SplashBlackHoldDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashFadeInDuration", _g_get_SplashFadeInDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashStayDuration", _g_get_SplashStayDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashFadeOutDuration", _g_get_SplashFadeOutDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashShowDuration", _g_get_SplashShowDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashFadeOutStart", _g_get_SplashFadeOutStart);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashTotalDuration", _g_get_SplashTotalDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "BlockRaycastOnEntering", _g_get_BlockRaycastOnEntering);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "BlockRaycastOnExiting", _g_get_BlockRaycastOnExiting);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "EnterDuration", _g_get_EnterDuration);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ExitDuration", _g_get_ExitDuration);
@@ -176,6 +183,104 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_SplashBlackHoldDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.SplashBlackHoldDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_SplashFadeInDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.SplashFadeInDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_SplashStayDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.SplashStayDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_SplashFadeOutDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.SplashFadeOutDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_SplashShowDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.SplashShowDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_SplashFadeOutStart(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.SplashFadeOutStart);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_SplashTotalDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.SplashTotalDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_BlockRaycastOnEntering(RealStatePtr L)

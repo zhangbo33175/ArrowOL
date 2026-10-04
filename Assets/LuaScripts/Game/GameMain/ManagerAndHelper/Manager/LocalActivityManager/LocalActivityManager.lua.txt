@@ -30,7 +30,7 @@ ELocalActivityId = {
 ---@field popupOrder number 弹窗优先级（越大越先弹）
 
 ---@class LocalActivityManager : Singleton @本地活动管理器
----@field _activityLogicList List<LocalActivityBase> @活动逻辑类列表
+---@field _activityLogicList HonorList @活动逻辑类列表
 ---@field _activityGroupIdArray number[] @活动组ID缓存
 ---@field _activityHotfixResStates table<string, boolean> @活动热更资源状态
 ---@field _activityPopupData LocalActivityPopupData[] @待弹窗队列
@@ -45,7 +45,7 @@ local LocalActivityManager = class('LocalActivityManager', import('Singleton'))
 function LocalActivityManager:ctor(args)
     LocalActivityManager.super.ctor(self, args)
 
-    self._activityLogicList     = HonorList:Create()    ---@type List<LocalActivityBase> 活动逻辑类列表
+    self._activityLogicList     = HonorList:Create()    ---@type HonorList 活动逻辑类列表
     self._activityGroupIdArray  = {}                    ---@type number[] 活动组ID缓存
     self._activityHotfixResStates = {}                  ---@type table<string, boolean> 活动热更资源状态
     self._activityPopupData     = {}                    ---@type LocalActivityPopupData[] 待弹窗队列

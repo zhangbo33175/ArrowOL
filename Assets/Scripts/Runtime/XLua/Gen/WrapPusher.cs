@@ -50,6 +50,7 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.ListItemArrangeType>(translator.PushHonorRuntimeListItemArrangeType, translator.Get, translator.UpdateHonorRuntimeListItemArrangeType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GridItemArrangeType>(translator.PushHonorRuntimeGridItemArrangeType, translator.Get, translator.UpdateHonorRuntimeGridItemArrangeType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GridFixedType>(translator.PushHonorRuntimeGridFixedType, translator.Get, translator.UpdateHonorRuntimeGridFixedType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.DebuggerActiveWindowType>(translator.PushHonorRuntimeDebuggerActiveWindowType, translator.Get, translator.UpdateHonorRuntimeDebuggerActiveWindowType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PatternType>(translator.PushHonorRuntimePatternType, translator.Get, translator.UpdateHonorRuntimePatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.NonePatternType>(translator.PushHonorRuntimeNonePatternType, translator.Get, translator.UpdateHonorRuntimeNonePatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.MVVMPatternType>(translator.PushHonorRuntimeMVVMPatternType, translator.Get, translator.UpdateHonorRuntimeMVVMPatternType);
@@ -1989,6 +1990,90 @@ namespace XLua
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
                     throw new Exception("pack fail for Honor.Runtime.GridFixedType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int HonorRuntimeDebuggerActiveWindowType_TypeID = -1;
+		int HonorRuntimeDebuggerActiveWindowType_EnumRef = -1;
+        
+        public void PushHonorRuntimeDebuggerActiveWindowType(RealStatePtr L, Honor.Runtime.DebuggerActiveWindowType val)
+        {
+            if (HonorRuntimeDebuggerActiveWindowType_TypeID == -1)
+            {
+			    bool is_first;
+                HonorRuntimeDebuggerActiveWindowType_TypeID = getTypeId(L, typeof(Honor.Runtime.DebuggerActiveWindowType), out is_first);
+				
+				if (HonorRuntimeDebuggerActiveWindowType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.DebuggerActiveWindowType));
+				    HonorRuntimeDebuggerActiveWindowType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeDebuggerActiveWindowType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeDebuggerActiveWindowType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for Honor.Runtime.DebuggerActiveWindowType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, HonorRuntimeDebuggerActiveWindowType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.DebuggerActiveWindowType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeDebuggerActiveWindowType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.DebuggerActiveWindowType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for Honor.Runtime.DebuggerActiveWindowType");
+                }
+				val = (Honor.Runtime.DebuggerActiveWindowType)e;
+                
+            }
+            else
+            {
+                val = (Honor.Runtime.DebuggerActiveWindowType)objectCasters.GetCaster(typeof(Honor.Runtime.DebuggerActiveWindowType))(L, index, null);
+            }
+        }
+		
+        public void UpdateHonorRuntimeDebuggerActiveWindowType(RealStatePtr L, int index, Honor.Runtime.DebuggerActiveWindowType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeDebuggerActiveWindowType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.DebuggerActiveWindowType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for Honor.Runtime.DebuggerActiveWindowType ,value="+val);
                 }
             }
 			
@@ -7865,6 +7950,12 @@ namespace XLua
 				translator.PushHonorRuntimeGridFixedType(L, array[index]);
 				return true;
 			}
+			else if (type == typeof(Honor.Runtime.DebuggerActiveWindowType[]))
+			{
+			    Honor.Runtime.DebuggerActiveWindowType[] array = obj as Honor.Runtime.DebuggerActiveWindowType[];
+				translator.PushHonorRuntimeDebuggerActiveWindowType(L, array[index]);
+				return true;
+			}
 			else if (type == typeof(Honor.Runtime.PatternType[]))
 			{
 			    Honor.Runtime.PatternType[] array = obj as Honor.Runtime.PatternType[];
@@ -8420,6 +8511,12 @@ namespace XLua
 			else if (type == typeof(Honor.Runtime.GridFixedType[]))
 			{
 			    Honor.Runtime.GridFixedType[] array = obj as Honor.Runtime.GridFixedType[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.DebuggerActiveWindowType[]))
+			{
+			    Honor.Runtime.DebuggerActiveWindowType[] array = obj as Honor.Runtime.DebuggerActiveWindowType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

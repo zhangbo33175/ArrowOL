@@ -316,8 +316,8 @@ function GameMapMotion:UpdateClickAndDrag()
 end
 
 ---@brief 触发单击回调（仅真正单击时调用）
----@type fun(screenPos:Vector2):void
----@param screenPos Vector2 点击屏幕坐标
+---@type fun(screenPos:UnityEngine.Vector2):void
+---@param screenPos UnityEngine.Vector2 点击屏幕坐标
 function GameMapMotion:TriggerClick(screenPos)
     if not self.ScreenCamera then return end
     if not self:IsInsideScreen(screenPos.x, screenPos.y) then return end

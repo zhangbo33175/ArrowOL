@@ -378,6 +378,15 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.ConfigManager), HonorRuntimeConfigManagerWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent), HonorRuntimeDebuggerComponentWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerActiveWindowType), HonorRuntimeDebuggerActiveWindowTypeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerManager), HonorRuntimeDebuggerManagerWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Honor.Runtime.EventComponent), HonorRuntimeEventComponentWrap.__Register);
         
         
@@ -479,6 +488,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaFileWatcher), HonorRuntimeLuaFileWatcherWrap.__Register);
         
+        }
+        
+        static void wrapInit3(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.PersistComponent), HonorRuntimePersistComponentWrap.__Register);
         
@@ -488,10 +501,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.FileFragmentItemGroup), HonorRuntimeFileFragmentItemGroupWrap.__Register);
         
-        }
-        
-        static void wrapInit3(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.FileFragmentManager), HonorRuntimeFileFragmentManagerWrap.__Register);
         
@@ -636,6 +645,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.Gestures2D), HonorRuntimeGestures2DWrap.__Register);
         
+        }
+        
+        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.Gestures3D), HonorRuntimeGestures3DWrap.__Register);
         
@@ -645,10 +658,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIComponent), HonorRuntimeUIComponentWrap.__Register);
         
-        }
-        
-        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIType), HonorRuntimeUITypeWrap.__Register);
         
@@ -791,6 +800,16 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.ConfigManager.ConfigData), HonorRuntimeConfigManagerConfigDataWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent.ConsoleWindow), HonorRuntimeDebuggerComponentConsoleWindowWrap.__Register);
+        
+        }
+        
+        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
+        {
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent.LogNode), HonorRuntimeDebuggerComponentLogNodeWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Honor.Runtime.FxDelay.DelayData), HonorRuntimeFxDelayDelayDataWrap.__Register);
         
         
@@ -802,10 +821,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaBindValue.BindValueType), HonorRuntimeLuaBindValueBindValueTypeWrap.__Register);
         
-        }
-        
-        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaInjection.InjectionType), HonorRuntimeLuaInjectionInjectionTypeWrap.__Register);
         
@@ -944,6 +959,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB.Uri), HonorRuntimeGamePathUtilsABUriWrap.__Register);
         
+        }
+        
+        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.LuaScript.Framework), HonorRuntimeGamePathUtilsLuaScriptFrameworkWrap.__Register);
         
@@ -959,10 +978,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.ResDef), HonorRuntimeGamePathUtilsEditorResDefWrap.__Register);
         
-        }
-        
-        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.HierarchyExpandSettings), HonorRuntimeGamePathUtilsEditorHierarchyExpandSettingsWrap.__Register);
         
@@ -1101,6 +1116,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.StandardFrameRates), UnityEngineTimelineStandardFrameRatesWrap.__Register);
         
+        }
+        
+        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.ActivationTrack.PostPlaybackState), UnityEngineTimelineActivationTrackPostPlaybackStateWrap.__Register);
         
@@ -1116,10 +1135,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.TimelineAsset.DurationMode), UnityEngineTimelineTimelineAssetDurationModeWrap.__Register);
         
-        }
-        
-        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.TimelineAsset.EditorSettings), UnityEngineTimelineTimelineAssetEditorSettingsWrap.__Register);
         
@@ -1258,6 +1273,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SpineSlot), SpineUnitySpineSlotWrap.__Register);
         
+        }
+        
+        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SpineAnimation), SpineUnitySpineAnimationWrap.__Register);
         
@@ -1273,10 +1292,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SpinePathConstraint), SpineUnitySpinePathConstraintWrap.__Register);
         
-        }
-        
-        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SpineSkin), SpineUnitySpineSkinWrap.__Register);
         
@@ -1415,6 +1430,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(DG.Tweening.UpdateType), DGTweeningUpdateTypeWrap.__Register);
         
+        }
+        
+        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(DG.Tweening.DOTweenUtils46), DGTweeningDOTweenUtils46Wrap.__Register);
         
@@ -1430,10 +1449,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(DG.Tweening.HandlesType), DGTweeningHandlesTypeWrap.__Register);
         
-        }
-        
-        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(DG.Tweening.DOTweenInspectorMode), DGTweeningDOTweenInspectorModeWrap.__Register);
         
@@ -1572,6 +1587,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(GameLib.GridMapManager.LayerLevel), GameLibGridMapManagerLayerLevelWrap.__Register);
         
+        }
+        
+        static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(GameLib.GridMapManager.GridUtils), GameLibGridMapManagerGridUtilsWrap.__Register);
         
@@ -1587,11 +1606,9 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(GameLib.TablesBridge.TableAvatarCustomizeItemColor), GameLibTablesBridgeTableAvatarCustomizeItemColorWrap.__Register);
         
+        
+        
         }
-        
-        
-        
-        
         
         static void Init(LuaEnv luaenv, ObjectTranslator translator)
         {
@@ -1615,6 +1632,8 @@ namespace XLua.CSObjectWrap
             wrapInit8(luaenv, translator);
             
             wrapInit9(luaenv, translator);
+            
+            wrapInit10(luaenv, translator);
             
             
             translator.AddInterfaceBridgeCreator(typeof(System.Collections.IEnumerator), SystemCollectionsIEnumeratorBridge.__Create);

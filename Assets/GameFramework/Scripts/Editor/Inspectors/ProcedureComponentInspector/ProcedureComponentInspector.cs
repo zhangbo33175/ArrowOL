@@ -267,11 +267,15 @@ namespace Honor.Editor
         private void DrawRuntimeInfo(ProcedureComponent targetComp)
         {
             if (string.IsNullOrEmpty(m_EntryProcedureTypeName.stringValue))
+            {
                 EditorGUILayout.HelpBox("入口流程无效。", MessageType.Error);
+            }
             else if (EditorApplication.isPlaying)
             {
-                EditorGUILayout.LabelField("当前流程", 
-                    targetComp.CurrentProcedure == null ? "None" : targetComp.CurrentProcedure.GetType().ToString());
+                // 使用 null 安全访问器：状态机可能尚未初始化（如进入播放瞬间），避免 CurrentProcedure 抛异常
+                ProcedureState current = targetComp.CurrentProcedureOrNull;
+                EditorGUILayout.LabelField("当前流程",
+                    current == null ? "None" : current.GetType().ToString());
             }
         }
 

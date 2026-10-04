@@ -183,9 +183,12 @@ namespace Honor.Runtime
             }
             else
             {
-                if (m_AssetBundleLoadManager.IsABExist(abPath))
+                string loadABPath = ResolveABLoadPath(abPath, assetName);
+                if (m_AssetBundleLoadManager.IsABExist(loadABPath))
                 {
-                    AssetBundle ab = m_AssetBundleLoadManager.LoadSync(abPath);
+                    // 记录实际加载的 AB 路径，保证 Origin 查表与卸载引用一致
+                    assetObj.AssetBundlePath = loadABPath;
+                    AssetBundle ab = m_AssetBundleLoadManager.LoadSync(loadABPath);
                     LoadAssetFromBundle(assetObj, ab, typeName, assetName);
 
                     assetObj.Origin = m_AssetBundleLoadManager
@@ -366,11 +369,13 @@ namespace Honor.Runtime
             }
             else
             {
-                if (m_AssetBundleLoadManager.IsABExist(abPath))
+                string loadABPath = ResolveABLoadPath(abPath, assetName);
+                if (m_AssetBundleLoadManager.IsABExist(loadABPath))
                 {
+                    assetObj.AssetBundlePath = loadABPath;
                     m_LoadingList.Add(assetPath, assetObj);
-                    LoadAssetBundleAsyncAndRequest(typeName, abPath, assetName, assetPath, assetObj);
-                    TryAssignOriginFromLoadedOrLoadingBundle(assetObj, abPath);
+                    LoadAssetBundleAsyncAndRequest(typeName, loadABPath, assetName, assetPath, assetObj);
+                    TryAssignOriginFromLoadedOrLoadingBundle(assetObj, loadABPath);
                 }
             }
         }
@@ -686,8 +691,35 @@ namespace Honor.Runtime
             }
             else
             {
-                return m_AssetBundleLoadManager.IsABExist(abPath);
+                // AB 模式：先按目录粒度，未命中再按"目录+资源名"完整路径粒度（兼容 EachFile 打包）
+                return m_AssetBundleLoadManager.IsABExist(ResolveABLoadPath(abPath, assetName));
             }
+        }
+
+        /// <summary>
+        /// 解析 AB 模式加载应使用的 AB 路径
+        /// 兼容两种 bundle 粒度：
+        ///   A. 目录粒度：bundle 名 = 目录路径（如 assets@luascripts@config@luajson.bundle），abPath 即目录；
+        ///   B. 每文件粒度：bundle 名 = 含文件名的完整路径（如 prefabs@uis@uilogin@uiloginview.bundle），
+        ///      此时调用方常传"目录 abPath + 独立 assetName"，需拼成完整路径再查。
+        /// 先命中目录粒度；未命中则尝试拼接 assetName 的完整路径粒度；均未命中返回原 abPath 交由上层报错。
+        /// </summary>
+        /// <param name="abPath">AB 路径（可能为目录或完整文件路径）</param>
+        /// <param name="assetName">资源名称</param>
+        /// <returns>实际应使用的 AB 路径</returns>
+        private string ResolveABLoadPath(string abPath, string assetName)
+        {
+            if (m_AssetBundleLoadManager.IsABExist(abPath))
+                return abPath;
+
+            if (!string.IsNullOrEmpty(assetName))
+            {
+                string combined = abPath + "/" + assetName;
+                if (m_AssetBundleLoadManager.IsABExist(combined))
+                    return combined;
+            }
+
+            return abPath;
         }
         #endregion
 

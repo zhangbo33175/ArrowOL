@@ -1086,6 +1086,76 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
+    public class HonorRuntimeDebuggerActiveWindowTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, null, 5, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysOpen", Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenWhenDevelopment", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenInEditor", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysClose", Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeDebuggerActiveWindowType(L, (Honor.Runtime.DebuggerActiveWindowType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysOpen"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenWhenDevelopment"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenInEditor"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysClose"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.DebuggerActiveWindowType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.DebuggerActiveWindowType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
     public class HonorRuntimePatternTypeWrap
     {
 		public static void __Register(RealStatePtr L)
