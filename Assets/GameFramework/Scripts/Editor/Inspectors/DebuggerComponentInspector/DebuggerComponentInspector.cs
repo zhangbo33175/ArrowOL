@@ -37,13 +37,13 @@ namespace Honor.Editor
 
         private void OnEnable()
         {
-            m_Skin = serializedObject.FindProperty("m_Skin");
-            m_MiniSkin = serializedObject.FindProperty("m_MiniSkin");
-            m_PopWindowSkin = serializedObject.FindProperty("m_PopWindowSkin");
-            m_StayBorder = serializedObject.FindProperty("m_StayBorder");
-            m_IdleState = serializedObject.FindProperty("m_IdleState");
-            m_EnterIdleTime = serializedObject.FindProperty("m_EnterIdleTime");
-            m_ConsoleWindow = serializedObject.FindProperty("m_ConsoleWindow");
+            m_Skin = BindProperty("m_Skin");
+            m_MiniSkin = BindProperty("m_MiniSkin");
+            m_PopWindowSkin = BindProperty("m_PopWindowSkin");
+            m_StayBorder = BindProperty("m_StayBorder");
+            m_IdleState = BindProperty("m_IdleState");
+            m_EnterIdleTime = BindProperty("m_EnterIdleTime");
+            m_ConsoleWindow = BindProperty("m_ConsoleWindow");
             serializedObject.ApplyModifiedProperties();
             if (string.IsNullOrEmpty(m_AndroidAABAbsolutelyPath)) m_AndroidAABAbsolutelyPath = "None";
             if (string.IsNullOrEmpty(m_AndroidAPKSAbsolutelyPath)) m_AndroidAPKSAbsolutelyPath = "None";

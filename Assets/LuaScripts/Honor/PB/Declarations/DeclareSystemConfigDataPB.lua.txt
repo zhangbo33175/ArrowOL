@@ -11,5 +11,3 @@
 -- [主结构]系统配置根数据
 ---@class SavePBMsgDef.SystemConfigDataPB.SystemConfigData : nil
 ---@field data table @ [json]系统配置数据
-
-

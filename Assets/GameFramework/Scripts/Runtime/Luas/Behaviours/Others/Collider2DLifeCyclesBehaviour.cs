@@ -50,32 +50,44 @@ namespace Honor.Runtime
         /// <param name="luaEnv">Lua 表（通常是 Lua 脚本实例）</param>
         public void LuaBinding(LuaTable luaEnv)
         {
-            luaEnv.Get("OnCollisionEnter2D", out m_OnCollisionEnter2DCallback);
-            luaEnv.Get("OnCollisionStay2D", out m_OnCollisionStay2DCallback);
-            luaEnv.Get("OnCollisionExit2D", out m_OnCollisionExit2DCallback);
+            luaEnv.Get(nameof(OnCollisionEnter2D), out m_OnCollisionEnter2DCallback);
+            luaEnv.Get(nameof(OnCollisionStay2D), out m_OnCollisionStay2DCallback);
+            luaEnv.Get(nameof(OnCollisionExit2D), out m_OnCollisionExit2DCallback);
         }
+
+        /// <summary>
+        /// 解除 Lua 绑定，防止内存泄漏
+        /// </summary>
+        public void LuaUnBinding()
+        {
+            m_OnCollisionEnter2DCallback = null;
+            m_OnCollisionStay2DCallback = null;
+            m_OnCollisionExit2DCallback = null;
+        }
+        #endregion
+
+        //=========================================================================
+        // 碰撞消息函数
+        //=========================================================================
+        #region Collision Messages
 
         /// <summary>
         /// 碰撞进入
         /// </summary>
         /// <param name="collision">碰撞</param>
-        void OnCollisionEnter2D(Collision2D collision)
+        private void OnCollisionEnter2D(Collision2D collision)
         {
             if (m_OnCollisionEnter2DCallback != null)
             {
                 m_OnCollisionEnter2DCallback(collision);
             }
         }
-        #endregion
-        //=========================================================================
-        // 碰撞方法
-        //=========================================================================
-        #region Public Methods
+
         /// <summary>
         /// 停留碰撞
         /// </summary>
         /// <param name="collision">碰撞</param>
-        void OnCollisionStay2D(Collision2D collision)
+        private void OnCollisionStay2D(Collision2D collision)
         {
             if (m_OnCollisionStay2DCallback != null)
             {
@@ -87,7 +99,7 @@ namespace Honor.Runtime
         /// 退出碰撞
         /// </summary>
         /// <param name="collision">碰撞</param>
-        void OnCollisionExit2D(Collision2D collision)
+        private void OnCollisionExit2D(Collision2D collision)
         {
             if (m_OnCollisionExit2DCallback != null)
             {

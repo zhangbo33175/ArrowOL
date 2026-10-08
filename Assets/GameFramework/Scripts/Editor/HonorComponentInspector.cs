@@ -93,6 +93,18 @@ namespace Honor.Editor
             // 不是预制体源文件 → 就是场景实例
             return PrefabUtility.GetPrefabAssetType(targetObject) != PrefabAssetType.Regular;
         }
+
+        /// <summary>
+        /// 快捷绑定序列化属性
+        /// <para>等价于 serializedObject.FindProperty(fieldName)，
+        /// 收敛各 Inspector 中大量重复的绑定样板，统一由基类维护。</para>
+        /// </summary>
+        /// <param name="fieldName">目标字段名（如 "m_IsLocalServer"）</param>
+        /// <returns>对应的序列化属性；字段不存在时返回 null</returns>
+        protected SerializedProperty BindProperty(string fieldName)
+        {
+            return serializedObject.FindProperty(fieldName);
+        }
         #endregion
     }
     #endregion

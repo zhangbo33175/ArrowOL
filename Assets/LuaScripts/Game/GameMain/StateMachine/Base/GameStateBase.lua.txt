@@ -51,18 +51,14 @@ end
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameStateBase:OnStateEnter(finishCallback)
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 ---@brief 离开状态（子类重写）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameStateBase:OnStateExit(finishCallback)
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 ---@brief 帧更新（子类重写）

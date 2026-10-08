@@ -13,17 +13,16 @@
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
 ---@field _CharacterIcon UnityEngine.Transform @角色
 ---@field _CharData Tables.Characters_Item @角色配置数据
----@field _GameObject UnityEngine.GameObject @角色配置数据
+---@field _GameObject UnityEngine.GameObject @角色根节点GameObject（CharacterGenerationManager 生成时赋值）
 ---@field _WaitFrame GameLib.WaitForFrames @帧等待对象
 ---@field _ClickItem GameLib.AorClickItem @点击组件
 ---@field _LastSoundSerialID number @最后播放的音效ID
 ---@field _name string @角色名称
+---@field _Destroying boolean @销毁中标志（防销毁 GameObject 触发 C# OnDestroy 递归）
 local CharacterBase = class('CharacterBase', import('LuaBehaviourSuper'))
 
----=========================================================================
---- 构造与创建
----=========================================================================
---region Constructor & Create
+--region 【构造 & 创建】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
@@ -42,15 +41,13 @@ end
 ---@param args table @自定义参数
 ---@return CharacterBase @CharacterBase实例
 function CharacterBase:Create(args)
-    local obj = CharacterBase.new(args)
-    return obj
+    return CharacterBase.new(args)
 end
+
 --endregion
 
----=========================================================================
---- 生命周期
----=========================================================================
---region LifeCycle
+--region 【生命周期】
+
 ---@brief 注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
 ---@type fun():void
 function CharacterBase:OnAddListeners()
@@ -80,19 +77,24 @@ end
 
 ---@brief 销毁
 ---@type fun():void
+---@desc 销毁角色实体根节点 GameObject，使角色图标从场上消失；原用 _GameObject 隐藏图标的逻辑在
+---      OnDestroy 时因字段被清理置 nil 而报错，故改用 self.cs 根节点（与 _GameObject 同对象）可靠销毁。
+---      销毁会触发 C# LuaBehaviour.OnDestroy 再次进入本方法，用 _Destroying 标志防递归
+--TODO: [修复] OnDestroy 改用 self.cs 根节点销毁角色，保证点击收集后角色图标消失；防递归
 function CharacterBase:OnDestroy()
+    if self._Destroying then return end -- 防递归：销毁 GameObject 会再次触发本方法
+    self._Destroying = true
     CharacterBase.super.OnDestroy(self)
-    -- 先判断CS对象是否存活
-    if self._GameObject.gameObject then
-        self._GameObject.gameObject:SetActive(false)
+    -- 销毁角色根节点 GameObject，使图标从场上消失
+    if self.cs ~= nil and not IsNull(self.cs) and self.cs.gameObject ~= nil and not IsNull(self.cs.gameObject) then
+        CS.UnityEngine.Object.Destroy(self.cs.gameObject)
     end
 end
+
 --endregion
 
----=========================================================================
---- 点击交互
----=========================================================================
---region Click Event
+--region 【点击交互】
+
 ---@brief 点击了角色
 ---@type fun():void
 function CharacterBase:OnClickCharacter()
@@ -102,12 +104,11 @@ function CharacterBase:OnClickCharacter()
         HonorEventHelper:Fire(EventCmd.OnClickCharacter, self._CharData)
     end
 end
+
 --endregion
 
----=========================================================================
---- 数据与清理
----=========================================================================
---region Data & Clear
+--region 【数据与清理】
+
 ---@brief 清理数据
 ---@type fun():void
 function CharacterBase:Clear()
@@ -116,12 +117,11 @@ function CharacterBase:Clear()
     self._CharacterIcon = nil
     self._GameObject   = nil
 end
+
 --endregion
 
----=========================================================================
---- 行为树回调方法（由子类继承实现）
----=========================================================================
---region Behaviour Tree Callback
+--region 【行为树回调】
+
 ---@brief 是否游戏结束
 ---@type fun():boolean
 ---@return boolean @是否游戏结束
@@ -140,12 +140,11 @@ end
 function CharacterBase:OnGameOverBTAction()
 
 end
+
 --endregion
 
----=========================================================================
---- 音效播放
----=========================================================================
---region Audio & Sound
+--region 【音效播放】
+
 ---@brief 播放音效
 ---@type fun(name:string)
 ---@param name string @ Tables.Characters_Item 里面的字段
@@ -157,12 +156,11 @@ function CharacterBase:PlaySound(name)
         self._LastSoundSerialID = SoundManager:PlaySound(self._CharData[name])
     end
 end
+
 --endregion
 
----=========================================================================
---- 公共获取接口
----=========================================================================
---region Public Getter
+--region 【公共获取接口】
+
 ---@brief 获取角色ID
 ---@type fun():string
 ---@return string @ 角色ID
@@ -180,12 +178,11 @@ end
 function CharacterBase:GetCharType()
     return self._CharData.CharType
 end
+
 --endregion
 
----=========================================================================
---- 游戏生命周期接口
----=========================================================================
---region 游戏点击物生命周期
+--region 【游戏生命周期】
+
 ---@brief 初始化游戏
 function CharacterBase:OnInitGame()
 
@@ -225,6 +222,7 @@ end
 function CharacterBase:OnRePlayGame()
 
 end
+
 --endregion
 
 return CharacterBase

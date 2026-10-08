@@ -8,8 +8,10 @@
 --=====================================================================================================
 
 ---@class UIPlayingAnimated : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour LuaBehaviour 组件
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour 组件
 local UIPlayingAnimated = class('UIPlayingAnimated', import('LuaBehaviourSuper'))
+
+--region 【构造 & 实例化】
 
 ---@brief 构造函数
 ---@param args table 自定义参数
@@ -23,6 +25,10 @@ end
 function UIPlayingAnimated:Create(args)
     return UIPlayingAnimated.new(args)
 end
+
+--endregion
+
+--region 【生命周期】
 
 ---@brief 注册事件监听
 function UIPlayingAnimated:OnAddListeners()
@@ -44,6 +50,10 @@ function UIPlayingAnimated:OnDestroy()
     UIPlayingAnimated.super.OnDestroy(self)
 end
 
+--endregion
+
+--region 【动画回调】
+
 ---@brief 播放打开动画
 function UIPlayingAnimated:OnPlayOpenAnimation()
     UIPlayingAnimated.super.OnPlayOpenAnimation(self)
@@ -54,10 +64,16 @@ function UIPlayingAnimated:OnPlayCloseAnimation()
     UIPlayingAnimated.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---@brief 子 UI 销毁回调
 ---@param luaClass XLua.LuaTable
 function UIPlayingAnimated:OnAddedUIDestroyed(luaClass)
     UIPlayingAnimated.super.OnAddedUIDestroyed(self, luaClass)
 end
+
+--endregion
 
 return UIPlayingAnimated

@@ -56,10 +56,6 @@ function ChapterListManager:Init()
     ChapterListManager.super.Init(self)
     -- 监听关卡通关成功事件
     HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
-
-    --SaveRootData.GameData.latestChapterId = "1"
-    --SaveIO.GameData.Save_latestChapterId()
-    --SaveRootData.GameData.chapterInfos["1"].lv = 1
     -- 将运行时章节默认设置为存档内最新已解锁章节
     self:SetRuntimeChapter(self:GetLatestChapterId())
     -- 启动阶段检测下一章节是否满足解锁条件，满足则自动解锁，无UI弹窗提示
@@ -318,7 +314,7 @@ function ChapterListManager:GetLatestChapterId()
     return chapterId
 end
 --endregion
- 
+
 --region 关卡等级
 
 ---=========================================================================

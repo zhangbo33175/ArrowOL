@@ -1,0 +1,139 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   StringUtil.lua
+-- author:     云毅
+-- created:    2026
+-- @brief     字符串工具类（对齐参考框架 Utils/StringUtil）
+-- @desc      提供字符串模板拼接、分割、坐标解析等通用工具，
+--            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
+--            mstr 依赖全局 toint（第三方运行时全局），调用时引用，定义无副作用。
+--=====================================================================================================
+
+---@class StringUtil 字符串工具类
+local StringUtil = {}
+
+--=====================================================================================================
+-- 模板拼接
+--=====================================================================================================
+
+---@brief 字符串模板拼接（支持占位符替换）
+---使用方法： StringUtil.mstr{"<<m>>年<<n>>月", m=x1, n=x2}
+---@param t table 拼接table
+---@return string 拼接结果
+function StringUtil.mstr(t)
+    local key = string.gsub(t[1], "%$(%d+)", function(s)
+        local index = toint(s)
+        local v = index and t[index + 1]
+        return v and tostring(v):gsub("%%", "%1") or s
+    end)
+    local r = string.gsub(key, "<<([^<^>]+)>>", function(s)
+        local v = t[s]
+        if v == nil then
+            return table.concat({ "<<", s, ">>" })
+        end
+        return tostring(v):gsub("%%", "%1")
+    end)
+    return r
+end
+
+--=====================================================================================================
+-- 分割
+--=====================================================================================================
+
+---@brief 字符串分割函数
+---@param fullString string 待分割的字符串
+---@param separator string 分割字符
+---@return string[] 分割结果
+function StringUtil.SplitString(fullString, separator)
+    local findStartIndex = 1
+    local splitIndex = 1
+    local splitArray = {}
+    while true do
+        local findLastIndex = string.find(fullString, separator, findStartIndex)
+        if not findLastIndex then
+            splitArray[splitIndex] = string.sub(fullString, findStartIndex, string.len(fullString))
+            break
+        end
+        splitArray[splitIndex] = string.sub(fullString, findStartIndex, findLastIndex - 1)
+        findStartIndex = findLastIndex + string.len(separator)
+        splitIndex = splitIndex + 1
+    end
+    return splitArray
+end
+
+--=====================================================================================================
+-- 坐标解析
+--=====================================================================================================
+
+---@brief 解析字符串坐标并返回三个浮点数值
+---@param str string 字符串坐标 "(x,y,z)"
+---@return number x, number y, number z 解析后的 x/y/z 浮点数值
+function StringUtil.ParseVector3(str)
+    -- 空值安全判断
+    if not str then
+        return 0, 0, 0
+    end
+
+    -- 移除字符串中的 括号、空格，只保留数字与逗号
+    local cleanStr = str:gsub("[() ]", "")
+
+    -- 正则匹配以逗号分隔的三个数值
+    local x, y, z = cleanStr:match("([^,]+),([^,]+),([^,]+)")
+
+    -- 转换为数字，解析失败则默认返回 0
+    return tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0
+end
+
+---@brief 解析字符串坐标并返回 Unity 风格的 Table（包含 x/y/z 属性）
+--- 方便使用 pos.x / pos.y / pos.z 格式访问
+---@param str string 字符串坐标 "(x,y,z)"
+---@return table {x = number, y = number, z = number} Unity 风格坐标表
+function StringUtil.ParseVector3Table(str)
+    local x, y, z = StringUtil.ParseVector3(str)
+    return {
+        x = x,
+        y = y,
+        z = z
+    }
+end
+
+--=====================================================================================================
+-- 匹配判断
+--=====================================================================================================
+
+---@brief 判断字符串是否以指定内容开头
+---@param str string 原字符串
+---@param startStr string 开头匹配串
+---@return boolean 是否匹配
+function StringUtil.StringStartsWith(str, startStr)
+    if not str or not startStr then return false end
+    return string.sub(str, 1, string.len(startStr)) == startStr
+end
+
+---@brief 判断字符串是否以指定内容结尾
+---@param str string 原字符串
+---@param endStr string 结尾匹配串
+---@return boolean 是否匹配
+function StringUtil.StringEndsWith(str, endStr)
+    if not str or not endStr then return false end
+    return string.sub(str, -string.len(endStr)) == endStr
+end
+
+---@brief 敏感词匹配检查
+---@param content string 检查内容
+---@param word string 敏感词
+---@return boolean 是否包含敏感词
+function StringUtil.ContainsBadWord(content, word)
+    if not content or not word then return false end
+    local success, match = xpcall(function()
+        return string.find(content, word, 1, true) ~= nil
+    end, function(err)
+        PrintError(debug.traceback(err, 3))
+        return false
+    end)
+    return success and match
+end
+
+return StringUtil

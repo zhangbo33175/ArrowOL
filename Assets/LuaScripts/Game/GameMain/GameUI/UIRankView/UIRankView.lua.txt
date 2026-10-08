@@ -15,12 +15,13 @@
 ---@field PlayerScoreText                      TMPro.TextMeshProUGUI         √                        我的分数
 local UIRankView = class('UIRankView', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UIRankView:ctor(args)
     UIRankView.super.ctor(self, args)
-
 end
 
 ---创建函数
@@ -28,25 +29,26 @@ end
 ---@param args table @自定义参数
 ---@return UIRankView @实例
 function UIRankView:Create(args)
-    local obj = UIRankView.new(args)
-    return obj
+    return UIRankView.new(args)
 end
+
+--endregion
+
+--region 【生命周期】
 
 ---注册监听（自动注销）
 ---@type fun():void
 function UIRankView:OnAddListeners()
     UIRankView.super.OnAddListeners(self)
-
 end
 
 ---唤醒
 ---@type fun():void
+---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+--TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
 function UIRankView:Awake()
     UIRankView.super.Awake(self)
--- 2=====================================================================================================
-    AddUIListenerFunction(self.CloseButton, 'Clicked', handler(self, self.OnCloseButtonClicked))
--- ====================================================================================================2
-
+    self:AddUIListener(self.CloseButton, 'Clicked', Bind(self, self.OnCloseButtonClicked))
 end
 
 ---初始化逻辑（刷新排行榜数据展示）
@@ -65,13 +67,14 @@ end
 
 ---销毁
 ---@type fun():void
+---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 function UIRankView:OnDestroy()
     UIRankView.super.OnDestroy(self)
--- 3=====================================================================================================
-    OnRemoveListener(self.CloseButton, 'Clicked', handler(self, self.OnCloseButtonClicked))
--- ====================================================================================================3
-
 end
+
+--endregion
+
+--region 【动画回调】
 
 ---播放打开动画（可重写）
 ---@type fun():void
@@ -85,6 +88,10 @@ function UIRankView:OnPlayCloseAnimation()
     UIRankView.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---子UI销毁回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
@@ -92,12 +99,20 @@ function UIRankView:OnAddedUIDestroyed(luaClass)
     UIRankView.super.OnAddedUIDestroyed(self, luaClass)
 end
 
+--endregion
+
+--region 【按钮交互回调】
+
 ---关闭排行榜-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIRankView:OnCloseButtonClicked(args)
     self:Close()
 end
+
+--endregion
+
+--region 【数据刷新】
 
 ---刷新玩家自身排名与分数展示
 ---@type fun():void
@@ -143,5 +158,7 @@ function UIRankView:ClearRankRoot()
         end
     end
 end
+
+--endregion
 
 return UIRankView

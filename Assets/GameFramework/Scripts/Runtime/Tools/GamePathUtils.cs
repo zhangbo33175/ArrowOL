@@ -45,15 +45,8 @@ namespace Honor.Runtime
             return AorTxt.Format("{0}/{1}", Application.dataPath, relative);
         }
 
-        /// <summary>
-        /// 统一将路径中的反斜杠替换为斜杠
-        /// </summary>
-        /// <param name="path">原始路径</param>
-        /// <returns>使用 '/' 分隔的路径</returns>
-        private static string ToSlash(string path)
-        {
-            return path.Replace('\\', '/');
-        }
+        // 说明：路径反斜杠 → 斜杠的统一逻辑已提取至 HonorUtils.NormalizePath，
+        //      本类不再维护私有实现，直接复用全局公共工具方法以消除重复代码。
 
         /// <summary>
         /// 读取当前是否处于 Luac（编译后 Lua）模式
@@ -154,7 +147,7 @@ namespace Honor.Runtime
                 /// <returns>平台根目录</returns>
                 public static string GetPlatformFolderFullPath(string platformName)
                 {
-                    return ToSlash($"{Application.dataPath}/../AssetBundles/{platformName}");
+                    return HonorUtils.NormalizePath($"{Application.dataPath}/../AssetBundles/{platformName}");
                 }
 
                 /// <summary>
@@ -166,7 +159,7 @@ namespace Honor.Runtime
                 /// <returns>AB根目录</returns>
                 public static string GetRootDirectoryFullPath(string platformName, string appVersion, int resMinor)
                 {
-                    return ToSlash(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}", Application.dataPath, platformName, appVersion, resMinor));
+                    return HonorUtils.NormalizePath(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}", Application.dataPath, platformName, appVersion, resMinor));
                 }
 
                 /// <summary>
@@ -178,7 +171,7 @@ namespace Honor.Runtime
                 /// <returns>版本文件路径</returns>
                 public static string GetVersionFileFullPath(string platformName, string appVersion, int resMinor)
                 {
-                    return ToSlash(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}/{4}", Application.dataPath, platformName, appVersion, resMinor, VersionFileName));
+                    return HonorUtils.NormalizePath(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}/{4}", Application.dataPath, platformName, appVersion, resMinor, VersionFileName));
                 }
 
                 /// <summary>
@@ -189,7 +182,7 @@ namespace Honor.Runtime
                 /// <returns>版本文件路径</returns>
                 public static string GetVersionFileFullPath(string platformName, string version)
                 {
-                    return ToSlash($"{Application.dataPath}/../AssetBundles/{platformName}/{version}/{VersionFileName}");
+                    return HonorUtils.NormalizePath($"{Application.dataPath}/../AssetBundles/{platformName}/{version}/{VersionFileName}");
                 }
 
                 /// <summary>
@@ -202,7 +195,7 @@ namespace Honor.Runtime
                 /// <returns>AB文件路径</returns>
                 public static string GetFileFullPath(string platformName, string appVersion, int resMinor, string formatPath)
                 {
-                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(platformName, appVersion, resMinor), formatPath));
+                    return HonorUtils.NormalizePath(Path.Combine(GetRootDirectoryFullPath(platformName, appVersion, resMinor), formatPath));
                 }
             }
             #endregion
@@ -222,9 +215,9 @@ namespace Honor.Runtime
                 {
                     if (string.IsNullOrEmpty(platformName))
                     {
-                        return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix));
+                        return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, DirectoryPrefix));
                     }
-                    return ToSlash(Path.Combine(Application.persistentDataPath, AorTxt.Format("AssetBundles/{0}", platformName)));
+                    return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, AorTxt.Format("AssetBundles/{0}", platformName)));
                 }
 
                 /// <summary>
@@ -233,7 +226,7 @@ namespace Honor.Runtime
                 /// <returns>版本文件路径</returns>
                 public static string GetVersionFileFullPath()
                 {
-                    return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix, VersionFileName));
+                    return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, DirectoryPrefix, VersionFileName));
                 }
 
                 /// <summary>
@@ -243,7 +236,7 @@ namespace Honor.Runtime
                 /// <returns>AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
+                    return HonorUtils.NormalizePath(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -260,7 +253,7 @@ namespace Honor.Runtime
                 /// <returns>临时AB根目录</returns>
                 public static string GetRootDirectoryFullPath()
                 {
-                    return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___"));
+                    return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___"));
                 }
 
                 /// <summary>
@@ -269,7 +262,7 @@ namespace Honor.Runtime
                 /// <returns>临时版本文件路径</returns>
                 public static string GetVersionFileFullPath()
                 {
-                    return ToSlash(Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___", VersionFileName));
+                    return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, DirectoryPrefix, "___Tmp___", VersionFileName));
                 }
 
                 /// <summary>
@@ -279,7 +272,7 @@ namespace Honor.Runtime
                 /// <returns>临时AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
+                    return HonorUtils.NormalizePath(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -296,7 +289,7 @@ namespace Honor.Runtime
                 /// <returns>缓存根目录</returns>
                 public static string GetRootDirectoryFullPath()
                 {
-                    return ToSlash(UnityEngine.Caching.currentCacheForWriting.path);
+                    return HonorUtils.NormalizePath(UnityEngine.Caching.currentCacheForWriting.path);
                 }
 
                 /// <summary>
@@ -306,7 +299,7 @@ namespace Honor.Runtime
                 /// <returns>缓存AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
+                    return HonorUtils.NormalizePath(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -328,17 +321,17 @@ namespace Honor.Runtime
                     string subFolder = string.IsNullOrEmpty(platformName)
                         ? DirectoryPrefix
                         : AorTxt.Format("AssetBundles/{0}", platformName);
-                    return ToSlash(Txt.Format("{0}{1}{2}", Application.dataPath, "/Raw/", subFolder));
+                    return HonorUtils.NormalizePath(Txt.Format("{0}{1}{2}", Application.dataPath, "/Raw/", subFolder));
 #elif UNITY_WEBGL && UNITY_EDITOR
                     string subFolder = string.IsNullOrEmpty(platformName)
                         ? DirectoryPrefix
                         : AorTxt.Format("AssetBundles/{0}", platformName);
-                    return ToSlash(Txt.Format("{0}{1}{2}", Application.dataPath, "/StreamingAssets/", subFolder));
+                    return HonorUtils.NormalizePath(Txt.Format("{0}{1}{2}", Application.dataPath, "/StreamingAssets/", subFolder));
 #else
                     string subFolder = string.IsNullOrEmpty(platformName)
                         ? DirectoryPrefix
                         : AorTxt.Format("AssetBundles/{0}", platformName);
-                    return ToSlash(Path.Combine(Application.streamingAssetsPath, subFolder));
+                    return HonorUtils.NormalizePath(Path.Combine(Application.streamingAssetsPath, subFolder));
 #endif
                 }
 
@@ -351,7 +344,7 @@ namespace Honor.Runtime
 #if UNITY_IOS && !UNITY_EDITOR
                     return Txt.Format("{0}{1}{2}{3}{4}{5}", "file://", Application.dataPath, "/Raw/", DirectoryPrefix, "/", VersionFileName);
 #elif (UNITY_ANDROID || UNITY_WEBGL) && !UNITY_EDITOR
-                    return ToSlash(Path.Combine(Application.streamingAssetsPath, DirectoryPrefix, VersionFileName));
+                    return HonorUtils.NormalizePath(Path.Combine(Application.streamingAssetsPath, DirectoryPrefix, VersionFileName));
 #else
                     return AorTxt.Format("{0}{1}{2}{3}{4}{5}", "file://", Application.dataPath, "/StreamingAssets/", DirectoryPrefix, "/", VersionFileName);
 #endif
@@ -364,7 +357,7 @@ namespace Honor.Runtime
                 /// <returns>只读AB文件路径</returns>
                 public static string GetFileFullPath(string formatPath)
                 {
-                    return ToSlash(Path.Combine(GetRootDirectoryFullPath(), formatPath));
+                    return HonorUtils.NormalizePath(Path.Combine(GetRootDirectoryFullPath(), formatPath));
                 }
             }
             #endregion
@@ -402,7 +395,7 @@ namespace Honor.Runtime
             /// <returns>文件片段根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return ToSlash(Path.Combine(Application.persistentDataPath, "PersistFileFragments"));
+                return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, "PersistFileFragments"));
             }
         }
         #endregion
@@ -993,7 +986,7 @@ namespace Honor.Runtime
             /// <returns>Lua调试配置文件</returns>
             public static string GetLuaDebugModeLibraryConfigFileFullPath()
             {
-                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LuaDebugMode.dat"));
+                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LuaDebugMode.dat"));
             }
         }
         #endregion
@@ -1011,7 +1004,7 @@ namespace Honor.Runtime
             /// <returns>AAB工具配置文件</returns>
             public static string GetLibraryAABToolsConfigFileFullPath()
             {
-                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/AABTools.dat"));
+                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/AABTools.dat"));
             }
 
             /// <summary>
@@ -1021,7 +1014,7 @@ namespace Honor.Runtime
             /// <returns>日志根目录</returns>
             public static string GetLibraryLogsRootDirectoryFullPath()
             {
-                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LogFiles"));
+                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LogFiles"));
             }
         }
         #endregion
@@ -1095,7 +1088,7 @@ namespace Honor.Runtime
             /// <returns>包信息缓存文件</returns>
             public static string GetCachedPackageInfoProjectSettingsConfigFileFullPath()
             {
-                return ToSlash(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "ProjectSettings/CachedPackageInfo.dat"));
+                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "ProjectSettings/CachedPackageInfo.dat"));
             }
         }
         #endregion
@@ -1112,7 +1105,7 @@ namespace Honor.Runtime
             /// <returns>工程根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return ToSlash(AorTxt.Format("{0}/../", Application.dataPath));
+                return HonorUtils.NormalizePath(AorTxt.Format("{0}/../", Application.dataPath));
             }
 
             /// <summary>
@@ -1193,7 +1186,7 @@ namespace Honor.Runtime
             /// <returns>工具根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return ToSlash(AorTxt.Format("{0}/../Tools", Application.dataPath));
+                return HonorUtils.NormalizePath(AorTxt.Format("{0}/../Tools", Application.dataPath));
             }
 
             /// <summary>
@@ -1219,7 +1212,7 @@ namespace Honor.Runtime
             /// <returns>项目设置目录</returns>
             public static string GetProjectSettingDirectoryFullPath()
             {
-                return ToSlash(AorTxt.Format("{0}/../ProjectSettings", Application.dataPath));
+                return HonorUtils.NormalizePath(AorTxt.Format("{0}/../ProjectSettings", Application.dataPath));
             }
 
             /// <summary>
@@ -1308,7 +1301,7 @@ namespace Honor.Runtime
                 /// <returns>ChatGPT配置</returns>
                 public static string GetLibrarySaveFileFullPath()
                 {
-                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTConfig.dat");
+                    return HonorUtils.NormalizePath($"{Path.GetFullPath(".")}/Library/ChatGPTConfig.dat");
                 }
 
                 /// <summary>
@@ -1318,7 +1311,7 @@ namespace Honor.Runtime
                 /// <returns>对话历史</returns>
                 public static string GetLibraryChatHistoryFileFullPath()
                 {
-                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTChatHistory.dat");
+                    return HonorUtils.NormalizePath($"{Path.GetFullPath(".")}/Library/ChatGPTChatHistory.dat");
                 }
 
                 /// <summary>
@@ -1328,7 +1321,7 @@ namespace Honor.Runtime
                 /// <returns>代码历史</returns>
                 public static string GetLibraryCodeHistoryFileFullPath()
                 {
-                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTCodeHistory.dat");
+                    return HonorUtils.NormalizePath($"{Path.GetFullPath(".")}/Library/ChatGPTCodeHistory.dat");
                 }
 
                 /// <summary>
@@ -1338,7 +1331,7 @@ namespace Honor.Runtime
                 /// <returns>图片创建历史</returns>
                 public static string GetLibraryImageCreateHistoryFileFullPath()
                 {
-                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTImageCreateHistory.dat");
+                    return HonorUtils.NormalizePath($"{Path.GetFullPath(".")}/Library/ChatGPTImageCreateHistory.dat");
                 }
 
                 /// <summary>
@@ -1348,7 +1341,7 @@ namespace Honor.Runtime
                 /// <returns>图片编辑历史</returns>
                 public static string GetLibraryImageEditHistoryFileFullPath()
                 {
-                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTImageEditHistory.dat");
+                    return HonorUtils.NormalizePath($"{Path.GetFullPath(".")}/Library/ChatGPTImageEditHistory.dat");
                 }
 
                 /// <summary>
@@ -1358,7 +1351,7 @@ namespace Honor.Runtime
                 /// <returns>图片变种历史</returns>
                 public static string GetLibraryImageVariationHistoryFileFullPath()
                 {
-                    return ToSlash($"{Path.GetFullPath(".")}/Library/ChatGPTImageVariationHistory.dat");
+                    return HonorUtils.NormalizePath($"{Path.GetFullPath(".")}/Library/ChatGPTImageVariationHistory.dat");
                 }
             }
 
@@ -1407,7 +1400,7 @@ namespace Honor.Runtime
                 /// <summary>
                 /// 获取Lua脚本在Library目录下文件的绝对路径
                 /// </summary>
-                public static string LibraryLocalLuaFileFullPath = ToSlash(AorTxt.Format("{0}/../Library/LuaScript.lua.txt", Application.dataPath));
+                public static string LibraryLocalLuaFileFullPath = HonorUtils.NormalizePath(AorTxt.Format("{0}/../Library/LuaScript.lua.txt", Application.dataPath));
             }
         }
         #endregion

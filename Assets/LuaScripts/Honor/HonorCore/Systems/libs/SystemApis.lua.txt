@@ -1,0 +1,782 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  SystemApis.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   系统函数库（项目核心工具库）
+--            功能：异常捕获、dump打印、类型检查、类继承、热更新、表/字符串/数学/IO工具函数
+--            地位：框架底层核心，所有脚本依赖此库
+--=====================================================================================================
+
+--region 全局异常与调试
+---@brief 全局异常追踪函数（Lua报错统一捕获）
+---@param msg string 错误信息
+function __G__TRACK_BACK__(msg)
+    local msg = debug.traceback(msg, 3)
+    Honor.GameException.ThrowLuaException(msg) -- 抛给C#异常系统
+    return msg
+end
+
+---@brief 可变参包装函数
+---@return table 参数列表
+local function argv(...)
+    return { ... }
+end
+
+---@class Catch @异常捕获对象
+---@field Catch function 异常回调
+
+---@brief 异常捕获 Try/Catch（替代xpcall，更易用）
+---@param method function 执行方法
+---@return Catch
+function Try(method, ...)
+    local catch
+    local ret, args = false, { ... }
+    ret, args = xpcall(
+            function()
+                return argv(method(table.unpack(args)))
+            end,
+            function(msg)
+                local err = debug.traceback(msg, 3)
+                Honor.GameException.ThrowLuaException(err)
+                catch = function(exception)
+                    if nil ~= exception then
+                        exception(err)
+                    end
+                end
+            end
+    )
+
+    if not ret then
+        return { Catch = catch }
+    end
+
+    return {
+        Catch = function()
+            return unpack(args)
+        end
+    }
+end
+
+---@brief dump 内部值格式化
+local function dump_value_(v)
+    if type(v) == "string" then
+        v = "\"" .. v .. "\""
+    end
+    return tostring(v)
+end
+
+---@brief 表格格式化打印（调试神器）
+---@param value any 要打印的值
+---@param description string 描述
+---@param nesting number 打印层级
+function dump(value, description, nesting)
+    if type(nesting) ~= "number" then
+        nesting = 3
+    end
+
+    local lookupTable = {}
+    local result = {}
+
+    local traceback = string.split(debug.traceback("", 2), "\n")
+    print("dump from: " .. string.trim(traceback[3]))
+
+    local function dump_(value, description, indent, nest, keylen)
+        description = description or "<var>"
+        local spc = ""
+        if type(keylen) == "number" then
+            spc = string.rep(" ", keylen - string.len(dump_value_(description)))
+        end
+        if type(value) ~= "table" then
+            result[#result + 1] = string.format("%s%s%s = %s", indent, dump_value_(description), spc, dump_value_(value))
+        elseif lookupTable[tostring(value)] then
+            result[#result + 1] = string.format("%s%s%s = *REF*", indent, dump_value_(description), spc)
+        else
+            lookupTable[tostring(value)] = true
+            if nest > nesting then
+                result[#result + 1] = string.format("%s%s = *MAX NESTING*", indent, dump_value_(description))
+            else
+                result[#result + 1] = string.format("%s%s = {", indent, dump_value_(description))
+                local indent2 = indent .. "    "
+                local keys = {}
+                local keylen = 0
+                local values = {}
+                for k, v in pairs(value) do
+                    keys[#keys + 1] = k
+                    local vk = dump_value_(k)
+                    local vkl = string.len(vk)
+                    if vkl > keylen then
+                        keylen = vkl
+                    end
+                    values[k] = v
+                end
+                table.sort(keys, function(a, b)
+                    if type(a) == "number" and type(b) == "number" then
+                        return a < b
+                    else
+                        return tostring(a) < tostring(b)
+                    end
+                end)
+                for i, k in ipairs(keys) do
+                    dump_(values[k], k, indent2, nest + 1, keylen)
+                end
+                result[#result + 1] = string.format("%s}", indent)
+            end
+        end
+    end
+    dump_(value, description, "- ", 1)
+
+    for i, line in ipairs(result) do
+        print(line)
+    end
+end
+--endregion
+
+--region 类型安全检查
+---@brief 安全转数字（失败返回0）
+function checknumber(value, base)
+    return tonumber(value, base) or 0
+end
+
+---@brief 安全转整数（四舍五入）
+function checkint(value)
+    return math.round(checknumber(value))
+end
+
+---@brief 安全转布尔
+function checkbool(value)
+    return (value ~= nil and value ~= false)
+end
+
+---@brief 安全转表（不是表则返回空表）
+function checktable(value)
+    if type(value) ~= "table" then
+        value = {}
+    end
+    return value
+end
+
+---@brief 判断表是否存在键
+function isset(hashtable, key)
+    local t = type(hashtable)
+    return (t == "table" or t == "userdata") and hashtable[key] ~= nil
+end
+--endregion
+
+--region OOP & 继承
+---@brief 递归设置元表 __index
+local setmetatableindex_
+setmetatableindex_ = function(t, index)
+    if type(t) == "userdata" then
+        local peer = tolua.getpeer(t)
+        if not peer then
+            peer = {}
+            tolua.setpeer(t, peer)
+        end
+        setmetatableindex_(peer, index)
+    else
+        local mt = getmetatable(t)
+        if not mt then
+            mt = {}
+        end
+        if not mt.__index then
+            mt.__index = index
+            setmetatable(t, mt)
+        elseif mt.__index ~= index then
+            setmetatableindex_(mt, index)
+        end
+    end
+end
+setmetatableindex = setmetatableindex_
+
+---@brief 深拷贝（转发至 SystemFuncs.DeepCopy 权威实现，支持循环引用）
+---@see DeepCopy
+function clone(object)
+    return DeepCopy(object)
+end
+
+---@brief 类定义（Lua OOP核心）
+---@param classname string 类名
+---@param ... 父类
+function class(classname, ...)
+    local cls = { __cname = classname }
+
+    local supers = { ... }
+    for _, super in ipairs(supers) do
+        local superType = type(super)
+        assert(superType == "nil" or superType == "table" or superType == "function",
+                string.format("class() - create class \"%s\" with invalid super class type \"%s\"",
+                        classname, superType))
+
+        if superType == "function" then
+            assert(cls.__create == nil,
+                    string.format("class() - create class \"%s\" with more than one creating function",
+                            classname));
+            cls.__create = super
+        elseif superType == "table" then
+            if super[".isclass"] then
+                assert(cls.__create == nil,
+                        string.format("class() - create class \"%s\" with more than one creating function or native class",
+                                classname));
+                cls.__create = function()
+                    return super:create()
+                end
+            else
+                cls.__supers = cls.__supers or {}
+                cls.__supers[#cls.__supers + 1] = super
+                if not cls.super then
+                    cls.super = super
+                end
+            end
+        else
+            error(string.format("class() - create class \"%s\" with invalid super type",
+                    classname), 0)
+        end
+    end
+
+    cls.__index = cls
+    if not cls.__supers or #cls.__supers == 1 then
+        setmetatable(cls, { __index = cls.super })
+    else
+        setmetatable(cls, { __index = function(_, key)
+            local supers = cls.__supers
+            for i = 1, #supers do
+                local super = supers[i]
+                if super[key] then
+                    return super[key]
+                end
+            end
+        end })
+    end
+
+    if not cls.ctor then
+        cls.ctor = function()
+        end
+    end
+    cls.new = function(...)
+        local instance
+        if cls.__create then
+            instance = cls.__create(...)
+        else
+            instance = {}
+        end
+        setmetatableindex(instance, cls)
+        instance.class = cls
+        instance:ctor(...)
+        return instance
+    end
+    cls.create = function(_, ...)
+        return cls.new(...)
+    end
+
+    return cls
+end
+
+---@brief 判断实例是否属于某个类（支持多继承）
+local iskindof_
+iskindof_ = function(cls, name)
+    local __index = rawget(cls, "__index")
+    if type(__index) == "table" and rawget(__index, "__cname") == name then
+        return true
+    end
+
+    if rawget(cls, "__cname") == name then
+        return true
+    end
+    local __supers = rawget(__index, "__supers")
+    if not __supers then
+        return false
+    end
+    for _, super in ip(__supers) do
+        if iskindof_(super, name) then
+            return true
+        end
+    end
+    return false
+end
+
+---@brief 判断对象是否属于指定类（对外接口）
+function iskindof(obj, classname)
+    local t = type(obj)
+    if t ~= "table" then
+        return false
+    end
+    local mt = getmetatable(obj)
+    if mt then
+        return iskindof_(mt, classname)
+    end
+    return false
+end
+--endregion
+
+--region 热更新 & 模块化
+--- 热补丁容器
+ClassPatch = {}
+StaticClassPatch = {}
+
+---@brief 加载热补丁（框架热更新核心）
+---@param content string 补丁代码
+function LoadPatcher(content)
+    if content ~= nil then
+        ClassPatch = {}
+        StaticClassPatch = {}
+        local ret = xpcall(
+                function()
+                    load(content)()
+                end,
+                __G__TRACK_BACK__
+        )
+        for k, v in pairs(StaticClassPatch) do
+            xpcall(function()
+                v()
+            end, __G__TRACK_BACK__)
+        end
+    end
+end
+
+---@brief 增强 require（支持热补丁注入）
+local _require = require
+require = function(filePath)
+    local ret, ptr = xpcall(
+            function()
+                return _require(filePath)
+            end,
+            __G__TRACK_BACK__
+    )
+
+    if ret and ClassPatch[filePath] then
+        ClassPatch[filePath](ptr)
+    end
+
+    return ptr
+end
+
+---@brief 模块导入（支持相对路径）
+function import(moduleName, currentModuleName)
+    local currentModuleNameParts
+    local moduleFullName = moduleName
+    local offset = 1
+
+    while true do
+        if string.byte(moduleName, offset) ~= 46 then
+            moduleFullName = string.sub(moduleName, offset)
+            if currentModuleNameParts and #currentModuleNameParts > 0 then
+                moduleFullName = table.concat(currentModuleNameParts, ".") .. "." .. moduleFullName
+            end
+            break
+        end
+        offset = offset + 1
+
+        if not currentModuleNameParts then
+            if not currentModuleName then
+                local n, v = debug.getlocal(3, 1)
+                currentModuleName = v
+            end
+
+            currentModuleNameParts = string.split(currentModuleName, ".")
+        end
+        table.remove(currentModuleNameParts, #currentModuleNameParts)
+    end
+
+    return require(moduleFullName)
+end
+
+---@brief 回调绑定（解决self指向问题）
+---@param obj table 对象
+---@param method function 方法
+---@return table 回调句柄
+function handler(obj, method)
+    return { target = obj, method = method, func = function(...)
+        return method(obj, ...)
+    end }
+end
+
+---@brief 回调绑定（Bind 风格，等效 handler）：对齐 HonorUI `Bind(self, method)` 写法
+---@desc 返回与 handler 相同的回调句柄 {target, method, func}，兼容 AddUIListener 自动注销
+---@param obj table 对象
+---@param method function 方法
+---@return table 回调句柄
+function Bind(obj, method)
+    return handler(obj, method)
+end
+--endregion
+
+--region 数学工具
+---@brief 生成随机种子（高精度）
+function math.newrandomseed()
+    local ok, socket = pcall(function()
+        return require("socket")
+    end)
+
+    if ok then
+        math.randomseed(socket.gettime() * 1000)
+    else
+        math.randomseed(os.time())
+    end
+    math.random()
+    math.random()
+    math.random()
+    math.random()
+end
+
+---@brief 四舍五入
+function math.round(value)
+    value = checknumber(value)
+    return math.floor(value + 0.5)
+end
+
+local pi_div_180 = math.pi / 180
+---@brief 角度转弧度
+function math.angle2radian(angle)
+    return angle * pi_div_180
+end
+
+---@brief 弧度转角度
+function math.radian2angle(radian)
+    return radian * 180 / math.pi
+end
+--endregion
+
+--region 文件IO工具
+---@brief 文件是否存在
+function io.exists(path)
+    local file = io.open(path, "r")
+    if file then
+        io.close(file)
+        return true
+    end
+    return false
+end
+
+---@brief 读取文件
+function io.readfile(path)
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*a")
+        io.close(file)
+        return content
+    end
+    return nil
+end
+
+---@brief 写入文件
+function io.writefile(path, content, mode)
+    mode = mode or "w+b"
+    local file = io.open(path, mode)
+    if file then
+        if file:write(content) == nil then
+            return false
+        end
+        io.close(file)
+        return true
+    else
+        return false
+    end
+end
+
+---@brief 获取路径信息（目录/文件名/后缀）
+function io.pathinfo(path)
+    local pos = string.len(path)
+    local extpos = pos + 1
+    while pos > 0 do
+        local b = string.byte(path, pos)
+        if b == 46 then
+            extpos = pos
+        elseif b == 47 then
+            break
+        end
+        pos = pos - 1
+    end
+
+    local dirname = string.sub(path, 1, pos)
+    local filename = string.sub(path, pos + 1)
+    extpos = extpos - pos
+    local basename = string.sub(filename, 1, extpos - 1)
+    local extname = string.sub(filename, extpos)
+    return {
+        dirname = dirname,
+        filename = filename,
+        basename = basename,
+        extname = extname
+    }
+end
+
+---@brief 获取文件大小
+function io.filesize(path)
+    local size = false
+    local file = io.open(path, "r")
+    if file then
+        local current = file:seek()
+        size = file:seek("end")
+        file:seek("set", current)
+        io.close(file)
+    end
+    return size
+end
+--endregion
+
+--region 表操作工具
+---@brief 表键值对数量
+function table.nums(t)
+    local count = 0
+    for k, v in pairs(t) do
+        count = count + 1
+    end
+    return count
+end
+
+---@brief 获取表所有键
+function table.keys(hashtable)
+    local keys = {}
+    for k, v in pairs(hashtable) do
+        keys[#keys + 1] = k
+    end
+    return keys
+end
+
+---@brief 获取表所有值
+function table.values(hashtable)
+    local values = {}
+    for k, v in pairs(hashtable) do
+        values[#values + 1] = v
+    end
+    return values
+end
+
+---@brief 表合并
+function table.merge(dest, src)
+    for k, v in pairs(src) do
+        dest[k] = v
+    end
+end
+
+---@brief 批量插入表
+function table.insertto(dest, src, begin)
+    begin = checkint(begin)
+    if begin <= 0 then
+        begin = #dest + 1
+    end
+
+    local len = #src
+    for i = 0, len - 1 do
+        dest[i + begin] = src[i + 1]
+    end
+end
+
+---@brief 查找值索引
+function table.indexof(array, value, begin)
+    for i = begin or 1, #array do
+        if array[i] == value then
+            return i
+        end
+    end
+    return false
+end
+
+---@brief 查找值对应的键（转发至 SystemFuncs.FindValueInTable 权威实现）
+---@see FindValueInTable
+function table.keyof(hashtable, value)
+    return FindValueInTable(hashtable, value)
+end
+
+---@brief 根据值删除元素
+function table.removebyvalue(array, value, removeall)
+    local c, i, max = 0, 1, #array
+    while i <= max do
+        if array[i] == value then
+            table.remove(array, i)
+            c = c + 1
+            i = i - 1
+            max = max - 1
+            if not removeall then
+                break
+            end
+        end
+        i = i + 1
+    end
+    return c
+end
+
+---@brief 表映射（修改每个元素）
+function table.map(t, fn)
+    for k, v in pairs(t) do
+        t[k] = fn(v, k)
+    end
+end
+
+---@brief 遍历表（只执行）
+function table.walk(t, fn)
+    for k, v in pairs(t) do
+        fn(v, k)
+    end
+end
+
+---@brief 表过滤
+function table.filter(t, fn)
+    for k, v in pairs(t) do
+        if not fn(v, k) then
+            t[k] = nil
+        end
+    end
+end
+
+---@brief 表去重
+function table.unique(t, bArray)
+    local check = {}
+    local n = {}
+    local idx = 1
+    for k, v in pairs(t) do
+        if not check[v] then
+            if bArray then
+                n[idx] = v
+                idx = idx + 1
+            else
+                n[k] = v
+            end
+            check[v] = true
+        end
+    end
+    return n
+end
+
+---@brief 创建重复值数组
+function table.full(count, value)
+    local result = {}
+    for idx = 1, count do
+        table.insert(result, value)
+    end
+    return result
+end
+--endregion
+
+--region 字符串工具
+--- HTML转义字符映射
+string._htmlspecialchars_set = {}
+string._htmlspecialchars_set["&"] = "&amp;"
+string._htmlspecialchars_set["\""] = "&quot;"
+string._htmlspecialchars_set["'"] = "&#039;"
+string._htmlspecialchars_set["<"] = "&lt;"
+string._htmlspecialchars_set[">"] = "&gt;"
+
+---@brief HTML转义
+function string.htmlspecialchars(input)
+    for k, v in pairs(string._htmlspecialchars_set) do
+        input = string.gsub(input, k, v)
+    end
+    return input
+end
+
+---@brief 还原HTML转义
+function string.restorehtmlspecialchars(input)
+    for k, v in pairs(string._htmlspecialchars_set) do
+        input = string.gsub(input, v, k)
+    end
+    return input
+end
+
+---@brief 换行转<br />
+function string.nl2br(input)
+    return string.gsub(input, "\n", "<br />")
+end
+
+---@brief 文本转HTML格式
+function string.text2html(input)
+    input = string.gsub(input, "\t", "    ")
+    input = string.htmlspecialchars(input)
+    input = string.gsub(input, " ", "&nbsp;")
+    input = string.nl2br(input)
+    return input
+end
+
+---@brief 字符串分割
+function string.split(input, delimiter)
+    input = tostring(input)
+    delimiter = tostring(delimiter)
+    if (delimiter == '') then
+        return false
+    end
+    local pos, arr = 0, {}
+    for st, sp in function()
+        return string.find(input, delimiter, pos, true)
+    end do
+        table.insert(arr, string.sub(input, pos, st - 1))
+        pos = sp + 1
+    end
+    table.insert(arr, string.sub(input, pos))
+    return arr
+end
+
+---@brief 去除左侧空白
+function string.ltrim(input)
+    return string.gsub(input, "^[ \t\n\r]+", "")
+end
+
+---@brief 去除右侧空白
+function string.rtrim(input)
+    return string.gsub(input, "[ \t\n\r]+$", "")
+end
+
+---@brief 去除两侧空白
+function string.trim(input)
+    input = string.gsub(input, "^[ \t\n\r]+", "")
+    return string.gsub(input, "[ \t\n\r]+$", "")
+end
+
+---@brief 首字母大写
+function string.ucfirst(input)
+    return string.upper(string.sub(input, 1, 1)) .. string.sub(input, 2)
+end
+
+---@brief URL编码单个字符（辅助函数）
+local function urlencodechar(char)
+    return "%" .. string.format("%02X", string.byte(char))
+end
+
+---@brief URL编码
+function string.urlencode(input)
+    input = string.gsub(tostring(input), "\n", "\r\n")
+    input = string.gsub(input, "([^%w%.%- ])", urlencodechar)
+    return string.gsub(input, " ", "+")
+end
+
+---@brief URL解码
+function string.urldecode(input)
+    input = string.gsub(input, "+", " ")
+    input = string.gsub(input, "%%(%x%x)", function(h)
+        return string.char(checknumber(h, 16))
+    end)
+    input = string.gsub(input, "\r\n", "\n")
+    return input
+end
+
+---@brief UTF8字符长度计算（转发至 SystemFuncs.GetUTF8StrLength 权威实现）
+---@see GetUTF8StrLength
+function string.utf8len(input)
+    return GetUTF8StrLength(input)
+end
+
+---@brief 数字格式化（千分位逗号）
+function string.formatnumberthousands(num)
+    local formatted = tostring(checknumber(num))
+    local k
+    while true do
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+        if k == 0 then
+            break
+        end
+    end
+    return formatted
+end
+
+---@brief 是否以指定字符串开头
+function string.starts(String, Start)
+    return string.sub(String, 1, string.len(Start)) == Start
+end
+
+---@brief 是否以指定字符串结尾
+function string.ends(String, End)
+    return End == '' or string.sub(String, -string.len(End)) == End
+end
+--endregion

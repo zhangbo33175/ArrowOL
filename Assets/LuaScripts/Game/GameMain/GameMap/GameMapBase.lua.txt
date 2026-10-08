@@ -143,6 +143,12 @@ function GameMapBase:OnDestroy()
     -- 销毁相机缓存，切断对象引用
     self.ScreenCamera = nil
     -- 仅当自身仍持有全局静态引用时才清空，避免误清新地图的引用
+    self:ClearStaticMapRefs()
+end
+
+---@brief 清空全局静态地图引用（仅当自身仍持有时才清，避免误清新地图）
+---@type fun():void
+function GameMapBase:ClearStaticMapRefs()
     if MapManager.CurGameMapBase == self then
         MapManager.CurGameMapBase = nil
         MapManager.CurMapData = nil
@@ -215,10 +221,7 @@ function GameMapBase:UnloadMapBeforeClear() end
 ---@type fun():void
 function GameMapBase:UnloadMapAfterClear()
     GameMapMotion:OnMapEnd()
-    if MapManager.CurGameMapBase == self then
-        MapManager.CurGameMapBase = nil
-        MapManager.CurMapData = nil
-    end
+    self:ClearStaticMapRefs()
 end
 
 --endregion
@@ -337,7 +340,7 @@ end
 
 --endregion
 
---region 地图角色实体自动加载逻辑
+--region 【地图角色实体加载】
 
 ---@brief 根据地图配置批量生成所有角色实体，初始化图标、坐标、全局列表缓存
 ---@type fun():void

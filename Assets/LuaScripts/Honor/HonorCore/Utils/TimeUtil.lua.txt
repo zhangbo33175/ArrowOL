@@ -1,0 +1,107 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   TimeUtil.lua
+-- author:     云毅
+-- created:    2026
+-- @brief     时间工具类（对齐参考框架 Utils/TimeUtil）
+-- @desc      提供时间间隔格式化等通用工具，
+--            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
+-- @dependency StringUtil（mstr 模板拼接）
+--=====================================================================================================
+
+---@class TimeUtil 时间工具类
+local StringUtil = require('StringUtil')
+local TimeUtil = {}
+
+--=====================================================================================================
+-- 时间格式化
+--=====================================================================================================
+
+---@brief 将时间间隔(秒)转换成格式化时间字符串
+---@param format string 格式模板
+--- "DD"                 "d天h时m分"
+--- "DDHH"               "d天h时m分"
+--- "DDHHMM"             "d天h时m分"
+--- "DDHHMMSS"           "d天h时m分s秒"
+--- "HH:MM:SS"           "h:m:s"
+--- "MM:SS"              "m:s"
+--- "MMSSms""            "m's.ms"
+---@param timeInterval number 时间间隔（秒数）
+---@param DUnit string 天-单位
+---@param HUnit string 时-单位
+---@param MUnit string 分-单位
+---@param SUnit string 秒-单位
+---@return string 转换结果
+function TimeUtil.TransformTimeIntervalToFormat(format, timeInterval, DUnit, HUnit, MUnit, SUnit)
+    local result = ""
+    local day = math.floor(timeInterval / 3600 / 24)
+    timeInterval = timeInterval % (3600 * 24)
+    local hour = math.floor(timeInterval / 3600)
+    timeInterval = timeInterval % 3600
+    local min = math.floor(timeInterval / 60)
+    local sec = timeInterval % 60
+    local mSec = math.floor(timeInterval * 100) % 100
+    if format == "DD" then
+        result = StringUtil.mstr { "<<d>><<DUnit>>", d = string.format("%d", day), DUnit = DUnit }
+    elseif format == "DDHH" then
+        result = StringUtil.mstr { "<<d>><<DUnit>><<h>><<HUnit>>", d = string.format("%d", day), DUnit = DUnit, h = string.format("%d", hour), HUnit = HUnit }
+    elseif format == "DDHHMM" then
+        result = StringUtil.mstr { "<<d>><<DUnit>><<h>><<HUnit>><<m>><<MUnit>>", d = string.format("%d", day), DUnit = DUnit, h = string.format("%d", hour), HUnit = HUnit, m = string.format("%d", min), MUnit = MUnit }
+    elseif format == "DDHHMMSS" then
+        result = StringUtil.mstr { "<<d>><<DUnit>><<h>><<HUnit>><<m>><<MUnit>><<s>><<SUnit>>", d = string.format("%d", day), DUnit = DUnit, h = string.format("%d", hour), HUnit = HUnit, m = string.format("%d", min), MUnit = MUnit, s = string.format("%d", sec), SUnit = SUnit }
+    elseif format == "HH:MM:SS" then
+        hour = day * 24 + hour
+        result = StringUtil.mstr { "<<h>>:<<m>>:<<s>>", h = string.format("%02d", hour), m = string.format("%02d", min), s = string.format("%02d", sec) }
+    elseif format == "MM:SS" then
+        min = day * 24 * 60 + hour * 60 + min
+        result = StringUtil.mstr { "<<m>>:<<s>>", m = string.format("%02d", min), s = string.format("%02d", sec) }
+    elseif format == "MMSSms" then
+        min = day * 24 * 60 + hour * 60 + min
+        return StringUtil.mstr { "<<m>>'<<s>>.<<ms>>\"", m = string.format("%02d", min), s = string.format("%02d", sec), ms = string.format("%02d", mSec) }
+    end
+    return result
+end
+
+--=====================================================================================================
+-- 时间解析 / 计算
+--=====================================================================================================
+
+---@brief 解析时间字符串为时间数组
+---@desc 抽离自 HonorTimerHelper:GetTimeInfoByString（纯工具，无实例状态依赖）
+---@param timeDescStr string 时间描述字符串（如 "12:30:00"、"10-20 08:00"）
+---@return table 解析后的数字数组（{时,分,秒,...}），空串返回 {}
+function TimeUtil.ParseTimeString(timeDescStr)
+    local info = {}
+    for v in string.gmatch(timeDescStr .. ":", "(%d+)[- :]") do
+        table.insert(info, tonumber(v))
+    end
+    return info
+end
+
+---@brief 将时间字符串转为总秒数
+---@desc 抽离自 HonorTimerHelper:GetSecondsByString（纯工具）
+---@param timeDescStr string 时间描述字符串
+---@return number 总秒数
+function TimeUtil.GetSecondsByString(timeDescStr)
+    if not timeDescStr then return 0 end
+    local t = TimeUtil.ParseTimeString(timeDescStr)
+    local s = 0
+    if #t >= 1 then s = s + t[1] * 3600 end
+    if #t >= 2 then s = s + t[2] * 60 end
+    if #t >= 3 then s = s + t[3] end
+    return s
+end
+
+---@brief 计算两个时间戳之间跨天数
+---@desc 抽离自 HonorTimerHelper:GetAcrossDayNumBetweenTimeStamps（纯工具）
+---@param timeStamp1 number 起始时间戳
+---@param timeStamp2 number 结束时间戳
+---@return number 跨天数（非负）
+function TimeUtil.GetAcrossDayNumBetweenTimeStamps(timeStamp1, timeStamp2)
+    if not (timeStamp1 and timeStamp2) then return 0 end
+    return math.floor(timeStamp2 / 86400) - math.floor(timeStamp1 / 86400)
+end
+
+return TimeUtil

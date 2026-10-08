@@ -1,0 +1,64 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ActivityUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     活动界面工具类
+-- @desc      从 GameFunctions 拆分：加载关卡准备界面活动图标
+-- @note      业务扩展工具（业务依赖）：依赖业务层 ActivityMgr/EventDataManager/PoolManager/RES 及活动枚举，
+--            属业务能力收拢而非框架通用工具，仅在业务层已加载时可用
+-- @dependency ActivityMgr, EventDataManager, PoolManager, RES
+--=====================================================================================================
+
+local ActivityUtil = {}
+
+--region 依赖引入
+-- 框架内自洽：空判断走同域工具，避免依赖业务层 GameFunctions 全局
+local UnityUtil = require('UnityUtil')
+--endregion
+
+--region 活动界面工具
+
+---@brief 加载关卡准备界面活动图标
+---@param parent UnityEngine.Transform 父节点
+---@param enableAnimator boolean 是否启用动画
+---@param entryType EActivityEnterFormPosType 入口类型
+---@return table 活动图标Lua类
+function ActivityUtil.TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
+    if UnityUtil.IsNull(parent) then return nil end
+    local activities = ActivityMgr and ActivityMgr:GetActivityDatas() or {}
+    local validActivities = {}
+
+    for _, activity in pairs(activities) do
+        local config = EventDataManager and EventDataManager:GetEventDataById(activity.activityId)
+        if not config then goto continue end
+
+        local resOk = ActivityMgr:GetActivityHotfixResState(activity.activityId)
+        local running = ActivityMgr:IsActivityRunning(activity)
+        if not resOk or not running then goto continue end
+
+        local iconPage = config.IconPage
+        if (iconPage == EActivityIconPage.ONLY_MAIN_AND_LEVEL_PREPARE and entryType == EActivityEnterFormPosType.LEVEL_PREPARE) or
+                (iconPage == EActivityIconPage.LEVEL_PREPARE or iconPage == EActivityIconPage.MAIN_AND_ICON_IN_LEVEL_PREPARE) then
+            table.insert(validActivities, activity)
+        end
+
+        ::continue::
+    end
+
+    if #validActivities <= 0 then return nil end
+
+    local go = PoolManager:Get(RES.GameObject_CollectionActivityIcon.Name, parent)
+    local lua = go:GetComponent("LuaBehaviour").ValidLuaClass
+    if lua then
+        lua.LeftAnimator.enabled = enableAnimator
+        lua.RightAnimator.enabled = enableAnimator
+        lua:LoadActivityIcon(validActivities)
+    end
+    return lua
+end
+
+--endregion
+
+return ActivityUtil

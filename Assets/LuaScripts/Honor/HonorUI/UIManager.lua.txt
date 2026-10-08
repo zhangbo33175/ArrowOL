@@ -1,0 +1,702 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UIManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     UI 事件监听 + UI 生命周期操作管理器
+-- @desc      收拢 UI 组件交互事件注册/注销与 UI 打开/关闭/遮罩/动画/栈/子UI 等通用操作。
+--            事件逻辑源自原 SystemBridges.lua.txt；生命周期逻辑自 LuaBehaviourSuper 拆分。
+--            LuaBehaviourSuper 保留方法签名并委托本模块，接口零破坏。
+-- @scope     单例模块（全局唯一），被 SystemBridges / LuaBehaviourSuper require
+-- @dependency Unity, Honor, HonorEventHelper, GameMainRoot
+--=====================================================================================================
+
+---@class UIManager UI 事件监听 + UI 生命周期管理器
+-- 通用 UI 工具（固定节点查找用）
+local UIUtil = require('UIUtil')
+local UIManager = {}
+
+--region UI 事件监听注册表
+
+---@type table UI 事件监听注册表：{UI对象 = { _handlerList = {handler...}, _interactTargetTimes = {number...} }}
+UIManager._addUIListenerInfos = {}
+
+--endregion
+
+--region UI 事件监听注册与注销
+
+---@brief 注册 UI 组件交互事件
+---@desc 封装按钮/Toggle/输入框/列表等事件绑定到 C# 组件；防重复注册（同 target+method 不再注册）；
+---      按钮点击自动注入 C# 配置参数并设置点击冷却（防连点）。
+---@param obj userdata C#注入的UI对象（Button/Toggle/Input/ListView等）
+---@param cmd string 事件类型：Clicked/Changed/End/Chosen/GettingItem/Start/SnapItemFinished/SnapNearestChanged 或 Evt_ 开头事件
+---@param handler table handler 包装的回调（含 target/method/func）
+function UIManager:AddListener(obj, cmd, handler)
+    if obj == nil or handler == nil then return end
+
+    local infos = self._addUIListenerInfos
+    -- 为当前对象初始化注册信息
+    if infos[obj] == nil then
+        infos[obj] = { _handlerList = {}, _interactTargetTimes = {} }
+    end
+
+    -- 防重复注册：相同 target+method 直接返回
+    for _, v in pairs(infos[obj]._handlerList) do
+        if v.target == handler.target and v.method == handler.method then
+            return
+        end
+    end
+
+    -- 保存回调与冷却时间
+    table.insert(infos[obj]._handlerList, handler)
+    table.insert(infos[obj]._interactTargetTimes, 0)
+
+    -- 事件派发闭包：统一转发本对象所有已注册回调（按钮含防连点冷却）
+    local dispatch = function(...)
+        for _, v in pairs(infos[obj]._handlerList) do
+            if Unity.Time.realtimeSinceStartup >= infos[obj]._interactTargetTimes[_] then
+                if v.target == handler.target and v.method == handler.method then
+                    local args = { ... }
+
+                    -- 按钮点击：自动注入 C# 配置的参数（GetExtendsInfo）
+                    if cmd == 'Clicked' then
+                        local injections = obj:GetComponentInParent(typeof(Honor.LuaBehaviour), true).Injections
+                        for i = 0, injections.Count - 1 do
+                            if injections[i].InjectionTypeName == Honor.LuaInjection.InjectionType.UI_Button then
+                                if injections[i].IsArray then
+                                    for k, vObj in pairs(injections[i].ElementsObjs) do
+                                        if injections[i].ElementsExtendsEnableds[k] and injections[i]:GetExtendsCountAtElementIndex(k) == 3 then
+                                            if vObj == obj then
+                                                table.insert(args, injections[i]:GetExtendsInfoAtElementIndex(k, 2))
+                                                break
+                                            end
+                                        end
+                                    end
+                                elseif injections[i].ExtendsEnabled and injections[i]:GetExtendsCount() == 3 then
+                                    if injections[i].Obj == obj then
+                                        table.insert(args, injections[i]:GetExtendsInfo(2))
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                        -- 设置按钮冷却时间（防连点）
+                        infos[obj]._interactTargetTimes[_] = Unity.Time.realtimeSinceStartup + GameMainRoot.UI.ButtonInteractDuration
+                    end
+
+                    -- 执行真正的 Lua 回调
+                    return v.func(table.unpack(args))
+                end
+            end
+        end
+    end
+
+    -- 根据事件类型注册到 C# 组件
+    if cmd == 'Clicked' then
+        obj.onClick:AddListener(dispatch)
+    elseif cmd == 'Changed' then
+        obj.onValueChanged:AddListener(dispatch)
+    elseif cmd == 'End' then
+        obj.onEndEdit:AddListener(dispatch)
+    elseif cmd == 'Chosen' then
+        obj.onChosen = dispatch
+    elseif cmd == 'GettingItem' then
+        obj:InitListView(obj.MaxItemNum, function(index) return dispatch(index) end)
+    elseif cmd == 'Start' then
+        obj.OnListViewStart = dispatch
+    elseif cmd == 'SnapItemFinished' then
+        obj.OnListViewSnapItemFinished = dispatch
+    elseif cmd == 'SnapNearestChanged' then
+        obj.OnListViewSnapNearestChanged = dispatch
+    else
+        -- 通用 UI 事件：PointerDown/Up/Enter/Exit 等 Evt_ 开头事件
+        if string.starts(cmd, "Evt_") then
+            local eventTrigger = obj.gameObject:GetOrAddComponent(typeof(Unity.EventSystems.EventTrigger))
+            local entry = nil
+            for _, existingEntry in pairs(eventTrigger.triggers) do
+                if existingEntry.eventID == Unity.EventSystems.EventTriggerType.__CastFrom(string.sub(cmd, 5)) then
+                    entry = existingEntry
+                    break
+                end
+            end
+            if entry == nil then
+                entry = Unity.EventSystems.EventTrigger.Entry()
+                entry.eventID = Unity.EventSystems.EventTriggerType.__CastFrom(string.sub(cmd, 5))
+                eventTrigger.triggers:Add(entry)
+            end
+            entry.callback:AddListener(dispatch)
+        end
+    end
+end
+
+---@brief 注销 UI 组件交互事件
+---@desc 从全局注册容器中移除指定回调，并清理空表；未注册对象安全忽略
+---@param obj userdata UI对象
+---@param cmd string 事件类型
+---@param handler table handler 包装的回调
+function UIManager:RemoveListener(obj, cmd, handler)
+    if obj == nil or handler == nil then return end
+
+    local infos = self._addUIListenerInfos
+    local target = infos[obj]
+    if target ~= nil and target._handlerList ~= nil and target._interactTargetTimes ~= nil then
+        for __, __v in pairs(target._handlerList) do
+            if __v.target == handler.target and __v.method == handler.method then
+                table.remove(target._handlerList, __)
+                table.remove(target._interactTargetTimes, __)
+                break
+            end
+        end
+        -- 清理空表
+        if target._handlerList ~= nil and #target._handlerList == 0 then
+            target._handlerList = nil
+        end
+        if target._interactTargetTimes ~= nil and #target._interactTargetTimes == 0 then
+            target._interactTargetTimes = nil
+        end
+    end
+end
+
+--endregion
+
+--region UI 事件批量绑定
+
+---@brief 批量注册 UI 监听
+---@desc 统一收口多个 AddListener 调用；注册与注销使用同一份列表，保证成对同步
+---@param listeners table<{userdata, string, handler}> 监听列表，每项 {UI对象, 事件类型, handler}
+function UIManager:AddListenerBatch(listeners)
+    if listeners == nil then return end
+    for i = 1, #listeners do
+        local listener = listeners[i]
+        self:AddListener(listener[1], listener[2], listener[3])
+    end
+end
+
+---@brief 批量注销 UI 监听
+---@desc 与 AddListenerBatch 成对使用，列表内容保持一致即可同步注销
+---@param listeners table<{userdata, string, handler}> 与注册一致的监听列表
+function UIManager:RemoveListenerBatch(listeners)
+    if listeners == nil then return end
+    for i = 1, #listeners do
+        local listener = listeners[i]
+        self:RemoveListener(listener[1], listener[2], listener[3])
+    end
+end
+
+--endregion
+
+--region UI 固定节点初始化（__BgImage/遮罩/关闭层）
+
+---@brief 初始化 UI 固定节点引用
+---@desc 按约定的固定节点名（__BgImage/__BottomMaskLayer/__TopMaskLayer/__BottomCloseLayer）查找并缓存组件，
+---      并按 MaskLayer/关闭层配置设置初始激活状态（拆分自 LuaBehaviourSuper:Awake 的 UI 分支）
+---@param view LuaBehaviourSuper 目标 UI 行为对象
+function UIManager:InitFixedNodes(view)
+    if view == nil or view.cs == nil then return end
+
+    -- 背景图
+    view._bgImage = UIUtil:FindAndGetComponent(view.cs.transform, "__BgImage", "Image")
+
+    -- 底部遮罩
+    view._bottomMaskLayerImage = UIUtil:FindAndGetComponent(view.cs.transform, "__BottomMaskLayer", "Image")
+    if view._bottomMaskLayerImage ~= nil then
+        view._bottomMaskLayerImage.gameObject:SetActive(view.cs.MaskLayer)
+    end
+
+    -- 顶部遮罩
+    view._topMaskLayerImage = UIUtil:FindAndGetComponent(view.cs.transform, "__TopMaskLayer", "Image")
+    if view._topMaskLayerImage ~= nil then
+        view._topMaskLayerImage.gameObject:SetActive(view.cs.MaskLayer)
+    end
+
+    -- 底部关闭层
+    view._bottomCloseLayerButton = UIUtil:FindAndGetComponent(view.cs.transform, "__BottomCloseLayer", "Button")
+    if view._bottomCloseLayerButton ~= nil then
+        view._bottomCloseLayerButton.gameObject:SetActive(false)
+    end
+end
+
+--endregion
+
+--region UI 生命周期：打开 / 关闭 / 动画
+
+---@brief 打开 UI（拆分自 LuaBehaviourSuper:Open / ViewSuper:Open，统一收拢）
+---@desc 打开时先通知 ViewModel:OnOpen（若存在），再启用遮罩，按配置播放打开动画或直接回调打开完成
+---@param view LuaBehaviourSuper|ViewSuper 目标 UI 行为对象
+function UIManager:Open(view)
+    if view == nil or view.cs == nil then return end
+
+    -- MVVM 视图钩子：打开前通知 ViewModel（ViewSuper 有 GetViewModel 才触发；LuaBehaviourSuper 无则跳过）
+    if view.GetViewModel ~= nil then
+        local vm = view:GetViewModel()
+        if vm then vm:OnOpen() end
+    end
+
+    -- 启用遮罩
+    if view.cs.PrefabType == Honor.PrefabType.UI and view.cs.MaskLayer then
+        if view._bottomMaskLayerImage ~= nil then
+            view._bottomMaskLayerImage.raycastTarget = true
+            view._bottomMaskLayerImage.gameObject:SetActive(true)
+        end
+        if view._topMaskLayerImage ~= nil then
+            view._topMaskLayerImage.raycastTarget = true
+            view._topMaskLayerImage.gameObject:SetActive(true)
+        end
+    end
+
+    -- 播放打开动画或直接回调打开完成（走钩子保持多态：view:OnPlayOpenAnimation/OnOpenOver 可被子类重写）
+    if view.cs.OpenAnimation == true then
+        view:OnPlayOpenAnimation()
+    else
+        view:OnOpenOver()
+    end
+end
+
+---@brief 播放打开动画（拆分自 LuaBehaviourSuper:OnPlayOpenAnimation）
+---@desc 依次执行遮罩渐入、透明度渐入与根节点缩放动画，动画结束回调 OnOpenOver
+---@param view LuaBehaviourSuper 目标 UI 行为对象
+function UIManager:PlayOpenAnimation(view)
+    if view == nil or view.cs == nil then return end
+
+    if view.cs.PrefabType == Honor.PrefabType.UI then
+        -- 底部遮罩渐入
+        if view._bottomMaskLayerImage ~= nil and view.cs.MaskLayer then
+            local targetColor = view._bottomMaskLayerImage.color
+            view._bottomMaskLayerImage.color = Unity.Color(view._bottomMaskLayerImage.color.r, view._bottomMaskLayerImage.color.g, view._bottomMaskLayerImage.color.b, 0)
+            DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. view._bottomMaskLayerImage.gameObject:GetInstanceID())
+
+            view._bottomMaskLayerImage:DOColor(targetColor, view._bottomMaskLayerOpenAnimationDelay)
+                :SetEase(Ease.OutBack)
+                :SetId(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. view._bottomMaskLayerImage.gameObject:GetInstanceID())
+        end
+
+        -- 透明度渐入
+        local canvasGroup = view.cs:GetComponent("CanvasGroup")
+        if canvasGroup ~= nil then
+            canvasGroup.alpha = 0
+            DOTween.Kill(HonorTweenType.PrefabUIAlphaOpenAnimation .. view.cs.gameObject:GetInstanceID())
+            canvasGroup:DOFade(1, view._alphaOpenAnimationDelay)
+                       :SetEase(Ease.OutBack)
+                       :SetId(HonorTweenType.PrefabUIAlphaOpenAnimation .. view.cs.gameObject:GetInstanceID())
+        end
+    end
+
+    -- 根节点缩放动画
+    local transform = view._bgImage ~= nil and view._bgImage.transform or view.cs.transform
+    transform.localScale = Unity.Vector3.one * 0.00001
+    DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. view.cs.gameObject:GetInstanceID())
+
+    DOTween.Sequence():Append(transform:DOScale(1, view._rootOpenAnimationDelay):SetEase(Ease.OutBack)
+                            :OnComplete(function()
+        view:OnOpenOver()
+    end))
+           :SetId(HonorTweenType.PrefabRootOpenAnimation .. view.cs.gameObject:GetInstanceID())
+end
+
+---@brief 打开完成回调（拆分自 LuaBehaviourSuper:OnOpenOver / ViewSuper:OnOpenOver，统一收拢）
+---@desc 打开动画结束后先通知 ViewModel:OnOpenOver（若存在），再调整遮罩状态并按配置开启点击关闭按钮
+---@param view LuaBehaviourSuper|ViewSuper 目标 UI 行为对象
+function UIManager:OnOpenOver(view)
+    if view == nil or view.cs == nil then return end
+
+    -- MVVM 视图钩子
+    if view.GetViewModel ~= nil then
+        local vm = view:GetViewModel()
+        if vm then vm:OnOpenOver() end
+    end
+
+    if view.cs.PrefabType == Honor.PrefabType.UI then
+        if view.cs.MaskLayer then
+            if view._bottomMaskLayerImage ~= nil then
+                view._bottomMaskLayerImage.raycastTarget = true
+                view._bottomMaskLayerImage.gameObject:SetActive(true)
+            end
+            if view._topMaskLayerImage ~= nil then
+                view._topMaskLayerImage.raycastTarget = false
+                view._topMaskLayerImage.gameObject:SetActive(false)
+            end
+        end
+
+        -- 开启点击关闭
+        if view.cs.BottomCloseLayer then
+            if view._bottomCloseLayerButton ~= nil then
+                view._bottomCloseLayerButton.gameObject:SetActive(true)
+                view._bottomCloseLayerButton.onClick:AddListener(function()
+                    view:Close()
+                end)
+            end
+        end
+    end
+end
+
+---@brief 关闭 UI（拆分自 LuaBehaviourSuper:Close / ViewSuper:Close，统一收拢）
+---@desc 防重入关闭流程：先通知 ViewModel:OnClose（若存在），再调整遮罩状态，按配置播放关闭动画或直接回调关闭完成
+---@param view LuaBehaviourSuper|ViewSuper 目标 UI 行为对象
+function UIManager:Close(view)
+    if view == nil or view.cs == nil then return end
+    if view._isClosing == false then
+        view._isClosing = true
+
+        -- MVVM 视图钩子：关闭前通知 ViewModel
+        if view.GetViewModel ~= nil then
+            local vm = view:GetViewModel()
+            if vm then vm:OnClose() end
+        end
+
+        if view.cs.PrefabType == Honor.PrefabType.UI then
+            if view.cs.MaskLayer then
+                if view._bottomMaskLayerImage ~= nil then
+                    view._bottomMaskLayerImage.raycastTarget = true
+                    view._bottomMaskLayerImage.gameObject:SetActive(true)
+                end
+                if view._topMaskLayerImage ~= nil then
+                    view._topMaskLayerImage.raycastTarget = true
+                    view._topMaskLayerImage.gameObject:SetActive(true)
+                end
+            end
+            if view._bottomCloseLayerButton ~= nil then
+                view._bottomCloseLayerButton.gameObject:SetActive(false)
+            end
+        end
+
+        if view.cs.CloseAnimation == true then
+            view:OnPlayCloseAnimation()
+        else
+            view:OnCloseOver()
+        end
+    end
+end
+
+---@brief 播放关闭动画（拆分自 LuaBehaviourSuper:OnPlayCloseAnimation）
+---@desc 依次执行遮罩淡出、透明度淡出与根节点缩放消失动画，动画结束回调 OnCloseOver
+---@param view LuaBehaviourSuper 目标 UI 行为对象
+function UIManager:PlayCloseAnimation(view)
+    if view == nil or view.cs == nil then return end
+
+    if view.cs.PrefabType == Honor.PrefabType.UI then
+        -- 遮罩淡出
+        if view._bottomMaskLayerImage ~= nil and view.cs.MaskLayer then
+            DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerOpenAnimation .. view._bottomMaskLayerImage.gameObject:GetInstanceID())
+            DOTween.Kill(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. view._bottomMaskLayerImage.gameObject:GetInstanceID())
+
+            view._bottomMaskLayerImage:DOColor(Unity.Color(view._bottomMaskLayerImage.color.r, view._bottomMaskLayerImage.color.g, view._bottomMaskLayerImage.color.b, 0), view._bottomMaskLayerCloseAnimationDelay)
+                :SetEase(Ease.InBack)
+                :SetId(HonorTweenType.PrefabUIBottomMaskLayerCloseAnimation .. view._bottomMaskLayerImage.gameObject:GetInstanceID())
+        end
+
+        -- 透明度淡出
+        local canvasGroup = view.cs:GetComponent("CanvasGroup")
+        if canvasGroup ~= nil then
+            DOTween.Kill(HonorTweenType.PrefabUIAlphaCloseAnimation .. view.cs.gameObject:GetInstanceID())
+            canvasGroup:DOFade(0, view._alphaCloseAnimationDelay)
+                       :SetEase(Ease.InBack)
+                       :SetId(HonorTweenType.PrefabUIAlphaCloseAnimation .. view.cs.gameObject:GetInstanceID())
+        end
+    end
+
+    -- 缩放消失
+    local transform = view._bgImage ~= nil and view._bgImage.transform or view.cs.transform
+    local targetLocalScale = Unity.Vector3.one * 0.00001
+    DOTween.Kill(HonorTweenType.PrefabRootOpenAnimation .. view.cs.gameObject:GetInstanceID())
+    DOTween.Kill(HonorTweenType.PrefabRootCloseAnimation .. view.cs.gameObject:GetInstanceID())
+
+    DOTween.Sequence():Append(transform:DOScale(targetLocalScale, view._rootCloseAnimationDelay):SetEase(Ease.InBack)
+     :OnComplete(function()
+        view:OnCloseOver()
+    end))
+           :SetId(HonorTweenType.PrefabRootCloseAnimation .. view.cs.gameObject:GetInstanceID())
+end
+
+---@brief 关闭完成（自动销毁，拆分自 LuaBehaviourSuper:OnCloseOver / ViewSuper:OnCloseOver，统一收拢）
+---@desc 先通知 ViewModel:OnCloseOver（若存在），再停止 Proc、抛出 UI 关闭事件，UI 回收至卸载列表、实体直接销毁，并联动子节点关闭
+---@param view LuaBehaviourSuper|ViewSuper 目标 UI 行为对象
+function UIManager:OnCloseOver(view)
+    if view == nil or view.cs == nil then return end
+
+    -- MVVM 视图钩子：关闭完成前通知 ViewModel
+    if view.GetViewModel ~= nil then
+        local vm = view:GetViewModel()
+        if vm then vm:OnCloseOver() end
+    end
+
+    view.cs.UseProc = false
+    -- 事件名兼容：ViewSuper 用 _commonName，LuaBehaviourSuper 用 _name
+    HonorEventHelper:Fire(FwEventCmd.UIViewClose, view._commonName or view._name)
+
+    -- UI 统一回收
+    if view.cs.PrefabType == Honor.PrefabType.UI then
+        GameMainRoot.UI:AddToUnloadUIList(view.cs.gameObject)
+        local children = view.cs:GetAllDirectChildren()
+        for i = 0, children.Count - 1 do
+            local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
+            if luaClass.GetViewModel ~= nil then
+                luaClass:GetViewModel():OnClose()
+            end
+            luaClass:OnCloseOver()
+        end
+
+        -- 实体直接销毁
+    elseif view.cs.PrefabType == Honor.PrefabType.Entity then
+        local children = view.cs:GetAllDirectChildren()
+        for i = 0, children.Count - 1 do
+            local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
+            if luaClass.GetViewModel ~= nil then
+                luaClass:GetViewModel():OnClose()
+            end
+            luaClass:OnCloseOver()
+        end
+        Unity.GameObject.Destroy(view.cs.gameObject)
+    end
+end
+
+--endregion
+
+--region UI 栈
+
+---@brief UI 入栈（隐藏，拆分自 LuaBehaviourSuper:OnStackPush）
+---@desc 记录原始位置并移出屏幕（隐藏），出栈时恢复
+---@param view LuaBehaviourSuper 目标 UI 行为对象
+function UIManager:StackPush(view)
+    if view == nil or view.cs == nil then return end
+    view._oriPosForUIStack = view.cs.transform.localPosition
+    view.cs.transform.localPosition = Unity.Vector3.one * 3000
+end
+
+---@brief UI 出栈（显示，拆分自 LuaBehaviourSuper:OnStackPop）
+---@desc 恢复入栈时记录的原始位置
+---@param view LuaBehaviourSuper 目标 UI 行为对象
+function UIManager:StackPop(view)
+    if view == nil or view.cs == nil then return end
+    view.cs.transform.localPosition = view._oriPosForUIStack
+end
+
+--endregion
+
+--region 子 UI 管理
+
+---@brief 同步添加子 UI（拆分自 LuaBehaviourSuper:AddUISync）
+---@desc 通过 C# 桥接同步创建子 UI，返回其 Lua 行为对象与 GameObject
+---@param view LuaBehaviourSuper 目标 UI 行为对象
+---@param uiTable Tables.UIs_Item
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@return LuaBehaviourSuper,UnityEngine.GameObject 子 UI Lua行为对象与GameObject
+function UIManager:AddUISync(view, uiTable, parent, luaParams)
+    if view == nil or view.cs == nil then return nil, nil end
+    if parent == nil then
+        parent = view._bgImage ~= nil and view._bgImage.transform or view.cs.transform
+    end
+    local uiGO = GameMainRoot.UI:AddUISyncByLuaTable(uiTable, parent, luaParams)
+    local luaBehaviour = uiGO:GetComponent("LuaBehaviour")
+    local luaClass = luaBehaviour == nil and nil or (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView)
+    return luaClass, uiGO
+end
+
+---@brief 异步添加子 UI（拆分自 LuaBehaviourSuper:AddUIAsync）
+---@desc 通过 C# 桥接异步创建子 UI，创建完成后回调 overCallback
+---@param view LuaBehaviourSuper 目标 UI 行为对象
+---@param uiTable Tables.UIs_Item
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@param overCallback function 创建完成回调
+function UIManager:AddUIAsync(view, uiTable, parent, luaParams, overCallback)
+    if view == nil or view.cs == nil then return end
+    if parent == nil then
+        parent = view._bgImage ~= nil and view._bgImage.transform or view.cs.transform
+    end
+    GameMainRoot.UI:AddUIAsyncByLuaTable(uiTable, parent, luaParams, overCallback)
+end
+--endregion
+
+--region UI 开启与关闭（拆分自 SystemFuncs）
+
+---@brief 同步打开 UI
+---@desc 通过 C# UI 桥接同步打开，返回 UI 对象 LuaBehaviour 组件的 luaClass（异常捕获不阻断流程）
+---@param uiInfo Tables.UIs_Item UI 信息
+---@param params table 自定义参数
+---@return table|nil UI 对象 LuaBehaviour 组件的 luaClass
+function UIManager:OpenUI(uiInfo, params)
+    local status, luaClass = xpcall(function()
+        local uiGO = GameMainRoot.UI:OpenUISyncByLuaTable(uiInfo, params)
+        if uiGO ~= nil then
+            local luaBehaviour = uiGO:GetComponent("LuaBehaviour")
+            return luaBehaviour ~= nil and (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView) or nil
+        end
+    end, function(e)
+        local desc = "uiInfo=nil"
+        if uiInfo ~= nil then
+            desc = "Name: " .. tostring(uiInfo.Name) .. " ABPath: " .. tostring(uiInfo.ABPath) .. " AssetName: " .. tostring(uiInfo.AssetName)
+        end
+        PrintError("OpenUI异常，请检查相关资源配置，" .. desc .. " 异常详情: " .. tostring(e))
+    end)
+    return luaClass
+end
+
+---@brief 异步打开 UI
+---@desc 通过 C# UI 桥接异步打开，完成后回调 luaClass（异常捕获不阻断流程）
+---@param uiInfo Tables.UIs_Item UI 信息
+---@param params table 自定义参数
+---@param overCallback handler 回调句柄（func(luaClass)）
+function UIManager:OpenUIAsync(uiInfo, params, overCallback)
+    xpcall(function()
+        GameMainRoot.UI:OpenUIAsyncByLuaTable(uiInfo, params, function(abPath, assetName, luaClass, uiGO)
+            if overCallback ~= nil and overCallback.func ~= nil then
+                overCallback.func(luaClass)
+            end
+        end)
+    end, function(e)
+        PrintError("OpenUIAsync异常，请检查相关资源配置，Name: " .. uiInfo.Name .. " ABPath: " .. uiInfo.ABPath .. " AssetName: " .. uiInfo.AssetName)
+    end)
+end
+
+---@brief 关闭 UI
+---@desc 通过 C# UI 桥接关闭，rightNow 为 true 时同步通知 GameManager 画布立即关闭
+---@param uiInfo Tables.UIs_Item UI 信息
+---@param rightNow boolean 是否立即关闭
+function UIManager:CloseUI(uiInfo, rightNow)
+    if uiInfo == nil then return end
+    rightNow = rightNow or false
+    GameMainRoot.UI:CloseUIByLuaTable(uiInfo, rightNow)
+    if rightNow then
+        GameManager:OnCanvasCloseRightNow(uiInfo.Name)
+    end
+end
+
+---@brief 通过 LuaClass 关闭 UI
+---@param luaClass table UI 对象 LuaBehaviour 组件的 luaClass
+---@param rightNow boolean 是否立即关闭
+function UIManager:CloseUIByClass(luaClass, rightNow)
+    if luaClass == nil then return end
+    rightNow = rightNow or false
+    GameMainRoot.UI:CloseUIByGO(luaClass.cs.gameObject, rightNow)
+end
+
+---@brief 关闭所有 UI
+---@param uiType Honor.Runtime.UIType UI 类型
+---@param rightNow boolean 是否立即关闭
+function UIManager:CloseAllUIs(uiType, rightNow)
+    rightNow = rightNow or false
+    GameMainRoot.UI:CloseAllUIs(uiType, rightNow)
+end
+
+--endregion
+
+--region UI 坐标转换（拆分自 SystemFuncs）
+
+-- 相机兜底解析（文件内 6 个坐标转换函数复用）
+
+---@brief 解析场景相机入参，为空时取默认场景相机
+---@param sceneCamera UnityEngine.Camera 外部传入的场景相机（可为 nil）
+---@return UnityEngine.Camera 实际使用的场景相机
+local function ResolveSceneCamera(sceneCamera)
+    if sceneCamera == nil then
+        sceneCamera = GameMainRoot.Scene.SceneCameras[0]
+    end
+    return sceneCamera
+end
+
+---@brief 解析 UI 相机入参，为空时取默认 UI 相机
+---@param uiCamera UnityEngine.Camera 外部传入的 UI 相机（可为 nil）
+---@return UnityEngine.Camera 实际使用的 UI 相机
+local function ResolveUICamera(uiCamera)
+    if uiCamera == nil then
+        uiCamera = GameMainRoot.UI.ScreenUICameras[0]
+    end
+    return uiCamera
+end
+
+---@brief 世界坐标转换到 UI 坐标
+---@param scenePosition UnityEngine.Vector3 场景相机下的世界坐标
+---@param sceneCamera UnityEngine.Camera 场景相机（默认主相机）
+---@param uiCamera UnityEngine.Camera UI 相机（默认 UI 相机）
+---@return UnityEngine.Vector3 UI 坐标
+function UIManager:SceneToUIPoint(scenePosition, sceneCamera, uiCamera)
+    sceneCamera = ResolveSceneCamera(sceneCamera)
+    uiCamera = ResolveUICamera(uiCamera)
+    return uiCamera:ScreenToWorldPoint(sceneCamera:WorldToScreenPoint(scenePosition))
+end
+
+---@brief UI 坐标转换到世界坐标
+---@param uiPosition UnityEngine.Vector3 UI 坐标
+---@param sceneCamera UnityEngine.Camera 场景相机
+---@param uiCamera UnityEngine.Camera UI 相机
+---@return UnityEngine.Vector3 世界坐标
+function UIManager:UIToScenePoint(uiPosition, sceneCamera, uiCamera)
+    sceneCamera = ResolveSceneCamera(sceneCamera)
+    uiCamera = ResolveUICamera(uiCamera)
+    return sceneCamera:ScreenToWorldPoint(uiCamera:WorldToScreenPoint(uiPosition))
+end
+
+---@brief 世界坐标转换到屏幕坐标
+---@param scenePosition UnityEngine.Vector3 世界坐标
+---@param sceneCamera UnityEngine.Camera 场景相机
+---@return UnityEngine.Vector3 屏幕坐标
+function UIManager:SceneToScreenPoint(scenePosition, sceneCamera)
+    sceneCamera = ResolveSceneCamera(sceneCamera)
+    return sceneCamera:WorldToScreenPoint(scenePosition)
+end
+
+---@brief UI 坐标转换到屏幕坐标
+---@param uiPosition UnityEngine.Vector3 UI 坐标
+---@param uiCamera UnityEngine.Camera UI 相机
+---@return UnityEngine.Vector3 屏幕坐标
+function UIManager:UIToScreenPoint(uiPosition, uiCamera)
+    uiCamera = ResolveUICamera(uiCamera)
+    return uiCamera:WorldToScreenPoint(uiPosition)
+end
+
+---@brief 屏幕坐标转换到世界坐标
+---@param screenPosition UnityEngine.Vector3 屏幕坐标
+---@param sceneCamera UnityEngine.Camera 场景相机
+---@return UnityEngine.Vector3 世界坐标
+function UIManager:ScreenToScenePoint(screenPosition, sceneCamera)
+    sceneCamera = ResolveSceneCamera(sceneCamera)
+    return sceneCamera:ScreenToWorldPoint(screenPosition)
+end
+
+---@brief 屏幕坐标转换到 UI 坐标
+---@param screenPosition UnityEngine.Vector3 屏幕坐标
+---@param uiCamera UnityEngine.Camera UI 相机
+---@return UnityEngine.Vector3 UI 坐标
+function UIManager:ScreenToUIPoint(screenPosition, uiCamera)
+    uiCamera = ResolveUICamera(uiCamera)
+    return uiCamera:ScreenToWorldPoint(screenPosition)
+end
+
+--endregion
+
+--region UI 适配（刘海，拆分自 SystemFuncs）
+
+---@brief 获取刘海适配偏移值（自动适配横竖屏、iOS/Android）
+---@return number 高度/宽度值
+function UIManager:GetBangsNumber()
+    if UIBangsNumber == nil then
+        -- 判断屏幕是横屏还是竖屏
+        local isLandScape = Unity.Screen.width > Unity.Screen.height
+        local safeArea = Unity.Screen.safeArea
+        local canvasRect = HonorRoot.UI.ScreenUICanvas.transform:rectTransform().sizeDelta
+        local bangsNumber = 0
+        PrintDebug("GetBangsNumber SafeArea = " .. safeArea:ToString())
+        if isLandScape then
+            bangsNumber = Unity.Screen.width - safeArea.width
+        else
+            bangsNumber = Unity.Screen.height - safeArea.height
+        end
+        -- 平台适配系数
+        if Unity.Application.platform == Unity.RuntimePlatform.IPhonePlayer then
+            bangsNumber = bangsNumber * 0.5
+        elseif IsEditor and bangsNumber >= 100 then
+            bangsNumber = bangsNumber * 0.5
+        end
+        -- 转换为 UI 画布适配值
+        UIBangsNumber = bangsNumber * canvasRect.y / Unity.Screen.height
+        PrintDebug("GetBandLength ActuralRate = " .. UIBangsNumber)
+    end
+    return UIBangsNumber
+end
+
+--endregion
+
+return UIManager

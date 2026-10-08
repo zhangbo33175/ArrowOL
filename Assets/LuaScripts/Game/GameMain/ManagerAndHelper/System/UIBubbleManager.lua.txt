@@ -103,9 +103,7 @@ function UIBubbleManager:ForceCloseBubble(bubbleKey)
     self._activeBubble[bubbleKey] = nil
 
     if bubble then
-        xpcall(function()
-            bubble:OnPutToPool()
-        end, function(err) end)
+        self:_PutBubbleToPool(bubble)
     end
 end
 
@@ -116,6 +114,15 @@ end
 ---=========================================================================
 function UIBubbleManager:CloseBubble(bubble)
     if not bubble then return end
+    self:_PutBubbleToPool(bubble)
+end
+
+---=========================================================================
+--- 静默回收气泡到对象池（ForceCloseBubble/CloseBubble 内部复用）
+---@brief xpcall 包裹调用气泡 OnPutToPool，异常静默不打断关闭流程
+---@param bubble UIBubble 气泡实例
+---=========================================================================
+function UIBubbleManager:_PutBubbleToPool(bubble)
     xpcall(function()
         bubble:OnPutToPool()
     end, function(err) end)

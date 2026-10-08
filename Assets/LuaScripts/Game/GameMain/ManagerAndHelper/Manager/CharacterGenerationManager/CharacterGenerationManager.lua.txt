@@ -163,11 +163,7 @@ function CharacterGenerationManager:GetCharacterConfigsByType(characterType)
     local result = self._characterCfg[characterType]
     if not result then
         result = {}
-        for _, cfg in pairs(Tables.Characters) do
-            if cfg.CharType == characterType then
-                table.insert(result, cfg)
-            end
-        end
+        self:_CollectConfigsByType(characterType, result)
         self._characterCfg[characterType] = result
     end
     return result
@@ -180,6 +176,16 @@ end
 ---@param result table @目标容器
 ---=========================================================================
 function CharacterGenerationManager:CopyCharacterConfigsByType(characterType, result)
+    self:_CollectConfigsByType(characterType, result)
+end
+
+---=========================================================================
+---@brief 按角色类型遍历配置表收集角色配置（内部公共实现）
+---@type fun(characterType:ECharacterType, result:table):void
+---@param characterType ECharacterType @角色类型
+---@param result table @目标容器（追加写入）
+---=========================================================================
+function CharacterGenerationManager:_CollectConfigsByType(characterType, result)
     for _, cfg in pairs(Tables.Characters) do
         if cfg.CharType == characterType then
             table.insert(result, cfg)
@@ -195,17 +201,9 @@ end
 ---@return CharacterBase @角色实例
 ---=========================================================================
 function CharacterGenerationManager:GetCharacter(characterType, id)
-    local guests = self:GetCharactersByType(characterType)
-    if guests and guests:Count() > 0 then
-        for i = 1, #guests.items do
-            ---@type CharacterGuest
-            local chara = guests.items[i]
-            if chara:GetGuestId() == id then
-                return chara
-            end
-        end
-    end
-    return nil
+    return self:_FindCharacter(characterType, function(chara)
+        return chara:GetGuestId() == id
+    end)
 end
 
 ---=========================================================================
@@ -216,12 +214,25 @@ end
 ---@return CharacterBase @角色实例
 ---=========================================================================
 function CharacterGenerationManager:GetCharacterByCharaId(characterType, id)
+    return self:_FindCharacter(characterType, function(chara)
+        return chara._CharData.ID == id
+    end)
+end
+
+---=========================================================================
+---@brief 按类型遍历已生成角色并按断言匹配（内部公共实现）
+---@type fun(characterType:ECharacterType, matchFn:function):CharacterBase
+---@param characterType ECharacterType @角色类型
+---@param matchFn fun(chara:CharacterBase):boolean @匹配断言
+---@return CharacterBase @首个匹配角色，无则返回nil
+---=========================================================================
+function CharacterGenerationManager:_FindCharacter(characterType, matchFn)
     local guests = self:GetCharactersByType(characterType)
     if guests and guests:Count() > 0 then
         for i = 1, #guests.items do
-            ---@type CharacterGuest
+            ---@type CharacterBase
             local chara = guests.items[i]
-            if chara._CharData.ID == id then
+            if matchFn(chara) then
                 return chara
             end
         end

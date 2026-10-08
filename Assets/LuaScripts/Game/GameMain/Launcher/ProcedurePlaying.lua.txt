@@ -15,6 +15,18 @@
 ---@class ProcedurePlaying : ProcedureSuper 游戏主运行流程
 local ProcedurePlaying = class('ProcedurePlaying', import('ProcedureSuper'))
 
+---@brief 构造本流程事件监听列表
+---@desc OnEnter 防御式注册（先 Remove 后 Add）与 OnLeave 注销共用同一份列表，保证三处事件一致
+---@param self ProcedurePlaying 流程实例
+---@return table<{string, table}> 监听列表，每项 {事件名, handler}
+local function BuildEventListenerList(self)
+    return {
+        {FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback)},
+        {FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback)},
+        {FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback)},
+    }
+end
+
 --region 【构造 & 实例化】
 
 ---@brief 构造函数
@@ -42,15 +54,10 @@ end
 function ProcedurePlaying:OnEnter(ownerMachine)
     ProcedurePlaying.super.OnEnter(self, ownerMachine)
 
-    -- 安全注册事件（防止重复注册）
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
-    HonorEventHelper:AddListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
-
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
-    HonorEventHelper:AddListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
-
-    HonorEventHelper:RemoveListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
-    HonorEventHelper:AddListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
+    -- 安全注册事件（防止重复注册）：先清后注，注册与注销共用同一份监听列表
+    local listeners = BuildEventListenerList(self)
+    HonorEventHelper:RemoveListenerBatch(listeners)
+    HonorEventHelper:AddListenerBatch(listeners)
 
     -- 切换流程时自动清理加载内容
     if self.cs then
@@ -86,9 +93,7 @@ function ProcedurePlaying:OnLeave(ownerMachine)
     ProcedurePlaying.super.OnLeave(self, ownerMachine)
 
     -- 安全注销所有事件（防止内存泄漏 & 重复调用）
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
-    HonorEventHelper:RemoveListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
+    HonorEventHelper:RemoveListenerBatch(BuildEventListenerList(self))
 end
 
 --endregion
@@ -125,7 +130,7 @@ function ProcedurePlaying:UiViewCloseEventCallback(args)
     if not args then return end
     if UIs and UIs[args] then
         AllOpenUI[args] = nil
-        HonorEventHelper:Fire(EventCmd.UIGameViewClose)
+        HonorEventHelper:Fire(UIEventCode.UIGameViewClose)
     end
 end
 
@@ -136,7 +141,7 @@ function ProcedurePlaying:UiViewOpenEventCallback(args)
     if not args then return end
     if UIs and UIs[args] then
         AllOpenUI[args] = true
-        HonorEventHelper:Fire(EventCmd.UIGameViewOpen)
+        HonorEventHelper:Fire(UIEventCode.UIGameViewOpen)
     end
 end
 

@@ -83,29 +83,29 @@ namespace Honor.Editor
         /// </summary>
         private void OnEnable()
         {
-            m_ScreenDesignedResolution      = serializedObject.FindProperty("m_ScreenDesignedResolution");
-            m_ScreenWidthHeightMatchValue   = serializedObject.FindProperty("m_ScreenWidthHeightMatchValue");
-            m_DestroyMaxNumPerFrame         = serializedObject.FindProperty("m_DestroyMaxNumPerFrame");
+            m_ScreenDesignedResolution      = BindProperty("m_ScreenDesignedResolution");
+            m_ScreenWidthHeightMatchValue   = BindProperty("m_ScreenWidthHeightMatchValue");
+            m_DestroyMaxNumPerFrame         = BindProperty("m_DestroyMaxNumPerFrame");
 
-            m_WaitingUIABPath               = serializedObject.FindProperty("m_WaitingUIABPath");
-            m_WaitingUIAssetName            = serializedObject.FindProperty("m_WaitingUIAssetName");
+            m_WaitingUIABPath               = BindProperty("m_WaitingUIABPath");
+            m_WaitingUIAssetName            = BindProperty("m_WaitingUIAssetName");
 
-            m_FloatWordsUIABPath            = serializedObject.FindProperty("m_FloatWordsUIABPath");
-            m_FloatWordsUIAssetName         = serializedObject.FindProperty("m_FloatWordsUIAssetName");
-            m_FloatWordsDuration            = serializedObject.FindProperty("m_FloatWordsDuration");
+            m_FloatWordsUIABPath            = BindProperty("m_FloatWordsUIABPath");
+            m_FloatWordsUIAssetName         = BindProperty("m_FloatWordsUIAssetName");
+            m_FloatWordsDuration            = BindProperty("m_FloatWordsDuration");
 
-            m_ButtonInteractDuration        = serializedObject.FindProperty("m_ButtonInteractDuration");
+            m_ButtonInteractDuration        = BindProperty("m_ButtonInteractDuration");
 
-            m_ScreenUICameras               = serializedObject.FindProperty("m_ScreenUICameras");
-            m_SceneUICameras                = serializedObject.FindProperty("m_SceneUICameras");
+            m_ScreenUICameras               = BindProperty("m_ScreenUICameras");
+            m_SceneUICameras                = BindProperty("m_SceneUICameras");
 
-            m_ScreenUICanvas                = serializedObject.FindProperty("m_ScreenUICanvas");
-            m_SceneUICanvas                 = serializedObject.FindProperty("m_SceneUICanvas");
+            m_ScreenUICanvas                = BindProperty("m_ScreenUICanvas");
+            m_SceneUICanvas                 = BindProperty("m_SceneUICanvas");
 
-            m_WebUICanvas                   = serializedObject.FindProperty("m_WebUICanvas");
-            m_CheckOrientationState         = serializedObject.FindProperty("m_CheckOrientationState");
+            m_WebUICanvas                   = BindProperty("m_WebUICanvas");
+            m_CheckOrientationState         = BindProperty("m_CheckOrientationState");
 
-            m_CheckTextLocalizings          = serializedObject.FindProperty("m_CheckTextLocalizings");
+            m_CheckTextLocalizings          = BindProperty("m_CheckTextLocalizings");
         }
         #endregion
 
@@ -551,7 +551,7 @@ namespace Honor.Editor
             // 文件头
             luaBuilder
                 .AppendLine("--=====================================================================================================")
-                .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+                .AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime")
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine("-- ----------------------------------------------------------------------------------------------------")
                 .AppendLine(AorTxt.Format("-- filename:  {0}.lua", luaFileName))

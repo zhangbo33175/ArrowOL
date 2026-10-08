@@ -467,9 +467,9 @@ namespace Honor.Editor
             });
 
             object[] results = luaEnv.DoString(AorTxt.Format(@"
-                require('Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt')
-                local Base64 = require('Assets/LuaScripts/Honor/Singleton/Systems/thirds/SystemBase64.lua.txt')
-                local protoc = require('Assets/LuaScripts/Honor/Singleton/Systems/thirds/SystemProtoc.lua.txt')
+                require('Assets/LuaScripts/Honor/HonorCore/Systems/libs/SystemFuncs.lua.txt')
+                local Base64 = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemBase64.lua.txt')
+                local protoc = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemProtoc.lua.txt')
                 local proto = require('Assets/LuaScripts/Game/PBData/Proto/{0}.proto.lua.txt')
                 assert(protoc: load(proto))
                 local pb = require 'pb'
@@ -500,9 +500,9 @@ namespace Honor.Editor
             if(File.Exists(protoLuaFilePath))
             {
                 object[] results = luaEnv.DoString(AorTxt.Format(@"
-                    require('Assets/LuaScripts/Honor/Singleton/Systems/libs/SystemFuncs.lua.txt')
-                    local Base64 = require('Assets/LuaScripts/Honor/Singleton/Systems/thirds/SystemBase64.lua.txt')
-                    local protoc = require('Assets/LuaScripts/Honor/Singleton/Systems/thirds/SystemProtoc.lua.txt')
+                    require('Assets/LuaScripts/Honor/HonorCore/Systems/libs/SystemFuncs.lua.txt')
+                    local Base64 = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemBase64.lua.txt')
+                    local protoc = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemProtoc.lua.txt')
                     local proto = require('{0}')
                     assert(protoc: load(proto))
                     local pb = require 'pb'

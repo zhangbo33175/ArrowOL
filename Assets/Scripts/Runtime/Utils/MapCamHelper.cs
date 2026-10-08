@@ -91,14 +91,7 @@ namespace GameLib
             }
 
             var seq = LookMapAnim(mapCamData.posX, mapCamData.posY, mapCamData.size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -114,14 +107,7 @@ namespace GameLib
             }
 
             var seq = LookMapAnim(posX, posY, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -145,14 +131,7 @@ namespace GameLib
             }
 
             var seq = LookMapAnim(posX, posY, CurCamSize, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -162,14 +141,7 @@ namespace GameLib
         {
             var camPos = CurCamPos;
             var seq = LookMapAnim(camPos.x, camPos.y, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -179,14 +151,7 @@ namespace GameLib
         {
             var camPos = CurCamPos;
             var seq = LookMapAnim(camPos.x, posY, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -196,14 +161,7 @@ namespace GameLib
         {
             var camPos = CurCamPos;
             var seq = LookMapAnim(posX, camPos.y, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -228,19 +186,38 @@ namespace GameLib
                 !Mathf.Approximately(mapCamPos.y, posY) ||
                 !Mathf.Approximately(CurCamSize, size))
             {
-                var seq = DOTween.Sequence();
-                var action0 = MapCamera.transform.DOLocalMoveX(posX, animTime);
-                var action1 = MapCamera.transform.DOLocalMoveY(posY, animTime);
-                var action2 = MapCamera.DOOrthoSize(size, animTime);
-                seq.Insert(0, action0);
-                seq.Insert(0, action1);
-                seq.Insert(0, action2);
+                Sequence sequence = DOTween.Sequence();
+                Tween moveXTween = MapCamera.transform.DOLocalMoveX(posX, animTime);
+                Tween moveYTween = MapCamera.transform.DOLocalMoveY(posY, animTime);
+                Tween sizeTween = MapCamera.DOOrthoSize(size, animTime);
+                sequence.Insert(0, moveXTween);
+                sequence.Insert(0, moveYTween);
+                sequence.Insert(0, sizeTween);
 
-                return seq;
+                return sequence;
             }
             else
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// 播放相机动画序列，并在播放完成后触发回调
+        /// <para>动画序列为 null 时表示无需移动（当前位置与目标一致），直接触发回调</para>
+        /// <para>所有 LookMap* 公开方法共用的统一动画驱动入口，避免重复逻辑</para>
+        /// </summary>
+        /// <param name="sequence">待播放的相机动画序列；null 表示无需播放</param>
+        /// <param name="finishCallback">动画播放完成后的回调</param>
+        private static void PlayCameraAnimation(Sequence sequence, Action finishCallback)
+        {
+            if (sequence != null)
+            {
+                sequence.Play().OnComplete(() => finishCallback?.Invoke());
+            }
+            else
+            {
+                finishCallback?.Invoke();
             }
         }
         #endregion

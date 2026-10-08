@@ -1,0 +1,101 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  HonorNotificationHelper.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   推送通知助手（本地/远程推送管理）
+-- 功能：
+-- 1. 本地定时推送通知（离线消息、活动提醒、回归提醒）
+-- 2. 跨平台推送开关控制（iOS / Android 分开配置）
+-- 3. 定时轮询拉取后台通知消息
+-- 4. 领奖通知、运营活动推送协议交互
+-- 5. 推送状态数据存档、读取、清空管理
+-- 适用：游戏离线推送、活动提醒、奖励领取提醒
+--=====================================================================================================
+
+--region 推送通知管理助手（本地+远程推送统一入口）
+---@class HonorNotificationHelper 推送通知管理助手（本地+远程推送统一入口）
+local HonorNotificationHelper = class("HonorNotificationHelper")
+
+---@brief 构造函数
+--- 初始化推送配置、计数变量、启动监听与定时轮询
+---@param args table 可选初始化参数
+function HonorNotificationHelper:ctor(args)
+    --- 发送通知达到上限条数后，强制刷新系统推送
+    self._nativeNotificationMessageMaxCount = 5
+    --- 通知轮询检测间隔（秒）
+    self._nativeNotificationMessageTimeDelta = 30
+    --- 当前已发送通知计数
+    self._nativeNotificationMessageCurCount = 0
+    --- 初始化事件监听与定时任务
+    self:Init()
+end
+
+---@brief 创建推送助手实例
+---@param args table 可选初始化参数
+---@return HonorNotificationHelper 推送管理实例
+function HonorNotificationHelper:Create(args)
+    local obj = HonorNotificationHelper.new(args)
+    return obj
+end
+
+---@brief 初始化（注册事件监听 + 启动定时轮询任务）
+function HonorNotificationHelper:Init(args)
+    -- 监听全局通知消息事件，触发拉取逻辑
+    HonorEventHelper:AddListener(EventCmd.NotificationMessage, handler(self, self.RequestNotificationMessage))
+    -- 启动定时轮询：每30秒拉取一次通知，场景锁定不自动删除
+    HonorTimerHelper:RegisterDeltaTime(
+            EventCmd.NotificationMessage,
+            self._nativeNotificationMessageTimeDelta,
+            "ProcedurePlaying",
+            true
+    )
+end
+
+---@brief 检查平台推送总开关是否开启（受系统配置表控制）
+---@return boolean true=推送开启，false=推送关闭
+function HonorNotificationHelper:CheckNotifyFuncIsOpen()
+    if Unity.Application.platform == Unity.RuntimePlatform.Android then
+        return HonorConfigHelper:GetSystemConfig("ANDROID_NOTIFY_FUNCTION_OPEN")
+    elseif Unity.Application.platform == Unity.RuntimePlatform.IPhonePlayer then
+        return HonorConfigHelper:GetSystemConfig("IOS_NOTIFY_FUNCTION_OPEN")
+    else
+        -- 其他平台默认使用Android配置
+        return HonorConfigHelper:GetSystemConfig("ANDROID_NOTIFY_FUNCTION_OPEN")
+    end
+end
+
+---@brief 设置 / 取消 本地定时推送通知
+---@param messageType number 消息类型（>0，用于区分活动/奖励/回归等）
+---@param isCancel boolean 是否取消该类型通知（true=取消，false=添加）
+---@param titleIDS string 后台多语言配置ID组，格式示例："1001,2001"
+---@param UTC0TimeStamp number 通知触发时间戳（UTC0标准时间），取消时可不传
+function HonorNotificationHelper:SetNotificationMessage(messageType, isCancel, titleIDS, UTC0TimeStamp)
+end
+
+---@brief 主动请求拉取后台通知消息（手动刷新通知）
+function HonorNotificationHelper:RequestNotificationMessage()
+end
+
+---@brief 发送【领奖类通知】回执协议
+--- 作用：告知服务器该奖励已领取，停止重复推送
+---@param flagType number 奖励类型标识（每日奖励/限时奖励/活动奖励等）
+function HonorNotificationHelper:SendRewardNotificationMessage(flagType)
+end
+
+---@brief 获取通知模块存档数据（记录已读、已发送、已领取状态）
+---@return table 通知存档数据结构
+function HonorNotificationHelper:GetNotificationSaveData()
+end
+
+---@brief 清空所有通知模块存档数据（重置推送状态）
+function HonorNotificationHelper:ClearNotificationData()
+end
+
+---@brief 检测当前是否需要主动拉取通知（条件：开关开启+达到计数/时间条件）
+function HonorNotificationHelper:IsNeedRequestNotificationMessage()
+end
+--endregion
+
+return HonorNotificationHelper

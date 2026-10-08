@@ -43,29 +43,34 @@ end
 function GameLoadMapStateBase:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
 
-    -- 打开加载界面
-    self:OpenLoadingUI()
+    -- 打开加载界面，记录实例用于进度更新
+    self._LoadMapView = self:OpenLoadingUI()
 
     -- 启动独立协程执行地图加载
     HonorCoroutineHelper:StartAlone(function()
         -- 目标地图与当前相同 → 不重复加载
         if MapManager.CurLoadChapterId == MapManager.ReadyLoadChapterId then
+            self:UpdateLoadProgress(1.0)
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
             self:LoadMapOver(finishCallback)
         else
             -- 卸载旧地图
+            self:UpdateLoadProgress(0.2)
             MapManager:UnloadOldMap()
             HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
 
             -- 准备加载新地图
+            self:UpdateLoadProgress(0.5)
             PrintInfo("准备加载地图 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
 
             -- 执行地图加载
+            self:UpdateLoadProgress(0.8)
             MapManager:LoadReadyMap(nil)
             PrintInfo("准备加载地图完毕 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
 
             -- 登录态快速切换，其他状态延迟 1 秒提升体验
+            self:UpdateLoadProgress(0.95)
             if GameStateMachine:PreStateType() == GameStateCmd.LoginState then
                 HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
                 PrintInfo("地图加载完毕，准备切换状态机 pre LoginState")
@@ -75,6 +80,7 @@ function GameLoadMapStateBase:OnStateEnter(finishCallback)
             end
 
             -- 加载完成
+            self:UpdateLoadProgress(1.0)
             self:LoadMapOver(finishCallback)
         end
     end)
@@ -89,9 +95,7 @@ end
 ---@param finishCallback function 退出完成回调
 function GameLoadMapStateBase:OnStateExit(finishCallback)
     self:CloseLoadingUI()
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 --endregion
@@ -99,15 +103,25 @@ end
 --region 【加载界面（子类可重写）】
 
 ---@brief 打开加载UI
----@type fun():void
+---@type fun():UILoadMapView
+---@return UILoadMapView 加载界面实例（用于进度更新）
 function GameLoadMapStateBase:OpenLoadingUI()
-    OpenUISync(UIs.UILoadMapView)
+    return OpenUISync(UIs.UILoadMapView)
 end
 
 ---@brief 关闭加载UI
 ---@type fun():void
 function GameLoadMapStateBase:CloseLoadingUI()
     CloseUI(UIs.UILoadMapView)
+end
+
+---@brief 推进加载界面进度（空安全）
+---@type fun(progress:number):void
+---@param progress number 目标进度（0-1）
+function GameLoadMapStateBase:UpdateLoadProgress(progress)
+    if self._LoadMapView and self._LoadMapView.UpdateLoadProgress then
+        self._LoadMapView:UpdateLoadProgress(progress)
+    end
 end
 
 --endregion

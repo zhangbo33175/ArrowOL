@@ -237,12 +237,49 @@ public class MapCamData
 
     #region 相机位置计算方法
     /// <summary>
+    /// 世界坐标换算系数：将「视图宽高比 × 相机Size」放大 100 倍，用于整数化世界宽度计算
+    /// </summary>
+    private const float k_WorldViewScaleFactor = 100f;
+
+    /// <summary>
+    /// 世界半宽换算除数：ViewWorldWidth / 200 得到可视半宽（等价于 2 × 换算系数）
+    /// </summary>
+    private const float k_HalfViewDivisor = 200f;
+
+    /// <summary>
+    /// 像素高度 → 世界坐标换算系数（1/100）
+    /// </summary>
+    private const float k_PixelToWorldScale = 0.01f;
+
+    /// <summary>
+    /// 计算当前相机在指定视图尺寸下的可视世界宽度
+    /// 公式：视口宽高比 × 相机Size × 2 × 100（兼容旧全屏逻辑，结果为「世界坐标 × 100」）
+    /// </summary>
+    /// <param name="viewSize">视图尺寸（宽/高）</param>
+    /// <returns>可视世界宽度（放大 100 倍后的值）</returns>
+    private float CalcViewWorldWidth(Vector2 viewSize)
+    {
+        return viewSize.x / viewSize.y * size * 2f * k_WorldViewScaleFactor;
+    }
+
+    /// <summary>
+    /// 计算当前相机可视范围的半宽（世界坐标）
+    /// 用于相机 X 轴左右边界的偏移定位
+    /// </summary>
+    /// <param name="viewSize">视图尺寸（宽/高）</param>
+    /// <returns>可视半宽（世界坐标）</returns>
+    private float CalcViewHalfWorldWidth(Vector2 viewSize)
+    {
+        return CalcViewWorldWidth(viewSize) / k_HalfViewDivisor;
+    }
+
+    /// <summary>
     /// 标准化调整相机Y轴位置
     /// </summary>
     /// <param name="designHeight">设计高度</param>
     public void NormalAdjustPosY(float designHeight)
     {
-        posY = (size * 2 - designHeight * 0.01f) * 0.5f;
+        posY = (size * 2f - designHeight * k_PixelToWorldScale) * 0.5f;
     }
 
     /// <summary>
@@ -252,9 +289,7 @@ public class MapCamData
     /// <param name="mapLeftWorldPosX">地图左边界世界X坐标</param>
     public void NormalAdjustLeftPosX(Vector2 viewSize, float mapLeftWorldPosX)
     {
-        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        posX = mapLeftWorldPosX + viewBoundPosX;
+        posX = mapLeftWorldPosX + CalcViewHalfWorldWidth(viewSize);
     }
 
     /// <summary>
@@ -262,9 +297,7 @@ public class MapCamData
     /// </summary>
     public void NormalAdjustLeftPosX_Viewport(Vector2 viewportSize, float mapLeftWorldPosX)
     {
-        var viewWidth = viewportSize.x / viewportSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        posX = mapLeftWorldPosX + viewBoundPosX;
+        posX = mapLeftWorldPosX + CalcViewHalfWorldWidth(viewportSize);
     }
 
     /// <summary>
@@ -274,9 +307,7 @@ public class MapCamData
     /// <param name="mapRightWorldPosX">地图右边界世界X坐标</param>
     public void NormalAdjustRightPosX(Vector2 viewSize, float mapRightWorldPosX)
     {
-        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        posX = mapRightWorldPosX - viewBoundPosX;
+        posX = mapRightWorldPosX - CalcViewHalfWorldWidth(viewSize);
     }
 
     /// <summary>
@@ -284,9 +315,7 @@ public class MapCamData
     /// </summary>
     public void NormalAdjustRightPosX_Viewport(Vector2 viewportSize, float mapRightWorldPosX)
     {
-        var viewWidth = viewportSize.x / viewportSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        posX = mapRightWorldPosX - viewBoundPosX;
+        posX = mapRightWorldPosX - CalcViewHalfWorldWidth(viewportSize);
     }
 
     /// <summary>
@@ -304,8 +333,7 @@ public class MapCamData
             return;
         }
 
-        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
-        var viewBoundPosX = playPosX + viewWidth / 200;
+        var viewBoundPosX = playPosX + CalcViewHalfWorldWidth(viewSize);
 
         if (viewBoundPosX > mapRightWorldPosX)
             posX = playPosX + mapRightWorldPosX - viewBoundPosX;
@@ -324,8 +352,7 @@ public class MapCamData
             return;
         }
 
-        var viewWidth = viewportSize.x / viewportSize.y * size * 2 * 100;
-        var viewBoundPosX = playPosX + viewWidth / 200;
+        var viewBoundPosX = playPosX + CalcViewHalfWorldWidth(viewportSize);
 
         if (viewBoundPosX > mapRightWorldPosX)
             posX = playPosX + mapRightWorldPosX - viewBoundPosX;
@@ -340,7 +367,7 @@ public class MapCamData
     /// <param name="distance">距离底部高度</param>
     public void PlayAdjustPosY(MapCamData normalCamData, float distance)
     {
-        posY = distance * 0.01f - (normalCamData.size - size) + normalCamData.posY;
+        posY = distance * k_PixelToWorldScale - (normalCamData.size - size) + normalCamData.posY;
     }
     #endregion
 }
@@ -453,13 +480,53 @@ public class MapData : MonoBehaviour
 
     #region 公共工具方法
     /// <summary>
+    /// 世界坐标换算系数：将「视图宽高比 × 相机Size」放大 100 倍，用于整数化世界宽度计算
+    /// </summary>
+    private const float k_WorldViewScaleFactor = 100f;
+
+    /// <summary>
+    /// 世界半宽换算除数：ViewWorldWidth / 200 得到可视半宽（等价于 2 × 换算系数）
+    /// </summary>
+    private const float k_HalfViewDivisor = 200f;
+
+    /// <summary>
+    /// 大厅标准相机 Size 默认值（旧接口返回的固定值，兼容历史调用）
+    /// </summary>
+    private const float k_DefaultNormalCamSize = 1024f;
+
+    /// <summary>
+    /// 计算指定相机 Size 在指定视图尺寸下的可视世界宽度
+    /// 公式：视口宽高比 × 相机Size × 2 × 100（兼容旧全屏逻辑，结果为「世界坐标 × 100」）
+    /// </summary>
+    /// <param name="camSize">相机正交 Size</param>
+    /// <param name="viewSize">视图尺寸（宽/高）</param>
+    /// <returns>可视世界宽度（放大 100 倍后的值）</returns>
+    private float CalcViewWorldWidth(float camSize, Vector2 viewSize)
+    {
+        return viewSize.x / viewSize.y * camSize * 2f * k_WorldViewScaleFactor;
+    }
+
+    /// <summary>
+    /// 计算指定相机 Size 的可视半宽（世界坐标）
+    /// 用于相机 X 轴左右边界的偏移定位
+    /// </summary>
+    /// <param name="camSize">相机正交 Size</param>
+    /// <param name="viewSize">视图尺寸（宽/高）</param>
+    /// <returns>可视半宽（世界坐标）</returns>
+    private float CalcViewHalfWorldWidth(float camSize, Vector2 viewSize)
+    {
+        return CalcViewWorldWidth(camSize, viewSize) / k_HalfViewDivisor;
+    }
+
+    /// <summary>
     /// 获取大厅标准相机正交Size
+    /// <para>旧全屏逻辑接口：固定返回默认大厅相机Size（1024），供兼容历史调用</para>
     /// </summary>
     /// <param name="viewSize">视图尺寸</param>
     /// <returns>相机Size</returns>
     public float NormalCamSize(Vector2 viewSize)
     {
-        return 1024f;
+        return k_DefaultNormalCamSize;
     }
 
     /// <summary>
@@ -511,10 +578,7 @@ public class MapData : MonoBehaviour
     public float PlayHudRightViewWorldPosX()
     {
         var viewSize = Util.GameViewSize();
-        var size = m_PlayCamData.size;
-        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        return m_PlayCamData.posX + viewBoundPosX;
+        return m_PlayCamData.posX + CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
     }
 
     /// <summary>
@@ -523,10 +587,7 @@ public class MapData : MonoBehaviour
     public float PlayHudRightViewWorldPosX_Viewport()
     {
         var viewSize = GetMapViewportSize();
-        var size = m_PlayCamData.size;
-        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        return m_PlayCamData.posX + viewBoundPosX;
+        return m_PlayCamData.posX + CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
     }
 
     /// <summary>
@@ -535,10 +596,7 @@ public class MapData : MonoBehaviour
     public float PlayHudLeftViewWorldPosX()
     {
         var viewSize = Util.GameViewSize();
-        var size = m_PlayCamData.size;
-        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        return m_PlayCamData.posX - viewBoundPosX;
+        return m_PlayCamData.posX - CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
     }
 
     /// <summary>
@@ -547,10 +605,7 @@ public class MapData : MonoBehaviour
     public float PlayHudLeftViewWorldPosX_Viewport()
     {
         var viewSize = GetMapViewportSize();
-        var size = m_PlayCamData.size;
-        var viewWidth = viewSize.x / viewSize.y * size * 2 * 100;
-        var viewBoundPosX = viewWidth / 200;
-        return m_PlayCamData.posX - viewBoundPosX;
+        return m_PlayCamData.posX - CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
     }
     #endregion
 }

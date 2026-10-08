@@ -53,9 +53,11 @@ function SaveDataHelper:SaveSignInInfos(returnData)
     if returnData.create_time and returnData.create_time > 0 then
         local time = returnData.create_time
         SaveRootData.UserData.regTime.utc0 = time
-        SaveRootData.UserData.regTime.utc0String = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", time)
+        SaveRootData.UserData.regTime.utc0String =
+            HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", time)
         SaveRootData.UserData.regTime.locality = HonorTimerHelper:GetLocalTimeStamp(time)
-        SaveRootData.UserData.regTime.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", SaveRootData.UserData.regTime.locality)
+        SaveRootData.UserData.regTime.localString =
+            HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", SaveRootData.UserData.regTime.locality)
         SaveIO.UserData.Save_regTime()
     end
 
@@ -69,9 +71,11 @@ function SaveDataHelper:SaveSignInInfos(returnData)
 
         local currLoginTime = returnData.login_time
         SaveRootData.UserData.loginTime.current.utc0 = currLoginTime
-        SaveRootData.UserData.loginTime.current.utc0String = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", currLoginTime)
+        SaveRootData.UserData.loginTime.current.utc0String =
+            HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", currLoginTime)
         SaveRootData.UserData.loginTime.current.locality = HonorTimerHelper:GetLocalTimeStamp(currLoginTime)
-        SaveRootData.UserData.loginTime.current.localString = HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", SaveRootData.UserData.loginTime.current.locality)
+        SaveRootData.UserData.loginTime.current.localString =
+            HonorTimerHelper:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", SaveRootData.UserData.loginTime.current.locality)
         SaveIO.UserData.Save_loginTime()
     end
 

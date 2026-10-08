@@ -210,7 +210,12 @@ namespace Honor.Runtime
             m_OwnEnv.Set("lua", m_OwnEnv);
             m_OwnEnv.Set("cs", this);
 
-            // 加载Lua流程类
+            // 加载Lua流程类（防御：委托未绑定则明确报错，避免 NullReference 掩盖真因）
+            if (luaSystem.LuaCreateProcedureLuaClassFromCSEventDelegate == null)
+            {
+                Log.Error("流程 Lua 绑定回调 CreatePocedureLuaClassFromCS 未绑定，无法加载流程脚本 '{0}'。请检查 Lua 入口是否已加载 SystemBridges.lua 或 LuaComponent.InitLuaBindings 前置委托绑定是否失败。", m_LuaScriptName);
+                return;
+            }
             luaSystem.LuaCreateProcedureLuaClassFromCSEventDelegate(m_OwnEnv, m_LuaScriptName);
 
             // 绑定生命周期

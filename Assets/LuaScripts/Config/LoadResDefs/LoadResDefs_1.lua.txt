@@ -22,6 +22,9 @@ LoadRes["GameObject_ItemMap"] = { Name = "GameObject_ItemMap", TypeName = "GameO
 ---@field GameObject_SectionItem LOAD_RES_DEF_ITEM @文件 SectionItem
 LoadRes["GameObject_SectionItem"] = { Name = "GameObject_SectionItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UILevelView/SectionItem", AssetName = "SectionItem" }
 
+---@field GameObject_CollectItem LOAD_RES_DEF_ITEM @文件 CollectItem
+LoadRes["GameObject_CollectItem"] = { Name = "GameObject_CollectItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UILevelView/CollectItem", AssetName = "CollectItem" }
+
 ---@field Sprite_Level_bg_main_1 LOAD_RES_DEF_ITEM @文件 Level_bg_main_1
 LoadRes["Sprite_Level_bg_main_1"] = { Name = "Sprite_Level_bg_main_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main_1", AssetName = "Level_bg_main_1" }
 

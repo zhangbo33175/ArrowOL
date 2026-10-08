@@ -69,6 +69,11 @@
 ---@field _elementCollectionInterval number @元素收集间隔时间
 local GameMainUIPushManager = class("GameMainUIPushManager", import("Singleton"))
 
+---@brief 引导进行中则返回 false（推送任务前置重检闭包，多处复用）
+local function RecheckNotInTutorial()
+    return not GuideContext:IsTutorialExecute()
+end
+
 --=========================================================================
 --region 生命周期 & 基础函数
 --=========================================================================
@@ -79,10 +84,7 @@ local GameMainUIPushManager = class("GameMainUIPushManager", import("Singleton")
 ---=========================================================================
 function GameMainUIPushManager:ctor(args)
     GameMainUIPushManager.super.ctor(self, args)
-    self._workQueue = {}
-    self._uiMainInHideState = true
-    self._intoMainState = false
-    self._uiMainHudIsStart = false
+    self:_ResetMainStateFields()
     self._elementCollectionList = {}
     self._elementUIBubbleList = {}
     self._elementProcessRefCount = 0
@@ -106,12 +108,20 @@ end
 ---=========================================================================
 function GameMainUIPushManager:ClearData()
     GameMainUIPushManager.super.ClearData(self)
+    self:_ResetMainStateFields()
+    self.Coroutine = nil
+    self:ClearElementData()
+end
+
+---=========================================================================
+--- 重置主界面推送状态字段
+---@brief ctor/ClearData 共用：复位工作队列与主界面状态标记
+---=========================================================================
+function GameMainUIPushManager:_ResetMainStateFields()
     self._workQueue = {}
     self._uiMainInHideState = true
     self._intoMainState = false
     self._uiMainHudIsStart = false
-    self.Coroutine = nil
-    self:ClearElementData()
 end
 
 ---=========================================================================
@@ -119,10 +129,12 @@ end
 ---@brief 注册事件，标记进入主界面
 ---=========================================================================
 function GameMainUIPushManager:OnEnterMainState()
-    HonorEventHelper:AddListener(EventCmd.OnHideMainHudUI, handler(self, self._OnMainHudUIHide))
-    HonorEventHelper:AddListener(EventCmd.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver))
-    HonorEventHelper:AddListener(EventCmd.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI))
-    HonorEventHelper:AddListener(FwEventCmd.UIViewOpen, handler(self, self._UIGameViewOpen))
+    HonorEventHelper:AddListenerBatch({
+        {UIEventCode.OnHideMainHudUI, handler(self, self._OnMainHudUIHide)}, --主界面开始隐藏
+        {UIEventCode.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver)}, --主界面复出动画结束
+        {UIEventCode.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI)}, --恢复被挂起的推送任务
+        {FwEventCmd.UIViewOpen, handler(self, self._UIGameViewOpen)}, --任意UI打开
+    })
     self._intoMainState = true
     self._uiMainHudIsStart = false
 end
@@ -133,10 +145,12 @@ end
 ---=========================================================================
 function GameMainUIPushManager:OnLeaveMainState()
     self._uiMainInHideState = true
-    HonorEventHelper:RemoveListener(EventCmd.OnHideMainHudUI, handler(self, self._OnMainHudUIHide))
-    HonorEventHelper:RemoveListener(EventCmd.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver))
-    HonorEventHelper:RemoveListener(EventCmd.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI))
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self._UIGameViewOpen))
+    HonorEventHelper:RemoveListenerBatch({
+        {UIEventCode.OnHideMainHudUI, handler(self, self._OnMainHudUIHide)},
+        {UIEventCode.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver)},
+        {UIEventCode.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI)},
+        {FwEventCmd.UIViewOpen, handler(self, self._UIGameViewOpen)},
+    })
 end
 
 ---=========================================================================
@@ -245,12 +259,12 @@ end
 function GameMainUIPushManager:_ExchangeMainHubPeaceState(inPeace)
     PrintInfo(string.format("Peace:%s", inPeace))
     if inPeace then
-        HonorEventHelper:FireNow(EventCmd.OnAllowMainHudTutorial, false)
+        HonorEventHelper:FireNow(UIEventCode.OnAllowMainHudTutorial, false)
     end
     ----- 引导期间，也认为是处于非和平状态
     --inPeace = inPeace and not GuideContext:IsTutorialExecute() and MapMotion.IsMapWork
     -----推送主界面状态变更消息
-    --HonorEventHelper:FireNow(EventCmd.OnGameMainHudStateChange, inPeace)
+    --HonorEventHelper:FireNow(UIEventCode.OnGameMainHudStateChange, inPeace)
 end
 --endregion
 
@@ -326,7 +340,7 @@ function GameMainUIPushManager:_Work(from)
             if allow then
                 -- 屏蔽主界面点击
                 if cmd.closeUIMainRaycast then
-                    HonorEventHelper:FireNow(EventCmd.OnUIMainRaycastStateChange, false)
+                    HonorEventHelper:FireNow(UIEventCode.OnUIMainRaycastStateChange, false)
                 end
                 -- 安全执行任务
                 xpcall(function()
@@ -337,7 +351,7 @@ function GameMainUIPushManager:_Work(from)
                 end)
                 -- 恢复点击
                 if cmd.closeUIMainRaycast then
-                    HonorEventHelper:FireNow(EventCmd.OnUIMainRaycastStateChange, true)
+                    HonorEventHelper:FireNow(UIEventCode.OnUIMainRaycastStateChange, true)
                 end
             end
             if cmd.Complete then
@@ -575,7 +589,7 @@ function GameMainUIPushManager:InsertMachineUpgradeUITask(chap)
                 unvaildDiffentLink = true,
                 closeUIMainRaycast = true,
                 Execute = function(c) self:_OnMachineUpgradeUI(c, 1) end,
-                Recheck = function() return not GuideContext:IsTutorialExecute() end
+                Recheck = RecheckNotInTutorial,
             })
         end
     end
@@ -603,7 +617,7 @@ function GameMainUIPushManager:InsertMachineUpgradeUIFromFailTask(chap)
             unvaildDiffentLink = true,
             closeUIMainRaycast = true,
             Execute = function(c) self:_OnMachineUpgradeUI(c, 2) end,
-            Recheck = function() return not GuideContext:IsTutorialExecute() end
+            Recheck = RecheckNotInTutorial,
         })
     end
 end

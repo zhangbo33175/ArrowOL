@@ -15,6 +15,17 @@
 ---@class GameStateMachine 游戏业务状态机（全局唯一）
 local GameStateMachine = class('GameStateMachine')
 
+--region 【内部工具】
+
+---@brief 状态切换早退时安全触发完成回调（ChangeState 重复/失败分支复用）
+---@type fun(finishCallback:function):void
+---@param finishCallback function 切换完成回调
+local function SafeCallChangeFinish(finishCallback)
+    SafeCallFinish(finishCallback)
+end
+
+--endregion
+
 --region 【构造 & 单例】
 
 ---@brief 构造函数
@@ -79,9 +90,7 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
     -- 1. 已经是目标状态，直接返回
     if nextStateCmd == self:CurrentStateType() then
         PrintWarning("游戏状态已经是 [{0}]", tostring(nextStateCmd))
-        if finishCallback then
-            xpcall(finishCallback, __G__TRACK_BACK__)
-        end
+        SafeCallChangeFinish(finishCallback)
         return
     end
 
@@ -89,9 +98,7 @@ function GameStateMachine:ChangeState(nextStateCmd, finishCallback)
     local nextState = self._stateMap[nextStateCmd]
     if not nextState then
         PrintError("游戏状态没有注册 [{0}]  -- 切换状态失败", tostring(nextStateCmd))
-        if finishCallback then
-            xpcall(finishCallback, __G__TRACK_BACK__)
-        end
+        SafeCallChangeFinish(finishCallback)
         return
     end
 

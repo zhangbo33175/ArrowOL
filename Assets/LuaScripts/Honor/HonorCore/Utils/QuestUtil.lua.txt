@@ -1,0 +1,40 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  QuestUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     任务 / 事件派发工具类
+-- @desc      从 GameFunctions 拆分：任务进度派发、清空事件
+-- @note      事件派发依赖业务事件码 EventCmd（业务事件定义），仅业务层已加载时可用
+-- @dependency HonorEventHelper, EventCmd
+--=====================================================================================================
+
+local QuestUtil = {}
+
+--region 任务 / 事件派发
+
+--=====================================================================================================
+-- 任务事件工具：任务进度派发、清空事件
+--=====================================================================================================
+
+---@brief 派发任务进度更新事件
+---@param subType EDailyQuestSubType 任务子类型
+---@param value number 进度值
+---@param isLatestChapter boolean 是否最新章节
+function QuestUtil.DispatchQuestProgressUpdate(subType, value, isLatestChapter)
+    HonorEventHelper:Fire(EventCmd.OnQuestProgressChange, subType, value, isLatestChapter)
+    PrintInfo(string.format("[Quest] Progress updated: %s, Value: %d, NewChapter: %s", subType, value, tostring(isLatestChapter)))
+end
+
+---@brief 派发任务进度清空事件
+---@param subType EDailyQuestSubType 任务子类型
+---@param isLatestChapter boolean 是否最新章节
+function QuestUtil.DispatchQuestProgressClear(subType, isLatestChapter)
+    HonorEventHelper:Fire(EventCmd.OnClearQuestProgress, subType, isLatestChapter)
+    PrintInfo(string.format("[Quest] Progress cleared: %s", subType))
+end
+
+--endregion
+
+return QuestUtil

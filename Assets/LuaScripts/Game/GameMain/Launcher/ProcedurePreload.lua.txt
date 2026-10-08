@@ -267,7 +267,7 @@ end
 ---@param finishCallback function 显示完成回调
 function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
     if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
-        if finishCallback then xpcall(finishCallback, __G__TRACK_BACK__) end
+        SafeCallFinish(finishCallback)
         return
     end
 
@@ -278,9 +278,7 @@ function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
             SaveIO.GameData.Save_playerInfo_isShowPrivacy()
         end, function() end)
     else
-        if finishCallback then
-            xpcall(finishCallback, __G__TRACK_BACK__)
-        end
+        SafeCallFinish(finishCallback)
     end
 end
 

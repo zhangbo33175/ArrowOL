@@ -15,6 +15,8 @@
 ---@class LevelManager : Singleton 关卡管理器（全局单例）
 local LevelManager = class("LevelManager", import("Singleton"))
 
+--region 【构造与单例】
+
 ---@brief 构造函数
 ---@param args table 自定义参数
 function LevelManager:ctor(args)
@@ -39,8 +41,11 @@ end
 ---@return LevelManager 关卡管理器实例
 function LevelManager:Create(args)
     return LevelManager.new(args)
-
 end
+
+--endregion
+
+--region 【生命周期】
 
 ---@brief 初始化（覆写父类）
 function LevelManager:Init()
@@ -58,6 +63,10 @@ function LevelManager:ClearData()
     self._chapterLevel = ""
 end
 
+--endregion
+
+--region 【数据查询】
+
 ---@brief 获取当前章节关卡展示文本
 ---@return string 关卡展示文本
 function LevelManager:GetChapterLevel()
@@ -70,6 +79,10 @@ function LevelManager:GetCurrentLevelInfo()
     -- 扩展：当前章节、关卡、星级、解锁状态、奖励配置等
     self._chapterLevel = ChapterListManager:GetLevelId()
 end
+
+--endregion
+
+--region 【关卡控制】
 
 ---@brief 设置关卡模式
 ---@param _levelMode ELevelMode 关卡模式枚举
@@ -99,5 +112,7 @@ function LevelManager:LoadMap(callback)
         xpcall(callback, __G__TRACK_BACK__, isSuccess)
     end
 end
+
+--endregion
 
 return LevelManager

@@ -1,0 +1,491 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UIMainPlayingManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     UIMainPlaying 业务管理器
+-- @desc      承载 UIMainPlaying 界面相关业务：事件监听、FishItem 生命周期、按钮动作、界面数据刷新；
+--            视图只负责界面内容，业务统一挂载本管理器
+-- @scope     全局唯一单例，注册于GameRequires，由 UIMainPlaying 视图打开/关闭时挂载卸载
+-- @dependency Singleton, EventCmd, MainPlayingManager, GameCoreManager, GameMapMotion
+--=====================================================================================================
+
+---@class UIMainPlayingManager : Singleton @UIMainPlaying业务管理器
+local UIMainPlayingManager = class("UIMainPlayingManager", import("Singleton"))
+
+--region 构造 & 初始化
+
+---=========================================================================
+---@brief 构造函数
+---@param args table 初始化参数
+---@desc 初始化运行时成员变量，业务初始化交由视图挂载流程 OnViewOpened 执行
+---=========================================================================
+function UIMainPlayingManager:ctor(args)
+    UIMainPlayingManager.super.ctor(self, args)
+    self._view = nil -- 当前挂载的 UIMainPlaying 视图实例
+    --TODO: [修复] 记录创建 FishItem 时返回的视图引用，供 BreakFishItems 反查失败时兜底，避免直接销毁无动画
+    self._fishItemViews = nil -- 创建 FishItem 时保存的视图引用列表（与创建顺序一一对应）
+end
+
+---=========================================================================
+---@brief 创建管理器单例实例
+---@param args table 初始化参数
+---@return UIMainPlayingManager 管理器实例对象
+---=========================================================================
+function UIMainPlayingManager:Create(args)
+    return UIMainPlayingManager.new(args)
+end
+
+---=========================================================================
+---@brief 清理运行时数据
+---@desc 切换场景/游戏重置时调用，仅清空视图引用等运行时状态
+---=========================================================================
+function UIMainPlayingManager:ClearData()
+    UIMainPlayingManager.super.ClearData(self)
+    self._view = nil
+end
+
+--endregion
+
+--region 视图挂载生命周期
+
+---=========================================================================
+---@brief 视图打开时挂载：记录视图实例、注册业务事件监听、初始化界面数据
+---@param view UIMainPlaying 打开的 UIMainPlaying 视图实例
+---@desc 由 UIMainPlaying:Awake 调用；注册的事件监听随视图关闭在 OnViewClosed 统一注销
+--TODO: [迁移] 事件监听由 UIMainPlaying 迁入 Manager 统一管理
+---=========================================================================
+function UIMainPlayingManager:OnViewOpened(view)
+    self._view = view
+    HonorEventHelper:AddListenerBatch({
+        {EventCmd.LifeTransformation, handler(self, self.OnLifeTransformation)}, --生命数变化-刷新 FishItem
+        {EventCmd.OnCharacterCollected, handler(self, self.OnCharacterCollected)}, --角色收集-刷新目标完成数
+        {EventCmd.OnLevelFailure, handler(self, self.OnLevelFailure)}, --关卡失败-消除 FishItem
+    })
+    -- 初始化界面数据
+    self:RefreshAll()
+end
+
+---=========================================================================
+---@brief 视图开始后调用：按当前生命数加载 FishItem
+---@desc 由 UIMainPlaying:Start 调用
+---=========================================================================
+function UIMainPlayingManager:OnViewStart()
+    self:CreateFishItems(MainPlayingManager:GetLifeNumber())
+end
+
+---=========================================================================
+---@brief 视图关闭时卸载：注销业务事件监听、清空视图引用
+---@desc 由 UIMainPlaying:OnDestroy 调用，防止监听泄漏与视图悬垂引用
+---      注销对齐 LuaBehaviourSuper:OnDestroy 的自动移除语义：按 target 一键移除本管理器
+---      注册的全部 HonorEventHelper 监听，无需再维护与注册配对的 RemoveListenerBatch 列表
+---TODO: [优化] 注销由 RemoveListenerBatch 配对列表改为 RemoveListenerByTarget(self) 一键移除
+---=========================================================================
+function UIMainPlayingManager:OnViewClosed()
+    HonorEventHelper:RemoveListenerByTarget(self)
+    self._view = nil
+end
+
+--endregion
+
+--region 业务事件回调
+
+---=========================================================================
+---@brief 生命数变化-按差值消除或补充 FishItem
+---@desc 监听 LifeTransformation：生命减少时消除差值数量的 FishItem（播放碎裂动画），
+---      生命增加时补建差值数量，不再整表重建——消除更贴合"扣命"反馈，且不打断其余鱼动画状态
+---@param data any 事件数据（当前未使用）
+--TODO: [优化] 生命变化由"重建全部 FishItem"改为"按差值消除/补充"，扣命时播放碎裂动画
+---=========================================================================
+function UIMainPlayingManager:OnLifeTransformation(data)
+    local targetCount = MainPlayingManager:GetLifeNumber()
+    local currentCount = self._fishItems ~= nil and #self._fishItems or 0
+    if targetCount < currentCount then
+        -- 生命减少：消除差值数量的 FishItem（碎裂动画）
+        self:BreakFishItemsByCount(currentCount - targetCount)
+    elseif targetCount > currentCount then
+        -- 生命增加：补建差值数量的 FishItem
+        self:AppendFishItems(targetCount - currentCount)
+    end
+end
+
+---=========================================================================
+---@brief 角色被收集-刷新目标完成数
+---@desc 监听 OnCharacterCollected，点击收集新角色后刷新 CompleteNumber 显示
+---@param data any 被收集角色数据（当前未使用）
+--TODO: [迁移] 角色收集回调由 UIMainPlaying 迁入 Manager
+---=========================================================================
+function UIMainPlayingManager:OnCharacterCollected(data)
+    self:RefreshCompleteNumber()
+    -- 收集流光动画：角色图标化作流光飞向目标完成数并消散（实体销毁由 GameCoreManager 延迟执行）
+    self:PlayCollectFlyAnimation(data)
+end
+
+---=========================================================================
+---@brief 播放角色收集流光动画
+---@desc 点击收集角色后，角色图标（CharacterIcon）发光放大 + 渐隐，并加速飞向目标完成数
+---      CompleteNumber 所在位置后消散；角色实体销毁由 GameCoreManager 延迟执行（覆盖本动画时长），
+---      本方法仅负责收集视觉表现，不改业务逻辑
+---@param character any 被收集的角色实体（CharacterBase）
+--TODO: [新增] 收集流光动画：角色图标化作流光飞向 CompleteNumber 并渐隐消散
+---=========================================================================
+function UIMainPlayingManager:PlayCollectFlyAnimation(character)
+    if not character or IsNull(character.cs) then
+        PrintInfo("[UIMainPlayingManager] 流光动画跳过：角色无效")
+        return
+    end
+    -- 角色图标节点：与 GameMapBase 一致，从角色根 _GameObject.transform 下查找。
+    -- 注：CharacterBase._CharacterIcon 在 ctor 时用 self.cs.transform:Find 赋值常为空（_GameObject 由生成器后赋值），故此处兜底
+    local icon = character._GameObject and character._GameObject.transform and character._GameObject.transform:Find("CharacterIcon") or character._CharacterIcon
+    local view = self._view
+    if not icon or not view or not view.CompleteNumber then
+        PrintInfo("[UIMainPlayingManager] 流光动画跳过：图标/目标数字缺失 icon=", tostring(icon), " view=", tostring(view), " CompleteNumber=", tostring(view and view.CompleteNumber))
+        return
+    end
+    -- 目标场景坐标：将 CompleteNumber（UI）位置转换到场景坐标系（pcall 保护相机解析失败，避免中断主动画）
+    local targetScene
+    local ok, err = pcall(function() targetScene = UIToScenePoint(view.CompleteNumber.transform.position) end)
+    if not ok or not targetScene then
+        PrintInfo("[UIMainPlayingManager] 流光动画跳过：目标坐标转换失败 ", tostring(err))
+        return
+    end
+    -- 图标 Image：用于流光渐隐
+    local img = icon:GetComponent(typeof(CS.UnityEngine.UI.Image))
+    local dur = 0.6      -- 飞行时长（秒）
+    local originScale = icon.localScale -- 初始缩放（发光放大基准）
+    PrintInfo("[UIMainPlayingManager] 流光动画开始 icon=", icon.name, " 目标=", tostring(targetScene))
+
+    -- 流光表现1：发光放大（使用 Transform 扩展方法，规避 DOTween.To 泛型闭包在 XLua 下的不可用风险）
+    local s = originScale.x * 1.35
+    icon:DOScale(CS.UnityEngine.Vector3(s, s, s), 0.35):SetEase(Ease.OutQuad)
+    -- 流光表现2：移动飞向数字位置（世界坐标，与图标坐标同空间，加速接近）
+    icon:DOMove(targetScene, dur):SetEase(Ease.InQuad)
+    -- 流光表现3：渐隐消散（后段透明度归零，pcall 保护 Graphic 扩展不可用时不影响主动画）
+    if img then
+        local fadeOk, fadeErr = pcall(function()
+            img:DOFade(0, 0.45):SetDelay(0.15)
+        end)
+        if not fadeOk then
+            PrintInfo("[UIMainPlayingManager] 流光渐隐不可用: ", tostring(fadeErr))
+        end
+    end
+end
+
+---=========================================================================
+---@brief 关卡失败-先消除 FishItem 再交结算流程弹失败界面
+---@desc 监听 OnLevelFailure（结算流程启动前触发），逐个播放 FishItem 碎裂动画消除，避免残留遮挡失败结算界面
+---@param chapterId any 章节ID（当前未使用）
+---@param levelId any 关卡ID（当前未使用）
+---=========================================================================
+function UIMainPlayingManager:OnLevelFailure(chapterId, levelId)
+    self:BreakFishItems()
+end
+
+--endregion
+
+--region 界面数据刷新
+
+---=========================================================================
+---@brief 刷新全部界面数据
+---@desc 由视图打开时调用，刷新目标完成数与道具使用数
+---=========================================================================
+function UIMainPlayingManager:RefreshAll()
+    self:RefreshCompleteNumber()
+    self:RefreshUsedNumber()
+end
+
+---=========================================================================
+---@brief 刷新目标完成数
+---@desc 读取 MainPlayingManager 数据，通知视图更新显示
+---=========================================================================
+function UIMainPlayingManager:RefreshCompleteNumber()
+    local view = self._view
+    if view and view.SetCompleteNumber then
+        view:SetCompleteNumber(MainPlayingManager:GetCharacterAndChooseListCount())
+    end
+end
+
+---=========================================================================
+---@brief 刷新已使用道具数
+---@desc 读取 MainPlayingManager 数据，通知视图更新显示
+---=========================================================================
+function UIMainPlayingManager:RefreshUsedNumber()
+    local view = self._view
+    if view and view.SetUsedNumber then
+        view:SetUsedNumber(MainPlayingManager:GetNumberOfPropsUsed())
+    end
+end
+
+---=========================================================================
+---@brief 刷新生命数（预留接口）
+---@desc 生命当前以 FishItem 图标形式展示，此接口为文本显示兜底
+---=========================================================================
+function UIMainPlayingManager:RefreshLifeNumber()
+    local view = self._view
+    if view and view.SetLifeNumber then
+        view:SetLifeNumber(MainPlayingManager:GetLifeNumber())
+    end
+end
+
+--endregion
+
+--region 按钮业务动作
+
+---=========================================================================
+---@brief 设置按钮-打开设置界面
+---=========================================================================
+function UIMainPlayingManager:OpenSettingView()
+    OpenUIAsync(UIs.UISettingView)
+end
+
+---=========================================================================
+---@brief 搜索按钮-自动扫描
+---=========================================================================
+function UIMainPlayingManager:StartAutoScan()
+    GameMapMotion:StartAutoScan(300)
+end
+
+---=========================================================================
+---@brief 显示按钮-显示广告背景并放大相机
+---=========================================================================
+function UIMainPlayingManager:ShowBackground()
+    local view = self._view
+    if view and view.AdDisplayGameObject then
+        view.AdDisplayGameObject:SetActive(true)
+    end
+    GameMapMotion:UpdateCameraRect(199.237)
+end
+
+---=========================================================================
+---@brief 隐藏按钮-隐藏广告背景并还原相机
+---=========================================================================
+function UIMainPlayingManager:HideBackground()
+    local view = self._view
+    if view and view.AdDisplayGameObject then
+        view.AdDisplayGameObject:SetActive(false)
+    end
+    GameMapMotion:UpdateCameraRect(0)
+end
+
+--endregion
+
+--region FishItem 生命周期管理
+
+---=========================================================================
+---@brief 创建指定数量的 FishItem 到 LifeTransform 下
+---@param count number FishItem 实例数量
+---@desc 通过 LoadRes["GameObject_FishItem"] 定位预制体，挂载到 LifeTransform；创建前先清理旧实例，避免刷新重复累计
+---=========================================================================
+function UIMainPlayingManager:CreateFishItems(count)
+    if count == nil or count <= 0 then return end
+    local view = self._view
+    if not view then return end
+
+    local assetInfo = LoadRes["GameObject_FishItem"]
+    if assetInfo == nil then
+        PrintError("[UIMainPlayingManager] 缺少资源定义 GameObject_FishItem")
+        return
+    end
+
+    local parent = view:GetFishParent()
+    PrintInfo("[UIMainPlayingManager] FishItem 挂载节点 = " .. parent.name)
+
+    -- 清理已有实例，避免刷新重复累计
+    self:ClearFishItems()
+
+    -- 创建 count 个，并保存每只鱼的 Transform 与视图引用，供碎裂动画/清除直接使用，
+    -- 避免碎裂阶段再通过 GetComponent 运行时取视图（取不到会瞬间销毁、无动画）
+    --TODO: [修复] CreateFishItems 保存每只 FishItem 的 Transform+视图，供 BreakFishItems 逐只播动画
+    self._fishItems = {}
+    for i = 1, count do
+        table.insert(self._fishItems, self:_CreateFishItemSingle(parent, assetInfo, i))
+    end
+end
+
+---=========================================================================
+---@brief 增量补充 n 条 FishItem（不清空已有实例）
+---@param count number 需要新增的 FishItem 数量
+---@desc 生命增加时调用，仅在现有 FishItem 基础上追加，避免重建打断已有动画状态
+---=========================================================================
+function UIMainPlayingManager:AppendFishItems(count)
+    if count == nil or count <= 0 then return end
+    local view = self._view
+    if not view then return end
+
+    local assetInfo = LoadRes["GameObject_FishItem"]
+    if assetInfo == nil then
+        PrintError("[UIMainPlayingManager] 缺少资源定义 GameObject_FishItem")
+        return
+    end
+
+    if self._fishItems == nil then
+        self._fishItems = {}
+    end
+    local parent = view:GetFishParent()
+    for i = 1, count do
+        table.insert(self._fishItems, self:_CreateFishItemSingle(parent, assetInfo, i))
+    end
+end
+
+---=========================================================================
+---@brief 创建单条 FishItem 并保存引用（供整表创建与增量补充复用）
+---@param parent UnityEngine.Transform 挂载父节点
+---@param assetInfo table 预制体资源定义（GameObject_FishItem）
+---@param index number 创建序号（仅用于日志定位）
+---@return table 该鱼的 {transform, go, view} 引用
+---=========================================================================
+function UIMainPlayingManager:_CreateFishItemSingle(parent, assetInfo, index)
+    local luaClass = CreatePrefabLuaClassSync(assetInfo, parent, nil)
+    -- 定位最新创建、名称以 FishItem 开头的子节点作为该鱼 Transform
+    local transform = nil
+    for c = parent.childCount - 1, 0, -1 do
+        local ch = parent:GetChild(c)
+        if ch.name and string.find(ch.name, "^FishItem") then
+            transform = ch
+            break
+        end
+    end
+    if luaClass == nil then
+        PrintWarning("[UIMainPlayingManager] 创建 FishItem 视图为空，碎裂将直接销毁(预制体根节点可能未挂 LuaBehaviour) index=" .. tostring(index))
+    end
+    return {
+        transform = transform,
+        go = transform ~= nil and transform.gameObject or nil,
+        view = luaClass,
+    }
+end
+
+---=========================================================================
+---@brief 清除 LifeTransform 下的 FishItem 实例
+---@desc 销毁所有名称以 FishItem 开头的子节点（失败结算前调用，避免残留遮挡结算界面）
+---=========================================================================
+function UIMainPlayingManager:ClearFishItems()
+    -- 清空保存的 FishItem 引用
+    self._fishItems = {}
+    local view = self._view
+    if not view then return end
+    local parent = view:GetFishParent()
+    for i = parent.childCount - 1, 0, -1 do
+        local child = parent:GetChild(i)
+        if child.name and string.find(child.name, "^FishItem") then
+            CS.UnityEngine.Object.Destroy(child.gameObject)
+        end
+    end
+end
+
+---=========================================================================
+---@brief 消除全部 FishItem：逐只播放晃动碎裂动画后销毁
+---@param onAllDone function|nil 全部销毁完成回调
+---@desc 失败结算前调用：对每个 FishItem 调用其自身视图的 PlayBreakAnimation 播完碎裂动画后销毁；
+---      全部结束后置位 FishBreakAnimationDone 并回调，供结算流程弹失败界面（先消鱼避免残留遮挡）
+--TODO: [迁移] FishItem 碎裂动画编排由 UIMainPlaying 迁入 Manager（动画逻辑仍在 FishItem 内）
+---=========================================================================
+function UIMainPlayingManager:BreakFishItems(onAllDone)
+    -- 重置动画完成信号：供结算流程（GameCoreManagerLevelFinish）等待，保证碎裂动画先播完再盖遮罩/弹失败界面
+    if GameCoreManager then
+        GameCoreManager.FishBreakAnimationDone = false
+    end
+    local items = self._fishItems or {}
+    local total = #items
+    PrintInfo("[UIMainPlayingManager] 播放 FishItem 碎裂动画，数量:" .. tostring(total))
+    -- 全部消除，清空已保存引用
+    self._fishItems = {}
+    self:_PlayBreakForItems(items, function()
+        if GameCoreManager then GameCoreManager.FishBreakAnimationDone = true end
+        if onAllDone then onAllDone() end
+    end)
+end
+
+---=========================================================================
+---@brief 按数量消除 FishItem：消除末尾指定条数（播放碎裂动画）
+---@param count number 需要消除的 FishItem 数量
+---@desc 生命减少时调用：保留剩余生命对应的 FishItem，只对减少的那几条播放碎裂动画，
+---      不整表重建，扣命反馈更直观且不打断其余鱼动画状态
+---=========================================================================
+function UIMainPlayingManager:BreakFishItemsByCount(count)
+    if count == nil or count <= 0 then return end
+    local items = self._fishItems or {}
+    local total = #items
+    local removeCount = math.min(count, total)
+    if removeCount <= 0 then return end
+
+    -- 分离保留与待消除：保留前 (total-removeCount) 条，消除末尾 removeCount 条
+    local kept = {}
+    local removed = {}
+    for i = 1, total do
+        if i <= total - removeCount then
+            table.insert(kept, items[i])
+        else
+            table.insert(removed, items[i])
+        end
+    end
+    self._fishItems = kept
+    PrintInfo("[UIMainPlayingManager] 消除 FishItem 数量:" .. tostring(removeCount) .. " 剩余:" .. tostring(#kept))
+    self:_PlayBreakForItems(removed)
+end
+
+---=========================================================================
+---@brief 逐只播放 FishItem 晃动碎裂动画并销毁（错峰启动）
+---@param items table<{transform,go,view}> 待消除的 FishItem 引用列表
+---@param onAllDone function|nil 全部销毁完成回调
+---@desc 统一编排：对每只鱼调用其自身视图 PlayBreakAnimation，错峰启动保证各自可见"晃动+碎裂"；
+---      视图缺失或无方法时直接销毁并打日志，避免误判"只有最后一只有动画"
+---=========================================================================
+function UIMainPlayingManager:_PlayBreakForItems(items, onAllDone)
+    if items == nil then
+        if onAllDone then onAllDone() end
+        return
+    end
+    local total = #items
+    if total == 0 then
+        if onAllDone then onAllDone() end
+        return
+    end
+
+    -- 单个 FishItem 完成回调：销毁节点并累计，全部播完后再统一回调
+    local doneCount = 0
+    local function onFishDone(fishGO)
+        if not IsNull(fishGO) then
+            CS.UnityEngine.Object.Destroy(fishGO)
+        end
+        doneCount = doneCount + 1
+        if doneCount >= total then
+            if onAllDone then onAllDone() end
+        end
+    end
+
+    -- 逐只鱼独立播放动画：显式传入该鱼自身 Transform，并错峰启动，保证每只鱼都各自"晃动+碎裂"消失
+    --TODO: [修复] 错峰间隔 0.06→0.15：原 0.06 与单次摆动时长相等，多鱼时间线重叠，视觉上只剩最后一只有动画
+    local staggerInterval = 0.15 -- 相邻两只鱼启动间隔（秒）
+    for index, item in ipairs(items) do
+        local fishTransform = item.transform
+        local fishView = item.view
+        -- 兜底：创建阶段 Awake 可能尚未完成导致 view 为空，再从节点重新取一次
+        --TODO: [修复] view 兜底取节点 LuaBehaviour.ValidLuaClass，避免创建时 luaClass 未初始化导致直接销毁
+        if fishView == nil and fishTransform ~= nil then
+            local lb = fishTransform.gameObject:GetComponent("LuaBehaviour")
+            if lb ~= nil then
+                fishView = lb.ValidLuaClass
+            end
+        end
+        local startDelay = (index - 1) * staggerInterval
+        if fishTransform ~= nil and fishView and fishView.PlayBreakAnimation then
+            PrintInfo("[UIMainPlayingManager] 播放鱼动画 index=" .. index .. " name=" .. fishTransform.name)
+            fishView:PlayBreakAnimation(fishTransform, startDelay, function() onFishDone(fishTransform.gameObject) end)
+        else
+            if fishTransform ~= nil and fishView ~= nil and fishView.PlayBreakAnimation == nil then
+                PrintWarning("[UIMainPlayingManager] 鱼视图无 PlayBreakAnimation 方法(可能绑定错误脚本)，直接销毁 index=" .. index)
+            elseif fishView == nil and fishTransform ~= nil then
+                PrintWarning("[UIMainPlayingManager] 鱼视图为空(LuaBehaviour未取到)，直接销毁无动画 index=" .. index)
+            end
+            if fishTransform ~= nil then
+                onFishDone(fishTransform.gameObject)
+            end
+        end
+    end
+end
+
+--endregion
+
+return UIMainPlayingManager

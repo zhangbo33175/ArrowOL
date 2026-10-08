@@ -245,7 +245,7 @@ namespace Honor.Editor
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(
                     "--=====================================================================================================")
-                .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+                .AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime")
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine(
                     "-- ----------------------------------------------------------------------------------------------------")

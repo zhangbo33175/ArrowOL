@@ -249,16 +249,9 @@ end
 ---@return number 已完成章节数量
 ---=========================================================================
 function ChapterDataManager:CalculateCompletedChapterTotalCount()
-    local config = Tables.Chapters
-    local count = 0
-    if not config then return 0 end
-
-    for id, _ in pairs(config) do
-        if ChapterListManager and ChapterListManager:IsUnlockedChapter(id) and ChapterListManager:IsChapterCompleted(id) then
-            count = count + 1
-        end
-    end
-    return count
+    return GetTableCount(Tables.Chapters, function(id)
+        return ChapterListManager and ChapterListManager:IsUnlockedChapter(id) and ChapterListManager:IsChapterCompleted(id)
+    end)
 end
 
 ---=========================================================================
@@ -267,16 +260,9 @@ end
 ---@return number 已解锁章节数量
 ---=========================================================================
 function ChapterDataManager:CalculateUnlockedChapterTotalCount()
-    local config = Tables.Chapters
-    local count = 0
-    if not config then return 0 end
-
-    for id, _ in pairs(config) do
-        if ChapterListManager and ChapterListManager:IsUnlockedChapter(id) then
-            count = count + 1
-        end
-    end
-    return count
+    return GetTableCount(Tables.Chapters, function(id)
+        return ChapterListManager and ChapterListManager:IsUnlockedChapter(id)
+    end)
 end
 
 --endregion

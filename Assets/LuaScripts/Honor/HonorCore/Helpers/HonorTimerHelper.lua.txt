@@ -1,0 +1,721 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  HonorTimerHelper.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   时间轴助手（全局统一时间管理中心）
+--            功能：
+--            1. 支持 UTC0 / 本地时区 / PST（西八区）三种时间体系
+--            2. 定时任务：间隔回调、时间点回调
+--            3. 跨天事件（游戏启动跨天、运行中跨天、时间回退跨天）
+--            4. 流程绑定触发（只有在指定流程才会执行回调）
+--            5. 服务器时间校正，防本地时间作弊
+--            6. 时间格式化、时间戳互转、时间差计算
+--            7. 支持锁定不移除的常驻定时任务
+--=====================================================================================================
+
+--region 全局统一时间轴管理助手
+local TimeUtils = require("TimeUtil")
+
+---@class HonorTimerHelper 全局统一时间轴管理助手
+local HonorTimerHelper = class("HonorTimerHelper")
+
+---@brief 构造函数
+---@param args table 自定义参数
+function HonorTimerHelper:ctor(args)
+    ---@type number 当前 UTC0 时间戳
+    self._mainUTC0TimeStamp = self:GetUTC0TimeStamp()
+    ---@type number 当前本地时间戳
+    self._mainLocalTimeStamp = self:GetLocalTimeStamp()
+    ---@type table[] 周期性定时任务列表
+    self._deltaTimerNodes = {}
+    ---@type table[] UTC0 时间轴定时任务（按时间戳降序）
+    self._mainUTC0TimerNodes = {}
+    ---@type table[] 本地时间轴定时任务（按时间戳降序）
+    self._mainLocalTimerNodes = {}
+
+    ---@type number UTC0 当天 23:59:59 时间戳
+    ---@desc 构造函数即基于当前时间初始化，避免 ProcTiming（446 行）在 OnEnter 未执行时对 nil 做算术运算
+    local utc0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._mainUTC0TimeStamp)
+    self._curDay24UTC0TimeStamp = self:GetUTC0TimeStampByParams(utc0TimeInfo[1], utc0TimeInfo[2], utc0TimeInfo[3], 23, 59, 59)
+    ---@type number UTC0 当天 00:00:00 时间戳
+    self._curDay00UTC0TimeStamp = self:GetUTC0TimeStampByParams(utc0TimeInfo[1], utc0TimeInfo[2], utc0TimeInfo[3], 0, 0, 0)
+
+    ---@type number 本地当天 23:59:59 时间戳
+    ---@desc 同上，防止 ProcTiming（482 行）本地跨天判断在 OnEnter 未执行时崩溃
+    local localTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(self._mainLocalTimeStamp)
+    self._curDay24LocalTimeStamp = self:GetLocalTimeStampByParams(localTimeInfo[1], localTimeInfo[2], localTimeInfo[3], 23, 59, 59)
+    ---@type number 本地当天 00:00:00 时间戳
+    self._curDay00LocalTimeStamp = self:GetLocalTimeStampByParams(localTimeInfo[1], localTimeInfo[2], localTimeInfo[3], 0, 0, 0)
+
+    ---@type table<string, boolean> 允许派发跨天事件的流程白名单
+    self._acrossDayEventProcedureNameFlags = {}
+    ---@type table[] 跨天事件队列（进入指定流程后统一派发）
+    self._acrossDayEventQueue = {}
+
+    ---@type number 上一帧真实时间（用于计算 deltaTime）
+    self._lastRealTime = 0
+    ---@type boolean 是否已通过服务器校正时间（防作弊）
+    self._IsTimeCorrectionByServer = false
+
+    ---@type number PST 当天 23:59:59 时间戳（西八区）
+    self._curDay24PSTTimeStamp = nil
+    ---@type number PST 当天 00:00:00 时间戳（西八区）
+    self._curDay00PSTTimeStamp = nil
+
+    ---@type table 公用临时容器（减少GC）
+    self._helperContianer = {}
+end
+
+---@brief 创建时间轴助手实例
+---@param args table 自定义参数
+---@return HonorTimerHelper 时间轴实例
+function HonorTimerHelper:Create(args)
+    local obj = HonorTimerHelper.new(args)
+    return obj
+end
+
+---@brief 流程进入（游戏流程生命周期）
+---@param procedure ProcedureSuper 流程对象
+function HonorTimerHelper:OnEnter(procedure)
+    if procedure.cs.Name == "ProcedurePreload" then
+        -- 启动游戏时需要派发跨天事件
+        if procedure.cs:IsLaunch() or GameLib.ProcedureState.IsReset then
+            local launchTime = SaveRootData.UserData.launchTime
+            local latestTime = SaveRootData.UserData.latestTime
+
+            -- 记录UTC0跨天事件
+            local currentUTC0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(launchTime.current.utc0)
+            local lastUTC0TimeInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(launchTime.last.utc0)
+            local acrossDayUTC0Num = self:GetAcrossDayNumBetweenTimeStamps(latestTime.utc0, launchTime.current.utc0)
+            self:_EnqueueAcrossDayEvent(FwEventCmd.AcrossDayUTC0, true, currentUTC0TimeInfo, lastUTC0TimeInfo, acrossDayUTC0Num)
+
+            -- 计算当天23:59:59 UTC0时间戳
+            self._curDay24UTC0TimeStamp = self:GetUTC0TimeStampByParams(currentUTC0TimeInfo[1], currentUTC0TimeInfo[2], currentUTC0TimeInfo[3], 23, 59, 59)
+            -- 计算当天00:00:00 UTC0时间戳
+            self._curDay00UTC0TimeStamp = self:GetUTC0TimeStampByParams(currentUTC0TimeInfo[1], currentUTC0TimeInfo[2], currentUTC0TimeInfo[3], 0, 0, 0)
+
+            -- 刷新存档：最近运行截止时间
+            self:_SaveLatestUTCTime()
+
+            -- 记录本地跨天事件
+            local currentLocalTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(launchTime.current.locality)
+            local lastLocalTimeInfo = self:GetLocalTimeInfoByLocalTimeStamp(launchTime.last.locality)
+            local acrossDayLocalNum = self:GetAcrossDayNumBetweenTimeStamps(latestTime.locality, launchTime.current.locality)
+            self:_EnqueueAcrossDayEvent(FwEventCmd.AcrossDayLocal, true, currentLocalTimeInfo, lastLocalTimeInfo, acrossDayLocalNum)
+
+            -- 计算当天23:59:59 本地时间戳
+            self._curDay24LocalTimeStamp = self:GetLocalTimeStampByParams(currentLocalTimeInfo[1], currentLocalTimeInfo[2], currentLocalTimeInfo[3], 23, 59, 59)
+            -- 计算当天00:00:00 本地时间戳
+            self._curDay00LocalTimeStamp = self:GetLocalTimeStampByParams(currentLocalTimeInfo[1], currentLocalTimeInfo[2], currentLocalTimeInfo[3], 0, 0, 0)
+
+            -- 刷新存档：最近运行截止时间
+            self:_SaveLatestLocalTime()
+            SaveIO.UserData.Save_latestTime()
+        end
+    end
+end
+
+---@brief 流程更新（每帧执行）
+---@param procedure ProcedureSuper 流程
+function HonorTimerHelper:OnUpdate(procedure)
+    self:ProcTiming(procedure)
+end
+
+---@brief 流程离开（清理任务）
+---@param procedure ProcedureSuper 流程
+function HonorTimerHelper:OnLeave(procedure)
+    self:UnregisterAll(false)
+end
+
+---@brief 设置服务器时间戳（校正时间）
+---@param utc0TimeStamp number 服务器 UTC0 时间戳
+function HonorTimerHelper:SetTimeStamp(utc0TimeStamp)
+    self._IsTimeCorrectionByServer = false
+    self._mainUTC0TimeStamp = self:GetUTC0TimeStamp()
+    self._mainLocalTimeStamp = self:GetLocalTimeStamp(self._mainUTC0TimeStamp)
+    HonorEventHelper:FireNow(EventCmd.OnTimeCorrectionByServer, self._IsTimeCorrectionByServer)
+end
+
+---@brief 获取当前使用的 UTC0 时间戳
+---@return number UTC0 时间戳
+function HonorTimerHelper:GetBeenSetUTC0TimeStamp()
+    return self._mainUTC0TimeStamp
+end
+
+---@brief 获取当前使用的本地时间戳
+---@return number 本地时间戳
+function HonorTimerHelper:GetBeenSetLocalTimeStamp()
+    return self._mainLocalTimeStamp
+end
+
+---@brief 添加允许派发跨天事件的流程
+---@param procedureName string 流程名
+function HonorTimerHelper:AddAcrossDayEventProcedureName(procedureName)
+    self._acrossDayEventProcedureNameFlags[procedureName] = true
+end
+
+---@brief 移除允许派发跨天事件的流程
+---@param procedureName string 流程名
+function HonorTimerHelper:SubAcrossDayEventProcedure(procedureName)
+    self._acrossDayEventProcedureNameFlags[procedureName] = false
+end
+
+-- ====================================================================================================
+-- 周期性定时任务
+-- ====================================================================================================
+
+---@brief 注册间隔定时任务
+---@param evtCmd string 事件名
+---@param deltaTime number 间隔秒数
+---@param procedure string 所在流程
+---@param lockRemove boolean 是否锁定不删除
+---@param customParams table 自定义参数
+function HonorTimerHelper:RegisterDeltaTime(evtCmd, deltaTime, procedure, lockRemove, customParams)
+    table.insert(self._deltaTimerNodes, { evtCmd = evtCmd, deltaTime = deltaTime, deltaTimeCount = 0, procedure = procedure, lockRemove = lockRemove, customParams = customParams })
+end
+
+---@brief 注销间隔定时任务
+---@param force boolean 强制删除
+---@param evtCmd string 事件名
+---@param deltaTime number 间隔（可选）
+---@return boolean 是否删除成功
+function HonorTimerHelper:UnregisterDeltaTime(force, evtCmd, deltaTime)
+    if force == nil then force = false end
+    return self:_RemoveTimerNodesByEvtCmd(self._deltaTimerNodes, evtCmd, deltaTime, "deltaTime", force)
+end
+
+---@brief 注销所有间隔任务
+---@param force boolean 强制删除
+function HonorTimerHelper:UnregisterAllDeltaTimes(force)
+    if force == nil then force = false end
+    if force then
+        self._deltaTimerNodes = {}
+    else
+        self:_RemoveUnlockedNodes(self._deltaTimerNodes)
+    end
+end
+
+-- ====================================================================================================
+-- UTC0 时间轴任务
+-- ====================================================================================================
+
+---@brief 注册 UTC0 时间字符串任务
+---@param evtCmd string
+---@param timeDescStr string
+---@param procedure string
+---@param lockRemove boolean
+---@param customParams table
+function HonorTimerHelper:RegisterTimeStringOnUTC0(evtCmd, timeDescStr, procedure, lockRemove, customParams)
+    self:_InsertTimerNode(
+        self._mainUTC0TimerNodes,
+        self:GetUTC0TimeStampByString(timeDescStr),
+        timeDescStr,
+        evtCmd, procedure, lockRemove, customParams
+    )
+end
+
+---@brief 注册 UTC0 时间戳任务
+---@param evtCmd string
+---@param timeStamp number
+---@param procedure string
+---@param lockRemove boolean
+---@param customParams table
+function HonorTimerHelper:RegisterTimeStampOnUTC0(evtCmd, timeStamp, procedure, lockRemove, customParams)
+    self:_InsertTimerNode(
+        self._mainUTC0TimerNodes,
+        timeStamp,
+        self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", timeStamp),
+        evtCmd, procedure, lockRemove, customParams
+    )
+end
+
+---@brief 注销 UTC0 时间字符串任务
+---@param force boolean
+---@param evtCmd string
+---@param timeDescStr string
+---@return boolean
+function HonorTimerHelper:UnregisterTimeStringFromUTC0(force, evtCmd, timeDescStr)
+    local timeStamp = timeDescStr and self:GetUTC0TimeStampByString(timeDescStr) or nil
+    return self:UnregisterTimeStampFromUTC0(force, evtCmd, timeStamp)
+end
+
+---@brief 注销 UTC0 时间戳任务
+---@param force boolean
+---@param evtCmd string
+---@param timeStamp number
+---@return boolean
+function HonorTimerHelper:UnregisterTimeStampFromUTC0(force, evtCmd, timeStamp)
+    if not force then force = false end
+    return self:_RemoveTimerNodesByEvtCmd(self._mainUTC0TimerNodes, evtCmd, timeStamp, "timeStamp", force)
+end
+
+---@brief 注销所有 UTC0 任务
+---@param force boolean
+function HonorTimerHelper:UnregisterAllFromUTC0(force)
+    if force then
+        self._mainUTC0TimerNodes = {}
+    else
+        self:_RemoveUnlockedNodes(self._mainUTC0TimerNodes)
+    end
+end
+
+-- ====================================================================================================
+-- 本地时间轴任务
+-- ====================================================================================================
+
+---@brief 注册本地时间字符串任务
+---@param evtCmd string
+---@param timeDescStr string
+---@param procedure string
+---@param lockRemove boolean
+---@param customParams table
+function HonorTimerHelper:RegisterTimeStringOnLocal(evtCmd, timeDescStr, procedure, lockRemove, customParams)
+    self:_InsertTimerNode(
+        self._mainLocalTimerNodes,
+        self:GetLocalTimeStampByString(timeDescStr),
+        timeDescStr,
+        evtCmd, procedure, lockRemove, customParams
+    )
+end
+
+---@brief 注册本地时间戳任务
+---@param evtCmd string
+---@param timeStamp number
+---@param procedure string
+---@param lockRemove boolean
+---@param customParams table
+function HonorTimerHelper:RegisterTimeStampOnLocal(evtCmd, timeStamp, procedure, lockRemove, customParams)
+    self:_InsertTimerNode(
+        self._mainLocalTimerNodes,
+        timeStamp,
+        self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", timeStamp),
+        evtCmd, procedure, lockRemove, customParams
+    )
+end
+
+---@brief 注销本地时间字符串任务
+---@param force boolean
+---@param evtCmd string
+---@param timeDescStr string
+---@return boolean
+function HonorTimerHelper:UnregisterTimeStringFromLocal(force, evtCmd, timeDescStr)
+    local timeStamp = timeDescStr and self:GetLocalTimeStampByString(timeDescStr) or nil
+    return self:UnregisterTimeStampFromLocal(force, evtCmd, timeStamp)
+end
+
+---@brief 注销本地时间戳任务
+---@param force boolean
+---@param evtCmd string
+---@param timeStamp number
+---@return boolean
+function HonorTimerHelper:UnregisterTimeStampFromLocal(force, evtCmd, timeStamp)
+    if not force then force = false end
+    return self:_RemoveTimerNodesByEvtCmd(self._mainLocalTimerNodes, evtCmd, timeStamp, "timeStamp", force)
+end
+
+---@brief 注销所有本地时间任务
+---@param force boolean
+function HonorTimerHelper:UnregisterAllFromLocal(force)
+    if force then
+        self._mainLocalTimerNodes = {}
+    else
+        self:_RemoveUnlockedNodes(self._mainLocalTimerNodes)
+    end
+end
+
+-- ====================================================================================================
+-- 统一注销
+-- ====================================================================================================
+
+---@brief 注销所有定时任务
+---@param force boolean 强制删除
+function HonorTimerHelper:UnregisterAll(force)
+    self:UnregisterAllDeltaTimes(force)
+    self:UnregisterAllFromUTC0(force)
+    self:UnregisterAllFromLocal(force)
+end
+
+-- ====================================================================================================
+-- 内部私有方法（注册/注销/入队/存档公共收口）
+-- ====================================================================================================
+
+---@brief 内部：向指定时间轴节点表头部插入节点并按时间戳降序排序（私有，供 4 个 Register 方法复用）
+---@param nodes table 目标节点列表（_mainUTC0TimerNodes / _mainLocalTimerNodes）
+---@param timeStamp number 节点时间戳
+---@param timeString string 节点时间字符串
+---@param evtCmd string 事件名
+---@param procedure string 所在流程
+---@param lockRemove boolean 是否锁定不删除
+---@param customParams table 自定义参数
+function HonorTimerHelper:_InsertTimerNode(nodes, timeStamp, timeString, evtCmd, procedure, lockRemove, customParams)
+    table.insert(nodes, 1, {
+        evtCmd = evtCmd,
+        timeString = timeString,
+        timeStamp = timeStamp,
+        procedure = procedure,
+        lockRemove = lockRemove,
+        customParams = customParams
+    })
+    SelectSortByKey(nodes, "timeStamp", true)
+end
+
+---@brief 内部：按事件名逆序注销节点（私有，供 Delta/UTC0/Local 三处注销复用）
+---@param nodes table 目标节点列表
+---@param evtCmd string 事件名
+---@param extraValue number 可选额外匹配值（deltaTime 或 timeStamp），nil 表示不校验
+---@param extraKey string 额外匹配字段名（"deltaTime" 或 "timeStamp"）
+---@param force boolean 强制删除
+---@return boolean 是否移除过节点
+function HonorTimerHelper:_RemoveTimerNodesByEvtCmd(nodes, evtCmd, extraValue, extraKey, force)
+    local hasRemoved = false
+    for index = #nodes, 1, -1 do
+        local node = nodes[index]
+        if node.evtCmd == evtCmd then
+            if extraValue and node[extraKey] ~= extraValue then goto continue end
+            if not node.lockRemove or force then
+                table.remove(nodes, index)
+                hasRemoved = true
+            end
+        end
+        ::continue::
+    end
+    return hasRemoved
+end
+
+---@brief 内部：逆序移除所有未锁定节点（私有，供三处 UnregisterAll 非强制分支复用）
+---@param nodes table 目标节点列表
+function HonorTimerHelper:_RemoveUnlockedNodes(nodes)
+    for i = #nodes, 1, -1 do
+        if not nodes[i].lockRemove then
+            table.remove(nodes, i)
+        end
+    end
+end
+
+---@brief 内部：遍历并派发指定时间轴中已到期且流程匹配的节点（私有，供 UTC0/本地时间轴复用）
+---@desc 逆序遍历节点，timeStamp 不大于当前时间戳且流程匹配的节点派发事件并从列表移除；
+---      复用了 ProcTiming 中 UTC0 与本地时间轴处理逻辑，消除重复实现
+---@param nodes table 目标节点列表（_mainUTC0TimerNodes / _mainLocalTimerNodes）
+---@param currentStamp number 当前时间戳（UTC0 或本地）
+---@param procedure Honor.Runtime.ProcedureState 流程对象
+function HonorTimerHelper:_FireDueTimeAxisNodes(nodes, currentStamp, procedure)
+    ClearDictionary(self._helperContianer)
+    local fireList = self._helperContianer
+    for i = #nodes, 1, -1 do
+        local node = nodes[i]
+        if node.timeStamp > currentStamp then break end
+        if node.procedure == procedure.cs.Name then
+            table.insert(fireList, node)
+            table.remove(nodes, i)
+        end
+    end
+    for _, node in ipairs(fireList) do
+        HonorEventHelper:Fire(node.evtCmd, node)
+    end
+end
+
+---@brief 内部：跨天事件入队（私有，供 OnEnter/ProcTiming/PST 共 6 处入队复用）
+---@param evtCmd string 跨天事件名（AcrossDayUTC0/Local/PST）
+---@param isOnLaunch boolean 是否启动时跨天
+---@param curTimeInfo table 当前时间信息
+---@param lastTimeInfo table 上一时间信息
+---@param acrossDayNum number 跨天数
+function HonorTimerHelper:_EnqueueAcrossDayEvent(evtCmd, isOnLaunch, curTimeInfo, lastTimeInfo, acrossDayNum)
+    table.insert(self._acrossDayEventQueue, 1, {
+        evtCmd = evtCmd,
+        isOnLaunch = isOnLaunch,
+        curTimeInfo = curTimeInfo,
+        lastTimeInfo = lastTimeInfo,
+        acrossDayNum = acrossDayNum
+    })
+end
+
+---@brief 内部：记录存档 UTC0 当天零点时间戳与字符串（私有，OnEnter/ProcTiming 两处复用）
+function HonorTimerHelper:_SaveLatestUTCTime()
+    SaveRootData.UserData.latestTime.utc0 = self._curDay00UTC0TimeStamp
+    SaveRootData.UserData.latestTime.utc0String = self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", self._curDay00UTC0TimeStamp)
+end
+
+---@brief 内部：记录存档本地当天零点时间戳与字符串（私有，OnEnter/ProcTiming 两处复用）
+function HonorTimerHelper:_SaveLatestLocalTime()
+    SaveRootData.UserData.latestTime.locality = self._curDay00LocalTimeStamp
+    SaveRootData.UserData.latestTime.localString = self:GetTimeStringByTimeStamp("yyyy-MM-dd HH:mm:ss", self._curDay00LocalTimeStamp)
+end
+
+-- ====================================================================================================
+-- 核心时间轴驱动
+-- ====================================================================================================
+
+---@brief 每帧执行：驱动所有时间轴、跨天、定时任务
+---@param procedure Honor.Runtime.ProcedureState 流程
+function HonorTimerHelper:ProcTiming(procedure)
+    local realtime = Unity.Time.realtimeSinceStartup
+    local deltaTime = self._lastRealTime > 0 and (realtime - self._lastRealTime) or 0
+    self._lastRealTime = realtime
+
+    -- 更新当前 UTC0 / 本地时间
+    self._mainUTC0TimeStamp = self:GetUTC0TimeStamp()
+    self._mainLocalTimeStamp = self:GetLocalTimeStamp()
+
+    -- 清空临时容器
+    ClearDictionary(self._helperContianer)
+
+    -- ===================== 执行间隔任务 =====================
+    local deltaFireList = self._helperContianer
+    for i = #self._deltaTimerNodes, 1, -1 do
+        local node = self._deltaTimerNodes[i]
+        if node.procedure == procedure.cs.Name then
+            node.deltaTimeCount = node.deltaTimeCount + deltaTime
+            if node.deltaTimeCount >= node.deltaTime then
+                table.insert(deltaFireList, node)
+            end
+        end
+    end
+    for _, node in ipairs(deltaFireList) do
+        HonorEventHelper:Fire(node.evtCmd, node)
+        node.deltaTimeCount = 0
+    end
+
+    -- ===================== 执行 UTC0 时间轴任务 =====================
+    self:_FireDueTimeAxisNodes(self._mainUTC0TimerNodes, self._mainUTC0TimeStamp, procedure)
+
+    -- ===================== UTC0 跨天判断 =====================
+    if self._mainUTC0TimeStamp >= self._curDay24UTC0TimeStamp + 1 or self._mainUTC0TimeStamp < self._curDay00UTC0TimeStamp then
+        local curInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._mainUTC0TimeStamp)
+        local lastInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._curDay24UTC0TimeStamp)
+        local days = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24UTC0TimeStamp, self._mainUTC0TimeStamp)
+        self:_EnqueueAcrossDayEvent(FwEventCmd.AcrossDayUTC0, false, curInfo, lastInfo, days)
+
+        self._curDay24UTC0TimeStamp = self:GetUTC0TimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 23, 59, 59)
+        self._curDay00UTC0TimeStamp = self:GetUTC0TimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 0, 0, 0)
+
+        self:_SaveLatestUTCTime()
+        SaveIO.UserData.Save_latestTime()
+    end
+
+    -- ===================== 执行本地时间轴任务 =====================
+    self:_FireDueTimeAxisNodes(self._mainLocalTimerNodes, self._mainLocalTimeStamp, procedure)
+
+    -- ===================== 本地跨天判断 =====================
+    if self._mainLocalTimeStamp >= self._curDay24LocalTimeStamp + 1 or self._mainLocalTimeStamp < self._curDay00LocalTimeStamp then
+        local curInfo = self:GetLocalTimeInfoByLocalTimeStamp(self._mainLocalTimeStamp)
+        local lastInfo = self:GetLocalTimeInfoByLocalTimeStamp(self._curDay24LocalTimeStamp)
+        local days = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24LocalTimeStamp, self._mainLocalTimeStamp)
+        self:_EnqueueAcrossDayEvent(FwEventCmd.AcrossDayLocal, false, curInfo, lastInfo, days)
+
+        self._curDay24LocalTimeStamp = self:GetLocalTimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 23, 59, 59)
+        self._curDay00LocalTimeStamp = self:GetLocalTimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 0, 0, 0)
+
+        self:_SaveLatestLocalTime()
+        SaveIO.UserData.Save_latestTime()
+    end
+
+    -- ===================== PST 跨天判断（西八区） =====================
+    if self:IsTimeCorrectionByServer() then
+        if not SaveRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] then
+            local curPST = self:GetPSTTimeStamp(self._mainUTC0TimeStamp)
+            SaveRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] = curPST
+            SaveIO.GameData.Save_timestamps()
+        end
+
+        if not self._curDay24PSTTimeStamp then
+            local lastPST = SaveRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp]
+            local curPST = self:GetPSTTimeStamp(self._mainUTC0TimeStamp)
+            local curInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(lastPST)
+            self._curDay24PSTTimeStamp = self:GetUTC0TimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 23, 59, 59)
+            self._curDay00PSTTimeStamp = self:GetUTC0TimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 0, 0, 0)
+
+            local lastInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._curDay24PSTTimeStamp)
+            local days = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24PSTTimeStamp, curPST)
+            self:_EnqueueAcrossDayEvent(FwEventCmd.AcrossDayPST, true, curInfo, lastInfo, days)
+            SaveRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] = curPST
+            SaveIO.GameData.Save_timestamps()
+        else
+            local curPST = self:GetPSTTimeStamp(self._mainUTC0TimeStamp)
+            if curPST >= self._curDay24PSTTimeStamp + 1 or curPST < self._curDay00PSTTimeStamp then
+                local curInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(curPST)
+                local lastInfo = self:GetUTC0TimeInfoByUTC0TimeStamp(self._curDay24PSTTimeStamp)
+                local days = self:GetAcrossDayNumBetweenTimeStamps(self._curDay24PSTTimeStamp, curPST)
+                self:_EnqueueAcrossDayEvent(FwEventCmd.AcrossDayPST, false, curInfo, lastInfo, days)
+
+                self._curDay24PSTTimeStamp = self:GetUTC0TimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 23, 59, 59)
+                self._curDay00PSTTimeStamp = self:GetUTC0TimeStampByParams(curInfo[1], curInfo[2], curInfo[3], 0, 0, 0)
+                SaveRootData.GameData.timestamps[ETimestampID.PSTAcrossTimeStamp] = curPST
+                SaveIO.GameData.Save_timestamps()
+            end
+        end
+    end
+
+    -- ===================== 派发跨天事件 =====================
+    ClearDictionary(self._helperContianer)
+    local acrossFireList = self._helperContianer
+    if self._acrossDayEventProcedureNameFlags[procedure.cs.Name] then
+        for i = #self._acrossDayEventQueue, 1, -1 do
+            table.insert(acrossFireList, self._acrossDayEventQueue[i])
+            table.remove(self._acrossDayEventQueue, i)
+        end
+    end
+    for _, e in ipairs(acrossFireList) do
+        HonorEventHelper:Fire(e.evtCmd, e.isOnLaunch, e.curTimeInfo, e.lastTimeInfo, e.acrossDayNum)
+    end
+
+    ClearDictionary(self._helperContianer)
+end
+
+-- ====================================================================================================
+-- 工具方法：时间获取 / 转换 / 格式化
+-- ====================================================================================================
+
+---@brief 获取当天 24 点本地时间戳
+---@return number 本地当天 23:59:59 时间戳
+--TODO: [优化] 补齐缺失的 @return 注解（签名不变）
+function HonorTimerHelper:GetDay24LocalTime()
+    return self._curDay24LocalTimeStamp
+end
+
+---@brief 获取当天 24 点 PST 时间戳
+---@return number PST 当天 23:59:59 时间戳（未初始化返回 0）
+--TODO: [优化] 补齐缺失的 @return 注解（签名不变）
+function HonorTimerHelper:GetDay24PSTTime()
+    return self._curDay24PSTTimeStamp or 0
+end
+
+---@brief 获取本地时间戳
+---@param utc0SecondsFromServer number
+---@return number
+function HonorTimerHelper:GetLocalTimeStamp(utc0SecondsFromServer)
+    return math.floor(GameLib.RSetupLuaTableValue.GetLocalTimeStamp(utc0SecondsFromServer ~= nil, utc0SecondsFromServer))
+end
+
+---@brief 获取本地时间信息 {年,月,日,时,分,秒}
+---@param utc0SecondsFromServer number
+---@return table
+function HonorTimerHelper:GetLocalTimeInfo(utc0SecondsFromServer)
+    local dt = GameLib.RSetupLuaTableValue.GetLocalTimeInfo(utc0SecondsFromServer ~= nil, utc0SecondsFromServer)
+    return { dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second }
+end
+
+---@brief 根据本地时间戳获取时间信息
+---@param localTimeStamp number
+---@return table
+function HonorTimerHelper:GetLocalTimeInfoByLocalTimeStamp(localTimeStamp)
+    if not localTimeStamp then return nil end
+    local dt = GameLib.RSetupLuaTableValue.GetDateTime1970AddSeconds(localTimeStamp)
+    return { dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second }
+end
+
+---@brief 根据年月日时分秒生成本地时间戳
+---@param year number
+---@param month number
+---@param day number
+---@param hour number
+---@param minute number
+---@param second number
+---@return number
+function HonorTimerHelper:GetLocalTimeStampByParams(year, month, day, hour, minute, second)
+    if not (year and month and day and hour and minute and second) then return 0 end
+    return math.floor(GameLib.RSetupLuaTableValue.GetLocalTimeStampByParams(year, month, day, hour, minute, second))
+end
+
+---@brief 根据时间字符串获取本地时间戳
+---@param timeDescStr string
+---@return number
+function HonorTimerHelper:GetLocalTimeStampByString(timeDescStr)
+    if not timeDescStr then return 0 end
+    local info = self:GetTimeInfoByString(timeDescStr)
+    return self:GetLocalTimeStampByParams(info[1], info[2], info[3], info[4], info[5], info[6])
+end
+
+---@brief 获取 UTC0 时间戳
+---@return number
+function HonorTimerHelper:GetUTC0TimeStamp()
+    return math.floor(GameLib.RSetupLuaTableValue.GetUTC0TimeStamp())
+end
+
+---@brief 获取 UTC0 时间信息
+---@param utc0SecondsFromServer number
+---@return table
+function HonorTimerHelper:GetUTC0TimeInfo(utc0SecondsFromServer)
+    local dt = GameLib.RSetupLuaTableValue.GetUTC0TimeInfo(utc0SecondsFromServer ~= nil, utc0SecondsFromServer)
+    return { dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second }
+end
+
+---@brief 根据 UTC0 时间戳获取时间信息
+---@param utc0TimeStamp number
+---@return table
+function HonorTimerHelper:GetUTC0TimeInfoByUTC0TimeStamp(utc0TimeStamp)
+    if not utc0TimeStamp then return nil end
+    local dt = GameLib.RSetupLuaTableValue.GetUTC0TimeInfoByUTC0TimeStamp(utc0TimeStamp)
+    return { dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second }
+end
+
+---@brief 根据年月日时分秒生成 UTC0 时间戳
+---@param year number
+---@param month number
+---@param day number
+---@param hour number
+---@param minute number
+---@param second number
+---@return number
+function HonorTimerHelper:GetUTC0TimeStampByParams(year, month, day, hour, minute, second)
+    if not (year and month and day and hour and minute and second) then return 0 end
+    return math.floor(GameLib.RSetupLuaTableValue.GetUTC0TimeStampByParams(year, month, day, hour, minute, second))
+end
+
+---@brief 根据时间字符串获取 UTC0 时间戳
+---@param timeDescStr string
+---@return number
+function HonorTimerHelper:GetUTC0TimeStampByString(timeDescStr)
+    if not timeDescStr then return 0 end
+    local info = self:GetTimeInfoByString(timeDescStr)
+    return self:GetUTC0TimeStampByParams(info[1], info[2], info[3], info[4], info[5], info[6])
+end
+
+---@brief 计算两个时间戳之间跨天数
+---@param timeStamp1 number
+---@param timeStamp2 number
+---@return number
+function HonorTimerHelper:GetAcrossDayNumBetweenTimeStamps(timeStamp1, timeStamp2)
+    return TimeUtils.GetAcrossDayNumBetweenTimeStamps(timeStamp1, timeStamp2)
+end
+
+---@brief 将时间字符串转为总秒数
+---@param timeDescStr string
+---@return number
+function HonorTimerHelper:GetSecondsByString(timeDescStr)
+    return TimeUtils.GetSecondsByString(timeDescStr)
+end
+
+---@brief 解析时间字符串为时间数组
+---@param timeDescStr string
+---@return table
+function HonorTimerHelper:GetTimeInfoByString(timeDescStr)
+    return TimeUtils.ParseTimeString(timeDescStr)
+end
+
+---@brief 时间戳转格式化字符串
+---@param format string
+---@param timeStamp number
+---@return string
+function HonorTimerHelper:GetTimeStringByTimeStamp(format, timeStamp)
+    return GameLib.RSetupLuaTableValue.GetTimeStringByTimeStamp(format, timeStamp)
+end
+
+---@brief 是否已校正服务器时间
+---@return boolean
+function HonorTimerHelper:IsTimeCorrectionByServer()
+    return self._IsTimeCorrectionByServer
+end
+
+---@brief UTC0 转 PST（西八区）
+---@param utc0TimeStamp number
+---@return number
+function HonorTimerHelper:GetPSTTimeStamp(utc0TimeStamp)
+    return utc0TimeStamp - 28800
+end
+--endregion
+
+return HonorTimerHelper

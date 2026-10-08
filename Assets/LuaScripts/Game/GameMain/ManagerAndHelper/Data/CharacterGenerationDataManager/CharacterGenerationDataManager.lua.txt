@@ -49,12 +49,8 @@ end
 ---@return Tables.Characters_Item @角色配置
 ---=========================================================================
 function CharacterGenerationDataManager:GetDataById(characterId)
-    if table.kIn(Tables.Characters, characterId) then
-        return Tables.Characters[characterId]
-    else
-        PrintError(string.format("角色ID不存在：%s", characterId))
-        return nil
-    end
+    -- 表缺失/未命中降级逻辑复用框架 CoUtil.SafeGetTableEntry
+    return SafeGetTableEntry(Tables, "Characters", characterId, nil, "[CharacterGenerationDataManager]")
 end
 
 --endregion

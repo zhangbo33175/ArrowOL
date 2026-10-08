@@ -19,5 +19,3 @@
 -- [主结构]通知根数据
 ---@class SavePBMsgDef.NotificationDataPB.NotificationData : nil
 ---@field data table @ 系统配置数据
-
-

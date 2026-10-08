@@ -74,9 +74,7 @@ function ItemManager:ClearData()
 end
 --endregion
 
---=========================================================================
--- region 道具解锁判断
---=========================================================================
+--region 道具解锁判断
 
 ---=========================================================================
 ---@brief 判断道具是否解锁（按章节关卡）
@@ -144,11 +142,9 @@ function ItemManager:IsPreBoostersAndBoostersUnlock()
     return true
 end
 
--- endregion
+--endregion
 
---=========================================================================
--- region 道具类型判断
---=========================================================================
+--region 道具类型判断
 
 ---=========================================================================
 ---@brief 道具数量是否足够
@@ -219,11 +215,9 @@ function ItemManager:IsReviveBooster(id)
     return data and data.Type == EResourceType.ITEM and data.SubType == EItemSubType.REVIVE
 end
 
--- endregion
+--endregion
 
---=========================================================================
--- region 道具使用流程（核心：缓存扣减 → 确认 → 写入存档）
---=========================================================================
+--region 道具使用流程
 
 ---=========================================================================
 --- 选择使用（临时扣减到缓存）
@@ -310,11 +304,9 @@ function ItemManager:OnEndUseBooster()
     self._cacheSubNum = {}
 end
 
--- endregion
+--endregion
 
---=========================================================================
--- region 数量管理（显示层 = 存档 - 缓存）
---=========================================================================
+--region 数量管理
 
 ---=========================================================================
 --- 获取显示数量（最终玩家看到的）
@@ -387,10 +379,7 @@ function ItemManager:AddSelNumToCache(id, subNum)
 
     local old = self:GetNum(id)
     self._cacheSubNum[id] = (self._cacheSubNum[id] or 0) + subNum
-    local now = self:GetNum(id)
-
-    HonorEventHelper:Fire(EventCmd.OnBoosterNumModifyEvent, { ID = id, oldNum = old, newNum = now })
-    return now
+    return self:_FireBoosterNumModify(id, old)
 end
 
 ---=========================================================================
@@ -405,9 +394,18 @@ function ItemManager:SubCacheNum(id, subNum)
 
     local old = self:GetNum(id)
     self._cacheSubNum[id] = math.max((self._cacheSubNum[id] or 0) - subNum, 0)
-    local now = self:GetNum(id)
+    return self:_FireBoosterNumModify(id, old)
+end
 
-    HonorEventHelper:Fire(EventCmd.OnBoosterNumModifyEvent, { ID = id, oldNum = old, newNum = now })
+---=========================================================================
+---@brief 抛出道具数量变更事件并返回最新显示数量（内部公共实现）
+---@param id string 道具ID
+---@param oldNum number 旧显示数量
+---@return number 最新显示数量
+---=========================================================================
+function ItemManager:_FireBoosterNumModify(id, oldNum)
+    local now = self:GetNum(id)
+    HonorEventHelper:Fire(EventCmd.OnBoosterNumModifyEvent, { ID = id, oldNum = oldNum, newNum = now })
     return now
 end
 
@@ -449,9 +447,7 @@ end
 
 --endregion
 
---=========================================================================
 --region 生命（体力）系统
---=========================================================================
 
 ---=========================================================================
 ---@brief 获取最大生命
@@ -501,9 +497,7 @@ end
 
 --endregion
 
---=========================================================================
 --region 新账号初始化
---=========================================================================
 
 ---=========================================================================
 ---@brief 新账号钻石初始化

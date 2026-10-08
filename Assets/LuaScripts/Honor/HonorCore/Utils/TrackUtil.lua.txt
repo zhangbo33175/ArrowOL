@@ -1,0 +1,62 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  TrackUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     数据埋点工具类
+-- @desc      从 GameFunctions 拆分：奖励获取统计上报
+-- @dependency ResourceDataManager, AchievementSys, ThinkingAnalyticsHelper, CurrencyMgr
+--=====================================================================================================
+
+local TrackUtil = {}
+
+--region 埋点 / 统计
+
+--=====================================================================================================
+-- 数据埋点工具：奖励获取统计上报
+--=====================================================================================================
+
+---@brief 单个奖励统计打点
+---@param itemId string 道具ID
+---@param count number 数量
+---@param reason number 获取原因
+---@param purchaseId string 购买ID
+---@param areaId string 区域ID
+function TrackUtil.TrackReward(itemId, count, reason, purchaseId, areaId)
+    local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
+    if not data then return end
+
+    if data.Type == EResourceType.Currency then
+        if data.ID == EResourceIDs.Coin then
+            if AchievementSys then AchievementSys:OnCoinGet(count, reason, purchaseId) end
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCoinGetted(reason, CurrencyMgr:GetCoinKey(areaId), count, purchaseId, areaId) end
+        elseif data.ID == EResourceIDs.Gem then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnGemGet(reason, count, purchaseId) end
+        elseif data.ID == EResourceIDs.Star then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnStarGet(reason, count, purchaseId) end
+        elseif data.ID == EResourceIDs.CollectionToken then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCollectionTokenGet(reason, count, purchaseId) end
+        elseif data.ID == EResourceIDs.Ticket then
+            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnTicketGet(reason, count, purchaseId) end
+        end
+    else
+        if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnBoosterGet(reason, itemId, count, purchaseId) end
+    end
+end
+
+---@brief 批量奖励打点
+---@param rewardList table 奖励列表
+---@param reason number 获取原因
+---@param purchaseId string 购买ID
+---@param areaId string 区域ID
+function TrackUtil.TrackRewardList(rewardList, reason, purchaseId, areaId)
+    if not rewardList or not rewardList.items then return end
+    for _, r in ipairs(rewardList.items) do
+        TrackUtil.TrackReward(r.Id, r.Num, reason, purchaseId, areaId)
+    end
+end
+
+--endregion
+
+return TrackUtil

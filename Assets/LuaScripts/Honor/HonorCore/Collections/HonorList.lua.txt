@@ -1,0 +1,124 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  HonorList.lua.txt
+-- author:    云毅
+-- created:    2026
+-- descrip:    通用动态列表（仿 C# List<T>）
+--             用途：存储、管理一组有序元素，框架最基础、最常用的数据容器
+--             适用：对象列表、UI集合、任务队列、数据缓存、有序数据管理
+--             特性：自动扩容、有序存储、索引从 1 开始（Lua 原生规则）
+--=====================================================================================================
+
+--region 通用动态列表容器（仿 C# List）
+local TableUtil = require("TableUtil")
+
+---@class HonorList 通用动态列表容器（仿 C# List）
+---@field items table 内部存储元素的原生数组
+local HonorList = class("HonorList")
+
+---@brief 构造函数
+function HonorList:ctor()
+    ---@type table 内部元素数组
+    self.items = {}
+end
+
+---@brief 创建列表实例（静态工厂方法）
+---@return HonorList 新的列表实例
+function HonorList:Create()
+    local list = HonorList.new()
+    return list
+end
+
+---@brief 添加元素到列表末尾
+---@param item any 要添加的任意类型元素
+function HonorList:Add(item)
+    table.insert(self.items, item)
+end
+
+---@brief 获取列表中元素的总数量
+---@return number 元素个数
+function HonorList:Count()
+    return #self.items
+end
+
+---@brief 判断列表是否为空
+---@return boolean true=空, false=非空
+function HonorList:IsEmpty()
+    return self:Count() == 0
+end
+
+---@brief 判断列表是否包含指定元素
+---@param item any 要查找的元素
+---@return boolean 是否存在
+function HonorList:Contains(item)
+    return TableUtil.ContainsValue(self.items, item)
+end
+
+---@brief 根据索引获取元素
+---@param index number 索引（从 1 开始）
+---@return any 对应位置的元素，索引越界返回 nil
+function HonorList:Get(index)
+    return self.items[index]
+end
+
+---@brief 根据索引设置元素
+---@param index number 索引（从 1 开始）
+---@param item any 要设置的元素
+function HonorList:Set(index, item)
+    if index >= 1 and index <= self:Count() then
+        self.items[index] = item
+    end
+end
+
+---@brief 移除指定的元素（第一个匹配项）
+---@param item any 要移除的元素
+---@return boolean 是否移除成功
+function HonorList:Remove(item)
+    for i = 1, self:Count() do
+        if self.items[i] == item then
+            table.remove(self.items, i)
+            return true
+        end
+    end
+    return false
+end
+
+---@brief 移除指定索引位置的元素
+---@param index number 索引（从 1 开始）
+---@return boolean 是否移除成功
+function HonorList:RemoveAt(index)
+    if index < 1 or index > self:Count() then
+        return false
+    end
+    table.remove(self.items, index)
+    return true
+end
+
+---@brief 清空列表所有元素
+function HonorList:Clear()
+    self.items = {}
+end
+
+---@brief 转换为 Lua 原生数组
+---@return table 原生数组
+function HonorList:ToArray()
+    local array = {}
+    for i = 1, self:Count() do
+        array[i] = self.items[i]
+    end
+    return array
+end
+
+---@brief 遍历列表（安全迭代，不建议在遍历中删除）
+---@param action fun(index:number, item:any) 遍历回调
+function HonorList:ForEach(action)
+    if type(action) ~= "function" then return end
+    for i = 1, self:Count() do
+        action(i, self.items[i])
+    end
+end
+--endregion
+
+return HonorList

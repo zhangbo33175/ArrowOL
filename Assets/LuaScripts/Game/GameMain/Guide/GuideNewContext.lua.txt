@@ -120,7 +120,7 @@ end
 function GuideNewContext:ForceCloseTutorial()
     self:TryForceCloseTutorialByID()
     if GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
-        HonorEventHelper:Fire(EventCmd.OnTryResumeGameMainPushUI, "ForceCloseTutorial")
+        HonorEventHelper:Fire(UIEventCode.OnTryResumeGameMainPushUI, "ForceCloseTutorial")
     end
 end
 

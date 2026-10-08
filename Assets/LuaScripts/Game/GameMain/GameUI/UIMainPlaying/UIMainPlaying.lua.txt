@@ -4,7 +4,7 @@
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIMainPlaying.lua
 -- author:    云毅
--- descrip:   游戏主界面
+-- descrip:   游戏主界面（视图层，只处理界面内容；业务逻辑见 UIMainPlayingManager）
 --=====================================================================================================
 
 ---@class UIMainPlaying : LuaBehaviourSuper
@@ -23,12 +23,13 @@
 ---@field Bg                                 UnityEngine.UI.Image          √                        界面bg图
 local UIMainPlaying = class('UIMainPlaying', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UIMainPlaying:ctor(args)
     UIMainPlaying.super.ctor(self, args)
-    self:Init()
 end
 
 ---创建函数
@@ -40,6 +41,10 @@ function UIMainPlaying:Create(args)
     return obj
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---注册监听（自动注销）
 ---@type fun():void
 function UIMainPlaying:OnAddListeners()
@@ -49,72 +54,42 @@ end
 
 ---唤醒
 ---@type fun():void
+---@desc 逐条注册按钮交互监听到 Manager 业务动作（业务逻辑统一在 Manager 中处理）；
+---      监听经 self:AddUIListener 记录，界面销毁时由 LuaBehaviourSuper:OnDestroy 自动注销
+---@desc 回调统一使用 Bind(self, method) 绑定（对齐 HonorUI `self:AddUIListener(eventCode, Bind(self, _OnX))` 结构）
+--TODO: [优化] 按钮监听由 AddUIListenerBatch 批量改为 self:AddUIListener 逐条（自动注销，对齐 UIAnnalsView 模式）
 function UIMainPlaying:Awake()
     UIMainPlaying.super.Awake(self)
-    -- 2=====================================================================================================
-    AddUIListenerFunction(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
-    AddUIListenerFunction(self.SearchButton, 'Clicked', handler(self, self.OnSearchButtonClicked))
-    AddUIListenerFunction(self.xianshi, 'Clicked', handler(self, self.OnXianshiClicked))
-    AddUIListenerFunction(self.yinchang, 'Clicked', handler(self, self.OnYinchangClicked))
--- ====================================================================================================2
+    -- 绑定按钮 → Manager 业务动作（业务逻辑统一在 Manager 中处理）
+    self:AddUIListener(self.SettingButton, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.OpenSettingView))
+    self:AddUIListener(self.SearchButton, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.StartAutoScan))
+    self:AddUIListener(self.xianshi, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.ShowBackground))
+    self:AddUIListener(self.yinchang, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.HideBackground))
 
     -- 给Top和Down节点添加透明Image拦截点击穿透
     self:AddRaycastBlocker("Top")
     self:AddRaycastBlocker("Down")
-    HonorEventHelper:AddListener(EventCmd.LifeTransformation, handler(self, self.OnSelectedResult))
+
+    -- 挂载 Manager：注册业务事件监听并初始化界面数据
+    UIMainPlayingManager:OnViewOpened(self)
 end
-
-function UIMainPlaying:OnSelectedResult(data)
-
-
-    for i = 1, MainPlayingManager:GetLifeNumber() do
-        
-    end
-    
-    
-    
-end
-
-
----初始化逻辑
----@type fun():void
-function UIMainPlaying:Init()
-    self:OnSetCompleteNumber()
-    self:OnSetUsedNumber()
-  
-end
-
-function UIMainPlaying:OnSetCompleteNumber()
-    self.CompleteNumber.text =  MainPlayingManager:GetCharacterAndChooseListCount()
-end
-
-function UIMainPlaying:OnSetUsedNumber()
-    self.UsedNumber.text = MainPlayingManager:GetNumberOfPropsUsed()
-end
-
-function UIMainPlaying:OnSetLifeNumber()
-    self.LifeNumber.text = MainPlayingManager:GetLifeNumber()
-end
-
 
 ---开始
 ---@type fun():void
 function UIMainPlaying:Start()
     UIMainPlaying.super.Start(self)
-    self:Init()
+    -- 打开界面时按当前生命数加载 FishItem（业务交 Manager）
+    UIMainPlayingManager:OnViewStart()
 end
 
 ---销毁
 ---@type fun():void
+---@desc UI 按钮监听由 LuaBehaviourSuper:OnDestroy 自动注销（self:AddUIListener 记录），
+---      此处仅卸载 Manager：注销业务事件监听、清空视图引用
 function UIMainPlaying:OnDestroy()
     UIMainPlaying.super.OnDestroy(self)
-    -- 3=====================================================================================================
-    OnRemoveListener(self.SettingButton, 'Clicked', handler(self, self.OnSettingButtonClicked))
-    OnRemoveListener(self.SearchButton, 'Clicked', handler(self, self.OnSearchButtonClicked))
-    OnRemoveListener(self.xianshi, 'Clicked', handler(self, self.OnXianshiClicked))
-    OnRemoveListener(self.yinchang, 'Clicked', handler(self, self.OnYinchangClicked))
--- ====================================================================================================3
-    HonorEventHelper:RemoveListener(EventCmd.LifeTransformation, handler(self, self.OnSelectedResult))
+    -- 卸载 Manager：注销业务事件监听、清空视图引用
+    UIMainPlayingManager:OnViewClosed()
 end
 
 ---播放打开动画（可重写）
@@ -136,28 +111,59 @@ function UIMainPlaying:OnAddedUIDestroyed(luaClass)
     UIMainPlaying.super.OnAddedUIDestroyed(self, luaClass)
 end
 
----设置按钮-交互回调
----@type fun(args:any):void
-function UIMainPlaying:OnSettingButtonClicked(args)
-    OpenUIAsync(UIs.UISettingView)
+--endregion
+
+--region 【界面数据】
+
+---@brief 设置目标完成数
+---@param value any @完成数量（由 Manager 传入）
+function UIMainPlaying:SetCompleteNumber(value)
+    self.CompleteNumber.text = value
 end
 
----搜索按钮-交互回调
----@type fun(args:any):void
-function UIMainPlaying:OnSearchButtonClicked(args)
-    --GameMapMotion:MoveToCenter(MainPlayingManager:GetCharacterLocalPosition(),0.02)
-    GameMapMotion:StartAutoScan(300)
+---@brief 设置已使用道具数
+---@param value any @已使用道具数量（由 Manager 传入）
+function UIMainPlaying:SetUsedNumber(value)
+    self.UsedNumber.text = value
 end
 
----显示-交互回调
----@type fun(args:any):void
-function UIMainPlaying:OnXianshiClicked(args)
-    local img = self.AdDisplayGameObject -- __BgImage
-    if img then img:SetActive(true) end
-    GameMapMotion:UpdateCameraRect(199.237)
+---@brief 设置生命数（预留接口）
+---@param value any @生命数量（由 Manager 传入；当前以 FishItem 图标展示，无文本字段时跳过）
+function UIMainPlaying:SetLifeNumber(value)
+    if self.LifeNumber then
+        self.LifeNumber.text = value
+    end
+end
+
+--endregion
+
+--region 【界面结构】
+
+---获取 FishItem 挂载父节点（LifeTransform）
+---@brief 兼容注入字段为 Transform 或 GameObject 两种形态（预制体存在同名双注入），
+---      注入为空时按名称递归查找，最终兜底到自身节点
+---@return UnityEngine.Transform 挂载父节点（Transform）
+function UIMainPlaying:GetFishParent()
+    local parent = self.LifeTransform
+    -- GameObject 注入时取其 transform；Transform 注入时 transform 为其自身，统一为 Transform
+    if not IsNull(parent) and parent.transform then
+        parent = parent.transform
+    end
+    -- 注入为空时按名称递归查找兜底
+    if IsNull(parent) then
+        parent = FindChildTransform(self.cs.transform, "LifeTransform")
+    end
+    -- 最终兜底：挂载到自身节点
+    if IsNull(parent) then
+        PrintWarning("[UIMainPlaying] 未找到 LifeTransform 挂载节点，FishItem 将挂载到自身节点下")
+        parent = self.cs.transform
+    end
+    return parent
 end
 
 ---给指定节点添加透明Image拦截点击穿透
+---@brief 优先使用注入字段，其次在自身节点、根节点下按名称查找，找到后添加透明 Image 拦截点击
+---@param nodeName string @节点名
 function UIMainPlaying:AddRaycastBlocker(nodeName)
     local node = nil
 
@@ -201,12 +207,6 @@ function UIMainPlaying:AddRaycastBlocker(nodeName)
     print("[RaycastBlocker] OK on "..nodeName.." ("..node.name..")")
 end
 
----隐藏背景-交互回调
----@type fun(args:any):void
-function UIMainPlaying:OnYinchangClicked(args)
-    local img = self.AdDisplayGameObject  -- __BgImage
-    if img then img:SetActive(false) end
-    GameMapMotion:UpdateCameraRect(0)
-end
+--endregion
 
 return UIMainPlaying

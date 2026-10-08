@@ -44,8 +44,8 @@ namespace Honor.Editor
         /// </summary>
         private void OnEnable()
         {
-            m_AudioMixer = serializedObject.FindProperty("m_AudioMixer");
-            m_SoundGroupShells = serializedObject.FindProperty("m_SoundGroupShells");
+            m_AudioMixer = BindProperty("m_AudioMixer");
+            m_SoundGroupShells = BindProperty("m_SoundGroupShells");
         }
         #endregion
 

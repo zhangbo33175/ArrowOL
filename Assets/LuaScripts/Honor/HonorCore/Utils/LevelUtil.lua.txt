@@ -1,0 +1,37 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  LevelUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     关卡 / 解锁工具类
+-- @desc      从 GameFunctions 拆分：章节/关卡解锁条件判断
+-- @dependency GamerDataMgr
+--=====================================================================================================
+
+local LevelUtil = {}
+
+--region 关卡 / 解锁工具
+
+--=====================================================================================================
+-- 关卡解锁工具：章节/关卡解锁条件判断
+--=====================================================================================================
+
+---@brief 判断是否解锁章节/关卡
+---@param unlockChapter number 解锁章节
+---@param unlockLevel number 解锁关卡
+---@param currentChapter number 当前章节
+---@param currentLevel number 当前关卡
+---@return boolean 是否解锁
+function LevelUtil.IsLevelUnlocked(unlockChapter, unlockLevel, currentChapter, currentLevel)
+    currentChapter = currentChapter or tonumber(GamerDataMgr:GetLatestChapterId())
+    currentLevel = currentLevel or GamerDataMgr:GetLevelLvByChapterId(tostring(currentChapter))
+
+    if currentChapter > unlockChapter then return true end
+    if currentChapter == unlockChapter and currentLevel >= unlockLevel then return true end
+    return false
+end
+
+--endregion
+
+return LevelUtil

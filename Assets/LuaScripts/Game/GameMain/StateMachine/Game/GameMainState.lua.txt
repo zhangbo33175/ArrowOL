@@ -81,6 +81,12 @@ end
 ---@param finishCallback function|nil 完成回调函数
 ---=========================================================================
 function GameMainState:DoStateEnter(finishCallback)
+    -- 重置地图相机渲染区域：清除游玩时"放大缩小"残留的缩放/裁剪状态，保证主界面以正常视角展示
+    --TODO: [修复] 返回主界面时重置相机渲染矩形，消除游玩放大视角的残留
+    if GameMapMotion and GameMapMotion.ScreenCamera then
+        GameMapMotion:UpdateCameraRect(0)
+    end
+
     -- 打开主界面HUD
     OpenUISync(UIs.UIMainStateView)
     -- 移除UI遮罩，允许用户交互
@@ -96,9 +102,7 @@ function GameMainState:DoStateEnter(finishCallback)
     GameManager:SetupEasyTouchAutoSelect(false)
 
     -- 安全执行完成回调
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 --endregion
@@ -122,10 +126,8 @@ function GameMainState:OnStateExit(finishCallback)
     -- 关闭主界面HUD
     CloseUI(UIs.UIMainStateView)
 
-    -- 安全执行回调，使用xpcall携带堆栈捕获，统一项目规范
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    -- 安全执行完成回调（统一走 SafeCallFinish，内部携带堆栈捕获）
+    SafeCallFinish(finishCallback)
 end
 
 --endregion

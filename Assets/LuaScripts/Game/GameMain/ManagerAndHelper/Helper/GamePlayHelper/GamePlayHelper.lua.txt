@@ -159,7 +159,27 @@ end
 ---@type fun():void
 ---@brief 退出关卡，返回主界面
 function GamePlayHelper:GameExitPlayHud()
+    -- 重置相机缩放（放大缩小），避免返回主界面后画面残留缩放状态
+    --TODO: [修复] 返回主界面时重置相机渲染矩形，防止放大缩小状态残留
+    if GameMapMotion and GameMapMotion.ScreenCamera then
+        GameMapMotion:UpdateCameraRect(0)
+    end
     GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
+end
+
+---@type fun():void
+---@brief 重玩当前关卡：重置本局数据并重新进入游玩状态
+---@desc 结算界面"重新开始"按钮调用。直接进入加载状态机，先卸载当前地图（CurLoadChapterId 置空），
+---      再重载当前章节，触发 OnReadyToLoadMap → GameCoreManager:OnRePlayGame 完成数据重置。
+--TODO: [新增] 结算界面"重新开始"按钮调用，强制重载当前章节实现重开
+function GamePlayHelper:RePlayCurrentLevel()
+    local curChapterId = GamerDataManager:GetCurChapterId()
+    if not curChapterId then
+        PrintError("[GamePlayHelper] 无法获取当前章节ID，重玩失败")
+        return
+    end
+    -- 直接进入加载状态机：先退出游玩状态卸载地图，再重载当前章节
+    MapManager:ReadyToLoadMap(curChapterId, function() end)
 end
 
 ---@type fun():void

@@ -29,5 +29,3 @@
 ---@field regTime SavePBMsgDef.UserDataPB.Time @ 注册时间
 ---@field loginTime SavePBMsgDef.UserDataPB.StageTime @ 登陆时间
 ---@field latestTime SavePBMsgDef.UserDataPB.Time @ 最近运行截止时间
-
-

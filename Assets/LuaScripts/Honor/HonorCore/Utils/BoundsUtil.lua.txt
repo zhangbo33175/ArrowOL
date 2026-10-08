@@ -1,0 +1,94 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  BoundsUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     包围盒工具类
+-- @desc      从 GameFunctions 拆分：3D/2D/UI 屏幕包围盒计算
+-- @dependency UnityEngine, SystemFuncs（SceneToScreenPoint/UIToScreenPoint）、UnityUtil（GetRectTransformCenterWorldPos）
+--=====================================================================================================
+
+local BoundsUtil = {}
+
+--region 依赖引入
+-- 框架内自洽：空判断走同域工具，避免依赖业务层 GameFunctions 全局
+local UnityUtil = require('UnityUtil')
+--endregion
+
+--region 包围盒工具
+
+--=====================================================================================================
+-- 包围盒工具：3D/2D/UI 屏幕包围盒计算
+--=====================================================================================================
+
+---@brief 由最小/最大屏幕坐标构造包围盒结果表（中心 + 尺寸）
+---@param minScreen UnityEngine.Vector2 最小屏幕坐标
+---@param maxScreen UnityEngine.Vector2 最大屏幕坐标
+---@return table 包围盒信息（center + size）
+local function BuildScreenBoundsResult(minScreen, maxScreen)
+    return {
+        center = (minScreen + maxScreen) / 2,
+        size = maxScreen - minScreen
+    }
+end
+
+---@brief 获取模型屏幕包围盒
+---@param meshFilter UnityEngine.MeshFilter 网格过滤器
+---@return table 包围盒信息（center + size）
+function BoundsUtil.GetMeshScreenBounds(meshFilter)
+    if UnityUtil.IsNull(meshFilter) then return nil end
+    local mesh = meshFilter.mesh or meshFilter.sharedMesh
+    if UnityUtil.IsNull(mesh) then return nil end
+
+    local pos = meshFilter.transform.position
+    local bounds = mesh.bounds
+    local minWorld = bounds.min + pos
+    local maxWorld = bounds.max + pos
+
+    local minScreen = SceneToScreenPoint(minWorld)
+    local maxScreen = SceneToScreenPoint(maxWorld)
+
+    return BuildScreenBoundsResult(minScreen, maxScreen)
+end
+
+---@brief 获取2D碰撞盒屏幕包围盒
+---@param collider2D UnityEngine.BoxCollider2D 2D碰撞器
+---@return table 包围盒信息（center + size）
+function BoundsUtil.GetBox2DScreenBounds(collider2D)
+    if UnityUtil.IsNull(collider2D) then return nil end
+    local b = collider2D.bounds
+    local minScreen = SceneToScreenPoint(b.min)
+    local maxScreen = SceneToScreenPoint(b.max)
+    return BuildScreenBoundsResult(minScreen, maxScreen)
+end
+
+---@brief 获取UI屏幕包围盒
+---@param rectTransform UnityEngine.RectTransform UI矩形变换
+---@param camera UnityEngine.Camera 渲染相机
+---@return table 包围盒信息（center + size）
+function BoundsUtil.GetRectTransformScreenBounds(rectTransform, camera)
+    if UnityUtil.IsNull(rectTransform) then return nil end
+    local size = rectTransform.rect.size
+    local half = size / 2
+    local centerLocal = rectTransform.localPosition
+
+    local minLocal = centerLocal - Vector3(half.x, half.y, 0)
+    local maxLocal = centerLocal + Vector3(half.x, half.y, 0)
+
+    local minWorld = rectTransform:TransformPoint(minLocal)
+    local maxWorld = rectTransform:TransformPoint(maxLocal)
+
+    local minScreen = UIToScreenPoint(minWorld, camera)
+    local maxScreen = UIToScreenPoint(maxWorld, camera)
+    local centerScreen = UIToScreenPoint(GetRectTransformCenterWorldPos(rectTransform), camera)
+
+    return {
+        center = centerScreen,
+        size = maxScreen - minScreen
+    }
+end
+
+--endregion
+
+return BoundsUtil

@@ -142,8 +142,8 @@ namespace Honor.Editor
         /// </summary>
         private void OnEnable()
         {
-            m_UnloadAssetDelayFrameNum  = serializedObject.FindProperty("m_UnloadAssetDelayFrameNum");
-            m_LoadedMaxNumToCleanMemery = serializedObject.FindProperty("m_LoadedMaxNumToCleanMemery");
+            m_UnloadAssetDelayFrameNum  = BindProperty("m_UnloadAssetDelayFrameNum");
+            m_LoadedMaxNumToCleanMemery = BindProperty("m_LoadedMaxNumToCleanMemery");
 
             RefreshTypeNames();
         }

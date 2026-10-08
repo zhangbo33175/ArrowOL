@@ -74,34 +74,34 @@ namespace Honor.Editor
         private void OnEnable()
         {
             // 按钮
-            m_StartButton          = serializedObject.FindProperty("m_StartButton");
-            m_StartButtonText      = serializedObject.FindProperty("m_StartButtonText");
-            m_StartButtonTextTMP   = serializedObject.FindProperty("m_StartButtonTextTMP");
-            m_RetryButton          = serializedObject.FindProperty("m_RetryButton");
-            m_RetryButtonText      = serializedObject.FindProperty("m_RetryButtonText");
-            m_RetryButtonTextTMP   = serializedObject.FindProperty("m_RetryButtonTextTMP");
-            m_CloseButton          = serializedObject.FindProperty("m_CloseButton");
-            m_CloseButtonText      = serializedObject.FindProperty("m_CloseButtonText");
-            m_CloseButtonTextTMP   = serializedObject.FindProperty("m_CloseButtonTextTMP");
+            m_StartButton          = BindProperty("m_StartButton");
+            m_StartButtonText      = BindProperty("m_StartButtonText");
+            m_StartButtonTextTMP   = BindProperty("m_StartButtonTextTMP");
+            m_RetryButton          = BindProperty("m_RetryButton");
+            m_RetryButtonText      = BindProperty("m_RetryButtonText");
+            m_RetryButtonTextTMP   = BindProperty("m_RetryButtonTextTMP");
+            m_CloseButton          = BindProperty("m_CloseButton");
+            m_CloseButtonText      = BindProperty("m_CloseButtonText");
+            m_CloseButtonTextTMP   = BindProperty("m_CloseButtonTextTMP");
 
             // 进度
-            m_ProgressSlider       = serializedObject.FindProperty("m_ProgressSlider");
-            m_ProgressText         = serializedObject.FindProperty("m_ProgressText");
-            m_ProgressTextTMP      = serializedObject.FindProperty("m_ProgressTextTMP");
+            m_ProgressSlider       = BindProperty("m_ProgressSlider");
+            m_ProgressText         = BindProperty("m_ProgressText");
+            m_ProgressTextTMP      = BindProperty("m_ProgressTextTMP");
 
             // 字节/文件/描述
-            m_BytesNumText         = serializedObject.FindProperty("m_BytesNumText");
-            m_BytesNumTextTMP      = serializedObject.FindProperty("m_BytesNumTextTMP");
-            m_FileNumText          = serializedObject.FindProperty("m_FileNumText");
-            m_FileNumTextTMP       = serializedObject.FindProperty("m_FileNumTextTMP");
-            m_DescText             = serializedObject.FindProperty("m_DescText");
-            m_DescTextTMP          = serializedObject.FindProperty("m_DescTextTMP");
+            m_BytesNumText         = BindProperty("m_BytesNumText");
+            m_BytesNumTextTMP      = BindProperty("m_BytesNumTextTMP");
+            m_FileNumText          = BindProperty("m_FileNumText");
+            m_FileNumTextTMP       = BindProperty("m_FileNumTextTMP");
+            m_DescText             = BindProperty("m_DescText");
+            m_DescTextTMP          = BindProperty("m_DescTextTMP");
 
             // 切换过渡
-            m_EnterTransitionEnabled  = serializedObject.FindProperty("m_EnterTransitionEnabled");
-            m_EnterTransitionDuration = serializedObject.FindProperty("m_EnterTransitionDuration");
-            m_ExitTransitionEnabled   = serializedObject.FindProperty("m_ExitTransitionEnabled");
-            m_ExitTransitionDuration  = serializedObject.FindProperty("m_ExitTransitionDuration");
+            m_EnterTransitionEnabled  = BindProperty("m_EnterTransitionEnabled");
+            m_EnterTransitionDuration = BindProperty("m_EnterTransitionDuration");
+            m_ExitTransitionEnabled   = BindProperty("m_ExitTransitionEnabled");
+            m_ExitTransitionDuration  = BindProperty("m_ExitTransitionDuration");
         }
 
         /// <summary>

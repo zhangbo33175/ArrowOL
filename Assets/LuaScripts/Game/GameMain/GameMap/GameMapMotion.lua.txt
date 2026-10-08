@@ -23,7 +23,7 @@ local GameMapMotion = {
     VectorContainer1 = { x = 0, y = 0, z = 0 },  -- 坐标临时容器1
     VectorContainer2 = { x = 0, y = 0, z = 0 },  -- 坐标临时容器2
     Vector3Num = { x = 0, y = 0, z = 0 },       -- 通用临时向量
-    InertialSlidingVector = { x=0,y=0,z=0 },     -- 惯性方向向量
+    InertialSlidingVector = { x = 0, y = 0, z = 0 },     -- 惯性方向向量
 
     PointStartFromUI = false,                   -- 是否从UI开始按压
     lastMousePos = nil,                         -- 上一帧鼠标位置
@@ -134,6 +134,26 @@ function GameMapMotion:IsInsideScreen(x, y)
     return x >= 0 and y >= 0 and x <= CS.UnityEngine.Screen.width and y <= CS.UnityEngine.Screen.height
 end
 
+---@brief 重置滑动相关状态（惯性系数/平滑值/临时向量归零）
+---@type fun():void
+function GameMapMotion:ResetSwipeState()
+    self.InertialSlidingFactor = 0
+    self.SwipeSmoothStepNum = 0
+    self.Vector3Num.x = 0
+    self.Vector3Num.y = 0
+end
+
+---@brief 应用一次世界位移：写入临时向量、移动跟随目标并递增平滑系数
+---@type fun(dx:number, dy:number):void
+---@param dx number 世界X位移
+---@param dy number 世界Y位移
+function GameMapMotion:ApplyWorldDelta(dx, dy)
+    self.Vector3Num.x = dx
+    self.Vector3Num.y = dy
+    self:MovingFollowPosition(self.Vector3Num)
+    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + CS.UnityEngine.Time.deltaTime * self.StepAddFactor, 0.3, 1)
+end
+
 --endregion
 
 --region 【核心更新逻辑】每帧驱动
@@ -221,10 +241,7 @@ function GameMapMotion:UpdateMouseDrag()
         self.MouseLastScreenPos.y = mp.y
 
         -- 重置状态
-        self.InertialSlidingFactor = 0
-        self.SwipeSmoothStepNum = 0
-        self.Vector3Num.x = 0
-        self.Vector3Num.y = 0
+        self:ResetSwipeState()
     end
 
     -- 拖拽中
@@ -236,12 +253,7 @@ function GameMapMotion:UpdateMouseDrag()
             curr.x, curr.y,
             self.MouseLastScreenPos.x, self.MouseLastScreenPos.y
         )
-        self.Vector3Num.x = dx
-        self.Vector3Num.y = dy
-        self:MovingFollowPosition(self.Vector3Num)
-
-        -- 平滑系数递增
-        self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + CS.UnityEngine.Time.deltaTime * self.StepAddFactor, 0.3, 1)
+        self:ApplyWorldDelta(dx, dy)
         self.MouseLastScreenPos.x = curr.x
         self.MouseLastScreenPos.y = curr.y
     end
@@ -379,10 +391,7 @@ function GameMapMotion:OnSwipeBegin(gesture)
     self.IsPressing = false
     if self.PointStartFromUI then return end
 
-    self.InertialSlidingFactor = 0
-    self.SwipeSmoothStepNum = 0
-    self.Vector3Num.x = 0
-    self.Vector3Num.y = 0
+    self:ResetSwipeState()
 end
 
 ---@brief 滑动中
@@ -401,11 +410,7 @@ function GameMapMotion:OnSwipe(gesture)
         tx - gesture.GetDeltaPositionX(),
         ty - gesture.GetDeltaPositionY()
     )
-    self.Vector3Num.x = dx
-    self.Vector3Num.y = dy
-    self:MovingFollowPosition(self.Vector3Num)
-
-    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + CS.UnityEngine.Time.deltaTime * self.StepAddFactor, 0.3, 1)
+    self:ApplyWorldDelta(dx, dy)
 end
 
 ---@brief 滑动结束
@@ -414,10 +419,7 @@ end
 function GameMapMotion:OnSwipeEnd(gesture)
     if GameManager:IsGamePaused() then return end
     if self.PointStartFromUI then
-        self.InertialSlidingFactor = 0
-        self.SwipeSmoothStepNum = 0
-        self.Vector3Num.x = 0
-        self.Vector3Num.y = 0
+        self:ResetSwipeState()
     end
     self.PointStartFromUI = false
     self.IsPinching = false
@@ -480,6 +482,15 @@ function GameMapMotion:MoveToCenter(targetPos, smooth)
     self.InertialSlidingFactor = 0
 end
 
+---@brief 终止并清理自动扫描 DOTween 序列（幂等）
+---@type fun():void
+function GameMapMotion:KillAutoScanSeq()
+    if self.AutoScanSeq then
+        self.AutoScanSeq:Kill()
+        self.AutoScanSeq = nil
+    end
+end
+
 ---@brief 自动扫描地图：蛇形路径从左上扫到右下，找预制体用
 ---@type fun(orthoSize:number):void
 ---@param orthoSize number 扫描时的相机尺寸，默认 300
@@ -534,10 +545,7 @@ function GameMapMotion:StartAutoScan(orthoSize)
     local camZ = camTransform:GetPositionZ()
 
     -- 先杀掉旧 tween
-    if self.AutoScanSeq then
-        self.AutoScanSeq:Kill()
-        self.AutoScanSeq = nil
-    end
+    self:KillAutoScanSeq()
 
     local seq = CS.DG.Tweening.DOTween.Sequence()
     for i, wp in ipairs(self.AutoScanWaypoints) do
@@ -566,10 +574,7 @@ function GameMapMotion:StopAutoScan()
     self.AutoScanActive = false
     self.AutoScanWaypoints = nil
     self.AutoScanIndex = 0
-    if self.AutoScanSeq then
-        self.AutoScanSeq:Kill()
-        self.AutoScanSeq = nil
-    end
+    self:KillAutoScanSeq()
     -- 同步 FollowPosition 到相机当前位置，防止退出后跳回
     if self.ScreenCamera then
         self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
@@ -728,10 +733,13 @@ function GameMapMotion:OnMapStart(mapTrans)
     self:SetCameraRect(199.237, 116.7621, 1334)
 
     -- 禁用物理射线检测：游戏点击由 TriggerClick 手动遍历 BoxCollider2D 处理，
-    -- 不需要 Physics2DRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
+    -- 不需要 Physics2DRaycaster / PhysicsRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
+    --TODO: [修复] 补充禁用 PhysicsRaycaster(3D)，与 Physics2DRaycaster 一并关闭，消除相机rect裁剪区域上的射线警告
     self.ScreenCamera.eventMask = 0
-    local raycaster = self.ScreenCamera:GetComponent(typeof(CS.UnityEngine.EventSystems.Physics2DRaycaster))
-    if raycaster then raycaster.enabled = false end
+    local raycaster2D = self.ScreenCamera:GetComponent(typeof(CS.UnityEngine.EventSystems.Physics2DRaycaster))
+    if raycaster2D then raycaster2D.enabled = false end
+    local raycaster3D = self.ScreenCamera:GetComponent(typeof(CS.UnityEngine.EventSystems.PhysicsRaycaster))
+    if raycaster3D then raycaster3D.enabled = false end
 
     print("[CameraDebug] rect: y="..self.ScreenCamera.rect.y.." h="..self.ScreenCamera.rect.height)
     print('[CameraDebug] size='..self.ScreenCamera.orthographicSize

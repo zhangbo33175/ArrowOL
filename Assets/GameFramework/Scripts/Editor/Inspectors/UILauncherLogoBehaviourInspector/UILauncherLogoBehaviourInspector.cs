@@ -60,21 +60,21 @@ namespace Honor.Editor
         /// </summary>
         private void OnEnable()
         {
-            m_BgImage                  = serializedObject.FindProperty("m_BgImage");
-            m_BottomMaskLayer          = serializedObject.FindProperty("m_BottomMaskLayer");
-            m_TopMaskLayer             = serializedObject.FindProperty("m_TopMaskLayer");
-            m_SplashImage              = serializedObject.FindProperty("m_SplashImage");
-            m_SplashSprite             = serializedObject.FindProperty("m_SplashSprite");
+            m_BgImage                  = BindProperty("m_BgImage");
+            m_BottomMaskLayer          = BindProperty("m_BottomMaskLayer");
+            m_TopMaskLayer             = BindProperty("m_TopMaskLayer");
+            m_SplashImage              = BindProperty("m_SplashImage");
+            m_SplashSprite             = BindProperty("m_SplashSprite");
 
-            m_BlockRaycastOnEntering   = serializedObject.FindProperty("m_BlockRaycastOnEntering");
-            m_BlockRaycastOnExiting    = serializedObject.FindProperty("m_BlockRaycastOnExiting");
-            m_EnterDuration            = serializedObject.FindProperty("m_EnterDuration");
-            m_ExitDuration             = serializedObject.FindProperty("m_ExitDuration");
+            m_BlockRaycastOnEntering   = BindProperty("m_BlockRaycastOnEntering");
+            m_BlockRaycastOnExiting    = BindProperty("m_BlockRaycastOnExiting");
+            m_EnterDuration            = BindProperty("m_EnterDuration");
+            m_ExitDuration             = BindProperty("m_ExitDuration");
 
-            m_SplashBlackHoldDuration  = serializedObject.FindProperty("m_SplashBlackHoldDuration");
-            m_SplashFadeInDuration     = serializedObject.FindProperty("m_SplashFadeInDuration");
-            m_SplashStayDuration       = serializedObject.FindProperty("m_SplashStayDuration");
-            m_SplashFadeOutDuration    = serializedObject.FindProperty("m_SplashFadeOutDuration");
+            m_SplashBlackHoldDuration  = BindProperty("m_SplashBlackHoldDuration");
+            m_SplashFadeInDuration     = BindProperty("m_SplashFadeInDuration");
+            m_SplashStayDuration       = BindProperty("m_SplashStayDuration");
+            m_SplashFadeOutDuration    = BindProperty("m_SplashFadeOutDuration");
         }
 
         /// <summary>

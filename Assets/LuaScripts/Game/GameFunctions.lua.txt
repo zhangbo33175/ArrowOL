@@ -10,6 +10,26 @@
 -- @dependency DG.Tweening, Spine, UnityEngine, GameMainRoot, HonorRuntime
 --=====================================================================================================
 
+--region Utils 工具类引入
+-- 公共工具已按分类拆分至 HonorCore/Utils，本文件保留全局函数名并委托之，接口零破坏
+local TableUtil     = require('TableUtil')
+local StringUtil    = require('StringUtil')
+local UnityUtil     = require('UnityUtil')
+local TweenUtil     = require('TweenUtil')
+local SpineUtil     = require('SpineUtil')
+local StarFlyUtil   = require('StarFlyUtil')
+local ScreenUtil    = require('ScreenUtil')
+local UIAdaptUtil   = require('UIAdaptUtil')
+local BoundsUtil    = require('BoundsUtil')
+local CoUtil        = require('CoUtil')
+local LevelUtil     = require('LevelUtil')
+local QuestUtil     = require('QuestUtil')
+local DataParseUtil = require('DataParseUtil')
+local RewardUtil    = require('RewardUtil')
+local TrackUtil     = require('TrackUtil')
+local ActivityUtil  = require('ActivityUtil')
+--endregion
+
 --region DOTween 缓动类型转换
 
 --=====================================================================================================
@@ -21,45 +41,7 @@
 ---@param intEaseType number 数字缓动类型
 ---@return DG.Tweening.Ease DOTween 缓动枚举
 function ParseEaseByInt(intEaseType)
-    local easeMap = {
-        [0]  = DG.Tweening.Ease.Unset,
-        [1]  = DG.Tweening.Ease.Linear,
-        [2]  = DG.Tweening.Ease.InSine,
-        [3]  = DG.Tweening.Ease.OutSine,
-        [4]  = DG.Tweening.Ease.InOutSine,
-        [5]  = DG.Tweening.Ease.InQuad,
-        [6]  = DG.Tweening.Ease.OutQuad,
-        [7]  = DG.Tweening.Ease.InOutQuad,
-        [8]  = DG.Tweening.Ease.InCubic,
-        [9]  = DG.Tweening.Ease.OutCubic,
-        [10] = DG.Tweening.Ease.InOutCubic,
-        [11] = DG.Tweening.Ease.InQuart,
-        [12] = DG.Tweening.Ease.OutQuart,
-        [13] = DG.Tweening.Ease.InOutQuart,
-        [14] = DG.Tweening.Ease.InQuint,
-        [15] = DG.Tweening.Ease.OutQuint,
-        [16] = DG.Tweening.Ease.InOutQuint,
-        [17] = DG.Tweening.Ease.InExpo,
-        [18] = DG.Tweening.Ease.OutExpo,
-        [19] = DG.Tweening.Ease.InOutExpo,
-        [20] = DG.Tweening.Ease.InCirc,
-        [21] = DG.Tweening.Ease.OutCirc,
-        [22] = DG.Tweening.Ease.InOutCirc,
-        [23] = DG.Tweening.Ease.InElastic,
-        [24] = DG.Tweening.Ease.OutElastic,
-        [25] = DG.Tweening.Ease.InOutElastic,
-        [26] = DG.Tweening.Ease.InBack,
-        [27] = DG.Tweening.Ease.OutBack,
-        [28] = DG.Tweening.Ease.InOutBack,
-        [29] = DG.Tweening.Ease.InBounce,
-        [30] = DG.Tweening.Ease.OutBounce,
-        [31] = DG.Tweening.Ease.InOutBounce,
-        [32] = DG.Tweening.Ease.Flash,
-        [33] = DG.Tweening.Ease.InFlash,
-        [34] = DG.Tweening.Ease.OutFlash,
-        [35] = DG.Tweening.Ease.InOutFlash,
-    }
-    return easeMap[intEaseType] or DG.Tweening.Ease.Linear
+    return TweenUtil.ParseEaseByInt(intEaseType)
 end
 
 --endregion
@@ -74,23 +56,14 @@ end
 ---@type fun():UnityEngine.GameObject
 ---@return UnityEngine.GameObject 对象池根节点
 function GetPoolRoot()
-    return Unity.GameObject.Find("PoolRoot")
+    return UnityUtil.GetPoolRoot()
 end
 
 ---@brief 创建一个新的对象池子节点
 ---@type fun():UnityEngine.GameObject
 ---@return UnityEngine.GameObject 新创建的对象池子节点
 function CreateNewPoolRoot()
-    local poolRootGo = GetPoolRoot()
-    if IsNull(poolRootGo) then
-        poolRootGo = Unity.GameObject("PoolRoot")
-    end
-
-    local newRoot = Unity.GameObject("PoolNew")
-    newRoot.transform:SetParent(poolRootGo.transform)
-    newRoot.transform.localScale = Unity.Vector3.one
-    newRoot.transform.localPosition = Unity.Vector3.zero
-    return newRoot
+    return UnityUtil.CreateNewPoolRoot()
 end
 
 --endregion
@@ -106,10 +79,7 @@ end
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 左边界世界X坐标
 function GetScreenBorderLeftWorldX(sceneCamera)
-    if IsNull(sceneCamera) then
-        sceneCamera = GameMainRoot.Scene.SceneCameras[0]
-    end
-    return sceneCamera:ViewportToWorldPoint(Vector3(0, 0, 0)).x
+    return ScreenUtil.GetScreenBorderLeftWorldX(sceneCamera)
 end
 
 ---@brief 获取屏幕右边界世界坐标 X
@@ -117,10 +87,7 @@ end
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 右边界世界X坐标
 function GetScreenBorderRightWorldX(sceneCamera)
-    if IsNull(sceneCamera) then
-        sceneCamera = GameMainRoot.Scene.SceneCameras[0]
-    end
-    return sceneCamera:ViewportToWorldPoint(Vector3(1, 0, 0)).x
+    return ScreenUtil.GetScreenBorderRightWorldX(sceneCamera)
 end
 
 ---@brief 获取屏幕上边界世界坐标 Y
@@ -128,10 +95,7 @@ end
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 上边界世界Y坐标
 function GetScreenBorderTopWorldY(sceneCamera)
-    if IsNull(sceneCamera) then
-        sceneCamera = GameMainRoot.Scene.SceneCameras[0]
-    end
-    return sceneCamera:ViewportToWorldPoint(Vector3(0, 1, 0)).y
+    return ScreenUtil.GetScreenBorderTopWorldY(sceneCamera)
 end
 
 ---@brief 获取屏幕下边界世界坐标 Y
@@ -139,10 +103,7 @@ end
 ---@param sceneCamera UnityEngine.Camera 场景相机
 ---@return number 下边界世界Y坐标
 function GetScreenBorderBottomWorldY(sceneCamera)
-    if IsNull(sceneCamera) then
-        sceneCamera = GameMainRoot.Scene.SceneCameras[0]
-    end
-    return sceneCamera:ViewportToWorldPoint(Vector3(0, 0, 0)).y
+    return ScreenUtil.GetScreenBorderBottomWorldY(sceneCamera)
 end
 
 --endregion
@@ -159,8 +120,7 @@ end
 ---@param startStr string 开头匹配串
 ---@return boolean 是否匹配
 function StringStartsWith(str, startStr)
-    if not str or not startStr then return false end
-    return string.sub(str, 1, string.len(startStr)) == startStr
+    return StringUtil.StringStartsWith(str, startStr)
 end
 
 ---@brief 判断字符串是否以指定内容结尾
@@ -169,8 +129,7 @@ end
 ---@param endStr string 结尾匹配串
 ---@return boolean 是否匹配
 function StringEndsWith(str, endStr)
-    if not str or not endStr then return false end
-    return string.sub(str, -string.len(endStr)) == endStr
+    return StringUtil.StringEndsWith(str, endStr)
 end
 
 --endregion
@@ -187,9 +146,7 @@ end
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
 function GetSpineAnimationDuration(spineAnim, animName)
-    if IsNull(spineAnim) or IsNull(spineAnim.skeletonDataAsset) then return 0 end
-    local animData = spineAnim.skeletonDataAsset:GetAnimationStateData().SkeletonData:FindAnimation(animName)
-    return animData and animData.Duration or 0
+    return SpineUtil.GetSpineAnimationDuration(spineAnim, animName)
 end
 
 ---@brief 获取 Spine.SkeletonGraphic 动画时长
@@ -198,9 +155,7 @@ end
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
 function GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
-    if IsNull(skeletonGraphic) or IsNull(skeletonGraphic.AnimationState) then return 0 end
-    local anim = skeletonGraphic.AnimationState.Data.SkeletonData:FindAnimation(animName)
-    return anim and anim.Duration or 0
+    return SpineUtil.GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
 end
 
 ---@brief 判断是否存在指定 Spine 动画
@@ -209,8 +164,7 @@ end
 ---@param animName string 动画名称
 ---@return boolean 是否存在该动画
 function HasSpineAnimation(skeletonGraphic, animName)
-    if IsNull(skeletonGraphic) or IsNull(skeletonGraphic.AnimationState) then return false end
-    return skeletonGraphic.AnimationState.Data.SkeletonData:FindAnimation(animName) ~= nil
+    return SpineUtil.HasSpineAnimation(skeletonGraphic, animName)
 end
 
 ---@brief 播放 Spine 动画
@@ -220,12 +174,7 @@ end
 ---@param loop boolean 是否循环
 ---@return Spine.TrackEntry 动画轨道信息
 function PlaySpineAnimation(skeletonGraphic, animName, loop)
-    if IsNull(skeletonGraphic) or IsNull(skeletonGraphic.AnimationState) then return nil end
-    local state = skeletonGraphic.AnimationState
-    local entry = state:SetAnimation(0, animName, loop)
-    state:Update(0)
-    state:Apply(skeletonGraphic.Skeleton)
-    return entry
+    return SpineUtil.PlaySpineAnimation(skeletonGraphic, animName, loop)
 end
 
 ---@brief 延迟播放 Spine 动画
@@ -236,8 +185,7 @@ end
 ---@param loop boolean 是否循环
 ---@return Spine.TrackEntry 动画轨道信息
 function DelayPlaySpineAnimation(skeletonGraphic, animName, delay, loop)
-    if IsNull(skeletonGraphic) or IsNull(skeletonGraphic.AnimationState) then return nil end
-    return skeletonGraphic.AnimationState:AddAnimation(0, animName, loop, delay)
+    return SpineUtil.DelayPlaySpineAnimation(skeletonGraphic, animName, delay, loop)
 end
 
 --endregion
@@ -252,9 +200,7 @@ end
 ---@type fun(cfg:StarFlyConfig):void
 ---@param cfg StarFlyConfig 飞星配置数据
 function OpenStarFlyUI(cfg)
-    if not AllOpenUI[UIs.UIStarFly.Name] then
-        OpenUISync(UIs.UIStarFly)
-    end
+    return StarFlyUtil.OpenStarFlyUI(cfg)
 end
 
 ---@brief 贝塞尔曲线飞行动画（金币/道具飞入）
@@ -274,54 +220,7 @@ end
 ---@param minOffsetX number X轴最小偏移
 ---@param maxOffsetX number X轴最大偏移
 function StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, duration, delay, ease, tweenId, realTime, onComplete, reverseCtrlX, minOffsetX, maxOffsetX)
-    if IsNull(starFly) then
-        if onComplete then onComplete(nil) end
-        return
-    end
-
-    -- 默认参数初始化
-    realTime = realTime or false
-    tweenId = tweenId or ECustomTweenID.ON_COLLECT_GOAL_ANIM_FLY .. starFly.gameObject:GetInstanceID()
-    ease = ease or DG.Tweening.Ease.Linear
-    delay = delay or 0
-    reverseCtrlX = reverseCtrlX or false
-    minOffsetX = minOffsetX or 0
-    maxOffsetX = maxOffsetX or 0
-
-    -- 世界坐标转局部坐标
-    local localStart = parentTransform:InverseTransformPoint(startPos)
-    local localTarget = parentTransform:InverseTransformPoint(targetPos)
-    starFly.startPoint = Vector2(localStart.x, localStart.y)
-    starFly.endPoint = Vector2(localTarget.x, localTarget.y)
-    starFly:ResetCtrlPoints()
-    starFly:SetProgress(0)
-
-    -- 控制点偏移计算
-    if starFly.ctrlPoints then
-        local offsetX = (minOffsetX ~= 0 or maxOffsetX ~= 0) and math.random(minOffsetX, maxOffsetX) or 0
-        for i = 0, starFly.ctrlPoints.Count - 1 do
-            local p = starFly.ctrlPoints[i]
-            p.x = p.x + offsetX
-            if reverseCtrlX then p.x = -p.x end
-
-            local worldP = starFly.transform:TransformPoint(Vector3(p.x, p.y, 0))
-            local localP = parentTransform:InverseTransformPoint(worldP)
-            starFly.ctrlPoints[i] = Vector2(localP.x, localP.y)
-        end
-    end
-
-    -- 执行DOTween动画
-    DG.Tweening.DOTween.Kill(tweenId, true)
-    DG.Tweening.DOTween.To(
-            function() return starFly:GetProgress() end,
-            function(v) starFly:SetProgress(v) end,
-            1, duration
-    ):SetEase(ease)
-      :SetDelay(delay)
-      :SetUpdate(realTime)
-      :OnComplete(function()
-        if onComplete then onComplete(starFly.gameObject) end
-    end).stringId = tweenId
+    return StarFlyUtil.StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, duration, delay, ease, tweenId, realTime, onComplete, reverseCtrlX, minOffsetX, maxOffsetX)
 end
 
 ---@brief 物体按路径点曲线运动
@@ -333,17 +232,7 @@ end
 ---@param ease DG.Tweening.Ease 缓动类型
 ---@return DG.Tweening.Sequence 动画序列
 function DOPathAndWait(go, pathPoints, preDelay, duration, ease)
-    if IsNull(go) or not pathPoints or #pathPoints < 2 then return nil end
-
-    go.transform.position = pathPoints[1]
-    local sequence = DG.Tweening.DOTween.Sequence()
-                       :AppendInterval(preDelay)
-                       :AppendCallback(function() go:SetActive(true) end)
-                       :Append(go.transform:DOPath(pathPoints, duration, DG.Tweening.PathType.CatmullRom))
-                       :SetEase(ease)
-                       :SetUpdate(true)
-
-    return sequence
+    return TweenUtil.DOPathAndWait(go, pathPoints, preDelay, duration, ease)
 end
 
 --endregion
@@ -360,9 +249,7 @@ end
 ---@param content string 文本内容
 ---@return number 首选宽度
 function GetTextPreferredWidth(text, content)
-    if IsNull(text) then return 0 end
-    text.text = content
-    return text.preferredWidth
+    return UIAdaptUtil.GetTextPreferredWidth(text, content)
 end
 
 ---@brief 获取多语言文本
@@ -370,7 +257,7 @@ end
 ---@param key string 多语言Key
 ---@return string 对应语言文本
 function GetLocalization(key)
-    return Lang and Lang[key] or key
+    return UIAdaptUtil.GetLocalization(key)
 end
 
 ---@brief 获取 UI 元素对应的屏幕宽度（适配缩放）
@@ -378,7 +265,7 @@ end
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
 ---@return number 实际屏幕宽度
 function GetUGUIRealScreenWidth(rectTransform)
-    return IsNull(rectTransform) and 0 or GetRealScreenWidthByDesign(rectTransform.rect.size.x)
+    return UIAdaptUtil.GetUGUIRealScreenWidth(rectTransform)
 end
 
 ---@brief 获取 UI 元素对应的屏幕高度
@@ -386,7 +273,7 @@ end
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
 ---@return number 实际屏幕高度
 function GetUGUIRealScreenHeight(rectTransform)
-    return IsNull(rectTransform) and 0 or GetRealScreenHeightByDesign(rectTransform.rect.size.y)
+    return UIAdaptUtil.GetUGUIRealScreenHeight(rectTransform)
 end
 
 ---@brief 设计宽度转当前屏幕宽度
@@ -394,16 +281,7 @@ end
 ---@param designWidth number 设计尺寸宽度
 ---@return number 实际屏幕宽度
 function GetRealScreenWidthByDesign(designWidth)
-    local designRes = GameMainRoot.UI.ScreenDesignedResolution
-    local canvas = GameMainRoot.UI.ScreenUICanvas
-    local canvasWidth = designRes.x
-
-    local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
-    if not IsNull(rect) then
-        canvasWidth = rect.rect.size.x
-    end
-
-    return (designWidth * UnityEngine.Screen.width) / canvasWidth
+    return UIAdaptUtil.GetRealScreenWidthByDesign(designWidth)
 end
 
 ---@brief 设计高度转当前屏幕高度
@@ -411,16 +289,7 @@ end
 ---@param designHeight number 设计尺寸高度
 ---@return number 实际屏幕高度
 function GetRealScreenHeightByDesign(designHeight)
-    local designRes = HonorRoot.UI.ScreenDesignedResolution
-    local canvas = GameMainRoot.UI.ScreenUICanvas
-    local canvasHeight = designRes.y
-
-    local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
-    if not IsNull(rect) then
-        canvasHeight = rect.rect.size.y
-    end
-
-    return (designHeight * UnityEngine.Screen.height) / canvasHeight
+    return UIAdaptUtil.GetRealScreenHeightByDesign(designHeight)
 end
 
 --endregion
@@ -436,8 +305,7 @@ end
 ---@param t table 目标表
 ---@return boolean 是否为空
 function IsTableEmpty(t)
-    if not t then return true end
-    return next(t) == nil
+    return TableUtil.IsTableEmpty(t)
 end
 
 ---@brief 数组映射转换
@@ -446,45 +314,28 @@ end
 ---@param converter function 转换函数
 ---@return table 转换后数组
 function ArrayConvert(source, converter)
-    if not source or not converter then return {} end
-    local result = {}
-    for _, v in ipairs(source) do
-        table.insert(result, converter(v))
-    end
-    return result
+    return TableUtil.ArrayConvert(source, converter)
 end
 
 ---@brief 清空数组（高效）
 ---@type fun(array:table):void
 ---@param array table 目标数组
 function ClearArray(array)
-    if not array then return end
-    while #array > 0 do
-        table.remove(array)
-    end
+    return TableUtil.ClearArray(array)
 end
 
 ---@brief 清空字典
 ---@type fun(dict:table):void
 ---@param dict table 目标字典
 function ClearDictionary(dict)
-    if not dict then return end
-    for k, _ in pairs(dict) do
-        dict[k] = nil
-    end
+    return TableUtil.ClearDictionary(dict)
 end
 
 ---@brief Fisher-Yates 打乱数组
 ---@type fun(array:table):void
 ---@param array table 目标数组
 function ShuffleArray(array)
-    if not array or #array <= 1 then return end
-    local i = #array
-    while i > 1 do
-        local j = math.random(i)
-        array[i], array[j] = array[j], array[i]
-        i = i - 1
-    end
+    return TableUtil.ShuffleArray(array)
 end
 
 ---@brief 二分法插入有序数组
@@ -493,34 +344,7 @@ end
 ---@param item table 插入项
 ---@param sortField string 排序字段名
 function BinaryInsertSortedArray(array, item, sortField)
-    if not array or not item or not sortField then return end
-    local count = #array
-    local min = 1
-    local max = count
-
-    while count > 0 and max > min do
-        local mid = min + math.floor((max - min) / 2)
-        local midVal = tonumber(array[mid][sortField])
-        local itemVal = tonumber(item[sortField])
-
-        if midVal > itemVal then
-            max = math.clamp(mid - 1, min, max)
-        elseif midVal < itemVal then
-            min = math.clamp(mid + 1, min, max)
-        else
-            while mid > 1 and tonumber(array[mid-1][sortField]) == itemVal do
-                mid = mid - 1
-            end
-            min = mid
-            break
-        end
-    end
-
-    if array[min] == nil or tonumber(array[min][sortField]) >= tonumber(item[sortField]) then
-        table.insert(array, min, item)
-    else
-        table.insert(array, min + 1, item)
-    end
+    return TableUtil.BinaryInsertSortedArray(array, item, sortField)
 end
 
 --endregion
@@ -536,17 +360,7 @@ end
 ---@param rectTransform UnityEngine.RectTransform UI矩形变换
 ---@return UnityEngine.Vector3 中心点世界坐标
 function GetRectTransformCenterWorldPos(rectTransform)
-    if IsNull(rectTransform) then return Vector3.zero end
-
-    local pivot = rectTransform.pivot
-    if math.abs(pivot.x - 0.5) < 0.001 and math.abs(pivot.y - 0.5) < 0.001 then
-        return rectTransform.position
-    end
-
-    local offsetPivot = Vector2(0.5, 0.5) - pivot
-    local size = rectTransform.sizeDelta
-    local offset = Vector2(size.x * offsetPivot.x, size.y * offsetPivot.y)
-    return rectTransform:TransformPoint(Vector3(offset.x, offset.y, 0))
+    return UnityUtil.GetRectTransformCenterWorldPos(rectTransform)
 end
 
 ---@brief 等比缩放限制尺寸
@@ -556,17 +370,7 @@ end
 ---@param maxHeight number 最大高度
 ---@return UnityEngine.Vector2 缩放后尺寸
 function ScaleToFitSize(origin, maxWidth, maxHeight)
-    if origin.y > maxHeight then
-        local scale = maxHeight / origin.y
-        origin.x = origin.x * scale
-        origin.y = maxHeight
-    end
-    if origin.x > maxWidth then
-        local scale = maxWidth / origin.x
-        origin.x = maxWidth
-        origin.y = origin.y * scale
-    end
-    return Vector2(origin.x, origin.y)
+    return UnityUtil.ScaleToFitSize(origin, maxWidth, maxHeight)
 end
 
 ---@brief 检查父节点是否隐藏（最多查几层）
@@ -575,16 +379,7 @@ end
 ---@param maxDepth number 检查深度
 ---@return boolean 是否有父节点隐藏
 function IsAnyParentInactive(transform, maxDepth)
-    if IsNull(transform) then return true end
-    maxDepth = math.min(maxDepth or 3, 5)
-    local parent = transform.parent
-
-    while not IsNull(parent) and maxDepth > 0 do
-        maxDepth = maxDepth - 1
-        if not parent.gameObject.activeSelf then return true end
-        parent = parent.parent
-    end
-    return false
+    return UnityUtil.IsAnyParentInactive(transform, maxDepth)
 end
 
 ---@brief 复制物体并设为子节点
@@ -593,14 +388,7 @@ end
 ---@param original UnityEngine.GameObject 原始物体
 ---@return UnityEngine.GameObject 复制后的物体
 function InstantiateChild(parent, original)
-    if IsNull(parent) or IsNull(original) then return nil end
-    local go = UnityEngine.Object.Instantiate(original)
-    go:SetActive(true)
-    go.transform:SetParent(parent.transform)
-    go.transform.localScale = Vector3.one
-    go.transform.localPosition = Vector3.zero
-    go.transform.localEulerAngles = Vector3.zero
-    return go
+    return UnityUtil.InstantiateChild(parent, original)
 end
 
 ---@brief 设置父子关系并重置Transform
@@ -608,12 +396,24 @@ end
 ---@param parent UnityEngine.GameObject 父物体
 ---@param child UnityEngine.GameObject 子物体
 function SetTransformChild(parent, child)
-    if IsNull(parent) or IsNull(child) then return end
-    child:SetActive(true)
-    child.transform:SetParent(parent.transform)
-    child.transform.localScale = Vector3.one
-    child.transform.localEulerAngles = Vector3.zero
-    child.transform.localPosition = Vector3.zero
+    return UnityUtil.SetTransformChild(parent, child)
+end
+
+---@brief 递归深度优先查找指定名称的子节点
+---@type fun(root:UnityEngine.Transform, targetName:string):UnityEngine.Transform
+---@param root UnityEngine.Transform 查找起点
+---@param targetName string 目标节点名
+---@return UnityEngine.Transform|nil 匹配节点，未找到返回 nil
+function FindChildTransform(root, targetName)
+    return UnityUtil.FindChildTransform(root, targetName)
+end
+
+---@brief 获取节点从场景根到自身的完整层级路径
+---@type fun(node:UnityEngine.Transform):string
+---@param node UnityEngine.Transform 目标节点
+---@return string 层级路径，节点无效时返回空串
+function GetTransformPath(node)
+    return UnityUtil.GetTransformPath(node)
 end
 
 --endregion
@@ -624,27 +424,23 @@ end
 -- 包围盒工具：3D/2D/UI 屏幕包围盒计算
 --=====================================================================================================
 
+---@brief 由最小/最大屏幕坐标构造包围盒结果表（中心 + 尺寸）
+---@param minScreen UnityEngine.Vector2 最小屏幕坐标
+---@param maxScreen UnityEngine.Vector2 最大屏幕坐标
+---@return table 包围盒信息（center + size）
+local function BuildScreenBoundsResult(minScreen, maxScreen)
+    return {
+        center = (minScreen + maxScreen) / 2,
+        size = maxScreen - minScreen
+    }
+end
+
 ---@brief 获取模型屏幕包围盒
 ---@type fun(meshFilter:UnityEngine.MeshFilter):table
 ---@param meshFilter UnityEngine.MeshFilter 网格过滤器
 ---@return table 包围盒信息（center + size）
 function GetMeshScreenBounds(meshFilter)
-    if IsNull(meshFilter) then return nil end
-    local mesh = meshFilter.mesh or meshFilter.sharedMesh
-    if IsNull(mesh) then return nil end
-
-    local pos = meshFilter.transform.position
-    local bounds = mesh.bounds
-    local minWorld = bounds.min + pos
-    local maxWorld = bounds.max + pos
-
-    local minScreen = SceneToScreenPoint(minWorld)
-    local maxScreen = SceneToScreenPoint(maxWorld)
-
-    return {
-        center = (minScreen + maxScreen) / 2,
-        size = maxScreen - minScreen
-    }
+    return BoundsUtil.GetMeshScreenBounds(meshFilter)
 end
 
 ---@brief 获取2D碰撞盒屏幕包围盒
@@ -652,14 +448,7 @@ end
 ---@param collider2D UnityEngine.BoxCollider2D 2D碰撞器
 ---@return table 包围盒信息（center + size）
 function GetBox2DScreenBounds(collider2D)
-    if IsNull(collider2D) then return nil end
-    local b = collider2D.bounds
-    local minScreen = SceneToScreenPoint(b.min)
-    local maxScreen = SceneToScreenPoint(b.max)
-    return {
-        center = (minScreen + maxScreen) / 2,
-        size = maxScreen - minScreen
-    }
+    return BoundsUtil.GetBox2DScreenBounds(collider2D)
 end
 
 ---@brief 获取UI屏幕包围盒
@@ -668,25 +457,7 @@ end
 ---@param camera UnityEngine.Camera 渲染相机
 ---@return table 包围盒信息（center + size）
 function GetRectTransformScreenBounds(rectTransform, camera)
-    if IsNull(rectTransform) then return nil end
-    local size = rectTransform.rect.size
-    local half = size / 2
-    local centerLocal = rectTransform.localPosition
-
-    local minLocal = centerLocal - Vector3(half.x, half.y, 0)
-    local maxLocal = centerLocal + Vector3(half.x, half.y, 0)
-
-    local minWorld = rectTransform:TransformPoint(minLocal)
-    local maxWorld = rectTransform:TransformPoint(maxLocal)
-
-    local minScreen = UIToScreenPoint(minWorld, camera)
-    local maxScreen = UIToScreenPoint(maxWorld, camera)
-    local centerScreen = UIToScreenPoint(GetRectTransformCenterWorldPos(rectTransform), camera)
-
-    return {
-        center = centerScreen,
-        size = maxScreen - minScreen
-    }
+    return BoundsUtil.GetRectTransformScreenBounds(rectTransform, camera)
 end
 
 --endregion
@@ -702,10 +473,7 @@ end
 ---@param func function 执行函数
 ---@param errorMsg string 错误提示信息
 function SafeInvoke(func, errorMsg)
-    if not func then return end
-    xpcall(func, function(msg)
-        PrintError(string.format("[SafeInvoke] %s => %s", errorMsg or "Error", debug.traceback(msg, 4)))
-    end)
+    return CoUtil.SafeInvoke(func, errorMsg)
 end
 
 ---@brief 安全获取配置表条目（表缺失 / nil id / 未命中 三级降级到默认项）
@@ -719,27 +487,7 @@ end
 ---@param tag string 日志归属 tag（如 "[XxxDataManager]"）
 ---@return table|nil 命中条目 / 默认条目；配置表缺失时返回 nil
 function SafeGetTableEntry(tablesObj, tableName, id, fallbackKey, tag)
-    -- 配置表不存在防护（等价于原 `if not Tables or not Tables.X then`）
-    local tableRef = tablesObj and tablesObj[tableName]
-    if not tableRef then
-        PrintError(tag .. " Tables." .. tableName .. " 配置表不存在！")
-        return nil
-    end
-
-    -- 空ID → 降级默认项
-    if id == nil then
-        PrintError(tag .. " GetDataById id is nil → 使用默认")
-        return tableRef[fallbackKey]
-    end
-
-    local cfg = tableRef[id]
-    -- 配置不存在 → 降级默认项
-    if not cfg then
-        PrintDebug(tag .. " 未找到ID: " .. tostring(id) .. " → 使用默认")
-        return tableRef[fallbackKey]
-    end
-
-    return cfg
+    return CoUtil.SafeGetTableEntry(tablesObj, tableName, id, fallbackKey, tag)
 end
 
 ---@brief DOTween 延迟执行
@@ -750,17 +498,7 @@ end
 ---@param tweenId string 动画ID
 ---@return DG.Tweening.Sequence 动画序列
 function DelayInvoke(delay, realTime, callback, tweenId)
-    local seq = DG.Tweening.DOTween.Sequence()
-                  :AppendInterval(delay)
-                  :AppendCallback(function()
-        SafeInvoke(callback, "DelayInvoke Error")
-    end)
-                  :SetUpdate(realTime)
-
-    if tweenId and not string.isNullOrEmpty(tweenId) then
-        seq.stringId = tweenId
-    end
-    return seq
+    return TweenUtil.DelayInvoke(delay, realTime, callback, tweenId)
 end
 
 ---@brief 协程延迟执行
@@ -771,21 +509,7 @@ end
 ---@param callback function 回调函数
 ---@return UnityEngine.Coroutine 协程对象
 function CoroutineDelayInvoke(self, delay, realTime, callback)
-    if delay <= 0 then
-        SafeInvoke(callback)
-        return
-    end
-
-    local action = function()
-        if realTime then
-            HonorCoroutineHelper:WaitForSecondsRealtime(delay)
-        else
-            HonorCoroutineHelper:WaitForSeconds(delay)
-        end
-        SafeInvoke(callback)
-    end
-
-    return HonorCoroutineHelper:Start(handler(self, action))
+    return CoUtil.CoroutineDelayInvoke(self, delay, realTime, callback)
 end
 
 ---@brief 协程延迟N帧执行
@@ -795,17 +519,7 @@ end
 ---@param callback function 回调函数
 ---@return UnityEngine.Coroutine 协程对象
 function CoroutineDelayFrame(self, frameCount, callback)
-    if frameCount <= 0 then
-        SafeInvoke(callback)
-        return
-    end
-
-    return HonorCoroutineHelper:Start(handler(self, function()
-        for i = 1, frameCount do
-            coroutine.yield(HonorCoroutineHelper.waitForEndOfFrame)
-        end
-        SafeInvoke(callback)
-    end))
+    return CoUtil.CoroutineDelayFrame(self, frameCount, callback)
 end
 
 ---@brief 独立延迟帧调用
@@ -814,17 +528,7 @@ end
 ---@param callback function 回调函数
 ---@param param any 回调参数
 function DelayFrameInvoke(frameCount, callback, param)
-    if frameCount <= 0 then
-        callback(param)
-        return
-    end
-
-    HonorCoroutineHelper:StartAlone(function()
-        for i = 1, frameCount do
-            coroutine.yield(HonorCoroutineHelper.waitForEndOfFrame)
-        end
-        callback(param)
-    end)
+    return CoUtil.DelayFrameInvoke(frameCount, callback, param)
 end
 
 --endregion
@@ -843,12 +547,7 @@ end
 ---@param currentLevel number 当前关卡
 ---@return boolean 是否解锁
 function IsLevelUnlocked(unlockChapter, unlockLevel, currentChapter, currentLevel)
-    currentChapter = currentChapter or tonumber(GamerDataMgr:GetLatestChapterId())
-    currentLevel = currentLevel or GamerDataMgr:GetLevelLvByChapterId(tostring(currentChapter))
-
-    if currentChapter > unlockChapter then return true end
-    if currentChapter == unlockChapter and currentLevel >= unlockLevel then return true end
-    return false
+    return LevelUtil.IsLevelUnlocked(unlockChapter, unlockLevel, currentChapter, currentLevel)
 end
 
 --endregion
@@ -865,8 +564,7 @@ end
 ---@param value number 进度值
 ---@param isLatestChapter boolean 是否最新章节
 function DispatchQuestProgressUpdate(subType, value, isLatestChapter)
-    HonorEventHelper:Fire(EventCmd.OnQuestProgressChange, subType, value, isLatestChapter)
-    PrintInfo(string.format("[Quest] Progress updated: %s, Value: %d, NewChapter: %s", subType, value, tostring(isLatestChapter)))
+    return QuestUtil.DispatchQuestProgressUpdate(subType, value, isLatestChapter)
 end
 
 ---@brief 派发任务进度清空事件
@@ -874,8 +572,7 @@ end
 ---@param subType EDailyQuestSubType 任务子类型
 ---@param isLatestChapter boolean 是否最新章节
 function DispatchQuestProgressClear(subType, isLatestChapter)
-    HonorEventHelper:Fire(EventCmd.OnClearQuestProgress, subType, isLatestChapter)
-    PrintInfo(string.format("[Quest] Progress cleared: %s", subType))
+    return QuestUtil.DispatchQuestProgressClear(subType, isLatestChapter)
 end
 
 --endregion
@@ -883,7 +580,7 @@ end
 --region 数据解析工具
 
 --=====================================================================================================
--- 数据解析工具：奖励、二元组字符串解析
+-- 数据解析工具：奖励、二元组字符串解析（实现已拆分至 DataParseUtil，此处保留全局名委托）
 --=====================================================================================================
 
 ---@brief 解析奖励表
@@ -891,13 +588,7 @@ end
 ---@param rewardTable table 奖励表数据
 ---@return HonorList 奖励数据列表
 function ParseRewardDataList(rewardTable)
-    if not rewardTable then return nil end
-    local list = HonorList.Create()
-    for _, v in ipairs(rewardTable) do
-        local data = ParseRewardData(v)
-        if data then list:Add(data) end
-    end
-    return list
+    return DataParseUtil.ParseRewardDataList(rewardTable)
 end
 
 ---@brief 解析单个奖励字符串 id,num
@@ -905,16 +596,7 @@ end
 ---@param str string 奖励字符串
 ---@return table 奖励数据 {Id, Num}
 function ParseRewardData(str)
-    if string.isNullOrEmpty(str) then return nil end
-    local parts = string.split(str, ",")
-    if not parts or #parts ~= 2 then
-        PrintError("ParseRewardData failed: " .. str)
-        return nil
-    end
-    return {
-        Id = parts[1],
-        Num = tonumber(parts[2]) or 0
-    }
+    return DataParseUtil.ParseRewardData(str)
 end
 
 ---@brief 解析二元组数组
@@ -922,13 +604,7 @@ end
 ---@param dataList table 原始数据列表
 ---@return HonorList 结构数据列表
 function ParseStruct2List(dataList)
-    if not dataList then return nil end
-    local list = HonorList.Create()
-    for _, v in ipairs(dataList) do
-        local data = ParseStruct2(v)
-        if data then list:Add(data) end
-    end
-    return list
+    return DataParseUtil.ParseStruct2List(dataList)
 end
 
 ---@brief 解析二元组 a,b
@@ -936,16 +612,7 @@ end
 ---@param str string 二元组字符串
 ---@return table 结构数据 {Item1, Item2}
 function ParseStruct2(str)
-    if string.isNullOrEmpty(str) then return nil end
-    local parts = string.split(str, ",")
-    if not parts or #parts ~= 2 then
-        PrintError("ParseStruct2 failed: " .. str)
-        return nil
-    end
-    return {
-        Item1 = parts[1],
-        Item2 = parts[2]
-    }
+    return DataParseUtil.ParseStruct2(str)
 end
 
 --endregion
@@ -961,14 +628,7 @@ end
 ---@param resType EResourceType 资源类型
 ---@return string 预设名称
 function GetItemPrefabNameByType(resType)
-    if resType == EResourceType.CURRENCY then
-        return "GameObject_CurrencyProto"
-    elseif resType == EResourceType.ITEM then
-        return "GameObject_BoosterProto"
-    elseif resType == EResourceType.BUFF then
-        return "GameObject_BuffProto"
-    end
-    return "GameObject_ItemProto"
+    return RewardUtil.GetItemPrefabNameByType(resType)
 end
 
 ---@brief 直接发放道具
@@ -977,25 +637,7 @@ end
 ---@param count number 数量
 ---@param areaId string 区域ID
 function GrantItem(itemId, count, areaId)
-    if string.isNullOrEmpty(itemId) or not count or count <= 0 then
-        PrintError("GrantItem failed: invalid params")
-        return
-    end
-
-    local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
-    if not data then return end
-
-    if data.Type == EResourceType.Currency then
-        if CurrencyMgr then CurrencyMgr:AddNum(itemId, count, areaId) end
-    elseif data.Type == EResourceType.Item or data.Type == EResourceType.Profile then
-        if ItemManager then ItemManager:AddNum(itemId, count) end
-    elseif data.Type == EResourceType.Buff then
-        if BuffManager then BuffManager:AddBuff(itemId, count) end
-    elseif data.Type == EResourceType.Card then
-        if CollectionMgr then CollectionMgr:AddPack(itemId, count) end
-    else
-        if ItemManager then ItemManager:AddNum(itemId, count) end
-    end
+    return RewardUtil.GrantItem(itemId, count, areaId)
 end
 
 ---@brief 批量发放奖励
@@ -1003,10 +645,7 @@ end
 ---@param rewardList table 奖励列表
 ---@param areaId string 区域ID
 function GrantRewardList(rewardList, areaId)
-    if not rewardList or not rewardList.items then return end
-    for _, v in ipairs(rewardList.items) do
-        GrantItem(v.Id, v.Num, areaId)
-    end
+    return RewardUtil.GrantRewardList(rewardList, areaId)
 end
 
 ---@brief 格式化道具数量显示
@@ -1016,18 +655,7 @@ end
 ---@param showPrefix boolean 是否显示前缀x
 ---@return string 格式化后字符串
 function FormatItemCountDisplay(itemId, count, showPrefix)
-    showPrefix = showPrefix ~= nil and showPrefix or true
-    local format = showPrefix and "x%d" or "%d"
-
-    if string.isNullOrEmpty(itemId) then return string.format(format, count) end
-    local data = ResourceDataManager:GetResourceData(itemId)
-    if not data then return string.format(format, count) end
-
-    if data.Type == EResourceType.Buff then
-        return GameTimeHelper and GameTimeHelper:FormatTimeInCommonRule(count, false) or tostring(count)
-    else
-        return string.format(format, count)
-    end
+    return RewardUtil.FormatItemCountDisplay(itemId, count, showPrefix)
 end
 
 ---@brief 从RewardData格式化数量
@@ -1035,7 +663,7 @@ end
 ---@param reward table 奖励数据
 ---@return string 格式化数量字符串
 function FormatRewardCount(reward)
-    return reward and FormatItemCountDisplay(reward.Id, reward.Num) or ""
+    return RewardUtil.FormatRewardCount(reward)
 end
 
 --endregion
@@ -1054,25 +682,7 @@ end
 ---@param purchaseId string 购买ID
 ---@param areaId string 区域ID
 function TrackReward(itemId, count, reason, purchaseId, areaId)
-    local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
-    if not data then return end
-
-    if data.Type == EResourceType.Currency then
-        if data.ID == EResourceIDs.Coin then
-            if AchievementSys then AchievementSys:OnCoinGet(count, reason, purchaseId) end
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCoinGetted(reason, CurrencyMgr:GetCoinKey(areaId), count, purchaseId, areaId) end
-        elseif data.ID == EResourceIDs.Gem then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnGemGet(reason, count, purchaseId) end
-        elseif data.ID == EResourceIDs.Star then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnStarGet(reason, count, purchaseId) end
-        elseif data.ID == EResourceIDs.CollectionToken then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnCollectionTokenGet(reason, count, purchaseId) end
-        elseif data.ID == EResourceIDs.Ticket then
-            if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnTicketGet(reason, count, purchaseId) end
-        end
-    else
-        if ThinkingAnalyticsHelper then ThinkingAnalyticsHelper:OnBoosterGet(reason, itemId, count, purchaseId) end
-    end
+    return TrackUtil.TrackReward(itemId, count, reason, purchaseId, areaId)
 end
 
 ---@brief 批量奖励打点
@@ -1082,10 +692,7 @@ end
 ---@param purchaseId string 购买ID
 ---@param areaId string 区域ID
 function TrackRewardList(rewardList, reason, purchaseId, areaId)
-    if not rewardList or not rewardList.items then return end
-    for _, r in ipairs(rewardList.items) do
-        TrackReward(r.Id, r.Num, reason, purchaseId, areaId)
-    end
+    return TrackUtil.TrackRewardList(rewardList, reason, purchaseId, areaId)
 end
 
 --endregion
@@ -1102,14 +709,7 @@ end
 ---@param word string 敏感词
 ---@return boolean 是否包含敏感词
 function ContainsBadWord(content, word)
-    if not content or not word then return false end
-    local success, match = xpcall(function()
-        return string.find(content, word, 1, true) ~= nil
-    end, function(err)
-        PrintError(debug.traceback(err, 3))
-        return false
-    end)
-    return success and match
+    return StringUtil.ContainsBadWord(content, word)
 end
 
 ---@brief 分批遍历（防卡顿）
@@ -1118,19 +718,7 @@ end
 ---@param batchCount number 每批数量
 ---@param callback function 处理回调
 function BatchProcess(data, batchCount, callback)
-    if not data or not callback or batchCount <= 0 then return end
-    local batch = {}
-    for _, v in ipairs(data) do
-        table.insert(batch, v)
-        if #batch >= batchCount then
-            callback(batch)
-            ClearArray(batch)
-        end
-    end
-    if #batch > 0 then
-        callback(batch)
-        ClearArray(batch)
-    end
+    return TableUtil.BatchProcess(data, batchCount, callback)
 end
 
 ---@brief 判断Unity对象是否为空
@@ -1138,7 +726,7 @@ end
 ---@param obj UnityEngine.Object Unity对象
 ---@return boolean 是否为空
 function IsNull(obj)
-    return not obj or GameLib.ObjectCommon.IsObjectEmpty(obj)
+    return UnityUtil.IsNull(obj)
 end
 
 ---@brief 播放 Spine 显示 → Idle → 隐藏 整套动画
@@ -1151,31 +739,7 @@ end
 ---@param onHideStart function 隐藏开始回调
 ---@param onHideComplete function 隐藏完成回调
 function PlaySpineShowIdleHide(spine, idleDuration, showAnim, idleAnim, hideAnim, onHideStart, onHideComplete)
-    if IsNull(spine) then return end
-
-    spine.Skeleton:SetSlotsToSetupPose()
-    spine.AnimationState:ClearTracks()
-
-    local showEntry = spine.AnimationState:SetAnimation(0, showAnim, false)
-    showEntry:AddComplete(function()
-        if IsNull(spine.gameObject) then return end
-        spine.AnimationState:SetAnimation(0, idleAnim, true)
-
-        -- Idle 延迟后执行隐藏
-        DG.Tweening.DOTween.Sequence()
-          :SetUpdate(true)
-          :AppendInterval(idleDuration)
-          :AppendCallback(function()
-            if IsNull(spine.gameObject) then return end
-            if onHideStart then SafeInvoke(onHideStart) end
-
-            local hideEntry = spine.AnimationState:SetAnimation(0, hideAnim, false)
-            hideEntry.TimeScale = 2
-            hideEntry:AddComplete(function()
-                if onHideComplete then SafeInvoke(onHideComplete) end
-            end)
-        end)
-    end)
+    return SpineUtil.PlaySpineShowIdleHide(spine, idleDuration, showAnim, idleAnim, hideAnim, onHideStart, onHideComplete)
 end
 
 ---@brief 加载关卡准备界面活动图标
@@ -1185,37 +749,7 @@ end
 ---@param entryType EActivityEnterFormPosType 入口类型
 ---@return table 活动图标Lua类
 function TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
-    if IsNull(parent) then return nil end
-    local activities = ActivityMgr and ActivityMgr:GetActivityDatas() or {}
-    local validActivities = {}
-
-    for _, activity in pairs(activities) do
-        local config = EventDataManager and EventDataManager:GetEventDataById(activity.activityId)
-        if not config then goto continue end
-
-        local resOk = ActivityMgr:GetActivityHotfixResState(activity.activityId)
-        local running = ActivityMgr:IsActivityRunning(activity)
-        if not resOk or not running then goto continue end
-
-        local iconPage = config.IconPage
-        if (iconPage == EActivityIconPage.ONLY_MAIN_AND_LEVEL_PREPARE and entryType == EActivityEnterFormPosType.LEVEL_PREPARE) or
-                (iconPage == EActivityIconPage.LEVEL_PREPARE or iconPage == EActivityIconPage.MAIN_AND_ICON_IN_LEVEL_PREPARE) then
-            table.insert(validActivities, activity)
-        end
-
-        ::continue::
-    end
-
-    if #validActivities <= 0 then return nil end
-
-    local go = PoolManager:Get(RES.GameObject_CollectionActivityIcon.Name, parent)
-    local lua = go:GetComponent("LuaBehaviour").ValidLuaClass
-    if lua then
-        lua.LeftAnimator.enabled = enableAnimator
-        lua.RightAnimator.enabled = enableAnimator
-        lua:LoadActivityIcon(validActivities)
-    end
-    return lua
+    return ActivityUtil.TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
 end
 
 --endregion
@@ -1232,19 +766,7 @@ end
 ---@param str string 坐标字符串
 ---@return UnityEngine.Vector3 转换后的三维坐标
 function StringToVector3(str)
-    -- 类型兼容：自动转换table结构
-    if type(str) == "table" then
-        return TableToVector3(str)
-    end
-    if not str or str == "" then
-        return CS.UnityEngine.Vector3.zero
-    end
-    str = string.gsub(str, "[{}%s\"]", "")
-    local x, y, z = string.match(str, "([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)")
-    x = tonumber(x) or 0
-    y = tonumber(y) or 0
-    z = tonumber(z) or 0
-    return CS.UnityEngine.Vector3(x, y, z)
+    return UnityUtil.StringToVector3(str)
 end
 
 ---@brief Table转Unity Vector3
@@ -1252,13 +774,7 @@ end
 ---@param t table 坐标表 {x,y,z}
 ---@return UnityEngine.Vector3 转换后的三维坐标
 function TableToVector3(t)
-    if type(t) ~= "table" then
-        return CS.UnityEngine.Vector3.zero
-    end
-    local x = tonumber(t[1]) or 0
-    local y = tonumber(t[2]) or 0
-    local z = tonumber(t[3]) or 0
-    return CS.UnityEngine.Vector3(x, y, z)
+    return UnityUtil.TableToVector3(t)
 end
 
 --endregion
@@ -1269,18 +785,13 @@ end
 -- 表通用工具：计数、Key包含判断
 --=====================================================================================================
 
----@brief 安全获取表长度（支持数组、哈希表、空表、不连续表）
----@type fun(_table:table):number
+---@brief 安全统计表元素数量（支持数组、哈希表、空表、不连续表；可传谓词仅统计满足条件项）
+---@type fun(_table:table, predicate:function):number
 ---@param _table table 目标表
+---@param predicate function|nil 可选谓词(k, v):boolean，返回 true 才计入；传 nil 时统计全部元素
 ---@return number 表中元素数量
-function GetTableCount(_table)
-    local count = 0
-    if _table ~= nil then
-        for k, v in pairs(_table) do
-            count = count + 1
-        end
-    end
-    return count
+function GetTableCount(_table, predicate)
+    return TableUtil.GetTableCount(_table, predicate)
 end
 
 ---@brief 检查表中是否包含指定Key（通用字典包含判断）
@@ -1289,10 +800,7 @@ end
 ---@param key any 要判断的Key
 ---@return boolean 是否包含
 function ContainsKey(_table, key)
-    if type(_table) ~= "table" or key == nil then
-        return false
-    end
-    return _table[key] ~= nil
+    return TableUtil.ContainsKey(_table, key)
 end
 
 --endregion

@@ -49,11 +49,9 @@ namespace Honor.Runtime
         {
             m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
             m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
-            m_ProcedureComponent = GameComponentsGroup.GetComponent<ProcedureComponent>();
 
             if (m_LauncherComponent == null) Log.Fatal("[Lua] LauncherComponent 获取失败");
             if (m_AssetComponent == null) Log.Fatal("[Lua] AssetComponent 获取失败");
-            if (m_ProcedureComponent == null) Log.Fatal("[Lua] ProcedureComponent 获取失败");
         }
 
         /// <summary>
@@ -62,10 +60,10 @@ namespace Honor.Runtime
         private void Update()
         {
             if (m_Env == null) return;
-            if (Time.time - m_LastGCTime > m_GCInterval)
+            if (Time.time - s_LastGCTime > s_GCInterval)
             {
                 m_Env.Tick();
-                m_LastGCTime = Time.time;
+                s_LastGCTime = Time.time;
             }
         }
 
@@ -100,7 +98,7 @@ namespace Honor.Runtime
         private readonly string[] m_StartGamePreloadModules =
         {
             "SystemApis", "SystemDefs", "SystemFuncs", "SystemBridges",
-            "EventCmd", "SystemReqs", "GameMain"
+            "EventCmd", "SystemBootstrap", "GameMain"
         };
 
         /// <summary>
@@ -213,7 +211,7 @@ namespace Honor.Runtime
             m_LuaScriptsABPathsForLoading.Clear();
             m_LuaModuleABPathCache.Clear();
             m_LuaModuleNotFoundCache.Clear();
-            string luaABRoot = m_AssetComponent.AssetLoadManager.AssetBundleLoadManager
+            string luaABRoot = AssetBundleLoadManager
                 .GetABFormatPath(GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath())
                 .Replace(".bundle", string.Empty);
 
@@ -221,7 +219,7 @@ namespace Honor.Runtime
             {
                 if (key.Contains(luaABRoot))
                 {
-                    string path = m_AssetComponent.AssetLoadManager.AssetBundleLoadManager.GetABRestoredPath(key);
+                    string path = AssetBundleLoadManager.GetABRestoredPath(key);
                     m_LuaScriptsABPathsForLoading.Add(path);
                 }
             }
@@ -252,14 +250,8 @@ namespace Honor.Runtime
             // 重置分帧加载状态（入口脚本在 Loading 进度中分帧 require，避免一次性阻塞主线程）
             m_StartGameModuleIndex = 0;
             m_StartGameEntryDone = false;
-            m_LuaPrefetchIndex = 0;
-            m_PreloadedLuaBytesCache.Clear();
-            m_LuaPreloadExecutionPlan.Clear();
-            m_LuaPreloadExecIndex = 0;
-            m_LuaPlanVisited.Clear();
-            m_LuaDependencyGraph.Clear();
-            m_LuaAggregatorModules.Clear();
-            m_LastGCTime = Time.time;
+            ResetPreloadState();
+            s_LastGCTime = Time.time;
         }
 
         /// <summary>
@@ -365,7 +357,7 @@ namespace Honor.Runtime
             if (m_PreloadedLuaBytesCache.ContainsKey(fileName))
                 return true;
 
-            string assetType = m_LauncherComponent.LuacMode ? "LuacAsset" : "LuaAsset";
+            string assetType = LuaAssetTypeName;
             m_AssetComponent.StrictCheck = false;
             try
             {
@@ -396,7 +388,7 @@ namespace Honor.Runtime
         /// </summary>
         private string DeriveLuaFileName(string abPath)
         {
-            string fileName = Path.GetFileName(abPath.Replace('\\', '/'));
+            string fileName = Path.GetFileName(HonorUtils.NormalizePath(abPath));
             if (string.IsNullOrEmpty(fileName))
                 return null;
 
@@ -472,6 +464,21 @@ namespace Honor.Runtime
             Log.Info($"[LuaExec] 完成执行 {moduleName} = {sw.ElapsedMilliseconds}ms");
             m_LuaPreloadExecIndex++;
             return true;
+        }
+
+        /// <summary>
+        /// 重置分帧预取/逐文件执行的运行时状态
+        /// 初始化（InitLuaEnv）与清空（Clear）均需恢复此状态，抽离以避免重复
+        /// </summary>
+        private void ResetPreloadState()
+        {
+            m_LuaPrefetchIndex = 0;
+            m_PreloadedLuaBytesCache.Clear();
+            m_LuaPreloadExecutionPlan.Clear();
+            m_LuaPreloadExecIndex = 0;
+            m_LuaPlanVisited.Clear();
+            m_LuaDependencyGraph.Clear();
+            m_LuaAggregatorModules.Clear();
         }
 
         /// <summary>
@@ -682,7 +689,7 @@ namespace Honor.Runtime
             }
 
             fileName = $"{fileName}.lua";
-            string assetType = m_LauncherComponent.LuacMode ? "LuacAsset" : "LuaAsset";
+            string assetType = LuaAssetTypeName;
             m_AssetComponent.StrictCheck = false;
 
             try
@@ -739,7 +746,7 @@ namespace Honor.Runtime
                 {
                     asset = m_AssetComponent.LoadAssetSync(assetType, path, fileName) as TextAsset;
                     if (asset == null)
-                        m_AssetComponent.AssetLoadManager.AssetBundleLoadManager.Unload(path);
+                        AssetBundleLoadManager.Unload(path);
                 }
             }
             else
@@ -772,7 +779,7 @@ namespace Honor.Runtime
                         break;
                     }
 
-                    m_AssetComponent.AssetLoadManager.AssetBundleLoadManager.Unload(abPath);
+                    AssetBundleLoadManager.Unload(abPath);
                 }
 
                 if (asset == null)
@@ -845,13 +852,7 @@ namespace Honor.Runtime
             m_LuaScriptsABPathsForLoading.Clear();
             m_LuaModuleABPathCache.Clear();
             m_LuaModuleNotFoundCache.Clear();
-            m_PreloadedLuaBytesCache.Clear();
-            m_LuaPrefetchIndex = 0;
-            m_LuaPreloadExecutionPlan.Clear();
-            m_LuaPreloadExecIndex = 0;
-            m_LuaPlanVisited.Clear();
-            m_LuaDependencyGraph.Clear();
-            m_LuaAggregatorModules.Clear();
+            ResetPreloadState();
         }
 
         #endregion

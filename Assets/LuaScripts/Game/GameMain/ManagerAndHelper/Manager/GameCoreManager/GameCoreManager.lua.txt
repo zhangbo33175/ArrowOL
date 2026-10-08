@@ -41,12 +41,7 @@ function GameCoreManager:ctor(args)
     GameCoreManager.super.ctor(self, args)
 
     -- 游戏运行状态标记
-    self._IsPlaying                     = false
-    self._IsGameOver                    = false
-    self._IsExitGame                    = false
-    self._IsSuccessFinishGame           = false
-    self._CurLevelData                  = nil
-    self._eGameOverType                 = EGameOverType.None
+    self:_ResetRuntimeFlags()
 
     -- 游戏结束异步消息队列，防止多逻辑同时触发结束冲突
     self._HandleGameOverMsgQueue        = HonorQueue:Create()
@@ -80,12 +75,7 @@ end
 ---=========================================================================
 function GameCoreManager:ClearData()
     -- 重置游戏运行状态标记
-    self._IsPlaying = false
-    self._IsGameOver = false
-    self._IsExitGame = false
-    self._IsSuccessFinishGame = false
-    self._eGameOverType = EGameOverType.None
-    self._CurLevelData = nil
+    self:_ResetRuntimeFlags()
 
     -- 清空结束消息队列并停止协程
     self._HandleGameOverMsgQueue:Clear()
@@ -101,6 +91,19 @@ function GameCoreManager:ClearData()
     self._GameCoreManagerLevelFinish:ClearData()
 
     PrintInfo("[GameCoreManager] 本局运行时数据全部清空")
+end
+
+---=========================================================================
+--- 重置游戏运行状态标记
+---@brief 构造与清盘共用，将运行状态/当前关卡引用复位为初始值
+---=========================================================================
+function GameCoreManager:_ResetRuntimeFlags()
+    self._IsPlaying = false
+    self._IsGameOver = false
+    self._IsExitGame = false
+    self._IsSuccessFinishGame = false
+    self._eGameOverType = EGameOverType.None
+    self._CurLevelData = nil
 end
 
 --endregion
@@ -144,6 +147,9 @@ function GameCoreManager:DoGameFailed(eGameOverType)
     self._IsGameOver = true
     GamePlayHelper:GameOver(false)
     self._GameCoreManagerLevelFinish:OnGameOverAfter()
+    -- 启动结算流程：延时遮罩后打开失败结算界面（与胜利流程对齐）
+    --TODO: [修复] 原失败路径缺少结算流程启动，导致失败结算界面 UILevelFailedView 不弹出
+    self._GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
     PrintInfo("[GameCoreManager] 关卡失败，结束类型：", eGameOverType)
 end
 
@@ -177,6 +183,8 @@ end
 --endregion
 
 
+--region 关卡配置加载
+
 ---=========================================================================
 --- 根据章节ID加载关卡配置数据
 ---@brief 查询章节对应关卡ID，并加载返回关卡配置数据
@@ -185,12 +193,14 @@ end
 ---=========================================================================
 function GameCoreManager:GetLevelData(chapterId)
     local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
-    if levelId ~=nil then
-        local levelData = GamePlayHelper:LoadLevelData(chapterId, levelId) 
+    if levelId ~= nil then
+        local levelData = GamePlayHelper:LoadLevelData(chapterId, levelId)
         return levelData
     end
     return nil
 end
+
+--endregion
 
 --region 关卡信息
 
@@ -645,15 +655,29 @@ function GameCoreManager:SetOnGameplay(character)
         local characterChooseList = self:GetCharacterChooseList()
         local characterList = self:GetCharacterList()
 
-        -- 未收集则加入已收集列表，并销毁原候选实体
+        -- 未收集则加入已收集列表，并延迟销毁原候选实体（覆盖流光收集动画时长）
         if not ContainsKey(characterChooseList, character.ID) then
             if characterChooseList then
                 characterChooseList[character.ID] = {}
                 characterChooseList[character.ID].ID = character.ID
                 characterChooseList[character.ID].Character = character
+                -- 角色成功收集，通知 UI 刷新目标完成数并播放流光动画；
+                -- 携带角色实体实例（CharacterBase），供 UIMainPlayingManager 流光动画读取图标与坐标
+                --TODO: [修复] OnCharacterCollected 原传 _CharData（数据，无 .cs），改为传 CharacterList 中的角色实例，否则流光动画因"角色无效"跳过
+                HonorEventHelper:Fire(EventCmd.OnCharacterCollected,
+                        characterList[character.ID] and characterList[character.ID].Character or character)
             end
+            -- 角色实体延迟销毁：覆盖流光收集动画时长（UIMainPlayingManager 播放图标飞向数字并渐隐），
+            -- 避免立即 OnDestroy 导致图标瞬间消失；延时到期后再销毁实体，防止残留
+            --TODO: [优化] 收集后角色延迟销毁（延时覆盖流光动画时长），不再立即 OnDestroy，保证图标"化作流光飞向数字"表现完整
             if characterList[character.ID] and characterList[character.ID].Character then
-                characterList[character.ID].Character:OnDestroy()
+                local collectedChar = characterList[character.ID].Character
+                HonorCoroutineHelper:StartAlone(function()
+                    HonorCoroutineHelper:WaitForSeconds(0.8)
+                    if collectedChar.cs ~= nil and not IsNull(collectedChar.cs) then
+                        collectedChar:OnDestroy()
+                    end
+                end)
             end
         end
         -- 已收集数量等于总数量则直接通关
@@ -674,6 +698,8 @@ end
 
 --endregion
 
+--region 断线重连存档标记
+
 ---=========================================================================
 --- 写入本地存档标记当前进行关卡
 ---@brief 断线重连、后台重启恢复关卡使用
@@ -683,5 +709,7 @@ function GameCoreManager:SetPlayingLevelTag(levelInfo)
     SaveRootData.GameData.playingLevelTag = levelInfo
     --SaveIO.GameData.Save_playingLevelTag()
 end
+
+--endregion
 
 return GameCoreManager

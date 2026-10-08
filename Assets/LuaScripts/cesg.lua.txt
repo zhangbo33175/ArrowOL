@@ -1,0 +1,91 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  cesg.lua
+-- author:    ???
+-- descrip:   ???
+--=====================================================================================================
+
+---@class cesg : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field Button                             UnityEngine.UI.Button         √         Clicked        
+local cesg = class('cesg', import('LuaBehaviourSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function cesg:ctor(args)
+    cesg.super.ctor(self, args)
+
+end
+
+---创建函数
+---@type fun(args:table):cesg
+---@param args table @自定义参数
+---@return cesg @实例
+function cesg:Create(args)
+    local obj = cesg.new(args)
+    return obj
+end
+
+---注册监听（自动注销）
+---@type fun():void
+function cesg:OnAddListeners()
+    cesg.super.OnAddListeners(self)
+
+end
+
+---唤醒
+---@type fun():void
+function cesg:Awake()
+    cesg.super.Awake(self)
+-- 2=====================================================================================================
+    self:AddUIListener(self.Button, 'Clicked', Bind(self, self.OnButtonClicked))
+-- ====================================================================================================2
+
+end
+
+---开始
+---@type fun():void
+function cesg:Start()
+    cesg.super.Start(self)
+
+end
+
+---销毁
+---@type fun():void
+function cesg:OnDestroy()
+    cesg.super.OnDestroy(self)
+-- 3=====================================================================================================
+    OnRemoveListener(self.Button, 'Clicked', handler(self, self.OnButtonClicked))
+-- ====================================================================================================3
+
+end
+
+---播放打开动画（可重写）
+---@type fun():void
+function cesg:OnPlayOpenAnimation()
+    cesg.super.OnPlayOpenAnimation(self)
+end
+
+---播放关闭动画（可重写）
+---@type fun():void
+function cesg:OnPlayCloseAnimation()
+    cesg.super.OnPlayCloseAnimation(self)
+end
+
+---子UI销毁回调
+---@type fun(luaClass:XLua.LuaTable):void
+---@param luaClass XLua.LuaTable
+function cesg:OnAddedUIDestroyed(luaClass)
+    cesg.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+----交互回调
+---@type fun(args:any):void
+function cesg:OnButtonClicked(args)
+
+end
+
+return cesg

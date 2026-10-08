@@ -56,21 +56,7 @@ namespace Honor.Runtime
                 return null;
             }
 
-            Component[] components = gameObject.GetComponents<Component>();
-            if (components.Length == 0)
-            {
-                return null;
-            }
-
-            List<T> result = new List<T>();
-            for (int i = 0; i < components.Length; i++)
-            {
-                if (components[i] is T)
-                {
-                    result.Add(components[i] as T);
-                }
-            }
-            return result.Count > 0 ? result.ToArray() : null;
+            return CollectInterfaces<T>(gameObject.GetComponents<Component>());
         }
 
         /// <summary>
@@ -83,12 +69,18 @@ namespace Honor.Runtime
                 return null;
             }
 
-            Component[] components = gameObject.GetComponentsInChildren<Component>();
-            if (components.Length == 0)
-            {
-                return null;
-            }
+            return CollectInterfaces<T>(gameObject.GetComponentsInChildren<Component>());
+        }
 
+        /// <summary>
+        /// 从组件数组中收集全部匹配指定接口的组件
+        /// <para>GetInterfaces / GetInterfacesInChildren 共用的收集逻辑，避免重复遍历样板</para>
+        /// </summary>
+        /// <typeparam name="T">目标接口类型</typeparam>
+        /// <param name="components">待遍历的组件数组</param>
+        /// <returns>匹配接口的组件数组；无匹配时返回 null</returns>
+        private static T[] CollectInterfaces<T>(Component[] components) where T : class
+        {
             List<T> result = new List<T>();
             for (int i = 0; i < components.Length; i++)
             {
@@ -97,6 +89,7 @@ namespace Honor.Runtime
                     result.Add(components[i] as T);
                 }
             }
+
             return result.Count > 0 ? result.ToArray() : null;
         }
 

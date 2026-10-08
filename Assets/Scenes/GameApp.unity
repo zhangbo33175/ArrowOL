@@ -1001,10 +1001,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f623b85eb20b845a0c36c148c722ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EditorResourceMode: 0
+  m_EditorResourceMode: 1
   m_EditorLanguage: 8
   m_DevelopMode: 1
-  m_LuacMode: 1
+  m_LuacMode: 0
   m_LuaHotReloadMode: 0
   m_DebuggerActiveWindow: 0
   m_FrameRate: 60

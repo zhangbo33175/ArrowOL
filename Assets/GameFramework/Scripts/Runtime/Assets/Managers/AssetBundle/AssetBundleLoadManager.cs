@@ -200,8 +200,8 @@ namespace Honor.Runtime
 
             if (!m_AssetBundleFormatPathCaches.TryGetValue(abPath, out string cachedFormat))
             {
-                // 1. 统一反斜杠为正斜杠
-                string normalized = abPath.Replace('\\', '/');
+                // 1. 统一反斜杠为正斜杠（复用全局路径规范化工具）
+                string normalized = HonorUtils.NormalizePath(abPath);
 
                 // 2. 剥掉 "Assets/Res/" 前缀（打包器 bundle 名相对该根目录）
                 const string resRoot = "Assets/Res/";

@@ -60,6 +60,3 @@
 ---@field boosterTriggered string @ 已达成触发条件的局内道具
 ---@field maxChapterId number @ 玩家当前记录的最大章节id
 ---@field localActivityData SavePBMsgDef.GameDataPB.LocalActivityData[] @ 本地活动数据
- 
-
-

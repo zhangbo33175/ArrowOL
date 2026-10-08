@@ -1,0 +1,91 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UIAdaptUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     UI 文本 / 适配工具类
+-- @desc      从 GameFunctions 拆分：文本宽度计算、多语言、屏幕适配转换
+-- @note      多语言接口依赖业务层 Lang（GetLocalization 取词条），仅业务层已加载时可用
+-- @dependency TMPro, Lang, GameMainRoot.UI, HonorRoot
+--=====================================================================================================
+
+local UIAdaptUtil = {}
+
+--region 依赖引入
+-- 框架内自洽：空判断走同域工具，避免依赖业务层 GameFunctions 全局
+local UnityUtil = require('UnityUtil')
+--endregion
+
+--region UI 文本 / 适配工具
+
+--=====================================================================================================
+-- UI工具：文本计算、多语言、屏幕适配转换
+--=====================================================================================================
+
+---@brief 获取文本宽度（根据内容）
+---@param text TMPro.TextMeshProUGUI 文本组件
+---@param content string 文本内容
+---@return number 首选宽度
+function UIAdaptUtil.GetTextPreferredWidth(text, content)
+    if UnityUtil.IsNull(text) then return 0 end
+    text.text = content
+    return text.preferredWidth
+end
+
+---@brief 获取多语言文本
+---@param key string 多语言Key
+---@return string 对应语言文本
+function UIAdaptUtil.GetLocalization(key)
+    return Lang and Lang[key] or key
+end
+
+---@brief 获取 UI 元素对应的屏幕宽度（适配缩放）
+---@param rectTransform UnityEngine.RectTransform UI矩形变换
+---@return number 实际屏幕宽度
+function UIAdaptUtil.GetUGUIRealScreenWidth(rectTransform)
+    return UnityUtil.IsNull(rectTransform) and 0 or UIAdaptUtil.GetRealScreenWidthByDesign(rectTransform.rect.size.x)
+end
+
+---@brief 获取 UI 元素对应的屏幕高度
+---@param rectTransform UnityEngine.RectTransform UI矩形变换
+---@return number 实际屏幕高度
+function UIAdaptUtil.GetUGUIRealScreenHeight(rectTransform)
+    return UnityUtil.IsNull(rectTransform) and 0 or UIAdaptUtil.GetRealScreenHeightByDesign(rectTransform.rect.size.y)
+end
+
+---@brief 设计宽度转当前屏幕宽度
+---@param designWidth number 设计尺寸宽度
+---@return number 实际屏幕宽度
+function UIAdaptUtil.GetRealScreenWidthByDesign(designWidth)
+    local designRes = GameMainRoot.UI.ScreenDesignedResolution
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvasWidth = designRes.x
+
+    local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+    if not UnityUtil.IsNull(rect) then
+        canvasWidth = rect.rect.size.x
+    end
+
+    return (designWidth * UnityEngine.Screen.width) / canvasWidth
+end
+
+---@brief 设计高度转当前屏幕高度
+---@param designHeight number 设计尺寸高度
+---@return number 实际屏幕高度
+function UIAdaptUtil.GetRealScreenHeightByDesign(designHeight)
+    local designRes = HonorRoot.UI.ScreenDesignedResolution
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvasHeight = designRes.y
+
+    local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+    if not UnityUtil.IsNull(rect) then
+        canvasHeight = rect.rect.size.y
+    end
+
+    return (designHeight * UnityEngine.Screen.height) / canvasHeight
+end
+
+--endregion
+
+return UIAdaptUtil

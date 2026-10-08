@@ -114,6 +114,16 @@ end
 ---@brief 流程：添加UI遮罩 → 等待配置延时 → 移除遮罩 → 打开结算界面
 ---=========================================================================
 function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
+    -- 等待 FishItem 碎裂动画播完再盖遮罩，保证"晃动+碎裂消失"动画对玩家可见
+    --TODO: [新增] 结算遮罩等待 FishItem 碎裂动画完成（GameCoreManager.FishBreakAnimationDone 由 UIMainPlaying 设置）
+    --TODO: [修复] 兜底超时 1.5→3.0：FishItem 错峰间隔加大后多鱼总时长可能超过 1.5s，联动提高防止门控提前放行
+    local maxBreakWait = 3.0 -- 兜底超时，防止信号异常导致结算卡死
+    local waited = 0
+    while GameCoreManager.FishBreakAnimationDone == false and waited < maxBreakWait do
+        HonorCoroutineHelper:WaitForSeconds(0.05)
+        waited = waited + 0.05
+    end
+
     -- UI遮罩，防止操作穿透
     GameMainRoot.UI:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
     local startTime = Unity.Time.realtimeSinceStartup
@@ -144,30 +154,24 @@ function GameCoreManagerLevelFinish:ShowLevelFinishUI()
     if GameCoreManager._IsSuccessFinishGame then
         OpenUISync(UIs.UILevelVictoryView, self:GetLevelSuccessInfo())
     else
-        -- 失败流程：判断是否显示前置道具推荐
-        if PreBoosterRecommendMgr:CanShowPreBoosterRecommend() then
-            PreBoosterRecommendMgr:OpenPreBoosterRecommendUI(function(preBoosterId)
-                self:OpenLevelFailureUI(preBoosterId)
-            end)
-        else
-            self:OpenLevelFailureUI()
-        end
+        -- 失败流程：直接打开失败结算界面（原前置道具推荐管理器 PreBoosterRecommendMgr 未定义，避免 nil 崩溃）
+        --TODO: [修复] 移除未定义的 PreBoosterRecommendMgr 依赖，失败直接打开 UILevelFailedView
+        self:OpenLevelFailureUI()
     end
 end
 
 ---=========================================================================
 ---@brief 打开关卡失败界面
+---@desc 统一打开失败结算界面 UILevelFailedView（当前仅存在该失败结算视图，
+---       UIChallengeLevelFailure/UILevelFailure 未在 UIs 定义，已统一收敛）
 ---@param preBoosterId string 推荐的前置道具ID（可选）
 ---=========================================================================
 function GameCoreManagerLevelFinish:OpenLevelFailureUI(preBoosterId)
-    if GameCoreManager:IsInChallengeLevel() then
-        OpenUISync(UIs.UIChallengeLevelFailure)
-    else
-        OpenUISync(UIs.UILevelFailure, {
-            InfoDatas = self:GetLevelFailureInfo(),
-            RecommendPreboosterId = preBoosterId
-        })
-    end
+    --TODO: [修复] 原引用未定义的 UIs.UILevelFailure / UIs.UIChallengeLevelFailure，统一收敛到唯一存在的失败视图 UILevelFailedView
+    OpenUISync(UIs.UILevelFailedView, {
+        InfoDatas = self:GetLevelFailureInfo(),
+        RecommendPreboosterId = preBoosterId
+    })
 end
 
 --endregion
@@ -179,7 +183,6 @@ end
 ---@return table 结算数据
 ---=========================================================================
 function GameCoreManagerLevelFinish:GetLevelSuccessInfo()
-    local coreData = GameCoreManager._GameCoreManagerData
     local result = {}
     return result
 end
@@ -189,7 +192,6 @@ end
 ---@return table 结算数据
 ---=========================================================================
 function GameCoreManagerLevelFinish:GetLevelFailureInfo()
-    local coreData = GameCoreManager._GameCoreManagerData
     local result = {}
     return result
 end

@@ -1,0 +1,218 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UnityUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     Unity 通用工具类
+-- @desc      从 GameFunctions 拆分的 Unity 通用工具：对象池、Transform/坐标、坐标转换、Unity 对象空判断
+-- @dependency UnityEngine, GameLib.ObjectCommon
+--=====================================================================================================
+
+local UnityUtil = {}
+
+--region 对象池工具
+
+--=====================================================================================================
+-- 对象池管理工具：根节点获取、子节点创建
+--=====================================================================================================
+
+---@brief 获取对象池根节点 GameObject
+---@return UnityEngine.GameObject 对象池根节点
+function UnityUtil.GetPoolRoot()
+    return Unity.GameObject.Find("PoolRoot")
+end
+
+---@brief 创建一个新的对象池子节点
+---@return UnityEngine.GameObject 新创建的对象池子节点
+function UnityUtil.CreateNewPoolRoot()
+    local poolRootGo = UnityUtil.GetPoolRoot()
+    if UnityUtil.IsNull(poolRootGo) then
+        poolRootGo = Unity.GameObject("PoolRoot")
+    end
+
+    local newRoot = Unity.GameObject("PoolNew")
+    newRoot.transform:SetParent(poolRootGo.transform)
+    newRoot.transform.localScale = Unity.Vector3.one
+    newRoot.transform.localPosition = Unity.Vector3.zero
+    return newRoot
+end
+
+--endregion
+
+--region Unity 对象空判断
+
+---@brief 判断Unity对象是否为空
+---@param obj UnityEngine.Object Unity对象
+---@return boolean 是否为空
+function UnityUtil.IsNull(obj)
+    return not obj or GameLib.ObjectCommon.IsObjectEmpty(obj)
+end
+
+--endregion
+
+--region Transform / 坐标工具
+
+--=====================================================================================================
+-- Transform工具：坐标、缩放、父节点、复制
+--=====================================================================================================
+
+---@brief 获取 UI 中心点世界坐标
+---@param rectTransform UnityEngine.RectTransform UI矩形变换
+---@return UnityEngine.Vector3 中心点世界坐标
+function UnityUtil.GetRectTransformCenterWorldPos(rectTransform)
+    if UnityUtil.IsNull(rectTransform) then return Vector3.zero end
+
+    local pivot = rectTransform.pivot
+    if math.abs(pivot.x - 0.5) < 0.001 and math.abs(pivot.y - 0.5) < 0.001 then
+        return rectTransform.position
+    end
+
+    local offsetPivot = Vector2(0.5, 0.5) - pivot
+    local size = rectTransform.sizeDelta
+    local offset = Vector2(size.x * offsetPivot.x, size.y * offsetPivot.y)
+    return rectTransform:TransformPoint(Vector3(offset.x, offset.y, 0))
+end
+
+---@brief 等比缩放限制尺寸
+---@param origin UnityEngine.Vector2 原始尺寸
+---@param maxWidth number 最大宽度
+---@param maxHeight number 最大高度
+---@return UnityEngine.Vector2 缩放后尺寸
+function UnityUtil.ScaleToFitSize(origin, maxWidth, maxHeight)
+    if origin.y > maxHeight then
+        local scale = maxHeight / origin.y
+        origin.x = origin.x * scale
+        origin.y = maxHeight
+    end
+    if origin.x > maxWidth then
+        local scale = maxWidth / origin.x
+        origin.x = maxWidth
+        origin.y = origin.y * scale
+    end
+    return Vector2(origin.x, origin.y)
+end
+
+---@brief 检查父节点是否隐藏（最多查几层）
+---@param transform UnityEngine.Transform 目标变换
+---@param maxDepth number 检查深度
+---@return boolean 是否有父节点隐藏
+function UnityUtil.IsAnyParentInactive(transform, maxDepth)
+    if UnityUtil.IsNull(transform) then return true end
+    maxDepth = math.min(maxDepth or 3, 5)
+    local parent = transform.parent
+
+    while not UnityUtil.IsNull(parent) and maxDepth > 0 do
+        maxDepth = maxDepth - 1
+        if not parent.gameObject.activeSelf then return true end
+        parent = parent.parent
+    end
+    return false
+end
+
+---@brief 复制物体并设为子节点
+---@param parent UnityEngine.GameObject 父物体
+---@param original UnityEngine.GameObject 原始物体
+---@return UnityEngine.GameObject 复制后的物体
+function UnityUtil.InstantiateChild(parent, original)
+    if UnityUtil.IsNull(parent) or UnityUtil.IsNull(original) then return nil end
+    local go = UnityEngine.Object.Instantiate(original)
+    go:SetActive(true)
+    go.transform:SetParent(parent.transform)
+    go.transform.localScale = Vector3.one
+    go.transform.localPosition = Vector3.zero
+    go.transform.localEulerAngles = Vector3.zero
+    return go
+end
+
+---@brief 设置父子关系并重置Transform
+---@param parent UnityEngine.GameObject 父物体
+---@param child UnityEngine.GameObject 子物体
+function UnityUtil.SetTransformChild(parent, child)
+    if UnityUtil.IsNull(parent) or UnityUtil.IsNull(child) then return end
+    child:SetActive(true)
+    child.transform:SetParent(parent.transform)
+    child.transform.localScale = Vector3.one
+    child.transform.localEulerAngles = Vector3.zero
+    child.transform.localPosition = Vector3.zero
+end
+
+---@brief 递归深度优先查找指定名称的子节点
+---@desc 遍历 root 的全部后代节点（不含自身），返回第一个名称匹配 targetName 的节点
+---@param root UnityEngine.Transform 查找起点
+---@param targetName string 目标节点名
+---@return UnityEngine.Transform|nil 匹配节点，未找到返回 nil
+function UnityUtil.FindChildTransform(root, targetName)
+    if UnityUtil.IsNull(root) or not targetName then return nil end
+
+    for i = 0, root.childCount - 1 do
+        local child = root:GetChild(i)
+        if child.name == targetName then
+            return child
+        end
+        local found = UnityUtil.FindChildTransform(child, targetName)
+        if found then return found end
+    end
+    return nil
+end
+
+---@brief 获取节点从场景根到自身的完整层级路径
+---@desc 逐级向上收集节点名，拼成 "父/子/孙" 格式，用于诊断日志
+---@param node UnityEngine.Transform 目标节点
+---@return string 层级路径，节点无效时返回空串
+function UnityUtil.GetTransformPath(node)
+    if UnityUtil.IsNull(node) then return "" end
+
+    local parts = {}
+    local cur = node
+    while not UnityUtil.IsNull(cur) do
+        table.insert(parts, 1, cur.name)
+        cur = cur.parent
+    end
+    return table.concat(parts, "/")
+end
+
+--endregion
+
+--region 坐标转换工具
+
+--=====================================================================================================
+-- 坐标转换：字符串/Table转Vector3
+--=====================================================================================================
+
+---@brief 将字符串格式的坐标转换为Unity Vector3
+--- 支持格式: (1,2,3) 、1,2,3、(-1.5, 2.0, 3.7)
+---@param str string|table 坐标字符串
+---@return UnityEngine.Vector3 转换后的三维坐标
+function UnityUtil.StringToVector3(str)
+    -- 类型兼容：自动转换table结构
+    if type(str) == "table" then
+        return UnityUtil.TableToVector3(str)
+    end
+    if not str or str == "" then
+        return CS.UnityEngine.Vector3.zero
+    end
+    str = string.gsub(str, "[{}%s\"]", "")
+    local x, y, z = string.match(str, "([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)")
+    x = tonumber(x) or 0
+    y = tonumber(y) or 0
+    z = tonumber(z) or 0
+    return CS.UnityEngine.Vector3(x, y, z)
+end
+
+---@brief Table转Unity Vector3
+---@param t table 坐标表 {x,y,z}
+---@return UnityEngine.Vector3 转换后的三维坐标
+function UnityUtil.TableToVector3(t)
+    if type(t) ~= "table" then
+        return CS.UnityEngine.Vector3.zero
+    end
+    local x = tonumber(t[1]) or 0
+    local y = tonumber(t[2]) or 0
+    local z = tonumber(t[3]) or 0
+    return CS.UnityEngine.Vector3(x, y, z)
+end
+
+--endregion
+
+return UnityUtil

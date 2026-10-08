@@ -38,8 +38,7 @@ end
 ---@return SoundManager 单例实例
 ---=========================================================================
 function SoundManager:Create(args)
-    local instance = SoundManager.new(args)
-    return instance
+    return SoundManager.new(args)
 end
 
 ---=========================================================================

@@ -160,11 +160,7 @@ namespace Honor.Runtime
                     {
                         m_AssetComponent.LoadPrefabAsync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams, (PrefabObject prefabObject, GameObject go) =>
                         {
-                            AddWebGLInput(go);
-                            AddCanvas(go, uiInfo);
-                            m_CurModalUI = AddFlagBehaviour(go, uiInfo);
-                            m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                            m_UIComponent.RefreshFontsForUI(go);
+                            m_CurModalUI = RegisterUI(go, uiInfo);
                             DoUICreateOverCallbackOnAsync(go, uiInfo, prefabObject);
                         });
                     }
@@ -180,11 +176,7 @@ namespace Honor.Runtime
                     // 异步加载非模态 UI
                     m_AssetComponent.LoadPrefabAsync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams, (PrefabObject prefabObject, GameObject go) =>
                     {
-                        AddWebGLInput(go);
-                        AddCanvas(go, uiInfo);
-                        m_UnModalUIList.Add(AddFlagBehaviour(go, uiInfo));
-                        m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                        m_UIComponent.RefreshFontsForUI(go);
+                        m_UnModalUIList.Add(RegisterUI(go, uiInfo));
                         DoUICreateOverCallbackOnAsync(go, uiInfo, prefabObject);
                     });
                 }
@@ -194,11 +186,7 @@ namespace Honor.Runtime
                 // 异步加载场景 UI
                 m_AssetComponent.LoadPrefabAsync(uiInfo.ABPath, uiInfo.AssetName, m_SceneUICanvas.transform, uiInfo.LuaParams, (PrefabObject prefabObject, GameObject go) =>
                 {
-                    AddWebGLInput(go);
-                    AddCanvas(go, uiInfo);
-                    m_SceneUIList.Add(AddFlagBehaviour(go, uiInfo));
-                    m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                    m_UIComponent.RefreshFontsForUI(go);
+                    m_SceneUIList.Add(RegisterUI(go, uiInfo));
                     DoUICreateOverCallbackOnAsync(go, uiInfo, prefabObject);
                 });
             }
@@ -217,11 +205,7 @@ namespace Honor.Runtime
                     if (!m_BlockModalUIsSwitch && m_CurModalUI == null)
                     {
                         GameObject go = m_AssetComponent.LoadPrefabSync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams);
-                        AddWebGLInput(go);
-                        AddCanvas(go, uiInfo);
-                        m_CurModalUI = AddFlagBehaviour(go, uiInfo);
-                        m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                        m_UIComponent.RefreshFontsForUI(go);
+                        m_CurModalUI = RegisterUI(go, uiInfo);
                         return m_CurModalUI.gameObject;
                     }
                     else
@@ -234,22 +218,14 @@ namespace Honor.Runtime
                 else
                 {
                     GameObject go = m_AssetComponent.LoadPrefabSync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams);
-                    AddWebGLInput(go);
-                    AddCanvas(go, uiInfo);
-                    m_UnModalUIList.Add(AddFlagBehaviour(go, uiInfo));
-                    m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                    m_UIComponent.RefreshFontsForUI(go);
+                    m_UnModalUIList.Add(RegisterUI(go, uiInfo));
                     return go;
                 }
             }
             else
             {
                 GameObject go = m_AssetComponent.LoadPrefabSync(uiInfo.ABPath, uiInfo.AssetName, m_SceneUICanvas.transform, uiInfo.LuaParams);
-                AddWebGLInput(go);
-                AddCanvas(go, uiInfo);       
-                m_SceneUIList.Add(AddFlagBehaviour(go, uiInfo));
-                m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                m_UIComponent.RefreshFontsForUI(go);
+                m_SceneUIList.Add(RegisterUI(go, uiInfo));
                 return go;
             }
         }

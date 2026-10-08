@@ -36,7 +36,7 @@ namespace Honor.Runtime
         /// <summary>
         /// Lua GC 调用间隔（秒）
         /// </summary>
-        internal const float m_GCInterval = 1f;
+        internal const float s_GCInterval = 1f;
 
         #endregion
 
@@ -47,7 +47,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 最近一次 Lua GC 调用时间
         /// </summary>
-        internal static float m_LastGCTime;
+        internal static float s_LastGCTime;
 
         #endregion
 
@@ -113,11 +113,6 @@ namespace Honor.Runtime
         private AssetComponent m_AssetComponent;
 
         /// <summary>
-        /// 流程管理组件引用
-        /// </summary>
-        private ProcedureComponent m_ProcedureComponent;
-
-        /// <summary>
         /// 已加载 Lua 脚本名称缓存
         /// </summary>
         private List<string> m_LoadedLuaScriptsNames;
@@ -146,6 +141,17 @@ namespace Honor.Runtime
         /// </summary>
         private readonly HashSet<string> m_LuaModuleNotFoundCache =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// 资源管理器的 AB 包加载管理器（收敛深层访问，简化调用）
+        /// </summary>
+        private AssetBundleLoadManager AssetBundleLoadManager =>
+            m_AssetComponent.AssetLoadManager.AssetBundleLoadManager;
+
+        /// <summary>
+        /// Lua 脚本资源类型名（Luac 字节码模式 / 文本模式）
+        /// </summary>
+        private string LuaAssetTypeName => m_LauncherComponent.LuacMode ? "LuacAsset" : "LuaAsset";
 
         #endregion
     }

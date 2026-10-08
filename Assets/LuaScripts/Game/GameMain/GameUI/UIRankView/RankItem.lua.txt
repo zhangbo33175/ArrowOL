@@ -15,7 +15,9 @@
 ---@field SelfMark                            UnityEngine.GameObject         √                        自己高亮标识
 local RankItem = class('RankItem', import('LuaBehaviourSuper'))
 
----构造函数（接收榜单条目数据）
+--region 【构造 & 实例化】
+
+---@brief 构造函数（接收榜单条目数据）
 ---@type fun(args:table):void
 ---@param args table @自定义参数，args.data 结构：{rank:number, name:string, score:number, isSelf:boolean}
 function RankItem:ctor(args)
@@ -23,37 +25,48 @@ function RankItem:ctor(args)
     self.m_Data = args and args.data or nil
 end
 
----创建函数
+---@brief 创建函数
 ---@type fun(args:table):RankItem
 ---@param args table @自定义参数
 ---@return RankItem @实例
 function RankItem:Create(args)
-    local obj = RankItem.new(args)
-    return obj
+    return RankItem.new(args)
 end
 
----注册监听（自动注销）
+--endregion
+
+--region 【生命周期】
+
+---@brief 注册监听（自动注销）
 ---@type fun():void
 function RankItem:OnAddListeners()
     RankItem.super.OnAddListeners(self)
-
 end
 
----唤醒
+---@brief 唤醒
 ---@type fun():void
 function RankItem:Awake()
     RankItem.super.Awake(self)
-
 end
 
----开始（刷新条目显示）
+---@brief 开始（刷新条目显示）
 ---@type fun():void
 function RankItem:Start()
     RankItem.super.Start(self)
     self:Refresh()
 end
 
----刷新条目显示（名次/昵称/分数/自己标识）
+---@brief 销毁
+---@type fun():void
+function RankItem:OnDestroy()
+    RankItem.super.OnDestroy(self)
+end
+
+--endregion
+
+--region 【数据刷新】
+
+---@brief 刷新条目显示（名次/昵称/分数/自己标识）
 ---@type fun():void
 function RankItem:Refresh()
     if not self.m_Data then
@@ -69,34 +82,37 @@ function RankItem:Refresh()
         self.ScoreText.text = tostring(self.m_Data.score)
     end
     if self.SelfMark then
-        self.SelfMark:SetActive(self.m_Data.isSelf == true)
+        self.SelfMark:SetActive(self.m_Data.isSelf)
     end
 end
 
----销毁
----@type fun():void
-function RankItem:OnDestroy()
-    RankItem.super.OnDestroy(self)
+--endregion
 
-end
+--region 【动画回调】
 
----播放打开动画（可重写）
+---@brief 播放打开动画（可重写）
 ---@type fun():void
 function RankItem:OnPlayOpenAnimation()
     RankItem.super.OnPlayOpenAnimation(self)
 end
 
----播放关闭动画（可重写）
+---@brief 播放关闭动画（可重写）
 ---@type fun():void
 function RankItem:OnPlayCloseAnimation()
     RankItem.super.OnPlayCloseAnimation(self)
 end
 
----子UI销毁回调
+--endregion
+
+--region 【子UI回调】
+
+---@brief 子UI销毁回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function RankItem:OnAddedUIDestroyed(luaClass)
     RankItem.super.OnAddedUIDestroyed(self, luaClass)
 end
+
+--endregion
 
 return RankItem

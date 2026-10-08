@@ -43,7 +43,7 @@ require("GameRequires")
 PrintInfo("[LuaMain] Lua 主入口初始化完成")
 
 -- 读取服务器系统配置
-SystemConfigHelper:GetServerSystemConfig()
+HonorConfigHelper:GetServerSystemConfig()
 
 --=====================================================================================================
 -- 全局系统回调注册（Unity 生命周期回调）

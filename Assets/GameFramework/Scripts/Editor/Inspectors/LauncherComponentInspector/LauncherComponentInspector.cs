@@ -104,27 +104,27 @@ namespace Honor.Editor
         /// </summary>
         private void OnEnable()
         {
-            m_EditorResourceMode               = serializedObject.FindProperty("m_EditorResourceMode");
-            m_EditorLanguage                   = serializedObject.FindProperty("m_EditorLanguage");
-            m_DevelopMode                      = serializedObject.FindProperty("m_DevelopMode");
-            m_IsRealTimeDebuggerHotfixForEditor = serializedObject.FindProperty("m_IsRealTimeDebuggerHotfixForEditor");
-            m_LuacMode                         = serializedObject.FindProperty("m_LuacMode");
-            m_LuaHotReloadMode                 = serializedObject.FindProperty("m_LuaHotReloadMode");
-            m_DebuggerActiveWindow             = serializedObject.FindProperty("m_DebuggerActiveWindow");
-            m_FrameRate                        = serializedObject.FindProperty("m_FrameRate");
-            m_GameSpeed                        = serializedObject.FindProperty("m_GameSpeed");
-            m_RunInBackground                  = serializedObject.FindProperty("m_RunInBackground");
-            m_NeverSleep                       = serializedObject.FindProperty("m_NeverSleep");
+            m_EditorResourceMode               = BindProperty("m_EditorResourceMode");
+            m_EditorLanguage                   = BindProperty("m_EditorLanguage");
+            m_DevelopMode                      = BindProperty("m_DevelopMode");
+            m_IsRealTimeDebuggerHotfixForEditor = BindProperty("m_IsRealTimeDebuggerHotfixForEditor");
+            m_LuacMode                         = BindProperty("m_LuacMode");
+            m_LuaHotReloadMode                 = BindProperty("m_LuaHotReloadMode");
+            m_DebuggerActiveWindow             = BindProperty("m_DebuggerActiveWindow");
+            m_FrameRate                        = BindProperty("m_FrameRate");
+            m_GameSpeed                        = BindProperty("m_GameSpeed");
+            m_RunInBackground                  = BindProperty("m_RunInBackground");
+            m_NeverSleep                       = BindProperty("m_NeverSleep");
 
             m_LuaDebugMode = GameDefinitions.DebugMode.None;
             ReadLuaDebugModeFromLibraryConfigFile();
 
-            m_CustomDevicePerformance = serializedObject.FindProperty("m_CustomDevicePerformance");
-            m_UseDevicePerformance    = serializedObject.FindProperty("m_UseDevicePerformance");
+            m_CustomDevicePerformance = BindProperty("m_CustomDevicePerformance");
+            m_UseDevicePerformance    = BindProperty("m_UseDevicePerformance");
 
-            m_Performances[0] = serializedObject.FindProperty("m_EditorPerformance");
-            m_Performances[1] = serializedObject.FindProperty("m_AndroidPerformance");
-            m_Performances[2] = serializedObject.FindProperty("m_iOSPerformance");
+            m_Performances[0] = BindProperty("m_EditorPerformance");
+            m_Performances[1] = BindProperty("m_AndroidPerformance");
+            m_Performances[2] = BindProperty("m_iOSPerformance");
 
             for (int platformIndex = 0; platformIndex < m_Performances.Length; platformIndex++)
             {
@@ -388,7 +388,9 @@ namespace Honor.Editor
         {
             // ====================== 设备性能分级 ======================
             m_UseDevicePerformance.boolValue = EditorGUILayout.Toggle("开启硬件性能分级/评级", m_UseDevicePerformance.boolValue);
-            m_CustomDevicePerformance.boolValue = EditorGUILayout.Toggle("自定义硬件性能分级/评级", m_CustomDevicePerformance.boolValue);
+            // 自定义分级：以下拉框替代开关，选项映射回 bool 字段（不改变序列化字段与 Lua 绑定）
+            m_CustomDevicePerformance.boolValue =
+                DrawCustomDevicePerformanceDropdown(m_CustomDevicePerformance.boolValue);
 
             if (!m_CustomDevicePerformance.boolValue)
             {
@@ -438,6 +440,20 @@ namespace Honor.Editor
                 }
             }
             EditorGUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// 绘制「自定义硬件性能分级/评级」下拉框，选项映射回 bool 字段
+        /// <para>不改变序列化字段类型与 Lua 绑定，仅以下拉框形式提供二选一交互</para>
+        /// </summary>
+        /// <param name="currentValue">当前是否启用自定义分级</param>
+        /// <returns>选择后的是否启用自定义分级</returns>
+        private bool DrawCustomDevicePerformanceDropdown(bool currentValue)
+        {
+            string[] options = { "自动分级（不自定义）", "自定义分级" };
+            int currentIndex = currentValue ? 1 : 0;
+            int selectedIndex = EditorGUILayout.Popup("自定义硬件性能分级/评级", currentIndex, options);
+            return selectedIndex == 1;
         }
 
         /// <summary>

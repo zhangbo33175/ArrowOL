@@ -96,29 +96,29 @@ namespace Honor.Editor
         /// </summary>
         private void BindSerializedProperties()
         {
-            m_ProcedureTypeNames                                      = serializedObject.FindProperty("m_ProcedureTypeNames");
-            m_ProcedureTransitionEnterFlags                            = serializedObject.FindProperty("m_ProcedureTransitionEnterFlags");
-            m_ProcedureTransitionEnterDurations                        = serializedObject.FindProperty("m_ProcedureTransitionEnterDurations");
-            m_ProcedureTransitionEnterBlockRaycasts                   = serializedObject.FindProperty("m_ProcedureTransitionEnterBlockRaycasts");
-            m_ProcedureTransitionExitFlags                             = serializedObject.FindProperty("m_ProcedureTransitionExitFlags");
-            m_ProcedureTransitionExitDurations                         = serializedObject.FindProperty("m_ProcedureTransitionExitDurations");
-            m_ProcedureTransitionExitBlockRaycasts                    = serializedObject.FindProperty("m_ProcedureTransitionExitBlockRaycasts");
-            m_ProcedureTransitionEnterFlagFromProcedureHotfix         = serializedObject.FindProperty("m_ProcedureTransitionEnterFlagFromProcedureHotfix");
-            m_ProcedureTransitionEnterDurationFromProcedureHotfix     = serializedObject.FindProperty("m_ProcedureTransitionEnterDurationFromProcedureHotfix");
-            m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix = serializedObject.FindProperty("m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix");
-            m_ProcedureTransitionExitFlagFromProcedureHotfix          = serializedObject.FindProperty("m_ProcedureTransitionExitFlagFromProcedureHotfix");
-            m_ProcedureTransitionExitDurationFromProcedureHotfix      = serializedObject.FindProperty("m_ProcedureTransitionExitDurationFromProcedureHotfix");
-            m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix  = serializedObject.FindProperty("m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix");
-            m_EntryProcedureTypeName                                   = serializedObject.FindProperty("m_EntryProcedureTypeName");
+            m_ProcedureTypeNames                                      = BindProperty("m_ProcedureTypeNames");
+            m_ProcedureTransitionEnterFlags                            = BindProperty("m_ProcedureTransitionEnterFlags");
+            m_ProcedureTransitionEnterDurations                        = BindProperty("m_ProcedureTransitionEnterDurations");
+            m_ProcedureTransitionEnterBlockRaycasts                   = BindProperty("m_ProcedureTransitionEnterBlockRaycasts");
+            m_ProcedureTransitionExitFlags                             = BindProperty("m_ProcedureTransitionExitFlags");
+            m_ProcedureTransitionExitDurations                         = BindProperty("m_ProcedureTransitionExitDurations");
+            m_ProcedureTransitionExitBlockRaycasts                    = BindProperty("m_ProcedureTransitionExitBlockRaycasts");
+            m_ProcedureTransitionEnterFlagFromProcedureHotfix         = BindProperty("m_ProcedureTransitionEnterFlagFromProcedureHotfix");
+            m_ProcedureTransitionEnterDurationFromProcedureHotfix     = BindProperty("m_ProcedureTransitionEnterDurationFromProcedureHotfix");
+            m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix = BindProperty("m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix");
+            m_ProcedureTransitionExitFlagFromProcedureHotfix          = BindProperty("m_ProcedureTransitionExitFlagFromProcedureHotfix");
+            m_ProcedureTransitionExitDurationFromProcedureHotfix      = BindProperty("m_ProcedureTransitionExitDurationFromProcedureHotfix");
+            m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix  = BindProperty("m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix");
+            m_EntryProcedureTypeName                                   = BindProperty("m_EntryProcedureTypeName");
             
-            m_UITransitionABPath          = serializedObject.FindProperty("m_UITransitionABPath");
-            m_UITransitionAssetName       = serializedObject.FindProperty("m_UITransitionAssetName");
-            m_UISplashABPath              = serializedObject.FindProperty("m_UISplashABPath");
-            m_UISplashAssetName           = serializedObject.FindProperty("m_UISplashAssetName");
-            m_SplashProcedureDuration     = serializedObject.FindProperty("m_SplashProcedureDuration");
-            m_UseUIPreload                = serializedObject.FindProperty("m_UseUIPreload");
-            m_UIPreloadABPath             = serializedObject.FindProperty("m_UIPreloadABPath");
-            m_UIPreloadAssetName          = serializedObject.FindProperty("m_UIPreloadAssetName");
+            m_UITransitionABPath          = BindProperty("m_UITransitionABPath");
+            m_UITransitionAssetName       = BindProperty("m_UITransitionAssetName");
+            m_UISplashABPath              = BindProperty("m_UISplashABPath");
+            m_UISplashAssetName           = BindProperty("m_UISplashAssetName");
+            m_SplashProcedureDuration     = BindProperty("m_SplashProcedureDuration");
+            m_UseUIPreload                = BindProperty("m_UseUIPreload");
+            m_UIPreloadABPath             = BindProperty("m_UIPreloadABPath");
+            m_UIPreloadAssetName          = BindProperty("m_UIPreloadAssetName");
         }
 
         /// <summary>
@@ -636,7 +636,7 @@ namespace Honor.Editor
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("--=====================================================================================================")
-              .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+              .AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime")
               .AppendLine("-- All Rights Reserved.")
               .AppendLine("-- ----------------------------------------------------------------------------------------------------")
               .AppendLine($"-- filename:  {luaName}.lua")

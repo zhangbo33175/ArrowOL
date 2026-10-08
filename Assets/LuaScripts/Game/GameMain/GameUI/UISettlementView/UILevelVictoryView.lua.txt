@@ -17,12 +17,13 @@
 ---@field Levelmage                          UnityEngine.UI.Image          √                        关卡背景
 local UILevelVictoryView = class('UILevelVictoryView', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UILevelVictoryView:ctor(args)
     UILevelVictoryView.super.ctor(self, args)
-
 end
 
 ---创建函数
@@ -30,45 +31,45 @@ end
 ---@param args table @自定义参数
 ---@return UILevelVictoryView @实例
 function UILevelVictoryView:Create(args)
-    local obj = UILevelVictoryView.new(args)
-    return obj
+    return UILevelVictoryView.new(args)
 end
+
+--endregion
+
+--region 【生命周期】
 
 ---注册监听（自动注销）
 ---@type fun():void
 function UILevelVictoryView:OnAddListeners()
     UILevelVictoryView.super.OnAddListeners(self)
-
 end
 
 ---唤醒
 ---@type fun():void
+---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+--TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
 function UILevelVictoryView:Awake()
     UILevelVictoryView.super.Awake(self)
--- 2=====================================================================================================
-    AddUIListenerFunction(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
-    AddUIListenerFunction(self.NextLevelButton, 'Clicked', handler(self, self.OnNextLevelButtonClicked))
--- ====================================================================================================2
-
+    self:AddUIListener(self.MainButton, 'Clicked', Bind(self, self.OnMainButtonClicked))
+    self:AddUIListener(self.NextLevelButton, 'Clicked', Bind(self, self.OnNextLevelButtonClicked))
 end
 
 ---开始
 ---@type fun():void
 function UILevelVictoryView:Start()
     UILevelVictoryView.super.Start(self)
-
 end
 
 ---销毁
 ---@type fun():void
+---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 function UILevelVictoryView:OnDestroy()
     UILevelVictoryView.super.OnDestroy(self)
--- 3=====================================================================================================
-    OnRemoveListener(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
-    OnRemoveListener(self.NextLevelButton, 'Clicked', handler(self, self.OnNextLevelButtonClicked))
--- ====================================================================================================3
-
 end
+
+--endregion
+
+--region 【动画回调】
 
 ---播放打开动画（可重写）
 ---@type fun():void
@@ -82,12 +83,20 @@ function UILevelVictoryView:OnPlayCloseAnimation()
     UILevelVictoryView.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---子UI销毁回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UILevelVictoryView:OnAddedUIDestroyed(luaClass)
     UILevelVictoryView.super.OnAddedUIDestroyed(self, luaClass)
 end
+
+--endregion
+
+--region 【按钮交互回调】
 
 ---返回管卡界面-交互回调
 ---@type fun(args:any):void
@@ -98,11 +107,13 @@ end
 ---下一关-交互回调
 ---@type fun(args:any):void
 function UILevelVictoryView:OnNextLevelButtonClicked(args)
-    self._id= ChapterListManager:GetRuntimeChapterId()
+    self._id = ChapterListManager:GetRuntimeChapterId()
     if not string.isNullOrEmpty(self._id) then
-        GamePlayHelper:LoadMainMap(self._id,function()
-        end,true)
+        GamePlayHelper:LoadMainMap(self._id, function()
+        end, true)
     end
 end
+
+--endregion
 
 return UILevelVictoryView

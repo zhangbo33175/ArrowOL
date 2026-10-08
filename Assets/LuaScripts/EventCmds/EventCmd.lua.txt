@@ -5,169 +5,77 @@
 -- author:    云毅
 -- created:   2026
 -- @brief     全局事件定义（全局事件中心）
--- @desc      定义全游戏唯一的事件字符串，用于跨模块、跨UI、跨系统消息通信
--- @module:   UI / 登录 / 通知 / 关卡 / 地图 / 时间 / 道具 / HUD / 货币 / 玩法 / Buff / BGM
+-- @desc      定义全游戏唯一的事件码，用于跨模块、跨UI、跨系统消息通信。
+--            值采用 UniqueEventCode() 生成全局唯一码（对齐 UIEventCode / 参考框架，杜绝硬编码与冲突）。
+--            UI 界面相关事件已分离至 UIEventCode（UI 模块内消息），本文件保留全局业务事件：
+--            登录 / 通知 / 关卡核心 / 地图 / 时间 / 道具 / Buff / BGM / 连击 / 角色交互 / 章节 / 关卡生命周期。
+-- @module:   登录 / 通知 / 关卡 / 地图 / 时间 / 道具 / Buff / BGM / 连击 / 角色 / 章节
 -- @feat      统一事件枚举、杜绝硬编码、全模块通用、易于维护扩展
 -- @author    商业项目规范版 | 分类清晰 | 全覆盖游戏业务
 -- @规范:      Unity Lua 商业项目编码标准 / 全局常量规范
--- @dependency nil
+-- @dependency SerialProducer（UniqueEventCode 生成器）
 --=====================================================================================================
+
+local UniqueEventCode = UniqueEventCode
 
 ---@class EventCmd 全局事件枚举（全局唯一）
 EventCmd = {
-    ----------------------------------------------------------------------------------------------------
-    -- UI 通用事件
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 游戏关卡主界面关闭
-    UIGameViewClose                      = "UIGameViewClose",
-    ---@type string 游戏关卡主界面打开
-    UIGameViewOpen                       = "UIGameViewOpen",
 
-    ----------------------------------------------------------------------------------------------------
     -- 账号 / 登录相关
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 账号绑定结果回调，参数(isSuccess, platform, aid, position)
-    OnAidBindingResult                   = "OnAidBindingResult",
-    ---@type string 账号解绑结果回调，参数(isSuccess, platform, aid, position)
-    OnAidUnBindingResult                 = "OnAidUnBindingResult",
-    ---@type string 玩家登录完成结果，参数(isSuccess)
-    OnLoginResult                        = "OnLoginResult",
+    OnAidBindingResult                   = UniqueEventCode(), --账号绑定结果回调，参数(isSuccess, platform, aid, position)
+    OnAidUnBindingResult                 = UniqueEventCode(), --账号解绑结果回调，参数(isSuccess, platform, aid, position)
+    OnLoginResult                        = UniqueEventCode(), --玩家登录完成结果，参数(isSuccess)
 
-    ----------------------------------------------------------------------------------------------------
     -- 全局通知
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 全局通用弹窗提示消息，参数(msg)
-    NotificationMessage                  = "NotificationMessage",
-    ---@type string 游戏多语言切换完成，刷新所有界面文本
-    OnLanguageChange                     = "OnLanguageChange",
-    ---@type string 用户分层数据刷新，用于本地活动、系统解锁状态更新
-    OnGenerateUserType                   = "OnGenerateUserType",
+    NotificationMessage                  = UniqueEventCode(), --全局通用弹窗提示消息，参数(msg)
+    OnLanguageChange                     = UniqueEventCode(), --游戏多语言切换完成，刷新所有界面文本
+    OnGenerateUserType                   = UniqueEventCode(), --用户分层数据刷新，用于本地活动、系统解锁状态更新
 
-    ----------------------------------------------------------------------------------------------------
     -- 关卡 / 游戏核心生命周期
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 关卡挑战失败，参数(chapterId, levelId)
-    OnLevelFailure                       = "OnLevelFailure",
-    ---@type string 关卡挑战成功，用于解锁系统、开启活动、结算奖励
-    OnLevelSuccess                       = "OnLevelSuccess",
-    ---@type string 游戏进程异常退出（杀进程、闪退），用于数据保存补偿
-    OnLevelUnusualExit                   = "OnLevelUnusualExit",
-    ---@type string 玩家首次进入主城镇主状态，触发新手引导、首登福利
-    OnFirstIntoMainState                 = "OnFirstIntoMainState",
-    ---@type string 章节地图切换动画、加载完成回调
-    OnChapterMapChangeComplete           = "OnChapterMapChangeComplete",
+    OnLevelFailure                       = UniqueEventCode(), --关卡挑战失败，参数(chapterId, levelId)
+    OnLevelSuccess                       = UniqueEventCode(), --关卡挑战成功，用于解锁系统、开启活动、结算奖励
+    OnLevelUnusualExit                   = UniqueEventCode(), --游戏进程异常退出（杀进程、闪退），用于数据保存补偿
+    OnFirstIntoMainState                 = UniqueEventCode(), --玩家首次进入主城镇主状态，触发新手引导、首登福利
+    OnChapterMapChangeComplete           = UniqueEventCode(), --章节地图切换动画、加载完成回调
 
-    ----------------------------------------------------------------------------------------------------
     -- 地图 / 区域
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 游戏运行时玩家所在地图区域发生切换
-    OnRuntimeAreaChanged                 = "OnRuntimeAreaChanged",
+    OnRuntimeAreaChanged                 = UniqueEventCode(), --游戏运行时玩家所在地图区域发生切换
 
-    ----------------------------------------------------------------------------------------------------
     -- 时间 / 服务器同步校正
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 服务器下发标准时间，本地客户端校正本地时间戳
-    OnTimeCorrectionByServer             = "OnTimeCorrectionByServer",
+    OnTimeCorrectionByServer             = UniqueEventCode(), --服务器下发标准时间，本地客户端校正本地时间戳
 
-    ----------------------------------------------------------------------------------------------------
     -- 道具 / 技能 / 限时增益道具
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 玩家主动使用道具，参数(boosterId, num)
-    OnBoosterUseEvent                    = "OnBoosterUseEvent",
-    ---@type string 时间冻结道具效果倒计时结束
-    OnSkillFreezeTimeOver                = "OnSkillFreezeTimeOver",
-    ---@type string 道具功能全局启用开关变更
-    OnBoostersEnable                     = "OnBoostersEnable",
-    ---@type string 单道具持续效果到期结束
-    OnBoosterEnd                         = "OnBoosterEnd",
-    ---@type string 弹出道具解锁介绍弹窗
-    OnBoosterUnlockDescShowEvent         = "OnBoosterUnlockDescShowEvent",
-    ---@type string 背包内道具数量发生增减变更
-    OnBoosterNumModifyEvent              = "OnBoosterNumModifyEvent",
+    OnBoosterUseEvent                    = UniqueEventCode(), --玩家主动使用道具，参数(boosterId, num)
+    OnSkillFreezeTimeOver                = UniqueEventCode(), --时间冻结道具效果倒计时结束
+    OnBoostersEnable                     = UniqueEventCode(), --道具功能全局启用开关变更
+    OnBoosterEnd                         = UniqueEventCode(), --单道具持续效果到期结束
+    OnBoosterUnlockDescShowEvent         = UniqueEventCode(), --弹出道具解锁介绍弹窗
+    OnBoosterNumModifyEvent              = UniqueEventCode(), --背包内道具数量发生增减变更
 
-    ----------------------------------------------------------------------------------------------------
-    -- 主界面 HUD 顶部/底部常驻UI
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 主城镇HUD显示、隐藏、交互状态发生变更
-    OnGameMainHudStateChange             = "OnGameMainHudStateChange",
-    ---@type string 切回游戏主界面，恢复推送各类弹窗UI
-    OnTryResumeGameMainPushUI            = "OnTryResumeGameMainPushUI",
-    ---@type string 主界面射线检测开关变更，控制是否拦截触摸输入
-    OnUIMainRaycastStateChange           = "OnUIMainRaycastStateChange",
-    ---@type string 允许主界面执行新手引导交互逻辑
-    OnAllowMainHudTutorial               = "OnAllowMainHudTutorial",
-    ---@type string 执行显示主界面HUD动画
-    OnShowMainHudUI                      = "OnShowMainHudUI",
-    ---@type string 执行隐藏主界面HUD动画
-    OnHideMainHudUI                      = "OnHideMainHudUI",
-    ---@type string HUD显示动画播放完毕回调
-    OnShowMainHudUIOver                  = "OnShowMainHudUIOver",
-    ---@type string HUD隐藏动画播放完毕回调
-    OnHideMainHudUIOver                  = "OnHideMainHudUIOver",
-
-    ----------------------------------------------------------------------------------------------------
-    -- 货币 / 成就系统
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 界面临时展示货币数值变动（仅UI刷新，不触发存档）
-    OnCurrencyChangeInUI                 = "OnCurrencyChangeInUI",
-    ---@type string 请求弹出成就达成提示弹窗
-    OnRequestShowAchievementTipsUI       = "OnRequestShowAchievementTipsUI",
-
-    ----------------------------------------------------------------------------------------------------
-    -- 地图收集玩法
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 场景内剩余待寻找目标数量变更，刷新进度UI
-    ChangeOnTheNumberOfRemainingSearchItems = "ChangeOnTheNumberOfRemainingSearchItems",
-
-    ----------------------------------------------------------------------------------------------------
     -- Buff / 全局限时效果
-    ----------------------------------------------------------------------------------------------------
-    ---@type string Buff剩余时长数值修改
-    OnBufferTimeModifyEvent              = "OnBufferTimeModifyEvent",
-    ---@type string Buff持续时间完全到期失效
-    OnBufferTimeEndEvent                 = "OnBufferTimeEndEvent",
-    ---@type string 内部帧驱动Buff倒计时Tick，每秒执行一次
-    OnBufferDeltaTimeTickEvent           = "OnBufferDeltaTimeTickEvent",
-    ---@type string Buff倒计时定时回调，用于刷新UI倒计时文本
-    OnBufferTimeTickEvent                = "OnBufferTimeTickEvent",
+    OnBufferTimeModifyEvent              = UniqueEventCode(), --Buff剩余时长数值修改
+    OnBufferTimeEndEvent                 = UniqueEventCode(), --Buff持续时间完全到期失效
+    OnBufferDeltaTimeTickEvent           = UniqueEventCode(), --内部帧驱动Buff倒计时Tick，每秒执行一次
+    OnBufferTimeTickEvent                = UniqueEventCode(), --Buff倒计时定时回调，用于刷新UI倒计时文本
 
-    ----------------------------------------------------------------------------------------------------
     -- BGM / 音效管理
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 切换全局背景音乐资源，交由SoundManager执行播放
-    OnPlayBGMKeyChanged                  = "OnPlayBGMKeyChanged",
+    OnPlayBGMKeyChanged                  = UniqueEventCode(), --切换全局背景音乐资源，交由SoundManager执行播放
 
-    ----------------------------------------------------------------------------------------------------
     -- 连击计数
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 关卡内连击数值发生增减变化
-    OnComboCountChange = "OnComboCountChange",
+    OnComboCountChange                   = UniqueEventCode(), --关卡内连击数值发生增减变化
 
-    ----------------------------------------------------------------------------------------------------
     -- 角色交互
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 主城镇/地图内角色实体被玩家点击
-    OnClickCharacter = 'OnClickCharacter',
+    OnClickCharacter                     = UniqueEventCode(), --主城镇/地图内角色实体被玩家点击
+    OnCharacterCollected                 = UniqueEventCode(), --角色被成功收集（已加入本局已收集列表）事件 --TODO: [新增] 角色收集成功事件，供 UI 刷新目标完成数（CompleteNumber）
+    LifeTransformation                   = UniqueEventCode(), --角色变身/形态切换事件
 
-    ---@type string 角色变身/形态切换事件
-    LifeTransformation='LifeTransformation',
-    ----------------------------------------------------------------------------------------------------
     -- 章节解锁
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 完成前置条件，新章节解锁触发弹窗与地图刷新
-    OnNewChapterUnlockEvent = "OnNewChapterUnlockEvent",
+    OnNewChapterUnlockEvent              = UniqueEventCode(), --完成前置条件，新章节解锁触发弹窗与地图刷新
 
-    ----------------------------------------------------------------------------------------------------
     -- 关卡完整生命周期事件
-    ----------------------------------------------------------------------------------------------------
-    ---@type string 关卡资源、数据初始化完成事件
-    InitGameEvent = "InitGameEvent",
-    ---@type string 正式开启关卡游玩，开放触摸、操作交互
-    BeginGameEvent = "BeginGameEvent",
-    ---@type string 关卡结束（胜利/失败统一触发）
-    OverGameEvent = "OverGameEvent",
-    ---@type string 玩家主动退出当前关卡返回城镇
-    ExitGameEvent = "ExitGameEvent",
-    ---@type string 结算界面点击重玩，重置关卡所有数据重新开始
-    RePlayGameEvent = "RePlayGameEvent",
+    InitGameEvent                        = UniqueEventCode(), --关卡资源、数据初始化完成事件
+    BeginGameEvent                       = UniqueEventCode(), --正式开启关卡游玩，开放触摸、操作交互
+    OverGameEvent                        = UniqueEventCode(), --关卡结束（胜利/失败统一触发）
+    ExitGameEvent                        = UniqueEventCode(), --玩家主动退出当前关卡返回城镇
+    RePlayGameEvent                      = UniqueEventCode(), --结算界面点击重玩，重置关卡所有数据重新开始
 }

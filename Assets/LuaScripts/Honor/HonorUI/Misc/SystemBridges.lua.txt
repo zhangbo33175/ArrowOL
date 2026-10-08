@@ -1,0 +1,150 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  SystemBridges.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   全局桥接方法
+--            核心作用：提供 Lua 与 C# 交互的底层通用函数，包括调试器、类创建、UI事件绑定入口
+--            说明：UI 事件绑定的实际实现已拆分至 UIManager.lua.txt，本文件保留全局函数名并委托之，接口零破坏
+--=====================================================================================================
+
+--region EmmyLua 调试器初始化
+---=========================================================================
+---@brief EmmyLua 断点调试器初始化
+---@desc 仅编辑器环境生效，根据配置文件自动选择调试模式，连接 Rider/IDE 进行 Lua 断点调试
+---=========================================================================
+function __DEBUGGER__()
+    if IsEditor == true then
+        local debugType = Honor.GameDefinitions.DebugMode.None
+        -- 读取调试模式配置文件
+        if io.exists(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath()) == true then
+            local content = io.readfile(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath())
+            debugType = Honor.GameDefinitions.DebugMode.__CastFrom(tonumber(content))
+            -- 加载 EmmyLua 调试插件
+            --TODO: [优化] 以下 cpath 为本机 Rider/EmmyLua 插件绝对路径（仅编辑器断点调试用，按本机环境配置；路径本身勿改、勿跨机共享）
+            package.cpath = package.cpath .. ';C:/Users/Administrator/AppData/Roaming/JetBrains/Rider2026.1/plugins/IntelliJ-EmmyLua/debugger/emmy/windows/x64/?.dll'
+
+            -- 模式1：IDE主动连接 Unity（连接失败仅警告，不中断加载）
+            if debugType == Honor.GameDefinitions.DebugMode.IDEFirst then
+                local ok, err = pcall(function()
+                    local dbg = require('emmy_core')
+                    dbg.tcpConnect('localhost', 9966)
+                    print("<color=green>[EmmyLua] 调试器启动成功！</color>")
+                end)
+                if not ok then
+                    print(string.format("<color=yellow>[EmmyLua] 调试器连接失败，已跳过：%s</color>", tostring(err)))
+                end
+
+            elseif debugType == Honor.GameDefinitions.DebugMode.UnityFirst then
+                -- 模式2：Unity 等待 IDE 连接（监听失败仅警告，不中断加载）
+                pcall(function()
+                    local dbg = require('emmy_core')
+                    dbg.tcpListen('localhost', 9966)
+                    dbg.waitIDE()
+                end)
+            end
+        end
+    end
+end
+-- 启动调试器
+__DEBUGGER__()
+--endregion
+
+--region C# → Lua 类创建（生命周期绑定）
+---=========================================================================
+---@brief 从 C# 层创建 Lua 业务类（绑定生命周期）
+---@param _env table C#传递的环境表，用于绑定生命周期函数
+---@param _luaScriptName string Lua脚本名称（require用）
+---@return table 创建好的Lua类实例
+---@desc C# 的 LuaBehaviour 调用此函数创建 Lua 类，并绑定 Awake/Start/Update/OnDestroy 等周期
+---=========================================================================
+function CreateLuaClassFromCS(_env, _luaScriptName)
+    -- 创建Lua类实例
+    local _createdClass     = require(_luaScriptName):Create({ env = _env })
+
+    -- 绑定 C# 生命周期 -> Lua 函数
+    _env.Awake              = function() _createdClass:Awake() end
+    _env.OnEnable           = function() _createdClass:OnEnable() end
+    _env.Start              = function() _createdClass:Start() end
+    _env.Proc               = function() _createdClass:Proc() end
+    _env.OnDisable          = function() _createdClass:OnDisable() end
+    _env.OnDestroy          = function() _createdClass:OnDestroy() end
+
+    -- 2D碰撞
+    _env.OnCollisionEnter2D = function(collision) _createdClass:OnCollisionEnter2D(collision) end
+    _env.OnCollisionStay2D  = function(collision) _createdClass:OnCollisionStay2D(collision) end
+    _env.OnCollisionExit2D  = function(collision) _createdClass:OnCollisionExit2D(collision) end
+    -- 3D碰撞
+    _env.OnCollisionEnter3D = function(collision) _createdClass:OnCollisionEnter3D(collision) end
+    _env.OnCollisionStay3D  = function(collision) _createdClass:OnCollisionStay3D(collision) end
+    _env.OnCollisionExit3D  = function(collision) _createdClass:OnCollisionExit3D(collision) end
+
+    -- 2D触发
+    _env.OnTriggerEnter2D   = function(collision) _createdClass:OnTriggerEnter2D(collision) end
+    _env.OnTriggerStay2D    = function(collision) _createdClass:OnTriggerStay2D(collision) end
+    _env.OnTriggerExit2D    = function(collision) _createdClass:OnTriggerExit2D(collision) end
+    -- 3D触发
+    _env.OnTriggerEnter3D   = function(collision) _createdClass:OnTriggerEnter3D(collision) end
+    _env.OnTriggerStay3D    = function(collision) _createdClass:OnTriggerStay3D(collision) end
+    _env.OnTriggerExit3D    = function(collision) _createdClass:OnTriggerExit3D(collision) end
+
+    return _createdClass
+end
+
+---=========================================================================
+---@brief 从 C# 层创建流程(Procedure)Lua类
+---@param _env table 环境表
+---@param _luaScriptName string 流程类名
+---@return table 流程实例
+---@desc 专门用于流程（场景/状态）的创建，绑定流程生命周期
+---=========================================================================
+function CreatePocedureLuaClassFromCS(_env, _luaScriptName)
+    local _createdClass = require(_luaScriptName):Create({ env = _env })
+
+    -- 流程生命周期
+    _env.OnEnter        = function(...) _createdClass:OnEnter(...) end    -- 进入流程
+    _env.OnUpdate       = function(...) _createdClass:OnUpdate(...) end  -- 流程更新
+    _env.OnLeave        = function(...) _createdClass:OnLeave(...) end    -- 离开流程
+
+    return _createdClass
+end
+--endregion
+
+--region UI 事件绑定入口（实现已拆分至 UIManager.lua.txt）
+---=========================================================================
+---@brief 引入 UI 事件监听管理器
+---@desc require 后各全局入口函数委托 UIManager 完成注册/注销，全局函数名保持不变
+---=========================================================================
+local UIManager = require('UIManager')
+
+---@brief 注册 UI 组件交互事件（委托 UIManager:AddListener）
+---@param _injectionObj userdata C#注入的UI对象（Button/Toggle/Input等）
+---@param _injectionCmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_ 开头的事件
+---@param _handler handler Lua回调函数（handler包装）
+function AddUIListenerFunction(_injectionObj, _injectionCmd, _handler)
+    UIManager:AddListener(_injectionObj, _injectionCmd, _handler)
+end
+
+---@brief 注销 UI 组件交互事件（委托 UIManager:RemoveListener）
+---@param _injectionObj userdata UI对象
+---@param _injectionCmd string 事件类型
+---@param _handler handler 要移除的回调
+function OnRemoveListener(_injectionObj, _injectionCmd, _handler)
+    UIManager:RemoveListener(_injectionObj, _injectionCmd, _handler)
+end
+
+---@brief 批量注册 UI 监听（委托 UIManager:AddListenerBatch）
+---@param listeners table<{userdata, string, handler}> 监听列表，每项 {UI对象, 事件类型, handler}
+function AddUIListenerBatch(listeners)
+    UIManager:AddListenerBatch(listeners)
+end
+
+---@brief 批量注销 UI 监听（委托 UIManager:RemoveListenerBatch）
+---@param listeners table<{userdata, string, handler}> 与注册一致的监听列表
+function OnRemoveListenerBatch(listeners)
+    UIManager:RemoveListenerBatch(listeners)
+end
+
+--endregion

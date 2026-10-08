@@ -145,7 +145,7 @@ EUITaskOpenSource = {
 
 --endregion
 
-
+--region 主界面推送枚举
 
 ---@class EGameMainUIPUshRunningType @ 工作类型，值既是Type也是优先级数值
 ---@field OnUIMainHudOpen string @ 主界面打开
@@ -171,6 +171,9 @@ EGameMainUIPushType = {
     MachineUpgradeUI = 4,
     CommonTask = 3,
 }
+
+--endregion
+
 --region 输入按键
 
 --=====================================================================================================

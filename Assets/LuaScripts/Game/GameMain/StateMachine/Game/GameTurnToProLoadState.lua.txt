@@ -50,18 +50,14 @@ function GameTurnToProLoadState:OnStateEnter(finishCallback)
     GameManager:OnAfterCanvasCloseAll()
 
     -- 执行完成回调
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 ---@brief 离开状态：状态退出清理
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态退出完成回调
 function GameTurnToProLoadState:OnStateExit(finishCallback)
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 --endregion

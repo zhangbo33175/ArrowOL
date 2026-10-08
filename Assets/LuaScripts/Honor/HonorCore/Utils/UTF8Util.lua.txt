@@ -1,0 +1,39 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   UTF8Util.lua
+-- author:     云毅
+-- created:    2026
+-- @brief     UTF8 工具类（对齐参考框架 Utils/UTF8Util）
+-- @desc      提供 UTF8 编码字符串通用工具（支持中文长度计算），
+--            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
+--=====================================================================================================
+
+---@class UTF8Util UTF8 工具类
+local UTF8Util = {}
+
+---@brief 获取utf8编码字符串正确长度（支持中文）
+---@param str string 字符串
+---@return number 长度
+function UTF8Util.GetUTF8StrLength(str)
+    local len = #str
+    local left = len
+    local cnt = 0
+    local arr = { 0, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc }
+    while left ~= 0 do
+        local tmp = string.byte(str, -left)
+        local i = #arr
+        while arr[i] do
+            if tmp >= arr[i] then
+                left = left - i;
+                break ;
+            end
+            i = i - 1
+        end
+        cnt = cnt + 1
+    end
+    return cnt
+end
+
+return UTF8Util

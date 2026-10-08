@@ -35,8 +35,8 @@ namespace Honor.Editor
 
         private void OnEnable()
         {
-            m_ConnectTimeout = serializedObject.FindProperty("m_ConnectTimeout");
-            m_RequestTimeout = serializedObject.FindProperty("m_RequestTimeout");
+            m_ConnectTimeout = BindProperty("m_ConnectTimeout");
+            m_RequestTimeout = BindProperty("m_RequestTimeout");
         }
 
         public override void OnInspectorGUI()

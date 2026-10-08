@@ -1,0 +1,122 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  TweenUtil.lua
+-- author:    Honor.Runtime
+-- created:   2026
+-- @brief     DOTween 缓动工具类
+-- @desc      从 GameFunctions 拆分的 DOTween 通用工具：缓动类型转换、延迟调用、路径动画
+-- @dependency DG.Tweening
+--=====================================================================================================
+
+local TweenUtil = {}
+
+--region 依赖引入
+-- 框架内自洽：安全调用/空判断走同域工具，避免依赖业务层 GameFunctions 全局
+local CoUtil    = require('CoUtil')
+local UnityUtil = require('UnityUtil')
+--endregion
+
+--region DOTween 缓动类型转换
+
+--=====================================================================================================
+-- DOTween 缓动类型转换：数字 <-> Ease 枚举映射
+--=====================================================================================================
+
+---@brief 将数字类型的缓动类型 转换成 DOTween 枚举 Ease
+---@param intEaseType number 数字缓动类型
+---@return DG.Tweening.Ease DOTween 缓动枚举
+function TweenUtil.ParseEaseByInt(intEaseType)
+    local easeMap = {
+        [0]  = DG.Tweening.Ease.Unset,
+        [1]  = DG.Tweening.Ease.Linear,
+        [2]  = DG.Tweening.Ease.InSine,
+        [3]  = DG.Tweening.Ease.OutSine,
+        [4]  = DG.Tweening.Ease.InOutSine,
+        [5]  = DG.Tweening.Ease.InQuad,
+        [6]  = DG.Tweening.Ease.OutQuad,
+        [7]  = DG.Tweening.Ease.InOutQuad,
+        [8]  = DG.Tweening.Ease.InCubic,
+        [9]  = DG.Tweening.Ease.OutCubic,
+        [10] = DG.Tweening.Ease.InOutCubic,
+        [11] = DG.Tweening.Ease.InQuart,
+        [12] = DG.Tweening.Ease.OutQuart,
+        [13] = DG.Tweening.Ease.InOutQuart,
+        [14] = DG.Tweening.Ease.InQuint,
+        [15] = DG.Tweening.Ease.OutQuint,
+        [16] = DG.Tweening.Ease.InOutQuint,
+        [17] = DG.Tweening.Ease.InExpo,
+        [18] = DG.Tweening.Ease.OutExpo,
+        [19] = DG.Tweening.Ease.InOutExpo,
+        [20] = DG.Tweening.Ease.InCirc,
+        [21] = DG.Tweening.Ease.OutCirc,
+        [22] = DG.Tweening.Ease.InOutCirc,
+        [23] = DG.Tweening.Ease.InElastic,
+        [24] = DG.Tweening.Ease.OutElastic,
+        [25] = DG.Tweening.Ease.InOutElastic,
+        [26] = DG.Tweening.Ease.InBack,
+        [27] = DG.Tweening.Ease.OutBack,
+        [28] = DG.Tweening.Ease.InOutBack,
+        [29] = DG.Tweening.Ease.InBounce,
+        [30] = DG.Tweening.Ease.OutBounce,
+        [31] = DG.Tweening.Ease.InOutBounce,
+        [32] = DG.Tweening.Ease.Flash,
+        [33] = DG.Tweening.Ease.InFlash,
+        [34] = DG.Tweening.Ease.OutFlash,
+        [35] = DG.Tweening.Ease.InOutFlash,
+    }
+    return easeMap[intEaseType] or DG.Tweening.Ease.Linear
+end
+
+--endregion
+
+--region DOTween 延迟 / 路径动画
+
+--=====================================================================================================
+-- DOTween 工具：延迟执行、路径点曲线运动
+--=====================================================================================================
+
+---@brief DOTween 延迟执行
+---@param delay number 延迟时间
+---@param realTime boolean 是否真实时间
+---@param callback function 回调函数
+---@param tweenId string 动画ID
+---@return DG.Tweening.Sequence 动画序列
+function TweenUtil.DelayInvoke(delay, realTime, callback, tweenId)
+    local seq = DG.Tweening.DOTween.Sequence()
+                  :AppendInterval(delay)
+                  :AppendCallback(function()
+        CoUtil.SafeInvoke(callback, "DelayInvoke Error")
+    end)
+                  :SetUpdate(realTime)
+
+    if tweenId and not string.isNullOrEmpty(tweenId) then
+        seq.stringId = tweenId
+    end
+    return seq
+end
+
+---@brief 物体按路径点曲线运动
+---@param go UnityEngine.GameObject 运动物体
+---@param pathPoints UnityEngine.Vector3[] 路径点数组
+---@param preDelay number 前置延迟
+---@param duration number 时长
+---@param ease DG.Tweening.Ease 缓动类型
+---@return DG.Tweening.Sequence 动画序列
+function TweenUtil.DOPathAndWait(go, pathPoints, preDelay, duration, ease)
+    if UnityUtil.IsNull(go) or not pathPoints or #pathPoints < 2 then return nil end
+
+    go.transform.position = pathPoints[1]
+    local sequence = DG.Tweening.DOTween.Sequence()
+                       :AppendInterval(preDelay)
+                       :AppendCallback(function() go:SetActive(true) end)
+                       :Append(go.transform:DOPath(pathPoints, duration, DG.Tweening.PathType.CatmullRom))
+                       :SetEase(ease)
+                       :SetUpdate(true)
+
+    return sequence
+end
+
+--endregion
+
+return TweenUtil

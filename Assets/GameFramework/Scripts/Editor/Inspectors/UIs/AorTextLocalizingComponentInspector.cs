@@ -72,9 +72,9 @@ namespace Honor.Editor.Inspectors.UIs
         /// </summary>
         private void BindSerializedProperties()
         {
-            m_KeyNameProperty = serializedObject.FindProperty("m_LocalizingKeyName");
-            m_FontMarkProperty = serializedObject.FindProperty("m_LocalizingFontMark");
-            m_LanguageProperty = serializedObject.FindProperty("m_Language");
+            m_KeyNameProperty = BindProperty("m_LocalizingKeyName");
+            m_FontMarkProperty = BindProperty("m_LocalizingFontMark");
+            m_LanguageProperty = BindProperty("m_Language");
         }
 
         /// <summary>

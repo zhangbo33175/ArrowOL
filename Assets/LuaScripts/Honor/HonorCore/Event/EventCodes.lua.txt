@@ -1,0 +1,33 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  EventCodes.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     全局事件定义（C# <-> Lua 互通）
+-- @desc      提供跨语言通用事件码，用于框架消息通信。
+--            值采用 UniqueEventCode() 生成全局唯一码（对齐 UIEventCode / EventCmd，杜绝硬编码与冲突）。
+-- @scope     全局表，C# 层通过 EventCodes.X 读取事件码值用于匹配
+-- @dependency SerialProducer（UniqueEventCode 生成器，须先于本文件加载）
+--=====================================================================================================
+
+-- 缓存全局唯一码生成器为局部引用（避免事件定义阶段频繁全局查找）
+local UniqueEventCode = UniqueEventCode
+
+--region 全局通用事件 C# <-> Lua
+---@class EventCodes 全局事件定义（C# <-> Lua 互通）
+EventCodes = {
+    --- 服务器时间校正事件
+    --- 参数：IsTimeCorrectionByServer(boolean)
+    --- true  = 服务器校正
+    --- false = 客户端校正
+    S_OnTimeCorrectionByServer = UniqueEventCode(),
+
+    --- 全局通知消息回调
+    --- 用途：飘字、提示、系统通知
+    NotificationMessage = UniqueEventCode(),
+}
+--endregion
+
+return EventCodes

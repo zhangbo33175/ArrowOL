@@ -82,13 +82,7 @@ function GameManager:ClearData()
     self.CurrentMode = ELevelMode.NORMAL
 
     -- 兜底恢复场景主相机显示
-    local mainCamera = nil
-    if GameMainRoot and GameMainRoot.Scene and GameMainRoot.Scene.SceneCameras then
-        mainCamera = GameMainRoot.Scene.SceneCameras[0]
-    end
-    if not IsNull(mainCamera) and not mainCamera.activeSelf then
-        mainCamera:SetActive(true)
-    end
+    self:_ActivateSceneMainCamera()
 end
 
 --endregion
@@ -362,13 +356,7 @@ function GameManager:OnCanvasOpenOver(canvas, uiName)
     -- 存在全屏UI则隐藏场景主相机，节省场景渲染
     local hasFullScreenUI = self:HasFullScreenUI()
     if hasFullScreenUI then
-        local mainCamera = nil
-        if GameMainRoot and GameMainRoot.Scene and GameMainRoot.Scene.SceneCameras then
-            mainCamera = GameMainRoot.Scene.SceneCameras[0]
-        end
-        if not IsNull(mainCamera) and mainCamera.activeSelf then
-            mainCamera:SetActive(false)
-        end
+        self:_DeactivateSceneMainCamera()
     end
 end
 
@@ -443,13 +431,7 @@ function GameManager:OnCanvasClose(uiName)
     -- 无全屏UI存在时恢复场景主相机
     local hasFullScreenUI = success and self:HasFullScreenUI()
     if not hasFullScreenUI then
-        local mainCamera = nil
-        if GameMainRoot and GameMainRoot.Scene and GameMainRoot.Scene.SceneCameras then
-            mainCamera = GameMainRoot.Scene.SceneCameras[0]
-        end
-        if not IsNull(mainCamera) and not mainCamera.activeSelf then
-            mainCamera:SetActive(true)
-        end
+        self:_ActivateSceneMainCamera()
     end
 end
 
@@ -458,13 +440,40 @@ end
 ---=========================================================================
 function GameManager:OnAfterCanvasCloseAll()
     ClearArray(self._openOverCanvasArray)
+    self:_ActivateSceneMainCamera()
+end
 
-    local mainCamera = nil
+---=========================================================================
+--- 安全获取场景主相机
+---@brief GameMainRoot/Scene/相机表任一缺失时返回 nil，避免空索引
+---@return UnityEngine.Camera|nil 场景主相机对象
+---=========================================================================
+function GameManager:_GetSceneMainCamera()
     if GameMainRoot and GameMainRoot.Scene and GameMainRoot.Scene.SceneCameras then
-        mainCamera = GameMainRoot.Scene.SceneCameras[0]
+        return GameMainRoot.Scene.SceneCameras[0]
     end
+    return nil
+end
+
+---=========================================================================
+--- 兜底恢复场景主相机显示
+---@brief 仅在主相机存在且当前未激活时激活，避免重复 SetActive
+---=========================================================================
+function GameManager:_ActivateSceneMainCamera()
+    local mainCamera = self:_GetSceneMainCamera()
     if not IsNull(mainCamera) and not mainCamera.activeSelf then
         mainCamera:SetActive(true)
+    end
+end
+
+---=========================================================================
+--- 隐藏场景主相机节省渲染
+---@brief 仅在主相机存在且当前激活时停用，避免重复 SetActive
+---=========================================================================
+function GameManager:_DeactivateSceneMainCamera()
+    local mainCamera = self:_GetSceneMainCamera()
+    if not IsNull(mainCamera) and mainCamera.activeSelf then
+        mainCamera:SetActive(false)
     end
 end
 

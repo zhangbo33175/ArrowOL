@@ -1,0 +1,84 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--TODO: [优化] 修正版权年份笔误（原误写为 2026 - 2026，统一为 2026 - 2030）
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  HonorStack.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   栈结构（Stack）
+--            规则：后进先出 LIFO (Last In First Out)
+--            用途：UI面板栈、场景返回栈、状态回溯、操作撤销、层级管理
+--=====================================================================================================
+
+--region 通用栈容器（LIFO 后进先出）
+local TableUtil = require("TableUtil")
+
+---@class HonorStack 通用栈容器（LIFO 后进先出）
+---@field items table 内部存储元素的数组
+local HonorStack = class("HonorStack")
+
+---@brief 构造函数
+function HonorStack:ctor()
+    ---@type table 栈元素数组
+    self.items = {}
+end
+
+---@brief 创建栈实例
+---@return HonorStack 新的栈对象
+function HonorStack:Create()
+    local obj = HonorStack.new()
+    return obj
+end
+
+---@brief 获取栈顶元素（仅查看，不弹出）
+---@return any 栈顶元素，空栈返回 nil
+function HonorStack:Peek()
+    if self:IsEmpty() then
+        return nil
+    end
+    return self.items[#self.items]
+end
+
+---@brief 元素入栈（压入栈顶）
+---@param item any 任意类型要压入的元素
+function HonorStack:Push(item)
+    table.insert(self.items, item)
+end
+
+---@brief 元素出栈（弹出栈顶并返回）
+---@return any 出栈元素，空栈返回 nil
+function HonorStack:Pop()
+    if self:IsEmpty() then
+        return nil
+    end
+    local item = table.remove(self.items)
+    return item
+end
+
+---@brief 获取栈内元素数量
+---@return number 元素个数
+function HonorStack:Count()
+    return #self.items
+end
+
+---@brief 判断栈是否为空
+---@return boolean true=空, false=非空
+function HonorStack:IsEmpty()
+    return self:Count() == 0
+end
+
+---@brief 判断栈是否包含指定元素
+---@param item any 要查找的元素
+---@return boolean 是否包含
+function HonorStack:Contains(item)
+    return TableUtil.ContainsValue(self.items, item)
+end
+
+---@brief 清空整个栈
+function HonorStack:Clear()
+    self.items = {}
+end
+--endregion
+
+return HonorStack

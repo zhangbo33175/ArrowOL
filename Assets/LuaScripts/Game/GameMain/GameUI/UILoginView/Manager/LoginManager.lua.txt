@@ -12,6 +12,8 @@
 -- @dependency GameEntry, DataCenter, EventManager, Network, UIManager
 --=====================================================================================================
 
+--region 【枚举定义】
+
 ---@class ESelectType 存档选择类型
 ---@field None number 无
 ---@field Local number 使用本地存档
@@ -36,8 +38,12 @@ ELoginState = {
     SelectData = 4,
 }
 
+--endregion
+
 ---@class LoginManager : Singleton 登录管理器（全局单例）
 local LoginManager = class("LoginManager", import("Singleton"))
+
+--region 【构造 & 初始化】
 
 ---@brief 构造函数
 ---@param args table 自定义参数
@@ -75,6 +81,10 @@ function LoginManager:ClearData()
     self._isDelUser    = false
 end
 
+--endregion
+
+--region 【登录流程】
+
 ---@brief 登录完成统一回调
 ---@param isSuccess boolean 是否成功
 function LoginManager:LoginFinishCallback(isSuccess)
@@ -109,6 +119,10 @@ function LoginManager:Login(force, finishCallback)
 end
 
 ---@brief 登录网络回调（核心逻辑）
+---@param req table 请求对象
+---@param resp table 响应对象
+---@param cmd table 命令对象
+---@param returnData table 返回数据
 function LoginManager:LoginBackFun(req, resp, cmd, returnData)
     if returnData ~= nil and cmd ~= nil then
         local errorCode = returnData["error_code"]
@@ -118,9 +132,7 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
             SaveDataSyncHelper:SaveToken(returnData)
             HearBeatMgr:BeginHeartBeat()
 
-            local isNewUser =
-            cmd.Request.Body.Content.is_new_user == 1 or
-                    returnData.is_new_user == true
+            local isNewUser = cmd.Request.Body.Content.is_new_user == 1 or returnData.is_new_user == true
 
             if isNewUser then
                 self._isNewUser = true
@@ -134,9 +146,9 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
                         not string.isNullOrEmpty(returnData.ServerUserInfo.last_sync_device) and
                         not string.isNullOrEmpty(returnData.ServerUserInfo.server_game_data)
                 then
-                    local serverGameData    = JsonDecode(returnData.ServerUserInfo.server_game_data)
-                    local isSameDevice      = returnData.ServerUserInfo.last_sync_device == HonorRoot.SDK.TGAHelper:GetDeviceID()
-                    local isSameUid         = returnData.ServerUserInfo.server_user_id == SaveRootData.UserData.uid
+                    local serverGameData = JsonDecode(returnData.ServerUserInfo.server_game_data)
+                    local isSameDevice   = returnData.ServerUserInfo.last_sync_device == HonorRoot.SDK.TGAHelper:GetDeviceID()
+                    local isSameUid      = returnData.ServerUserInfo.server_user_id == SaveRootData.UserData.uid
 
                     if (not isSameUid or not isSameDevice) and serverGameData then
                         self:OpenSelectData(returnData.ServerUserInfo.last_sync_time, serverGameData, returnData.ServerUserInfo.server_user_id, function(selectType)
@@ -154,10 +166,10 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
                                     end)
                                 end
                             elseif selectType == ESelectType.Server then
-                                local localUid     = SaveRootData.UserData.uid
-                                local uid           = returnData.ServerUserInfo.server_user_id
-                                local aid           = returnData.ServerUserInfo.server_account
-                                local platform      = returnData.channel_type
+                                local localUid  = SaveRootData.UserData.uid
+                                local uid       = returnData.ServerUserInfo.server_user_id
+                                local aid       = returnData.ServerUserInfo.server_account
+                                local platform  = returnData.channel_type
 
                                 SaveDataSyncHelper:SaveServerUserInfoToLocalByGameData(serverGameData, uid, aid, platform)
                                 HintMarkerHelper:OnSaveChoose(selectType)
@@ -212,6 +224,11 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
 end
 
 ---@brief 登录错误码处理
+---@param errorCode number 错误码
+---@param req table 请求对象
+---@param resp table 响应对象
+---@param cmd table 命令对象
+---@param returnData table 返回数据
 function LoginManager:ErrorCodeDiagnosis(errorCode, req, resp, cmd, returnData)
     if errorCode == NetCode.InvalidUID[1] or errorCode == NetCode.NewInvalidUID[1] then
         self._loginState = ELoginState.None
@@ -231,6 +248,10 @@ function LoginManager:ErrorCodeDiagnosis(errorCode, req, resp, cmd, returnData)
 end
 
 ---@brief 登录/注册打点
+---@param req table 请求对象
+---@param resp table 响应对象
+---@param cmd table 命令对象
+---@param returnData table 返回数据
 function LoginManager:LogLoginBack(req, resp, cmd, returnData)
     local statusCode = -1
     local isReg = false
@@ -265,41 +286,62 @@ function LoginManager:LogLoginBack(req, resp, cmd, returnData)
     end
 end
 
+--endregion
+
+--region 【弹窗与存档选择】
+
 ---@brief 打开异地登录弹窗
 function LoginManager:OpenLoginConflict()
     OpenUISync(UIs.UILoginConflict)
 end
 
 ---@brief 打开存档选择UI
+---@param lastSaveTime number 上次存档时间
+---@param serverGameData table 云端存档数据
+---@param serverUid number 云端用户ID
+---@param callback fun(selectType:number):void 选择回调
 function LoginManager:OpenSelectData(lastSaveTime, serverGameData, serverUid, callback)
     local localData = SaveRootData.GameData
 
     OpenUISync(UIs.UISelectData, {
-        localData            = localData,
-        serverData           = serverGameData,
-        serverUid            = serverUid,
+        localData             = localData,
+        serverData            = serverGameData,
+        serverUid             = serverUid,
         lastServerDataSaveTime = lastSaveTime,
-        selectCallback       = callback
+        selectCallback        = callback
     })
 end
 
 ---@brief 打开存档选择确认框
+---@param callback fun(selectType:number):void 确认回调
 function LoginManager:OpenSelectDataConfirm(callback)
     OpenUISync(UIs.UISelectDataConfirm, { selectCallback = callback })
 end
 
+--endregion
+
+--region 【流程切换】
+
 ---@brief 主界面自动尝试登录
+---@param callback fun():void 完成回调
 function LoginManager:TryLoginInMainHud(callback)
-   -- self:TryReLogin(callback)
+    -- self:TryReLogin(callback)
 end
 
 ---@brief 切换到预加载流程
+---@param oldUid number 原UID
+---@param newUid number 新UID
+---@return boolean @是否触发了流程切换
 function LoginManager:TurnToProLoadState(oldUid, newUid)
     local procedure = HonorRoot.Procedure.CurrentProcedure
     return self:TurnToProLoadStateByCurProcedure(procedure, oldUid, newUid)
 end
 
 ---@brief 根据当前流程判断是否需要重启
+---@param procedure table 当前流程对象
+---@param oldUid number 原UID
+---@param newUid number 新UID
+---@return boolean @是否触发了流程切换
 function LoginManager:TurnToProLoadStateByCurProcedure(procedure, oldUid, newUid)
     if procedure and procedure.Name ~= "ProcedurePreload" then
         GameStateMachine:ChangeState(GameStateCmd.TurnToPreloadState, function()
@@ -318,7 +360,15 @@ function LoginManager:TurnToProLoadStateByCurProcedure(procedure, oldUid, newUid
     return false
 end
 
+--endregion
+
+--region 【账号绑定】
+
 ---@brief 绑定结果回调
+---@param success boolean 是否成功
+---@param platform number 平台
+---@param aid string 账号ID
+---@param position number 埋点位置
 function LoginManager:OnAidBindingResult(success, platform, aid, position)
     if success then
         if platform == EAidPlatform.Apple then
@@ -338,11 +388,18 @@ function LoginManager:OnAidBindingResult(success, platform, aid, position)
 end
 
 ---@brief 解绑结果回调
+---@param success boolean 是否成功
+---@param platform number 平台
+---@param aid string 账号ID
+---@param position number 埋点位置
 function LoginManager:OnAidUnBindingResult(success, platform, aid, position)
     HintMarkerHelper:OnThirdPartyAccountLogin(TrackProperty.LoginTime.logout, success, position, aid, platform)
 end
 
 ---@brief 同步其他UID设备ID
+---@param uid number 本机UID
+---@param otherUid number 对方UID
+---@param callback fun(success:boolean):void 完成回调
 function LoginManager:SyncOtherUidDeviceId(uid, otherUid, callback)
     local netCallback = function(req, resp, cmd, returnData)
         if returnData and returnData.error_code == NetCode.Success[1] and returnData.status == NetCode.Success[1] then
@@ -359,6 +416,9 @@ function LoginManager:SyncOtherUidDeviceId(uid, otherUid, callback)
     end
 end
 
+--endregion
+
+--region 【状态查询】
 
 ---@brief 是否在线
 ---@return boolean
@@ -378,12 +438,12 @@ function LoginManager:IsNewUser()
     return self._isNewUser
 end
 
-
-
 ---@brief 是否已注销账号
 ---@return boolean
 function LoginManager:IsDelUser()
     return self._isDelUser
 end
+
+--endregion
 
 return LoginManager

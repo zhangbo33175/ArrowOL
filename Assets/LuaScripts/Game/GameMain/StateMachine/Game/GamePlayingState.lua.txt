@@ -90,9 +90,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
     end
 
     -- 执行完成回调
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 --endregion
@@ -117,8 +115,9 @@ function GamePlayingState:OnStateExit(finishCallback)
         GameCoreManager:ClearData()
     end
 
-    -- 关闭战斗UI
-    CloseUI(UIs.UIMainPlaying)
+    -- 关闭战斗UI（UIMainPlaying 同步立即关闭，避免返回主界面时残留重叠）
+    --TODO: [修复] 返回主界面时同步关闭 UIMainPlaying，消除其与主界面的短暂重叠残留
+    CloseUI(UIs.UIMainPlaying, true)
     CloseUI(UIs.UILevelVictoryView)
     CloseUI(UIs.UILevelFailedView)
 
@@ -127,9 +126,7 @@ function GamePlayingState:OnStateExit(finishCallback)
     PlayGameplayCycle:OnAction(EPlayHudCycleAction.ExitGame)
 
     -- 执行完成回调
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 --endregion

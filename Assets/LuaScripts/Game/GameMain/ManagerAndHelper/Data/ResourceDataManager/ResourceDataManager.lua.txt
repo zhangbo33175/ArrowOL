@@ -20,6 +20,30 @@
 ---@field _resources table<EResourceType, ResourceID[]> 按资源类型缓存的道具ID列表
 local ResourceDataManager = class("ResourceDataManager", import("Singleton"))
 
+--region 工具方法
+
+---@brief 遍历物品表收集满足谓词的ID，并按数字稳定排序
+---@param items table @物品配置表
+---@param matchFn fun(v:table):boolean @匹配谓词
+---@return ResourceID[] 排序后的ID列表
+local function CollectSortedResourceIDs(items, matchFn)
+    local list = {}
+    for k, v in pairs(items) do
+        if matchFn(v) then
+            table.insert(list, { ID = k })
+        end
+    end
+    -- 稳定数字排序
+    table.sort(list, function(a, b)
+        local idA = tonumber(a.ID) or 99999
+        local idB = tonumber(b.ID) or 99999
+        return idA < idB
+    end)
+    return list
+end
+
+--endregion
+
 --region 构造 & 实例化
 
 ---@brief 构造函数
@@ -113,23 +137,8 @@ function ResourceDataManager:GetBoosterIDs(boosterSubType)
 
     self._boosterIDs = self._boosterIDs or {}
     if not self._boosterIDs[boosterSubType] then
-        local list  = {}
-        local items = self:GetResourceDatas()
-
-        for k, v in pairs(items) do
-            if v.Type == EResourceType.Item and v.SubType == boosterSubType then
-                table.insert(list, { ID = k })
-            end
-        end
-
-        -- 稳定数字排序
-        table.sort(list, function(a, b)
-            local idA = tonumber(a.ID) or 99999
-            local idB = tonumber(b.ID) or 99999
-            return idA < idB
-        end)
-
-        self._boosterIDs[boosterSubType] = list
+        self._boosterIDs[boosterSubType] = CollectSortedResourceIDs(self:GetResourceDatas(),
+            function(v) return v.Type == EResourceType.Item and v.SubType == boosterSubType end)
     end
 
     return self._boosterIDs[boosterSubType] or {}
@@ -146,23 +155,8 @@ function ResourceDataManager:GetResourceIDs(resType)
 
     self._resources = self._resources or {}
     if not self._resources[resType] then
-        local list  = {}
-        local items = self:GetResourceDatas()
-
-        for k, v in pairs(items) do
-            if v.Type == resType then
-                table.insert(list, { ID = k })
-            end
-        end
-
-        -- 稳定数字排序
-        table.sort(list, function(a, b)
-            local idA = tonumber(a.ID) or 99999
-            local idB = tonumber(b.ID) or 99999
-            return idA < idB
-        end)
-
-        self._resources[resType] = list
+        self._resources[resType] = CollectSortedResourceIDs(self:GetResourceDatas(),
+            function(v) return v.Type == resType end)
     end
 
     return self._resources[resType] or {}

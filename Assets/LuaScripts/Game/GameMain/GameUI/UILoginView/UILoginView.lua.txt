@@ -12,6 +12,8 @@
 ---@field LoginBtn UnityEngine.UI.Button 登录按钮
 local UILoginView = class('UILoginView', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---@brief 构造函数
 ---@param args table 自定义参数
 function UILoginView:ctor(args)
@@ -25,15 +27,21 @@ function UILoginView:Create(args)
     return UILoginView.new(args)
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---@brief 注册事件监听
 function UILoginView:OnAddListeners()
     UILoginView.super.OnAddListeners(self)
 end
 
 ---@brief 唤醒
+---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+--TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
 function UILoginView:Awake()
     UILoginView.super.Awake(self)
-    AddUIListenerFunction(self.LoginBtn, 'Clicked', handler(self, self.OnLoginBtnClicked))
+    self:AddUIListener(self.LoginBtn, 'Clicked', Bind(self, self.OnLoginBtnClicked))
 end
 
 ---@brief 开始
@@ -42,8 +50,8 @@ function UILoginView:Start()
 end
 
 ---@brief 销毁
+---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 function UILoginView:OnDestroy()
-    OnRemoveListener(self.LoginBtn, 'Clicked', handler(self, self.OnLoginBtnClicked))
     UILoginView.super.OnDestroy(self)
 end
 
@@ -57,16 +65,26 @@ function UILoginView:OnPlayCloseAnimation()
     UILoginView.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---@brief 子UI销毁回调
 ---@param luaClass XLua.LuaTable
 function UILoginView:OnAddedUIDestroyed(luaClass)
     UILoginView.super.OnAddedUIDestroyed(self, luaClass)
 end
 
+--endregion
+
+--region 【按钮回调】
+
 ---@brief 登录按钮点击回调
 ---@param args any 事件参数
 function UILoginView:OnLoginBtnClicked(args)
     GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
 end
+
+--endregion
 
 return UILoginView
