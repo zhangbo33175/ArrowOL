@@ -15,13 +15,13 @@ using UnityEngine;
 namespace Editor.MapEditor
 {
     /// <summary>
-    /// 地图编辑器 - 左侧面板UI绘制模块
+    /// 地图编辑器 - 左侧面板 UI 绘制模块
     /// </summary>
     public sealed partial class MapBuildEditor
     {
         #region 左侧面板整体绘制
         /// <summary>
-        /// 绘制编辑器【左侧功能面板】整体UI
+        /// 绘制编辑器【左侧功能面板】整体 UI
         /// 包含：地图操作按钮、地图配置列表、物件操作按钮、图标素材列表
         /// </summary>
         private void SetLeftPanel()
@@ -127,26 +127,32 @@ namespace Editor.MapEditor
         #region 地图操作功能
         /// <summary>
         /// 删除【选中的地图配置文件】
-        /// 从磁盘删除JSON文件，并自动刷新列表
+        /// 从磁盘删除 JSON 文件，并自动刷新列表
         /// </summary>
         private void DeleteSelectedObject()
         {
             Debug.Log("DeleteSelectedObject");
 
             // 校验：未选中 或 列表为空
-            if (_selectedIndex == -1 || m_MapJsonList.Count == 0)
+            if (_selectedIndex == -1 || m_MapJsonList == null || m_MapJsonList.Count == 0)
             {
                 Debug.LogWarning("请先选中要删除的地图文件");
                 return;
             }
 
-            // 获取选中项的文件路径
+            // 获取选中项的文件路径（先判空再取值，避免解引用空对象）
             var selectedJson = m_MapJsonList[_selectedIndex];
+            if (selectedJson == null)
+            {
+                Debug.LogWarning("选中的地图文件信息为空，无法删除");
+                return;
+            }
+
             string selectedName = selectedJson.m_DisplayName;
             string filePath = selectedJson.m_FilePath + "/" + selectedName;
 
             // 删除文件并刷新
-            if (selectedJson != null && File.Exists(filePath))
+            if (File.Exists(filePath))
             {
                 File.Delete(filePath);
                 Debug.Log($"删除地图文件：{filePath}");
@@ -163,7 +169,7 @@ namespace Editor.MapEditor
         private void BuildMap()
         {
             Debug.Log("BuildMap");
-            
+
             // 打开新建地图弹窗
             var mapWindow = MapWindow.ShowWindow();
             // 绑定创建成功回调：创建完成后自动刷新地图列表
@@ -177,7 +183,7 @@ namespace Editor.MapEditor
         private void RefreshMapList()
         {
             Debug.Log("刷新地图列表");
-            
+
             LoadConfig.LoadConfigs();
             LoadPrefabAndExtractImages(PathUtils.GetMapGameMapPath());
         }
@@ -191,7 +197,7 @@ namespace Editor.MapEditor
         private void CreateObjectItem()
         {
             Debug.Log("CreateObjectItem");
-            
+
             GetIconPath("");
         }
         #endregion

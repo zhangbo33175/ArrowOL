@@ -1,13 +1,16 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
--- filename:   BehaviorTreeTaskSuper.lua
--- author:     云毅
--- created:    2026
--- descrip:    Lua行为树Task节点通用父类
---             作用：所有自定义行为树节点（Action/Conditional/Composite等）都必须继承此类
---             地位：行为树框架顶层基类，所有Lua BT节点的父类
+--=====================================================================================================
+-- filename:  BehaviorTreeTaskSuper.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   Lua 行为树 Task 节点基类（所有 BT 节点父类）
+-- 功能：
+-- 1. ctor 绑定 env 环境、保存 args / 节点名 / 归属 LuaBehaviour 与 C# 节点对象
+-- 2. Create 工厂方法创建节点实例
+-- 3. OnDestroy 释放引用并按 target 自动移除本节点全部事件
+-- 架构：class("BehaviorTreeTaskSuper") 基类，桥接 C# 行为树节点对象
+-- @note  Action / Conditional / Composite 等节点均须继承本类；销毁时自动注销事件
 --=====================================================================================================
 
 --region Lua行为树节点基类

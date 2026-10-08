@@ -272,43 +272,42 @@ namespace Honor.Runtime
 
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-                LuaComponent luaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-                if (luaComponent != null && luaComponent.LuaKeysUpFromCSEventDelegate != null)
+                List<LuaBehaviour> luaBehaviours = new List<LuaBehaviour>();
+
+                if (m_CurModalUI != null && m_CurModalUI.LuaBehaviour != null)
+                    luaBehaviours.Add(m_CurModalUI.LuaBehaviour);
+
+                foreach (var ui in m_UnModalUIList)
                 {
-                    List<LuaBehaviour> luaBehaviours = new List<LuaBehaviour>();
+                    if (ui != null && ui.LuaBehaviour != null)
+                        luaBehaviours.Add(ui.LuaBehaviour);
+                }
 
-                    if (m_CurModalUI != null && m_CurModalUI.LuaBehaviour != null)
-                        luaBehaviours.Add(m_CurModalUI.LuaBehaviour);
-
-                    foreach (var ui in m_UnModalUIList)
+                if (luaBehaviours.Count > 0)
+                {
+                    luaBehaviours.Sort((a, b) =>
                     {
-                        if (ui != null && ui.LuaBehaviour != null)
-                            luaBehaviours.Add(ui.LuaBehaviour);
-                    }
+                        if (a == null || b == null) return 0;
+                        var flagA = a.GetComponent<UIFlagBehaviour>();
+                        var flagB = b.GetComponent<UIFlagBehaviour>();
+                        if (flagA == null || flagB == null || flagA.UIInfo == null || flagB.UIInfo == null) return 0;
+                        return flagA.UIInfo.ZOrder - flagB.UIInfo.ZOrder;
+                    });
 
-                    if (luaBehaviours.Count > 0)
+                    var topLua = luaBehaviours[luaBehaviours.Count - 1];
+                    if (topLua != null)
                     {
-                        luaBehaviours.Sort((a, b) =>
+                        var topFlag = topLua.GetComponent<UIFlagBehaviour>();
+                        if (topFlag != null && topFlag.UIInfo != null && topFlag.UIInfo.CloseOnEscapeKeyUp)
                         {
-                            if (a == null || b == null) return 0;
-                            var flagA = a.GetComponent<UIFlagBehaviour>();
-                            var flagB = b.GetComponent<UIFlagBehaviour>();
-                            if (flagA == null || flagB == null || flagA.UIInfo == null || flagB.UIInfo == null) return 0;
-                            return flagA.UIInfo.ZOrder - flagB.UIInfo.ZOrder;
-                        });
-
-                        var topLua = luaBehaviours[luaBehaviours.Count - 1];
-                        if (topLua != null)
-                        {
-                            var topFlag = topLua.GetComponent<UIFlagBehaviour>();
-                            if (topFlag != null && topFlag.UIInfo != null && topFlag.UIInfo.CloseOnEscapeKeyUp)
-                            {
-                                topFlag.LuaBehaviour?.CallLuaClose();
-                            }
+                            topFlag.LuaBehaviour?.CallLuaClose();
                         }
-
-                        luaComponent.LuaKeysUpFromCSEventDelegate(KeyCode.Escape);
                     }
+
+                    // cmd 统一分发到 Lua（cmd: 1013 键盘按键抬起，content 传 C# KeyCode 对象对齐 Lua 原回调签名）
+                    LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaKeysUpFromCSEventDelegate,
+                        KeyCode.Escape,
+                        (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
                 }
             }
         }

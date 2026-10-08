@@ -54,6 +54,7 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PatternType>(translator.PushHonorRuntimePatternType, translator.Get, translator.UpdateHonorRuntimePatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.NonePatternType>(translator.PushHonorRuntimeNonePatternType, translator.Get, translator.UpdateHonorRuntimeNonePatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.MVVMPatternType>(translator.PushHonorRuntimeMVVMPatternType, translator.Get, translator.UpdateHonorRuntimeMVVMPatternType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaProtocolCmd>(translator.PushHonorRuntimeLuaProtocolCmd, translator.Get, translator.UpdateHonorRuntimeLuaProtocolCmd);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PersistWayType>(translator.PushHonorRuntimePersistWayType, translator.Get, translator.UpdateHonorRuntimePersistWayType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PlaySoundErrorCode>(translator.PushHonorRuntimePlaySoundErrorCode, translator.Get, translator.UpdateHonorRuntimePlaySoundErrorCode);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.DevicePerformanceLevel>(translator.PushHonorRuntimeDevicePerformanceLevel, translator.Get, translator.UpdateHonorRuntimeDevicePerformanceLevel);
@@ -72,6 +73,7 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GraphicsUtils.EScreenType>(translator.PushHonorRuntimeGraphicsUtilsEScreenType, translator.Get, translator.UpdateHonorRuntimeGraphicsUtilsEScreenType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaBindValue.BindValueType>(translator.PushHonorRuntimeLuaBindValueBindValueType, translator.Get, translator.UpdateHonorRuntimeLuaBindValueBindValueType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaInjection.InjectionType>(translator.PushHonorRuntimeLuaInjectionInjectionType, translator.Get, translator.UpdateHonorRuntimeLuaInjectionInjectionType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType>(translator.PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType, translator.Get, translator.UpdateHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.UIFader.InitState>(translator.PushHonorRuntimeUIFaderInitState, translator.Get, translator.UpdateHonorRuntimeUIFaderInitState);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.Log.LogLevel>(translator.PushHonorRuntimeLogLogLevel, translator.Get, translator.UpdateHonorRuntimeLogLogLevel);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDef.PlayerPrefsKey>(translator.PushHonorRuntimeHonorDefPlayerPrefsKey, translator.Get, translator.UpdateHonorRuntimeHonorDefPlayerPrefsKey);
@@ -2335,6 +2337,90 @@ namespace XLua
             }
         }
         
+        int HonorRuntimeLuaProtocolCmd_TypeID = -1;
+		int HonorRuntimeLuaProtocolCmd_EnumRef = -1;
+        
+        public void PushHonorRuntimeLuaProtocolCmd(RealStatePtr L, Honor.Runtime.LuaProtocolCmd val)
+        {
+            if (HonorRuntimeLuaProtocolCmd_TypeID == -1)
+            {
+			    bool is_first;
+                HonorRuntimeLuaProtocolCmd_TypeID = getTypeId(L, typeof(Honor.Runtime.LuaProtocolCmd), out is_first);
+				
+				if (HonorRuntimeLuaProtocolCmd_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.LuaProtocolCmd));
+				    HonorRuntimeLuaProtocolCmd_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeLuaProtocolCmd_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeLuaProtocolCmd_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for Honor.Runtime.LuaProtocolCmd ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, HonorRuntimeLuaProtocolCmd_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.LuaProtocolCmd val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeLuaProtocolCmd_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.LuaProtocolCmd");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for Honor.Runtime.LuaProtocolCmd");
+                }
+				val = (Honor.Runtime.LuaProtocolCmd)e;
+                
+            }
+            else
+            {
+                val = (Honor.Runtime.LuaProtocolCmd)objectCasters.GetCaster(typeof(Honor.Runtime.LuaProtocolCmd))(L, index, null);
+            }
+        }
+		
+        public void UpdateHonorRuntimeLuaProtocolCmd(RealStatePtr L, int index, Honor.Runtime.LuaProtocolCmd val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeLuaProtocolCmd_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.LuaProtocolCmd");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for Honor.Runtime.LuaProtocolCmd ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
         int HonorRuntimePersistWayType_TypeID = -1;
 		int HonorRuntimePersistWayType_EnumRef = -1;
         
@@ -3838,6 +3924,90 @@ namespace XLua
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
                     throw new Exception("pack fail for Honor.Runtime.LuaInjection.InjectionType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_TypeID = -1;
+		int HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_EnumRef = -1;
+        
+        public void PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType(RealStatePtr L, Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType val)
+        {
+            if (HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_TypeID == -1)
+            {
+			    bool is_first;
+                HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_TypeID = getTypeId(L, typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType), out is_first);
+				
+				if (HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType));
+				    HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType");
+                }
+				val = (Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType)e;
+                
+            }
+            else
+            {
+                val = (Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType)objectCasters.GetCaster(typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType))(L, index, null);
+            }
+        }
+		
+        public void UpdateHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType(RealStatePtr L, int index, Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType ,value="+val);
                 }
             }
 			
@@ -7974,6 +8144,12 @@ namespace XLua
 				translator.PushHonorRuntimeMVVMPatternType(L, array[index]);
 				return true;
 			}
+			else if (type == typeof(Honor.Runtime.LuaProtocolCmd[]))
+			{
+			    Honor.Runtime.LuaProtocolCmd[] array = obj as Honor.Runtime.LuaProtocolCmd[];
+				translator.PushHonorRuntimeLuaProtocolCmd(L, array[index]);
+				return true;
+			}
 			else if (type == typeof(Honor.Runtime.PersistWayType[]))
 			{
 			    Honor.Runtime.PersistWayType[] array = obj as Honor.Runtime.PersistWayType[];
@@ -8080,6 +8256,12 @@ namespace XLua
 			{
 			    Honor.Runtime.LuaInjection.InjectionType[] array = obj as Honor.Runtime.LuaInjection.InjectionType[];
 				translator.PushHonorRuntimeLuaInjectionInjectionType(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType[]))
+			{
+			    Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType[] array = obj as Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType[];
+				translator.PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.UIFader.InitState[]))
@@ -8538,6 +8720,12 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
+			else if (type == typeof(Honor.Runtime.LuaProtocolCmd[]))
+			{
+			    Honor.Runtime.LuaProtocolCmd[] array = obj as Honor.Runtime.LuaProtocolCmd[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
 			else if (type == typeof(Honor.Runtime.PersistWayType[]))
 			{
 			    Honor.Runtime.PersistWayType[] array = obj as Honor.Runtime.PersistWayType[];
@@ -8643,6 +8831,12 @@ namespace XLua
 			else if (type == typeof(Honor.Runtime.LuaInjection.InjectionType[]))
 			{
 			    Honor.Runtime.LuaInjection.InjectionType[] array = obj as Honor.Runtime.LuaInjection.InjectionType[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType[]))
+			{
+			    Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType[] array = obj as Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

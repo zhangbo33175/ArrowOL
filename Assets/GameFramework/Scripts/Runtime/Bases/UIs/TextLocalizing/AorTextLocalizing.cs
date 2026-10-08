@@ -179,10 +179,11 @@ namespace Honor.Runtime
             if (sender != null && sender != (object)GameMainRoot.Localization)
                 return;
 
-            // 根据Key获取多语言文本并赋值
+            // 根据Key获取多语言文本并赋值（cmd: 1034 同步本地化）
             if (!string.IsNullOrEmpty(m_LocalizingKeyName))
             {
-                m_LocalizingValue = GameMainRoot.Lua.LuaLocalizingCSEventDelegate(m_LocalizingKeyName);
+                m_LocalizingValue = (string)LuaProtocolRunTime.SyncCall((int)LuaProtocolCmd.P_LuaLocalizingCSEventDelegate,
+                    new Localizing { LocalizingKey = m_LocalizingKeyName });
 
                 // 同步到文本组件
                 if (m_Text != null)

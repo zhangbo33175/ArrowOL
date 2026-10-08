@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Editor.MapEditor
 {
@@ -33,7 +32,7 @@ namespace Editor.MapEditor
         private int _selectedIndex = -1;
 
         /// <summary>
-        /// 当前选中的小节ID（-1 = 未选中）
+        /// 当前选中的小节 ID（-1 = 未选中）
         /// </summary>
         private int _selectedSubId = -1;
         #endregion
@@ -45,13 +44,13 @@ namespace Editor.MapEditor
         /// </summary>
         private void OnSetMapJsonList()
         {
-            // 绘制地图列表滚动视图，固定高度260
+            // 绘制地图列表滚动视图，固定高度 260
             m_MapListView = GUILayout.BeginScrollView(m_MapListView, GUILayout.MinHeight(260), GUILayout.Height(260));
 
             GUILayout.BeginVertical();
 
-            // 无数据时显示空提示
-            if (m_TableChapterList.Count == 0)
+            // 无数据（列表为空或配置尚未加载完成）时显示空提示，避免空引用
+            if (m_TableChapterList == null || m_TableChapterList.Count == 0)
             {
                 GUILayout.Space(20);
                 GUILayout.Label("暂无地图配置数据", EditorStyles.centeredGreyMiniLabel);
@@ -86,7 +85,7 @@ namespace Editor.MapEditor
 
             bool isSelected = _selectedIndex == index;
 
-            // 整体项容器
+            // 整体项容器（始终与 EndVertical 配对，保证 GUI 布局栈平衡）
             GUILayout.BeginVertical(isSelected ? "Box" : GUIStyle.none);
             {
                 // ===================== 章节标题行（左对齐） =====================
@@ -95,9 +94,8 @@ namespace Editor.MapEditor
                 // ===================== 选中时展开小节（左对齐 + 缩进） =====================
                 if (isSelected)
                 {
-                    // 小节越界保护要求提前结束本项绘制时，按原行为直接return（保持GUI栈状态不变）
-                    if (!DrawExpandedSubLevels(tableChapterEditor))
-                        return;
+                    // DrawExpandedSubLevels 恒为真且内部布局完整闭合，不会提前中断
+                    DrawExpandedSubLevels(tableChapterEditor);
                 }
             }
             GUILayout.EndVertical();
@@ -126,14 +124,15 @@ namespace Editor.MapEditor
 
         /// <summary>
         /// 绘制选中章节下展开的小节列表（缩进显示，点击小节触发选中回调）
+        /// <para>注意：该方法始终完整闭合所有 Begin/End 布局，且恒返回 true，
+        /// 避免提前 return 破坏 IMGUI 布局栈（GUIClip 失衡）导致后续绘制异常。</para>
         /// </summary>
         /// <param name="tableChapterEditor">当前项的地图配置数据</param>
-        /// <returns>是否完整绘制完成；false表示小节越界保护提前返回，调用方应直接return以保持原GUI栈状态</returns>
-        private bool DrawExpandedSubLevels(TableChapterEditor tableChapterEditor)
+        private void DrawExpandedSubLevels(TableChapterEditor tableChapterEditor)
         {
             GUILayout.Space(4);
 
-            // 缩进20像素，保证左对齐
+            // 缩进 20 像素，保证左对齐
             GUILayout.BeginHorizontal();
             GUILayout.Space(20);
             GUILayout.BeginVertical();
@@ -148,7 +147,8 @@ namespace Editor.MapEditor
                 {
                     for (int i = 0; i < subLevelIds.Length; i++)
                     {
-                        var subId = subLevelIds[i];
+                        int subId = subLevelIds[i];
+
                         // 判断当前小节是否被选中
                         bool isSubSelected = _selectedSubId == subId;
 
@@ -161,9 +161,12 @@ namespace Editor.MapEditor
                             _selectedSubId = subId;
                             Debug.Log($"已选中 → 第 {tableChapterEditor.ID} 章 ----->第 {subId} 节");
 
-                            // 安全判断：防止越界（原行为：直接return结束本项绘制）
-                            if (subId - 1 < 0 || m_TableMainLevelsList == null || subId - 1 >= m_TableMainLevelsList.Count)
-                                return false;
+                            // 越界安全判断：索引不合法时仅告警并跳过，不再中断当前布局
+                            if (!IsValidSubLevelIndex(subId))
+                            {
+                                Debug.LogWarning($"小节 {subId} 在主关卡列表中不存在，已忽略本次选择。");
+                                continue;
+                            }
 
                             // 选中小节后的逻辑
                             ChooseItem(m_TableMainLevelsList[subId - 1], tableChapterEditor, i);
@@ -173,7 +176,19 @@ namespace Editor.MapEditor
             }
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
-            return true;
+        }
+
+        /// <summary>
+        /// 校验小节索引是否指向有效的主关卡列表元素
+        /// <para>小节 ID 与主关卡列表按「ID - 1」映射，需保证映射后索引在合法范围内。</para>
+        /// </summary>
+        /// <param name="subId">小节 ID</param>
+        /// <returns>true 表示索引合法；false 表示越界或主关卡列表为空</returns>
+        private bool IsValidSubLevelIndex(int subId)
+        {
+            return subId - 1 >= 0
+                   && m_TableMainLevelsList != null
+                   && subId - 1 < m_TableMainLevelsList.Count;
         }
         #endregion
 
@@ -182,7 +197,9 @@ namespace Editor.MapEditor
         /// 【选中回调】点击列表项后执行：加载对应地图、切换背景、刷新图标列表
         /// </summary>
         /// <param name="tableMainLevelsEditor">选中的地图配置数据</param>
-        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor, TableChapterEditor tableChapterEditor, int MapId)
+        /// <param name="tableChapterEditor">所属章节配置数据</param>
+        /// <param name="subLevelIndex">当前小节在章节小节数组中的索引（从 0 起始）</param>
+        private void ChooseItem(TableMainLevelsEditor tableMainLevelsEditor, TableChapterEditor tableChapterEditor, int subLevelIndex)
         {
             try
             {
@@ -195,19 +212,23 @@ namespace Editor.MapEditor
                     // 加载地图预制体，完成后刷新预览区域
                     LoadMapPrefab(prefabPath, () => { SetPreviewRect(); });
                 }
+
                 _mTablesElectedLevelsEditor = new TablesElectedLevelsEditor();
-                //地图章节ID
+                // 地图章节 ID
                 _mTablesElectedLevelsEditor.ChapterId = tableChapterEditor.ID;
-                //地图预制体名称
+                // 地图预制体名称
                 _mTablesElectedLevelsEditor.MapName = tableChapterEditor.MapName;
 
                 _mTablesElectedLevelsEditor.LevelId = tableMainLevelsEditor.ID.ToString();
-                _mTablesElectedLevelsEditor.MapId = MapId + 1;
+                _mTablesElectedLevelsEditor.MapId = subLevelIndex + 1;
+
                 // 保存当前选中的地图数据
                 mapName = tableMainLevelsEditor.Level_bg;
                 _mTablesElectedLevelsEditor.Background = tableMainLevelsEditor.Level_bg;
-                
-                mapId = tableMainLevelsEditor.ID;
+
+                // 记录当前主关卡 ID（静态字段，底部面板用于展示场景 ID）
+                MapBuildEditor.mapId = tableMainLevelsEditor.ID;
+
                 // 重置图标列表标记，刷新图标显示
                 m_IsInitIconList = false;
                 SetIconItem(tableMainLevelsEditor);
@@ -216,8 +237,8 @@ namespace Editor.MapEditor
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                // 选中失败不阻断编辑器，记录错误便于定位
+                Debug.LogError($"选中地图失败：{e}");
             }
         }
         #endregion

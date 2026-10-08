@@ -8,19 +8,17 @@
  * descrip:   地图编辑器 - 主窗口入口（布局、GUI、生命周期）
  ***************************************************************/
 
-using System.Collections.Generic;
-using System.IO;
-using ExcelDataReader.Log;
-using Honor.Editor;
 using UnityEngine;
 using UnityEditor;
-using Log = Honor.Runtime.Log;
 
 namespace Editor.MapEditor
 {
     /// <summary>
     /// 地图编辑器主窗口
-    /// 负责：窗口创建、GUI绘制、左右面板布局、资源释放、全局事件监听
+    /// 负责：窗口创建、GUI 绘制、左右面板布局、资源释放、全局事件监听
+    /// <para>该类为 <c>sealed partial</c>，其余功能模块分散在：
+    /// MapBuildEditor.Utils、MapBuildEditor.InitStyles、MapBuildEditor.LeftPanel、
+    /// MapBuildEditor.RightPanel、MapBuildEditor.SetMapIconScrollView、MapBuildEditor.SetMapListScrollView。</para>
     /// </summary>
     public sealed partial class MapBuildEditor : EditorWindow
     {
@@ -51,16 +49,16 @@ namespace Editor.MapEditor
         //=========================================================================
         #region GUI & Main Loop
         /// <summary>
-        /// 编辑器GUI主绘制方法（每帧执行）
-        /// 初始化样式、监听事件、绘制左右面板
+        /// 编辑器 GUI 主绘制方法（每帧执行）
+        /// 首次打开时初始化配置与 GUI 样式；全局监听 ESC 取消选中；绘制左右面板
         /// </summary>
         private void OnGUI()
         {
-            // 首次打开：初始化配置 + GUI样式
+            // 首次打开：初始化配置 + GUI 样式（仅执行一次）
             if (!m_IsStylesInitialized)
             {
                 LoadConfig.LoadConfigs(); // 读取配置表
-                InitStyles(); // 初始化编辑器皮肤样式
+                InitStyles();             // 初始化编辑器皮肤样式
                 m_IsStylesInitialized = true;
             }
 
@@ -72,7 +70,7 @@ namespace Editor.MapEditor
                 Repaint();
             }
 
-            // 初始化预览渲染相机（确保渲染环境正常）
+            // 初始化预览渲染相机（内部已做非空去重，重复调用开销可忽略）
             SetShowCameraView.InitRenderUtility();
 
             //=========================================================================
@@ -96,7 +94,7 @@ namespace Editor.MapEditor
         #region Lifecycle & Cleanup
         /// <summary>
         /// 窗口关闭/禁用时：释放所有临时资源，防止内存泄漏
-        /// 销毁预览实例、相机、渲染纹理
+        /// 销毁预览实例、相机、渲染纹理，并注销自动对齐帧回调
         /// </summary>
         private void OnDisable()
         {

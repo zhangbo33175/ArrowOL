@@ -272,7 +272,7 @@ function GamePlayHelper:RefreshTextOutLineMaterial(ui, uiText, outlineMatName)
 end
 
 ---@type fun(ui:LuaBehaviourSuper, uiImage:UnityEngine.UI.Image,spriteName:string):void
----@brief 刷新图片精灵
+---@brief 刷新图片精灵  Sprite_sc_2_cat_4
 function GamePlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
     if ui and uiImage then
         ---@type LOAD_RES_DEF_ITEM

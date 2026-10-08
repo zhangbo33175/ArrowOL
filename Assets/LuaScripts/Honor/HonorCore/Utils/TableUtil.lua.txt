@@ -1,14 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
--- filename:   TableUtil.lua
--- author:     云毅
--- created:    2026
--- @brief     表工具类（全局 table 通用工具，对齐参考框架 Utils/TableUtil）
--- @desc      提供 table 的拷贝、深拷贝、查找、合并、排序、自由组合等通用工具，
---            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
--- @dependency SystemApis（table.nums / table.keys 扩展）
+--=====================================================================================================
+-- filename:  TableUtil.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   表工具（table 拷贝/深拷贝/查找/合并/排序/自由组合/批量处理）
+-- 功能：
+-- 1. CopyTab/DeepCopy 浅拷贝与深拷贝
+-- 2. FindValue/FindKeysWhichContainStr 查找
+-- 3. JoinTables/SelectSort/SelectSortByKey/ShuffleArray 合并排序洗牌
+-- 4. GetFreeCombinations/BinaryInsertSortedArray/BatchProcess 组合与批量处理
+-- 架构：纯工具表（---@class TableUtil），依赖 SystemApis（table.nums/table.keys 扩展）
+-- @note  原 SystemFuncs 同名全局函数统一委托到本模块，业务零改动
 --=====================================================================================================
 
 ---@class TableUtil 表工具类

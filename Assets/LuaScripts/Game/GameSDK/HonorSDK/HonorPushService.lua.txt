@@ -1,0 +1,76 @@
+--[[
+(c) copyright 2026 - 2030, Honor.Runtime
+
+功能描述：HonorPushService 推送服务
+说明：本地通知发送、清除及远程推送服务启动
+其它相关：
+修改记录：
+--]]
+
+---@class HonorPushService
+local HonorPushService = {}
+
+--region 依赖加载
+local HonorSDKMap              = require("Game.GameSDK.HonorSDK.HonorSDKMap")
+-- 语音接口信息回调类
+local HonorPushServiceCallback = require("Game.GameSDK.HonorSDK.HonorPushServiceCallback")
+local SGCloudSDKProtocol       = require("Game.GameSDK.HonorSDK.SGCloudSDKProtocol")
+--endregion
+
+--region 推送接口
+
+---@brief 发送本地通知
+---@param PushId number 通知 id
+---@param Content string 通知文本
+---@param Delay number 延迟推送时间，单位秒
+local function CSGHonorPushNotification(PushId, Content, Delay)
+    local _PushNotification   = HonorSDKMap.CSGHonorPushNotification
+    _PushNotification.PushId  = PushId
+    _PushNotification.Content = Content
+    _PushNotification.Delay   = Delay
+    local data                = json.encode(_PushNotification)
+    SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorPushNotification, data, HonorPushServiceCallback.OnHonorUtilsCallback)
+end
+
+---@brief 清除指定本地通知
+---@param pushId number 待清除的通知 ID，类型 int
+local function CSGHonorCleanNotification(pushId)
+    local _CleanNotification  = HonorSDKMap.CSGHonorCleanNotification
+    _CleanNotification.PushId = pushId
+    local data                = json.encode(_CleanNotification)
+    SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorCleanNotification, data, HonorPushServiceCallback.OnHonorUtilsCallback)
+end
+
+---@brief 清除全部本地通知
+local function CSGHonorCleanAllNotification()
+    local _CleanAllNotification = HonorSDKMap.CSGHonorCleanAllNotification
+    local data                  = json.encode(_CleanAllNotification)
+    SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorCleanAllNotification, data, HonorPushServiceCallback.OnHonorUtilsCallback)
+end
+
+---@brief 启动远程推送服务
+---@param Ip string ip 地址
+---@param Port string 端口号
+---@param RoleId string 角色 id
+local function CSGHonorUdpPush(Ip, Port, RoleId)
+    local _GHonorUdpPush  = HonorSDKMap.CSGHonorUdpPush
+    _GHonorUdpPush.Ip     = Ip
+    _GHonorUdpPush.Port   = Port
+    _GHonorUdpPush.RoleId = RoleId
+    local data            = json.encode(_GHonorUdpPush)
+    SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorUdpPush, data, HonorPushServiceCallback.OnHonorUtilsCallback)
+end
+--endregion
+
+--region 模块导出
+---发送本地通知
+HonorPushService.CSGHonorPushNotification    = CSGHonorPushNotification
+---清除指定本地通知
+HonorPushService.CSGHonorCleanNotification   = CSGHonorCleanNotification
+---清除全部本地通知
+HonorPushService.CSGHonorCleanAllNotification = CSGHonorCleanAllNotification
+---启动远程推送服务
+HonorPushService.CSGHonorUdpPush             = CSGHonorUdpPush
+--endregion
+
+return HonorPushService

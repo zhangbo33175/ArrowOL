@@ -21,11 +21,17 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.LuaComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 9, 23, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 15, 6, 0);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaConfigs", _m_InitLuaConfigs);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaEnv", _m_InitLuaEnv);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadNextStartGameModule", _m_LoadNextStartGameModule);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ExecuteStartGameBody", _m_ExecuteStartGameBody);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RequireNextStartGameModule", _m_RequireNextStartGameModule);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "EnsureLuaScriptPathsBuilt", _m_EnsureLuaScriptPathsBuilt);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PrefetchNextLuaModule", _m_PrefetchNextLuaModule);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "BuildLuaPreloadExecutionPlan", _m_BuildLuaPreloadExecutionPlan);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ExecuteNextLuaPreloadModule", _m_ExecuteNextLuaPreloadModule);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CustomLuaLoader", _m_CustomLuaLoader);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetLua", _m_ResetLua);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Clear", _m_Clear);
@@ -34,25 +40,8 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitGameLuaBindings", _m_InitGameLuaBindings);
 			
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaCreateLuaClassFromCSEventDelegate", _g_get_LuaCreateLuaClassFromCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaRelateLocalizationTableDataFromCSEventDelegate", _g_get_LuaRelateLocalizationTableDataFromCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaCreateProcedureLuaClassFromCSEventDelegate", _g_get_LuaCreateProcedureLuaClassFromCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaApplicationPauseFromCSEventDelegate", _g_get_LuaApplicationPauseFromCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaApplicationQuitFromCSEventDelegate", _g_get_LuaApplicationQuitFromCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaKeysUpFromCSEventDelegate", _g_get_LuaKeysUpFromCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaSignInWithAppleCSEventDelegate", _g_get_LuaSignInWithAppleCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaSignInWithAppleStateCSEventDelegate", _g_get_LuaSignInWithAppleStateCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaSignInWithGoogleCSEventDelegate", _g_get_LuaSignInWithGoogleCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaSignOutWithGoogleCSEventDelegate", _g_get_LuaSignOutWithGoogleCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaSignInGoogleAccountCSEventDelegate", _g_get_LuaSignInGoogleAccountCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaReceiveEventCSEventDelegate", _g_get_LuaReceiveEventCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaGetResDefInfoEventDelegate", _g_get_LuaGetResDefInfoEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaLocalizingCSEventDelegate", _g_get_LuaLocalizingCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaWebSocketOpenCSEventDelegate", _g_get_LuaWebSocketOpenCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaWebSocketMessageReceivedCSEventDelegate", _g_get_LuaWebSocketMessageReceivedCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaWebSocketBinaryReceivedCSEventDelegate", _g_get_LuaWebSocketBinaryReceivedCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaWebSocketClosedCSEventDelegate", _g_get_LuaWebSocketClosedCSEventDelegate);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaWebSocketErrorCSEventDelegate", _g_get_LuaWebSocketErrorCSEventDelegate);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "StartGamePreloadModuleCount", _g_get_StartGamePreloadModuleCount);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaPrefetchModuleCount", _g_get_LuaPrefetchModuleCount);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaRuntimeProfilerMode", _g_get_LuaRuntimeProfilerMode);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "Env", _g_get_Env);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LoadedLuaScriptsNames", _g_get_LoadedLuaScriptsNames);
@@ -160,6 +149,62 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_LoadNextStartGameModule(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        bool gen_ret = gen_to_be_invoked.LoadNextStartGameModule(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ExecuteStartGameBody(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        bool gen_ret = gen_to_be_invoked.ExecuteStartGameBody(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_RequireNextStartGameModule(RealStatePtr L)
         {
 		    try {
@@ -174,6 +219,116 @@ namespace XLua.CSObjectWrap
                 {
                     
                         bool gen_ret = gen_to_be_invoked.RequireNextStartGameModule(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_EnsureLuaScriptPathsBuilt(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.EnsureLuaScriptPathsBuilt(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_PrefetchNextLuaModule(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        bool gen_ret = gen_to_be_invoked.PrefetchNextLuaModule(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_BuildLuaPreloadExecutionPlan(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.BuildLuaPreloadExecutionPlan(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ExecuteNextLuaPreloadModule(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        bool gen_ret = gen_to_be_invoked.ExecuteNextLuaPreloadModule(  );
                         LuaAPI.lua_pushboolean(L, gen_ret);
                     
                     
@@ -359,13 +514,13 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaCreateLuaClassFromCSEventDelegate(RealStatePtr L)
+        static int _g_get_StartGamePreloadModuleCount(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaCreateLuaClassFromCSEventDelegate);
+                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.StartGamePreloadModuleCount);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -373,251 +528,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaRelateLocalizationTableDataFromCSEventDelegate(RealStatePtr L)
+        static int _g_get_LuaPrefetchModuleCount(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaRelateLocalizationTableDataFromCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaCreateProcedureLuaClassFromCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaCreateProcedureLuaClassFromCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaApplicationPauseFromCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaApplicationPauseFromCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaApplicationQuitFromCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaApplicationQuitFromCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaKeysUpFromCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaKeysUpFromCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaSignInWithAppleCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaSignInWithAppleCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaSignInWithAppleStateCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaSignInWithAppleStateCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaSignInWithGoogleCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaSignInWithGoogleCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaSignOutWithGoogleCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaSignOutWithGoogleCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaSignInGoogleAccountCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaSignInGoogleAccountCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaReceiveEventCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaReceiveEventCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaGetResDefInfoEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaGetResDefInfoEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaLocalizingCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaLocalizingCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaWebSocketOpenCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaWebSocketOpenCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaWebSocketMessageReceivedCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaWebSocketMessageReceivedCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaWebSocketBinaryReceivedCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaWebSocketBinaryReceivedCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaWebSocketClosedCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaWebSocketClosedCSEventDelegate);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_LuaWebSocketErrorCSEventDelegate(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.LuaWebSocketErrorCSEventDelegate);
+                LuaAPI.xlua_pushinteger(L, gen_to_be_invoked.LuaPrefetchModuleCount);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

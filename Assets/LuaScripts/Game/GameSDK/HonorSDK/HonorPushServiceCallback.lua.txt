@@ -1,0 +1,75 @@
+--[[
+(c) copyright 2026 - 2030, Honor.Runtime
+
+功能描述：HonorPushServiceCallback 推送回调
+说明：推送相关协议号对应的回调分发
+其它相关：
+修改记录：
+--]]
+
+---@class HonorPushServiceCallback
+local HonorPushServiceCallback = {}
+
+--region 依赖加载
+local SGCloudSDKProtocol = require("Game.GameSDK.HonorSDK.SGCloudSDKProtocol")
+--endregion
+
+--region 回调函数声明
+--发送本地通知
+local OnSCGHonorPushNotification     = nil
+--清除指定本地通知
+local OnSCGHonorCleanNotification    = nil
+--清除全部本地通知
+local OnSCGHonorCleanAllNotification = nil
+--启动远程推送服务
+local OnSCGHonorUdpPush             = nil
+
+-- 返回方法list
+local _UtilsCallbackList
+--endregion
+
+--region 推送回调事件
+
+---@brief 推送回调统一入口
+---@param cmd number 协议号
+---@param content string 消息体
+function HonorPushServiceCallback.OnHonorUtilsCallback(cmd, content)
+    _UtilsCallbackList[cmd](content)
+end
+
+--发送本地通知
+OnSCGHonorPushNotification = function(content)
+    local data = json.decode(content)
+end
+
+--清除指定本地通知
+OnSCGHonorCleanNotification = function(content)
+    local data = json.decode(content)
+end
+
+--清除全部本地通知
+OnSCGHonorCleanAllNotification = function(content)
+    local data          = json.decode(content)
+    SDKData.NetworkType = data.NetworkType
+    SDKData.IsConnect   = data.IsConnect
+end
+
+--启动远程推送服务
+OnSCGHonorUdpPush = function(content)
+    local data        = json.decode(content)
+    SDKData.AvailSize = data.AvailSize
+    SDKData.TotalSize = data.TotalSize
+end
+--endregion
+
+--region 回调分发表
+-- 方法list
+_UtilsCallbackList = {
+    [SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorPushNotification]     = OnSCGHonorPushNotification,
+    [SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorCleanNotification]    = OnSCGHonorCleanNotification,
+    [SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorCleanAllNotification] = OnSCGHonorCleanAllNotification,
+    [SGCloudSDKProtocol.CloudSDKProtocol.p_SCGHonorUdpPush]              = OnSCGHonorUdpPush,
+}
+--endregion
+
+return HonorPushServiceCallback

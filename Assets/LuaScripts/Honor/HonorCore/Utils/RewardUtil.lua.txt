@@ -1,12 +1,16 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  RewardUtil.lua
--- author:    Honor.Runtime
+-- filename:  RewardUtil.lua.txt
+-- author:    云毅
 -- created:   2026
--- @brief     道具 / 奖励发放工具类
--- @desc      从 GameFunctions 拆分：发放、显示格式化、批量处理
--- @dependency ResourceDataManager, CurrencyMgr, ItemManager, BuffManager, CollectionMgr, GameTimeHelper
+-- descrip:   道具奖励发放工具（发放、显示格式化、批量处理）
+-- 功能：
+-- 1. GetItemPrefabNameByType 按资源类型取道具预制体名
+-- 2. GrantItem/GrantRewardList 单个与批量发放奖励
+-- 3. FormatItemCountDisplay/FormatRewardCount 奖励数量显示格式化
+-- 架构：纯工具表，依赖 ResourceDataManager/CurrencyMgr/ItemManager/BuffManager/CollectionMgr/GameTimeHelper
+-- @note  业务奖励发放入口，串联多个业务管理器
 --=====================================================================================================
 
 local RewardUtil = {}

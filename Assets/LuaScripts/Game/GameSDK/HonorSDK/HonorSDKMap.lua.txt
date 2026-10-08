@@ -1,0 +1,1075 @@
+--[[
+(c) copyright 2026 - 2030, Honor.Runtime
+
+功能描述：HonorSDKMap 协议数据表
+说明：用于和 SDK 原生交互的消息传递
+其它相关：
+修改记录：
+--]]
+
+---@class HonorSDKMap
+local HonorSDKMap = {}
+
+--region 登录接口
+--登录发起协议
+HonorSDKMap.CSSGLoginEx                                 = {
+    
+}
+---@class HonorSDKMap.SCGHonorSDKGetUserInfo
+HonorSDKMap.SCGHonorSDKGetUserInfo                      = {
+    AppId       = -1,
+    --包ID
+    PkId        = -1,
+    --平台账号ID
+    Uid         = -1,
+    --渠道ID
+    ChannelId   = -1,
+    --渠道用户ID
+    Cuid        = "",
+    --是否已绑定邮箱（1已绑定0未绑定）
+    Email       = -1;
+    --是否已绑定手机（1已绑定0未绑定）
+    Mobile      = -1;
+    --实名认证（0:未认证 1:未满8岁 2:未满16岁 3:未满18岁 4:成年）
+    Adult       = -1;
+    --是否游客（0:非游客 1:游客 2:未知）
+    Guest       = -1;
+    --用户昵称
+    NickName    = "";
+    --0老用户1新用户
+    Newer       = -1;
+    --附加数据
+    Additional  = "";
+    --登录凭证
+    AccessToken = "";
+    --单位秒 本次登陆时间
+    CreateTime  = -1;
+    --单位秒 本次登陆时间
+    LoginTime   = -1;
+    --在线时长
+    PlayTime    = -1;
+    --  扩展信息
+    Extra       = "";
+}
+--获取当前账号信息
+HonorSDKMap.CSGHonorSDKGetUserInfo                      = {
+    
+}
+--判断当前是否处于登录状态
+HonorSDKMap.CSGHonorSDKIsLogin                          = {
+    
+}
+--切换账号
+HonorSDKMap.CSGHonorSDKSwitchUser                       = {
+    
+}
+--登出
+HonorSDKMap.CSGHonorSDKLogout                           = {
+    
+}
+--退出游戏
+HonorSDKMap.CSGHonorSDKExit                             = {
+    
+}
+--判断SDK是否有退出框
+HonorSDKMap.CSGHonorSDKHasExitDialog                    = {
+    
+}
+
+--查询区服信息
+HonorSDKMap.SCGHonorQueryServerList                     = {
+    
+}
+
+
+
+--endregion
+
+--region 登录服务器
+
+---@class HonorSDKMap.CSSGLoginServer
+HonorSDKMap.CSSGLoginServer                             = {
+    serverSid = ""
+}
+
+---@class HonorSDKMap.SCSGLoginServer
+HonorSDKMap.SCSGLoginServer                             = {
+    --登录url
+    loginurl       = "",
+    --服务器IP:端口
+    game_base_url  = "",
+    --统计
+    game_tongji_id = "",
+    --推送
+    pushtoken      = "",
+}
+
+---@class HonorSDKMap.SCSGLoginServerFail
+HonorSDKMap.SCSGLoginServerFail                         = {
+
+}
+
+---@class HonorSDKMap.CSSGLoginOut
+HonorSDKMap.CSSGLoginOut                                = {
+
+}
+
+---@class HonorSDKMap.SCSGLoginOut
+HonorSDKMap.SCSGLoginOut                                = {
+
+}
+
+---@class HonorSDKMap.CSSGGetMaintainNotice
+HonorSDKMap.CSSGGetMaintainNotice                       = {
+
+}
+
+---@class HonorSDKMap.CSSGLoadNotice
+HonorSDKMap.CSSGLoadNotice                              = {
+
+}
+--endregion
+
+--region 語音相關
+
+---@class HonorSDKMap.CSGVoiceLoginSuccessSetVoiceHandler
+HonorSDKMap.CSGVoiceLoginSuccessSetVoiceHandler         = {
+    -- 是否开启文明语音功能，0:开启; 1:关闭
+    bEnable  = false,
+    --设置播放器语音数据的缓冲区大小，默认20s
+    nTimeSec = 0,
+    
+    OpenID   = ""
+}
+
+---@class HonorSDKMap.CSGVoiceJoinRoom
+HonorSDKMap.CSGVoiceJoinRoom                            = {
+    ---想要加入的房间名，房间名最大长度为 127 字节且由 a-z,A-Z,0-9,-,_组成，类型 string
+    roomName = ""
+}
+---@class HonorSDKMap.SCGVoiceJoinRoom
+HonorSDKMap.SCGVoiceJoinRoom                            = {
+    --code：错误码，类型 GCloudVoiceCompleteCode。
+    code     = "",
+    --房间名，类型 string
+    roomName = "",
+    --成员 id，类型 int
+    memberID = -1,
+    --成员当前的角色，类型 int（Anchor or Audience） 
+    role     = -1,
+}
+---@class HonorSDKMap.CSGVoiceJoinNationalRoom
+HonorSDKMap.CSGVoiceJoinNationalRoom                    = {
+    ---想要加入的房间名，房间名最大长度为 127 字节且由 a-z,A-Z,0-9,-,_组成，类型 string
+    roomName = "",
+    --成员加入的角色，类型 GCloudVoiceRole。 主持:1,观众:2
+    role     = -1,
+}
+---@class HonorSDKMap.SCGVoiceJoinNationalRoom
+HonorSDKMap.SCGVoiceJoinNationalRoom                    = {
+    --code：错误码，类型 GCloudVoiceCompleteCode。
+    code     = "",
+    --房间名，类型 string
+    roomName = "",
+    --成员 id，类型 int
+    memberID = -1,
+    --成员当前的角色，类型 int（Anchor or Audience） 
+    role     = -1,
+}
+
+---@class HonorSDKMap.CSGVoiceChangeRole
+HonorSDKMap.CSGVoiceChangeRole                          = {
+    ---想要加入的房间名，房间名最大长度为 127 字节且由 a-z,A-Z,0-9,-,_组成，类型 string
+    roomName = "",
+    --成员加入的角色，类型 GCloudVoiceRole。 主持:1,观众:2
+    role     = -1,
+}
+---@class HonorSDKMap.SCGVoiceChangeRole
+HonorSDKMap.SCGVoiceChangeRole                          = {
+    --code：错误码，类型 GCloudVoiceCompleteCode。
+    code     = "",
+    --房间名，类型 string
+    roomName = "",
+    --成员 id，类型 int
+    memberID = -1,
+    --成员当前的角色，类型 int（Anchor or Audience） 
+    role     = -1,
+}
+
+---@class HonorSDKMap.CSGVoiceSetMicVolume
+HonorSDKMap.CSGVoiceSetMicVolume                        = {
+    --麦克风音量
+    vol = -150,
+}
+---@class HonorSDKMap.SCGVoiceSetMicVolume
+HonorSDKMap.SCGVoiceSetMicVolume                        = {
+    --
+    isTrue = -1
+}
+
+---@class HonorSDKMap.CSGVoiceGetMicLevel
+HonorSDKMap.CSGVoiceGetMicLevel                         = {
+    
+}
+---@class HonorSDKMap.SCGVoiceGetMicLevel
+HonorSDKMap.SCGVoiceGetMicLevel                         = {
+    --
+    isTrue = -1
+}
+
+---@class HonorSDKMap.CSGVoiceGetMicState
+HonorSDKMap.CSGVoiceGetMicState                         = {
+    
+}
+---@class HonorSDKMap.SCGVoiceGetMicState
+HonorSDKMap.SCGVoiceGetMicState                         = {
+    --
+    isTrue = -1
+}
+
+---@class HonorSDKMap.CSGVoiceOpenMic
+HonorSDKMap.CSGVoiceOpenMic                             = {
+    
+}
+---@class HonorSDKMap.SCGVoiceOpenMic
+HonorSDKMap.SCGVoiceOpenMic                             = {
+    --
+    isOpen = false
+}
+
+---@class HonorSDKMap.CSGVoiceCloseMic
+HonorSDKMap.CSGVoiceCloseMic                            = {
+    
+}
+---@class HonorSDKMap.SCGVoiceCloseMic
+HonorSDKMap.SCGVoiceCloseMic                            = {
+    --
+    isOpen = false
+}
+---@class HonorSDKMap.CSGVoiceGetSpeakerLevel
+HonorSDKMap.CSGVoiceGetSpeakerLevel                     = {
+    
+}
+---@class HonorSDKMap.SCGVoiceGetSpeakerLevel
+HonorSDKMap.SCGVoiceGetSpeakerLevel                     = {
+    --
+    value = -1
+}
+---@class HonorSDKMap.CSGVoiceGetSpeakerState
+HonorSDKMap.CSGVoiceGetSpeakerState                     = {
+    
+}
+---@class HonorSDKMap.SCGVoiceGetSpeakerState
+HonorSDKMap.SCGVoiceGetSpeakerState                     = {
+    --
+    value = -1
+}
+
+---@class HonorSDKMap.CSGVoiceSetSpeakerVolume
+HonorSDKMap.CSGVoiceSetSpeakerVolume                    = {
+    vol = 0
+}
+---@class HonorSDKMap.SCGVoiceSetSpeakerVolume
+HonorSDKMap.SCGVoiceSetSpeakerVolume                    = {
+    --
+    value = -1
+}
+
+---@class HonorSDKMap.CSGVoiceOpenSpeaker
+HonorSDKMap.CSGVoiceOpenSpeaker                         = {
+    
+}
+---@class HonorSDKMap.SCGVoiceOpenSpeaker
+HonorSDKMap.SCGVoiceOpenSpeaker                         = {
+    --
+    value = false
+}
+
+---@class HonorSDKMap.CSGVoiceCloseSpeaker
+HonorSDKMap.CSGVoiceCloseSpeaker                        = {
+    
+}
+---@class HonorSDKMap.SCGVoiceCloseSpeaker
+HonorSDKMap.SCGVoiceCloseSpeaker                        = {
+    --
+    value = false
+}
+
+---@class HonorSDKMap.CSGVoiceEnableMultiRoom
+HonorSDKMap.CSGVoiceEnableMultiRoom                     = {
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    enable = false
+}
+---@class HonorSDKMap.SCGVoiceEnableMultiRoom
+HonorSDKMap.SCGVoiceEnableMultiRoom                     = {
+    --
+    value = false
+}
+--开关房间麦克风
+---@class HonorSDKMap.CSGVoiceEnableRoomMicrophone
+HonorSDKMap.CSGVoiceEnableRoomMicrophone                = {
+    ---@type string 房间名，类型 string
+    roomName = "",
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    enable   = false
+}
+---@class HonorSDKMap.SCGVoiceEnableRoomMicrophone
+HonorSDKMap.SCGVoiceEnableRoomMicrophone                = {
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    value = false
+}
+--开关房间扬声器
+---@class HonorSDKMap.CSGVoiceEnableRoomSpeaker
+HonorSDKMap.CSGVoiceEnableRoomSpeaker                   = {
+    ---@type string 房间名，类型 string
+    roomName = "",
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    enable   = false
+}
+---@class HonorSDKMap.SCGVoiceEnableRoomSpeaker
+HonorSDKMap.SCGVoiceEnableRoomSpeaker                   = {
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    value = false
+}
+--判断当前用户是否正在讲话
+---@class HonorSDKMap.CSGVoiceIsSpeaking
+HonorSDKMap.CSGVoiceIsSpeaking                          = {
+    
+}
+---@class HonorSDKMap.SCGVoiceIsSpeaking
+HonorSDKMap.SCGVoiceIsSpeaking                          = {
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    value = false
+}
+--设置语音收听白名单
+---@class HonorSDKMap.CSGVoiceSetAudience
+HonorSDKMap.CSGVoiceSetAudience                         = {
+    ---@type string 房间名，需要是一个真实有效的房间名，且用户已进房。
+    roomName  = "",
+    ---@type int[] memberIDs的数组
+    memberIDs = nil
+}
+---@class HonorSDKMap.SCGVoiceSetAudience
+HonorSDKMap.SCGVoiceSetAudience                         = {
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    value = false
+}
+--禁止接收某成员语音
+---@class HonorSDKMap.CSGVoiceForbidMemberVoice
+HonorSDKMap.CSGVoiceForbidMemberVoice                   = {
+    ---@type string 房间名，需要是一个真实有效的房间名，且用户已进房。
+    roomName  = "",
+    ---@type int memberIDs的数组
+    memberIDs = nil,
+    ---@type boolean true:不收听玩家 member 的语音数据，false:收听玩家 member 的语音数据
+    enable    = false
+}
+---@class HonorSDKMap.SCGVoiceForbidMemberVoice
+HonorSDKMap.SCGVoiceForbidMemberVoice                   = {
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    value = false
+}
+
+--设置房间成员音量
+---@class HonorSDKMap.CSGVoiceSetPlayerVolume
+HonorSDKMap.CSGVoiceSetPlayerVolume                     = {
+    ---@type string 需要设置收听音量的玩家 ID, 该 ID 值需与 SetAppInfo 接口中传入的 openid 值一致。
+    playerId = "",
+    ---@type int 音量
+    Volume   = nil,
+}
+---@class HonorSDKMap.SCGVoiceSetPlayerVolume
+HonorSDKMap.SCGVoiceSetPlayerVolume                     = {
+    ---@type boolean true-打开房间麦克风，false-关闭房间麦克风
+    value = false
+}
+
+--获取房间成员音量
+---@class HonorSDKMap.CSGVoiceGetPlayerVolume
+HonorSDKMap.CSGVoiceGetPlayerVolume                     = {
+    ---@type string 需要设置收听音量的玩家 ID, 该 ID 值需与 SetAppInfo 接口中传入的 openid 值一致。
+    playerId = "",
+}
+---@class HonorSDKMap.SCGVoiceGetPlayerVolume
+HonorSDKMap.SCGVoiceGetPlayerVolume                     = {
+    ---@type int 获取音量信息
+    value = 0
+}
+--获取房间成员个数
+---@class HonorSDKMap.CSGVoiceGetRoomMemberCount
+HonorSDKMap.CSGVoiceGetRoomMemberCount                  = {
+    ---@type string 房间名，需要是一个真实有效的房间名，且用户已进房
+    roomName = "",
+}
+---@class HonorSDKMap.SCGVoiceGetRoomMemberCount
+HonorSDKMap.SCGVoiceGetRoomMemberCount                  = {
+    ---@type int 获取音量信息
+    value = 0
+}
+--获取房间成员信息
+---@class HonorSDKMap.CSGVoiceGetRoomMembers
+HonorSDKMap.CSGVoiceGetRoomMembers                      = {
+    ---@type string 房间名，需要是一个真实有效的房间名，且用户已进房
+    roomName = "",
+    ---@type int 需要获取的成员个数
+    index    = 0
+}
+---@class HonorSDKMap.SCGVoiceGetRoomMembers
+HonorSDKMap.SCGVoiceGetRoomMembers                      = {
+    ---@type string 获取的成员信息
+    RoomMembers = ""
+}
+
+
+--语音转换文字请求
+---@class HonorSDKMap.CSGVoiceSpeechToText
+HonorSDKMap.CSGVoiceSpeechToText                        = {
+    ---@type string 录音文件ID
+    fileID = "",
+}
+---@class HonorSDKMap.SCGVoiceSpeechToText
+HonorSDKMap.SCGVoiceSpeechToText                        = {
+    ---@type string 完成码
+    CompleteCode = "",
+    ---@type string 录音文件ID
+    fileID       = "",
+    ---@type string 翻译结果
+    result       = ""
+}
+
+--GVoice开始录音请求
+---@class HonorSDKMap.CSGVoiceStartRecording
+HonorSDKMap.CSGVoiceStartRecording                      = {
+    ---@type string 文件名称
+    recordedFileName = "",
+    ---@type string 录音时限
+    recordedFileTime = "",
+}
+---@class HonorSDKMap.SCGVoiceStartRecording
+HonorSDKMap.SCGVoiceStartRecording                      = {
+    ---@type boolean 完成码
+    value     = false,
+    ---@type int 函数返回值
+    ErrorCode = 0,
+    
+}
+
+
+--获取录音文件信息
+---@class HonorSDKMap.CSGVoiceGetFileInfo
+HonorSDKMap.CSGVoiceGetFileInfo                         = {
+    ---@type string 需要获取文件信息的语音文件路径
+    downloadFileName = "",
+    ---@type string 录音时限
+    Seconds          = "1",
+}
+---@class HonorSDKMap.SCGVoiceGetFileInfo
+HonorSDKMap.SCGVoiceGetFileInfo                         = {
+    ---@type boolean 获取成功或者失败
+    value = false,
+    
+}
+--退出实时语音房间
+---@class HonorSDKMap.CSGVoiceQuitRoom
+HonorSDKMap.CSGVoiceQuitRoom                            = {
+    ---@type string 需要开启魔音功能的房间名，为当前需要开启魔音功能的玩家所在的房间名
+    roomName = "",
+}
+---@class HonorSDKMap.SCGVoiceQuitRoom
+HonorSDKMap.SCGVoiceQuitRoom                            = {
+    ---@type int 返回的参数信息
+    code     = 0,
+    ---@type string 房间名，类型 string
+    roomName = "",
+    ---@type boolean 成员 id，类型 int
+    memberID = 0,
+}
+
+--设置成员状态改变回调
+---@class HonorSDKMap.CSGVoiceSetMemberVoiceHandler
+HonorSDKMap.CSGVoiceSetMemberVoiceHandler               = {
+    
+}
+---@class HonorSDKMap.SCGVoiceSetMemberVoiceHandler
+HonorSDKMap.SCGVoiceSetMemberVoiceHandler               = {
+    ---@type int 状态改变的成员个数
+    count   = 0,
+    ---@type string 状态改变的成员列表
+    members = "",
+    
+}
+
+--设置成员状态改变回调
+---@class HonorSDKMap.CSGVoiceSetRoomMemberVoiceHandler
+HonorSDKMap.CSGVoiceSetRoomMemberVoiceHandler           = {
+    
+}
+---@class HonorSDKMap.SCGVoiceSetRoomMemberVoiceHandler
+HonorSDKMap.SCGVoiceSetRoomMemberVoiceHandler           = {
+    ---@type string 状态改变成员所属的房间
+    roomName = 0,
+    ---@type int 状态改变的成员 id
+    member   = "",
+    ---@type int z0-停止说话, 1-开始说话，2-继续说话
+    status   = "",
+}
+
+
+--设置成员进退房通知
+---@class HonorSDKMap.CSGVoiceSetRoomMemberChangedCompleteHandler
+HonorSDKMap.CSGVoiceSetRoomMemberChangedCompleteHandler = {
+    
+}
+---@class HonorSDKMap.SCGVoiceSetRoomMemberChangedCompleteHandler
+HonorSDKMap.SCGVoiceSetRoomMemberChangedCompleteHandler = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code     = 0,
+    ---@type string 房间名，类型 string
+    roomName = "",
+    ---@type int 成员 id，类型 int
+    memid    = "",
+    ---@type string 用户唯一标识，类型 string
+    openID   = "",
+}
+
+--设置成员角色改变回调
+---@class HonorSDKMap.CSGVoiceSetChangeRoleCompleteHandler
+HonorSDKMap.CSGVoiceSetChangeRoleCompleteHandler        = {
+    
+}
+---@class HonorSDKMap.SCGVoiceSetChangeRoleCompleteHandler
+HonorSDKMap.SCGVoiceSetChangeRoleCompleteHandler        = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code     = 0,
+    ---@type string 房间名，类型 string
+    roomName = "",
+    ---@type int 成员 id，类型 int
+    memberID = "",
+    ---@type int 当前角色，类型
+    role     = "",
+    
+}
+--设置成员掉线回调
+---@class HonorSDKMap.CSGVoiceSetStatusUpdateHandler
+HonorSDKMap.CSGVoiceSetStatusUpdateHandler              = {
+    
+}
+---@class HonorSDKMap.SCGVoiceSetStatusUpdateHandler
+HonorSDKMap.SCGVoiceSetStatusUpdateHandler              = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code     = 0,
+    ---@type string 房间名，类型 string
+    roomName = "",
+    ---@type int 成员 id，类型 int
+    memberID = "",
+}
+
+--设置麦克风状态改变回调
+---@class HonorSDKMap.CSGVoiceSetUpdateMicStateHandler
+HonorSDKMap.CSGVoiceSetUpdateMicStateHandler            = {
+    
+}
+---@class HonorSDKMap.SCGVoiceSetUpdateMicStateHandler
+HonorSDKMap.SCGVoiceSetUpdateMicStateHandler            = {
+    ---@type int 麦克风状态，0：停止说话，1：开始说话
+    state = 0,
+}
+
+--region 语音消息
+
+--开启语音消息模式
+---@class HonorSDKMap.CSGVoiceStartMessage
+HonorSDKMap.CSGVoiceStartMessage                        = {
+    
+}
+---@class HonorSDKMap.SCGVoiceStartMessage
+HonorSDKMap.SCGVoiceStartMessage                        = {
+    ---@type boolean 麦克风状态，0：停止说话，1：开始说话
+    state = 0,
+}
+
+--开启语音转文字模式
+---@class HonorSDKMap.CSGVoiceStartTranslation
+HonorSDKMap.CSGVoiceStartTranslation                    = {
+    
+}
+---@class HonorSDKMap.SCGVoiceStartTranslation
+HonorSDKMap.SCGVoiceStartTranslation                    = {
+    ---@type boolean 麦克风状态，0：停止说话，1：开始说话
+    value = false,
+}
+
+--停止录
+---@class HonorSDKMap.CSGVoiceStopRecording
+HonorSDKMap.CSGVoiceStopRecording                       = {
+    
+}
+---@class HonorSDKMap.SCGVoiceStopRecording
+HonorSDKMap.SCGVoiceStopRecording                       = {
+    ---@type boolean 麦克风状态，0：停止说话，1：开始说话
+    value = false,
+}
+--停止录
+---@class HonorSDKMap.CSGVoiceUploadRecordedFile
+HonorSDKMap.CSGVoiceUploadRecordedFile                  = {
+    ---@type string 文件名稱
+    recordedFileName = ''
+}
+---@class HonorSDKMap.SCGVoiceUploadRecordedFile
+HonorSDKMap.SCGVoiceUploadRecordedFile                  = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code     = 0,
+    ---@type string 下载的录音文件地址
+    filePath = "",
+    ---@type int 下载的录音文件ID
+    fileID   = "",
+}
+
+--下载录音请求
+---@class HonorSDKMap.CSGVoiceDownloadRecordedFile
+HonorSDKMap.CSGVoiceDownloadRecordedFile                = {
+    ---@type string 需下载的录音文件ID
+    fileID           = '',
+    ---@type string 下载的录音文件名
+    downloadFileName = '',
+    ---@type int 下载文件超时时间，单位毫秒（5000ms～60000ms）
+    msTimeout        = 0
+}
+---@class HonorSDKMap.SCGVoiceDownLoadRecordedFile
+HonorSDKMap.SCGVoiceDownLoadRecordedFile                = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code     = 0,
+    ---@type string 下载的录音文件地址
+    filePath = "",
+    ---@type int 下载的录音文件ID
+    fileID   = "",
+}
+--播放录音文件请求
+---@class HonorSDKMap.CSGVoicePlayRecordedFile
+HonorSDKMap.CSGVoicePlayRecordedFile                    = {
+    ---@type string 下载的录音文件ID
+    fileID = '',
+}
+---@class HonorSDKMap.SCGVoicePlayRecordedFile
+HonorSDKMap.SCGVoicePlayRecordedFile                    = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code     = 0,
+    ---@type string 下载的录音文件地址
+    filePath = "",
+}
+
+--停止播放录音请求
+---@class HonorSDKMap.CSGVoiceStopPlayFile
+HonorSDKMap.CSGVoiceStopPlayFile                        = {
+    
+}
+---@class HonorSDKMap.SCGVoiceStopPlayFile
+HonorSDKMap.SCGVoiceStopPlayFile                        = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code = 0,
+}
+
+--endregion
+--region 魔音模块
+
+--开启语音魔音功能 在使用语音消息接口前需要先调用该接口
+---@class HonorSDKMap.CSGVoiceEnableMagicVoice
+HonorSDKMap.CSGVoiceEnableMagicVoice                    = {
+    ---@type string 需要开启魔音功能的房间名，为当前需要开启魔音功能的玩家所在的房间名
+    roomName  = '',
+    ---@type string 魔音类型，支持的魔音类型参考
+    magicType = '',
+    ---@type boolean 开启/关闭魔音功能，true：开启魔音，false：关闭魔音<
+    enable    = '',
+}
+---@class HonorSDKMap.SCGVoiceEnableMagicVoice
+HonorSDKMap.SCGVoiceEnableMagicVoice                    = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code     = 0,
+    ---@type string 下载的录音文件地址
+    filePath = "",
+}
+
+
+--接收语音魔音
+---@class HonorSDKMap.CSGVoiceEnableRecvMagicVoice
+HonorSDKMap.CSGVoiceEnableRecvMagicVoice                = {
+    ---@type string 需要开启魔音功能的房间名，为当前需要开启魔音功能的玩家所在的房间名
+    roomName = '',
+    ---@type boolean 开启/关闭魔音功能，true：开启魔音，false：关闭魔音<
+    enable   = '',
+}
+---@class HonorSDKMap.SCGVoiceEnableRecvMagicVoice
+HonorSDKMap.SCGVoiceEnableRecvMagicVoice                = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code   = 0,
+    ---@type boolean 下载的录音文件地址
+    enable = "",
+}
+--设置魔音消息类型
+---@class HonorSDKMap.CSGVoiceSetMagicVoiceMsgType
+HonorSDKMap.CSGVoiceSetMagicVoiceMsgType                = {
+    ---@type string 播报音色，支持的魔音类型参考下面的播报语音类型说明。
+    magicType = '',
+}
+---@class HonorSDKMap.SCGVoiceSetMagicVoiceMsgType
+HonorSDKMap.SCGVoiceSetMagicVoiceMsgType                = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code   = 0,
+    ---@type boolean 下载的录音文件地址
+    enable = "",
+}
+
+--开始语音播报
+---@class HonorSDKMap.CSGVoiceTextToStreamSpeechStart
+HonorSDKMap.CSGVoiceTextToStreamSpeechStart             = {
+    ---@type string 需要播报的文字。
+    text       = '',
+    ---@type string 播报音色，支持的魔音类型参考下面的播报语音类型说明。
+    magicType  = '',
+    ---@type string 超时时间，单位毫秒(5000ms~60000ms)，默认 10000
+    nTimeoutMS = '',
+}
+---@class HonorSDKMap.SCGVoiceTextToStreamSpeechStart
+HonorSDKMap.SCGVoiceTextToStreamSpeechStart             = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code = 0,
+    ---@type string 播报的文本内容
+    text = "",
+    ---@type int 错误码 defail of fail
+    err  = "",
+}
+
+--结束语音播报
+---@class HonorSDKMap.CSGVoiceTextToStreamSpeechStop
+HonorSDKMap.CSGVoiceTextToStreamSpeechStop              = {
+    
+}
+---@class HonorSDKMap.SCGVoiceTextToStreamSpeechStop
+HonorSDKMap.SCGVoiceTextToStreamSpeechStop              = {
+    ---@type int 错误码，类型 GCloudVoiceCompleteCode
+    code = 0,
+    ---@type string 播报的文本内容
+    text = "",
+    ---@type int 错误码 defail of fail
+    err  = "",
+}
+
+--endregion
+--region 文明语音模块
+
+--开关文明语音功能
+---@class HonorSDKMap.CSGVoiceEnableCivilVoice
+HonorSDKMap.CSGVoiceEnableCivilVoice                    = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+---@class HonorSDKMap.SCGVoiceEnableCivilVoice
+HonorSDKMap.SCGVoiceEnableCivilVoice                    = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+
+--语音消息监测
+---@class HonorSDKMap.CSGVoiceEnableCivilFile
+HonorSDKMap.CSGVoiceEnableCivilFile                     = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+---@class HonorSDKMap.SCGVoiceEnableCivilFile
+HonorSDKMap.SCGVoiceEnableCivilFile                     = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+
+--开启关键词检测功能
+---@class HonorSDKMap.CSGVoiceEnableKeyWordsDetect
+HonorSDKMap.CSGVoiceEnableKeyWordsDetect                = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+---@class HonorSDKMap.SCGVoiceEnableKeyWordsDetect
+HonorSDKMap.SCGVoiceEnableKeyWordsDetect                = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+--设置录音缓存时长
+---@class HonorSDKMap.CSGVoiceSetReportBufferTime
+HonorSDKMap.CSGVoiceSetReportBufferTime                 = {
+    ---@type int 设置录音缓存时长 设置播放器语音数据的缓冲区大小，默认 20s。
+    nTimeSec = 0,
+}
+---@class HonorSDKMap.SCGVoiceSetReportBufferTime
+HonorSDKMap.SCGVoiceSetReportBufferTime                 = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+
+--设置玩家信息
+---@class HonorSDKMap.CSGVoiceReportPlayer
+HonorSDKMap.CSGVoiceReportPlayer                        = {
+    ---@type string[] 可能被举报的所有玩家的 openid 列表。
+    cszOpenID = nil,
+    ---@type  int[] 可能被举报的所有玩家的 memberid 列表
+    nMemberID = nil,
+    ---@type int 可能被举报的玩家个数
+    nCount    = 0,
+}
+---@class HonorSDKMap.SCGVoiceReportPlayer
+HonorSDKMap.SCGVoiceReportPlayer                        = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+--举报玩家
+---@class HonorSDKMap.CSGVoiceSetReportedPlayerInfo
+HonorSDKMap.CSGVoiceSetReportedPlayerInfo               = {
+    ---@type string[] 可能被举报的所有玩家的 openid 列表。
+    cszOpenID = nil,
+    ---@type  string 举报信息，任意字符串数据
+    strInfo   = "",
+    ---@type int 可能被举报的玩家个数
+    nCount    = 0,
+}
+---@class HonorSDKMap.SCGVoiceSetReportedPlayerInfo
+HonorSDKMap.SCGVoiceSetReportedPlayerInfo               = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+--举报所有玩家
+---@class HonorSDKMap.CSGVoiceEnableReportALL
+HonorSDKMap.CSGVoiceEnableReportALL                     = {
+    ---@type boolean 一键监测房间内所有玩家的语音数据，当有玩家有不文明语音行为时，其他玩家可通过ReportPlayer接口举报该玩家
+    bEnable = nil,
+}
+---@class HonorSDKMap.SCGVoiceEnableReportALL
+HonorSDKMap.SCGVoiceEnableReportALL                     = {
+    ---@type boolean 错误码，类型 GCloudVoiceCompleteCode
+    bEnable = false,
+}
+
+--endregion
+--endregion
+
+--region 工具类
+--请求权限
+---@class HonorSDKMap.CSGHonorSDKRequestPermission
+HonorSDKMap.CSGHonorSDKRequestPermission                = {
+    ---@type long[]  权限列表
+    permissions = nil,
+}
+--获取权限状态
+---@class HonorSDKMap.CSGHonorSDKGetPermissionState
+HonorSDKMap.CSGHonorSDKGetPermissionState               = {
+    ---@type long[]  权限列表
+    permissions = nil,
+}
+--获取网络信息
+---@class HonorSDKMap.CSGHonorSDKGetNetworkInfo
+HonorSDKMap.CSGHonorSDKGetNetworkInfo                   = {
+    
+}
+
+--获取磁盘信息
+---@class HonorSDKMap.CSGHonorSDKGetDiskInfo
+HonorSDKMap.CSGHonorSDKGetDiskInfo                      = {
+    
+}
+
+--获取应用信息
+---@class HonorSDKMap.CSGHonorSDKGetAppInfo
+HonorSDKMap.CSGHonorSDKGetAppInfo                       = {
+    
+}
+
+--获取内存信息
+---@class HonorSDKMap.CSGHonorSDKGetMemory
+HonorSDKMap.CSGHonorSDKGetMemory                        = {
+    
+}
+
+--获取电池信息
+---@class HonorSDKMap.CSGHonorSDKGetBattery
+HonorSDKMap.CSGHonorSDKGetBattery                       = {
+    
+}
+
+--获取硬件信息
+---@class HonorSDKMap.CSGHonorSDKGetHardwareInfo
+HonorSDKMap.CSGHonorSDKGetHardwareInfo                  = {
+    
+}
+
+--设置复制文本
+---@class HonorSDKMap.CSGHonorSDKRestartApp
+HonorSDKMap.CSGHonorSDKRestartApp                       = {
+    ---@type  string  待复制文本
+    content = ""
+}
+--重启应用
+---@class HonorSDKMap.CSGHonorSDKSetClipboard
+HonorSDKMap.CSGHonorSDKSetClipboard                     = {
+    
+}
+--获取设备刘海屏信息
+---@class HonorSDKMap.CSGHonorSDKGetScreenNotchInfo
+HonorSDKMap.CSGHonorSDKGetScreenNotchInfo               = {
+    
+}
+
+--获取公告
+---@class HonorSDKMap.CSGHonorSDKDNoticeLoadNoticeData
+HonorSDKMap.CSGHonorSDKDNoticeLoadNoticeData            = {
+    ---@type  string  区服 ID，如果用户当前未确定区服，可以传空
+    ServerId = "",
+    ---@type  string  要获取的公告类型，逗号分隔，表示拉取所有类型的公告，可以为空
+    Type     = "",
+    ---@type  string  客户端语言，如果后台未配置对应语言的公告，则取默认语言，可以传空
+    Language = "",
+    ---@type  string  国家码，可以传空
+    Country  = "",
+}
+--endregion
+
+--region 数据上报
+--步骤打点
+---@class HonorSDKMap.CSGHonorReportGameStep
+HonorSDKMap.CSGHonorReportGameStep                      = {
+    ---@type  string 步骤名称，类型 string
+    step  = "";
+    ---@type  string 步骤分类，类型 string。
+    type  = "";
+    ---@type  Dictionary 扩展信息，类型 Dictionary<string, object>
+    extra = nil;
+}
+--上报日志
+---@class HonorSDKMap.CSGHonorReportLog
+HonorSDKMap.CSGHonorReportLog                           = {
+    ---@type  string  日志文本内容，类型 string。
+    content = "";
+    ---@type  string  步骤分类，类型 string。
+    type    = "";
+}
+--上报角色信息
+---@class HonorSDKMap.CSGHonorUpdateRoleInfo
+HonorSDKMap.CSGHonorUpdateRoleInfo                      = {
+    ---@type  int 上报类型，角色创建节点（TYPE_CREATE_ROLE）、进入游戏节点  TYPE_ENTER_GAME ） 、 角 色 升 级 节 点（TYPE_ROLE_LEVEL）、 vip 升级节点（TYPE_VIP_LEVEL）
+    Type           = -1;
+    ---@type  string 角色 ID
+    RoleId         = "";
+    ---@type  string 角色名
+    RoleName       = "";
+    ---@type  string 角色等级
+    RoleLevel      = "";
+    ---@type  string 角色 VIP 等级
+    VipLevel       = "";
+    ---@type  int 性别(0 女 1 男 2 未知)
+    Gender         = 2;
+    ---@type  string 区服 ID
+    ServerId       = "";
+    ---@type  string 服务器名称
+    ServerName     = "";
+    ---@type  string 工会名称
+    Party          = "";
+    ---@type  int 游戏币余额
+    Balance        = 0;
+    ---@type  long 角色创建时间戳，毫秒
+    RoleCreateTime = 0;
+    ---@type  Dictionary<string,string> 角色其他信息，可以为 JSON，在下发区服信息时原样返回 Dictionary<String, String>
+    Extra          = nil;
+    
+}
+
+--endregion
+--region 推送
+
+--发送本地通知
+---@class HonorSDKMap.CSGHonorPushNotification
+HonorSDKMap.CSGHonorPushNotification                    = {
+    ---@type  number 通知 id
+    PushId  = 0;
+    ---@type  string 通知文本
+    Content = "";
+    ---@type  number 延迟推送时间，单位秒
+    Delay   = 0;
+}
+
+--发送本地通知 回調
+---@class HonorSDKMap.SCGHonorPushNotification
+HonorSDKMap.CSGHonorCleanNotification                   = {
+}
+
+--清除指定本地通知
+---@class HonorSDKMap.CSGHonorCleanNotification
+HonorSDKMap.CSGHonorCleanNotification                   = {
+    ---@type  number 通知 id
+    PushId = 0;
+}
+
+--清除指定本地通知 回調
+---@class HonorSDKMap.SCGHonorCleanNotification
+HonorSDKMap.SCGHonorCleanNotification                   = {
+}
+
+--清除全部本地通知
+---@class HonorSDKMap.CSGHonorCleanAllNotification
+HonorSDKMap.CSGHonorCleanAllNotification                = {
+    ---@type  number 通知 id
+    PushId = 0;
+}
+
+--清除全部本地通知 回調
+---@class HonorSDKMap.SCGHonorCleanAllNotification
+HonorSDKMap.SCGHonorCleanAllNotification                = {
+}
+--启动远程推送服务
+---@class HonorSDKMap.CSGHonorUdpPush
+HonorSDKMap.CSGHonorUdpPush                             = {
+    ---@type  string ip 地址
+    Ip     = "";
+    ---@type  string 端口号
+    Port   = "";
+    ---@type  string 角色 id
+    RoleId = "";
+}
+
+--启动远程推送服务 回調
+---@class HonorSDKMap.SCGHonorUdpPush
+HonorSDKMap.SCGHonorUdpPush                             = {
+}
+
+--商品列表查询信息
+---@class HonorSDKMap.CSCGServerGoodsQueryInfoInfo
+HonorSDKMap.CSCGServerGoodsQueryInfoInfo                             = {
+    ---@type  string 服务器 id （指在挂接中心的 id）
+    ServerId     = "";
+    ---@type  string 商品类型，逗号分隔，留空或不传表示所有类型
+    Category   = "";
+    ---@type  string 币种过滤（将只返回符合币种条件的商品），可以不传
+    Currency = "";
+}
+--订单信息 OrderInfo 详解
+---@class HonorSDKMap.CSGServerPayInfo
+HonorSDKMap.CSGServerPayInfo = {
+    ---@type  string 服务器 id （指在挂接中心的 id）
+    ServerId  = "";
+    ---@type  string 角色 id
+    RoleId    = "";
+    ---@type  string 角色名称
+    RoleName  = "";
+    ---@type  number 角色等级
+    RoleLevel = 0;
+    ---@type  number vip 等级
+    VipLevel  = 0;
+    ---@type  string 商品 id
+    GoodsId   = "";
+    ---@type  number 商品数量
+    Amount    = 0;
+    ---@type  number 透传参数，游戏传入，在查询订单信息时原样返回
+    Note      = 0;
+    ---@type  Dictionary<string, string> 扩展信息，可以与平台约定传入具体 key-value 字段
+    Extra     = nil;
+}
+
+
+--endregion
+return HonorSDKMap

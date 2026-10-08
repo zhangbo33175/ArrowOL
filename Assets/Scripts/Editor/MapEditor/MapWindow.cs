@@ -18,7 +18,7 @@ namespace Editor.MapEditor
 {
     /// <summary>
     /// 新建地图弹窗窗口
-    /// 功能：配置地图名称、保存路径、背景图、Item资源路径，并创建初始JSON地图文件
+    /// 功能：配置地图名称、保存路径、背景图、Item 资源路径，并创建初始 JSON 地图文件
     /// </summary>
     public class MapWindow : EditorWindow
     {
@@ -32,7 +32,7 @@ namespace Editor.MapEditor
         private string _mapName = "level_map_";
 
         /// <summary>
-        /// 地图JSON文件保存路径
+        /// 地图 JSON 文件保存路径
         /// </summary>
         private string _mapSavePath;
 
@@ -42,7 +42,7 @@ namespace Editor.MapEditor
         private string _bgImagePath = "";
 
         /// <summary>
-        /// Item图标资源文件夹路径
+        /// Item 图标资源文件夹路径
         /// </summary>
         private string _bgIconPath = "";
 
@@ -63,6 +63,7 @@ namespace Editor.MapEditor
         {
             MapWindow window = CreateInstance<MapWindow>();
             window.titleContent = new GUIContent("新建地图");
+
             // 固定窗口大小
             window.minSize = new Vector2(400, 250);
             window.maxSize = new Vector2(400, 250);
@@ -90,7 +91,7 @@ namespace Editor.MapEditor
         //=========================================================================
         #region GUI Drawing
         /// <summary>
-        /// 绘制窗口UI界面
+        /// 绘制窗口 UI 界面
         /// </summary>
         private void OnGUI()
         {
@@ -108,7 +109,7 @@ namespace Editor.MapEditor
             // 背景图片路径 + 选择文件按钮
             DrawBgImagePathRow();
 
-            // Item图标文件夹路径 + 选择文件夹按钮
+            // Item 图标文件夹路径 + 选择文件夹按钮
             DrawIconFolderPathRow();
 
             GUILayout.Space(8);
@@ -122,7 +123,6 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawMapSavePathRow()
         {
-            // 地图保存路径 + 选择文件夹按钮
             GUILayout.Label("地图保存路径", EditorStyles.label);
             GUILayout.BeginHorizontal();
             GUILayout.TextField(_mapSavePath, GUILayout.Height(24), GUILayout.ExpandWidth(true));
@@ -134,6 +134,7 @@ namespace Editor.MapEditor
                     _mapSavePath = selectPath + "/";
                 }
             }
+
             GUILayout.EndHorizontal();
             GUILayout.Space(3);
         }
@@ -143,7 +144,6 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawBgImagePathRow()
         {
-            // 背景图片路径 + 选择文件按钮
             GUILayout.Label("背景图片路径", EditorStyles.label);
             GUILayout.BeginHorizontal();
             GUILayout.TextField(_bgImagePath, GUILayout.Height(18), GUILayout.ExpandWidth(true));
@@ -155,16 +155,16 @@ namespace Editor.MapEditor
                     _bgImagePath = selectPath;
                 }
             }
+
             GUILayout.EndHorizontal();
             GUILayout.Space(3);
         }
 
         /// <summary>
-        /// 绘制Item图标文件夹路径行（输入框 + 选择文件夹按钮）
+        /// 绘制 Item 图标文件夹路径行（输入框 + 选择文件夹按钮）
         /// </summary>
         private void DrawIconFolderPathRow()
         {
-            // Item图标文件夹路径 + 选择文件夹按钮
             GUILayout.Label("Item图片信息", EditorStyles.label);
             GUILayout.BeginHorizontal();
             GUILayout.TextField(_bgIconPath, GUILayout.Height(18), GUILayout.ExpandWidth(true));
@@ -176,6 +176,7 @@ namespace Editor.MapEditor
                     _bgIconPath = folderPath;
                 }
             }
+
             GUILayout.EndHorizontal();
         }
 
@@ -184,7 +185,6 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawBottomButtons()
         {
-            // 底部：取消 / 创建 按钮
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
@@ -215,10 +215,7 @@ namespace Editor.MapEditor
         #region Create New Map Logic
         /// <summary>
         /// 执行新建地图逻辑
-        /// 1. 检查路径
-        /// 2. 覆盖提示
-        /// 3. 创建JSON配置文件
-        /// 4. 触发成功回调
+        /// <para>流程：1. 检查/创建目录 → 2. 覆盖提示 → 3. 创建 JSON 配置文件 → 4. 触发成功回调 → 5. 关闭窗口</para>
         /// </summary>
         private void CreateNewMap()
         {
@@ -230,7 +227,7 @@ namespace Editor.MapEditor
                     Directory.CreateDirectory(_mapSavePath);
                 }
 
-                // 拼接JSON文件完整路径
+                // 拼接 JSON 文件完整路径
                 string jsonFilePath = Path.Combine(_mapSavePath, $"{_mapName}.json");
 
                 // 文件已存在 → 提示是否覆盖
@@ -247,11 +244,11 @@ namespace Editor.MapEditor
                 {
                     m_MapName = _mapName,
                     m_MapObjectData = new List<RMapData>(), // 空物体列表
-                    m_BackgroundPath = _bgImagePath, // 背景图路径
+                    m_BackgroundPath = _bgImagePath,        // 背景图路径
                     m_CreateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") // 创建时间
                 };
 
-                // 构建JSON文件信息
+                // 构建 JSON 文件信息
                 MapBuildEditor.MapJsonInfo jsonInfo = new MapBuildEditor.MapJsonInfo
                 {
                     m_FilePath = _mapSavePath,
@@ -260,7 +257,7 @@ namespace Editor.MapEditor
                     mRMapChapterTypeData = rMapChapterTypeData
                 };
 
-                // 序列化为JSON并写入文件
+                // 序列化为 JSON 并写入文件
                 string jsonContent = JsonUtility.ToJson(jsonInfo, true);
                 File.WriteAllText(jsonFilePath, jsonContent);
 

@@ -107,11 +107,10 @@ namespace Honor.Runtime
         {
             Log.Info(pause ? "APP挂起。" : "APP恢复。");
 
-            LuaComponent luaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-            if (luaComponent != null && luaComponent.LuaApplicationPauseFromCSEventDelegate != null)
-            {
-                luaComponent.LuaApplicationPauseFromCSEventDelegate(pause);
-            }
+            // cmd 统一分发到 Lua（cmd: 1011 应用暂停/唤醒）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaApplicationPauseFromCSEventDelegate,
+                new ApplicationPause { Pause = pause },
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
         }
 
         /// <summary>
@@ -119,11 +118,11 @@ namespace Honor.Runtime
         /// </summary>
         public void OnApplicationQuit()
         {
-            LuaComponent luaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-            if (luaComponent != null && luaComponent.LuaApplicationQuitFromCSEventDelegate != null)
-            {
-                luaComponent.LuaApplicationQuitFromCSEventDelegate();
-            }
+            // cmd 统一分发到 Lua（cmd: 1012 应用退出）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaApplicationQuitFromCSEventDelegate,
+                new ApplicationQuit(),
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
+
             Log.Info("APP退出。");
         }
         #endregion

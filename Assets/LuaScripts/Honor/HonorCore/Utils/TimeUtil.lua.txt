@@ -1,14 +1,16 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
--- filename:   TimeUtil.lua
--- author:     云毅
--- created:    2026
--- @brief     时间工具类（对齐参考框架 Utils/TimeUtil）
--- @desc      提供时间间隔格式化等通用工具，
---            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
--- @dependency StringUtil（mstr 模板拼接）
+--=====================================================================================================
+-- filename:  TimeUtil.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   时间工具（时间间隔格式化与时间字符串解析）
+-- 功能：
+-- 1. TransformTimeIntervalToFormat 时间间隔格式化输出
+-- 2. ParseTimeString/GetSecondsByString 时间描述字符串转秒
+-- 3. GetAcrossDayNumBetweenTimeStamps 两时间戳跨天天数
+-- 架构：纯工具表（---@class TimeUtil），依赖同域 StringUtil（mstr 模板拼接）
+-- @note  原 SystemFuncs 同名全局函数统一委托到本模块
 --=====================================================================================================
 
 ---@class TimeUtil 时间工具类

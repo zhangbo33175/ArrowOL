@@ -1,12 +1,16 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  SpineUtil.lua
--- author:    Honor.Runtime
+-- filename:  SpineUtil.lua.txt
+-- author:    云毅
 -- created:   2026
--- @brief     Spine 动画工具类
--- @desc      从 GameFunctions 拆分的 Spine 通用工具：时长获取、播放、状态控制、显示-Idle-隐藏整套动画
--- @dependency Spine, DG.Tweening
+-- descrip:   Spine 动画工具（时长获取、播放控制、显示-Idle-隐藏整套动画）
+-- 功能：
+-- 1. GetSpineAnimationDuration/Graphic 动画时长查询
+-- 2. HasSpineAnimation/Play/DelayPlay 播放控制
+-- 3. PlaySpineShowIdleHide 整套显示-待机-隐藏动画流程
+-- 架构：纯工具表，依赖 Spine/DG.Tweening 与同域 CoUtil/UnityUtil
+-- @note  安全调用/空判断走同域工具，避免依赖业务层全局
 --=====================================================================================================
 
 local SpineUtil = {}

@@ -597,11 +597,13 @@ ECustomTweenID = {
 ---@field MUSIC string 音乐开关
 ---@field SOUND string 音效开关
 ---@field NOTIFICATION string 推送开关
+---@field VIBRATION string 震动开关
 ---@field LANGUAGE string 语言索引
 ESettingType = {
     MUSIC = "closeMusic",
     SOUND = "closeSound",
     NOTIFICATION = "closeNotification",
+    VIBRATION = "closeVibration",
     LANGUAGE = "langIndex",
 }
 

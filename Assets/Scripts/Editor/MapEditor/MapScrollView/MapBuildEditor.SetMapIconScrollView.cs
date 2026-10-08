@@ -13,7 +13,6 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Editor.MapEditor
 {
@@ -23,11 +22,6 @@ namespace Editor.MapEditor
     public sealed partial class MapBuildEditor
     {
         #region 图标列表私有字段
-        /// <summary>
-        /// 当前在图标列表中选中的UI元素（VisualElement版本，用于新版UIToolkit）
-        /// </summary>
-        private VisualElement _selectedItem;
-
         /// <summary>
         /// 当前选中的图标/图片资源路径（用于记录选中的预制体/图片地址）
         /// </summary>
@@ -69,29 +63,34 @@ namespace Editor.MapEditor
         private readonly Color _normalBgColor = new Color(0.9f, 0.9f, 0.9f, 0.1f);
 
         /// <summary>
-        /// 图标列表是否已完成初始化（避免重复加载）
+        /// 图标列表是否已完成初始化（避免重复加载；数据变更时置 false 强制刷新）
         /// </summary>
         private bool m_IsInitIconList = false;
+
+        /// <summary>
+        /// 图标列表项文字样式（字段级缓存，避免每个 Item 每帧 new GUIStyle 造成 GC）
+        /// </summary>
+        private GUIStyle _iconLabelStyle;
         #endregion
 
         #region 图标列表核心方法
         /// <summary>
         /// 【核心方法】初始化/刷新图标列表
-        /// 加载所有图标资源、创建列表项、绑定选中事件、设置列表显示内容
+        /// 首次调用时绘制列表并置缓存标记；数据变更（SetIconItem / GetIconPath）会重置标记强制刷新
         /// </summary>
         private void OnSetIconList()
         {
             if (!m_IsInitIconList)
             {
                 DrawIconPreviewList();
-                //m_IsInitIconList = true;
+                m_IsInitIconList = true; // 启用缓存：图标列表仅在数据变更时重绘，避免每帧重建
             }
         }
 
         /// <summary>
         /// 根据文件夹路径加载并生成图标数据
         /// </summary>
-        /// <param name="folderPath">图标资源文件夹路径</param>
+        /// <param name="folderPath">图标资源文件夹路径；为空时弹出文件夹选择框</param>
         private void GetIconPath(string folderPath)
         {
             try
@@ -104,9 +103,13 @@ namespace Editor.MapEditor
 
                 _selectedImagePath = folderPath;
                 ClearAllItemElements();
+
+                // 数据已变更，强制图标列表下一次重绘
+                m_IsInitIconList = false;
+
                 string[] imageExtensions = new[] { ".png", ".jpg", ".jpeg", ".tga", ".bmp" };
                 string[] imageFiles = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly)
-                    .Where(file => imageExtensions.Contains(System.IO.Path.GetExtension(file).ToLower()))
+                    .Where(file => imageExtensions.Contains(Path.GetExtension(file).ToLower()))
                     .ToArray();
 
                 if (imageFiles.Length == 0)
@@ -119,7 +122,7 @@ namespace Editor.MapEditor
                 {
                     try
                     {
-                        // 读取图片文件为Texture2D（用于预览）
+                        // 读取图片文件为 Texture2D（用于预览）
                         byte[] fileData = File.ReadAllBytes(imagePath);
                         Texture2D tex = new Texture2D(2, 2);
                         tex.LoadImage(fileData); // 自动适配图片尺寸
@@ -129,12 +132,12 @@ namespace Editor.MapEditor
                         {
                             m_IconName = Path.GetFileNameWithoutExtension(imagePath), // 不含后缀的文件名
                             m_IconAssetPath = imagePath,
-                            m_IsChoose = false, // 默认未选中
+                            m_IsChoose = false,  // 默认未选中
                             m_Type = RMapIconType.Dissipate,
                             m_ID = 1
                         });
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         Debug.LogError($"加载图片失败：{imagePath} \n错误：{ex.Message}");
                     }
@@ -143,12 +146,12 @@ namespace Editor.MapEditor
             catch (Exception e)
             {
                 EditorUtility.DisplayDialog("异常", $"生成Item失败：{e.Message}", "确定");
-                Debug.LogError($"OnItemBtnClicked异常：{e}");
+                Debug.LogError($"GetIconPath 异常：{e}");
             }
         }
 
         /// <summary>
-        /// 绘制ICON预览列表（修复重叠，正确自动换行）
+        /// 绘制 ICON 预览列表（修复重叠，正确自动换行）
         /// </summary>
         private void DrawIconPreviewList()
         {
@@ -171,7 +174,7 @@ namespace Editor.MapEditor
                     GUILayout.BeginVertical(); // 新行
                 }
 
-                // 绘制一个Item
+                // 绘制一个 Item
                 CreateIconItem(data, currentCount + 1);
                 currentCount++;
 
@@ -194,7 +197,7 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 绘制单个ICON Item（支持点击选中，适配截图样式）
+        /// 绘制单个 ICON Item（支持点击选中，适配截图样式）
         /// </summary>
         /// <param name="dataEditor">图标数据</param>
         /// <param name="index">列表项索引</param>
@@ -231,13 +234,18 @@ namespace Editor.MapEditor
                 itemRect.height
             );
 
-            GUIStyle labelStyle = new GUIStyle(EditorStyles.label)
+            // 复用字段级样式，避免逐项逐帧分配 GUIStyle
+            if (_iconLabelStyle == null)
             {
-                alignment = TextAnchor.MiddleLeft,
-                fontSize = 13,
-                normal = { textColor = Color.white }
-            };
-            GUI.Label(labelRect, dataEditor.m_IconName, labelStyle);
+                _iconLabelStyle = new GUIStyle(EditorStyles.label)
+                {
+                    alignment = TextAnchor.MiddleLeft,
+                    fontSize = 13,
+                    normal = { textColor = Color.white }
+                };
+            }
+
+            GUI.Label(labelRect, dataEditor.m_IconName, _iconLabelStyle);
 
             // 点击事件
             Event e = Event.current;
@@ -309,7 +317,7 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 清空所有Item元素与列表数据
+        /// 清空所有 Item 元素与列表数据
         /// </summary>
         private void ClearAllItemElements()
         {

@@ -1,17 +1,16 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
--- filename:   HonorCoreManager.lua
--- author:     云毅
--- created:    2026
--- @brief     HonorCore 核心管理器（框架核心统一入口）
--- @desc      统一持有核心工具模块（Utils），提供框架核心的初始化/清理钩子，
---            对齐参考框架 HonorCore/Common/ManagerContainer 的 Core 层职责。
---            业务层通过 HonorCoreManager 集中访问框架核心工具，避免分散 require。
--- @dependency Utils/*（TableUtil/StringUtil/TimeUtil/UTF8Util/LuaUtil/UnityUtil/TweenUtil/SpineUtil/StarFlyUtil/ScreenUtil/UIAdaptUtil/BoundsUtil/CoUtil/LevelUtil/QuestUtil/DataParseUtil/RewardUtil/TrackUtil/ActivityUtil）
--- @note      单例实例由业务层 GameRequires 创建（全局 SingletonManager），
---            其生命周期清理不在此强委托，避免类/实例引用陷阱。
+--=====================================================================================================
+-- filename:  HonorCoreManager.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   框架核心统一管理器（集中装配 Utils 工具模块，提供核心初始化/清理钩子）
+-- 功能：
+-- 1. 集中装配框架核心工具模块（Table/String/Time/Unity/Tween/Spine 等 Utils）
+-- 2. 通过 HonorCoreManager.Tools.XXX 统一暴露核心工具，避免业务层分散 require
+-- 3. 提供 Init / Cleanup 生命周期钩子，供启动与切号、重启时统一调用
+-- 架构：全局表 + Tools 子表懒 require 各 Utils（纯工具模块，无需实例化）
+-- @note  单例实例由业务层 GameRequires 创建（全局 SingletonManager），本类不重复持有实例，避免类/实例引用陷阱。
 --=====================================================================================================
 
 ---@class HonorCoreManager 核心管理器（全局唯一，核心能力统一入口）

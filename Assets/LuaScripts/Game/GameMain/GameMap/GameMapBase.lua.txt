@@ -393,10 +393,25 @@ function GameMapBase:LoadCharacterByMapData()
             goto continue
         end
 
-        -- 读取角色静态表并刷新图标精灵
+        -- 读取角色静态表（保留角色生成所需配置）
         local catData = CharacterGenerationDataManager:GetDataById(v.Id)
-        if catData and catData.Icon then
-            GamePlayHelper:RefreshImageSprite(CharacterBase, uiImage, catData.Icon)
+
+        -- 刷新图标：优先用地图配置的 v.Sprite（每个物件各自的猫图），否则回退角色表 Icon
+        -- v.Sprite 可能是完整路径（Assets/Res/.../sc_2_cat_1.png）或纯名（sc_2_cat_1），
+        -- RefreshImageSprite 需要别名：含路径时提取文件名(去扩展名)，纯名时直接使用。
+        local spriteName = nil
+        if v.Sprite and v.Sprite ~= '' then
+            if string.find(v.Sprite, '/') then
+                spriteName = string.match(v.Sprite, "([^/]+)%.%w+$") or v.Sprite
+            else
+                spriteName = v.Sprite
+            end
+        end
+        if (not spriteName) and catData and catData.Icon then
+            spriteName = catData.Icon
+        end
+        if spriteName then
+            GamePlayHelper:RefreshImageSprite(CharacterBase, uiImage, spriteName)
         end
 
         -- 存入全局角色管理列表（列表可能为空表，需判空兜底）

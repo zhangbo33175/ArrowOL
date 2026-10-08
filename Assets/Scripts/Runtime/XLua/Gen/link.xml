@@ -96,6 +96,27 @@
 		<type fullname="Honor.Runtime.DirectoryWatcher" preserve="all"/>
 		<type fullname="Honor.Runtime.FileOperation" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaFileWatcher" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolBridge" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolCmd" preserve="all"/>
+		<type fullname="Honor.Runtime.CreateLuaClass" preserve="all"/>
+		<type fullname="Honor.Runtime.CreateProcedureLuaClass" preserve="all"/>
+		<type fullname="Honor.Runtime.ApplicationPause" preserve="all"/>
+		<type fullname="Honor.Runtime.ApplicationQuit" preserve="all"/>
+		<type fullname="Honor.Runtime.KeysUp" preserve="all"/>
+		<type fullname="Honor.Runtime.ReceiveEvent" preserve="all"/>
+		<type fullname="Honor.Runtime.RelateLocalizationTableData" preserve="all"/>
+		<type fullname="Honor.Runtime.GetResDefInfo" preserve="all"/>
+		<type fullname="Honor.Runtime.Localizing" preserve="all"/>
+		<type fullname="Honor.Runtime.WebSocketOpen" preserve="all"/>
+		<type fullname="Honor.Runtime.WebSocketMessageReceived" preserve="all"/>
+		<type fullname="Honor.Runtime.WebSocketBinaryReceived" preserve="all"/>
+		<type fullname="Honor.Runtime.WebSocketClosed" preserve="all"/>
+		<type fullname="Honor.Runtime.WebSocketError" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolDataBase" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolErrorData" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolDataMap" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolDispatcher" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolRunTime" preserve="all"/>
 		<type fullname="Honor.Runtime.PersistComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.PersistWayType" preserve="all"/>
 		<type fullname="Honor.Runtime.FileFragmentItemGroup" preserve="all"/>
@@ -157,6 +178,7 @@
 		<type fullname="Honor.Runtime.UIWebGLWebView" preserve="all"/>
 		<type fullname="Honor.Runtime.DefLayer" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorDef" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorUtils" preserve="all"/>
 		<type fullname="Honor.Runtime.Platform" preserve="all"/>
 		<type fullname="Honor.Runtime.ResPaths" preserve="all"/>
 		<type fullname="Honor.Runtime.EventDelegate" preserve="all"/>
@@ -204,6 +226,7 @@
 		<type fullname="Honor.Runtime.LauncherComponent+DevicePerformanceData" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaBindValue+BindValueType" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaInjection+InjectionType" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolDispatcher+LuaProtocolReceiveType" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFader+InitState" preserve="all"/>
 		<type fullname="Honor.Runtime.GamePathUtils+AppDownload" preserve="all"/>
 		<type fullname="Honor.Runtime.GamePathUtils+AB" preserve="all"/>

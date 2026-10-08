@@ -1,0 +1,69 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ProtocolUtil.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   协议通讯公共工具（Protocols 模块复用）
+-- 功能：
+-- 1. GetRunTime 获取 C# LuaProtocolRunTime 静态门面
+-- 2. IsValidCmd / IsValidHandler 协议号与回调参数校验
+-- 3. SafeCall 安全调用（xpcall 包装，捕获异常不中断执行流）
+-- 架构：被 ProtocolSender / ProtocolReceiver / ProtocolCallback 复用
+-- @note 依赖 CS.Honor.Runtime 命名空间；C# 门面未注入时静默返回 nil
+--=====================================================================================================
+
+---@class ProtocolUtil
+---协议通讯公共工具：收拢 Sender / Receiver / Callback 的公共方法与校验逻辑
+local ProtocolUtil = {}
+
+--region C# 门面获取
+
+---@brief 获取 C# 静态门面 LuaProtocolRunTime
+---@desc C# 侧未注入时返回 nil 并打印告警，调用方据此跳过发送
+---@return any|nil C# 门面；未注入返回 nil
+function ProtocolUtil.GetRunTime()
+    local rt = CS and CS.Honor and CS.Honor.Runtime and CS.Honor.Runtime.LuaProtocolRunTime
+    if rt == nil then
+        print("[ProtocolUtil] C# 门面 LuaProtocolRunTime 未注入")
+    end
+    return rt
+end
+
+--endregion
+
+--region 参数校验
+
+---@brief 校验协议号是否有效
+---@param cmd any 待校验协议号
+---@return boolean 有效返回 true
+function ProtocolUtil.IsValidCmd(cmd)
+    return cmd ~= nil and type(cmd) == "number"
+end
+
+---@brief 校验处理回调是否有效
+---@param handler any 待校验处理回调
+---@return boolean 有效返回 true
+function ProtocolUtil.IsValidHandler(handler)
+    return handler ~= nil and type(handler) == "function"
+end
+
+--endregion
+
+--region 安全调用
+
+---@brief 安全调用（xpcall 包装）
+---@desc 捕获被调函数异常并打印，不向上抛断执行流
+---@param fn function 待调用函数
+---@param ... any 透传参数
+---@return boolean ok 是否调用成功
+---@return any 被调函数返回值（失败为错误信息）
+function ProtocolUtil.SafeCall(fn, ...)
+    return xpcall(fn, function(err)
+        print("[ProtocolUtil] 安全调用异常 err:" .. tostring(err))
+    end, ...)
+end
+
+--endregion
+
+return ProtocolUtil

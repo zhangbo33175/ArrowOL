@@ -1,0 +1,130 @@
+--[[
+(c) copyright 2026 - 2030, Honor.Runtime
+
+功能描述：HonorDolphin 热更新模块
+说明：
+其它相关：
+修改记录：
+--]]
+
+---@class HonorDolphin
+local HonorDolphin = {}
+
+--region 依赖引入
+local SGCloudSDKProtocol = require("Game.GameSDK.HonorSDK.SGCloudSDKProtocol")
+--endregion
+
+--region 热更新接口
+
+---@brief 资源修复
+---@param callback function 资源修复回调
+local function CSGHonorSDKDolphinResourceRepair(callback)
+    local reqBody = {}
+    local data = json.encode(reqBody)
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinResourceRepair, data, callback)
+    end
+end
+
+---@brief 灰度更新
+---@param userId string 玩家ID
+---@param serverId string 服务器 id（指在挂接中心的 id）
+---@param callback function 灰度更新回调
+local function CSGHonorSDKDolphinGrayUpdate(userId, serverId, callback)
+    local reqBody = {}
+    reqBody.UserId = tostring(userId)
+    reqBody.WorldId = tostring(serverId)
+    local data = json.encode(reqBody)
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinGrayUpdate, data, callback)
+    end
+end
+
+---@brief 绑定更新回调
+---@param callback function 更新消息回调
+local function CSGHonorSDKDolphinBindPushMethod(callback)
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.BindPushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinSourceCheck, callback)
+        SGHonorSDKImpl.BindPushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinUpdateMessage, callback)
+        SGHonorSDKImpl.BindPushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinUpdateSuccess, callback)
+        SGHonorSDKImpl.BindPushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinUpdatePer, callback)
+    end
+end
+
+---@brief 解绑更新回调
+local function CSGHonorSDKDolphinRemovePushMethod()
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.RemovePushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinSourceCheck)
+        SGHonorSDKImpl.RemovePushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinUpdateMessage)
+        SGHonorSDKImpl.RemovePushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinUpdateSuccess)
+        SGHonorSDKImpl.RemovePushMethod(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinUpdatePer)
+    end
+end
+
+---@brief 检查热更新
+---@param updateType number 更新类型
+---@param callback function 检查热更新回调
+local function CSGHonorSDKDolphinStartUpdate(updateType, callback)
+    local reqBody = {}
+    reqBody.UpdateType = updateType
+    reqBody.CurrentProgramVersion = SGCloudSDKUtils.GetDolphinAppVersion()
+    reqBody.CurrentResourceVersion = SGCloudSDKUtils.GetDolphinResourceVersion()
+    local data = json.encode(reqBody)
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinStartUpdate, data, callback)
+    end
+end
+
+---@brief 取消更新
+---@param callback function 取消更新回调
+local function CSGHonorSDKDolphinCancelUpdate(callback)
+    local reqBody = {}
+    local data = json.encode(reqBody)
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinCancelUpdate, data, callback)
+    end
+end
+
+---@brief 继续更新
+---@param callback function 继续更新回调
+local function CSGHonorSDKContinueUpdate(callback)
+    local reqBody = {}
+    local data = json.encode(reqBody)
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinContiue, data, callback)
+    end
+end
+
+---@brief 检查是否存在更新信息
+---@param serverId string 服务器 id
+---@param callback function 查询回调
+local function CSGHonorSDKCheckHasUpdateInfo(serverId, callback)
+    local reqBody = {}
+    reqBody.serverId = serverId
+    local data = json.encode(reqBody)
+    if GameCfg.IsSDK then
+        SGHonorSDKImpl.Request(SGCloudSDKProtocol.CloudSDKProtocol.P_GCloudDolphinCheckHasUpdate, data, callback)
+    end
+end
+--endregion
+
+--region 模块导出
+---检查热更新
+HonorDolphin.CSGHonorSDKCheckHasUpdateInfo = CSGHonorSDKCheckHasUpdateInfo
+---取消更新
+HonorDolphin.CSGHonorSDKDolphinCancelUpdate = CSGHonorSDKDolphinCancelUpdate
+---继续更新
+HonorDolphin.CSGHonorSDKContinueUpdate = CSGHonorSDKContinueUpdate
+---解绑更新回调
+HonorDolphin.CSGHonorSDKDolphinRemovePushMethod = CSGHonorSDKDolphinRemovePushMethod
+---绑定更新回调
+HonorDolphin.CSGHonorSDKDolphinBindPushMethod = CSGHonorSDKDolphinBindPushMethod
+---灰度更新
+HonorDolphin.CSGHonorSDKDolphinGrayUpdate = CSGHonorSDKDolphinGrayUpdate
+---资源修复
+HonorDolphin.CSGHonorSDKDolphinResourceRepair = CSGHonorSDKDolphinResourceRepair
+---检查热更新
+HonorDolphin.CSGHonorSDKDolphinStartUpdate = CSGHonorSDKDolphinStartUpdate
+--endregion
+
+return HonorDolphin

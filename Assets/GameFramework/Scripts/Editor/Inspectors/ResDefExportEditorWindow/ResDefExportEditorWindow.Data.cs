@@ -265,7 +265,17 @@ namespace Honor.Editor
             /// <summary>
             /// 导出失败 - 重名
             /// </summary>
-            ExportFailedToSameName = 2
+            ExportFailedToSameName = 2,
+
+            /// <summary>
+            /// 加载失败 - 未匹配到 AB 映射（资源未纳入任何 AB 配置）
+            /// </summary>
+            LoadFailed = 3,
+
+            /// <summary>
+            /// 追加跳过 - 别名已存在于配置库（非失败，仅避免重复）
+            /// </summary>
+            ExportFailedExist = 4
         }
         #endregion
     }

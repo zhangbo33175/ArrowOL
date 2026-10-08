@@ -1,0 +1,54 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ProtocolCmd.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   协议命令定义（对齐 C# LuaProtocolCmd）
+-- 功能：
+-- 1. 定义 C# <-> Lua 协议互通 cmd 链接 ID
+-- 2. 按业务区间分组（类创建 / 应用输入 / 登录授权 / 事件资源本地化 / WebSocket）
+-- 3. 与 C# LuaProtocolCmd 枚举一一对应
+-- 架构：Lua 全局表 + return，供 StartGame / ProtocolCallback / ProtocolReceiver / ProtocolSender 引用
+-- @note 协议号与 C# LuaProtocolCmd 及 Docs/ProgramConfig/ProtoPB/Protocol.pb 同步
+--=====================================================================================================
+
+---@class ProtocolCmd
+---协议命令表：C# LuaProtocolCmd 的 Lua 侧映射
+ProtocolCmd = {
+    ---@class ProtocolCmd.Cmd
+    ---协议命令号，按业务区间分组
+    Cmd = {
+        --region ① 类创建 / 生命周期 1001 - 1010
+        P_LuaCreateLuaClassFromCSEventDelegate = 1001, -- 创建 LuaBehaviour 类，绑定生命周期
+        P_LuaCreateProcedureLuaClassFromCSEventDelegate = 1002, -- 创建流程（Procedure）Lua 类
+        --endregion
+
+        --region ② 应用 / 输入 1011 - 1020
+        P_LuaApplicationPauseFromCSEventDelegate = 1011, -- 应用暂停 / 唤醒回调
+        P_LuaApplicationQuitFromCSEventDelegate = 1012, -- 应用退出回调
+        P_LuaKeysUpFromCSEventDelegate = 1013, -- 键盘按键抬起回调
+        --endregion
+
+        --region ③ 登录授权 1021 - 1030
+        P_LuaSignInWithAppleCSEventDelegate = 1021, -- Apple / Google 登录结果回调
+        P_LuaSignInWithAppleStateCSEventDelegate = 1022, -- 登录状态查询回调
+        --endregion
+
+        --region ④ 事件 / 资源 / 本地化 1031 - 1040
+        P_LuaReceiveEventCSEventDelegate = 1031, -- C# 事件派发回调（EventParams 承载）
+        P_LuaRelateLocalizationTableDataFromCSEventDelegate = 1032, -- 本地化语言表数据关联回调
+        P_LuaGetResDefInfoEventDelegate = 1033, -- 获取资源定义信息回调
+        P_LuaLocalizingCSEventDelegate = 1034, -- UI 本地化文本获取回调
+        --endregion
+
+        --region ⑤ WebSocket 1041 - 1050
+        P_LuaWebSocketOpenCSEventDelegate = 1041, -- WebSocket 建立成功回调
+        P_LuaWebSocketMessageReceivedCSEventDelegate = 1042, -- WebSocket 文本消息接收回调
+        P_LuaWebSocketBinaryReceivedCSEventDelegate = 1043, -- WebSocket 字节流消息接收回调
+        P_LuaWebSocketClosedCSEventDelegate = 1044, -- WebSocket 关闭回调
+        P_LuaWebSocketErrorCSEventDelegate = 1045, -- WebSocket 错误回调
+        --endregion
+    },
+}
+return ProtocolCmd

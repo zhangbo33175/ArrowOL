@@ -5,17 +5,26 @@
 -- filename:  UISettingView.lua
 -- author:    云毅
 -- descrip:   设置界面
+-- @brief     音乐/音效/震动开关设置面板
+-- @desc      三个开关按钮点击切换开/关显示（Open/Close 节点切换显隐），初始按存档状态显示（缺省默认开启）；
+--            状态变更经 SettingDataManager 存档并同步声音。
 --=====================================================================================================
 
 ---@class UISettingView : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field IDText                             TMPro.TextMeshProUGUI         √                        ID信息
----@field BG                                 UnityEngine.UI.Button         √         Clicked        背景关闭
----@field CloseButton                        UnityEngine.UI.Button         √         Clicked        关闭按钮
----@field MusicGameObject                    UnityEngine.GameObject[]      √                        音乐展示
----@field SoundGameObject                    UnityEngine.GameObject[]      √                        音效展示
----@field VibrationGameObject                UnityEngine.GameObject[]      √                        震动展示
----@field NameText                           UnityEngine.GameObject        √                        名字信息
+---@field cs                                 Honor.Runtime.LuaBehaviour        √                        LuaBehaviour
+---@field IDText                             TMPro.TextMeshProUGUI            √                        ID信息
+---@field NameText                           UnityEngine.GameObject           √                        名字信息
+---@field BG                                 UnityEngine.UI.Button            √         Clicked        背景关闭
+---@field CloseButton                        UnityEngine.UI.Button            √         Clicked        关闭按钮
+---@field MusicButton                        UnityEngine.UI.Button            √         Clicked        音乐开关按钮
+---@field MusicOpen                          UnityEngine.GameObject           √                        音乐开启显示
+---@field MusicClose                         UnityEngine.GameObject           √                        音乐关闭显示
+---@field SoundButton                        UnityEngine.UI.Button            √         Clicked        音效开关按钮
+---@field SoundOpen                          UnityEngine.GameObject           √                        音效开启显示
+---@field SoundClose                         UnityEngine.GameObject           √                        音效关闭显示
+---@field VibrationButton                     UnityEngine.UI.Button            √         Clicked        震动开关按钮
+---@field VibrationOpen                       UnityEngine.GameObject           √                        震动开启显示
+---@field VibrationClose                      UnityEngine.GameObject           √                        震动关闭显示
 local UISettingView = class('UISettingView', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
@@ -48,17 +57,25 @@ end
 ---唤醒
 ---@type fun():void
 ---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
---TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
 function UISettingView:Awake()
     UISettingView.super.Awake(self)
+
+    -- 背景 / 关闭按钮
     self:AddUIListener(self.BG, 'Clicked', Bind(self, self.OnBGClicked))
     self:AddUIListener(self.CloseButton, 'Clicked', Bind(self, self.OnCloseButtonClicked))
+
+    -- 音乐 / 音效 / 震动 开关按钮
+    self:AddUIListener(self.MusicButton, 'Clicked', Bind(self, self.OnMusicButtonClicked))
+    self:AddUIListener(self.SoundButton, 'Clicked', Bind(self, self.OnSoundButtonClicked))
+    self:AddUIListener(self.VibrationButton, 'Clicked', Bind(self, self.OnVibrationButtonClicked))
 end
 
 ---开始
 ---@type fun():void
+---@desc 打开面板时按存档状态刷新三个开关的显示（缺省存档为开启，即显示 Open 节点）
 function UISettingView:Start()
     UISettingView.super.Start(self)
+    self:RefreshAllToggleDisplay()
 end
 
 ---销毁
@@ -109,6 +126,76 @@ end
 ---@type fun(args:any):void
 function UISettingView:OnCloseButtonClicked(args)
     CloseUI(UIs.UISettingView)
+end
+
+---音乐开关按钮-交互回调
+---@type fun(args:any):void
+function UISettingView:OnMusicButtonClicked(args)
+    self:ToggleSetting(ESettingType.MUSIC, self.MusicOpen, self.MusicClose)
+end
+
+---音效开关按钮-交互回调
+---@type fun(args:any):void
+function UISettingView:OnSoundButtonClicked(args)
+    self:ToggleSetting(ESettingType.SOUND, self.SoundOpen, self.SoundClose)
+end
+
+---震动开关按钮-交互回调
+---@type fun(args:any):void
+function UISettingView:OnVibrationButtonClicked(args)
+    self:ToggleSetting(ESettingType.VIBRATION, self.VibrationOpen, self.VibrationClose)
+end
+
+--endregion
+
+--region 【开关逻辑】
+
+---翻转指定设置类型的开关状态并刷新显示
+---@type fun(settingType:string, openObj:UnityEngine.GameObject, closeObj:UnityEngine.GameObject):void
+---@param settingType string @设置类型键（ESettingType.MUSIC / SOUND / VIBRATION）
+---@param openObj UnityEngine.GameObject @开启状态显示节点（可为 nil，防御空绑定）
+---@param closeObj UnityEngine.GameObject @关闭状态显示节点（可为 nil）
+function UISettingView:ToggleSetting(settingType, openObj, closeObj)
+    -- 安全校验
+    if not settingType or SettingDataManager == nil then
+        PrintError("[UISettingView] 切换设置失败：settingType 或 SettingDataManager 为空")
+        return
+    end
+
+    -- 读取当前状态并取反
+    local newState = not SettingDataManager:GetSettingState(settingType)
+
+    -- 存档 + 同步声音（MUSIC/SOUND 由 SettingDataManager 内部同步 SoundMgr）
+    SettingDataManager:SetSettingNewState(settingType, newState)
+
+    -- 刷新开关显示
+    self:ApplyToggleDisplay(openObj, closeObj, newState)
+end
+
+---按当前存档状态刷新三个开关的显示
+---@type fun():void
+function UISettingView:RefreshAllToggleDisplay()
+    if SettingDataManager == nil then
+        PrintError("[UISettingView] 刷新开关显示失败：SettingDataManager 为空")
+        return
+    end
+
+    self:ApplyToggleDisplay(self.MusicOpen, self.MusicClose,
+        SettingDataManager:GetSettingState(ESettingType.MUSIC))
+    self:ApplyToggleDisplay(self.SoundOpen, self.SoundClose,
+        SettingDataManager:GetSettingState(ESettingType.SOUND))
+    self:ApplyToggleDisplay(self.VibrationOpen, self.VibrationClose,
+        SettingDataManager:GetSettingState(ESettingType.VIBRATION))
+end
+
+---将开关显示应用到 Open/Close 节点
+---@type fun(openObj:UnityEngine.GameObject, closeObj:UnityEngine.GameObject, on:boolean):void
+---@param openObj UnityEngine.GameObject @开启状态显示节点
+---@param closeObj UnityEngine.GameObject @关闭状态显示节点
+---@param on boolean @当前是否开启
+function UISettingView:ApplyToggleDisplay(openObj, closeObj, on)
+    if openObj then openObj:SetActive(on) end
+    if closeObj then closeObj:SetActive(not on) end
 end
 
 --endregion

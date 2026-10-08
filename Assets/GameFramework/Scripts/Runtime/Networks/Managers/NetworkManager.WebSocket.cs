@@ -157,11 +157,10 @@ namespace Honor.Runtime
         private void HandleSocketOpened(WebSocket socket)
         {
             Log.Info($"[Network]WebSocket连接({socket.Name})建立成功。");
-            // 通知 Lua 层
-            if (m_LuaBridge.LuaWebSocketOpenCSEventDelegate != null)
-            {
-                m_LuaBridge.LuaWebSocketOpenCSEventDelegate(socket);
-            }
+            // cmd 统一分发到 Lua（cmd: 1041 WebSocket 建立成功）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaWebSocketOpenCSEventDelegate,
+                new WebSocketOpen { Socket = socket },
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
         }
 
         /// <summary>
@@ -170,10 +169,10 @@ namespace Honor.Runtime
         private void HandleSocketTextReceived(WebSocket socket, string message)
         {
             Log.Info($"[Network]WebSocket连接({socket.Name})收到文本信息。Message = {message}。");
-            if (m_LuaBridge.LuaWebSocketMessageReceivedCSEventDelegate != null)
-            {
-                m_LuaBridge.LuaWebSocketMessageReceivedCSEventDelegate(socket, message);
-            }
+            // cmd 统一分发到 Lua（cmd: 1042 WebSocket 文本消息接收）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaWebSocketMessageReceivedCSEventDelegate,
+                new WebSocketMessageReceived { Socket = socket, Message = message },
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
         }
 
         /// <summary>
@@ -182,10 +181,10 @@ namespace Honor.Runtime
         private void HandleSocketBinaryReceived(WebSocket socket, byte[] datas)
         {
             Log.Info($"[Network]WebSocket连接({socket.Name})收到字节流信息。Datas = {datas}。");
-            if (m_LuaBridge.LuaWebSocketBinaryReceivedCSEventDelegate != null)
-            {
-                m_LuaBridge.LuaWebSocketBinaryReceivedCSEventDelegate(socket, datas);
-            }
+            // cmd 统一分发到 Lua（cmd: 1043 WebSocket 字节流消息接收）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaWebSocketBinaryReceivedCSEventDelegate,
+                new WebSocketBinaryReceived { Socket = socket, Datas = datas },
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
         }
 
         /// <summary>
@@ -197,10 +196,10 @@ namespace Honor.Runtime
             Log.Info($"[Network]WebSocket连接({socket.Name})连接关闭。Code = {code}，Message = {message}。");
             // 从管理字典中移除（不存在时 Remove 无副作用）
             m_SocketTable.Remove(socket.Name);
-            if (m_LuaBridge.LuaWebSocketClosedCSEventDelegate != null)
-            {
-                m_LuaBridge.LuaWebSocketClosedCSEventDelegate(socket, code, message);
-            }
+            // cmd 统一分发到 Lua（cmd: 1044 WebSocket 关闭）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaWebSocketClosedCSEventDelegate,
+                new WebSocketClosed { Socket = socket, Code = code, Message = message },
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
         }
 
         /// <summary>
@@ -211,10 +210,10 @@ namespace Honor.Runtime
         {
             Log.Warning($"[Network]WebSocket连接({socket.Name})发生错误。Error = {error}。");
             m_SocketTable.Remove(socket.Name);
-            if (m_LuaBridge.LuaWebSocketErrorCSEventDelegate != null)
-            {
-                m_LuaBridge.LuaWebSocketErrorCSEventDelegate(socket, error);
-            }
+            // cmd 统一分发到 Lua（cmd: 1045 WebSocket 错误）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaWebSocketErrorCSEventDelegate,
+                new WebSocketError { Socket = socket, Error = error },
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
         }
 
         #endregion

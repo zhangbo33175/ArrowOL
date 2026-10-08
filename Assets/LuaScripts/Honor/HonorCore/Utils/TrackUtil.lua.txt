@@ -1,12 +1,15 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  TrackUtil.lua
--- author:    Honor.Runtime
+-- filename:  TrackUtil.lua.txt
+-- author:    云毅
 -- created:   2026
--- @brief     数据埋点工具类
--- @desc      从 GameFunctions 拆分：奖励获取统计上报
--- @dependency ResourceDataManager, AchievementSys, ThinkingAnalyticsHelper, CurrencyMgr
+-- descrip:   数据埋点工具（奖励获取统计上报）
+-- 功能：
+-- 1. TrackReward 单条奖励获取埋点上报
+-- 2. TrackRewardList 批量奖励列表埋点上报
+-- 架构：纯工具表，依赖 ResourceDataManager/AchievementSys/ThinkingAnalyticsHelper/CurrencyMgr
+-- @note  奖励获取行为统计上报入口
 --=====================================================================================================
 
 local TrackUtil = {}

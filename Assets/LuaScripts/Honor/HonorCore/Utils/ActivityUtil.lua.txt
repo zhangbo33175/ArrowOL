@@ -1,14 +1,15 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  ActivityUtil.lua
--- author:    Honor.Runtime
+-- filename:  ActivityUtil.lua.txt
+-- author:    云毅
 -- created:   2026
--- @brief     活动界面工具类
--- @desc      从 GameFunctions 拆分：加载关卡准备界面活动图标
--- @note      业务扩展工具（业务依赖）：依赖业务层 ActivityMgr/EventDataManager/PoolManager/RES 及活动枚举，
---            属业务能力收拢而非框架通用工具，仅在业务层已加载时可用
--- @dependency ActivityMgr, EventDataManager, PoolManager, RES
+-- descrip:   活动界面工具（关卡准备界面活动图标加载）
+-- 功能：
+-- 1. 加载关卡准备界面的活动图标 UI 并绑定 Lua 类
+-- 2. 按入口类型筛选可用活动并控制左右动画开关
+-- 架构：纯工具表，依赖业务层 ActivityMgr/EventDataManager/PoolManager/RES 及同域 UnityUtil
+-- @note  业务扩展工具，依赖业务层活动管理器与资源/事件系统，仅在业务层已加载时可用
 --=====================================================================================================
 
 local ActivityUtil = {}

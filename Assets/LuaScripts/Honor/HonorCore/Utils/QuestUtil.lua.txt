@@ -1,13 +1,15 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  QuestUtil.lua
--- author:    Honor.Runtime
+-- filename:  QuestUtil.lua.txt
+-- author:    云毅
 -- created:   2026
--- @brief     任务 / 事件派发工具类
--- @desc      从 GameFunctions 拆分：任务进度派发、清空事件
--- @note      事件派发依赖业务事件码 EventCmd（业务事件定义），仅业务层已加载时可用
--- @dependency HonorEventHelper, EventCmd
+-- descrip:   任务事件派发工具（任务进度更新与清空事件派发）
+-- 功能：
+-- 1. DispatchQuestProgressUpdate 派发任务进度更新事件
+-- 2. DispatchQuestProgressClear 派发任务进度清空事件
+-- 架构：纯工具表，依赖 HonorEventHelper 与业务事件码 EventCmd
+-- @note  事件派发依赖业务事件码定义，仅业务层已加载时可用
 --=====================================================================================================
 
 local QuestUtil = {}

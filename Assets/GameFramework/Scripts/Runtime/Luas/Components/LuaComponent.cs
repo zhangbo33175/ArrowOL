@@ -700,7 +700,7 @@ namespace Honor.Runtime
                     m_LoadedLuaScriptsNames.Add(fileName);
                     SetDebugFilePath(ref fileName);
                     TryHotReloadOverride(ref cachedBytes, fileName);
-                    return cachedBytes;
+                    return StripUtf8Bom(cachedBytes);
                 }
 
                 TextAsset asset = LoadLuaTextAsset(fileName, assetType);
@@ -730,6 +730,24 @@ namespace Honor.Runtime
                 m_AssetComponent.StrictCheck = true;
             }
 
+            return StripUtf8Bom(bytes);
+        }
+
+        /// <summary>
+        /// 去除 Lua 源码字节开头的 UTF-8 BOM（EF BB BF）
+        /// 防止带 BOM 的 .lua.txt 被 Lua 解析为非法符号（unexpected symbol near '&lt;\239&gt;'）
+        /// </summary>
+        /// <param name="bytes">Lua 源码字节</param>
+        /// <returns>去掉 BOM 后的字节；无 BOM 时原样返回</returns>
+        private static byte[] StripUtf8Bom(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length < 3) return bytes;
+            if (bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
+            {
+                byte[] stripped = new byte[bytes.Length - 3];
+                Array.Copy(bytes, 3, stripped, 0, bytes.Length - 3);
+                return stripped;
+            }
             return bytes;
         }
 

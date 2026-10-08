@@ -1,14 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
--- filename:   LuaUtil.lua
--- author:     云毅
--- created:    2026
--- @brief     Lua 通用工具类（对齐参考框架 Utils/LuaUtil）
--- @desc      提供 Lua 与 C# 数据类型互转等通用工具，
---            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
--- @dependency CS（xlua 全局运行时类型）
+--=====================================================================================================
+-- filename:  LuaUtil.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   Lua 通用工具（Lua↔C# 数据互转、JSON/Table 序列化、AES 加解密）
+-- 功能：
+-- 1. LuaTableToCSArray/CSList、CSDictionaryToLuaTable 类型互转
+-- 2. JsonEncode/JsonDecode（rapidjson）
+-- 3. TableEncode/TableDecode 序列化
+-- 4. AESEncode/Decode 加解密（Base64/Bytes）
+-- 架构：纯工具表（---@class LuaUtil），依赖 xlua 全局 CS 类型与 rapidjson
+-- @note  原 SystemFuncs 同名全局函数统一委托到本模块，业务零改动
 --=====================================================================================================
 
 ---@class LuaUtil Lua 通用工具类
