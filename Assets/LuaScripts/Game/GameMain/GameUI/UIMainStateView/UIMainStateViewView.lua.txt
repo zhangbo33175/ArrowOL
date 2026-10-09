@@ -103,6 +103,8 @@ end
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnSettingButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     OpenUISync(UIs.UISettingView)
 end
 
@@ -110,12 +112,16 @@ end
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnPlayAroundButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---关卡按钮-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnLevelButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     LevelManager:SetLevelMode(ELevelMode.NORMAL)
 end
 
@@ -123,6 +129,8 @@ end
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnDailyChallengeButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     LevelManager:SetLevelMode(ELevelMode.DAILY)
 end
 
@@ -130,12 +138,16 @@ end
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnSkinButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---排行按钮-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnRankingButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     OpenUISync(UIs.UIRankView)
 end
 
@@ -143,24 +155,32 @@ end
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnCheckInButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---转盘-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnTurntableButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---猫窝-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnCatBedButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---通关奖励-交互回调
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnInvitationButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
 
 --endregion

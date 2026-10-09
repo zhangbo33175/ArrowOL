@@ -25,7 +25,7 @@ local UnityUtil = {}
 ---@brief 获取对象池根节点 GameObject
 ---@return UnityEngine.GameObject 对象池根节点
 function UnityUtil.GetPoolRoot()
-    return Unity.GameObject.Find("PoolRoot")
+    return UnityEngine.GameObject.Find("PoolRoot")
 end
 
 ---@brief 创建一个新的对象池子节点
@@ -33,13 +33,13 @@ end
 function UnityUtil.CreateNewPoolRoot()
     local poolRootGo = UnityUtil.GetPoolRoot()
     if UnityUtil.IsNull(poolRootGo) then
-        poolRootGo = Unity.GameObject("PoolRoot")
+        poolRootGo = UnityEngine.GameObject("PoolRoot")
     end
 
-    local newRoot = Unity.GameObject("PoolNew")
+    local newRoot = UnityEngine.GameObject("PoolNew")
     newRoot.transform:SetParent(poolRootGo.transform)
-    newRoot.transform.localScale = Unity.Vector3.one
-    newRoot.transform.localPosition = Unity.Vector3.zero
+    newRoot.transform.localScale = UnityEngine.Vector3.one
+    newRoot.transform.localPosition = UnityEngine.Vector3.zero
     return newRoot
 end
 
@@ -195,14 +195,14 @@ function UnityUtil.StringToVector3(str)
         return UnityUtil.TableToVector3(str)
     end
     if not str or str == "" then
-        return CS.UnityEngine.Vector3.zero
+        return UnityEngine.Vector3.zero
     end
     str = string.gsub(str, "[{}%s\"]", "")
     local x, y, z = string.match(str, "([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)")
     x = tonumber(x) or 0
     y = tonumber(y) or 0
     z = tonumber(z) or 0
-    return CS.UnityEngine.Vector3(x, y, z)
+    return UnityEngine.Vector3(x, y, z)
 end
 
 ---@brief Table转Unity Vector3
@@ -210,12 +210,12 @@ end
 ---@return UnityEngine.Vector3 转换后的三维坐标
 function UnityUtil.TableToVector3(t)
     if type(t) ~= "table" then
-        return CS.UnityEngine.Vector3.zero
+        return UnityEngine.Vector3.zero
     end
     local x = tonumber(t[1]) or 0
     local y = tonumber(t[2]) or 0
     local z = tonumber(t[3]) or 0
-    return CS.UnityEngine.Vector3(x, y, z)
+    return UnityEngine.Vector3(x, y, z)
 end
 
 --endregion

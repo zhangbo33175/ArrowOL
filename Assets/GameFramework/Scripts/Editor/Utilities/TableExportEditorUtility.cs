@@ -355,7 +355,7 @@ namespace Honor.Editor
                 "quaternion" => $"UnityQuaternion({value})",
                 "rect" => $"UnityRect({value})",
                 "vector2" => $"UnityVector2({value})",
-                "vector3" => $"Unity.Vector3({value})",
+                "vector3" => $"UnityEngine.Vector3({value})",
                 "vector4" => $"UnityVector4({value})",
                 _ => value
             };

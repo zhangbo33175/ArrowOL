@@ -184,10 +184,12 @@ end
 ---@param bgmKey string BGM键值
 ---=========================================================================
 function SoundManager:OnBgmSwitchChanged(eType, newState, bgmKey)
+    -- TODO: 修复音乐音量逻辑与开关语义相反的问题（原 GetSettingState==true 时误设为静音 0，导致"开"却无声）
+    -- 语义对齐：GetSettingState 返回 true=开启；开启 → 正常音量(1)，关闭 → 静音(0)
     if SettingDataManager:GetSettingState(ESettingType.MUSIC) == true then
-        GameMainRoot.Sound:SetAllSoundVolume(0, "Music")
-    else
         GameMainRoot.Sound:SetAllSoundVolume(1, "Music")
+    else
+        GameMainRoot.Sound:SetAllSoundVolume(0, "Music")
     end
 end
 
@@ -237,7 +239,9 @@ end
 ---@brief 根据设置开关全局刷新音效音量
 ---=========================================================================
 function SoundManager:RefreshRuntimeSoundVolume()
-    local volume = SettingDataManager:GetSettingState(ESettingType.SOUND) and 0 or 1
+    -- TODO: 修复音效音量逻辑与开关语义相反的问题（原 GetSettingState==true 时误设为 0，导致"开"却无声）
+    -- 语义对齐：GetSettingState 返回 true=开启；开启 → 正常音量(1)，关闭 → 静音(0)
+    local volume = SettingDataManager:GetSettingState(ESettingType.SOUND) and 1 or 0
     self:CacheAllSoundGroupNames()
 
     for groupName, _ in pairs(self._soundGroupNames) do

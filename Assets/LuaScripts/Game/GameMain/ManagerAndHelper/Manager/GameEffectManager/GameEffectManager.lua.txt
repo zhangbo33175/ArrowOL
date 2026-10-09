@@ -63,7 +63,7 @@ end
 ---=========================================================================
 function GameEffectManager:AddEffect(effectName, parentTransform, layerName, pos, ePos, durationTime, callBack, isRealTime, autoRecycle)
     -- 参数默认值
-    pos = pos or Unity.Vector3.zero
+    pos = pos or UnityEngine.Vector3.zero
     ePos = ePos or EPos.Local
     durationTime = durationTime or 0
     isRealTime = isRealTime or false
@@ -84,7 +84,7 @@ function GameEffectManager:AddEffect(effectName, parentTransform, layerName, pos
     end
 
     -- 重置缩放、旋转、层级
-    efGo.transform.localScale = Unity.Vector3.one
+    efGo.transform.localScale = UnityEngine.Vector3.one
     efGo.transform.localRotation = UnityQuaternion.identity
     LayerHelper:SetLayerByName(efGo, layerName)
 

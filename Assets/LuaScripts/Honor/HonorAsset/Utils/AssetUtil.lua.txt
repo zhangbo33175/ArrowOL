@@ -148,7 +148,7 @@ function AssetUtil.DestroyPrefabWithGO(go)
         if luaBehaviour ~= nil then
             AssetUtil.DestroyPrefabWithLuaClass((luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView))
         else
-            Unity.GameObject.Destroy(go)
+            UnityEngine.GameObject.Destroy(go)
         end
     end
 end
@@ -175,7 +175,7 @@ function AssetUtil.DestroyPrefabWithLuaClass(luaClass)
     -- 销毁底层GameObject预制体
     local targetObj = luaClass.cs.gameObject
     if not UnityUtil.IsNull(targetObj) then
-        CS.UnityEngine.Object.Destroy(targetObj)
+        UnityEngine.Object.Destroy(targetObj)
         PrintInfo("[Tool] 已销毁LuaClass绑定预制体")
     else
         PrintWarning("[Tool] luaClass.gameObject 为空，无法销毁预制体")
@@ -195,8 +195,8 @@ end
 function AssetUtil.InstantiateGO(parent, childTemplateGO)
     local go = GameMainRoot.Asset:InstantiateGO(parent, childTemplateGO)
     go:SetActive(true)
-    go.transform.localScale = Unity.Vector3.one
-    go.transform.localPosition = Unity.Vector3.zero
+    go.transform.localScale = UnityEngine.Vector3.one
+    go.transform.localPosition = UnityEngine.Vector3.zero
     return go
 end
 

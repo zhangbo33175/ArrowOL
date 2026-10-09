@@ -192,7 +192,7 @@ function UITextHelper:CoroutineNumberAnimation(
     end
 
     -- 计算动画步进
-    local delta = useRealtime and Unity.Time.unscaledDeltaTime or Unity.Time.deltaTime
+    local delta = useRealtime and UnityEngine.Time.unscaledDeltaTime or UnityEngine.Time.deltaTime
     local totalFrames = duration / delta
     local baseStep = math.floor(math.abs(targetValue - startValue) / totalFrames) + 1
     local step = startValue > targetValue and baseStep or -baseStep

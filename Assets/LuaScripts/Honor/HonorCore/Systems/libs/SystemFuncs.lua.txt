@@ -328,7 +328,7 @@ function RemoveAllChildren(transform)
     if transform ~= nil and transform.childCount > 0 then
         -- 倒序删除，避免索引错乱
         for idx = transform.childCount - 1, 0, -1 do
-            Unity.Object.Destroy(transform:GetChild(idx).gameObject)
+            UnityEngine.Object.Destroy(transform:GetChild(idx).gameObject)
         end
     end
 end
@@ -518,9 +518,9 @@ end
 function PlaySpineAnimation(spineGO, animationName, loop, overCallback)
     local animationState = nil
     local skeleton = nil
-    ---@type Spine.Unity.SkeletonAnimation
+    ---@type Spine.UnityEngine.SkeletonAnimation
     local skeletonAnimation = spineGO:GetComponent("SkeletonAnimation")
-    ---@type Spine.Unity.SkeletonGraphic
+    ---@type Spine.UnityEngine.SkeletonGraphic
     local skeletonGraphic = spineGO:GetComponent("SkeletonGraphic")
     if skeletonAnimation ~= nil then
         animationState = skeletonAnimation.state
@@ -683,8 +683,8 @@ function DOPathWithRotation(go, points, preDelay, duration, dotweenEase, finishC
             return 0
         end, function(value)
             local curAngle = CalculateEulerAngles2D(lstPos.x, lstPos.y, go.transform.position.x, go.transform.position.y)
-            go.transform.eulerAngles = Unity.Vector3(0, 0, curAngle)
-            lstPos = Unity.Vector2(go.transform.position.x, go.transform.position.y)
+            go.transform.eulerAngles = UnityEngine.Vector3(0, 0, curAngle)
+            lstPos = UnityEngine.Vector2(go.transform.position.x, go.transform.position.y)
         end, duration, duration)          :SetEase(dotweenEase))
                              :SetUpdate(true)
                              :AppendCallback(function()

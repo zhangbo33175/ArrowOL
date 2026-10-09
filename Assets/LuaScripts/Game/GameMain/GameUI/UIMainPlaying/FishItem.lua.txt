@@ -94,11 +94,11 @@ function FishItem:PlayBreakAnimation(fishTransform, startDelay, onComplete)
     end
     -- 左右往复摆动 3 个来回（旋转式晃动）
     for i = 1, 3 do
-        sequence:Append(fishTransform:DOLocalRotate(CS.UnityEngine.Vector3(0, 0, baseZ + swingDeg), swingDur):SetEase(Ease.InOutSine))
-        sequence:Append(fishTransform:DOLocalRotate(CS.UnityEngine.Vector3(0, 0, baseZ - swingDeg), swingDur):SetEase(Ease.InOutSine))
+        sequence:Append(fishTransform:DOLocalRotate(UnityEngine.Vector3(0, 0, baseZ + swingDeg), swingDur):SetEase(Ease.InOutSine))
+        sequence:Append(fishTransform:DOLocalRotate(UnityEngine.Vector3(0, 0, baseZ - swingDeg), swingDur):SetEase(Ease.InOutSine))
     end
     -- 摆回初始角度
-    sequence:Append(fishTransform:DOLocalRotate(CS.UnityEngine.Vector3(0, 0, baseZ), swingDur):SetEase(Ease.InOutSine))
+    sequence:Append(fishTransform:DOLocalRotate(UnityEngine.Vector3(0, 0, baseZ), swingDur):SetEase(Ease.InOutSine))
     -- 碎裂：缩放到 0（InBack 带轻微过冲，读作碎裂消失）
     sequence:Append(fishTransform:DOScale(0, shatterDur):SetEase(Ease.InBack))
     sequence:OnComplete(function()

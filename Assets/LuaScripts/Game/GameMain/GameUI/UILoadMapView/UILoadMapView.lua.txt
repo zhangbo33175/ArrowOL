@@ -117,7 +117,7 @@ end
 ---@type fun():void
 function UILoadMapView:StartLoadProgressLoop()
     if IsNull(self.LoadScrollbar) then
-        PrintWarn("[UILoadMapView] LoadScrollbar 未绑定，无法启动进度平滑")
+        PrintWarning("[UILoadMapView] LoadScrollbar 未绑定，无法启动进度平滑")
         return
     end
     self:StopLoadProgressLoop()
@@ -127,7 +127,7 @@ function UILoadMapView:StartLoadProgressLoop()
             local target = self._ProgressTarget
             local diff = target - value
             if math.abs(diff) > 0.005 then
-                value = value + diff * math.min(1.0, Unity.Time.deltaTime * 3.0)
+                value = value + diff * math.min(1.0, UnityEngine.Time.deltaTime * 3.0)
             else
                 value = target
             end
@@ -153,7 +153,7 @@ end
 ---@param value number 进度值（0-1）
 function UILoadMapView:SetLoadProgress(value)
     if IsNull(self.LoadScrollbar) then
-        PrintWarn("[UILoadMapView] LoadScrollbar 未绑定，无法更新进度条")
+        PrintWarning("[UILoadMapView] LoadScrollbar 未绑定，无法更新进度条")
         return
     end
     self.LoadScrollbar.value = value

@@ -29,7 +29,7 @@ function GameMapBase:ctor(args)
     ---@type function(HedgehogTeam.EasyTouch.Gesture) 点击手势回调
     self.SimpleTap = nil
     ---@type UnityEngine.Vector3 触摸滑动屏幕坐标缓存
-    self.SwipePos = Unity.Vector3(0, 0, 0)
+    self.SwipePos = UnityEngine.Vector3(0, 0, 0)
     ---@type UnityEngine.Camera 地图渲染相机，全局缓存
     self.ScreenCamera = self:GetSafeScreenCamera()
 
@@ -96,6 +96,9 @@ function GameMapBase:Awake()
 
     -- 初始化相机参数，增加MapData空安全保护
     if MapManager.CurMapData ~= nil then
+        -- 顶部HUD统一为120px（对齐顶部红框上边线≈UI底部），使地图画面上方铺满、不留空白；
+        -- SetCameraRect(GetHudDesignHeights) 与 RecalcNormalCamData 均读此字段，自动联动
+        MapManager.CurMapData.m_TopHudPixelHeight = 120
         -- 根据当前视口自动计算适配尺寸，让地图完整贴合中间区域
         MapManager.CurMapData:RecalcNormalCamData()
         GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.m_NormalCamData)
@@ -113,8 +116,9 @@ function GameMapBase:AdjustBottomHud(bottomPixelHeight, animate)
     animate = animate ~= false
     MapManager.CurMapData:SetBottomHudHeight(bottomPixelHeight)
     -- 同步更新相机渲染区域，底部UI隐藏时地图向下延伸填满
+    -- 注意：UpdateCameraRect 接收"设计分辨率单位"，需先将像素高度换算
     if GameMapMotion and GameMapMotion.UpdateCameraRect then
-        GameMapMotion:UpdateCameraRect(bottomPixelHeight)
+        GameMapMotion:UpdateCameraRect(GameMapMotion:PixelsToDesign(bottomPixelHeight))
     end
     MapManager.CurMapData:RecalcNormalCamData()
     if animate then
@@ -233,7 +237,7 @@ end
 function GameMapBase:GameOverSuccessAni()
     SoundManager:PlaySound(Tables.Sounds.Level_Success.Name)
     -- 生成全屏彩带粒子，生命周期3.5秒
-    GameEffectManager:AddEffect(RES.GameObject_TX_coloredribbon.Name, GameMainRoot.Effect.efRoot, ELayerName.UI, Unity.Vector3(0, 0, 0), EPos.World, 3.5)
+    GameEffectManager:AddEffect(RES.GameObject_TX_coloredribbon.Name, GameMainRoot.Effect.efRoot, ELayerName.UI, UnityEngine.Vector3(0, 0, 0), EPos.World, 3.5)
 end
 
 ---@brief 游戏失败统一表现，主动放弃关卡不播放失败音效
@@ -388,7 +392,7 @@ function GameMapBase:LoadCharacterByMapData()
         if not CharacterIcon then
             goto continue
         end
-        local uiImage = CharacterIcon.transform:GetComponent(typeof(CS.UnityEngine.UI.Image))
+        local uiImage = CharacterIcon.transform:GetComponent(typeof(UnityEngine.UI.Image))
         if not uiImage then
             goto continue
         end

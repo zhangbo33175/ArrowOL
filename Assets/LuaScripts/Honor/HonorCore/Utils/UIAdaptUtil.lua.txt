@@ -90,6 +90,58 @@ function UIAdaptUtil.GetRealScreenHeightByDesign(designHeight)
     return (designHeight * UnityEngine.Screen.height) / canvasHeight
 end
 
+---@brief 获取顶部/底部安全区偏移（设计分辨率单位，分侧，统一高度比例）
+---@type fun():number,number
+---@return number topInset 顶部安全区偏移（刘海/挖孔）
+---@return number bottomInset 底部安全区偏移（手势条/导航栏）
+---@desc 全系统安全区权威来源：相机 rect（GameMapMotion:GetSafeAreaInsets）与 UI 顶部/底部避让均统一此口径，消除 C#/Lua 比例基准不一致与"单侧总量"缺陷
+function UIAdaptUtil.GetSafeAreaInsets()
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvasH = 1334
+    if not UnityUtil.IsNull(canvas) then
+        local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+        if not UnityUtil.IsNull(rect) then
+            canvasH = rect.rect.size.y
+        end
+    end
+    local safeArea = UnityEngine.Screen.safeArea
+    local screenH = UnityEngine.Screen.height
+    if screenH <= 0 then return 0, 0 end
+    local scale = canvasH / screenH
+    -- Unity 屏幕坐标原点在左下角：safeArea.yMin=底部非安全区（手势条/导航栏），safeArea.yMax 以上=顶部非安全区（刘海/挖孔）
+    local topInset    = math.max(0, screenH - safeArea.yMax) * scale
+    local bottomInset = math.max(0, safeArea.yMin) * scale
+    return topInset, bottomInset
+end
+
+---@brief 获取当前画布实际尺寸（设计分辨率单位，供超长屏/全屏元素自适应）
+---@type fun():number,number
+---@return number width 画布实际宽
+---@return number height 画布实际高
+function UIAdaptUtil.GetCanvasActualSize()
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    if not UnityUtil.IsNull(canvas) then
+        local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+        if not UnityUtil.IsNull(rect) then
+            return rect.rect.size.x, rect.rect.size.y
+        end
+    end
+    local designRes = GameMainRoot.UI.ScreenDesignedResolution
+    return designRes.x, designRes.y
+end
+
+---@brief 判断当前屏幕是否为超长屏（竖屏比例超过阈值，如 20:9 / 21:9）
+---@type fun(threshold:number):boolean
+---@param threshold number 宽高比阈值，默认 2.1
+---@return boolean 是否超长屏
+function UIAdaptUtil.IsUltraWideScreen(threshold)
+    threshold = threshold or 2.1
+    local sw, sh = UnityEngine.Screen.width, UnityEngine.Screen.height
+    if sh <= 0 then return false end
+    local aspect = sw / sh
+    return aspect > threshold or (1 / aspect) > threshold
+end
+
 --endregion
 
 return UIAdaptUtil

@@ -157,17 +157,17 @@ function MapManager:LoadMapImageSprite()
 
     local mapData = GameManager:GetMapRootData()
     if not mapData then
-        PrintWarn("[MapManager] LoadMapImageSprite mapData为空，跳过背景加载")
+        PrintWarning("[MapManager] LoadMapImageSprite mapData为空，跳过背景加载")
         return
     end
 
     local rawImageTrans = self.CurLoadMapGo.transform:Find("RawImage")
     if IsNull(rawImageTrans) then
-        PrintWarn("[MapManager] LoadMapImageSprite 找不到RawImage节点")
+        PrintWarning("[MapManager] LoadMapImageSprite 找不到RawImage节点")
         return
     end
 
-    local bgImage = rawImageTrans:GetComponent(typeof(CS.UnityEngine.UI.Image))
+    local bgImage = rawImageTrans:GetComponent(typeof(UnityEngine.UI.Image))
     if not IsNull(bgImage) then
         GamePlayHelper:RefreshImageSprite(self.CurGameMapBase, bgImage, mapData.BgName)
     end

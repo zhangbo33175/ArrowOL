@@ -9,7 +9,7 @@
 -- @desc      提供 UI 节点查找、组件获取等通用工具函数，供各 UI 基类与业务 View 复用，
 --            避免重复的 transform:Find + GetComponent 组合调用（对齐参考 HonorUI Utils/UIUtil 语义）。
 -- @scope     单例模块（全局唯一），按需 require
--- @dependency CS.UnityEngine, Unity
+-- @dependency UnityEngine, Unity
 --=====================================================================================================
 
 ---@class UIUtil UI 通用工具

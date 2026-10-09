@@ -59,11 +59,11 @@ function GameMainState:OnStateEnter(finishCallback)
     --LocalActivityManager:TryOpenActivities()
 
     -- 播放章节主界面背景音乐
-    local chapterId = MapManager.CurLoadChapterId
+    local chapterId =ChapterListManager:GetLatestChapterId()
     if chapterId then
-        local chapterData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
-        if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
-            SoundManager:PlayBgm(chapterData.MapMusic.outgame)
+        local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+        if chapterData and chapterData.MapMusic then
+            SoundManager:PlayBgm(chapterData.MapMusic)
         end
     end
 
@@ -82,7 +82,6 @@ end
 ---=========================================================================
 function GameMainState:DoStateEnter(finishCallback)
     -- 重置地图相机渲染区域：清除游玩时"放大缩小"残留的缩放/裁剪状态，保证主界面以正常视角展示
-    --TODO: [修复] 返回主界面时重置相机渲染矩形，消除游玩放大视角的残留
     if GameMapMotion and GameMapMotion.ScreenCamera then
         GameMapMotion:UpdateCameraRect(0)
     end

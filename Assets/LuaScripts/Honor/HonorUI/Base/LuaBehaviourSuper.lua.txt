@@ -86,7 +86,7 @@ function LuaBehaviourSuper:ctor(args)
     self._rootCloseAnimationDelay = 0.5
 
     self._loadedAssets = {}                           -- 动态加载的资源（自动管理释放）
-    self._oriPosForUIStack = Unity.Vector3.zero       -- UI栈原始位置
+    self._oriPosForUIStack = UnityEngine.Vector3.zero       -- UI栈原始位置
 
     -- 统一生命周期管理（对齐 HonorUI 自动注销风格）
     self._globalEventListenerList = {}                -- 全局事件监听记录表（OnDestroy 统一注销）

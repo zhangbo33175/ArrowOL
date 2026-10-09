@@ -190,6 +190,7 @@ RectTransform:
   m_Children:
   - {fileID: 4154810528289855129}
   - {fileID: 8019674969507168094}
+  - {fileID: 8077625839652427846}
   m_Father: {fileID: 7981573188680854181}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -212,13 +213,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3321327497905795366}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.047169805, g: 0.043832317, b: 0.043832317, a: 0.9019608}
+  m_Color: {r: 0.047169805, g: 0.043832317, b: 0.043832317, a: 0.64705884}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -248,7 +249,7 @@ GameObject:
   - component: {fileID: 2251411244745599954}
   - component: {fileID: 632180540677904831}
   m_Layer: 5
-  m_Name: TitelText
+  m_Name: TitelNameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -385,81 +386,6 @@ MonoBehaviour:
   m_LocalizingKeyName: 
   m_LocalizingFontMark: Main
   m_Language: 0
---- !u!1 &4527172053781544293
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 234605510225172074}
-  - component: {fileID: 5788650239627523971}
-  - component: {fileID: 2724700382299334425}
-  m_Layer: 5
-  m_Name: Image
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &234605510225172074
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4527172053781544293}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4850702530286388614}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 750, y: 1334}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &5788650239627523971
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4527172053781544293}
-  m_CullTransparentMesh: 1
---- !u!114 &2724700382299334425
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4527172053781544293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8604ef2b107d17d49a13463ccbab7399, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &5241238792916367602
 GameObject:
   m_ObjectHideFlags: 0
@@ -759,7 +685,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 234605510225172074}
   - {fileID: 7981573188680854181}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -837,51 +762,9 @@ MonoBehaviour:
     ElementsExtends: []
   - Comment: "\u5173\u5361\u7F29\u7565\u56FE\u540D\u79F0"
     InjectionTypeName: 9
-    Name: NameText
+    Name: TitelNameText
     IsArray: 0
-    Obj: {fileID: 0}
-    Variant: 
-    InfoEx: 
-    ExtendsEnabled: 0
-    Extends: 
-    ElementsObjs: []
-    ElementsVariants: []
-    ElementsInfoExs: []
-    ElementsExtendsEnableds: 
-    ElementsExtends: []
-  - Comment: "\u5173\u5361\u8BF4\u660E"
-    InjectionTypeName: 9
-    Name: ExplanationText
-    IsArray: 0
-    Obj: {fileID: 0}
-    Variant: 
-    InfoEx: 
-    ExtendsEnabled: 0
-    Extends: 
-    ElementsObjs: []
-    ElementsVariants: []
-    ElementsInfoExs: []
-    ElementsExtendsEnableds: 
-    ElementsExtends: []
-  - Comment: "\u80CC\u666F"
-    InjectionTypeName: 11
-    Name: ImageBg
-    IsArray: 0
-    Obj: {fileID: 0}
-    Variant: 
-    InfoEx: 
-    ExtendsEnabled: 0
-    Extends: 
-    ElementsObjs: []
-    ElementsVariants: []
-    ElementsInfoExs: []
-    ElementsExtendsEnableds: 
-    ElementsExtends: []
-  - Comment: "\u5173\u5361\u80CC\u666F"
-    InjectionTypeName: 11
-    Name: Levelmage
-    IsArray: 0
-    Obj: {fileID: 0}
+    Obj: {fileID: 2251411244745599954}
     Variant: 
     InfoEx: 
     ExtendsEnabled: 0
@@ -926,13 +809,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3220880142434880555}
-  - {fileID: 8077625839652427846}
   m_Father: {fileID: 1433260495602019442}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1949805212659500192
 CanvasRenderer:
@@ -1083,12 +965,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6014923016097137500}
-  m_Father: {fileID: 8019674969507168094}
+  m_Father: {fileID: 1433260495602019442}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: -348.50888}
-  m_SizeDelta: {x: 668, y: 568.9822}
+  m_AnchoredPosition: {x: 0, y: 284.49112}
+  m_SizeDelta: {x: 0, y: 568.9822}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8587473853313100479
 GameObject:

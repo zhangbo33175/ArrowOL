@@ -1,0 +1,5 @@
+E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\LuaScripts\Game\GameMain\StateMachine\Game\GamePlayingState.lua.txt: 1
+E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\LuaScripts\Game\GameMain\GameUI\UILoadMapView\UILoadMapView.lua.txt: 2
+E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\MapManager\MapManager.lua.txt: 2
+E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\GameManager\GameManager.lua.txt: 3
+TOTAL: 8

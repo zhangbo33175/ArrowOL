@@ -56,9 +56,9 @@ end
 ---@brief 检查平台推送总开关是否开启（受系统配置表控制）
 ---@return boolean true=推送开启，false=推送关闭
 function HonorNotificationHelper:CheckNotifyFuncIsOpen()
-    if Unity.Application.platform == Unity.RuntimePlatform.Android then
+    if UnityEngine.Application.platform == UnityEngine.RuntimePlatform.Android then
         return HonorConfigHelper:GetSystemConfig("ANDROID_NOTIFY_FUNCTION_OPEN")
-    elseif Unity.Application.platform == Unity.RuntimePlatform.IPhonePlayer then
+    elseif UnityEngine.Application.platform == UnityEngine.RuntimePlatform.IPhonePlayer then
         return HonorConfigHelper:GetSystemConfig("IOS_NOTIFY_FUNCTION_OPEN")
     else
         -- 其他平台默认使用Android配置

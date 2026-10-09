@@ -47,6 +47,11 @@ end
 ---@type fun():void
 function CollectItemView:Awake()
     CollectItemView.super.Awake(self)
+
+    -- TODO: 默认隐藏收集Icon，待有数据/解锁时由外部调用 SetActive(true) 显示
+    if not IsNull(self.Icon) then
+        self.Icon.gameObject:SetActive(false)
+    end
 end
 
 ---开始

@@ -38,7 +38,6 @@ end
 
 ---@brief 唤醒
 ---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
---TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
 function UILoginView:Awake()
     UILoginView.super.Awake(self)
     self:AddUIListener(self.LoginBtn, 'Clicked', Bind(self, self.OnLoginBtnClicked))
@@ -82,6 +81,12 @@ end
 ---@brief 登录按钮点击回调
 ---@param args any 事件参数
 function UILoginView:OnLoginBtnClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    -- TODO: 登录进主界面前先真正加载最新章节地图（LoadMapById 同步加载，
+    --       由它正规赋值 CurLoadChapterId / CurMapData / CurLoadMapGo），
+    --       避免此前仅预置 CurLoadChapterId 触发 LoadMapState 判重跳过加载、PlayingState 里 mapData=nil；
+    --       加载后直接切主界面（MainState），不走 GameLoadMapState 的 PlayingState 分流（登录不应直接进战斗）。
     GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
 end
 

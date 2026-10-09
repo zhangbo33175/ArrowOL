@@ -346,7 +346,7 @@ function GameTimeHelper:SetupFutureTimeStamp()
 
     --- 使用真实启动时间矫正基准，防止回退时间
     if futureTime < loginTime then
-        SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = loginTime - Unity.Time.realtimeSinceStartup
+        SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = loginTime - UnityEngine.Time.realtimeSinceStartup
         SaveIO.GameData.Save_timestamps()
     end
 
@@ -373,7 +373,7 @@ function GameTimeHelper:GetUTC0FutureTimeStamp()
         self.futureTimeStamp = SaveRootData.UserData.launchTime.current.utc0
     end
 
-    return self.futureTimeStamp + Unity.Time.realtimeSinceStartup
+    return self.futureTimeStamp + UnityEngine.Time.realtimeSinceStartup
 end
 
 --endregion

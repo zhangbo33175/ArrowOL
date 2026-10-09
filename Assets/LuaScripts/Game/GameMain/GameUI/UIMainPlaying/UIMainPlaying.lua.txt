@@ -61,10 +61,23 @@ end
 function UIMainPlaying:Awake()
     UIMainPlaying.super.Awake(self)
     -- 绑定按钮 → Manager 业务动作（业务逻辑统一在 Manager 中处理）
-    self:AddUIListener(self.SettingButton, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.OpenSettingView))
-    self:AddUIListener(self.SearchButton, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.StartAutoScan))
-    self:AddUIListener(self.xianshi, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.ShowBackground))
-    self:AddUIListener(self.yinchang, 'Clicked', Bind(UIMainPlayingManager, UIMainPlayingManager.HideBackground))
+    -- TODO: 按钮点击统一播放开始音效（保持 Bind 结构表 {target,method,func}，仅替换 func：
+    --       先播放 UI_SeasonStart 再执行业务逻辑；不可返回裸函数，否则 AddListener/RemoveListener 访问
+    --       handler.target/method/func 时会报 "attempt to index a function value"）
+    local function withSeasonStart(handler)
+        return {
+            target = handler.target,
+            method = handler.method,
+            func = function(...)
+                SoundManager:PlaySound("UI_SeasonStart")
+                return handler.func(...)
+            end,
+        }
+    end
+    self:AddUIListener(self.SettingButton, 'Clicked', withSeasonStart(Bind(UIMainPlayingManager, UIMainPlayingManager.OpenSettingView)))
+    self:AddUIListener(self.SearchButton, 'Clicked', withSeasonStart(Bind(UIMainPlayingManager, UIMainPlayingManager.StartAutoScan)))
+    self:AddUIListener(self.xianshi, 'Clicked', withSeasonStart(Bind(UIMainPlayingManager, UIMainPlayingManager.ShowBackground)))
+    self:AddUIListener(self.yinchang, 'Clicked', withSeasonStart(Bind(UIMainPlayingManager, UIMainPlayingManager.HideBackground)))
 
     -- 给Top和Down节点添加透明Image拦截点击穿透
     self:AddRaycastBlocker("Top")
@@ -198,10 +211,10 @@ function UIMainPlaying:AddRaycastBlocker(nodeName)
     end
 
     -- 添加透明 Image 拦截点击（如果已有 Image 则只确保 raycastTarget=true）
-    local img = node:GetComponent(typeof(CS.UnityEngine.UI.Image))
+    local img = node:GetComponent(typeof(UnityEngine.UI.Image))
     if not img then
-        img = node.gameObject:AddComponent(typeof(CS.UnityEngine.UI.Image))
-        img.color = CS.UnityEngine.Color(1, 1, 1, 0)
+        img = node.gameObject:AddComponent(typeof(UnityEngine.UI.Image))
+        img.color = UnityEngine.Color(1, 1, 1, 0)
     end
     img.raycastTarget = true
     print("[RaycastBlocker] OK on "..nodeName.." ("..node.name..")")

@@ -48,7 +48,7 @@ end
 function HonorEventHelper:ProcessEventAsync()
     while true do
         -- 等待有事件需要执行
-        coroutine.yield(Unity.WaitUntil(function() return #self._eventsCallNextFrame > 0 end))
+        coroutine.yield(UnityEngine.WaitUntil(function() return #self._eventsCallNextFrame > 0 end))
         -- 等待一帧，实现下一帧执行效果
         coroutine.yield(nil)
         -- 安全执行所有延迟事件，执行后清空队列

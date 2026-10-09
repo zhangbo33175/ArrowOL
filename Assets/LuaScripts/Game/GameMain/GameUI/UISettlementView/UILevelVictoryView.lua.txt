@@ -1,5 +1,5 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UILevelVictoryView.lua
@@ -11,10 +11,7 @@
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
 ---@field MainButton                         UnityEngine.UI.Button         √         Clicked        返回管卡界面
 ---@field NextLevelButton                    UnityEngine.UI.Button         √         Clicked        下一关
----@field NameText                           TMPro.TextMeshProUGUI         √                        关卡缩略图名称
----@field ExplanationText                    TMPro.TextMeshProUGUI         √                        关卡说明
----@field ImageBg                            UnityEngine.UI.Image          √                        背景
----@field Levelmage                          UnityEngine.UI.Image          √                        关卡背景
+---@field TitelNameText                      TMPro.TextMeshProUGUI         √                        关卡缩略图名称
 local UILevelVictoryView = class('UILevelVictoryView', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
@@ -50,8 +47,11 @@ end
 --TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
 function UILevelVictoryView:Awake()
     UILevelVictoryView.super.Awake(self)
+-- 2=====================================================================================================
     self:AddUIListener(self.MainButton, 'Clicked', Bind(self, self.OnMainButtonClicked))
     self:AddUIListener(self.NextLevelButton, 'Clicked', Bind(self, self.OnNextLevelButtonClicked))
+-- ====================================================================================================2
+
 end
 
 ---开始
@@ -65,6 +65,11 @@ end
 ---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 function UILevelVictoryView:OnDestroy()
     UILevelVictoryView.super.OnDestroy(self)
+-- 3=====================================================================================================
+    OnRemoveListener(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
+    OnRemoveListener(self.NextLevelButton, 'Clicked', handler(self, self.OnNextLevelButtonClicked))
+-- ====================================================================================================3
+
 end
 
 --endregion
@@ -101,12 +106,16 @@ end
 ---返回管卡界面-交互回调
 ---@type fun(args:any):void
 function UILevelVictoryView:OnMainButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     GamePlayHelper:GameExitPlayHud()
 end
 
 ---下一关-交互回调
 ---@type fun(args:any):void
 function UILevelVictoryView:OnNextLevelButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     self._id = ChapterListManager:GetRuntimeChapterId()
     if not string.isNullOrEmpty(self._id) then
         GamePlayHelper:LoadMainMap(self._id, function()

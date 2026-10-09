@@ -25,7 +25,7 @@ local HonorCoroutineHelper = class("HonorCoroutineHelper")
 function HonorCoroutineHelper:ctor(args)
     self._util = require("SystemUtil")         --- xlua 协程工具
     self._coroutines = {}                      --- 协程列表：{target, coroutine}
-    self.waitForEndOfFrame = Unity.WaitForEndOfFrame  --- 等待帧末
+    self.waitForEndOfFrame = UnityEngine.WaitForEndOfFrame  --- 等待帧末
     self.waitForSeconds = CoroutineWaitHelper          --- 等待时间缓存池
     self.waitForSeconds.waitForSeconds = {}            --- 普通等待缓存
     self.waitForSeconds.WaitForSecondsRealtime = {}    --- 真实时间等待缓存
@@ -121,7 +121,7 @@ function HonorCoroutineHelper:WaitForSeconds(waitTime)
     -- 无缓存则新建
     if not cache or #cache == 0 then
         cache = {}
-        table.insert(cache, Unity.WaitForSeconds(waitTime))
+        table.insert(cache, UnityEngine.WaitForSeconds(waitTime))
         self.waitForSeconds.waitForSeconds[waitTime] = cache
     end
     -- 取出、等待、回收（完全无GC）
@@ -137,7 +137,7 @@ function HonorCoroutineHelper:WaitForSecondsRealtime(waitTime)
     local cache = self.waitForSeconds.WaitForSecondsRealtime[waitTime]
     if not cache or #cache == 0 then
         cache = {}
-        table.insert(cache, Unity.WaitForSecondsRealtime(waitTime))
+        table.insert(cache, UnityEngine.WaitForSecondsRealtime(waitTime))
         self.waitForSeconds.WaitForSecondsRealtime[waitTime] = cache
     end
     local waitter = table.remove(cache)

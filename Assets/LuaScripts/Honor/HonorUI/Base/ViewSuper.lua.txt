@@ -61,7 +61,7 @@ function ViewSuper:ctor(args)
     self._rootCloseAnimationDelay = 0.5
 
     self._loadedAssets = {}                                     -- 动态加载资源
-    self._oriPosForUIStack = Unity.Vector3.zero                 -- UI 栈原始位置
+    self._oriPosForUIStack = UnityEngine.Vector3.zero                 -- UI 栈原始位置
 end
 
 ---@brief 创建实例

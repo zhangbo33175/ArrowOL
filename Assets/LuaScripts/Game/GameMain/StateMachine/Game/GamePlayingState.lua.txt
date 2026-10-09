@@ -57,6 +57,14 @@ function GamePlayingState:OnStateEnter(finishCallback)
     -- 暂停地图拖动
     GameMapMotion:PauseMapMotion()
 
+    local chapterId = ChapterListManager:GetLatestChapterId()
+    if chapterId then
+        local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+        if chapterData and chapterData.MapMusic then
+            SoundManager:PlayBgm(chapterData.MapMusic)
+        end
+    end
+    
     -- 相机移动到关卡战斗位置
     local mapData = MapManager.CurMapData
     if mapData and mapData.m_PlayCamData then
@@ -79,7 +87,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
                 end
         )
     else
-        PrintWarn("[GamePlayingState] 当前地图数据或游玩相机数据为空，跳过相机视角切换")
+        PrintWarning("[GamePlayingState] 当前地图数据或游玩相机数据为空，跳过相机视角切换")
         GameMainRoot.UI:SubUIMaskLayerRef()
         PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
         OpenUISync(UIs.UIMainPlaying, {
@@ -116,7 +124,6 @@ function GamePlayingState:OnStateExit(finishCallback)
     end
 
     -- 关闭战斗UI（UIMainPlaying 同步立即关闭，避免返回主界面时残留重叠）
-    --TODO: [修复] 返回主界面时同步关闭 UIMainPlaying，消除其与主界面的短暂重叠残留
     CloseUI(UIs.UIMainPlaying, true)
     CloseUI(UIs.UILevelVictoryView)
     CloseUI(UIs.UILevelFailedView)

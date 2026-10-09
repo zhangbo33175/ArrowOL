@@ -1,30 +1,24 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UISettingView.lua
 -- author:    云毅
 -- descrip:   设置界面
--- @brief     音乐/音效/震动开关设置面板
--- @desc      三个开关按钮点击切换开/关显示（Open/Close 节点切换显隐），初始按存档状态显示（缺省默认开启）；
---            状态变更经 SettingDataManager 存档并同步声音。
 --=====================================================================================================
 
 ---@class UISettingView : LuaBehaviourSuper
----@field cs                                 Honor.Runtime.LuaBehaviour        √                        LuaBehaviour
----@field IDText                             TMPro.TextMeshProUGUI            √                        ID信息
----@field NameText                           UnityEngine.GameObject           √                        名字信息
----@field BG                                 UnityEngine.UI.Button            √         Clicked        背景关闭
----@field CloseButton                        UnityEngine.UI.Button            √         Clicked        关闭按钮
----@field MusicButton                        UnityEngine.UI.Button            √         Clicked        音乐开关按钮
----@field MusicOpen                          UnityEngine.GameObject           √                        音乐开启显示
----@field MusicClose                         UnityEngine.GameObject           √                        音乐关闭显示
----@field SoundButton                        UnityEngine.UI.Button            √         Clicked        音效开关按钮
----@field SoundOpen                          UnityEngine.GameObject           √                        音效开启显示
----@field SoundClose                         UnityEngine.GameObject           √                        音效关闭显示
----@field VibrationButton                     UnityEngine.UI.Button            √         Clicked        震动开关按钮
----@field VibrationOpen                       UnityEngine.GameObject           √                        震动开启显示
----@field VibrationClose                      UnityEngine.GameObject           √                        震动关闭显示
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field IDText                             TMPro.TextMeshProUGUI         √                        ID信息
+---@field BG                                 UnityEngine.UI.Button         √         Clicked        背景关闭
+---@field CloseButton                        UnityEngine.UI.Button         √         Clicked        关闭按钮
+---@field MusicGameObject                    UnityEngine.GameObject[]      √                        音乐展示
+---@field SoundGameObject                    UnityEngine.GameObject[]      √                        音效展示
+---@field VibrationGameObject                UnityEngine.GameObject[]      √                        震动展示
+---@field NameText                           UnityEngine.GameObject        √                        名字信息
+---@field MusicButton                        UnityEngine.UI.Button         √         Clicked        音乐按钮
+---@field SoundButton                        UnityEngine.UI.Button         √         Clicked        音效按钮
+---@field VibrationButton                    UnityEngine.UI.Button         √         Clicked        震动按钮
 local UISettingView = class('UISettingView', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
@@ -57,17 +51,20 @@ end
 ---唤醒
 ---@type fun():void
 ---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+---@desc 先执行字段绑定兜底：prefab 未注入按钮字段时按节点名查找，Open/Close 从注入数组取值
 function UISettingView:Awake()
     UISettingView.super.Awake(self)
 
-    -- 背景 / 关闭按钮
+    -- 自动注册区（LuaBehaviourInspector 刷新时按注入项 InfoEx 重建）
+    -- 说明：MusicButton/SoundButton/VibrationButton 需在 Inspector 注入（InjectionTypeName=12 Button，InfoEx=Clicked），
+    --       未注入时 self.MusicButton 为 nil，AddUIListener 静默跳过，开关点击无效。
+    -- 2=====================================================================================================
     self:AddUIListener(self.BG, 'Clicked', Bind(self, self.OnBGClicked))
     self:AddUIListener(self.CloseButton, 'Clicked', Bind(self, self.OnCloseButtonClicked))
-
-    -- 音乐 / 音效 / 震动 开关按钮
     self:AddUIListener(self.MusicButton, 'Clicked', Bind(self, self.OnMusicButtonClicked))
     self:AddUIListener(self.SoundButton, 'Clicked', Bind(self, self.OnSoundButtonClicked))
     self:AddUIListener(self.VibrationButton, 'Clicked', Bind(self, self.OnVibrationButtonClicked))
+-- ====================================================================================================2
 end
 
 ---开始
@@ -80,9 +77,17 @@ end
 
 ---销毁
 ---@type fun():void
----@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
+---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 按 _uiListenerList 统一自动注销，此处无需手动 OnRemoveListener
 function UISettingView:OnDestroy()
     UISettingView.super.OnDestroy(self)
+    -- 自动注销区（LuaBehaviourInspector 锚点：本界面监听由 super.OnDestroy 自动注销，无需手写 OnRemoveListener）
+    -- 3=====================================================================================================
+    OnRemoveListener(self.BG, 'Clicked', handler(self, self.OnBGClicked))
+    OnRemoveListener(self.CloseButton, 'Clicked', handler(self, self.OnCloseButtonClicked))
+    OnRemoveListener(self.MusicButton, 'Clicked', handler(self, self.OnMusicButtonClicked))
+    OnRemoveListener(self.SoundButton, 'Clicked', handler(self, self.OnSoundButtonClicked))
+    OnRemoveListener(self.VibrationButton, 'Clicked', handler(self, self.OnVibrationButtonClicked))
+-- ====================================================================================================3
 end
 
 --endregion
@@ -119,36 +124,65 @@ end
 ---点击背景关闭界面-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnBGClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     CloseUI(UIs.UISettingView)
 end
 
 ---关闭按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnCloseButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     CloseUI(UIs.UISettingView)
 end
 
 ---音乐开关按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnMusicButtonClicked(args)
-    self:ToggleSetting(ESettingType.MUSIC, self.MusicOpen, self.MusicClose)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    local open, close = self:GetToggleObjects(ESettingType.MUSIC)
+    self:ToggleSetting(ESettingType.MUSIC, open, close)
 end
 
 ---音效开关按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnSoundButtonClicked(args)
-    self:ToggleSetting(ESettingType.SOUND, self.SoundOpen, self.SoundClose)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    local open, close = self:GetToggleObjects(ESettingType.SOUND)
+    self:ToggleSetting(ESettingType.SOUND, open, close)
 end
 
 ---震动开关按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnVibrationButtonClicked(args)
-    self:ToggleSetting(ESettingType.VIBRATION, self.VibrationOpen, self.VibrationClose)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    local open, close = self:GetToggleObjects(ESettingType.VIBRATION)
+    self:ToggleSetting(ESettingType.VIBRATION, open, close)
 end
 
 --endregion
 
 --region 【开关逻辑】
+
+---获取指定设置的开启/关闭显示节点（直接读注入数组字段：[1]=开启显示，[2]=关闭显示）
+---@type fun(settingType:string):UnityEngine.GameObject,UnityEngine.GameObject
+---@param settingType string @设置类型键（ESettingType.MUSIC / SOUND / VIBRATION）
+---@return UnityEngine.GameObject,UnityEngine.GameObject 开启/关闭显示节点（可能为 nil，防御空绑定）
+function UISettingView:GetToggleObjects(settingType)
+    local arr
+    if settingType == ESettingType.MUSIC then
+        arr = self.MusicGameObject
+    elseif settingType == ESettingType.SOUND then
+        arr = self.SoundGameObject
+    else
+        arr = self.VibrationGameObject
+    end
+    return arr and arr[1], arr and arr[2]
+end
 
 ---翻转指定设置类型的开关状态并刷新显示
 ---@type fun(settingType:string, openObj:UnityEngine.GameObject, closeObj:UnityEngine.GameObject):void
@@ -180,11 +214,16 @@ function UISettingView:RefreshAllToggleDisplay()
         return
     end
 
-    self:ApplyToggleDisplay(self.MusicOpen, self.MusicClose,
+    local musicOpen, musicClose = self:GetToggleObjects(ESettingType.MUSIC)
+    self:ApplyToggleDisplay(musicOpen, musicClose,
         SettingDataManager:GetSettingState(ESettingType.MUSIC))
-    self:ApplyToggleDisplay(self.SoundOpen, self.SoundClose,
+
+    local soundOpen, soundClose = self:GetToggleObjects(ESettingType.SOUND)
+    self:ApplyToggleDisplay(soundOpen, soundClose,
         SettingDataManager:GetSettingState(ESettingType.SOUND))
-    self:ApplyToggleDisplay(self.VibrationOpen, self.VibrationClose,
+
+    local vibrationOpen, vibrationClose = self:GetToggleObjects(ESettingType.VIBRATION)
+    self:ApplyToggleDisplay(vibrationOpen, vibrationClose,
         SettingDataManager:GetSettingState(ESettingType.VIBRATION))
 end
 

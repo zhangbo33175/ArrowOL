@@ -125,8 +125,12 @@ function CharacterGenerationManager:DesCharacterGenerationAll()
     for i = 1, self._characterBaseTable:Count() do
         ---@type CharacterBase
         local characterBase = self._characterBaseTable.items[i]
-        PoolManager:Put(characterBase.cs.gameObject)
-        characterBase:Clear()
+        ---TODO: 角色组件已销毁时跳过放回对象池，避免访问已销毁 LuaBehaviour 抛 MissingReferenceException（Unity 对象销毁后 Lua 引用仍非 nil，须用 IsNull 判空）
+        --- 组件已销毁则跳过（Unity 对象销毁后 Lua 引用仍非 nil，必须用 IsNull 判断）
+        if characterBase ~= nil and characterBase.cs ~= nil and not IsNull(characterBase.cs) then
+            PoolManager:Put(characterBase.cs.gameObject)
+            characterBase:Clear()
+        end
     end
     self._characterBaseTable:Clear()
 end

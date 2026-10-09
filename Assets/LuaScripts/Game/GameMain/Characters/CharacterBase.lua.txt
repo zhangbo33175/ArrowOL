@@ -87,7 +87,7 @@ function CharacterBase:OnDestroy()
     CharacterBase.super.OnDestroy(self)
     -- 销毁角色根节点 GameObject，使图标从场上消失
     if self.cs ~= nil and not IsNull(self.cs) and self.cs.gameObject ~= nil and not IsNull(self.cs.gameObject) then
-        CS.UnityEngine.Object.Destroy(self.cs.gameObject)
+        UnityEngine.Object.Destroy(self.cs.gameObject)
     end
 end
 

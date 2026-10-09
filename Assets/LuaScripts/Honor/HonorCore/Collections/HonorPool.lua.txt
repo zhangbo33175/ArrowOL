@@ -165,7 +165,7 @@ function HonorPool:Destroy()
     self.resDefItem = nil
     -- 销毁池根节点
     if not UnityUtil.IsNull(self.preParent) then
-        Unity.GameObject.Destroy(self.preParent.gameObject)
+        UnityEngine.GameObject.Destroy(self.preParent.gameObject)
         self.preParent = nil
     end
 end

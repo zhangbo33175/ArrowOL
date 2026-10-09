@@ -195,18 +195,18 @@ EGameMainUIPushType = {
 ---@field F11 number
 ---@field F12 number
 KeyCode = {
-    F1 = Unity.KeyCode.F1,
-    F2 = Unity.KeyCode.F2,
-    F3 = Unity.KeyCode.F3,
-    F4 = Unity.KeyCode.F4,
-    F5 = Unity.KeyCode.F5,
-    F6 = Unity.KeyCode.F6,
-    F7 = Unity.KeyCode.F7,
-    F8 = Unity.KeyCode.F8,
-    F9 = Unity.KeyCode.F9,
-    F10 = Unity.KeyCode.F10,
-    F11 = Unity.KeyCode.F11,
-    F12 = Unity.KeyCode.F12
+    F1 = UnityEngine.KeyCode.F1,
+    F2 = UnityEngine.KeyCode.F2,
+    F3 = UnityEngine.KeyCode.F3,
+    F4 = UnityEngine.KeyCode.F4,
+    F5 = UnityEngine.KeyCode.F5,
+    F6 = UnityEngine.KeyCode.F6,
+    F7 = UnityEngine.KeyCode.F7,
+    F8 = UnityEngine.KeyCode.F8,
+    F9 = UnityEngine.KeyCode.F9,
+    F10 = UnityEngine.KeyCode.F10,
+    F11 = UnityEngine.KeyCode.F11,
+    F12 = UnityEngine.KeyCode.F12
 }
 
 --endregion

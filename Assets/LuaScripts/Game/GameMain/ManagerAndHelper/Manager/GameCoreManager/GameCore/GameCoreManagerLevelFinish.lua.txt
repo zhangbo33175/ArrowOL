@@ -126,9 +126,9 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
 
     -- UI遮罩，防止操作穿透
     GameMainRoot.UI:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
-    local startTime = Unity.Time.realtimeSinceStartup
+    local startTime = UnityEngine.Time.realtimeSinceStartup
     local delayTime = Tables.Constants.GameEndTime.Value[1]
-    local remainTime = delayTime - (Unity.Time.realtimeSinceStartup - startTime)
+    local remainTime = delayTime - (UnityEngine.Time.realtimeSinceStartup - startTime)
 
     if remainTime > 0 then
         HonorCoroutineHelper:WaitForSeconds(remainTime)

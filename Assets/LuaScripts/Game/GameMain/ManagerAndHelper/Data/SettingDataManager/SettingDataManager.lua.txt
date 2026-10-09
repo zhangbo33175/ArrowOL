@@ -64,8 +64,10 @@ function SettingDataManager:GetSettingState(settingType)
     end
 
     local state = SaveRootData.GameData.settingInfo[settingType]
-    -- 未初始化默认开启
-    return state ~= nil and state or true
+    -- 未初始化默认开启；注意：state=false（关闭）必须原样返回，
+    -- 不能用 `state ~= nil and state or true`（false 会被 and/or 短路误判为 true，导致开关永远关不上/打不开）
+    if state == nil then return true end
+    return state
 end
 
 ---=========================================================================
@@ -97,17 +99,18 @@ function SettingDataManager:SetSettingNewState(settingType, newState)
         PrintError("[SettingDataManager] 保存设置失败：" .. tostring(err))
     end)
 
-    -- 音乐开关同步
+    -- TODO: 修复回调函数名不匹配（原调 OnBGMCloseStateChanged 不存在，被 xpcall 静默吞掉，设置后音量不刷新）；现对齐 SoundManager 实际函数名
+    -- 音乐开关同步（对齐 SoundManager 实际函数名，刷新 Music 组音量）
     if settingType == ESettingType.MUSIC then
         xpcall(function()
-            SoundMgr:OnBGMCloseStateChanged(settingType, newState)
+            SoundManager:OnBgmSwitchChanged(settingType, newState)
         end, function() end)
     end
 
-    -- 音效开关同步
+    -- 音效开关同步（对齐 SoundManager 实际函数名，刷新非 Music 组音量）
     if settingType == ESettingType.SOUND then
         xpcall(function()
-            SoundMgr:OnSoundCloseStateChanged(settingType, newState)
+            SoundManager:OnSoundSwitchChanged(settingType, newState)
         end, function() end)
     end
 end

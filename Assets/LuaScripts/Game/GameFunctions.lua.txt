@@ -141,8 +141,8 @@ end
 --=====================================================================================================
 
 ---@brief 获取 Spine.SkeletonAnimation 动画时长
----@type fun(spineAnim:Spine.Unity.SkeletonAnimation, animName:string):number
----@param spineAnim Spine.Unity.SkeletonAnimation Spine动画组件
+---@type fun(spineAnim:Spine.UnityEngine.SkeletonAnimation, animName:string):number
+---@param spineAnim Spine.UnityEngine.SkeletonAnimation Spine动画组件
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
 function GetSpineAnimationDuration(spineAnim, animName)
@@ -150,8 +150,8 @@ function GetSpineAnimationDuration(spineAnim, animName)
 end
 
 ---@brief 获取 Spine.SkeletonGraphic 动画时长
----@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string):number
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@type fun(skeletonGraphic:Spine.UnityEngine.SkeletonGraphic, animName:string):number
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
 function GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
@@ -159,8 +159,8 @@ function GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
 end
 
 ---@brief 判断是否存在指定 Spine 动画
----@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string):boolean
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@type fun(skeletonGraphic:Spine.UnityEngine.SkeletonGraphic, animName:string):boolean
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@return boolean 是否存在该动画
 function HasSpineAnimation(skeletonGraphic, animName)
@@ -168,8 +168,8 @@ function HasSpineAnimation(skeletonGraphic, animName)
 end
 
 ---@brief 播放 Spine 动画
----@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string, loop:boolean):Spine.TrackEntry
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@type fun(skeletonGraphic:Spine.UnityEngine.SkeletonGraphic, animName:string, loop:boolean):Spine.TrackEntry
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@param loop boolean 是否循环
 ---@return Spine.TrackEntry 动画轨道信息
@@ -178,8 +178,8 @@ function PlaySpineAnimation(skeletonGraphic, animName, loop)
 end
 
 ---@brief 延迟播放 Spine 动画
----@type fun(skeletonGraphic:Spine.Unity.SkeletonGraphic, animName:string, delay:number, loop:boolean):Spine.TrackEntry
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@type fun(skeletonGraphic:Spine.UnityEngine.SkeletonGraphic, animName:string, delay:number, loop:boolean):Spine.TrackEntry
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@param delay number 延迟时间（秒）
 ---@param loop boolean 是否循环
@@ -730,8 +730,8 @@ function IsNull(obj)
 end
 
 ---@brief 播放 Spine 显示 → Idle → 隐藏 整套动画
----@type fun(spine:Spine.Unity.SkeletonGraphic, idleDuration:number, showAnim:string, idleAnim:string, hideAnim:string, onHideStart:function, onHideComplete:function):void
----@param spine Spine.Unity.SkeletonGraphic UI Spine组件
+---@type fun(spine:Spine.UnityEngine.SkeletonGraphic, idleDuration:number, showAnim:string, idleAnim:string, hideAnim:string, onHideStart:function, onHideComplete:function):void
+---@param spine Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param idleDuration number Idle停留时长
 ---@param showAnim string 显示动画
 ---@param idleAnim string 循环Idle动画

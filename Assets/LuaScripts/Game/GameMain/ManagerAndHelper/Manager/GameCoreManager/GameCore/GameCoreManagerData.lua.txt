@@ -66,13 +66,16 @@ function GameCoreManagerData:InitData(levelData)
 
     -- 本局临时计数全部重置归零
     self._NumberOfPropsUsed = 0
-    self._LifeNumber = 3
+    -- TODO: 通过章节获取小节信息：经 ChapterListManager:GetLatestChapterLevelId()
+    --       由 GetLatestChapterId() 取章节ID再定位小节(关卡)ID，从小节配表
+    --       TableMainLevels 读取 LevelLife（关卡体力）；未命中回退本局小节，再兜底默认 3
+    local levelId = ChapterListManager:GetLatestChapterLevelId() or tostring(levelData.LevelId)
+    local mainLevel = ChapterDataManager:GetChapterDataBySectionId(levelId)
+    self._LifeNumber = (mainLevel and mainLevel.LevelLife) or 3
 
     -- 读取关卡基础标识与难度配置
     self._LevelID = levelData.LevelId
-    --self._LevelMode = levelData.LevelMode
-    --self._LevelDifficulty = levelData.Difficulty
-
+    
     -- 初始化关卡限制条件容器
     self._LimitCheckData = {}
     self._LimitTriggered = {}

@@ -160,7 +160,7 @@ end
 ---=========================================================================
 function GameManager:OnClickCharacter(character)
     if not GameCoreManager then
-        PrintWarn("[GameManager] GameCoreManager 未初始化，丢弃角色点击事件")
+        PrintWarning("[GameManager] GameCoreManager 未初始化，丢弃角色点击事件")
         return
     end
     GameCoreManager:SetOnGameplay(character)
@@ -243,7 +243,7 @@ end
 ---@return string 主包版本号
 ---=========================================================================
 function GameManager:GetMainVersion()
-    return Unity.Application.version or "0.0.0"
+    return UnityEngine.Application.version or "0.0.0"
 end
 
 ---=========================================================================
@@ -267,7 +267,7 @@ end
 function GameManager:SetupEasyTouchAutoSelect(enable)
     local touchIns = CS.HedgehogTeam.EasyTouch.EasyTouch.instance
     if IsNull(touchIns) then
-        PrintWarn("[GameManager] EasyTouch实例不存在，跳过触摸设置")
+        PrintWarning("[GameManager] EasyTouch实例不存在，跳过触摸设置")
         return
     end
     touchIns.autoSelect = enable
@@ -334,7 +334,7 @@ function GameManager:OnCanvasOpenOver(canvas, uiName)
 
     local uiCfg = UIs[uiName]
     if not uiCfg then
-        PrintWarn("[GameManager] 未找到对应UI配置表数据：", uiName)
+        PrintWarning("[GameManager] 未找到对应UI配置表数据：", uiName)
         return
     end
 

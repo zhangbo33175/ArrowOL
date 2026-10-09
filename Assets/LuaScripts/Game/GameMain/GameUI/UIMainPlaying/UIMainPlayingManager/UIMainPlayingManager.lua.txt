@@ -151,14 +151,14 @@ function UIMainPlayingManager:PlayCollectFlyAnimation(character)
         return
     end
     -- 图标 Image：用于流光渐隐
-    local img = icon:GetComponent(typeof(CS.UnityEngine.UI.Image))
+    local img = icon:GetComponent(typeof(UnityEngine.UI.Image))
     local dur = 0.6      -- 飞行时长（秒）
     local originScale = icon.localScale -- 初始缩放（发光放大基准）
     PrintInfo("[UIMainPlayingManager] 流光动画开始 icon=", icon.name, " 目标=", tostring(targetScene))
 
     -- 流光表现1：发光放大（使用 Transform 扩展方法，规避 DOTween.To 泛型闭包在 XLua 下的不可用风险）
     local s = originScale.x * 1.35
-    icon:DOScale(CS.UnityEngine.Vector3(s, s, s), 0.35):SetEase(Ease.OutQuad)
+    icon:DOScale(UnityEngine.Vector3(s, s, s), 0.35):SetEase(Ease.OutQuad)
     -- 流光表现2：移动飞向数字位置（世界坐标，与图标坐标同空间，加速接近）
     icon:DOMove(targetScene, dur):SetEase(Ease.InQuad)
     -- 流光表现3：渐隐消散（后段透明度归零，pcall 保护 Graphic 扩展不可用时不影响主动画）
@@ -369,7 +369,7 @@ function UIMainPlayingManager:ClearFishItems()
     for i = parent.childCount - 1, 0, -1 do
         local child = parent:GetChild(i)
         if child.name and string.find(child.name, "^FishItem") then
-            CS.UnityEngine.Object.Destroy(child.gameObject)
+            UnityEngine.Object.Destroy(child.gameObject)
         end
     end
 end
@@ -447,7 +447,7 @@ function UIMainPlayingManager:_PlayBreakForItems(items, onAllDone)
     local doneCount = 0
     local function onFishDone(fishGO)
         if not IsNull(fishGO) then
-            CS.UnityEngine.Object.Destroy(fishGO)
+            UnityEngine.Object.Destroy(fishGO)
         end
         doneCount = doneCount + 1
         if doneCount >= total then

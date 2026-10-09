@@ -663,9 +663,12 @@ namespace Honor.Runtime
             }
             Log.Info($"刘海分辨率：{m_UIBangsSize.x} X {m_UIBangsSize.y}");
 
-            // 转为画布坐标系
-            if (Screen.width > 0)
-                m_UIBangsSize *= screenCanvasSize.x / Screen.width;
+            // 转为画布坐标系：竖屏按高度比例（与 Lua UIManager:GetBangsNumber / UIAdaptUtil 口径一致），横屏按宽度比例，避免异形屏避让方向错位
+            float canvasRatio = Screen.height > Screen.width
+                ? screenCanvasSize.y / Screen.height
+                : screenCanvasSize.x / Screen.width;
+            if (canvasRatio > 0)
+                m_UIBangsSize *= canvasRatio;
             
             Log.Info($"刘海画布尺寸：{m_UIBangsSize.x} X {m_UIBangsSize.y}");
         }

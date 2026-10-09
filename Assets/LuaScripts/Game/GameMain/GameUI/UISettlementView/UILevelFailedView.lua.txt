@@ -99,18 +99,24 @@ end
 ---返回管卡界面-交互回调
 ---@type fun(args:any):void
 function UILevelFailedView:OnMainButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     GamePlayHelper:GameExitPlayHud()
 end
 
 ---回复体力-交互回调
 ---@type fun(args:any):void
 function UILevelFailedView:OnRecoverStaminaButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---重新开始游戏-交互回调
 ---@type fun(args:any):void
 --TODO: [新增] 实现"重新开始"：关闭失败结算界面并重玩当前关卡
 function UILevelFailedView:OnStartOverButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
     -- 关闭失败结算界面
     CloseUI(UIs.UILevelFailedView)
     -- 重新开启当前关卡（重置本局数据后重进游玩状态）

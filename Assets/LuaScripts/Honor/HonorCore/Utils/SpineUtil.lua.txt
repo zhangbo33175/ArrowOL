@@ -28,7 +28,7 @@ local UnityUtil = require('UnityUtil')
 --=====================================================================================================
 
 ---@brief 获取 Spine.SkeletonAnimation 动画时长
----@param spineAnim Spine.Unity.SkeletonAnimation Spine动画组件
+---@param spineAnim Spine.UnityEngine.SkeletonAnimation Spine动画组件
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
 function SpineUtil.GetSpineAnimationDuration(spineAnim, animName)
@@ -38,7 +38,7 @@ function SpineUtil.GetSpineAnimationDuration(spineAnim, animName)
 end
 
 ---@brief 获取 Spine.SkeletonGraphic 动画时长
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@return number 动画时长（秒）
 function SpineUtil.GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
@@ -48,7 +48,7 @@ function SpineUtil.GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
 end
 
 ---@brief 判断是否存在指定 Spine 动画
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@return boolean 是否存在该动画
 function SpineUtil.HasSpineAnimation(skeletonGraphic, animName)
@@ -57,7 +57,7 @@ function SpineUtil.HasSpineAnimation(skeletonGraphic, animName)
 end
 
 ---@brief 播放 Spine 动画
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@param loop boolean 是否循环
 ---@return Spine.TrackEntry 动画轨道信息
@@ -71,7 +71,7 @@ function SpineUtil.PlaySpineAnimation(skeletonGraphic, animName, loop)
 end
 
 ---@brief 延迟播放 Spine 动画
----@param skeletonGraphic Spine.Unity.SkeletonGraphic UI Spine组件
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param animName string 动画名称
 ---@param delay number 延迟时间（秒）
 ---@param loop boolean 是否循环
@@ -82,7 +82,7 @@ function SpineUtil.DelayPlaySpineAnimation(skeletonGraphic, animName, delay, loo
 end
 
 ---@brief 播放 Spine 显示 → Idle → 隐藏 整套动画
----@param spine Spine.Unity.SkeletonGraphic UI Spine组件
+---@param spine Spine.UnityEngine.SkeletonGraphic UI Spine组件
 ---@param idleDuration number Idle停留时长
 ---@param showAnim string 显示动画
 ---@param idleAnim string 循环Idle动画

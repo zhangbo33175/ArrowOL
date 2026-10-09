@@ -14,10 +14,10 @@
 
 --region Unity 核心命名空间
 ---@type UnityEngine @CS层：Unity引擎核心命名空间
-Unity = CS.UnityEngine
+UnityEngine = CS.UnityEngine
 
 ---@type UnityEngine.UI @CS层：Unity UI系统命名空间
-UnityUI = Unity.UI
+UnityUI = UnityEngine.UI
 --endregion
 
 --region 第三方插件命名空间
@@ -62,10 +62,10 @@ IAPWrapper = CS.IAPWrapper
 BuildPlatformName = GameMainRoot.Config:GetCurBuildPlatformName()
 
 ---@type boolean @是否运行在 Windows 编辑器
-IsWindowEditor = Unity.Application.platform == Unity.RuntimePlatform.WindowsEditor
+IsWindowEditor = UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsEditor
 
 ---@type boolean @是否运行在 Mac 编辑器
-IsMacEditor = Unity.Application.platform == Unity.RuntimePlatform.OSXEditor
+IsMacEditor = UnityEngine.Application.platform == UnityEngine.RuntimePlatform.OSXEditor
 
 ---@type boolean @是否运行在 Unity 编辑器环境
 IsEditor = IsWindowEditor or IsMacEditor
