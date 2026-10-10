@@ -131,6 +131,7 @@ end
 function UISettingView:OnBGClicked(args)
     -- TODO: 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
     CloseUI(UIs.UISettingView)
 end
 
@@ -139,6 +140,7 @@ end
 function UISettingView:OnCloseButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
     CloseUI(UIs.UISettingView)
 end
 
@@ -147,6 +149,7 @@ end
 function UISettingView:OnMusicButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
     local open, close = self:GetToggleObjects(ESettingType.MUSIC)
     self:ToggleSetting(ESettingType.MUSIC, open, close)
 end
@@ -156,6 +159,7 @@ end
 function UISettingView:OnSoundButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
     local open, close = self:GetToggleObjects(ESettingType.SOUND)
     self:ToggleSetting(ESettingType.SOUND, open, close)
 end
@@ -167,6 +171,9 @@ function UISettingView:OnVibrationButtonClicked(args)
     SoundManager:PlaySound("UI_SeasonStart")
     local open, close = self:GetToggleObjects(ESettingType.VIBRATION)
     self:ToggleSetting(ESettingType.VIBRATION, open, close)
+    -- 震动开关切换由 SettingDataManager:SetSettingNewState 联动设备震动总开关；
+    -- 基于新状态给轻反馈：开启才震，关闭不震
+    self:PlayClickVibrate()
 end
 
 --endregion
@@ -240,6 +247,17 @@ end
 function UISettingView:ApplyToggleDisplay(openObj, closeObj, on)
     if openObj then openObj:SetActive(on) end
     if closeObj then closeObj:SetActive(not on) end
+end
+
+---@brief 播放按钮点击轻震动反馈（受设备震动总开关控制，关闭时不震）
+---@type fun():void
+---@desc 点击任一设置按钮时给出 Selection 级轻触反馈；设备不支持或震动开关关闭时静默跳过
+function UISettingView:PlayClickVibrate()
+    if GameMainRoot == nil or GameMainRoot.Vibrate == nil then return end
+    local vibrate = GameMainRoot.Vibrate
+    if vibrate:IsSupported() and vibrate:GetEnable() then
+        vibrate:Play(Honor.Runtime.VibrateType.SelectionFeedback)
+    end
 end
 
 --endregion

@@ -344,5 +344,50 @@ namespace GameLib
             MapCamera.cullingMask &= ~(1 << layerNumber);
         }
         #endregion
+
+        #region 相机近裁剪面统一控制
+        //=========================================================================
+        // 相机近裁剪面统一控制
+        //=========================================================================
+        /// <summary>
+        /// 遍历场景所有相机，将近裁剪面统一设置为指定值（带 far 保护）。
+        /// 用途：消除 EventSystem/SendMouseEvents 对 z=0 坐标转换(ScreenPointToRay/ScreenToWorldPoint)
+        ///       时触发的 "Screen position out of view frustum" 告警——near 为负值时，
+        ///       z=0 换算出的视口深度 (0-near)/(far-near) 为正，不再越界。
+        /// </summary>
+        /// <param name="near">目标近裁剪面值（建议负值，如 -10）</param>
+        public static void SetAllCamerasNear(float near)
+        {
+            foreach (Camera cam in Camera.allCameras)
+            {
+                // 仅当 far 大于目标 near 时才设置，保证 near &lt; far 构成有效视锥，不裁掉远处物体
+                if (cam != null && cam.farClipPlane > near)
+                {
+                    cam.nearClipPlane = near;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取场景所有相机的诊断信息（名称/tag/激活/近裁剪面/远裁剪面/是否正交），
+        /// 用于定位产生 "Screen position out of view frustum" 告警的具体相机。
+        /// </summary>
+        public static string DebugGetAllCamerasInfo()
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (Camera cam in Camera.allCameras)
+            {
+                if (cam == null) continue;
+                sb.Append(cam.name)
+                  .Append("|tag=").Append(cam.tag)
+                  .Append("|active=").Append(cam.gameObject.activeInHierarchy)
+                  .Append("|near=").Append(cam.nearClipPlane)
+                  .Append("|far=").Append(cam.farClipPlane)
+                  .Append("|ortho=").Append(cam.orthographic)
+                  .Append(";");
+            }
+            return sb.ToString();
+        }
+        #endregion
     }
 }

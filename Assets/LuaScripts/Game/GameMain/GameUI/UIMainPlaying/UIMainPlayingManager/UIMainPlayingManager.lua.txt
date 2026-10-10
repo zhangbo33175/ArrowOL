@@ -372,9 +372,9 @@ function UIMainPlayingManager:ClearFishItems()
 end
 
 ---=========================================================================
----@brief 消除全部 FishItem：逐只播放晃动碎裂动画后销毁
----@param onAllDone function|nil 全部销毁完成回调
----@desc 失败结算前调用：对每个 FishItem 调用其自身视图的 PlayBreakAnimation 播完碎裂动画后销毁；
+---@brief 消除全部 FishItem：逐只播放 FishIcon 晃动碎裂动画后隐藏
+---@param onAllDone function|nil 全部动画完成回调
+---@desc 失败结算前调用：对每个 FishItem 调用其自身视图的 PlayBreakAnimation（作用于 FishIcon，完成后内部隐藏）；
 ---      全部结束后置位 FishBreakAnimationDone 并回调，供结算流程弹失败界面（先消鱼避免残留遮挡）
 --TODO: [迁移] FishItem 碎裂动画编排由 UIMainPlaying 迁入 Manager（动画逻辑仍在 FishItem 内）
 ---=========================================================================
@@ -423,11 +423,11 @@ function UIMainPlayingManager:BreakFishItemsByCount(count)
 end
 
 ---=========================================================================
----@brief 逐只播放 FishItem 晃动碎裂动画并销毁（错峰启动）
+---@brief 逐只播放 FishItem 内 FishIcon 节点的晃动碎裂动画（错峰启动，隐藏 FishIcon 不销毁 FishItem）
 ---@param items table<{transform,go,view}> 待消除的 FishItem 引用列表
----@param onAllDone function|nil 全部销毁完成回调
----@desc 统一编排：对每只鱼调用其自身视图 PlayBreakAnimation，错峰启动保证各自可见"晃动+碎裂"；
----      视图缺失或无方法时直接销毁并打日志，避免误判"只有最后一只有动画"
+---@param onAllDone function|nil 全部动画完成回调
+---@desc 统一编排：对每只鱼调用其自身视图 PlayBreakAnimation（动画作用于 FishIcon 节点，完成后内部隐藏 FishIcon）；
+---      视图缺失或无方法时跳过动画并打日志，避免误判"只有最后一只有动画"
 ---=========================================================================
 function UIMainPlayingManager:_PlayBreakForItems(items, onAllDone)
     if items == nil then
@@ -440,26 +440,23 @@ function UIMainPlayingManager:_PlayBreakForItems(items, onAllDone)
         return
     end
 
-    -- 单个 FishItem 完成回调：销毁节点并累计，全部播完后再统一回调
+    -- 单个 FishItem 完成回调：FishItem 内部已隐藏 FishIcon，此处仅累计，全部播完后再统一回调
     local doneCount = 0
-    local function onFishDone(fishGO)
-        if not IsNull(fishGO) then
-            UnityEngine.Object.Destroy(fishGO)
-        end
+    local function onFishDone()
         doneCount = doneCount + 1
         if doneCount >= total then
             if onAllDone then onAllDone() end
         end
     end
 
-    -- 逐只鱼独立播放动画：显式传入该鱼自身 Transform，并错峰启动，保证每只鱼都各自"晃动+碎裂"消失
+    -- 逐只鱼独立播放动画：FishItem 内部作用于 FishIcon 节点并错峰启动，保证每只鱼都各自"晃动+碎裂"消失
     --TODO: [修复] 错峰间隔 0.06→0.15：原 0.06 与单次摆动时长相等，多鱼时间线重叠，视觉上只剩最后一只有动画
     local staggerInterval = 0.15 -- 相邻两只鱼启动间隔（秒）
     for index, item in ipairs(items) do
         local fishTransform = item.transform
         local fishView = item.view
         -- 兜底：创建阶段 Awake 可能尚未完成导致 view 为空，再从节点重新取一次
-        --TODO: [修复] view 兜底取节点 LuaBehaviour.ValidLuaClass，避免创建时 luaClass 未初始化导致直接销毁
+        --TODO: [修复] view 兜底取节点 LuaBehaviour.ValidLuaClass，避免创建时 luaClass 未初始化导致跳过动画
         if fishView == nil and fishTransform ~= nil then
             local lb = fishTransform.gameObject:GetComponent("LuaBehaviour")
             if lb ~= nil then
@@ -469,16 +466,15 @@ function UIMainPlayingManager:_PlayBreakForItems(items, onAllDone)
         local startDelay = (index - 1) * staggerInterval
         if fishTransform ~= nil and fishView and fishView.PlayBreakAnimation then
             PrintInfo("[UIMainPlayingManager] 播放鱼动画 index=" .. index .. " name=" .. fishTransform.name)
-            fishView:PlayBreakAnimation(fishTransform, startDelay, function() onFishDone(fishTransform.gameObject) end)
+            fishView:PlayBreakAnimation(startDelay, onFishDone)
         else
             if fishTransform ~= nil and fishView ~= nil and fishView.PlayBreakAnimation == nil then
-                PrintWarning("[UIMainPlayingManager] 鱼视图无 PlayBreakAnimation 方法(可能绑定错误脚本)，直接销毁 index=" .. index)
+                PrintWarning("[UIMainPlayingManager] 鱼视图无 PlayBreakAnimation 方法(可能绑定错误脚本)，跳过动画 index=" .. index)
             elseif fishView == nil and fishTransform ~= nil then
-                PrintWarning("[UIMainPlayingManager] 鱼视图为空(LuaBehaviour未取到)，直接销毁无动画 index=" .. index)
+                PrintWarning("[UIMainPlayingManager] 鱼视图为空(LuaBehaviour未取到)，跳过动画 index=" .. index)
             end
-            if fishTransform ~= nil then
-                onFishDone(fishTransform.gameObject)
-            end
+            -- 视图缺失兜底：FishItem 不销毁，仅累计完成
+            onFishDone()
         end
     end
 end

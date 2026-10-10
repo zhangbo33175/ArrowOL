@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 18, 3, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 20, 3, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "InitMapCamera", _m_InitMapCamera_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LookMap", _m_LookMap_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LookMapPositionAndSize", _m_LookMapPositionAndSize_xlua_st_);
@@ -49,6 +49,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetSceneWidthByCamSize", _m_GetSceneWidthByCamSize_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "SetCameraRenderLayer", _m_SetCameraRenderLayer_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "CloseCameraRenderLayer", _m_CloseCameraRenderLayer_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "SetAllCamerasNear", _m_SetAllCamerasNear_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "DebugGetAllCamerasInfo", _m_DebugGetAllCamerasInfo_xlua_st_);
             
 			
             
@@ -530,6 +532,54 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetAllCamerasNear_xlua_st_(RealStatePtr L)
+        {
+            try {
+            
+            
+            
+                
+                {
+                    float _near = (float)LuaAPI.lua_tonumber(L, 1);
+                    
+                    GameLib.MapCamHelper.SetAllCamerasNear( _near );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_DebugGetAllCamerasInfo_xlua_st_(RealStatePtr L)
+        {
+            try {
+            
+            
+            
+                
+                {
+                    
+                        string gen_ret = GameLib.MapCamHelper.DebugGetAllCamerasInfo();
+                        LuaAPI.lua_pushstring(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_MapCamera(RealStatePtr L)

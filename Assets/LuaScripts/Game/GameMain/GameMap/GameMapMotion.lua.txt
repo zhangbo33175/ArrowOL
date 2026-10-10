@@ -755,8 +755,19 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.IsMouseDown = false
     self.IsPressing = false
 
-    -- 相机渲染区域：只显示中间区域（扣除顶部/底部UI），顶部/底部高度取自 MapData 单源
+    -- 相机渲染区域（rect全屏，方案B：红框裁剪改由UI RawImage布局控制，不裁剪相机）
     self:SetCameraRect(nil, nil, 1334)
+
+    -- 方案B阶段2：设近裁剪面为负值，使相机做 z=0 的坐标转换(EventSystem/SendMouseEvents 的
+    -- ScreenToWorldPoint/WorldToScreenPoint) 与地图物体(z≈-1)均落入视锥内，彻底消除
+    -- "Screen position out of view frustum" 告警。备份原near，OnMapEnd 还原。
+    --TODO: [方案B] nearClipPlane负值消除相机z=0转换的视锥外告警；与rect全屏双保险
+    if self.ScreenCamera ~= nil then
+        self._MapCamNearBackup = self.ScreenCamera.nearClipPlane
+        -- 统一遍历所有相机设负 near：覆盖 EventSystem/SendMouseEvents 射线检测用的 Camera.main 及各 UI worldCamera
+        --TODO: [方案B] SetAllCamerasNear 遍历 Camera.allCameras 统一设负 near，根治 z=0 坐标转换的视锥外告警
+        GameLib.MapCamHelper.SetAllCamerasNear(-10)
+    end
 
     -- 禁用物理射线检测：游戏点击由 TriggerClick 手动遍历 BoxCollider2D 处理，
     -- 不需要 Physics2DRaycaster / PhysicsRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
@@ -770,6 +781,7 @@ function GameMapMotion:OnMapStart(mapTrans)
     if raycaster3D then raycaster3D.enabled = false end
 
     print("[CameraDebug] rect: y="..self.ScreenCamera.rect.y.." h="..self.ScreenCamera.rect.height)
+    print("[CameraDebug] " .. GameLib.MapCamHelper.DebugGetAllCamerasInfo())
     print('[CameraDebug] size='..self.ScreenCamera.orthographicSize
         ..' halfW='..self.MapMotionLayer.m_AreaBounds.extents.x
         ..' halfH='..self.MapMotionLayer.m_AreaBounds.extents.y
@@ -894,7 +906,11 @@ function GameMapMotion:SetCameraRect(botHud, topHud, canvasH)
 
     local rectY = botHud / canvasH
     local rectH = math.max(0, (canvasH - topHud - botHud) / canvasH)
-    self.ScreenCamera.rect = UnityEngine.Rect(0, rectY, 1, rectH)
+    -- 方案B阶段1：相机保持全屏 rect(0,0,1,1)，不再裁剪相机——
+    -- 裁剪相机(rect非全屏)是 SendMouseEvents/GraphicRaycaster 视锥外告警的唯一来源，全屏后即消除。
+    -- rectY/rectH 仍计算并缓存，供后续(阶段2)红框遮罩定位与交互坐标偏移使用；地图红框改由 UI(RawImage布局)控制。
+    --TODO: [方案B] 相机rect全屏消除裁剪相机告警；红框视觉/坐标由UI遮罩+RawImage布局接管，待阶段2验证
+    self.ScreenCamera.rect = UnityEngine.Rect(0, 0, 1, 1)
 end
 
 ---@brief 更新相机渲染区域（底部UI隐藏/显示时调用）
@@ -917,6 +933,11 @@ function GameMapMotion:OnMapEnd()
     --TODO: [修复] 玩法结束恢复相机rect全屏，与 SetCameraRect 的裁剪形成完整闭环
     if self.ScreenCamera ~= nil then
         self.ScreenCamera.rect = UnityEngine.Rect(0, 0, 1, 1)
+        -- 方案B：还原近裁剪面，避免负near残留影响后续其他相机/界面使用
+        if self._MapCamNearBackup ~= nil then
+            self.ScreenCamera.nearClipPlane = self._MapCamNearBackup
+            self._MapCamNearBackup = nil
+        end
     end
 end
 

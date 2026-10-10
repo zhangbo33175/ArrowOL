@@ -4,17 +4,12 @@
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  FishItem.lua
 -- author:    云毅
--- created:   2026
--- @brief     生命 Item（生命值图标）
--- @desc      主界面生命值的可视化单元，由 UIMainPlayingManager:CreateFishItems 批量创建并挂载到
---            LifeTransform；生命被扣减时由 Manager 驱动其播放"左右晃动 + 碎裂消失"动画
--- @core      碎裂动画编排（DOTween 序列）、框架生命周期透传
--- @scope     单个生命值图标的动画表现，无业务数据读写
--- @dependency LuaBehaviourSuper, DOTween, UIMainPlayingManager
+-- descrip:   生命Item
 --=====================================================================================================
 
----@class FishItem : LuaBehaviourSuper @生命值图标单元
----@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
+---@class FishItem : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field FishIcon                           UnityEngine.GameObject        √                        生命小鱼
 local FishItem = class('FishItem', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
@@ -55,7 +50,10 @@ end
 ---@type fun():void
 function FishItem:Awake()
     FishItem.super.Awake(self)
-    -- 无自动注册内容。
+-- 2=====================================================================================================
+
+-- 无自动注册内容。
+-- ====================================================================================================2
 
 end
 
@@ -72,7 +70,10 @@ end
 ---@type fun():void
 function FishItem:OnDestroy()
     FishItem.super.OnDestroy(self)
-    -- 无自动注销内容。
+-- 3=====================================================================================================
+
+-- 无自动注销内容。
+-- ====================================================================================================3
 
 end
 
@@ -80,23 +81,25 @@ end
 
 --region 【碎裂动画】
 
----播放"左右晃动 + 碎裂消失"动画（每个 FishItem 独立播放）
----@brief 用 DOTween 序列实现：本地旋转左右往复摆动数下 -> 缩放至 0 碎裂 -> 回调
+---播放 FishIcon 节点"晃动 + 碎裂消失"动画（不销毁 FishItem，动画后隐藏 FishIcon）
+---@brief 动画作用于 FishIcon 子节点（生命小鱼图标）：本地旋转左右往复摆动数下 -> 缩放至 0 碎裂 -> 隐藏 FishIcon
 ---@desc FishItem 父节点为 HorizontalLayoutGroup（会覆盖子节点位置），故左右晃动改用旋转摆动实现，布局不会干预；
----      target 显式传入该 FishItem 自身的 Transform，保证每只鱼独立作用于自己的节点，互不干扰
+---      目标固定为该 FishItem 下的 FishIcon 节点（LuaBehaviour 注入字段），仅隐藏鱼图标、保留 FishItem 容器
 ---@desc 由 UIMainPlayingManager:_PlayBreakForItems 错峰调用（生命扣减/关卡失败时触发）
----@param fishTransform UnityEngine.Transform 该 FishItem 自身的 Transform
 ---@param startDelay number 启动延迟（秒），用于多只鱼错峰逐只播放动画
----@param onComplete function|nil 动画完成后回调（由调用方决定是否销毁）
---TODO: [修复] PlayBreakAnimation 改为显式传入目标 Transform 并支持错峰延迟，确保每只鱼各自播放摇晃+碎裂动画
-function FishItem:PlayBreakAnimation(fishTransform, startDelay, onComplete)
-    if IsNull(fishTransform) then
+---@param onComplete function|nil 动画完成后回调（FishItem 已在内部隐藏 FishIcon）
+--TODO: [修复] PlayBreakAnimation 目标改为 FishIcon 节点：动画完成后隐藏 FishIcon 而非销毁 FishItem
+function FishItem:PlayBreakAnimation(startDelay, onComplete)
+    -- 动画目标：FishIcon 节点（生命小鱼图标），FishItem 容器保留
+    local iconGO = self.FishIcon
+    if IsNull(iconGO) then
         if onComplete then onComplete(self) end
         return
     end
+    local fishTransform = iconGO.transform
 
-    --TODO: [诊断] 打印每只鱼动画开始，用于确认"每只鱼是否都实际播放碎裂动画"
-    PrintInfo("[FishItem] 播放碎裂动画 name=" .. fishTransform.name .. " delay=" .. tostring(startDelay))
+    --TODO: [诊断] 打印动画开始，用于确认每只鱼是否都实际播放碎裂动画
+    PrintInfo("[FishItem] 播放 FishIcon 碎裂动画 name=" .. fishTransform.name .. " delay=" .. tostring(startDelay))
 
     -- 清除目标上可能残留的旧补间，避免与打开动画叠加
     DOTween.Kill(fishTransform.gameObject, true)
@@ -122,7 +125,9 @@ function FishItem:PlayBreakAnimation(fishTransform, startDelay, onComplete)
     sequence:Append(fishTransform:DOScale(0, shatterDur):SetEase(Ease.InBack))
     sequence:OnComplete(function()
         --TODO: [诊断] 打印动画完成，用于确认每只鱼动画正常结束
-        PrintInfo("[FishItem] 碎裂动画完成 name=" .. fishTransform.name)
+        PrintInfo("[FishItem] FishIcon 碎裂完成，隐藏节点 name=" .. fishTransform.name)
+        -- 隐藏 FishIcon 节点（不销毁 FishItem，容器与底图保留）
+        iconGO:SetActive(false)
         if onComplete then onComplete(self) end
     end)
 end
