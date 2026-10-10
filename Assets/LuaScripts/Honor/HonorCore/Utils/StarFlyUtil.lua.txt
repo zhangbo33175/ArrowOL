@@ -1,17 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  StarFlyUtil.lua.txt
+-- filename:  StarFlyUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   飞星/贝塞尔动画工具（飞星界面打开与贝塞尔曲线飞行动画）
--- 功能：
--- 1. OpenStarFlyUI 打开飞星界面
--- 2. StarFlyAnimation 贝塞尔曲线飞行动画（数量/路径/偏移/缓动/回调）
--- 架构：纯工具表，依赖 RGame.StarFly/DG.Tweening/ECustomTweenID 与同域 UnityUtil
--- @note  业务扩展工具，依赖业务层 AllOpenUI/UIs 与飞星组件，仅业务层已加载时可用
+-- @brief     飞星/贝塞尔动画工具（飞星界面打开与贝塞尔曲线飞行动画）
+-- @desc      OpenStarFlyUI 打开飞星界面；StarFlyAnimation 贝塞尔曲线飞行动画（数量/路径/偏移/缓动/回调）
+-- @core      世界坐标转局部坐标、贝塞尔控制点 X 轴随机偏移、DOTween 进度驱动与完成回调
+-- @scope     金币/道具飞入结算动效与飞星 UI 入口
+-- @dependency RGame.StarFly, DG.Tweening, ECustomTweenID, AllOpenUI/UIs/OpenUISync, UnityUtil（同域）；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
+---@class StarFlyUtil @ 飞星/贝塞尔动画工具表：飞星界面打开与贝塞尔飞行动画
 local StarFlyUtil = {}
 
 --region 依赖引入
@@ -27,6 +27,7 @@ local UnityUtil = require('UnityUtil')
 
 ---@brief 打开飞星界面并播放飞星效果
 ---@param cfg StarFlyConfig 飞星配置数据
+---@desc 飞星 UI 未打开时经 OpenUISync 拉起；经 GameFunctions.OpenStarFlyUI 全局包装对外暴露
 function StarFlyUtil.OpenStarFlyUI(cfg)
     if not AllOpenUI[UIs.UIStarFly.Name] then
         OpenUISync(UIs.UIStarFly)
@@ -48,6 +49,7 @@ end
 ---@param reverseCtrlX boolean 是否反转X轴控制点
 ---@param minOffsetX number X轴最小偏移
 ---@param maxOffsetX number X轴最大偏移
+---@desc 组件为空时直接回调 onComplete(nil)；坐标转局部后驱动 DOTween 进度，完成回调回传 gameObject；同 id 先 Kill 再播放；经 GameFunctions.StarFlyAnimation 全局包装对外暴露
 function StarFlyUtil.StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, duration, delay, ease, tweenId, realTime, onComplete, reverseCtrlX, minOffsetX, maxOffsetX)
     if UnityUtil.IsNull(starFly) then
         if onComplete then onComplete(nil) end

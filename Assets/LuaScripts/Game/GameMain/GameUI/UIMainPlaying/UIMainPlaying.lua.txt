@@ -1,31 +1,38 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIMainPlaying.lua
 -- author:    云毅
--- descrip:   游戏主界面（视图层，只处理界面内容；业务逻辑见 UIMainPlayingManager）
+-- created:   2026
+-- @brief     游戏主界面（视图层）
+-- @desc      游戏进行中的主界面视图：只负责界面内容与按钮挂载，业务逻辑统一在 UIMainPlayingManager
+--            中处理；Awake 时把设置/搜索/显隐背景按钮绑定到 Manager 动作，并在打开/关闭时挂载卸载 Manager
+-- @core      按钮监听挂载、Manager 生命周期联动、目标完成数/道具数文本刷新、FishItem 挂载节点解析
+-- @scope     主界面视图表现与点击穿透拦截，不含战斗/数据业务
+-- @dependency LuaBehaviourSuper, UIMainPlayingManager, SoundManager
 --=====================================================================================================
 
----@class UIMainPlaying : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field Top                                UnityEngine.RectTransform     √                        Top
----@field Right                              UnityEngine.RectTransform     √                        Right
----@field CompleteNumber                     TMPro.TextMeshProUGUI         √                        目标完成显示
----@field LifeTransform                      UnityEngine.Transform         √                        当前体力显示
----@field UsedNumber                         TMPro.TextMeshProUGUI         √                        显示道具次数
----@field SettingButton                      UnityEngine.UI.Button         √         Clicked        设置按钮
----@field SearchButton                       UnityEngine.UI.Button         √         Clicked        搜索按钮
----@field LifeTransform                      UnityEngine.GameObject        √                        生命值显示父类
----@field AdDisplayGameObject                UnityEngine.GameObject        √                        广告背景展示
----@field xianshi                            UnityEngine.UI.Button         √         Clicked        显示背景
----@field yinchang                           UnityEngine.UI.Button         √         Clicked        隐藏背景
----@field Bg                                 UnityEngine.UI.Image          √                        界面bg图
+---@class UIMainPlaying : LuaBehaviourSuper @游戏主界面视图
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
+---@field Top UnityEngine.RectTransform @顶部拦截节点（Inspector 注入）
+---@field Right UnityEngine.RectTransform @右侧节点（Inspector 注入）
+---@field CompleteNumber TMPro.TextMeshProUGUI @目标完成数文本（Inspector 注入）
+---@field LifeTransform UnityEngine.Transform @生命值显示挂载父节点（Inspector 注入）
+---@field UsedNumber TMPro.TextMeshProUGUI @已用道具次数文本（Inspector 注入）
+---@field SettingButton UnityEngine.UI.Button @设置按钮（Clicked 打开设置界面）
+---@field SearchButton UnityEngine.UI.Button @搜索按钮（Clicked 自动扫描）
+---@field LifeTransform UnityEngine.GameObject @生命值显示父节点（同名双注入，GameObject 形态）
+---@field AdDisplayGameObject UnityEngine.GameObject @广告背景展示节点
+---@field xianshi UnityEngine.UI.Button @显示背景按钮（Clicked 显示广告背景）
+---@field yinchang UnityEngine.UI.Button @隐藏背景按钮（Clicked 隐藏广告背景）
+---@field Bg UnityEngine.UI.Image @界面背景图
 local UIMainPlaying = class('UIMainPlaying', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
 
 ---构造函数
+---@brief 框架驱动，仅透传基类构造
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UIMainPlaying:ctor(args)
@@ -33,6 +40,7 @@ function UIMainPlaying:ctor(args)
 end
 
 ---创建函数
+---@brief 框架驱动，由 UI 管理器通过 UIs 表反射调用
 ---@type fun(args:table):UIMainPlaying
 ---@param args table @自定义参数
 ---@return UIMainPlaying @实例
@@ -46,6 +54,7 @@ end
 --region 【生命周期】
 
 ---注册监听（自动注销）
+---@brief 框架驱动，按钮监听在 Awake 中通过 self:AddUIListener 注册
 ---@type fun():void
 function UIMainPlaying:OnAddListeners()
     UIMainPlaying.super.OnAddListeners(self)
@@ -53,15 +62,14 @@ function UIMainPlaying:OnAddListeners()
 end
 
 ---唤醒
----@type fun():void
----@desc 逐条注册按钮交互监听到 Manager 业务动作（业务逻辑统一在 Manager 中处理）；
----      监听经 self:AddUIListener 记录，界面销毁时由 LuaBehaviourSuper:OnDestroy 自动注销
+---@brief 框架驱动；逐条注册按钮交互监听到 Manager 业务动作（业务逻辑统一在 Manager 中处理）；
+---@desc 监听经 self:AddUIListener 记录，界面销毁时由 LuaBehaviourSuper:OnDestroy 自动注销
 ---@desc 回调统一使用 Bind(self, method) 绑定（对齐 HonorUI `self:AddUIListener(eventCode, Bind(self, _OnX))` 结构）
 --TODO: [优化] 按钮监听由 AddUIListenerBatch 批量改为 self:AddUIListener 逐条（自动注销，对齐 UIAnnalsView 模式）
 function UIMainPlaying:Awake()
     UIMainPlaying.super.Awake(self)
     -- 绑定按钮 → Manager 业务动作（业务逻辑统一在 Manager 中处理）
-    -- TODO: 按钮点击统一播放开始音效（保持 Bind 结构表 {target,method,func}，仅替换 func：
+    --TODO: [音效] 按钮点击统一播放开始音效（保持 Bind 结构表 {target,method,func}，仅替换 func：
     --       先播放 UI_SeasonStart 再执行业务逻辑；不可返回裸函数，否则 AddListener/RemoveListener 访问
     --       handler.target/method/func 时会报 "attempt to index a function value"）
     local function withSeasonStart(handler)
@@ -88,6 +96,7 @@ function UIMainPlaying:Awake()
 end
 
 ---开始
+---@brief 框架驱动；打开界面时按当前生命数加载 FishItem（业务交 Manager）
 ---@type fun():void
 function UIMainPlaying:Start()
     UIMainPlaying.super.Start(self)
@@ -96,9 +105,9 @@ function UIMainPlaying:Start()
 end
 
 ---销毁
+---@brief 框架驱动；UI 按钮监听由 LuaBehaviourSuper:OnDestroy 自动注销（self:AddUIListener 记录），
+---@desc 此处仅卸载 Manager：注销业务事件监听、清空视图引用
 ---@type fun():void
----@desc UI 按钮监听由 LuaBehaviourSuper:OnDestroy 自动注销（self:AddUIListener 记录），
----      此处仅卸载 Manager：注销业务事件监听、清空视图引用
 function UIMainPlaying:OnDestroy()
     UIMainPlaying.super.OnDestroy(self)
     -- 卸载 Manager：注销业务事件监听、清空视图引用
@@ -106,18 +115,21 @@ function UIMainPlaying:OnDestroy()
 end
 
 ---播放打开动画（可重写）
+---@brief 框架驱动（可重写），打开界面时播放
 ---@type fun():void
 function UIMainPlaying:OnPlayOpenAnimation()
     UIMainPlaying.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画（可重写）
+---@brief 框架驱动（可重写），关闭界面时播放
 ---@type fun():void
 function UIMainPlaying:OnPlayCloseAnimation()
     UIMainPlaying.super.OnPlayCloseAnimation(self)
 end
 
 ---子UI销毁回调
+---@brief 框架驱动，本视图 AddUI 出的子 UI 销毁时回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UIMainPlaying:OnAddedUIDestroyed(luaClass)
@@ -129,23 +141,17 @@ end
 --region 【界面数据】
 
 ---@brief 设置目标完成数
+---@desc 由 UIMainPlayingManager:RefreshCompleteNumber 调用，写入 CompleteNumber 文本
 ---@param value any @完成数量（由 Manager 传入）
 function UIMainPlaying:SetCompleteNumber(value)
     self.CompleteNumber.text = value
 end
 
 ---@brief 设置已使用道具数
+---@desc 由 UIMainPlayingManager:RefreshUsedNumber 调用，写入 UsedNumber 文本
 ---@param value any @已使用道具数量（由 Manager 传入）
 function UIMainPlaying:SetUsedNumber(value)
     self.UsedNumber.text = value
-end
-
----@brief 设置生命数（预留接口）
----@param value any @生命数量（由 Manager 传入；当前以 FishItem 图标展示，无文本字段时跳过）
-function UIMainPlaying:SetLifeNumber(value)
-    if self.LifeNumber then
-        self.LifeNumber.text = value
-    end
 end
 
 --endregion
@@ -155,6 +161,7 @@ end
 ---获取 FishItem 挂载父节点（LifeTransform）
 ---@brief 兼容注入字段为 Transform 或 GameObject 两种形态（预制体存在同名双注入），
 ---      注入为空时按名称递归查找，最终兜底到自身节点
+---@desc 由 UIMainPlayingManager 创建/清除 FishItem 时调用
 ---@return UnityEngine.Transform 挂载父节点（Transform）
 function UIMainPlaying:GetFishParent()
     local parent = self.LifeTransform
@@ -176,6 +183,7 @@ end
 
 ---给指定节点添加透明Image拦截点击穿透
 ---@brief 优先使用注入字段，其次在自身节点、根节点下按名称查找，找到后添加透明 Image 拦截点击
+---@desc 由 Awake 调用，为 Top/Down 节点加透明 Image 拦截点击穿透，避免穿透到下层地图
 ---@param nodeName string @节点名
 function UIMainPlaying:AddRaycastBlocker(nodeName)
     local node = nil

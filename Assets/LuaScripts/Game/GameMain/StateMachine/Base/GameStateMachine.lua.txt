@@ -6,18 +6,23 @@
 -- created:   2026
 -- @brief     游戏业务状态机（总调度）
 -- @desc      注册、管理、切换所有游戏状态（登录/加载地图/主界面/战斗/选关/返回预加载）
+-- @core      状态表注册、ChangeState 切换（退出旧状态→进入新状态）、帧更新驱动、Try 异常保护
+-- @scope     全局单例，由 ProcedurePlaying:OnUpdate 每帧驱动 OnUpdate；LoginManager/GameLoadMapState 等外部 ChangeState
 -- @feat      全局状态管理、安全切换、生命周期调度、异常保护、日志输出
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
 -- @规范      Unity Lua 商业项目编码标准 / 核心框架规范
--- @dependency StateBase, GameEntry, TableUtility, LogSystem
+-- @dependency GameStateBase, GameStateCmd, SafeCallFinish, Try, PrintInfo/Warning/Error
 --=====================================================================================================
 
 ---@class GameStateMachine 游戏业务状态机（全局唯一）
+---@field _stateMap table<GameStateCmd, GameStateBase> @已注册的状态表
+---@field _currentState GameStateBase|nil @当前正在运行的状态
+---@field _preState GameStateBase|nil @上一个运行的状态
 local GameStateMachine = class('GameStateMachine')
 
 --region 【内部工具】
 
----@brief 状态切换早退时安全触发完成回调（ChangeState 重复/失败分支复用）
+---@brief 状态切换早退时安全触发完成回调（ChangeState 重复/失败分支复用，local 私有）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 切换完成回调
 local function SafeCallChangeFinish(finishCallback)
@@ -28,7 +33,8 @@ end
 
 --region 【构造 & 单例】
 
----@brief 构造函数
+---@brief 构造函数（框架驱动，勿删）
+---@desc require 并实例化全部 5 个游戏状态，注册进 _stateMap
 ---@type fun(args:table):void
 ---@param args table 自定义参数
 function GameStateMachine:ctor(args)
@@ -44,7 +50,7 @@ function GameStateMachine:ctor(args)
     self._stateMap[GameStateCmd.TurnToPreloadState] = require("GameTurnToProLoadState"):Create(GameStateCmd.TurnToPreloadState)
 end
 
----@brief 创建单例实例
+---@brief 创建单例实例（框架驱动，勿删）
 ---@type fun(args:table):GameStateMachine
 ---@param args table 自定义参数
 ---@return GameStateMachine 状态机实例
@@ -56,7 +62,7 @@ end
 
 --region 【状态获取】
 
----@brief 获取当前状态类型
+---@brief 获取当前状态类型（外部查询：GuideNewContext/CharacterBase/GamePlayHelper/GameMainUIPushManager 等）
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 当前状态枚举
 function GameStateMachine:CurrentStateType()
@@ -66,7 +72,7 @@ function GameStateMachine:CurrentStateType()
     return nil
 end
 
----@brief 获取上一个状态类型
+---@brief 获取上一个状态类型（GameLoadMapStateBase:OnStateEnter 判断 pre 是否 LoginState）
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 上一个状态枚举
 function GameStateMachine:PreStateType()
@@ -80,7 +86,8 @@ end
 
 --region 【状态切换 - 外部唯一入口】
 
----@brief 切换游戏状态
+---@brief 切换游戏状态（外部唯一入口：LoginManager/GameLoadMapState 等调用）
+---@desc 同状态早退→未注册状态报错早退→退出当前状态 OnStateExit 后进入新状态 OnStateEnter
 ---@type fun(nextStateCmd:GameStateCmd, finishCallback:function):void
 ---@param nextStateCmd GameStateCmd 要切换的目标状态
 ---@param finishCallback function 切换完成回调
@@ -116,7 +123,7 @@ end
 
 --region 【状态切换内部流程】
 
----@brief 前状态退出完成后，进入新状态
+---@brief 前状态退出完成后，进入新状态（ChangeState 内部流程，Try 包裹异常保护）
 ---@type fun(currentState:GameStateBase, nextState:GameStateBase, finishCallback:function):void
 ---@param currentState GameStateBase 要退出的当前状态
 ---@param nextState GameStateBase 要进入的下一个状态
@@ -133,7 +140,7 @@ end
 
 --region 【帧更新】
 
----@brief 状态机帧更新（驱动当前状态Update）
+---@brief 状态机帧更新（由 ProcedurePlaying:OnUpdate 每帧驱动，转发当前状态 OnUpdate）
 ---@type fun():void
 function GameStateMachine:OnUpdate()
     if self._currentState ~= nil then

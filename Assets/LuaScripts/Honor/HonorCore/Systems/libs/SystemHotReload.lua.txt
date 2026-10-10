@@ -4,6 +4,11 @@
 -- filename:  SystemHotReload.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     Lua 运行时热重载（替换代码并保留数据 / upvalue）
+-- @desc      主入口 __RELOAD_LUA_HOTFIX__ 重新加载模块替换旧代码，保留运行时数据与 upvalue，支持 OnReload 回调、单例/类热更
+-- @core      模块替换、upvalue/数据保留、OnReload 回调、单例/类热更
+-- @scope     框架热更核心（仅开发调试期），配合 package.loaded 与新模块表合并
+-- @dependency package.loaded（Lua 标准库）
 -- descrip:   Lua 运行时热重载（替换代码并保留数据/upvalue）
 -- 功能：
 -- 1. 主入口 __RELOAD_LUA_HOTFIX__ 重新加载模块替换旧代码

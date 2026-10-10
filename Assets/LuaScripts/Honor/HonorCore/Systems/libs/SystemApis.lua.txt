@@ -4,6 +4,11 @@
 -- filename:  SystemApis.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     系统全局函数库（异常捕获 / 类型检查 / OOP 继承 / 热更 / 表·串·数·IO 工具）
+-- @desc      框架最底层全局函数集合：异常追踪桥接 C# GameException、类型安全检查与 require 加载、数学/IO/表/字符串等底层工具
+-- @core      __G__TRACK_BACK__ 异常追踪、OOP 类继承、require 模块化加载、底层全局函数
+-- @scope     全局注入（框架启动最先加载），被全部脚本隐式依赖，禁止业务重名覆盖
+-- @dependency 无（纯 Lua 底层库，被一切脚本依赖）
 -- descrip:   系统全局函数库（异常捕获/类型检查/OOP继承/热更新/表·字符串·数学·IO 工具）
 -- 功能：
 -- 1. 全局异常追踪 __G__TRACK_BACK__ 并桥接 C# GameException

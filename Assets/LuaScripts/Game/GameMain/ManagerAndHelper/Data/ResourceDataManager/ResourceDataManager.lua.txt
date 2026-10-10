@@ -5,7 +5,9 @@
 -- author:    云毅
 -- created:   2026
 -- @brief     资源物品表格数据管理中心
--- @desc      读取物品配置表、按类型/子类型获取道具列表、获取资源类型、缓存分类道具数据
+-- @desc      读取物品配置表、按类型/子类型获取道具列表、缓存分类道具数据
+-- @core      物品配置表读取、按子类型/资源类型缓存道具ID列表、稳定数字排序
+-- @scope     物品/资源配置查询，供 ItemManager/BuffManager/TrackUtil/RewardUtil 跨文件调用
 -- @feat      全局单例、自动缓存、安全查询、分类排序、配置容错
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
@@ -105,21 +107,6 @@ function ResourceDataManager:GetResourceData(resID)
     if not resID then return nil end
     local items = self:GetResourceDatas()
     return items[tostring(resID)]
-end
-
---endregion
-
---region 资源类型获取
-
----=========================================================================
----@brief  根据资源ID获取资源类型
----@type fun(resID:string):EResourceType|nil
----@param resID string 资源ID
----@return EResourceType|nil
----=========================================================================
-function ResourceDataManager:GetResourceTypeById(resID)
-    local data = self:GetResourceData(resID)
-    return data and data.Type or nil
 end
 
 --endregion

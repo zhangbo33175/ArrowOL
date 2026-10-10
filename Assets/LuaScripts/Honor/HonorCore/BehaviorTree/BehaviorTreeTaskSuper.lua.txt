@@ -4,12 +4,11 @@
 -- filename:  BehaviorTreeTaskSuper.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   Lua 行为树 Task 节点基类（所有 BT 节点父类）
--- 功能：
--- 1. ctor 绑定 env 环境、保存 args / 节点名 / 归属 LuaBehaviour 与 C# 节点对象
--- 2. Create 工厂方法创建节点实例
--- 3. OnDestroy 释放引用并按 target 自动移除本节点全部事件
--- 架构：class("BehaviorTreeTaskSuper") 基类，桥接 C# 行为树节点对象
+-- @brief     Lua 行为树 Task 节点基类（所有 BT 节点父类）
+-- @desc      ctor 绑定 env 环境、保存 args / 节点名 / 归属 LuaBehaviour 与 C# 节点对象；Create 工厂创建节点；OnDestroy 释放引用并按 target 自动移除本节点全部事件
+-- @core      env 环境绑定、Lua/C# 节点对象桥接、销毁时按 target 自动注销事件
+-- @scope     Action / Conditional / Composite 等 BT 节点公共父类；由 C# 行为树引擎驱动生命周期
+-- @dependency LuaBehaviourSuper（归属脚本）、C# 行为树节点对象、HonorEventHelper（按 target 移除事件）
 -- @note  Action / Conditional / Composite 等节点均须继承本类；销毁时自动注销事件
 --=====================================================================================================
 

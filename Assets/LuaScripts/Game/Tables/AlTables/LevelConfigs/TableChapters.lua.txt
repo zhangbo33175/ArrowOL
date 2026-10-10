@@ -5,6 +5,11 @@
 -- filename:  TableChapters
 -- descrip:   章节地图表
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     章节（大章）地图配置表
+-- @desc      定义各章节标题、关联关卡、解锁条件与地图/音乐资源
+-- @core      以章节 ID 为主键，字段含 ChapterTitle、ChapterInfoID（关卡ID数组）、UnlockNextLevel、MapName、MapMusic
+-- @scope     章节地图切换、章节解锁与关外音乐播放
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Chapters 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.Chapters_Item @章节地图表条目

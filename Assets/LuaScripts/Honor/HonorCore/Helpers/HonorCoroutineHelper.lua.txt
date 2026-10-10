@@ -4,24 +4,31 @@
 -- filename:  HonorCoroutineHelper.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   协程助手（全局协程管理器 + GC 优化）
--- 功能：
--- 1. 启动 / 停止 / 管理 Lua 协程
--- 2. 绑定 GameObject，物体销毁自动停协程
--- 3. 缓存 WaitForSeconds，大幅减少 GC 分配
--- 4. 支持帧等待与真实时间等待
--- 架构：全局单例助手，require SystemUtil 协程工具 + Unity WaitForSeconds 缓存池
--- @note  依赖 xlua SystemUtil；等待对象缓存复用，避免频繁 new 等待句柄
+-- @brief     协程助手（全局协程管理器 + GC 优化）
+-- @desc      启动/停止/管理 Lua 协程，支持绑定 GameObject 在物体销毁时自动停协程，
+--            缓存 WaitForSeconds 等待句柄以大幅减少 GC 分配，支持帧等待与真实时间等待
+-- @core      xlua SystemUtil 协程生成、target 绑定追踪、等待句柄缓存池、逆序匹配停止
+-- @scope     全游戏协程统一调度入口；界面销毁经 StopByGO 释放绑定协程
+-- @dependency xlua SystemUtil, GameMainRoot.Launcher, UnityEngine.WaitForSeconds
+-- @note      依赖 xlua SystemUtil；等待对象缓存复用，避免频繁 new 等待句柄
 --=====================================================================================================
 
 --region 协程管理助手
----@class CoroutineWaitHelper 等待对象缓存池（减少GC）
+---@class CoroutineWaitHelper @ 等待对象缓存池（减少GC）
+---@field waitForSeconds table @ 普通等待缓存（按毫秒索引的 WaitForSeconds 复用队列）
+---@field WaitForSecondsRealtime table @ 真实时间等待缓存（按毫秒索引的 WaitForSecondsRealtime 复用队列）
 local CoroutineWaitHelper = class("CoroutineWaitHelper")
 
----@class HonorCoroutineHelper 协程管理助手
+---@class HonorCoroutineHelper @ 协程管理助手
+---@field _util table @ xlua SystemUtil 协程工具
+---@field _coroutines table[] @ 协程列表：{target, coroutine}
+---@field waitForEndOfFrame userdata @ 等待帧末句柄
+---@field waitForSeconds CoroutineWaitHelper @ 等待时间缓存池
 local HonorCoroutineHelper = class("HonorCoroutineHelper")
 
 ---@brief 构造函数
+---@desc 加载 xlua SystemUtil，初始化协程列表与等待句柄缓存池
+---@param args table 自定义参数（预留）
 function HonorCoroutineHelper:ctor(args)
     self._util = require("SystemUtil")         --- xlua 协程工具
     self._coroutines = {}                      --- 协程列表：{target, coroutine}
@@ -32,16 +39,17 @@ function HonorCoroutineHelper:ctor(args)
 end
 
 ---@brief 创建实例
----@param args table
----@return HonorCoroutineHelper
+---@param args table 初始化参数（可选）
+---@return HonorCoroutineHelper 协程管理实例
 function HonorCoroutineHelper:Create(args)
     local obj = HonorCoroutineHelper.new(args)
     return obj
 end
 
 ---@brief 启动协程（自动绑定 target，方便后续销毁）
----@param handler table
----@return UnityEngine.Coroutine
+---@desc 经 Launcher 启动 cs_generator 协程，并记录 target 以便 Stop/StopByGO 释放
+---@param handler table 协程处理器（含 func 与 target）
+---@return UnityEngine.Coroutine 协程句柄
 function HonorCoroutineHelper:Start(handler)
     local co = nil
     if GameMainRoot.Launcher then
@@ -54,8 +62,9 @@ function HonorCoroutineHelper:Start(handler)
 end
 
 ---@brief 独立启动协程（不绑定 target）
----@param func function
----@return UnityEngine.Coroutine
+---@desc 不记录 target，需调用方自行持有句柄并 StopAlone
+---@param func function 协程执行函数
+---@return UnityEngine.Coroutine 协程句柄
 function HonorCoroutineHelper:StartAlone(func)
     if GameMainRoot.Launcher then
         return GameMainRoot.Launcher:StartCoroutine(self._util.cs_generator(func))
@@ -64,7 +73,8 @@ function HonorCoroutineHelper:StartAlone(func)
 end
 
 ---@brief 停止单个独立协程
----@param co UnityEngine.Coroutine
+---@desc 停止 StartAlone 启动的未绑定协程
+---@param co UnityEngine.Coroutine 协程句柄
 function HonorCoroutineHelper:StopAlone(co)
     if not co then return end
     if GameMainRoot.Launcher then
@@ -73,6 +83,7 @@ function HonorCoroutineHelper:StopAlone(co)
 end
 
 ---@brief 停止所有协程
+---@desc 调用 Launcher 停全部协程并清空追踪列表
 function HonorCoroutineHelper:StopAll()
     if GameMainRoot.Launcher then
         GameMainRoot.Launcher:StopAllCoroutines()
@@ -81,14 +92,16 @@ function HonorCoroutineHelper:StopAll()
 end
 
 ---@brief 停止指定协程
----@param co UnityEngine.Coroutine
+---@desc 逆序遍历追踪列表，按句柄匹配停止对应协程
+---@param co UnityEngine.Coroutine 协程句柄
 function HonorCoroutineHelper:Stop(co)
     if not co then return end
     self:_StopMatchingCoroutines(function(entry) return entry.coroutine == co end)
 end
 
 ---@brief 根据 GameObject 停止其所有协程（界面销毁必备）
----@param go UnityEngine.GameObject
+---@desc 界面销毁时按 target GameObject 释放其绑定的全部协程
+---@param go UnityEngine.GameObject 目标物体
 function HonorCoroutineHelper:StopByGO(go)
     if not go then return end
     self:_StopMatchingCoroutines(function(entry) return entry.target == go end)
@@ -107,14 +120,16 @@ function HonorCoroutineHelper:_StopMatchingCoroutines(match)
 end
 
 ---@brief 等待指定帧数
----@param waitter any
+---@desc 复位 waitter 后协程 yield 该帧等待对象
+---@param waitter any 帧等待对象
 function HonorCoroutineHelper:WaitForFrame(waitter)
     waitter:Reset()
     coroutine.yield(waitter)
 end
 
 ---@brief 等待秒数（带缓存，无GC）
----@param waitTime number
+---@desc 按毫秒精度取缓存池 WaitForSeconds，取出等待后回收，全程无 GC 分配
+---@param waitTime number 等待秒数
 function HonorCoroutineHelper:WaitForSeconds(waitTime)
     waitTime = math.floor(waitTime * 1000) / 1000  -- 精度处理
     local cache = self.waitForSeconds.waitForSeconds[waitTime]
@@ -131,7 +146,8 @@ function HonorCoroutineHelper:WaitForSeconds(waitTime)
 end
 
 ---@brief 等待真实秒数（不受时间缩放影响，带缓存）
----@param waitTime number
+---@desc 按毫秒精度取缓存池 WaitForSecondsRealtime，取出等待后回收
+---@param waitTime number 等待真实秒数
 function HonorCoroutineHelper:WaitForSecondsRealtime(waitTime)
     waitTime = math.floor(waitTime * 1000) / 1000
     local cache = self.waitForSeconds.WaitForSecondsRealtime[waitTime]

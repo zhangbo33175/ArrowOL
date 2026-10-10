@@ -5,8 +5,10 @@
 -- author:    云毅
 -- created:   2026
 -- @brief     全局音效/音乐播放管理中心
--- @desc      统一管理BGM、音效播放、音量控制、静音开关、暂停/恢复/停止
--- @feat      支持BGM播放、音效分组、音量控制、暂停/恢复/停止、设置开关联动
+-- @desc      统一管理BGM、音效播放、音量控制、静音开关、停止
+-- @core      当前BGM去重播放、音效组音量联动、设置开关同步
+-- @scope     全局唯一单例；状态机/关卡结算/UI点击音效均经本管理器播放
+-- @feat      支持BGM播放、音效分组、音量控制、停止、设置开关联动
 -- @dependency Singleton, GlobalDefine, EventManager, SettingDataManager
 --=====================================================================================================
 
@@ -14,7 +16,6 @@
 ---@field _curBgmSerialId number @当前正在播放的背景音乐序列号
 ---@field _curBgmKey string @当前播放的背景音乐配置Key
 ---@field _soundGroupNames table @所有音效组名称缓存（排除Music）
----@field _pauseSoundGroupNames table @可暂停的音效组缓存（排除Music/UISound）
 local SoundManager = class("SoundManager", import("Singleton"))
 
 --region 生命周期 & 基础函数
@@ -29,7 +30,6 @@ function SoundManager:ctor(args)
     self._curBgmSerialId = -1             ---@type number  当前正在播放的背景音乐序列号
     self._curBgmKey = nil                 ---@type string  当前播放的背景音乐配置Key
     self._soundGroupNames = nil           ---@type table   所有音效组名称缓存（排除Music）
-    self._pauseSoundGroupNames = nil      ---@type table   可暂停的音效组缓存（排除Music/UISound）
 end
 
 ---=========================================================================
@@ -109,31 +109,6 @@ function SoundManager:StopSound(serialId)
     GameMainRoot.Sound:StopSound(serialId)
 end
 
----=========================================================================
----@brief 对外接口：获取音效时长（同步加载）
----@param soundKey string @音效配置Key
----@return number 音效时长（秒）
----=========================================================================
-function SoundManager:GetSoundDuration(soundKey)
-    local duration = 1
-    if Tables.Sounds[soundKey] ~= nil then
-        local assetInfo = Tables.Sounds[soundKey]
-        local audioAsset = GameMainRoot.Asset:LoadAssetSync("Sound", assetInfo.ABPath, assetInfo.AssetName)
-        if audioAsset ~= nil then
-            duration = audioAsset.length
-            GameMainRoot.Asset:UnloadAsset(audioAsset)
-        end
-    end
-    return duration
-end
-
----=========================================================================
----@brief 对外接口：设置音效总开关状态
----@param isMute boolean true=静音关闭 false=正常播放
----=========================================================================
-function SoundManager:SetSoundMuteState(isMute)
-    SettingDataManager:SetSettingNewState(ESettingType.SOUND, isMute)
-end
 --endregion
 
 --region 内部逻辑
@@ -158,14 +133,6 @@ function SoundManager:OnPlayBgm(soundKey)
 end
 
 ---=========================================================================
----@brief 获取当前正在播放的BGM Key
----@return string 当前BGM配置Key
----=========================================================================
-function SoundManager:GetCurrentBgmKey()
-    return self._curBgmKey
-end
-
----=========================================================================
 --- 停止当前背景音乐
 ---@brief 安全停止当前BGM并重置序列号
 ---=========================================================================
@@ -184,7 +151,7 @@ end
 ---@param bgmKey string BGM键值
 ---=========================================================================
 function SoundManager:OnBgmSwitchChanged(eType, newState, bgmKey)
-    -- TODO: 修复音乐音量逻辑与开关语义相反的问题（原 GetSettingState==true 时误设为静音 0，导致"开"却无声）
+    --TODO: [音效] 修复音乐音量逻辑与开关语义相反的问题（原 GetSettingState==true 时误设为静音 0，导致"开"却无声）
     -- 语义对齐：GetSettingState 返回 true=开启；开启 → 正常音量(1)，关闭 → 静音(0)
     if SettingDataManager:GetSettingState(ESettingType.MUSIC) == true then
         GameMainRoot.Sound:SetAllSoundVolume(1, "Music")
@@ -220,54 +187,17 @@ function SoundManager:CacheAllSoundGroupNames()
 end
 
 ---=========================================================================
---- 预缓存可暂停的音效组（排除Music/UISound）
----@brief 缓存用于场景暂停时的音效控制
----=========================================================================
-function SoundManager:CachePauseSoundGroupNames()
-    if self._pauseSoundGroupNames == nil then
-        self._pauseSoundGroupNames = {}
-        for key, config in pairs(Tables.Sounds) do
-            if config.GroupName ~= "Music" and config.GroupName ~= "UISound" then
-                self._pauseSoundGroupNames[config.GroupName] = 1
-            end
-        end
-    end
-end
-
----=========================================================================
 --- 刷新所有运行时音效音量（开关联动）
 ---@brief 根据设置开关全局刷新音效音量
 ---=========================================================================
 function SoundManager:RefreshRuntimeSoundVolume()
-    -- TODO: 修复音效音量逻辑与开关语义相反的问题（原 GetSettingState==true 时误设为 0，导致"开"却无声）
+    --TODO: [音效] 修复音效音量逻辑与开关语义相反的问题（原 GetSettingState==true 时误设为 0，导致"开"却无声）
     -- 语义对齐：GetSettingState 返回 true=开启；开启 → 正常音量(1)，关闭 → 静音(0)
     local volume = SettingDataManager:GetSettingState(ESettingType.SOUND) and 1 or 0
     self:CacheAllSoundGroupNames()
 
     for groupName, _ in pairs(self._soundGroupNames) do
         GameMainRoot.Sound:SetAllSoundVolume(volume, groupName)
-    end
-end
-
----=========================================================================
---- 暂停所有非UI、非音乐的音效
----@brief 场景暂停/战斗暂停时专用
----=========================================================================
-function SoundManager:PauseAllSound()
-    self:CachePauseSoundGroupNames()
-    for groupName, _ in pairs(self._pauseSoundGroupNames) do
-        GameMainRoot.Sound:PauseGourpSound(groupName)
-    end
-end
-
----=========================================================================
---- 恢复所有暂停的音效
----@brief 场景恢复时调用
----=========================================================================
-function SoundManager:ResumeAllSound()
-    self:CachePauseSoundGroupNames()
-    for groupName, _ in pairs(self._pauseSoundGroupNames) do
-        GameMainRoot.Sound:ResumeGroupSound(groupName)
     end
 end
 

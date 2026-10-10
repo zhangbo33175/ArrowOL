@@ -6,17 +6,29 @@
 -- created:    2026
 -- @brief      地图基类
 -- @desc       所有游戏地图的基类，统一管理相机、触摸交互、角色生成、机器逻辑、完整游戏生命周期、胜利/失败表现动画音效
+-- @core       地图生命周期钩子、EasyTouch手势注册/反注册、相机安全引用、角色实体批量生成、胜负表现分发、全局静态引用安全释放
+-- @scope      所有场景地图的父类（UIMapBase 及具体关卡地图继承），不直接实例化
 -- @feat       完整生命周期管理、EasyTouch触摸交互、地图相机边界控制、胜利失败表现、地图角色资源自动加载、全局静态引用安全释放
 -- @规范       Unity XLua 商业项目编码标准 | 全函数XML注释 | 多层判空防护 | 无内存泄漏 | 解耦静态全局变量
 -- @dependency LuaBehaviourSuper, GameMapMotion, UIBase, MapManager, GameCoreManager, EasyTouch, GameEffectManager, SoundManager
 --=====================================================================================================
 
 ---@class GameMapBase : LuaBehaviourSuper 地图基类，所有场景地图父类
+---@field Swipe fun(gesture:table)|nil @EasyTouch On_Swipe 滑动手势回调（懒绑定）
+---@field SwipeEnd fun(gesture:table)|nil @EasyTouch On_UIElementTouchUp 滑动结束回调
+---@field SimpleTap fun(gesture:table)|nil @EasyTouch On_OverUIElement 点击回调
+---@field SwipePos UnityEngine.Vector3 @触摸屏幕坐标缓存
+---@field ScreenCamera UnityEngine.Camera|nil @地图渲染相机
+---@field _IsPlaySwipeSound boolean @是否正在播放滑动音效（防重复）
+---@field _IsGameOver boolean @游戏是否已结束（OnGameOver 幂等保护）
+---@field GameMapRoot UnityEngine.Transform @地图根节点 RawImage/Root
+---@field RawImage UnityEngine.Transform @地图 RawImage 节点（供子类扩展）
 local GameMapBase = class('GameMapBase', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
 
----@brief 构造函数，初始化基础触摸、相机、地图根节点、全局静态地图引用
+---@brief 构造函数，初始化基础触摸、相机、地图根节点、全局静态地图引用（框架驱动，勿删）
+---@desc 由 class.new 调用；读取 MapData、挂载 MapManager.CurGameMapBase/CurMapData（角色实体统一在 Awake 相机就绪后生成）
 ---@type fun(args:table):void
 ---@param args table 实例自定义入参
 function GameMapBase:ctor(args)
@@ -48,9 +60,6 @@ function GameMapBase:ctor(args)
     MapManager.CurGameMapBase = self
     -- 读取当前挂载的地图配置组件
     MapManager.CurMapData = self.cs:GetComponent("MapData")
-
-    -- 根据地图配置自动生成所有角色实体
-    self:LoadCharacterByMapData()
 end
 
 ---@brief 安全获取地图相机，多层判空，相机缺失打印警告并返回nil防止崩溃
@@ -77,19 +86,20 @@ end
 
 --region 【事件注册 & 生命周期初始化】
 
----@brief 父类重写：添加全局事件监听，父类自动在销毁时统一注销
+---@brief 父类重写：添加全局事件监听，父类自动在销毁时统一注销（框架驱动，勿删）
 ---@type fun():void
 function GameMapBase:OnAddListeners()
     GameMapBase.super.OnAddListeners(self)
 end
 
----@brief 初始化函数，加载后一次性执行
+---@brief 初始化函数，加载后一次性执行（框架驱动，勿删）
 ---@type fun():void
 function GameMapBase:Init()
     GameMapBase.super.Init(self)
 end
 
----@brief MonoBehaviour Awake生命周期，地图物体激活时执行
+---@brief MonoBehaviour Awake生命周期，地图物体激活时执行（框架驱动，勿删）
+---@desc 初始化顶部HUD高度、相机渲染区域、触发 MapManager:OnInitGame
 ---@type fun():void
 function GameMapBase:Awake()
     GameMapBase.super.Awake(self)
@@ -103,32 +113,14 @@ function GameMapBase:Awake()
         MapManager.CurMapData:RecalcNormalCamData()
         GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.m_NormalCamData)
     end
+    -- 地图相机/HUD就绪后，根据地图配置批量生成所有角色实体（挂载到地图根节点，保证显示就绪）
+    self:LoadCharacterByMapData()
     -- 初始化所有机器到游戏初始待机状态
     MapManager:OnInitGame()
 end
 
----@brief 动态调整底部UI高度并重算相机（底部UI隐藏时传0，地图自动填满）
----@type fun(bottomPixelHeight:number, animate:boolean):void
----@param bottomPixelHeight number 底部UI像素高度，隐藏时传0
----@param animate boolean 是否播放相机动画过渡，默认true
-function GameMapBase:AdjustBottomHud(bottomPixelHeight, animate)
-    if MapManager.CurMapData == nil then return end
-    animate = animate ~= false
-    MapManager.CurMapData:SetBottomHudHeight(bottomPixelHeight)
-    -- 同步更新相机渲染区域，底部UI隐藏时地图向下延伸填满
-    -- 注意：UpdateCameraRect 接收"设计分辨率单位"，需先将像素高度换算
-    if GameMapMotion and GameMapMotion.UpdateCameraRect then
-        GameMapMotion:UpdateCameraRect(GameMapMotion:PixelsToDesign(bottomPixelHeight))
-    end
-    MapManager.CurMapData:RecalcNormalCamData()
-    if animate then
-        GameLib.MapCamHelper.LookMap(MapManager.CurMapData.m_NormalCamData, 0.3)
-    else
-        GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.m_NormalCamData)
-    end
-end
-
----@brief MonoBehaviour Start生命周期，Awake后下一帧执行
+---@brief MonoBehaviour Start生命周期，Awake后下一帧执行（框架驱动，勿删）
+---@desc 启动 GameMapMotion 地图运动模块
 ---@type fun():void
 function GameMapBase:Start()
     GameMapBase.super.Start(self)
@@ -136,7 +128,8 @@ function GameMapBase:Start()
     GameMapMotion:OnMapStart(self.cs.transform)
 end
 
----@brief MonoBehaviour OnDestroy生命周期，地图销毁时释放所有引用与事件
+---@brief MonoBehaviour OnDestroy生命周期，地图销毁时释放所有引用与事件（框架驱动，勿删）
+---@desc 释放 GameMapMotion、清空触摸回调、销毁相机缓存、清理全局静态地图引用
 ---@type fun():void
 function GameMapBase:OnDestroy()
     GameMapBase.super.OnDestroy(self)
@@ -243,7 +236,7 @@ end
 ---@brief 游戏失败统一表现，主动放弃关卡不播放失败音效
 ---@type fun():void
 function GameMapBase:GameOverFailedAni()
-    if GameCoreManager._eGameOverType ~= EGameOverType.PlayerGiveUp then
+    if GameCoreManager._eGameOverType ~= EGameOverType.PLAYER_GIVE_UP then
         SoundManager:PlaySound(Tables.Sounds.Level_Failed.Name)
     end
 end
@@ -346,87 +339,11 @@ end
 
 --region 【地图角色实体加载】
 
----@brief 根据地图配置批量生成所有角色实体，初始化图标、坐标、全局列表缓存
+---@brief 根据地图配置批量生成所有角色实体（保留入口，具体生成逻辑由角色管理界面统一处理）
+---@desc 在 Awake 相机/HUD 就绪后调用；转发至 CharacterGenerationManager:LoadCharacterByMapData 执行批量角色生成。
 ---@type fun():void
 function GameMapBase:LoadCharacterByMapData()
-    -- 地图根节点空安全保护
-    if self.GameMapRoot == nil then
-        print("[GameMapBase] 警告：地图根节点 RawImage/Root 缺失，跳过角色生成")
-        return
-    end
-
-    -- 获取关卡根配置数据
-    local _mapData = GameManager.GetMapRootData()
-    if not _mapData or not _mapData.MapData then
-        print("[GameMapBase] 地图角色配置为空，跳过角色生成")
-        return
-    end
-    GameCoreManager:SetCurLevelData(_mapData)
-    -- 先清空旧角色列表，防止重载/重玩时残留脏数据
-    local CharacterList = GameCoreManager:GetCharacterList()
-    if CharacterList ~= nil then
-        for k in pairs(CharacterList) do
-            CharacterList[k] = nil
-        end
-    end
-
-    -- 遍历所有角色配置条目
-    for _, v in ipairs(_mapData.MapData) do
-        if not v or not v.Id then
-            print("[GameMapBase] 无效角色配置数据，跳过")
-            goto continue
-        end
-
-        -- 根据ID生成角色实体挂载到地图根节点
-        local CharacterBase = CharacterGenerationManager:CharacterGeneration(v.Id, self.GameMapRoot)
-        if not CharacterBase then
-            print("[GameMapBase] 角色生成失败 ID:" .. tostring(v.Id))
-            goto continue
-        end
-
-        -- 转换字符串坐标并赋值本地坐标
-        CharacterBase._GameObject.transform.localPosition = StringToVector3(v.Position)
-
-        -- 查找角色图标UI组件
-        local CharacterIcon = CharacterBase._GameObject.transform:Find("CharacterIcon")
-        if not CharacterIcon then
-            goto continue
-        end
-        local uiImage = CharacterIcon.transform:GetComponent(typeof(UnityEngine.UI.Image))
-        if not uiImage then
-            goto continue
-        end
-
-        -- 读取角色静态表（保留角色生成所需配置）
-        local catData = CharacterGenerationDataManager:GetDataById(v.Id)
-
-        -- 刷新图标：优先用地图配置的 v.Sprite（每个物件各自的猫图），否则回退角色表 Icon
-        -- v.Sprite 可能是完整路径（Assets/Res/.../sc_2_cat_1.png）或纯名（sc_2_cat_1），
-        -- RefreshImageSprite 需要别名：含路径时提取文件名(去扩展名)，纯名时直接使用。
-        local spriteName = nil
-        if v.Sprite and v.Sprite ~= '' then
-            if string.find(v.Sprite, '/') then
-                spriteName = string.match(v.Sprite, "([^/]+)%.%w+$") or v.Sprite
-            else
-                spriteName = v.Sprite
-            end
-        end
-        if (not spriteName) and catData and catData.Icon then
-            spriteName = catData.Icon
-        end
-        if spriteName then
-            GamePlayHelper:RefreshImageSprite(CharacterBase, uiImage, spriteName)
-        end
-
-        -- 存入全局角色管理列表（列表可能为空表，需判空兜底）
-        if CharacterList ~= nil then
-            CharacterList[v.Id] = {}
-            CharacterList[v.Id].ID = v.Id
-            CharacterList[v.Id].Character = CharacterBase
-        end
-
-        ::continue::
-    end
+    CharacterGenerationManager:LoadCharacterByMapData(self.GameMapRoot)
 end
 
 --endregion

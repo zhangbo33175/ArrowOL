@@ -4,18 +4,17 @@
 -- filename:  HonorAccountHelper.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   账户助手（游戏账号体系 + 云存档核心）
--- 功能：
--- 1. 账号注册 / 登录 / 自动登录
--- 2. 设备ID 与第三方账号（Facebook / Google / Apple）绑定
--- 3. 玩家数据云端存储与读取、登录信息本地缓存
--- 4. 广告归因（AF / Adjust）数据获取
--- 架构：全局单例助手，封装 C# 登录 SDK 与云存档接口
--- @note  全局单例（class 工厂创建），登录态缓存本地，供各业务系统读取账号信息
+-- @brief     账户助手（游戏账号体系 + 云存档核心）
+-- @desc      封装账号注册/登录/自动登录、设备ID 与第三方账号（Facebook/Google/Apple）绑定、
+--            玩家数据云端读写与登录信息本地缓存、广告归因（AF/Adjust）数据获取
+-- @core      C# 登录 SDK 桥接、云存档读写、登录态本地缓存、归因数据回调
+-- @scope     全局单例助手，供各业务系统读取账号信息与登录态
+-- @dependency C# 登录 SDK、SaveRootData（间接）
+-- @note      全局单例（class 工厂创建），登录态缓存本地；方法为 C# SDK 桥接回调入口，勿删
 --=====================================================================================================
 
 --region 全局账户管理助手
----@class HonorAccountHelper 全局账户管理助手
+---@class HonorAccountHelper @ 全局账户管理助手（账号体系 + 云存档 + 广告归因）
 local HonorAccountHelper = class("HonorAccountHelper")
 
 ---@brief 构造函数
@@ -25,20 +24,22 @@ function HonorAccountHelper:ctor(args)
 end
 
 ---@brief 创建单例实例
----@param args table
----@return HonorAccountHelper
+---@param args table 初始化参数（可选）
+---@return HonorAccountHelper 账户管理实例
 function HonorAccountHelper:Create(args)
     local obj = HonorAccountHelper.new(args)
     return obj
 end
 
 ---@brief 注册并自动登录用户（新号流程）
+---@desc C# 登录 SDK 桥接入口；新设备首次进入触发注册+自动登录
 ---@param force boolean 是否强制注册
 ---@param callback function 注册完成回调
 function HonorAccountHelper:RegisterToSignIn(force, callback)
 end
 
 ---@brief 使用 UID + 第三方ID 登录用户（老号流程）
+---@desc C# 登录 SDK 桥接入口；老号凭游戏 UID + 三方账号 ID 登录
 ---@param uid number 游戏服用户ID
 ---@param aid string 第三方账号ID（Facebook/Google等，没有传nil）
 ---@param callback function 登录完成回调
@@ -47,6 +48,7 @@ function HonorAccountHelper:LoginToSignIn(uid, aid, callback)
 end
 
 ---@brief 根据 设备ID 或 第三方账号ID 获取游戏UID
+---@desc C# 登录 SDK 桥接入口；设备/三方ID → 游戏服 UID 映射查询
 ---@param id string 设备ID / 三方ID
 ---@param callback function 回调返回UID
 --TODO: [优化] 补齐 @param 类型注解（签名不变）
@@ -54,6 +56,7 @@ function HonorAccountHelper:GetUID(id, callback)
 end
 
 ---@brief 向云端保存用户数据（云存档）
+---@desc C# 云存档 SDK 桥接入口；写档完成后回调
 ---@param uid number 游戏UID
 ---@param datas table 要保存的玩家数据
 ---@param callback function 保存完成回调
@@ -62,6 +65,7 @@ function HonorAccountHelper:SetUserData(uid, datas, callback)
 end
 
 ---@brief 从云端拉取用户数据（读存档）
+---@desc C# 云存档 SDK 桥接入口；按表名列表拉取玩家数据
 ---@param uid number 游戏UID
 ---@param keys table 要拉取的数据表名列表
 ---@param callback function 回调返回数据
@@ -70,12 +74,14 @@ function HonorAccountHelper:GetUserData(uid, keys, callback)
 end
 
 ---@brief 缓存登录信息（保存到本地，用于自动登录）
+---@desc 登录成功后缓存登录态到本地，供下次启动自动登录
 ---@param cmd table 服务器返回的登录数据结构
 --TODO: [优化] 补齐 @param 类型注解（签名不变）
 function HonorAccountHelper:SaveSignInInfos(cmd)
 end
 
 ---@brief 获取 AF（AppsFlyer）广告归因数据
+---@desc C# 归因 SDK 桥接入口；回调返回渠道、广告包、转化数据
 ---@param callback function 回调返回归因信息（渠道、广告包、转化数据）
 --TODO: [优化] 补齐 @param 类型注解（签名不变）
 function HonorAccountHelper:GetAFConvertData(callback)

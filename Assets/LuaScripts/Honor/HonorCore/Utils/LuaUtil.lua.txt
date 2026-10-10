@@ -1,25 +1,20 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  LuaUtil.lua.txt
+-- filename:  LuaUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   Lua 通用工具（Lua↔C# 数据互转、JSON/Table 序列化、AES 加解密）
--- 功能：
--- 1. LuaTableToCSArray/CSList、CSDictionaryToLuaTable 类型互转
--- 2. JsonEncode/JsonDecode（rapidjson）
--- 3. TableEncode/TableDecode 序列化
--- 4. AESEncode/Decode 加解密（Base64/Bytes）
--- 架构：纯工具表（---@class LuaUtil），依赖 xlua 全局 CS 类型与 rapidjson
--- @note  原 SystemFuncs 同名全局函数统一委托到本模块，业务零改动
+-- @brief     Lua 通用工具（Lua↔C# 数据互转、JSON/Table 序列化、AES 加解密）
+-- @desc      类型互转 / rapidjson 编解码 / Table 字符串序列化 / AES 对称加解密统一收口
+-- @core      CS 集合互转、rapidjson、Table 递归序列化、Honor.AESEncrypt 桥接
+-- @scope     全局通用（经 SystemFuncs 同名全局函数对外暴露，业务零改动）
+-- @dependency xlua CS 全局类型, rapidjson, Honor.AESEncrypt
 --=====================================================================================================
 
----@class LuaUtil Lua 通用工具类
+---@class LuaUtil @ Lua 通用工具表（纯函数，无实例状态）
 local LuaUtil = {}
 
---=====================================================================================================
--- Lua <-> C# 转换
---=====================================================================================================
+--region Lua <-> C# 转换
 
 ---@brief LuaTable转C#的Array
 ---@param luaTable table luatable
@@ -55,9 +50,9 @@ function LuaUtil.CSDictionaryToLuaTable(dictionary)
     return t
 end
 
---=====================================================================================================
--- 编码解码（Json / Table / AES）
---=====================================================================================================
+--endregion
+
+--region 编码解码（Json / Table / AES）
 
 ---@brief Json序列化（将lua的table数据转换成json字符串）
 ---@param tableData table table数据
@@ -170,5 +165,7 @@ end
 function LuaUtil.AESDecodeToBytes(bytes, key, iv)
     return Honor.AESEncrypt.DecodeToBytes(bytes, key, iv)
 end
+
+--endregion
 
 return LuaUtil

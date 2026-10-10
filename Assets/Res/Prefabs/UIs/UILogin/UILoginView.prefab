@@ -421,6 +421,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6831873811466296954}
   - component: {fileID: 3394603329300288964}
+  - component: {fileID: 2435236191295471335}
   m_Layer: 5
   m_Name: UILoginView
   m_TagString: Untagged
@@ -505,6 +506,25 @@ MonoBehaviour:
   m_Collider3DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger2DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger3DLifeCyclesBehaviour: {fileID: 0}
+--- !u!114 &2435236191295471335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4584249286458978591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d198bf43db2d6146ba340e113fb4c65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  reference: {fileID: 0}
+  mode: 1
+  fillMode: 0
+  alignSide: 0
+  margin: 0
+  adaptOnStart: 1
 --- !u!1 &4885014090347054022
 GameObject:
   m_ObjectHideFlags: 0

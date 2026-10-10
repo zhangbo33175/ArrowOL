@@ -6,25 +6,28 @@
 -- created:   2026
 -- @brief     游戏业务状态基类
 -- @desc      所有游戏状态（Login/LoadMap/Main/Playing等）的统一父类，提供基础生命周期
+-- @core      状态类型持有、OnStateEnter/OnStateExit/OnUpdate 生命周期钩子（子类重写）
+-- @scope     GameStateMachine 驱动；具体状态（GameLoginState 等）继承本类
 -- @feat      状态生命周期、安全回调、通用接口、框架基础
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 统一生命周期
 -- @规范       Unity Lua 商业项目编码标准 / 核心基类规范
--- @dependency nil
+-- @dependency GameStateCmd, SafeCallFinish
 --=====================================================================================================
 
 ---@class GameStateBase 游戏业务状态基类（所有状态的父类）
+---@field _stateType GameStateCmd @当前状态类型枚举
 local GameStateBase = class('GameStateBase')
 
 --region 【构造 & 实例化】
 
----@brief 构造函数
+---@brief 构造函数（框架驱动，勿删）
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型枚举
 function GameStateBase:ctor(stateType)
     self._stateType = stateType  ---@type GameStateCmd 当前状态类型
 end
 
----@brief 创建状态实例
+---@brief 创建状态实例（框架驱动，勿删）
 ---@type fun(stateType:GameStateCmd):GameStateBase
 ---@param stateType GameStateCmd 状态类型枚举
 ---@return GameStateBase 状态基类实例
@@ -36,7 +39,7 @@ end
 
 --region 【状态类型】
 
----@brief 获取当前状态类型
+---@brief 获取当前状态类型（被 GameStateMachine:CurrentStateType/PreStateType 调用）
 ---@type fun():GameStateCmd
 ---@return GameStateCmd 当前状态枚举值
 function GameStateBase:GetStateType()
@@ -47,29 +50,23 @@ end
 
 --region 【状态生命周期 - 子类可重写】
 
----@brief 进入状态（子类重写）
+---@brief 进入状态（GameStateMachine:ChangeState 驱动，子类重写）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameStateBase:OnStateEnter(finishCallback)
     SafeCallFinish(finishCallback)
 end
 
----@brief 离开状态（子类重写）
+---@brief 离开状态（GameStateMachine:ChangeState 驱动，子类重写）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameStateBase:OnStateExit(finishCallback)
     SafeCallFinish(finishCallback)
 end
 
----@brief 帧更新（子类重写）
+---@brief 帧更新（GameStateMachine:OnUpdate 驱动，子类重写）
 ---@type fun():void
 function GameStateBase:OnUpdate()
-end
-
----@brief 清理缓存数据（子类重写）
----@type fun():void
-function GameStateBase:ClearCacheData()
-    -- 清理特效等临时数据（预留）
 end
 
 --endregion

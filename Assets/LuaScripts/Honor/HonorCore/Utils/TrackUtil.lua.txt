@@ -1,17 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  TrackUtil.lua.txt
+-- filename:  TrackUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   数据埋点工具（奖励获取统计上报）
--- 功能：
--- 1. TrackReward 单条奖励获取埋点上报
--- 2. TrackRewardList 批量奖励列表埋点上报
--- 架构：纯工具表，依赖 ResourceDataManager/AchievementSys/ThinkingAnalyticsHelper/CurrencyMgr
--- @note  奖励获取行为统计上报入口
+-- @brief     数据埋点工具（奖励获取统计上报）
+-- @desc      TrackReward 单条奖励获取埋点上报；TrackRewardList 批量奖励列表埋点上报
+-- @core      按资源类型/资源 ID 分流到成就系统（金币）与 ThinkingAnalytics 各类获取埋点
+-- @scope     奖励获取行为的统计上报入口
+-- @dependency ResourceDataManager, AchievementSys, ThinkingAnalyticsHelper, CurrencyMgr, EResourceIDs；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
+---@class TrackUtil @ 数据埋点工具表：奖励获取统计上报
 local TrackUtil = {}
 
 --region 埋点 / 统计
@@ -26,6 +26,7 @@ local TrackUtil = {}
 ---@param reason number 获取原因
 ---@param purchaseId string 购买ID
 ---@param areaId string 区域ID
+---@desc 货币按 Coin/Gem/Star/CollectionToken/Ticket 分别上报，非货币走通用道具（Booster）获取埋点；金币额外触发成就系统；经 GameFunctions.TrackReward 全局包装对外暴露
 function TrackUtil.TrackReward(itemId, count, reason, purchaseId, areaId)
     local data = ResourceDataManager and ResourceDataManager:GetResourceData(itemId)
     if not data then return end
@@ -53,6 +54,7 @@ end
 ---@param reason number 获取原因
 ---@param purchaseId string 购买ID
 ---@param areaId string 区域ID
+---@desc 遍历 rewardList.items 逐条调用 TrackReward 上报；经 GameFunctions.TrackRewardList 全局包装对外暴露
 function TrackUtil.TrackRewardList(rewardList, reason, purchaseId, areaId)
     if not rewardList or not rewardList.items then return end
     for _, r in ipairs(rewardList.items) do

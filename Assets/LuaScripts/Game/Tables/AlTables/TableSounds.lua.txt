@@ -5,6 +5,11 @@
 -- filename:  TableSounds
 -- descrip:   声音表
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     音频资源配置表
+-- @desc      登记各 BGM/音效的 AB 路径、播放参数与空间设置
+-- @core      以声音名为主键，字段含 ABPath、AssetName、GroupName、Priority、Speed、Loop、Volume、SpatialBlend、MaxDistance、WorldPosition
+-- @scope     音频播放管理（BGM/音效加载与播放参数）
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Sounds 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.Sounds_Item @声音表条目

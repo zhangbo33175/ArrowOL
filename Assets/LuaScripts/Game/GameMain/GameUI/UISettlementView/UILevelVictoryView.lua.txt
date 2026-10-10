@@ -4,10 +4,15 @@
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UILevelVictoryView.lua
 -- author:    云毅
--- descrip:   结算界面
+-- created:   2026
+-- @brief     关卡胜利结算界面
+-- @desc      关卡通关后弹出，提供返回主界面与进入下一关操作入口
+-- @core      结算按钮监听注册、下一关加载流程转发
+-- @scope     关卡胜利结算（UISettlementView）
+-- @dependency LuaBehaviourSuper, SoundManager, GamePlayHelper
 --=====================================================================================================
 
----@class UILevelVictoryView : LuaBehaviourSuper
+---@class UILevelVictoryView : LuaBehaviourSuper @关卡胜利结算界面
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
 ---@field MainButton                         UnityEngine.UI.Button         √         Clicked        返回管卡界面
 ---@field NextLevelButton                    UnityEngine.UI.Button         √         Clicked        下一关
@@ -17,6 +22,7 @@ local UILevelVictoryView = class('UILevelVictoryView', import('LuaBehaviourSuper
 --region 【构造 & 实例化】
 
 ---构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UILevelVictoryView:ctor(args)
@@ -24,6 +30,7 @@ function UILevelVictoryView:ctor(args)
 end
 
 ---创建函数
+---@brief 创建胜利结算界面实例
 ---@type fun(args:table):UILevelVictoryView
 ---@param args table @自定义参数
 ---@return UILevelVictoryView @实例
@@ -36,12 +43,14 @@ end
 --region 【生命周期】
 
 ---注册监听（自动注销）
+---@brief 注册事件监听（框架驱动，勿删）
 ---@type fun():void
 function UILevelVictoryView:OnAddListeners()
     UILevelVictoryView.super.OnAddListeners(self)
 end
 
 ---唤醒
+---@brief 唤醒时注册返回/下一关按钮监听（框架驱动，勿删）
 ---@type fun():void
 ---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
 --TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
@@ -55,12 +64,14 @@ function UILevelVictoryView:Awake()
 end
 
 ---开始
+---@brief 开始回调（框架驱动，勿删）
 ---@type fun():void
 function UILevelVictoryView:Start()
     UILevelVictoryView.super.Start(self)
 end
 
 ---销毁
+---@brief 销毁回调（框架驱动，勿删）
 ---@type fun():void
 ---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 function UILevelVictoryView:OnDestroy()
@@ -77,12 +88,14 @@ end
 --region 【动画回调】
 
 ---播放打开动画（可重写）
+---@brief 界面打开动画回调（框架驱动，勿删）
 ---@type fun():void
 function UILevelVictoryView:OnPlayOpenAnimation()
     UILevelVictoryView.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画（可重写）
+---@brief 界面关闭动画回调（框架驱动，勿删）
 ---@type fun():void
 function UILevelVictoryView:OnPlayCloseAnimation()
     UILevelVictoryView.super.OnPlayCloseAnimation(self)
@@ -93,6 +106,7 @@ end
 --region 【子UI回调】
 
 ---子UI销毁回调
+---@brief 子 UI 销毁回调（框架驱动，勿删）
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UILevelVictoryView:OnAddedUIDestroyed(luaClass)
@@ -104,7 +118,9 @@ end
 --region 【按钮交互回调】
 
 ---返回管卡界面-交互回调
+---@brief 点击返回按钮，退出游玩 HUD 回到主界面（Awake 中绑定）
 ---@type fun(args:any):void
+---@param args any @UI交互内容
 function UILevelVictoryView:OnMainButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
@@ -112,15 +128,15 @@ function UILevelVictoryView:OnMainButtonClicked(args)
 end
 
 ---下一关-交互回调
+---@brief 点击下一关按钮，转发 GamePlayHelper 加载下一关（Awake 中绑定）
 ---@type fun(args:any):void
+---@param args any @UI交互内容
+---@desc 加载下一关（"章节-内部关卡"模式）：同章节进下一内部关卡，本章全部通关后进下一章节
 function UILevelVictoryView:OnNextLevelButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
-    self._id = ChapterListManager:GetRuntimeChapterId()
-    if not string.isNullOrEmpty(self._id) then
-        GamePlayHelper:LoadMainMap(self._id, function()
-        end, true)
-    end
+    -- 切关逻辑收敛到 GamePlayHelper:LoadNextLevel，统一处理同章逐关/全通换章
+    GamePlayHelper:LoadNextLevel()
 end
 
 --endregion

@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     主界面UI层级数据管理器
 -- @desc      管理主界面UI、弹窗、动画的显示层级与执行顺序配置
+-- @core      主界面UI/弹窗/动画层级配置读取门面
+-- @scope     主界面UI层级配置查询（业务查询方法已随死代码清理移除，当前仅保留生命周期）
 -- @feat      全局单例、安全查询、自动容错、排序获取、日志规范
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范       Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
@@ -44,37 +46,6 @@ end
 ---@type fun():void
 function HomeUILayerDataManager:ClearData()
     HomeUILayerDataManager.super.ClearData(self)
-end
-
---endregion
-
---region UI层级配置获取
-
----=========================================================================
----@brief  根据层级ID获取UI层级配置
----@type fun(id:EGameMainUIPushSortOrder):Tables.HomeUILayers_Item
----@param id EGameMainUIPushSortOrder UI层级ID
----@return Tables.HomeUILayers_Item UI层级配置
----=========================================================================
-function HomeUILayerDataManager:GetDataById(id)
-    -- 表缺失/nil id/未命中 三级降级逻辑抽离至 GameFunctions.SafeGetTableEntry
-    return SafeGetTableEntry(Tables, "HomeUILayers", id,
-        EGameMainUIPushSortOrder.NormalUI, "[HomeUILayerDataManager]")
-end
-
----=========================================================================
----@brief  根据层级ID获取UI显示顺序
----@type fun(id:EGameMainUIPushSortOrder):number
----@param id EGameMainUIPushSortOrder UI层级ID
----@return number 排序值（数值越小越先显示）
----=========================================================================
-function HomeUILayerDataManager:GetOrderById(id)
-    local data = self:GetDataById(id)
-    if not data then
-        PrintError("[HomeUILayerDataManager] GetOrderById data is nil → return 0")
-        return 0
-    end
-    return data.Order or 0
 end
 
 --endregion

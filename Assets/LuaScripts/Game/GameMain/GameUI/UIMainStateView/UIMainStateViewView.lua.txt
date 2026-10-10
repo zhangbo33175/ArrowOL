@@ -1,21 +1,26 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIMainStateViewView.lua
 -- author:    云毅
--- descrip:   关卡界面View
+-- created:   2026
+-- @brief     关卡主界面 View（主状态界面视图层）
+-- @desc      展示当前关卡文案、绑定设置/关卡/每日挑战按钮，并提供调试用重置章节按钮
+-- @core      按钮监听注册、ViewModel 数据绑定、运行时调试按钮创建
+-- @scope     UIMainStateView 主界面（关卡选择入口）
+-- @dependency ViewSuper, SoundManager, LevelManager, ChapterListManager, ChallengeLevelHelper, GamerDataManager
 --=====================================================================================================
 
 ---@class UIMainStateViewView : ViewSuper
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field LevelTMPText                       TMPro.TextMeshProUGUI         √                        当前关卡信息
----@field CatButton                          UnityEngine.UI.Image          √                        猫猫头
----@field SettingButton                      UnityEngine.UI.Button         √         Clicked        设置
----@field LevelButton                        UnityEngine.UI.Button         √         Clicked        关卡按钮
----@field LevelTxt                           TMPro.TextMeshProUGUI         √                        关卡提示
----@field DailyChallengeButton               UnityEngine.UI.Button         √         Clicked        每日挑战按钮
----@field TextLegacy                         TMPro.TextMeshProUGUI         √                        每日挑战TXT
+---@field LevelTMPText TMPro.TextMeshProUGUI @当前关卡信息
+---@field CatButton UnityEngine.UI.Image @猫猫头
+---@field SettingButton UnityEngine.UI.Button @设置按钮（Clicked）
+---@field LevelButton UnityEngine.UI.Button @关卡按钮（Clicked）
+---@field LevelTxt TMPro.TextMeshProUGUI @关卡提示
+---@field DailyChallengeButton UnityEngine.UI.Button @每日挑战按钮（Clicked）
+---@field TextLegacy TMPro.TextMeshProUGUI @每日挑战TXT
 local UIMainStateViewView = class('UIMainStateViewView', import('ViewSuper'))
 
 ---绑定值Key名称
@@ -25,6 +30,7 @@ UIMainStateViewView.BVKey = {}
 --region 【构造】
 
 ---构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UIMainStateViewView:ctor(args)
@@ -32,6 +38,7 @@ function UIMainStateViewView:ctor(args)
 end
 
 ---创建函数
+---@brief 创建主界面 View 实例
 ---@type fun(args:table):UIMainStateViewView
 ---@param args table @自定义参数
 ---@return UIMainStateViewView @UIMainStateViewView实例
@@ -45,6 +52,7 @@ end
 --region 【生命周期】
 
 ---唤醒
+---@brief 唤醒时注册设置/关卡/每日挑战按钮监听（框架驱动，勿删）
 ---@type fun():void
 ---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
 --TODO: [优化] 按钮监听由 AddUIListenerBatch 改为 self:AddUIListener 逐条（自动注销）
@@ -56,6 +64,7 @@ function UIMainStateViewView:Awake()
 end
 
 ---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）
+---@brief 注入 ViewModel 时刷新当前关卡信息与文案（框架驱动，勿删）
 ---@type fun(viewModel:UIMainStateViewViewModel):void
 ---@param viewModel UIMainStateViewViewModel @ViewModel
 function UIMainStateViewView:OnInit(viewModel)
@@ -66,12 +75,16 @@ function UIMainStateViewView:OnInit(viewModel)
 end
 
 ---开始
+---@brief 开始时创建调试用重置章节按钮（框架驱动，勿删）
 ---@type fun():void
 function UIMainStateViewView:Start()
     UIMainStateViewView.super.Start(self)
+    -- 运行时动态创建"重置章节/等级为1"调试按钮（幂等：已存在则跳过，避免重复创建）
+    self:CreateResetButton()
 end
 
 ---销毁
+---@brief 销毁回调（按钮监听由框架自动注销，勿删）
 ---@type fun():void
 ---@desc UI 监听由 ViewSuper:OnDestroy 自动注销（self:AddUIListener 记录），此处无需手动 OnRemoveListenerBatch
 function UIMainStateViewView:OnDestroy()
@@ -79,6 +92,7 @@ function UIMainStateViewView:OnDestroy()
 end
 
 ---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@brief 注册事件监听（框架驱动，勿删）
 ---@type fun():void
 function UIMainStateViewView:OnAddListeners()
     UIMainStateViewView.super.OnAddListeners(self)
@@ -89,6 +103,7 @@ end
 --region 【数据绑定】
 
 ---获取ViewModel
+---@brief 获取当前绑定的 ViewModel
 ---@type fun():UIMainStateViewViewModel
 ---@return UIMainStateViewViewModel @ViewModel
 function UIMainStateViewView:GetViewModel()
@@ -100,87 +115,187 @@ end
 --region 【按钮交互】
 
 ---设置-交互回调
+---@brief 点击设置按钮，打开设置界面（Awake 中绑定）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnSettingButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
     OpenUISync(UIs.UISettingView)
 end
 
 ---玩一玩-交互回调
+---@brief 玩一玩按钮回调（预留，仅播放开始音效）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnPlayAroundButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---关卡按钮-交互回调
+---@brief 点击关卡按钮，以普通模式进入游戏（Awake 中绑定）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnLevelButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
     LevelManager:SetLevelMode(ELevelMode.NORMAL)
 end
 
 ---每日挑战按钮-交互回调
+---@brief 点击每日挑战按钮，以每日挑战模式进入游戏（Awake 中绑定）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnDailyChallengeButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
+    -- 挑战关卡解锁条件判断：未解锁则不进入挑战模式（解锁阈值见 ChallengeLevelHelper:_challengeUnlockLevel）
+    if not ChallengeLevelHelper:IsChallengeLevelUnlocked() then
+        --TODO: [挑战关卡] 未解锁提示待补通用弹窗/Toast接口
+        return
+    end
     LevelManager:SetLevelMode(ELevelMode.DAILY)
 end
 
 ---皮肤按钮-交互回调
+---@brief 皮肤按钮回调（预留，仅播放开始音效）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnSkinButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---排行按钮-交互回调
+---@brief 点击排行按钮，打开排行界面
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnRankingButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
     OpenUISync(UIs.UIRankView)
 end
 
 ---签到-交互回调
+---@brief 签到按钮回调（预留，仅播放开始音效）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnCheckInButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---转盘-交互回调
+---@brief 转盘按钮回调（预留，仅播放开始音效）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnTurntableButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---猫窝-交互回调
+---@brief 猫窝按钮回调（预留，仅播放开始音效）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnCatBedButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
 end
 
 ---通关奖励-交互回调
+---@brief 通关奖励按钮回调（预留，仅播放开始音效）
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIMainStateViewView:OnInvitationButtonClicked(args)
-    -- TODO: 按钮点击统一播放开始音效
+    --TODO: [音效] 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")
+end
+
+--endregion
+
+--region 【重置章节/等级按钮（运行时动态创建，调试用）】
+
+---创建"重置章节/等级为1"按钮（运行时动态挂载到UI根节点右上角）
+---@brief 运行时动态创建调试用"重置章节"按钮（幂等，Start 中调用）
+---@type fun():void
+---@desc 点击后将存档最新章节/当前章节/所有章节等级统一重置为1，便于联调从第一章重新开始。
+---      按钮为纯代码动态创建（GameObject+RectTransform+Image+Button+Text），无需改动Prefab。
+function UIMainStateViewView:CreateResetButton()
+    if not self.cs or IsNull(self.cs.gameObject) then
+        return
+    end
+    local parent = self.cs.gameObject.transform
+    -- 幂等：已存在同名按钮则跳过，避免界面多次打开重复创建
+    if parent:Find("AorResetLevelBtn") then
+        return
+    end
+
+    -- 按钮根节点
+    local go = UnityEngine.GameObject("AorResetLevelBtn")
+    go.transform:SetParent(parent, false)
+    local rect = go:AddComponent(typeof(UnityEngine.RectTransform))
+    -- 背景（必须带Graphic才能参与UI射线拾取）
+    local img = go:AddComponent(typeof(UnityEngine.UI.Image))
+    img.color = UnityEngine.Color(0.2, 0.5, 0.8, 0.85)
+    -- 按钮组件
+    local btn = go:AddComponent(typeof(UnityEngine.UI.Button))
+    btn.targetGraphic = img
+    btn.onClick:AddListener(function()
+        self:OnResetLevelButtonClicked()
+    end)
+
+    -- 按钮文字
+    local textGo = UnityEngine.GameObject("Text")
+    textGo.transform:SetParent(go.transform, false)
+    local text = textGo:AddComponent(typeof(TMPro.TextMeshProUGUI))
+    text.text = "重置"
+    text.fontSize = 22
+    text.alignment = TMPro.TextAlignmentOptions.Center
+    text.color = UnityEngine.Color.white
+    local textRect = text.rectTransform
+    textRect.anchorMin = UnityEngine.Vector2.zero
+    textRect.anchorMax = UnityEngine.Vector2.one
+    textRect.offsetMin = UnityEngine.Vector2.zero
+    textRect.offsetMax = UnityEngine.Vector2.zero
+
+    -- 布局：贴右上角（设置按钮下方），避免遮挡现有UI
+    rect.anchorMin = UnityEngine.Vector2(1, 1)
+    rect.anchorMax = UnityEngine.Vector2(1, 1)
+    rect.pivot = UnityEngine.Vector2(1, 1)
+    rect.anchoredPosition = UnityEngine.Vector2(-12, -70)
+    rect.sizeDelta = UnityEngine.Vector2(120, 46)
+end
+
+---重置按钮-交互回调：将存档章节与等级全部重置为1
+---@brief 调试按钮点击回调：重置存档章节与等级为 1 并刷新界面文案
+---@type fun():void
+---@desc 更新 latestChapterId/curChapterId/全部章节 lv=1 并持久化，运行时章节回退为"1"，刷新主界面当前关卡文案
+function UIMainStateViewView:OnResetLevelButtonClicked()
+    SoundManager:PlaySound("UI_SeasonStart")
+    -- 最新解锁章节 → 1
+    SaveRootData.GameData.latestChapterId = "1"
+    -- 当前游玩章节 → 1
+    SaveRootData.GameData.curChapterId = "1"
+    -- 全部章节等级 → 1
+    local chapterInfos = SaveRootData.GameData.chapterInfos
+    if chapterInfos then
+        for _, info in pairs(chapterInfos) do
+            if type(info) == "table" then
+                info.lv = 1
+            end
+        end
+    end
+    -- 持久化存档
+    SaveIO.GameData.SaveAll()
+    -- 运行时章节回退为第一章节
+    ChapterListManager:SetRuntimeChapterId("1")
+    -- 刷新主界面当前关卡文案（LevelManager:GetChapterLevel）
+    if not IsNull(self.LevelTxt) and self:GetViewModel() then
+        self.LevelTxt.text = self:GetViewModel():GetChapterLevel()
+    end
+    PrintInfo("[UIMainStateView] 重置成功：章节与等级已重置为 1")
 end
 
 --endregion
@@ -188,6 +303,7 @@ end
 --region 【子UI回调】
 
 ---被追加的N层UI子节点销毁回调
+---@brief 子 UI 销毁回调（框架驱动，勿删）
 ---@type fun(luaClass: XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable @luaClass
 function UIMainStateViewView:OnAddedUIDestroyed(luaClass)

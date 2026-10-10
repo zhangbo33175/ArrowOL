@@ -5,6 +5,11 @@
 -- filename: DeclareGameDataPB.lua
 -- descrip: 游戏数据存档
 -- notices: 该文件自动生成，请不要手动修改！
+-- @brief     游戏数据存档 Protobuf 结构类型声明
+-- @desc      声明 SavePBMsgDef.GameDataPB 命名空间下资源信息、关卡进度、章节信息等子结构字段类型
+-- @core      纯类型注解声明（---@class/---@field），由 proto 定义导出，无运行时代码
+-- @scope     供 GameDataPB.lua 运行时表字段类型标注与 IDE/emmylua 提示消费
+-- @dependency protobuf 生成工具链（GameDataPB.proto.lua 为源 schema）
 --=====================================================================================================
 
 -- 协议描述：游戏数据存档

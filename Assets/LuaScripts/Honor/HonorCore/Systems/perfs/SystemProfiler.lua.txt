@@ -4,6 +4,11 @@
 -- filename:  SystemProfiler.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     xLua 函数级性能分析器（调用次数 / 耗时 / 占比统计）
+-- @desc      基于 xlua.sethook/debug.sethook 监听函数调用与返回，统计调用次数、总耗时、平均耗时与耗时占比
+-- @core      函数调用钩子采样、调用次数/耗时/占比统计
+-- @scope     框架性能 Profiler（仅开发期开启），sethook 显著影响性能，用完即关
+-- @dependency xlua, debug（标准库）
 -- descrip:   xLua 函数级性能分析器（调用次数/耗时/占比统计）
 -- 功能：
 -- 1. 基于 xlua.sethook/debug.sethook 监听函数调用与返回

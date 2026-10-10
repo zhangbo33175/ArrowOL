@@ -5,6 +5,11 @@
 -- filename:  TableMainLevels
 -- descrip:   关卡配置
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     主线关卡配置表
+-- @desc      配置主线关卡的地图、体力、寻物类型与目标物集合
+-- @core      以关卡 ID 为主键，字段含 LevelID、ItemName（生命预制体）、MapName、FindType、LevelLife、Level_bg、CatItemID
+-- @scope     主线关卡加载、体力消耗与玩法规则
+-- @dependency Tables 注册表（Tables.lua），由 Tables.MainLevels 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.MainLevels_Item @关卡配置条目

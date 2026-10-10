@@ -9,6 +9,7 @@
 -- @desc      收拢 UI 组件交互事件注册/注销与 UI 打开/关闭/遮罩/动画/栈/子UI 等通用操作。
 --            事件逻辑源自原 SystemBridges.lua.txt；生命周期逻辑自 LuaBehaviourSuper 拆分。
 --            LuaBehaviourSuper 保留方法签名并委托本模块，接口零破坏。
+-- @core      UI 事件注册/注销、UI 打开/关闭/遮罩/动画/栈/子 UI 通用操作
 -- @scope     单例模块（全局唯一），被 SystemBridges / LuaBehaviourSuper require
 -- @dependency Unity, Honor, HonorEventHelper, GameMainRoot
 --=====================================================================================================

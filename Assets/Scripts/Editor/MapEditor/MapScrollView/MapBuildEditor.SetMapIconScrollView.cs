@@ -38,6 +38,13 @@ namespace Editor.MapEditor
         private readonly float _previewBoxWidth = 120f;
 
         /// <summary>
+        /// 当前图标列表（m_IconList）数据来源标识
+        /// 挑战关卡：challenge:{节序号}；主线关卡：main:{关卡ID}
+        /// 用于"选中项变化时才重新加载，同一节/同一关卡不重复加载"
+        /// </summary>
+        private string _iconListSourceKey = "";
+
+        /// <summary>
         /// 图标预览框的固定高度
         /// </summary>
         private readonly float _previewBoxHeight = 140f;
@@ -76,15 +83,15 @@ namespace Editor.MapEditor
         #region 图标列表核心方法
         /// <summary>
         /// 【核心方法】初始化/刷新图标列表
-        /// 首次调用时绘制列表并置缓存标记；数据变更（SetIconItem / GetIconPath）会重置标记强制刷新
+        /// 【重要】必须每次 OnGUI 都调用 DrawIconPreviewList：
+        /// IMGUI 的 OnGUI 分 Layout（布局计算）与 Repaint（真正绘制）两个事件阶段，
+        /// 若用 m_IsInitIconList 只初始化一次，则 Repaint 阶段不再执行绘制 → 图标区永远空白。
+        /// 数据变更（SetIconItem / GetIconPath）时置 m_IsInitIconList=false 仅用于触发重新加载数据，
+        /// 绘制本身必须常驻。
         /// </summary>
         private void OnSetIconList()
         {
-            if (!m_IsInitIconList)
-            {
-                DrawIconPreviewList();
-                m_IsInitIconList = true; // 启用缓存：图标列表仅在数据变更时重绘，避免每帧重建
-            }
+            DrawIconPreviewList();
         }
 
         /// <summary>
@@ -155,12 +162,16 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawIconPreviewList()
         {
+            // 注：此处不可加每帧 Debug.Log（本方法每次 OnGUI 都执行，会刷屏）；
+            // 诊断日志只在选中项数据变化时打印（见 ChooseChallengeItem / ChooseItem）
+
             // 滚动视图
             m_IconListView = EditorGUILayout.BeginScrollView(m_IconListView, GUILayout.Height(420));
 
-            // 计算一行能放多少个
-            float windowWidth = this.position.width - 25;
-            int itemsPerRow = Mathf.Max(1, Mathf.FloorToInt(windowWidth / _previewBoxWidth));
+            // 图标区位于左侧面板（宽约 200），按此计算每行项数；
+            // 不能使用 this.position.width（整窗宽 1336），否则换行错乱导致图标不可见
+            const float iconAreaWidth = 200f;
+            int itemsPerRow = Mathf.Max(1, Mathf.FloorToInt(iconAreaWidth / _previewBoxWidth));
 
             // 开始垂直布局（整个列表）
             GUILayout.BeginVertical();
@@ -168,10 +179,10 @@ namespace Editor.MapEditor
             int currentCount = 0;
             foreach (var data in m_IconList)
             {
-                // 【关键】每一行开头，新建一行
+                // 【关键】每一行开头，新建一行（水平布局，从左到右排列图标）
                 if (currentCount % itemsPerRow == 0)
                 {
-                    GUILayout.BeginVertical(); // 新行
+                    GUILayout.BeginHorizontal();
                 }
 
                 // 绘制一个 Item
@@ -181,15 +192,15 @@ namespace Editor.MapEditor
                 // 【关键】每一行结尾，结束行
                 if (currentCount % itemsPerRow == 0)
                 {
-                    GUILayout.EndVertical();
+                    GUILayout.EndHorizontal();
                 }
             }
 
             // 最后如果还有没闭合的行，强制闭合
-            //（每行以 BeginVertical 开始，必须配对 EndVertical，与上方行容器一致）
+            //（每行以 BeginHorizontal 开始，必须配对 EndHorizontal，与上方行容器一致）
             if (currentCount % itemsPerRow != 0)
             {
-                GUILayout.EndVertical();
+                GUILayout.EndHorizontal();
             }
 
             GUILayout.EndVertical();
@@ -203,8 +214,26 @@ namespace Editor.MapEditor
         /// <param name="index">列表项索引</param>
         private void CreateIconItem(ItemIconDataEditor dataEditor, int index)
         {
-            // 最安全的写法：固定宽度 + 固定高度
-            Rect itemRect = GUILayoutUtility.GetRect(10000, 50);
+            // 布局：GUILayout 控件必须在所有事件阶段调用（Unity 缓存 rect，Repaint 事件复用同一 rect）
+            Rect itemRect = GUILayoutUtility.GetRect(_previewBoxWidth, 50);
+
+            // 点击事件：在所有事件阶段判断
+            Event e = Event.current;
+            if (e.type == EventType.MouseDown && e.button == 0 && itemRect.Contains(e.mousePosition))
+            {
+                _selectedIconIndex = index;
+                ChooseIconItem(dataEditor);
+                e.Use();
+                Repaint();
+            }
+
+            // IMGUI 规则：GUI 即时绘制（DrawRect / DrawTexture / Label）只能在 Repaint 事件执行。
+            // 若在 Layout 事件也执行，会破坏 GUILayout 布局状态，
+            // 导致 Repaint 阶段 GetRect 返回 1×1、图标绘制塌缩不可见（此前 item#1 交替 165/1×1 即此问题）
+            if (Event.current.type != EventType.Repaint)
+            {
+                return;
+            }
 
             // 背景
             Color bg = _selectedIconIndex == index ? _selectedBgColor : _normalBgColor;
@@ -246,16 +275,6 @@ namespace Editor.MapEditor
             }
 
             GUI.Label(labelRect, dataEditor.m_IconName, _iconLabelStyle);
-
-            // 点击事件
-            Event e = Event.current;
-            if (e.type == EventType.MouseDown && e.button == 0 && itemRect.Contains(e.mousePosition))
-            {
-                _selectedIconIndex = index;
-                ChooseIconItem(dataEditor);
-                e.Use();
-                Repaint();
-            }
         }
 
         /// <summary>

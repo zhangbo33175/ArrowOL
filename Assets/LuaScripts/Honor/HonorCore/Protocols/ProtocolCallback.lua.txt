@@ -4,12 +4,11 @@
 -- filename:  ProtocolCallback.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   C# -> Lua 协议统一分发入口
--- 功能：
--- 1. FrameworkProtocolNotify 单向事件广播（应用生命周期 / 按键 / 事件 / 本地化 / WebSocket）
--- 2. FrameworkProtocolSync 同步调用（创建 Lua 类 / 资源信息 / 本地化）
--- 3. cmd 路由表分发（m_NotifyHandlers / m_SyncHandlers）
--- 架构：C# LuaProtocolRunTime 绑定全局函数 + cmd 路由表 → 全局回调
+-- @brief     C# -> Lua 协议统一分发入口
+-- @desc      FrameworkProtocolNotify 单向事件广播（应用生命周期 / 按键 / 事件 / 本地化 / WebSocket）；FrameworkProtocolSync 同步调用（创建 Lua 类 / 资源信息 / 本地化）；cmd 路由表分发（m_NotifyHandlers / m_SyncHandlers）
+-- @core      C# LuaProtocolRunTime 绑定全局函数 + cmd 路由表索引分发到全局回调
+-- @scope     C# 侧 LuaProtocolRunTime 直接调用的全局分发函数（全局注入，不 return 模块表属设计）
+-- @dependency ProtocolCmd.Cmd 协议号
 -- @note 依赖 ProtocolCmd.Cmd 协议号
 --=====================================================================================================
 

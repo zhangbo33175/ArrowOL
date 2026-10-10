@@ -5,6 +5,11 @@
 -- filename:  UISettingView.lua
 -- author:    云毅
 -- descrip:   设置界面
+-- @brief     设置界面视图（音乐/音效/震动三开关面板）
+-- @desc      负责按钮点击回调、开关状态翻转与显示刷新；状态存取委托 SettingDataManager
+-- @core      按钮监听注册/注销、GetToggleObjects 数组节点映射、开关显示同步
+-- @scope     主界面设置入口；Prefab 按钮经 LuaBehaviourInspector 注入
+-- @dependency LuaBehaviourSuper, SettingDataManager, SoundManager
 --=====================================================================================================
 
 ---@class UISettingView : LuaBehaviourSuper
@@ -23,14 +28,14 @@ local UISettingView = class('UISettingView', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
 
----构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UISettingView:ctor(args)
     UISettingView.super.ctor(self, args)
 end
 
----创建函数
+---@brief 创建函数
 ---@type fun(args:table):UISettingView
 ---@param args table @自定义参数
 ---@return UISettingView @实例
@@ -42,13 +47,13 @@ end
 
 --region 【生命周期】
 
----注册监听（自动注销）
+---@brief 注册监听（自动注销）
 ---@type fun():void
 function UISettingView:OnAddListeners()
     UISettingView.super.OnAddListeners(self)
 end
 
----唤醒
+---@brief 唤醒
 ---@type fun():void
 ---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
 ---@desc 先执行字段绑定兜底：prefab 未注入按钮字段时按节点名查找，Open/Close 从注入数组取值
@@ -67,7 +72,7 @@ function UISettingView:Awake()
 -- ====================================================================================================2
 end
 
----开始
+---@brief 开始
 ---@type fun():void
 ---@desc 打开面板时按存档状态刷新三个开关的显示（缺省存档为开启，即显示 Open 节点）
 function UISettingView:Start()
@@ -75,7 +80,7 @@ function UISettingView:Start()
     self:RefreshAllToggleDisplay()
 end
 
----销毁
+---@brief 销毁
 ---@type fun():void
 ---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 按 _uiListenerList 统一自动注销，此处无需手动 OnRemoveListener
 function UISettingView:OnDestroy()
@@ -94,13 +99,13 @@ end
 
 --region 【动画回调】
 
----播放打开动画（可重写）
+---@brief 播放打开动画（可重写）
 ---@type fun():void
 function UISettingView:OnPlayOpenAnimation()
     UISettingView.super.OnPlayOpenAnimation(self)
 end
 
----播放关闭动画（可重写）
+---@brief 播放关闭动画（可重写）
 ---@type fun():void
 function UISettingView:OnPlayCloseAnimation()
     UISettingView.super.OnPlayCloseAnimation(self)
@@ -110,7 +115,7 @@ end
 
 --region 【子UI回调】
 
----子UI销毁回调
+---@brief 子UI销毁回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UISettingView:OnAddedUIDestroyed(luaClass)
@@ -121,7 +126,7 @@ end
 
 --region 【按钮交互回调】
 
----点击背景关闭界面-交互回调
+---@brief 点击背景关闭界面-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnBGClicked(args)
     -- TODO: 按钮点击统一播放开始音效
@@ -129,7 +134,7 @@ function UISettingView:OnBGClicked(args)
     CloseUI(UIs.UISettingView)
 end
 
----关闭按钮-交互回调
+---@brief 关闭按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnCloseButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
@@ -137,7 +142,7 @@ function UISettingView:OnCloseButtonClicked(args)
     CloseUI(UIs.UISettingView)
 end
 
----音乐开关按钮-交互回调
+---@brief 音乐开关按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnMusicButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
@@ -146,7 +151,7 @@ function UISettingView:OnMusicButtonClicked(args)
     self:ToggleSetting(ESettingType.MUSIC, open, close)
 end
 
----音效开关按钮-交互回调
+---@brief 音效开关按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnSoundButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
@@ -155,7 +160,7 @@ function UISettingView:OnSoundButtonClicked(args)
     self:ToggleSetting(ESettingType.SOUND, open, close)
 end
 
----震动开关按钮-交互回调
+---@brief 震动开关按钮-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnVibrationButtonClicked(args)
     -- TODO: 按钮点击统一播放开始音效
@@ -168,7 +173,7 @@ end
 
 --region 【开关逻辑】
 
----获取指定设置的开启/关闭显示节点（直接读注入数组字段：[1]=开启显示，[2]=关闭显示）
+---@brief 获取指定设置的开启/关闭显示节点（直接读注入数组字段：[1]=开启显示，[2]=关闭显示）
 ---@type fun(settingType:string):UnityEngine.GameObject,UnityEngine.GameObject
 ---@param settingType string @设置类型键（ESettingType.MUSIC / SOUND / VIBRATION）
 ---@return UnityEngine.GameObject,UnityEngine.GameObject 开启/关闭显示节点（可能为 nil，防御空绑定）
@@ -184,7 +189,7 @@ function UISettingView:GetToggleObjects(settingType)
     return arr and arr[1], arr and arr[2]
 end
 
----翻转指定设置类型的开关状态并刷新显示
+---@brief 翻转指定设置类型的开关状态并刷新显示
 ---@type fun(settingType:string, openObj:UnityEngine.GameObject, closeObj:UnityEngine.GameObject):void
 ---@param settingType string @设置类型键（ESettingType.MUSIC / SOUND / VIBRATION）
 ---@param openObj UnityEngine.GameObject @开启状态显示节点（可为 nil，防御空绑定）
@@ -206,7 +211,7 @@ function UISettingView:ToggleSetting(settingType, openObj, closeObj)
     self:ApplyToggleDisplay(openObj, closeObj, newState)
 end
 
----按当前存档状态刷新三个开关的显示
+---@brief 按当前存档状态刷新三个开关的显示
 ---@type fun():void
 function UISettingView:RefreshAllToggleDisplay()
     if SettingDataManager == nil then
@@ -227,7 +232,7 @@ function UISettingView:RefreshAllToggleDisplay()
         SettingDataManager:GetSettingState(ESettingType.VIBRATION))
 end
 
----将开关显示应用到 Open/Close 节点
+---@brief 将开关显示应用到 Open/Close 节点
 ---@type fun(openObj:UnityEngine.GameObject, closeObj:UnityEngine.GameObject, on:boolean):void
 ---@param openObj UnityEngine.GameObject @开启状态显示节点
 ---@param closeObj UnityEngine.GameObject @关闭状态显示节点

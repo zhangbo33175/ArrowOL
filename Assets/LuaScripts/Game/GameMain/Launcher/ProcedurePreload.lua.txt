@@ -6,7 +6,9 @@
 -- created:   2025
 -- @brief     游戏预加载流程（启动流程）
 -- @desc      游戏启动初始化、时间同步、账号初始化、Lua预加载、UI/地图预加载、流程跳转
--- @feat      设备分级加载、时间同步、新账号初始化、异常退出检测、流程自动跳转
+-- @core      预加载状态机宿主：游戏基础设置、新账号初始化、首次注册时间、单例分步加载、跳转主流程
+-- @scope     GameMain/Launcher 启动流程，仅由 ProcedureSuper 状态机按 OnEnter/OnUpdate/OnLeave 驱动
+-- @feat      设备分级加载、时间同步、新账号初始化、流程自动跳转
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范       Unity Lua 商业项目编码标准 / 流程生命周期规范
 -- @dependency ProcedureBase, GameEntry, EventManager, GlobalUtility
@@ -22,13 +24,6 @@ local ProcedurePreload = class('ProcedurePreload', import('ProcedureSuper'))
 ---@param args table 外部传入参数
 function ProcedurePreload:ctor(args)
     ProcedurePreload.super.ctor(self, args)
-
-    --- 低端机每帧加载数量
-    self._loadCountPerFrameOfLow    = 3
-    --- 中端机每帧加载数量
-    self._loadCountPerFrameOfMedium = 5
-    --- 高端机每帧加载数量
-    self._loadCountPerFrameOfHigh   = 10
 
     --- 初始化启动时间数据
     self:InitLaunchTimeData()
@@ -210,75 +205,6 @@ function ProcedurePreload:LoadAddSteps()
 
     if self.cs then
         self.cs.StartLoading = true
-    end
-end
-
----@brief 根据设备性能等级获取每帧加载数量
----@type fun():number
----@return number 每帧加载个数
-function ProcedurePreload:LoadCountPreFrame()
-    if not GameManager or not GameManager.GetDevicePerformanceLevel then
-        return self._loadCountPerFrameOfMedium
-    end
-
-    local level = GameManager:GetDevicePerformanceLevel()
-    if level == Honor.DevicePerformanceLevel.High then
-        return self._loadCountPerFrameOfHigh
-    elseif level == Honor.DevicePerformanceLevel.Mid then
-        return self._loadCountPerFrameOfMedium
-    elseif level == Honor.DevicePerformanceLevel.Low then
-        return self._loadCountPerFrameOfLow
-    end
-    return self._loadCountPerFrameOfMedium
-end
-
---endregion
-
---region 【异常退出检测】
-
----@brief 检查游戏是否异常退出（未正常结束关卡）
----@type fun():void
-function ProcedurePreload:CheckIsUnusualExitLevel()
-    if not GameCoreManager then return end
-
-    local levelTag = GameCoreManager:GetPlayingLevelTag()
-    if not levelTag or string.isNullOrEmpty(levelTag) then
-        return
-    end
-
-    local arr = string.split(levelTag, "_")
-    if #arr ~= 2 then
-        PrintError("[CheckIsUnusualExitLevel] 格式错误：" .. levelTag)
-        GameCoreManager:SetPlayingLevelTag('')
-        return
-    end
-
-    -- 触发异常退出事件
-    HonorEventHelper:Fire(EventCmd.OnLevelUnusualExit, arr[1], tonumber(arr[2]))
-    GameCoreManager:SetPlayingLevelTag('')
-end
-
---endregion
-
---region 【隐私弹窗】
-
----@brief 尝试显示隐私政策弹窗
----@type fun(finishCallback:function):void
----@param finishCallback function 显示完成回调
-function ProcedurePreload:TryShowTermsPrivacy(finishCallback)
-    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
-        SafeCallFinish(finishCallback)
-        return
-    end
-
-    if not SaveRootData.GameData.playerInfo.isShowPrivacy then
-        OpenUISync(UIs.UITermsPrivacy, { callback = finishCallback })
-        SaveRootData.GameData.playerInfo.isShowPrivacy = true
-        xpcall(function()
-            SaveIO.GameData.Save_playerInfo_isShowPrivacy()
-        end, function() end)
-    else
-        SafeCallFinish(finishCallback)
     end
 end
 

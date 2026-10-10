@@ -5,6 +5,11 @@
 -- filename:  LocalizationKorean.lua
 -- descrip:   本地化配置: 韩语
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     韩语本地化加载入口
+-- @desc      创建 Localizations.Korean 子表并 require 引入词条明细（语言：韩语）
+-- @core      新建空表挂到 Localizations.Korean，再 require 对应 LocalPart 填充词条
+-- @scope     本地化框架按当前语言 require 本文件加载韩语词条
+-- @dependency LocalPart_Localizations_Korean（词条明细）
 --=====================================================================================================
 
 Localizations.Korean = {}

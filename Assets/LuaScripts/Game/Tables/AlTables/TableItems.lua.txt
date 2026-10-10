@@ -5,6 +5,11 @@
 -- filename:  TableItems
 -- descrip:   物件列表
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     可寻物件（收集物）图标配置表
+-- @desc      登记各寻物物件的图标资源名
+-- @core      以数字 ID 为主键，字段含 Icon（图标名，如 main_level1_catN）
+-- @scope     关卡内寻物物件的图标显示
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Items 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.Items_Item @物件列表条目

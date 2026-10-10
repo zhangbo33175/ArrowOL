@@ -4,12 +4,11 @@
 -- filename:  HonorCoreManager.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   框架核心统一管理器（集中装配 Utils 工具模块，提供核心初始化/清理钩子）
--- 功能：
--- 1. 集中装配框架核心工具模块（Table/String/Time/Unity/Tween/Spine 等 Utils）
--- 2. 通过 HonorCoreManager.Tools.XXX 统一暴露核心工具，避免业务层分散 require
--- 3. 提供 Init / Cleanup 生命周期钩子，供启动与切号、重启时统一调用
--- 架构：全局表 + Tools 子表懒 require 各 Utils（纯工具模块，无需实例化）
+-- @brief     框架核心统一管理器（集中装配 Utils 工具模块，提供核心初始化/清理钩子）
+-- @desc      集中装配框架核心工具模块（Table/String/Time/Unity/Tween/Spine 等 Utils）；经 HonorCoreManager.Tools.XXX 统一暴露核心工具，避免业务层分散 require；提供 Init / Cleanup 生命周期钩子供启动与切号、重启统一调用
+-- @core      全局表 + Tools 子表懒 require 各 Utils（纯工具模块，无需实例化）
+-- @scope     业务层统一访问框架核心工具的入口；由启动 / 切号重启流程调用 Init / Cleanup
+-- @dependency HonorCore/Utils 各工具模块（TableUtil/StringUtil/TimeUtil/UTF8Util/LuaUtil/UnityUtil/TweenUtil/SpineUtil 等）
 -- @note  单例实例由业务层 GameRequires 创建（全局 SingletonManager），本类不重复持有实例，避免类/实例引用陷阱。
 --=====================================================================================================
 
@@ -62,14 +61,12 @@ HonorCoreManager.Tools = {
 }
 --endregion
 
---=====================================================================================================
--- 核心生命周期：初始化 / 清理钩子
---=====================================================================================================
+--region 核心生命周期（初始化 / 清理钩子）
 
 ---@brief 框架核心初始化（启动阶段调用，预留统一初始化入口）
 ---@desc 各核心模块的初始化钩子集中在此，按需扩展（当前 Utils 为纯工具、无需初始化）
 function HonorCoreManager:Init()
-    -- TODO: [预留] 框架核心模块的初始化逻辑按需在此集中
+    --TODO: [预留] 框架核心模块的初始化逻辑按需在此集中
 end
 
 ---@brief 框架核心清理（切换账号/重启游戏时调用）
@@ -77,11 +74,12 @@ end
 ---      单例实例数据清理由全局 SingletonManager 实例负责（GameRequires 创建），
 ---      本管理器不重复持有，避免类/实例引用陷阱
 function HonorCoreManager:Cleanup()
-    -- TODO: [预留] 框架核心清理逻辑按需在此集中
+    --TODO: [预留] 框架核心清理逻辑按需在此集中
     -- 业务层清理入口示例（由持有实例方调用）：
     -- if SingletonManager and SingletonManager.ClearAllSingleData then
     --     SingletonManager:ClearAllSingleData()
     -- end
 end
 
+--endregion
 return HonorCoreManager

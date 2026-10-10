@@ -5,6 +5,11 @@
 -- filename:  LoadResDefs_1.lua
 -- descrip:   资源全局定义
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     资源条目明细数据表
+-- @desc      逐条登记全部 Sprite/预制体/音频等资源的类型、AB包路径与资源文件名，自动生成
+-- @core      向全局 LoadRes 字典按 key 写入 LOAD_RES_DEF_ITEM 条目
+-- @scope     配合 LoadResDefs 入口表，供资源加载模块按资源名取 AB 路径
+-- @dependency LoadResDefs（LoadRes 表结构由其创建）
 --=====================================================================================================
 
 ---@field Sprite_btn_b LOAD_RES_DEF_ITEM @文件 btn_b

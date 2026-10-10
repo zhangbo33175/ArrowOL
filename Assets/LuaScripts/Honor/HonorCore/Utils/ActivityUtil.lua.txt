@@ -1,17 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  ActivityUtil.lua.txt
+-- filename:  ActivityUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   活动界面工具（关卡准备界面活动图标加载）
--- 功能：
--- 1. 加载关卡准备界面的活动图标 UI 并绑定 Lua 类
--- 2. 按入口类型筛选可用活动并控制左右动画开关
--- 架构：纯工具表，依赖业务层 ActivityMgr/EventDataManager/PoolManager/RES 及同域 UnityUtil
--- @note  业务扩展工具，依赖业务层活动管理器与资源/事件系统，仅在业务层已加载时可用
+-- @brief     活动界面工具（关卡准备界面活动图标加载）
+-- @desc      加载关卡准备界面的活动图标 UI 并绑定 Lua 类；按入口类型筛选可用活动并控制左右动画开关
+-- @core      活动有效性筛选（热更资源态 / 运行态 / IconPage 入口匹配）、对象池取图、动画开关
+-- @scope     关卡准备界面的活动图标展示入口
+-- @dependency ActivityMgr, EventDataManager, PoolManager, RES, UnityUtil（同域）；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
+---@class ActivityUtil @ 活动界面工具表：关卡准备界面活动图标加载与筛选
 local ActivityUtil = {}
 
 --region 依赖引入
@@ -26,6 +26,7 @@ local UnityUtil = require('UnityUtil')
 ---@param enableAnimator boolean 是否启用动画
 ---@param entryType EActivityEnterFormPosType 入口类型
 ---@return table 活动图标Lua类
+---@desc 由 GameFunctions.TryLoadLevelPrepareActivityUI 全局包装转调；无有效活动时返回 nil，由调用方决定是否占位
 function ActivityUtil.TryLoadLevelPrepareActivityUI(parent, enableAnimator, entryType)
     if UnityUtil.IsNull(parent) then return nil end
     local activities = ActivityMgr and ActivityMgr:GetActivityDatas() or {}

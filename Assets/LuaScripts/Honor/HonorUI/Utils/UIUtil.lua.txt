@@ -8,11 +8,12 @@
 -- @brief     UI 通用工具
 -- @desc      提供 UI 节点查找、组件获取等通用工具函数，供各 UI 基类与业务 View 复用，
 --            避免重复的 transform:Find + GetComponent 组合调用（对齐参考 HonorUI Utils/UIUtil 语义）。
--- @scope     单例模块（全局唯一），按需 require
+-- @core      transform:Find 递归子节点定位、GetComponent 安全取组件（不存在返回 nil，不抛异常）
+-- @scope     HonorUI 内部模块（UIManager require 后使用），非全局门面
 -- @dependency UnityEngine, Unity
 --=====================================================================================================
 
----@class UIUtil UI 通用工具
+---@class UIUtil @ UI 通用工具表（冒号方法，self=表自身；FindChild/GetComponent 被 FindAndGetComponent 内部复用，GetComponentOf 为公共预留 API）
 local UIUtil = {}
 
 --region 节点与组件查找

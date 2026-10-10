@@ -1,19 +1,18 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  UIAdaptUtil.lua.txt
+-- filename:  UIAdaptUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   UI 文本与适配工具（文本宽度、多语言、屏幕适配转换）
--- 功能：
--- 1. GetTextPreferredWidth 计算文本实际宽度
--- 2. GetLocalization 获取多语言词条
--- 3. GetUGUIRealScreenWidth/Height 取 UGUI 真实屏幕尺寸
--- 4. GetRealScreenWidth/HeightByDesign 按设计分辨率换算
--- 架构：纯工具表，依赖 TMPro/Lang/GameMainRoot.UI/HonorRoot 与同域 UnityUtil
--- @note  多语言接口依赖业务层 Lang.GetLocalization，仅业务层已加载时可用
+-- @brief     UI 文本与适配工具（文本宽度、多语言、屏幕适配、安全区、超长屏判定）
+-- @desc      文本首选宽度、多语言词条、设计分辨率↔真实屏幕换算、安全区偏移与画布尺寸统一口径
+-- @core      preferredWidth 测量、设计分辨率缩放换算、Screen.safeArea 安全区换算、宽高比判定
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency TMPro, Lang, GameMainRoot.UI, HonorRoot, UnityEngine.Screen, 同域 UnityUtil
+-- @note      GetSafeAreaInsets/GetCanvasActualSize/IsUltraWideScreen 为公共预留适配 API（当前无内部调用，保留供 UI 避让/超长屏自适应接入）
 --=====================================================================================================
 
+---@class UIAdaptUtil @ UI 文本与适配工具表（纯函数，无实例状态）
 local UIAdaptUtil = {}
 
 --region 依赖引入

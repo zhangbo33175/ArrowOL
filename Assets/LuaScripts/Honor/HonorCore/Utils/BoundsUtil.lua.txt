@@ -1,18 +1,18 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  BoundsUtil.lua.txt
+-- filename:  BoundsUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   包围盒工具（3D/2D/UI 屏幕空间包围盒计算）
--- 功能：
--- 1. GetMeshScreenBounds 计算 MeshFilter 的屏幕包围盒
--- 2. GetBox2DScreenBounds 计算 Collider2D 的屏幕包围盒
--- 3. GetRectTransformScreenBounds 计算 RectTransform 的屏幕包围盒
--- 架构：纯工具表，依赖 UnityEngine/SystemFuncs 与同域 UnityUtil
--- @note  空判断走同域工具，避免依赖业务层 GameFunctions 全局
+-- @brief     包围盒工具（3D Mesh / 2D Collider / UI RectTransform 屏幕空间包围盒计算）
+-- @desc      统一输出 {center, size} 屏幕坐标包围盒，供 UI/场景元素做屏幕定位与遮挡判断
+-- @core      世界坐标→屏幕坐标换算、包围盒结果构造
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency UnityEngine, 同域 UnityUtil（空判断）, UIManager 坐标转换全局函数
+-- @note      空判断走同域工具，避免依赖业务层 GameFunctions 全局
 --=====================================================================================================
 
+---@class BoundsUtil @ 包围盒工具表（纯函数，无实例状态）
 local BoundsUtil = {}
 
 --region 依赖引入

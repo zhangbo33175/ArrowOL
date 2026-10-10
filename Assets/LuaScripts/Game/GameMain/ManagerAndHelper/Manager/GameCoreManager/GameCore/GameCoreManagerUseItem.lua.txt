@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     游戏内道具使用核心管理器
 -- @desc      负责关内/关外道具的使用、扣除、效果应用、动效播放、缓存队列、生命周期管理
+-- @core      道具使用校验与扣除、效果应用、动效播放、关卡未就绪时的道具缓存队列与引导免费道具标记
+-- @scope     GameCoreManager 的道具使用子模块（设计上由主模块持有驱动）；当前全工程未 require/实例化，属预留公共 API，保留待接线
 -- @规范      Unity Lua 商业项目标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, ItemManager, EffectManager, AudioManager, EventManager, CoroutineHelper
 --=====================================================================================================

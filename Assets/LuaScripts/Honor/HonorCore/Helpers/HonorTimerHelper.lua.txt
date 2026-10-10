@@ -4,20 +4,35 @@
 -- filename:  HonorTimerHelper.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   时间轴助手（全局统一时间管理中心）
--- 功能：
--- 1. 支持 UTC0 / 本地时区 / PST（西八区）三种时间体系
--- 2. 间隔回调、时间点回调，支持锁定不移除的常驻任务
--- 3. 跨天事件（启动 / 运行中 / 时间回退）与服务器时间校正防作弊
--- 4. 时间格式化、时间戳互转、时间差计算
--- 架构：全局单例助手，require TimeUtil，按流程（Procedure）绑定启停定时器
--- @note  流程绑定回调仅在指定流程执行；服务器校正时间用于防本地时间作弊
+-- @brief     时间轴助手（全局统一时间管理中心）
+-- @desc      支持 UTC0 / 本地时区 / PST（西八区）三种时间体系；间隔回调与时间点回调，
+--            支持锁定不移除的常驻任务；跨天事件（启动/运行中/时间回退）与服务器时间校正防作弊
+-- @core      三时间体系戳维护、周期/时间轴任务注册注销、跨天事件入队派发、服务器时间校正
+-- @scope     按流程（Procedure）绑定启停定时器；流程绑定回调仅在指定流程执行
+-- @dependency TimeUtil, GameLib.RSetupLuaTableValue, HonorEventHelper, SaveRootData, SaveIO
+-- @note      服务器校正时间用于防本地时间作弊；OnEnter/OnUpdate/OnLeave 为流程生命周期回调，勿删
 --=====================================================================================================
 
 --region 全局统一时间轴管理助手
 local TimeUtils = require("TimeUtil")
 
----@class HonorTimerHelper 全局统一时间轴管理助手
+---@class HonorTimerHelper @ 全局统一时间轴管理助手
+---@field _mainUTC0TimeStamp number @ 当前 UTC0 时间戳
+---@field _mainLocalTimeStamp number @ 当前本地时间戳
+---@field _deltaTimerNodes table[] @ 周期性定时任务列表
+---@field _mainUTC0TimerNodes table[] @ UTC0 时间轴定时任务（按时间戳降序）
+---@field _mainLocalTimerNodes table[] @ 本地时间轴定时任务（按时间戳降序）
+---@field _curDay24UTC0TimeStamp number @ UTC0 当天 23:59:59 时间戳
+---@field _curDay00UTC0TimeStamp number @ UTC0 当天 00:00:00 时间戳
+---@field _curDay24LocalTimeStamp number @ 本地当天 23:59:59 时间戳
+---@field _curDay00LocalTimeStamp number @ 本地当天 00:00:00 时间戳
+---@field _acrossDayEventProcedureNameFlags table @ 允许派发跨天事件的流程白名单
+---@field _acrossDayEventQueue table[] @ 跨天事件队列（进入指定流程后统一派发）
+---@field _lastRealTime number @ 上一帧真实时间（用于计算 deltaTime）
+---@field _IsTimeCorrectionByServer boolean @ 是否已通过服务器校正时间（防作弊）
+---@field _curDay24PSTTimeStamp number @ PST 当天 23:59:59 时间戳（西八区）
+---@field _curDay00PSTTimeStamp number @ PST 当天 00:00:00 时间戳（西八区）
+---@field _helperContianer table @ 公用临时容器（减少GC）
 local HonorTimerHelper = class("HonorTimerHelper")
 
 ---@brief 构造函数

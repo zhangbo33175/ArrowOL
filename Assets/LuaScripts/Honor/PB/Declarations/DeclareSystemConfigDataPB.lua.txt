@@ -5,6 +5,11 @@
 -- filename: DeclareSystemConfigDataPB.lua
 -- descrip: 本地系统配置数据缓存
 -- notices: 该文件自动生成，请不要手动修改！
+-- @brief     本地系统配置数据缓存 Protobuf 结构类型声明
+-- @desc      声明 SavePBMsgDef.SystemConfigDataPB 根数据结构（data 为 json 字符串）字段类型
+-- @core      纯类型注解声明（---@class/---@field），由 proto 定义导出，无运行时代码
+-- @scope     供 SystemConfigDataPB.lua 运行时表字段类型标注与 IDE/emmylua 提示消费
+-- @dependency protobuf 生成工具链（SystemConfigDataPB.proto.lua 为源 schema）
 --=====================================================================================================
 
 -- 协议描述：本地系统配置数据缓存

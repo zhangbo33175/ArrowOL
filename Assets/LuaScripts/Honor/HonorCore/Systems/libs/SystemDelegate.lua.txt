@@ -4,6 +4,11 @@
 -- filename:  SystemDelegate.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     多播委托 / 事件代理（C# Delegate / UnityEvent 风格）
+-- @desc      支持添加/移除/广播多个回调，支持 once 一次性监听与带参广播
+-- @core      回调集合维护、Add/Remove/Broadcast、once 一次性监听、带参广播
+-- @scope     框架事件代理层，基于 SystemSet 维护回调集合
+-- @dependency SystemSet（无序集合，需先加载）
 -- descrip:   多播委托/事件代理（C# Delegate / UnityEvent 风格）
 -- 功能：
 -- 1. 支持添加/移除/广播多个回调

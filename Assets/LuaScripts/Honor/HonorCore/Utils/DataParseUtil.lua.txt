@@ -1,17 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  DataParseUtil.lua.txt
+-- filename:  DataParseUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   数据解析工具（奖励列表与二元组字符串解析）
--- 功能：
--- 1. ParseRewardDataList/ParseRewardData 解析奖励配置为奖励列表
--- 2. ParseStruct2List/ParseStruct2 解析二元组结构字符串
--- 架构：纯工具表，依赖 HonorList 与 SystemFuncs 字符串扩展
--- @note  配置表字符串到结构数据的转换入口
+-- @brief     数据解析工具（奖励列表与二元组字符串解析）
+-- @desc      ParseRewardDataList/ParseRewardData 解析奖励配置为奖励列表；ParseStruct2List/ParseStruct2 解析二元组结构字符串
+-- @core      配置字符串拆分（逗号分隔）、逐条解析并收集为 HonorList、非法格式报错兜底
+-- @scope     配置表字符串到结构数据的转换入口
+-- @dependency HonorList, SystemFuncs（string.split / string.isNullOrEmpty）, PrintError；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
+---@class DataParseUtil @ 数据解析工具表：奖励与二元组字符串解析
 local DataParseUtil = {}
 
 --region 数据解析工具
@@ -24,6 +24,7 @@ local DataParseUtil = {}
 ---@param dataList table 原始数据列表
 ---@param parser function 单条解析函数(v):table|nil
 ---@return HonorList 解析结果列表
+---@desc 文件内部公共辅助：奖励列表与二元组列表共用，dataList 为空时返回 nil
 local function ParseListToHonorList(dataList, parser)
     if not dataList then return nil end
     local list = HonorList.Create()
@@ -37,6 +38,7 @@ end
 ---@brief 解析奖励表
 ---@param rewardTable table 奖励表数据
 ---@return HonorList 奖励数据列表
+---@desc 内部以 ParseRewardData 为 parser 逐条解析；经 GameFunctions.ParseRewardDataList 全局包装对外暴露
 function DataParseUtil.ParseRewardDataList(rewardTable)
     return ParseListToHonorList(rewardTable, DataParseUtil.ParseRewardData)
 end
@@ -44,6 +46,7 @@ end
 ---@brief 解析单个奖励字符串 id,num
 ---@param str string 奖励字符串
 ---@return table 奖励数据 {Id, Num}
+---@desc 非法格式（空串/非两段子串）打印错误并返回 nil；经 GameFunctions.ParseRewardData 全局包装对外暴露
 function DataParseUtil.ParseRewardData(str)
     if string.isNullOrEmpty(str) then return nil end
     local parts = string.split(str, ",")
@@ -60,6 +63,7 @@ end
 ---@brief 解析二元组数组
 ---@param dataList table 原始数据列表
 ---@return HonorList 结构数据列表
+---@desc 内部以 ParseStruct2 为 parser 逐条解析；经 GameFunctions.ParseStruct2List 全局包装对外暴露
 function DataParseUtil.ParseStruct2List(dataList)
     return ParseListToHonorList(dataList, DataParseUtil.ParseStruct2)
 end
@@ -67,6 +71,7 @@ end
 ---@brief 解析二元组 a,b
 ---@param str string 二元组字符串
 ---@return table 结构数据 {Item1, Item2}
+---@desc 非法格式打印错误并返回 nil；经 GameFunctions.ParseStruct2 全局包装对外暴露
 function DataParseUtil.ParseStruct2(str)
     if string.isNullOrEmpty(str) then return nil end
     local parts = string.split(str, ",")

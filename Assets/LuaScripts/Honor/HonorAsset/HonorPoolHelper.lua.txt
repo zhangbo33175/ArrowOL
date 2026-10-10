@@ -4,6 +4,11 @@
 -- filename:  HonorPoolHelper.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     全局对象池管理助手（对象池系统顶层入口）
+-- @desc      统一创建、管理、销毁所有 GameObject 对象池，避免 Instantiate/Destroy GC 峰值，优化特效/怪物/道具/UI item/子弹等场景性能
+-- @core      池创建/获取/回收/销毁、按名称池字典管理
+-- @scope     全局对象池顶层入口（单例），业务与框架经此集中取用对象池
+-- @dependency HonorPool（单池实例）, UnityEngine
 -- descrip:   对象池助手（全局对象池管理器）
 --            作用：统一创建、管理、销毁所有 GameObject 对象池
 --            定位：对象池系统顶层入口，全局调用

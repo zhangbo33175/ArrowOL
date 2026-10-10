@@ -115,8 +115,10 @@ namespace Editor.MapEditor
             GUILayout.EndHorizontal();
 
             // 图标素材列表区域
+            // 高度固定 440：左侧面板总高 860，上方 地图管理区(≈326)+分割线(≈13)+物件按钮(≈50) 约占 389，
+            // 图标区需 ≤ 860-389=471 才能保证不溢出到可视区外（此前 710 会把图标列表推到 860 以下不可见）
             GUI.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1);
-            GUILayout.BeginVertical("Box", GUILayout.Height(710));
+            GUILayout.BeginVertical("Box", GUILayout.Height(440));
             OnSetIconList();
             GUILayout.EndVertical();
 

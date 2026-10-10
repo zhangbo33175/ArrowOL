@@ -85,7 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7869881248973367135}
   - component: {fileID: 8420089483747976620}
-  - component: {fileID: 3999784220721673726}
+  - component: {fileID: 7759543967042787224}
   m_Layer: 5
   m_Name: UILoadMapView
   m_TagString: Untagged
@@ -227,20 +227,25 @@ MonoBehaviour:
   m_Collider3DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger2DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger3DLifeCyclesBehaviour: {fileID: 0}
---- !u!114 &3999784220721673726
+--- !u!114 &7759543967042787224
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705388526218237005}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ceaacb033cb46889e6274cea10f8536, type: 3}
+  m_Script: {fileID: 11500000, guid: 3d198bf43db2d6146ba340e113fb4c65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 5166830427936245639}
-  parentRectTransform: {fileID: 3157483216738949345}
+  target: {fileID: 8382989582026219137}
+  reference: {fileID: 0}
+  mode: 1
+  fillMode: 0
+  alignSide: 0
+  margin: 0
+  adaptOnStart: 1
 --- !u!1 &2734652449312472355
 GameObject:
   m_ObjectHideFlags: 0

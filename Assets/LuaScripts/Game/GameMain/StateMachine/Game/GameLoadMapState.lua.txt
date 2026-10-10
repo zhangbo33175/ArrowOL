@@ -6,9 +6,11 @@
 -- created:   2026
 -- @brief     游戏加载地图状态
 -- @desc      负责地图加载、LoadingUI显示、首次创角流程、新手第一关跳转、主界面切换
+-- @core      继承基类协程加载流程；LoadMapOver 分流首关/普通流程，按 IsLatestChapter 决定进 PlayingState 或 MainState
+-- @scope     由 GameStateMachine:ChangeState(LoadMapState) 驱动；登录态/切章/重玩均经此状态
 -- @feat      地图加载管理、新手流程、普通流程、加载界面控制
 -- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
--- @dependency GameLoadMapStateBase, GameEntry, MapManager, UIManager, PlayerDataManager
+-- @dependency GameLoadMapStateBase, ChapterListManager, GameCoreManager, GamePlayHelper, ItemManager, GameStateMachine
 --=====================================================================================================
 
 ---@class GameLoadMapState : GameLoadMapStateBase @游戏加载地图状态
@@ -17,7 +19,7 @@ local GameLoadMapState = class('GameLoadMapState', import('GameLoadMapStateBase'
 --region 【构造 & 实例化】
 
 ---=========================================================================
----@brief 构造函数
+---@brief 构造函数（框架驱动，勿删）
 ---@param stateType GameStateCmd 状态枚举类型
 ---=========================================================================
 function GameLoadMapState:ctor(stateType)
@@ -25,7 +27,7 @@ function GameLoadMapState:ctor(stateType)
 end
 
 ---=========================================================================
----@brief 创建状态实例对外工厂入口
+---@brief 创建状态实例对外工厂入口（框架驱动，勿删）
 ---@param stateType GameStateCmd 状态枚举类型
 ---@return GameLoadMapState 状态实例对象
 ---=========================================================================
@@ -39,7 +41,7 @@ end
 --region 【状态生命周期】
 
 ---=========================================================================
----@brief 进入加载地图状态
+---@brief 进入加载地图状态（GameStateMachine 驱动，透传基类协程加载）
 ---@param finishCallback function|nil 进入完成回调函数
 ---=========================================================================
 function GameLoadMapState:OnStateEnter(finishCallback)
@@ -47,7 +49,7 @@ function GameLoadMapState:OnStateEnter(finishCallback)
 end
 
 ---=========================================================================
----@brief 离开加载地图状态
+---@brief 离开加载地图状态（GameStateMachine 驱动，透传基类关闭 LoadingUI）
 ---@param finishCallback function|nil 退出完成回调函数
 ---=========================================================================
 function GameLoadMapState:OnStateExit(finishCallback)
@@ -59,7 +61,8 @@ end
 --region 【地图加载完成逻辑】
 
 ---=========================================================================
----@brief 地图加载完毕入口，分流新手首次游戏流程 / 普通正常流程
+---@brief 地图加载完毕入口（基类 OnStateEnter 协程回调），分流新手首次游戏流程 / 普通正常流程
+---@desc 首关：补体力→PlayLevel 成功进 PlayingState，失败回退 MainState；非首关：IsLatestChapter 进 PlayingState，否则 MainState
 ---@param finishCallback function|nil 加载完成回调函数
 ---=========================================================================
 function GameLoadMapState:LoadMapOver(finishCallback)
@@ -79,6 +82,11 @@ function GameLoadMapState:LoadMapOver(finishCallback)
             PrintError("[GameLoadMapState] 默认进入第一关失败，改为进入主页面")
         end
     else
+        -- "章节-内部关卡"模式：非首关进入游玩需满足 IsLatestChapter（目标章 == 最新章节）。
+        -- 同章节内部关卡切换时当前章即最新章节，天然满足；跨章节须先由 GamePlayHelper:LoadNextLevel
+        -- 调用 UnlockChapter 把下一章置为最新章节，否则此处判定不过会回退主界面。
+        --TODO: [门控] 当前严格依赖 IsLatestChapter；若后续支持"跳章/任意已解锁章"，需放宽为
+        --      ChapterListManager:IsUnlockedChapter，并同步调整跨章解锁时机。
         if GameCoreManager:IsLatestChapter() then
             -- 正常流程：直接进入战斗游玩状态
             GameStateMachine:ChangeState(GameStateCmd.PlayingState, finishCallback)
@@ -93,7 +101,7 @@ end
 --region 【准备加载地图】
 
 ---=========================================================================
----@brief 准备加载地图，设置运行时章节ID
+---@brief 准备加载地图（基类协程内回调），设置运行时章节ID
 ---@param chapterId string 要加载的章节ID
 ---=========================================================================
 function GameLoadMapState:OnReadyToLoadMap(chapterId)

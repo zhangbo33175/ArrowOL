@@ -5,6 +5,11 @@
 -- filename:  BindValue.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     可绑定值类（MVVM 双向绑定核心）
+-- @desc      包装一个数据，数据变化时自动触发回调；支持普通值、列表增删改查、自动事件通知、触发器自动复位
+-- @core      元表拦截赋值、变化事件分发、列表增删改查通知
+-- @scope     MVVM 数据驱动核心，被 Binder / ViewModelSuper 使用
+-- @dependency 无（纯 Lua 数据封装）
 -- descrip:   可绑定值类（MVVM 双向绑定核心）
 --            作用：包装一个数据，当数据发生变化时自动触发回调
 --            支持：普通值、列表、增删改查、自动事件通知、触发器自动复位

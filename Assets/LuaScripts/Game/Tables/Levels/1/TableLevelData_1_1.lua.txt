@@ -5,6 +5,11 @@
 -- filename:  TableLevelData_1_1
 -- descrip:   关卡配置信息表
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     第1章第1关（LevelId=1）地图关卡数据
+-- @desc      MapBuildEditor 导出的单关地图物件摆放数据
+-- @core      ChapterId、LevelId、BgName、Time、MapName、SavePath、MapData（物件实例数组：Id/Type/Position/Rotation/Scale/Sprite/Name/Size/IsChoose）
+-- @scope     关卡进入时加载对应地图物件布局
+-- @dependency Tables 注册表（Tables.lua），由 Tables.LevelData_1_1 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@type Tables.LevelData_Item

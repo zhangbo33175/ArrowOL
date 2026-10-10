@@ -7,6 +7,8 @@
 -- @brief     全局通用工具函数库
 -- @desc      遵循 Unity/XLua 规范 | 无GC 无Bug 商业级工具集，包含动画、对象池、坐标、UI、字符串、数据解析等全品类通用方法
 -- @trigger   全局任意业务模块调用
+-- @core      是（全局基础工具，业务模块广泛依赖）
+-- @scope     全局函数（无命名空间前缀），任意业务文件 require("GameFunctions") 后即可直接调用
 -- @dependency DG.Tweening, Spine, UnityEngine, GameMainRoot, HonorRuntime
 --=====================================================================================================
 
@@ -423,17 +425,6 @@ end
 --=====================================================================================================
 -- 包围盒工具：3D/2D/UI 屏幕包围盒计算
 --=====================================================================================================
-
----@brief 由最小/最大屏幕坐标构造包围盒结果表（中心 + 尺寸）
----@param minScreen UnityEngine.Vector2 最小屏幕坐标
----@param maxScreen UnityEngine.Vector2 最大屏幕坐标
----@return table 包围盒信息（center + size）
-local function BuildScreenBoundsResult(minScreen, maxScreen)
-    return {
-        center = (minScreen + maxScreen) / 2,
-        size = maxScreen - minScreen
-    }
-end
 
 ---@brief 获取模型屏幕包围盒
 ---@type fun(meshFilter:UnityEngine.MeshFilter):table

@@ -4,6 +4,11 @@
 -- filename:  SystemDefs.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     全局框架定义（Lua 侧 C# 命名空间 / 插件 / 枚举 / 常量桥接）
+-- @desc      统一封装 Unity/UI、第三方插件与自研框架命名空间；定义平台环境常量、DOTween 缓动别名与内置枚举
+-- @core      CS.* 命名空间桥接、平台环境常量、DOTween 缓动别名、框架内置枚举
+-- @scope     全局符号定义入口，必须在所有业务脚本之前加载
+-- @dependency CS.*（C# 命名空间，XLua 全局）
 -- descrip:   全局框架定义（Lua 侧 C# 命名空间/插件/枚举/常量桥接）
 -- 功能：
 -- 1. 统一封装 Unity/UI、第三方插件与自研框架命名空间

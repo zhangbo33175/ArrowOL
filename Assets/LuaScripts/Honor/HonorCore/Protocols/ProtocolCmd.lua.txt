@@ -4,12 +4,11 @@
 -- filename:  ProtocolCmd.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   协议命令定义（对齐 C# LuaProtocolCmd）
--- 功能：
--- 1. 定义 C# <-> Lua 协议互通 cmd 链接 ID
--- 2. 按业务区间分组（类创建 / 应用输入 / 登录授权 / 事件资源本地化 / WebSocket）
--- 3. 与 C# LuaProtocolCmd 枚举一一对应
--- 架构：Lua 全局表 + return，供 StartGame / ProtocolCallback / ProtocolReceiver / ProtocolSender 引用
+-- @brief     协议命令定义（对齐 C# LuaProtocolCmd）
+-- @desc      定义 C# <-> Lua 协议互通 cmd 链接 ID；按业务区间分组（类创建 / 应用输入 / 登录授权 / 事件资源本地化 / WebSocket）；与 C# LuaProtocolCmd 枚举一一对应
+-- @core      Lua 全局表 ProtocolCmd.Cmd，纯数字常量按业务区间分组
+-- @scope     被 StartGame / ProtocolCallback / ProtocolReceiver / ProtocolSender 共同引用的协议号常量表
+-- @dependency 无运行时依赖（纯常量定义）
 -- @note 协议号与 C# LuaProtocolCmd 及 Docs/ProgramConfig/ProtoPB/Protocol.pb 同步
 --=====================================================================================================
 

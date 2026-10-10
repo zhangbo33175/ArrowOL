@@ -1,17 +1,26 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  FishItem.lua
 -- author:    云毅
--- descrip:   生命Item
+-- created:   2026
+-- @brief     生命 Item（生命值图标）
+-- @desc      主界面生命值的可视化单元，由 UIMainPlayingManager:CreateFishItems 批量创建并挂载到
+--            LifeTransform；生命被扣减时由 Manager 驱动其播放"左右晃动 + 碎裂消失"动画
+-- @core      碎裂动画编排（DOTween 序列）、框架生命周期透传
+-- @scope     单个生命值图标的动画表现，无业务数据读写
+-- @dependency LuaBehaviourSuper, DOTween, UIMainPlayingManager
 --=====================================================================================================
 
----@class FishItem : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@class FishItem : LuaBehaviourSuper @生命值图标单元
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
 local FishItem = class('FishItem', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---构造函数
+---@brief 框架驱动，仅透传基类构造
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function FishItem:ctor(args)
@@ -20,6 +29,7 @@ function FishItem:ctor(args)
 end
 
 ---创建函数
+---@brief 框架驱动，由 UIMainPlayingManager 通过 LoadRes["GameObject_FishItem"] 反射创建
 ---@type fun(args:table):FishItem
 ---@param args table @自定义参数
 ---@return FishItem @实例
@@ -28,7 +38,12 @@ function FishItem:Create(args)
     return obj
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---注册监听（自动注销）
+---@brief 框架驱动，生命图标无自定义事件监听
 ---@type fun():void
 function FishItem:OnAddListeners()
     FishItem.super.OnAddListeners(self)
@@ -36,16 +51,16 @@ function FishItem:OnAddListeners()
 end
 
 ---唤醒
+---@brief 框架驱动，节点加载完成时回调
 ---@type fun():void
 function FishItem:Awake()
     FishItem.super.Awake(self)
--- 2=====================================================================================================
--- 无自动注册内容。
--- ====================================================================================================2
+    -- 无自动注册内容。
 
 end
 
 ---开始
+---@brief 框架驱动，首次激活后回调
 ---@type fun():void
 function FishItem:Start()
     FishItem.super.Start(self)
@@ -53,19 +68,23 @@ function FishItem:Start()
 end
 
 ---销毁
+---@brief 框架驱动，节点销毁时回调
 ---@type fun():void
 function FishItem:OnDestroy()
     FishItem.super.OnDestroy(self)
--- 3=====================================================================================================
--- 无自动注销内容。
--- ====================================================================================================3
+    -- 无自动注销内容。
 
 end
+
+--endregion
+
+--region 【碎裂动画】
 
 ---播放"左右晃动 + 碎裂消失"动画（每个 FishItem 独立播放）
 ---@brief 用 DOTween 序列实现：本地旋转左右往复摆动数下 -> 缩放至 0 碎裂 -> 回调
 ---@desc FishItem 父节点为 HorizontalLayoutGroup（会覆盖子节点位置），故左右晃动改用旋转摆动实现，布局不会干预；
 ---      target 显式传入该 FishItem 自身的 Transform，保证每只鱼独立作用于自己的节点，互不干扰
+---@desc 由 UIMainPlayingManager:_PlayBreakForItems 错峰调用（生命扣减/关卡失败时触发）
 ---@param fishTransform UnityEngine.Transform 该 FishItem 自身的 Transform
 ---@param startDelay number 启动延迟（秒），用于多只鱼错峰逐只播放动画
 ---@param onComplete function|nil 动画完成后回调（由调用方决定是否销毁）
@@ -108,23 +127,36 @@ function FishItem:PlayBreakAnimation(fishTransform, startDelay, onComplete)
     end)
 end
 
+--endregion
+
+--region 【动画回调】
+
 ---播放打开动画（可重写）
+---@brief 框架驱动（可重写），节点打开时播放
 ---@type fun():void
 function FishItem:OnPlayOpenAnimation()
     FishItem.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画（可重写）
+---@brief 框架驱动（可重写），节点关闭时播放
 ---@type fun():void
 function FishItem:OnPlayCloseAnimation()
     FishItem.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---子UI销毁回调
+---@brief 框架驱动，本节点 AddUI 出的子节点销毁时回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function FishItem:OnAddedUIDestroyed(luaClass)
     FishItem.super.OnAddedUIDestroyed(self, luaClass)
 end
+
+--endregion
 
 return FishItem

@@ -4,8 +4,13 @@
 -- filename:  GameMain_Entry.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   Game Lua Main Entry
---            游戏Lua主入口，负责依赖加载、全局回调注册、系统初始化
+-- @brief     游戏 Lua 主入口
+-- @desc      负责依赖加载（API扩展 / 配置表 / 资源定义 / UI表 / 多语言 / 全局定义 / 工具函数 / 核心模块装配）、
+--            启动日志与服务器系统配置读取；并向 C# / Bootstrap 暴露一组全局生命周期与 WebSocket 业务回调。
+--            下方回调由 HonorCore\Bootstrap\StartGame 等框架层按名派发，属框架入口，不得随意改名或删除。
+-- @core      是（Lua 层最外层入口）
+-- @scope     全局函数回调（C#/Bootstrap 按名调用）+ 模块 require 装配，无返回值
+-- @dependency GameApiExtend, Tables, LoadResDefs, UIs, Localizations, GameDefinitions, GameFunctions, GameRequires, HonorConfigHelper
 --=====================================================================================================
 
 --=====================================================================================================

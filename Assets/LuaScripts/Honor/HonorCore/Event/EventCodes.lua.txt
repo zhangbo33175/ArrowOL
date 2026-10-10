@@ -4,12 +4,11 @@
 -- filename:  EventCodes.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   全局事件码表（C# <-> Lua 互通事件定义）
--- 功能：
--- 1. 提供跨语言通用事件码（如服务器时间校正、全局通知回调）
--- 2. 码值由 UniqueEventCode() 生成全局唯一，杜绝硬编码与冲突
--- 3. C# 层通过 EventCodes.X 读取码值做消息匹配
--- 架构：全局表 EventCodes，依赖 SerialProducer 的 UniqueEventCode 生成器
+-- @brief     全局事件码表（C# <-> Lua 互通事件定义）
+-- @desc      提供跨语言通用事件码（如服务器时间校正、全局通知回调）；码值由 UniqueEventCode() 生成全局唯一，杜绝硬编码与冲突；C# 层通过 EventCodes.X 读取码值做消息匹配
+-- @core      全局表 EventCodes，每项经 UniqueEventCode() 自增赋唯一数字码
+-- @scope     C# <-> Lua 跨语言事件码统一定义；由 C# 侧读取做消息匹配
+-- @dependency SerialProducer 的 UniqueEventCode（全局函数）
 -- @note  须在 SerialProducer 之后加载；本文件 return EventCodes 供 require 引用
 --=====================================================================================================
 

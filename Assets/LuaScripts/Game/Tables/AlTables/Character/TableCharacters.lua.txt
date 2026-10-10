@@ -5,6 +5,11 @@
 -- filename:  TableCharacters
 -- descrip:   喵喵列表信息
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     可收集猫咪（喵喵）角色配置表
+-- @desc      登记各猫咪的图标资源与预制体 ResDef 名称
+-- @core      以数字 ID 为主键，字段含 Icon（图标名）、ResName（GameObject_Character 预制体 ResDef）
+-- @scope     主界面与关卡内的猫咪收集、展示
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Characters 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.Characters_Item @喵喵列表信息条目

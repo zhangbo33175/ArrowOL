@@ -4,6 +4,11 @@
 -- filename:  SystemArray.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     栈式结构动态数组（push/pop O(1)，可选弱引用模式）
+-- @desc      高效栈操作 push/pop/遍历/清空，clear 零 GC；可选弱引用表不阻碍对象回收
+-- @core      栈式 push/pop、遍历、清空、弱引用模式
+-- @scope     框架底层数据结构（纯 Lua 封装），需先 New 创建实例后再操作
+-- @dependency 无（纯 Lua 数据表封装）
 -- descrip:   栈式结构动态数组（push/pop O(1)，可选弱引用模式）
 -- 功能：
 -- 1. 高效栈操作 push/pop/遍历/清空

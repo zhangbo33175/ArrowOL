@@ -1,18 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  TweenUtil.lua.txt
+-- filename:  TweenUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   DOTween 缓动工具（缓动类型转换、延迟调用、路径动画）
--- 功能：
--- 1. ParseEaseByInt 数字缓动类型转 Ease 枚举
--- 2. DelayInvoke 延迟调用（支持 realTime 与 tweenId）
--- 3. DOPathAndWait 沿路径移动并等待完成
--- 架构：纯工具表，依赖 DG.Tweening 与同域 CoUtil/UnityUtil
--- @note  安全调用/空判断走同域工具，避免依赖业务层全局
+-- @brief     DOTween 缓动工具（缓动类型转换、延迟调用、路径动画）
+-- @desc      数字缓动枚举映射、Sequence 延迟回调、CatmullRom 曲线路径移动统一收口
+-- @core      easeMap 数字→Ease 映射、DOTween.Sequence 延迟与路径拼接
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency DG.Tweening, 同域 CoUtil（SafeInvoke）, 同域 UnityUtil（空判断）
 --=====================================================================================================
 
+---@class TweenUtil @ DOTween 缓动工具表（纯函数，无实例状态）
 local TweenUtil = {}
 
 --region 依赖引入

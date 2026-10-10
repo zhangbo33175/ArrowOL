@@ -1,13 +1,18 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIMainStateViewViewModel.lua
 -- author:    云毅
--- descrip:   关卡界面ViewModel
+-- created:   2026
+-- @brief     关卡主界面 ViewModel（视图数据层）
+-- @desc      为主界面 View 提供当前章节关卡文案等展示数据
+-- @core      关卡展示文案转发
+-- @scope     UIMainStateView 主界面数据绑定
+-- @dependency ViewModelSuper, LevelManager
 --=====================================================================================================
 
----@class UIMainStateViewViewModel : ViewModelSuper
+---@class UIMainStateViewViewModel : ViewModelSuper @关卡主界面 ViewModel，提供关卡文案数据
 local UIMainStateViewViewModel = class('UIMainStateViewViewModel', import('ViewModelSuper'))
 
 ---绑定值Key名称
@@ -17,6 +22,7 @@ UIMainStateViewViewModel.BVKey = {}
 --region 【构造】
 
 ---构造函数
+---@brief 构造函数（无额外绑定数据成员）
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UIMainStateViewViewModel:ctor(args)
@@ -25,6 +31,7 @@ function UIMainStateViewViewModel:ctor(args)
 end
 
 ---创建函数
+---@brief 创建 ViewModel 实例
 ---@type fun(args:table):UIMainStateViewViewModel
 ---@param args table @自定义参数
 ---@return UIMainStateViewViewModel @UIMainStateViewViewModel实例
@@ -38,24 +45,28 @@ end
 --region 【生命周期】
 
 ---唤醒
+---@brief 唤醒回调（框架驱动，勿删）
 ---@type fun():void
 function UIMainStateViewViewModel:Awake()
     UIMainStateViewViewModel.super.Awake(self)
 end
 
 ---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）
+---@brief 初始化回调（框架驱动，勿删）
 ---@type fun():void
 function UIMainStateViewViewModel:OnInit()
     UIMainStateViewViewModel.super.OnInit(self)
 end
 
 ---开始
+---@brief 开始回调（框架驱动，勿删）
 ---@type fun():void
 function UIMainStateViewViewModel:Start()
     UIMainStateViewViewModel.super.Start(self)
 end
 
 ---销毁
+---@brief 销毁回调（框架驱动，勿删）
 ---@type fun():void
 function UIMainStateViewViewModel:OnDestroy()
     UIMainStateViewViewModel.super.OnDestroy(self)
@@ -66,6 +77,7 @@ end
 --region 【事件监听】
 
 ---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@brief 注册事件监听（框架驱动，勿删）
 ---@type fun():void
 function UIMainStateViewViewModel:OnAddListeners()
     UIMainStateViewViewModel.super.OnAddListeners(self)

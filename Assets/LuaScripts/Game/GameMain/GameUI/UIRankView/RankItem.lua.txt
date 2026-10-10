@@ -1,23 +1,31 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  RankItem.lua
 -- author:    云毅
--- descrip:   排行榜单条目
+-- created:   2026
+-- @brief     排行榜单条目
+-- @desc      排行榜列表中的单个名次行，由 UIRankView:RefreshRankList 批量 AddUISync 生成，
+--            通过构造参数 args.data 接收 {rank,name,score,isSelf} 并在 Start 时刷新显示
+-- @core      条目数据接收、名次/昵称/分数/高亮标识刷新
+-- @scope     仅负责单条排行榜数据的文本与高亮展示，无独立交互
+-- @dependency LuaBehaviourSuper, RankDataManager（由父视图注入数据）
 --=====================================================================================================
 
----@class RankItem : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field RankText                            TMPro.TextMeshProUGUI         √                        名次
----@field NameText                            TMPro.TextMeshProUGUI         √                        昵称
----@field ScoreText                           TMPro.TextMeshProUGUI         √                        分数
----@field SelfMark                            UnityEngine.GameObject         √                        自己高亮标识
+---@class RankItem : LuaBehaviourSuper @排行榜单条目行
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
+---@field m_Data table @条目数据 {rank:number, name:string, score:number, isSelf:boolean}，构造时由 args.data 注入
+---@field RankText TMPro.TextMeshProUGUI @名次文本（Inspector 注入）
+---@field NameText TMPro.TextMeshProUGUI @昵称文本（Inspector 注入）
+---@field ScoreText TMPro.TextMeshProUGUI @分数文本（Inspector 注入）
+---@field SelfMark UnityEngine.GameObject @自己高亮标识节点（isSelf 时激活）
 local RankItem = class('RankItem', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
 
 ---@brief 构造函数（接收榜单条目数据）
+---@desc 框架驱动；从 args.data 取出排行榜条目数据缓存到 m_Data，供 Start 刷新显示
 ---@type fun(args:table):void
 ---@param args table @自定义参数，args.data 结构：{rank:number, name:string, score:number, isSelf:boolean}
 function RankItem:ctor(args)
@@ -26,6 +34,7 @@ function RankItem:ctor(args)
 end
 
 ---@brief 创建函数
+---@desc 框架驱动，由 UIRankView 通过 UIs.RankItem 反射调用
 ---@type fun(args:table):RankItem
 ---@param args table @自定义参数
 ---@return RankItem @实例
@@ -38,18 +47,21 @@ end
 --region 【生命周期】
 
 ---@brief 注册监听（自动注销）
+---@desc 框架驱动，条目级无自定义事件监听
 ---@type fun():void
 function RankItem:OnAddListeners()
     RankItem.super.OnAddListeners(self)
 end
 
 ---@brief 唤醒
+---@desc 框架驱动，条目节点加载完成时回调
 ---@type fun():void
 function RankItem:Awake()
     RankItem.super.Awake(self)
 end
 
 ---@brief 开始（刷新条目显示）
+---@desc 框架驱动；首次激活时调用 Refresh 将 m_Data 写入名次/昵称/分数/高亮
 ---@type fun():void
 function RankItem:Start()
     RankItem.super.Start(self)
@@ -57,6 +69,7 @@ function RankItem:Start()
 end
 
 ---@brief 销毁
+---@desc 框架驱动，条目销毁时回调
 ---@type fun():void
 function RankItem:OnDestroy()
     RankItem.super.OnDestroy(self)
@@ -67,6 +80,7 @@ end
 --region 【数据刷新】
 
 ---@brief 刷新条目显示（名次/昵称/分数/自己标识）
+---@desc 由 Start 调用；m_Data 缺失时直接返回；各文本字段做 nil 空安全校验
 ---@type fun():void
 function RankItem:Refresh()
     if not self.m_Data then
@@ -91,12 +105,14 @@ end
 --region 【动画回调】
 
 ---@brief 播放打开动画（可重写）
+---@desc 框架驱动（可重写），条目打开时播放
 ---@type fun():void
 function RankItem:OnPlayOpenAnimation()
     RankItem.super.OnPlayOpenAnimation(self)
 end
 
 ---@brief 播放关闭动画（可重写）
+---@desc 框架驱动（可重写），条目关闭时播放
 ---@type fun():void
 function RankItem:OnPlayCloseAnimation()
     RankItem.super.OnPlayCloseAnimation(self)
@@ -107,8 +123,9 @@ end
 --region 【子UI回调】
 
 ---@brief 子UI销毁回调
+---@desc 框架驱动，本条目 AddUI 出的子节点销毁时回调
 ---@type fun(luaClass:XLua.LuaTable):void
----@param luaClass XLua.LuaTable
+---@param luaClass XLua.LuaTable @被销毁的子 UI 实例
 function RankItem:OnAddedUIDestroyed(luaClass)
     RankItem.super.OnAddedUIDestroyed(self, luaClass)
 end

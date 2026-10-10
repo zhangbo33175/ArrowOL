@@ -5,6 +5,11 @@
 -- author:    云毅
 -- created:   2026
 -- descrip:   全局常量、枚举、配置定义（所有模块共用）
+-- @brief     全局常量、枚举与基础容器定义入口
+-- @desc      所有模块共用的枚举值、全局常量与基础容器 require，集中在此声明
+-- @core      直接声明全局枚举表与常量，并 require 引入 HonorList/HonorQueue/HonorStack 等基础模块
+-- @scope     全游戏各业务模块共用的枚举与常量来源
+-- @dependency HonorList, HonorQueue, HonorStack 等基础模块
 --=====================================================================================================
 
 --region 基础模块依赖
@@ -159,18 +164,7 @@ EGameMainUIPUshRunningType = {
     OnInertNotUITask = "OnInertNotUITask",
 }
 
----@class EGameMainUIPushType @ 工作类型，值无意义
----@field MachineUpgradeUI number @ 物品升级UI（钱够就弹出的一个UI）
----@field ElementCollection number @ 主界面Icon收集动画表现
----@field UI number @ 普通的UI弹窗
----@field CommonTask number @ 通用任务
-EGameMainUIPushType = {
-    MachineUpgradeUIFromFail = 12,
-    ElementCollection = 10,
-    UI = 6,
-    MachineUpgradeUI = 4,
-    CommonTask = 3,
-}
+-- 主界面推送类型已统一收敛到下方 EMainUIPushType（原 EGameMainUIPushType 冗余，已合并删除）
 
 --endregion
 
@@ -217,37 +211,17 @@ KeyCode = {
 -- 游戏核心流程
 --=====================================================================================================
 
---- 游戏关卡生命周期事件
----@class ELevelCycleAction
----@field INIT_GAME number 初始化关卡
----@field ENTER_GAME number 进入关卡
----@field BEGIN_GAME number 游戏开始
----@field PAUSE_GAME number 游戏暂停
----@field RESUME_GAME number 恢复游戏
----@field GAME_OVER number 游戏结束
----@field EXIT_GAME number 离开关卡
----@field REPLAY_GAME number 重新开始
-ELevelCycleAction = {
-    INIT_GAME = 0,
-    ENTER_GAME = 1,
-    BEGIN_GAME = 2,
-    PAUSE_GAME = 3,
-    RESUME_GAME = 4,
-    GAME_OVER = 5,
-    EXIT_GAME = 6,
-    REPLAY_GAME = 7
-}
-
 --- 游戏结束类型
 ---@class EGameOverType
 ---@field NONE number 无（默认）
----@field PlayerGiveUp number @玩家主动放弃(主动退出)
----@field Success number @ 胜利
+---@field PLAYER_GIVE_UP number 玩家主动放弃（主动退出）
+---@field SUCCESS number 胜利
+---@field FAILURE number 失败
 EGameOverType = {
     NONE = 0,
-    PlayerGiveUp = 1,
-    Success = 2,
-    Failure = 3
+    PLAYER_GIVE_UP = 1,
+    SUCCESS = 2,
+    FAILURE = 3
 }
 
 --- 只播放一次的剧情动画
@@ -256,8 +230,6 @@ EGameOverType = {
 EPlayOnceCutsceneType = {
     FIRST_SHOW = "FirstShow",
 }
-
---endregion
 
 ---@class EPlayHudCycleAction @游戏内循环周期事件
 ---@field InitGame number @初始化游戏关卡
@@ -278,6 +250,8 @@ EPlayHudCycleAction = {
     ExitGame = 6,
     RePlayGame = 7
 }
+
+--endregion
 
 --region 地图 & 关卡
 
@@ -347,6 +321,27 @@ ECharacterType = {
     CHEF = 1,
 }
 
+--- 角色生命周期枚举（CharacterGenerationManager 广播各角色生命周期方法时使用，值=对应方法名字符串）
+---@class ECharacterLifecycle
+---@field OnInitGame string 游戏初始化
+---@field OnEnterGame string 进入游戏
+---@field OnBeginGame string 游戏开始
+---@field OnPauseGame string 游戏暂停
+---@field OnResumeGame string 游戏恢复
+---@field OnGameOver string 游戏结束
+---@field OnExitGame string 游戏退出
+---@field OnRePlayGame string 游戏重玩
+ECharacterLifecycle = {
+    OnInitGame = "OnInitGame",
+    OnEnterGame = "OnEnterGame",
+    OnBeginGame = "OnBeginGame",
+    OnPauseGame = "OnPauseGame",
+    OnResumeGame = "OnResumeGame",
+    OnGameOver = "OnGameOver",
+    OnExitGame = "OnExitGame",
+    OnRePlayGame = "OnRePlayGame",
+}
+
 --- 头像/头像框类型
 ---@class EAvatarFrameType
 ---@field AVATAR number 头像
@@ -413,7 +408,6 @@ EResourceType = {
 ---@field CUSTOMIZE string 脸型
 ---@field SUIT string 套装
 ---@field CLOTHES string 散件
----@field MAGIC_POT string 魔法锅
 EItemSubType = {
     PRE_BOOSTER = "PreBooster",
     BOOSTER = "Booster",
@@ -428,7 +422,6 @@ EItemSubType = {
     CUSTOMIZE = "Customize",
     SUIT = "Suit",
     CLOTHES = "Clothes",
-    MAGIC_POT = "MagicPot",
 }
 
 --- 全局核心资源ID（策划表ID）
@@ -513,32 +506,6 @@ ETimestampID = {
     LAST_LOGIN_TIME_LOCAL = "LastLoginTimeLocal",
     PST_ACROSS_TIME_STAMP = "PSTAcrossTimeStamp",
     LAST_SYNC_ALL_GAME_DATA_TIME = "LastSyncAllGameDataTime",
-}
-
---- 时间戳存储KEY（本地存储）
----@class ETimestampKey
----@field LIFE_REFILL string 体力恢复时间
----@field FUTURE_TIME_STAMP string 未来登录时间
----@field ACTIVITY_FUTURE_TIME_STAMP_UTC0 string 活动UTC0时间
----@field LAST_LOGIN_TIME_UTC string 上次UTC登录时间
----@field LAST_LOGIN_TIME_LOCAL string 上次本地登录时间
----@field PST_ACROSS_TIME_STAMP string PST跨天时间
----@field LAST_SYNC_ALL_GAME_DATA_TIME string 上次数据同步时间
-ETimestampKey = {
-    LIFE_REFILL = "Timestamp_LifeRefill",
-    FUTURE_TIME_STAMP = "FutureTimeStamp",
-    ACTIVITY_FUTURE_TIME_STAMP_UTC0 = "ActivityFutureTimeStampUTC0",
-    LAST_LOGIN_TIME_UTC = "LastLoginTimeUTC",
-    LAST_LOGIN_TIME_LOCAL = "LastLoginTimeLocal",
-    PST_ACROSS_TIME_STAMP = "PSTAcrossTimeStamp",
-    LAST_SYNC_ALL_GAME_DATA_TIME = "LastSyncAllGameDataTime",
-}
-
---- 生命配置
----@class ELifeConfig
----@field ID string 生命配置ID
-ELifeConfig = {
-    ID = "LifeID",
 }
 
 --- 生命ID
@@ -687,6 +654,7 @@ EMainUIPushTrigger = {
 ---@field MACHINE_UPGRADE_UI_FROM_FAIL number 失败页跳转升级
 ---@field ELEMENT_COLLECTION number 收集动画
 ---@field MACHINE_RECEIVE number 物品收货
+---@field MACHINE_RECEIVE_UI number 物品收货UI弹窗
 ---@field TUTORIAL number 新手引导
 ---@field UI number UI弹窗
 ---@field MACHINE_UPGRADE_UI number 机器升级
@@ -695,6 +663,7 @@ EMainUIPushType = {
     MACHINE_UPGRADE_UI_FROM_FAIL = 12,
     ELEMENT_COLLECTION = 10,
     MACHINE_RECEIVE = 8,
+    MACHINE_RECEIVE_UI = 9,
     TUTORIAL = 7,
     UI = 6,
     MACHINE_UPGRADE_UI = 4,

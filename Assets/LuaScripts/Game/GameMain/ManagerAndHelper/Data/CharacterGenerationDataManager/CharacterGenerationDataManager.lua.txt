@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     角色数据管理器
 -- @desc      统一读取、查询角色配置表，支持按ID/类型获取数据，带缓存机制
+-- @core      角色配置表安全读取、按ID取角色配置、类型分组缓存
+-- @scope     角色配置查询，供 GameMapBase/CharacterGenerationManager 跨文件调用
 -- @feat      全局缓存、类型分组、安全查询、空值防护、日志规范
 -- @usage     获取角色配置、按类型筛选角色列表
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化

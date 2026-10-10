@@ -1,18 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  RewardUtil.lua.txt
+-- filename:  RewardUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   道具奖励发放工具（发放、显示格式化、批量处理）
--- 功能：
--- 1. GetItemPrefabNameByType 按资源类型取道具预制体名
--- 2. GrantItem/GrantRewardList 单个与批量发放奖励
--- 3. FormatItemCountDisplay/FormatRewardCount 奖励数量显示格式化
--- 架构：纯工具表，依赖 ResourceDataManager/CurrencyMgr/ItemManager/BuffManager/CollectionMgr/GameTimeHelper
--- @note  业务奖励发放入口，串联多个业务管理器
+-- @brief     道具奖励发放工具（发放、显示格式化、批量处理）
+-- @desc      GetItemPrefabNameByType 按资源类型取道具预制体名；GrantItem/GrantRewardList 单个与批量发放奖励；FormatItemCountDisplay/FormatRewardCount 奖励数量显示格式化
+-- @core      按资源类型分发到对应管理器（货币/道具/Buff/卡牌）、奖励数量的通用化显示格式化
+-- @scope     业务奖励发放与数量显示的统一入口
+-- @dependency ResourceDataManager, CurrencyMgr, ItemManager, BuffManager, CollectionMgr, GameTimeHelper；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
+---@class RewardUtil @ 道具奖励发放工具表：发放、显示格式化、批量处理
 local RewardUtil = {}
 
 --region 道具 / 奖励发放
@@ -24,6 +23,7 @@ local RewardUtil = {}
 ---@brief 根据资源类型获取预设名
 ---@param resType EResourceType 资源类型
 ---@return string 预设名称
+---@desc 货币/道具/Buff 各自映射专属预制体，其余回退通用道具预制体；经 GameFunctions.GetItemPrefabNameByType 全局包装对外暴露
 function RewardUtil.GetItemPrefabNameByType(resType)
     if resType == EResourceType.CURRENCY then
         return "GameObject_CurrencyProto"
@@ -39,6 +39,7 @@ end
 ---@param itemId string 道具ID
 ---@param count number 数量
 ---@param areaId string 区域ID
+---@desc 按资源数据 Type 分发：货币走 CurrencyMgr、道具/档案走 ItemManager、Buff 走 BuffManager、卡牌走 CollectionMgr；非法参数/无数据直接返回；经 GameFunctions.GrantItem 全局包装对外暴露
 function RewardUtil.GrantItem(itemId, count, areaId)
     if string.isNullOrEmpty(itemId) or not count or count <= 0 then
         PrintError("GrantItem failed: invalid params")
@@ -64,6 +65,7 @@ end
 ---@brief 批量发放奖励
 ---@param rewardList table 奖励列表
 ---@param areaId string 区域ID
+---@desc 遍历 rewardList.items 逐条调用 GrantItem 发放；经 GameFunctions.GrantRewardList 全局包装对外暴露
 function RewardUtil.GrantRewardList(rewardList, areaId)
     if not rewardList or not rewardList.items then return end
     for _, v in ipairs(rewardList.items) do
@@ -76,6 +78,7 @@ end
 ---@param count number 数量
 ---@param showPrefix boolean 是否显示前缀x
 ---@return string 格式化后字符串
+---@desc Buff 类型数量按通用时间规则格式化，其余按 x%d / %d 格式化；经 GameFunctions.FormatItemCountDisplay 全局包装对外暴露
 function RewardUtil.FormatItemCountDisplay(itemId, count, showPrefix)
     showPrefix = showPrefix ~= nil and showPrefix or true
     local format = showPrefix and "x%d" or "%d"
@@ -94,6 +97,7 @@ end
 ---@brief 从RewardData格式化数量
 ---@param reward table 奖励数据
 ---@return string 格式化数量字符串
+---@desc 内部转调 FormatItemCountDisplay(reward.Id, reward.Num)；空 reward 返回空串；经 GameFunctions.FormatRewardCount 全局包装对外暴露
 function RewardUtil.FormatRewardCount(reward)
     return reward and RewardUtil.FormatItemCountDisplay(reward.Id, reward.Num) or ""
 end

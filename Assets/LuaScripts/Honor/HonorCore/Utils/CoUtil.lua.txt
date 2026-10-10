@@ -1,19 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  CoUtil.lua.txt
+-- filename:  CoUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   安全调用与延迟工具（异常捕获、延时/延迟帧执行）
--- 功能：
--- 1. SafeInvoke 安全包裹函数调用并捕获异常打印错误
--- 2. SafeGetTableEntry 安全读取表条目并带兜底键
--- 3. CoroutineDelayInvoke/CoroutineDelayFrame 协程延迟调用
--- 4. DelayFrameInvoke 普通延迟帧回调
--- 架构：纯工具表，依赖 HonorCoroutineHelper 与 SystemFuncs.PrintError
--- @note  异常捕获封装，业务函数可安全包裹执行避免崩溃
+-- @brief     安全调用与延迟工具（异常捕获、延时/延迟帧执行）
+-- @desc      统一 xpcall 异常捕获与协程延时/延迟帧调度，业务函数可安全包裹执行避免崩溃
+-- @core      xpcall 异常打印、HonorCoroutineHelper 延时/延迟帧调度、配置表三级降级读取
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency HonorCoroutineHelper, PrintError/PrintDebug 日志全局函数
 --=====================================================================================================
 
+---@class CoUtil @ 安全调用与延迟工具表（纯函数，无实例状态）
 local CoUtil = {}
 
 --region 安全调用 / 延迟工具

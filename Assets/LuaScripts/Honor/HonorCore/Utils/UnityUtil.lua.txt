@@ -1,19 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  UnityUtil.lua.txt
+-- filename:  UnityUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   Unity 通用工具（对象池、Transform/坐标、空判断、坐标转换）
--- 功能：
--- 1. GetPoolRoot/CreateNewPoolRoot 对象池根节点管理
--- 2. IsNull Unity 对象空判断（兼容 C# 对象）
--- 3. Transform/坐标工具：中心世界坐标、缩放适配、父子节点、查找子节点、路径
--- 4. StringToVector3/TableToVector3 坐标转换
--- 架构：纯工具表，依赖 UnityEngine 与 GameLib.ObjectCommon
--- @note  框架内自洽，空判断走本域 IsNull
+-- @brief     Unity 通用工具（对象池根节点、对象空判断、Transform/坐标、坐标字符串转换）
+-- @desc      对象池根节点管理、C# 对象空判断、UI 中心世界坐标、缩放适配、父子节点与递归查找、Vector3 互转
+-- @core      GameLib.ObjectCommon.IsObjectEmpty 空判断、Transform 递归查找、设计尺寸等比缩放
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency UnityEngine, GameLib.ObjectCommon
 --=====================================================================================================
 
+---@class UnityUtil @ Unity 通用工具表（纯函数，无实例状态；IsNull 为同域兄弟工具的空判断底座）
 local UnityUtil = {}
 
 --region 对象池工具

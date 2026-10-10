@@ -296,6 +296,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3155322141685613074}
   - component: {fileID: 4470155987510988548}
+  - component: {fileID: 1657584074502557330}
   m_Layer: 5
   m_Name: UIMainPlaying
   m_TagString: Untagged
@@ -534,6 +535,25 @@ MonoBehaviour:
   m_Collider3DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger2DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger3DLifeCyclesBehaviour: {fileID: 0}
+--- !u!114 &1657584074502557330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3262744637735742217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d198bf43db2d6146ba340e113fb4c65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1857321946251963368}
+  reference: {fileID: 1857321946251963368}
+  mode: 0
+  fillMode: 0
+  alignSide: 0
+  margin: 0
+  adaptOnStart: 1
 --- !u!1 &3838876857629201603
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,6 +4,11 @@
 -- filename:  SystemFuncs.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     全局通用方法门面（序列化/JSON/加解密/时间/字符串/C#互转/UI/资源/DOTween）
+-- @desc      协议序列化与 Json/Table 处理、LuaTable↔C# 互转、资源加载卸载、日志、DOTween 移动等，统一委托各 Util 子模块
+-- @core      全局函数门面、TableUtil/StringUtil/TimeUtil 委托、C# 互转、UI/资源兼容转发
+-- @scope     全局注入门面层（无 return 属设计），业务经全局函数名调用，内部委托子模块
+-- @dependency UIManager, TableUtil, UTF8Util, AssetUtil, protoc 等
 -- descrip:   全局通用方法集（序列化/JSON/加解密/时间/字符串/C#互转/UI/资源/DOTween）
 -- 功能：
 -- 1. 协议序列化、Json/Table 处理，委托 TableUtil/StringUtil/TimeUtil 等

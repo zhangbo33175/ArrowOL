@@ -4,17 +4,20 @@
 -- filename:  HonorEventHelper.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   事件助手（全局事件中心，发布 - 订阅模式）
--- 功能：
--- 1. 模块间解耦的事件订阅 / 派发（同步 + 下一帧异步）
--- 2. 防重复注册、按 target 批量移除监听
--- 3. 派发异常 pcall 捕获，避免单个回调异常打断全局
--- 架构：全局单例助手，回调字典 + 异步事件队列 + 协程逐帧消费
--- @note  跨模块通信统一入口；移除监听需与注册 target 一致，防内存泄漏
+-- @brief     事件助手（全局事件中心，发布 - 订阅模式）
+-- @desc      模块间解耦的事件订阅/派发（同步 FireNow + 下一帧异步 Fire），防重复注册、
+--            按 target/事件/函数批量移除监听，派发异常 pcall 捕获避免单个回调打断全局
+-- @core      回调字典、异步事件队列、协程逐帧消费、防重注册、异常隔离
+-- @scope     跨模块通信统一入口；移除监听需与注册 target 一致，防内存泄漏
+-- @dependency HonorCoroutineHelper, UnityEngine.WaitUntil, __G__TRACK_BACK__
+-- @note      跨模块通信统一入口；ProcessEventAsync 由协程回调驱动，勿删
 --=====================================================================================================
 
 --region 全局事件管理助手（发布-订阅模式）
----@class HonorEventHelper 全局事件管理助手（发布-订阅模式）
+---@class HonorEventHelper @ 全局事件管理助手（发布-订阅模式）
+---@field _targetHandlers table @ 事件回调字典：key=事件名，value=回调函数列表
+---@field _eventsCallNextFrame table @ 下一帧执行的异步事件队列
+---@field _csCoroutine userdata @ 异步事件协程句柄
 local HonorEventHelper = class("HonorEventHelper")
 
 ---@brief 构造函数
@@ -22,9 +25,9 @@ local HonorEventHelper = class("HonorEventHelper")
 ---@param args table 自定义参数（预留）
 --TODO: [优化] 补齐 ctor 的 @param 注解（签名不变）
 function HonorEventHelper:ctor(args)
-    self._targetHandlers = {}        ---@type table<string, table> 事件回调字典：key=事件名，value=回调函数列表
-    self._eventsCallNextFrame = {}   ---@type table<function> 下一帧执行的异步事件队列
-    self._csCoroutine = nil          ---@type userdata 异步事件协程句柄
+    self._targetHandlers = {}
+    self._eventsCallNextFrame = {}
+    self._csCoroutine = nil
     self:StartProcessEventAsyncCoroutine()
 end
 
@@ -37,21 +40,18 @@ function HonorEventHelper:Create(args)
 end
 
 ---@brief 启动异步事件处理协程
---- 停止旧协程并创建新协程，避免协程重复启动
+---@desc 停止旧协程并创建新协程，避免协程重复启动；由 ctor 调用
 function HonorEventHelper:StartProcessEventAsyncCoroutine()
     HonorCoroutineHelper:Stop(self._csCoroutine)
     self._csCoroutine = HonorCoroutineHelper:Start(handler(self, self.ProcessEventAsync))
 end
 
 ---@brief 异步执行事件协程逻辑
---- 等待事件队列非空 → 等待一帧 → 批量执行所有异步事件
+---@desc 协程回调（经 handler 注册）；等待事件队列非空，等待一帧，批量执行所有异步事件
 function HonorEventHelper:ProcessEventAsync()
     while true do
-        -- 等待有事件需要执行
         coroutine.yield(UnityEngine.WaitUntil(function() return #self._eventsCallNextFrame > 0 end))
-        -- 等待一帧，实现下一帧执行效果
         coroutine.yield(nil)
-        -- 安全执行所有延迟事件，执行后清空队列
         if #self._eventsCallNextFrame > 0 then
             for _, callFunc in pairs(self._eventsCallNextFrame) do
                 callFunc()
@@ -75,23 +75,18 @@ end
 ---@param targetHandler table 回调处理器（包含target/method/func）
 ---@remark 自带防重复注册、参数安全校验
 function HonorEventHelper:AddListener(evtCmd, targetHandler)
-    -- 安全校验：支持 string / number 事件码
     if not self:_IsValidEventCmd(evtCmd) then
         PrintError("[Event] evtCmd 必须是 string 或 number 类型")
         return
     end
     if not targetHandler then return end
-    -- 防御：method 为 nil 的处理器（如 handler(obj, nil)）拒绝注册，避免运行时调用 nil 崩溃
     if targetHandler.method == nil then
         PrintWarning("[Event] 忽略 method 为 nil 的监听: " .. evtCmd)
         return
     end
-
-    -- 初始化事件列表
     if not self._targetHandlers[evtCmd] then
         self._targetHandlers[evtCmd] = {}
     end
-    -- 防重复注册校验
     for _, info in pairs(self._targetHandlers[evtCmd]) do
         if info.target == targetHandler.target and info.method == targetHandler.method then
             PrintWarning("[Event] 重复注册事件: " .. evtCmd)
@@ -125,7 +120,8 @@ function HonorEventHelper:RemoveListenerByEventID(evtCmd)
 end
 
 ---@brief 根据对象移除该对象绑定的所有事件监听
----@param target table 监听对象（常用：界面销毁时调用）
+---@desc 常用：界面销毁时调用，按 target 释放其全部监听防泄漏
+---@param target table 监听对象
 function HonorEventHelper:RemoveListenerByTarget(target)
     if not target then return end
     for _, handlers in pairs(self._targetHandlers) do
@@ -158,8 +154,6 @@ function HonorEventHelper:FireNow(evtCmd, ...)
     if not self:_IsValidEventCmd(evtCmd) then return end
     local handlers = self._targetHandlers[evtCmd]
     if not handlers then return end
-
-    -- 遍历执行所有回调
     for _, info in pairs(handlers) do
         if info.func and info.method ~= nil then
             info.func(...)
@@ -174,9 +168,7 @@ end
 function HonorEventHelper:Fire(evtCmd, ...)
     if not self:_IsValidEventCmd(evtCmd) then return end
     local params = {...}
-    -- 加入下一帧执行队列
     table.insert(self._eventsCallNextFrame, function()
-        -- 异常捕获保护：防止单个回调崩溃影响整体
         xpcall(function()
             self:FireNow(evtCmd, table.unpack(params))
         end, __G__TRACK_BACK__)
@@ -184,7 +176,7 @@ function HonorEventHelper:Fire(evtCmd, ...)
 end
 
 ---@brief 清空所有事件数据
---- 重置事件容器、异步队列，释放内存
+---@desc 重置事件容器、异步队列，释放内存（登出/重载时调用）
 function HonorEventHelper:Cleanup()
     self._targetHandlers = {}
     self._eventsCallNextFrame = {}
@@ -192,7 +184,7 @@ end
 
 ---@brief 批量注册事件监听
 ---@desc 统一收口多个 AddListener 调用；注册与注销使用同一份列表，保证成对同步
----@param listeners table<{string, table}> 监听列表，每项 {事件名, handler}
+---@param listeners table 监听列表，每项 {事件名, handler}
 function HonorEventHelper:AddListenerBatch(listeners)
     for i = 1, #listeners do
         local listener = listeners[i]
@@ -202,7 +194,7 @@ end
 
 ---@brief 批量移除事件监听
 ---@desc 与 AddListenerBatch 成对使用，列表内容保持一致即可同步注销
----@param listeners table<{string, table}> 与注册一致的监听列表
+---@param listeners table 与注册一致的监听列表
 function HonorEventHelper:RemoveListenerBatch(listeners)
     for i = 1, #listeners do
         local listener = listeners[i]

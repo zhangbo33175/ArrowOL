@@ -4,21 +4,21 @@
 -- filename:  HonorIAPHelper.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   内购助手（游戏支付核心）
--- 功能：
--- 1. 支持 Google / iOS 官方内购
--- 2. 支持第三方网页支付（非Stores支付）
--- 3. 自动判断使用哪种支付方式
--- 4. 订单状态管理（支付中/成功/失败/过期）
--- 5. 订阅（Subscription）恢复与监听
--- 6. 内购事件全局派发
--- 架构：C# SDK 底层交互 + Lua 业务逻辑 + 全局事件通知
--- @note  依赖业务层 Tables.Purchases 配置表（商品 ProductType/订阅判定）与全局事件通知，
---        属框架内购能力封装，查询业务配置数据
+-- @brief     内购（IAP）管理助手（游戏支付统一入口）
+-- @desc      自动分发 Google/iOS/Amazon 官方商店支付与第三方网页支付，管理订单状态
+--            （支付中/成功/失败/过期）、订阅恢复，并将支付结果全局事件派发至业务层
+-- @core      C# IAP SDK 桥接、官方/第三方支付自动选择、订单状态事件派发、订阅恢复
+-- @scope     全游戏唯一支付入口；业务层只监听 IAPPaySuccess/Fail 等事件发奖
+-- @dependency HonorConfigHelper, HonorEventHelper, HonorRoot.SDK.IAPHelper, Tables.Purchases, IAPWrapper
+-- @note      依赖业务层 Tables.Purchases 配置表（ProductType/订阅判定）；回调方法由 C# SDK 反向调用，勿删
 --=====================================================================================================
 
 --region 内购（IAP）管理助手 | 游戏支付统一入口，自动分发官方/第三方支付
----@class HonorIAPHelper 内购（IAP）管理助手，游戏支付统一入口，自动分发官方/第三方支付
+---@class HonorIAPHelper @ 内购（IAP）管理助手，游戏支付统一入口，自动分发官方/第三方支付
+---@field _buyID number @ 当前正在购买的商品配置表ID
+---@field _customGoodsListUI table @ 第三方支付商品列表UI实例
+---@field _customPayUI table @ 第三方支付网页弹窗UI实例
+---@field _debugIP string @ 测试环境专用IP，用于内网调试支付
 local HonorIAPHelper = class("HonorIAPHelper")
 
 ---@brief 构造函数
@@ -41,6 +41,7 @@ function HonorIAPHelper:Create(args)
 end
 
 ---@brief C# 回调：IAP SDK 初始化完成
+---@desc 由 C# IAP SDK 反向调用；初始化结果全局派发 IAPInitFinish 事件
 ---@param success boolean 是否初始化成功
 ---@param failReason string 失败原因（失败时有效）
 function HonorIAPHelper:OnIAPInitFinish(success, failReason)
@@ -49,12 +50,14 @@ function HonorIAPHelper:OnIAPInitFinish(success, failReason)
 end
 
 ---@brief 获取【第三方支付】全局开关状态
+---@desc 读取 GM 后台 THIRD_IAP_OPEN 配置，决定走官方商店还是第三方网页支付
 ---@return boolean true=开启第三方支付，false=关闭（仅走官方商店支付）
 function HonorIAPHelper:GetThirdPayOpenState()
     return HonorConfigHelper:GetSystemConfig("THIRD_IAP_OPEN")
 end
 
 ---@brief 开始购买商品（自动选择：官方支付 / 第三方支付）
+---@desc 第三方开关开启且非 Amazon 平台 → 走第三方网页支付；否则走官方商店支付
 ---@param tableID number 商品配置表ID（Purchases表）
 ---@param customTable table 自定义透传参数（服务器/订单扩展字段）
 ---@param customGoodsListUI table 第三方支付商品列表UI
@@ -73,12 +76,13 @@ function HonorIAPHelper:BuyThirdPayGood(tableID, customTable, customGoodsListUI,
         return true
     else
         -- 走官方应用商店支付（Google / iOS / Amazon）
-        HonorRoot.SDK.IAPHelper:PayNormal(tableID, customTable, nil)
+        GameMainRoot.SDK.IAPHelper:PayNormal(tableID, customTable, nil)
         return false
     end
 end
 
 ---@brief 第三方支付：主动创建新订单
+---@desc 透传商品/渠道/类型参数至 C# SDK 创建第三方订单
 ---@param tableID number 商品配置表ID
 ---@param channelID number 支付渠道ID（微信/支付宝等）
 ---@param typeInfoID number 商品类型ID
@@ -87,6 +91,7 @@ function HonorIAPHelper:GotoThirdCreateNewTransaction(tableID, channelID, typeIn
 end
 
 ---@brief 第三方支付：从WebView查询订单状态
+---@desc 由 WebView 回调触发，转发至 C# SDK 查询网络侧订单状态
 ---@param tableID number 商品配置表ID
 ---@param orderID string 订单号
 ---@param orderStatus number 订单状态（自定义枚举）
@@ -95,6 +100,7 @@ function HonorIAPHelper:GetThirdPayStatusFromWebView(tableID, orderID, orderStat
 end
 
 ---@brief 订单支付【成功】→ 全局派发成功事件，业务层发放奖励
+---@desc C# SDK 反向调用；服务器校验通过后派发 IAPPaySuccess，业务层据此发奖
 ---@param tableID number 商品配置表ID
 ---@param isThird boolean 是否为第三方支付
 ---@param canDeliver boolean 是否可发放道具（服务器校验通过）
@@ -112,6 +118,7 @@ function HonorIAPHelper:OnTransaction_Success(tableID, isThird, canDeliver, cust
 end
 
 ---@brief 订单支付【失败】→ 全局派发失败事件，业务层提示用户
+---@desc C# SDK 反向调用；派发 IAPPayFail，业务层提示取消/网络错误/支付失败
 ---@param tableID number 商品配置表ID
 ---@param isThird boolean 是否为第三方支付
 ---@param customTable table 自定义透传参数
@@ -127,6 +134,7 @@ function HonorIAPHelper:OnTransaction_Fail(tableID, isThird, customTable, failRe
 end
 
 ---@brief 订阅恢复完成（换设备/重装游戏恢复会员/订阅商品）
+---@desc C# SDK 反向调用；换设备/重装后恢复订阅，派发 IAPRestoreFinish
 ---@param success boolean 恢复是否成功
 ---@param gameUIDStr string 玩家UID
 ---@param SUBInfo table 订阅详细信息
@@ -142,6 +150,7 @@ function HonorIAPHelper:OnSubscriptionRestoreFinish(success, gameUIDStr, SUBInfo
 end
 
 ---@brief 订单【支付中】状态回调
+---@desc C# SDK 反向调用；第三方支付可在此重新打开支付页/继续轮询订单
 ---@param tableID number 商品配置表ID
 ---@param isThird boolean 是否为第三方支付
 ---@param customTable table 自定义透传参数
@@ -150,7 +159,7 @@ function HonorIAPHelper:OnTransaction_InPay(tableID, isThird, customTable)
 end
 
 ---@brief 第三方支付：网络返回数据统一处理入口
---- 内部状态机：获取支付方式 → 创建订单 → 查询订单状态 → 成功/失败
+---@desc C# SDK/WebView 反向调用；内部状态机：获取支付方式 → 创建订单 → 查询订单状态 → 成功/失败
 ---@param normalData table 标准返回数据
 ---@param customData table 自定义扩展数据
 function HonorIAPHelper:OnThirdPayReturnData(normalData, customData)
@@ -158,6 +167,7 @@ function HonorIAPHelper:OnThirdPayReturnData(normalData, customData)
 end
 
 ---@brief 获取商品类型（普通消耗品 / 非消耗品 / 订阅）
+---@desc 查 Tables.Purchases 配置表 ProductType，经 IAPWrapper 枚举转换
 ---@param tableID number 商品配置表ID
 ---@return IAPProductType 商品类型枚举（Consumable/NonConsumable/Subscription）
 function HonorIAPHelper:GetProductType(tableID)

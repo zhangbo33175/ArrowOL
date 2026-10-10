@@ -1,17 +1,17 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  ScreenUtil.lua.txt
+-- filename:  ScreenUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   屏幕边界工具（相机视口世界坐标四向边界计算）
--- 功能：
--- 1. GetScreenBorderLeft/RightWorldX 取左右世界 X 边界
--- 2. GetScreenBorderTop/BottomWorldY 取上下世界 Y 边界
--- 架构：纯工具表，依赖 UnityEngine/GameMainRoot.Scene 与同域 UnityUtil
--- @note  依据场景相机视口推算世界坐标边界
+-- @brief     屏幕边界工具（相机视口世界坐标四向边界计算）
+-- @desc      依据场景相机视口推算左/右世界 X、上/下世界 Y 边界，供场景元素做屏幕边缘吸附
+-- @core      ViewportToWorldPoint 视口角点换算，相机为空时回退 GameMainRoot.Scene.SceneCameras[0]
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency UnityEngine, GameMainRoot.Scene, 同域 UnityUtil（空判断）
 --=====================================================================================================
 
+---@class ScreenUtil @ 屏幕边界工具表（纯函数，无实例状态）
 local ScreenUtil = {}
 
 --region 依赖引入

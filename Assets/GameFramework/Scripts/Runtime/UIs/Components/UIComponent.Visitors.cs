@@ -20,7 +20,7 @@ namespace Honor.Runtime
         /// UI 设计基准分辨率（屏幕UI适配用）
         /// </summary>
         [SerializeField]
-        private Vector2 m_ScreenDesignedResolution = new Vector2(1366, 768);
+        private Vector2 m_ScreenDesignedResolution = new Vector2(1334, 750);
         public Vector2 ScreenDesignedResolution
         {
             get => m_ScreenDesignedResolution;

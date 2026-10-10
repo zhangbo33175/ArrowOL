@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     设置数值管理器
 -- @desc      管理游戏内开关设置（音乐、音效、推送等），读写存档、同步声音状态
+-- @core      设置开关状态存档读写、音乐/音效切换时同步音量、布尔误判与空值防护
+-- @scope     游戏内开关设置查询与写入，供 UISettingView/SoundManager 跨文件调用
 -- @feat      全局单例、存档安全、自动同步声音、空值防护、错误捕获
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
@@ -99,7 +101,7 @@ function SettingDataManager:SetSettingNewState(settingType, newState)
         PrintError("[SettingDataManager] 保存设置失败：" .. tostring(err))
     end)
 
-    -- TODO: 修复回调函数名不匹配（原调 OnBGMCloseStateChanged 不存在，被 xpcall 静默吞掉，设置后音量不刷新）；现对齐 SoundManager 实际函数名
+    --TODO: [设置开关] 回调函数名不匹配已对齐 SoundManager（原调 OnBGMCloseStateChanged 不存在被 xpcall 静默吞掉，设置后音量不刷新），后续运行验证音量刷新
     -- 音乐开关同步（对齐 SoundManager 实际函数名，刷新 Music 组音量）
     if settingType == ESettingType.MUSIC then
         xpcall(function()
@@ -112,21 +114,6 @@ function SettingDataManager:SetSettingNewState(settingType, newState)
         xpcall(function()
             SoundManager:OnSoundSwitchChanged(settingType, newState)
         end, function() end)
-    end
-end
-
---endregion
-
---region 推送权限矫正
-
----=========================================================================
----@brief  使用系统推送权限状态，矫正本地存档的推送开关
----@type fun():void
----=========================================================================
-function SettingDataManager:CorrectNotificationState()
-    local allow = not self:GetSettingState(ESettingType.NOTIFICATION)
-    if allow then
-        -- 可扩展：系统权限同步逻辑
     end
 end
 

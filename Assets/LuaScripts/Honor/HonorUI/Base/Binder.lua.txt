@@ -5,6 +5,11 @@
 -- filename:  Binder.lua.txt
 -- author:     云毅
 -- created:    2026
+-- @brief     MVVM 视图绑定器（View ↔ ViewModel 绑定桥梁）
+-- @desc      管理 View 上所有监听函数，统一绑定/解绑到 ViewModel 的可绑定值；服务 ViewSuper，实现自动解耦、安全释放
+-- @core      BindValue 监听自动管理、绑定/解绑、防内存泄漏与空引用
+-- @scope     MVVM 绑定层，由 ViewSuper 持有，随 View 生命周期释放
+-- @dependency BindValue, ViewModelSuper
 -- descrip:    绑定器（MVVM 双向绑定桥梁）
 --             作用：管理 View 上所有的监听函数，并统一绑定/解绑到 ViewModel 的可绑定值上
 --             服务于 ViewSuper，实现 View <-> ViewModel 自动解耦、安全释放

@@ -5,6 +5,11 @@
 -- filename:  TableLocalizationSetting
 -- descrip:   设置界面的多语言显示
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     多语言（本地化）设置配置表
+-- @desc      配置设置界面可选语言列表及其显示信息
+-- @core      以 ID 为主键，字段含 Name（语言名）、Index（Language 枚举索引）、Comment、Content（界面显示文案）、InUse（是否启用）
+-- @scope     设置界面语言选项列表与切换
+-- @dependency Tables 注册表（Tables.lua），由 Tables.LocalizationSetting 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.LocalizationSetting_Item @设置界面的多语言显示条目

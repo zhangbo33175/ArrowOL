@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     登录数据模块
 -- @desc      管理登录相关数据、账号信息、登录状态、服务器信息等
+-- @core      登录状态、账号信息、服务器数据缓存容器
+-- @scope     DataCenter 下的登录子数据模块（被 DataCenter 持有）
 -- @feat      登录状态管理、账号信息存储、服务器数据缓存
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
 -- @规范       Unity Lua 商业项目编码标准 / 数据模块规范
@@ -17,12 +19,14 @@ local LoginData = class("LoginData")
 
 --region 【构造 & 实例化】
 ---@brief 构造函数
+---@desc 构造（由 DataCenter:ctor 持有，勿删）
 ---@type fun(args:table):void
 ---@param args table 自定义参数
 function LoginData:ctor(args)
 end
 
 ---@brief 创建数据实例
+---@desc 实例工厂（由 DataCenter:ctor 调用，勿删）
 ---@type fun(args:table):LoginData
 ---@param args table 自定义参数
 ---@return LoginData 登录数据实例

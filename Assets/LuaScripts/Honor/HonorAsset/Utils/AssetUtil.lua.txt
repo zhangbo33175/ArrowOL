@@ -9,6 +9,8 @@
 -- @desc      收拢资源域公共工具方法：资源加载/卸载、预制体创建/销毁、场景销毁、对象克隆。
 --            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
 --            @dependency GameMainRoot.Asset / GameMainRoot.Scene（C# 资源接口，调用时解析）
+-- @core      资源加载/卸载、预制体创建/销毁、场景销毁、对象克隆
+-- @scope     资源域公共工具（SystemFuncs 同名全局函数委托至此）
 --=====================================================================================================
 
 ---@class AssetUtil 资源加载工具类
@@ -19,9 +21,7 @@ local AssetUtil = {}
 local UnityUtil = require('UnityUtil')
 --endregion
 
---=====================================================================================================
--- 资源加载 / 卸载
---=====================================================================================================
+--region 资源加载 / 卸载
 
 ---@brief 同步加载Asset
 ---@desc JsonAsset 自动解析为 table；加载异常打印资源名与路径
@@ -77,9 +77,9 @@ function AssetUtil.RemoveAsset(asset, overCallback, rightNow)
     end
 end
 
---=====================================================================================================
--- 预制体创建
---=====================================================================================================
+--endregion
+
+--region 预制体创建
 
 ---@brief 同步创建预制体实例（返回GO对象）
 ---@param assetInfo LOAD_RES_DEF_ITEM 资源信息
@@ -135,9 +135,9 @@ function AssetUtil.CreatePrefabAsync(assetInfo, parent, params, overCallback)
     end)
 end
 
---=====================================================================================================
--- 预制体销毁 / 场景清理 / 克隆
---=====================================================================================================
+--endregion
+
+--region 预制体销毁 / 场景清理 / 克隆
 
 ---@brief 通过GameObject销毁预制体
 ---@desc 存在 LuaBehaviour 时走 luaClass:Close 业务销毁，否则直接销毁 GO
@@ -199,5 +199,7 @@ function AssetUtil.InstantiateGO(parent, childTemplateGO)
     go.transform.localPosition = UnityEngine.Vector3.zero
     return go
 end
+
+--endregion
 
 return AssetUtil

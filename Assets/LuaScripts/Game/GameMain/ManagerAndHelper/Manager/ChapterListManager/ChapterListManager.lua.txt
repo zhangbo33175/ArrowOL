@@ -6,6 +6,7 @@
 -- created:   2026
 -- @brief     章节列表管理器
 -- @desc      管理章节/区域的解锁、运行时状态、存档读写、进度维护、关卡等级逻辑
+-- @core      章节解锁判定、运行时当前章节维护、章节进度存档读写、关卡等级与进入条件计算
 -- @scope     全局唯一单例，主界面、关卡系统、活动模块、解锁系统强依赖本管理器
 -- @规范       Unity Lua 商业项目编码标准 / 完整XML风格注释 / 健壮空值防护 / 性能优化
 -- @dependency Singleton, PlayerDataManager, EventManager, GlobalUtility, GameSystemUnlockManager, ChapterDataManager, SaveIO, SaveRootData
@@ -134,6 +135,45 @@ function ChapterListManager:MeetConditionForUnlock(chapterId)
 end
 
 ---=========================================================================
+---@brief 获取指定章节的下一章节ID（"章节-内部关卡"模式：章节递增取ID）
+---@param chapterId string 当前章节ID
+---@return string|nil 下一章节ID；无下一章节配置时返回 nil
+---@desc 统一封装"章节ID + 1"递增逻辑，业务层无需重复书写 tostring(tonumber(id)+1) 硬代码。
+---      依赖 ChapterDataManager:GetChaptersDataByChapterId 校验下一章节配置是否存在。
+---=========================================================================
+--TODO: [封装] 若后续章节ID存在跳号/非连续编号，此递增需改为按配置表顺序取下一项，勿直接 +1。
+function ChapterListManager:GetNextChapterId(chapterId)
+    local nextChapterId = tostring(tonumber(chapterId) + 1)
+    if ChapterDataManager:GetChaptersDataByChapterId(nextChapterId) ~= nil then
+        return nextChapterId
+    end
+    return nil
+end
+
+---=========================================================================
+---@brief 成功结算后检查当前章节是否全通，全通则自动解锁下一章节（换章闭环）
+---@param chapterId string 当前章节ID
+---@return string|nil 已解锁的下一章节ID；未全通或无下一章返回 nil
+---@desc 结合成功结算：通关推进 lv 后由结算流程调用，复用 IsChapterCompleted（全通判定）
+---      + GetNextChapterId（取下一章ID）+ IsUnlockedChapter（判重）+ UnlockChapter（推进最新章节）。
+--TODO: [流程] 与 OnLevelSuccess 事件中的章节解锁预留逻辑存在职责重叠，后续可统一收敛到本方法。
+function ChapterListManager:TryUnlockNextChapter(chapterId)
+    -- 本章未全通 → 无需推进
+    if not self:IsChapterCompleted(chapterId) then
+        return nil
+    end
+    local nextChapterId = self:GetNextChapterId(chapterId)
+    if not nextChapterId then
+        return nil
+    end
+    -- 下一章未解锁 → 解锁为最新章节
+    if not self:IsUnlockedChapter(nextChapterId) then
+        self:UnlockChapter(nextChapterId)
+    end
+    return nextChapterId
+end
+
+---=========================================================================
 ---@brief 设置存档最新解锁章节ID
 ---@param chapterId string 章节ID
 ---@desc 更新存档latestChapterId并执行单字段持久化保存
@@ -201,29 +241,6 @@ function ChapterListManager:UnlockChapter(chapterId)
 
     -- 派发新章节解锁全局事件，UI/业务模块监听做响应
     HonorEventHelper:Fire(EventCmd.OnNewChapterUnlockEvent)
-end
-
----=========================================================================
----@brief 创建章节初始存档数据结构
----@param chapterId string 章节ID
----@return SaveMsgDef.SaveGameData.ChapterInfo 章节默认存档table
----@desc 返回全新的章节默认存档对象，用于外部手动新建章节存档
----=========================================================================
-function ChapterListManager:CreateChapterInitData(chapterId)
-    ---@type SaveMsgDef.SaveGameData.MachineInfo @关卡进度默认存档结构体
-    local saveLevelProgress = {
-        levelGroupId = 1,
-        levelStamina = 2,
-        levelData = {},
-    }
-    ---@type SaveMsgDef.SaveGameData.ChapterInfo @章节默认存档结构体
-    local saveChapterInfo = {
-        lv = 1,
-        levelProgress = saveLevelProgress,
-        CareerDataStatistics = {},
-        currentChapterData = 1
-    }
-    return saveChapterInfo
 end
 
 ---=========================================================================
@@ -326,7 +343,7 @@ end
 ---@desc 读取章节等级，从章节配置表 ChapterInfoID 中取出对应小节(关卡)ID
 ---@note 依赖存档章节等级与章节配置 ChapterInfoID 字段
 ---=========================================================================
--- TODO: 优化：GetLevelId 支持可选章节来源参数，合并原 GetLatestChapterLevelId 重复逻辑
+--TODO: [关卡等级] GetLevelId 支持可选章节来源参数，合并原 GetLatestChapterLevelId 重复逻辑
 function ChapterListManager:GetLevelId(useLatestChapter)
     local chapterId = useLatestChapter and self:GetLatestChapterId() or self:GetRuntimeChapterId()
     local chapterInfos = SaveRootData.GameData.chapterInfos
@@ -352,24 +369,9 @@ end
 ---@desc 以存档最新章节为章节来源（GetLatestChapterId），复用 GetLevelId 定位小节(关卡)ID
 ---@note 依赖 GetLatestChapterId、存档章节等级与章节配置 ChapterInfoID 字段
 ---=========================================================================
--- TODO: 优化：委托 GetLevelId(true)，消除与 GetLevelId 的重复实现
+--TODO: [关卡等级] 委托 GetLevelId(true)，消除与 GetLevelId 的重复实现
 function ChapterListManager:GetLatestChapterLevelId()
     return self:GetLevelId(true)
-end
---endregion
-
---region 章节等级比较工具
----=========================================================================
----@brief 比较目标章节等级是否大于最新章节等级
----@param targetChapterLv table 目标章节等级数据 {Chapter:number, Level:number}
----@param latestChapterLv table|nil 对比基准等级，不传则读取GamerDataManager
----@return boolean true:目标进度更大 false:目标进度小于等于基准进度
----=========================================================================
-function ChapterListManager:LargeThanLatestChapterLv(targetChapterLv, latestChapterLv)
-    latestChapterLv = latestChapterLv or GamerDataManager:GetLatestChapterLevel()
-    local lessOrEqual = targetChapterLv.Chapter < latestChapterLv.Chapter
-            or (targetChapterLv.Chapter == latestChapterLv.Chapter and targetChapterLv.Level <= latestChapterLv.Level)
-    return not lessOrEqual
 end
 --endregion
 

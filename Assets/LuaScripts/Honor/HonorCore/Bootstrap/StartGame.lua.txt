@@ -4,12 +4,11 @@
 -- filename:  StartGame.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   Lua 最顶层启动入口（GC 调优、核心依赖按序加载、C#→Lua 全局回调注册）
--- 功能：
--- 1. 启动时全量 GC 回收并调整 pause/stepmul，优化 Lua 内存与回收节奏
--- 2. 按序 require 运行库、常量定义、通用函数、事件码、协议分发与 SystemBootstrap 等核心模块
--- 3. 注册 C#→Lua 全局回调（挂起/退出、原生按键、屏幕旋转、WebSocket 收发）并转发业务层
--- 架构：脚本入口顺序加载 + C# 层全局回调函数直挂，统一转发至 Game* 业务回调
+-- @brief     Lua 最顶层启动入口（GC 调优、核心依赖按序加载、C#→Lua 全局回调注册）
+-- @desc      启动时全量 GC 回收并调整 pause/stepmul 优化内存节奏；按序 require 运行库、常量、通用函数、事件码、协议分发与 SystemBootstrap 等核心模块；注册 C#→Lua 全局回调（挂起/退出、原生按键、屏幕旋转、WebSocket 收发）并转发业务层
+-- @core      脚本入口顺序加载 + C# 层全局回调函数直挂，统一转发至 Game* 业务回调
+-- @scope     Lua 最先执行的全局入口脚本（不 return 模块表属设计）；由 C# LuaVM 启动直接调用
+-- @dependency SystemApis/SystemDefs/SystemFuncs/SerialProducer/SystemBridges/EventCmd/UIEventCode/ProtocolCmd/ProtocolCallback/SystemBootstrap/HonorCoreManager/GameMain
 -- @note  须为 Lua 最先执行脚本；SerialProducer 须先于事件码表加载，协议 cmd 分发已迁移至 Protocols/ProtocolCallback。
 --=====================================================================================================
 

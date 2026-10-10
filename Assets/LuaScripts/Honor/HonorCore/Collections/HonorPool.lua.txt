@@ -4,12 +4,11 @@
 -- filename:  HonorPool.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   单种 Prefab 的 GameObject 对象池（复用游戏对象，减少实例化/销毁与 GC 开销）
--- 功能：
--- 1. Prewarm 预热预创建、Get 取用（无空闲则新建）、Put 回收入空闲队列
--- 2. 空闲队列(HonorQueue)+使用中列表(HonorList)双结构管理，取回时执行 resetHandler 重置
--- 3. RecycleAll 一键回收活跃对象、DestroyUnused 仅销毁空闲、Destroy 整池释放
--- 架构：class("HonorPool") + HonorQueue/HonorList 组合容器 + UnityUtil 空判与 C# 资源创建桥接
+-- @brief     单种 Prefab 的 GameObject 对象池（复用游戏对象，减少实例化/销毁与 GC 开销）
+-- @desc      Prewarm 预热预创建、Get 取用（无空闲则新建）、Put 回收入空闲队列；空闲队列(HonorQueue)+使用中列表(HonorList)双结构管理，取回时执行 resetHandler 重置；RecycleAll 一键回收活跃、DestroyUnused 仅销毁空闲、Destroy 整池释放
+-- @core      HonorQueue/HonorList 组合容器 + UnityUtil 空判与 C# 资源创建桥接
+-- @scope     由 HonorPoolHelper / HonorAssetManager 统一创建管理；框架资源复用底座
+-- @dependency UnityUtil（同域）、HonorQueue、HonorList、LOAD_RES_DEF_ITEM 配置表、CreatePrefabGOSync/DestroyPrefabWithGO 全局桥接
 -- @note  由 HonorPoolHelper/HonorAssetManager 统一创建管理；父节点为空时拒绝回收，取出对象丢失会容错重建。
 --=====================================================================================================
 

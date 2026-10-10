@@ -4,13 +4,11 @@
 -- filename:  ProcedureSuper.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   流程基类（游戏状态机 / 流程管理基类）
--- 功能：
--- 1. ctor 绑定 C# 注入的 env 环境（含 cs 桥接对象）
--- 2. OnInit / OnDestroy / OnEnter / OnUpdate / OnLeave 生命周期钩子
--- 3. OnEnter / OnUpdate / OnLeave 自动绑定与清理本流程定时器
--- 4. ChangeState 经 C# 桥接对象切换目标流程
--- 架构：class("ProcedureSuper") 状态机基类，依赖 HonorTimerHelper 与 C# 状态机桥接
+-- @brief     流程基类（游戏状态机 / 流程管理基类）
+-- @desc      ctor 绑定 C# 注入的 env 环境（含 cs 桥接对象）；OnInit/OnDestroy/OnEnter/OnUpdate/OnLeave 生命周期钩子；OnEnter/OnUpdate/OnLeave 自动绑定与清理本流程定时器；ChangeState 经 C# 桥接对象切换目标流程
+-- @core      env/cs 桥接绑定、生命周期钩子、定时器随流程自动启停、C# 桥接切换流程
+-- @scope     登录 / 主城 / 战斗 / 过场等游戏流程公共父类；由 C# 状态机引擎驱动生命周期
+-- @dependency HonorTimerHelper、C# 状态机桥接对象（env.cs）
 -- @note  登录 / 主城 / 战斗 / 过场等流程均须继承本类；定时器随流程自动启停
 --=====================================================================================================
 

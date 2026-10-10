@@ -4,12 +4,11 @@
 -- filename:  SerialProducer.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   序列号生成器（全局唯一码 / 唯一ID / 唯一名生成函数）
--- 功能：
--- 1. UniqueEventCode / UniqueID 自增生成全局唯一数字码
--- 2. UniqueName 生成「前缀 + 自增序号」唯一名
--- 3. FunctionID / FunctionNegativeID / OrnamentID 自减生成负向功能标识
--- 架构：全局函数集合，StartGame require 时生效，工程唯一来源
+-- @brief     序列号生成器（全局唯一码 / 唯一ID / 唯一名生成函数）
+-- @desc      UniqueEventCode / UniqueID 自增生成全局唯一数字码；UniqueName 生成「前缀 + 自增序号」唯一名；FunctionID / FunctionNegativeID / OrnamentID 自减生成负向功能标识
+-- @core      文件级闭包自增 / 自减计数器，全局函数暴露为工程唯一来源
+-- @scope     全局函数集合（全局注入，不 return 模块表属设计）；由 StartGame require 时生效，供 EventCodes / UIEventCode 等引用
+-- @dependency 无外部依赖（纯自增 / 自减计数器）
 -- @note  全局函数无同名冲突；须先于 EventCodes / UIEventCode 加载
 --=====================================================================================================
 

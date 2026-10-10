@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     登录管理器（核心单例）
 -- @desc      处理登录、账号绑定/解绑、存档选择、异地登录、重连、数据同步、异常错误码
+-- @core      登录状态机、网络回调分发、存档冲突选择、第三方账号绑定、错误码诊断
+-- @scope     全局唯一登录入口，驱动登录流程与切号/重连
 -- @feat      登录流程、账号安全、会话管理、服务器切换、错误处理、全局事件
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
 -- @规范       Unity Lua 商业项目编码标准 / 单例管理器规范
@@ -41,11 +43,17 @@ ELoginState = {
 --endregion
 
 ---@class LoginManager : Singleton 登录管理器（全局单例）
+---@field _loginState ELoginState @当前登录流程状态
+---@field _isOnline boolean @是否在线（登录成功后置 true）
+---@field _loginFinishCallback function|nil @登录结束外部回调（登录完成后一次性触发并置空）
+---@field _isNewUser boolean @是否新用户
+---@field _isDelUser boolean @是否已注销/删除账号
 local LoginManager = class("LoginManager", import("Singleton"))
 
 --region 【构造 & 初始化】
 
 ---@brief 构造函数
+---@desc 框架驱动；初始化登录状态与各标志位默认值
 ---@param args table 自定义参数
 function LoginManager:ctor(args)
     LoginManager.super.ctor(self, args)
@@ -58,6 +66,7 @@ function LoginManager:ctor(args)
 end
 
 ---@brief 创建单例
+---@desc 框架驱动，由单例系统实例化
 ---@param args table 自定义参数
 ---@return LoginManager
 function LoginManager:Create(args)
@@ -65,6 +74,7 @@ function LoginManager:Create(args)
 end
 
 ---@brief 初始化（注册事件）
+---@desc 框架驱动；注册第三方账号绑定/解绑结果事件
 function LoginManager:Init()
     LoginManager.super.Init(self)
     HonorEventHelper:AddListener(EventCmd.OnAidBindingResult, handler(self, self.OnAidBindingResult))
@@ -72,6 +82,7 @@ function LoginManager:Init()
 end
 
 ---@brief 清理数据
+---@desc 登录开始前/切号时重置登录状态与标志位（保留 _isDelUser 语义由外部维护）
 function LoginManager:ClearData()
     LoginManager.super.ClearData(self)
 
@@ -86,6 +97,7 @@ end
 --region 【登录流程】
 
 ---@brief 登录完成统一回调
+---@desc 由 LoginBackFun/ErrorCodeDiagnosis 内部调用；置在线与完成状态、派发 OnLoginResult 事件并触发外部回调
 ---@param isSuccess boolean 是否成功
 function LoginManager:LoginFinishCallback(isSuccess)
     PrintInfo("Login 登陆结束: LoginFinish --> isSuccess: {0} ", isSuccess)
@@ -103,6 +115,7 @@ function LoginManager:LoginFinishCallback(isSuccess)
 end
 
 ---@brief 登录入口
+---@desc 外部/网络流程调用；Working 状态下非强制登录被拒，随后清空状态并置 Working
 ---@param force boolean 强制登录
 ---@param finishCallback function 结束回调
 function LoginManager:Login(force, finishCallback)
@@ -119,6 +132,7 @@ function LoginManager:Login(force, finishCallback)
 end
 
 ---@brief 登录网络回调（核心逻辑）
+---@desc 网络登录响应回调；按 error_code 分支处理新用户/老用户、存档冲突、异地登录与数据同步
 ---@param req table 请求对象
 ---@param resp table 响应对象
 ---@param cmd table 命令对象
@@ -224,6 +238,7 @@ function LoginManager:LoginBackFun(req, resp, cmd, returnData)
 end
 
 ---@brief 登录错误码处理
+---@desc 由 LoginBackFun 内部调用；按错误码区分无效UID重登、异地登录冲突弹窗、其余失败直接回调
 ---@param errorCode number 错误码
 ---@param req table 请求对象
 ---@param resp table 响应对象
@@ -248,6 +263,7 @@ function LoginManager:ErrorCodeDiagnosis(errorCode, req, resp, cmd, returnData)
 end
 
 ---@brief 登录/注册打点
+---@desc 由 LoginBackFun/ErrorCodeDiagnosis 内部调用；按错误码与是否新用户上报注册/登录埋点
 ---@param req table 请求对象
 ---@param resp table 响应对象
 ---@param cmd table 命令对象
@@ -291,11 +307,13 @@ end
 --region 【弹窗与存档选择】
 
 ---@brief 打开异地登录弹窗
+---@desc 由 ErrorCodeDiagnosis 在异地登录冲突且非关卡内时调用
 function LoginManager:OpenLoginConflict()
     OpenUISync(UIs.UILoginConflict)
 end
 
 ---@brief 打开存档选择UI
+---@desc 由 LoginBackFun 在检测到跨设备/跨UID云端存档时调用，本地/云端存档选择结果经回调回传
 ---@param lastSaveTime number 上次存档时间
 ---@param serverGameData table 云端存档数据
 ---@param serverUid number 云端用户ID
@@ -312,32 +330,19 @@ function LoginManager:OpenSelectData(lastSaveTime, serverGameData, serverUid, ca
     })
 end
 
----@brief 打开存档选择确认框
----@param callback fun(selectType:number):void 确认回调
-function LoginManager:OpenSelectDataConfirm(callback)
-    OpenUISync(UIs.UISelectDataConfirm, { selectCallback = callback })
-end
-
 --endregion
 
 --region 【流程切换】
 
 ---@brief 主界面自动尝试登录
+---@desc 由 GameMainState 跨文件调用（活入口）；当前方法体为空（重连逻辑已注释），保留以维持调用链路
 ---@param callback fun():void 完成回调
 function LoginManager:TryLoginInMainHud(callback)
     -- self:TryReLogin(callback)
 end
 
----@brief 切换到预加载流程
----@param oldUid number 原UID
----@param newUid number 新UID
----@return boolean @是否触发了流程切换
-function LoginManager:TurnToProLoadState(oldUid, newUid)
-    local procedure = HonorRoot.Procedure.CurrentProcedure
-    return self:TurnToProLoadStateByCurProcedure(procedure, oldUid, newUid)
-end
-
 ---@brief 根据当前流程判断是否需要重启
+---@desc 由 LoginBackFun/SyncOtherUidDeviceId 在切号后调用；非预加载流程则切到预加载状态并清单例，否则仅清单例
 ---@param procedure table 当前流程对象
 ---@param oldUid number 原UID
 ---@param newUid number 新UID
@@ -365,6 +370,7 @@ end
 --region 【账号绑定】
 
 ---@brief 绑定结果回调
+---@desc 事件注册回调（Init 中 OnAidBindingResult 注册）；按平台与成败打开对应成功/失败弹窗并上报埋点
 ---@param success boolean 是否成功
 ---@param platform number 平台
 ---@param aid string 账号ID
@@ -388,6 +394,7 @@ function LoginManager:OnAidBindingResult(success, platform, aid, position)
 end
 
 ---@brief 解绑结果回调
+---@desc 事件注册回调（Init 中 OnAidUnBindingResult 注册）；上报第三方账号登出埋点
 ---@param success boolean 是否成功
 ---@param platform number 平台
 ---@param aid string 账号ID
@@ -397,6 +404,7 @@ function LoginManager:OnAidUnBindingResult(success, platform, aid, position)
 end
 
 ---@brief 同步其他UID设备ID
+---@desc 由 LoginBackFun 在跨UID登录分支调用；发送同步设备ID网络请求，结果经回调回传
 ---@param uid number 本机UID
 ---@param otherUid number 对方UID
 ---@param callback fun(success:boolean):void 完成回调
@@ -420,25 +428,8 @@ end
 
 --region 【状态查询】
 
----@brief 是否在线
----@return boolean
-function LoginManager:IsOnline()
-    return self._isOnline
-end
-
----@brief 获取登录状态
----@return ELoginState
-function LoginManager:GetLoginState()
-    return self._loginState
-end
-
----@brief 是否新用户
----@return boolean
-function LoginManager:IsNewUser()
-    return self._isNewUser
-end
-
 ---@brief 是否已注销账号
+---@desc 由 GameMain 跨文件调用（GameMain.lua 启动/登录流程判断）
 ---@return boolean
 function LoginManager:IsDelUser()
     return self._isDelUser

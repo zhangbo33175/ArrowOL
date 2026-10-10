@@ -1,25 +1,20 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  TableUtil.lua.txt
+-- filename:  TableUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   表工具（table 拷贝/深拷贝/查找/合并/排序/自由组合/批量处理）
--- 功能：
--- 1. CopyTab/DeepCopy 浅拷贝与深拷贝
--- 2. FindValue/FindKeysWhichContainStr 查找
--- 3. JoinTables/SelectSort/SelectSortByKey/ShuffleArray 合并排序洗牌
--- 4. GetFreeCombinations/BinaryInsertSortedArray/BatchProcess 组合与批量处理
--- 架构：纯工具表（---@class TableUtil），依赖 SystemApis（table.nums/table.keys 扩展）
--- @note  原 SystemFuncs 同名全局函数统一委托到本模块，业务零改动
+-- @brief     表工具（拷贝/深拷贝/查找/合并/排序/组合/统计/批量处理）
+-- @desc      提供浅/深拷贝、查找、合并、选择排序、自由组合、空判断、二分插入与分批遍历等通用表运算
+-- @core      pairs 递归拷贝（循环引用防护）、table.nums/keys 扩展、二分有序插入、分批防卡顿调度
+-- @scope     全局通用（经 SystemFuncs/GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency SystemApis（table.nums/table.keys 扩展）
 --=====================================================================================================
 
----@class TableUtil 表工具类
+---@class TableUtil @ 表工具表（纯函数，无实例状态）
 local TableUtil = {}
 
---=====================================================================================================
--- 拷贝
---=====================================================================================================
+--region 拷贝
 
 ---@brief 拷贝 table（浅拷贝，table 子表递归拷贝）
 ---@param tab table table数据
@@ -58,9 +53,9 @@ function TableUtil.DeepCopy(object)
     return _copy(object)
 end
 
---=====================================================================================================
--- 查找
---=====================================================================================================
+--endregion
+
+--region 查找
 
 ---@brief 在table数组中查找某个值（有：返回k值；无：返回nil）
 ---@param tab table table数据
@@ -101,9 +96,9 @@ function TableUtil.GetRandomNumBetween(num1, num2)
     end
 end
 
---=====================================================================================================
--- 合并
---=====================================================================================================
+--endregion
+
+--region 合并
 
 ---@brief 合并两个数组型table（按顺序拼接）
 ---@param tableFront table 前面的table
@@ -131,9 +126,9 @@ function TableUtil.JoinTables(tableFront, tableEnd)
     return tableResult
 end
 
---=====================================================================================================
--- 排序
---=====================================================================================================
+--endregion
+
+--region 排序
 
 ---@brief 选择法排序（数值从小到大/从大到小）
 ---@param tab table 需要排序的table
@@ -188,9 +183,9 @@ function TableUtil.SelectSortByKey(tab, key, descOrder)
     end
 end
 
---=====================================================================================================
--- 组合
---=====================================================================================================
+--endregion
+
+--region 组合
 
 ---@brief 获取table所有的子集自由组合（用于配置表组合计算）
 ---@param tb table 原始table数据
@@ -212,9 +207,9 @@ function TableUtil.GetFreeCombinations(tb)
     return combinations
 end
 
---=====================================================================================================
--- 数组 / 字典通用工具
---=====================================================================================================
+--endregion
+
+--region 数组 / 字典通用工具
 
 ---@brief 判断 table 是否为空
 ---@param t table 目标表
@@ -361,5 +356,7 @@ function TableUtil.BatchProcess(data, batchCount, callback)
         TableUtil.ClearArray(batch)
     end
 end
+
+--endregion
 
 return TableUtil

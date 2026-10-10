@@ -1,25 +1,23 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
 --=====================================================================================================
--- filename:  TimeUtil.lua.txt
+-- filename:  TimeUtil.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   时间工具（时间间隔格式化与时间字符串解析）
--- 功能：
--- 1. TransformTimeIntervalToFormat 时间间隔格式化输出
--- 2. ParseTimeString/GetSecondsByString 时间描述字符串转秒
--- 3. GetAcrossDayNumBetweenTimeStamps 两时间戳跨天天数
--- 架构：纯工具表（---@class TimeUtil），依赖同域 StringUtil（mstr 模板拼接）
--- @note  原 SystemFuncs 同名全局函数统一委托到本模块
+-- @brief     时间工具（时间间隔格式化与时间字符串解析）
+-- @desc      时间间隔按模板格式化输出、时间描述字符串转秒、两时间戳跨天天数计算
+-- @core      mstr 模板拼格式化串、gmatch 时间分量解析、86400 跨天取差
+-- @scope     全局通用（经 SystemFuncs 全局函数 / HonorTimerHelper 委托对外暴露）
+-- @dependency 同域 StringUtil（mstr 模板拼接）
 --=====================================================================================================
 
----@class TimeUtil 时间工具类
-local StringUtil = require('StringUtil')
+---@class TimeUtil @ 时间工具表（纯函数，无实例状态）
 local TimeUtil = {}
 
---=====================================================================================================
--- 时间格式化
---=====================================================================================================
+-- 依赖引入：时间格式化模板拼接走同域 StringUtil
+local StringUtil = require('StringUtil')
+
+--region 时间格式化
 
 ---@brief 将时间间隔(秒)转换成格式化时间字符串
 ---@param format string 格式模板
@@ -66,9 +64,9 @@ function TimeUtil.TransformTimeIntervalToFormat(format, timeInterval, DUnit, HUn
     return result
 end
 
---=====================================================================================================
--- 时间解析 / 计算
---=====================================================================================================
+--endregion
+
+--region 时间解析 / 计算
 
 ---@brief 解析时间字符串为时间数组
 ---@desc 抽离自 HonorTimerHelper:GetTimeInfoByString（纯工具，无实例状态依赖）
@@ -105,5 +103,7 @@ function TimeUtil.GetAcrossDayNumBetweenTimeStamps(timeStamp1, timeStamp2)
     if not (timeStamp1 and timeStamp2) then return 0 end
     return math.floor(timeStamp2 / 86400) - math.floor(timeStamp1 / 86400)
 end
+
+--endregion
 
 return TimeUtil

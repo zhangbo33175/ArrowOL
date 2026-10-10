@@ -1,27 +1,35 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIPlayingAnimated.lua
 -- author:    云毅
--- descrip:   收集目标飞行动画 UI
+-- created:   2026
+-- @brief     收集目标飞行动画 UI 占位视图
+-- @desc      承载收集角色图标飞向"目标完成数"的飞行动画表现；当前为框架空壳，具体动画由
+--            UIMainPlayingManager:PlayCollectFlyAnimation 直接操作图标 Transform 完成
+-- @core      框架生命周期透传、子UI销毁回调
+-- @scope     仅作为飞行动画的 UI 挂载节点，无独立业务逻辑
+-- @dependency LuaBehaviourSuper
 --=====================================================================================================
 
----@class UIPlayingAnimated : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour 组件
+---@class UIPlayingAnimated : LuaBehaviourSuper @收集目标飞行动画占位视图
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
 local UIPlayingAnimated = class('UIPlayingAnimated', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
 
 ---@brief 构造函数
----@param args table 自定义参数
+---@desc 框架驱动，仅透传基类构造，不持运行时状态
+---@param args table @自定义参数（由框架实例化时传入）
 function UIPlayingAnimated:ctor(args)
     UIPlayingAnimated.super.ctor(self, args)
 end
 
 ---@brief 创建 UI 实例
----@param args table 自定义参数
----@return UIPlayingAnimated
+---@desc 框架驱动，由 UI 管理器通过 UIs 表反射调用
+---@param args table @自定义参数
+---@return UIPlayingAnimated @新建实例
 function UIPlayingAnimated:Create(args)
     return UIPlayingAnimated.new(args)
 end
@@ -31,21 +39,25 @@ end
 --region 【生命周期】
 
 ---@brief 注册事件监听
+---@desc 框架驱动（LuaBehaviourSuper），当前无自定义监听需注册
 function UIPlayingAnimated:OnAddListeners()
     UIPlayingAnimated.super.OnAddListeners(self)
 end
 
 ---@brief 唤醒
+---@desc 框架驱动，视图节点加载完成时回调
 function UIPlayingAnimated:Awake()
     UIPlayingAnimated.super.Awake(self)
 end
 
 ---@brief 开始
+---@desc 框架驱动，视图首次激活后回调
 function UIPlayingAnimated:Start()
     UIPlayingAnimated.super.Start(self)
 end
 
 ---@brief 销毁
+---@desc 框架驱动，视图销毁时回调，由基类统一注销监听
 function UIPlayingAnimated:OnDestroy()
     UIPlayingAnimated.super.OnDestroy(self)
 end
@@ -55,11 +67,13 @@ end
 --region 【动画回调】
 
 ---@brief 播放打开动画
+---@desc 框架驱动（可重写），打开界面时播放；当前透传基类默认实现
 function UIPlayingAnimated:OnPlayOpenAnimation()
     UIPlayingAnimated.super.OnPlayOpenAnimation(self)
 end
 
 ---@brief 播放关闭动画
+---@desc 框架驱动（可重写），关闭界面时播放；当前透传基类默认实现
 function UIPlayingAnimated:OnPlayCloseAnimation()
     UIPlayingAnimated.super.OnPlayCloseAnimation(self)
 end
@@ -69,7 +83,8 @@ end
 --region 【子UI回调】
 
 ---@brief 子 UI 销毁回调
----@param luaClass XLua.LuaTable
+---@desc 框架驱动，本视图 AddUI 出的子 UI 销毁时回调，用于级联清理
+---@param luaClass XLua.LuaTable @被销毁的子 UI 实例
 function UIPlayingAnimated:OnAddedUIDestroyed(luaClass)
     UIPlayingAnimated.super.OnAddedUIDestroyed(self, luaClass)
 end

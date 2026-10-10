@@ -5,6 +5,11 @@
 -- filename:  LocalPart_Localizations_PortuguesePortugal.lua
 -- descrip:   本地化配置: 葡萄牙语
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     葡萄牙语本地化词条明细数据
+-- @desc      逐条登记游戏全部文案 key->葡萄牙语译文，自动生成
+-- @core      向 Localizations.PortuguesePortugal 子表按 key 写入 string 词条
+-- @scope     全游戏 UI/对话/提示等文本按 key 取葡萄牙语译文
+-- @dependency LocalizationPortuguesePortugal（子表由其创建）
 --=====================================================================================================
 
 ---@class Localizations.PortuguesePortugal @本地化配置: 葡萄牙语

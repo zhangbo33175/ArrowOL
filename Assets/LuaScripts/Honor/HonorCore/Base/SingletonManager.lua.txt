@@ -4,13 +4,11 @@
 -- filename:  SingletonManager.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   单例管理器（全局唯一，统一管理所有单例生命周期）
--- 功能：
--- 1. 单例注册 / 注销（HonorList 维护列表）
--- 2. 按 Priority 升序 / 降序排序，控制初始化与清理顺序
--- 3. 预加载流程分步 Init 所有单例
--- 4. 切号 / 重启时统一停协程 / 定时器 / 通知 / 事件并 ClearData
--- 架构：全局单例管理器，HonorList 容器聚合 Singleton，编排框架级助手与预加载流程
+-- @brief     单例管理器（全局唯一，统一管理所有单例生命周期）
+-- @desc      单例注册 / 注销（HonorList 维护列表）；按 Priority 升降序控制初始化与清理顺序；预加载流程分步 Init；切号 / 重启统一停协程 / 定时器 / 通知 / 事件并 ClearData
+-- @core      HonorList 聚合 Singleton、Priority 排序、分步 Init、统一资源清理编排
+-- @scope     全局唯一单例管理器；由预加载 / 切号重启流程驱动，统一驱动所有 Singleton 生命周期
+-- @dependency HonorList、HonorTimerHelper、HonorCoroutineHelper、HonorNotificationHelper、HonorEventHelper、DOTween
 -- @note  清理时先 KillAll DOTween 并停各框架助手，再按降序 ClearData
 --=====================================================================================================
 

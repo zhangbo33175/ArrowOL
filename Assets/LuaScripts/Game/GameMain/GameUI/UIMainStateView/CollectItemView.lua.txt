@@ -1,20 +1,26 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  CollectItemView.lua
 -- author:    云毅
--- descrip:   收集的Icon
+-- created:   2026
+-- @brief     拼图收集图标项（单个拼图块）
+-- @desc      按创建方传入的拼图序号加载对应 Sprite，并同步父容器尺寸以正确撑开布局
+-- @core      资源加载、原生尺寸同步、Icon 默认隐藏
+-- @scope     UIMainStateView 关卡主界面内 SectionItem 下批量挂载的单个收集子项
+-- @dependency LuaBehaviourSuper, LoadRes
 --=====================================================================================================
 
 ---@class CollectItemView : LuaBehaviourSuper
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field Icon                               UnityEngine.UI.Image          √                        收集Icon
+---@field Icon UnityEngine.UI.Image @收集Icon
 local CollectItemView = class('CollectItemView', import('LuaBehaviourSuper'))
 
 --region 【构造】
 
 ---构造函数
+---@brief 记录创建方传入的拼图序号（args.data.number）
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function CollectItemView:ctor(args)
@@ -25,6 +31,7 @@ function CollectItemView:ctor(args)
 end
 
 ---创建函数
+---@brief 创建收集项实例
 ---@type fun(args:table):CollectItemView
 ---@param args table @自定义参数
 ---@return CollectItemView @实例
@@ -38,23 +45,26 @@ end
 --region 【生命周期】
 
 ---注册监听（自动注销）
+---@brief 注册事件监听（框架驱动，勿删）
 ---@type fun():void
 function CollectItemView:OnAddListeners()
     CollectItemView.super.OnAddListeners(self)
 end
 
 ---唤醒
+---@brief 唤醒时默认隐藏收集 Icon，待有数据再显示（框架驱动，勿删）
 ---@type fun():void
 function CollectItemView:Awake()
     CollectItemView.super.Awake(self)
 
-    -- TODO: 默认隐藏收集Icon，待有数据/解锁时由外部调用 SetActive(true) 显示
+    --TODO: [初始化] 默认隐藏收集Icon，待有数据/解锁时由外部调用 SetActive(true) 显示
     if not IsNull(self.Icon) then
         self.Icon.gameObject:SetActive(false)
     end
 end
 
 ---开始
+---@brief 有序号则加载对应拼图，否则直接同步父容器尺寸（框架驱动，勿删）
 ---@type fun():void
 function CollectItemView:Start()
     CollectItemView.super.Start(self)
@@ -69,6 +79,7 @@ function CollectItemView:Start()
 end
 
 ---销毁
+---@brief 销毁回调（框架驱动，勿删）
 ---@type fun():void
 function CollectItemView:OnDestroy()
     CollectItemView.super.OnDestroy(self)
@@ -126,12 +137,14 @@ end
 --region 【动画回调】
 
 ---播放打开动画（可重写）
+---@brief 界面打开动画回调（框架驱动，勿删）
 ---@type fun():void
 function CollectItemView:OnPlayOpenAnimation()
     CollectItemView.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画（可重写）
+---@brief 界面关闭动画回调（框架驱动，勿删）
 ---@type fun():void
 function CollectItemView:OnPlayCloseAnimation()
     CollectItemView.super.OnPlayCloseAnimation(self)
@@ -142,6 +155,7 @@ end
 --region 【子UI回调】
 
 ---子UI销毁回调
+---@brief 被追加的子 UI 销毁回调（框架驱动，勿删）
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function CollectItemView:OnAddedUIDestroyed(luaClass)

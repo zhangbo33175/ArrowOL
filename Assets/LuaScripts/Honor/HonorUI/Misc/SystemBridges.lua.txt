@@ -5,6 +5,11 @@
 -- filename:  SystemBridges.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     全局桥接方法（Lua ↔ C# 交互底层通用函数）
+-- @desc      提供调试器初始化、类创建、UI 事件绑定入口等底层桥接；UI 事件绑定实现已拆分至 UIManager，本文件保留全局函数名并委托，接口零破坏
+-- @core      __DEBUGGER__ 调试器初始化、全局类创建、UI 事件绑定转发
+-- @scope     全局注入桥接层（无 return 属设计），框架启动期加载
+-- @dependency UIManager, Honor.Runtime（C#）
 -- descrip:   全局桥接方法
 --            核心作用：提供 Lua 与 C# 交互的底层通用函数，包括调试器、类创建、UI事件绑定入口
 --            说明：UI 事件绑定的实际实现已拆分至 UIManager.lua.txt，本文件保留全局函数名并委托之，接口零破坏

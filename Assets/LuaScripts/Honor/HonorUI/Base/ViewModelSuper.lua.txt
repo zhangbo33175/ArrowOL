@@ -5,6 +5,11 @@
 -- filename:  ViewModelSuper.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     视图模型通用父类（MVVM - ViewModel 层基类）
+-- @desc      所有界面的逻辑、数据、状态、业务处理中心；不直接操作 View，只通过 BindValue 双向绑定驱动界面刷新
+-- @core      业务逻辑、数据管理、状态驱动、事件处理、跨 VM 通信
+-- @scope     MVVM ViewModel 层基类，经 BindValue 与 ViewSuper 解耦
+-- @dependency BindValue, EventHelper
 -- descrip:   视图模型通用父类（MVVM - ViewModel 层基类）
 --            作用：所有界面的逻辑、数据、状态、业务处理中心
 --            特点：不直接操作 View，只通过 BindValue 双向绑定驱动界面刷新

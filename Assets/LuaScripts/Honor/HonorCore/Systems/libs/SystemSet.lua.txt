@@ -4,6 +4,11 @@
 -- filename:  SystemSet.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     无序集合（元素唯一，O(1) 增删查）
+-- @desc      支持 string/number/boolean/table/userdata 等可哈希类型，O(1) 插入/删除/查找/遍历
+-- @core      哈希集合插入/删除/查找/遍历
+-- @scope     框架底层集合实现（纯 Lua），作为 SystemDelegate 等模块的底层依赖
+-- @dependency 无（纯 Lua 集合实现）
 -- descrip:   无序集合（元素唯一，O(1) 增删查）
 -- 功能：
 -- 1. 支持 string/number/boolean/table/userdata 等可哈希类型

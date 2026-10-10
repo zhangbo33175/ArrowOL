@@ -1,28 +1,36 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UILoginView.lua
 -- author:    云毅
--- descrip:   登录页面 UI
+-- created:   2026
+-- @brief     登录页面 UI
+-- @desc      提供登录按钮入口，点击后由登录流程直接切主界面状态（MainState）；登录业务逻辑由
+--            LoginManager 单例承载，本视图只负责按钮交互与状态跳转
+-- @core      按钮监听注册、状态机跳转
+-- @scope     登录界面的按钮交互，无数据读写
+-- @dependency LuaBehaviourSuper, SoundManager, GameStateMachine
 --=====================================================================================================
 
----@class UILoginView : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour LuaBehaviour 组件
----@field LoginBtn UnityEngine.UI.Button 登录按钮
+---@class UILoginView : LuaBehaviourSuper @登录页面视图
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
+---@field LoginBtn UnityEngine.UI.Button @登录按钮（Inspector 注入，点击后切主界面）
 local UILoginView = class('UILoginView', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
 
 ---@brief 构造函数
----@param args table 自定义参数
+---@desc 框架驱动，仅透传基类构造
+---@param args table @自定义参数（由框架实例化时传入）
 function UILoginView:ctor(args)
     UILoginView.super.ctor(self, args)
 end
 
 ---@brief 创建 UI 实例
----@param args table 自定义参数
----@return UILoginView
+---@desc 框架驱动，由 UI 管理器通过 UIs 表反射调用
+---@param args table @自定义参数
+---@return UILoginView @新建实例
 function UILoginView:Create(args)
     return UILoginView.new(args)
 end
@@ -32,34 +40,38 @@ end
 --region 【生命周期】
 
 ---@brief 注册事件监听
+---@desc 框架驱动，当前无全局事件需注册
 function UILoginView:OnAddListeners()
     UILoginView.super.OnAddListeners(self)
 end
 
 ---@brief 唤醒
----@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+---@desc 框架驱动；注册按钮监听（self:AddUIListener 随界面销毁自动注销）
 function UILoginView:Awake()
     UILoginView.super.Awake(self)
     self:AddUIListener(self.LoginBtn, 'Clicked', Bind(self, self.OnLoginBtnClicked))
 end
 
 ---@brief 开始
+---@desc 框架驱动，视图首次激活后回调
 function UILoginView:Start()
     UILoginView.super.Start(self)
 end
 
 ---@brief 销毁
----@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
+---@desc 框架驱动；UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 function UILoginView:OnDestroy()
     UILoginView.super.OnDestroy(self)
 end
 
 ---@brief 播放打开动画
+---@desc 框架驱动（可重写），打开界面时播放
 function UILoginView:OnPlayOpenAnimation()
     UILoginView.super.OnPlayOpenAnimation(self)
 end
 
 ---@brief 播放关闭动画
+---@desc 框架驱动（可重写），关闭界面时播放
 function UILoginView:OnPlayCloseAnimation()
     UILoginView.super.OnPlayCloseAnimation(self)
 end
@@ -69,7 +81,8 @@ end
 --region 【子UI回调】
 
 ---@brief 子UI销毁回调
----@param luaClass XLua.LuaTable
+---@desc 框架驱动，本视图 AddUI 出的子 UI 销毁时回调
+---@param luaClass XLua.LuaTable @被销毁的子 UI 实例
 function UILoginView:OnAddedUIDestroyed(luaClass)
     UILoginView.super.OnAddedUIDestroyed(self, luaClass)
 end
@@ -79,7 +92,8 @@ end
 --region 【按钮回调】
 
 ---@brief 登录按钮点击回调
----@param args any 事件参数
+---@desc 由 Awake 中 AddUIListener(Bind) 绑定触发；播放按钮音效后切主界面状态
+---@param args any @UI交互事件参数
 function UILoginView:OnLoginBtnClicked(args)
     -- TODO: 按钮点击统一播放开始音效
     SoundManager:PlaySound("UI_SeasonStart")

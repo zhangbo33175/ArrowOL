@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     关卡结束流程管理类
 -- @desc      负责关卡胜利/失败结算、流程控制、协程管理、界面展示、数据保存、奖励发放等逻辑
+-- @core      胜负结算分支、结算协程编排、胜利/失败结算界面打开、奖励发放与关卡数据落盘
+-- @scope     GameCoreManager 的结束流程子模块：胜负后置处理、结算协程、胜利/失败结算界面打开，由主模块胜负分支驱动
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, LevelCoreManager, ItemManager, EventManager, CoroutineHelper, UIManager, UIStackManager
 --=====================================================================================================
@@ -45,7 +47,7 @@ end
 ---@brief 切换关卡/重置时安全清理资源
 ---=========================================================================
 function GameCoreManagerLevelFinish:ClearData()
-    self:StopAloneLevelFinishProcess()
+    self:_StopAloneLevelFinishProcess()
 end
 
 --endregion
@@ -62,8 +64,12 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
 
     if isSuccess then
         local coreData = GameCoreManager._GameCoreManagerData
-        -- 升级关卡进度
+        -- 升级关卡进度（内部关卡等级 lv + 1）
         GamerDataManager:AddLevelLvByChapterId(curChapterId)
+        -- 结合成功结算：本章内部关卡全部通关则自动解锁下一章节（"章节-内部关卡"模式换章闭环），
+        -- 结算界面"下一关"按钮据此直接进入已解锁的下一章第一关。
+        --TODO: [流程] 通关即推进 nextChapter（TryUnlockNextChapter 判定全通并解锁），换章不再依赖按钮点按。
+        ChapterListManager:TryUnlockNextChapter(curChapterId)
         -- 保存核心数据
         coreData:SaveData()
     else
@@ -72,7 +78,7 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
        -- SaveIO.GameData.Save_playerInfo_winStreak()
         -- 挑战关卡失败 → 清空挑战进度
         if GameCoreManager:IsInChallengeLevel() then
-            ChallengeLevelHelper:ClearCurChallengeLevel()
+            ChallengeLevelHelper:ClearCurrentChallengeLevel()
         end
         -- 派发关卡失败事件
         HonorEventHelper:FireNow(
@@ -92,7 +98,7 @@ end
 ---@brief 安全启动，自动停止旧协程
 ---=========================================================================
 function GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
-    self:StopAloneLevelFinishProcess()
+    self:_StopAloneLevelFinishProcess()
     self._LevelFinishProcessCoroutine = HonorCoroutineHelper:StartAlone(function()
         self:StartLevelFinishProcessCoroutine()
     end)
@@ -102,7 +108,7 @@ end
 --- 安全停止关卡结束协程，防止内存泄漏
 ---@brief 强制停止协程，避免流程重复执行
 ---=========================================================================
-function GameCoreManagerLevelFinish:StopAloneLevelFinishProcess()
+function GameCoreManagerLevelFinish:_StopAloneLevelFinishProcess()
     if self._LevelFinishProcessCoroutine then
         HonorCoroutineHelper:StopAlone(self._LevelFinishProcessCoroutine)
     end
@@ -137,7 +143,7 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     -- 移除遮罩
     GameMainRoot.UI:SubUIMaskLayerRef()
     -- 显示结算界面
-    self:ShowLevelFinishUI()
+    self:_ShowLevelFinishUI()
 end
 
 --endregion
@@ -148,7 +154,7 @@ end
 --- 显示关卡结算界面（胜利/失败）
 ---@brief 统一入口：停止音效 → 区分胜负 → 打开对应UI
 ---=========================================================================
-function GameCoreManagerLevelFinish:ShowLevelFinishUI()
+function GameCoreManagerLevelFinish:_ShowLevelFinishUI()
     -- 停止所有音效
     SoundManager:StopAllSound()
     if GameCoreManager._IsSuccessFinishGame then
@@ -156,7 +162,7 @@ function GameCoreManagerLevelFinish:ShowLevelFinishUI()
     else
         -- 失败流程：直接打开失败结算界面（原前置道具推荐管理器 PreBoosterRecommendMgr 未定义，避免 nil 崩溃）
         --TODO: [修复] 移除未定义的 PreBoosterRecommendMgr 依赖，失败直接打开 UILevelFailedView
-        self:OpenLevelFailureUI()
+        self:_OpenLevelFailureUI()
     end
 end
 
@@ -166,7 +172,7 @@ end
 ---       UIChallengeLevelFailure/UILevelFailure 未在 UIs 定义，已统一收敛）
 ---@param preBoosterId string 推荐的前置道具ID（可选）
 ---=========================================================================
-function GameCoreManagerLevelFinish:OpenLevelFailureUI(preBoosterId)
+function GameCoreManagerLevelFinish:_OpenLevelFailureUI(preBoosterId)
     --TODO: [修复] 原引用未定义的 UIs.UILevelFailure / UIs.UIChallengeLevelFailure，统一收敛到唯一存在的失败视图 UILevelFailedView
     OpenUISync(UIs.UILevelFailedView, {
         InfoDatas = self:GetLevelFailureInfo(),

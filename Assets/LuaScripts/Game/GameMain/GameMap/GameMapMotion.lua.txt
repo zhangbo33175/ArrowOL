@@ -6,8 +6,10 @@
 -- created:   2026
 -- @brief     地图跟随控制器 —— 单击/拖动完美区分版（仅单击打印日志）
 -- @desc      支持PC拖动/手机滑动/双指缩放/惯性滑动/边界限制/严格单击拖动分离
+-- @core      相机平滑跟随、惯性滑动、双指/滚轮缩放、边界 clamp、单击拖动分离判定、自动扫描 DOTween
+-- @scope     全局单例表，由 GameMapBase:Start/OnDestroy 驱动 OnMapStart/OnMapEnd，GamePlayingState 每帧 OnUpdate
 -- @trigger   地图启动时初始化，Update驱动
--- @dependency EasyTouch, MapCamera, BoxCollider2D, GameManager
+-- @dependency EasyTouch, MapCamera, BoxCollider2D, GameManager, DOTween
 --=====================================================================================================
 
 ---@class MapMotionRange 地图边界范围结构
@@ -15,6 +17,44 @@
 ---@field max number X 轴最大边界
 
 ---@class GameMapMotion 地图相机控制主类 | 拖动+单击分离+缩放+惯性+边界限制
+---@field StepAddFactor number @平滑步进系数
+---@field SwipeSmoothStepNum number @滑动平滑值（0.3~1）
+---@field InertialSlidingFactor number @惯性滑动系数
+---@field VectorContainer1 table @坐标临时容器1（世界坐标换算）
+---@field VectorContainer2 table @坐标临时容器2
+---@field Vector3Num table @通用临时向量
+---@field InertialSlidingVector table @惯性方向向量
+---@field PointStartFromUI boolean @是否从UI开始按压
+---@field IsMouseDown boolean @鼠标是否按下
+---@field MouseLastScreenPos table @鼠标最后屏幕坐标
+---@field MinOrthoSize number @最小正交尺寸
+---@field MaxOrthoSize number @最大正交尺寸（运行时被 OnMapStart 动态覆盖）
+---@field ZoomSpeed number @缩放速度
+---@field LastPinchDistance number @上一次双指距离
+---@field IsPinching boolean @是否双指缩放
+---@field ClickEnable boolean @单击开关
+---@field ClickStartX number @单击起始X
+---@field ClickStartY number @单击起始Y
+---@field IsPressing boolean @是否正在按压
+---@field DragThreshold number @拖动阈值（像素）
+---@field OnMapClick fun(screenPos:table,isHit:boolean,hitTarget:table)|nil @地图单击外部回调
+---@field IsMapWork boolean @地图是否运行
+---@field ScreenCamera UnityEngine.Camera|nil @地图相机
+---@field MapMotionLayer GameLib.MapMotionLayer|nil @地图层组件
+---@field FollowPosition table|nil @相机跟随目标
+---@field MapBounds UnityEngine.Bounds|nil @地图包围盒
+---@field MapCenterX number @地图中心点X
+---@field MapCenterY number @地图中心点Y
+---@field MapHalfWidth number @地图半宽
+---@field MapHalfHeigh number @地图半高
+---@field ScreenCameraAspect number @相机宽高比
+---@field ScreenCameraOrthographicSize number @相机正交尺寸
+---@field InitialOrthoSize number @初始正交尺寸
+---@field PositionWhenPaused table|nil @暂停时位置
+---@field AutoScanActive boolean @自动扫描是否激活（运行时动态字段）
+---@field AutoScanWaypoints table|nil @自动扫描路径点（运行时动态字段）
+---@field AutoScanSeq table|nil @自动扫描 DOTween 序列（运行时动态字段）
+---@field AutoScanGraceFrames number|nil @自动扫描宽限帧数（运行时动态字段）
 local GameMapMotion = {
     StepAddFactor = 2,                          -- 平滑步进系数
     SwipeSmoothStepNum = 0,                     -- 滑动平滑值
@@ -458,30 +498,6 @@ end
 
 --region 【移动到目标点】
 
----@brief 将指定坐标点平滑移动到画面中心
----@type fun(targetPos:table, smooth:number):void
----@param targetPos table 目标坐标，支持 {"0.00","0.00","0.00"} 或 {x=..,y=..}
----@param smooth number 平滑系数，越小移动越慢，默认0.05
-function GameMapMotion:MoveToCenter(targetPos, smooth)
-    if not targetPos or not self.ScreenCamera or not self.FollowPosition or not self.IsMapWork then
-        return
-    end
-
-    -- 解析目标坐标（兼容字符串数组与字段表）
-    local tx = targetPos.x or tonumber(targetPos[1])
-    local ty = targetPos.y or tonumber(targetPos[2])
-    if not tx or not ty then return end
-
-    local minX, maxX, minY, maxY = self:GetCameraBounds()
-    self.FollowPosition.x = math.clamp(tx, minX, maxX)
-    self.FollowPosition.y = math.clamp(ty, minY, maxY)
-
-    -- 平滑系数控制移动速度（越小越慢，OnUpdate每帧逼近）
-    self.SwipeSmoothStepNum = smooth or 0.05
-    -- 取消惯性残留，避免叠加
-    self.InertialSlidingFactor = 0
-end
-
 ---@brief 终止并清理自动扫描 DOTween 序列（幂等）
 ---@type fun():void
 function GameMapMotion:KillAutoScanSeq()
@@ -681,7 +697,7 @@ function GameMapMotion:ResumeMapMotion()
     if self.IsMapWork then return end
 
     self.SwipeSmoothStepNum = 0
-    -- TODO: 相机未绑定（ScreenCamera 为空）时跳过位置刷新，防止 index nil 崩溃
+    --TODO: [GameMapMotion] 相机未绑定（ScreenCamera 为空）时跳过位置刷新，防止 index nil 崩溃
     if self.ScreenCamera then
         self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
         self.FollowPosition.y = self.ScreenCamera.transform:GetPositionY()
@@ -702,7 +718,7 @@ function GameMapMotion:PauseMapMotion()
     self.IsMouseDown = false
     self.IsPressing = false
 
-    -- TODO: 相机未绑定（ScreenCamera 为空）时跳过位置记录，防止 index nil 崩溃；
+    --TODO: [GameMapMotion] 相机未绑定（ScreenCamera 为空）时跳过位置记录，防止 index nil 崩溃；
     --       相机应在 OnMapStart 时由 GameMapBase:OnMapStart 绑定，若进入关卡前常为 nil，
     --       需检查地图加载/相机初始化时序（LoadMapById → 地图启动 → 进入 PlayingState）
     if not self.ScreenCamera then
@@ -744,8 +760,10 @@ function GameMapMotion:OnMapStart(mapTrans)
 
     -- 禁用物理射线检测：游戏点击由 TriggerClick 手动遍历 BoxCollider2D 处理，
     -- 不需要 Physics2DRaycaster / PhysicsRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
-    --TODO: [修复] 补充禁用 PhysicsRaycaster(3D)，与 Physics2DRaycaster 一并关闭，消除相机rect裁剪区域上的射线警告
-    self.ScreenCamera.eventMask = 0
+    -- 注意：eventMask 属于 raycaster 而非 Camera，勿对 Camera 赋值（Camera 无该属性）；
+    -- UGUI 射线(GraphicRaycaster)由 SetCameraRect 裁剪后统一停用对应事件Canvas处理
+    --TODO: [修复] 禁用 Physics2DRaycaster/PhysicsRaycaster(3D)，并停用裁剪相机的事件Canvas(GraphicRaycaster)，
+    --        彻底消除相机rect裁剪区域被 EventSystem 射线检测时的视锥外告警
     local raycaster2D = self.ScreenCamera:GetComponent(typeof(UnityEngine.EventSystems.Physics2DRaycaster))
     if raycaster2D then raycaster2D.enabled = false end
     local raycaster3D = self.ScreenCamera:GetComponent(typeof(UnityEngine.EventSystems.PhysicsRaycaster))
@@ -889,18 +907,17 @@ function GameMapMotion:UpdateCameraRect(bottomHudHeight)
         .." rectY="..self.ScreenCamera.rect.y.." rectH="..self.ScreenCamera.rect.height)
 end
 
----@brief 获取当前地图包围盒
----@type fun():UnityEngine.Bounds
----@return UnityEngine.Bounds 地图包围盒
-function GameMapMotion:GetCurrMapRect()
-    return self.MapBounds
-end
-
 ---@brief 地图结束，清理
 ---@type fun():void
 function GameMapMotion:OnMapEnd()
     self:RegisterTouchEvents("-")
     self:PauseMapMotion()
+
+    -- 玩法结束：恢复地图相机全屏视口，避免裁剪残留(rect非全屏)导致后续界面(登录/主界面)渲染区域异常
+    --TODO: [修复] 玩法结束恢复相机rect全屏，与 SetCameraRect 的裁剪形成完整闭环
+    if self.ScreenCamera ~= nil then
+        self.ScreenCamera.rect = UnityEngine.Rect(0, 0, 1, 1)
+    end
 end
 
 --endregion

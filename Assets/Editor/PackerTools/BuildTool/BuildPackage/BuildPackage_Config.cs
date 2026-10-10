@@ -254,12 +254,33 @@ namespace Honor.Editor.BuildPackage
                     Pattern = ".prefab;.asset",
                 },
 
-                // 音频：每个文件单独打包
+                // 音频：按 ABPath 目录粒度合包（与配置表 TableSounds 的 ABPath 目录级保持一致）
+                // 说明：TableSounds 的 ABPath 为目录级（如 "Assets/Res/Sounds/map1"、".../common"、
+                //      ".../ActivityGroup/GoldenTicket"、"Assets/Res/Sounds/UISounds"），运行时
+                //      AssetBundleLoadManager.GetABFormatPath 取其相对 Res 的路径转 bundle 名
+                //      （"Assets/Res/Sounds/map1" → "sounds@map1.bundle"）。
+                //      若沿用 EachFile（每文件打包），产出为 "sounds@map1@musics@bgm_map1.bundle"，
+                //      与 ABPath 目录级不匹配 → 运行时加载 AB 失败 → 打包后无声音（编辑器直接加载项目资源正常）。
+                //      故改用 Level2Dir：取 "Sounds/{目录}" 两级（map1/common/UISounds 均匹配）；
+                //      ActivityGroup/GoldenTicket 为 4 级目录，用 Level3Dir 子配置单独合包，
+                //      "Sounds/ActivityGroup/GoldenTicket" → sounds@activitygroup@goldenticket.bundle（匹配 ABPath）。
                 new BuildPackageConfig
                 {
                     Path = "Assets/Res/Sounds",
-                    Format = BuildPackageFormat.EachFile,
+                    Format = BuildPackageFormat.Level2Dir,
                     Pattern = ".wav;.ogg;.mp3",
+
+                    SubConfigs = new List<BuildPackageSubConfig>
+                    {
+                        new BuildPackageSubConfig
+                        {
+                            // ActivityGroup/GoldenTicket 为 4 级目录，ABPath 为 Sounds/ActivityGroup/GoldenTicket，
+                            // 用 Level3Dir 合包使 bundle 名与 ABPath 匹配（含其下 Musics 与 UISounds 子目录）
+                            SubDirStr = "/ActivityGroup/GoldenTicket",
+                            SubFormat = BuildPackageFormat.Level3Dir,
+                            SubPattern = ".wav;.ogg;.mp3",
+                        },
+                    },
                 },
 
                 // 贴图：按每文件粒度打包（独立 bundle，与 ResDef 的 ABPath/AssetName（含资源名）匹配，

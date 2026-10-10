@@ -4,15 +4,16 @@
 -- filename:  ProtocolSender.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   协议发送端（Lua → C# 传递消息）
--- 功能：
--- 1. Request 发送请求到 C# 分发中心（LuaProtocolDispatcher）
--- 2. ReceiveSuccess / ReceiveFail 上报结果
--- 3. BindPush / UnbindPush 绑定 / 解除推送监听
--- 架构：经 C# LuaProtocolRunTime 静态门面转发到 C# LuaProtocolDispatcher
+-- @brief     协议发送端（Lua → C# 传递消息）
+-- @desc      Request 发送请求到 C# 分发中心（LuaProtocolDispatcher）；ReceiveSuccess / ReceiveFail 上报结果；BindPush / UnbindPush 绑定 / 解除推送监听
+-- @core      经 C# LuaProtocolRunTime 静态门面转发到 C# LuaProtocolDispatcher
+-- @scope     业务层 Lua → C# 主动发消息 / 结果上报 / 推送绑定的统一出口
+-- @dependency ProtocolCmd、ProtocolUtil（CS.Honor.Runtime.LuaProtocolRunTime 门面）
 -- @note 依赖 ProtocolCmd 协议号；C# 门面未注入时静默跳过并告警
 --=====================================================================================================
 
+---@class ProtocolSender
+---协议发送端：经 C# LuaProtocolRunTime 门面转发 Lua → C# 请求 / 结果上报 / 推送绑定解绑
 local ProtocolSender = {}
 
 --region 依赖引入

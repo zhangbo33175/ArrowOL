@@ -44,6 +44,17 @@ namespace Editor.MapEditor
         /// 分类物品 ID / 关联道具配置 ID
         /// </summary>
         public string CatItemID;
+
+        /// <summary>
+        /// 寻找物的 id 集合（挑战表 TableDailyLevels 的 LevelItems 列，数组字符串，如 {1001,1002,...}）
+        /// 用于挑战关卡地图编辑时加载可放置/寻物目标图标
+        /// </summary>
+        public string LevelItems = string.Empty;
+
+        /// <summary>
+        /// 挑战关卡背景图路径（挑战表 TableDailyLevels 的 Level_bg 列，与运行时 Level_bg 字段同名以保证按列名映射）
+        /// </summary>
+        public string Level_bg = string.Empty;
         #endregion
     }
 }

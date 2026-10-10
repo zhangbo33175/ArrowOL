@@ -7,11 +7,15 @@
 -- @brief     UIMainPlaying 业务管理器
 -- @desc      承载 UIMainPlaying 界面相关业务：事件监听、FishItem 生命周期、按钮动作、界面数据刷新；
 --            视图只负责界面内容，业务统一挂载本管理器
+-- @core      业务事件订阅、FishItem 创建/碎裂编排、按钮动作分发、界面数据刷新
 -- @scope     全局唯一单例，注册于GameRequires，由 UIMainPlaying 视图打开/关闭时挂载卸载
 -- @dependency Singleton, EventCmd, MainPlayingManager, GameCoreManager, GameMapMotion
 --=====================================================================================================
 
 ---@class UIMainPlayingManager : Singleton @UIMainPlaying业务管理器
+---@field _view UIMainPlaying|nil @当前挂载的视图实例（OnViewOpened 写入，OnViewClosed 清空）
+---@field _fishItemViews table|nil @创建 FishItem 时保存的视图引用列表（TODO 预留，当前未直接使用）
+---@field _fishItems table<{transform,go,view}>|nil @当前存活 FishItem 引用列表，供碎裂/清除直接使用
 local UIMainPlayingManager = class("UIMainPlayingManager", import("Singleton"))
 
 --region 构造 & 初始化
@@ -112,7 +116,7 @@ end
 
 ---=========================================================================
 ---@brief 角色被收集-刷新目标完成数
----@desc 监听 OnCharacterCollected，点击收集新角色后刷新 CompleteNumber 显示
+---@desc 监听 OnCharacterCollected，点击收集新角色后刷新 CompleteNumber 显示，并播放收集流光动画
 ---@param data any 被收集角色数据（当前未使用）
 --TODO: [迁移] 角色收集回调由 UIMainPlaying 迁入 Manager
 ---=========================================================================
@@ -188,7 +192,7 @@ end
 
 ---=========================================================================
 ---@brief 刷新全部界面数据
----@desc 由视图打开时调用，刷新目标完成数与道具使用数
+---@desc 由 OnViewOpened 调用，刷新目标完成数与道具使用数
 ---=========================================================================
 function UIMainPlayingManager:RefreshAll()
     self:RefreshCompleteNumber()
@@ -217,23 +221,13 @@ function UIMainPlayingManager:RefreshUsedNumber()
     end
 end
 
----=========================================================================
----@brief 刷新生命数（预留接口）
----@desc 生命当前以 FishItem 图标形式展示，此接口为文本显示兜底
----=========================================================================
-function UIMainPlayingManager:RefreshLifeNumber()
-    local view = self._view
-    if view and view.SetLifeNumber then
-        view:SetLifeNumber(MainPlayingManager:GetLifeNumber())
-    end
-end
-
 --endregion
 
 --region 按钮业务动作
 
 ---=========================================================================
 ---@brief 设置按钮-打开设置界面
+---@desc 由 UIMainPlaying:Awake 中 Bind 绑定 SettingButton.Clicked 触发，异步打开设置面板
 ---=========================================================================
 function UIMainPlayingManager:OpenSettingView()
     OpenUIAsync(UIs.UISettingView)
@@ -241,6 +235,7 @@ end
 
 ---=========================================================================
 ---@brief 搜索按钮-自动扫描
+---@desc 由 SearchButton.Clicked 触发，驱动地图自动扫描
 ---=========================================================================
 function UIMainPlayingManager:StartAutoScan()
     GameMapMotion:StartAutoScan(300)
@@ -248,6 +243,7 @@ end
 
 ---=========================================================================
 ---@brief 显示按钮-显示广告背景并放大相机
+---@desc 由 xianshi.Clicked 触发，激活广告背景并放大相机视野
 ---=========================================================================
 function UIMainPlayingManager:ShowBackground()
     local view = self._view
@@ -259,6 +255,7 @@ end
 
 ---=========================================================================
 ---@brief 隐藏按钮-隐藏广告背景并还原相机
+---@desc 由 yinchang.Clicked 触发，关闭广告背景并还原相机视野
 ---=========================================================================
 function UIMainPlayingManager:HideBackground()
     local view = self._view

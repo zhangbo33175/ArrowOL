@@ -4,12 +4,11 @@
 -- filename:  HonorQueue.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   通用队列容器（FIFO 先进先出，尾部入队、头部出队）
--- 功能：
--- 1. Enqueue 队尾入队、Dequeue 队首出队、Peek 仅查看队首
--- 2. Count/IsEmpty 状态查询、Clear 清空
--- 3. 空队列安全返回 nil，常用于任务/消息/网络请求与对象池空闲存储
--- 架构：class("HonorQueue") 继承 + 内部 items 原生数组封装
+-- @brief     通用队列容器（FIFO 先进先出，尾部入队、头部出队）
+-- @desc      Enqueue 队尾入队、Dequeue 队首出队、Peek 仅查看队首；Count/IsEmpty 状态查询、Clear 清空；空队列安全返回 nil
+-- @core      class 封装内部 items 原生数组；table.remove 队首出队
+-- @scope     通用任务 / 消息 / 网络请求队列，及对象池空闲队列（HonorPool.unusedQueue）复用
+-- @dependency 无外部依赖（仅内部 items 原生数组）
 -- @note  出队采用 table.remove 队首，元素量大时性能一般，按需选用。
 --=====================================================================================================
 

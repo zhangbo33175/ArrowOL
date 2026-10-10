@@ -4,6 +4,11 @@
 -- filename:  SystemMemory.lua.txt
 -- author:    云毅
 -- created:   2026
+-- @brief     Lua 内存监控垫片（已废弃，仅兼容保留）
+-- @desc      原 xLua 内存快照接口现已全部禁用，调用即抛错并引导改用内存泄漏检测器
+-- @core      废弃内存快照兼容垫片（调用即报错）
+-- @scope     xLua 兼容垫片，新代码禁止调用
+-- @dependency 无（纯 Lua 垫片）
 -- descrip:   Lua 内存监控（已废弃，仅兼容保留）
 -- 功能：
 -- 1. 原 xLua 内存快照接口现已全部禁用

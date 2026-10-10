@@ -4,14 +4,16 @@
 -- filename:  ProtocolReceiver.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   协议接收端（接受 C# → Lua 消息）
--- 功能：
--- 1. 注册 / 注销 Lua 侧 cmd 处理回调
--- 2. Dispatch 按 cmd 路由到已注册回调
--- 架构：承接 C# LuaProtocolRunTime.LuaNotifyHandle 广播，转调 FrameworkProtocolNotify
+-- @brief     协议接收端（接受 C# → Lua 消息）
+-- @desc      注册 / 注销 Lua 侧 cmd 处理回调；Dispatch 按 cmd 路由到已注册回调
+-- @core      cmd → handler 注册表 m_Handlers，Dispatch 按 cmd 索引分发（经 ProtocolUtil.SafeCall 隔离异常）
+-- @scope     承接 C# LuaProtocolRunTime.LuaNotifyHandle 广播，转调 FrameworkProtocolNotify；协议分发模块复用
+-- @dependency ProtocolCmd、ProtocolUtil
 -- @note 依赖 ProtocolCmd 协议号
 --=====================================================================================================
 
+---@class ProtocolReceiver
+---协议接收端：注册 / 注销 Lua 侧 cmd 处理回调，承接 C# 广播并按 cmd 路由分发
 local ProtocolReceiver = {}
 
 --region 依赖引入

@@ -4,12 +4,11 @@
 -- filename:  HonorStack.lua.txt
 -- author:    云毅
 -- created:   2026
--- descrip:   通用栈容器（LIFO 后进先出，压栈/弹栈/栈顶窥视）
--- 功能：
--- 1. Push 压栈顶、Pop 弹出栈顶、Peek 仅查看栈顶不弹出
--- 2. Count/IsEmpty/Contains 状态查询（Contains 复用 TableUtil）
--- 3. Clear 清空，适用于 UI 面板栈/返回栈/状态回溯与撤销
--- 架构：class("HonorStack") 继承 + 内部 items 原生数组封装（依赖 TableUtil）
+-- @brief     通用栈容器（LIFO 后进先出，压栈/弹栈/栈顶窥视）
+-- @desc      Push 压栈顶、Pop 弹出栈顶、Peek 仅查看栈顶不弹出；Count/IsEmpty/Contains 状态查询；Clear 清空
+-- @core      class 封装内部 items 原生数组；Contains 复用 TableUtil
+-- @scope     通用 UI 面板栈 / 返回栈 / 状态回溯与撤销容器
+-- @dependency TableUtil
 -- @note  空栈 Pop/Peek 安全返回 nil；不支持弱引用，仅作后进先出容器。
 --=====================================================================================================
 

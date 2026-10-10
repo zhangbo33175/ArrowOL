@@ -6,6 +6,8 @@
 -- created:   2025
 -- @brief     游戏主运行流程
 -- @desc      游戏运行时核心流程，管理UI开关、流程切换、状态机驱动、进入登录状态
+-- @core      主流程状态机宿主：事件安全注册/注销、全局UI开关记录、直进主界面状态
+-- @scope     GameMain/Launcher 主运行流程，仅由 ProcedureSuper 状态机按 OnEnter/OnUpdate/OnLeave 驱动
 -- @feat      事件安全注册、状态机驱动、UI全局记录、流程跳转、内存泄漏防护
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / 流程框架规范
@@ -70,8 +72,9 @@ function ProcedurePlaying:OnEnter(ownerMachine)
         AllOpenUI[k] = nil
     end
 
-    -- 进入登录状态
-    self:GotoLoginState()
+    --TODO: [直进主界面] 加载完资源后跳过登录界面，直接进入游戏主界面
+    -- 原逻辑为进入登录状态（登录成功后再进主界面）；此处按需求直接进主界面
+    self:GotoMainState()
 end
 
 ---@brief 主流程帧更新
@@ -100,13 +103,14 @@ end
 
 --region 【状态跳转】
 
----@brief 切换到登录状态
+---@brief 直接切换到主界面（跳过登录，加载完资源后直进主界面）
+---@desc 由 OnEnter 在流程进入时直接调用；原"切换到登录状态"分支已按直进主界面需求废弃
 ---@type fun():void
-function ProcedurePlaying:GotoLoginState()
+function ProcedurePlaying:GotoMainState()
     if GameStateMachine and GameStateMachine.ChangeState then
-        GameStateMachine:ChangeState(GameStateCmd.LoginState, nil)
+        GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
     else
-        PrintError("[ProcedurePlaying] GameStateMachine 未初始化，无法进入登录状态")
+        PrintError("[ProcedurePlaying] GameStateMachine 未初始化，无法进入主界面状态")
     end
 end
 

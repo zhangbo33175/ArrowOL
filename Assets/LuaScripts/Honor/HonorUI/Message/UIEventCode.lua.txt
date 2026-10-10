@@ -11,6 +11,7 @@
 --            值采用 UniqueEventCode() 生成全局唯一码（对齐参考框架，杜绝硬编码与冲突）。
 --            与 EventCmd（全局跨模块业务事件）职责分离：UIEventCode 仅在 UI 模块内流通，
 --            View 层只关注这里的消息，由 Model / UIManager 发送。
+-- @core      UI 模块内流通消息码定义（UniqueEventCode 全局唯一生成，杜绝硬编码冲突）
 -- @scope     全局表（StartGame require 加载），配合 UIManager:AddUIListener / AddListener 使用
 -- @dependency SerialProducer（UniqueEventCode 生成器）
 --=====================================================================================================
