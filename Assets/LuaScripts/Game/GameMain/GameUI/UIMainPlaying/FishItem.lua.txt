@@ -98,7 +98,7 @@ function FishItem:PlayBreakAnimation(startDelay, onComplete)
     end
     local fishTransform = iconGO.transform
 
-    --TODO: [诊断] 打印动画开始，用于确认每只鱼是否都实际播放碎裂动画
+  
     PrintInfo("[FishItem] 播放 FishIcon 碎裂动画 name=" .. fishTransform.name .. " delay=" .. tostring(startDelay))
 
     -- 清除目标上可能残留的旧补间，避免与打开动画叠加
