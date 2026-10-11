@@ -54,8 +54,6 @@ namespace Honor.Editor
         /// <summary>
         /// 流程关联 UI 配置
         /// </summary>
-        private SerializedProperty m_UITransitionABPath;
-        private SerializedProperty m_UITransitionAssetName;
         private SerializedProperty m_UISplashABPath;
         private SerializedProperty m_UISplashAssetName;
         private SerializedProperty m_SplashProcedureDuration;
@@ -79,9 +77,6 @@ namespace Honor.Editor
             // 反射获取所有流程
             string[] procedureNames = AorType.GetTypeNames(typeof(ProcedureState));
 
-            // 自动初始化过渡数组
-            AutoInitTransitionArrays(procedureNames);
-
             // 刷新流程列表
             RefreshProcedureList(procedureNames);
 
@@ -97,22 +92,8 @@ namespace Honor.Editor
         private void BindSerializedProperties()
         {
             m_ProcedureTypeNames                                      = BindProperty("m_ProcedureTypeNames");
-            m_ProcedureTransitionEnterFlags                            = BindProperty("m_ProcedureTransitionEnterFlags");
-            m_ProcedureTransitionEnterDurations                        = BindProperty("m_ProcedureTransitionEnterDurations");
-            m_ProcedureTransitionEnterBlockRaycasts                   = BindProperty("m_ProcedureTransitionEnterBlockRaycasts");
-            m_ProcedureTransitionExitFlags                             = BindProperty("m_ProcedureTransitionExitFlags");
-            m_ProcedureTransitionExitDurations                         = BindProperty("m_ProcedureTransitionExitDurations");
-            m_ProcedureTransitionExitBlockRaycasts                    = BindProperty("m_ProcedureTransitionExitBlockRaycasts");
-            m_ProcedureTransitionEnterFlagFromProcedureHotfix         = BindProperty("m_ProcedureTransitionEnterFlagFromProcedureHotfix");
-            m_ProcedureTransitionEnterDurationFromProcedureHotfix     = BindProperty("m_ProcedureTransitionEnterDurationFromProcedureHotfix");
-            m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix = BindProperty("m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix");
-            m_ProcedureTransitionExitFlagFromProcedureHotfix          = BindProperty("m_ProcedureTransitionExitFlagFromProcedureHotfix");
-            m_ProcedureTransitionExitDurationFromProcedureHotfix      = BindProperty("m_ProcedureTransitionExitDurationFromProcedureHotfix");
-            m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix  = BindProperty("m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix");
             m_EntryProcedureTypeName                                   = BindProperty("m_EntryProcedureTypeName");
             
-            m_UITransitionABPath          = BindProperty("m_UITransitionABPath");
-            m_UITransitionAssetName       = BindProperty("m_UITransitionAssetName");
             m_UISplashABPath              = BindProperty("m_UISplashABPath");
             m_UISplashAssetName           = BindProperty("m_UISplashAssetName");
             m_SplashProcedureDuration     = BindProperty("m_SplashProcedureDuration");
@@ -196,18 +177,6 @@ namespace Honor.Editor
                 // 记录入口流程
                 if (m_EntryProcedureTypeName.stringValue == procedureNames[i])
                     m_EntryProcedureIndex = i;
-
-                // 启动流程默认无过渡
-                if (procedureNames[i] == "Honor.Runtime.ProcedureLaunch")
-                {
-                    m_ProcedureTransitionEnterFlags.GetArrayElementAtIndex(i).boolValue = false;
-                    m_ProcedureTransitionEnterDurations.GetArrayElementAtIndex(i).floatValue = 0f;
-                    m_ProcedureTransitionEnterBlockRaycasts.GetArrayElementAtIndex(i).boolValue = true;
-
-                    m_ProcedureTransitionExitFlags.GetArrayElementAtIndex(i).boolValue = false;
-                    m_ProcedureTransitionExitDurations.GetArrayElementAtIndex(i).floatValue = 0f;
-                    m_ProcedureTransitionExitBlockRaycasts.GetArrayElementAtIndex(i).boolValue = true;
-                }
             }
         }
 
@@ -220,11 +189,6 @@ namespace Honor.Editor
                 m_UISplashABPath.stringValue = UI_AB_PATH_DEFAULT;
             if (string.IsNullOrEmpty(m_UISplashAssetName.stringValue))
                 m_UISplashAssetName.stringValue = UI_SPLASH_DEFAULT;
-
-            if (string.IsNullOrEmpty(m_UITransitionABPath.stringValue))
-                m_UITransitionABPath.stringValue = UI_AB_PATH_DEFAULT;
-            if (string.IsNullOrEmpty(m_UITransitionAssetName.stringValue))
-                m_UITransitionAssetName.stringValue = UI_TRANSITION_DEFAULT;
 
             if (string.IsNullOrEmpty(m_UIPreloadABPath.stringValue))
                 m_UIPreloadABPath.stringValue = UI_AB_PATH_DEFAULT;
@@ -315,10 +279,6 @@ namespace Honor.Editor
                     else
                         DrawNormalProcedureTransition(i);
 
-                    // Lua 脚本生成按钮
-                    if (ProcedureComponent.LuaScriptWhiteNameList.Contains(luaName))
-                        DrawGenerateLuaButton(luaName);
-
                     if (isLaunch) EditorGUI.EndDisabledGroup();
                     EditorGUILayout.EndVertical();
                 }
@@ -331,47 +291,7 @@ namespace Honor.Editor
         /// </summary>
         private void DrawNormalProcedureTransition(int index)
         {
-            // 进入过渡
-            EditorGUILayout.BeginHorizontal("box", GUILayout.Width(400));
-            m_ProcedureTransitionEnterFlags.GetArrayElementAtIndex(index).boolValue =
-                EditorGUILayout.ToggleLeft("进入式-切换过渡", 
-                    m_ProcedureTransitionEnterFlags.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(120));
-            
-            EditorGUI.BeginDisabledGroup(!m_ProcedureTransitionEnterFlags.GetArrayElementAtIndex(index).boolValue);
-            {
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField("过渡时间", GUILayout.Width(60));
-                m_ProcedureTransitionEnterDurations.GetArrayElementAtIndex(index).floatValue =
-                    EditorGUILayout.FloatField(m_ProcedureTransitionEnterDurations.GetArrayElementAtIndex(index).floatValue, GUILayout.Width(60));
-                
-                GUILayout.FlexibleSpace();
-                m_ProcedureTransitionEnterBlockRaycasts.GetArrayElementAtIndex(index).boolValue =
-                    EditorGUILayout.ToggleLeft("阻塞射线", 
-                        m_ProcedureTransitionEnterBlockRaycasts.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(100));
-            }
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
-
-            // 退出过渡
-            EditorGUILayout.BeginHorizontal("box", GUILayout.Width(400));
-            m_ProcedureTransitionExitFlags.GetArrayElementAtIndex(index).boolValue =
-                EditorGUILayout.ToggleLeft("退出式-切换过渡", 
-                    m_ProcedureTransitionExitFlags.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(120));
-            
-            EditorGUI.BeginDisabledGroup(!m_ProcedureTransitionExitFlags.GetArrayElementAtIndex(index).boolValue);
-            {
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField("过渡时间", GUILayout.Width(60));
-                m_ProcedureTransitionExitDurations.GetArrayElementAtIndex(index).floatValue =
-                    EditorGUILayout.FloatField(m_ProcedureTransitionExitDurations.GetArrayElementAtIndex(index).floatValue, GUILayout.Width(60));
-                
-                GUILayout.FlexibleSpace();
-                m_ProcedureTransitionExitBlockRaycasts.GetArrayElementAtIndex(index).boolValue =
-                    EditorGUILayout.ToggleLeft("阻塞射线", 
-                        m_ProcedureTransitionExitBlockRaycasts.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(100));
-            }
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
+            // 转场已禁用，不绘制
         }
 
         /// <summary>
@@ -379,81 +299,7 @@ namespace Honor.Editor
         /// </summary>
         private void DrawPreloadProcedureTransition(int index)
         {
-            // 进入（非热更）
-            EditorGUILayout.BeginHorizontal("box", GUILayout.Width(500));
-            m_ProcedureTransitionEnterFlags.GetArrayElementAtIndex(index).boolValue =
-                EditorGUILayout.ToggleLeft("进入式-切换过渡（前次流程非热更新）", 
-                    m_ProcedureTransitionEnterFlags.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(350));
-            
-            EditorGUI.BeginDisabledGroup(!m_ProcedureTransitionEnterFlags.GetArrayElementAtIndex(index).boolValue);
-            {
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField("时间", GUILayout.Width(60));
-                m_ProcedureTransitionEnterDurations.GetArrayElementAtIndex(index).floatValue =
-                    EditorGUILayout.FloatField(m_ProcedureTransitionEnterDurations.GetArrayElementAtIndex(index).floatValue, GUILayout.Width(60));
-                m_ProcedureTransitionEnterBlockRaycasts.GetArrayElementAtIndex(index).boolValue =
-                    EditorGUILayout.ToggleLeft("阻塞射线", 
-                        m_ProcedureTransitionEnterBlockRaycasts.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(100));
-            }
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
-
-            // 退出（非热更）
-            EditorGUILayout.BeginHorizontal("box", GUILayout.Width(500));
-            m_ProcedureTransitionExitFlags.GetArrayElementAtIndex(index).boolValue =
-                EditorGUILayout.ToggleLeft("退出式-切换过渡（前次流程非热更新）", 
-                    m_ProcedureTransitionExitFlags.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(350));
-            
-            EditorGUI.BeginDisabledGroup(!m_ProcedureTransitionExitFlags.GetArrayElementAtIndex(index).boolValue);
-            {
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField("时间", GUILayout.Width(60));
-                m_ProcedureTransitionExitDurations.GetArrayElementAtIndex(index).floatValue =
-                    EditorGUILayout.FloatField(m_ProcedureTransitionExitDurations.GetArrayElementAtIndex(index).floatValue, GUILayout.Width(60));
-                m_ProcedureTransitionExitBlockRaycasts.GetArrayElementAtIndex(index).boolValue =
-                    EditorGUILayout.ToggleLeft("阻塞射线", 
-                        m_ProcedureTransitionExitBlockRaycasts.GetArrayElementAtIndex(index).boolValue, GUILayout.Width(100));
-            }
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
-
-            // 进入（热更）
-            EditorGUILayout.BeginHorizontal("box", GUILayout.Width(500));
-            m_ProcedureTransitionEnterFlagFromProcedureHotfix.boolValue =
-                EditorGUILayout.ToggleLeft("进入式-切换过渡（前次流程为热更新）", 
-                    m_ProcedureTransitionEnterFlagFromProcedureHotfix.boolValue, GUILayout.Width(350));
-            
-            EditorGUI.BeginDisabledGroup(!m_ProcedureTransitionEnterFlagFromProcedureHotfix.boolValue);
-            {
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField("时间", GUILayout.Width(60));
-                m_ProcedureTransitionEnterDurationFromProcedureHotfix.floatValue =
-                    EditorGUILayout.FloatField(m_ProcedureTransitionEnterDurationFromProcedureHotfix.floatValue, GUILayout.Width(60));
-                m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix.boolValue =
-                    EditorGUILayout.ToggleLeft("阻塞射线", 
-                        m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix.boolValue, GUILayout.Width(100));
-            }
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
-
-            // 退出（热更）
-            EditorGUILayout.BeginHorizontal("box", GUILayout.Width(500));
-            m_ProcedureTransitionExitFlagFromProcedureHotfix.boolValue =
-                EditorGUILayout.ToggleLeft("退出式-切换过渡（前次流程为热更新）", 
-                    m_ProcedureTransitionExitFlagFromProcedureHotfix.boolValue, GUILayout.Width(350));
-            
-            EditorGUI.BeginDisabledGroup(!m_ProcedureTransitionExitFlagFromProcedureHotfix.boolValue);
-            {
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField("时间", GUILayout.Width(60));
-                m_ProcedureTransitionExitDurationFromProcedureHotfix.floatValue =
-                    EditorGUILayout.FloatField(m_ProcedureTransitionExitDurationFromProcedureHotfix.floatValue, GUILayout.Width(60));
-                m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix.boolValue =
-                    EditorGUILayout.ToggleLeft("阻塞射线", 
-                        m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix.boolValue, GUILayout.Width(100));
-            }
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
+            // 转场已禁用，不绘制
         }
 
         /// <summary>
@@ -537,18 +383,8 @@ namespace Honor.Editor
         /// </summary>
         private void DrawUIConfig()
         {
-            // 过渡界面
-            EditorGUILayout.BeginVertical("box");
-            m_UITransitionABPath.stringValue = EditorGUILayout.TextField("切换过渡界面路径", m_UITransitionABPath.stringValue);
-            m_UITransitionAssetName.stringValue = EditorGUILayout.TextField("切换过渡界面资源名称", m_UITransitionAssetName.stringValue);
-            if (GUILayout.Button("使用默认切换过渡界面"))
-            {
-                m_UITransitionABPath.stringValue = UI_AB_PATH_DEFAULT;
-                m_UITransitionAssetName.stringValue = UI_TRANSITION_DEFAULT;
-                serializedObject.ApplyModifiedProperties();
-                GUIUtility.ExitGUI();
-            }
-            EditorGUILayout.EndVertical();
+            // 过渡界面配置已移除
+            EditorGUILayout.Space();
 
             // 闪屏界面
             EditorGUILayout.BeginVertical("box");
@@ -588,6 +424,7 @@ namespace Honor.Editor
         /// </summary>
         private void DrawRuntimeProcedureRecorder(ProcedureComponent targetComp)
         {
+            if (targetComp.RuntimeProcedureRecordInfos == null) return;
             EditorGUILayout.BeginVertical("box");
             EditorGUILayout.HelpBox("运行时流程跳转示意图", MessageType.Info);
 

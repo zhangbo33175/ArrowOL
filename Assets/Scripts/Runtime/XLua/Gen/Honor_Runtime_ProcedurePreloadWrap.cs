@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.ProcedurePreload);
-			Utils.BeginObjectRegister(type, L, translator, 0, 8, 1, 1);
+			Utils.BeginObjectRegister(type, L, translator, 0, 6, 1, 1);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnInit", _m_OnInit);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnEnter", _m_OnEnter);
@@ -29,8 +29,6 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnLeave", _m_OnLeave);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "IsLaunch", _m_IsLaunch);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddStep", _m_AddStep);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowProcedureTransitionEnter", _m_ShowProcedureTransitionEnter);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowProcedureTransitionExit", _m_ShowProcedureTransitionExit);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "StartLoading", _g_get_StartLoading);
@@ -273,66 +271,6 @@ namespace XLua.CSObjectWrap
             }
             
             return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.ProcedurePreload.AddStep!");
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ShowProcedureTransitionEnter(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ProcedurePreload gen_to_be_invoked = (Honor.Runtime.ProcedurePreload)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    bool _forceOver = LuaAPI.lua_toboolean(L, 2);
-                    float _duration = (float)LuaAPI.lua_tonumber(L, 3);
-                    bool _blockRaycast = LuaAPI.lua_toboolean(L, 4);
-                    
-                    gen_to_be_invoked.ShowProcedureTransitionEnter( _forceOver, _duration, _blockRaycast );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ShowProcedureTransitionExit(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ProcedurePreload gen_to_be_invoked = (Honor.Runtime.ProcedurePreload)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    bool _forceOver = LuaAPI.lua_toboolean(L, 2);
-                    float _duration = (float)LuaAPI.lua_tonumber(L, 3);
-                    bool _blockRaycast = LuaAPI.lua_toboolean(L, 4);
-                    
-                    gen_to_be_invoked.ShowProcedureTransitionExit( _forceOver, _duration, _blockRaycast );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
             
         }
         

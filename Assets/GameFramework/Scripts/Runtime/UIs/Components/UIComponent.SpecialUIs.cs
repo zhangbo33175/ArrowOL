@@ -152,6 +152,22 @@ namespace Honor.Runtime
         {
             m_UIManager.HideLoading(uiLauncher);
         }
+
+        /// <summary>
+        /// 【Lua可调】主界面渲染完成后，立即让C#加载界面快速淡出
+        /// </summary>
+        public void FadeOutLoadingViewThenClose()
+        {
+            m_UIManager.FadeOutLoadingViewNow();
+        }
+
+        /// <summary>
+        /// TODO: 启动时显示闪屏
+        /// </summary>
+        public void ShowLogoSplash()
+        {
+            m_UIManager.ShowLogoSplash();
+        }
         #endregion
 
         #region 应用评分与反馈

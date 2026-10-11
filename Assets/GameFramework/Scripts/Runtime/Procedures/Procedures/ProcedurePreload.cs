@@ -75,6 +75,8 @@ namespace Honor.Runtime
         /// 是否开始执行加载
         /// </summary>
         private bool m_StartLoading;
+        private bool m_SplashShown;
+        private float m_SplashShowTime; // TODO: 记录闪屏显示起始时间，用于按时长切换
 
         /// <summary>
         /// 加载启动时首批步骤总数（快照）
@@ -241,34 +243,26 @@ namespace Honor.Runtime
             {
                 float elapsed = Time.time - m_EnterOverWaitStartTime;
 
-                // 提前拉起：闪屏播放到淡出起始点（停留约 3s 后）即提前显示 Loading，与闪屏淡出衔接
-                bool splashFading = elapsed >= CurrentSplashFadeOutStart;
-                // 闪屏完全淡出（EnterOver 事件）或超时兜底
-                bool logoOver = m_EnterOver || elapsed >= m_EnterOverMaxWait;
-
-                // 1) 显示 Loading 界面：闪屏淡出起始点提前浮现（此时进度条保持 0），与闪屏淡出衔接；
-                //    splashFading 或 logoOver 任一满足即显示，保证任何时序下界面都会出现
-                if ((splashFading || logoOver) && m_UILauncherLoadingView == null)
+                // 分两帧显示：第一帧闪屏，第二帧加载界面并销毁闪屏
+                if (GameMainRoot.Procedure.UseUIPreload && m_UILauncherLoadingView == null)
                 {
-                    if (GameMainRoot.Procedure.UseUIPreload)
+                    if (!m_SplashShown)
+                    {
+                        GameMainRoot.UI.ShowLogoSplash();
+                        m_SplashShown = true;
+                        m_SplashShowTime = Time.time;
+                    }
+                    // TODO: 闪屏按配置时长显示后，再显示加载界面
+                    else if (Time.time - m_SplashShowTime >= GameMainRoot.Procedure.SplashProcedureDuration)
                     {
                         m_UILauncherLoadingView = GameMainRoot.UI.ShowLoading(UILauncherLoadingView.LoadingMode.Preload);
-                    }
-                }
+                        m_StartLoading = true;
 
-                // 2) 开始执行预加载步骤：必须等 Loading 界面完全展示（闪屏彻底淡出、EnterOver）后，
-                //    保证进度条从 0 随界面可见而增长，避免在闪屏停留/淡出期间步骤提前推进到非零，
-                //    造成“一进加载界面进度条就有值”的体验问题
-                if (logoOver)
-                {
-                    m_StartLoading = true;
-
-                    // 快照首批步骤总数：作为进度基准。之后 Lua 动态 AddStep 追加的步骤不改变首批基准，
-                    // 而是映射到预留的尾部进度区间，避免进度条因分母增大而倒退
-                    if (!m_InitialStepTotalCaptured)
-                    {
-                        m_InitialStepTotal = m_Steps.Count;
-                        m_InitialStepTotalCaptured = true;
+                        if (!m_InitialStepTotalCaptured)
+                        {
+                            m_InitialStepTotal = m_Steps.Count;
+                            m_InitialStepTotalCaptured = true;
+                        }
                     }
                 }
             }
@@ -322,19 +316,9 @@ namespace Honor.Runtime
         /// </summary>
         public override void OnLeave(StateMachine<ProcedureComponent> ownerMachine, bool isShutdown)
         {
-            // 执行Lua离开逻辑
             m_LuaOnLeave?.Invoke(ownerMachine);
-
-            // 关闭加载界面
-            if (m_UILauncherLoadingView)
-            {
-                GameMainRoot.UI.HideLoading(m_UILauncherLoadingView);
-                m_UILauncherLoadingView = null;
-            }
-
-            // 重置全局复位标记
+            // 加载界面保持显示，等主界面Start()后由Lua调用FadeOutLoadingViewThenClose()隐藏
             IsReset = false;
-
             base.OnLeave(ownerMachine, isShutdown);
         }
 
@@ -384,7 +368,7 @@ namespace Honor.Runtime
                 // 记录等待闪屏过渡完成（EnterOver）的超时
                 // 过渡完成（OnUpdate 中 m_EnterOver 置 true）或闪屏淡出起始点（SplashFadeOutStart）时开始显示 Loading 并执行步骤
                 m_EnterOverWaitStartTime = Time.time;
-                m_LogoEnterDuration = GameMainRoot.Procedure.CurrentProcedureTransitionEnterDuration;
+                m_LogoEnterDuration = 0f;
                 // 超时兜底：至少覆盖闪屏固定序列，避免闪屏未结束前超时提前触发 Loading
                 m_EnterOverMaxWait = Mathf.Max(m_LogoEnterDuration, CurrentSplashFadeOutStart) + ENTER_OVER_WAIT_BUFFER;
             }
@@ -605,22 +589,6 @@ namespace Honor.Runtime
         //=========================================================================
         // 过渡动画重写
         //=========================================================================
-
-        /// <summary>
-        /// 重写：显示流程进入过渡（直接调用UI层）
-        /// </summary>
-        public override void ShowProcedureTransitionEnter(bool forceOver, float duration, bool blockRaycast)
-        {
-            GameMainRoot.UI.ShowProcedureTransitionEnter(forceOver, duration, blockRaycast);
-        }
-
-        /// <summary>
-        /// 重写：显示流程退出过渡（直接调用UI层）
-        /// </summary>
-        public override void ShowProcedureTransitionExit(bool forceOver, float duration, bool blockRaycast)
-        {
-            GameMainRoot.UI.ShowProcedureTransitionExit(forceOver, duration, blockRaycast);
-        }
 
         #endregion
 

@@ -11,6 +11,7 @@
 
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace Honor.Runtime
 {
@@ -254,6 +255,44 @@ namespace Honor.Runtime
             {
                 m_SplashImage.sprite = sprite;
             }
+        }
+
+        /// <summary>
+        /// 播放闪屏序列：BgImage先显示 → SplashImage后显示，总时长按配置分配
+        /// TODO: 如果有视频播放，等待视频完成后再回调
+        /// </summary>
+        /// <param name="totalDuration">总时长（秒）</param>
+        /// <param name="onComplete">播放完成回调</param>
+        public void PlaySplashSequence(float totalDuration, System.Action onComplete = null)
+        {
+            gameObject.SetActive(true);
+
+            // BgImage显示占60%，SplashImage占40%
+            float bgDuration = totalDuration * 0.6f;
+            float splashDuration = totalDuration * 0.4f;
+
+            // BgImage淡入
+            if (m_BgImage != null)
+            {
+                var c = m_BgImage.color; c.a = 0f; m_BgImage.color = c;
+                m_BgImage.DOFade(1f, 0.3f).OnComplete(() =>
+                {
+                    // BgImage停留后淡出，同时SplashImage淡入
+                    m_BgImage.DOFade(0f, 0.3f).SetDelay(bgDuration - 0.6f);
+                    if (m_SplashImage != null)
+                    {
+                        m_SplashImage.gameObject.SetActive(true);
+                        c = m_SplashImage.color; c.a = 0f; m_SplashImage.color = c;
+                        m_SplashImage.DOFade(1f, 0.3f).SetDelay(bgDuration - 0.3f);
+                    }
+                });
+            }
+
+            // TODO: 视频播放完成回调检测
+            DOVirtual.DelayedCall(totalDuration, () =>
+            {
+                onComplete?.Invoke();
+            });
         }
 
         /// <summary>

@@ -1675,13 +1675,13 @@ MonoBehaviour:
   - Honor.Runtime.ProcedureLaunch
   - Honor.Runtime.ProcedurePlaying
   - Honor.Runtime.ProcedurePreload
-  m_ProcedureTransitionEnterFlags: 000001
+  m_ProcedureTransitionEnterFlags: 000101
   m_ProcedureTransitionEnterDurations:
   - 0
   - 1
   - 1
   m_ProcedureTransitionEnterBlockRaycasts: 010100
-  m_ProcedureTransitionExitFlags: 000000
+  m_ProcedureTransitionExitFlags: 000100
   m_ProcedureTransitionExitDurations:
   - 0
   - 1
@@ -1696,8 +1696,8 @@ MonoBehaviour:
   m_EntryProcedureTypeName: Honor.Runtime.ProcedureLaunch
   m_UITransitionABPath: Assets/Res/Prefabs/UIs/UILauncherLogoView/UILauncherLogoView
   m_UITransitionAssetName: UILauncherLogoView
-  m_UISplashABPath: Assets/Res/Prefabs/UIs/UILauncherView/UILauncherView
-  m_UISplashAssetName: UILauncherView
+  m_UISplashABPath: Assets/Res/Prefabs/UIs/UILauncherLogoView/UILauncherLogoView
+  m_UISplashAssetName: UILauncherLogoView
   m_SplashProcedureDuration: 5
   m_UseUIPreload: 1
   m_UIPreloadABPath: Assets/Res/Prefabs/UIs/UILoadingView/UILauncherLoadingView

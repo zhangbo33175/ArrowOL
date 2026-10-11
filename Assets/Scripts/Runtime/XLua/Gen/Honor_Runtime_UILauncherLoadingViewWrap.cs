@@ -21,11 +21,13 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UILauncherLoadingView);
-			Utils.BeginObjectRegister(type, L, translator, 0, 6, 4, 5);
+			Utils.BeginObjectRegister(type, L, translator, 0, 8, 4, 5);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetLoadingMode", _m_SetLoadingMode);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RefreshViews", _m_RefreshViews);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetVisible", _m_SetVisible);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "FadeOutNow", _m_FadeOutNow);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HoldThenFadeOut", _m_HoldThenFadeOut);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnStartButtonClicked", _m_OnStartButtonClicked);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnRetryButtonClicked", _m_OnRetryButtonClicked);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnCloseButtonClicked", _m_OnCloseButtonClicked);
@@ -233,6 +235,76 @@ namespace XLua.CSObjectWrap
                     bool _visible = LuaAPI.lua_toboolean(L, 2);
                     
                     gen_to_be_invoked.SetVisible( _visible );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_FadeOutNow(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
+                {
+                    float _fadeDuration = (float)LuaAPI.lua_tonumber(L, 2);
+                    
+                    gen_to_be_invoked.FadeOutNow( _fadeDuration );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 1) 
+                {
+                    
+                    gen_to_be_invoked.FadeOutNow(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.UILauncherLoadingView.FadeOutNow!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_HoldThenFadeOut(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    float _holdDuration = (float)LuaAPI.lua_tonumber(L, 2);
+                    float _fadeDuration = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                    gen_to_be_invoked.HoldThenFadeOut( _holdDuration, _fadeDuration );
                     
                     
                     

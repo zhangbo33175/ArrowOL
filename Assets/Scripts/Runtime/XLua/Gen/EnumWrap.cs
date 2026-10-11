@@ -5970,6 +5970,204 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
+    public class GameLibAorInterfaceAdaptationAdaptModeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, null, 5, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", GameLib.AorInterfaceAdaptation.AdaptMode.None);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FillScreen", GameLib.AorInterfaceAdaptation.AdaptMode.FillScreen);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlignAboveReference", GameLib.AorInterfaceAdaptation.AdaptMode.AlignAboveReference);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlignBelowReference", GameLib.AorInterfaceAdaptation.AdaptMode.AlignBelowReference);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, (GameLib.AorInterfaceAdaptation.AdaptMode)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.None);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "FillScreen"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.FillScreen);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlignAboveReference"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.AlignAboveReference);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlignBelowReference"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.AlignBelowReference);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.AorInterfaceAdaptation.AdaptMode!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.AorInterfaceAdaptation.AdaptMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class GameLibAorInterfaceAdaptationFillModeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Stretch", GameLib.AorInterfaceAdaptation.FillMode.Stretch);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Cover", GameLib.AorInterfaceAdaptation.FillMode.Cover);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibAorInterfaceAdaptationFillMode(L, (GameLib.AorInterfaceAdaptation.FillMode)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Stretch"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationFillMode(L, GameLib.AorInterfaceAdaptation.FillMode.Stretch);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Cover"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationFillMode(L, GameLib.AorInterfaceAdaptation.FillMode.Cover);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.AorInterfaceAdaptation.FillMode!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.AorInterfaceAdaptation.FillMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class GameLibAorInterfaceAdaptationAlignSideWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, null, 5, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "BottomToTop", GameLib.AorInterfaceAdaptation.AlignSide.BottomToTop);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TopToBottom", GameLib.AorInterfaceAdaptation.AlignSide.TopToBottom);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LeftToRight", GameLib.AorInterfaceAdaptation.AlignSide.LeftToRight);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RightToLeft", GameLib.AorInterfaceAdaptation.AlignSide.RightToLeft);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibAorInterfaceAdaptationAlignSide(L, (GameLib.AorInterfaceAdaptation.AlignSide)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "BottomToTop"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.BottomToTop);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "TopToBottom"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.TopToBottom);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "LeftToRight"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.LeftToRight);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "RightToLeft"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.RightToLeft);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.AorInterfaceAdaptation.AlignSide!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.AorInterfaceAdaptation.AlignSide! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
     public class GameLibGridMapManagerGridTypeWrap
     {
 		public static void __Register(RealStatePtr L)

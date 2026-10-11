@@ -88,8 +88,8 @@ function GameMainState:DoStateEnter(finishCallback)
     if GameMapMotion and GameMapMotion.ScreenCamera then
         GameMapMotion:UpdateCameraRect(0)
     end
-
-    -- 打开主界面HUD
+    -- 打开主界面HUD（淡出由UIMainStateView:Start()自动触发，此时UI已渲染完成）
+    print("[GameMainState] Opening UIMainStateView...")
     OpenUISync(UIs.UIMainStateView)
     -- 移除UI遮罩，允许用户交互
     GameMainRoot.UI:SubUIMaskLayerRef()

@@ -117,6 +117,7 @@
 		<type fullname="Honor.Runtime.LuaProtocolDataMap" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaProtocolDispatcher" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaProtocolRunTime" preserve="all"/>
+		<type fullname="Honor.Runtime.LuaProtocolUtil" preserve="all"/>
 		<type fullname="Honor.Runtime.PersistComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.PersistWayType" preserve="all"/>
 		<type fullname="Honor.Runtime.FileFragmentItemGroup" preserve="all"/>
@@ -308,6 +309,7 @@
 		<type fullname="GameLib.ItemMap" preserve="all"/>
 		<type fullname="GameLib.AorClickItem" preserve="all"/>
 		<type fullname="GameLib.AorExtendImage" preserve="all"/>
+		<type fullname="GameLib.AorInterfaceAdaptation" preserve="all"/>
 		<type fullname="GameLib.AorUIFullScreenImage" preserve="all"/>
 		<type fullname="GameLib.AorUIMaskLayerBehaviour" preserve="all"/>
 		<type fullname="GameLib.HonorClickItemAnimation" preserve="all"/>
@@ -325,6 +327,9 @@
 		<type fullname="GameLib.RTransformExtension" preserve="all"/>
 		<type fullname="GameLib.Util" preserve="all"/>
 		<type fullname="GameLib.WaitForFrames" preserve="all"/>
+		<type fullname="GameLib.AorInterfaceAdaptation+AdaptMode" preserve="all"/>
+		<type fullname="GameLib.AorInterfaceAdaptation+FillMode" preserve="all"/>
+		<type fullname="GameLib.AorInterfaceAdaptation+AlignSide" preserve="all"/>
 		<type fullname="GameLib.GridMapManager+MapTileData" preserve="all"/>
 		<type fullname="GameLib.GridMapManager+MapTilemapData" preserve="all"/>
 		<type fullname="GameLib.GridMapManager+LayerData" preserve="all"/>

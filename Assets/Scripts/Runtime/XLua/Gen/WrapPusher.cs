@@ -119,6 +119,9 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<RMapType>(translator.PushRMapType, translator.Get, translator.UpdateRMapType);
 				translator.RegisterPushAndGetAndUpdate<RMapCamPosType>(translator.PushRMapCamPosType, translator.Get, translator.UpdateRMapCamPosType);
 				translator.RegisterPushAndGetAndUpdate<GameLib.EGameMode>(translator.PushGameLibEGameMode, translator.Get, translator.UpdateGameLibEGameMode);
+				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.AdaptMode>(translator.PushGameLibAorInterfaceAdaptationAdaptMode, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationAdaptMode);
+				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.FillMode>(translator.PushGameLibAorInterfaceAdaptationFillMode, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationFillMode);
+				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.AlignSide>(translator.PushGameLibAorInterfaceAdaptationAlignSide, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationAlignSide);
 				translator.RegisterPushAndGetAndUpdate<GameLib.GridMapManager.GridType>(translator.PushGameLibGridMapManagerGridType, translator.Get, translator.UpdateGameLibGridMapManagerGridType);
 				translator.RegisterPushAndGetAndUpdate<GameLib.GridMapManager.LayerLevel>(translator.PushGameLibGridMapManagerLayerLevel, translator.Get, translator.UpdateGameLibGridMapManagerLayerLevel);
 			
@@ -7797,6 +7800,258 @@ namespace XLua
             }
         }
         
+        int GameLibAorInterfaceAdaptationAdaptMode_TypeID = -1;
+		int GameLibAorInterfaceAdaptationAdaptMode_EnumRef = -1;
+        
+        public void PushGameLibAorInterfaceAdaptationAdaptMode(RealStatePtr L, GameLib.AorInterfaceAdaptation.AdaptMode val)
+        {
+            if (GameLibAorInterfaceAdaptationAdaptMode_TypeID == -1)
+            {
+			    bool is_first;
+                GameLibAorInterfaceAdaptationAdaptMode_TypeID = getTypeId(L, typeof(GameLib.AorInterfaceAdaptation.AdaptMode), out is_first);
+				
+				if (GameLibAorInterfaceAdaptationAdaptMode_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(GameLib.AorInterfaceAdaptation.AdaptMode));
+				    GameLibAorInterfaceAdaptationAdaptMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, GameLibAorInterfaceAdaptationAdaptMode_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, GameLibAorInterfaceAdaptationAdaptMode_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for GameLib.AorInterfaceAdaptation.AdaptMode ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, GameLibAorInterfaceAdaptationAdaptMode_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out GameLib.AorInterfaceAdaptation.AdaptMode val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibAorInterfaceAdaptationAdaptMode_TypeID)
+				{
+				    throw new Exception("invalid userdata for GameLib.AorInterfaceAdaptation.AdaptMode");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for GameLib.AorInterfaceAdaptation.AdaptMode");
+                }
+				val = (GameLib.AorInterfaceAdaptation.AdaptMode)e;
+                
+            }
+            else
+            {
+                val = (GameLib.AorInterfaceAdaptation.AdaptMode)objectCasters.GetCaster(typeof(GameLib.AorInterfaceAdaptation.AdaptMode))(L, index, null);
+            }
+        }
+		
+        public void UpdateGameLibAorInterfaceAdaptationAdaptMode(RealStatePtr L, int index, GameLib.AorInterfaceAdaptation.AdaptMode val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibAorInterfaceAdaptationAdaptMode_TypeID)
+				{
+				    throw new Exception("invalid userdata for GameLib.AorInterfaceAdaptation.AdaptMode");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for GameLib.AorInterfaceAdaptation.AdaptMode ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int GameLibAorInterfaceAdaptationFillMode_TypeID = -1;
+		int GameLibAorInterfaceAdaptationFillMode_EnumRef = -1;
+        
+        public void PushGameLibAorInterfaceAdaptationFillMode(RealStatePtr L, GameLib.AorInterfaceAdaptation.FillMode val)
+        {
+            if (GameLibAorInterfaceAdaptationFillMode_TypeID == -1)
+            {
+			    bool is_first;
+                GameLibAorInterfaceAdaptationFillMode_TypeID = getTypeId(L, typeof(GameLib.AorInterfaceAdaptation.FillMode), out is_first);
+				
+				if (GameLibAorInterfaceAdaptationFillMode_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(GameLib.AorInterfaceAdaptation.FillMode));
+				    GameLibAorInterfaceAdaptationFillMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, GameLibAorInterfaceAdaptationFillMode_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, GameLibAorInterfaceAdaptationFillMode_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for GameLib.AorInterfaceAdaptation.FillMode ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, GameLibAorInterfaceAdaptationFillMode_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out GameLib.AorInterfaceAdaptation.FillMode val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibAorInterfaceAdaptationFillMode_TypeID)
+				{
+				    throw new Exception("invalid userdata for GameLib.AorInterfaceAdaptation.FillMode");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for GameLib.AorInterfaceAdaptation.FillMode");
+                }
+				val = (GameLib.AorInterfaceAdaptation.FillMode)e;
+                
+            }
+            else
+            {
+                val = (GameLib.AorInterfaceAdaptation.FillMode)objectCasters.GetCaster(typeof(GameLib.AorInterfaceAdaptation.FillMode))(L, index, null);
+            }
+        }
+		
+        public void UpdateGameLibAorInterfaceAdaptationFillMode(RealStatePtr L, int index, GameLib.AorInterfaceAdaptation.FillMode val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibAorInterfaceAdaptationFillMode_TypeID)
+				{
+				    throw new Exception("invalid userdata for GameLib.AorInterfaceAdaptation.FillMode");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for GameLib.AorInterfaceAdaptation.FillMode ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int GameLibAorInterfaceAdaptationAlignSide_TypeID = -1;
+		int GameLibAorInterfaceAdaptationAlignSide_EnumRef = -1;
+        
+        public void PushGameLibAorInterfaceAdaptationAlignSide(RealStatePtr L, GameLib.AorInterfaceAdaptation.AlignSide val)
+        {
+            if (GameLibAorInterfaceAdaptationAlignSide_TypeID == -1)
+            {
+			    bool is_first;
+                GameLibAorInterfaceAdaptationAlignSide_TypeID = getTypeId(L, typeof(GameLib.AorInterfaceAdaptation.AlignSide), out is_first);
+				
+				if (GameLibAorInterfaceAdaptationAlignSide_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(GameLib.AorInterfaceAdaptation.AlignSide));
+				    GameLibAorInterfaceAdaptationAlignSide_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, GameLibAorInterfaceAdaptationAlignSide_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, GameLibAorInterfaceAdaptationAlignSide_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for GameLib.AorInterfaceAdaptation.AlignSide ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, GameLibAorInterfaceAdaptationAlignSide_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out GameLib.AorInterfaceAdaptation.AlignSide val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibAorInterfaceAdaptationAlignSide_TypeID)
+				{
+				    throw new Exception("invalid userdata for GameLib.AorInterfaceAdaptation.AlignSide");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for GameLib.AorInterfaceAdaptation.AlignSide");
+                }
+				val = (GameLib.AorInterfaceAdaptation.AlignSide)e;
+                
+            }
+            else
+            {
+                val = (GameLib.AorInterfaceAdaptation.AlignSide)objectCasters.GetCaster(typeof(GameLib.AorInterfaceAdaptation.AlignSide))(L, index, null);
+            }
+        }
+		
+        public void UpdateGameLibAorInterfaceAdaptationAlignSide(RealStatePtr L, int index, GameLib.AorInterfaceAdaptation.AlignSide val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibAorInterfaceAdaptationAlignSide_TypeID)
+				{
+				    throw new Exception("invalid userdata for GameLib.AorInterfaceAdaptation.AlignSide");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for GameLib.AorInterfaceAdaptation.AlignSide ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
         int GameLibGridMapManagerGridType_TypeID = -1;
 		int GameLibGridMapManagerGridType_EnumRef = -1;
         
@@ -8534,6 +8789,24 @@ namespace XLua
 				translator.PushGameLibEGameMode(L, array[index]);
 				return true;
 			}
+			else if (type == typeof(GameLib.AorInterfaceAdaptation.AdaptMode[]))
+			{
+			    GameLib.AorInterfaceAdaptation.AdaptMode[] array = obj as GameLib.AorInterfaceAdaptation.AdaptMode[];
+				translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(GameLib.AorInterfaceAdaptation.FillMode[]))
+			{
+			    GameLib.AorInterfaceAdaptation.FillMode[] array = obj as GameLib.AorInterfaceAdaptation.FillMode[];
+				translator.PushGameLibAorInterfaceAdaptationFillMode(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(GameLib.AorInterfaceAdaptation.AlignSide[]))
+			{
+			    GameLib.AorInterfaceAdaptation.AlignSide[] array = obj as GameLib.AorInterfaceAdaptation.AlignSide[];
+				translator.PushGameLibAorInterfaceAdaptationAlignSide(L, array[index]);
+				return true;
+			}
 			else if (type == typeof(GameLib.GridMapManager.GridType[]))
 			{
 			    GameLib.GridMapManager.GridType[] array = obj as GameLib.GridMapManager.GridType[];
@@ -9107,6 +9380,24 @@ namespace XLua
 			else if (type == typeof(GameLib.EGameMode[]))
 			{
 			    GameLib.EGameMode[] array = obj as GameLib.EGameMode[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(GameLib.AorInterfaceAdaptation.AdaptMode[]))
+			{
+			    GameLib.AorInterfaceAdaptation.AdaptMode[] array = obj as GameLib.AorInterfaceAdaptation.AdaptMode[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(GameLib.AorInterfaceAdaptation.FillMode[]))
+			{
+			    GameLib.AorInterfaceAdaptation.FillMode[] array = obj as GameLib.AorInterfaceAdaptation.FillMode[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(GameLib.AorInterfaceAdaptation.AlignSide[]))
+			{
+			    GameLib.AorInterfaceAdaptation.AlignSide[] array = obj as GameLib.AorInterfaceAdaptation.AlignSide[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

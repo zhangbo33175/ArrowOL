@@ -60,20 +60,16 @@ function ProcedurePlaying:OnEnter(ownerMachine)
     local listeners = BuildEventListenerList(self)
     HonorEventHelper:RemoveListenerBatch(listeners)
     HonorEventHelper:AddListenerBatch(listeners)
-
     -- 切换流程时自动清理加载内容
     if self.cs then
         self.cs.RemoveAllContentsOnProcedureTransition = true
     end
-
     -- 清空全局打开UI记录
     AllOpenUI = AllOpenUI or {}
     for k, _ in pairs(AllOpenUI) do
         AllOpenUI[k] = nil
     end
-
     --TODO: [直进主界面] 加载完资源后跳过登录界面，直接进入游戏主界面
-    -- 原逻辑为进入登录状态（登录成功后再进主界面）；此处按需求直接进主界面
     self:GotoMainState()
 end
 

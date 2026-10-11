@@ -188,19 +188,27 @@ end
 
 --region 【加载 & 设备分级】
 
----@brief 执行分步加载逻辑（单例、Lua、资源、跳转）
+---@brief 执行分步加载逻辑
 ---@type fun():void
 function ProcedurePreload:LoadAddSteps()
-    -- 初始化所有单例
     if SingletonManager then
         SingletonManager:InitAllSingleForStep(self)
     end
 
-    -- 加载完成跳转到主流程
-    self.cs:AddStep(function()
+    -- 初始化游戏状态机
+    self.cs:AddStep("初始化游戏状态", function()
+        if not GameStateMachine then
+            GameStateMachine = require("GameStateMachine"):Create()
+        end
+        return true
+    end)
+
+    -- 完成后跳转主流程
+    self.cs:AddStep("准备进入游戏", function()
         if self.cs and typeof(Honor.ProcedurePlaying) then
             self.cs:PrepareToNextProcedure(typeof(Honor.ProcedurePlaying), self.cs.ArgsFromChanging)
         end
+        return true
     end)
 
     if self.cs then

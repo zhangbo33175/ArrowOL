@@ -75,12 +75,19 @@ function UIMainStateViewView:OnInit(viewModel)
 end
 
 ---开始
----@brief 开始时创建调试用重置章节按钮（框架驱动，勿删）
+---@brief UI初始化完成后触发加载界面淡出（Start是生命周期最后一步，此时内容已渲染）
 ---@type fun():void
 function UIMainStateViewView:Start()
     UIMainStateViewView.super.Start(self)
-    -- 运行时动态创建"重置章节/等级为1"调试按钮（幂等：已存在则跳过，避免重复创建）
+    -- 运行时动态创建"重置章节/等级为1"调试按钮
     self:CreateResetButton()
+    -- TODO: 等一帧让Canvas布局完成后隐藏加载界面
+    HonorCoroutineHelper:StartAlone(function()
+        HonorCoroutineHelper:WaitForSecondsRealtime(0.05)
+        if GameMainRoot.UI and GameMainRoot.UI.FadeOutLoadingViewThenClose then
+            GameMainRoot.UI:FadeOutLoadingViewThenClose()
+        end
+    end)
 end
 
 ---销毁
@@ -249,11 +256,12 @@ function UIMainStateViewView:CreateResetButton()
     -- 按钮文字
     local textGo = UnityEngine.GameObject("Text")
     textGo.transform:SetParent(go.transform, false)
-    local text = textGo:AddComponent(typeof(TMPro.TextMeshProUGUI))
+    local text = textGo:AddComponent(typeof(UnityEngine.UI.Text))
     text.text = "重置"
     text.fontSize = 22
-    text.alignment = TMPro.TextAlignmentOptions.Center
+    text.alignment = UnityEngine.TextAnchor.MiddleCenter
     text.color = UnityEngine.Color.white
+    text.font = UnityEngine.Resources.GetBuiltinResource(typeof(UnityEngine.Font), "LegacyRuntime.ttf")
     local textRect = text.rectTransform
     textRect.anchorMin = UnityEngine.Vector2.zero
     textRect.anchorMax = UnityEngine.Vector2.one

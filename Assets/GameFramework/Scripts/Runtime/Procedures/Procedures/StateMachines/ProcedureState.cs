@@ -27,7 +27,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 切换流程时最大等待帧数（防止帧等待死循环）
         /// </summary>
-        private const int MAX_NEXT_PROCEDURE_WAIT_FRAME_NUM = 5;
+        private const int MAX_NEXT_PROCEDURE_WAIT_FRAME_NUM = 5; // TODO: 硬编码等待帧数，后续可配置
 
         #endregion
 
@@ -92,19 +92,10 @@ namespace Honor.Runtime
         protected Type m_CurProcedureType;
 
         /// <summary>
-        /// 预准备切换的下一个流程类型（提前缓存）
-        /// </summary>
-        protected Type m_PrepareNextProcedureType;
-
         /// <summary>
         /// 真正要切换的下一个流程类型
         /// </summary>
         protected Type m_NextProcedureType;
-
-        /// <summary>
-        /// 准备切换时携带的自定义参数（LuaTable）
-        /// </summary>
-        protected LuaTable m_PrepareArgsFromChanging;
 
         /// <summary>
         /// 切换完成后传入的自定义参数
@@ -112,7 +103,7 @@ namespace Honor.Runtime
         protected LuaTable m_ArgsFromChanging;
 
         /// <summary>
-        /// 流程进入完成标记（过渡动画结束）
+        /// 流程进入完成标记
         /// </summary>
         protected bool m_EnterOver;
 
@@ -137,14 +128,6 @@ namespace Honor.Runtime
         /// </summary>
         public string Name => m_Name;
 
-        /// <summary>
-        /// 准备切换时携带的自定义参数（LuaTable）
-        /// </summary>
-        public LuaTable PrepareArgsFromChanging
-        {
-            get => m_PrepareArgsFromChanging;
-            set => m_PrepareArgsFromChanging = value;
-        }
 
         /// <summary>
         /// 切换完成后传入的自定义参数
@@ -256,27 +239,15 @@ namespace Honor.Runtime
             {
                 ProcedureState lastState = (ProcedureState)ownerMachine.LastState;
                 m_LastProcedureType = lastState.GetType();
-                m_ArgsFromChanging = lastState.PrepareArgsFromChanging;
-                lastState.PrepareArgsFromChanging = null;
+                m_ArgsFromChanging = lastState.ArgsFromChanging;
                 lastState.ArgsFromChanging = null;
             }
 
             // 重置状态
             m_CurProcedureType = GetType();
-            m_PrepareNextProcedureType = null;
-            m_PrepareArgsFromChanging = null;
             m_NextProcedureType = null;
             m_NextProcedureWaitFrameCount = 0;
-            m_EnterOver = false;
-
-            // 注册过渡动画事件
-            GameMainRoot.Event.Subscribe(GameEventCmd.ProcedureTransitionEnterOver, this, OnProcedureTransitionEnterOverEventCallback);
-            GameMainRoot.Event.Subscribe(GameEventCmd.ProcedureTransitionExitOver, this, OnProcedureTransitionExitOverEventCallback);
-
-            // 播放流程进入过渡
-            ShowProcedureTransitionEnter(!GameMainRoot.Procedure.CurrentProcedureTransitionEnterFlag, 
-                GameMainRoot.Procedure.CurrentProcedureTransitionEnterDuration, 
-                GameMainRoot.Procedure.CurrentProcedureTransitionEnterBlockRaycast);
+            m_EnterOver = true; // TODO: 转场已移除，直接标记进入完成
         }
 
         /// <summary>
@@ -306,9 +277,6 @@ namespace Honor.Runtime
         {
             base.OnLeave(ownerMachine, isShutdown);
             Log.Info("离开流程 '{0}'，该流程持续时间 {1:N2}秒。", GetType(), ownerMachine.CurrentStateTime);
-
-            GameMainRoot.Event.Unsubscribe(GameEventCmd.ProcedureTransitionEnterOver, this, OnProcedureTransitionEnterOverEventCallback);
-            GameMainRoot.Event.Unsubscribe(GameEventCmd.ProcedureTransitionExitOver, this, OnProcedureTransitionExitOverEventCallback);
         }
 
         #endregion
@@ -337,77 +305,27 @@ namespace Honor.Runtime
         #endregion
 
         //=========================================================================
-        #region 事件回调
-        //=========================================================================
-
-        /// <summary>
-        /// 过渡进入结束事件回调
-        /// </summary>
-        public void OnProcedureTransitionEnterOverEventCallback(object sender, object userData, EventParams e)
-        {
-            if (userData != this) return;
-            m_EnterOver = true;
-        }
-
-        /// <summary>
-        /// 过渡退出结束事件回调：清空资源 → 准备切换
-        /// </summary>
-        public void OnProcedureTransitionExitOverEventCallback(object sender, object userData, EventParams e)
-        {
-            if (userData != this) return;
-            RemoveAllContents();
-            m_NextProcedureType = m_PrepareNextProcedureType;
-        }
-
-        #endregion
-
-        //=========================================================================
         #region 流程过渡控制
         //=========================================================================
 
         /// <summary>
-        /// 准备切换到下一流程：播放退出过渡
+        /// 准备切换到下一流程
         /// </summary>
         public void PrepareToNextProcedure(Type stateType, LuaTable argsFromChanging = null)
         {
             if (stateType == null)
                 throw new GameException("State type 无效。");
 
-            m_PrepareNextProcedureType = stateType;
-            m_PrepareArgsFromChanging = argsFromChanging;
-
-            ShowProcedureTransitionExit(!GameMainRoot.Procedure.CurrentProcedureTransitionExitFlag,
-                GameMainRoot.Procedure.CurrentProcedureTransitionExitDuration,
-                GameMainRoot.Procedure.CurrentProcedureTransitionExitBlockRaycast);
+            m_NextProcedureType = stateType;
+            m_ArgsFromChanging = argsFromChanging;
         }
 
-        /// <summary>
-        /// 根据名称准备切换流程
-        /// </summary>
         public void PrepareToNextProcedure(string stateName, LuaTable argsFromChanging = null)
         {
             PrepareToNextProcedure(Type.GetType($"Honor.Runtime.{stateName}"), argsFromChanging);
         }
 
-        /// <summary>
-        /// 显示流程进入过渡动画
-        /// </summary>
-        public virtual void ShowProcedureTransitionEnter(bool forceOver, float duration, bool blockRaycast)
-        {
-            GameMainRoot.UI.ShowProcedureTransitionEnter(forceOver, duration, blockRaycast);
-        }
-
-        /// <summary>
-        /// 显示流程退出过渡动画
-        /// </summary>
-        public virtual void ShowProcedureTransitionExit(bool forceOver, float duration, bool blockRaycast)
-        {
-            GameMainRoot.UI.ShowProcedureTransitionExit(forceOver, duration, blockRaycast);
-        }
-
         #endregion
-
-        //=========================================================================
         #region 资源清理
         //=========================================================================
 

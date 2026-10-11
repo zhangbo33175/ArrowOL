@@ -530,13 +530,10 @@ namespace XLua.CSObjectWrap
             
         }
         
-        
-        
-        
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_SetAllCamerasNear_xlua_st_(RealStatePtr L)
         {
-            try {
+		    try {
             
             
             
@@ -560,14 +557,14 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_DebugGetAllCamerasInfo_xlua_st_(RealStatePtr L)
         {
-            try {
+		    try {
             
             
             
                 
                 {
                     
-                        string gen_ret = GameLib.MapCamHelper.DebugGetAllCamerasInfo();
+                        string gen_ret = GameLib.MapCamHelper.DebugGetAllCamerasInfo(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -580,6 +577,9 @@ namespace XLua.CSObjectWrap
             }
             
         }
+        
+        
+        
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_MapCamera(RealStatePtr L)

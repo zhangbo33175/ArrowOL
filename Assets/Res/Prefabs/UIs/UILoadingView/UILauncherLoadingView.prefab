@@ -119,7 +119,7 @@ MonoBehaviour:
   m_EnterTransitionEnabled: 1
   m_EnterTransitionDuration: 0.5
   m_ExitTransitionEnabled: 1
-  m_ExitTransitionDuration: 0.1
+  m_ExitTransitionDuration: 0
 --- !u!1 &756090590334396423
 GameObject:
   m_ObjectHideFlags: 0

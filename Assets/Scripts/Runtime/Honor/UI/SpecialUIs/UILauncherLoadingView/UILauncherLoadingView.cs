@@ -404,6 +404,15 @@ namespace Honor.Runtime
         {
             m_LoadingMode = loadingMode;
 
+            // 【关键】把当前UI的Canvas.sortingOrder提到最高，确保加载界面始终渲染在所有UI之上
+            // 否则UIMainStateView等主界面打开后会盖在加载界面上层，露出未渲染完的黑色背景
+            Canvas canvas = GetComponent<Canvas>();
+            if (canvas != null)
+            {
+                canvas.sortingOrder = 32767;
+                UnityEngine.Debug.Log($"[LauncherLoading] Canvas.sortingOrder set to {canvas.sortingOrder}");
+            }
+
             switch (m_LoadingMode)
             {
                 case LoadingMode.Preload:
@@ -479,6 +488,60 @@ namespace Honor.Runtime
             {
                 PlayExitTransition();
             }
+        }
+
+        /// <summary>
+        /// 【Lua可调】主界面渲染完成后立即快速淡出并关闭
+        /// </summary>
+        /// <param name="fadeDuration">淡出时长（秒）</param>
+        public void FadeOutNow(float fadeDuration = 0.5f)
+        {
+            CanvasGroup cg = GetCanvasGroup();
+            UnityEngine.Debug.Log($"[LauncherLoading] FadeOutNow fade={fadeDuration}s, time={UnityEngine.Time.realtimeSinceStartup:F3}");
+            if (cg == null || !gameObject.activeSelf)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            DOTween.Kill(GameDOTweenTypes.LauncherLoadingViewTween);
+
+            cg.DOFade(0f, Mathf.Max(0.01f, fadeDuration))
+                .SetEase(Ease.InOutQuad)
+                .SetUpdate(true)
+                .SetId(GameDOTweenTypes.LauncherLoadingViewTween)
+                .OnComplete(() =>
+                {
+                    UnityEngine.Debug.Log($"[LauncherLoading] FadeOutNow COMPLETE, SetActive(false), time={UnityEngine.Time.realtimeSinceStartup:F3}");
+                    gameObject.SetActive(false);
+                });
+        }
+
+        /// <summary>
+        /// 保持加载界面全不透明，等待指定时间后再淡出（用于跨场景过渡）
+        /// </summary>
+        /// <param name="holdDuration">保持不透明的时间（秒）</param>
+        /// <param name="fadeDuration">淡出时长（秒）</param>
+        public void HoldThenFadeOut(float holdDuration, float fadeDuration)
+        {
+            CanvasGroup cg = GetCanvasGroup();
+            if (cg == null || !gameObject.activeSelf) return;
+
+            DOTween.Kill(GameDOTweenTypes.LauncherLoadingViewTween);
+            cg.alpha = 1f;
+
+            UnityEngine.Debug.Log($"[LauncherLoading] HoldThenFadeOut START: hold={holdDuration}s, fade={fadeDuration}s, time={UnityEngine.Time.realtimeSinceStartup:F3}");
+
+            cg.DOFade(0f, fadeDuration)
+                .SetDelay(holdDuration)
+                .SetEase(Ease.InOutQuad)
+                .SetUpdate(true)
+                .SetId(GameDOTweenTypes.LauncherLoadingViewTween)
+                .OnComplete(() =>
+                {
+                    UnityEngine.Debug.Log($"[LauncherLoading] HoldThenFadeOut COMPLETE, time={UnityEngine.Time.realtimeSinceStartup:F3}");
+                    gameObject.SetActive(false);
+                });
         }
         #endregion
 
