@@ -3,20 +3,6 @@
   "DefaultSheetCount": 300,
   "ConvertData": [
     {
-      "ResType": "GameObject",
-      "AliasName": "GameObject_GameMainMap",
-      "ABPath": "Assets/Res/Prefabs/Map/GameMainMap",
-      "AssetName": "GameMainMap",
-      "AssetGUID": "dd9947a0f04f64e48ab5a5e5876eb1b7"
-    },
-    {
-      "ResType": "GameObject",
-      "AliasName": "GameObject_ItemMap",
-      "ABPath": "Assets/Res/Prefabs/Item/ItemMap",
-      "AssetName": "ItemMap",
-      "AssetGUID": "0c636324cfd576541aa96f21cb027792"
-    },
-    {
       "ResType": "Sprite",
       "AliasName": "Sprite_main_level1_cat1",
       "ABPath": "Assets/Res/Textures/Map/Icon/main_level1_cat1",
@@ -277,6 +263,13 @@
     },
     {
       "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main2",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main2",
+      "AssetName": "Level_bg_main2",
+      "AssetGUID": "3d23e689dd665524dab868340914ea10"
+    },
+    {
+      "ResType": "Sprite",
       "AliasName": "Sprite_Level_bg_main3",
       "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main3",
       "AssetName": "Level_bg_main3",
@@ -326,24 +319,24 @@
     },
     {
       "ResType": "Sprite",
-      "AliasName": "Sprite_map",
-      "ABPath": "Assets/Res/Textures/Map/LevelBackground/map",
-      "AssetName": "map",
-      "AssetGUID": "0cb8e7b8cfd7a9f45a127ef3508ae418"
-    },
-    {
-      "ResType": "Sprite",
       "AliasName": "Sprite_Map_level_1",
       "ABPath": "Assets/Res/Textures/Map/LevelBackground/Map_level_1",
       "AssetName": "Map_level_1",
       "AssetGUID": "fd52b85f08ba72d43b68af000f449666"
     },
     {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_Tile",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/Tile",
-      "AssetName": "Tile",
-      "AssetGUID": "dc6569c0e841b6949b1c4811c291a708"
+      "ResType": "GameObject",
+      "AliasName": "GameObject_GameMainMap",
+      "ABPath": "Assets/Res/Prefabs/Map/GameMainMap",
+      "AssetName": "GameMainMap",
+      "AssetGUID": "dd9947a0f04f64e48ab5a5e5876eb1b7"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_ItemMap",
+      "ABPath": "Assets/Res/Prefabs/Item/ItemMap",
+      "AssetName": "ItemMap",
+      "AssetGUID": "0c636324cfd576541aa96f21cb027792"
     },
     {
       "ResType": "GameObject",
@@ -353,18 +346,284 @@
       "AssetGUID": "db41971c9b8c82544af257fa2499eb28"
     },
     {
-      "ResType": "GameObject",
-      "AliasName": "GameObject_FishItem",
-      "ABPath": "Assets/Res/Prefabs/UIs/UIMainStateView/FishItem",
-      "AssetName": "FishItem",
-      "AssetGUID": "d695f77cbf07c3e4a8e14eb82fc52cac"
+      "ResType": "Sprite",
+      "AliasName": "Sprite_btn_b",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn_b",
+      "AssetName": "btn_b",
+      "AssetGUID": "a18b008bfdd2b6448a87f753d8fb9aa2"
     },
     {
-      "ResType": "GameObject",
-      "AliasName": "GameObject_SectionItem",
-      "ABPath": "Assets/Res/Prefabs/UIs/UILevelView/SectionItem",
-      "AssetName": "SectionItem",
-      "AssetGUID": "0d329158846a2054e8c41603a84b76c3"
+      "ResType": "Sprite",
+      "AliasName": "Sprite_btn_g-1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g-1",
+      "AssetName": "btn_g-1",
+      "AssetGUID": "d6968d4cefb16f043bc855d59b05d074"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_btn_g",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g",
+      "AssetName": "btn_g",
+      "AssetGUID": "6e9bb5c6d0bbaed42b9b68d465c99fd5"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_btn_p",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn_p",
+      "AssetName": "btn_p",
+      "AssetGUID": "c3ccd35214a72d14690ce4718d548149"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_btn_r",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn_r",
+      "AssetName": "btn_r",
+      "AssetGUID": "9e3db01fe05d9514daf4e63f1c0f997b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_checkInIcon",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/checkInIcon",
+      "AssetName": "checkInIcon",
+      "AssetGUID": "3f3b10d186d01bc468d3862cd1649dca"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_close",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/close",
+      "AssetName": "close",
+      "AssetGUID": "7cf6393d38b93fd4daef19a834f43639"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_CollectIcon",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/CollectIcon",
+      "AssetName": "CollectIcon",
+      "AssetGUID": "c37fa6a744bfc084491d4c9635eb2a0c"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_home",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/home",
+      "AssetName": "home",
+      "AssetGUID": "3cc51203f27e04d4c8e38be0bf156252"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_home_puzzle_frame",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/home_puzzle_frame",
+      "AssetName": "home_puzzle_frame",
+      "AssetGUID": "3870ee09e38d2ab4c882f7e6d3a9fe42"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_IconBg",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/IconBg",
+      "AssetName": "IconBg",
+      "AssetGUID": "5fdda0c03dcd43641b1b1286142f27e0"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Icon_Advertising",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/Icon_Advertising",
+      "AssetName": "Icon_Advertising",
+      "AssetGUID": "f64aec9307ea78046b59e2fc1d479881"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_icon_cat",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/icon_cat",
+      "AssetName": "icon_cat",
+      "AssetGUID": "54413c8cff5d98f4b8cc657eed135279"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_icon_fish",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/icon_fish",
+      "AssetName": "icon_fish",
+      "AssetGUID": "c7f79989ec2c6544e9120a28e7f39ddf"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_icon_home",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/icon_home",
+      "AssetName": "icon_home",
+      "AssetGUID": "0bc6ec9a3540929439919a3b49688a18"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_icon_search",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/icon_search",
+      "AssetName": "icon_search",
+      "AssetGUID": "6c1d433f064bdb745ba2e472a0af3a61"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_icon_set",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/icon_set",
+      "AssetName": "icon_set",
+      "AssetGUID": "16d7d49cf56a4784e9f426486050b7d3"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_level",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/level",
+      "AssetName": "level",
+      "AssetGUID": "04ea05ce89449d84299e370ded51efa0"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_loa_bar",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/loa_bar",
+      "AssetName": "loa_bar",
+      "AssetGUID": "03ab8650cde27a4478ac1c29a5d3256d"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_loa_pro",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/loa_pro",
+      "AssetName": "loa_pro",
+      "AssetGUID": "888e89ff60519944cb58cc972dd24655"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_num_panel",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/num_panel",
+      "AssetName": "num_panel",
+      "AssetGUID": "a163cc7e16354014381d289ad4216d2f"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_PhotographIcon",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/PhotographIcon",
+      "AssetName": "PhotographIcon",
+      "AssetGUID": "75cc743487d24fd49b1138e2f8134359"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_profile_cat_1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/profile_cat_1",
+      "AssetName": "profile_cat_1",
+      "AssetGUID": "fd488ae7e5e77704493929c77f8fa80c"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_profile_frame_1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/profile_frame_1",
+      "AssetName": "profile_frame_1",
+      "AssetGUID": "a220249ca6479944aa5a070e80c49d93"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/puzzle",
+      "AssetName": "puzzle",
+      "AssetGUID": "39c75bee674888e4b96d9f64d7705511"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_safe_panel",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/safe_panel",
+      "AssetName": "safe_panel",
+      "AssetGUID": "6e8e7f3f13900ad44a7edcf79abb84e3"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_settingIcon",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/settingIcon",
+      "AssetName": "settingIcon",
+      "AssetGUID": "4d11300194b320a4383cc2915eab7202"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_set_panel",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/set_panel",
+      "AssetName": "set_panel",
+      "AssetGUID": "18a8e4c0c34cb1f4494c42e3fafe0013"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sign_r",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/sign_r",
+      "AssetName": "sign_r",
+      "AssetGUID": "1892a4d8d4f394344a7a0b135f138cdf"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sign_y",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/sign_y",
+      "AssetName": "sign_y",
+      "AssetGUID": "7fd89e2748d12d640aacaa1bf93647dd"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Tile",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/Tile",
+      "AssetName": "Tile",
+      "AssetGUID": "dc6569c0e841b6949b1c4811c291a708"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_turntableIcon",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/turntableIcon",
+      "AssetName": "turntableIcon",
+      "AssetGUID": "7788f1a01c65c1e4a932232e6ff489c2"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_userIcon",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/userIcon",
+      "AssetName": "userIcon",
+      "AssetGUID": "00a29d08bd4c9474786f9f944702d3f6"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图1",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图1",
+      "AssetName": "拼图1",
+      "AssetGUID": "c3a657beab33a9746907f635c9d0bb68"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图2",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图2",
+      "AssetName": "拼图2",
+      "AssetGUID": "4cdfc4716caedd444a9fa5978fca1c9e"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图3",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图3",
+      "AssetName": "拼图3",
+      "AssetGUID": "7fda2dcad6dacac458098da049477a5c"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_拼图4",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/拼图4",
+      "AssetName": "拼图4",
+      "AssetGUID": "ca970eda385526044a413816bec8a681"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_排行",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/排行",
+      "AssetName": "排行",
+      "AssetGUID": "effd18e0cf427e347af92eb8cad11c45"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_猫窝",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/猫窝",
+      "AssetName": "猫窝",
+      "AssetGUID": "bc85985c05096de4c939c94d0535bae0"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_皮肤",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/皮肤",
+      "AssetName": "皮肤",
+      "AssetGUID": "073028024835a2541a55080a8ba1e658"
     },
     {
       "ResType": "Sprite",
@@ -372,13 +631,6 @@
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_1",
       "AssetName": "puzzle_1_1",
       "AssetGUID": "7a52a67910bedc3498fa66c3ff77e776"
-    },
-    {
-      "ResType": "Sprite",
-      "AliasName": "Sprite_puzzle_1_2",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_2",
-      "AssetName": "puzzle_1_2",
-      "AssetGUID": "76dd34ff6bf1d304194e0ed73569d75a"
     },
     {
       "ResType": "Sprite",
@@ -428,6 +680,13 @@
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_16",
       "AssetName": "puzzle_1_16",
       "AssetGUID": "7bb4b4746c095a348a96f88ffd6942cc"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_puzzle_1_2",
+      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_2",
+      "AssetName": "puzzle_1_2",
+      "AssetGUID": "76dd34ff6bf1d304194e0ed73569d75a"
     },
     {
       "ResType": "Sprite",
@@ -484,6 +743,356 @@
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_panel1",
       "AssetName": "puzzle_panel1",
       "AssetGUID": "9e15cc773430d5d4da5f16b86fa3aa37"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_FishItem",
+      "ABPath": "Assets/Res/Prefabs/UIs/UIMainStateView/FishItem",
+      "AssetName": "FishItem",
+      "AssetGUID": "d695f77cbf07c3e4a8e14eb82fc52cac"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_CollectItem",
+      "ABPath": "Assets/Res/Prefabs/UIs/UILevelView/CollectItem",
+      "AssetName": "CollectItem",
+      "AssetGUID": "6de8c30e4ad202849a92c7b5c195b43c"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_SectionItem",
+      "ABPath": "Assets/Res/Prefabs/UIs/UILevelView/SectionItem",
+      "AssetName": "SectionItem",
+      "AssetGUID": "0d329158846a2054e8c41603a84b76c3"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_1",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_1",
+      "AssetName": "sc_2_cat_1",
+      "AssetGUID": "29cba58939772e744a9d050e31c96448"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_10",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_10",
+      "AssetName": "sc_2_cat_10",
+      "AssetGUID": "a9f42966ad882ba4c8ec3778b55e1df0"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_11",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_11",
+      "AssetName": "sc_2_cat_11",
+      "AssetGUID": "477e6073f637cbc478af00d399e3317f"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_12",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_12",
+      "AssetName": "sc_2_cat_12",
+      "AssetGUID": "b4377b7e0348bed47a837d82baa244a7"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_13",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_13",
+      "AssetName": "sc_2_cat_13",
+      "AssetGUID": "83feec0ea75f6b34eb7edbe0fe92462f"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_14",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_14",
+      "AssetName": "sc_2_cat_14",
+      "AssetGUID": "1f83399af87334641a6682ed5a5aff4e"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_15",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_15",
+      "AssetName": "sc_2_cat_15",
+      "AssetGUID": "77427842c9b933243823ce83d867fd27"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_16",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_16",
+      "AssetName": "sc_2_cat_16",
+      "AssetGUID": "a1204fb7dca0c524ab2a854f17177629"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_17",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_17",
+      "AssetName": "sc_2_cat_17",
+      "AssetGUID": "a189c1582914efd448bf5e9dcbc70451"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_18",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_18",
+      "AssetName": "sc_2_cat_18",
+      "AssetGUID": "f3ec1b8831d05704aa9897545015f6cc"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_19",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_19",
+      "AssetName": "sc_2_cat_19",
+      "AssetGUID": "eee2596a224e40c49bb0db9af8ec0a6b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_2",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_2",
+      "AssetName": "sc_2_cat_2",
+      "AssetGUID": "1ef83cc721488b74ba66140da2e0ce0b"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_20",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_20",
+      "AssetName": "sc_2_cat_20",
+      "AssetGUID": "b45aeaf0f5016ff4aa47ac8589c6895c"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_21",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_21",
+      "AssetName": "sc_2_cat_21",
+      "AssetGUID": "c3f5d982750f3de469ca25f475d3ada3"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_22",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_22",
+      "AssetName": "sc_2_cat_22",
+      "AssetGUID": "2ace4da2eb1b1fb45b2c72c24e817cac"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_23",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_23",
+      "AssetName": "sc_2_cat_23",
+      "AssetGUID": "730e335f5a773f644bfbbb0bea14a518"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_24",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_24",
+      "AssetName": "sc_2_cat_24",
+      "AssetGUID": "747fe376b57b88e4a8631181dea52d28"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_25",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_25",
+      "AssetName": "sc_2_cat_25",
+      "AssetGUID": "9c4ac5f73930de34b996669b741dc0ef"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_26",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_26",
+      "AssetName": "sc_2_cat_26",
+      "AssetGUID": "ba3c030eb8ee47547be567bcf5835fc9"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_27",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_27",
+      "AssetName": "sc_2_cat_27",
+      "AssetGUID": "c3c93f8a9290e2d4995928884fd7b6d4"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_28",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_28",
+      "AssetName": "sc_2_cat_28",
+      "AssetGUID": "ef201d201d4c0d64fa49f8087085de5e"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_29",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_29",
+      "AssetName": "sc_2_cat_29",
+      "AssetGUID": "7f5100dc8378a5c42a19c28b3295ebef"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_3",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_3",
+      "AssetName": "sc_2_cat_3",
+      "AssetGUID": "772120df100e52b449a7adcd9f7f9cbf"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_30",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_30",
+      "AssetName": "sc_2_cat_30",
+      "AssetGUID": "b2d0a381fe2038f4d8e0716b438999a4"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_31",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_31",
+      "AssetName": "sc_2_cat_31",
+      "AssetGUID": "6106c988419d9c1479d6aff4b2906795"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_32",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_32",
+      "AssetName": "sc_2_cat_32",
+      "AssetGUID": "4057c33dde377704aa9d67cd077b8117"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_33",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_33",
+      "AssetName": "sc_2_cat_33",
+      "AssetGUID": "0b05339f3f7cfcd47bb91dcc04f6c44d"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_34",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_34",
+      "AssetName": "sc_2_cat_34",
+      "AssetGUID": "29f3a56e910375c4fa3f1ba5a74806d3"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_35",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_35",
+      "AssetName": "sc_2_cat_35",
+      "AssetGUID": "bb9b655bb13049e45b9082d707c1e1a6"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_36",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_36",
+      "AssetName": "sc_2_cat_36",
+      "AssetGUID": "64d17e5cf9337704d9b14d05701dea55"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_37",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_37",
+      "AssetName": "sc_2_cat_37",
+      "AssetGUID": "930aeaa4a6acfd64f937fcdeddaf3fb7"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_38",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_38",
+      "AssetName": "sc_2_cat_38",
+      "AssetGUID": "31cb370b92118c84bb26dcedbb9f416d"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_39",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_39",
+      "AssetName": "sc_2_cat_39",
+      "AssetGUID": "f87bbd73c6cae5241884f0549ccb6f64"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_4",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_4",
+      "AssetName": "sc_2_cat_4",
+      "AssetGUID": "844293db7165bf74e8b8b41aeca98048"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_40",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_40",
+      "AssetName": "sc_2_cat_40",
+      "AssetGUID": "e69657eb904df9c43a3a4dc6ff6bd631"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_41",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_41",
+      "AssetName": "sc_2_cat_41",
+      "AssetGUID": "d4ecbd2fb27e9124ea5162dda3657bb7"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_42",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_42",
+      "AssetName": "sc_2_cat_42",
+      "AssetGUID": "8edb7a7ce2127674f8b076a6f889bc49"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_43",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_43",
+      "AssetName": "sc_2_cat_43",
+      "AssetGUID": "5557913443c327645b9d1343514882b8"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_44",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_44",
+      "AssetName": "sc_2_cat_44",
+      "AssetGUID": "2cb275f844b021345a1a63182ce40e40"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_45",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_45",
+      "AssetName": "sc_2_cat_45",
+      "AssetGUID": "ef6d40a6563d2fd4893082f55d5843ee"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_5",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_5",
+      "AssetName": "sc_2_cat_5",
+      "AssetGUID": "27efaf13a6023b84b80c9a13087dc184"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_6",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_6",
+      "AssetName": "sc_2_cat_6",
+      "AssetGUID": "0dad5d7d4439e2049a598434d158e0bd"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_7",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_7",
+      "AssetName": "sc_2_cat_7",
+      "AssetGUID": "134d7166104b9194ca8dcd8e710db2e1"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_8",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_8",
+      "AssetName": "sc_2_cat_8",
+      "AssetGUID": "5ea23ca69ad4280498ff51ec6aa159db"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2_cat_9",
+      "ABPath": "Assets/Res/Textures/Map/Icon/sc_2_cat_9",
+      "AssetName": "sc_2_cat_9",
+      "AssetGUID": "cf8de067fdc2a944c948466c0201cb8e"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_sc_2带猫效果图",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/sc_2带猫效果图",
+      "AssetName": "sc_2带猫效果图",
+      "AssetGUID": "a51f70a7ffceb1d4c9b629264cb1a8b8"
+    },
+    {
+      "ResType": "Sprite",
+      "AliasName": "Sprite_Level_bg_main_21",
+      "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main_21",
+      "AssetName": "Level_bg_main_21",
+      "AssetGUID": "db014f4de8dc5c14595a07ce4cef344e"
     }
   ]
 }

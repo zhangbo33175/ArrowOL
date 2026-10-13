@@ -1,0 +1,42 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Scripts/Editor/MapTool/MapConfigWindow/MapConfigWindow.uss?fileID=7433441132597879392&amp;guid=312d5b731997ace4ebe0bf431c3d74bc&amp;type=3#MapConfigWindow" />
+    <ui:VisualElement class="config-root">
+        <!-- 路径配置区：6 个可点击路径按钮（按钮文本由代码回显 EditorPrefs 值） -->
+        <ui:VisualElement class="config-box">
+            <ui:VisualElement class="path-row">
+                <ui:Label text="章节配置表：" class="path-label" />
+                <ui:Button name="path-btn-table-chapters" class="path-btn" />
+            </ui:VisualElement>
+            <ui:VisualElement class="path-row">
+                <ui:Label text="主关卡配置表：" class="path-label" />
+                <ui:Button name="path-btn-table-main-levels" class="path-btn" />
+            </ui:VisualElement>
+            <ui:VisualElement class="path-row">
+                <ui:Label text="物体预览图目录一：" class="path-label" />
+                <ui:Button name="path-btn-object-prefabs" class="path-btn" />
+            </ui:VisualElement>
+            <ui:VisualElement class="path-row">
+                <ui:Label text="物体预览图目录二：" class="path-label" />
+                <ui:Button name="path-btn-object-textures" class="path-btn" />
+            </ui:VisualElement>
+            <ui:VisualElement class="path-row">
+                <ui:Label text="分区背景图目录：" class="path-label" />
+                <ui:Button name="path-btn-level-background" class="path-btn" />
+            </ui:VisualElement>
+            <ui:VisualElement class="path-row">
+                <ui:Label text="地图保存目录：" class="path-label" />
+                <ui:Button name="path-btn-map-save" class="path-btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <!-- 预制体选择行 -->
+        <ui:VisualElement class="prefab-row">
+            <ui:Label text="地图预制体:" class="prefab-label" />
+            <uie:ObjectField name="map-prefab-field" object-type="UnityEngine.GameObject, UnityEngine.CoreModule" class="prefab-field" />
+        </ui:VisualElement>
+        <!-- 底部操作按钮 -->
+        <ui:VisualElement class="btn-row">
+            <ui:Button text="取消" name="btn-cancel" class="cancel-btn" />
+            <ui:Button text="确定" name="btn-confirm" class="confirm-btn" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

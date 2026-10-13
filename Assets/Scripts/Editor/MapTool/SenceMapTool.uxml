@@ -1,0 +1,350 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Scripts/Editor/MapTool/SenceMapTool.uss?fileID=7433441132597879392&amp;guid=dee590b43f3ab294288e062fa413558f&amp;type=3#SenceMapTool" />
+    <ui:VisualElement class="root-container">
+        <ui:VisualElement name="VisualElement" class="left-panel" style="width: 193px; background-color: rgb(79, 76, 76);">
+            <ui:VisualElement class="left-btn-row">
+                <ui:Button text="配置" name="btn-config" class="left-btn" />
+                <ui:Button text="删除" class="left-btn" />
+            </ui:VisualElement>
+            <ui:VisualElement class="chapter-box" style="height: 205px;">
+                <ui:ScrollView name="chapter-list" class="chapter-list">
+                </ui:ScrollView>
+            </ui:VisualElement>
+            <ui:VisualElement class="left-btn-row" style="border-top-width: 5px; border-bottom-width: 0; -unity-slice-top: 0; -unity-slice-bottom: 5;">
+                <ui:Button text="建筑" name="tab-building" class="sub-tab-btn" />
+                <ui:Button text="人物" name="tab-ground" class="sub-tab-btn" />
+                <ui:Button text="物件" name="tab-prop" class="sub-tab-btn" />
+                <ui:Button text="刷新" name="btn-refresh" class="refresh-btn" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1; top: 5px; bottom: 5px;">
+                <ui:ScrollView name="resource-list" class="resource-list" style="height: 805px; -unity-slice-top: 0; top: 5px; width: 195px; bottom: 5px;">
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_001_大树" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item selected">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_002_小花" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_003_石头" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_004_木桶" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_005_木箱" class="resource-name" style="-unity-text-align: upper-center;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_006_火把" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_007_灯笼" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_008_栅栏" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_009_桌椅" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_010_雕像" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_011_旗帜" class="resource-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="resource-item">
+                        <ui:VisualElement class="resource-icon" />
+                        <ui:Label text="P_012_路标" class="resource-name" />
+                    </ui:VisualElement>
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="separator-v" style="width: 3px;" />
+        <ui:VisualElement class="h-space-4" style="width: 2px;" />
+        <ui:VisualElement name="VisualElement" class="right-main-area">
+            <ui:VisualElement class="top-toolbar">
+                <ui:VisualElement class="toolbar-row" style="flex-direction: row;">
+                    <ui:Button text="场景编辑" name="tab-scene" class="tab-btn active" style="width: 90px;" />
+                    <ui:Button text="物品元件编辑" name="tab-item-element" class="tab-btn" style="width: 90px;" />
+                    <ui:Button text="迷雾编辑" name="tab-fog" class="tab-btn" style="width: 90px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="scene-mode-panel" class="mode-panel">
+                <ui:VisualElement name="VisualElement" class="toolbar-row">
+                    <ui:Button text="导出设置" class="tool-btn" />
+                    <ui:Button text="保存" class="tool-btn" />
+                    <ui:Button text="清空摆放物" class="tool-btn" />
+                    <ui:Button text="清空格子数据" class="tool-btn" />
+                    <ui:VisualElement name="VisualElement" class="flex-space" style="width: 80px; max-width: 80px;" />
+                    <ui:Label text="图层：" style="justify-content: center; align-self: center; align-items: center;" />
+                    <ui:Toggle text="摆放网格层" value="true" name="layer-place-grid" />
+                    <ui:Toggle text="路径网格" name="layer-path-grid" />
+                    <ui:Toggle text="地图层" value="true" name="layer-map" />
+                    <ui:Toggle text="建筑层" value="true" name="layer-building" />
+                    <ui:Toggle text="人物层" value="true" name="layer-character" />
+                    <ui:Toggle text="物件层" value="true" name="layer-object" />
+                    <ui:Toggle text="背景层" value="true" name="layer-background" />
+                    <ui:Toggle text="包围盒" name="layer-bounding-box" />
+                </ui:VisualElement>
+                <ui:VisualElement name="map-prefab-row" style="flex-direction: row; padding: 4px 8px;">
+                    <ui:Label text="地图预制体:" style="align-self: center; margin-right: 8px;" />
+                </ui:VisualElement>
+                <ui:VisualElement class="scene-view" />
+                <ui:VisualElement class="status-bar" style="justify-content: flex-start; flex-direction: row; align-self: stretch; align-items: center; padding: 4px 8px;">
+                    <ui:Label text="缩放率:" class="status-label" />
+                    <ui:Label name="status-zoom" text="100%" class="status-value-fixed" />
+                    <ui:Label text="mouseX:" class="status-label" style="margin-left: 16px;" />
+                    <ui:Label name="status-mouse-x" text="0" class="status-value-fixed" />
+                    <ui:Label text="mouseY:" class="status-label" style="margin-left: 16px;" />
+                    <ui:Label name="status-mouse-y" text="0" class="status-value-fixed" />
+                    <ui:Label text="tileX:" class="status-label" style="margin-left: 16px;" />
+                    <ui:Label name="status-tile-x" text="0" class="status-value-fixed" />
+                    <ui:Label text="tileY:" class="status-label" style="margin-left: 16px;" />
+                    <ui:Label name="status-tile-y" text="0" class="status-value-fixed" />
+                    <ui:Label text="格子数:" class="status-label" style="margin-left: 16px;" />
+                    <ui:Label name="status-tile-count" text="0" class="status-value-fixed" />
+                    <ui:Label text="保存路径:" class="status-label" style="margin-left: 16px;" />
+                    <ui:Button name="status-save-path" text="Assets/GameData/Maps/" class="status-path-btn" />
+                </ui:VisualElement>
+                <ui:VisualElement class="bottom-props-area" style="height: 190px;">
+                    <ui:VisualElement class="prop-box" style="height: 179px;">
+                        <ui:VisualElement class="prop-row">
+                            <ui:Button text="更新地图" class="small-btn" />
+                            <ui:Label text="场景名:" />
+                            <ui:TextField value="105" name="scene-name-field" class="small-textfield" />
+                            <ui:Label text="宽:" />
+                            <ui:TextField value="1320" name="map-width-field" class="small-textfield" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Button text="导出切片" class="small-btn" />
+                            <ui:Label text="场景ID:" />
+                            <ui:TextField value="105" name="scene-id-field" class="small-textfield" />
+                            <ui:Label text="高:" />
+                            <ui:TextField value="990" name="map-height-field" class="small-textfield" />
+                        </ui:VisualElement>
+                        <ui:VisualElement style="flex-grow: 1; align-self: center; justify-content: space-between; height: 70px;">
+                            <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-self: center; align-items: center;">
+                                <ui:Toggle text="DrawClear:" value="true" name="Toggle" style="-unity-text-align: middle-center;" />
+                                <ui:EnumField style="width: 127px; height: 18px;" />
+                            </ui:VisualElement>
+                            <ui:VisualElement style="flex-grow: 1; flex-direction: row; -unity-text-align: middle-center;">
+                                <ui:Toggle text="摆放模式： " value="true" style="-unity-text-align: middle-center;" />
+                                <ui:EnumField style="width: 127px; height: 18px; align-self: center;" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="shortcut-area">
+                            <ui:Label text="Ctrl：按住=绘制矩形区域    松开=绘制菱形区域" class="shortcut-text" />
+                            <ui:Label text="Alt：按住=擦除格子模式   Shift：按住曲线绘制区域" class="shortcut-text" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="prop-box prop-table-box" style="width: 355px;">
+                        <ui:VisualElement class="table-row table-header">
+                            <ui:Label text="属性" class="table-col" />
+                            <ui:Label text="值" class="table-col flex-grow" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="table-row">
+                            <ui:Label text="IdName" class="table-col" />
+                            <ui:TextField value="B_1014#27_105_16" class="table-textfield flex-grow" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="object-edit-panel" class="prop-box object-edit-panel" style="width: 400px; display: none;">
+                        <ui:Label name="obj-edit-title" text="对象编辑：未选择" class="obj-edit-title" />
+                        <ui:VisualElement class="obj-edit-tab-row">
+                            <ui:Button text="可编辑路径" name="tab-edit-path" class="obj-tab-btn active" />
+                            <ui:Button text="编辑动画" name="tab-edit-anim" class="obj-tab-btn" />
+                            <ui:VisualElement class="flex-space" />
+                            <ui:Button text="取消选中" name="btn-clear-target" class="obj-clear-btn" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="path-edit-content" class="obj-edit-content">
+                            <ui:VisualElement class="obj-edit-btn-row">
+                                <ui:Button text="停止绘制路径" name="btn-path-draw" class="tool-btn" />
+                                <ui:Button text="撤销最后点" name="btn-path-undo" class="tool-btn" />
+                                <ui:Button text="清空路径" name="btn-path-clear" class="tool-btn" />
+                            </ui:VisualElement>
+                            <ui:Label text="绘制：Ctrl+左键 添加路径点（吸附网格32px）  Ctrl+右键 撤销最后一点" class="shortcut-text" />
+                            <ui:ScrollView name="path-point-list" class="path-point-list" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="anim-edit-content" class="obj-edit-content hidden">
+                            <ui:VisualElement class="obj-edit-info-row">
+                                <ui:Label text="动画名称：" class="detail-label" />
+                                <ui:TextField name="anim-name-field" value="Idle" class="prop-textfield" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="obj-edit-info-row">
+                                <ui:Label text="循环播放：" class="detail-label" />
+                                <ui:Toggle name="anim-loop-toggle" text="循环" value="true" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="obj-edit-info-row">
+                                <ui:Label text="播放速度：" class="detail-label" />
+                                <ui:TextField name="anim-speed-field" value="1.0" class="prop-textfield" />
+                            </ui:VisualElement>
+                            <ui:Label text="（动画编辑为预留切页，可继续扩展绑定 Animator 参数）" class="empty-tip" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="prop-box detail-box" style="width: 380px; height: 184px;">
+                        <ui:VisualElement class="detail-row">
+                            <ui:Label text="模板ID:" class="detail-label" />
+                            <ui:Label text="B_1014" class="detail-value" />
+                            <ui:Label text="tag:" class="detail-label" />
+                            <ui:Label text="105_1664352438135" class="detail-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="detail-row">
+                            <ui:Label text="格子坐标:" class="detail-label" />
+                            <ui:Label text="29/49" class="detail-value" />
+                            <ui:Label text="回调:" class="detail-label" />
+                            <ui:Label text="删除" class="detail-value" />
+                        </ui:VisualElement>
+                        <ui:Button text="发布" class="publish-btn" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="flex-space" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="item-element-mode-panel" class="mode-panel hidden">
+                <ui:VisualElement class="item-top-bar">
+                    <ui:Label text="物品元件编辑模式" class="mode-title" />
+                    <ui:VisualElement class="flex-space" />
+                    <ui:Button text="添加元件" name="btn-add-item" class="tool-btn" />
+                    <ui:Button text="导入配置" name="btn-import-config" class="tool-btn" />
+                </ui:VisualElement>
+                <ui:VisualElement class="item-element-container">
+                    <ui:VisualElement class="item-list-panel">
+                        <ui:Label text="元件列表" class="sub-title" />
+                        <ui:ScrollView class="item-list">
+                            <ui:VisualElement class="item-element-item">
+                                <ui:VisualElement class="item-icon" />
+                                <ui:VisualElement class="item-info">
+                                    <ui:Label text="钥匙" class="item-name" />
+                                    <ui:Label text="Key - 点击收集" class="item-desc" />
+                                </ui:VisualElement>
+                                <ui:Toggle text="显示" value="true" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="item-element-item">
+                                <ui:VisualElement class="item-icon" />
+                                <ui:VisualElement class="item-info">
+                                    <ui:Label text="猫咪零食" class="item-name" />
+                                    <ui:Label text="CatFood - 自动拾取" class="item-desc" />
+                                </ui:VisualElement>
+                                <ui:Toggle text="显示" value="true" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="item-element-item">
+                                <ui:VisualElement class="item-icon" />
+                                <ui:VisualElement class="item-info">
+                                    <ui:Label text="金币" class="item-name" />
+                                    <ui:Label text="Coin - 点击收集" class="item-desc" />
+                                </ui:VisualElement>
+                                <ui:Toggle text="显示" value="true" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="item-element-item">
+                                <ui:VisualElement class="item-icon" />
+                                <ui:VisualElement class="item-info">
+                                    <ui:Label text="碎片" class="item-name" />
+                                    <ui:Label text="Piece - 隐藏物品" class="item-desc" />
+                                </ui:VisualElement>
+                                <ui:Toggle text="显示" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="item-element-item">
+                                <ui:VisualElement class="item-icon" />
+                                <ui:VisualElement class="item-info">
+                                    <ui:Label text="道具-锤子" class="item-name" />
+                                    <ui:Label text="Hammer - 触发剧情" class="item-desc" />
+                                </ui:VisualElement>
+                                <ui:Toggle text="显示" value="true" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="item-element-item">
+                                <ui:VisualElement class="item-icon" />
+                                <ui:VisualElement class="item-info">
+                                    <ui:Label text="道具-刷子" class="item-name" />
+                                    <ui:Label text="Brush - 隐藏物品" class="item-desc" />
+                                </ui:VisualElement>
+                                <ui:Toggle text="显示" />
+                            </ui:VisualElement>
+                        </ui:ScrollView>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="item-properties-panel">
+                        <ui:Label text="元件属性" class="sub-title" />
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="元件ID：" class="prop-label" />
+                            <ui:TextField value="1001" class="prop-textfield" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="元件名称：" class="prop-label" />
+                            <ui:TextField value="钥匙" class="prop-textfield" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="图标路径：" class="prop-label" />
+                            <ui:TextField value="Assets/Res/Textures/Items/key.png" class="prop-textfield" />
+                        </ui:VisualElement>
+                        <ui:Label text="交互设置" class="sub-title" />
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="交互类型：" class="prop-label" />
+                            <ui:Button text="点击收集" class="mode-btn active" />
+                            <ui:Button text="自动拾取" class="mode-btn" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label class="prop-label" />
+                            <ui:Button text="触发剧情" class="mode-btn" />
+                            <ui:Button text="拖拽使用" class="mode-btn" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="收集动画：" class="prop-label" />
+                            <ui:TextField value="CollectAnim" class="prop-textfield" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="是否隐藏：" class="prop-label" />
+                            <ui:Toggle text="初始隐藏" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="需要提示：" class="prop-label" />
+                            <ui:Toggle text="显示高亮提示" value="true" />
+                        </ui:VisualElement>
+                        <ui:Label text="层级与排序" class="sub-title" />
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="SortingOrder：" class="prop-label" />
+                            <ui:Slider low-value="0" high-value="100" value="50" class="prop-slider" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="fog-mode-panel" class="mode-panel hidden">
+                <ui:VisualElement class="fog-top-bar">
+                    <ui:Label text="迷雾编辑模式" class="mode-title" />
+                    <ui:VisualElement class="flex-space" />
+                    <ui:Button text="添加迷雾区域" name="btn-add-fog" class="tool-btn" />
+                    <ui:Button text="清空迷雾" name="btn-clear-fog" class="tool-btn" />
+                </ui:VisualElement>
+                <ui:VisualElement class="fog-container">
+                    <ui:VisualElement class="fog-settings-panel">
+                        <ui:Label text="笔刷设置" class="sub-title" />
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="笔刷大小：" class="prop-label" />
+                            <ui:Slider low-value="10" high-value="200" value="100" class="prop-slider" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="迷雾透明度：" class="prop-label" />
+                            <ui:Slider low-value="0" high-value="1" value="0.8" class="prop-slider" />
+                        </ui:VisualElement>
+                        <ui:Label text="绘制模式" class="sub-title" />
+                        <ui:Button text="开始绘制" name="btn-start-draw" class="draw-mode-btn" />
+                        <ui:Label text="快捷键：" class="sub-title" />
+                        <ui:Label text="• 鼠标左键：绘制迷雾" class="shortcut-text" />
+                        <ui:Label text="• 鼠标右键：擦除迷雾" class="shortcut-text" />
+                        <ui:Label text="• 滚轮：缩放地图" name="Label" class="shortcut-text" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="fog-list-panel">
+                        <ui:Label text="迷雾区域列表" class="sub-title" />
+                        <ui:Label text="（暂无迷雾区域，点击「添加迷雾区域」或开始绘制）" class="empty-tip" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -67,6 +67,27 @@ public enum RMapType
 }
 
 /// <summary>
+/// 走路路径循环模式
+/// </summary>
+public enum RMapWalkLoopMode
+{
+    /// <summary>
+    /// 单次行走（走到终点后停止）
+    /// </summary>
+    Once = 0,
+
+    /// <summary>
+    /// 循环往返（走到终点后原路返回）
+    /// </summary>
+    PingPong = 1,
+
+    /// <summary>
+    /// 循环走圈（走到终点后回到起点重新开始）
+    /// </summary>
+    Loop = 2
+}
+
+/// <summary>
 /// 地图默认相机初始位置类型
 /// </summary>
 public enum RMapCamPosType
@@ -140,6 +161,52 @@ public class RMapData
     /// 是否被选中
     /// </summary>
     public bool m_IsChoose;
+
+    //=========================================================================
+    // 动画相关字段
+    //=========================================================================
+    /// <summary>
+    /// 是否为动画物体（带动画的预制体）
+    /// </summary>
+    public bool m_IsAnimated;
+
+    /// <summary>
+    /// 默认播放的动画名称
+    /// </summary>
+    public string m_AnimationName = string.Empty;
+
+    /// <summary>
+    /// 动画播放速度（1.0为正常速度）
+    /// </summary>
+    public float m_AnimationSpeed = 1.0f;
+
+    /// <summary>
+    /// 动画是否循环播放
+    /// </summary>
+    public bool m_IsAnimationLoop = true;
+
+    //=========================================================================
+    // 走路路径相关字段
+    //=========================================================================
+    /// <summary>
+    /// 是否启用走路路径
+    /// </summary>
+    public bool m_HasWalkPath;
+
+    /// <summary>
+    /// 走路路径点列表（相对物体初始位置的偏移坐标）
+    /// </summary>
+    public List<Vector2> m_WalkPathPoints = new List<Vector2>();
+
+    /// <summary>
+    /// 走路移动速度（单位：UI坐标/秒）
+    /// </summary>
+    public float m_WalkSpeed = 100f;
+
+    /// <summary>
+    /// 走路循环模式
+    /// </summary>
+    public RMapWalkLoopMode m_WalkLoopMode = RMapWalkLoopMode.Loop;
 }
 
 /// <summary>
