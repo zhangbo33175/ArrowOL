@@ -42,6 +42,18 @@ namespace Honor.Editor.MapTool
             var saveBtn = m_Root.Q<Button>(name: "btn-save");
             if (saveBtn != null)
                 saveBtn.clicked += OnSaveClicked;
+            // 清空摆放物按钮
+            var clearObjectsBtn = m_Root.Q<Button>(name: "btn-clear-objects");
+            if (clearObjectsBtn != null)
+                clearObjectsBtn.clicked += OnClearObjectsClicked;
+            // 清空格子数据按钮
+            var clearGridBtn = m_Root.Q<Button>(name: "btn-clear-grid-data");
+            if (clearGridBtn != null)
+                clearGridBtn.clicked += OnClearGridDataClicked;
+            // 导出设置按钮
+            var exportSettingsBtn = m_Root.Q<Button>(name: "btn-export-settings");
+            if (exportSettingsBtn != null)
+                exportSettingsBtn.clicked += OnExportSettingsClicked;
             // 对象编辑面板事件（可编辑路径 / 编辑动画 切页）
             if (m_TabEditPath != null)
                 m_TabEditPath.clicked += OnTabEditPathClicked;
@@ -74,6 +86,11 @@ namespace Honor.Editor.MapTool
                     if (m_EditTarget != null && float.TryParse(evt.newValue, out float speed))
                         m_EditTarget.Speed = speed;
                 });
+            // 属性面板按钮事件
+            if (m_DeleteObjectBtn != null)
+                m_DeleteObjectBtn.clicked += OnDeleteSelectedObject;
+            if (m_PublishBtn != null)
+                m_PublishBtn.clicked += OnPublishClicked;
         }
 
         /// <summary>
@@ -258,6 +275,16 @@ namespace Honor.Editor.MapTool
             m_AnimNameField = m_Root.Q<TextField>(name: "anim-name-field");
             m_AnimLoopToggle = m_Root.Q<Toggle>(name: "anim-loop-toggle");
             m_AnimSpeedField = m_Root.Q<TextField>(name: "anim-speed-field");
+            // 底部属性面板字段
+            m_TemplateIdField = m_Root.Q<TextField>(name: "prop-template-id");
+            m_TagField = m_Root.Q<TextField>(name: "prop-tag");
+            m_GridPosField = m_Root.Q<TextField>(name: "prop-grid-pos");
+            m_BuildingTemplateField = m_Root.Q<TextField>(name: "prop-building-template");
+            m_GridPrefixField = m_Root.Q<TextField>(name: "prop-grid-prefix");
+            m_InteractStateField = m_Root.Q<TextField>(name: "prop-interact-state");
+            m_DeleteObjectBtn = m_Root.Q<Button>(name: "btn-delete-object");
+            m_PublishBtn = m_Root.Q<Button>(name: "btn-publish");
+            m_PropertyPanel = m_Root.Q<VisualElement>(name: "property-panel");
             // 场景信息字段（保存配置时读取）
             m_SceneNameField = m_Root.Q<TextField>(name: "scene-name-field");
             m_SceneIdField = m_Root.Q<TextField>(name: "scene-id-field");
@@ -293,6 +320,64 @@ namespace Honor.Editor.MapTool
                 m_GuiContainer.focusable = false;
                 m_SceneView.Add(m_GuiContainer);
             }
+        }
+
+        /// <summary>
+        /// 删除当前选中的物体
+        /// </summary>
+        private void OnDeleteSelectedObject()
+        {
+            if (m_EditTarget != null)
+            {
+                m_PlacedObjects.Remove(m_EditTarget);
+                m_EditTarget = null;
+                Debug.Log("删除选中物体");
+            }
+        }
+
+        /// <summary>
+        /// 发布按钮点击
+        /// </summary>
+        private void OnPublishClicked()
+        {
+            Debug.Log("发布地图配置");
+            SaveMapConfig();
+        }
+
+        /// <summary>
+        /// 清空摆放物按钮点击
+        /// </summary>
+        private void OnClearObjectsClicked()
+        {
+            if (EditorUtility.DisplayDialog("清空摆放物", "确定要清空所有已摆放的物体吗？此操作不可撤销！", "确定", "取消"))
+            {
+                m_PlacedObjects.Clear();
+                m_EditTarget = null;
+                if (m_ObjectEditPanel != null)
+                    m_ObjectEditPanel.style.display = DisplayStyle.None;
+                Debug.Log("已清空所有摆放物");
+            }
+        }
+
+        /// <summary>
+        /// 清空格子数据按钮点击
+        /// </summary>
+        private void OnClearGridDataClicked()
+        {
+            if (EditorUtility.DisplayDialog("清空格子数据", "确定要清空格子数据吗？此操作不可撤销！", "确定", "取消"))
+            {
+                // TODO: 清空格子数据（迷雾、格子标记等）
+                Debug.Log("已清空格子数据");
+            }
+        }
+
+        /// <summary>
+        /// 导出设置按钮点击
+        /// </summary>
+        private void OnExportSettingsClicked()
+        {
+            Debug.Log("导出设置");
+            // TODO: 导出地图配置设置
         }
 
     }

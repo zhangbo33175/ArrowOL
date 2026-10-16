@@ -272,6 +272,18 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private MapObjectType m_SelectedObjectType = MapObjectType.Prop;
         /// <summary>
+        /// 待放置物体预览（鼠标跟随）
+        /// </summary>
+        private PlacedObject m_PendingPlace;
+        /// <summary>
+        /// 预览位置是否合法
+        /// </summary>
+        private bool m_PreviewValid;
+        /// <summary>
+        /// 预览不合法原因
+        /// </summary>
+        private string m_PreviewReason;
+        /// <summary>
         /// 地图分区解锁状态（动态大小）
         /// </summary>
         private bool[,] m_RegionUnlocked;
@@ -396,6 +408,43 @@ namespace Honor.Editor.MapTool
         /// 动画速度输入框
         /// </summary>
         private TextField m_AnimSpeedField;
+        // ===== 底部属性面板（选中物体时显示）=====
+        /// <summary>
+        /// 模板ID输入框
+        /// </summary>
+        private TextField m_TemplateIdField;
+        /// <summary>
+        /// tag输入框
+        /// </summary>
+        private TextField m_TagField;
+        /// <summary>
+        /// 格子坐标输入框
+        /// </summary>
+        private TextField m_GridPosField;
+        /// <summary>
+        /// 建筑模板输入框
+        /// </summary>
+        private TextField m_BuildingTemplateField;
+        /// <summary>
+        /// 格子前缀输入框
+        /// </summary>
+        private TextField m_GridPrefixField;
+        /// <summary>
+        /// 交互状态输入框
+        /// </summary>
+        private TextField m_InteractStateField;
+        /// <summary>
+        /// 删除物体按钮
+        /// </summary>
+        private Button m_DeleteObjectBtn;
+        /// <summary>
+        /// 发布按钮
+        /// </summary>
+        private Button m_PublishBtn;
+        /// <summary>
+        /// 底部属性面板（选中物体时显示）
+        /// </summary>
+        private VisualElement m_PropertyPanel;
         #endregion
 
         #region 属性

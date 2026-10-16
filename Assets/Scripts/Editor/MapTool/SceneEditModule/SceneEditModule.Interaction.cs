@@ -83,6 +83,21 @@ namespace Honor.Editor.MapTool
                 m_MousePos = e.mousePosition;
                 m_TileX = Mathf.FloorToInt((m_MousePos.x - m_MapOffset.x) / MapToolConstants.GridSize);
                 m_TileY = Mathf.FloorToInt((m_MousePos.y - m_MapOffset.y) / MapToolConstants.GridSize);
+
+                // 更新待放置预览位置
+                if (m_PendingPlace != null)
+                {
+                    float worldX = (e.mousePosition.x - m_MapOffset.x) / m_Zoom;
+                    float worldY = (e.mousePosition.y - m_MapOffset.y) / m_Zoom;
+                    // 吸附到网格中心
+                    float gridSize = MapToolConstants.GridSize;
+                    worldX = Mathf.Floor(worldX / gridSize) * gridSize;
+                    worldY = Mathf.Floor(worldY / gridSize) * gridSize;
+                    m_PendingPlace.Position = new Vector2(worldX, worldY);
+                    // 检查是否可以放置
+                    m_PreviewValid = CanPlaceObject(m_PendingPlace, out m_PreviewReason);
+                    GUI.changed = true;
+                }
             }
             else
             {
@@ -91,6 +106,19 @@ namespace Honor.Editor.MapTool
                 m_TileX = -1;
                 m_TileY = -1;
             }
+            // Escape 键取消选中资源
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
+            {
+                if (m_PendingPlace != null)
+                {
+                    m_PendingPlace = null;
+                    m_SelectedObjectId = null;
+                    Debug.Log("取消选中资源");
+                    e.Use();
+                    return;
+                }
+            }
+
             // 鼠标滚轮缩放
             if (e.type == EventType.ScrollWheel && isMouseInRect)
             {
@@ -118,34 +146,42 @@ namespace Honor.Editor.MapTool
             // 鼠标左键：放置物体、拖动物体 或 切换分区解锁
             if (isMouseInRect && e.type == EventType.MouseDown && e.button == 0)
             {
-                // 如果选中了要放置的物体，就放置物体
-                if (!string.IsNullOrEmpty(m_SelectedObjectId))
+                // 如果有待放置预览，就放置物体
+                if (m_PendingPlace != null)
                 {
-                    // 计算世界坐标
-                    float worldX = (e.mousePosition.x - m_MapOffset.x) / m_Zoom;
-                    float worldY = (e.mousePosition.y - m_MapOffset.y) / m_Zoom;
-                    // 根据类型自动设置默认尺寸（格子数）
-                    Vector2Int defaultSize = MapToolEditorUtils.GetDefaultObjectSize(m_SelectedObjectType);
-                    // 加载物体预览图
-                    Texture previewTex = LoadObjectPreview(m_SelectedObjectId);
-                    // 创建新物体
+                    // 检查是否可以放置
+                    if (!m_PreviewValid)
+                    {
+                        Debug.LogWarning($"无法放置: {m_PreviewReason}");
+                        ShowMessage(m_PreviewReason);
+                        e.Use();
+                        return;
+                    }
+
+                    // 创建新物体（复制预览对象）
                     PlacedObject newObj = new PlacedObject
                     {
-                        Id = m_SelectedObjectId,
-                        Name = m_SelectedObjectName,
-                        Type = m_SelectedObjectType,
-                        Position = new Vector2(worldX, worldY),
-                        Width = defaultSize.x,
-                        Height = defaultSize.y,
-                        PreviewTexture = previewTex,
+                        Id = m_PendingPlace.Id,
+                        Name = m_PendingPlace.Name,
+                        Type = m_PendingPlace.Type,
+                        Position = m_PendingPlace.Position,
+                        Width = m_PendingPlace.Width,
+                        Height = m_PendingPlace.Height,
+                        PreviewTexture = m_PendingPlace.PreviewTexture,
                     };
+
                     m_PlacedObjects.Add(newObj);
-                    Debug.Log($"放置物体: {m_SelectedObjectName} 位置: ({worldX}, {worldY})");
-                    // 放置人物后自动选中为编辑目标，底部立即显示路径切页
+                    Debug.Log($"放置物体: {newObj.Name} 位置: ({newObj.Position.x}, {newObj.Position.y})");
+
+                    // 放置人物后自动选中为编辑目标
                     if (newObj.Type == MapObjectType.Character)
                     {
                         SelectEditTarget(newObj);
                     }
+
+                    // 放置后保持预览（可以连续放置）
+                    // m_PendingPlace = null;
+
                     e.Use();
                     return;
                 }

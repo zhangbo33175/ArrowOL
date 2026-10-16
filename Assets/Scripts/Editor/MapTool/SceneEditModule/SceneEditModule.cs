@@ -285,6 +285,20 @@ namespace Honor.Editor.MapTool
             m_SelectedObjectId = objectId;
             m_SelectedObjectName = objectName;
             m_SelectedObjectType = objectType;
+
+            // 创建待放置预览对象
+            Vector2Int defaultSize = MapToolEditorUtils.GetDefaultObjectSize(objectType);
+            Texture previewTex = LoadObjectPreview(objectId);
+            m_PendingPlace = new PlacedObject
+            {
+                Id = objectId,
+                Name = objectName,
+                Type = objectType,
+                Width = defaultSize.x,
+                Height = defaultSize.y,
+                PreviewTexture = previewTex,
+            };
+
             // 选中人物资源时：自动绑定画布上第一个同名实例作为路径编辑目标，底部显示切页
             if (objectType == MapObjectType.Character)
             {
@@ -338,15 +352,26 @@ namespace Honor.Editor.MapTool
             if (obj == null) return;
             m_EditTarget = obj;
             m_SelectedPathPointIndex = -1;
-            m_IsPathDrawing = true; // 选中后默认进入路径绘制模式
-            // 显示对象编辑面板，默认切到"可编辑路径"
+
+            // 只有人物才进入路径绘制模式
+            bool isCharacter = obj.Type == MapObjectType.Character;
+            m_IsPathDrawing = isCharacter;
+
+            // 显示对象编辑面板
             if (m_ObjectEditPanel != null)
             {
                 m_ObjectEditPanel.style.display = DisplayStyle.Flex;
-                SetActiveObjectTab(0);
+                // 人物默认切到"可编辑路径"，其他类型切到"编辑动画"
+                SetActiveObjectTab(isCharacter ? 0 : 1);
             }
+
+            // 路径绘制按钮只在人物时显示
             if (m_BtnPathDraw != null)
+            {
+                m_BtnPathDraw.style.display = isCharacter ? DisplayStyle.Flex : DisplayStyle.None;
                 m_BtnPathDraw.text = "停止绘制路径";
+            }
+
             // 填充动画切页字段
             if (m_AnimNameField != null)
                 m_AnimNameField.SetValueWithoutNotify(obj.AnimName);
@@ -354,6 +379,29 @@ namespace Honor.Editor.MapTool
                 m_AnimLoopToggle.SetValueWithoutNotify(obj.Loop);
             if (m_AnimSpeedField != null)
                 m_AnimSpeedField.SetValueWithoutNotify(obj.Speed.ToString("F1"));
+
+            // 更新底部属性面板字段
+            if (m_TemplateIdField != null)
+                m_TemplateIdField.SetValueWithoutNotify(obj.Id);
+            if (m_TagField != null)
+                m_TagField.SetValueWithoutNotify(obj.Type.ToString());
+            if (m_GridPosField != null)
+            {
+                int gridX = Mathf.FloorToInt(obj.Position.x / 32f);
+                int gridY = Mathf.FloorToInt(obj.Position.y / 32f);
+                m_GridPosField.SetValueWithoutNotify($"{gridX}/{gridY}");
+            }
+            if (m_BuildingTemplateField != null)
+                m_BuildingTemplateField.SetValueWithoutNotify($"{obj.Id}#{Mathf.FloorToInt(obj.Position.x / 32f)}");
+            if (m_GridPrefixField != null)
+                m_GridPrefixField.SetValueWithoutNotify("前缀");
+            if (m_InteractStateField != null)
+                m_InteractStateField.SetValueWithoutNotify(obj.Interactable ? "点击&移动" : "不可交互");
+
+            // 显示底部属性面板
+            if (m_PropertyPanel != null)
+                m_PropertyPanel.style.display = DisplayStyle.Flex;
+
             UpdateEditTargetUI();
             Debug.Log($"选中编辑对象: {obj.Name}（类型: {MapToolEditorUtils.FormatObjectTypeName(obj.Type)}，路径点数: {obj.PathPoints.Count}）");
         }
@@ -368,6 +416,9 @@ namespace Honor.Editor.MapTool
             m_IsPathDrawing = false;
             if (m_ObjectEditPanel != null)
                 m_ObjectEditPanel.style.display = DisplayStyle.None;
+            // 隐藏底部属性面板
+            if (m_PropertyPanel != null)
+                m_PropertyPanel.style.display = DisplayStyle.None;
             Debug.Log("取消选中编辑对象");
         }
 

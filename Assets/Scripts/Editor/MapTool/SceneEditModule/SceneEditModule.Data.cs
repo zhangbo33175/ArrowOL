@@ -197,5 +197,85 @@ namespace Honor.Editor.MapTool
             return MapToolEditorUtils.LoadObjectPreview(objectId);
         }
 
+        /// <summary>
+        /// 放置合法性检查：越界 / 分区未解锁 / 与已有物体重叠
+        /// </summary>
+        /// <param name="obj">待放置物体</param>
+        /// <param name="reason">失败原因</param>
+        /// <returns>是否可以放置</returns>
+        private bool CanPlaceObject(PlacedObject obj, out string reason)
+        {
+            reason = null;
+            float pixelWidth = obj.Width * 32f;
+            float pixelHeight = obj.Height * 32f;
+            Rect objRect = new Rect(obj.Position.x, obj.Position.y, pixelWidth, pixelHeight);
+
+            // 1. 越界检查
+            if (objRect.xMin < 0 || objRect.yMin < 0 ||
+                objRect.xMax > m_MapWidth || objRect.yMax > m_MapHeight)
+            {
+                reason = "位置越界，无法放置";
+                return false;
+            }
+
+            // 2. 分区未解锁检查（物体中心所在分区必须已解锁）
+            Vector2 center = new Vector2(obj.Position.x + pixelWidth / 2, obj.Position.y + pixelHeight / 2);
+            int regionIdx = GetRegionIndexAtPosition(center);
+            if (regionIdx >= 0 && m_RegionUnlocked != null)
+            {
+                int row = regionIdx / m_RegionCols;
+                int col = regionIdx % m_RegionCols;
+                if (!m_RegionUnlocked[row, col])
+                {
+                    reason = "该分区未解锁，无法放置";
+                    return false;
+                }
+            }
+
+            // 3. 重叠检查（AllowOverlap=true 的物体可以重叠）
+            if (!obj.AllowOverlap)
+            {
+                foreach (var exist in m_PlacedObjects)
+                {
+                    if (exist == obj) continue;
+                    float existW = exist.Width * 32f;
+                    float existH = exist.Height * 32f;
+                    Rect existRect = new Rect(exist.Position.x, exist.Position.y, existW, existH);
+                    if (objRect.Overlaps(existRect))
+                    {
+                        reason = "与已有物体重叠，无法放置";
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 根据世界坐标获取分区索引
+        /// </summary>
+        private int GetRegionIndexAtPosition(Vector2 worldPos)
+        {
+            if (m_RegionUnlocked == null || m_RegionCount <= 0) return -1;
+            float regionW = m_MapWidth / m_RegionCols;
+            float regionH = m_MapHeight / m_RegionRows;
+            int col = Mathf.FloorToInt(worldPos.x / regionW);
+            int row = Mathf.FloorToInt(worldPos.y / regionH);
+            if (row < 0 || row >= m_RegionRows || col < 0 || col >= m_RegionCols) return -1;
+            return row * m_RegionCols + col;
+        }
+
+        /// <summary>
+        /// 显示临时提示消息
+        /// </summary>
+        private string m_TempMessage;
+        private float m_TempMessageTime;
+        private void ShowMessage(string msg)
+        {
+            m_TempMessage = msg;
+            m_TempMessageTime = Time.realtimeSinceStartup + 1.5f;
+        }
+
     }
 }

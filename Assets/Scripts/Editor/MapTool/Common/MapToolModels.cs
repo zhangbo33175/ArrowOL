@@ -66,6 +66,12 @@ namespace Honor.Editor.MapTool
 
         /// <summary>是否可交互</summary>
         public bool Interactable = true;
+
+        /// <summary>是否允许与其他物体重叠覆盖</summary>
+        public bool AllowOverlap = false;
+
+        /// <summary>所属分区索引</summary>
+        public int RegionIndex;
     }
 
     #region 地图配置 JSON 数据结构
@@ -151,8 +157,51 @@ namespace Honor.Editor.MapTool
         /// <summary>动画信息（动画名称）</summary>
         public string anim;
 
+        /// <summary>是否循环播放动画</summary>
+        public bool loop = true;
+
+        /// <summary>动画播放速度</summary>
+        public float speed = 1f;
+
         /// <summary>是否可交互</summary>
-        public bool interactable;
+        public bool interactable = true;
+
+        /// <summary>交互类型（点击/自动/拖拽等）</summary>
+        public string interactType = "click";
+
+        /// <summary>位移信息（如果有移动）</summary>
+        public MapMoveData moveData;
+    }
+
+    /// <summary>
+    /// 位移数据（物体移动信息）
+    /// </summary>
+    [System.Serializable]
+    public class MapMoveData
+    {
+        /// <summary>是否启用位移</summary>
+        public bool enabled = false;
+
+        /// <summary>起始点X</summary>
+        public float startX;
+
+        /// <summary>起始点Y</summary>
+        public float startY;
+
+        /// <summary>终点X</summary>
+        public float endX;
+
+        /// <summary>终点Y</summary>
+        public float endY;
+
+        /// <summary>移动速度</summary>
+        public float moveSpeed = 1f;
+
+        /// <summary>是否循环移动</summary>
+        public bool loop = true;
+
+        /// <summary>移动方式（往返/单向/巡逻）</summary>
+        public string moveType = "pingpong";
     }
 
     /// <summary>

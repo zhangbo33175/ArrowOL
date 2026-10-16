@@ -178,10 +178,34 @@
 }
 
 .tool-btn {
-    height: 22px;
-    margin-right: 4px;
-    background-color: rgb(45, 45, 48);
+    height: 24px;
+    margin-right: 6px;
+    background-color: rgb(60, 60, 65);
+    color: rgb(230, 230, 230);
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(80, 80, 85);
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.tool-btn:hover {
+    background-color: rgb(75, 75, 80);
+    border-color: rgb(100, 100, 105);
+}
+
+.tool-btn:active {
+    background-color: rgb(50, 50, 55);
+}
+
+.tool-btn.danger-btn {
+    background-color: rgb(160, 60, 60);
+    border-color: rgb(180, 80, 80);
     color: rgb(255, 255, 255);
+}
+
+.tool-btn.danger-btn:hover {
+    background-color: rgb(180, 70, 70);
 }
 
 .flex-space {
@@ -328,11 +352,24 @@
 }
 
 .publish-btn {
-    width: 60px;
+    width: 70px;
     height: 50px;
     margin-left: 10px;
-    background-color: rgb(45, 45, 48);
+    background-color: rgb(60, 120, 60);
     color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgb(80, 150, 80);
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.publish-btn:hover {
+    background-color: rgb(70, 140, 70);
+}
+
+.publish-btn:active {
+    background-color: rgb(50, 100, 50);
 }
 
 .shortcut-area {
@@ -512,13 +549,19 @@
 .object-edit-panel {
     flex-shrink: 0;
     flex-direction: column;
+    background-color: rgb(50, 50, 55);
+    border-width: 1px;
+    border-color: rgb(70, 70, 75);
+    border-radius: 4px;
+    padding: 8px;
+    margin: 4px;
 }
 
 .obj-edit-title {
     font-size: 13px;
     -unity-font-style: bold;
-    color: rgb(255, 255, 255);
-    margin-bottom: 4px;
+    color: rgb(255, 200, 100);
+    margin-bottom: 6px;
     white-space: nowrap;
     -unity-text-overflow: ellipsis;
     overflow: hidden;
@@ -528,31 +571,49 @@
 .obj-edit-tab-row {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .obj-tab-btn {
-    height: 22px;
-    margin-right: 4px;
-    background-color: rgb(45, 45, 48);
-    color: rgb(255, 255, 255);
+    height: 24px;
+    margin-right: 6px;
+    background-color: rgb(60, 60, 65);
+    color: rgb(230, 230, 230);
     flex-shrink: 0;
     white-space: nowrap;
-    padding: 0 6px;
+    padding: 0 12px;
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(80, 80, 85);
+    font-size: 12px;
+}
+
+.obj-tab-btn:hover {
+    background-color: rgb(75, 75, 80);
 }
 
 .obj-tab-btn.active {
     background-color: rgb(14, 99, 156);
+    border-color: rgb(30, 120, 180);
+    color: rgb(255, 255, 255);
 }
 
 .obj-clear-btn {
-    height: 22px;
-    width: 74px;
-    background-color: rgb(70, 50, 50);
-    color: rgb(255, 255, 255);
+    height: 24px;
+    width: 80px;
+    background-color: rgb(100, 60, 60);
+    color: rgb(255, 230, 230);
     flex-shrink: 0;
     white-space: nowrap;
-    padding: 0 4px;
+    padding: 0 8px;
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(120, 80, 80);
+    font-size: 12px;
+}
+
+.obj-clear-btn:hover {
+    background-color: rgb(120, 70, 70);
 }
 
 .obj-edit-content {

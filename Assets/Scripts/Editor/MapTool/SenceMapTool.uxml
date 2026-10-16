@@ -7,8 +7,7 @@
                 <ui:Button text="删除" class="left-btn" />
             </ui:VisualElement>
             <ui:VisualElement class="chapter-box" style="height: 205px;">
-                <ui:ScrollView name="chapter-list" class="chapter-list">
-                </ui:ScrollView>
+                <ui:ScrollView name="chapter-list" class="chapter-list" />
             </ui:VisualElement>
             <ui:VisualElement class="left-btn-row" style="border-top-width: 5px; border-bottom-width: 0; -unity-slice-top: 0; -unity-slice-bottom: 5;">
                 <ui:Button text="建筑" name="tab-building" class="sub-tab-btn" />
@@ -81,10 +80,10 @@
             </ui:VisualElement>
             <ui:VisualElement name="scene-mode-panel" class="mode-panel">
                 <ui:VisualElement name="VisualElement" class="toolbar-row">
-                    <ui:Button text="导出设置" class="tool-btn" />
-                    <ui:Button text="保存" class="tool-btn" />
-                    <ui:Button text="清空摆放物" class="tool-btn" />
-                    <ui:Button text="清空格子数据" class="tool-btn" />
+                    <ui:Button text="导出设置" name="btn-export-settings" class="tool-btn" />
+                    <ui:Button text="保存" name="btn-save" class="tool-btn" />
+                    <ui:Button text="清空摆放物" name="btn-clear-objects" class="tool-btn danger-btn" />
+                    <ui:Button text="清空格子数据" name="btn-clear-grid-data" class="tool-btn" />
                     <ui:VisualElement name="VisualElement" class="flex-space" style="width: 80px; max-width: 80px;" />
                     <ui:Label text="图层：" style="justify-content: center; align-self: center; align-items: center;" />
                     <ui:Toggle text="摆放网格层" value="true" name="layer-place-grid" />
@@ -114,7 +113,7 @@
                     <ui:Label text="格子数:" class="status-label" style="margin-left: 16px;" />
                     <ui:Label name="status-tile-count" text="0" class="status-value-fixed" />
                     <ui:Label text="保存路径:" class="status-label" style="margin-left: 16px;" />
-                    <ui:Button name="status-save-path" text="Assets/GameData/Maps/" class="status-path-btn" />
+                    <ui:Button name="status-save-path" text="Assets/GameData/Maps/" class="status-path-btn" style="width: 740px; flex-direction: row; justify-content: flex-start; -unity-text-align: middle-left;" />
                 </ui:VisualElement>
                 <ui:VisualElement class="bottom-props-area" style="height: 190px;">
                     <ui:VisualElement class="prop-box" style="height: 179px;">
@@ -190,20 +189,36 @@
                             <ui:Label text="（动画编辑为预留切页，可继续扩展绑定 Animator 参数）" class="empty-tip" />
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement class="prop-box detail-box" style="width: 380px; height: 184px;">
+                    <ui:VisualElement name="property-panel" class="prop-box detail-box" style="width: 420px; height: 184px; display: none;">
+                        <ui:Label text="属性" class="detail-title" />
                         <ui:VisualElement class="detail-row">
                             <ui:Label text="模板ID:" class="detail-label" />
-                            <ui:Label text="B_1014" class="detail-value" />
+                            <ui:TextField name="prop-template-id" class="detail-textfield flex-grow" style="width: 80px;" />
                             <ui:Label text="tag:" class="detail-label" />
-                            <ui:Label text="105_1664352438135" class="detail-value" />
+                            <ui:TextField name="prop-tag" class="detail-textfield flex-grow" style="width: 80px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="detail-row">
                             <ui:Label text="格子坐标:" class="detail-label" />
-                            <ui:Label text="29/49" class="detail-value" />
-                            <ui:Label text="回调:" class="detail-label" />
-                            <ui:Label text="删除" class="detail-value" />
+                            <ui:TextField name="prop-grid-pos" class="detail-textfield flex-grow" style="width: 80px;" />
+                            <ui:Button text="编辑" name="btn-edit-grid-pos" class="small-btn" />
                         </ui:VisualElement>
-                        <ui:Button text="发布" class="publish-btn" />
+                        <ui:VisualElement class="detail-row">
+                            <ui:Label text="建筑模板:" class="detail-label" />
+                            <ui:TextField name="prop-building-template" class="detail-textfield flex-grow" style="width: 80px;" />
+                            <ui:Button text="编辑" name="btn-edit-building-tpl" class="small-btn" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="detail-row">
+                            <ui:Label text="格子前缀:" class="detail-label" />
+                            <ui:TextField name="prop-grid-prefix" class="detail-textfield flex-grow" style="width: 80px;" />
+                            <ui:Button text="编辑" name="btn-edit-grid-prefix" class="small-btn" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="detail-row">
+                            <ui:Label text="交互状态:" class="detail-label" />
+                            <ui:TextField name="prop-interact-state" class="detail-textfield flex-grow" style="width: 80px;" />
+                            <ui:Button text="删除" name="btn-delete-object" class="small-btn danger-btn" />
+                            <ui:VisualElement class="flex-space" />
+                            <ui:Button text="发布" name="btn-publish" class="publish-btn" />
+                        </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement class="flex-space" />
                 </ui:VisualElement>

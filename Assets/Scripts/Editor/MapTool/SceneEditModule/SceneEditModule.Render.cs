@@ -44,11 +44,25 @@ namespace Honor.Editor.MapTool
             DrawBackgroundLayer(mapRect);
             DrawMapLayer(mapRect);
             DrawPlacedObjects(mapRect);
+            DrawPendingPlacePreview(mapRect);
             DrawPathGridLayer(mapRect);
             DrawEditTargetOverlay(mapRect);
             DrawRegionMist(mapRect);
             DrawBoundingBoxLayer(mapRect);
             DrawGrid(mapRect);
+
+            // 绘制临时提示消息（放置被拒绝等）
+            if (!string.IsNullOrEmpty(m_TempMessage) && Time.realtimeSinceStartup < m_TempMessageTime)
+            {
+                GUIStyle style = new GUIStyle(GUI.skin.label)
+                {
+                    normal = { textColor = Color.red },
+                    fontSize = 14,
+                    alignment = TextAnchor.MiddleCenter
+                };
+                GUI.Label(new Rect(0, rect.height - 40, rect.width, 30), m_TempMessage, style);
+            }
+
             // 更新状态栏
             UpdateStatusBar();
             // 最后处理鼠标事件，避免影响绘制
@@ -395,6 +409,36 @@ namespace Honor.Editor.MapTool
                 case MapObjectType.Prop: return new Color(0, 1, 0, 0.5f);      // 物件：绿色
                 default: return Color.cyan;
             }
+        }
+
+        /// <summary>
+        /// 绘制待放置物体预览（鼠标跟随半透明框）
+        /// </summary>
+        /// <param name="mapRect">地图显示区域</param>
+        private void DrawPendingPlacePreview(Rect mapRect)
+        {
+            if (m_PendingPlace == null) return;
+
+            // 世界坐标转屏幕坐标
+            float width = m_PendingPlace.Width * MapToolConstants.GridSize * m_Zoom;
+            float height = m_PendingPlace.Height * MapToolConstants.GridSize * m_Zoom;
+            Rect previewRect = new Rect(WorldToScreen(m_PendingPlace.Position), new Vector2(width, height));
+
+            // 根据是否合法选择颜色
+            Color previewColor = m_PreviewValid
+                ? new Color(0, 1, 1, 0.3f)   // 合法：半透明青色
+                : new Color(1, 0, 0, 0.5f);  // 不合法：半透明红色
+
+            EditorGUI.DrawRect(previewRect, previewColor);
+
+            // 绘制边框
+            Handles.color = m_PreviewValid ? Color.cyan : Color.red;
+            Handles.DrawSolidRectangleWithOutline(previewRect, Color.clear, m_PreviewValid ? Color.cyan : Color.red);
+
+            // 绘制物体名称
+            GUI.Label(new Rect(previewRect.x, previewRect.y - 20, 100, 20),
+                m_PendingPlace.Name,
+                new GUIStyle(GUI.skin.label) { normal = { textColor = m_PreviewValid ? Color.white : Color.red } });
         }
 
         /// <summary>
