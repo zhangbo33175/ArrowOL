@@ -40,16 +40,20 @@ namespace Honor.Editor.MapTool
             // 清空列表
             m_ItemList.Clear();
             m_ItemItems.Clear();
-            // 示例元件数据（后续可接入配置表动态加载）
-            string[] itemNames = { "钥匙", "猫咪零食", "金币", "碎片", "道具-锤子", "道具-刷子" };
-            string[] itemDescs = { "Key - 点击收集", "CatFood - 自动拾取", "Coin - 点击收集", "Piece - 隐藏物品", "Hammer - 触发剧情", "Brush - 隐藏物品" };
-            bool[] showFlags = { true, true, true, false, true, false };
-            for (int i = 0; i < itemNames.Length; i++)
+
+            // 从模板管理器加载所有模板，按当前Tab类型过滤
+            var allTemplates = ObjectTemplateManager.Instance.GetAllTemplates();
+            var templates = allTemplates.FindAll(t => t.Type == m_CurrentTypeTab);
+
+            for (int i = 0; i < templates.Count; i++)
             {
-                var item = CreateItemElement(itemNames[i], itemDescs[i], showFlags[i], i);
+                var template = templates[i];
+                var item = CreateItemElement(template, i);
                 m_ItemList.Add(item);
                 m_ItemItems.Add(item);
             }
+
+            Debug.Log($"[ItemElementEditModule] 刷新元件列表，类型={m_CurrentTypeTab}，共加载 {templates.Count} 个模板");
         }
 
         /// <summary>

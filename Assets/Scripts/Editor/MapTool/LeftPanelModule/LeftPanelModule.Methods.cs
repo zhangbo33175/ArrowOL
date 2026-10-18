@@ -191,19 +191,28 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 根据Tab索引获取资源数据
         /// </summary>
-        private string[] GetResourceDataByTab(int tabIndex)
+        private List<string> GetResourceDataByTab(int tabIndex)
         {
+            var templates = ObjectTemplateManager.Instance.GetAllTemplates();
+            var result = new List<string>();
+
             switch (tabIndex)
             {
                 case 0: // 建筑
-                    return new string[] { "P_001_大树", "P_002_小花", "P_003_石头", "P_004_木桶", "P_005_木箱" };
+                    foreach (var t in templates.FindAll(t => t.Type == MapObjectType.Building))
+                        result.Add($"{t.TemplateId}_{t.TemplateName}");
+                    break;
                 case 1: // 人物
-                    return new string[] { "G_001_主角", "G_002_NPC商人", "G_003_NPC守卫" };
+                    foreach (var t in templates.FindAll(t => t.Type == MapObjectType.Character))
+                        result.Add($"{t.TemplateId}_{t.TemplateName}");
+                    break;
                 case 2: // 物件
-                    return new string[] { "P_006_火把", "P_007_灯笼", "P_008_栅栏", "P_009_桌椅" };
-                default:
-                    return new string[] { };
+                    foreach (var t in templates.FindAll(t => t.Type == MapObjectType.Prop))
+                        result.Add($"{t.TemplateId}_{t.TemplateName}");
+                    break;
             }
+
+            return result;
         }
 
     }

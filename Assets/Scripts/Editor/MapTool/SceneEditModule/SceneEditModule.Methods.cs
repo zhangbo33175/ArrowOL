@@ -285,6 +285,56 @@ namespace Honor.Editor.MapTool
             m_DeleteObjectBtn = m_Root.Q<Button>(name: "btn-delete-object");
             m_PublishBtn = m_Root.Q<Button>(name: "btn-publish");
             m_PropertyPanel = m_Root.Q<VisualElement>(name: "property-panel");
+            // 新增属性面板字段
+            m_SortOrderField = m_Root.Q<TextField>(name: "prop-sort-order");
+            // 交互类型下拉框
+            var interactContainer = m_Root.Q<VisualElement>(name: "prop-interact-type-container");
+            if (interactContainer != null)
+            {
+                m_InteractTypeField = new DropdownField();
+                m_InteractTypeField.choices = new List<string> { "无", "点击", "对话", "进入", "收集" };
+                m_InteractTypeField.value = "无";
+                m_InteractTypeField.style.flexGrow = 1;
+                m_InteractTypeField.RegisterValueChangedCallback(evt =>
+                {
+                    if (m_EditTarget != null)
+                        m_EditTarget.InteractType = evt.newValue;
+                });
+                interactContainer.Add(m_InteractTypeField);
+            }
+            m_CollisionToggle = m_Root.Q<Toggle>(name: "prop-collision");
+            // 气泡类型下拉框
+            var bubbleContainer = m_Root.Q<VisualElement>(name: "prop-dialog-bubble-container");
+            if (bubbleContainer != null)
+            {
+                m_DialogBubbleField = new DropdownField();
+                m_DialogBubbleField.choices = new List<string> { "无", "对话", "思考", "收集提示" };
+                m_DialogBubbleField.value = "无";
+                m_DialogBubbleField.style.flexGrow = 1;
+                m_DialogBubbleField.RegisterValueChangedCallback(evt =>
+                {
+                    if (m_EditTarget != null)
+                        m_EditTarget.DialogBubble = evt.newValue;
+                });
+                bubbleContainer.Add(m_DialogBubbleField);
+            }
+            // 朝向下拉框
+            var facingContainer = m_Root.Q<VisualElement>(name: "prop-facing-container");
+            if (facingContainer != null)
+            {
+                m_FacingField = new DropdownField();
+                m_FacingField.choices = new List<string> { "上", "下", "左", "右" };
+                m_FacingField.value = "下";
+                m_FacingField.style.flexGrow = 1;
+                m_FacingField.RegisterValueChangedCallback(evt =>
+                {
+                    if (m_EditTarget != null)
+                        m_EditTarget.FacingDirection = evt.newValue;
+                });
+                facingContainer.Add(m_FacingField);
+            }
+            m_ShadowToggle = m_Root.Q<Toggle>(name: "prop-shadow");
+            m_CollectibleToggle = m_Root.Q<Toggle>(name: "prop-collectible");
             // 场景信息字段（保存配置时读取）
             m_SceneNameField = m_Root.Q<TextField>(name: "scene-name-field");
             m_SceneIdField = m_Root.Q<TextField>(name: "scene-id-field");

@@ -72,7 +72,7 @@ namespace Honor.Editor.MapTool
             if (m_ResourceList == null) return;
             m_ResourceList.Clear();
             m_ResourceItems.Clear();
-            string[] resources = GetResourceDataByTab(m_CurrentTabIndex);
+            List<string> resources = GetResourceDataByTab(m_CurrentTabIndex);
             foreach (var resourceName in resources)
             {
                 var item = CreateResourceItem(resourceName);

@@ -121,8 +121,11 @@ namespace Honor.Editor.MapTool
         /// <param name="mapRect">地图显示区域</param>
         private void DrawPlacedObjects(Rect mapRect)
         {
-            // 按 Y 坐标排序（Y 越大越靠后绘制，视觉上位于前方）
-            var sortedObjects = m_PlacedObjects.OrderBy(obj => obj.Position.y).ToList();
+            // 先按 SortOrder 排序，再按 Y 坐标排序（双重排序控制遮挡）
+            var sortedObjects = m_PlacedObjects
+                .OrderBy(obj => obj.SortOrder)
+                .ThenBy(obj => obj.Position.y)
+                .ToList();
             foreach (var obj in sortedObjects)
             {
                 // 根据图层开关过滤

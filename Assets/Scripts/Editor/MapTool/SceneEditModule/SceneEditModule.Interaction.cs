@@ -158,16 +158,30 @@ namespace Honor.Editor.MapTool
                         return;
                     }
 
-                    // 创建新物体（复制预览对象）
+                    // 创建新物体（复制预览对象的所有属性）
                     PlacedObject newObj = new PlacedObject
                     {
                         Id = m_PendingPlace.Id,
+                        TemplateId = m_PendingPlace.TemplateId,
                         Name = m_PendingPlace.Name,
                         Type = m_PendingPlace.Type,
                         Position = m_PendingPlace.Position,
                         Width = m_PendingPlace.Width,
                         Height = m_PendingPlace.Height,
                         PreviewTexture = m_PendingPlace.PreviewTexture,
+                        // 复制模板属性
+                        AnimName = m_PendingPlace.AnimName,
+                        Loop = m_PendingPlace.Loop,
+                        Speed = m_PendingPlace.Speed,
+                        Interactable = m_PendingPlace.Interactable,
+                        InteractType = m_PendingPlace.InteractType,
+                        SortOrder = m_PendingPlace.SortOrder,
+                        CollisionEnabled = m_PendingPlace.CollisionEnabled,
+                        DialogBubble = m_PendingPlace.DialogBubble,
+                        FacingDirection = m_PendingPlace.FacingDirection,
+                        ShadowEnabled = m_PendingPlace.ShadowEnabled,
+                        IsCollectible = m_PendingPlace.IsCollectible,
+                        RespawnTime = m_PendingPlace.RespawnTime,
                     };
 
                     m_PlacedObjects.Add(newObj);

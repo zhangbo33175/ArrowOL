@@ -32,6 +32,8 @@ namespace Honor.Editor.MapTool
         public void Init(VisualElement root)
         {
             m_Root = root;
+            // 初始化物体模板管理器
+            ObjectTemplateManager.Instance.Initialize();
             FindElements();
             BindEvents();
         }
@@ -289,15 +291,36 @@ namespace Honor.Editor.MapTool
             // 创建待放置预览对象
             Vector2Int defaultSize = MapToolEditorUtils.GetDefaultObjectSize(objectType);
             Texture previewTex = LoadObjectPreview(objectId);
+
+            // 从模板继承属性
+            ObjectTemplate template = ObjectTemplateManager.Instance.GetTemplateById(objectId);
             m_PendingPlace = new PlacedObject
             {
-                Id = objectId,
+                Id = System.Guid.NewGuid().ToString("N").Substring(0, 8), // 实例ID
+                TemplateId = objectId, // 模板ID
                 Name = objectName,
                 Type = objectType,
                 Width = defaultSize.x,
                 Height = defaultSize.y,
                 PreviewTexture = previewTex,
             };
+
+            // 从模板复制属性
+            if (template != null)
+            {
+                m_PendingPlace.AnimName = template.AnimName;
+                m_PendingPlace.Loop = template.Loop;
+                m_PendingPlace.Speed = template.Speed;
+                m_PendingPlace.Interactable = template.Interactable;
+                m_PendingPlace.InteractType = template.InteractType;
+                m_PendingPlace.SortOrder = template.SortOrder;
+                m_PendingPlace.CollisionEnabled = template.CollisionEnabled;
+                m_PendingPlace.DialogBubble = template.DialogBubble;
+                m_PendingPlace.FacingDirection = template.FacingDirection;
+                m_PendingPlace.ShadowEnabled = template.ShadowEnabled;
+                m_PendingPlace.IsCollectible = template.IsCollectible;
+                m_PendingPlace.RespawnTime = template.RespawnTime;
+            }
 
             // 选中人物资源时：自动绑定画布上第一个同名实例作为路径编辑目标，底部显示切页
             if (objectType == MapObjectType.Character)
@@ -382,7 +405,7 @@ namespace Honor.Editor.MapTool
 
             // 更新底部属性面板字段
             if (m_TemplateIdField != null)
-                m_TemplateIdField.SetValueWithoutNotify(obj.Id);
+                m_TemplateIdField.SetValueWithoutNotify(obj.TemplateId);
             if (m_TagField != null)
                 m_TagField.SetValueWithoutNotify(obj.Type.ToString());
             if (m_GridPosField != null)
@@ -397,6 +420,22 @@ namespace Honor.Editor.MapTool
                 m_GridPrefixField.SetValueWithoutNotify("前缀");
             if (m_InteractStateField != null)
                 m_InteractStateField.SetValueWithoutNotify(obj.Interactable ? "点击&移动" : "不可交互");
+
+            // 填充新增属性面板字段
+            if (m_SortOrderField != null)
+                m_SortOrderField.SetValueWithoutNotify(obj.SortOrder.ToString());
+            if (m_InteractTypeField != null)
+                m_InteractTypeField.SetValueWithoutNotify(obj.InteractType);
+            if (m_CollisionToggle != null)
+                m_CollisionToggle.SetValueWithoutNotify(obj.CollisionEnabled);
+            if (m_DialogBubbleField != null)
+                m_DialogBubbleField.SetValueWithoutNotify(obj.DialogBubble);
+            if (m_FacingField != null)
+                m_FacingField.SetValueWithoutNotify(obj.FacingDirection);
+            if (m_ShadowToggle != null)
+                m_ShadowToggle.SetValueWithoutNotify(obj.ShadowEnabled);
+            if (m_CollectibleToggle != null)
+                m_CollectibleToggle.SetValueWithoutNotify(obj.IsCollectible);
 
             // 显示底部属性面板
             if (m_PropertyPanel != null)

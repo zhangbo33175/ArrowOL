@@ -35,6 +35,7 @@ namespace Honor.Editor.MapTool
             return new MapObjectData
             {
                 id = obj.Id,
+                templateId = obj.TemplateId,
                 name = obj.Name,
                 posX = obj.Position.x,
                 posY = obj.Position.y,
@@ -42,7 +43,16 @@ namespace Honor.Editor.MapTool
                 height = obj.Height,
                 image = MapToolEditorUtils.GetObjectImagePath(obj.PreviewTexture, obj.Id),
                 anim = obj.AnimName,
+                loop = obj.Loop,
+                speed = obj.Speed,
                 interactable = obj.Interactable,
+                interactType = obj.InteractType,
+                sortOrder = obj.SortOrder,
+                collisionEnabled = obj.CollisionEnabled,
+                dialogBubble = obj.DialogBubble,
+                shadowEnabled = obj.ShadowEnabled,
+                isCollectible = obj.IsCollectible,
+                respawnTime = obj.RespawnTime,
             };
         }
 
@@ -56,6 +66,7 @@ namespace Honor.Editor.MapTool
             MapCharacterData character = new MapCharacterData
             {
                 id = obj.Id,
+                templateId = obj.TemplateId,
                 name = obj.Name,
                 posX = obj.Position.x,
                 posY = obj.Position.y,
@@ -63,7 +74,15 @@ namespace Honor.Editor.MapTool
                 height = obj.Height,
                 image = MapToolEditorUtils.GetObjectImagePath(obj.PreviewTexture, obj.Id),
                 anim = obj.AnimName,
+                loop = obj.Loop,
+                speed = obj.Speed,
                 interactable = obj.Interactable,
+                interactType = obj.InteractType,
+                patrolLoop = obj.PatrolLoop,
+                facingDirection = obj.FacingDirection,
+                dialogBubble = obj.DialogBubble,
+                sortOrder = obj.SortOrder,
+                shadowEnabled = obj.ShadowEnabled,
             };
             foreach (var point in obj.PathPoints)
                 character.pathPoints.Add(new MapPathPointData { x = point.x, y = point.y });

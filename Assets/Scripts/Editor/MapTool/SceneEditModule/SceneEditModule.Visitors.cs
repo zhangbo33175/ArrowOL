@@ -445,6 +445,14 @@ namespace Honor.Editor.MapTool
         /// 底部属性面板（选中物体时显示）
         /// </summary>
         private VisualElement m_PropertyPanel;
+        // 新增属性面板字段
+        private TextField m_SortOrderField;
+        private DropdownField m_InteractTypeField;
+        private Toggle m_CollisionToggle;
+        private DropdownField m_DialogBubbleField;
+        private DropdownField m_FacingField;
+        private Toggle m_ShadowToggle;
+        private Toggle m_CollectibleToggle;
         #endregion
 
         #region 属性
