@@ -81,6 +81,7 @@ namespace Honor.Runtime
             // 最短展示时长计时（与 Lua 初始化并行）
             DOTween.Sequence()
                 .AppendInterval(GameMainRoot.Procedure.SplashProcedureDuration)
+<<<<<<< HEAD
                 .AppendCallback(() =>
                 {
                     m_MinTimeElapsed = true;
@@ -90,6 +91,10 @@ namespace Honor.Runtime
 
             // 等闪屏首帧渲染后，立即触发重活（提前进入 Lua 初始化）
             StartCoroutine(TriggerInitAfterFirstFrame());
+=======
+                .AppendCallback(() => { DurationOverCallback?.Invoke(); })
+                .id = GameDOTweenTypes.SplashShowTween;
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
         }
 
         /// <summary>

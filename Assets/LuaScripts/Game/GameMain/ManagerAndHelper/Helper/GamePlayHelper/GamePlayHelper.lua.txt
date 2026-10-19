@@ -6,13 +6,17 @@
 -- created:    2026
 -- @brief      开始游戏帮助类
 -- @desc       封装游戏关卡、界面、特效、奖励、道具、状态判断等核心游戏逻辑
+<<<<<<< HEAD
 -- @core       关卡状态判定、关卡启动/重开/退出、主线地图加载调度、UI 图片精灵刷新
 -- @scope      状态机、结算界面、登录流程、地图加载等需要统一进出关卡与刷新表现的模块
+=======
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 -- @规范        Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, GameManager, ChapterManager, LevelCoreManager, UIManager, EffectManager, AudioManager
 --=====================================================================================================
 
 ---@class GamePlayHelper @开始游戏帮助类：统一管理关卡启动、UI打开、特效播放、奖励展示等游戏核心逻辑
+<<<<<<< HEAD
 ---@field _loopLevelHelper LoopLevelHelper @ 循环关卡辅助类（预留，暂未使用）
 local GamePlayHelper = class("GamePlayHelper")
 
@@ -28,6 +32,25 @@ end
 
 ---@type fun():GamePlayHelper
 ---@brief 创建 GamePlayHelper 单例对象（GameRequires 全局实例化入口）
+=======
+---@field _loopLevelHelper LoopLevelHelper @ 循环关卡辅助类（预留）
+local GamePlayHelper = class("GamePlayHelper")
+
+--region 【构造与初始化】
+
+---@type fun():void
+---@brief 构造函数：初始化常量配置、颜色配置、格式字符串
+function GamePlayHelper:ctor()
+    self._mainMinChapterId = 1                                          ---@type number                                 ---主线最小章节ID
+    self._mainMaxChapterId = 1000                                       ---@type number                                 ---主线最大章节ID
+    self._goldenTicketPlayNameTextColorConfigData = nil                 ---@type TextColorConfigData                    ---金票玩家名字颜色配置
+    self._goldenTicketHighPlayNameTextColorConfigData = nil             ---@type TextColorConfigData                    ---高级金票玩家名字颜色配置
+    self._OutLineName = "Material_RGame_SDF_Static___Outline_%s"        ---@type string                                 ---文字描边材质名称格式化串
+end
+
+---@type fun():GamePlayHelper
+---@brief 创建GamePlayHelper单例对象
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 ---@return GamePlayHelper 帮助类实例
 function GamePlayHelper:Create()
     local obj = GamePlayHelper.new()
@@ -38,6 +61,21 @@ end
 
 --region 【关卡状态判断】
 
+<<<<<<< HEAD
+=======
+---@type fun(chapterId:string):boolean
+---@brief 判断是否为主线章节
+---@param chapterId string 章节ID
+---@return boolean 是否主线章节
+function GamePlayHelper:IsMainChapter(chapterId)
+    if string.isNullOrEmpty(chapterId) then
+        return false
+    end
+    local chapterIdNum = tonumber(chapterId)
+    return chapterIdNum >= self._mainMinChapterId and chapterIdNum <= self._mainMaxChapterId
+end
+
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 ---@type fun():boolean
 ---@brief 判断当前是否处于游戏关卡状态
 ---@return boolean 是否在游戏中
@@ -59,6 +97,25 @@ function GamePlayHelper:IsPlayFirstLevel()
     return false
 end
 
+<<<<<<< HEAD
+=======
+---@type fun(chapterId:string,levelId:number):boolean
+---@brief 判断是否需要显示准备关卡界面
+---@param chapterId string 章节ID
+---@param levelId number 关卡ID
+---@return boolean 是否显示
+function GamePlayHelper:IsPlayShowPrepareLevel(chapterId, levelId)
+    return false
+end
+
+---@type fun():boolean
+---@brief 是否正在游玩最新章节
+---@return boolean
+function GamePlayHelper:IsPlayingNewChapter()
+    return SaveRootData.GameData.latestChapterId == SaveRootData.GameData.curChapterId
+end
+
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 --endregion
 
 --region 【加载关卡资源】
@@ -91,12 +148,32 @@ function GamePlayHelper:PlayLevel(levelData)
     if levelData == nil then
         return false
     end
+<<<<<<< HEAD
     if GameCoreManager:IsLifeEnough() and PlayLevelImmediate(self, levelData) then
+=======
+    if GameCoreManager:IsLifeEnough() and self:PlayLevelImmediate(levelData) then
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
         return true
     end
     return false
 end
 
+<<<<<<< HEAD
+=======
+---@type fun(levelData:Tables.LevelData_Item):boolean
+---@brief 立即开始游戏（不检查体力）
+---@param levelData Tables.LevelData_Item 关卡数据
+---@return boolean 是否成功
+function GamePlayHelper:PlayLevelImmediate(levelData)
+    if levelData then
+        GameCoreManager._CurLevelData = levelData
+        return true
+    end
+    PrintError("PlayLevelImmediate is not implement,LevelData is nil")
+    return false
+end
+
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 ---@type fun(isSuccess:boolean):void
 ---@brief 游戏结束
 ---@param isSuccess boolean 是否胜利
@@ -108,6 +185,7 @@ function GamePlayHelper:GameOver(isSuccess)
 end
 
 ---@type fun():void
+<<<<<<< HEAD
 ---@brief 退出关卡，返回主界面
 function GamePlayHelper:GameExitPlayHud()
     -- 重置相机缩放（放大缩小），避免返回主界面后画面残留缩放状态
@@ -115,10 +193,23 @@ function GamePlayHelper:GameExitPlayHud()
     if GameMapMotion and GameMapMotion.ScreenCamera then
         GameMapMotion:UpdateCameraRect(0)
     end
+=======
+---@brief 主动点击退出游戏
+function GamePlayHelper:ClickGameExit()
+    PrintInfo("ClickGameExit")
+    GameCoreManager:DoGameFailed(EGameOverType.PlayerGiveUp)
+    self:GameExitPlayHud()
+end
+
+---@type fun():void
+---@brief 退出关卡，返回主界面
+function GamePlayHelper:GameExitPlayHud()
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
 end
 
 ---@type fun():void
+<<<<<<< HEAD
 ---@brief 重玩当前关卡：重置本局数据并重新进入游玩状态
 ---@desc 结算界面"重新开始"按钮调用。直接进入加载状态机，先卸载当前地图（CurLoadChapterId 置空），
 ---      再重载当前章节，触发 OnReadyToLoadMap → GameCoreManager:OnRePlayGame 完成数据重置。
@@ -131,6 +222,60 @@ function GamePlayHelper:RePlayCurrentLevel()
     end
     -- 直接进入加载状态机：先退出游玩状态卸载地图，再重载当前章节
     MapManager:ReadyToLoadMap(curChapterId, function() end)
+=======
+---@brief 游戏胜利后离开关卡（结算专用）
+function GamePlayHelper:OnLevelWinExitPlayGameFun()
+    if GuideContext:IsTutorialExecute() or not ADMgr:TryShowInterAd(EInterAdID.LevelWin, function()
+        GamePlayHelper:GameExitPlayHud()
+    end, nil) then
+        GamePlayHelper:GameExitPlayHud()
+    end
+end
+
+---@type fun():void
+---@brief 等级礼包领奖关闭动画回调
+function GamePlayHelper:OnLevelWinRewardBeginCloseFun()
+    CloseUI(UIs.UILevelSuccessBg)
+end
+
+--endregion
+
+--region 【音频管理】
+
+---@type fun():void
+---@brief 播放关卡内背景音乐
+function GamePlayHelper:PlayInGameBGM()
+    local levelData = GameCoreManager._CurLevelData
+    if levelData then
+        if MapManager.CurLoadMapType == EMapType.Main then
+            local peakId = levelData.PeakId
+            local peakLevelData = PeakLevelsDataMgr:GetDataById(tostring(peakId))
+            if peakLevelData and peakId ~= ELevelType.Normal and not string.isNullOrEmpty(peakLevelData.LevelBGM) then
+                SoundManager:PlayBGM(peakLevelData.LevelBGM)
+            else
+                self:PlayCommonInGameBGM()
+            end
+            return
+        end
+        if not string.isNullOrEmpty(MapManager.CurLoadChapterId) then
+            PrintError("GamePlayHelper:PlayInGameBGM() 未知的地图类型 chapterId" .. MapManager.CurLoadChapterId)
+        end
+    end
+end
+
+---@type fun():void
+---@brief 播放普通关卡背景音乐
+function GamePlayHelper:PlayCommonInGameBGM()
+    --if GameCoreManager:IsInChallengeLevel() then
+    --    SoundManager:PlayBGM(Tables.Sounds.BGM_Challenge.Name)
+    --    return
+    --end
+
+    local chapterData = ChapterDataManager:GetChapterDataByChapterType(MapManager.CurLoadChapterId)
+    if chapterData and chapterData.MapMusic and chapterData.MapMusic.ingame then
+        SoundManager:PlayBGM(chapterData.MapMusic.ingame)
+    end
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 end
 
 --endregion
@@ -151,6 +296,7 @@ function GamePlayHelper:LoadMainMap(chapterId, callback, refuseAd)
     MapManager:OnSetSwitchMap(chapterId, callback, refuseAd)
 end
 
+<<<<<<< HEAD
 ---@type fun():void
 ---@brief 加载下一关（"章节-内部关卡"模式统一入口）
 ---@desc 通关胜利后由结算界面"下一关"按钮调用，逻辑分两档：
@@ -208,15 +354,37 @@ function GamePlayHelper:LoadNextChapter(curChapterId)
     end, true)
 end
 
+=======
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 --endregion
 
 --region 【UI 资源刷新（图片/材质）】
 
+<<<<<<< HEAD
 ---@type fun(ui:LuaBehaviourSuper, uiImage:UnityEngine.UI.Image,spriteName:string):void
 ---@brief 刷新图片精灵  Sprite_sc_2_cat_4
 function GamePlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
     if ui and uiImage then
         ---@type LOAD_RES_DEF_ITEM
+=======
+---@type fun(ui:LuaBehaviourSuper, uiText:TMPro.TextMeshProUGUI,outlineMatName:string):void
+---@brief 刷新文本描边材质
+function GamePlayHelper:RefreshTextOutLineMaterial(ui, uiText, outlineMatName)
+    if ui and uiText then
+        ---@type RES_DEF_ITEM
+        local info = LoadRes[outlineMatName]
+        if info and (not uiText.fontMaterial or uiText.fontMaterial.name ~= info.AssetName) then
+            uiText.fontMaterial = ui:LoadAsset(info)
+        end
+    end
+end
+
+---@type fun(ui:LuaBehaviourSuper, uiImage:UnityEngine.UI.Image,spriteName:string):void
+---@brief 刷新图片精灵
+function GamePlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
+    if ui and uiImage then
+        ---@type RES_DEF_ITEM
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
         local info = LoadRes["Sprite_"..spriteName]
         if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
             uiImage.sprite = ui:LoadAsset(info)
@@ -227,6 +395,7 @@ end
 
 --endregion
 
+<<<<<<< HEAD
 --region 【内部方法·工具】
 
 ---@type fun(self:GamePlayHelper, levelData:Tables.LevelData_Item):boolean
@@ -245,4 +414,6 @@ end
 
 --endregion
 
+=======
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 return GamePlayHelper

@@ -520,9 +520,15 @@ namespace XLua.CSObjectWrap
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.OriginType.None);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "InEditor", Honor.Runtime.OriginType.InEditor);
+<<<<<<< HEAD
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PersistentData", Honor.Runtime.OriginType.PersistentData);
             
+=======
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PersistentData", Honor.Runtime.OriginType.PersistentData);
+
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "StreamingAssets", Honor.Runtime.OriginType.StreamingAssets);
             
 
@@ -560,7 +566,7 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.StreamingAssets);
                 }
-				else
+                else
                 {
                     return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.OriginType!");
                 }
@@ -590,7 +596,11 @@ namespace XLua.CSObjectWrap
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.PrefabDetailType.None);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UIPrefab", Honor.Runtime.PrefabDetailType.UIPrefab);
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LogicPrefab", Honor.Runtime.PrefabDetailType.LogicPrefab);
             
 
@@ -1824,6 +1834,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.VibrateType.None);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SelectionFeedback", Honor.Runtime.VibrateType.SelectionFeedback);
+<<<<<<< HEAD
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SuccessFeedback", Honor.Runtime.VibrateType.SuccessFeedback);
             
@@ -1839,6 +1850,23 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RigidImpactFeedback", Honor.Runtime.VibrateType.RigidImpactFeedback);
             
+=======
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SuccessFeedback", Honor.Runtime.VibrateType.SuccessFeedback);
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WarningFeedback", Honor.Runtime.VibrateType.WarningFeedback);
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FailureFeedback", Honor.Runtime.VibrateType.FailureFeedback);
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LightImpactFeedback", Honor.Runtime.VibrateType.LightImpactFeedback);
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MediumImpactFeedback", Honor.Runtime.VibrateType.MediumImpactFeedback);
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HeavyImpactFeedback", Honor.Runtime.VibrateType.HeavyImpactFeedback);
+
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RigidImpactFeedback", Honor.Runtime.VibrateType.RigidImpactFeedback);
+
+>>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoftImpactFeedback", Honor.Runtime.VibrateType.SoftImpactFeedback);
             
 
