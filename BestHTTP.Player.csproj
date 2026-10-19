@@ -13,7 +13,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{107958a8-7170-fed7-d309-4b90bc865bfa}</ProjectGuid>
+    <ProjectGuid>{a9c8b0a7-2f7b-1b41-1c90-958b9cb5f58e}</ProjectGuid>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -2141,31 +2141,31 @@
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\PlaybackEngines\WindowsStandaloneSupport\Variations\mono\Managed\UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTween.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween.dll</HintPath>
     </Reference>
     <Reference Include="DOTween46">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTween46.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween46.dll</HintPath>
     </Reference>
     <Reference Include="DOTweenPro">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTweenPro.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTweenPro.dll</HintPath>
     </Reference>
     <Reference Include="DOTween43">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTween43.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween43.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IO.RecyclableMemoryStream">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>
@@ -2536,7 +2536,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="UnityEngine.UI.Player.csproj">
-      <Project>{17504fd7-3ce9-d238-6049-bc08b23984a0}</Project>
+      <Project>{d646b5c2-9a0c-4ae9-cc33-2f46e0996d0e}</Project>
       <Name>UnityEngine.UI.Player</Name>
     </ProjectReference>
   </ItemGroup>

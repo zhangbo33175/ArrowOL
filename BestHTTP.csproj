@@ -13,7 +13,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{241c8de6-5dd0-a81e-546e-275240ecd06b}</ProjectGuid>
+    <ProjectGuid>{79d2d7fc-f452-5e1c-134b-477393744e66}</ProjectGuid>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -2206,58 +2206,58 @@
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\PlaybackEngines\WindowsStandaloneSupport\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.YamlDotNet">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll</HintPath>
     </Reference>
     <Reference Include="ReportGeneratorMerged">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.testtools.codecoverage@1.2.4\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.testtools.codecoverage@1.2.4\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Plastic.Antlr3.Runtime">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Antlr3.Runtime.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Plastic.Newtonsoft.Json">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTween.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween.dll</HintPath>
     </Reference>
     <Reference Include="log4netPlastic">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.IonicZip">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll</HintPath>
     </Reference>
     <Reference Include="DOTween46">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTween46.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween46.dll</HintPath>
     </Reference>
     <Reference Include="DOTweenPro">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTweenPro.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTweenPro.dll</HintPath>
     </Reference>
     <Reference Include="DOTween43">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\DOTween43.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween43.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.TextureAssets">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
     </Reference>
     <Reference Include="unityplastic">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IO.RecyclableMemoryStream">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
     </Reference>
     <Reference Include="EPPlus">
-      <HintPath>E:\Game\CatGame\CatGameCodeOptimizationBuild\Assets\Plugins\ThirdLibs\ExcelIO\EPPlus.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\ExcelIO\EPPlus.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Android.Types">
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Types.dll</HintPath>
@@ -2637,11 +2637,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="UnityEditor.UI.csproj">
-      <Project>{98e5e3fc-fe7a-bae8-d7ad-6e236d22fda5}</Project>
+      <Project>{b30160a7-59e1-f22b-bc94-bb2a8bd9b69d}</Project>
       <Name>UnityEditor.UI</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.UI.csproj">
-      <Project>{c144b89c-de24-134d-7d42-1487e9fd6d4a}</Project>
+      <Project>{9fdbeff2-7e1e-b609-e080-230d52450256}</Project>
       <Name>UnityEngine.UI</Name>
     </ProjectReference>
   </ItemGroup>
