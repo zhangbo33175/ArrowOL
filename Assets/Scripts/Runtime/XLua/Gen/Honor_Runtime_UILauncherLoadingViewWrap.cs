@@ -21,18 +21,28 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UILauncherLoadingView);
-			Utils.BeginObjectRegister(type, L, translator, 0, 6, 0, 1);
+			Utils.BeginObjectRegister(type, L, translator, 0, 8, 4, 5);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetLoadingMode", _m_SetLoadingMode);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RefreshViews", _m_RefreshViews);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetVisible", _m_SetVisible);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "FadeOutNow", _m_FadeOutNow);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HoldThenFadeOut", _m_HoldThenFadeOut);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnStartButtonClicked", _m_OnStartButtonClicked);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnRetryButtonClicked", _m_OnRetryButtonClicked);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnCloseButtonClicked", _m_OnCloseButtonClicked);
 			
 			
-			
-			Utils.RegisterFunc(L, Utils.SETTER_IDX, "DescContent", _s_set_DescContent);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "EnterTransitionEnabled", _g_get_EnterTransitionEnabled);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "EnterTransitionDuration", _g_get_EnterTransitionDuration);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "ExitTransitionEnabled", _g_get_ExitTransitionEnabled);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "ExitTransitionDuration", _g_get_ExitTransitionDuration);
+            
+			Utils.RegisterFunc(L, Utils.SETTER_IDX, "EnterTransitionEnabled", _s_set_EnterTransitionEnabled);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "EnterTransitionDuration", _s_set_EnterTransitionDuration);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "ExitTransitionEnabled", _s_set_ExitTransitionEnabled);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "ExitTransitionDuration", _s_set_ExitTransitionDuration);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "DescContent", _s_set_DescContent);
             
 			
 			Utils.EndObjectRegister(type, L, translator, null, null,
@@ -238,6 +248,76 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_FadeOutNow(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
+                {
+                    float _fadeDuration = (float)LuaAPI.lua_tonumber(L, 2);
+                    
+                    gen_to_be_invoked.FadeOutNow( _fadeDuration );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 1) 
+                {
+                    
+                    gen_to_be_invoked.FadeOutNow(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.UILauncherLoadingView.FadeOutNow!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_HoldThenFadeOut(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    float _holdDuration = (float)LuaAPI.lua_tonumber(L, 2);
+                    float _fadeDuration = (float)LuaAPI.lua_tonumber(L, 3);
+                    
+                    gen_to_be_invoked.HoldThenFadeOut( _holdDuration, _fadeDuration );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_OnStartButtonClicked(RealStatePtr L)
         {
 		    try {
@@ -321,7 +401,123 @@ namespace XLua.CSObjectWrap
         
         
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_EnterTransitionEnabled(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.EnterTransitionEnabled);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_EnterTransitionDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.EnterTransitionDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_ExitTransitionEnabled(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.ExitTransitionEnabled);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_ExitTransitionDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.ExitTransitionDuration);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_EnterTransitionEnabled(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.EnterTransitionEnabled = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_EnterTransitionDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.EnterTransitionDuration = (float)LuaAPI.lua_tonumber(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_ExitTransitionEnabled(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.ExitTransitionEnabled = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_ExitTransitionDuration(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherLoadingView gen_to_be_invoked = (Honor.Runtime.UILauncherLoadingView)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.ExitTransitionDuration = (float)LuaAPI.lua_tonumber(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_DescContent(RealStatePtr L)

@@ -1,0 +1,171 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  LuaUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     Lua 通用工具（Lua↔C# 数据互转、JSON/Table 序列化、AES 加解密）
+-- @desc      类型互转 / rapidjson 编解码 / Table 字符串序列化 / AES 对称加解密统一收口
+-- @core      CS 集合互转、rapidjson、Table 递归序列化、Honor.AESEncrypt 桥接
+-- @scope     全局通用（经 SystemFuncs 同名全局函数对外暴露，业务零改动）
+-- @dependency xlua CS 全局类型, rapidjson, Honor.AESEncrypt
+--=====================================================================================================
+
+---@class LuaUtil @ Lua 通用工具表（纯函数，无实例状态）
+local LuaUtil = {}
+
+--region Lua <-> C# 转换
+
+---@brief LuaTable转C#的Array
+---@param luaTable table luatable
+---@return userdata 转化结果
+function LuaUtil.LuaTableToCSArray(luaTable)
+    local convertArray = CS.userdata.CreateInstance(typeof(CS.System.Object), #luaTable)
+    for index = 0, #luaTable - 1 do
+        convertArray[index] = luaTable[index + 1]
+    end
+    return convertArray
+end
+
+---@brief LuaTable转C#的List
+---@param luaTable table luatable
+---@return any 转化结果
+function LuaUtil.LuaTableToCSList(luaTable)
+    local convertList = CS.System.Collections.Generic['List`1[System.Object]']()
+    for index = 0, #luaTable - 1 do
+        convertList:Add(luaTable[index + 1])
+    end
+    return convertList
+end
+
+---@brief C#的Dictionary转LuaTable
+---@param dictionary any dictionary
+---@return table 转化结果
+function LuaUtil.CSDictionaryToLuaTable(dictionary)
+    local t = {}
+    local iter = dictionary:GetEnumerator() -- 获取迭代器
+    while iter:MoveNext() do
+        t[iter.Current.Key] = iter.Current.Value
+    end
+    return t
+end
+
+--endregion
+
+--region 编码解码（Json / Table / AES）
+
+---@brief Json序列化（将lua的table数据转换成json字符串）
+---@param tableData table table数据
+---@return string 序列化结果
+function LuaUtil.JsonEncode(tableData)
+    local rapidjson = require "rapidjson"
+    local jsonString = rapidjson.encode(tableData)
+    return jsonString
+end
+
+---@brief Json反序列化（将json字符串转换成lua的table数据）
+---@param jsonString string json字符串
+---@return table 反序列化结果
+function LuaUtil.JsonDecode(jsonString)
+    local rapidjson = require "rapidjson"
+    local tableData = rapidjson.decode(jsonString)
+    return tableData
+end
+
+---@brief LuaTable序列化（将LuaTable数据转化成lua字符串，大数据量效率低）
+---@param data table table数据
+---@return string 序列化结果
+function LuaUtil.TableEncode(data)
+    local lua = ""
+    local t = type(data)
+    if t == "number" then
+        lua = lua .. data
+    elseif t == "boolean" then
+        lua = lua .. tostring(data)
+    elseif t == "string" then
+        lua = lua .. string.format("%q", data)
+    elseif t == "table" then
+        lua = lua .. "{"
+        for k, v in pairs(data) do
+            lua = lua .. "[" .. LuaUtil.TableEncode(k) .. "]=" .. LuaUtil.TableEncode(v) .. ","
+        end
+        -- 处理元表，保留类结构
+        local metatable = getmetatable(data)
+        if metatable ~= nil and type(metatable.__index) == "table" then
+            for k, v in pairs(metatable.__index) do
+                lua = lua .. "[" .. LuaUtil.TableEncode(k) .. "]=" .. LuaUtil.TableEncode(v) .. ","
+            end
+        end
+        lua = lua .. "}"
+    elseif t == "nil" then
+        return nil
+    else
+        lua = lua .. "nil"
+    end
+    return lua
+end
+
+---@brief Table反序列化（将lua字符串转换成LuaTable数据）
+---@param luaString string lua字符串
+---@return table 反序列化结果
+function LuaUtil.TableDecode(luaString)
+    if luaString == nil or type(luaString) ~= "string" or luaString == "" then
+        return {}
+    end
+    -- 加载字符串并执行，还原table
+    return load("return " .. luaString)()
+end
+
+---@brief AES加密字符串为base64字符串
+---传入key与iv时表示使用静态加密/不传key与iv时表示使用动态加密
+---@param value any 明文字符串
+---@param key string 指定的加密key（可不传，默认使用动态加密）
+---@param iv string 指定的加密iv（可不传，默认使用动态加密）
+---@return string 加密结果
+function LuaUtil.AESEncodeToBase64(value, key, iv)
+    local str = type(value) == "table" and LuaUtil.TableEncode(value) or tostring(value)
+    return Honor.AESEncrypt.EncodeToBase64(str, key, iv)
+end
+
+---@brief AES解密base64字符串
+---传入key与iv时表示使用静态解密/不传key与iv时表示使用动态解密
+---@param s string 密文字符串
+---@param typeName string 输出类型："number" "boolean" "table"
+---@param key string 指定的解密key
+---@param iv string 指定的解密iv
+---@return any 解密结果
+function LuaUtil.AESDecodeFromBase64(s, typeName, key, iv)
+    local result = Honor.AESEncrypt.DecodeFromBase64(s, key, iv)
+    if typeName == "number" then
+        return tonumber(result)
+    elseif typeName == "boolean" then
+        return result == "true"
+    elseif typeName == "table" then
+        return LuaUtil.TableDecode(result)
+    end
+    return result
+end
+
+---@brief AES加密字节流
+---传入key与iv时表示使用静态加密/不传key与iv时表示使用动态加密
+---@param bytes userdata 字节流
+---@param key string 指定的加密key（可不传，默认使用动态加密）
+---@param iv string 指定的加密iv（可不传，默认使用动态加密）
+---@return userdata 加密结果
+function LuaUtil.AESEncodeToBytes(bytes, key, iv)
+    return Honor.AESEncrypt.EncodeToBytes(bytes, key, iv)
+end
+
+---@brief AES解密字节流
+---传入key与iv时表示使用静态解密/不传key与iv时表示使用动态解密
+---@param bytes userdata 密文字节流
+---@param key string 指定的解密key
+---@param iv string 指定的解密iv
+---@return userdata 解密结果
+function LuaUtil.AESDecodeToBytes(bytes, key, iv)
+    return Honor.AESEncrypt.DecodeToBytes(bytes, key, iv)
+end
+
+--endregion
+
+return LuaUtil

@@ -5,6 +5,11 @@
 -- filename:  TableAIName
 -- descrip:   AI名称表
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     AI 假玩家昵称配置表
+-- @desc      收录机器人/AI 玩家的昵称及其各语种翻译
+-- @core      以 ID 为主键，Name 为玩家昵称，另按语种字段存储对应译名
+-- @scope     排行榜、对战等场景填充 AI 玩家昵称
+-- @dependency Tables 注册表（Tables.lua），由 Tables.AIName 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.AIName_Item @AI名称表条目

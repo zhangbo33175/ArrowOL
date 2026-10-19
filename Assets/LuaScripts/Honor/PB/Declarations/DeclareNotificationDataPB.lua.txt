@@ -5,6 +5,11 @@
 -- filename: DeclareNotificationDataPB.lua
 -- descrip: 通知消息本地缓存（用于运行时统一上报服务器）
 -- notices: 该文件自动生成，请不要手动修改！
+-- @brief     通知消息本地缓存 Protobuf 结构类型声明
+-- @desc      声明 SavePBMsgDef.NotificationDataPB 命名空间下通知消息与根数据结构字段类型
+-- @core      纯类型注解声明（---@class/---@field），由 proto 定义导出，无运行时代码
+-- @scope     供 NotificationDataPB.lua 运行时表字段类型标注与 IDE/emmylua 提示消费
+-- @dependency protobuf 生成工具链（NotificationDataPB.proto.lua 为源 schema）
 --=====================================================================================================
 
 -- 协议描述：通知消息本地缓存（用于运行时统一上报服务器）
@@ -19,5 +24,3 @@
 -- [主结构]通知根数据
 ---@class SavePBMsgDef.NotificationDataPB.NotificationData : nil
 ---@field data table @ 系统配置数据
-
-

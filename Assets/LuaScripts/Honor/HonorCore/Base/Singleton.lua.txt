@@ -1,0 +1,71 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  Singleton.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     单例基类（所有框架 / 业务单例的父类）
+-- @desc      ctor 自动将自身注册到 SingletonManager 统一管理；Create 工厂创建实例；提供 Init / ClearData / Priority 生命周期钩子供子类重写
+-- @core      基类 ctor 自注册 + 子类重写生命周期钩子；Priority 决定初始化 / 清理顺序
+-- @scope     所有框架 / 业务单例的公共父类；由 SingletonManager 统一编排 Init / ClearData
+-- @dependency 全局 SingletonManager、ESingletonPriority 枚举
+-- @note  子类须继承本类；Priority 越大初始化越早、清理越晚
+--=====================================================================================================
+
+--region 单例基类
+
+---@class Singleton 单例基类（所有单例必须继承）
+---@field __cname string 类名（class 库自动生成）
+local Singleton = class("Singleton")
+
+--=====================================================================================================
+-- 生命周期：构造函数
+--=====================================================================================================
+
+---@brief 构造函数
+---@desc 创建单例实例，并自动将自身注册到单例管理器统一管理
+---@param args table 自定义参数
+function Singleton:ctor(args)
+    -- 自动将自身加入单例管理器统一管理
+    SingletonManager:AddSingleton(self)
+end
+
+--=====================================================================================================
+-- 工厂方法：创建实例
+--=====================================================================================================
+
+---@brief 创建单例实例
+---@desc 通过类方法创建并返回一个新的单例实例，构造时自动完成注册
+---@param args table 自定义参数
+---@return Singleton 创建的单例实例
+function Singleton:Create(args)
+    local obj = Singleton.new(args)
+    return obj
+end
+
+--=====================================================================================================
+-- 生命周期钩子：初始化 / 清理 / 优先级（子类可重写）
+--=====================================================================================================
+
+---@brief 初始化（子类可重写）
+---@desc 预加载时按优先级调用，子类可重写以完成自身初始化逻辑
+function Singleton:Init()
+    PrintInfo("Singleton:Init --> " .. self.__cname)
+end
+
+---@brief 清理数据（子类可重写）
+---@desc 切换账号/重启游戏时调用，子类可重写以完成自身数据清理
+function Singleton:ClearData()
+    PrintInfo("Singleton:ClearData --> " .. self.__cname)
+end
+
+---@brief 获取优先级（子类可重写）
+---@desc 数值越大，初始化越早、清理越晚，供单例管理器排序使用
+---@return number 优先级
+function Singleton:Priority()
+    return ESingletonPriority.DEFAULT
+end
+
+--endregion
+
+return Singleton

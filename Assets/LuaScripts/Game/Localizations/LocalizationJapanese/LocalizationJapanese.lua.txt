@@ -5,6 +5,11 @@
 -- filename:  LocalizationJapanese.lua
 -- descrip:   本地化配置: 日语
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     日语本地化加载入口
+-- @desc      创建 Localizations.Japanese 子表并 require 引入词条明细（语言：日语）
+-- @core      新建空表挂到 Localizations.Japanese，再 require 对应 LocalPart 填充词条
+-- @scope     本地化框架按当前语言 require 本文件加载日语词条
+-- @dependency LocalPart_Localizations_Japanese（词条明细）
 --=====================================================================================================
 
 Localizations.Japanese = {}

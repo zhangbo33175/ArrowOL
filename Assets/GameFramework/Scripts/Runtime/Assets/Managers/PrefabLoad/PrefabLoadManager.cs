@@ -60,10 +60,9 @@ namespace Honor.Runtime
         {
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
 
-            PrefabObject prefabObj = null;
-            if (m_LoadedList.ContainsKey(assetPath))
+            PrefabObject prefabObj = GetPrefabObjectFromDict(m_LoadedList, assetPath);
+            if (prefabObj != null)
             {
-                prefabObj = m_LoadedList[assetPath];
                 prefabObj.RefCount++;
 
                 // 异步加载未完成 → 同步加载并临时使用，使用后立即释放
@@ -117,13 +116,10 @@ namespace Honor.Runtime
         {
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
 
-            PrefabObject prefabObj = null;
-            if (m_LoadedList.ContainsKey(assetPath))
+            PrefabObject prefabObj = GetPrefabObjectFromDict(m_LoadedList, assetPath);
+            if (prefabObj != null)
             {
-                prefabObj = m_LoadedList[assetPath];
-                prefabObj.PrefabLoadOverCallbackList.Add(overCallback);
-                prefabObj.PrefabLoadLuaTableParamList.Add(luaParams);
-                prefabObj.PrefabInstancingGOParentList.Add(parent);
+                EnqueueLoadRequest(prefabObj, overCallback, luaParams, parent);
                 prefabObj.RefCount++;
                 
                 if (prefabObj.Asset != null)
@@ -136,9 +132,7 @@ namespace Honor.Runtime
 
             // 新建异步加载对象
             prefabObj = PrefabObject.CreatePrefabObject(abPath, assetName, assetPath);
-            prefabObj.PrefabLoadOverCallbackList.Add(overCallback);
-            prefabObj.PrefabLoadLuaTableParamList.Add(luaParams);
-            prefabObj.PrefabInstancingGOParentList.Add(parent);
+            EnqueueLoadRequest(prefabObj, overCallback, luaParams, parent);
 
             m_LoadedList.Add(assetPath, prefabObj);
 
@@ -249,10 +243,9 @@ namespace Honor.Runtime
         {
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
 
-            if (!m_LoadedList.ContainsKey(assetPath))
+            PrefabObject prefabObj = GetPrefabObjectFromDict(m_LoadedList, assetPath);
+            if (prefabObj == null)
                 return;
-
-            PrefabObject prefabObj = m_LoadedList[assetPath];
             int instanceID = go.GetInstanceID();
             
             if (!m_GOInstanceIDList.ContainsKey(instanceID))
@@ -297,19 +290,13 @@ namespace Honor.Runtime
                 return;
             }
 
-            if (prefabObj.RefCount < 0)
+            if (IsRefCountInvalid(prefabObj))
             {
-                Log.Error("PrefabLoadMgr Destroy 引用计数错误！ assetName:{0}", prefabObj.AssetName);
                 return;
             }
 
             // 引用归零 → 释放资源
-            if (prefabObj.RefCount == 0)
-            {
-                m_LoadedList.Remove(prefabObj.AssetPath);
-                m_AssetLoadManager.Unload(prefabObj.Asset, null, rightNow);
-                prefabObj.Asset = null;
-            }
+            ReleasePrefabIfRefCountZero(prefabObj, rightNow);
         }
 
         /// <summary>
@@ -325,12 +312,7 @@ namespace Honor.Runtime
                 return;
 
             string assetPath = m_AssetLoadManager.GetAssetPath("GameObject", abPath, assetName);
-            PrefabObject prefabObj = null;
-            
-            if (m_LoadedList.ContainsKey(assetPath))
-            {
-                prefabObj = m_LoadedList[assetPath];
-            }
+            PrefabObject prefabObj = GetPrefabObjectFromDict(m_LoadedList, assetPath);
 
             if (prefabObj != null)
             {
@@ -349,19 +331,86 @@ namespace Honor.Runtime
                     }
                 }
 
-                if (prefabObj.RefCount < 0)
+                if (IsRefCountInvalid(prefabObj))
                 {
-                    Log.Error("PrefabLoadMgr Destroy 引用计数错误！ assetName:{0}", prefabObj.AssetName);
                     return;
                 }
 
-                if (prefabObj.RefCount == 0)
-                {
-                    m_LoadedList.Remove(prefabObj.AssetPath);
-                    m_AssetLoadManager.Unload(prefabObj.Asset);
-                    prefabObj.Asset = null;
-                }
+                ReleasePrefabIfRefCountZero(prefabObj, false);
             }
         }
+
+        //=========================================================================
+        #region 辅助方法
+        //=========================================================================
+
+        /// <summary>
+        /// 从指定 Prefab 字典按唯一标识路径取值
+        /// <para>收敛 LoadSync/LoadAsync/AddAssetRef/RemoveCallBack 中重复的 ContainsKey+索引样板</para>
+        /// </summary>
+        /// <param name="dict">目标资源字典（已加载列表）</param>
+        /// <param name="assetPath">资源唯一标识路径</param>
+        /// <returns>对应的 Prefab 对象；字典为空或未命中时返回 null</returns>
+        private PrefabObject GetPrefabObjectFromDict(Dictionary<string, PrefabObject> dict, string assetPath)
+        {
+            if (dict != null && dict.TryGetValue(assetPath, out PrefabObject prefabObj))
+            {
+                return prefabObj;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 将一次异步加载请求（回调/参数/父节点）挂到 Prefab 对象上
+        /// <para>收敛 LoadAsync 中重复的三列表同步写入</para>
+        /// </summary>
+        /// <param name="prefabObj">目标 Prefab 对象</param>
+        /// <param name="overCallback">加载完成回调</param>
+        /// <param name="luaParams">Lua 参数</param>
+        /// <param name="parent">父节点</param>
+        private void EnqueueLoadRequest(PrefabObject prefabObj, PrefabLoadOverCallback overCallback,
+            LuaTable luaParams, Transform parent)
+        {
+            prefabObj.PrefabLoadOverCallbackList.Add(overCallback);
+            prefabObj.PrefabLoadLuaTableParamList.Add(luaParams);
+            prefabObj.PrefabInstancingGOParentList.Add(parent);
+        }
+
+        /// <summary>
+        /// 引用计数归零时释放 Prefab 资源并移出加载列表
+        /// <para>收敛 Destroy / RemoveCallBack 中重复的释放样板</para>
+        /// </summary>
+        /// <param name="prefabObj">目标 Prefab 对象</param>
+        /// <param name="rightNow">是否立即卸载资源</param>
+        private void ReleasePrefabIfRefCountZero(PrefabObject prefabObj, bool rightNow)
+        {
+            if (prefabObj.RefCount != 0)
+            {
+                return;
+            }
+
+            m_LoadedList.Remove(prefabObj.AssetPath);
+            m_AssetLoadManager.Unload(prefabObj.Asset, null, rightNow);
+            prefabObj.Asset = null;
+        }
+
+        /// <summary>
+        /// 校验引用计数未变为负数；为负时记录错误日志
+        /// <para>收敛 Destroy / RemoveCallBack 中重复的负计数校验</para>
+        /// </summary>
+        /// <param name="prefabObj">目标 Prefab 对象</param>
+        /// <returns>计数为负返回 true（调用方应直接返回）；否则返回 false</returns>
+        private bool IsRefCountInvalid(PrefabObject prefabObj)
+        {
+            if (prefabObj.RefCount >= 0)
+            {
+                return false;
+            }
+
+            Log.Error("PrefabLoadMgr Destroy 引用计数错误！ assetName:{0}", prefabObj.AssetName);
+            return true;
+        }
+        #endregion
     }
 }

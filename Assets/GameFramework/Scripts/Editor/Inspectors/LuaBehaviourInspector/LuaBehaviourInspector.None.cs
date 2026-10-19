@@ -47,7 +47,7 @@ namespace Honor.Editor
         /// </summary>
         private void InitPatternNone()
         {
-            m_LuaScriptNamesNone = serializedObject.FindProperty("m_LuaScriptNamesNone");
+            m_LuaScriptNamesNone = BindProperty("m_LuaScriptNamesNone");
             if (m_LuaScriptNamesNone.arraySize == 0)
             {
                 for (int i = 0; i < (int)NonePatternType.TotalCount; i++)
@@ -57,7 +57,7 @@ namespace Honor.Editor
                 }
             }
 
-            m_LuaSuperScriptNamesNone = serializedObject.FindProperty("m_LuaSuperScriptNamesNone");
+            m_LuaSuperScriptNamesNone = BindProperty("m_LuaSuperScriptNamesNone");
             if (m_LuaSuperScriptNamesNone.arraySize > (int)NonePatternType.TotalCount)
             {
                 m_LuaSuperScriptNamesNone.ClearArray();
@@ -135,7 +135,7 @@ namespace Honor.Editor
             string desc = m_LuaDescript.stringValue;
 
             sb.AppendLine("--=====================================================================================================")
-              .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+              .AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime")
               .AppendLine("-- All Rights Reserved.")
               .AppendLine("-- ----------------------------------------------------------------------------------------------------")
               .AppendLine($"-- filename:  {scriptName}.lua")
@@ -217,7 +217,7 @@ namespace Honor.Editor
             {
                 for (int i = 0; i < funcNames.Count; i++)
                 {
-                    sb.AppendLine($"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
+                    sb.AppendLine($"    self:AddUIListener(self.{injectNames[i]}, '{cmds[i]}', Bind(self, self.{funcNames[i]}))");
                 }
             }
             else
@@ -732,7 +732,7 @@ namespace Honor.Editor
         /// <summary>
         /// 构建None模式自动注册/注销监听代码行（注册与注销共用，按方向输出不同函数名）
         /// </summary>
-        /// <param name="isRegister">true=注册(AddUIListenerFunction)，false=注销(OnRemoveListener)</param>
+        /// <param name="isRegister">true=注册(self:AddUIListener)，false=注销(OnRemoveListener)</param>
         /// <param name="injectNames">注入对象名称列表</param>
         /// <param name="cmds">注入事件命令列表</param>
         /// <param name="funcNames">注入回调函数名列表</param>
@@ -746,7 +746,7 @@ namespace Honor.Editor
                 {
                     if (isRegister)
                     {
-                        sb.AppendLine($"    AddUIListenerFunction(self.{injectNames[i]}, '{cmds[i]}', handler(self, self.{funcNames[i]}))");
+                        sb.AppendLine($"    self:AddUIListener(self.{injectNames[i]}, '{cmds[i]}', Bind(self, self.{funcNames[i]}))");
                     }
                     else
                     {

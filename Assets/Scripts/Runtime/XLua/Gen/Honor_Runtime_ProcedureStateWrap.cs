@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.ProcedureState);
-			Utils.BeginObjectRegister(type, L, translator, 0, 12, 6, 4);
+			Utils.BeginObjectRegister(type, L, translator, 0, 8, 5, 3);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaBindings", _m_InitLuaBindings);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnInit", _m_OnInit);
@@ -30,22 +30,16 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnUpdate", _m_OnUpdate);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnLeave", _m_OnLeave);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ChangeState", _m_ChangeState);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnProcedureTransitionEnterOverEventCallback", _m_OnProcedureTransitionEnterOverEventCallback);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnProcedureTransitionExitOverEventCallback", _m_OnProcedureTransitionExitOverEventCallback);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PrepareToNextProcedure", _m_PrepareToNextProcedure);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowProcedureTransitionEnter", _m_ShowProcedureTransitionEnter);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowProcedureTransitionExit", _m_ShowProcedureTransitionExit);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "Name", _g_get_Name);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrepareArgsFromChanging", _g_get_PrepareArgsFromChanging);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "ArgsFromChanging", _g_get_ArgsFromChanging);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "EnterOver", _g_get_EnterOver);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "RemoveAllContentsOnProcedureTransition", _g_get_RemoveAllContentsOnProcedureTransition);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "lua", _g_get_lua);
             
-			Utils.RegisterFunc(L, Utils.SETTER_IDX, "PrepareArgsFromChanging", _s_set_PrepareArgsFromChanging);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "ArgsFromChanging", _s_set_ArgsFromChanging);
+			Utils.RegisterFunc(L, Utils.SETTER_IDX, "ArgsFromChanging", _s_set_ArgsFromChanging);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "EnterOver", _s_set_EnterOver);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "RemoveAllContentsOnProcedureTransition", _s_set_RemoveAllContentsOnProcedureTransition);
             
@@ -292,66 +286,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OnProcedureTransitionEnterOverEventCallback(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ProcedureState gen_to_be_invoked = (Honor.Runtime.ProcedureState)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    object _sender = translator.GetObject(L, 2, typeof(object));
-                    object _userData = translator.GetObject(L, 3, typeof(object));
-                    Honor.Runtime.EventParams _e = (Honor.Runtime.EventParams)translator.GetObject(L, 4, typeof(Honor.Runtime.EventParams));
-                    
-                    gen_to_be_invoked.OnProcedureTransitionEnterOverEventCallback( _sender, _userData, _e );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OnProcedureTransitionExitOverEventCallback(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ProcedureState gen_to_be_invoked = (Honor.Runtime.ProcedureState)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    object _sender = translator.GetObject(L, 2, typeof(object));
-                    object _userData = translator.GetObject(L, 3, typeof(object));
-                    Honor.Runtime.EventParams _e = (Honor.Runtime.EventParams)translator.GetObject(L, 4, typeof(Honor.Runtime.EventParams));
-                    
-                    gen_to_be_invoked.OnProcedureTransitionExitOverEventCallback( _sender, _userData, _e );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_PrepareToNextProcedure(RealStatePtr L)
         {
 		    try {
@@ -415,66 +349,6 @@ namespace XLua.CSObjectWrap
             
         }
         
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ShowProcedureTransitionEnter(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ProcedureState gen_to_be_invoked = (Honor.Runtime.ProcedureState)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    bool _forceOver = LuaAPI.lua_toboolean(L, 2);
-                    float _duration = (float)LuaAPI.lua_tonumber(L, 3);
-                    bool _blockRaycast = LuaAPI.lua_toboolean(L, 4);
-                    
-                    gen_to_be_invoked.ShowProcedureTransitionEnter( _forceOver, _duration, _blockRaycast );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ShowProcedureTransitionExit(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                Honor.Runtime.ProcedureState gen_to_be_invoked = (Honor.Runtime.ProcedureState)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    bool _forceOver = LuaAPI.lua_toboolean(L, 2);
-                    float _duration = (float)LuaAPI.lua_tonumber(L, 3);
-                    bool _blockRaycast = LuaAPI.lua_toboolean(L, 4);
-                    
-                    gen_to_be_invoked.ShowProcedureTransitionExit( _forceOver, _duration, _blockRaycast );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
         
         
         
@@ -486,20 +360,6 @@ namespace XLua.CSObjectWrap
 			
                 Honor.Runtime.ProcedureState gen_to_be_invoked = (Honor.Runtime.ProcedureState)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushstring(L, gen_to_be_invoked.Name);
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 1;
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_PrepareArgsFromChanging(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.ProcedureState gen_to_be_invoked = (Honor.Runtime.ProcedureState)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.PrepareArgsFromChanging);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -575,21 +435,6 @@ namespace XLua.CSObjectWrap
         }
         
         
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_PrepareArgsFromChanging(RealStatePtr L)
-        {
-		    try {
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
-                Honor.Runtime.ProcedureState gen_to_be_invoked = (Honor.Runtime.ProcedureState)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.PrepareArgsFromChanging = (XLua.LuaTable)translator.GetObject(L, 2, typeof(XLua.LuaTable));
-            
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            return 0;
-        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_ArgsFromChanging(RealStatePtr L)

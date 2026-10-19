@@ -1,0 +1,130 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  SystemArray.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     栈式结构动态数组（push/pop O(1)，可选弱引用模式）
+-- @desc      高效栈操作 push/pop/遍历/清空，clear 零 GC；可选弱引用表不阻碍对象回收
+-- @core      栈式 push/pop、遍历、清空、弱引用模式
+-- @scope     框架底层数据结构（纯 Lua 封装），需先 New 创建实例后再操作
+-- @dependency 无（纯 Lua 数据表封装）
+-- descrip:   栈式结构动态数组（push/pop O(1)，可选弱引用模式）
+-- 功能：
+-- 1. 高效栈操作 push/pop/遍历/清空
+-- 2. clear 零 GC，可选弱引用表不阻碍对象回收
+-- 架构：纯 Lua 数据表封装，无外部依赖
+-- @note  替代原生 table 使用；需先 New 创建实例后再操作
+--=====================================================================================================
+
+--region 栈式结构数组
+---@class SystemArray 栈式结构数组（支持弱引用）
+local SystemArray = {}
+SystemArray.__index = SystemArray
+
+---@brief 创建数组实例
+---@param isweak boolean 是否开启弱引用（value 弱引用，不阻止GC）
+---@return SystemArray 数组实例
+function SystemArray.new(isweak)
+    ---@class SystemArray 栈式结构数组实例
+    ---@field _cur number 当前元素数量（栈顶下标）
+    ---@field _data table 数据存储表
+    local t = {}
+    t._cur = 0
+    t._data = {}
+
+    -- 弱引用模式：value 可被GC自动回收
+    if isweak then
+        setmetatable(t._data, { __mode = "v" })
+    end
+
+    setmetatable(t, SystemArray)
+    return t
+end
+
+---@brief 压入元素（栈顶）
+---@param self SystemArray
+---@param value any 元素
+function SystemArray.push(self, value)
+    self._cur = self._cur + 1
+    self._data[self._cur] = value
+end
+
+---@brief 弹出栈顶元素
+---@param self SystemArray
+---@return any
+function SystemArray.pop(self)
+    assert(self._cur > 0, "[SystemArray] pop() 数组为空！")
+    local value = self._data[self._cur]
+    self._data[self._cur] = nil  -- 释放引用，帮助GC
+    self._cur = self._cur - 1
+    return value
+end
+
+---@brief 获取指定下标元素
+---@param self SystemArray
+---@param index number 下标 1~size
+---@return any
+function SystemArray.get(self, index)
+    if index < 1 or index > self._cur then
+        return nil
+    end
+    return self._data[index]
+end
+
+---@brief 设置指定下标元素
+---@param self SystemArray
+---@param index number
+---@param value any
+function SystemArray.set(self, index, value)
+    if index >= 1 and index <= self._cur then
+        self._data[index] = value
+    end
+end
+
+---@brief 清空数组（高效零GC）
+---@param self SystemArray
+function SystemArray.clear(self)
+    -- 清空引用，避免内存泄漏
+    for i = 1, self._cur do
+        self._data[i] = nil
+    end
+    self._cur = 0
+end
+
+---@brief 获取元素数量
+---@param self SystemArray
+---@return number
+function SystemArray.size(self)
+    return self._cur
+end
+
+---@brief 判断是否为空
+---@param self SystemArray
+---@return boolean
+function SystemArray.empty(self)
+    return self._cur == 0
+end
+
+---@brief 遍历数组（安全遍历）
+---@param self SystemArray
+---@param func fun(value:any, index:number)
+function SystemArray.foreach(self, func)
+    for i = 1, self._cur do
+        func(self._data[i], i)
+    end
+end
+
+---@brief 转换为普通Lua表
+---@param self SystemArray
+---@return table
+function SystemArray.toTable(self)
+    local tab = {}
+    for i = 1, self._cur do
+        tab[i] = self._data[i]
+    end
+    return tab
+end
+--endregion
+
+return SystemArray

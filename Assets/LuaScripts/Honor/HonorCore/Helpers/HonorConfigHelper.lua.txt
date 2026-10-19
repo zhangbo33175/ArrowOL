@@ -1,0 +1,72 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  HonorConfigHelper.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     系统配置助手（GM 后台 + 服务器配置统一入口）
+-- @desc      统一读取服务器配置表与 GM 后台下发的 Key-Value 配置（key = SystemConfig），
+--            提供全局开关、版本控制、热更开关、防作弊等全局参数的集中只读访问
+-- @core      Key-Value 配置容器缓存、按 Key 读取布尔/数字/字符串、登出重置
+-- @scope     业务侧只读全局配置；写回仅由服务器下发/GM 注入流程调用
+-- @dependency HonorEventHelper（间接）、SaveRootData（间接）
+-- @note      配置来源于服务器配置表 + GM 后台，业务侧只读 Key-Value，勿直接写回
+--=====================================================================================================
+
+--region 全局系统配置管理助手
+---@class HonorConfigHelper @ 全局系统配置管理助手（GM后台 + 服务器配置统一入口）
+---@field _systemConfigData table<string, any> @ 全局系统配置数据表（Key-Value 结构，从服务器/GM后台拉取）
+local HonorConfigHelper = class("HonorConfigHelper")
+
+---=========================================================================
+--- 构造函数
+---@brief 初始化配置存储容器
+---@param args table 可选初始化参数（预留）
+---=========================================================================
+function HonorConfigHelper:ctor(args)
+    ---@type table<string, any> 全局系统配置数据表（Key-Value结构，从服务器/GM后台拉取）
+    self._systemConfigData = {}
+end
+
+---@brief 创建系统配置助手实例
+---@param args table 可选初始化参数
+---@return HonorConfigHelper 配置管理实例
+function HonorConfigHelper:Create(args)
+    local obj = HonorConfigHelper.new(args)
+    return obj
+end
+
+---@brief 从服务器获取并缓存全局系统配置
+---@desc 注：GM 后台必须在【应用配置 - key = SystemConfig】下配置；由服务器下发/登录流程注入调用
+---@param configTable table 服务器下发的完整配置表
+function HonorConfigHelper:SetServerSystemConfig(configTable)
+    if type(configTable) == "table" then
+        self._systemConfigData = configTable
+    end
+end
+
+---@brief 获取完整的全局系统配置表
+---@return table 全量系统配置表（外部调用：GameMain 启动流程）
+function HonorConfigHelper:GetServerSystemConfig()
+    return self._systemConfigData or {}
+end
+
+---@brief 根据 Key 获取指定系统配置（支持布尔/数字/字符串）
+---@desc 被 IAP 第三方支付开关、推送平台开关等内部/业务逻辑复用读取
+---@param key string 配置项名称（GM后台配置的Key）
+---@return any 配置值（boolean/number/string），不存在返回 nil
+function HonorConfigHelper:GetSystemConfig(key)
+    if not key or not self._systemConfigData then
+        return nil
+    end
+    return self._systemConfigData[key]
+end
+
+---@brief 清空所有系统配置（游戏重置/登出时使用）
+---@desc 切号/登出时复位配置容器，防止跨账号残留
+function HonorConfigHelper:Clear()
+    self._systemConfigData = {}
+end
+--endregion
+
+return HonorConfigHelper

@@ -6,17 +6,21 @@
 -- created:   2026
 -- @brief     全局数据中心（单例）
 -- @desc      统一创建、管理所有子数据模块（登录、玩家、关卡、背包等）
+-- @core      子数据模块实例化、全局数据访问入口
+-- @scope     游戏全局数据层（被 C#/框架持有的数据对象根）
 -- @feat      全局数据模块管理、子数据实例化、数据访问入口
 -- @author    商业项目规范版 | 注释完整 | 单例 | 统一入口
 -- @规范       Unity Lua 商业项目编码标准 / 数据中心规范
--- @dependency GameEntry, LogSystem
+-- @dependency GameEntry, LogSystem, LoginData
 --=====================================================================================================
 
 ---@class DataCenter 全局数据中心
+---@field loginData LoginData @登录数据模块实例（ctor 中创建）
 local DataCenter = class("DataCenter")
 
 --region 【构造 & 实例化】
 ---@brief 构造函数
+---@desc 创建登录数据模块实例（框架持有数据对象，勿删）
 ---@type fun(args:table):void
 ---@param args table 自定义参数
 function DataCenter:ctor(args)
@@ -25,6 +29,7 @@ function DataCenter:ctor(args)
 end
 
 ---@brief 创建数据中心实例
+---@desc 实例工厂（框架持有数据对象，勿删）
 ---@type fun(args:table):DataCenter
 ---@param args table 自定义参数
 ---@return DataCenter 数据中心实例

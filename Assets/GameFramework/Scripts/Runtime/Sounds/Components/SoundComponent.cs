@@ -109,7 +109,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool AddSoundGroup(string soundGroupName, int soundAgentCount)
         {
-            return AddSoundGroup(soundGroupName, false, SoundConstant.DefaultMute, SoundConstant.DefaultVolume, soundAgentCount);
+            return AddSoundGroup(soundGroupName, false, SoundConstant.InitialMute, SoundConstant.InitialVolume, soundAgentCount);
         }
 
         /// <summary>

@@ -1,0 +1,67 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ProtocolReceiver.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     协议接收端（接受 C# → Lua 消息）
+-- @desc      注册 / 注销 Lua 侧 cmd 处理回调；Dispatch 按 cmd 路由到已注册回调
+-- @core      cmd → handler 注册表 m_Handlers，Dispatch 按 cmd 索引分发（经 ProtocolUtil.SafeCall 隔离异常）
+-- @scope     承接 C# LuaProtocolRunTime.LuaNotifyHandle 广播，转调 FrameworkProtocolNotify；协议分发模块复用
+-- @dependency ProtocolCmd、ProtocolUtil
+-- @note 依赖 ProtocolCmd 协议号
+--=====================================================================================================
+
+---@class ProtocolReceiver
+---协议接收端：注册 / 注销 Lua 侧 cmd 处理回调，承接 C# 广播并按 cmd 路由分发
+local ProtocolReceiver = {}
+
+--region 依赖引入
+local ProtocolCmd = require('ProtocolCmd')
+local ProtocolUtil = require('ProtocolUtil')
+--endregion
+
+--region 字段
+---@brief Lua 侧 cmd 处理回调表：cmd → handler(content, state)
+---@type table<integer, function>
+local m_Handlers = {}
+--endregion
+
+--region 接受消息（C# → Lua）
+
+---@brief 注册 Lua 侧 cmd 处理回调
+---@param cmd integer 协议号（ProtocolCmd.Cmd.P_*）
+---@param handler function 处理回调 function(content, state)
+function ProtocolReceiver.RegisterHandler(cmd, handler)
+    if not ProtocolUtil.IsValidCmd(cmd) or not ProtocolUtil.IsValidHandler(handler) then return end
+    m_Handlers[cmd] = handler
+end
+
+---@brief 注销 Lua 侧 cmd 处理回调
+---@param cmd integer 协议号（ProtocolCmd.Cmd.P_*）
+function ProtocolReceiver.UnregisterHandler(cmd)
+    m_Handlers[cmd] = nil
+end
+
+---@brief 注销全部 Lua 侧 cmd 处理回调
+function ProtocolReceiver.ClearHandlers()
+    m_Handlers = {}
+end
+
+---@brief 承接 C# 广播入口：按 cmd 路由到已注册 Lua 处理回调
+---@param cmd integer 协议号
+---@param content any 协议内容（强类型数据类）
+---@param state integer 状态（eReceiveType：1 成功 / 0 失败）
+---@return boolean 是否被 Lua 侧消费
+function ProtocolReceiver.Dispatch(cmd, content, state)
+    local handler = m_Handlers[cmd]
+    if handler then
+        ProtocolUtil.SafeCall(handler, content, state)
+        return true
+    end
+    return false
+end
+
+--endregion
+
+return ProtocolReceiver

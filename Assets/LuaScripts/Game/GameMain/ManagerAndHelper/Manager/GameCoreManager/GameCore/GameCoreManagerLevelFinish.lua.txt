@@ -1,0 +1,207 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameCoreManagerLevelFinish.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     关卡结束流程管理类
+-- @desc      负责关卡胜利/失败结算、流程控制、协程管理、界面展示、数据保存、奖励发放等逻辑
+-- @core      胜负结算分支、结算协程编排、胜利/失败结算界面打开、奖励发放与关卡数据落盘
+-- @scope     GameCoreManager 的结束流程子模块：胜负后置处理、结算协程、胜利/失败结算界面打开，由主模块胜负分支驱动
+-- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, LevelCoreManager, ItemManager, EventManager, CoroutineHelper, UIManager, UIStackManager
+--=====================================================================================================
+
+---@class GameVictorySettlementStep @ 胜利结算扩展步骤
+---@field completeSign boolean 步骤完成标记
+---@field ComleteSignGetter function 获取步骤完成状态的委托
+---@field Execute function 步骤执行逻辑
+
+---@class GameCoreManagerLevelFinish @ 关卡结束核心管理器
+local GameCoreManagerLevelFinish = class("GameCoreManagerLevelFinish")
+
+--region 构造 & 初始化
+
+---=========================================================================
+--- 构造函数
+---@brief 初始化结算流程协程容器
+---@param args table 外部参数
+---=========================================================================
+function GameCoreManagerLevelFinish:ctor(args)
+    --- 关卡结束流程协程
+    self._LevelFinishProcessCoroutine = nil ---@type UnityEngine.Coroutine
+end
+
+---=========================================================================
+---@brief 静态创建实例
+---@param args table 初始化参数
+---@return GameCoreManagerLevelFinish
+---=========================================================================
+function GameCoreManagerLevelFinish:Create(args)
+    local instance = GameCoreManagerLevelFinish.new(args)
+    return instance
+end
+
+---=========================================================================
+--- 清空数据 & 停止协程
+---@brief 切换关卡/重置时安全清理资源
+---=========================================================================
+function GameCoreManagerLevelFinish:ClearData()
+    self:_StopAloneLevelFinishProcess()
+end
+
+--endregion
+
+--region 游戏结束后统一逻辑
+
+---=========================================================================
+--- 游戏结束后统一逻辑（胜利/失败）
+---@brief 负责：进度保存、奖励发放、挑战关卡处理、数据持久化
+---=========================================================================
+function GameCoreManagerLevelFinish:OnGameOverAfter()
+    local isSuccess = GameCoreManager._IsSuccessFinishGame
+    local curChapterId = GamerDataManager:GetCurChapterId()
+
+    if isSuccess then
+        local coreData = GameCoreManager._GameCoreManagerData
+        -- 升级关卡进度（内部关卡等级 lv + 1）
+        GamerDataManager:AddLevelLvByChapterId(curChapterId)
+        -- 结合成功结算：本章内部关卡全部通关则自动解锁下一章节（"章节-内部关卡"模式换章闭环），
+        -- 结算界面"下一关"按钮据此直接进入已解锁的下一章第一关。
+        --TODO: [流程] 通关即推进 nextChapter（TryUnlockNextChapter 判定全通并解锁），换章不再依赖按钮点按。
+        ChapterListManager:TryUnlockNextChapter(curChapterId)
+        -- 保存核心数据
+        coreData:SaveData()
+    else
+        -- 失败 → 清空连胜
+       -- SaveRootData.GameData.playerInfo.winStreak = 0
+       -- SaveIO.GameData.Save_playerInfo_winStreak()
+        -- 挑战关卡失败 → 清空挑战进度
+        if GameCoreManager:IsInChallengeLevel() then
+            ChallengeLevelHelper:ClearCurrentChallengeLevel()
+        end
+        -- 派发关卡失败事件
+        HonorEventHelper:FireNow(
+                EventCmd.OnLevelFailure,
+                GameCoreManager._CurLevelData.ChapterId,
+                GameCoreManager._CurLevelData.LevelId
+        )
+    end
+end
+
+--endregion
+
+--region 结算流程协程管理
+
+---=========================================================================
+--- 启动独立协程执行关卡结束流程
+---@brief 安全启动，自动停止旧协程
+---=========================================================================
+function GameCoreManagerLevelFinish:StartAloneLevelFinishProcess()
+    self:_StopAloneLevelFinishProcess()
+    self._LevelFinishProcessCoroutine = HonorCoroutineHelper:StartAlone(function()
+        self:StartLevelFinishProcessCoroutine()
+    end)
+end
+
+---=========================================================================
+--- 安全停止关卡结束协程，防止内存泄漏
+---@brief 强制停止协程，避免流程重复执行
+---=========================================================================
+function GameCoreManagerLevelFinish:_StopAloneLevelFinishProcess()
+    if self._LevelFinishProcessCoroutine then
+        HonorCoroutineHelper:StopAlone(self._LevelFinishProcessCoroutine)
+    end
+    self._LevelFinishProcessCoroutine = nil
+end
+
+---=========================================================================
+--- 关卡结束协程主体
+---@brief 流程：添加UI遮罩 → 等待配置延时 → 移除遮罩 → 打开结算界面
+---=========================================================================
+function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
+    -- 等待 FishItem 碎裂动画播完再盖遮罩，保证"晃动+碎裂消失"动画对玩家可见
+    --TODO: [新增] 结算遮罩等待 FishItem 碎裂动画完成（GameCoreManager.FishBreakAnimationDone 由 UIMainPlaying 设置）
+    --TODO: [修复] 兜底超时 1.5→3.0：FishItem 错峰间隔加大后多鱼总时长可能超过 1.5s，联动提高防止门控提前放行
+    local maxBreakWait = 3.0 -- 兜底超时，防止信号异常导致结算卡死
+    local waited = 0
+    while GameCoreManager.FishBreakAnimationDone == false and waited < maxBreakWait do
+        HonorCoroutineHelper:WaitForSeconds(0.05)
+        waited = waited + 0.05
+    end
+
+    -- UI遮罩，防止操作穿透
+    GameMainRoot.UI:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
+    local startTime = UnityEngine.Time.realtimeSinceStartup
+    local delayTime = Tables.Constants.GameEndTime.Value[1]
+    local remainTime = delayTime - (UnityEngine.Time.realtimeSinceStartup - startTime)
+
+    if remainTime > 0 then
+        HonorCoroutineHelper:WaitForSeconds(remainTime)
+    end
+
+    -- 移除遮罩
+    GameMainRoot.UI:SubUIMaskLayerRef()
+    -- 显示结算界面
+    self:_ShowLevelFinishUI()
+end
+
+--endregion
+
+--region 结算界面展示
+
+---=========================================================================
+--- 显示关卡结算界面（胜利/失败）
+---@brief 统一入口：停止音效 → 区分胜负 → 打开对应UI
+---=========================================================================
+function GameCoreManagerLevelFinish:_ShowLevelFinishUI()
+    -- 停止所有音效
+    SoundManager:StopAllSound()
+    if GameCoreManager._IsSuccessFinishGame then
+        OpenUISync(UIs.UILevelVictoryView, self:GetLevelSuccessInfo())
+    else
+        -- 失败流程：直接打开失败结算界面（原前置道具推荐管理器 PreBoosterRecommendMgr 未定义，避免 nil 崩溃）
+        --TODO: [修复] 移除未定义的 PreBoosterRecommendMgr 依赖，失败直接打开 UILevelFailedView
+        self:_OpenLevelFailureUI()
+    end
+end
+
+---=========================================================================
+---@brief 打开关卡失败界面
+---@desc 统一打开失败结算界面 UILevelFailedView（当前仅存在该失败结算视图，
+---       UIChallengeLevelFailure/UILevelFailure 未在 UIs 定义，已统一收敛）
+---@param preBoosterId string 推荐的前置道具ID（可选）
+---=========================================================================
+function GameCoreManagerLevelFinish:_OpenLevelFailureUI(preBoosterId)
+    --TODO: [修复] 原引用未定义的 UIs.UILevelFailure / UIs.UIChallengeLevelFailure，统一收敛到唯一存在的失败视图 UILevelFailedView
+    OpenUISync(UIs.UILevelFailedView, {
+        InfoDatas = self:GetLevelFailureInfo(),
+        RecommendPreboosterId = preBoosterId
+    })
+end
+
+--endregion
+
+--region 结算数据扩展（子类重写）
+
+---=========================================================================
+---@brief 获取关卡成功结算数据（子类可重写扩展）
+---@return table 结算数据
+---=========================================================================
+function GameCoreManagerLevelFinish:GetLevelSuccessInfo()
+    local result = {}
+    return result
+end
+
+---=========================================================================
+---@brief 获取关卡失败结算数据（子类可重写扩展）
+---@return table 结算数据
+---=========================================================================
+function GameCoreManagerLevelFinish:GetLevelFailureInfo()
+    local result = {}
+    return result
+end
+
+--endregion
+
+return GameCoreManagerLevelFinish

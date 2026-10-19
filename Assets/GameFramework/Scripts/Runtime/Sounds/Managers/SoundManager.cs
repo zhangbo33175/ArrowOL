@@ -70,7 +70,7 @@ namespace Honor.Runtime
         /// </summary>
         public void StopAllLoadedSounds()
         {
-            StopAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
+            StopAllLoadedSounds(SoundConstant.InitialFadeOutSeconds);
         }
 
         /// <summary>
@@ -163,8 +163,8 @@ namespace Honor.Runtime
             return AddSoundGroup(
                 soundGroupName,
                 false,
-                SoundConstant.DefaultMute,
-                SoundConstant.DefaultVolume,
+                SoundConstant.InitialMute,
+                SoundConstant.InitialVolume,
                 soundGroupHelper);
         }
 
@@ -364,7 +364,7 @@ namespace Honor.Runtime
         /// <returns>是否执行成功</returns>
         public bool StopSound(int serialID)
         {
-            return StopSound(serialID, SoundConstant.DefaultFadeOutSeconds);
+            return StopSound(serialID, SoundConstant.InitialFadeOutSeconds);
         }
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace Honor.Runtime
         /// <param name="serialID">声音唯一ID</param>
         public void PauseSound(int serialID)
         {
-            PauseSound(serialID, SoundConstant.DefaultFadeOutSeconds);
+            PauseSound(serialID, SoundConstant.InitialFadeOutSeconds);
         }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace Honor.Runtime
         /// <returns>是否执行成功</returns>
         public bool ResumeSound(int serialID)
         {
-            return ResumeSound(serialID, SoundConstant.DefaultFadeInSeconds);
+            return ResumeSound(serialID, SoundConstant.InitialFadeInSeconds);
         }
 
         /// <summary>
@@ -463,7 +463,7 @@ namespace Honor.Runtime
                 if (pair.Value.Name == groupName)
                 {
                     Log.Info($"暂停整个声音组的音乐播放  name = {groupName}");
-                    pair.Value.PauseAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
+                    pair.Value.PauseAllLoadedSounds(SoundConstant.InitialFadeOutSeconds);
                     return true;
                 }
             }
@@ -484,7 +484,7 @@ namespace Honor.Runtime
                 if (pair.Value.Name == groupName)
                 {
                     Log.Info($"恢复声音组音乐播放  name = {groupName}");
-                    pair.Value.ResumeAllLoadedSounds(SoundConstant.DefaultFadeInSeconds);
+                    pair.Value.ResumeAllLoadedSounds(SoundConstant.InitialFadeInSeconds);
                     return true;
                 }
             }
@@ -505,7 +505,7 @@ namespace Honor.Runtime
                 if (pair.Value.Name == groupName)
                 {
                     Log.Info($"停止声音组音乐播放  name = {groupName}");
-                    pair.Value.StopAllLoadedSounds(SoundConstant.DefaultFadeOutSeconds);
+                    pair.Value.StopAllLoadedSounds(SoundConstant.InitialFadeOutSeconds);
                     return true;
                 }
             }

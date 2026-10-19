@@ -6,9 +6,11 @@
 -- created:   2026
 -- @brief     游戏主界面状态
 -- @desc      管理主界面初始化、相机定位、音乐播放、UI打开、活动/签到/商店/礼包等系统入口
+-- @core      主界面进入/退出、UI遮罩加/解、章节BGM、主HUD开关、UI推送队列主界面模式切换
+-- @scope     由 GameStateMachine:ChangeState(MainState) 驱动；地图加载完成后默认落点
 -- @feat      主界面生命周期、相机定位、背景音乐、系统弹窗、自治实体、UI管理
 -- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
--- @dependency GameStateBase, GameEntry, UIManager, MainMapMgr, EventManager, AudioManager
+-- @dependency GameStateBase, ChapterListManager, ChapterDataManager, SoundManager, GameMainRoot.UI, OpenUISync/CloseUI, LoginManager, LocalActivityManager, GameMainUIPushManager, GameManager, GameMapMotion, GameEffectManager
 --=====================================================================================================
 
 ---@class GameMainState : GameStateBase @游戏主界面状态
@@ -18,7 +20,7 @@ local GameMainState = class('GameMainState', GameStateBase)
 --region 【构造 & 实例化】
 
 ---=========================================================================
---- 构造函数
+--- 构造函数（框架驱动，勿删）
 ---@brief 状态实例构造
 ---@param stateType GameStateCmd 状态枚举类型
 ---=========================================================================
@@ -27,7 +29,7 @@ function GameMainState:ctor(stateType)
 end
 
 ---=========================================================================
---- 创建状态实例对外工厂入口
+--- 创建状态实例对外工厂入口（框架驱动，勿删）
 ---@brief 状态工厂创建接口
 ---@param stateType GameStateCmd 状态枚举类型
 ---@return GameMainState 状态实例对象
@@ -41,7 +43,7 @@ end
 --region 【状态进入】
 
 ---=========================================================================
---- 进入主界面状态（状态机入口）
+--- 进入主界面状态（GameStateMachine 驱动）
 ---@brief 状态机进入回调，初始化触摸、遮罩、背景音乐，调用内部初始化
 ---@param finishCallback function|nil 进入完成回调函数
 ---=========================================================================
@@ -59,11 +61,11 @@ function GameMainState:OnStateEnter(finishCallback)
     --LocalActivityManager:TryOpenActivities()
 
     -- 播放章节主界面背景音乐
-    local chapterId = MapManager.CurLoadChapterId
+    local chapterId =ChapterListManager:GetLatestChapterId()
     if chapterId then
-        local chapterData = ChapterDataManager:GetChapterDataByChapterType(chapterId)
-        if chapterData and chapterData.MapMusic and chapterData.MapMusic.outgame then
-            SoundManager:PlayBgm(chapterData.MapMusic.outgame)
+        local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+        if chapterData and chapterData.MapMusic then
+            SoundManager:PlayBgm(chapterData.MapMusic)
         end
     end
 
@@ -76,12 +78,18 @@ end
 --region 【主界面初始化】
 
 ---=========================================================================
---- 主界面真正初始化逻辑
+--- 主界面真正初始化逻辑（内部调用：OnStateEnter）
 ---@brief 打开主UI、解除遮罩、登录逻辑、弹窗处理、关卡返回特殊分支
+---@desc 重置 GameMapMotion 相机 rect、打开 UIMainStateView、解遮罩、主HUD登录、活动弹窗、推送队列主界面模式、关闭 EasyTouch 自动选择
 ---@param finishCallback function|nil 完成回调函数
 ---=========================================================================
 function GameMainState:DoStateEnter(finishCallback)
-    -- 打开主界面HUD
+    -- 重置地图相机渲染区域：清除游玩时"放大缩小"残留的缩放/裁剪状态，保证主界面以正常视角展示
+    if GameMapMotion and GameMapMotion.ScreenCamera then
+        GameMapMotion:UpdateCameraRect(0)
+    end
+    -- 打开主界面HUD（淡出由UIMainStateView:Start()自动触发，此时UI已渲染完成）
+    print("[GameMainState] Opening UIMainStateView...")
     OpenUISync(UIs.UIMainStateView)
     -- 移除UI遮罩，允许用户交互
     GameMainRoot.UI:SubUIMaskLayerRef()
@@ -96,9 +104,7 @@ function GameMainState:DoStateEnter(finishCallback)
     GameManager:SetupEasyTouchAutoSelect(false)
 
     -- 安全执行完成回调
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 --endregion
@@ -106,7 +112,7 @@ end
 --region 【状态退出 & 更新】
 
 ---=========================================================================
---- 离开主界面状态
+--- 离开主界面状态（GameStateMachine 驱动）
 ---@brief 状态机退出回调，清理特效、音乐、推送队列、关闭主UI
 ---@param finishCallback function|nil 退出完成回调函数
 ---=========================================================================
@@ -122,10 +128,8 @@ function GameMainState:OnStateExit(finishCallback)
     -- 关闭主界面HUD
     CloseUI(UIs.UIMainStateView)
 
-    -- 安全执行回调，使用xpcall携带堆栈捕获，统一项目规范
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    -- 安全执行完成回调（统一走 SafeCallFinish，内部携带堆栈捕获）
+    SafeCallFinish(finishCallback)
 end
 
 --endregion

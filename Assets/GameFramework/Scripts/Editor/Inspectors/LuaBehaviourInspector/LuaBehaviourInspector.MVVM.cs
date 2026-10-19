@@ -131,8 +131,8 @@ namespace Honor.Editor
         /// </summary>
         private void InitPatternMVVM()
         {
-            m_LuaScriptCommonNameMVVM = serializedObject.FindProperty("m_LuaScriptCommonNameMVVM");
-            m_LuaScriptNamesMVVM = serializedObject.FindProperty("m_LuaScriptNamesMVVM");
+            m_LuaScriptCommonNameMVVM = BindProperty("m_LuaScriptCommonNameMVVM");
+            m_LuaScriptNamesMVVM = BindProperty("m_LuaScriptNamesMVVM");
 
             // 初始化Lua脚本名称列表
             if (m_LuaScriptNamesMVVM.arraySize == 0)
@@ -144,7 +144,7 @@ namespace Honor.Editor
                 }
             }
 
-            m_LuaSuperScriptNamesMVVM = serializedObject.FindProperty("m_LuaSuperScriptNamesMVVM");
+            m_LuaSuperScriptNamesMVVM = BindProperty("m_LuaSuperScriptNamesMVVM");
 
             // 初始化父类脚本名称列表
             if (m_LuaSuperScriptNamesMVVM.arraySize > (int)MVVMPatternType.TotalCount)
@@ -177,7 +177,7 @@ namespace Honor.Editor
             m_InterBindValueOnInjections = new List<SerializedProperty>();
 
             // 分类分组绑定数据属性
-            m_BindValues = serializedObject.FindProperty("m_BindValues");
+            m_BindValues = BindProperty("m_BindValues");
             for (int index = 0; index < m_BindValues.arraySize; index++)
             {
                 SerializedProperty bindValue = m_BindValues.GetArrayElementAtIndex(index);
@@ -470,7 +470,7 @@ namespace Honor.Editor
             string luaDescript = m_LuaDescript.stringValue;
 
             stringBuilder.AppendLine(AorTxt.Format("--====================================================================================================="))
-                         .AppendLine(AorTxt.Format("-- (c) copyright 2026 - 2030, Honor.Game"))
+                         .AppendLine(AorTxt.Format("-- (c) copyright 2026 - 2030, Honor.Runtime"))
                          .AppendLine(AorTxt.Format("-- All Rights Reserved."))
                          .AppendLine(AorTxt.Format("-- ----------------------------------------------------------------------------------------------------"))
                          .AppendLine(AorTxt.Format("-- filename:  {0}.lua", luaScriptName))
@@ -765,7 +765,7 @@ namespace Honor.Editor
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                     {
-                        stringBuilder.AppendLine(AorTxt.Format("    AddUIListenerFunction(self.{0}, '{1}', handler(self, self.{2}))", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
+                        stringBuilder.AppendLine(AorTxt.Format("    self:AddUIListener(self.{0}, '{1}', Bind(self, self.{2}))", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
                     }
                 }
                 else
@@ -1495,7 +1495,7 @@ namespace Honor.Editor
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                     {
-                        content = content.Insert(end2LeftStrIndex, AorTxt.Format("    AddUIListenerFunction(self.{0}, '{1}', handler(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
+                        content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddUIListener(self.{0}, '{1}', Bind(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
                         // 刷新标记的位置
                         RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
                     }

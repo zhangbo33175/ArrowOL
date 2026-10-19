@@ -5,6 +5,11 @@
 -- filename:  LocalPart_Localizations_German.lua
 -- descrip:   本地化配置: 德语
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     德语本地化词条明细数据
+-- @desc      逐条登记游戏全部文案 key->德语译文，自动生成
+-- @core      向 Localizations.German 子表按 key 写入 string 词条
+-- @scope     全游戏 UI/对话/提示等文本按 key 取德语译文
+-- @dependency LocalizationGerman（子表由其创建）
 --=====================================================================================================
 
 ---@class Localizations.German @本地化配置: 德语

@@ -1,29 +1,45 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UILoadMapView.lua
 -- author:    云毅
--- descrip:   地图加载页面
+-- created:   2026
+-- @brief     地图加载页面
+-- @desc      地图切换加载时的进度展示界面；由 GameLoadMapStateBase 驱动推进目标进度，
+--            内部常驻协程以 lerp 平滑进度条与百分比文字，界面销毁时停止协程
+-- @core      进度目标管理、常驻平滑协程、进度条/文字统一刷新
+-- @scope     地图加载过程的 UI 进度展示，无业务数据读写
+-- @dependency LuaBehaviourSuper, HonorCoroutineHelper, GameLoadMapStateBase
 --=====================================================================================================
 
----@class UILoadMapView : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field fadeInTime                         number                        0.3                      淡入时间
----@field fadeOutTime                        number                        0.15                     淡出时间
----@field LoadScrollbar                      UnityEngine.UI.Scrollbar      √                        进度显示
----@field BgImage                            UnityEngine.GameObject        √                        背景
+---@class UILoadMapView : LuaBehaviourSuper @地图加载进度视图
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
+---@field fadeInTime number @淡入时间（默认 0.3，Inspector 注入）
+---@field fadeOutTime number @淡出时间（默认 0.15，Inspector 注入）
+---@field LoadScrollbar UnityEngine.UI.Scrollbar @进度条（Inspector 注入）
+---@field TextTMP TMPro.TextMeshProUGUI @百分比文字（Inspector 注入）
+---@field BgImage UnityEngine.GameObject @背景节点（Inspector 注入）
+---@field _ProgressTarget number @目标进度（0-1），由外部加载流程设置，协程向其逼近
+---@field _ProgressCoroutine thread|nil @常驻平滑协程句柄，销毁时停止
 local UILoadMapView = class('UILoadMapView', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---构造函数
+---@brief 框架驱动；初始化进度字段默认值，防止状态机在 Start 前调用 UpdateLoadProgress 触发 nil 比较
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UILoadMapView:ctor(args)
     UILoadMapView.super.ctor(self, args)
 
+    -- 进度字段默认值：防止状态机在 Start 前调用 UpdateLoadProgress 触发 nil 比较
+    self._ProgressTarget = 0.0
+    self._ProgressCoroutine = nil
 end
 
 ---创建函数
+---@brief 框架驱动，由 UI 管理器通过 UIs 表反射调用
 ---@type fun(args:table):UILoadMapView
 ---@param args table @自定义参数
 ---@return UILoadMapView @实例
@@ -32,57 +48,162 @@ function UILoadMapView:Create(args)
     return obj
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---注册监听（自动注销）
+---@brief 框架驱动，当前无全局事件需注册
 ---@type fun():void
 function UILoadMapView:OnAddListeners()
     UILoadMapView.super.OnAddListeners(self)
-
 end
 
 ---唤醒
+---@brief 框架驱动，节点加载完成时回调
 ---@type fun():void
 function UILoadMapView:Awake()
     UILoadMapView.super.Awake(self)
--- 2=====================================================================================================
--- 无自动注册内容。
--- ====================================================================================================2
-
+    -- 无自动注册内容。
 end
 
 ---开始
+---@brief 框架驱动；初始化进度显示：归零并启动常驻平滑协程
 ---@type fun():void
 function UILoadMapView:Start()
     UILoadMapView.super.Start(self)
-
+    self:ResetLoadProgress()
+    self:StartLoadProgressLoop()
 end
 
 ---销毁
+---@brief 框架驱动；停止进度平滑协程并调用基类销毁
 ---@type fun():void
 function UILoadMapView:OnDestroy()
+    self:StopLoadProgressLoop()
     UILoadMapView.super.OnDestroy(self)
--- 3=====================================================================================================
--- 无自动注销内容。
--- ====================================================================================================3
-
+    -- 无自动注销内容。
 end
 
 ---播放打开动画（可重写）
+---@brief 框架驱动（可重写），打开界面时播放
 ---@type fun():void
 function UILoadMapView:OnPlayOpenAnimation()
     UILoadMapView.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画（可重写）
+---@brief 框架驱动（可重写），关闭界面时播放
 ---@type fun():void
 function UILoadMapView:OnPlayCloseAnimation()
     UILoadMapView.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【地图加载进度】
+
+---重置加载进度显示
+---@brief 将进度条归零、文字置 0%，并清除目标进度缓存
+---@desc 由 Start 调用，确保每次打开界面从 0% 起步
+---@type fun():void
+function UILoadMapView:ResetLoadProgress()
+    self._ProgressTarget = 0.0
+    self:SetLoadProgress(0.0)
+    PrintInfo("[UILoadMapView] 进度条复位 -> 0%")
+end
+
+---更新加载进度
+---@brief 设置平滑目标进度（0-1），仅允许单调递增，由外部加载流程驱动
+---@desc 由 GameLoadMapStateBase:UpdateLoadProgress 跨文件调用（加载各阶段推进进度）
+---@type fun(target:number):void
+---@param target number 目标进度（0-1）
+function UILoadMapView:UpdateLoadProgress(target)
+    local value = math.clamp(target or 1.0, 0.0, 1.0)
+    -- 目标字段尚未初始化时允许直接推进；否则仅允许单调递增（进度不回退）
+    if self._ProgressTarget ~= nil and value < self._ProgressTarget then
+        return
+    end
+    self._ProgressTarget = value
+    PrintInfo(string.format("[UILoadMapView] 进度目标 -> %d%%", math.floor(value * 100 + 0.5)))
+end
+
+---启动常驻平滑协程
+---@brief 每帧向目标进度逼近（lerp），进度条与百分比文字平滑变化
+---@desc 由 Start 调用；LoadScrollbar 未绑定时告警并跳过，避免空引用
+---@type fun():void
+function UILoadMapView:StartLoadProgressLoop()
+    if IsNull(self.LoadScrollbar) then
+        PrintWarning("[UILoadMapView] LoadScrollbar 未绑定，无法启动进度平滑")
+        return
+    end
+    self:StopLoadProgressLoop()
+    self._ProgressCoroutine = HonorCoroutineHelper:StartAlone(function()
+        while true do
+            local value = self.LoadScrollbar.value
+            local target = self._ProgressTarget
+            local diff = target - value
+            if math.abs(diff) > 0.005 then
+                value = value + diff * math.min(1.0, UnityEngine.Time.deltaTime * 3.0)
+            else
+                value = target
+            end
+            self:SetLoadProgress(value)
+            coroutine.yield(nil)
+        end
+    end)
+end
+
+---停止常驻平滑协程
+---@brief 界面销毁或重启平滑时调用
+---@desc 由 OnDestroy 与 StartLoadProgressLoop 调用，安全停止并置空协程句柄
+---@type fun():void
+function UILoadMapView:StopLoadProgressLoop()
+    if self._ProgressCoroutine then
+        HonorCoroutineHelper:StopAlone(self._ProgressCoroutine)
+        self._ProgressCoroutine = nil
+    end
+end
+
+---统一刷新进度条与百分比文字
+---@brief 进度条未绑定时给出警告，避免静默失败
+---@desc 由 ResetLoadProgress 与平滑协程调用，统一写进度条值并联动百分比文字
+---@type fun(value:number):void
+---@param value number 进度值（0-1）
+function UILoadMapView:SetLoadProgress(value)
+    if IsNull(self.LoadScrollbar) then
+        PrintWarning("[UILoadMapView] LoadScrollbar 未绑定，无法更新进度条")
+        return
+    end
+    self.LoadScrollbar.value = value
+    self:UpdateLoadProgressText(value)
+end
+
+---刷新百分比文字
+---@brief 按当前进度取整显示百分比
+---@desc 由 SetLoadProgress 调用；TextTMP 未绑定时直接跳过
+---@type fun(value:number):void
+---@param value number 进度值（0-1）
+function UILoadMapView:UpdateLoadProgressText(value)
+    if IsNull(self.TextTMP) then
+        return
+    end
+    local percent = math.floor(value * 100 + 0.5)
+    self.TextTMP.text = tostring(percent) .. "%"
+end
+
+--endregion
+
+--region 【子UI回调】
+
 ---子UI销毁回调
+---@brief 框架驱动，本视图 AddUI 出的子 UI 销毁时回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UILoadMapView:OnAddedUIDestroyed(luaClass)
     UILoadMapView.super.OnAddedUIDestroyed(self, luaClass)
 end
+
+--endregion
 
 return UILoadMapView

@@ -5,6 +5,11 @@
 -- filename:  GameDataPB.proto.lua
 -- descrip:   游戏数据存档
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     游戏数据存档 Protobuf schema 定义
+-- @desc      返回 proto3 语法的 message 定义字符串（ResourceInfo/LevelProgress/ChapterInfo/GameData 等），供序列化器解析
+-- @core      return [[ ... ]] 内嵌 proto3 文本，由 protoc/自定义生成器导出
+-- @scope     SaveIO 序列化层加载该 schema，完成字节流与表结构互转
+-- @dependency protobuf 运行时序列化器
 --=====================================================================================================
 
 -- proto.Schema结构

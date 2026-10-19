@@ -1,0 +1,329 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameMainUIPushManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     主界面弹出任务管理器
+-- @desc      主界面自动弹出任务队列（UI、动效、机器升级、元素收集、气泡）
+-- @core      优先级队列、协程调度、主界面状态感知、去重、阻塞、恢复
+-- @scope     所有需要在主界面“自动弹出”的内容，统一调度
+-- @dependency Singleton, EventManager, CoroutineHelper, ProcedureManager, GlobalUtility
+--=====================================================================================================
+
+---@class GameMainUIPushConfig @ 弹出任务配置
+---@field Type number 任务类型
+---@field SortOrder number 优先级
+---@field NeedMainHudOpen boolean 需要主界面打开
+---@field linkChapterID string 绑定章节
+---@field unvaildDiffentLink boolean 章节不同失效
+---@field onlyGameStatusExchange boolean 仅状态变化触发
+---@field closeUIMainRaycast boolean 屏蔽主界面点击
+---@field param table 参数
+---@field Recheck function 检查
+---@field Execute function 执行
+---@field Complete function 完成回调
+
+---@class GameMainUIPushMgr : Singleton
+---@field _workQueue GameMainUIPushConfig[] @任务队列
+---@field _uiMainInHideState boolean @主界面隐藏状态
+---@field Coroutine thread @任务执行协程
+---@field _intoMainState boolean @刚进入主状态标记
+---@field _uiMainHudIsStart boolean @主界面已启动完成
+---@field _sceneEffectWorking table @场景特效工作中标记（预留）
+---@field _elementCollectionList table @元素收集队列
+---@field _elementUIBubbleList table @气泡队列
+---@field _elementProcessRefCount number @元素流程引用计数
+local GameMainUIPushManager = class("GameMainUIPushManager", import("Singleton"))
+
+--=========================================================================
+--region 生命周期 & 基础函数
+--=========================================================================
+---=========================================================================
+--- 构造函数
+---@brief 初始化状态、缓存变量
+---@param args table 构造参数
+---=========================================================================
+function GameMainUIPushManager:ctor(args)
+    GameMainUIPushManager.super.ctor(self, args)
+    self:_ResetMainStateFields()
+    self._elementCollectionList = {}
+    self._elementUIBubbleList = {}
+    self._elementProcessRefCount = 0
+    self._sceneEffectWorking = {}
+end
+
+---=========================================================================
+--- 创建单例
+---@brief 创建单例实例
+---@param args table 初始化参数（可选）
+---@return GameMainUIPushMgr 单例实例
+---=========================================================================
+function GameMainUIPushManager:Create(args)
+    return GameMainUIPushManager.new(args)
+end
+
+---=========================================================================
+--- 清空数据（切号/重载）
+---@brief 重置所有队列、状态、协程
+---=========================================================================
+function GameMainUIPushManager:ClearData()
+    GameMainUIPushManager.super.ClearData(self)
+    self:_ResetMainStateFields()
+    self.Coroutine = nil
+end
+
+---=========================================================================
+--- 重置主界面推送状态字段
+---@brief ctor/ClearData 共用：复位工作队列与主界面状态标记
+---=========================================================================
+function GameMainUIPushManager:_ResetMainStateFields()
+    self._workQueue = {}
+    self._uiMainInHideState = true
+    self._intoMainState = false
+    self._uiMainHudIsStart = false
+end
+
+---=========================================================================
+--- 进入主界面状态
+---@brief 注册事件，标记进入主界面
+---=========================================================================
+function GameMainUIPushManager:OnEnterMainState()
+    HonorEventHelper:AddListenerBatch({
+        {UIEventCode.OnHideMainHudUI, handler(self, self._OnMainHudUIHide)}, --主界面开始隐藏
+        {UIEventCode.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver)}, --主界面复出动画结束
+        {UIEventCode.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI)}, --恢复被挂起的推送任务
+    })
+    self._intoMainState = true
+    self._uiMainHudIsStart = false
+end
+
+---=========================================================================
+--- 离开主界面状态
+---@brief 注销事件，重置状态
+---=========================================================================
+function GameMainUIPushManager:OnLeaveMainState()
+    self._uiMainInHideState = true
+    HonorEventHelper:RemoveListenerBatch({
+        {UIEventCode.OnHideMainHudUI, handler(self, self._OnMainHudUIHide)},
+        {UIEventCode.OnShowMainHudUIOver, handler(self, self._OnMainHudShowOver)},
+        {UIEventCode.OnTryResumeGameMainPushUI, handler(self, self._OnTryResumeGameMainPushUI)},
+    })
+end
+
+---=========================================================================
+--- 进入关卡清空所有队列
+---@brief 防止闯关过程中弹出主界面任务
+---=========================================================================
+function GameMainUIPushManager:ClearWorkQueue()
+    self._workQueue = {}
+    self._sceneEffectWorking = {}
+    self:ClearElementData()
+end
+
+---=========================================================================
+--- 清空元素动画数据
+---@brief 重置元素收集、气泡动画队列（外部调用：MapManager）
+---=========================================================================
+function GameMainUIPushManager:ClearElementData()
+    self._elementCollectionList = {}
+    self._elementUIBubbleList = {}
+    self._elementProcessRefCount = 0
+end
+--endregion
+
+--=========================================================================
+--region 主界面状态
+--=========================================================================
+---=========================================================================
+--- 主UI复出动画播完，进入检查流程
+---@brief 主界面复出动画结束后解除隐藏标记并继续任务调度
+---=========================================================================
+function GameMainUIPushManager:_OnMainHudShowOver()
+    self._uiMainInHideState = false
+    self:_TryRunning(EGameMainUIPUshRunningType.OnUIMainHudOpen)
+end
+
+---=========================================================================
+--- 主界面开始播放关闭动画
+---@brief 标记主界面进入隐藏状态并切换非和平状态
+---=========================================================================
+function GameMainUIPushManager:_OnMainHudUIHide()
+    self._uiMainInHideState = true
+    self:_ExchangeMainHubPeaceState(false)
+end
+
+---=========================================================================
+--- 需要重启
+---@brief 收到恢复请求后继续执行被挂起的任务队列
+---@param from any 调用来源
+---=========================================================================
+function GameMainUIPushManager:_OnTryResumeGameMainPushUI(from)
+    self:_ResumeCoroutine(from)
+end
+--endregion
+
+--=========================================================================
+--region 主界面状态变更
+--=========================================================================
+---=========================================================================
+--- 切换主界面和平状态
+---@brief 广播主界面和平状态变化
+---@param inPeace boolean @ 新状态
+---=========================================================================
+function GameMainUIPushManager:_ExchangeMainHubPeaceState(inPeace)
+    PrintInfo(string.format("Peace:%s", inPeace))
+    if inPeace then
+        HonorEventHelper:FireNow(UIEventCode.OnAllowMainHudTutorial, false)
+    end
+end
+--endregion
+
+--=========================================================================
+--region 任务调度核心（协程 + 优先级 + 重试 + 恢复）
+--=========================================================================
+---=========================================================================
+--- 任务当前不能执行，但需要保留
+---@brief 判断任务因状态/章节限制暂时不能执行
+---@param cmd GameMainUIPushConfig 任务配置
+---@param from 调用来源
+---@return boolean 是否需要保留
+---=========================================================================
+function GameMainUIPushManager:_TaskCantExecuteButNeedKeep(cmd, from)
+    if not cmd then return false end
+    local stateInvalid = cmd.onlyGameStatusExchange and not self._intoMainState
+    local chapInvalid = cmd.linkChapterID and cmd.linkChapterID ~= ChapterListManager:GetRuntimeChapterId()
+    return stateInvalid or chapInvalid
+end
+
+---=========================================================================
+--- 移除无效/过期任务
+---@brief 从队尾向前清理因状态/章节失效的任务
+---@param idx 索引
+---@param cmd 任务
+---@param from 调用来源
+---@return number, table 清理后的索引和任务
+---=========================================================================
+function GameMainUIPushManager:_TryRemoveUnvalidTask(idx, cmd, from)
+    while idx > 0 and self:_TaskCantExecuteButNeedKeep(cmd, from) do
+        if cmd.unvaildDiffentLink then
+            table.remove(self._workQueue, idx)
+        end
+        idx = idx - 1
+        cmd = self._workQueue[idx]
+    end
+    return idx, cmd
+end
+
+---=========================================================================
+--- 协程工作函数（真正执行任务队列）
+---@brief 按优先级执行任务，支持等待、重试、异常捕获
+---@param from 调用来源
+---=========================================================================
+function GameMainUIPushManager:_Work(from)
+    local maxTimes = 64
+    local times = 0
+    GameMapMotion:PauseMapMotion()
+    self:_ExchangeMainHubPeaceState(false)
+
+    while #self._workQueue > 0 and times < maxTimes do
+        times = times + 1
+        local idx = #self._workQueue
+        local cmd = self._workQueue[idx]
+        idx, cmd = self:_TryRemoveUnvalidTask(idx, cmd, from)
+        if idx <= 0 then break end
+
+        -- 等待主界面打开
+        while cmd.NeedMainHudOpen and self._uiMainInHideState do
+            coroutine.yield()
+        end
+
+        idx, cmd = self:_TryRemoveUnvalidTask(idx, cmd, from)
+        if idx <= 0 then break end
+
+        if #self._workQueue == idx then
+            table.remove(self._workQueue, idx)
+            local allow = true
+            if cmd.Recheck then
+                allow = cmd:Recheck()
+            end
+
+            if allow then
+                -- 屏蔽主界面点击
+                if cmd.closeUIMainRaycast then
+                    HonorEventHelper:FireNow(UIEventCode.OnUIMainRaycastStateChange, false)
+                end
+                -- 安全执行任务
+                xpcall(function()
+                    cmd:Execute()
+                    coroutine.yield()
+                end, function(msg)
+                    PrintError("[GameMainUIPushManager] Execute Error: " .. debug.traceback(msg, 3))
+                end)
+                -- 恢复点击
+                if cmd.closeUIMainRaycast then
+                    HonorEventHelper:FireNow(UIEventCode.OnUIMainRaycastStateChange, true)
+                end
+            end
+            if cmd.Complete then
+                cmd:Complete()
+            end
+        end
+    end
+
+    self.Coroutine = nil
+    self._intoMainState = false
+    GameMapMotion:ResumeMapMotion()
+    self:_ExchangeMainHubPeaceState(true)
+end
+
+---=========================================================================
+--- 恢复协程
+---@brief 继续执行被挂起的任务队列
+---@param from 调用来源
+---=========================================================================
+function GameMainUIPushManager:_ResumeCoroutine(from)
+    if not self._uiMainHudIsStart then return end
+    if self.Coroutine and GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
+        local ok, err = coroutine.resume(self.Coroutine)
+        if not ok then
+            PrintError("Coroutine Resume Error: " .. tostring(err))
+            self.Coroutine = nil
+        end
+        if coroutine.status(self.Coroutine) == "dead" then
+            self.Coroutine = nil
+        end
+    end
+end
+
+---=========================================================================
+--- 尝试运行队列（外部入口）
+---@brief 启动/恢复任务调度
+---@param from 运行类型
+---@param noWork 是否无新任务
+---=========================================================================
+function GameMainUIPushManager:_TryRunning(from, noWork)
+    if GameStateMachine:CurrentStateType() ~= GameStateCmd.MainState then return end
+    if not TableIsEmpty(self._sceneEffectWorking) then return end
+    if noWork and self.Coroutine then return end
+
+    if self.Coroutine then
+        if coroutine.status(self.Coroutine) == "suspended" then
+            self:_ResumeCoroutine(from)
+        end
+        return
+    end
+
+    if TableIsEmpty(self._workQueue) then
+        self:_ExchangeMainHubPeaceState(true)
+        return
+    end
+
+    self.Coroutine = coroutine.create(function()
+        self:_Work(from)
+    end)
+    self:_ResumeCoroutine("StartTask")
+end
+--endregion
+
+return GameMainUIPushManager

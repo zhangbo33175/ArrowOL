@@ -1,55 +1,68 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UIRankView.lua
 -- author:    云毅
--- descrip:   排行榜界面
+-- created:   2026
+-- @brief     排行榜界面
+-- @desc      展示玩家自身排名/分数与全服榜单列表；Start 时从 RankDataManager 拉取数据，
+--            逐条 AddUISync 生成 RankItem 子项，关闭按钮直接关闭本界面
+-- @core      玩家信息刷新、榜单批量生成、旧条目清理
+-- @scope     排行榜面板的数据展示与关闭交互
+-- @dependency LuaBehaviourSuper, RankDataManager, RankItem
 --=====================================================================================================
 
----@class UIRankView : LuaBehaviourSuper
----@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field CloseButton                          UnityEngine.UI.Button         √         Clicked        关闭排行榜
----@field RankRoot                             UnityEngine.Transform         √                        榜单列表容器（RankItem 的父节点）
----@field PlayerRankText                       TMPro.TextMeshProUGUI         √                        我的排名
----@field PlayerScoreText                      TMPro.TextMeshProUGUI         √                        我的分数
+---@class UIRankView : LuaBehaviourSuper @排行榜界面视图
+---@field cs Honor.Runtime.LuaBehaviour @绑定的 LuaBehaviour 组件（框架自动注入）
+---@field CloseButton UnityEngine.UI.Button @关闭按钮（Inspector 注入，Clicked 关闭界面）
+---@field RankRoot UnityEngine.Transform @榜单列表容器（RankItem 的父节点）
+---@field PlayerRankText TMPro.TextMeshProUGUI @我的排名文本
+---@field PlayerScoreText TMPro.TextMeshProUGUI @我的分数文本
 local UIRankView = class('UIRankView', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---构造函数
+---@brief 框架驱动，仅透传基类构造
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UIRankView:ctor(args)
     UIRankView.super.ctor(self, args)
-
 end
 
 ---创建函数
+---@brief 框架驱动，由 UI 管理器通过 UIs 表反射调用
 ---@type fun(args:table):UIRankView
 ---@param args table @自定义参数
 ---@return UIRankView @实例
 function UIRankView:Create(args)
-    local obj = UIRankView.new(args)
-    return obj
+    return UIRankView.new(args)
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---注册监听（自动注销）
+---@brief 框架驱动，当前无全局事件需注册
 ---@type fun():void
 function UIRankView:OnAddListeners()
     UIRankView.super.OnAddListeners(self)
-
 end
 
 ---唤醒
+---@brief 框架驱动；注册按钮监听（self:AddUIListener 随界面销毁自动注销）
 ---@type fun():void
+---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+--TODO: [优化] 按钮监听由 AddUIListenerFunction 改为 self:AddUIListener（自动注销）
 function UIRankView:Awake()
     UIRankView.super.Awake(self)
--- 2=====================================================================================================
-    AddUIListenerFunction(self.CloseButton, 'Clicked', handler(self, self.OnCloseButtonClicked))
--- ====================================================================================================2
-
+    self:AddUIListener(self.CloseButton, 'Clicked', Bind(self, self.OnCloseButtonClicked))
 end
 
 ---初始化逻辑（刷新排行榜数据展示）
+---@brief 由 Start 调用，依次刷新玩家信息与榜单列表
 ---@type fun():void
 function UIRankView:Init()
     self:RefreshPlayerInfo()
@@ -57,6 +70,7 @@ function UIRankView:Init()
 end
 
 ---开始
+---@brief 框架驱动；首次激活时调用 Init 拉取并展示排行榜数据
 ---@type fun():void
 function UIRankView:Start()
     UIRankView.super.Start(self)
@@ -64,42 +78,61 @@ function UIRankView:Start()
 end
 
 ---销毁
+---@brief 框架驱动；UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 ---@type fun():void
+---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListener
 function UIRankView:OnDestroy()
     UIRankView.super.OnDestroy(self)
--- 3=====================================================================================================
-    OnRemoveListener(self.CloseButton, 'Clicked', handler(self, self.OnCloseButtonClicked))
--- ====================================================================================================3
-
 end
 
+--endregion
+
+--region 【动画回调】
+
 ---播放打开动画（可重写）
+---@brief 框架驱动（可重写），打开界面时播放
 ---@type fun():void
 function UIRankView:OnPlayOpenAnimation()
     UIRankView.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画（可重写）
+---@brief 框架驱动（可重写），关闭界面时播放
 ---@type fun():void
 function UIRankView:OnPlayCloseAnimation()
     UIRankView.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---子UI销毁回调
+---@brief 框架驱动，本视图 AddUI 出的子 UI 销毁时回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UIRankView:OnAddedUIDestroyed(luaClass)
     UIRankView.super.OnAddedUIDestroyed(self, luaClass)
 end
 
+--endregion
+
+--region 【按钮交互回调】
+
 ---关闭排行榜-交互回调
+---@brief 由 Awake 中 AddUIListener(Bind) 绑定触发，关闭本排行榜界面
 ---@type fun(args:any):void
 ---@param args any @UI交互内容
 function UIRankView:OnCloseButtonClicked(args)
     self:Close()
 end
 
+--endregion
+
+--region 【数据刷新】
+
 ---刷新玩家自身排名与分数展示
+---@brief 由 Init 调用；从 RankDataManager 读取我的排名/分数并写入文本，排名<=0 显示"--"
 ---@type fun():void
 function UIRankView:RefreshPlayerInfo()
     -- 我的排名
@@ -114,6 +147,7 @@ function UIRankView:RefreshPlayerInfo()
 end
 
 ---刷新排行榜列表（清空旧项后按榜单数据创建 RankItem 子项）
+---@brief 由 Init 调用；先 ClearRankRoot 清空旧条目，再逐条 AddUISync 生成 RankItem；缺 UIs.RankItem 配置时报错
 ---@type fun():void
 function UIRankView:RefreshRankList()
     self:ClearRankRoot()
@@ -130,6 +164,7 @@ function UIRankView:RefreshRankList()
 end
 
 ---清空榜单容器下所有旧子项
+---@brief 由 RefreshRankList 调用；逆序销毁 RankRoot 下所有子节点，避免刷新时残留旧条目
 ---@type fun():void
 function UIRankView:ClearRankRoot()
     if not self.RankRoot then
@@ -143,5 +178,7 @@ function UIRankView:ClearRankRoot()
         end
     end
 end
+
+--endregion
 
 return UIRankView

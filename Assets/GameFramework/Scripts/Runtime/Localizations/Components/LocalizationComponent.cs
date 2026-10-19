@@ -131,9 +131,10 @@ namespace Honor.Runtime
             
             m_PersistComponent.Save(GameConstants.Persist.Common.WayType, GameConstants.Persist.Common.ClassifyName);
 
-            // 通知 Lua 刷新本地化表
-            LuaComponent luaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-            luaComponent?.LuaRelateLocalizationTableDataFromCSEventDelegate?.Invoke();
+            // 通知 Lua 刷新本地化表（cmd: 1032 本地化语言表数据关联）
+            LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaRelateLocalizationTableDataFromCSEventDelegate,
+                new RelateLocalizationTableData(),
+                (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
 
             // 刷新字体
             UIComponent uiComponent = GameComponentsGroup.GetComponent<UIComponent>();

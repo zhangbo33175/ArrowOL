@@ -79,15 +79,15 @@ namespace Honor.Runtime
         {
             return type switch
             {
-                VibrateType.Selection    => HapticPatterns.PresetType.Selection,
-                VibrateType.Success      => HapticPatterns.PresetType.Success,
-                VibrateType.Warning      => HapticPatterns.PresetType.Warning,
-                VibrateType.Failure      => HapticPatterns.PresetType.Failure,
-                VibrateType.LightImpact  => HapticPatterns.PresetType.LightImpact,
-                VibrateType.MediumImpact => HapticPatterns.PresetType.MediumImpact,
-                VibrateType.HeavyImpact  => HapticPatterns.PresetType.HeavyImpact,
-                VibrateType.RigidImpact  => HapticPatterns.PresetType.RigidImpact,
-                VibrateType.SoftImpact   => HapticPatterns.PresetType.SoftImpact,
+                VibrateType.SelectionFeedback    => HapticPatterns.PresetType.Selection,
+                VibrateType.SuccessFeedback      => HapticPatterns.PresetType.Success,
+                VibrateType.WarningFeedback      => HapticPatterns.PresetType.Warning,
+                VibrateType.FailureFeedback      => HapticPatterns.PresetType.Failure,
+                VibrateType.LightImpactFeedback  => HapticPatterns.PresetType.LightImpact,
+                VibrateType.MediumImpactFeedback => HapticPatterns.PresetType.MediumImpact,
+                VibrateType.HeavyImpactFeedback  => HapticPatterns.PresetType.HeavyImpact,
+                VibrateType.RigidImpactFeedback  => HapticPatterns.PresetType.RigidImpact,
+                VibrateType.SoftImpactFeedback   => HapticPatterns.PresetType.SoftImpact,
                 _                        => HapticPatterns.PresetType.None,
             };
         }

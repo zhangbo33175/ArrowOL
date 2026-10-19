@@ -1,0 +1,130 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  CoUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     安全调用与延迟工具（异常捕获、延时/延迟帧执行）
+-- @desc      统一 xpcall 异常捕获与协程延时/延迟帧调度，业务函数可安全包裹执行避免崩溃
+-- @core      xpcall 异常打印、HonorCoroutineHelper 延时/延迟帧调度、配置表三级降级读取
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency HonorCoroutineHelper, PrintError/PrintDebug 日志全局函数
+--=====================================================================================================
+
+---@class CoUtil @ 安全调用与延迟工具表（纯函数，无实例状态）
+local CoUtil = {}
+
+--region 安全调用 / 延迟工具
+
+--=====================================================================================================
+-- 安全调用/延迟工具：异常捕获、延时执行、协程延迟
+--=====================================================================================================
+
+---@brief 安全执行函数（捕获异常）
+---@param func function 执行函数
+---@param errorMsg string 错误提示信息
+function CoUtil.SafeInvoke(func, errorMsg)
+    if not func then return end
+    xpcall(func, function(msg)
+        PrintError(string.format("[SafeInvoke] %s => %s", errorMsg or "Error", debug.traceback(msg, 4)))
+    end)
+end
+
+---@brief 安全获取配置表条目（表缺失 / nil id / 未命中 三级降级到默认项）
+---@desc 抽离自 HomeUILayerDataManager ≡ HomeUIBubbleLayerDataManager 的同构 GetDataById：
+---      配置表不存在 → 报错并返回 nil；id 为空 → 降级默认项；未命中 → 降级默认项。
+---      tag 仅用于日志归属，不影响返回值。
+---@param tablesObj table|nil Tables 全局表对象（允许为 nil）
+---@param tableName string 配置表在 Tables 下的字段名
+---@param id any 查询ID（允许为 nil）
+---@param fallbackKey any 默认条目键
+---@param tag string 日志归属 tag（如 "[XxxDataManager]"）
+---@return table|nil 命中条目 / 默认条目；配置表缺失时返回 nil
+function CoUtil.SafeGetTableEntry(tablesObj, tableName, id, fallbackKey, tag)
+    -- 配置表不存在防护（等价于原 `if not Tables or not Tables.X then`）
+    local tableRef = tablesObj and tablesObj[tableName]
+    if not tableRef then
+        PrintError(tag .. " Tables." .. tableName .. " 配置表不存在！")
+        return nil
+    end
+
+    -- 空ID → 降级默认项
+    if id == nil then
+        PrintError(tag .. " GetDataById id is nil → 使用默认")
+        return tableRef[fallbackKey]
+    end
+
+    local cfg = tableRef[id]
+    -- 配置不存在 → 降级默认项
+    if not cfg then
+        PrintDebug(tag .. " 未找到ID: " .. tostring(id) .. " → 使用默认")
+        return tableRef[fallbackKey]
+    end
+
+    return cfg
+end
+
+---@brief 协程延迟执行
+---@param self table 执行主体
+---@param delay number 延迟时间
+---@param realTime boolean 是否真实时间
+---@param callback function 回调函数
+---@return UnityEngine.Coroutine 协程对象
+function CoUtil.CoroutineDelayInvoke(self, delay, realTime, callback)
+    if delay <= 0 then
+        CoUtil.SafeInvoke(callback)
+        return
+    end
+
+    local action = function()
+        if realTime then
+            HonorCoroutineHelper:WaitForSecondsRealtime(delay)
+        else
+            HonorCoroutineHelper:WaitForSeconds(delay)
+        end
+        CoUtil.SafeInvoke(callback)
+    end
+
+    return HonorCoroutineHelper:Start(handler(self, action))
+end
+
+---@brief 协程延迟N帧执行
+---@param self table 执行主体
+---@param frameCount number 帧数
+---@param callback function 回调函数
+---@return UnityEngine.Coroutine 协程对象
+function CoUtil.CoroutineDelayFrame(self, frameCount, callback)
+    if frameCount <= 0 then
+        CoUtil.SafeInvoke(callback)
+        return
+    end
+
+    return HonorCoroutineHelper:Start(handler(self, function()
+        for i = 1, frameCount do
+            coroutine.yield(HonorCoroutineHelper.waitForEndOfFrame)
+        end
+        CoUtil.SafeInvoke(callback)
+    end))
+end
+
+---@brief 独立延迟帧调用
+---@param frameCount number 帧数
+---@param callback function 回调函数
+---@param param any 回调参数
+function CoUtil.DelayFrameInvoke(frameCount, callback, param)
+    if frameCount <= 0 then
+        callback(param)
+        return
+    end
+
+    HonorCoroutineHelper:StartAlone(function()
+        for i = 1, frameCount do
+            coroutine.yield(HonorCoroutineHelper.waitForEndOfFrame)
+        end
+        callback(param)
+    end)
+end
+
+--endregion
+
+return CoUtil

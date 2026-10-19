@@ -142,8 +142,8 @@ namespace Honor.Editor
         /// </summary>
         private void OnEnable()
         {
-            m_UnloadAssetDelayFrameNum  = serializedObject.FindProperty("m_UnloadAssetDelayFrameNum");
-            m_LoadedMaxNumToCleanMemery = serializedObject.FindProperty("m_LoadedMaxNumToCleanMemery");
+            m_UnloadAssetDelayFrameNum  = BindProperty("m_UnloadAssetDelayFrameNum");
+            m_LoadedMaxNumToCleanMemery = BindProperty("m_LoadedMaxNumToCleanMemery");
 
             RefreshTypeNames();
         }
@@ -497,9 +497,9 @@ namespace Honor.Editor
             return type switch
             {
                 OriginType.None => "N",
-                OriginType.Editor => "E",
-                OriginType.Persistent => "P",
-                OriginType.Streaming => "S",
+                OriginType.InEditor => "E",
+                OriginType.PersistentData => "P",
+                OriginType.StreamingAssets => "S",
                 _ => "?"
             };
         }

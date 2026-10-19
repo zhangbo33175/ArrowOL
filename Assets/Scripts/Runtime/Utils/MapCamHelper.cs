@@ -91,14 +91,7 @@ namespace GameLib
             }
 
             var seq = LookMapAnim(mapCamData.posX, mapCamData.posY, mapCamData.size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -114,14 +107,7 @@ namespace GameLib
             }
 
             var seq = LookMapAnim(posX, posY, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -145,14 +131,7 @@ namespace GameLib
             }
 
             var seq = LookMapAnim(posX, posY, CurCamSize, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -162,14 +141,7 @@ namespace GameLib
         {
             var camPos = CurCamPos;
             var seq = LookMapAnim(camPos.x, camPos.y, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -179,14 +151,7 @@ namespace GameLib
         {
             var camPos = CurCamPos;
             var seq = LookMapAnim(camPos.x, posY, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -196,14 +161,7 @@ namespace GameLib
         {
             var camPos = CurCamPos;
             var seq = LookMapAnim(posX, camPos.y, size, animTime);
-            if (seq != null)
-            {
-                seq.Play().OnComplete(() => { finishCallback?.Invoke(); });
-            }
-            else
-            {
-                finishCallback?.Invoke();
-            }
+            PlayCameraAnimation(seq, finishCallback);
         }
 
         /// <summary>
@@ -228,19 +186,38 @@ namespace GameLib
                 !Mathf.Approximately(mapCamPos.y, posY) ||
                 !Mathf.Approximately(CurCamSize, size))
             {
-                var seq = DOTween.Sequence();
-                var action0 = MapCamera.transform.DOLocalMoveX(posX, animTime);
-                var action1 = MapCamera.transform.DOLocalMoveY(posY, animTime);
-                var action2 = MapCamera.DOOrthoSize(size, animTime);
-                seq.Insert(0, action0);
-                seq.Insert(0, action1);
-                seq.Insert(0, action2);
+                Sequence sequence = DOTween.Sequence();
+                Tween moveXTween = MapCamera.transform.DOLocalMoveX(posX, animTime);
+                Tween moveYTween = MapCamera.transform.DOLocalMoveY(posY, animTime);
+                Tween sizeTween = MapCamera.DOOrthoSize(size, animTime);
+                sequence.Insert(0, moveXTween);
+                sequence.Insert(0, moveYTween);
+                sequence.Insert(0, sizeTween);
 
-                return seq;
+                return sequence;
             }
             else
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// 播放相机动画序列，并在播放完成后触发回调
+        /// <para>动画序列为 null 时表示无需移动（当前位置与目标一致），直接触发回调</para>
+        /// <para>所有 LookMap* 公开方法共用的统一动画驱动入口，避免重复逻辑</para>
+        /// </summary>
+        /// <param name="sequence">待播放的相机动画序列；null 表示无需播放</param>
+        /// <param name="finishCallback">动画播放完成后的回调</param>
+        private static void PlayCameraAnimation(Sequence sequence, Action finishCallback)
+        {
+            if (sequence != null)
+            {
+                sequence.Play().OnComplete(() => finishCallback?.Invoke());
+            }
+            else
+            {
+                finishCallback?.Invoke();
             }
         }
         #endregion
@@ -365,6 +342,51 @@ namespace GameLib
         public static void CloseCameraRenderLayer(int layerNumber)
         {
             MapCamera.cullingMask &= ~(1 << layerNumber);
+        }
+        #endregion
+
+        #region 相机近裁剪面统一控制
+        //=========================================================================
+        // 相机近裁剪面统一控制
+        //=========================================================================
+        /// <summary>
+        /// 遍历场景所有相机，将近裁剪面统一设置为指定值（带 far 保护）。
+        /// 用途：消除 EventSystem/SendMouseEvents 对 z=0 坐标转换(ScreenPointToRay/ScreenToWorldPoint)
+        ///       时触发的 "Screen position out of view frustum" 告警——near 为负值时，
+        ///       z=0 换算出的视口深度 (0-near)/(far-near) 为正，不再越界。
+        /// </summary>
+        /// <param name="near">目标近裁剪面值（建议负值，如 -10）</param>
+        public static void SetAllCamerasNear(float near)
+        {
+            foreach (Camera cam in Camera.allCameras)
+            {
+                // 仅当 far 大于目标 near 时才设置，保证 near &lt; far 构成有效视锥，不裁掉远处物体
+                if (cam != null && cam.farClipPlane > near)
+                {
+                    cam.nearClipPlane = near;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取场景所有相机的诊断信息（名称/tag/激活/近裁剪面/远裁剪面/是否正交），
+        /// 用于定位产生 "Screen position out of view frustum" 告警的具体相机。
+        /// </summary>
+        public static string DebugGetAllCamerasInfo()
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (Camera cam in Camera.allCameras)
+            {
+                if (cam == null) continue;
+                sb.Append(cam.name)
+                  .Append("|tag=").Append(cam.tag)
+                  .Append("|active=").Append(cam.gameObject.activeInHierarchy)
+                  .Append("|near=").Append(cam.nearClipPlane)
+                  .Append("|far=").Append(cam.farClipPlane)
+                  .Append("|ortho=").Append(cam.orthographic)
+                  .Append(";");
+            }
+            return sb.ToString();
         }
         #endregion
     }

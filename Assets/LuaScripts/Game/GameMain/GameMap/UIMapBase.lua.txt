@@ -1,0 +1,154 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UIMapBase.lua
+-- author:    云毅
+-- created:   2025
+-- @brief     UI地图基础类
+-- @desc      游戏主界面地图的基类，管理地图交互、图标、自治体、气泡、生命周期等
+-- @core      地图生命周期透传、地图卸载前/后清理、延时调用 DOTween 统一 Kill
+-- @scope     UIMap 及具体关卡地图的父类，由 MapManager:UnloadOldMap 驱动卸载钩子
+-- @feat      自治工人管理、延时调用安全清理、地图生命周期、UI交互基类
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
+-- @规范      Unity Lua 商业项目编码标准 / UI地图基类规范
+-- @dependency UIBase, GameEntry, EventManager, TimerComponent, MainUIIconDataSourceManager, GameMapMotion, DOTween
+--=====================================================================================================
+
+---@class UIMapBase : GameMapBase UI地图基础类
+---@field name string 动画名称
+---@field delay number 延时
+---@field _delayCallIds table 延迟调用ID列表（切换地图时需要清理）
+local UIMapBase = class('UIMapBase', import('GameMapBase'))
+
+--region 【构造 & 实例化】
+
+---@brief 构造函数（框架驱动，勿删）
+---@desc 初始化延时调用ID列表
+---@type fun(args:table):void
+---@param args table 自定义参数
+function UIMapBase:ctor(args)
+    UIMapBase.super.ctor(self, args)
+    self._delayCallIds = {}
+end
+
+---@brief 创建实例（框架驱动，勿删）
+---@type fun(args:table):UIMapBase
+---@param args table 自定义参数
+---@return UIMapBase UIMapBase实例
+function UIMapBase:Create(args)
+    return UIMapBase.new(args)
+end
+
+--endregion
+
+--region 【事件 & 初始化】
+
+---@brief 注册事件监听（框架驱动，勿删，父类自动注销）
+---@type fun():void
+function UIMapBase:OnAddListeners()
+    UIMapBase.super.OnAddListeners(self)
+end
+
+---@brief 初始化（框架驱动，勿删）
+---@type fun():void
+function UIMapBase:Init()
+    UIMapBase.super.Init(self)
+end
+
+---@brief 唤醒回调（框架驱动，勿删）
+---@type fun():void
+function UIMapBase:Awake()
+    UIMapBase.super.Awake(self)
+end
+
+--endregion
+
+--region 【游戏生命周期】
+
+---@brief 游戏初始化（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnInitGame()
+    UIMapBase.super.OnInitGame(self)
+end
+
+---@brief 进入游戏（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnEnterGame()
+    UIMapBase.super.OnEnterGame(self)
+end
+
+---@brief 游戏开始（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnBeginGame()
+    UIMapBase.super.OnBeginGame(self)
+end
+
+---@brief 游戏暂停（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnPauseGame()
+    UIMapBase.super.OnPauseGame(self)
+end
+
+---@brief 游戏恢复（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnResumeGame()
+    UIMapBase.super.OnResumeGame(self)
+end
+
+---@brief 游戏结束（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnGameOver()
+    UIMapBase.super.OnGameOver(self)
+end
+
+---@brief 退出游戏（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnExitGame()
+    UIMapBase.super.OnExitGame(self)
+end
+
+---@brief 游戏重玩（MapManager 广播驱动，勿删）
+---@type fun():void
+function UIMapBase:OnRePlayGame()
+    UIMapBase.super.OnRePlayGame(self)
+end
+
+--endregion
+
+--region 【地图卸载 & 资源清理】
+
+---@brief 卸载地图前清理（MapManager:UnloadOldMap 驱动，核心资源释放）
+---@desc 结束 GameMapMotion、遍历 Kill 所有 DOTween 延时调用并清空列表
+---@type fun():void
+function UIMapBase:UnloadMapBeforeClear()
+    UIMapBase.super.UnloadMapBeforeClear(self)
+
+    -- 结束地图控制
+    GameMapMotion:OnMapEnd()
+
+    -- 清理所有延迟调用
+    for id, _ in pairs(self._delayCallIds) do
+        DOTween.Kill(id)
+    end
+    ClearDictionary(self._delayCallIds)
+end
+
+---@brief 地图卸载后清理（MapManager 驱动）
+---@type fun():void
+function UIMapBase:UnloadMapAfterClear()
+    UIMapBase.super.UnloadMapAfterClear(self)
+end
+
+--endregion
+
+--region 【销毁】
+
+---@brief 销毁回调（框架驱动，勿删）
+---@type fun():void
+function UIMapBase:OnDestroy()
+    UIMapBase.super.OnDestroy(self)
+end
+
+--endregion
+
+return UIMapBase

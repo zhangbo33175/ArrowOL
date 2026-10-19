@@ -47,8 +47,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 0, 0);
-			
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "Create", _m_Create_xlua_st_);
+            
 			
             
 			
@@ -86,6 +87,38 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Create_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    string _chapterId = LuaAPI.lua_tostring(L, 1);
+                    int _levelId = LuaAPI.xlua_tointeger(L, 2);
+                    int _maplId = LuaAPI.xlua_tointeger(L, 3);
+                    string _mapName = LuaAPI.lua_tostring(L, 4);
+                    string _createTime = LuaAPI.lua_tostring(L, 5);
+                    string _backgroundPath = LuaAPI.lua_tostring(L, 6);
+                    
+                        RMapChapterTypeData gen_ret = RMapChapterTypeData.Create( _chapterId, _levelId, _maplId, _mapName, _createTime, _backgroundPath );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         
         

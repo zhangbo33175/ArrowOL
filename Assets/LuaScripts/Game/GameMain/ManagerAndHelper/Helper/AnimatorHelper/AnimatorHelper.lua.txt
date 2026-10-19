@@ -1,0 +1,37 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  AnimatorHelper.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     动画控制器工具类
+-- @desc      提供动画时长获取、安全播放、采样、防重复播放等通用 Animator 操作
+-- @core      Animator 片段时长查询、状态机播放控制、空安全与空控制器防护
+-- @scope     全工程需要直接操作 UnityEngine.Animator 的表现层（UI / 场景物体）
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
+-- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, GlobalUtility, CoroutineHelper
+--=====================================================================================================
+
+---@class AnimatorHelper 动画控制器通用工具类（纯工具方法，无状态，由 GameRequires 实例化为全局）
+local AnimatorHelper = class("AnimatorHelper")
+
+--region 构造 & 实例化
+
+---@brief 构造函数（框架驱动，勿删）
+---@type fun(args:table):void
+---@param args table 构造参数
+function AnimatorHelper:ctor(args)
+end
+
+---@brief 创建工具类实例（GameRequires 全局实例化入口）
+---@type fun(args:table):AnimatorHelper
+---@param args table 构造参数
+---@return AnimatorHelper 工具类实例
+function AnimatorHelper:Create(args)
+    return AnimatorHelper.new(args)
+end
+
+--endregion
+
+return AnimatorHelper

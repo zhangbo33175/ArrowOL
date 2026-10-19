@@ -1,0 +1,66 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UIUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     UI 通用工具
+-- @desc      提供 UI 节点查找、组件获取等通用工具函数，供各 UI 基类与业务 View 复用，
+--            避免重复的 transform:Find + GetComponent 组合调用（对齐参考 HonorUI Utils/UIUtil 语义）。
+-- @core      transform:Find 递归子节点定位、GetComponent 安全取组件（不存在返回 nil，不抛异常）
+-- @scope     HonorUI 内部模块（UIManager require 后使用），非全局门面
+-- @dependency UnityEngine, Unity
+--=====================================================================================================
+
+---@class UIUtil @ UI 通用工具表（冒号方法，self=表自身；FindChild/GetComponent 被 FindAndGetComponent 内部复用，GetComponentOf 为公共预留 API）
+local UIUtil = {}
+
+--region 节点与组件查找
+
+---@brief 查找子节点
+---@desc 递归不会深入；仅按传入节点的直接子级按名查找（等价 root.transform:Find(name)）
+---@param root UnityEngine.Transform|UnityEngine.GameObject 根节点（Transform 或 GameObject）
+---@param name string 子节点名称
+---@return UnityEngine.Transform|nil 找到的子节点 Transform，未找到返回 nil
+function UIUtil:FindChild(root, name)
+    if root == nil or name == nil then return nil end
+    local transform = root.transform or root
+    return transform:Find(name)
+end
+
+---@brief 获取组件（类型名）
+---@desc 按组件类型名获取，未挂载返回 nil（安全，不抛异常）
+---@param obj UnityEngine.Component|UnityEngine.GameObject 目标对象
+---@param typeName string 组件类型名（如 "Image"/"Button"/"CanvasGroup"）
+---@return UnityEngine.Component|nil 组件实例，未挂载返回 nil
+function UIUtil:GetComponent(obj, typeName)
+    if obj == nil or typeName == nil then return nil end
+    return obj:GetComponent(typeName)
+end
+
+---@brief 查找子节点并获取组件（一步到位）
+---@desc 等价 FindChild + GetComponent 组合，未找到子节点或未挂载组件时返回 nil
+---@param root UnityEngine.Transform|UnityEngine.GameObject 根节点
+---@param childName string 子节点名称
+---@param typeName string 组件类型名
+---@return UnityEngine.Component|nil 组件实例，任一环节缺失返回 nil
+function UIUtil:FindAndGetComponent(root, childName, typeName)
+    local child = self:FindChild(root, childName)
+    if child == nil then return nil end
+    return self:GetComponent(child, typeName)
+end
+
+---@brief 按类型获取组件（typeof 形态）
+---@desc 使用 C# 类型对象获取组件，支持泛型类型
+---@param obj UnityEngine.Component|UnityEngine.GameObject 目标对象
+---@param componentType System.Type C# 类型对象（typeof(...)）
+---@return UnityEngine.Component|nil 组件实例
+function UIUtil:GetComponentOf(obj, componentType)
+    if obj == nil or componentType == nil then return nil end
+    return obj:GetComponent(componentType)
+end
+
+--endregion
+
+return UIUtil

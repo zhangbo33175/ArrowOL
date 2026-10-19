@@ -85,7 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7869881248973367135}
   - component: {fileID: 8420089483747976620}
-  - component: {fileID: 3999784220721673726}
+  - component: {fileID: 7759543967042787224}
   m_Layer: 5
   m_Name: UILoadMapView
   m_TagString: Untagged
@@ -195,6 +195,20 @@ MonoBehaviour:
     ElementsInfoExs: []
     ElementsExtendsEnableds: 
     ElementsExtends: []
+  - Comment: "\u663E\u793A"
+    InjectionTypeName: 9
+    Name: TextTMP
+    IsArray: 0
+    Obj: {fileID: 5579976713429850589}
+    Variant: 
+    InfoEx: 
+    ExtendsEnabled: 0
+    Extends: 
+    ElementsObjs: []
+    ElementsVariants: []
+    ElementsInfoExs: []
+    ElementsExtendsEnableds: 
+    ElementsExtends: []
   - Comment: "\u80CC\u666F"
     InjectionTypeName: 0
     Name: BgImage
@@ -213,20 +227,25 @@ MonoBehaviour:
   m_Collider3DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger2DLifeCyclesBehaviour: {fileID: 0}
   m_Trigger3DLifeCyclesBehaviour: {fileID: 0}
---- !u!114 &3999784220721673726
+--- !u!114 &7759543967042787224
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705388526218237005}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ceaacb033cb46889e6274cea10f8536, type: 3}
+  m_Script: {fileID: 11500000, guid: 3d198bf43db2d6146ba340e113fb4c65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 5166830427936245639}
-  parentRectTransform: {fileID: 3157483216738949345}
+  target: {fileID: 8382989582026219137}
+  reference: {fileID: 0}
+  mode: 1
+  fillMode: 0
+  alignSide: 0
+  margin: 0
+  adaptOnStart: 1
 --- !u!1 &2734652449312472355
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,14 +275,13 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4132800635241103394}
+  m_Children: []
   m_Father: {fileID: 6036614227302928135}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1.930893, y: 3.2535}
-  m_SizeDelta: {x: 2.0618, y: 1.6106}
+  m_AnchoredPosition: {x: 0.51220703, y: 3.2535}
+  m_SizeDelta: {x: -1.0244, y: 1.6106}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &626168922023718785
 CanvasRenderer:
@@ -328,16 +346,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4272483719191509773}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1164704670988514383}
+  m_Father: {fileID: 8382989582026219137}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -14.4594, y: 0.00013304}
+  m_AnchoredPosition: {x: -11.296894, y: -495.00043}
   m_SizeDelta: {x: 171.0813, y: 33.465}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1396826257605563302
@@ -745,7 +763,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1164704670988514383}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.994
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -782,6 +800,7 @@ RectTransform:
   m_Children:
   - {fileID: 86565979796961740}
   - {fileID: 2650095642828115025}
+  - {fileID: 4132800635241103394}
   m_Father: {fileID: 3157483216738949345}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

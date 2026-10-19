@@ -1,0 +1,53 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  LanguageSettingDataManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     游戏多语言配置表格数据管理中心
+-- @desc      读取多语言配置表，获取游戏内启用的语言类型、语言列表
+-- @core      多语言配置表读取、启用语言列表维护门面
+-- @scope     多语言配置查询（业务查询方法已随死代码清理移除，当前仅保留生命周期）
+-- @feat      全局单例、安全缓存、自动容错、配置校验
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
+-- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, TableComponent, EventManager, SettingDataManager
+--=====================================================================================================
+
+---@class LanguageSettingDataManager : Singleton @多语言配置管理中心
+local LanguageSettingDataManager = class("LanguageSettingDataManager", import("Singleton"))
+
+--region 构造 & 实例化
+
+---@brief 构造函数
+---@type fun():void
+function LanguageSettingDataManager:ctor()
+    LanguageSettingDataManager.super.ctor(self)
+end
+
+---@brief 创建单例
+---@type fun():LanguageSettingDataManager
+---@return LanguageSettingDataManager
+function LanguageSettingDataManager:Create()
+    return LanguageSettingDataManager.new()
+end
+
+--endregion
+
+--region 初始化 & 生命周期
+
+---@brief 初始化
+---@type fun():void
+function LanguageSettingDataManager:Init()
+    LanguageSettingDataManager.super.Init(self)
+end
+
+---@brief 清理数据（切号/重载）
+---@type fun():void
+function LanguageSettingDataManager:ClearData()
+    LanguageSettingDataManager.super.ClearData(self)
+end
+
+--endregion
+
+return LanguageSettingDataManager

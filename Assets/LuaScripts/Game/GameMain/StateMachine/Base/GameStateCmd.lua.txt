@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     游戏业务状态全局定义（状态机枚举）
 -- @desc      定义所有游戏状态的唯一标识，供 GameStateMachine 统一调度
+-- @core      状态枚举常量（Login/LoadMap/Main/Playing/TurnToPreload）
+-- @scope     GameStateMachine:ctor 注册状态表、各状态 ChangeState 切换时引用
 -- @feat      状态机枚举、全局唯一标识、类型安全
 -- @author    商业项目规范版 | 注释完整 | 统一管理 | 易维护扩展
 -- @规范       Unity Lua 商业项目编码标准 / 枚举定义规范

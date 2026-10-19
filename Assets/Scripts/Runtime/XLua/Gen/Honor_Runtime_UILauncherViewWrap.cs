@@ -21,13 +21,16 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UILauncherView);
-			Utils.BeginObjectRegister(type, L, translator, 0, 0, 1, 1);
+			Utils.BeginObjectRegister(type, L, translator, 0, 1, 2, 2);
+			
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetReady", _m_SetReady);
 			
 			
-			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "DurationOverCallback", _g_get_DurationOverCallback);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "InitStartCallback", _g_get_InitStartCallback);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "DurationOverCallback", _g_get_DurationOverCallback);
             
-			Utils.RegisterFunc(L, Utils.SETTER_IDX, "DurationOverCallback", _s_set_DurationOverCallback);
+			Utils.RegisterFunc(L, Utils.SETTER_IDX, "InitStartCallback", _s_set_InitStartCallback);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "DurationOverCallback", _s_set_DurationOverCallback);
             
 			
 			Utils.EndObjectRegister(type, L, translator, null, null,
@@ -73,8 +76,49 @@ namespace XLua.CSObjectWrap
         
         
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetReady(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UILauncherView gen_to_be_invoked = (Honor.Runtime.UILauncherView)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.SetReady(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         
+        
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_InitStartCallback(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherView gen_to_be_invoked = (Honor.Runtime.UILauncherView)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.InitStartCallback);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_DurationOverCallback(RealStatePtr L)
@@ -91,6 +135,21 @@ namespace XLua.CSObjectWrap
         }
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_InitStartCallback(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.UILauncherView gen_to_be_invoked = (Honor.Runtime.UILauncherView)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.InitStartCallback = translator.GetDelegate<System.Action>(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_DurationOverCallback(RealStatePtr L)

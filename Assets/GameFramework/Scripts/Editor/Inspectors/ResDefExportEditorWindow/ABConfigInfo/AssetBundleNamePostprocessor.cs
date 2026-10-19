@@ -179,7 +179,11 @@ namespace Honor.Editor
         }
 
         /// <summary>
-        /// 类型1：目录下每个文件单独打包
+        /// 类型1：目录下每个文件单独打包（递归遍历子目录）
+        /// 说明：与打包工具 BuildPackage_Config 的 EachFile 粒度一致——递归收集整个目录树，
+        ///       每个文件一个 bundle（bundle 名 = 完整资源相对路径去扩展名）。
+        ///       如此生成的 ABPath 为完整资源路径（含资源名），可被运行时
+        ///       AssetBundleLoadManager.GetABFormatPath 精确命中单资源 bundle。
         /// </summary>
         private static void ProcessPackageType_EachFile(ABConfigInfo info, bool forceCheckPath)
         {
@@ -188,9 +192,9 @@ namespace Honor.Editor
                 if (forceCheckPath) Log.Error($"[AB打包] ID:{info.ID} 目录无效：{info.Path}");
                 return;
             }
-
+			//todo
             string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
-            string[] files = Directory.GetFiles(root);
+            string[] files = Directory.GetFiles(root, "*.*", SearchOption.AllDirectories);
 
             foreach (string fullPath in files)
             {

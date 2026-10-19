@@ -59,10 +59,12 @@ namespace Honor.Runtime
                 m_CachedNodes.Remove(e);
             }
 
-            // 将事件转发到 Lua 全局接收接口
-            if (m_LuaComponent != null && m_LuaComponent.LuaReceiveEventCSEventDelegate != null)
+            // 将事件转发到 Lua 全局接收接口（cmd 统一分发）
+            if (m_LuaComponent != null)
             {
-                m_LuaComponent.LuaReceiveEventCSEventDelegate(e);
+                LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaReceiveEventCSEventDelegate,
+                    e,
+                    (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
             }
         }
         #endregion

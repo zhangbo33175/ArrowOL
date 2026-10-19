@@ -1,0 +1,196 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ChallengeLevelHelper.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     挑战关卡管理单例
+-- @desc      负责挑战关卡判断、当前关卡记录、异常退出清理、胜利发放额外奖励等逻辑
+-- @core      挑战关卡表(Tables.DailyLevels)判定、存档读写当前挑战记录、关卡异常退出/胜利事件响应
+-- @scope     关卡进入/退出、结算与异常清理流程中需要识别与记录挑战关卡的场景
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
+-- @规范       Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, PlayerDataManager, ItemManager, UIManager, EventManager, GameTimeUtil
+--=====================================================================================================
+
+---@class ChallengeLevelHelper : Singleton 挑战关卡管理单例
+---@field _minChallengeLevelId number @挑战关卡 ID 段起点（>= 此值进入挑战段，再查挑战表确认）
+---@field _challengeIdOffset number @挑战关卡 ID 相对挑战表序号的偏移（挑战关卡 ID = 表序号 + 偏移）
+---@field _challengeUnlockLevel table @挑战关卡解锁所需主线进度 {Chapter=章节, Level=关卡}
+local ChallengeLevelHelper = class('ChallengeLevelHelper', import('Singleton'))
+
+--region 构造 & 实例化
+
+---@brief 构造函数
+---@type fun(args:table):void
+---@param args table 构造参数
+function ChallengeLevelHelper:ctor(args)
+    ChallengeLevelHelper.super.ctor(self, args)
+
+    ---@type number 挑战关卡 ID 段起点（>= 此值进入挑战段）
+    self._minChallengeLevelId = 10001
+    ---@type number 挑战关卡 ID 相对挑战表序号的偏移（挑战关卡 ID = 表序号 + 偏移）
+    self._challengeIdOffset = 10000
+    --TODO: [挑战关卡] 挑战解锁阈值暂用主线进度第1章第1关，待业务确认具体解锁条件后改为配置表取值
+    ---@type table 挑战关卡解锁所需主线进度 {Chapter=章节, Level=关卡}
+    self._challengeUnlockLevel = { Chapter = 1, Level = 1 }
+end
+
+---@brief 创建单例实例（静态工厂）
+---@type fun(args:table):ChallengeLevelHelper
+---@param args table 构造参数
+---@return ChallengeLevelHelper
+function ChallengeLevelHelper:Create(args)
+    return ChallengeLevelHelper.new(args)
+end
+
+--endregion
+
+
+--region 初始化 & 生命周期
+
+---@brief 初始化（覆写父类）
+---@type fun():void
+function ChallengeLevelHelper:Init()
+    ChallengeLevelHelper.super.Init(self)
+    -- 注册全局事件监听
+    self:AddGameEventListeners()
+end
+
+---@brief 清理数据（覆写父类）
+---@type fun():void
+function ChallengeLevelHelper:ClearData()
+    ChallengeLevelHelper.super.ClearData(self)
+    -- 移除全局事件监听
+    self:RemoveGameEventListeners()
+end
+
+--endregion
+
+--region 事件监听
+
+---@brief 注册游戏全局事件监听
+---@type fun():void
+function ChallengeLevelHelper:AddGameEventListeners()
+    HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
+    HonorEventHelper:AddListener(EventCmd.OnLevelUnusualExit, handler(self, self.OnLevelUnusualExit))
+end
+
+---@brief 移除游戏全局事件监听
+---@type fun():void
+function ChallengeLevelHelper:RemoveGameEventListeners()
+    HonorEventHelper:RemoveListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
+    HonorEventHelper:RemoveListener(EventCmd.OnLevelUnusualExit, handler(self, self.OnLevelUnusualExit))
+end
+
+--endregion
+
+--region 关卡状态判断
+
+---@brief 判断是否为挑战关卡
+---@desc 挑战关卡数据结构绑定挑战关卡配置表 Tables.DailyLevels（LevelID 以 "Daily_" 前缀命名），
+---      运行时挑战关卡 ID = 表序号 + _challengeIdOffset（如 10001 对应表 "1"）；进入挑战 ID 段后查表确认，
+---      表内存在该关才视为挑战关卡（替代原硬编码 ID 区间上限）
+---@type fun(levelId:number):boolean
+---@param levelId number 关卡 ID
+---@return boolean true = 是挑战关卡
+function ChallengeLevelHelper:IsChallengeLevel(levelId)
+    if levelId < self._minChallengeLevelId then
+        return false
+    end
+    return Tables.DailyLevels[tostring(levelId - self._challengeIdOffset)] ~= nil
+end
+
+---@brief 判断挑战关卡是否已解锁
+---@desc 解锁条件为主线最新进度达到挑战解锁阈值（_challengeUnlockLevel，默认通关主线第1章第1关）；
+---      复用 SystemGameUnlock 的"章节-关卡"进度比较口径：章节更小 或 同章节关卡达标即解锁
+---@type fun():boolean
+---@return boolean true=已解锁 false=未解锁
+function ChallengeLevelHelper:IsChallengeLevelUnlocked()
+    local unlockLevel = self._challengeUnlockLevel
+    if not unlockLevel then
+        return false
+    end
+    local latest = GamerDataManager:GetLatestChapterLevel()
+    if not latest then
+        return false
+    end
+    return unlockLevel.Chapter < latest.Chapteror (unlockLevel.Chapter == latest.Chapter and unlockLevel.Level <= latest.Level)
+end
+
+--endregion
+
+--region 关卡回调事件
+
+---@brief 关卡异常退出回调（闪退 / 切后台 / 强制退出）
+---@desc 由 EventCmd.OnLevelUnusualExit 事件触发，异常退出时若处于挑战关卡则清除记录
+---@type fun(chapterId:string,levelId:number):void
+---@param chapterId string 章节 ID
+---@param levelId number 关卡 ID
+function ChallengeLevelHelper:OnLevelUnusualExit(chapterId, levelId)
+    if self:GetCurrentChallengeLevelId(chapterId) > 0 then
+        self:ClearCurrentChallengeLevel()
+    end
+end
+
+---@brief 关卡胜利回调
+---@type fun(lvInfo:ChapterLevel):void
+---@param lvInfo ChapterLevel 关卡数据
+function ChallengeLevelHelper:OnLevelSuccess(lvInfo)
+    -- 处于挑战关卡中，不处理普通关卡胜利逻辑
+    if GameCoreManager:IsInChallengeLevel() then
+        return
+    end
+    --TODO: [挑战关卡] 挑战关卡胜利结算逻辑为空：IsInChallengeLevel 已按 GameManager.CurrentMode==ELevelMode.DAILY
+    --       正确判定，此处应补挑战胜利的额外奖励发放与挑战记录(challengeLevelData)清理闭环。
+end
+
+--endregion
+
+--region 挑战关卡数据管理（存储/读取/清除）
+
+--TODO: [挑战关卡] 缺少挑战记录的写入方法（SetCurrentChallengeLevel）：进入挑战关卡时应将
+--       chapterId + challengeLevelId 落盘到 SaveRootData.GameData.challengeLevelData，
+--       当前仅实现读取(GetCurrentChallengeLevelId)与清除(ClearCurrentChallengeLevel)，写路径缺失；
+--       另挑战进入时仅 GameManager.CurrentMode 置为 ELevelMode.DAILY，GameCoreManagerData._LevelDifficulty
+--       未设为 ELevelDifficulty.CHALLENGE，若需按难度分支需在此一并落难度。
+
+---@brief 获取挑战关卡静态配置数据
+---@desc 从挑战关卡配置表 Tables.DailyLevels 读取；非挑战关卡 ID 返回 nil
+---@type fun(levelId:number):Tables.DailyLevels_Item|nil
+---@param levelId number 挑战关卡 ID
+---@return Tables.DailyLevels_Item|nil 挑战关卡配置，非挑战关卡返回nil
+function ChallengeLevelHelper:GetChallengeLevelData(levelId)
+    return Tables.DailyLevels[tostring(levelId - self._challengeIdOffset)]
+end
+
+---@brief 获取当前记录的挑战关卡 ID
+---@type fun(chapterId:string):number
+---@param chapterId string 章节 ID
+---@return number 挑战关卡 ID（0 = 无记录）
+function ChallengeLevelHelper:GetCurrentChallengeLevelId(chapterId)
+    ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
+    local challengeData = SaveRootData.GameData.challengeLevelData or {}
+
+    if challengeData and not string.isNullOrEmpty(challengeData.chapterId) and challengeData.chapterId == chapterId then
+        return challengeData.challengeLevelId
+    end
+    return 0
+end
+
+---@brief 清除当前挑战关卡记录（退出 / 完成 / 异常时调用）
+---@type fun():void
+function ChallengeLevelHelper:ClearCurrentChallengeLevel()
+    ---@type SavePBMsgDef.SaveGameData.ChallengeLevelData
+    local challengeData = SaveRootData.GameData.challengeLevelData or {}
+
+    challengeData.chapterId = ""
+    challengeData.challengeLevelId = 0
+
+    SaveRootData.GameData.challengeLevelData = challengeData
+    SaveIO.GameData.Save_challengeLevelData()
+end
+
+--endregion
+
+return ChallengeLevelHelper

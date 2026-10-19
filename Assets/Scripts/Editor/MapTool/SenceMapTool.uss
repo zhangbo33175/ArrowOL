@@ -1,0 +1,863 @@
+.root-container {
+    flex-grow: 1;
+    flex-direction: row;
+    background-color: rgb(38, 38, 38);
+}
+
+.left-panel {
+    width: 170px;
+    flex-grow: 0;
+    flex-direction: column;
+    background-color: rgb(45, 45, 48);
+}
+
+.left-btn-row {
+    flex-direction: row;
+    height: 30px;
+    padding: 2px;
+}
+
+.left-btn {
+    flex-grow: 1;
+    height: 26px;
+    margin: 2px;
+    background-color: rgb(60, 60, 60);
+    color: rgb(255, 255, 255);
+}
+
+.left-btn:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+.left-btn:active {
+    background-color: rgb(50, 50, 50);
+}
+
+.chapter-box {
+    height: 110px;
+    margin: 4px;
+    background-color: rgb(55, 55, 55);
+}
+
+.chapter-list {
+    flex-grow: 1;
+}
+
+.chapter-item {
+    height: 22px;
+    padding: 2px 6px;
+    color: rgb(220, 220, 220);
+}
+
+.chapter-item:hover {
+    background-color: rgb(65, 65, 65);
+}
+
+.chapter-item.selected {
+    background-color: rgb(14, 99, 156);
+    color: rgb(255, 255, 255);
+}
+
+.sub-tab-btn {
+    width: 42px;
+    height: 24px;
+    margin: 1px;
+    background-color: rgb(60, 60, 60);
+    color: rgb(255, 255, 255);
+}
+
+.sub-tab-btn:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+.sub-tab-btn.active {
+    background-color: rgb(14, 99, 156);
+}
+
+.resource-list {
+    flex-grow: 1;
+    background-color: rgb(55, 55, 55);
+    margin: 4px;
+}
+
+.resource-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px;
+    margin-bottom: 2px;
+    background-color: rgb(60, 60, 60);
+}
+
+.resource-item:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+.resource-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 6px;
+    background-color: rgb(80, 80, 80);
+}
+
+.resource-name {
+    font-size: 12px;
+    color: rgb(255, 255, 255);
+}
+
+.sub-tab-btn.active {
+    background-color: rgb(14, 99, 156);
+}
+
+.refresh-btn {
+    width: 40px;
+    height: 22px;
+    margin: 1px;
+    margin-left: auto;
+    background-color: rgb(45, 45, 48);
+    color: rgb(255, 255, 255);
+}
+
+.resource-list {
+    flex-grow: 1;
+}
+
+.resource-item {
+    flex-direction: row;
+    height: 40px;
+    margin: 2px;
+    background-color: rgb(64, 64, 64);
+}
+
+.resource-item.selected {
+    background-color: rgb(51, 51, 51);
+}
+
+.resource-icon {
+    width: 36px;
+    height: 36px;
+    margin: 2px;
+    background-color: rgb(97, 97, 140);
+}
+
+.resource-name {
+    flex-grow: 1;
+    color: rgb(255, 255, 255);
+}
+
+.separator-v {
+    width: 1px;
+    background-color: rgb(66, 66, 66);
+}
+
+.right-main-area {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.top-toolbar {
+    flex-grow: 0;
+    flex-direction: column;
+    background-color: rgb(51, 51, 51);
+}
+
+.toolbar-row {
+    flex-direction: row;
+    height: 26px;
+}
+
+.tab-btn {
+    width: 80px;
+    height: 22px;
+    margin-right: 2px;
+    background-color: rgb(45, 45, 48);
+    color: rgb(255, 255, 255);
+}
+
+.tab-btn.active {
+    background-color: rgb(14, 99, 156);
+}
+
+.tool-btn {
+    height: 24px;
+    margin-right: 6px;
+    background-color: rgb(60, 60, 65);
+    color: rgb(230, 230, 230);
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(80, 80, 85);
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.tool-btn:hover {
+    background-color: rgb(75, 75, 80);
+    border-color: rgb(100, 100, 105);
+}
+
+.tool-btn:active {
+    background-color: rgb(50, 50, 55);
+}
+
+.tool-btn.danger-btn {
+    background-color: rgb(160, 60, 60);
+    border-color: rgb(180, 80, 80);
+    color: rgb(255, 255, 255);
+}
+
+.tool-btn.danger-btn:hover {
+    background-color: rgb(180, 70, 70);
+}
+
+.flex-space {
+    flex-grow: 1;
+}
+
+.mode-panel {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.mode-panel.hidden {
+    display: none;
+}
+
+.scene-view {
+    flex-grow: 1;
+    min-height: 300px;
+    background-color: rgb(178, 153, 153);
+}
+
+.status-bar {
+    height: 26px;
+    background-color: rgb(37, 37, 38);
+    color: rgb(255, 255, 255);
+    padding: 4px 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.status-label {
+    font-size: 12px;
+    unity-text-alignment: middle-left;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.status-value {
+    font-size: 12px;
+    unity-text-alignment: middle-left;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.status-label {
+    color: rgb(180, 180, 180);
+}
+
+.status-value {
+    color: rgb(255, 255, 255);
+}
+
+.status-value-fixed {
+    color: rgb(255, 255, 255);
+    min-width: 40px;
+    max-width: 40px;
+    unity-text-alignment: middle-left;
+}
+
+.status-path-btn {
+    font-size: 12px;
+    background-color: transparent;
+    color: rgb(255, 255, 255);
+    border-width: 0;
+    padding: 0;
+    margin-left: 4px;
+}
+
+.status-path-btn:hover {
+    background-color: rgb(50, 50, 50);
+}
+
+.bottom-props-area {
+    flex-direction: row;
+    padding: 6px;
+    background-color: rgb(45, 45, 48);
+}
+
+.prop-box {
+    background-color: rgb(55, 55, 55);
+    padding: 8px;
+    margin-right: 8px;
+}
+
+.prop-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.small-btn {
+    width: 70px;
+    height: 24px;
+    margin-right: 6px;
+    background-color: rgb(45, 45, 48);
+    color: rgb(255, 255, 255);
+}
+
+.small-textfield {
+    width: 60px;
+    margin-right: 10px;
+}
+
+.prop-table-box {
+    margin-left: 6px;
+}
+
+.table-row {
+    flex-direction: row;
+    background-color: rgb(56, 56, 56);
+    margin-bottom: 1px;
+}
+
+.table-header {
+    background-color: rgb(64, 64, 64);
+}
+
+.table-col {
+    width: 60px;
+    padding: 3px;
+    color: rgb(255, 255, 255);
+}
+
+.table-textfield {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.detail-box {
+    margin-left: 6px;
+}
+
+.detail-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.detail-label {
+    width: 60px;
+    color: rgb(255, 255, 255);
+}
+
+.detail-value {
+    margin-right: 15px;
+    color: rgb(255, 255, 255);
+}
+
+.publish-btn {
+    width: 70px;
+    height: 50px;
+    margin-left: 10px;
+    background-color: rgb(60, 120, 60);
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgb(80, 150, 80);
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.publish-btn:hover {
+    background-color: rgb(70, 140, 70);
+}
+
+.publish-btn:active {
+    background-color: rgb(50, 100, 50);
+}
+
+.shortcut-area {
+    margin-top: 10px;
+}
+
+.shortcut-text {
+    font-size: 11px;
+    color: rgb(180, 180, 180);
+    margin-bottom: 1px;
+}
+
+.item-top-bar {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px;
+    background-color: rgb(51, 51, 51);
+}
+
+.item-element-container {
+    flex-grow: 1;
+    flex-direction: row;
+    padding: 8px;
+}
+
+.item-list-panel {
+    width: 320px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: column;
+    margin-right: 10px;
+    background-color: rgb(51, 51, 51);
+    padding: 8px;
+}
+
+.item-list {
+    flex-grow: 1;
+}
+
+.item-element-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px;
+    margin-bottom: 4px;
+    background-color: rgb(60, 60, 60);
+}
+
+.item-element-item:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+.item-element-item.selected {
+    background-color: rgb(30, 60, 90);
+}
+
+.item-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 8px;
+    background-color: rgb(80, 80, 80);
+}
+
+.item-info {
+    flex-grow: 1;
+}
+
+.item-name {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+}
+
+.item-desc {
+    font-size: 11px;
+    color: rgb(180, 180, 180);
+}
+
+.item-properties-panel {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: rgb(51, 51, 51);
+    padding: 8px;
+}
+
+.prop-label {
+    width: 80px;
+    color: rgb(255, 255, 255);
+}
+
+.prop-textfield {
+    flex-grow: 1;
+}
+
+.mode-btn {
+    height: 22px;
+    margin-right: 4px;
+    background-color: rgb(45, 45, 48);
+    color: rgb(255, 255, 255);
+}
+
+.mode-btn.active {
+    background-color: rgb(14, 99, 156);
+}
+
+.fog-top-bar {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px;
+    background-color: rgb(51, 51, 51);
+}
+
+.fog-container {
+    flex-grow: 1;
+    flex-direction: row;
+    padding: 8px;
+}
+
+.fog-settings-panel {
+    width: 280px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: column;
+    margin-right: 10px;
+    background-color: rgb(55, 55, 55);
+    padding: 10px;
+}
+
+.fog-list-panel {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    flex-direction: column;
+    background-color: rgb(51, 51, 51);
+    padding: 10px;
+}
+
+.prop-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.prop-label {
+    width: 80px;
+    color: rgb(255, 255, 255);
+}
+
+.prop-slider {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    max-width: 160px;
+    margin-left: 10px;
+    margin-right: 40px;
+}
+
+.draw-mode-btn {
+    height: 28px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    background-color: rgb(45, 45, 48);
+    color: rgb(255, 255, 255);
+}
+
+.shortcut-text {
+    font-size: 11px;
+    color: rgb(180, 180, 180);
+    margin-bottom: 2px;
+}
+
+.empty-tip {
+    font-size: 12px;
+    color: rgb(150, 150, 150);
+    margin-top: 4px;
+}
+
+.object-edit-panel {
+    flex-shrink: 0;
+    flex-direction: column;
+    background-color: rgb(50, 50, 55);
+    border-width: 1px;
+    border-color: rgb(70, 70, 75);
+    border-radius: 4px;
+    padding: 8px;
+    margin: 4px;
+}
+
+.obj-edit-title {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(255, 200, 100);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    -unity-text-overflow: ellipsis;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.obj-edit-tab-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.obj-tab-btn {
+    height: 24px;
+    margin-right: 6px;
+    background-color: rgb(60, 60, 65);
+    color: rgb(230, 230, 230);
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0 12px;
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(80, 80, 85);
+    font-size: 12px;
+}
+
+.obj-tab-btn:hover {
+    background-color: rgb(75, 75, 80);
+}
+
+.obj-tab-btn.active {
+    background-color: rgb(14, 99, 156);
+    border-color: rgb(30, 120, 180);
+    color: rgb(255, 255, 255);
+}
+
+.obj-clear-btn {
+    height: 24px;
+    width: 80px;
+    background-color: rgb(100, 60, 60);
+    color: rgb(255, 230, 230);
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0 8px;
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(120, 80, 80);
+    font-size: 12px;
+}
+
+.obj-clear-btn:hover {
+    background-color: rgb(120, 70, 70);
+}
+
+.obj-edit-content {
+    flex-direction: column;
+}
+
+.obj-edit-content.hidden {
+    display: none;
+}
+
+.obj-edit-info-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.obj-edit-btn-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.obj-edit-btn-row .tool-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0 6px;
+    margin-right: 4px;
+}
+
+.path-point-list {
+    max-height: 110px;
+    margin-top: 2px;
+}
+
+.path-point-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 1px 4px;
+    margin-bottom: 1px;
+    background-color: rgb(64, 64, 64);
+}
+
+.path-point-item:hover {
+    background-color: rgb(74, 74, 74);
+}
+
+.path-point-item.selected {
+    background-color: rgb(14, 99, 156);
+}
+
+.path-point-index {
+    width: 28px;
+    color: rgb(180, 180, 180);
+    font-size: 11px;
+}
+
+.path-point-pos {
+    flex-grow: 1;
+    color: rgb(255, 255, 255);
+    font-size: 11px;
+}
+
+.path-point-del {
+    width: 20px;
+    height: 18px;
+    font-size: 10px;
+    margin: 0;
+    background-color: rgb(80, 60, 60);
+    color: rgb(255, 255, 255);
+}
+
+.bottom-props-area {
+    background-color: rgb(45, 45, 48);
+    border-top: 1px solid rgb(60, 60, 60);
+}
+
+.prop-box {
+    background-color: rgb(50, 50, 53);
+    border: 1px solid rgb(70, 70, 73);
+    border-radius: 4px;
+}
+
+.box-title {
+    color: rgb(100, 180, 255);
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgb(70, 70, 73);
+}
+
+.prop-label {
+    color: rgb(200, 200, 200);
+    font-size: 12px;
+    -unity-text-align: middle-right;
+}
+
+.prop-textfield {
+    background-color: rgb(60, 60, 63);
+    border: 1px solid rgb(80, 80, 83);
+    color: rgb(255, 255, 255);
+}
+
+.small-textfield {
+    background-color: rgb(60, 60, 63);
+    border: 1px solid rgb(80, 80, 83);
+    color: rgb(255, 255, 255);
+}
+
+.prop-textfield:focus {
+    border-color: rgb(100, 180, 255);
+}
+
+.small-textfield:focus {
+    border-color: rgb(100, 180, 255);
+}
+
+.small-btn {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 11px;
+    background-color: rgb(70, 70, 73);
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(90, 90, 93);
+}
+
+.small-btn:hover {
+    background-color: rgb(80, 80, 83);
+}
+
+.danger-btn {
+    background-color: rgb(140, 60, 60);
+    border-color: rgb(160, 70, 70);
+}
+
+.danger-btn:hover {
+    background-color: rgb(160, 70, 70);
+}
+
+.publish-btn {
+    height: 22px;
+    padding: 0 12px;
+    font-size: 11px;
+    background-color: rgb(60, 140, 60);
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(70, 160, 70);
+}
+
+.publish-btn:hover {
+    background-color: rgb(70, 160, 70);
+}
+
+.obj-tab-btn {
+    height: 22px;
+    padding: 0 10px;
+    font-size: 11px;
+    background-color: rgb(60, 60, 63);
+    color: rgb(200, 200, 200);
+    border: 1px solid rgb(80, 80, 83);
+}
+
+.obj-tab-btn.active {
+    background-color: rgb(14, 99, 156);
+    color: rgb(255, 255, 255);
+    border-color: rgb(30, 120, 180);
+}
+
+.obj-tab-btn:hover {
+    background-color: rgb(70, 70, 73);
+}
+
+.obj-tab-btn.active:hover {
+    background-color: rgb(30, 120, 180);
+}
+
+.obj-clear-btn {
+    height: 22px;
+    padding: 0 10px;
+    font-size: 11px;
+    background-color: rgb(120, 70, 70);
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(140, 80, 80);
+}
+
+.obj-clear-btn:hover {
+    background-color: rgb(140, 80, 80);
+}
+
+.tool-btn {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 11px;
+    background-color: rgb(70, 70, 73);
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(90, 90, 93);
+}
+
+/* ===== 元件类型Tab ===== */
+.element-type-tabs {
+    flex-direction: row;
+    margin-bottom: 6px;
+    background-color: rgb(45, 45, 48);
+    border: 1px solid rgb(60, 60, 63);
+}
+
+.element-type-tab {
+    flex-grow: 1;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background-color: rgb(50, 50, 53);
+    color: rgb(200, 200, 200);
+    border: none;
+    border-right: 1px solid rgb(60, 60, 63);
+    font-size: 12px;
+}
+
+.element-type-tab:last-child {
+    border-right: none;
+}
+
+.element-type-tab:hover {
+    background-color: rgb(60, 60, 63);
+}
+
+.element-type-tab.active {
+    background-color: rgb(50, 120, 180);
+    color: rgb(255, 255, 255);
+}
+
+.tool-btn:hover {
+    background-color: rgb(80, 80, 83);
+}
+
+.shortcut-text {
+    color: rgb(150, 150, 150);
+    font-size: 10px;
+}

@@ -73,11 +73,7 @@ namespace Honor.Runtime
         /// <param name="overCallback">加载完成回调</param>
         public void OpenUIAsyncByLuaTable(LuaTable luaTable, LuaTable luaParams = null, UILoadOverCallback overCallback = null)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.OpenUIAsyncByLuaTable luaTable 无效。");
-                return;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(OpenUIAsyncByLuaTable))) return;
 
             OpenUIAsyncByInfo(GenerateUIInfo(luaTable, luaParams, overCallback));
         }
@@ -104,11 +100,7 @@ namespace Honor.Runtime
         /// <returns>UI 实例对象</returns>
         public GameObject OpenUISyncByLuaTable(LuaTable luaTable, LuaTable luaParams = null)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.OpenUISyncByLuaTable luaTable 无效。");
-                return null;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(OpenUISyncByLuaTable))) return null;
             return OpenUISyncByInfo(GenerateUIInfo(luaTable, luaParams));
         }
 
@@ -138,11 +130,7 @@ namespace Honor.Runtime
         /// <param name="overCallback">完成回调</param>
         public void AddUIAsyncByLuaTable(LuaTable luaTable, Transform parent, LuaTable luaParams = null, UILoadOverCallback overCallback = null)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.AddUIAsyncByLuaTable luaTable 无效。");
-                return;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(AddUIAsyncByLuaTable))) return;
 
             AddUIAsyncByInfo(GenerateUIInfo(luaTable, luaParams, overCallback), parent);
         }
@@ -173,11 +161,7 @@ namespace Honor.Runtime
         /// </summary>
         public GameObject AddUISyncByLuaTable(LuaTable luaTable, Transform parent, LuaTable luaParams = null)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.AddUISyncByLuaTable luaTable 无效。");
-                return null;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(AddUISyncByLuaTable))) return null;
 
             return AddUISyncByInfo(GenerateUIInfo(luaTable, luaParams), parent);
         }
@@ -224,11 +208,7 @@ namespace Honor.Runtime
         /// </summary>
         public void CloseUIByLuaTable(LuaTable luaTable, bool rightNow = false)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.CloseUIByLuaTable luaTable 无效。");
-                return;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(CloseUIByLuaTable))) return;
 
             CloseUIByInfo(GenerateUIInfo(luaTable), rightNow);
         }
@@ -251,11 +231,7 @@ namespace Honor.Runtime
         /// </summary>
         public void CloseUIsByLuaTable(LuaTable luaTable, bool rightNow = false)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.CloseUIsByLuaTable luaTable 无效。");
-                return;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(CloseUIsByLuaTable))) return;
 
             CloseUIsByInfo(GenerateUIInfo(luaTable), rightNow);
         }
@@ -294,11 +270,7 @@ namespace Honor.Runtime
         /// </summary>
         public GameObject GetUIByLuaTable(LuaTable luaTable)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.GetUIByLuaTable luaTable 无效。");
-                return null;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(GetUIByLuaTable))) return null;
 
             return GetUIByInfo(GenerateUIInfo(luaTable));
         }
@@ -321,11 +293,7 @@ namespace Honor.Runtime
         /// </summary>
         public GameObject[] GetUIsByLuaTable(LuaTable luaTable)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.GetUIsByLuaTable luaTable 无效。");
-                return null;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(GetUIsByLuaTable))) return null;
 
             return GetUIsByInfo(GenerateUIInfo(luaTable));
         }
@@ -335,11 +303,7 @@ namespace Honor.Runtime
         /// </summary>
         public void GetUIsByLuaTable(LuaTable luaTable, List<GameObject> uis)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.GetUIsByLuaTable luaTable 无效。");
-                return;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(GetUIsByLuaTable))) return;
 
             if (uis == null)
             {
@@ -451,11 +415,7 @@ namespace Honor.Runtime
         /// </summary>
         public bool IsUIExistInModalUIs(LuaTable luaTable)
         {
-            if (luaTable == null)
-            {
-                Log.Error("UIComponent.IsUIExistInModalUIs luaTable 无效。");
-                return false;
-            }
+            if (IsLuaTableInvalid(luaTable, nameof(IsUIExistInModalUIs))) return false;
 
             return IsUIExistInModalUIs(GenerateUIInfo(luaTable));
         }
@@ -605,6 +565,20 @@ namespace Honor.Runtime
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 校验 LuaTable 参数非空；为空时记录错误日志并返回 true
+        /// <para>收敛各 Open/Add/Close/Get 系列 ByLuaTable 方法中重复的判空样板</para>
+        /// </summary>
+        /// <param name="luaTable">待校验的 Lua 配置表</param>
+        /// <param name="methodName">调用方方法名（用于错误日志定位）</param>
+        /// <returns>参数无效返回 true（调用方应直接返回）；有效返回 false</returns>
+        private static bool IsLuaTableInvalid(LuaTable luaTable, string methodName)
+        {
+            if (luaTable != null) return false;
+            Log.Error($"UIComponent.{methodName} luaTable 无效。");
+            return true;
         }
 
         #endregion

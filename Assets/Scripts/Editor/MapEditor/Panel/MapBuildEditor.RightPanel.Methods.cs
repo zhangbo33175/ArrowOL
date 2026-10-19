@@ -165,7 +165,7 @@ namespace Editor.MapEditor
         //=========================================================================
         #region Click Detection
         /// <summary>
-        /// 获取鼠标点击的物体（通过距离判断，UI坐标完全统一）
+        /// 获取鼠标点击的物体（通过距离判断，UI 坐标完全统一）
         /// </summary>
         private GameObject GetClickedObject(Vector2 guiMousePos, Rect previewRect)
         {
@@ -362,7 +362,7 @@ namespace Editor.MapEditor
             DestroyImmediate(m_SelectedObject);
             DeselectCurrentObject();
 
-            Debug.Log($"<color=red>已删除选中物体</color>");
+            Debug.Log("<color=red>已删除选中物体</color>");
             Repaint();
         }
         #endregion
@@ -371,20 +371,75 @@ namespace Editor.MapEditor
         // 自动匹配背景图片 + 自动对齐重合（坐标100%精准版）
         //=========================================================================
         #region Auto Align Objects
-        private bool _isAligning; // 是否正在自动对齐
-        private int _currentObjIndex; // 当前处理的物体索引
-        private int _x, _y; // 背景图遍历坐标
-        private int _dx, _dy; // 图标遍历子像素
-        private float _bestScore; // 最佳匹配分数
-        private int _bestX, _bestY; // 最佳匹配位置
-        private Texture2D _bgTex; // 背景图纹理
-        private Texture2D _iconTex; // 当前物体图标纹理
-        private Color[] _bgPixels; // 背景像素数组
-        private int _bgW, _bgH; // 背景宽高
-        private int _tW, _tH; // 图标宽高
-        private float _score; // 当前匹配分数
-        private int _count; // 有效像素计数
-        private List<GameObject> _pendingObjects; // 待对齐物体列表
+        /// <summary>
+        /// 是否正在自动对齐
+        /// </summary>
+        private bool _isAligning;
+
+        /// <summary>
+        /// 当前处理的物体索引
+        /// </summary>
+        private int _currentObjIndex;
+
+        /// <summary>
+        /// 背景图遍历坐标
+        /// </summary>
+        private int _x, _y;
+
+        /// <summary>
+        /// 图标遍历子像素
+        /// </summary>
+        private int _dx, _dy;
+
+        /// <summary>
+        /// 最佳匹配分数
+        /// </summary>
+        private float _bestScore;
+
+        /// <summary>
+        /// 最佳匹配位置
+        /// </summary>
+        private int _bestX, _bestY;
+
+        /// <summary>
+        /// 背景图纹理
+        /// </summary>
+        private Texture2D _bgTex;
+
+        /// <summary>
+        /// 当前物体图标纹理
+        /// </summary>
+        private Texture2D _iconTex;
+
+        /// <summary>
+        /// 背景像素数组
+        /// </summary>
+        private Color[] _bgPixels;
+
+        /// <summary>
+        /// 背景宽高
+        /// </summary>
+        private int _bgW, _bgH;
+
+        /// <summary>
+        /// 图标宽高
+        /// </summary>
+        private int _tW, _tH;
+
+        /// <summary>
+        /// 当前匹配分数
+        /// </summary>
+        private float _score;
+
+        /// <summary>
+        /// 有效像素计数
+        /// </summary>
+        private int _count;
+
+        /// <summary>
+        /// 待对齐物体列表
+        /// </summary>
+        private List<GameObject> _pendingObjects;
 
         /// <summary>
         /// 启动自动对齐：逐像素对比图标与背景，找到最相似位置
@@ -589,11 +644,11 @@ namespace Editor.MapEditor
             float centerX = _bestX + _tW / 2f;
             float centerY = _bestY + _tH / 2f;
 
-            // 转UV
+            // 转 UV
             float uvX = centerX / _bgW;
             float uvY = centerY / _bgH;
 
-            // 转UI坐标
+            // 转 UI 坐标
             RectTransform bgRt = m_UiInstance.transform.Find("RawImage").GetComponent<RectTransform>();
             float uiX = (uvX - 0.5f) * bgRt.rect.width;
             float uiY = (uvY - 0.5f) * bgRt.rect.height;

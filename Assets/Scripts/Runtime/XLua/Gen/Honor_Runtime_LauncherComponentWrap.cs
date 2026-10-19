@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.LauncherComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 6, 22, 18);
+			Utils.BeginObjectRegister(type, L, translator, 0, 6, 23, 19);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnApplicationPause", _m_OnApplicationPause);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnApplicationQuit", _m_OnApplicationQuit);
@@ -31,7 +31,8 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Shutdown", _m_Shutdown);
 			
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "GameSpeedCache", _g_get_GameSpeedCache);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "DebuggerActiveWindow", _g_get_DebuggerActiveWindow);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "GameSpeedCache", _g_get_GameSpeedCache);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "EditorResourceMode", _g_get_EditorResourceMode);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "EditorLanguage", _g_get_EditorLanguage);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "DevelopMode", _g_get_DevelopMode);
@@ -54,7 +55,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_IsLocalServer", _g_get_m_IsLocalServer);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_IsRealTimeDebuggerHotfixForEditor", _g_get_m_IsRealTimeDebuggerHotfixForEditor);
             
-			Utils.RegisterFunc(L, Utils.SETTER_IDX, "EditorResourceMode", _s_set_EditorResourceMode);
+			Utils.RegisterFunc(L, Utils.SETTER_IDX, "DebuggerActiveWindow", _s_set_DebuggerActiveWindow);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "EditorResourceMode", _s_set_EditorResourceMode);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "EditorLanguage", _s_set_EditorLanguage);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "DevelopMode", _s_set_DevelopMode);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "LuacMode", _s_set_LuacMode);
@@ -282,6 +284,20 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_DebuggerActiveWindow(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.LauncherComponent gen_to_be_invoked = (Honor.Runtime.LauncherComponent)translator.FastGetCSObj(L, 1);
+                translator.PushHonorRuntimeDebuggerActiveWindowType(L, gen_to_be_invoked.DebuggerActiveWindow);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_GameSpeedCache(RealStatePtr L)
@@ -592,6 +608,22 @@ namespace XLua.CSObjectWrap
         }
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_DebuggerActiveWindow(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.LauncherComponent gen_to_be_invoked = (Honor.Runtime.LauncherComponent)translator.FastGetCSObj(L, 1);
+                Honor.Runtime.DebuggerActiveWindowType gen_value;translator.Get(L, 2, out gen_value);
+				gen_to_be_invoked.DebuggerActiveWindow = gen_value;
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_EditorResourceMode(RealStatePtr L)

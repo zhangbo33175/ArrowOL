@@ -132,43 +132,65 @@ namespace Honor.Editor
 
                 if (GUILayout.Button("追加", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
                 {
-                    // 追加成功的数据条目数
-                    int successAddCount = 0;
-                    // 因同名追加失败的数据条目数
-                    int failedAddCount = 0;
-
-                    foreach (var fullPath in m_FindFileFullPathList.Keys.ToList())
-                    {
-                        var fileName = Path.GetFileNameWithoutExtension(fullPath);
-                        var aliasName = AorTxt.Format("{0}_{1}",
-                            ((GameDefinitions.AssetType)m_SelectResType).ToString(), fileName);
-                        CheckFileABPath(fullPath, out string fileABPath);
-                        if (IsHaveSameAliasName(aliasName) == false)
-                        {
-                            var resDefItem = ResDefItem.Create(
-                                CurMaxResID,
-                                ((GameDefinitions.AssetType)m_SelectResType).ToString(),
-                                aliasName, fileABPath, fileName,
-                                AssetDatabase.AssetPathToGUID(fullPath));
-                            m_TempResDefItems.Add(resDefItem);
-                            Log.Debug("[Editor] 资源别名: {0} ，成功追加到缓冲区。", aliasName);
-                            m_FindFileFullPathList[fullPath] = FileUseState.ExportSuccess;
-                            successAddCount++;
-                        }
-                        else
-                        {
-                            Log.Warning("[Editor] 资源别名: {0} ，因别名重名，追加失败。", aliasName);
-                            m_FindFileFullPathList[fullPath] = FileUseState.ExportFailedToSameName;
-                            failedAddCount++;
-                        }
-                    }
-
-                    ShowNotification(
-                        $"共追加数据：{m_FindFileFullPathList.Keys.Count} 条，其中成功导出 {successAddCount} 条，失败导出 {failedAddCount} 条");
-                    m_FindTargetAsset = null;
+                    AppendFoundFilesToBuffer();
                 }
             }
             GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 将当前查找到的文件按"类型_文件名"别名追加到临时缓冲区。
+        /// 已存在于配置库（ConvertData）的资源明确标记为"已存在"跳过，避免重复；
+        /// 未存在且别名不冲突的资源正常追加，保证"需要添加的"能正常引入。
+        /// </summary>
+        private void AppendFoundFilesToBuffer()
+        {
+            // 追加成功的数据条目数
+            int successAddCount = 0;
+            // 因别名重名（临时缓冲区内）追加失败的数据条目数
+            int failedAddCount = 0;
+            // 已在配置库中、本次跳过不重复追加的数据条目数
+            int existCount = 0;
+
+            foreach (var fullPath in m_FindFileFullPathList.Keys.ToList())
+            {
+                var fileName = Path.GetFileNameWithoutExtension(fullPath);
+                var aliasName = AorTxt.Format("{0}_{1}",
+                    ((GameDefinitions.AssetType)m_SelectResType).ToString(), fileName);
+
+                // 已在配置库存在：明确标记"已存在"，不重复追加
+                bool existInDb = ResDefInfos.ConvertData.Any(x => x.AliasName == aliasName);
+                if (existInDb)
+                {
+                    m_FindFileFullPathList[fullPath] = FileUseState.ExportFailedExist;
+                    existCount++;
+                    continue;
+                }
+
+                CheckFileABPath(fullPath, out string fileABPath);
+                if (IsHaveSameAliasName(aliasName) == false)
+                {
+                    var resDefItem = ResDefItem.Create(
+                        CurMaxResID,
+                        ((GameDefinitions.AssetType)m_SelectResType).ToString(),
+                        aliasName, fileABPath, fileName,
+                        AssetDatabase.AssetPathToGUID(fullPath));
+                    m_TempResDefItems.Add(resDefItem);
+                    Log.Debug("[Editor] 资源别名: {0} ，成功追加到缓冲区。", aliasName);
+                    m_FindFileFullPathList[fullPath] = FileUseState.ExportSuccess;
+                    successAddCount++;
+                }
+                else
+                {
+                    Log.Warning("[Editor] 资源别名: {0} ，因别名重名，追加失败。", aliasName);
+                    m_FindFileFullPathList[fullPath] = FileUseState.ExportFailedToSameName;
+                    failedAddCount++;
+                }
+            }
+
+            ShowNotification(
+                $"共追加数据：{m_FindFileFullPathList.Keys.Count} 条，其中成功导出 {successAddCount} 条，已存在 {existCount} 条，失败导出 {failedAddCount} 条");
+            m_FindTargetAsset = null;
         }
         #endregion
 
@@ -259,6 +281,14 @@ namespace Honor.Editor
                     AssetBundleNamePostprocessor.RefreshAllAssetBundleNames();
                     LoadABConfigs();
                 }
+				//TODO
+                GUILayout.Space(20);
+
+                if (GUILayout.Button("打开AB打包工具", new[] { GUILayout.Width(120), GUILayout.Height(20) }))
+                {
+                    // 打开新接入的 AB 打包工具窗口（支持配置目录粒度/一键打包/增量打包/清理输出）
+                    BuildPackage.BuildPackage_EditorWindow.OpenWindow();
+                }
             }
             GUILayout.EndHorizontal();
         }
@@ -316,6 +346,14 @@ namespace Honor.Editor
                 case FileUseState.ExportFailedToSameName:
                     EditorGUILayout.LabelField(normalizedPath + " 导出失败",
                         new GUIStyle { normal = new GUIStyleState { textColor = Color.red } });
+                    break;
+                case FileUseState.LoadFailed:
+                    EditorGUILayout.LabelField(normalizedPath + " 无AB映射",
+                        new GUIStyle { normal = new GUIStyleState { textColor = Color.yellow } });
+                    break;
+                case FileUseState.ExportFailedExist:
+                    EditorGUILayout.LabelField(normalizedPath + " 已存在",
+                        new GUIStyle { normal = new GUIStyleState { textColor = Color.cyan } });
                     break;
             }
         }
@@ -440,9 +478,23 @@ namespace Honor.Editor
                     }
                     else
                     {
-                        resDefItem.AliasName = EditorGUILayout.TextField(resDefItem.AliasName, optionsAlias);
-                        EditorGUILayout.LabelField(
-                            new GUIContent(abPath.Substring(0, Math.Min(abPath.Length, 80)), abPath), optionsAbPath);
+                        // ABPath 可能为空（未纳入 AB 配置）或历史数据为 null，先归一化避免绘制崩溃
+                        string safeAbPath = abPath ?? string.Empty;
+                        string safeAlias = resDefItem == null ? string.Empty : resDefItem.AliasName;
+
+                        // 防御：无数据对象时退化为只读展示（不 return，避免破坏 Begin/End 布局配对）
+                        if (resDefItem == null)
+                        {
+                            EditorGUILayout.LabelField(safeAlias, optionsAlias);
+                            EditorGUILayout.LabelField(safeAbPath, optionsAbPath);
+                        }
+                        else
+                        {
+                            resDefItem.AliasName = EditorGUILayout.TextField(safeAlias, optionsAlias);
+                            EditorGUILayout.LabelField(
+                                new GUIContent(string.IsNullOrEmpty(safeAbPath) ? string.Empty : safeAbPath.Substring(0, Math.Min(safeAbPath.Length, 80)), safeAbPath),
+                                optionsAbPath);
+                        }
                     }
 
                     EditorGUILayout.LabelField(fileName, optionsFileName);

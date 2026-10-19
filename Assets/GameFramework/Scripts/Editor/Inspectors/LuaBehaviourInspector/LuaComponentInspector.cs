@@ -77,7 +77,7 @@ namespace Honor.Editor
         #region 生命周期
         private void OnEnable()
         {
-            m_LuaRuntimeProfilerMode = serializedObject.FindProperty("m_LuaRuntimeProfilerMode");
+            m_LuaRuntimeProfilerMode = BindProperty("m_LuaRuntimeProfilerMode");
         }
 
         public override void OnInspectorGUI()
@@ -349,7 +349,7 @@ namespace Honor.Editor
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("--=====================================================================================================")
-              .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+              .AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime")
               .AppendLine("-- All Rights Reserved.")
               .AppendLine("-- ----------------------------------------------------------------------------------------------------")
               .AppendLine($"-- filename:  {m_CustomLuaScriptName}")

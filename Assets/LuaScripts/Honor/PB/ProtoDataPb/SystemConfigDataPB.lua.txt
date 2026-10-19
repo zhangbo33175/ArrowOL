@@ -5,6 +5,11 @@
 -- filename:  SystemConfigDataPB.lua
 -- descrip:   本地系统配置数据缓存
 -- notices:   该文件自动生成，请不要手动修改！ 5541424142
+-- @brief     本地系统配置数据缓存运行时表与读写接口
+-- @desc      在 SaveRootData.SystemConfigData 下定义配置数据字段（data 为 json 串），并注册 SaveIO 加载/保存入口
+-- @core      由 proto 生成的运行时数据表初始化 + SaveIO 注册（LoadAll/Load_data/Save_data 等）
+-- @scope     SaveRootData 主干加载入口之一；缓存本地系统配置 json
+-- @dependency DeclareSystemConfigDataPB（类型）、SystemConfigDataPB.proto.lua（schema）、SaveRootData、SaveIO
 --=====================================================================================================
 
 SaveRootData = SaveRootData or {}

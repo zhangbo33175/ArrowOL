@@ -51,8 +51,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 0, 0);
-			
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "CreatePrefabObject", _m_CreatePrefabObject_xlua_st_);
+            
 			
             
 			
@@ -90,6 +91,35 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_CreatePrefabObject_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    string _abPath = LuaAPI.lua_tostring(L, 1);
+                    string _assetName = LuaAPI.lua_tostring(L, 2);
+                    string _assetPath = LuaAPI.lua_tostring(L, 3);
+                    
+                        Honor.Runtime.PrefabObject gen_ret = Honor.Runtime.PrefabObject.CreatePrefabObject( _abPath, _assetName, _assetPath );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         
         

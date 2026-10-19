@@ -41,6 +41,16 @@ public class MapController : MonoBehaviour, IDragHandler, IScrollHandler
     // 私有运行时字段
     //=========================================================================
     /// <summary>
+    /// 位置平滑插值速度（越大收敛越快）
+    /// </summary>
+    private const float k_PositionLerpSpeed = 10f;
+
+    /// <summary>
+    /// 缩放平滑插值速度（越大收敛越快）
+    /// </summary>
+    private const float k_ScaleLerpSpeed = 5f;
+
+    /// <summary>
     /// 目标位置（用于平滑插值）
     /// </summary>
     private Vector3 _targetPos;
@@ -73,8 +83,8 @@ public class MapController : MonoBehaviour, IDragHandler, IScrollHandler
     private void Update()
     {
         // 平滑移动和缩放插值
-        mapBg.anchoredPosition = Vector3.Lerp(mapBg.anchoredPosition, _targetPos, Time.deltaTime * 10);
-        mapBg.localScale = Vector3.Lerp(mapBg.localScale, _targetScale, Time.deltaTime * 5);
+        mapBg.anchoredPosition = Vector3.Lerp(mapBg.anchoredPosition, _targetPos, Time.deltaTime * k_PositionLerpSpeed);
+        mapBg.localScale = Vector3.Lerp(mapBg.localScale, _targetScale, Time.deltaTime * k_ScaleLerpSpeed);
 
         // 限制地图边界（防止拖出屏幕）
         ClampMapPosition();
@@ -145,7 +155,7 @@ public class MapController : MonoBehaviour, IDragHandler, IScrollHandler
     /// </summary>
     public void ResetMap()
     {
-        _targetPos = Vector2.zero;
+        _targetPos = Vector3.zero;
         _targetScale = Vector3.one;
     }
     #endregion

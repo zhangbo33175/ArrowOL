@@ -132,8 +132,8 @@ namespace Honor.Runtime
                         return null;
                     }
 
-                    // 格式化为Unity可识别的相对路径
-                    fullFilePath = fileFullPaths[0].Replace('\\', '/');
+                    // 格式化为Unity可识别的相对路径（统一分隔符）
+                    fullFilePath = HonorUtils.NormalizePath(fileFullPaths[0]);
                     string relativeFullPath = fullFilePath.Substring(
                         rootPath.Length,
                         fullFilePath.Length - rootPath.Length

@@ -1,0 +1,248 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:   GamePlayHelper.lua
+-- author:     云毅
+-- created:    2026
+-- @brief      开始游戏帮助类
+-- @desc       封装游戏关卡、界面、特效、奖励、道具、状态判断等核心游戏逻辑
+-- @core       关卡状态判定、关卡启动/重开/退出、主线地图加载调度、UI 图片精灵刷新
+-- @scope      状态机、结算界面、登录流程、地图加载等需要统一进出关卡与刷新表现的模块
+-- @规范        Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, GameManager, ChapterManager, LevelCoreManager, UIManager, EffectManager, AudioManager
+--=====================================================================================================
+
+---@class GamePlayHelper @开始游戏帮助类：统一管理关卡启动、UI打开、特效播放、奖励展示等游戏核心逻辑
+---@field _loopLevelHelper LoopLevelHelper @ 循环关卡辅助类（预留，暂未使用）
+local GamePlayHelper = class("GamePlayHelper")
+
+-- 内部方法前向声明（仅本文件内部调用，见【内部方法·工具】region）
+local PlayLevelImmediate
+
+--region 【构造与初始化】
+
+---@type fun():void
+---@brief 构造函数（框架驱动，勿删；当前无字段需初始化）
+function GamePlayHelper:ctor()
+end
+
+---@type fun():GamePlayHelper
+---@brief 创建 GamePlayHelper 单例对象（GameRequires 全局实例化入口）
+---@return GamePlayHelper 帮助类实例
+function GamePlayHelper:Create()
+    local obj = GamePlayHelper.new()
+    return obj
+end
+
+--endregion
+
+--region 【关卡状态判断】
+
+---@type fun():boolean
+---@brief 判断当前是否处于游戏关卡状态
+---@return boolean 是否在游戏中
+function GamePlayHelper:IsInLevelState()
+    if GameStateMachine:CurrentStateType() == GameStateCmd.PlayingState then
+        return true
+    end
+    return false
+end
+
+---@type fun():boolean
+---@brief 判断是否满足游玩第一关条件
+---@return boolean 是否满足
+function GamePlayHelper:IsPlayFirstLevel()
+    local chapterId = ChapterListManager:GetLatestChapterId()
+    if chapterId == "1" and GamerDataManager:GetLevelLvByChapterId(chapterId) == 1 then
+        return true
+    end
+    return false
+end
+
+--endregion
+
+--region 【加载关卡资源】
+
+---@type fun(chapterId:string,levelId:number):Tables.LevelData_Item
+---@brief 加载并获取关卡配置数据
+---@param chapterId string 章节ID
+---@param levelId number 关卡ID
+---@return Tables.LevelData_Item 关卡数据
+function GamePlayHelper:LoadLevelData(chapterId, levelId)
+    ---@type Tables.Chapters_Item
+    local chapterConfig = Tables.MainLevels[tostring(chapterId)]
+    if chapterConfig and chapterConfig.MainLevels and not ChallengeLevelHelper:IsChallengeLevel(levelId) and levelId > chapterConfig.MainLevels[2] then
+        return nil
+    end
+    local levelName = table.concat({ "LevelData_", chapterId, "_", levelId })
+    local levelData = Tables[levelName]
+    return levelData
+end
+
+--endregion
+
+--region 【游戏开始/结束/退出逻辑】
+
+---@type fun(levelData:Tables.LevelData_Item):boolean
+---@brief 开始游戏
+---@param levelData Tables.LevelData_Item 关卡数据
+---@return boolean 是否成功开始
+function GamePlayHelper:PlayLevel(levelData)
+    if levelData == nil then
+        return false
+    end
+    if GameCoreManager:IsLifeEnough() and PlayLevelImmediate(self, levelData) then
+        return true
+    end
+    return false
+end
+
+---@type fun(isSuccess:boolean):void
+---@brief 游戏结束
+---@param isSuccess boolean 是否胜利
+function GamePlayHelper:GameOver(isSuccess)
+    PrintInfo("GameOver,IsSuccess:" .. tostring(isSuccess))
+    GameCoreManager._IsGameOver = true
+    GameCoreManager._IsSuccessFinishGame = isSuccess
+    GameCoreManager:SetPlayingLevelTag('')
+end
+
+---@type fun():void
+---@brief 退出关卡，返回主界面
+function GamePlayHelper:GameExitPlayHud()
+    -- 重置相机缩放（放大缩小），避免返回主界面后画面残留缩放状态
+    --TODO: [游戏流程] 返回主界面时重置相机渲染矩形，防止放大缩小状态残留
+    if GameMapMotion and GameMapMotion.ScreenCamera then
+        GameMapMotion:UpdateCameraRect(0)
+    end
+    GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
+end
+
+---@type fun():void
+---@brief 重玩当前关卡：重置本局数据并重新进入游玩状态
+---@desc 结算界面"重新开始"按钮调用。直接进入加载状态机，先卸载当前地图（CurLoadChapterId 置空），
+---      再重载当前章节，触发 OnReadyToLoadMap → GameCoreManager:OnRePlayGame 完成数据重置。
+--TODO: [游戏流程] 结算界面"重新开始"按钮调用，强制重载当前章节实现重开
+function GamePlayHelper:RePlayCurrentLevel()
+    local curChapterId = GamerDataManager:GetCurChapterId()
+    if not curChapterId then
+        PrintError("[GamePlayHelper] 无法获取当前章节ID，重玩失败")
+        return
+    end
+    -- 直接进入加载状态机：先退出游玩状态卸载地图，再重载当前章节
+    MapManager:ReadyToLoadMap(curChapterId, function() end)
+end
+
+--endregion
+
+--region 【资源/地图加载】
+
+---@type fun(chapterId:number, callback:fun(), refuseAd:boolean):void
+---@brief 加载主线地图
+---@param chapterId number 章节ID
+---@param callback fun() 加载完成回调
+---@param refuseAd boolean 不播放广告
+function GamePlayHelper:LoadMainMap(chapterId, callback, refuseAd)
+    local areaData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+    if not areaData then
+        PrintError("没有找到章节所在区域数据:" .. chapterId)
+        return
+    end
+    MapManager:OnSetSwitchMap(chapterId, callback, refuseAd)
+end
+
+---@type fun():void
+---@brief 加载下一关（"章节-内部关卡"模式统一入口）
+---@desc 通关胜利后由结算界面"下一关"按钮调用，逻辑分两档：
+---      A. 本章节内部关卡已全部通关 → 进入下一章节第一关（LoadNextChapter）；
+---      B. 本章节还有下一内部关卡 → 强制重载当前章节，按已推进的内部关卡等级(lv)进入下一关。
+---@note 判断是否通关复用 ChapterListManager:IsChapterCompleted（lv >= 章节配置 UnlockNextLevel），
+---      不依赖 LoadLevelData 返回 nil 的隐式判定，语义更清晰。
+--TODO: [游戏流程] 同章重载当前依赖"先 UnloadOldMap 清空 CurLoadChapterId 绕过 OnSetSwitchMap 同章拦截"，
+--      待将"卸载+重载当前章"封装为 MapManager 统一接口后，业务层不再直接触碰 MapManager 内部状态。
+function GamePlayHelper:LoadNextLevel()
+    local curChapterId = ChapterListManager:GetRuntimeChapterId()
+    if string.isNullOrEmpty(curChapterId) then
+        PrintError("[GamePlayHelper] 无法获取当前章节ID，加载下一关失败")
+        return
+    end
+
+    -- 本章节内部关卡全部通关：进入下一章节第一关
+    if ChapterListManager:IsChapterCompleted(curChapterId) then
+        self:LoadNextChapter(curChapterId)
+        return
+    end
+
+    -- 本章节还有下一内部关卡：先卸载旧图清空 CurLoadChapterId，
+    -- 使 GameLoadMapStateBase:OnStateEnter 走完整重载分支，地图重建时按新 lv 更新 _CurLevelData
+    MapManager:UnloadOldMap()
+    MapManager:ReadyToLoadMap(curChapterId, function()
+    end)
+end
+
+---@type fun(curChapterId:string):void
+---@brief 加载下一章节第一关（"章节-内部关卡"模式：本章全通后的换章分支）
+---@param curChapterId string 当前章节ID
+---@desc 复用 ChapterListManager:GetNextChapterId 获取下一章节ID（无配置即最后一章）。
+---      下一章通常已在成功结算（OnGameOverAfter → TryUnlockNextChapter）中被解锁，
+---      此处仅对未解锁的边界场景兜底解锁，保证 LoadMapOver 的 IsLatestChapter 判定通过。
+--TODO: [游戏流程] 换章兜底解锁保留；正式流程已由成功结算推进 latestChapterId，勿重复依赖本分支。
+function GamePlayHelper:LoadNextChapter(curChapterId)
+    -- 获取下一章节ID（无下一章节配置 = 已是最后一章）
+    local nextChapterId = ChapterListManager:GetNextChapterId(curChapterId)
+    if not nextChapterId then
+        -- 已是最后一章：返回主界面关卡列表
+        self:GameExitPlayHud()
+        return
+    end
+
+    -- 下一章未解锁才执行解锁初始化（成功结算已推进或历史已解锁时跳过重复初始化），
+    -- 保证 GameLoadMapState:LoadMapOver 的 IsLatestChapter 判定通过并进入游玩
+    if not ChapterListManager:IsUnlockedChapter(nextChapterId) then
+        ChapterListManager:UnlockChapter(nextChapterId)
+    end
+    -- 设置运行时章节（内部带配置有效性校验）
+    ChapterListManager:SetRuntimeChapter(nextChapterId)
+    -- 加载下一章节第一关（refuseAd=true 跳过广告）
+    self:LoadMainMap(nextChapterId, function()
+    end, true)
+end
+
+--endregion
+
+--region 【UI 资源刷新（图片/材质）】
+
+---@type fun(ui:LuaBehaviourSuper, uiImage:UnityEngine.UI.Image,spriteName:string):void
+---@brief 刷新图片精灵  Sprite_sc_2_cat_4
+function GamePlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
+    if ui and uiImage then
+        ---@type LOAD_RES_DEF_ITEM
+        local info = LoadRes["Sprite_"..spriteName]
+        if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
+            uiImage.sprite = ui:LoadAsset(info)
+            uiImage:SetNativeSize()
+        end
+    end
+end
+
+--endregion
+
+--region 【内部方法·工具】
+
+---@type fun(self:GamePlayHelper, levelData:Tables.LevelData_Item):boolean
+---@brief 立即开始游戏（不检查体力，内部实现，仅供 PlayLevel 调用）
+---@param self GamePlayHelper
+---@param levelData Tables.LevelData_Item 关卡数据
+---@return boolean 是否成功
+function PlayLevelImmediate(self, levelData)
+    if levelData then
+        GameCoreManager._CurLevelData = levelData
+        return true
+    end
+    PrintError("PlayLevelImmediate is not implement,LevelData is nil")
+    return false
+end
+
+--endregion
+
+return GamePlayHelper

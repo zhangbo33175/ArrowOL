@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UIManager);
-			Utils.BeginObjectRegister(type, L, translator, 0, 40, 20, 10);
+			Utils.BeginObjectRegister(type, L, translator, 0, 42, 20, 10);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Update", _m_Update);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OpenUIAsyncByInfo", _m_OpenUIAsyncByInfo);
@@ -55,8 +55,10 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowSplash", _m_ShowSplash);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowAppDownload", _m_ShowAppDownload);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowGDPR", _m_ShowGDPR);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowLogoSplash", _m_ShowLogoSplash);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowLoading", _m_ShowLoading);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "HideLoading", _m_HideLoading);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "FadeOutLoadingViewNow", _m_FadeOutLoadingViewNow);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowAppReview", _m_ShowAppReview);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ShowAppFeedback", _m_ShowAppFeedback);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddUIMakLayerRef", _m_AddUIMakLayerRef);
@@ -1058,11 +1060,35 @@ namespace XLua.CSObjectWrap
                 Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
             
             
-                
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& translator.Assignable<System.Action>(L, 2)&& translator.Assignable<System.Action>(L, 3)) 
                 {
-                    System.Action _durationOverCallback = translator.GetDelegate<System.Action>(L, 2);
+                    System.Action _initStartCallback = translator.GetDelegate<System.Action>(L, 2);
+                    System.Action _durationOverCallback = translator.GetDelegate<System.Action>(L, 3);
                     
-                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash( _durationOverCallback );
+                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash( _initStartCallback, _durationOverCallback );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 2&& translator.Assignable<System.Action>(L, 2)) 
+                {
+                    System.Action _initStartCallback = translator.GetDelegate<System.Action>(L, 2);
+                    
+                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash( _initStartCallback );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                if(gen_param_count == 1) 
+                {
+                    
+                        Honor.Runtime.UILauncherView gen_ret = gen_to_be_invoked.ShowSplash(  );
                         translator.Push(L, gen_ret);
                     
                     
@@ -1073,6 +1099,8 @@ namespace XLua.CSObjectWrap
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.UIManager.ShowSplash!");
             
         }
         
@@ -1136,6 +1164,33 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_ShowLogoSplash(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.ShowLogoSplash(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_ShowLoading(RealStatePtr L)
         {
 		    try {
@@ -1180,6 +1235,33 @@ namespace XLua.CSObjectWrap
                     Honor.Runtime.UILauncherLoadingView _uiLauncher = (Honor.Runtime.UILauncherLoadingView)translator.GetObject(L, 2, typeof(Honor.Runtime.UILauncherLoadingView));
                     
                     gen_to_be_invoked.HideLoading( _uiLauncher );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_FadeOutLoadingViewNow(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UIManager gen_to_be_invoked = (Honor.Runtime.UIManager)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.FadeOutLoadingViewNow(  );
                     
                     
                     

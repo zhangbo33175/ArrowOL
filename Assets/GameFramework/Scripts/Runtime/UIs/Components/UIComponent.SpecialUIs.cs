@@ -105,11 +105,12 @@ namespace Honor.Runtime
         /// <summary>
         /// 显示启动闪屏界面（Splash）
         /// </summary>
-        /// <param name="durationOverCallback">延时结束回调</param>
+        /// <param name="initStartCallback">首帧渲染后的初始化启动回调（可空）</param>
+        /// <param name="durationOverCallback">最短展示时长与初始化就绪后的进入回调（可空）</param>
         /// <returns>闪屏视图实例</returns>
-        public UILauncherView ShowSplash(Action durationOverCallback = null)
+        public UILauncherView ShowSplash(Action initStartCallback = null, Action durationOverCallback = null)
         {
-            return m_UIManager.ShowSplash(durationOverCallback);
+            return m_UIManager.ShowSplash(initStartCallback, durationOverCallback);
         }
 
         /// <summary>
@@ -150,6 +151,22 @@ namespace Honor.Runtime
         public void HideLoading(UILauncherLoadingView uiLauncher)
         {
             m_UIManager.HideLoading(uiLauncher);
+        }
+
+        /// <summary>
+        /// 【Lua可调】主界面渲染完成后，立即让C#加载界面快速淡出
+        /// </summary>
+        public void FadeOutLoadingViewThenClose()
+        {
+            m_UIManager.FadeOutLoadingViewNow();
+        }
+
+        /// <summary>
+        /// TODO: 启动时显示闪屏
+        /// </summary>
+        public void ShowLogoSplash()
+        {
+            m_UIManager.ShowLogoSplash();
         }
         #endregion
 

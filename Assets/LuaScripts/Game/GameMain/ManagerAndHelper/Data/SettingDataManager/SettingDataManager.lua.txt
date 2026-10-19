@@ -1,0 +1,137 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  SettingDataManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     设置数值管理器
+-- @desc      管理游戏内开关设置（音乐、音效、推送等），读写存档、同步声音状态
+-- @core      设置开关状态存档读写、音乐/音效切换时同步音量、布尔误判与空值防护
+-- @scope     游戏内开关设置查询与写入，供 UISettingView/SoundManager 跨文件调用
+-- @feat      全局单例、存档安全、自动同步声音、空值防护、错误捕获
+-- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
+-- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
+-- @dependency Singleton, GlobalUtility, EventManager, AudioManager, PlayerPrefs
+--=====================================================================================================
+
+---@class SettingDataManager : Singleton 设置数值管理器
+local SettingDataManager = class("SettingDataManager", import("Singleton"))
+
+--region 构造 & 实例化
+
+---@brief 构造函数
+---@type fun():void
+function SettingDataManager:ctor()
+    SettingDataManager.super.ctor(self)
+end
+
+---@brief 创建单例
+---@type fun():SettingDataManager
+---@return SettingDataManager
+function SettingDataManager:Create()
+    return SettingDataManager.new()
+end
+
+--endregion
+
+--region 初始化 & 生命周期
+
+---@brief 初始化
+---@type fun():void
+---@desc 启动时将震动开关存档同步到设备震动总开关（GameMainRoot 未就绪时静默跳过，不阻断初始化）
+function SettingDataManager:Init()
+    SettingDataManager.super.Init(self)
+    xpcall(function() self:SyncVibrateStateToDevice() end, function() end)
+end
+
+---@brief 清理数据
+---@type fun():void
+function SettingDataManager:ClearData()
+    SettingDataManager.super.ClearData(self)
+end
+
+--endregion
+
+--region 设置开关获取 & 设置
+
+---=========================================================================
+---@brief  获取存档中记录的设置开关状态
+---@type fun(settingType:ESettingType):boolean
+---@param settingType ESettingType 设置类型（音乐/音效/推送等）
+---@return boolean 开关状态：true=开启，false=关闭
+---=========================================================================
+function SettingDataManager:GetSettingState(settingType)
+    -- 安全校验
+    if not settingType or not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.settingInfo then
+        PrintError("[SettingDataManager] 获取设置失败：存档结构异常")
+        return true -- 默认开启
+    end
+
+    local state = SaveRootData.GameData.settingInfo[settingType]
+    -- 未初始化默认开启；注意：state=false（关闭）必须原样返回，
+    -- 不能用 `state ~= nil and state or true`（false 会被 and/or 短路误判为 true，导致开关永远关不上/打不开）
+    if state == nil then return true end
+    return state
+end
+
+---=========================================================================
+---@brief  修改设置开关状态并保存存档
+---@type fun(settingType:ESettingType,newState:boolean):void
+---@param settingType ESettingType 设置类型
+---@param newState boolean 新状态：true=开启，false=关闭
+---=========================================================================
+function SettingDataManager:SetSettingNewState(settingType, newState)
+    -- 安全校验
+    if not settingType or type(newState) ~= "boolean" then
+        PrintError("[SettingDataManager] 设置失败：参数无效")
+        return
+    end
+    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.settingInfo then
+        PrintError("[SettingDataManager] 设置失败：settingInfo 不存在")
+        return
+    end
+
+    -- 写入并保存
+    SaveRootData.GameData.settingInfo[settingType] = newState
+
+    -- 安全保存存档
+    xpcall(function()
+        if SaveIO and SaveIO.GameData and SaveIO.GameData.Save_settingInfo then
+            SaveIO.GameData.Save_settingInfo()
+        end
+    end, function(err)
+        PrintError("[SettingDataManager] 保存设置失败：" .. tostring(err))
+    end)
+
+    --TODO: [设置开关] 回调函数名不匹配已对齐 SoundManager（原调 OnBGMCloseStateChanged 不存在被 xpcall 静默吞掉，设置后音量不刷新），后续运行验证音量刷新
+    -- 音乐开关同步（对齐 SoundManager 实际函数名，刷新 Music 组音量）
+    if settingType == ESettingType.MUSIC then
+        xpcall(function()
+            SoundManager:OnBgmSwitchChanged(settingType, newState)
+        end, function() end)
+    end
+
+    -- 音效开关同步（对齐 SoundManager 实际函数名，刷新非 Music 组音量）
+    if settingType == ESettingType.SOUND then
+        xpcall(function()
+            SoundManager:OnSoundSwitchChanged(settingType, newState)
+        end, function() end)
+    end
+
+    -- 震动开关同步（对齐 GameMainRoot.Vibrate 设备震动总开关，使设置面板与设备震动一致）
+    if settingType == ESettingType.VIBRATION then
+        self:SyncVibrateStateToDevice()
+    end
+end
+
+---@brief 将震动开关存档状态同步到设备震动总开关（启动与切换共用）
+---@type fun():void
+function SettingDataManager:SyncVibrateStateToDevice()
+    if GameMainRoot and GameMainRoot.Vibrate then
+        GameMainRoot.Vibrate:SetEnable(self:GetSettingState(ESettingType.VIBRATION))
+    end
+end
+
+--endregion
+
+return SettingDataManager

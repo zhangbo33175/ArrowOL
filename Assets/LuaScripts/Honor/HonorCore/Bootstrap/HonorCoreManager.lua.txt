@@ -1,0 +1,85 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  HonorCoreManager.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     框架核心统一管理器（集中装配 Utils 工具模块，提供核心初始化/清理钩子）
+-- @desc      集中装配框架核心工具模块（Table/String/Time/Unity/Tween/Spine 等 Utils）；经 HonorCoreManager.Tools.XXX 统一暴露核心工具，避免业务层分散 require；提供 Init / Cleanup 生命周期钩子供启动与切号、重启统一调用
+-- @core      全局表 + Tools 子表懒 require 各 Utils（纯工具模块，无需实例化）
+-- @scope     业务层统一访问框架核心工具的入口；由启动 / 切号重启流程调用 Init / Cleanup
+-- @dependency HonorCore/Utils 各工具模块（TableUtil/StringUtil/TimeUtil/UTF8Util/LuaUtil/UnityUtil/TweenUtil/SpineUtil 等）
+-- @note  单例实例由业务层 GameRequires 创建（全局 SingletonManager），本类不重复持有实例，避免类/实例引用陷阱。
+--=====================================================================================================
+
+---@class HonorCoreManager 核心管理器（全局唯一，核心能力统一入口）
+---@desc 业务层通过全局 HonorCoreManager.Tools.XXX 集中访问框架核心工具
+HonorCoreManager = {}
+
+--region 核心工具模块（HonorCore/Utils）
+
+---@brief 核心工具模块（对齐参考框架 Utils 分类）
+---@field Table TableUtil 表工具类
+---@field String StringUtil 字符串工具类
+---@field Time TimeUtil 时间工具类
+---@field UTF8 UTF8Util UTF8 工具类
+---@field Lua LuaUtil Lua 通用工具类
+---@field Unity UnityUtil Unity 通用工具类
+---@field Tween TweenUtil DOTween 缓动工具类
+---@field Spine SpineUtil Spine 动画工具类
+---@field StarFly StarFlyUtil 飞星/贝塞尔动画工具类
+---@field Screen ScreenUtil 屏幕边界工具类
+---@field UIAdapt UIAdaptUtil UI 文本/适配工具类
+---@field Bounds BoundsUtil 包围盒工具类
+---@field Co CoUtil 安全调用/延迟工具类
+---@field Level LevelUtil 关卡/解锁工具类
+---@field Quest QuestUtil 任务/事件派发工具类
+---@field DataParse DataParseUtil 数据解析工具类
+---@field Reward RewardUtil 道具/奖励发放工具类
+---@field Track TrackUtil 埋点/统计工具类
+---@field Activity ActivityUtil 活动界面工具类
+HonorCoreManager.Tools = {
+    Table      = require('TableUtil'),
+    String     = require('StringUtil'),
+    Time       = require('TimeUtil'),
+    UTF8       = require('UTF8Util'),
+    Lua        = require('LuaUtil'),
+    Unity      = require('UnityUtil'),
+    Tween      = require('TweenUtil'),
+    Spine      = require('SpineUtil'),
+    StarFly    = require('StarFlyUtil'),
+    Screen     = require('ScreenUtil'),
+    UIAdapt    = require('UIAdaptUtil'),
+    Bounds     = require('BoundsUtil'),
+    Co         = require('CoUtil'),
+    Level      = require('LevelUtil'),
+    Quest      = require('QuestUtil'),
+    DataParse  = require('DataParseUtil'),
+    Reward     = require('RewardUtil'),
+    Track      = require('TrackUtil'),
+    Activity   = require('ActivityUtil'),
+}
+--endregion
+
+--region 核心生命周期（初始化 / 清理钩子）
+
+---@brief 框架核心初始化（启动阶段调用，预留统一初始化入口）
+---@desc 各核心模块的初始化钩子集中在此，按需扩展（当前 Utils 为纯工具、无需初始化）
+function HonorCoreManager:Init()
+    --TODO: [预留] 框架核心模块的初始化逻辑按需在此集中
+end
+
+---@brief 框架核心清理（切换账号/重启游戏时调用）
+---@desc 核心清理钩子，供业务层在切换账号/重启时统一调用；
+---      单例实例数据清理由全局 SingletonManager 实例负责（GameRequires 创建），
+---      本管理器不重复持有，避免类/实例引用陷阱
+function HonorCoreManager:Cleanup()
+    --TODO: [预留] 框架核心清理逻辑按需在此集中
+    -- 业务层清理入口示例（由持有实例方调用）：
+    -- if SingletonManager and SingletonManager.ClearAllSingleData then
+    --     SingletonManager:ClearAllSingleData()
+    -- end
+end
+
+--endregion
+return HonorCoreManager

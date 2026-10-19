@@ -23,46 +23,46 @@ namespace Honor.Runtime
         /// <summary>
         /// 极轻微震动（按钮点击、选项切换等轻量反馈）
         /// </summary>
-        Selection,
+        SelectionFeedback,
 
         /// <summary>
         /// 成功/胜利震动（关卡胜利、任务完成、解锁成功）
         /// </summary>
-        Success,
+        SuccessFeedback,
 
         /// <summary>
         /// 警告震动（低血量、异常状态、危险提示）
         /// </summary>
-        Warning,
+        WarningFeedback,
 
         /// <summary>
         /// 失败震动（游戏失败、操作错误、技能打断）
         /// </summary>
-        Failure,
+        FailureFeedback,
 
         /// <summary>
         /// 轻微撞击震动（轻攻击、道具拾取、UI确认）
         /// </summary>
-        LightImpact,
+        LightImpactFeedback,
 
         /// <summary>
         /// 中度撞击震动（普通攻击、UI确认、技能释放）
         /// </summary>
-        MediumImpact,
+        MediumImpactFeedback,
 
         /// <summary>
         /// 重度撞击震动（重击、爆炸、大招、落地）
         /// </summary>
-        HeavyImpact,
+        HeavyImpactFeedback,
 
         /// <summary>
         /// 刚性撞击震动（坚硬物体碰撞、金属打击、硬直反馈）
         /// </summary>
-        RigidImpact,
+        RigidImpactFeedback,
 
         /// <summary>
         /// 柔软撞击震动（柔软物体碰撞、跳跃落地、轻柔技能）
         /// </summary>
-        SoftImpact,
+        SoftImpactFeedback,
     }
 }

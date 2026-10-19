@@ -1,0 +1,121 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  SpineUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     Spine 动画工具（时长查询、播放控制、显示-Idle-隐藏整套流程）
+-- @desc      SkeletonAnimation/SkeletonGraphic 时长与存在性查询、播放/延迟播放、整套待机流程编排
+-- @core      SkeletonData 动画查找、AnimationState Set/AddAnimation、DOTween 串联 Show→Idle→Hide
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency Spine, DG.Tweening, 同域 CoUtil（SafeInvoke）, 同域 UnityUtil（空判断）
+--=====================================================================================================
+
+---@class SpineUtil @ Spine 动画工具表（纯函数，无实例状态）
+local SpineUtil = {}
+
+--region 依赖引入
+-- 框架内自洽：安全调用/空判断走同域工具，避免依赖业务层 GameFunctions 全局
+local CoUtil    = require('CoUtil')
+local UnityUtil = require('UnityUtil')
+--endregion
+
+--region Spine 动画工具
+
+--=====================================================================================================
+-- Spine 动画工具：时长获取、播放、状态控制
+--=====================================================================================================
+
+---@brief 获取 Spine.SkeletonAnimation 动画时长
+---@param spineAnim Spine.UnityEngine.SkeletonAnimation Spine动画组件
+---@param animName string 动画名称
+---@return number 动画时长（秒）
+function SpineUtil.GetSpineAnimationDuration(spineAnim, animName)
+    if UnityUtil.IsNull(spineAnim) or UnityUtil.IsNull(spineAnim.skeletonDataAsset) then return 0 end
+    local animData = spineAnim.skeletonDataAsset:GetAnimationStateData().SkeletonData:FindAnimation(animName)
+    return animData and animData.Duration or 0
+end
+
+---@brief 获取 Spine.SkeletonGraphic 动画时长
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
+---@param animName string 动画名称
+---@return number 动画时长（秒）
+function SpineUtil.GetSpineGraphicAnimationDuration(skeletonGraphic, animName)
+    if UnityUtil.IsNull(skeletonGraphic) or UnityUtil.IsNull(skeletonGraphic.AnimationState) then return 0 end
+    local anim = skeletonGraphic.AnimationState.Data.SkeletonData:FindAnimation(animName)
+    return anim and anim.Duration or 0
+end
+
+---@brief 判断是否存在指定 Spine 动画
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
+---@param animName string 动画名称
+---@return boolean 是否存在该动画
+function SpineUtil.HasSpineAnimation(skeletonGraphic, animName)
+    if UnityUtil.IsNull(skeletonGraphic) or UnityUtil.IsNull(skeletonGraphic.AnimationState) then return false end
+    return skeletonGraphic.AnimationState.Data.SkeletonData:FindAnimation(animName) ~= nil
+end
+
+---@brief 播放 Spine 动画
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
+---@param animName string 动画名称
+---@param loop boolean 是否循环
+---@return Spine.TrackEntry 动画轨道信息
+function SpineUtil.PlaySpineAnimation(skeletonGraphic, animName, loop)
+    if UnityUtil.IsNull(skeletonGraphic) or UnityUtil.IsNull(skeletonGraphic.AnimationState) then return nil end
+    local state = skeletonGraphic.AnimationState
+    local entry = state:SetAnimation(0, animName, loop)
+    state:Update(0)
+    state:Apply(skeletonGraphic.Skeleton)
+    return entry
+end
+
+---@brief 延迟播放 Spine 动画
+---@param skeletonGraphic Spine.UnityEngine.SkeletonGraphic UI Spine组件
+---@param animName string 动画名称
+---@param delay number 延迟时间（秒）
+---@param loop boolean 是否循环
+---@return Spine.TrackEntry 动画轨道信息
+function SpineUtil.DelayPlaySpineAnimation(skeletonGraphic, animName, delay, loop)
+    if UnityUtil.IsNull(skeletonGraphic) or UnityUtil.IsNull(skeletonGraphic.AnimationState) then return nil end
+    return skeletonGraphic.AnimationState:AddAnimation(0, animName, loop, delay)
+end
+
+---@brief 播放 Spine 显示 → Idle → 隐藏 整套动画
+---@param spine Spine.UnityEngine.SkeletonGraphic UI Spine组件
+---@param idleDuration number Idle停留时长
+---@param showAnim string 显示动画
+---@param idleAnim string 循环Idle动画
+---@param hideAnim string 隐藏动画
+---@param onHideStart function 隐藏开始回调
+---@param onHideComplete function 隐藏完成回调
+function SpineUtil.PlaySpineShowIdleHide(spine, idleDuration, showAnim, idleAnim, hideAnim, onHideStart, onHideComplete)
+    if UnityUtil.IsNull(spine) then return end
+
+    spine.Skeleton:SetSlotsToSetupPose()
+    spine.AnimationState:ClearTracks()
+
+    local showEntry = spine.AnimationState:SetAnimation(0, showAnim, false)
+    showEntry:AddComplete(function()
+        if UnityUtil.IsNull(spine.gameObject) then return end
+        spine.AnimationState:SetAnimation(0, idleAnim, true)
+
+        -- Idle 延迟后执行隐藏
+        DG.Tweening.DOTween.Sequence()
+          :SetUpdate(true)
+          :AppendInterval(idleDuration)
+          :AppendCallback(function()
+            if UnityUtil.IsNull(spine.gameObject) then return end
+            if onHideStart then CoUtil.SafeInvoke(onHideStart) end
+
+            local hideEntry = spine.AnimationState:SetAnimation(0, hideAnim, false)
+            hideEntry.TimeScale = 2
+            hideEntry:AddComplete(function()
+                if onHideComplete then CoUtil.SafeInvoke(onHideComplete) end
+            end)
+        end)
+    end)
+end
+
+--endregion
+
+return SpineUtil

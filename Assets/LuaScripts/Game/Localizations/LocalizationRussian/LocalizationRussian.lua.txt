@@ -5,6 +5,11 @@
 -- filename:  LocalizationRussian.lua
 -- descrip:   本地化配置: 俄语
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     俄语本地化加载入口
+-- @desc      创建 Localizations.Russian 子表并 require 引入词条明细（语言：俄语）
+-- @core      新建空表挂到 Localizations.Russian，再 require 对应 LocalPart 填充词条
+-- @scope     本地化框架按当前语言 require 本文件加载俄语词条
+-- @dependency LocalPart_Localizations_Russian（词条明细）
 --=====================================================================================================
 
 Localizations.Russian = {}

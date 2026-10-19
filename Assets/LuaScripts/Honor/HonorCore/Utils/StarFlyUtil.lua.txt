@@ -1,0 +1,106 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  StarFlyUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     飞星/贝塞尔动画工具（飞星界面打开与贝塞尔曲线飞行动画）
+-- @desc      OpenStarFlyUI 打开飞星界面；StarFlyAnimation 贝塞尔曲线飞行动画（数量/路径/偏移/缓动/回调）
+-- @core      世界坐标转局部坐标、贝塞尔控制点 X 轴随机偏移、DOTween 进度驱动与完成回调
+-- @scope     金币/道具飞入结算动效与飞星 UI 入口
+-- @dependency RGame.StarFly, DG.Tweening, ECustomTweenID, AllOpenUI/UIs/OpenUISync, UnityUtil（同域）；经 GameFunctions 全局包装对外暴露
+--=====================================================================================================
+
+---@class StarFlyUtil @ 飞星/贝塞尔动画工具表：飞星界面打开与贝塞尔飞行动画
+local StarFlyUtil = {}
+
+--region 依赖引入
+-- 框架内自洽：空判断走同域工具，避免依赖业务层 GameFunctions 全局
+local UnityUtil = require('UnityUtil')
+--endregion
+
+--region 飞星 / 贝塞尔动画
+
+--=====================================================================================================
+-- 飞星/贝塞尔动画：金币/道具飞行动画、路径动画
+--=====================================================================================================
+
+---@brief 打开飞星界面并播放飞星效果
+---@param cfg StarFlyConfig 飞星配置数据
+---@desc 飞星 UI 未打开时经 OpenUISync 拉起；经 GameFunctions.OpenStarFlyUI 全局包装对外暴露
+function StarFlyUtil.OpenStarFlyUI(cfg)
+    if not AllOpenUI[UIs.UIStarFly.Name] then
+        OpenUISync(UIs.UIStarFly)
+    end
+end
+
+---@brief 贝塞尔曲线飞行动画（金币/道具飞入）
+---@param starFly RGame.StarFly 飞行动画组件
+---@param parentTransform UnityEngine.Transform 父节点
+---@param count number 数量
+---@param startPos UnityEngine.Vector3 起点世界坐标
+---@param targetPos UnityEngine.Vector3 终点世界坐标
+---@param duration number 动画时长
+---@param delay number 延迟时间
+---@param ease DG.Tweening.Ease 缓动类型
+---@param tweenId string 动画ID
+---@param realTime boolean 是否使用真实时间
+---@param onComplete function 完成回调
+---@param reverseCtrlX boolean 是否反转X轴控制点
+---@param minOffsetX number X轴最小偏移
+---@param maxOffsetX number X轴最大偏移
+---@desc 组件为空时直接回调 onComplete(nil)；坐标转局部后驱动 DOTween 进度，完成回调回传 gameObject；同 id 先 Kill 再播放；经 GameFunctions.StarFlyAnimation 全局包装对外暴露
+function StarFlyUtil.StarFlyAnimation(starFly, parentTransform, count, startPos, targetPos, duration, delay, ease, tweenId, realTime, onComplete, reverseCtrlX, minOffsetX, maxOffsetX)
+    if UnityUtil.IsNull(starFly) then
+        if onComplete then onComplete(nil) end
+        return
+    end
+
+    -- 默认参数初始化
+    realTime = realTime or false
+    tweenId = tweenId or ECustomTweenID.ON_COLLECT_GOAL_ANIM_FLY .. starFly.gameObject:GetInstanceID()
+    ease = ease or DG.Tweening.Ease.Linear
+    delay = delay or 0
+    reverseCtrlX = reverseCtrlX or false
+    minOffsetX = minOffsetX or 0
+    maxOffsetX = maxOffsetX or 0
+
+    -- 世界坐标转局部坐标
+    local localStart = parentTransform:InverseTransformPoint(startPos)
+    local localTarget = parentTransform:InverseTransformPoint(targetPos)
+    starFly.startPoint = Vector2(localStart.x, localStart.y)
+    starFly.endPoint = Vector2(localTarget.x, localTarget.y)
+    starFly:ResetCtrlPoints()
+    starFly:SetProgress(0)
+
+    -- 控制点偏移计算
+    if starFly.ctrlPoints then
+        local offsetX = (minOffsetX ~= 0 or maxOffsetX ~= 0) and math.random(minOffsetX, maxOffsetX) or 0
+        for i = 0, starFly.ctrlPoints.Count - 1 do
+            local p = starFly.ctrlPoints[i]
+            p.x = p.x + offsetX
+            if reverseCtrlX then p.x = -p.x end
+
+            local worldP = starFly.transform:TransformPoint(Vector3(p.x, p.y, 0))
+            local localP = parentTransform:InverseTransformPoint(worldP)
+            starFly.ctrlPoints[i] = Vector2(localP.x, localP.y)
+        end
+    end
+
+    -- 执行DOTween动画
+    DG.Tweening.DOTween.Kill(tweenId, true)
+    DG.Tweening.DOTween.To(
+            function() return starFly:GetProgress() end,
+            function(v) starFly:SetProgress(v) end,
+            1, duration
+    ):SetEase(ease)
+      :SetDelay(delay)
+      :SetUpdate(realTime)
+      :OnComplete(function()
+        if onComplete then onComplete(starFly.gameObject) end
+    end).stringId = tweenId
+end
+
+--endregion
+
+return StarFlyUtil

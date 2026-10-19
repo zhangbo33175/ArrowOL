@@ -8,16 +8,16 @@ PlayerSettings:
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
-  defaultScreenOrientation: 4
+  defaultScreenOrientation: 0
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: ArrowOL
+  productName: "\u6211\u7684\u732B\u5462"
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
-  m_ShowUnitySplashScreen: 1
+  m_ShowUnitySplashScreen: 0
   m_ShowUnitySplashLogo: 1
   m_SplashScreenOverlayOpacity: 1
   m_SplashScreenAnimation: 1
@@ -156,13 +156,14 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
+    Android: com.DefaultCompany.ArrowOL
     Standalone: com.DefaultCompany.ArrowOL
   buildNumber:
     Standalone: 0
     VisionOS: 0
     iPhone: 0
     tvOS: 0
-  overrideDefaultApplicationIdentifier: 0
+  overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 22
   AndroidTargetSdkVersion: 0
@@ -277,7 +278,14 @@ PlayerSettings:
   AndroidMinifyDebug: 0
   AndroidValidateAppBundleSize: 1
   AndroidAppBundleSizeToValidate: 150
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: c37fa6a744bfc084491d4c9635eb2a0c, type: 3}
+      m_Width: 128
+      m_Height: 128
+      m_Kind: 0
   m_BuildTargetPlatformIcons:
   - m_BuildTarget: Android
     m_Icons:
@@ -734,7 +742,9 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Standalone: ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;EASY_TOUCH_ENABLE
+    Android: ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;EASY_TOUCH_ENABLE;BEST_HTTP_ENABLE
+    Standalone: ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;EASY_TOUCH_ENABLE;BEST_HTTP_ENABLE
+    iPhone: ENABLE_LOG;ENABLE_DEBUG_LOG;ENABLE_DEBUG_AND_ABOVE_LOG;UIEXTENSION_ENABLE;SPINE_ENABLE;EASY_TOUCH_ENABLE;BEST_HTTP_ENABLE
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}

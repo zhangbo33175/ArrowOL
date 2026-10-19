@@ -1,0 +1,80 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  SerialProducer.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     序列号生成器（全局唯一码 / 唯一ID / 唯一名生成函数）
+-- @desc      UniqueEventCode / UniqueID 自增生成全局唯一数字码；UniqueName 生成「前缀 + 自增序号」唯一名；FunctionID / FunctionNegativeID / OrnamentID 自减生成负向功能标识
+-- @core      文件级闭包自增 / 自减计数器，全局函数暴露为工程唯一来源
+-- @scope     全局函数集合（全局注入，不 return 模块表属设计）；由 StartGame require 时生效，供 EventCodes / UIEventCode 等引用
+-- @dependency 无外部依赖（纯自增 / 自减计数器）
+-- @note  全局函数无同名冲突；须先于 EventCodes / UIEventCode 加载
+--=====================================================================================================
+
+--region 全局唯一事件码
+local unique_eventCode = 1
+---@brief 生成全局唯一事件码（自增，从 2 开始）
+---@type fun():number
+---@return number 唯一事件码
+function UniqueEventCode()
+    unique_eventCode = unique_eventCode + 1
+    return unique_eventCode
+end
+--endregion
+
+--region 全局唯一ID
+local unique_id = 1
+---@brief 生成全局唯一ID（自增，从 2 开始）
+---@type fun():number
+---@return number 唯一ID
+function UniqueID()
+    unique_id = unique_id + 1
+    return unique_id
+end
+--endregion
+
+--region 全局唯一名称
+local unique_name_id = 1
+---@brief 生成全局唯一名称（名称前缀 + 自增序号）
+---@type fun(name:string):string
+---@param name string 名称前缀
+---@return string 唯一名称
+function UniqueName(name)
+    unique_name_id = unique_name_id + 1
+    return string.format('%s%s', tostring(name), tostring(unique_name_id))
+end
+--endregion
+
+--region 功能负ID（自减，负数）
+local function_negative_id = 0
+---@brief 生成功能负ID（每次自减 1，用于负向标识）
+---@type fun():number
+---@return number 负ID
+function FunctionNegativeID()
+    function_negative_id = function_negative_id - 1
+    return function_negative_id
+end
+--endregion
+
+--region 功能ID（自减，负数）
+local function_id = 0
+---@brief 生成功能ID（每次自减 1，用于功能唯一标识）
+---@type fun():number
+---@return number 功能ID
+function FunctionID()
+    function_id = function_id - 1
+    return function_id
+end
+--endregion
+
+--region 装饰物体唯一ID（自减，从 -2 开始）
+local ornament_id = -1
+---@brief 生成装饰物体唯一ID（每次自减 1，从 -2 开始）
+---@type fun():number
+---@return number 装饰物体ID
+function OrnamentID()
+    ornament_id = ornament_id - 1
+    return ornament_id
+end
+--endregion

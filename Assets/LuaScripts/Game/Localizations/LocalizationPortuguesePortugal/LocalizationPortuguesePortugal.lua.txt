@@ -5,6 +5,11 @@
 -- filename:  LocalizationPortuguesePortugal.lua
 -- descrip:   本地化配置: 葡萄牙语
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     葡萄牙语本地化加载入口
+-- @desc      创建 Localizations.PortuguesePortugal 子表并 require 引入词条明细（语言：葡萄牙语）
+-- @core      新建空表挂到 Localizations.PortuguesePortugal，再 require 对应 LocalPart 填充词条
+-- @scope     本地化框架按当前语言 require 本文件加载葡萄牙语词条
+-- @dependency LocalPart_Localizations_PortuguesePortugal（词条明细）
 --=====================================================================================================
 
 Localizations.PortuguesePortugal = {}
