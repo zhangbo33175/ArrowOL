@@ -5,6 +5,11 @@
 -- filename:  TableConstants
 -- descrip:   常量表
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     全局运行常量配置表
+-- @desc      以 Key-Value 形式登记各类可调数值常量
+-- @core      以 Key 为主键，Value 为常量值（可为数组或键值表，如碎片兑换数、解锁关卡、额外奖励）
+-- @scope     全局数值调参（碎片兑换、解锁节点、奖励等）
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Constants 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.Constants_Item @常量表条目

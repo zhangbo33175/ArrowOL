@@ -9,11 +9,6 @@
  *            提供有限状态机/游戏流程相关的通用静态工具方法
  ***************************************************************/
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace GameLib
 {
     /// <summary>
@@ -22,13 +17,6 @@ namespace GameLib
     /// </summary>
     public static class ProcedureUtils
     {
-        #region 构造函数
-        /// <summary>
-        /// 静态构造函数
-        /// </summary>
-        static ProcedureUtils()
-        {
-        }
-        #endregion
+        // 预留：后续在此补充流程管理相关的静态工具方法
     }
 }

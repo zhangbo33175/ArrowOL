@@ -1,0 +1,167 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  FishItem.lua
+-- author:    云毅
+-- descrip:   生命Item
+--=====================================================================================================
+
+---@class FishItem : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field FishIcon                           UnityEngine.GameObject        √                        生命小鱼
+local FishItem = class('FishItem', import('LuaBehaviourSuper'))
+
+--region 【构造 & 实例化】
+
+---构造函数
+---@brief 框架驱动，仅透传基类构造
+---@type fun(args:table):void
+---@param args table @自定义参数
+function FishItem:ctor(args)
+    FishItem.super.ctor(self, args)
+
+end
+
+---创建函数
+---@brief 框架驱动，由 UIMainPlayingManager 通过 LoadRes["GameObject_FishItem"] 反射创建
+---@type fun(args:table):FishItem
+---@param args table @自定义参数
+---@return FishItem @实例
+function FishItem:Create(args)
+    local obj = FishItem.new(args)
+    return obj
+end
+
+--endregion
+
+--region 【生命周期】
+
+---注册监听（自动注销）
+---@brief 框架驱动，生命图标无自定义事件监听
+---@type fun():void
+function FishItem:OnAddListeners()
+    FishItem.super.OnAddListeners(self)
+
+end
+
+---唤醒
+---@brief 框架驱动，节点加载完成时回调
+---@type fun():void
+function FishItem:Awake()
+    FishItem.super.Awake(self)
+-- 2=====================================================================================================
+
+-- 无自动注册内容。
+-- ====================================================================================================2
+
+end
+
+---开始
+---@brief 框架驱动，首次激活后回调
+---@type fun():void
+function FishItem:Start()
+    FishItem.super.Start(self)
+
+end
+
+---销毁
+---@brief 框架驱动，节点销毁时回调
+---@type fun():void
+function FishItem:OnDestroy()
+    FishItem.super.OnDestroy(self)
+-- 3=====================================================================================================
+
+-- 无自动注销内容。
+-- ====================================================================================================3
+
+end
+
+--endregion
+
+--region 【碎裂动画】
+
+---播放 FishIcon 节点"晃动 + 碎裂消失"动画（不销毁 FishItem，动画后隐藏 FishIcon）
+---@brief 动画作用于 FishIcon 子节点（生命小鱼图标）：本地旋转左右往复摆动数下 -> 缩放至 0 碎裂 -> 隐藏 FishIcon
+---@desc FishItem 父节点为 HorizontalLayoutGroup（会覆盖子节点位置），故左右晃动改用旋转摆动实现，布局不会干预；
+---      目标固定为该 FishItem 下的 FishIcon 节点（LuaBehaviour 注入字段），仅隐藏鱼图标、保留 FishItem 容器
+---@desc 由 UIMainPlayingManager:_PlayBreakForItems 错峰调用（生命扣减/关卡失败时触发）
+---@param startDelay number 启动延迟（秒），用于多只鱼错峰逐只播放动画
+---@param onComplete function|nil 动画完成后回调（FishItem 已在内部隐藏 FishIcon）
+--TODO: [修复] PlayBreakAnimation 目标改为 FishIcon 节点：动画完成后隐藏 FishIcon 而非销毁 FishItem
+function FishItem:PlayBreakAnimation(startDelay, onComplete)
+    -- 动画目标：FishIcon 节点（生命小鱼图标），FishItem 容器保留
+    local iconGO = self.FishIcon
+    if IsNull(iconGO) then
+        if onComplete then onComplete(self) end
+        return
+    end
+    local fishTransform = iconGO.transform
+
+  
+    PrintInfo("[FishItem] 播放 FishIcon 碎裂动画 name=" .. fishTransform.name .. " delay=" .. tostring(startDelay))
+
+    -- 清除目标上可能残留的旧补间，避免与打开动画叠加
+    DOTween.Kill(fishTransform.gameObject, true)
+
+    local baseZ      = fishTransform.localEulerAngles.z -- 初始旋转
+    local swingDeg   = 14                                 -- 左右摆动角度（度）
+    local swingDur   = 0.06                               -- 单次摆动时长
+    local shatterDur = 0.25                               -- 碎裂缩放时长
+
+    local sequence = DOTween.Sequence()
+    -- 错峰延迟：多只鱼时逐只错开启动，形成"每只鱼各自晃动碎裂消失"的独立效果
+    if startDelay and startDelay > 0 then
+        sequence:AppendInterval(startDelay)
+    end
+    -- 左右往复摆动 3 个来回（旋转式晃动）
+    for i = 1, 3 do
+        sequence:Append(fishTransform:DOLocalRotate(UnityEngine.Vector3(0, 0, baseZ + swingDeg), swingDur):SetEase(Ease.InOutSine))
+        sequence:Append(fishTransform:DOLocalRotate(UnityEngine.Vector3(0, 0, baseZ - swingDeg), swingDur):SetEase(Ease.InOutSine))
+    end
+    -- 摆回初始角度
+    sequence:Append(fishTransform:DOLocalRotate(UnityEngine.Vector3(0, 0, baseZ), swingDur):SetEase(Ease.InOutSine))
+    -- 碎裂：缩放到 0（InBack 带轻微过冲，读作碎裂消失）
+    sequence:Append(fishTransform:DOScale(0, shatterDur):SetEase(Ease.InBack))
+    sequence:OnComplete(function()
+        --TODO: [诊断] 打印动画完成，用于确认每只鱼动画正常结束
+        PrintInfo("[FishItem] FishIcon 碎裂完成，隐藏节点 name=" .. fishTransform.name)
+        -- 隐藏 FishIcon 节点（不销毁 FishItem，容器与底图保留）
+        iconGO:SetActive(false)
+        if onComplete then onComplete(self) end
+    end)
+end
+
+--endregion
+
+--region 【动画回调】
+
+---播放打开动画（可重写）
+---@brief 框架驱动（可重写），节点打开时播放
+---@type fun():void
+function FishItem:OnPlayOpenAnimation()
+    FishItem.super.OnPlayOpenAnimation(self)
+end
+
+---播放关闭动画（可重写）
+---@brief 框架驱动（可重写），节点关闭时播放
+---@type fun():void
+function FishItem:OnPlayCloseAnimation()
+    FishItem.super.OnPlayCloseAnimation(self)
+end
+
+--endregion
+
+--region 【子UI回调】
+
+---子UI销毁回调
+---@brief 框架驱动，本节点 AddUI 出的子节点销毁时回调
+---@type fun(luaClass:XLua.LuaTable):void
+---@param luaClass XLua.LuaTable
+function FishItem:OnAddedUIDestroyed(luaClass)
+    FishItem.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+--endregion
+
+return FishItem

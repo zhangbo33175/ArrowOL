@@ -6,18 +6,23 @@
 -- created:   2026
 -- @brief     加载地图状态基类
 -- @desc      提供地图加载的通用逻辑：卸载旧地图、加载新地图、协程控制、LoadingUI管理
+-- @core      协程式地图加载流程、重复加载短路、LoadingUI 进度推送、Login/非Login 时序差异
+-- @scope     GameLoadMapState 继承本类；由 GameStateMachine:ChangeState(LoadMapState) 驱动
 -- @feat      通用地图加载流程、协程管理、重复加载过滤、体验优化
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
 -- @规范       Unity Lua 商业项目编码标准 / 核心基类规范
--- @dependency GameStateBase, GameEntry, MapManager, UIManager, Timer
+-- @dependency GameStateBase, MapManager, HonorCoroutineHelper, OpenUISync/CloseUI, ChapterListManager, GameCoreManager, GameStateMachine
 --=====================================================================================================
 
 ---@class GameLoadMapStateBase : GameStateBase 加载地图状态基类
+---@field _WaitFrame GameLib.WaitForFrames @公共帧等待对象
+---@field _LoadMapView table|nil @加载界面实例（用于进度更新）
 local GameLoadMapStateBase = class('GameLoadMapStateBase', import('GameStateBase'))
 
 --region 【构造 & 实例化】
 
----@brief 构造函数
+---@brief 构造函数（框架驱动，勿删）
+---@desc 初始化帧等待对象
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
 function GameLoadMapStateBase:ctor(stateType)
@@ -25,7 +30,7 @@ function GameLoadMapStateBase:ctor(stateType)
     self._WaitFrame = GameLib.WaitForFrames(1) ---@type GameLib.WaitForFrames 公共帧等待对象
 end
 
----@brief 创建状态实例
+---@brief 创建状态实例（框架驱动，勿删）
 ---@type fun(stateType:GameStateCmd):GameLoadMapStateBase
 ---@param stateType GameStateCmd 状态类型
 ---@return GameLoadMapStateBase 加载地图基类实例
@@ -37,35 +42,46 @@ end
 
 --region 【状态进入 - 核心加载流程】
 
----@brief 进入状态（核心加载逻辑）
+---@brief 进入状态（GameStateMachine 驱动；独立协程内执行卸载旧图→加载新图→进度推送）
+---@desc 同章节短路不重复加载；登录态快速切、其他状态延迟1秒；完成后回调 LoadMapOver
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 进入完成回调
 function GameLoadMapStateBase:OnStateEnter(finishCallback)
     PrintInfo("OnStateEnter --> GameState: {0} ", tostring(self:GetStateType()))
 
-    -- 打开加载界面
-    self:OpenLoadingUI()
+    -- 打开加载界面，记录实例用于进度更新
+    self._LoadMapView = self:OpenLoadingUI()
 
     -- 启动独立协程执行地图加载
     HonorCoroutineHelper:StartAlone(function()
+        -- "章节-内部关卡"模式：同章节切换内部关卡必须先清空 CurLoadChapterId 再进入本分支，
+        -- 否则会落入下方"目标与当前相同不重复加载"短路，地图不会按新内部关卡 lv 重建。
+        -- 该清理由 GamePlayHelper:LoadNextLevel → MapManager:UnloadOldMap 完成。
+        --TODO: [模式] 此处 CurLoadChapterId == ReadyLoadChapterId 为"重玩/同图"短路；
+        --      同章进下一内部关依赖前置 UnloadOldMap 清空 CurLoadChapterId，勿在未清理时调用。
         -- 目标地图与当前相同 → 不重复加载
         if MapManager.CurLoadChapterId == MapManager.ReadyLoadChapterId then
+            self:UpdateLoadProgress(1.0)
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
             self:LoadMapOver(finishCallback)
         else
             -- 卸载旧地图
+            self:UpdateLoadProgress(0.2)
             MapManager:UnloadOldMap()
             HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
 
             -- 准备加载新地图
+            self:UpdateLoadProgress(0.5)
             PrintInfo("准备加载地图 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
             self:OnReadyToLoadMap(MapManager.ReadyLoadChapterId)
 
             -- 执行地图加载
+            self:UpdateLoadProgress(0.8)
             MapManager:LoadReadyMap(nil)
             PrintInfo("准备加载地图完毕 LoadChapterId:" .. MapManager.ReadyLoadChapterId)
 
             -- 登录态快速切换，其他状态延迟 1 秒提升体验
+            self:UpdateLoadProgress(0.95)
             if GameStateMachine:PreStateType() == GameStateCmd.LoginState then
                 HonorCoroutineHelper:WaitForFrame(self._WaitFrame)
                 PrintInfo("地图加载完毕，准备切换状态机 pre LoginState")
@@ -75,6 +91,7 @@ function GameLoadMapStateBase:OnStateEnter(finishCallback)
             end
 
             -- 加载完成
+            self:UpdateLoadProgress(1.0)
             self:LoadMapOver(finishCallback)
         end
     end)
@@ -84,44 +101,52 @@ end
 
 --region 【状态退出】
 
----@brief 离开状态
+---@brief 离开状态（GameStateMachine 驱动；关闭 LoadingUI）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 退出完成回调
 function GameLoadMapStateBase:OnStateExit(finishCallback)
     self:CloseLoadingUI()
-    if finishCallback then
-        xpcall(finishCallback, __G__TRACK_BACK__)
-    end
+    SafeCallFinish(finishCallback)
 end
 
 --endregion
 
 --region 【加载界面（子类可重写）】
 
----@brief 打开加载UI
----@type fun():void
+---@brief 打开加载UI（子类可重写，返回实例供进度更新）
+---@type fun():UILoadMapView
+---@return UILoadMapView 加载界面实例（用于进度更新）
 function GameLoadMapStateBase:OpenLoadingUI()
-    OpenUISync(UIs.UILoadMapView)
+    return OpenUISync(UIs.UILoadMapView)
 end
 
----@brief 关闭加载UI
+---@brief 关闭加载UI（子类可重写）
 ---@type fun():void
 function GameLoadMapStateBase:CloseLoadingUI()
     CloseUI(UIs.UILoadMapView)
+end
+
+---@brief 推进加载界面进度（空安全转发）
+---@type fun(progress:number):void
+---@param progress number 目标进度（0-1）
+function GameLoadMapStateBase:UpdateLoadProgress(progress)
+    if self._LoadMapView and self._LoadMapView.UpdateLoadProgress then
+        self._LoadMapView:UpdateLoadProgress(progress)
+    end
 end
 
 --endregion
 
 --region 【地图加载生命周期（子类重写）】
 
----@brief 地图加载完毕（默认切主界面）
+---@brief 地图加载完毕（默认切主界面；子类 GameLoadMapState 重写分流首关/普通流程）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 完成回调
 function GameLoadMapStateBase:LoadMapOver(finishCallback)
     GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
 end
 
----@brief 准备加载地图
+---@brief 准备加载地图（子类可重写；设置运行时章节并触发 GameCoreManager:OnRePlayGame 重置数据）
 ---@type fun(chapterId:string):void
 ---@param chapterId string 即将加载的章节ID
 function GameLoadMapStateBase:OnReadyToLoadMap(chapterId)

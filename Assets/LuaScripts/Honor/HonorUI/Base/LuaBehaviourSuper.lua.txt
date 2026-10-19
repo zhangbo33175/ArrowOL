@@ -1,0 +1,501 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   LuaBehaviourSuper.lua
+-- author:     云毅
+-- created:    2026
+-- @brief     LuaBehaviour 通用父类（UI/实体/逻辑组件顶级基类）
+-- @desc      项目所有 Lua 脚本的顶级父类，自动管理生命周期、动画、资源、事件、协程、行为树；ViewSuper 最终继承自此类
+-- @core      生命周期调度、C# LuaBehaviour 绑定、动画/资源/事件/协程/行为树托管
+-- @scope     框架顶层基类（被所有 UI/组件脚本继承），cs 字段桥接 C# LuaBehaviour
+-- @dependency Honor.Runtime.LuaBehaviour（C# 组件）
+-- descrip:    LuaBehaviour通用父类（UI/实体/逻辑组件基类）
+--             作用：项目所有Lua脚本的顶级父类，自动管理生命周期、动画、资源、事件、协程、行为树
+--             地位：框架顶层基类，ViewSuper 最终继承自此类
+--=====================================================================================================
+
+--region LuaBehaviour 顶级基类
+
+---@class LuaBehaviourSuper LuaBehaviour 通用顶级父类（所有Lua脚本的基类）
+---@field cs Honor.Runtime.LuaBehaviour 绑定的C# LuaBehaviour组件
+---@field _args table 传入参数（构造参数）
+---@field _params table C#配置的自定义参数
+---@field _name string 类名
+---@field _isClosing boolean 是否正在关闭
+---@field _btActions table[] 行为树Action节点列表
+---@field _btComposites table[] 行为树Composite节点列表
+---@field _btConditionals table[] 行为树Conditional节点列表
+---@field _btDecorators table[] 行为树Decorator节点列表
+---@field _bgImage UnityEngine.UI.Image 背景图
+---@field _bottomMaskLayerImage UnityEngine.UI.Image 底部遮罩
+---@field _topMaskLayerImage UnityEngine.UI.Image 顶部遮罩
+---@field _bottomCloseLayerButton UnityEngine.UI.Button 底部点击关闭按钮
+---@field _bottomMaskLayerOpenAnimationDelay number 底部遮罩打开动画时长
+---@field _bottomMaskLayerCloseAnimationDelay number 底部遮罩关闭动画时长
+---@field _alphaOpenAnimationDelay number 透明度打开动画时长
+---@field _alphaCloseAnimationDelay number 透明度关闭动画时长
+---@field _rootOpenAnimationDelay number 根节点打开动画时长
+---@field _rootCloseAnimationDelay number 根节点关闭动画时长
+---@field _loadedAssets table<string, UnityEngine.Object> 动态加载的资源（自动管理释放）
+---@field _oriPosForUIStack UnityEngine.Vector3 UI栈原始位置
+---@field _uiListenerList table[] UI组件交互监听记录表（OnDestroy 统一 OnRemoveListener 注销）
+---@field _globalEventListenerList table[] 全局事件监听记录表（OnDestroy 统一注销，对齐 HonorUI 自动解绑风格）
+---@field _timerList UnityEngine.Coroutine[] 协程定时器句柄列表（OnDestroy 统一 Stop 停止）
+--TODO: [新增] 补充 _globalEventListenerList/_timerList 两个统一生命周期管理字段的类注解
+-- UI 管理器（UI 事件/生命周期操作；UIUtil 由 UIManager 内部 require）
+-- 说明：本文件保留 UI 相关方法签名，实现委托 UIManager，接口零破坏
+local UIManager = require('UIManager')
+-- 资源加载/卸载统一走 HonorAsset 工具（复用异常防护与 JsonAsset 解析，消除裸 C# 调用）
+local AssetUtil = require('AssetUtil')
+local LuaBehaviourSuper = class("LuaBehaviourSuper")
+
+--=====================================================================================================
+-- 生命周期：构造函数
+--=====================================================================================================
+
+---@brief 构造函数
+---@desc 绑定环境表变量并初始化全部字段（参数、引用、动画时长、资源缓存、行为树节点缓存等）
+---@param args table 构造参数（包含 env 环境表）
+function LuaBehaviourSuper:ctor(args)
+    -- 绑定环境表变量
+    if args ~= nil and args.env ~= nil then
+        for __, v in pairs(args.env) do
+            self[__] = v
+        end
+    end
+
+    self._args = args                                -- 传入参数
+    self._params = self.cs.LuaParams                 -- C#配置的自定义参数
+    self._name = self.__cname                        -- 类名
+    self._isClosing = false                          -- 是否正在关闭
+
+    -- 行为树节点缓存
+    self._btActions = {}                             -- 行为树Action节点
+    self._btComposites = {}                          -- 行为树Composite节点
+    self._btConditionals = {}                        -- 行为树Conditional节点
+    self._btDecorators = {}                          -- 行为树Decorator节点
+
+    -- UI 通用元素引用
+    self._bgImage = nil                              -- 背景图
+    self._bottomMaskLayerImage = nil                 -- 底部遮罩
+    self._topMaskLayerImage = nil                    -- 顶部遮罩
+    self._bottomCloseLayerButton = nil               -- 底部点击关闭按钮
+
+    -- 动画时长配置
+    self._bottomMaskLayerOpenAnimationDelay = 0.5
+    self._bottomMaskLayerCloseAnimationDelay = 0.5
+    self._alphaOpenAnimationDelay = 0.5
+    self._alphaCloseAnimationDelay = 0.5
+    self._rootOpenAnimationDelay = 0.5
+    self._rootCloseAnimationDelay = 0.5
+
+    self._loadedAssets = {}                           -- 动态加载的资源（自动管理释放）
+    self._oriPosForUIStack = UnityEngine.Vector3.zero       -- UI栈原始位置
+
+    -- 统一生命周期管理（对齐 HonorUI 自动注销风格）
+    self._globalEventListenerList = {}                -- 全局事件监听记录表（OnDestroy 统一注销）
+    self._timerList = {}                              -- 协程定时器句柄列表（OnDestroy 统一停止）
+    --TODO: [新增] ctor 初始化全局事件记录表与定时器句柄表
+end
+
+--=====================================================================================================
+-- 工厂方法：创建实例
+--=====================================================================================================
+
+---@brief 创建实例
+---@desc 通过类方法创建并返回一个新的 LuaBehaviourSuper 实例
+---@param args table 自定义参数
+---@return LuaBehaviourSuper 创建的实例
+function LuaBehaviourSuper:Create(args)
+    local obj = LuaBehaviourSuper.new(args)
+    return obj
+end
+
+--=====================================================================================================
+-- 生命周期钩子（Unity 生命周期，子类可重写）
+--=====================================================================================================
+
+---@brief 注册事件（子类重写）
+---@desc 供子类重写以注册监听事件，由 Awake 阶段调用
+function LuaBehaviourSuper:OnAddListeners()
+end
+
+---@brief 唤醒（Unity生命周期）
+---@desc UI 类型自动查找固定节点（背景图/遮罩/关闭按钮），抛出 UI 打开事件并注册监听
+function LuaBehaviourSuper:Awake()
+    -- UI 类型自动查找固定节点（__BgImage/遮罩/关闭层，统一收口到 UIManager:InitFixedNodes）
+    if self.cs.PrefabType == Honor.PrefabType.UI then
+        UIManager:InitFixedNodes(self)
+    end
+
+    -- 抛出UI打开事件
+    HonorEventHelper:FireNow(FwEventCmd.UIViewOpen, self._name)
+    self:OnAddListeners()
+end
+
+---@brief 启用（Unity生命周期）
+---@desc 对象启用时调用，子类可重写
+function LuaBehaviourSuper:OnEnable()
+end
+
+---@brief 开始（Unity生命周期）
+---@desc 首帧调用，默认执行打开流程
+function LuaBehaviourSuper:Start()
+    self:Open()
+end
+
+---@brief 帧更新（自定义）
+---@desc 由 C# 侧 Proc 驱动每帧调用，子类可重写
+function LuaBehaviourSuper:Proc()
+end
+
+---@brief 禁用（Unity生命周期）
+---@desc 对象禁用时调用，子类可重写
+function LuaBehaviourSuper:OnDisable()
+end
+
+---@brief 销毁（自动释放所有资源）
+---@desc 释放引用、销毁全部行为树节点、卸载资源并移除事件与协程
+function LuaBehaviourSuper:OnDestroy()
+    self._args = nil
+
+    -- 销毁所有行为树节点
+    for _, btAction in pairs(self._btActions) do
+        btAction:OnDestroy()
+    end
+    self._btActions = {}
+
+    for _, btComposite in pairs(self._btComposites) do
+        btComposite:OnDestroy()
+    end
+    self._btComposites = {}
+
+    for _, btConditional in pairs(self._btConditionals) do
+        btConditional:OnDestroy()
+    end
+    self._btConditionals = {}
+
+    for _, btDecorator in pairs(self._btDecorators) do
+        btDecorator:OnDestroy()
+    end
+    self._btDecorators = {}
+
+    -- 释放资源、事件、协程
+    self:UnloadAllAssets()
+    HonorEventHelper:RemoveListenerByTarget(self)
+    HonorCoroutineHelper:StopByGO(self.cs.gameObject)
+
+    --TODO: [新增] 统一停止本对象注册的循环定时器协程（StopByGO 已按 GO 兜底，此处按记录表显式收口）
+    if self._timerList ~= nil then
+        for _, co in ipairs(self._timerList) do
+            HonorCoroutineHelper:Stop(co)
+        end
+        self._timerList = {}
+    end
+
+    --TODO: [新增] 清空全局事件监听记录表（实际移除已由 RemoveListenerByTarget(self) 完成，此处仅释放记录引用）
+    self._globalEventListenerList = {}
+
+    if self._uiListenerList ~= nil then
+        for _, listener in ipairs(self._uiListenerList) do
+            OnRemoveListener(listener[1], listener[2], listener[3])
+        end
+        self._uiListenerList = {}
+    end
+end
+
+--=====================================================================================================
+-- UI 监听注册（自动注销）
+--=====================================================================================================
+
+---@brief 注册UI组件交互监听（随界面销毁自动注销）
+---@desc 封装 AddUIListenerFunction：注册按钮/Toggle/输入框等交互事件，并记录到 self._uiListenerList，
+---      界面销毁时由 OnDestroy 统一 OnRemoveListener 自动移除，无需手动配对注销
+---@param obj userdata C#注入的UI对象（Button/Toggle/Input等）
+---@param cmd string 事件类型：Clicked/Changed/End/Chosen 或 Evt_ 开头事件
+---@param handler table 回调处理器（handler 包装）
+function LuaBehaviourSuper:AddUIListener(obj, cmd, handler)
+    if obj == nil then return end
+    if self._uiListenerList == nil then
+        self._uiListenerList = {}
+    end
+    table.insert(self._uiListenerList, {obj, cmd, handler})
+    AddUIListenerFunction(obj, cmd, handler)
+end
+
+--=====================================================================================================
+-- 全局事件与定时器（自动注销，对齐 HonorUI UIBaseComponent 风格）
+--=====================================================================================================
+
+---@brief 注册全局事件监听（随界面销毁自动注销）
+---@desc 用 handler(self, callback) 包装回调并通过 HonorEventHelper 注册，回调句柄记录到 _globalEventListenerList；
+---      OnDestroy 时由 HonorEventHelper:RemoveListenerByTarget(self) 统一移除，无需手动配对注销
+---@param key string 事件名（FwEventCmd / EventCmd）
+---@param callback function 事件回调（function(...) end）
+--TODO: [新增] 提供 self:AddGlobalEvent 封装，全局事件随对象销毁自动注销（对齐 HonorUI UIBaseComponent:AddGlobalEvent）
+function LuaBehaviourSuper:AddGlobalEvent(key, callback)
+    if callback == nil then return end
+    if self._globalEventListenerList == nil then
+        self._globalEventListenerList = {}
+    end
+    -- handler(self, callback).target == self，便于 RemoveListenerByTarget(self) 统一回收
+    local h = handler(self, callback)
+    HonorEventHelper:AddListener(key, h)
+    table.insert(self._globalEventListenerList, { key, h })
+end
+
+---@brief 注册循环定时器（随界面销毁自动停止）
+---@desc 启动一个循环协程：每隔 delay 秒执行一次 func，记录协程句柄到 _timerList；
+---      OnDestroy 时遍历 HonorCoroutineHelper:Stop(co) 统一停止，无需手动配对关闭。
+---      说明：HonorTimerHelper:RegisterDeltaTime 需 procedure 且按事件名派发，与本"实例级循环回调"语义不符，故采用协程方案
+---@param delay number 间隔秒数
+---@param func function 每次间隔到点的回调
+---@param isRealTime boolean 是否使用真实时间（不受时间缩放影响），默认 false
+---@return UnityEngine.Coroutine 协程句柄（可用于提前手动停止）
+--TODO: [新增] 提供 self:AddUpdateTimer 封装，实例级循环定时随对象销毁自动停止（对齐 HonorUI UIBaseComponent:AddUpdateTimer）
+function LuaBehaviourSuper:AddUpdateTimer(delay, func, isRealTime)
+    if func == nil then return nil end
+    if delay == nil or delay <= 0 then delay = 0 end
+    if self._timerList == nil then
+        self._timerList = {}
+    end
+    -- handler(self, ...).target.cs.gameObject 已绑定本对象生命周期，StopByGO 亦可兜底
+    local co = HonorCoroutineHelper:Start(handler(self, function()
+        while true do
+            if isRealTime then
+                HonorCoroutineHelper:WaitForSecondsRealtime(delay)
+            else
+                HonorCoroutineHelper:WaitForSeconds(delay)
+            end
+            func()
+        end
+    end))
+    table.insert(self._timerList, co)
+    return co
+end
+
+--=====================================================================================================
+-- UI/实体 打开与关闭
+--=====================================================================================================
+
+---@brief 打开（UI/实体通用）
+---@desc 委托 UIManager:Open 完成遮罩启用与打开动画/回调；实现在 UIManager
+function LuaBehaviourSuper:Open()
+    UIManager:Open(self)
+end
+
+---@brief 播放打开动画
+---@desc 委托 UIManager:PlayOpenAnimation 依次执行遮罩渐入、透明度渐入与根节点缩放动画，动画结束回调 OnOpenOver
+function LuaBehaviourSuper:OnPlayOpenAnimation()
+    UIManager:PlayOpenAnimation(self)
+end
+
+---@brief 打开完成
+---@desc 委托 UIManager:OnOpenOver 调整遮罩状态，并按配置开启点击关闭按钮
+function LuaBehaviourSuper:OnOpenOver()
+    UIManager:OnOpenOver(self)
+end
+
+---@brief 关闭
+---@desc 委托 UIManager:Close 防重入关闭流程：调整遮罩状态，按配置播放关闭动画或直接回调关闭完成
+function LuaBehaviourSuper:Close()
+    UIManager:Close(self)
+end
+
+---@brief 播放关闭动画
+---@desc 委托 UIManager:PlayCloseAnimation 依次执行遮罩淡出、透明度淡出与根节点缩放消失动画，动画结束回调 OnCloseOver
+function LuaBehaviourSuper:OnPlayCloseAnimation()
+    UIManager:PlayCloseAnimation(self)
+end
+
+---@brief 关闭完成（自动销毁）
+---@desc 委托 UIManager:OnCloseOver 停止 Proc、抛出 UI 关闭事件，UI 回收至卸载列表、实体直接销毁，并联动子节点关闭
+function LuaBehaviourSuper:OnCloseOver()
+    UIManager:OnCloseOver(self)
+end
+
+--=====================================================================================================
+-- 子UI管理
+--=====================================================================================================
+
+---@brief 子UI销毁回调
+---@desc 子UI销毁时由框架调用，子类可重写
+---@param luaClass XLua.LuaTable
+function LuaBehaviourSuper:OnAddedUIDestroyed(luaClass)
+end
+
+---@brief 同步添加子UI
+---@desc 通过 C# 桥接同步创建子UI，返回其 Lua 行为对象与 GameObject
+---@param uiTable Tables.UIs_Item
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@return LuaBehaviourSuper,UnityEngine.GameObject 子UI Lua行为对象与GameObject
+function LuaBehaviourSuper:AddUISync(uiTable, parent, luaParams)
+    return UIManager:AddUISync(self, uiTable, parent, luaParams)
+end
+
+---@brief 异步添加子UI
+---@desc 通过 C# 桥接异步创建子UI，创建完成后回调 overCallback
+---@param uiTable Tables.UIs_Item
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@param overCallback function 创建完成回调
+function LuaBehaviourSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
+    UIManager:AddUIAsync(self, uiTable, parent, luaParams, overCallback)
+end
+
+--=====================================================================================================
+-- 资源管理
+--=====================================================================================================
+
+---@brief 加载资源（自动管理）
+---@desc 按资源配置同步加载资源并缓存，重复加载直接返回缓存
+---@param assetInfo LOAD_RES_DEF_ITEM 资源配置
+---@return UnityEngine.Object 加载的资源对象
+function LuaBehaviourSuper:LoadAsset(assetInfo)
+    if assetInfo ~= nil then
+        local keyName = assetInfo.Name
+        if self._loadedAssets[keyName] == nil then
+            -- 统一经 AssetUtil 加载（含异常防护与 JsonAsset 解析）
+            self._loadedAssets[keyName] = AssetUtil.LoadAssetSync(assetInfo)
+        end
+        return self._loadedAssets[keyName]
+    end
+    return nil
+end
+
+---@brief 卸载单个资源
+---@desc 按资源配置卸载对应缓存资源，并移除缓存记录
+---@param assetInfo LOAD_RES_DEF_ITEM 资源配置
+---@return boolean 是否卸载成功
+function LuaBehaviourSuper:UnloadAsset(assetInfo)
+    if assetInfo ~= nil then
+        local keyName = assetInfo.Name
+        local asset = self._loadedAssets[keyName]
+        if asset ~= nil then
+            -- 统一经 AssetUtil 卸载（内部含 C# 空守卫）
+            AssetUtil.RemoveAsset(asset)
+            self._loadedAssets[keyName] = nil
+            return true
+        end
+    end
+    return false
+end
+
+---@brief 按对象卸载资源
+---@desc 遍历缓存按资源对象匹配并卸载，同时移除缓存记录
+---@param asset UnityEngine.Object 资源对象
+---@return boolean 是否卸载成功
+function LuaBehaviourSuper:UnloadAssetByAsset(asset)
+    if asset ~= nil then
+        for keyName, vAsset in pairs(self._loadedAssets) do
+            if vAsset == asset then
+                AssetUtil.RemoveAsset(asset)
+                self._loadedAssets[keyName] = nil
+                return true
+            end
+        end
+    end
+    return false
+end
+
+---@brief 卸载所有资源
+---@desc 遍历卸载全部缓存资源并清空缓存表
+function LuaBehaviourSuper:UnloadAllAssets()
+    for _, vAsset in pairs(self._loadedAssets) do
+        if vAsset ~= nil then
+            AssetUtil.RemoveAsset(vAsset)
+        end
+    end
+    self._loadedAssets = {}
+end
+
+--=====================================================================================================
+-- 行为树节点创建
+--=====================================================================================================
+
+---@brief 创建行为树 Action 节点
+---@desc 加载并创建 Action 节点，绑定当前 LuaBehaviour 后加入节点缓存
+---@param args table 节点参数（luaBTName/csClass 等）
+---@return BehaviorTreeTaskSuper 创建的节点
+function LuaBehaviourSuper:CreateBTAction(args)
+    local btAction = require(args.luaBTName):Create({ luaBehaviour = self, cs = args.csClass })
+    table.insert(self._btActions, btAction)
+    return btAction
+end
+
+---@brief 创建行为树 Composite 节点
+---@desc 加载并创建 Composite 节点，绑定当前 LuaBehaviour 后加入节点缓存
+---@param args table 节点参数（luaBTName/csClass 等）
+---@return BehaviorTreeTaskSuper 创建的节点
+function LuaBehaviourSuper:CreateBTComposite(args)
+    local btComposite = require(args.luaBTName):Create({ luaBehaviour = self, cs = args.csClass })
+    table.insert(self._btComposites, btComposite)
+    return btComposite
+end
+
+---@brief 创建行为树 Conditional 节点
+---@desc 加载并创建 Conditional 节点，绑定当前 LuaBehaviour 后加入节点缓存
+---@param args table 节点参数（luaBTName/csClass 等）
+---@return BehaviorTreeTaskSuper 创建的节点
+function LuaBehaviourSuper:CreateBTConditional(args)
+    local btConditional = require(args.luaBTName):Create({ luaBehaviour = self, cs = args.csClass })
+    table.insert(self._btConditionals, btConditional)
+    return btConditional
+end
+
+---@brief 创建行为树 Decorator 节点
+---@desc 加载并创建 Decorator 节点，绑定当前 LuaBehaviour 后加入节点缓存
+---@param args table 节点参数（luaBTName/csClass 等）
+---@return BehaviorTreeTaskSuper 创建的节点
+function LuaBehaviourSuper:CreateBTDecorator(args)
+    local btDecorator = require(args.luaBTName):Create({ luaBehaviour = self, cs = args.csClass })
+    table.insert(self._btDecorators, btDecorator)
+    return btDecorator
+end
+
+--=====================================================================================================
+-- UI栈
+--=====================================================================================================
+
+---@brief UI入栈（隐藏）
+---@desc 委托 UIManager:StackPush 记录原始位置并移出屏幕（隐藏），出栈时恢复
+function LuaBehaviourSuper:OnStackPush()
+    UIManager:StackPush(self)
+end
+
+---@brief UI出栈（显示）
+---@desc 委托 UIManager:StackPop 恢复入栈时记录的原始位置
+function LuaBehaviourSuper:OnStackPop()
+    UIManager:StackPop(self)
+end
+
+--region 协程延迟函数
+
+---@brief 延迟秒
+---@desc 延迟指定秒数后执行回调，通过全局工具函数绑定当前 LuaBehaviour 生命周期
+---@param delayTime number 延迟秒数
+---@param isRealTime boolean 是否使用真实时间（不受时间缩放影响）
+---@param callback function 延迟结束后回调
+---@return void 无返回值（仅绑定生命周期触发回调）
+--TODO: [优化] 修正注解：原标注 @return UnityEngine.Coroutine 与实际无返回值不符，修文档不修函数
+function LuaBehaviourSuper:CoDelayFunction(delayTime, isRealTime, callback)
+    CoDelayFunctionOfG(self, delayTime, isRealTime, callback)
+end
+
+---@brief 延迟帧
+---@desc 延迟指定帧数后执行回调，通过全局工具函数绑定当前 LuaBehaviour 生命周期
+---@param delayFrame number 延迟帧数
+---@param callback function 延迟结束后回调
+---@return void 无返回值（仅绑定生命周期触发回调）
+--TODO: [优化] 修正注解：原标注 @return UnityEngine.Coroutine 与实际无返回值不符，修文档不修函数
+function LuaBehaviourSuper:CoDelayFrameFunction(delayFrame, callback)
+    CoDelayFrameFunctionOfG(self, delayFrame, callback)
+end
+
+--endregion
+
+--endregion
+
+return LuaBehaviourSuper

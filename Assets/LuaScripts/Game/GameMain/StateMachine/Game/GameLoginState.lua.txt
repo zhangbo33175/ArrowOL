@@ -6,10 +6,12 @@
 -- created:   2026
 -- @brief     游戏登录状态
 -- @desc      管理游戏登录流程，打开/关闭登录界面
+-- @core      登录UI 开关、登录背景音乐 PlayBgm/StopCurrentBgm
+-- @scope     由 GameStateMachine:ChangeState(LoginState) 驱动；首启入口状态
 -- @feat      登录UI管理、背景音乐控制、状态过渡
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
 -- @规范       Unity Lua 商业项目编码标准 / 游戏状态机规范
--- @dependency StateBase, GameEntry, UIManager, AudioManager, EventManager
+-- @dependency GameStateBase, SoundManager, OpenUISync/CloseUI
 --=====================================================================================================
 
 ---@class GameLoginState : GameStateBase 游戏登录状态
@@ -17,14 +19,14 @@ local GameLoginState = class('GameLoginState', import('GameStateBase'))
 
 --region 【构造 & 实例化】
 
----@brief 构造函数
+---@brief 构造函数（框架驱动，勿删）
 ---@type fun(stateType:GameStateCmd):void
 ---@param stateType GameStateCmd 状态类型
 function GameLoginState:ctor(stateType)
     GameLoginState.super.ctor(self, stateType)
 end
 
----@brief 创建状态实例
+---@brief 创建状态实例（框架驱动，勿删）
 ---@type fun(stateType:GameStateCmd):GameLoginState
 ---@param stateType GameStateCmd 状态类型
 ---@return GameLoginState 登录状态实例
@@ -36,7 +38,7 @@ end
 
 --region 【状态生命周期】
 
----@brief 进入登录状态（打开登录界面）
+---@brief 进入登录状态（GameStateMachine 驱动；打开登录界面并播放 BGM）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态进入完成回调
 function GameLoginState:OnStateEnter(finishCallback)
@@ -44,7 +46,7 @@ function GameLoginState:OnStateEnter(finishCallback)
     pcall(finishCallback)
 end
 
----@brief 离开登录状态（关闭登录界面）
+---@brief 离开登录状态（GameStateMachine 驱动；关闭登录界面并停 BGM）
 ---@type fun(finishCallback:function):void
 ---@param finishCallback function 状态退出完成回调
 function GameLoginState:OnStateExit(finishCallback)
@@ -56,14 +58,14 @@ end
 
 --region 【UI & 音乐控制】
 
----@brief 打开登录界面
+---@brief 打开登录界面（内部调用：OnStateEnter；播放 LoadPageMusic 并打开 UILoginView）
 ---@type fun():void
 function GameLoginState:OpenLoginUI()
     SoundManager:PlayBgm("LoadPageMusic")
     OpenUISync(UIs.UILoginView)
 end
 
----@brief 关闭登录界面
+---@brief 关闭登录界面（内部调用：OnStateExit；停 BGM 并关闭 UILoginView）
 ---@type fun():void
 function GameLoginState:CloseLoginUI()
     SoundManager:StopCurrentBgm()

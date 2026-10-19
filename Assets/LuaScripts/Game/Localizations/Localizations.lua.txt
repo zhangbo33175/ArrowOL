@@ -5,6 +5,11 @@
 -- filename:  Localizations.lua
 -- descrip:   本地化配置
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     本地化配置根表
+-- @desc      聚合全部语言子表（简中/繁中/英/法/德/意/日/韩/葡/俄/西），自动生成
+-- @core      声明全局 Localizations 表，各语言字段初始为 nil，由对应语言加载文件填充
+-- @scope     全游戏文本显示按当前语言取对应子表
+-- @dependency 各语言 LocalizationXxx 加载文件（按需 require）
 --=====================================================================================================
 
 ---@class Localizations @本地化配置

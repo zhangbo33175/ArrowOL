@@ -179,95 +179,19 @@ namespace Honor.Runtime
 
         #region 流程转场动画
         /// <summary>
-        /// 播放流程切换的入场转场动画（黑屏/白屏过渡）
+        /// 播放流程切换的入场转场（已禁用，闪屏由ShowLogoSplash手动管理）
         /// </summary>
         public void ShowProcedureTransitionEnter(bool forceOver, float duration, bool blockRaycast)
         {
-            if (m_TransitionUI == null)
-            {
-                UIInfo uiInfo = new UIInfo()
-                {
-                    UIType = UIType.Screen,
-                    ABPath = GameMainRoot.Procedure.UITransitionABPath,
-                    AssetName = GameMainRoot.Procedure.UITransitionAssetName,
-                    IsModal = false,
-                    ZOrder = GameConstants.ProcedureTransitionUIZOrder,
-                    Priority = 0,
-                    CloseOnEscapeKeyUp = false,
-                    BlockingMask = "Everything",
-                    BlockingObjects = BlockingObjects.None,
-                    MultiTypeTextCompsCoexist = false,
-                    LuaParams = null,
-                    OverCallback = null,
-                };
-                GameObject transitionUIGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
-                if (transitionUIGO == null)
-                {
-                    Log.Error("TransitionUIGO 无效。");
-                    return;
-                }
-                m_TransitionUI = transitionUIGO.GetComponent<UILauncherLogoView>();
-                if (m_TransitionUI == null)
-                {
-                    Log.Error("TransitionUI 无效。");
-                    return;
-                }
-                m_PermanentUIs.Add(transitionUIGO);
-            }
-
-            m_TransitionUI.EnterDuration = duration;
-            m_TransitionUI.BlockRaycastOnEntering = blockRaycast;
-
-            if (forceOver)
-                m_TransitionUI.EnterOver();
-            else
-                m_TransitionUI.Enter();
+            GameMainRoot.Event.FireNow(this, GameEventCmd.ProcedureTransitionEnterOver);
         }
 
         /// <summary>
-        /// 播放流程切换的退场转场动画
+        /// 播放流程切换的退场转场（已禁用）
         /// </summary>
         public void ShowProcedureTransitionExit(bool forceOver, float duration, bool blockRaycast)
         {
-            if (m_TransitionUI == null)
-            {
-                UIInfo uiInfo = new UIInfo()
-                {
-                    UIType = UIType.Screen,
-                    ABPath = GameMainRoot.Procedure.UITransitionABPath,
-                    AssetName = GameMainRoot.Procedure.UITransitionAssetName,
-                    IsModal = false,
-                    ZOrder = GameConstants.ProcedureTransitionUIZOrder,
-                    Priority = 0,
-                    CloseOnEscapeKeyUp = false,
-                    BlockingMask = "Everything",
-                    BlockingObjects = BlockingObjects.None,
-                    MultiTypeTextCompsCoexist = false,
-                    LuaParams = null,
-                    OverCallback = null,
-                };
-                GameObject transitionUIGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
-                if (transitionUIGO == null)
-                {
-                    Log.Error("TransitionUIGO 无效。");
-                    return;
-                }
-                m_TransitionUI = transitionUIGO.GetComponent<UILauncherLogoView>();
-                if (m_TransitionUI == null)
-                {
-                    Log.Error("TransitionUI 无效。");
-                    return;
-                }
-                m_PermanentUIs.Add(transitionUIGO);
-            }
-
-            m_TransitionUI.ExitDuration = duration;
-            m_TransitionUI.BlockRaycastOnExiting = blockRaycast;
-
-            if (forceOver)
-                m_TransitionUI.ExitOver();
-            else
-                m_TransitionUI.Exit();
+            GameMainRoot.Event.FireNow(this, GameEventCmd.ProcedureTransitionExitOver);
         }
         #endregion
 
@@ -312,7 +236,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 显示启动 Splash 界面
         /// </summary>
-        public UILauncherView ShowSplash(Action durationOverCallback)
+        /// <param name="initStartCallback">首帧渲染后的初始化启动回调（可空，用于提前启动 Lua 初始化，与闪屏展示重叠）</param>
+        /// <param name="durationOverCallback">最短展示时长与初始化就绪后的进入回调（可空）</param>
+        /// <returns>闪屏视图实例</returns>
+        public UILauncherView ShowSplash(Action initStartCallback = null, Action durationOverCallback = null)
         {
             UIInfo uiInfo = new UIInfo()
             {
@@ -331,6 +258,7 @@ namespace Honor.Runtime
             };
             GameObject uiGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
             UILauncherView uiLauncherView = uiGO.GetComponent<UILauncherView>();
+            uiLauncherView.InitStartCallback = initStartCallback;
             uiLauncherView.DurationOverCallback = durationOverCallback;
             return uiLauncherView;
         }
@@ -387,6 +315,31 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// <summary>
+        /// 启动时显示闪屏
+        /// </summary>
+        public void ShowLogoSplash()
+        {
+            if (m_TransitionUI != null) return;
+            UIInfo uiInfo = new UIInfo()
+            {
+                UIType = UIType.Screen,
+                ABPath = GameMainRoot.Procedure.UISplashABPath,
+                AssetName = GameMainRoot.Procedure.UISplashAssetName,
+                IsModal = false,
+                ZOrder = GameConstants.ProcedureTransitionUIZOrder,
+            };
+            GameObject go = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
+            if (go != null)
+            {
+                m_TransitionUI = go.GetComponent<UILauncherLogoView>();
+                m_PermanentUIs.Add(go);
+                // TODO: 播放闪屏序列，总时长按配置
+                m_TransitionUI?.PlaySplashSequence(GameMainRoot.Procedure.SplashProcedureDuration);
+            }
+        }
+
+        /// <summary>
         /// 显示 Loading 界面（预加载、切换场景等）
         /// </summary>
         public UILauncherLoadingView ShowLoading(UILauncherLoadingView.LoadingMode loadingMode)
@@ -427,6 +380,12 @@ namespace Honor.Runtime
                 GameObject uiGO = GameMainRoot.UI.OpenUISyncByInfo(uiInfo);
                 UILauncherLoadingView view = uiGO.GetComponent<UILauncherLoadingView>();
                 view.SetLoadingMode(loadingMode);
+                // 加载界面显示后销毁闪屏
+                if (m_TransitionUI != null)
+                {
+                    UnityEngine.Object.Destroy(m_TransitionUI.gameObject);
+                    m_TransitionUI = null;
+                }
                 return view;
             }
 
@@ -440,6 +399,22 @@ namespace Honor.Runtime
         {
             if (uiLauncher != null)
                 uiLauncher.SetVisible(false);
+        }
+
+        /// <summary>
+        /// 主界面渲染完成后隐藏加载界面
+        /// </summary>
+        public void FadeOutLoadingViewNow()
+        {
+            UILauncherLoadingView loadingView = UnityEngine.Object.FindObjectOfType<UILauncherLoadingView>();
+            if (loadingView != null)
+            {
+                loadingView.SetVisible(false);
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning("[UIManager] FadeOutLoadingViewNow: UILauncherLoadingView not found");
+            }
         }
 
         /// <summary>

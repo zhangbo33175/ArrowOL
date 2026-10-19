@@ -1,0 +1,37 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  UIEventCode.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     UI 界面事件码定义（专门管理 UI 界面的事件信息）
+-- @desc      定义 UI 模块内流通的消息码（Model → View / View 间通信）：
+--            仅保留工程当前被引用的 UI 界面事件（主界面 HUD / UI 通用），
+--            值采用 UniqueEventCode() 生成全局唯一码（对齐参考框架，杜绝硬编码与冲突）。
+--            与 EventCmd（全局跨模块业务事件）职责分离：UIEventCode 仅在 UI 模块内流通，
+--            View 层只关注这里的消息，由 Model / UIManager 发送。
+-- @core      UI 模块内流通消息码定义（UniqueEventCode 全局唯一生成，杜绝硬编码冲突）
+-- @scope     全局表（StartGame require 加载），配合 UIManager:AddUIListener / AddListener 使用
+-- @dependency SerialProducer（UniqueEventCode 生成器）
+--=====================================================================================================
+
+local UniqueEventCode = UniqueEventCode
+
+---@class UIEventCode UI 界面事件码（UI 模块内消息，仅保留被引用事件）
+UIEventCode = {
+
+    -- UI 通用事件（关卡主界面开关）
+    UIGameViewClose                 = UniqueEventCode(), --游戏关卡主界面关闭
+    UIGameViewOpen                  = UniqueEventCode(), --游戏关卡主界面打开
+
+    -- 主界面 HUD 常驻 UI（推送/显隐/交互状态/引导）
+    OnGameMainHudStateChange        = UniqueEventCode(), --主城镇HUD显示、隐藏、交互状态发生变更
+    OnTryResumeGameMainPushUI       = UniqueEventCode(), --切回游戏主界面，恢复推送各类弹窗UI
+    OnUIMainRaycastStateChange      = UniqueEventCode(), --主界面射线检测开关变更，控制是否拦截触摸输入
+    OnAllowMainHudTutorial          = UniqueEventCode(), --允许主界面执行新手引导交互逻辑
+    OnHideMainHudUI                 = UniqueEventCode(), --执行隐藏主界面HUD动画
+    OnShowMainHudUIOver             = UniqueEventCode(), --HUD显示动画播放完毕回调
+}
+
+return UIEventCode

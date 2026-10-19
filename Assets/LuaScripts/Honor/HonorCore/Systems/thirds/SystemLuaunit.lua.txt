@@ -1,0 +1,1204 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  SystemLuaunit.lua.txt
+-- author:    云毅
+-- created:   2026
+-- descrip:   LuaUnit v3.2 单元测试框架
+-- 功能：
+-- 1. 断言库与 Table 深度比较、浮点数精度判断
+-- 2. text/tap/junit 多格式输出、用例随机执行
+-- 架构：thirds 移植测试框架，仅依赖 math 标准库
+-- @note  第三方移植；严禁改动断言/运行器，M.LuaUnit.run 及 assert* 接口保持不变
+--=====================================================================================================
+
+--TODO: [新增] 补充模块级 EmmyLua 类型注解（纯文档注释，不改变任何运行逻辑）
+---@class SystemLuaunit
+---@brief LuaUnit v3.2 单元测试框架（断言 / Table 深度比较 / text·tap·junit 输出）
+--- 来源：thirds 移植库；注意：严禁重构内部断言与运行器，M.LuaUnit.run 及各 assert* 接口保持不变
+
+--region LuaUnit 单元测试框架 v3.2
+-- 导入数学库，用于数值计算、随机、精度判断
+require("math")
+
+-- 模块主表，所有对外接口都挂载于此
+local M = {}
+
+-- 私有导出函数（仅用于框架自身测试，外部不要使用）
+M.private = {}
+
+-- 框架版本号
+M.VERSION = '3.2'
+M._VERSION = M.VERSION  -- 兼容 LuaUnit v2 版本字段
+
+-- 断言顺序配置
+-- true = assertEquals(实际值, 期望值) | false = 相反
+M.ORDER_ACTUAL_EXPECTED = true
+
+-- 错误信息中是否打印 table 内存地址
+M.PRINT_TABLE_REF_IN_ERROR_MSG = false
+
+-- table 比较按内容匹配 key（支持 table 作为 key 比较）
+M.TABLE_EQUALS_KEYBYCONTENT = true
+
+-- 打印行长度限制，超过自动换行显示
+M.LINE_LENGTH = 80
+
+-- 超过该数量的 table/list 启用深度差异分析
+M.TABLE_DIFF_ANALYSIS_THRESHOLD = 10
+M.LIST_DIFF_ANALYSIS_THRESHOLD = 10
+
+--[[
+    浮点精度配置：EPSILON 用于解决浮点数精度误差
+    自动检测 Lua 是双精度还是单精度，设置对应机器精度
+]]
+M.EPSILON = 2 ^ -52  -- 双精度精度 ~2.22E-16
+if math.abs(1.1 - 1 - 0.1) > M.EPSILON then
+    -- 精度不足，判定为单精度浮点数
+    M.EPSILON = 2 ^ -23  -- 单精度精度 ~1.19E-07
+end
+
+-- 调试开关：是否从堆栈追踪中移除 LuaUnit 自身调用
+local STRIP_LUAUNIT_FROM_STACKTRACE = true
+
+-- 日志输出级别定义
+M.VERBOSITY_DEFAULT = 10   -- 默认
+M.VERBOSITY_LOW     = 1    -- 简略
+M.VERBOSITY_QUIET   = 0    -- 静默
+M.VERBOSITY_VERBOSE = 20   -- 详细
+
+-- 深度分析开关
+M.DEFAULT_DEEP_ANALYSIS = nil
+M.FORCE_DEEP_ANALYSIS  = true
+M.DISABLE_DEEP_ANALYSIS = false
+
+-- 是否将断言函数导出为全局变量（默认关闭）
+-- EXPORT_ASSERT_TO_GLOBALS = true
+
+-- 保存命令行参数（防止被外部代码覆盖）
+local cmdline_argv = rawget(_G, "arg")
+
+-- 测试失败前缀，用于识别断言失败
+M.FAILURE_PREFIX = 'LuaUnit test FAILURE: '
+
+-- 命令行使用说明
+M.USAGE = [[Usage: lua <your_test_suite.lua> [options] [testname1 [testname2] ... ]
+Options:
+  -h, --help:             Print this help
+  --version:              Print version information
+  -v, --verbose:          Increase verbosity
+  -q, --quiet:            Set verbosity to minimum
+  -e, --error:            Stop on first error
+  -f, --failure:          Stop on first failure or error
+  -r, --random            Run tests in random order
+  -o, --output OUTPUT:    Set output type to OUTPUT
+                          Possible values: text, tap, junit, nil
+  -n, --name NAME:        For junit only, mandatory name of xml file
+  -c, --count NUM:        Execute all tests NUM times, e.g. to trig the JIT
+  -p, --pattern PATTERN:  Execute all test names matching the Lua PATTERN
+                          May be repeated to include several patterns
+                          Make sure you escape magic chars like +? with %
+  -x, --exclude PATTERN:  Exclude all test names matching the Lua PATTERN
+                          May be repeated to exclude several patterns
+                          Make sure you escape magic chars like +? with %
+  testname1, testname2, ... : tests to run in the form of testFunction,
+                              TestClass or TestClass.testMethod
+]]
+
+-- 前置声明：table 比较函数，供后续方法使用
+local is_equal
+
+----------------------------------------------------------------
+--
+--                 通用工具函数
+--
+----------------------------------------------------------------
+
+--- 安全调用函数，出错则打印错误并退出程序
+local function pcall_or_abort(func, ...)
+    local unpack = rawget(_G, "unpack") or table.unpack
+    local result = { pcall(func, ...) }
+    if not result[1] then
+        print(result[2])
+        print()
+        print(M.USAGE)
+        os.exit(-1)
+    end
+    return unpack(result, 2)
+end
+
+--- 跨类型排序规则：number < boolean < string < table < other
+local crossTypeOrdering = {
+    number = 1, boolean = 2, string = 3, table = 4, other = 5
+}
+
+-- 同类型比较函数
+local crossTypeComparison = {
+    number = function(a, b)
+        return a < b
+    end,
+    string = function(a, b)
+        return a < b
+    end,
+    other = function(a, b)
+        return tostring(a) < tostring(b)
+    end,
+}
+
+--- 跨类型比较，用于 table 有序遍历，保证输出顺序稳定
+local function crossTypeSort(a, b)
+    local type_a, type_b = type(a), type(b)
+    if type_a == type_b then
+        local func = crossTypeComparison[type_a] or crossTypeComparison.other
+        return func(a, b)
+    end
+    type_a = crossTypeOrdering[type_a] or crossTypeOrdering.other
+    type_b = crossTypeOrdering[type_b] or crossTypeOrdering.other
+    return type_a < type_b
+end
+
+--- 生成 table 的有序 key 列表，保证遍历顺序一致
+local function __genSortedIndex(t)
+    local sortedIndex = {}
+    for key, _ in pairs(t) do
+        table.insert(sortedIndex, key)
+    end
+    table.sort(sortedIndex, crossTypeSort)
+    return sortedIndex
+end
+M.private.__genSortedIndex = __genSortedIndex
+
+--- 有序迭代器：替代 pairs()，保证遍历顺序稳定
+local function sortedNext(state, control)
+    local key
+    if control == nil then
+        state.count = #state.sortedIdx
+        state.lastIdx = 1
+        key = state.sortedIdx[1]
+        return key, state.t[key]
+    end
+
+    if control ~= state.sortedIdx[state.lastIdx] then
+        local lower, upper = 1, state.count
+        repeat
+            state.lastIdx = math.modf((lower + upper) / 2)
+            key = state.sortedIdx[state.lastIdx]
+            if key == control then
+                break
+            end
+            if crossTypeSort(key, control) then
+                lower = state.lastIdx + 1
+            else
+                upper = state.lastIdx - 1
+            end
+        until lower > upper
+        if lower > upper then
+            state.lastIdx = state.count
+        end
+    end
+
+    state.lastIdx = state.lastIdx + 1
+    key = state.sortedIdx[state.lastIdx]
+    if key then
+        return key, state.t[key]
+    end
+end
+
+--- 有序遍历函数，替代 pairs()，输出稳定有序
+local function sortedPairs(tbl)
+    return sortedNext, { t = tbl, sortedIdx = __genSortedIndex(tbl) }, nil
+end
+M.private.sortedPairs = sortedPairs
+
+--- 随机打乱 table 顺序，用于随机执行测试用例
+math.randomseed(os.clock() * 1E11)
+local function randomizeTable(t)
+    for i = #t, 2, -1 do
+        local j = math.random(i)
+        if i ~= j then
+            t[i], t[j] = t[j], t[i]
+        end
+    end
+end
+M.private.randomizeTable = randomizeTable
+
+--- 字符串分割（非正则模式，纯文本匹配）
+local function strsplit(delimiter, text)
+    if delimiter == "" then
+        error("delimiter matches empty string!")
+    end
+    local list, pos = {}, 1
+    while true do
+        local first, last = text:find(delimiter, pos, true)
+        if first then
+            table.insert(list, text:sub(pos, first - 1))
+            pos = last + 1
+        else
+            table.insert(list, text:sub(pos))
+            break
+        end
+    end
+    return list
+end
+M.private.strsplit = strsplit
+
+--- 判断字符串是否包含换行符
+local function hasNewLine(s)
+    return (string.find(s, '\n', 1, true) ~= nil)
+end
+M.private.hasNewLine = hasNewLine
+
+--- 为字符串所有行添加统一前缀
+local function prefixString(prefix, s)
+    return prefix .. string.gsub(s, '\n', '\n' .. prefix)
+end
+M.private.prefixString = prefixString
+
+--- 全匹配正则：字符串必须完全匹配 pattern，无多余字符
+local function strMatch(s, pattern, start, final)
+    start = start or 1
+    final = final or string.len(s)
+    local foundStart, foundEnd = string.find(s, pattern, start, false)
+    return foundStart == start and foundEnd == final
+end
+M.private.strMatch = strMatch
+
+--- 模式过滤：支持包含/排除（!开头为排除）
+local function patternFilter(patterns, expr)
+    local default, result = true, nil
+    if patterns ~= nil then
+        for _, pattern in ipairs(patterns) do
+            local exclude = pattern:sub(1, 1) == '!'
+            if exclude then
+                pattern = pattern:sub(2)
+            else
+                default = false
+            end
+
+            if string.find(expr, pattern) then
+                result = not exclude
+            end
+        end
+    end
+    return result ~= nil and result or default
+end
+M.private.patternFilter = patternFilter
+
+--- XML 转义：用于生成合法 XML 属性内容
+local function xmlEscape(s)
+    return string.gsub(s, '.', {
+        ['&'] = "&amp;",
+        ['"'] = "&quot;",
+        ["'"] = "&apos;",
+        ['<'] = "&lt;",
+        ['>'] = "&gt;",
+    } )
+end
+M.private.xmlEscape = xmlEscape
+
+--- XML CData 转义，避免闭合符冲突
+local function xmlCDataEscape(s)
+    return string.gsub( s, ']]>', ']]&gt;')
+end
+M.private.xmlCDataEscape = xmlCDataEscape
+
+--- 清理堆栈追踪：移除 LuaUnit 内部调用，只保留用户代码
+local function stripLuaunitTrace(stackTrace)
+    local function isLuaunitInternalLine(s)
+        return s:find('[/\\]luaunit%.lua:%d+: ') ~= nil
+    end
+
+    local t = strsplit('\n', stackTrace)
+    local idx = 2
+
+    while t[idx] and isLuaunitInternalLine(t[idx]) do
+        table.remove(t, idx)
+    end
+
+    while t[idx] and ( not isLuaunitInternalLine(t[idx])) do
+        idx = idx + 1
+    end
+
+    while t[idx] do
+        table.remove(t, idx)
+    end
+
+    return table.concat(t, '\n')
+end
+M.private.stripLuaunitTrace = stripLuaunitTrace
+
+--- 美化打印子函数：处理字符串、数字、table 的格式化输出
+local function prettystr_sub(v, indentLevel, keeponeline, printTableRefs, recursionTable )
+    local type_v = type(v)
+    if "string" == type_v then
+        if keeponeline then
+            v = v:gsub("\n", "\\n")
+        end
+        if v:find('"', 1, true) and not v:find("'", 1, true) then
+            return "'" .. v .. "'"
+        end
+        return '"' .. v:gsub('"', '\\"') .. '"'
+
+    elseif "table" == type_v then
+        return M.private._table_tostring(v, indentLevel, keeponeline, printTableRefs, recursionTable)
+
+    elseif "number" == type_v then
+        if v ~= v then
+            return "#NaN"
+        end
+        if v == math.huge then
+            return "#Inf"
+        end
+        if v == -math.huge then
+            return "-#Inf"
+        end
+        if _VERSION == "Lua 5.3" then
+            local i = math.tointeger(v)
+            if i then
+                return tostring(i)
+            end
+        end
+    end
+
+    return tostring(v)
+end
+
+--- 美化打印：智能输出任意 Lua 值，适合断言错误提示
+local function prettystr(v, keeponeline)
+    local recursionTable = {}
+    local s = prettystr_sub(v, 1, keeponeline, M.PRINT_TABLE_REF_IN_ERROR_MSG, recursionTable)
+    if recursionTable.recursionDetected and not M.PRINT_TABLE_REF_IN_ERROR_MSG then
+        recursionTable = {}
+        s = prettystr_sub(v, 1, keeponeline, true, recursionTable)
+    end
+    return s
+end
+M.prettystr = prettystr
+
+--- 尝试对 table 进行深度差异分析，生成友好错误信息
+local function tryMismatchFormatting(table_a, table_b, doDeepAnalysis)
+    if type(table_a) ~= 'table' or type(table_b) ~= 'table' then
+        return false
+    end
+    if doDeepAnalysis == M.DISABLE_DEEP_ANALYSIS then
+        return false
+    end
+
+    local len_a, len_b, isPureList = #table_a, #table_b, true
+    for k1, v1 in pairs(table_a) do
+        if type(k1) ~= 'number' or k1 > len_a then
+            isPureList = false
+            break
+        end
+    end
+
+    if isPureList then
+        for k2, v2 in pairs(table_b) do
+            if type(k2) ~= 'number' or k2 > len_b then
+                isPureList = false
+                break
+            end
+        end
+    end
+
+    if isPureList and math.min(len_a, len_b) < M.LIST_DIFF_ANALYSIS_THRESHOLD then
+        if not (doDeepAnalysis == M.FORCE_DEEP_ANALYSIS) then
+            return false
+        end
+    end
+
+    if isPureList then
+        return M.private.mismatchFormattingPureList(table_a, table_b)
+    else
+        return false
+    end
+end
+M.private.tryMismatchFormatting = tryMismatchFormatting
+
+--- 获取实际值/期望值描述文本（根据顺序配置）
+local function getTaTbDescr()
+    return M.ORDER_ACTUAL_EXPECTED and {'actual', 'expected'} or {'expected', 'actual'}
+end
+
+--- 格式化字符串拼接：简化 table.concat 写法
+local function extendWithStrFmt(res, ...)
+    table.insert(res, string.format(... ))
+end
+
+--- 列表类型 table 深度差异分析，生成直观对比信息
+local function mismatchFormattingPureList(table_a, table_b )
+    local result = {}
+    local descrTa, descrTb = getTaTbDescr()
+    local len_a, len_b = #table_a, #table_b
+    local refa, refb = M.PRINT_TABLE_REF_IN_ERROR_MSG and {string.format("<%s> ", tostring(table_a)), string.format("<%s> ", tostring(table_b))} or {"", ""}
+    local longest, shortest = math.max(len_a, len_b), math.min(len_a, len_b)
+    local deltalv = longest - shortest
+
+    local commonUntil = shortest
+    for i = 1, shortest do
+        if not is_equal(table_a[i], table_b[i]) then
+            commonUntil = i - 1
+            break
+        end
+    end
+
+    local commonBackTo = shortest - 1
+    for i = 0, shortest - 1 do
+        if not is_equal(table_a[len_a-i], table_b[len_b-i]) then
+            commonBackTo = i - 1
+            break
+        end
+    end
+
+    table.insert(result, 'List difference analysis:')
+    if len_a == len_b then
+        extendWithStrFmt(result, '* lists %sA (%s) and %sB (%s) have the same size', refa[1], descrTa, refb[1], descrTb)
+    else
+        extendWithStrFmt( result, '* list sizes differ: list %sA (%s) has %d items, list %sB (%s) has %d items', refa[1], descrTa, len_a, refb[1], descrTb, len_b)
+    end
+
+    extendWithStrFmt(result, '* lists A and B start differing at index %d', commonUntil+1)
+    if commonBackTo >= 0 then
+        if deltalv > 0 then
+            extendWithStrFmt(result, '* lists A and B are equal again from index %d for A, %d for B', len_a-commonBackTo, len_b-commonBackTo)
+        else
+            extendWithStrFmt( result, '* lists A and B are equal again from index %d', len_a-commonBackTo)
+        end
+    end
+
+    local function insertABValue(ai, bi)
+        bi = bi or ai
+        if is_equal(table_a[ai], table_b[bi]) then
+            extendWithStrFmt(result, '  = A[%d], B[%d]: %s', ai, bi, prettystr(table_a[ai]))
+        else
+            extendWithStrFmt(result, '  - A[%d]: %s', ai, prettystr(table_a[ai]))
+            extendWithStrFmt(result, '  + B[%d]: %s', bi, prettystr(table_b[bi]))
+        end
+    end
+
+    if commonUntil > 0 then
+        table.insert(result, '* Common parts:')
+        for i = 1, commonUntil do
+            insertABValue(i)
+        end
+    end
+
+    if commonUntil < shortest - commonBackTo - 1 then
+        table.insert(result, '* Differing parts:')
+        for i = commonUntil + 1, shortest - commonBackTo - 1 do
+            insertABValue(i)
+        end
+    end
+
+    if shortest - commonBackTo <= longest - commonBackTo - 1 then
+        table.insert(result, '* Present only in one list:' )
+        for i = shortest - commonBackTo, longest - commonBackTo - 1 do
+            if len_a > len_b then
+                extendWithStrFmt(result, '  - A[%d]: %s', i, prettystr(table_a[i]))
+            else
+                extendWithStrFmt(result, '  + B[%d]: %s', i, prettystr(table_b[i]))
+            end
+        end
+    end
+
+    if commonBackTo >= 0 then
+        table.insert(result, '* Common parts at the end of the lists')
+        for i = longest - commonBackTo, longest do
+            if len_a > len_b then
+                insertABValue(i, i-deltalv)
+            else
+                insertABValue(i-deltalv, i)
+            end
+        end
+    end
+
+    return true, table.concat(result, '\n')
+end
+M.private.mismatchFormattingPureList = mismatchFormattingPureList
+
+--- 成对美化打印：用于错误信息的期望值/实际值输出
+local function prettystrPairs(value1, value2, suffix_a, suffix_b)
+    local str1, str2 = prettystr(value1), prettystr(value2)
+    if hasNewLine(str1) or hasNewLine(str2) then
+        return "\n" .. str1 .. (suffix_a or ""), "\n" .. str2
+    end
+    return str1 .. (suffix_b or ""), str2
+end
+M.private.prettystrPairs = prettystrPairs
+
+local TABLE_TOSTRING_SEP = ", "
+local TABLE_TOSTRING_SEP_LEN = string.len(TABLE_TOSTRING_SEP)
+
+--- table 格式化打印核心函数
+local function _table_tostring(tbl, indentLevel, keeponeline, printTableRefs, recursionTable)
+    printTableRefs = printTableRefs or M.PRINT_TABLE_REF_IN_ERROR_MSG
+    recursionTable = recursionTable or {}
+    recursionTable[tbl] = true
+
+    local result, dispOnMultLines = {}, false
+    local function keytostring(k)
+        if "string" == type(k) and k:match("^[_%a][_%w]*$") then
+            return k
+        end
+        return prettystr_sub(k, indentLevel+1, true, printTableRefs, recursionTable)
+    end
+
+    local entry, count, seq_index = nil, 0, 1
+    for k, v in sortedPairs(tbl) do
+        if k == seq_index then
+            entry = ''
+            seq_index = seq_index + 1
+        elseif recursionTable[k] then
+            recursionTable.recursionDetected = true
+            entry = "<"..tostring(k)..">="
+        else
+            entry = keytostring(k) .. "="
+        end
+
+        if recursionTable[v] then
+            recursionTable.recursionDetected = true
+            entry = entry .. "<"..tostring(v)..">"
+        else
+            entry = entry .. prettystr_sub(v, indentLevel+1, keeponeline, printTableRefs, recursionTable)
+        end
+        count = count + 1
+        result[count] = entry
+    end
+
+    if not keeponeline then
+        local totalLength = 0
+        for _, v in ipairs(result) do
+            totalLength = totalLength + string.len(v )
+            if totalLength >= M.LINE_LENGTH then
+                dispOnMultLines = true
+                break
+            end
+        end
+
+        if not dispOnMultLines and count > 0 then
+            totalLength = totalLength + TABLE_TOSTRING_SEP_LEN * (count - 1)
+            dispOnMultLines = totalLength + 2 >= M.LINE_LENGTH
+        end
+    end
+
+    if dispOnMultLines then
+        local indentString = string.rep("    ", indentLevel - 1)
+        result = {"{\n    ", indentString, table.concat(result, ",\n    " .. indentString), "\n", indentString, "}"}
+    else
+        result = {"{", table.concat(result, TABLE_TOSTRING_SEP), "}"}
+    end
+
+    if printTableRefs then
+        table.insert(result, 1, "<"..tostring(tbl).."> ")
+    end
+    return table.concat(result)
+end
+M.private._table_tostring = _table_tostring
+
+--- 判断 table 是否包含某个元素（支持 table 元素）
+local function _table_contains(t, element)
+    if type(t) == "table" then
+        local type_e = type(element)
+        for _, value in pairs(t) do
+            if type(value) == type_e then
+                if value == element then
+                    return true
+                end
+                if type_e == 'table' and M.private._is_table_equals(value, element) then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+--- 无序 table 内容比较：不关心顺序，只关心元素是否相同
+local function _is_table_items_equals(actual, expected)
+    local type_a, type_e = type(actual), type(expected)
+    if type_a ~= type_e then
+        return false
+    end
+
+    if (type_a == 'table') then
+        for _, v in pairs(actual) do
+            if not _table_contains(expected, v) then
+                return false
+            end
+        end
+        for _, v in pairs(expected) do
+            if not _table_contains(actual, v) then
+                return false
+            end
+        end
+        return true
+    else
+        return actual == expected
+    end
+end
+
+--- 递归 table 比较元表：防止循环引用导致死循环
+local _recursion_cache_MT = {
+    __index = {
+        cached = function (t, actual, expected)
+            local subtable = t[actual] or {}
+            return subtable[expected]
+        end,
+        store = function(t, actual, expected, value, asymmetric)
+            local subtable = t[actual] or {}
+            t[actual] = subtable
+            subtable[expected] = value
+            if not asymmetric then
+                t:store(expected, actual, value, true)
+            end
+            return value
+        end
+    }
+}
+
+--- 深度 table 相等比较：支持递归、table 作为 key
+local function _is_table_equals(actual, expected, recursions)
+    local type_a, type_e = type(actual), type(expected)
+    recursions = recursions or setmetatable({}, _recursion_cache_MT)
+
+    if type_a ~= type_e then
+        return false
+    end
+    if type_a ~= 'table' then
+        return actual == expected
+    end
+    if actual == expected then
+        return recursions:store(actual, expected, true)
+    end
+
+    local prev = recursions:cached(actual, expected)
+    if prev ~= nil then
+        return prev
+    end
+    recursions:store(actual, expected, false)
+
+    if #actual ~= #expected then
+        return false
+    end
+
+    local keyMatch, tableKeys = {}, {}
+    for k, v in pairs(actual) do
+        if M.TABLE_EQUALS_KEYBYCONTENT and type(k) == "table" then
+            table.insert(tableKeys, k)
+        else
+            if not _is_table_equals(v, expected[k], recursions) then
+                return false
+            end
+            keyMatch[k] = true
+        end
+    end
+
+    for k, v in pairs(expected) do
+        if M.TABLE_EQUALS_KEYBYCONTENT and type(k) == "table" then
+            local ok = false
+            for i, cand in pairs(tableKeys) do
+                if _is_table_equals(cand, k, recursions) and _is_table_equals(actual[cand], v, recursions) then
+                    ok = true
+                    tableKeys[i] = nil
+                    break
+                end
+            end
+            if not ok then
+                return false
+            end
+        else
+            if not keyMatch[k] then
+                return false
+            end
+        end
+    end
+
+    return next(tableKeys) and false or recursions:store(actual, expected, true)
+end
+M.private._is_table_equals = _is_table_equals
+is_equal = _is_table_equals
+
+--- 抛出测试失败错误（断言失败）
+local function failure(msg, level)
+    error(M.FAILURE_PREFIX .. msg, (level or 1) + 1)
+end
+
+--- 格式化失败信息
+local function fail_fmt(level, ...)
+    failure(string.format(...), (level or 1) + 1)
+end
+M.private.fail_fmt = fail_fmt
+
+--- 格式化错误（非断言类错误）
+local function error_fmt(level, ...)
+    error(string.format(...), (level or 1) + 1)
+end
+
+----------------------------------------------------------------
+--
+--                     断言函数库
+--
+----------------------------------------------------------------
+
+--- 生成相等断言的错误信息
+local function errorMsgEquality(actual, expected, doDeepAnalysis)
+    if not M.ORDER_ACTUAL_EXPECTED then
+        expected, actual = actual, expected
+    end
+    if type(expected) == 'string' or type(expected) == 'table' then
+        local strExpected, strActual = prettystrPairs(expected, actual)
+        local res = string.format("expected: %s\nactual: %s", strExpected, strActual)
+        local ok, diff = tryMismatchFormatting(actual, expected, doDeepAnalysis)
+        if ok then
+            res = res .. '\n' .. diff
+        end
+        return res
+    end
+    return string.format("expected: %s, actual: %s", prettystr(expected), prettystr(actual))
+end
+
+--- 断言函数调用会抛出错误
+function M.assertError(f, ...)
+    if pcall(f, ...) then
+        failure("Expected an error when calling function but no error generated", 2)
+    end
+end
+
+--- 断言值为真（任意真值：非 nil/非 false）
+function M.assertEvalToTrue(value)
+    if not value then
+        failure("expected: a value evaluating to true, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 断言值为假（nil 或 false）
+function M.assertEvalToFalse(value)
+    if value then
+        failure("expected: false or nil, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 严格等于 true
+function M.assertIsTrue(value)
+    if value ~= true then
+        failure("expected: true, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 严格不等于 true
+function M.assertNotIsTrue(value)
+    if value == true then
+        failure("expected: anything but true, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 严格等于 false
+function M.assertIsFalse(value)
+    if value ~= false then
+        failure("expected: false, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 严格不等于 false
+function M.assertNotIsFalse(value)
+    if value == false then
+        failure("expected: anything but false, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 断言为 nil
+function M.assertIsNil(value)
+    if value ~= nil then
+        failure("expected: nil, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 断言不为 nil
+function M.assertNotIsNil(value)
+    if value == nil then
+        failure("expected non nil value, received nil", 2)
+    end
+end
+
+--- 断言为 NaN
+function M.assertIsNaN(value)
+    if type(value) ~= "number" or value == value then
+        failure("expected: nan, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 断言不为 NaN
+function M.assertNotIsNaN(value)
+    if type(value) == "number" and value ~= value then
+        failure("expected non nan value, received nan", 2)
+    end
+end
+
+--- 断言为无穷大
+function M.assertIsInf(value)
+    if type(value) ~= "number" or math.abs(value) ~= math.huge then
+        failure("expected: inf, actual: " ..prettystr(value), 2)
+    end
+end
+
+--- 断言不为无穷大
+function M.assertNotIsInf(value)
+    if type(value) == "number" and math.abs(value) == math.huge then
+        failure("expected non inf value, received ±inf", 2)
+    end
+end
+
+--- 深度相等断言（支持 table 递归比较）
+function M.assertEquals(actual, expected, doDeepAnalysis)
+    if type(actual) == 'table' and type(expected) == 'table' then
+        if not _is_table_equals(actual, expected) then
+            failure(errorMsgEquality(actual, expected, doDeepAnalysis), 2)
+        end
+    elseif type(actual) ~= type(expected) or actual ~= expected then
+        failure(errorMsgEquality(actual, expected), 2 )
+    end
+end
+
+--- 浮点数近似比较
+function M.almostEquals(actual, expected, margin)
+    if type(actual) ~= 'number' or type(expected) ~= 'number' or type(margin) ~= 'number' then
+        error_fmt(3, 'almostEquals: must supply only number arguments.\nArguments supplied: %s, %s, %s',
+                prettystr(actual), prettystr(expected), prettystr(margin))
+    end
+    if margin < 0 then
+        error('almostEquals: margin must not be negative', 3)
+    end
+    return math.abs(expected - actual) <= margin
+end
+
+--- 断言浮点数近似相等
+function M.assertAlmostEquals(actual, expected, margin)
+    margin = margin or M.EPSILON
+    if not M.almostEquals(actual, expected, margin) then
+        local a, e = M.ORDER_ACTUAL_EXPECTED and {actual, expected} or {expected, actual}
+        fail_fmt(2, 'Values are not almost equal\nActual: %s, expected: %s with margin of %s',
+                a[1], e[1], margin)
+    end
+end
+
+--- 断言不相等
+function M.assertNotEquals(actual, expected)
+    if type(actual) == type(expected) then
+        if (type(actual) == 'table' and _is_table_equals(actual, expected)) or actual == expected then
+            fail_fmt(2, 'Received the not expected value: %s', prettystr(actual))
+        end
+    end
+end
+
+--- 断言字符串包含子串
+function M.assertStrContains( str, sub, useRe)
+    if not string.find(str, sub, 1, not useRe) then
+        fail_fmt(2, 'Error, substring %s was not found in string %s', prettystr(sub), prettystr(str))
+    end
+end
+
+--- 断言字符串不包含子串
+function M.assertNotStrContains(str, sub, useRe )
+    if string.find(str, sub, 1, not useRe) then
+        fail_fmt(2, 'Error, substring %s was found in string %s', prettystr(sub), prettystr(str))
+    end
+end
+
+--- 断言字符串完全匹配正则
+function M.assertStrMatches(str, pattern)
+    if not strMatch(str, pattern ) then
+        fail_fmt(2, 'Error, pattern %s was not matched by string %s', prettystr(pattern), prettystr(str))
+    end
+end
+
+--- 断言错误信息完全一致
+function M.assertErrorMsgEquals(expectedMsg, func, ... )
+    local ok, msg = pcall(func, ...)
+    if ok then
+        failure('Expected error: '..expectedMsg, 2)
+    end
+    if msg ~= expectedMsg then
+        fail_fmt(2, 'Error message mismatch\nexpected: %s\nactual: %s', expectedMsg, msg)
+    end
+end
+
+-- 动态生成类型断言函数
+local types = {'Number', 'String', 'Table', 'Boolean', 'Function', 'Userdata', 'Thread'}
+for _, t in ipairs(types) do
+    local lt = t:lower()
+    M['assertIs'..t] = function (v)
+        if type(v) ~= lt then
+            fail_fmt(2, 'Expected %s, got %s: %s', lt, type(v), prettystr(v))
+        end
+    end
+    M['assertNotIs'..t] = function (v)
+        if type(v) == lt then
+            fail_fmt(2, 'Expected not %s, got %s', lt, prettystr(v))
+        end
+    end
+end
+
+--- 断言两个对象是同一个引用
+function M.assertIs(actual, expected)
+    if actual ~= expected then
+        fail_fmt(2, 'Not the same object\nexpected: %s\nactual: %s', prettystr(expected), prettystr(actual))
+    end
+end
+
+--- 断言两个对象不是同一个引用
+function M.assertNotIs(actual, expected)
+    if actual == expected then
+        fail_fmt(2, 'Same object: %s', prettystr(actual))
+    end
+end
+
+--- 断言 table 内容无序相等
+function M.assertItemsEquals(actual, expected)
+    if not _is_table_items_equals(actual, expected) then
+        fail_fmt(2, 'Table contents not equal\nexpected: %s\nactual: %s', prettystr(expected), prettystr(actual))
+    end
+end
+
+----------------------------------------------------------------
+--                     兼容层（v2 别名）
+----------------------------------------------------------------
+function M.wrapFunctions()
+    io.stderr:write("wrapFunctions() is deprecated\n")
+end
+
+-- 旧版函数别名，兼容老代码
+local aliases = {
+    {'assertEquals', 'assert_equals'},
+    {'assertNotEquals', 'assert_not_equals'},
+    {'assertAlmostEquals', 'assert_almost_equals'},
+    {'assertStrContains', 'assert_str_contains'},
+    {'assertError', 'assert_error'},
+    {'assertIsTrue', 'assertTrue'},
+    {'assertIsNil', 'assertNull'},
+}
+
+for _, a in ipairs(aliases) do
+    M[a[2]] = M[a[1]]
+end
+
+----------------------------------------------------------------
+--
+--                     输出器（测试结果格式）
+--
+----------------------------------------------------------------
+
+--- 基础输出器类（所有输出格式的父类）
+local genericOutput = { __class__ = 'genericOutput' }
+local genericOutput_MT = { __index = genericOutput }
+M.genericOutput = genericOutput
+
+function genericOutput.new(runner)
+    return setmetatable({runner = runner, verbosity = runner.verbosity or M.VERBOSITY_DEFAULT}, genericOutput_MT)
+end
+function genericOutput:startSuite() end
+function genericOutput:startClass()
+end
+function genericOutput:startTest()
+end
+function genericOutput:addStatus()
+end
+function genericOutput:endTest()
+end
+function genericOutput:endClass()
+end
+function genericOutput:endSuite()
+end
+
+--- TAP 格式输出器（测试通用协议）
+local TapOutput = genericOutput.new()
+local TapOutput_MT = { __index = TapOutput }
+function TapOutput.new(r) return setmetatable(genericOutput.new(r), TapOutput_MT)
+end
+function TapOutput:startSuite() print("1.."..self.result.testCount)
+end
+function TapOutput:endTest(node)
+    if node:isPassed() then
+        print("ok "..self.result.currentTestNumber.." "..node.testName)
+    else
+        print("not ok "..self.result.currentTestNumber.." "..node.testName)
+    end
+end
+
+--- JUnit XML 输出器（CI/集成工具用）
+local JUnitOutput = genericOutput.new()
+local JUnitOutput_MT = { __index = JUnitOutput }
+function JUnitOutput.new(r)
+    local o = genericOutput.new(r)
+    o.testList = {}
+    return setmetatable(o, JUnitOutput_MT)
+end
+
+--- 文本格式输出器（默认，人类友好）
+local TextOutput = genericOutput.new()
+local TextOutput_MT = { __index = TextOutput }
+function TextOutput.new(r)
+    return setmetatable({errorList ={}, runner = r}, TextOutput_MT)
+end
+function TextOutput:endTest(node)
+    io.write(node:isPassed() and "." or "F")
+end
+function TextOutput:endSuite()
+    print("\n"..M.LuaUnit.statusLine(self.result))
+    if self.result.notPassedCount ==0 then
+        print("OK")
+    end
+end
+
+--- 静默输出器（无任何打印）
+local NilOutput = { __class__ = 'NilOuptut' }
+local NilOutput_MT = { __index = function () return function ()
+end end }
+function NilOutput.new() return setmetatable({}, NilOutput_MT)
+end
+
+----------------------------------------------------------------
+--
+--                     测试运行核心类
+--
+----------------------------------------------------------------
+
+M.LuaUnit = {
+    outputType = TextOutput,
+    verbosity = M.VERBOSITY_DEFAULT,
+    __class__ = 'LuaUnit'
+}
+local LuaUnit_MT = { __index = M.LuaUnit }
+
+function M.LuaUnit.new()
+    return setmetatable( {}, LuaUnit_MT)
+end
+
+--- 测试状态节点类：记录单个测试的结果
+local NodeStatus = {
+    PASS = 'PASS',
+    FAIL = 'FAIL',
+    ERROR = 'ERROR'
+}
+local NodeStatus_MT = { __index = NodeStatus }
+function NodeStatus.new(n, name, cls)
+    local o = {number = n, testName = name, className = cls}
+    setmetatable(o, NodeStatus_MT)
+    o:pass()
+    return o
+end
+function NodeStatus:pass() self.status = self.PASS
+end
+function NodeStatus:fail(m, s) self.status= self.FAIL self.msg = m self.stackTrace = s
+end
+function NodeStatus:error(m, s) self.status = self.ERROR self.msg = m self.stackTrace =s
+end
+function NodeStatus:isPassed() return self.status==self.PASS
+end
+function NodeStatus:isNotPassed() return self.status~=self.PASS
+end
+
+--- 生成测试统计信息行
+function M.LuaUnit.statusLine(res)
+    return string.format("Ran %d tests in %.2fs, %d passed, %d failed, %d errors",
+            res.runCount, res.duration, res.passedCount, #res.failures, #res.errors)
+end
+
+--- 安全调用：捕获错误并区分失败/异常
+function M.LuaUnit:protectedCall(obj, func, name)
+    local ok, err = xpcall( function () func(obj)
+    end,
+            function (e) return {msg = e, trace = debug.traceback("", 3)} end )
+    if ok then
+        return {status = NodeStatus.PASS}
+    end
+
+    local isFail, msg = string.find(err.msg, M.FAILURE_PREFIX, 1, true)
+    if isFail then
+        return {status = NodeStatus.FAIL, msg = string.gsub(err.msg, M.FAILURE_PREFIX, ""), trace = stripLuaunitTrace(err.trace)}
+    else
+        return {status = NodeStatus.ERROR, msg = err.msg, trace = stripLuaunitTrace(err.trace)}
+    end
+end
+
+--- 执行单个测试函数/方法
+function M.LuaUnit:execOneFunction(className, methodName, obj, func)
+    self:startTest(className and className.."."..methodName or methodName)
+    if obj and obj.setUp then
+        self:addStatus(self:protectedCall(obj, obj.setUp))
+    end
+    self:addStatus(self:protectedCall(obj, func))
+    if obj and obj.tearDown then
+        self:addStatus(self:protectedCall(obj, obj.tearDown))
+    end
+    self:endTest()
+end
+
+--- 运行测试套件
+function M.LuaUnit:runSuiteByNames(list)
+    local inst = {}
+    for _, n in ipairs(list) do
+        table.insert(inst, {n, _G[n]})
+    end
+    self:runSuiteByInstances(inst)
+end
+
+--- 命令行解析
+function M.LuaUnit.parseCmdLine(args)
+    local o = {}
+    for _, a in ipairs(args or {}) do
+        if a == "-v" then
+            o.verbosity= M.VERBOSITY_VERBOSE
+        elseif a == "-q" then
+            o.verbosity = M.VERBOSITY_QUIET
+        elseif a == "-o" then
+            o.output = "tap"
+        elseif a == "-r" then
+            o.randomize = true
+        end
+    end
+    return o
+end
+
+--- 运行入口（外部调用主函数）
+function M.LuaUnit.run(...)
+    local r = M.LuaUnit.new()
+    return r:runSuite(...)
+end
+
+function M.LuaUnit:runSuite(...)
+    local args = {...}
+    if type(args[1]) == "table" then
+        table.remove(args, 1)
+    end
+    local o = M.LuaUnit.parseCmdLine(args)
+
+    self.verbosity = o.verbosity
+    if o.output then
+        self:setOutputType(o.output)
+    end
+    self.randomize = o.randomize
+
+    self:runSuiteByNames(M.LuaUnit.collectTests())
+    return self.result.notPassedCount
+end
+
+--- 设置输出格式
+function M.LuaUnit:setOutputType(t)
+    local map = {
+        text = TextOutput,
+        tap = TapOutput,
+        junit = JUnitOutput,
+        ["nil"] = NilOutput  -- 用字符串 key，避免 nil 关键字冲突
+    }
+    self.outputType = map[t:lower()] or TextOutput
+end
+
+--- 兼容旧版接口
+M.run = M.LuaUnit.run
+M.Run = M.LuaUnit.run
+function M:setVerbosity(v)
+    M.LuaUnit.verbosity = v
+end
+--endregion
+
+return M

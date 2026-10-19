@@ -520,9 +520,9 @@ namespace XLua.CSObjectWrap
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.OriginType.None);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "InEditor", Honor.Runtime.OriginType.InEditor);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PersistentData", Honor.Runtime.OriginType.PersistentData);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "StreamingAssets", Honor.Runtime.OriginType.StreamingAssets);
             
 
@@ -560,7 +560,7 @@ namespace XLua.CSObjectWrap
                 {
                     translator.PushHonorRuntimeOriginType(L, Honor.Runtime.OriginType.StreamingAssets);
                 }
-                else
+				else
                 {
                     return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.OriginType!");
                 }
@@ -590,7 +590,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.PrefabDetailType.None);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UIPrefab", Honor.Runtime.PrefabDetailType.UIPrefab);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LogicPrefab", Honor.Runtime.PrefabDetailType.LogicPrefab);
             
 
@@ -1086,6 +1086,76 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
+    public class HonorRuntimeDebuggerActiveWindowTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, null, 5, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysOpen", Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenWhenDevelopment", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenInEditor", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysClose", Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeDebuggerActiveWindowType(L, (Honor.Runtime.DebuggerActiveWindowType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysOpen"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenWhenDevelopment"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenInEditor"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysClose"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.DebuggerActiveWindowType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.DebuggerActiveWindowType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
     public class HonorRuntimePatternTypeWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -1260,6 +1330,148 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.MVVMPatternType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class HonorRuntimeLuaProtocolCmdWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.LuaProtocolCmd), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.LuaProtocolCmd), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.LuaProtocolCmd), L, null, 17, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaCreateLuaClassFromCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaCreateLuaClassFromCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaCreateProcedureLuaClassFromCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaCreateProcedureLuaClassFromCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaApplicationPauseFromCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaApplicationPauseFromCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaApplicationQuitFromCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaApplicationQuitFromCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaKeysUpFromCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaKeysUpFromCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaSignInWithAppleCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaSignInWithAppleCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaSignInWithAppleStateCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaSignInWithAppleStateCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaReceiveEventCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaReceiveEventCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaRelateLocalizationTableDataFromCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaRelateLocalizationTableDataFromCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaGetResDefInfoEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaGetResDefInfoEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaLocalizingCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaLocalizingCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaWebSocketOpenCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketOpenCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaWebSocketMessageReceivedCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketMessageReceivedCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaWebSocketBinaryReceivedCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketBinaryReceivedCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaWebSocketClosedCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketClosedCSEventDelegate);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "P_LuaWebSocketErrorCSEventDelegate", Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketErrorCSEventDelegate);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.LuaProtocolCmd), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeLuaProtocolCmd(L, (Honor.Runtime.LuaProtocolCmd)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaCreateLuaClassFromCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaCreateLuaClassFromCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaCreateProcedureLuaClassFromCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaCreateProcedureLuaClassFromCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaApplicationPauseFromCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaApplicationPauseFromCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaApplicationQuitFromCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaApplicationQuitFromCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaKeysUpFromCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaKeysUpFromCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaSignInWithAppleCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaSignInWithAppleCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaSignInWithAppleStateCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaSignInWithAppleStateCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaReceiveEventCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaReceiveEventCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaRelateLocalizationTableDataFromCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaRelateLocalizationTableDataFromCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaGetResDefInfoEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaGetResDefInfoEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaLocalizingCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaLocalizingCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaWebSocketOpenCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketOpenCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaWebSocketMessageReceivedCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketMessageReceivedCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaWebSocketBinaryReceivedCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketBinaryReceivedCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaWebSocketClosedCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketClosedCSEventDelegate);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "P_LuaWebSocketErrorCSEventDelegate"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolCmd(L, Honor.Runtime.LuaProtocolCmd.P_LuaWebSocketErrorCSEventDelegate);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.LuaProtocolCmd!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.LuaProtocolCmd! Expect number or string, got + " + lua_type);
             }
 
             return 1;
@@ -1612,21 +1824,21 @@ namespace XLua.CSObjectWrap
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.VibrateType.None);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SelectionFeedback", Honor.Runtime.VibrateType.SelectionFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SuccessFeedback", Honor.Runtime.VibrateType.SuccessFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WarningFeedback", Honor.Runtime.VibrateType.WarningFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FailureFeedback", Honor.Runtime.VibrateType.FailureFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LightImpactFeedback", Honor.Runtime.VibrateType.LightImpactFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MediumImpactFeedback", Honor.Runtime.VibrateType.MediumImpactFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HeavyImpactFeedback", Honor.Runtime.VibrateType.HeavyImpactFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RigidImpactFeedback", Honor.Runtime.VibrateType.RigidImpactFeedback);
-
+            
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoftImpactFeedback", Honor.Runtime.VibrateType.SoftImpactFeedback);
             
 
@@ -2588,6 +2800,64 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.LuaInjection.InjectionType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class HonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Fail", Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType.Fail);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Success", Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType(L, (Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Fail"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType(L, Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType.Fail);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Success"))
+                {
+                    translator.PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType(L, Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType! Expect number or string, got + " + lua_type);
             }
 
             return 1;
@@ -5572,6 +5842,70 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
+    public class RMapWalkLoopModeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(RMapWalkLoopMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(RMapWalkLoopMode), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(RMapWalkLoopMode), L, null, 4, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Once", RMapWalkLoopMode.Once);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PingPong", RMapWalkLoopMode.PingPong);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Loop", RMapWalkLoopMode.Loop);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(RMapWalkLoopMode), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushRMapWalkLoopMode(L, (RMapWalkLoopMode)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Once"))
+                {
+                    translator.PushRMapWalkLoopMode(L, RMapWalkLoopMode.Once);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "PingPong"))
+                {
+                    translator.PushRMapWalkLoopMode(L, RMapWalkLoopMode.PingPong);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Loop"))
+                {
+                    translator.PushRMapWalkLoopMode(L, RMapWalkLoopMode.Loop);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for RMapWalkLoopMode!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for RMapWalkLoopMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
     public class RMapCamPosTypeWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -5694,6 +6028,204 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for GameLib.EGameMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class GameLibAorInterfaceAdaptationAdaptModeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, null, 5, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", GameLib.AorInterfaceAdaptation.AdaptMode.None);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FillScreen", GameLib.AorInterfaceAdaptation.AdaptMode.FillScreen);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlignAboveReference", GameLib.AorInterfaceAdaptation.AdaptMode.AlignAboveReference);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlignBelowReference", GameLib.AorInterfaceAdaptation.AdaptMode.AlignBelowReference);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.AorInterfaceAdaptation.AdaptMode), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, (GameLib.AorInterfaceAdaptation.AdaptMode)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.None);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "FillScreen"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.FillScreen);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlignAboveReference"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.AlignAboveReference);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlignBelowReference"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAdaptMode(L, GameLib.AorInterfaceAdaptation.AdaptMode.AlignBelowReference);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.AorInterfaceAdaptation.AdaptMode!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.AorInterfaceAdaptation.AdaptMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class GameLibAorInterfaceAdaptationFillModeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Stretch", GameLib.AorInterfaceAdaptation.FillMode.Stretch);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Cover", GameLib.AorInterfaceAdaptation.FillMode.Cover);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.AorInterfaceAdaptation.FillMode), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibAorInterfaceAdaptationFillMode(L, (GameLib.AorInterfaceAdaptation.FillMode)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Stretch"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationFillMode(L, GameLib.AorInterfaceAdaptation.FillMode.Stretch);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Cover"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationFillMode(L, GameLib.AorInterfaceAdaptation.FillMode.Cover);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.AorInterfaceAdaptation.FillMode!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.AorInterfaceAdaptation.FillMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class GameLibAorInterfaceAdaptationAlignSideWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, null, 5, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "BottomToTop", GameLib.AorInterfaceAdaptation.AlignSide.BottomToTop);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TopToBottom", GameLib.AorInterfaceAdaptation.AlignSide.TopToBottom);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LeftToRight", GameLib.AorInterfaceAdaptation.AlignSide.LeftToRight);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RightToLeft", GameLib.AorInterfaceAdaptation.AlignSide.RightToLeft);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.AorInterfaceAdaptation.AlignSide), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibAorInterfaceAdaptationAlignSide(L, (GameLib.AorInterfaceAdaptation.AlignSide)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "BottomToTop"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.BottomToTop);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "TopToBottom"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.TopToBottom);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "LeftToRight"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.LeftToRight);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "RightToLeft"))
+                {
+                    translator.PushGameLibAorInterfaceAdaptationAlignSide(L, GameLib.AorInterfaceAdaptation.AlignSide.RightToLeft);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.AorInterfaceAdaptation.AlignSide!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.AorInterfaceAdaptation.AlignSide! Expect number or string, got + " + lua_type);
             }
 
             return 1;

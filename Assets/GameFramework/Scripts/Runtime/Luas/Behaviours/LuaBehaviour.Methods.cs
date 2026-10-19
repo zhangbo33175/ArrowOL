@@ -304,6 +304,21 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 通用组件注入：非空对象按指定类型转换后写入 Lua 环境
+        /// </summary>
+        /// <typeparam name="T">目标组件类型</typeparam>
+        /// <param name="luaEnv">目标Lua环境</param>
+        /// <param name="key">写入键</param>
+        /// <param name="source">源对象</param>
+        private static void SetInjectionComponent<T>(LuaTable luaEnv, object key, Object source) where T : Object
+        {
+            if (source != null)
+            {
+                luaEnv.Set(key, (T)source);
+            }
+        }
+
+        /// <summary>
         /// 场景类组件（Transform/RectTransform/Renderer/Canvas/Camera等）类型转换并写入Lua环境
         /// </summary>
         /// <param name="injection">注入项数据</param>
@@ -316,28 +331,28 @@ namespace Honor.Runtime
             switch (injection.InjectionTypeName)
             {
                 case LuaInjection.InjectionType.Transform:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Transform)objs[idx]);
+                    SetInjectionComponent<Transform>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.RectTransform:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (RectTransform)objs[idx]);
+                    SetInjectionComponent<RectTransform>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.SpriteRenderer:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (SpriteRenderer)objs[idx]);
+                    SetInjectionComponent<SpriteRenderer>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.Tilemap:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (UnityEngine.Tilemaps.Tilemap)objs[idx]);
+                    SetInjectionComponent<UnityEngine.Tilemaps.Tilemap>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.Canvas:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Canvas)objs[idx]);
+                    SetInjectionComponent<Canvas>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.Camera:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Camera)objs[idx]);
+                    SetInjectionComponent<Camera>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.ParticleSystem:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (ParticleSystem)objs[idx]);
+                    SetInjectionComponent<ParticleSystem>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.Light:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Light)objs[idx]);
+                    SetInjectionComponent<Light>(luaEnv, keys[idx], objs[idx]);
                     break;
             }
         }
@@ -355,52 +370,52 @@ namespace Honor.Runtime
             switch (injection.InjectionTypeName)
             {
                 case LuaInjection.InjectionType.UI_Text:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Text)objs[idx]);
+                    SetInjectionComponent<Text>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Text_TextMeshPro:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (TextMeshProUGUI)objs[idx]);
+                    SetInjectionComponent<TextMeshProUGUI>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Dropdown_TextMeshPro:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (TMP_Dropdown)objs[idx]);
+                    SetInjectionComponent<TMP_Dropdown>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_InputField_TextMeshPro:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (TMP_InputField)objs[idx]);
+                    SetInjectionComponent<TMP_InputField>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_TextPicMixed:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (AorTextPicMixed)objs[idx]);
+                    SetInjectionComponent<AorTextPicMixed>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Image:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Image)objs[idx]);
+                    SetInjectionComponent<Image>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Button:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Button)objs[idx]);
+                    SetInjectionComponent<Button>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Scrollbar:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Scrollbar)objs[idx]);
+                    SetInjectionComponent<Scrollbar>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_ScrollRect:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (ScrollRect)objs[idx]);
+                    SetInjectionComponent<ScrollRect>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Toggle:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Toggle)objs[idx]);
+                    SetInjectionComponent<Toggle>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Slider:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Slider)objs[idx]);
+                    SetInjectionComponent<Slider>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Dropdown:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (Dropdown)objs[idx]);
+                    SetInjectionComponent<Dropdown>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_InputField:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (InputField)objs[idx]);
+                    SetInjectionComponent<InputField>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Tree:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (AorTree)objs[idx]);
+                    SetInjectionComponent<AorTree>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_ListView:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (AorListView)objs[idx]);
+                    SetInjectionComponent<AorListView>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_SwitchButton:
-                    if (objs[idx] != null) luaEnv.Set(keys[idx], (AorSwitchButton)objs[idx]);
+                    SetInjectionComponent<AorSwitchButton>(luaEnv, keys[idx], objs[idx]);
                     break;
             }
         }

@@ -1,0 +1,362 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  TableUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     表工具（拷贝/深拷贝/查找/合并/排序/组合/统计/批量处理）
+-- @desc      提供浅/深拷贝、查找、合并、选择排序、自由组合、空判断、二分插入与分批遍历等通用表运算
+-- @core      pairs 递归拷贝（循环引用防护）、table.nums/keys 扩展、二分有序插入、分批防卡顿调度
+-- @scope     全局通用（经 SystemFuncs/GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency SystemApis（table.nums/table.keys 扩展）
+--=====================================================================================================
+
+---@class TableUtil @ 表工具表（纯函数，无实例状态）
+local TableUtil = {}
+
+--region 拷贝
+
+---@brief 拷贝 table（浅拷贝，table 子表递归拷贝）
+---@param tab table table数据
+---@return table 拷贝结果
+function TableUtil.CopyTab(tab)
+    local result = {}
+    for k, v in pairs(tab or {}) do
+        if type(v) ~= "table" then
+            result[k] = v
+        else
+            result[k] = TableUtil.CopyTab(v)
+        end
+    end
+    return result
+end
+
+---@brief 深拷贝对象（完全拷贝，所有层级独立，支持循环引用）
+---@param object table table数据
+---@return table 拷贝结果
+function TableUtil.DeepCopy(object)
+    local lookup_table = {} -- 解决循环引用
+    local function _copy(object)
+        if type(object) ~= "table" then
+            return object
+        elseif lookup_table[object] then
+            return lookup_table[object]
+        end
+        local new_table = {}
+        lookup_table[object] = new_table
+        for index, value in pairs(object) do
+            new_table[_copy(index)] = _copy(value)
+        end
+        -- 保留元表（类结构）
+        return setmetatable(new_table, getmetatable(object))
+    end
+    return _copy(object)
+end
+
+--endregion
+
+--region 查找
+
+---@brief 在table数组中查找某个值（有：返回k值；无：返回nil）
+---@param tab table table数据
+---@param value any table中任意数据
+---@return number 下标值
+function TableUtil.FindValueInTable(tab, value)
+    for k, v in pairs(tab) do
+        if v == value then
+            return k
+        end
+    end
+    return nil
+end
+
+---@brief 在table中查找所有包含str的键集合
+---@param tab table table数据
+---@param str string table中待查的键
+---@return any[] 下标值数据
+function TableUtil.FindKeysWhichContainStrInTable(tab, str)
+    local result = {}
+    for k, v in pairs(tab) do
+        if string.find(k, str) then
+            table.insert(result, k)
+        end
+    end
+    return result
+end
+
+---@brief 获取num1到num2之间的一个随机数（左右闭区间）
+---@param num1 number 区间开始值
+---@param num2 number 区间结束值
+---@return number 随机结果
+function TableUtil.GetRandomNumBetween(num1, num2)
+    if num1 <= num2 then
+        return (math.random(num1, num2))
+    else
+        return 0
+    end
+end
+
+--endregion
+
+--region 合并
+
+---@brief 合并两个数组型table（按顺序拼接）
+---@param tableFront table 前面的table
+---@param tableEnd table 后面的table
+---@return table 合并结果
+function TableUtil.JoinTables(tableFront, tableEnd)
+    local tableResult = {}
+
+    if table.nums(tableFront) == 0 and table.nums(tableEnd) ~= 0 then
+        return tableEnd
+    end
+
+    if table.nums(tableFront) ~= 0 and table.nums(tableEnd) == 0 then
+        return tableFront
+    end
+
+    for i = 1, table.nums(tableFront) do
+        table.insert(tableResult, tableFront[i])
+    end
+
+    for i = 1, table.nums(tableEnd) do
+        table.insert(tableResult, tableEnd[i])
+    end
+
+    return tableResult
+end
+
+--endregion
+
+--region 排序
+
+---@brief 选择法排序（数值从小到大/从大到小）
+---@param tab table 需要排序的table
+---@param descOrder boolean 是否为降序（默认为升序）
+function TableUtil.SelectSort(tab, descOrder)
+    if descOrder == nil then
+        descOrder = false
+    end
+    for i = 1, #tab - 1 do
+        local extreme = i
+        for j = i + 1, #tab do
+            if descOrder == false then
+                if tonumber(tab[j]) < tonumber(tab[extreme]) then
+                    extreme = j
+                end
+            else
+                if tonumber(tab[j]) > tonumber(tab[extreme]) then
+                    extreme = j
+                end
+            end
+        end
+        if extreme ~= i then
+            tab[extreme], tab[i] = tab[i], tab[extreme]
+        end
+    end
+end
+
+---@brief 选择法排序（按table内指定key排序）
+---@param tab table 需要排序的table
+---@param key string table排序依据的key
+---@param descOrder boolean 是否为降序（默认为升序）
+function TableUtil.SelectSortByKey(tab, key, descOrder)
+    if descOrder == nil then
+        descOrder = false
+    end
+    for i = 1, #tab - 1 do
+        local extreme = i
+        for j = i + 1, #tab do
+            if descOrder == false then
+                if tonumber(tab[j][key]) < tonumber(tab[extreme][key]) then
+                    extreme = j
+                end
+            else
+                if tonumber(tab[j][key]) > tonumber(tab[extreme][key]) then
+                    extreme = j
+                end
+            end
+        end
+        if extreme ~= i then
+            tab[extreme], tab[i] = tab[i], tab[extreme]
+        end
+    end
+end
+
+--endregion
+
+--region 组合
+
+---@brief 获取table所有的子集自由组合（用于配置表组合计算）
+---@param tb table 原始table数据
+---@return table 自由组合结果
+function TableUtil.GetFreeCombinations(tb)
+    local keys = table.keys(tb)
+    local num_keys = #keys
+    local combinations = {}
+    local totalNum = 2 ^ num_keys - 1
+    for i = 1, totalNum do
+        local new_combination = {}
+        for j = 1, num_keys do
+            if i & 2 ^ (j - 1) > 0 then
+                new_combination[keys[j]] = tb[keys[j]]
+            end
+        end
+        table.insert(combinations, new_combination)
+    end
+    return combinations
+end
+
+--endregion
+
+--region 数组 / 字典通用工具
+
+---@brief 判断 table 是否为空
+---@param t table 目标表
+---@return boolean 是否为空
+function TableUtil.IsTableEmpty(t)
+    if not t then return true end
+    return next(t) == nil
+end
+
+---@brief 数组映射转换
+---@param source table 原数组
+---@param converter function 转换函数
+---@return table 转换后数组
+function TableUtil.ArrayConvert(source, converter)
+    if not source or not converter then return {} end
+    local result = {}
+    for _, v in ipairs(source) do
+        table.insert(result, converter(v))
+    end
+    return result
+end
+
+---@brief 清空数组（高效）
+---@param array table 目标数组
+function TableUtil.ClearArray(array)
+    if not array then return end
+    while #array > 0 do
+        table.remove(array)
+    end
+end
+
+---@brief 清空字典
+---@param dict table 目标字典
+function TableUtil.ClearDictionary(dict)
+    if not dict then return end
+    for k, _ in pairs(dict) do
+        dict[k] = nil
+    end
+end
+
+---@brief Fisher-Yates 打乱数组
+---@param array table 目标数组
+function TableUtil.ShuffleArray(array)
+    if not array or #array <= 1 then return end
+    local i = #array
+    while i > 1 do
+        local j = math.random(i)
+        array[i], array[j] = array[j], array[i]
+        i = i - 1
+    end
+end
+
+---@brief 二分法插入有序数组
+---@param array table 有序数组
+---@param item table 插入项
+---@param sortField string 排序字段名
+function TableUtil.BinaryInsertSortedArray(array, item, sortField)
+    if not array or not item or not sortField then return end
+    local count = #array
+    local min = 1
+    local max = count
+
+    while count > 0 and max > min do
+        local mid = min + math.floor((max - min) / 2)
+        local midVal = tonumber(array[mid][sortField])
+        local itemVal = tonumber(item[sortField])
+
+        if midVal > itemVal then
+            max = math.clamp(mid - 1, min, max)
+        elseif midVal < itemVal then
+            min = math.clamp(mid + 1, min, max)
+        else
+            while mid > 1 and tonumber(array[mid-1][sortField]) == itemVal do
+                mid = mid - 1
+            end
+            min = mid
+            break
+        end
+    end
+
+    if array[min] == nil or tonumber(array[min][sortField]) >= tonumber(item[sortField]) then
+        table.insert(array, min, item)
+    else
+        table.insert(array, min + 1, item)
+    end
+end
+
+---@brief 安全统计表元素数量（支持数组、哈希表、空表、不连续表；可传谓词仅统计满足条件项）
+---@param target table 目标表
+---@param predicate function|nil 可选谓词(k, v):boolean，返回 true 才计入；传 nil 时统计全部元素
+---@return number 表中元素数量
+function TableUtil.GetTableCount(target, predicate)
+    local count = 0
+    if target ~= nil then
+        for k, v in pairs(target) do
+            if not predicate or predicate(k, v) then
+                count = count + 1
+            end
+        end
+    end
+    return count
+end
+
+---@brief 检查表中是否包含指定Key（通用字典包含判断）
+---@param target table 目标表
+---@param key any 要判断的Key
+---@return boolean 是否包含
+function TableUtil.ContainsKey(target, key)
+    if type(target) ~= "table" or key == nil then
+        return false
+    end
+    return target[key] ~= nil
+end
+
+---@brief 判断原生数组是否包含指定元素（按值相等）
+---@param items table 原生数组（ipairs 顺序遍历）
+---@param item any 要查找的元素
+---@return boolean 是否存在
+function TableUtil.ContainsValue(items, item)
+    for _, v in ipairs(items) do
+        if v == item then
+            return true
+        end
+    end
+    return false
+end
+
+---@brief 分批遍历（防卡顿）
+---@param data table 数据列表
+---@param batchCount number 每批数量
+---@param callback function 处理回调
+function TableUtil.BatchProcess(data, batchCount, callback)
+    if not data or not callback or batchCount <= 0 then return end
+    local batch = {}
+    for _, v in ipairs(data) do
+        table.insert(batch, v)
+        if #batch >= batchCount then
+            callback(batch)
+            TableUtil.ClearArray(batch)
+        end
+    end
+    if #batch > 0 then
+        callback(batch)
+        TableUtil.ClearArray(batch)
+    end
+end
+
+--endregion
+
+return TableUtil

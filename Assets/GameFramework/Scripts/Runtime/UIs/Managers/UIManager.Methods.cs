@@ -228,6 +228,23 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// UI 落地统一处理：适配 WebGL 输入与画布、注册 UI 标志行为并挂入子级标记、刷新字体
+        /// <para>收敛 Open/Add 系列方法中模态/非模态/场景三分支重复的落地样板</para>
+        /// </summary>
+        /// <param name="go">UI 根对象</param>
+        /// <param name="uiInfo">UI 信息</param>
+        /// <returns>注册的 UI 标志行为（由调用方决定加入模态/非模态/场景列表）</returns>
+        private UIFlagBehaviour RegisterUI(GameObject go, UIInfo uiInfo)
+        {
+            AddWebGLInput(go);
+            AddCanvas(go, uiInfo);
+            UIFlagBehaviour flagBehaviour = AddFlagBehaviour(go, uiInfo);
+            m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
+            m_UIComponent.RefreshFontsForUI(go);
+            return flagBehaviour;
+        }
+
+        /// <summary>
         /// UI 异步创建完成回调
         /// </summary>
         private void DoUICreateOverCallbackOnAsync(GameObject go, UIInfo uiInfo, PrefabObject prefabObject)
@@ -255,56 +272,87 @@ namespace Honor.Runtime
 
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-                LuaComponent luaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
-                if (luaComponent != null && luaComponent.LuaKeysUpFromCSEventDelegate != null)
+                List<LuaBehaviour> luaBehaviours = new List<LuaBehaviour>();
+
+                if (m_CurModalUI != null && m_CurModalUI.LuaBehaviour != null)
+                    luaBehaviours.Add(m_CurModalUI.LuaBehaviour);
+
+                foreach (var ui in m_UnModalUIList)
                 {
-                    List<LuaBehaviour> luaBehaviours = new List<LuaBehaviour>();
+                    if (ui != null && ui.LuaBehaviour != null)
+                        luaBehaviours.Add(ui.LuaBehaviour);
+                }
 
-                    if (m_CurModalUI != null && m_CurModalUI.LuaBehaviour != null)
-                        luaBehaviours.Add(m_CurModalUI.LuaBehaviour);
-
-                    foreach (var ui in m_UnModalUIList)
+                if (luaBehaviours.Count > 0)
+                {
+                    luaBehaviours.Sort((a, b) =>
                     {
-                        if (ui != null && ui.LuaBehaviour != null)
-                            luaBehaviours.Add(ui.LuaBehaviour);
-                    }
+                        if (a == null || b == null) return 0;
+                        var flagA = a.GetComponent<UIFlagBehaviour>();
+                        var flagB = b.GetComponent<UIFlagBehaviour>();
+                        if (flagA == null || flagB == null || flagA.UIInfo == null || flagB.UIInfo == null) return 0;
+                        return flagA.UIInfo.ZOrder - flagB.UIInfo.ZOrder;
+                    });
 
-                    if (luaBehaviours.Count > 0)
+                    var topLua = luaBehaviours[luaBehaviours.Count - 1];
+                    if (topLua != null)
                     {
-                        luaBehaviours.Sort((a, b) =>
+                        var topFlag = topLua.GetComponent<UIFlagBehaviour>();
+                        if (topFlag != null && topFlag.UIInfo != null && topFlag.UIInfo.CloseOnEscapeKeyUp)
                         {
-                            if (a == null || b == null) return 0;
-                            var flagA = a.GetComponent<UIFlagBehaviour>();
-                            var flagB = b.GetComponent<UIFlagBehaviour>();
-                            if (flagA == null || flagB == null || flagA.UIInfo == null || flagB.UIInfo == null) return 0;
-                            return flagA.UIInfo.ZOrder - flagB.UIInfo.ZOrder;
-                        });
-
-                        var topLua = luaBehaviours[luaBehaviours.Count - 1];
-                        if (topLua != null)
-                        {
-                            var topFlag = topLua.GetComponent<UIFlagBehaviour>();
-                            if (topFlag != null && topFlag.UIInfo != null && topFlag.UIInfo.CloseOnEscapeKeyUp)
-                            {
-                                topFlag.LuaBehaviour?.CallLuaClose();
-                            }
+                            topFlag.LuaBehaviour?.CallLuaClose();
                         }
-
-                        luaComponent.LuaKeysUpFromCSEventDelegate(KeyCode.Escape);
                     }
+
+                    // cmd 统一分发到 Lua（cmd: 1013 键盘按键抬起，content 传 C# KeyCode 对象对齐 Lua 原回调签名）
+                    LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaKeysUpFromCSEventDelegate,
+                        KeyCode.Escape,
+                        (int)LuaProtocolDispatcher.LuaProtocolReceiveType.Success);
                 }
             }
         }
         #endregion
 
         #region 匹配与查找工具
+        /// <summary>
+        /// 获取指定 UI 根节点下（含自身）的全部 UIFlagBehaviour 组件
+        /// <para>收敛各匹配/查找方法重复的「新建列表 + GetComponentsInChildren」初始化样板</para>
+        /// </summary>
+        /// <param name="objectForChecking">待检查的 UI 根节点</param>
+        /// <returns>包含自身及所有子级 UIFlagBehaviour 的列表</returns>
+        private List<UIFlagBehaviour> GetUIFlagBehavioursInChildren(UIFlagBehaviour objectForChecking)
+        {
+            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
+            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            return uiBehaviours;
+        }
+
+        /// <summary>
+        /// 仅保留最顶层的 UIBehaviour（移除被其他对象层级包含的子级）
+        /// <para>多个「获取顶层匹配 UI」方法共用的过滤逻辑：剔除位于其他对象子级内的 UI</para>
+        /// </summary>
+        /// <param name="uiBehaviours">待过滤的 UIBehaviour 列表，会在原地移除嵌套子级</param>
+        private static void RemoveNestedBehaviours(List<UIFlagBehaviour> uiBehaviours)
+        {
+            uiBehaviours.RemoveAll(behaviour =>
+            {
+                if (behaviour == null) return true;
+                foreach (var other in uiBehaviours)
+                {
+                    if (other == null) continue;
+                    if (behaviour != other && behaviour.transform.IsChildOf(other.transform))
+                        return true;
+                }
+                return false;
+            });
+        }
+
         private GameObject GetMatchedGOGameObject(UIFlagBehaviour objectForChecking, UIFlagBehaviour targetFlagBehaviour)
         {
             if (objectForChecking == null || targetFlagBehaviour == null) return null;
 
             GameObject result = null;
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
             foreach (var behaviour in uiBehaviours)
             {
@@ -325,8 +373,7 @@ namespace Honor.Runtime
             if (objectForChecking == null || targetUIInfo == null) return null;
 
             GameObject result = null;
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
             foreach (var behaviour in uiBehaviours)
             {
@@ -344,20 +391,9 @@ namespace Honor.Runtime
             List<GameObject> result = new List<GameObject>();
             if (objectForChecking == null || targetUIInfo == null) return result;
 
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
-            uiBehaviours.RemoveAll(behaviour =>
-            {
-                if (behaviour == null) return true;
-                foreach (var other in uiBehaviours)
-                {
-                    if (other == null) continue;
-                    if (behaviour != other && behaviour.transform.IsChildOf(other.transform))
-                        return true;
-                }
-                return false;
-            });
+            RemoveNestedBehaviours(uiBehaviours);
 
             foreach (var behaviour in uiBehaviours)
             {
@@ -372,20 +408,9 @@ namespace Honor.Runtime
             List<GameObject> result = new List<GameObject>();
             if (objectForChecking == null) return result;
 
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
-            uiBehaviours.RemoveAll(behaviour =>
-            {
-                if (behaviour == null) return true;
-                foreach (var other in uiBehaviours)
-                {
-                    if (other == null) continue;
-                    if (behaviour != other && behaviour.transform.IsChildOf(other.transform))
-                        return true;
-                }
-                return false;
-            });
+            RemoveNestedBehaviours(uiBehaviours);
 
             foreach (var behaviour in uiBehaviours)
             {
@@ -400,20 +425,9 @@ namespace Honor.Runtime
             List<GameObject> result = new List<GameObject>();
             if (objectForChecking == null) return result;
 
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
-            uiBehaviours.RemoveAll(behaviour =>
-            {
-                if (behaviour == null) return true;
-                foreach (var other in uiBehaviours)
-                {
-                    if (other == null) continue;
-                    if (behaviour != other && behaviour.transform.IsChildOf(other.transform))
-                        return true;
-                }
-                return false;
-            });
+            RemoveNestedBehaviours(uiBehaviours);
 
             foreach (var behaviour in uiBehaviours)
             {
@@ -442,8 +456,7 @@ namespace Honor.Runtime
             if (objectForChecking == null || targetUIInfo == null) return null;
 
             GameObject result = null;
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
             foreach (var behaviour in uiBehaviours)
             {
@@ -461,8 +474,7 @@ namespace Honor.Runtime
             List<GameObject> result = new List<GameObject>();
             if (objectForChecking == null || targetUIInfo == null) return result;
 
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
             foreach (var behaviour in uiBehaviours)
             {
@@ -477,8 +489,7 @@ namespace Honor.Runtime
             List<GameObject> result = new List<GameObject>();
             if (objectForChecking == null) return result;
 
-            List<UIFlagBehaviour> uiBehaviours = new List<UIFlagBehaviour>();
-            objectForChecking.GetComponentsInChildren(true, uiBehaviours);
+            List<UIFlagBehaviour> uiBehaviours = GetUIFlagBehavioursInChildren(objectForChecking);
 
             foreach (var behaviour in uiBehaviours)
             {

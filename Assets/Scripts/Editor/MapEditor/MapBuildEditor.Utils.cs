@@ -25,7 +25,7 @@ namespace Editor.MapEditor
 {
     /// <summary>
     /// 地图编辑器 - 全局变量、配置、工具类、路径管理
-    /// 包含：数据结构、路径工具、Excel配置加载、图片替换、数据保存/读取
+    /// <para>包含：数据结构、路径工具、Excel 配置加载、图片替换、数据保存/读取</para>
     /// </summary>
     public sealed partial class MapBuildEditor
     {
@@ -64,25 +64,27 @@ namespace Editor.MapEditor
         private static string mapName;
 
         /// <summary>
-        /// 当前编辑的地图/关卡ID
+        /// 当前编辑的地图/关卡 ID
         /// </summary>
         private static string mapId;
+
         /// <summary>
-        /// 当前编辑的地图关卡ID
+        /// 当前编辑的地图关卡 ID
         /// </summary>
         private static string mapLevelId;
+
         /// <summary>
         /// 地图预览缩放比例
         /// </summary>
         private static float m_MapZoom = 1.0f;
 
         /// <summary>
-        /// UI样式是否已初始化
+        /// UI 样式是否已初始化
         /// </summary>
         private bool m_IsStylesInitialized = false;
 
         /// <summary>
-        /// 地图JSON文件信息列表
+        /// 地图 JSON 文件信息列表
         /// </summary>
         private static List<MapJsonInfo> m_MapJsonList = new List<MapJsonInfo>();
 
@@ -97,7 +99,7 @@ namespace Editor.MapEditor
         private static List<ItemIconDataEditor> m_IconList = new List<ItemIconDataEditor>();
 
         /// <summary>
-        /// 地图UI预览实例
+        /// 地图 UI 预览实例
         /// </summary>
         private static GameObject m_UiInstance;
 
@@ -122,7 +124,7 @@ namespace Editor.MapEditor
         private static Rect m_PreviewRect;
 
         /// <summary>
-        /// 相机基础正交大小（适配2048x2048地图）
+        /// 相机基础正交大小（适配 2048x2048 地图）
         /// </summary>
         private static float m_BaseOrthoSize = 5.12f;
 
@@ -147,7 +149,7 @@ namespace Editor.MapEditor
         private static Dictionary<GameObject, RMapData> m_RMapDatas = new Dictionary<GameObject, RMapData>();
 
         /// <summary>
-        /// UI射线检测专用相机
+        /// UI 射线检测专用相机
         /// </summary>
         private static Camera _uiRaycastCamera;
 
@@ -206,44 +208,42 @@ namespace Editor.MapEditor
         /// </summary>
         private static LevelDataEditor _mLevelDataEditor;
 
-        
         /// <summary>
-        /// 当前选中的主关卡数据
+        /// 当前选中的主关卡数据（编辑会话上下文）
         /// </summary>
         private static TablesElectedLevelsEditor _mTablesElectedLevelsEditor;
-        
-        
+
         /// <summary>
-        /// 主关卡Excel路径
+        /// 主关卡 Excel 路径
         /// </summary>
         private static string m_TableMainLevelsPath => Path.Combine(Application.dataPath,
             "../Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableMainLevels.xlsm");
 
         /// <summary>
-        /// 物品Excel路径
+        /// 物品 Excel 路径
         /// </summary>
         private static string m_TableCharactersPath => Path.Combine(Application.dataPath,
             "../Docs/Designs/Excels/Tables/AlTables/Character/TableCharacters.xlsm");
 
         /// <summary>
-        /// 每日关卡Excel路径
+        /// 每日关卡 Excel 路径
         /// </summary>
         private static string m_TableDailyLevelsPath => Path.Combine(Application.dataPath,
             "../Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableDailyLevels.xlsm");
 
         /// <summary>
-        /// 章节Excel路径
+        /// 章节 Excel 路径
         /// </summary>
         private static string m_TableChaptersPath => Path.Combine(Application.dataPath,
             "../Docs/Designs/Excels/Tables/AlTables/LevelConfigs/TableChapters.xlsm");
 
         /// <summary>
-        /// JSON保存根路径
+        /// JSON 保存根路径
         /// </summary>
         private static string LevelSaveRootPath => Path.Combine(Application.dataPath, "../Docs/Designs/Json/Levels");
 
         /// <summary>
-        /// Lua配置保存路径
+        /// Lua 配置保存路径
         /// </summary>
         private static string levelLuaSavePath =>
             Path.Combine(GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath(), "Levels");
@@ -254,15 +254,30 @@ namespace Editor.MapEditor
         //=========================================================================
         #region Data Structures
         /// <summary>
-        /// 地图JSON文件信息结构
+        /// 地图 JSON 文件信息结构
         /// </summary>
         [Serializable]
         public class MapJsonInfo
         {
-            public string m_FilePath; // 文件完整路径
-            public string m_FileName; // 文件名（带后缀）
-            public string m_DisplayName; // 显示名称（无后缀）
-            public RMapChapterTypeData mRMapChapterTypeData; // 地图数据实体
+            /// <summary>
+            /// 文件完整路径
+            /// </summary>
+            public string m_FilePath;
+
+            /// <summary>
+            /// 文件名（带后缀）
+            /// </summary>
+            public string m_FileName;
+
+            /// <summary>
+            /// 显示名称（无后缀）
+            /// </summary>
+            public string m_DisplayName;
+
+            /// <summary>
+            /// 地图数据实体
+            /// </summary>
+            public RMapChapterTypeData mRMapChapterTypeData;
         }
 
         /// <summary>
@@ -270,8 +285,15 @@ namespace Editor.MapEditor
         /// </summary>
         public enum Type
         {
-            LoadBackground, // 加载背景图
-            LoadingIcon     // 加载图标
+            /// <summary>
+            /// 加载背景图
+            /// </summary>
+            LoadBackground,
+
+            /// <summary>
+            /// 加载图标
+            /// </summary>
+            LoadingIcon
         }
         #endregion
 
@@ -285,7 +307,7 @@ namespace Editor.MapEditor
         public static class PathUtils
         {
             /// <summary>
-            /// 关卡JSON目录
+            /// 关卡 JSON 目录完整路径
             /// </summary>
             public static string GetLevelDirectoryFullPath()
             {
@@ -309,7 +331,7 @@ namespace Editor.MapEditor
             }
 
             /// <summary>
-            /// 背景图完整路径
+            /// 背景图完整路径（相对 Assets）
             /// </summary>
             public static string GetItemStrPath(string backgroundName)
             {
@@ -317,11 +339,11 @@ namespace Editor.MapEditor
             }
 
             /// <summary>
-            /// 图标完整路径
+            /// 图标完整路径（相对 Assets）
             /// </summary>
-            public static string GetItemIconPath(string _iconName)
+            public static string GetItemIconPath(string iconName)
             {
-                return AorTxt.Format("{0}/{1}.png", "Assets/Res/Textures/Map/Icon", _iconName);
+                return AorTxt.Format("{0}/{1}.png", "Assets/Res/Textures/Map/Icon", iconName);
             }
         }
         #endregion
@@ -336,7 +358,7 @@ namespace Editor.MapEditor
         public static class Utils
         {
             /// <summary>
-            /// 加载关卡目录下所有JSON地图数据
+            /// 加载关卡目录下所有 JSON 地图数据
             /// </summary>
             public static void LoadJsonFiles()
             {
@@ -455,7 +477,7 @@ namespace Editor.MapEditor
             private static readonly HashSet<string> m_MissingImageLogged = new HashSet<string>();
 
             /// <summary>
-            /// 从本地/AB包路径加载图片
+            /// 从本地/AB 包路径加载图片
             /// </summary>
             public static Texture2D LoadImageTexture(string imagePath)
             {
@@ -479,12 +501,13 @@ namespace Editor.MapEditor
                 {
                     Debug.LogWarning($"图片不存在: {imagePath}（仅提示一次，请检查表格 Icon 配置或补充资源）");
                 }
+
                 return null;
             }
             #endregion
 
             /// <summary>
-            /// 收集地图上所有物体数据，用于保存JSON/Lua
+            /// 收集地图上所有物体数据，用于保存 JSON/Lua
             /// </summary>
             public static RMapChapterTypeData GetCurLevelTypeEditorData()
             {
@@ -533,10 +556,10 @@ namespace Editor.MapEditor
             /// <summary>
             /// 将字符串数组解析为 int[]
             /// </summary>
-            public static int[] GetIntList(string _list)
+            public static int[] GetIntList(string list)
             {
-                if (string.IsNullOrWhiteSpace(_list)) return new int[0];
-                string clean = _list.Trim('{', '}').Replace("\"", "");
+                if (string.IsNullOrWhiteSpace(list)) return new int[0];
+                string clean = list.Trim('{', '}').Replace("\"", "");
                 return clean.Split(',').Where(s => !string.IsNullOrWhiteSpace(s)).Select(int.Parse).ToArray();
             }
         }
@@ -552,7 +575,7 @@ namespace Editor.MapEditor
         public static class SetShowCameraView
         {
             /// <summary>
-            /// 创建并初始化预览相机
+            /// 创建并初始化预览相机（已存在时直接返回，避免重复创建）
             /// </summary>
             public static void InitRenderUtility()
             {
@@ -577,16 +600,16 @@ namespace Editor.MapEditor
         #endregion
 
         //=========================================================================
-        // Excel配置加载
+        // Excel 配置加载
         //=========================================================================
         #region Excel Config Load
         /// <summary>
-        /// Excel配置表加载工具
+        /// Excel 配置表加载工具
         /// </summary>
         public static class LoadConfig
         {
             /// <summary>
-            /// 加载所有表格：关卡、物品、每日关卡
+            /// 加载所有表格：章节、主关卡、物品、每日关卡
             /// </summary>
             public static void LoadConfigs()
             {
@@ -599,8 +622,9 @@ namespace Editor.MapEditor
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
-                    throw;
+                    // 配置加载失败不阻断编辑器：记录错误后继续，避免 OnGUI 每帧重复崩溃
+                    //（UtilDataSet.ToList 已对空 DataSet 返回空列表，各配置表字段保持非空）
+                    Debug.LogError($"加载 Excel 配置表失败：{e}");
                 }
             }
 
@@ -623,15 +647,19 @@ namespace Editor.MapEditor
         public static class SaveConfig
         {
             /// <summary>
-            /// JSON保存路径
+            /// JSON 保存路径（基于当前选中的章节 + 数据自定义路径拼接）
             /// </summary>
             public static string LevelSavePath
             {
                 get
                 {
                     var data = Utils.GetCurLevelTypeEditorData();
-                    if (!string.IsNullOrEmpty(data?.SavePath))
+                    if (data == null || _mTablesElectedLevelsEditor == null)
+                        return LevelSaveRootPath;
+
+                    if (!string.IsNullOrEmpty(data.SavePath))
                         return Path.Combine(LevelSaveRootPath, _mTablesElectedLevelsEditor.ChapterId, data.SavePath);
+
                     return Path.Combine(LevelSaveRootPath, _mTablesElectedLevelsEditor.ChapterId);
                 }
             }
@@ -658,7 +686,7 @@ namespace Editor.MapEditor
             }
 
             /// <summary>
-            /// 保存Lua表格文件
+            /// 保存 Lua 表格文件
             /// </summary>
             public static void MapSaveLua(RMapChapterTypeData data, bool hasLevelTypeSavePath = false)
             {
@@ -688,11 +716,14 @@ namespace Editor.MapEditor
         // 类型转换工具
         //=========================================================================
         #region 类型转换工具
+        /// <summary>
+        /// 类型转换工具类：字符串与数值/向量的互转
+        /// </summary>
         public static class SetTypeConversion
         {
             /// <summary>
             /// 安全地把类似 "[1,2,3]" 的字符串转 int[]
-            /// 解析失败的项直接丢弃，不补0；空/无效返回空数组
+            /// <para>解析失败的项直接丢弃，不补 0；空/无效返回空数组。</para>
             /// </summary>
             public static int[] OnStringToInt(string s)
             {
@@ -723,7 +754,7 @@ namespace Editor.MapEditor
 
                 return result.ToArray();
             }
-            
+
             /// <summary>
             /// 把 "(296.17, 693.17, 0.00)" 格式转成字符串数组 { "296.17", "693.17", "0.00" }
             /// </summary>
@@ -762,10 +793,10 @@ namespace Editor.MapEditor
 
                 return result;
             }
-            
+
             /// <summary>
-            /// 将 Vector3 转换为保留2位小数的字符串数组：{ "x", "y", "z" }
-            /// 格式：296.17、693.17、0.00
+            /// 将 Vector3 转换为保留 2 位小数的字符串数组：{ "x", "y", "z" }
+            /// <para>格式：296.17、693.17、0.00</para>
             /// </summary>
             public static string[] Vector3ToStringArray(Vector3 vec)
             {
@@ -776,6 +807,7 @@ namespace Editor.MapEditor
                     vec.z.ToString("F2")
                 };
             }
+
             /// <summary>
             /// Vector3 → string：{"296.17","693.17","0.00"}
             /// </summary>

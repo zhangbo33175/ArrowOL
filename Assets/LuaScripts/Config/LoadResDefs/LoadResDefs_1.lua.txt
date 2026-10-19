@@ -5,28 +5,78 @@
 -- filename:  LoadResDefs_1.lua
 -- descrip:   资源全局定义
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     资源条目明细数据表
+-- @desc      逐条登记全部 Sprite/预制体/音频等资源的类型、AB包路径与资源文件名，自动生成
+-- @core      向全局 LoadRes 字典按 key 写入 LOAD_RES_DEF_ITEM 条目
+-- @scope     配合 LoadResDefs 入口表，供资源加载模块按资源名取 AB 路径
+-- @dependency LoadResDefs（LoadRes 表结构由其创建）
 --=====================================================================================================
 
----@field GameObject_Character LOAD_RES_DEF_ITEM @文件 Character
-LoadRes["GameObject_Character"] = { Name = "GameObject_Character", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "Character" }
+---@field Sprite_btn_b LOAD_RES_DEF_ITEM @文件 btn_b
+LoadRes["Sprite_btn_b"] = { Name = "Sprite_btn_b", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_b", AssetName = "btn_b" }
 
----@field GameObject_FishItem LOAD_RES_DEF_ITEM @文件 FishItem
-LoadRes["GameObject_FishItem"] = { Name = "GameObject_FishItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "FishItem" }
+---@field Sprite_btn_g LOAD_RES_DEF_ITEM @文件 btn_g
+LoadRes["Sprite_btn_g"] = { Name = "Sprite_btn_g", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g", AssetName = "btn_g" }
 
----@field GameObject_GameMainMap LOAD_RES_DEF_ITEM @文件 GameMainMap
-LoadRes["GameObject_GameMainMap"] = { Name = "GameObject_GameMainMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "GameMainMap" }
+---@field Sprite_btn_g-1 LOAD_RES_DEF_ITEM @文件 btn_g-1
+LoadRes["Sprite_btn_g-1"] = { Name = "Sprite_btn_g-1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g-1", AssetName = "btn_g-1" }
 
----@field GameObject_ItemMap LOAD_RES_DEF_ITEM @文件 ItemMap
-LoadRes["GameObject_ItemMap"] = { Name = "GameObject_ItemMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "ItemMap" }
+---@field Sprite_btn_p LOAD_RES_DEF_ITEM @文件 btn_p
+LoadRes["Sprite_btn_p"] = { Name = "Sprite_btn_p", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_p", AssetName = "btn_p" }
 
----@field GameObject_SectionItem LOAD_RES_DEF_ITEM @文件 SectionItem
-LoadRes["GameObject_SectionItem"] = { Name = "GameObject_SectionItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs", AssetName = "SectionItem" }
+---@field Sprite_btn_r LOAD_RES_DEF_ITEM @文件 btn_r
+LoadRes["Sprite_btn_r"] = { Name = "Sprite_btn_r", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_r", AssetName = "btn_r" }
+
+---@field Sprite_checkInIcon LOAD_RES_DEF_ITEM @文件 checkInIcon
+LoadRes["Sprite_checkInIcon"] = { Name = "Sprite_checkInIcon", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/checkInIcon", AssetName = "checkInIcon" }
+
+---@field Sprite_close LOAD_RES_DEF_ITEM @文件 close
+LoadRes["Sprite_close"] = { Name = "Sprite_close", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/close", AssetName = "close" }
+
+---@field Sprite_CollectIcon LOAD_RES_DEF_ITEM @文件 CollectIcon
+LoadRes["Sprite_CollectIcon"] = { Name = "Sprite_CollectIcon", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/CollectIcon", AssetName = "CollectIcon" }
+
+---@field Sprite_home LOAD_RES_DEF_ITEM @文件 home
+LoadRes["Sprite_home"] = { Name = "Sprite_home", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/home", AssetName = "home" }
+
+---@field Sprite_home_puzzle_frame LOAD_RES_DEF_ITEM @文件 home_puzzle_frame
+LoadRes["Sprite_home_puzzle_frame"] = { Name = "Sprite_home_puzzle_frame", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/home_puzzle_frame", AssetName = "home_puzzle_frame" }
+
+---@field Sprite_Icon_Advertising LOAD_RES_DEF_ITEM @文件 Icon_Advertising
+LoadRes["Sprite_Icon_Advertising"] = { Name = "Sprite_Icon_Advertising", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/Icon_Advertising", AssetName = "Icon_Advertising" }
+
+---@field Sprite_icon_cat LOAD_RES_DEF_ITEM @文件 icon_cat
+LoadRes["Sprite_icon_cat"] = { Name = "Sprite_icon_cat", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/icon_cat", AssetName = "icon_cat" }
+
+---@field Sprite_icon_fish LOAD_RES_DEF_ITEM @文件 icon_fish
+LoadRes["Sprite_icon_fish"] = { Name = "Sprite_icon_fish", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/icon_fish", AssetName = "icon_fish" }
+
+---@field Sprite_icon_home LOAD_RES_DEF_ITEM @文件 icon_home
+LoadRes["Sprite_icon_home"] = { Name = "Sprite_icon_home", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/icon_home", AssetName = "icon_home" }
+
+---@field Sprite_icon_search LOAD_RES_DEF_ITEM @文件 icon_search
+LoadRes["Sprite_icon_search"] = { Name = "Sprite_icon_search", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/icon_search", AssetName = "icon_search" }
+
+---@field Sprite_icon_set LOAD_RES_DEF_ITEM @文件 icon_set
+LoadRes["Sprite_icon_set"] = { Name = "Sprite_icon_set", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/icon_set", AssetName = "icon_set" }
+
+---@field Sprite_IconBg LOAD_RES_DEF_ITEM @文件 IconBg
+LoadRes["Sprite_IconBg"] = { Name = "Sprite_IconBg", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/IconBg", AssetName = "IconBg" }
+
+---@field Sprite_level LOAD_RES_DEF_ITEM @文件 level
+LoadRes["Sprite_level"] = { Name = "Sprite_level", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/level", AssetName = "level" }
 
 ---@field Sprite_Level_bg_main_1 LOAD_RES_DEF_ITEM @文件 Level_bg_main_1
 LoadRes["Sprite_Level_bg_main_1"] = { Name = "Sprite_Level_bg_main_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main_1", AssetName = "Level_bg_main_1" }
 
+---@field Sprite_Level_bg_main_21 LOAD_RES_DEF_ITEM @文件 Level_bg_main_21
+LoadRes["Sprite_Level_bg_main_21"] = { Name = "Sprite_Level_bg_main_21", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main_21", AssetName = "Level_bg_main_21" }
+
 ---@field Sprite_Level_bg_main1 LOAD_RES_DEF_ITEM @文件 Level_bg_main1
 LoadRes["Sprite_Level_bg_main1"] = { Name = "Sprite_Level_bg_main1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main1", AssetName = "Level_bg_main1" }
+
+---@field Sprite_Level_bg_main2 LOAD_RES_DEF_ITEM @文件 Level_bg_main2
+LoadRes["Sprite_Level_bg_main2"] = { Name = "Sprite_Level_bg_main2", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main2", AssetName = "Level_bg_main2" }
 
 ---@field Sprite_Level_bg_main3 LOAD_RES_DEF_ITEM @文件 Level_bg_main3
 LoadRes["Sprite_Level_bg_main3"] = { Name = "Sprite_Level_bg_main3", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main3", AssetName = "Level_bg_main3" }
@@ -54,6 +104,12 @@ LoadRes["Sprite_Level_bg_main11"] = { Name = "Sprite_Level_bg_main11", TypeName 
 
 ---@field Sprite_Level_bg_main15 LOAD_RES_DEF_ITEM @文件 Level_bg_main15
 LoadRes["Sprite_Level_bg_main15"] = { Name = "Sprite_Level_bg_main15", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Level_bg_main15", AssetName = "Level_bg_main15" }
+
+---@field Sprite_loa_bar LOAD_RES_DEF_ITEM @文件 loa_bar
+LoadRes["Sprite_loa_bar"] = { Name = "Sprite_loa_bar", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/loa_bar", AssetName = "loa_bar" }
+
+---@field Sprite_loa_pro LOAD_RES_DEF_ITEM @文件 loa_pro
+LoadRes["Sprite_loa_pro"] = { Name = "Sprite_loa_pro", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/loa_pro", AssetName = "loa_pro" }
 
 ---@field Sprite_main_level1_cat1 LOAD_RES_DEF_ITEM @文件 main_level1_cat1
 LoadRes["Sprite_main_level1_cat1"] = { Name = "Sprite_main_level1_cat1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/main_level1_cat1", AssetName = "main_level1_cat1" }
@@ -154,11 +210,23 @@ LoadRes["Sprite_main_level1_cat2009"] = { Name = "Sprite_main_level1_cat2009", T
 ---@field Sprite_main_level1_cat2010 LOAD_RES_DEF_ITEM @文件 main_level1_cat2010
 LoadRes["Sprite_main_level1_cat2010"] = { Name = "Sprite_main_level1_cat2010", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/main_level1_cat2010", AssetName = "main_level1_cat2010" }
 
----@field Sprite_map LOAD_RES_DEF_ITEM @文件 map
-LoadRes["Sprite_map"] = { Name = "Sprite_map", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/map", AssetName = "map" }
-
 ---@field Sprite_Map_level_1 LOAD_RES_DEF_ITEM @文件 Map_level_1
 LoadRes["Sprite_Map_level_1"] = { Name = "Sprite_Map_level_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/Map_level_1", AssetName = "Map_level_1" }
+
+---@field Sprite_num_panel LOAD_RES_DEF_ITEM @文件 num_panel
+LoadRes["Sprite_num_panel"] = { Name = "Sprite_num_panel", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/num_panel", AssetName = "num_panel" }
+
+---@field Sprite_PhotographIcon LOAD_RES_DEF_ITEM @文件 PhotographIcon
+LoadRes["Sprite_PhotographIcon"] = { Name = "Sprite_PhotographIcon", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/PhotographIcon", AssetName = "PhotographIcon" }
+
+---@field Sprite_profile_cat_1 LOAD_RES_DEF_ITEM @文件 profile_cat_1
+LoadRes["Sprite_profile_cat_1"] = { Name = "Sprite_profile_cat_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/profile_cat_1", AssetName = "profile_cat_1" }
+
+---@field Sprite_profile_frame_1 LOAD_RES_DEF_ITEM @文件 profile_frame_1
+LoadRes["Sprite_profile_frame_1"] = { Name = "Sprite_profile_frame_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/profile_frame_1", AssetName = "profile_frame_1" }
+
+---@field Sprite_puzzle LOAD_RES_DEF_ITEM @文件 puzzle
+LoadRes["Sprite_puzzle"] = { Name = "Sprite_puzzle", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/puzzle", AssetName = "puzzle" }
 
 ---@field Sprite_puzzle_1_1 LOAD_RES_DEF_ITEM @文件 puzzle_1_1
 LoadRes["Sprite_puzzle_1_1"] = { Name = "Sprite_puzzle_1_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_1_1", AssetName = "puzzle_1_1" }
@@ -211,6 +279,204 @@ LoadRes["Sprite_puzzle_1_16"] = { Name = "Sprite_puzzle_1_16", TypeName = "Sprit
 ---@field Sprite_puzzle_panel1 LOAD_RES_DEF_ITEM @文件 puzzle_panel1
 LoadRes["Sprite_puzzle_panel1"] = { Name = "Sprite_puzzle_panel1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/LevelIcon/Level1/puzzle_panel1", AssetName = "puzzle_panel1" }
 
+---@field Sprite_safe_panel LOAD_RES_DEF_ITEM @文件 safe_panel
+LoadRes["Sprite_safe_panel"] = { Name = "Sprite_safe_panel", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/safe_panel", AssetName = "safe_panel" }
+
+---@field Sprite_sc_2_cat_1 LOAD_RES_DEF_ITEM @文件 sc_2_cat_1
+LoadRes["Sprite_sc_2_cat_1"] = { Name = "Sprite_sc_2_cat_1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_1", AssetName = "sc_2_cat_1" }
+
+---@field Sprite_sc_2_cat_2 LOAD_RES_DEF_ITEM @文件 sc_2_cat_2
+LoadRes["Sprite_sc_2_cat_2"] = { Name = "Sprite_sc_2_cat_2", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_2", AssetName = "sc_2_cat_2" }
+
+---@field Sprite_sc_2_cat_3 LOAD_RES_DEF_ITEM @文件 sc_2_cat_3
+LoadRes["Sprite_sc_2_cat_3"] = { Name = "Sprite_sc_2_cat_3", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_3", AssetName = "sc_2_cat_3" }
+
+---@field Sprite_sc_2_cat_4 LOAD_RES_DEF_ITEM @文件 sc_2_cat_4
+LoadRes["Sprite_sc_2_cat_4"] = { Name = "Sprite_sc_2_cat_4", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_4", AssetName = "sc_2_cat_4" }
+
+---@field Sprite_sc_2_cat_5 LOAD_RES_DEF_ITEM @文件 sc_2_cat_5
+LoadRes["Sprite_sc_2_cat_5"] = { Name = "Sprite_sc_2_cat_5", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_5", AssetName = "sc_2_cat_5" }
+
+---@field Sprite_sc_2_cat_6 LOAD_RES_DEF_ITEM @文件 sc_2_cat_6
+LoadRes["Sprite_sc_2_cat_6"] = { Name = "Sprite_sc_2_cat_6", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_6", AssetName = "sc_2_cat_6" }
+
+---@field Sprite_sc_2_cat_7 LOAD_RES_DEF_ITEM @文件 sc_2_cat_7
+LoadRes["Sprite_sc_2_cat_7"] = { Name = "Sprite_sc_2_cat_7", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_7", AssetName = "sc_2_cat_7" }
+
+---@field Sprite_sc_2_cat_8 LOAD_RES_DEF_ITEM @文件 sc_2_cat_8
+LoadRes["Sprite_sc_2_cat_8"] = { Name = "Sprite_sc_2_cat_8", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_8", AssetName = "sc_2_cat_8" }
+
+---@field Sprite_sc_2_cat_9 LOAD_RES_DEF_ITEM @文件 sc_2_cat_9
+LoadRes["Sprite_sc_2_cat_9"] = { Name = "Sprite_sc_2_cat_9", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_9", AssetName = "sc_2_cat_9" }
+
+---@field Sprite_sc_2_cat_10 LOAD_RES_DEF_ITEM @文件 sc_2_cat_10
+LoadRes["Sprite_sc_2_cat_10"] = { Name = "Sprite_sc_2_cat_10", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_10", AssetName = "sc_2_cat_10" }
+
+---@field Sprite_sc_2_cat_11 LOAD_RES_DEF_ITEM @文件 sc_2_cat_11
+LoadRes["Sprite_sc_2_cat_11"] = { Name = "Sprite_sc_2_cat_11", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_11", AssetName = "sc_2_cat_11" }
+
+---@field Sprite_sc_2_cat_12 LOAD_RES_DEF_ITEM @文件 sc_2_cat_12
+LoadRes["Sprite_sc_2_cat_12"] = { Name = "Sprite_sc_2_cat_12", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_12", AssetName = "sc_2_cat_12" }
+
+---@field Sprite_sc_2_cat_13 LOAD_RES_DEF_ITEM @文件 sc_2_cat_13
+LoadRes["Sprite_sc_2_cat_13"] = { Name = "Sprite_sc_2_cat_13", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_13", AssetName = "sc_2_cat_13" }
+
+---@field Sprite_sc_2_cat_14 LOAD_RES_DEF_ITEM @文件 sc_2_cat_14
+LoadRes["Sprite_sc_2_cat_14"] = { Name = "Sprite_sc_2_cat_14", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_14", AssetName = "sc_2_cat_14" }
+
+---@field Sprite_sc_2_cat_15 LOAD_RES_DEF_ITEM @文件 sc_2_cat_15
+LoadRes["Sprite_sc_2_cat_15"] = { Name = "Sprite_sc_2_cat_15", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_15", AssetName = "sc_2_cat_15" }
+
+---@field Sprite_sc_2_cat_16 LOAD_RES_DEF_ITEM @文件 sc_2_cat_16
+LoadRes["Sprite_sc_2_cat_16"] = { Name = "Sprite_sc_2_cat_16", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_16", AssetName = "sc_2_cat_16" }
+
+---@field Sprite_sc_2_cat_17 LOAD_RES_DEF_ITEM @文件 sc_2_cat_17
+LoadRes["Sprite_sc_2_cat_17"] = { Name = "Sprite_sc_2_cat_17", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_17", AssetName = "sc_2_cat_17" }
+
+---@field Sprite_sc_2_cat_18 LOAD_RES_DEF_ITEM @文件 sc_2_cat_18
+LoadRes["Sprite_sc_2_cat_18"] = { Name = "Sprite_sc_2_cat_18", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_18", AssetName = "sc_2_cat_18" }
+
+---@field Sprite_sc_2_cat_19 LOAD_RES_DEF_ITEM @文件 sc_2_cat_19
+LoadRes["Sprite_sc_2_cat_19"] = { Name = "Sprite_sc_2_cat_19", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_19", AssetName = "sc_2_cat_19" }
+
+---@field Sprite_sc_2_cat_20 LOAD_RES_DEF_ITEM @文件 sc_2_cat_20
+LoadRes["Sprite_sc_2_cat_20"] = { Name = "Sprite_sc_2_cat_20", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_20", AssetName = "sc_2_cat_20" }
+
+---@field Sprite_sc_2_cat_21 LOAD_RES_DEF_ITEM @文件 sc_2_cat_21
+LoadRes["Sprite_sc_2_cat_21"] = { Name = "Sprite_sc_2_cat_21", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_21", AssetName = "sc_2_cat_21" }
+
+---@field Sprite_sc_2_cat_22 LOAD_RES_DEF_ITEM @文件 sc_2_cat_22
+LoadRes["Sprite_sc_2_cat_22"] = { Name = "Sprite_sc_2_cat_22", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_22", AssetName = "sc_2_cat_22" }
+
+---@field Sprite_sc_2_cat_23 LOAD_RES_DEF_ITEM @文件 sc_2_cat_23
+LoadRes["Sprite_sc_2_cat_23"] = { Name = "Sprite_sc_2_cat_23", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_23", AssetName = "sc_2_cat_23" }
+
+---@field Sprite_sc_2_cat_24 LOAD_RES_DEF_ITEM @文件 sc_2_cat_24
+LoadRes["Sprite_sc_2_cat_24"] = { Name = "Sprite_sc_2_cat_24", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_24", AssetName = "sc_2_cat_24" }
+
+---@field Sprite_sc_2_cat_25 LOAD_RES_DEF_ITEM @文件 sc_2_cat_25
+LoadRes["Sprite_sc_2_cat_25"] = { Name = "Sprite_sc_2_cat_25", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_25", AssetName = "sc_2_cat_25" }
+
+---@field Sprite_sc_2_cat_26 LOAD_RES_DEF_ITEM @文件 sc_2_cat_26
+LoadRes["Sprite_sc_2_cat_26"] = { Name = "Sprite_sc_2_cat_26", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_26", AssetName = "sc_2_cat_26" }
+
+---@field Sprite_sc_2_cat_27 LOAD_RES_DEF_ITEM @文件 sc_2_cat_27
+LoadRes["Sprite_sc_2_cat_27"] = { Name = "Sprite_sc_2_cat_27", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_27", AssetName = "sc_2_cat_27" }
+
+---@field Sprite_sc_2_cat_28 LOAD_RES_DEF_ITEM @文件 sc_2_cat_28
+LoadRes["Sprite_sc_2_cat_28"] = { Name = "Sprite_sc_2_cat_28", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_28", AssetName = "sc_2_cat_28" }
+
+---@field Sprite_sc_2_cat_29 LOAD_RES_DEF_ITEM @文件 sc_2_cat_29
+LoadRes["Sprite_sc_2_cat_29"] = { Name = "Sprite_sc_2_cat_29", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_29", AssetName = "sc_2_cat_29" }
+
+---@field Sprite_sc_2_cat_30 LOAD_RES_DEF_ITEM @文件 sc_2_cat_30
+LoadRes["Sprite_sc_2_cat_30"] = { Name = "Sprite_sc_2_cat_30", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_30", AssetName = "sc_2_cat_30" }
+
+---@field Sprite_sc_2_cat_31 LOAD_RES_DEF_ITEM @文件 sc_2_cat_31
+LoadRes["Sprite_sc_2_cat_31"] = { Name = "Sprite_sc_2_cat_31", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_31", AssetName = "sc_2_cat_31" }
+
+---@field Sprite_sc_2_cat_32 LOAD_RES_DEF_ITEM @文件 sc_2_cat_32
+LoadRes["Sprite_sc_2_cat_32"] = { Name = "Sprite_sc_2_cat_32", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_32", AssetName = "sc_2_cat_32" }
+
+---@field Sprite_sc_2_cat_33 LOAD_RES_DEF_ITEM @文件 sc_2_cat_33
+LoadRes["Sprite_sc_2_cat_33"] = { Name = "Sprite_sc_2_cat_33", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_33", AssetName = "sc_2_cat_33" }
+
+---@field Sprite_sc_2_cat_34 LOAD_RES_DEF_ITEM @文件 sc_2_cat_34
+LoadRes["Sprite_sc_2_cat_34"] = { Name = "Sprite_sc_2_cat_34", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_34", AssetName = "sc_2_cat_34" }
+
+---@field Sprite_sc_2_cat_35 LOAD_RES_DEF_ITEM @文件 sc_2_cat_35
+LoadRes["Sprite_sc_2_cat_35"] = { Name = "Sprite_sc_2_cat_35", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_35", AssetName = "sc_2_cat_35" }
+
+---@field Sprite_sc_2_cat_36 LOAD_RES_DEF_ITEM @文件 sc_2_cat_36
+LoadRes["Sprite_sc_2_cat_36"] = { Name = "Sprite_sc_2_cat_36", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_36", AssetName = "sc_2_cat_36" }
+
+---@field Sprite_sc_2_cat_37 LOAD_RES_DEF_ITEM @文件 sc_2_cat_37
+LoadRes["Sprite_sc_2_cat_37"] = { Name = "Sprite_sc_2_cat_37", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_37", AssetName = "sc_2_cat_37" }
+
+---@field Sprite_sc_2_cat_38 LOAD_RES_DEF_ITEM @文件 sc_2_cat_38
+LoadRes["Sprite_sc_2_cat_38"] = { Name = "Sprite_sc_2_cat_38", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_38", AssetName = "sc_2_cat_38" }
+
+---@field Sprite_sc_2_cat_39 LOAD_RES_DEF_ITEM @文件 sc_2_cat_39
+LoadRes["Sprite_sc_2_cat_39"] = { Name = "Sprite_sc_2_cat_39", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_39", AssetName = "sc_2_cat_39" }
+
+---@field Sprite_sc_2_cat_40 LOAD_RES_DEF_ITEM @文件 sc_2_cat_40
+LoadRes["Sprite_sc_2_cat_40"] = { Name = "Sprite_sc_2_cat_40", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_40", AssetName = "sc_2_cat_40" }
+
+---@field Sprite_sc_2_cat_41 LOAD_RES_DEF_ITEM @文件 sc_2_cat_41
+LoadRes["Sprite_sc_2_cat_41"] = { Name = "Sprite_sc_2_cat_41", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_41", AssetName = "sc_2_cat_41" }
+
+---@field Sprite_sc_2_cat_42 LOAD_RES_DEF_ITEM @文件 sc_2_cat_42
+LoadRes["Sprite_sc_2_cat_42"] = { Name = "Sprite_sc_2_cat_42", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_42", AssetName = "sc_2_cat_42" }
+
+---@field Sprite_sc_2_cat_43 LOAD_RES_DEF_ITEM @文件 sc_2_cat_43
+LoadRes["Sprite_sc_2_cat_43"] = { Name = "Sprite_sc_2_cat_43", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_43", AssetName = "sc_2_cat_43" }
+
+---@field Sprite_sc_2_cat_44 LOAD_RES_DEF_ITEM @文件 sc_2_cat_44
+LoadRes["Sprite_sc_2_cat_44"] = { Name = "Sprite_sc_2_cat_44", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_44", AssetName = "sc_2_cat_44" }
+
+---@field Sprite_sc_2_cat_45 LOAD_RES_DEF_ITEM @文件 sc_2_cat_45
+LoadRes["Sprite_sc_2_cat_45"] = { Name = "Sprite_sc_2_cat_45", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/Icon/sc_2_cat_45", AssetName = "sc_2_cat_45" }
+
+---@field Sprite_sc_2带猫效果图 LOAD_RES_DEF_ITEM @文件 sc_2带猫效果图
+LoadRes["Sprite_sc_2带猫效果图"] = { Name = "Sprite_sc_2带猫效果图", TypeName = "Sprite", ABPath = "Assets/Res/Textures/Map/LevelBackground/sc_2带猫效果图", AssetName = "sc_2带猫效果图" }
+
+---@field Sprite_set_panel LOAD_RES_DEF_ITEM @文件 set_panel
+LoadRes["Sprite_set_panel"] = { Name = "Sprite_set_panel", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/set_panel", AssetName = "set_panel" }
+
+---@field Sprite_settingIcon LOAD_RES_DEF_ITEM @文件 settingIcon
+LoadRes["Sprite_settingIcon"] = { Name = "Sprite_settingIcon", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/settingIcon", AssetName = "settingIcon" }
+
+---@field Sprite_sign_r LOAD_RES_DEF_ITEM @文件 sign_r
+LoadRes["Sprite_sign_r"] = { Name = "Sprite_sign_r", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/sign_r", AssetName = "sign_r" }
+
+---@field Sprite_sign_y LOAD_RES_DEF_ITEM @文件 sign_y
+LoadRes["Sprite_sign_y"] = { Name = "Sprite_sign_y", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/sign_y", AssetName = "sign_y" }
+
 ---@field Sprite_Tile LOAD_RES_DEF_ITEM @文件 Tile
 LoadRes["Sprite_Tile"] = { Name = "Sprite_Tile", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/Tile", AssetName = "Tile" }
+
+---@field Sprite_turntableIcon LOAD_RES_DEF_ITEM @文件 turntableIcon
+LoadRes["Sprite_turntableIcon"] = { Name = "Sprite_turntableIcon", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/turntableIcon", AssetName = "turntableIcon" }
+
+---@field Sprite_userIcon LOAD_RES_DEF_ITEM @文件 userIcon
+LoadRes["Sprite_userIcon"] = { Name = "Sprite_userIcon", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/userIcon", AssetName = "userIcon" }
+
+---@field Sprite_猫窝 LOAD_RES_DEF_ITEM @文件 猫窝
+LoadRes["Sprite_猫窝"] = { Name = "Sprite_猫窝", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/猫窝", AssetName = "猫窝" }
+
+---@field Sprite_排行 LOAD_RES_DEF_ITEM @文件 排行
+LoadRes["Sprite_排行"] = { Name = "Sprite_排行", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/排行", AssetName = "排行" }
+
+---@field Sprite_皮肤 LOAD_RES_DEF_ITEM @文件 皮肤
+LoadRes["Sprite_皮肤"] = { Name = "Sprite_皮肤", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/皮肤", AssetName = "皮肤" }
+
+---@field Sprite_拼图1 LOAD_RES_DEF_ITEM @文件 拼图1
+LoadRes["Sprite_拼图1"] = { Name = "Sprite_拼图1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/拼图1", AssetName = "拼图1" }
+
+---@field Sprite_拼图2 LOAD_RES_DEF_ITEM @文件 拼图2
+LoadRes["Sprite_拼图2"] = { Name = "Sprite_拼图2", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/拼图2", AssetName = "拼图2" }
+
+---@field Sprite_拼图3 LOAD_RES_DEF_ITEM @文件 拼图3
+LoadRes["Sprite_拼图3"] = { Name = "Sprite_拼图3", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/拼图3", AssetName = "拼图3" }
+
+---@field Sprite_拼图4 LOAD_RES_DEF_ITEM @文件 拼图4
+LoadRes["Sprite_拼图4"] = { Name = "Sprite_拼图4", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/拼图4", AssetName = "拼图4" }
+
+---@field GameObject_Character LOAD_RES_DEF_ITEM @文件 Character
+LoadRes["GameObject_Character"] = { Name = "GameObject_Character", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/Character/Character", AssetName = "Character" }
+
+---@field GameObject_CollectItem LOAD_RES_DEF_ITEM @文件 CollectItem
+LoadRes["GameObject_CollectItem"] = { Name = "GameObject_CollectItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UILevelView/CollectItem", AssetName = "CollectItem" }
+
+---@field GameObject_FishItem LOAD_RES_DEF_ITEM @文件 FishItem
+LoadRes["GameObject_FishItem"] = { Name = "GameObject_FishItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UIMainStateView/FishItem", AssetName = "FishItem" }
+
+---@field GameObject_GameMainMap LOAD_RES_DEF_ITEM @文件 GameMainMap
+LoadRes["GameObject_GameMainMap"] = { Name = "GameObject_GameMainMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/Map/GameMainMap", AssetName = "GameMainMap" }
+
+---@field GameObject_ItemMap LOAD_RES_DEF_ITEM @文件 ItemMap
+LoadRes["GameObject_ItemMap"] = { Name = "GameObject_ItemMap", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/Item/ItemMap", AssetName = "ItemMap" }
+
+---@field GameObject_SectionItem LOAD_RES_DEF_ITEM @文件 SectionItem
+LoadRes["GameObject_SectionItem"] = { Name = "GameObject_SectionItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UILevelView/SectionItem", AssetName = "SectionItem" }
 

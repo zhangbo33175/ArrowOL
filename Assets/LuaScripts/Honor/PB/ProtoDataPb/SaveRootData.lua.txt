@@ -5,6 +5,11 @@
 -- filename:  SaveRootData.lua
 -- descrip:   存档主干数据
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     存档主干数据聚合入口
+-- @desc      定义 SaveRootData 根表并 require 各子存档、触发各 SaveIO.LoadAll() 完成全量加载
+-- @core      类声明 SaveRootData + require 四个子 PB（Game/Notification/SystemConfig/UserData）+ 调用各 LoadAll
+-- @scope     游戏启动时加载全部本地存档数据的统一入口
+-- @dependency GameDataPB、NotificationDataPB、SystemConfigDataPB、UserDataPB、SaveIO
 --=====================================================================================================
 
 ---@class SaveRootData @存档主干数据

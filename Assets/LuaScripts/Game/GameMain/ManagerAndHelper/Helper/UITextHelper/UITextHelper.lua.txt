@@ -7,12 +7,17 @@
 -- @brief     UI 文本工具类
 -- @desc      通用数字滚动动画，支持 Text / TextMeshProUGUI / TextMeshPro
 --            用于金币、分数、数值变化、结算界面动画
+-- @core      数字滚动协程、三种文本组件兼容写入、绑定 UI 自动回收与独立协程两种启动方式
+-- @scope     金币/分数/数值变化、结算界面需要数字滚动过渡的 UI（由 GameRequires 实例化为全局）
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, CoroutineHelper, Utility, GlobalUtility
 --=====================================================================================================
 
----@class UITextHelper UI 文本通用工具类
+---@class UITextHelper UI 文本通用工具类（数字滚动动画，纯工具方法）
 local UITextHelper = class("UITextHelper")
+
+-- 内部方法前向声明（仅本文件内部调用，见「内部方法·工具」region）
+local CoroutineNumberAnimation
 
 --region 构造 & 实例化
 
@@ -63,7 +68,7 @@ function UITextHelper:PlayNumberAnimation(
         useRealtime
 )
     return HonorCoroutineHelper:Start(handler(luaBehaviour, function()
-        self:CoroutineNumberAnimation(
+        CoroutineNumberAnimation(self,
                 textComponent,
                 startValue,
                 targetValue,
@@ -103,7 +108,7 @@ function UITextHelper:PlayNumberAnimationAlone(
         delay
 )
     return HonorCoroutineHelper:StartAlone(function()
-        self:CoroutineNumberAnimation(
+        CoroutineNumberAnimation(self,
                 textComponent,
                 startValue,
                 targetValue,
@@ -119,10 +124,10 @@ end
 
 --endregion
 
---region 数字动画协程核心
+--region 内部方法·工具
 
 ---=========================================================================
----@brief 数字滚动动画协程主逻辑（支持所有文本类型）
+---@brief 数字滚动动画协程主逻辑（支持所有文本类型，内部实现，仅供对外接口调用）
 ---@param textComponent UnityEngine.UI.MaskableGraphic
 ---@param startValue number
 ---@param targetValue number
@@ -134,7 +139,7 @@ end
 ---@param delay number
 ---@param useRealtime boolean
 ---=========================================================================
-function UITextHelper:CoroutineNumberAnimation(
+function CoroutineNumberAnimation(self,
         textComponent,
         startValue,
         targetValue,
@@ -192,7 +197,7 @@ function UITextHelper:CoroutineNumberAnimation(
     end
 
     -- 计算动画步进
-    local delta = useRealtime and Unity.Time.unscaledDeltaTime or Unity.Time.deltaTime
+    local delta = useRealtime and UnityEngine.Time.unscaledDeltaTime or UnityEngine.Time.deltaTime
     local totalFrames = duration / delta
     local baseStep = math.floor(math.abs(targetValue - startValue) / totalFrames) + 1
     local step = startValue > targetValue and baseStep or -baseStep

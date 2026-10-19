@@ -1,11 +1,12 @@
 ﻿/***************************************************************
-(c) copyright 2026 - 2030, Honor.Runtime
-All Rights Reserved.
-filename: MapBuildEditor.InitStyles.cs
-author: 云毅
-created: 2026
-descrip: 地图编辑器 - 界面样式定义与初始化模块
-***************************************************************/
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  MapBuildEditor.InitStyles.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   地图编辑器 - 界面样式定义与初始化模块
+ ***************************************************************/
 
 using UnityEditor;
 using UnityEngine;
@@ -18,6 +19,9 @@ namespace Editor.MapEditor
     /// </summary>
     public sealed partial class MapBuildEditor
     {
+        //=========================================================================
+        // 样式定义字段
+        //=========================================================================
         #region 样式定义字段
 
         /// <summary>
@@ -77,6 +81,9 @@ namespace Editor.MapEditor
 
         #endregion
 
+        //=========================================================================
+        // 样式初始化
+        //=========================================================================
         #region 样式初始化
 
         /// <summary>
@@ -85,12 +92,13 @@ namespace Editor.MapEditor
         /// </summary>
         private void InitStyles()
         {
-// 左侧面板背景样式
+            // 左侧面板背景样式
             leftPanelStyle = new GUIStyle();
             leftPanelStyle.normal.background = MakeTex(2, 2, new Color(200f, 186f, 186f, 97f)); // #C8BABA
             leftPanelStyle.border = new RectOffset(0, 1, 0, 0);
             leftPanelStyle.padding = new RectOffset(0, 0, 0, 0);
-// 通用按钮样式
+
+            // 通用按钮样式
             buttonStyle = new GUIStyle();
             buttonStyle.normal.background = MakeTex(2, 2, new Color(0.176f, 0.176f, 0.188f)); // #2D2D30
             buttonStyle.hover.background = MakeTex(2, 2, new Color(0.227f, 0.227f, 0.239f)); // #3A3A3D
@@ -102,36 +110,44 @@ namespace Editor.MapEditor
             buttonStyle.padding = new RectOffset(15, 15, 0, 0);
             buttonStyle.fixedHeight = 24;
             buttonStyle.alignment = TextAnchor.MiddleCenter;
-// 激活标签页样式（继承按钮样式）
+
+            // 激活标签页样式（继承按钮样式）
             tabActiveStyle = new GUIStyle(buttonStyle);
             tabActiveStyle.normal.background = MakeTex(2, 2, new Color(0.055f, 0.388f, 0.612f)); // #0E639C
             tabActiveStyle.fixedHeight = 30;
-// 滚动视图背景样式
+
+            // 滚动视图背景样式
             scrollViewStyle = new GUIStyle();
             scrollViewStyle.normal.background = MakeTex(2, 2, new Color(0.118f, 0.118f, 0.118f, 0.38f));
-// 底部状态栏样式
+
+            // 底部状态栏样式
             statusBarStyle = new GUIStyle();
             statusBarStyle.normal.background = MakeTex(2, 2, new Color(0.145f, 0.145f, 0.149f)); // #252526
             statusBarStyle.border = new RectOffset(0, 0, 1, 0);
             statusBarStyle.padding = new RectOffset(10, 10, 0, 0);
-// 界面分割线样式
+
+            // 界面分割线样式
             separatorStyle = new GUIStyle();
             separatorStyle.normal.background = MakeTex(2, 2, new Color(0.259f, 0.259f, 0.259f)); // #424242
             separatorStyle.fixedHeight = 3;
             separatorStyle.margin = new RectOffset(0, 0, 5, 5);
-// 深色盒子背景样式
+
+            // 深色盒子背景样式
             darkBoxStyle = new GUIStyle();
             darkBoxStyle.normal.background = MakeTex(2, 2, new Color(0.455f, 0.439f, 0.439f)); // #746F6F
             darkBoxStyle.padding = new RectOffset(0, 0, 0, 0);
-// 普通文本标签样式
+
+            // 普通文本标签样式
             labelStyle = new GUIStyle();
             labelStyle.normal.textColor = Color.white;
             labelStyle.padding = new RectOffset(2, 2, 0, 0);
-// 列表项基础样式
+
+            // 列表项基础样式
             itemStyle = new GUIStyle(EditorStyles.helpBox);
             itemStyle.padding = new RectOffset(10, 10, 10, 10);
             itemStyle.margin = new RectOffset(5, 5, 5, 5);
-// 列表项正常 / 选中状态样式
+
+            // 列表项正常 / 选中状态样式
             _normalStyle = new GUIStyle("Box");
             _selectedStyle = new GUIStyle("Box");
             _selectedStyle.normal.background = MakeTex(2, 2, new Color(0.2f, 0.5f, 0.8f, 0.3f));
@@ -139,6 +155,9 @@ namespace Editor.MapEditor
 
         #endregion
 
+        //=========================================================================
+        // 工具方法
+        //=========================================================================
         #region 工具方法
 
         /// <summary>
@@ -154,6 +173,7 @@ namespace Editor.MapEditor
             Color[] pix = new Color[width * height];
             for (int i = 0; i < pix.Length; i++)
                 pix[i] = col;
+
             Texture2D result = new Texture2D(width, height);
             result.SetPixels(pix);
             result.Apply();

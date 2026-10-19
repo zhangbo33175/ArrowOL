@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     全局气泡管理器
 -- @desc      管理游戏内所有提示气泡（跟随目标、自动消失、互斥显示、对象池复用）
+-- @core      气泡生成/关闭、互斥 Tag 去重、Key 字典管理、自增 ID、对象池安全回收
+-- @scope     全游戏需要弹出跟随提示气泡的场景（GameRequires 实例化为全局单例）
 -- @feat      支持UGUI/场景物体跟随、屏幕约束、互斥显示、Key去重、自动回收、对象池安全
 -- @dependency Singleton, PoolManager, GlobalUtility, GlobalDefine, UIBubble
 --=====================================================================================================
@@ -103,9 +105,7 @@ function UIBubbleManager:ForceCloseBubble(bubbleKey)
     self._activeBubble[bubbleKey] = nil
 
     if bubble then
-        xpcall(function()
-            bubble:OnPutToPool()
-        end, function(err) end)
+        self:_PutBubbleToPool(bubble)
     end
 end
 
@@ -116,6 +116,15 @@ end
 ---=========================================================================
 function UIBubbleManager:CloseBubble(bubble)
     if not bubble then return end
+    self:_PutBubbleToPool(bubble)
+end
+
+---=========================================================================
+--- 静默回收气泡到对象池（ForceCloseBubble/CloseBubble 内部复用）
+---@brief xpcall 包裹调用气泡 OnPutToPool，异常静默不打断关闭流程
+---@param bubble UIBubble 气泡实例
+---=========================================================================
+function UIBubbleManager:_PutBubbleToPool(bubble)
     xpcall(function()
         bubble:OnPutToPool()
     end, function(err) end)

@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     本地活动管理器
 -- @desc      管理所有本地活动（礼包、周卡、免费钻石、银行等）
+-- @core      本地活动注册/互斥/组管理、活动生命周期驱动、弹窗排序与本地存储、热更资源加载
+-- @scope     全局活动单例，由主界面/启动流程拉起，供礼包/周卡/免费钻石等 LocalActivityBase 子类挂载
 -- @feat      活动互斥、组管理、生命周期、热更资源、弹窗顺序、本地存储
 -- @struct    基于 LocalActivityBase 子类驱动
 -- @dependency Singleton, LocalActivityBase, EventManager, GlobalUtility, GlobalDefine
@@ -30,7 +32,7 @@ ELocalActivityId = {
 ---@field popupOrder number 弹窗优先级（越大越先弹）
 
 ---@class LocalActivityManager : Singleton @本地活动管理器
----@field _activityLogicList List<LocalActivityBase> @活动逻辑类列表
+---@field _activityLogicList HonorList @活动逻辑类列表
 ---@field _activityGroupIdArray number[] @活动组ID缓存
 ---@field _activityHotfixResStates table<string, boolean> @活动热更资源状态
 ---@field _activityPopupData LocalActivityPopupData[] @待弹窗队列
@@ -40,12 +42,13 @@ local LocalActivityManager = class('LocalActivityManager', import('Singleton'))
 ---=========================================================================
 --- 构造函数
 ---@brief 初始化活动管理容器与缓存变量
+---@desc 框架驱动，勿删；单例构造时由 Singleton 基类回调
 ---@param args table 自定义参数
 ---=========================================================================
 function LocalActivityManager:ctor(args)
     LocalActivityManager.super.ctor(self, args)
 
-    self._activityLogicList     = HonorList:Create()    ---@type List<LocalActivityBase> 活动逻辑类列表
+    self._activityLogicList     = HonorList:Create()    ---@type HonorList 活动逻辑类列表
     self._activityGroupIdArray  = {}                    ---@type number[] 活动组ID缓存
     self._activityHotfixResStates = {}                  ---@type table<string, boolean> 活动热更资源状态
     self._activityPopupData     = {}                    ---@type LocalActivityPopupData[] 待弹窗队列
@@ -53,6 +56,7 @@ end
 
 ---=========================================================================
 ---@brief 创建单例
+---@desc 框架驱动，勿删；由单例工厂调用
 ---@return LocalActivityManager 单例实例
 ---=========================================================================
 function LocalActivityManager:Create(args)
@@ -63,6 +67,7 @@ end
 ---=========================================================================
 --- 初始化
 ---@brief 注册事件、初始化所有活动逻辑、首次登录弹窗检查
+---@desc 框架驱动，勿删；管理器初始化时由框架回调
 ---=========================================================================
 function LocalActivityManager:Init()
     LocalActivityManager.super.Init(self)
@@ -74,6 +79,7 @@ end
 ---=========================================================================
 --- 清理数据（切号/重载）
 ---@brief 清空所有缓存、数据、事件监听
+---@desc 框架驱动，勿删；切号/重载流程回调
 ---=========================================================================
 function LocalActivityManager:ClearData()
     LocalActivityManager.super.ClearData(self)
@@ -149,20 +155,6 @@ end
 ---=========================================================================
 function LocalActivityManager:GetActivityData()
     return SaveRootData.GameData.localActivityData
-end
-
----=========================================================================
----@brief 根据ID获取单条活动数据
----@param activityId string 活动ID
----@return SavePBMsgDef.SaveGameData.LocalActivityData 活动数据
----=========================================================================
-function LocalActivityManager:GetActivityDataById(activityId)
-    for _, activityData in ipairs(self:GetActivityData()) do
-        if activityData.activityId == activityId then
-            return activityData
-        end
-    end
-    return nil
 end
 
 ---=========================================================================
@@ -253,22 +245,6 @@ function LocalActivityManager:GetActivityLogic(activityId)
 end
 
 ---=========================================================================
----@brief 添加活动逻辑类
----@param logic LocalActivityBase 活动逻辑实例
----=========================================================================
-function LocalActivityManager:AddActivityLogic(logic)
-    if logic then self._activityLogicList:Add(logic) end
-end
-
----=========================================================================
----@brief 移除活动逻辑类
----@param logic LocalActivityBase 活动逻辑实例
----=========================================================================
-function LocalActivityManager:RemoveActivityLogic(logic)
-    if logic then self._activityLogicList:Remove(logic) end
-end
-
----=========================================================================
 --- 初始化所有活动逻辑
 ---@brief 遍历所有活动并执行初始化
 ---=========================================================================
@@ -303,22 +279,6 @@ function LocalActivityManager:UpdateActivityHotfixResStates()
             self:SetActivityHotfixResState(v.EventID, true)
         end
     end
-end
-
----=========================================================================
----@brief 所有活动热更资源是否全部就绪
----@return boolean 资源是否全部加载完成
----=========================================================================
-function LocalActivityManager:IsAllActivityHotfixResReady()
-    local events = LocalEventDataManager:GetEventData()
-    if not events then return true end
-
-    for _, v in pairs(events) do
-        if v.GroupNames and not self:GetActivityHotfixResState(v.EventID) then
-            return false
-        end
-    end
-    return true
 end
 
 ---=========================================================================
@@ -364,22 +324,12 @@ function LocalActivityManager:TryOpenActivities()
         end
     end
 end
-
----=========================================================================
---- 完成并关闭活动
----@brief 清理活动数据+触发活动结束回调
----@param localActivityId string 活动ID
----=========================================================================
-function LocalActivityManager:FinishActivity(localActivityId)
-    self:RemoveActivity(localActivityId, true)
-    local logic = self:GetActivityLogic(localActivityId)
-    if logic then logic:OnActivityEnd(localActivityId) end
-end
 --endregion
 
 --region 事件监听
 ---=========================================================================
 ---@brief 用户分层类型生成 → 重新检查活动开启条件
+---@desc 事件注册回调，勿删；由 OnGenerateUserType 事件触发
 ---@param userType string 用户类型
 ---=========================================================================
 function LocalActivityManager:OnGenerateUserType(userType)
@@ -397,33 +347,6 @@ function LocalActivityManager:TryPopupActivityUIByFirstLogin()
     for _, logic in ipairs(self._activityLogicList.items) do
         logic:TryPopupActivityUIByFirstLogin()
     end
-end
-
----=========================================================================
----@brief 添加活动到弹窗队列
----@param activityId string 活动ID
----@param popupOrder number 优先级
----=========================================================================
-function LocalActivityManager:AddActivityPopupData(activityId, popupOrder)
-    local data = self:GetActivityPopupData(activityId)
-    if not data then
-        data = {}
-        table.insert(self._activityPopupData, data)
-    end
-    data.activityId = activityId
-    data.popupOrder = popupOrder
-end
-
----=========================================================================
----@brief 获取弹窗队列中的活动数据
----@param activityId string 活动ID
----@return LocalActivityPopupData 弹窗数据
----=========================================================================
-function LocalActivityManager:GetActivityPopupData(activityId)
-    for _, v in ipairs(self._activityPopupData) do
-        if v.activityId == activityId then return v end
-    end
-    return nil
 end
 
 ---=========================================================================

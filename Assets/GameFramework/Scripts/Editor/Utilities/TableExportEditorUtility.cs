@@ -245,7 +245,7 @@ namespace Honor.Editor
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(
                     "--=====================================================================================================")
-                .AppendLine("-- (c) copyright 2026 - 2030, Honor.Game")
+                .AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime")
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine(
                     "-- ----------------------------------------------------------------------------------------------------")
@@ -355,7 +355,7 @@ namespace Honor.Editor
                 "quaternion" => $"UnityQuaternion({value})",
                 "rect" => $"UnityRect({value})",
                 "vector2" => $"UnityVector2({value})",
-                "vector3" => $"Unity.Vector3({value})",
+                "vector3" => $"UnityEngine.Vector3({value})",
                 "vector4" => $"UnityVector4({value})",
                 _ => value
             };

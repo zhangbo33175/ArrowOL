@@ -8,6 +8,8 @@
  * descrip:   地图编辑器 - 图标列表管理模块（根据地图配置动态加载图标）
  ***************************************************************/
 
+using UnityEngine;
+
 namespace Editor.MapEditor
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace Editor.MapEditor
             // 安全校验：传入的配置数据不能为空
             if (tableMainLevelsEditor == null)
             {
-                UnityEngine.Debug.LogWarning("地图配置数据为空，无法加载图标列表！");
+                Debug.LogWarning("地图配置数据为空，无法加载图标列表！");
                 return;
             }
 
@@ -43,7 +45,7 @@ namespace Editor.MapEditor
             // 安全校验：物品 ID 数组不能为空
             if (itemIds == null || itemIds.Length == 0)
             {
-                UnityEngine.Debug.LogWarning("当前地图未配置任何可使用物品 ID！");
+                Debug.LogWarning("当前地图未配置任何可使用物品 ID！");
                 return;
             }
 
@@ -58,11 +60,11 @@ namespace Editor.MapEditor
                 {
                     m_IconList.Add(new ItemIconDataEditor
                     {
-                        m_ID = targetItem.ID,                  // 物品唯一ID
-                        m_IconName = targetItem.Icon,          // 图标名称（用于显示）
-                        m_IconAssetPath = targetItem.Icon,     // 图标资源路径（用于加载）
-                        m_IsChoose = false,                    // 默认未选中状态
-                        m_Type = RMapIconType.Dissipate        // 图标交互类型：默认选中消散
+                        m_ID = targetItem.ID,              // 物品唯一 ID
+                        m_IconName = targetItem.Icon,      // 图标名称（用于显示）
+                        m_IconAssetPath = targetItem.Icon, // 图标资源路径（用于加载）
+                        m_IsChoose = false,                // 默认未选中状态
+                        m_Type = RMapIconType.Dissipate    // 图标交互类型：默认选中消散
                     });
                 }
             }

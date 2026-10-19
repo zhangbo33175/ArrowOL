@@ -5,7 +5,9 @@
 -- author:    云毅
 -- created:   2026
 -- @brief     排行榜数据管理器
--- @desc      管理排行榜榜单数据（本地模拟榜单 + 玩家自身成绩），提供榜单排序、玩家排名查询、分数更新与持久化
+-- @desc      管理排行榜榜单数据（本地模拟榜单 + 玩家自身成绩），提供榜单排序、玩家排名查询、分数持久化
+-- @core      本地模拟榜单生成与排序、玩家排名/分数查询、分数本地持久化、昵称同步兜底
+-- @scope     排行榜数据查询，供 UIRankView 跨文件调用
 -- @feat      全局单例、榜单排序、排名查询、分数持久化、空值防护、数据源可替换
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
@@ -13,6 +15,9 @@
 --=====================================================================================================
 
 ---@class RankDataManager : Singleton 排行榜数据管理器
+---@field m_RankList table[] @本地模拟榜单条目数组
+---@field m_PlayerScore number @玩家自身分数（本地持久化）
+---@field m_PlayerName string|nil @玩家自身昵称（未设置时兜底默认名）
 local RankDataManager = class("RankDataManager", import("Singleton"))
 
 --region 常量
@@ -25,6 +30,7 @@ RankDataManager.DefaultPlayerName = "我"
 
 ---@brief 玩家分数持久化标识（独立于 GameDataPB，避免侵入自动生成存档结构）
 RankDataManager.PersistClassify = "RankDataManager"
+---@brief 玩家分数持久化存储Key（PlayerPrefs 键）
 RankDataManager.PersistScoreKey = "RankDataManager.playerScore"
 
 --endregion
@@ -35,9 +41,7 @@ RankDataManager.PersistScoreKey = "RankDataManager.playerScore"
 ---@type fun():void
 function RankDataManager:ctor()
     RankDataManager.super.ctor(self)
-    self.m_RankList = {}
-    self.m_PlayerScore = 0
-    self.m_PlayerName = nil
+    self:_ResetState()
 end
 
 ---@brief 创建单例
@@ -45,6 +49,14 @@ end
 ---@return RankDataManager
 function RankDataManager:Create()
     return RankDataManager.new()
+end
+
+---@brief 重置榜单与玩家分数缓存字段
+---@type fun():void
+function RankDataManager:_ResetState()
+    self.m_RankList = {}
+    self.m_PlayerScore = 0
+    self.m_PlayerName = nil
 end
 
 --endregion
@@ -64,9 +76,7 @@ end
 ---@type fun():void
 function RankDataManager:ClearData()
     RankDataManager.super.ClearData(self)
-    self.m_RankList = {}
-    self.m_PlayerScore = 0
-    self.m_PlayerName = nil
+    self:_ResetState()
 end
 
 --endregion
@@ -149,18 +159,6 @@ function RankDataManager:GetPlayerScore()
     return self.m_PlayerScore
 end
 
----@brief 更新玩家分数并持久化
----@type fun(score:number):void
----@param score number 最新分数（非负数）
-function RankDataManager:UpdatePlayerScore(score)
-    if type(score) ~= "number" or score < 0 then
-        PrintError("[RankDataManager] 更新分数失败：参数无效 score=" .. tostring(score))
-        return
-    end
-    self.m_PlayerScore = score
-    self:SavePlayerScore()
-end
-
 --endregion
 
 --region 玩家昵称
@@ -191,33 +189,32 @@ end
 
 --region 分数持久化
 
+---@brief 获取持久化对象（GameMainRoot.Persist 缺失时返回 nil）
+---@type fun():table|nil
+---@return table|nil 持久化对象
+function RankDataManager:_GetPersist()
+    if not GameMainRoot or not GameMainRoot.Persist then
+        return nil
+    end
+    return GameMainRoot.Persist
+end
+
 ---@brief 从本地存档加载玩家分数
 ---@type fun():void
 function RankDataManager:LoadPlayerScore()
     self.m_PlayerScore = 0
-    if not GameMainRoot or not GameMainRoot.Persist then
-        return
-    end
+    local persist = self:_GetPersist()
+    if not persist then return end
+
+    local way = Honor.PersistWayType.PlayerPrefs
     xpcall(function()
-        if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, RankDataManager.PersistClassify, RankDataManager.PersistScoreKey) then
-            local scoreStr = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, RankDataManager.PersistClassify, RankDataManager.PersistScoreKey, "0")
+        if persist:HasItem(way, RankDataManager.PersistClassify, RankDataManager.PersistScoreKey) then
+            local scoreStr = persist:GetString(way, RankDataManager.PersistClassify,
+                RankDataManager.PersistScoreKey, "0")
             self.m_PlayerScore = tonumber(scoreStr) or 0
         end
     end, function(err)
         PrintError("[RankDataManager] 加载玩家分数失败：" .. tostring(err))
-    end)
-end
-
----@brief 持久化玩家分数到本地存档
----@type fun():void
-function RankDataManager:SavePlayerScore()
-    if not GameMainRoot or not GameMainRoot.Persist then
-        return
-    end
-    xpcall(function()
-        GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, RankDataManager.PersistClassify, RankDataManager.PersistScoreKey, tostring(self.m_PlayerScore))
-    end, function(err)
-        PrintError("[RankDataManager] 保存玩家分数失败：" .. tostring(err))
     end)
 end
 

@@ -6,24 +6,25 @@
 -- created:   2026
 -- @brief     游戏角色基础类
 -- @desc      所有角色（玩家/怪物/NPC）的统一父类，提供通用功能、点击、音效、位置接口
--- @dependency LuaBehaviourSuper, GameStateMachine, EventHelper, SoundMgr
+-- @core      点击收集、角色生命周期广播、行为树回调、音效播放、角色数据清理
+-- @scope     GameMap 场上所有角色实体（由 CharacterGenerationManager 生成与回收）
+-- @dependency LuaBehaviourSuper, GameStateMachine, EventHelper, SoundManager, CharacterGenerationManager
 --=====================================================================================================
 
----@class CharacterBase : LuaBehaviourSuper
+---@class CharacterBase : LuaBehaviourSuper @游戏角色统一父类，承载点击收集/生命周期/行为树回调
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
 ---@field _CharacterIcon UnityEngine.Transform @角色
 ---@field _CharData Tables.Characters_Item @角色配置数据
----@field _GameObject UnityEngine.GameObject @角色配置数据
+---@field _GameObject UnityEngine.GameObject @角色根节点GameObject（CharacterGenerationManager 生成时赋值）
 ---@field _WaitFrame GameLib.WaitForFrames @帧等待对象
 ---@field _ClickItem GameLib.AorClickItem @点击组件
 ---@field _LastSoundSerialID number @最后播放的音效ID
 ---@field _name string @角色名称
+---@field _Destroying boolean @销毁中标志（防销毁 GameObject 触发 C# OnDestroy 递归）
 local CharacterBase = class('CharacterBase', import('LuaBehaviourSuper'))
 
----=========================================================================
---- 构造与创建
----=========================================================================
---region Constructor & Create
+--region 【构造 & 创建】
+
 ---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
@@ -42,16 +43,15 @@ end
 ---@param args table @自定义参数
 ---@return CharacterBase @CharacterBase实例
 function CharacterBase:Create(args)
-    local obj = CharacterBase.new(args)
-    return obj
+    return CharacterBase.new(args)
 end
+
 --endregion
 
----=========================================================================
---- 生命周期
----=========================================================================
---region LifeCycle
+--region 【生命周期】
+
 ---@brief 注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@desc 框架驱动，勿删；为角色图标挂载点击组件并绑定 OnClickCharacter
 ---@type fun():void
 function CharacterBase:OnAddListeners()
     CharacterBase.super.OnAddListeners(self)
@@ -63,6 +63,7 @@ function CharacterBase:OnAddListeners()
 end
 
 ---@brief 唤醒
+---@desc 框架驱动，勿删；为角色图标挂载 AorClickItem 点击组件
 ---@type fun():void
 function CharacterBase:Awake()
     if self._CharacterIcon then
@@ -73,6 +74,7 @@ function CharacterBase:Awake()
 end
 
 ---@brief 开始
+---@desc 框架驱动，勿删
 ---@type fun():void
 function CharacterBase:Start()
     CharacterBase.super.Start(self)
@@ -80,20 +82,26 @@ end
 
 ---@brief 销毁
 ---@type fun():void
+---@desc 销毁角色实体根节点 GameObject，使角色图标从场上消失；原用 _GameObject 隐藏图标的逻辑在
+---      OnDestroy 时因字段被清理置 nil 而报错，故改用 self.cs 根节点（与 _GameObject 同对象）可靠销毁。
+---      销毁会触发 C# LuaBehaviour.OnDestroy 再次进入本方法，用 _Destroying 标志防递归
+--TODO: [修复] OnDestroy 改用 self.cs 根节点销毁角色，保证点击收集后角色图标消失；防递归
 function CharacterBase:OnDestroy()
+    if self._Destroying then return end -- 防递归：销毁 GameObject 会再次触发本方法
+    self._Destroying = true
     CharacterBase.super.OnDestroy(self)
-    -- 先判断CS对象是否存活
-    if self._GameObject.gameObject then
-        self._GameObject.gameObject:SetActive(false)
+    -- 销毁角色根节点 GameObject，使图标从场上消失
+    if self.cs ~= nil and not IsNull(self.cs) and self.cs.gameObject ~= nil and not IsNull(self.cs.gameObject) then
+        UnityEngine.Object.Destroy(self.cs.gameObject)
     end
 end
+
 --endregion
 
----=========================================================================
---- 点击交互
----=========================================================================
---region Click Event
+--region 【点击交互】
+
 ---@brief 点击了角色
+---@desc 仅在 PlayingState 下触发，向全局广播 OnClickCharacter 事件（由 OnAddListeners 绑定点击组件）
 ---@type fun():void
 function CharacterBase:OnClickCharacter()
     if GameStateMachine:CurrentStateType() == GameStateCmd.PlayingState then
@@ -102,13 +110,13 @@ function CharacterBase:OnClickCharacter()
         HonorEventHelper:Fire(EventCmd.OnClickCharacter, self._CharData)
     end
 end
+
 --endregion
 
----=========================================================================
---- 数据与清理
----=========================================================================
---region Data & Clear
+--region 【数据与清理】
+
 ---@brief 清理数据
+---@desc 由 CharacterGenerationManager 生成/回收时跨文件调用，重置角色引用字段
 ---@type fun():void
 function CharacterBase:Clear()
     self._CharData = nil
@@ -116,13 +124,13 @@ function CharacterBase:Clear()
     self._CharacterIcon = nil
     self._GameObject   = nil
 end
+
 --endregion
 
----=========================================================================
---- 行为树回调方法（由子类继承实现）
----=========================================================================
---region Behaviour Tree Callback
+--region 【行为树回调】
+
 ---@brief 是否游戏结束
+---@desc 行为树条件回调（疑似由行为树按方法名字符串分发，保留勿删）
 ---@type fun():boolean
 ---@return boolean @是否游戏结束
 function CharacterBase:IsGameOver()
@@ -130,6 +138,7 @@ function CharacterBase:IsGameOver()
 end
 
 ---@brief 获取坐标点
+---@desc 行为树移动 Action 回调（疑似由行为树按方法名字符串分发，保留勿删）
 ---@type fun(posName:string):UnityEngine.Vector3
 ---@param posName string @坐标点名称
 ---@return UnityEngine.Vector3 @坐标点
@@ -137,16 +146,17 @@ function CharacterBase:GetDesPosBTAction(posName)
 end
 
 ---@brief 游戏结束Action
+---@desc 行为树结束 Action 回调（疑似由行为树按方法名字符串分发，保留勿删）
 function CharacterBase:OnGameOverBTAction()
 
 end
+
 --endregion
 
----=========================================================================
---- 音效播放
----=========================================================================
---region Audio & Sound
+--region 【音效播放】
+
 ---@brief 播放音效
+---@desc 公共音效播放接口，按角色配置字段名播放对应音效并停止上一条
 ---@type fun(name:string)
 ---@param name string @ Tables.Characters_Item 里面的字段
 function CharacterBase:PlaySound(name)
@@ -157,13 +167,13 @@ function CharacterBase:PlaySound(name)
         self._LastSoundSerialID = SoundManager:PlaySound(self._CharData[name])
     end
 end
+
 --endregion
 
----=========================================================================
---- 公共获取接口
----=========================================================================
---region Public Getter
+--region 【公共获取接口】
+
 ---@brief 获取角色ID
+---@desc 公共获取接口，返回角色配置 ID（无配置时返回 "-1"）
 ---@type fun():string
 ---@return string @ 角色ID
 function CharacterBase:GetCharID()
@@ -175,56 +185,66 @@ function CharacterBase:GetCharID()
 end
 
 ---@brief 获取角色类型
+---@desc 公共获取接口，返回角色配置类型
 ---@type fun():ECharacterType
 ---@return number @ 角色类型
 function CharacterBase:GetCharType()
     return self._CharData.CharType
 end
+
 --endregion
 
----=========================================================================
---- 游戏生命周期接口
----=========================================================================
---region 游戏点击物生命周期
+--region 【游戏生命周期】
+---@desc 本 region 全部方法由 CharacterGenerationManager:_BroadcastToAllCharacters 以 v[方法名](v) 字符串动态分发（方法名取自 ECharacterLifecycle 枚举），框架驱动，勿删；子类可按需覆写。
+
 ---@brief 初始化游戏
+---@desc 角色生命周期：游戏初始化（字符串动态分发，勿删）
 function CharacterBase:OnInitGame()
 
 end
 
 ---@brief 进入游戏
+---@desc 角色生命周期：进入游戏（字符串动态分发，勿删）
 function CharacterBase:OnEnterGame()
 
 end
 
 ---@brief 游戏开始
+---@desc 角色生命周期：游戏开始（字符串动态分发，勿删）
 function CharacterBase:OnBeginGame()
 
 end
 
 ---@brief 游戏暂停
+---@desc 角色生命周期：游戏暂停（字符串动态分发，勿删）
 function CharacterBase:OnPauseGame()
 
 end
 
 ---@brief 游戏恢复
+---@desc 角色生命周期：游戏恢复（字符串动态分发，勿删）
 function CharacterBase:OnResumeGame()
 
 end
 
 ---@brief 游戏结束
+---@desc 角色生命周期：游戏结束（字符串动态分发，勿删）
 function CharacterBase:OnGameOver()
 
 end
 
 ---@brief 游戏退出
+---@desc 角色生命周期：游戏退出（字符串动态分发，勿删）
 function CharacterBase:OnExitGame()
 
 end
 
 ---@brief 游戏重玩
+---@desc 角色生命周期：游戏重玩（字符串动态分发，勿删）
 function CharacterBase:OnRePlayGame()
 
 end
+
 --endregion
 
 return CharacterBase

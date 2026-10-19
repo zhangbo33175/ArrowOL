@@ -1,0 +1,146 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UIAdaptUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     UI 文本与适配工具（文本宽度、多语言、屏幕适配、安全区、超长屏判定）
+-- @desc      文本首选宽度、多语言词条、设计分辨率↔真实屏幕换算、安全区偏移与画布尺寸统一口径
+-- @core      preferredWidth 测量、设计分辨率缩放换算、Screen.safeArea 安全区换算、宽高比判定
+-- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
+-- @dependency TMPro, Lang, GameMainRoot.UI, HonorRoot, UnityEngine.Screen, 同域 UnityUtil
+-- @note      GetSafeAreaInsets/GetCanvasActualSize/IsUltraWideScreen 为公共预留适配 API（当前无内部调用，保留供 UI 避让/超长屏自适应接入）
+--=====================================================================================================
+
+---@class UIAdaptUtil @ UI 文本与适配工具表（纯函数，无实例状态）
+local UIAdaptUtil = {}
+
+--region 依赖引入
+-- 框架内自洽：空判断走同域工具，避免依赖业务层 GameFunctions 全局
+local UnityUtil = require('UnityUtil')
+--endregion
+
+--region UI 文本 / 适配工具
+
+--=====================================================================================================
+-- UI工具：文本计算、多语言、屏幕适配转换
+--=====================================================================================================
+
+---@brief 获取文本宽度（根据内容）
+---@param text TMPro.TextMeshProUGUI 文本组件
+---@param content string 文本内容
+---@return number 首选宽度
+function UIAdaptUtil.GetTextPreferredWidth(text, content)
+    if UnityUtil.IsNull(text) then return 0 end
+    text.text = content
+    return text.preferredWidth
+end
+
+---@brief 获取多语言文本
+---@param key string 多语言Key
+---@return string 对应语言文本
+function UIAdaptUtil.GetLocalization(key)
+    return Lang and Lang[key] or key
+end
+
+---@brief 获取 UI 元素对应的屏幕宽度（适配缩放）
+---@param rectTransform UnityEngine.RectTransform UI矩形变换
+---@return number 实际屏幕宽度
+function UIAdaptUtil.GetUGUIRealScreenWidth(rectTransform)
+    return UnityUtil.IsNull(rectTransform) and 0 or UIAdaptUtil.GetRealScreenWidthByDesign(rectTransform.rect.size.x)
+end
+
+---@brief 获取 UI 元素对应的屏幕高度
+---@param rectTransform UnityEngine.RectTransform UI矩形变换
+---@return number 实际屏幕高度
+function UIAdaptUtil.GetUGUIRealScreenHeight(rectTransform)
+    return UnityUtil.IsNull(rectTransform) and 0 or UIAdaptUtil.GetRealScreenHeightByDesign(rectTransform.rect.size.y)
+end
+
+---@brief 设计宽度转当前屏幕宽度
+---@param designWidth number 设计尺寸宽度
+---@return number 实际屏幕宽度
+function UIAdaptUtil.GetRealScreenWidthByDesign(designWidth)
+    local designRes = GameMainRoot.UI.ScreenDesignedResolution
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvasWidth = designRes.x
+
+    local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+    if not UnityUtil.IsNull(rect) then
+        canvasWidth = rect.rect.size.x
+    end
+
+    return (designWidth * UnityEngine.Screen.width) / canvasWidth
+end
+
+---@brief 设计高度转当前屏幕高度
+---@param designHeight number 设计尺寸高度
+---@return number 实际屏幕高度
+function UIAdaptUtil.GetRealScreenHeightByDesign(designHeight)
+    local designRes = HonorRoot.UI.ScreenDesignedResolution
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvasHeight = designRes.y
+
+    local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+    if not UnityUtil.IsNull(rect) then
+        canvasHeight = rect.rect.size.y
+    end
+
+    return (designHeight * UnityEngine.Screen.height) / canvasHeight
+end
+
+---@brief 获取顶部/底部安全区偏移（设计分辨率单位，分侧，统一高度比例）
+---@type fun():number,number
+---@return number topInset 顶部安全区偏移（刘海/挖孔）
+---@return number bottomInset 底部安全区偏移（手势条/导航栏）
+---@desc 全系统安全区权威来源：相机 rect（GameMapMotion:GetSafeAreaInsets）与 UI 顶部/底部避让均统一此口径，消除 C#/Lua 比例基准不一致与"单侧总量"缺陷
+function UIAdaptUtil.GetSafeAreaInsets()
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvasH = 1334
+    if not UnityUtil.IsNull(canvas) then
+        local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+        if not UnityUtil.IsNull(rect) then
+            canvasH = rect.rect.size.y
+        end
+    end
+    local safeArea = UnityEngine.Screen.safeArea
+    local screenH = UnityEngine.Screen.height
+    if screenH <= 0 then return 0, 0 end
+    local scale = canvasH / screenH
+    -- Unity 屏幕坐标原点在左下角：safeArea.yMin=底部非安全区（手势条/导航栏），safeArea.yMax 以上=顶部非安全区（刘海/挖孔）
+    local topInset    = math.max(0, screenH - safeArea.yMax) * scale
+    local bottomInset = math.max(0, safeArea.yMin) * scale
+    return topInset, bottomInset
+end
+
+---@brief 获取当前画布实际尺寸（设计分辨率单位，供超长屏/全屏元素自适应）
+---@type fun():number,number
+---@return number width 画布实际宽
+---@return number height 画布实际高
+function UIAdaptUtil.GetCanvasActualSize()
+    local canvas = GameMainRoot.UI.ScreenUICanvas
+    if not UnityUtil.IsNull(canvas) then
+        local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
+        if not UnityUtil.IsNull(rect) then
+            return rect.rect.size.x, rect.rect.size.y
+        end
+    end
+    local designRes = GameMainRoot.UI.ScreenDesignedResolution
+    return designRes.x, designRes.y
+end
+
+---@brief 判断当前屏幕是否为超长屏（竖屏比例超过阈值，如 20:9 / 21:9）
+---@type fun(threshold:number):boolean
+---@param threshold number 宽高比阈值，默认 2.1
+---@return boolean 是否超长屏
+function UIAdaptUtil.IsUltraWideScreen(threshold)
+    threshold = threshold or 2.1
+    local sw, sh = UnityEngine.Screen.width, UnityEngine.Screen.height
+    if sh <= 0 then return false end
+    local aspect = sw / sh
+    return aspect > threshold or (1 / aspect) > threshold
+end
+
+--endregion
+
+return UIAdaptUtil

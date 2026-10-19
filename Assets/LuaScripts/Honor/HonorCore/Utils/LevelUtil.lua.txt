@@ -1,0 +1,41 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  LevelUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     关卡解锁工具（章节/关卡解锁条件判断）
+-- @desc      IsLevelUnlocked 依据当前进度判断目标章节/关卡是否已解锁
+-- @core      目标解锁章节/关卡与玩家当前进度（章节 / 章节内关卡序号）的顺序比较
+-- @scope     关卡/章节入口解锁态判定
+-- @dependency GamerDataMgr（玩家进度）；经 GameFunctions.IsLevelUnlocked 全局包装对外暴露
+--=====================================================================================================
+
+---@class LevelUtil @ 关卡解锁工具表：章节/关卡解锁条件判断
+local LevelUtil = {}
+
+--region 关卡 / 解锁工具
+
+--=====================================================================================================
+-- 关卡解锁工具：章节/关卡解锁条件判断
+--=====================================================================================================
+
+---@brief 判断是否解锁章节/关卡
+---@param unlockChapter number 解锁章节
+---@param unlockLevel number 解锁关卡
+---@param currentChapter number 当前章节（缺省取玩家最新进度章节）
+---@param currentLevel number 当前关卡（缺省取该章节关卡数）
+---@return boolean 是否解锁
+---@desc 当前章节大于解锁章节即解锁；章节相等时当前关卡序号 >= 解锁关卡方解锁；经 GameFunctions.IsLevelUnlocked 全局包装对外暴露
+function LevelUtil.IsLevelUnlocked(unlockChapter, unlockLevel, currentChapter, currentLevel)
+    currentChapter = currentChapter or tonumber(GamerDataMgr:GetLatestChapterId())
+    currentLevel = currentLevel or GamerDataMgr:GetLevelLvByChapterId(tostring(currentChapter))
+
+    if currentChapter > unlockChapter then return true end
+    if currentChapter == unlockChapter and currentLevel >= unlockLevel then return true end
+    return false
+end
+
+--endregion
+
+return LevelUtil

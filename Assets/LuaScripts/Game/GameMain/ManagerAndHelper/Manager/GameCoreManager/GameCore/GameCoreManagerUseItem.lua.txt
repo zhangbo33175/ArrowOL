@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     游戏内道具使用核心管理器
 -- @desc      负责关内/关外道具的使用、扣除、效果应用、动效播放、缓存队列、生命周期管理
+-- @core      道具使用校验与扣除、效果应用、动效播放、关卡未就绪时的道具缓存队列与引导免费道具标记
+-- @scope     GameCoreManager 的道具使用子模块（设计上由主模块持有驱动）；当前全工程未 require/实例化，属预留公共 API，保留待接线
 -- @规范      Unity Lua 商业项目标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, ItemManager, EffectManager, AudioManager, EventManager, CoroutineHelper
 --=====================================================================================================
@@ -99,12 +101,25 @@ function GameCoreManagerUseItem:OnUsingBooster(boosterID, num)
 end
 
 ---=========================================================================
+--- 取关缓存道具列表（空判统一入口）
+---@brief 关卡未就绪期间缓存的道具列表；无缓存或为空时返回 nil
+---@return CacheProp[]|nil 待处理缓存道具列表，空时为 nil
+---=========================================================================
+function GameCoreManagerUseItem:_GetCachedBoosters()
+    local boosters = self._cacheWhenLevelNotWorking
+    if not boosters or #boosters == 0 then
+        return nil
+    end
+    return boosters
+end
+
+---=========================================================================
 --- 预处理缓存道具（关卡初始化时）
 ---@brief 预加载/预处理，处理溜冰鞋等动画相关道具
 ---=========================================================================
 function GameCoreManagerUseItem:Preconditioning()
-    local boosters = self._cacheWhenLevelNotWorking
-    if not boosters or #boosters == 0 then
+    local boosters = self:_GetCachedBoosters()
+    if not boosters then
         return
     end
 
@@ -121,8 +136,8 @@ end
 ---@brief 关卡开始前统一扣除道具数量
 ---=========================================================================
 function GameCoreManagerUseItem:TryUsePreBoosterDatas()
-    local boosters = self._cacheWhenLevelNotWorking
-    if not boosters or #boosters == 0 then
+    local boosters = self:_GetCachedBoosters()
+    if not boosters then
         return
     end
 
@@ -136,8 +151,8 @@ end
 ---@brief 关卡开始后统一应用道具表现效果
 ---=========================================================================
 function GameCoreManagerUseItem:TryApplyPreBoosters()
-    local boosters = self._cacheWhenLevelNotWorking
-    if not boosters or #boosters == 0 then
+    local boosters = self:_GetCachedBoosters()
+    if not boosters then
         return
     end
 
@@ -152,8 +167,8 @@ end
 ---@brief 安全执行所有缓存的道具使用请求
 ---=========================================================================
 function GameCoreManagerUseItem:TryUseBoosters()
-    local boosters = self._cacheWhenLevelNotWorking
-    if not boosters or #boosters == 0 then
+    local boosters = self:_GetCachedBoosters()
+    if not boosters then
         return
     end
 
@@ -329,6 +344,8 @@ end
 
 --endregion
 
+--region 结束回滚
+
 ---=========================================================================
 --- 游戏结束 神奇盘子效果回滚（补全缺失方法）
 ---@brief 子类重写实现具体回滚逻辑
@@ -336,5 +353,7 @@ end
 function GameCoreManagerUseItem:GameOverRollbackWonderDish()
     -- 子类重写实现具体回滚逻辑
 end
+
+--endregion
 
 return GameCoreManagerUseItem

@@ -6,6 +6,8 @@
 -- created:   2025
 -- @brief     游戏主运行流程
 -- @desc      游戏运行时核心流程，管理UI开关、流程切换、状态机驱动、进入登录状态
+-- @core      主流程状态机宿主：事件安全注册/注销、全局UI开关记录、直进主界面状态
+-- @scope     GameMain/Launcher 主运行流程，仅由 ProcedureSuper 状态机按 OnEnter/OnUpdate/OnLeave 驱动
 -- @feat      事件安全注册、状态机驱动、UI全局记录、流程跳转、内存泄漏防护
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / 流程框架规范
@@ -14,6 +16,18 @@
 
 ---@class ProcedurePlaying : ProcedureSuper 游戏主运行流程
 local ProcedurePlaying = class('ProcedurePlaying', import('ProcedureSuper'))
+
+---@brief 构造本流程事件监听列表
+---@desc OnEnter 防御式注册（先 Remove 后 Add）与 OnLeave 注销共用同一份列表，保证三处事件一致
+---@param self ProcedurePlaying 流程实例
+---@return table<{string, table}> 监听列表，每项 {事件名, handler}
+local function BuildEventListenerList(self)
+    return {
+        {FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback)},
+        {FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback)},
+        {FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback)},
+    }
+end
 
 --region 【构造 & 实例化】
 
@@ -42,29 +56,21 @@ end
 function ProcedurePlaying:OnEnter(ownerMachine)
     ProcedurePlaying.super.OnEnter(self, ownerMachine)
 
-    -- 安全注册事件（防止重复注册）
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
-    HonorEventHelper:AddListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
-
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
-    HonorEventHelper:AddListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
-
-    HonorEventHelper:RemoveListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
-    HonorEventHelper:AddListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
-
+    -- 安全注册事件（防止重复注册）：先清后注，注册与注销共用同一份监听列表
+    local listeners = BuildEventListenerList(self)
+    HonorEventHelper:RemoveListenerBatch(listeners)
+    HonorEventHelper:AddListenerBatch(listeners)
     -- 切换流程时自动清理加载内容
     if self.cs then
         self.cs.RemoveAllContentsOnProcedureTransition = true
     end
-
     -- 清空全局打开UI记录
     AllOpenUI = AllOpenUI or {}
     for k, _ in pairs(AllOpenUI) do
         AllOpenUI[k] = nil
     end
-
-    -- 进入登录状态
-    self:GotoLoginState()
+    --TODO: [直进主界面] 加载完资源后跳过登录界面，直接进入游戏主界面
+    self:GotoMainState()
 end
 
 ---@brief 主流程帧更新
@@ -86,22 +92,21 @@ function ProcedurePlaying:OnLeave(ownerMachine)
     ProcedurePlaying.super.OnLeave(self, ownerMachine)
 
     -- 安全注销所有事件（防止内存泄漏 & 重复调用）
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewClose, handler(self, self.UiViewCloseEventCallback))
-    HonorEventHelper:RemoveListener(FwEventCmd.UIViewOpen, handler(self, self.UiViewOpenEventCallback))
-    HonorEventHelper:RemoveListener(FwEventCmd.ChangeProcedure, handler(self, self.ChangeProcedureEventCallback))
+    HonorEventHelper:RemoveListenerBatch(BuildEventListenerList(self))
 end
 
 --endregion
 
 --region 【状态跳转】
 
----@brief 切换到登录状态
+---@brief 直接切换到主界面（跳过登录，加载完资源后直进主界面）
+---@desc 由 OnEnter 在流程进入时直接调用；原"切换到登录状态"分支已按直进主界面需求废弃
 ---@type fun():void
-function ProcedurePlaying:GotoLoginState()
+function ProcedurePlaying:GotoMainState()
     if GameStateMachine and GameStateMachine.ChangeState then
-        GameStateMachine:ChangeState(GameStateCmd.LoginState, nil)
+        GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
     else
-        PrintError("[ProcedurePlaying] GameStateMachine 未初始化，无法进入登录状态")
+        PrintError("[ProcedurePlaying] GameStateMachine 未初始化，无法进入主界面状态")
     end
 end
 
@@ -125,7 +130,7 @@ function ProcedurePlaying:UiViewCloseEventCallback(args)
     if not args then return end
     if UIs and UIs[args] then
         AllOpenUI[args] = nil
-        HonorEventHelper:Fire(EventCmd.UIGameViewClose)
+        HonorEventHelper:Fire(UIEventCode.UIGameViewClose)
     end
 end
 
@@ -136,7 +141,7 @@ function ProcedurePlaying:UiViewOpenEventCallback(args)
     if not args then return end
     if UIs and UIs[args] then
         AllOpenUI[args] = true
-        HonorEventHelper:Fire(EventCmd.UIGameViewOpen)
+        HonorEventHelper:Fire(UIEventCode.UIGameViewOpen)
     end
 end
 

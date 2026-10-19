@@ -1,100 +1,148 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UILevelFailedView.lua
 -- author:    云毅
--- descrip:   结算失败界面
+-- created:   2026
+-- @brief     关卡失败结算界面
+-- @desc      关卡失败时弹出，提供返回主界面、重新开始、回复体力操作入口
+-- @core      结算按钮监听注册、退出/重玩流程转发
+-- @scope     关卡失败结算（UISettlementView）
+-- @dependency LuaBehaviourSuper, SoundManager, GamePlayHelper
 --=====================================================================================================
 
----@class UILevelFailedView : LuaBehaviourSuper
+---@class UILevelFailedView : LuaBehaviourSuper @关卡失败结算界面
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
 ---@field MainButton                         UnityEngine.UI.Button         √         Clicked        返回管卡界面
+---@field StartOverButton                    UnityEngine.UI.Button         √         Clicked        重新开始游戏
 ---@field RecoverStaminaButton               UnityEngine.UI.Button         √         Clicked        回复体力
 local UILevelFailedView = class('UILevelFailedView', import('LuaBehaviourSuper'))
 
+--region 【构造 & 实例化】
+
 ---构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UILevelFailedView:ctor(args)
     UILevelFailedView.super.ctor(self, args)
-
 end
 
 ---创建函数
+---@brief 创建失败结算界面实例
 ---@type fun(args:table):UILevelFailedView
 ---@param args table @自定义参数
 ---@return UILevelFailedView @实例
 function UILevelFailedView:Create(args)
-    local obj = UILevelFailedView.new(args)
-    return obj
+    return UILevelFailedView.new(args)
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---注册监听（自动注销）
+---@brief 注册事件监听（框架驱动，勿删）
 ---@type fun():void
 function UILevelFailedView:OnAddListeners()
     UILevelFailedView.super.OnAddListeners(self)
-
 end
 
 ---唤醒
+---@brief 唤醒时注册返回/重开/回复体力按钮监听（框架驱动，勿删）
 ---@type fun():void
+---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+--TODO: [优化] 按钮监听由 AddUIListenerBatch 改为 self:AddUIListener 逐条（自动注销）
 function UILevelFailedView:Awake()
     UILevelFailedView.super.Awake(self)
--- 2=====================================================================================================
-    AddUIListenerFunction(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
-    AddUIListenerFunction(self.RecoverStaminaButton, 'Clicked', handler(self, self.OnRecoverStaminaButtonClicked))
--- ====================================================================================================2
-
+    self:AddUIListener(self.MainButton, 'Clicked', Bind(self, self.OnMainButtonClicked))
+    self:AddUIListener(self.StartOverButton, 'Clicked', Bind(self, self.OnStartOverButtonClicked))
+    self:AddUIListener(self.RecoverStaminaButton, 'Clicked', Bind(self, self.OnRecoverStaminaButtonClicked))
 end
 
 ---开始
+---@brief 开始回调（框架驱动，勿删）
 ---@type fun():void
 function UILevelFailedView:Start()
     UILevelFailedView.super.Start(self)
-
 end
 
 ---销毁
+---@brief 销毁回调（按钮监听由框架自动注销，勿删）
 ---@type fun():void
+---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 自动注销，此处无需手动 OnRemoveListenerBatch
 function UILevelFailedView:OnDestroy()
     UILevelFailedView.super.OnDestroy(self)
--- 3=====================================================================================================
-    OnRemoveListener(self.MainButton, 'Clicked', handler(self, self.OnMainButtonClicked))
-    OnRemoveListener(self.RecoverStaminaButton, 'Clicked', handler(self, self.OnRecoverStaminaButtonClicked))
--- ====================================================================================================3
-
 end
 
+--endregion
+
+--region 【动画回调】
+
 ---播放打开动画（可重写）
+---@brief 界面打开动画回调（框架驱动，勿删）
 ---@type fun():void
 function UILevelFailedView:OnPlayOpenAnimation()
     UILevelFailedView.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画（可重写）
+---@brief 界面关闭动画回调（框架驱动，勿删）
 ---@type fun():void
 function UILevelFailedView:OnPlayCloseAnimation()
     UILevelFailedView.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---子UI销毁回调
+---@brief 子 UI 销毁回调（框架驱动，勿删）
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UILevelFailedView:OnAddedUIDestroyed(luaClass)
     UILevelFailedView.super.OnAddedUIDestroyed(self, luaClass)
 end
 
+--endregion
+
+--region 【按钮交互回调】
+
 ---返回管卡界面-交互回调
+---@brief 点击返回按钮，退出游玩 HUD 回到主界面（Awake 中绑定）
 ---@type fun(args:any):void
+---@param args any @UI交互内容
 function UILevelFailedView:OnMainButtonClicked(args)
-  GamePlayHelper:GameExitPlayHud()
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    GamePlayHelper:GameExitPlayHud()
 end
 
 ---回复体力-交互回调
+---@brief 点击回复体力按钮（Awake 中绑定，暂仅播放开始音效）
 ---@type fun(args:any):void
+---@param args any @UI交互内容
 function UILevelFailedView:OnRecoverStaminaButtonClicked(args)
-
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
 end
+
+---重新开始游戏-交互回调
+---@brief 点击重开按钮，关闭失败界面并重玩当前关卡（Awake 中绑定）
+---@type fun(args:any):void
+---@param args any @UI交互内容
+--TODO: [新增] 实现"重新开始"：关闭失败结算界面并重玩当前关卡
+function UILevelFailedView:OnStartOverButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    -- 关闭失败结算界面
+    CloseUI(UIs.UILevelFailedView)
+    -- 重新开启当前关卡（重置本局数据后重进游玩状态）
+    GamePlayHelper:RePlayCurrentLevel()
+end
+
+--endregion
 
 return UILevelFailedView

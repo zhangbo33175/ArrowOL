@@ -5,6 +5,11 @@
 -- filename:  LoadResDefs.lua
 -- descrip:   资源全局定义
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     全局资源路径定义入口表
+-- @desc      汇总全游戏资源条目（资源名/类型/AB包路径/资源文件名），由资源导出工具自动生成
+-- @core      定义 LOAD_RES_DEF_ITEM 结构，LoadRes 为 string->条目 字典，require LoadResDefs_1 填充明细
+-- @scope     全工程按资源名查 AB 路径，供资源加载/管理模块使用
+-- @dependency LoadResDefs_1（资源条目明细）
 --=====================================================================================================
 ---@class LOAD_RES_DEF_ITEM @资源条目定义
 ---@field Name string @资源名称

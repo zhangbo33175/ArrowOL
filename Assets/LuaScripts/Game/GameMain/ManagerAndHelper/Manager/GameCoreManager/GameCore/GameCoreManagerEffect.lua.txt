@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     关卡内特效管理类
 -- @desc      负责关卡运行时所有特效的创建、播放、回收、清理等生命周期管理
+-- @core      关卡内特效缓存容器管理、特效创建/播放/回收/清理生命周期骨架（当前为预留空实现）
+-- @scope     GameCoreManager 的特效子模块（当前为预留空实现骨架），由主模块 ctor 持有并在 ClearData 时统一清理
 -- @author    标准规范版 | 空安全 | 可维护 | 无崩溃风险
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, EffectManager, PoolManager, CoroutineHelper, GlobalUtility

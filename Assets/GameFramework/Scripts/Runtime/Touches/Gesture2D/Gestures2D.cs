@@ -179,11 +179,7 @@ namespace Honor.Runtime
             if (gesture.touchCount == 1)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                DispatchCallbacks(m_TouchBeginCallbacks, args =>
-                {
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                });
+                DispatchGestureCallbacks(m_TouchBeginCallbacks, gesture, worldPosition);
                 CheckSelect(gesture);
             }
         }
@@ -197,11 +193,7 @@ namespace Honor.Runtime
             if (gesture.touchCount == 1)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                DispatchCallbacks(m_TouchDownCallbacks, args =>
-                {
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                });
+                DispatchGestureCallbacks(m_TouchDownCallbacks, gesture, worldPosition);
             }
         }
 
@@ -215,11 +207,7 @@ namespace Honor.Runtime
             if (gesture.touchCount == 1)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                DispatchCallbacks(m_TouchEndCallbacks, args =>
-                {
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                });
+                DispatchGestureCallbacks(m_TouchEndCallbacks, gesture, worldPosition);
 
                 if (m_SelectedObj != null && !string.IsNullOrEmpty(m_SelectedObjType))
                 {
@@ -275,11 +263,7 @@ namespace Honor.Runtime
             if (gesture.touchCount == 2)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                DispatchCallbacks(m_TouchesBeginCallbacks, args =>
-                {
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                });
+                DispatchGestureCallbacks(m_TouchesBeginCallbacks, gesture, worldPosition);
 
                 m_IsFingerSwiping = false;
                 m_SwipePosition = gesture.position;
@@ -302,11 +286,7 @@ namespace Honor.Runtime
             if (gesture.touchCount == 2)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                DispatchCallbacks(m_TouchesDownCallbacks, args =>
-                {
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                });
+                DispatchGestureCallbacks(m_TouchesDownCallbacks, gesture, worldPosition);
             }
         }
 
@@ -319,11 +299,7 @@ namespace Honor.Runtime
             if (gesture.touchCount == 2)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                DispatchCallbacks(m_TouchesEndCallbacks, args =>
-                {
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                });
+                DispatchGestureCallbacks(m_TouchesEndCallbacks, gesture, worldPosition);
 
                 // 松手时回弹到边界
                 SwipeToElasticOnReleased();
@@ -353,11 +329,7 @@ namespace Honor.Runtime
                 m_IsFingerSwiping = true;
 
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                DispatchCallbacks(m_SwipeBeginCallbacks, args =>
-                {
-                    args.Set("gesture", gesture);
-                    args.Set("worldPosition", worldPosition);
-                });
+                DispatchGestureCallbacks(m_SwipeBeginCallbacks, gesture, worldPosition);
             }
         }
 
@@ -413,11 +385,7 @@ namespace Honor.Runtime
                     m_SafeTimeCounterOnGestureOver = m_SafeTimeOnGestureOver;
 
                     Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-                    DispatchCallbacks(m_SwipeEndCallbacks, args =>
-                    {
-                        args.Set("gesture", gesture);
-                        args.Set("worldPosition", worldPosition);
-                    });
+                    DispatchGestureCallbacks(m_SwipeEndCallbacks, gesture, worldPosition);
                 }
             }
         }
@@ -854,6 +822,22 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 计算手势世界坐标并向指定回调列表派发「手势 + 世界坐标」
+        /// <para>收敛各触摸/滑动/缩放回调中重复的「新建参数表 + 写入 gesture/worldPosition」样板</para>
+        /// </summary>
+        /// <param name="callbacks">目标回调列表</param>
+        /// <param name="gesture">手势数据</param>
+        /// <param name="worldPosition">手势对应的世界坐标</param>
+        private void DispatchGestureCallbacks(List<LuaTable> callbacks, Gesture gesture, Vector3 worldPosition)
+        {
+            DispatchCallbacks(callbacks, args =>
+            {
+                args.Set("gesture", gesture);
+                args.Set("worldPosition", worldPosition);
+            });
+        }
+
+        /// <summary>
         /// 计算有效空间四周边界与对应弹性区坐标
         /// </summary>
         /// <returns>边界坐标结构体</returns>
@@ -978,11 +962,7 @@ namespace Honor.Runtime
         private void FireSwipeCallback(Gesture gesture)
         {
             Vector3 worldPosition = ScreenToGestureWorld(gesture.position);
-            DispatchCallbacks(m_SwipeCallbacks, args =>
-            {
-                args.Set("gesture", gesture);
-                args.Set("worldPosition", worldPosition);
-            });
+            DispatchGestureCallbacks(m_SwipeCallbacks, gesture, worldPosition);
         }
 
         /// <summary>

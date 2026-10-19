@@ -5,6 +5,11 @@
 -- filename:  Tables.lua
 -- descrip:   数据表自动注册
 -- notices:   自动生成，禁止修改
+-- @brief     全局配置表自动注册注册表
+-- @desc      定义全局 Tables 命名空间，按需懒加载各 Table 配置文件
+-- @core      Tables 空表 + __index 元方法，访问 Tables.Xxx 时自动 require('TableXxx') 后返回
+-- @scope     所有业务代码通过 Tables.Xxx 访问配置表的统一入口
+-- @dependency 无（配置表体系根入口，被各业务模块间接依赖）
 --=====================================================================================================
 
 ---@class Tables

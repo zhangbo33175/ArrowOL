@@ -1,0 +1,44 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  QuestUtil.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     任务事件派发工具（任务进度更新与清空事件派发）
+-- @desc      DispatchQuestProgressUpdate 派发任务进度更新事件；DispatchQuestProgressClear 派发任务进度清空事件
+-- @core      经 HonorEventHelper:Fire 统一派发业务事件，并打印进度日志
+-- @scope     任务系统进度变更/重置的事件广播入口
+-- @dependency HonorEventHelper, EventCmd（业务事件码）；经 GameFunctions 全局包装对外暴露
+--=====================================================================================================
+
+---@class QuestUtil @ 任务事件派发工具表：任务进度更新与清空事件广播
+local QuestUtil = {}
+
+--region 任务 / 事件派发
+
+--=====================================================================================================
+-- 任务事件工具：任务进度派发、清空事件
+--=====================================================================================================
+
+---@brief 派发任务进度更新事件
+---@param subType EDailyQuestSubType 任务子类型
+---@param value number 进度值
+---@param isLatestChapter boolean 是否最新章节
+---@desc 触发 EventCmd.OnQuestProgressChange 事件并打印进度日志；经 GameFunctions.DispatchQuestProgressUpdate 全局包装对外暴露
+function QuestUtil.DispatchQuestProgressUpdate(subType, value, isLatestChapter)
+    HonorEventHelper:Fire(EventCmd.OnQuestProgressChange, subType, value, isLatestChapter)
+    PrintInfo(string.format("[Quest] Progress updated: %s, Value: %d, NewChapter: %s", subType, value, tostring(isLatestChapter)))
+end
+
+---@brief 派发任务进度清空事件
+---@param subType EDailyQuestSubType 任务子类型
+---@param isLatestChapter boolean 是否最新章节
+---@desc 触发 EventCmd.OnClearQuestProgress 事件并打印清空日志；经 GameFunctions.DispatchQuestProgressClear 全局包装对外暴露
+function QuestUtil.DispatchQuestProgressClear(subType, isLatestChapter)
+    HonorEventHelper:Fire(EventCmd.OnClearQuestProgress, subType, isLatestChapter)
+    PrintInfo(string.format("[Quest] Progress cleared: %s", subType))
+end
+
+--endregion
+
+return QuestUtil

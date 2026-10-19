@@ -1,0 +1,167 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  CollectItemView.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     拼图收集图标项（单个拼图块）
+-- @desc      按创建方传入的拼图序号加载对应 Sprite，并同步父容器尺寸以正确撑开布局
+-- @core      资源加载、原生尺寸同步、Icon 默认隐藏
+-- @scope     UIMainStateView 关卡主界面内 SectionItem 下批量挂载的单个收集子项
+-- @dependency LuaBehaviourSuper, LoadRes
+--=====================================================================================================
+
+---@class CollectItemView : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field Icon UnityEngine.UI.Image @收集Icon
+local CollectItemView = class('CollectItemView', import('LuaBehaviourSuper'))
+
+--region 【构造】
+
+---构造函数
+---@brief 记录创建方传入的拼图序号（args.data.number）
+---@type fun(args:table):void
+---@param args table @自定义参数
+function CollectItemView:ctor(args)
+    CollectItemView.super.ctor(self, args)
+
+    -- 记录传输的拼图序号（约定参数键：args.data.number，由创建方传入）
+    self.Number = args and args.data and args.data.number or 0
+end
+
+---创建函数
+---@brief 创建收集项实例
+---@type fun(args:table):CollectItemView
+---@param args table @自定义参数
+---@return CollectItemView @实例
+function CollectItemView:Create(args)
+    local obj = CollectItemView.new(args)
+    return obj
+end
+
+--endregion
+
+--region 【生命周期】
+
+---注册监听（自动注销）
+---@brief 注册事件监听（框架驱动，勿删）
+---@type fun():void
+function CollectItemView:OnAddListeners()
+    CollectItemView.super.OnAddListeners(self)
+end
+
+---唤醒
+---@brief 唤醒时默认隐藏收集 Icon，待有数据再显示（框架驱动，勿删）
+---@type fun():void
+function CollectItemView:Awake()
+    CollectItemView.super.Awake(self)
+
+    --TODO: [初始化] 默认隐藏收集Icon，待有数据/解锁时由外部调用 SetActive(true) 显示
+    if not IsNull(self.Icon) then
+        self.Icon.gameObject:SetActive(false)
+    end
+end
+
+---开始
+---@brief 有序号则加载对应拼图，否则直接同步父容器尺寸（框架驱动，勿删）
+---@type fun():void
+function CollectItemView:Start()
+    CollectItemView.super.Start(self)
+
+    -- 按传输的数字加载对应拼图并同步父对象尺寸
+    if self.Number and self.Number > 0 then
+        self:LoadByNumber(self.Number)
+    else
+        -- 未传数字时，直接同步父对象尺寸到已挂载图片
+        self:SyncSizeToLoadedImage()
+    end
+end
+
+---销毁
+---@brief 销毁回调（框架驱动，勿删）
+---@type fun():void
+function CollectItemView:OnDestroy()
+    CollectItemView.super.OnDestroy(self)
+end
+
+--endregion
+
+--region 【图片加载与尺寸同步】
+
+---加载指定序号的拼图图片到 Icon 并同步父对象尺寸
+---@brief 按传输数字加载拼图
+---@desc 通过 LoadRes["Sprite_puzzle_1_"..number] 定位资源定义，用 LuaBehaviourSuper 的缓存加载器
+---      加载 Sprite 到注入的 Icon 上，SetNativeSize 恢复图片原生尺寸，最后同步父容器尺寸。
+---      若资源未配置或 Icon 未注入则跳过加载，仅同步父容器尺寸。
+---@param number number @拼图序号（对应 Sprite_puzzle_1_N）
+---@type fun(number:number):void
+function CollectItemView:LoadByNumber(number)
+    if number == nil or number <= 0 then return end
+
+    local info = LoadRes["Sprite_puzzle_1_" .. number]
+    if info and not IsNull(self.Icon) then
+        self.Icon.sprite = self:LoadAsset(info)
+        self.Icon:SetNativeSize()
+    end
+
+    -- 同步父对象尺寸到加载后的图片
+    self:SyncSizeToLoadedImage()
+end
+
+---同步父对象尺寸到加载图片（Icon）的实际大小
+---@brief 让 CollectItem 容器尺寸匹配已加载的拼图图片
+---@desc 读取 Icon 上已加载 Sprite 的原生像素尺寸，写入父对象 RectTransform 的 sizeDelta；
+---      用于解决父容器尺寸为 0 或与图片不一致时无法正确撑开/定位的问题。
+---      图片在运行时加载完成后，可再次调用本方法以跟随新图片尺寸。
+---@type fun():void
+function CollectItemView:SyncSizeToLoadedImage()
+    -- 未注入 Icon 组件时直接返回
+    if IsNull(self.Icon) then return end
+
+    -- 尚未加载 Sprite 时直接返回（避免空引用）
+    local sprite = self.Icon.sprite
+    if IsNull(sprite) then return end
+
+    -- 父对象（CollectItem）的 RectTransform
+    local parentRect = self.cs.transform:rectTransform()
+    if IsNull(parentRect) then return end
+
+    -- 以加载图片的原生像素尺寸为准，直接同步父对象宽高
+    -- （sprite.rect.size 本身就是 UnityEngine.Vector2，直接赋值，避免依赖不稳定的 Vector2 全局构造器）
+    parentRect.sizeDelta = sprite.rect.size
+end
+
+--endregion
+
+--region 【动画回调】
+
+---播放打开动画（可重写）
+---@brief 界面打开动画回调（框架驱动，勿删）
+---@type fun():void
+function CollectItemView:OnPlayOpenAnimation()
+    CollectItemView.super.OnPlayOpenAnimation(self)
+end
+
+---播放关闭动画（可重写）
+---@brief 界面关闭动画回调（框架驱动，勿删）
+---@type fun():void
+function CollectItemView:OnPlayCloseAnimation()
+    CollectItemView.super.OnPlayCloseAnimation(self)
+end
+
+--endregion
+
+--region 【子UI回调】
+
+---子UI销毁回调
+---@brief 被追加的子 UI 销毁回调（框架驱动，勿删）
+---@type fun(luaClass:XLua.LuaTable):void
+---@param luaClass XLua.LuaTable
+function CollectItemView:OnAddedUIDestroyed(luaClass)
+    CollectItemView.super.OnAddedUIDestroyed(self, luaClass)
+end
+
+--endregion
+
+return CollectItemView

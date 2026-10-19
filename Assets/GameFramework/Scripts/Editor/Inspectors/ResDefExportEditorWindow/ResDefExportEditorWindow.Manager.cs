@@ -145,20 +145,60 @@ namespace Honor.Editor
         /// <summary>
         /// 检查文件对应的 AB 路径
         /// </summary>
+        /// <param name="fullPath">资源完整路径（Assets/ 开头）</param>
+        /// <param name="fileABPath">解析出的 AB 路径（完整资源路径去扩展名，或目录路径）</param>
+        /// <returns>是否成功映射到 AB 配置</returns>
         public bool CheckFileABPath(string fullPath, out string fileABPath)
         {
             fileABPath = string.Empty;
+            if (string.IsNullOrEmpty(fullPath)) return false;
+
+            // 归一化：统一正斜杠，并把绝对路径转成工程相对路径（Assets/...）。
+            // 否则兜底 bundle 名会带盘符前缀（如 E:/game/...），与 s_ABConfigs 的相对 key 不匹配，
+            // 导致整目录资源全部误判为"无AB映射"。
+            fullPath = NormalizeToAssetPath(fullPath);
+
+            string resolved = string.Empty;
             string abName = AssetDatabase.GetImplicitAssetBundleName(fullPath);
-            UnityEngine.Debug.Log($"[ABCheck] path={fullPath} abName=[{abName}] dictCount={s_ABConfigs.Count}");
-            if (!string.IsNullOrEmpty(abName) && !s_ABConfigs.ContainsKey(abName))
+            if (!string.IsNullOrEmpty(abName) && s_ABConfigs.TryGetValue(abName, out resolved))
             {
-                foreach (var k in s_ABConfigs.Keys) if (k.Contains("puzzle")) UnityEngine.Debug.Log($"[ABCheck] dictKey={k}");
-            }
-            if (s_ABConfigs.ContainsKey(abName))
-            {
-                fileABPath = s_ABConfigs[abName];
+                fileABPath = resolved;
                 return true;
             }
+
+            // 兜底 1：每文件粒度 bundle（完整资源路径去扩展名）
+            // 兼容 PackageMeasureType==1（每文件粒度）的 AB 配置。
+            // 注意：TryGetValue 不命中时会把 out 参数置为 null，故先用局部变量承接，命中才回写，
+            // 确保失败路径下 out 始终为非 null 的空字符串，避免后续生成 ABPath=null 的数据。
+            int dotIdx = fullPath.LastIndexOf('.');
+            if (dotIdx > fullPath.LastIndexOf('/'))
+            {
+                string fallback = fullPath.Substring(0, dotIdx).Replace('/', '@').ToLower() + ".bundle";
+                if (s_ABConfigs.TryGetValue(fallback, out resolved))
+                {
+                    fileABPath = resolved;
+                    return true;
+                }
+            }
+
+            // 兜底 2：目录粒度 bundle（从资源所属目录逐级向上）
+            // 兼容 PackageMeasureType==0（整目录单 bundle）的 AB 配置：
+            // 当 GetImplicitAssetBundleName 尚未返回目录 bundle 名时，按"资源所在目录"逐级查映射。
+            string dir = fullPath.Substring(0, fullPath.LastIndexOf('/'));
+            while (!string.IsNullOrEmpty(dir) && dir.Length >= "Assets/".Length)
+            {
+                string dirBundle = dir.Replace('/', '@').ToLower() + ".bundle";
+                if (s_ABConfigs.TryGetValue(dirBundle, out resolved))
+                {
+                    fileABPath = resolved;
+                    return true;
+                }
+
+                int lastSlash = dir.LastIndexOf('/');
+                if (lastSlash < 0) break;
+                dir = dir.Substring(0, lastSlash);
+            }
+
             return false;
         }
         #endregion
@@ -182,7 +222,12 @@ namespace Honor.Editor
         #region 文件查找与收集
         /// <summary>
         /// 更新查找的资源文件
+        /// 拖入文件夹/选中资源时，将目录下所有匹配类型的文件全部纳入列表；
+        /// 未匹配到 AB 映射的文件标记为 <see cref="FileUseState.LoadFailed"/>，不静默丢弃，
+        /// 保证"加载文件夹内容"完整可见，并让用户明确知道哪些资源尚未纳入 AB 配置。
         /// </summary>
+        /// <param name="findTargetAsset">拖入/选中的资源对象（可为文件夹）</param>
+        /// <returns>是否存在至少一个成功映射 AB 路径的文件</returns>
         public bool UpdateFindAllFileData(Object findTargetAsset)
         {
             string fullPath = AssetDatabase.GetAssetPath(findTargetAsset);
@@ -194,10 +239,15 @@ namespace Honor.Editor
                 string[] files = Directory.GetFiles(fullPath, "*" + suffix, SearchOption.AllDirectories);
                 foreach (string filePath in files)
                 {
+                    // 全部加载：AB 映射成功标记成功，失败标记"无AB"（不再静默丢弃）
                     if (CheckFileABPath(filePath, out string abPath))
                     {
                         m_FindFileFullPathList.Add(filePath, FileUseState.LoadSuccess);
                         isHaveAbPath = true;
+                    }
+                    else
+                    {
+                        m_FindFileFullPathList.Add(filePath, FileUseState.LoadFailed);
                     }
                 }
             }
@@ -213,8 +263,7 @@ namespace Honor.Editor
                     }
                     else
                     {
-                        m_FindFileFullPathList.Add(fullPath, FileUseState.LoadSuccess);
-                        isHaveAbPath = false;
+                        m_FindFileFullPathList.Add(fullPath, FileUseState.LoadFailed);
                     }
                 }
             }
@@ -423,6 +472,46 @@ namespace Honor.Editor
         /// <summary>
         /// 加载 AB 配置映射
         /// </summary>
+        /// <summary>
+        /// 将"Assets/"开头的工程相对路径解析为绝对路径
+        /// 用于 File/Directory.Exists 的稳定判断，避免依赖编辑器进程的工作目录
+        /// </summary>
+        /// <param name="assetPath">工程相对路径（Assets/...）</param>
+        /// <returns>正斜杠绝对路径；空输入返回空</returns>
+        private static string ResolveProjectAbsPath(string assetPath)
+        {
+            if (string.IsNullOrEmpty(assetPath)) return string.Empty;
+            return Path.Combine(Application.dataPath[..^6], assetPath).Replace('\\', '/');
+        }
+
+        /// <summary>
+        /// 将任意形式的资源路径归一化为"Assets/..."正斜杠相对路径
+        /// 兼容：绝对路径（E:\...\Assets\...）、正斜杠/反斜杠、相对工程路径
+        /// </summary>
+        /// <param name="path">原始路径</param>
+        /// <returns>Assets/ 开头的正斜杠相对路径；无法识别时返回原路径（正斜杠归一）</returns>
+        private static string NormalizeToAssetPath(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return path;
+
+            path = path.Replace('\\', '/');
+
+            // 绝对路径（含盘符或 / 开头）→ 截取 Assets/ 之后
+            int assetsIdx = path.IndexOf("Assets/", StringComparison.Ordinal);
+            if (assetsIdx >= 0)
+            {
+                // 若 "Assets/" 是路径段边界（前面是 / 或盘符 :/ 或路径开头），保留 Assets/ 前缀
+                if (assetsIdx == 0
+                    || path[assetsIdx - 1] == '/'
+                    || (assetsIdx >= 2 && path[assetsIdx - 1] == ':'))
+                {
+                    return path.Substring(assetsIdx);
+                }
+            }
+
+            return path;
+        }
+
         public static void LoadABConfigs()
         {
             s_ABConfigs.Clear();
@@ -464,7 +553,7 @@ namespace Honor.Editor
 
                 if (info.PackageMeasureType == 0)
                 {
-                    if ((info.IsPlatformManifest || File.Exists(info.Path) || Directory.Exists(info.Path)))
+                    if ((info.IsPlatformManifest || File.Exists(ResolveProjectAbsPath(info.Path)) || Directory.Exists(ResolveProjectAbsPath(info.Path))))
                     {
                         AssetImporter importer = AssetImporter.GetAtPath(info.Path);
                         if (importer != null && string.IsNullOrEmpty(info.Rename))
@@ -477,10 +566,14 @@ namespace Honor.Editor
                 }
                 else if (info.PackageMeasureType == 1)
                 {
-                    if (Directory.Exists(info.Path))
+                    if (Directory.Exists(ResolveProjectAbsPath(info.Path)))
                     {
+						//TODO
+                        // 每文件粒度：递归遍历整个目录树，映射"每文件 bundle 名 -> 完整资源路径(去扩展名)"
+                        // 与 AssetBundleNamePostprocessor.ProcessPackageType_EachFile 及打包工具
+                        // BuildPackage_Config EachFile 完全一致，保证生成的 ABPath 能被运行时精确命中。
                         string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
-                        foreach (string fullPath in Directory.GetFiles(root))
+                        foreach (string fullPath in Directory.GetFiles(root, "*.*", SearchOption.AllDirectories))
                         {
                             if (fullPath.EndsWith(".meta")) continue;
 
@@ -498,7 +591,7 @@ namespace Honor.Editor
                 }
                 else if (info.PackageMeasureType == 2)
                 {
-                    if (Directory.Exists(info.Path))
+                    if (Directory.Exists(ResolveProjectAbsPath(info.Path)))
                     {
                         string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
                         foreach (string fullPath in Directory.GetDirectories(root))
@@ -517,7 +610,7 @@ namespace Honor.Editor
                 }
                 else if (info.PackageMeasureType == 3)
                 {
-                    if (Directory.Exists(info.Path))
+                    if (Directory.Exists(ResolveProjectAbsPath(info.Path)))
                     {
                         string root = Path.Combine(Application.dataPath[..^6], info.Path).Replace('\\', '/');
 
@@ -553,6 +646,10 @@ namespace Honor.Editor
                     }
                 }
             }
+
+            // 诊断：输出 AB 映射加载结果，便于确认 Icon 每文件映射是否构建成功
+            Log.Debug($"[Editor] LoadABConfigs 完成：映射 {s_ABConfigs.Count} 条；" +
+                      $"Icon sc_2_cat_19={s_ABConfigs.ContainsKey("assets@res@textures@map@icon@sc_2_cat_19.bundle")}");
         }
         #endregion
 

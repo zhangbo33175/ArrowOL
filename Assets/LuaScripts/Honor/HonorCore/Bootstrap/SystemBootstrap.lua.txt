@@ -1,0 +1,62 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  SystemBootstrap.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     框架核心引导文件（自动加载底层工具与系统级助手，建立全局单例访问入口）
+-- @desc      加载 SystemBase64 及协程、事件、计时、通知、配置、账号等全局助手；经 :Create() 批量实例化为全局单例；装配 HonorAssetManager 资源域管理器收拢对象池与资源工具；创建 HonorIAPHelper 内购助手
+-- @core      引导脚本按依赖顺序 require 并 :Create() 建立全局单例
+-- @scope     由 StartGame 调用的框架引导脚本（全局注入，不 return 模块表属设计）；建立业务层全局助手访问入口
+-- @dependency SystemBase64、HonorCoroutineHelper、HonorEventHelper、HonorTimerHelper、HonorNotificationHelper、HonorConfigHelper、HonorAccountHelper、HonorPoolHelper、HonorAssetManager、HonorIAPHelper
+-- @note  由 StartGame 调用；HonorAssetManager 复用 HonorPoolHelper 全局单例，须在其后加载，顺序不可颠倒。
+--=====================================================================================================
+
+--region 全局核心框架模块加载
+
+---@brief Base64 编码解码工具
+---@class SystemBase64
+SystemBase64 = require("SystemBase64")
+
+---@brief 协程管理助手
+---@class HonorCoroutineHelper
+HonorCoroutineHelper = require("HonorCoroutineHelper"):Create()
+
+---@brief 事件/消息中心助手
+---@class HonorEventHelper
+HonorEventHelper = require("HonorEventHelper"):Create()
+
+---@brief 计时器/定时器助手
+---@class HonorTimerHelper
+HonorTimerHelper = require("HonorTimerHelper"):Create()
+
+---@brief 本地/全局通知助手
+---@class HonorNotificationHelper
+HonorNotificationHelper = require("HonorNotificationHelper"):Create()
+
+---@brief 系统配置读取助手
+---@class HonorConfigHelper
+HonorConfigHelper = require("HonorConfigHelper"):Create()
+
+---@brief 账号登录相关助手
+---@class HonorAccountHelper
+HonorAccountHelper = require("HonorAccountHelper"):Create()
+
+---@brief 对象池管理助手
+---@class HonorPoolHelper
+HonorPoolHelper = require("HonorPoolHelper"):Create()
+
+---@brief 资源域核心管理器（收拢对象池 + 资源工具，统一入口）
+---@class HonorAssetManager
+---@note 须在 HonorPoolHelper 之后加载，Pool 复用其全局单例
+HonorAssetManager = require("HonorAssetManager")
+
+---@brief 内购（IAP）管理助手
+---@class HonorIAPHelper
+HonorIAPHelper = require("HonorIAPHelper"):Create()
+
+--endregion
+
+--=====================================================================================================
+-- 框架核心模块加载完成
+--=====================================================================================================

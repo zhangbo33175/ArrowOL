@@ -101,9 +101,9 @@ namespace Honor.Runtime
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
             cpuInsufficient = SystemInfo.processorCount <= GameMainRoot.Launcher.EditorPerformance.ProcessorCount;
 #elif UNITY_STANDALONE_OSX || UNITY_IOS
-            cpuInsufficient = SystemInfo.processorCount < Root.Launcher.iOSPerformance.ProcessorCount;
+            cpuInsufficient = SystemInfo.processorCount < GameMainRoot.Launcher.iOSPerformance.ProcessorCount;
 #elif UNITY_ANDROID
-            cpuInsufficient = SystemInfo.processorCount <= Root.Launcher.AndroidPerformance.ProcessorCount;
+            cpuInsufficient = SystemInfo.processorCount <= GameMainRoot.Launcher.AndroidPerformance.ProcessorCount;
 #else
             cpuInsufficient = false;
 #endif
@@ -134,15 +134,15 @@ namespace Honor.Runtime
             midGfx = GameMainRoot.Launcher.EditorPerformance.GraphicsMemorySizeMidBase;
             midSys = GameMainRoot.Launcher.EditorPerformance.SystemMemorySizeMidBase;
 #elif UNITY_STANDALONE_OSX || UNITY_IOS
-            highGfx = Root.Launcher.iOSPerformance.GraphicsMemorySizeHighBase;
-            highSys = Root.Launcher.iOSPerformance.SystemMemorySizeHighBase;
-            midGfx = Root.Launcher.iOSPerformance.GraphicsMemorySizeMidBase;
-            midSys = Root.Launcher.iOSPerformance.SystemMemorySizeMidBase;
+            highGfx = GameMainRoot.Launcher.iOSPerformance.GraphicsMemorySizeHighBase;
+            highSys = GameMainRoot.Launcher.iOSPerformance.SystemMemorySizeHighBase;
+            midGfx = GameMainRoot.Launcher.iOSPerformance.GraphicsMemorySizeMidBase;
+            midSys = GameMainRoot.Launcher.iOSPerformance.SystemMemorySizeMidBase;
 #elif UNITY_ANDROID
-            highGfx = Root.Launcher.AndroidPerformance.GraphicsMemorySizeHighBase;
-            highSys = Root.Launcher.AndroidPerformance.SystemMemorySizeHighBase;
-            midGfx = Root.Launcher.AndroidPerformance.GraphicsMemorySizeMidBase;
-            midSys = Root.Launcher.AndroidPerformance.SystemMemorySizeMidBase;
+            highGfx = GameMainRoot.Launcher.AndroidPerformance.GraphicsMemorySizeHighBase;
+            highSys = GameMainRoot.Launcher.AndroidPerformance.SystemMemorySizeHighBase;
+            midGfx = GameMainRoot.Launcher.AndroidPerformance.GraphicsMemorySizeMidBase;
+            midSys = GameMainRoot.Launcher.AndroidPerformance.SystemMemorySizeMidBase;
 #else
             return DevicePerformanceLevel.Low;
 #endif

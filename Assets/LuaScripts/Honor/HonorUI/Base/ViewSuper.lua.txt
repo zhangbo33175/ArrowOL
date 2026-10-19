@@ -1,0 +1,356 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- -------------------------------------------------------------
+-- filename:  ViewSuper.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     视图通用父类（MVVM - View 层基类）
+-- @desc      所有 UI 界面的 View 层基类，负责绑定 ViewModel、UI 动画、生命周期、资源管理；UI 生命周期操作委托 UIManager
+-- @core      ViewModel 绑定、UI 动画/生命周期、事件绑定、自动释放、资源与嵌套 UI 管理
+-- @scope     MVVM View 层基类，继承 LuaBehaviourSuper，经 Binder 绑定 VM
+-- @dependency LuaBehaviourSuper, Binder, UIManager, HonorAsset
+-- descrip:   视图通用父类（MVVM - View层基类）
+--            作用：所有UI界面的View层基类，负责绑定ViewModel、UI动画、生命周期、资源管理
+--            职责：UI渲染、事件绑定、动画控制、自动释放、资源管理、嵌套UI管理
+--=====================================================================================================
+
+--region MVVM View 层基类
+---@class ViewSuper MVVM 视图基类（所有界面 View 的父类）
+---@field cs Honor.Runtime.LuaBehaviour 绑定的 C# LuaBehaviour 组件
+-- UI 管理器（UI 事件/生命周期操作；UI 生命周期实现统一收拢到 UIManager，本类保留方法签名委托之）
+local UIManager = require('UIManager')
+-- 资源加载/卸载统一走 HonorAsset 工具（复用异常防护与 JsonAsset 解析，消除裸 C# 调用）
+local AssetUtil = require('AssetUtil')
+local ViewSuper = class("ViewSuper")
+
+---@brief 构造函数
+---@param args table 构造参数
+function ViewSuper:ctor(args)
+    -- 绑定环境表变量
+    if args ~= nil and args.env ~= nil then
+        for __, v in pairs(args.env) do
+            self[__] = v
+        end
+    end
+
+    self._args = args                                           -- 传入参数
+    self._params = self.cs.LuaParams                           -- C# 配置的自定义参数
+    self._name = self.__cname                                   -- 类名
+    self._mvvmType = "View"                                     -- MVVM 标识
+    -- 公共名称（自动去掉 View 后缀，用于匹配 ViewModel）
+    self._commonName = string.sub(self._name, 1, string.len(self._name) - string.len(self._mvvmType))
+    self._initOver = false                                      -- 初始化完成标记
+
+    -- MVVM 绑定核心
+    self._binder = require('Binder'):Create()                   -- 数据绑定器
+    -- ViewModel 包装（可监听）
+    self._viewModelPackage = require('BindValue'):Create({ name = "ViewModelPackage", value = nil, isTrigger = false })
+
+    self._isClosing = false                                     -- 是否正在关闭
+    -- UI 组件监听记录 {obj, cmd, handler}（界面销毁自动注销，对齐 HonorUI AddUIListener）
+    self._uiListenerList = {}
+
+    -- UI 元素引用
+    self._bgImage = nil                                          -- 背景图
+    self._bottomMaskLayerImage = nil                            -- 底部遮罩
+    self._topMaskLayerImage = nil                               -- 顶部遮罩
+    self._bottomCloseLayerButton = nil                          -- 底部关闭按钮
+
+    -- 动画时长
+    self._bottomMaskLayerOpenAnimationDelay = 0.5
+    self._bottomMaskLayerCloseAnimationDelay = 0.5
+    self._alphaOpenAnimationDelay = 0.5
+    self._alphaCloseAnimationDelay = 0.5
+    self._rootOpenAnimationDelay = 0.5
+    self._rootCloseAnimationDelay = 0.5
+
+    self._loadedAssets = {}                                     -- 动态加载资源
+    self._oriPosForUIStack = UnityEngine.Vector3.zero                 -- UI 栈原始位置
+end
+
+---@brief 创建实例
+---@param args table
+---@return ViewSuper View 实例
+function ViewSuper:Create(args)
+    local obj = ViewSuper.new(args)
+    return obj
+end
+
+---@brief 唤醒（Unity 生命周期）
+function ViewSuper:Awake()
+    -- 自动查找固定 UI 节点（__BgImage/遮罩/关闭层，统一收口到 UIManager:InitFixedNodes）
+    UIManager:InitFixedNodes(self)
+
+    -- 抛出 UI 打开事件
+    HonorEventHelper:FireNow(FwEventCmd.UIViewOpen, self._commonName)
+
+    -- 注册事件
+    self:OnAddListeners()
+
+    -- 自动创建并绑定对应 ViewModel
+    local viewModel = require(self._commonName .. 'ViewModel'):Create({ args = self._args, params = self._params })
+    self.cs.OwnLuaClasses[Honor.MVVMPatternType.ViewModel:GetHashCode()] = viewModel
+    viewModel:Awake()
+    self:SetViewModel(viewModel)
+end
+
+---@brief 启用
+function ViewSuper:OnEnable()
+    if self:GetViewModel() then
+        self:GetViewModel():OnEnable()
+    end
+end
+
+---@brief 初始化回调（首次设置 ViewModel 时调用）
+---@param viewModel ViewModelSuper
+function ViewSuper:OnInit(viewModel)
+    self._binder:SetViewModel(viewModel)
+    self._viewModelPackage:AddHandler(handler(self, self.OnViewModelChanged))
+end
+
+---@brief 开始
+function ViewSuper:Start()
+    if self:GetViewModel() then
+        self:GetViewModel():Start()
+    end
+    self:Open()
+end
+
+---@brief 帧更新
+function ViewSuper:Proc()
+    if self:GetViewModel() then
+        self:GetViewModel():Proc()
+    end
+end
+
+---@brief 禁用
+function ViewSuper:OnDisable()
+    if self:GetViewModel() then
+        self:GetViewModel():OnDisable()
+    end
+end
+
+---@brief 销毁（自动释放所有）
+function ViewSuper:OnDestroy()
+    if self:GetViewModel() then
+        self:GetViewModel():OnDestroy()
+    end
+    self:SetViewModel(nil)
+    self._viewModelPackage:CleanAllHandlers()
+    self._binder = nil
+    self:UnloadAllAssets()
+    HonorEventHelper:RemoveListenerByTarget(self)
+    HonorCoroutineHelper:StopByGO(self.cs.gameObject)
+    -- 注销 UI 组件监听（对齐 HonorUI：随界面销毁自动移除）
+    if self._uiListenerList ~= nil then
+        for i = 1, #self._uiListenerList do
+            local listener = self._uiListenerList[i]
+            OnRemoveListener(listener[1], listener[2], listener[3])
+        end
+        self._uiListenerList = {}
+    end
+end
+
+---@brief 注册事件（子类重写）
+function ViewSuper:OnAddListeners()
+end
+
+---@brief 注册 UI 组件监听（随界面销毁自动注销，对齐 HonorUI AddUIListener）
+---@desc 封装全局 AddUIListenerFunction，并将回调句柄记录进 _uiListenerList，界面销毁时由 OnDestroy 统一移除
+---@param obj userdata|table UI 组件（Button/Image 等）
+---@param cmd string 监听命令（如 'Clicked'）
+---@param handler table 回调句柄 {target, method, func}
+--TODO: [新增] ViewSuper 补充 AddUIListener（对齐 LuaBehaviourSuper/HonorUI 自动注销），业务视图可直接使用
+function ViewSuper:AddUIListener(obj, cmd, handler)
+    if self._uiListenerList == nil then
+        self._uiListenerList = {}
+    end
+    table.insert(self._uiListenerList, { obj, cmd, handler })
+    AddUIListenerFunction(obj, cmd, handler)
+end
+
+---@brief 设置 ViewModel
+---@param viewModel ViewModelSuper
+function ViewSuper:SetViewModel(viewModel)
+    if self._initOver == false then
+        self:OnInit(viewModel)
+        self._initOver = true
+    end
+    self._viewModelPackage:SetValue(viewModel)
+end
+
+---@brief 获取 ViewModel
+---@return ViewModelSuper 视图模型
+function ViewSuper:GetViewModel()
+    return self._viewModelPackage:GetValue()
+end
+
+---@brief 添加绑定回调
+---@param name string
+---@param handler handler
+function ViewSuper:AddBindHandler(name, handler)
+    self._binder:Add(name, handler)
+end
+
+---@brief ViewModel 变化时自动重新绑定
+---@param old ViewModelSuper
+---@param new ViewModelSuper
+---@param operate string
+---@param valueItem any
+function ViewSuper:OnViewModelChanged(old, new, operate, valueItem)
+    if new ~= nil then
+        new:OnBeforeUse()
+    end
+    self._binder:UnbindFromViewModel()
+    self._binder:SetViewModel(new)
+    self._binder:BindToViewModel()
+    if new ~= nil then
+        new:OnAfterUse()
+    end
+end
+
+---@brief 打开界面
+function ViewSuper:Open()
+    UIManager:Open(self)
+end
+
+---@brief 关闭界面
+function ViewSuper:Close()
+    UIManager:Close(self)
+end
+
+---@brief 播放打开动画
+function ViewSuper:OnPlayOpenAnimation()
+    UIManager:PlayOpenAnimation(self)
+end
+
+---@brief 打开完成
+function ViewSuper:OnOpenOver()
+    UIManager:OnOpenOver(self)
+end
+
+---@brief 播放关闭动画
+function ViewSuper:OnPlayCloseAnimation()
+    UIManager:PlayCloseAnimation(self)
+end
+
+---@brief 关闭完成（自动销毁）
+function ViewSuper:OnCloseOver()
+    UIManager:OnCloseOver(self)
+end
+
+---@brief 子 UI 销毁回调
+---@param luaClass table
+function ViewSuper:OnAddedUIDestroyed(luaClass)
+end
+
+---@brief 同步添加子 UI
+---@param uiTable table
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@return table,UnityEngine.GameObject
+function ViewSuper:AddUISync(uiTable, parent, luaParams)
+    return UIManager:AddUISync(self, uiTable, parent, luaParams)
+end
+
+---@brief 异步添加子 UI
+---@param uiTable table
+---@param parent UnityEngine.Transform
+---@param luaParams table
+---@param overCallback function
+function ViewSuper:AddUIAsync(uiTable, parent, luaParams, overCallback)
+    UIManager:AddUIAsync(self, uiTable, parent, luaParams, overCallback)
+end
+
+---@brief 加载资源（自动管理）
+---@param assetInfo table
+---@return UnityEngine.Object
+function ViewSuper:LoadAsset(assetInfo)
+    if assetInfo ~= nil then
+        local keyName = assetInfo.Name
+        if self._loadedAssets[keyName] == nil then
+            -- 统一经 AssetUtil 加载（含异常防护与 JsonAsset 解析）
+            self._loadedAssets[keyName] = AssetUtil.LoadAssetSync(assetInfo)
+        end
+        return self._loadedAssets[keyName]
+    end
+    return nil
+end
+
+---@brief 卸载资源
+---@param assetInfo table
+---@return boolean
+function ViewSuper:UnloadAsset(assetInfo)
+    if assetInfo ~= nil then
+        local keyName = assetInfo.Name
+        local asset = self._loadedAssets[keyName]
+        if asset ~= nil then
+            -- 统一经 AssetUtil 卸载（内部含 C# 空守卫）
+            AssetUtil.RemoveAsset(asset)
+            self._loadedAssets[keyName] = nil
+            return true
+        end
+    end
+    return false
+end
+
+---@brief 按对象卸载资源
+---@param asset UnityEngine.Object
+---@return boolean
+function ViewSuper:UnloadAssetByAsset(asset)
+    if asset ~= nil then
+        for keyName, vAsset in pairs(self._loadedAssets) do
+            if vAsset == asset then
+                AssetUtil.RemoveAsset(asset)
+                self._loadedAssets[keyName] = nil
+                return true
+            end
+        end
+    end
+    return false
+end
+
+---@brief 卸载所有资源
+function ViewSuper:UnloadAllAssets()
+    for _, vAsset in pairs(self._loadedAssets) do
+        if vAsset ~= nil then
+            AssetUtil.RemoveAsset(vAsset)
+        end
+    end
+    self._loadedAssets = {}
+end
+
+---@brief UI 入栈
+function ViewSuper:OnStackPush()
+    UIManager:StackPush(self)
+end
+
+---@brief UI 出栈
+function ViewSuper:OnStackPop()
+    UIManager:StackPop(self)
+end
+
+---@brief 延迟协程
+---@desc 延迟指定秒数后执行回调，通过全局工具函数绑定当前 View 生命周期
+---@param delayTime number
+---@param isRealTime boolean 是否使用真实时间（不受时间缩放影响）
+---@param callback function 延迟结束后回调
+---@return void 无返回值（仅绑定生命周期触发回调）
+--TODO: [优化] 补全 CoDelayFunction 注解（desc 与返回值说明），修文档不改函数
+function ViewSuper:CoDelayFunction(delayTime, isRealTime, callback)
+    CoDelayFunctionOfG(self, delayTime, isRealTime, callback)
+end
+
+---@brief 延迟帧
+---@desc 延迟指定帧数后执行回调，通过全局工具函数绑定当前 View 生命周期
+---@param delayFrame number
+---@param callback function 延迟结束后回调
+---@return void 无返回值（仅绑定生命周期触发回调）
+--TODO: [优化] 补全 CoDelayFrameFunction 注解（desc 与返回值说明），修文档不改函数
+function ViewSuper:CoDelayFrameFunction(delayFrame, callback)
+    CoDelayFrameFunctionOfG(self, delayFrame, callback)
+end
+--endregion
+
+return ViewSuper

@@ -167,7 +167,10 @@ namespace Honor.Runtime
 
             // 创建 Lua 环境
             InitLuaEnv(index);
-            OwnLuaClasses[index] = m_LuaComponent.LuaCreateLuaClassFromCSEventDelegate(OwnLuaEnvs[index], LuaScriptNames[index]);
+
+            // 同步 cmd 调用创建 Lua 类（cmd: 1001），保持注入机制同步依赖 OwnLuaClass 的时序
+            OwnLuaClasses[index] = (LuaTable)LuaProtocolRunTime.SyncCall((int)LuaProtocolCmd.P_LuaCreateLuaClassFromCSEventDelegate,
+                new CreateLuaClass { Env = OwnLuaEnvs[index], LuaScriptName = LuaScriptNames[index] });
 
             BindLifeCycleLuaFunctions(index);
 

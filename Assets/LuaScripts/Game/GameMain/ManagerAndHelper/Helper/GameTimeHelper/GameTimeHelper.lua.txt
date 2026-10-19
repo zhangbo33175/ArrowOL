@@ -6,33 +6,11 @@
 -- author:     云毅
 -- created:    2026
 -- @desc:      提供定时任务注册/取消、时间格式化、多语言时间单位、防篡改时间戳矫正功能
+-- @core:      有序定时任务队列（二分插入）、每秒事件驱动、服务器基准时间戳防作弊
+-- @scope:     全局唯一单例；BuffManager 注册到期回调，ProcedurePreload 登录时校准基准时间戳
 -- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 时间任务管理
 -- @dependency: Singleton, CoroutineHelper, EventManager, Utility
 --=====================================================================================================
-
---region 时间格式枚举定义
-
----@class ETimeCustomFormat @自定义时间格式枚举
----@field Time_0m00s number @0m 00s 格式
----@field Time_0_00 number @0:00 格式
-ETimeCustomFormat = {
-    Time_0m00s = 1, --- 0m 00s 格式
-    Time_0_00  = 2  --- 0:00 格式
-}
-
----@class EFormatTimeString @时间格式化字符串常量
----@field Time_0d00h string @ 0d 00h 格式化字符串
----@field Time_0h00m string @ 0h 00m 格式化字符串
----@field Time_0m00s string @0m 00s 格式化字符串
----@field Time_0_00 string @0:00 格式化字符串
-EFormatTimeString = {
-    Time_0d00h = "%sd %02dh", --- 天 小时
-    Time_0h00m = "%sh %02dm", --- 小时 分钟
-    Time_0m00s = "%sm %02ds", --- 分钟 秒
-    Time_0_00  = "%s:%02d",    --- 分:秒
-}
-
---endregion
 
 --region 数据结构定义
 
@@ -157,7 +135,7 @@ end
 --region 定时任务：注册 / 取消 / 插入
 
 ---@brief 二分法插入有序任务列表（保证按时间戳升序）
----@type fun(record :TimestampRecorder) :void
+---@type fun(record:TimestampRecorder):void
 ---@param record TimestampRecorder @ 定时任务
 function GameTimeHelper:_Insert(record)
     local count = #self.timestampRecords
@@ -186,7 +164,7 @@ function GameTimeHelper:_Insert(record)
 end
 
 ---@brief 注册UTC时间戳定时任务
----@type fun(key : string ,timestamp:number,func :function):void
+---@type fun(key:string, timestamp:number, func:function):void
 ---@param key string @ 取消任务用唯一Key
 ---@param timestamp number @UTC0时间戳
 ---@param func function @到达时间回调
@@ -272,24 +250,6 @@ end
 
 --region 时间格式化
 
----@brief 固定格式时间格式化
----@type fun(time:number,format:ETimeCustomFormat):string
----@param time number @总秒数
----@param format ETimeCustomFormat @目标格式
----@return string @格式化后的时间字符串
-function GameTimeHelper:FormatTime(time, format)
-    if format == ETimeCustomFormat.Time_0m00s then
-        local minute = math.floor(time / 60)
-        local second = math.floor(time % 60)
-        return string.format(EFormatTimeString.Time_0m00s, minute, second)
-    elseif format == ETimeCustomFormat.Time_0_00 then
-        local minute = math.floor(time / 60)
-        local second = math.floor(time % 60)
-        return string.format(EFormatTimeString.Time_0_00, minute, second)
-    end
-    return ""
-end
-
 ---@brief 通用智能时间格式化（自动适配天/时/分/秒，支持多语言）
 ---@type fun(time:number,inTick:boolean):string
 ---@param time number @总秒数
@@ -346,22 +306,11 @@ function GameTimeHelper:SetupFutureTimeStamp()
 
     --- 使用真实启动时间矫正基准，防止回退时间
     if futureTime < loginTime then
-        SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = loginTime - Unity.Time.realtimeSinceStartup
+        SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = loginTime - UnityEngine.Time.realtimeSinceStartup
         SaveIO.GameData.Save_timestamps()
     end
 
     self.futureTimeStamp = SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP]
-end
-
----@brief 切后台/退出游戏时刷新并保存基准时间
----@type fun():void
-function GameTimeHelper:RefreshFutureTimeStamp()
-    if not self.futureTimeStamp then
-        return
-    end
-
-    SaveRootData.GameData.timestamps[ETimestampID.FUTURE_TIME_STAMP] = self:GetUTC0FutureTimeStamp()
-    SaveIO.GameData.Save_timestamps()
 end
 
 ---@brief 获取当前可靠UTC0时间戳（防篡改）
@@ -373,7 +322,7 @@ function GameTimeHelper:GetUTC0FutureTimeStamp()
         self.futureTimeStamp = SaveRootData.UserData.launchTime.current.utc0
     end
 
-    return self.futureTimeStamp + Unity.Time.realtimeSinceStartup
+    return self.futureTimeStamp + UnityEngine.Time.realtimeSinceStartup
 end
 
 --endregion

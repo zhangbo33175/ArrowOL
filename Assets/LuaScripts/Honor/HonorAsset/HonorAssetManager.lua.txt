@@ -1,0 +1,35 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:   HonorAssetManager.lua
+-- author:     云毅
+-- created:    2026
+-- @brief     HonorAsset 资源域核心管理器（统一入口）
+-- @desc      收拢资源域能力：对象池管理（Pool）与资源工具（Tools.Asset）。
+--            业务层经 HonorAssetManager 集中访问，避免分散 require。
+--            @dependency HonorPoolHelper / AssetUtil（对象池与资源工具）
+-- @core      资源域能力收拢：对象池管理（Pool）与资源工具（Tools.Asset）
+-- @scope     全局资源域入口（由 SystemBootstrap 先于 GameMain 加载）
+-- @note      由 SystemBootstrap 加载（先于 GameMain），Pool 复用全局 HonorPoolHelper 单例。
+--=====================================================================================================
+
+---@class HonorAssetManager 资源域核心管理器（全局唯一，资源能力统一入口）
+---@desc 业务层通过全局 HonorAssetManager.Pool / HonorAssetManager.Tools.Asset 访问资源能力
+HonorAssetManager = {}
+
+--region 资源能力收拢
+
+---@brief 对象池管理（复用全局 HonorPoolHelper 单例，管理所有 GameObject 对象池）
+---@field Pool HonorPoolHelper
+HonorAssetManager.Pool = HonorPoolHelper
+
+---@brief 资源工具模块（HonorAsset/Utils，收拢加载/预制体/销毁/克隆工具）
+---@field Tools table<string, AssetUtil>
+HonorAssetManager.Tools = {
+    Asset = require("AssetUtil"),
+}
+
+--endregion
+
+return HonorAssetManager

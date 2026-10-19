@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     playerInfo 存档数据管理器
 -- @desc      管理玩家个人信息（用户名、输入状态等）的存档读写
+-- @core      玩家用户名存档读取、默认昵称兜底生成、空值防护
+-- @scope     玩家个人信息读取，供 RankDataManager 跨文件调用
 -- @feat      全局单例、安全存档、默认昵称生成、多语言、空值防护
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
@@ -75,35 +77,6 @@ function PlayerInfoDataManager:GetPlayerInfoUserName()
     else
         -- 返回自定义名字（空值防护）
         return playerInfo.name or Lang["PlayerDefaultNameError"]
-    end
-end
-
----=========================================================================
----@brief  设置玩家自定义用户名，并标记为已输入
----@type fun(newName:string):void
----@param newName string 用户新输入的用户名
----=========================================================================
-function PlayerInfoDataManager:SetPlayerInfoUserName(newName)
-    if not newName or type(newName) ~= "string" or newName == "" then
-        PrintError("[PlayerInfoDataManager] 设置用户名失败：名字为空")
-        return
-    end
-
-    -- 安全校验存档结构
-    if not SaveRootData or not SaveRootData.GameData or not SaveRootData.GameData.playerInfo then
-        PrintError("[PlayerInfoDataManager] 设置用户名失败：playerInfo 存档不存在")
-        return
-    end
-
-    -- 写入数据
-    SaveRootData.GameData.playerInfo.name = newName
-    SaveRootData.GameData.playerInfo.userInput = true
-
-    -- 保存存档
-    if SaveIO and SaveIO.GameData and SaveIO.GameData.Save_playerInfo then
-        SaveIO.GameData.Save_playerInfo()
-    else
-        PrintError("[PlayerInfoDataManager] 保存失败：存档接口不存在")
     end
 end
 

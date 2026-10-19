@@ -1,0 +1,144 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ProtocolCallback.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     C# -> Lua 协议统一分发入口
+-- @desc      FrameworkProtocolNotify 单向事件广播（应用生命周期 / 按键 / 事件 / 本地化 / WebSocket）；FrameworkProtocolSync 同步调用（创建 Lua 类 / 资源信息 / 本地化）；cmd 路由表分发（m_NotifyHandlers / m_SyncHandlers）
+-- @core      C# LuaProtocolRunTime 绑定全局函数 + cmd 路由表索引分发到全局回调
+-- @scope     C# 侧 LuaProtocolRunTime 直接调用的全局分发函数（全局注入，不 return 模块表属设计）
+-- @dependency ProtocolCmd.Cmd 协议号
+-- @note 依赖 ProtocolCmd.Cmd 协议号
+--=====================================================================================================
+
+---@class ProtocolCallback
+---协议统一分发端：承接 C# LuaProtocolRunTime 广播/同步调用，按 cmd 路由到对应全局回调
+---cmd 定义见 ProtocolCmd.Cmd（对齐 C# LuaProtocolCmd）
+
+--region 依赖引入
+require("ProtocolCmd")
+--endregion
+
+--region 命令路由表
+
+--=====================================================================================================
+-- cmd 路由表：将 if/elseif 分发链重构为表映射，按 cmd 直接索引处理回调，更易扩展与阅读
+-- 单向事件（Notify）回调签名统一为 function(content, state)；同步（Sync）回调返回处理结果
+--=====================================================================================================
+
+--region 广播路由表（单向事件 → 全局回调）
+
+---@brief 单向事件 cmd 路由表：cmd → function(content, state)
+---@desc 覆盖应用生命周期 / 按键 / 事件 / 本地化 / WebSocket 五类单向广播
+---@type table<integer, fun(content:any, state:integer)>
+local m_NotifyHandlers = {
+    -- 应用生命周期
+    [ProtocolCmd.Cmd.P_LuaApplicationPauseFromCSEventDelegate] = function(content, state)
+        ---应用暂停 / 恢复回调
+        ApplicationPauseCallback(content.Pause)
+    end,
+    [ProtocolCmd.Cmd.P_LuaApplicationQuitFromCSEventDelegate] = function(content, state)
+        ---应用退出回调
+        ApplicationQuitCallback()
+    end,
+
+    -- 输入（content 为 C# KeyCode 对象，对齐原回调签名）
+    [ProtocolCmd.Cmd.P_LuaKeysUpFromCSEventDelegate] = function(content, state)
+        ---原生按键抬起回调
+        KeyboardsUpCallback(content)
+    end,
+
+    -- 事件派发（content 为 C# EventParams 对象）
+    [ProtocolCmd.Cmd.P_LuaReceiveEventCSEventDelegate] = function(content, state)
+        ---接收 C# 全局事件并转发
+        ReceiveCsEventCallback(content)
+    end,
+
+    -- 本地化语言表数据关联
+    [ProtocolCmd.Cmd.P_LuaRelateLocalizationTableDataFromCSEventDelegate] = function(content, state)
+        ---本地化语言表数据关联回调
+        Relate_Localization_Table_Data()
+    end,
+
+    -- WebSocket（content 为 C# 数据类，含 Socket 运行时字段）
+    [ProtocolCmd.Cmd.P_LuaWebSocketOpenCSEventDelegate] = function(content, state)
+        ---WebSocket 建立成功回调
+        GameWebSocketOpenCallback(content.Socket)
+    end,
+    [ProtocolCmd.Cmd.P_LuaWebSocketMessageReceivedCSEventDelegate] = function(content, state)
+        ---WebSocket 文本消息接收回调
+        GameWebSocketMessageReceivedCallback(content.Socket, content.Message)
+    end,
+    [ProtocolCmd.Cmd.P_LuaWebSocketBinaryReceivedCSEventDelegate] = function(content, state)
+        ---WebSocket 字节流消息接收回调
+        GameWebSocketBinaryReceivedCallback(content.Socket, content.Datas)
+    end,
+    [ProtocolCmd.Cmd.P_LuaWebSocketClosedCSEventDelegate] = function(content, state)
+        ---WebSocket 关闭回调
+        GameWebSocketClosedCallback(content.Socket, content.Code, content.Message)
+    end,
+    [ProtocolCmd.Cmd.P_LuaWebSocketErrorCSEventDelegate] = function(content, state)
+        ---WebSocket 错误回调
+        GameWebSocketErrorCallback(content.Socket, content.Error)
+    end,
+}
+--endregion
+
+--region 同步路由表（需立即返回结果 → 处理回调）
+
+---@brief 同步调用 cmd 路由表：cmd → function(content)
+---@desc 覆盖创建 Lua 类 / 获取资源信息 / 本地化四类同步调用，返回处理结果
+---@type table<integer, fun(content:any):any>
+local m_SyncHandlers = {
+    [ProtocolCmd.Cmd.P_LuaCreateLuaClassFromCSEventDelegate] = function(content)
+        ---创建 LuaBehaviour 类，绑定生命周期
+        return CreateLuaClassFromCS(content.Env, content.LuaScriptName)
+    end,
+    [ProtocolCmd.Cmd.P_LuaCreateProcedureLuaClassFromCSEventDelegate] = function(content)
+        ---创建流程（Procedure）Lua 类
+        return CreatePocedureLuaClassFromCS(content.Env, content.LuaScriptName)
+    end,
+    [ProtocolCmd.Cmd.P_LuaGetResDefInfoEventDelegate] = function(content)
+        ---获取资源配置信息
+        return LoadRes[content.Name]
+    end,
+    [ProtocolCmd.Cmd.P_LuaLocalizingCSEventDelegate] = function(content)
+        ---UI 本地化文本获取回调
+        return GetLocalization(content.LocalizingKey)
+    end,
+}
+--endregion
+
+--endregion
+
+--region 统一分发入口（C# -> Lua）
+
+---@brief C# -> Lua 广播入口（单向事件：应用生命周期 / 按键 / 事件 / 本地化 / WebSocket）
+---@desc 由 C# LuaProtocolRunTime.LuaNotifyHandle 绑定调用，按 cmd 从广播路由表取回调分发
+---@param cmd number 协议号（ProtocolCmd.Cmd.P_*）
+---@param content table|userdata 协议内容（数据类或原始对象）
+---@param state number 状态（eReceiveType）
+function FrameworkProtocolNotify(cmd, content, state)
+    local handler = m_NotifyHandlers[cmd]
+    if handler then
+        handler(content, state)
+    else
+        PrintInfo("[ProtocolCallback] FrameworkProtocolNotify 未处理的 cmd = " .. tostring(cmd))
+    end
+end
+
+---@brief C# -> Lua 同步调用入口（需立即返回结果：创建 Lua 类 / 资源信息 / 本地化）
+---@desc 由 C# LuaProtocolRunTime.LuaSyncHandle 绑定调用，按 cmd 从同步路由表取回调并返回结果
+---@param cmd number 协议号（ProtocolCmd.Cmd.P_*）
+---@param content table 协议内容（强类型数据类）
+---@return any 处理结果（LuaTable / string）；未注册 cmd 返回 nil
+function FrameworkProtocolSync(cmd, content)
+    local handler = m_SyncHandlers[cmd]
+    if handler then
+        return handler(content)
+    end
+    return nil
+end
+
+--endregion

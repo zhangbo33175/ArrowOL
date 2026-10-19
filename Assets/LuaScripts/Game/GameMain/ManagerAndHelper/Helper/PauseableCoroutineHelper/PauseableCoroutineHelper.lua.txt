@@ -4,6 +4,8 @@
 -- filename:   PauseableCoroutineHelper.lua
 -- @brief:     可暂停协程工具类（关卡专用）
 -- @desc:      支持按信号量分组暂停/恢复，解决关卡弹窗、游戏暂停时冻结逻辑的问题
+-- @core:      信号量分组暂停标记、可暂停协程迭代器（MoveNext/Reset）、协程启动与停止
+-- @scope:     关卡内需要按全局/关卡分组冻结逻辑的协程（由 GuideNewContext 等玩法流程驱动暂停恢复）
 -- @author:    云毅 | 商业项目标准规范
 -- created:    2026
 -- @规范:       Unity Lua 商业项目编码标准 / 注释完整 / 可暂停协程管理

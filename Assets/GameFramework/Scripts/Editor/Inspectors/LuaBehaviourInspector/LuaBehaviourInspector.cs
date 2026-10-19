@@ -369,30 +369,30 @@ namespace Honor.Editor
             m_InfoExEventTriggerCmdTempletes.Add("Evt_UpdateSelected");
 
             // 获取基础序列化属性
-            m_PatternType = serializedObject.FindProperty("m_PatternType");
-            m_PrefabType = serializedObject.FindProperty("m_PrefabType");
+            m_PatternType = BindProperty("m_PatternType");
+            m_PrefabType = BindProperty("m_PrefabType");
 
             // 初始化不同设计模式
             InitPatternNone();
             InitPatternMVVM();
 
             // 获取界面配置序列化属性
-            m_UseProc = serializedObject.FindProperty("m_UseProc");
-            m_MaskLayer = serializedObject.FindProperty("m_MaskLayer");
-            m_BottomCloseLayer = serializedObject.FindProperty("m_BottomCloseLayer");
-            m_UseCollider2DLifeCycles = serializedObject.FindProperty("m_UseCollider2DLifeCycles");
-            m_UseCollider3DLifeCycles = serializedObject.FindProperty("m_UseCollider3DLifeCycles");
-            m_UseTrigger2DLifeCycles = serializedObject.FindProperty("m_UseTrigger2DLifeCycles");
-            m_UseTrigger3DLifeCycles = serializedObject.FindProperty("m_UseTrigger3DLifeCycles");
-            m_OpenAnimation = serializedObject.FindProperty("m_OpenAnimation");
-            m_CloseAnimation = serializedObject.FindProperty("m_CloseAnimation");
-            m_ShowRaycastTargetsGizmos = serializedObject.FindProperty("m_ShowRaycastTargetsGizmos");
-            m_LuaAuthorName = serializedObject.FindProperty("m_LuaAuthorName");
-            m_LuaDescript = serializedObject.FindProperty("m_LuaDescript");
-            m_Collider2DLifeCyclesBehaviour = serializedObject.FindProperty("m_Collider2DLifeCyclesBehaviour");
-            m_Collider3DLifeCyclesBehaviour = serializedObject.FindProperty("m_Collider3DLifeCyclesBehaviour");
-            m_Trigger2DLifeCyclesBehaviour = serializedObject.FindProperty("m_Trigger2DLifeCyclesBehaviour");
-            m_Trigger3DLifeCyclesBehaviour = serializedObject.FindProperty("m_Trigger3DLifeCyclesBehaviour");
+            m_UseProc = BindProperty("m_UseProc");
+            m_MaskLayer = BindProperty("m_MaskLayer");
+            m_BottomCloseLayer = BindProperty("m_BottomCloseLayer");
+            m_UseCollider2DLifeCycles = BindProperty("m_UseCollider2DLifeCycles");
+            m_UseCollider3DLifeCycles = BindProperty("m_UseCollider3DLifeCycles");
+            m_UseTrigger2DLifeCycles = BindProperty("m_UseTrigger2DLifeCycles");
+            m_UseTrigger3DLifeCycles = BindProperty("m_UseTrigger3DLifeCycles");
+            m_OpenAnimation = BindProperty("m_OpenAnimation");
+            m_CloseAnimation = BindProperty("m_CloseAnimation");
+            m_ShowRaycastTargetsGizmos = BindProperty("m_ShowRaycastTargetsGizmos");
+            m_LuaAuthorName = BindProperty("m_LuaAuthorName");
+            m_LuaDescript = BindProperty("m_LuaDescript");
+            m_Collider2DLifeCyclesBehaviour = BindProperty("m_Collider2DLifeCyclesBehaviour");
+            m_Collider3DLifeCyclesBehaviour = BindProperty("m_Collider3DLifeCyclesBehaviour");
+            m_Trigger2DLifeCyclesBehaviour = BindProperty("m_Trigger2DLifeCyclesBehaviour");
+            m_Trigger3DLifeCyclesBehaviour = BindProperty("m_Trigger3DLifeCyclesBehaviour");
 
             // 默认作者与描述初始化
             if (string.IsNullOrEmpty(m_LuaAuthorName.stringValue)) m_LuaAuthorName.stringValue = "???";
@@ -417,7 +417,7 @@ namespace Honor.Editor
             m_InterInjectionElementsExtends = new List<SerializedProperty>();
 
             // 遍历注入数组，拆分所有子属性
-            m_Injections = serializedObject.FindProperty("m_Injections");
+            m_Injections = BindProperty("m_Injections");
             for (int index = 0; index < m_Injections.arraySize; index++)
             {
                 SerializedProperty injection = m_Injections.GetArrayElementAtIndex(index);

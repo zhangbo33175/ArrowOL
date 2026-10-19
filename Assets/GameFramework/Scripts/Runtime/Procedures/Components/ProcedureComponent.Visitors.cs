@@ -30,94 +30,10 @@ namespace Honor.Runtime
         private string[] m_ProcedureTypeNames = null;
 
         /// <summary>
-        /// 对应流程：切换时是否需要【进入式】过渡动画
-        /// </summary>
-        [SerializeField]
-        private bool[] m_ProcedureTransitionEnterFlags = null;
-
-        /// <summary>
-        /// 对应流程：【进入式】过渡动画持续时间
-        /// </summary>
-        [SerializeField]
-        private float[] m_ProcedureTransitionEnterDurations = null;
-
-        /// <summary>
-        /// 对应流程：【进入式】过渡时是否屏蔽触摸
-        /// </summary>
-        [SerializeField]
-        private bool[] m_ProcedureTransitionEnterBlockRaycasts = null;
-
-        /// <summary>
-        /// 对应流程：切换时是否需要【退出式】过渡动画
-        /// </summary>
-        [SerializeField]
-        private bool[] m_ProcedureTransitionExitFlags = null;
-
-        /// <summary>
-        /// 对应流程：【退出式】过渡动画持续时间
-        /// </summary>
-        [SerializeField]
-        private float[] m_ProcedureTransitionExitDurations = null;
-
-        /// <summary>
-        /// 对应流程：【退出式】过渡时是否屏蔽触摸
-        /// </summary>
-        [SerializeField]
-        private bool[] m_ProcedureTransitionExitBlockRaycasts = null;
-
-        /// <summary>
-        /// 特殊流程配置：从 Hotfix 流程进入 Preload 流程时，是否启用进入过渡
-        /// </summary>
-        [SerializeField]
-        private bool m_ProcedureTransitionEnterFlagFromProcedureHotfix;
-
-        /// <summary>
-        /// 特殊流程配置：从 Hotfix 进入 Preload 的进入过渡时长
-        /// </summary>
-        [SerializeField]
-        private float m_ProcedureTransitionEnterDurationFromProcedureHotfix;
-
-        /// <summary>
-        /// 特殊流程配置：从 Hotfix 进入 Preload 时是否屏蔽触摸
-        /// </summary>
-        [SerializeField]
-        private bool m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix;
-
-        /// <summary>
-        /// 特殊流程配置：从 Preload 退回到 Hotfix 时，是否启用退出过渡
-        /// </summary>
-        [SerializeField]
-        private bool m_ProcedureTransitionExitFlagFromProcedureHotfix;
-
-        /// <summary>
-        /// 特殊流程配置：从 Preload 退回到 Hotfix 的退出过渡时长
-        /// </summary>
-        [SerializeField]
-        private float m_ProcedureTransitionExitDurationFromProcedureHotfix;
-
-        /// <summary>
-        /// 特殊流程配置：从 Preload 退回到 Hotfix 时是否屏蔽触摸
-        /// </summary>
-        [SerializeField]
-        private bool m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix;
-
-        /// <summary>
         /// 游戏启动入口流程类型名称
         /// </summary>
         [SerializeField]
         private string m_EntryProcedureTypeName = null;
-
-        /// <summary>
-        /// 流程切换过渡界面 AB 包路径
-        /// </summary>
-        [SerializeField]
-        private string m_UITransitionABPath;
-
-        /// <summary>
-        /// 流程切换过渡界面资源名称
-        /// </summary>
-        [SerializeField]
-        private string m_UITransitionAssetName;
 
         /// <summary>
         /// 闪屏界面 AB 包路径
@@ -164,19 +80,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 流程切换过渡界面 AB 包路径
         /// </summary>
-        public string UITransitionABPath
-        {
-            get { return m_UITransitionABPath; }
-        }
-
-        /// <summary>
-        /// 流程切换过渡界面资源名称
-        /// </summary>
-        public string UITransitionAssetName
-        {
-            get { return m_UITransitionAssetName; }
-        }
-
         /// <summary>
         /// 闪屏界面 AB 包路径
         /// </summary>
@@ -289,6 +192,14 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 当前运行中的流程（状态机未初始化时返回 null，供编辑器或安全访问使用）
+        /// </summary>
+        public ProcedureState CurrentProcedureOrNull
+        {
+            get { return m_ProcedureStateMachine == null ? null : (ProcedureState)m_ProcedureStateMachine.CurrentState; }
+        }
+
+        /// <summary>
         /// 当前流程已运行时长
         /// </summary>
         public float CurrentProcedureTime
@@ -318,127 +229,6 @@ namespace Honor.Runtime
 
             return -1;
         }
-
-        /// <summary>
-        /// 当前流程是否需要【进入式】过渡
-        /// </summary>
-        public bool CurrentProcedureTransitionEnterFlag
-        {
-            get
-            {
-                int hit = FindCurrentProcedureIndex();
-                return hit >= 0 && m_ProcedureTransitionEnterFlags[hit];
-            }
-        }
-
-        /// <summary>
-        /// 当前流程【进入式】过渡时长
-        /// </summary>
-        public float CurrentProcedureTransitionEnterDuration
-        {
-            get
-            {
-                int hit = FindCurrentProcedureIndex();
-                return hit >= 0 ? m_ProcedureTransitionEnterDurations[hit] : 0f;
-            }
-        }
-
-        /// <summary>
-        /// 当前流程【进入式】过渡是否屏蔽触摸
-        /// </summary>
-        public bool CurrentProcedureTransitionEnterBlockRaycast
-        {
-            get
-            {
-                int hit = FindCurrentProcedureIndex();
-                return hit >= 0 && m_ProcedureTransitionEnterBlockRaycasts[hit];
-            }
-        }
-
-        /// <summary>
-        /// 当前流程是否需要【退出式】过渡
-        /// </summary>
-        public bool CurrentProcedureTransitionExitFlag
-        {
-            get
-            {
-                int hit = FindCurrentProcedureIndex();
-                return hit >= 0 && m_ProcedureTransitionExitFlags[hit];
-            }
-        }
-
-        /// <summary>
-        /// 当前流程【退出式】过渡时长
-        /// </summary>
-        public float CurrentProcedureTransitionExitDuration
-        {
-            get
-            {
-                int hit = FindCurrentProcedureIndex();
-                return hit >= 0 ? m_ProcedureTransitionExitDurations[hit] : 0f;
-            }
-        }
-
-        /// <summary>
-        /// 当前流程【退出式】过渡是否屏蔽触摸
-        /// </summary>
-        public bool CurrentProcedureTransitionExitBlockRaycast
-        {
-            get
-            {
-                int hit = FindCurrentProcedureIndex();
-                return hit >= 0 && m_ProcedureTransitionExitBlockRaycasts[hit];
-            }
-        }
-
-        /// <summary>
-        /// 特殊流程：从 Hotfix → Preload 是否启用进入过渡
-        /// </summary>
-        public bool CurrentProcedureTransitionEnterFlagFromProcedureHotfix
-        {
-            get { return m_ProcedureTransitionEnterFlagFromProcedureHotfix; }
-        }
-
-        /// <summary>
-        /// 特殊流程：从 Hotfix → Preload 进入过渡时长
-        /// </summary>
-        public float CurrentProcedureTransitionEnterDurationFromProcedureHotfix
-        {
-            get { return m_ProcedureTransitionEnterDurationFromProcedureHotfix; }
-        }
-
-        /// <summary>
-        /// 特殊流程：从 Hotfix → Preload 进入过渡是否屏蔽触摸
-        /// </summary>
-        public bool CurrentProcedureTransitionEnterBlockRaycastFromProcedureHotfix
-        {
-            get { return m_ProcedureTransitionEnterBlockRaycastFromProcedureHotfix; }
-        }
-
-        /// <summary>
-        /// 特殊流程：从 Preload → Hotfix 是否启用退出过渡
-        /// </summary>
-        public bool CurrentProcedureTransitionExitFlagFromProcedureHotfix
-        {
-            get { return m_ProcedureTransitionExitFlagFromProcedureHotfix; }
-        }
-
-        /// <summary>
-        /// 特殊流程：从 Preload → Hotfix 退出过渡时长
-        /// </summary>
-        public float CurrentProcedureTransitionExitDurationFromProcedureHotfix
-        {
-            get { return m_ProcedureTransitionExitDurationFromProcedureHotfix; }
-        }
-
-        /// <summary>
-        /// 特殊流程：从 Preload → Hotfix 退出过渡是否屏蔽触摸
-        /// </summary>
-        public bool CurrentProcedureTransitionExitBlockRaycastFromProcedureHotfix
-        {
-            get { return m_ProcedureTransitionExitBlockRaycastFromProcedureHotfix; }
-        }
-
         #endregion
     }
 }

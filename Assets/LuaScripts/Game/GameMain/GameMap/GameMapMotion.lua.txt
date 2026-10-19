@@ -6,8 +6,10 @@
 -- created:   2026
 -- @brief     地图跟随控制器 —— 单击/拖动完美区分版（仅单击打印日志）
 -- @desc      支持PC拖动/手机滑动/双指缩放/惯性滑动/边界限制/严格单击拖动分离
+-- @core      相机平滑跟随、惯性滑动、双指/滚轮缩放、边界 clamp、单击拖动分离判定、自动扫描 DOTween
+-- @scope     全局单例表，由 GameMapBase:Start/OnDestroy 驱动 OnMapStart/OnMapEnd，GamePlayingState 每帧 OnUpdate
 -- @trigger   地图启动时初始化，Update驱动
--- @dependency EasyTouch, MapCamera, BoxCollider2D, GameManager
+-- @dependency EasyTouch, MapCamera, BoxCollider2D, GameManager, DOTween
 --=====================================================================================================
 
 ---@class MapMotionRange 地图边界范围结构
@@ -15,6 +17,44 @@
 ---@field max number X 轴最大边界
 
 ---@class GameMapMotion 地图相机控制主类 | 拖动+单击分离+缩放+惯性+边界限制
+---@field StepAddFactor number @平滑步进系数
+---@field SwipeSmoothStepNum number @滑动平滑值（0.3~1）
+---@field InertialSlidingFactor number @惯性滑动系数
+---@field VectorContainer1 table @坐标临时容器1（世界坐标换算）
+---@field VectorContainer2 table @坐标临时容器2
+---@field Vector3Num table @通用临时向量
+---@field InertialSlidingVector table @惯性方向向量
+---@field PointStartFromUI boolean @是否从UI开始按压
+---@field IsMouseDown boolean @鼠标是否按下
+---@field MouseLastScreenPos table @鼠标最后屏幕坐标
+---@field MinOrthoSize number @最小正交尺寸
+---@field MaxOrthoSize number @最大正交尺寸（运行时被 OnMapStart 动态覆盖）
+---@field ZoomSpeed number @缩放速度
+---@field LastPinchDistance number @上一次双指距离
+---@field IsPinching boolean @是否双指缩放
+---@field ClickEnable boolean @单击开关
+---@field ClickStartX number @单击起始X
+---@field ClickStartY number @单击起始Y
+---@field IsPressing boolean @是否正在按压
+---@field DragThreshold number @拖动阈值（像素）
+---@field OnMapClick fun(screenPos:table,isHit:boolean,hitTarget:table)|nil @地图单击外部回调
+---@field IsMapWork boolean @地图是否运行
+---@field ScreenCamera UnityEngine.Camera|nil @地图相机
+---@field MapMotionLayer GameLib.MapMotionLayer|nil @地图层组件
+---@field FollowPosition table|nil @相机跟随目标
+---@field MapBounds UnityEngine.Bounds|nil @地图包围盒
+---@field MapCenterX number @地图中心点X
+---@field MapCenterY number @地图中心点Y
+---@field MapHalfWidth number @地图半宽
+---@field MapHalfHeigh number @地图半高
+---@field ScreenCameraAspect number @相机宽高比
+---@field ScreenCameraOrthographicSize number @相机正交尺寸
+---@field InitialOrthoSize number @初始正交尺寸
+---@field PositionWhenPaused table|nil @暂停时位置
+---@field AutoScanActive boolean @自动扫描是否激活（运行时动态字段）
+---@field AutoScanWaypoints table|nil @自动扫描路径点（运行时动态字段）
+---@field AutoScanSeq table|nil @自动扫描 DOTween 序列（运行时动态字段）
+---@field AutoScanGraceFrames number|nil @自动扫描宽限帧数（运行时动态字段）
 local GameMapMotion = {
     StepAddFactor = 2,                          -- 平滑步进系数
     SwipeSmoothStepNum = 0,                     -- 滑动平滑值
@@ -23,7 +63,7 @@ local GameMapMotion = {
     VectorContainer1 = { x = 0, y = 0, z = 0 },  -- 坐标临时容器1
     VectorContainer2 = { x = 0, y = 0, z = 0 },  -- 坐标临时容器2
     Vector3Num = { x = 0, y = 0, z = 0 },       -- 通用临时向量
-    InertialSlidingVector = { x=0,y=0,z=0 },     -- 惯性方向向量
+    InertialSlidingVector = { x = 0, y = 0, z = 0 },     -- 惯性方向向量
 
     PointStartFromUI = false,                   -- 是否从UI开始按压
     lastMousePos = nil,                         -- 上一帧鼠标位置
@@ -131,7 +171,27 @@ end
 ---@brief 判断屏幕坐标是否在合法屏幕范围内
 ---@type fun(x:number,y:number):boolean
 function GameMapMotion:IsInsideScreen(x, y)
-    return x >= 0 and y >= 0 and x <= CS.UnityEngine.Screen.width and y <= CS.UnityEngine.Screen.height
+    return x >= 0 and y >= 0 and x <= UnityEngine.Screen.width and y <= UnityEngine.Screen.height
+end
+
+---@brief 重置滑动相关状态（惯性系数/平滑值/临时向量归零）
+---@type fun():void
+function GameMapMotion:ResetSwipeState()
+    self.InertialSlidingFactor = 0
+    self.SwipeSmoothStepNum = 0
+    self.Vector3Num.x = 0
+    self.Vector3Num.y = 0
+end
+
+---@brief 应用一次世界位移：写入临时向量、移动跟随目标并递增平滑系数
+---@type fun(dx:number, dy:number):void
+---@param dx number 世界X位移
+---@param dy number 世界Y位移
+function GameMapMotion:ApplyWorldDelta(dx, dy)
+    self.Vector3Num.x = dx
+    self.Vector3Num.y = dy
+    self:MovingFollowPosition(self.Vector3Num)
+    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + UnityEngine.Time.deltaTime * self.StepAddFactor, 0.3, 1)
 end
 
 --endregion
@@ -187,7 +247,7 @@ function GameMapMotion:OnUpdate()
     if self.AutoScanActive then
         if self.AutoScanGraceFrames and self.AutoScanGraceFrames > 0 then
             self.AutoScanGraceFrames = self.AutoScanGraceFrames - 1
-        elseif CS.UnityEngine.Input.GetMouseButton(0) or CS.UnityEngine.Input.touchCount > 0 then
+        elseif UnityEngine.Input.GetMouseButton(0) or UnityEngine.Input.touchCount > 0 then
             self:StopAutoScan()
         end
     end
@@ -206,9 +266,9 @@ end
 ---@type fun():void
 function GameMapMotion:UpdateMouseDrag()
     -- 按下
-    if CS.UnityEngine.Input.GetMouseButtonDown(0) then
+    if UnityEngine.Input.GetMouseButtonDown(0) then
         self.PointStartFromUI = self:IsPointerOverGameObject()
-        local mp = CS.UnityEngine.Input.mousePosition
+        local mp = UnityEngine.Input.mousePosition
 
         -- UI区域 / 屏幕外 不响应
         if self.PointStartFromUI or not self:IsInsideScreen(mp.x, mp.y) then
@@ -221,33 +281,25 @@ function GameMapMotion:UpdateMouseDrag()
         self.MouseLastScreenPos.y = mp.y
 
         -- 重置状态
-        self.InertialSlidingFactor = 0
-        self.SwipeSmoothStepNum = 0
-        self.Vector3Num.x = 0
-        self.Vector3Num.y = 0
+        self:ResetSwipeState()
     end
 
     -- 拖拽中
-    if CS.UnityEngine.Input.GetMouseButton(0) and self.IsMouseDown and not self.PointStartFromUI then
-        local curr = CS.UnityEngine.Input.mousePosition
+    if UnityEngine.Input.GetMouseButton(0) and self.IsMouseDown and not self.PointStartFromUI then
+        local curr = UnityEngine.Input.mousePosition
         if not self:IsInsideScreen(curr.x, curr.y) then return end
 
         local dx, dy = self:ScreenDeltaToWorldDelta(
             curr.x, curr.y,
             self.MouseLastScreenPos.x, self.MouseLastScreenPos.y
         )
-        self.Vector3Num.x = dx
-        self.Vector3Num.y = dy
-        self:MovingFollowPosition(self.Vector3Num)
-
-        -- 平滑系数递增
-        self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + CS.UnityEngine.Time.deltaTime * self.StepAddFactor, 0.3, 1)
+        self:ApplyWorldDelta(dx, dy)
         self.MouseLastScreenPos.x = curr.x
         self.MouseLastScreenPos.y = curr.y
     end
 
     -- 抬起
-    if CS.UnityEngine.Input.GetMouseButtonUp(0) and self.IsMouseDown then
+    if UnityEngine.Input.GetMouseButtonUp(0) and self.IsMouseDown then
         self.IsMouseDown = false
         self.PointStartFromUI = false
         self.InertialSlidingFactor = 1 - self.SwipeSmoothStepNum
@@ -278,18 +330,18 @@ function GameMapMotion:UpdateClickAndDrag()
     end
 
     -- 鼠标按压开始
-    if CS.UnityEngine.Input.GetMouseButtonDown(0) then
-        local mp = CS.UnityEngine.Input.mousePosition
+    if UnityEngine.Input.GetMouseButtonDown(0) then
+        local mp = UnityEngine.Input.mousePosition
         self.IsPressing = true
         self.ClickStartX = mp.x
         self.ClickStartY = mp.y
     end
 
     -- 鼠标按压结束
-    if CS.UnityEngine.Input.GetMouseButtonUp(0) then
+    if UnityEngine.Input.GetMouseButtonUp(0) then
         if self.IsPressing then
             self.IsPressing = false
-            local mp = CS.UnityEngine.Input.mousePosition
+            local mp = UnityEngine.Input.mousePosition
             if self:IsTapDistance(self.ClickStartX, self.ClickStartY, mp.x, mp.y) then
                 self:TriggerClick(mp)
             end
@@ -297,14 +349,14 @@ function GameMapMotion:UpdateClickAndDrag()
     end
 
     -- 触摸单击判断
-    local tc = CS.UnityEngine.Input.touchCount
+    local tc = UnityEngine.Input.touchCount
     if tc == 1 then
-        local touch = CS.UnityEngine.Input.GetTouch(0)
-        if touch.phase == CS.UnityEngine.TouchPhase.Began then
+        local touch = UnityEngine.Input.GetTouch(0)
+        if touch.phase == UnityEngine.TouchPhase.Began then
             self.IsPressing = true
             self.ClickStartX = touch.position.x
             self.ClickStartY = touch.position.y
-        elseif touch.phase == CS.UnityEngine.TouchPhase.Ended or touch.phase == CS.UnityEngine.TouchPhase.Canceled then
+        elseif touch.phase == UnityEngine.TouchPhase.Ended or touch.phase == UnityEngine.TouchPhase.Canceled then
             if self.IsPressing then
                 self.IsPressing = false
                 if self:IsTapDistance(self.ClickStartX, self.ClickStartY, touch.position.x, touch.position.y) then
@@ -316,18 +368,18 @@ function GameMapMotion:UpdateClickAndDrag()
 end
 
 ---@brief 触发单击回调（仅真正单击时调用）
----@type fun(screenPos:Vector2):void
----@param screenPos Vector2 点击屏幕坐标
+---@type fun(screenPos:UnityEngine.Vector2):void
+---@param screenPos UnityEngine.Vector2 点击屏幕坐标
 function GameMapMotion:TriggerClick(screenPos)
     if not self.ScreenCamera then return end
     if not self:IsInsideScreen(screenPos.x, screenPos.y) then return end
 
     local isHit = false
     local hitTarget = nil
-    local characterLayer = CS.UnityEngine.LayerMask.NameToLayer("Character")
+    local characterLayer = UnityEngine.LayerMask.NameToLayer("Character")
 
     -- 遍历Character层碰撞体进行点击检测（无射线、全平台兼容）
-    local allColliders = CS.UnityEngine.Object.FindObjectsOfType(typeof(CS.UnityEngine.BoxCollider2D))
+    local allColliders = UnityEngine.Object.FindObjectsOfType(typeof(UnityEngine.BoxCollider2D))
     if allColliders ~= nil then
         for i = 0, allColliders.Length - 1 do
             local collider = allColliders[i]
@@ -336,13 +388,13 @@ function GameMapMotion:TriggerClick(screenPos)
                 if go.layer == characterLayer then
                     local screenPoint = self.ScreenCamera:WorldToScreenPoint(collider.transform.position)
                     local bounds = collider.bounds
-                    local screenRect = CS.UnityEngine.Rect(
+                    local screenRect = UnityEngine.Rect(
                             screenPoint.x - bounds.extents.x,
                             screenPoint.y - bounds.extents.y,
                             bounds.size.x,
                             bounds.size.y
                     )
-                    if screenRect:Contains(CS.UnityEngine.Vector2(screenPos.x, screenPos.y)) then
+                    if screenRect:Contains(UnityEngine.Vector2(screenPos.x, screenPos.y)) then
                         isHit = true
                         hitTarget = go
                         break
@@ -379,10 +431,7 @@ function GameMapMotion:OnSwipeBegin(gesture)
     self.IsPressing = false
     if self.PointStartFromUI then return end
 
-    self.InertialSlidingFactor = 0
-    self.SwipeSmoothStepNum = 0
-    self.Vector3Num.x = 0
-    self.Vector3Num.y = 0
+    self:ResetSwipeState()
 end
 
 ---@brief 滑动中
@@ -401,11 +450,7 @@ function GameMapMotion:OnSwipe(gesture)
         tx - gesture.GetDeltaPositionX(),
         ty - gesture.GetDeltaPositionY()
     )
-    self.Vector3Num.x = dx
-    self.Vector3Num.y = dy
-    self:MovingFollowPosition(self.Vector3Num)
-
-    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + CS.UnityEngine.Time.deltaTime * self.StepAddFactor, 0.3, 1)
+    self:ApplyWorldDelta(dx, dy)
 end
 
 ---@brief 滑动结束
@@ -414,10 +459,7 @@ end
 function GameMapMotion:OnSwipeEnd(gesture)
     if GameManager:IsGamePaused() then return end
     if self.PointStartFromUI then
-        self.InertialSlidingFactor = 0
-        self.SwipeSmoothStepNum = 0
-        self.Vector3Num.x = 0
-        self.Vector3Num.y = 0
+        self:ResetSwipeState()
     end
     self.PointStartFromUI = false
     self.IsPinching = false
@@ -456,28 +498,13 @@ end
 
 --region 【移动到目标点】
 
----@brief 将指定坐标点平滑移动到画面中心
----@type fun(targetPos:table, smooth:number):void
----@param targetPos table 目标坐标，支持 {"0.00","0.00","0.00"} 或 {x=..,y=..}
----@param smooth number 平滑系数，越小移动越慢，默认0.05
-function GameMapMotion:MoveToCenter(targetPos, smooth)
-    if not targetPos or not self.ScreenCamera or not self.FollowPosition or not self.IsMapWork then
-        return
+---@brief 终止并清理自动扫描 DOTween 序列（幂等）
+---@type fun():void
+function GameMapMotion:KillAutoScanSeq()
+    if self.AutoScanSeq then
+        self.AutoScanSeq:Kill()
+        self.AutoScanSeq = nil
     end
-
-    -- 解析目标坐标（兼容字符串数组与字段表）
-    local tx = targetPos.x or tonumber(targetPos[1])
-    local ty = targetPos.y or tonumber(targetPos[2])
-    if not tx or not ty then return end
-
-    local minX, maxX, minY, maxY = self:GetCameraBounds()
-    self.FollowPosition.x = math.clamp(tx, minX, maxX)
-    self.FollowPosition.y = math.clamp(ty, minY, maxY)
-
-    -- 平滑系数控制移动速度（越小越慢，OnUpdate每帧逼近）
-    self.SwipeSmoothStepNum = smooth or 0.05
-    -- 取消惯性残留，避免叠加
-    self.InertialSlidingFactor = 0
 end
 
 ---@brief 自动扫描地图：蛇形路径从左上扫到右下，找预制体用
@@ -534,14 +561,11 @@ function GameMapMotion:StartAutoScan(orthoSize)
     local camZ = camTransform:GetPositionZ()
 
     -- 先杀掉旧 tween
-    if self.AutoScanSeq then
-        self.AutoScanSeq:Kill()
-        self.AutoScanSeq = nil
-    end
+    self:KillAutoScanSeq()
 
     local seq = CS.DG.Tweening.DOTween.Sequence()
     for i, wp in ipairs(self.AutoScanWaypoints) do
-        local target = CS.UnityEngine.Vector3(wp.x, wp.y, camZ)
+        local target = UnityEngine.Vector3(wp.x, wp.y, camZ)
         -- 每段 1.2 秒，InOutSine 进出缓动丝滑
         local tween = camTransform:DOMove(target, 1.2)
         tween:SetEase(CS.DG.Tweening.Ease.InOutSine)
@@ -566,10 +590,7 @@ function GameMapMotion:StopAutoScan()
     self.AutoScanActive = false
     self.AutoScanWaypoints = nil
     self.AutoScanIndex = 0
-    if self.AutoScanSeq then
-        self.AutoScanSeq:Kill()
-        self.AutoScanSeq = nil
-    end
+    self:KillAutoScanSeq()
     -- 同步 FollowPosition 到相机当前位置，防止退出后跳回
     if self.ScreenCamera then
         self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
@@ -590,21 +611,21 @@ end
 ---@type fun():void
 function GameMapMotion:CheckPinchZoom()
     if not self.ScreenCamera or not self.IsMapWork or self.PointStartFromUI then return end
-    local tc = CS.UnityEngine.Input.touchCount
+    local tc = UnityEngine.Input.touchCount
     if tc ~= 2 then
         self.IsPinching = false
         return
     end
 
-    local t1 = CS.UnityEngine.Input.GetTouch(0)
-    local t2 = CS.UnityEngine.Input.GetTouch(1)
-    if t1.phase == CS.UnityEngine.TouchPhase.Began or t2.phase == CS.UnityEngine.TouchPhase.Began then
+    local t1 = UnityEngine.Input.GetTouch(0)
+    local t2 = UnityEngine.Input.GetTouch(1)
+    if t1.phase == UnityEngine.TouchPhase.Began or t2.phase == UnityEngine.TouchPhase.Began then
         self.LastPinchDistance = self:GetTwoTouchDistance(t1, t2)
         self.IsPinching = true
         self.InertialSlidingFactor = 0
         return
     end
-    if t1.phase ~= CS.UnityEngine.TouchPhase.Moved and t2.phase ~= CS.UnityEngine.TouchPhase.Moved then
+    if t1.phase ~= UnityEngine.TouchPhase.Moved and t2.phase ~= UnityEngine.TouchPhase.Moved then
         return
     end
 
@@ -633,7 +654,7 @@ end
 ---@type fun():void
 function GameMapMotion:UpdateMouseScrollZoom()
     if not self.ScreenCamera or not self.IsMapWork then return end
-    local scroll = CS.UnityEngine.Input.GetAxis("Mouse ScrollWheel")
+    local scroll = UnityEngine.Input.GetAxis("Mouse ScrollWheel")
     if math.abs(scroll) < 0.001 then return end
 
     local ortho = self.ScreenCamera.orthographicSize
@@ -676,8 +697,11 @@ function GameMapMotion:ResumeMapMotion()
     if self.IsMapWork then return end
 
     self.SwipeSmoothStepNum = 0
-    self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
-    self.FollowPosition.y = self.ScreenCamera.transform:GetPositionY()
+    --TODO: [GameMapMotion] 相机未绑定（ScreenCamera 为空）时跳过位置刷新，防止 index nil 崩溃
+    if self.ScreenCamera then
+        self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
+        self.FollowPosition.y = self.ScreenCamera.transform:GetPositionY()
+    end
     self.InertialSlidingFactor = 0
     self.Vector3Num.x = 0
     self.Vector3Num.y = 0
@@ -693,6 +717,13 @@ function GameMapMotion:PauseMapMotion()
     self.IsMapWork = false
     self.IsMouseDown = false
     self.IsPressing = false
+
+    --TODO: [GameMapMotion] 相机未绑定（ScreenCamera 为空）时跳过位置记录，防止 index nil 崩溃；
+    --       相机应在 OnMapStart 时由 GameMapBase:OnMapStart 绑定，若进入关卡前常为 nil，
+    --       需检查地图加载/相机初始化时序（LoadMapById → 地图启动 → 进入 PlayingState）
+    if not self.ScreenCamera then
+        return
+    end
 
     -- 记录暂停位置
     self.PositionWhenPaused = {
@@ -724,16 +755,33 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.IsMouseDown = false
     self.IsPressing = false
 
-    -- 相机渲染区域：只显示中间区域（扣除顶部/底部UI）
-    self:SetCameraRect(199.237, 116.7621, 1334)
+    -- 相机渲染区域（rect全屏，方案B：红框裁剪改由UI RawImage布局控制，不裁剪相机）
+    self:SetCameraRect(nil, nil, 1334)
+
+    -- 方案B阶段2：设近裁剪面为负值，使相机做 z=0 的坐标转换(EventSystem/SendMouseEvents 的
+    -- ScreenToWorldPoint/WorldToScreenPoint) 与地图物体(z≈-1)均落入视锥内，彻底消除
+    -- "Screen position out of view frustum" 告警。备份原near，OnMapEnd 还原。
+    --TODO: [方案B] nearClipPlane负值消除相机z=0转换的视锥外告警；与rect全屏双保险
+    if self.ScreenCamera ~= nil then
+        self._MapCamNearBackup = self.ScreenCamera.nearClipPlane
+        -- 统一遍历所有相机设负 near：覆盖 EventSystem/SendMouseEvents 射线检测用的 Camera.main 及各 UI worldCamera
+        --TODO: [方案B] SetAllCamerasNear 遍历 Camera.allCameras 统一设负 near，根治 z=0 坐标转换的视锥外告警
+        GameLib.MapCamHelper.SetAllCamerasNear(-10)
+    end
 
     -- 禁用物理射线检测：游戏点击由 TriggerClick 手动遍历 BoxCollider2D 处理，
-    -- 不需要 Physics2DRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
-    self.ScreenCamera.eventMask = 0
-    local raycaster = self.ScreenCamera:GetComponent(typeof(CS.UnityEngine.EventSystems.Physics2DRaycaster))
-    if raycaster then raycaster.enabled = false end
+    -- 不需要 Physics2DRaycaster / PhysicsRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
+    -- 注意：eventMask 属于 raycaster 而非 Camera，勿对 Camera 赋值（Camera 无该属性）；
+    -- UGUI 射线(GraphicRaycaster)由 SetCameraRect 裁剪后统一停用对应事件Canvas处理
+    --TODO: [修复] 禁用 Physics2DRaycaster/PhysicsRaycaster(3D)，并停用裁剪相机的事件Canvas(GraphicRaycaster)，
+    --        彻底消除相机rect裁剪区域被 EventSystem 射线检测时的视锥外告警
+    local raycaster2D = self.ScreenCamera:GetComponent(typeof(UnityEngine.EventSystems.Physics2DRaycaster))
+    if raycaster2D then raycaster2D.enabled = false end
+    local raycaster3D = self.ScreenCamera:GetComponent(typeof(UnityEngine.EventSystems.PhysicsRaycaster))
+    if raycaster3D then raycaster3D.enabled = false end
 
     print("[CameraDebug] rect: y="..self.ScreenCamera.rect.y.." h="..self.ScreenCamera.rect.height)
+    print("[CameraDebug] " .. GameLib.MapCamHelper.DebugGetAllCamerasInfo())
     print('[CameraDebug] size='..self.ScreenCamera.orthographicSize
         ..' halfW='..self.MapMotionLayer.m_AreaBounds.extents.x
         ..' halfH='..self.MapMotionLayer.m_AreaBounds.extents.y
@@ -783,34 +831,96 @@ function GameMapMotion:OnMapStart(mapTrans)
     self:ClampFollowPosition()
 end
 
+---@brief 获取屏幕顶部/底部安全区偏移（设计分辨率单位，自动适配刘海屏与底部手势条）
+---@type fun(canvasH:number):number,number
+---@param canvasH number Canvas设计高度（默认 1334）
+---@return number topInset 顶部安全区偏移（刘海/挖孔避让，设计分辨率单位）
+---@return number bottomInset 底部安全区偏移（手势条/导航栏避让，设计分辨率单位）
+function GameMapMotion:GetSafeAreaInsets(canvasH)
+    canvasH = canvasH or 1334
+    local safeArea = UnityEngine.Screen.safeArea
+    local screenH = UnityEngine.Screen.height
+    if screenH <= 0 then return 0, 0 end
+    local scale = canvasH / screenH
+    -- Unity 屏幕坐标原点在左下角：
+    -- safeArea.yMin = 底部非安全区高度（底部手势条/导航栏），safeArea.yMax 以上 = 顶部非安全区（刘海/挖孔）
+    local topInset    = math.max(0, screenH - safeArea.yMax) * scale
+    local bottomInset = math.max(0, safeArea.yMin) * scale
+    return topInset, bottomInset
+end
+
+---@brief 像素高度 → 设计分辨率高度（单源换算，相机rect统一使用设计单位）
+---@type fun(px:number, canvasH:number):number
+---@param px number 像素高度
+---@param canvasH number Canvas设计高度（默认 1334）
+---@return number 设计分辨率单位高度
+function GameMapMotion:PixelsToDesign(px, canvasH)
+    canvasH = canvasH or 1334
+    local screenH = UnityEngine.Screen.height
+    if screenH <= 0 then return px or 0 end
+    return (px or 0) * canvasH / screenH
+end
+
+---@brief 从当前地图数据读取顶部/底部HUD设计高度（MapData缺失时回退硬编码设计值）
+---@type fun(canvasH:number):number,number
+---@param canvasH number Canvas设计高度（默认 1334）
+---@return number topHudDesign 顶部HUD设计高度
+---@return number bottomHudDesign 底部HUD设计高度
+---@desc 与 MapData.cs 的 m_TopHudPixelHeight / m_BottomHudPixelHeight（像素）联动，消除 SetCameraRect 硬编码双源
+function GameMapMotion:GetHudDesignHeights(canvasH)
+    canvasH = canvasH or 1334
+    -- 回退值（设计分辨率单位，MapData 缺失时使用）
+    local topDesign, bottomDesign = 116.7621, 199.237
+    if MapManager ~= nil and MapManager.CurMapData ~= nil then
+        local topPx    = MapManager.CurMapData.m_TopHudPixelHeight
+        local bottomPx = MapManager.CurMapData.m_BottomHudPixelHeight
+        if topPx ~= nil and topPx > 0 then
+            topDesign = self:PixelsToDesign(topPx, canvasH)
+        end
+        if bottomPx ~= nil and bottomPx > 0 then
+            bottomDesign = self:PixelsToDesign(bottomPx, canvasH)
+        end
+    end
+    return topDesign, bottomDesign
+end
+
 ---@brief 设置相机渲染区域（顶部留 topHud、底部留 botHud，中间渲染地图）
 ---@type fun(botHud:number, topHud:number, canvasH:number):void
----@param botHud number 底部UI高度（设计分辨率单位）
----@param topHud number 顶部UI高度（设计分辨率单位），默认 116.7621
+---@param botHud number 底部UI高度（设计分辨率单位，nil=取MapData）
+---@param topHud number 顶部UI高度（设计分辨率单位，nil=取MapData）
 ---@param canvasH number Canvas高度，默认 1334
+---@desc 未显式传值时从 MapData 读取 HUD 高度（单源）；并自动叠加顶部/底部安全区偏移，刘海屏/手势条设备上场景不会顶到不安全区
 function GameMapMotion:SetCameraRect(botHud, topHud, canvasH)
-    topHud  = topHud or 116.7621
     canvasH = canvasH or 1334
-    botHud  = botHud or 0
+    -- 未显式传值时，从 MapData 读取 HUD 设计高度（替代原硬编码 116.7621/199.237）
+    if topHud == nil or botHud == nil then
+        local topDesign, bottomDesign = self:GetHudDesignHeights(canvasH)
+        topHud = topHud or topDesign
+        botHud = botHud or bottomDesign
+    end
+
+    -- 安全区联动：顶部刘海 + 底部手势条避让（设计分辨率单位）
+    local topInset, bottomInset = self:GetSafeAreaInsets(canvasH)
+    topHud = topHud + topInset
+    botHud = botHud + bottomInset
+
     local rectY = botHud / canvasH
-    local rectH = (canvasH - topHud - botHud) / canvasH
-    self.ScreenCamera.rect = CS.UnityEngine.Rect(0, rectY, 1, rectH)
+    local rectH = math.max(0, (canvasH - topHud - botHud) / canvasH)
+    -- 方案B阶段1：相机保持全屏 rect(0,0,1,1)，不再裁剪相机——
+    -- 裁剪相机(rect非全屏)是 SendMouseEvents/GraphicRaycaster 视锥外告警的唯一来源，全屏后即消除。
+    -- rectY/rectH 仍计算并缓存，供后续(阶段2)红框遮罩定位与交互坐标偏移使用；地图红框改由 UI(RawImage布局)控制。
+    --TODO: [方案B] 相机rect全屏消除裁剪相机告警；红框视觉/坐标由UI遮罩+RawImage布局接管，待阶段2验证
+    self.ScreenCamera.rect = UnityEngine.Rect(0, 0, 1, 1)
 end
 
 ---@brief 更新相机渲染区域（底部UI隐藏/显示时调用）
 ---@type fun(bottomHudHeight:number):void
----@param bottomHudHeight number 底部UI高度，0=隐藏底部UI
+---@param bottomHudHeight number 底部UI高度（设计分辨率单位，nil=取MapData），0=隐藏底部UI
+---@desc 顶部HUD始终取 MapData，底部由调用方控制（0=隐藏/延展地图）
 function GameMapMotion:UpdateCameraRect(bottomHudHeight)
-    self:SetCameraRect(bottomHudHeight, 116.7621, 1334)
+    self:SetCameraRect(bottomHudHeight, nil, 1334)
     print("[CameraDebug] UpdateRect: botHud="..tostring(bottomHudHeight)
         .." rectY="..self.ScreenCamera.rect.y.." rectH="..self.ScreenCamera.rect.height)
-end
-
----@brief 获取当前地图包围盒
----@type fun():UnityEngine.Bounds
----@return UnityEngine.Bounds 地图包围盒
-function GameMapMotion:GetCurrMapRect()
-    return self.MapBounds
 end
 
 ---@brief 地图结束，清理
@@ -818,6 +928,17 @@ end
 function GameMapMotion:OnMapEnd()
     self:RegisterTouchEvents("-")
     self:PauseMapMotion()
+
+    -- 玩法结束：恢复地图相机全屏视口，避免裁剪残留(rect非全屏)导致后续界面(登录/主界面)渲染区域异常
+    --TODO: [修复] 玩法结束恢复相机rect全屏，与 SetCameraRect 的裁剪形成完整闭环
+    if self.ScreenCamera ~= nil then
+        self.ScreenCamera.rect = UnityEngine.Rect(0, 0, 1, 1)
+        -- 方案B：还原近裁剪面，避免负near残留影响后续其他相机/界面使用
+        if self._MapCamNearBackup ~= nil then
+            self.ScreenCamera.nearClipPlane = self._MapCamNearBackup
+            self._MapCamNearBackup = nil
+        end
+    end
 end
 
 --endregion

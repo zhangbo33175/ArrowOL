@@ -1,0 +1,40 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  UTF8Util.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     UTF8 工具（UTF8 编码字符串长度计算，支持中文多字节正确计数）
+-- @desc      按首字节前缀逐字符计数，修正 #str 对中文多字节的字节数偏差
+-- @core      string.byte 前缀位判定的字符遍历计数
+-- @scope     全局通用（经 SystemFuncs 同名全局函数对外暴露，业务零改动）
+-- @dependency 无外部依赖
+--=====================================================================================================
+
+---@class UTF8Util @ UTF8 工具表（纯函数，无实例状态）
+local UTF8Util = {}
+
+---@brief 获取utf8编码字符串正确长度（支持中文）
+---@param str string 字符串
+---@return number 长度
+function UTF8Util.GetUTF8StrLength(str)
+    local len = #str
+    local left = len
+    local cnt = 0
+    local arr = { 0, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc }
+    while left ~= 0 do
+        local tmp = string.byte(str, -left)
+        local i = #arr
+        while arr[i] do
+            if tmp >= arr[i] then
+                left = left - i;
+                break ;
+            end
+            i = i - 1
+        end
+        cnt = cnt + 1
+    end
+    return cnt
+end
+
+return UTF8Util

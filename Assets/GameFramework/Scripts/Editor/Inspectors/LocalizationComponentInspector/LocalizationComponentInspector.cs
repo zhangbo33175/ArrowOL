@@ -105,8 +105,8 @@ namespace Honor.Editor
         protected void OnEnable()
         {
             // 获取序列化属性
-            m_Language = serializedObject.FindProperty("m_Language");
-            m_AutoFontAdapt = serializedObject.FindProperty("m_AutoFontAdapt");
+            m_Language = BindProperty("m_Language");
+            m_AutoFontAdapt = BindProperty("m_AutoFontAdapt");
 
             // 读取本地配置并反序列化展示
             m_TMPExportConfig = LoadTMPExportConfig();

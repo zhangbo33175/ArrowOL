@@ -6,7 +6,9 @@
 -- created:   2026
 -- @brief    【地图管理器】
 -- @desc      负责章节地图的加载、卸载、生命周期管理、场景机器/角色行为树管理
+-- @core      章节地图 Prefab 实例化/卸载、地图逻辑体 GameMapBase 与场景机器 MachineBase 生命周期统一广播
 -- @flow      切换章节 → 播放广告 → 卸载旧地图 → 加载新地图 → 初始化地图逻辑
+-- @scope     章节地图 Prefab 实例化/卸载全流程 + 地图内所有机器与地图逻辑体的生命周期统一广播
 -- @规范       Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, EventManager, CoroutineHelper, ResManager, GameSystemUnlockManager
 --=====================================================================================================
@@ -108,6 +110,10 @@ end
 ---@param chapterId number 目标章节ID
 ---@param finishCallback function|nil 加载完成回调
 ---@param refuseAd boolean 是否跳过广告
+---@desc "章节-内部关卡"模式：本入口只负责【跨章节】切换（CurLoadChapterId ~= chapterId 才生效）；
+---      同章节内部关卡切换不适用本入口，需走 GamePlayHelper:LoadNextLevel → 先卸载清 CurLoadChapterId 再强制重载。
+--TODO: [模式] 同章节内部关卡时此处 CurLoadChapterId == chapterId 直接 return（不切换），
+--      业务层加载下一内部关必须绕过，已由 GamePlayHelper:LoadNextLevel 统一处理。
 ---=========================================================================
 function MapManager:OnSetSwitchMap(chapterId, finishCallback, refuseAd)
     if self.CurLoadChapterId == chapterId then
@@ -157,17 +163,17 @@ function MapManager:LoadMapImageSprite()
 
     local mapData = GameManager:GetMapRootData()
     if not mapData then
-        PrintWarn("[MapManager] LoadMapImageSprite mapData为空，跳过背景加载")
+        PrintWarning("[MapManager] LoadMapImageSprite mapData为空，跳过背景加载")
         return
     end
 
     local rawImageTrans = self.CurLoadMapGo.transform:Find("RawImage")
     if IsNull(rawImageTrans) then
-        PrintWarn("[MapManager] LoadMapImageSprite 找不到RawImage节点")
+        PrintWarning("[MapManager] LoadMapImageSprite 找不到RawImage节点")
         return
     end
 
-    local bgImage = rawImageTrans:GetComponent(typeof(CS.UnityEngine.UI.Image))
+    local bgImage = rawImageTrans:GetComponent(typeof(UnityEngine.UI.Image))
     if not IsNull(bgImage) then
         GamePlayHelper:RefreshImageSprite(self.CurGameMapBase, bgImage, mapData.BgName)
     end
@@ -229,7 +235,7 @@ function MapManager:UnloadOldMap()
         return
     end
 
-    CharacterGenerationManager:DesCharacterGenerationAll()
+    CharacterGenerationManager:DespawnAllCharacters()
     GameEffectManager:ClearData()
     self:UnloadMapBeforeClear()
     DestroyPrefabWithGO(self.CurLoadMapGo)
@@ -239,8 +245,11 @@ end
 --endregion
 
 --region 游戏生命周期（统一转发给地图 + 所有机器）
+---@desc 本区域 OnInitGame/OnEnterGame/OnBeginGame/OnPauseGame/OnResumeGame/OnGameOver/OnExitGame/OnRePlayGame
+---      均由 PlayGameplayCycle 经 ECharacterLifecycle 枚举字符串动态广播调用（框架驱动，勿删），逐个转发给 CurGameMapBase 与全部机器。
 
 ---@brief 游戏初始化
+---@desc 由 PlayGameplayCycle 在 InitGame 阶段广播调用（框架驱动，勿删）
 function MapManager:OnInitGame()
     if not self.CurGameMapBase then
         return

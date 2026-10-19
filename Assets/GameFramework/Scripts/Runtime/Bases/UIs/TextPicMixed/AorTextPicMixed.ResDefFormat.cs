@@ -151,8 +151,9 @@ namespace Honor.Runtime
             // 参数格式：图片别名、缩放、偏移X、偏移Y
             if (contents.Length == 4)
             {
-                // 通过Lua委托，根据别名获取资源配置信息
-                LuaTable resDefLuaTable = m_LuaComponent.LuaGetResDefInfoEventDelegate(contents[0]);
+                // 同步 cmd 调用，根据别名获取资源配置信息（cmd: 1033）
+                LuaTable resDefLuaTable = (LuaTable)LuaProtocolRunTime.SyncCall((int)LuaProtocolCmd.P_LuaGetResDefInfoEventDelegate,
+                    new GetResDefInfo { Name = contents[0] });
                 if (resDefLuaTable != null)
                 {
                     // 从Lua表中读取AB路径和资源名称

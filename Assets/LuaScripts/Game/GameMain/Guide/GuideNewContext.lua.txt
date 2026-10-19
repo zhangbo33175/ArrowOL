@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     新手引导环境
 -- @desc      全局新手引导管理器，负责引导触发、步骤执行、事件监听、流程控制、存档与恢复
+-- @core      引导单例上下文：触发器/设置器创建、步骤执行调度、暂停恢复、事件派发、完成存档
+-- @scope     GameMain/Guide 新手引导系统，由 SingletonManager 按优先级驱动，供引导子模块与事件系统回调
 -- @feat      引导生命周期、事件派发、暂停/恢复游戏、遮罩屏蔽、存档管理、GM指令
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
 -- @规范       Unity Lua 商业项目编码标准 / 单例&引导框架规范
@@ -120,7 +122,7 @@ end
 function GuideNewContext:ForceCloseTutorial()
     self:TryForceCloseTutorialByID()
     if GameStateMachine:CurrentStateType() == GameStateCmd.MainState then
-        HonorEventHelper:Fire(EventCmd.OnTryResumeGameMainPushUI, "ForceCloseTutorial")
+        HonorEventHelper:Fire(UIEventCode.OnTryResumeGameMainPushUI, "ForceCloseTutorial")
     end
 end
 

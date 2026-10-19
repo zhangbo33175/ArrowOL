@@ -1,0 +1,78 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  ProtocolSender.lua.txt
+-- author:    云毅
+-- created:   2026
+-- @brief     协议发送端（Lua → C# 传递消息）
+-- @desc      Request 发送请求到 C# 分发中心（LuaProtocolDispatcher）；ReceiveSuccess / ReceiveFail 上报结果；BindPush / UnbindPush 绑定 / 解除推送监听
+-- @core      经 C# LuaProtocolRunTime 静态门面转发到 C# LuaProtocolDispatcher
+-- @scope     业务层 Lua → C# 主动发消息 / 结果上报 / 推送绑定的统一出口
+-- @dependency ProtocolCmd、ProtocolUtil（CS.Honor.Runtime.LuaProtocolRunTime 门面）
+-- @note 依赖 ProtocolCmd 协议号；C# 门面未注入时静默跳过并告警
+--=====================================================================================================
+
+---@class ProtocolSender
+---协议发送端：经 C# LuaProtocolRunTime 门面转发 Lua → C# 请求 / 结果上报 / 推送绑定解绑
+local ProtocolSender = {}
+
+--region 依赖引入
+local ProtocolCmd = require('ProtocolCmd')
+local ProtocolUtil = require('ProtocolUtil')
+--endregion
+
+--region 传递消息（Lua → C#）
+
+---@brief 发送请求到 C# 分发中心（对齐 C# LuaProtocolRunTime.Request）
+---@param cmd integer 协议号（ProtocolCmd.Cmd.P_*）
+---@param content any 请求内容（LuaTable 或数据类）
+---@param requestFun function|nil 请求回调 function(cmd, content, state)
+function ProtocolSender.Request(cmd, content, requestFun)
+    local rt = ProtocolUtil.GetRunTime()
+    if rt then
+        rt.Request(cmd, content, requestFun)
+    end
+end
+
+---@brief 上报接收成功（对齐 C# LuaProtocolRunTime.ReceiveSuccess）
+---@param cmd integer 协议号
+---@param content any 内容
+function ProtocolSender.ReceiveSuccess(cmd, content)
+    local rt = ProtocolUtil.GetRunTime()
+    if rt then
+        rt.ReceiveSuccess(cmd, content)
+    end
+end
+
+---@brief 上报接收失败（对齐 C# LuaProtocolRunTime.ReceiveFail）
+---@param cmd integer 协议号
+---@param content any 内容
+function ProtocolSender.ReceiveFail(cmd, content)
+    local rt = ProtocolUtil.GetRunTime()
+    if rt then
+        rt.ReceiveFail(cmd, content)
+    end
+end
+
+---@brief 绑定 C# 推送监听（对齐 C# LuaProtocolRunTime.BindPushMethod）
+---@param cmd integer 协议号
+---@param pushFun function 推送回调 function(cmd, content)
+function ProtocolSender.BindPush(cmd, pushFun)
+    local rt = ProtocolUtil.GetRunTime()
+    if rt then
+        rt.BindPushMethod(cmd, pushFun)
+    end
+end
+
+---@brief 解除 C# 推送监听（对齐 C# LuaProtocolRunTime.RemovePushMethod）
+---@param cmd integer 协议号
+function ProtocolSender.UnbindPush(cmd)
+    local rt = ProtocolUtil.GetRunTime()
+    if rt then
+        rt.RemovePushMethod(cmd)
+    end
+end
+
+--endregion
+
+return ProtocolSender

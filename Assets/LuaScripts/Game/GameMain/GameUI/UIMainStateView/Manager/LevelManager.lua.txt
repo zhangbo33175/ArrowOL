@@ -6,14 +6,18 @@
 -- created:   2026
 -- @brief     关卡管理器
 -- @desc      管理关卡选择界面、关卡数据、关卡状态控制等核心关卡逻辑
+-- @core      当前章节缓存、关卡展示文案、关卡模式切换、地图加载触发
+-- @scope     UIMainStateView 主界面关卡流程（关卡按钮进入游戏、主界面文案刷新）
 -- @feat      关卡列表管理、星级记录、解锁控制、跳转逻辑、数据缓存
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 无内存泄漏
 -- @规范       Unity Lua 商业项目编码标准 / 管理器规范
--- @dependency GameEntry, DataCenter, EventManager, UIManager
+-- @dependency GameEntry, DataCenter, EventManager, UIManager, MapManager, ChapterListManager
 --=====================================================================================================
 
 ---@class LevelManager : Singleton 关卡管理器（全局单例）
 local LevelManager = class("LevelManager", import("Singleton"))
+
+--region 【构造与单例】
 
 ---@brief 构造函数
 ---@param args table 自定义参数
@@ -39,15 +43,20 @@ end
 ---@return LevelManager 关卡管理器实例
 function LevelManager:Create(args)
     return LevelManager.new(args)
-
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---@brief 初始化（覆写父类）
+---@desc 框架单例初始化入口（框架驱动，勿删）
 function LevelManager:Init()
     LevelManager.super.Init(self)
 end
 
 ---@brief 清理数据（覆写父类）
+---@desc 切号/重载时重置临时兼容字段与当前章节（框架驱动，勿删）
 function LevelManager:ClearData()
     LevelManager.super.ClearData(self)
 
@@ -58,20 +67,31 @@ function LevelManager:ClearData()
     self._chapterLevel = ""
 end
 
+--endregion
+
+--region 【数据查询】
+
 ---@brief 获取当前章节关卡展示文本
+---@desc 由 UIMainStateViewViewModel:GetChapterLevel 跨文件调用，用于主界面关卡文案
 ---@return string 关卡展示文本
 function LevelManager:GetChapterLevel()
     return "第 " .. self._chapterLevel .. "关"
 end
 
 ---@brief 获取当前关卡信息（用于界面展示）
+---@desc 由 UIMainStateViewView:OnInit 跨文件调用，刷新当前章节缓存
 ---@return table 关卡信息数据
 function LevelManager:GetCurrentLevelInfo()
     -- 扩展：当前章节、关卡、星级、解锁状态、奖励配置等
     self._chapterLevel = ChapterListManager:GetLevelId()
 end
 
+--endregion
+
+--region 【关卡控制】
+
 ---@brief 设置关卡模式
+---@desc 由主界面关卡/每日挑战按钮回调跨文件调用，转发 GameManager 并进入游戏
 ---@param _levelMode ELevelMode 关卡模式枚举
 function LevelManager:SetLevelMode(_levelMode)
     GameManager:SetLevelMode(_levelMode)
@@ -79,6 +99,7 @@ function LevelManager:SetLevelMode(_levelMode)
 end
 
 ---@brief 进入游戏（加载地图）
+---@desc 内部由 SetLevelMode 调用，取最新章节并经 MapManager 加载，完成后广播主状态事件
 function LevelManager:EnterTheGame()
     local chapterId = ChapterListManager:GetLatestChapterId()
     MapManager:ReadyToLoadMap(chapterId, function()
@@ -89,15 +110,6 @@ function LevelManager:EnterTheGame()
     end)
 end
 
----@brief 加载地图
----@param callback function 完成回调
-function LevelManager:LoadMap(callback)
-    local chapterId = ChapterListManager:GetLatestChapterId()
-    ChapterListManager:SetRuntimeChapter(chapterId)
-    local isSuccess = MapManager:LoadMapById(chapterId, nil)
-    if callback then
-        xpcall(callback, __G__TRACK_BACK__, isSuccess)
-    end
-end
+--endregion
 
 return LevelManager

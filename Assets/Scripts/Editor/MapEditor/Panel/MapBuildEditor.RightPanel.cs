@@ -21,7 +21,7 @@ namespace Editor.MapEditor
 {
     /// <summary>
     /// 地图编辑器 - 界面/预览/加载/保存核心模块
-    /// 负责：右侧面板绘制、地图预览渲染、Prefab加载、物体添加、数据保存/加载
+    /// 负责：右侧面板绘制、地图预览渲染、Prefab 加载、物体添加、数据保存/加载
     /// </summary>
     public sealed partial class MapBuildEditor
     {
@@ -75,7 +75,7 @@ namespace Editor.MapEditor
         private bool m_IsDraggingObject;
 
         /// <summary>
-        /// 物体拖拽偏移（UI本地坐标，保证不漂移）
+        /// 物体拖拽偏移（UI 本地坐标，保证不漂移）
         /// </summary>
         private Vector2 m_DragObjectLocalOffset;
 
@@ -96,7 +96,7 @@ namespace Editor.MapEditor
         #endregion
 
         //=========================================================================
-        // 右侧面板UI绘制
+        // 右侧面板 UI 绘制
         //=========================================================================
         #region Right Panel UI
         /// <summary>
@@ -148,7 +148,6 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawRightToolbar()
         {
-            // 工具栏标签
             GUILayout.BeginHorizontal(GUILayout.Height(30));
             if (GUILayout.Button("场景编辑", EditorStyles.toolbarButton))
             {
@@ -186,9 +185,6 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawBottomButtonBar()
         {
-            //=========================================================================
-            // 底部功能按钮栏
-            //=========================================================================
             GUILayout.BeginHorizontal();
 
             // 左侧按钮组
@@ -197,7 +193,7 @@ namespace Editor.MapEditor
             // 分割线
             GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
 
-            // 场景名 / 场景ID
+            // 场景名 / 场景 ID
             DrawSceneNameIdFields();
 
             // 分割线
@@ -218,7 +214,6 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawBottomLeftButtons()
         {
-            // 左侧按钮组
             GUILayout.BeginVertical(GUILayout.Width(120));
             if (GUILayout.Button("更新地图"))
             {
@@ -243,20 +238,21 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 绘制场景名/场景ID输入框及更换地图背景按钮
+        /// 绘制场景名/场景 ID 输入框及更换地图背景按钮
         /// </summary>
         private void DrawSceneNameIdFields()
         {
-            // 场景名 / 场景ID
             GUILayout.BeginVertical(GUILayout.Width(200));
             GUILayout.BeginHorizontal();
             GUILayout.Label("场景名：", GUILayout.Width(40));
             mapName = EditorGUILayout.TextField(mapName, GUILayout.Width(80));
             GUILayout.EndHorizontal();
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("场景ID：", GUILayout.Width(40));
             mapId = EditorGUILayout.TextField(mapId, GUILayout.Width(80));
             GUILayout.EndHorizontal();
+
             GUILayout.Space(5);
             if (GUILayout.Button("更换地图背景"))
             {
@@ -271,12 +267,12 @@ namespace Editor.MapEditor
         /// </summary>
         private void DrawMapSizeFields()
         {
-            // 地图宽 / 高
             GUILayout.BeginVertical(GUILayout.Width(200));
             GUILayout.BeginHorizontal();
             GUILayout.Label("宽：", GUILayout.Width(40));
             m_MapWidth = EditorGUILayout.IntField(m_MapWidth, GUILayout.Width(80));
             GUILayout.EndHorizontal();
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("高：", GUILayout.Width(40));
             m_MapHeight = EditorGUILayout.IntField(m_MapHeight, GUILayout.Width(80));
@@ -290,7 +286,7 @@ namespace Editor.MapEditor
         //=========================================================================
         #region Data Save & Load
         /// <summary>
-        /// 保存地图数据（JSON + Lua双格式）
+        /// 保存地图数据（JSON + Lua 双格式）
         /// </summary>
         private void SaveData()
         {
@@ -302,7 +298,7 @@ namespace Editor.MapEditor
                 return;
             }
 
-            // 保存JSON
+            // 保存 JSON
             string jsonPath = Path.Combine(SaveConfig.LevelSavePath, $"{data.ChapterId}_{data.MaplId}.json");
             MapLevelDataUtil.SaveDataJson(data, jsonPath);
             ShowNotification(new GUIContent($"保存关卡 {data.ChapterId}_{data.MaplId} 文件：{jsonPath}"));
@@ -322,12 +318,12 @@ namespace Editor.MapEditor
                 Directory.CreateDirectory(customDir);
             }
 
-            // 保存Lua配置
+            // 保存 Lua 配置
             SaveConfig.MapSaveLua(data);
         }
 
         /// <summary>
-        /// 从JSON文件加载地图数据
+        /// 从 JSON 文件加载地图数据
         /// </summary>
         /// <param name="path">文件路径</param>
         private void LoadMapData(string path)
@@ -339,9 +335,6 @@ namespace Editor.MapEditor
 
             // 清空旧物体
             ClearAddedObjects();
-
-            // m_MapWidth = chapterTypeData.m_MapWidth;
-            // m_MapHeight = chapterTypeData.m_MapHeight;
 
             // 遍历加载所有物体
             foreach (var objData in chapterTypeData.m_MapObjectData)
@@ -357,9 +350,9 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 加载地图Prefab并提取图片资源
+        /// 加载地图 Prefab 并提取图片资源
         /// </summary>
-        /// <param name="path">Prefab路径</param>
+        /// <param name="path">Prefab 路径</param>
         private void LoadPrefabAndExtractImages(string path)
         {
             if (string.IsNullOrEmpty(path)) return;
@@ -522,48 +515,48 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 执行地图背景图片替换的具体流程（路径校验、加载纹理、替换RawImage）
+        /// 执行地图背景图片替换的具体流程（路径校验、加载纹理、替换 RawImage）
         /// </summary>
         /// <param name="imagePath">用户选择的图片绝对路径</param>
         private void PerformBackgroundReplace(string imagePath)
         {
-                // 4. 转换为 Unity 工程相对路径（必须用相对路径加载资源）
-                string projectRelativePath = FileUtil.GetProjectRelativePath(imagePath);
+            // 1. 转换为 Unity 工程相对路径（必须用相对路径加载资源）
+            string projectRelativePath = FileUtil.GetProjectRelativePath(imagePath);
 
-                // 5. 校验路径是否在 Assets 目录内
-                if (string.IsNullOrEmpty(projectRelativePath))
-                {
-                    EditorUtility.DisplayDialog("错误", "请选择项目 Assets 目录内的图片文件！", "确定");
-                    return;
-                }
+            // 2. 校验路径是否在 Assets 目录内
+            if (string.IsNullOrEmpty(projectRelativePath))
+            {
+                EditorUtility.DisplayDialog("错误", "请选择项目 Assets 目录内的图片文件！", "确定");
+                return;
+            }
 
-                // 6. 加载 Texture2D 资源（Unity 标准加载方式）
-                Texture2D backgroundTex = AssetDatabase.LoadAssetAtPath<Texture2D>(projectRelativePath);
-                if (backgroundTex == null)
-                {
-                    EditorUtility.DisplayDialog("错误", "加载图片失败，请检查文件是否为有效图片！", "确定");
-                    return;
-                }
+            // 3. 加载 Texture2D 资源（Unity 标准加载方式）
+            Texture2D backgroundTex = AssetDatabase.LoadAssetAtPath<Texture2D>(projectRelativePath);
+            if (backgroundTex == null)
+            {
+                EditorUtility.DisplayDialog("错误", "加载图片失败，请检查文件是否为有效图片！", "确定");
+                return;
+            }
 
-                // 7. 查找地图中的 RawImage 背景组件
-                RawImage bgRawImage = m_UiInstance.GetComponentInChildren<RawImage>(true);
-                if (bgRawImage == null)
-                {
-                    EditorUtility.DisplayDialog("错误", "地图Prefab中未找到 RawImage 背景组件！", "确定");
-                    return;
-                }
+            // 4. 查找地图中的 RawImage 背景组件
+            RawImage bgRawImage = m_UiInstance.GetComponentInChildren<RawImage>(true);
+            if (bgRawImage == null)
+            {
+                EditorUtility.DisplayDialog("错误", "地图Prefab中未找到 RawImage 背景组件！", "确定");
+                return;
+            }
 
-                // 8. 替换背景图片（核心逻辑）
-                bgRawImage.texture = backgroundTex;
-                bgRawImage.color = Color.white; // 恢复白色，防止颜色叠加
+            // 5. 替换背景图片（核心逻辑）
+            bgRawImage.texture = backgroundTex;
+            bgRawImage.color = Color.white; // 恢复白色，防止颜色叠加
 
-                // 9. 刷新画布 + 提示
-                Canvas.ForceUpdateCanvases();
-                EditorUtility.DisplayDialog("成功", $"已替换背景图片：\n{backgroundTex.name}", "确定");
-                Debug.Log($"✅ 背景图片替换完成：{projectRelativePath}");
+            // 6. 刷新画布 + 提示
+            Canvas.ForceUpdateCanvases();
+            EditorUtility.DisplayDialog("成功", $"已替换背景图片：\n{backgroundTex.name}", "确定");
+            Debug.Log($"✅ 背景图片替换完成：{projectRelativePath}");
 
-                // 10. 刷新编辑器预览
-                Repaint();
+            // 7. 刷新编辑器预览
+            Repaint();
         }
         #endregion
 
@@ -572,7 +565,7 @@ namespace Editor.MapEditor
         //=========================================================================
         #region Map Prefab Load
         /// <summary>
-        /// 加载地图Prefab并初始化预览环境
+        /// 加载地图 Prefab 并初始化预览环境
         /// </summary>
         /// <param name="originalPrefab">原始预制体</param>
         /// <param name="onLoaded">加载完成回调</param>
@@ -596,7 +589,7 @@ namespace Editor.MapEditor
             m_UiInstance.hideFlags = HideFlags.HideAndDontSave;
             m_UiInstance.SetActive(false);
 
-            // 校验Canvas
+            // 校验 Canvas
             Canvas canvas = m_UiInstance.GetComponent<Canvas>();
             if (canvas == null)
             {
@@ -609,7 +602,7 @@ namespace Editor.MapEditor
             // 配置相机
             ConfigurePreviewCamera();
 
-            // 配置Canvas
+            // 配置 Canvas
             ConfigureCanvasForPreview(canvas);
 
             // 初始化地图根节点
@@ -646,11 +639,10 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 初始化地图实例中的背景RawImage组件
+        /// 初始化地图实例中的背景 RawImage 组件
         /// </summary>
         private void SetupPreviewBackgroundImage()
         {
-            // 初始化背景图
             RawImage bgImage = m_UiInstance.GetComponentInChildren<RawImage>();
             if (bgImage != null)
             {
@@ -661,7 +653,7 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 配置Canvas用于编辑器预览
+        /// 配置 Canvas 用于编辑器预览
         /// </summary>
         private void ConfigureCanvasForPreview(Canvas canvas)
         {
@@ -675,7 +667,7 @@ namespace Editor.MapEditor
             if (canvas.TryGetComponent(out CanvasScaler scaler))
                 scaler.enabled = false;
 
-            // 设置RectTransform居中
+            // 设置 RectTransform 居中
             RectTransform rect = canvas.GetComponent<RectTransform>();
             rect.anchoredPosition = Vector2.zero;
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
@@ -694,7 +686,7 @@ namespace Editor.MapEditor
         /// 添加预制体到地图预览界面
         /// </summary>
         /// <param name="prefab">目标预制体</param>
-        /// <param name="localPosition">UI本地坐标</param>
+        /// <param name="localPosition">UI 本地坐标</param>
         /// <param name="dataEditor">图标数据</param>
         private void AddPrefabToMap(GameObject prefab, Vector2 localPosition, ItemIconDataEditor dataEditor)
         {
@@ -737,7 +729,7 @@ namespace Editor.MapEditor
         }
 
         /// <summary>
-        /// 设置物体Transform适配编辑器预览
+        /// 设置物体 Transform 适配编辑器预览
         /// </summary>
         private void SetObjectTransformForPreview(GameObject obj, Vector2 localPos)
         {

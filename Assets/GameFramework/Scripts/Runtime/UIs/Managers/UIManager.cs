@@ -160,11 +160,7 @@ namespace Honor.Runtime
                     {
                         m_AssetComponent.LoadPrefabAsync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams, (PrefabObject prefabObject, GameObject go) =>
                         {
-                            AddWebGLInput(go);
-                            AddCanvas(go, uiInfo);
-                            m_CurModalUI = AddFlagBehaviour(go, uiInfo);
-                            m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                            m_UIComponent.RefreshFontsForUI(go);
+                            m_CurModalUI = RegisterUI(go, uiInfo);
                             DoUICreateOverCallbackOnAsync(go, uiInfo, prefabObject);
                         });
                     }
@@ -180,11 +176,7 @@ namespace Honor.Runtime
                     // 异步加载非模态 UI
                     m_AssetComponent.LoadPrefabAsync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams, (PrefabObject prefabObject, GameObject go) =>
                     {
-                        AddWebGLInput(go);
-                        AddCanvas(go, uiInfo);
-                        m_UnModalUIList.Add(AddFlagBehaviour(go, uiInfo));
-                        m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                        m_UIComponent.RefreshFontsForUI(go);
+                        m_UnModalUIList.Add(RegisterUI(go, uiInfo));
                         DoUICreateOverCallbackOnAsync(go, uiInfo, prefabObject);
                     });
                 }
@@ -194,11 +186,7 @@ namespace Honor.Runtime
                 // 异步加载场景 UI
                 m_AssetComponent.LoadPrefabAsync(uiInfo.ABPath, uiInfo.AssetName, m_SceneUICanvas.transform, uiInfo.LuaParams, (PrefabObject prefabObject, GameObject go) =>
                 {
-                    AddWebGLInput(go);
-                    AddCanvas(go, uiInfo);
-                    m_SceneUIList.Add(AddFlagBehaviour(go, uiInfo));
-                    m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                    m_UIComponent.RefreshFontsForUI(go);
+                    m_SceneUIList.Add(RegisterUI(go, uiInfo));
                     DoUICreateOverCallbackOnAsync(go, uiInfo, prefabObject);
                 });
             }
@@ -217,11 +205,7 @@ namespace Honor.Runtime
                     if (!m_BlockModalUIsSwitch && m_CurModalUI == null)
                     {
                         GameObject go = m_AssetComponent.LoadPrefabSync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams);
-                        AddWebGLInput(go);
-                        AddCanvas(go, uiInfo);
-                        m_CurModalUI = AddFlagBehaviour(go, uiInfo);
-                        m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                        m_UIComponent.RefreshFontsForUI(go);
+                        m_CurModalUI = RegisterUI(go, uiInfo);
                         return m_CurModalUI.gameObject;
                     }
                     else
@@ -234,22 +218,14 @@ namespace Honor.Runtime
                 else
                 {
                     GameObject go = m_AssetComponent.LoadPrefabSync(uiInfo.ABPath, uiInfo.AssetName, m_ScreenUICanvas.transform, uiInfo.LuaParams);
-                    AddWebGLInput(go);
-                    AddCanvas(go, uiInfo);
-                    m_UnModalUIList.Add(AddFlagBehaviour(go, uiInfo));
-                    m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                    m_UIComponent.RefreshFontsForUI(go);
+                    m_UnModalUIList.Add(RegisterUI(go, uiInfo));
                     return go;
                 }
             }
             else
             {
                 GameObject go = m_AssetComponent.LoadPrefabSync(uiInfo.ABPath, uiInfo.AssetName, m_SceneUICanvas.transform, uiInfo.LuaParams);
-                AddWebGLInput(go);
-                AddCanvas(go, uiInfo);       
-                m_SceneUIList.Add(AddFlagBehaviour(go, uiInfo));
-                m_SubUIList[uiInfo.UIType].AddRange(AddChildrenFlagBehaviours(go));
-                m_UIComponent.RefreshFontsForUI(go);
+                m_SceneUIList.Add(RegisterUI(go, uiInfo));
                 return go;
             }
         }
@@ -687,9 +663,12 @@ namespace Honor.Runtime
             }
             Log.Info($"刘海分辨率：{m_UIBangsSize.x} X {m_UIBangsSize.y}");
 
-            // 转为画布坐标系
-            if (Screen.width > 0)
-                m_UIBangsSize *= screenCanvasSize.x / Screen.width;
+            // 转为画布坐标系：竖屏按高度比例（与 Lua UIManager:GetBangsNumber / UIAdaptUtil 口径一致），横屏按宽度比例，避免异形屏避让方向错位
+            float canvasRatio = Screen.height > Screen.width
+                ? screenCanvasSize.y / Screen.height
+                : screenCanvasSize.x / Screen.width;
+            if (canvasRatio > 0)
+                m_UIBangsSize *= canvasRatio;
             
             Log.Info($"刘海画布尺寸：{m_UIBangsSize.x} X {m_UIBangsSize.y}");
         }

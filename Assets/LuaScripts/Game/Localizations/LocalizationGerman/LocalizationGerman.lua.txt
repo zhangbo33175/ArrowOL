@@ -5,6 +5,11 @@
 -- filename:  LocalizationGerman.lua
 -- descrip:   本地化配置: 德语
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     德语本地化加载入口
+-- @desc      创建 Localizations.German 子表并 require 引入词条明细（语言：德语）
+-- @core      新建空表挂到 Localizations.German，再 require 对应 LocalPart 填充词条
+-- @scope     本地化框架按当前语言 require 本文件加载德语词条
+-- @dependency LocalPart_Localizations_German（词条明细）
 --=====================================================================================================
 
 Localizations.German = {}

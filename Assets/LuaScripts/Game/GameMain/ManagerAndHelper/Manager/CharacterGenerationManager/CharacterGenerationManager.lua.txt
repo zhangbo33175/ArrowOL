@@ -6,26 +6,30 @@
 -- created:   2026
 -- @brief     角色生成管理器
 -- @desc      负责玩家/敌人/NPC/怪物等所有角色的创建、回收、批量生成、生命周期管理
+-- @core      角色实例创建/回收、按地图配置批量生成、角色列表维护与生命周期统一广播
+-- @scope     由玩法调度 PlayGameplayCycle 在关卡进入/结束时驱动，供地图与关卡逻辑查询角色实例
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, PoolManager, CoroutineHelper, EventManager, GlobalUtility
 --=====================================================================================================
 
 ---@class CharacterGenerationManager @角色生成管理器
----@field _characterBaseTable List<CharacterBase> @角色实例列表
----@field _characterCfg table<ECharacterType, Tables.Characters_Item[]> @按角色类型缓存配置
+---@field _characterBaseTable HonorList @角色实例列表（本局全部已生成角色）
 local CharacterGenerationManager = class("CharacterGenerationManager")
+
+--region 构造 & 实例化
 
 ---=========================================================================
 ---@brief 构造函数
+---@desc 框架驱动，勿删；初始化角色实例列表
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:ctor()
     self._characterBaseTable = HonorList:Create()
-    self._characterCfg = {}
 end
 
 ---=========================================================================
 ---@brief 创建实例
+---@desc 框架驱动，勿删；由单例工厂调用
 ---@type fun():CharacterGenerationManager
 ---@return CharacterGenerationManager @角色生成管理器实例
 ---=========================================================================
@@ -34,290 +38,310 @@ function CharacterGenerationManager:Create()
     return obj
 end
 
+--endregion
+
 --region 【角色生成/销毁接口】
 
 ---=========================================================================
----@brief 生成闲置角色(对象池管理)
----@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase
+---@brief 生成单个角色（按角色ID查配置后生成）
+---@desc 由地图角色批量生成 / 关卡逻辑调用；从角色静态表取配置后委托 SpawnCharacterByData 生成实例
+---@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase|nil
 ---@param characterId string @角色ID
----@param newParent UnityEngine.Transform @父节点
----@return CharacterBase @角色实例
+---@param newParent UnityEngine.Transform @挂载父节点
+---@return CharacterBase|nil @角色实例，配置或资源缺失返回nil
 ---=========================================================================
-function CharacterGenerationManager:SpawnIdle(characterId, newParent)
-    local data = CharacterDataManager.Instance:GetDataById(characterId)
-    return self:CharacterGenerationByData(data, newParent, true)
-end
-
----=========================================================================
----@brief 销毁闲置角色(放回对象池)
----@type fun(characterBase:CharacterBase):void
----@param characterBase CharacterBase @角色实例
----=========================================================================
-function CharacterGenerationManager:DespawnIdle(characterBase)
-    if characterBase ~= nil then
-        if not IsNull(characterBase.cs) then
-            PoolMgr:Put(characterBase.cs.gameObject)
-        end
-        characterBase:Clear()
-    end
-end
-
----=========================================================================
----@brief 生成角色
----@type fun(characterId:string,newParent:UnityEngine.Transform):CharacterBase
----@param characterId string @角色ID
----@param newParent UnityEngine.Transform @父节点
----@return CharacterBase @角色实例
----=========================================================================
-function CharacterGenerationManager:CharacterGeneration(characterId, newParent)
+function CharacterGenerationManager:SpawnCharacter(characterId, newParent)
     local data = CharacterGenerationDataManager:GetDataById(characterId)
-    return self:CharacterGenerationByData(data, newParent)
+    return self:SpawnCharacterByData(data, newParent)
 end
 
 ---=========================================================================
----@brief 根据角色数据生成角色
----@type fun(characterData:Tables.Characters_Item,newParent:UnityEngine.Transform,isIdle:boolean):CharacterBase
+---@brief 根据角色配置数据生成角色实例（对象池复用）
+---@desc 校验资源名、从对象池取 GameObject、绑定 LuaBehaviour 与角色数据；
+---      非闲置角色自动登记进全局角色列表，供生命周期统一广播
+---@type fun(characterData:Tables.Characters_Item,newParent:UnityEngine.Transform,isIdle:boolean):CharacterBase|nil
 ---@param characterData Tables.Characters_Item @角色配置数据
----@param newParent UnityEngine.Transform @父节点
----@param isIdle boolean @是否为闲置角色
----@return CharacterBase @角色实例
+---@param newParent UnityEngine.Transform @挂载父节点
+---@param isIdle boolean @是否闲置角色（缺省false：非闲置角色加入全局角色列表）
+---@return CharacterBase|nil @角色实例，数据或资源异常返回nil
 ---=========================================================================
-function CharacterGenerationManager:CharacterGenerationByData(characterData, newParent, isIdle)
-    if characterData then
-        if characterData.ResName == nil or characterData.ResName == '' then
-            PrintError("角色id:{0},没有配置资源名字", characterData.ID)
-            return nil
-        end
-        local go = PoolManager:Get(characterData.ResName, newParent)
-        ---@type Solar.Runtime.LuaBehaviour
-        local luaBehaviour = go:GetComponent("LuaBehaviour")
-        ---@type CharacterBase
-        local characterBase = luaBehaviour.luaClass
-        characterBase:Clear()
-        characterBase._CharData = characterData
-        characterBase._GameObject = go
-        if not isIdle then
-            self._characterBaseTable:Add(characterBase)
-        end
-        return characterBase
+function CharacterGenerationManager:SpawnCharacterByData(characterData, newParent, isIdle)
+    -- 数据空安全：无配置直接返回
+    if not characterData then
+        return nil
     end
+    -- 资源名校验：无资源名无法生成
+    if characterData.ResName == nil or characterData.ResName == '' then
+        PrintError("角色id:{0},没有配置资源名字", characterData.ID)
+        return nil
+    end
+
+    -- 从对象池获取角色预制体实例
+    local go = PoolManager:Get(characterData.ResName, newParent)
+    ---@type Honor.Runtime.LuaBehaviour
+    local luaBehaviour = go:GetComponent("LuaBehaviour")
+    ---@type CharacterBase
+    local characterBase = luaBehaviour.luaClass
+
+    -- 复位角色实例并绑定配置数据与游戏对象
+    characterBase:Clear()
+    characterBase._CharData = characterData
+    characterBase._GameObject = go
+
+    -- 非闲置角色登记进全局角色列表（闲置角色由外部独立管理）
+    if not isIdle then
+        self._characterBaseTable:Add(characterBase)
+    end
+    return characterBase
 end
 
 ---=========================================================================
----@brief 销毁角色(放回对象池)
----@type fun(characterBase:CharacterBase):void
----@param characterBase CharacterBase @角色实例
----=========================================================================
-function CharacterGenerationManager:DesCharacterGeneration(characterBase)
-    if characterBase ~= nil then
-        self._characterBaseTable:Remove(characterBase)
-        PrintInfo("Despawn -> characterBase:{0} 剩余:{1}", characterBase.cs.gameObject.name, self._characterBaseTable:Count())
-        PoolManager:Put(characterBase.cs.gameObject)
-        characterBase:Clear()
-    end
-end
-
----=========================================================================
----@brief 销毁所有角色(放回对象池)
+---@brief 销毁所有角色（放回对象池）
+---@desc 关卡退出/地图卸载时调用，遍历全局角色列表逐个放回对象池并复位，最后清空列表
 ---@type fun():void
 ---=========================================================================
-function CharacterGenerationManager:DesCharacterGenerationAll()
+function CharacterGenerationManager:DespawnAllCharacters()
     for i = 1, self._characterBaseTable:Count() do
         ---@type CharacterBase
         local characterBase = self._characterBaseTable.items[i]
-        PoolManager:Put(characterBase.cs.gameObject)
-        characterBase:Clear()
+        -- 角色组件已销毁时跳过放回对象池，避免访问已销毁 LuaBehaviour 抛 MissingReferenceException
+        -- （Unity 对象销毁后 Lua 引用仍非 nil，须用 IsNull 判空）
+        if characterBase ~= nil and characterBase.cs ~= nil and not IsNull(characterBase.cs) then
+            PoolManager:Put(characterBase.cs.gameObject)
+            characterBase:Clear()
+        end
     end
     self._characterBaseTable:Clear()
 end
 
 --endregion
 
---region 【角色获取接口】
+--region 【地图角色批量生成】
 
 ---=========================================================================
----@brief 根据角色类型获取已生成的角色列表
----@type fun(characterType:ECharacterType):List<CharacterBase>
----@param characterType ECharacterType @角色类型
----@return List<CharacterBase> @角色实例列表
+---@brief 清空全局角色列表（防重载/重玩残留）
+---@desc 遍历清空 GameCoreManager 全局角色列表的全部键，并返回该列表供后续写入
+---@type fun():table|nil
+---@return table|nil @清空后的全局角色列表（空表或原表，可能为nil）
 ---=========================================================================
-function CharacterGenerationManager:GetCharactersByType(characterType)
-    local list = HonorList:Create()
-    for i = 1, self._characterBaseTable:Count() do
-        ---@type CharacterBase
-        local characterBase = self._characterBaseTable.items[i]
-        if characterBase._CharData.CharType == characterType then
-            list:Add(characterBase)
+function CharacterGenerationManager:_ClearCharacterList()
+    local characterList = GameCoreManager:GetCharacterList()
+    if characterList ~= nil then
+        for k in pairs(characterList) do
+            characterList[k] = nil
         end
     end
-    return list
+    return characterList
 end
 
 ---=========================================================================
----@brief 按类型获取角色配置列表
----@type fun(characterType:ECharacterType):Tables.Characters_Item[]
----@param characterType ECharacterType @角色类型
----@return Tables.Characters_Item[] @角色配置数组
+---@brief 解析角色图标别名
+---@desc 优先用地图配置 sprite（每个物件各自的猫图），否则回退 fallbackIcon（角色表 Icon）；
+---      sprite 可能是完整路径（Assets/Res/.../sc_2_cat_1.png）或纯名（sc_2_cat_1），
+---      RefreshImageSprite 需要别名：含路径时提取文件名(去扩展名)，纯名时直接使用
+---@type fun(sprite:string,fallbackIcon:string):string|nil
+---@param sprite string @地图配置的图标路径或别名
+---@param fallbackIcon string @角色静态表回退图标名
+---@return string|nil @可用的图标别名，无可解析时返回nil
 ---=========================================================================
-function CharacterGenerationManager:GetCharacterConfigsByType(characterType)
-    local result = self._characterCfg[characterType]
-    if not result then
-        result = {}
-        for _, cfg in pairs(Tables.Characters) do
-            if cfg.CharType == characterType then
-                table.insert(result, cfg)
-            end
+function CharacterGenerationManager:_ResolveSpriteName(sprite, fallbackIcon)
+    local spriteName = nil
+    if sprite and sprite ~= '' then
+        if string.find(sprite, '/') then
+            spriteName = string.match(sprite, "([^/]+)%.%w+$") or sprite
+        else
+            spriteName = sprite
         end
-        self._characterCfg[characterType] = result
     end
-    return result
+    if (not spriteName) and fallbackIcon then
+        spriteName = fallbackIcon
+    end
+    return spriteName
 end
 
 ---=========================================================================
----@brief 按类型拷贝角色配置到目标容器
----@type fun(characterType:ECharacterType,result:table):void
----@param characterType ECharacterType @角色类型
----@param result table @目标容器
+---@brief 刷新单个角色图标
+---@desc 查找角色身上的 CharacterIcon 图标组件，解析别名后刷新显示；组件缺失则静默跳过
+---@type fun(characterBase:CharacterBase,sprite:string,fallbackIcon:string):void
+---@param characterBase CharacterBase @角色实例
+---@param sprite string @地图配置的图标路径或别名
+---@param fallbackIcon string @角色静态表回退图标名
 ---=========================================================================
-function CharacterGenerationManager:CopyCharacterConfigsByType(characterType, result)
-    for _, cfg in pairs(Tables.Characters) do
-        if cfg.CharType == characterType then
-            table.insert(result, cfg)
-        end
+function CharacterGenerationManager:_RefreshCharacterIcon(characterBase, sprite, fallbackIcon)
+    -- 查找角色图标UI组件，缺失则跳过
+    local characterIcon = characterBase._GameObject.transform:Find("CharacterIcon")
+    if not characterIcon then
+        return
+    end
+    local uiImage = characterIcon.transform:GetComponent(typeof(UnityEngine.UI.Image))
+    if not uiImage then
+        return
+    end
+
+    -- 解析图标别名并刷新显示
+    local spriteName = self:_ResolveSpriteName(sprite, fallbackIcon)
+    if spriteName then
+        GamePlayHelper:RefreshImageSprite(characterBase, uiImage, spriteName)
     end
 end
 
 ---=========================================================================
----@brief 根据角色类型与客人ID获取角色
----@type fun(characterType:ECharacterType,id : number):CharacterBase
----@param characterType ECharacterType @角色类型
----@param id number @客人ID
----@return CharacterBase @角色实例
+---@brief 注册角色到全局角色列表
+---@desc 以角色ID为主键写入 {ID, Character} 结构，供其他模块按ID查询角色实例
+---@type fun(characterList:table,id:string,characterBase:CharacterBase):void
+---@param characterList table @全局角色列表
+---@param id string @角色ID
+---@param characterBase CharacterBase @角色实例
 ---=========================================================================
-function CharacterGenerationManager:GetCharacter(characterType, id)
-    local guests = self:GetCharactersByType(characterType)
-    if guests and guests:Count() > 0 then
-        for i = 1, #guests.items do
-            ---@type CharacterGuest
-            local chara = guests.items[i]
-            if chara:GetGuestId() == id then
-                return chara
-            end
-        end
+function CharacterGenerationManager:_RegisterCharacterToList(characterList, id, characterBase)
+    if characterList ~= nil then
+        characterList[id] = {}
+        characterList[id].ID = id
+        characterList[id].Character = characterBase
     end
-    return nil
 end
 
 ---=========================================================================
----@brief 根据角色类型与配置ID获取角色
----@type fun(characterType:ECharacterType,id : number):CharacterBase
----@param characterType ECharacterType @角色类型
----@param id number @角色配置ID
----@return CharacterBase @角色实例
+---@brief 根据地图配置批量生成所有角色实体，初始化图标、坐标、全局列表缓存
+---@type fun(gameMapRoot:UnityEngine.Transform):void
+---@param gameMapRoot UnityEngine.Transform @地图根节点（挂载生成的角色实体）
+---@desc 由 GameMapBase:LoadCharacterByMapData 在 Awake 相机/HUD 就绪后转调（勿在 ctor 中调用，
+---      此时地图物体尚未激活、相机未就绪，易导致角色显示异常）。
+---      流程：读取关卡根配置 → 挂载当前关卡数据 → 清空旧角色列表防重载残留 → 遍历地图配置逐一
+---      生成角色（对象池复用）→ 设置本地坐标 → 刷新角色图标 → 写入全局角色列表。
 ---=========================================================================
-function CharacterGenerationManager:GetCharacterByCharaId(characterType, id)
-    local guests = self:GetCharactersByType(characterType)
-    if guests and guests:Count() > 0 then
-        for i = 1, #guests.items do
-            ---@type CharacterGuest
-            local chara = guests.items[i]
-            if chara._CharData.ID == id then
-                return chara
-            end
-        end
+function CharacterGenerationManager:LoadCharacterByMapData(gameMapRoot)
+    -- 地图根节点空安全保护
+    if gameMapRoot == nil then
+        print("[CharacterGenerationManager] 警告：地图根节点缺失，跳过角色生成")
+        return
     end
-    return nil
+
+    -- 获取关卡根配置数据并挂载当前关卡
+    local mapData = GameManager:GetMapRootData()
+    if not mapData or not mapData.MapData then
+        print("[CharacterGenerationManager] 地图角色配置为空，跳过角色生成")
+        return
+    end
+    GameCoreManager:SetCurLevelData(mapData)
+
+    -- 清空旧角色列表，防止重载/重玩时残留脏数据
+    local characterList = self:_ClearCharacterList()
+
+    -- 遍历所有角色配置条目
+    for _, v in ipairs(mapData.MapData) do
+        if not v or not v.Id then
+            print("[CharacterGenerationManager] 无效角色配置数据，跳过")
+            goto continue
+        end
+
+        -- 根据ID生成角色实体挂载到地图根节点
+        local characterBase = self:SpawnCharacter(v.Id, gameMapRoot)
+        if not characterBase then
+            print("[CharacterGenerationManager] 角色生成失败 ID:" .. tostring(v.Id))
+            goto continue
+        end
+
+        -- 转换字符串坐标并赋值本地坐标
+        characterBase._GameObject.transform.localPosition = StringToVector3(v.Position)
+
+        -- 刷新角色图标（优先地图配置 sprite，回退角色表 Icon）
+        local catData = CharacterGenerationDataManager:GetDataById(v.Id)
+        self:_RefreshCharacterIcon(characterBase, v.Sprite, catData and catData.Icon)
+
+        -- 存入全局角色管理列表（列表可能为空表，需判空兜底）
+        self:_RegisterCharacterToList(characterList, v.Id, characterBase)
+
+        ::continue::
+    end
 end
 
 --endregion
 
 --region 【游戏生命周期】
 
+---@brief 广播指定生命周期方法给所有已生成角色（内部公共实现，消除重复遍历）
+---@type fun(methodName:string):void
+---@param methodName string @角色生命周期方法名（传 ECharacterLifecycle 枚举值）
+---@desc 生命周期方法群统一委托本方法，避免 8 处相同遍历；动态调用仅在状态切换时发生一次，无性能负担
+function CharacterGenerationManager:_BroadcastToAllCharacters(methodName)
+    for _, v in ipairs(self._characterBaseTable.items) do
+        if v and v[methodName] then
+            v[methodName](v)
+        end
+    end
+end
+
 ---=========================================================================
 ---@brief 游戏初始化
+---@desc 框架驱动，勿删；由玩法状态机切换时调用，广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnInitGame()
-    for i, v in ipairs(self._characterBaseTable.items) do
-        v:OnInitGame()
-    end
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnInitGame)
 end
 
 ---=========================================================================
 ---@brief 进入游戏
+---@desc 框架驱动，勿删；进入游戏流程时广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnEnterGame()
-    for i, v in ipairs(self._characterBaseTable.items) do
-        v:OnEnterGame()
-    end
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnEnterGame)
 end
 
 ---=========================================================================
 ---@brief 游戏开始
+---@desc 框架驱动，勿删；玩法开始时广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnBeginGame()
-    for i, v in ipairs(self._characterBaseTable.items) do
-        v:OnBeginGame()
-    end
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnBeginGame)
 end
 
 ---=========================================================================
 ---@brief 游戏暂停
+---@desc 框架驱动，勿删；玩法暂停时广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnPauseGame()
-    for i, v in ipairs(self._characterBaseTable.items) do
-        v:OnPauseGame()
-    end
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnPauseGame)
 end
 
 ---=========================================================================
 ---@brief 游戏恢复
+---@desc 框架驱动，勿删；玩法恢复时广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnResumeGame()
-    for i, v in ipairs(self._characterBaseTable.items) do
-        v:OnResumeGame()
-    end
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnResumeGame)
 end
 
 ---=========================================================================
 ---@brief 游戏结束
+---@desc 框架驱动，勿删；玩法结束时广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnGameOver()
-    for i, v in ipairs(self._characterBaseTable.items) do
-        v:OnGameOver()
-    end
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnGameOver)
 end
 
 ---=========================================================================
 ---@brief 游戏退出
+---@desc 框架驱动，勿删；退出游戏流程时广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnExitGame()
-    for i, v in ipairs(self._characterBaseTable.items) do
-        v:OnExitGame()
-    end
-end
-
----=========================================================================
----@brief 游戏重玩
----@type fun():void
----=========================================================================
-function CharacterGenerationManager:OnRePlayGame()
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnExitGame)
 end
 
 ---=========================================================================
 ---@brief 重玩前初始化地图中剩余角色
+---@desc 框架驱动，勿删；由 PlayGameplayCycle 重玩流程调用，广播给所有已生成角色
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:OnRePlayGameBefore()
-    for _, v in ipairs(self._characterBaseTable.items) do
-        v:OnRePlayGame()
-    end
+    self:_BroadcastToAllCharacters(ECharacterLifecycle.OnRePlayGame)
 end
 
 --endregion

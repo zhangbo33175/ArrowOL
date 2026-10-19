@@ -5,6 +5,11 @@
 -- filename:  TableLocalEvents
 -- descrip:   本地活动表
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     本地运营活动配置表
+-- @desc      配置本地活动的互斥组、开放顺序、主界面入口与弹窗策略
+-- @core      字段含 EventID、LocalEventGroup（互斥组）、OpenOrder、HomeIconID、GroupNames（AB包分组）、LoginPopup、PopupLevel、HomeUIOrderId
+-- @scope     主界面活动入口生成与登录弹窗调度
+-- @dependency Tables 注册表（Tables.lua），由 Tables.LocalEvents 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.LocalEvents_Item @本地活动表条目

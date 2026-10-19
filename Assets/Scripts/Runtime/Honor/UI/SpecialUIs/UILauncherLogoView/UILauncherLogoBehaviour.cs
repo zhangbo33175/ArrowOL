@@ -26,27 +26,68 @@ namespace Honor.Runtime
         // 公共动画方法
         //=========================================================================
         /// <summary>
-        /// 进入动画：背景从黑色 渐亮 → 透明
+        /// 进入动画：闪屏（__SplashImage）淡入 → 停留 → 闪屏+背景淡出（露出加载界面）
+        /// 无黑屏保持段：启动即平滑淡入闪屏，闪屏显示共 3.0 秒
+        /// 时序：淡入 0.5s → 停留 2.5s → 淡出 0.6s
+        /// 淡入淡出均带缓动曲线（Ease.InOutQuad），使启动过渡更丝滑；
+        /// 淡出起始点与 Loading 提前拉起时机（ProcedurePreload 的 SplashFadeOutStart）对齐，
+        /// 实现“闪屏淡出、加载界面随之浮现”的流畅衔接
         /// </summary>
         public override void Enter()
         {
             base.Enter();
 
-            // 初始化背景为纯黑
+            // 初始状态：背景纯黑（变黑），闪屏透明
             m_BgImage.color = new Color(0, 0, 0, 1);
+            bool hasSplash = m_SplashImage != null;
+            if (hasSplash)
+                m_SplashImage.color = new Color(1, 1, 1, 0);
 
             // 先杀死可能存在的旧动画，防止冲突
             DOTween.Kill(GameDOTweenTypes.ProcedureTransitionInTween);
 
-            // 播放淡入动画：黑色 → 透明
-            DOTween.Sequence()
-                .Append(DOTween.To(
+            Sequence seq = DOTween.Sequence().SetUpdate(true); // 不受游戏暂停影响
+
+            if (hasSplash)
+            {
+                // 阶段0：黑屏保持（可设为 0 去掉黑屏，启动即淡入闪屏）
+                if (SplashBlackHoldDuration > 0)
+                    seq.AppendInterval(SplashBlackHoldDuration);
+
+                // 阶段1：闪屏淡入（黑屏背景上，带缓动）→ 阶段2：停留展示
+                seq.Append(DOTween.To(
+                        () => m_SplashImage.color,
+                        color => m_SplashImage.color = color,
+                        new Color(1, 1, 1, 1),
+                        SplashFadeInDuration)
+                        .SetEase(Ease.InOutQuad))
+                    .AppendInterval(SplashStayDuration)
+                    // 阶段3：闪屏淡出 + 背景淡出（同步、带缓动，露出下方加载界面）
+                    .Append(DOTween.To(
+                        () => m_SplashImage.color,
+                        color => m_SplashImage.color = color,
+                        new Color(1, 1, 1, 0),
+                        SplashFadeOutDuration)
+                        .SetEase(Ease.InOutQuad))
+                    .Join(DOTween.To(
+                        () => m_BgImage.color,
+                        color => m_BgImage.color = color,
+                        new Color(0, 0, 0, 0),
+                        SplashFadeOutDuration)
+                        .SetEase(Ease.InOutQuad));
+            }
+            else
+            {
+                // 无闪屏：背景黑 → 透明（快速淡出，带缓动）
+                seq.Append(DOTween.To(
                     () => m_BgImage.color,
                     color => m_BgImage.color = color,
                     new Color(0, 0, 0, 0),
-                    m_EnterDuration))
-                .SetUpdate(true) // 不受游戏暂停影响
-                .AppendCallback(() =>
+                    SplashFadeOutDuration)
+                    .SetEase(Ease.InOutQuad));
+            }
+
+            seq.AppendCallback(() =>
                 {
                     // 动画结束 → 通知进入完成
                     EnterOver();

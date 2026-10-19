@@ -5,7 +5,9 @@
 -- author:    云毅
 -- created:   2026
 -- @brief     游戏玩法核心数据管理类
--- @desc      统一管理关卡运行时的所有关键数据：目标进度、关卡信息、道具使用、复活、难度、星级等
+-- @desc      统一管理关卡运行时关键数据：角色/寻找物收集列表、已收集列表、道具使用计数、剩余生命值、关卡限制条件缓存
+-- @core      关卡收集列表/已收集列表维护、道具使用计数、剩余生命值与关卡限制条件缓存的读写
+-- @scope     GameCoreManager 的内部数据载体，仅暴露只读查询接口与道具计数/扣血写接口，不直接对接 UI
 -- @author    商业项目规范版 | 完整标准化注释 | 多层空安全防护 | 低内存泄漏设计 | 性能优化
 -- @规范      Unity XLua 商业项目编码标准 | 全函数结构化文档注释 | 字段类型标注 | 边界数值保护
 -- @dependency Singleton, ItemManager, EventManager, GlobalUtility
@@ -63,16 +65,15 @@ function GameCoreManagerData:InitData(levelData)
         print("[GameCoreManagerData] InitData 传入关卡配置为空，初始化中断")
         return
     end
-
     -- 本局临时计数全部重置归零
     self._NumberOfPropsUsed = 0
-    self._LifeNumber = 3
+    local levelId = ChapterListManager:GetLatestChapterLevelId() or tostring(levelData.LevelId)
+    local mainLevel = ChapterDataManager:GetChapterDataBySectionId(levelId)
+    self._LifeNumber = (mainLevel and mainLevel.LevelLife) or 3
 
     -- 读取关卡基础标识与难度配置
     self._LevelID = levelData.LevelId
-    --self._LevelMode = levelData.LevelMode
-    --self._LevelDifficulty = levelData.Difficulty
-
+    
     -- 初始化关卡限制条件容器
     self._LimitCheckData = {}
     self._LimitTriggered = {}

@@ -5,6 +5,11 @@
 -- filename:  NotificationDataPB.lua
 -- descrip:   通知消息本地缓存（用于运行时统一上报服务器）
 -- notices:   该文件自动生成，请不要手动修改！ 5541424142
+-- @brief     通知消息本地缓存运行时数据表与读写接口
+-- @desc      在 SaveRootData.NotificationData 下定义通知缓存字段，并注册 SaveIO 加载/保存入口
+-- @core      由 proto 生成的运行时数据表初始化 + SaveIO 注册（LoadAll/Load_data/Save_data 等）
+-- @scope     SaveRootData 主干加载入口之一；运行时缓存待上报通知
+-- @dependency DeclareNotificationDataPB（类型）、NotificationDataPB.proto.lua（schema）、SaveRootData、SaveIO
 --=====================================================================================================
 
 SaveRootData = SaveRootData or {}

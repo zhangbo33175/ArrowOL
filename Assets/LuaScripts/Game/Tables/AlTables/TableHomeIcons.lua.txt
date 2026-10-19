@@ -5,6 +5,11 @@
 -- filename:  TableHomeIcons
 -- descrip:   主界面
 -- notices:   该文件自动生成，请不要手动修改！
+-- @brief     主界面入口图标配置表
+-- @desc      配置主界面各功能图标的预制体、位置与排序
+-- @core      以图标 ID 为主键，字段含 Prefab（图标预制体名）、Position（左0右1）、Order（排序，小在上）
+-- @scope     主界面功能入口图标的生成与排布
+-- @dependency Tables 注册表（Tables.lua），由 Tables.HomeIcons 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@class Tables.HomeIcons_Item @主界面条目

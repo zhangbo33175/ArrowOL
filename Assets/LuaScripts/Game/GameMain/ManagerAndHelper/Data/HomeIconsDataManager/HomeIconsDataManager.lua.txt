@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     主界面坐标图标数据源管理器
 -- @desc      读取主界面图标配置表，根据图标ID获取位置、样式、显示逻辑等数据
+-- @core      主界面坐标图标配置表读取门面
+-- @scope     主界面图标配置查询（业务查询方法已随死代码清理移除，当前仅保留生命周期）
 -- @feat      安全查询、错误捕获、全局单例、日志输出
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
@@ -44,37 +46,6 @@ end
 ---@type fun():void
 function HomeIconsDataManager:ClearData()
     HomeIconsDataManager.super.ClearData(self)
-end
-
---endregion
-
---region 图标配置获取
-
----=========================================================================
----@brief  根据图标ID获取主界面图标配置数据
----@type fun(homeIconId:string|number):Tables.HomeIcons_Item|nil
----@param homeIconId string | number 桌面图标ID
----@return Tables.HomeIcons_Item | nil 图标配置数据
----=========================================================================
-function HomeIconsDataManager:GetHomeIconDataById(homeIconId)
-    -- 安全校验
-    if not homeIconId then
-        PrintError("[HomeIconsDataManager] 获取图标数据失败：ID 为空")
-        return nil
-    end
-
-    -- 安全读取配置表
-    if not Tables or not Tables.HomeIcons then
-        PrintError("[HomeIconsDataManager] Tables.HomeIcons 配置表不存在")
-        return nil
-    end
-
-    local data = Tables.HomeIcons[tostring(homeIconId)]
-    if not data then
-        PrintDebug("[HomeIconsDataManager] 未找到图标配置 ID: " .. tostring(homeIconId))
-    end
-
-    return data
 end
 
 --endregion

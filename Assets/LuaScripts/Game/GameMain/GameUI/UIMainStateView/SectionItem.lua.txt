@@ -1,19 +1,29 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  SectionItem.lua
--- author:    zb
--- descrip:   界面显示信息
+-- author:    云毅
+-- created:   2026
+-- @brief     关卡主界面分区显示项（拼图区域容器）
+-- @desc      控制单图/四图拼图布局切换，并批量生成子收集项挂载到 Content 下
+-- @core      布局显隐切换、收集子项批量实例化
+-- @scope     UIMainStateView 主界面关卡拼图展示区域
+-- @dependency LuaBehaviourSuper, LoadRes
 --=====================================================================================================
 
 ---@class SectionItem : LuaBehaviourSuper
 ---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
----@field Content                            UnityEngine.Transform         √                        收集显示挂载父节点
----@field PicturePuzzle                      UnityEngine.UI.Image          √                        背景图片展示
+---@field ContentTransform UnityEngine.RectTransform @收集显示挂载父节点
+---@field PicturePuzzle UnityEngine.UI.Image @背景图片展示
+---@field OnePicturePuzzle UnityEngine.GameObject @单图模式根节点（注入）
+---@field FourPicturePuzzle UnityEngine.GameObject @四图模式根节点（注入）
 local SectionItem = class('SectionItem', import('LuaBehaviourSuper'))
 
+--region 【构造】
+
 ---构造函数
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function SectionItem:ctor(args)
@@ -21,6 +31,7 @@ function SectionItem:ctor(args)
 end
 
 ---创建函数
+---@brief 创建分区显示项实例
 ---@type fun(args:table):SectionItem
 ---@param args table @自定义参数
 ---@return SectionItem @SectionItem实例
@@ -29,70 +40,105 @@ function SectionItem:Create(args)
     return obj
 end
 
+--endregion
+
+--region 【生命周期】
+
 ---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）
+---@brief 注册事件监听（框架驱动，勿删）
 ---@type fun():void
 function SectionItem:OnAddListeners()
     SectionItem.super.OnAddListeners(self)
-
 end
 
 ---唤醒
+---@brief 唤醒后初始化拼图布局（框架驱动，勿删）
 ---@type fun():void
 function SectionItem:Awake()
     SectionItem.super.Awake(self)
     self:Init()
--- 2=====================================================================================================
-
--- 无自动注册内容。
--- ====================================================================================================2
-
 end
 
-
----@type 初始化信息
+---@brief 初始化拼图布局：显示单图节点、隐藏四图节点
+---@type fun():void
 function SectionItem:Init()
     if self.OnePicturePuzzle then self.OnePicturePuzzle:SetActive(true) end
     if self.FourPicturePuzzle then self.FourPicturePuzzle:SetActive(false) end
 end
 
-
-
 ---开始
+---@brief 开始时批量生成 16 个收集子项（框架驱动，勿删）
 ---@type fun():void
 function SectionItem:Start()
     SectionItem.super.Start(self)
 
+    -- 按传输的数字加载对应个数的 CollectItem 并挂载到 Content
+    self:CreateCollectItems(16)
 end
 
 ---销毁
+---@brief 销毁回调（框架驱动，勿删）
 ---@type fun():void
 function SectionItem:OnDestroy()
     SectionItem.super.OnDestroy(self)
--- 3=====================================================================================================
-
--- 无自动注销内容。
--- ====================================================================================================3
-
 end
 
+--endregion
+
+--region 【子项创建】
+
+---按数量循环加载 CollectItem 预制体并挂载到 Content 下
+---@brief 在 Content 节点下实例化多个 CollectItem
+---@desc 根据传入数量 count，循环在 Content 下创建 count 个 CollectItem；
+---      第 i 个 CollectItem 通过 params.data.number = i 传入拼图序号，由其加载对应拼图。
+---      若注入的 Content 未赋值，回退挂载到自身节点下并打印提示。
+---@param count number @CollectItem 实例数量
+function SectionItem:CreateCollectItems(count)
+    local assetInfo = LoadRes["GameObject_CollectItem"]
+    if assetInfo == nil then
+        PrintError("[SectionItem] 缺少资源定义 GameObject_CollectItem")
+        return
+    end
+
+    -- 解析挂载父节点：注入 → 固定路径 → 递归查找名为 Content 的子节点，最后回退自身节点
+    local parent = self.ContentTransform
+    for i = 1, count do
+        -- 挂载到父节点下，并携带当前拼图序号
+        local params = { data = { number = i } }
+        CreatePrefabLuaClassSync(assetInfo, parent, params)
+    end
+end
+
+--endregion
+
+--region 【动画回调】
+
 ---播放打开动画回调（可重写该父类方法）
+---@brief 界面打开动画回调（框架驱动，勿删）
 ---@type fun():void
 function SectionItem:OnPlayOpenAnimation()
     SectionItem.super.OnPlayOpenAnimation(self)
 end
 
 ---播放关闭动画回调（可重写该父类方法）
+---@brief 界面关闭动画回调（框架驱动，勿删）
 ---@type fun():void
 function SectionItem:OnPlayCloseAnimation()
     SectionItem.super.OnPlayCloseAnimation(self)
 end
 
+--endregion
+
+--region 【子UI回调】
+
 ---被追加的N层UI子节点销毁回调
+---@brief 子 UI 销毁回调（框架驱动，勿删）
 ---@type fun(luaClass: XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable @luaClass
 function SectionItem:OnAddedUIDestroyed(luaClass)
     SectionItem.super.OnAddedUIDestroyed(self, luaClass)
 end
 
-return SectionItem
+--endregion
 
+return SectionItem

@@ -4,8 +4,13 @@
 -- filename:  GameApiExtend.lua
 -- author:    云毅
 -- created:   2026
--- descrip:   全局通用扩展函数（table / math / string 工具库）
---            遵循 Unity 规范 + 完整注解 + 商业级稳定性
+-- @brief     标准库全局扩展（table / math / string 工具库）
+-- @desc      对 Lua 内置 table / math / string 命名空间补充通用扩展方法；
+--            在 GameMain 最早加载（require("GameApiExtend")），加载后全工程可直接以 table.X / math.X / string.X 调用。
+--            遵循 Unity 规范 + 完整注解 + 商业级稳定性；仅保留实际有调用方的扩展，零引用扩展已按双零引用标准清理。
+-- @core      是（全局基础能力，先于所有业务模块加载）
+-- @scope     全局命名空间扩展，任意业务文件可直接使用
+-- @dependency Lua 内置 table / math / string 标准库
 --=====================================================================================================
 
 --region Table 扩展工具
@@ -41,141 +46,6 @@ function table.vIn(tbl, value)
     return false
 end
 
----@brief 判断表是否包含子表所有值
----@param tbl table 主表
----@param valueTable table 子表
----@return boolean 是否全部包含
-function table.tableIn(tbl, valueTable)
-    if type(tbl) ~= "table" or type(valueTable) ~= "table" then
-        return false
-    end
-    for _, v in pairs(valueTable) do
-        if not table.vIn(tbl, v) then
-            return false
-        end
-    end
-    return true
-end
-
----@brief 判断是否为纯数组（连续数字索引）
----@param t table 目标表
----@return boolean 是否为纯数组
-function table.isArrayTable(t)
-    if type(t) ~= "table" then
-        return false
-    end
-    local length = #t
-    for k, _ in pairs(t) do
-        if type(k) ~= "number" or k < 1 or k > length then
-            return false
-        end
-    end
-    return true
-end
-
----@brief 递归打印表（调试专用）
----@param t table 目标表
----@return string 格式化字符串
-function table.PrintDicTable(t)
-    if type(t) ~= "table" then
-        return tostring(t)
-    end
-    local result = {}
-    for k, v in pairs(t) do
-        local keyStr = tostring(k)
-        local valStr = type(v) == "table" and table.PrintDicTable(v) or tostring(v)
-        table.insert(result, keyStr .. " = " .. valStr)
-    end
-    return table.concat(result, "\n")
-end
-
----@brief 无序比较两个数组是否相等
----@param t1 table 数组1
----@param t2 table 数组2
----@return boolean 是否相等
-function table.compareTablesWithDisorder(t1, t2)
-    if type(t1) ~= "table" or type(t2) ~= "table" then
-        return false
-    end
-    if #t1 ~= #t2 then
-        return false
-    end
-    for _, v in pairs(t1) do
-        if not table.vIn(t2, v) then
-            return false
-        end
-    end
-    return true
-end
-
----@brief 数组安全过滤删除（遍历过程中安全删除元素）
----@param t table 数组
----@param predicate function 判定函数(key, value):boolean 满足条件保留，不满足删除
-function table.filterRemove(t, predicate)
-    if type(t) ~= "table" or type(predicate) ~= "function" then
-        return
-    end
-    local index = 1
-    while index <= #t do
-        if not predicate(index, t[index]) then
-            table.remove(t, index)
-        else
-            index = index + 1
-        end
-    end
-end
-
----@brief 判断 t1 是否包含 t2 所有元素
----@param t1 table 主表
----@param t2 table 子表
----@return boolean 是否全部包含
-function table.isContains(t1, t2)
-    if type(t1) ~= "table" or type(t2) ~= "table" then
-        return false
-    end
-    for _, v in pairs(t2) do
-        if not table.vIn(t1, v) then
-            return false
-        end
-    end
-    return true
-end
-
----@brief Fisher-Yates 打乱数组（原地修改）
----@param t table 数组
-function table.shuffle(t)
-    if type(t) ~= "table" or #t <= 1 then
-        return
-    end
-    local i = #t
-    while i > 1 do
-        local j = math.random(i)
-        t[i], t[j] = t[j], t[i]
-        i = i - 1
-    end
-end
-
----@brief 求两个数组的交集
----@param arr1 table 数组1
----@param arr2 table 数组2
----@return table 交集结果数组
-function table.Intersection(arr1, arr2)
-    if type(arr1) ~= "table" or type(arr2) ~= "table" then
-        return {}
-    end
-    local lookup = {}
-    local result = {}
-    for _, v in ipairs(arr2) do
-        lookup[v] = true
-    end
-    for _, v in ipairs(arr1) do
-        if lookup[v] then
-            table.insert(result, v)
-        end
-    end
-    return result
-end
-
 --endregion
 
 --region Math 扩展工具
@@ -193,26 +63,6 @@ function math.clamp(value, min, max)
     if value < min then return min end
     if value > max then return max end
     return value
-end
-
----@brief 四舍五入
----@param value number 输入值
----@return number 四舍五入结果
-function math.roundToNearest(value)
-    return value >= 0 and math.floor(value + 0.5) or math.ceil(value - 0.5)
-end
-
----@brief 保留 N 位小数（截断）
----@param value number 原数值
----@param decimals number 保留位数，默认0
----@return number 截断后数值
-function math.GetPreciseDecimal(value, decimals)
-    if type(value) ~= "number" then
-        return value
-    end
-    decimals = math.max(math.floor(decimals or 0), 0)
-    local multiplier = 10 ^ decimals
-    return math.floor(value * multiplier) / multiplier
 end
 
 ---@brief 浮点数近似相等判断
@@ -248,20 +98,6 @@ end
 --=====================================================================================================
 -- String 扩展
 --=====================================================================================================
-
----@brief 查找子串第一次出现的索引，找不到返回-1
----@param str string 原字符串
----@param substr string 子串
----@param startIndex number 起始位置，默认1
----@return number 索引位置
-function string.indexOf(str, substr, startIndex)
-    if type(str) ~= "string" or type(substr) ~= "string" then
-        return -1
-    end
-    startIndex = startIndex or 1
-    local pos = string.find(str, substr, startIndex, true)
-    return pos or -1
-end
 
 ---@brief 判断字符串是否为空或 nil
 ---@param str string 目标字符串

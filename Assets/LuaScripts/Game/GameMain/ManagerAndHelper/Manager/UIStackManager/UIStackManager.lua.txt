@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     UI 栈管理器
 -- @desc      对 UI 进行分组栈管理（支持多栈），控制显示层级、返回逻辑、历史记录、弹窗序列
+-- @core      多分组栈隔离维护、UI 入栈/出栈、显示层级与返回逻辑控制、弹窗序列与历史记录管理
+-- @scope     全局 UI 栈单例，供 UIManager、GameManager 及各业务 UI 按栈分组控制打开/返回层级
 -- @struct    多栈隔离：不同业务栈互不干扰
 -- @life      内置生命周期：OnStackPush / OnStackPop
 -- @dependency Singleton, GlobalUtility, GlobalDefine, EventManager
@@ -19,6 +21,7 @@ local UIStackManager = class("UIStackManager", import("Singleton"))
 ---=========================================================================
 --- 构造函数
 ---@brief 初始化多栈容器
+---@desc 框架驱动，勿删；单例构造时由 Singleton 基类回调
 ---@param args table 自定义参数
 ---=========================================================================
 function UIStackManager:ctor(args)
@@ -28,6 +31,7 @@ end
 
 ---=========================================================================
 ---@brief 创建单例
+---@desc 框架驱动，勿删；由单例工厂调用
 ---@param args table 自定义参数
 ---@return UIStackManager 单例实例
 ---=========================================================================
@@ -38,6 +42,7 @@ end
 ---=========================================================================
 --- 清理数据（切号/重载/重启时调用）
 ---@brief 清空所有栈并释放资源，重置管理器状态
+---@desc 框架驱动，勿删；切号/重载/重启流程回调
 ---=========================================================================
 function UIStackManager:ClearData()
     UIStackManager.super.ClearData(self)
@@ -111,9 +116,7 @@ function UIStackManager:Pop(name)
 
     -- 安全触发
     xpcall(function()
-        if ui and type(ui.OnStackPop) == "function" then
-            ui:OnStackPop()
-        end
+        self:_CallOnStackPop(ui)
     end, function(err)
         print_error("[UIStackManager] Pop OnStackPop error: " .. tostring(err))
     end)
@@ -136,10 +139,19 @@ function UIStackManager:Clear(name)
     while stack:Count() > 0 do
         local ui = stack:Pop()
         xpcall(function()
-            if ui and type(ui.OnStackPop) == "function" then
-                ui:OnStackPop()
-            end
+            self:_CallOnStackPop(ui)
         end, function(err) end)
+    end
+end
+
+---=========================================================================
+--- 安全触发 OnStackPop（Pop/Clear 内部复用）
+---@brief 空值与类型双重防护后，调用栈顶UI的 OnStackPop 生命周期
+---@param ui any UI实例
+---=========================================================================
+function UIStackManager:_CallOnStackPop(ui)
+    if ui and type(ui.OnStackPop) == "function" then
+        ui:OnStackPop()
     end
 end
 --endregion

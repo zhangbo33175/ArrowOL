@@ -6,6 +6,8 @@
 -- created:   2026
 -- @brief     游戏存档管理器
 -- @desc      管理：当前章节、关卡进度、挑战关卡、玩家存档数据、区域数据、关卡次数统计
+-- @core      章节/关卡进度存档读写、当前章节与最大进度维护、挑战关卡等级读取
+-- @scope     玩家存档中的章节/关卡进度，供 GamePlayHelper/MapManager/GameCoreManagerLevelFinish 跨文件调用
 -- @feat      全局单例、存档安全、自动初始化、空值防护、错误捕获
 -- @规范      Unity XLua 商业项目编码标准 / 注释完整 / 健壮性 / 性能优化
 -- @dependency Singleton, GlobalUtility, GameTimeUtil, EventManager
@@ -13,6 +15,49 @@
 
 ---@class GamerDataManager : Singleton @游戏存档管理器
 local GamerDataManager = class("GamerDataManager", import("Singleton"))
+
+--region 工具方法
+
+---@brief 读取存档章节ID，为空则兜底为"1"并回写保存
+---@param fieldName string @GameData 上的章节ID字段名
+---@param saveFn function @回写后的存档保存函数
+---@return string 章节ID
+local function ReadDefaultChapterId(fieldName, saveFn)
+    if not SaveRootData or not SaveRootData.GameData then
+        return "1"
+    end
+
+    local chapterId = SaveRootData.GameData[fieldName]
+    if string.isNullOrEmpty(chapterId) then
+        SaveRootData.GameData[fieldName] = "1"
+        xpcall(saveFn, __G__TRACK_BACK__)
+        return "1"
+    end
+    return chapterId
+end
+
+---@brief 增加主线章节的关卡等级（仅内部使用，由 AddLevelLvByChapterId 转发）
+---@type fun(chapterId:string):boolean
+---@param chapterId string 章节ID
+---@return boolean 是否增加成功
+local function AddLevelLvOfMainChapter(chapterId)
+    if not SaveRootData or not SaveRootData.GameData then
+        PrintError("[GamerDataManager] SaveRootData.GameData 为空，无法升级关卡")
+        return false
+    end
+    local chapterInfos = SaveRootData.GameData.chapterInfos
+    if chapterInfos and table.kIn(chapterInfos, chapterId) then
+        ---@type SaveMsgDef.SaveGameData.ChapterInfo
+        local chapterInfo = chapterInfos[chapterId]
+        chapterInfo.lv = (chapterInfo.lv or 0) + 1
+        SaveIO.GameData.Save_chapterInfos()
+        return true
+    end
+    PrintError("[GamerDataManager] 升级过程中，没有找到章节Id为" .. chapterId .. "的关卡数据")
+    return false
+end
+
+--endregion
 
 --region 构造 & 实例化
 
@@ -58,19 +103,7 @@ end
 ---@return string 章节Id
 ---=========================================================================
 function GamerDataManager:GetLatestChapterId()
-    if not SaveRootData or not SaveRootData.GameData then
-        return "1"
-    end
-
-    local chapterId = SaveRootData.GameData.latestChapterId
-    if string.isNullOrEmpty(chapterId) then
-        SaveRootData.GameData.latestChapterId = "1"
-        xpcall(function()
-            SaveIO.GameData.Save_latestChapterId()
-        end, __G__TRACK_BACK__)
-        return "1"
-    end
-    return chapterId
+    return ReadDefaultChapterId("latestChapterId", function() SaveIO.GameData.Save_latestChapterId() end)
 end
 
 ---=========================================================================
@@ -78,19 +111,7 @@ end
 ---@return string 章节Id
 ---=========================================================================
 function GamerDataManager:GetCurChapterId()
-    if not SaveRootData or not SaveRootData.GameData then
-        return "1"
-    end
-
-    local chapterId = SaveRootData.GameData.curChapterId
-    if string.isNullOrEmpty(chapterId) then
-        SaveRootData.GameData.curChapterId = "1"
-        xpcall(function()
-            SaveIO.GameData.Save_curChapterId()
-        end, __G__TRACK_BACK__)
-        return "1"
-    end
-    return chapterId
+    return ReadDefaultChapterId("curChapterId", function() SaveIO.GameData.Save_curChapterId() end)
 end
 
 ---=========================================================================
@@ -121,7 +142,7 @@ function GamerDataManager:GetLevelLvByChapterId(chapterId, checkChallengeLevel)
     checkChallengeLevel = checkChallengeLevel or false
     -- 优先检查挑战关卡
     if checkChallengeLevel and ChallengeLevelHelper then
-        local challengeLevelId = ChallengeLevelHelper:GetCurChallengeLevel(chapterId)
+        local challengeLevelId = ChallengeLevelHelper:GetCurrentChallengeLevelId(chapterId)
         if challengeLevelId > 0 then
             return challengeLevelId
         end
@@ -138,84 +159,17 @@ function GamerDataManager:GetLevelLvByChapterId(chapterId, checkChallengeLevel)
 end
 
 ---=========================================================================
----@brief  直接设置当前章节的关卡等级
----@param lv number 目标等级
----@return boolean 设置结果
----=========================================================================
-function GamerDataManager:SetLevelLv(lv)
-    if not lv or lv <= 0 then
-        PrintError("[GamerDataManager] 关卡等级不能 <= 0")
-        return false
-    end
-
-    local chapterId = self:GetCurChapterId()
-    local chapterInfos = SaveRootData.GameData.chapterInfos
-
-    if not chapterInfos or not table.kIn(chapterInfos, chapterId) then
-        PrintError("[GamerDataManager] 未找到章节，无法设置等级：" .. chapterId)
-        return false
-    end
-
-    local chapterInfo = chapterInfos[chapterId]
-    chapterInfo.lv = lv
-
-    xpcall(function()
-        SaveIO.GameData.Save_chapterInfos()
-    end, __G__TRACK_BACK__)
-    return true
-end
-
----=========================================================================
 ---@brief  增加章节关卡等级
 ---@param chapterId string 章节ID
 ---@return boolean 是否增加成功
 ---=========================================================================
 function GamerDataManager:AddLevelLvByChapterId(chapterId)
-    return self:AddLevelLvOfMainChapter(chapterId)
-end
-
----=========================================================================
----@brief  增加主线章节的关卡等级
----@param chapterId string 章节ID
----@return boolean 是否增加成功
----=========================================================================
-function GamerDataManager:AddLevelLvOfMainChapter(chapterId)
-    if not SaveRootData or not SaveRootData.GameData then
-        PrintError("[GamerDataManager] SaveRootData.GameData 为空，无法升级关卡")
-        return false
-    end
-    local chapterInfos = SaveRootData.GameData.chapterInfos
-    if chapterInfos and table.kIn(chapterInfos, chapterId) then
-        ---@type SaveMsgDef.SaveGameData.ChapterInfo
-        local chapterInfo = chapterInfos[chapterId]
-        chapterInfo.lv = (chapterInfo.lv or 0) + 1
-        SaveIO.GameData.Save_chapterInfos()
-        return true
-    end
-    PrintError("[GamerDataManager] 升级过程中，没有找到章节Id为" .. chapterId .. "的关卡数据")
-    return false
+    return AddLevelLvOfMainChapter(chapterId)
 end
 
 --endregion
 
 --region 进度判断 & 组合数据
-
----=========================================================================
----@brief  判断当前所在章节与关卡是否等于玩家最大进度
----@return boolean true‑是最新进度
----=========================================================================
-function GamerDataManager:CurrentChapterLevelIsLatest()
-    local latestChapter = self:GetLatestChapterId()
-    local currChapter   = self:GetCurChapterId()
-
-    if latestChapter ~= currChapter then
-        return false
-    end
-
-    local latestLevel = self:GetLevelLvByChapterId(latestChapter)
-    local currLevel   = self:GetLevelLvByChapterId(currChapter)
-    return latestLevel == currLevel
-end
 
 ---=========================================================================
 ---@brief  获取玩家已解锁的最大章节ID
@@ -249,52 +203,6 @@ function GamerDataManager:GetLatestChapterLevel()
     local chapterId = self:GetLatestChapterId()
     local level     = self:GetLevelLvByChapterId(chapterId)
     return { Chapter = tonumber(chapterId) or 1, Level = level }
-end
-
----=========================================================================
----@brief  获取指定章节的当前关卡
----@param chapterId string 章节ID
----@return table ChapterLevel 章节等级结构{Chapter, Level}
----=========================================================================
-function GamerDataManager:GetTargetChapterLevel(chapterId)
-    local level = self:GetLevelLvByChapterId(chapterId)
-    return { Chapter = tonumber(chapterId) or 1, Level = level }
-end
-
----=========================================================================
----@brief  获取当前章节&关卡
----@param checkChallengeLevel boolean|nil 是否检查挑战关卡
----@return table ChapterLevel 章节等级结构{Chapter, Level}
----=========================================================================
-function GamerDataManager:GetChapterLevel(checkChallengeLevel)
-    checkChallengeLevel = checkChallengeLevel or false
-    local chapterId     = self:GetCurChapterId()
-
-    if checkChallengeLevel and ChallengeLevelHelper then
-        local challengeLevelId = ChallengeLevelHelper:GetCurChallengeLevel(chapterId)
-        if challengeLevelId > 0 then
-            return { Chapter = tonumber(chapterId) or 1, Level = challengeLevelId }
-        end
-    end
-
-    local level = self:GetLevelLvByChapterId(chapterId)
-    return { Chapter = tonumber(chapterId) or 1, Level = level }
-end
-
---endregion
-
---region 玩家信息
-
----=========================================================================
----@brief  获取玩家首次注册时间
----@return number 注册时间戳
----=========================================================================
-function GamerDataManager:GetFirstRegUserTime()
-    if not SaveRootData or not SaveRootData.GameData then
-        return 0
-    end
-    local info = SaveRootData.GameData.playerInfo
-    return info and info.regUserTime or 0
 end
 
 --endregion

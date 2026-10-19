@@ -1,10 +1,15 @@
 --=====================================================================================================
--- (c) copyright 2026 - 2030, Honor.Game
+-- (c) copyright 2026 - 2030, Honor.Runtime
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  UISettingView.lua
 -- author:    云毅
 -- descrip:   设置界面
+-- @brief     设置界面视图（音乐/音效/震动三开关面板）
+-- @desc      负责按钮点击回调、开关状态翻转与显示刷新；状态存取委托 SettingDataManager
+-- @core      按钮监听注册/注销、GetToggleObjects 数组节点映射、开关显示同步
+-- @scope     主界面设置入口；Prefab 按钮经 LuaBehaviourInspector 注入
+-- @dependency LuaBehaviourSuper, SettingDataManager, SoundManager
 --=====================================================================================================
 
 ---@class UISettingView : LuaBehaviourSuper
@@ -16,90 +21,245 @@
 ---@field SoundGameObject                    UnityEngine.GameObject[]      √                        音效展示
 ---@field VibrationGameObject                UnityEngine.GameObject[]      √                        震动展示
 ---@field NameText                           UnityEngine.GameObject        √                        名字信息
+---@field MusicButton                        UnityEngine.UI.Button         √         Clicked        音乐按钮
+---@field SoundButton                        UnityEngine.UI.Button         √         Clicked        音效按钮
+---@field VibrationButton                    UnityEngine.UI.Button         √         Clicked        震动按钮
 local UISettingView = class('UISettingView', import('LuaBehaviourSuper'))
 
----构造函数
+--region 【构造 & 实例化】
+
+---@brief 构造函数
 ---@type fun(args:table):void
 ---@param args table @自定义参数
 function UISettingView:ctor(args)
     UISettingView.super.ctor(self, args)
-
 end
 
----创建函数
+---@brief 创建函数
 ---@type fun(args:table):UISettingView
 ---@param args table @自定义参数
 ---@return UISettingView @实例
 function UISettingView:Create(args)
-    local obj = UISettingView.new(args)
-    return obj
+    return UISettingView.new(args)
 end
 
----注册监听（自动注销）
+--endregion
+
+--region 【生命周期】
+
+---@brief 注册监听（自动注销）
 ---@type fun():void
 function UISettingView:OnAddListeners()
     UISettingView.super.OnAddListeners(self)
-
 end
 
----唤醒
+---@brief 唤醒
 ---@type fun():void
+---@desc 注册按钮监听（self:AddUIListener 随界面销毁自动注销）
+---@desc 先执行字段绑定兜底：prefab 未注入按钮字段时按节点名查找，Open/Close 从注入数组取值
 function UISettingView:Awake()
     UISettingView.super.Awake(self)
--- 2=====================================================================================================
-    AddUIListenerFunction(self.BG, 'Clicked', handler(self, self.OnBGClicked))
-    AddUIListenerFunction(self.CloseButton, 'Clicked', handler(self, self.OnCloseButtonClicked))
--- ====================================================================================================2
 
+    -- 自动注册区（LuaBehaviourInspector 刷新时按注入项 InfoEx 重建）
+    -- 说明：MusicButton/SoundButton/VibrationButton 需在 Inspector 注入（InjectionTypeName=12 Button，InfoEx=Clicked），
+    --       未注入时 self.MusicButton 为 nil，AddUIListener 静默跳过，开关点击无效。
+    -- 2=====================================================================================================
+    self:AddUIListener(self.BG, 'Clicked', Bind(self, self.OnBGClicked))
+    self:AddUIListener(self.CloseButton, 'Clicked', Bind(self, self.OnCloseButtonClicked))
+    self:AddUIListener(self.MusicButton, 'Clicked', Bind(self, self.OnMusicButtonClicked))
+    self:AddUIListener(self.SoundButton, 'Clicked', Bind(self, self.OnSoundButtonClicked))
+    self:AddUIListener(self.VibrationButton, 'Clicked', Bind(self, self.OnVibrationButtonClicked))
+-- ====================================================================================================2
 end
 
----开始
+---@brief 开始
 ---@type fun():void
+---@desc 打开面板时按存档状态刷新三个开关的显示（缺省存档为开启，即显示 Open 节点）
 function UISettingView:Start()
     UISettingView.super.Start(self)
-
+    self:RefreshAllToggleDisplay()
 end
 
----销毁
+---@brief 销毁
 ---@type fun():void
+---@desc UI 监听由 LuaBehaviourSuper:OnDestroy 按 _uiListenerList 统一自动注销，此处无需手动 OnRemoveListener
 function UISettingView:OnDestroy()
     UISettingView.super.OnDestroy(self)
--- 3=====================================================================================================
+    -- 自动注销区（LuaBehaviourInspector 锚点：本界面监听由 super.OnDestroy 自动注销，无需手写 OnRemoveListener）
+    -- 3=====================================================================================================
     OnRemoveListener(self.BG, 'Clicked', handler(self, self.OnBGClicked))
     OnRemoveListener(self.CloseButton, 'Clicked', handler(self, self.OnCloseButtonClicked))
+    OnRemoveListener(self.MusicButton, 'Clicked', handler(self, self.OnMusicButtonClicked))
+    OnRemoveListener(self.SoundButton, 'Clicked', handler(self, self.OnSoundButtonClicked))
+    OnRemoveListener(self.VibrationButton, 'Clicked', handler(self, self.OnVibrationButtonClicked))
 -- ====================================================================================================3
-
 end
 
----播放打开动画（可重写）
+--endregion
+
+--region 【动画回调】
+
+---@brief 播放打开动画（可重写）
 ---@type fun():void
 function UISettingView:OnPlayOpenAnimation()
     UISettingView.super.OnPlayOpenAnimation(self)
 end
 
----播放关闭动画（可重写）
+---@brief 播放关闭动画（可重写）
 ---@type fun():void
 function UISettingView:OnPlayCloseAnimation()
     UISettingView.super.OnPlayCloseAnimation(self)
 end
 
----子UI销毁回调
+--endregion
+
+--region 【子UI回调】
+
+---@brief 子UI销毁回调
 ---@type fun(luaClass:XLua.LuaTable):void
 ---@param luaClass XLua.LuaTable
 function UISettingView:OnAddedUIDestroyed(luaClass)
     UISettingView.super.OnAddedUIDestroyed(self, luaClass)
 end
 
----点击背景关闭界面-交互回调
+--endregion
+
+--region 【按钮交互回调】
+
+---@brief 点击背景关闭界面-交互回调
 ---@type fun(args:any):void
 function UISettingView:OnBGClicked(args)
-        CloseUI(UIs.UISettingView)
-end
-
----关闭按钮-交互回调
----@type fun(args:any):void
-function UISettingView:OnCloseButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
     CloseUI(UIs.UISettingView)
 end
+
+---@brief 关闭按钮-交互回调
+---@type fun(args:any):void
+function UISettingView:OnCloseButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
+    CloseUI(UIs.UISettingView)
+end
+
+---@brief 音乐开关按钮-交互回调
+---@type fun(args:any):void
+function UISettingView:OnMusicButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
+    local open, close = self:GetToggleObjects(ESettingType.MUSIC)
+    self:ToggleSetting(ESettingType.MUSIC, open, close)
+end
+
+---@brief 音效开关按钮-交互回调
+---@type fun(args:any):void
+function UISettingView:OnSoundButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    self:PlayClickVibrate()
+    local open, close = self:GetToggleObjects(ESettingType.SOUND)
+    self:ToggleSetting(ESettingType.SOUND, open, close)
+end
+
+---@brief 震动开关按钮-交互回调
+---@type fun(args:any):void
+function UISettingView:OnVibrationButtonClicked(args)
+    -- TODO: 按钮点击统一播放开始音效
+    SoundManager:PlaySound("UI_SeasonStart")
+    local open, close = self:GetToggleObjects(ESettingType.VIBRATION)
+    self:ToggleSetting(ESettingType.VIBRATION, open, close)
+    -- 震动开关切换由 SettingDataManager:SetSettingNewState 联动设备震动总开关；
+    -- 基于新状态给轻反馈：开启才震，关闭不震
+    self:PlayClickVibrate()
+end
+
+--endregion
+
+--region 【开关逻辑】
+
+---@brief 获取指定设置的开启/关闭显示节点（直接读注入数组字段：[1]=开启显示，[2]=关闭显示）
+---@type fun(settingType:string):UnityEngine.GameObject,UnityEngine.GameObject
+---@param settingType string @设置类型键（ESettingType.MUSIC / SOUND / VIBRATION）
+---@return UnityEngine.GameObject,UnityEngine.GameObject 开启/关闭显示节点（可能为 nil，防御空绑定）
+function UISettingView:GetToggleObjects(settingType)
+    local arr
+    if settingType == ESettingType.MUSIC then
+        arr = self.MusicGameObject
+    elseif settingType == ESettingType.SOUND then
+        arr = self.SoundGameObject
+    else
+        arr = self.VibrationGameObject
+    end
+    return arr and arr[1], arr and arr[2]
+end
+
+---@brief 翻转指定设置类型的开关状态并刷新显示
+---@type fun(settingType:string, openObj:UnityEngine.GameObject, closeObj:UnityEngine.GameObject):void
+---@param settingType string @设置类型键（ESettingType.MUSIC / SOUND / VIBRATION）
+---@param openObj UnityEngine.GameObject @开启状态显示节点（可为 nil，防御空绑定）
+---@param closeObj UnityEngine.GameObject @关闭状态显示节点（可为 nil）
+function UISettingView:ToggleSetting(settingType, openObj, closeObj)
+    -- 安全校验
+    if not settingType or SettingDataManager == nil then
+        PrintError("[UISettingView] 切换设置失败：settingType 或 SettingDataManager 为空")
+        return
+    end
+
+    -- 读取当前状态并取反
+    local newState = not SettingDataManager:GetSettingState(settingType)
+
+    -- 存档 + 同步声音（MUSIC/SOUND 由 SettingDataManager 内部同步 SoundMgr）
+    SettingDataManager:SetSettingNewState(settingType, newState)
+
+    -- 刷新开关显示
+    self:ApplyToggleDisplay(openObj, closeObj, newState)
+end
+
+---@brief 按当前存档状态刷新三个开关的显示
+---@type fun():void
+function UISettingView:RefreshAllToggleDisplay()
+    if SettingDataManager == nil then
+        PrintError("[UISettingView] 刷新开关显示失败：SettingDataManager 为空")
+        return
+    end
+
+    local musicOpen, musicClose = self:GetToggleObjects(ESettingType.MUSIC)
+    self:ApplyToggleDisplay(musicOpen, musicClose,
+        SettingDataManager:GetSettingState(ESettingType.MUSIC))
+
+    local soundOpen, soundClose = self:GetToggleObjects(ESettingType.SOUND)
+    self:ApplyToggleDisplay(soundOpen, soundClose,
+        SettingDataManager:GetSettingState(ESettingType.SOUND))
+
+    local vibrationOpen, vibrationClose = self:GetToggleObjects(ESettingType.VIBRATION)
+    self:ApplyToggleDisplay(vibrationOpen, vibrationClose,
+        SettingDataManager:GetSettingState(ESettingType.VIBRATION))
+end
+
+---@brief 将开关显示应用到 Open/Close 节点
+---@type fun(openObj:UnityEngine.GameObject, closeObj:UnityEngine.GameObject, on:boolean):void
+---@param openObj UnityEngine.GameObject @开启状态显示节点
+---@param closeObj UnityEngine.GameObject @关闭状态显示节点
+---@param on boolean @当前是否开启
+function UISettingView:ApplyToggleDisplay(openObj, closeObj, on)
+    if openObj then openObj:SetActive(on) end
+    if closeObj then closeObj:SetActive(not on) end
+end
+
+---@brief 播放按钮点击轻震动反馈（受设备震动总开关控制，关闭时不震）
+---@type fun():void
+---@desc 点击任一设置按钮时给出 Selection 级轻触反馈；设备不支持或震动开关关闭时静默跳过
+function UISettingView:PlayClickVibrate()
+    if GameMainRoot == nil or GameMainRoot.Vibrate == nil then return end
+    local vibrate = GameMainRoot.Vibrate
+    if vibrate:IsSupported() and vibrate:GetEnable() then
+        vibrate:Play(Honor.Runtime.VibrateType.SelectionFeedback)
+    end
+end
+
+--endregion
 
 return UISettingView
