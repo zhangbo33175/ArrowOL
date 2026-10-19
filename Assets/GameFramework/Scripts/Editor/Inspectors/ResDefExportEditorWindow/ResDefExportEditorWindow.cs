@@ -139,34 +139,24 @@ namespace Honor.Editor
         }
 
         /// <summary>
-<<<<<<< HEAD
         /// 将当前查找到的文件按"类型_文件名"别名追加到临时缓冲区。
         /// 已存在于配置库（ConvertData）的资源明确标记为"已存在"跳过，避免重复；
         /// 未存在且别名不冲突的资源正常追加，保证"需要添加的"能正常引入。
-=======
-        /// 将当前查找到的文件按"类型_文件名"别名追加到临时缓冲区，统计成功/重名失败数并弹出提示
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
         /// </summary>
         private void AppendFoundFilesToBuffer()
         {
             // 追加成功的数据条目数
             int successAddCount = 0;
-<<<<<<< HEAD
             // 因别名重名（临时缓冲区内）追加失败的数据条目数
             int failedAddCount = 0;
             // 已在配置库中、本次跳过不重复追加的数据条目数
             int existCount = 0;
-=======
-            // 因同名追加失败的数据条目数
-            int failedAddCount = 0;
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 
             foreach (var fullPath in m_FindFileFullPathList.Keys.ToList())
             {
                 var fileName = Path.GetFileNameWithoutExtension(fullPath);
                 var aliasName = AorTxt.Format("{0}_{1}",
                     ((GameDefinitions.AssetType)m_SelectResType).ToString(), fileName);
-<<<<<<< HEAD
 
                 // 已在配置库存在：明确标记"已存在"，不重复追加
                 bool existInDb = ResDefInfos.ConvertData.Any(x => x.AliasName == aliasName);
@@ -177,8 +167,6 @@ namespace Honor.Editor
                     continue;
                 }
 
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
                 CheckFileABPath(fullPath, out string fileABPath);
                 if (IsHaveSameAliasName(aliasName) == false)
                 {
@@ -201,11 +189,7 @@ namespace Honor.Editor
             }
 
             ShowNotification(
-<<<<<<< HEAD
                 $"共追加数据：{m_FindFileFullPathList.Keys.Count} 条，其中成功导出 {successAddCount} 条，已存在 {existCount} 条，失败导出 {failedAddCount} 条");
-=======
-                $"共追加数据：{m_FindFileFullPathList.Keys.Count} 条，其中成功导出 {successAddCount} 条，失败导出 {failedAddCount} 条");
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
             m_FindTargetAsset = null;
         }
         #endregion

@@ -899,10 +899,7 @@
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Spine_Unity_AnimationReferenceAssetWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_TimerWrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\XLua\Gen\Honor_Runtime_GamePathUtils_UIWrap.cs" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Utils\ActivityUtil.lua.txt" />
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\BuffManager\BuffManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\DataCenter\LoginData.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationChineseTraditional\LocalPart_Localizations_ChineseTraditional.lua.txt" />
@@ -910,13 +907,8 @@
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\NotificationDataPB.proto.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.subsystems@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultItalian.json" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\thirds\SystemProtoc.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\perfs\SystemMemory.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\Systems\thirds\SystemProtoc.lua.txt" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\Systems\perfs\SystemMemory.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\GameCore\GameCoreManagerLevelFinish.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.jsonserialize@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\CharacterGenerationManager\CharacterGenerationManager.lua.txt" />
@@ -954,24 +946,15 @@
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultChineseSimplified.json" />
     <None Include="Assets\Res\Fonts\TMPTxt\lang_es.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\GamePlayHelper\GamePlayHelper.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Game\Tables\Levels\2\TableLevelData_2_2.lua.txt" />
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\package.json" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Utils\CoUtil.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.imgui@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\ChallengeLevelHelper\ChallengeLevelHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\GameCore\GameCoreManagerEffect.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Collections\HonorList.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Base\SingletonManager.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\libs\SystemFuncs.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\Collections\HonorList.lua.txt" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\SingletonManager.lua.txt" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\Systems\libs\SystemFuncs.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Library\PackageCache\com.unity.modules.tilemap@1.0.0\package.json" />
     <None Include="Assets\Res\Fonts\TMPTxt\lang_ko.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationChineseSimplified\LocalizationChineseSimplified.lua.txt" />
@@ -984,11 +967,7 @@
     <None Include="Library\PackageCache\com.unity.timeline@1.7.5\package.json" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationItalian\LocalPart_Localizations_Italian.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\LocalActivityManager\LocalActivityManager.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Helpers\HonorIAPHelper.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\Helpers\HonorIAPHelper.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UILoadMapView\UILoadMapView.lua.txt" />
     <None Include="Assets\Scripts\Runtime\XLua\Resources\xlua\util.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIPlayingAnimated\UIPlayingAnimated.lua.txt" />
@@ -1016,10 +995,7 @@
     <None Include="Library\PackageCache\com.unity.collab-proxy@2.0.7\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\GoalDataManager\GoalDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\GameDataPB.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Utils\QuestUtil.lua.txt" />
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\EventDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\Characters\CharacterBase.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultGerman.json" />
@@ -1043,16 +1019,10 @@
     <None Include="Library\PackageCache\com.unity.feature.development@1.0.1\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameMap\Map\UIMap.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\PlayerInfoDataManager\PlayerInfoDataManager.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\thirds\SystemUtil.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\GameCore\GameCoreManagerUseItem.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorAsset\HonorPoolHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorAsset\HonorAssetManager.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\Systems\thirds\SystemUtil.lua.txt" />
-    <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\GameCore\GameCoreManagerUseItem.lua.txt" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\Helpers\HonorPoolHelper.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Honor\PB\Declarations\DeclareGameDataPB.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\ChineseSimplified.txt" />
     <None Include="Library\PackageCache\com.unity.modules.unityanalytics@1.0.0\package.json" />
@@ -1060,10 +1030,6 @@
     <None Include="Assets\LuaScripts\Game\Tables\Levels\3\TableLevelData_3_3.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.rider@3.0.40\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\System\UIBubbleManager.lua.txt" />
-<<<<<<< HEAD
-=======
-    <None Include="Assets\LuaScripts\Game\Tables\AlTables\Events\Levels\2\TableLevelData_2_1.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\Res\Fonts\TMPSources\ArrowGame_SDF_Static\ChineseTraditional.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorUI\Message\UIEventCode.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.video@1.0.0\package.json" />
@@ -1082,15 +1048,9 @@
     <None Include="Library\PackageCache\com.unity.performance.profile-analyzer@1.2.2\package.json" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultJapanese.json" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationFonts.json" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\BehaviorTree\BehaviorTreeTaskSuper.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\LanguageSettingDataManager\LanguageSettingDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorUI\Base\BindValue.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBTTasks\LuaBTTaskSuper.lua.txt" />
-    <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\LanguageSettingDataManager\LanguageSettingDataManager.lua.txt" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\BindValue.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Library\PackageCache\com.unity.modules.particlesystem@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameMap\GameMapBase.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\PauseableCoroutineHelper\PauseableCoroutineHelper.lua.txt" />
@@ -1105,22 +1065,14 @@
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\perfs\SystemProfiler.lua.txt" />
     <None Include="Assets\Res\Fonts\TMPTxt\lang_fr.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\RectTransformHelper\RectTransformHelper.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Helpers\HonorTimerHelper.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\Helpers\HonorTimerHelper.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Library\PackageCache\com.unity.modules.vr@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationRussian\LocalizationRussian.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\GameTimeHelper\GameTimeHelper.lua.txt" />
     <None Include="Library\PackageCache\com.unity.visualscripting@1.9.0\ValidationExceptions.json" />
     <None Include="Assets\Scripts\Runtime\XLua\Resources\perf\profiler.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.visualstudio@2.0.18\ValidationExceptions.json" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Base\Singleton.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\Singleton.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\Launcher\ProcedurePlaying.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\GameCoreManager.lua.txt" />
     <None Include="Assets\LuaScripts\Config\LuaJson\LocalizationDefaultEnglish.json" />
@@ -1134,14 +1086,9 @@
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UIMainStateView\UIMainStateViewViewModel.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\GameManager\GameManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\MapManager\MapManager.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\SerialProducer\SerialProducer.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorUI\UIManager.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\SaveDataHelper\SaveDataHelper.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\SaveDataHelper\SaveDataHelper.lua.txt" />
-    <None Include="Assets\LuaScripts\Game\Tables\AlTables\Events\Levels\1\TableLevelData_1_2.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\Scripts\Runtime\XLua\Gen\link.xml" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Utils\ScreenUtil.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\Levels\1\TableLevelData_1_3.lua.txt" />
@@ -1152,10 +1099,7 @@
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationChineseSimplified\LocalPart_Localizations_ChineseSimplified.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Helper\UITextHelper\UITextHelper.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\PB\ProtoDataPb\UserDataPB.proto.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\fix_printwarn_out.txt" />
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\SoundManager\SoundManager.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.audio@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Utils\StarFlyUtil.lua.txt" />
@@ -1180,11 +1124,8 @@
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\TableItems.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\Character\TableCharacters.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\ItemManager\ItemManager.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorUI\Utils\UIUtil.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\Levels\1\TableLevelData_1_1.lua.txt" />
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationKorean\LocalPart_Localizations_Korean.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.unitywebrequestaudio@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\Launcher\ProcedurePreload.lua.txt" />
@@ -1226,15 +1167,10 @@
     <None Include="Assets\LuaScripts\Honor\HonorCore\Collections\HonorQueue.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\libs\SystemHotReload.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationEnglish\LocalizationEnglish.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Game\Tables\Levels\TableLevelData.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\Levels\2\TableLevelData_2_1.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\GameMap\GameMapMotion.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorUI\Base\Binder.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Game\GameMain\GameMap\GameMapMotion.lua.txt" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\MVVM\Binder.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Library\PackageCache\com.unity.modules.terrain@1.0.0\package.json" />
     <None Include="Library\PackageCache\com.unity.2d.sprite@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Protocols\ProtocolUtil.lua.txt" />
@@ -1263,10 +1199,7 @@
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\libs\SystemDelegate.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Localizations\LocalizationChineseTraditional\LocalizationChineseTraditional.lua.txt" />
     <None Include="Assets\Res\json\MapData.json" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Game\Tables\Levels\2\TableLevelData_2_3.lua.txt" />
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\Characters\CharacterCtrl.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\StateMachine\Game\GameLoginState.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\DataCenter\DataCenter.lua.txt" />
@@ -1281,19 +1214,12 @@
     <None Include="Assets\LuaScripts\Game\GameMain\GameUI\UISettlementView\UILevelVictoryView.lua.txt" />
     <None Include="Assets\LuaScripts\Game\Tables\AlTables\LevelConfigs\TableChapters.lua.txt" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\ConstantsDataManager.lua.txt" />
-<<<<<<< HEAD
     <None Include="Assets\LuaScripts\Honor\HonorCore\Systems\libs\SystemApis.lua.txt" />
     <None Include="Library\PackageCache\com.unity.modules.ui@1.0.0\package.json" />
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\HomeUIBubbleLayerDataManager\HomeUIBubbleLayerDataManager.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorUI\Base\LuaBehaviourSuper.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Utils\LuaUtil.lua.txt" />
     <None Include="Assets\LuaScripts\Honor\HonorCore\Utils\StringUtil.lua.txt" />
-=======
-    <None Include="Assets\LuaScripts\Honor\Singleton\Systems\libs\SystemApis.lua.txt" />
-    <None Include="Library\PackageCache\com.unity.modules.ui@1.0.0\package.json" />
-    <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Data\HomeUIBubbleLayerDataManager\HomeUIBubbleLayerDataManager.lua.txt" />
-    <None Include="Assets\LuaScripts\Honor\Singleton\HonorBases\LuaBehaviours\None\LuaBehaviourSuper.lua.txt" />
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
     <None Include="Assets\LuaScripts\Game\GameMain\ManagerAndHelper\Manager\GameCoreManager\PlayGameplayCycle.lua.txt" />
     <None Include="Library\PackageCache\com.unity.ide.vscode@1.2.5\package.json" />
     <Reference Include="UnityEngine">

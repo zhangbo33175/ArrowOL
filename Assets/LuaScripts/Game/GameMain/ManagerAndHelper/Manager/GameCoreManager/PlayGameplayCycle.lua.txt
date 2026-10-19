@@ -5,7 +5,6 @@
 -- author:    云毅
 -- created:   2026
 -- @brief     游戏内部玩法生命周期
-<<<<<<< HEAD
 -- @desc      游戏核心玩法流程的总调度器。统一承接"游戏状态机（GamePlayingState）"下发的
 --            玩法阶段信号（初始化/进入/开始/暂停/恢复/结束/退出/重玩），并向下游三个
 --            业务管理器（GameCoreManager 核心数据 / CharacterGenerationManager 角色生成 /
@@ -22,15 +21,6 @@
 ---@class PlayGameplayCycle @游戏内部玩法周期
 ---@brief 玩法生命周期总调度器：接收状态机信号，向三方管理器广播生命周期回调，并派发全局玩法事件
 ---@field _BroadcastToAllManagers fun(methodName:string) 向 GameCoreManager/CharacterGenerationManager/MapManager 广播同名生命周期方法
-=======
--- @desc      统一管理游戏玩法流程：初始化、进入、开始、暂停、恢复、结束、退出、重玩
--- @trigger   流程状态切换时调用
--- @event     InitGameEvent、BeginGameEvent、OverGameEvent、ExitGameEvent、RePlayGameEvent
--- @dependency CorePlayMgr, CharacterSpawnMgr, MapMgr, GuideContext, EventHelper
---=====================================================================================================
-
----@class PlayGameplayCycle @游戏内部玩法周期
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 local PlayGameplayCycle = class("PlayGameplayCycle")
 
 ---=========================================================================
@@ -39,29 +29,17 @@ local PlayGameplayCycle = class("PlayGameplayCycle")
 --region 构造与创建
 
 ---@brief 构造函数
-<<<<<<< HEAD
 ---@desc 空实现。本类为无状态调度器，不持有成员数据，生命周期全靠方法派发驱动。
-=======
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 ---@type fun(args:table):void
 function PlayGameplayCycle:ctor()
 end
 
-<<<<<<< HEAD
 ---@brief 创建玩法周期单例实例
 ---@desc 供 GameRequires 在启动阶段 require 后立即创建唯一实例，全局共享。
 ---@type fun(args:table):PlayGameplayCycle
 ---@return PlayGameplayCycle @游戏内部玩法周期单例
 function PlayGameplayCycle:Create()
     return PlayGameplayCycle.new()
-=======
----@brief 创建函数
----@type fun(args:table):PlayGameplayCycle
----@return PlayGameplayCycle @游戏内部玩法周期实例
-function PlayGameplayCycle:Create()
-    local obj = PlayGameplayCycle.new()
-    return obj
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 end
 
 --endregion
@@ -71,7 +49,6 @@ end
 ---=========================================================================
 --region 生命周期入口
 
-<<<<<<< HEAD
 ---@brief 执行玩法周期，按枚举分发到对应生命周期处理
 ---@desc 玩法状态机（GamePlayingState）在进入/退出不同游戏阶段时调用本入口。
 ---      根据传入的玩法周期枚举，路由到对应的生命周期处理方法；
@@ -79,11 +56,6 @@ end
 ---      整体包在 Try 内执行，异常会被捕获并记录，避免单个生命周期异常中断整个玩法流程。
 ---@type fun(ePlayHudCycleAction:EPlayHudCycleAction):void
 ---@param ePlayHudCycleAction EPlayHudCycleAction 玩法周期动作枚举（初始化/进入/开始/暂停/恢复/结束/退出/重玩）
-=======
----@brief 执行玩法周期
----@type fun(ePlayHudCycleAction:EPlayHudCycleAction):void
----@param ePlayHudCycleAction EPlayHudCycleAction
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 function PlayGameplayCycle:OnAction(ePlayHudCycleAction)
     PrintInfo("进入周期 ---> {0}", ePlayHudCycleAction)
     Try(function()
@@ -118,7 +90,6 @@ end
 ---=========================================================================
 --region 生命周期执行方法
 
-<<<<<<< HEAD
 ---@brief 向玩法三方管理器广播同名生命周期方法
 ---@desc 收敛重复广播：GameCoreManager（核心数据）/ CharacterGenerationManager（角色生成）/
 ---      MapManager（地图）三者在多数生命周期节点上需要执行同名方法，统一在此按方法名派发。
@@ -200,63 +171,6 @@ function PlayGameplayCycle:OnRePlayGame()
     end
     -- 发送重玩事件，通知全局 UI 重置
     self:RePlayGameEvent()
-=======
----@brief 游戏初始化
-function PlayGameplayCycle:OnInitGame()
-    GameCoreManager:OnInitGame()
-    CharacterGenerationManager:OnInitGame()
-    MapManager:OnInitGame()
-end
-
----@brief 进入游戏
-function PlayGameplayCycle:OnEnterGame()
-    GameCoreManager:OnEnterGame()
-    CharacterGenerationManager:OnEnterGame()
-    MapManager:OnEnterGame()
-end
-
----@brief 游戏开始
-function PlayGameplayCycle:OnBeginGame()
-    GameCoreManager:OnBeginGame()
-    CharacterGenerationManager:OnBeginGame()
-    MapManager:OnBeginGame()
-end
-
----@brief 游戏暂停
-function PlayGameplayCycle:OnPauseGame()
-    GameCoreManager:OnPauseGame()
-    CharacterGenerationManager:OnPauseGame()
-    MapManager:OnPauseGame()
-end
-
----@brief 游戏恢复
-function PlayGameplayCycle:OnResumeGame()
-    GameCoreManager:OnResumeGame()
-    CharacterGenerationManager:OnResumeGame()
-    MapManager:OnResumeGame()
-end
-
----@brief 游戏结束
-function PlayGameplayCycle:OnGameOver()
-    GameCoreManager:OnGameOver()
-    CharacterGenerationManager:OnGameOver()
-    MapManager:OnGameOver()
-end
-
----@brief 游戏退出
-function PlayGameplayCycle:OnExitGame()
-    GameCoreManager:OnExitGame()
-    CharacterGenerationManager:OnExitGame()
-    MapManager:OnExitGame()
-end
-
----@brief 游戏重玩
-function PlayGameplayCycle:OnRePlayGame()
-    GameCoreManager:OnInitGame()
-    self:RePlayGameEvent() -- 发送事件，重置UI
-    MapManager:OnRePlayGame()
-    CharacterGenerationManager:OnRePlayGameBefore()
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 end
 
 --endregion
@@ -266,52 +180,32 @@ end
 ---=========================================================================
 --region 全局事件派发
 
-<<<<<<< HEAD
 ---@brief 派发游戏初始化全局事件
 ---@desc 通知全局系统（UI/音效/引导等）玩法已初始化，用于首帧联动。
-=======
----@brief 游戏初始化事件
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 function PlayGameplayCycle:InitGameEvent()
     HonorEventHelper:FireNow(EventCmd.InitGameEvent, nil)
 end
 
-<<<<<<< HEAD
 ---@brief 派发游戏开始全局事件
 ---@desc 通知全局系统玩法正式开始，用于开局引导/提示/开场表现等。
-=======
----@brief 游戏开始事件
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 function PlayGameplayCycle:BeginGameEvent()
     HonorEventHelper:FireNow(EventCmd.BeginGameEvent, nil)
 end
 
-<<<<<<< HEAD
 ---@brief 派发游戏结束全局事件
 ---@desc 通知全局系统玩法结束，用于结算 UI、胜利/失败表现等。
-=======
----@brief 游戏结束事件
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 function PlayGameplayCycle:OverGameEvent()
     HonorEventHelper:FireNow(EventCmd.OverGameEvent, nil)
 end
 
-<<<<<<< HEAD
 ---@brief 派发游戏退出全局事件
 ---@desc 通知全局系统玩法已退出，用于清理退出类表现与状态复位。
-=======
----@brief 游戏退出事件
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 function PlayGameplayCycle:ExitGameEvent()
     HonorEventHelper:FireNow(EventCmd.ExitGameEvent, nil)
 end
 
-<<<<<<< HEAD
 ---@brief 派发游戏重玩全局事件
 ---@desc 通知全局系统重开当前关卡，用于重置 UI、清除重玩残留表现。
-=======
----@brief 游戏重玩事件
->>>>>>> 2b6a167e6342ed4ac9c4b1b4640cc802b436bf01
 function PlayGameplayCycle:RePlayGameEvent()
     HonorEventHelper:FireNow(EventCmd.RePlayGameEvent, nil)
 end
