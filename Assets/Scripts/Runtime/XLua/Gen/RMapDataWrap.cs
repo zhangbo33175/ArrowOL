@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(RMapData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 0, 9, 9);
+			Utils.BeginObjectRegister(type, L, translator, 0, 0, 17, 17);
 			
 			
 			
@@ -34,6 +34,14 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_Name", _g_get_m_Name);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_Size", _g_get_m_Size);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_IsChoose", _g_get_m_IsChoose);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_IsAnimated", _g_get_m_IsAnimated);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_AnimationName", _g_get_m_AnimationName);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_AnimationSpeed", _g_get_m_AnimationSpeed);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_IsAnimationLoop", _g_get_m_IsAnimationLoop);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_HasWalkPath", _g_get_m_HasWalkPath);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_WalkPathPoints", _g_get_m_WalkPathPoints);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_WalkSpeed", _g_get_m_WalkSpeed);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_WalkLoopMode", _g_get_m_WalkLoopMode);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_Id", _s_set_m_Id);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_Type", _s_set_m_Type);
@@ -44,6 +52,14 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_Name", _s_set_m_Name);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_Size", _s_set_m_Size);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_IsChoose", _s_set_m_IsChoose);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_IsAnimated", _s_set_m_IsAnimated);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_AnimationName", _s_set_m_AnimationName);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_AnimationSpeed", _s_set_m_AnimationSpeed);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_IsAnimationLoop", _s_set_m_IsAnimationLoop);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_HasWalkPath", _s_set_m_HasWalkPath);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_WalkPathPoints", _s_set_m_WalkPathPoints);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_WalkSpeed", _s_set_m_WalkSpeed);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "m_WalkLoopMode", _s_set_m_WalkLoopMode);
             
 			
 			Utils.EndObjectRegister(type, L, translator, null, null,
@@ -218,6 +234,118 @@ namespace XLua.CSObjectWrap
             return 1;
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_IsAnimated(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.m_IsAnimated);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_AnimationName(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushstring(L, gen_to_be_invoked.m_AnimationName);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_AnimationSpeed(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.m_AnimationSpeed);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_IsAnimationLoop(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.m_IsAnimationLoop);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_HasWalkPath(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushboolean(L, gen_to_be_invoked.m_HasWalkPath);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_WalkPathPoints(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.m_WalkPathPoints);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_WalkSpeed(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                LuaAPI.lua_pushnumber(L, gen_to_be_invoked.m_WalkSpeed);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_m_WalkLoopMode(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                translator.PushRMapWalkLoopMode(L, gen_to_be_invoked.m_WalkLoopMode);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
+        
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -353,6 +481,127 @@ namespace XLua.CSObjectWrap
 			
                 RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.m_IsChoose = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_IsAnimated(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_IsAnimated = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_AnimationName(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_AnimationName = LuaAPI.lua_tostring(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_AnimationSpeed(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_AnimationSpeed = (float)LuaAPI.lua_tonumber(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_IsAnimationLoop(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_IsAnimationLoop = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_HasWalkPath(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_HasWalkPath = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_WalkPathPoints(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_WalkPathPoints = (System.Collections.Generic.List<UnityEngine.Vector2>)translator.GetObject(L, 2, typeof(System.Collections.Generic.List<UnityEngine.Vector2>));
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_WalkSpeed(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                gen_to_be_invoked.m_WalkSpeed = (float)LuaAPI.lua_tonumber(L, 2);
+            
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_m_WalkLoopMode(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                RMapData gen_to_be_invoked = (RMapData)translator.FastGetCSObj(L, 1);
+                RMapWalkLoopMode gen_value;translator.Get(L, 2, out gen_value);
+				gen_to_be_invoked.m_WalkLoopMode = gen_value;
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

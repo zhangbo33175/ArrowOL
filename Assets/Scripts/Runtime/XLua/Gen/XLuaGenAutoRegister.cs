@@ -1549,6 +1549,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(RMapType), RMapTypeWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(RMapWalkLoopMode), RMapWalkLoopModeWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(RMapCamPosType), RMapCamPosTypeWrap.__Register);
         
         
@@ -1579,18 +1582,21 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(GameLib.GameManager), GameLibGameManagerWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(GameLib.HonorManager), GameLibHonorManagerWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(GameLib.ProcedureUtils), GameLibProcedureUtilsWrap.__Register);
         
+        }
+        
+        static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(GameLib.ItemMap), GameLibItemMapWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(GameLib.AorClickItem), GameLibAorClickItemWrap.__Register);
         
-        }
-        
-        static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(GameLib.AorExtendImage), GameLibAorExtendImageWrap.__Register);
         

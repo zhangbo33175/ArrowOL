@@ -117,6 +117,7 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<RMapIconType>(translator.PushRMapIconType, translator.Get, translator.UpdateRMapIconType);
 				translator.RegisterPushAndGetAndUpdate<RMapPlayHudPosType>(translator.PushRMapPlayHudPosType, translator.Get, translator.UpdateRMapPlayHudPosType);
 				translator.RegisterPushAndGetAndUpdate<RMapType>(translator.PushRMapType, translator.Get, translator.UpdateRMapType);
+				translator.RegisterPushAndGetAndUpdate<RMapWalkLoopMode>(translator.PushRMapWalkLoopMode, translator.Get, translator.UpdateRMapWalkLoopMode);
 				translator.RegisterPushAndGetAndUpdate<RMapCamPosType>(translator.PushRMapCamPosType, translator.Get, translator.UpdateRMapCamPosType);
 				translator.RegisterPushAndGetAndUpdate<GameLib.EGameMode>(translator.PushGameLibEGameMode, translator.Get, translator.UpdateGameLibEGameMode);
 				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.AdaptMode>(translator.PushGameLibAorInterfaceAdaptationAdaptMode, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationAdaptMode);
@@ -7632,6 +7633,90 @@ namespace XLua
             }
         }
         
+        int RMapWalkLoopMode_TypeID = -1;
+		int RMapWalkLoopMode_EnumRef = -1;
+        
+        public void PushRMapWalkLoopMode(RealStatePtr L, RMapWalkLoopMode val)
+        {
+            if (RMapWalkLoopMode_TypeID == -1)
+            {
+			    bool is_first;
+                RMapWalkLoopMode_TypeID = getTypeId(L, typeof(RMapWalkLoopMode), out is_first);
+				
+				if (RMapWalkLoopMode_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(RMapWalkLoopMode));
+				    RMapWalkLoopMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, RMapWalkLoopMode_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, RMapWalkLoopMode_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for RMapWalkLoopMode ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, RMapWalkLoopMode_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out RMapWalkLoopMode val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapWalkLoopMode_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapWalkLoopMode");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for RMapWalkLoopMode");
+                }
+				val = (RMapWalkLoopMode)e;
+                
+            }
+            else
+            {
+                val = (RMapWalkLoopMode)objectCasters.GetCaster(typeof(RMapWalkLoopMode))(L, index, null);
+            }
+        }
+		
+        public void UpdateRMapWalkLoopMode(RealStatePtr L, int index, RMapWalkLoopMode val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != RMapWalkLoopMode_TypeID)
+				{
+				    throw new Exception("invalid userdata for RMapWalkLoopMode");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for RMapWalkLoopMode ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
         int RMapCamPosType_TypeID = -1;
 		int RMapCamPosType_EnumRef = -1;
         
@@ -8777,6 +8862,12 @@ namespace XLua
 				translator.PushRMapType(L, array[index]);
 				return true;
 			}
+			else if (type == typeof(RMapWalkLoopMode[]))
+			{
+			    RMapWalkLoopMode[] array = obj as RMapWalkLoopMode[];
+				translator.PushRMapWalkLoopMode(L, array[index]);
+				return true;
+			}
 			else if (type == typeof(RMapCamPosType[]))
 			{
 			    RMapCamPosType[] array = obj as RMapCamPosType[];
@@ -9368,6 +9459,12 @@ namespace XLua
 			else if (type == typeof(RMapType[]))
 			{
 			    RMapType[] array = obj as RMapType[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(RMapWalkLoopMode[]))
+			{
+			    RMapWalkLoopMode[] array = obj as RMapWalkLoopMode[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

@@ -21,12 +21,13 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.UILauncherLogoView);
-			Utils.BeginObjectRegister(type, L, translator, 0, 4, 11, 4);
+			Utils.BeginObjectRegister(type, L, translator, 0, 5, 11, 4);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Enter", _m_Enter);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "EnterOver", _m_EnterOver);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Exit", _m_Exit);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ExitOver", _m_ExitOver);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlaySplashSequence", _m_PlaySplashSequence);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "SplashBlackHoldDuration", _g_get_SplashBlackHoldDuration);
@@ -178,6 +179,49 @@ namespace XLua.CSObjectWrap
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_PlaySplashSequence(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.UILauncherLogoView gen_to_be_invoked = (Honor.Runtime.UILauncherLogoView)translator.FastGetCSObj(L, 1);
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)&& translator.Assignable<System.Action>(L, 3)) 
+                {
+                    float _totalDuration = (float)LuaAPI.lua_tonumber(L, 2);
+                    System.Action _onComplete = translator.GetDelegate<System.Action>(L, 3);
+                    
+                    gen_to_be_invoked.PlaySplashSequence( _totalDuration, _onComplete );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 2&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 2)) 
+                {
+                    float _totalDuration = (float)LuaAPI.lua_tonumber(L, 2);
+                    
+                    gen_to_be_invoked.PlaySplashSequence( _totalDuration );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.UILauncherLogoView.PlaySplashSequence!");
             
         }
         

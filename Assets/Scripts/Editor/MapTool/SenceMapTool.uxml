@@ -115,8 +115,8 @@
                     <ui:Label text="保存路径:" class="status-label" style="margin-left: 16px;" />
                     <ui:Button name="status-save-path" text="Assets/GameData/Maps/" class="status-path-btn" style="width: 740px; flex-direction: row; justify-content: flex-start; -unity-text-align: middle-left; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
                 </ui:VisualElement>
-                <ui:VisualElement class="bottom-props-area" style="height: 200px; padding: 6px; spacing: 6px; flex-direction: row; align-items: stretch; justify-content: flex-start;">
-                    <ui:VisualElement name="VisualElement" class="prop-box" style="width: 398px; padding: 8px; spacing: 6px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px;">
+                <ui:VisualElement class="bottom-props-area" style="height: 220px; padding: 6px; spacing: 8px; flex-direction: row; align-items: stretch; justify-content: flex-start;">
+                    <ui:VisualElement name="VisualElement" class="prop-box" style="width: 380px; padding: 8px; spacing: 6px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px;">
                         <ui:VisualElement class="prop-row" style="spacing: 6px; align-items: center;">
                             <ui:Button text="更新地图" class="small-btn" />
                             <ui:Label text="场景名:" class="prop-label" style="width: 44px;" />
@@ -142,7 +142,7 @@
                         <ui:Label text="Ctrl：按住=绘制矩形区域    松开=绘制菱形区域" class="shortcut-text" style="font-size: 10px; margin-top: 4px;" />
                         <ui:Label text="Alt：按住=擦除格子模式   Shift：按住曲线绘制区域" class="shortcut-text" style="font-size: 10px;" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="object-edit-panel" class="prop-box object-edit-panel" style="width: 389px; padding: 8px; spacing: 4px;">
+                    <ui:VisualElement name="object-edit-panel" class="prop-box object-edit-panel" style="width: 360px; padding: 8px; spacing: 4px;">
                         <ui:Label name="obj-edit-title" text="对象编辑：未选择" class="obj-edit-title" style="margin-bottom: 4px; padding-bottom: 2px; border-bottom: 1px solid rgb(70, 70, 73);" />
                         <ui:VisualElement class="obj-edit-tab-row">
                             <ui:Button text="路径信息" name="tab-edit-path" class="obj-tab-btn active" />
@@ -150,19 +150,19 @@
                             <ui:VisualElement class="flex-space" />
                             <ui:Button text="取消选中" name="btn-clear-target" class="obj-clear-btn" />
                         </ui:VisualElement>
-                        <ui:VisualElement name="path-edit-content" class="obj-edit-content">
+                        <ui:VisualElement name="path-edit-content" class="obj-edit-content" style="display: flex;">
                             <ui:VisualElement class="obj-edit-btn-row" style="spacing: 4px;">
                                 <ui:Button text="停止绘制路径" name="btn-path-draw" class="tool-btn" />
                                 <ui:Button text="撤销最后点" name="btn-path-undo" class="tool-btn" />
                                 <ui:Button text="清空路径" name="btn-path-clear" class="tool-btn" />
                             </ui:VisualElement>
                             <ui:Label text="Ctrl+左键 添加路径点（吸附32px网格）" class="shortcut-text" style="font-size: 10px;" />
-                            <ui:ScrollView name="path-point-list" class="path-point-list" style="height: 80px;" />
+                            <ui:ScrollView name="path-point-list" class="path-point-list" style="height: 80px; display: flex;" />
                         </ui:VisualElement>
-                        <ui:VisualElement name="anim-edit-content" class="obj-edit-content hidden">
+                        <ui:VisualElement name="anim-edit-content" class="obj-edit-content hidden" style="display: none;">
                             <ui:VisualElement class="obj-edit-info-row">
                                 <ui:Label text="动画名称：" class="detail-label" />
-                                <ui:TextField name="anim-name-field" value="Idle" class="prop-textfield flex-grow" />
+                                <ui:TextField name="anim-name-field" value="Idle" class="prop-textfield flex-grow" style="width: 271px;" />
                             </ui:VisualElement>
                             <ui:VisualElement class="obj-edit-info-row">
                                 <ui:Label text="循环播放：" class="detail-label" />
@@ -172,7 +172,7 @@
                             </ui:VisualElement>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="property-panel" class="prop-box detail-box" style="width: 389px; padding: 8px; spacing: 4px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;">
+                    <ui:VisualElement name="property-panel" class="prop-box detail-box" style="flex-grow: 1; padding: 8px; spacing: 4px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;">
                         <ui:Label text="属性" class="box-title" style="margin-bottom: 2px;" />
                         <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
                             <ui:Label text="模板ID:" class="detail-label" style="width: 60px;" />
@@ -221,14 +221,12 @@
                 <ui:VisualElement class="item-element-container">
                     <ui:VisualElement class="item-list-panel">
                         <ui:Label text="元件列表" class="sub-title" />
-                        <!-- 元件类型Tab -->
                         <ui:VisualElement class="element-type-tabs">
                             <ui:Button text="建筑" name="item-tab-building" class="element-type-tab active" />
                             <ui:Button text="人物" name="item-tab-character" class="element-type-tab" />
                             <ui:Button text="物件" name="item-tab-prop" class="element-type-tab" />
                         </ui:VisualElement>
-                        <ui:ScrollView name="item-list" class="item-list">
-                        </ui:ScrollView>
+                        <ui:ScrollView name="item-list" class="item-list" />
                     </ui:VisualElement>
                     <ui:VisualElement class="item-properties-panel">
                         <ui:Label text="元件属性" class="sub-title" />
@@ -272,7 +270,7 @@
                         </ui:VisualElement>
                         <ui:VisualElement class="prop-row">
                             <ui:Label text="对话气泡：" class="prop-label" />
-                            <ui:TextField name="item-bubble-field" value="" class="prop-textfield" />
+                            <ui:TextField name="item-bubble-field" class="prop-textfield" />
                         </ui:VisualElement>
                         <ui:Label text="层级与碰撞" class="sub-title" />
                         <ui:VisualElement class="prop-row">

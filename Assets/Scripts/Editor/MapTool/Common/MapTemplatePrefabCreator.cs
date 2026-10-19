@@ -10,9 +10,8 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
-using Honor.Runtime.Map;
-using MapObjectType = Honor.Runtime.Map.MapObjectType;
-using InteractType = Honor.Runtime.Map.InteractType;
+using Honor.Editor.MapTool;
+using MapObjectType = Honor.Editor.MapTool.MapObjectType;
 
 namespace Honor.Editor.MapTool
 {
@@ -95,15 +94,15 @@ namespace Honor.Editor.MapTool
             // 添加Animator
             Animator anim = go.AddComponent<Animator>();
 
-            // 添加模板基类脚本
-            MapObjectTemplateBase template = go.AddComponent<MapObjectTemplateBase>();
-            template.templateName = name;
-            template.objectType = (Honor.Runtime.Map.MapObjectType)type;
-            template.sortOrder = defaultSortOrder;
-            template.collisionEnabled = defaultCollision;
-            template.spriteRenderer = sr;
-            template.animator = anim;
-            template.collider = col;
+            // 添加模板基类脚本（暂未实现，先注释掉）
+            // MapObjectTemplateBase template = go.AddComponent<MapObjectTemplateBase>();
+            // template.templateName = name;
+            // template.objectType = (Honor.Runtime.Map.MapObjectType)type;
+            // template.sortOrder = defaultSortOrder;
+            // template.collisionEnabled = defaultCollision;
+            // template.spriteRenderer = sr;
+            // template.animator = anim;
+            // template.collider = col;
 
             // 保存为预制体
             PrefabUtility.SaveAsPrefabAsset(go, path);

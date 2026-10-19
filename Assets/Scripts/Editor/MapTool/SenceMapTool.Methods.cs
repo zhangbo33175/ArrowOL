@@ -155,12 +155,24 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 资源选中事件：转发给场景模块设置为当前放置物体
         /// </summary>
-        /// <param name="resourceName">资源名称</param>
+        /// <param name="resourceName">资源名称（格式：TemplateId_TemplateName）</param>
         /// <param name="type">类型：0=建筑 1=人物 2=物件</param>
         private void OnResourceSelected(string resourceName, int type)
         {
             Debug.Log($"选中资源: {resourceName}, 类型: {type}");
-            m_SceneModule?.SetSelectedObject(resourceName, resourceName, type);
+
+            // 拆分资源名称：格式为 "TemplateId_TemplateName"
+            string objectId = resourceName;
+            string objectName = resourceName;
+
+            int underscoreIndex = resourceName.IndexOf('_');
+            if (underscoreIndex > 0)
+            {
+                objectId = resourceName.Substring(0, underscoreIndex);
+                objectName = resourceName.Substring(underscoreIndex + 1);
+            }
+
+            m_SceneModule?.SetSelectedObject(objectId, objectName, type);
         }
 
         /// <summary>

@@ -295,6 +295,7 @@
 		<type fullname="RMapIconType" preserve="all"/>
 		<type fullname="RMapPlayHudPosType" preserve="all"/>
 		<type fullname="RMapType" preserve="all"/>
+		<type fullname="RMapWalkLoopMode" preserve="all"/>
 		<type fullname="RMapCamPosType" preserve="all"/>
 		<type fullname="RMapData" preserve="all"/>
 		<type fullname="RMapChapterTypeData" preserve="all"/>
@@ -305,6 +306,7 @@
 		<type fullname="MapMarker" preserve="all"/>
 		<type fullname="MapPathDrawer" preserve="all"/>
 		<type fullname="GameLib.GameManager" preserve="all"/>
+		<type fullname="GameLib.HonorManager" preserve="all"/>
 		<type fullname="GameLib.ProcedureUtils" preserve="all"/>
 		<type fullname="GameLib.ItemMap" preserve="all"/>
 		<type fullname="GameLib.AorClickItem" preserve="all"/>
