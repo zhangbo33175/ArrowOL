@@ -86,7 +86,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetComponent = RequireComponent<AssetComponent>();
+            m_AssetComponent = AssetComponent.Instance;
             if (m_AssetComponent == null)
             {
                 return;

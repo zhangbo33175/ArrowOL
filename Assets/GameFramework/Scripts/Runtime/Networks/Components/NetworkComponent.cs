@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -21,32 +21,15 @@ namespace Honor.Runtime
     /// 提供网络状态检测、URL 编码、Web 请求下载等基础网络功能
     /// 禁止挂载多个，单例模式组件
     /// </summary>
-    [DisallowMultipleComponent]
-    public sealed partial class NetworkComponent : GameComponent
+    public sealed partial class NetworkComponent : Singleton<NetworkComponent>
     {
-        //=========================================================================
-        #region 生命周期
-        //=========================================================================
-
-        /// <summary>
-        /// 组件初始化
-        /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
-            // 初始化底层网络管理器
             m_Network = new NetworkManager(m_ConnectTimeout, m_RequestTimeout);
         }
 
-        /// <summary>
-        /// 启动逻辑
-        /// </summary>
-        private void Start()
-        {
-        }
-
-        #endregion
+        public void Cleanup() { m_Network = null; }
+        public override void Dispose() { Cleanup(); }
 
         //=========================================================================
         #region 公共方法
@@ -86,7 +69,7 @@ namespace Honor.Runtime
         /// <param name="timeout">超时时间，-1 使用默认值</param>
         public void GetTextFromUrl(string url, Action<string> finishCallback = null, int timeout = -1)
         {
-            StartCoroutine(DownloadTextRoutine(url, finishCallback, timeout));
+            GameMainRoot.Instance.StartCoroutine(DownloadTextRoutine(url, finishCallback, timeout));
         }
 
         /// <summary>

@@ -17,7 +17,7 @@ namespace Honor.Runtime
     /// 触摸输入管理组件（分部类）
     /// 用于扩展TouchComponent功能，保持主类代码整洁
     /// </summary>
-    public sealed partial class TouchComponent : GameComponent
+    public sealed partial class TouchComponent : Singleton<TouchComponent>
     {
 
     }

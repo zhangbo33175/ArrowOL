@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="ConfigExportEditorWindowTool.uss" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="section">
+            <ui:Label text="配置表导出" class="section-title" />
+            <ui:VisualElement class="row">
+                <ui:Button text="打开配置表Excel" name="openExcelBtn" />
+                <ui:Button text="导出配置表到Json" name="exportBtn" class="primary-btn" />
+                <ui:Button text="打开文件夹" name="openDirBtn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:IMGUIContainer name="previewContainer" class="preview-container" />
+    </ui:VisualElement>
+</ui:UXML>

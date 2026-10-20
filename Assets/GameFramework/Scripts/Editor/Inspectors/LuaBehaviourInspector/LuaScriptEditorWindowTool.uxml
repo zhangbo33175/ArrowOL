@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="LuaScriptEditorWindowTool.uss" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="section">
+            <ui:Label text="XLua 脚本生成" class="section-title" />
+            <ui:Button text="重新生成XLua脚本" name="regenBtn" class="primary-btn" />
+            <ui:Toggle text="Lua运行时分析模式" name="profilerToggle" />
+        </ui:VisualElement>
+        <ui:VisualElement class="section">
+            <ui:Label text="[自定义Lua脚本-快捷创建入口]" class="section-title" />
+            <ui:TextField label="脚本名称" name="nameField" />
+            <ui:TextField label="父类名称" name="superField" />
+            <ui:Toggle text="使用Proc" name="procToggle" value="true" />
+            <ui:TextField label="作者" name="authorField" />
+            <ui:TextField label="描述" name="descField" />
+            <ui:HelpBox text="说明：Lua脚本不存在时生成，存在时刷新。" message-type="Info" name="helpBox" />
+            <ui:Button text="生成/刷新Lua脚本" name="genBtn" class="gen-btn" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

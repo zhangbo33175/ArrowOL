@@ -1,0 +1,19 @@
+.root {
+    padding: 12px;
+    background-color: #2d2d2d;
+}
+.title {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: #4fc3f7;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom-width: 1px;
+    border-bottom-color: #444;
+}
+uie\:ObjectField, ui\:Toggle, ui\:IntegerField {
+    margin-top: 6px;
+}
+ui\:HelpBox {
+    margin-top: 8px;
+}

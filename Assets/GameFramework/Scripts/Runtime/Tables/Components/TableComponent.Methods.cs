@@ -16,7 +16,7 @@ namespace Honor.Runtime
     /// 负责游戏全局策划表（Excel/Json）的加载、缓存、访问入口
     /// 本部分仅声明成员变量，逻辑实现放在另一分部类中
     /// </summary>
-    public sealed partial class TableComponent : GameComponent
+    public sealed partial class TableComponent : Singleton<TableComponent>
     {
         //=========================================================================
         // 成员变量

@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -28,7 +28,7 @@ namespace Honor.Runtime
         /// </summary>
         public EventPool()
         {
-            m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
+            m_LuaComponent = LuaComponent.Instance;
             if (m_LuaComponent == null)
             {
                 Log.Fatal("Lua Component 无效。");

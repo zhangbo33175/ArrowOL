@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -46,7 +46,7 @@ namespace Honor.Runtime
             m_AssetInstanceIDList = new Dictionary<int, AssetObject>();
             m_Scenes = new List<AssetObject>();
 
-            m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
+            m_AssetComponent = AssetComponent.Instance;
             if (m_AssetComponent == null)
             {
                 Log.Fatal("Asset Component 无效。");

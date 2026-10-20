@@ -116,24 +116,22 @@ namespace Honor.Runtime
         /// <summary>
         /// 调试组件
         /// </summary>
-        public static DebuggerComponent Debugger { get; private set; }
+        public static DebuggerComponent Debugger { get; set; }
 
+        public static GameMainRoot Instance { get; private set; }
         #endregion
+
+        private void Awake()
+        {
+            Instance = this;
+            SetCultureInfo(CultureInfo.InvariantCulture);
+        }
 
         //=========================================================================
 
         #region 生命周期
 
         //=========================================================================
-
-        /// <summary>
-        /// Awake：初始化文化信息（防止数字、格式解析异常）
-        /// </summary>
-        private void Awake()
-        {
-            // 设置全局文化信息为标准不变格式，避免多语言环境导致字符串/数字解析错误
-            SetCultureInfo(CultureInfo.InvariantCulture);
-        }
 
         /// <summary>
         /// Start：获取并绑定所有核心系统组件
@@ -144,22 +142,31 @@ namespace Honor.Runtime
 
             // 从全局组件组中获取所有系统实例
             Launcher = GameComponentsGroup.GetComponent<LauncherComponent>();
-            Asset = GameComponentsGroup.GetComponent<AssetComponent>();
-            Lua = GameComponentsGroup.GetComponent<LuaComponent>();
-            Network = GameComponentsGroup.GetComponent<NetworkComponent>();
-            Event = GameComponentsGroup.GetComponent<EventComponent>();
-            Config = GameComponentsGroup.GetComponent<ConfigComponent>();
-            Table = GameComponentsGroup.GetComponent<TableComponent>();
-            Persist = GameComponentsGroup.GetComponent<PersistComponent>();
-            Localization = GameComponentsGroup.GetComponent<LocalizationComponent>();
+            Asset = AssetComponent.Instance;
+            Asset.Init();
+            Lua = LuaComponent.Instance;
+            Lua.Init();
+            Network = NetworkComponent.Instance;
+            Network.Init();
+            Event = EventComponent.Instance;
+            Event.Init();
+            Config = ConfigComponent.Instance;
+            Config.Init();
+            Table = TableComponent.Instance;
+            Table.Init();
+            Persist = PersistComponent.Instance;
+            Persist.Init();
+            Localization = LocalizationComponent.Instance;
+            Localization.Init();
             UI = GameComponentsGroup.GetComponent<UIComponent>();
             Procedure = GameComponentsGroup.GetComponent<ProcedureComponent>();
-            Touch = GameComponentsGroup.GetComponent<TouchComponent>();
+            Touch = TouchComponent.Instance;
+            Touch.Init();
             Scene = GameComponentsGroup.GetComponent<SceneComponent>();
-            Sound = GameComponentsGroup.GetComponent<SoundComponent>();
+            Sound = SoundComponent.Instance;
+            Sound.Init();
             Playing = GameComponentsGroup.GetComponent<PlayingComponent>();
             Vibrate = GameComponentsGroup.GetComponent<VibrateComponent>();
-            Debugger = GameComponentsGroup.GetComponent<DebuggerComponent>();
         }
 
         #endregion

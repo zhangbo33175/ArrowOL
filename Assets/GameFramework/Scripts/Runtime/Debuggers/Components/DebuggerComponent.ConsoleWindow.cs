@@ -160,7 +160,11 @@ namespace Honor.Runtime
             {
                 if (m_PersistComponent == null)
                 {
-                    m_PersistComponent = GameComponentsGroup.GetComponent<PersistComponent>();
+                    // 【修复】PersistComponent 是 Singleton<PersistComponent>，非 GameComponent 派生，
+                    // 也未注册进 GameComponentsGroup；原 GameComponentsGroup.GetComponent<T>() 因
+                    // 泛型约束 where T : GameComponent 无法编译。改用其单例实例取用（与
+                    // LocalizationComponent / UIGDPRBehaviour 的项目内写法一致）。
+                    m_PersistComponent = PersistComponent.Instance;
                     if (m_PersistComponent != null)
                     {
                         m_LockScroll = m_LastLockScroll = m_PersistComponent.GetBool(PersistWayType.FileFragment, "DebuggerConsole", "LockScroll", true);

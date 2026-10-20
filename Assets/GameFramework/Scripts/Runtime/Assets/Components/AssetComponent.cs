@@ -21,7 +21,7 @@ namespace Honor.Runtime
     /// 与 Lua 深度绑定，是游戏资源加载的唯一入口
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class AssetComponent : GameComponent
+    public sealed partial class AssetComponent : Singleton<AssetComponent>
     {
         #region 生命周期函数
         //=========================================================================
@@ -30,9 +30,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 组件唤醒初始化
         /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
+            m_AssetGo = new GameObject("[AssetComponent]");
+            UnityEngine.Object.DontDestroyOnLoad(m_AssetGo);
 
             // 获取启动器组件
             m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
@@ -500,5 +501,10 @@ namespace Honor.Runtime
             return m_AssetLoadManager.IsFileExist(typeName, abPath, assetName);
         }
         #endregion
+
+        public override void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

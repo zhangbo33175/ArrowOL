@@ -16,7 +16,7 @@ namespace Honor.Runtime
     /// 音频管理组件（私有方法分部类）
     /// 包含：声音代理创建、音频监听器管理、混音轨道解析等工具方法
     /// </summary>
-    public sealed partial class SoundComponent : GameComponent
+    public sealed partial class SoundComponent : Singleton<SoundComponent>
     {
         //=========================================================================
         #region 私有工具方法

@@ -23,7 +23,7 @@ namespace Honor.Runtime
     /// 负责管理所有延时计时器，基于 MonoBehaviour 更新驱动
     /// 继承 GameComponent 自动注册到框架，支持自动销毁、复用、查找删除
     /// </remarks>
-    public class TimerComponent : GameComponent
+    public class TimerComponent : Singleton<TimerComponent>
     {
         //=========================================================================
         // 私有成员变量
@@ -188,6 +188,11 @@ namespace Honor.Runtime
             }
 
             return timerCounter;
+        }
+
+        public override void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
     #endregion

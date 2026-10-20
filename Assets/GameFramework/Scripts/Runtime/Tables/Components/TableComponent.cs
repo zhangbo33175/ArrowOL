@@ -19,7 +19,7 @@ namespace Honor.Runtime
     /// 说明：C# 层仅作为组件载体，实际表格解析、VBA 生成、配置读取均转移至 Lua 层
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class TableComponent : GameComponent
+    public sealed partial class TableComponent : Singleton<TableComponent>
     {
         //=========================================================================
         // 生命周期函数
@@ -29,16 +29,11 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化组件（C#层无业务逻辑）
         /// </summary>
-        protected override void Awake()
+        public override void Init()
         {
-            base.Awake();
-
-            // C# 层目前无运行时逻辑
-            // 1. 编辑器下的 Inspector 扩展逻辑已移除
-            // 2. 策划表解析、VBA 导出逻辑全部转移至 Lua 层
-            // 3. 运行时表格读取也由 Lua 统一管理
+            base.Init();
         }
-
+        
         /// <summary>
         /// 启动（C#层无业务逻辑）
         /// </summary>
@@ -54,5 +49,10 @@ namespace Honor.Runtime
         }
 
         #endregion
+
+        public override void Dispose()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

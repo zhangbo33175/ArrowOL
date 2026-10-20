@@ -15,7 +15,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 多语言本地化组件 - 字段与属性部分
     /// </summary>
-    public sealed partial class LocalizationComponent : GameComponent
+    public sealed partial class LocalizationComponent : Singleton<LocalizationComponent>
     {
         //=========================================================================
         // 组件引用

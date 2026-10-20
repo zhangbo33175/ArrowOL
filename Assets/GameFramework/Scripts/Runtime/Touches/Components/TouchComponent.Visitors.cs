@@ -20,8 +20,10 @@ namespace Honor.Runtime
     /// <summary>
     /// 触摸输入组件，负责管理游戏内所有触摸、手势相关功能
     /// </summary>
-    public sealed partial class TouchComponent : GameComponent
+    public sealed partial class TouchComponent : Singleton<TouchComponent>
     {
+        private GameObject m_TouchGo;
+
         #region 手势控制器成员（EasyTouch 启用时生效）
 #if EASY_TOUCH_ENABLE
         /// <summary>

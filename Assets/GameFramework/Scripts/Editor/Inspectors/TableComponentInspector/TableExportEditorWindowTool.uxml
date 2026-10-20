@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GameFramework/Scripts/Editor/Inspectors/TableComponentInspector/TableExportEditorWindowTool.uss?fileID=7433441132597879392&amp;guid=0e62c03bb5329124396e93f31c32f8d1&amp;type=3#TableExportEditorWindowTool" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="header-row" style="justify-content: center;">
+            <ui:Label text="Excel 数量: 0" name="excelCountLabel" class="stat-label" />
+            <ui:Label text="Lua 数量: 0" name="luaCountLabel" class="stat-label" />
+        </ui:VisualElement>
+        <ui:VisualElement class="button-row">
+            <ui:Button text="导出所有数据表Excel → Lua" name="exportAllBtn" class="primary-btn" />
+            <ui:Button text="打开数据表Excel所在文件夹" name="openExcelDirBtn" />
+        </ui:VisualElement>
+        <ui:VisualElement class="search-row">
+            <ui:TextField label="搜索:" name="searchField" class="search-field" />
+            <ui:Button text="×" name="clearSearchBtn" class="clear-btn" />
+        </ui:VisualElement>
+        <ui:IMGUIContainer name="treeContainer" class="tree-container" />
+        <ui:VisualElement class="custom-section">
+            <ui:Label text="自定义 Excel 导出" class="section-title" />
+            <ui:Label text="未选择" name="customPathLabel" class="custom-path-label" />
+            <ui:Button text="选择 Excel" name="selectCustomBtn" />
+            <ui:VisualElement class="button-row">
+                <ui:Button text="打开自定义Excel" name="openCustomBtn" />
+                <ui:Button text="打开自定义Excel文件夹" name="openCustomDirBtn" />
+            </ui:VisualElement>
+            <ui:VisualElement class="button-row">
+                <ui:Button text="导出 → Lua" name="exportCustomLuaBtn" />
+                <ui:Button text="导出 → Json" name="exportCustomJsonBtn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

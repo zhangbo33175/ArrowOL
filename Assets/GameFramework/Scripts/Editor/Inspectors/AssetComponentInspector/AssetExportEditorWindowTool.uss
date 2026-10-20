@@ -1,0 +1,35 @@
+.root {
+    padding: 10px;
+    background-color: #252526;
+    flex-direction: column;
+}
+
+.section {
+    background-color: #2d2d30;
+    border: 1px solid #3c3c3c;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.section-title {
+    color: #569cd6;
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+}
+
+.slider-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.slider-label {
+    width: 120px;
+    color: #ccc;
+    font-size: 12px;
+}
+
+.slider {
+    flex-grow: 1;
+}

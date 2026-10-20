@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement class="root">
+        <ui:Label text="调试器配置" class="title"/>
+        <uie:ObjectField name="skinField" label="窗口皮肤" objectType="UnityEngine.GUISkin"/>
+        <uie:ObjectField name="miniSkinField" label="Mini窗口皮肤" objectType="UnityEngine.GUISkin"/>
+        <uie:ObjectField name="popSkinField" label="弹出窗口皮肤" objectType="UnityEngine.GUISkin"/>
+        <ui:Toggle name="stayBorderToggle" label="开启吸附功能"/>
+        <ui:IntegerField name="idleTimeField" label="进入透明显示时间(秒)"/>
+        <ui:HelpBox message="-1 表示不半透明显示" messageType="Info"/>
+    </ui:VisualElement>
+</ui:UXML>

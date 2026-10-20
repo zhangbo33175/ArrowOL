@@ -18,8 +18,11 @@ namespace Honor.Runtime
     /// 资源管理组件 - 字段与属性定义部分
     /// 负责提供资源加载的配置项、管理器引用、状态查询接口
     /// </summary>
-    public sealed partial class AssetComponent : GameComponent
+    public sealed partial class AssetComponent : Singleton<AssetComponent>
     {
+        private GameObject m_AssetGo;
+        public Transform transform => m_AssetGo != null ? m_AssetGo.transform : null;
+
         #region 序列化配置字段
         //=========================================================================
         // 资源自动卸载延迟帧数

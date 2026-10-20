@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="PersistExportEditorWindowTool.uss" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="section">
+            <ui:Label text="存档协议导出" class="section-title" />
+            <ui:VisualElement class="row">
+                <ui:Button text="导出存档协议Proto到Lua" name="exportBtn" class="primary-btn" />
+                <ui:Button text="打开存档Proto文件夹" name="openFolderBtn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="section debug-section">
+            <ui:Label text="存档数据管理（Editor）" class="section-title" />
+            <ui:ScrollView class="debug-scroll">
+                <ui:IMGUIContainer name="debugContainer" class="debug-container" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

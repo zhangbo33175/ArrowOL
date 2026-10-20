@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace Honor.Runtime
             m_Serial = 0;
 
             // 获取全局资源组件
-            m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
+            m_AssetComponent = AssetComponent.Instance;
             if (m_AssetComponent == null)
             {
                 Log.Fatal("Asset Component 无效。");

@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
  * filename:  PrefabCacheManager.cs
@@ -69,7 +69,7 @@ namespace Honor.Runtime
             }
 
             // 2. 缓存未命中，走框架资源组件异步加载
-            AssetComponent asset = GameComponentsGroup.GetComponent<AssetComponent>();
+            AssetComponent asset = AssetComponent.Instance;
             if (asset == null)
             {
                 Log.Fatal("PrefabCacheManager.Spawn 未找到 AssetComponent！");
@@ -103,7 +103,7 @@ namespace Honor.Runtime
                 return cached;
             }
 
-            AssetComponent asset = GameComponentsGroup.GetComponent<AssetComponent>();
+            AssetComponent asset = AssetComponent.Instance;
             if (asset == null)
             {
                 return null;

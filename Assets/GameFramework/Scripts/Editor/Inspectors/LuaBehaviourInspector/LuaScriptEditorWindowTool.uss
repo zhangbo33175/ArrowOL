@@ -1,0 +1,49 @@
+.root {
+    padding: 10px;
+    background-color: #252526;
+    flex-direction: column;
+}
+
+.section {
+    background-color: #2d2d30;
+    border: 1px solid #3c3c3c;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    color: #569cd6;
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+}
+
+.primary-btn {
+    height: 32px;
+    background-color: #2d6fb5;
+    border-color: #3a82cc;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.primary-btn:hover { background-color: #3a82cc; }
+
+.section > TextField, .section > Toggle {
+    margin-bottom: 6px;
+    font-size: 11px;
+}
+
+.gen-btn {
+    height: 30px;
+    margin-top: 8px;
+    background-color: #3c3c3c;
+    border: 1px solid #3c3c3c;
+    border-radius: 3px;
+    color: #e8e8e8;
+    font-size: 12px;
+}
+
+.gen-btn:hover { background-color: #4c4c4c; }

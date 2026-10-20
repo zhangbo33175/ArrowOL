@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace Honor.Runtime
         /// <param name="requestTimeout">请求超时（秒）</param>
         public NetworkManager(float connectTimeout, float requestTimeout)
         {
-            m_LuaBridge = GameComponentsGroup.GetComponent<LuaComponent>();
+            m_LuaBridge = LuaComponent.Instance;
             if (m_LuaBridge == null)
             {
                 Log.Fatal("Lua Component 无效。");

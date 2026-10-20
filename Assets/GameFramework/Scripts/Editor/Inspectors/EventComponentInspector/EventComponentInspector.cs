@@ -20,7 +20,7 @@ namespace Honor.Editor
     /// 功能：运行时实时查看事件注册数量、待派发事件数量，用于调试事件系统
     /// 作用：监控 EventComponent / EventManager 运行状态
     /// </summary>
-    [CustomEditor(typeof(EventComponent))]
+    // [CustomEditor(typeof(EventComponent))] // 已改为纯 C# 单例
     public class EventComponentInspector : HonorComponentInspector
     {
         #region 【编辑器生命周期】
@@ -38,16 +38,6 @@ namespace Honor.Editor
                 EditorGUILayout.HelpBox("仅在运行时有效。", MessageType.Info);
                 return;
             }
-
-            EventComponent targetComponent = (EventComponent)target;
-
-            // 只有在场景中的实例才显示数据（排除预制体预览）
-            if (!IsPrefabInHierarchy(targetComponent.gameObject))
-            {
-                return;
-            }
-
-            DrawRuntimeStatistics(targetComponent);
         }
 
         /// <summary>

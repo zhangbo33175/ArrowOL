@@ -52,7 +52,7 @@ namespace Honor.Runtime
     /// 资源管理组件 - 分部类声明（委托定义部分）
     /// 包含所有资源加载相关的委托定义与分部类声明
     /// </summary>
-    public sealed partial class AssetComponent : GameComponent
+    public sealed partial class AssetComponent : Singleton<AssetComponent>
     {
         
     }

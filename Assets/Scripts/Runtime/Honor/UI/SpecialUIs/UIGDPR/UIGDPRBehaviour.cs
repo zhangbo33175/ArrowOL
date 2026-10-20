@@ -70,7 +70,7 @@ namespace Honor.Runtime
         private void Awake()
         {
             // 获取全局持久化数据组件
-            m_PersistComponent = GameComponentsGroup.GetComponent<PersistComponent>();
+            m_PersistComponent = PersistComponent.Instance;
             if (m_PersistComponent == null)
             {
                 Log.Fatal("Persist Component 无效。");

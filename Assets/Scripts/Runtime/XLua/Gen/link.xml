@@ -292,6 +292,7 @@
 		<type fullname="Honor.Runtime.GameConstants+Persist+Permission+ItemKey" preserve="all"/>
 		<type fullname="Honor.Runtime.GameConstants+Persist+AF+ItemKey" preserve="all"/>
 		<type fullname="GaussianBlur" preserve="all"/>
+		<type fullname="GameMain" preserve="all"/>
 		<type fullname="RMapIconType" preserve="all"/>
 		<type fullname="RMapPlayHudPosType" preserve="all"/>
 		<type fullname="RMapType" preserve="all"/>

@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -172,7 +172,7 @@ namespace Honor.Runtime
         /// </summary>
         public void InitLuaBindings(string luaScriptName)
         {
-            LuaComponent luaSystem = GameComponentsGroup.GetComponent<LuaComponent>();
+            LuaComponent luaSystem = LuaComponent.Instance;
             if (luaSystem == null)
             {
                 Log.Fatal("Lua Component 无效。");

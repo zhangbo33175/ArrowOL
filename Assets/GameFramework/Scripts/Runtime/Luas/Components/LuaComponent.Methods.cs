@@ -14,7 +14,7 @@ namespace Honor.Runtime
     /// Lua 组件 - AB 包加载校验模块
     /// 提供 Lua 脚本资源包的加载权限判断
     /// </summary>
-    public sealed partial class LuaComponent : GameComponent
+    public sealed partial class LuaComponent : Singleton<LuaComponent>
     {
         //=========================================================================
         #region AB 包加载校验

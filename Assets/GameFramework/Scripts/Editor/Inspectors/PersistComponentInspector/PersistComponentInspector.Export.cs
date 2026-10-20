@@ -237,7 +237,7 @@ namespace Honor.Editor
         /// 生成Lua层使用的Proto源文件封装脚本
         /// 将proto文件内容转为Lua字符串返回，供框架加载使用
         /// </summary>
-        private void GenerateLuaProtos()
+        private static void GenerateLuaProtos()
         {
             if (Directory.Exists(Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath()))
             {

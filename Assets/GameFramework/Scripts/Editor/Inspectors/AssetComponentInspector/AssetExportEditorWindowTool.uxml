@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="AssetExportEditorWindowTool.uss" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="section">
+            <ui:Label text="资源加载配置" class="section-title" />
+            <ui:VisualElement class="slider-row">
+                <ui:Label text="最小过期帧数" class="slider-label" />
+                <ui:Slider name="delaySlider" class="slider" />
+            </ui:VisualElement>
+            <ui:VisualElement class="slider-row">
+                <ui:Label text="每轮GC累计数量" class="slider-label" />
+                <ui:Slider name="gcSlider" class="slider" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

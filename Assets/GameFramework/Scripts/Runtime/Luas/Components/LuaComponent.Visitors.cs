@@ -19,7 +19,7 @@ namespace Honor.Runtime
     /// Lua 核心组件 - 字段与属性定义部分
     /// 包含 Lua 环境、配置、缓存、委托、全局状态等所有成员定义
     /// </summary>
-    public sealed partial class LuaComponent : GameComponent
+    public sealed partial class LuaComponent : Singleton<LuaComponent>
     {
         //=========================================================================
         #region 常量 & 静态数据

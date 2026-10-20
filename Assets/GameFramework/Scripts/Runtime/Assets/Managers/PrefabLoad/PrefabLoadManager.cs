@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -39,7 +39,7 @@ namespace Honor.Runtime
 
             m_AssetLoadManager = assetLoadManager;
 
-            AssetComponent assetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
+            AssetComponent assetComponent = AssetComponent.Instance;
             if (assetComponent == null)
             {
                 Log.Fatal("Asset component 无效。");

@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -24,7 +24,7 @@ namespace Honor.Runtime
     /// 负责 Lua 环境初始化、脚本加载、资源管理、GC 控制、热重载
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class LuaComponent : GameComponent
+    public sealed partial class LuaComponent : Singleton<LuaComponent>
     {
         //=========================================================================
         #region 生命周期
@@ -33,10 +33,10 @@ namespace Honor.Runtime
         /// <summary>
         /// 组件初始化
         /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
+            m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
+            m_AssetComponent = AssetComponent.Instance;
             m_LoadedLuaScriptsNames = new List<string>();
             m_LuaScriptsFullPathsMapForLoading = new Dictionary<string, string>();
             m_LuaScriptsABPathsForLoading = new List<string>();
@@ -48,7 +48,7 @@ namespace Honor.Runtime
         private void Start()
         {
             m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
-            m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
+            m_AssetComponent = AssetComponent.Instance;
 
             if (m_LauncherComponent == null) Log.Fatal("[Lua] LauncherComponent 获取失败");
             if (m_AssetComponent == null) Log.Fatal("[Lua] AssetComponent 获取失败");
@@ -174,6 +174,8 @@ namespace Honor.Runtime
         /// </summary>
         public void InitLuaConfigs()
         {
+            if (m_LauncherComponent == null) m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
+            if (m_AssetComponent == null) m_AssetComponent = AssetComponent.Instance;
             Stopwatch sw = Stopwatch.StartNew();
             if (m_LauncherComponent.EditorResourceMode)
                 InitEditorLuaPathMapping();
@@ -874,5 +876,10 @@ namespace Honor.Runtime
         }
 
         #endregion
+
+        public override void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

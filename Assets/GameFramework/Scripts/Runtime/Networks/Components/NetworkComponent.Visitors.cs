@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 网络管理组件 - 字段与属性模块
     /// </summary>
-    public sealed partial class NetworkComponent : GameComponent
+    public sealed partial class NetworkComponent : Singleton<NetworkComponent>
     {
         //=========================================================================
         #region 序列化字段

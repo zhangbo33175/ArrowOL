@@ -103,7 +103,7 @@ namespace Honor.Runtime
         /// </summary>
         private void Awake()
         {
-            m_TouchComponent = GameComponentsGroup.GetComponent<TouchComponent>();
+            m_TouchComponent = TouchComponent.Instance;
             if (m_TouchComponent == null)
             {
                 Log.Fatal("Touch component 无效。");

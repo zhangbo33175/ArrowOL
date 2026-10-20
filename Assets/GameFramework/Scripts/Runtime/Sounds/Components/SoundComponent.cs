@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * -------------------------------------------------------------
  * filename:  SoundComponent.cs
@@ -19,51 +19,34 @@ namespace Honor.Runtime
     /// 功能：声音分组管理、播放/暂停/停止/淡入淡出、音量控制、Lua调用接口
     /// 外部统一通过 GameMainRoot.Sound 访问
     /// </summary>
-    [DisallowMultipleComponent]
-    public sealed partial class SoundComponent : GameComponent
+    public sealed partial class SoundComponent : Singleton<SoundComponent>
     {
         //=========================================================================
         #region 生命周期
         //=========================================================================
 
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
-            // 初始化音频管理器
             m_AudioService = new SoundManager();
-            if (m_AudioService == null)
-            {
-                Log.Fatal("Sound manager 无效。");
-                return;
-            }
+            if (m_AudioService == null) { Log.Fatal("Sound manager 无效。"); return; }
 
-            // 添加 AudioListener（必须存在才能听到声音）
-            m_AudioListener = gameObject.GetOrAddComponent<AudioListener>();
+            m_SoundGo = new GameObject("[SoundComponent]");
+            Object.DontDestroyOnLoad(m_SoundGo);
+            m_AudioListener = m_SoundGo.GetOrAddComponent<AudioListener>();
+
+            // 默认声音组
+            AddSoundGroup("Music", 4);
+            AddSoundGroup("UISound", 2);
         }
 
-        private void Start()
+        public void Cleanup()
         {
-            // 初始化配置的所有声音组
-            foreach (SoundGroupShell shell in m_SoundGroupShells)
-            {
-                if (AddSoundGroup(
-                        shell.Name,
-                        shell.AvoidBeingReplacedBySamePriority,
-                        shell.Mute,
-                        shell.Volume,
-                        shell.AgentCount))
-                {
-                    continue;
-                }
-
-                Log.Warning("添加 Sound Group '{0}' 失败。", shell.Name);
-            }
+            m_AudioService = null;
+            if (m_SoundGo != null) Object.Destroy(m_SoundGo);
+            m_SoundGo = null;
         }
 
-        private void OnDestroy()
-        {
-        }
+        public override void Dispose() { Cleanup(); }
 
         #endregion
 
@@ -135,7 +118,7 @@ namespace Honor.Runtime
                 return false;
             }
 
-            soundGroupHelper.transform.SetParent(transform);
+            soundGroupHelper.transform.SetParent(m_SoundGo.transform);
 
             // 绑定 AudioMixer 分组
             if (m_AudioMixer != null)

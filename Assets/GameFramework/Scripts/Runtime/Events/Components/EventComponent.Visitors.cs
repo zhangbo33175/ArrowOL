@@ -14,7 +14,7 @@ namespace Honor.Runtime
     /// 事件系统组件（扩展部分）
     /// 提供事件管理器、事件数量查询等只读属性
     /// </summary>
-    public sealed partial class EventComponent : GameComponent
+    public sealed partial class EventComponent : Singleton<EventComponent>
     {
         //=========================================================================
         // 私有字段

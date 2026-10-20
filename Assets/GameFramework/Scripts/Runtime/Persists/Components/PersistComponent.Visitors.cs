@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 持久化存储组件 - 字段与属性模块
     /// </summary>
-    public sealed partial class PersistComponent : GameComponent
+    public sealed partial class PersistComponent : Singleton<PersistComponent>
     {
         //=========================================================================
         #region 私有字段

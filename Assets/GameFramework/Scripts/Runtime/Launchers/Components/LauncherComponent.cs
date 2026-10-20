@@ -31,15 +31,26 @@ namespace Honor.Runtime
         {
             base.Awake();
 
-            // 获取Debugger组件并初始化Debugger的激活窗口
-            DebuggerComponent debuggerComponent = GameComponentsGroup.GetComponent<DebuggerComponent>();
-            if (debuggerComponent == null)
+            // 根据配置创建Debugger
+            bool showDebugger = m_DebuggerActiveWindow switch
             {
-                Log.Fatal("Debugger Component 无效。");
-            }
-            else
+                DebuggerActiveWindowType.AlwaysOpen => true,
+                DebuggerActiveWindowType.OnlyOpenWhenDevelopment => m_DevelopMode,
+                DebuggerActiveWindowType.OnlyOpenInEditor => Application.isEditor,
+                _ => false,
+            };
+            if (showDebugger)
             {
-                debuggerComponent.SetActiveWindow();
+                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/Debugger/DebuggerManager.prefab");
+                if (prefab != null)
+                {
+                    var go = UnityEngine.Object.Instantiate(prefab);
+                    go.name = "[DebuggerComponent]";
+                    UnityEngine.Object.DontDestroyOnLoad(go);
+                    var dbg = go.GetComponent<DebuggerComponent>();
+                    GameMainRoot.Debugger = dbg;
+                    dbg?.SetActiveWindow();
+                }
             }
 
             // 编辑器资源模式仅在编辑器内生效

@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -19,7 +19,7 @@ namespace Honor.Runtime
     /// 提供对外 HTTP 调用入口，基于 BestHTTP 插件实现
     /// 组件层只做参数校验 + 转发，真正逻辑在 NetworkManager
     /// </summary>
-    public sealed partial class NetworkComponent : GameComponent
+    public sealed partial class NetworkComponent : Singleton<NetworkComponent>
     {
         //=========================================================================
         #region 参数校验辅助

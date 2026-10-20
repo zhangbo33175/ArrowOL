@@ -251,6 +251,12 @@ namespace Honor.Editor
                 }
             }
 
+            EditorGUILayout.Space();
+            var debugType = (DebuggerActiveWindowType)m_DebuggerActiveWindow.enumValueIndex;
+            var options = new[] { "始终显示", "开发模式显示", "仅编辑器显示", "关闭" };
+            var idx = EditorGUILayout.Popup("调试器显示", m_DebuggerActiveWindow.enumValueIndex, options);
+            m_DebuggerActiveWindow.enumValueIndex = idx;
+
             if (Application.isPlaying)
                 EditorGUI.EndDisabledGroup();
         }

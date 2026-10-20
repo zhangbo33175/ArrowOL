@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="NetworkExportEditorWindowTool.uss" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="section">
+            <ui:Label text="网络协议导出" class="section-title" />
+            <ui:Button text="导出网络协议Proto与Excel到Lua" name="exportAllBtn" class="primary-btn" />
+            <ui:VisualElement class="row">
+                <ui:Button text="打开协议表Excel" name="openExcelBtn" />
+                <ui:Button text="打开Excel文件夹" name="openDirBtn" />
+                <ui:Button text="打开Proto文件夹" name="openProtoDirBtn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="section">
+            <ui:Label text="超时配置" class="section-title" />
+            <ui:VisualElement class="field-row">
+                <ui:Label text="连接超时(秒)" class="field-label" />
+                <ui:FloatField name="connectTimeoutField" class="field-input" />
+            </ui:VisualElement>
+            <ui:VisualElement class="field-row">
+                <ui:Label text="请求超时(秒)" class="field-label" />
+                <ui:FloatField name="requestTimeoutField" class="field-input" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

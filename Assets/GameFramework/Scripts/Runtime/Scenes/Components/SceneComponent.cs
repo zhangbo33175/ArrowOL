@@ -170,6 +170,20 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 加载2D场景根节点预制体
+        /// </summary>
+        public GameObject Load2DSceneRoot()
+        {
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab");
+            if (prefab == null)
+            {
+                Log.Error("未找到 2DSceneRoot.prefab");
+                return null;
+            }
+            return UnityEngine.Object.Instantiate(prefab);
+        }
+
+        /// <summary>
         /// 异步卸载场景
         /// </summary>
         public void UnloadScene(string sceneName, SceneUnloadOverCallback overCallback = null)

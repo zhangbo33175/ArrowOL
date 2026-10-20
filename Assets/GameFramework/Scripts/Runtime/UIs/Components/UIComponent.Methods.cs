@@ -48,21 +48,21 @@ namespace Honor.Runtime
         private void Initialize()
         {
             // 获取资源管理组件
-            m_AssetComponent = RequireComponent<AssetComponent>();
+            m_AssetComponent = AssetComponent.Instance;
             if (m_AssetComponent == null)
             {
                 return;
             }
 
             // 获取多语言管理组件
-            m_LocalizationComponent = RequireComponent<LocalizationComponent>();
+            m_LocalizationComponent = LocalizationComponent.Instance;
             if (m_LocalizationComponent == null)
             {
                 return;
             }
 
             // 获取配置管理组件
-            m_ConfigComponent = RequireComponent<ConfigComponent>();
+            m_ConfigComponent = ConfigComponent.Instance;
             if (m_ConfigComponent == null)
             {
                 return;
@@ -70,6 +70,24 @@ namespace Honor.Runtime
 
             // 初始化 JSON 缓存对象（用于 LuaTable 互转）
             m_CachedJsonObject = new JObject();
+
+            // 配置缺失时从 2DSceneRoot 预制体加载
+            if (m_ScreenUICanvas == null || m_SceneUICanvas == null)
+            {
+                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab");
+                if (prefab != null)
+                {
+                    var go = UnityEngine.Object.Instantiate(prefab);
+                    var canvases = go.GetComponentsInChildren<Canvas>(true);
+                    foreach (var c in canvases)
+                    {
+                        if (c.name.Contains("Screen")) m_ScreenUICanvas = c;
+                        else if (c.name.Contains("Scene")) m_SceneUICanvas = c;
+                    }
+                    if (m_ScreenUICanvas == null && canvases.Length > 0) m_ScreenUICanvas = canvases[0];
+                    if (m_SceneUICanvas == null) m_SceneUICanvas = m_ScreenUICanvas;
+                }
+            }
 
             // 创建 UI 核心管理器
             m_UIManager = new UIManager(

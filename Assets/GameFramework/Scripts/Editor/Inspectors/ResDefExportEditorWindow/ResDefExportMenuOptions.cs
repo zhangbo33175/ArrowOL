@@ -22,7 +22,7 @@ namespace Honor.Editor
         /// <summary>
         /// 打开资源信息导出工具窗口
         /// </summary>
-        [MenuItem("Tools/资源导出工具", false, 357)]
+        [MenuItem("Honor/资源导出工具", false, 367)]
         private static void OpenResourceExporterWindow()
         {
             // 编辑器处于播放/编译/刷新期间禁止打开，避免窗口状态异常

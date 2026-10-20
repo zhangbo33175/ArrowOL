@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -59,7 +59,7 @@ namespace Honor.Runtime
         /// </summary>
         void Start()
         {
-            m_LuaComponent = GameComponentsGroup.GetComponent<LuaComponent>();
+            m_LuaComponent = LuaComponent.Instance;
             if (m_LuaComponent == null)
             {
                 Log.Fatal("Lua Component 无效。");
@@ -798,6 +798,7 @@ namespace Honor.Runtime
         /// <returns>对应的世界坐标</returns>
         private Vector3 ScreenToGestureWorld(Vector2 screenPosition)
         {
+            if (m_SceneCamera == null) return Vector3.zero;
             return m_SceneCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, m_GestureCameraDistance));
         }
 

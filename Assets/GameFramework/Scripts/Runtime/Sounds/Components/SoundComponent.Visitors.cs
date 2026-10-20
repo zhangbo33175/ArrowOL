@@ -16,7 +16,7 @@ namespace Honor.Runtime
     /// 音频管理组件（变量/属性定义分部类）
     /// 包含：混音器、声音组配置、管理器实例、监听器、对外只读属性
     /// </summary>
-    public sealed partial class SoundComponent : GameComponent
+    public sealed partial class SoundComponent : Singleton<SoundComponent>
     {
         //=========================================================================
         #region 序列化字段（Inspector 配置）
@@ -47,12 +47,8 @@ namespace Honor.Runtime
         /// 真正处理声音播放、暂停、停止、池化的逻辑类
         /// </summary>
         private SoundManager m_AudioService = null;
-
-        /// <summary>
-        /// 音频监听器
-        /// 全局唯一，相当于“耳朵”，用于接收场景声音
-        /// </summary>
         private AudioListener m_AudioListener = null;
+        private GameObject m_SoundGo = null;
 
         #endregion
 

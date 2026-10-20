@@ -20,26 +20,15 @@ namespace Honor.Runtime
     /// 挂载于游戏入口，随框架初始化
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class EventComponent : GameComponent
+    public sealed partial class EventComponent : Singleton<EventComponent>
     {
         //=========================================================================
         // 生命周期
         //=========================================================================
-        #region MonoBehaviour
-        /// <summary>
-        /// 框架初始化
-        /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
-            // 实例化事件管理器
             m_EventManager = new EventManager();
-            if (m_EventManager == null)
-            {
-                Log.Error("EventComponent -> EventManager 初始化失败！");
-                return;
-            }
+            if (m_EventManager == null) Log.Error("EventComponent -> EventManager 初始化失败！");
         }
 
         /// <summary>
@@ -56,7 +45,6 @@ namespace Honor.Runtime
         {
             m_EventManager?.Update();
         }
-        #endregion
 
         //=========================================================================
         // 公共接口 - 事件管理
@@ -120,5 +108,10 @@ namespace Honor.Runtime
             m_EventManager.FireNow(sender, new EventParams(cmd, objects));
         }
         #endregion
+
+        public override void Dispose()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

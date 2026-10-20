@@ -24,7 +24,7 @@ namespace Honor.Editor
     /// 持久化组件编辑器检视面板
     /// 提供存档数据编辑、Proto协议导出、数据序列化/反序列化、运行时数据查看功能
     /// </summary>
-    [CustomEditor(typeof(PersistComponent))]
+    // [CustomEditor(typeof(PersistComponent))] // PersistComponent 已改为纯 C# 单例
     internal sealed partial class PersistComponentInspector : HonorComponentInspector
     {
         //=========================================================================
@@ -149,51 +149,41 @@ namespace Honor.Editor
         /// </summary>
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
-            
-            EditorGUILayout.LabelField("存档协议配置（仅支持数据库持久化）");
+            EditorGUILayout.HelpBox("存档工具已迁移至菜单：Honor → 存档工具", MessageType.Info);
+        }
 
-            EditorGUILayout.BeginHorizontal("box");
+        /// <summary>绘制完整存档调试面板（供 Honor 存档工具窗口调用）</summary>
+        public void DrawDebugPanels()
+        {
+            serializedObject.Update();
 
-            if (GUILayout.Button("导出存档协议Proto到Lua"))
-            {
-                // 生成所有存档proto.lua脚本
-                GenerateLuaProtos();
-
-                // 生成所有存档Proto协议到EmmyLua注释
-                GenerateLuaDeclares(out List<List<string>> luaFilesDeclaresLines);
-
-                // 生成所有存档Proto协议到Lua数据结构
-                GenerateLuaSaveDatas(luaFilesDeclaresLines);
-
-                OnEnable();
-
-                GUIUtility.ExitGUI();
-            }
-
-            if (GUILayout.Button("打开存档Proto文件夹"))
-            {
-                OpenProtoFolder();
-                GUIUtility.ExitGUI();
-            }
-
-            EditorGUILayout.EndHorizontal();
-
-            // 运行时逻辑处理（读取程序中的数据结构）
             if (EditorApplication.isPlaying)
             {
                 RefreshGUIOnRuntimeMode(PersistWayType.PlayerPrefs);
                 RefreshGUIOnRuntimeMode(PersistWayType.FileFragment);
             }
-            else // 非运行时逻辑处理（读取文件中的数据结构）
+            else
             {
                 RefreshGUIOnEditorMode(PersistWayType.PlayerPrefs);
                 RefreshGUIOnEditorMode(PersistWayType.FileFragment);
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
 
-            Repaint();
+        /// <summary>导出全部存档 Proto 协议到 Lua（供 Honor 存档工具窗口调用）</summary>
+        public static void GenerateAllSaveProtos()
+        {
+            GenerateLuaProtos();
+            GenerateLuaDeclares(out List<List<string>> luaFilesDeclaresLines);
+            GenerateLuaSaveDatas(luaFilesDeclaresLines);
+        }
+
+        /// <summary>打开存档 Proto 文件夹（供 Honor 存档工具窗口调用）</summary>
+        public static void OpenProtoFolderStatic()
+        {
+            string folderPath = Runtime.GamePathUtils.Proto.Save.GetRootDirectoryFullPath();
+            Process.Start(folderPath);
         }
 
         /// <summary>
@@ -876,7 +866,7 @@ namespace Honor.Editor
 
             if (persistWayCurrentState)
             {
-                PersistComponent t = (PersistComponent)target;
+                var t = PersistComponent.Instance;
 
                 EditorGUILayout.BeginVertical("box");
                 {

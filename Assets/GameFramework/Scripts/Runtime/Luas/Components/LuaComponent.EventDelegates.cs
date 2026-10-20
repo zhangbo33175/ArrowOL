@@ -17,7 +17,7 @@ namespace Honor.Runtime
     /// Lua 核心组件 - 协议通讯绑定部分
     /// 负责 C# 与 Lua 之间统一 cmd 分发的句柄绑定与分发中心初始化
     /// </summary>
-    public sealed partial class LuaComponent : GameComponent
+    public sealed partial class LuaComponent : Singleton<LuaComponent>
     {
         //=========================================================================
         #region 协议通讯初始化

@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -18,48 +18,20 @@ namespace Honor.Runtime
     /// 多语言本地化组件
     /// 负责语言切换、本地化文本管理、字体适配、语言配置持久化
     /// </summary>
-    [DisallowMultipleComponent]
-    public sealed partial class LocalizationComponent : GameComponent
+    public sealed partial class LocalizationComponent : Singleton<LocalizationComponent>
     {
         //=========================================================================
         // 生命周期
         //=========================================================================
-        #region MonoBehaviour
-        /// <summary>
-        /// 框架初始化
-        /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
             m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
-            if (m_LauncherComponent == null)
-            {
-                Log.Fatal("Launcher Component 无效。");
-                return;
-            }
-
-            m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
-            if (m_AssetComponent == null)
-            {
-                Log.Fatal("Asset Component 无效。");
-                return;
-            }
-
-            m_PersistComponent = GameComponentsGroup.GetComponent<PersistComponent>();
-            if (m_PersistComponent == null)
-            {
-                Log.Fatal("Persist Component 无效。");
-                return;
-            }
-
+            m_PersistComponent = PersistComponent.Instance;
             m_LocalizationManager = new LocalizationManager();
-            if (m_LocalizationManager == null)
-            {
-                Log.Fatal("Localization Manager 无效。");
-                return;
-            }
         }
+
+        public void Cleanup() { m_LocalizationManager = null; }
+        public override void Dispose() { Cleanup(); }
 
         /// <summary>
         /// 生命周期 Start（暂未使用）
@@ -67,7 +39,6 @@ namespace Honor.Runtime
         private void Start()
         {
         }
-        #endregion
 
         //=========================================================================
         // 语言初始化与设置
@@ -288,6 +259,5 @@ namespace Honor.Runtime
             }
         }
         #endregion
-        
     }
 }

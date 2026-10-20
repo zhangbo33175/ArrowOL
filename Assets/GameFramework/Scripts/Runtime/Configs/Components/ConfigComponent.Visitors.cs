@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace Honor.Runtime
     /// 全局配置管理组件 - 字段定义部分
     /// 包含加密密钥、组件引用、管理器实例
     /// </summary>
-    public sealed partial class ConfigComponent : GameComponent
+    public sealed partial class ConfigComponent : Singleton<ConfigComponent>
     {
         //=========================================================================
         // 静态常量 & 密钥

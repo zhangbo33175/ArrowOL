@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -16,7 +16,7 @@ namespace Honor.Runtime
     /// 归属：GameFramework 核心组件层
     /// 说明：本文件为纯结构占位，无实际成员，逻辑与变量在其他分部类实现
     /// </summary>
-    public sealed partial class ConfigComponent : GameComponent
+    public sealed partial class ConfigComponent : Singleton<ConfigComponent>
     {
         // 本文件为结构占位文件，无实际成员
     }

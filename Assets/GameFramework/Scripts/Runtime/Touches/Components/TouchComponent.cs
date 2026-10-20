@@ -23,28 +23,22 @@ namespace Honor.Runtime
     /// 通过 EASY_TOUCH_ENABLE 宏开关控制功能启用状态
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class TouchComponent : GameComponent
+    public sealed partial class TouchComponent : Singleton<TouchComponent>
     {
         #region 私有成员字段
         /// <summary>
         /// 组件初始化
         /// 缓存所有手势相关组件实例，并刷新组件开关状态
         /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
 #if EASY_TOUCH_ENABLE
-            // 获取当前对象上挂载的各类手势控制器
-            m_Gestures2D = GetComponent<Gestures2D>();
-            m_Gestures3D = GetComponent<Gestures3D>();
-            m_GesturesUI = GetComponent<GesturesUI>();
-            m_EasyTouch = GetComponent<EasyTouch>();
-
-            // 重新赋值启用开关，触发组件内部初始化逻辑
-            m_Gestures2D.EnableSwitch = m_Gestures2D.EnableSwitch;
-            m_Gestures3D.EnableSwitch = m_Gestures3D.EnableSwitch;
-            m_GesturesUI.EnableSwitch = m_GesturesUI.EnableSwitch;
+            m_TouchGo = new GameObject("[TouchComponent]");
+            Object.DontDestroyOnLoad(m_TouchGo);
+            m_EasyTouch = m_TouchGo.AddComponent<EasyTouch>();
+            m_Gestures2D = m_TouchGo.AddComponent<Gestures2D>();
+            m_Gestures3D = m_TouchGo.AddComponent<Gestures3D>();
+            m_GesturesUI = m_TouchGo.AddComponent<GesturesUI>();
 #endif
         }
 
@@ -62,5 +56,10 @@ namespace Honor.Runtime
         {
         }
         #endregion
+
+        public override void Dispose()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

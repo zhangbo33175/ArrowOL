@@ -1,0 +1,44 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="LocalizationExportEditorWindowTool.uss" />
+    <ui:ScrollView class="scroll-root">
+        <ui:VisualElement class="root">
+            <ui:Label text="当前语言类型：Unspecified(未指定)" class="lang-type-label" />
+            <ui:Button text="打开 ChatGPT-Translation 多语言批量翻译工具" name="chatgptBtn" class="full-btn" />
+
+            <ui:VisualElement class="section">
+                <ui:Label text="多语言主表" class="section-title" />
+                <ui:VisualElement class="row">
+                    <ui:Button text="打开主表Excel" name="openMainExcelBtn" />
+                    <ui:Button text="导出所有多语言到Lua" name="exportMainBtn" class="primary-btn" />
+                    <ui:Button text="打开文件夹" name="openMainDirBtn" />
+                </ui:VisualElement>
+                <ui:Toggle text="增量导出Excel到Lua" name="increaseToggle" />
+                <ui:Toggle text="生成单版本增量Lua文件" name="singleVersionToggle" />
+                <ui:IMGUIContainer name="mainListContainer" class="list-container" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="section">
+                <ui:Label text="默认多语言" class="section-title" />
+                <ui:VisualElement class="row">
+                    <ui:Button text="打开默认表Excel" name="openDefaultExcelBtn" />
+                    <ui:Button text="导出默认表到Json" name="exportDefaultBtn" class="primary-btn" />
+                    <ui:Button text="打开文件夹" name="openDefaultDirBtn" />
+                </ui:VisualElement>
+                <ui:IMGUIContainer name="defaultListContainer" class="list-container" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="section">
+                <ui:Label text="字体表" class="section-title" />
+                <ui:VisualElement class="row">
+                    <ui:Button text="打开字体表Excel" name="openFontExcelBtn" />
+                    <ui:Button text="导出字体表到Json" name="exportFontBtn" class="primary-btn" />
+                    <ui:Button text="打开文件夹" name="openFontDirBtn" />
+                </ui:VisualElement>
+                <ui:Toggle text="字体自动适配" name="autoFontToggle" />
+                <ui:IMGUIContainer name="fontListContainer" class="list-container" />
+            </ui:VisualElement>
+
+            <ui:Toggle text="TextMeshPro（FontTMP）字符集生成" name="tmpToggle" class="tmp-toggle" />
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

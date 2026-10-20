@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -19,30 +19,16 @@ namespace Honor.Runtime
     /// 统一管理本地存储：文件分片（WebGL/普通）、PlayerPrefs
     /// 提供 bool/int/float/string 存取、删除、清空、查询接口
     /// </summary>
-    [DisallowMultipleComponent]
-    public sealed partial class PersistComponent : GameComponent
+    public sealed partial class PersistComponent : Singleton<PersistComponent>
     {
-        //=========================================================================
-        #region 生命周期
-        //=========================================================================
-
-        /// <summary>
-        /// 组件初始化：按平台创建文件分片存储，并加载 PlayerPrefs
-        /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
             InitFragmentStore();
             InitPlayerPrefsStore();
         }
 
-        /// <summary>
-        /// 启动逻辑
-        /// </summary>
-        private void Start()
-        {
-        }
+        public void Cleanup() { }
+        public override void Dispose() { Cleanup(); }
 
         /// <summary>
         /// 销毁逻辑
@@ -82,8 +68,6 @@ namespace Honor.Runtime
                 Log.Error("读取PlayerPrefs数据失败。");
             }
         }
-
-        #endregion
 
         //=========================================================================
         #region 保存操作

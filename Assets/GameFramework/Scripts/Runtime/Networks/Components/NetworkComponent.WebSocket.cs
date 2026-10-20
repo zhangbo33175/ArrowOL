@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -18,7 +18,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 网络组件 - WebSocket 长连接接口模块
     /// </summary>
-    public sealed partial class NetworkComponent : GameComponent
+    public sealed partial class NetworkComponent : Singleton<NetworkComponent>
     {
         //=========================================================================
         #region WebSocket 接口（BestHTTP）

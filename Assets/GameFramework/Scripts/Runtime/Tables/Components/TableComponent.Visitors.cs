@@ -16,7 +16,7 @@ namespace Honor.Runtime
     /// 框架预留组件：用于管理游戏Json/Excel策划表格数据
     /// 实际逻辑由Lua层实现，C#端仅作为组件载体存在
     /// </summary>
-    public sealed partial class TableComponent : GameComponent
+    public sealed partial class TableComponent : Singleton<TableComponent>
     {
         //=========================================================================
         // 分部类占位 - 无实现

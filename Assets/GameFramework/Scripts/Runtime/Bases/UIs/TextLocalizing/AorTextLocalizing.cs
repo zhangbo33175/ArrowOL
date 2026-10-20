@@ -158,7 +158,7 @@ namespace Honor.Runtime
         /// </summary>
         private void OnDestroy()
         {
-            GameMainRoot.Event.Unsubscribe(GameEventCmd.TextLocalizingRefresh, this, RefreshTextValue);
+            GameMainRoot.Event?.Unsubscribe(GameEventCmd.TextLocalizingRefresh, this, RefreshTextValue);
         }
         #endregion
 

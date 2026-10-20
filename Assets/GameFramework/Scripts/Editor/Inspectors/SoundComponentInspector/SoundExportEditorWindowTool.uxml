@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="SoundExportEditorWindowTool.uss" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="section">
+            <ui:Label text="声音表导出" class="section-title" />
+            <ui:VisualElement class="row">
+                <ui:Button text="打开声音表Excel" name="openExcelBtn" />
+                <ui:Button text="导出声音表到Lua" name="exportBtn" class="primary-btn" />
+                <ui:Button text="打开文件夹" name="openDirBtn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="section">
+            <ui:Label text="音频配置" class="section-title" />
+            <uie:ObjectField label="音频混响器" name="audioMixerField" object-type="UnityEngine.Audio.AudioMixer" />
+        </ui:VisualElement>
+        <ui:VisualElement class="section group-section">
+            <ui:Label text="声音分组" class="section-title" />
+            <ui:ScrollView class="group-scroll">
+                <ui:IMGUIContainer name="groupShellsContainer" class="group-container" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

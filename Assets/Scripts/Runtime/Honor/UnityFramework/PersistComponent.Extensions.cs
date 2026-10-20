@@ -64,7 +64,7 @@ namespace Honor.Runtime
             // 防止重复开启协程
             if (_SavePlayerPrefsDataCoroutine == null)
             {
-                _SavePlayerPrefsDataCoroutine = StartCoroutine(CoSaveGameDataAfterFrameEnd());
+                _SavePlayerPrefsDataCoroutine = GameMainRoot.Instance.StartCoroutine(CoSaveGameDataAfterFrameEnd());
             }
         }
         #endregion

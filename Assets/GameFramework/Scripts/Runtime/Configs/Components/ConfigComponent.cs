@@ -1,4 +1,4 @@
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -18,51 +18,15 @@ namespace Honor.Runtime
     /// 功能：统一管理游戏配置文件、提供Bool/Int/Float/String配置读取、支持平台差异化配置
     /// 挂载方式：游戏启动时自动初始化，全局唯一
     /// </summary>
-    [DisallowMultipleComponent]
-    public sealed partial class ConfigComponent : GameComponent
+    public sealed partial class ConfigComponent : Singleton<ConfigComponent>
     {
-        //=========================================================================
-        // 生命周期
-        //=========================================================================
-        #region MonoBehaviour
-        /// <summary>
-        /// 初始化：获取依赖组件、创建配置管理器
-        /// </summary>
-        protected override void Awake()
+        public void Init()
         {
-            base.Awake();
-
-            // 获取全局资源组件
-            m_AssetComponent = GameComponentsGroup.GetComponent<AssetComponent>();
-            if (m_AssetComponent == null)
-            {
-                Log.Fatal("Asset Component 无效。");
-                return;
-            }
-
-            // 初始化配置管理器
             m_ConfigManager = new ConfigManager();
-            if (m_ConfigManager == null)
-            {
-                Log.Fatal("ConfigManager 无效。");
-                return;
-            }
         }
 
-        /// <summary>
-        /// 生命周期 Start（暂未使用）
-        /// </summary>
-        private void Start()
-        {
-        }
-
-        /// <summary>
-        /// 销毁时清理（暂未使用）
-        /// </summary>
-        private void OnDestroy()
-        {
-        }
-        #endregion
+        public void Cleanup() { m_ConfigManager = null; }
+        public override void Dispose() { Cleanup(); }
 
         //=========================================================================
         // 配置加载 & 管理
