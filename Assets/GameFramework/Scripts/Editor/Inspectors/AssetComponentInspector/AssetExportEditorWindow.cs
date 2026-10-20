@@ -1,5 +1,10 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetExportEditorWindow.cs
+ * author:    云毅
+ * created:   2026
  * descrip:   资源管理工具窗口（Honor 菜单入口）
  ***************************************************************/
 
@@ -28,19 +33,31 @@ namespace Honor.Editor
         protected override void OnBindUI()
         {
             // 纯 C# 单例，无 SerializedObject
-            var delaySlider = Q<Slider>("delaySlider");
-            delaySlider.lowValue = 0;
-            delaySlider.highValue = 36000;
-            delaySlider.value = 0;
-            delaySlider.RegisterValueChangedCallback(evt => { });
-
-            var gcSlider = Q<Slider>("gcSlider");
-            gcSlider.lowValue = 0;
-            gcSlider.highValue = 1000;
-            gcSlider.value = 0;
-            gcSlider.RegisterValueChangedCallback(evt => { });
+            // TODO: 抽离重复 Slider 配置并加判空——Q<> 查不到元素时原写法会空引用崩溃
+            SetupRangeSlider("delaySlider", 0f, 36000f);
+            SetupRangeSlider("gcSlider", 0f, 1000f);
 
             RequestRepaint();
+        }
+
+        /// <summary>
+        /// 初始化一个取值范围 Slider（查找不到对应元素时安全跳过）。
+        /// </summary>
+        /// <param name="sliderName">UXML 中 Slider 的 name（与布局绑定，不可改动）</param>
+        /// <param name="lowValue">下限</param>
+        /// <param name="highValue">上限</param>
+        private void SetupRangeSlider(string sliderName, float lowValue, float highValue)
+        {
+            var slider = Q<Slider>(sliderName);
+            if (slider == null)
+            {
+                return;
+            }
+
+            slider.lowValue = lowValue;
+            slider.highValue = highValue;
+            slider.value = 0;
+            slider.RegisterValueChangedCallback(evt => { });
         }
     }
 }

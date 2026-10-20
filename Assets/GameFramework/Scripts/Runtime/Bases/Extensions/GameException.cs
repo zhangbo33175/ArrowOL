@@ -95,17 +95,10 @@ namespace Honor.Runtime
                 {
                     originalMethodName = targetSite.Name;
 
-                    // 安全获取字段（防御反射失败）
-                    FieldInfo field = targetSite.GetType().GetField(
-                        "name",
-                        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.ExactBinding);
-
-                    if (field != null)
-                    {
-                        // 若匹配到文件名则使用，否则标记为 Lua 异常
-                        string displayName = string.IsNullOrEmpty(fileName) ? "Lua Exception" : fileName;
-                        field.SetValue(targetSite, displayName);
-                    }
+                    // TODO: 抽离重复的反射字段查找为私有辅助方法，避免两次 GetField 调用重复代码
+                    // 若匹配到文件名则使用，否则标记为 Lua 异常
+                    string displayName = string.IsNullOrEmpty(fileName) ? "Lua Exception" : fileName;
+                    SetTargetSiteDisplayName(targetSite, displayName);
                 }
 
                 // 输出异常
@@ -114,13 +107,34 @@ namespace Honor.Runtime
                 // 还原方法名（避免污染运行时）
                 if (targetSite != null && !string.IsNullOrEmpty(originalMethodName))
                 {
-                    FieldInfo field = targetSite.GetType().GetField(
-                        "name",
-                        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.ExactBinding);
-
-                    field?.SetValue(targetSite, originalMethodName);
+                    // TODO: 复用私有辅助方法还原 TargetSite 显示名，与上方修改逻辑保持一致
+                    SetTargetSiteDisplayName(targetSite, originalMethodName);
                 }
             }
+        }
+        #endregion
+
+        #region 私有辅助方法
+        //=========================================================================
+        // 私有辅助方法
+        //=========================================================================
+        /// <summary>
+        /// 通过反射修改 TargetSite 的内部 name 字段（用于 Lua 异常日志美化）
+        /// </summary>
+        /// <param name="targetSite">异常栈目标方法</param>
+        /// <param name="displayName">要设置的显示名</param>
+        /// <remarks>反射失败时静默忽略，不影响主流程</remarks>
+        private static void SetTargetSiteDisplayName(MethodBase targetSite, string displayName)
+        {
+            if (targetSite == null)
+                return;
+
+            // 安全获取字段（防御反射失败）
+            FieldInfo field = targetSite.GetType().GetField(
+                "name",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.ExactBinding);
+
+            field?.SetValue(targetSite, displayName);
         }
         #endregion
     }

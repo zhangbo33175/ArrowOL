@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  UIUtils.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   UGUI 工具类 - 点击命中判断、通用 UI 辅助
- * 优化记录: 由旧版 HonorUtils.UIUtils 迁移，统一命名空间，补充触摸与鼠标双端判断
  ***************************************************************/
 
 using UnityEngine;

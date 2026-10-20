@@ -1,12 +1,13 @@
 ﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  PrefabCacheManager.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   预制体缓存池 - 统一管理预制体实例的获取/回收/预加载，降低实例化开销
- * 优化记录: 由旧版 HonorAsset.CachePrefab/资源缓存思想迁移重构，
- *           接入框架 AssetComponent（abPath/assetName 规范），实例自动携带 CachePrefab 标记
+ *            由旧版 HonorAsset.CachePrefab/资源缓存思想迁移重构，接入框架 AssetComponent
+ *            （abPath/assetName 规范），实例自动携带 CachePrefab 标记
  ***************************************************************/
 
 using System.Collections.Generic;

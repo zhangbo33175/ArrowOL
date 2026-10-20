@@ -108,6 +108,12 @@ namespace Honor.Editor
             EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
             foreach (var entry in m_ConfigEntryMap)
             {
+                // TODO: 加固边界——部分配置项环境值可能不足 envIndex，原 entry.Value[envIndex] 会越界，缺值时跳过
+                if (entry.Value == null || envIndex >= entry.Value.Count)
+                {
+                    continue;
+                }
+
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(entry.Key, GUILayout.Width(200));
                 EditorGUILayout.LabelField(entry.Value[envIndex]);

@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  GraphicsUtils.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   图形工具 - 设计分辨率/主运行标记/角色根节点查找
- * 优化记录: 由旧版 HonorGraphics.GraphicsUtils 迁移，统一命名空间，补齐屏幕信息刷新
  ***************************************************************/
 
 using UnityEngine;

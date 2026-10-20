@@ -1,12 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  UITweener.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   UI 补间基类 - 不依赖 DOTween 的轻量补间系统（From/To/播放/暂停/回调）
- * 优化记录: 由旧版 HonorUtils.Tweening.UITweener 重构迁移，
- *           去掉 NGUI 残留依赖，改为纯 Unity + Action 回调，支持循环与反向
  ***************************************************************/
 
 using System;

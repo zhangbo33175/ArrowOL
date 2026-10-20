@@ -1,7 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LocalizationExportEditorWindow.cs
+ * author:    云毅
+ * created:   2026
  * descrip:   多语言工具窗口（Honor 菜单入口）
- *            完整迁移原 Localization Inspector 全部内容
  ***************************************************************/
 
 using System.Collections.Generic;
@@ -67,40 +71,64 @@ namespace Honor.Editor
             BindClick("chatgptBtn", () =>
                 EditorUtility.DisplayDialog("提示", "ChatGPT 翻译工具暂未集成", "确定"));
 
+            // TODO: 加固健壮性——下方若干 Q<Toggle>/Q<IMGUIContainer> 查不到元素时原写法直接空引用，统一判空
             var increaseToggle = Q<Toggle>("increaseToggle");
-            increaseToggle.value = m_EnableIncrease;
-            increaseToggle.RegisterValueChangedCallback(evt =>
+            if (increaseToggle != null)
             {
-                m_EnableIncrease = evt.newValue;
-                LocalizationComponentInspector.SaveLocalizationSettings(m_EnableIncrease, m_SingleVersion, "");
-                RequestRepaint();
-            });
+                increaseToggle.value = m_EnableIncrease;
+                increaseToggle.RegisterValueChangedCallback(evt =>
+                {
+                    m_EnableIncrease = evt.newValue;
+                    LocalizationComponentInspector.SaveLocalizationSettings(m_EnableIncrease, m_SingleVersion, "");
+                    RequestRepaint();
+                });
+            }
 
             var singleToggle = Q<Toggle>("singleVersionToggle");
-            singleToggle.value = m_SingleVersion;
-            singleToggle.RegisterValueChangedCallback(evt =>
+            if (singleToggle != null)
             {
-                m_SingleVersion = evt.newValue;
-                LocalizationComponentInspector.SaveLocalizationSettings(m_EnableIncrease, m_SingleVersion, "");
-            });
+                singleToggle.value = m_SingleVersion;
+                singleToggle.RegisterValueChangedCallback(evt =>
+                {
+                    m_SingleVersion = evt.newValue;
+                    LocalizationComponentInspector.SaveLocalizationSettings(m_EnableIncrease, m_SingleVersion, "");
+                });
+            }
 
             // 字体自动适配开关（纯 C# 单例，直接访问 Instance）
             var autoFontToggle = Q<Toggle>("autoFontToggle");
-            autoFontToggle.value = Honor.Runtime.LocalizationComponent.Instance != null;
-            autoFontToggle.RegisterValueChangedCallback(evt =>
+            if (autoFontToggle != null)
             {
-                // 纯 C# 单例，无 SerializedObject
-            });
+                autoFontToggle.value = Honor.Runtime.LocalizationComponent.Instance != null;
+                autoFontToggle.RegisterValueChangedCallback(evt =>
+                {
+                    // 纯 C# 单例，无 SerializedObject
+                });
+            }
 
             BindImgui("mainListContainer", DrawMainList);
             BindImgui("defaultListContainer", DrawDefaultList);
             BindImgui("fontListContainer", DrawFontList);
 
             // IMGUIContainer 不自动撑高，显式设置高度（11行 × 20px + padding）
-            Q<IMGUIContainer>("mainListContainer").style.height = 250;
-            Q<IMGUIContainer>("defaultListContainer").style.height = 250;
-            Q<IMGUIContainer>("fontListContainer").style.height = 240;
+            SetContainerHeight("mainListContainer", 250);
+            SetContainerHeight("defaultListContainer", 250);
+            SetContainerHeight("fontListContainer", 240);
             RequestRepaint();
+        }
+
+        /// <summary>
+        /// 设置指定 IMGUIContainer 的固定高度（元素不存在时安全跳过）。
+        /// </summary>
+        /// <param name="containerName">UXML 中 IMGUIContainer 的 name（与布局绑定，不可改动）</param>
+        /// <param name="height">固定高度（像素）</param>
+        private void SetContainerHeight(string containerName, float height)
+        {
+            var container = Q<IMGUIContainer>(containerName);
+            if (container != null)
+            {
+                container.style.height = height;
+            }
         }
 
         private static readonly Dictionary<string, string> LangDesc = new Dictionary<string, string>
@@ -113,7 +141,15 @@ namespace Honor.Editor
 
         private void DrawMainList()
         {
-            string[] luaFiles = Directory.GetFiles(EditorPath.Localization.LuaScriptsFolderFullPath,
+            // TODO: 加固健壮性——目录不存在时 Directory.GetFiles 会抛异常，与 DrawDefaultList 保持一致先判存在
+            string luaRoot = EditorPath.Localization.LuaScriptsFolderFullPath;
+            if (!Directory.Exists(luaRoot))
+            {
+                EditorGUILayout.LabelField("多语言类型数量", "0", EditorStyles.boldLabel);
+                return;
+            }
+
+            string[] luaFiles = Directory.GetFiles(luaRoot,
                 "Localization*.lua.txt", SearchOption.AllDirectories);
             EditorGUILayout.LabelField("多语言类型数量", luaFiles.Length.ToString(), EditorStyles.boldLabel);
             foreach (string f in luaFiles)

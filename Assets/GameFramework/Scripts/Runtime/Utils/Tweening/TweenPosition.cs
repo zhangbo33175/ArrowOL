@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  TweenPosition.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   位移补间 - 本地坐标 From→To 平滑移动
- * 优化记录: 由旧版 HonorUtils.Tweening.TweenPosition 重构迁移
  ***************************************************************/
 
 using UnityEngine;

@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  HideEffect.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   隐藏特效辅助 - 按名称隐藏/关闭特效节点中的指定子物体
- * 优化记录: 由旧版 HonorGraphics.HideEffect 迁移，统一命名空间
  ***************************************************************/
 
 using UnityEngine;

@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  TweenAlpha.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   透明度补间 - 支持 CanvasGroup 与 Graphic 的 From→To 透明度插值
- * 优化记录: 由旧版 HonorUtils.Tweening.TweenAlpha 重构迁移，合并 CanvasGroup/UGUI 双通道
  ***************************************************************/
 
 using UnityEngine;

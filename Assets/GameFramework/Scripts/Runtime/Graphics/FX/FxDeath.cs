@@ -1,12 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  FxDeath.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   死亡消散特效 - 角色溶解消散（支持正向/逆向、自定义角色对象）
- * 优化记录: 由旧版 HonorGraphics.FxDeath 迁移，移除对旧版 Game 命名空间依赖，
- *           修复渲染器分组逻辑，统一命名空间
  ***************************************************************/
 
 using System.Collections.Generic;

@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  FxDisplayIn.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   显形特效 - 角色从镜头/裁切位置"浮现"（Shader 裁剪显形）
- * 优化记录: 由旧版 HonorGraphics.FxDisplayIn 迁移，移除对旧版 Reflection 组件的依赖
  ***************************************************************/
 
 using UnityEngine;

@@ -103,9 +103,10 @@ namespace Honor.Editor
         /// <returns>命中 Android/iOS/WebGL 平台名时返回 true</returns>
         private static bool IsPlatformManifestPath(string assetPath)
         {
-            return assetPath.Equals("Android")
-                   || assetPath.Equals("iOS")
-                   || assetPath.Equals("WebGL");
+            // TODO: 加固健壮性——Path 可能为空，改用静态 string.Equals 避免空引用异常
+            return string.Equals(assetPath, "Android")
+                   || string.Equals(assetPath, "iOS")
+                   || string.Equals(assetPath, "WebGL");
         }
         #endregion
     }

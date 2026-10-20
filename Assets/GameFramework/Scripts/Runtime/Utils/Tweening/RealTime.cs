@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  RealTime.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   真实时间工具 - 不受 Time.timeScale 影响的计时（暂停菜单等场景适用）
- * 优化记录: 由旧版 HonorUtils.Tweening.RealTime 迁移，统一命名空间
  ***************************************************************/
 
 using UnityEngine;

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using Honor.Runtime;
-using UnityEditor;
-
-/***************************************************************
+﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -15,6 +7,14 @@ using UnityEditor;
  * created:   2026
  * descrip:   持久化组件Inspector面板扩展 - Proto协议自动生成Lua存档结构
  ***************************************************************/
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using Honor.Runtime;
+using UnityEditor;
 
 namespace Honor.Editor
 {

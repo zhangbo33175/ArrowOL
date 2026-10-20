@@ -1,5 +1,10 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LuaScriptEditorWindow.cs
+ * author:    云毅
+ * created:   2026
  * descrip:   XLua 脚本工具窗口（Honor 菜单入口）
  ***************************************************************/
 
@@ -44,8 +49,12 @@ namespace Honor.Editor
             BindClick("regenBtn", () => Generator.ClearAll());
 
             var profilerToggle = Q<Toggle>("profilerToggle");
-            profilerToggle.value = false;
-            profilerToggle.RegisterValueChangedCallback(evt => { });
+            // TODO: 加固健壮性——profilerToggle 查不到时原写法直接空引用，加判空
+            if (profilerToggle != null)
+            {
+                profilerToggle.value = false;
+                profilerToggle.RegisterValueChangedCallback(evt => { });
+            }
 
             m_NameField = Q<TextField>("nameField");
             m_SuperField = Q<TextField>("superField");
@@ -60,6 +69,14 @@ namespace Honor.Editor
 
         private void OnGenerate()
         {
+            // TODO: 加固健壮性——UXML 元素缺失时下方字段访问会空引用，统一在入口拦截
+            if (m_NameField == null || m_SuperField == null || m_ProcToggle == null
+                || m_AuthorField == null || m_DescField == null || m_HelpBox == null)
+            {
+                Debug.LogWarning("[LuaScriptEditorWindow] 部分 UI 元素未找到，请检查 UXML 布局。");
+                return;
+            }
+
             m_ScriptName = m_NameField.value;
             m_SuperName = m_SuperField.value;
             m_UseProc = m_ProcToggle.value;

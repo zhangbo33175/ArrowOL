@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  EventDelegate.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   轻量事件委托 - 支持方法绑定与一次回调，补间结束事件使用
- * 优化记录: 由旧版 HonorUtils.Tweening.EventDelegate 精简迁移，改为泛型 Action 封装
  ***************************************************************/
 
 using System;

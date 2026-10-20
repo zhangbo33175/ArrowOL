@@ -1,11 +1,12 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  CachePrefab.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   预制体缓存标记组件 - 记录实例来源路径，供缓存池回收定位
- * 优化记录: 由旧版 HonorAsset.CachePrefab 迁移，统一命名空间并补齐缓存池引用
+ *            由旧版 HonorAsset.CachePrefab 迁移，统一命名空间并补齐缓存池引用
  ***************************************************************/
 
 using UnityEngine;

@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  SpringPosition.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   弹性位移 - 带阻尼弹簧效果的平滑归位（接近目标时自然减速）
- * 优化记录: 由旧版 HonorUtils.Tweening.SpringPosition 重构迁移
  ***************************************************************/
 
 using UnityEngine;

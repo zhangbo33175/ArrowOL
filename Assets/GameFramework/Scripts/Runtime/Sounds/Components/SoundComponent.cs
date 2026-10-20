@@ -1,9 +1,10 @@
 ﻿/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  SoundComponent.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   音频管理组件 - 游戏全局声音总入口（分组/播放/暂停/停止/淡入淡出/Lua）
  ***************************************************************/
 
@@ -34,9 +35,64 @@ namespace Honor.Runtime
             Object.DontDestroyOnLoad(m_SoundGo);
             m_AudioListener = m_SoundGo.GetOrAddComponent<AudioListener>();
 
-            // 默认声音组
-            AddSoundGroup("Music", 4);
-            AddSoundGroup("UISound", 2);
+            // 从音频配置资产读取声音组与混音器；资产缺失/未配置时回退到默认硬编码
+            InitializeFromSoundConfig();
+        }
+
+        /// <summary>
+        /// 根据 SoundConfig 资产初始化声音组与混音器
+        /// <para>优先读取 SoundConfig.asset（AudioMixer + 声音组预设），资产缺失或未配置时
+        /// 回退到默认声音组（Music / UISound），保证旧工程行为不变、运行稳健。</para>
+        /// </summary>
+        private void InitializeFromSoundConfig()
+        {
+            SoundConfig soundConfig = LoadSoundConfigAsset();
+            if (soundConfig == null)
+            {
+                // 默认声音组（未配置音频资产时的回退）
+                AddSoundGroup("Music", 4);
+                AddSoundGroup("UISound", 2);
+                return;
+            }
+
+            // 应用混音器（供声音组轨道绑定使用）
+            m_AudioMixer = soundConfig.AudioMixer;
+
+            // 按资产预设创建声音组；空配置时回退默认
+            SoundGroupShell[] shells = soundConfig.SoundGroupShells;
+            if (shells == null || shells.Length == 0)
+            {
+                AddSoundGroup("Music", 4);
+                AddSoundGroup("UISound", 2);
+                return;
+            }
+
+            for (int i = 0; i < shells.Length; i++)
+            {
+                SoundGroupShell shell = shells[i];
+                if (shell == null || string.IsNullOrEmpty(shell.Name))
+                {
+                    continue; // 跳过未配置/空名的预设项，保证健壮性
+                }
+
+                AddSoundGroup(
+                    shell.Name,
+                    shell.AvoidBeingReplacedBySamePriority,
+                    shell.Mute,
+                    shell.Volume,
+                    shell.AgentCount);
+            }
+        }
+
+        /// <summary>
+        /// 加载音频配置资产
+        /// <para>统一走 <see cref="SoundConfig.Instance"/>（带缓存），资产未生成时返回 null，
+        /// 调用方回退默认值。</para>
+        /// </summary>
+        /// <returns>音频配置资产；未找到返回 null</returns>
+        private static SoundConfig LoadSoundConfigAsset()
+        {
+            return SoundConfig.Instance;
         }
 
         public void Cleanup()

@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  DebuggerComponent.cs
- * author:    taoye
- * created:   2020/8/26
+ * author:    云毅
+ * created:   2026
  * descrip:   调试组件
  ***************************************************************/
 using System;
@@ -213,10 +213,14 @@ namespace Honor.Runtime
         /// </summary>
         [SerializeField]
         private bool m_StayBorder = false;
+        /// <summary>
+        /// 是否吸附在屏幕边缘
+        /// </summary>
         public bool StayBorder
         {
-            set { StayBorder = value; }
-            get { return StayBorder; }
+            // TODO: 修复原 setter 递归自调用 StayBorder = value 的 bug，改为正确写入 m_StayBorder
+            set { m_StayBorder = value; }
+            get { return m_StayBorder; }
         }
 
         /// <summary>
@@ -573,5 +577,4 @@ namespace Honor.Runtime
 
     }
 }
-
 

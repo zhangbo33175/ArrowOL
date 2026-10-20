@@ -23,6 +23,12 @@ namespace Honor.Runtime
     /// </summary>
     public static class GameExtension
     {
+        // TODO: 将汉字匹配正则缓存为静态只读实例，避免每次调用 GetChineseNum 重复分配 Regex 对象
+        /// <summary>
+        /// 汉字字符匹配正则（静态缓存，线程安全）
+        /// </summary>
+        private static readonly Regex s_ChineseCharRegex = new Regex(@"[\u4E00-\u9FA5]");
+
         #region 字符串格式化操作
         //=========================================================================
         // 字符串格式化操作
@@ -205,11 +211,11 @@ namespace Honor.Runtime
                 return 0;
 
             int count = 0;
-            Regex regex = new Regex(@"[\u4E00-\u9FA5]");
 
+            // TODO: 复用静态缓存的汉字正则，消除每次调用的 Regex 构造开销
             foreach (char c in s)
             {
-                if (regex.IsMatch(c.ToString()))
+                if (s_ChineseCharRegex.IsMatch(c.ToString()))
                     count++;
             }
 

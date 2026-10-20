@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  TweenActive.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   激活补间 - 按进度切换 GameObject 激活状态（用于淡入淡出配合）
- * 优化记录: 由旧版 HonorUtils.Tweening.TweenActive 重构迁移
  ***************************************************************/
 
 using UnityEngine;

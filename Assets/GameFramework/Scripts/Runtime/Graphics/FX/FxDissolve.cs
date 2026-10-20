@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  FxDissolve.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   溶解特效 - 角色整体溶解出现/消失（可配置方向、颜色、遮罩量）
- * 优化记录: 由旧版 HonorGraphics.FxDissolve 迁移，修复 smr 引用 bug，统一命名空间
  ***************************************************************/
 
 using UnityEngine;

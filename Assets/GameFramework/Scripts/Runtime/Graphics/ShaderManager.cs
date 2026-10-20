@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  ShaderManager.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   Shader 管理器 - 统一查找与缓存 Shader，避免运行时重复 Find
- * 优化记录: 由旧版 HonorGraphics.ShaderManager 迁移，统一命名空间，增加预热接口
  ***************************************************************/
 
 using System.Collections.Generic;

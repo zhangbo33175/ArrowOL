@@ -1,12 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  GameExtensionForUnity.HonorUtils.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   Unity 扩展方法补充 - 接口查找/组件查找/层级路径/Layer/滚动条提示
- * 优化记录: 由旧版 HonorUtils GameObjectExtends/TransformExtends/UGUIExtends 迁移，
- *           与框架既有 GameExtensionForUnity.* 共存，避免重复方法名
  ***************************************************************/
 
 using System;

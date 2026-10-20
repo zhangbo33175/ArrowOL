@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  TweenColor.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   颜色补间 - Graphic/Renderer 颜色 From→To 平滑渐变
- * 优化记录: 由旧版 HonorUtils.Tweening.TweenColor 重构迁移
  ***************************************************************/
 
 using UnityEngine;

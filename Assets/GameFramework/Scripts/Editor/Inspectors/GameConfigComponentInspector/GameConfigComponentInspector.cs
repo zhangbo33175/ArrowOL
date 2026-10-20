@@ -1,4 +1,15 @@
-﻿/*using System.Collections.Generic;
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  GameConfigComponentInspector.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   配置组件Inspector - 主分部类（序列化属性绑定与 OnEnable 初始化）
+ *            TODO: 该 Inspector 整体已被块注释禁用（功能迁移/退役），保留源码备查
+ ***************************************************************/
+
+/*using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using GameLib;

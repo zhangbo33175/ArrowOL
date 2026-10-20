@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  TextureBlur.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   纹理模糊 - 屏幕空间降采样模糊（背景模糊/景深陪衬），支持渐入与循环
- * 优化记录: 由旧版 HonorGraphics.TextureBlur 迁移，统一命名空间，修正材质释放逻辑
  ***************************************************************/
 
 using UnityEngine;

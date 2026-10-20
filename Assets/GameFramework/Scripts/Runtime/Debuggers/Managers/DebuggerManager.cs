@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  DebuggerManager.cs
- * author:    taoye
- * created:   2020/8/26
+ * author:    云毅
+ * created:   2026
  * descrip:   调试器管理器
  ***************************************************************/
 
@@ -122,5 +122,4 @@ namespace Honor.Runtime
         }
     }
 }
-
 

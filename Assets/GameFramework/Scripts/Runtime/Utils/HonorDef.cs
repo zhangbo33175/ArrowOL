@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  HonorDef.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   游戏全局常量定义 - 通用前缀与 PlayerPrefs 存储键
- * 优化记录: 由旧版 HonorUtils.HonorDef 迁移，统一命名空间
  ***************************************************************/
 
 namespace Honor.Runtime

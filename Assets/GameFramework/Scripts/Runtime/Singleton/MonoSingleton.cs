@@ -1,12 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  MonoSingleton.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   商业级 MonoBehaviour 单例基类（线程安全、防报错、跨场景留存）
- * 优化记录: 替换过时查找API(FindObjectOfType→FindFirstObjectByType)；
- *           修复编辑器域重载后退出标记不重置的残留BUG；运行时销毁安全化
  ***************************************************************/
 
 using System.Collections;

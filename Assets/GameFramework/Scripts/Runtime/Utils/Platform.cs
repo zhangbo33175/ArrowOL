@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  Platform.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   运行平台工具类 - 统一判断当前运行环境（编辑器/Android/iOS/Windows）与编译宏
- * 优化记录: 由旧版 HonorUtils.Platform 迁移，统一命名空间与编码规范，补齐宏开关说明
  ***************************************************************/
 
 using UnityEngine;

@@ -1,9 +1,10 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  SoundGroupHelper.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   声音组辅助脚本 —— 声音组的GameObject载体，用于绑定AudioMixer分组轨道
  ***************************************************************/
 

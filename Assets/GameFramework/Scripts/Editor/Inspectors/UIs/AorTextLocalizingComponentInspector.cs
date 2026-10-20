@@ -82,10 +82,28 @@ namespace Honor.Editor.Inspectors.UIs
         /// </summary>
         private void LoadAvailableFontMarks()
         {
+            // TODO: 加固健壮性——字体配置文件可能尚未导出/缺失，原写法 File.ReadAllText 会直接抛异常中断 Inspector
+            m_AvailableMarks = System.Array.Empty<string>();
+            m_SelectedMarkIndex = 0;
+
             // 读取项目多语言字体配置表 LocalizationFonts.json
             string fontConfigPath = Runtime.GamePathUtils.Json.GetRootDirectoryRelativePath() + "/LocalizationFonts.json";
-            string fontConfigText = File.ReadAllText(fontConfigPath);
-            JObject fontConfig = JObject.Parse(fontConfigText);
+            if (!File.Exists(fontConfigPath))
+            {
+                return;
+            }
+
+            JObject fontConfig;
+            try
+            {
+                string fontConfigText = File.ReadAllText(fontConfigPath);
+                fontConfig = JObject.Parse(fontConfigText);
+            }
+            catch (System.Exception e)
+            {
+                UnityEngine.Debug.LogWarning($"[AorTextLocalizing] 读取字体配置失败：{fontConfigPath}\n{e.Message}");
+                return;
+            }
 
             List<string> markOptions = CollectMarkEntries(fontConfig);
             m_AvailableMarks = markOptions.ToArray();
@@ -144,9 +162,12 @@ namespace Honor.Editor.Inspectors.UIs
             // 多语言 Key 输入框
             EditorGUILayout.PropertyField(m_KeyNameProperty, new GUIContent("本地化字段名称"));
 
-            // 字体标记下拉选择框
-            m_SelectedMarkIndex = EditorGUILayout.Popup("本地化字体标记", m_SelectedMarkIndex, m_AvailableMarks);
-            m_FontMarkProperty.stringValue = m_AvailableMarks[m_SelectedMarkIndex];
+            // 字体标记下拉选择框（配置表为空时不绘制，避免空数组 Popup / 索引越界）
+            if (m_AvailableMarks != null && m_AvailableMarks.Length > 0)
+            {
+                m_SelectedMarkIndex = EditorGUILayout.Popup("本地化字体标记", m_SelectedMarkIndex, m_AvailableMarks);
+                m_FontMarkProperty.stringValue = m_AvailableMarks[m_SelectedMarkIndex];
+            }
 
             // 提示信息
             EditorGUILayout.HelpBox("此处请填写本地化字体表中的自定义标记，留空表示使用主字体。", MessageType.Info);

@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  DefLayer.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   游戏层级常量定义 - 统一管理所有业务 Layer 名称
- * 优化记录: 由旧版 HonorUtils.DefLayer 迁移，补齐每个层的用途说明
  ***************************************************************/
 
 namespace Honor.Runtime

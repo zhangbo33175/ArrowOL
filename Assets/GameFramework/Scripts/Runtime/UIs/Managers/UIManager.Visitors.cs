@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  UIManager.Visitors.cs
- * author:  云毅
- * created: 2026
+ * author:    云毅
+ * created:   2026
  * descrip:   UI 管理器 - 成员变量、属性、核心定义
  ***************************************************************/
 using System.Collections.Generic;

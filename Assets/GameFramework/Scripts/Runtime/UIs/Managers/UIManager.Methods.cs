@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  UIManager.Methods.cs
- * author:  云毅
- * created: 2026
+ * author:    云毅
+ * created:   2026
  * descrip:   UI 管理器 - 私有工具方法与内部逻辑
  ***************************************************************/
 using System;

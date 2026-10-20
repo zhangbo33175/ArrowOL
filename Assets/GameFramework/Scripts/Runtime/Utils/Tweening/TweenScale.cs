@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  TweenScale.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   缩放补间 - 本地缩放 From→To 平滑缩放
- * 优化记录: 由旧版 HonorUtils.Tweening.TweenScale 重构迁移
  ***************************************************************/
 
 using UnityEngine;

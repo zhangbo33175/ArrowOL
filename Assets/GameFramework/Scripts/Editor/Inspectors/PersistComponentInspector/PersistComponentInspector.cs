@@ -107,8 +107,30 @@ namespace Honor.Editor
         /// </summary>
         private void OnEnable()
         {
-            RefreshTypeNames();
+            LoadPersistDataByEditorState();
+        }
 
+        /// <summary>
+        /// 【供 Honor 存档工具窗口调用】无 target 场景下的初始化入口
+        /// <para>PersistComponent 已改为纯 C# 单例（Singleton&lt;PersistComponent&gt;），不再有
+        /// UnityEngine.Object 实例，因此 <see cref="UnityEditor.Editor"/> 无法通过 CreateEditor 绑定
+        /// target。存档工具窗口直接 new 一个本检视器并调用此方法完成数据加载，从而在独立窗口
+        /// 中渲染完整的存档数据管理面板（数据库持久化 / 文件片段持久化）。</para>
+        /// </summary>
+        public void InitializeForToolWindow()
+        {
+            // PersistComponent 为纯 C# 单例，无 Unity 序列化对象可刷新；
+            // 数据全部来自 PlayerPrefs / 文件 / 单例实例，此处只做数据加载。
+            LoadPersistDataByEditorState();
+        }
+
+        /// <summary>
+        /// 按当前编辑器运行状态加载持久化数据到内存缓存
+        /// <para>非运行态：从 PlayerPrefs / 文件片段读取并构建编辑用数据结构；
+        /// 运行态：仅解析 Proto 协议结构供运行时解码面板使用。</para>
+        /// </summary>
+        private void LoadPersistDataByEditorState()
+        {
             // 非运行时逻辑处理（读取文件中的数据结构）
             if (!EditorApplication.isPlaying)
             {
@@ -155,8 +177,6 @@ namespace Honor.Editor
         /// <summary>绘制完整存档调试面板（供 Honor 存档工具窗口调用）</summary>
         public void DrawDebugPanels()
         {
-            serializedObject.Update();
-
             if (EditorApplication.isPlaying)
             {
                 RefreshGUIOnRuntimeMode(PersistWayType.PlayerPrefs);
@@ -167,8 +187,6 @@ namespace Honor.Editor
                 RefreshGUIOnEditorMode(PersistWayType.PlayerPrefs);
                 RefreshGUIOnEditorMode(PersistWayType.FileFragment);
             }
-
-            serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>导出全部存档 Proto 协议到 Lua（供 Honor 存档工具窗口调用）</summary>
@@ -192,7 +210,7 @@ namespace Honor.Editor
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-            RefreshTypeNames();
+            // PersistComponent 为纯 C# 单例，无序列化对象需要刷新，编译完成后无需额外处理
         }
         #endregion
 
@@ -217,14 +235,6 @@ namespace Honor.Editor
                 default:
                     throw new Exception(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
             }
-        }
-
-        /// <summary>
-        /// 刷新序列化对象类型名称
-        /// </summary>
-        private void RefreshTypeNames()
-        {
-            serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>

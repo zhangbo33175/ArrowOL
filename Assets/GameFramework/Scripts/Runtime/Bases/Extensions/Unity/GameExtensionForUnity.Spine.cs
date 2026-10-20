@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * filename:  GameExtensionForUnity.Spine.cs
  * author:    云毅
- * created:   2025
+ * created:   2026
  * descrip:   Spine动画扩展方法 - 动态换装、Slot皮肤图片替换
  ***************************************************************/
 #if SPINE_ENABLE

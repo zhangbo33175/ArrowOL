@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  TweenRotation.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   旋转补间 - 本地欧拉角 From→To 平滑旋转
- * 优化记录: 由旧版 HonorUtils.Tweening.TweenRotation 重构迁移
  ***************************************************************/
 
 using UnityEngine;

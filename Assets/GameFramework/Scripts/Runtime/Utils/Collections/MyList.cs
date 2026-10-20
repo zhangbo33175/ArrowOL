@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  MyList.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   谓词查找增强列表 - 基于 BetterList 提供 Find/FindAll/RemoveAll 等 LINQ 式能力
- * 优化记录: 由旧版 HonorUtils.MyList 迁移，统一命名空间，补齐交换删除重载
  ***************************************************************/
 
 using System;

@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  PostEffectDissolve.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   全屏溶解后处理 - 屏幕淡出/场景切换溶解（支持底层纹理叠加）
- * 优化记录: 由旧版 HonorGraphics.PostEffectDissolve 迁移，噪点纹理改为外部注入，统一命名空间
  ***************************************************************/
 
 using UnityEngine;

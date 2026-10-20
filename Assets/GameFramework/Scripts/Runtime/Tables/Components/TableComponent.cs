@@ -50,6 +50,10 @@ namespace Honor.Runtime
 
         #endregion
 
+        /// <summary>
+        /// 释放组件（C#层未实现，实际资源回收由Lua层驱动）
+        /// </summary>
+        /// <exception cref="System.NotImplementedException">始终抛出，提示调用方走Lua释放路径</exception>
         public override void Dispose()
         {
             throw new System.NotImplementedException();

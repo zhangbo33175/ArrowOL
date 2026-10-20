@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  IDebuggerWindowGroup.cs
- * author:    taoye
- * created:   2020/8/26
+ * author:    云毅
+ * created:   2026
  * descrip:   调试器窗口组接口
  ***************************************************************/
 
@@ -60,5 +60,4 @@ namespace Honor.Runtime
         void RegisterDebuggerWindow(string path, IDebuggerWindow debuggerWindow);
     }
 }
-
 

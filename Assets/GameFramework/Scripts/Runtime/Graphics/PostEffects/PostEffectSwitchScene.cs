@@ -1,12 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  PostEffectSwitchScene.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   切场溶解后处理 - 场景切换时的全屏溶解转场（支持切层相机与噪声贴图）
- * 优化记录: 由旧版 HonorGraphics.PostEffectSwitchScene 迁移，
- *           移除旧版 FastShadowProjector/AssetUtils 依赖，噪声纹理外部注入
  ***************************************************************/
 
 using UnityEngine;

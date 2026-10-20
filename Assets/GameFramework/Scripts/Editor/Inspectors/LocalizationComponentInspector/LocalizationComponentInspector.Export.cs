@@ -1,7 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  LocalizationComponentInspector.Export.cs
+ * author:    云毅
+ * created:   2026
  * descrip:   LocalizationComponentInspector 静态导出方法分部
- *            供 LocalizationExportEditorWindow 调用
  ***************************************************************/
 
 using System.Collections.Generic;
@@ -28,7 +32,15 @@ namespace Honor.Editor
             enableExportLuaIncrease = false;
             enableExportLuaIncreaseSingleVersion = false;
             exportLuaIncreasePath = string.Empty;
-            string content = File.ReadAllText(EditorPath.Editor.Localization.ProjectSettingFileFullPath);
+            // TODO: 加固健壮性——设置文件首次运行可能尚不存在，原 File.ReadAllText 会抛异常，缺失时走默认值
+            string settingPath = EditorPath.Editor.Localization.ProjectSettingFileFullPath;
+            if (!File.Exists(settingPath))
+            {
+                exportLuaIncreasePath = EditorPath.Localization.LuaIncreaseFolderName;
+                return;
+            }
+
+            string content = File.ReadAllText(settingPath);
             JObject j = JObject.Parse(content);
             if (j.ContainsKey("EnableExportLuaIncrease")) enableExportLuaIncrease = (bool)j["EnableExportLuaIncrease"];
             if (j.ContainsKey("EnableExportLuaIncreaseSingleVersion")) enableExportLuaIncreaseSingleVersion = (bool)j["EnableExportLuaIncreaseSingleVersion"];

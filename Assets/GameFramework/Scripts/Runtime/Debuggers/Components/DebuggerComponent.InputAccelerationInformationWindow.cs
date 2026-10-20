@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  DebuggerComponent.cs
- * author:    taoye
- * created:   2020/8/26
+ * author:    云毅
+ * created:   2026
  * descrip:   调试组件
  ***************************************************************/
 using UnityEngine;
@@ -45,5 +45,4 @@ namespace Honor.Runtime
         }
     }
 }
-
 

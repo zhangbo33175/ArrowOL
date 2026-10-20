@@ -13,7 +13,10 @@ using UnityEditor;
 
 namespace Honor.Editor
 {
-    [CustomEditor(typeof(Honor.Runtime.ConfigComponent))]
+    // ConfigComponent 为纯 C# 单例（Singleton<ConfigComponent>），非 UnityEngine.Component，
+    // [CustomEditor] 无法绑定到非 Component 类型，该属性无效且会触发 Unity 校验警告。
+    // 配置表导出已迁移至「Honor → 配置表工具」（ConfigExportEditorWindow），故注释禁用此检视器。
+    // [CustomEditor(typeof(Honor.Runtime.ConfigComponent))]
     public class ConfigComponentInspector : HonorComponentInspector
     {
         public override void OnInspectorGUI()

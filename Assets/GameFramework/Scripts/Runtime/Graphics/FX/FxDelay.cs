@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  FxDelay.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   延迟残影特效 - 从自身分出 N 个影子节点按帧延迟跟随动画（残影/分身表现）
- * 优化记录: 由旧版 HonorGraphics.FxDelay 迁移，修正字符串空判断，统一命名空间
  ***************************************************************/
 
 using System.Collections.Generic;

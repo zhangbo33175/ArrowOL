@@ -75,44 +75,81 @@ namespace Honor.Editor
             m_Root = tree.CloneTree();
             if (style != null) m_Root.styleSheets.Add(style);
 
+            // TODO: 抽离重复的控件绑定样板——下方 5 个字段原本各写一遍 Q<>+判空+回写，收敛为统一辅助方法
             // 判空保护：CloneTree 正常时元素必定存在，仍按查不到即回退，避免二次崩溃
-            var skinField = m_Root.Q<UnityEditor.UIElements.ObjectField>("skinField");
-            if (skinField != null)
-            {
-                skinField.value = m_Skin.objectReferenceValue;
-                skinField.RegisterValueChangedCallback(e => { m_Skin.objectReferenceValue = e.newValue; serializedObject.ApplyModifiedProperties(); });
-            }
-
-            var miniField = m_Root.Q<UnityEditor.UIElements.ObjectField>("miniSkinField");
-            if (miniField != null)
-            {
-                miniField.value = m_MiniSkin.objectReferenceValue;
-                miniField.RegisterValueChangedCallback(e => { m_MiniSkin.objectReferenceValue = e.newValue; serializedObject.ApplyModifiedProperties(); });
-            }
-
-            var popField = m_Root.Q<UnityEditor.UIElements.ObjectField>("popSkinField");
-            if (popField != null)
-            {
-                popField.value = m_PopWindowSkin.objectReferenceValue;
-                popField.RegisterValueChangedCallback(e => { m_PopWindowSkin.objectReferenceValue = e.newValue; serializedObject.ApplyModifiedProperties(); });
-            }
-
-            var stayBorderToggle = m_Root.Q<Toggle>("stayBorderToggle");
-            if (stayBorderToggle != null)
-            {
-                stayBorderToggle.value = m_StayBorder.boolValue;
-                stayBorderToggle.RegisterValueChangedCallback(e => { m_StayBorder.boolValue = e.newValue; serializedObject.ApplyModifiedProperties(); });
-            }
-
-            var idleTimeField = m_Root.Q<IntegerField>("idleTimeField");
-            if (idleTimeField != null)
-            {
-                idleTimeField.value = m_EnterIdleTime.intValue;
-                idleTimeField.RegisterValueChangedCallback(e => { m_EnterIdleTime.intValue = e.newValue; serializedObject.ApplyModifiedProperties(); });
-            }
+            BindObjectField("skinField", m_Skin);
+            BindObjectField("miniSkinField", m_MiniSkin);
+            BindObjectField("popSkinField", m_PopWindowSkin);
+            BindToggle("stayBorderToggle", m_StayBorder);
+            BindIntegerField("idleTimeField", m_EnterIdleTime);
 
             return m_Root;
         }
+
+        #region UI Toolkit 控件绑定辅助
+        /// <summary>
+        /// 绑定 ObjectField 到指定序列化对象字段：初始回填引用，值变化时写回并 ApplyModifiedProperties。
+        /// </summary>
+        /// <param name="fieldName">UXML 中 ObjectField 的 name（与布局绑定，不可改动）</param>
+        /// <param name="property">目标序列化属性</param>
+        private void BindObjectField(string fieldName, SerializedProperty property)
+        {
+            var field = m_Root.Q<UnityEditor.UIElements.ObjectField>(fieldName);
+            if (field == null)
+            {
+                return;
+            }
+
+            field.value = property.objectReferenceValue;
+            field.RegisterValueChangedCallback(e =>
+            {
+                property.objectReferenceValue = e.newValue;
+                serializedObject.ApplyModifiedProperties();
+            });
+        }
+
+        /// <summary>
+        /// 绑定 Toggle 到指定序列化布尔字段：初始回填开关，值变化时写回并 ApplyModifiedProperties。
+        /// </summary>
+        /// <param name="fieldName">UXML 中 Toggle 的 name（与布局绑定，不可改动）</param>
+        /// <param name="property">目标序列化属性</param>
+        private void BindToggle(string fieldName, SerializedProperty property)
+        {
+            var toggle = m_Root.Q<Toggle>(fieldName);
+            if (toggle == null)
+            {
+                return;
+            }
+
+            toggle.value = property.boolValue;
+            toggle.RegisterValueChangedCallback(e =>
+            {
+                property.boolValue = e.newValue;
+                serializedObject.ApplyModifiedProperties();
+            });
+        }
+
+        /// <summary>
+        /// 绑定 IntegerField 到指定序列化整型字段：初始回填数值，值变化时写回并 ApplyModifiedProperties。
+        /// </summary>
+        /// <param name="fieldName">UXML 中 IntegerField 的 name（与布局绑定，不可改动）</param>
+        /// <param name="property">目标序列化属性</param>
+        private void BindIntegerField(string fieldName, SerializedProperty property)
+        {
+            var intField = m_Root.Q<IntegerField>(fieldName);
+            if (intField == null)
+            {
+                return;
+            }
+
+            intField.value = property.intValue;
+            intField.RegisterValueChangedCallback(e =>
+            {
+                property.intValue = e.newValue;
+                serializedObject.ApplyModifiedProperties();
+            });
+        }
+        #endregion
 
         private void OpenFolder(string folderPath)
         {
@@ -130,17 +167,20 @@ namespace Honor.Editor
         private void ReadAABToolsFromLibraryConfigFile()
         {
             string dataPath = Path.GetFullPath("Library/AABTools.dat");
-            if (File.Exists(dataPath))
+            if (!File.Exists(dataPath))
             {
-                var j = JObject.Parse(File.ReadAllText(dataPath));
-                m_AndroidAABAbsolutelyPath = j["AABPath"].ToString();
-                m_AndroidAPKSAbsolutelyPath = j["APKSPath"].ToString();
-                m_AndroidBundleToolAbsolutelyPath = j["BundleToolPath"].ToString();
-                m_AndroidSignatureAbsolutelyPath = j["SignaturePath"].ToString();
-                m_AndroidSignatureAlias = j["SignatureAlias"].ToString();
-                m_AndroidSignaturePass = j["SignaturePass"].ToString();
-                m_AndroidADBAbsolutelyPath = j["ADBPath"].ToString();
+                return;
             }
+
+            var j = JObject.Parse(File.ReadAllText(dataPath));
+            // TODO: 加固健壮性——配置文件缺字段时 j[key] 为 null，原写法 .ToString() 会抛空引用，改为 ?? "None" 保持默认值
+            m_AndroidAABAbsolutelyPath = j["AABPath"]?.ToString() ?? "None";
+            m_AndroidAPKSAbsolutelyPath = j["APKSPath"]?.ToString() ?? "None";
+            m_AndroidBundleToolAbsolutelyPath = j["BundleToolPath"]?.ToString() ?? "None";
+            m_AndroidSignatureAbsolutelyPath = j["SignaturePath"]?.ToString() ?? "None";
+            m_AndroidSignatureAlias = j["SignatureAlias"]?.ToString() ?? "None";
+            m_AndroidSignaturePass = j["SignaturePass"]?.ToString() ?? "None";
+            m_AndroidADBAbsolutelyPath = j["ADBPath"]?.ToString() ?? "None";
         }
     }
 }

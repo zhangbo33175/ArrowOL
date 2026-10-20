@@ -1,12 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  BetterList.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   轻量级动态数组 - 基于数组的 List 替代品（避免 GC 与装箱）
- * 优化记录: 由旧版 HonorUtils.Tweening.BetterList 迁移，统一命名空间，
- *           补齐 TryGet 与 Trim 接口，规范命名
  ***************************************************************/
 
 using System;

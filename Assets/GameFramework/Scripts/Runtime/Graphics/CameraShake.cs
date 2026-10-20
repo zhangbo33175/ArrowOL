@@ -1,11 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  CameraShake.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   相机震动 - 基于 DOTween 的位置/旋转震动（打击感、场景震撼）
- * 优化记录: 由旧版 HonorGraphics.CameraShake 迁移，统一命名空间，补齐旋转震动与参数说明
  ***************************************************************/
 
 using DG.Tweening;

@@ -103,18 +103,22 @@ namespace Honor.Editor
 
             // 搜索
             var searchField = rootVisualElement.Q<TextField>("searchField");
-            searchField.RegisterValueChangedCallback(evt =>
+            // TODO: 加固健壮性——searchField 查不到时原写法直接空引用，加判空
+            if (searchField != null)
             {
-                m_SearchName = evt.newValue;
-                m_SearchResults.Clear();
-                if (!string.IsNullOrEmpty(m_SearchName))
-                    BuildSearchResults(m_Root, m_SearchName.ToLower());
-                RequestRepaint();
-            });
+                searchField.RegisterValueChangedCallback(evt =>
+                {
+                    m_SearchName = evt.newValue;
+                    m_SearchResults.Clear();
+                    if (!string.IsNullOrEmpty(m_SearchName))
+                        BuildSearchResults(m_Root, m_SearchName.ToLower());
+                    RequestRepaint();
+                });
+            }
             BindClick("clearSearchBtn", () =>
             {
                 m_SearchName = string.Empty;
-                searchField.value = string.Empty;
+                if (searchField != null) searchField.value = string.Empty;
                 m_SearchResults.Clear();
                 RequestRepaint();
             });
@@ -168,8 +172,11 @@ namespace Honor.Editor
 
         private void UpdateHeaderLabels()
         {
-            rootVisualElement.Q<Label>("excelCountLabel").text = $"Excel 数量: {m_ExcelFileCount}";
-            rootVisualElement.Q<Label>("luaCountLabel").text = $"Lua 数量: {m_LuaFileNames.Count}";
+            // TODO: 加固健壮性——头部 Label 查不到时原写法直接空引用，加判空
+            var excelCountLabel = rootVisualElement.Q<Label>("excelCountLabel");
+            if (excelCountLabel != null) excelCountLabel.text = $"Excel 数量: {m_ExcelFileCount}";
+            var luaCountLabel = rootVisualElement.Q<Label>("luaCountLabel");
+            if (luaCountLabel != null) luaCountLabel.text = $"Lua 数量: {m_LuaFileNames.Count}";
         }
 
         /// <summary>标记需要在下一帧更新头部标签（避免在 IMGUI 事件中直接修改视觉树）</summary>

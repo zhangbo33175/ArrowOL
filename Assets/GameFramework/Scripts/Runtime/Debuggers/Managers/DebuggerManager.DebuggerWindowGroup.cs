@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  DebuggerManager.DebuggerWindowGroup.cs
- * author:    taoye
- * created:   2020/8/26
+ * author:    云毅
+ * created:   2026
  * descrip:   调试器窗口组
  ***************************************************************/
 using System;
@@ -15,12 +15,25 @@ namespace Honor.Runtime
 {
     public sealed partial class DebuggerManager
     {
+        //=========================================================================
+        // 调试器窗口组（内部私有类）
+        //=========================================================================
+        #region DebuggerWindowGroup
+        /// <summary>
+        /// 调试器窗口组
+        /// 支持层级路径注册、选中切换与递归查找
+        /// </summary>
         private sealed class DebuggerWindowGroup : IDebuggerWindowGroup
         {
+            #region 私有字段
             private readonly List<KeyValuePair<string, IDebuggerWindow>> m_DebuggerWindows;
             private int m_SelectedIndex;
             private string[] m_DebuggerWindowNames;
+            #endregion
 
+            /// <summary>
+            /// 初始化调试器窗口组
+            /// </summary>
             public DebuggerWindowGroup()
             {
                 m_DebuggerWindows = new List<KeyValuePair<string, IDebuggerWindow>>();
@@ -28,6 +41,7 @@ namespace Honor.Runtime
                 m_DebuggerWindowNames = null;
             }
 
+            #region IDebuggerWindowGroup 属性
             /// <summary>
             /// 获取调试器窗口数量。
             /// </summary>
@@ -69,18 +83,15 @@ namespace Honor.Runtime
                     return m_DebuggerWindows[m_SelectedIndex].Value;
                 }
             }
+            #endregion
 
-            /// <summary>
-            /// 初始化调试组。
-            /// </summary>
-            /// <param name="args">初始化调试组参数。</param>
+            #region IDebuggerWindow 生命周期
+            /// <inheritdoc/>
             public void Initialize(DebuggerComponent drawComponent, params object[] args)
             {
             }
 
-            /// <summary>
-            /// 关闭调试组。
-            /// </summary>
+            /// <inheritdoc/>
             public void Shutdown()
             {
                 foreach (KeyValuePair<string, IDebuggerWindow> debuggerWindow in m_DebuggerWindows)
@@ -91,39 +102,37 @@ namespace Honor.Runtime
                 m_DebuggerWindows.Clear();
             }
 
-            /// <summary>
-            /// 进入调试器窗口。
-            /// </summary>
+            /// <inheritdoc/>
             public void OnEnter()
             {
-                SelectedWindow.OnEnter();
+                // TODO: 补空判断——原代码直接调用 SelectedWindow.OnEnter()，当无窗口时会 NRE
+                SelectedWindow?.OnEnter();
             }
 
-            /// <summary>
-            /// 离开调试器窗口。
-            /// </summary>
+            /// <inheritdoc/>
             public void OnLeave()
             {
-                SelectedWindow.OnLeave();
+                // TODO: 补空判断——原代码直接调用 SelectedWindow.OnLeave()
+                SelectedWindow?.OnLeave();
             }
 
-            /// <summary>
-            /// 调试组轮询。
-            /// </summary>
-            /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
-            /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
+            /// <inheritdoc/>
             public void OnUpdate(float elapseSeconds, float realElapseSeconds)
             {
-                SelectedWindow.OnUpdate(elapseSeconds, realElapseSeconds);
+                // TODO: 补空判断——原代码直接调用 SelectedWindow.OnUpdate()
+                SelectedWindow?.OnUpdate(elapseSeconds, realElapseSeconds);
             }
 
-            /// <summary>
-            /// 调试器窗口绘制。
-            /// </summary>
+            /// <inheritdoc/>
             public void OnDraw(DebuggerComponent drawComponent, float offsetY)
             {
             }
+            #endregion
 
+            #region 窗口查找与注册
+            /// <summary>
+            /// 刷新窗口名称缓存数组
+            /// </summary>
             private void RefreshDebuggerWindowNames()
             {
                 m_DebuggerWindowNames = new string[m_DebuggerWindows.Count];
@@ -143,7 +152,7 @@ namespace Honor.Runtime
             }
 
             /// <summary>
-            /// 获取调试器窗口。
+            /// 获取调试器窗口（支持递归路径）。
             /// </summary>
             /// <param name="path">调试器窗口路径。</param>
             /// <returns>要获取的调试器窗口。</returns>
@@ -157,12 +166,13 @@ namespace Honor.Runtime
                 int pos = path.IndexOf('/');
                 if (pos < 0 || pos >= path.Length - 1)
                 {
-                    return publicGetDebuggerWindow(path);
+                    return FindWindowByName(path);
                 }
 
-                string debuggerWindowGroupName = path.Substring(0, pos);
+                string groupName = path.Substring(0, pos);
                 string leftPath = path.Substring(pos + 1);
-                DebuggerWindowGroup debuggerWindowGroup = (DebuggerWindowGroup)publicGetDebuggerWindow(debuggerWindowGroupName);
+                // TODO: 补 as 安全转换——原代码直接强转，若同名窗口非组类型会 InvalidCastException
+                DebuggerWindowGroup debuggerWindowGroup = FindWindowByName(groupName) as DebuggerWindowGroup;
                 if (debuggerWindowGroup == null)
                 {
                     return null;
@@ -172,7 +182,7 @@ namespace Honor.Runtime
             }
 
             /// <summary>
-            /// 选中调试器窗口。
+            /// 选中调试器窗口（支持递归路径）。
             /// </summary>
             /// <param name="path">调试器窗口路径。</param>
             /// <returns>是否成功选中调试器窗口。</returns>
@@ -186,13 +196,14 @@ namespace Honor.Runtime
                 int pos = path.IndexOf('/');
                 if (pos < 0 || pos >= path.Length - 1)
                 {
-                    return publicSelectDebuggerWindow(path);
+                    return SelectWindowByName(path);
                 }
 
-                string debuggerWindowGroupName = path.Substring(0, pos);
+                string groupName = path.Substring(0, pos);
                 string leftPath = path.Substring(pos + 1);
-                DebuggerWindowGroup debuggerWindowGroup = (DebuggerWindowGroup)publicGetDebuggerWindow(debuggerWindowGroupName);
-                if (debuggerWindowGroup == null || !publicSelectDebuggerWindow(debuggerWindowGroupName))
+                // TODO: 补 as 安全转换——原代码直接强转
+                DebuggerWindowGroup debuggerWindowGroup = FindWindowByName(groupName) as DebuggerWindowGroup;
+                if (debuggerWindowGroup == null || !SelectWindowByName(groupName))
                 {
                     return false;
                 }
@@ -201,7 +212,7 @@ namespace Honor.Runtime
             }
 
             /// <summary>
-            /// 注册调试器窗口。
+            /// 注册调试器窗口（支持层级路径）。
             /// </summary>
             /// <param name="path">调试器窗口路径。</param>
             /// <param name="debuggerWindow">要注册的调试器窗口。</param>
@@ -215,7 +226,7 @@ namespace Honor.Runtime
                 int pos = path.IndexOf('/');
                 if (pos < 0 || pos >= path.Length - 1)
                 {
-                    if (publicGetDebuggerWindow(path) != null)
+                    if (FindWindowByName(path) != null)
                     {
                         throw new Exception("Debugger window has been registered.");
                     }
@@ -225,18 +236,19 @@ namespace Honor.Runtime
                 }
                 else
                 {
-                    string debuggerWindowGroupName = path.Substring(0, pos);
+                    string groupName = path.Substring(0, pos);
                     string leftPath = path.Substring(pos + 1);
-                    DebuggerWindowGroup debuggerWindowGroup = (DebuggerWindowGroup)publicGetDebuggerWindow(debuggerWindowGroupName);
+                    // TODO: 补 as 安全转换——原代码直接强转
+                    DebuggerWindowGroup debuggerWindowGroup = FindWindowByName(groupName) as DebuggerWindowGroup;
                     if (debuggerWindowGroup == null)
                     {
-                        if (publicGetDebuggerWindow(debuggerWindowGroupName) != null)
+                        if (FindWindowByName(groupName) != null)
                         {
                             throw new Exception("Debugger window has been registered, can not create debugger window group.");
                         }
 
                         debuggerWindowGroup = new DebuggerWindowGroup();
-                        m_DebuggerWindows.Add(new KeyValuePair<string, IDebuggerWindow>(debuggerWindowGroupName, debuggerWindowGroup));
+                        m_DebuggerWindows.Add(new KeyValuePair<string, IDebuggerWindow>(groupName, debuggerWindowGroup));
                         RefreshDebuggerWindowNames();
                     }
 
@@ -244,7 +256,12 @@ namespace Honor.Runtime
                 }
             }
 
-            private IDebuggerWindow publicGetDebuggerWindow(string name)
+            /// <summary>
+            /// 按名称在当前层查找窗口
+            /// </summary>
+            /// <param name="name">窗口名称</param>
+            /// <returns>找到的窗口，未找到返回 null</returns>
+            private IDebuggerWindow FindWindowByName(string name)
             {
                 foreach (KeyValuePair<string, IDebuggerWindow> debuggerWindow in m_DebuggerWindows)
                 {
@@ -257,7 +274,12 @@ namespace Honor.Runtime
                 return null;
             }
 
-            private bool publicSelectDebuggerWindow(string name)
+            /// <summary>
+            /// 按名称在当前层选中窗口
+            /// </summary>
+            /// <param name="name">窗口名称</param>
+            /// <returns>是否选中成功</returns>
+            private bool SelectWindowByName(string name)
             {
                 for (int i = 0; i < m_DebuggerWindows.Count; i++)
                 {
@@ -270,8 +292,9 @@ namespace Honor.Runtime
 
                 return false;
             }
+            #endregion
         }
+        #endregion
     }
 }
-
 

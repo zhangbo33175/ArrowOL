@@ -1,12 +1,11 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  PostEffectsBase.cs
- * author:  云毅
- * created:
+ * author:    云毅
+ * created:   2026
  * descrip:   后处理基类 - 提供 Shader 校验、材质创建、平台支持检测等公共能力
- * 优化记录: 由旧版 HonorGraphics.PostEffectsBase 迁移（源自 Unity Image Effects），
- *           按框架规范精简，统一命名空间
  ***************************************************************/
 
 using UnityEngine;

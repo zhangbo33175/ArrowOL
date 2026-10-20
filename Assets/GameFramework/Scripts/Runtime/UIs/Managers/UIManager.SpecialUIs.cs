@@ -3,8 +3,8 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  UIManager.SpecialUIs.cs
- * author:  云毅
- * created: 2026
+ * author:    云毅
+ * created:   2026
  * descrip:   UI 管理器 - 扩展功能：等待界面、WebView、流程转场、浮窗、系统弹窗
  ***************************************************************/
 using System;
