@@ -1,0 +1,67 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/ResDefExportEditorWindowTool.uss?fileID=7433441132597879392&amp;guid=1880f8e6cf2848f43a46c50afcb11b71&amp;type=3#ResDefExportEditorWindowTool" />
+    <ui:VisualElement name="root" class="root">
+        <ui:VisualElement name="leftPanel" class="left-panel">
+            <ui:VisualElement class="section">
+                <ui:Label text="资源导入" class="section-title" />
+                <ui:VisualElement class="row import-row">
+                    <ui:Label text="类型" class="field-label" />
+                    <ui:DropdownField name="assetTypeDropdown" class="type-dropdown" />
+                    <uie:ObjectField name="targetAssetField" class="flex-grow asset-field" />
+                    <ui:Button name="appendBtn" text="追加资源" class="btn btn-accent" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="section">
+                <ui:Label text="导出设置" class="section-title" />
+                <ui:VisualElement class="row">
+                    <ui:Label text="Lua目录" class="field-label" />
+                    <ui:TextField name="luaPathField" class="flex-grow" />
+                    <ui:Button name="defaultLuaBtn" text="默认" class="btn" />
+                    <ui:Label text="每页数量" class="field-label" />
+                    <ui:IntegerField name="oneSheetField" class="fixed-field" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="section">
+                <ui:Label text="删除与校准" class="section-title" />
+                <ui:VisualElement class="row">
+                    <ui:Label text="ID范围" class="field-label" />
+                    <ui:IntegerField name="delStartField" class="fixed-field" />
+                    <ui:Label text="~" class="field-label" />
+                    <ui:IntegerField name="delEndField" class="fixed-field" />
+                    <ui:Button name="deleteBtn" text="删除" class="btn btn-danger" />
+                    <ui:Button name="deleteAllBtn" text="删除所有" class="btn btn-danger" />
+                    <ui:Button name="deleteAllInvalidBtn" text="删除所有失效" class="btn" />
+                    <ui:Button name="autoFixBtn" text="自动校准失效" class="btn" />
+                </ui:VisualElement>
+                <ui:VisualElement class="row">
+                    <ui:Button name="openExcelBtn" text="打开AB配置表Excel" class="btn" />
+                    <ui:Button name="exportJsonBtn" text="导出AB表到Json并刷新AB名" class="btn" />
+                    <ui:Button name="openBuildBtn" text="打开AB打包工具" class="btn" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="section">
+                <ui:Label text="处理日志" class="section-title" />
+                <ui:IMGUIContainer name="logContainer" class="log-container" />
+            </ui:VisualElement>
+            <ui:VisualElement class="section section-flex-grow">
+                <ui:Label text="待确认缓冲区" class="section-title" />
+                <ui:IMGUIContainer name="bufferContainer" class="buffer-container" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="rightPanel" class="right-panel">
+            <ui:VisualElement class="search-row">
+                <ui:Label text="搜索" class="field-label" />
+                <ui:TextField name="searchField" class="flex-grow" />
+                <ui:Button name="delSearchBtn" text="Del" class="btn" />
+                <ui:Toggle name="onlyShowErrorToggle" text="仅显示错误" />
+            </ui:VisualElement>
+            <ui:VisualElement class="section section-flex-grow">
+                <ui:Label text="资源总表" class="section-title" />
+                <ui:IMGUIContainer name="resListContainer" class="reslist-container" />
+            </ui:VisualElement>
+            <ui:VisualElement class="row footer-row">
+                <ui:Button name="exportLuaBtn" text="导出LUA" class="btn btn-success" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

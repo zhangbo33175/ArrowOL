@@ -1,0 +1,211 @@
+/* =============================================================
+ * ResDefExportEditorWindowTool.uss
+ * 资源定义导出工具 - UI Toolkit 样式表（深色编辑器主题）
+ * ============================================================= */
+
+.root {
+    flex-grow: 1;
+    flex-direction: row;
+    background-color: #252526;
+}
+
+/* ---------- 左右分栏 ---------- */
+.left-panel {
+    width: 1088px;
+    padding: 8px;
+    flex-direction: column;
+    margin-right: 6px;
+}
+
+.right-panel {
+    flex-grow: 1;
+    padding: 8px;
+    flex-direction: column;
+}
+
+/* ---------- 区块容器 ---------- */
+.section {
+    background-color: #2d2d30;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-left-width: 3px;
+    border-left-color: #3a6ea5;
+    flex-direction: column;
+}
+
+.section-flex-grow {
+    flex-grow: 1;
+}
+
+/* ---------- 分区标题栏 ---------- */
+.section-title {
+    -unity-font-style: bold;
+    font-size: 12px;
+    color: #ffffff;
+    background-color: #3a6ea5;
+    padding: 5px 10px;
+    margin: -8px -8px 8px -8px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+/* ---------- 行布局 ---------- */
+.row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+    flex-wrap: nowrap;
+    min-height: 24px;
+}
+
+.row > * {
+    margin-right: 6px;
+}
+
+.field-label {
+    color: #9d9d9d;
+    width: 70px;
+    -unity-font-style: normal;
+}
+
+.flex-grow {
+    flex-grow: 1;
+    flex-basis: 200px;
+    min-width: 150px;
+}
+
+/* 固定宽度数字输入框 */
+.fixed-field {
+    width: 100px;
+    flex-shrink: 0;
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+    min-width: 70px;
+    padding: 4px 14px;
+    flex-shrink: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-width: 0;
+}
+
+.btn-accent {
+    background-color: #2f7fc4;
+    color: #ffffff;
+    min-width: 90px;
+}
+.btn-accent:hover {
+    background-color: #3a8fd4;
+}
+.btn-accent:active {
+    background-color: #286aa5;
+}
+
+.btn-success {
+    background-color: #2e9e5b;
+    color: #ffffff;
+    min-width: 120px;
+}
+.btn-success:hover {
+    background-color: #35b068;
+}
+.btn-success:active {
+    background-color: #268549;
+}
+
+.btn-danger {
+    background-color: #a8443e;
+    color: #ffffff;
+    min-width: 70px;
+}
+.btn-danger:hover {
+    background-color: #c0504a;
+}
+.btn-danger:active {
+    background-color: #8e3a35;
+}
+
+/* ---------- 搜索栏 ---------- */
+.search-row {
+    flex-direction: row;
+    align-items: center;
+    background-color: #2d2d30;
+    padding: 8px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    margin-bottom: 8px;
+    border-left-width: 3px;
+    border-left-color: #3a6ea5;
+}
+
+.search-row > * {
+    margin-right: 6px;
+}
+
+/* ---------- 底栏 ---------- */
+.footer-row {
+    justify-content: center;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+/* ---------- IMGUI 容器 ---------- */
+.log-container {
+    min-height: 60px;
+    max-height: 100px;
+    background-color: #252526;
+    border-radius: 3px;
+}
+
+.buffer-container {
+    flex-grow: 1;
+    background-color: #252526;
+    border-radius: 3px;
+}
+
+.reslist-container {
+    flex-grow: 1;
+    background-color: #252526;
+    border-radius: 3px;
+}
+
+/* ---------- 控件高度微调 ---------- */
+.flex-grow {
+    min-height: 22px;
+}
+
+/* ---------- 资源导入行 ---------- */
+.import-row {
+    min-height: 36px;
+}
+
+.type-dropdown {
+    width: 200px;
+    flex-basis: 200px;
+    flex-shrink: 0;
+    min-height: 26px;
+}
+
+.asset-field {
+    min-height: 26px;
+    height: 26px;
+    justify-content: center;
+}
+
+.asset-field > .unity-object-field__label {
+    -unity-text-align: middle-left;
+    unity-text-alignment: middleLeft;
+}
+
+.asset-field > .unity-object-field__preview {
+    align-self: center;
+}

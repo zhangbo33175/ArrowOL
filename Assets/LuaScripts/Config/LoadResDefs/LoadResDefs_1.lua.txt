@@ -5,11 +5,6 @@
 -- filename:  LoadResDefs_1.lua
 -- descrip:   资源全局定义
 -- notices:   该文件自动生成，请不要手动修改！
--- @brief     资源条目明细数据表
--- @desc      逐条登记全部 Sprite/预制体/音频等资源的类型、AB包路径与资源文件名，自动生成
--- @core      向全局 LoadRes 字典按 key 写入 LOAD_RES_DEF_ITEM 条目
--- @scope     配合 LoadResDefs 入口表，供资源加载模块按资源名取 AB 路径
--- @dependency LoadResDefs（LoadRes 表结构由其创建）
 --=====================================================================================================
 
 ---@field Sprite_btn_b LOAD_RES_DEF_ITEM @文件 btn_b
@@ -17,9 +12,6 @@ LoadRes["Sprite_btn_b"] = { Name = "Sprite_btn_b", TypeName = "Sprite", ABPath =
 
 ---@field Sprite_btn_g LOAD_RES_DEF_ITEM @文件 btn_g
 LoadRes["Sprite_btn_g"] = { Name = "Sprite_btn_g", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g", AssetName = "btn_g" }
-
----@field Sprite_btn_g-1 LOAD_RES_DEF_ITEM @文件 btn_g-1
-LoadRes["Sprite_btn_g-1"] = { Name = "Sprite_btn_g-1", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g-1", AssetName = "btn_g-1" }
 
 ---@field Sprite_btn_p LOAD_RES_DEF_ITEM @文件 btn_p
 LoadRes["Sprite_btn_p"] = { Name = "Sprite_btn_p", TypeName = "Sprite", ABPath = "Assets/Res/Textures/PicsForEditor/Common/Common/btn_p", AssetName = "btn_p" }

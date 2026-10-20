@@ -25,7 +25,7 @@ using Path = System.IO.Path;
 
 namespace Honor.Editor
 {
-    public partial class ResDefExportEditorWindow : BaseEditorWindow<ResDefExportEditorWindow>
+    public partial class ResDefExportEditorWindow : BaseToolkitEditorWindow<ResDefExportEditorWindow>
     {
         #region 通用提示
         /// <summary>

@@ -354,13 +354,6 @@
     },
     {
       "ResType": "Sprite",
-      "AliasName": "Sprite_btn_g-1",
-      "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g-1",
-      "AssetName": "btn_g-1",
-      "AssetGUID": "d6968d4cefb16f043bc855d59b05d074"
-    },
-    {
-      "ResType": "Sprite",
       "AliasName": "Sprite_btn_g",
       "ABPath": "Assets/Res/Textures/PicsForEditor/Common/Common/btn_g",
       "AssetName": "btn_g",

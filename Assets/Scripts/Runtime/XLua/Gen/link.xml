@@ -306,7 +306,6 @@
 		<type fullname="MapMarker" preserve="all"/>
 		<type fullname="MapPathDrawer" preserve="all"/>
 		<type fullname="GameLib.GameManager" preserve="all"/>
-		<type fullname="GameLib.HonorManager" preserve="all"/>
 		<type fullname="GameLib.ProcedureUtils" preserve="all"/>
 		<type fullname="GameLib.ItemMap" preserve="all"/>
 		<type fullname="GameLib.AorClickItem" preserve="all"/>

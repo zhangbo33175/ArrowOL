@@ -5,7 +5,8 @@
  * filename:  ResDefExportEditorWindow.cs
  * author:    云毅
  * created:   2026
- * descrip:   资源配置导出工具 - 编辑器界面绘制（分部类）
+ * descrip:   资源配置导出工具 - UI Toolkit 界面（分部类）
+ *            外壳由 UXML/USS 描述，动态列表通过 IMGUIContainer 托管
  ***************************************************************/
 
 using System;
@@ -13,19 +14,50 @@ using System.Collections.Generic;
 using System.Linq;
 using Honor.Runtime;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 using Path = System.IO.Path;
 
 namespace Honor.Editor
 {
-    public partial class ResDefExportEditorWindow : BaseEditorWindow<ResDefExportEditorWindow>
+    public partial class ResDefExportEditorWindow : BaseToolkitEditorWindow<ResDefExportEditorWindow>
     {
-        #region 生命周期
-        /// <summary>
-        /// 启用初始化
-        /// </summary>
-        protected void OnEnable()
+        #region 基类抽象属性
+        /// <summary>UXML/USS 资源所在目录（相对工程根）</summary>
+        protected override string UIAssetDir =>
+            "Assets/GameFramework/Scripts/Editor/Inspectors/ResDefExportEditorWindow/";
+
+        /// <summary>UXML 文件名（不含扩展名）</summary>
+        protected override string UxmlName => "ResDefExportEditorWindowTool";
+        #endregion
+
+        #region 视觉样式（IMGUI 行渲染用，懒加载缓存）
+        private static GUIStyle _tableHeaderLabel;
+        private static GUIStyle _logRed;
+        private static GUIStyle _logYellow;
+        private static GUIStyle _logCyan;
+        private static GUIStyle _logNormal;
+
+        private static readonly Color ButtonBlue = new Color(0.30f, 0.55f, 0.78f);
+        private static readonly Color ButtonRed  = new Color(0.66f, 0.27f, 0.24f);
+
+        private static GUIStyle TableHeaderLabel => _tableHeaderLabel ??= new GUIStyle(EditorStyles.boldLabel)
+        {
+            normal = { textColor = new Color(0.90f, 0.90f, 0.90f) },
+            alignment = TextAnchor.MiddleLeft,
+        };
+
+        private static GUIStyle LogRedStyle => _logRed ??= new GUIStyle(EditorStyles.label) { normal = { textColor = new Color(1f, 0.45f, 0.45f) } };
+        private static GUIStyle LogYellowStyle => _logYellow ??= new GUIStyle(EditorStyles.label) { normal = { textColor = new Color(1f, 0.85f, 0.40f) } };
+        private static GUIStyle LogCyanStyle => _logCyan ??= new GUIStyle(EditorStyles.label) { normal = { textColor = new Color(0.55f, 0.85f, 1f) } };
+        private static GUIStyle LogNormalStyle => _logNormal ??= new GUIStyle(EditorStyles.label);
+        #endregion
+
+        #region 基类钩子
+        /// <summary>数据初始化（在构建 UI 前调用）</summary>
+        protected override void OnInitData()
         {
             m_FindFileFullPathList = new Dictionary<string, FileUseState>();
             m_TempResDefItems = new List<ResDefItem>();
@@ -34,11 +66,10 @@ namespace Honor.Editor
             m_SearchResDefItemInfo = new List<ResDefItem>();
             m_ErrorResDefItemInfo = new List<ResDefItem>();
 
-            // 初始化所有类型折叠项
             Array.ForEach(Enum.GetNames(typeof(GameDefinitions.AssetType)),
-                (assetType) => m_AllShowFoldout[assetType] = new TopItemInfo());
-            m_AllShowFoldout.Add(m_SearchTag, new TopItemInfo() { OnePageCount = 16, IsShowFoldout = true });
-            m_AllShowFoldout.Add(m_ErrorTag, new TopItemInfo() { OnePageCount = 16, IsShowFoldout = true });
+                assetType => m_AllShowFoldout[assetType] = new TopItemInfo());
+            m_AllShowFoldout.Add(m_SearchTag, new TopItemInfo { OnePageCount = 16, IsShowFoldout = true });
+            m_AllShowFoldout.Add(m_ErrorTag, new TopItemInfo { OnePageCount = 16, IsShowFoldout = true });
 
             ResDefInfos.ConvertJson();
             m_CurMaxResID = ResDefInfos.GetMaxResID();
@@ -47,118 +78,262 @@ namespace Honor.Editor
             LoadDefaultTextures();
         }
 
-        /// <summary>
-        /// 界面绘制
-        /// </summary>
-        protected override void OnGUI()
+        /// <summary>UXML 克隆完成后绑定静态控件与 IMGUI 容器</summary>
+        protected override void OnBindUI()
         {
-            base.OnGUI();
-
-            if (EditorApplication.isPlaying || EditorApplication.isCompiling)
-            {
-                EditorGUILayout.LabelField("Updating......");
-                Repaint();
-                return;
-            }
-
-            GUILayout.BeginHorizontal();
-            {
-                // 左侧Layout
-                GUILayout.BeginVertical(new[]
-                    { GUILayout.Width(MinSize.x * m_SubPercenttage), GUILayout.Height(MinSize.y) });
-                {
-                    // 左上方查找模块
-                    FindingView();
-                    // 左上方配置模块
-                    ExportConfigView();
-                    // 左上方删除模块
-                    DeletingView();
-                    // 文本结果显示区域
-                    ResultTextView();
-                    // 拖动区域
-                    DragFilesView();
-                    // 显示临时缓冲区域
-                    TempFilesView();
-                }
-                GUILayout.EndVertical();
-
-                // 右侧Layout
-                GUILayout.BeginVertical(new[]
-                    { GUILayout.Width(MinSize.x * (1 - m_SubPercenttage)), GUILayout.Height(MinSize.y) });
-                {
-                    // 右侧的资源详情界面
-                    AllResDetailsView();
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndHorizontal();
-
-            Repaint();
+            SetupImportSection();
+            SetupExportConfigSection();
+            SetupDeleteSection();
+            SetupSearchSection();
+            SetupButtons();
+            SetupImguiContainers();
+            RequestRepaint();
         }
         #endregion
 
-        #region 左侧 - 查找模块
-        /// <summary>
-        /// 查找与追加资源界面
-        /// </summary>
-        public void FindingView()
+        #region UI 控件绑定
+        /// <summary>绑定"资源导入"区：类型下拉 + 目标对象</summary>
+        private void SetupImportSection()
         {
-            EditorGUILayout.Space(5);
-            GUILayout.BeginHorizontal("box",
-                new[] { GUILayout.Width(MinSize.x * m_SubPercenttage * 0.8f), GUILayout.Height(20) });
+            var enumNames = Enum.GetNames(typeof(GameDefinitions.AssetType));
+            var typeDropdown = rootVisualElement.Q<DropdownField>("assetTypeDropdown");
+            typeDropdown.choices = new List<string>(enumNames);
+            typeDropdown.value = enumNames[m_SelectResType];
+            typeDropdown.RegisterValueChangedCallback(evt =>
             {
-                EditorGUILayout.LabelField("导入资源类型：", new[] { GUILayout.Width(100), GUILayout.Height(20) });
+                m_SelectResType = Array.IndexOf(enumNames, evt.newValue);
+                FindTargetAsset = null;
+                m_FindFileFullPathList.Clear();
+            });
 
-                // 数据的类型，选择类型有变化，则更新显示信息
-                Array assetTypeEnumValues = Enum.GetValues(typeof(GameDefinitions.AssetType));
-                int[] assetTypeIntValues = new int[assetTypeEnumValues.Length];
-                for (int index = 0; index < assetTypeEnumValues.Length; index++)
-                {
-                    assetTypeIntValues[index] = (int)assetTypeEnumValues.GetValue(index);
-                }
-
-                int selectedTypeIndex = EditorGUILayout.IntPopup((int)m_SelectResType,
-                    Enum.GetNames(typeof(GameDefinitions.AssetType)), assetTypeIntValues,
-                    new[] { GUILayout.Width(150), GUILayout.Height(20) });
-                if (selectedTypeIndex != m_SelectResType)
-                {
-                    m_SelectResType = selectedTypeIndex;
-                    FindTargetAsset = null;
-                    m_FindFileFullPathList.Clear();
-                }
-
-                // 查找到的数据资源
-                FindTargetAsset = EditorGUILayout.ObjectField(FindTargetAsset, typeof(Object), false);
-
-                if (GUILayout.Button("追加", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
-                {
-                    AppendFoundFilesToBuffer();
-                }
-            }
-            GUILayout.EndHorizontal();
+            var objectField = rootVisualElement.Q<ObjectField>("targetAssetField");
+            objectField.objectType = typeof(Object);
+            objectField.value = m_FindTargetAsset;
+            objectField.RegisterValueChangedCallback(evt => { FindTargetAsset = evt.newValue; });
         }
 
+        /// <summary>绑定"导出设置"区：Lua 路径 + 每页数量</summary>
+        private void SetupExportConfigSection()
+        {
+            var luaPathField = rootVisualElement.Q<TextField>("luaPathField");
+            luaPathField.value = ResDefInfos.LuaExportFolderPath;
+            luaPathField.RegisterValueChangedCallback(evt =>
+            {
+                if (!evt.newValue.Equals(ResDefInfos.LuaExportFolderPath))
+                {
+                    ResDefInfos.LuaExportFolderPath = evt.newValue;
+                    ResDefInfos.WriteJson();
+                }
+            });
+
+            rootVisualElement.Q<Button>("defaultLuaBtn").clicked += () =>
+            {
+                ResDefInfos.LuaExportFolderPath = Runtime.GamePathUtils.Editor.ResDef.LuaFolderPath;
+                luaPathField.value = ResDefInfos.LuaExportFolderPath;
+                ResDefInfos.WriteJson();
+            };
+
+            var oneSheetField = rootVisualElement.Q<IntegerField>("oneSheetField");
+            oneSheetField.value = m_OneSheetMaxCount;
+            oneSheetField.RegisterValueChangedCallback(evt =>
+            {
+                m_OneSheetMaxCount = evt.newValue;
+                ResDefInfos.WriteJson();
+            });
+        }
+
+        /// <summary>绑定"删除与校准"区</summary>
+        private void SetupDeleteSection()
+        {
+            var delStart = rootVisualElement.Q<IntegerField>("delStartField");
+            var delEnd = rootVisualElement.Q<IntegerField>("delEndField");
+            delStart.value = m_InputDelStartID;
+            delEnd.value = m_InputDelEndID;
+            delStart.RegisterValueChangedCallback(evt => m_InputDelStartID = evt.newValue);
+            delEnd.RegisterValueChangedCallback(evt => m_InputDelEndID = evt.newValue);
+
+            rootVisualElement.Q<Button>("deleteBtn").clicked +=
+                () => DeleteResInfo(m_InputDelStartID, m_InputDelEndID);
+            rootVisualElement.Q<Button>("deleteAllBtn").clicked +=
+                () => DeleteResInfo(0, Int32.MaxValue);
+            rootVisualElement.Q<Button>("deleteAllInvalidBtn").clicked += DeleteAllInvalidResInfo;
+            rootVisualElement.Q<Button>("autoFixBtn").clicked += AutoRefreshAllInvalidResInfo;
+        }
+
+        /// <summary>绑定右侧搜索栏</summary>
+        private void SetupSearchSection()
+        {
+            var searchField = rootVisualElement.Q<TextField>("searchField");
+            searchField.value = m_SearchResName;
+            searchField.RegisterValueChangedCallback(evt =>
+            {
+                m_SearchResName = evt.newValue;
+                if (!string.IsNullOrEmpty(m_SearchResName))
+                    UpdateSearchResDefItemInfo(m_SearchResName);
+            });
+
+            rootVisualElement.Q<Button>("delSearchBtn").clicked += () =>
+            {
+                m_SearchResName = string.Empty;
+                searchField.value = string.Empty;
+            };
+
+            var onlyErrorToggle = rootVisualElement.Q<Toggle>("onlyShowErrorToggle");
+            onlyErrorToggle.value = m_OnlyShowError;
+            onlyErrorToggle.RegisterValueChangedCallback(evt =>
+            {
+                m_OnlyShowError = evt.newValue;
+                UpdateErrorResDefItemInfo();
+                if (m_SearchResName != string.Empty)
+                    UpdateSearchResDefItemInfo(m_SearchResName);
+            });
+        }
+
+        /// <summary>绑定通用动作按钮</summary>
+        private void SetupButtons()
+        {
+            rootVisualElement.Q<Button>("appendBtn").clicked += AppendFoundFilesToBuffer;
+
+            rootVisualElement.Q<Button>("openExcelBtn").clicked += () =>
+            {
+                string filePath = Runtime.GamePathUtils.AB.GetExcelFileFullPath();
+                TableExportEditorUtility.OpenExcel(filePath);
+            };
+
+            rootVisualElement.Q<Button>("exportJsonBtn").clicked += () =>
+            {
+                string filePath = Runtime.GamePathUtils.AB.GetExcelFileFullPath();
+                ExportExcelToJsonFromABConfig(Path.GetFileNameWithoutExtension(filePath));
+                AssetBundleNamePostprocessor.RefreshAllAssetBundleNames();
+                LoadABConfigs();
+            };
+
+            rootVisualElement.Q<Button>("openBuildBtn").clicked +=
+                () => BuildPackage.BuildPackage_EditorWindow.OpenWindow();
+
+            rootVisualElement.Q<Button>("exportLuaBtn").clicked += () =>
+            {
+                WriteOutputGDefsFile(GetResultDetailInfo().Values.ToList());
+                ShowNotification($"导出 {Runtime.GamePathUtils.Editor.ResDef.GetResDefLuaFullPath()} 完成。");
+            };
+        }
+
+        /// <summary>把动态 IMGUI 列表挂到 IMGUIContainer</summary>
+        private void SetupImguiContainers()
+        {
+            rootVisualElement.Q<IMGUIContainer>("logContainer").onGUIHandler = DrawLogIMGUIContent;
+            rootVisualElement.Q<IMGUIContainer>("bufferContainer").onGUIHandler = DrawBufferIMGUIContent;
+            rootVisualElement.Q<IMGUIContainer>("resListContainer").onGUIHandler = DrawResListIMGUIContent;
+        }
+        #endregion
+
+        #region IMGUI 容器内容（动态列表）
+        /// <summary>处理日志内容</summary>
+        private void DrawLogIMGUIContent()
+        {
+            m_TextScrollViewPosition = EditorGUILayout.BeginScrollView(m_TextScrollViewPosition, GUILayout.ExpandHeight(true));
+            {
+                foreach (KeyValuePair<string, FileUseState> entry in m_FindFileFullPathList)
+                {
+                    DrawFileStateLine(entry.Key, entry.Value);
+                }
+            }
+            EditorGUILayout.EndScrollView();
+        }
+
+        /// <summary>待确认缓冲区内容（含确认添加按钮）</summary>
+        private void DrawBufferIMGUIContent()
+        {
+            var sameAliasName = GetAllSameResInfo();
+
+            CreateTempScrollViewItem("ID", "别名", "AB路径", "资源名字", "资源类型", "删除按钮", null);
+            m_LeftScrollViewPosition = EditorGUILayout.BeginScrollView(m_LeftScrollViewPosition, GUILayout.ExpandHeight(true));
+            {
+                for (int idx = 0; idx < m_TempResDefItems.Count; idx++)
+                {
+                    var resDefItem = m_TempResDefItems[idx];
+                    CreateTempScrollViewItem(Convert.ToString(resDefItem.ID), resDefItem.AliasName,
+                        resDefItem.ABPath, resDefItem.AssetName, resDefItem.ResType, string.Empty, resDefItem,
+                        sameAliasName.ContainsKey(resDefItem.AliasName));
+                }
+            }
+            EditorGUILayout.EndScrollView();
+
+            using (new EditorGUI.DisabledScope(sameAliasName.Count > 0 || m_TempResDefItems.Count == 0))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button("确认添加", GUILayout.Width(160), GUILayout.Height(28)))
+                    {
+                        foreach (var resDefItemInfos in m_TempResDefItems)
+                        {
+                            ResDefInfos.ConvertData.Add(resDefItemInfos);
+                            Log.Debug("[Editor] 资源别名: {0} ，添加成功。", resDefItemInfos.AliasName);
+                        }
+
+                        ResDefInfos.WriteJson();
+                        m_TempResDefItems.Clear();
+                        m_FindFileFullPathList.Clear();
+                        UpdateResultInfo();
+                        ShowNotification("资源添加成功。");
+                    }
+                    GUILayout.FlexibleSpace();
+                }
+            }
+        }
+
+        /// <summary>资源总表内容（折叠分组 + 分页 + 逐行编辑）</summary>
+        private void DrawResListIMGUIContent()
+        {
+            if (m_ResultDetailInfo == null) return;
+
+            CreateScrollViewItem("ID", "别名", "AB路径", "资源名字", string.Empty, "删除按钮", "矫正路径", null);
+            m_RightScrollViewPosition = EditorGUILayout.BeginScrollView(m_RightScrollViewPosition, GUILayout.ExpandHeight(true));
+            {
+                if (m_SearchResName == string.Empty)
+                {
+                    if (m_OnlyShowError)
+                    {
+                        CreateResView(m_ErrorTag, m_ErrorResDefItemInfo);
+                    }
+                    else
+                    {
+                        foreach (var keyValue in m_ResultDetailInfo)
+                        {
+                            CreateResView(keyValue.Key, keyValue.Value);
+                        }
+                    }
+                }
+                else
+                {
+                    CreateResView(m_SearchTag, m_SearchResDefItemInfo);
+                }
+            }
+            if (GUI.changed)
+            {
+                UpdateResultInfo();
+            }
+            EditorGUILayout.EndScrollView();
+        }
+        #endregion
+
+        #region 追加资源逻辑
         /// <summary>
         /// 将当前查找到的文件按"类型_文件名"别名追加到临时缓冲区。
-        /// 已存在于配置库（ConvertData）的资源明确标记为"已存在"跳过，避免重复；
-        /// 未存在且别名不冲突的资源正常追加，保证"需要添加的"能正常引入。
+        /// 已存在于配置库的资源标记为"已存在"跳过；别名不冲突的正常追加。
         /// </summary>
         private void AppendFoundFilesToBuffer()
         {
-            // 追加成功的数据条目数
             int successAddCount = 0;
-            // 因别名重名（临时缓冲区内）追加失败的数据条目数
             int failedAddCount = 0;
-            // 已在配置库中、本次跳过不重复追加的数据条目数
             int existCount = 0;
 
             foreach (var fullPath in m_FindFileFullPathList.Keys.ToList())
             {
                 var fileName = Path.GetFileNameWithoutExtension(fullPath);
-                var aliasName = AorTxt.Format("{0}_{1}",
-                    ((GameDefinitions.AssetType)m_SelectResType).ToString(), fileName);
+                var aliasName = $"{((GameDefinitions.AssetType)m_SelectResType)}_{fileName}";
 
-                // 已在配置库存在：明确标记"已存在"，不重复追加
                 bool existInDb = ResDefInfos.ConvertData.Any(x => x.AliasName == aliasName);
                 if (existInDb)
                 {
@@ -168,7 +343,7 @@ namespace Honor.Editor
                 }
 
                 CheckFileABPath(fullPath, out string fileABPath);
-                if (IsHaveSameAliasName(aliasName) == false)
+                if (!IsHaveSameAliasName(aliasName))
                 {
                     var resDefItem = ResDefItem.Create(
                         CurMaxResID,
@@ -194,425 +369,111 @@ namespace Honor.Editor
         }
         #endregion
 
-        #region 左侧 - 导出配置
-        /// <summary>
-        /// 导出配置界面
-        /// </summary>
-        public void ExportConfigView()
-        {
-            GUILayout.BeginHorizontal("box",
-                new[] { GUILayout.Width(MinSize.x * m_SubPercenttage * 0.8f), GUILayout.Height(20) });
-            {
-                EditorGUILayout.LabelField("Lua导出目录路径：", new[] { GUILayout.Width(100), GUILayout.Height(20) });
-                string tmpPath = EditorGUILayout.TextField(ResDefInfos.LuaExportFolderPath);
-                if (GUILayout.Button("默认", new[] { GUILayout.Width(90), GUILayout.Height(20) }))
-                {
-                    tmpPath = Runtime.GamePathUtils.Editor.ResDef.LuaFolderPath;
-                }
-
-                if (!tmpPath.Equals(ResDefInfos.LuaExportFolderPath))
-                {
-                    ResDefInfos.LuaExportFolderPath = tmpPath;
-                    ResDefInfos.WriteJson();
-                }
-
-                EditorGUILayout.Space(10);
-                EditorGUILayout.LabelField("每页导出 LUA 数据量：", new[] { GUILayout.Width(140), GUILayout.Height(20) });
-                var tempOneSheetMaxCount = EditorGUILayout.IntField(m_OneSheetMaxCount,
-                    new[] { GUILayout.Width(60), GUILayout.Height(20) });
-                if (tempOneSheetMaxCount != m_OneSheetMaxCount)
-                {
-                    m_OneSheetMaxCount = tempOneSheetMaxCount;
-                    ResDefInfos.WriteJson();
-                }
-            }
-            GUILayout.EndHorizontal();
-        }
-        #endregion
-
-        #region 左侧 - 删除与工具
-        /// <summary>
-        /// 删除与校准功能区
-        /// </summary>
-        public void DeletingView()
-        {
-            var options = new[] { GUILayout.Width(60), GUILayout.Height(20) };
-            GUILayout.BeginHorizontal(new GUIStyle("box"),
-                new[] { GUILayout.Width(MinSize.x * m_SubPercenttage * 0.8f), GUILayout.Height(20) });
-            {
-                EditorGUILayout.LabelField("删除:", new[] { GUILayout.Width(100), GUILayout.Height(20) });
-                GUILayout.FlexibleSpace();
-                m_InputDelStartID = EditorGUILayout.IntField(m_InputDelStartID, options);
-                EditorGUILayout.LabelField(" ~ ", new[] { GUILayout.Width(20), GUILayout.Height(20) });
-                m_InputDelEndID = EditorGUILayout.IntField(m_InputDelEndID, options);
-                GUILayout.FlexibleSpace();
-                if (DrawActionButton("删除"))
-                {
-                    DeleteResInfo(m_InputDelStartID, m_InputDelEndID);
-                }
-
-                if (DrawActionButton("删除所有"))
-                {
-                    DeleteResInfo(0, Int32.MaxValue);
-                }
-
-                if (DrawActionButton("删除所有失效"))
-                {
-                    DeleteAllInvalidResInfo();
-                }
-
-                if (DrawActionButton("自动校准失效"))
-                {
-                    AutoRefreshAllInvalidResInfo();
-                }
-
-                GUILayout.Space(80);
-
-                if (GUILayout.Button("打开AB配置表Excel", new[] { GUILayout.Width(130), GUILayout.Height(20) }))
-                {
-                    string filePath = Runtime.GamePathUtils.AB.GetExcelFileFullPath();
-                    TableExportEditorUtility.OpenExcel(filePath);
-                }
-
-                if (GUILayout.Button("导出AB配置表Excel到Json&刷新AB名称", new[] { GUILayout.Width(240), GUILayout.Height(20) }))
-                {
-                    string filePath = Runtime.GamePathUtils.AB.GetExcelFileFullPath();
-                    ExportExcelToJsonFromABConfig(System.IO.Path.GetFileNameWithoutExtension(filePath));
-                    AssetBundleNamePostprocessor.RefreshAllAssetBundleNames();
-                    LoadABConfigs();
-                }
-				//TODO
-                GUILayout.Space(20);
-
-                if (GUILayout.Button("打开AB打包工具", new[] { GUILayout.Width(120), GUILayout.Height(20) }))
-                {
-                    // 打开新接入的 AB 打包工具窗口（支持配置目录粒度/一键打包/增量打包/清理输出）
-                    BuildPackage.BuildPackage_EditorWindow.OpenWindow();
-                }
-            }
-            GUILayout.EndHorizontal();
-        }
-
-        /// <summary>
-        /// 绘制标准宽度(90x20)操作按钮，返回本帧是否被点击
-        /// </summary>
-        /// <param name="label">按钮文本</param>
-        /// <true>按钮被点击</returns>
-        private static bool DrawActionButton(string label)
-        {
-            return GUILayout.Button(label, new[] { GUILayout.Width(90), GUILayout.Height(20) });
-        }
-        #endregion
-
-        #region 左侧 - 日志显示
-        /// <summary>
-        /// 结果日志显示
-        /// </summary>
-        public void ResultTextView()
-        {
-            EditorGUILayout.Space(10);
-            GUILayout.BeginVertical("box",
-                new[] { GUILayout.Width(MinSize.x * m_SubPercenttage), GUILayout.Height(100) });
-            {
-                m_TextScrollViewPosition = GUILayout.BeginScrollView(m_TextScrollViewPosition, false, true);
-                {
-                    foreach (KeyValuePair<string, FileUseState> entry in m_FindFileFullPathList)
-                    {
-                        DrawFileStateLine(entry.Key, entry.Value);
-                    }
-                }
-                GUILayout.EndScrollView();
-                GUILayout.FlexibleSpace();
-            }
-            GUILayout.EndVertical();
-        }
-
-        /// <summary>
-        /// 按文件导出状态绘制一行带颜色的日志
-        /// </summary>
-        /// <param name="fileFullPath">资源文件完整路径</param>
-        /// <param name="state">当前文件的处理状态</param>
+        #region IMGUI 行渲染（缓冲区 / 资源总表 / 日志）
+        /// <summary>按文件导出状态绘制一行带颜色的日志</summary>
         private static void DrawFileStateLine(string fileFullPath, FileUseState state)
         {
             string normalizedPath = fileFullPath.Replace("\\", "/");
             switch (state)
             {
                 case FileUseState.LoadSuccess:
-                    EditorGUILayout.LabelField(normalizedPath + " 加载成功");
+                    EditorGUILayout.LabelField(normalizedPath + " 加载成功", LogNormalStyle);
                     break;
                 case FileUseState.ExportSuccess:
-                    EditorGUILayout.LabelField(normalizedPath + " 导出成功");
+                    EditorGUILayout.LabelField(normalizedPath + " 导出成功", LogNormalStyle);
                     break;
                 case FileUseState.ExportFailedToSameName:
-                    EditorGUILayout.LabelField(normalizedPath + " 导出失败",
-                        new GUIStyle { normal = new GUIStyleState { textColor = Color.red } });
+                    EditorGUILayout.LabelField(normalizedPath + " 导出失败", LogRedStyle);
                     break;
                 case FileUseState.LoadFailed:
-                    EditorGUILayout.LabelField(normalizedPath + " 无AB映射",
-                        new GUIStyle { normal = new GUIStyleState { textColor = Color.yellow } });
+                    EditorGUILayout.LabelField(normalizedPath + " 无AB映射", LogYellowStyle);
                     break;
                 case FileUseState.ExportFailedExist:
-                    EditorGUILayout.LabelField(normalizedPath + " 已存在",
-                        new GUIStyle { normal = new GUIStyleState { textColor = Color.cyan } });
+                    EditorGUILayout.LabelField(normalizedPath + " 已存在", LogCyanStyle);
                     break;
             }
         }
-        #endregion
 
-        #region 左侧 - 拖拽区域
-        /// <summary>
-        /// 拖拽文件区域
-        /// </summary>
-        public void DragFilesView()
-        {
-            Event dragEvent = Event.current;
-            Rect dropRect = GUILayoutUtility.GetLastRect();
-            switch (dragEvent.type)
-            {
-                case EventType.DragUpdated:
-                case EventType.DragPerform:
-                    if (!dropRect.Contains(dragEvent.mousePosition))
-                        return;
-
-                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-
-                    if (dragEvent.type == EventType.DragPerform)
-                    {
-                        DragAndDrop.AcceptDrag();
-                        UpdateAllSelectedFileData(DragAndDrop.objectReferences);
-                    }
-
-                    break;
-            }
-        }
-        #endregion
-
-        #region 左侧 - 缓冲区列表
-        /// <summary>
-        /// 临时缓冲区显示
-        /// </summary>
-        public void TempFilesView()
-        {
-            EditorGUILayout.Space(30);
-            EditorGUILayout.LabelField("缓冲区:");
-            // 重名的资源ID
-            var sameAliasName = GetAllSameResInfo();
-            // ScrollView的初始化
-            GUILayout.BeginVertical("box",
-                new[] { GUILayout.Width(MinSize.x * m_SubPercenttage), GUILayout.Height(530) });
-            {
-                CreateTempScrollViewItem("ID", "别名", "AB路径", "资源名字", "资源类型", "删除按钮", null);
-                // 设置scrollView的移动模式
-                m_LeftScrollViewPosition = GUILayout.BeginScrollView(m_LeftScrollViewPosition, false, false,
-                    new[] { GUILayout.Width(MinSize.x * m_SubPercenttage), GUILayout.Height(530) });
-                {
-                    for (int idx = 0; idx < m_TempResDefItems.Count; idx++)
-                    {
-                        var resDefItem = m_TempResDefItems[idx];
-                        CreateTempScrollViewItem(Convert.ToString(resDefItem.ID), resDefItem.AliasName,
-                            resDefItem.ABPath, resDefItem.AssetName, resDefItem.ResType, string.Empty, resDefItem,
-                            sameAliasName.ContainsKey(resDefItem.AliasName));
-                    }
-                }
-                GUILayout.EndScrollView();
-                GUILayout.FlexibleSpace();
-            }
-            GUILayout.EndVertical();
-
-            // 居中对齐
-            EditorGUILayout.BeginHorizontal();
-            {
-                GUILayout.FlexibleSpace();
-                if (sameAliasName.Count > 0 || m_TempResDefItems.Count == 0)
-                {
-                    EditorGUI.BeginDisabledGroup(true);
-                }
-
-                if (GUILayout.Button("确认添加", new[] { GUILayout.Width(80), GUILayout.Height(30) }))
-                {
-                    foreach (var resDefItemInfos in m_TempResDefItems)
-                    {
-                        ResDefInfos.ConvertData.Add(resDefItemInfos);
-                        Log.Debug("[Editor] 资源别名: {0} ，添加成功。", resDefItemInfos.AliasName);
-                    }
-
-                    ResDefInfos.WriteJson();
-                    m_TempResDefItems.Clear();
-                    m_FindFileFullPathList.Clear();
-                    UpdateResultInfo();
-                    ShowNotification("资源添加成功。");
-                }
-
-                EditorGUI.EndDisabledGroup();
-                GUILayout.FlexibleSpace();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-
-        /// <summary>
-        /// 创建缓冲区列表项
-        /// </summary>
+        /// <summary>创建缓冲区列表项</summary>
         public void CreateTempScrollViewItem(string id, string alias, string abPath, string fileName, string fileType,
             string delString, ResDefItem resDefItem, bool isSameName = false)
         {
-            var layoutOptions = new[] { GUILayout.Width(MinSize.x * m_SubPercenttage - 22), GUILayout.Height(20) };
-            var optionsID = new[] { GUILayout.Width(80), GUILayout.Height(20) };
-            var optionsAlias = new[] { GUILayout.Width(220), GUILayout.Height(20) };
-            var optionsAbPath = new[] { GUILayout.Width(450), GUILayout.Height(20) };
-            var optionsFileName = new[] { GUILayout.Width(140), GUILayout.Height(20) };
-            var optionsFileType = new[] { GUILayout.Width(100), GUILayout.Height(20) };
+            bool isHeader = resDefItem == null;
+            var rowStyle = isHeader ? TableHeaderLabel : EditorStyles.label;
+
+            var optionsID = new[] { GUILayout.Width(60), GUILayout.Height(20) };
+            var optionsAlias = new[] { GUILayout.Width(160), GUILayout.Height(20) };
+            var optionsAbPath = new[] { GUILayout.Width(380), GUILayout.Height(20) };
+            var optionsFileName = new[] { GUILayout.Width(110), GUILayout.Height(20) };
+            var optionsFileType = new[] { GUILayout.Width(80), GUILayout.Height(20) };
             var optionsDelBtn = new[] { GUILayout.Width(50), GUILayout.Height(20) };
 
-            if (isSameName) GUI.backgroundColor = Color.red;
-
-            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.BeginVertical(isHeader ? EditorStyles.helpBox : "box");
             {
-                GUI.backgroundColor = Color.white;
-                EditorGUILayout.BeginHorizontal(layoutOptions);
+                EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
                 {
-                    EditorGUILayout.LabelField(id, optionsID);
-                    if (delString != String.Empty)
+                    EditorGUILayout.LabelField(id, rowStyle, optionsID);
+                    if (delString != string.Empty)
                     {
-                        EditorGUILayout.LabelField(alias, optionsAlias);
-                        EditorGUILayout.LabelField(abPath, optionsAbPath);
+                        EditorGUILayout.LabelField(alias, rowStyle, optionsAlias);
+                        EditorGUILayout.LabelField(abPath, rowStyle, optionsAbPath);
                     }
                     else
                     {
-                        // ABPath 可能为空（未纳入 AB 配置）或历史数据为 null，先归一化避免绘制崩溃
                         string safeAbPath = abPath ?? string.Empty;
                         string safeAlias = resDefItem == null ? string.Empty : resDefItem.AliasName;
 
-                        // 防御：无数据对象时退化为只读展示（不 return，避免破坏 Begin/End 布局配对）
                         if (resDefItem == null)
                         {
-                            EditorGUILayout.LabelField(safeAlias, optionsAlias);
-                            EditorGUILayout.LabelField(safeAbPath, optionsAbPath);
+                            EditorGUILayout.LabelField(safeAlias, rowStyle, optionsAlias);
+                            EditorGUILayout.LabelField(safeAbPath, rowStyle, optionsAbPath);
                         }
                         else
                         {
                             resDefItem.AliasName = EditorGUILayout.TextField(safeAlias, optionsAlias);
-                            EditorGUILayout.LabelField(
-                                new GUIContent(string.IsNullOrEmpty(safeAbPath) ? string.Empty : safeAbPath.Substring(0, Math.Min(safeAbPath.Length, 80)), safeAbPath),
-                                optionsAbPath);
+                            string tooltip = string.IsNullOrEmpty(safeAbPath)
+                                ? string.Empty
+                                : safeAbPath.Substring(0, Math.Min(safeAbPath.Length, 80));
+                            EditorGUILayout.LabelField(new GUIContent(tooltip, safeAbPath), optionsAbPath);
                         }
                     }
 
-                    EditorGUILayout.LabelField(fileName, optionsFileName);
-                    EditorGUILayout.LabelField(fileType, optionsFileType);
-                    if (delString == String.Empty)
+                    EditorGUILayout.LabelField(fileName, rowStyle, optionsFileName);
+                    EditorGUILayout.LabelField(fileType, rowStyle, optionsFileType);
+                    if (delString == string.Empty)
                     {
+                        GUI.backgroundColor = ButtonRed;
                         if (GUILayout.Button("删除", optionsDelBtn))
                             m_TempResDefItems.Remove(resDefItem);
+                        GUI.backgroundColor = Color.white;
                     }
                     else
                     {
-                        EditorGUILayout.LabelField(delString, optionsDelBtn);
+                        EditorGUILayout.LabelField(delString, rowStyle, optionsDelBtn);
                     }
                 }
                 EditorGUILayout.EndHorizontal();
 
-                if (isSameName)
+                if (isSameName && resDefItem != null)
                 {
-                    EditorGUILayout.BeginHorizontal(layoutOptions);
+                    EditorGUILayout.BeginHorizontal();
                     {
-                        EditorGUILayout.LabelField("别名：" + resDefItem.AliasName + " 重名，请手动修改。",
-                            new GUIStyle() { normal = { textColor = Color.red } }, layoutOptions);
+                        EditorGUILayout.LabelField($"别名：{resDefItem.AliasName} 重名，请手动修改。", LogRedStyle);
                     }
                     EditorGUILayout.EndHorizontal();
                 }
             }
             EditorGUILayout.EndVertical();
         }
-        #endregion
 
-        #region 右侧 - 资源详情
-        /// <summary>
-        /// 右侧所有资源详情界面
-        /// </summary>
-        public void AllResDetailsView()
-        {
-            if (m_ResultDetailInfo == null)
-            {
-                return;
-            }
-
-            // ScrollView的初始化
-            GUILayout.BeginVertical("box",
-                new[] { GUILayout.Width(MinSize.x * (1 - m_SubPercenttage)), GUILayout.Height(MinSize.y - 50) });
-            {
-                CreateSearchView();
-                CreateScrollViewItem("ID", "别名", "AB路径", "资源名字", string.Empty, "删除按钮", "矫正路径", null);
-                // 设置scrollView的移动模式
-                m_RightScrollViewPosition = GUILayout.BeginScrollView(m_RightScrollViewPosition, false, false,
-                    new[]
-                    {
-                        GUILayout.Width(MinSize.x * (1 - m_SubPercenttage) - 25), GUILayout.Height(MinSize.y - 120)
-                    });
-                {
-                    if (m_SearchResName == String.Empty)
-                    {
-                        if (m_OnlyShowError)
-                        {
-                            CreateResView(m_ErrorTag, m_ErrorResDefItemInfo);
-                        }
-                        else
-                        {
-                            foreach (var keyValue in m_ResultDetailInfo)
-                            {
-                                CreateResView(keyValue.Key, keyValue.Value);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        CreateResView(m_SearchTag, m_SearchResDefItemInfo);
-                    }
-                }
-                if (GUI.changed)
-                {
-                    UpdateResultInfo();
-                }
-
-                GUILayout.EndScrollView();
-            }
-            GUILayout.EndVertical();
-
-            EditorGUILayout.BeginHorizontal();
-            {
-                GUILayout.FlexibleSpace();
-                m_ResultInvalidPath.Values.ToList().ForEach(m =>
-                {
-                    if (m.Count > 0)
-                    {
-                        EditorGUI.BeginDisabledGroup(true);
-                    }
-                });
-                if (m_ResultSameResInfo.Count > 0)
-                {
-                    EditorGUI.BeginDisabledGroup(true);
-                }
-
-                if (GUILayout.Button("导出LUA", new[] { GUILayout.Width(80), GUILayout.Height(30) }))
-                {
-                    WriteOutputGDefsFile(GetResultDetailInfo().Values.ToList());
-                    ShowNotification($"导出 {Runtime.GamePathUtils.Editor.ResDef.GetResDefLuaFullPath()} 完成。");
-                }
-
-                EditorGUI.EndDisabledGroup();
-                GUILayout.FlexibleSpace();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-
-        /// <summary>
-        /// 搜索框
-        /// </summary>
+        /// <summary>按类型分组绘制资源列表</summary>
         public void CreateResView(string titleName, List<ResDefItem> resDefItems)
         {
-            var tempStyle = EditorStyles.foldout;
-            var redColor = m_OnlyShowError ||
-                           (m_ResultInvalidPath[titleName].Count > 0 || m_ResultSameResInfo.ContainsKey(titleName));
-            tempStyle.normal.textColor = redColor ? Color.red : Color.white;
+            var tempStyle = new GUIStyle(EditorStyles.foldout);
+            bool hasError = m_OnlyShowError
+                            || m_ResultInvalidPath[titleName].Count > 0
+                            || m_ResultSameResInfo.ContainsKey(titleName);
+            tempStyle.normal.textColor = hasError ? new Color(1f, 0.45f, 0.45f) : Color.white;
             tempStyle.onNormal.textColor = tempStyle.normal.textColor;
 
             UpdateFoldoutTitle(titleName, resDefItems.Count);
@@ -620,7 +481,7 @@ namespace Honor.Editor
             {
                 int startIndex = 0;
                 int endIndex = resDefItems.Count;
-                if (m_AllShowFoldout[titleName].IsShowAll == false)
+                if (!m_AllShowFoldout[titleName].IsShowAll)
                 {
                     startIndex = (m_AllShowFoldout[titleName].CurPageIndex - 1) *
                                  m_AllShowFoldout[titleName].OnePageCount;
@@ -636,83 +497,34 @@ namespace Honor.Editor
                         m_ResultSameResInfo.ContainsKey(resDefItem.AliasName));
                 }
             }
-
-            tempStyle.normal.textColor = Color.white;
-            tempStyle.onNormal.textColor = Color.white;
         }
 
-        /// <summary>
-        /// 搜索模块
-        /// </summary>
-        public void CreateSearchView()
-        {
-            GUILayout.Space(5);
-            EditorGUILayout.BeginHorizontal("box");
-            {
-                // 搜索框
-                var tempSearchExcelName = EditorGUILayout.TextField("搜索资源名字：", m_SearchResName, GUILayout.Width(300));
-                if (tempSearchExcelName != m_SearchResName)
-                {
-                    m_SearchResName = tempSearchExcelName;
-                    if (m_SearchResName != string.Empty)
-                    {
-                        UpdateSearchResDefItemInfo(m_SearchResName);
-                    }
-                }
-
-                // 删除搜索框里面的内容
-                if (GUILayout.Button("Del", GUILayout.Width(30)))
-                {
-                    m_SearchResName = string.Empty;
-                    GUIUtility.keyboardControl = 0;
-                }
-
-                GUILayout.FlexibleSpace();
-                var tempOnlyShowError = GUILayout.Toggle(m_OnlyShowError, "是否仅显示错误信息     ");
-                if (tempOnlyShowError != m_OnlyShowError)
-                {
-                    m_OnlyShowError = tempOnlyShowError;
-                    UpdateErrorResDefItemInfo();
-                    if (m_SearchResName != String.Empty)
-                    {
-                        UpdateSearchResDefItemInfo(m_SearchResName);
-                    }
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-
-            GUILayout.Space(5);
-        }
-
-        /// <summary>
-        /// 创建资源列表项
-        /// </summary>
+        /// <summary>创建资源列表项</summary>
         public void CreateScrollViewItem(string id, string alias, string abPath, string fileName, string fileType,
             string delString, string resetPath, ResDefItem resDefItem, bool invalidPath = false,
             bool isSameName = false)
         {
-            var layoutOptions = new[]
-                { GUILayout.Width(MinSize.x * (1 - m_SubPercenttage) - 55), GUILayout.Height(20) };
-            var optionsID = new[] { GUILayout.Width(80), GUILayout.Height(20) };
-            var optionsAlias = new[] { GUILayout.Width(190), GUILayout.Height(20) };
-            var optionsFileName = new[] { GUILayout.Width(120), GUILayout.Height(20) };
-            var optionsDelBtn = new[] { GUILayout.Width(50), GUILayout.Height(20) };
+            bool isHeader = resDefItem == null;
+            var rowStyle = isHeader ? TableHeaderLabel : EditorStyles.label;
+
+            var optionsID = new[] { GUILayout.Width(50), GUILayout.Height(20) };
+            var optionsAlias = new[] { GUILayout.Width(130), GUILayout.Height(20) };
+            var optionsFileName = new[] { GUILayout.Width(100), GUILayout.Height(20) };
+            var optionsDelBtn = new[] { GUILayout.Width(60), GUILayout.Height(20) };
             var optionsResetBtn = new[] { GUILayout.Width(70), GUILayout.Height(20) };
-            var redTextString = string.Empty;
 
-            if (invalidPath || isSameName)
-            {
-                GUI.backgroundColor = Color.red;
-                redTextString = invalidPath ? "文件不存在或abPath路径已失效,请点击矫正按钮进行矫正" : $"别名：{resDefItem.AliasName} 重名，请手动修改。";
-            }
+            string redTextString = invalidPath
+                ? "文件不存在或abPath路径已失效,请点击矫正按钮进行矫正"
+                : isSameName && resDefItem != null
+                    ? $"别名：{resDefItem.AliasName} 重名，请手动修改。"
+                    : string.Empty;
 
-            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.BeginVertical(isHeader ? EditorStyles.helpBox : "box");
             {
-                GUI.backgroundColor = Color.white;
-                EditorGUILayout.BeginHorizontal("box", layoutOptions);
+                EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
                 {
-                    EditorGUILayout.LabelField(id, optionsID);
-                    if (delString == String.Empty)
+                    EditorGUILayout.LabelField(id, rowStyle, optionsID);
+                    if (delString == string.Empty)
                     {
                         var newAlias = EditorGUILayout.TextField(alias, optionsAlias);
                         if (GUI.changed && newAlias.Length > 0)
@@ -723,45 +535,14 @@ namespace Honor.Editor
 
                         EditorGUILayout.LabelField(new GUIContent(fileName, "AB路径 = " + abPath), optionsFileName);
 
-                        if (GUILayout.Button("矫正路径", optionsResetBtn))
-                        {
-                            var fillFullPath = EditorUtility.OpenFilePanel("寻找文件", GetAbPathFullDirPath(abPath),
-                                GetAssetsSuffixByType(fileType).Replace(".", ""));
-                            if (fillFullPath.Length > 0)
-                            {
-                                var fullPath = fillFullPath.Substring(Application.dataPath.Length - 6);
-                                if (CheckFileABPath(fullPath, out var newABPath))
-                                {
-                                    resDefItem.AssetName = Path.GetFileNameWithoutExtension(fullPath);
-                                    resDefItem.ABPath = newABPath;
-                                    ResDefInfos.WriteJson();
-                                    ShowNotification("信息矫正成功，文件名字，AB路径都已刷新");
-                                    UpdateResultInfo();
-                                }
-                                else
-                                {
-                                    ShowNotification("当前文件没有找到AB配置信息，请检查");
-                                }
+                        DrawRectifyButton(optionsResetBtn, abPath, fileType, resDefItem);
 
-                                GUIUtility.ExitGUI();
-                            }
+                        if (invalidPath)
+                        {
+                            DrawAutoRectifyButton(optionsResetBtn, fileName, fileType, abPath, resDefItem);
                         }
 
-                        if (invalidPath && GUILayout.Button("Auto矫正", optionsResetBtn))
-                        {
-                            if (AutoRectifyInvalidResInfo(fileName, fileType, abPath, resDefItem, true))
-                            {
-                                ShowNotification("信息矫正成功，文件名字，AB路径都已刷新");
-                                UpdateResultInfo();
-                            }
-                            else
-                            {
-                                ShowNotification("当前文件没有找到AB配置信息，请检查");
-                            }
-
-                            GUIUtility.ExitGUI();
-                        }
-
+                        GUI.backgroundColor = ButtonRed;
                         if (GUILayout.Button("删除", optionsDelBtn))
                         {
                             ResDefInfos.ConvertData.Remove(resDefItem);
@@ -769,23 +550,23 @@ namespace Honor.Editor
                             UpdateResultInfo();
                             GUIUtility.ExitGUI();
                         }
+                        GUI.backgroundColor = Color.white;
                     }
                     else
                     {
-                        EditorGUILayout.LabelField(alias, optionsAlias);
-                        EditorGUILayout.LabelField(fileName, optionsFileName);
-                        EditorGUILayout.LabelField(resetPath, optionsResetBtn);
-                        EditorGUILayout.LabelField(delString, optionsDelBtn);
+                        EditorGUILayout.LabelField(alias, rowStyle, optionsAlias);
+                        EditorGUILayout.LabelField(fileName, rowStyle, optionsFileName);
+                        EditorGUILayout.LabelField(resetPath, rowStyle, optionsResetBtn);
+                        EditorGUILayout.LabelField(delString, rowStyle, optionsDelBtn);
                     }
                 }
                 EditorGUILayout.EndHorizontal();
 
-                if (invalidPath || isSameName)
+                if (!string.IsNullOrEmpty(redTextString))
                 {
-                    EditorGUILayout.BeginHorizontal(layoutOptions);
+                    EditorGUILayout.BeginHorizontal();
                     {
-                        EditorGUILayout.LabelField(redTextString, new GUIStyle() { normal = { textColor = Color.red } },
-                            layoutOptions);
+                        EditorGUILayout.LabelField(redTextString, LogRedStyle);
                     }
                     EditorGUILayout.EndHorizontal();
                 }
@@ -793,24 +574,77 @@ namespace Honor.Editor
             EditorGUILayout.EndVertical();
         }
 
-        /// <summary>
-        /// 更新折叠栏标题
-        /// </summary>
+        /// <summary>绘制"矫正路径"按钮</summary>
+        private void DrawRectifyButton(GUILayoutOption[] options, string abPath, string fileType, ResDefItem resDefItem)
+        {
+            GUI.backgroundColor = ButtonBlue;
+            if (GUILayout.Button("矫正路径", options))
+            {
+                GUI.backgroundColor = Color.white;
+                string suffix = GetAssetsSuffixByType(fileType).Replace(".", "");
+                string fillFullPath = EditorUtility.OpenFilePanel("寻找文件", GetAbPathFullDirPath(abPath), suffix);
+                if (fillFullPath.Length > 0)
+                {
+                    string fullPath = fillFullPath.Substring(Application.dataPath.Length - 6);
+                    if (CheckFileABPath(fullPath, out string newABPath))
+                    {
+                        resDefItem.AssetName = Path.GetFileNameWithoutExtension(fullPath);
+                        resDefItem.ABPath = newABPath;
+                        ResDefInfos.WriteJson();
+                        ShowNotification("信息矫正成功，文件名字，AB路径都已刷新");
+                        UpdateResultInfo();
+                    }
+                    else
+                    {
+                        ShowNotification("当前文件没有找到AB配置信息，请检查");
+                    }
+
+                    GUIUtility.ExitGUI();
+                }
+            }
+            GUI.backgroundColor = Color.white;
+        }
+
+        /// <summary>绘制"Auto矫正"按钮</summary>
+        private void DrawAutoRectifyButton(GUILayoutOption[] options, string fileName, string fileType, string abPath, ResDefItem resDefItem)
+        {
+            GUI.backgroundColor = ButtonBlue;
+            if (GUILayout.Button("Auto矫正", options))
+            {
+                GUI.backgroundColor = Color.white;
+                if (AutoRectifyInvalidResInfo(fileName, fileType, abPath, resDefItem, true))
+                {
+                    ShowNotification("信息矫正成功，文件名字，AB路径都已刷新");
+                    UpdateResultInfo();
+                }
+                else
+                {
+                    ShowNotification("当前文件没有找到AB配置信息，请检查");
+                }
+
+                GUIUtility.ExitGUI();
+            }
+            GUI.backgroundColor = Color.white;
+        }
+
+        /// <summary>更新折叠栏标题（含分页控件）</summary>
         public void UpdateFoldoutTitle(string key, int count)
         {
-            var layoutOptions = new[]
-                { GUILayout.Width(MinSize.x * (1 - m_SubPercenttage) - 55), GUILayout.Height(20) };
             var labelOptions = new[] { GUILayout.Width(28) };
             var buttonOptions = new[] { GUILayout.Width(20), GUILayout.Height(20) };
             var disableLabelOptions = new[] { GUILayout.Width(50), GUILayout.Height(20) };
 
-            EditorGUILayout.BeginHorizontal("box", layoutOptions);
+            EditorGUILayout.BeginHorizontal("box", GUILayout.Height(20));
             {
                 if (key == m_SearchTag || key == m_ErrorTag)
-                    EditorGUILayout.LabelField(key);
+                {
+                    EditorGUILayout.LabelField(key, TableHeaderLabel);
+                }
                 else
+                {
                     m_AllShowFoldout[key].IsShowFoldout =
                         EditorGUILayout.Foldout(m_AllShowFoldout[key].IsShowFoldout, key);
+                }
 
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.LabelField($"{count} items ", disableLabelOptions);
@@ -827,7 +661,7 @@ namespace Honor.Editor
                                 m_AllShowFoldout[key].CurPageIndex--;
                             EditorGUI.EndDisabledGroup();
 
-                            var tempIndex = EditorGUILayout.IntField(m_AllShowFoldout[key].CurPageIndex, labelOptions);
+                            int tempIndex = EditorGUILayout.IntField(m_AllShowFoldout[key].CurPageIndex, labelOptions);
                             if (m_AllShowFoldout[key].CurPageIndex != tempIndex && tempIndex > 0 &&
                                 tempIndex <= m_AllShowFoldout[key].PageCount)
                                 m_AllShowFoldout[key].CurPageIndex = tempIndex;

@@ -19,7 +19,7 @@ namespace Honor.Editor
     /// 资源定义导出工具窗口（Partial 分部类）
     /// 负责资源索引配置、打包检查、数据导出、错误校验
     /// </summary>
-    public partial class ResDefExportEditorWindow : BaseEditorWindow<ResDefExportEditorWindow>
+    public partial class ResDefExportEditorWindow : BaseToolkitEditorWindow<ResDefExportEditorWindow>
     {
         #region 滚动视图位置
         /// <summary>

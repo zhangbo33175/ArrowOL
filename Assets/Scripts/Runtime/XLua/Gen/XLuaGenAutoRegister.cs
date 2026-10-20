@@ -1582,18 +1582,15 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(GameLib.GameManager), GameLibGameManagerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(GameLib.HonorManager), GameLibHonorManagerWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(GameLib.ProcedureUtils), GameLibProcedureUtilsWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(GameLib.ItemMap), GameLibItemMapWrap.__Register);
         
         }
         
         static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
         {
-        
-            translator.DelayWrapLoader(typeof(GameLib.ItemMap), GameLibItemMapWrap.__Register);
-        
         
             translator.DelayWrapLoader(typeof(GameLib.AorClickItem), GameLibAorClickItemWrap.__Register);
         

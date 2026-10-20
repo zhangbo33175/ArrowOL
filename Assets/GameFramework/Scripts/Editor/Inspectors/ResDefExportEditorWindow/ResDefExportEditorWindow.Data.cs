@@ -20,7 +20,7 @@ using UnityEngine;
 
 namespace Honor.Editor
 {
-    public partial class ResDefExportEditorWindow : BaseEditorWindow<ResDefExportEditorWindow>
+    public partial class ResDefExportEditorWindow : BaseToolkitEditorWindow<ResDefExportEditorWindow>
     {
         #region 资源配置数据管理
         /// <summary>
