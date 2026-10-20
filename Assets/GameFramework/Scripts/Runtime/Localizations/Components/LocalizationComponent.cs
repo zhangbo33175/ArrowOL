@@ -33,13 +33,6 @@ namespace Honor.Runtime
         public void Cleanup() { m_LocalizationManager = null; }
         public override void Dispose() { Cleanup(); }
 
-        /// <summary>
-        /// 生命周期 Start（暂未使用）
-        /// </summary>
-        private void Start()
-        {
-        }
-
         //=========================================================================
         // 语言初始化与设置
         //=========================================================================

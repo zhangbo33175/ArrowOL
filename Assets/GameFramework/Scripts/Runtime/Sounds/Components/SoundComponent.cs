@@ -35,6 +35,12 @@ namespace Honor.Runtime
             Object.DontDestroyOnLoad(m_SoundGo);
             m_AudioListener = m_SoundGo.GetOrAddComponent<AudioListener>();
 
+            // 确保场景中只有一个 AudioListener 生效：
+            // 若场景 Camera 已自带 AudioListener，则禁用自身监听器（避免多个监听器
+            // 冲突导致无声，恢复与 GameCatDevelopment 一致的有声行为）；
+            // 若场景无监听器，则由本组件提供唯一的监听器。
+            RefreshAudioListener();
+
             // 从音频配置资产读取声音组与混音器；资产缺失/未配置时回退到默认硬编码
             InitializeFromSoundConfig();
         }
@@ -50,23 +56,32 @@ namespace Honor.Runtime
             if (soundConfig == null)
             {
                 // 默认声音组（未配置音频资产时的回退）
+                Log.Info("[SoundComponent] SoundConfig 资产未加载，回退默认声音组 Music/UISound。");
                 AddSoundGroup("Music", 4);
                 AddSoundGroup("UISound", 2);
                 return;
             }
 
             // 应用混音器（供声音组轨道绑定使用）
-            m_AudioMixer = soundConfig.AudioMixer;
+            // 诊断确认：播放触发、AudioListener 唯一且 enabled、无失败警告，但绑定 AudioMixer 后无声。
+            // 参照工程 GameCatDevelopment 绑 mixer 有声，本工程 AudioMixer 运行时输出链路疑似异常。
+            // 故恢复运行时默认不绑定 AudioMixer（与改动前有声行为一致）；配置仍保存/读取。
+            // 若需启用 AudioMixer 混音效果，请先在 Unity 的 Audio Mixer 面板确认 Master 组 Output 已连 AudioListener。
+            // m_AudioMixer = soundConfig.AudioMixer;
+            Log.Info(string.Format("[SoundComponent] 加载 SoundConfig 成功，AudioMixer={0}（运行时未绑定，保持有声）。",
+                soundConfig.AudioMixer != null ? soundConfig.AudioMixer.name : "null"));
 
             // 按资产预设创建声音组；空配置时回退默认
             SoundGroupShell[] shells = soundConfig.SoundGroupShells;
             if (shells == null || shells.Length == 0)
             {
+                Log.Info("[SoundComponent] SoundConfig 声音分组为空，回退默认声音组 Music/UISound。");
                 AddSoundGroup("Music", 4);
                 AddSoundGroup("UISound", 2);
                 return;
             }
 
+            Log.Info(string.Format("[SoundComponent] 按 SoundConfig 创建声音组，共 {0} 个预设。", shells.Length));
             for (int i = 0; i < shells.Length; i++)
             {
                 SoundGroupShell shell = shells[i];
@@ -75,12 +90,14 @@ namespace Honor.Runtime
                     continue; // 跳过未配置/空名的预设项，保证健壮性
                 }
 
-                AddSoundGroup(
+                bool ok = AddSoundGroup(
                     shell.Name,
                     shell.AvoidBeingReplacedBySamePriority,
                     shell.Mute,
                     shell.Volume,
                     shell.AgentCount);
+                Log.Info(string.Format("[SoundComponent] 创建声音组 {0} (Agent={1}) => {2}。",
+                    shell.Name, shell.AgentCount, ok ? "成功" : "失败"));
             }
         }
 

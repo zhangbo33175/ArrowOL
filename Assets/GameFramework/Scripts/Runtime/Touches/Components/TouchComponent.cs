@@ -42,19 +42,6 @@ namespace Honor.Runtime
 #endif
         }
 
-        /// <summary>
-        /// 组件启动逻辑（预留扩展）
-        /// </summary>
-        private void Start()
-        {
-        }
-
-        /// <summary>
-        /// 组件销毁逻辑（预留扩展）
-        /// </summary>
-        private void OnDestroy()
-        {
-        }
         #endregion
 
         public override void Dispose()

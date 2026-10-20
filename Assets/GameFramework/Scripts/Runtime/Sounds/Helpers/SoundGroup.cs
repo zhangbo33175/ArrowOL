@@ -161,6 +161,7 @@ namespace Honor.Runtime
 
             // 开始播放
             candidateAgent.Play(playSoundParams.FadeInSeconds);
+
             return candidateAgent;
         }
 

@@ -48,10 +48,11 @@ namespace Honor.Runtime
         // Unity 生命周期
         //=========================================================================
         /// <summary>
-        /// Unity 每帧更新
+        /// 每帧更新，驱动所有计时器计时，倒序遍历保证安全删除元素
+        /// <para>TimerComponent 为纯 C# 单例（非 MonoBehaviour），生命周期 Update 不会被 Unity 调用，
+        /// 由 GameMainRoot 每帧驱动本方法，保证计时器持续推进。</para>
         /// </summary>
-        /// <remarks>驱动所有计时器计时，倒序遍历保证安全删除元素</remarks>
-        private void Update()
+        internal void DriveUpdate()
         {
             // 倒序遍历，防止移除元素导致的索引越界
             for (int i = m_Timers.Count - 1; i >= 0; i--)

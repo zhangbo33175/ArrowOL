@@ -32,16 +32,11 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 生命周期 Start（暂未使用）
-        /// </summary>
-        private void Start()
-        {
-        }
-
-        /// <summary>
         /// 帧更新，驱动事件队列执行
+        /// <para>EventComponent 为纯 C# 单例（非 MonoBehaviour），生命周期 Update 不会被 Unity 调用，
+        /// 由 GameMainRoot 每帧驱动本方法，保证事件队列正常推进。</para>
         /// </summary>
-        private void Update()
+        internal void DriveUpdate()
         {
             m_EventManager?.Update();
         }

@@ -31,13 +31,6 @@ namespace Honor.Runtime
         public override void Dispose() { Cleanup(); }
 
         /// <summary>
-        /// 销毁逻辑
-        /// </summary>
-        private void OnDestroy()
-        {
-        }
-
-        /// <summary>
         /// 创建并加载文件分片存储（WebGL 与常规平台互斥）
         /// </summary>
         private void InitFragmentStore()

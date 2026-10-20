@@ -33,20 +33,6 @@ namespace Honor.Runtime
         {
             base.Init();
         }
-        
-        /// <summary>
-        /// 启动（C#层无业务逻辑）
-        /// </summary>
-        private void Start()
-        {
-        }
-
-        /// <summary>
-        /// 销毁（C#层无业务逻辑）
-        /// </summary>
-        private void OnDestroy()
-        {
-        }
 
         #endregion
 

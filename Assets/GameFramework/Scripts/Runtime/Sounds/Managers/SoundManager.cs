@@ -539,7 +539,7 @@ namespace Honor.Runtime
             {
                 if (pair.Value.Name == groupName)
                 {
-                    Log.Info($"设置音乐组音量  name = {groupName}");
+                    Log.Info($"设置音乐组音量  name = {groupName}，volume = {newVolume}");
                     pair.Value.Volume = newVolume;
                     return;
                 }

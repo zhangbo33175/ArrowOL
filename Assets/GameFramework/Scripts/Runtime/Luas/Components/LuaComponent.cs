@@ -40,44 +40,24 @@ namespace Honor.Runtime
             m_LoadedLuaScriptsNames = new List<string>();
             m_LuaScriptsFullPathsMapForLoading = new Dictionary<string, string>();
             m_LuaScriptsABPathsForLoading = new List<string>();
-        }
 
-        /// <summary>
-        /// 依赖组件获取
-        /// </summary>
-        private void Start()
-        {
-            m_LauncherComponent = GameComponentsGroup.GetComponent<LauncherComponent>();
-            m_AssetComponent = AssetComponent.Instance;
-
+            // 依赖组件获取失败时立即报警，避免后续空引用
             if (m_LauncherComponent == null) Log.Fatal("[Lua] LauncherComponent 获取失败");
             if (m_AssetComponent == null) Log.Fatal("[Lua] AssetComponent 获取失败");
         }
 
         /// <summary>
         /// 定时触发 Lua GC
+        /// <para>LuaComponent 为纯 C# 单例（非 MonoBehaviour），生命周期 Update 不会被 Unity 调用，
+        /// 由 GameMainRoot 每帧驱动本方法，保证 Lua GC 定时触发。</para>
         /// </summary>
-        private void Update()
+        internal void DriveUpdate()
         {
             if (m_Env == null) return;
             if (Time.time - s_LastGCTime > s_GCInterval)
             {
                 m_Env.Tick();
                 s_LastGCTime = Time.time;
-            }
-        }
-
-        /// <summary>
-        /// 组件销毁 —— 安全释放 Lua 环境
-        /// </summary>
-        private void OnDestroy()
-        {
-            if (m_Env != null)
-            {
-                m_Env.Tick();
-                m_Env.FullGc();
-                m_Env.Dispose();
-                m_Env = null;
             }
         }
 

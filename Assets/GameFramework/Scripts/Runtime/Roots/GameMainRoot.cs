@@ -40,6 +40,11 @@ namespace Honor.Runtime
         public static AssetComponent Asset { get; private set; }
 
         /// <summary>
+        /// 计时器组件（驱动所有计时器计时）
+        /// </summary>
+        public static TimerComponent Timer { get; private set; }
+
+        /// <summary>
         /// Lua热更组件（Lua环境、脚本、绑定）
         /// </summary>
         public static LuaComponent Lua { get; private set; }
@@ -145,6 +150,7 @@ namespace Honor.Runtime
             Launcher = GameComponentsGroup.GetComponent<LauncherComponent>();
             Asset = AssetComponent.Instance;
             Asset.Init();
+            Timer = TimerComponent.Instance;
             Lua = LuaComponent.Instance;
             Lua.Init();
             Network = NetworkComponent.Instance;
@@ -168,6 +174,34 @@ namespace Honor.Runtime
             Sound.Init();
             Playing = GameComponentsGroup.GetComponent<PlayingComponent>();
             Vibrate = GameComponentsGroup.GetComponent<VibrateComponent>();
+        }
+
+        /// <summary>
+        /// 每帧更新：驱动各纯 C# 单例组件的生命周期
+        /// <para>以下组件采用纯 C# 单例（非 MonoBehaviour），自身 Update 生命周期不会被 Unity 调用，
+        /// 由本根管理器每帧驱动，保证异步资源加载、计时器、事件队列、Lua GC 持续推进。</para>
+        /// </summary>
+        private void Update()
+        {
+            if (Asset != null)
+            {
+                Asset.DriveUpdate();
+            }
+
+            if (Timer != null)
+            {
+                Timer.DriveUpdate();
+            }
+
+            if (Event != null)
+            {
+                Event.DriveUpdate();
+            }
+
+            if (Lua != null)
+            {
+                Lua.DriveUpdate();
+            }
         }
 
         #endregion

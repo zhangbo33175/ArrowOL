@@ -397,6 +397,10 @@ namespace Honor.Runtime
                     LoadAssetBundleAsyncAndRequest(typeName, loadABPath, assetName, assetPath, assetObj);
                     TryAssignOriginFromLoadedOrLoadingBundle(assetObj, loadABPath);
                 }
+                else
+                {
+                    Log.Warning("[AssetLoadManager] AB 不存在，异步加载被静默跳过：{0}", loadABPath);
+                }
             }
         }
 
