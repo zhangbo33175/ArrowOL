@@ -10,7 +10,7 @@
 -- @scope     由 GameStateMachine:ChangeState(PlayingState) 驱动；首关/普通流程加载完成后落点
 -- @feat      相机动画、UI管理、触摸控制、引导触发、HUD生命周期
 -- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
--- @dependency GameStateBase, GameMainRoot.UI, GameMainUIPushManager, GameManager, GameMapMotion, ChapterListManager, ChapterDataManager, SoundManager, MapManager, GameLib.MapCamHelper, PlayGameplayCycle, GameCoreManager, GameEffectManager, OpenUISync/CloseUI
+-- @dependency GameStateBase, GameMainRoot.HonorUIManager, GameMainUIPushManager, GameManager, GameMapMotion, ChapterListManager, ChapterDataManager, SoundManager, MapManager, GameLib.MapCamHelper, PlayGameplayCycle, GameCoreManager, GameEffectManager, OpenUISync/CloseUI
 --=====================================================================================================
 
 ---@class GamePlayingState : GameStateBase @游戏运行状态：关卡正式游玩状态机节点
@@ -52,7 +52,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
     -- 开启多点触摸
     GameLib.Util.SetMultiTouchEnabled(true)
     -- 增加UI遮罩，防止操作
-    GameMainRoot.UI:AddUIMaskLayerRef("GamePlayingState:OnStateEnter")
+    GameMainRoot.HonorUIManager:AddUIMaskLayerRef("GamePlayingState:OnStateEnter")
     -- 清空UI推送队列
     GameMainUIPushManager:ClearWorkQueue()
     -- 开启点击检测
@@ -80,7 +80,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
                         PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
                     end
                     -- 移除UI遮罩
-                    GameMainRoot.UI:SubUIMaskLayerRef()
+                    GameMainRoot.HonorUIManager:SubUIMaskLayerRef()
                     -- 恢复地图交互
                     GameMapMotion:ResumeMapMotion()
                     -- 进入游戏
@@ -91,7 +91,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
         )
     else
         PrintWarning("[GamePlayingState] 当前地图数据或游玩相机数据为空，跳过相机视角切换")
-        GameMainRoot.UI:SubUIMaskLayerRef()
+        GameMainRoot.HonorUIManager:SubUIMaskLayerRef()
         PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
         OpenUISync(UIs.UIMainPlaying, {
             callback = function()

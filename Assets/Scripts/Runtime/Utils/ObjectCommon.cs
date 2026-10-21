@@ -1,5 +1,5 @@
 ﻿/***************************************************************
- * (c) copyright 2026 - 2030, GameLib
+ * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  ObjectCommon.cs

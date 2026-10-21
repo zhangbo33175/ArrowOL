@@ -21,12 +21,13 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.SceneComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 20, 8, 1);
+			Utils.BeginObjectRegister(type, L, translator, 0, 21, 8, 1);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DestroyAllSceneGOs", _m_DestroyAllSceneGOs);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PreLoadSceneAsync", _m_PreLoadSceneAsync);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadSceneAsync", _m_LoadSceneAsync);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadSceneSync", _m_LoadSceneSync);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Load2DSceneRoot", _m_Load2DSceneRoot);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UnloadScene", _m_UnloadScene);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLoadedSceneAssetNames", _m_GetLoadedSceneAssetNames);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLoadingSceneAssetNames", _m_GetLoadingSceneAssetNames);
@@ -232,6 +233,34 @@ namespace XLua.CSObjectWrap
                     string _assetName = LuaAPI.lua_tostring(L, 3);
                     
                         UnityEngine.SceneManagement.Scene gen_ret = gen_to_be_invoked.LoadSceneSync( _abPath, _assetName );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Load2DSceneRoot(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.SceneComponent gen_to_be_invoked = (Honor.Runtime.SceneComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        UnityEngine.GameObject gen_ret = gen_to_be_invoked.Load2DSceneRoot(  );
                         translator.Push(L, gen_ret);
                     
                     

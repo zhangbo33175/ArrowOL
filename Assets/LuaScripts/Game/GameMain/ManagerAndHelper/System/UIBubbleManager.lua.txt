@@ -199,7 +199,7 @@ function UIBubbleManager:GenerateBubble(bubbleGenerateConfig)
     -- 安全从对象池创建气泡
     local bubble = nil
     xpcall(function()
-        local parent = GameMainRoot.UI.ScreenUICanvas.transform
+        local parent = GameMainRoot.HonorUIManager.ScreenUICanvas.transform
         local go = PoolManager:Get(RES.GameObject_UIBubble.Name, parent)
         if not go then return end
 

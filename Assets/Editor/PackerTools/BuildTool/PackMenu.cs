@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  PackMenu.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   Honor 打包工具菜单入口（Honor/打包工具/...）
  *            只保留"打开打包窗口"菜单入口；

@@ -1,5 +1,5 @@
 ﻿/***************************************************************
- * (c) copyright 2026 - 2030, GameLib
+ * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  AorUIMaskLayerBehaviour.cs
@@ -72,7 +72,7 @@ namespace GameLib
             if (tempTime >= maskTimeOut)
             {
                 tempTime = 0f;
-                GameMainRoot.UI.CloseUIMaskLayer();
+                HonorUIManager.Instance.UI.CloseUIMaskLayer();
             }
         }
         #endregion

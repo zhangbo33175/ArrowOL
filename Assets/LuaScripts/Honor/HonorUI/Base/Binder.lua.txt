@@ -10,11 +10,8 @@
 -- @core      BindValue 监听自动管理、绑定/解绑、防内存泄漏与空引用
 -- @scope     MVVM 绑定层，由 ViewSuper 持有，随 View 生命周期释放
 -- @dependency BindValue, ViewModelSuper
--- descrip:    绑定器（MVVM 双向绑定桥梁）
---             作用：管理 View 上所有的监听函数，并统一绑定/解绑到 ViewModel 的可绑定值上
---             服务于 ViewSuper，实现 View <-> ViewModel 自动解耦、安全释放
---             核心：自动管理 BindableValue 监听，防止内存泄漏、空引用
 --=====================================================================================================
+---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/作用/服务/核心 注释块（纯注释，逻辑无影响）
 
 --region MVVM 绑定管理器 - Binder
 ---@class Binder MVVM 视图绑定器（管理 View 与 ViewModel 的绑定关系）

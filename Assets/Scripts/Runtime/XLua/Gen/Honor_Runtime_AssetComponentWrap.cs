@@ -21,8 +21,9 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.AssetComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 14, 16, 3);
+			Utils.BeginObjectRegister(type, L, translator, 0, 16, 17, 3);
 			
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Init", _m_Init);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadManifest", _m_LoadManifest);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadPrefabSync", _m_LoadPrefabSync);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadPrefabAsync", _m_LoadPrefabAsync);
@@ -37,9 +38,11 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PreLoadSceneAsync", _m_PreLoadSceneAsync);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UnloadScene", _m_UnloadScene);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "IsAssetExist", _m_IsAssetExist);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Dispose", _m_Dispose);
 			
 			
-			Utils.RegisterFunc(L, Utils.GETTER_IDX, "StrictCheck", _g_get_StrictCheck);
+			Utils.RegisterFunc(L, Utils.GETTER_IDX, "transform", _g_get_transform);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "StrictCheck", _g_get_StrictCheck);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LauncherComponent", _g_get_LauncherComponent);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "AssetLoadManager", _g_get_AssetLoadManager);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrefabLoadManager", _g_get_PrefabLoadManager);
@@ -103,6 +106,33 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Init(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.Init(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_LoadManifest(RealStatePtr L)
@@ -675,8 +705,49 @@ namespace XLua.CSObjectWrap
             
         }
         
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Dispose(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.Dispose(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         
+        
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_transform(RealStatePtr L)
+        {
+		    try {
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			
+                Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
+                translator.Push(L, gen_to_be_invoked.transform);
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            return 1;
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_StrictCheck(RealStatePtr L)

@@ -1,5 +1,5 @@
 /***************************************************************
- * (c) copyright 2026 - 2030, Honor.Runtime
+ * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  UILauncherLogoBehaviourInspector.cs

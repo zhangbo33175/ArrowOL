@@ -56,7 +56,7 @@ namespace Honor.Editor
 
         /// <summary>
         /// 加载（或创建）音频配置资产并绑定序列化对象
-        /// <para>音频配置不再依赖纯 C# 单例（SoundComponent）——单例不走 Unity 序列化，
+        /// <para>音频配置不再依赖纯 C# 组件（SoundComponent）——组件不走 Unity 序列化，
         /// 无法被 SerializedObject 绑定。此处改挂到 ScriptableObject 资产，实现可编辑持久化。</para>
         /// </summary>
         protected override void OnInitData()

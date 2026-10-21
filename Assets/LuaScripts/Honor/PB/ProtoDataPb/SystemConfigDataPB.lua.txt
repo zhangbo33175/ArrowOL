@@ -28,8 +28,8 @@ SaveIO.SystemConfigData.LoadAll = function()
     SaveIO.SystemConfigData.Load_data()
 end
 SaveIO.SystemConfigData.Load_data = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data') then
-         SaveRootData.SystemConfigData.data = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data') then
+         SaveRootData.SystemConfigData.data = JsonDecode(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data'))
     end
 end
 ----------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ SaveIO.SystemConfigData.SaveAll = function()
     SaveIO.SystemConfigData.Save_data()
 end
 SaveIO.SystemConfigData.Save_data = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data', JsonEncode(SaveRootData.SystemConfigData.data))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'SystemConfigDataPB', 'SystemConfigDataPB.data', JsonEncode(SaveRootData.SystemConfigData.data))
 end
 ----------------------------------------------------------------------------------------------
 SaveIO.SystemConfigData.SerializeAll = function()

@@ -83,7 +83,7 @@ namespace Honor.Editor
             BindClick("openProtoDirBtn", () =>
                 Process.Start(GamePathUtils.Proto.Net.GetRootDirectoryFullPath()));
 
-            // 超时配置（纯 C# 单例，直接访问）
+            // 超时配置（纯 C# 组件，经门面访问）
             // TODO: 加固健壮性——Q<> 查不到 FloatField 时原写法直接空引用，加判空
             var connectField = Q<FloatField>("connectTimeoutField");
             var requestField = Q<FloatField>("requestTimeoutField");

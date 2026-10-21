@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  PackWindow.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   Honor 打包工具主窗口（Tab 窗口）
  *            Tab0 = AB资源打包：平台下拉 / 输出目录展示 / 增量与Lua加密开关 /

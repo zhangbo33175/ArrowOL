@@ -121,26 +121,23 @@ namespace XLua.CSObjectWrap
             
 			try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				if(LuaAPI.lua_gettop(L) == 17 && translator.Assignable<Honor.Runtime.AssetComponent>(L, 2) && translator.Assignable<Honor.Runtime.LocalizationComponent>(L, 3) && translator.Assignable<Honor.Runtime.UIComponent>(L, 4) && translator.Assignable<System.Collections.Generic.List<UnityEngine.Camera>>(L, 5) && translator.Assignable<System.Collections.Generic.List<UnityEngine.Camera>>(L, 6) && translator.Assignable<UnityEngine.Canvas>(L, 7) && translator.Assignable<UnityEngine.Canvas>(L, 8) && translator.Assignable<UnityEngine.Vector2>(L, 9) && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 10) && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 11) && LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 12) && (LuaAPI.lua_isnil(L, 13) || LuaAPI.lua_type(L, 13) == LuaTypes.LUA_TSTRING) && (LuaAPI.lua_isnil(L, 14) || LuaAPI.lua_type(L, 14) == LuaTypes.LUA_TSTRING) && (LuaAPI.lua_isnil(L, 15) || LuaAPI.lua_type(L, 15) == LuaTypes.LUA_TSTRING) && (LuaAPI.lua_isnil(L, 16) || LuaAPI.lua_type(L, 16) == LuaTypes.LUA_TSTRING) && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 17))
+				if(LuaAPI.lua_gettop(L) == 14 && translator.Assignable<System.Collections.Generic.List<UnityEngine.Camera>>(L, 2) && translator.Assignable<System.Collections.Generic.List<UnityEngine.Camera>>(L, 3) && translator.Assignable<UnityEngine.Canvas>(L, 4) && translator.Assignable<UnityEngine.Canvas>(L, 5) && translator.Assignable<UnityEngine.Vector2>(L, 6) && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 7) && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 8) && LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type(L, 9) && (LuaAPI.lua_isnil(L, 10) || LuaAPI.lua_type(L, 10) == LuaTypes.LUA_TSTRING) && (LuaAPI.lua_isnil(L, 11) || LuaAPI.lua_type(L, 11) == LuaTypes.LUA_TSTRING) && (LuaAPI.lua_isnil(L, 12) || LuaAPI.lua_type(L, 12) == LuaTypes.LUA_TSTRING) && (LuaAPI.lua_isnil(L, 13) || LuaAPI.lua_type(L, 13) == LuaTypes.LUA_TSTRING) && LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 14))
 				{
-					Honor.Runtime.AssetComponent _assetComponent = (Honor.Runtime.AssetComponent)translator.GetObject(L, 2, typeof(Honor.Runtime.AssetComponent));
-					Honor.Runtime.LocalizationComponent _localizationComponent = (Honor.Runtime.LocalizationComponent)translator.GetObject(L, 3, typeof(Honor.Runtime.LocalizationComponent));
-					Honor.Runtime.UIComponent _uiComponent = (Honor.Runtime.UIComponent)translator.GetObject(L, 4, typeof(Honor.Runtime.UIComponent));
-					System.Collections.Generic.List<UnityEngine.Camera> _screenUICameras = (System.Collections.Generic.List<UnityEngine.Camera>)translator.GetObject(L, 5, typeof(System.Collections.Generic.List<UnityEngine.Camera>));
-					System.Collections.Generic.List<UnityEngine.Camera> _sceneUICameras = (System.Collections.Generic.List<UnityEngine.Camera>)translator.GetObject(L, 6, typeof(System.Collections.Generic.List<UnityEngine.Camera>));
-					UnityEngine.Canvas _screenUICanvas = (UnityEngine.Canvas)translator.GetObject(L, 7, typeof(UnityEngine.Canvas));
-					UnityEngine.Canvas _sceneUICanvas = (UnityEngine.Canvas)translator.GetObject(L, 8, typeof(UnityEngine.Canvas));
-					UnityEngine.Vector2 _screenDesignedResolution;translator.Get(L, 9, out _screenDesignedResolution);
-					float _screenWidthHeightMatchValue = (float)LuaAPI.lua_tonumber(L, 10);
-					int _destroyMaxNumPerFrame = LuaAPI.xlua_tointeger(L, 11);
-					bool _checkTextLocalizings = LuaAPI.lua_toboolean(L, 12);
-					string _waitingUIABPath = LuaAPI.lua_tostring(L, 13);
-					string _waitingUIAssetName = LuaAPI.lua_tostring(L, 14);
-					string _floatWordsUIABPath = LuaAPI.lua_tostring(L, 15);
-					string _floatWordsUIAssetName = LuaAPI.lua_tostring(L, 16);
-					float _floatWordsDuration = (float)LuaAPI.lua_tonumber(L, 17);
+					System.Collections.Generic.List<UnityEngine.Camera> _screenUICameras = (System.Collections.Generic.List<UnityEngine.Camera>)translator.GetObject(L, 2, typeof(System.Collections.Generic.List<UnityEngine.Camera>));
+					System.Collections.Generic.List<UnityEngine.Camera> _sceneUICameras = (System.Collections.Generic.List<UnityEngine.Camera>)translator.GetObject(L, 3, typeof(System.Collections.Generic.List<UnityEngine.Camera>));
+					UnityEngine.Canvas _screenUICanvas = (UnityEngine.Canvas)translator.GetObject(L, 4, typeof(UnityEngine.Canvas));
+					UnityEngine.Canvas _sceneUICanvas = (UnityEngine.Canvas)translator.GetObject(L, 5, typeof(UnityEngine.Canvas));
+					UnityEngine.Vector2 _screenDesignedResolution;translator.Get(L, 6, out _screenDesignedResolution);
+					float _screenWidthHeightMatchValue = (float)LuaAPI.lua_tonumber(L, 7);
+					int _destroyMaxNumPerFrame = LuaAPI.xlua_tointeger(L, 8);
+					bool _checkTextLocalizings = LuaAPI.lua_toboolean(L, 9);
+					string _waitingUIABPath = LuaAPI.lua_tostring(L, 10);
+					string _waitingUIAssetName = LuaAPI.lua_tostring(L, 11);
+					string _floatWordsUIABPath = LuaAPI.lua_tostring(L, 12);
+					string _floatWordsUIAssetName = LuaAPI.lua_tostring(L, 13);
+					float _floatWordsDuration = (float)LuaAPI.lua_tonumber(L, 14);
 					
-					Honor.Runtime.UIManager gen_ret = new Honor.Runtime.UIManager(_assetComponent, _localizationComponent, _uiComponent, _screenUICameras, _sceneUICameras, _screenUICanvas, _sceneUICanvas, _screenDesignedResolution, _screenWidthHeightMatchValue, _destroyMaxNumPerFrame, _checkTextLocalizings, _waitingUIABPath, _waitingUIAssetName, _floatWordsUIABPath, _floatWordsUIAssetName, _floatWordsDuration);
+					Honor.Runtime.UIManager gen_ret = new Honor.Runtime.UIManager(_screenUICameras, _sceneUICameras, _screenUICanvas, _sceneUICanvas, _screenDesignedResolution, _screenWidthHeightMatchValue, _destroyMaxNumPerFrame, _checkTextLocalizings, _waitingUIABPath, _waitingUIAssetName, _floatWordsUIABPath, _floatWordsUIAssetName, _floatWordsDuration);
 					translator.Push(L, gen_ret);
                     
 					return 1;

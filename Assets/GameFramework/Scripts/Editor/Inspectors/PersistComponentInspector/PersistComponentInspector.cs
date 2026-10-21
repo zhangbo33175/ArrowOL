@@ -1,5 +1,5 @@
 ﻿/***************************************************************
- * (c) copyright 2026 - 2030, Honor.Runtime
+ * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  PersistComponentInspector.cs
@@ -24,7 +24,7 @@ namespace Honor.Editor
     /// 持久化组件编辑器检视面板
     /// 提供存档数据编辑、Proto协议导出、数据序列化/反序列化、运行时数据查看功能
     /// </summary>
-    // [CustomEditor(typeof(PersistComponent))] // PersistComponent 已改为纯 C# 单例
+    // [CustomEditor(typeof(PersistComponent))] // PersistComponent 已改为纯 C# 组件（由门面创建持有）
     internal sealed partial class PersistComponentInspector : HonorComponentInspector
     {
         //=========================================================================
@@ -112,15 +112,15 @@ namespace Honor.Editor
 
         /// <summary>
         /// 【供 Honor 存档工具窗口调用】无 target 场景下的初始化入口
-        /// <para>PersistComponent 已改为纯 C# 单例（Singleton&lt;PersistComponent&gt;），不再有
+        /// <para>PersistComponent 已改为纯 C# 组件（由门面 HonorPersistManager 创建持有），不再有
         /// UnityEngine.Object 实例，因此 <see cref="UnityEditor.Editor"/> 无法通过 CreateEditor 绑定
         /// target。存档工具窗口直接 new 一个本检视器并调用此方法完成数据加载，从而在独立窗口
         /// 中渲染完整的存档数据管理面板（数据库持久化 / 文件片段持久化）。</para>
         /// </summary>
         public void InitializeForToolWindow()
         {
-            // PersistComponent 为纯 C# 单例，无 Unity 序列化对象可刷新；
-            // 数据全部来自 PlayerPrefs / 文件 / 单例实例，此处只做数据加载。
+            // PersistComponent 为纯 C# 组件，无 Unity 序列化对象可刷新；
+            // 数据全部来自 PlayerPrefs / 文件 / 门面持有的组件实例，此处只做数据加载。
             LoadPersistDataByEditorState();
         }
 
@@ -210,7 +210,7 @@ namespace Honor.Editor
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-            // PersistComponent 为纯 C# 单例，无序列化对象需要刷新，编译完成后无需额外处理
+            // PersistComponent 为纯 C# 组件，无序列化对象需要刷新，编译完成后无需额外处理
         }
         #endregion
 
@@ -876,7 +876,7 @@ namespace Honor.Editor
 
             if (persistWayCurrentState)
             {
-                var t = PersistComponent.Instance;
+                var t = HonorCoreManager.Instance.Persist;
 
                 EditorGUILayout.BeginVertical("box");
                 {

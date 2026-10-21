@@ -208,7 +208,7 @@ namespace Honor.Runtime
             m_TopMaskLayer.raycastTarget = false;
             ShowSplashContent(false);
             gameObject.SetActive(false);
-            GameMainRoot.Event.FireNow(this, GameEventCmd.ProcedureTransitionEnterOver);
+            HonorCoreManager.Instance.FireNow(this, GameEventCmd.ProcedureTransitionEnterOver);
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace Honor.Runtime
             m_TopMaskLayer.raycastTarget = false;
             m_TopMaskLayer.gameObject.SetActive(false);
             ShowSplashContent(false);
-            GameMainRoot.Event.FireNow(this, GameEventCmd.ProcedureTransitionExitOver);
+            HonorCoreManager.Instance.FireNow(this, GameEventCmd.ProcedureTransitionExitOver);
         }
         #endregion
 

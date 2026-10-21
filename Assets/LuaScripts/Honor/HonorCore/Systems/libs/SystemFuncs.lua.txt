@@ -9,14 +9,9 @@
 -- @core      全局函数门面、TableUtil/StringUtil/TimeUtil 委托、C# 互转、UI/资源兼容转发
 -- @scope     全局注入门面层（无 return 属设计），业务经全局函数名调用，内部委托子模块
 -- @dependency UIManager, TableUtil, UTF8Util, AssetUtil, protoc 等
--- descrip:   全局通用方法集（序列化/JSON/加解密/时间/字符串/C#互转/UI/资源/DOTween）
--- 功能：
--- 1. 协议序列化、Json/Table 处理，委托 TableUtil/StringUtil/TimeUtil 等
--- 2. LuaTable 与 C# 互转、坐标转换、刘海适配（实现已拆至 UIManager）
--- 3. 资源加载卸载、日志打印、DOTween 移动等全功能工具
--- 架构：门面层，委托 UIManager/TableUtil/UTF8Util/AssetUtil/protoc 等子模块
 -- @note  依赖多个 Util 子模块与 protoc；UI 相关接口仅保留兼容签名
 --=====================================================================================================
+---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/功能/架构 注释块（纯注释，逻辑无影响）
 
 --region UI 管理器引入
 -- UI 开启/关闭、坐标转换、刘海适配 已拆分至 UIManager，本文件保留全局函数名并委托之，接口零破坏
@@ -343,7 +338,7 @@ end
 ---@brief 打印信息log（仅开发模式）
 ---@type fun(...:any):void
 function PrintInfo(...)
-    if GameMainRoot.Launcher and GameMainRoot.Launcher.DevelopMode then
+    if GameMainRoot.HonorUIManager.Launcher ~= nil and GameMainRoot.HonorUIManager.DevelopMode then
         Honor.Log.Info(...)
     end
 end
@@ -351,7 +346,7 @@ end
 ---@brief 打印调试log（仅开发模式）
 ---@type fun(...:any):void
 function PrintDebug(...)
-    if GameMainRoot.Launcher and GameMainRoot.Launcher.DevelopMode then
+    if GameMainRoot.HonorUIManager.Launcher ~= nil and GameMainRoot.HonorUIManager.DevelopMode then
         Honor.Log.Debug(...)
     end
 end
@@ -359,7 +354,7 @@ end
 ---@brief 打印警告log（仅开发模式）
 ---@type fun(...:any):void
 function PrintWarning(...)
-    if GameMainRoot.Launcher and GameMainRoot.Launcher.DevelopMode then
+    if GameMainRoot.HonorUIManager.Launcher ~= nil and GameMainRoot.HonorUIManager.DevelopMode then
         Honor.Log.Warning(...)
     end
 end

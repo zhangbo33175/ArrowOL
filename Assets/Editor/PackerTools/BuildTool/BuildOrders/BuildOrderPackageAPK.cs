@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  BuildOrderPackageAPK.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   打包流水线订单 - 打 Android APK 玩家包
  *            失败约定：BuildPlayer_Android.Build 返回 false 时 throw，

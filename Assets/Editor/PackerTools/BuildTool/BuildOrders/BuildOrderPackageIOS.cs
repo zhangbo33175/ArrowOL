@@ -1,8 +1,9 @@
 /***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
+ * -------------------------------------------------------------
  * filename:  BuildOrderPackageIOS.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   打包流水线订单 - 导出 iOS Xcode 工程
  *            失败约定：BuildPlayer_iOS.Build 返回 false 时 throw。

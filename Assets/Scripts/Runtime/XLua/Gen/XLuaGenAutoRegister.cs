@@ -251,6 +251,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.PrefabLoadManager), HonorRuntimePrefabLoadManagerWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorAssetManager), HonorRuntimeHonorAssetManagerWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameComponent), HonorRuntimeGameComponentWrap.__Register);
         
         
@@ -290,15 +293,6 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.FocusObjToCamera), HonorRuntimeFocusObjToCameraWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.CameraOutlineAnimation), HonorRuntimeCameraOutlineAnimationWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.CameraOutlineBuffer), HonorRuntimeCameraOutlineBufferWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.ObjectOutline), HonorRuntimeObjectOutlineWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(Honor.Runtime.AorClickEventListener), HonorRuntimeAorClickEventListenerWrap.__Register);
         
         
@@ -331,16 +325,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.ItemPrefabConfData), HonorRuntimeItemPrefabConfDataWrap.__Register);
         
-        }
-        
-        static void wrapInit2(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.ListViewInitParam), HonorRuntimeListViewInitParamWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.DotElem), HonorRuntimeDotElemWrap.__Register);
         
+        }
+        
+        static void wrapInit2(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.AorListView), HonorRuntimeAorListViewWrap.__Register);
         
@@ -378,15 +372,6 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.ConfigManager), HonorRuntimeConfigManagerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent), HonorRuntimeDebuggerComponentWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerActiveWindowType), HonorRuntimeDebuggerActiveWindowTypeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerManager), HonorRuntimeDebuggerManagerWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(Honor.Runtime.EventComponent), HonorRuntimeEventComponentWrap.__Register);
         
         
@@ -396,46 +381,7 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.EventManager), HonorRuntimeEventManagerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.CameraShake), HonorRuntimeCameraShakeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.FxBase), HonorRuntimeFxBaseWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDeath), HonorRuntimeFxDeathWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDelay), HonorRuntimeFxDelayWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDisplayIn), HonorRuntimeFxDisplayInWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDissolve), HonorRuntimeFxDissolveWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GraphicsUtils), HonorRuntimeGraphicsUtilsWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.PostEffectDissolve), HonorRuntimePostEffectDissolveWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.PostEffectsBase), HonorRuntimePostEffectsBaseWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.PostEffectSwitchScene), HonorRuntimePostEffectSwitchSceneWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.HideEffect), HonorRuntimeHideEffectWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.ShaderManager), HonorRuntimeShaderManagerWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.TextureBlur), HonorRuntimeTextureBlurWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.LauncherComponent), HonorRuntimeLauncherComponentWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorCoreManager), HonorRuntimeHonorCoreManagerWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LocalizationComponent), HonorRuntimeLocalizationComponentWrap.__Register);
@@ -488,10 +434,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaFileWatcher), HonorRuntimeLuaFileWatcherWrap.__Register);
         
-        }
-        
-        static void wrapInit3(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaProtocolBridge), HonorRuntimeLuaProtocolBridgeWrap.__Register);
         
@@ -546,6 +488,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaProtocolErrorData), HonorRuntimeLuaProtocolErrorDataWrap.__Register);
         
+        }
+        
+        static void wrapInit3(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaProtocolDataMap), HonorRuntimeLuaProtocolDataMapWrap.__Register);
         
@@ -595,6 +541,127 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIFader), HonorRuntimeUIFaderWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundComponent), HonorRuntimeSoundComponentWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundConfig), HonorRuntimeSoundConfigWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundErrorCode), HonorRuntimePlaySoundErrorCodeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundInfo), HonorRuntimePlaySoundInfoWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundParams), HonorRuntimePlaySoundParamsWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundAgent), HonorRuntimeSoundAgentWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundAgentHelper), HonorRuntimeSoundAgentHelperWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundGroup), HonorRuntimeSoundGroupWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundGroupHelper), HonorRuntimeSoundGroupHelperWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundManager), HonorRuntimeSoundManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundInfoShell), HonorRuntimePlaySoundInfoShellWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundGroupShell), HonorRuntimeSoundGroupShellWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.TableComponent), HonorRuntimeTableComponentWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateComponent), HonorRuntimeVibrateComponentWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateType), HonorRuntimeVibrateTypeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateManager), HonorRuntimeVibrateManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateInfo), HonorRuntimeVibrateInfoWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.CameraShake), HonorRuntimeCameraShakeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.FxBase), HonorRuntimeFxBaseWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDeath), HonorRuntimeFxDeathWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDelay), HonorRuntimeFxDelayWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDisplayIn), HonorRuntimeFxDisplayInWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDissolve), HonorRuntimeFxDissolveWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.GraphicsUtils), HonorRuntimeGraphicsUtilsWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorGraphicsManager), HonorRuntimeHonorGraphicsManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.PostEffectDissolve), HonorRuntimePostEffectDissolveWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.PostEffectsBase), HonorRuntimePostEffectsBaseWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.PostEffectSwitchScene), HonorRuntimePostEffectSwitchSceneWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.CameraOutlineAnimation), HonorRuntimeCameraOutlineAnimationWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.CameraOutlineBuffer), HonorRuntimeCameraOutlineBufferWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.ObjectOutline), HonorRuntimeObjectOutlineWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.ShaderManager), HonorRuntimeShaderManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.TextureBlur), HonorRuntimeTextureBlurWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorNetManager), HonorRuntimeHonorNetManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent), HonorRuntimeDebuggerComponentWrap.__Register);
+        
+        }
+        
+        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
+        {
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerActiveWindowType), HonorRuntimeDebuggerActiveWindowTypeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerManager), HonorRuntimeDebuggerManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorUIManager), HonorRuntimeHonorUIManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.LauncherComponent), HonorRuntimeLauncherComponentWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Honor.Runtime.ProcedureComponent), HonorRuntimeProcedureComponentWrap.__Register);
         
         
@@ -625,44 +692,28 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.SceneManager), HonorRuntimeSceneManagerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundComponent), HonorRuntimeSoundComponentWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HideEffect), HonorRuntimeHideEffectWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundErrorCode), HonorRuntimePlaySoundErrorCodeWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.UIComponent), HonorRuntimeUIComponentWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundInfo), HonorRuntimePlaySoundInfoWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.UIType), HonorRuntimeUITypeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundParams), HonorRuntimePlaySoundParamsWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.UIFlagBehaviour), HonorRuntimeUIFlagBehaviourWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundAgent), HonorRuntimeSoundAgentWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.UIManager), HonorRuntimeUIManagerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundAgentHelper), HonorRuntimeSoundAgentHelperWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.UIInfo), HonorRuntimeUIInfoWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundGroup), HonorRuntimeSoundGroupWrap.__Register);
-        
-        }
-        
-        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
-        {
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundGroupHelper), HonorRuntimeSoundGroupHelperWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.UIWebGLWebView), HonorRuntimeUIWebGLWebViewWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundManager), HonorRuntimeSoundManagerWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.PlaySoundInfoShell), HonorRuntimePlaySoundInfoShellWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.SoundGroupShell), HonorRuntimeSoundGroupShellWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.TableComponent), HonorRuntimeTableComponentWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorUtilsManager), HonorRuntimeHonorUtilsManagerWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.AESEncrypt), HonorRuntimeAESEncryptWrap.__Register);
@@ -722,24 +773,6 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.GesturesUI), HonorRuntimeGesturesUIWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.UIComponent), HonorRuntimeUIComponentWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.UIType), HonorRuntimeUITypeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.UIFlagBehaviour), HonorRuntimeUIFlagBehaviourWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.UIManager), HonorRuntimeUIManagerWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.UIInfo), HonorRuntimeUIInfoWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.UIWebGLWebView), HonorRuntimeUIWebGLWebViewWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(Honor.Runtime.DefLayer), HonorRuntimeDefLayerWrap.__Register);
         
         
@@ -769,6 +802,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.TweenAlpha), HonorRuntimeTweenAlphaWrap.__Register);
         
+        }
+        
+        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.TweenColor), HonorRuntimeTweenColorWrap.__Register);
         
@@ -788,24 +825,8 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIUtils), HonorRuntimeUIUtilsWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateComponent), HonorRuntimeVibrateComponentWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateType), HonorRuntimeVibrateTypeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateManager), HonorRuntimeVibrateManagerWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.VibrateInfo), HonorRuntimeVibrateInfoWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIAppDownloadBehaviour), HonorRuntimeUIAppDownloadBehaviourWrap.__Register);
         
-        }
-        
-        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIAppFeedbackBehaviour), HonorRuntimeUIAppFeedbackBehaviourWrap.__Register);
         
@@ -873,21 +894,6 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.ConfigManager.ConfigData), HonorRuntimeConfigManagerConfigDataWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent.ConsoleWindow), HonorRuntimeDebuggerComponentConsoleWindowWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent.LogNode), HonorRuntimeDebuggerComponentLogNodeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDelay.DelayData), HonorRuntimeFxDelayDelayDataWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GraphicsUtils.EScreenType), HonorRuntimeGraphicsUtilsEScreenTypeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Honor.Runtime.LauncherComponent.DevicePerformanceData), HonorRuntimeLauncherComponentDevicePerformanceDataWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(Honor.Runtime.LuaBindValue.BindValueType), HonorRuntimeLuaBindValueBindValueTypeWrap.__Register);
         
         
@@ -898,6 +904,21 @@ namespace XLua.CSObjectWrap
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.UIFader.InitState), HonorRuntimeUIFaderInitStateWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.FxDelay.DelayData), HonorRuntimeFxDelayDelayDataWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.GraphicsUtils.EScreenType), HonorRuntimeGraphicsUtilsEScreenTypeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent.ConsoleWindow), HonorRuntimeDebuggerComponentConsoleWindowWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.DebuggerComponent.LogNode), HonorRuntimeDebuggerComponentLogNodeWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Honor.Runtime.LauncherComponent.DevicePerformanceData), HonorRuntimeLauncherComponentDevicePerformanceDataWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AppDownload), HonorRuntimeGamePathUtilsAppDownloadWrap.__Register);
@@ -938,6 +959,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Save), HonorRuntimeGamePathUtilsSaveWrap.__Register);
         
+        }
+        
+        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Config), HonorRuntimeGamePathUtilsConfigWrap.__Register);
         
@@ -959,10 +984,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Purchase), HonorRuntimeGamePathUtilsPurchaseWrap.__Register);
         
-        }
-        
-        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Track), HonorRuntimeGamePathUtilsTrackWrap.__Register);
         
@@ -1095,6 +1116,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.AnimationPlayableAsset), UnityEngineTimelineAnimationPlayableAssetWrap.__Register);
         
+        }
+        
+        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.MatchTargetFields), UnityEngineTimelineMatchTargetFieldsWrap.__Register);
         
@@ -1116,10 +1141,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.AudioPlayableAsset), UnityEngineTimelineAudioPlayableAssetWrap.__Register);
         
-        }
-        
-        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.AudioTrack), UnityEngineTimelineAudioTrackWrap.__Register);
         
@@ -1252,6 +1273,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.BoneFollowerGraphic), SpineUnityBoneFollowerGraphicWrap.__Register);
         
+        }
+        
+        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.BoundingBoxFollower), SpineUnityBoundingBoxFollowerWrap.__Register);
         
@@ -1273,10 +1298,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SkeletonMecanim), SpineUnitySkeletonMecanimWrap.__Register);
         
-        }
-        
-        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SkeletonRenderer), SpineUnitySkeletonRendererWrap.__Register);
         
@@ -1409,6 +1430,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SkeletonMecanim.MecanimTranslator), SpineUnitySkeletonMecanimMecanimTranslatorWrap.__Register);
         
+        }
+        
+        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SkeletonRenderer.SpriteMaskInteractionMaterials), SpineUnitySkeletonRendererSpriteMaskInteractionMaterialsWrap.__Register);
         
@@ -1430,10 +1455,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SkeletonUtilityBone.UpdatePhase), SpineUnitySkeletonUtilityBoneUpdatePhaseWrap.__Register);
         
-        }
-        
-        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.MeshGenerator.Settings), SpineUnityMeshGeneratorSettingsWrap.__Register);
         
@@ -1566,6 +1587,10 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(MapCamData), MapCamDataWrap.__Register);
         
+        }
+        
+        static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(MapData), MapDataWrap.__Register);
         
@@ -1587,10 +1612,6 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(GameLib.ProcedureUtils), GameLibProcedureUtilsWrap.__Register);
         
-        }
-        
-        static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(GameLib.ItemMap), GameLibItemMapWrap.__Register);
         

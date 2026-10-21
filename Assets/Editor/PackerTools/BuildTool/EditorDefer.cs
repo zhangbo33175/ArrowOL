@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  EditorDefer.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   编辑器阻塞操作延迟执行工具
  *            统一把"打包 / 弹窗 / 文件面板 / 资源刷新"等阻塞型编辑器操作，

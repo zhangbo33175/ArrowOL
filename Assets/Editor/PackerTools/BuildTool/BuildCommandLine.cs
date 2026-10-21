@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  BuildCommandLine.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   命令行 CI 打包入口（供 Unity -batchmode -executeMethod 调用）
  *            支持：打 AB / 打资源 / 打 Lua / 打 APK / 打 PC / 打 iOS / 全流程

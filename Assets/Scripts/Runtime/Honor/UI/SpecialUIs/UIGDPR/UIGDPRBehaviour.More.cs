@@ -153,21 +153,21 @@ namespace Honor.Runtime
         {
             // 标题多语言
             if (m_MoreTitleText != null)
-                m_MoreTitleText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreTitle_Text"),
+                m_MoreTitleText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreTitle_Text"),
                     Application.productName);
 
             if (m_MoreTitleTextTMP != null)
-                m_MoreTitleTextTMP.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreTitle_Text"),
+                m_MoreTitleTextTMP.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreTitle_Text"),
                     Application.productName);
 
             // 顶部说明
             if (m_MoreStartDescText != null)
                 m_MoreStartDescText.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreStartDesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreStartDesc_Text"));
 
             if (m_MoreStartDescTextTMP != null)
                 m_MoreStartDescTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreStartDesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreStartDesc_Text"));
         }
 
         /// <summary>
@@ -177,36 +177,36 @@ namespace Honor.Runtime
         {
             // 段落1
             if (m_MoreDesc1Text != null)
-                m_MoreDesc1Text.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreDesc1_Text"));
+                m_MoreDesc1Text.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreDesc1_Text"));
 
             if (m_MoreDesc1TextTMP != null)
                 m_MoreDesc1TextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreDesc1_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreDesc1_Text"));
 
             // 段落2
             if (m_MoreDesc2Text != null)
-                m_MoreDesc2Text.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreDesc2_Text"));
+                m_MoreDesc2Text.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreDesc2_Text"));
 
             if (m_MoreDesc2TextTMP != null)
                 m_MoreDesc2TextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreDesc2_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreDesc2_Text"));
 
             // 段落3
             if (m_MoreDesc3Text != null)
-                m_MoreDesc3Text.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreDesc3_Text"));
+                m_MoreDesc3Text.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreDesc3_Text"));
 
             if (m_MoreDesc3TextTMP != null)
                 m_MoreDesc3TextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreDesc3_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreDesc3_Text"));
 
             // 底部总结
             if (m_MoreFinalDescText != null)
                 m_MoreFinalDescText.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreFinalDesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreFinalDesc_Text"));
 
             if (m_MoreFinalDescTextTMP != null)
                 m_MoreFinalDescTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreFinalDesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreFinalDesc_Text"));
         }
 
         /// <summary>
@@ -217,11 +217,11 @@ namespace Honor.Runtime
             // 返回按钮
             if (m_MoreBackButtonText != null)
                 m_MoreBackButtonText.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreBackButton_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreBackButton_Text"));
 
             if (m_MoreBackButtonTextTMP != null)
                 m_MoreBackButtonTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_MoreBackButton_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreBackButton_Text"));
         }
         #endregion
 

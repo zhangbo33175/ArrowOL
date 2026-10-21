@@ -84,7 +84,7 @@ namespace Honor.Editor.BuildPackage
         /// <summary>
         /// 打包选项：确定性 + 按块压缩（体积与可缓存性兼顾）
         /// </summary>
-        public const BuildAssetBundleOptions DefaultBuildOptions =BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression;
+        public const BuildAssetBundleOptions DefaultBuildOptions = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression;
         #endregion
 
         #region 平台名（编辑宏识别）

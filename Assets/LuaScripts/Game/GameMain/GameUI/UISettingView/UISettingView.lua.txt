@@ -253,8 +253,8 @@ end
 ---@type fun():void
 ---@desc 点击任一设置按钮时给出 Selection 级轻触反馈；设备不支持或震动开关关闭时静默跳过
 function UISettingView:PlayClickVibrate()
-    if GameMainRoot == nil or GameMainRoot.Vibrate == nil then return end
-    local vibrate = GameMainRoot.Vibrate
+    if GameMainRoot == nil or GameMainRoot.HonorCoreManager.Vibrate == nil then return end
+    local vibrate = GameMainRoot.HonorCoreManager
     if vibrate:IsSupported() and vibrate:GetEnable() then
         vibrate:Play(Honor.Runtime.VibrateType.SelectionFeedback)
     end

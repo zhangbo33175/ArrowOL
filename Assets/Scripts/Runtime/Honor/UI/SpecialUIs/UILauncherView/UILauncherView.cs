@@ -80,7 +80,7 @@ namespace Honor.Runtime
         {
             // 最短展示时长计时（与 Lua 初始化并行）
             DOTween.Sequence()
-                .AppendInterval(GameMainRoot.Procedure.SplashProcedureDuration)
+                .AppendInterval(HonorUIManager.Instance.Procedure.SplashProcedureDuration)
                 .AppendCallback(() =>
                 {
                     m_MinTimeElapsed = true;

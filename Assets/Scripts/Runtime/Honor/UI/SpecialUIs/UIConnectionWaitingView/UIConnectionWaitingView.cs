@@ -73,12 +73,12 @@ namespace Honor.Runtime
             // 设置多语言默认提示文本
             if (m_DescText != null)
             {
-                m_DescText.text = GameMainRoot.Localization.GetDefaultData("Waiting_Desc_Text");
+                m_DescText.text = HonorCoreManager.Instance.GetDefaultData("Waiting_Desc_Text");
             }
 
             if (m_DescTextTMP != null)
             {
-                m_DescTextTMP.text = GameMainRoot.Localization.GetDefaultData("Waiting_Desc_Text");
+                m_DescTextTMP.text = HonorCoreManager.Instance.GetDefaultData("Waiting_Desc_Text");
             }
 
             // 播放加载动画：无限循环旋转（-360° / 8秒 / 线性匀速）

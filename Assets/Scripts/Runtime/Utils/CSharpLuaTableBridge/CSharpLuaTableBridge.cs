@@ -1,5 +1,5 @@
-/***************************************************************
- * (c) copyright 2026 - 2030, GameLib
+﻿/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  CSharpLuaTableBridge.cs
@@ -38,7 +38,7 @@ namespace GameLib
             get
             {
                 // 运行时：直接使用游戏主 Lua 环境
-                LuaEnv env = Application.isPlaying ? GameMainRoot.Lua.Env : new LuaEnv();
+                LuaEnv env = Application.isPlaying ? HonorCoreManager.Instance.LuaEnv : new LuaEnv();
 
                 // 编辑器模式：手动配置 Lua 搜索路径
                 if (!Application.isPlaying)

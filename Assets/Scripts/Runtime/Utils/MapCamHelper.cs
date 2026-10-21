@@ -1,5 +1,5 @@
 ﻿/***************************************************************
- * (c) copyright 2026 - 2030, GameLib
+ * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  MapCamHelper.cs
@@ -45,7 +45,7 @@ namespace GameLib
         /// <summary>
         /// 地图主相机（场景相机列表第一位）
         /// </summary>
-        public static Camera MapCamera => GameMainRoot.Scene.SceneCameras[0];
+        public static Camera MapCamera => HonorUIManager.Instance.SceneCameras[0];
 
         /// <summary>
         /// 当前相机正交大小

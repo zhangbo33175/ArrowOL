@@ -206,9 +206,9 @@ end
 ---@return UnityEngine.GameObject
 ---=========================================================================
 function MapManager:LoadMapResByName(mapName, luaParams)
-    local parentTrans = GameMainRoot.Scene.SceneRootGO.transform
+    local parentTrans = GameMainRoot.HonorUIManager.SceneRootGO.transform
     local resPath = LoadRes["GameObject_" .. mapName].ABPath
-    return GameMainRoot.Asset:LoadPrefabSync(resPath, mapName, parentTrans, luaParams)
+    return GameMainRoot.HonorAssetManager:LoadPrefabSync(resPath, mapName, parentTrans, luaParams)
 end
 
 ---=========================================================================

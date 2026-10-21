@@ -13,68 +13,74 @@
 --=====================================================================================================
 
 --region 全局唯一事件码
-local unique_eventCode = 1
+---TODO 规范命名：文件级计数器 unique_eventCode 改为驼峰 uniqueEventCode（私有局部，逻辑等价）
+local uniqueEventCode = 1
 ---@brief 生成全局唯一事件码（自增，从 2 开始）
 ---@type fun():number
 ---@return number 唯一事件码
 function UniqueEventCode()
-    unique_eventCode = unique_eventCode + 1
-    return unique_eventCode
+    uniqueEventCode = uniqueEventCode + 1
+    return uniqueEventCode
 end
 --endregion
 
 --region 全局唯一ID
-local unique_id = 1
+---TODO 规范命名：文件级计数器 unique_id 改为驼峰 uniqueId（私有局部，逻辑等价）
+local uniqueId = 1
 ---@brief 生成全局唯一ID（自增，从 2 开始）
 ---@type fun():number
 ---@return number 唯一ID
 function UniqueID()
-    unique_id = unique_id + 1
-    return unique_id
+    uniqueId = uniqueId + 1
+    return uniqueId
 end
 --endregion
 
 --region 全局唯一名称
-local unique_name_id = 1
+---TODO 规范命名：文件级计数器 unique_name_id 改为驼峰 uniqueNameId（私有局部，逻辑等价）
+local uniqueNameId = 1
 ---@brief 生成全局唯一名称（名称前缀 + 自增序号）
 ---@type fun(name:string):string
 ---@param name string 名称前缀
 ---@return string 唯一名称
 function UniqueName(name)
-    unique_name_id = unique_name_id + 1
-    return string.format('%s%s', tostring(name), tostring(unique_name_id))
+    uniqueNameId = uniqueNameId + 1
+    return string.format('%s%s', tostring(name), tostring(uniqueNameId))
 end
 --endregion
 
 --region 功能负ID（自减，负数）
-local function_negative_id = 0
+---TODO 规范命名：文件级计数器 function_negative_id 改为驼峰 functionNegativeId（私有局部，逻辑等价）
+local functionNegativeId = 0
 ---@brief 生成功能负ID（每次自减 1，用于负向标识）
 ---@type fun():number
 ---@return number 负ID
 function FunctionNegativeID()
-    function_negative_id = function_negative_id - 1
-    return function_negative_id
+    functionNegativeId = functionNegativeId - 1
+    return functionNegativeId
 end
 --endregion
 
 --region 功能ID（自减，负数）
-local function_id = 0
+---TODO 规范命名：文件级计数器 function_id 改为驼峰 functionId（私有局部，逻辑等价）
+local functionId = 0
 ---@brief 生成功能ID（每次自减 1，用于功能唯一标识）
 ---@type fun():number
 ---@return number 功能ID
 function FunctionID()
-    function_id = function_id - 1
-    return function_id
+    functionId = functionId - 1
+    return functionId
 end
 --endregion
 
 --region 装饰物体唯一ID（自减，从 -2 开始）
-local ornament_id = -1
+---TODO 规范命名：文件级计数器 ornament_id 改为驼峰 ornamentId（私有局部，逻辑等价）
+local ornamentId = -1
 ---@brief 生成装饰物体唯一ID（每次自减 1，从 -2 开始）
 ---@type fun():number
 ---@return number 装饰物体ID
 function OrnamentID()
-    ornament_id = ornament_id - 1
-    return ornament_id
+    ornamentId = ornamentId - 1
+    return ornamentId
 end
 --endregion

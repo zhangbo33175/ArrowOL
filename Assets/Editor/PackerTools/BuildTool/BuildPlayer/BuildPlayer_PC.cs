@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  BuildPlayer_PC.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   Windows Standalone(x86_64) PC 玩家包打包
  *            约定：LZ4 压缩；Development 构建叠加 Development 标志

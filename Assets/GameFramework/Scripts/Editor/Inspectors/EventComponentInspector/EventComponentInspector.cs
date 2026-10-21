@@ -17,16 +17,16 @@ namespace Honor.Editor
 {
     /// <summary>
     /// 【事件组件编辑器面板】
-    /// 功能：运行时实时查看事件注册数量、待派发事件数量，用于调试事件系统
+    /// 功能：运行时实时提示事件系统状态，用于调试事件系统
     /// 作用：监控 EventComponent / EventManager 运行状态
     /// </summary>
-    // [CustomEditor(typeof(EventComponent))] // 已改为纯 C# 单例
+    // [CustomEditor(typeof(EventComponent))] // EventComponent 已改为纯 C# 组件（由门面 EventManager 创建持有）
     public class EventComponentInspector : HonorComponentInspector
     {
         #region 【编辑器生命周期】
         /// <summary>
         /// 绘制 Inspector 面板
-        /// <para>仅运行时显示已注册事件类型数量与待派发事件数量，编辑态仅显示提示</para>
+        /// <para>仅运行时显示提示，编辑态仅显示提示</para>
         /// </summary>
         public override void OnInspectorGUI()
         {
@@ -38,23 +38,6 @@ namespace Honor.Editor
                 EditorGUILayout.HelpBox("仅在运行时有效。", MessageType.Info);
                 return;
             }
-        }
-
-        /// <summary>
-        /// 绘制运行时事件系统的实时统计信息
-        /// </summary>
-        /// <param name="targetComponent">当前选中的事件组件</param>
-        private void DrawRuntimeStatistics(EventComponent targetComponent)
-        {
-            if (targetComponent.EventManager == null)
-            {
-                return;
-            }
-
-            // 已注册监听的事件类型数量
-            EditorGUILayout.LabelField("已注册Event类型数量", targetComponent.SubscribedEventTypeCount.ToString());
-            // 队列中等待派发的事件数量
-            EditorGUILayout.LabelField("待派发Event数量", targetComponent.EventsForFireCount.ToString());
         }
         #endregion
     }

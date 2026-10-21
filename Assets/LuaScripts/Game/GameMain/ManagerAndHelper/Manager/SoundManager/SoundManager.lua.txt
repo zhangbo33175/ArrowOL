@@ -95,7 +95,7 @@ function SoundManager:PlaySound(soundKey, speed)
             soundConfig = CopyTab(soundConfig)
             soundConfig.Speed = speed
         end
-        return GameMainRoot.Sound:PlaySound(soundConfig)
+        return GameMainRoot.HonorCoreManager:PlaySound(soundConfig)
     else
         PrintInfo("音效在表格中未配置:" .. soundKey)
     end
@@ -106,7 +106,7 @@ end
 ---@param serialId number @音效序列ID
 ---=========================================================================
 function SoundManager:StopSound(serialId)
-    GameMainRoot.Sound:StopSound(serialId)
+    GameMainRoot.HonorCoreManager:StopSound(serialId)
 end
 
 --endregion
@@ -126,7 +126,7 @@ function SoundManager:OnPlayBgm(soundKey)
     self._curBgmKey = soundKey
 
     if Tables.Sounds[soundKey] ~= nil then
-        self._curBgmSerialId = GameMainRoot.Sound:PlaySound(Tables.Sounds[soundKey])
+        self._curBgmSerialId = GameMainRoot.HonorCoreManager:PlaySound(Tables.Sounds[soundKey])
     else
         PrintInfo("背景音乐在表格中未配置:" .. soundKey)
     end
@@ -138,7 +138,7 @@ end
 ---=========================================================================
 function SoundManager:StopCurrentBgm()
     if self._curBgmSerialId ~= nil and self._curBgmSerialId >= 0 then
-        GameMainRoot.Sound:StopSound(self._curBgmSerialId)
+        GameMainRoot.HonorCoreManager:StopSound(self._curBgmSerialId)
         self._curBgmSerialId = nil
     end
 end
@@ -154,9 +154,9 @@ function SoundManager:OnBgmSwitchChanged(eType, newState, bgmKey)
     --TODO: [音效] 修复音乐音量逻辑与开关语义相反的问题（原 GetSettingState==true 时误设为静音 0，导致"开"却无声）
     -- 语义对齐：GetSettingState 返回 true=开启；开启 → 正常音量(1)，关闭 → 静音(0)
     if SettingDataManager:GetSettingState(ESettingType.MUSIC) == true then
-        GameMainRoot.Sound:SetAllSoundVolume(1, "Music")
+        GameMainRoot.HonorCoreManager:SetAllSoundVolume(1, "Music")
     else
-        GameMainRoot.Sound:SetAllSoundVolume(0, "Music")
+        GameMainRoot.HonorCoreManager:SetAllSoundVolume(0, "Music")
     end
 end
 
@@ -197,7 +197,7 @@ function SoundManager:RefreshRuntimeSoundVolume()
     self:CacheAllSoundGroupNames()
 
     for groupName, _ in pairs(self._soundGroupNames) do
-        GameMainRoot.Sound:SetAllSoundVolume(volume, groupName)
+        GameMainRoot.HonorCoreManager:SetAllSoundVolume(volume, groupName)
     end
 end
 
@@ -208,7 +208,7 @@ end
 function SoundManager:StopAllSound()
     self:CacheAllSoundGroupNames()
     for groupName, _ in pairs(self._soundGroupNames) do
-        GameMainRoot.Sound:StopGroupSound(groupName)
+        GameMainRoot.HonorCoreManager:StopGroupSound(groupName)
     end
 end
 --endregion

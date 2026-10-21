@@ -9,7 +9,7 @@
 --            缓存 WaitForSeconds 等待句柄以大幅减少 GC 分配，支持帧等待与真实时间等待
 -- @core      xlua SystemUtil 协程生成、target 绑定追踪、等待句柄缓存池、逆序匹配停止
 -- @scope     全游戏协程统一调度入口；界面销毁经 StopByGO 释放绑定协程
--- @dependency xlua SystemUtil, GameMainRoot.Launcher, UnityEngine.WaitForSeconds
+-- @dependency xlua SystemUtil, GameMainRoot.HonorUIManager, UnityEngine.WaitForSeconds
 -- @note      依赖 xlua SystemUtil；等待对象缓存复用，避免频繁 new 等待句柄
 --=====================================================================================================
 
@@ -52,8 +52,8 @@ end
 ---@return UnityEngine.Coroutine 协程句柄
 function HonorCoroutineHelper:Start(handler)
     local co = nil
-    if GameMainRoot.Launcher then
-        co = GameMainRoot.Launcher:StartCoroutine(self._util.cs_generator(handler.func))
+    if GameMainRoot.HonorUIManager.Launcher then
+        co = GameMainRoot.HonorUIManager:StartCoroutine(self._util.cs_generator(handler.func))
         -- 绑定 target 便于销毁
         local target = handler.target.cs ~= nil and handler.target.cs.gameObject or handler.target
         table.insert(self._coroutines, { target = target, coroutine = co })
@@ -66,8 +66,8 @@ end
 ---@param func function 协程执行函数
 ---@return UnityEngine.Coroutine 协程句柄
 function HonorCoroutineHelper:StartAlone(func)
-    if GameMainRoot.Launcher then
-        return GameMainRoot.Launcher:StartCoroutine(self._util.cs_generator(func))
+    if GameMainRoot.HonorUIManager.Launcher then
+        return GameMainRoot.HonorUIManager:StartCoroutine(self._util.cs_generator(func))
     end
     return nil
 end
@@ -77,16 +77,16 @@ end
 ---@param co UnityEngine.Coroutine 协程句柄
 function HonorCoroutineHelper:StopAlone(co)
     if not co then return end
-    if GameMainRoot.Launcher then
-        GameMainRoot.Launcher:StopCoroutine(co)
+    if GameMainRoot.HonorUIManager.Launcher then
+        GameMainRoot.HonorUIManager:StopCoroutine(co)
     end
 end
 
 ---@brief 停止所有协程
 ---@desc 调用 Launcher 停全部协程并清空追踪列表
 function HonorCoroutineHelper:StopAll()
-    if GameMainRoot.Launcher then
-        GameMainRoot.Launcher:StopAllCoroutines()
+    if GameMainRoot.HonorUIManager.Launcher then
+        GameMainRoot.HonorUIManager:StopAllCoroutines()
     end
     self._coroutines = {}
 end
@@ -113,7 +113,7 @@ function HonorCoroutineHelper:_StopMatchingCoroutines(match)
     for i = #self._coroutines, 1, -1 do
         local entry = self._coroutines[i]
         if match(entry) then
-            GameMainRoot.Launcher:StopCoroutine(entry.coroutine)
+            GameMainRoot.HonorUIManager:StopCoroutine(entry.coroutine)
             table.remove(self._coroutines, i)
         end
     end

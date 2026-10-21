@@ -189,14 +189,14 @@ end
 
 --region 分数持久化
 
----@brief 获取持久化对象（GameMainRoot.Persist 缺失时返回 nil）
+---@brief 获取持久化对象（GameMainRoot.HonorCoreManager 持久化能力缺失时返回 nil）
 ---@type fun():table|nil
 ---@return table|nil 持久化对象
 function RankDataManager:_GetPersist()
-    if not GameMainRoot or not GameMainRoot.Persist then
+    if not GameMainRoot or not GameMainRoot.HonorCoreManager.Persist then
         return nil
     end
-    return GameMainRoot.Persist
+    return GameMainRoot.HonorCoreManager
 end
 
 ---@brief 从本地存档加载玩家分数

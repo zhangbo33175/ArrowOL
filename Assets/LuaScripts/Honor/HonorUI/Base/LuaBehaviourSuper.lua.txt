@@ -10,10 +10,8 @@
 -- @core      生命周期调度、C# LuaBehaviour 绑定、动画/资源/事件/协程/行为树托管
 -- @scope     框架顶层基类（被所有 UI/组件脚本继承），cs 字段桥接 C# LuaBehaviour
 -- @dependency Honor.Runtime.LuaBehaviour（C# 组件）
--- descrip:    LuaBehaviour通用父类（UI/实体/逻辑组件基类）
---             作用：项目所有Lua脚本的顶级父类，自动管理生命周期、动画、资源、事件、协程、行为树
---             地位：框架顶层基类，ViewSuper 最终继承自此类
 --=====================================================================================================
+---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/作用/地位 注释块（纯注释，逻辑无影响）
 
 --region LuaBehaviour 顶级基类
 

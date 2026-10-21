@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  BuildPlayer_Common.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   玩家包打包公共工具
  *            - 输出路径计算（带时间戳，自动建目录）

@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  BuildPlayer_Android.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   Android APK 玩家包打包
  *            约定（参照 BuildPackage_APK.cs）：

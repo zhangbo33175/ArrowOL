@@ -1,0 +1,146 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  UIComponent.Methods.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   UI 核心管理组件 - 初始化与工具方法
+ ***************************************************************/
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+using XLua;
+
+namespace Honor.Runtime
+{
+    /// <summary>
+    /// UI 加载完成回调委托
+    /// </summary>
+    /// <param name="abPath">AB包路径</param>
+    /// <param name="assetName">资源名称</param>
+    /// <param name="luaClass">Lua 回调表</param>
+    /// <param name="obj">加载完成的 UI 对象</param>
+    public delegate void UILoadOverCallback(string abPath, string assetName, LuaTable luaClass, GameObject obj);
+
+    public sealed partial class UIComponent : GameComponent
+    {
+        #region 初始化核心
+        /// <summary>
+        /// 初始化入口依赖组件：缺失时输出致命错误
+        /// </summary>
+        /// <typeparam name="T">游戏组件类型（必须为 GameComponent 子类，与 GameComponentsGroup.GetComponent 约束一致）</typeparam>
+        /// <returns>解析到的组件；缺失为 null</returns>
+        private T RequireComponent<T>() where T : GameComponent
+        {
+            T component = GameComponentsGroup.GetComponent<T>();
+            if (component == null)
+            {
+                Log.Fatal($"{typeof(T).Name} 无效。");
+            }
+            return component;
+        }
+
+        /// <summary>
+        /// UI 组件初始化入口
+        /// 获取依赖组件、创建 UI 管理器、初始化配置
+        /// </summary>
+        private void Initialize()
+        {
+            // ---TODO 门面收敛：原 m_AssetComponent/m_LocalizationComponent/m_ConfigComponent 字段已删除，统一改为 HonorAssetManager/HonorCoreManager.Instance 门面直调
+            // 获取资源管理组件（缺失时致命校验并中止初始化）
+            if (HonorAssetManager.Instance.Asset == null)
+            {
+                return;
+            }
+
+            // 获取多语言管理组件
+            if (HonorCoreManager.Instance.Localization == null)
+            {
+                return;
+            }
+
+            // 获取配置管理组件
+            if (HonorCoreManager.Instance.Config == null)
+            {
+                return;
+            }
+
+            // 初始化 JSON 缓存对象（用于 LuaTable 互转）
+            m_CachedJsonObject = new JObject();
+
+            // 配置缺失时从 2DSceneRoot 预制体加载
+            if (m_ScreenUICanvas == null || m_SceneUICanvas == null)
+            {
+                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab");
+                if (prefab != null)
+                {
+                    var go = UnityEngine.Object.Instantiate(prefab);
+                    var canvases = go.GetComponentsInChildren<Canvas>(true);
+                    foreach (var c in canvases)
+                    {
+                        if (c.name.Contains("Screen")) m_ScreenUICanvas = c;
+                        else if (c.name.Contains("Scene")) m_SceneUICanvas = c;
+                    }
+                    if (m_ScreenUICanvas == null && canvases.Length > 0) m_ScreenUICanvas = canvases[0];
+                    if (m_SceneUICanvas == null) m_SceneUICanvas = m_ScreenUICanvas;
+                }
+            }
+
+            // 创建 UI 核心管理器
+            m_UIManager = new UIManager(
+                m_ScreenUICameras, 
+                m_SceneUICameras,
+                m_ScreenUICanvas, 
+                m_SceneUICanvas,
+                m_ScreenDesignedResolution, 
+                m_ScreenWidthHeightMatchValue,
+                m_DestroyMaxNumPerFrame,
+                m_CheckTextLocalizings,
+                m_WaitingUIABPath, 
+                m_WaitingUIAssetName,
+                m_FloatWordsUIABPath, 
+                m_FloatWordsUIAssetName, 
+                m_FloatWordsDuration
+            );
+
+            if (m_UIManager == null)
+            {
+                Log.Fatal("UIManager 无效。");
+                return;
+            }
+        }
+        #endregion
+
+        #region 工具方法
+        /// <summary>
+        /// 将 LuaTable 转换成 UIInfo 结构
+        /// 用于 C# 与 XLua 之间的 UI 配置传递
+        /// </summary>
+        /// <param name="luaTable">Lua 传入的 UI 配置表</param>
+        /// <param name="luaParams">传递给 UI 的自定义参数</param>
+        /// <param name="overCallback">UI 加载完成回调</param>
+        /// <returns>构造完成的 UIInfo</returns>
+        private UIInfo GenerateUIInfo(LuaTable luaTable, LuaTable luaParams = null, UILoadOverCallback overCallback = null)
+        {
+            // 清空缓存 JSON 对象
+            m_CachedJsonObject.RemoveAll();
+
+            // 遍历 LuaTable，转为 JObject
+            luaTable.ForEach<string, object>((key, value) => 
+            { 
+                m_CachedJsonObject.Add(new JProperty(key, value)); 
+            });
+
+            // JSON 反序列化为 UIInfo
+            UIInfo uiInfo = JsonConvert.DeserializeObject<UIInfo>(m_CachedJsonObject.ToString());
+
+            // 附加参数与回调
+            uiInfo.LuaParams = luaParams;
+            uiInfo.OverCallback = overCallback;
+
+            return uiInfo;
+        }
+        #endregion
+    }
+}

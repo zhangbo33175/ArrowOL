@@ -32,7 +32,7 @@ namespace Honor.Editor
 
         protected override void OnBindUI()
         {
-            // 纯 C# 单例，无 SerializedObject
+            // 纯 C# 组件，无 SerializedObject
             // TODO: 抽离重复 Slider 配置并加判空——Q<> 查不到元素时原写法会空引用崩溃
             SetupRangeSlider("delaySlider", 0f, 36000f);
             SetupRangeSlider("gcSlider", 0f, 1000f);

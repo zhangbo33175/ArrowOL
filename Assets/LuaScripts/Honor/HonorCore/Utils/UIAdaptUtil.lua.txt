@@ -8,7 +8,7 @@
 -- @desc      文本首选宽度、多语言词条、设计分辨率↔真实屏幕换算、安全区偏移与画布尺寸统一口径
 -- @core      preferredWidth 测量、设计分辨率缩放换算、Screen.safeArea 安全区换算、宽高比判定
 -- @scope     全局通用（经 GameFunctions 同名全局函数对外暴露，业务零改动）
--- @dependency TMPro, Lang, GameMainRoot.UI, HonorRoot, UnityEngine.Screen, 同域 UnityUtil
+-- @dependency TMPro, Lang, GameMainRoot.HonorUIManager, HonorRoot, UnityEngine.Screen, 同域 UnityUtil
 -- @note      GetSafeAreaInsets/GetCanvasActualSize/IsUltraWideScreen 为公共预留适配 API（当前无内部调用，保留供 UI 避让/超长屏自适应接入）
 --=====================================================================================================
 
@@ -61,8 +61,8 @@ end
 ---@param designWidth number 设计尺寸宽度
 ---@return number 实际屏幕宽度
 function UIAdaptUtil.GetRealScreenWidthByDesign(designWidth)
-    local designRes = GameMainRoot.UI.ScreenDesignedResolution
-    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local designRes = GameMainRoot.HonorUIManager.ScreenDesignedResolution
+    local canvas = GameMainRoot.HonorUIManager.ScreenUICanvas
     local canvasWidth = designRes.x
 
     local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
@@ -78,7 +78,7 @@ end
 ---@return number 实际屏幕高度
 function UIAdaptUtil.GetRealScreenHeightByDesign(designHeight)
     local designRes = HonorRoot.UI.ScreenDesignedResolution
-    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvas = GameMainRoot.HonorUIManager.ScreenUICanvas
     local canvasHeight = designRes.y
 
     local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
@@ -95,7 +95,7 @@ end
 ---@return number bottomInset 底部安全区偏移（手势条/导航栏）
 ---@desc 全系统安全区权威来源：相机 rect（GameMapMotion:GetSafeAreaInsets）与 UI 顶部/底部避让均统一此口径，消除 C#/Lua 比例基准不一致与"单侧总量"缺陷
 function UIAdaptUtil.GetSafeAreaInsets()
-    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvas = GameMainRoot.HonorUIManager.ScreenUICanvas
     local canvasH = 1334
     if not UnityUtil.IsNull(canvas) then
         local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
@@ -118,14 +118,14 @@ end
 ---@return number width 画布实际宽
 ---@return number height 画布实际高
 function UIAdaptUtil.GetCanvasActualSize()
-    local canvas = GameMainRoot.UI.ScreenUICanvas
+    local canvas = GameMainRoot.HonorUIManager.ScreenUICanvas
     if not UnityUtil.IsNull(canvas) then
         local rect = canvas.transform:GetComponent(typeof(UnityEngine.RectTransform))
         if not UnityUtil.IsNull(rect) then
             return rect.rect.size.x, rect.rect.size.y
         end
     end
-    local designRes = GameMainRoot.UI.ScreenDesignedResolution
+    local designRes = GameMainRoot.HonorUIManager.ScreenDesignedResolution
     return designRes.x, designRes.y
 end
 

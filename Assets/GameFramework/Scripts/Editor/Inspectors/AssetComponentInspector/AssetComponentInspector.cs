@@ -12,7 +12,7 @@ using UnityEditor;
 
 namespace Honor.Editor
 {
-    // AssetComponent 为纯 C# 单例（Singleton<AssetComponent>），非 UnityEngine.Component，
+    // AssetComponent 为纯 C# 组件（由门面 HonorAssetManager 创建持有），非 UnityEngine.Component，
     // [CustomEditor] 无法绑定到非 Component 类型，该属性无效且会触发 Unity 校验警告。
     // 资源加载配置已迁移至「Honor → 资源管理工具」（AssetExportEditorWindow），故注释禁用此检视器。
     // [CustomEditor(typeof(Honor.Runtime.AssetComponent))]

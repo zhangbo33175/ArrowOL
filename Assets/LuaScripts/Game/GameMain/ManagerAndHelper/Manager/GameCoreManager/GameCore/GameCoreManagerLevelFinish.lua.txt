@@ -131,7 +131,7 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     end
 
     -- UI遮罩，防止操作穿透
-    GameMainRoot.UI:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
+    GameMainRoot.HonorUIManager:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
     local startTime = UnityEngine.Time.realtimeSinceStartup
     local delayTime = Tables.Constants.GameEndTime.Value[1]
     local remainTime = delayTime - (UnityEngine.Time.realtimeSinceStartup - startTime)
@@ -141,7 +141,7 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
     end
 
     -- 移除遮罩
-    GameMainRoot.UI:SubUIMaskLayerRef()
+    GameMainRoot.HonorUIManager:SubUIMaskLayerRef()
     -- 显示结算界面
     self:_ShowLevelFinishUI()
 end

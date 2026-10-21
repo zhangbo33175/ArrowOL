@@ -64,9 +64,6 @@ namespace Honor.Editor.BuildPackage
 
         #region 窗口创建
         /// <summary>
-        /// 打开打包窗口
-        /// </summary>
-        /// <summary>
         /// 打开独立打包窗口（已从菜单移除，保留方法供代码复用；界面已嵌入 PackWindow 的"AB打包工具"标签页）
         /// </summary>
         public static void OpenWindow()

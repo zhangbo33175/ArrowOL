@@ -130,28 +130,28 @@ namespace Honor.Runtime
         {
             // 自动设置多语言文本（兼容 UGUI / TMP）
             if (m_TitleText != null)
-                m_TitleText.text = GameMainRoot.Localization.GetDefaultData("App_Review_Title_Text");
+                m_TitleText.text = HonorCoreManager.Instance.GetDefaultData("App_Review_Title_Text");
 
             if (m_TitleTextTMP != null)
-                m_TitleTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Review_Title_Text");
+                m_TitleTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Review_Title_Text");
 
             if (m_CloseButtonText != null)
-                m_CloseButtonText.text = GameMainRoot.Localization.GetDefaultData("App_Review_CloseButton_Text");
+                m_CloseButtonText.text = HonorCoreManager.Instance.GetDefaultData("App_Review_CloseButton_Text");
 
             if (m_CloseButtonTextTMP != null)
-                m_CloseButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Review_CloseButton_Text");
+                m_CloseButtonTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Review_CloseButton_Text");
 
             if (m_DescText != null)
-                m_DescText.text = GameMainRoot.Localization.GetDefaultData("App_Review_Desc_Text");
+                m_DescText.text = HonorCoreManager.Instance.GetDefaultData("App_Review_Desc_Text");
 
             if (m_DescTextTMP != null)
-                m_DescTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Review_Desc_Text");
+                m_DescTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Review_Desc_Text");
 
             if (m_SubmitButtonText != null)
-                m_SubmitButtonText.text = GameMainRoot.Localization.GetDefaultData("App_Review_SubmitButton_Text");
+                m_SubmitButtonText.text = HonorCoreManager.Instance.GetDefaultData("App_Review_SubmitButton_Text");
 
             if (m_SubmitButtonTextTMP != null)
-                m_SubmitButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Review_SubmitButton_Text");
+                m_SubmitButtonTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Review_SubmitButton_Text");
 
             // 埋点：展示评分界面
             /*Root.SDK.TGAHelper.Track("Honor_rating_show");*/
@@ -214,7 +214,7 @@ namespace Honor.Runtime
             });*/
 
             // 关闭界面
-            GameMainRoot.UI.CloseUIByGO(gameObject);
+            HonorUIManager.Instance.UI.CloseUIByGO(gameObject);
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Honor.Runtime
         /// </summary>
         public void OnCloseButtonClicked()
         {
-            GameMainRoot.UI.CloseUIByGO(gameObject);
+            HonorUIManager.Instance.UI.CloseUIByGO(gameObject);
         }
         #endregion
 

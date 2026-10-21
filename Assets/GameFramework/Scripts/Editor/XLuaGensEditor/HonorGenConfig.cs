@@ -1,5 +1,5 @@
 ﻿/***************************************************************
- * (c) copyright 2026 - 2030, Honor.Game
+ * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  HonorGenConfig.cs

@@ -497,21 +497,21 @@ namespace Honor.Editor
                 else // 普通类型
                 {
                     content += $"SaveIO.{saveDataTidyName}.Load_{tmpPrefix} = function()\n";
-                    content += $"    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}') then\n";
+                    content += $"    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}') then\n";
                     
                     switch (fieldType)
                     {
                         case "number":
-                            content += $"        SaveRootData.{saveDataTidyName}.{tmpFields} = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
+                            content += $"        SaveRootData.{saveDataTidyName}.{tmpFields} = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
                             break;
                         case "string":
-                            content += $"        SaveRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}')\n";
+                            content += $"        SaveRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}')\n";
                             break;
                         case "table":
-                            content += $"         SaveRootData.{saveDataTidyName}.{tmpFields} = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
+                            content += $"         SaveRootData.{saveDataTidyName}.{tmpFields} = JsonDecode(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}'))\n";
                             break;
                         case "boolean":
-                            content += $"       SaveRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}') == 'true' and true or false\n";
+                            content += $"       SaveRootData.{saveDataTidyName}.{tmpFields} = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}') == 'true' and true or false\n";
                             break;
                     }
                     
@@ -589,16 +589,16 @@ namespace Honor.Editor
                     switch (fieldType)
                     {
                         case "number":
-                            content += $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
+                            content += $"    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
                             break;
                         case "string":
-                            content += $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
+                            content += $"    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', tostring(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
                             break;
                         case "table":
-                            content += $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', JsonEncode(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
+                            content += $"    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', JsonEncode(SaveRootData.{saveDataTidyName}.{tmpFields}))\n";
                             break;
                         case "boolean":
-                            content += $"    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', SaveRootData.{saveDataTidyName}.{tmpFields} == true and 'true' or 'false')\n";
+                            content += $"    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, '{saveDataFileName}', '{saveDataFileName}.{tmpFields}', SaveRootData.{saveDataTidyName}.{tmpFields} == true and 'true' or 'false')\n";
                             break;
                     }
                     

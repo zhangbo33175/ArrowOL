@@ -50,17 +50,17 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.ListItemArrangeType>(translator.PushHonorRuntimeListItemArrangeType, translator.Get, translator.UpdateHonorRuntimeListItemArrangeType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GridItemArrangeType>(translator.PushHonorRuntimeGridItemArrangeType, translator.Get, translator.UpdateHonorRuntimeGridItemArrangeType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GridFixedType>(translator.PushHonorRuntimeGridFixedType, translator.Get, translator.UpdateHonorRuntimeGridFixedType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.DebuggerActiveWindowType>(translator.PushHonorRuntimeDebuggerActiveWindowType, translator.Get, translator.UpdateHonorRuntimeDebuggerActiveWindowType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PatternType>(translator.PushHonorRuntimePatternType, translator.Get, translator.UpdateHonorRuntimePatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.NonePatternType>(translator.PushHonorRuntimeNonePatternType, translator.Get, translator.UpdateHonorRuntimeNonePatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.MVVMPatternType>(translator.PushHonorRuntimeMVVMPatternType, translator.Get, translator.UpdateHonorRuntimeMVVMPatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaProtocolCmd>(translator.PushHonorRuntimeLuaProtocolCmd, translator.Get, translator.UpdateHonorRuntimeLuaProtocolCmd);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PersistWayType>(translator.PushHonorRuntimePersistWayType, translator.Get, translator.UpdateHonorRuntimePersistWayType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PlaySoundErrorCode>(translator.PushHonorRuntimePlaySoundErrorCode, translator.Get, translator.UpdateHonorRuntimePlaySoundErrorCode);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.VibrateType>(translator.PushHonorRuntimeVibrateType, translator.Get, translator.UpdateHonorRuntimeVibrateType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.DebuggerActiveWindowType>(translator.PushHonorRuntimeDebuggerActiveWindowType, translator.Get, translator.UpdateHonorRuntimeDebuggerActiveWindowType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.UIType>(translator.PushHonorRuntimeUIType, translator.Get, translator.UpdateHonorRuntimeUIType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.DevicePerformanceLevel>(translator.PushHonorRuntimeDevicePerformanceLevel, translator.Get, translator.UpdateHonorRuntimeDevicePerformanceLevel);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.QualityLevel>(translator.PushHonorRuntimeQualityLevel, translator.Get, translator.UpdateHonorRuntimeQualityLevel);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.UIType>(translator.PushHonorRuntimeUIType, translator.Get, translator.UpdateHonorRuntimeUIType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.VibrateType>(translator.PushHonorRuntimeVibrateType, translator.Get, translator.UpdateHonorRuntimeVibrateType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DimensionMode>(translator.PushHonorRuntimeGameDefinitionsDimensionMode, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDimensionMode);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.AssetType>(translator.PushHonorRuntimeGameDefinitionsAssetType, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsAssetType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.PathType>(translator.PushHonorRuntimeGameDefinitionsPathType, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsPathType);
@@ -70,11 +70,11 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DebugWindowModel>(translator.PushHonorRuntimeGameDefinitionsDebugWindowModel, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDebugWindowModel);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType>(translator.PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeAorTextEffectOutlineHorizontalAligmentType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType>(translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeAorTextEffectSpacingHorizontalAligmentType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GraphicsUtils.EScreenType>(translator.PushHonorRuntimeGraphicsUtilsEScreenType, translator.Get, translator.UpdateHonorRuntimeGraphicsUtilsEScreenType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaBindValue.BindValueType>(translator.PushHonorRuntimeLuaBindValueBindValueType, translator.Get, translator.UpdateHonorRuntimeLuaBindValueBindValueType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaInjection.InjectionType>(translator.PushHonorRuntimeLuaInjectionInjectionType, translator.Get, translator.UpdateHonorRuntimeLuaInjectionInjectionType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType>(translator.PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType, translator.Get, translator.UpdateHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.UIFader.InitState>(translator.PushHonorRuntimeUIFaderInitState, translator.Get, translator.UpdateHonorRuntimeUIFaderInitState);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GraphicsUtils.EScreenType>(translator.PushHonorRuntimeGraphicsUtilsEScreenType, translator.Get, translator.UpdateHonorRuntimeGraphicsUtilsEScreenType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.Log.LogLevel>(translator.PushHonorRuntimeLogLogLevel, translator.Get, translator.UpdateHonorRuntimeLogLogLevel);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDef.PlayerPrefsKey>(translator.PushHonorRuntimeHonorDefPlayerPrefsKey, translator.Get, translator.UpdateHonorRuntimeHonorDefPlayerPrefsKey);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.ResPaths.PathsEnum>(translator.PushHonorRuntimeResPathsPathsEnum, translator.Get, translator.UpdateHonorRuntimeResPathsPathsEnum);
@@ -2005,90 +2005,6 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeDebuggerActiveWindowType_TypeID = -1;
-		int HonorRuntimeDebuggerActiveWindowType_EnumRef = -1;
-        
-        public void PushHonorRuntimeDebuggerActiveWindowType(RealStatePtr L, Honor.Runtime.DebuggerActiveWindowType val)
-        {
-            if (HonorRuntimeDebuggerActiveWindowType_TypeID == -1)
-            {
-			    bool is_first;
-                HonorRuntimeDebuggerActiveWindowType_TypeID = getTypeId(L, typeof(Honor.Runtime.DebuggerActiveWindowType), out is_first);
-				
-				if (HonorRuntimeDebuggerActiveWindowType_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.DebuggerActiveWindowType));
-				    HonorRuntimeDebuggerActiveWindowType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeDebuggerActiveWindowType_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeDebuggerActiveWindowType_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for Honor.Runtime.DebuggerActiveWindowType ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, HonorRuntimeDebuggerActiveWindowType_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.DebuggerActiveWindowType val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeDebuggerActiveWindowType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.DebuggerActiveWindowType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for Honor.Runtime.DebuggerActiveWindowType");
-                }
-				val = (Honor.Runtime.DebuggerActiveWindowType)e;
-                
-            }
-            else
-            {
-                val = (Honor.Runtime.DebuggerActiveWindowType)objectCasters.GetCaster(typeof(Honor.Runtime.DebuggerActiveWindowType))(L, index, null);
-            }
-        }
-		
-        public void UpdateHonorRuntimeDebuggerActiveWindowType(RealStatePtr L, int index, Honor.Runtime.DebuggerActiveWindowType val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeDebuggerActiveWindowType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.DebuggerActiveWindowType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for Honor.Runtime.DebuggerActiveWindowType ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
         int HonorRuntimePatternType_TypeID = -1;
 		int HonorRuntimePatternType_EnumRef = -1;
         
@@ -2593,6 +2509,258 @@ namespace XLua
             }
         }
         
+        int HonorRuntimeVibrateType_TypeID = -1;
+		int HonorRuntimeVibrateType_EnumRef = -1;
+        
+        public void PushHonorRuntimeVibrateType(RealStatePtr L, Honor.Runtime.VibrateType val)
+        {
+            if (HonorRuntimeVibrateType_TypeID == -1)
+            {
+			    bool is_first;
+                HonorRuntimeVibrateType_TypeID = getTypeId(L, typeof(Honor.Runtime.VibrateType), out is_first);
+				
+				if (HonorRuntimeVibrateType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.VibrateType));
+				    HonorRuntimeVibrateType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeVibrateType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeVibrateType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for Honor.Runtime.VibrateType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, HonorRuntimeVibrateType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.VibrateType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeVibrateType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.VibrateType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for Honor.Runtime.VibrateType");
+                }
+				val = (Honor.Runtime.VibrateType)e;
+                
+            }
+            else
+            {
+                val = (Honor.Runtime.VibrateType)objectCasters.GetCaster(typeof(Honor.Runtime.VibrateType))(L, index, null);
+            }
+        }
+		
+        public void UpdateHonorRuntimeVibrateType(RealStatePtr L, int index, Honor.Runtime.VibrateType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeVibrateType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.VibrateType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for Honor.Runtime.VibrateType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int HonorRuntimeDebuggerActiveWindowType_TypeID = -1;
+		int HonorRuntimeDebuggerActiveWindowType_EnumRef = -1;
+        
+        public void PushHonorRuntimeDebuggerActiveWindowType(RealStatePtr L, Honor.Runtime.DebuggerActiveWindowType val)
+        {
+            if (HonorRuntimeDebuggerActiveWindowType_TypeID == -1)
+            {
+			    bool is_first;
+                HonorRuntimeDebuggerActiveWindowType_TypeID = getTypeId(L, typeof(Honor.Runtime.DebuggerActiveWindowType), out is_first);
+				
+				if (HonorRuntimeDebuggerActiveWindowType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.DebuggerActiveWindowType));
+				    HonorRuntimeDebuggerActiveWindowType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeDebuggerActiveWindowType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeDebuggerActiveWindowType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for Honor.Runtime.DebuggerActiveWindowType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, HonorRuntimeDebuggerActiveWindowType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.DebuggerActiveWindowType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeDebuggerActiveWindowType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.DebuggerActiveWindowType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for Honor.Runtime.DebuggerActiveWindowType");
+                }
+				val = (Honor.Runtime.DebuggerActiveWindowType)e;
+                
+            }
+            else
+            {
+                val = (Honor.Runtime.DebuggerActiveWindowType)objectCasters.GetCaster(typeof(Honor.Runtime.DebuggerActiveWindowType))(L, index, null);
+            }
+        }
+		
+        public void UpdateHonorRuntimeDebuggerActiveWindowType(RealStatePtr L, int index, Honor.Runtime.DebuggerActiveWindowType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeDebuggerActiveWindowType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.DebuggerActiveWindowType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for Honor.Runtime.DebuggerActiveWindowType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int HonorRuntimeUIType_TypeID = -1;
+		int HonorRuntimeUIType_EnumRef = -1;
+        
+        public void PushHonorRuntimeUIType(RealStatePtr L, Honor.Runtime.UIType val)
+        {
+            if (HonorRuntimeUIType_TypeID == -1)
+            {
+			    bool is_first;
+                HonorRuntimeUIType_TypeID = getTypeId(L, typeof(Honor.Runtime.UIType), out is_first);
+				
+				if (HonorRuntimeUIType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.UIType));
+				    HonorRuntimeUIType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeUIType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeUIType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for Honor.Runtime.UIType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, HonorRuntimeUIType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.UIType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeUIType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.UIType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for Honor.Runtime.UIType");
+                }
+				val = (Honor.Runtime.UIType)e;
+                
+            }
+            else
+            {
+                val = (Honor.Runtime.UIType)objectCasters.GetCaster(typeof(Honor.Runtime.UIType))(L, index, null);
+            }
+        }
+		
+        public void UpdateHonorRuntimeUIType(RealStatePtr L, int index, Honor.Runtime.UIType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeUIType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.UIType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for Honor.Runtime.UIType ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
         int HonorRuntimeDevicePerformanceLevel_TypeID = -1;
 		int HonorRuntimeDevicePerformanceLevel_EnumRef = -1;
         
@@ -2752,174 +2920,6 @@ namespace XLua
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
                     throw new Exception("pack fail for Honor.Runtime.QualityLevel ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
-        int HonorRuntimeUIType_TypeID = -1;
-		int HonorRuntimeUIType_EnumRef = -1;
-        
-        public void PushHonorRuntimeUIType(RealStatePtr L, Honor.Runtime.UIType val)
-        {
-            if (HonorRuntimeUIType_TypeID == -1)
-            {
-			    bool is_first;
-                HonorRuntimeUIType_TypeID = getTypeId(L, typeof(Honor.Runtime.UIType), out is_first);
-				
-				if (HonorRuntimeUIType_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.UIType));
-				    HonorRuntimeUIType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeUIType_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeUIType_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for Honor.Runtime.UIType ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, HonorRuntimeUIType_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.UIType val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeUIType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.UIType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for Honor.Runtime.UIType");
-                }
-				val = (Honor.Runtime.UIType)e;
-                
-            }
-            else
-            {
-                val = (Honor.Runtime.UIType)objectCasters.GetCaster(typeof(Honor.Runtime.UIType))(L, index, null);
-            }
-        }
-		
-        public void UpdateHonorRuntimeUIType(RealStatePtr L, int index, Honor.Runtime.UIType val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeUIType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.UIType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for Honor.Runtime.UIType ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
-        int HonorRuntimeVibrateType_TypeID = -1;
-		int HonorRuntimeVibrateType_EnumRef = -1;
-        
-        public void PushHonorRuntimeVibrateType(RealStatePtr L, Honor.Runtime.VibrateType val)
-        {
-            if (HonorRuntimeVibrateType_TypeID == -1)
-            {
-			    bool is_first;
-                HonorRuntimeVibrateType_TypeID = getTypeId(L, typeof(Honor.Runtime.VibrateType), out is_first);
-				
-				if (HonorRuntimeVibrateType_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.VibrateType));
-				    HonorRuntimeVibrateType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeVibrateType_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeVibrateType_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for Honor.Runtime.VibrateType ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, HonorRuntimeVibrateType_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.VibrateType val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeVibrateType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.VibrateType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for Honor.Runtime.VibrateType");
-                }
-				val = (Honor.Runtime.VibrateType)e;
-                
-            }
-            else
-            {
-                val = (Honor.Runtime.VibrateType)objectCasters.GetCaster(typeof(Honor.Runtime.VibrateType))(L, index, null);
-            }
-        }
-		
-        public void UpdateHonorRuntimeVibrateType(RealStatePtr L, int index, Honor.Runtime.VibrateType val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeVibrateType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.VibrateType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for Honor.Runtime.VibrateType ,value="+val);
                 }
             }
 			
@@ -3685,90 +3685,6 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGraphicsUtilsEScreenType_TypeID = -1;
-		int HonorRuntimeGraphicsUtilsEScreenType_EnumRef = -1;
-        
-        public void PushHonorRuntimeGraphicsUtilsEScreenType(RealStatePtr L, Honor.Runtime.GraphicsUtils.EScreenType val)
-        {
-            if (HonorRuntimeGraphicsUtilsEScreenType_TypeID == -1)
-            {
-			    bool is_first;
-                HonorRuntimeGraphicsUtilsEScreenType_TypeID = getTypeId(L, typeof(Honor.Runtime.GraphicsUtils.EScreenType), out is_first);
-				
-				if (HonorRuntimeGraphicsUtilsEScreenType_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GraphicsUtils.EScreenType));
-				    HonorRuntimeGraphicsUtilsEScreenType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGraphicsUtilsEScreenType_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGraphicsUtilsEScreenType_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for Honor.Runtime.GraphicsUtils.EScreenType ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, HonorRuntimeGraphicsUtilsEScreenType_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GraphicsUtils.EScreenType val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGraphicsUtilsEScreenType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GraphicsUtils.EScreenType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for Honor.Runtime.GraphicsUtils.EScreenType");
-                }
-				val = (Honor.Runtime.GraphicsUtils.EScreenType)e;
-                
-            }
-            else
-            {
-                val = (Honor.Runtime.GraphicsUtils.EScreenType)objectCasters.GetCaster(typeof(Honor.Runtime.GraphicsUtils.EScreenType))(L, index, null);
-            }
-        }
-		
-        public void UpdateHonorRuntimeGraphicsUtilsEScreenType(RealStatePtr L, int index, Honor.Runtime.GraphicsUtils.EScreenType val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGraphicsUtilsEScreenType_TypeID)
-				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GraphicsUtils.EScreenType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for Honor.Runtime.GraphicsUtils.EScreenType ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
         int HonorRuntimeLuaBindValueBindValueType_TypeID = -1;
 		int HonorRuntimeLuaBindValueBindValueType_EnumRef = -1;
         
@@ -4096,6 +4012,90 @@ namespace XLua
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
                     throw new Exception("pack fail for Honor.Runtime.UIFader.InitState ,value="+val);
+                }
+            }
+			
+            else
+            {
+                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
+            }
+        }
+        
+        int HonorRuntimeGraphicsUtilsEScreenType_TypeID = -1;
+		int HonorRuntimeGraphicsUtilsEScreenType_EnumRef = -1;
+        
+        public void PushHonorRuntimeGraphicsUtilsEScreenType(RealStatePtr L, Honor.Runtime.GraphicsUtils.EScreenType val)
+        {
+            if (HonorRuntimeGraphicsUtilsEScreenType_TypeID == -1)
+            {
+			    bool is_first;
+                HonorRuntimeGraphicsUtilsEScreenType_TypeID = getTypeId(L, typeof(Honor.Runtime.GraphicsUtils.EScreenType), out is_first);
+				
+				if (HonorRuntimeGraphicsUtilsEScreenType_EnumRef == -1)
+				{
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GraphicsUtils.EScreenType));
+				    HonorRuntimeGraphicsUtilsEScreenType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				}
+				
+            }
+			
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGraphicsUtilsEScreenType_EnumRef) == 1)
+            {
+			    return;
+			}
+			
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGraphicsUtilsEScreenType_TypeID);
+            if (!CopyByValue.Pack(buff, 0, (int)val))
+            {
+                throw new Exception("pack fail fail for Honor.Runtime.GraphicsUtils.EScreenType ,value="+val);
+            }
+			
+			LuaAPI.lua_getref(L, HonorRuntimeGraphicsUtilsEScreenType_EnumRef);
+			LuaAPI.lua_pushvalue(L, -2);
+			LuaAPI.xlua_rawseti(L, -2, (int)val);
+			LuaAPI.lua_pop(L, 1);
+			
+        }
+		
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.GraphicsUtils.EScreenType val)
+        {
+		    LuaTypes type = LuaAPI.lua_type(L, index);
+            if (type == LuaTypes.LUA_TUSERDATA )
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGraphicsUtilsEScreenType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.GraphicsUtils.EScreenType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+				int e;
+                if (!CopyByValue.UnPack(buff, 0, out e))
+                {
+                    throw new Exception("unpack fail for Honor.Runtime.GraphicsUtils.EScreenType");
+                }
+				val = (Honor.Runtime.GraphicsUtils.EScreenType)e;
+                
+            }
+            else
+            {
+                val = (Honor.Runtime.GraphicsUtils.EScreenType)objectCasters.GetCaster(typeof(Honor.Runtime.GraphicsUtils.EScreenType))(L, index, null);
+            }
+        }
+		
+        public void UpdateHonorRuntimeGraphicsUtilsEScreenType(RealStatePtr L, int index, Honor.Runtime.GraphicsUtils.EScreenType val)
+        {
+		    
+            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
+            {
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGraphicsUtilsEScreenType_TypeID)
+				{
+				    throw new Exception("invalid userdata for Honor.Runtime.GraphicsUtils.EScreenType");
+				}
+				
+                IntPtr buff = LuaAPI.lua_touserdata(L, index);
+                if (!CopyByValue.Pack(buff, 0,  (int)val))
+                {
+                    throw new Exception("pack fail for Honor.Runtime.GraphicsUtils.EScreenType ,value="+val);
                 }
             }
 			
@@ -8460,12 +8460,6 @@ namespace XLua
 				translator.PushHonorRuntimeGridFixedType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.DebuggerActiveWindowType[]))
-			{
-			    Honor.Runtime.DebuggerActiveWindowType[] array = obj as Honor.Runtime.DebuggerActiveWindowType[];
-				translator.PushHonorRuntimeDebuggerActiveWindowType(L, array[index]);
-				return true;
-			}
 			else if (type == typeof(Honor.Runtime.PatternType[]))
 			{
 			    Honor.Runtime.PatternType[] array = obj as Honor.Runtime.PatternType[];
@@ -8502,6 +8496,24 @@ namespace XLua
 				translator.PushHonorRuntimePlaySoundErrorCode(L, array[index]);
 				return true;
 			}
+			else if (type == typeof(Honor.Runtime.VibrateType[]))
+			{
+			    Honor.Runtime.VibrateType[] array = obj as Honor.Runtime.VibrateType[];
+				translator.PushHonorRuntimeVibrateType(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.DebuggerActiveWindowType[]))
+			{
+			    Honor.Runtime.DebuggerActiveWindowType[] array = obj as Honor.Runtime.DebuggerActiveWindowType[];
+				translator.PushHonorRuntimeDebuggerActiveWindowType(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.UIType[]))
+			{
+			    Honor.Runtime.UIType[] array = obj as Honor.Runtime.UIType[];
+				translator.PushHonorRuntimeUIType(L, array[index]);
+				return true;
+			}
 			else if (type == typeof(Honor.Runtime.DevicePerformanceLevel[]))
 			{
 			    Honor.Runtime.DevicePerformanceLevel[] array = obj as Honor.Runtime.DevicePerformanceLevel[];
@@ -8512,18 +8524,6 @@ namespace XLua
 			{
 			    Honor.Runtime.QualityLevel[] array = obj as Honor.Runtime.QualityLevel[];
 				translator.PushHonorRuntimeQualityLevel(L, array[index]);
-				return true;
-			}
-			else if (type == typeof(Honor.Runtime.UIType[]))
-			{
-			    Honor.Runtime.UIType[] array = obj as Honor.Runtime.UIType[];
-				translator.PushHonorRuntimeUIType(L, array[index]);
-				return true;
-			}
-			else if (type == typeof(Honor.Runtime.VibrateType[]))
-			{
-			    Honor.Runtime.VibrateType[] array = obj as Honor.Runtime.VibrateType[];
-				translator.PushHonorRuntimeVibrateType(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.GameDefinitions.DimensionMode[]))
@@ -8580,12 +8580,6 @@ namespace XLua
 				translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GraphicsUtils.EScreenType[]))
-			{
-			    Honor.Runtime.GraphicsUtils.EScreenType[] array = obj as Honor.Runtime.GraphicsUtils.EScreenType[];
-				translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, array[index]);
-				return true;
-			}
 			else if (type == typeof(Honor.Runtime.LuaBindValue.BindValueType[]))
 			{
 			    Honor.Runtime.LuaBindValue.BindValueType[] array = obj as Honor.Runtime.LuaBindValue.BindValueType[];
@@ -8608,6 +8602,12 @@ namespace XLua
 			{
 			    Honor.Runtime.UIFader.InitState[] array = obj as Honor.Runtime.UIFader.InitState[];
 				translator.PushHonorRuntimeUIFaderInitState(L, array[index]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.GraphicsUtils.EScreenType[]))
+			{
+			    Honor.Runtime.GraphicsUtils.EScreenType[] array = obj as Honor.Runtime.GraphicsUtils.EScreenType[];
+				translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.Log.LogLevel[]))
@@ -9060,12 +9060,6 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.DebuggerActiveWindowType[]))
-			{
-			    Honor.Runtime.DebuggerActiveWindowType[] array = obj as Honor.Runtime.DebuggerActiveWindowType[];
-				translator.Get(L, obj_idx, out array[array_idx]);
-				return true;
-			}
 			else if (type == typeof(Honor.Runtime.PatternType[]))
 			{
 			    Honor.Runtime.PatternType[] array = obj as Honor.Runtime.PatternType[];
@@ -9102,15 +9096,15 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.DevicePerformanceLevel[]))
+			else if (type == typeof(Honor.Runtime.VibrateType[]))
 			{
-			    Honor.Runtime.DevicePerformanceLevel[] array = obj as Honor.Runtime.DevicePerformanceLevel[];
+			    Honor.Runtime.VibrateType[] array = obj as Honor.Runtime.VibrateType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.QualityLevel[]))
+			else if (type == typeof(Honor.Runtime.DebuggerActiveWindowType[]))
 			{
-			    Honor.Runtime.QualityLevel[] array = obj as Honor.Runtime.QualityLevel[];
+			    Honor.Runtime.DebuggerActiveWindowType[] array = obj as Honor.Runtime.DebuggerActiveWindowType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
@@ -9120,9 +9114,15 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.VibrateType[]))
+			else if (type == typeof(Honor.Runtime.DevicePerformanceLevel[]))
 			{
-			    Honor.Runtime.VibrateType[] array = obj as Honor.Runtime.VibrateType[];
+			    Honor.Runtime.DevicePerformanceLevel[] array = obj as Honor.Runtime.DevicePerformanceLevel[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.QualityLevel[]))
+			{
+			    Honor.Runtime.QualityLevel[] array = obj as Honor.Runtime.QualityLevel[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
@@ -9180,12 +9180,6 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GraphicsUtils.EScreenType[]))
-			{
-			    Honor.Runtime.GraphicsUtils.EScreenType[] array = obj as Honor.Runtime.GraphicsUtils.EScreenType[];
-				translator.Get(L, obj_idx, out array[array_idx]);
-				return true;
-			}
 			else if (type == typeof(Honor.Runtime.LuaBindValue.BindValueType[]))
 			{
 			    Honor.Runtime.LuaBindValue.BindValueType[] array = obj as Honor.Runtime.LuaBindValue.BindValueType[];
@@ -9207,6 +9201,12 @@ namespace XLua
 			else if (type == typeof(Honor.Runtime.UIFader.InitState[]))
 			{
 			    Honor.Runtime.UIFader.InitState[] array = obj as Honor.Runtime.UIFader.InitState[];
+				translator.Get(L, obj_idx, out array[array_idx]);
+				return true;
+			}
+			else if (type == typeof(Honor.Runtime.GraphicsUtils.EScreenType[]))
+			{
+			    Honor.Runtime.GraphicsUtils.EScreenType[] array = obj as Honor.Runtime.GraphicsUtils.EScreenType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

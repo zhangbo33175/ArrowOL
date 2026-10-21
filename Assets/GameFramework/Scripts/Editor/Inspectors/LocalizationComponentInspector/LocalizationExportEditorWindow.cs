@@ -95,14 +95,14 @@ namespace Honor.Editor
                 });
             }
 
-            // 字体自动适配开关（纯 C# 单例，直接访问 Instance）
+            // 字体自动适配开关（纯 C# 组件，经门面 HonorCoreManager.Instance.Localization 访问）
             var autoFontToggle = Q<Toggle>("autoFontToggle");
             if (autoFontToggle != null)
             {
-                autoFontToggle.value = Honor.Runtime.LocalizationComponent.Instance != null;
+                autoFontToggle.value = Honor.Runtime.HonorCoreManager.Instance.Localization != null;
                 autoFontToggle.RegisterValueChangedCallback(evt =>
                 {
-                    // 纯 C# 单例，无 SerializedObject
+                    // 纯 C# 组件，无 SerializedObject 绑定
                 });
             }
 

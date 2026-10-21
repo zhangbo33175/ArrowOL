@@ -159,11 +159,11 @@ end
 ---@param rightNow boolean true=立即销毁，false=走动画关闭流程
 ---=========================================================================
 function GameManager:CloseAllUI(rightNow)
-    if not GameMainRoot or not GameMainRoot.UI then
+    if not GameMainRoot or not GameMainRoot.HonorUIManager.UI then
         return
     end
-    GameMainRoot.UI:CloseAllUIs(Honor.UIType.Screen, rightNow)
-    GameMainRoot.UI:CloseAllUIs(Honor.UIType.Scene, rightNow)
+    GameMainRoot.HonorUIManager:CloseAllUIs(Honor.UIType.Screen, rightNow)
+    GameMainRoot.HonorUIManager:CloseAllUIs(Honor.UIType.Scene, rightNow)
     self:OnAfterCanvasCloseAll()
 end
 
@@ -346,8 +346,8 @@ end
 ---@return UnityEngine.Camera|nil 场景主相机对象
 ---=========================================================================
 function GameManager:_GetSceneMainCamera()
-    if GameMainRoot and GameMainRoot.Scene and GameMainRoot.Scene.SceneCameras then
-        return GameMainRoot.Scene.SceneCameras[0]
+    if GameMainRoot and GameMainRoot.HonorUIManager and GameMainRoot.HonorUIManager.SceneCameras then
+        return GameMainRoot.HonorUIManager.SceneCameras[0]
     end
     return nil
 end

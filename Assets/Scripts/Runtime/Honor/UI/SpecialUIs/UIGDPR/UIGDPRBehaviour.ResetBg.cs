@@ -156,21 +156,21 @@ namespace Honor.Runtime
         {
             // 标题多语言
             if (m_ResetTitleText != null)
-                m_ResetTitleText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetTitle_Text"),
+                m_ResetTitleText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetTitle_Text"),
                     Application.productName);
 
             if (m_ResetTitleTextTMP != null)
                 m_ResetTitleTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetTitle_Text"),
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetTitle_Text"),
                         Application.productName);
 
             // 描述文本
             if (m_ResetDescText != null)
-                m_ResetDescText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetDesc_Text"));
+                m_ResetDescText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetDesc_Text"));
 
             if (m_ResetDescTextTMP != null)
                 m_ResetDescTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetDesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetDesc_Text"));
         }
 
         /// <summary>
@@ -181,20 +181,20 @@ namespace Honor.Runtime
             // GDPR 说明文字
             if (m_ResetGDPRText != null)
                 m_ResetGDPRText.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetGDPRDesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetGDPRDesc_Text"));
 
             if (m_ResetGDPRTextTMP != null)
                 m_ResetGDPRTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetGDPRDesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetGDPRDesc_Text"));
 
             // CCPA 说明文字
             if (m_ResetCCPAText != null)
                 m_ResetCCPAText.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetCCPADesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetCCPADesc_Text"));
 
             if (m_ResetCCPATextTMP != null)
                 m_ResetCCPATextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_ResetCCPADesc_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_ResetCCPADesc_Text"));
         }
 
         /// <summary>
@@ -204,20 +204,20 @@ namespace Honor.Runtime
         {
             // 保存按钮文字
             if (m_SaveButtonText != null)
-                m_SaveButtonText.text = AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_SaveButton_Text"));
+                m_SaveButtonText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_SaveButton_Text"));
 
             if (m_SaveButtonTextTMP != null)
                 m_SaveButtonTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_SaveButton_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_SaveButton_Text"));
 
             // 关闭按钮文字
             if (m_CloseButtonText != null)
                 m_CloseButtonText.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_CloseButton_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_CloseButton_Text"));
 
             if (m_CloseButtonTextTMP != null)
                 m_CloseButtonTextTMP.text =
-                    AorTxt.Format(GameMainRoot.Localization.GetDefaultData("GDPR_CloseButton_Text"));
+                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_CloseButton_Text"));
         }
 
         /// <summary>
@@ -228,13 +228,13 @@ namespace Honor.Runtime
             // 从持久化数据读取开关状态
             if (m_ResetGDPRToggle != null)
             {
-                m_ResetGDPRToggle.isOn = m_PersistComponent.GetBool(GameConstants.Persist.GDPR.WayType,
+                m_ResetGDPRToggle.isOn = HonorCoreManager.Instance.GetBool(GameConstants.Persist.GDPR.WayType,
                     GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.HasUserConsent, true);
             }
 
             if (m_ResetCCPAToggle != null)
             {
-                m_ResetCCPAToggle.isOn = m_PersistComponent.GetBool(GameConstants.Persist.GDPR.WayType,
+                m_ResetCCPAToggle.isOn = HonorCoreManager.Instance.GetBool(GameConstants.Persist.GDPR.WayType,
                     GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.IsSell, true);
             }
         }
@@ -249,7 +249,7 @@ namespace Honor.Runtime
         /// </summary>
         public void OnResetGDPRLinkButtonClicked()
         {
-            Application.OpenURL(GameMainRoot.Config.GetString("GDPRPrivacyUrl", true));
+            Application.OpenURL(HonorCoreManager.Instance.GetConfigString("GDPRPrivacyUrl", true));
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace Honor.Runtime
         /// </summary>
         public void OnResetCCPALinkButtonClicked()
         {
-            Application.OpenURL(GameMainRoot.Config.GetString("CCPAPrivacyUrl", true));
+            Application.OpenURL(HonorCoreManager.Instance.GetConfigString("CCPAPrivacyUrl", true));
         }
 
         /// <summary>
@@ -268,22 +268,22 @@ namespace Honor.Runtime
             // 保存 GDPR 授权
             if (m_ResetGDPRToggle != null)
             {
-                m_PersistComponent.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
+                HonorCoreManager.Instance.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
                     GameConstants.Persist.GDPR.ItemKey.HasUserConsent, m_ResetGDPRToggle.isOn);
             }
 
             // 保存 CCPA 授权
             if (m_ResetCCPAToggle != null)
             {
-                m_PersistComponent.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
+                HonorCoreManager.Instance.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
                     GameConstants.Persist.GDPR.ItemKey.IsSell, m_ResetCCPAToggle.isOn);
             }
 
             // 持久化保存
-            m_PersistComponent.Save(GameConstants.Persist.GDPR.WayType);
+            HonorCoreManager.Instance.Save(GameConstants.Persist.GDPR.WayType);
 
             // 关闭界面
-            GameMainRoot.UI.CloseUIByGO(gameObject, true);
+            HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);
 
             // 执行外部完成回调
             if (m_OnOverButtonClickedCallback != null)
@@ -297,7 +297,7 @@ namespace Honor.Runtime
         /// </summary>
         public void OnCloseButtonClicked()
         {
-            GameMainRoot.UI.CloseUIByGO(gameObject, true);
+            HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);
 
             if (m_OnOverButtonClickedCallback != null)
             {

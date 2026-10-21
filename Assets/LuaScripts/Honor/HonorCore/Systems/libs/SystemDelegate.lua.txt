@@ -9,13 +9,9 @@
 -- @core      回调集合维护、Add/Remove/Broadcast、once 一次性监听、带参广播
 -- @scope     框架事件代理层，基于 SystemSet 维护回调集合
 -- @dependency SystemSet（无序集合，需先加载）
--- descrip:   多播委托/事件代理（C# Delegate / UnityEvent 风格）
--- 功能：
--- 1. 支持添加/移除/广播多个回调
--- 2. 支持 once 一次性监听与带参广播
--- 架构：基于 SystemSet 维护回调集合
 -- @note  依赖 SystemSet，需先加载无序集合模块
 --=====================================================================================================
+---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/功能/架构 注释块（纯注释，逻辑无影响）
 
 --region 多播委托（C# 风格 Delegate）
 local SystemSet = require("SystemSet")

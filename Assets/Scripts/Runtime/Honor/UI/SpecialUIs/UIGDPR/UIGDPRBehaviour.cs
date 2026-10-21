@@ -46,11 +46,6 @@ namespace Honor.Runtime
         private Action m_OnOverButtonClickedCallback;
 
         /// <summary>
-        /// 持久化数据组件（存储 GDPR 授权状态）
-        /// </summary>
-        private PersistComponent m_PersistComponent;
-
-        /// <summary>
         /// 完成按钮点击回调（外部注册，关闭后执行）
         /// </summary>
         public Action OnOverButtonClickedCallback
@@ -65,17 +60,12 @@ namespace Honor.Runtime
         // MonoBehaviour 生命周期
         //=========================================================================
         /// <summary>
-        /// 唤醒时获取全局持久化组件并校验有效性
+        /// 唤醒
+        /// <para>GDPR 授权状态经门面管理器（HonorCoreManager.Instance.Persist）按需访问，
+        /// 外部不直接持有组件实例，统一走门面调用。</para>
         /// </summary>
         private void Awake()
         {
-            // 获取全局持久化数据组件
-            m_PersistComponent = PersistComponent.Instance;
-            if (m_PersistComponent == null)
-            {
-                Log.Fatal("Persist Component 无效。");
-                return;
-            }
         }
 
         /// <summary>

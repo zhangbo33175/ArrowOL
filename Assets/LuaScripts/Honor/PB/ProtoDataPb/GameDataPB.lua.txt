@@ -76,31 +76,31 @@ SaveIO.GameData.LoadAll = function()
     SaveIO.GameData.Load_localActivityData()
 end
 SaveIO.GameData.Load_isInit = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit') then
-       SaveRootData.GameData.isInit = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit') == 'true' and true or false
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit') then
+       SaveRootData.GameData.isInit = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit') == 'true' and true or false
     end
 end
 SaveIO.GameData.Load_resourceInfo = function()
     SaveIO.GameData.Load_resourceInfo_nums()
 end
 SaveIO.GameData.Load_curChapterId = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.curChapterId') then
-        SaveRootData.GameData.curChapterId = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.curChapterId')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.curChapterId') then
+        SaveRootData.GameData.curChapterId = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.curChapterId')
     end
 end
 SaveIO.GameData.Load_latestChapterId = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.latestChapterId') then
-        SaveRootData.GameData.latestChapterId = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.latestChapterId')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.latestChapterId') then
+        SaveRootData.GameData.latestChapterId = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.latestChapterId')
     end
 end
 SaveIO.GameData.Load_chapterInfos = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.chapterInfos') then
-         SaveRootData.GameData.chapterInfos = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.chapterInfos'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.chapterInfos') then
+         SaveRootData.GameData.chapterInfos = JsonDecode(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.chapterInfos'))
     end
 end
 SaveIO.GameData.Load_timestamps = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps') then
-         SaveRootData.GameData.timestamps = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps') then
+         SaveRootData.GameData.timestamps = JsonDecode(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps'))
     end
 end
 SaveIO.GameData.Load_settingInfo = function()
@@ -109,38 +109,38 @@ SaveIO.GameData.Load_settingInfo = function()
     SaveIO.GameData.Load_settingInfo_closeNotification()
 end
 SaveIO.GameData.Load_boosterTriggered = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered') then
-        SaveRootData.GameData.boosterTriggered = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered') then
+        SaveRootData.GameData.boosterTriggered = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered')
     end
 end
 SaveIO.GameData.Load_maxChapterId = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId') then
-        SaveRootData.GameData.maxChapterId = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId') then
+        SaveRootData.GameData.maxChapterId = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId'))
     end
 end
 SaveIO.GameData.Load_localActivityData = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData') then
-         SaveRootData.GameData.localActivityData = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData') then
+         SaveRootData.GameData.localActivityData = JsonDecode(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData'))
     end
 end
 SaveIO.GameData.Load_resourceInfo_nums = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums') then
-         SaveRootData.GameData.resourceInfo.nums = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums') then
+         SaveRootData.GameData.resourceInfo.nums = JsonDecode(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums'))
     end
 end
 SaveIO.GameData.Load_settingInfo_colseMusic = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic') then
-       SaveRootData.GameData.settingInfo.colseMusic = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic') == 'true' and true or false
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic') then
+       SaveRootData.GameData.settingInfo.colseMusic = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic') == 'true' and true or false
     end
 end
 SaveIO.GameData.Load_settingInfo_closeSound = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound') then
-       SaveRootData.GameData.settingInfo.closeSound = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound') == 'true' and true or false
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound') then
+       SaveRootData.GameData.settingInfo.closeSound = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound') == 'true' and true or false
     end
 end
 SaveIO.GameData.Load_settingInfo_closeNotification = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification') then
-       SaveRootData.GameData.settingInfo.closeNotification = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification') == 'true' and true or false
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification') then
+       SaveRootData.GameData.settingInfo.closeNotification = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification') == 'true' and true or false
     end
 end
 ----------------------------------------------------------------------------------------------
@@ -157,22 +157,22 @@ SaveIO.GameData.SaveAll = function()
     SaveIO.GameData.Save_localActivityData()
 end
 SaveIO.GameData.Save_isInit = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit', SaveRootData.GameData.isInit == true and 'true' or 'false')
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.isInit', SaveRootData.GameData.isInit == true and 'true' or 'false')
 end
 SaveIO.GameData.Save_resourceInfo = function()
     SaveIO.GameData.Save_resourceInfo_nums()
 end
 SaveIO.GameData.Save_curChapterId = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.curChapterId', tostring(SaveRootData.GameData.curChapterId))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.curChapterId', tostring(SaveRootData.GameData.curChapterId))
 end
 SaveIO.GameData.Save_latestChapterId = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.latestChapterId', tostring(SaveRootData.GameData.latestChapterId))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.latestChapterId', tostring(SaveRootData.GameData.latestChapterId))
 end
 SaveIO.GameData.Save_chapterInfos = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.chapterInfos', JsonEncode(SaveRootData.GameData.chapterInfos))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.chapterInfos', JsonEncode(SaveRootData.GameData.chapterInfos))
 end
 SaveIO.GameData.Save_timestamps = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps', JsonEncode(SaveRootData.GameData.timestamps))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.timestamps', JsonEncode(SaveRootData.GameData.timestamps))
 end
 SaveIO.GameData.Save_settingInfo = function()
     SaveIO.GameData.Save_settingInfo_colseMusic()
@@ -180,25 +180,25 @@ SaveIO.GameData.Save_settingInfo = function()
     SaveIO.GameData.Save_settingInfo_closeNotification()
 end
 SaveIO.GameData.Save_boosterTriggered = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered', tostring(SaveRootData.GameData.boosterTriggered))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.boosterTriggered', tostring(SaveRootData.GameData.boosterTriggered))
 end
 SaveIO.GameData.Save_maxChapterId = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId', tostring(SaveRootData.GameData.maxChapterId))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.maxChapterId', tostring(SaveRootData.GameData.maxChapterId))
 end
 SaveIO.GameData.Save_localActivityData = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData', JsonEncode(SaveRootData.GameData.localActivityData))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.localActivityData', JsonEncode(SaveRootData.GameData.localActivityData))
 end
 SaveIO.GameData.Save_resourceInfo_nums = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums', JsonEncode(SaveRootData.GameData.resourceInfo.nums))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.resourceInfo.nums', JsonEncode(SaveRootData.GameData.resourceInfo.nums))
 end
 SaveIO.GameData.Save_settingInfo_colseMusic = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic', SaveRootData.GameData.settingInfo.colseMusic == true and 'true' or 'false')
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.colseMusic', SaveRootData.GameData.settingInfo.colseMusic == true and 'true' or 'false')
 end
 SaveIO.GameData.Save_settingInfo_closeSound = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound', SaveRootData.GameData.settingInfo.closeSound == true and 'true' or 'false')
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeSound', SaveRootData.GameData.settingInfo.closeSound == true and 'true' or 'false')
 end
 SaveIO.GameData.Save_settingInfo_closeNotification = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification', SaveRootData.GameData.settingInfo.closeNotification == true and 'true' or 'false')
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'GameDataPB', 'GameDataPB.settingInfo.closeNotification', SaveRootData.GameData.settingInfo.closeNotification == true and 'true' or 'false')
 end
 ----------------------------------------------------------------------------------------------
 SaveIO.GameData.SerializeAll = function()

@@ -112,9 +112,9 @@ end
 function PauseableCoroutineHelper:StartPauseableCoroutine(handler, pauseSignal, from)
     pauseSignal = pauseSignal or self.Any
 
-    if GameMainRoot.Launcher then
+    if GameMainRoot.HonorUIManager.Launcher ~= nil then
         local enumerator = self:_createPauseableEnumerator(handler.func, pauseSignal, from)
-        return GameMainRoot.Launcher:StartCoroutine(enumerator)
+        return GameMainRoot.HonorUIManager:StartCoroutine(enumerator)
     end
 
     return nil
@@ -125,8 +125,8 @@ end
 ---@param cor UnityEngine.Coroutine
 function PauseableCoroutineHelper:StopPauseableCoroutine(cor)
     if not cor then return end
-    if GameMainRoot.Launcher then
-        GameMainRoot.Launcher:StopCoroutine(cor)
+    if GameMainRoot.HonorUIManager.Launcher ~= nil then
+        GameMainRoot.HonorUIManager:StopCoroutine(cor)
     end
 end
 

@@ -3,7 +3,7 @@
  * All Rights Reserved.
  * -------------------------------------------------------------
  * filename:  BuildPlayer_iOS.cs
- * author:    Honor.Editor
+ * author:    云毅
  * created:   2026
  * descrip:   iOS Xcode 工程打包（导出，非直接出 ipa）
  *            约定：LZ4 压缩；Development 构建叠加 Development 标志

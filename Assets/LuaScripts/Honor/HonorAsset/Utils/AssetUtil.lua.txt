@@ -8,7 +8,7 @@
 -- @brief     资源加载工具类（对齐参考框架 HonorAsset/Asset 资源域）
 -- @desc      收拢资源域公共工具方法：资源加载/卸载、预制体创建/销毁、场景销毁、对象克隆。
 --            原 SystemFuncs 中的同名全局函数统一委托到本模块（业务零改动）。
---            @dependency GameMainRoot.Asset / GameMainRoot.Scene（C# 资源接口，调用时解析）
+--            @dependency GameMainRoot.HonorAssetManager / GameMainRoot.HonorUIManager（C# 门面接口，调用时解析）
 -- @core      资源加载/卸载、预制体创建/销毁、场景销毁、对象克隆
 -- @scope     资源域公共工具（SystemFuncs 同名全局函数委托至此）
 --=====================================================================================================
@@ -29,7 +29,7 @@ local UnityUtil = require('UnityUtil')
 ---@return any 资源对象（JsonAsset 返回 table，其余返回 UnityEngine.Object），失败返回 nil
 function AssetUtil.LoadAssetSync(assetInfo)
     local status, asset = xpcall(function()
-        local asset = GameMainRoot.Asset:LoadAssetSync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName)
+        local asset = GameMainRoot.HonorAssetManager:LoadAssetSync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName)
         -- Json资源自动解析为table
         if assetInfo.TypeName == "JsonAsset" then
             local jsonTable = JsonDecode(asset.text)
@@ -48,7 +48,7 @@ end
 ---@param overCallback handler 回调句柄（回调参数：asset）
 function AssetUtil.LoadAssetAsync(assetInfo, overCallback)
     local status, _ = xpcall(function()
-        GameMainRoot.Asset:LoadAssetAsync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName, function(___asset_obj___, asset)
+        GameMainRoot.HonorAssetManager:LoadAssetAsync(assetInfo.TypeName, assetInfo.ABPath, assetInfo.AssetName, function(___asset_obj___, asset)
             if overCallback ~= nil and overCallback.func ~= nil then
                 overCallback.func(asset)
             end
@@ -67,8 +67,8 @@ function AssetUtil.RemoveAsset(asset, overCallback, rightNow)
         if rightNow == nil then
             rightNow = false
         end
-        if GameMainRoot.Asset ~= nil then
-            GameMainRoot.Asset:UnloadAsset(asset, function(___asset_obj___)
+        if GameMainRoot.HonorAssetManager.Asset ~= nil then
+            GameMainRoot.HonorAssetManager:UnloadAsset(asset, function(___asset_obj___)
                 if overCallback ~= nil and overCallback.func ~= nil then
                     overCallback.func()
                 end
@@ -88,8 +88,8 @@ end
 ---@return UnityEngine.GameObject 实例化对象，失败返回 nil
 function AssetUtil.CreatePrefabGOSync(assetInfo, parent, params)
     local status, go = xpcall(function()
-        parent = parent == nil and GameMainRoot.Scene.SceneRootGO.transform or parent
-        local prefabGO = GameMainRoot.Asset:LoadPrefabSync(assetInfo.ABPath, assetInfo.AssetName, parent, params)
+        parent = parent == nil and GameMainRoot.HonorUIManager.SceneRootGO.transform or parent
+        local prefabGO = GameMainRoot.HonorAssetManager:LoadPrefabSync(assetInfo.ABPath, assetInfo.AssetName, parent, params)
         return prefabGO
     end, function(e)
         PrintError("CreatePrefabGOSync异常，请检查相关资源配置，Name: " .. assetInfo.Name .. " ABPath: " .. assetInfo.ABPath .. " AssetName:" .. assetInfo.AssetName)
@@ -104,8 +104,8 @@ end
 ---@return table LuaBehaviour组件的luaClass，失败返回 nil
 function AssetUtil.CreatePrefabLuaClassSync(assetInfo, parent, params)
     local status, luaClass = xpcall(function()
-        parent = parent == nil and GameMainRoot.Scene.SceneRootGO.transform or parent
-        local prefabGO = GameMainRoot.Asset:LoadPrefabSync(assetInfo.ABPath, assetInfo.AssetName, parent, params)
+        parent = parent == nil and GameMainRoot.HonorUIManager.SceneRootGO.transform or parent
+        local prefabGO = GameMainRoot.HonorAssetManager:LoadPrefabSync(assetInfo.ABPath, assetInfo.AssetName, parent, params)
         local luaBehaviour = prefabGO:GetComponent("LuaBehaviour")
         local luaClass = luaBehaviour ~= nil and (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView) or nil
         return luaClass
@@ -122,8 +122,8 @@ end
 ---@param overCallback handler 回调句柄（回调参数：prefabGO, luaClass）
 function AssetUtil.CreatePrefabAsync(assetInfo, parent, params, overCallback)
     local status, _ = xpcall(function()
-        parent = parent == nil and GameMainRoot.Scene.SceneRootGO.transform or parent
-        GameMainRoot.Asset:LoadPrefabAsync(assetInfo.ABPath, assetInfo.AssetName, parent, params, function(___prefab_obj___, prefabGO)
+        parent = parent == nil and GameMainRoot.HonorUIManager.SceneRootGO.transform or parent
+        GameMainRoot.HonorAssetManager:LoadPrefabAsync(assetInfo.ABPath, assetInfo.AssetName, parent, params, function(___prefab_obj___, prefabGO)
             local luaBehaviour = prefabGO:GetComponent("LuaBehaviour")
             local luaClass = luaBehaviour ~= nil and (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView) or nil
             if overCallback ~= nil and overCallback.func ~= nil then
@@ -185,7 +185,7 @@ end
 ---@brief 销毁所有场景go实例
 ---@param root UnityEngine.GameObject 指定根节点
 function AssetUtil.DestroyAllSceneGOs(root)
-    GameMainRoot.Scene:DestroyAllSceneGOs(root)
+    GameMainRoot.HonorUIManager:DestroyAllSceneGOs(root)
 end
 
 ---@brief 克隆模板对象并挂载到节点（自动重置坐标/缩放）
@@ -193,7 +193,7 @@ end
 ---@param childTemplateGO UnityEngine.GameObject 模板节点
 ---@return UnityEngine.GameObject 克隆得到的节点对象
 function AssetUtil.InstantiateGO(parent, childTemplateGO)
-    local go = GameMainRoot.Asset:InstantiateGO(parent, childTemplateGO)
+    local go = GameMainRoot.HonorAssetManager:InstantiateGO(parent, childTemplateGO)
     go:SetActive(true)
     go.transform.localScale = UnityEngine.Vector3.one
     go.transform.localPosition = UnityEngine.Vector3.zero

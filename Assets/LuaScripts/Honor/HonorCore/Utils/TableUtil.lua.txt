@@ -35,20 +35,21 @@ end
 ---@param object table table数据
 ---@return table 拷贝结果
 function TableUtil.DeepCopy(object)
-    local lookup_table = {} -- 解决循环引用
+    ---TODO 规范命名：lookup_table/new_table 改为驼峰 lookupTable/newTable（函数内私有局部，逻辑等价）
+    local lookupTable = {} -- 解决循环引用
     local function _copy(object)
         if type(object) ~= "table" then
             return object
-        elseif lookup_table[object] then
-            return lookup_table[object]
+        elseif lookupTable[object] then
+            return lookupTable[object]
         end
-        local new_table = {}
-        lookup_table[object] = new_table
+        local newTable = {}
+        lookupTable[object] = newTable
         for index, value in pairs(object) do
-            new_table[_copy(index)] = _copy(value)
+            newTable[_copy(index)] = _copy(value)
         end
         -- 保留元表（类结构）
-        return setmetatable(new_table, getmetatable(object))
+        return setmetatable(newTable, getmetatable(object))
     end
     return _copy(object)
 end
@@ -192,17 +193,18 @@ end
 ---@return table 自由组合结果
 function TableUtil.GetFreeCombinations(tb)
     local keys = table.keys(tb)
-    local num_keys = #keys
+    ---TODO 规范命名：num_keys/new_combination 改为驼峰 numKeys/newCombination（函数内私有局部，逻辑等价）
+    local numKeys = #keys
     local combinations = {}
-    local totalNum = 2 ^ num_keys - 1
+    local totalNum = 2 ^ numKeys - 1
     for i = 1, totalNum do
-        local new_combination = {}
-        for j = 1, num_keys do
+        local newCombination = {}
+        for j = 1, numKeys do
             if i & 2 ^ (j - 1) > 0 then
-                new_combination[keys[j]] = tb[keys[j]]
+                newCombination[keys[j]] = tb[keys[j]]
             end
         end
-        table.insert(combinations, new_combination)
+        table.insert(combinations, newCombination)
     end
     return combinations
 end

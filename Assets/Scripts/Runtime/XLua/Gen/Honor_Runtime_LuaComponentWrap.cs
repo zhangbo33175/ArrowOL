@@ -21,8 +21,9 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Honor.Runtime.LuaComponent);
-			Utils.BeginObjectRegister(type, L, translator, 0, 15, 6, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 17, 6, 0);
 			
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Init", _m_Init);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaConfigs", _m_InitLuaConfigs);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaEnv", _m_InitLuaEnv);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadNextStartGameModule", _m_LoadNextStartGameModule);
@@ -35,6 +36,7 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CustomLuaLoader", _m_CustomLuaLoader);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetLua", _m_ResetLua);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Clear", _m_Clear);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Dispose", _m_Dispose);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitLuaBindings", _m_InitLuaBindings);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CanABLoad", _m_CanABLoad);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "InitGameLuaBindings", _m_InitGameLuaBindings);
@@ -93,6 +95,33 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Init(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.Init(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_InitLuaConfigs(RealStatePtr L)
@@ -415,6 +444,33 @@ namespace XLua.CSObjectWrap
                 {
                     
                     gen_to_be_invoked.Clear(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Dispose(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Honor.Runtime.LuaComponent gen_to_be_invoked = (Honor.Runtime.LuaComponent)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                    gen_to_be_invoked.Dispose(  );
                     
                     
                     

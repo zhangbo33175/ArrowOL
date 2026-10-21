@@ -84,8 +84,8 @@ function UIMainStateViewView:Start()
     -- TODO: 等一帧让Canvas布局完成后隐藏加载界面
     HonorCoroutineHelper:StartAlone(function()
         HonorCoroutineHelper:WaitForSecondsRealtime(0.05)
-        if GameMainRoot.UI and GameMainRoot.UI.FadeOutLoadingViewThenClose then
-            GameMainRoot.UI:FadeOutLoadingViewThenClose()
+        if GameMainRoot.HonorUIManager and GameMainRoot.HonorUIManager.FadeOutLoadingViewThenClose then
+            GameMainRoot.HonorUIManager:FadeOutLoadingViewThenClose()
         end
     end)
 end

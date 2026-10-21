@@ -10,7 +10,7 @@
 -- @scope     由 GameStateMachine:ChangeState(MainState) 驱动；地图加载完成后默认落点
 -- @feat      主界面生命周期、相机定位、背景音乐、系统弹窗、自治实体、UI管理
 -- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
--- @dependency GameStateBase, ChapterListManager, ChapterDataManager, SoundManager, GameMainRoot.UI, OpenUISync/CloseUI, LoginManager, LocalActivityManager, GameMainUIPushManager, GameManager, GameMapMotion, GameEffectManager
+-- @dependency GameStateBase, ChapterListManager, ChapterDataManager, SoundManager, GameMainRoot.HonorUIManager, OpenUISync/CloseUI, LoginManager, LocalActivityManager, GameMainUIPushManager, GameManager, GameMapMotion, GameEffectManager
 --=====================================================================================================
 
 ---@class GameMainState : GameStateBase @游戏主界面状态
@@ -53,7 +53,7 @@ function GameMainState:OnStateEnter(finishCallback)
     -- 关闭多点触摸
     GameLib.Util.SetMultiTouchEnabled(false)
     -- 添加UI遮罩，防止未初始化完成时用户操作
-    GameMainRoot.UI:AddUIMaskLayerRef("GameMainState:OnStateEnter")
+    GameMainRoot.HonorUIManager:AddUIMaskLayerRef("GameMainState:OnStateEnter")
 
     -- 本地活动热更资源状态更新
     --LocalActivityManager:UpdateActivityHotfixResStates()
@@ -89,10 +89,11 @@ function GameMainState:DoStateEnter(finishCallback)
         GameMapMotion:UpdateCameraRect(0)
     end
     -- 打开主界面HUD（淡出由UIMainStateView:Start()自动触发，此时UI已渲染完成）
-    print("[GameMainState] Opening UIMainStateView...")
+    --TODO: [规范] 裸 print 改用项目统一日志 PrintInfo，对齐全局日志规范
+    PrintInfo("[GameMainState] Opening UIMainStateView...")
     OpenUISync(UIs.UIMainStateView)
     -- 移除UI遮罩，允许用户交互
-    GameMainRoot.UI:SubUIMaskLayerRef()
+    GameMainRoot.HonorUIManager:SubUIMaskLayerRef()
     -- 主HUD内执行登录流程
     LoginManager:TryLoginInMainHud()
     -- 弹出本地活动弹窗

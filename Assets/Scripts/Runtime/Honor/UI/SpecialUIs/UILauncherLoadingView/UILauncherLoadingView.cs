@@ -21,7 +21,7 @@ namespace Honor.Runtime
     /// 启动器加载界面（热更新 + 预加载）
     /// 功能：预加载进度展示、热更下载进度、按钮控制、多语言、事件监听
     /// 调用链：
-    ///   1) 外部通过 <see cref="GameMainRoot.UI.ShowLoading(UILauncherLoadingView.LoadingMode)"/> 打开界面，
+    ///   1) 外部通过 <see cref="HonorUIManager.Instance.UI.ShowLoading(UILauncherLoadingView.LoadingMode)"/> 打开界面，
     ///      内部调用 <see cref="SetLoadingMode"/> 初始化显示；
     ///   2) 界面在 <see cref="OnEnable"/> 订阅 LoadProgress / HotfixProgress 等事件；
     ///   3) 进度变化时回调进入 <see cref="RefreshViews"/> 统一刷新界面。
@@ -346,10 +346,10 @@ namespace Honor.Runtime
             // 重置进度显示：界面出现时进度条从 0 开始
             SetProgress(0f);
 
-            GameMainRoot.Event.Subscribe(GameEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
-            GameMainRoot.Event.Subscribe(GameEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
-            GameMainRoot.Event.Subscribe(GameEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
-            GameMainRoot.Event.Subscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
+            HonorCoreManager.Instance.Subscribe(GameEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
+            HonorCoreManager.Instance.Subscribe(GameEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
+            HonorCoreManager.Instance.Subscribe(GameEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
+            HonorCoreManager.Instance.Subscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
 
             // 显示界面时播放进入淡入动画（首次打开与重新显示均生效）
             PlayEnterTransition();
@@ -360,10 +360,10 @@ namespace Honor.Runtime
         /// </summary>
         private void OnDisable()
         {
-            GameMainRoot.Event.Unsubscribe(GameEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
-            GameMainRoot.Event.Unsubscribe(GameEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
-            GameMainRoot.Event.Unsubscribe(GameEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
-            GameMainRoot.Event.Unsubscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
         }
 
         /// <summary>
@@ -377,17 +377,17 @@ namespace Honor.Runtime
             // 开始按钮
             if (m_StartButtonText != null || m_StartButtonTextTMP != null)
                 SetText(m_StartButtonText, m_StartButtonTextTMP,
-                    IsWebGL() ? "Start" : GameMainRoot.Localization.GetDefaultData("Hotfix_StartButton_Text"));
+                    IsWebGL() ? "Start" : HonorCoreManager.Instance.GetDefaultData("Hotfix_StartButton_Text"));
 
             // 重试按钮
             if (m_RetryButtonText != null || m_RetryButtonTextTMP != null)
                 SetText(m_RetryButtonText, m_RetryButtonTextTMP,
-                    IsWebGL() ? "Retry" : GameMainRoot.Localization.GetDefaultData("Hotfix_RetryButton_Text"));
+                    IsWebGL() ? "Retry" : HonorCoreManager.Instance.GetDefaultData("Hotfix_RetryButton_Text"));
 
             // 关闭按钮
             if (m_CloseButtonText != null || m_CloseButtonTextTMP != null)
                 SetText(m_CloseButtonText, m_CloseButtonTextTMP,
-                    IsWebGL() ? "Close" : GameMainRoot.Localization.GetDefaultData("Hotfix_CloseButton_Text"));
+                    IsWebGL() ? "Close" : HonorCoreManager.Instance.GetDefaultData("Hotfix_CloseButton_Text"));
         }
         #endregion
 
@@ -596,19 +596,19 @@ namespace Honor.Runtime
         {
             string textReadyDownload = IsWebGL()
                 ? "Ready to download."
-                : GameMainRoot.Localization.GetDefaultData("Hotfix_Ready_Download_Text");
+                : HonorCoreManager.Instance.GetDefaultData("Hotfix_Ready_Download_Text");
             string textDownloading = IsWebGL()
                 ? "Downloading: "
-                : GameMainRoot.Localization.GetDefaultData("Hotfix_Downloading_Text");
+                : HonorCoreManager.Instance.GetDefaultData("Hotfix_Downloading_Text");
             string textDownloadAllOver = IsWebGL()
                 ? "It's downloaded."
-                : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_AllOver_Text");
+                : HonorCoreManager.Instance.GetDefaultData("Hotfix_Download_AllOver_Text");
             string textDownloadFailedToSkip = IsWebGL()
                 ? "Download failed, ready to enter the game."
-                : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_Failed_To_Skip_Text");
+                : HonorCoreManager.Instance.GetDefaultData("Hotfix_Download_Failed_To_Skip_Text");
             string textDownloadError = IsWebGL()
                 ? "Download abnormal!Please try again."
-                : GameMainRoot.Localization.GetDefaultData("Hotfix_Download_Error_Text");
+                : HonorCoreManager.Instance.GetDefaultData("Hotfix_Download_Error_Text");
 
             SetProgress(progress);
 
@@ -923,7 +923,7 @@ namespace Honor.Runtime
             if (userData != this) return;
             RefreshViews(string.Empty, 1.0f, GameDefinitions.DownloadStep.AllOver, m_CurFileNum, m_TotalFileNum,
                 m_CurBytes, m_TotalBytes);
-            GameMainRoot.Event.Fire(this, GameEventCmd.FlowPermit);
+            HonorCoreManager.Instance.Fire(this, GameEventCmd.FlowPermit);
             Log.Info("下载完毕！准备进入游戏。");
         }
 

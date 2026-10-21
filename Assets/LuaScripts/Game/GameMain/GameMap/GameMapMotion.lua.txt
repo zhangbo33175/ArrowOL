@@ -134,10 +134,7 @@ function GameMapMotion:ApplyZoom(newOrtho)
     if clamped <= 0 then
         clamped = (self.MinOrthoSize + self.MaxOrthoSize) / 2
     end
-    if clamped ~= newOrtho then
-        print(string.format("[ZoomClamp] requested=%.1f -> clamped=%.1f (range [%.0f, %.0f])",
-            newOrtho, clamped, self.MinOrthoSize, self.MaxOrthoSize))
-    end
+    --TODO: [清理] 移除 [ZoomClamp] 缩放越界调试 print（捏合缩放时高频刷屏，无副作用）
     self.ScreenCamera.orthographicSize = clamped
     self:ClampFollowPosition()
     -- 缩放是即时操作：直接把相机 transform 吸到 FollowPosition，
@@ -404,11 +401,8 @@ function GameMapMotion:TriggerClick(screenPos)
         end
     end
 
-    -- 日志输出
-    if isHit and hitTarget then
-        print("✅ 单击命中物体：", hitTarget.name)
-    else
-        print("✅ 单击空地")
+    --TODO: [清理] 移除遗留调试 print（✅ 单击命中/空地），无逻辑副作用，避免生产环境刷屏
+    if not (isHit and hitTarget) then
         HonorEventHelper:Fire(EventCmd.OnClickCharacter, nil)
     end
 
@@ -520,7 +514,7 @@ function GameMapMotion:StartAutoScan(orthoSize)
     -- 重新算边界（缩放后 hw/hh 变了）
     local minX, maxX, minY, maxY = self:GetCameraBounds()
     if minX > maxX or minY > maxY then
-        print("[AutoScan] bounds too tight, skip")
+        --TODO: [清理] 移除 [AutoScan] bounds too tight 调试 print
         return
     end
 
@@ -574,15 +568,14 @@ function GameMapMotion:StartAutoScan(orthoSize)
 
     -- 完成回调
     seq:OnComplete(CS.DG.Tweening.TweenCallback(function()
-        print("[AutoScan] done")
+        --TODO: [清理] 移除 [AutoScan] done 调试 print
         self:StopAutoScan()
     end))
 
     self.AutoScanSeq = seq
     self.AutoScanActive = true
     self.AutoScanGraceFrames = 15  -- 宽限帧数，避免启动点击立刻停掉自己
-    print(string.format("[AutoScan] start, %d waypoints, ortho=%.0f bounds=[%.0f..%.0f]x[%.0f..%.0f]",
-        #self.AutoScanWaypoints, orthoSize, minX, maxX, minY, maxY))
+    --TODO: [清理] 移除 [AutoScan] start waypoints 调试 print
 end
 
 ---@brief 停止自动扫描
@@ -780,19 +773,8 @@ function GameMapMotion:OnMapStart(mapTrans)
     local raycaster3D = self.ScreenCamera:GetComponent(typeof(UnityEngine.EventSystems.PhysicsRaycaster))
     if raycaster3D then raycaster3D.enabled = false end
 
-    print("[CameraDebug] rect: y="..self.ScreenCamera.rect.y.." h="..self.ScreenCamera.rect.height)
-    print("[CameraDebug] " .. GameLib.MapCamHelper.DebugGetAllCamerasInfo())
-    print('[CameraDebug] size='..self.ScreenCamera.orthographicSize
-        ..' halfW='..self.MapMotionLayer.m_AreaBounds.extents.x
-        ..' halfH='..self.MapMotionLayer.m_AreaBounds.extents.y
-        ..' centerY='..self.MapMotionLayer.m_AreaBounds.center.y)
-    if MapManager.CurMapData ~= nil then
-        local vp = MapManager.CurMapData:GetMapViewportSize()
-        print('[CameraDebug] viewport='..vp.x..'x'..vp.y
-            ..' topHud='..MapManager.CurMapData.m_TopHudPixelHeight
-            ..' botHud='..MapManager.CurMapData.m_BottomHudPixelHeight)
-    end
-
+    --TODO: [清理] 移除 [CameraDebug] 一次性相机参数调试 print 块（rect/size/viewport/dynMaxOrtho），
+    --        纯诊断输出无副作用；相机参数已由下方正常赋值逻辑驱动，需要时可临时加回
     -- 地图边界数据
     self.MapHalfWidth  = self.MapMotionLayer.m_AreaBounds.extents.x
     self.MapHalfHeigh  = self.MapMotionLayer.m_AreaBounds.extents.y
@@ -815,8 +797,7 @@ function GameMapMotion:OnMapStart(mapTrans)
     local neededH = self.MapHalfHeigh
     self.MaxOrthoSize = math.min(neededW, neededH)
     self:ApplyZoom(self.ScreenCamera.orthographicSize)
-    print("[CameraDebug] dynamic MaxOrthoSize="..self.MaxOrthoSize
-        .." neededW="..neededW.." neededH="..neededH.." aspect="..camAspect)
+    --TODO: [清理] 移除 [CameraDebug] dynamic MaxOrthoSize 调试 print（无副作用）
 
     -- 临时向量
     self.InertialSlidingVector = { x = 0, y = 0, z = 0 }
@@ -919,8 +900,7 @@ end
 ---@desc 顶部HUD始终取 MapData，底部由调用方控制（0=隐藏/延展地图）
 function GameMapMotion:UpdateCameraRect(bottomHudHeight)
     self:SetCameraRect(bottomHudHeight, nil, 1334)
-    print("[CameraDebug] UpdateRect: botHud="..tostring(bottomHudHeight)
-        .." rectY="..self.ScreenCamera.rect.y.." rectH="..self.ScreenCamera.rect.height)
+    --TODO: [清理] 移除 [CameraDebug] UpdateRect 调试 print（无副作用）
 end
 
 ---@brief 地图结束，清理

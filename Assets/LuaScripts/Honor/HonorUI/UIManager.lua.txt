@@ -84,7 +84,7 @@ function UIManager:AddListener(obj, cmd, handler)
                             end
                         end
                         -- 设置按钮冷却时间（防连点）
-                        infos[obj]._interactTargetTimes[_] = UnityEngine.Time.realtimeSinceStartup + GameMainRoot.UI.ButtonInteractDuration
+                        infos[obj]._interactTargetTimes[_] = UnityEngine.Time.realtimeSinceStartup + GameMainRoot.HonorUIManager.ButtonInteractDuration
                     end
 
                     -- 执行真正的 Lua 回调
@@ -428,7 +428,7 @@ function UIManager:OnCloseOver(view)
 
     -- UI 统一回收
     if view.cs.PrefabType == Honor.PrefabType.UI then
-        GameMainRoot.UI:AddToUnloadUIList(view.cs.gameObject)
+        GameMainRoot.HonorUIManager:AddToUnloadUIList(view.cs.gameObject)
         local children = view.cs:GetAllDirectChildren()
         for i = 0, children.Count - 1 do
             local luaClass = children[i].luaClass ~= nil and children[i].luaClass or children[i].luaClassView
@@ -489,7 +489,7 @@ function UIManager:AddUISync(view, uiTable, parent, luaParams)
     if parent == nil then
         parent = view._bgImage ~= nil and view._bgImage.transform or view.cs.transform
     end
-    local uiGO = GameMainRoot.UI:AddUISyncByLuaTable(uiTable, parent, luaParams)
+    local uiGO = GameMainRoot.HonorUIManager:AddUISyncByLuaTable(uiTable, parent, luaParams)
     local luaBehaviour = uiGO:GetComponent("LuaBehaviour")
     local luaClass = luaBehaviour == nil and nil or (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView)
     return luaClass, uiGO
@@ -507,7 +507,7 @@ function UIManager:AddUIAsync(view, uiTable, parent, luaParams, overCallback)
     if parent == nil then
         parent = view._bgImage ~= nil and view._bgImage.transform or view.cs.transform
     end
-    GameMainRoot.UI:AddUIAsyncByLuaTable(uiTable, parent, luaParams, overCallback)
+    GameMainRoot.HonorUIManager:AddUIAsyncByLuaTable(uiTable, parent, luaParams, overCallback)
 end
 --endregion
 
@@ -520,7 +520,7 @@ end
 ---@return table|nil UI 对象 LuaBehaviour 组件的 luaClass
 function UIManager:OpenUI(uiInfo, params)
     local status, luaClass = xpcall(function()
-        local uiGO = GameMainRoot.UI:OpenUISyncByLuaTable(uiInfo, params)
+        local uiGO = GameMainRoot.HonorUIManager:OpenUISyncByLuaTable(uiInfo, params)
         if uiGO ~= nil then
             local luaBehaviour = uiGO:GetComponent("LuaBehaviour")
             return luaBehaviour ~= nil and (luaBehaviour.luaClass ~= nil and luaBehaviour.luaClass or luaBehaviour.luaClassView) or nil
@@ -542,7 +542,7 @@ end
 ---@param overCallback handler 回调句柄（func(luaClass)）
 function UIManager:OpenUIAsync(uiInfo, params, overCallback)
     xpcall(function()
-        GameMainRoot.UI:OpenUIAsyncByLuaTable(uiInfo, params, function(abPath, assetName, luaClass, uiGO)
+        GameMainRoot.HonorUIManager:OpenUIAsyncByLuaTable(uiInfo, params, function(abPath, assetName, luaClass, uiGO)
             if overCallback ~= nil and overCallback.func ~= nil then
                 overCallback.func(luaClass)
             end
@@ -559,7 +559,7 @@ end
 function UIManager:CloseUI(uiInfo, rightNow)
     if uiInfo == nil then return end
     rightNow = rightNow or false
-    GameMainRoot.UI:CloseUIByLuaTable(uiInfo, rightNow)
+    GameMainRoot.HonorUIManager:CloseUIByLuaTable(uiInfo, rightNow)
     if rightNow then
         GameManager:OnCanvasCloseRightNow(uiInfo.Name)
     end
@@ -571,7 +571,7 @@ end
 function UIManager:CloseUIByClass(luaClass, rightNow)
     if luaClass == nil then return end
     rightNow = rightNow or false
-    GameMainRoot.UI:CloseUIByGO(luaClass.cs.gameObject, rightNow)
+    GameMainRoot.HonorUIManager:CloseUIByGO(luaClass.cs.gameObject, rightNow)
 end
 
 ---@brief 关闭所有 UI
@@ -579,7 +579,7 @@ end
 ---@param rightNow boolean 是否立即关闭
 function UIManager:CloseAllUIs(uiType, rightNow)
     rightNow = rightNow or false
-    GameMainRoot.UI:CloseAllUIs(uiType, rightNow)
+    GameMainRoot.HonorUIManager:CloseAllUIs(uiType, rightNow)
 end
 
 --endregion
@@ -593,7 +593,7 @@ end
 ---@return UnityEngine.Camera 实际使用的场景相机
 local function ResolveSceneCamera(sceneCamera)
     if sceneCamera == nil then
-        sceneCamera = GameMainRoot.Scene.SceneCameras[0]
+        sceneCamera = GameMainRoot.HonorUIManager.SceneCameras[0]
     end
     return sceneCamera
 end
@@ -603,7 +603,7 @@ end
 ---@return UnityEngine.Camera 实际使用的 UI 相机
 local function ResolveUICamera(uiCamera)
     if uiCamera == nil then
-        uiCamera = GameMainRoot.UI.ScreenUICameras[0]
+        uiCamera = GameMainRoot.HonorUIManager.ScreenUICameras[0]
     end
     return uiCamera
 end

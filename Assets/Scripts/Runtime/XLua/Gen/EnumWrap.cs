@@ -1086,76 +1086,6 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
-    public class HonorRuntimeDebuggerActiveWindowTypeWrap
-    {
-		public static void __Register(RealStatePtr L)
-        {
-		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, null, null, null, null, null);
-			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, null, 5, 0, 0);
-
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysOpen", Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenWhenDevelopment", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenInEditor", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysClose", Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
-            
-
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
-            
-            Utils.EndClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator);
-        }
-		
-		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int __CastFrom(RealStatePtr L)
-		{
-			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
-            if (lua_type == LuaTypes.LUA_TNUMBER)
-            {
-                translator.PushHonorRuntimeDebuggerActiveWindowType(L, (Honor.Runtime.DebuggerActiveWindowType)LuaAPI.xlua_tointeger(L, 1));
-            }
-			
-            else if(lua_type == LuaTypes.LUA_TSTRING)
-            {
-
-			    if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysOpen"))
-                {
-                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenWhenDevelopment"))
-                {
-                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenInEditor"))
-                {
-                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysClose"))
-                {
-                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
-                }
-				else
-                {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.DebuggerActiveWindowType!");
-                }
-
-            }
-			
-            else
-            {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.DebuggerActiveWindowType! Expect number or string, got + " + lua_type);
-            }
-
-            return 1;
-		}
-	}
-    
     public class HonorRuntimePatternTypeWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -1618,6 +1548,246 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
+    public class HonorRuntimeVibrateTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.VibrateType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.VibrateType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.VibrateType), L, null, 11, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.VibrateType.None);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SelectionFeedback", Honor.Runtime.VibrateType.SelectionFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SuccessFeedback", Honor.Runtime.VibrateType.SuccessFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WarningFeedback", Honor.Runtime.VibrateType.WarningFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FailureFeedback", Honor.Runtime.VibrateType.FailureFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LightImpactFeedback", Honor.Runtime.VibrateType.LightImpactFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MediumImpactFeedback", Honor.Runtime.VibrateType.MediumImpactFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HeavyImpactFeedback", Honor.Runtime.VibrateType.HeavyImpactFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RigidImpactFeedback", Honor.Runtime.VibrateType.RigidImpactFeedback);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoftImpactFeedback", Honor.Runtime.VibrateType.SoftImpactFeedback);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.VibrateType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeVibrateType(L, (Honor.Runtime.VibrateType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.None);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "SelectionFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SelectionFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "SuccessFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SuccessFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "WarningFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.WarningFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "FailureFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.FailureFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "LightImpactFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.LightImpactFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "MediumImpactFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.MediumImpactFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "HeavyImpactFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.HeavyImpactFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "RigidImpactFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.RigidImpactFeedback);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoftImpactFeedback"))
+                {
+                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SoftImpactFeedback);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.VibrateType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.VibrateType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class HonorRuntimeDebuggerActiveWindowTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, null, 5, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysOpen", Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenWhenDevelopment", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "OnlyOpenInEditor", Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AlwaysClose", Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.DebuggerActiveWindowType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeDebuggerActiveWindowType(L, (Honor.Runtime.DebuggerActiveWindowType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysOpen"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysOpen);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenWhenDevelopment"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenWhenDevelopment);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "OnlyOpenInEditor"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.OnlyOpenInEditor);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "AlwaysClose"))
+                {
+                    translator.PushHonorRuntimeDebuggerActiveWindowType(L, Honor.Runtime.DebuggerActiveWindowType.AlwaysClose);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.DebuggerActiveWindowType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.DebuggerActiveWindowType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class HonorRuntimeUITypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.UIType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.UIType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.UIType), L, null, 4, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.UIType.None);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Screen", Honor.Runtime.UIType.Screen);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Scene", Honor.Runtime.UIType.Scene);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.UIType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeUIType(L, (Honor.Runtime.UIType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
+                {
+                    translator.PushHonorRuntimeUIType(L, Honor.Runtime.UIType.None);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Screen"))
+                {
+                    translator.PushHonorRuntimeUIType(L, Honor.Runtime.UIType.Screen);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Scene"))
+                {
+                    translator.PushHonorRuntimeUIType(L, Honor.Runtime.UIType.Scene);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.UIType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.UIType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
     public class HonorRuntimeDevicePerformanceLevelWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -1740,176 +1910,6 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.QualityLevel! Expect number or string, got + " + lua_type);
-            }
-
-            return 1;
-		}
-	}
-    
-    public class HonorRuntimeUITypeWrap
-    {
-		public static void __Register(RealStatePtr L)
-        {
-		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.UIType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.UIType), L, translator, null, null, null, null, null);
-			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.UIType), L, null, 4, 0, 0);
-
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.UIType.None);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Screen", Honor.Runtime.UIType.Screen);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Scene", Honor.Runtime.UIType.Scene);
-            
-
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
-            
-            Utils.EndClassRegister(typeof(Honor.Runtime.UIType), L, translator);
-        }
-		
-		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int __CastFrom(RealStatePtr L)
-		{
-			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
-            if (lua_type == LuaTypes.LUA_TNUMBER)
-            {
-                translator.PushHonorRuntimeUIType(L, (Honor.Runtime.UIType)LuaAPI.xlua_tointeger(L, 1));
-            }
-			
-            else if(lua_type == LuaTypes.LUA_TSTRING)
-            {
-
-			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
-                {
-                    translator.PushHonorRuntimeUIType(L, Honor.Runtime.UIType.None);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Screen"))
-                {
-                    translator.PushHonorRuntimeUIType(L, Honor.Runtime.UIType.Screen);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Scene"))
-                {
-                    translator.PushHonorRuntimeUIType(L, Honor.Runtime.UIType.Scene);
-                }
-				else
-                {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.UIType!");
-                }
-
-            }
-			
-            else
-            {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.UIType! Expect number or string, got + " + lua_type);
-            }
-
-            return 1;
-		}
-	}
-    
-    public class HonorRuntimeVibrateTypeWrap
-    {
-		public static void __Register(RealStatePtr L)
-        {
-		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.VibrateType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.VibrateType), L, translator, null, null, null, null, null);
-			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.VibrateType), L, null, 11, 0, 0);
-
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.VibrateType.None);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SelectionFeedback", Honor.Runtime.VibrateType.SelectionFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SuccessFeedback", Honor.Runtime.VibrateType.SuccessFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WarningFeedback", Honor.Runtime.VibrateType.WarningFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FailureFeedback", Honor.Runtime.VibrateType.FailureFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LightImpactFeedback", Honor.Runtime.VibrateType.LightImpactFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MediumImpactFeedback", Honor.Runtime.VibrateType.MediumImpactFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HeavyImpactFeedback", Honor.Runtime.VibrateType.HeavyImpactFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "RigidImpactFeedback", Honor.Runtime.VibrateType.RigidImpactFeedback);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoftImpactFeedback", Honor.Runtime.VibrateType.SoftImpactFeedback);
-            
-
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
-            
-            Utils.EndClassRegister(typeof(Honor.Runtime.VibrateType), L, translator);
-        }
-		
-		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int __CastFrom(RealStatePtr L)
-		{
-			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
-            if (lua_type == LuaTypes.LUA_TNUMBER)
-            {
-                translator.PushHonorRuntimeVibrateType(L, (Honor.Runtime.VibrateType)LuaAPI.xlua_tointeger(L, 1));
-            }
-			
-            else if(lua_type == LuaTypes.LUA_TSTRING)
-            {
-
-			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.None);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "SelectionFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SelectionFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "SuccessFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SuccessFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "WarningFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.WarningFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "FailureFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.FailureFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "LightImpactFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.LightImpactFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "MediumImpactFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.MediumImpactFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "HeavyImpactFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.HeavyImpactFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "RigidImpactFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.RigidImpactFeedback);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoftImpactFeedback"))
-                {
-                    translator.PushHonorRuntimeVibrateType(L, Honor.Runtime.VibrateType.SoftImpactFeedback);
-                }
-				else
-                {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.VibrateType!");
-                }
-
-            }
-			
-            else
-            {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.VibrateType! Expect number or string, got + " + lua_type);
             }
 
             return 1;
@@ -2604,64 +2604,6 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
-    public class HonorRuntimeGraphicsUtilsEScreenTypeWrap
-    {
-		public static void __Register(RealStatePtr L)
-        {
-		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, null, null, null, null, null);
-			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, null, 3, 0, 0);
-
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Width", Honor.Runtime.GraphicsUtils.EScreenType.Width);
-            
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Height", Honor.Runtime.GraphicsUtils.EScreenType.Height);
-            
-
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
-            
-            Utils.EndClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator);
-        }
-		
-		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int __CastFrom(RealStatePtr L)
-		{
-			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
-            if (lua_type == LuaTypes.LUA_TNUMBER)
-            {
-                translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, (Honor.Runtime.GraphicsUtils.EScreenType)LuaAPI.xlua_tointeger(L, 1));
-            }
-			
-            else if(lua_type == LuaTypes.LUA_TSTRING)
-            {
-
-			    if (LuaAPI.xlua_is_eq_str(L, 1, "Width"))
-                {
-                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Width);
-                }
-				else if (LuaAPI.xlua_is_eq_str(L, 1, "Height"))
-                {
-                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Height);
-                }
-				else
-                {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GraphicsUtils.EScreenType!");
-                }
-
-            }
-			
-            else
-            {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GraphicsUtils.EScreenType! Expect number or string, got + " + lua_type);
-            }
-
-            return 1;
-		}
-	}
-    
     public class HonorRuntimeLuaBindValueBindValueTypeWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -2922,6 +2864,64 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.UIFader.InitState! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class HonorRuntimeGraphicsUtilsEScreenTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, null, 3, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Width", Honor.Runtime.GraphicsUtils.EScreenType.Width);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Height", Honor.Runtime.GraphicsUtils.EScreenType.Height);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, (Honor.Runtime.GraphicsUtils.EScreenType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Width"))
+                {
+                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Width);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Height"))
+                {
+                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Height);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GraphicsUtils.EScreenType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GraphicsUtils.EScreenType! Expect number or string, got + " + lua_type);
             }
 
             return 1;

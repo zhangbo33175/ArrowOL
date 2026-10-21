@@ -135,28 +135,28 @@ namespace Honor.Runtime
         {
             // 多版本 Text 兼容，自动设置多语言文本
             if (m_TitleText != null)
-                m_TitleText.text = GameMainRoot.Localization.GetDefaultData("UpdateTitle");
+                m_TitleText.text = HonorCoreManager.Instance.GetDefaultData("UpdateTitle");
 
             if (m_TitleTextTMP != null)
-                m_TitleTextTMP.text = GameMainRoot.Localization.GetDefaultData("UpdateTitle");
+                m_TitleTextTMP.text = HonorCoreManager.Instance.GetDefaultData("UpdateTitle");
 
             if (m_DescText != null)
-                m_DescText.text = GameMainRoot.Localization.GetDefaultData("UpdateText");
+                m_DescText.text = HonorCoreManager.Instance.GetDefaultData("UpdateText");
 
             if (m_DescTextTMP != null)
-                m_DescTextTMP.text = GameMainRoot.Localization.GetDefaultData("UpdateText");
+                m_DescTextTMP.text = HonorCoreManager.Instance.GetDefaultData("UpdateText");
 
             if (m_StartButtonText != null)
-                m_StartButtonText.text = GameMainRoot.Localization.GetDefaultData("UpdateButton");
+                m_StartButtonText.text = HonorCoreManager.Instance.GetDefaultData("UpdateButton");
 
             if (m_StartButtonTextTMP != null)
-                m_StartButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("UpdateButton");
+                m_StartButtonTextTMP.text = HonorCoreManager.Instance.GetDefaultData("UpdateButton");
 
             if (m_CloseButtonText != null)
-                m_CloseButtonText.text = GameMainRoot.Localization.GetDefaultData("App_Download_CloseButton_Text");
+                m_CloseButtonText.text = HonorCoreManager.Instance.GetDefaultData("App_Download_CloseButton_Text");
 
             if (m_CloseButtonTextTMP != null)
-                m_CloseButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Download_CloseButton_Text");
+                m_CloseButtonTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Download_CloseButton_Text");
         }
 
         /// <summary>
@@ -194,10 +194,10 @@ namespace Honor.Runtime
             });*/
 
             // 关闭当前 UI
-            GameMainRoot.UI.CloseUIByGO(gameObject, true);
+            HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);
 
             // 放行流程（非强制更新时）
-            GameMainRoot.Event.Fire(this, GameEventCmd.FlowPermit);
+            HonorCoreManager.Instance.Fire(this, GameEventCmd.FlowPermit);
         }
         #endregion
 

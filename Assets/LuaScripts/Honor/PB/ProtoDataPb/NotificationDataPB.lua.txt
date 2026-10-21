@@ -28,8 +28,8 @@ SaveIO.NotificationData.LoadAll = function()
     SaveIO.NotificationData.Load_data()
 end
 SaveIO.NotificationData.Load_data = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data') then
-         SaveRootData.NotificationData.data = JsonDecode(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data') then
+         SaveRootData.NotificationData.data = JsonDecode(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data'))
     end
 end
 ----------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ SaveIO.NotificationData.SaveAll = function()
     SaveIO.NotificationData.Save_data()
 end
 SaveIO.NotificationData.Save_data = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data', JsonEncode(SaveRootData.NotificationData.data))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'NotificationDataPB', 'NotificationDataPB.data', JsonEncode(SaveRootData.NotificationData.data))
 end
 ----------------------------------------------------------------------------------------------
 SaveIO.NotificationData.SerializeAll = function()

@@ -1,0 +1,51 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  NetworkManager.Visitors.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   网络底层管理器 - 字段、属性定义模块
+ ***************************************************************/
+
+#if BEST_HTTP_ENABLE
+using BestHTTP.WebSocket;
+#endif
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Honor.Runtime
+{
+    /// <summary>
+    /// 网络底层管理器 - 字段与成员定义
+    /// </summary>
+    public sealed partial class NetworkManager
+    {
+        //=========================================================================
+        #region 私有成员变量
+        //=========================================================================
+
+        /// <summary>
+        /// 网络连接超时时间（单位：秒）
+        /// 默认：20 秒
+        /// </summary>
+        private float m_ConnTimeoutSec = 20f;
+
+        /// <summary>
+        /// 网络请求超时时间（单位：秒）
+        /// 默认：60 秒
+        /// </summary>
+        private float m_ReqTimeoutSec = 60f;
+
+#if BEST_HTTP_ENABLE
+        /// <summary>
+        /// WebSocket 连接管理字典
+        /// Key：连接名称
+        /// Value：WebSocket 实例
+        /// </summary>
+        private Dictionary<string, WebSocket> m_SocketTable;
+#endif
+
+        #endregion
+    }
+}

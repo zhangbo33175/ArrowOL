@@ -118,7 +118,7 @@ function SettingDataManager:SetSettingNewState(settingType, newState)
         end, function() end)
     end
 
-    -- 震动开关同步（对齐 GameMainRoot.Vibrate 设备震动总开关，使设置面板与设备震动一致）
+    -- 震动开关同步（对齐 GameMainRoot.HonorCoreManager 设备震动总开关，使设置面板与设备震动一致）
     if settingType == ESettingType.VIBRATION then
         self:SyncVibrateStateToDevice()
     end
@@ -127,8 +127,8 @@ end
 ---@brief 将震动开关存档状态同步到设备震动总开关（启动与切换共用）
 ---@type fun():void
 function SettingDataManager:SyncVibrateStateToDevice()
-    if GameMainRoot and GameMainRoot.Vibrate then
-        GameMainRoot.Vibrate:SetEnable(self:GetSettingState(ESettingType.VIBRATION))
+    if GameMainRoot and GameMainRoot.HonorCoreManager.Vibrate ~= nil then
+        GameMainRoot.HonorCoreManager:SetEnable(self:GetSettingState(ESettingType.VIBRATION))
     end
 end
 

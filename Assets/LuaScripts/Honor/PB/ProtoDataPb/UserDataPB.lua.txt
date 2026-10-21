@@ -128,8 +128,8 @@ SaveIO.UserData.LoadAll = function()
     SaveIO.UserData.Load_latestTime()
 end
 SaveIO.UserData.Load_uid = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid') then
-        SaveRootData.UserData.uid = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid') then
+        SaveRootData.UserData.uid = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid'))
     end
 end
 SaveIO.UserData.Load_launchTime = function()
@@ -165,63 +165,63 @@ SaveIO.UserData.Load_launchTime_last = function()
     SaveIO.UserData.Load_launchTime_last_localString()
 end
 SaveIO.UserData.Load_launchTime_current_utc0 = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0') then
-        SaveRootData.UserData.launchTime.current.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0') then
+        SaveRootData.UserData.launchTime.current.utc0 = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0'))
     end
 end
 SaveIO.UserData.Load_launchTime_current_utc0String = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String') then
-        SaveRootData.UserData.launchTime.current.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String') then
+        SaveRootData.UserData.launchTime.current.utc0String = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String')
     end
 end
 SaveIO.UserData.Load_launchTime_current_locality = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality') then
-        SaveRootData.UserData.launchTime.current.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality') then
+        SaveRootData.UserData.launchTime.current.locality = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality'))
     end
 end
 SaveIO.UserData.Load_launchTime_current_localString = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString') then
-        SaveRootData.UserData.launchTime.current.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString') then
+        SaveRootData.UserData.launchTime.current.localString = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString')
     end
 end
 SaveIO.UserData.Load_launchTime_last_utc0 = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0') then
-        SaveRootData.UserData.launchTime.last.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0') then
+        SaveRootData.UserData.launchTime.last.utc0 = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0'))
     end
 end
 SaveIO.UserData.Load_launchTime_last_utc0String = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String') then
-        SaveRootData.UserData.launchTime.last.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String') then
+        SaveRootData.UserData.launchTime.last.utc0String = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String')
     end
 end
 SaveIO.UserData.Load_launchTime_last_locality = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality') then
-        SaveRootData.UserData.launchTime.last.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality') then
+        SaveRootData.UserData.launchTime.last.locality = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality'))
     end
 end
 SaveIO.UserData.Load_launchTime_last_localString = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString') then
-        SaveRootData.UserData.launchTime.last.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString') then
+        SaveRootData.UserData.launchTime.last.localString = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString')
     end
 end
 SaveIO.UserData.Load_regTime_utc0 = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0') then
-        SaveRootData.UserData.regTime.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0') then
+        SaveRootData.UserData.regTime.utc0 = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0'))
     end
 end
 SaveIO.UserData.Load_regTime_utc0String = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String') then
-        SaveRootData.UserData.regTime.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String') then
+        SaveRootData.UserData.regTime.utc0String = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String')
     end
 end
 SaveIO.UserData.Load_regTime_locality = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality') then
-        SaveRootData.UserData.regTime.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality') then
+        SaveRootData.UserData.regTime.locality = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality'))
     end
 end
 SaveIO.UserData.Load_regTime_localString = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString') then
-        SaveRootData.UserData.regTime.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString') then
+        SaveRootData.UserData.regTime.localString = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString')
     end
 end
 SaveIO.UserData.Load_loginTime_current = function()
@@ -237,63 +237,63 @@ SaveIO.UserData.Load_loginTime_last = function()
     SaveIO.UserData.Load_loginTime_last_localString()
 end
 SaveIO.UserData.Load_loginTime_current_utc0 = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0') then
-        SaveRootData.UserData.loginTime.current.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0') then
+        SaveRootData.UserData.loginTime.current.utc0 = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0'))
     end
 end
 SaveIO.UserData.Load_loginTime_current_utc0String = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String') then
-        SaveRootData.UserData.loginTime.current.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String') then
+        SaveRootData.UserData.loginTime.current.utc0String = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String')
     end
 end
 SaveIO.UserData.Load_loginTime_current_locality = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality') then
-        SaveRootData.UserData.loginTime.current.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality') then
+        SaveRootData.UserData.loginTime.current.locality = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality'))
     end
 end
 SaveIO.UserData.Load_loginTime_current_localString = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString') then
-        SaveRootData.UserData.loginTime.current.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString') then
+        SaveRootData.UserData.loginTime.current.localString = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString')
     end
 end
 SaveIO.UserData.Load_loginTime_last_utc0 = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0') then
-        SaveRootData.UserData.loginTime.last.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0') then
+        SaveRootData.UserData.loginTime.last.utc0 = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0'))
     end
 end
 SaveIO.UserData.Load_loginTime_last_utc0String = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String') then
-        SaveRootData.UserData.loginTime.last.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String') then
+        SaveRootData.UserData.loginTime.last.utc0String = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String')
     end
 end
 SaveIO.UserData.Load_loginTime_last_locality = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality') then
-        SaveRootData.UserData.loginTime.last.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality') then
+        SaveRootData.UserData.loginTime.last.locality = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality'))
     end
 end
 SaveIO.UserData.Load_loginTime_last_localString = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString') then
-        SaveRootData.UserData.loginTime.last.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString') then
+        SaveRootData.UserData.loginTime.last.localString = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString')
     end
 end
 SaveIO.UserData.Load_latestTime_utc0 = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0') then
-        SaveRootData.UserData.latestTime.utc0 = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0') then
+        SaveRootData.UserData.latestTime.utc0 = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0'))
     end
 end
 SaveIO.UserData.Load_latestTime_utc0String = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String') then
-        SaveRootData.UserData.latestTime.utc0String = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String') then
+        SaveRootData.UserData.latestTime.utc0String = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String')
     end
 end
 SaveIO.UserData.Load_latestTime_locality = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality') then
-        SaveRootData.UserData.latestTime.locality = tonumber(GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality'))
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality') then
+        SaveRootData.UserData.latestTime.locality = tonumber(GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality'))
     end
 end
 SaveIO.UserData.Load_latestTime_localString = function()
-    if GameMainRoot.Persist:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString') then
-        SaveRootData.UserData.latestTime.localString = GameMainRoot.Persist:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString')
+    if GameMainRoot.HonorCoreManager:HasItem(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString') then
+        SaveRootData.UserData.latestTime.localString = GameMainRoot.HonorCoreManager:GetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString')
     end
 end
 ----------------------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ SaveIO.UserData.SaveAll = function()
     SaveIO.UserData.Save_latestTime()
 end
 SaveIO.UserData.Save_uid = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid', tostring(SaveRootData.UserData.uid))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.uid', tostring(SaveRootData.UserData.uid))
 end
 SaveIO.UserData.Save_launchTime = function()
     SaveIO.UserData.Save_launchTime_current()
@@ -340,40 +340,40 @@ SaveIO.UserData.Save_launchTime_last = function()
     SaveIO.UserData.Save_launchTime_last_localString()
 end
 SaveIO.UserData.Save_launchTime_current_utc0 = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0', tostring(SaveRootData.UserData.launchTime.current.utc0))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0', tostring(SaveRootData.UserData.launchTime.current.utc0))
 end
 SaveIO.UserData.Save_launchTime_current_utc0String = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String', tostring(SaveRootData.UserData.launchTime.current.utc0String))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.utc0String', tostring(SaveRootData.UserData.launchTime.current.utc0String))
 end
 SaveIO.UserData.Save_launchTime_current_locality = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality', tostring(SaveRootData.UserData.launchTime.current.locality))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.locality', tostring(SaveRootData.UserData.launchTime.current.locality))
 end
 SaveIO.UserData.Save_launchTime_current_localString = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString', tostring(SaveRootData.UserData.launchTime.current.localString))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.current.localString', tostring(SaveRootData.UserData.launchTime.current.localString))
 end
 SaveIO.UserData.Save_launchTime_last_utc0 = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0', tostring(SaveRootData.UserData.launchTime.last.utc0))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0', tostring(SaveRootData.UserData.launchTime.last.utc0))
 end
 SaveIO.UserData.Save_launchTime_last_utc0String = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String', tostring(SaveRootData.UserData.launchTime.last.utc0String))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.utc0String', tostring(SaveRootData.UserData.launchTime.last.utc0String))
 end
 SaveIO.UserData.Save_launchTime_last_locality = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality', tostring(SaveRootData.UserData.launchTime.last.locality))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.locality', tostring(SaveRootData.UserData.launchTime.last.locality))
 end
 SaveIO.UserData.Save_launchTime_last_localString = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString', tostring(SaveRootData.UserData.launchTime.last.localString))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.launchTime.last.localString', tostring(SaveRootData.UserData.launchTime.last.localString))
 end
 SaveIO.UserData.Save_regTime_utc0 = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0', tostring(SaveRootData.UserData.regTime.utc0))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0', tostring(SaveRootData.UserData.regTime.utc0))
 end
 SaveIO.UserData.Save_regTime_utc0String = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String', tostring(SaveRootData.UserData.regTime.utc0String))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.utc0String', tostring(SaveRootData.UserData.regTime.utc0String))
 end
 SaveIO.UserData.Save_regTime_locality = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality', tostring(SaveRootData.UserData.regTime.locality))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.locality', tostring(SaveRootData.UserData.regTime.locality))
 end
 SaveIO.UserData.Save_regTime_localString = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString', tostring(SaveRootData.UserData.regTime.localString))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.regTime.localString', tostring(SaveRootData.UserData.regTime.localString))
 end
 SaveIO.UserData.Save_loginTime_current = function()
     SaveIO.UserData.Save_loginTime_current_utc0()
@@ -388,40 +388,40 @@ SaveIO.UserData.Save_loginTime_last = function()
     SaveIO.UserData.Save_loginTime_last_localString()
 end
 SaveIO.UserData.Save_loginTime_current_utc0 = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0', tostring(SaveRootData.UserData.loginTime.current.utc0))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0', tostring(SaveRootData.UserData.loginTime.current.utc0))
 end
 SaveIO.UserData.Save_loginTime_current_utc0String = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String', tostring(SaveRootData.UserData.loginTime.current.utc0String))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.utc0String', tostring(SaveRootData.UserData.loginTime.current.utc0String))
 end
 SaveIO.UserData.Save_loginTime_current_locality = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality', tostring(SaveRootData.UserData.loginTime.current.locality))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.locality', tostring(SaveRootData.UserData.loginTime.current.locality))
 end
 SaveIO.UserData.Save_loginTime_current_localString = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString', tostring(SaveRootData.UserData.loginTime.current.localString))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.current.localString', tostring(SaveRootData.UserData.loginTime.current.localString))
 end
 SaveIO.UserData.Save_loginTime_last_utc0 = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0', tostring(SaveRootData.UserData.loginTime.last.utc0))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0', tostring(SaveRootData.UserData.loginTime.last.utc0))
 end
 SaveIO.UserData.Save_loginTime_last_utc0String = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String', tostring(SaveRootData.UserData.loginTime.last.utc0String))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.utc0String', tostring(SaveRootData.UserData.loginTime.last.utc0String))
 end
 SaveIO.UserData.Save_loginTime_last_locality = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality', tostring(SaveRootData.UserData.loginTime.last.locality))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.locality', tostring(SaveRootData.UserData.loginTime.last.locality))
 end
 SaveIO.UserData.Save_loginTime_last_localString = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString', tostring(SaveRootData.UserData.loginTime.last.localString))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.loginTime.last.localString', tostring(SaveRootData.UserData.loginTime.last.localString))
 end
 SaveIO.UserData.Save_latestTime_utc0 = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0', tostring(SaveRootData.UserData.latestTime.utc0))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0', tostring(SaveRootData.UserData.latestTime.utc0))
 end
 SaveIO.UserData.Save_latestTime_utc0String = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String', tostring(SaveRootData.UserData.latestTime.utc0String))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.utc0String', tostring(SaveRootData.UserData.latestTime.utc0String))
 end
 SaveIO.UserData.Save_latestTime_locality = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality', tostring(SaveRootData.UserData.latestTime.locality))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.locality', tostring(SaveRootData.UserData.latestTime.locality))
 end
 SaveIO.UserData.Save_latestTime_localString = function()
-    GameMainRoot.Persist:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString', tostring(SaveRootData.UserData.latestTime.localString))
+    GameMainRoot.HonorCoreManager:SetString(Honor.PersistWayType.PlayerPrefs, 'UserDataPB', 'UserDataPB.latestTime.localString', tostring(SaveRootData.UserData.latestTime.localString))
 end
 ----------------------------------------------------------------------------------------------
 SaveIO.UserData.SerializeAll = function()

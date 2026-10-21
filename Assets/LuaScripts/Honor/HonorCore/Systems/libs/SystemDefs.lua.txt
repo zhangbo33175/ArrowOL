@@ -9,13 +9,9 @@
 -- @core      CS.* 命名空间桥接、平台环境常量、DOTween 缓动别名、框架内置枚举
 -- @scope     全局符号定义入口，必须在所有业务脚本之前加载
 -- @dependency CS.*（C# 命名空间，XLua 全局）
--- descrip:   全局框架定义（Lua 侧 C# 命名空间/插件/枚举/常量桥接）
--- 功能：
--- 1. 统一封装 Unity/UI、第三方插件与自研框架命名空间
--- 2. 定义平台环境常量、DOTween 缓动别名与框架内置枚举
--- 架构：C#<->Lua 桥接层，直接引用 CS.* 命名空间
 -- @note  必须在所有业务脚本之前加载，是全局符号定义入口
 --=====================================================================================================
+---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/功能/架构 注释块（纯注释，逻辑无影响）
 
 --region Unity 核心命名空间
 ---@type UnityEngine @CS层：Unity引擎核心命名空间
@@ -64,7 +60,7 @@ IAPWrapper = CS.IAPWrapper
 
 --region 全局平台与环境常量
 ---@type string @当前构建平台名称：Android / iOS / WebGL
-BuildPlatformName = GameMainRoot.Config:GetCurBuildPlatformName()
+BuildPlatformName = GameMainRoot.HonorCoreManager:GetCurBuildPlatformName()
 
 ---@type boolean @是否运行在 Windows 编辑器
 IsWindowEditor = UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsEditor

@@ -203,7 +203,7 @@ namespace Honor.Runtime
                 .AppendCallback(() =>
                 {
                     m_OverCallback?.Invoke();
-                    GameMainRoot.UI.CloseUIByGO(gameObject, true);
+                    HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);
                 });
         }
 
@@ -235,7 +235,7 @@ namespace Honor.Runtime
                 .AppendCallback(() =>
                 {
                     m_OverCallback?.Invoke();
-                    GameMainRoot.UI.CloseUIByGO(gameObject, true);
+                    HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);
                 })
                 .SetUpdate(true);
         }

@@ -205,38 +205,38 @@ namespace Honor.Runtime
         {
             // 多语言自动赋值（兼容 UGUI / TMP）
             if (m_TitleText != null)
-                m_TitleText.text = GameMainRoot.Localization.GetDefaultData("App_Feedback_Title_Text");
+                m_TitleText.text = HonorCoreManager.Instance.GetDefaultData("App_Feedback_Title_Text");
 
             if (m_TitleTextTMP != null)
-                m_TitleTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Feedback_Title_Text");
+                m_TitleTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Feedback_Title_Text");
 
             if (m_CloseButtonText != null)
-                m_CloseButtonText.text = GameMainRoot.Localization.GetDefaultData("App_Feedback_CloseButton_Text");
+                m_CloseButtonText.text = HonorCoreManager.Instance.GetDefaultData("App_Feedback_CloseButton_Text");
 
             if (m_CloseButtonTextTMP != null)
-                m_CloseButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Feedback_CloseButton_Text");
+                m_CloseButtonTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Feedback_CloseButton_Text");
 
             if (m_SubmitButtonText != null)
-                m_SubmitButtonText.text = GameMainRoot.Localization.GetDefaultData("App_Feedback_SubmitButton_Text");
+                m_SubmitButtonText.text = HonorCoreManager.Instance.GetDefaultData("App_Feedback_SubmitButton_Text");
 
             if (m_SubmitButtonTextTMP != null)
-                m_SubmitButtonTextTMP.text = GameMainRoot.Localization.GetDefaultData("App_Feedback_SubmitButton_Text");
+                m_SubmitButtonTextTMP.text = HonorCoreManager.Instance.GetDefaultData("App_Feedback_SubmitButton_Text");
 
             if (m_EmailInputPlaceholderText != null)
                 m_EmailInputPlaceholderText.text =
-                    GameMainRoot.Localization.GetDefaultData("App_Feedback_EmailInputPlaceholder_Text");
+                    HonorCoreManager.Instance.GetDefaultData("App_Feedback_EmailInputPlaceholder_Text");
 
             if (m_EmailInputPlaceholderTextTMP != null)
                 m_EmailInputPlaceholderTextTMP.text =
-                    GameMainRoot.Localization.GetDefaultData("App_Feedback_EmailInputPlaceholder_Text");
+                    HonorCoreManager.Instance.GetDefaultData("App_Feedback_EmailInputPlaceholder_Text");
 
             if (m_IssueInputPlaceholderText != null)
                 m_IssueInputPlaceholderText.text =
-                    GameMainRoot.Localization.GetDefaultData("App_Feedback_IssueInputPlaceholder_Text");
+                    HonorCoreManager.Instance.GetDefaultData("App_Feedback_IssueInputPlaceholder_Text");
 
             if (m_IssueInputPlaceholderTextTMP != null)
                 m_IssueInputPlaceholderTextTMP.text =
-                    GameMainRoot.Localization.GetDefaultData("App_Feedback_IssueInputPlaceholder_Text");
+                    HonorCoreManager.Instance.GetDefaultData("App_Feedback_IssueInputPlaceholder_Text");
 
             // 初始时提交按钮不可点击
             m_SubmitButton.interactable = false;
@@ -263,11 +263,11 @@ namespace Honor.Runtime
             m_IsSubmit = true;
 
             // 调用 Lua 层上传反馈数据
-            GameMainRoot.Lua.Env.DoString(
+            HonorCoreManager.Instance.LuaEnv.DoString(
                 $"AccountHelper:UploadUserAppFeedbackData({m_StarNum}, '{m_EmailContent}', '{m_IssueContent}')");
 
             // 关闭界面
-            GameMainRoot.UI.CloseUIByGO(gameObject);
+            HonorUIManager.Instance.UI.CloseUIByGO(gameObject);
         }
 
         /// <summary>
@@ -275,7 +275,7 @@ namespace Honor.Runtime
         /// </summary>
         public void OnCloseButtonClicked()
         {
-            GameMainRoot.UI.CloseUIByGO(gameObject);
+            HonorUIManager.Instance.UI.CloseUIByGO(gameObject);
         }
         #endregion
 

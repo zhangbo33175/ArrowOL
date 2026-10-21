@@ -10,10 +10,8 @@
 -- @core      ViewModel 绑定、UI 动画/生命周期、事件绑定、自动释放、资源与嵌套 UI 管理
 -- @scope     MVVM View 层基类，继承 LuaBehaviourSuper，经 Binder 绑定 VM
 -- @dependency LuaBehaviourSuper, Binder, UIManager, HonorAsset
--- descrip:   视图通用父类（MVVM - View层基类）
---            作用：所有UI界面的View层基类，负责绑定ViewModel、UI动画、生命周期、资源管理
---            职责：UI渲染、事件绑定、动画控制、自动释放、资源管理、嵌套UI管理
 --=====================================================================================================
+---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/作用/职责 注释块（纯注释，逻辑无影响）
 
 --region MVVM View 层基类
 ---@class ViewSuper MVVM 视图基类（所有界面 View 的父类）
