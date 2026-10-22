@@ -1598,15 +1598,6 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(AorBoxCollider2DAutoFit), AorBoxCollider2DAutoFitWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(MapController), MapControllerWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(MapMarker), MapMarkerWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(MapPathDrawer), MapPathDrawerWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(GameLib.GameManager), GameLibGameManagerWrap.__Register);
         
         
@@ -1635,15 +1626,6 @@ namespace XLua.CSObjectWrap
         
         
             translator.DelayWrapLoader(typeof(GameLib.EGameMode), GameLibEGameModeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager), GameLibGridMapManagerWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridCell), GameLibGridCellWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.MapManager), GameLibMapManagerWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(GameLib.CSharpLuaTableBridge), GameLibCSharpLuaTableBridgeWrap.__Register);
@@ -1683,27 +1665,6 @@ namespace XLua.CSObjectWrap
         
         
             translator.DelayWrapLoader(typeof(GameLib.AorInterfaceAdaptation.AlignSide), GameLibAorInterfaceAdaptationAlignSideWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager.MapTileData), GameLibGridMapManagerMapTileDataWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager.MapTilemapData), GameLibGridMapManagerMapTilemapDataWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager.LayerData), GameLibGridMapManagerLayerDataWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager.GridTile), GameLibGridMapManagerGridTileWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager.GridType), GameLibGridMapManagerGridTypeWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager.LayerLevel), GameLibGridMapManagerLayerLevelWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.GridMapManager.GridUtils), GameLibGridMapManagerGridUtilsWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(GameLib.RSetupLuaTableValue.RDateTimeWarpYMDHMS), GameLibRSetupLuaTableValueRDateTimeWarpYMDHMSWrap.__Register);

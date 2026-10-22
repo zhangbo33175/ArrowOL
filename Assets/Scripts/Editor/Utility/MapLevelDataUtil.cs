@@ -10,7 +10,6 @@
 
 using System.IO;
 using System.Text;
-using Editor.MapEditor;
 using GameLib;
 using Honor.Runtime;
 
@@ -98,10 +97,10 @@ namespace Editor.Utility
             for (int idx = 0; idx < data.m_MapObjectData.Count; idx++)
             {
                 var obj = data.m_MapObjectData[idx];
-                string pos = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Position);
-                string rot = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Rotation);
-                string scale = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Scale);
-                string size = MapBuildEditor.SetTypeConversion.Vector3ToLuaString(obj.m_Size);
+                string pos = Vector3ToLuaString(obj.m_Position);
+                string rot = Vector3ToLuaString(obj.m_Rotation);
+                string scale = Vector3ToLuaString(obj.m_Scale);
+                string size = Vector3ToLuaString(obj.m_Size);
 
                 sb.AppendLine($"       [{idx + 1}] = {{Id = {obj.m_Id}, " +
                               $"Type = \"{obj.m_Type}\"," +
@@ -120,6 +119,22 @@ namespace Editor.Utility
             
             // 写入 Lua 文件（UTF8 无BOM，确保 Lua 读取正常）
             File.WriteAllText(levelLuaSavePath, sb.ToString(), new UTF8Encoding(false));
+        }
+        #endregion
+
+        //=========================================================================
+        // 类型转换辅助
+        //=========================================================================
+        #region Type Conversion
+
+        /// <summary>
+        /// 将 Vector3 转换为 Lua 字符串（"{x","y","z"}" 格式，两位小数）
+        /// </summary>
+        /// <param name="vec">三维向量</param>
+        /// <returns>Lua 字符串表示</returns>
+        private static string Vector3ToLuaString(UnityEngine.Vector3 vec)
+        {
+            return $"{{\"{vec.x:F2}\",\"{vec.y:F2}\",\"{vec.z:F2}\"}}";
         }
         #endregion
     }

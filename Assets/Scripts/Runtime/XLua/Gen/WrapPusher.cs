@@ -123,8 +123,6 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.AdaptMode>(translator.PushGameLibAorInterfaceAdaptationAdaptMode, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationAdaptMode);
 				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.FillMode>(translator.PushGameLibAorInterfaceAdaptationFillMode, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationFillMode);
 				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.AlignSide>(translator.PushGameLibAorInterfaceAdaptationAlignSide, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationAlignSide);
-				translator.RegisterPushAndGetAndUpdate<GameLib.GridMapManager.GridType>(translator.PushGameLibGridMapManagerGridType, translator.Get, translator.UpdateGameLibGridMapManagerGridType);
-				translator.RegisterPushAndGetAndUpdate<GameLib.GridMapManager.LayerLevel>(translator.PushGameLibGridMapManagerLayerLevel, translator.Get, translator.UpdateGameLibGridMapManagerLayerLevel);
 			
 			}
         }
@@ -8137,174 +8135,6 @@ namespace XLua
             }
         }
         
-        int GameLibGridMapManagerGridType_TypeID = -1;
-		int GameLibGridMapManagerGridType_EnumRef = -1;
-        
-        public void PushGameLibGridMapManagerGridType(RealStatePtr L, GameLib.GridMapManager.GridType val)
-        {
-            if (GameLibGridMapManagerGridType_TypeID == -1)
-            {
-			    bool is_first;
-                GameLibGridMapManagerGridType_TypeID = getTypeId(L, typeof(GameLib.GridMapManager.GridType), out is_first);
-				
-				if (GameLibGridMapManagerGridType_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(GameLib.GridMapManager.GridType));
-				    GameLibGridMapManagerGridType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, GameLibGridMapManagerGridType_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, GameLibGridMapManagerGridType_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for GameLib.GridMapManager.GridType ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, GameLibGridMapManagerGridType_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out GameLib.GridMapManager.GridType val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibGridMapManagerGridType_TypeID)
-				{
-				    throw new Exception("invalid userdata for GameLib.GridMapManager.GridType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for GameLib.GridMapManager.GridType");
-                }
-				val = (GameLib.GridMapManager.GridType)e;
-                
-            }
-            else
-            {
-                val = (GameLib.GridMapManager.GridType)objectCasters.GetCaster(typeof(GameLib.GridMapManager.GridType))(L, index, null);
-            }
-        }
-		
-        public void UpdateGameLibGridMapManagerGridType(RealStatePtr L, int index, GameLib.GridMapManager.GridType val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibGridMapManagerGridType_TypeID)
-				{
-				    throw new Exception("invalid userdata for GameLib.GridMapManager.GridType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for GameLib.GridMapManager.GridType ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
-        int GameLibGridMapManagerLayerLevel_TypeID = -1;
-		int GameLibGridMapManagerLayerLevel_EnumRef = -1;
-        
-        public void PushGameLibGridMapManagerLayerLevel(RealStatePtr L, GameLib.GridMapManager.LayerLevel val)
-        {
-            if (GameLibGridMapManagerLayerLevel_TypeID == -1)
-            {
-			    bool is_first;
-                GameLibGridMapManagerLayerLevel_TypeID = getTypeId(L, typeof(GameLib.GridMapManager.LayerLevel), out is_first);
-				
-				if (GameLibGridMapManagerLayerLevel_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(GameLib.GridMapManager.LayerLevel));
-				    GameLibGridMapManagerLayerLevel_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, GameLibGridMapManagerLayerLevel_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, GameLibGridMapManagerLayerLevel_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for GameLib.GridMapManager.LayerLevel ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, GameLibGridMapManagerLayerLevel_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out GameLib.GridMapManager.LayerLevel val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibGridMapManagerLayerLevel_TypeID)
-				{
-				    throw new Exception("invalid userdata for GameLib.GridMapManager.LayerLevel");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for GameLib.GridMapManager.LayerLevel");
-                }
-				val = (GameLib.GridMapManager.LayerLevel)e;
-                
-            }
-            else
-            {
-                val = (GameLib.GridMapManager.LayerLevel)objectCasters.GetCaster(typeof(GameLib.GridMapManager.LayerLevel))(L, index, null);
-            }
-        }
-		
-        public void UpdateGameLibGridMapManagerLayerLevel(RealStatePtr L, int index, GameLib.GridMapManager.LayerLevel val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibGridMapManagerLayerLevel_TypeID)
-				{
-				    throw new Exception("invalid userdata for GameLib.GridMapManager.LayerLevel");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for GameLib.GridMapManager.LayerLevel ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
         
 		// table cast optimze
 		
@@ -8898,18 +8728,6 @@ namespace XLua
 				translator.PushGameLibAorInterfaceAdaptationAlignSide(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(GameLib.GridMapManager.GridType[]))
-			{
-			    GameLib.GridMapManager.GridType[] array = obj as GameLib.GridMapManager.GridType[];
-				translator.PushGameLibGridMapManagerGridType(L, array[index]);
-				return true;
-			}
-			else if (type == typeof(GameLib.GridMapManager.LayerLevel[]))
-			{
-			    GameLib.GridMapManager.LayerLevel[] array = obj as GameLib.GridMapManager.LayerLevel[];
-				translator.PushGameLibGridMapManagerLayerLevel(L, array[index]);
-				return true;
-			}
             return false;
 		}
 		
@@ -9495,18 +9313,6 @@ namespace XLua
 			else if (type == typeof(GameLib.AorInterfaceAdaptation.AlignSide[]))
 			{
 			    GameLib.AorInterfaceAdaptation.AlignSide[] array = obj as GameLib.AorInterfaceAdaptation.AlignSide[];
-				translator.Get(L, obj_idx, out array[array_idx]);
-				return true;
-			}
-			else if (type == typeof(GameLib.GridMapManager.GridType[]))
-			{
-			    GameLib.GridMapManager.GridType[] array = obj as GameLib.GridMapManager.GridType[];
-				translator.Get(L, obj_idx, out array[array_idx]);
-				return true;
-			}
-			else if (type == typeof(GameLib.GridMapManager.LayerLevel[]))
-			{
-			    GameLib.GridMapManager.LayerLevel[] array = obj as GameLib.GridMapManager.LayerLevel[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

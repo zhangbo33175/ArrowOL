@@ -310,9 +310,6 @@
 		<type fullname="MapCamData" preserve="all"/>
 		<type fullname="MapData" preserve="all"/>
 		<type fullname="AorBoxCollider2DAutoFit" preserve="all"/>
-		<type fullname="MapController" preserve="all"/>
-		<type fullname="MapMarker" preserve="all"/>
-		<type fullname="MapPathDrawer" preserve="all"/>
 		<type fullname="GameLib.GameManager" preserve="all"/>
 		<type fullname="GameLib.ProcedureUtils" preserve="all"/>
 		<type fullname="GameLib.ItemMap" preserve="all"/>
@@ -323,9 +320,6 @@
 		<type fullname="GameLib.AorUIMaskLayerBehaviour" preserve="all"/>
 		<type fullname="GameLib.HonorClickItemAnimation" preserve="all"/>
 		<type fullname="GameLib.EGameMode" preserve="all"/>
-		<type fullname="GameLib.GridMapManager" preserve="all"/>
-		<type fullname="GameLib.GridCell" preserve="all"/>
-		<type fullname="GameLib.MapManager" preserve="all"/>
 		<type fullname="GameLib.CSharpLuaTableBridge" preserve="all"/>
 		<type fullname="GameLib.RSetupLuaTableValue" preserve="all"/>
 		<type fullname="GameLib.TablesBridge" preserve="all"/>
@@ -339,13 +333,6 @@
 		<type fullname="GameLib.AorInterfaceAdaptation+AdaptMode" preserve="all"/>
 		<type fullname="GameLib.AorInterfaceAdaptation+FillMode" preserve="all"/>
 		<type fullname="GameLib.AorInterfaceAdaptation+AlignSide" preserve="all"/>
-		<type fullname="GameLib.GridMapManager+MapTileData" preserve="all"/>
-		<type fullname="GameLib.GridMapManager+MapTilemapData" preserve="all"/>
-		<type fullname="GameLib.GridMapManager+LayerData" preserve="all"/>
-		<type fullname="GameLib.GridMapManager+GridTile" preserve="all"/>
-		<type fullname="GameLib.GridMapManager+GridType" preserve="all"/>
-		<type fullname="GameLib.GridMapManager+LayerLevel" preserve="all"/>
-		<type fullname="GameLib.GridMapManager+GridUtils" preserve="all"/>
 		<type fullname="GameLib.RSetupLuaTableValue+RDateTimeWarpYMDHMS" preserve="all"/>
 		<type fullname="GameLib.TablesBridge+TableCustomizeItem" preserve="all"/>
 		<type fullname="GameLib.TablesBridge+TableAvatarCustomizeItem" preserve="all"/>

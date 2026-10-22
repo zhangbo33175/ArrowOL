@@ -176,6 +176,11 @@ namespace Honor.Runtime
                 Log.Error(e);
             }
 
+            // 取消相机近裁剪面持续守卫事件注册，防止单例销毁后静态回调泄漏
+            Camera.onPreCull -= OnCameraPreCull;
+            // 取消视锥外告警日志监听
+            Application.logMessageReceived -= OnFrustumLogMessage;
+
             _instance = null;
         }
 
@@ -224,6 +229,99 @@ namespace Honor.Runtime
                 if (cam != null && cam.farClipPlane > near)
                 {
                     cam.nearClipPlane = near;
+                }
+            }
+
+            // 持续守卫：注册 Camera.onPreCull 静态事件，任何相机渲染前强制设负 near。
+            // 一次性遍历仅覆盖 Start 时刻 Camera.allCameras 内的相机；动态创建 / 后激活 /
+            // 绑定 RenderTexture(targetTexture) 后不在 allCameras 的相机近裁剪面仍为正，
+            // EventSystem/SendMouseEvents 做 z=0 坐标转换(ScreenToWorldPoint/ScreenPointToRay)
+            // 时 z=0 &lt; near 触发 "Screen position out of view frustum" 告警。
+            // onPreCull 在每次渲染前回调，逐相机设 near，彻底覆盖所有渲染相机。
+            Camera.onPreCull -= OnCameraPreCull;
+            Camera.onPreCull += OnCameraPreCull;
+
+            // 自动诊断：捕获 "Screen position out of view frustum" 报错并限频打印相机清单，
+            // 用于定位产生该告警的具体相机（含 transform/正交/视口/渲染纹理）。
+            Application.logMessageReceived -= OnFrustumLogMessage;
+            Application.logMessageReceived += OnFrustumLogMessage;
+
+            // 启动时无条件打印一次所有相机清单，供定位报错相机（logMessageReceived 无法捕获
+            // Camera 原生通道的 "Screen position out of view frustum" 报错，故主动输出基线）
+            Debug.Log("[CameraInit] 启动相机清单:\n" + BuildCameraDiagnosis());
+        }
+
+        /// <summary>
+        /// Application.logMessageReceived 回调：捕获视锥外告警并限频打印相机清单（诊断用）
+        /// </summary>
+        private static float m_LastFrustumLogTime = -10f;
+
+        private static void OnFrustumLogMessage(string logString, string stackTrace, LogType type)
+        {
+            if (type != LogType.Error && type != LogType.Warning) return;
+            if (logString == null || !logString.Contains("Screen position out of view frustum")) return;
+
+            // 限频：2 秒内最多打印一次，避免刷屏
+            if (Time.realtimeSinceStartup - m_LastFrustumLogTime < 2f) return;
+            m_LastFrustumLogTime = Time.realtimeSinceStartup;
+
+            Debug.Log("[FrustumDebug] 视锥外告警触发，当前相机清单:\n" + BuildCameraDiagnosis());
+        }
+
+        /// <summary>
+        /// 汇总当前所有相机的诊断信息（含旋转/位置/正交尺寸/视口/渲染纹理），定位报错相机
+        /// </summary>
+        private static string BuildCameraDiagnosis()
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (Camera cam in Camera.allCameras)
+            {
+                if (cam == null) continue;
+                var t = cam.transform;
+                sb.Append(cam.name)
+                  .Append("|active=").Append(cam.gameObject.activeInHierarchy)
+                  .Append("|near=").Append(cam.nearClipPlane.ToString("F2"))
+                  .Append("|far=").Append(cam.farClipPlane.ToString("F2"))
+                  .Append("|ortho=").Append(cam.orthographic ? "1" : "0")
+                  .Append("|size=").Append((cam.orthographic ? cam.orthographicSize : cam.fieldOfView).ToString("F2"))
+                  .Append("|euler=").Append(t.eulerAngles.ToString("F1"))
+                  .Append("|pos=").Append(t.position.ToString("F1"))
+                  .Append("|rect=").Append(cam.pixelRect)
+                  .Append("|rt=").Append(cam.targetTexture == null ? "null" : cam.targetTexture.name)
+                  .Append(";");
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Camera.onPreCull 静态回调：每个相机渲染前确保近裁剪面为负值
+        /// <para>同时限频打印"有旋转的相机"信息——旋转相机是 frustum 告警的高可疑源，
+        /// 用于在编辑器/地图界面定位报错相机（logMessageReceived 捕获不到 Camera 原生报错）。</para>
+        /// </summary>
+        /// <param name="cam">即将渲染的相机</param>
+        private static float m_LastRotCamLogTime = -10f;
+
+        private static void OnCameraPreCull(Camera cam)
+        {
+            if (cam == null) return;
+            if (cam.farClipPlane > -10f)
+            {
+                cam.nearClipPlane = -10f;
+            }
+
+            // 诊断：仅打印有旋转的相机（等轴/斜视角相机），限频 5 秒一次
+            if (cam.transform.eulerAngles.sqrMagnitude > 0.01f)
+            {
+                if (Time.realtimeSinceStartup - m_LastRotCamLogTime > 5f)
+                {
+                    m_LastRotCamLogTime = Time.realtimeSinceStartup;
+                    Debug.Log("[CameraDebug] 旋转相机: " + cam.name
+                              + "|euler=" + cam.transform.eulerAngles
+                              + "|near=" + cam.nearClipPlane
+                              + "|far=" + cam.farClipPlane
+                              + "|ortho=" + cam.orthographic
+                              + "|size=" + (cam.orthographic ? cam.orthographicSize : cam.fieldOfView)
+                              + "|rt=" + (cam.targetTexture == null ? "null" : cam.targetTexture.name));
                 }
             }
         }
