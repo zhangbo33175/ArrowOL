@@ -21,8 +21,7 @@
 ---@field ScreenCamera UnityEngine.Camera|nil @地图渲染相机
 ---@field _IsPlaySwipeSound boolean @是否正在播放滑动音效（防重复）
 ---@field _IsGameOver boolean @游戏是否已结束（OnGameOver 幂等保护）
----@field GameMapRoot UnityEngine.Transform @地图根节点 RawImage/Root
----@field RawImage UnityEngine.Transform @地图 RawImage 节点（供子类扩展）
+---@field GameMapRoot UnityEngine.Transform @地图根节点 RawImage
 local GameMapBase = class('GameMapBase', import('LuaBehaviourSuper'))
 
 --region 【构造 & 实例化】
@@ -51,10 +50,7 @@ function GameMapBase:ctor(args)
     self._IsGameOver = false
 
     ---@type UnityEngine.Transform 地图根物体Transform
-    self.GameMapRoot = self.cs.transform:Find("RawImage/Root")
-
-    -- 供子类引用的地图UI根节点（基类不使用，保留以兼容子类扩展）
-    self.RawImage = self.cs.transform:Find("RawImage")
+    self.GameMapRoot = self.cs.transform:Find("RawImage")
 
     -- 覆盖全局静态地图实例
     MapManager.CurGameMapBase = self
@@ -343,6 +339,11 @@ end
 ---@desc 在 Awake 相机/HUD 就绪后调用；转发至 CharacterGenerationManager:LoadCharacterByMapData 执行批量角色生成。
 ---@type fun():void
 function GameMapBase:LoadCharacterByMapData()
+    ---TODO [MapLoadManager] 先加载分区骨架（分区+网格+格线+相机），再生成实体
+    local mapData = GameManager:GetMapRootData()
+    local chapterId = ChapterListManager:GetRuntimeChapterId()
+    local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
+    MapLoadManager:LoadMap(mapData, chapterId, levelId, self.GameMapRoot)
     CharacterGenerationManager:LoadCharacterByMapData(self.GameMapRoot)
 end
 

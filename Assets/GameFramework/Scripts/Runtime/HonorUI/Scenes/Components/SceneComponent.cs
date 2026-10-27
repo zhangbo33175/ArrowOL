@@ -404,14 +404,15 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="cameraIndex">场景相机索引</param>
         /// <param name="targetRawImage">红框内的RawImage组件</param>
-        /// <param name="rtWidth">纹理宽度</param>
-        /// <param name="rtHeight">纹理高度</param>
+        /// <param name="rtWidth">纹理宽度（默认0表示按RawImage实际宽高比自动计算）</param>
+        /// <param name="rtHeight">纹理高度（默认0表示按RawImage实际宽高比自动计算）</param>
         /// <remarks>
         /// 优化说明：长期持有的渲染纹理必须用 new RenderTexture 创建，
         /// 不能用 GetTemporary（临时纹理池仅适合短期借用，长期占用会导致池耗尽）。
         /// 重复绑定同一相机时会先释放旧纹理，防止泄漏。
+        /// RT 尺寸默认跟随 RawImage 实际矩形宽高比，避免正方形 RT 与竖长视口不匹配导致画面拉伸。
         /// </remarks>
-        public void BindCameraToClipRawImage(int cameraIndex, RawImage targetRawImage, int rtWidth = 1024, int rtHeight = 1024)
+        public void BindCameraToClipRawImage(int cameraIndex, RawImage targetRawImage, int rtWidth = 0, int rtHeight = 0)
         {
             Camera camera = GetSceneCamera(cameraIndex);
             if (camera == null || targetRawImage == null)
@@ -419,6 +420,30 @@ namespace Honor.Runtime
 
             // 重复绑定时先释放旧纹理，避免相机纹理被覆盖后旧纹理泄漏
             ReleaseCameraRt(camera);
+
+            // ---TODO [修复] RT 尺寸按 RawImage 实际矩形宽高比动态计算，避免正方形 RT 与竖长视口不匹配
+            if (rtWidth <= 0 || rtHeight <= 0)
+            {
+                RectTransform rectTrans = targetRawImage.rectTransform;
+                float rectW = rectTrans.rect.width;
+                float rectH = rectTrans.rect.height;
+
+                // 兜底：矩形为0时用屏幕尺寸
+                if (rectW < 1f || rectH < 1f)
+                {
+                    rectW = Screen.width;
+                    rectH = Screen.height;
+                }
+
+                float aspect = rectW / Mathf.Max(rectH, 0.001f);
+                const int baseHeight = 1024;
+                rtHeight = baseHeight;
+                rtWidth = Mathf.RoundToInt(baseHeight * aspect);
+
+                // 保证偶数 + 最小 256，避免采样异常
+                rtWidth = Mathf.Max(256, rtWidth / 2 * 2);
+                rtHeight = Mathf.Max(256, rtHeight / 2 * 2);
+            }
 
             // 创建适配尺寸的专属渲染纹理（带深度缓冲，抗锯齿）
             RenderTexture rt = new RenderTexture(rtWidth, rtHeight, 24)
@@ -431,6 +456,8 @@ namespace Honor.Runtime
             // 把渲染纹理赋值给RawImage，画面就会被父RectMask2D裁剪在红框里
             targetRawImage.texture = rt;
             m_CameraRtMap[camera] = rt;
+
+            Debug.Log($"[相机] BindCameraToClipRawImage RT={rtWidth}x{rtHeight} aspect={(float)rtWidth / rtHeight:F2}");
         }
 
         /// <summary>

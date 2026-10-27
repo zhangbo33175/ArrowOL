@@ -16,6 +16,7 @@
 ---@field ID number @序号
 ---@field Icon string @图片名称
 ---@field ResName string @资源ResDef的名字
+---@field BubbleId number|nil @通用气泡配置ID（引用 Tables.Bubble，nil 表示不弹泡）
 
 ---@class Tables.Characters @喵喵列表信息
 Tables.Characters = {
@@ -79,10 +80,11 @@ Tables.Characters = {
     [2008] = {ID = 2008, Icon = "main_level1_cat2008", ResName = "GameObject_Character"},
     [2009] = {ID = 2009, Icon = "main_level1_cat2009", ResName = "GameObject_Character"},
     [2010] = {ID = 2010, Icon = "main_level1_cat2010", ResName = "GameObject_Character"},
-    [3000] = {ID = 3000, Icon = "sc_2_cat_1", ResName = "GameObject_Character"},
-    [3001] = {ID = 3001, Icon = "sc_2_cat_2", ResName = "GameObject_Character"},
-    [3002] = {ID = 3002, Icon = "sc_2_cat_3", ResName = "GameObject_Character"},
-    [3003] = {ID = 3003, Icon = "sc_2_cat_4", ResName = "GameObject_Character"},
+    --TODO: [气泡] 以下角色已配 BubbleId=1 作为示例（引用通用气泡表 Tables.Bubble）；其余角色 BubbleId=nil 不弹泡，按策划 Excel 源表补全
+    [3000] = {ID = 3000, Icon = "sc_2_cat_1", ResName = "GameObject_Character", BubbleId = 1},
+    [3001] = {ID = 3001, Icon = "sc_2_cat_2", ResName = "GameObject_Character", BubbleId = 1},
+    [3002] = {ID = 3002, Icon = "sc_2_cat_3", ResName = "GameObject_Character", BubbleId = 1},
+    [3003] = {ID = 3003, Icon = "sc_2_cat_4", ResName = "GameObject_Character", BubbleId = 1},
     [3004] = {ID = 3004, Icon = "sc_2_cat_5", ResName = "GameObject_Character"},
     [3005] = {ID = 3005, Icon = "sc_2_cat_6", ResName = "GameObject_Character"},
     [3006] = {ID = 3006, Icon = "sc_2_cat_7", ResName = "GameObject_Character"},

@@ -79,6 +79,29 @@ function GamePlayHelper:LoadLevelData(chapterId, levelId)
     return levelData
 end
 
+---@type fun(chapterId:string,unlockedCount:number):table
+---@brief 获取章节全部已解锁分区的数据数组（多分区同时显示用）
+---@param chapterId string 章节ID
+---@param unlockedCount number 已解锁分区数（=章节当前进度 lv，分区 1..lv 已解锁）
+---@return table 数组：{ { sectionId=number, data=Tables.LevelData_Item }, ... }，缺失分区自动跳过
+---@desc 直接按分区序号直取 Tables["LevelData_"..ch.."_"..s]（绕开 LoadLevelData 的越关判定，
+---      因为本接口就是要枚举历史已解锁分区）；Tables 元方法触发 require，文件缺失用 pcall 兜底。
+function GamePlayHelper:GetUnlockedLevelDatas(chapterId, unlockedCount)
+    local result = {}
+    if string.isNullOrEmpty(chapterId) or not unlockedCount or unlockedCount < 1 then
+        return result
+    end
+    for s = 1, unlockedCount do
+        local ok, data = pcall(function()
+            return Tables["LevelData_" .. chapterId .. "_" .. s]
+        end)
+        if ok and data then
+            table.insert(result, { sectionId = s, data = data })
+        end
+    end
+    return result
+end
+
 --endregion
 
 --region 【游戏开始/结束/退出逻辑】

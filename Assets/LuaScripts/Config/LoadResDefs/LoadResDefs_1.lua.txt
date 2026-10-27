@@ -472,3 +472,6 @@ LoadRes["GameObject_ItemMap"] = { Name = "GameObject_ItemMap", TypeName = "GameO
 ---@field GameObject_SectionItem LOAD_RES_DEF_ITEM @文件 SectionItem
 LoadRes["GameObject_SectionItem"] = { Name = "GameObject_SectionItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/UIs/UILevelView/SectionItem", AssetName = "SectionItem" }
 
+---@field GameObject_ZoneItem LOAD_RES_DEF_ITEM @文件 ZoneItem
+LoadRes["GameObject_ZoneItem"] = { Name = "GameObject_ZoneItem", TypeName = "GameObject", ABPath = "Assets/Res/Prefabs/Map/ZoneItem", AssetName = "ZoneItem" }
+

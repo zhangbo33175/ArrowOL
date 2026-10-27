@@ -113,6 +113,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
+        /// 是否需要跨场景持久化（DontDestroyOnLoad + 脱离父节点）。
+        /// 全局管理器保持默认 true；场景内 UI 子节点/局部管理器应覆写为 false，
+        /// 避免 Awake 时被从 Canvas/层级中强制拔根导致世界坐标跳变。
+        /// </summary>
+        protected virtual bool ShouldPersistAcrossScenes => true;
+
+        /// <summary>
         /// Unity 生命周期 Awake：登记单例、跨场景留存，并销毁重复实例
         /// </summary>
         protected virtual void Awake()
@@ -121,9 +128,12 @@ namespace Honor.Runtime
             {
                 m_Instance = this as T;
 
-                // 【关键修复】必须设置为根物体，否则 DontDestroyOnLoad 会报错
-                transform.SetParent(null);
-                DontDestroyOnLoad(gameObject);
+                if (ShouldPersistAcrossScenes)
+                {
+                    // 必须设置为根物体，否则 DontDestroyOnLoad 会报错
+                    transform.SetParent(null);
+                    DontDestroyOnLoad(gameObject);
+                }
 
                 // 初始化逻辑
                 Init();

@@ -1,0 +1,246 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  MapObjectBase.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     地图物件/建筑基础类
+-- @desc      地图 Buildings/Objects 实体统一父类，承载随机气泡与 PathPoints 路径移动；
+--            结构对齐 CharacterBase（气泡模板复刻自 CharacterBase:_TryShowBubble）。
+-- @core      数据绑定、图标刷新、随机气泡定时器、DOTween 路径移动驱动
+-- @scope     GameMap 场上物件/建筑实体（由 CharacterGenerationManager 按分区批量生成与回收）
+-- @dependency LuaBehaviourSuper, UIBubbleManager, MapPathMoveUtil, Tables.Bubble
+--=====================================================================================================
+
+---@class MapObjectBase : LuaBehaviourSuper @地图物件/建筑统一父类，承载气泡/路径移动
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+---@field _MapData table @MapObjectData 条目（Buildings/Objects 配置数据）
+---@field _GameObject UnityEngine.GameObject @实体根节点GameObject（生成时赋值）
+---@field _IconTransform UnityEngine.Transform @图标子节点（ItemMap 预制体 BG）
+---@field _BubbleCfg table @气泡配置（Tables.Bubble 条目）
+---@field _BubbleTimerCo UnityEngine.Coroutine @气泡循环定时器句柄（AddUpdateTimer 返回，停旧用）
+---@field _ClickItem GameLib.AorClickItem @图标点击组件（Awake 挂载）
+---@field _MoveSeq table @路径移动句柄容器 { seq }（PathPoints 非空时由 StartPathMove 赋值）
+---@field _Destroying boolean @销毁中标志（防销毁递归）
+local MapObjectBase = class('MapObjectBase', import('LuaBehaviourSuper'))
+
+--region 【构造 & 创建】
+
+---@brief 构造函数
+---@desc 调用父类构造并缓存图标子节点；数据字段由生成方绑定
+---@type fun(args:table):void
+---@param args table @自定义参数
+function MapObjectBase:ctor(args)
+    MapObjectBase.super.ctor(self, args)
+    self._MapData        = nil
+    self._GameObject     = nil
+    self._IconTransform  = self.cs.transform:Find("BG")
+    self._BubbleCfg      = nil
+    self._BubbleTimerCo = nil
+    self._ClickItem      = nil
+    self._MoveSeq        = nil
+    self._Destroying     = false
+end
+
+---@brief 创建函数
+---@type fun(args:table):MapObjectBase
+---@param args table @自定义参数
+---@return MapObjectBase @MapObjectBase实例
+function MapObjectBase:Create(args)
+    return MapObjectBase.new(args)
+end
+
+--endregion
+
+--region 【生命周期】
+
+---@brief 唤醒
+---@desc 框架驱动，勿删；为图标 BG 挂载 AorClickItem 点击组件并绑定 OnIconClick（参照 CharacterBase:Awake）
+---@type fun():void
+function MapObjectBase:Awake()
+    if self._IconTransform then
+        self._ClickItem = self._IconTransform.gameObject:GetOrAddComponent(typeof(GameLib.AorClickItem))
+        self._ClickItem.onClick = function()
+            self:_OnIconClick()
+        end
+    end
+    MapObjectBase.super.Awake(self)
+end
+
+---@brief 开始
+---@desc 框架驱动，勿删；父类 Start 后启动随机气泡定时器（无 BubbleId 配置则静默跳过）
+---@type fun():void
+function MapObjectBase:Start()
+    MapObjectBase.super.Start(self)
+    self:_StartBubbleTimer()
+end
+
+---@brief 销毁
+---@desc Kill 路径移动序列后走父类销毁；防递归标志
+---@type fun():void
+function MapObjectBase:OnDestroy()
+    if self._Destroying then return end
+    self._Destroying = true
+    -- Kill 路径移动序列
+    if self._MoveSeq ~= nil then
+        CS.GameLib.MapPathMoveUtil.Kill(self._MoveSeq)
+    end
+    self._MoveSeq = nil
+    MapObjectBase.super.OnDestroy(self)
+end
+
+--endregion
+
+--region 【随机气泡（复刻 CharacterBase 模板）】
+
+---@brief 启动随机气泡定时器（幂等：先停旧再按当前 _MapData 重启）
+---@desc 读取条目 BubbleId 指向的通用气泡表（Tables.Bubble），按 Interval 循环随机弹泡；
+---      通过 AddUpdateTimer 循环协程驱动，随实体 OnDestroy 自动停止。
+---      无 BubbleId（<=0）或气泡池为空时停掉旧定时器并清空配置，防对象池复用后陈旧弹泡。
+---@type fun():void
+function MapObjectBase:_StartBubbleTimer()
+    -- 先停旧定时器并清配置（对象池复用时 Start 不再触发，需先清后启）
+    self:_StopBubbleTimer()
+    if not self._MapData or not self._MapData.BubbleId then
+        return
+    end
+    if self._MapData.BubbleId <= 0 then
+        return
+    end
+    ---@type Tables.Bubble_Item
+    local cfg = Tables.Bubble and Tables.Bubble[self._MapData.BubbleId]
+    if not cfg or not cfg.BubbleTexts or #cfg.BubbleTexts == 0 then
+        return
+    end
+    self._BubbleCfg = cfg
+    local interval = cfg.Interval or 5
+    self._BubbleTimerCo = self:AddUpdateTimer(interval, function()
+        self:_TryShowBubble()
+    end)
+end
+
+---@brief 停止随机气泡定时器并清配置（幂等）
+---@desc HonorCoroutineHelper:Stop(co) 与 LuaBehaviourSuper:OnDestroy 回收定时器同一 API；
+---      对象池复用时 OnDestroy 不触发，故手动停旧句柄防陈旧弹泡。
+---@type fun():void
+function MapObjectBase:_StopBubbleTimer()
+    if self._BubbleTimerCo ~= nil then
+        HonorCoroutineHelper:Stop(self._BubbleTimerCo)
+        self._BubbleTimerCo = nil
+    end
+    self._BubbleCfg = nil
+end
+
+---@brief 刷新气泡定时器（对象池复用对外入口）
+---@desc 管理器绑定新 _MapData 后调用，等价幂等重启：先停旧定时器，再按新 BubbleId 挂新定时器。
+---@type fun():void
+function MapObjectBase:RefreshBubbleTimer()
+    self:_StartBubbleTimer()
+end
+
+---@brief 尝试随机弹泡
+---@desc 按配置概率判定后随机取一条气泡文本Key，调 UIBubbleManager:GenerateBubble 显示；
+---      同实体 key 互斥不重复，气泡显示/消失/回池由 UIBubbleManager 统一管理。
+---@type fun():void
+function MapObjectBase:_TryShowBubble()
+    -- 配置/挂点/销毁态校验
+    if not self._BubbleCfg or not self._IconTransform or self._Destroying then
+        return
+    end
+    -- 概率判定（Chance 默认必弹）
+    local chance = self._BubbleCfg.Chance
+    if chance ~= nil and math.random() > chance then
+        return
+    end
+    -- 随机取一条气泡文本Key
+    local texts = self._BubbleCfg.BubbleTexts
+    local textKey = texts[math.random(1, #texts)]
+    if not textKey then
+        return
+    end
+    -- 弹泡：key=MapObjBubble_+实例ID（同实体互斥），host=图标跟随，hostInUGUI=false（场景实体）
+    UIBubbleManager:GenerateBubble({
+        key = "MapObjBubble_" .. tostring(self._MapData.InstanceId or self._MapData.Id),
+        bubbleHost = self._IconTransform,
+        hostInUGUI = false,
+        bubbleTextKey = textKey,
+        duration = self._BubbleCfg.Duration or 2,
+        followPosition = self._BubbleCfg.Follow ~= false,
+    })
+end
+
+--endregion
+
+--region 【路径移动】
+
+---@brief 启动 PathPoints 路径移动
+---@desc 绑定条目后由生成方调用；经 MapPathMoveUtil 构建匀速 DOMove 序列。
+---      循环语义：PatrolLoop 优先（角色条目），否则取 Loop（物件/建筑条目）。
+---@type fun(pathPoints:table,speed:number,isLoop:boolean):void
+---@param pathPoints table @路径点数组 {X=number,Y=number}
+---@param speed number @速度倍率
+---@param isLoop boolean @是否循环巡逻
+function MapObjectBase:StartPathMove(pathPoints, speed, isLoop)
+    if self._MoveSeq ~= nil then
+        CS.GameLib.MapPathMoveUtil.Kill(self._MoveSeq)
+    end
+    if not pathPoints or #pathPoints == 0 then
+        self._MoveSeq = nil
+        return
+    end
+    local points = {}
+    for i, p in ipairs(pathPoints) do
+        points[i] = UnityEngine.Vector3(p.X or p.x or 0, p.Y or p.y or 0, 0)
+    end
+    self._MoveSeq = CS.GameLib.MapPathMoveUtil.BuildLocalMoveSeq(self.cs.transform, points,
+        tonumber(speed) or 1, isLoop == true,
+        "物件" .. tostring(self._MapData and (self._MapData.Id or self._MapData.InstanceId) or "?"), nil)
+end
+
+--endregion
+
+--region 【交互点击】
+
+---@brief 图标点击
+---@desc Awake 挂载 AorClickItem 后回调：DialogBubble 非空则立即弹该文本气泡（key 互斥复用 MapObjBubble_）；
+---      工程无物件专属 EventCmd（仅 OnClickCharacter），此处 PrintInfo 留扩展点，业务侧可自行 Fire 新事件。
+---@type fun():void
+function MapObjectBase:_OnIconClick()
+    if self._Destroying or not self._MapData then
+        return
+    end
+    local dialog = self._MapData.DialogBubble
+    PrintInfo("MapObject click id:{0} dialog:{1}", tostring(self._MapData.Id), tostring(dialog))
+    if dialog and dialog ~= '' then
+        UIBubbleManager:GenerateBubble({
+            key = "MapObjBubble_" .. tostring(self._MapData.InstanceId or self._MapData.Id),
+            bubbleHost = self._IconTransform,
+            hostInUGUI = false,
+            bubbleTextKey = dialog,
+            duration = self._BubbleCfg and self._BubbleCfg.Duration or 2,
+            followPosition = true,
+        })
+    end
+end
+
+--endregion
+
+--region 【数据与清理】
+
+---@brief 清理数据
+---@desc 由生成方在对象池复用时调用，Kill 移动序列并重置引用字段
+---@type fun():void
+function MapObjectBase:Clear()
+    self:_StopBubbleTimer()
+    if self._MoveSeq and CS.GameLib.MapPathMoveUtil then
+        CS.GameLib.MapPathMoveUtil.Kill(self._MoveSeq)
+    end
+    self._MoveSeq     = nil
+    self._MapData     = nil
+    self._GameObject  = nil
+    self._ClickItem   = nil
+end
+
+--endregion
+
+return MapObjectBase

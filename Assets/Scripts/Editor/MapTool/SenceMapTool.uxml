@@ -113,7 +113,7 @@
                     <ui:Label text="格子数:" class="status-label" style="margin-left: 16px;" />
                     <ui:Label name="status-tile-count" text="0" class="status-value-fixed" />
                     <ui:Label text="保存路径:" class="status-label" style="margin-left: 16px;" />
-                    <ui:Button name="status-save-path" text="Assets/GameData/Maps/" class="status-path-btn" style="width: 740px; flex-direction: row; justify-content: flex-start; -unity-text-align: middle-left; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
+                    <ui:Button name="status-save-path" text="Assets/GameData/MapDatas/" class="status-path-btn" style="width: 740px; flex-direction: row; justify-content: flex-start; -unity-text-align: middle-left; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
                 </ui:VisualElement>
                 <ui:VisualElement class="bottom-props-area" style="height: 220px; padding: 6px; spacing: 8px; flex-direction: row; align-items: stretch; justify-content: flex-start;">
                     <ui:VisualElement name="VisualElement" class="prop-box" style="width: 380px; padding: 8px; spacing: 6px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px;">
@@ -199,6 +199,9 @@
                         <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
                             <ui:Label text="气泡:" class="detail-label" style="width: 60px;" />
                             <ui:VisualElement name="prop-dialog-bubble-container" class="flex-grow" style="width: 111px;" />
+                            <ui:Label text="气泡ID:" class="detail-label" style="width: 48px;" />
+                            <!-- TODO 气泡配置表通用化：引用 Tables.Bubble 的ID输入容器（<=0 保存时不输出 BubbleId 行） -->
+                            <ui:VisualElement name="prop-bubble-id-container" class="flex-grow" style="width: 80px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
                             <ui:Label text="朝向:" class="detail-label" style="width: 60px;" />

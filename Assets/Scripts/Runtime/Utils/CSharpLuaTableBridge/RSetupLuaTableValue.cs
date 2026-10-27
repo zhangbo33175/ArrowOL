@@ -37,6 +37,23 @@ namespace GameLib
         /// <param name="worldPosition">Lua表（用于接收x/y/z）</param>
         public static void RScreenToWorldPoint(Camera camera, Vector3 screenPosition, LuaTable worldPosition)
         {
+            // 守卫：相机为空或正交 size 非法时跳过，避免退化矩阵触发 "Screen position out of view frustum" 告警
+            //TODO: [修复] RScreenToWorldPoint 相机空/退化矩阵守卫，拦截 EventSystem raycast 在相机未就绪时的告警
+            if (camera == null)
+            {
+                worldPosition.Set("x", 0f);
+                worldPosition.Set("y", 0f);
+                worldPosition.Set("z", 0f);
+                return;
+            }
+            if (camera.orthographic && camera.orthographicSize <= 0f)
+            {
+                worldPosition.Set("x", 0f);
+                worldPosition.Set("y", 0f);
+                worldPosition.Set("z", 0f);
+                return;
+            }
+
             Vector3 screenPoint = new Vector3(screenPosition.x, screenPosition.y, screenPosition.z);
             Vector3 result = camera.ScreenToWorldPoint(screenPoint);
 

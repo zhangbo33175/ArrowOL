@@ -3,27 +3,99 @@
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  TableLevelData_1_1
--- descrip:   关卡配置信息表
--- notices:   该文件自动生成，请不要手动修改！
--- @brief     第1章第1关（LevelId=1）地图关卡数据
--- @desc      MapBuildEditor 导出的单关地图物件摆放数据
--- @core      ChapterId、LevelId、BgName、Time、MapName、SavePath、MapData（物件实例数组：Id/Type/Position/Rotation/Scale/Sprite/Name/Size/IsChoose）
--- @scope     关卡进入时加载对应地图物件布局
--- @dependency Tables 注册表（Tables.lua），由 Tables.LevelData_1_1 索引触发 require 自动加载
+-- descrip:   章节1分区1地图数据（自动生成）
+-- notices:   该文件由地图编辑器自动生成，禁止手动修改！
+-- @brief     章节地图数据表（分区粒度）
+-- @desc      由 Honor.Editor.MapTool 保存时自动生成，与 Assets/GameData/MapDatas/Map_1.json 同源
+-- @core      章节信息 + 分区信息（背景/物件/人物含路径点/建筑）
+-- @scope     运行时经 Tables.LevelData_1_1 访问（GamePlayHelper:LoadLevelData 取数）
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Xxx 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@type Tables.LevelData_Item
-Tables.LevelData_1_1 = { 
+Tables.LevelData_1_1 = {
     ChapterId = "1",
-    LevelId= 1,
+    ChapterName = "ChapterName1",
+    SectionId = 1,
+    SectionCount = 2,
+    LevelId = 1,
     BgName = "Level_bg_main_21",
-    Time = "2026-10-08 20:17:51",
-    MapName ="GameMainMap",
-    SavePath ="",
-    MapData= {
-       [1] = {Id = 3000, Type = "Dissipate",Position = {"-12.60","-378.09","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "sc_2_cat_1",Name = "ItemMap_Instance_0",Size = {"35.00","39.00","0.00"},IsChoose = false},
-       [2] = {Id = 3003, Type = "Dissipate",Position = {"-422.20","252.06","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "sc_2_cat_4",Name = "ItemMap_Instance_1",Size = {"35.00","39.00","0.00"},IsChoose = false},
-       [3] = {Id = 3004, Type = "Dissipate",Position = {"135.48","-415.90","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "sc_2_cat_5",Name = "ItemMap_Instance_2",Size = {"35.00","39.00","0.00"},IsChoose = false},
-       [4] = {Id = 3005, Type = "Dissipate",Position = {"0.00","0.00","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "sc_2_cat_6",Name = "ItemMap_Instance_3",Size = {"35.00","39.00","0.00"},IsChoose = false},
+    MapName = "GameMainMap",
+    SavePath = "Assets/GameData/MapDatas/Map_1.json",
+    Time = "2026-10-27 14:19:29",
+    Width = 4096,
+    Height = 2048,
+    RegionRows = 1,
+    RegionCols = 2,
+    RegionCol = 0,
+    RegionRow = 0,
+    Unlocked = true,
+    FogEnabled = false,
+    GridSize = 32,
+    GridCols = 128,
+    GridRows = 64,
+    OccupiedCells = {
+        [1] = { X = 39, Y = 47 },
+        [2] = { X = 39, Y = 48 },
     },
- }
+    MapData = {
+        [1] = {
+            Id = 1001,
+            Type = "Dissipate",
+            Position = {"1248.00","1504.00","0.00"},
+            Rotation = {"0.00","0.00","0.00"},
+            Scale = {"0.00","0.00","0.00"},
+            Sprite = "Assets/Res/Textures/Map/Objects/6bf9e35f.png",
+            Name = "主角猫咪",
+            Size = {"32.00","64.00","0.00"},
+            IsChoose = false,
+        },
+    },
+    Characters = {
+        [1] = {
+            InstanceId = "6bf9e35f",
+            Id = 1001,
+            TemplateId = "1001",
+            Name = "主角猫咪",
+            GridX = 39,
+            GridY = 47,
+            Width = 1,
+            Height = 2,
+            Image = "Assets/Res/Textures/Map/Objects/6bf9e35f.png",
+            Anim = "Idle",
+            Loop = true,
+            Speed = 1.00,
+            Interactable = false,
+            InteractType = "none",
+            PatrolLoop = false,
+            FacingDirection = "down",
+            DialogBubble = "",
+            SortOrder = 50,
+            ShadowEnabled = true,
+            PathPoints = {
+                { GridX = 38, GridY = 48 },
+                { GridX = 37, GridY = 49 },
+                { GridX = 36, GridY = 51 },
+                { GridX = 35, GridY = 52 },
+                { GridX = 33, GridY = 54 },
+                { GridX = 33, GridY = 55 },
+                { GridX = 31, GridY = 54 },
+                { GridX = 31, GridY = 52 },
+                { GridX = 33, GridY = 50 },
+                { GridX = 34, GridY = 49 },
+                { GridX = 35, GridY = 47 },
+                { GridX = 36, GridY = 45 },
+                { GridX = 36, GridY = 45 },
+                { GridX = 39, GridY = 45 },
+                { GridX = 40, GridY = 46 },
+                { GridX = 38, GridY = 48 },
+            },
+        },
+    },
+    Buildings = {
+    -- 空列表
+    },
+    Objects = {
+    -- 空列表
+    },
+}

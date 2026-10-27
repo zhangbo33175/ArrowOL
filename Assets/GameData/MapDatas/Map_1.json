@@ -1,0 +1,184 @@
+{
+    "sceneId": "1",
+    "sceneName": "ChapterName1",
+    "width": 4096,
+    "height": 2048,
+    "chapterId": "1",
+    "chapterName": "ChapterName1",
+    "regionCount": 2,
+    "regionRows": 1,
+    "regionCols": 2,
+    "regions": [
+        {
+            "regionId": "1",
+            "bgName": "Level_bg_main_21",
+            "unlocked": true,
+            "col": 0,
+            "row": 0,
+            "offsetX": 0,
+            "offsetY": 0,
+            "width": 2048,
+            "height": 2048,
+            "fogEnabled": false,
+            "gridCols": 64,
+            "gridRows": 64,
+            "spawnPoints": [],
+            "buildings": [],
+            "objects": [],
+            "characters": [
+                {
+                    "id": "6bf9e35f",
+                    "templateId": "1001",
+                    "name": "主角猫咪",
+                    "posX": 1248.0,
+                    "posY": 1504.0,
+                    "gridX": 39,
+                    "gridY": 47,
+                    "width": 1,
+                    "height": 2,
+                    "image": "Assets/Res/Textures/Map/Objects/6bf9e35f.png",
+                    "anim": "Idle",
+                    "animEnabled": true,
+                    "loop": true,
+                    "speed": 1.0,
+                    "interactable": false,
+                    "interactType": "none",
+                    "patrolLoop": false,
+                    "facingDirection": "down",
+                    "dialogBubble": "",
+                    "sortOrder": 50,
+                    "shadowEnabled": true,
+                    "pathPoints": [
+                        {
+                            "x": 1216.0,
+                            "y": 1536.0,
+                            "gridX": 38,
+                            "gridY": 48
+                        },
+                        {
+                            "x": 1184.0,
+                            "y": 1568.0,
+                            "gridX": 37,
+                            "gridY": 49
+                        },
+                        {
+                            "x": 1152.0,
+                            "y": 1632.0,
+                            "gridX": 36,
+                            "gridY": 51
+                        },
+                        {
+                            "x": 1120.0,
+                            "y": 1664.0,
+                            "gridX": 35,
+                            "gridY": 52
+                        },
+                        {
+                            "x": 1056.0,
+                            "y": 1728.0,
+                            "gridX": 33,
+                            "gridY": 54
+                        },
+                        {
+                            "x": 1056.0,
+                            "y": 1760.0,
+                            "gridX": 33,
+                            "gridY": 55
+                        },
+                        {
+                            "x": 992.0,
+                            "y": 1728.0,
+                            "gridX": 31,
+                            "gridY": 54
+                        },
+                        {
+                            "x": 992.0,
+                            "y": 1664.0,
+                            "gridX": 31,
+                            "gridY": 52
+                        },
+                        {
+                            "x": 1056.0,
+                            "y": 1600.0,
+                            "gridX": 33,
+                            "gridY": 50
+                        },
+                        {
+                            "x": 1088.0,
+                            "y": 1568.0,
+                            "gridX": 34,
+                            "gridY": 49
+                        },
+                        {
+                            "x": 1120.0,
+                            "y": 1504.0,
+                            "gridX": 35,
+                            "gridY": 47
+                        },
+                        {
+                            "x": 1152.0,
+                            "y": 1440.0,
+                            "gridX": 36,
+                            "gridY": 45
+                        },
+                        {
+                            "x": 1152.0,
+                            "y": 1440.0,
+                            "gridX": 36,
+                            "gridY": 45
+                        },
+                        {
+                            "x": 1248.0,
+                            "y": 1440.0,
+                            "gridX": 39,
+                            "gridY": 45
+                        },
+                        {
+                            "x": 1280.0,
+                            "y": 1472.0,
+                            "gridX": 40,
+                            "gridY": 46
+                        },
+                        {
+                            "x": 1216.0,
+                            "y": 1536.0,
+                            "gridX": 38,
+                            "gridY": 48
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "regionId": "2",
+            "bgName": "Level_bg_main2",
+            "unlocked": false,
+            "col": 1,
+            "row": 0,
+            "offsetX": 2048,
+            "offsetY": 0,
+            "width": 2048,
+            "height": 2048,
+            "fogEnabled": true,
+            "gridCols": 64,
+            "gridRows": 64,
+            "spawnPoints": [],
+            "buildings": [],
+            "objects": [],
+            "characters": []
+        }
+    ],
+    "gridSize": 32,
+    "gridCols": 128,
+    "gridRows": 64,
+    "occupiedCells": [
+        {
+            "x": 39,
+            "y": 47
+        },
+        {
+            "x": 39,
+            "y": 48
+        }
+    ]
+}

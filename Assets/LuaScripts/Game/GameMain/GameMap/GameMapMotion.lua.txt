@@ -47,6 +47,14 @@
 ---@field MapCenterY number @地图中心点Y
 ---@field MapHalfWidth number @地图半宽
 ---@field MapHalfHeigh number @地图半高
+---@field BaseBoundsMinX number @整章预制体基础边界最小X（兜底，等于 m_AreaBounds）
+---@field BaseBoundsMaxX number @整章预制体基础边界最大X
+---@field BaseBoundsMinY number @整章预制体基础边界最小Y
+---@field BaseBoundsMaxY number @整章预制体基础边界最大Y
+---@field LimitMinX number @已解锁分区聚合边界最小X（相机 clamp 实际用）
+---@field LimitMaxX number @已解锁分区聚合边界最大X
+---@field LimitMinY number @已解锁分区聚合边界最小Y
+---@field LimitMaxY number @已解锁分区聚合边界最大Y
 ---@field ScreenCameraAspect number @相机宽高比
 ---@field ScreenCameraOrthographicSize number @相机正交尺寸
 ---@field InitialOrthoSize number @初始正交尺寸
@@ -93,6 +101,9 @@ local GameMapMotion = {
     MapBounds = nil,                            -- 地图包围盒
     MapCenterX = 0, MapCenterY = 0,             -- 地图中心点
     MapHalfWidth = 0, MapHalfHeigh = 0,         -- 地图半宽高
+    --TODO: [多分区] 相机边界由"整章预制体包围盒"改为"已解锁分区聚合 AABB"；Base 为整章兜底，Limit 为实际 clamp
+    BaseBoundsMinX = 0, BaseBoundsMaxX = 0, BaseBoundsMinY = 0, BaseBoundsMaxY = 0, -- 整章预制体基础边界
+    LimitMinX = 0, LimitMaxX = 0, LimitMinY = 0, LimitMaxY = 0,                   -- 已解锁分区聚合边界（相机实际 clamp）
     ScreenCameraAspect = 1,                     -- 相机宽高比
     ScreenCameraOrthographicSize = 0,           -- 相机正交尺寸
     InitialOrthoSize = 0,                       -- 初始正交尺寸
@@ -101,19 +112,149 @@ local GameMapMotion = {
 
 --region 【通用工具方法】
 
----@brief 根据当前相机 aspect/ortho 与地图包围盒，算出相机可移动的 X/Y 边界
+---@brief 根据当前相机 aspect/ortho 与"已解锁分区聚合边界(Limit)"，算出相机可移动的 X/Y 边界
 ---@type fun():number,number,number,number
 ---@return number minX, number maxX, number minY, number maxY
+---@desc 缩放自适应：hw/hh 随 orthographicSize 实时变化，边界自动扣除视口半宽/半高，
+---      视口比聚合区域还大时（min>max）收敛到区域中心，避免 clamp 反向把相机吸到角落。
 function GameMapMotion:GetCameraBounds()
     local aspect = self.ScreenCamera.aspect
     local ortho  = self.ScreenCamera.orthographicSize
     local hw = aspect * ortho
     local hh = ortho
-    local minX = self.MapCenterX - self.MapHalfWidth + hw
-    local maxX = self.MapCenterX + self.MapHalfWidth - hw
-    local minY = self.MapCenterY - self.MapHalfHeigh + hh
-    local maxY = self.MapCenterY + self.MapHalfHeigh - hh
+    local minX = self.LimitMinX + hw
+    local maxX = self.LimitMaxX - hw
+    local minY = self.LimitMinY + hh
+    local maxY = self.LimitMaxY - hh
+    -- 视口大于聚合区域：边界收敛到区域中心（保持旧公式在 Limit==整章时的等价语义）
+    if minX > maxX then
+        local c = (self.LimitMinX + self.LimitMaxX) / 2
+        minX, maxX = c, c
+    end
+    if minY > maxY then
+        local c = (self.LimitMinY + self.LimitMaxY) / 2
+        minY, maxY = c, c
+    end
     return minX, maxX, minY, maxY
+end
+
+---@brief 把单个分区数据内所有实体位置并入聚合边界 bounds
+---@type fun(bounds:table,sectionData:table):void
+---@param bounds table 聚合边界 {minX,maxX,minY,maxY}
+---@param sectionData table 分区数据（MapData/Characters/Buildings/Objects 各数组 Position）
+function GameMapMotion:_UnionSectionPositions(bounds, sectionData)
+    if not sectionData then return end
+    ---@param arr table 实体数组
+    local function walk(arr)
+        if not arr then return end
+        for _, v in ipairs(arr) do
+            local pos = v and v.Position
+            if pos then
+                ---TODO [坐标变换] entry.Position 为编辑器左下原点4096场景坐标，
+                ---     相机边界用 Root 局部世界系（中心原点±1024），聚合前统一变换，否则 clamp 窗口错倍→拖动露黑边
+                local ex = tonumber(pos[1])
+                local ey = tonumber(pos[2])
+                if ex and ey then
+                    local x, y = EditorPointToWorld(ex, ey)
+                    if x < bounds.minX then bounds.minX = x end
+                    if x > bounds.maxX then bounds.maxX = x end
+                    if y < bounds.minY then bounds.minY = y end
+                    if y > bounds.maxY then bounds.maxY = y end
+                end
+            end
+        end
+    end
+    walk(sectionData.MapData)
+    walk(sectionData.Characters)
+    walk(sectionData.Buildings)
+    walk(sectionData.Objects)
+end
+
+---@brief 按已解锁分区聚合 AABB 重算相机 clamp 边界（未解锁分区不可达）
+---@desc 枚举章节已解锁分区(1..lv)，把各分区实体位置求并集作为聚合 AABB；
+---      数据缺失/退化（合并后过小）时回退整章预制体边界 BaseBounds，保证不回归。
+---      地图启动与分区解锁后均调用本方法。
+---@type fun():void
+function GameMapMotion:RefreshUnlockedSectionBounds()
+    if not self.IsMapWork or not self.ScreenCamera then return end
+
+    ---TODO: [多分区] 相机边界按已解锁分区聚合；以存档进度 lv 为解锁权威（编辑器 Unlocked 仅初始态）
+    local chapterId = ChapterListManager:GetRuntimeChapterId()
+    local lv = GamerDataManager:GetLevelLvByChapterId(chapterId)
+    local datas = GamePlayHelper:GetUnlockedLevelDatas(chapterId, lv)
+
+    local bounds = { minX = math.huge, maxX = -math.huge, minY = math.huge, maxY = -math.huge }
+    for _, entry in ipairs(datas) do
+        self:_UnionSectionPositions(bounds, entry.data)
+    end
+
+    -- 退化保护：无数据或合并范围过小 → 回退整章预制体边界（旧行为）
+    local valid = bounds.maxX - bounds.minX > 1 and bounds.maxY - bounds.minY > 1
+    if not valid then
+        self.LimitMinX, self.LimitMaxX = self.BaseBoundsMinX, self.BaseBoundsMaxX
+        self.LimitMinY, self.LimitMaxY = self.BaseBoundsMinY, self.BaseBoundsMaxY
+    else
+        self.LimitMinX, self.LimitMaxX = bounds.minX, bounds.maxX
+        self.LimitMinY, self.LimitMaxY = bounds.minY, bounds.maxY
+    end
+
+    self:ClampFollowPosition()
+end
+
+---TODO: [相机聚焦] 按已解锁分区几何矩形聚焦（row-major 前缀，cover 无黑边）
+function GameMapMotion:FocusUnlockedSections(unlockedCount)
+    ---TODO [代码质量] ScreenCamera nil 惰性取（Awake 期早于 OnMapStart 赋值）
+    if not self.ScreenCamera then
+        self.ScreenCamera = GameLib.MapCamHelper.MapCamera
+    end
+    if not self.ScreenCamera then return end
+    unlockedCount = tonumber(unlockedCount) or 1
+    ---TODO [优化] 分区布局从 MapLayoutConfig 读取，不再硬编码 cols/rows/2048
+    local cols = tonumber(MapLayoutConfig.regionCols) or 1
+    local rows = tonumber(MapLayoutConfig.regionRows) or 1
+    local zoneW = tonumber(MapLayoutConfig.zoneWidth) or 2048
+    local zoneH = tonumber(MapLayoutConfig.zoneHeight) or 2048
+
+    local minX, maxX = math.huge, -math.huge
+    local minY, maxY = math.huge, -math.huge
+    ---TODO [优化] 分区尺寸从 MapLayoutConfig.zoneWidth/zoneHeight 读取
+    for sid = 1, unlockedCount do
+        local idx = sid - 1
+        local c = idx % cols
+        local r = math.floor(idx / cols)
+        local x0 = c * zoneW
+        local x1 = c * zoneW + zoneW
+        -- ---TODO [坐标] top-left anchor，Y 向下为负
+        local yTop = -r * zoneH
+        local yBottom = -(r * zoneH + zoneH)
+        minX = math.min(minX, x0); maxX = math.max(maxX, x1)
+        minY = math.min(minY, yBottom); maxY = math.max(maxY, yTop)
+    end
+
+    local cx = (minX + maxX) / 2
+    local cy = (minY + maxY) / 2
+    -- ---TODO [修复] ZoneRoot pivot=center，地图以原点为中心，需要减去半区偏移
+    cx = cx - zoneW / 2
+    cy = cy + zoneH / 2
+    -- ---TODO [修复] 用红框宽高比计算 ortho，而非全屏比例
+    local aspect = self._RedBoxAspect or (UnityEngine.Screen.width / UnityEngine.Screen.height)
+    -- ---TODO [相机适配] 竖屏游戏：填满宽度无左右黑边，垂直方向自动扩展
+    local ortho = (maxX - minX) / 2 / aspect
+    ortho = math.max(ortho, self.MinOrthoSize)
+
+    self.ScreenCamera.orthographicSize = ortho
+    -- ---TODO [修复] 最大缩放=铺满屏幕(ortho)，最小缩放=0.5x(可放大看细节)，防止缩小出黑边
+    self.MinOrthoSize = ortho * 0.5
+    self.MaxOrthoSize = ortho
+    self.FollowPosition = UnityEngine.Vector3(cx, cy, 0)
+    self.ScreenCamera.transform.position = UnityEngine.Vector3(cx, cy, self.ScreenCamera.transform.position.z)
+
+    -- ---TODO [修复] ZoneRoot pivot=center，边界需要减去半区偏移
+    self.LimitMinX = minX - zoneW / 2
+    self.LimitMaxX = maxX - zoneW / 2
+    self.LimitMinY = minY + zoneH / 2
+    self.LimitMaxY = maxY + zoneH / 2
+    print(string.format("[相机] 聚焦分区1..%d center=(%.0f,%.0f) ortho=%.1f", unlockedCount, cx, cy, ortho))
 end
 
 ---@brief 把跟随目标位置 clamp 到边界内
@@ -203,12 +344,16 @@ function GameMapMotion:OnUpdate()
     end
 
     -- 安全矫正相机尺寸
-    if self.ScreenCamera.orthographicSize == 0 then
-        self.ScreenCamera.orthographicSize = (self.MinOrthoSize + self.MaxOrthoSize) / 2
+    if self.ScreenCamera.orthographicSize <= 0 then
+        --TODO: [修复] size<=0 时不仅矫正 size，同时兜底聚焦第1分区，避免 FollowPosition 停留在 (0,0)
+        local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
+        self:FocusUnlockedSections(unlockedCount)
+        print(string.format("[相机] 安全矫正 size=%.0f center=(%.0f,%.0f)",
+            self.ScreenCamera.orthographicSize, self.FollowPosition.x, self.FollowPosition.y))
     else
         self.ScreenCamera.orthographicSize = math.clamp(
                 self.ScreenCamera.orthographicSize,
-                self.MinOrthoSize,
+                math.max(self.MinOrthoSize, 200),
                 self.MaxOrthoSize
         )
     end
@@ -748,6 +893,18 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.IsMouseDown = false
     self.IsPressing = false
 
+    -- 预守卫：绑定相机后立即矫正 ortho size，覆盖 Awake(InitMapCamera)→Start(OnMapStart)
+    -- 之间 EventSystem raycast 触发 size=0 退化矩阵的窗口期。OnUpdate 守卫仅在 IsMapWork=true
+    -- 后每帧生效，此处补上初始化路径的一次性矫正。
+    --TODO: [修复] OnMapStart 预守卫 ortho size，覆盖 Awake→Start 窗口期 size=0 退化矩阵告警
+    if self.ScreenCamera ~= nil and self.ScreenCamera.orthographicSize <= 0 then
+        --TODO: [修复] 预守卫时直接聚焦第1分区，避免 FollowPosition 初始为 (0,0)
+        local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
+        self:FocusUnlockedSections(unlockedCount)
+        print(string.format("[相机] OnMapStart 预守卫 size=%.0f center=(%.0f,%.0f)",
+            self.ScreenCamera.orthographicSize, self.FollowPosition.x, self.FollowPosition.y))
+    end
+
     -- 相机渲染区域（rect全屏，方案B：红框裁剪改由UI RawImage布局控制，不裁剪相机）
     self:SetCameraRect(nil, nil, 1334)
 
@@ -782,6 +939,15 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.MapCenterY    = self.MapMotionLayer.m_AreaBounds.center.y
     self.MapBounds     = self.MapMotionLayer.m_AreaBounds
 
+    ---TODO: [多分区] 用整章预制体包围盒初始化 Base（兜底）与 Limit（实际 clamp）边界；
+    ---      随后 RefreshUnlockedSectionBounds 会按已解锁分区聚合 AABB 收敛 Limit
+    self.BaseBoundsMinX = self.MapCenterX - self.MapHalfWidth
+    self.BaseBoundsMaxX = self.MapCenterX + self.MapHalfWidth
+    self.BaseBoundsMinY = self.MapCenterY - self.MapHalfHeigh
+    self.BaseBoundsMaxY = self.MapCenterY + self.MapHalfHeigh
+    self.LimitMinX, self.LimitMaxX = self.BaseBoundsMinX, self.BaseBoundsMaxX
+    self.LimitMinY, self.LimitMaxY = self.BaseBoundsMinY, self.BaseBoundsMaxY
+
     -- 初始位置（必须先建好 FollowPosition，再调 ApplyZoom/ClampFollowPosition）
     self.FollowPosition = {
         x = self.MapCenterX,
@@ -790,14 +956,15 @@ function GameMapMotion:OnMapStart(mapTrans)
     }
     self.PositionWhenPaused = { x = self.FollowPosition.x, y = self.FollowPosition.y, z = self.FollowPosition.z }
 
-    -- 动态计算最大缩放：缩到地图刚好填满视口（无黑边）即停止
-    -- 竖屏 aspect<1：min 必取 neededH，含义是"拉到能看全地图高度就停"，宽度溢出靠拖动补
-    local camAspect = self.ScreenCamera.aspect
-    local neededW = self.MapHalfWidth / camAspect
-    local neededH = self.MapHalfHeigh
-    self.MaxOrthoSize = math.min(neededW, neededH)
+    -- 最大缩放先设为兜底值，FocusUnlockedSections 会按实际分区覆盖
+    ---TODO: [修复] 此处仅兜底，实际 MaxOrthoSize 由 FocusUnlockedSections 锁定为铺满屏幕的值
+    self.MaxOrthoSize = math.max(self.MapHalfHeigh, self.MinOrthoSize)
     self:ApplyZoom(self.ScreenCamera.orthographicSize)
-    --TODO: [清理] 移除 [CameraDebug] dynamic MaxOrthoSize 调试 print（无副作用）
+
+    ---TODO [相机聚焦] Start 末尾重聚焦：覆盖初始化块（RecalculateBounds/FollowPosition/ApplyZoom），聚焦为最终发言者
+    ---TODO: [修复] UnlockedCount 为 nil 时兜底默认聚焦第1分区，避免 FollowPosition 停留在原点(0,0)导致地图偏右上角
+    local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
+    self:FocusUnlockedSections(unlockedCount)
 
     -- 临时向量
     self.InertialSlidingVector = { x = 0, y = 0, z = 0 }
@@ -809,7 +976,50 @@ function GameMapMotion:OnMapStart(mapTrans)
 
     -- 注册触摸
     self:RegisterTouchEvents("+")
+    ---TODO: [多分区] 按已解锁分区聚合 AABB 收敛相机边界后再 clamp（内部会自行 ClampFollowPosition）
+    self:RefreshUnlockedSectionBounds()
     self:ClampFollowPosition()
+
+    -- ---TODO [修复] 地图以原点(0,0)为中心摆放（RawImage pivot=center），相机中心改为(0,0)
+    local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
+    local zoneW = 2048
+    local zoneH = 2048
+    local totalW = unlockedCount * zoneW
+    local cx = 0
+    local cy = 0
+    local aspect = self._RedBoxAspect or (CS.UnityEngine.Screen.width / CS.UnityEngine.Screen.height)
+    local ortho = totalW / 2 / aspect
+    -- ---TODO [修复] 直接设置 world position 和 ortho，不经过 SetupMapPositionAndSize（localPosition 受父节点缩放影响）
+    if self.ScreenCamera then
+        self.ScreenCamera:DOKill()
+        self.ScreenCamera.transform:DOKill()
+        self.ScreenCamera.orthographicSize = ortho
+        self.ScreenCamera.transform.position = CS.UnityEngine.Vector3(cx, cy, self.ScreenCamera.transform.position.z)
+        print(string.format("[相机] world设置 ortho=%.0f pos=(%.0f,%.0f) parentScale=(%.2f,%.2f)",
+            self.ScreenCamera.orthographicSize,
+            self.ScreenCamera.transform.position.x,
+            self.ScreenCamera.transform.position.y,
+            self.ScreenCamera.transform.parent.localScale.x,
+            self.ScreenCamera.transform.parent.localScale.y))
+    end
+    self.FollowPosition = CS.UnityEngine.Vector3(cx, cy, 0)
+    self.MaxOrthoSize = ortho
+    self.MinOrthoSize = ortho
+    -- ---TODO [修复] 地图以原点为中心，边界从 -zoneH/2 到 +zoneH/2
+    self.LimitMinX = -totalW / 2
+    self.LimitMaxX = totalW / 2
+    self.LimitMinY = -zoneH / 2
+    self.LimitMaxY = zoneH / 2
+    -- ---TODO [修复] 最大缩放=铺满屏幕(ortho)，最小缩放=0.5x，防止缩小出黑边
+    self.MinOrthoSize = ortho * 0.5
+    self.MaxOrthoSize = ortho
+    -- ---TODO [验证] 遍历所有相机，找到真正渲染 Game 视图的 2DSceneCamera
+    local allCams = CS.UnityEngine.Camera.allCameras
+    for i = 0, allCams.Length - 1 do
+        local c = allCams[i]
+        print(string.format("[相机] 相机%d: name=%s ortho=%.1f pos=(%.0f,%.0f)",
+            i, c.name, c.orthographicSize, c.transform.position.x, c.transform.position.y))
+    end
 end
 
 ---@brief 获取屏幕顶部/底部安全区偏移（设计分辨率单位，自动适配刘海屏与底部手势条）
@@ -887,11 +1097,10 @@ function GameMapMotion:SetCameraRect(botHud, topHud, canvasH)
 
     local rectY = botHud / canvasH
     local rectH = math.max(0, (canvasH - topHud - botHud) / canvasH)
-    -- 方案B阶段1：相机保持全屏 rect(0,0,1,1)，不再裁剪相机——
-    -- 裁剪相机(rect非全屏)是 SendMouseEvents/GraphicRaycaster 视锥外告警的唯一来源，全屏后即消除。
-    -- rectY/rectH 仍计算并缓存，供后续(阶段2)红框遮罩定位与交互坐标偏移使用；地图红框改由 UI(RawImage布局)控制。
-    --TODO: [方案B] 相机rect全屏消除裁剪相机告警；红框视觉/坐标由UI遮罩+RawImage布局接管，待阶段2验证
-    self.ScreenCamera.rect = UnityEngine.Rect(0, 0, 1, 1)
+    -- ---TODO [修复] 相机rect设为红框区域（顶部留topHud、底部留botHud），地图只渲染在红框内
+    self.ScreenCamera.rect = UnityEngine.Rect(0, rectY, 1, rectH)
+    -- ---TODO [修复] 缓存红框宽高比，供 ortho 计算使用
+    self._RedBoxAspect = rectH > 0 and (1.0 / rectH) or (UnityEngine.Screen.width / UnityEngine.Screen.height)
 end
 
 ---@brief 更新相机渲染区域（底部UI隐藏/显示时调用）

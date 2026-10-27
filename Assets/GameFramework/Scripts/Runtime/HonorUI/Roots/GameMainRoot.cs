@@ -225,8 +225,11 @@ namespace Honor.Runtime
             const float near = -10f;
             foreach (Camera cam in Camera.allCameras)
             {
-                // 仅当 far 大于目标 near 时设置，保证 near &lt; far 构成有效视锥，不裁掉远处物体
-                if (cam != null && cam.farClipPlane > near)
+                // 仅对正交相机设置负 near：透视相机负 near 会导致投影矩阵反转/退化，
+                // 反而触发 "Screen position out of view frustum" 告警（反投影后视口 x/y 越界）。
+                // 正交相机 near=-10 使 z=0 坐标转换落入视锥深度范围内，消除告警。
+                //TODO: [修复] 透视相机排除负 near，避免投影矩阵退化触发视锥外告警
+                if (cam != null && cam.orthographic && cam.farClipPlane > near)
                 {
                     cam.nearClipPlane = near;
                 }
@@ -304,7 +307,11 @@ namespace Honor.Runtime
         private static void OnCameraPreCull(Camera cam)
         {
             if (cam == null) return;
-            if (cam.farClipPlane > -10f)
+
+            // 仅对正交相机设置负 near：透视相机负 near 会导致投影矩阵反转/退化，
+            // 反投影后视口 x/y 越界，反而触发 "Screen position out of view frustum" 告警。
+            //TODO: [修复] 透视相机排除负 near，保持原始正 near，避免投影矩阵退化
+            if (cam.orthographic && cam.farClipPlane > -10f)
             {
                 cam.nearClipPlane = -10f;
             }

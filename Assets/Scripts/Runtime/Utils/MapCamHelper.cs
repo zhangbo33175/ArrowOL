@@ -18,6 +18,19 @@ using UnityEngine.EventSystems;
 namespace GameLib
 {
     /// <summary>
+    /// 相机自动适配模式
+    /// </summary>
+    public enum CameraFitMode
+    {
+        /// <summary>按目标矩形高度填满视口</summary>
+        Height = 0,
+        /// <summary>按目标矩形宽度填满视口</summary>
+        Width = 1,
+        /// <summary>取较大值，保证矩形完整可见</summary>
+        Both = 2,
+    }
+
+    /// <summary>
     /// 地图相机工具类
     /// 提供相机控制、视野检测、射线检测、渲染层级管理等通用功能
     /// </summary>
@@ -318,6 +331,70 @@ namespace GameLib
         //=========================================================================
         // 相机渲染与尺寸
         //=========================================================================
+
+        /// <summary>
+        /// 自动适配相机到指定 World Space RectTransform，使该矩形完整填满相机视口。
+        /// <para>用途：地图 World Space Canvas（如 SceneLauncher 750×1334）在运行时
+        /// 因 orthographicSize 不匹配导致显示为小方块，调用本方法一键校正。</para>
+        /// </summary>
+        /// <param name="targetRect">需要填满视口的目标 RectTransform（地图 Canvas）</param>
+        /// <param name="fitMode">适配模式：Height=按高度填满（默认），Width=按宽度填满，Both=取较大者保证完整可见</param>
+        public static void AutoFitCameraToRect(RectTransform targetRect, CameraFitMode fitMode = CameraFitMode.Height)
+        {
+            if (MapCamera == null || targetRect == null)
+            {
+                Debug.LogWarning("[相机] AutoFitCameraToRect: camera 或 targetRect 为空");
+                return;
+            }
+
+            float rectW = targetRect.rect.width;
+            float rectH = targetRect.rect.height;
+            if (rectW < 1f || rectH < 1f)
+            {
+                Debug.LogWarning($"[相机] AutoFitCameraToRect: targetRect 尺寸异常 {rectW}x{rectH}");
+                return;
+            }
+
+            // 当前屏幕宽高比
+            float screenAspect = (float)Screen.width / Mathf.Max(Screen.height, 1);
+
+            // 按高度适配：相机可视高度 = rectH → orthographicSize = rectH / 2
+            float sizeByHeight = rectH * 0.5f;
+            // 按宽度适配：相机可视宽度 = rectW → orthographicSize = rectW / (2 * aspect)
+            float sizeByWidth = rectW * 0.5f / screenAspect;
+
+            float targetSize;
+            switch (fitMode)
+            {
+                case CameraFitMode.Height:
+                    targetSize = sizeByHeight;
+                    break;
+                case CameraFitMode.Width:
+                    targetSize = sizeByWidth;
+                    break;
+                case CameraFitMode.Both:
+                    // 取较大值，保证矩形完整可见（四周可能留黑边）
+                    targetSize = Mathf.Max(sizeByHeight, sizeByWidth);
+                    break;
+                default:
+                    targetSize = sizeByHeight;
+                    break;
+            }
+
+            // 目标相机位置：对准 targetRect 的中心
+            Vector3 worldCenter = targetRect.TransformPoint(targetRect.rect.center);
+            Vector3 camPos = MapCamera.transform.position;
+            camPos.x = worldCenter.x;
+            camPos.y = worldCenter.y;
+
+            MapCamera.orthographicSize = targetSize;
+            MapCamera.transform.position = camPos;
+
+            Debug.Log($"[相机] AutoFitCameraToRect: rect={rectW:F0}x{rectH:F0} " +
+                      $"screenAspect={screenAspect:F3} orthoSize={targetSize:F1} " +
+                      $"camPos=({camPos.x:F1},{camPos.y:F1})");
+        }
+
         /// <summary>
         /// 根据相机大小计算当前可见场景宽度
         /// </summary>
@@ -360,8 +437,10 @@ namespace GameLib
         {
             foreach (Camera cam in Camera.allCameras)
             {
-                // 仅当 far 大于目标 near 时才设置，保证 near &lt; far 构成有效视锥，不裁掉远处物体
-                if (cam != null && cam.farClipPlane > near)
+                // 仅对正交相机设置负 near：透视相机负 near 会导致投影矩阵反转/退化，
+                // 反投影后视口 x/y 越界，反而触发 "Screen position out of view frustum" 告警。
+                //TODO: [修复] 透视相机排除负 near，保持原始正 near，避免投影矩阵退化
+                if (cam != null && cam.orthographic && cam.farClipPlane > near)
                 {
                     cam.nearClipPlane = near;
                 }

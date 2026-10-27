@@ -129,6 +129,12 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public static string MapSaveDir => GetConfigPath(MapSaveDirPrefsKey);
 
+        // ---TODO 双格式保存：JSON 新保存目录（预制体路径仍走 MapSaveDir，严禁改其默认值）
+        /// <summary>
+        /// 章节地图 JSON 保存目录（Map_{chapterId}.json 落此目录；Lua 同源导出）
+        /// </summary>
+        public const string MapJsonSaveDir = "Assets/GameData/MapDatas";
+
         /// <summary>
         /// 地图保存目录的父目录（用于按需创建目录结构）
         /// </summary>

@@ -1,0 +1,29 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  ZoneItem.lua
+-- author:    云毅
+-- descrip:   分区地图信息
+--=====================================================================================================
+
+---@class ZoneItem : LuaBehaviourSuper
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+local ZoneItem = class('ZoneItem', import('LuaBehaviourSuper'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ZoneItem:ctor(args)
+    ZoneItem.super.ctor(self, args)
+end
+
+---创建函数
+---@type fun(args:table):ZoneItem
+---@param args table @自定义参数
+---@return ZoneItem @实例
+function ZoneItem:Create(args)
+    return ZoneItem.new(args)
+end
+
+return ZoneItem

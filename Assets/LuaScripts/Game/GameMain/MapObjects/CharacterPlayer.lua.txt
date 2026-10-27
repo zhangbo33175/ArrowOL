@@ -1,0 +1,29 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  CharacterPlayer.lua
+-- author:    云毅
+-- descrip:   人物脚本
+--=====================================================================================================
+
+---@class CharacterPlayer : MapObjectBase
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+local CharacterPlayer = class('CharacterPlayer', import('MapObjectBase'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function CharacterPlayer:ctor(args)
+    CharacterPlayer.super.ctor(self, args)
+end
+
+---创建函数
+---@type fun(args:table):CharacterPlayer
+---@param args table @自定义参数
+---@return CharacterPlayer @实例
+function CharacterPlayer:Create(args)
+    return CharacterPlayer.new(args)
+end
+
+return CharacterPlayer

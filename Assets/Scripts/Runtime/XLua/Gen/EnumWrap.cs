@@ -5970,6 +5970,70 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
+    public class GameLibMapObjectTypeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.MapObjectType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.MapObjectType), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.MapObjectType), L, null, 4, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Building", GameLib.MapObjectType.Building);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Character", GameLib.MapObjectType.Character);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Prop", GameLib.MapObjectType.Prop);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.MapObjectType), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibMapObjectType(L, (GameLib.MapObjectType)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Building"))
+                {
+                    translator.PushGameLibMapObjectType(L, GameLib.MapObjectType.Building);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Character"))
+                {
+                    translator.PushGameLibMapObjectType(L, GameLib.MapObjectType.Character);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Prop"))
+                {
+                    translator.PushGameLibMapObjectType(L, GameLib.MapObjectType.Prop);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.MapObjectType!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.MapObjectType! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
     public class GameLibEGameModeWrap
     {
 		public static void __Register(RealStatePtr L)
@@ -6028,6 +6092,70 @@ namespace XLua.CSObjectWrap
             else
             {
                 return LuaAPI.luaL_error(L, "invalid lua type for GameLib.EGameMode! Expect number or string, got + " + lua_type);
+            }
+
+            return 1;
+		}
+	}
+    
+    public class GameLibCameraFitModeWrap
+    {
+		public static void __Register(RealStatePtr L)
+        {
+		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+		    Utils.BeginObjectRegister(typeof(GameLib.CameraFitMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(GameLib.CameraFitMode), L, translator, null, null, null, null, null);
+			
+			Utils.BeginClassRegister(typeof(GameLib.CameraFitMode), L, null, 4, 0, 0);
+
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Height", GameLib.CameraFitMode.Height);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Width", GameLib.CameraFitMode.Width);
+            
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Both", GameLib.CameraFitMode.Both);
+            
+
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
+            
+            Utils.EndClassRegister(typeof(GameLib.CameraFitMode), L, translator);
+        }
+		
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int __CastFrom(RealStatePtr L)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
+            if (lua_type == LuaTypes.LUA_TNUMBER)
+            {
+                translator.PushGameLibCameraFitMode(L, (GameLib.CameraFitMode)LuaAPI.xlua_tointeger(L, 1));
+            }
+			
+            else if(lua_type == LuaTypes.LUA_TSTRING)
+            {
+
+			    if (LuaAPI.xlua_is_eq_str(L, 1, "Height"))
+                {
+                    translator.PushGameLibCameraFitMode(L, GameLib.CameraFitMode.Height);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Width"))
+                {
+                    translator.PushGameLibCameraFitMode(L, GameLib.CameraFitMode.Width);
+                }
+				else if (LuaAPI.xlua_is_eq_str(L, 1, "Both"))
+                {
+                    translator.PushGameLibCameraFitMode(L, GameLib.CameraFitMode.Both);
+                }
+				else
+                {
+                    return LuaAPI.luaL_error(L, "invalid string for GameLib.CameraFitMode!");
+                }
+
+            }
+			
+            else
+            {
+                return LuaAPI.luaL_error(L, "invalid lua type for GameLib.CameraFitMode! Expect number or string, got + " + lua_type);
             }
 
             return 1;

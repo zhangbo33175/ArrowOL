@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 20, 3, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 21, 3, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "InitMapCamera", _m_InitMapCamera_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LookMap", _m_LookMap_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LookMapPositionAndSize", _m_LookMapPositionAndSize_xlua_st_);
@@ -46,6 +46,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "IsBoundsVisableInCamera", _m_IsBoundsVisableInCamera_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "OpenSceneRaycasterLayer", _m_OpenSceneRaycasterLayer_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "CloseSceneRaycasterLayer", _m_CloseSceneRaycasterLayer_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "AutoFitCameraToRect", _m_AutoFitCameraToRect_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetSceneWidthByCamSize", _m_GetSceneWidthByCamSize_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "SetCameraRenderLayer", _m_SetCameraRenderLayer_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "CloseCameraRenderLayer", _m_CloseCameraRenderLayer_xlua_st_);
@@ -454,6 +455,47 @@ namespace XLua.CSObjectWrap
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AutoFitCameraToRect_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 2&& translator.Assignable<UnityEngine.RectTransform>(L, 1)&& translator.Assignable<GameLib.CameraFitMode>(L, 2)) 
+                {
+                    UnityEngine.RectTransform _targetRect = (UnityEngine.RectTransform)translator.GetObject(L, 1, typeof(UnityEngine.RectTransform));
+                    GameLib.CameraFitMode _fitMode;translator.Get(L, 2, out _fitMode);
+                    
+                    GameLib.MapCamHelper.AutoFitCameraToRect( _targetRect, _fitMode );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 1&& translator.Assignable<UnityEngine.RectTransform>(L, 1)) 
+                {
+                    UnityEngine.RectTransform _targetRect = (UnityEngine.RectTransform)translator.GetObject(L, 1, typeof(UnityEngine.RectTransform));
+                    
+                    GameLib.MapCamHelper.AutoFitCameraToRect( _targetRect );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to GameLib.MapCamHelper.AutoFitCameraToRect!");
             
         }
         

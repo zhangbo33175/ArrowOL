@@ -297,18 +297,29 @@ namespace Honor.Editor.MapTool
             // 摆放网格层
             if (m_ShowPlaceGrid)
             {
-                Handles.color = new Color(0.5f, 0.5f, 0.5f, 0.3f);
-                float gridSize = 32f * m_Zoom;
-                // 垂直线
-                for (float x = mapRect.x; x < mapRect.xMax; x += gridSize)
+                // 统一核心：MapGridDrawUtil.ComputeGridLinePositions（与游戏同几何/同解锁范围）
+                var style = GameLib.MapGridDrawUtil.DefaultStyle();
+                Handles.color = style.lineColor;
+                float mapW = mapRect.width / m_Zoom;
+                float mapH = mapRect.height / m_Zoom;
+                int gridCols = Mathf.RoundToInt(mapW / MapToolConstants.GridSize);
+                int regionCols = m_RegionCols;
+                int regionRows = m_RegionRows;
+                int unlockedSection = 0;
+                if (m_RegionUnlocked != null)
                 {
-                    Handles.DrawLine(new Vector3(x, mapRect.y), new Vector3(x, mapRect.yMax));
+                    for (int r = 0; r < m_RegionRows; r++)
+                        for (int c = 0; c < m_RegionCols; c++)
+                            if (m_RegionUnlocked[r, c]) unlockedSection++;
                 }
-                // 水平线
-                for (float y = mapRect.y; y < mapRect.yMax; y += gridSize)
-                {
-                    Handles.DrawLine(new Vector3(mapRect.x, y), new Vector3(mapRect.xMax, y));
-                }
+                GameLib.MapGridDrawUtil.ComputeGridLinePositions(mapW, mapH, gridCols, regionCols, regionRows, unlockedSection,
+                    out float[] vLines, out float[] hLines, out Rect[] regionRects);
+                foreach (float w in vLines)
+                    Handles.DrawLine(new Vector3(mapRect.x + w * m_Zoom, mapRect.y),
+                                     new Vector3(mapRect.x + w * m_Zoom, mapRect.yMax));
+                foreach (float h in hLines)
+                    Handles.DrawLine(new Vector3(mapRect.x, mapRect.y + h * m_Zoom),
+                                     new Vector3(mapRect.xMax, mapRect.y + h * m_Zoom));
             }
         }
 

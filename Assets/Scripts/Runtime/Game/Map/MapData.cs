@@ -7,7 +7,6 @@
  * created:   2026
  * descrip:   地图系统核心数据类
  *            管理地图配置、相机参数、视图边界、图标数据等核心逻辑
- *            新增：剔除上下HUD的红框视口计算、动态自适应最小缩放尺寸
  ***************************************************************/
 
 using UnityEngine;
@@ -18,253 +17,67 @@ using UnityEngine.Serialization;
 //=========================================================================
 // 地图枚举定义
 //=========================================================================
-/// <summary>
-/// 地图图标显示效果类型
-/// </summary>
-public enum RMapIconType
-{
-    /// <summary>
-    /// 染色显示模式
-    /// </summary>
-    Coloring = 0,
 
-    /// <summary>
-    /// 选中消散效果模式
-    /// </summary>
-    Dissipate = 1
-}
+/// <summary>地图图标显示效果类型</summary>
+public enum RMapIconType { Coloring = 0, Dissipate = 1 }
 
-/// <summary>
-/// 关卡游玩时HUD界面对齐方式
-/// </summary>
-public enum RMapPlayHudPosType
-{
-    /// <summary>
-    /// 左对齐
-    /// </summary>
-    Left = 0,
+/// <summary>关卡游玩时HUD界面对齐方式</summary>
+public enum RMapPlayHudPosType { Left = 0, Center = 1 }
 
-    /// <summary>
-    /// 居中对齐
-    /// </summary>
-    Center = 1
-}
+/// <summary>地图功能类型</summary>
+public enum RMapType { Normal = 0, DailyLevel = 1 }
 
-/// <summary>
-/// 地图功能类型
-/// </summary>
-public enum RMapType
-{
-    /// <summary>
-    /// 常规主线地图
-    /// </summary>
-    Normal = 0,
+/// <summary>走路路径循环模式</summary>
+public enum RMapWalkLoopMode { Once = 0, PingPong = 1, Loop = 2 }
 
-    /// <summary>
-    /// 每日挑战地图
-    /// </summary>
-    DailyLevel = 1
-}
-
-/// <summary>
-/// 走路路径循环模式
-/// </summary>
-public enum RMapWalkLoopMode
-{
-    /// <summary>
-    /// 单次行走（走到终点后停止）
-    /// </summary>
-    Once = 0,
-
-    /// <summary>
-    /// 循环往返（走到终点后原路返回）
-    /// </summary>
-    PingPong = 1,
-
-    /// <summary>
-    /// 循环走圈（走到终点后回到起点重新开始）
-    /// </summary>
-    Loop = 2
-}
-
-/// <summary>
-/// 地图默认相机初始位置类型
-/// </summary>
-public enum RMapCamPosType
-{
-    /// <summary>
-    /// 相机默认靠左
-    /// </summary>
-    Left = 0,
-
-    /// <summary>
-    /// 相机默认靠右
-    /// </summary>
-    Right = 1,
-
-    /// <summary>
-    /// 相机居中对齐
-    /// </summary>
-    Center = 2
-}
+/// <summary>地图默认相机初始位置类型</summary>
+public enum RMapCamPosType { Left = 0, Right = 1, Center = 2 }
 
 //=========================================================================
 // 地图数据实体类
 //=========================================================================
-/// <summary>
-/// 地图单个图标/节点数据实体
-/// </summary>
+
+/// <summary>地图单个图标/节点数据实体</summary>
 [System.Serializable]
 public class RMapData
 {
-    /// <summary>
-    /// 唯一标识ID
-    /// </summary>
     public int m_Id;
-
-    /// <summary>
-    /// 显示效果类型
-    /// </summary>
     public RMapIconType m_Type = RMapIconType.Dissipate;
-
-    /// <summary>
-    /// 世界空间位置
-    /// </summary>
     public Vector3 m_Position;
-
-    /// <summary>
-    /// 世界空间旋转
-    /// </summary>
     public Vector3 m_Rotation;
-
-    /// <summary>
-    /// 世界空间缩放
-    /// </summary>
     public Vector3 m_Scale;
-
-    /// <summary>
-    /// 图片名字
-    /// </summary>
     public string m_Sprite;
-
-    /// <summary>
-    /// 显示名称
-    /// </summary>
     public string m_Name;
-
-    /// <summary>
-    /// 图片尺寸
-    /// </summary>
     public Vector2 m_Size;
-
-    /// <summary>
-    /// 是否被选中
-    /// </summary>
     public bool m_IsChoose;
 
-    //=========================================================================
-    // 动画相关字段
-    //=========================================================================
-    /// <summary>
-    /// 是否为动画物体（带动画的预制体）
-    /// </summary>
+    // 动画相关
     public bool m_IsAnimated;
-
-    /// <summary>
-    /// 默认播放的动画名称
-    /// </summary>
     public string m_AnimationName = string.Empty;
-
-    /// <summary>
-    /// 动画播放速度（1.0为正常速度）
-    /// </summary>
     public float m_AnimationSpeed = 1.0f;
-
-    /// <summary>
-    /// 动画是否循环播放
-    /// </summary>
     public bool m_IsAnimationLoop = true;
 
-    //=========================================================================
-    // 走路路径相关字段
-    //=========================================================================
-    /// <summary>
-    /// 是否启用走路路径
-    /// </summary>
+    // 走路路径相关
     public bool m_HasWalkPath;
-
-    /// <summary>
-    /// 走路路径点列表（相对物体初始位置的偏移坐标）
-    /// </summary>
     public List<Vector2> m_WalkPathPoints = new List<Vector2>();
-
-    /// <summary>
-    /// 走路移动速度（单位：UI坐标/秒）
-    /// </summary>
     public float m_WalkSpeed = 100f;
-
-    /// <summary>
-    /// 走路循环模式
-    /// </summary>
     public RMapWalkLoopMode m_WalkLoopMode = RMapWalkLoopMode.Loop;
 }
 
-/// <summary>
-/// 地图章节配置数据实体
-/// </summary>
+/// <summary>地图章节配置数据实体</summary>
 [System.Serializable]
 public class RMapChapterTypeData
 {
-    /// <summary>
-    /// 地图名称
-    /// </summary>
     public string m_MapName;
-
-    /// <summary>
-    /// 所属章节ID
-    /// </summary>
     public string ChapterId = string.Empty;
-
-    /// <summary>
-    /// 关卡ID
-    /// </summary>
     public int LevelId;
-    
-    /// <summary>
-    /// 地图ID
-    /// </summary>
     public int MaplId;
-    
-    /// <summary>
-    /// 背景图片资源路径
-    /// </summary>
     public string m_BackgroundPath;
-
-    /// <summary>
-    /// 地图子物体数据列表
-    /// </summary>
     public List<RMapData> m_MapObjectData = new List<RMapData>();
-    /// <summary>
-    /// 配置创建时间
-    /// </summary>
     public string m_CreateTime;
-    /// <summary>
-    /// 配置保存路径
-    /// </summary>
     public string SavePath = string.Empty;
 
-    //=========================================================================
-
-    /// <summary>
-    /// 新建地图章节配置数据实体
-    /// </summary>
-    /// <param name="chapterId">所属章节ID</param>
-    /// <param name="levelId">关卡ID</param>
-    /// <param name="maplId">地图ID</param>
-    /// <param name="mapName">地图名称</param>
-    /// <param name="createTime">配置创建时间</param>
-    /// <param name="backgroundPath">背景图片资源路径</param>
-    /// <returns>填充好字段的章节配置数据</returns>
+    /// <summary>新建地图章节配置数据实体</summary>
     public static RMapChapterTypeData Create(string chapterId, int levelId, int maplId, string mapName,
         string createTime, string backgroundPath)
     {
@@ -287,161 +100,65 @@ public class RMapChapterTypeData
 [System.Serializable]
 public class MapCamData
 {
-    /// <summary>
-    /// 相机正交大小
-    /// </summary>
     public float size;
-
-    /// <summary>
-    /// 相机X轴世界位置
-    /// </summary>
     public float posX;
-
-    /// <summary>
-    /// 相机Y轴世界位置
-    /// </summary>
     public float posY;
 
     #region 相机位置计算方法
-    /// <summary>
-    /// 世界坐标换算系数：将「视图宽高比 × 相机Size」放大 100 倍，用于整数化世界宽度计算
-    /// </summary>
+
+    /// <summary>世界坐标换算系数（视图宽高比 × 相机Size × 2 × 100）</summary>
     private const float k_WorldViewScaleFactor = 100f;
-
-    /// <summary>
-    /// 世界半宽换算除数：ViewWorldWidth / 200 得到可视半宽（等价于 2 × 换算系数）
-    /// </summary>
+    /// <summary>世界半宽换算除数</summary>
     private const float k_HalfViewDivisor = 200f;
-
-    /// <summary>
-    /// 像素高度 → 世界坐标换算系数（1/100）
-    /// </summary>
+    /// <summary>像素高度 → 世界坐标换算系数</summary>
     private const float k_PixelToWorldScale = 0.01f;
 
-    /// <summary>
-    /// 计算当前相机在指定视图尺寸下的可视世界宽度
-    /// 公式：视口宽高比 × 相机Size × 2 × 100（兼容旧全屏逻辑，结果为「世界坐标 × 100」）
-    /// </summary>
-    /// <param name="viewSize">视图尺寸（宽/高）</param>
-    /// <returns>可视世界宽度（放大 100 倍后的值）</returns>
-    private float CalcViewWorldWidth(Vector2 viewSize)
-    {
-        return viewSize.x / viewSize.y * size * 2f * k_WorldViewScaleFactor;
-    }
-
-    /// <summary>
-    /// 计算当前相机可视范围的半宽（世界坐标）
-    /// 用于相机 X 轴左右边界的偏移定位
-    /// </summary>
-    /// <param name="viewSize">视图尺寸（宽/高）</param>
-    /// <returns>可视半宽（世界坐标）</returns>
+    /// <summary>计算可视半宽（世界坐标）</summary>
     private float CalcViewHalfWorldWidth(Vector2 viewSize)
     {
-        return CalcViewWorldWidth(viewSize) / k_HalfViewDivisor;
+        return viewSize.x / viewSize.y * size * k_WorldViewScaleFactor / k_HalfViewDivisor;
     }
 
-    /// <summary>
-    /// 标准化调整相机Y轴位置
-    /// </summary>
-    /// <param name="designHeight">设计高度</param>
+    /// <summary>标准化调整相机Y轴位置</summary>
     public void NormalAdjustPosY(float designHeight)
     {
         posY = (size * 2f - designHeight * k_PixelToWorldScale) * 0.5f;
     }
 
-    /// <summary>
-    /// 左对齐模式下标准化相机X轴位置（全屏尺寸旧接口，保留兼容旧逻辑）
-    /// </summary>
-    /// <param name="viewSize">视图尺寸</param>
-    /// <param name="mapLeftWorldPosX">地图左边界世界X坐标</param>
-    public void NormalAdjustLeftPosX(Vector2 viewSize, float mapLeftWorldPosX)
-    {
-        posX = mapLeftWorldPosX + CalcViewHalfWorldWidth(viewSize);
-    }
-
-    /// <summary>
-    /// 左对齐模式标准化X（仅中间地图红框视口，剔除上下UI，推荐新逻辑使用）
-    /// </summary>
+    /// <summary>左对齐模式标准化相机X轴位置（红框视口）</summary>
     public void NormalAdjustLeftPosX_Viewport(Vector2 viewportSize, float mapLeftWorldPosX)
     {
         posX = mapLeftWorldPosX + CalcViewHalfWorldWidth(viewportSize);
     }
 
-    /// <summary>
-    /// 右对齐模式下标准化相机X轴位置（全屏尺寸旧接口）
-    /// </summary>
-    /// <param name="viewSize">视图尺寸</param>
-    /// <param name="mapRightWorldPosX">地图右边界世界X坐标</param>
-    public void NormalAdjustRightPosX(Vector2 viewSize, float mapRightWorldPosX)
-    {
-        posX = mapRightWorldPosX - CalcViewHalfWorldWidth(viewSize);
-    }
-
-    /// <summary>
-    /// 右对齐模式标准化X（仅中间地图红框视口，剔除上下UI）
-    /// </summary>
+    /// <summary>右对齐模式标准化相机X轴位置（红框视口）</summary>
     public void NormalAdjustRightPosX_Viewport(Vector2 viewportSize, float mapRightWorldPosX)
     {
         posX = mapRightWorldPosX - CalcViewHalfWorldWidth(viewportSize);
     }
 
-    /// <summary>
-    /// 退出关卡时修正相机X位置，防止超出地图边界（全屏旧接口）
-    /// </summary>
-    /// <param name="viewSize">屏幕分辨率</param>
-    /// <param name="playPosX">游玩状态相机X坐标</param>
-    /// <param name="mapRightWorldPosX">地图右边界X</param>
-    /// <param name="mapPlayHudPosType">HUD对齐方式</param>
-    public void ExitPlayAdjustPosX(Vector2 viewSize, float playPosX, float mapRightWorldPosX, RMapPlayHudPosType mapPlayHudPosType)
+    /// <summary>退出关卡修正相机X位置（红框视口）</summary>
+    public void ExitPlayAdjustPosX_Viewport(Vector2 viewportSize, float playPosX,
+        float mapRightWorldPosX, RMapPlayHudPosType hudPosType)
     {
-        if (mapPlayHudPosType == RMapPlayHudPosType.Center)
-        {
-            posX = playPosX;
-            return;
-        }
-
-        var viewBoundPosX = playPosX + CalcViewHalfWorldWidth(viewSize);
-
-        if (viewBoundPosX > mapRightWorldPosX)
-            posX = playPosX + mapRightWorldPosX - viewBoundPosX;
-        else
-            posX = playPosX;
+        if (hudPosType == RMapPlayHudPosType.Center) { posX = playPosX; return; }
+        float viewBoundPosX = playPosX + CalcViewHalfWorldWidth(viewportSize);
+        posX = viewBoundPosX > mapRightWorldPosX ? playPosX + mapRightWorldPosX - viewBoundPosX : playPosX;
     }
 
-    /// <summary>
-    /// 退出关卡修正X（仅中间地图红框视口）
-    /// </summary>
-    public void ExitPlayAdjustPosX_Viewport(Vector2 viewportSize, float playPosX, float mapRightWorldPosX, RMapPlayHudPosType mapPlayHudPosType)
-    {
-        if (mapPlayHudPosType == RMapPlayHudPosType.Center)
-        {
-            posX = playPosX;
-            return;
-        }
-
-        var viewBoundPosX = playPosX + CalcViewHalfWorldWidth(viewportSize);
-
-        if (viewBoundPosX > mapRightWorldPosX)
-            posX = playPosX + mapRightWorldPosX - viewBoundPosX;
-        else
-            posX = playPosX;
-    }
-
-    /// <summary>
-    /// 游玩状态根据底部距离计算相机Y位置
-    /// </summary>
-    /// <param name="normalCamData">正常状态相机数据</param>
-    /// <param name="distance">距离底部高度</param>
+    /// <summary>游玩状态根据底部距离计算相机Y位置</summary>
     public void PlayAdjustPosY(MapCamData normalCamData, float distance)
     {
         posY = distance * k_PixelToWorldScale - (normalCamData.size - size) + normalCamData.posY;
     }
+
     #endregion
 }
 
 //=========================================================================
 // 地图核心组件
 //=========================================================================
+
 /// <summary>
 /// 地图核心配置组件
 /// 管理地图参数、相机配置、视图边界计算
@@ -449,230 +166,80 @@ public class MapCamData
 public class MapData : MonoBehaviour
 {
     #region 公开字段
-    /// <summary>
-    /// 所属章节ID
-    /// </summary>
+
     [Tooltip("章节ID")]
     public string m_ChapterId = string.Empty;
-
-    /// <summary>
-    /// 关卡ID
-    /// </summary>
-    [Tooltip("关卡ID")]
     public int m_LevelId;
-
-    /// <summary>
-    /// 地图区域碰撞边界
-    /// </summary>
-    [Tooltip("地图区域Bounds")]
     public MapMotionLayer mapBounds;
-
-    /// <summary>
-    /// 地图类型（主线/每日挑战）
-    /// </summary>
-    [Tooltip("地图类型")]
     public RMapType m_MapType = RMapType.Normal;
-
-    /// <summary>
-    /// 是否为平板设备适配
-    /// </summary>
-    [Tooltip("是否是Pad")]
     public bool m_IsPad;
 
-    /// <summary>
-    /// 大厅/正常状态相机参数
-    /// </summary>
+    [Header("相机配置")]
     public MapCamData m_NormalCamData;
-
-    /// <summary>
-    /// 关卡游玩中相机参数
-    /// </summary>
     public MapCamData m_PlayCamData;
-
-    /// <summary>
-    /// 退出关卡后相机恢复参数
-    /// </summary>
     public MapCamData m_ExitPlayCamData;
-
-    /// <summary>
-    /// 主大厅最大高度
-    /// </summary>
-    [Tooltip("主大厅最大高度")]
     public float m_MainHudMaxHeight = 768f;
-
-    /// <summary>
-    /// 地图章节配置数据
-    /// </summary>
-    [FormerlySerializedAs("m_RMapChapterData")]
     public RMapChapterTypeData m_RMapChapterTypeData = new();
 
     [Header("地图缩放配置")]
-    /// <summary>
-    /// 相机最小正交Size（限制相机的最大放大倍数）
-    /// </summary>
-    [Tooltip("兜底最小尺寸，动态计算尺寸不会小于该值")]
     public float m_MinCamSize = 250f;
-
-    /// <summary>
-    /// 相机最大正交Size（最大缩放）
-    /// </summary>
-    [Tooltip("最大相机正交Size(最大放大)")]
     public float m_MaxCamSize = 1024f;
-
-    /// <summary>
-    /// 滚轮缩放灵敏度
-    /// </summary>
-    [Tooltip("滚轮缩放灵敏度")]
     public float m_ScrollSensitivity = 0.5f;
-    
-    [Header("中间地图红框视口配置（剔除上下标题UI）")]
-    [Tooltip("顶部标题HUD固定高度（屏幕像素）")]
+
+    [Header("中间地图红框视口配置")]
     public float m_TopHudPixelHeight = 160f;
-
-    [Tooltip("底部道具HUD固定高度（屏幕像素）")]
     public float m_BottomHudPixelHeight = 180f;
-
-    [Tooltip("最小缩放是否强制居中地图，锁定不可拖动")]
     public bool m_MinScaleLockCenter = true;
-    #endregion
 
-    #region 生命周期
-    /// <summary>
-    /// 初始化
-    /// </summary>
-    private void Awake()
-    {
-    }
     #endregion
 
     #region 公共工具方法
-    /// <summary>
-    /// 世界坐标换算系数：将「视图宽高比 × 相机Size」放大 100 倍，用于整数化世界宽度计算
-    /// </summary>
-    private const float k_WorldViewScaleFactor = 100f;
 
-    /// <summary>
-    /// 世界半宽换算除数：ViewWorldWidth / 200 得到可视半宽（等价于 2 × 换算系数）
-    /// </summary>
+    private const float k_WorldViewScaleFactor = 100f;
     private const float k_HalfViewDivisor = 200f;
 
-    /// <summary>
-    /// 大厅标准相机 Size 默认值（旧接口返回的固定值，兼容历史调用）
-    /// </summary>
-    private const float k_DefaultNormalCamSize = 1024f;
-
-    /// <summary>
-    /// 计算指定相机 Size 在指定视图尺寸下的可视世界宽度
-    /// 公式：视口宽高比 × 相机Size × 2 × 100（兼容旧全屏逻辑，结果为「世界坐标 × 100」）
-    /// </summary>
-    /// <param name="camSize">相机正交 Size</param>
-    /// <param name="viewSize">视图尺寸（宽/高）</param>
-    /// <returns>可视世界宽度（放大 100 倍后的值）</returns>
-    private float CalcViewWorldWidth(float camSize, Vector2 viewSize)
-    {
-        return viewSize.x / viewSize.y * camSize * 2f * k_WorldViewScaleFactor;
-    }
-
-    /// <summary>
-    /// 计算指定相机 Size 的可视半宽（世界坐标）
-    /// 用于相机 X 轴左右边界的偏移定位
-    /// </summary>
-    /// <param name="camSize">相机正交 Size</param>
-    /// <param name="viewSize">视图尺寸（宽/高）</param>
-    /// <returns>可视半宽（世界坐标）</returns>
+    /// <summary>计算可视半宽（世界坐标）</summary>
     private float CalcViewHalfWorldWidth(float camSize, Vector2 viewSize)
     {
-        return CalcViewWorldWidth(camSize, viewSize) / k_HalfViewDivisor;
+        return viewSize.x / viewSize.y * camSize * k_WorldViewScaleFactor / k_HalfViewDivisor;
     }
 
-    /// <summary>
-    /// 获取大厅标准相机正交Size
-    /// <para>旧全屏逻辑接口：固定返回默认大厅相机Size（1024），供兼容历史调用</para>
-    /// </summary>
-    /// <param name="viewSize">视图尺寸</param>
-    /// <returns>相机Size</returns>
-    public float NormalCamSize(Vector2 viewSize)
-    {
-        return k_DefaultNormalCamSize;
-    }
+    /// <summary>获取中间地图红框Viewport尺寸</summary>
+    public Vector2 GetMapViewportSize() => Util.GetMapViewportSize(this);
 
-    /// <summary>
-    /// 获取中间地图红框Viewport尺寸（扣除顶部标题、底部UI高度）
-    /// 统一调用Util工具类，全项目单数据源
-    /// </summary>
-    public Vector2 GetMapViewportSize()
-    {
-        return Util.GetMapViewportSize(this);
-    }
-
-    /// <summary>
-    /// 动态计算适配红框的最小相机正交Size
-    /// 保证整张地图完整显示在中间红框视口，无溢出无裁切
-    /// </summary>
+    /// <summary>动态计算适配红框的最小相机正交Size</summary>
     public float CalcAutoMinCamSize()
     {
         float screenH = Screen.height;
-        float viewH = screenH - m_TopHudPixelHeight - m_BottomHudPixelHeight;
-        if (viewH <= 0) viewH = screenH;
-        float ratio = viewH / screenH;
-        float autoSize = m_NormalCamData.size * ratio;
-        return Mathf.Max(autoSize, m_MinCamSize);
+        float viewH = Mathf.Max(0, screenH - m_TopHudPixelHeight - m_BottomHudPixelHeight);
+        float ratio = viewH > 0 ? viewH / screenH : 1f;
+        return Mathf.Max(m_NormalCamData.size * ratio, m_MinCamSize);
     }
 
-    /// <summary>
-    /// 设置底部UI高度（运行时动态调整，底部UI隐藏时传0）
-    /// </summary>
-    /// <param name="pixelHeight">底部UI像素高度</param>
+    /// <summary>设置底部UI高度（运行时动态调整）</summary>
     public void SetBottomHudHeight(float pixelHeight)
     {
         m_BottomHudPixelHeight = Mathf.Max(pixelHeight, 0f);
     }
 
-    /// <summary>
-    /// 重新计算大厅相机参数（根据当前视口自动适配地图完整显示）
-    /// 调用后m_NormalCamData会被更新为适配后的size和posY
-    /// </summary>
+    /// <summary>重新计算大厅相机参数（根据当前视口自动适配）</summary>
     public void RecalcNormalCamData()
     {
-        float autoSize = CalcAutoMinCamSize();
-        m_NormalCamData.size = autoSize;
+        m_NormalCamData.size = CalcAutoMinCamSize();
         m_NormalCamData.NormalAdjustPosY(m_MainHudMaxHeight);
     }
 
-    /// <summary>
-    /// 获取游玩相机可视区域右边界世界X坐标（旧全屏尺寸逻辑，兼容历史代码）
-    /// </summary>
-    public float PlayHudRightViewWorldPosX()
-    {
-        var viewSize = Util.GameViewSize();
-        return m_PlayCamData.posX + CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
-    }
-
-    /// <summary>
-    /// 获取游玩相机可视区域右边界世界X坐标（新：仅中间红框地图视口，剔除上下UI）
-    /// </summary>
+    /// <summary>获取游玩相机可视区域右边界世界X坐标（红框视口）</summary>
     public float PlayHudRightViewWorldPosX_Viewport()
     {
-        var viewSize = GetMapViewportSize();
-        return m_PlayCamData.posX + CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
+        return m_PlayCamData.posX + CalcViewHalfWorldWidth(m_PlayCamData.size, GetMapViewportSize());
     }
 
-    /// <summary>
-    /// 获取游玩相机可视区域左边界世界X坐标（旧全屏尺寸逻辑）
-    /// </summary>
-    public float PlayHudLeftViewWorldPosX()
-    {
-        var viewSize = Util.GameViewSize();
-        return m_PlayCamData.posX - CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
-    }
-
-    /// <summary>
-    /// 获取游玩相机可视区域左边界世界X坐标（新：仅中间红框地图视口）
-    /// </summary>
+    /// <summary>获取游玩相机可视区域左边界世界X坐标（红框视口）</summary>
     public float PlayHudLeftViewWorldPosX_Viewport()
     {
-        var viewSize = GetMapViewportSize();
-        return m_PlayCamData.posX - CalcViewHalfWorldWidth(m_PlayCamData.size, viewSize);
+        return m_PlayCamData.posX - CalcViewHalfWorldWidth(m_PlayCamData.size, GetMapViewportSize());
     }
+
     #endregion
 }

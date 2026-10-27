@@ -1,0 +1,20 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  MapObjectCtrl.lua
+-- author:    云毅
+-- descrip:   地图物件/建筑实体入口（C# LuaBehaviour 绑定名，逻辑全部在 MapObjectBase）
+--=====================================================================================================
+
+---@class MapObjectCtrl : MapObjectBase
+local MapObjectCtrl = class('MapObjectCtrl', import('MapObjectBase'))
+
+---创建函数
+---@type fun(args:table):MapObjectCtrl
+---@param args table @自定义参数
+---@return MapObjectCtrl @实例
+function MapObjectCtrl:Create(args)
+    return MapObjectCtrl.new(args)
+end
+
+return MapObjectCtrl

@@ -3,25 +3,50 @@
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  TableLevelData_1_2
--- descrip:   关卡配置信息表
--- notices:   该文件自动生成，请不要手动修改！
--- @brief     第1章第2关（LevelId=2）地图关卡数据
--- @desc      MapBuildEditor 导出的单关地图物件摆放数据
--- @core      ChapterId、LevelId、BgName、Time、MapName、SavePath、MapData（物件实例数组：Id/Type/Position/Rotation/Scale/Sprite/Name/Size/IsChoose）
--- @scope     关卡进入时加载对应地图物件布局
--- @dependency Tables 注册表（Tables.lua），由 Tables.LevelData_1_2 索引触发 require 自动加载
+-- descrip:   章节1分区2地图数据（自动生成）
+-- notices:   该文件由地图编辑器自动生成，禁止手动修改！
+-- @brief     章节地图数据表（分区粒度）
+-- @desc      由 Honor.Editor.MapTool 保存时自动生成，与 Assets/GameData/MapDatas/Map_1.json 同源
+-- @core      章节信息 + 分区信息（背景/物件/人物含路径点/建筑）
+-- @scope     运行时经 Tables.LevelData_1_2 访问（GamePlayHelper:LoadLevelData 取数）
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Xxx 索引触发 require 自动加载
 --=====================================================================================================
 
 ---@type Tables.LevelData_Item
-Tables.LevelData_1_2 = { 
+Tables.LevelData_1_2 = {
     ChapterId = "1",
-    LevelId= 2,
+    ChapterName = "ChapterName1",
+    SectionId = 2,
+    SectionCount = 2,
+    LevelId = 2,
     BgName = "Level_bg_main2",
-    Time = "2026-08-20 18:30:17",
-    MapName ="GameMainMap",
-    SavePath ="",
-    MapData= {
-       [1] = {Id = 1002, Type = "Dissipate",Position = {"-261.51","712.07","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat2",Name = "ItemMap_Instance_0",Size = {"35.00","39.00","0.00"},IsChoose = false},
-       [2] = {Id = 1019, Type = "Dissipate",Position = {"412.75","-579.74","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat19",Name = "ItemMap_Instance_1",Size = {"35.00","39.00","0.00"},IsChoose = false},
+    MapName = "GameMainMap",
+    SavePath = "Assets/GameData/MapDatas/Map_1.json",
+    Time = "2026-10-27 14:19:29",
+    Width = 4096,
+    Height = 2048,
+    RegionRows = 1,
+    RegionCols = 2,
+    RegionCol = 1,
+    RegionRow = 0,
+    Unlocked = false,
+    FogEnabled = true,
+    GridSize = 32,
+    GridCols = 128,
+    GridRows = 64,
+    OccupiedCells = {
+        -- 无占用
     },
- }
+    MapData = {
+    -- 空列表
+    },
+    Characters = {
+    -- 空列表
+    },
+    Buildings = {
+    -- 空列表
+    },
+    Objects = {
+    -- 空列表
+    },
+}

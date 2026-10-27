@@ -1,0 +1,29 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  ObjectItem.lua
+-- author:    云毅
+-- descrip:   物品
+--=====================================================================================================
+
+---@class ObjectItem : MapObjectBase
+---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour
+local ObjectItem = class('ObjectItem', import('MapObjectBase'))
+
+---构造函数
+---@type fun(args:table):void
+---@param args table @自定义参数
+function ObjectItem:ctor(args)
+    ObjectItem.super.ctor(self, args)
+end
+
+---创建函数
+---@type fun(args:table):ObjectItem
+---@param args table @自定义参数
+---@return ObjectItem @实例
+function ObjectItem:Create(args)
+    return ObjectItem.new(args)
+end
+
+return ObjectItem

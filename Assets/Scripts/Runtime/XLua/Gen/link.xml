@@ -4,6 +4,12 @@
 
 	<assembly fullname="Assembly-CSharp">
 	    <type fullname="GameLib.HiddenObjectCS" preserve="all"/>
+		<type fullname="GameLib.MapGridCheckUtil" preserve="all"/>
+		<type fullname="GameLib.MapGridDrawUtil" preserve="all"/>
+		<type fullname="GameLib.MapConfigLoader" preserve="all"/>
+		<type fullname="GameLib.MapLoadManager" preserve="all"/>
+		<type fullname="GameLib.MapPathMoveUtil" preserve="all"/>
+		<type fullname="Honor.Runtime.GridManager" preserve="all"/>
 		<type fullname="Honor.Runtime.AssetComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.PrefabObject" preserve="all"/>
 		<type fullname="Honor.Runtime.AssetBundleObject" preserve="all"/>
@@ -107,7 +113,6 @@
 		<type fullname="Honor.Runtime.FileFragmentForWebGLManager" preserve="all"/>
 		<type fullname="Honor.Runtime.PlayerPrefsManager" preserve="all"/>
 		<type fullname="Honor.Runtime.PlayingComponent" preserve="all"/>
-		<type fullname="Honor.Runtime.GridManager" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFadeInEvent" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFadeOutEvent" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFadeStopEvent" preserve="all"/>
@@ -313,6 +318,7 @@
 		<type fullname="GameLib.GameManager" preserve="all"/>
 		<type fullname="GameLib.ProcedureUtils" preserve="all"/>
 		<type fullname="GameLib.ItemMap" preserve="all"/>
+		<type fullname="GameLib.MapObjectType" preserve="all"/>
 		<type fullname="GameLib.AorClickItem" preserve="all"/>
 		<type fullname="GameLib.AorExtendImage" preserve="all"/>
 		<type fullname="GameLib.AorInterfaceAdaptation" preserve="all"/>
@@ -324,12 +330,14 @@
 		<type fullname="GameLib.RSetupLuaTableValue" preserve="all"/>
 		<type fullname="GameLib.TablesBridge" preserve="all"/>
 		<type fullname="GameLib.JsonHelper" preserve="all"/>
+		<type fullname="GameLib.CameraFitMode" preserve="all"/>
 		<type fullname="GameLib.MapCamHelper" preserve="all"/>
 		<type fullname="GameLib.MapInBounds" preserve="all"/>
 		<type fullname="GameLib.ObjectCommon" preserve="all"/>
 		<type fullname="GameLib.RTransformExtension" preserve="all"/>
 		<type fullname="GameLib.Util" preserve="all"/>
 		<type fullname="GameLib.WaitForFrames" preserve="all"/>
+		<type fullname="GameLib.MapGridDrawUtil+GridStyle" preserve="all"/>
 		<type fullname="GameLib.AorInterfaceAdaptation+AdaptMode" preserve="all"/>
 		<type fullname="GameLib.AorInterfaceAdaptation+FillMode" preserve="all"/>
 		<type fullname="GameLib.AorInterfaceAdaptation+AlignSide" preserve="all"/>

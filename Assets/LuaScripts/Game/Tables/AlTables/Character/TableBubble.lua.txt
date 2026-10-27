@@ -1,0 +1,42 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+-- All Rights Reserved.
+-- ----------------------------------------------------------------------------------------------------
+-- filename:  TableBubble
+-- descrip:   通用随机气泡配置表
+-- notices:   该文件自动生成，请不要手动修改！
+-- @brief     通用气泡配置表（独立表，供人物/物件/建筑等实体配置按 BubbleId 引用）
+-- @desc      登记各气泡配置的文本Key池、弹泡间隔、气泡时长、触发概率与是否跟随目标
+-- @core      以数字 ID 为主键，字段含 BubbleTexts（气泡文本Key池）、Interval（弹泡间隔秒）、
+--            Duration（气泡持续秒）、Chance（每次触发概率0-1）、Follow（是否跟随目标移动）
+-- @scope     地图上人物（Character）/物件（Prop）/建筑（Building）等实体按各自配置的 BubbleId 引用本表，随机弹泡显示
+-- @dependency Tables 注册表（Tables.lua），由 Tables.Bubble 索引触发 require 自动加载
+--=====================================================================================================
+
+---@class Tables.Bubble_Item @通用气泡配置条目
+---@field ID number @气泡配置ID（人物/物件/建筑等配置表 BubbleId 引用）
+---@field BubbleTexts string[] @气泡文本Key池（本地化Key，随机取一条显示）
+---@field Interval number @弹泡间隔（秒）
+---@field Duration number @气泡持续显示时长（秒）
+---@field Chance number @每次到点触发概率（0-1）
+---@field Follow boolean @是否跟随目标移动
+
+---@class Tables.Bubble @通用气泡配置
+Tables.Bubble = {
+    [1] = {
+        ID = 1,
+        BubbleTexts = {"Bubble_Char_1_1", "Bubble_Char_1_2", "Bubble_Char_1_3"},
+        Interval = 5,
+        Duration = 2,
+        Chance = 1,
+        Follow = true,
+    },
+    [2] = {
+        ID = 2,
+        BubbleTexts = {"Bubble_Char_2_1", "Bubble_Char_2_2", "Bubble_Char_2_3", "Bubble_Char_2_4"},
+        Interval = 8,
+        Duration = 2.5,
+        Chance = 0.8,
+        Follow = true,
+    },
+}

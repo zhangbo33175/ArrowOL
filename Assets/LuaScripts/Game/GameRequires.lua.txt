@@ -181,6 +181,9 @@ CharacterGenerationDataManager = require("CharacterGenerationDataManager"):Creat
 ---@type CharacterGenerationManager 角色生成管理器
 CharacterGenerationManager = require("CharacterGenerationManager"):Create()
 
+---@type MapLoadManager 地图加载管理器（分区骨架+网格+相机）
+MapLoadManager = require("MapLoadManager"):Create()
+
 ---@type PlayGameplayCycle 玩法周期
 PlayGameplayCycle = require("PlayGameplayCycle"):Create()
 

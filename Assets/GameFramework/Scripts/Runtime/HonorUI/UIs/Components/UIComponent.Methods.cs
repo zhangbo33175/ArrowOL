@@ -47,8 +47,7 @@ namespace Honor.Runtime
         /// </summary>
         private void Initialize()
         {
-            // ---TODO 门面收敛：原 m_AssetComponent/m_LocalizationComponent/m_ConfigComponent 字段已删除，统一改为 HonorAssetManager/HonorCoreManager.Instance 门面直调
-            // 获取资源管理组件（缺失时致命校验并中止初始化）
+             // 获取资源管理组件（缺失时致命校验并中止初始化）
             if (HonorAssetManager.Instance.Asset == null)
             {
                 return;

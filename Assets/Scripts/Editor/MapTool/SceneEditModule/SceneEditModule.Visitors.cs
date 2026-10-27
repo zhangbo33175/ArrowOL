@@ -135,6 +135,13 @@ namespace Honor.Editor.MapTool
         /// 章节配置表数据（场景名/场景ID/分区配置来源）
         /// </summary>
         private readonly List<TableChapterEditor> m_ChapterDataList = new List<TableChapterEditor>();
+
+        // ---TODO 双格式保存：当前加载章节的上下文缓存（LoadChapterMap 匹配到章节时赋值）
+        /// <summary>当前加载章节ID（未匹配到配置表章节时用加载入参 chapterId 兜底）</summary>
+        private string m_CurrentChapterId = string.Empty;
+
+        /// <summary>当前加载章节的配置表行数据（未匹配到时为 null）</summary>
+        private TableChapterEditor m_CurrentChapterData;
         // 地图拖动
         /// <summary>
         /// 地图拖动偏移
@@ -248,6 +255,10 @@ namespace Honor.Editor.MapTool
         /// 每个分区的 ID
         /// </summary>
         private string[] m_RegionIds;
+        /// <summary>
+        /// 场景中实例化的 ZoneRoot 引用（用于增删物体后刷新场景同步）
+        /// </summary>
+        private RectTransform m_ZoneRootInstance;
         // 关卡配置表（ID -> Level_bg）
         /// <summary>
         /// 关卡配置表（分区ID -> 背景图名）
@@ -450,6 +461,8 @@ namespace Honor.Editor.MapTool
         private DropdownField m_InteractTypeField;
         private Toggle m_CollisionToggle;
         private DropdownField m_DialogBubbleField;
+        // ---TODO 气泡配置表通用化：气泡ID输入框（引用 Tables.Bubble，<=0 不导出）
+        private IntegerField m_BubbleIdField;
         private DropdownField m_FacingField;
         private Toggle m_ShadowToggle;
         private Toggle m_CollectibleToggle;

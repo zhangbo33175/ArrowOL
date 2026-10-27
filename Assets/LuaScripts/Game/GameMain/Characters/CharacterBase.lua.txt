@@ -21,7 +21,13 @@
 ---@field _LastSoundSerialID number @最后播放的音效ID
 ---@field _name string @角色名称
 ---@field _Destroying boolean @销毁中标志（防销毁 GameObject 触发 C# OnDestroy 递归）
+---@field _MoveSeq DG.Tweening.Sequence @路径移动序列句柄（PathPoints 非空时由 StartPathMove 赋值）
+---TODO [路径移动] 惰性加载 MapPathMoveUtil：模块解析失败仅令移动空转，绝不阻断角色生成链（顶层 require 会炸 luaClass）
+---TODO [路径移动] 直调 C# GameLib.MapPathMoveUtil（Lua 模块已删）
 local CharacterBase = class('CharacterBase', import('LuaBehaviourSuper'))
+
+---TODO [跨区校验] 静态表：登记被拦角色，OnSectionUnlocked 统一遍历 Resume；清理靠换图销毁时引用自然失效
+CharacterBase._BlockedActors = {}
 
 --region 【构造 & 创建】
 
@@ -36,6 +42,8 @@ function CharacterBase:ctor(args)
     self._CharacterIcon     = self.cs.transform:Find("CharacterIcon")
     ---@type GameLib.WaitForFrames @ 公共的
     self._WaitFrame         = GameLib.WaitForFrames(1)
+    ---TODO [路径移动] NPC 巡逻移动序列句柄，回收/销毁时显式 Kill
+    self._MoveSeq           = nil
 end
 
 ---@brief 创建函数
@@ -74,11 +82,126 @@ function CharacterBase:Awake()
 end
 
 ---@brief 开始
----@desc 框架驱动，勿删
+---@desc 框架驱动，勿删；启动角色随机气泡定时器（无 BubbleId 配置的角色不弹泡）
 ---@type fun():void
 function CharacterBase:Start()
     CharacterBase.super.Start(self)
+    self:_StartBubbleTimer()
 end
+
+--region 【角色随机气泡】
+
+---@brief 启动角色随机气泡定时器
+---@desc 读取角色配置 BubbleId 指向的通用气泡表（Tables.Bubble），按 Interval 循环随机弹泡；
+---      通过 AddUpdateTimer 循环协程驱动，随角色 OnDestroy 自动停止，无需手动关闭。
+---      无 BubbleId 或气泡池为空时静默跳过，不影响原角色行为。
+---@type fun():void
+function CharacterBase:_StartBubbleTimer()
+    if not self._CharData or not self._CharData.BubbleId then
+        return
+    end
+    ---@type Tables.Bubble_Item
+    local cfg = Tables.Bubble and Tables.Bubble[self._CharData.BubbleId]
+    if not cfg or not cfg.BubbleTexts or #cfg.BubbleTexts == 0 then
+        return
+    end
+    self._BubbleCfg = cfg
+    local interval = cfg.Interval or 5
+    -- 循环定时器（AddUpdateTimer 自动随对象销毁停止），闭包包装方法引用避免 xlua 解析歧义
+    self:AddUpdateTimer(interval, function()
+        self:_TryShowBubble()
+    end)
+end
+
+---@brief 尝试随机弹泡
+---@desc 每个弹泡间隔到点触发：先按配置概率判定是否弹出，再随机取一条气泡文本Key，
+---      调 UIBubbleManager:GenerateBubble 显示（host=角色图标，同角色 key 互斥不重复）；
+---      气泡显示/自动消失/回池由 UIBubbleManager 统一管理。
+---@type fun():void
+function CharacterBase:_TryShowBubble()
+    -- 配置/挂点/销毁态校验
+    if not self._BubbleCfg or not self._CharacterIcon or self._Destroying then
+        return
+    end
+    -- 概率判定（Chance 默认必弹）
+    local chance = self._BubbleCfg.Chance
+    if chance ~= nil and math.random() > chance then
+        return
+    end
+    -- 随机取一条气泡文本Key
+    local texts = self._BubbleCfg.BubbleTexts
+    local textKey = texts[math.random(1, #texts)]
+    if not textKey then
+        return
+    end
+    -- 弹泡：key=角色ID（同角色互斥），host=角色图标跟随，文本用本地化Key
+    UIBubbleManager:GenerateBubble({
+        key = "MapCharBubble_" .. tostring(self:GetCharID()),
+        bubbleHost = self._CharacterIcon,
+        hostInUGUI = false,
+        bubbleTextKey = textKey,
+        duration = self._BubbleCfg.Duration or 2,
+        followPosition = self._BubbleCfg.Follow ~= false,
+    })
+end
+
+--endregion
+
+--region 【路径移动（PathPoints 巡逻）】
+
+---@brief 启动 PathPoints 路径移动
+---@desc 角色配置带 PathPoints 时由 CharacterGenerationManager 生成后调用；
+---      经 MapPathMoveUtil 构建匀速 DOMove 序列（local 空间=地图根像素空间，与 localPosition 同系）。
+---      循环语义：PatrolLoop 为真循环巡逻，否则走一遍停终点；与气泡互不干扰，随角色销毁停止。
+---@type fun(pathPoints:table,speed:number,isLoop:boolean):void
+---@param pathPoints table @路径点数组 {X=number,Y=number}
+---@param speed number @速度倍率（动画语义，运行时乘基础速度）
+---@param isLoop boolean @是否循环巡逻
+function CharacterBase:StartPathMove(pathPoints, speed, isLoop)
+    ---TODO [路径移动] 直调 C# GameLib.MapPathMoveUtil（Lua 模块已删）
+    if self._MoveSeq ~= nil then
+        CS.GameLib.MapPathMoveUtil.Kill(self._MoveSeq)
+    end
+    if not pathPoints or #pathPoints == 0 then
+        self._MoveSeq = nil
+        return
+    end
+    local points = {}
+    for i, p in ipairs(pathPoints) do
+        points[i] = UnityEngine.Vector3(p.X or p.x or 0, p.Y or p.y or 0, 0)
+    end
+    local label = "角色" .. tostring(self._CharData and self._CharData.ID or "?")
+    ---TODO [跨区] gating 谓词：目标点所在分区未解锁则拦
+    ---TODO [代码质量] 1:1 坐标：world≡editor（去 *2+2048 反算）
+    local shouldBlock = function(toPoint)
+        local ex = toPoint.x
+        local ey = toPoint.y
+        local cols = tonumber(MapLayoutConfig.regionCols) or 2
+        local step = 2048
+        local col = math.floor(ex / step)
+        local row = math.floor(ey / step)
+        local sectionId = row * cols + col + 1
+        local chapterLv = GamerDataManager:GetLatestChapterLevel()
+        if not chapterLv or not chapterLv.Level then return false end
+        return (tonumber(chapterLv.Level) or 1) < (tonumber(sectionId) or 1)
+    end
+    self._MoveSeq = CS.GameLib.MapPathMoveUtil.BuildLocalMoveSeq(self.cs.transform, points,
+        tonumber(speed) or 1, isLoop == true, label, shouldBlock)
+
+    ---TODO [跨区校验] 登记被拦角色到静态表，解锁事件统一遍历 Resume
+    if self._MoveSeq ~= nil then
+        CharacterBase._BlockedActors[#CharacterBase._BlockedActors + 1] = self
+    end
+end
+
+---@brief 解锁后续走（由 OnSectionUnlocked 事件触发）
+function CharacterBase:ResumePathMove()
+    if self._MoveSeq == nil then return end
+    CS.GameLib.MapPathMoveUtil.ResumePath(self._MoveSeq)
+    self:_UnregisterBlocked()
+end
+
+--endregion
 
 ---@brief 销毁
 ---@type fun():void
@@ -86,9 +209,32 @@ end
 ---      OnDestroy 时因字段被清理置 nil 而报错，故改用 self.cs 根节点（与 _GameObject 同对象）可靠销毁。
 ---      销毁会触发 C# LuaBehaviour.OnDestroy 再次进入本方法，用 _Destroying 标志防递归
 --TODO: [修复] OnDestroy 改用 self.cs 根节点销毁角色，保证点击收集后角色图标消失；防递归
+---@brief 从 _BlockedActors 静态表移除自身（swap-remove，O(1)，幂等）
+---@type fun():void
+---TODO [跨区校验] OnDestroy/Clear/续走成功路径调用；表空/未登记跳过，防对象池复用重复登记
+function CharacterBase:_UnregisterBlocked()
+    local list = CharacterBase._BlockedActors
+    if not list or #list == 0 then return end
+    for i = 1, #list do
+        if list[i] == self then
+            list[i] = list[#list]
+            list[#list] = nil
+            print(string.format("[跨区] 移除被拦登记 actor=%s 剩余=%d",
+                tostring(self._CharData and self._CharData.ID or "?"), #list))
+            return
+        end
+    end
+end
+
 function CharacterBase:OnDestroy()
     if self._Destroying then return end -- 防递归：销毁 GameObject 会再次触发本方法
     self._Destroying = true
+    ---TODO [路径移动] 角色销毁前显式 Kill（nil 守卫双保险）
+    if self._MoveSeq and CS.GameLib.MapPathMoveUtil then
+        CS.GameLib.MapPathMoveUtil.Kill(self._MoveSeq)
+    end
+    self._MoveSeq = nil
+    self:_UnregisterBlocked()
     CharacterBase.super.OnDestroy(self)
     -- 销毁角色根节点 GameObject，使图标从场上消失
     if self.cs ~= nil and not IsNull(self.cs) and self.cs.gameObject ~= nil and not IsNull(self.cs.gameObject) then
@@ -119,10 +265,17 @@ end
 ---@desc 由 CharacterGenerationManager 生成/回收时跨文件调用，重置角色引用字段
 ---@type fun():void
 function CharacterBase:Clear()
+    ---TODO [路径移动] 清理前先 Kill（nil 守卫双保险）
+    if self._MoveSeq and CS.GameLib.MapPathMoveUtil then
+        CS.GameLib.MapPathMoveUtil.Kill(self._MoveSeq)
+    end
+    self._MoveSeq     = nil
     self._CharData = nil
     self._ClickItem = nil
     self._CharacterIcon = nil
     self._GameObject   = nil
+    self._BubbleCfg    = nil
+    self:_UnregisterBlocked()
 end
 
 --endregion

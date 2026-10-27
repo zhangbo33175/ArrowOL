@@ -67,7 +67,7 @@ MonoBehaviour:
   - ViewModelSuper
   m_BindValues: []
   m_LuaScriptNamesNone:
-  - 
+  - MapObjectCtrl
   m_LuaSuperScriptNamesNone:
   - LuaBehaviourSuper
   m_PatternType: 0

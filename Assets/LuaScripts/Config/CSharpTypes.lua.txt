@@ -1,0 +1,231 @@
+--[[
+(c) copyright 2026 - 2030, Honor.Runtime
+
+@file CSharpTypes.lua.txt
+@brief C# 类型统一索引（消 EmmyLua/Sumneko 红线）
+@TODO 新增类型时按命名空间分组追加
+]]
+
+---@class Honor.Runtime.LuaBehaviour @C# LuaBehaviour 组件基类
+---@field gameObject UnityEngine.GameObject
+---@field transform UnityEngine.Transform
+
+---@class Honor.Runtime.UIType @UI 类型枚举
+
+---@class GameLib.MapGridOverlayComponent @网格 overlay C# 组件
+---@field BuildOverlay fun(gridSize:number,gridCols:number,gridRows:number,scale:number,occupiedCells:table,regionCols:number,regionRows:number,showGrid:boolean,showOccupied:boolean):void
+---@field ClearOverlay fun():void
+---@field SetVisible fun(visible:boolean):void
+
+---@class GameLib.WaitForFrames @帧等待对象
+
+---@class GameLib.AorClickItem @点击组件
+
+---@class GameLib.MapCamHelper @相机助手
+---@field MapCamera UnityEngine.Camera
+---@field LookMap fun(...):void
+---@field InitMapCamera fun(data:table):void
+---@field SetAllCamerasNear fun(near:number):void
+
+---@class GameLib.MapMotionLayer @地图层组件
+
+---@class GameLib.RSetupLuaTableValue @Lua 表工具
+---@field RScreenToWorldPoint fun(cam:UnityEngine.Camera,v3:UnityEngine.Vector3,out:UnityEngine.Vector3):void
+---@field IsPointerOverUIObject fun():boolean
+---@field GetTimeDeltaTime fun():number
+
+---@class GameLib.ObjectCommon @对象工具
+---@field IsObjectEmpty fun(obj:UnityEngine.Object):boolean
+
+---@class GameLib.Util @通用工具
+---@field SetMultiTouchEnabled fun(enabled:boolean):void
+
+---@class DG.Tweening.Ease @缓动枚举
+
+---@class DG.Tweening.Sequence @DOTween 动画序列
+---@field Append fun(tween:table):DG.Tweening.Sequence
+---@field Join fun(tween:table):DG.Tweening.Sequence
+---@field OnComplete fun(cb:fun()):DG.Tweening.Sequence
+---@field SetEase fun(ease:DG.Tweening.Ease):DG.Tweening.Sequence
+---@field Play fun():void
+---@field Kill fun():void
+
+---@class DG.Tweening.TweenCallback @Tween 回调
+
+---@class UnityEngine.Transform
+---@field position UnityEngine.Vector3
+---@field localPosition UnityEngine.Vector3
+---@field Find fun(path:string):UnityEngine.Transform
+---@field SetParent fun(parent:UnityEngine.Transform,worldPositionStays:boolean):void
+---@field gameObject UnityEngine.GameObject
+
+---@class UnityEngine.GameObject
+---@field transform UnityEngine.Transform
+---@field SetActive fun(active:boolean):void
+---@field GetComponent fun(type:string|table):any
+---@field AddComponent fun(type:table):any
+
+---@class UnityEngine.Camera
+---@field orthographicSize number
+
+---@class UnityEngine.Vector3
+---@field x number
+---@field y number
+---@field z number
+
+---@class UnityEngine.Object
+---@field name string
+
+---@class UnityEngine.Rect
+---@field x number
+---@field y number
+---@field width number
+---@field height number
+
+---@class UnityEngine.Vector2
+---@field x number
+---@field y number
+
+---@class HedgehogTeam.EasyTouch.Gesture @EasyTouch 触摸手势对象
+---@field position UnityEngine.Vector2
+---@field startPosition UnityEngine.Vector2
+---@field swipeLength number
+---@field deltaSwipe UnityEngine.Vector2
+---@field touchCount number
+---@field isOverGui boolean
+
+---@class DG.Tweening.Tweener @DOTween 单值补间
+---@field OnComplete fun(cb:fun()):DG.Tweening.Tweener
+---@field OnUpdate fun(cb:fun()):DG.Tweening.Tweener
+---@field OnKill fun(cb:fun()):DG.Tweening.Tweener
+---@field SetEase fun(ease:DG.Tweening.Ease):DG.Tweening.Tweener
+---@field SetLoops fun(count:number,loopType:number):DG.Tweening.Tweener
+---@field SetDelay fun(delay:number):DG.Tweening.Tweener
+---@field Kill fun():void
+
+---@class DG.Tweening.DOTween @DOTween 全局入口
+---@field Sequence fun():DG.Tweening.Sequence
+---@field Tween fun():DG.Tweening.Tweener
+---@field To fun(getter:fun():number,setter:fun(v:number),to:number,duration:number):DG.Tweening.Tweener
+---@field KillAll fun(complete:boolean):void
+
+---@class DG.Tweening.LoopType @DOTween 循环类型枚举
+
+---@class XLua.LuaTable @xlua Lua 表对象
+---@field Get fun(key:string):any
+---@field Set fun(key:string,value:any):void
+---@field Length fun():number
+
+---@class UnityEngine.Bounds @包围盒
+---@field center UnityEngine.Vector3
+---@field size UnityEngine.Vector3
+---@field extents UnityEngine.Vector3
+---@field min UnityEngine.Vector3
+---@field max UnityEngine.Vector3
+
+---@class UnityEngine.Component
+---@field gameObject UnityEngine.GameObject
+---@field transform UnityEngine.Transform
+---@field GetComponent fun(type:string|table):any
+
+---@class UnityEngine.Coroutine @协程句柄
+
+---@class UnityEngine.Canvas @UI 画布
+---@field sortingOrder number
+
+---@class UnityEngine.RectTransform @矩形变换
+---@field rect UnityEngine.Rect
+---@field sizeDelta UnityEngine.Vector2
+---@field anchorMin UnityEngine.Vector2
+---@field anchorMax UnityEngine.Vector2
+---@field pivot UnityEngine.Vector2
+---@field anchoredPosition UnityEngine.Vector2
+---@field SetParent fun(parent:UnityEngine.Transform,worldPositionStays:boolean):void
+
+---@class UnityEngine.MeshFilter @网格过滤器
+---@field mesh UnityEngine.Mesh
+
+---@class UnityEngine.BoxCollider2D @2D 盒碰撞器
+---@field size UnityEngine.Vector2
+---@field offset UnityEngine.Vector2
+
+---@class UnityEngine.Touch @触摸点
+---@field position UnityEngine.Vector2
+---@field deltaPosition UnityEngine.Vector2
+---@field phase number
+
+---@class UnityEngine.UI.Image @UI 图片
+---@field sprite UnityEngine.Sprite
+---@field color UnityEngine.Color
+---@field fillAmount number
+---@field raycastTarget boolean
+
+---@class UnityEngine.UI.Button @UI 按钮
+---@field onClick any
+---@field interactable boolean
+
+---@class UnityEngine.UI.MaskableGraphic @UI 可遮罩图形
+---@field color UnityEngine.Color
+---@field raycastTarget boolean
+
+---@class UnityEngine.UI.Scrollbar @UI 滚动条
+---@field size number
+---@field value number
+
+---@class Spine.TrackEntry @Spine 动画轨道
+---@field animation Spine.Animation
+---@field time number
+---@field loop boolean
+
+---@class Spine.SkeletonAnimation @Spine 骨骼动画
+---@field AnimationName string
+---@field timeScale number
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
+---@field AddAnimation fun(trackIndex:number,animationName:string,loop:boolean,delay:number):Spine.TrackEntry
+
+---@class Spine.SkeletonGraphic @Spine 骨骼图形（UI）
+---@field AnimationName string
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
+---@field AddAnimation fun(trackIndex:number,animationName:string,loop:boolean,delay:number):Spine.TrackEntry
+
+---@class Spine.UnityEngine.SkeletonAnimation @Spine 骨骼动画（Unity 层）
+---@field AnimationName string
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
+
+---@class Spine.UnityEngine.SkeletonGraphic @Spine 骨骼图形（Unity 层）
+---@field AnimationName string
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
+
+---@class TMPro.TextMeshProUGUI @TextMeshPro 文本（UGUI）
+---@field text string
+---@field fontSize number
+---@field color UnityEngine.Color
+---@field fontStyle number
+
+---@class HedgehogTeam.EasyTouch.EasyTouch @EasyTouch 全局
+---@field touchCount number
+
+---@class Honor.Runtime.GameMainRoot @游戏主根节点
+---@field transform UnityEngine.Transform
+
+---@class Honor.Runtime.ProcedureState @流程状态枚举
+
+---@class System.Byte @byte 类型
+---@class System.Type @Type 类型
+
+---@class UnityEngine.Color @颜色
+---@field r number
+---@field g number
+---@field b number
+---@field a number
+
+---@class UnityEngine.Sprite @精灵
+---@field name string
+---@field rect UnityEngine.Rect
+
+---@class UnityEngine.Mesh @网格
+---@field bounds UnityEngine.Bounds
+
+---@class Spine.Animation @Spine 动画
+---@field name string
+---@field duration number

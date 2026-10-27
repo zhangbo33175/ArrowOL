@@ -184,6 +184,10 @@ namespace Honor.Editor.MapTool
         /// <summary>对话气泡内容</summary>
         public string DialogBubble = string.Empty;
 
+        // ---TODO 气泡配置表通用化：引用 Tables.Bubble（>0 生效，<=0 不输出）
+        /// <summary>气泡配置表ID（引用 Tables.Bubble；<=0 表示无气泡，Lua 导出时整行省略）</summary>
+        public int bubbleId = 0;
+
         /// <summary>是否允许与其他物体重叠覆盖</summary>
         public bool AllowOverlap = false;
 
@@ -296,8 +300,51 @@ namespace Honor.Editor.MapTool
         /// <summary>地图高度（像素）</summary>
         public int height = 2048;
 
+        // ---TODO 双格式保存：新增章节信息字段（JSON 落 MapDatas，Lua 同源导出）
+        /// <summary>章节ID（来自 TableChapterEditor.ID）</summary>
+        public string chapterId = string.Empty;
+
+        /// <summary>章节名称（来自 TableChapterEditor.ChapterTitle）</summary>
+        public string chapterName = string.Empty;
+
+        /// <summary>分区数（= m_RegionCount）</summary>
+        public int regionCount = 0;
+
+        // ---TODO 布局：行优先 row-major，cols=ceil(sqrt(regionCount))、rows=ceil(regionCount/cols)
+        /// <summary>分区行数（row-major，最多 3）</summary>
+        public int regionRows = 2;
+
+        /// <summary>分区列数（row-major，最多 3）</summary>
+        public int regionCols = 2;
+
         /// <summary>分区信息列表</summary>
         public List<MapRegionData> regions = new List<MapRegionData>();
+
+        // ---TODO 网格信息：保存格子尺寸/行列/占用，供运行时检查位置
+        /// <summary>格子尺寸（像素，= MapToolConstants.GridSize）</summary>
+        public int gridSize = 32;
+
+        /// <summary>网格列数（= width / gridSize）</summary>
+        public int gridCols = 0;
+
+        /// <summary>网格行数（= height / gridSize）</summary>
+        public int gridRows = 0;
+
+        /// <summary>被摆放物占用的格子集合（格子行列坐标，运行时位置/占用校验）</summary>
+        public List<MapGridCellData> occupiedCells = new List<MapGridCellData>();
+    }
+
+    /// <summary>
+    /// 网格占用格子数据（行列坐标）
+    /// </summary>
+    [Serializable]
+    public class MapGridCellData
+    {
+        /// <summary>列（X）</summary>
+        public int x = 0;
+
+        /// <summary>行（Y）</summary>
+        public int y = 0;
     }
 
     /// <summary>
@@ -316,8 +363,36 @@ namespace Honor.Editor.MapTool
         /// <summary>是否默认解锁</summary>
         public bool unlocked = false;
 
+        // ---TODO 布局：row-major offset（col*2048, row*2048），运行时背景瓦片定位
+        /// <summary>分区列索引（0..cols-1）</summary>
+        public int col = 0;
+
+        /// <summary>分区行索引（0..rows-1，row0=底）</summary>
+        public int row = 0;
+
+        /// <summary>分区左上角X像素偏移（col × RegionPixelSize）</summary>
+        public int offsetX = 0;
+
+        /// <summary>分区左上角Y像素偏移（row × RegionPixelSize）</summary>
+        public int offsetY = 0;
+
+        /// <summary>分区宽度（像素，= RegionPixelSize）</summary>
+        public int width = 2048;
+
+        /// <summary>分区高度（像素，= RegionPixelSize）</summary>
+        public int height = 2048;
+
         /// <summary>是否开启迷雾效果</summary>
         public bool fogEnabled = false;
+
+        /// <summary>分区内网格列数（= width / gridSize）</summary>
+        public int gridCols = 64;
+
+        /// <summary>分区内网格行数（= height / gridSize）</summary>
+        public int gridRows = 64;
+
+        /// <summary>出生点集合（玩家进入此分区时的出生位置）</summary>
+        public List<MapSpawnPointData> spawnPoints = new List<MapSpawnPointData>();
 
         /// <summary>该区域建筑集合</summary>
         public List<MapObjectData> buildings = new List<MapObjectData>();
@@ -327,6 +402,34 @@ namespace Honor.Editor.MapTool
 
         /// <summary>该区域人物集合</summary>
         public List<MapCharacterData> characters = new List<MapCharacterData>();
+    }
+
+    /// <summary>
+    /// 出生点数据
+    /// </summary>
+    [Serializable]
+    public class MapSpawnPointData
+    {
+        /// <summary>出生点ID</summary>
+        public string id = string.Empty;
+
+        /// <summary>名称</summary>
+        public string name = string.Empty;
+
+        /// <summary>X坐标（世界像素）</summary>
+        public float x = 0;
+
+        /// <summary>Y坐标（世界像素）</summary>
+        public float y = 0;
+
+        /// <summary>格子X</summary>
+        public int gridX = 0;
+
+        /// <summary>格子Y</summary>
+        public int gridY = 0;
+
+        /// <summary>初始朝向：up/down/left/right</summary>
+        public string facing = "down";
     }
 
     /// <summary>
@@ -350,6 +453,13 @@ namespace Honor.Editor.MapTool
         /// <summary>位置Y（世界坐标）</summary>
         public float posY = 0;
 
+        // ---TODO 网格信息：格子坐标（= FloorToInt(pos / gridSize)），供运行时检查位置
+        /// <summary>格子X（= FloorToInt(posX / gridSize)）</summary>
+        public int gridX = 0;
+
+        /// <summary>格子Y（= FloorToInt(posY / gridSize)）</summary>
+        public int gridY = 0;
+
         /// <summary>宽度（格子数）</summary>
         public int width = 1;
 
@@ -361,6 +471,9 @@ namespace Honor.Editor.MapTool
 
         /// <summary>动画名称</summary>
         public string anim = "idle";
+
+        /// <summary>是否启用动画（false=静态图）</summary>
+        public bool animEnabled = true;
 
         /// <summary>是否循环播放动画</summary>
         public bool loop = true;
@@ -391,6 +504,9 @@ namespace Honor.Editor.MapTool
 
         /// <summary>收集物重生时间（秒）</summary>
         public float respawnTime = 0;
+
+        /// <summary>通用气泡配置ID（引用 Tables.Bubble，0=不弹泡）</summary>
+        public int bubbleId = 0;
 
         /// <summary>位移数据（如果有移动）</summary>
         public MapMoveData moveData;
@@ -448,6 +564,13 @@ namespace Honor.Editor.MapTool
         /// <summary>位置Y（世界坐标）</summary>
         public float posY = 0;
 
+        // ---TODO 网格信息：格子坐标（= FloorToInt(pos / gridSize)），供运行时检查位置
+        /// <summary>格子X（= FloorToInt(posX / gridSize)）</summary>
+        public int gridX = 0;
+
+        /// <summary>格子Y（= FloorToInt(posY / gridSize)）</summary>
+        public int gridY = 0;
+
         /// <summary>宽度（格子数）</summary>
         public int width = 1;
 
@@ -459,6 +582,9 @@ namespace Honor.Editor.MapTool
 
         /// <summary>动画名称</summary>
         public string anim = "idle";
+
+        /// <summary>是否启用动画（false=静态图）</summary>
+        public bool animEnabled = true;
 
         /// <summary>是否循环播放动画</summary>
         public bool loop = true;
@@ -497,11 +623,17 @@ namespace Honor.Editor.MapTool
     [Serializable]
     public class MapPathPointData
     {
-        /// <summary>X坐标（世界坐标）</summary>
+        /// <summary>X坐标（世界坐标，像素）</summary>
         public float x = 0;
 
-        /// <summary>Y坐标（世界坐标）</summary>
+        /// <summary>Y坐标（世界坐标，像素）</summary>
         public float y = 0;
+
+        /// <summary>格子X（X/GridSize 取整，运行时对照）</summary>
+        public int gridX = 0;
+
+        /// <summary>格子Y（Y/GridSize 取整，运行时对照）</summary>
+        public int gridY = 0;
 
         /// <summary>
         /// 默认构造函数

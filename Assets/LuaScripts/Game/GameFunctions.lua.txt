@@ -760,6 +760,68 @@ function StringToVector3(str)
     return UnityUtil.StringToVector3(str)
 end
 
+---=========================================================================
+---@brief 编辑器坐标 → 运行时世界坐标（全局6144画布左下原点 → 中心原点±3072世界）
+---@desc 分区布局动态化：world=(editor-center)*scale，center=全图宽高/2、scale=0.5（硬约束禁改 1.0）；
+---      当前 3 分区 2×2（全图 4096×4096）→ center=2048、scale=0.5、世界 ±1024；
+---      9 分区 3×3（全图 6144×6144）→ center=3072、scale=0.5、世界 ±1536。
+---      映射：world = (editor - center) * 0.5；逆 editor = world*2 + center。
+---@type fun(editorX:number,editorY:number):number,number
+---@param editorX number 编辑器世界 X（全局画布左下原点）
+---@param editorY number 编辑器世界 Y
+---@return number worldX, number worldY（Root 局部空间，中心原点）
+---=========================================================================
+---TODO [代码质量] 1:1 坐标：world≡editor（identity，center/scale 字段保留兼容）
+---TODO [优化] 统一地图布局配置：从关卡数据读取分区布局/格子大小，不再硬编码
+MapLayoutConfig = {
+    centerX = 0,
+    centerY = 0,
+    scale = 1.0,
+    --- 分区布局（从关卡数据 regionRows/regionCols 读取）
+    regionRows = 1,
+    regionCols = 2,
+    --- 格子大小（从关卡数据 gridSize 读取，默认 32px）
+    gridSize = 32,
+    --- 单个分区尺寸（像素，默认 2048×2048）
+    zoneWidth = 2048,
+    zoneHeight = 2048,
+}
+function EditorPointToWorld(editorX, editorY)
+    return editorX, editorY
+end
+
+---=========================================================================
+---@brief 路径点数组批量变换（编辑器 → 世界）
+---@type fun(pathPoints:table):table
+---@param pathPoints table @{X=number,Y=number}[]（编辑器坐标系）
+---@return table @{X=number,Y=number}[]（世界坐标系，新表不污染源数据）
+---=========================================================================
+function TransformEditorPathPoints(pathPoints)
+    local result = {}
+    ---TODO [坐标] Root pivot=top-left，Y 向下为正需取反（与角色 localPosition 一致）
+    local gridSize = tonumber(MapLayoutConfig.gridSize) or 32
+    for i, p in ipairs(pathPoints) do
+        local wx = (p.GridX or 0) * gridSize
+        local wy = (p.GridY or 0) * gridSize
+        result[i] = { X = wx, Y = -wy }
+    end
+    return result
+end
+
+---=========================================================================
+---@brief 运行时世界坐标 → 编辑器坐标（EditorPointToWorld 的逆变换）
+---@desc world = (editor - 3072) * 1  ⇒  editor = world + 3072。
+---      运行时网格校验探针用：把实体实际渲染 localPosition 反算回全局 6144 编辑器系再 Floor(/gridSize) 对照保存格。
+---@type fun(worldX:number,worldY:number):number,number
+---@param worldX number Root 局部世界 X（中心原点 ±3072）
+---@param worldY number Root 局部世界 Y
+---@return number editorX, number editorY（全局 6144 画布左下原点）
+---=========================================================================
+---TODO [代码质量] 1:1 坐标：world≡editor（identity）
+function WorldToEditorPoint(worldX, worldY)
+    return worldX, worldY
+end
+
 ---@brief Table转Unity Vector3
 ---@type fun(t:table):UnityEngine.Vector3
 ---@param t table 坐标表 {x,y,z}

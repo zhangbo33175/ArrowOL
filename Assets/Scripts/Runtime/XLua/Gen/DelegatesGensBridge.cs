@@ -16,7 +16,29 @@ namespace XLua
     public partial class DelegateBridge : DelegateBridgeBase
     {
 		
-		public void __Gen_Delegate_Imp0(int p0, object p1, object p2)
+		public bool __Gen_Delegate_Imp0(UnityEngine.Vector3 p0)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.PushUnityEngineVector3(L, p0);
+                
+                PCall(L, 1, 1, errFunc);
+                
+                
+                bool __gen_ret = LuaAPI.lua_toboolean(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp1(int p0, object p1, object p2)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -40,7 +62,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp1(int p0, object p1)
+		public void __Gen_Delegate_Imp2(int p0, object p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -63,7 +85,7 @@ namespace XLua
 #endif
 		}
         
-		public object __Gen_Delegate_Imp2(int p0, object p1)
+		public object __Gen_Delegate_Imp3(int p0, object p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -86,7 +108,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp3()
+		public void __Gen_Delegate_Imp4()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -107,7 +129,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp4(bool p0)
+		public void __Gen_Delegate_Imp5(bool p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -129,7 +151,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp5(int p0)
+		public void __Gen_Delegate_Imp6(int p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -151,7 +173,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp6(string p0)
+		public void __Gen_Delegate_Imp7(string p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -173,7 +195,7 @@ namespace XLua
 #endif
 		}
         
-		public bool __Gen_Delegate_Imp7()
+		public bool __Gen_Delegate_Imp8()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -194,7 +216,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp8(Honor.Runtime.PrefabObject p0, UnityEngine.GameObject p1)
+		public void __Gen_Delegate_Imp9(Honor.Runtime.PrefabObject p0, UnityEngine.GameObject p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -217,7 +239,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp9(Honor.Runtime.AssetObject p0, UnityEngine.Object p1)
+		public void __Gen_Delegate_Imp10(Honor.Runtime.AssetObject p0, UnityEngine.Object p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -240,7 +262,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp10(string p0, string p1, UnityEngine.SceneManagement.Scene p2)
+		public void __Gen_Delegate_Imp11(string p0, string p1, UnityEngine.SceneManagement.Scene p2)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -264,7 +286,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp11(string p0, string p1, XLua.LuaTable p2, UnityEngine.GameObject p3)
+		public void __Gen_Delegate_Imp12(string p0, string p1, XLua.LuaTable p2, UnityEngine.GameObject p3)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -298,69 +320,74 @@ namespace XLua
 		public override Delegate GetDelegateByType(Type type)
 		{
 		
+		    if (type == typeof(GameLib.SectionBlockDelegate))
+			{
+			    return new GameLib.SectionBlockDelegate(__Gen_Delegate_Imp0);
+			}
+		
 		    if (type == typeof(Honor.Runtime.LuaProtocolSendFun))
 			{
-			    return new Honor.Runtime.LuaProtocolSendFun(__Gen_Delegate_Imp0);
+			    return new Honor.Runtime.LuaProtocolSendFun(__Gen_Delegate_Imp1);
 			}
 		
 		    if (type == typeof(Honor.Runtime.LuaProtocolPushFun))
 			{
-			    return new Honor.Runtime.LuaProtocolPushFun(__Gen_Delegate_Imp1);
+			    return new Honor.Runtime.LuaProtocolPushFun(__Gen_Delegate_Imp2);
 			}
 		
 		    if (type == typeof(Honor.Runtime.LuaProtocolSyncFun))
 			{
-			    return new Honor.Runtime.LuaProtocolSyncFun(__Gen_Delegate_Imp2);
+			    return new Honor.Runtime.LuaProtocolSyncFun(__Gen_Delegate_Imp3);
 			}
 		
 		    if (type == typeof(UnityEngine.Events.UnityAction))
 			{
-			    return new UnityEngine.Events.UnityAction(__Gen_Delegate_Imp3);
+			    return new UnityEngine.Events.UnityAction(__Gen_Delegate_Imp4);
 			}
 		
 		    if (type == typeof(System.Action))
 			{
-			    return new System.Action(__Gen_Delegate_Imp3);
+			    return new System.Action(__Gen_Delegate_Imp4);
 			}
 		
 		    if (type == typeof(System.Action<bool>))
 			{
-			    return new System.Action<bool>(__Gen_Delegate_Imp4);
+			    return new System.Action<bool>(__Gen_Delegate_Imp5);
 			}
 		
 		    if (type == typeof(System.Action<int>))
 			{
-			    return new System.Action<int>(__Gen_Delegate_Imp5);
+			    return new System.Action<int>(__Gen_Delegate_Imp6);
 			}
 		
 		    if (type == typeof(System.Action<string>))
 			{
-			    return new System.Action<string>(__Gen_Delegate_Imp6);
+			    return new System.Action<string>(__Gen_Delegate_Imp7);
 			}
 		
 		    if (type == typeof(System.Func<bool>))
 			{
-			    return new System.Func<bool>(__Gen_Delegate_Imp7);
+			    return new System.Func<bool>(__Gen_Delegate_Imp8);
 			}
 		
 		    if (type == typeof(Honor.Runtime.PrefabLoadOverCallback))
 			{
-			    return new Honor.Runtime.PrefabLoadOverCallback(__Gen_Delegate_Imp8);
+			    return new Honor.Runtime.PrefabLoadOverCallback(__Gen_Delegate_Imp9);
 			}
 		
 		    if (type == typeof(Honor.Runtime.AssetLoadOverCallback))
 			{
-			    return new Honor.Runtime.AssetLoadOverCallback(__Gen_Delegate_Imp9);
+			    return new Honor.Runtime.AssetLoadOverCallback(__Gen_Delegate_Imp10);
 			}
 		
 		    if (type == typeof(Honor.Runtime.SceneLoadOverCallback))
 			{
-			    return new Honor.Runtime.SceneLoadOverCallback(__Gen_Delegate_Imp10);
+			    return new Honor.Runtime.SceneLoadOverCallback(__Gen_Delegate_Imp11);
 			}
 		
 		    if (type == typeof(Honor.Runtime.UILoadOverCallback))
 			{
-			    return new Honor.Runtime.UILoadOverCallback(__Gen_Delegate_Imp11);
+			    return new Honor.Runtime.UILoadOverCallback(__Gen_Delegate_Imp12);
 			}
 		
 		    return null;

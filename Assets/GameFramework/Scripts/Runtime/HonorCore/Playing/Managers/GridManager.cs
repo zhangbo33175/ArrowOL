@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using XLua;
 
 namespace Honor.Runtime
 {
@@ -19,8 +20,10 @@ namespace Honor.Runtime
     /// 支持 2D / 3D 双模式
     /// </summary>
     [AddComponentMenu("Honor Core/Manager/GridManager")]
+    [LuaCallCSharp]
     public class GridManager : MonoSingleton<GridManager>
     {
+        
         //=========================================================================
         #region 序列化字段（Inspector 配置）
         //=========================================================================
@@ -31,8 +34,8 @@ namespace Honor.Runtime
         public Transform GridOrigin;
 
         [GameTitle("每个格子的大小")]
-        [Tooltip("网格区域中每个格子的尺寸大小。")]
-        public float GridUnitSize = 1f;
+        [Tooltip("网格区域中每个格子的尺寸大小（与地图编辑器 GridSize=32px 对齐）。")]
+        public float GridUnitSize = 32f;
 
         [GameHeader("调试")]
         [GameTitle("绘制调试网格")]
@@ -99,6 +102,13 @@ namespace Honor.Runtime
         //=========================================================================
         #region 生命周期
         //=========================================================================
+
+        /// <summary>
+        /// 本管理器挂载在 GameMainMap（Canvas 下的 RectTransform 子节点），
+        /// 不需要跨场景持久化；覆写为 false 避免 Awake 时被 SetParent(null) 拔根，
+        /// 导致 GridOrigin 世界坐标跳变、调试网格画到相机看不到的位置。
+        /// </summary>
+        protected override bool ShouldPersistAcrossScenes => false;
 
         /// <summary>
         /// 初始化所有网格管理容器
@@ -228,8 +238,15 @@ namespace Honor.Runtime
         //=========================================================================
 
         /// <summary>
+        /// 单分区像素尺寸（与 MapToolConstants.RegionPixelSize 对齐）
+        /// </summary>
+        private const float RegionPixelSize = 2048f;
+
+        /// <summary>
         /// 绘制调试网格 Gizmos
-        /// 支持 2D / 3D 模式
+        /// 自动检测 GridOrigin 是否为 RectTransform：
+        /// - 是 → 铺满整个 RectTransform 区域，按 GridUnitSize 间隔画线
+        /// - 否 → 退化行为，以 GridOrigin.position 为中心 ±DebugGridSize 绘制
         /// </summary>
         protected virtual void OnDrawGizmos()
         {
@@ -238,6 +255,83 @@ namespace Honor.Runtime
                 return;
             }
 
+            var rect = GridOrigin as RectTransform;
+            if (rect != null)
+            {
+                DrawRectTransformGrid(rect);
+            }
+            else
+            {
+                DrawLegacyGrid();
+            }
+        }
+
+        /// <summary>
+        /// 绘制基于 RectTransform 的网格（铺满整个 ZoneRoot 区域）
+        /// </summary>
+        protected virtual void DrawRectTransformGrid(RectTransform rect)
+        {
+            // GetWorldCorners 返回顺序：[0]左下 [1]左上 [2]右上 [3]右下
+            Vector3[] corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+
+            // --- 用 RectTransform 本地像素尺寸，不用世界距离（Canvas 缩放会压缩世界尺寸） ---
+            float width = rect.rect.width;
+            float height = rect.rect.height;
+            if (width < 1f || height < 1f) return;
+
+            float cellSize = GridUnitSize;
+            int cellCountX = Mathf.CeilToInt(width / cellSize);
+            int cellCountY = Mathf.CeilToInt(height / cellSize);
+
+            // --- 细网格线（半透明青色，不遮挡背景） ---
+            Gizmos.color = new Color(0, 1, 1, 0.15f);
+            // X 方向竖线：从 corners[0] 到 corners[1] 逐列插值
+            for (int x = 0; x <= cellCountX; x++)
+            {
+                float t = x / (float)cellCountX;
+                m_DebugOrigin = Vector3.Lerp(corners[0], corners[3], t); // bottom-left → bottom-right
+                m_DebugDestination = Vector3.Lerp(corners[1], corners[2], t); // top-left → top-right
+                Gizmos.DrawLine(m_DebugOrigin, m_DebugDestination);
+            }
+            // Y 方向横线
+            for (int y = 0; y <= cellCountY; y++)
+            {
+                float t = y / (float)cellCountY;
+                m_DebugOrigin = Vector3.Lerp(corners[0], corners[1], t); // bottom-left → top-left
+                m_DebugDestination = Vector3.Lerp(corners[3], corners[2], t); // bottom-right → top-right
+                Gizmos.DrawLine(m_DebugOrigin, m_DebugDestination);
+            }
+
+            // --- 分区边界线（每 RegionPixelSize 像素一条） ---
+            Gizmos.color = Color.yellow;
+            int regionCountX = Mathf.CeilToInt(width / RegionPixelSize);
+            int regionCountY = Mathf.CeilToInt(height / RegionPixelSize);
+            for (int x = 0; x <= regionCountX; x++)
+            {
+                float t = x * RegionPixelSize / width;
+                m_DebugOrigin = Vector3.Lerp(corners[0], corners[3], t);
+                m_DebugDestination = Vector3.Lerp(corners[1], corners[2], t);
+                Gizmos.DrawLine(m_DebugOrigin, m_DebugDestination);
+            }
+            for (int y = 0; y <= regionCountY; y++)
+            {
+                float t = y * RegionPixelSize / height;
+                m_DebugOrigin = Vector3.Lerp(corners[0], corners[1], t);
+                m_DebugDestination = Vector3.Lerp(corners[3], corners[2], t);
+                Gizmos.DrawLine(m_DebugOrigin, m_DebugDestination);
+            }
+
+            // --- 原点标记（左下角） ---
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(corners[0], cellSize * 2f);
+        }
+
+        /// <summary>
+        /// 旧版网格绘制（非 RectTransform 时退化使用）
+        /// </summary>
+        protected virtual void DrawLegacyGrid()
+        {
             Gizmos.color = CellBorderColor;
 
             if (DebugDrawMode == GameDefinitions.DimensionMode.Three)
@@ -358,6 +452,99 @@ namespace Honor.Runtime
             m_DebugOrigin.y = GridOrigin.position.y;
             m_DebugOrigin.z = GridOrigin.position.z + row * GridUnitSize + GridUnitSize / 2f;
             Gizmos.DrawCube(m_DebugOrigin, GridUnitSize * new Vector3(1f, 0f, 1f));
+        }
+
+        #endregion
+
+        //=========================================================================
+        #region Lua 入口（MapLoadManager.lua 调用）
+        //=========================================================================
+
+        /// <summary>
+        /// 分区列数
+        /// </summary>
+        [HideInInspector] public int RegionCols = 1;
+        /// <summary>
+        /// 分区行数
+        /// </summary>
+        [HideInInspector] public int RegionRows = 1;
+        /// <summary>
+        /// 已解锁分区数
+        /// </summary>
+        [HideInInspector] public int UnlockedCount = 1;
+        /// <summary>
+        /// 地图总列数（格数）
+        /// </summary>
+        [HideInInspector] public int GridCols = 128;
+        /// <summary>
+        /// 地图总行数（格数）
+        /// </summary>
+        [HideInInspector] public int GridRows = 128;
+        /// <summary>
+        /// 占用格原始数组（X,Y 交替）
+        /// </summary>
+        private int[] _rawOccupied;
+
+        /// <summary>
+        /// Lua 调用：初始化网格参数
+        /// </summary>
+        public void Setup(int gridSize, int gridCols, int gridRows,
+            int regionCols, int regionRows, float scale, int unlockedCount, Transform zoneRoot)
+        {
+            GridUnitSize = gridSize;
+            GridCols = gridCols;
+            GridRows = gridRows;
+            RegionCols = regionCols;
+            RegionRows = regionRows;
+            UnlockedCount = unlockedCount;
+            GridOrigin = zoneRoot;
+
+            Debug.Log($"[GridManager] Setup: grid={gridSize} cols={gridCols} rows={gridRows} region={regionCols}x{regionRows} unlocked={unlockedCount}");
+        }
+
+        /// <summary>
+        /// Lua 调用：设置占用格数组（X,Y 交替排列）
+        /// </summary>
+        public void SetOccupiedCells(int[] occupied)
+        {
+            _rawOccupied = occupied;
+            if (occupied != null)
+            {
+                OccupiedGridCells.Clear();
+                for (int i = 0; i + 1 < occupied.Length; i += 2)
+                {
+                    OccupiedGridCells.Add(new Vector3(occupied[i], occupied[i + 1], 0));
+                }
+            }
+            Debug.Log($"[GridManager] SetOccupiedCells: {OccupiedGridCells.Count} 格");
+        }
+
+        /// <summary>
+        /// Lua 调用：构建网格 Overlay 可视化
+        /// </summary>
+        public void BuildOverlay()
+        {
+            var comp = GetComponent("GameLib.MapGridOverlayComponent");
+            if (comp == null)
+            {
+                var gridOverlay = transform.Find("GridOverlay");
+                if (gridOverlay != null)
+                    comp = gridOverlay.GetComponent("GameLib.MapGridOverlayComponent");
+            }
+
+            if (comp != null)
+            {
+                var m = comp.GetType().GetMethod("BuildOverlay");
+                m?.Invoke(comp, new object[] {
+                    (int)GridUnitSize, GridCols, GridRows, 1f,
+                    _rawOccupied, RegionCols, RegionRows, true, true, UnlockedCount
+                });
+                Debug.Log($"[GridManager] BuildOverlay cols={GridCols} rows={GridRows} unlocked={UnlockedCount}");
+            }
+            else
+            {
+                Debug.LogWarning("[GridManager] 未找到 MapGridOverlayComponent");
+            }
         }
 
         #endregion

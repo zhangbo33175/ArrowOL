@@ -318,6 +318,20 @@ namespace Honor.Editor.MapTool
                 });
                 bubbleContainer.Add(m_DialogBubbleField);
             }
+            // ---TODO 气泡配置表通用化：气泡ID输入框（引用 Tables.Bubble；<=0 保存时不输出 BubbleId 行）
+            var bubbleIdContainer = m_Root.Q<VisualElement>(name: "prop-bubble-id-container");
+            if (bubbleIdContainer != null)
+            {
+                m_BubbleIdField = new IntegerField("");
+                m_BubbleIdField.value = 0;
+                m_BubbleIdField.style.flexGrow = 1;
+                m_BubbleIdField.RegisterValueChangedCallback(evt =>
+                {
+                    if (m_EditTarget != null)
+                        m_EditTarget.bubbleId = evt.newValue;
+                });
+                bubbleIdContainer.Add(m_BubbleIdField);
+            }
             // 朝向下拉框
             var facingContainer = m_Root.Q<VisualElement>(name: "prop-facing-container");
             if (facingContainer != null)
@@ -405,6 +419,7 @@ namespace Honor.Editor.MapTool
                 m_EditTarget = null;
                 if (m_ObjectEditPanel != null)
                     m_ObjectEditPanel.style.display = DisplayStyle.None;
+                RefreshSceneObjects();
                 Debug.Log("已清空所有摆放物");
             }
         }

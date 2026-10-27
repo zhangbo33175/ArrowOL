@@ -66,6 +66,9 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
         local coreData = GameCoreManager._GameCoreManagerData
         -- 升级关卡进度（内部关卡等级 lv + 1）
         GamerDataManager:AddLevelLvByChapterId(curChapterId)
+        ---TODO: [多分区] 分区解锁即时显示：lv 已 +1，立即补生成新解锁分区人物并扩展相机可达边界
+        local newLv = GamerDataManager:GetLevelLvByChapterId(curChapterId)
+        CharacterGenerationManager:OnSectionUnlocked(curChapterId, newLv)
         -- 结合成功结算：本章内部关卡全部通关则自动解锁下一章节（"章节-内部关卡"模式换章闭环），
         -- 结算界面"下一关"按钮据此直接进入已解锁的下一章第一关。
         --TODO: [流程] 通关即推进 nextChapter（TryUnlockNextChapter 判定全通并解锁），换章不再依赖按钮点按。

@@ -139,6 +139,7 @@ namespace Honor.Editor.MapTool
                     // 删除物体
                     m_PlacedObjects.Remove(clickedObj);
                     Debug.Log($"删除物体: {clickedObj.Name}");
+                    RefreshSceneObjects(); // 同步到场景
                     e.Use();
                     return;
                 }
@@ -186,6 +187,7 @@ namespace Honor.Editor.MapTool
 
                     m_PlacedObjects.Add(newObj);
                     Debug.Log($"放置物体: {newObj.Name} 位置: ({newObj.Position.x}, {newObj.Position.y})");
+                    RefreshSceneObjects(); // 同步到场景
 
                     // 放置人物后自动选中为编辑目标
                     if (newObj.Type == MapObjectType.Character)
@@ -253,6 +255,7 @@ namespace Honor.Editor.MapTool
                 }
                 else if (e.type == EventType.MouseUp && e.button == 0)
                 {
+                    if (m_HasMoved) RefreshSceneObjects(); // 拖动结束后同步位置到场景
                     m_DraggingObject = null;
                     // 未发生拖动 → 视为单击选中，成为路径编辑目标
                     if (!m_HasMoved && m_PotentialClickObject != null)
@@ -290,8 +293,8 @@ namespace Honor.Editor.MapTool
                     e.Use();
                 }
             }
-            // 消费事件，防止冒泡
-            if (m_IsDragging)
+            // 消费事件，防止冒泡（只对鼠标事件类型调用 Use，Repaint/Layout 不能调）
+            if (m_IsDragging && e.type != EventType.Repaint && e.type != EventType.Layout)
                 e.Use();
         }
 
@@ -335,11 +338,13 @@ namespace Honor.Editor.MapTool
                     m_EditTarget.PathPoints.Add(worldPos);
                     Debug.Log($"为 {m_EditTarget.Name} 添加路径点: {worldPos}, 总数: {m_EditTarget.PathPoints.Count}");
                     RefreshPathPointList();
+                    RefreshSceneObjects();
                 }
                 else
                 {
                     m_PathPoints.Add(worldPos);
                     Debug.Log($"添加全局路径点: {worldPos}, 总数: {m_PathPoints.Count}");
+                    RefreshSceneObjects();
                 }
             }
             else if (e.button == 1) // Ctrl+右键：删除最后一个路径点
@@ -349,11 +354,13 @@ namespace Honor.Editor.MapTool
                     m_EditTarget.PathPoints.RemoveAt(m_EditTarget.PathPoints.Count - 1);
                     Debug.Log($"删除 {m_EditTarget.Name} 最后路径点, 剩余: {m_EditTarget.PathPoints.Count}");
                     RefreshPathPointList();
+                    RefreshSceneObjects();
                 }
                 else if (m_PathPoints.Count > 0)
                 {
                     m_PathPoints.RemoveAt(m_PathPoints.Count - 1);
                     Debug.Log($"删除最后一个全局路径点, 剩余: {m_PathPoints.Count}");
+                    RefreshSceneObjects();
                 }
             }
             e.Use();
