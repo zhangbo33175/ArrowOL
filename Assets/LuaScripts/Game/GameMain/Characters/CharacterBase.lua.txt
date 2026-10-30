@@ -176,7 +176,7 @@ function CharacterBase:StartPathMove(pathPoints, speed, isLoop)
     local shouldBlock = function(toPoint)
         local ex = toPoint.x
         local ey = toPoint.y
-        local cols = tonumber(MapLayoutConfig.regionCols) or 2
+        local cols = tonumber(EMapLayoutConfig.regionCols) or 2
         local step = 2048
         local col = math.floor(ex / step)
         local row = math.floor(ey / step)

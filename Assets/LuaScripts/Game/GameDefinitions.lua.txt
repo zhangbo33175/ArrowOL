@@ -308,6 +308,41 @@ EOpenLevelPrepareSource = {
 
 --endregion
 
+--region 地图布局配置
+
+--=====================================================================================================
+-- 地图布局配置（分区/网格/相机参数默认值）
+--=====================================================================================================
+
+--- 地图布局配置默认值
+---@class EMapLayoutConfig
+---@field centerX number 地图中心X
+---@field centerY number 地图中心Y
+---@field regionCols number 分区列数
+---@field regionRows number 分区行数
+---@field gridSize number 单格像素尺寸
+---@field gridCols number 网格总列数
+---@field gridRows number 网格总行数
+---@field zoneWidth number 单分区宽度
+---@field zoneHeight number 单分区高度
+---@field scale number 整体缩放
+---@field width number 地图总宽度
+EMapLayoutConfig = {
+    centerX = 0,        ---地图中心X
+    centerY = 0,        ---地图中心Y
+    regionCols = 1,     ---分区列数
+    regionRows = 1,     ---分区行数
+    gridSize = 32,      ---单格像素尺寸
+    gridCols = 128,     ---网格总列数
+    gridRows = 128,     ---网格总行数
+    zoneWidth = 2048,   ---单分区宽度
+    zoneHeight = 2048,  ---单分区高度
+    scale = 1.0,        ---整体缩放
+    width = 4096,       ---地图总宽度
+}
+
+--endregion
+
 --region 角色 & 形象系统
 
 --=====================================================================================================

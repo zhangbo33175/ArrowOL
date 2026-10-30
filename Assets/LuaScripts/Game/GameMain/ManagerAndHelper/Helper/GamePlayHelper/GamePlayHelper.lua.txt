@@ -79,19 +79,18 @@ function GamePlayHelper:LoadLevelData(chapterId, levelId)
     return levelData
 end
 
----@type fun(chapterId:string,unlockedCount:number):table
----@brief 获取章节全部已解锁分区的数据数组（多分区同时显示用）
+---@type fun(chapterId:string,count:number):table
+---@brief 按数量获取分区数据数组（通用工具）
 ---@param chapterId string 章节ID
----@param unlockedCount number 已解锁分区数（=章节当前进度 lv，分区 1..lv 已解锁）
+---@param count number 分区数量（遍历 1..count）
 ---@return table 数组：{ { sectionId=number, data=Tables.LevelData_Item }, ... }，缺失分区自动跳过
----@desc 直接按分区序号直取 Tables["LevelData_"..ch.."_"..s]（绕开 LoadLevelData 的越关判定，
----      因为本接口就是要枚举历史已解锁分区）；Tables 元方法触发 require，文件缺失用 pcall 兜底。
-function GamePlayHelper:GetUnlockedLevelDatas(chapterId, unlockedCount)
+---@desc 直接按分区序号直取 Tables["LevelData_"..ch.."_"..s]；Tables 元方法触发 require，文件缺失用 pcall 兜底。
+function GamePlayHelper:GetLevelDatasByCount(chapterId, count)
     local result = {}
-    if string.isNullOrEmpty(chapterId) or not unlockedCount or unlockedCount < 1 then
+    if string.isNullOrEmpty(chapterId) or not count or count < 1 then
         return result
     end
-    for s = 1, unlockedCount do
+    for s = 1, count do
         local ok, data = pcall(function()
             return Tables["LevelData_" .. chapterId .. "_" .. s]
         end)
@@ -100,6 +99,15 @@ function GamePlayHelper:GetUnlockedLevelDatas(chapterId, unlockedCount)
         end
     end
     return result
+end
+
+---@type fun(chapterId:string,unlockedCount:number):table
+---@brief 获取章节全部已解锁分区的数据数组（多分区同时显示用）
+---@param chapterId string 章节ID
+---@param unlockedCount number 已解锁分区数（=章节当前进度 lv，分区 1..lv 已解锁）
+---@return table 数组：{ { sectionId=number, data=Tables.LevelData_Item }, ... }，缺失分区自动跳过
+function GamePlayHelper:GetUnlockedLevelDatas(chapterId, unlockedCount)
+    return self:GetLevelDatasByCount(chapterId, unlockedCount)
 end
 
 --endregion
@@ -240,7 +248,7 @@ end
 function GamePlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
     if ui and uiImage then
         ---@type LOAD_RES_DEF_ITEM
-        local info = LoadRes["Sprite_"..spriteName]
+        local info = LoadSpriteByName(spriteName)
         if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
             uiImage.sprite = ui:LoadAsset(info)
             uiImage:SetNativeSize()

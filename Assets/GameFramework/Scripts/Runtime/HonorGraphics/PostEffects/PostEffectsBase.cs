@@ -101,7 +101,7 @@ namespace Honor.Runtime
             isSupported = true;
             supportHDRTextures = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf);
             supportDX11 = SystemInfo.graphicsShaderLevel >= 50 && SystemInfo.supportsComputeShaders;
-            supportNPOT = SystemInfo.npotSupport != NPOTSupport.None;
+            supportNPOT = true; // NPOTSupport.None 已废弃，现代平台全部支持 NPOT 纹理
 
             if (needDX11 && !supportDX11)
             {

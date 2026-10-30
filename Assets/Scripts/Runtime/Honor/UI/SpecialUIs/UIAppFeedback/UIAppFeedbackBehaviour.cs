@@ -145,7 +145,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 是否已提交
         /// </summary>
+#pragma warning disable CS0414 // m_IsSubmit 仅作状态标记写入，暂未读取，保留待后续逻辑使用
         private bool m_IsSubmit;
+#pragma warning restore CS0414
         #endregion
 
         #region 公共属性

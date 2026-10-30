@@ -635,10 +635,6 @@ namespace Honor.Runtime
         /// <returns></returns>
         public bool IsDebugWinActive()
         {
-            if (HonorUIManager.Instance.Launcher.DebuggerActiveWindow == null)
-            {
-                return false;
-            }
             switch (HonorUIManager.Instance.Launcher.DebuggerActiveWindow)
             {
                 case DebuggerActiveWindowType.AlwaysOpen:
@@ -646,17 +642,11 @@ namespace Honor.Runtime
                 case DebuggerActiveWindowType.OnlyOpenWhenDevelopment:
                     return HonorUIManager.Instance.Launcher.DevelopMode;
                 case DebuggerActiveWindowType.OnlyOpenInEditor:
-                    if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android)
-                    {
-                        return true;
-                    }
-                    return false;
-                case DebuggerActiveWindowType.AlwaysClose:
-                    return false;
+                    return Application.platform == RuntimePlatform.IPhonePlayer ||
+                           Application.platform == RuntimePlatform.Android;
                 default:
                     return false;
             }
-            return false;
         }
 
         /// <summary>

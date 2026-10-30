@@ -121,7 +121,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 校验资源并创建材质
         /// </summary>
-        private new bool CheckResources()
+        private bool CheckResources()
         {
             if (!CheckSupport(true))
             {

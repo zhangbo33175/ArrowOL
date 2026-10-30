@@ -336,7 +336,8 @@ namespace Honor.Runtime
             }
 
             AssetBundle loadedAB = null;
-            if (m_WebGLRequest.isNetworkError || m_WebGLRequest.isHttpError)
+            if (m_WebGLRequest.result == UnityWebRequest.Result.ConnectionError || 
+                m_WebGLRequest.result == UnityWebRequest.Result.ProtocolError)
             {
                 Log.Warning("下载文件 {0} 时出错！", abFormatPath);
             }

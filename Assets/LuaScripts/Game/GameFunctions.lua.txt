@@ -772,20 +772,6 @@ end
 ---@return number worldX, number worldY（Root 局部空间，中心原点）
 ---=========================================================================
 ---TODO [代码质量] 1:1 坐标：world≡editor（identity，center/scale 字段保留兼容）
----TODO [优化] 统一地图布局配置：从关卡数据读取分区布局/格子大小，不再硬编码
-MapLayoutConfig = {
-    centerX = 0,
-    centerY = 0,
-    scale = 1.0,
-    --- 分区布局（从关卡数据 regionRows/regionCols 读取）
-    regionRows = 1,
-    regionCols = 2,
-    --- 格子大小（从关卡数据 gridSize 读取，默认 32px）
-    gridSize = 32,
-    --- 单个分区尺寸（像素，默认 2048×2048）
-    zoneWidth = 2048,
-    zoneHeight = 2048,
-}
 function EditorPointToWorld(editorX, editorY)
     return editorX, editorY
 end
@@ -799,7 +785,7 @@ end
 function TransformEditorPathPoints(pathPoints)
     local result = {}
     ---TODO [坐标] Root pivot=top-left，Y 向下为正需取反（与角色 localPosition 一致）
-    local gridSize = tonumber(MapLayoutConfig.gridSize) or 32
+    local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
     for i, p in ipairs(pathPoints) do
         local wx = (p.GridX or 0) * gridSize
         local wy = (p.GridY or 0) * gridSize
@@ -854,6 +840,54 @@ end
 ---@return boolean 是否包含
 function ContainsKey(_table, key)
     return TableUtil.ContainsKey(_table, key)
+end
+
+--endregion
+
+--region 通用安全工具
+
+--=====================================================================================================
+-- 通用安全工具：类型转换、C# 调用包裹、相机查找
+--=====================================================================================================
+
+---@brief 安全 tonumber（空值/转换失败返回默认值）
+---@type fun(v:any, default:number):number
+---@param v any 待转换值
+---@param default number 默认值（可选，默认 0）
+---@return number 转换后的数字
+function Num(v, default)
+    local n = tonumber(v)
+    return n ~= nil and n or (default or 0)
+end
+
+---@brief 安全 pcall 调用 C# 方法（失败输出日志）
+---@type fun(fn:function, ...):boolean, any
+---@param fn function 待调用函数
+---@param ... any 可变参数
+---@return boolean 是否成功, any 返回值
+function CallCS(fn, ...)
+    local ok, result = pcall(fn, ...)
+    if not ok then
+        print("[CallCS] 调用失败: " .. tostring(result))
+    end
+    return ok, result
+end
+
+---@brief 查找 2DSceneCamera
+---@type fun():UnityEngine.Camera
+---@return UnityEngine.Camera 场景相机（未找到返回 nil）
+function FindSceneCamera()
+    local go = CS.UnityEngine.GameObject.Find("2DSceneCamera")
+    return go and go:GetComponent("UnityEngine.Camera") or nil
+end
+
+---@brief 按名称加载 Sprite 资源定义
+---@type fun(name:string):LOAD_RES_DEF_ITEM
+---@param name string Sprite 名称（不含前缀）
+---@return LOAD_RES_DEF_ITEM 资源定义（未找到返回 nil）
+function LoadSpriteByName(name)
+    if not name or name == '' then return nil end
+    return LoadRes["Sprite_" .. tostring(name)]
 end
 
 --endregion

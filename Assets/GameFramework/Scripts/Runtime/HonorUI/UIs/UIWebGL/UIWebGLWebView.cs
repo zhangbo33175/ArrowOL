@@ -120,6 +120,7 @@ namespace Honor.Runtime
 #endif
 #endif
 
+#pragma warning disable CS0067 // 公共事件，外部订阅，内部不触发
         /// <summary>
         /// 加载进度变化事件
         /// </summary>
@@ -129,6 +130,7 @@ namespace Honor.Runtime
         /// 网页消息抛出事件
         /// </summary>
         public event EventHandler<EventArgs<string>> OnMessageEmitted;
+#pragma warning restore CS0067
 
 #if WEBVIEW_ENABLE
         /// <summary>

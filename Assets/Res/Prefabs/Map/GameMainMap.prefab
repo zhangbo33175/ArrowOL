@@ -287,6 +287,20 @@ MonoBehaviour:
   m_TopHudPixelHeight: 160
   m_BottomHudPixelHeight: 190
   m_MinScaleLockCenter: 1
+  m_MotionConfig:
+    m_CanvasDesignHeight: 1334
+    m_ZoomSpeed: 1.1
+    m_MinZoomRatio: 0.5
+    m_DragThreshold: 12
+    m_SwipeSmoothMin: 0.3
+    m_SwipeSmoothMax: 1
+    m_StepAddFactor: 2
+    m_InertiaDecay: 0.025
+    m_InertiaSmoothFloor: 0.75
+    m_AutoScanOverlap: 0.8
+    m_AutoScanSegmentDuration: 1.2
+    m_AutoScanDefaultOrtho: 300
+    m_AutoScanGraceFrames: 15
 --- !u!114 &653882414796917212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,7 +382,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GridOrigin: {fileID: 3845687123456790}
   GridUnitSize: 32
-  DrawDebugGrid: 1
+  DrawDebugGrid: 0
   DebugDrawMode: 0
   DebugGridSize: 30
   CellBorderColor: {r: 60, g: 221, b: 255, a: 1}

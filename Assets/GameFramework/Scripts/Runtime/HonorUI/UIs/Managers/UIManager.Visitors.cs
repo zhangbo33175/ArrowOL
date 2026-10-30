@@ -351,7 +351,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 当前屏幕方向
         /// </summary>
-        private ScreenOrientation m_ScreenOrientation = ScreenOrientation.Unknown;
+        private ScreenOrientation m_ScreenOrientation = ScreenOrientation.Portrait; // Unknown 已废弃，默认竖屏
 
         /// <summary>
         /// 获取或设置屏幕方向

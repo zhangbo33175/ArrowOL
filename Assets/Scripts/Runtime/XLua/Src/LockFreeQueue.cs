@@ -5,9 +5,9 @@ namespace XLua
 {
     public class LockFreeQueue<T>
     {
-        internal class SingleLinkNode<T> 
+        internal class SingleLinkNode
         {
-            public SingleLinkNode<T> Next;
+            public SingleLinkNode Next;
             public T Item;
         }
         static private bool CAS<V>(ref V location, V comparand, V newValue) where V : class
@@ -15,8 +15,8 @@ namespace XLua
             return comparand == Interlocked.CompareExchange(ref location, newValue, comparand);
         }
 
-        SingleLinkNode<T> head;
-        SingleLinkNode<T> tail;
+        SingleLinkNode head;
+        SingleLinkNode tail;
         int count;
 
         public int Count { get { return count; } }
@@ -24,17 +24,17 @@ namespace XLua
 
         public LockFreeQueue()
         {
-            head = new SingleLinkNode<T>();
+            head = new SingleLinkNode();
             tail = head;
             count = 0;
         }
 
         public void Enqueue(T item)
         {
-            SingleLinkNode<T> oldTail = null;
-            SingleLinkNode<T> oldTailNext;
+            SingleLinkNode oldTail = null;
+            SingleLinkNode oldTailNext;
 
-            SingleLinkNode<T> newNode = new SingleLinkNode<T>();
+            SingleLinkNode newNode = new SingleLinkNode();
             newNode.Item = item;
 
             bool newNodeAdded = false;
@@ -46,26 +46,26 @@ namespace XLua
                 if (tail == oldTail)
                 {
                     if (oldTailNext == null)
-                        newNodeAdded = CAS<SingleLinkNode<T>>(ref tail.Next, null, newNode);
+                        newNodeAdded = CAS<SingleLinkNode>(ref tail.Next, null, newNode);
                     else
-                        CAS<SingleLinkNode<T>>(ref tail, oldTail, oldTailNext);
+                        CAS<SingleLinkNode>(ref tail, oldTail, oldTailNext);
                 }
             }
-            CAS<SingleLinkNode<T>>(ref tail, oldTail, newNode);
+            CAS<SingleLinkNode>(ref tail, oldTail, newNode);
             Interlocked.Increment(ref count);
         }
 
         public bool TryDequeue(out T item)
         {
             item = default(T);
-            SingleLinkNode<T> oldHead = null;
+            SingleLinkNode oldHead = null;
 
             bool haveAdvancedHead = false;
             while (!haveAdvancedHead)
             {
                 oldHead = head;
-                SingleLinkNode<T> oldTail = tail;
-                SingleLinkNode<T> oldHeadNext = oldHead.Next;
+                SingleLinkNode oldTail = tail;
+                SingleLinkNode oldHeadNext = oldHead.Next;
 
                 if (oldHead == head)
                 {
@@ -75,12 +75,12 @@ namespace XLua
                         {
                             return false;
                         }
-                        CAS<SingleLinkNode<T>>(ref tail, oldTail, oldHeadNext);
+                        CAS<SingleLinkNode>(ref tail, oldTail, oldHeadNext);
                     }
                     else
                     {
                         item = oldHeadNext.Item;
-                        haveAdvancedHead = CAS<SingleLinkNode<T>>(ref head, oldHead, oldHeadNext);
+                        haveAdvancedHead = CAS<SingleLinkNode>(ref head, oldHead, oldHeadNext);
                     }
                 }
             }

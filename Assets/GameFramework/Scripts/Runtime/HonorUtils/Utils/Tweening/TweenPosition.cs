@@ -60,7 +60,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化：以当前坐标作为起始坐标
         /// </summary>
-        protected void Init()
+        protected new void Init()
         {
             // from 未赋值时以当前位置为起点
             fromPosition = Position;

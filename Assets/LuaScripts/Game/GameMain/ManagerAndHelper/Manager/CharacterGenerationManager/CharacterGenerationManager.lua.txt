@@ -344,7 +344,7 @@ function CharacterGenerationManager:_SpawnCharactersForSection(mapSectionData, g
 
         -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
         ---TODO [坐标] Root pivot=top-left(0,1)，Y 向下为正需取反
-        local gridSize = tonumber(MapLayoutConfig.gridSize) or 32
+        local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
         local charWx = (v.GridX or 0) * gridSize
         local charWy = (v.GridY or 0) * gridSize
         characterBase._GameObject.transform.localPosition = UnityEngine.Vector3(charWx, -charWy, 0)
@@ -496,7 +496,7 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
 
     -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
     ---TODO [坐标] Root pivot=top-left，Y 向下为正需取反
-    local gridSize = tonumber(MapLayoutConfig.gridSize) or 32
+    local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
     local objWx = (entry.GridX or 0) * gridSize
     local objWy = (entry.GridY or 0) * gridSize
     go.transform.localPosition = UnityEngine.Vector3(objWx, -objWy, 0)

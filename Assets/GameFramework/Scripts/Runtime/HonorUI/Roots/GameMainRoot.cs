@@ -268,7 +268,70 @@ namespace Honor.Runtime
             if (Time.realtimeSinceStartup - m_LastFrustumLogTime < 2f) return;
             m_LastFrustumLogTime = Time.realtimeSinceStartup;
 
-            Debug.Log("[FrustumDebug] 视锥外告警触发，当前相机清单:\n" + BuildCameraDiagnosis());
+            // 从告警日志中解析 Camera rect，精准定位报错相机
+            // 日志格式: Screen position out of view frustum (screen pos x, y) (Camera rect x y w h)
+            Rect? matchedRect = ParseCameraRectFromLog(logString);
+            string matchedCamInfo = FindCameraByPixelRect(matchedRect);
+
+            Debug.Log("[FrustumDebug] 视锥外告警触发!\n" +
+                      "原始日志: " + logString + "\n" +
+                      "匹配相机: " + matchedCamInfo + "\n" +
+                      "全部相机清单:\n" + BuildCameraDiagnosis());
+        }
+
+        /// <summary>
+        /// 从告警日志中解析 Camera rect 像素坐标
+        /// 日志格式示例: (Camera rect 0 190 1080 1610)
+        /// </summary>
+        private static Rect? ParseCameraRectFromLog(string logString)
+        {
+            try
+            {
+                int idx = logString.IndexOf("Camera rect", System.StringComparison.Ordinal);
+                if (idx < 0) return null;
+
+                string rest = logString.Substring(idx + "Camera rect".Length).TrimStart();
+                var parts = rest.Split(new[] { ' ', '(', ')' }, System.StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 4) return null;
+
+                if (float.TryParse(parts[0], out float x) &&
+                    float.TryParse(parts[1], out float y) &&
+                    float.TryParse(parts[2], out float w) &&
+                    float.TryParse(parts[3], out float h))
+                {
+                    return new Rect(x, y, w, h);
+                }
+            }
+            catch { /* 解析失败忽略 */ }
+            return null;
+        }
+
+        /// <summary>
+        /// 根据像素视口匹配对应的相机，返回相机详细信息
+        /// </summary>
+        private static string FindCameraByPixelRect(Rect? targetRect)
+        {
+            if (!targetRect.HasValue) return "未解析到 Camera rect";
+
+            Rect rect = targetRect.Value;
+            foreach (Camera cam in Camera.allCameras)
+            {
+                if (cam == null) continue;
+                Rect camRect = cam.pixelRect;
+                // 容差 2 像素，避免浮点误差
+                if (Mathf.Abs(camRect.x - rect.x) < 2f &&
+                    Mathf.Abs(camRect.y - rect.y) < 2f &&
+                    Mathf.Abs(camRect.width - rect.width) < 2f &&
+                    Mathf.Abs(camRect.height - rect.height) < 2f)
+                {
+                    var t = cam.transform;
+                    return $"★{cam.name}★ | active={cam.gameObject.activeInHierarchy} | " +
+                           $"ortho={cam.orthographic} | near={cam.nearClipPlane:F2} | " +
+                           $"far={cam.farClipPlane:F2} | size={(cam.orthographic ? cam.orthographicSize : cam.fieldOfView):F2} | " +
+                           $"pos={t.position.ToString("F1")} | rt={(cam.targetTexture == null ? "null" : cam.targetTexture.name)}";
+                }
+            }
+            return $"未找到匹配相机 (目标 rect: {rect.x},{rect.y},{rect.width},{rect.height})";
         }
 
         /// <summary>
@@ -314,6 +377,14 @@ namespace Honor.Runtime
             if (cam.orthographic && cam.farClipPlane > -10f)
             {
                 cam.nearClipPlane = -10f;
+            }
+
+            // 守卫：正交相机 orthographicSize <= 0 时投影矩阵退化，
+            // EventSystem 做 ScreenPointToRay 时任何坐标都越界，触发视锥外告警。
+            // 临时设为最小有效值，避免退化（地图加载后会被 InitMapCamera 覆盖）。
+            if (cam.orthographic && cam.orthographicSize <= 0f)
+            {
+                cam.orthographicSize = 6.4f; // 与 2DUICamera 默认 size 对齐
             }
 
             // 诊断：仅打印有旋转的相机（等轴/斜视角相机），限频 5 秒一次

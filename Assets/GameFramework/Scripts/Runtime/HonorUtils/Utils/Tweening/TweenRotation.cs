@@ -35,7 +35,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化：以当前本地欧拉角作为起始角度
         /// </summary>
-        protected void Init()
+        protected new void Init()
         {
             fromRotation = transform.localEulerAngles;
         }

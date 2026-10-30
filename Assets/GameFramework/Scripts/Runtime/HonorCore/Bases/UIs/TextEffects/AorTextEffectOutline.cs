@@ -131,7 +131,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 销毁时清空材质引用，防止内存泄漏
         /// </summary>
-        private void OnDestroy()
+        private new void OnDestroy()
         {
             if (graphic)
                 graphic.material = null;

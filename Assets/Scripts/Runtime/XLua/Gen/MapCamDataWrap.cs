@@ -21,13 +21,9 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(MapCamData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 5, 3, 3);
+			Utils.BeginObjectRegister(type, L, translator, 0, 1, 3, 3);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustPosY", _m_NormalAdjustPosY);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustLeftPosX_Viewport", _m_NormalAdjustLeftPosX_Viewport);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustRightPosX_Viewport", _m_NormalAdjustRightPosX_Viewport);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ExitPlayAdjustPosX_Viewport", _m_ExitPlayAdjustPosX_Viewport);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "PlayAdjustPosY", _m_PlayAdjustPosY);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "size", _g_get_size);
@@ -45,11 +41,11 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 0, 0);
 			
 			
-            
 			
 			
 			
-			Utils.EndClassRegister(type, L, translator);
+			
+		    Utils.EndClassRegister(type, L, translator);
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -77,7 +73,7 @@ namespace XLua.CSObjectWrap
         
 		
         
-		
+        
         
         
         
@@ -88,11 +84,11 @@ namespace XLua.CSObjectWrap
 		    try {
             
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
+                
+                
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
-            
-            
+                
+                
                 
                 {
                     float _designHeight = (float)LuaAPI.lua_tonumber(L, 2);
@@ -110,123 +106,6 @@ namespace XLua.CSObjectWrap
             
         }
         
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_NormalAdjustLeftPosX_Viewport(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    UnityEngine.Vector2 _viewportSize;translator.Get(L, 2, out _viewportSize);
-                    float _mapLeftWorldPosX = (float)LuaAPI.lua_tonumber(L, 3);
-                    
-                    gen_to_be_invoked.NormalAdjustLeftPosX_Viewport( _viewportSize, _mapLeftWorldPosX );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_NormalAdjustRightPosX_Viewport(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    UnityEngine.Vector2 _viewportSize;translator.Get(L, 2, out _viewportSize);
-                    float _mapRightWorldPosX = (float)LuaAPI.lua_tonumber(L, 3);
-                    
-                    gen_to_be_invoked.NormalAdjustRightPosX_Viewport( _viewportSize, _mapRightWorldPosX );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ExitPlayAdjustPosX_Viewport(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    UnityEngine.Vector2 _viewportSize;translator.Get(L, 2, out _viewportSize);
-                    float _playPosX = (float)LuaAPI.lua_tonumber(L, 3);
-                    float _mapRightWorldPosX = (float)LuaAPI.lua_tonumber(L, 4);
-                    RMapPlayHudPosType _hudPosType;translator.Get(L, 5, out _hudPosType);
-                    
-                    gen_to_be_invoked.ExitPlayAdjustPosX_Viewport( _viewportSize, _playPosX, _mapRightWorldPosX, _hudPosType );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_PlayAdjustPosY(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    MapCamData _normalCamData = (MapCamData)translator.GetObject(L, 2, typeof(MapCamData));
-                    float _distance = (float)LuaAPI.lua_tonumber(L, 3);
-                    
-                    gen_to_be_invoked.PlayAdjustPosY( _normalCamData, _distance );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
         
         
         
@@ -236,7 +115,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
+				
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.size);
             } catch(System.Exception gen_e) {
@@ -250,7 +129,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
+				
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.posX);
             } catch(System.Exception gen_e) {
@@ -264,7 +143,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
+				
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.posY);
             } catch(System.Exception gen_e) {
@@ -275,12 +154,13 @@ namespace XLua.CSObjectWrap
         
         
         
+        
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_size(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
+				
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.size = (float)LuaAPI.lua_tonumber(L, 2);
             
@@ -295,7 +175,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
+				
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.posX = (float)LuaAPI.lua_tonumber(L, 2);
             
@@ -310,7 +190,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			
+				
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.posY = (float)LuaAPI.lua_tonumber(L, 2);
             
@@ -320,7 +200,10 @@ namespace XLua.CSObjectWrap
             return 0;
         }
         
-		
+			
+			
+			
+			
 		
 		
 		

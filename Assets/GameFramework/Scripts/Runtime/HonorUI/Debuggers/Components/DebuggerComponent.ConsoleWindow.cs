@@ -344,59 +344,28 @@ namespace Honor.Runtime
                 switch (curLogType)
                 {
                     case LogType.Error:
-                        if (needCheckSearchInfo)
-                        {
-                            return $"Error ({m_SearchLogCount[curLogType]}/{LogNode.ErrorCount})";
-                        }
-                        else
-                        {
-                            return $"Error ({LogNode.ErrorCount})";
-                        }
-                        break;
+                        return needCheckSearchInfo
+                            ? $"Error ({m_SearchLogCount[curLogType]}/{LogNode.ErrorCount})"
+                            : $"Error ({LogNode.ErrorCount})";
                     case LogType.Assert:
-                        if (needCheckSearchInfo)
-                        {
-                            return $"Error ({m_SearchLogCount[curLogType]}/{LogNode.ErrorCount})";
-                        }
-                        else
-                        {
-                            return $"Error ({LogNode.ErrorCount})";
-                        }
-                        break;
+                        return needCheckSearchInfo
+                            ? $"Error ({m_SearchLogCount[curLogType]}/{LogNode.ErrorCount})"
+                            : $"Error ({LogNode.ErrorCount})";
                     case LogType.Warning:
-                        if (needCheckSearchInfo)
-                        {
-                            return $"Warn ({m_SearchLogCount[curLogType]}/{LogNode.WarningCount})";
-                        }
-                        else
-                        {
-                            return $"Warn ({LogNode.WarningCount})";
-                        }
-                        break;
+                        return needCheckSearchInfo
+                            ? $"Warn ({m_SearchLogCount[curLogType]}/{LogNode.WarningCount})"
+                            : $"Warn ({LogNode.WarningCount})";
                     case LogType.Log:
-                        if (needCheckSearchInfo)
-                        {
-                            return $"Info ({m_SearchLogCount[curLogType]}/{LogNode.InfoCount})";
-                        }
-                        else
-                        {
-                            return $"Info ({LogNode.InfoCount})";
-                        }
-                        break;
+                        return needCheckSearchInfo
+                            ? $"Info ({m_SearchLogCount[curLogType]}/{LogNode.InfoCount})"
+                            : $"Info ({LogNode.InfoCount})";
                     case LogType.Exception:
-                        if (needCheckSearchInfo)
-                        {
-                            return $"Fatal ({m_SearchLogCount[curLogType]}/{LogNode.FatalCount})";
-                        }
-                        else
-                        {
-                            return $"Fatal ({LogNode.FatalCount})";
-                        }
-                        break;
+                        return needCheckSearchInfo
+                            ? $"Fatal ({m_SearchLogCount[curLogType]}/{LogNode.FatalCount})"
+                            : $"Fatal ({LogNode.FatalCount})";
                     default:
-                        break;
+                        return "";
                 }
-                return "";
             }
 
 

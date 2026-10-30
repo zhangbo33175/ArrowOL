@@ -87,7 +87,7 @@ namespace Honor.Runtime
         /// 初始化
         /// 调用基类初始化并解析图文格式
         /// </summary>
-        private void Start()
+        private new void Start()
         {
             base.Start();
             ParseTextOnResDefFormat();
@@ -98,7 +98,7 @@ namespace Honor.Runtime
         /// 销毁时释放动态加载的精灵资源
         /// 防止资源泄漏
         /// </summary>
-        private void OnDestroy()
+        private new void OnDestroy()
         {
             base.OnDestroy();
 

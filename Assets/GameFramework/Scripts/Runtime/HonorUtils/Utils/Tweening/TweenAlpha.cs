@@ -83,7 +83,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化：以当前透明度作为起始值
         /// </summary>
-        protected void Init()
+        protected new void Init()
         {
             fromAlpha = Alpha;
         }

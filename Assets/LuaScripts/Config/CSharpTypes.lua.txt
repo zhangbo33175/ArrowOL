@@ -27,6 +27,17 @@
 ---@field InitMapCamera fun(data:table):void
 ---@field SetAllCamerasNear fun(near:number):void
 
+---@class GameLib.MapLoadManager @地图加载 C# 工具
+---@field CreateZoneRoot fun(root:UnityEngine.GameObject):UnityEngine.GameObject
+---@field SetupZoneItem fun(root:UnityEngine.GameObject, sid:number, sprite:UnityEngine.Sprite, unlocked:boolean, cols:number, rows:number, scale:number):void
+---@field SetupMapBounds fun(root:UnityEngine.GameObject,w:number,h:number,cx:number,cy:number):void
+---@field RefreshMapBoundsAndCamera fun(root:UnityEngine.GameObject,zoneH:number,cam:UnityEngine.Camera):void
+
+---@class GameLib.MapPathMoveUtil @路径移动工具
+---@field BuildLocalMoveSeq fun(tr:UnityEngine.Transform,points:table,speed:number):DG.Tweening.Sequence
+---@field Kill fun(seq:DG.Tweening.Sequence):void
+---@field ResumePath fun(seq:DG.Tweening.Sequence):void
+
 ---@class GameLib.MapMotionLayer @地图层组件
 
 ---@class GameLib.RSetupLuaTableValue @Lua 表工具
@@ -106,7 +117,7 @@
 ---@class DG.Tweening.DOTween @DOTween 全局入口
 ---@field Sequence fun():DG.Tweening.Sequence
 ---@field Tween fun():DG.Tweening.Tweener
----@field To fun(getter:fun():number,setter:fun(v:number),to:number,duration:number):DG.Tweening.Tweener
+---@field To fun(getter:fun():number,setter:fun(number),to:number,duration:number):DG.Tweening.Tweener
 ---@field KillAll fun(complete:boolean):void
 
 ---@class DG.Tweening.LoopType @DOTween 循环类型枚举
@@ -229,3 +240,26 @@
 ---@class Spine.Animation @Spine 动画
 ---@field name string
 ---@field duration number
+
+---@class Tables.LevelData_Item @关卡分区数据（xlua 动态生成表）
+---@field ChapterId string 章节ID
+---@field ChapterName string 章节名称
+---@field SectionId number 分区ID
+---@field SectionCount number 总分区数
+---@field LevelId number 关卡ID
+---@field BgName string 背景图名称
+---@field MapName string 地图名称
+---@field SavePath string 配置保存路径
+---@field Time string 保存时间
+---@field Width number 地图宽度
+---@field Height number 地图高度
+---@field RegionRows number 分区行数
+---@field RegionCols number 分区列数
+---@field RegionCol number 当前分区列
+---@field RegionRow number 当前分区行
+---@field Unlocked boolean 是否已解锁
+---@field FogEnabled boolean 迷雾开关
+---@field GridSize number 单格像素尺寸
+---@field GridCols number 网格列数
+---@field GridRows number 网格行数
+---@field OccupiedCells table[] 占用格列表

@@ -887,7 +887,7 @@ namespace Honor.Runtime
         /// </summary>
         private void OnLoadProgressEventCallback(object sender, object userData, EventParams e)
         {
-            if (userData != this) return;
+            if (!object.ReferenceEquals(userData, this)) return;
 
             float progress = e.GetFloat("progress");
             string descContent = e.GetString("descContent");
@@ -900,7 +900,7 @@ namespace Honor.Runtime
         /// </summary>
         private void OnHotfixProgressEventCallback(object sender, object userData, EventParams e)
         {
-            if (userData != this) return;
+            if (!object.ReferenceEquals(userData, this)) return;
 
             float progress = e.GetFloat("progress");
             float curBytes = e.GetFloat("curBytes");
@@ -920,7 +920,7 @@ namespace Honor.Runtime
         /// </summary>
         private void OnHotfixAllOverEventCallback(object sender, object userData, EventParams e)
         {
-            if (userData != this) return;
+            if (!object.ReferenceEquals(userData, this)) return;
             RefreshViews(string.Empty, 1.0f, GameDefinitions.DownloadStep.AllOver, m_CurFileNum, m_TotalFileNum,
                 m_CurBytes, m_TotalBytes);
             HonorCoreManager.Instance.Fire(this, GameEventCmd.FlowPermit);
@@ -932,7 +932,7 @@ namespace Honor.Runtime
         /// </summary>
         private void OnHotfixErrorEventCallback(object sender, object userData, EventParams e)
         {
-            if (userData != this) return;
+            if (!object.ReferenceEquals(userData, this)) return;
             string fileName = e.GetString("fileName");
             Log.Error("热更下载出错，文件：{0}", fileName);
         }

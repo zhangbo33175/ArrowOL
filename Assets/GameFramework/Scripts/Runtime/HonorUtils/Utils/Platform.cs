@@ -50,11 +50,13 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 是否 Flash 平台（历史保留，当前 Unity 已不支持）
+        /// 是否 Flash 平台（历史保留，当前 Unity 已不支持，恒返回 false）
         /// </summary>
         public static bool IsFlash
         {
-            get { return Application.platform == RuntimePlatform.FlashPlayer; }
+#pragma warning disable CS0618
+            get { return false; } // RuntimePlatform.FlashPlayer 已废弃，恒返回 false
+#pragma warning restore CS0618
         }
 
         /// <summary>

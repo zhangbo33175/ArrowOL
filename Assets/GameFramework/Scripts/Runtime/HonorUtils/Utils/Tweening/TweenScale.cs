@@ -35,7 +35,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化：以当前本地缩放作为起始缩放
         /// </summary>
-        protected void Init()
+        protected new void Init()
         {
             fromScale = transform.localScale;
         }

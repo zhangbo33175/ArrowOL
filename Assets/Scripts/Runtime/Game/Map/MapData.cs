@@ -12,7 +12,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using GameLib;
-using UnityEngine.Serialization;
 
 //=========================================================================
 // 地图枚举定义
@@ -106,50 +105,13 @@ public class MapCamData
 
     #region 相机位置计算方法
 
-    /// <summary>世界坐标换算系数（视图宽高比 × 相机Size × 2 × 100）</summary>
-    private const float k_WorldViewScaleFactor = 100f;
-    /// <summary>世界半宽换算除数</summary>
-    private const float k_HalfViewDivisor = 200f;
     /// <summary>像素高度 → 世界坐标换算系数</summary>
     private const float k_PixelToWorldScale = 0.01f;
-
-    /// <summary>计算可视半宽（世界坐标）</summary>
-    private float CalcViewHalfWorldWidth(Vector2 viewSize)
-    {
-        return viewSize.x / viewSize.y * size * k_WorldViewScaleFactor / k_HalfViewDivisor;
-    }
 
     /// <summary>标准化调整相机Y轴位置</summary>
     public void NormalAdjustPosY(float designHeight)
     {
         posY = (size * 2f - designHeight * k_PixelToWorldScale) * 0.5f;
-    }
-
-    /// <summary>左对齐模式标准化相机X轴位置（红框视口）</summary>
-    public void NormalAdjustLeftPosX_Viewport(Vector2 viewportSize, float mapLeftWorldPosX)
-    {
-        posX = mapLeftWorldPosX + CalcViewHalfWorldWidth(viewportSize);
-    }
-
-    /// <summary>右对齐模式标准化相机X轴位置（红框视口）</summary>
-    public void NormalAdjustRightPosX_Viewport(Vector2 viewportSize, float mapRightWorldPosX)
-    {
-        posX = mapRightWorldPosX - CalcViewHalfWorldWidth(viewportSize);
-    }
-
-    /// <summary>退出关卡修正相机X位置（红框视口）</summary>
-    public void ExitPlayAdjustPosX_Viewport(Vector2 viewportSize, float playPosX,
-        float mapRightWorldPosX, RMapPlayHudPosType hudPosType)
-    {
-        if (hudPosType == RMapPlayHudPosType.Center) { posX = playPosX; return; }
-        float viewBoundPosX = playPosX + CalcViewHalfWorldWidth(viewportSize);
-        posX = viewBoundPosX > mapRightWorldPosX ? playPosX + mapRightWorldPosX - viewBoundPosX : playPosX;
-    }
-
-    /// <summary>游玩状态根据底部距离计算相机Y位置</summary>
-    public void PlayAdjustPosY(MapCamData normalCamData, float distance)
-    {
-        posY = distance * k_PixelToWorldScale - (normalCamData.size - size) + normalCamData.posY;
     }
 
     #endregion
@@ -160,6 +122,44 @@ public class MapCamData
 //=========================================================================
 
 /// <summary>
+/// 地图相机运动配置数据
+/// 管理拖动、缩放、惯性滑动、自动扫描等可调参数（Inspector 可编辑）
+/// </summary>
+[System.Serializable]
+public class MapMotionConfig
+{
+    [Tooltip("Canvas 设计高度")]
+    public float m_CanvasDesignHeight = 1334f;
+    
+    [Tooltip("缩放速度系数（双指/滚轮）")]
+    public float m_ZoomSpeed = 1.1f;
+    [Tooltip("最小缩放比例（相对于铺满屏幕 ortho）")]
+    public float m_MinZoomRatio = 0.5f;
+    [Tooltip("拖动阈值（像素，小于则判定为单击）")]
+    public float m_DragThreshold = 12f;
+    
+    [Tooltip("平滑滑动最小值")]
+    public float m_SwipeSmoothMin = 0.3f;
+    [Tooltip("平滑滑动最大值")]
+    public float m_SwipeSmoothMax = 1.0f;
+    [Tooltip("平滑步进系数")]
+    public float m_StepAddFactor = 2f;
+    [Tooltip("惯性衰减系数")]
+    public float m_InertiaDecay = 0.025f;
+    [Tooltip("惯性后平滑下限")]
+    public float m_InertiaSmoothFloor = 0.75f;
+    
+    [Tooltip("扫描步进重叠率（0.8=步长为视野80%）")]
+    public float m_AutoScanOverlap = 0.8f;
+    [Tooltip("扫描每段动画时长（秒）")]
+    public float m_AutoScanSegmentDuration = 1.2f;
+    [Tooltip("扫描默认正交尺寸")]
+    public float m_AutoScanDefaultOrtho = 300f;
+    [Tooltip("扫描启动宽限帧数（避免启动点击立刻停掉）")]
+    public int m_AutoScanGraceFrames = 15;
+}
+
+/// <summary>
 /// 地图核心配置组件
 /// 管理地图参数、相机配置、视图边界计算
 /// </summary>
@@ -167,45 +167,53 @@ public class MapData : MonoBehaviour
 {
     #region 公开字段
 
+    [Header("地图基础配置")]
     [Tooltip("章节ID")]
     public string m_ChapterId = string.Empty;
+    [Tooltip("关卡ID")]
     public int m_LevelId;
+    [Tooltip("地图边界组件")]
     public MapMotionLayer mapBounds;
+    [Tooltip("地图类型")]
     public RMapType m_MapType = RMapType.Normal;
+    [Tooltip("是否Pad端")]
     public bool m_IsPad;
 
     [Header("相机配置")]
+    [Tooltip("大厅相机数据")]
     public MapCamData m_NormalCamData;
+    [Tooltip("游玩相机数据")]
     public MapCamData m_PlayCamData;
+    [Tooltip("退出游玩相机数据")]
     public MapCamData m_ExitPlayCamData;
+    [Tooltip("主HUD最大高度")]
     public float m_MainHudMaxHeight = 768f;
+    [Tooltip("地图章节配置数据")]
     public RMapChapterTypeData m_RMapChapterTypeData = new();
 
     [Header("地图缩放配置")]
+    [Tooltip("最小相机尺寸")]
     public float m_MinCamSize = 250f;
+    [Tooltip("最大相机尺寸")]
     public float m_MaxCamSize = 1024f;
+    [Tooltip("滚轮灵敏度")]
     public float m_ScrollSensitivity = 0.5f;
 
     [Header("中间地图红框视口配置")]
+    [Tooltip("顶部HUD像素高度")]
     public float m_TopHudPixelHeight = 160f;
+    [Tooltip("底部HUD像素高度")]
     public float m_BottomHudPixelHeight = 180f;
+    [Tooltip("最小缩放时锁定中心")]
     public bool m_MinScaleLockCenter = true;
+
+    [Header("相机运动配置")]
+    [Tooltip("相机运动参数（拖动/缩放/惯性/自动扫描）")]
+    public MapMotionConfig m_MotionConfig = new MapMotionConfig();
 
     #endregion
 
     #region 公共工具方法
-
-    private const float k_WorldViewScaleFactor = 100f;
-    private const float k_HalfViewDivisor = 200f;
-
-    /// <summary>计算可视半宽（世界坐标）</summary>
-    private float CalcViewHalfWorldWidth(float camSize, Vector2 viewSize)
-    {
-        return viewSize.x / viewSize.y * camSize * k_WorldViewScaleFactor / k_HalfViewDivisor;
-    }
-
-    /// <summary>获取中间地图红框Viewport尺寸</summary>
-    public Vector2 GetMapViewportSize() => Util.GetMapViewportSize(this);
 
     /// <summary>动态计算适配红框的最小相机正交Size</summary>
     public float CalcAutoMinCamSize()
@@ -216,29 +224,11 @@ public class MapData : MonoBehaviour
         return Mathf.Max(m_NormalCamData.size * ratio, m_MinCamSize);
     }
 
-    /// <summary>设置底部UI高度（运行时动态调整）</summary>
-    public void SetBottomHudHeight(float pixelHeight)
-    {
-        m_BottomHudPixelHeight = Mathf.Max(pixelHeight, 0f);
-    }
-
     /// <summary>重新计算大厅相机参数（根据当前视口自动适配）</summary>
     public void RecalcNormalCamData()
     {
         m_NormalCamData.size = CalcAutoMinCamSize();
         m_NormalCamData.NormalAdjustPosY(m_MainHudMaxHeight);
-    }
-
-    /// <summary>获取游玩相机可视区域右边界世界X坐标（红框视口）</summary>
-    public float PlayHudRightViewWorldPosX_Viewport()
-    {
-        return m_PlayCamData.posX + CalcViewHalfWorldWidth(m_PlayCamData.size, GetMapViewportSize());
-    }
-
-    /// <summary>获取游玩相机可视区域左边界世界X坐标（红框视口）</summary>
-    public float PlayHudLeftViewWorldPosX_Viewport()
-    {
-        return m_PlayCamData.posX - CalcViewHalfWorldWidth(m_PlayCamData.size, GetMapViewportSize());
     }
 
     #endregion

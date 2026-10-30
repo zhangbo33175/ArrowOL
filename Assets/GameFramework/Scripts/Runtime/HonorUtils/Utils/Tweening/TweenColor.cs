@@ -86,7 +86,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化：以当前颜色作为起始颜色
         /// </summary>
-        protected void Init()
+        protected new void Init()
         {
             fromColor = Color;
         }

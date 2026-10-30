@@ -74,7 +74,6 @@ local GameMapMotion = {
     InertialSlidingVector = { x = 0, y = 0, z = 0 },     -- 惯性方向向量
 
     PointStartFromUI = false,                   -- 是否从UI开始按压
-    lastMousePos = nil,                         -- 上一帧鼠标位置
     IsMouseDown = false,                        -- 鼠标是否按下
     MouseLastScreenPos = { x = 0, y = 0 },      -- 鼠标最后屏幕坐标
 
@@ -109,6 +108,26 @@ local GameMapMotion = {
     InitialOrthoSize = 0,                       -- 初始正交尺寸
     PositionWhenPaused = nil                    -- 暂停时位置
 }
+
+--region 【配置读取工具】
+
+---@brief 获取地图运动配置（从 MapData.m_MotionConfig 读取，兜底用默认值）
+---@type fun():MapMotionConfig
+function GameMapMotion:_GetMotionConfig()
+    if MapManager and MapManager.CurMapData and MapManager.CurMapData.m_MotionConfig then
+        return MapManager.CurMapData.m_MotionConfig
+    end
+    return nil
+end
+
+---@brief 获取 Canvas 设计高度（兜底 1334）
+---@type fun():number
+function GameMapMotion:_GetCanvasHeight()
+    local cfg = self:_GetMotionConfig()
+    return cfg and cfg.m_CanvasDesignHeight or 1334
+end
+
+--endregion
 
 --region 【通用工具方法】
 
@@ -210,14 +229,14 @@ function GameMapMotion:FocusUnlockedSections(unlockedCount)
     if not self.ScreenCamera then return end
     unlockedCount = tonumber(unlockedCount) or 1
     ---TODO [优化] 分区布局从 MapLayoutConfig 读取，不再硬编码 cols/rows/2048
-    local cols = tonumber(MapLayoutConfig.regionCols) or 1
-    local rows = tonumber(MapLayoutConfig.regionRows) or 1
-    local zoneW = tonumber(MapLayoutConfig.zoneWidth) or 2048
-    local zoneH = tonumber(MapLayoutConfig.zoneHeight) or 2048
+    local cols = tonumber(EMapLayoutConfig.regionCols) or 1
+    local rows = tonumber(EMapLayoutConfig.regionRows) or 1
+    local zoneW = tonumber(EMapLayoutConfig.zoneWidth) or 2048
+    local zoneH = tonumber(EMapLayoutConfig.zoneHeight) or 2048
 
     local minX, maxX = math.huge, -math.huge
     local minY, maxY = math.huge, -math.huge
-    ---TODO [优化] 分区尺寸从 MapLayoutConfig.zoneWidth/zoneHeight 读取
+    ---TODO [优化] 分区尺寸从 EMapLayoutConfig.zoneWidth/zoneHeight 读取
     for sid = 1, unlockedCount do
         local idx = sid - 1
         local c = idx % cols
@@ -243,8 +262,9 @@ function GameMapMotion:FocusUnlockedSections(unlockedCount)
     ortho = math.max(ortho, self.MinOrthoSize)
 
     self.ScreenCamera.orthographicSize = ortho
-    -- ---TODO [修复] 最大缩放=铺满屏幕(ortho)，最小缩放=0.5x(可放大看细节)，防止缩小出黑边
-    self.MinOrthoSize = ortho * 0.5
+    local cfg = self:_GetMotionConfig()
+    local minZoomRatio = cfg and cfg.m_MinZoomRatio or 0.5
+    self.MinOrthoSize = ortho * minZoomRatio
     self.MaxOrthoSize = ortho
     self.FollowPosition = UnityEngine.Vector3(cx, cy, 0)
     self.ScreenCamera.transform.position = UnityEngine.Vector3(cx, cy, self.ScreenCamera.transform.position.z)
@@ -254,7 +274,6 @@ function GameMapMotion:FocusUnlockedSections(unlockedCount)
     self.LimitMaxX = maxX - zoneW / 2
     self.LimitMinY = minY + zoneH / 2
     self.LimitMaxY = maxY + zoneH / 2
-    print(string.format("[相机] 聚焦分区1..%d center=(%.0f,%.0f) ortho=%.1f", unlockedCount, cx, cy, ortho))
 end
 
 ---@brief 把跟随目标位置 clamp 到边界内
@@ -275,7 +294,6 @@ function GameMapMotion:ApplyZoom(newOrtho)
     if clamped <= 0 then
         clamped = (self.MinOrthoSize + self.MaxOrthoSize) / 2
     end
-    --TODO: [清理] 移除 [ZoomClamp] 缩放越界调试 print（捏合缩放时高频刷屏，无副作用）
     self.ScreenCamera.orthographicSize = clamped
     self:ClampFollowPosition()
     -- 缩放是即时操作：直接把相机 transform 吸到 FollowPosition，
@@ -303,7 +321,8 @@ end
 function GameMapMotion:IsTapDistance(x0, y0, x1, y1)
     local dx = x1 - x0
     local dy = y1 - y0
-    return math.sqrt(dx * dx + dy * dy) < self.DragThreshold
+    local dragThreshold = self:_GetMotionConfig() and self:_GetMotionConfig().m_DragThreshold or 12
+    return math.sqrt(dx * dx + dy * dy) < dragThreshold
 end
 
 ---@brief 判断屏幕坐标是否在合法屏幕范围内
@@ -329,7 +348,10 @@ function GameMapMotion:ApplyWorldDelta(dx, dy)
     self.Vector3Num.x = dx
     self.Vector3Num.y = dy
     self:MovingFollowPosition(self.Vector3Num)
-    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + UnityEngine.Time.deltaTime * self.StepAddFactor, 0.3, 1)
+    local cfg = self:_GetMotionConfig()
+    local smoothMin = cfg and cfg.m_SwipeSmoothMin or 0.3
+    local smoothMax = cfg and cfg.m_SwipeSmoothMax or 1.0
+    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + UnityEngine.Time.deltaTime * self.StepAddFactor, smoothMin, smoothMax)
 end
 
 --endregion
@@ -345,11 +367,8 @@ function GameMapMotion:OnUpdate()
 
     -- 安全矫正相机尺寸
     if self.ScreenCamera.orthographicSize <= 0 then
-        --TODO: [修复] size<=0 时不仅矫正 size，同时兜底聚焦第1分区，避免 FollowPosition 停留在 (0,0)
         local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
         self:FocusUnlockedSections(unlockedCount)
-        print(string.format("[相机] 安全矫正 size=%.0f center=(%.0f,%.0f)",
-            self.ScreenCamera.orthographicSize, self.FollowPosition.x, self.FollowPosition.y))
     else
         self.ScreenCamera.orthographicSize = math.clamp(
                 self.ScreenCamera.orthographicSize,
@@ -546,7 +565,6 @@ function GameMapMotion:TriggerClick(screenPos)
         end
     end
 
-    --TODO: [清理] 移除遗留调试 print（✅ 单击命中/空地），无逻辑副作用，避免生产环境刷屏
     if not (isHit and hitTarget) then
         HonorEventHelper:Fire(EventCmd.OnClickCharacter, nil)
     end
@@ -616,8 +634,11 @@ end
 function GameMapMotion:OnInertialSliding(factor)
     self.InertialSlidingVector.x = self.Vector3Num.x * self.InertialSlidingFactor
     self:MovingFollowPosition(self.InertialSlidingVector)
-    self.InertialSlidingFactor = math.clamp(self.InertialSlidingFactor - 0.025, 0, 1)
-    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + GameLib.RSetupLuaTableValue.GetTimeDeltaTime(), 0.75, 1)
+    local cfg = self:_GetMotionConfig()
+    local decay = cfg and cfg.m_InertiaDecay or 0.025
+    local smoothFloor = cfg and cfg.m_InertiaSmoothFloor or 0.75
+    self.InertialSlidingFactor = math.clamp(self.InertialSlidingFactor - decay, 0, 1)
+    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + GameLib.RSetupLuaTableValue.GetTimeDeltaTime(), smoothFloor, 1)
 end
 
 --endregion
@@ -651,7 +672,12 @@ end
 ---@param orthoSize number 扫描时的相机尺寸，默认 300
 function GameMapMotion:StartAutoScan(orthoSize)
     if not self.ScreenCamera or not self.FollowPosition then return end
-    orthoSize = orthoSize or 300
+    local cfg = self:_GetMotionConfig()
+    local defaultOrtho = cfg and cfg.m_AutoScanDefaultOrtho or 300
+    local overlap = cfg and cfg.m_AutoScanOverlap or 0.8
+    local segDur = cfg and cfg.m_AutoScanSegmentDuration or 1.2
+    local graceFrames = cfg and cfg.m_AutoScanGraceFrames or 15
+    orthoSize = orthoSize or defaultOrtho
 
     -- 切到扫描缩放
     self:ApplyZoom(orthoSize)
@@ -659,14 +685,13 @@ function GameMapMotion:StartAutoScan(orthoSize)
     -- 重新算边界（缩放后 hw/hh 变了）
     local minX, maxX, minY, maxY = self:GetCameraBounds()
     if minX > maxX or minY > maxY then
-        --TODO: [清理] 移除 [AutoScan] bounds too tight 调试 print
         return
     end
 
-    -- 每次横向/纵向步进 = 视野的 80%（留 20% 重叠避免漏看）
+    -- 每次横向/纵向步进 = 视野的 overlap（留重叠避免漏看）
     local aspect = self.ScreenCamera.aspect
-    local stepX = aspect * orthoSize * 2 * 0.8
-    local stepY = orthoSize * 2 * 0.8
+    local stepX = aspect * orthoSize * 2 * overlap
+    local stepY = orthoSize * 2 * overlap
 
     -- 生成蛇形路径点
     self.AutoScanWaypoints = {}
@@ -705,22 +730,19 @@ function GameMapMotion:StartAutoScan(orthoSize)
     local seq = CS.DG.Tweening.DOTween.Sequence()
     for i, wp in ipairs(self.AutoScanWaypoints) do
         local target = UnityEngine.Vector3(wp.x, wp.y, camZ)
-        -- 每段 1.2 秒，InOutSine 进出缓动丝滑
-        local tween = camTransform:DOMove(target, 1.2)
+        local tween = camTransform:DOMove(target, segDur)
         tween:SetEase(CS.DG.Tweening.Ease.InOutSine)
         seq:Append(tween)
     end
 
     -- 完成回调
     seq:OnComplete(CS.DG.Tweening.TweenCallback(function()
-        --TODO: [清理] 移除 [AutoScan] done 调试 print
         self:StopAutoScan()
     end))
 
     self.AutoScanSeq = seq
     self.AutoScanActive = true
-    self.AutoScanGraceFrames = 15  -- 宽限帧数，避免启动点击立刻停掉自己
-    --TODO: [清理] 移除 [AutoScan] start waypoints 调试 print
+    self.AutoScanGraceFrames = graceFrames
 end
 
 ---@brief 停止自动扫描
@@ -772,7 +794,8 @@ function GameMapMotion:CheckPinchZoom()
     if math.abs(diff) <= 1 then return end
 
     local ortho = self.ScreenCamera.orthographicSize
-    ortho = diff > 0 and (ortho / self.ZoomSpeed) or (ortho * self.ZoomSpeed)
+    local zoomSpeed = self:_GetMotionConfig() and self:_GetMotionConfig().m_ZoomSpeed or 1.1
+    ortho = diff > 0 and (ortho / zoomSpeed) or (ortho * zoomSpeed)
     self:ApplyZoom(ortho)
     self.LastPinchDistance = curr
 end
@@ -796,7 +819,8 @@ function GameMapMotion:UpdateMouseScrollZoom()
     if math.abs(scroll) < 0.001 then return end
 
     local ortho = self.ScreenCamera.orthographicSize
-    ortho = scroll > 0 and (ortho / self.ZoomSpeed) or (ortho * self.ZoomSpeed)
+    local zoomSpeed = self:_GetMotionConfig() and self:_GetMotionConfig().m_ZoomSpeed or 1.1
+    ortho = scroll > 0 and (ortho / zoomSpeed) or (ortho * zoomSpeed)
     self:ApplyZoom(ortho)
 end
 
@@ -835,7 +859,6 @@ function GameMapMotion:ResumeMapMotion()
     if self.IsMapWork then return end
 
     self.SwipeSmoothStepNum = 0
-    --TODO: [GameMapMotion] 相机未绑定（ScreenCamera 为空）时跳过位置刷新，防止 index nil 崩溃
     if self.ScreenCamera then
         self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
         self.FollowPosition.y = self.ScreenCamera.transform:GetPositionY()
@@ -856,9 +879,6 @@ function GameMapMotion:PauseMapMotion()
     self.IsMouseDown = false
     self.IsPressing = false
 
-    --TODO: [GameMapMotion] 相机未绑定（ScreenCamera 为空）时跳过位置记录，防止 index nil 崩溃；
-    --       相机应在 OnMapStart 时由 GameMapBase:OnMapStart 绑定，若进入关卡前常为 nil，
-    --       需检查地图加载/相机初始化时序（LoadMapById → 地图启动 → 进入 PlayingState）
     if not self.ScreenCamera then
         return
     end
@@ -893,45 +913,27 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.IsMouseDown = false
     self.IsPressing = false
 
-    -- 预守卫：绑定相机后立即矫正 ortho size，覆盖 Awake(InitMapCamera)→Start(OnMapStart)
-    -- 之间 EventSystem raycast 触发 size=0 退化矩阵的窗口期。OnUpdate 守卫仅在 IsMapWork=true
-    -- 后每帧生效，此处补上初始化路径的一次性矫正。
-    --TODO: [修复] OnMapStart 预守卫 ortho size，覆盖 Awake→Start 窗口期 size=0 退化矩阵告警
+    -- 预守卫：绑定相机后立即矫正 ortho size
     if self.ScreenCamera ~= nil and self.ScreenCamera.orthographicSize <= 0 then
-        --TODO: [修复] 预守卫时直接聚焦第1分区，避免 FollowPosition 初始为 (0,0)
         local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
         self:FocusUnlockedSections(unlockedCount)
-        print(string.format("[相机] OnMapStart 预守卫 size=%.0f center=(%.0f,%.0f)",
-            self.ScreenCamera.orthographicSize, self.FollowPosition.x, self.FollowPosition.y))
     end
 
-    -- 相机渲染区域（rect全屏，方案B：红框裁剪改由UI RawImage布局控制，不裁剪相机）
-    self:SetCameraRect(nil, nil, 1334)
+    -- 相机渲染区域
+    self:SetCameraRect(nil, nil, self:_GetCanvasHeight())
 
-    -- 方案B阶段2：设近裁剪面为负值，使相机做 z=0 的坐标转换(EventSystem/SendMouseEvents 的
-    -- ScreenToWorldPoint/WorldToScreenPoint) 与地图物体(z≈-1)均落入视锥内，彻底消除
-    -- "Screen position out of view frustum" 告警。备份原near，OnMapEnd 还原。
-    --TODO: [方案B] nearClipPlane负值消除相机z=0转换的视锥外告警；与rect全屏双保险
+    -- 设置负 near 裁剪面，消除 z=0 坐标转换的视锥外告警
     if self.ScreenCamera ~= nil then
         self._MapCamNearBackup = self.ScreenCamera.nearClipPlane
-        -- 统一遍历所有相机设负 near：覆盖 EventSystem/SendMouseEvents 射线检测用的 Camera.main 及各 UI worldCamera
-        --TODO: [方案B] SetAllCamerasNear 遍历 Camera.allCameras 统一设负 near，根治 z=0 坐标转换的视锥外告警
         GameLib.MapCamHelper.SetAllCamerasNear(-10)
     end
 
-    -- 禁用物理射线检测：游戏点击由 TriggerClick 手动遍历 BoxCollider2D 处理，
-    -- 不需要 Physics2DRaycaster / PhysicsRaycaster。禁用后可消除 "Screen position out of view frustum" 警告
-    -- 注意：eventMask 属于 raycaster 而非 Camera，勿对 Camera 赋值（Camera 无该属性）；
-    -- UGUI 射线(GraphicRaycaster)由 SetCameraRect 裁剪后统一停用对应事件Canvas处理
-    --TODO: [修复] 禁用 Physics2DRaycaster/PhysicsRaycaster(3D)，并停用裁剪相机的事件Canvas(GraphicRaycaster)，
-    --        彻底消除相机rect裁剪区域被 EventSystem 射线检测时的视锥外告警
+    -- 禁用物理射线检测（点击由 TriggerClick 手动遍历处理）
     local raycaster2D = self.ScreenCamera:GetComponent(typeof(UnityEngine.EventSystems.Physics2DRaycaster))
     if raycaster2D then raycaster2D.enabled = false end
     local raycaster3D = self.ScreenCamera:GetComponent(typeof(UnityEngine.EventSystems.PhysicsRaycaster))
     if raycaster3D then raycaster3D.enabled = false end
 
-    --TODO: [清理] 移除 [CameraDebug] 一次性相机参数调试 print 块（rect/size/viewport/dynMaxOrtho），
-    --        纯诊断输出无副作用；相机参数已由下方正常赋值逻辑驱动，需要时可临时加回
     -- 地图边界数据
     self.MapHalfWidth  = self.MapMotionLayer.m_AreaBounds.extents.x
     self.MapHalfHeigh  = self.MapMotionLayer.m_AreaBounds.extents.y
@@ -939,8 +941,7 @@ function GameMapMotion:OnMapStart(mapTrans)
     self.MapCenterY    = self.MapMotionLayer.m_AreaBounds.center.y
     self.MapBounds     = self.MapMotionLayer.m_AreaBounds
 
-    ---TODO: [多分区] 用整章预制体包围盒初始化 Base（兜底）与 Limit（实际 clamp）边界；
-    ---      随后 RefreshUnlockedSectionBounds 会按已解锁分区聚合 AABB 收敛 Limit
+    -- 基础边界（整章预制体兜底）与 Limit（实际 clamp）
     self.BaseBoundsMinX = self.MapCenterX - self.MapHalfWidth
     self.BaseBoundsMaxX = self.MapCenterX + self.MapHalfWidth
     self.BaseBoundsMinY = self.MapCenterY - self.MapHalfHeigh
@@ -956,13 +957,11 @@ function GameMapMotion:OnMapStart(mapTrans)
     }
     self.PositionWhenPaused = { x = self.FollowPosition.x, y = self.FollowPosition.y, z = self.FollowPosition.z }
 
-    -- 最大缩放先设为兜底值，FocusUnlockedSections 会按实际分区覆盖
-    ---TODO: [修复] 此处仅兜底，实际 MaxOrthoSize 由 FocusUnlockedSections 锁定为铺满屏幕的值
+    -- 最大缩放兜底值，FocusUnlockedSections 会按实际分区覆盖
     self.MaxOrthoSize = math.max(self.MapHalfHeigh, self.MinOrthoSize)
     self:ApplyZoom(self.ScreenCamera.orthographicSize)
 
-    ---TODO [相机聚焦] Start 末尾重聚焦：覆盖初始化块（RecalculateBounds/FollowPosition/ApplyZoom），聚焦为最终发言者
-    ---TODO: [修复] UnlockedCount 为 nil 时兜底默认聚焦第1分区，避免 FollowPosition 停留在原点(0,0)导致地图偏右上角
+    -- 聚焦已解锁分区
     local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
     self:FocusUnlockedSections(unlockedCount)
 
@@ -976,50 +975,9 @@ function GameMapMotion:OnMapStart(mapTrans)
 
     -- 注册触摸
     self:RegisterTouchEvents("+")
-    ---TODO: [多分区] 按已解锁分区聚合 AABB 收敛相机边界后再 clamp（内部会自行 ClampFollowPosition）
+    -- 按已解锁分区聚合 AABB 收敛相机边界
     self:RefreshUnlockedSectionBounds()
     self:ClampFollowPosition()
-
-    -- ---TODO [修复] 地图以原点(0,0)为中心摆放（RawImage pivot=center），相机中心改为(0,0)
-    local unlockedCount = (MapLoadManager and MapLoadManager.UnlockedCount) or 1
-    local zoneW = 2048
-    local zoneH = 2048
-    local totalW = unlockedCount * zoneW
-    local cx = 0
-    local cy = 0
-    local aspect = self._RedBoxAspect or (CS.UnityEngine.Screen.width / CS.UnityEngine.Screen.height)
-    local ortho = totalW / 2 / aspect
-    -- ---TODO [修复] 直接设置 world position 和 ortho，不经过 SetupMapPositionAndSize（localPosition 受父节点缩放影响）
-    if self.ScreenCamera then
-        self.ScreenCamera:DOKill()
-        self.ScreenCamera.transform:DOKill()
-        self.ScreenCamera.orthographicSize = ortho
-        self.ScreenCamera.transform.position = CS.UnityEngine.Vector3(cx, cy, self.ScreenCamera.transform.position.z)
-        print(string.format("[相机] world设置 ortho=%.0f pos=(%.0f,%.0f) parentScale=(%.2f,%.2f)",
-            self.ScreenCamera.orthographicSize,
-            self.ScreenCamera.transform.position.x,
-            self.ScreenCamera.transform.position.y,
-            self.ScreenCamera.transform.parent.localScale.x,
-            self.ScreenCamera.transform.parent.localScale.y))
-    end
-    self.FollowPosition = CS.UnityEngine.Vector3(cx, cy, 0)
-    self.MaxOrthoSize = ortho
-    self.MinOrthoSize = ortho
-    -- ---TODO [修复] 地图以原点为中心，边界从 -zoneH/2 到 +zoneH/2
-    self.LimitMinX = -totalW / 2
-    self.LimitMaxX = totalW / 2
-    self.LimitMinY = -zoneH / 2
-    self.LimitMaxY = zoneH / 2
-    -- ---TODO [修复] 最大缩放=铺满屏幕(ortho)，最小缩放=0.5x，防止缩小出黑边
-    self.MinOrthoSize = ortho * 0.5
-    self.MaxOrthoSize = ortho
-    -- ---TODO [验证] 遍历所有相机，找到真正渲染 Game 视图的 2DSceneCamera
-    local allCams = CS.UnityEngine.Camera.allCameras
-    for i = 0, allCams.Length - 1 do
-        local c = allCams[i]
-        print(string.format("[相机] 相机%d: name=%s ortho=%.1f pos=(%.0f,%.0f)",
-            i, c.name, c.orthographicSize, c.transform.position.x, c.transform.position.y))
-    end
 end
 
 ---@brief 获取屏幕顶部/底部安全区偏移（设计分辨率单位，自动适配刘海屏与底部手势条）
@@ -1028,7 +986,7 @@ end
 ---@return number topInset 顶部安全区偏移（刘海/挖孔避让，设计分辨率单位）
 ---@return number bottomInset 底部安全区偏移（手势条/导航栏避让，设计分辨率单位）
 function GameMapMotion:GetSafeAreaInsets(canvasH)
-    canvasH = canvasH or 1334
+    canvasH = canvasH or self:_GetCanvasHeight()
     local safeArea = UnityEngine.Screen.safeArea
     local screenH = UnityEngine.Screen.height
     if screenH <= 0 then return 0, 0 end
@@ -1046,7 +1004,7 @@ end
 ---@param canvasH number Canvas设计高度（默认 1334）
 ---@return number 设计分辨率单位高度
 function GameMapMotion:PixelsToDesign(px, canvasH)
-    canvasH = canvasH or 1334
+    canvasH = canvasH or self:_GetCanvasHeight()
     local screenH = UnityEngine.Screen.height
     if screenH <= 0 then return px or 0 end
     return (px or 0) * canvasH / screenH
@@ -1059,7 +1017,7 @@ end
 ---@return number bottomHudDesign 底部HUD设计高度
 ---@desc 与 MapData.cs 的 m_TopHudPixelHeight / m_BottomHudPixelHeight（像素）联动，消除 SetCameraRect 硬编码双源
 function GameMapMotion:GetHudDesignHeights(canvasH)
-    canvasH = canvasH or 1334
+    canvasH = canvasH or self:_GetCanvasHeight()
     -- 回退值（设计分辨率单位，MapData 缺失时使用）
     local topDesign, bottomDesign = 116.7621, 199.237
     if MapManager ~= nil and MapManager.CurMapData ~= nil then
@@ -1082,7 +1040,7 @@ end
 ---@param canvasH number Canvas高度，默认 1334
 ---@desc 未显式传值时从 MapData 读取 HUD 高度（单源）；并自动叠加顶部/底部安全区偏移，刘海屏/手势条设备上场景不会顶到不安全区
 function GameMapMotion:SetCameraRect(botHud, topHud, canvasH)
-    canvasH = canvasH or 1334
+    canvasH = canvasH or self:_GetCanvasHeight()
     -- 未显式传值时，从 MapData 读取 HUD 设计高度（替代原硬编码 116.7621/199.237）
     if topHud == nil or botHud == nil then
         local topDesign, bottomDesign = self:GetHudDesignHeights(canvasH)
@@ -1108,8 +1066,7 @@ end
 ---@param bottomHudHeight number 底部UI高度（设计分辨率单位，nil=取MapData），0=隐藏底部UI
 ---@desc 顶部HUD始终取 MapData，底部由调用方控制（0=隐藏/延展地图）
 function GameMapMotion:UpdateCameraRect(bottomHudHeight)
-    self:SetCameraRect(bottomHudHeight, nil, 1334)
-    --TODO: [清理] 移除 [CameraDebug] UpdateRect 调试 print（无副作用）
+    self:SetCameraRect(bottomHudHeight, nil, self:_GetCanvasHeight())
 end
 
 ---@brief 地图结束，清理

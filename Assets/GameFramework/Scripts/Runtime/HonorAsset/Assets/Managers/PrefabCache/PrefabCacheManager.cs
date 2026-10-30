@@ -40,7 +40,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化缓存池（跨场景留存）
         /// </summary>
-        protected void Init()
+        private new void Init()
         {
             base.Init();
             DontDestroyOnLoad(gameObject);

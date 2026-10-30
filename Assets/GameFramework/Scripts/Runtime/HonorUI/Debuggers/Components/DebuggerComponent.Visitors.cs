@@ -134,7 +134,9 @@ namespace Honor.Runtime
         private float m_WindowScale = 2f;
 
         private string m_winMiniTitle = "<b><color=#FFFFFFFF>HONOR</color></b>";
+#pragma warning disable CS0414 // m_winMiniStyle 仅作状态写入，由 style 系统读取，保留待后续逻辑使用
         private string m_winMiniStyle = "window";
+#pragma warning restore CS0414
 
         /// <summary>
         /// 悬浮Icon状态
@@ -272,8 +274,8 @@ namespace Honor.Runtime
         [SerializeField]
         private GUISkin m_PopWindowSkin = null;
 
-        [SerializeField]
-        private DebuggerActiveWindowType m_ActiveWindow = DebuggerActiveWindowType.AlwaysOpen;
+        // TODO: m_ActiveWindow 字段已废弃，保留注释待后续清理
+        // [SerializeField] private DebuggerActiveWindowType m_ActiveWindow = DebuggerActiveWindowType.AlwaysOpen;
 
         [SerializeField]
         private bool m_ShowFullWindow = false;

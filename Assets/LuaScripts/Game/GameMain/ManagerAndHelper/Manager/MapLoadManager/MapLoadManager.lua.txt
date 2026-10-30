@@ -5,7 +5,7 @@
 -- author:    云毅
 -- created:   2026
 -- @brief     地图加载管理器
--- @desc      地图加载编排壳：按序驱动配置加载→分区组装→网格初始化→ZoneRoot创建→分区实例化→包围盒适配→相机设置
+-- @desc      地图加载编排壳：配置加载→分区组装→网格初始化→ZoneRoot创建→分区实例化→包围盒适配→相机设置
 -- @core      编排私有方法链，C# GameLib.MapLoadManager 执行实际操作
 -- @scope     GameMain 地图加载阶段
 -- @dependency GamePlayHelper, Tables, GameLib.MapLoadManager, GameMapMotion, GridManager
@@ -13,57 +13,54 @@
 
 local MapLoadManager = {}
 
-MapLoadManager.ZoneRoot = nil
-MapLoadManager.SectionDatas = nil
-MapLoadManager.UnlockedCount = 0
+--region 【状态】
 
----默认格参兜底（1:1 坐标 scale=1.0）
-local DEFAULTS = { gridCols=128, gridSize=32, scale=1.0, width=4096 }
+MapLoadManager.ZoneRoot = nil        ---@type UnityEngine.Transform @ZoneRoot 容器
+MapLoadManager.SectionDatas = nil    ---@type table @全部分区数据列表
+MapLoadManager.UnlockedCount = 0    ---@type number @已解锁分区数
+
+--endregion
 
 --region 【配置加载】
 
----@brief 加载地图配置，更新 MapLayoutConfig
----@desc 从 GamePlayHelper 获取已解锁分区数据，提取 Width/Height/RegionCols 等参数写入 MapLayoutConfig
----@type fun(mapData:table, chapterId:string, unlockedCount:number):table
----@param mapData table @MapData实例
+---加载地图配置，写入 EMapLayoutConfig 缓存
 ---@param chapterId string @章节ID
 ---@param unlockedCount number @已解锁分区数
 ---@return table @已解锁分区数据列表
-function MapLoadManager:_LoadConfig(mapData, chapterId, unlockedCount)
+function MapLoadManager:_LoadConfig(chapterId, unlockedCount)
     local unlockedDatas = GamePlayHelper:GetUnlockedLevelDatas(chapterId, unlockedCount)
     local fd = unlockedDatas[1] and unlockedDatas[1].data or {}
     local n = #unlockedDatas
-    if fd.Width then
-        MapLayoutConfig.centerX = tonumber(fd.Width)/2
-        MapLayoutConfig.centerY = tonumber(fd.Height)/2
-        MapLayoutConfig.scale = DEFAULTS.scale
-        MapLayoutConfig.regionCols = tonumber(fd.RegionCols) or math.ceil(math.sqrt(n))
-        MapLayoutConfig.regionRows = tonumber(fd.RegionRows) or math.ceil(n/MapLayoutConfig.regionCols)
-        MapLayoutConfig.gridSize = tonumber(fd.GridSize) or DEFAULTS.gridSize
-        MapLayoutConfig.gridCols = tonumber(fd.GridCols) or DEFAULTS.gridCols
-        MapLayoutConfig.gridRows = tonumber(fd.GridRows) or DEFAULTS.gridCols
-        MapLayoutConfig.width = tonumber(fd.Width) or DEFAULTS.width
-        MapLayoutConfig.zoneWidth = tonumber(fd.Width) / MapLayoutConfig.regionCols
-        MapLayoutConfig.zoneHeight = tonumber(fd.Height) / MapLayoutConfig.regionRows
-    end
+
+    if not fd.Width then return unlockedDatas end
+
+    local w = Num(fd.Width, 4096)
+    local h = Num(fd.Height, 4096)
+    EMapLayoutConfig.centerX = w / 2
+    EMapLayoutConfig.centerY = h / 2
+    EMapLayoutConfig.width = w
+    EMapLayoutConfig.scale = 1.0
+    EMapLayoutConfig.regionCols = Num(fd.RegionCols, math.max(1, math.ceil(math.sqrt(n))))
+    EMapLayoutConfig.regionRows = Num(fd.RegionRows, math.max(1, math.ceil(n / EMapLayoutConfig.regionCols)))
+    EMapLayoutConfig.gridSize = Num(fd.GridSize, 32)
+    EMapLayoutConfig.gridCols = Num(fd.GridCols, 128)
+    EMapLayoutConfig.gridRows = Num(fd.GridRows, 128)
+    EMapLayoutConfig.zoneWidth = w / EMapLayoutConfig.regionCols
+    EMapLayoutConfig.zoneHeight = h / EMapLayoutConfig.regionRows
+
     return unlockedDatas
 end
 
----@brief 加载分区表数据
----@desc 遍历 LevelData_{chapterId}_{i} 表，组装全部分区数据列表
----@type fun(chapterId:string, unlockedCount:number, unlockedDatas:table):table
+---加载分区表数据（全部分区，含未解锁）
 ---@param chapterId string @章节ID
 ---@param unlockedCount number @已解锁分区数
 ---@param unlockedDatas table @已解锁分区数据
 ---@return table @全部分区数据列表
 function MapLoadManager:_LoadSections(chapterId, unlockedCount, unlockedDatas)
     local fd = unlockedDatas[1] and unlockedDatas[1].data or {}
-    local allSectionDatas = {}
-    local totalSec = tonumber(fd.SectionCount) or #unlockedDatas
-    for i = 1, totalSec do
-        local ok, sec = pcall(function() return Tables["LevelData_"..chapterId.."_"..i] end)
-        if ok and sec then allSectionDatas[#allSectionDatas+1] = { data = sec } end
-    end
+    local totalSec = Num(fd.SectionCount, #unlockedDatas)
+
+    local allSectionDatas = GamePlayHelper:GetLevelDatasByCount(chapterId, totalSec)
     self.SectionDatas = allSectionDatas
     self.UnlockedCount = unlockedCount
     return allSectionDatas
@@ -73,34 +70,33 @@ end
 
 --region 【网格系统】
 
----@brief 初始化网格系统
----@desc 挂载 GridManager 组件，设置网格尺寸/行列/占用格并构建 Overlay 渲染
----@type fun(mainGo:UnityEngine.GameObject, unlockedDatas:table):void
----@param mainGo UnityEngine.GameObject @GameMainMap父节点
+---初始化 GridManager
+---@param mainGo UnityEngine.GameObject @GameMainMap 父节点
 ---@param unlockedDatas table @已解锁分区数据
 function MapLoadManager:_SetupGrid(mainGo, unlockedDatas)
     if not mainGo then return end
+
+    -- 收集占用格
     local occupied = {}
-    for _, e in ipairs(unlockedDatas) do
+    for _, e in ipairs(unlockedDatas or {}) do
         local occ = e.data and e.data.OccupiedCells
-        if occ then for _, c in ipairs(occ) do
-            occupied[#occupied+1] = c.X or 0; occupied[#occupied+1] = c.Y or 0
-        end end
+        if occ then
+            for _, c in ipairs(occ) do
+                occupied[#occupied + 1] = Num(c.X, 0)
+                occupied[#occupied + 1] = Num(c.Y, 0)
+            end
+        end
     end
-    pcall(function()
+
+    CallCS(function()
         local gridMgr = mainGo:GetComponent(typeof(CS.Honor.Runtime.GridManager))
         if not gridMgr then
             gridMgr = mainGo:AddComponent(typeof(CS.Honor.Runtime.GridManager))
         end
         gridMgr:Setup(
-            MapLayoutConfig.gridSize,
-            MapLayoutConfig.gridCols,
-            MapLayoutConfig.gridRows,
-            MapLayoutConfig.regionCols,
-            MapLayoutConfig.regionRows,
-            MapLayoutConfig.scale,
-            self.UnlockedCount,
-            self.ZoneRoot
+            EMapLayoutConfig.gridSize, EMapLayoutConfig.gridCols, EMapLayoutConfig.gridRows,
+            EMapLayoutConfig.regionCols, EMapLayoutConfig.regionRows,
+            EMapLayoutConfig.scale, self.UnlockedCount, self.ZoneRoot
         )
         gridMgr:SetOccupiedCells(occupied)
         gridMgr:BuildOverlay()
@@ -111,42 +107,55 @@ end
 
 --region 【分区挂载】
 
----@brief 创建 ZoneRoot 容器节点
----@desc 调用 C# MapLoadManager.CreateZoneRoot，缓存到 self.ZoneRoot
----@type fun(gameMapRoot:UnityEngine.GameObject):UnityEngine.Transform
----@param gameMapRoot UnityEngine.GameObject @GameMainMap根节点
+---创建 ZoneRoot 容器
+---@param gameMapRoot UnityEngine.GameObject @GameMainMap 根节点
 ---@return UnityEngine.Transform @ZoneRoot Transform
 function MapLoadManager:_CreateZoneRoot(gameMapRoot)
-    local okZ, zoneRoot = pcall(function() return CS.GameLib.MapLoadManager.CreateZoneRoot(gameMapRoot) end)
-    if not okZ or not zoneRoot then return nil end
+    local ok, zoneRoot = CallCS(function()
+        return CS.GameLib.MapLoadManager.CreateZoneRoot(gameMapRoot)
+    end)
+    if not ok or not zoneRoot then return nil end
     self.ZoneRoot = zoneRoot
     return zoneRoot
 end
 
----@brief 实例化所有分区节点
----@desc 遍历分区数据，加载 ZoneItem 预制体，设置背景图，调用 C# SetupZoneItem 完成挂载与定位
----@type fun(allSectionDatas:table, unlockedCount:number):void
+---实例化所有分区节点
 ---@param allSectionDatas table @全部分区数据
 ---@param unlockedCount number @已解锁分区数
 function MapLoadManager:_PopulateZoneItems(allSectionDatas, unlockedCount)
     if not self.ZoneRoot then return end
-    for _, e in ipairs(allSectionDatas) do
-        local sid = tonumber(e.data.SectionId) or 1
-        local ok, zoneGo = pcall(function()
+
+    for _, e in ipairs(allSectionDatas or {}) do
+        local sid = Num(e.data and e.data.SectionId, 1)
+
+        -- 加载预制体
+        local ok, zoneGo = CallCS(function()
             local r = LoadRes["GameObject_ZoneItem"]
             if not r then return nil end
             return GameMainRoot.HonorAssetManager:LoadPrefabSync(r.ABPath, r.AssetName, self.ZoneRoot, nil)
         end)
-        if zoneGo then
-            local sprite = nil
-            if e.data.BgName then
-                local r = LoadRes["Sprite_"..tostring(e.data.BgName)]
-                if r then sprite = LoadAssetSync(r) end
-            end
-            pcall(function() CS.GameLib.MapLoadManager.SetupZoneItem(zoneGo, self.ZoneRoot, sid,
-                MapLayoutConfig.regionCols, MapLayoutConfig.regionRows,
-                MapLayoutConfig.scale, sprite, sid <= unlockedCount) end)
+        if not ok or not zoneGo then
+            print(string.format("[MapLoadManager] 分区%d 预制体加载失败", sid))
+            goto continue
         end
+
+        -- 加载背景图
+        local sprite = nil
+        if e.data.BgName then
+            local r = LoadSpriteByName(e.data.BgName)
+            if r then sprite = LoadAssetSync(r) end
+        end
+
+        -- C# 挂载定位
+        CallCS(function()
+            CS.GameLib.MapLoadManager.SetupZoneItem(
+                zoneGo, self.ZoneRoot, sid,
+                EMapLayoutConfig.regionCols, EMapLayoutConfig.regionRows,
+                EMapLayoutConfig.scale, sprite, sid <= unlockedCount
+            )
+        end)
+
+        ::continue::
     end
 end
 
@@ -154,17 +163,17 @@ end
 
 --region 【包围盒与相机】
 
----@brief 计算地图包围盒并适配相机
----@desc 遍历已解锁分区计算外接矩形中心与尺寸，调用 C# SetupMapBounds + RefreshMapBoundsAndCamera
----@type fun(gameMapRoot:UnityEngine.GameObject):void
----@param gameMapRoot UnityEngine.GameObject @GameMainMap根节点
-function MapLoadManager:_SetupBounds(gameMapRoot)
-    local cols = tonumber(MapLayoutConfig.regionCols) or 1
-    local rows = tonumber(MapLayoutConfig.regionRows) or 1
-    local zoneW = tonumber(MapLayoutConfig.zoneWidth) or 2048
-    local zoneH = tonumber(MapLayoutConfig.zoneHeight) or 2048
+---计算地图外接矩形（top-left 坐标系）
+---@return number, number, number, number @minX, maxX, minY, maxY
+function MapLoadManager:_CalcBoundsRect()
+    local cols = EMapLayoutConfig.regionCols
+    local rows = EMapLayoutConfig.regionRows
+    local zoneW = EMapLayoutConfig.zoneWidth
+    local zoneH = EMapLayoutConfig.zoneHeight
+
     local minX, maxX = math.huge, -math.huge
     local minY, maxY = math.huge, -math.huge
+
     for sid = 1, self.UnlockedCount do
         local idx = sid - 1
         local c = idx % cols
@@ -176,38 +185,52 @@ function MapLoadManager:_SetupBounds(gameMapRoot)
         minY = math.min(minY, zy - zoneH)
         maxY = math.max(maxY, zy)
     end
+
+    return minX, maxX, minY, maxY
+end
+
+---适配包围盒
+---@param gameMapRoot UnityEngine.GameObject @GameMainMap 根节点
+function MapLoadManager:_SetupBounds(gameMapRoot)
+    local minX, maxX, minY, maxY = self:_CalcBoundsRect()
+    if minX == math.huge then return end
+
     local w = maxX - minX
     local h = maxY - minY
     local cx = (minX + maxX) / 2
     local cy = (minY + maxY) / 2
-    pcall(function()
+
+    CallCS(function()
         CS.GameLib.MapLoadManager.SetupMapBounds(gameMapRoot, w, h, cx, cy)
     end)
+
     local cam = GameLib.MapCamHelper and GameLib.MapCamHelper.MapCamera or UnityEngine.Camera.main
-    pcall(function()
-        CS.GameLib.MapLoadManager.RefreshMapBoundsAndCamera(gameMapRoot, zoneH, cam)
+    CallCS(function()
+        CS.GameLib.MapLoadManager.RefreshMapBoundsAndCamera(gameMapRoot, EMapLayoutConfig.zoneHeight, cam)
     end)
 end
 
----@brief 设置相机聚焦已解锁分区
----@desc 计算总宽与中心位置，设置 orthographicSize 与 position，同步 GameMapMotion 缩放/边界参数
----@type fun():void
+---设置相机聚焦已解锁分区 + 同步 GameMapMotion 参数
 function MapLoadManager:_SetupCamera()
-    local sceneCamGo = CS.UnityEngine.GameObject.Find("2DSceneCamera")
-    local cam = sceneCamGo and sceneCamGo:GetComponent("UnityEngine.Camera")
+    local cam = FindSceneCamera()
     if not cam then return end
-    local zoneW = tonumber(MapLayoutConfig.zoneWidth) or 2048
-    local zoneH = tonumber(MapLayoutConfig.zoneHeight) or 2048
-    local unlocked = self.UnlockedCount or 1
-    local totalW = unlocked * zoneW
+
+    local zoneW = EMapLayoutConfig.zoneWidth
+    local zoneH = EMapLayoutConfig.zoneHeight
+    local totalW = self.UnlockedCount * zoneW
     local cx = totalW / 2
     local cy = -zoneH / 2
+
+    -- 计算 orthoSize（用红框宽高比而非全屏比例）
     local screenW = CS.UnityEngine.Screen.width
     local screenH = CS.UnityEngine.Screen.height
     local aspect = screenW / screenH
     local ortho = totalW / 2 / aspect
+
     cam.orthographicSize = ortho
     cam.transform.position = CS.UnityEngine.Vector3(cx, cy, cam.transform.position.z)
+
+    -- 同步 GameMapMotion 缩放/边界参数
     if GameMapMotion then
         GameMapMotion.ScreenCamera = cam
         GameMapMotion.FollowPosition = CS.UnityEngine.Vector3(cx, cy, 0)
@@ -226,18 +249,18 @@ end
 
 --endregion
 
----@brief 加载地图骨架（编排入口）
----@desc 按序调用私有方法链：配置加载→分区组装→网格初始化→ZoneRoot创建→分区实例化→包围盒适配→相机设置
----@type fun(mapData:table, chapterId:string, unlockedCount:number, gameMapRoot:UnityEngine.GameObject):void
----@param mapData table @MapData实例
+--region 【编排入口】
+
+---加载地图骨架（编排入口）
+---@param mapData table @MapData 实例
 ---@param chapterId string @章节ID
 ---@param unlockedCount number @已解锁分区数
----@param gameMapRoot UnityEngine.GameObject @GameMainMap根节点
+---@param gameMapRoot UnityEngine.GameObject @GameMainMap 根节点
 function MapLoadManager:LoadMap(mapData, chapterId, unlockedCount, gameMapRoot)
     if not mapData or not gameMapRoot or not chapterId then return end
-    unlockedCount = tonumber(unlockedCount) or 0
+    unlockedCount = Num(unlockedCount, 0)
 
-    local unlockedDatas = self:_LoadConfig(mapData, chapterId, unlockedCount)
+    local unlockedDatas = self:_LoadConfig(chapterId, unlockedCount)
     local allSectionDatas = self:_LoadSections(chapterId, unlockedCount, unlockedDatas)
     local mainGo = gameMapRoot.parent and gameMapRoot.parent.gameObject
     self:_SetupGrid(mainGo, unlockedDatas)
@@ -248,12 +271,12 @@ function MapLoadManager:LoadMap(mapData, chapterId, unlockedCount, gameMapRoot)
     self:_SetupCamera()
 end
 
----@brief 静态工厂
----@desc 对齐 GameRequires `:Create()` 注册惯例
----@type fun():table
----@return table @MapLoadManager实例
+---静态工厂（对齐 GameRequires `:Create()` 注册惯例）
+---@return table @MapLoadManager 实例
 function MapLoadManager.Create()
     return MapLoadManager
 end
+
+--endregion
 
 return MapLoadManager
