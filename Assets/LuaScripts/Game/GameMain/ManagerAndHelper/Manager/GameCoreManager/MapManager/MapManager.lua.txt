@@ -248,89 +248,58 @@ end
 ---@desc 本区域 OnInitGame/OnEnterGame/OnBeginGame/OnPauseGame/OnResumeGame/OnGameOver/OnExitGame/OnRePlayGame
 ---      均由 PlayGameplayCycle 经 ECharacterLifecycle 枚举字符串动态广播调用（框架驱动，勿删），逐个转发给 CurGameMapBase 与全部机器。
 
----@brief 游戏初始化
----@desc 由 PlayGameplayCycle 在 InitGame 阶段广播调用（框架驱动，勿删）
-function MapManager:OnInitGame()
+---@brief 向当前地图逻辑体与全部场景机器广播同名生命周期方法
+---@desc 抽离 OnInitGame/OnEnterGame/OnBeginGame/OnPauseGame/OnResumeGame/OnGameOver/OnExitGame 重复转发，消除重复循环；方法缺失时静默跳过
+---@param methodName string 生命周期方法名
+---TODO [优化] 抽离地图与机器生命周期转发公共方法
+function MapManager:_BroadcastToMapAndMachines(methodName)
     if not self.CurGameMapBase then
         return
     end
-
     for _, machine in pairs(self.CurMapMachines) do
-        machine:OnInitGame()
+        if machine[methodName] then
+            machine[methodName](machine)
+        end
     end
-    self.CurGameMapBase:OnInitGame()
+    if self.CurGameMapBase[methodName] then
+        self.CurGameMapBase[methodName](self.CurGameMapBase)
+    end
+end
+
+---@brief 游戏初始化
+---@desc 由 PlayGameplayCycle 在 InitGame 阶段广播调用（框架驱动，勿删）
+function MapManager:OnInitGame()
+    self:_BroadcastToMapAndMachines("OnInitGame")
 end
 
 ---@brief 进入游戏
 function MapManager:OnEnterGame()
-    if not self.CurGameMapBase then
-        return
-    end
-
-    for _, machine in pairs(self.CurMapMachines) do
-        machine:OnEnterGame()
-    end
-    self.CurGameMapBase:OnEnterGame()
+    self:_BroadcastToMapAndMachines("OnEnterGame")
 end
 
 ---@brief 游戏开始
 function MapManager:OnBeginGame()
-    if not self.CurGameMapBase then
-        return
-    end
-
-    for _, machine in pairs(self.CurMapMachines) do
-        machine:OnBeginGame()
-    end
-    self.CurGameMapBase:OnBeginGame()
+    self:_BroadcastToMapAndMachines("OnBeginGame")
 end
 
 ---@brief 游戏暂停
 function MapManager:OnPauseGame()
-    if not self.CurGameMapBase then
-        return
-    end
-
-    for _, machine in pairs(self.CurMapMachines) do
-        machine:OnPauseGame()
-    end
-    self.CurGameMapBase:OnPauseGame()
+    self:_BroadcastToMapAndMachines("OnPauseGame")
 end
 
 ---@brief 游戏恢复
 function MapManager:OnResumeGame()
-    if not self.CurGameMapBase then
-        return
-    end
-
-    for _, machine in pairs(self.CurMapMachines) do
-        machine:OnResumeGame()
-    end
-    self.CurGameMapBase:OnResumeGame()
+    self:_BroadcastToMapAndMachines("OnResumeGame")
 end
 
 ---@brief 游戏结束
 function MapManager:OnGameOver()
-    if not self.CurGameMapBase then
-        return
-    end
-
-    for _, machine in pairs(self.CurMapMachines) do
-        machine:OnGameOver()
-    end
-    self.CurGameMapBase:OnGameOver()
+    self:_BroadcastToMapAndMachines("OnGameOver")
 end
 
 ---@brief 退出游戏
 function MapManager:OnExitGame()
-    if not self.CurGameMapBase then
-        return
-    end
-
-    for _, machine in pairs(self.CurMapMachines) do
-        machine:OnExitGame()
-    end
-    self.CurGameMapBase:OnExitGame()
+    self:_BroadcastToMapAndMachines("OnExitGame")
 end
 
 ---@brief 重新开始游戏

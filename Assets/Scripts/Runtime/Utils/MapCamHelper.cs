@@ -355,13 +355,15 @@ namespace GameLib
                 return;
             }
 
-            // 当前屏幕宽高比
-            float screenAspect = (float)Screen.width / Mathf.Max(Screen.height, 1);
+            // 使用相机视口的宽高比（而非全屏），因为相机 Viewport Rect 可能不是全屏（如扣除上下 HUD）
+            Rect viewport = MapCamera.rect;
+            float viewportAspect = (viewport.width * Screen.width) / (viewport.height * Screen.height);
+            Debug.Log($"[相机] AutoFitCameraToRect: rect={rectW}x{rectH} viewport={viewport} viewportAspect={viewportAspect:F3}");
 
             // 按高度适配：相机可视高度 = rectH → orthographicSize = rectH / 2
             float sizeByHeight = rectH * 0.5f;
-            // 按宽度适配：相机可视宽度 = rectW → orthographicSize = rectW / (2 * aspect)
-            float sizeByWidth = rectW * 0.5f / screenAspect;
+            // 按宽度适配：相机可视宽度 = rectW → orthographicSize = rectW / (2 * viewportAspect)
+            float sizeByWidth = rectW * 0.5f / viewportAspect;
 
             float targetSize;
             switch (fitMode)
@@ -383,16 +385,92 @@ namespace GameLib
 
             // 目标相机位置：对准 targetRect 的中心
             Vector3 worldCenter = targetRect.TransformPoint(targetRect.rect.center);
-            Vector3 camPos = MapCamera.transform.position;
-            camPos.x = worldCenter.x;
-            camPos.y = worldCenter.y;
+            
+            // 转换为相机父节点下的本地坐标，与 LookMap 相机动画系统 localPosition 对齐
+            Transform camParent = MapCamera.transform.parent;
+            Vector3 localCenter = camParent != null 
+                ? camParent.InverseTransformPoint(worldCenter) 
+                : worldCenter;
+            
+            Vector3 camPos = MapCamera.transform.localPosition;
+            camPos.x = localCenter.x;
+            camPos.y = localCenter.y;
 
             MapCamera.orthographicSize = targetSize;
-            MapCamera.transform.position = camPos;
+            MapCamera.transform.localPosition = camPos;
 
             Debug.Log($"[相机] AutoFitCameraToRect: rect={rectW:F0}x{rectH:F0} " +
-                      $"screenAspect={screenAspect:F3} orthoSize={targetSize:F1} " +
-                      $"camPos=({camPos.x:F1},{camPos.y:F1})");
+                      $"viewportAspect={viewportAspect:F3} orthoSize={targetSize:F1} " +
+                      $"worldCenter=({worldCenter.x:F1},{worldCenter.y:F1}) " +
+                      $"localCenter=({localCenter.x:F1},{localCenter.y:F1})");
+        }
+
+        /// <summary>
+        /// 根据世界坐标包围盒自动适配相机（Fit 模式：完整显示不裁剪）
+        /// </summary>
+        /// <param name="minX">包围盒最小X</param>
+        /// <param name="maxX">包围盒最大X</param>
+        /// <param name="minY">包围盒最小Y</param>
+        /// <param name="maxY">包围盒最大Y</param>
+        /// <param name="viewAspect">视口宽高比（红框/全屏）</param>
+        /// <param name="minOrtho">最小正交尺寸保护</param>
+        public static void FitCameraToWorldBounds(float minX, float maxX, float minY, float maxY,
+            float viewAspect, float minOrtho)
+        {
+            if (MapCamera == null) return;
+
+            float mapW = maxX - minX;
+            float mapH = maxY - minY;
+            if (mapW < 1f || mapH < 1f)
+            {
+                Debug.LogWarning($"[相机] FitCameraToWorldBounds: 包围盒异常 {mapW:F0}x{mapH:F0}");
+                return;
+            }
+
+            float centerX = (minX + maxX) / 2f;
+            float centerY = (minY + maxY) / 2f;
+
+            // Fit 模式：取较大值，保证地图完整显示在视口内
+            float orthoByWidth = mapW / 2f / viewAspect;
+            float orthoByHeight = mapH / 2f;
+            float targetOrtho = Mathf.Max(orthoByWidth, orthoByHeight);
+            targetOrtho = Mathf.Max(targetOrtho, minOrtho);
+
+            // 设置相机位置和大小
+            Vector3 camPos = MapCamera.transform.position;
+            camPos.x = centerX;
+            camPos.y = centerY;
+            MapCamera.transform.position = camPos;
+            MapCamera.orthographicSize = targetOrtho;
+
+            Debug.Log($"[相机] FitCameraToWorldBounds: bounds=({minX:F0},{minY:F0})-({maxX:F0},{maxY:F0}) " +
+                      $"center=({centerX:F1},{centerY:F1}) ortho={targetOrtho:F1} viewAspect={viewAspect:F3}");
+        }
+
+        /// <summary>
+        /// 从 UI RectTransform 获取世界坐标包围盒
+        /// </summary>
+        /// <param name="targetRect">目标 RectTransform</param>
+        /// <param name="minX">输出：包围盒最小X</param>
+        /// <param name="maxX">输出：包围盒最大X</param>
+        /// <param name="minY">输出：包围盒最小Y</param>
+        /// <param name="maxY">输出：包围盒最大Y</param>
+        public static void GetWorldBoundsFromRectTransform(RectTransform targetRect,
+            out float minX, out float maxX, out float minY, out float maxY)
+        {
+            minX = maxX = minY = maxY = 0;
+            if (targetRect == null) return;
+
+            Rect rect = targetRect.rect;
+            Vector3 worldCenter = targetRect.TransformPoint(rect.center);
+
+            float halfW = rect.width / 2f;
+            float halfH = rect.height / 2f;
+
+            minX = worldCenter.x - halfW;
+            maxX = worldCenter.x + halfW;
+            minY = worldCenter.y - halfH;
+            maxY = worldCenter.y + halfH;
         }
 
         /// <summary>

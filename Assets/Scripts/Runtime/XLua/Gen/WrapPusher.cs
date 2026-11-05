@@ -119,7 +119,6 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<RMapType>(translator.PushRMapType, translator.Get, translator.UpdateRMapType);
 				translator.RegisterPushAndGetAndUpdate<RMapWalkLoopMode>(translator.PushRMapWalkLoopMode, translator.Get, translator.UpdateRMapWalkLoopMode);
 				translator.RegisterPushAndGetAndUpdate<RMapCamPosType>(translator.PushRMapCamPosType, translator.Get, translator.UpdateRMapCamPosType);
-				translator.RegisterPushAndGetAndUpdate<GameLib.MapObjectType>(translator.PushGameLibMapObjectType, translator.Get, translator.UpdateGameLibMapObjectType);
 				translator.RegisterPushAndGetAndUpdate<GameLib.EGameMode>(translator.PushGameLibEGameMode, translator.Get, translator.UpdateGameLibEGameMode);
 				translator.RegisterPushAndGetAndUpdate<GameLib.CameraFitMode>(translator.PushGameLibCameraFitMode, translator.Get, translator.UpdateGameLibCameraFitMode);
 				translator.RegisterPushAndGetAndUpdate<GameLib.AorInterfaceAdaptation.AdaptMode>(translator.PushGameLibAorInterfaceAdaptationAdaptMode, translator.Get, translator.UpdateGameLibAorInterfaceAdaptationAdaptMode);
@@ -7801,90 +7800,6 @@ namespace XLua
             }
         }
         
-        int GameLibMapObjectType_TypeID = -1;
-		int GameLibMapObjectType_EnumRef = -1;
-        
-        public void PushGameLibMapObjectType(RealStatePtr L, GameLib.MapObjectType val)
-        {
-            if (GameLibMapObjectType_TypeID == -1)
-            {
-			    bool is_first;
-                GameLibMapObjectType_TypeID = getTypeId(L, typeof(GameLib.MapObjectType), out is_first);
-				
-				if (GameLibMapObjectType_EnumRef == -1)
-				{
-				    Utils.LoadCSTable(L, typeof(GameLib.MapObjectType));
-				    GameLibMapObjectType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
-				}
-				
-            }
-			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, GameLibMapObjectType_EnumRef) == 1)
-            {
-			    return;
-			}
-			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, GameLibMapObjectType_TypeID);
-            if (!CopyByValue.Pack(buff, 0, (int)val))
-            {
-                throw new Exception("pack fail fail for GameLib.MapObjectType ,value="+val);
-            }
-			
-			LuaAPI.lua_getref(L, GameLibMapObjectType_EnumRef);
-			LuaAPI.lua_pushvalue(L, -2);
-			LuaAPI.xlua_rawseti(L, -2, (int)val);
-			LuaAPI.lua_pop(L, 1);
-			
-        }
-		
-        public void Get(RealStatePtr L, int index, out GameLib.MapObjectType val)
-        {
-		    LuaTypes type = LuaAPI.lua_type(L, index);
-            if (type == LuaTypes.LUA_TUSERDATA )
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibMapObjectType_TypeID)
-				{
-				    throw new Exception("invalid userdata for GameLib.MapObjectType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-				int e;
-                if (!CopyByValue.UnPack(buff, 0, out e))
-                {
-                    throw new Exception("unpack fail for GameLib.MapObjectType");
-                }
-				val = (GameLib.MapObjectType)e;
-                
-            }
-            else
-            {
-                val = (GameLib.MapObjectType)objectCasters.GetCaster(typeof(GameLib.MapObjectType))(L, index, null);
-            }
-        }
-		
-        public void UpdateGameLibMapObjectType(RealStatePtr L, int index, GameLib.MapObjectType val)
-        {
-		    
-            if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
-            {
-			    if (LuaAPI.xlua_gettypeid(L, index) != GameLibMapObjectType_TypeID)
-				{
-				    throw new Exception("invalid userdata for GameLib.MapObjectType");
-				}
-				
-                IntPtr buff = LuaAPI.lua_touserdata(L, index);
-                if (!CopyByValue.Pack(buff, 0,  (int)val))
-                {
-                    throw new Exception("pack fail for GameLib.MapObjectType ,value="+val);
-                }
-            }
-			
-            else
-            {
-                throw new Exception("try to update a data with lua type:" + LuaAPI.lua_type(L, index));
-            }
-        }
-        
         int GameLibEGameMode_TypeID = -1;
 		int GameLibEGameMode_EnumRef = -1;
         
@@ -8874,12 +8789,6 @@ namespace XLua
 				translator.PushRMapCamPosType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(GameLib.MapObjectType[]))
-			{
-			    GameLib.MapObjectType[] array = obj as GameLib.MapObjectType[];
-				translator.PushGameLibMapObjectType(L, array[index]);
-				return true;
-			}
 			else if (type == typeof(GameLib.EGameMode[]))
 			{
 			    GameLib.EGameMode[] array = obj as GameLib.EGameMode[];
@@ -9471,12 +9380,6 @@ namespace XLua
 			else if (type == typeof(RMapCamPosType[]))
 			{
 			    RMapCamPosType[] array = obj as RMapCamPosType[];
-				translator.Get(L, obj_idx, out array[array_idx]);
-				return true;
-			}
-			else if (type == typeof(GameLib.MapObjectType[]))
-			{
-			    GameLib.MapObjectType[] array = obj as GameLib.MapObjectType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

@@ -21,6 +21,7 @@
 ---@field _BubbleTimerCo UnityEngine.Coroutine @气泡循环定时器句柄（AddUpdateTimer 返回，停旧用）
 ---@field _ClickItem GameLib.AorClickItem @图标点击组件（Awake 挂载）
 ---@field _MoveSeq table @路径移动句柄容器 { seq }（PathPoints 非空时由 StartPathMove 赋值）
+---@field _CollectKey string @多分区收集唯一键（Obj_分区_物件ID，生成时登记，点击收集用）
 ---@field _Destroying boolean @销毁中标志（防销毁递归）
 local MapObjectBase = class('MapObjectBase', import('LuaBehaviourSuper'))
 
@@ -39,6 +40,7 @@ function MapObjectBase:ctor(args)
     self._BubbleTimerCo = nil
     self._ClickItem      = nil
     self._MoveSeq        = nil
+    self._CollectKey     = nil
     self._Destroying     = false
 end
 
@@ -221,6 +223,11 @@ function MapObjectBase:_OnIconClick()
             followPosition = true,
         })
     end
+
+    -- 多分区：物件/建筑点击计入分区收集进度（生成时已登记 _CollectKey 到分区映射）
+    if self._CollectKey then
+        GameCoreManager:CollectMapItem(self._CollectKey)
+    end
 end
 
 --endregion
@@ -239,6 +246,7 @@ function MapObjectBase:Clear()
     self._MapData     = nil
     self._GameObject  = nil
     self._ClickItem   = nil
+    self._CollectKey  = nil
 end
 
 --endregion

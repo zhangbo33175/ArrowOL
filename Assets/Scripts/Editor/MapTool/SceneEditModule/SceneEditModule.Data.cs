@@ -51,12 +51,21 @@ namespace Honor.Editor.MapTool
                 interactable = obj.Interactable,
                 interactType = obj.InteractType,
                 sortOrder = obj.SortOrder,
+                ySortEnabled = obj.YSortEnabled,
+                ySortOffset = obj.YSortOffset,
                 collisionEnabled = obj.CollisionEnabled,
                 dialogBubble = obj.DialogBubble,
                 shadowEnabled = obj.ShadowEnabled,
                 isCollectible = obj.IsCollectible,
                 respawnTime = obj.RespawnTime,
                 bubbleId = obj.bubbleId, // ---TODO 气泡配置表通用化：物件/建筑引用 Tables.Bubble
+                isMovable = obj.IsMovable,
+                loopRestartDelay = obj.LoopRestartDelay,
+                hideWhenOffMap = obj.HideWhenOffMap,
+                isTeleport = obj.IsTeleport,
+                teleportTargetScene = obj.TeleportTargetScene,
+                teleportTargetX = obj.TeleportTargetX,
+                teleportTargetY = obj.TeleportTargetY,
             };
         }
 
@@ -85,11 +94,15 @@ namespace Honor.Editor.MapTool
                 speed = obj.Speed,
                 interactable = obj.Interactable,
                 interactType = obj.InteractType,
-                patrolLoop = obj.PatrolLoop,
+                walkMode = obj.WalkMode,
                 facingDirection = obj.FacingDirection,
                 dialogBubble = obj.DialogBubble,
                 sortOrder = obj.SortOrder,
+                ySortEnabled = obj.YSortEnabled,
+                ySortOffset = obj.YSortOffset,
                 shadowEnabled = obj.ShadowEnabled,
+                loopRestartDelay = obj.LoopRestartDelay,
+                hideWhenOffMap = obj.HideWhenOffMap,
             };
             foreach (var point in obj.PathPoints)
                 character.pathPoints.Add(new MapPathPointData
@@ -105,41 +118,26 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 加载章节配置表（场景名/场景ID/分区配置来源）
         /// 仅首次加载，之后使用缓存
+        /// 【取消分区】Excel 配置缺失时回退运行时 Lua 章节表（与游戏运行时同源）
         /// </summary>
         private void LoadChapterConfig()
         {
             if (m_ChapterDataList.Count > 0) return;
-            m_ChapterDataList.AddRange(
-                MapToolEditorUtils.LoadTableData<TableChapterEditor>(MapToolConstants.TableChaptersPath));
-            Debug.Log($"加载章节配置表成功，共 {m_ChapterDataList.Count} 个章节");
-        }
-
-        /// <summary>
-        /// 根据已解锁分区包围盒更新配置宽高（并同步显示到宽/高输入框）
-        /// 宽 = 包围盒列数 × 单区尺寸，高 = 包围盒行数 × 单区尺寸
-        /// </summary>
-        private void UpdateMapBoundsFromUnlockedRegions()
-        {
-            if (TryGetUnlockedBounds(out int minRow, out int maxRow, out int minCol, out int maxCol))
+            var fromExcel = MapToolEditorUtils.LoadTableData<TableChapterEditor>(MapToolConstants.TableChaptersPath);
+            if (fromExcel.Count > 0)
             {
-                m_ConfigMapWidth = (maxCol - minCol + 1) * MapToolConstants.RegionPixelSize;
-                m_ConfigMapHeight = (maxRow - minRow + 1) * MapToolConstants.RegionPixelSize;
+                m_ChapterDataList.AddRange(fromExcel);
+                Debug.Log($"加载章节配置表成功，共 {m_ChapterDataList.Count} 个章节");
             }
             else
             {
-                m_ConfigMapWidth = 0;
-                m_ConfigMapHeight = 0;
+                m_ChapterDataList.AddRange(MapToolEditorUtils.LoadChaptersFromRuntimeLua());
+                Debug.Log($"章节配置表 Excel 缺失，回退运行时 Lua 表，共 {m_ChapterDataList.Count} 个章节");
             }
-            // 同步更新输入框显示
-            if (m_WidthField != null)
-                m_WidthField.SetValueWithoutNotify(m_ConfigMapWidth.ToString());
-            if (m_HeightField != null)
-                m_HeightField.SetValueWithoutNotify(m_ConfigMapHeight.ToString());
-            Debug.Log($"包围盒宽高已更新: {m_ConfigMapWidth} x {m_ConfigMapHeight}（已解锁分区 {minRow},{minCol} ~ {maxRow},{maxCol}）");
         }
 
         /// <summary>
-        /// 加载主关卡配置表（分区 ID -> 背景图名）
+        /// 加载主关卡配置表（关卡 ID -> 背景图名）
         /// </summary>
         private void LoadMainLevelsConfig()
         {
@@ -150,25 +148,7 @@ namespace Honor.Editor.MapTool
                 if (!string.IsNullOrEmpty(data.ID) && !string.IsNullOrEmpty(data.Level_bg))
                     m_LevelBgDict[data.ID] = data.Level_bg;
             }
-            Debug.Log($"主关卡配置表加载完成，共 {m_LevelBgDict.Count} 条");
-        }
-
-        /// <summary>
-        /// 根据物体位置计算其所在分区索引
-        /// 分区布局：m_RegionRows 行 x m_RegionCols 列，按左上角坐标定位
-        /// </summary>
-        private int GetRegionIndexForObject(PlacedObject obj)
-        {
-            if (m_RegionRows <= 0 || m_RegionCols <= 0 || m_RegionCount <= 0 || m_MapWidth <= 0 || m_MapHeight <= 0)
-                return 0;
-            float regionWidth = (float)m_MapWidth / m_RegionCols;
-            float regionHeight = (float)m_MapHeight / m_RegionRows;
-            int col = Mathf.FloorToInt(obj.Position.x / regionWidth);
-            int row = Mathf.FloorToInt(obj.Position.y / regionHeight);
-            col = Mathf.Clamp(col, 0, m_RegionCols - 1);
-            row = Mathf.Clamp(row, 0, m_RegionRows - 1);
-            int index = row * m_RegionCols + col;
-            return Mathf.Min(index, m_RegionCount - 1);
+            Debug.Log($"关卡配置表加载完成，共 {m_LevelBgDict.Count} 条");
         }
 
         /// <summary>
@@ -188,38 +168,6 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 计算已解锁分区的包围盒（行列范围）
-        /// </summary>
-        private bool TryGetUnlockedBounds(out int minRow, out int maxRow, out int minCol, out int maxCol)
-        {
-            minRow = maxRow = minCol = maxCol = 0;
-            if (m_RegionUnlocked == null || m_RegionRows <= 0 || m_RegionCols <= 0)
-                return false;
-            bool found = false;
-            for (int row = 0; row < m_RegionRows; row++)
-            {
-                for (int col = 0; col < m_RegionCols; col++)
-                {
-                    if (!m_RegionUnlocked[row, col]) continue;
-                    if (!found)
-                    {
-                        minRow = maxRow = row;
-                        minCol = maxCol = col;
-                        found = true;
-                    }
-                    else
-                    {
-                        minRow = Mathf.Min(minRow, row);
-                        maxRow = Mathf.Max(maxRow, row);
-                        minCol = Mathf.Min(minCol, col);
-                        maxCol = Mathf.Max(maxCol, col);
-                    }
-                }
-            }
-            return found;
-        }
-
-        /// <summary>
         /// 加载物体预览图（依次尝试候选资源目录）
         /// </summary>
         /// <param name="objectId">物体ID</param>
@@ -230,7 +178,8 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 放置合法性检查：越界 / 分区未解锁 / 与已有物体重叠
+        /// 放置合法性检查：越界 / 与已有物体重叠
+        /// 【取消分区】移除分区解锁检查
         /// </summary>
         /// <param name="obj">待放置物体</param>
         /// <param name="reason">失败原因</param>
@@ -242,7 +191,7 @@ namespace Honor.Editor.MapTool
             float pixelHeight = obj.Height * 32f;
             Rect objRect = new Rect(obj.Position.x, obj.Position.y, pixelWidth, pixelHeight);
 
-            // 1. 越界检查
+            // 1. 越界检查（左上角原点坐标系：与 JSON 数据格式一致）
             if (objRect.xMin < 0 || objRect.yMin < 0 ||
                 objRect.xMax > m_MapWidth || objRect.yMax > m_MapHeight)
             {
@@ -250,52 +199,28 @@ namespace Honor.Editor.MapTool
                 return false;
             }
 
-            // 2. 分区未解锁检查（物体中心所在分区必须已解锁）
-            Vector2 center = new Vector2(obj.Position.x + pixelWidth / 2, obj.Position.y + pixelHeight / 2);
-            int regionIdx = GetRegionIndexAtPosition(center);
-            if (regionIdx >= 0 && m_RegionUnlocked != null)
-            {
-                int row = regionIdx / m_RegionCols;
-                int col = regionIdx % m_RegionCols;
-                if (!m_RegionUnlocked[row, col])
-                {
-                    reason = "该分区未解锁，无法放置";
-                    return false;
-                }
-            }
-
-            // 3. 重叠检查（AllowOverlap=true 的物体可以重叠）
+            // 2. 重叠检查（建筑和物件不能重叠，人物可以重叠——因为会移动）
             if (!obj.AllowOverlap)
             {
                 foreach (var exist in m_PlacedObjects)
                 {
                     if (exist == obj) continue;
+                    // 人物类型可以重叠（运行时再处理碰撞）
+                    if (obj.Type == MapObjectType.Character && exist.Type == MapObjectType.Character) continue;
+                    // 只检查建筑和物件的重叠
+                    if (exist.Type != obj.Type && obj.Type != MapObjectType.Character) continue;
                     float existW = exist.Width * 32f;
                     float existH = exist.Height * 32f;
                     Rect existRect = new Rect(exist.Position.x, exist.Position.y, existW, existH);
                     if (objRect.Overlaps(existRect))
                     {
-                        reason = "与已有物体重叠，无法放置";
+                        reason = "与同图层物体重叠，无法放置";
                         return false;
                     }
                 }
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// 根据世界坐标获取分区索引
-        /// </summary>
-        private int GetRegionIndexAtPosition(Vector2 worldPos)
-        {
-            if (m_RegionUnlocked == null || m_RegionCount <= 0) return -1;
-            float regionW = m_MapWidth / m_RegionCols;
-            float regionH = m_MapHeight / m_RegionRows;
-            int col = Mathf.FloorToInt(worldPos.x / regionW);
-            int row = Mathf.FloorToInt(worldPos.y / regionH);
-            if (row < 0 || row >= m_RegionRows || col < 0 || col >= m_RegionCols) return -1;
-            return row * m_RegionCols + col;
         }
 
         /// <summary>
@@ -309,10 +234,10 @@ namespace Honor.Editor.MapTool
             m_TempMessageTime = Time.realtimeSinceStartup + 1.5f;
         }
 
-        // ---TODO 编辑器加载还原：有已保存 JSON 地图配置时优先还原摆放物/分区解锁/背景（SaveMapConfig 反向）
+        // ---TODO 编辑器加载还原：有已保存 JSON 地图配置时优先还原摆放物/背景（SaveMapConfig 反向）
         /// <summary>
-        /// 从已保存的 JSON 地图配置还原摆放物 / 分区解锁 / 背景图
-        /// 由 LoadChapterMap 在加载章节后调用；无 JSON 文件则保持空场景不报错
+        /// 从已保存的 JSON 地图配置还原摆放物 / 背景图
+        /// 【取消分区】单关卡=单张地图，直接还原整图数据
         /// </summary>
         private void LoadMapConfig()
         {
@@ -337,57 +262,47 @@ namespace Honor.Editor.MapTool
                 Debug.LogError($"读取地图配置失败: {e.Message}");
                 return;
             }
-            if (data == null || data.regions == null) return;
+            if (data == null) return;
 
-            // 还原分区解锁状态与背景图（region 顺序与 m_RegionIds 一致）
-            if (m_RegionUnlocked != null && m_RegionCols > 0)
+            // 整图宽高以 JSON 为准
+            if (data.width > 0) m_MapWidth = data.width;
+            if (data.height > 0) m_MapHeight = data.height;
+
+            // 还原背景图
+            if (!string.IsNullOrEmpty(data.bgName))
             {
-                for (int i = 0; i < data.regions.Count && i < m_RegionCount; i++)
-                {
-                    int row = i / m_RegionCols;
-                    int col = i % m_RegionCols;
-                    if (row < m_RegionRows && col < m_RegionCols)
-                        m_RegionUnlocked[row, col] = data.regions[i].unlocked;
-                    if (!string.IsNullOrEmpty(data.regions[i].bgName))
-                        m_LevelBgDict[data.regions[i].regionId] = data.regions[i].bgName;
-                }
+                string regionId = m_CurrentLevelId;
+                m_LevelBgDict[regionId] = data.bgName;
             }
 
             // 还原摆放物（人物 / 建筑 / 物件）
             m_PlacedObjects.Clear();
-            foreach (var region in data.regions)
+            if (data.characters != null)
             {
-                if (region.characters != null)
+                foreach (var c in data.characters)
                 {
-                    foreach (var c in region.characters)
-                    {
-                        var p = PlacedObjectFromCharacter(c);
-                        if (p != null) m_PlacedObjects.Add(p);
-                    }
+                    var p = PlacedObjectFromCharacter(c);
+                    if (p != null) m_PlacedObjects.Add(p);
                 }
-                if (region.buildings != null)
+            }
+            if (data.buildings != null)
+            {
+                foreach (var b in data.buildings)
                 {
-                    foreach (var b in region.buildings)
-                    {
-                        var p = PlacedObjectFromMapObject(b, MapObjectType.Building);
-                        if (p != null) m_PlacedObjects.Add(p);
-                    }
+                    var p = PlacedObjectFromMapObject(b, MapObjectType.Building);
+                    if (p != null) m_PlacedObjects.Add(p);
                 }
-                if (region.objects != null)
+            }
+            if (data.objects != null)
+            {
+                foreach (var o in data.objects)
                 {
-                    foreach (var o in region.objects)
-                    {
-                        var p = PlacedObjectFromMapObject(o, MapObjectType.Prop);
-                        if (p != null) m_PlacedObjects.Add(p);
-                    }
+                    var p = PlacedObjectFromMapObject(o, MapObjectType.Prop);
+                    if (p != null) m_PlacedObjects.Add(p);
                 }
             }
 
-            // ---TODO 修复：不覆盖地图宽高——m_MapWidth/m_MapHeight 已由 LoadChapterMap 按分区布局正确计算（分区数×2048），
-            // 旧 JSON 的 width/height 可能是单分区默认值（2048），若覆盖会把多分区地图（4096）缩成 2048，导致分区 2/3 角色坐标超出地图不可见
-            // 地图宽高一律以分区布局为准，仅用于渲染网格/背景，不采用 JSON 值
-
-            // ---TODO 改进：加载后自动把视口定位到摆放物区域，防止角色坐标超出当前视口/地图显示区时不可见
+            // 加载后自动把视口定位到摆放物区域
             if (m_PlacedObjects.Count > 0 && m_GuiContainer != null)
             {
                 float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
@@ -414,7 +329,7 @@ namespace Honor.Editor.MapTool
             if (m_GuiContainer != null)
                 m_GuiContainer.MarkDirtyRepaint();
 
-            Debug.Log($"已加载已保存的地图配置: {relativePath}（分区 {data.regions.Count}，摆放物 {m_PlacedObjects.Count}）");
+            Debug.Log($"已加载关卡地图配置: {relativePath}（摆放物 {m_PlacedObjects.Count}）");
         }
 
         /// <summary>
@@ -439,11 +354,15 @@ namespace Honor.Editor.MapTool
                 Speed = c.speed,
                 Interactable = c.interactable,
                 InteractType = c.interactType,
-                PatrolLoop = c.patrolLoop,
+                WalkMode = c.walkMode,
                 FacingDirection = c.facingDirection,
                 DialogBubble = c.dialogBubble,
                 SortOrder = c.sortOrder,
+                YSortEnabled = c.ySortEnabled,
+                YSortOffset = c.ySortOffset,
                 ShadowEnabled = c.shadowEnabled,
+                LoopRestartDelay = c.loopRestartDelay,
+                HideWhenOffMap = c.hideWhenOffMap,
             };
             if (!string.IsNullOrEmpty(c.id)) p.Id = c.id;
             if (c.pathPoints != null)
@@ -481,12 +400,21 @@ namespace Honor.Editor.MapTool
                 Interactable = o.interactable,
                 InteractType = o.interactType,
                 SortOrder = o.sortOrder,
+                YSortEnabled = o.ySortEnabled,
+                YSortOffset = o.ySortOffset,
                 CollisionEnabled = o.collisionEnabled,
                 DialogBubble = o.dialogBubble,
                 ShadowEnabled = o.shadowEnabled,
                 IsCollectible = o.isCollectible,
                 RespawnTime = o.respawnTime,
                 bubbleId = o.bubbleId,
+                IsMovable = o.isMovable,
+                LoopRestartDelay = o.loopRestartDelay,
+                HideWhenOffMap = o.hideWhenOffMap,
+                IsTeleport = o.isTeleport,
+                TeleportTargetScene = o.teleportTargetScene,
+                TeleportTargetX = o.teleportTargetX,
+                TeleportTargetY = o.teleportTargetY,
             };
             if (!string.IsNullOrEmpty(o.id)) p.Id = o.id;
             return p;

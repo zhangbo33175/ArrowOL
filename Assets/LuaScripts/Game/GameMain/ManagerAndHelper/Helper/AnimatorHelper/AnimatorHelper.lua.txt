@@ -34,4 +34,330 @@ end
 
 --endregion
 
+--region 内部方法·空安全
+
+---@brief 空控制器/空对象有效性校验
+---@desc 空安全与空控制器防护的统一入口：animator 为 nil、CS 已销毁(IsNull)、控制器缺失时判定无效
+---@type fun(animator:UnityEngine.Animator|nil):boolean
+---@param animator UnityEngine.Animator|nil 目标动画控制器
+---@return boolean true=无效（nil/已销毁/无控制器），false=有效
+function AnimatorHelper:_IsInvalid(animator)
+    if not animator then
+        return true
+    end
+    if IsNull and IsNull(animator) then
+        return true
+    end
+    -- 空控制器防护：enabled 的 Animator 无 runtimeAnimatorController 时播放/时长查询无意义
+    if not animator.runtimeAnimatorController then
+        return true
+    end
+    return false
+end
+
+---@brief 从 GameObject/Transform 上安全获取 Animator 组件
+---@desc 兼容传入 GameObject 或 Transform（Transform.GetComponent 同样可用）；无组件返回 nil
+---@type fun(go:UnityEngine.GameObject|UnityEngine.Transform):UnityEngine.Animator|nil
+---@param go UnityEngine.GameObject|UnityEngine.Transform 目标物体或变换
+---@return UnityEngine.Animator|nil Animator 组件，不存在返回 nil
+function AnimatorHelper:GetAnimator(go)
+    if not go then
+        return nil
+    end
+    return go:GetComponent(typeof(UnityEngine.Animator))
+end
+
+--endregion
+
+--region 动画时长获取
+
+---=========================================================================
+---@brief  获取指定动画片段（Clip）时长
+---@desc 动画时长获取：遍历 runtimeAnimatorController.animationClips 按名匹配，返回片段时长；
+---      空控制器/未找到片段时返回 nil（空值防护）
+---@type fun(animator:UnityEngine.Animator, clipName:string):number|nil
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param clipName string 动画片段名
+---@return number|nil 片段时长（秒），未找到返回 nil
+---=========================================================================
+function AnimatorHelper:GetClipLength(animator, clipName)
+    if self:_IsInvalid(animator) or not clipName then
+        return nil
+    end
+    local controller = animator.runtimeAnimatorController
+    local clips = controller.animationClips
+    if not clips then
+        return nil
+    end
+    for i = 0, clips.Length - 1 do
+        local clip = clips[i]
+        if clip and clip.name == clipName then
+            return clip.length
+        end
+    end
+    return nil
+end
+
+---=========================================================================
+---@brief  获取当前正在播放的动画片段时长
+---@desc 当前状态时长查询（默认 layer 0）；无控制器/无状态返回 nil
+---@type fun(animator:UnityEngine.Animator, layer:number|nil):number|nil
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param layer number|nil 动画层（缺省 0）
+---@return number|nil 当前片段时长，不可得返回 nil
+---=========================================================================
+function AnimatorHelper:GetCurrentClipLength(animator, layer)
+    if self:_IsInvalid(animator) then
+        return nil
+    end
+    local info = animator:GetCurrentAnimatorStateInfo(layer or 0)
+    if not info then
+        return nil
+    end
+    return info.length
+end
+
+---=========================================================================
+---@brief  获取当前正在播放的状态名
+---@desc 当前状态查询（默认 layer 0）；无控制器返回 nil
+---@type fun(animator:UnityEngine.Animator, layer:number|nil):string|nil
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param layer number|nil 动画层（缺省 0）
+---@return string|nil 当前状态名，不可得返回 nil
+---=========================================================================
+function AnimatorHelper:GetCurrentStateName(animator, layer)
+    if self:_IsInvalid(animator) then
+        return nil
+    end
+    local info = animator:GetCurrentAnimatorStateInfo(layer or 0)
+    if not info then
+        return nil
+    end
+    return info.name
+end
+
+---=========================================================================
+---@brief  判断当前是否正播放指定状态
+---@desc 防重复播放的判定基础；无控制器返回 false
+---@type fun(animator:UnityEngine.Animator, stateName:string, layer:number|nil):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param stateName string 状态名
+---@param layer number|nil 动画层（缺省 0）
+---@return boolean true=正在播放指定状态
+---=========================================================================
+function AnimatorHelper:IsPlayingState(animator, stateName, layer)
+    if self:_IsInvalid(animator) or not stateName then
+        return false
+    end
+    local info = animator:GetCurrentAnimatorStateInfo(layer or 0)
+    if not info then
+        return false
+    end
+    return info:IsName(stateName)
+end
+
+--endregion
+
+--region 安全播放 & 防重复
+
+---=========================================================================
+---@brief  安全播放指定状态
+---@desc 安全播放：空安全播放动画（可指定层与起始进度）；无效控制器返回 false
+---@type fun(animator:UnityEngine.Animator, stateName:string, layer:number|nil, normalizedTime:number|nil):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param stateName string 状态名
+---@param layer number|nil 动画层（缺省 0）
+---@param normalizedTime number|nil 起始归一化进度（缺省 0，负值表示从当前继续）
+---@return boolean true=播放指令已下发
+---=========================================================================
+function AnimatorHelper:Play(animator, stateName, layer, normalizedTime)
+    if self:_IsInvalid(animator) or not stateName then
+        return false
+    end
+    animator:Play(stateName, layer or 0, normalizedTime or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  平滑过渡播放（CrossFade）
+---@desc 安全播放：跨状态淡入淡出过渡；无效控制器返回 false
+---@type fun(animator:UnityEngine.Animator, stateName:string, duration:number, layer:number|nil):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param stateName string 目标状态名
+---@param duration number 过渡时长（秒）
+---@param layer number|nil 动画层（缺省 0）
+---@return boolean true=过渡指令已下发
+---=========================================================================
+function AnimatorHelper:CrossFadeTo(animator, stateName, duration, layer)
+    if self:_IsInvalid(animator) or not stateName then
+        return false
+    end
+    animator:CrossFade(stateName, duration or 0, layer or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  防重复播放：仅当当前状态不同名时才播放
+---@desc 防重复播放：避免重复触发打断当前动画；无效控制器或已同状态返回 false
+---@type fun(animator:UnityEngine.Animator, stateName:string, layer:number|nil, normalizedTime:number|nil):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param stateName string 目标状态名
+---@param layer number|nil 动画层（缺省 0）
+---@param normalizedTime number|nil 起始归一化进度（缺省 0）
+---@return boolean true=已播放，false=同状态未播或无效
+---=========================================================================
+function AnimatorHelper:PlayOnce(animator, stateName, layer, normalizedTime)
+    if self:IsPlayingState(animator, stateName, layer) then
+        return false
+    end
+    return self:Play(animator, stateName, layer, normalizedTime)
+end
+
+---=========================================================================
+---@brief  停止当前动画（暂停在当前位置）
+---@desc 安全停止：速度置 0 冻结当前帧；无效控制器返回 false
+---@type fun(animator:UnityEngine.Animator):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@return boolean true=已暂停
+---=========================================================================
+function AnimatorHelper:Stop(animator)
+    if not animator then
+        return false
+    end
+    if IsNull and IsNull(animator) then
+        return false
+    end
+    animator.speed = 0
+    return true
+end
+
+--endregion
+
+--region 动画采样推进
+
+---=========================================================================
+---@brief  采样推进：将指定状态播放到目标归一化进度并暂停
+---@desc 动画采样：用于预览/定格（如编辑器缩略图、进度定格）；无效控制器返回 false
+---@type fun(animator:UnityEngine.Animator, stateName:string, progress:number, layer:number|nil):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param stateName string 目标状态名
+---@param progress number 目标归一化进度 [0,1]
+---@param layer number|nil 动画层（缺省 0）
+---@return boolean true=采样到位
+---=========================================================================
+function AnimatorHelper:SampleTo(animator, stateName, progress, layer)
+    if self:_IsInvalid(animator) or not stateName then
+        return false
+    end
+    local normalized = math.max(0, math.min(1, progress or 0))
+    animator:Play(stateName, layer or 0, normalized)
+    animator.speed = 0
+    return true
+end
+
+--endregion
+
+--region 参数设置 & 运行时控制
+
+---=========================================================================
+---@brief  安全设置 Bool 参数
+---@type fun(animator:UnityEngine.Animator, paramName:string, value:boolean):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param paramName string 参数名
+---@param value boolean 布尔值
+---@return boolean true=已设置
+---=========================================================================
+function AnimatorHelper:SetBool(animator, paramName, value)
+    if self:_IsInvalid(animator) or not paramName then
+        return false
+    end
+    animator:SetBool(paramName, value)
+    return true
+end
+
+---=========================================================================
+---@brief  安全设置 Float 参数
+---@type fun(animator:UnityEngine.Animator, paramName:string, value:number):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param paramName string 参数名
+---@param value number 浮点值
+---@return boolean true=已设置
+---=========================================================================
+function AnimatorHelper:SetFloat(animator, paramName, value)
+    if self:_IsInvalid(animator) or not paramName then
+        return false
+    end
+    animator:SetFloat(paramName, value or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  安全触发 Trigger 参数
+---@type fun(animator:UnityEngine.Animator, paramName:string):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param paramName string 参数名
+---@return boolean true=已触发
+---=========================================================================
+function AnimatorHelper:SetTrigger(animator, paramName)
+    if self:_IsInvalid(animator) or not paramName then
+        return false
+    end
+    animator:SetTrigger(paramName)
+    return true
+end
+
+---=========================================================================
+---@brief  安全重置 Trigger 参数
+---@type fun(animator:UnityEngine.Animator, paramName:string):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param paramName string 参数名
+---@return boolean true=已重置
+---=========================================================================
+function AnimatorHelper:ResetTrigger(animator, paramName)
+    if self:_IsInvalid(animator) or not paramName then
+        return false
+    end
+    animator:ResetTrigger(paramName)
+    return true
+end
+
+---=========================================================================
+---@brief  安全设置播放速度（speed，0=暂停，1=正常）
+---@type fun(animator:UnityEngine.Animator, speed:number):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param speed number 播放速度
+---@return boolean true=已设置
+---=========================================================================
+function AnimatorHelper:SetSpeed(animator, speed)
+    if not animator then
+        return false
+    end
+    if IsNull and IsNull(animator) then
+        return false
+    end
+    animator.speed = speed or 1
+    return true
+end
+
+---=========================================================================
+---@brief  安全开关 Animator 组件（enabled）
+---@desc 用于整体停/启动画（如离屏优化）；空对象返回 false
+---@type fun(animator:UnityEngine.Animator, enabled:boolean):boolean
+---@param animator UnityEngine.Animator 目标动画控制器
+---@param enabled boolean 是否启用
+---@return boolean true=已设置
+---=========================================================================
+function AnimatorHelper:SetEnabled(animator, enabled)
+    if not animator then
+        return false
+    end
+    if IsNull and IsNull(animator) then
+        return false
+    end
+    animator.enabled = enabled
+    return true
+end
+
+--endregion
+
 return AnimatorHelper

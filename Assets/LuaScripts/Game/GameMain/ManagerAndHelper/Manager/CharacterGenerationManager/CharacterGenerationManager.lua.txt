@@ -89,6 +89,7 @@ function CharacterGenerationManager:SpawnCharacterByData(characterData, newParen
     -- 复位角色实例并绑定配置数据与游戏对象
     characterBase:Clear()
     characterBase._CharData = characterData
+    characterBase.ID = characterData.ID
     characterBase._GameObject = go
 
     -- 非闲置角色登记进全局角色列表（闲置角色由外部独立管理）
@@ -221,23 +222,19 @@ end
 ---@param gameMapRoot UnityEngine.Transform @地图根节点（挂载生成的角色实体）
 ---@desc 由 GameMapBase:LoadCharacterByMapData 在 Awake 相机/HUD 就绪后转调（勿在 ctor 中调用，
 ---      此时地图物体尚未激活、相机未就绪，易导致角色显示异常）。
----      流程：读取关卡根配置 → 挂载当前关卡数据 → 清空旧角色列表防重载残留 → 遍历地图配置逐一
----      生成角色（对象池复用）→ 设置本地坐标 → 刷新角色图标 → 写入全局角色列表。
+---      流程：读取关卡根配置 → 挂载当前关卡数据 → 清空旧角色列表防重载残留 → 单分区整图生成
+---      角色（对象池复用）→ 设置本地坐标 → 刷新角色图标 → 写入全局角色列表。
+---      【取消分区】章节地图为单分区整图，一次全量生成、一次全量收集，无分区解锁补生成。
 ---=========================================================================
 function CharacterGenerationManager:LoadCharacterByMapData(gameMapRoot)
     -- 地图根节点空安全保护
     if gameMapRoot == nil then
-        print("[CharacterGenerationManager] 警告：地图根节点缺失，跳过角色生成")
         return
     end
 
-    ---TODO [网格校验] C# GameLib.MapGridCheckUtil 驱动（Lua 探针已删）
-    print("[网格校验] C# MapGridCheckUtil 就绪")
-
-    -- 获取关卡根配置数据并挂载当前关卡
+    -- 获取关卡根配置数据并挂载当前关卡（单分区：整图数据）
     local mapData = GameManager:GetMapRootData()
     if not mapData or not mapData.MapData then
-        print("[CharacterGenerationManager] 地图角色配置为空，跳过角色生成")
         return
     end
     GameCoreManager:SetCurLevelData(mapData)
@@ -245,50 +242,24 @@ function CharacterGenerationManager:LoadCharacterByMapData(gameMapRoot)
     -- 清空旧角色列表，防止重载/重玩时残留脏数据
     local characterList = self:_ClearCharacterList()
 
-    ---TODO 多分区：枚举章节全部已解锁分区(1..lv)逐一生成人物；当前关卡分区与历史已解锁分区统一走 _SpawnCharactersForSection
-    local chapterId = mapData.ChapterId or ChapterListManager:GetRuntimeChapterId()
-    local unlockedCount = GamerDataManager:GetLevelLvByChapterId(chapterId)
-    local unlockedDatas = GamePlayHelper:GetUnlockedLevelDatas(chapterId, unlockedCount)
-
     ---TODO [阶段2] MapLoadManager 未就绪硬守卫（骨架已由 MapLoadManager:LoadMap 建立）
     if MapLoadManager.ZoneRoot == nil or MapLoadManager.SectionDatas == nil then
-        print("[阶段2] MapLoadManager 未就绪，先调 LoadMap（骨架未建立）")
         return
     end
 
-    ---TODO [循环B/阶段2] 仅生成实体（角色+建筑/物件），消费 MapLoadManager.SectionDatas/ZoneRoot
-    local sectionDatas = MapLoadManager.SectionDatas
+    -- 单分区：整图实体统一挂 ZoneItem_1/Root 下（取消分区后不再按解锁分区枚举生成）
     local zoneRootRef = MapLoadManager.ZoneRoot
-    for _, entry in ipairs(sectionDatas) do
-        local sectionId = tonumber(entry.data.SectionId) or 1
-        ---TODO [坐标] Root 是 ZoneItem 直子节点（与 RawImage 同级），角色/物件必须挂 Root 下
-        local zoneT = zoneRootRef:Find("ZoneItem_" .. sectionId)
-        if not zoneT then zoneT = zoneRootRef:Find("RawImage/ZoneItem_" .. sectionId) end
-        local rootT = zoneT and zoneT:Find("Root") or zoneT
-        if rootT then
-            local _okE, _errE = pcall(function()
-                self:_SpawnCharactersForSection(entry.data, rootT, characterList)
-                self:_ConsumeMapBuildingsAndObjects(entry.data, rootT)
-                self:_RunGridValidate(entry, rootT, characterList)
-            end)
-            if not _okE then
-                print(string.format("[阶段2] 实体生成失败: %s（骨架保留）", tostring(_errE)))
-            end
+    local zoneT = zoneRootRef:Find("ZoneItem_1")
+    if not zoneT then zoneT = zoneRootRef:Find("RawImage/ZoneItem_1") end
+    local rootT = zoneT and zoneT:Find("Root") or zoneT
+    if rootT then
+        local _okE, _errE = pcall(function()
+            -- 统一入口：角色 + 可交互建筑 + 物件生成
+            self:_GenerateEntitiesForSection(mapData, rootT, characterList)
+        end)
+        if not _okE then
+            PrintError("实体生成失败: {0}（骨架保留）", tostring(_errE))
         end
-    end
-
-    -- 兜底：枚举为空（异常/旧路径）时按原逻辑生成当前分区，保证不回归
-    if #unlockedDatas == 0 then
-        self:_SpawnCharactersForSection(mapData, gameMapRoot, characterList)
-        self:_ConsumeMapBuildingsAndObjects(mapData, gameMapRoot)
-    end
-
-    ---TODO [代码质量] 实体计数移到兜底后（统一计入主循环+兜底）
-    print(string.format("[阶段2] 组件信息加载完成 分区=%d 实体=%d", #sectionDatas, #characterList))
-
-    ---TODO 多分区：人物生成完成后，按已解锁分区聚合 AABB 收敛相机边界（未解锁分区相机不可达）
-    if GameMapMotion and GameMapMotion.RefreshUnlockedSectionBounds then
-        GameMapMotion:RefreshUnlockedSectionBounds()
     end
 end
 
@@ -328,8 +299,10 @@ function CharacterGenerationManager:_SpawnCharactersForSection(mapSectionData, g
         return
     end
     local isNewFormat = mapSectionData.Characters ~= nil
+    --- 当前分区ID（登记收集归属用）
+    local sectionId = tonumber(mapSectionData.SectionId) or 1
 
-    for _, v in ipairs(charList) do
+    for i, v in ipairs(charList) do
         if not v or not v.Id then
             print("[CharacterGenerationManager] 无效角色配置数据，跳过")
             goto continue
@@ -341,9 +314,16 @@ function CharacterGenerationManager:_SpawnCharactersForSection(mapSectionData, g
             print("[CharacterGenerationManager] 角色生成失败 ID:" .. tostring(v.Id))
             goto continue
         end
+        -- 实例唯一收集键：分区ID_角色ID_序号（同分区允许多个相同 ID 实例，各自独立收集）
+        local collectKey = tostring(sectionId) .. "_" .. tostring(v.Id) .. "_" .. tostring(i)
+        -- 角色展示 ID 保留配置 ID（日志/排查用），收集/去重统一走实例唯一键 _CollectKey
+        characterBase.ID = v.Id
+        characterBase._CollectKey = collectKey
 
         -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
-        ---TODO [坐标] Root pivot=top-left(0,1)，Y 向下为正需取反
+        -- 【取消分区】整图单分区：编辑器数据即整图坐标（GridX 0..GridCols-1），挂载点 ZoneItem_1/Root
+        -- 即整图坐标空间，无需再减分区水平偏移（原多分区 regionCol×zoneWidth 偏移已失效）。
+        -- Y 轴：编辑器左下原点向上 → Root top-left 向下，取反后与背景一致。
         local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
         local charWx = (v.GridX or 0) * gridSize
         local charWy = (v.GridY or 0) * gridSize
@@ -363,99 +343,94 @@ function CharacterGenerationManager:_SpawnCharactersForSection(mapSectionData, g
         ---     _PathPoints 赋值保留兼容旧读取方
         if isNewFormat and v.PathPoints and #v.PathPoints > 0 then
             ---TODO [坐标变换] PathPoints 同样为编辑器坐标系，统一变换到世界系再启动移动
-            local worldPathPoints = TransformEditorPathPoints(v.PathPoints)
+            local worldPathPoints = TransformEditorPathPoints(v.PathPoints, sectionId)
             characterBase._PathPoints = worldPathPoints
             local loop = v.PatrolLoop == true
             characterBase:StartPathMove(worldPathPoints, v.Speed, loop)
         end
 
-        -- 存入全局角色管理列表
-        self:_RegisterCharacterToList(characterList, v.Id, characterBase)
+        -- 存入全局角色管理列表（以实例唯一键登记，同 ID 多实例不互相覆盖）
+        self:_RegisterCharacterToList(characterList, collectKey, characterBase)
+
+        -- 登记角色归属关卡与关卡物品总数（收集判定依据，收敛到 LevelCollectManager）
+        -- 携带展示信息 meta（图标名/是否角色），供收集面板列表展示
+        local charMeta = characterBase and characterBase._CharData
+                and { icon = characterBase._CharData.Icon, isRole = true } or { isRole = true }
+        LevelCollectManager:RegisterLevelItem(sectionId, collectKey, charMeta)
 
         ::continue::
     end
 end
 
 ---=========================================================================
----@brief 分区解锁后即时补生成新分区人物并扩展相机边界
----@desc 通关结算 lv+1 后调用：只补生成刚解锁分区（newSectionId）的人物，不重复已在地图上的旧分区；
----      随后重算已解锁分区聚合 AABB，使相机立即可达新分区。
----@type fun(chapterId:string,newSectionId:number):void
----@param chapterId string 章节ID
----@param newSectionId number 新解锁分区序号（=新 lv）
----=========================================================================
-function CharacterGenerationManager:OnSectionUnlocked(chapterId, newSectionId)
-    ---TODO 分区解锁即时显示：加载新分区数据→补生成人物→扩展相机边界
-    if string.isNullOrEmpty(chapterId) or not newSectionId then
-        return
-    end
-    local ok, data = pcall(function()
-        return Tables["LevelData_" .. chapterId .. "_" .. newSectionId]
-    end)
-    if not ok or not data then
-        return
-    end
-    ---TODO [ZoneItem] 解锁仅激活 ZoneItem_i 容器（不重新实例化）+ 相机扩界 + _BlockedActors 续走
-    local root = MapManager.CurGameMapBase and MapManager.CurGameMapBase.GameMapRoot
-    if root then
-        local zoneT = root:Find("ZoneItem_" .. newSectionId)
-        if zoneT then
-            zoneT.gameObject:SetActive(true)
-            print(string.format("[解锁] 分区%d 显示", newSectionId))
-        end
-    end
-    if GameMapMotion and GameMapMotion.RefreshUnlockedSectionBounds then
-        GameMapMotion:RefreshUnlockedSectionBounds()
-    end
-
-    ---TODO [跨区校验] 解锁事件触发续走：遍历被拦角色 ResumePathMove（幂等，未被拦/销毁安全跳过）
-    do
-        local _okCB, CharacterBase = pcall(require, 'CharacterBase')
-        if _okCB and CharacterBase and CharacterBase._BlockedActors then
-            for _, actor in ipairs(CharacterBase._BlockedActors) do
-                local rOk, rErr = pcall(function()
-                    actor:ResumePathMove()
-                end)
-                if not rOk then
-                    print(string.format("[跨区] 续走失败: %s", tostring(rErr)))
-                end
-            end
-            print(string.format("[跨区] 分区解锁 lv=%d 续走 %d 个被拦角色", tonumber(newSectionId), #CharacterBase._BlockedActors))
-        end
-    end
-end
-
----=========================================================================
----@brief 消费一个分区的建筑/物件数组并实例化实体（多分区复用）
----@desc 新格式分区表含 Buildings/Objects 数组（MapObjectData 全字段：TemplateId/Image/Position/PathPoints/BubbleId 等）。
----      Buildings 与 Objects 条目无 ResName、无预制体映射，故统一走已注册的 UI 地图物件预制体
----      GameObject_ItemMap（根 RectTransform + LuaBehaviour[MapObjectCtrl] + 子节点 BG Image，
----      与角色同处地图根 local 像素空间），经 PoolManager:Get 实例化后逐条目绑定：
----      localPosition=Position、BG 图标=entry.Image、显示尺寸=Width*32×Height*32（编辑器 GridSize=32）、
----      PathPoints 非空则启动 DOTween 路径移动、BubbleId>0 由 MapObjectBase:Start 自动挂随机气泡。
----      已生成实体登记 _mapObjectTable，随 DespawnAllCharacters 统一回池回收。
----@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform):void
----@param mapSectionData table @分区数据（Buildings/Objects 挂在分区表，非根配置）
+---@brief 分区实体生成统一入口（角色 + 可交互建筑 + 物件）
+---@desc 收敛角色生成/物件生成/可交互建筑生成三类子方法为单一入口：
+---      角色走 _SpawnCharactersForSection，建筑走 _SpawnBuildingsForSection（BuildingItem 类），
+---      物件走 _SpawnMapObjectsForSection（MapObjectCtrl 类）；objSeq 跨建筑+物件共用递增，
+---      保证同分区同 Id 多实例收集键唯一。Buildings/Objects 数组为空时静默跳过。
+---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,characterList:table):void
+---@param mapSectionData table @分区数据（Characters/Buildings/Objects 挂在分区表，非根配置）
 ---@param gameMapRoot UnityEngine.Transform @地图根节点（实体挂载点）
+---@param characterList table @全局角色列表（角色登记用）
 ---=========================================================================
-function CharacterGenerationManager:_ConsumeMapBuildingsAndObjects(mapSectionData, gameMapRoot)
+function CharacterGenerationManager:_GenerateEntitiesForSection(mapSectionData, gameMapRoot, characterList)
     if not mapSectionData or gameMapRoot == nil then
         return
     end
-    ---TODO [物件生成] Buildings/Objects 数据源为空（章节1当前分区两数组均空）属正常；
-    ---     数据补齐后本方法即实例化实体，无需再改
-    if mapSectionData.Buildings then
-        for _, entry in ipairs(mapSectionData.Buildings) do
-            ---TODO [物件生成] 建筑走 BuildingTemplate 运行时实体模板（LoadResDefs_1 手工注册）
-            self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_BuildingTemplate")
-        end
+    -- 角色生成（收集键=分区ID_角色ID_序号，登记 _CharacterList 与分区收集表）
+    self:_SpawnCharactersForSection(mapSectionData, gameMapRoot, characterList)
+    -- 物件全局序号（建筑+物件共用递增，保证同分区同 Id 多实例键唯一）
+    local objSeq = 0
+    -- 可交互建筑生成（BuildingItem 类）
+    objSeq = self:_SpawnBuildingsForSection(mapSectionData, gameMapRoot, objSeq)
+    -- 物件生成（MapObjectCtrl 类）
+    objSeq = self:_SpawnMapObjectsForSection(mapSectionData, gameMapRoot, objSeq)
+end
+
+---=========================================================================
+---@brief 可交互建筑生成（BuildingTemplate → BuildingItem 类）
+---@desc 遍历分区 Buildings 数组实例化建筑实体：模板 LuaBehaviour 绑定 BuildingItem（继承
+---      MapObjectBase），与物件共用 objSeq 递增保证收集键唯一；收集键=Obj_分区_建筑ID_序号。
+---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,objSeq:number):number
+---@param mapSectionData table @分区数据（Buildings 数组）
+---@param gameMapRoot UnityEngine.Transform @地图根节点
+---@param objSeq number @物件全局序号（进入时已含建筑前累计值）
+---@return number @更新后的全局序号
+---=========================================================================
+function CharacterGenerationManager:_SpawnBuildingsForSection(mapSectionData, gameMapRoot, objSeq)
+    if not mapSectionData or not mapSectionData.Buildings then
+        return objSeq or 0
     end
-    if mapSectionData.Objects then
-        for _, entry in ipairs(mapSectionData.Objects) do
-            ---TODO [物件生成] 物件走 ObjectTemplate 运行时实体模板
-            self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_ObjectTemplate")
-        end
+    local sectionId = tonumber(mapSectionData.SectionId) or 1
+    for _, entry in ipairs(mapSectionData.Buildings) do
+        ---TODO [物件生成] 建筑走 BuildingTemplate 运行时实体模板（LoadResDefs_1 手工注册）
+        objSeq = (objSeq or 0) + 1
+        self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_BuildingTemplate", sectionId, objSeq)
     end
+    return objSeq
+end
+
+---=========================================================================
+---@brief 物件生成（ObjectTemplate → MapObjectCtrl 类）
+---@desc 遍历分区 Objects 数组实例化物件实体：模板 LuaBehaviour 绑定 MapObjectCtrl（继承
+---      MapObjectBase），与建筑共用 objSeq 递增保证收集键唯一；收集键=Obj_分区_物件ID_序号。
+---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,objSeq:number):number
+---@param mapSectionData table @分区数据（Objects 数组）
+---@param gameMapRoot UnityEngine.Transform @地图根节点
+---@param objSeq number @物件全局序号（进入时已含建筑累计值）
+---@return number @更新后的全局序号
+---=========================================================================
+function CharacterGenerationManager:_SpawnMapObjectsForSection(mapSectionData, gameMapRoot, objSeq)
+    if not mapSectionData or not mapSectionData.Objects then
+        return objSeq or 0
+    end
+    local sectionId = tonumber(mapSectionData.SectionId) or 1
+    for _, entry in ipairs(mapSectionData.Objects) do
+        ---TODO [物件生成] 物件走 ObjectTemplate 运行时实体模板
+        objSeq = (objSeq or 0) + 1
+        self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_ObjectTemplate", sectionId, objSeq)
+    end
+    return objSeq
 end
 
 ---=========================================================================
@@ -463,13 +438,15 @@ end
 ---@desc 从对象池取 GameObject_ItemMap 实例，绑定 MapObjectBase 与条目数据：
 ---      坐标（localPosition=Position，与角色同空间）、BG 图标刷新、显示尺寸（Width/Height 格子数×32）、
 ---      PathPoints 路径移动启动；气泡由 MapObjectBase:Start 读 BubbleId 自动挂载。
----@type fun(entry:table,gameMapRoot:UnityEngine.Transform,resName:string):MapObjectBase|nil
+---@type fun(entry:table,gameMapRoot:UnityEngine.Transform,resName:string,sectionId:number):MapObjectBase|nil
 ---@param entry table @MapObjectData 条目（Buildings/Objects）
 ---@param gameMapRoot UnityEngine.Transform @地图根节点
 ---@param resName string @资源注册键（GameObject_BuildingTemplate / GameObject_ObjectTemplate）
+---@param sectionId number @所属分区ID（登记收集归属用）
+---@param objSeq number @物件全局序号（同分区同 Id 多实例键唯一）
 ---@return MapObjectBase|nil @物件实例，数据缺失返回nil
 ---=========================================================================
-function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, resName)
+function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, resName, sectionId, objSeq)
     -- 数据空安全：无条目/无坐标无法生成
     if not entry or not entry.Position then
         return nil
@@ -494,8 +471,15 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
     mapObj._GameObject = go
     mapObj:RefreshBubbleTimer()
 
+    -- 物件唯一收集键（关卡ID_物件ID_全局序号，避免同关卡同 Id 多实例键冲突），供点击收集时登记进度
+    local collectKey = "Obj_" .. tostring(sectionId or 1) .. "_" .. tostring(entry.Id) .. "_" .. tostring(objSeq or 1)
+    mapObj._CollectKey = collectKey
+    -- 登记物件归属关卡（收敛到 LevelCollectManager 门面）
+    -- 携带展示信息 meta（图标名=entry.Image/是否角色=false），供收集面板列表展示
+    LevelCollectManager:RegisterLevelItem(sectionId or 1, collectKey, { icon = entry.Image, isRole = false })
+
     -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
-    ---TODO [坐标] Root pivot=top-left，Y 向下为正需取反
+    -- 【取消分区】整图单分区：编辑器数据即整图坐标，无需分区水平偏移；Y 取反适配 top-left 系
     local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
     local objWx = (entry.GridX or 0) * gridSize
     local objWy = (entry.GridY or 0) * gridSize
@@ -526,32 +510,13 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
 
     -- 路径移动：PathPoints 非空即实际沿路径移动；循环语义 PatrolLoop 优先，否则取 Loop
     ---TODO [坐标变换] 物件 PathPoints 编辑器坐标 → 世界坐标后再启动移动
-    local worldObjPathPoints = entry.PathPoints and #entry.PathPoints > 0 and TransformEditorPathPoints(entry.PathPoints) or nil
+    local worldObjPathPoints = entry.PathPoints and #entry.PathPoints > 0 and TransformEditorPathPoints(entry.PathPoints, sectionId) or nil
     local isLoop = entry.PatrolLoop == true or entry.Loop == true
     mapObj:StartPathMove(worldObjPathPoints, entry.Speed, isLoop)
 
     -- 登记回收列表
     self._mapObjectTable:Add(mapObj)
     return mapObj
-end
-
---endregion
-
---region 【网格校验探针】
-
----=========================================================================
----@brief 运行时网格校验探针（单分区）
----@desc 惰性 pcall 加载 MapGridCheckUtil，pcall 包裹调用；校验失败/模块缺失绝不影响正常生成流。
----      getActualPos 回调按条目 ID 在角色登记表与物件登记表查实体实际 localPosition。
----@type fun(entry:table,gameMapRoot:UnityEngine.Transform,characterList:table):void
----@param entry table @分区条目（含 data）
----@param gameMapRoot UnityEngine.Transform @地图根节点（未直接用，保留签名一致性）
----@param characterList table @角色登记表 characterList[id].Character
----=========================================================================
-function CharacterGenerationManager:_RunGridValidate(entry, gameMapRoot, characterList)
-    ---TODO [网格校验] C# GameLib.MapGridCheckUtil 静态调用（Lua 探针已删）
-    local sectionId = tonumber(entry.data and entry.data.SectionId) or 0
-    print(string.format("[网格校验] 分区%d C# 校验完成", sectionId))
 end
 
 --endregion

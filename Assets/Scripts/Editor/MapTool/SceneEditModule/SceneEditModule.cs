@@ -41,72 +41,47 @@ namespace Honor.Editor.MapTool
 
         /// <summary>
         /// 保存地图配置为 JSON 文件
-        /// 包含分区信息（区域ID/背景名/是否解锁/迷雾是否开启）、
-        /// 物件集合、建筑集合、人物集合（含可走路径）
+        /// 【取消分区】单关卡=单张地图，直接保存整图所有物体
         /// </summary>
         public void SaveMapConfig()
         {
-            if (m_RegionIds == null || m_RegionIds.Length == 0)
+            if (string.IsNullOrEmpty(m_CurrentLevelId))
             {
-                Debug.LogWarning("没有分区数据，无法保存地图配置（请先选择章节加载地图）");
+                Debug.LogWarning("没有关卡数据，无法保存地图配置（请先选择关卡加载地图）");
                 return;
             }
             // 组装配置数据
             MapConfigData data = new MapConfigData();
-            data.sceneId = GetFieldValue(m_SceneIdField, "105");
-            data.sceneName = GetFieldValue(m_SceneNameField, "105");
-            // ---TODO 修复地图尺寸：width/height 用地图实际渲染尺寸（分区拼接总宽高 m_MapWidth/m_MapHeight），
-            // 而非 UI 字段默认值——否则多分区章节（如 3 分区→4096×4096）被存成 2048，运行时/还原时角色坐标（3648/3808）超出地图不可见
+            data.sceneId = GetFieldValue(m_SceneIdField, "1");
+            data.sceneName = GetFieldValue(m_SceneNameField, "关卡1");
             data.width = m_MapWidth > 0 ? m_MapWidth : ParseInt(GetFieldValue(m_WidthField, m_ConfigMapWidth.ToString()), m_ConfigMapWidth);
             data.height = m_MapHeight > 0 ? m_MapHeight : ParseInt(GetFieldValue(m_HeightField, m_ConfigMapHeight.ToString()), m_ConfigMapHeight);
-            // 分区信息（每个分区下挂属于自己的建筑/物件/人物集合）
-            int regionPixelSize = MapToolConstants.RegionPixelSize;
-            for (int i = 0; i < m_RegionCount; i++)
-            {
-                int row = i / m_RegionCols;
-                int col = i % m_RegionCols;
-                string regionId = m_RegionIds[i];
-                bool unlocked = m_RegionUnlocked != null && row < m_RegionRows && col < m_RegionCols && m_RegionUnlocked[row, col];
-                string bgName = "";
-                if (m_LevelBgDict != null && m_LevelBgDict.TryGetValue(regionId, out string bg))
-                    bgName = bg;
-                data.regions.Add(new MapRegionData
-                {
-                    regionId = regionId,
-                    bgName = bgName,
-                    unlocked = unlocked,
-                    fogEnabled = !unlocked, // 未解锁分区迷雾开启
-                    col = col,
-                    row = row,
-                    offsetX = col * regionPixelSize,
-                    offsetY = row * regionPixelSize,
-                    width = regionPixelSize,
-                    height = regionPixelSize,
-                    gridCols = regionPixelSize / MapToolConstants.GridSize,
-                    gridRows = regionPixelSize / MapToolConstants.GridSize,
-                });
-            }
-            // 已放置物体按所在分区归组，挂到对应区域下
+
+            // 背景图
+            string regionId = m_CurrentLevelId;
+            string bgName = "";
+            if (m_LevelBgDict != null && m_LevelBgDict.TryGetValue(regionId, out string bg))
+                bgName = bg;
+            data.bgName = bgName;
+
+            // 所有物体直接挂到地图下（单关卡模式）
             foreach (var obj in m_PlacedObjects)
             {
-                int regionIndex = GetRegionIndexForObject(obj);
-                if (regionIndex < 0 || regionIndex >= data.regions.Count)
-                    continue;
-                MapRegionData region = data.regions[regionIndex];
                 switch (obj.Type)
                 {
-                    case MapObjectType.Character: // 人物：含可走路径集合
-                        region.characters.Add(BuildMapCharacterData(obj));
+                    case MapObjectType.Character:
+                        data.characters.Add(BuildMapCharacterData(obj));
                         break;
-                    case MapObjectType.Building: // 建筑
-                        region.buildings.Add(BuildMapObjectData(obj));
+                    case MapObjectType.Building:
+                        data.buildings.Add(BuildMapObjectData(obj));
                         break;
-                    case MapObjectType.Prop: // 物件
-                        region.objects.Add(BuildMapObjectData(obj));
+                    case MapObjectType.Prop:
+                        data.objects.Add(BuildMapObjectData(obj));
                         break;
                 }
             }
-            // ---TODO 网格信息：填充格子尺寸/行列 + 摆放物占用格子（供运行时检查位置）
+
+            // 网格信息
             data.gridSize = MapToolConstants.GridSize;
             data.gridCols = data.width > 0 ? data.width / MapToolConstants.GridSize : 0;
             data.gridRows = data.height > 0 ? data.height / MapToolConstants.GridSize : 0;
@@ -121,7 +96,7 @@ namespace Honor.Editor.MapTool
                 {
                     for (int dx = 0; dx < spanX; dx++)
                     {
-                        occupiedKeys.Add(((long)(gy + dy)) * 100000 + (gx + dx)); // 行列打包去重
+                        occupiedKeys.Add(((long)(gy + dy)) * 100000 + (gx + dx));
                     }
                 }
             }
@@ -130,15 +105,14 @@ namespace Honor.Editor.MapTool
             {
                 data.occupiedCells.Add(new MapGridCellData { x = (int)(key % 100000), y = (int)(key / 100000) });
             }
-            // ---TODO 双格式保存：组装完成后补填章节信息（JsonUtility 序列化 public 字段）
+
+            // 章节信息
             data.chapterId = !string.IsNullOrEmpty(m_CurrentChapterId) ? m_CurrentChapterId : data.sceneId;
             data.chapterName = m_CurrentChapterData != null && !string.IsNullOrEmpty(m_CurrentChapterData.ChapterTitle)
                 ? m_CurrentChapterData.ChapterTitle
                 : data.sceneName;
-            data.regionCount = m_RegionCount;
-            data.regionRows = m_RegionRows;
-            data.regionCols = m_RegionCols;
-            // 写入 JSON 文件（m_MapSavePath 为 Assets 相对路径）
+
+            // 写入 JSON 文件
             string relativePath = m_MapSavePath.Replace("\\", "/");
             if (!relativePath.StartsWith("Assets/"))
                 relativePath = "Assets/" + relativePath.TrimStart('/');
@@ -151,16 +125,9 @@ namespace Honor.Editor.MapTool
                 string json = JsonUtility.ToJson(data, true);
                 File.WriteAllText(fullPath, json, new UTF8Encoding(false));
                 AssetDatabase.Refresh();
-                // 统计各区域物体数量
-                int totalBuildings = 0, totalObjects = 0, totalCharacters = 0;
-                foreach (var r in data.regions)
-                {
-                    totalBuildings += r.buildings.Count;
-                    totalObjects += r.objects.Count;
-                    totalCharacters += r.characters.Count;
-                }
-                Debug.Log($"地图配置已保存: {relativePath}（分区 {data.regions.Count}，建筑 {totalBuildings}，物件 {totalObjects}，人物 {totalCharacters}）");
-                // ---TODO 双格式保存：JSON 写盘成功后导出 Lua 分区数据 + 重写主表索引
+                Debug.Log($"关卡地图已保存: {relativePath}（建筑 {data.buildings.Count}，物件 {data.objects.Count}，人物 {data.characters.Count}）");
+
+                // Lua 导出（可选，失败不影响 JSON 保存）
                 try
                 {
                     string exportChapterId = data.chapterId;
@@ -168,31 +135,20 @@ namespace Honor.Editor.MapTool
                     string exportMapName = m_CurrentChapterData != null && !string.IsNullOrEmpty(m_CurrentChapterData.MapName)
                         ? m_CurrentChapterData.MapName
                         : data.sceneName;
-                    // LevelIdBase：当前章节在 m_ChapterDataList 中之前各章节的分区数累加（§7）；不在列表则 0
-                    int levelIdBase = 0;
-                    int currentChapterIndex = m_CurrentChapterData != null ? m_ChapterDataList.IndexOf(m_CurrentChapterData) : -1;
-                    if (currentChapterIndex >= 0)
-                    {
-                        for (int k = 0; k < currentChapterIndex; k++)
-                        {
-                            levelIdBase += MapToolEditorUtils.ParseRegionIds(m_ChapterDataList[k].ChapterInfoID).Length;
-                        }
-                    }
                     MapChapterExportContext exportContext = new MapChapterExportContext
                     {
                         ChapterId = exportChapterId,
                         ChapterName = exportChapterName,
                         MapName = exportMapName,
-                        RegionIds = m_RegionIds,
-                        LevelIdBase = levelIdBase,
+                        LevelId = m_CurrentLevelId,
+                        LevelIdBase = 0,
                     };
                     List<string> luaFiles = MapDataLuaExporter.Export(data, exportContext, m_ChapterDataList);
                     AssetDatabase.Refresh();
-                    Debug.Log($"Lua 分区数据已导出: 共 {luaFiles.Count} 个文件\n{string.Join("\n", luaFiles)}");
+                    Debug.Log($"Lua 数据已导出: 共 {luaFiles.Count} 个文件\n{string.Join("\n", luaFiles)}");
                 }
                 catch (System.Exception luaException)
                 {
-                    // Lua 导出失败不影响 JSON 已保存成功
                     Debug.LogError($"Lua 数据导出失败（JSON 已保存成功，不影响）: {luaException.Message}");
                 }
             }
@@ -237,166 +193,139 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 加载章节地图
+        /// 加载关卡地图（每关一张独立地图，取消分区）
         /// </summary>
         /// <param name="chapterId">章节ID</param>
+        /// <param name="levelId">关卡ID</param>
         /// <param name="prefabPath">地图预制体路径</param>
-        public void LoadChapterMap(string chapterId, string prefabPath = "", string chapterInfoID = "9")
+        public void LoadLevelMap(string chapterId, string levelId, string prefabPath = "")
         {
-            Debug.Log($"加载章节地图: {chapterId}, 预制体路径: {prefabPath}, 分区配置: {chapterInfoID}");
-            // 加载章节配置表，获取场景名称/场景ID/分区配置
+            Debug.Log($"加载关卡地图: 章节={chapterId}, 关卡={levelId}, 预制体路径: {prefabPath}");
+            // 加载章节配置表
             LoadChapterConfig();
             var chapterData = m_ChapterDataList.FirstOrDefault(c => c.ID == chapterId);
             if (chapterData != null)
             {
-                // ---TODO 双格式保存：缓存当前章节上下文（JSON/Lua 同源导出用）
+                // 缓存当前章节上下文
                 m_CurrentChapterId = chapterId;
                 m_CurrentChapterData = chapterData;
-                // 场景名：优先用章节标题，其次地图资源名
-                string sceneName = !string.IsNullOrEmpty(chapterData.ChapterTitle) ? chapterData.ChapterTitle : chapterData.MapName;
-                if (string.IsNullOrEmpty(sceneName))
-                    sceneName = chapterId;
+                // 场景名：优先用章节标题+关卡号
+                string sceneName = !string.IsNullOrEmpty(chapterData.ChapterTitle)
+                    ? $"{chapterData.ChapterTitle}-关卡{levelId}"
+                    : $"关卡{levelId}";
                 if (m_SceneNameField != null)
                     m_SceneNameField.SetValueWithoutNotify(sceneName);
                 if (m_SceneIdField != null)
-                    m_SceneIdField.SetValueWithoutNotify(chapterId);
-                // 调用方未指定分区配置时，用章节配置表里的分区配置
-                if (string.IsNullOrEmpty(chapterInfoID) || chapterInfoID == "9")
-                    chapterInfoID = chapterData.ChapterInfoID ?? chapterInfoID;
+                    m_SceneIdField.SetValueWithoutNotify(levelId);
             }
             else
             {
-                // ---TODO 双格式保存：配置表无此章节时清空章节上下文缓存
                 m_CurrentChapterId = chapterId;
                 m_CurrentChapterData = null;
-                // 配置表中无此章节：场景ID用章节ID，场景名用ID兜底
                 if (m_SceneNameField != null)
-                    m_SceneNameField.SetValueWithoutNotify(chapterId);
+                    m_SceneNameField.SetValueWithoutNotify($"关卡{levelId}");
                 if (m_SceneIdField != null)
-                    m_SceneIdField.SetValueWithoutNotify(chapterId);
+                    m_SceneIdField.SetValueWithoutNotify(levelId);
             }
-            // 解析 ChapterInfoID 配置，格式如 {"1","2","3"}
-            // 有几个元素就有几个分区
-            string[] regionIds = MapToolEditorUtils.ParseRegionIds(chapterInfoID);
-            m_RegionIds = regionIds;
-            int regionCount = regionIds.Length;
-            Debug.Log($"分区数量: {regionCount}");
-            // 加载 TableMainLevels 配置表
+
+            // 记录当前关卡ID
+            m_CurrentLevelId = levelId;
+
+            // 加载主关卡配置表（背景图）
             LoadMainLevelsConfig();
-            // 计算行列数（尽量接近正方形）
-            int cols = Mathf.CeilToInt(Mathf.Sqrt(regionCount));
-            int rows = Mathf.CeilToInt((float)regionCount / cols);
-            m_RegionRows = rows;
-            m_RegionCols = cols;
-            Debug.Log($"分区布局: {rows}行 x {cols}列");
-            // 初始化分区解锁状态
-            m_RegionUnlocked = new bool[rows, cols];
-            m_RegionCount = regionCount; // 记录实际分区数量
-            for (int row = 0; row < rows; row++)
-            {
-                for (int col = 0; col < cols; col++)
-                {
-                    int index = row * cols + col;
-                    // 只有配置中存在的分区才显示，第一个默认解锁
-                    if (index < regionCount)
-                    {
-                        m_RegionUnlocked[row, col] = (index == 0);
-                    }
-                    else
-                    {
-                        m_RegionUnlocked[row, col] = false; // 多余的格子不显示
-                    }
-                }
-            }
-            string chapterPrefabPath = $"{MapToolConstants.MapSaveDir}/Map_{chapterId}.prefab";
-            // ---TODO 模板更新检测：章节预制体不存在，或模板预制体比章节预制体更新时，重新从模板克隆
-            // 用户修改 GameMainMap.prefab 模板后，下次加载自动同步到章节预制体
+
+            // 关卡预制体路径
+            string levelPrefabPath = $"{MapToolConstants.MapSaveDir}/Map_{chapterId}_{levelId}.prefab";
+            // 模板更新检测
             bool needClone = false;
-            var existingChapterPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(chapterPrefabPath);
-            if (existingChapterPrefab == null)
+            var existingLevelPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(levelPrefabPath);
+            if (existingLevelPrefab == null)
             {
-                needClone = true; // 章节预制体不存在，需要克隆
+                needClone = true;
             }
             else if (!string.IsNullOrEmpty(prefabPath))
             {
-                // 模板预制体存在，比较两者的最后修改时间
                 string templateFullPath = System.IO.Path.Combine(Application.dataPath, prefabPath.Replace("Assets/", ""));
-                string chapterFullPath = System.IO.Path.Combine(Application.dataPath, chapterPrefabPath.Replace("Assets/", ""));
-                if (System.IO.File.Exists(templateFullPath) && System.IO.File.Exists(chapterFullPath))
+                string levelFullPath = System.IO.Path.Combine(Application.dataPath, levelPrefabPath.Replace("Assets/", ""));
+                if (System.IO.File.Exists(templateFullPath) && System.IO.File.Exists(levelFullPath))
                 {
                     DateTime templateTime = System.IO.File.GetLastWriteTime(templateFullPath);
-                    DateTime chapterTime = System.IO.File.GetLastWriteTime(chapterFullPath);
-                    if (templateTime > chapterTime)
+                    DateTime levelTime = System.IO.File.GetLastWriteTime(levelFullPath);
+                    if (templateTime > levelTime)
                     {
-                        needClone = true; // 模板比章节预制体新，重新克隆
-                        Debug.Log($"模板预制体已更新（模板: {templateTime:HH:mm:ss} > 章节: {chapterTime:HH:mm:ss}），重新克隆");
+                        needClone = true;
+                        Debug.Log($"模板预制体已更新（模板: {templateTime:HH:mm:ss} > 关卡: {levelTime:HH:mm:ss}），重新克隆");
                     }
                 }
             }
             if (needClone && !string.IsNullOrEmpty(prefabPath))
             {
-                Debug.Log($"从模板克隆: {prefabPath} -> {chapterPrefabPath}");
-                // 确保目录存在（Assets/GameData/Maps）
-                string dir = System.IO.Path.GetDirectoryName(chapterPrefabPath).Replace("\\", "/");
+                Debug.Log($"从模板克隆: {prefabPath} -> {levelPrefabPath}");
+                string dir = System.IO.Path.GetDirectoryName(levelPrefabPath).Replace("\\", "/");
                 if (!UnityEditor.AssetDatabase.IsValidFolder(dir))
                 {
                     if (!UnityEditor.AssetDatabase.IsValidFolder(MapToolConstants.GameDataDir))
                         UnityEditor.AssetDatabase.CreateFolder("Assets", "GameData");
                     UnityEditor.AssetDatabase.CreateFolder(MapToolConstants.GameDataDir, "Maps");
                 }
-                // 克隆模板预制体
-                bool copyResult = UnityEditor.AssetDatabase.CopyAsset(prefabPath, chapterPrefabPath);
+                bool copyResult = UnityEditor.AssetDatabase.CopyAsset(prefabPath, levelPrefabPath);
                 Debug.Log($"克隆结果: {copyResult}");
                 UnityEditor.AssetDatabase.Refresh();
             }
-            // 加载章节预制体
-            m_MapPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(chapterPrefabPath);
-            Debug.Log($"加载章节预制体: {chapterPrefabPath}, 结果: {m_MapPrefab != null}");
+            // 加载关卡预制体
+            m_MapPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(levelPrefabPath);
+            Debug.Log($"加载关卡预制体: {levelPrefabPath}, 结果: {m_MapPrefab != null}");
             if (m_MapPrefab != null)
             {
                 Debug.Log($"加载地图预制体成功: {m_MapPrefab.name}");
-                // 同步更新左上角的 ObjectField 显示
-                Debug.Log($"m_MapPrefabField 是否为 null: {m_MapPrefabField == null}");
                 if (m_MapPrefabField != null)
                 {
                     m_MapPrefabField.value = m_MapPrefab;
                     Debug.Log($"已设置 ObjectField 值: {m_MapPrefab.name}");
                 }
-                // 注意：不能直接修改预制体资源，迷雾覆盖在 IMGUI 中绘制
             }
             else
             {
                 Debug.LogWarning("地图预制体加载失败，m_MapPrefab 为 null");
             }
-            // 更新保存路径
-            // ---TODO 双格式保存：JSON 改落 MapDatas（预制体路径仍走 MapSaveDir，保持 Maps 不动）
-            m_MapSavePath = $"{MapToolConstants.MapJsonSaveDir}/Map_{chapterId}.json";
-            m_MapWidth = MapToolConstants.RegionPixelSize * cols;   // 渲染用全布局宽度
-            m_MapHeight = MapToolConstants.RegionPixelSize * rows;  // 渲染用全布局高度
-            // 根据已解锁分区包围盒更新配置宽高（解锁新区域时同步变化）
-            UpdateMapBoundsFromUnlockedRegions();
+
+            // 【取消分区】JSON 保存路径：按 章节_关卡 命名
+            m_MapSavePath = $"{MapToolConstants.MapJsonSaveDir}/Map_{chapterId}_{levelId}.json";
+
+            // 地图尺寸：默认 2048x2048，从 JSON 加载后会自动覆盖
+            m_MapWidth = MapToolConstants.LevelPixelSize;
+            m_MapHeight = MapToolConstants.LevelPixelSize;
+            m_ConfigMapWidth = m_MapWidth;
+            m_ConfigMapHeight = m_MapHeight;
+
             // 重置偏移和缩放
             m_MapOffset = Vector2.zero;
             m_Zoom = 1.0f;
             UpdateStatusBar();
 
-            // ---TODO 编辑器加载还原：有已保存 JSON 时优先加载已保存的摆放物/分区解锁/背景（LoadMapConfig）
+            // 加载已保存的地图配置
             LoadMapConfig();
 
-            // ---TODO 所有数据加载完成后，再同步到场景（分区背景/摆放物/网格）
+            // 同步宽高到输入框显示
+            if (m_MapWidth <= 0) m_MapWidth = MapToolConstants.LevelPixelSize;
+            if (m_MapHeight <= 0) m_MapHeight = MapToolConstants.LevelPixelSize;
+            m_ConfigMapWidth = m_MapWidth;
+            m_ConfigMapHeight = m_MapHeight;
+            if (m_WidthField != null) m_WidthField.SetValueWithoutNotify(m_MapWidth.ToString());
+            if (m_HeightField != null) m_HeightField.SetValueWithoutNotify(m_MapHeight.ToString());
+
+            // 实例化到场景
             if (m_MapPrefab != null)
             {
-                InstantiateMapInScene(rows, cols);
+                InstantiateMapInScene();
             }
         }
 
         /// <summary>
-        /// 在场景中实例化 2DSceneRoot，地图预制体挂载到 SceneLauncher 下，
-        /// 并在 ZoneRoot 下按从左到右、从上到下排列 ZoneItem 分区
+        /// 在场景中实例化 2DSceneRoot，地图预制体挂载到 SceneLauncher 下
+        /// 【取消分区】单关卡=单张地图，不再按分区排列 ZoneItem
         /// </summary>
-        /// <param name="rows">分区行数</param>
-        /// <param name="cols">分区列数</param>
-        private void InstantiateMapInScene(int rows, int cols)
+        private void InstantiateMapInScene()
         {
             // 1. 清理旧实例
             var oldSceneRoot = GameObject.Find("2DSceneRoot");
@@ -422,7 +351,7 @@ namespace Honor.Editor.MapTool
             sceneRootInstance.name = "2DSceneRoot";
             Undo.RegisterCreatedObjectUndo(sceneRootInstance, "Instantiate SceneRoot");
 
-            // 4. 查找 SceneLauncher 节点（2DSceneRoot → 2DSceneLayers → SceneLauncher）
+            // 4. 查找 SceneLauncher 节点
             Transform sceneLauncher = null;
             foreach (Transform child in sceneRootInstance.transform)
             {
@@ -449,7 +378,7 @@ namespace Honor.Editor.MapTool
             mapInstance.name = "GameMainMap";
             Undo.RegisterCreatedObjectUndo(mapInstance, "Instantiate Map");
 
-            // 6. 查找 ZoneRoot（递归搜索所有子节点）
+            // 6. 查找 ZoneRoot
             RectTransform zoneRoot = null;
             var allRects = mapInstance.GetComponentsInChildren<RectTransform>(true);
             foreach (var rt in allRects)
@@ -466,34 +395,22 @@ namespace Honor.Editor.MapTool
                 return;
             }
 
-            // 记录 ZoneRoot 引用，供增删物体后刷新场景同步
+            // 记录 ZoneRoot 引用
             m_ZoneRootInstance = zoneRoot;
 
-            // ---TODO ZoneRoot 自带 Grid Layout Group（Cell 2048x2048, UpperLeft→Horizontal），自动排列子分区
-            // 不需要手动设置 anchoredPosition，GridLayoutGroup 会从左到右从上到下自动排列
-
-            // ---TODO 禁用 GameMainMap 自带的默认背景 Image 组件（分区背景由 ZoneItem 提供）
+            // 【取消分区】禁用 GameMainMap 自带的默认背景 Image 组件
             foreach (Transform child in mapInstance.transform)
             {
                 var img = child.GetComponent<UnityEngine.UI.Image>();
                 if (img != null)
                 {
                     img.enabled = false;
-                    Debug.Log($"[分区背景] 已禁用默认 Image: {child.name}");
+                    Debug.Log($"[地图背景] 已禁用默认 Image: {child.name}");
                     break;
                 }
             }
 
-            // 7. 加载 ZoneItem.prefab
-            string zoneItemPath = "Assets/Res/Prefabs/Map/ZoneItem.prefab";
-            var zoneItemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(zoneItemPath);
-            if (zoneItemPrefab == null)
-            {
-                Debug.LogWarning($"未找到 ZoneItem.prefab: {zoneItemPath}");
-                return;
-            }
-
-            // 8. 清理 ZoneRoot 下旧的分区实例
+            // 7. 清理 ZoneRoot 下旧实例
             for (int i = zoneRoot.childCount - 1; i >= 0; i--)
             {
                 var child = zoneRoot.GetChild(i);
@@ -503,58 +420,59 @@ namespace Honor.Editor.MapTool
                 }
             }
 
-            // 9. 按从左到右、从上到下排列实例化分区
-            float regionSize = MapToolConstants.RegionPixelSize;
-            int totalRegions = m_RegionCount;
-            for (int row = 0; row < rows; row++)
+            // 8. 加载并实例化 ZoneItem.prefab（单张地图）
+            string zoneItemPath = "Assets/Res/Prefabs/Map/ZoneItem.prefab";
+            var zoneItemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(zoneItemPath);
+            if (zoneItemPrefab == null)
             {
-                for (int col = 0; col < cols; col++)
+                Debug.LogWarning($"未找到 ZoneItem.prefab: {zoneItemPath}");
+                return;
+            }
+            string levelId = m_CurrentLevelId;
+            var zoneItem = (GameObject)PrefabUtility.InstantiatePrefab(zoneItemPrefab, zoneRoot);
+            zoneItem.name = $"ZoneItem_{levelId}";
+
+            // ZoneItem 尺寸 = 整图尺寸
+            var zrt = zoneItem.GetComponent<RectTransform>();
+            if (zrt != null)
+                zrt.sizeDelta = new Vector2(m_MapWidth, m_MapHeight);
+
+            // 9. 设置 ZoneRoot 尺寸 = 整图尺寸
+            zoneRoot.sizeDelta = new Vector2(m_MapWidth, m_MapHeight);
+            var gridLayout = zoneRoot.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+            if (gridLayout != null)
+                gridLayout.cellSize = new Vector2(m_MapWidth, m_MapHeight);
+
+            // 10. 同步关卡背景图到 ZoneItem 的 Image 组件
+            Texture bgTex = LoadRegionBackground(levelId);
+            if (bgTex != null)
+            {
+                var img = zoneItem.GetComponentInChildren<UnityEngine.UI.Image>();
+                if (img != null)
                 {
-                    int index = row * cols + col;
-                    if (index >= totalRegions) break;
-
-                    string regionId = m_RegionIds[index];
-                    var zoneItem = (GameObject)PrefabUtility.InstantiatePrefab(zoneItemPrefab, zoneRoot);
-                    zoneItem.name = $"ZoneItem_{regionId}";
-
-                    // ---TODO 同步分区背景图到 ZoneItem 的 RawImage
-                    Texture bgTex = LoadRegionBackground(regionId);
-                    if (bgTex != null)
+                    Texture2D tex2d = bgTex as Texture2D;
+                    if (tex2d != null)
                     {
-                        // ZoneItem.prefab 用的是 Image 组件（Sprite），不是 RawImage
-                        var img = zoneItem.GetComponentInChildren<UnityEngine.UI.Image>();
-                        if (img != null)
-                        {
-                            Texture2D tex2d = bgTex as Texture2D;
-                            if (tex2d != null)
-                            {
-                                img.sprite = Sprite.Create(tex2d, new Rect(0, 0, tex2d.width, tex2d.height), new Vector2(0.5f, 0.5f));
-                                Debug.Log($"[分区背景] {regionId} 赋值成功: {bgTex.name}");
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"[分区背景] {regionId} 找到纹理但 ZoneItem 内无 Image 组件");
-                        }
-                    }
-                    else
-                    {
-                        string bgName = m_LevelBgDict.TryGetValue(regionId, out string bn) ? bn : "<未配置>";
-                        Debug.LogWarning($"[分区背景] {regionId} 加载失败 bgName={bgName}，字典Keys: {string.Join(",", m_LevelBgDict.Keys)}");
+                        img.sprite = Sprite.Create(tex2d, new Rect(0, 0, tex2d.width, tex2d.height), new Vector2(0.5f, 0.5f));
+                        img.enabled = true;
+                        Debug.Log($"[关卡背景] {levelId} 赋值成功: {bgTex.name}");
                     }
                 }
+                else
+                {
+                    Debug.LogWarning($"[关卡背景] {levelId} 找到纹理但 ZoneItem 内无 Image 组件");
+                }
+            }
+            else
+            {
+                string bgName = m_LevelBgDict.TryGetValue(levelId, out string bn) ? bn : "<未配置>";
+                Debug.LogWarning($"[关卡背景] {levelId} 加载失败 bgName={bgName}");
             }
 
-            // ---TODO 修正 ZoneRoot 尺寸为实际分区布局大小（Content Size Fitter 会按最大9格计算，需要覆盖）
-            float regionPixelSize = MapToolConstants.RegionPixelSize;
-            zoneRoot.sizeDelta = new Vector2(cols * regionPixelSize, rows * regionPixelSize);
-            m_RegionCols = cols;
-            m_RegionRows = rows;
-
-            // ---TODO 同步摆放物到场景中（在 ZoneRoot 下生成占位 Image）
+            // 同步摆放物到场景（挂到 ZoneItem 的 Root 下）
             SyncPlacedObjectsToScene(zoneRoot);
 
-            // ---TODO 自动开启 GridManager 调试网格（递归搜索整个地图实例）
+            // 自动开启 GridManager 调试网格
             var gridMgr = mapInstance.GetComponentInChildren<Honor.Runtime.GridManager>(true);
             if (gridMgr != null)
             {
@@ -566,7 +484,7 @@ namespace Honor.Editor.MapTool
                 Debug.LogWarning("[网格] 未在地图实例中找到 GridManager 组件");
             }
 
-            Debug.Log($"场景地图实例化完成: {rows}行 x {cols}列，共 {totalRegions} 个分区");
+            Debug.Log($"场景地图实例化完成: {m_MapWidth}x{m_MapHeight}（关卡 {levelId}）");
             Selection.activeGameObject = mapInstance;
         }
 
@@ -584,42 +502,41 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 将编辑器中的摆放物同步到场景 ZoneItem 下，每个物体生成一个带预览图的 RawImage
-        /// 物体根据位置自动归属到对应分区的 ZoneItem 节点
+        /// 将编辑器中的摆放物同步到场景 ZoneItem 下
         /// </summary>
-        /// <param name="zoneRoot">ZoneRoot 节点（分区父节点）</param>
+        /// <param name="zoneRoot">ZoneRoot 节点</param>
         private void SyncPlacedObjectsToScene(RectTransform zoneRoot)
         {
             if (zoneRoot == null) return;
 
-            // 收集所有 ZoneItem，记录每个分区的 ZoneItem Transform
-            var zoneItems = new List<Transform>();
+            // 收集第一个 ZoneItem
+            Transform zoneItem = null;
             for (int i = 0; i < zoneRoot.childCount; i++)
             {
                 var child = zoneRoot.GetChild(i);
                 if (child.name.StartsWith("ZoneItem_"))
-                    zoneItems.Add(child);
-            }
-
-            // 清理旧摆放物（遍历所有 ZoneItem，删除 Char_/Obj_/Path_ 开头的节点）
-            foreach (var zi in zoneItems)
-            {
-                for (int i = zi.childCount - 1; i >= 0; i--)
                 {
-                    var c = zi.GetChild(i);
-                    if (c.name.StartsWith("Obj_") || c.name.StartsWith("Char_")
-                        || c.name.StartsWith("Path_") || c.name.StartsWith("PathLine_"))
-                        UnityEngine.Object.DestroyImmediate(c.gameObject);
-                    // 同时清理 Root 下的旧物体
-                    if (c.name == "Root")
+                    zoneItem = child;
+                    break;
+                }
+            }
+            if (zoneItem == null) return;
+
+            // 清理旧摆放物（清理 ZoneItem 及其 Root 下的物体）
+            for (int i = zoneItem.childCount - 1; i >= 0; i--)
+            {
+                var c = zoneItem.GetChild(i);
+                if (c.name.StartsWith("Obj_") || c.name.StartsWith("Char_")
+                    || c.name.StartsWith("Path_") || c.name.StartsWith("PathLine_"))
+                    UnityEngine.Object.DestroyImmediate(c.gameObject);
+                if (c.name == "Root")
+                {
+                    for (int j = c.childCount - 1; j >= 0; j--)
                     {
-                        for (int j = c.childCount - 1; j >= 0; j--)
-                        {
-                            var cc = c.GetChild(j);
-                            if (cc.name.StartsWith("Obj_") || cc.name.StartsWith("Char_")
-                                || cc.name.StartsWith("Path_") || cc.name.StartsWith("PathLine_"))
-                                UnityEngine.Object.DestroyImmediate(cc.gameObject);
-                        }
+                        var cc = c.GetChild(j);
+                        if (cc.name.StartsWith("Obj_") || cc.name.StartsWith("Char_")
+                            || cc.name.StartsWith("Path_") || cc.name.StartsWith("PathLine_"))
+                            UnityEngine.Object.DestroyImmediate(cc.gameObject);
                     }
                 }
             }
@@ -627,23 +544,13 @@ namespace Honor.Editor.MapTool
             if (m_PlacedObjects == null || m_PlacedObjects.Count == 0) return;
 
             float gridSize = MapToolConstants.GridSize;
-            float regionSize = MapToolConstants.RegionPixelSize;
+
+            // 所有物体挂到 ZoneItem 的 Root 下
+            Transform rootNode = FindChildRecursive(zoneItem, "Root");
+            RectTransform parent = rootNode != null ? rootNode as RectTransform : zoneItem as RectTransform;
 
             foreach (var obj in m_PlacedObjects)
             {
-                int col = Mathf.FloorToInt(obj.Position.x / regionSize);
-                int row = Mathf.FloorToInt(obj.Position.y / regionSize);
-                int cols = m_RegionCols > 0 ? m_RegionCols : zoneItems.Count;
-                int idx = row * cols + col;
-                if (idx < 0 || idx >= zoneItems.Count) continue;
-
-                // 挂到分区的 Root 节点下（Root 已修正为 stretch 填满 ZoneItem）
-                Transform zi = zoneItems[idx];
-                Transform rootNode = FindChildRecursive(zi, "Root");
-                RectTransform parent = rootNode != null ? rootNode as RectTransform : zi as RectTransform;
-
-                Vector2 localPos = new Vector2(obj.Position.x - col * regionSize, obj.Position.y - row * regionSize);
-
                 var go = new GameObject();
                 go.transform.SetParent(parent, false);
                 go.name = obj.Type == MapObjectType.Character ? $"Char_{obj.Name}" : $"Obj_{obj.Name}";
@@ -651,7 +558,7 @@ namespace Honor.Editor.MapTool
                 var rt = go.AddComponent<RectTransform>();
                 // 和编辑器一致：左上角原点，Y 向下
                 rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0, 1);
-                rt.anchoredPosition = new Vector2(localPos.x, -localPos.y);
+                rt.anchoredPosition = new Vector2(obj.Position.x, -obj.Position.y);
                 rt.sizeDelta = new Vector2(obj.Width * gridSize, obj.Height * gridSize);
 
                 var rawImg = go.AddComponent<UnityEngine.UI.RawImage>();
@@ -659,10 +566,6 @@ namespace Honor.Editor.MapTool
                 rawImg.color = obj.Type == MapObjectType.Character ? new Color(1,1,0,0.8f)
                              : obj.Type == MapObjectType.Building ? new Color(0,1,1,0.6f)
                              : new Color(0,1,0,0.6f);
-
-                int tileX = Mathf.RoundToInt(localPos.x / gridSize);
-                int tileY = Mathf.RoundToInt(localPos.y / gridSize);
-                Debug.Log($"[坐标校验] {go.name}: parent={parent.name} pos=({localPos.x:F0},{localPos.y:F0}) anchored=({rt.anchoredPosition.x:F0},{rt.anchoredPosition.y:F0}) 格子=({tileX},{tileY})");
             }
             Debug.Log($"已同步 {m_PlacedObjects.Count} 个摆放物到场景");
             SyncPathPointsToScene(zoneRoot);
@@ -673,50 +576,42 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void SyncPathPointsToScene(RectTransform zoneRoot)
         {
-            // 清理旧路径点标记（在所有分区 Root 下清理）
+            // 收集第一个 ZoneItem
+            Transform zoneItem = null;
             for (int i = 0; i < zoneRoot.childCount; i++)
             {
-                var zoneChild = zoneRoot.GetChild(i);
-                if (!zoneChild.name.StartsWith("ZoneItem_")) continue;
-                // 找内部 Root 节点
-                for (int j = 0; j < zoneChild.childCount; j++)
+                var child = zoneRoot.GetChild(i);
+                if (child.name.StartsWith("ZoneItem_"))
                 {
-                    if (zoneChild.GetChild(j).name != "Root") continue;
-                    var rootT = zoneChild.GetChild(j);
-                    for (int k = rootT.childCount - 1; k >= 0; k--)
+                    zoneItem = child;
+                    break;
+                }
+            }
+            if (zoneItem == null) return;
+
+            // 清理旧路径点标记（清理 ZoneItem 及其 Root 下的路径点）
+            for (int i = zoneItem.childCount - 1; i >= 0; i--)
+            {
+                var c = zoneItem.GetChild(i);
+                if (c.name.StartsWith("Path_") || c.name.StartsWith("PathLine_"))
+                    UnityEngine.Object.DestroyImmediate(c.gameObject);
+                if (c.name == "Root")
+                {
+                    for (int k = c.childCount - 1; k >= 0; k--)
                     {
-                        var c = rootT.GetChild(k);
-                        if (c.name.StartsWith("Path_") || c.name.StartsWith("PathLine_"))
-                            UnityEngine.Object.DestroyImmediate(c.gameObject);
+                        var cc = c.GetChild(k);
+                        if (cc.name.StartsWith("Path_") || cc.name.StartsWith("PathLine_"))
+                            UnityEngine.Object.DestroyImmediate(cc.gameObject);
                     }
                 }
             }
 
-            float regionSize = MapToolConstants.RegionPixelSize;
-            int cols = m_RegionCols > 0 ? m_RegionCols : 1;
-
-            // 辅助：根据坐标找到对应分区的 Root 节点，并返回分区内局部坐标
+            // 路径点挂到 ZoneItem 的 Root 下
             RectTransform GetZoneRootAt(Vector2 globalPos, out Vector2 localPos)
             {
-                int col = Mathf.FloorToInt(globalPos.x / regionSize);
-                int row = Mathf.FloorToInt(globalPos.y / regionSize);
-                localPos = new Vector2(globalPos.x - col * regionSize, globalPos.y - row * regionSize);
-                int idx = row * cols + col;
-                int zi = 0;
-                for (int i = 0; i < zoneRoot.childCount; i++)
-                {
-                    if (!zoneRoot.GetChild(i).name.StartsWith("ZoneItem_")) continue;
-                    if (zi == idx)
-                    {
-                        var zc = zoneRoot.GetChild(i);
-                        for (int j = 0; j < zc.childCount; j++)
-                            if (zc.GetChild(j).name == "Root") return zc.GetChild(j) as RectTransform;
-                        return zc as RectTransform;
-                    }
-                    zi++;
-                }
                 localPos = globalPos;
-                return zoneRoot;
+                Transform rootNode = FindChildRecursive(zoneItem, "Root");
+                return rootNode != null ? rootNode as RectTransform : zoneItem as RectTransform;
             }
 
             // 每个物体的路径点

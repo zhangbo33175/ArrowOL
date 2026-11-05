@@ -35,4 +35,309 @@ end
 
 --endregion
 
+--region 内部方法·空安全
+
+---@brief RectTransform 有效性校验
+---@desc 空安全防护：nil、CS 已销毁(IsNull) 判定无效
+---@type fun(rt:UnityEngine.RectTransform|nil):boolean
+---@param rt UnityEngine.RectTransform|nil 目标矩形变换
+---@return boolean true=无效，false=有效
+function RectTransformHelper:_IsInvalid(rt)
+    if not rt then
+        return true
+    end
+    if IsNull and IsNull(rt) then
+        return true
+    end
+    return false
+end
+
+---@brief 从 GameObject/Transform 上安全获取 RectTransform 组件
+---@desc 兼容传入 GameObject 或 Transform；无组件返回 nil
+---@type fun(go:UnityEngine.GameObject|UnityEngine.Transform):UnityEngine.RectTransform|nil
+---@param go UnityEngine.GameObject|UnityEngine.Transform 目标物体或变换
+---@return UnityEngine.RectTransform|nil RectTransform，不存在返回 nil
+function RectTransformHelper:GetRectTransform(go)
+    if not go then
+        return nil
+    end
+    return go:GetComponent(typeof(UnityEngine.RectTransform))
+end
+
+--endregion
+
+--region 锚点位置·单分量设置（核心）
+
+---=========================================================================
+---@brief  设置锚点位置 X 分量（保留 Y 分量不变）
+---@desc 核心能力：单独调整 anchoredPosition.x，保留原有 y（@core）
+---@type fun(rt:UnityEngine.RectTransform, x:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param x number X 锚点位置
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetAnchoredPosX(rt, x)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    local p = rt.anchoredPosition
+    p.x = x or 0
+    rt.anchoredPosition = p
+    return true
+end
+
+---=========================================================================
+---@brief  设置锚点位置 Y 分量（保留 X 分量不变）
+---@desc 核心能力：单独调整 anchoredPosition.y，保留原有 x（@core）
+---@type fun(rt:UnityEngine.RectTransform, y:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param y number Y 锚点位置
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetAnchoredPosY(rt, y)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    local p = rt.anchoredPosition
+    p.y = y or 0
+    rt.anchoredPosition = p
+    return true
+end
+
+---=========================================================================
+---@brief  设置锚点位置 X/Y（整体设置）
+---@type fun(rt:UnityEngine.RectTransform, x:number, y:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param x number X 锚点位置
+---@param y number Y 锚点位置
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetAnchoredPosition(rt, x, y)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.anchoredPosition = UnityEngine.Vector2(x or 0, y or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  获取锚点位置（返回 X/Y 两值）
+---@type fun(rt:UnityEngine.RectTransform):number, number, boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@return number X 锚点位置
+---@return number Y 锚点位置
+---@return boolean 是否有效
+---=========================================================================
+function RectTransformHelper:GetAnchoredPosition(rt)
+    if self:_IsInvalid(rt) then
+        return 0, 0, false
+    end
+    local p = rt.anchoredPosition
+    return p.x, p.y, true
+end
+
+--endregion
+
+--region 锚点 & 轴心设置
+
+---=========================================================================
+---@brief  设置锚点 Min 分量
+---@type fun(rt:UnityEngine.RectTransform, x:number, y:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param x number Min X（[0,1]）
+---@param y number Min Y（[0,1]）
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetAnchorMin(rt, x, y)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.anchorMin = UnityEngine.Vector2(x or 0, y or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  设置锚点 Max 分量
+---@type fun(rt:UnityEngine.RectTransform, x:number, y:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param x number Max X（[0,1]）
+---@param y number Max Y（[0,1]）
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetAnchorMax(rt, x, y)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.anchorMax = UnityEngine.Vector2(x or 0, y or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  一次性设置锚点 Min/Max 四值
+---@type fun(rt:UnityEngine.RectTransform, minX:number, minY:number, maxX:number, maxY:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param minX number Min X（[0,1]）
+---@param minY number Min Y（[0,1]）
+---@param maxX number Max X（[0,1]）
+---@param maxY number Max Y（[0,1]）
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetAnchor(rt, minX, minY, maxX, maxY)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.anchorMin = UnityEngine.Vector2(minX or 0, minY or 0)
+    rt.anchorMax = UnityEngine.Vector2(maxX or 0, maxY or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  设置轴心 Pivot
+---@type fun(rt:UnityEngine.RectTransform, x:number, y:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param x number Pivot X（[0,1]）
+---@param y number Pivot Y（[0,1]）
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetPivot(rt, x, y)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.pivot = UnityEngine.Vector2(x or 0.5, y or 0.5)
+    return true
+end
+
+--endregion
+
+--region 尺寸设置
+
+---=========================================================================
+---@brief  设置矩形尺寸 sizeDelta
+---@type fun(rt:UnityEngine.RectTransform, w:number, h:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param w number 宽度
+---@param h number 高度
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetSize(rt, w, h)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.sizeDelta = UnityEngine.Vector2(w or 0, h or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  设置矩形宽度（保留高度）
+---@type fun(rt:UnityEngine.RectTransform, w:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param w number 宽度
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetSizeWidth(rt, w)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    local s = rt.sizeDelta
+    s.x = w or 0
+    rt.sizeDelta = s
+    return true
+end
+
+---=========================================================================
+---@brief  设置矩形高度（保留宽度）
+---@type fun(rt:UnityEngine.RectTransform, h:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param h number 高度
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetSizeHeight(rt, h)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    local s = rt.sizeDelta
+    s.y = h or 0
+    rt.sizeDelta = s
+    return true
+end
+
+--endregion
+
+--region 偏移 & 本地变换
+
+---=========================================================================
+---@brief  设置四边偏移 offsetMin/offsetMax
+---@desc 用于拉伸式布局（锚点四角固定）的边距控制
+---@type fun(rt:UnityEngine.RectTransform, left:number, top:number, right:number, bottom:number):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param left number 左偏移
+---@param top number 上偏移
+---@param right number 右偏移
+---@param bottom number 下偏移
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetOffset(rt, left, top, right, bottom)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.offsetMin = UnityEngine.Vector2(left or 0, bottom or 0)
+    rt.offsetMax = UnityEngine.Vector2(-(right or 0), -(top or 0))
+    return true
+end
+
+---=========================================================================
+---@brief  设置本地位置 localPosition
+---@type fun(rt:UnityEngine.RectTransform, x:number, y:number, z:number|nil):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param x number 本地 X
+---@param y number 本地 Y
+---@param z number|nil 本地 Z（缺省 0）
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetLocalPosition(rt, x, y, z)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.localPosition = UnityEngine.Vector3(x or 0, y or 0, z or 0)
+    return true
+end
+
+---=========================================================================
+---@brief  设置本地缩放 localScale
+---@type fun(rt:UnityEngine.RectTransform, x:number, y:number, z:number|nil):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@param x number 缩放 X
+---@param y number 缩放 Y
+---@param z number|nil 缩放 Z（缺省 1）
+---@return boolean true=已设置
+---=========================================================================
+function RectTransformHelper:SetLocalScale(rt, x, y, z)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.localScale = UnityEngine.Vector3(x or 1, y or 1, z or 1)
+    return true
+end
+
+---=========================================================================
+---@brief  重置矩形为通用默认布局（中心锚点、居中轴心、默认尺寸、零位置）
+---@desc 简化坐标/位置设置的兜底复位：anchor/pivot 0.5、size 100x100、pos 0
+---@type fun(rt:UnityEngine.RectTransform):boolean
+---@param rt UnityEngine.RectTransform 目标矩形变换
+---@return boolean true=已重置
+---=========================================================================
+function RectTransformHelper:ResetRect(rt)
+    if self:_IsInvalid(rt) then
+        return false
+    end
+    rt.anchorMin = UnityEngine.Vector2(0.5, 0.5)
+    rt.anchorMax = UnityEngine.Vector2(0.5, 0.5)
+    rt.pivot = UnityEngine.Vector2(0.5, 0.5)
+    rt.sizeDelta = UnityEngine.Vector2(100, 100)
+    rt.anchoredPosition = UnityEngine.Vector2.zero
+    return true
+end
+
+--endregion
+
 return RectTransformHelper

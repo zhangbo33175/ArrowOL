@@ -51,9 +51,9 @@ end
 ---@param args table 自定义参数
 ---@return GameCoreManagerUseItem
 ---=========================================================================
+---TODO [优化] 移除 Create 内冗余局部变量，直接返回 new()
 function GameCoreManagerUseItem:Create(args)
-    local instance = GameCoreManagerUseItem.new(args)
-    return instance
+    return GameCoreManagerUseItem.new(args)
 end
 
 ---=========================================================================

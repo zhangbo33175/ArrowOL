@@ -234,6 +234,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7506781147531553487}
   m_Father: {fileID: 0}
@@ -288,6 +289,20 @@ MonoBehaviour:
   m_TopHudPixelHeight: 160
   m_BottomHudPixelHeight: 190
   m_MinScaleLockCenter: 1
+  m_MotionConfig:
+    m_CanvasDesignHeight: 1334
+    m_ZoomSpeed: 1.1
+    m_MinZoomRatio: 0.5
+    m_DragThreshold: 12
+    m_SwipeSmoothMin: 0.3
+    m_SwipeSmoothMax: 1
+    m_StepAddFactor: 2
+    m_InertiaDecay: 0.025
+    m_InertiaSmoothFloor: 0.75
+    m_AutoScanOverlap: 0.8
+    m_AutoScanSegmentDuration: 1.2
+    m_AutoScanDefaultOrtho: 300
+    m_AutoScanGraceFrames: 15
 --- !u!114 &653882414796917212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -344,8 +359,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AreaBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 1024, y: 1024, z: 0}
+    m_Center: {x: 540, y: 960, z: 0}
+    m_Extent: {x: 540, y: 960, z: 0}
   m_AutoRecalculateOnAwake: 1
 --- !u!222 &5524489678749013941
 CanvasRenderer:

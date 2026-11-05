@@ -46,10 +46,11 @@ namespace Honor.Editor.MapTool
         private void OnConfigClicked()
         {
             Debug.Log("配置地图预制体");
-            // 未选中章节时默认使用第一章
-            string chapterId = string.IsNullOrEmpty(SelectedChapterId) ? "default" : SelectedChapterId;
-            // 获取当前章节已配置的路径
-            m_ChapterMapPaths.TryGetValue(chapterId, out string currentPath);
+            // 未选中关卡时默认使用第一章第一关
+            string chapterId = string.IsNullOrEmpty(SelectedChapterId) ? "1" : SelectedChapterId;
+            // 获取当前关卡已配置的路径
+            string cacheKey = $"{chapterId}_{SelectedLevelId}";
+            m_ChapterMapPaths.TryGetValue(cacheKey, out string currentPath);
             // 弹出配置窗口
             MapConfigWindow.ShowWindow(chapterId, currentPath, OnMapConfigConfirmed);
         }
@@ -60,7 +61,8 @@ namespace Honor.Editor.MapTool
         private void OnMapConfigConfirmed(string chapterId, string prefabPath)
         {
             Debug.Log($"地图配置确认: 章节={chapterId}, 路径={prefabPath}");
-            SaveChapterMapPath(chapterId, prefabPath);
+            string cacheKey = $"{chapterId}_{SelectedLevelId}";
+            SaveChapterMapPath(cacheKey, prefabPath);
         }
 
         /// <summary>
@@ -86,6 +88,8 @@ namespace Honor.Editor.MapTool
         private void LoadChapterConfig()
         {
             if (m_ChapterDataList.Count > 0) return;
+
+            // 加载章节表
             m_ChapterDataList = MapToolEditorUtils.LoadTableData<TableChapterEditor>(MapToolConstants.TableChaptersPath);
             Debug.Log($"加载章节配置表成功，共 {m_ChapterDataList.Count} 个章节");
         }
@@ -111,27 +115,35 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 章节项点击：更新选中态并触发章节选择事件
+        /// 关卡项点击：更新选中态并触发关卡选择事件
         /// </summary>
-        private void OnChapterItemClicked(string chapterId, Label item)
+        private void OnLevelItemClicked(string chapterId, string levelId, Label item)
         {
             SelectedChapterId = chapterId;
-            // 移除所有章节的选中状态
-            foreach (var child in m_ChapterList.Children())
-                child.RemoveFromClassList("selected");
+            SelectedLevelId = levelId;
+
+            // 移除所有关卡项的选中状态
+            foreach (var chapterElem in m_ChapterList.Children())
+            {
+                var levelContainer = chapterElem.Children().ElementAtOrDefault(1);
+                if (levelContainer == null) continue;
+                foreach (var levelItem in levelContainer.Children())
+                    levelItem.RemoveFromClassList("selected");
+            }
             item.AddToClassList("selected");
-            Debug.Log($"选中章节: {chapterId}");
-            // 获取该章节的分区配置（空则后续按默认 9 分区处理）
-            var chapterData = m_ChapterDataList.FirstOrDefault(c => c.ID == chapterId);
-            string chapterInfoID = chapterData?.ChapterInfoID ?? string.Empty;
-            // 获取该章节配置的预制体路径，未配置时回退全局模板路径
-            m_ChapterMapPaths.TryGetValue(chapterId, out string prefabPath);
+
+            Debug.Log($"选中关卡: 章节={chapterId}, 关卡={levelId}");
+
+            // 获取该关卡配置的预制体路径，未配置时回退全局模板路径
+            string cacheKey = $"{chapterId}_{levelId}";
+            m_ChapterMapPaths.TryGetValue(cacheKey, out string prefabPath);
             if (string.IsNullOrEmpty(prefabPath))
             {
                 prefabPath = UnityEditor.EditorPrefs.GetString(MapToolConstants.TemplatePrefabPrefsKey, "");
             }
-            // 触发章节选择事件
-            OnChapterSelected?.Invoke(chapterId, prefabPath, chapterInfoID);
+
+            // 触发关卡选择事件
+            OnLevelSelected?.Invoke(chapterId, levelId, prefabPath);
         }
 
         /// <summary>

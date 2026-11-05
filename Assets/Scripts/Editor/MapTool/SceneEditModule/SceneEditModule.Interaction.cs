@@ -215,29 +215,6 @@ namespace Honor.Editor.MapTool
                     e.Use();
                     return;
                 }
-                // 否则切换分区解锁状态
-                if (m_RegionUnlocked != null)
-                {
-                    Rect mapRect = new Rect(m_MapOffset.x, m_MapOffset.y, m_MapWidth * m_Zoom, m_MapHeight * m_Zoom);
-                    float regionWidth = mapRect.width / m_RegionCols;
-                    float regionHeight = mapRect.height / m_RegionRows;
-                    // 计算点击位置在哪个分区
-                    float localX = e.mousePosition.x - mapRect.x;
-                    float localY = e.mousePosition.y - mapRect.y;
-                    int col = Mathf.FloorToInt(localX / regionWidth);
-                    int row = Mathf.FloorToInt(localY / regionHeight);
-                    // 如果在分区范围内，切换解锁状态
-                    int index = row * m_RegionCols + col;
-                    if (row >= 0 && row < m_RegionRows && col >= 0 && col < m_RegionCols && index < m_RegionCount)
-                    {
-                        m_RegionUnlocked[row, col] = !m_RegionUnlocked[row, col];
-                        Debug.Log($"切换分区解锁: 行={row}, 列={col}, 解锁={m_RegionUnlocked[row, col]}");
-                        // 解锁/锁定分区后，同步更新包围盒宽高
-                        UpdateMapBoundsFromUnlockedRegions();
-                        e.Use();
-                        return;
-                    }
-                }
             }
             // 左键拖动物体
             if (isMouseInRect && m_DraggingObject != null)

@@ -146,7 +146,7 @@ namespace GameLib
                 // 段级拦截：被拦则停在当前位置，等待解锁后 ResumePath
                 if (state.shouldBlock != null && state.shouldBlock(to))
                 {
-                    Debug.Log($"[跨区] 分区拦截，角色停在边界段{state.nextIndex + 1}");
+                    Debug.Log($"[边界] 路径拦截，角色停在边界段{state.nextIndex + 1}");
                     break;
                 }
 

@@ -143,9 +143,9 @@ namespace Honor.Editor.MapTool
         // ==================== 地图尺寸 ====================
 
         /// <summary>
-        /// 单分区像素尺寸（每个分区 2048x2048）
+        /// 单关卡像素尺寸（与 ZoneItem 预制体一致，4096x4096）
         /// </summary>
-        public const int RegionPixelSize = 2048;
+        public const int LevelPixelSize = 4096;
 
         /// <summary>
         /// 摆放 / 路径网格的格子尺寸（像素）

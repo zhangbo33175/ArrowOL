@@ -132,8 +132,8 @@ namespace Honor.Editor.MapTool
             StringBuilder sb = new StringBuilder();
 
             // 表头（与配置表格式一致）
-            sb.AppendLine("#,ID,Icon,ResName,模板名称,默认动画,是否循环,播放速度,是否可交互,交互类型,渲染层级,是否有碰撞,对话气泡,初始朝向,是否显示阴影,是否收集物,重生时间");
-            sb.AppendLine("string,string,string,string,string,string,bool,float,bool,string,int,bool,string,string,bool,bool,float");
+            sb.AppendLine("#,ID,Icon,ResName,模板名称,默认动画,是否循环,播放速度,是否可交互,交互类型,渲染层级,是否有碰撞,对话气泡,初始朝向,是否显示阴影,是否收集物,重生时间,启用YSort,YSort偏移,可移动,循环重启延迟,离开地图隐藏,是否传送门,目标场景,目标X,目标Y");
+            sb.AppendLine("string,string,string,string,string,string,bool,float,bool,string,int,bool,string,string,bool,bool,float,bool,float,bool,float,bool,bool,string,float,float");
 
             // 按类型分组导出
             var buildingTemplates = templates.FindAll(t => t.Type == MapObjectType.Building);
@@ -145,19 +145,19 @@ namespace Honor.Editor.MapTool
             // 导出建筑
             foreach (var t in buildingTemplates)
             {
-                sb.AppendLine($"{index++},{t.TemplateId},{t.ImagePath},GameObject_Building,{t.TemplateName},{t.AnimName},{t.Loop},{t.Speed},{t.Interactable},{t.InteractType},{t.SortOrder},{t.CollisionEnabled},{t.DialogBubble},{t.FacingDirection},{t.ShadowEnabled},{t.IsCollectible},{t.RespawnTime}");
+                sb.AppendLine($"{index++},{t.TemplateId},{t.ImagePath},GameObject_Building,{t.TemplateName},{t.AnimName},{t.Loop},{t.Speed},{t.Interactable},{t.InteractType},{t.SortOrder},{t.CollisionEnabled},{t.DialogBubble},{t.FacingDirection},{t.ShadowEnabled},{t.IsCollectible},{t.RespawnTime},{t.YSortEnabled},{t.YSortOffset},{t.IsMovable},{t.LoopRestartDelay},{t.HideWhenOffMap},{t.IsTeleport},{t.TeleportTargetScene},{t.TeleportTargetX},{t.TeleportTargetY}");
             }
 
             // 导出人物
             foreach (var t in characterTemplates)
             {
-                sb.AppendLine($"{index++},{t.TemplateId},{t.ImagePath},GameObject_Character,{t.TemplateName},{t.AnimName},{t.Loop},{t.Speed},{t.Interactable},{t.InteractType},{t.SortOrder},{t.CollisionEnabled},{t.DialogBubble},{t.FacingDirection},{t.ShadowEnabled},{t.IsCollectible},{t.RespawnTime}");
+                sb.AppendLine($"{index++},{t.TemplateId},{t.ImagePath},GameObject_Character,{t.TemplateName},{t.AnimName},{t.Loop},{t.Speed},{t.Interactable},{t.InteractType},{t.SortOrder},{t.CollisionEnabled},{t.DialogBubble},{t.FacingDirection},{t.ShadowEnabled},{t.IsCollectible},{t.RespawnTime},{t.YSortEnabled},{t.YSortOffset},{t.IsMovable},{t.LoopRestartDelay},{t.HideWhenOffMap},{t.IsTeleport},{t.TeleportTargetScene},{t.TeleportTargetX},{t.TeleportTargetY}");
             }
 
             // 导出物件
             foreach (var t in propTemplates)
             {
-                sb.AppendLine($"{index++},{t.TemplateId},{t.ImagePath},GameObject_Prop,{t.TemplateName},{t.AnimName},{t.Loop},{t.Speed},{t.Interactable},{t.InteractType},{t.SortOrder},{t.CollisionEnabled},{t.DialogBubble},{t.FacingDirection},{t.ShadowEnabled},{t.IsCollectible},{t.RespawnTime}");
+                sb.AppendLine($"{index++},{t.TemplateId},{t.ImagePath},GameObject_Prop,{t.TemplateName},{t.AnimName},{t.Loop},{t.Speed},{t.Interactable},{t.InteractType},{t.SortOrder},{t.CollisionEnabled},{t.DialogBubble},{t.FacingDirection},{t.ShadowEnabled},{t.IsCollectible},{t.RespawnTime},{t.YSortEnabled},{t.YSortOffset},{t.IsMovable},{t.LoopRestartDelay},{t.HideWhenOffMap},{t.IsTeleport},{t.TeleportTargetScene},{t.TeleportTargetX},{t.TeleportTargetY}");
             }
 
             // 写入文件
@@ -304,6 +304,30 @@ namespace Honor.Editor.MapTool
                 m_ItemCollectibleToggle.SetValueWithoutNotify(template.IsCollectible);
             if (m_ItemRespawnField != null)
                 m_ItemRespawnField.SetValueWithoutNotify(template.RespawnTime.ToString());
+
+            // Y坐标深度排序
+            if (m_ItemYSortToggle != null)
+                m_ItemYSortToggle.SetValueWithoutNotify(template.YSortEnabled);
+            if (m_ItemYSortOffsetField != null)
+                m_ItemYSortOffsetField.SetValueWithoutNotify(template.YSortOffset.ToString());
+
+            // 移动与循环
+            if (m_ItemMovableToggle != null)
+                m_ItemMovableToggle.SetValueWithoutNotify(template.IsMovable);
+            if (m_ItemLoopRestartField != null)
+                m_ItemLoopRestartField.SetValueWithoutNotify(template.LoopRestartDelay.ToString());
+            if (m_ItemHideOffMapToggle != null)
+                m_ItemHideOffMapToggle.SetValueWithoutNotify(template.HideWhenOffMap);
+
+            // 传送门设置
+            if (m_ItemTeleportToggle != null)
+                m_ItemTeleportToggle.SetValueWithoutNotify(template.IsTeleport);
+            if (m_ItemTeleportSceneField != null)
+                m_ItemTeleportSceneField.SetValueWithoutNotify(template.TeleportTargetScene);
+            if (m_ItemTeleportXField != null)
+                m_ItemTeleportXField.SetValueWithoutNotify(template.TeleportTargetX.ToString());
+            if (m_ItemTeleportYField != null)
+                m_ItemTeleportYField.SetValueWithoutNotify(template.TeleportTargetY.ToString());
         }
 
         /// <summary>
@@ -338,6 +362,15 @@ namespace Honor.Editor.MapTool
             m_ItemShadowToggle = m_Root.Q<Toggle>(name: "item-shadow-toggle");
             m_ItemCollectibleToggle = m_Root.Q<Toggle>(name: "item-collectible-toggle");
             m_ItemRespawnField = m_Root.Q<TextField>(name: "item-respawn-field");
+            m_ItemYSortToggle = m_Root.Q<Toggle>(name: "item-ysort-toggle");
+            m_ItemYSortOffsetField = m_Root.Q<TextField>(name: "item-ysort-offset-field");
+            m_ItemMovableToggle = m_Root.Q<Toggle>(name: "item-movable-toggle");
+            m_ItemLoopRestartField = m_Root.Q<TextField>(name: "item-loop-restart-field");
+            m_ItemHideOffMapToggle = m_Root.Q<Toggle>(name: "item-hide-offmap-toggle");
+            m_ItemTeleportToggle = m_Root.Q<Toggle>(name: "item-teleport-toggle");
+            m_ItemTeleportSceneField = m_Root.Q<TextField>(name: "item-teleport-scene-field");
+            m_ItemTeleportXField = m_Root.Q<TextField>(name: "item-teleport-x-field");
+            m_ItemTeleportYField = m_Root.Q<TextField>(name: "item-teleport-y-field");
 
             // 类型下拉框
             var typeContainer = m_Root.Q<VisualElement>(name: "item-type-container");

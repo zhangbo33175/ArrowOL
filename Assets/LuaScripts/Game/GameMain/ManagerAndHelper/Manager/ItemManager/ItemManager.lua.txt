@@ -143,6 +143,18 @@ function ItemManager:OnSelectBooster(boosterID, num)
 end
 
 ---=========================================================================
+---@brief 激活一个全局 Buff（公共实现）
+---@desc 抽离 OnConfirmUseBooster 内 4 个重复 Buff 生效分支，统一收敛缓存写入
+---@param realID string 道具真实ID
+---@param constId string 常量参数ID
+---@private
+---TODO [优化] 抽离重复 Buff 生效分支为公共方法
+---=========================================================================
+function ItemManager:_ActivateBuff(realID, constId)
+    self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById(constId).Value[1] }
+end
+
+---=========================================================================
 --- 确认使用（缓存 → 写入存档）
 ---@brief 真正消耗道具，触发Buff生效
 ---@param boosterID string 道具ID
@@ -169,16 +181,16 @@ function ItemManager:OnConfirmUseBooster(boosterID, num)
 
     -- 生效逻辑：各类全局 Buff
     if realID == EResourceIDs.AddPatience then
-        self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("AddPatienceCoef").Value[1] }
+        self:_ActivateBuff(realID, "AddPatienceCoef")
 
     elseif realID == EResourceIDs.TurboSkates then
-        self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("AddChefSpeedCoef").Value[1] }
+        self:_ActivateBuff(realID, "AddChefSpeedCoef")
 
     elseif realID == EResourceIDs.MegaPan then
-        self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("MegapanProduceTime").Value[1] }
+        self:_ActivateBuff(realID, "MegapanProduceTime")
 
     elseif realID == EResourceIDs.DoubleProfits then
-        self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("DoubleCoinsCoef").Value[1] }
+        self:_ActivateBuff(realID, "DoubleCoinsCoef")
 
     elseif realID == EResourceIDs.Freeze then
         self._inActiveIDs[realID] = { param = ConstantsDataManager:GetDataById("FrozenTime").Value[1] }

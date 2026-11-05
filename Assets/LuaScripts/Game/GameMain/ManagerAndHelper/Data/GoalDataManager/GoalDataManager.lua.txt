@@ -7,7 +7,7 @@
 -- @brief     目标数据管理器
 -- @desc      统一读取、查询关卡/任务/成就等目标配置表数据
 -- @core      目标/任务/成就配置表读取门面
--- @scope     目标配置查询入口（业务查询方法已随死代码清理移除，当前仅保留生命周期）
+-- @scope     目标配置查询入口（业务查询方法已随死代码清理移除，当前仅保留生命周期单例壳）
 -- @feat      安全查询、空值保护、日志输出、单例全局访问
 -- @usage     目标/任务/成就配置查询入口（查询方法已移除，保留单例生命周期壳供后续接线）
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
@@ -16,19 +16,23 @@
 --=====================================================================================================
 
 ---@class GoalDataManager : Singleton @目标数据管理器（全局单例）
+---@desc 目标配置表读取门面；业务查询方法已随死代码清理移除，当前仅保留单例生命周期壳，
+---      供后续接入目标/任务/成就配置表时复用，不承载任何运行时业务状态
 local GoalDataManager = class("GoalDataManager", import("Singleton"))
 
 --region 构造 & 实例化
 
 ---@brief 构造函数
+---@desc 调用父类 Singleton 构造，初始化单例基座（实例索引/全局引用等由父类管理）
 ---@type fun():void
 function GoalDataManager:ctor()
     GoalDataManager.super.ctor(self)
 end
 
----@brief 创建单例
+---@brief 创建并返回单例实例
+---@desc 由 GameRequires 全局注册时调用一次；重复调用返回独立实例（单例收敛由父类保证）
 ---@type fun():GoalDataManager
----@return GoalDataManager
+---@return GoalDataManager 新建的目标数据管理器实例
 function GoalDataManager:Create()
     return GoalDataManager.new()
 end
@@ -38,12 +42,14 @@ end
 --region 初始化 & 生命周期
 
 ---@brief 初始化
+---@desc 由父类 Singleton 统一初始化；当前空壳无自有资源，仅透传父类，预留后续接入配置表
 ---@type fun():void
 function GoalDataManager:Init()
     GoalDataManager.super.Init(self)
 end
 
 ---@brief 清理数据
+---@desc 由父类 Singleton 统一清理持有数据；当前无自有运行时状态，仅透传父类，确保全局引用安全复位
 ---@type fun():void
 function GoalDataManager:ClearData()
     GoalDataManager.super.ClearData(self)

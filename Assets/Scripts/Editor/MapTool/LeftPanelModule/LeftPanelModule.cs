@@ -44,7 +44,7 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 刷新章节列表（从配置表读取章节数据）
+        /// 刷新章节-关卡树列表（从配置表读取章节数据，展开显示下属关卡）
         /// </summary>
         public void RefreshChapterList()
         {
@@ -53,14 +53,58 @@ namespace Honor.Editor.MapTool
             LoadChapterConfig();
             foreach (var chapter in m_ChapterDataList)
             {
-                var item = new Label(chapter.ChapterTitle);
-                item.AddToClassList("chapter-item");
-                if (chapter.ID == SelectedChapterId)
-                    item.AddToClassList("selected");
-                // 点击章节（闭包捕获 id，避免循环变量共享）
-                string id = chapter.ID;
-                item.RegisterCallback<ClickEvent>(evt => OnChapterItemClicked(id, item));
-                m_ChapterList.Add(item);
+                // 章节根节点（可展开/折叠）
+                var chapterItem = new VisualElement();
+                chapterItem.AddToClassList("chapter-item");
+
+                // 章节标题行（带展开箭头）
+                var chapterHeader = new VisualElement();
+                chapterHeader.AddToClassList("chapter-header");
+
+                var arrowLabel = new Label("▼");
+                arrowLabel.AddToClassList("expand-arrow");
+
+                var titleLabel = new Label(chapter.ChapterTitle);
+                titleLabel.AddToClassList("chapter-title");
+
+                chapterHeader.Add(arrowLabel);
+                chapterHeader.Add(titleLabel);
+                chapterItem.Add(chapterHeader);
+
+                // 关卡子节点容器
+                var levelContainer = new VisualElement();
+                levelContainer.AddToClassList("level-container");
+                chapterItem.Add(levelContainer);
+
+                // 解析关卡ID列表（从章节配置 ChapterInfoID 解析）
+                string[] levelIds = MapToolEditorUtils.ParseRegionIds(chapter.ChapterInfoID);
+                for (int levelIndex = 0; levelIndex < levelIds.Length; levelIndex++)
+                {
+                    string levelId = levelIds[levelIndex];
+                    // 显示序号从 1 开始，加载地图用原始 levelId
+                    var levelItem = new Label($"关卡 {levelIndex + 1}");
+                    levelItem.AddToClassList("level-item");
+
+                    // 选中态高亮
+                    if (chapter.ID == SelectedChapterId && levelId == SelectedLevelId)
+                        levelItem.AddToClassList("selected");
+
+                    // 点击关卡（闭包捕获 id，避免循环变量共享）
+                    string cid = chapter.ID;
+                    string lid = levelId;
+                    levelItem.RegisterCallback<ClickEvent>(evt => OnLevelItemClicked(cid, lid, levelItem));
+                    levelContainer.Add(levelItem);
+                }
+
+                // 点击章节标题行：展开/折叠关卡列表
+                chapterHeader.RegisterCallback<ClickEvent>(evt =>
+                {
+                    bool collapsed = levelContainer.style.display == DisplayStyle.None;
+                    levelContainer.style.display = collapsed ? DisplayStyle.Flex : DisplayStyle.None;
+                    arrowLabel.text = collapsed ? "▼" : "▶";
+                });
+
+                m_ChapterList.Add(chapterItem);
             }
         }
 

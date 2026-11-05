@@ -28,7 +28,7 @@ namespace GameLib
         {
             /// <summary>格线颜色</summary>
             public Color lineColor;
-            /// <summary>分区边界颜色</summary>
+            /// <summary>边界颜色</summary>
             public Color boundaryColor;
             /// <summary>占用格颜色</summary>
             public Color occupiedColor;
@@ -56,79 +56,40 @@ namespace GameLib
         #region 几何计算
 
         /// <summary>
-        /// 计算格线位置与分区矩形
+        /// 计算格线位置（单关卡模式：整图网格）
         /// 几何契约：编辑器 Handles 与游戏 Overlay 共用同一套坐标
-        /// 未解锁分区的格线返回 -1（跳过绘制），分区矩形返回零尺寸
         /// </summary>
         /// <param name="mapW">地图总宽度（像素）</param>
         /// <param name="mapH">地图总高度（像素）</param>
         /// <param name="gridCols">网格列数</param>
-        /// <param name="regionCols">分区列数</param>
-        /// <param name="regionRows">分区行数</param>
-        /// <param name="unlockedSection">已解锁分区数（从1开始计数）</param>
         /// <param name="verticalLines">输出：垂直线X坐标数组（长度 gridCols+1）</param>
         /// <param name="horizontalLines">输出：水平线Y坐标数组（长度 gridRows+1）</param>
-        /// <param name="regionRects">输出：分区矩形数组（长度 regionCols*regionRows）</param>
+        /// <param name="mapRect">输出：地图矩形（整图范围）</param>
         public static void ComputeGridLinePositions(float mapW, float mapH,
-            int gridCols, int regionCols, int regionRows, int unlockedSection,
+            int gridCols,
             out float[] verticalLines, out float[] horizontalLines,
-            out Rect[] regionRects)
+            out Rect mapRect)
         {
-            verticalLines = new float[gridCols + 1];
             int gridRows = Mathf.RoundToInt(gridCols * mapH / mapW);
             float cellW = mapW / gridCols;
             float cellH = mapH / gridRows;
 
-            // 垂直线：相邻列任一分区已解锁则绘制
+            // 垂直线
+            verticalLines = new float[gridCols + 1];
             for (int i = 0; i <= gridCols; i++)
             {
-                bool anyUnlocked = false;
-                for (int c = i - 1; c <= i; c++)
-                {
-                    if (c < 0 || c >= gridCols) continue;
-                    int secCol = c / Mathf.Max(1, gridCols / regionCols);
-                    for (int r = 0; r < regionRows; r++)
-                    {
-                        int sectionId = r * regionCols + secCol + 1;
-                        if (sectionId <= unlockedSection) { anyUnlocked = true; break; }
-                    }
-                    if (anyUnlocked) break;
-                }
-                verticalLines[i] = anyUnlocked ? i * cellW : -1f;
+                verticalLines[i] = i * cellW;
             }
 
-            // 水平线：相邻行任一分区已解锁则绘制
+            // 水平线
             horizontalLines = new float[gridRows + 1];
             for (int i = 0; i <= gridRows; i++)
             {
-                bool anyUnlocked = false;
-                for (int r = i - 1; r <= i; r++)
-                {
-                    if (r < 0 || r >= gridRows) continue;
-                    int secRow = r / Mathf.Max(1, gridRows / regionRows);
-                    for (int c = 0; c < regionCols; c++)
-                    {
-                        int sectionId = secRow * regionCols + c + 1;
-                        if (sectionId <= unlockedSection) { anyUnlocked = true; break; }
-                    }
-                    if (anyUnlocked) break;
-                }
-                horizontalLines[i] = anyUnlocked ? i * cellH : -1f;
+                horizontalLines[i] = i * cellH;
             }
 
-            // 分区矩形
-            regionRects = new Rect[regionCols * regionRows];
-            float rw = mapW / regionCols;
-            float rh = mapH / regionRows;
-            for (int r = 0; r < regionRows; r++)
-                for (int c = 0; c < regionCols; c++)
-                {
-                    int sectionId = r * regionCols + c + 1;
-                    if (sectionId <= unlockedSection)
-                        regionRects[r * regionCols + c] = new Rect(c * rw, r * rh, rw, rh);
-                    else
-                        regionRects[r * regionCols + c] = new Rect(0, 0, 0, 0);
-                }
+            // 整图矩形
+            mapRect = new Rect(0, 0, mapW, mapH);
         }
 
         #endregion

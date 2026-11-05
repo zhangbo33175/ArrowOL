@@ -35,24 +35,32 @@ namespace Honor.Editor.MapTool
         /// 删除按钮
         /// </summary>
         private Button m_DeleteBtn;
-        // 章节列表
+        // 章节-关卡树
         /// <summary>
-        /// 章节列表控件
+        /// 章节-关卡树列表控件
         /// </summary>
         private ScrollView m_ChapterList;
         /// <summary>
         /// 章节配置表数据
         /// </summary>
         private List<TableChapterEditor> m_ChapterDataList = new List<TableChapterEditor>();
+        /// <summary>
+        /// 主关卡配置表数据
+        /// </summary>
+        private List<TableMainLevelsEditor> m_MainLevelsDataList = new List<TableMainLevelsEditor>();
+        /// <summary>
+        /// 按章节ID分组的关卡字典（key=章节ID, value=该章节下的关卡列表）
+        /// </summary>
+        private Dictionary<string, List<TableMainLevelsEditor>> m_LevelsByChapter = new Dictionary<string, List<TableMainLevelsEditor>>();
         // 章节对应的地图预制体路径（内存缓存，编辑器会话内有效）
         /// <summary>
         /// 章节对应的地图预制体路径缓存（编辑器会话内有效）
         /// </summary>
         private Dictionary<string, string> m_ChapterMapPaths = new Dictionary<string, string>();
         /// <summary>
-        /// 章节选择变化事件（章节ID、预制体路径、分区配置）
+        /// 关卡选择变化事件（章节ID、关卡ID、预制体路径）
         /// </summary>
-        public System.Action<string, string, string> OnChapterSelected;
+        public System.Action<string, string, string> OnLevelSelected;
         /// <summary>
         /// 资源选中事件（资源名、类型：0=建筑 1=人物 2=物件）
         /// </summary>
@@ -99,6 +107,10 @@ namespace Honor.Editor.MapTool
         /// 当前选中的章节ID
         /// </summary>
         public string SelectedChapterId { get; private set; }
+        /// <summary>
+        /// 当前选中的关卡ID
+        /// </summary>
+        public string SelectedLevelId { get; private set; }
         /// <summary>
         /// 当前选中的资源名称
         /// </summary>

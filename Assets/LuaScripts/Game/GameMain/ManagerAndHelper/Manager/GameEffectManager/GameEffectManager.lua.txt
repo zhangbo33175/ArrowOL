@@ -36,9 +36,9 @@ end
 ---@param args table 初始化参数
 ---@return GameEffectManager 管理器实例
 ---=========================================================================
+---TODO [优化] 移除 Create 内冗余局部变量，直接返回 new()
 function GameEffectManager:Create(args)
-    local obj = GameEffectManager.new(args)
-    return obj
+    return GameEffectManager.new(args)
 end
 
 ---=========================================================================

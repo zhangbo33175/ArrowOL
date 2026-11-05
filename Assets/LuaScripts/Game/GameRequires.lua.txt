@@ -151,8 +151,11 @@ RectTransformHelper = require("RectTransformHelper"):Create()
 ---@type AnimatorHelper 动画控制器工具
 AnimatorHelper = require('AnimatorHelper'):Create()
 
----@type GameMapMotion 地图运动控制器
-GameMapMotion = require('GameMapMotion')
+---@type GameMapCameraManager 地图镜头统一管理器
+GameMapCameraManager = require('GameMapCameraManager'):Create()
+
+---@type GameMapMotionManager 地图输入手势管理器
+GameMapMotionManager = require('GameMapMotionManager'):Create()
 
 ---@type GameEffectManager 特效管理器
 GameEffectManager = require('GameEffectManager'):Create()
@@ -186,6 +189,9 @@ MapLoadManager = require("MapLoadManager"):Create()
 
 ---@type PlayGameplayCycle 玩法周期
 PlayGameplayCycle = require("PlayGameplayCycle"):Create()
+
+---@type LevelCollectManager 关卡收集管理器（门面：登记/查询/进度广播）
+LevelCollectManager = require("LevelCollectManager"):Create()
 
 ---@type RankDataManager 排行榜数据管理器
 RankDataManager = require("RankDataManager"):Create()

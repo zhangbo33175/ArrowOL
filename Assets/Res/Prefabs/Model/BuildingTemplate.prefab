@@ -67,7 +67,7 @@ MonoBehaviour:
   - ViewModelSuper
   m_BindValues: []
   m_LuaScriptNamesNone:
-  - MapObjectCtrl
+  - BuildingItem
   m_LuaSuperScriptNamesNone:
   - LuaBehaviourSuper
   m_PatternType: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
   m_CloseAnimation: 0
   m_ShowRaycastTargetsGizmos: 0
   m_LuaAuthorName: Honor.Runtime
-  m_LuaDescript: MapObjectCtrl
+  m_LuaDescript: BuildingItem
   m_Injections: []
   m_Collider2DLifeCyclesBehaviour: {fileID: 0}
   m_Collider3DLifeCyclesBehaviour: {fileID: 0}

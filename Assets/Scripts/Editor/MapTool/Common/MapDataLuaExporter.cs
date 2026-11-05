@@ -5,7 +5,7 @@
  * filename:  MapDataLuaExporter.cs
  * author:    云毅
  * created:   2026
- * descrip:   地图双格式保存 - Lua 分区数据文件与主表索引导出器（纯字符串格式化 + System.IO 写盘）
+ * descrip:   地图 Lua 数据导出器（单关卡模式，纯字符串格式化 + System.IO 写盘）
  ***************************************************************/
 
 using System.Collections.Generic;
@@ -31,17 +31,17 @@ namespace Honor.Editor.MapTool
         /// <summary>地图名（TableChapterEditor.MapName，空则 sceneName）</summary>
         public string MapName = string.Empty;
 
-        /// <summary>分区ID列表（= m_RegionIds）</summary>
-        public string[] RegionIds;
+        /// <summary>当前关卡ID</summary>
+        public string LevelId = string.Empty;
 
-        /// <summary>LevelId 基准：本章节之前各章节分区数之和（§7 全局序号规则）</summary>
+        /// <summary>LevelId 基准：本章节之前各章节关卡数之和</summary>
         public int LevelIdBase = 0;
     }
 
     /// <summary>
-    /// 地图数据 Lua 导出器
-    /// 按数据规范 §3 生成每分区 Lua 文件，按 §4 重写主表索引 TableLevelData.lua.txt
-    /// 纯字符串格式化 + System.IO 写盘（UTF8 无 BOM），不依赖 Unity 场景对象
+    /// 地图数据 Lua 导出器（单关卡模式）
+    /// 每个关卡一个 Lua 文件 + 重写主表索引
+    /// 纯字符串格式化 + System.IO 写盘（UTF8 无 BOM）
     /// </summary>
     public static class MapDataLuaExporter
     {
@@ -58,16 +58,12 @@ namespace Honor.Editor.MapTool
         #region 对外入口
 
         /// <summary>
-        /// 导出整章 Lua 数据：每分区一个文件 + 重写主表索引
+        /// 导出关卡 Lua 数据：单关卡文件 + 重写主表索引
         /// </summary>
-        /// <param name="data">已组装好的 JSON 配置（含 regions 全量数据）</param>
-        /// <param name="ctx">章节上下文（章节ID/名称/地图名/分区ID/LevelIdBase）</param>
+        /// <param name="data">已组装好的 JSON 配置</param>
+        /// <param name="ctx">章节上下文（章节ID/名称/地图名/关卡ID/LevelIdBase）</param>
         /// <param name="allChapters">配置表全部章节列表（主表索引覆盖全部章节）</param>
-        /// <param name="levelsRootOverride">
-        /// 可选：Lua Levels 根目录绝对路径覆盖；为 null（默认）时按 Application.dataPath 推导，
-        /// 行为与原逻辑完全一致（SaveMapConfig 调用处无需改动）。
-        /// 独立验证 Harness（无 Unity 运行时）可传入测试目录以绕开 Application.dataPath。
-        /// </param>
+        /// <param name="levelsRootOverride">可选：Lua Levels 根目录绝对路径覆盖</param>
         /// <returns>本次生成的 Lua 文件绝对路径列表（含主表索引）</returns>
         public static List<string> Export(MapConfigData data, MapChapterExportContext ctx, List<TableChapterEditor> allChapters, string levelsRootOverride = null)
         {
@@ -75,7 +71,7 @@ namespace Honor.Editor.MapTool
             if (data == null || ctx == null)
                 return generatedFiles;
 
-            // 输出根目录：优先用外部覆盖（便于无 Unity 运行时独立验证），否则按工程路径推导
+            // 输出根目录
             string levelsRoot;
             if (!string.IsNullOrEmpty(levelsRootOverride))
             {
@@ -91,26 +87,20 @@ namespace Honor.Editor.MapTool
             string chapterId = ctx.ChapterId ?? string.Empty;
             string chapterName = ctx.ChapterName ?? string.Empty;
             string mapName = ctx.MapName ?? string.Empty;
-            int sectionCount = data.regions != null ? data.regions.Count : 0;
+            string levelIdStr = ctx.LevelId ?? "1";
 
-            // 每分区一个 Lua 文件
-            for (int i = 0; i < sectionCount; i++)
-            {
-                MapRegionData region = data.regions[i];
-                int sectionId = i + 1; // 1 起始
-                int levelId = ctx.LevelIdBase + sectionId;
-                string fileName = string.Format(CultureInfo.InvariantCulture, "TableLevelData_{0}_{1}", chapterId, sectionId);
+            // 单关卡模式：直接从 data 读取
+            int levelId = ctx.LevelIdBase + int.Parse(levelIdStr);
+            string fileName = string.Format(CultureInfo.InvariantCulture, "TableLevelData_{0}_{1}", chapterId, levelIdStr);
 
-                string dir = Path.Combine(levelsRoot, chapterId);
-                Directory.CreateDirectory(dir);
-                string filePath = Path.Combine(dir, fileName + ".lua.txt");
+            string dir = Path.Combine(levelsRoot, chapterId);
+            Directory.CreateDirectory(dir);
+            string filePath = Path.Combine(dir, fileName + ".lua.txt");
 
-                string content = BuildSectionFile(fileName, chapterId, chapterName, sectionId, sectionCount,
-                    levelId, region, mapName, chapterId, data.width, data.height,
-                    data.regionRows, data.regionCols, timeNow);
-                File.WriteAllText(filePath, content, new UTF8Encoding(false));
-                generatedFiles.Add(filePath);
-            }
+            string content = BuildLevelFile(fileName, chapterId, chapterName, levelIdStr,
+                levelId, data, mapName, data.width, data.height, timeNow);
+            File.WriteAllText(filePath, content, new UTF8Encoding(false));
+            generatedFiles.Add(filePath);
 
             // 重写主表索引（覆盖全部章节）
             string mainTablePath = Path.Combine(levelsRoot, k_MainTableName);
@@ -123,57 +113,47 @@ namespace Honor.Editor.MapTool
 
         #endregion
 
-        #region §3 分区文件生成
+        #region 关卡文件生成
 
         /// <summary>
-        /// 组装单个分区 Lua 文件文本（结构/字段顺序严格按规范 §3 模板）
+        /// 组装单个关卡 Lua 文件文本
         /// </summary>
-        private static string BuildSectionFile(string fileName, string chapterId, string chapterName,
-            int sectionId, int sectionCount, int levelId, MapRegionData region,
-            string mapName, string saveChapterId, int width, int height,
-            int regionRows, int regionCols, string time)
+        private static string BuildLevelFile(string fileName, string chapterId, string chapterName,
+            string levelIdStr, int levelId, MapConfigData data,
+            string mapName, int width, int height, string time)
         {
             StringBuilder sb = new StringBuilder();
 
-            // ===== 文件头横幅 =====
+            // ===== 文件头 =====
             sb.AppendLine("--=====================================================================================================");
             sb.AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime");
             sb.AppendLine("-- All Rights Reserved.");
             sb.AppendLine("-- ----------------------------------------------------------------------------------------------------");
             sb.AppendLine("-- filename:  " + fileName);
-            sb.AppendLine("-- descrip:   章节" + chapterId + "分区" + sectionId + "地图数据（自动生成）");
+            sb.AppendLine("-- descrip:   章节" + chapterId + "关卡" + levelIdStr + "地图数据（自动生成）");
             sb.AppendLine("-- notices:   该文件由地图编辑器自动生成，禁止手动修改！");
-            sb.AppendLine("-- @brief     章节地图数据表（分区粒度）");
-            sb.AppendLine("-- @desc      由 Honor.Editor.MapTool 保存时自动生成，与 Assets/GameData/MapDatas/Map_" + chapterId + ".json 同源");
-            sb.AppendLine("-- @core      章节信息 + 分区信息（背景/物件/人物含路径点/建筑）");
-            sb.AppendLine("-- @scope     运行时经 Tables.LevelData_" + chapterId + "_" + sectionId + " 访问（GamePlayHelper:LoadLevelData 取数）");
-            sb.AppendLine("-- @dependency Tables 注册表（Tables.lua），由 Tables.Xxx 索引触发 require 自动加载");
+            sb.AppendLine("-- @brief     关卡地图数据表");
+            sb.AppendLine("-- @desc      由 Honor.Editor.MapTool 保存时自动生成");
+            sb.AppendLine("-- @core      关卡信息（背景/物件/人物含路径点/建筑）");
+            sb.AppendLine("-- @dependency Tables 注册表（Tables.lua）");
             sb.AppendLine("--=====================================================================================================");
             sb.AppendLine();
 
             // ===== 表体 =====
             sb.AppendLine("---@type Tables.LevelData_Item");
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.LevelData_{0}_{1} = {{", chapterId, sectionId));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.LevelData_{0}_{1} = {{", chapterId, levelIdStr));
             sb.AppendLine("    ChapterId = \"" + Escape(chapterId) + "\",");
             sb.AppendLine("    ChapterName = \"" + Escape(chapterName) + "\",");
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    SectionId = {0},", sectionId));
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    SectionCount = {0},", sectionCount));
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    LevelId = {0},", levelId));
-            sb.AppendLine("    BgName = \"" + Escape(region.bgName) + "\",");
+            sb.AppendLine("    LevelId = \"" + Escape(levelIdStr) + "\",");
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    LevelIndex = {0},", levelId));
+            sb.AppendLine("    BgName = \"" + Escape(data.bgName) + "\",");
             sb.AppendLine("    MapName = \"" + Escape(mapName) + "\",");
-            sb.AppendLine("    SavePath = \"Assets/GameData/MapDatas/Map_" + Escape(saveChapterId) + ".json\",");
+            sb.AppendLine("    SavePath = \"Assets/GameData/MapDatas/Map_" + Escape(chapterId) + "_" + Escape(levelIdStr) + ".json\",");
             sb.AppendLine("    Time = \"" + Escape(time) + "\",");
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    Width = {0},", width));
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    Height = {0},", height));
-            // ---TODO 布局：row-major 行列 + 分区 col/row（运行时背景瓦片定位）
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    RegionRows = {0},", regionRows));
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    RegionCols = {0},", regionCols));
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    RegionCol = {0},", region.col));
-            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    RegionRow = {0},", region.row));
-            sb.AppendLine("    Unlocked = " + BoolToLua(region.unlocked) + ",");
-            sb.AppendLine("    FogEnabled = " + BoolToLua(region.fogEnabled) + ",");
 
-            // ---TODO 网格信息：格子尺寸/行列 + 本分区占用格子（供运行时检查位置）
+            // 网格信息
             int gridSize = MapToolConstants.GridSize;
             int gridCols = width > 0 ? width / gridSize : 0;
             int gridRows = height > 0 ? height / gridSize : 0;
@@ -181,67 +161,26 @@ namespace Honor.Editor.MapTool
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    GridCols = {0},", gridCols));
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "    GridRows = {0},", gridRows));
             sb.AppendLine("    OccupiedCells = {");
-            AppendOccupiedCells(sb, region);
+            AppendOccupiedCells(sb, data);
             sb.AppendLine("    },");
 
-            // MapData：旧语义兼容视图（数据来自该分区 characters 列表）
-            sb.AppendLine("    MapData = {");
-            AppendMapDataEntries(sb, region.characters);
-            sb.AppendLine("    },");
-
-            // Characters：完整人物视图（含 PathPoints）
+            // Characters：人物（含 PathPoints）
             sb.AppendLine("    Characters = {");
-            AppendCharacterEntries(sb, region.characters);
+            AppendCharacterEntries(sb, data.characters);
             sb.AppendLine("    },");
 
-            // Buildings：建筑（MapObjectData 全字段）
+            // Buildings：建筑
             sb.AppendLine("    Buildings = {");
-            AppendObjectEntries(sb, region.buildings);
+            AppendObjectEntries(sb, data.buildings);
             sb.AppendLine("    },");
 
-            // Objects：物件（与 Buildings 同模型）
+            // Objects：物件
             sb.AppendLine("    Objects = {");
-            AppendObjectEntries(sb, region.objects);
+            AppendObjectEntries(sb, data.objects);
             sb.AppendLine("    },");
 
             sb.AppendLine("}");
             return sb.ToString();
-        }
-
-        /// <summary>
-        /// 追加 MapData 条目（旧语义：Id/Position/Sprite…，Type 固定 Dissipate，IsChoose=false）
-        /// </summary>
-        private static void AppendMapDataEntries(StringBuilder sb, List<MapCharacterData> characters)
-        {
-            if (characters == null || characters.Count == 0)
-            {
-                sb.AppendLine("    -- 空列表");
-                return;
-            }
-            for (int i = 0; i < characters.Count; i++)
-            {
-                MapCharacterData c = characters[i];
-                string pos = Vec2ToLua(c.posX, c.posY);
-                sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                    "        [{0}] = {{\n" +
-                    "            Id = {1},\n" +
-                    "            Type = \"Dissipate\",\n" +
-                    "            Position = {2},\n" +
-                    "            Rotation = {{\"0.00\",\"0.00\",\"0.00\"}},\n" +
-                    "            Scale = {{\"0.00\",\"0.00\",\"0.00\"}},\n" +
-                    "            Sprite = \"{3}\",\n" +
-                    "            Name = \"{4}\",\n" +
-                    "            Size = {{\"{5}\",\"{6}\",\"0.00\"}},\n" +
-                    "            IsChoose = false,\n" +
-                    "        }},",
-                    i + 1,
-                    IdToLua(c.templateId, c.id),
-                    pos,
-                    Escape(c.image),
-                    Escape(c.name),
-                    (c.width * MapToolConstants.GridSize).ToString("F2", CultureInfo.InvariantCulture),
-                    (c.height * MapToolConstants.GridSize).ToString("F2", CultureInfo.InvariantCulture)));
-            }
         }
 
         /// <summary>
@@ -295,7 +234,7 @@ namespace Honor.Editor.MapTool
                     c.speed.ToString("F2", CultureInfo.InvariantCulture),
                     BoolToLua(c.interactable),
                     Escape(c.interactType),
-                    BoolToLua(c.patrolLoop),
+                    "\"" + Escape(c.walkMode) + "\"",
                     Escape(c.facingDirection),
                     Escape(c.dialogBubble),
                     c.sortOrder,
@@ -305,7 +244,7 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 追加 Buildings / Objects 条目（MapObjectData 全字段，两类同模型）
+        /// 追加 Buildings / Objects 条目
         /// </summary>
         private static void AppendObjectEntries(StringBuilder sb, List<MapObjectData> objects)
         {
@@ -317,7 +256,6 @@ namespace Honor.Editor.MapTool
             for (int i = 0; i < objects.Count; i++)
             {
                 MapObjectData o = objects[i];
-                // ---TODO 气泡配置表通用化：bubbleId>0 输出 BubbleId 行，<=0 整行省略（不输出 nil）
                 string bubbleLine = o.bubbleId > 0
                     ? string.Format(CultureInfo.InvariantCulture, "            BubbleId = {0},\n", o.bubbleId)
                     : string.Empty;
@@ -371,8 +309,7 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 组装 PathPoints 块（只保存格子坐标 GridX/GridY，运行时 GridX×GridSize 反算像素）
-        /// ---TODO [优化] 只保存格子坐标，去掉冗余像素 X/Y，运行时 gridSize×grid 反算像素位置
+        /// 组装 PathPoints 块（只保存格子坐标）
         /// </summary>
         private static string BuildPathPointsBlock(List<MapPathPointData> pathPoints)
         {
@@ -392,18 +329,16 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 追加分区占用格子块（从该分区人物/建筑/物件推导覆盖格子，行列去重）
+        /// 追加占用格子块（从人物/建筑/物件推导覆盖格子，行列去重）
         /// </summary>
-        /// <param name="sb">字符串构建器</param>
-        /// <param name="region">分区数据</param>
-        private static void AppendOccupiedCells(StringBuilder sb, MapRegionData region)
+        private static void AppendOccupiedCells(StringBuilder sb, MapConfigData data)
         {
             var set = new HashSet<long>();
-            if (region != null)
+            if (data != null)
             {
-                CollectOccupiedCharacters(set, region.characters);
-                CollectOccupiedObjects(set, region.buildings);
-                CollectOccupiedObjects(set, region.objects);
+                CollectOccupiedCharacters(set, data.characters);
+                CollectOccupiedObjects(set, data.buildings);
+                CollectOccupiedObjects(set, data.objects);
             }
             if (set.Count == 0)
             {
@@ -469,7 +404,7 @@ namespace Honor.Editor.MapTool
 
         #endregion
 
-        #region §4 主表索引生成
+        #region 主表索引生成
 
         /// <summary>
         /// 重写主表索引（覆盖配置表全部章节，每次保存整体重写）
@@ -485,7 +420,6 @@ namespace Honor.Editor.MapTool
             sb.AppendLine("-- descrip:   章节地图索引（自动生成）");
             sb.AppendLine("-- notices:   该文件由地图编辑器自动生成，禁止手动修改！");
             sb.AppendLine("-- @brief     章节地图数据索引");
-            sb.AppendLine("-- @desc      由 Honor.Editor.MapTool 保存时自动生成，覆盖配置表全部章节");
             sb.AppendLine("-- @dependency Tables 注册表（Tables.lua）");
             sb.AppendLine("--=====================================================================================================");
             sb.AppendLine();
@@ -496,14 +430,14 @@ namespace Honor.Editor.MapTool
                 foreach (var chapter in allChapters)
                 {
                     if (chapter == null) continue;
-                    string[] sectionIds = MapToolEditorUtils.ParseRegionIds(chapter.ChapterInfoID);
-                    string sections = "{ " + string.Join(", ", ToQuotedArray(sectionIds)) + " }";
+                    string[] levelIds = MapToolEditorUtils.ParseRegionIds(chapter.ChapterInfoID);
+                    string levels = "{ " + string.Join(", ", ToQuotedArray(levelIds)) + " }";
                     sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                        "    [\"{0}\"] = {{ ChapterId = \"{0}\", ChapterName = \"{1}\", SectionCount = {2}, Sections = {3} }},",
+                        "    [\"{0}\"] = {{ ChapterId = \"{0}\", ChapterName = \"{1}\", LevelCount = {2}, Levels = {3} }},",
                         Escape(chapter.ID),
                         Escape(chapter.ChapterTitle),
-                        sectionIds.Length,
-                        sections));
+                        levelIds.Length,
+                        levels));
                 }
             }
             sb.AppendLine("}");
@@ -512,21 +446,10 @@ namespace Honor.Editor.MapTool
 
         #endregion
 
-        #region §5 格式辅助
+        #region 格式辅助
 
         /// <summary>
-        /// 坐标数组：{"x.xx","y.xx","0.00"}（两位小数字符串，原样写出编辑器像素坐标）
-        /// </summary>
-        private static string Vec2ToLua(float x, float y)
-        {
-            return string.Format(CultureInfo.InvariantCulture,
-                "{{\"{0}\",\"{1}\",\"0.00\"}}",
-                x.ToString("F2", CultureInfo.InvariantCulture),
-                y.ToString("F2", CultureInfo.InvariantCulture));
-        }
-
-        /// <summary>
-        /// Id 输出规则：纯数字模板ID输出裸数字；否则输出带引号字符串；空模板ID回退实例ID（带引号）
+        /// Id 输出规则：纯数字模板ID输出裸数字；否则输出带引号字符串
         /// </summary>
         private static string IdToLua(string templateId, string fallbackInstanceId)
         {
@@ -570,7 +493,7 @@ namespace Honor.Editor.MapTool
             StringBuilder esb = new StringBuilder(s.Length);
             foreach (char c in s)
             {
-                if (char.IsControl(c)) continue; // 控制字符替换为空
+                if (char.IsControl(c)) continue;
                 if (c == '\\') { esb.Append("\\\\"); continue; }
                 if (c == '"') { esb.Append("\\\""); continue; }
                 esb.Append(c);
@@ -579,7 +502,7 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 字符串数组批量加引号（主表 Sections 用）
+        /// 字符串数组批量加引号
         /// </summary>
         private static string[] ToQuotedArray(string[] ids)
         {

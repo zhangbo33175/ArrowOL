@@ -102,19 +102,6 @@ public class MapCamData
     public float size;
     public float posX;
     public float posY;
-
-    #region 相机位置计算方法
-
-    /// <summary>像素高度 → 世界坐标换算系数</summary>
-    private const float k_PixelToWorldScale = 0.01f;
-
-    /// <summary>标准化调整相机Y轴位置</summary>
-    public void NormalAdjustPosY(float designHeight)
-    {
-        posY = (size * 2f - designHeight * k_PixelToWorldScale) * 0.5f;
-    }
-
-    #endregion
 }
 
 //=========================================================================
@@ -123,7 +110,7 @@ public class MapCamData
 
 /// <summary>
 /// 地图相机运动配置数据
-/// 管理拖动、缩放、惯性滑动、自动扫描等可调参数（Inspector 可编辑）
+/// 管理拖动、缩放、惯性滑动等可调参数（Inspector 可编辑）
 /// </summary>
 [System.Serializable]
 public class MapMotionConfig
@@ -208,28 +195,8 @@ public class MapData : MonoBehaviour
     public bool m_MinScaleLockCenter = true;
 
     [Header("相机运动配置")]
-    [Tooltip("相机运动参数（拖动/缩放/惯性/自动扫描）")]
+    [Tooltip("相机运动参数（拖动/缩放/惯性）")]
     public MapMotionConfig m_MotionConfig = new MapMotionConfig();
-
-    #endregion
-
-    #region 公共工具方法
-
-    /// <summary>动态计算适配红框的最小相机正交Size</summary>
-    public float CalcAutoMinCamSize()
-    {
-        float screenH = Screen.height;
-        float viewH = Mathf.Max(0, screenH - m_TopHudPixelHeight - m_BottomHudPixelHeight);
-        float ratio = viewH > 0 ? viewH / screenH : 1f;
-        return Mathf.Max(m_NormalCamData.size * ratio, m_MinCamSize);
-    }
-
-    /// <summary>重新计算大厅相机参数（根据当前视口自动适配）</summary>
-    public void RecalcNormalCamData()
-    {
-        m_NormalCamData.size = CalcAutoMinCamSize();
-        m_NormalCamData.NormalAdjustPosY(m_MainHudMaxHeight);
-    }
 
     #endregion
 }

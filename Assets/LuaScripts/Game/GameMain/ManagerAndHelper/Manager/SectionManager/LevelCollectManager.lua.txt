@@ -1,0 +1,315 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  LevelCollectManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     关卡收集管理器（门面）
+-- @desc      章节地图为整图单关卡：不再有关卡顺序解锁/状态机推进/相机关卡扩界，
+--            本类收敛为"收集登记/查询/进度广播"门面：
+--            物品登记（RegisterLevelItem）、收集上报（NotifyItemCollected）、
+--            全局/关卡收集统计查询、进度事件广播（OnLevelProgress/OnAllLevelsCollected）。
+--            数据全部收敛至 GameCoreManagerData（唯一数据源），本类仅保留函数签名与事件广播。
+-- @core      收集登记、收集进度、事件广播
+-- @scope     GameMain 收集玩法
+-- @dependency HonorEventHelper, EventCmd, GameCoreManager
+--=====================================================================================================
+
+---@class LevelCollectManager : Singleton @关卡收集管理器（门面：登记/查询/进度广播）
+---@field __cname string 类名
+---@note 继承 Singleton，ctor 自动注册到 SingletonManager；全局经 GameRequires 以 :Create() 实例化
+local LevelCollectManager = class("LevelCollectManager", import("Singleton"))
+
+--region 【构造 & 单例工厂】
+
+---=========================================================================
+---@brief 构造函数（框架驱动，勿删）
+---@desc 调用父类 Singleton:ctor 自动注册到 SingletonManager 统一管理
+---@param args table 初始化参数
+---=========================================================================
+function LevelCollectManager:ctor(args)
+    LevelCollectManager.super.ctor(self, args)
+end
+
+---=========================================================================
+---@brief 创建单例实例（框架驱动，勿删）
+---@desc 由 GameRequires 以 :Create() 调用；用本类 new 创建管理器实例
+---@param args table 初始化参数
+---@return LevelCollectManager 管理器实例
+---=========================================================================
+function LevelCollectManager:Create(args)
+    return LevelCollectManager.new(args)
+end
+
+---=========================================================================
+---@brief 获取核心数据载体（数据唯一源，统一经 GameCoreManager 访问）
+---@return GameCoreManagerData|nil 核心运行时数据载体
+---=========================================================================
+function LevelCollectManager:GetCoreData()
+    return GameCoreManager and GameCoreManager._GameCoreManagerData
+end
+
+---=========================================================================
+---@brief 清理运行时数据（框架驱动，勿删）
+---@desc 关卡退出/重置时调用：委托核心数据载体清空收集状态与进度，
+---      等待下次地图生成重新登记
+---=========================================================================
+function LevelCollectManager:ClearData()
+    LevelCollectManager.super.ClearData(self)
+    local data = self:GetCoreData()
+    if data then
+        data:ResetLevelData()
+    end
+end
+
+--endregion
+
+---@class ELevelState @关卡状态枚举（保留兼容：取消多关卡后恒为 Unlocked/Completed）
+---@field Locked number 未解锁（不再使用）
+---@field Unlocked number 已解锁展示
+---@field Exploring number 收集中
+---@field Completed number 收集完成
+ELevelState = {
+    Locked     = 0,
+    Unlocked   = 1,
+    Exploring  = 2,
+    Completed  = 3,
+}
+
+--region 【初始化 & 清理】
+
+---=========================================================================
+---@brief 清空关卡数据（关卡初始化/清盘调用，委托核心数据载体）
+---@desc 置空容器切断引用，防止跨关卡残留
+---@type fun():void
+---=========================================================================
+function LevelCollectManager:Reset()
+    local data = self:GetCoreData()
+    if data then
+        data:ResetLevelData()
+    end
+end
+
+--endregion
+
+--region 【登记 & 查询】
+
+---=========================================================================
+---@brief 登记一个可收集物品到所属关卡
+---@desc 地图生成角色/物件时由 CharacterGenerationManager 调用：
+---      记录 itemKey → levelId 归属，累加该关卡与全局物品总数
+---@type fun(levelId:number,itemKey:string,meta:table):void
+---@param levelId number @所属关卡ID
+---@param itemKey string @物品唯一键（角色ID / 物件 Obj_关卡_物件ID）
+---@param meta table @物品展示信息（icon 图标名 / isRole 是否角色）
+---=========================================================================
+function LevelCollectManager:RegisterLevelItem(levelId, itemKey, meta)
+    local data = self:GetCoreData()
+    if data then
+        data:RegisterLevelItem(levelId, itemKey, meta)
+    end
+end
+
+---=========================================================================
+---@brief 查询物品所属关卡
+---@type fun(itemKey:string):number|nil
+---@param itemKey string @物品唯一键
+---@return number|nil 所属关卡ID，未登记返回nil
+---=========================================================================
+function LevelCollectManager:GetItemLevel(itemKey)
+    local data = self:GetCoreData()
+    if data then
+        return data:GetItemLevel(itemKey)
+    end
+    return nil
+end
+
+---=========================================================================
+---@brief 查询关卡当前状态
+---@type fun(levelId:number):ELevelState
+---@param levelId number @关卡ID
+---@return ELevelState 关卡状态（未登记默认 Locked）
+---=========================================================================
+function LevelCollectManager:GetState(levelId)
+    local data = self:GetCoreData()
+    if data then
+        return data:GetLevelState(levelId)
+    end
+    return ELevelState.Locked
+end
+
+---=========================================================================
+---@brief 设置关卡状态
+---@type fun(levelId:number,state:ELevelState):void
+---@param levelId number @关卡ID
+---@param state ELevelState @目标状态
+---=========================================================================
+function LevelCollectManager:SetState(levelId, state)
+    local data = self:GetCoreData()
+    if data then
+        data:SetLevelState(levelId, state)
+    end
+end
+
+---=========================================================================
+---@brief 获取关卡物品总数
+---@type fun(levelId:number):number
+---@param levelId number @关卡ID
+---@return number 该关卡可收集物品总数
+---=========================================================================
+function LevelCollectManager:GetLevelTotal(levelId)
+    local data = self:GetCoreData()
+    if data then
+        return data:GetLevelTotal(levelId)
+    end
+    return 0
+end
+
+---=========================================================================
+---@brief 获取关卡已收集物品数
+---@type fun(levelId:number):number
+---@param levelId number @关卡ID
+---@return number 该关卡已收集物品数
+---=========================================================================
+function LevelCollectManager:GetLevelCollected(levelId)
+    local data = self:GetCoreData()
+    if data then
+        return data:GetLevelCollected(levelId)
+    end
+    return 0
+end
+
+---=========================================================================
+---@brief 判断关卡是否已全部收集完成
+---@type fun(levelId:number):boolean
+---@param levelId number @关卡ID
+---@return boolean true=该关卡物品全部收集
+---=========================================================================
+function LevelCollectManager:IsLevelFullyCollected(levelId)
+    local data = self:GetCoreData()
+    if data then
+        return data:IsLevelFullyCollected(levelId)
+    end
+    return false
+end
+
+---=========================================================================
+---@brief 判断全局是否已全部收集完成
+---@type fun():boolean
+---@return boolean true=全部物品已收集
+---=========================================================================
+function LevelCollectManager:IsAllCollected()
+    local data = self:GetCoreData()
+    if data then
+        return data:IsAllCollected()
+    end
+    return false
+end
+
+---=========================================================================
+---@brief 获取全部可收集物品键列表（供收集面板滑动列表逐项展示）
+---@desc 遍历关卡归属映射，按 itemKey 字典序排序保证列表稳定；角色与物件全量包含
+---@type fun():string[]
+---@return string[] 全部可收集物品键（itemKey）
+---=========================================================================
+function LevelCollectManager:GetCollectableItems()
+    local data = self:GetCoreData()
+    if data then
+        return data:GetCollectableItems()
+    end
+    return {}
+end
+
+---=========================================================================
+---@brief 查询单个物品是否已收集
+---@type fun(itemKey:string):boolean
+---@param itemKey string @物品唯一键
+---@return boolean true=已收集
+---=========================================================================
+function LevelCollectManager:IsItemCollected(itemKey)
+    local data = self:GetCoreData()
+    if data then
+        return data:IsItemCollected(itemKey)
+    end
+    return false
+end
+
+---=========================================================================
+---@brief 查询单个物品展示信息
+---@type fun(itemKey:string):table|nil
+---@param itemKey string @物品唯一键
+---@return table|nil 物品展示信息 {icon=图标名,isRole=是否角色}，未登记返回nil
+---=========================================================================
+function LevelCollectManager:GetItemMeta(itemKey)
+    local data = self:GetCoreData()
+    if data then
+        return data:GetItemMeta(itemKey)
+    end
+    return nil
+end
+
+---=========================================================================
+---@brief 获取全局已收集物品总数
+---@type fun():number
+---@return number 全局已收集物品数
+---=========================================================================
+function LevelCollectManager:GetGlobalCollected()
+    local data = self:GetCoreData()
+    if data then
+        return data:GetGlobalCollected()
+    end
+    return 0
+end
+
+---=========================================================================
+---@brief 获取全局可收集物品总数（本章节需要收集的总数）
+---@type fun():number
+---@return number 全局可收集物品总数
+---=========================================================================
+function LevelCollectManager:GetGlobalTotal()
+    local data = self:GetCoreData()
+    if data then
+        return data:GetGlobalTotal()
+    end
+    return 0
+end
+
+--endregion
+
+--region 【收集上报】
+
+---=========================================================================
+---@brief 记录一次物品收集（幂等），并广播进度事件
+---@desc 角色/物件收集统一入口（门面，数据推进委托 GameCoreManagerData:SubmitItemCollected）：
+---      1. 递增所属关卡与全局已收集数（重复收集忽略）
+---      2. 广播 OnLevelProgress（供 UI 收集面板刷新）
+---      3. 全局收集完广播 OnAllLevelsCollected
+---@type fun(itemKey:string):void
+---@param itemKey string @物品唯一键
+---=========================================================================
+function LevelCollectManager:NotifyItemCollected(itemKey)
+    local data = self:GetCoreData()
+    if not data then
+        return
+    end
+    local result = data:SubmitItemCollected(itemKey)
+    if not result then
+        return
+    end
+
+    local levelId = result.levelId
+    local total = result.total
+    local collected = result.collected
+
+    -- 广播关卡收集进度（供 UI 收集面板刷新）
+    HonorEventHelper:Fire(EventCmd.OnLevelProgress, levelId, collected, total)
+
+    -- 全局收集完成广播
+    if self:IsAllCollected() then
+        HonorEventHelper:Fire(EventCmd.OnAllLevelsCollected)
+    end
+end
+
+--endregion
+
+return LevelCollectManager

@@ -10,7 +10,7 @@
 -- @scope     由 GameStateMachine:ChangeState(MainState) 驱动；地图加载完成后默认落点
 -- @feat      主界面生命周期、相机定位、背景音乐、系统弹窗、自治实体、UI管理
 -- @规范       Unity XLua 商业项目编码标准 / 游戏状态机规范
--- @dependency GameStateBase, ChapterListManager, ChapterDataManager, SoundManager, GameMainRoot.HonorUIManager, OpenUISync/CloseUI, LoginManager, LocalActivityManager, GameMainUIPushManager, GameManager, GameMapMotion, GameEffectManager
+-- @dependency GameStateBase, ChapterListManager, ChapterDataManager, SoundManager, GameMainRoot.HonorUIManager, OpenUISync/CloseUI, LoginManager, LocalActivityManager, GameMainUIPushManager, GameManager, GameMapCameraManager, GameEffectManager
 --=====================================================================================================
 
 ---@class GameMainState : GameStateBase @游戏主界面状态
@@ -61,8 +61,8 @@ function GameMainState:OnStateEnter(finishCallback)
     --LocalActivityManager:TryOpenActivities()
 
     -- 播放章节主界面背景音乐
-    local chapterId =ChapterListManager:GetLatestChapterId()
-    if chapterId then
+    local chapterId = ChapterListManager:GetLatestChapterId()
+    if chapterId and SoundManager then
         local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
         if chapterData and chapterData.MapMusic then
             SoundManager:PlayBgm(chapterData.MapMusic)
@@ -80,13 +80,13 @@ end
 ---=========================================================================
 --- 主界面真正初始化逻辑（内部调用：OnStateEnter）
 ---@brief 打开主UI、解除遮罩、登录逻辑、弹窗处理、关卡返回特殊分支
----@desc 重置 GameMapMotion 相机 rect、打开 UIMainStateView、解遮罩、主HUD登录、活动弹窗、推送队列主界面模式、关闭 EasyTouch 自动选择
+---@desc 重置 GameMapCameraManager 相机视口、打开 UIMainStateView、解遮罩、主HUD登录、活动弹窗、推送队列主界面模式、关闭 EasyTouch 自动选择
 ---@param finishCallback function|nil 完成回调函数
 ---=========================================================================
 function GameMainState:DoStateEnter(finishCallback)
     -- 重置地图相机渲染区域：清除游玩时"放大缩小"残留的缩放/裁剪状态，保证主界面以正常视角展示
-    if GameMapMotion and GameMapMotion.ScreenCamera then
-        GameMapMotion:UpdateCameraRect(0)
+    if GameMapCameraManager.IsInitialized then
+        GameMapCameraManager:UpdateBottomHud(0)
     end
     -- 打开主界面HUD（淡出由UIMainStateView:Start()自动触发，此时UI已渲染完成）
     --TODO: [规范] 裸 print 改用项目统一日志 PrintInfo，对齐全局日志规范

@@ -93,7 +93,7 @@ end
 ---@type fun():number,number
 ---@return number topInset 顶部安全区偏移（刘海/挖孔）
 ---@return number bottomInset 底部安全区偏移（手势条/导航栏）
----@desc 全系统安全区权威来源：相机 rect（GameMapMotion:GetSafeAreaInsets）与 UI 顶部/底部避让均统一此口径，消除 C#/Lua 比例基准不一致与"单侧总量"缺陷
+---@desc 全系统安全区权威来源：相机 rect（GameMapCameraManager:RefreshSafeAreaInsets）与 UI 顶部/底部避让均统一此口径，消除 C#/Lua 比例基准不一致与"单侧总量"缺陷
 function UIAdaptUtil.GetSafeAreaInsets()
     local canvas = GameMainRoot.HonorUIManager.ScreenUICanvas
     local canvasH = 1334

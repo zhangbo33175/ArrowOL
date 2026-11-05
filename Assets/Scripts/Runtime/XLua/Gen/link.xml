@@ -4,9 +4,7 @@
 
 	<assembly fullname="Assembly-CSharp">
 	    <type fullname="GameLib.HiddenObjectCS" preserve="all"/>
-		<type fullname="GameLib.MapGridCheckUtil" preserve="all"/>
 		<type fullname="GameLib.MapGridDrawUtil" preserve="all"/>
-		<type fullname="GameLib.MapConfigLoader" preserve="all"/>
 		<type fullname="GameLib.MapLoadManager" preserve="all"/>
 		<type fullname="GameLib.MapPathMoveUtil" preserve="all"/>
 		<type fullname="Honor.Runtime.GridManager" preserve="all"/>
@@ -318,7 +316,6 @@
 		<type fullname="GameLib.GameManager" preserve="all"/>
 		<type fullname="GameLib.ProcedureUtils" preserve="all"/>
 		<type fullname="GameLib.ItemMap" preserve="all"/>
-		<type fullname="GameLib.MapObjectType" preserve="all"/>
 		<type fullname="GameLib.AorClickItem" preserve="all"/>
 		<type fullname="GameLib.AorExtendImage" preserve="all"/>
 		<type fullname="GameLib.AorInterfaceAdaptation" preserve="all"/>

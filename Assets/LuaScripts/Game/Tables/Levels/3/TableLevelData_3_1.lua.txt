@@ -3,9 +3,9 @@
 -- All Rights Reserved.
 -- ----------------------------------------------------------------------------------------------------
 -- filename:  TableLevelData_3_1
--- descrip:   关卡配置信息表
+-- descrip:   第3章地图数据（分区合并，单分区；自动生成）
 -- notices:   该文件自动生成，请不要手动修改！
--- @brief     第3章第1关（LevelId=7）地图关卡数据
+-- @brief     第3章地图（LevelId=3）地图关卡数据
 -- @desc      MapBuildEditor 导出的单关地图物件摆放数据
 -- @core      ChapterId、LevelId、BgName、Time、MapName、SavePath、MapData（物件实例数组：Id/Type/Position/Rotation/Scale/Sprite/Name/Size/IsChoose）
 -- @scope     关卡进入时加载对应地图物件布局
@@ -15,12 +15,15 @@
 ---@type Tables.LevelData_Item
 Tables.LevelData_3_1 = { 
     ChapterId = "3",
-    LevelId= 7,
+    LevelId= 3,
     BgName = "Level_bg_main7",
     Time = "2026-09-18 16:31:31",
     MapName ="GameMainMap",
     SavePath ="",
     MapData= {
        [1] = {Id = 1013, Type = "Dissipate",Position = {"0.00","0.00","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat13",Name = "ItemMap_Instance_0",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [2] = {Id = 1015, Type = "Dissipate",Position = {"0.00","0.00","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat15",Name = "ItemMap_Instance_1",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [3] = {Id = 1015, Type = "Dissipate",Position = {"0.00","0.00","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat15",Name = "ItemMap_Instance_2",Size = {"35.00","39.00","0.00"},IsChoose = false},
+       [4] = {Id = 1010, Type = "Dissipate",Position = {"0.00","0.00","0.00"},Rotation = {"0.00","0.00","0.00"},Scale = {"0.00","0.00","0.00"},Sprite = "main_level1_cat10",Name = "ItemMap_Instance_3",Size = {"35.00","39.00","0.00"},IsChoose = false},
     },
  }

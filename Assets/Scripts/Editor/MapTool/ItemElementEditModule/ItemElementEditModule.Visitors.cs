@@ -83,6 +83,15 @@ namespace Honor.Editor.MapTool
         private Toggle m_ItemShadowToggle;
         private Toggle m_ItemCollectibleToggle;
         private TextField m_ItemRespawnField;
+        private Toggle m_ItemYSortToggle;
+        private TextField m_ItemYSortOffsetField;
+        private Toggle m_ItemMovableToggle;
+        private TextField m_ItemLoopRestartField;
+        private Toggle m_ItemHideOffMapToggle;
+        private Toggle m_ItemTeleportToggle;
+        private TextField m_ItemTeleportSceneField;
+        private TextField m_ItemTeleportXField;
+        private TextField m_ItemTeleportYField;
         #endregion
 
         #region 属性

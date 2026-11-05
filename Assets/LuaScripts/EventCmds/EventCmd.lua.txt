@@ -74,6 +74,10 @@ EventCmd = {
     -- 章节解锁
     OnNewChapterUnlockEvent              = UniqueEventCode(), --完成前置条件，新章节解锁触发弹窗与地图刷新
 
+    -- 关卡收集进度
+    OnLevelProgress                    = UniqueEventCode(), --关卡收集进度更新（携带 levelId,collected,total），供 UI 收集面板刷新
+    OnAllLevelsCollected               = UniqueEventCode(), --关卡全部物品已收集（无参），供 UI/结算层触发全局完成表现
+
     -- 关卡完整生命周期事件
     InitGameEvent                        = UniqueEventCode(), --关卡资源、数据初始化完成事件
     BeginGameEvent                       = UniqueEventCode(), --正式开启关卡游玩，开放触摸、操作交互

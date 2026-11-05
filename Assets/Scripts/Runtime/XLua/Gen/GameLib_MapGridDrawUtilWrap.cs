@@ -96,19 +96,16 @@ namespace XLua.CSObjectWrap
                     float _mapW = (float)LuaAPI.lua_tonumber(L, 1);
                     float _mapH = (float)LuaAPI.lua_tonumber(L, 2);
                     int _gridCols = LuaAPI.xlua_tointeger(L, 3);
-                    int _regionCols = LuaAPI.xlua_tointeger(L, 4);
-                    int _regionRows = LuaAPI.xlua_tointeger(L, 5);
-                    int _unlockedSection = LuaAPI.xlua_tointeger(L, 6);
                     float[] _verticalLines;
                     float[] _horizontalLines;
-                    UnityEngine.Rect[] _regionRects;
+                    UnityEngine.Rect _mapRect;
                     
-                    GameLib.MapGridDrawUtil.ComputeGridLinePositions( _mapW, _mapH, _gridCols, _regionCols, _regionRows, _unlockedSection, out _verticalLines, out _horizontalLines, out _regionRects );
+                    GameLib.MapGridDrawUtil.ComputeGridLinePositions( _mapW, _mapH, _gridCols, out _verticalLines, out _horizontalLines, out _mapRect );
                     translator.Push(L, _verticalLines);
                         
                     translator.Push(L, _horizontalLines);
                         
-                    translator.Push(L, _regionRects);
+                    translator.Push(L, _mapRect);
                         
                     
                     

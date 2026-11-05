@@ -117,27 +117,30 @@
                 </ui:VisualElement>
                 <ui:VisualElement class="bottom-props-area" style="height: 220px; padding: 6px; spacing: 8px; flex-direction: row; align-items: stretch; justify-content: flex-start;">
                     <ui:VisualElement name="VisualElement" class="prop-box" style="width: 380px; padding: 8px; spacing: 6px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px;">
-                        <ui:VisualElement class="prop-row" style="spacing: 6px; align-items: center;">
-                            <ui:Button text="更新地图" class="small-btn" />
-                            <ui:Label text="场景名:" class="prop-label" style="width: 44px;" />
+                        <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
+                            <ui:Button text="更新地图" class="small-btn" style="min-width: 80px; height: 22px;" />
+                            <ui:Label text="场景名:" class="prop-label" style="width: 48px;" />
                             <ui:TextField value="ChapterN" name="scene-name-field" class="small-textfield flex-grow" />
-                            <ui:Label text="宽:" class="prop-label" style="width: 20px;" />
-                            <ui:TextField value="2048" name="map-width-field" class="small-textfield" style="width: 50px;" />
+                            <ui:Label text="宽:" class="prop-label" style="width: 24px;" />
+                            <ui:TextField value="4096" name="map-width-field" class="small-textfield" style="width: 60px;" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row" style="spacing: 6px; align-items: center; height: 21px;">
-                            <ui:Button text="导出切片" class="small-btn" />
-                            <ui:Label text="场景ID:" class="prop-label" style="width: 44px;" />
+                        <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
+                            <ui:Button text="导出切片" class="small-btn" style="min-width: 80px; height: 22px;" />
+                            <ui:Label text="场景ID:" class="prop-label" style="width: 48px;" />
                             <ui:TextField value="1" name="scene-id-field" class="small-textfield flex-grow" />
-                            <ui:Label text="高:" class="prop-label" style="width: 20px;" />
-                            <ui:TextField value="2048" name="map-height-field" class="small-textfield" style="width: 50px;" />
+                            <ui:Label text="高:" class="prop-label" style="width: 24px;" />
+                            <ui:TextField value="4096" name="map-height-field" class="small-textfield" style="width: 60px;" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row" style="spacing: 6px; align-items: center;">
-                            <ui:Toggle text="DrawClear:" value="true" name="Toggle" />
-                            <ui:EnumField style="width: 100px;" />
+                        <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
+                            <ui:Button text="预览地图" name="btn-preview-map" class="small-btn" style="min-width: 80px; height: 22px;" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row" style="spacing: 6px; align-items: center;">
-                            <ui:Toggle text="摆放模式:    " value="true" />
-                            <ui:EnumField style="width: 100px;" />
+                        <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
+                            <ui:Toggle text="DrawClear:" value="true" name="Toggle" style="width: 110px;" />
+                            <ui:EnumField style="width: 140px;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
+                            <ui:Toggle text="摆放模式:" value="true" style="width: 110px;" />
+                            <ui:EnumField style="width: 140px;" />
                         </ui:VisualElement>
                         <ui:Label text="Ctrl：按住=绘制矩形区域    松开=绘制菱形区域" class="shortcut-text" style="font-size: 10px; margin-top: 4px;" />
                         <ui:Label text="Alt：按住=擦除格子模式   Shift：按住曲线绘制区域" class="shortcut-text" style="font-size: 10px;" />
@@ -200,7 +203,6 @@
                             <ui:Label text="气泡:" class="detail-label" style="width: 60px;" />
                             <ui:VisualElement name="prop-dialog-bubble-container" class="flex-grow" style="width: 111px;" />
                             <ui:Label text="气泡ID:" class="detail-label" style="width: 48px;" />
-                            <!-- TODO 气泡配置表通用化：引用 Tables.Bubble 的ID输入容器（<=0 保存时不输出 BubbleId 行） -->
                             <ui:VisualElement name="prop-bubble-id-container" class="flex-grow" style="width: 80px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
@@ -295,6 +297,38 @@
                             <ui:Label text="重生时间：" class="prop-label" />
                             <ui:TextField name="item-respawn-field" value="0" class="prop-textfield" style="width: 60px;" />
                             <ui:Label text="秒" class="prop-label" />
+                        </ui:VisualElement>
+                        <ui:Label text="Y坐标深度排序" class="sub-title" />
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="启用YSort：" class="prop-label" />
+                            <ui:Toggle name="item-ysort-toggle" text="自动深度排序" value="true" />
+                            <ui:Label text="偏移：" class="prop-label" />
+                            <ui:TextField name="item-ysort-offset-field" value="0" class="prop-textfield" style="width: 60px;" />
+                        </ui:VisualElement>
+                        <ui:Label text="移动与循环" class="sub-title" />
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="可移动：" class="prop-label" />
+                            <ui:Toggle name="item-movable-toggle" text="允许移动" />
+                            <ui:Label text="循环重启延迟：" class="prop-label" />
+                            <ui:TextField name="item-loop-restart-field" value="3" class="prop-textfield" style="width: 60px;" />
+                            <ui:Label text="秒" class="prop-label" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="离开地图隐藏：" class="prop-label" />
+                            <ui:Toggle name="item-hide-offmap-toggle" text="自动隐藏" value="true" />
+                        </ui:VisualElement>
+                        <ui:Label text="传送门设置" class="sub-title" />
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="是否传送门：" class="prop-label" />
+                            <ui:Toggle name="item-teleport-toggle" text="启用传送门" />
+                            <ui:Label text="目标场景：" class="prop-label" />
+                            <ui:TextField name="item-teleport-scene-field" class="prop-textfield" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="prop-row">
+                            <ui:Label text="目标X：" class="prop-label" />
+                            <ui:TextField name="item-teleport-x-field" value="0" class="prop-textfield" style="width: 60px;" />
+                            <ui:Label text="目标Y：" class="prop-label" />
+                            <ui:TextField name="item-teleport-y-field" value="0" class="prop-textfield" style="width: 60px;" />
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>

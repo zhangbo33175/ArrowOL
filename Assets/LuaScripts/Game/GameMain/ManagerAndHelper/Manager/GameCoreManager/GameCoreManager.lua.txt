@@ -166,12 +166,9 @@ end
 ---@return Tables.LevelData_Item|nil 关卡配置数据，未取到关卡ID时返回 nil
 ---=========================================================================
 function GameCoreManager:GetLevelData(chapterId)
-    local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
-    if levelId ~= nil then
-        local levelData = GamePlayHelper:LoadLevelData(chapterId, levelId)
-        return levelData
-    end
-    return nil
+    -- 【取消分区】章节地图为整图单分区：恒取第 1 分区（存档 lv 不再作为分区序号使用）
+    local levelData = GamePlayHelper:LoadLevelData(chapterId, 1)
+    return levelData
 end
 
 --endregion
@@ -469,24 +466,32 @@ function GameCoreManager:SetOnGameplay(character)
         -- 读取全局角色列表缓存
         local characterChooseList = self:GetCharacterChooseList()
         local characterList = self:GetCharacterList()
+        -- 实例唯一收集键：生成时挂在角色实例（分区ID_角色ID_序号），同 ID 多实例各自独立收集；
+        -- 无 _CollectKey 时兜底用角色 ID（兼容其他生成路径）
+        local collectKey = character._CollectKey or character.ID
 
         -- 未收集则加入已收集列表，并延迟销毁原候选实体（覆盖流光收集动画时长）
-        if not ContainsKey(characterChooseList, character.ID) then
+        if not ContainsKey(characterChooseList, collectKey) then
             if characterChooseList then
-                characterChooseList[character.ID] = {}
-                characterChooseList[character.ID].ID = character.ID
-                characterChooseList[character.ID].Character = character
+                -- 统一构建收集项，消除对 collectKey 的重复索引
+                ---TODO [优化] 收集项构建抽为局部变量，消除 characterChooseList[collectKey] 三次重复索引
+                local collectedEntry = {}
+                collectedEntry.ID = character.ID
+                collectedEntry.CollectKey = collectKey
+                collectedEntry.Character = character
+                characterChooseList[collectKey] = collectedEntry
                 -- 角色成功收集，通知 UI 刷新目标完成数并播放流光动画；
                 -- 携带角色实体实例（CharacterBase），供 UIMainPlayingManager 流光动画读取图标与坐标
                 --TODO: [修复] OnCharacterCollected 原传 _CharData（数据，无 .cs），改为传 CharacterList 中的角色实例，否则流光动画因"角色无效"跳过
                 HonorEventHelper:Fire(EventCmd.OnCharacterCollected,
-                        characterList[character.ID] and characterList[character.ID].Character or character)
+                        characterList[collectKey] and characterList[collectKey].Character or character)
             end
             -- 角色实体延迟销毁：覆盖流光收集动画时长（UIMainPlayingManager 播放图标飞向数字并渐隐），
             -- 避免立即 OnDestroy 导致图标瞬间消失；延时到期后再销毁实体，防止残留
             --TODO: [优化] 收集后角色延迟销毁（延时覆盖流光动画时长），不再立即 OnDestroy，保证图标"化作流光飞向数字"表现完整
-            if characterList[character.ID] and characterList[character.ID].Character then
-                local collectedChar = characterList[character.ID].Character
+            --      销毁直接用命中的角色实例 character（角色可能未登记进 GameCoreManagerData 收集列表，避免 characterList[collectKey] 为 nil 跳过销毁）
+            if character and character.cs ~= nil and not IsNull(character.cs) then
+                local collectedChar = character
                 HonorCoroutineHelper:StartAlone(function()
                     HonorCoroutineHelper:WaitForSeconds(0.8)
                     if collectedChar.cs ~= nil and not IsNull(collectedChar.cs) then
@@ -494,10 +499,13 @@ function GameCoreManager:SetOnGameplay(character)
                     end
                 end)
             end
-        end
-        -- 已收集数量等于总数量则直接通关
-        if self:GetCharacterChooseListCount() == self:GetCharacterListCount() then
-            self:CheckGameResult(EGameOverType.SUCCESS)
+
+            -- 收敛到 LevelCollectManager，记录收集进度并推进事件（进度广播）
+            -- 仅在新收集成功时上报，避免重复点击已收集角色重复触发结算
+            LevelCollectManager:NotifyItemCollected(collectKey)
+            if LevelCollectManager:IsAllCollected() then
+                self:CheckGameResult(EGameOverType.SUCCESS)
+            end
         end
     else
         -- 点击空白无匹配角色，扣除生命值
@@ -508,6 +516,23 @@ function GameCoreManager:SetOnGameplay(character)
         if remainLife == 0 then
             self:CheckGameResult(EGameOverType.FAILURE)
         end
+    end
+end
+
+---=========================================================================
+---@brief 收集一个地图物件（建筑/物件统一入口）
+---@desc 由 MapObjectBase 点击回调触发：记录分区收集进度，
+---      分区收集完成则解锁下一分区，全局收集完成则结算通关
+---@type fun(itemKey:string):void
+---@param itemKey string @物件唯一键（生成时登记到分区映射）
+---=========================================================================
+function GameCoreManager:CollectMapItem(itemKey)
+    if self._IsGameOver then
+        return
+    end
+    LevelCollectManager:NotifyItemCollected(itemKey)
+    if LevelCollectManager:IsAllCollected() then
+        self:CheckGameResult(EGameOverType.SUCCESS)
     end
 end
 

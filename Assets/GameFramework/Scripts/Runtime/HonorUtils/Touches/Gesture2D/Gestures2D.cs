@@ -270,7 +270,10 @@ namespace Honor.Runtime
 
                 m_PinchFingersOldDistance = gesture.twoFingerDistance;
                 m_PinchScreenCenterPosition = gesture.position;
-                m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
+                if (m_SceneCamera != null)
+                {
+                    m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
+                }
 
                 m_SkipFirstPinchFrame = true;
             }
@@ -305,7 +308,10 @@ namespace Honor.Runtime
 
                 m_PinchFingersOldDistance = gesture.twoFingerDistance;
                 m_PinchScreenCenterPosition = gesture.position;
-                m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
+                if (m_SceneCamera != null)
+                {
+                    m_PinchWorldCenterPosition = m_SceneCamera.ViewportToWorldPoint(m_SceneCamera.ScreenToViewportPoint(m_PinchScreenCenterPosition));
+                }
 
                 m_SkipFirstPinchFrame = true;
             }

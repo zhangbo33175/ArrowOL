@@ -36,6 +36,7 @@ end
 ---@brief 创建管理器单例实例
 ---@param args table 初始化参数
 ---@return UIMainPlayingManager 管理器实例对象
+
 ---=========================================================================
 function UIMainPlayingManager:Create(args)
     return UIMainPlayingManager.new(args)
@@ -65,10 +66,13 @@ function UIMainPlayingManager:OnViewOpened(view)
     HonorEventHelper:AddListenerBatch({
         {EventCmd.LifeTransformation, handler(self, self.OnLifeTransformation)}, --生命数变化-刷新 FishItem
         {EventCmd.OnCharacterCollected, handler(self, self.OnCharacterCollected)}, --角色收集-刷新目标完成数
+        {EventCmd.OnLevelProgress, handler(self, self.OnLevelProgress)}, --关卡收集进度-刷新收集面板
         {EventCmd.OnLevelFailure, handler(self, self.OnLevelFailure)}, --关卡失败-消除 FishItem
     })
     -- 初始化界面数据
     self:RefreshAll()
+    -- 运行时动态创建章节收集面板（章节名+全局总数+横向滑动收集列表）
+    self:CreateCollectPanel()
 end
 
 ---=========================================================================
@@ -88,6 +92,8 @@ end
 ---=========================================================================
 function UIMainPlayingManager:OnViewClosed()
     HonorEventHelper:RemoveListenerByTarget(self)
+    -- 销毁运行时创建的收集面板，避免界面关闭后残留
+    self:DestroyCollectPanel()
     self._view = nil
 end
 
@@ -122,8 +128,21 @@ end
 ---=========================================================================
 function UIMainPlayingManager:OnCharacterCollected(data)
     self:RefreshCompleteNumber()
+    -- 刷新收集面板（该角色 item 置为已收集高亮 + 全局总数更新）
+    self:RefreshCollectPanel()
     -- 收集流光动画：角色图标化作流光飞向目标完成数并消散（实体销毁由 GameCoreManager 延迟执行）
     self:PlayCollectFlyAnimation(data)
+end
+
+---=========================================================================
+---@brief 关卡收集进度-刷新收集面板
+---@desc 监听 OnLevelProgress（角色/物件收集统一触发），刷新全局总数与各 item 收集状态
+---@param levelId any 关卡ID
+---@param collected any 该关卡已收集数
+---@param total any 该关卡总数
+---=========================================================================
+function UIMainPlayingManager:OnLevelProgress(levelId, collected, total)
+    self:RefreshCollectPanel()
 end
 
 ---=========================================================================
@@ -144,7 +163,8 @@ function UIMainPlayingManager:PlayCollectFlyAnimation(character)
     local icon = character._GameObject and character._GameObject.transform and character._GameObject.transform:Find("CharacterIcon") or character._CharacterIcon
     local view = self._view
     if not icon or not view or not view.CompleteNumber then
-        PrintInfo("[UIMainPlayingManager] 流光动画跳过：图标/目标数字缺失 icon=", tostring(icon), " view=", tostring(view), " CompleteNumber=", tostring(view and view.CompleteNumber))
+        PrintInfo("[UIMainPlayingManager] 流光动画跳过：图标/目标数字缺失 icon=" .. tostring(icon) ..
+                " view=" .. tostring(view) .. " CompleteNumber=" .. tostring(view and view.CompleteNumber))
         return
     end
     -- 目标场景坐标：将 CompleteNumber（UI）位置转换到场景坐标系（pcall 保护相机解析失败，避免中断主动画）
@@ -158,7 +178,8 @@ function UIMainPlayingManager:PlayCollectFlyAnimation(character)
     local img = icon:GetComponent(typeof(UnityEngine.UI.Image))
     local dur = 0.6      -- 飞行时长（秒）
     local originScale = icon.localScale -- 初始缩放（发光放大基准）
-    PrintInfo("[UIMainPlayingManager] 流光动画开始 icon=", icon.name, " 目标=", tostring(targetScene))
+    PrintInfo("[UIMainPlayingManager] 流光动画开始 icon=" .. tostring(icon.name) ..
+            " 目标=" .. tostring(targetScene))
 
     -- 流光表现1：发光放大（使用 Transform 扩展方法，规避 DOTween.To 泛型闭包在 XLua 下的不可用风险）
     local s = originScale.x * 1.35
@@ -238,7 +259,7 @@ end
 ---@desc 由 SearchButton.Clicked 触发，驱动地图自动扫描
 ---=========================================================================
 function UIMainPlayingManager:StartAutoScan()
-    GameMapMotion:StartAutoScan(300)
+    GameMapCameraManager:StartAutoScan(300)
 end
 
 ---=========================================================================
@@ -250,7 +271,7 @@ function UIMainPlayingManager:ShowBackground()
     if view and view.AdDisplayGameObject then
         view.AdDisplayGameObject:SetActive(true)
     end
-    GameMapMotion:UpdateCameraRect(199.237)
+    GameMapCameraManager:UpdateBottomHud(199.237)
 end
 
 ---=========================================================================
@@ -262,7 +283,7 @@ function UIMainPlayingManager:HideBackground()
     if view and view.AdDisplayGameObject then
         view.AdDisplayGameObject:SetActive(false)
     end
-    GameMapMotion:UpdateCameraRect(0)
+    GameMapCameraManager:UpdateBottomHud(0)
 end
 
 --endregion
@@ -477,6 +498,247 @@ function UIMainPlayingManager:_PlayBreakForItems(items, onAllDone)
             onFishDone()
         end
     end
+end
+
+--endregion
+
+--region 收集面板（章节名 + 全局总数 + 横向滑动收集列表）
+
+---@type table<string,table> itemKey -> 收集面板 item 引用（供收集后刷新状态）
+UIMainPlayingManager._collectItems = nil
+---@type UnityEngine.GameObject|nil @收集面板根节点引用
+UIMainPlayingManager._collectPanel = nil
+---@type UnityEngine.UI.Text|nil @章节名标题文本
+UIMainPlayingManager._collectTitleText = nil
+---@type UnityEngine.UI.Text|nil @全局收集总数文本
+UIMainPlayingManager._collectTotalText = nil
+
+---=========================================================================
+---@brief 创建章节收集面板（幂等，运行时动态创建）
+---@desc 挂到 Down（底部红框）节点下，纯代码创建 GameObject+RectTransform+Image+Text+ScrollRect，
+---      不改 Prefab，对齐 UIMainStateViewView 动态创建范式；
+---      内容：章节名+关卡 标题、全局收集总数、横向滑动收集列表（每个可收集物品一项：图标+名称+收集状态）
+---=========================================================================
+function UIMainPlayingManager:CreateCollectPanel()
+    local view = self._view
+    if not view or not view.cs or IsNull(view.cs.gameObject) then
+        return
+    end
+    -- 挂载父节点：优先 Down（底部红框），找不到挂根节点
+    local parent = view.cs.transform:Find("Down")
+    if not parent then
+        parent = view.cs.transform
+    end
+    -- 幂等：已存在则跳过，避免界面多次打开重复创建
+    if parent:Find("CollectPanel") then
+        return
+    end
+
+    local panelRT = self:_CreateRectNode("CollectPanel", parent)
+    -- 定位：贴底部中央偏上
+    panelRT.anchorMin = UnityEngine.Vector2(0, 0)
+    panelRT.anchorMax = UnityEngine.Vector2(1, 0)
+    panelRT.pivot = UnityEngine.Vector2(0.5, 0)
+    panelRT.anchoredPosition = UnityEngine.Vector2(0, 8)
+    panelRT.sizeDelta = UnityEngine.Vector2(-40, 150)
+
+    -- 章节名标题（左上）
+    local title = self:_CreateText("ChapterTitle", panelRT, "章节", 26, UnityEngine.Color.white)
+    local titleRect = title.rectTransform
+    titleRect.anchorMin = UnityEngine.Vector2(0, 1)
+    titleRect.anchorMax = UnityEngine.Vector2(0, 1)
+    titleRect.pivot = UnityEngine.Vector2(0, 1)
+    titleRect.anchoredPosition = UnityEngine.Vector2(8, -2)
+    titleRect.sizeDelta = UnityEngine.Vector2(320, 36)
+
+    -- 全局总数（右上，已收集/总收集）
+    local total = self:_CreateText("TotalText", panelRT, "0/0", 26, UnityEngine.Color.white)
+    local totalRect = total.rectTransform
+    totalRect.anchorMin = UnityEngine.Vector2(1, 1)
+    totalRect.anchorMax = UnityEngine.Vector2(1, 1)
+    totalRect.pivot = UnityEngine.Vector2(1, 1)
+    totalRect.anchoredPosition = UnityEngine.Vector2(-8, -2)
+    totalRect.sizeDelta = UnityEngine.Vector2(220, 36)
+
+    -- 横向滑动列表（ScrollRect + Viewport + Content）
+    local scrollGo = self:_CreateRectNode("CollectScroll", panelRT)
+    local scrollRT = scrollGo
+    scrollRT.anchorMin = UnityEngine.Vector2(0, 0)
+    scrollRT.anchorMax = UnityEngine.Vector2(1, 0)
+    scrollRT.pivot = UnityEngine.Vector2(0.5, 0)
+    scrollRT.anchoredPosition = UnityEngine.Vector2(0, 4)
+    scrollRT.sizeDelta = UnityEngine.Vector2(0, 104)
+    local scrollRect = scrollGo.gameObject:AddComponent(typeof(UnityEngine.UI.ScrollRect))
+    scrollRect.horizontal = true
+    scrollRect.vertical = false
+    scrollRect.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped
+
+    -- viewport（带 Mask 裁剪，避免 item 滑出面板）
+    local vpRT = self:_CreateRectNode("Viewport", scrollRT)
+    vpRT.gameObject:AddComponent(typeof(UnityEngine.UI.Image)).color = UnityEngine.Color(0, 0, 0, 0)
+    vpRT.gameObject:AddComponent(typeof(UnityEngine.UI.Mask)).showMaskGraphic = false
+    vpRT.anchorMin = UnityEngine.Vector2.zero
+    vpRT.anchorMax = UnityEngine.Vector2.one
+    vpRT.offsetMin = UnityEngine.Vector2.zero
+    vpRT.offsetMax = UnityEngine.Vector2.zero
+    scrollRect.viewport = vpRT
+
+    -- content（横向自动扩展）
+    local contentRT = self:_CreateRectNode("Content", vpRT)
+    contentRT.anchorMin = UnityEngine.Vector2(0, 0)
+    contentRT.anchorMax = UnityEngine.Vector2(0, 1)
+    contentRT.pivot = UnityEngine.Vector2(0, 0.5)
+    contentRT.anchoredPosition = UnityEngine.Vector2.zero
+    contentRT.sizeDelta = UnityEngine.Vector2(0, 0)
+    local hGroup = contentRT.gameObject:AddComponent(typeof(UnityEngine.UI.HorizontalLayoutGroup))
+    hGroup.spacing = 10
+    hGroup.padding.left = 4
+    hGroup.padding.right = 4
+    hGroup.childAlignment = UnityEngine.TextAnchor.MiddleLeft
+    local fitter = contentRT.gameObject:AddComponent(typeof(UnityEngine.UI.ContentSizeFitter))
+    fitter.horizontalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize
+    fitter.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize
+    scrollRect.content = contentRT
+
+    -- 填充每个可收集物品
+    self._collectItems = {}
+    local items = LevelCollectManager:GetCollectableItems()
+    for _, itemKey in ipairs(items) do
+        self:_CreateCollectItem(contentRT, itemKey)
+    end
+
+    -- 保存引用并刷新
+    self._collectPanel = panelRT.gameObject
+    self._collectTitleText = title
+    self._collectTotalText = total
+    self:RefreshCollectPanel()
+end
+
+---=========================================================================
+---@brief 创建单个收集 item（图标 + 名称 + 收集状态）
+---@param parent UnityEngine.RectTransform 列表容器（Content）
+---@param itemKey string 可收集物品唯一键
+---=========================================================================
+function UIMainPlayingManager:_CreateCollectItem(parent, itemKey)
+    local meta = LevelCollectManager:GetItemMeta(itemKey)
+    local iconName = meta and meta.icon or ""
+    local itemRT = self:_CreateRectNode("Item_" .. tostring(itemKey), parent)
+    itemRT.sizeDelta = UnityEngine.Vector2(70, 90)
+
+    -- 图标
+    local iconRT = self:_CreateRectNode("Icon", itemRT)
+    local img = iconRT.gameObject:AddComponent(typeof(UnityEngine.UI.Image))
+    img.raycastTarget = false
+    iconRT.anchorMin = UnityEngine.Vector2(0, 1)
+    iconRT.anchorMax = UnityEngine.Vector2(1, 1)
+    iconRT.pivot = UnityEngine.Vector2(0.5, 1)
+    iconRT.anchoredPosition = UnityEngine.Vector2(0, -2)
+    iconRT.sizeDelta = UnityEngine.Vector2(60, 60)
+    if iconName ~= "" and self._view then
+        GamePlayHelper:RefreshImageSprite(self._view, img, iconName)
+    end
+
+    -- 名称
+    local nameText = self:_CreateText("Name", itemRT, tostring(itemKey), 15, UnityEngine.Color.white)
+    local nameRT = nameText.rectTransform
+    nameRT.anchorMin = UnityEngine.Vector2(0, 0)
+    nameRT.anchorMax = UnityEngine.Vector2(1, 0)
+    nameRT.pivot = UnityEngine.Vector2(0.5, 0)
+    nameRT.anchoredPosition = UnityEngine.Vector2(0, 0)
+    nameRT.sizeDelta = UnityEngine.Vector2(70, 20)
+
+    self._collectItems[itemKey] = { go = itemRT.gameObject, iconImage = img, nameText = nameText }
+    self:RefreshCollectItem(itemKey)
+end
+
+---=========================================================================
+---@brief 刷新单个 item 收集状态（已收集高亮，未收集灰显）
+---@param itemKey string 可收集物品唯一键
+---=========================================================================
+function UIMainPlayingManager:RefreshCollectItem(itemKey)
+    local item = self._collectItems and self._collectItems[itemKey]
+    if not item then
+        return
+    end
+    local collected = LevelCollectManager:IsItemCollected(itemKey)
+    if item.iconImage then
+        item.iconImage.color = collected and UnityEngine.Color.white or UnityEngine.Color(0.45, 0.45, 0.45, 0.7)
+    end
+    if item.nameText then
+        item.nameText.color = collected and UnityEngine.Color.white or UnityEngine.Color(0.6, 0.6, 0.6, 1)
+    end
+end
+
+---=========================================================================
+---@brief 刷新收集面板：章节名+关卡、全局总数、全部 item 收集状态
+---=========================================================================
+function UIMainPlayingManager:RefreshCollectPanel()
+    if not self._collectTitleText then
+        return
+    end
+    -- 章节名 + 关卡
+    local chapterId = ChapterListManager:GetRuntimeChapterId()
+    local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
+    local chapterName = chapterData and chapterData.ChapterTitle or ("章节" .. tostring(chapterId))
+    local lv = ChapterListManager:GetRuntimeChapterLvByChapterId(chapterId)
+    self._collectTitleText.text = chapterName .. ":关卡" .. tostring(lv)
+    -- 全局总数（已收集/总收集）
+    if self._collectTotalText then
+        self._collectTotalText.text = tostring(LevelCollectManager:GetGlobalCollected()) .. "/" .. tostring(LevelCollectManager:GetGlobalTotal())
+    end
+    -- 全部 item 收集状态
+    if self._collectItems then
+        for k in pairs(self._collectItems) do
+            self:RefreshCollectItem(k)
+        end
+    end
+end
+
+---=========================================================================
+---@brief 销毁收集面板（幂等，界面关闭/分区解锁重建时调用）
+---=========================================================================
+function UIMainPlayingManager:DestroyCollectPanel()
+    if self._collectPanel and not IsNull(self._collectPanel) then
+        UnityEngine.Object.Destroy(self._collectPanel)
+    end
+    self._collectPanel = nil
+    self._collectTitleText = nil
+    self._collectTotalText = nil
+    self._collectItems = nil
+end
+
+---=========================================================================
+---@brief 辅助：创建带 RectTransform 的空节点
+---@param name string 节点名
+---@param parent UnityEngine.Transform 父节点
+---@return UnityEngine.RectTransform 新建节点的 RectTransform
+---=========================================================================
+function UIMainPlayingManager:_CreateRectNode(name, parent)
+    local go = UnityEngine.GameObject(name)
+    go.transform:SetParent(parent, false)
+    local rt = go:AddComponent(typeof(UnityEngine.RectTransform))
+    return rt
+end
+
+---=========================================================================
+---@brief 辅助：创建文本节点
+---@param name string 节点名
+---@param parent UnityEngine.Transform 父节点
+---@param text string 初始文本
+---@param fontSize number 字号
+---@param color UnityEngine.Color 字体颜色
+---@return UnityEngine.UI.Text 文本组件
+---=========================================================================
+function UIMainPlayingManager:_CreateText(name, parent, text, fontSize, color)
+    local rt = self:_CreateRectNode(name, parent)
+    local t = rt.gameObject:AddComponent(typeof(UnityEngine.UI.Text))
+    t.text = text
+    t.fontSize = fontSize
+    t.alignment = UnityEngine.TextAnchor.MiddleCenter
+    t.color = color
+    t.font = UnityEngine.Resources.GetBuiltinResource(typeof(UnityEngine.Font), "LegacyRuntime.ttf")
+    t.raycastTarget = false
+    return t
 end
 
 --endregion

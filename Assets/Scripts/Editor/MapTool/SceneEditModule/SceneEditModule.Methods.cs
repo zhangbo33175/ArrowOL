@@ -42,6 +42,10 @@ namespace Honor.Editor.MapTool
             var saveBtn = m_Root.Q<Button>(name: "btn-save");
             if (saveBtn != null)
                 saveBtn.clicked += OnSaveClicked;
+            // 预览地图按钮
+            var previewBtn = m_Root.Q<Button>(name: "btn-preview-map");
+            if (previewBtn != null)
+                previewBtn.clicked += OnPreviewClicked;
             // 清空摆放物按钮
             var clearObjectsBtn = m_Root.Q<Button>(name: "btn-clear-objects");
             if (clearObjectsBtn != null)
@@ -107,6 +111,27 @@ namespace Honor.Editor.MapTool
         private void OnExportSliceClicked()
         {
             Debug.Log("导出切片");
+        }
+
+        /// <summary>
+        /// 预览地图按钮点击
+        /// </summary>
+        private void OnPreviewClicked()
+        {
+            // 加载背景图
+            Texture bgTexture = LoadRegionBackground(m_CurrentLevelId);
+
+            // 获取所有模板
+            var templates = ObjectTemplateManager.Instance.GetAllTemplates();
+
+            // 打开预览窗口，传入当前编辑的地图数据和模板
+            MapPreviewWindow.ShowWindow(
+                m_PlacedObjects,
+                templates,
+                bgTexture,
+                $"关卡 {m_CurrentLevelId}",
+                m_MapWidth,
+                m_MapHeight);
         }
 
         /// <summary>

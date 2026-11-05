@@ -1,0 +1,420 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameMapMotionManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     地图输入手势管理器 —— 纯输入检测层
+-- @desc      PC拖动/手机滑动/双指缩放/滚轮缩放/严格单击拖动分离判定
+-- @core      输入手势识别、单击拖动分离、UI触摸拦截、EasyTouch事件注册
+-- @scope     全局单例表，由 GameMapBase:Start/OnDestroy 驱动 OnMapStart/OnMapEnd，GamePlayingState 每帧 OnUpdate
+-- @trigger   地图启动时初始化，输入事件驱动
+-- @dependency GameMapCameraManager, EasyTouch, GameManager, GameLib.RSetupLuaTableValue
+-- @note      本类只做输入检测与手势识别，输出世界位移/缩放意图给 CameraManager；
+--            不做业务逻辑（如角色点击检测），点击位置通过事件广播，由业务层自行检测
+--=====================================================================================================
+
+--region 【常量配置】
+
+local DEFAULT_ZOOM_SPEED        = 1.1    -- 默认缩放速度系数
+local DEFAULT_DRAG_THRESHOLD    = 12     -- 默认拖动阈值（像素）
+
+--endregion
+
+---@class GameMapMotionManager 地图输入手势管理器 | 纯输入检测层
+---@field IsMapWork boolean @地图输入是否激活
+---@field PointStartFromUI boolean @是否从UI开始按压
+---@field IsMouseDown boolean @鼠标是否按下
+---@field MouseLastScreenPos table @鼠标最后屏幕坐标 {x,y}
+---@field IsPinching boolean @是否双指缩放中
+---@field LastPinchDistance number @上一次双指距离
+---@field ZoomSpeed number @缩放速度系数
+---@field ClickEnable boolean @单击开关
+---@field ClickStartX number @单击起始X
+---@field ClickStartY number @单击起始Y
+---@field IsPressing boolean @是否正在按压
+---@field DragThreshold number @拖动阈值（像素）
+---@field OnMapClick fun(screenPos:table)|nil @地图单击外部回调（仅传屏幕坐标，业务层自行做碰撞检测）
+local GameMapMotionManager = {
+    IsMapWork = false,
+
+    -- 输入状态
+    PointStartFromUI = false,
+    IsMouseDown = false,
+    MouseLastScreenPos = { x = 0, y = 0 },
+
+    -- 缩放
+    IsPinching = false,
+    LastPinchDistance = 0,
+    ZoomSpeed = DEFAULT_ZOOM_SPEED,
+
+    -- 单击 / 拖动分离
+    ClickEnable = true,
+    ClickStartX = 0,
+    ClickStartY = 0,
+    IsPressing = false,
+    DragThreshold = DEFAULT_DRAG_THRESHOLD,
+    OnMapClick = nil,
+}
+
+--region 【初始化与销毁】
+
+---@brief 地图启动初始化（读取配置、注册触摸事件）
+---@type fun():void
+function GameMapMotionManager:OnMapStart()
+    -- 读取运动配置（缩放速度、拖动阈值）
+    local cfg = self:_GetMotionConfig()
+    if cfg then
+        self.ZoomSpeed = cfg.m_ZoomSpeed or self.ZoomSpeed
+        self.DragThreshold = cfg.m_DragThreshold or self.DragThreshold
+    end
+
+    -- 重置输入状态
+    self.IsMapWork = true
+    self.IsMouseDown = false
+    self.IsPressing = false
+    self.PointStartFromUI = false
+    self.IsPinching = false
+
+    -- 注册 EasyTouch 触摸事件
+    self:RegisterTouchEvents("+")
+
+    print("[GameMapMotionManager] 初始化完成，输入检测已激活")
+end
+
+---@brief 地图结束，反注册事件并重置状态
+---@type fun():void
+function GameMapMotionManager:OnMapEnd()
+    self:RegisterTouchEvents("-")
+    self.IsMapWork = false
+    self.IsMouseDown = false
+    self.IsPressing = false
+    self.PointStartFromUI = false
+end
+
+---@brief 读取地图运动配置（从 MapData.m_MotionConfig 读取）
+---@type fun():MapMotionConfig|nil
+function GameMapMotionManager:_GetMotionConfig()
+    if MapManager and MapManager.CurMapData and MapManager.CurMapData.m_MotionConfig then
+        return MapManager.CurMapData.m_MotionConfig
+    end
+    return nil
+end
+
+--endregion
+
+--region 【每帧更新：输入检测】
+
+---@brief 每帧输入检测（由 GameMain 状态机驱动）
+---@desc PC端鼠标拖动 + 滚轮缩放 + 单击/拖动分离判定 + 双指缩放
+function GameMapMotionManager:OnUpdate()
+    if not self.IsMapWork then return end
+
+    self:UpdateMouseDrag()
+    self:UpdateMouseScrollZoom()
+    self:UpdateClickAndDrag()
+    self:CheckPinchZoom()
+end
+
+--endregion
+
+--region 【PC端鼠标拖动】
+
+---@brief PC鼠标拖拽移动地图
+---@desc 检测到拖动后，将屏幕位移转换为世界位移，调用 CameraManager.ApplyWorldDelta
+function GameMapMotionManager:UpdateMouseDrag()
+    -- 按下
+    if UnityEngine.Input.GetMouseButtonDown(0) then
+        self.PointStartFromUI = self:_IsPointerOverUI()
+        local mp = UnityEngine.Input.mousePosition
+
+        -- UI区域 / 屏幕外 不响应
+        if self.PointStartFromUI or not self:_IsInsideScreen(mp.x, mp.y) then
+            self.IsMouseDown = false
+            return
+        end
+
+        self.IsMouseDown = true
+        self.MouseLastScreenPos.x = mp.x
+        self.MouseLastScreenPos.y = mp.y
+
+        -- 重置滑动状态（CameraManager 层）
+        GameMapCameraManager:ResetSwipeState()
+    end
+
+    -- 拖拽中
+    if UnityEngine.Input.GetMouseButton(0) and self.IsMouseDown and not self.PointStartFromUI then
+        local curr = UnityEngine.Input.mousePosition
+        if not self:_IsInsideScreen(curr.x, curr.y) then return end
+
+        local dx, dy = GameMapCameraManager:ScreenDeltaToWorldDelta(
+            curr.x, curr.y,
+            self.MouseLastScreenPos.x, self.MouseLastScreenPos.y
+        )
+        -- 转发给 CameraManager 应用世界位移
+        GameMapCameraManager:ApplyWorldDelta(dx, dy)
+
+        self.MouseLastScreenPos.x = curr.x
+        self.MouseLastScreenPos.y = curr.y
+    end
+
+    -- 抬起
+    if UnityEngine.Input.GetMouseButtonUp(0) and self.IsMouseDown then
+        self.IsMouseDown = false
+        self.PointStartFromUI = false
+        -- 结束拖动，由 CameraManager 统一处理惯性和 SmoothStep 重置
+        GameMapCameraManager:OnDragEnd()
+    end
+end
+
+--endregion
+
+--region 【缩放控制（滚轮 + 双指共用）】
+
+---@brief 内部：按缩放方向应用缩放（滚轮和双指共用）
+---@type fun(zoomIn:boolean):void
+---@param zoomIn boolean true=放大（缩小ortho），false=缩小（放大ortho）
+function GameMapMotionManager:_ApplyZoom(zoomIn)
+    local ortho = GameMapCameraManager:GetOrthographicSize()
+    ortho = zoomIn and (ortho / self.ZoomSpeed) or (ortho * self.ZoomSpeed)
+    GameMapCameraManager:ApplyZoom(ortho)
+end
+
+---@brief 鼠标滚轮缩放
+function GameMapMotionManager:UpdateMouseScrollZoom()
+    if not self.IsMapWork then return end
+    local scroll = UnityEngine.Input.GetAxis("Mouse ScrollWheel")
+    if math.abs(scroll) < 0.001 then return end
+    self:_ApplyZoom(scroll > 0)
+end
+
+---@brief 移动端双指缩放检测
+function GameMapMotionManager:CheckPinchZoom()
+    if not self.IsMapWork or self.PointStartFromUI then return end
+    local tc = UnityEngine.Input.touchCount
+    if tc ~= 2 then
+        self.IsPinching = false
+        return
+    end
+
+    local t1 = UnityEngine.Input.GetTouch(0)
+    local t2 = UnityEngine.Input.GetTouch(1)
+    if t1.phase == UnityEngine.TouchPhase.Began or t2.phase == UnityEngine.TouchPhase.Began then
+        self.LastPinchDistance = self:_GetTwoTouchDistance(t1, t2)
+        self.IsPinching = true
+        GameMapCameraManager:SetInertialFactor(0)
+        return
+    end
+    if t1.phase ~= UnityEngine.TouchPhase.Moved and t2.phase ~= UnityEngine.TouchPhase.Moved then
+        return
+    end
+
+    local curr = self:_GetTwoTouchDistance(t1, t2)
+    local diff = curr - self.LastPinchDistance
+    if math.abs(diff) <= 1 then return end
+
+    -- 双指张开=放大，捏合=缩小
+    self:_ApplyZoom(diff > 0)
+    self.LastPinchDistance = curr
+end
+
+---@brief 获取两个触摸点距离
+---@type fun(t1:UnityEngine.Touch,t2:UnityEngine.Touch):number
+function GameMapMotionManager:_GetTwoTouchDistance(t1, t2)
+    local dx = t1.position.x - t2.position.x
+    local dy = t1.position.y - t2.position.y
+    return math.sqrt(dx * dx + dy * dy)
+end
+
+--endregion
+
+--region 【严格单击 / 拖动分离】
+
+---@brief 单击/拖动分离逻辑，超过阈值=拖动，不触发单击
+function GameMapMotionManager:UpdateClickAndDrag()
+    if not self.IsMapWork or not self.ClickEnable or self.PointStartFromUI then
+        return
+    end
+
+    -- 鼠标按压开始
+    if UnityEngine.Input.GetMouseButtonDown(0) then
+        local mp = UnityEngine.Input.mousePosition
+        self.IsPressing = true
+        self.ClickStartX = mp.x
+        self.ClickStartY = mp.y
+    end
+
+    -- 鼠标按压结束
+    if UnityEngine.Input.GetMouseButtonUp(0) then
+        if self.IsPressing then
+            self.IsPressing = false
+            local mp = UnityEngine.Input.mousePosition
+            if self:_IsTapDistance(self.ClickStartX, self.ClickStartY, mp.x, mp.y) then
+                self:_TriggerClick(mp)
+            end
+        end
+    end
+
+    -- 触摸单击判断
+    local tc = UnityEngine.Input.touchCount
+    if tc == 1 then
+        local touch = UnityEngine.Input.GetTouch(0)
+        if touch.phase == UnityEngine.TouchPhase.Began then
+            self.IsPressing = true
+            self.ClickStartX = touch.position.x
+            self.ClickStartY = touch.position.y
+        elseif touch.phase == UnityEngine.TouchPhase.Ended or touch.phase == UnityEngine.TouchPhase.Canceled then
+            if self.IsPressing then
+                self.IsPressing = false
+                if self:_IsTapDistance(self.ClickStartX, self.ClickStartY, touch.position.x, touch.position.y) then
+                    self:_TriggerClick(touch.position)
+                end
+            end
+        end
+    end
+end
+
+---@brief 判断两点屏幕距离是否小于拖动阈值（小于=单击）
+---@type fun(x0:number,y0:number,x1:number,y1:number):boolean
+function GameMapMotionManager:_IsTapDistance(x0, y0, x1, y1)
+    local dx = x1 - x0
+    local dy = y1 - y0
+    return math.sqrt(dx * dx + dy * dy) < self.DragThreshold
+end
+
+---@brief 触发单击回调（仅真正单击时调用，只传屏幕坐标，业务层自行做碰撞检测）
+---@type fun(screenPos:UnityEngine.Vector2):void
+---@param screenPos UnityEngine.Vector2 点击屏幕坐标
+function GameMapMotionManager:_TriggerClick(screenPos)
+    if not self:_IsInsideScreen(screenPos.x, screenPos.y) then return end
+
+    -- 广播点击事件：业务层（如 CharacterManager）自行监听并做角色碰撞检测
+    HonorEventHelper:Fire(EventCmd.OnMapClicked, { x = screenPos.x, y = screenPos.y })
+
+    -- 外部回调（兼容旧接口）
+    if self.OnMapClick then
+        self.OnMapClick(nil, false, nil)
+    end
+end
+
+--endregion
+
+--region 【移动端 EasyTouch 滑动】
+
+---@brief 滑动开始
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+function GameMapMotionManager:OnSwipeBegin(gesture)
+    if GameManager:IsGamePaused() then return end
+    self.PointStartFromUI = self:_IsPointerOverUI()
+    self.IsPressing = false
+    if self.PointStartFromUI then return end
+    GameMapCameraManager:ResetSwipeState()
+end
+
+---@brief 滑动中
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+function GameMapMotionManager:OnSwipe(gesture)
+    if self.PointStartFromUI or not self.IsMapWork then return end
+    if gesture.touchCount ~= 1 then return end
+
+    local tx = gesture:GetPositionX()
+    local ty = gesture:GetPositionY()
+    if not self:_IsInsideScreen(tx, ty) then return end
+
+    local dx, dy = GameMapCameraManager:ScreenDeltaToWorldDelta(
+        tx, ty,
+        tx - gesture:GetDeltaPositionX(),
+        ty - gesture:GetDeltaPositionY()
+    )
+    GameMapCameraManager:ApplyWorldDelta(dx, dy)
+end
+
+---@brief 滑动结束
+---@type fun(gesture:HedgehogTeam.EasyTouch.Gesture):void
+function GameMapMotionManager:OnSwipeEnd(gesture)
+    if GameManager:IsGamePaused() then return end
+    if self.PointStartFromUI then
+        GameMapCameraManager:ResetSwipeState()
+    end
+    self.PointStartFromUI = false
+    self.IsPinching = false
+    -- 由 CameraManager 统一处理惯性和 SmoothStep 重置
+    GameMapCameraManager:OnDragEnd()
+end
+
+--endregion
+
+--region 【工具方法（私有）】
+
+---@brief 判断屏幕坐标是否在合法屏幕范围内
+---@type fun(x:number,y:number):boolean
+function GameMapMotionManager:_IsInsideScreen(x, y)
+    return x >= 0 and y >= 0 and x <= UnityEngine.Screen.width and y <= UnityEngine.Screen.height
+end
+
+---@brief 判断当前是否触摸在UI上（统一入口）
+---@type fun():boolean
+function GameMapMotionManager:_IsPointerOverUI()
+    return GameLib.RSetupLuaTableValue.IsPointerOverUIObject()
+end
+
+--endregion
+
+--region 【EasyTouch 触摸注册/反注册】
+
+---@brief 注册/反注册触摸事件
+---@type fun(action:string):void
+---@param action string "+"注册 / "-"注销
+function GameMapMotionManager:RegisterTouchEvents(action)
+    if action == "+" then
+        self.SwipeBegin = self.SwipeBegin or function(g) self:OnSwipeBegin(g) end
+        self.Swipe = self.Swipe or function(g) self:OnSwipe(g) end
+        self.SwipeEnd = self.SwipeEnd or function(g) self:OnSwipeEnd(g) end
+
+        CS.HedgehogTeam.EasyTouch.EasyTouch.On_DragStart("+", self.SwipeBegin)
+        CS.HedgehogTeam.EasyTouch.EasyTouch.On_Drag("+", self.Swipe)
+        CS.HedgehogTeam.EasyTouch.EasyTouch.On_DragEnd("+", self.SwipeEnd)
+    else
+        if self.SwipeBegin then
+            CS.HedgehogTeam.EasyTouch.EasyTouch.On_DragStart("-", self.SwipeBegin)
+            CS.HedgehogTeam.EasyTouch.EasyTouch.On_Drag("-", self.Swipe)
+            CS.HedgehogTeam.EasyTouch.EasyTouch.On_DragEnd("-", self.SwipeEnd)
+        end
+    end
+end
+
+--endregion
+
+--region 【开关控制：暂停 / 恢复】
+
+---@brief 恢复地图输入
+---@type fun():void
+function GameMapMotionManager:Resume()
+    if self.IsMapWork then return end
+    self.IsMapWork = true
+    self.IsMouseDown = false
+    self.PointStartFromUI = false
+    self.IsPressing = false
+end
+
+---@brief 暂停地图输入
+---@type fun():void
+function GameMapMotionManager:Pause()
+    self.IsMapWork = false
+    self.IsMouseDown = false
+    self.IsPressing = false
+end
+
+--endregion
+
+--region 【静态工厂】
+
+---@brief 静态工厂方法
+---@type fun():table
+function GameMapMotionManager.Create()
+    return GameMapMotionManager
+end
+
+--endregion
+
+return GameMapMotionManager

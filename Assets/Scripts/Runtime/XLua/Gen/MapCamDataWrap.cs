@@ -21,9 +21,8 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(MapCamData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 1, 3, 3);
+			Utils.BeginObjectRegister(type, L, translator, 0, 0, 3, 3);
 			
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "NormalAdjustPosY", _m_NormalAdjustPosY);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "size", _g_get_size);
@@ -41,11 +40,11 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginClassRegister(type, L, __CreateInstance, 1, 0, 0);
 			
 			
+            
 			
 			
 			
-			
-		    Utils.EndClassRegister(type, L, translator);
+			Utils.EndClassRegister(type, L, translator);
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,38 +72,9 @@ namespace XLua.CSObjectWrap
         
 		
         
+		
         
         
-        
-        
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_NormalAdjustPosY(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-                
-                
-                MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
-                
-                
-                
-                {
-                    float _designHeight = (float)LuaAPI.lua_tonumber(L, 2);
-                    
-                    gen_to_be_invoked.NormalAdjustPosY( _designHeight );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
         
         
         
@@ -115,7 +85,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				
+			
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.size);
             } catch(System.Exception gen_e) {
@@ -129,7 +99,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				
+			
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.posX);
             } catch(System.Exception gen_e) {
@@ -143,7 +113,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				
+			
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 LuaAPI.lua_pushnumber(L, gen_to_be_invoked.posY);
             } catch(System.Exception gen_e) {
@@ -154,13 +124,12 @@ namespace XLua.CSObjectWrap
         
         
         
-        
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _s_set_size(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				
+			
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.size = (float)LuaAPI.lua_tonumber(L, 2);
             
@@ -175,7 +144,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				
+			
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.posX = (float)LuaAPI.lua_tonumber(L, 2);
             
@@ -190,7 +159,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				
+			
                 MapCamData gen_to_be_invoked = (MapCamData)translator.FastGetCSObj(L, 1);
                 gen_to_be_invoked.posY = (float)LuaAPI.lua_tonumber(L, 2);
             
@@ -200,10 +169,7 @@ namespace XLua.CSObjectWrap
             return 0;
         }
         
-			
-			
-			
-			
+		
 		
 		
 		

@@ -57,10 +57,13 @@ function ChapterListManager:Init()
     ChapterListManager.super.Init(self)
     -- 监听关卡通关成功事件
     HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self.OnLevelSuccess))
+    -- 缓存最新章节ID，避免多次触发存档读写（GetLatestChapterId 内部含空值回写+持久化）
+    ---TODO [优化] 缓存 latestChapterId，一次读取复用，规避重复存档读写
+    local latestChapterId = self:GetLatestChapterId()
     -- 将运行时章节默认设置为存档内最新已解锁章节
-    self:SetRuntimeChapter(self:GetLatestChapterId())
+    self:SetRuntimeChapter(latestChapterId)
     -- 启动阶段检测下一章节是否满足解锁条件，满足则自动解锁，无UI弹窗提示
-    local checkNextChapterId = tostring(tonumber(self:GetLatestChapterId()) + 1)
+    local checkNextChapterId = tostring(tonumber(latestChapterId) + 1)
     if ChapterDataManager:GetChaptersDataByChapterId(checkNextChapterId) ~= nil then
         local meetCondition = self:MeetConditionForUnlock(checkNextChapterId)
         if meetCondition then
@@ -118,6 +121,19 @@ end
 --region 公共方法：解锁、完成、条件判断
 
 ---=========================================================================
+---@brief 获取章节配置的解锁目标等级
+---@desc 统一读取 UnlockNextLevel，缺失回退 1（章节解锁/完成判定共用，消除三处重复 or 1）
+---@param chapterData Tables.Chapters_Item|nil 章节配置数据
+---@return number 解锁目标等级
+---=========================================================================
+function ChapterListManager:GetUnlockNextLevel(chapterData)
+    if not chapterData then
+        return 1
+    end
+    return chapterData.UnlockNextLevel or 1
+end
+
+---=========================================================================
 ---@brief 判断章节是否满足解锁条件
 ---@param chapterId string 目标待解锁章节ID
 ---@return boolean true:满足解锁条件 false:不满足解锁条件
@@ -130,7 +146,7 @@ function ChapterListManager:MeetConditionForUnlock(chapterId)
         return false
     end
     local lastChapterLv = self:GetRuntimeChapterLvByChapterId(lastChapterData.ID)
-    local unlockNextLv = lastChapterData.UnlockNextLevel or 1
+    local unlockNextLv = self:GetUnlockNextLevel(lastChapterData)
     return lastChapterLv >= unlockNextLv
 end
 
@@ -203,12 +219,14 @@ function ChapterListManager:UnlockChapter(chapterId)
         end
     end
 
-    -- 收集全部配置章节，初始化从1到目标chapterId所有章节的存档
-    local chapterIDsForUnlock = {}
-    local chapterIDs = Tables.Chapters
-    table.insert(chapterIDsForUnlock, chapterIDs)
-    for _, chapterIDForUnlock in pairs(chapterIDsForUnlock[1]) do
-        local chapterIdCfg = chapterIDForUnlock.ID
+    -- 遍历全部配置章节，初始化缺失章节的默认存档
+    ---TODO [优化] 移除冗余包装表 chapterIDsForUnlock，直接遍历 Tables.Chapters；并补空值防护
+    local chapterConfigs = Tables.Chapters
+    if not chapterConfigs then
+        return
+    end
+    for _, chapterConfig in pairs(chapterConfigs) do
+        local chapterIdCfg = chapterConfig.ID
         local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterIdCfg)
         if not chapterData then
             goto continue
@@ -265,7 +283,7 @@ function ChapterListManager:IsChapterCompleted(chapterId)
         return false
     end
 
-    local unlockNextLv = chapterData.UnlockNextLevel or 1
+    local unlockNextLv = self:GetUnlockNextLevel(chapterData)
     return curLv >= unlockNextLv
 end
 
@@ -342,6 +360,8 @@ end
 ---@return string 关卡(小节)ID
 ---@desc 读取章节等级，从章节配置表 ChapterInfoID 中取出对应小节(关卡)ID
 ---@note 依赖存档章节等级与章节配置 ChapterInfoID 字段
+---      【取消分区】章节=单关地图：lv 不再索引多个小节，ChapterInfoID 仅存唯一小节ID；
+---      lv 越界（如通关后 lv=2）时回退第 1 个元素，保证 ID 恒稳定。
 ---=========================================================================
 --TODO: [关卡等级] GetLevelId 支持可选章节来源参数，合并原 GetLatestChapterLevelId 重复逻辑
 function ChapterListManager:GetLevelId(useLatestChapter)
@@ -354,7 +374,8 @@ function ChapterListManager:GetLevelId(useLatestChapter)
         -- 空值防护：章节配置缺失时保持默认小节(关卡)ID
         local chapterData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
         if chapterData and chapterData.ChapterInfoID then
-            local configLevelId = chapterData.ChapterInfoID[level]
+            -- 单小节：lv 越界回退首元素（取消分区后 ChapterInfoID 恒为单元素 {章ID}）
+            local configLevelId = chapterData.ChapterInfoID[level] or chapterData.ChapterInfoID[1]
             if configLevelId then
                 levelId = configLevelId
             end

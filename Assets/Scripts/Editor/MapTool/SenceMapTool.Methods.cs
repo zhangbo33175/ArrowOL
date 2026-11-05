@@ -45,8 +45,8 @@ namespace Honor.Editor.MapTool
                 m_LeftPanelModule = new LeftPanelModule();
                 m_LeftPanelModule.Init(leftPanel);
 
-                // 监听章节选择事件
-                m_LeftPanelModule.OnChapterSelected += OnChapterSelected;
+                // 监听关卡选择事件
+                m_LeftPanelModule.OnLevelSelected += OnLevelSelected;
                 m_LeftPanelModule.OnResourceSelected += OnResourceSelected;
             }
 
@@ -141,15 +141,15 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 章节选择变化：加载对应章节的地图
+        /// 关卡选择变化：加载对应关卡的地图
         /// </summary>
         /// <param name="chapterId">章节ID</param>
+        /// <param name="levelId">关卡ID</param>
         /// <param name="prefabPath">地图预制体路径</param>
-        /// <param name="chapterInfoID">章节信息配置ID（分区来源）</param>
-        private void OnChapterSelected(string chapterId, string prefabPath, string chapterInfoID)
+        private void OnLevelSelected(string chapterId, string levelId, string prefabPath)
         {
-            Debug.Log($"加载章节地图: {chapterId}, 预制体: {prefabPath}, 分区数: {chapterInfoID}");
-            m_SceneModule?.LoadChapterMap(chapterId, prefabPath, chapterInfoID);
+            Debug.Log($"加载关卡地图: 章节={chapterId}, 关卡={levelId}, 预制体={prefabPath}");
+            m_SceneModule?.LoadLevelMap(chapterId, levelId, prefabPath);
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 地图预制体变化：保存到左侧面板章节配置
+        /// 地图预制体变化：保存到左侧面板关卡配置
         /// </summary>
         /// <param name="prefabPath">预制体路径</param>
         private void OnMapPrefabChanged(string prefabPath)
@@ -184,9 +184,11 @@ namespace Honor.Editor.MapTool
             Debug.Log($"地图预制体变化: {prefabPath}");
 
             string chapterId = m_LeftPanelModule?.SelectedChapterId;
-            if (!string.IsNullOrEmpty(chapterId))
+            string levelId = m_LeftPanelModule?.SelectedLevelId;
+            if (!string.IsNullOrEmpty(chapterId) && !string.IsNullOrEmpty(levelId))
             {
-                m_LeftPanelModule?.SaveChapterMapPath(chapterId, prefabPath);
+                string cacheKey = $"{chapterId}_{levelId}";
+                m_LeftPanelModule?.SaveChapterMapPath(cacheKey, prefabPath);
             }
         }
     }

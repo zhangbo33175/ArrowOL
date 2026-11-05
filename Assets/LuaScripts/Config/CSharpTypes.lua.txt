@@ -263,3 +263,87 @@
 ---@field GridCols number 网格列数
 ---@field GridRows number 网格行数
 ---@field OccupiedCells table[] 占用格列表
+---@class GameStateCmd @游戏状态枚举定义
+---@class SingletonManager @全局单例管理器
+---@class LoginManager @登录管理器
+---@class LevelManager @关卡管理器
+---@class GameStateMachine @游戏状态机（全局调度）
+---@class GameCoreManager @游戏核心逻辑管理器
+---@class GameManager @游戏总控管理器
+---@class SaveRootData @存档根结构
+---@class DataCenter @全局数据中心
+---@class GamerDataManager @玩家数据管理器
+---@class PlayerInfoDataManager @玩家信息管理器
+---@class SettingDataManager @设置数据管理器
+---@class SaveDataSyncHelper @存档同步工具
+---@class ConstantsDataManager @常量数据管理器
+---@class ResourceDataManager @资源表格管理器
+---@class LanguageSettingDataManager @多语言配置管理器
+---@class EventDataManager @事件配置管理器
+---@class ChapterDataManager @章节数据管理器
+---@class ChapterListManager @章节列表管理器
+---@class MapManager @地图管理器
+---@class GoalDataManager @目标数据管理器
+---@class HomeIconsDataManager @主界面图标管理器
+---@class MainPlayingManager @主玩法管理器
+---@class UIMainPlayingManager @游戏主界面业务管理器
+---@class LocalEventDataManager @本地活动数据管理器
+---@class LocalActivityManager @本地活动管理器
+---@class SystemGameUnlock @系统解锁判断
+---@class BubbleManager @气泡提示管理器
+---@class ItemManager @道具管理器
+---@class GameMainUIPushManager @主界面UI推送管理器
+---@class UIStackManager @UI栈管理器
+---@class PoolManager @对象池管理器
+---@class PauseableCoroutineHelper @可暂停协程工具
+---@class GamePlayHelper @游戏玩法工具
+---@class GameTimeHelper @游戏时间工具
+---@class UITextHelper @UI文本工具
+---@class RectTransformHelper @矩形变换工具
+---@class AnimatorHelper @动画控制器工具
+---@class GameMapCameraManager @地图镜头统一管理器
+---@class GameMapMotionManager @地图输入手势管理器
+---@class GameEffectManager @特效管理器
+---@class HomeUILayerDataManager @主界面UI层级
+---@class HomeUIBubbleLayerDataManager @主界面气泡层级
+---@class ChallengeLevelHelper @挑战关卡工具
+---@class SoundManager @音效管理器
+---@class CharacterGenerationDataManager @角色生成数据管理器
+---@class CharacterGenerationManager @角色生成管理器
+---@class MapLoadManager @地图加载管理器（分区骨架+网格+相机）
+---@class PlayGameplayCycle @玩法周期
+---@class LevelCollectManager @关卡收集管理器（门面：登记/查询/进度广播）
+---@class RankDataManager @排行榜数据管理器
+---@class CharacterBase @角色实体基类
+---@class MapObjectBase @地图物件实体基类
+---@class ELoginState @登录状态枚举
+---@class GameStateBase @游戏状态基类
+---@class HonorList @Honor 列表容器
+---@class LOAD_RES_DEF_ITEM @资源加载定义项
+---@class LocalActivityPopupData @本地活动弹窗数据
+---@class UIPlayingAnimated @播放动画视图
+---@class ViewModelSuper @MVVM 视图模型基类
+
+---@class UnityEngine.UI.Text @UI 文本（UGUI）
+---@field text string
+---@field fontSize number
+---@field color UnityEngine.Color
+---@field alignment UnityEngine.TextAnchor
+---@field raycastTarget boolean
+
+---@class Tables.Bubble_Item @气泡配置表项
+---@class Tables.Chapters_Item @章节配置表项
+---@class Tables.LimitCheck_Item @限制校验配置表项
+
+---@class SaveMsgDef.SaveGameData.ChapterInfo @存档-章节信息
+---@class SaveMsgDef.SaveGameData.MachineInfo @存档-机器信息
+---@class SavePBMsgDef.GameDataPB.GameData @PB-游戏数据
+---@class SavePBMsgDef.GameDataPB.ResourceInfo @PB-资源信息
+---@class SavePBMsgDef.GameDataPB.SettingInfo @PB-设置信息
+---@class SavePBMsgDef.NotificationDataPB.NotificationData @PB-通知数据
+---@class SavePBMsgDef.SaveGameData.ChallengeLevelData @PB-挑战关卡数据
+---@class SavePBMsgDef.SystemConfigDataPB.SystemConfigData @PB-系统配置数据
+---@class SavePBMsgDef.UserDataPB.StageTime @PB-阶段时间
+---@class SavePBMsgDef.UserDataPB.Time @PB-时间
+---@class SavePBMsgDef.UserDataPB.UserData @PB-用户数据
+

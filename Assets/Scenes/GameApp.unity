@@ -313,7 +313,6 @@ MonoBehaviour:
     GraphicsMemorySizeMidBase: 2000
     SystemMemorySizeHighBase: 8000
     SystemMemorySizeMidBase: 4000
-  debugSkin: {fileID: 0}
   m_IsLocalServer: 0
   m_IsRealTimeDebuggerHotfixForEditor: 0
 --- !u!1 &1164564389

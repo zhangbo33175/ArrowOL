@@ -9,7 +9,10 @@
  ***************************************************************/
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using Editor.MapEditor;
@@ -45,14 +48,15 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 解析分区ID配置
         /// 格式如 {"1","2","3"}，有几个元素就有几个分区
+        /// 【取消分区】章节=整图单分区：配置为空时默认单分区 {"1"}（不再默认 9 分区）
         /// </summary>
-        /// <param name="chapterInfoId">配置字符串（空则返回默认 9 分区）</param>
+        /// <param name="chapterInfoId">配置字符串（空则默认单分区）</param>
         /// <returns>分区ID数组</returns>
         public static string[] ParseRegionIds(string chapterInfoId)
         {
             if (string.IsNullOrEmpty(chapterInfoId))
             {
-                return new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+                return new[] { "1" };
             }
 
             // 去掉大括号和引号，按逗号分割并去空白
@@ -63,6 +67,52 @@ namespace Honor.Editor.MapTool
                 ids[i] = ids[i].Trim();
             }
             return ids;
+        }
+
+        /// <summary>
+        /// 从运行时 Lua 章节表加载章节（Excel 配置缺失时的兜底数据源）
+        /// 解析 Assets/LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt，
+        /// 与游戏运行时同源；表结构为每章一行：["N"] = {ID="N", ChapterTitle=..., ChapterInfoID={"N"}, ...}
+        /// </summary>
+        /// <returns>章节配置列表（文件缺失/解析失败返回空列表）</returns>
+        public static List<TableChapterEditor> LoadChaptersFromRuntimeLua()
+        {
+            var result = new List<TableChapterEditor>();
+            string luaPath = Path.Combine(Application.dataPath,"LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt");
+            if (!File.Exists(luaPath))
+                return result;
+            try
+            {
+                foreach (var line in File.ReadAllLines(luaPath, Encoding.UTF8))
+                {
+                    var entry = Regex.Match(line, @"\[""(?<id>[^""]+)""\]\s*=\s*\{");
+                    if (!entry.Success)
+                        continue;
+                    string id = entry.Groups["id"].Value;
+                    string title = Regex.Match(line, @"ChapterTitle\s*=\s*""(?<v>[^""]*)""").Groups["v"].Value;
+                    string mapName = Regex.Match(line, @"MapName\s*=\s*""(?<v>[^""]*)""").Groups["v"].Value;
+                    string infoBody = Regex.Match(line, @"ChapterInfoID\s*=\s*\{(?<v>[^}]*)\}").Groups["v"].Value;
+                    var ids = Regex.Matches(infoBody, @"""(?<v>[^""]*)""")
+                        .Cast<Match>()
+                        .Select(x => x.Groups["v"].Value)
+                        .ToList();
+                    string chapterInfoId = ids.Count > 0
+                        ? "{" + string.Join(",", ids.Select(x => "\"" + x + "\"")) + "}"
+                        : string.Empty;
+                    result.Add(new TableChapterEditor
+                    {
+                        ID = id,
+                        ChapterTitle = title,
+                        ChapterInfoID = chapterInfoId,
+                        MapName = mapName,
+                    });
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"加载运行时章节表失败: {e.Message}");
+            }
+            return result;
         }
 
         /// <summary>

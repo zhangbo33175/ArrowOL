@@ -223,7 +223,8 @@ end
 function GameMainUIPushManager:_Work(from)
     local maxTimes = 64
     local times = 0
-    GameMapMotion:PauseMapMotion()
+    GameMapMotionManager:Pause()
+    GameMapCameraManager:Pause()
     self:_ExchangeMainHubPeaceState(false)
 
     while #self._workQueue > 0 and times < maxTimes do
@@ -273,7 +274,8 @@ function GameMainUIPushManager:_Work(from)
 
     self.Coroutine = nil
     self._intoMainState = false
-    GameMapMotion:ResumeMapMotion()
+    GameMapMotionManager:Resume()
+    GameMapCameraManager:Resume()
     self:_ExchangeMainHubPeaceState(true)
 end
 

@@ -6,15 +6,14 @@
 -- descrip:   章节地图索引（自动生成）
 -- notices:   该文件由地图编辑器自动生成，禁止手动修改！
 -- @brief     章节地图数据索引
--- @desc      由 Honor.Editor.MapTool 保存时自动生成，覆盖配置表全部章节
 -- @dependency Tables 注册表（Tables.lua）
 --=====================================================================================================
 
 ---@class Tables.LevelData @章节地图数据索引
 Tables.LevelData = {
-    ["1"] = { ChapterId = "1", ChapterName = "ChapterName1", SectionCount = 2, Sections = { "1", "2" } },
-    ["2"] = { ChapterId = "2", ChapterName = "ChapterName2", SectionCount = 4, Sections = { "4", "5", "6", "7" } },
-    ["3"] = { ChapterId = "3", ChapterName = "ChapterName3", SectionCount = 4, Sections = { "8", "9", "10", "11" } },
-    ["4"] = { ChapterId = "4", ChapterName = "ChapterName4", SectionCount = 2, Sections = { "13", "14" } },
-    ["5"] = { ChapterId = "5", ChapterName = "ChapterName5", SectionCount = 2, Sections = { "15", "16" } },
+    ["1"] = { ChapterId = "1", ChapterName = "ChapterName1", LevelCount = 2, Levels = { "1", "2" } },
+    ["2"] = { ChapterId = "2", ChapterName = "ChapterName2", LevelCount = 4, Levels = { "4", "5", "6", "7" } },
+    ["3"] = { ChapterId = "3", ChapterName = "ChapterName3", LevelCount = 4, Levels = { "8", "9", "10", "11" } },
+    ["4"] = { ChapterId = "4", ChapterName = "ChapterName4", LevelCount = 2, Levels = { "13", "14" } },
+    ["5"] = { ChapterId = "5", ChapterName = "ChapterName5", LevelCount = 2, Levels = { "15", "16" } },
 }

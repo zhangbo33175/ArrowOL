@@ -115,12 +115,9 @@ function GameManager:GetMapRootData()
     if not GamerDataManager then
         return nil
     end
-    local levelId = GamerDataManager:GetLevelLvByChapterId(chapterId)
-    if not levelId then
-        return nil
-    end
-
-    return GamePlayHelper:LoadLevelData(chapterId, levelId)
+    -- 【取消分区】章节地图为整图单分区：关卡数据恒取第 1 分区（不再用存档 lv 当分区序号，
+    -- 否则通关后 lv=2 会查询不存在的 LevelData_{章}_2）
+    return GamePlayHelper:LoadLevelData(chapterId, 1)
 end
 
 ---=========================================================================
@@ -210,6 +207,21 @@ end
 --region 全屏UI渲染性能优化核心逻辑（画布/相机自动管理）
 
 ---=========================================================================
+---=========================================================================
+---@brief 清理缓存列表中已销毁的空画布引用
+---@desc 抽离 OnCanvasOpenOver/_OnCanvasClose 共用逻辑，消除重复清理循环
+---@private
+---=========================================================================
+function GameManager:_PruneInvalidCanvas()
+    for i = #self._openOverCanvasArray, 1, -1 do
+        local data = self._openOverCanvasArray[i]
+        if IsNull(data.Canvas) then
+            table.remove(self._openOverCanvasArray, i)
+        end
+    end
+end
+
+---=========================================================================
 ---@brief UI打开完成回调，全屏UI自动隐藏下层画布降低渲染开销
 ---@desc 画布打开完成框架回调钩子（OnXxx 约定）；当前 UIManager 仅接线 OnCanvasCloseRightNow，本钩子属预留公开接口（保守保留，勿删）
 ---@param canvas UnityEngine.Canvas UI画布组件
@@ -217,12 +229,7 @@ end
 ---=========================================================================
 function GameManager:OnCanvasOpenOver(canvas, uiName)
     -- 先清理缓存中已销毁的空画布引用
-    for i = #self._openOverCanvasArray, 1, -1 do
-        local data = self._openOverCanvasArray[i]
-        if IsNull(data.Canvas) then
-            table.remove(self._openOverCanvasArray, i)
-        end
-    end
+    self:_PruneInvalidCanvas()
 
     if IsNull(canvas) or not uiName then
         return
@@ -278,10 +285,11 @@ end
 ---@private
 ---=========================================================================
 function GameManager:_OnCanvasClose(uiName)
-    -- 清理失效画布 + 当前关闭UI缓存
+    -- 先清理失效画布，再移除当前关闭UI缓存
+    self:_PruneInvalidCanvas()
     for i = #self._openOverCanvasArray, 1, -1 do
         local data = self._openOverCanvasArray[i]
-        if (data.UIInfo and data.UIInfo.Name == uiName) or IsNull(data.Canvas) then
+        if data.UIInfo and data.UIInfo.Name == uiName then
             table.remove(self._openOverCanvasArray, i)
         end
     end

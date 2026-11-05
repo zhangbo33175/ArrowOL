@@ -35,6 +35,7 @@ namespace Honor.Editor.MapTool
             // 绘制画布背景
             EditorGUI.DrawRect(rect, new Color(0.2f, 0.2f, 0.2f));
             // 计算地图显示区域（受缩放与偏移影响）
+            // 左上角原点坐标系：与运行时 JSON 数据格式一致
             Rect mapRect = new Rect(
                 m_MapOffset.x,
                 m_MapOffset.y,
@@ -81,38 +82,20 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 绘制地图层（预制体预览图 + 各分区背景图）
+        /// 绘制地图层（预制体预览图 + 关卡背景图）
         /// </summary>
         /// <param name="mapRect">地图显示区域</param>
         private void DrawMapLayer(Rect mapRect)
         {
-            if (!m_ShowMapLayer || m_MapPrefab == null || m_RegionUnlocked == null) return;
-            float regionWidth = mapRect.width / m_RegionCols;
-            float regionHeight = mapRect.height / m_RegionRows;
+            if (!m_ShowMapLayer || m_MapPrefab == null) return;
             // 预制体预览纹理仅获取一次
             Texture previewTexture = GetMapPrefabPreviewTexture();
-            // 遍历所有已解锁分区，绘制各自背景图
-            for (int row = 0; row < m_RegionRows; row++)
-            {
-                for (int col = 0; col < m_RegionCols; col++)
-                {
-                    int index = row * m_RegionCols + col;
-                    if (index >= m_RegionCount) continue; // 跳过多余的格子
-                    if (!m_RegionUnlocked[row, col]) continue;
-                    Rect regionRect = new Rect(
-                        mapRect.x + col * regionWidth,
-                        mapRect.y + row * regionHeight,
-                        regionWidth,
-                        regionHeight
-                    );
-                    // 优先使用分区配置的背景图，未配置或加载失败则回退预制体预览图
-                    Texture bgTexture = LoadRegionBackground(m_RegionIds[index]);
-                    if (bgTexture != null)
-                        GUI.DrawTexture(regionRect, bgTexture, ScaleMode.StretchToFill);
-                    else if (previewTexture != null)
-                        GUI.DrawTexture(regionRect, previewTexture, ScaleMode.StretchToFill);
-                }
-            }
+            // 绘制当前关卡背景图，未配置或加载失败则回退预制体预览图
+            Texture bgTexture = LoadRegionBackground(m_CurrentLevelId);
+            if (bgTexture != null)
+                GUI.DrawTexture(mapRect, bgTexture, ScaleMode.StretchToFill);
+            else if (previewTexture != null)
+                GUI.DrawTexture(mapRect, previewTexture, ScaleMode.StretchToFill);
         }
 
         /// <summary>
@@ -121,9 +104,11 @@ namespace Honor.Editor.MapTool
         /// <param name="mapRect">地图显示区域</param>
         private void DrawPlacedObjects(Rect mapRect)
         {
-            // 先按 SortOrder 排序，再按 Y 坐标排序（双重排序控制遮挡）
+            // 排序逻辑：
+            // - YSortEnabled=true 的物件：有效SortOrder = 基础SortOrder + Y坐标偏移（Y越大越靠前）
+            // - YSortEnabled=false 的物件：用固定 SortOrder
             var sortedObjects = m_PlacedObjects
-                .OrderBy(obj => obj.SortOrder)
+                .OrderBy(obj => GetEffectiveSortOrder(obj))
                 .ThenBy(obj => obj.Position.y)
                 .ToList();
             foreach (var obj in sortedObjects)
@@ -148,6 +133,24 @@ namespace Honor.Editor.MapTool
                 // 绘制物体名称
                 GUI.Label(new Rect(objRect.x, objRect.y - 20, 100, 20), obj.Name,
                     new GUIStyle(GUI.skin.label) { normal = { textColor = Color.white } });
+            }
+        }
+
+        /// <summary>
+        /// 计算物件的有效排序值（开启YSort时根据Y坐标自动调整）
+        /// </summary>
+        private float GetEffectiveSortOrder(PlacedObject obj)
+        {
+            if (obj.YSortEnabled)
+            {
+                // YSort模式：Y坐标越大（越靠下），排序值越大，越靠前
+                // 基础SortOrder + Y坐标 * 系数 + 偏移
+                return obj.SortOrder + obj.Position.y * 0.01f + obj.YSortOffset;
+            }
+            else
+            {
+                // 固定模式：用基础SortOrder
+                return obj.SortOrder;
             }
         }
 
@@ -248,45 +251,17 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 绘制包围盒层（合并相邻已解锁分区，勾勒绿色边界）
+        /// 绘制包围盒层（整图绿色边界）
         /// </summary>
         /// <param name="mapRect">地图显示区域</param>
         private void DrawBoundingBoxLayer(Rect mapRect)
         {
-            if (!m_ShowBoundingBox || m_RegionUnlocked == null) return;
-            float regionWidth = mapRect.width / m_RegionCols;
-            float regionHeight = mapRect.height / m_RegionRows;
-            for (int row = 0; row < m_RegionRows; row++)
-            {
-                for (int col = 0; col < m_RegionCols; col++)
-                {
-                    int index = row * m_RegionCols + col;
-                    if (index >= m_RegionCount) continue;
-                    if (!m_RegionUnlocked[row, col]) continue;
-                    Rect regionRect = new Rect(
-                        mapRect.x + col * regionWidth,
-                        mapRect.y + row * regionHeight,
-                        regionWidth,
-                        regionHeight
-                    );
-                    // 上边：第一行或上方未解锁才绘制
-                    bool needTop = (row == 0) || !m_RegionUnlocked[row - 1, col] || (row - 1) * m_RegionCols + col >= m_RegionCount;
-                    if (needTop)
-                        EditorGUI.DrawRect(new Rect(regionRect.x, regionRect.y, regionRect.width, 2), Color.green);
-                    // 下边：最后一行或下方未解锁才绘制
-                    bool needBottom = (row == m_RegionRows - 1) || !m_RegionUnlocked[row + 1, col] || (row + 1) * m_RegionCols + col >= m_RegionCount;
-                    if (needBottom)
-                        EditorGUI.DrawRect(new Rect(regionRect.x, regionRect.yMax - 2, regionRect.width, 2), Color.green);
-                    // 左边：第一列或左方未解锁才绘制
-                    bool needLeft = (col == 0) || !m_RegionUnlocked[row, col - 1] || row * m_RegionCols + (col - 1) >= m_RegionCount;
-                    if (needLeft)
-                        EditorGUI.DrawRect(new Rect(regionRect.x, regionRect.y, 2, regionRect.height), Color.green);
-                    // 右边：最后一列或右方未解锁才绘制
-                    bool needRight = (col == m_RegionCols - 1) || !m_RegionUnlocked[row, col + 1] || row * m_RegionCols + (col + 1) >= m_RegionCount;
-                    if (needRight)
-                        EditorGUI.DrawRect(new Rect(regionRect.xMax - 2, regionRect.y, 2, regionRect.height), Color.green);
-                }
-            }
+            if (!m_ShowBoundingBox) return;
+            // 整图四周边界
+            EditorGUI.DrawRect(new Rect(mapRect.x, mapRect.y, mapRect.width, 2), Color.green);
+            EditorGUI.DrawRect(new Rect(mapRect.x, mapRect.yMax - 2, mapRect.width, 2), Color.green);
+            EditorGUI.DrawRect(new Rect(mapRect.x, mapRect.y, 2, mapRect.height), Color.green);
+            EditorGUI.DrawRect(new Rect(mapRect.xMax - 2, mapRect.y, 2, mapRect.height), Color.green);
         }
 
         /// <summary>
@@ -297,23 +272,14 @@ namespace Honor.Editor.MapTool
             // 摆放网格层
             if (m_ShowPlaceGrid)
             {
-                // 统一核心：MapGridDrawUtil.ComputeGridLinePositions（与游戏同几何/同解锁范围）
+                // 统一核心：MapGridDrawUtil.ComputeGridLinePositions（与游戏同几何）
                 var style = GameLib.MapGridDrawUtil.DefaultStyle();
                 Handles.color = style.lineColor;
                 float mapW = mapRect.width / m_Zoom;
                 float mapH = mapRect.height / m_Zoom;
                 int gridCols = Mathf.RoundToInt(mapW / MapToolConstants.GridSize);
-                int regionCols = m_RegionCols;
-                int regionRows = m_RegionRows;
-                int unlockedSection = 0;
-                if (m_RegionUnlocked != null)
-                {
-                    for (int r = 0; r < m_RegionRows; r++)
-                        for (int c = 0; c < m_RegionCols; c++)
-                            if (m_RegionUnlocked[r, c]) unlockedSection++;
-                }
-                GameLib.MapGridDrawUtil.ComputeGridLinePositions(mapW, mapH, gridCols, regionCols, regionRows, unlockedSection,
-                    out float[] vLines, out float[] hLines, out Rect[] regionRects);
+                GameLib.MapGridDrawUtil.ComputeGridLinePositions(mapW, mapH, gridCols,
+                    out float[] vLines, out float[] hLines, out Rect mapRectOut);
                 foreach (float w in vLines)
                     Handles.DrawLine(new Vector3(mapRect.x + w * m_Zoom, mapRect.y),
                                      new Vector3(mapRect.x + w * m_Zoom, mapRect.yMax));
@@ -324,58 +290,12 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 绘制分区划分和迷雾覆盖
+        /// 绘制迷雾覆盖（单关卡模式：无分区迷雾，空实现）
         /// </summary>
         /// <param name="mapRect">地图区域矩形</param>
         private void DrawRegionMist(Rect mapRect)
         {
-            if (m_RegionUnlocked == null) return;
-            float regionWidth = mapRect.width / m_RegionCols;
-            float regionHeight = mapRect.height / m_RegionRows;
-            // 遍历所有分区
-            for (int row = 0; row < m_RegionRows; row++)
-            {
-                for (int col = 0; col < m_RegionCols; col++)
-                {
-                    int index = row * m_RegionCols + col;
-                    if (index >= m_RegionCount) continue; // 跳过多余的格子
-                    Rect regionRect = new Rect(
-                        mapRect.x + col * regionWidth,
-                        mapRect.y + row * regionHeight,
-                        regionWidth,
-                        regionHeight
-                    );
-                    // 如果未解锁，绘制迷雾覆盖
-                    if (!m_RegionUnlocked[row, col])
-                    {
-                        // 半透明黑色迷雾
-                        EditorGUI.DrawRect(regionRect, new Color(0, 0, 0, 0.5f));
-                        // 显示区域编号
-                        GUI.Label(new Rect(regionRect.x + 10, regionRect.y + 10, 80, 20),
-                            $"区域 {row * m_RegionCols + col + 1}",
-                            new GUIStyle(GUI.skin.label)
-                            {
-                                normal = { textColor = Color.gray },
-                                fontSize = 14
-                            });
-                        // 绘制小锁标识（在区域中央）
-                        float lockSize = 40;
-                        float lockX = regionRect.x + (regionRect.width - lockSize) / 2;
-                        float lockY = regionRect.y + (regionRect.height - lockSize) / 2;
-                        // 锁的主体（矩形）
-                        EditorGUI.DrawRect(new Rect(lockX + 8, lockY + 15, lockSize - 16, lockSize - 15),
-                            new Color(0.5f, 0.5f, 0.5f));
-                        // 锁的锁梁（用矩形近似圆弧）
-                        EditorGUI.DrawRect(new Rect(lockX + 12, lockY + 5, lockSize - 24, 12),
-                            new Color(0.6f, 0.6f, 0.6f));
-                        // 锁孔
-                        EditorGUI.DrawRect(new Rect(lockX + lockSize / 2 - 2, lockY + 22, 4, 8),
-                            Color.black);
-                    }
-                    // 绘制区域边框
-                    GUI.Box(regionRect, "", GUI.skin.box);
-                }
-            }
+            // 单关卡=单张地图，无分区解锁/迷雾概念
         }
 
         /// <summary>
@@ -456,7 +376,7 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 世界坐标转屏幕坐标
+        /// 世界坐标转屏幕坐标（中心坐标系：世界原点=地图中心）
         /// </summary>
         /// <param name="worldPos">世界坐标</param>
         /// <returns>屏幕坐标</returns>

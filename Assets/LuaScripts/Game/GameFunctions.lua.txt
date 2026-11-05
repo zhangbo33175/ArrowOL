@@ -778,11 +778,15 @@ end
 
 ---=========================================================================
 ---@brief 路径点数组批量变换（编辑器 → 世界）
----@type fun(pathPoints:table):table
+---@desc 与实体生成同源坐标变换：编辑器全图格子坐标 → 世界系。
+---      【取消分区】整图单分区：编辑器坐标即整图坐标，无分区水平偏移；
+---      sectionId 参数保留兼容旧调用方（恒为 1 → 偏移 0）。
+---@type fun(pathPoints:table,sectionId?:number):table
 ---@param pathPoints table @{X=number,Y=number}[]（编辑器坐标系）
+---@param sectionId number|nil @分区ID（保留兼容，取消分区后恒为 1，偏移恒 0）
 ---@return table @{X=number,Y=number}[]（世界坐标系，新表不污染源数据）
 ---=========================================================================
-function TransformEditorPathPoints(pathPoints)
+function TransformEditorPathPoints(pathPoints, sectionId)
     local result = {}
     ---TODO [坐标] Root pivot=top-left，Y 向下为正需取反（与角色 localPosition 一致）
     local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32

@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 21, 3, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 23, 3, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "InitMapCamera", _m_InitMapCamera_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LookMap", _m_LookMap_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LookMapPositionAndSize", _m_LookMapPositionAndSize_xlua_st_);
@@ -47,6 +47,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "OpenSceneRaycasterLayer", _m_OpenSceneRaycasterLayer_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "CloseSceneRaycasterLayer", _m_CloseSceneRaycasterLayer_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "AutoFitCameraToRect", _m_AutoFitCameraToRect_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "FitCameraToWorldBounds", _m_FitCameraToWorldBounds_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "GetWorldBoundsFromRectTransform", _m_GetWorldBoundsFromRectTransform_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetSceneWidthByCamSize", _m_GetSceneWidthByCamSize_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "SetCameraRenderLayer", _m_SetCameraRenderLayer_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "CloseCameraRenderLayer", _m_CloseCameraRenderLayer_xlua_st_);
@@ -496,6 +498,73 @@ namespace XLua.CSObjectWrap
             }
             
             return LuaAPI.luaL_error(L, "invalid arguments to GameLib.MapCamHelper.AutoFitCameraToRect!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_FitCameraToWorldBounds_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    float _minX = (float)LuaAPI.lua_tonumber(L, 1);
+                    float _maxX = (float)LuaAPI.lua_tonumber(L, 2);
+                    float _minY = (float)LuaAPI.lua_tonumber(L, 3);
+                    float _maxY = (float)LuaAPI.lua_tonumber(L, 4);
+                    float _viewAspect = (float)LuaAPI.lua_tonumber(L, 5);
+                    float _minOrtho = (float)LuaAPI.lua_tonumber(L, 6);
+                    
+                    GameLib.MapCamHelper.FitCameraToWorldBounds( _minX, _maxX, _minY, _maxY, _viewAspect, _minOrtho );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetWorldBoundsFromRectTransform_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    UnityEngine.RectTransform _targetRect = (UnityEngine.RectTransform)translator.GetObject(L, 1, typeof(UnityEngine.RectTransform));
+                    float _minX;
+                    float _maxX;
+                    float _minY;
+                    float _maxY;
+                    
+                    GameLib.MapCamHelper.GetWorldBoundsFromRectTransform( _targetRect, out _minX, out _maxX, out _minY, out _maxY );
+                    LuaAPI.lua_pushnumber(L, _minX);
+                        
+                    LuaAPI.lua_pushnumber(L, _maxX);
+                        
+                    LuaAPI.lua_pushnumber(L, _minY);
+                        
+                    LuaAPI.lua_pushnumber(L, _maxY);
+                        
+                    
+                    
+                    
+                    return 4;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
             
         }
         

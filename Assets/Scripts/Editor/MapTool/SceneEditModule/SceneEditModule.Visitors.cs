@@ -125,11 +125,11 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 配置地图宽度（按已解锁分区包围盒计算，用于JSON保存）
         /// </summary>
-        private int m_ConfigMapWidth = MapToolConstants.RegionPixelSize;
+        private int m_ConfigMapWidth = MapToolConstants.LevelPixelSize;
         /// <summary>
         /// 配置地图高度（按已解锁分区包围盒计算，用于JSON保存）
         /// </summary>
-        private int m_ConfigMapHeight = MapToolConstants.RegionPixelSize;
+        private int m_ConfigMapHeight = MapToolConstants.LevelPixelSize;
         // 章节配置表数据（场景名/场景ID/分区配置来源）
         /// <summary>
         /// 章节配置表数据（场景名/场景ID/分区配置来源）
@@ -238,30 +238,18 @@ namespace Honor.Editor.MapTool
         /// 是否处于路径编辑模式
         /// </summary>
         private bool m_IsEditingPath = false;
-        // 分区网格（行列数与分区ID）
+        // 关卡相关
         /// <summary>
-        /// 分区行数
+        /// 当前关卡ID
         /// </summary>
-        private int m_RegionRows = 3;
-        /// <summary>
-        /// 分区列数
-        /// </summary>
-        private int m_RegionCols = 3;
-        /// <summary>
-        /// 实际分区数量
-        /// </summary>
-        private int m_RegionCount = 9;
-        /// <summary>
-        /// 每个分区的 ID
-        /// </summary>
-        private string[] m_RegionIds;
+        private string m_CurrentLevelId = "1";
         /// <summary>
         /// 场景中实例化的 ZoneRoot 引用（用于增删物体后刷新场景同步）
         /// </summary>
         private RectTransform m_ZoneRootInstance;
-        // 关卡配置表（ID -> Level_bg）
+        // 关卡配置表（关卡ID -> 背景图名）
         /// <summary>
-        /// 关卡配置表（分区ID -> 背景图名）
+        /// 关卡背景配置表（关卡ID -> 背景图名）
         /// </summary>
         private Dictionary<string, string> m_LevelBgDict = new Dictionary<string, string>();
         // 已放置的物体
@@ -294,10 +282,6 @@ namespace Honor.Editor.MapTool
         /// 预览不合法原因
         /// </summary>
         private string m_PreviewReason;
-        /// <summary>
-        /// 地图分区解锁状态（动态大小）
-        /// </summary>
-        private bool[,] m_RegionUnlocked;
         /// <summary>
         /// 地图预制体变化事件
         /// </summary>

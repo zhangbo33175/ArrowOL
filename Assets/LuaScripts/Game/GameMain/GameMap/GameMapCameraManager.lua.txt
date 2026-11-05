@@ -1,0 +1,903 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  GameMapCameraManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     地图镜头统一管理器
+-- @desc      纯镜头能力层：视口管理、边界 clamp、缩放控制、平滑跟随、惯性滑动、移动动画、暂停恢复
+-- @core      镜头状态机、红框视口计算、缩放边界 clamp、平滑跟随、惯性衰减
+-- @scope     通用镜头能力，不耦合具体地图布局/业务逻辑；分区聚焦由业务层调用 FocusAtPoint 实现
+-- @trigger   地图加载完成后初始化，每帧 OnUpdate 驱动平滑跟随
+-- @dependency GameLib.MapCamHelper, EMapLayoutConfig, UnityEngine, DG.Tweening
+-- @note      本类不依赖 MapLoadManager / SectionManager 等业务模块，边界由外部 SetBounds 传入
+--=====================================================================================================
+
+--region 【常量配置】
+
+local DEFAULT_CANVAS_HEIGHT    = 1334   -- Canvas 设计高度
+local DEFAULT_TOP_HUD_PX       = 120    -- 默认顶部 HUD 像素高度
+local DEFAULT_BOT_HUD_PX       = 180    -- 默认底部 HUD 像素高度
+local DEFAULT_MIN_ORTHO        = 200    -- 默认最小正交尺寸
+local DEFAULT_MAX_ORTHO        = 3000    -- 默认最大正交尺寸
+local DEFAULT_STEP_FACTOR      = 2      -- 平滑步进系数
+
+local SMOOTH_START_VALUE       = 0.3    -- SmoothStep 起始值（拖动结束时重置）
+local SMOOTH_MIN               = 0.3    -- SmoothStep 最小值
+local SMOOTH_MAX               = 1.0    -- SmoothStep 最大值
+local INERTIA_DECAY            = 0.025  -- 惯性每帧衰减量
+
+local AUTO_SCAN_OVERLAP        = 0.8    -- 自动扫描重叠率
+local AUTO_SCAN_POINT_DURATION = 1.2    -- 自动扫描每点时长（秒）
+local AUTO_SCAN_GRACE_FRAMES   = 15     -- 自动扫描宽限帧数
+
+local NEAR_CLIP_VALUE          = -10    -- 近裁剪面值（消除 z=0 视锥外告警）
+
+--endregion
+
+--region 【镜头状态枚举】
+
+---@enum ECameraState 镜头状态
+ECameraState = {
+    Idle = 0,           -- 空闲/未初始化
+    Lobby = 1,          -- 大厅模式（红框视口）
+    Playing = 2,        -- 游玩模式（全屏视口）
+    Transforming = 3,   -- 过渡动画中
+    Paused = 4,         -- 暂停
+    AutoScan = 5,       -- 自动扫描中
+}
+
+--endregion
+
+---@class GameMapCameraManager 地图镜头统一管理器 | 纯镜头能力层
+---@field ScreenCamera UnityEngine.Camera|nil @地图场景相机（全局缓存）
+---@field IsInitialized boolean @是否已完成初始化
+---@field CurrentState ECameraState @当前镜头状态
+---@field CanvasDesignHeight number @Canvas设计高度
+---@field TopHudPixelHeight number @顶部HUD像素高度
+---@field BottomHudPixelHeight number @底部HUD像素高度
+---@field SafeAreaTopInset number @顶部安全区偏移（设计分辨率单位）
+---@field SafeAreaBottomInset number @底部安全区偏移（设计分辨率单位）
+---@field RedBoxAspect number @红框真实宽高比（视口裁剪后）
+---@field MinOrthoSize number @最小正交尺寸
+---@field MaxOrthoSize number @最大正交尺寸
+---@field FollowPosition table @相机跟随目标 {x,y,z}
+---@field LimitMinX number @相机移动边界最小X
+---@field LimitMaxX number @相机移动边界最大X
+---@field LimitMinY number @相机移动边界最小Y
+---@field LimitMaxY number @相机移动边界最大Y
+---@field SwipeSmoothStepNum number @滑动平滑值
+---@field StepAddFactor number @平滑步进系数
+---@field InertialSlidingFactor number @惯性滑动系数
+---@field AutoScanActive boolean @自动扫描是否激活
+---@field AutoScanWaypoints table|nil @自动扫描路径点
+---@field AutoScanSeq table|nil @自动扫描 DOTween 序列
+---@field AutoScanGraceFrames number @自动扫描宽限帧数
+---@field _NearClipBackup number|nil @近裁剪面备份值
+---@field _PositionWhenPaused table|nil @暂停时相机位置快照
+---@field _scrScreenPos table @临时：屏幕坐标容器
+---@field _scrCurWorld table @临时：当前世界坐标容器
+---@field _scrLastWorld table @临时：上一帧世界坐标容器
+---@field _scrInertiaDelta table @临时：惯性位移容器
+local GameMapCameraManager = {
+    ScreenCamera = nil,
+    IsInitialized = false,
+    CurrentState = ECameraState.Idle,
+
+    CanvasDesignHeight = DEFAULT_CANVAS_HEIGHT,
+    TopHudPixelHeight = DEFAULT_TOP_HUD_PX,
+    BottomHudPixelHeight = DEFAULT_BOT_HUD_PX,
+
+    SafeAreaTopInset = 0,
+    SafeAreaBottomInset = 0,
+    RedBoxAspect = 1,
+
+    MinOrthoSize = DEFAULT_MIN_ORTHO,
+    MaxOrthoSize = DEFAULT_MAX_ORTHO,
+    FollowPosition = { x = 0, y = 0, z = -10 },
+
+    -- 相机移动边界
+    LimitMinX = 0,
+    LimitMaxX = 0,
+    LimitMinY = 0,
+    LimitMaxY = 0,
+
+    -- 平滑跟随参数
+    SwipeSmoothStepNum = 0,
+    StepAddFactor = DEFAULT_STEP_FACTOR,
+    InertialSlidingFactor = 0,
+
+    -- 自动扫描
+    AutoScanActive = false,
+    AutoScanWaypoints = nil,
+    AutoScanSeq = nil,
+    AutoScanGraceFrames = 0,
+
+    -- 内部状态
+    _NearClipBackup = nil,
+    _PositionWhenPaused = nil,
+
+    -- 临时容器（避免 GC 分配，命名见字段注释）
+    _scrScreenPos = { x = 0, y = 0, z = 0 },
+    _scrCurWorld = { x = 0, y = 0, z = 0 },
+    _scrLastWorld = { x = 0, y = 0, z = 0 },
+    _scrInertiaDelta = { x = 0, y = 0, z = 0 },
+}
+
+--region 【初始化与销毁】
+
+---@brief 初始化镜头管理器（地图加载完成后调用，幂等）
+---@type fun(mapData:MapData):void
+---@param mapData MapData 地图配置组件
+function GameMapCameraManager:Init(mapData)
+    if self.IsInitialized then return end
+
+    self.ScreenCamera = GameLib.MapCamHelper.MapCamera
+    if not self.ScreenCamera then
+        print("[GameMapCameraManager] 警告：MapCamera 为空，镜头初始化失败")
+        return
+    end
+
+    -- 读取 MapData 配置
+    if mapData then
+        self.TopHudPixelHeight = mapData.m_TopHudPixelHeight or self.TopHudPixelHeight
+        self.BottomHudPixelHeight = mapData.m_BottomHudPixelHeight or self.BottomHudPixelHeight
+        self.CanvasDesignHeight = mapData.m_MotionConfig and mapData.m_MotionConfig.m_CanvasDesignHeight or self.CanvasDesignHeight
+        self.MinOrthoSize = mapData.m_MinCamSize or self.MinOrthoSize
+        -- self.MaxOrthoSize = mapData.m_MaxCamSize or self.MaxOrthoSize  -- 临时注释，Fit 模式不限制最大缩放
+        if mapData.m_MotionConfig then
+            self.StepAddFactor = mapData.m_MotionConfig.m_StepAddFactor or self.StepAddFactor
+        end
+    end
+
+    -- 计算安全区偏移
+    self:RefreshSafeAreaInsets()
+
+    -- 设置红框视口（顶部留 HUD、底部留 HUD）
+    self:ApplyRedBoxViewport()
+
+    -- 设置负 near 裁剪面
+    self:_SetupNearClipPlane()
+
+    self.IsInitialized = true
+    self.CurrentState = ECameraState.Lobby
+    print(string.format("[GameMapCameraManager] 初始化完成: canvasH=%.0f topHud=%.0f botHud=%.0f redBoxAspect=%.3f",
+        self.CanvasDesignHeight, self.TopHudPixelHeight, self.BottomHudPixelHeight, self.RedBoxAspect))
+end
+
+---@brief 设置地图根节点引用（MapLoadManager 加载地图后调用）
+---@type fun(gameMapRoot:UnityEngine.GameObject):void
+---@param gameMapRoot UnityEngine.GameObject GameMainMap 根节点
+function GameMapCameraManager:SetGameMapRoot(gameMapRoot)
+    self.GameMapRoot = gameMapRoot
+    print(string.format("[GameMapCameraManager] SetGameMapRoot: %s", tostring(gameMapRoot)))
+
+    if not gameMapRoot then return end
+
+    -- 直接用 EMapLayoutConfig 的宽度和高度计算包围盒，更可靠
+    local mapW = EMapLayoutConfig.width or 4096
+    local mapH = EMapLayoutConfig.height or 4096
+
+    -- pivot 是中心(0.5, 0.5)，所以局部坐标范围是 (-w/2, -h/2) 到 (w/2, h/2)
+    local rt = gameMapRoot:GetComponent(typeof(UnityEngine.RectTransform))
+    local localMin = UnityEngine.Vector3(-mapW / 2, -mapH / 2, 0)
+    local localMax = UnityEngine.Vector3(mapW / 2, mapH / 2, 0)
+
+    -- 转换为世界坐标
+    local worldMin = rt:TransformPoint(localMin)
+    local worldMax = rt:TransformPoint(localMax)
+
+    local minX = math.min(worldMin.x, worldMax.x)
+    local maxX = math.max(worldMin.x, worldMax.x)
+    local minY = math.min(worldMin.y, worldMax.y)
+    local maxY = math.max(worldMin.y, worldMax.y)
+
+    print(string.format("[GameMapCameraManager] 地图大小: %.0fx%.0f 世界坐标: min=(%.1f,%.1f) max=(%.1f,%.1f)",
+        mapW, mapH, minX, minY, maxX, maxY))
+
+    -- 自动适配相机
+    self:FitToWorldBounds(minX, maxX, minY, maxY)
+end
+
+---@brief 销毁镜头管理器（地图卸载时调用，恢复相机全屏视口）
+---@type fun():void
+function GameMapCameraManager:Dispose()
+    if not self.IsInitialized then return end
+
+    -- 停止自动扫描
+    self:StopAutoScan()
+
+    -- 恢复全屏视口
+    self:ApplyFullScreenViewport()
+
+    -- 还原近裁剪面
+    if self._NearClipBackup ~= nil and self.ScreenCamera then
+        self.ScreenCamera.nearClipPlane = self._NearClipBackup
+        self._NearClipBackup = nil
+    end
+
+    -- 清理状态（FollowPosition 不设 nil，避免 OnUpdate 空引用 crash）
+    self.ScreenCamera = nil
+    self._PositionWhenPaused = nil
+    self.IsInitialized = false
+    self.CurrentState = ECameraState.Idle
+end
+
+---@brief 设置近裁剪面
+---@type fun():void
+function GameMapCameraManager:_SetupNearClipPlane()
+    if not self.ScreenCamera then return end
+    self._NearClipBackup = self.ScreenCamera.nearClipPlane
+    GameLib.MapCamHelper.SetAllCamerasNear(NEAR_CLIP_VALUE)
+end
+
+--endregion
+
+--region 【视口管理：红框 / 全屏】
+
+---@brief 应用红框视口（顶部留 HUD、底部留 HUD，中间渲染地图）
+---@type fun():void
+function GameMapCameraManager:ApplyRedBoxViewport()
+    if not self.ScreenCamera then return end
+
+    local topHud = self:PixelsToDesign(self.TopHudPixelHeight) + self.SafeAreaTopInset
+    local botHud = self:PixelsToDesign(self.BottomHudPixelHeight) + self.SafeAreaBottomInset
+
+    local rectY = botHud / self.CanvasDesignHeight
+    local rectH = math.max(0.01, (self.CanvasDesignHeight - topHud - botHud) / self.CanvasDesignHeight)
+
+    self.ScreenCamera.rect = UnityEngine.Rect(0, rectY, 1, rectH)
+
+    -- 缓存红框真实宽高比
+    self.RedBoxAspect = (UnityEngine.Screen.width / UnityEngine.Screen.height) / rectH
+end
+
+---@brief 应用全屏视口（游玩模式 / 恢复时用）
+---@type fun():void
+function GameMapCameraManager:ApplyFullScreenViewport()
+    if not self.ScreenCamera then return end
+    self.ScreenCamera.rect = UnityEngine.Rect(0, 0, 1, 1)
+    self.RedBoxAspect = UnityEngine.Screen.width / UnityEngine.Screen.height
+end
+
+---@brief 更新底部 HUD 高度（底部 UI 隐藏/显示时调用）
+---@type fun(bottomHudPixel:number):void
+---@param bottomHudPixel number 底部 HUD 像素高度，0=隐藏底部 UI
+function GameMapCameraManager:UpdateBottomHud(bottomHudPixel)
+    self.BottomHudPixelHeight = bottomHudPixel or 0
+    self:ApplyRedBoxViewport()
+end
+
+--endregion
+
+--region 【安全区适配】
+
+---@brief 刷新安全区偏移（刘海屏 / 手势条适配）
+---@type fun():void
+function GameMapCameraManager:RefreshSafeAreaInsets()
+    local safeArea = UnityEngine.Screen.safeArea
+    local screenH = UnityEngine.Screen.height
+    if screenH <= 0 then
+        self.SafeAreaTopInset = 0
+        self.SafeAreaBottomInset = 0
+        return
+    end
+
+    local scale = self.CanvasDesignHeight / screenH
+    self.SafeAreaTopInset = math.max(0, screenH - safeArea.yMax) * scale
+    self.SafeAreaBottomInset = math.max(0, safeArea.yMin) * scale
+end
+
+---@brief 像素高度 → 设计分辨率高度换算
+---@type fun(px:number):number
+---@param px number 像素高度
+---@return number 设计分辨率单位高度
+function GameMapCameraManager:PixelsToDesign(px)
+    local screenH = UnityEngine.Screen.height
+    if screenH <= 0 then return px or 0 end
+    return (px or 0) * self.CanvasDesignHeight / screenH
+end
+
+--endregion
+
+--region 【边界管理】
+
+---@brief 设置相机移动边界（Limit 为地图实际范围，clamp 时自动扣除视口半宽/半高）
+---@type fun(minX:number, maxX:number, minY:number, maxY:number):void
+---@param minX number 地图范围最小X
+---@param maxX number 地图范围最大X
+---@param minY number 地图范围最小Y
+---@param maxY number 地图范围最大Y
+function GameMapCameraManager:SetBounds(minX, maxX, minY, maxY)
+    self.LimitMinX = minX
+    self.LimitMaxX = maxX
+    self.LimitMinY = minY
+    self.LimitMaxY = maxY
+
+    -- 自动计算最大相机尺寸：按高度适配，地图高度刚好占满视口高度，没有上下黑边
+    local mapW = maxX - minX
+    local mapH = maxY - minY
+    print(string.format("[GameMapCameraManager] SetBounds: mapW=%.1f mapH=%.1f RedBoxAspect=%.3f",
+        mapW, mapH, self.RedBoxAspect))
+    
+    if mapW > 0 and mapH > 0 then
+        -- 确保 RedBoxAspect 有效
+        local aspect = self.RedBoxAspect
+        if aspect <= 0 then
+            aspect = 16 / 9 -- 默认横屏比例
+            print(string.format("[GameMapCameraManager] RedBoxAspect 无效，使用默认值 %.3f", aspect))
+        end
+        
+        -- 按高度适配：地图高度刚好占满视口高度，没有上下黑边
+        -- 地图比视口宽，可以左右拖动
+        local orthoByHeight = mapH / 2
+        local maxOrtho = orthoByHeight
+        
+        self.MaxOrthoSize = maxOrtho
+        print(string.format("[GameMapCameraManager] SetBounds: 最大相机尺寸 ortho=%.1f (按高度适配)",
+            maxOrtho))
+    end
+
+    -- 同步设置手势系统的边界（统一边界管理）
+    -- self:_SyncGestureBounds(minX, maxX, minY, maxY)
+
+    self:ClampFollowPosition()
+end
+
+---@brief 同步设置手势系统的边界
+---@type fun(minX:number, maxX:number, minY:number, maxY:number):void
+function GameMapCameraManager:_SyncGestureBounds(minX, maxX, minY, maxY)
+    if not self.ScreenCamera then return end
+
+    -- 从相机节点上获取 Gestures2D 组件（用字符串方式更安全）
+    local gestures2D = self.ScreenCamera:GetComponent("Gestures2D")
+    if not gestures2D then
+        -- 如果相机上没有，就从父节点找
+        local parent = self.ScreenCamera.transform.parent
+        while parent do
+            gestures2D = parent:GetComponent("Gestures2D")
+            if gestures2D then break end
+            parent = parent.parent
+        end
+    end
+
+    if not gestures2D then
+        print("[GameMapCameraManager] _SyncGestureBounds: 没有找到 Gestures2D 组件")
+        return
+    end
+
+    -- 计算可拖动范围（相机中心可移动的范围）
+    -- 相机中心位置范围 = 地图范围 - 相机视口大小的一半
+    local cameraHalfW = self.MaxOrthoSize * self.RedBoxAspect
+    local cameraHalfH = self.MaxOrthoSize
+
+    -- 相机可移动的范围
+    local moveMinX = minX + cameraHalfW
+    local moveMaxX = maxX - cameraHalfW
+    local moveMinY = minY + cameraHalfH
+    local moveMaxY = maxY - cameraHalfH
+
+    -- 计算手势系统需要的参数（中心 + 大小）
+    local centerX = (moveMinX + moveMaxX) / 2
+    local centerY = (moveMinY + moveMaxY) / 2
+    local lengthX = moveMaxX - moveMinX
+    local lengthY = moveMaxY - moveMinY
+
+    -- 如果可拖动范围太小（地图比视口大很多），就设为 0
+    if lengthX < 0 then lengthX = 0 end
+    if lengthY < 0 then lengthY = 0 end
+
+    -- 设置给手势系统
+    gestures2D.SpaceCenterPosition = UnityEngine.Vector2(centerX, centerY)
+    gestures2D.SpaceHorizontalLength = lengthX
+    gestures2D.SpaceVerticalLength = lengthY
+    -- 关闭弹性区，拖到边界就停住，不弹回
+    gestures2D.SpaceHorizontalEdgeMoveElasticLength = 0
+    gestures2D.SpaceVerticalEdgeMoveElasticLength = 0
+
+    print(string.format("[GameMapCameraManager] 同步手势边界: center=(%.1f,%.1f) size=(%.1f,%.1f) 弹性=0",
+        centerX, centerY, lengthX, lengthY))
+end
+
+---@brief 获取相机可移动的边界（扣除视口半宽/半高后的实际 clamp 范围）
+---@type fun():number,number,number,number
+---@return number minX, number maxX, number minY, number maxY
+---@desc 缩放自适应：视口比聚合区域还大时（min>max）收敛到区域中心，避免 clamp 反向
+function GameMapCameraManager:GetCameraBounds()
+    if not self.ScreenCamera then return 0, 0, 0, 0 end
+    local aspect = self.RedBoxAspect
+    local ortho = self.ScreenCamera.orthographicSize
+    local hw = aspect * ortho
+    local hh = ortho
+    local minX = self.LimitMinX + hw
+    local maxX = self.LimitMaxX - hw
+    local minY = self.LimitMinY + hh
+    local maxY = self.LimitMaxY - hh
+    -- 视口大于地图范围：边界收敛到地图中心
+    if minX > maxX then
+        local c = (self.LimitMinX + self.LimitMaxX) / 2
+        minX, maxX = c, c
+    end
+    if minY > maxY then
+        local c = (self.LimitMinY + self.LimitMaxY) / 2
+        minY, maxY = c, c
+    end
+    return minX, maxX, minY, maxY
+end
+
+---@brief 把 FollowPosition clamp 到边界内
+---@type fun():void
+function GameMapCameraManager:ClampFollowPosition()
+    if not self.FollowPosition then return end
+    local minX, maxX, minY, maxY = self:GetCameraBounds()
+    self.FollowPosition.x = math.clamp(self.FollowPosition.x, minX, maxX)
+    self.FollowPosition.y = math.clamp(self.FollowPosition.y, minY, maxY)
+    self.FollowPosition.x = math.floor(self.FollowPosition.x * 1000) / 1000
+    self.FollowPosition.y = math.floor(self.FollowPosition.y * 1000) / 1000
+end
+
+--endregion
+
+--region 【镜头聚焦：基础接口】
+
+---@brief 聚焦到指定点（基础接口，业务层传入中心点和 ortho）
+---@type fun(centerX:number, centerY:number, orthoSize:number):void
+---@param centerX number 目标中心X
+---@param centerY number 目标中心Y
+---@param orthoSize number 目标正交尺寸
+function GameMapCameraManager:FocusAtPoint(centerX, centerY, orthoSize)
+    if not self.ScreenCamera then return end
+
+    self.ScreenCamera.orthographicSize = orthoSize
+    self.FollowPosition = { x = centerX, y = centerY, z = self.ScreenCamera.transform:GetPositionZ() }
+    -- 用世界坐标设置，与 MapMotionLayer 的世界坐标包围盒保持一致
+    self.ScreenCamera.transform.position = UnityEngine.Vector3(centerX, centerY, self.ScreenCamera.transform:GetPositionZ())
+    self:ClampFollowPosition()
+
+    print(string.format("[GameMapCameraManager] 聚焦点: center=(%.0f,%.0f) ortho=%.1f",
+        centerX, centerY, orthoSize))
+end
+
+---@brief 移动到目标点（带动画）
+---@type fun(targetX:number, targetY:number, orthoSize:number, duration:number):void
+---@param targetX number 目标世界X坐标
+---@param targetY number 目标世界Y坐标
+---@param orthoSize number 目标正交尺寸（nil=保持当前）
+---@param duration number 动画时长（秒）
+function GameMapCameraManager:MoveTo(targetX, targetY, orthoSize, duration)
+    if not self.ScreenCamera then return end
+    duration = duration or 0.5
+    orthoSize = orthoSize or self.ScreenCamera.orthographicSize
+
+    self.CurrentState = ECameraState.Transforming
+
+    local camTrans = self.ScreenCamera.transform
+    local seq = CS.DG.Tweening.DOTween.Sequence()
+
+    local moveTween = camTrans:DOMove(UnityEngine.Vector3(targetX, targetY, camTrans:GetPositionZ()), duration)
+    moveTween:SetEase(CS.DG.Tweening.Ease.InOutSine)
+    seq:Append(moveTween)
+
+    if not math.Approximately(self.ScreenCamera.orthographicSize, orthoSize) then
+        local sizeTween = self.ScreenCamera:DOOrthoSize(orthoSize, duration)
+        sizeTween:SetEase(CS.DG.Tweening.Ease.InOutSine)
+        seq:Join(sizeTween)
+    end
+
+    seq:OnComplete(CS.DG.Tweening.TweenCallback(function()
+        self.CurrentState = ECameraState.Lobby
+        self.FollowPosition = { x = targetX, y = targetY, z = camTrans:GetPositionZ() }
+        self:ClampFollowPosition()
+    end))
+end
+
+--endregion
+
+--region 【镜头适配：整图 Fit】
+
+---@brief 同步 FollowPosition 到相机当前位置（镜头动画/外部移动后调用）
+---@desc 相机被外部（如 LookMap 镜头动画）移动到目标位后，将平滑跟随目标吸附到当前位置，
+---      避免平滑跟随从旧目标回拉。【取消分区】后替代原 FocusUnlockedSections（分区聚焦）。
+---@type fun():void
+function GameMapCameraManager:SyncFollowToCamera()
+    if not self.ScreenCamera then return end
+    local pos = self.ScreenCamera.transform.localPosition
+    self.FollowPosition = { x = pos.x, y = pos.y, z = pos.z }
+    self:ClampFollowPosition()
+end
+
+---@brief 根据 RectTransform 自动适配相机（统一入口，C# 底层实现）
+---@desc 传入地图 ZoneRoot 的 RectTransform，C# 端负责读取世界坐标包围盒、Fit 模式 ortho 计算。
+---      Lua 只做参数校验和边界设置，底层计算全部收口到 C# MapCamHelper。
+---@type fun(targetRect:UnityEngine.RectTransform):void
+---@param targetRect UnityEngine.RectTransform 地图根节点 RectTransform（如 ZoneRoot）
+function GameMapCameraManager:FitToRectTransform(targetRect)
+    if not self.ScreenCamera then
+        print("[GameMapCameraManager] FitToRectTransform: 相机未初始化")
+        return
+    end
+    if not targetRect then
+        print("[GameMapCameraManager] FitToRectTransform: targetRect 为空")
+        return
+    end
+
+    -- 调用 C# 方法：从 UI RectTransform 获取世界坐标包围盒
+    local minX, maxX, minY, maxY = GameLib.MapCamHelper.GetWorldBoundsFromRectTransform(targetRect)
+
+    -- 调用统一的世界坐标适配入口
+    self:FitToWorldBounds(minX, maxX, minY, maxY)
+end
+
+---@brief 根据世界坐标包围盒自动适配相机（统一入口，Lua 端计算，待 C# Wrap 生成后切换）
+---@desc 业务层传入世界坐标 minX/maxX/minY/maxY，按 Fit 模式计算 ortho 使地图完整显示在红框内。
+---@brief 根据世界坐标包围盒自动适配相机（统一入口，结合红框 aspect）
+---@desc 传入世界坐标 minX/maxX/minY/maxY，按 Fit 模式计算 ortho 使地图完整显示在红框内、不留黑边。
+---      自动将世界坐标中心转换为相机父节点下的本地坐标，与 C# 相机动画系统 localPosition 坐标空间一致。
+---@type fun(minX:number, maxX:number, minY:number, maxY:number):void
+---@param minX number 包围盒最小X（世界坐标）
+---@param maxX number 包围盒最大X（世界坐标）
+---@param minY number 包围盒最小Y（世界坐标）
+---@param maxY number 包围盒最大Y（世界坐标）
+function GameMapCameraManager:FitToWorldBounds(minX, maxX, minY, maxY)
+    if not self.ScreenCamera then return end
+
+    local mapW = maxX - minX
+    local mapH = maxY - minY
+    if mapW <= 0 or mapH <= 0 then
+        print(string.format("[GameMapCameraManager] FitToWorldBounds: 尺寸异常 %.0fx%.0f", mapW, mapH))
+        return
+    end
+
+    local worldCenterX = (minX + maxX) / 2
+    local worldCenterY = (minY + maxY) / 2
+
+    -- 按高度适配：地图高度刚好占满视口高度，没有上下黑边
+    -- 地图比视口宽，可以左右拖动查看
+    local orthoByHeight = mapH / 2
+    local ortho = orthoByHeight
+    ortho = math.max(ortho, self.MinOrthoSize)
+
+    -- 设置地图边界（供后续拖动 clamp）
+    self:SetBounds(minX, maxX, minY, maxY)
+
+    -- 将世界坐标中心转换为相机父节点下的本地坐标，与 C# localPosition 系统对齐
+    local worldPos = UnityEngine.Vector3(worldCenterX, worldCenterY, 0)
+    local camParent = self.ScreenCamera.transform.parent
+    local localPos
+    if camParent then
+        localPos = camParent:InverseTransformPoint(worldPos)
+        print(string.format("[GameMapCameraManager] 世界坐标转本地: world=(%.1f,%.1f) local=(%.1f,%.1f)",
+            worldCenterX, worldCenterY, localPos.x, localPos.y))
+    else
+        localPos = worldPos
+    end
+
+    -- 用 localPosition 设置，与 C# MapCamHelper 坐标系统完全一致
+    self.ScreenCamera.transform.localPosition = UnityEngine.Vector3(localPos.x, localPos.y, self.ScreenCamera.transform.localPosition.z)
+    self.ScreenCamera.orthographicSize = ortho
+    self.FollowPosition = { x = localPos.x, y = localPos.y, z = self.ScreenCamera.transform.localPosition.z }
+
+    print(string.format("[GameMapCameraManager] FitToWorldBounds: localCenter=(%.1f,%.1f) ortho=%.1f size=(%.0f,%.0f) aspect=%.3f",
+        localPos.x, localPos.y, ortho, mapW, mapH, self.RedBoxAspect))
+end
+
+--endregion
+
+--region 【缩放控制】
+
+---@brief 应用缩放（clamp 到 [Min, Max]，缩放后自动重算边界并吸附到 FollowPosition）
+---@type fun(newOrtho:number):void
+---@param newOrtho number 期望的正交尺寸
+function GameMapCameraManager:ApplyZoom(newOrtho)
+    if not self.ScreenCamera then return end
+    local clamped = math.clamp(newOrtho, self.MinOrthoSize, self.MaxOrthoSize)
+    if clamped <= 0 then
+        clamped = (self.MinOrthoSize + self.MaxOrthoSize) / 2
+    end
+    self.ScreenCamera.orthographicSize = clamped
+    self:ClampFollowPosition()
+    -- 缩放是即时操作：直接把相机 transform 吸到 FollowPosition，避免 SmoothStep 滞后导致边缘露黑边
+    if self.FollowPosition then
+        self.ScreenCamera.transform:SetPositionX(self.FollowPosition.x)
+        self.ScreenCamera.transform:SetPositionY(self.FollowPosition.y)
+    end
+end
+
+---@brief 设置缩放范围（MinOrthoSize 由 MapData 配置，一般不外部修改）
+---@type fun(minSize:number, maxSize:number):void
+---@param minSize number 最小正交尺寸
+---@param maxSize number 最大正交尺寸
+function GameMapCameraManager:SetZoomRange(minSize, maxSize)
+    self.MinOrthoSize = minSize or self.MinOrthoSize
+    self.MaxOrthoSize = maxSize or self.MaxOrthoSize
+end
+
+--endregion
+
+--region 【移动控制：世界位移 → 跟随目标】
+
+---@brief 应用世界位移（输入层调用：拖动/滑动/惯性 转换为世界位移后调用本接口）
+---@type fun(dx:number, dy:number):void
+---@param dx number 世界X位移
+---@param dy number 世界Y位移
+function GameMapCameraManager:ApplyWorldDelta(dx, dy)
+    if not self.FollowPosition then return end
+    self.FollowPosition.x = self.FollowPosition.x + dx
+    self.FollowPosition.y = self.FollowPosition.y + dy
+    self:ClampFollowPosition()
+    self.SwipeSmoothStepNum = math.clamp(
+        self.SwipeSmoothStepNum + UnityEngine.Time.deltaTime * self.StepAddFactor,
+        SMOOTH_MIN, SMOOTH_MAX
+    )
+end
+
+---@brief 屏幕两点位移 → 世界位移（输入层用，避免重复换算）
+---@type fun(curX:number,curY:number,lastX:number,lastY:number):number,number
+---@return number dx, number dy 世界空间位移（已取反：手指往哪拖，地图跟着走）
+function GameMapCameraManager:ScreenDeltaToWorldDelta(curX, curY, lastX, lastY)
+    if not self.ScreenCamera then return 0, 0 end
+    self._scrScreenPos.x = curX;  self._scrScreenPos.y = curY
+    GameLib.RSetupLuaTableValue.RScreenToWorldPoint(self.ScreenCamera, self._scrScreenPos, self._scrCurWorld)
+    self._scrScreenPos.x = lastX; self._scrScreenPos.y = lastY
+    GameLib.RSetupLuaTableValue.RScreenToWorldPoint(self.ScreenCamera, self._scrScreenPos, self._scrLastWorld)
+    return -(self._scrCurWorld.x - self._scrLastWorld.x),
+           -(self._scrCurWorld.y - self._scrLastWorld.y)
+end
+
+--endregion
+
+--region 【惯性滑动】
+
+---@brief 重置滑动相关状态（开始新的拖动/滑动时调用）
+---@type fun():void
+function GameMapCameraManager:ResetSwipeState()
+    self.InertialSlidingFactor = 0
+    self.SwipeSmoothStepNum = 0
+    self._scrScreenPos.x = 0
+    self._scrScreenPos.y = 0
+end
+
+---@brief 拖动结束时调用：根据当前滑动速度设置惯性系数
+---@type fun():void
+function GameMapCameraManager:OnDragEnd()
+    local factor = 1 - self.SwipeSmoothStepNum
+    self.InertialSlidingFactor = math.clamp(factor, 0, 1)
+    self.SwipeSmoothStepNum = SMOOTH_START_VALUE
+end
+
+---@brief 惯性滑动更新（每帧 OnUpdate 内部调用）
+---@type fun():void
+function GameMapCameraManager:_UpdateInertial()
+    if self.InertialSlidingFactor <= 0 then return end
+    self._scrInertiaDelta.x = self._scrScreenPos.x * self.InertialSlidingFactor
+    self._scrInertiaDelta.y = self._scrScreenPos.y * self.InertialSlidingFactor
+    self:ApplyWorldDelta(self._scrInertiaDelta.x, self._scrInertiaDelta.y)
+    -- 惯性衰减
+    self.InertialSlidingFactor = math.clamp(self.InertialSlidingFactor - INERTIA_DECAY, 0, 1)
+    self.SwipeSmoothStepNum = math.clamp(self.SwipeSmoothStepNum + GameLib.RSetupLuaTableValue.GetTimeDeltaTime(), 0.75, 1)
+end
+
+--endregion
+
+--region 【每帧更新：平滑跟随】
+
+---@brief 每帧更新（由 GameMain 状态机驱动）
+---@desc 平滑跟随 FollowPosition + 惯性滑动 + 自动扫描状态检查
+function GameMapCameraManager:OnUpdate()
+    -- 双保险：未初始化或无相机直接返回
+    if not self.IsInitialized or not self.ScreenCamera or not self.FollowPosition then return end
+
+    -- 安全矫正相机尺寸（只 clamp，不重算聚焦——重算是业务层的事）
+    self.ScreenCamera.orthographicSize = math.clamp(
+        self.ScreenCamera.orthographicSize,
+        self.MinOrthoSize,
+        self.MaxOrthoSize
+    )
+
+    -- 自动扫描/过渡动画时跳过平滑跟随（DOTween 直接控制相机）
+    if not self.AutoScanActive and self.CurrentState ~= ECameraState.Transforming then
+        -- 平滑跟随（localPosition，与 C# 坐标系统一致）
+        local currPos = self.ScreenCamera.transform.localPosition
+        local currCameraX = currPos.x
+        local currCameraY = currPos.y
+        local changed = false
+        local newX = currCameraX
+        local newY = currCameraY
+
+        if not math.Approximately(currCameraX, self.FollowPosition.x) then
+            newX = math.SmoothStep(currCameraX, self.FollowPosition.x, self.SwipeSmoothStepNum)
+            changed = true
+        end
+
+        if not math.Approximately(currCameraY, self.FollowPosition.y) then
+            newY = math.SmoothStep(currCameraY, self.FollowPosition.y, self.SwipeSmoothStepNum)
+            changed = true
+        end
+
+        if changed then
+            self.ScreenCamera.transform.localPosition = UnityEngine.Vector3(newX, newY, currPos.z)
+        end
+    end
+
+    -- 自动扫描宽限帧递减
+    if self.AutoScanActive and self.AutoScanGraceFrames > 0 then
+        self.AutoScanGraceFrames = self.AutoScanGraceFrames - 1
+    end
+end
+
+--endregion
+
+--region 【自动扫描】
+
+---@brief 终止并清理自动扫描 DOTween 序列（幂等）
+---@type fun():void
+function GameMapCameraManager:KillAutoScanSeq()
+    if self.AutoScanSeq then
+        self.AutoScanSeq:Kill()
+        self.AutoScanSeq = nil
+    end
+end
+
+---@brief 自动扫描地图：蛇形路径从左上扫到右下，找预制体用
+---@type fun(orthoSize:number):void
+---@param orthoSize number 扫描时的相机尺寸，默认 300
+function GameMapCameraManager:StartAutoScan(orthoSize)
+    if not self.ScreenCamera or not self.FollowPosition then return end
+    orthoSize = orthoSize or 300
+
+    -- 切到扫描缩放
+    self:ApplyZoom(orthoSize)
+
+    -- 重新算边界（缩放后 hw/hh 变了）
+    local minX, maxX, minY, maxY = self:GetCameraBounds()
+    if minX > maxX or minY > maxY then return end
+
+    -- 每次横向/纵向步进 = 视野的 overlap（留重叠避免漏看）
+    local aspect = self.RedBoxAspect
+    local stepX = aspect * orthoSize * 2 * AUTO_SCAN_OVERLAP
+    local stepY = orthoSize * 2 * AUTO_SCAN_OVERLAP
+
+    -- 生成蛇形路径点
+    self.AutoScanWaypoints = {}
+    local y = maxY
+    local row = 0
+    while y >= minY - 0.01 do
+        if row % 2 == 0 then
+            local x = minX
+            while x <= maxX + 0.01 do
+                table.insert(self.AutoScanWaypoints, { x = x, y = y })
+                x = x + stepX
+            end
+            self.AutoScanWaypoints[#self.AutoScanWaypoints] = { x = maxX, y = y }
+        else
+            local x = maxX
+            while x >= minX - 0.01 do
+                table.insert(self.AutoScanWaypoints, { x = x, y = y })
+                x = x - stepX
+            end
+            self.AutoScanWaypoints[#self.AutoScanWaypoints] = { x = minX, y = y }
+        end
+        y = y - stepY
+        row = row + 1
+    end
+
+    -- 用 DOTween Sequence 串起所有 waypoint
+    local camTransform = self.ScreenCamera.transform
+    local camZ = camTransform:GetPositionZ()
+
+    self:KillAutoScanSeq()
+
+    local seq = CS.DG.Tweening.DOTween.Sequence()
+    for _, wp in ipairs(self.AutoScanWaypoints) do
+        local target = UnityEngine.Vector3(wp.x, wp.y, camZ)
+        local tween = camTransform:DOMove(target, AUTO_SCAN_POINT_DURATION)
+        tween:SetEase(CS.DG.Tweening.Ease.InOutSine)
+        seq:Append(tween)
+    end
+
+    seq:OnComplete(CS.DG.Tweening.TweenCallback(function()
+        self:StopAutoScan()
+    end))
+
+    self.AutoScanSeq = seq
+    self.AutoScanActive = true
+    self.AutoScanGraceFrames = AUTO_SCAN_GRACE_FRAMES
+    self.CurrentState = ECameraState.AutoScan
+end
+
+---@brief 停止自动扫描
+function GameMapCameraManager:StopAutoScan()
+    self.AutoScanActive = false
+    self.AutoScanWaypoints = nil
+    self:KillAutoScanSeq()
+    -- 同步 FollowPosition 到相机当前位置，防止退出后跳回
+    if self.ScreenCamera then
+        self.FollowPosition.x = self.ScreenCamera.transform:GetPositionX()
+        self.FollowPosition.y = self.ScreenCamera.transform:GetPositionY()
+    end
+    if self.CurrentState == ECameraState.AutoScan then
+        self.CurrentState = ECameraState.Lobby
+    end
+end
+
+--endregion
+
+--region 【暂停 / 恢复】
+
+---@brief 暂停镜头（记录位置快照）
+---@type fun():void
+function GameMapCameraManager:Pause()
+    if not self.ScreenCamera or self.CurrentState == ECameraState.Paused then return end
+
+    self._PositionWhenPaused = {
+        x = self.ScreenCamera.transform:GetPositionX(),
+        y = self.ScreenCamera.transform:GetPositionY(),
+        z = self.ScreenCamera.transform:GetPositionZ()
+    }
+    self.CurrentState = ECameraState.Paused
+end
+
+---@brief 恢复镜头（瞬间回到暂停前位置）
+---@type fun():void
+function GameMapCameraManager:Resume()
+    if self.CurrentState ~= ECameraState.Paused then return end
+
+    -- 恢复到暂停前的位置
+    if self._PositionWhenPaused and self.FollowPosition then
+        self.FollowPosition.x = self._PositionWhenPaused.x
+        self.FollowPosition.y = self._PositionWhenPaused.y
+    end
+
+    self.CurrentState = ECameraState.Lobby
+    self.SwipeSmoothStepNum = SMOOTH_START_VALUE
+end
+
+--endregion
+
+--region 【状态查询】
+
+---@brief 获取当前相机宽高比（红框口径）
+---@type fun():number
+function GameMapCameraManager:GetAspect()
+    return self.RedBoxAspect
+end
+
+---@brief 获取当前正交尺寸
+---@type fun():number
+function GameMapCameraManager:GetOrthographicSize()
+    return self.ScreenCamera and self.ScreenCamera.orthographicSize or 0
+end
+
+---@brief 获取跟随目标位置
+---@type fun():table
+function GameMapCameraManager:GetFollowPosition()
+    return self.FollowPosition
+end
+
+--endregion
+
+--region 【静态工厂：单例】
+
+---@brief 单例实例（私有）
+local _instance = nil
+
+---@brief 获取单例实例（全局入口）
+---@type fun():table
+---@return table GameMapCameraManager 单例实例
+function GameMapCameraManager.Instance()
+    if not _instance then
+        _instance = GameMapCameraManager
+    end
+    return _instance
+end
+
+---@brief 兼容旧接口：静态工厂方法（返回单例）
+---@type fun():table
+---@return table GameMapCameraManager 单例实例
+function GameMapCameraManager.Create()
+    return GameMapCameraManager.Instance()
+end
+
+--endregion
+
+return GameMapCameraManager

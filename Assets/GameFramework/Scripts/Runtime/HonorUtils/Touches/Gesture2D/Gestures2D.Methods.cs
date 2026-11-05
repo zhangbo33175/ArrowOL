@@ -78,7 +78,7 @@ namespace Honor.Runtime
             float spaceVerticalBottomEdgeYWithElasticLength = spaceVerticalBottomEdgeY + m_SpaceVerticalEdgeMoveElasticLength;
             
             // 已经进入左侧弹性区，则不需要惯性速度了，只需要设置一个反弹速度
-            if (m_SpaceHorizontalEdgeMoveElasticLength > 0)
+            if (m_SpaceHorizontalEdgeMoveElasticLength > 0 && m_SceneCamera != null)
             {
                 if (m_SceneCamera.transform.position.x <= spaceHorizontalLeftEdgeXWithElasticLength)
                 {
@@ -87,7 +87,7 @@ namespace Honor.Runtime
             }
 
             // 已经进入右侧弹性区，则不需要惯性速度了，只需要设置一个反弹速度
-            if (m_SpaceHorizontalEdgeMoveElasticLength > 0)
+            if (m_SpaceHorizontalEdgeMoveElasticLength > 0 && m_SceneCamera != null)
             {
                 if (m_SceneCamera.transform.position.x >= spaceHorizontalRightEdgeXWithElasticLength)
                 {
@@ -96,7 +96,7 @@ namespace Honor.Runtime
             }
 
             // 已经进入上侧弹性区，则不需要惯性速度了，只需要设置一个反弹速度
-            if (m_SpaceVerticalEdgeMoveElasticLength > 0)
+            if (m_SpaceVerticalEdgeMoveElasticLength > 0 && m_SceneCamera != null)
             {
                 if (m_SceneCamera.transform.position.y >= spaceVerticalTopEdgeYWithElasticLength)
                 {

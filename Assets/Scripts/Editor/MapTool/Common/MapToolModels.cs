@@ -88,6 +88,12 @@ namespace Honor.Editor.MapTool
         /// <summary>渲染层级排序（数值越大越靠前）</summary>
         public int SortOrder = 0;
 
+        /// <summary>是否启用Y坐标自动深度排序</summary>
+        public bool YSortEnabled = true;
+
+        /// <summary>Y坐标深度排序的基准偏移</summary>
+        public float YSortOffset = 0f;
+
         /// <summary>是否有碰撞体积</summary>
         public bool CollisionEnabled = true;
 
@@ -96,6 +102,38 @@ namespace Honor.Editor.MapTool
 
         /// <summary>是否显示地面阴影</summary>
         public bool ShadowEnabled = true;
+
+        #endregion
+
+        #region 移动与循环属性
+
+        /// <summary>是否可移动</summary>
+        public bool IsMovable = false;
+
+        /// <summary>移动动画名称</summary>
+        public string MoveAnimName = "walk";
+
+        /// <summary>循环行驶：离开地图后重新开始的延迟时间（秒）</summary>
+        public float LoopRestartDelay = 3f;
+
+        /// <summary>离开地图时是否隐藏</summary>
+        public bool HideWhenOffMap = true;
+
+        #endregion
+
+        #region 传送门属性
+
+        /// <summary>是否为传送门</summary>
+        public bool IsTeleport = false;
+
+        /// <summary>目标场景ID</summary>
+        public string TeleportTargetScene = "";
+
+        /// <summary>目标位置X</summary>
+        public float TeleportTargetX = 0;
+
+        /// <summary>目标位置Y</summary>
+        public float TeleportTargetY = 0;
 
         #endregion
 
@@ -155,9 +193,6 @@ namespace Honor.Editor.MapTool
         /// <summary>高度（格子数）</summary>
         public int Height = 1;
 
-        /// <summary>所属分区索引</summary>
-        public int RegionIndex = 0;
-
         #endregion
 
         #region 动画属性
@@ -195,8 +230,14 @@ namespace Honor.Editor.MapTool
 
         #region 渲染与物理属性
 
-        /// <summary>渲染层级排序（数值越大越靠前）</summary>
-        public int SortOrder = 0;
+        /// <summary>渲染层级排序（数值越大越靠前：物件=10 建筑=30 人物=50）</summary>
+        public int SortOrder = 10;
+
+        /// <summary>是否启用Y坐标自动深度排序（启用后根据Y坐标自动计算前后关系）</summary>
+        public bool YSortEnabled = true;
+
+        /// <summary>Y坐标深度排序的基准偏移（越大越靠前，默认0）</summary>
+        public float YSortOffset = 0f;
 
         /// <summary>是否有碰撞体积</summary>
         public bool CollisionEnabled = true;
@@ -217,11 +258,69 @@ namespace Honor.Editor.MapTool
         /// <summary>收集物重生时间（秒）</summary>
         public float RespawnTime = 0;
 
-        /// <summary>是否循环巡逻（NPC来回走动）</summary>
-        public bool PatrolLoop = false;
+        /// <summary>行走路径模式：once（单次）/ pingpong（往返）/ loop（循环）</summary>
+        public string WalkMode = "once";
 
-        /// <summary>人物行走路径点列表（世界坐标，吸附32px网格）</summary>
+        /// <summary>行走路径点列表（世界坐标，吸附32px网格）</summary>
         public List<Vector2> PathPoints = new List<Vector2>();
+
+        #endregion
+
+        #region 事件系统
+
+        /// <summary>触发事件类型：none/chat（聊天）/interact（交互）</summary>
+        public string TriggerEventType = "none";
+
+        /// <summary>触发目标ID（遇到哪个物体触发）</summary>
+        public string TriggerTargetId = "";
+
+        /// <summary>触发后停留时间（秒）</summary>
+        public float TriggerStayTime = 2f;
+
+        #endregion
+
+        #region 物件移动
+
+        /// <summary>是否可移动（建筑/物件也能移动）</summary>
+        public bool IsMovable = false;
+
+        /// <summary>移动到目标点的动画名称</summary>
+        public string MoveAnimName = "walk";
+
+        /// <summary>循环行驶：离开地图后重新开始的延迟时间（秒，0=立即重新开始）</summary>
+        public float LoopRestartDelay = 3f;
+
+        /// <summary>离开地图时是否隐藏</summary>
+        public bool HideWhenOffMap = true;
+
+        #endregion
+
+        #region 传送门
+
+        /// <summary>是否为传送门</summary>
+        public bool IsTeleport = false;
+
+        /// <summary>目标场景ID</summary>
+        public string TeleportTargetScene = "";
+
+        /// <summary>目标位置X（世界坐标）</summary>
+        public float TeleportTargetX = 0;
+
+        /// <summary>目标位置Y（世界坐标）</summary>
+        public float TeleportTargetY = 0;
+
+        #endregion
+
+        #region 状态配置
+
+        /// <summary>初始状态：idle/move/hidden</summary>
+        public string InitialState = "idle";
+
+        /// <summary>状态贴图配置（key=状态名, value=贴图路径）</summary>
+        public List<StateSpriteConfig> StateSprites = new List<StateSpriteConfig>();
+
+        /// <summary>状态动画配置（key=状态名, value=动画名）</summary>
+        public List<StateAnimConfig> StateAnims = new List<StateAnimConfig>();
 
         #endregion
 
@@ -274,6 +373,43 @@ namespace Honor.Editor.MapTool
             };
         }
 
+        /// <summary>
+        /// 从模板同步配置（不改变位置和大小）
+        /// </summary>
+        /// <param name="template">模板对象</param>
+        public void SyncFromTemplate(ObjectTemplate template)
+        {
+            if (template == null) return;
+
+            // 同步基础属性
+            Name = template.TemplateName;
+            Type = template.Type;
+            AnimName = template.AnimName;
+            Loop = template.Loop;
+            Speed = template.Speed;
+            Interactable = template.Interactable;
+            InteractType = template.InteractType;
+            SortOrder = template.SortOrder;
+            CollisionEnabled = template.CollisionEnabled;
+            DialogBubble = template.DialogBubble;
+            FacingDirection = template.FacingDirection;
+            ShadowEnabled = template.ShadowEnabled;
+            IsCollectible = template.IsCollectible;
+            RespawnTime = template.RespawnTime;
+
+            // 同步扩展属性
+            YSortEnabled = template.YSortEnabled;
+            YSortOffset = template.YSortOffset;
+            IsMovable = template.IsMovable;
+            MoveAnimName = template.MoveAnimName;
+            LoopRestartDelay = template.LoopRestartDelay;
+            HideWhenOffMap = template.HideWhenOffMap;
+            IsTeleport = template.IsTeleport;
+            TeleportTargetScene = template.TeleportTargetScene;
+            TeleportTargetX = template.TeleportTargetX;
+            TeleportTargetY = template.TeleportTargetY;
+        }
+
         #endregion
     }
 
@@ -295,10 +431,10 @@ namespace Honor.Editor.MapTool
         public string sceneName = string.Empty;
 
         /// <summary>地图宽度（像素）</summary>
-        public int width = 2048;
+        public int width = 4096;
 
         /// <summary>地图高度（像素）</summary>
-        public int height = 2048;
+        public int height = 4096;
 
         // ---TODO 双格式保存：新增章节信息字段（JSON 落 MapDatas，Lua 同源导出）
         /// <summary>章节ID（来自 TableChapterEditor.ID）</summary>
@@ -307,18 +443,8 @@ namespace Honor.Editor.MapTool
         /// <summary>章节名称（来自 TableChapterEditor.ChapterTitle）</summary>
         public string chapterName = string.Empty;
 
-        /// <summary>分区数（= m_RegionCount）</summary>
-        public int regionCount = 0;
-
-        // ---TODO 布局：行优先 row-major，cols=ceil(sqrt(regionCount))、rows=ceil(regionCount/cols)
-        /// <summary>分区行数（row-major，最多 3）</summary>
-        public int regionRows = 2;
-
-        /// <summary>分区列数（row-major，最多 3）</summary>
-        public int regionCols = 2;
-
-        /// <summary>分区信息列表</summary>
-        public List<MapRegionData> regions = new List<MapRegionData>();
+        /// <summary>背景图资源名称</summary>
+        public string bgName = string.Empty;
 
         // ---TODO 网格信息：保存格子尺寸/行列/占用，供运行时检查位置
         /// <summary>格子尺寸（像素，= MapToolConstants.GridSize）</summary>
@@ -332,6 +458,15 @@ namespace Honor.Editor.MapTool
 
         /// <summary>被摆放物占用的格子集合（格子行列坐标，运行时位置/占用校验）</summary>
         public List<MapGridCellData> occupiedCells = new List<MapGridCellData>();
+
+        /// <summary>建筑集合</summary>
+        public List<MapObjectData> buildings = new List<MapObjectData>();
+
+        /// <summary>物件集合</summary>
+        public List<MapObjectData> objects = new List<MapObjectData>();
+
+        /// <summary>人物集合</summary>
+        public List<MapCharacterData> characters = new List<MapCharacterData>();
     }
 
     /// <summary>
@@ -345,63 +480,6 @@ namespace Honor.Editor.MapTool
 
         /// <summary>行（Y）</summary>
         public int y = 0;
-    }
-
-    /// <summary>
-    /// 地图分区信息
-    /// 每个区域下挂自己的建筑/物件/人物集合
-    /// </summary>
-    [Serializable]
-    public class MapRegionData
-    {
-        /// <summary>区域ID</summary>
-        public string regionId = string.Empty;
-
-        /// <summary>背景图资源名称</summary>
-        public string bgName = string.Empty;
-
-        /// <summary>是否默认解锁</summary>
-        public bool unlocked = false;
-
-        // ---TODO 布局：row-major offset（col*2048, row*2048），运行时背景瓦片定位
-        /// <summary>分区列索引（0..cols-1）</summary>
-        public int col = 0;
-
-        /// <summary>分区行索引（0..rows-1，row0=底）</summary>
-        public int row = 0;
-
-        /// <summary>分区左上角X像素偏移（col × RegionPixelSize）</summary>
-        public int offsetX = 0;
-
-        /// <summary>分区左上角Y像素偏移（row × RegionPixelSize）</summary>
-        public int offsetY = 0;
-
-        /// <summary>分区宽度（像素，= RegionPixelSize）</summary>
-        public int width = 2048;
-
-        /// <summary>分区高度（像素，= RegionPixelSize）</summary>
-        public int height = 2048;
-
-        /// <summary>是否开启迷雾效果</summary>
-        public bool fogEnabled = false;
-
-        /// <summary>分区内网格列数（= width / gridSize）</summary>
-        public int gridCols = 64;
-
-        /// <summary>分区内网格行数（= height / gridSize）</summary>
-        public int gridRows = 64;
-
-        /// <summary>出生点集合（玩家进入此分区时的出生位置）</summary>
-        public List<MapSpawnPointData> spawnPoints = new List<MapSpawnPointData>();
-
-        /// <summary>该区域建筑集合</summary>
-        public List<MapObjectData> buildings = new List<MapObjectData>();
-
-        /// <summary>该区域物件集合</summary>
-        public List<MapObjectData> objects = new List<MapObjectData>();
-
-        /// <summary>该区域人物集合</summary>
-        public List<MapCharacterData> characters = new List<MapCharacterData>();
     }
 
     /// <summary>
@@ -487,8 +565,14 @@ namespace Honor.Editor.MapTool
         /// <summary>交互类型</summary>
         public string interactType = "click";
 
-        /// <summary>渲染层级排序</summary>
-        public int sortOrder = 0;
+        /// <summary>渲染层级排序（建筑默认=30，在物件和人物之间）</summary>
+        public int sortOrder = 30;
+
+        /// <summary>是否启用Y坐标自动深度排序</summary>
+        public bool ySortEnabled = true;
+
+        /// <summary>Y坐标深度排序的基准偏移</summary>
+        public float ySortOffset = 0f;
 
         /// <summary>是否有碰撞体积</summary>
         public bool collisionEnabled = true;
@@ -507,6 +591,27 @@ namespace Honor.Editor.MapTool
 
         /// <summary>通用气泡配置ID（引用 Tables.Bubble，0=不弹泡）</summary>
         public int bubbleId = 0;
+
+        /// <summary>是否可移动（建筑/物件也能移动）</summary>
+        public bool isMovable = false;
+
+        /// <summary>循环行驶：离开地图后重新开始的延迟时间（秒）</summary>
+        public float loopRestartDelay = 3f;
+
+        /// <summary>离开地图时是否隐藏</summary>
+        public bool hideWhenOffMap = true;
+
+        /// <summary>是否为传送门</summary>
+        public bool isTeleport = false;
+
+        /// <summary>目标场景ID</summary>
+        public string teleportTargetScene = "";
+
+        /// <summary>目标位置X（世界坐标）</summary>
+        public float teleportTargetX = 0;
+
+        /// <summary>目标位置Y（世界坐标）</summary>
+        public float teleportTargetY = 0;
 
         /// <summary>位移数据（如果有移动）</summary>
         public MapMoveData moveData;
@@ -598,8 +703,8 @@ namespace Honor.Editor.MapTool
         /// <summary>交互类型</summary>
         public string interactType = "none";
 
-        /// <summary>是否循环巡逻</summary>
-        public bool patrolLoop = true;
+        /// <summary>行走路径模式：once（单次）/ pingpong（往返）/ loop（循环）</summary>
+        public string walkMode = "loop";
 
         /// <summary>初始朝向：up/down/left/right</summary>
         public string facingDirection = "down";
@@ -610,8 +715,20 @@ namespace Honor.Editor.MapTool
         /// <summary>渲染层级排序</summary>
         public int sortOrder = 50;
 
+        /// <summary>是否启用Y坐标自动深度排序</summary>
+        public bool ySortEnabled = true;
+
+        /// <summary>Y坐标深度排序的基准偏移</summary>
+        public float ySortOffset = 0f;
+
         /// <summary>是否显示地面阴影</summary>
         public bool shadowEnabled = true;
+
+        /// <summary>循环行驶：离开地图后重新开始的延迟时间（秒）</summary>
+        public float loopRestartDelay = 3f;
+
+        /// <summary>离开地图时是否隐藏</summary>
+        public bool hideWhenOffMap = true;
 
         /// <summary>可走路径点集合</summary>
         public List<MapPathPointData> pathPoints = new List<MapPathPointData>();
@@ -650,6 +767,32 @@ namespace Honor.Editor.MapTool
             this.x = x;
             this.y = y;
         }
+    }
+
+    /// <summary>
+    /// 状态贴图配置
+    /// </summary>
+    [Serializable]
+    public class StateSpriteConfig
+    {
+        /// <summary>状态名称</summary>
+        public string stateName = "idle";
+
+        /// <summary>贴图路径</summary>
+        public string spritePath = "";
+    }
+
+    /// <summary>
+    /// 状态动画配置
+    /// </summary>
+    [Serializable]
+    public class StateAnimConfig
+    {
+        /// <summary>状态名称</summary>
+        public string stateName = "idle";
+
+        /// <summary>动画名称</summary>
+        public string animName = "idle";
     }
 
     #endregion

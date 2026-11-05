@@ -1,4 +1,4 @@
-#if USE_UNI_LUA
+﻿#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -21,10 +21,8 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(MapData);
-			Utils.BeginObjectRegister(type, L, translator, 0, 2, 17, 17);
+			Utils.BeginObjectRegister(type, L, translator, 0, 0, 17, 17);
 			
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CalcAutoMinCamSize", _m_CalcAutoMinCamSize);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RecalcNormalCamData", _m_RecalcNormalCamData);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "m_ChapterId", _g_get_m_ChapterId);
@@ -100,60 +98,12 @@ namespace XLua.CSObjectWrap
             
         }
         
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_CalcAutoMinCamSize(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                        float gen_ret = gen_to_be_invoked.CalcAutoMinCamSize(  );
-                        LuaAPI.lua_pushnumber(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
+		
         
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_RecalcNormalCamData(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                MapData gen_to_be_invoked = (MapData)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.RecalcNormalCamData(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
+		
+        
+        
+        
         
         
         

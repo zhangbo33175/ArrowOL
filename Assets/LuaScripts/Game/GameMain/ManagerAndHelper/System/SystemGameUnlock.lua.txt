@@ -142,48 +142,6 @@ end
 ---=========================================================================
 function SystemGameUnlock:Init()
     SystemGameUnlock.super.Init(self)
-
-    ---- 1. 配置各个系统的解锁条件（从常量表读取）
-    --self.unlockLv = {}
-    --self.unlockLv[ESystemName.MachineUpgrade]   = Tables.Constants.UpgradeUnlockLevel.Value
-    --self.unlockLv[ESystemName.Build]            = Tables.Constants.DecorSysUnlock.Value
-    --self.unlockLv[ESystemName.ChapterList]      = Tables.Constants.ChapterListUnlock.Value
-    --self.unlockLv[ESystemName.DailyRewards]     = {
-    --    Chapter = Tables.Constants.dailyRewardUnlockLevel.Value.ChapterID,
-    --    Level   = Tables.Constants.dailyRewardUnlockLevel.Value.LevelID
-    --}
-    --self.unlockLv[ESystemName.DailyQuest]       = Tables.Constants.DailyQuestsUnlockLevel.Value
-    --self.unlockLv[ESystemName.EntityIdle]       = Tables.Constants.IdleGuestUnlockLevel.Value
-    --self.unlockLv[ESystemName.Collection]       = Tables.Constants.CollectionsUnlockLevel.Value
-    --
-    ---- 2. 初始化所有系统的解锁状态
-    --self.map = {}
-    --local currentLv = GamerDataManager:GetLatestChapterLevel()
-    --if not currentLv then
-    --    return
-    --end
-    --
-    --local isAllUnlock = true
-    --for sys, unlockCfg in pairs(self.unlockLv) do
-    --    if not unlockCfg then
-    --        self.map[sys] = true
-    --        goto continue
-    --    end
-    --
-    --    local unlock = unlockCfg.Chapter < currentLv.Chapter
-    --            or (unlockCfg.Chapter == currentLv.Chapter and unlockCfg.Level <= currentLv.Level)
-    --
-    --    self.map[sys] = unlock
-    --    isAllUnlock = isAllUnlock and unlock
-    --
-    --    ::continue::
-    --end
-    --
-    ---- 3. 如果未全解锁，则监听关卡/章节事件
-    --if not isAllUnlock then
-    --    HonorEventHelper:AddListener(EventCmd.OnLevelSuccess, handler(self, self._ListenLevelSuccess))
-    --    HonorEventHelper:AddListener(EventCmd.OnNewChapterUnlockEvent, handler(self, self._ListenChapterUnlock))
-    --end
 end
 --endregion
 

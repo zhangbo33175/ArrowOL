@@ -4,10 +4,11 @@
 -- filename:  GameCoreManagerData.lua
 -- author:    云毅
 -- created:   2026
--- @brief     游戏玩法核心数据管理类
--- @desc      统一管理关卡运行时关键数据：角色/寻找物收集列表、已收集列表、道具使用计数、剩余生命值、关卡限制条件缓存
--- @core      关卡收集列表/已收集列表维护、道具使用计数、剩余生命值与关卡限制条件缓存的读写
--- @scope     GameCoreManager 的内部数据载体，仅暴露只读查询接口与道具计数/扣血写接口，不直接对接 UI
+-- @brief     游戏玩法核心数据管理类（全量数据收敛：角色/物件收集、分区分类、连击、复活广告）
+-- @desc      统一管理关卡运行时关键数据：收集物列表、当前收集列表、分区分类列表/信息、连击次数、
+--            观看复活广告次数、道具使用计数、剩余生命值、关卡限制条件缓存
+-- @core      收集列表/已收集列表维护、分区分类状态/进度读写、连击与复活广告计数、道具计数/扣血
+-- @scope     GameCoreManager 的内部数据载体；LevelManager 等门面保留函数签名，内部委托本类读写
 -- @author    商业项目规范版 | 完整标准化注释 | 多层空安全防护 | 低内存泄漏设计 | 性能优化
 -- @规范      Unity XLua 商业项目编码标准 | 全函数结构化文档注释 | 字段类型标注 | 边界数值保护
 -- @dependency Singleton, ItemManager, EventManager, GlobalUtility
@@ -28,6 +29,21 @@ function GameCoreManagerData:ctor()
     -- 地图寻找物/角色收集相关集合
     self._CharacterList         = {}        ---@type table<string, table> 本局全部可收集角色/寻找物总集合，ID为Key
     self._CharacterChooseList   = {}        ---@type table<string, table> 本局玩家已收集完成的角色/寻找物集合
+
+    -- 关卡分类数据（收敛自 LevelCollectManager，GameCoreManagerData 为唯一数据源）
+    self._States                = {}        ---@type table<number,ELevelState> levelId -> 关卡当前状态
+    self._LevelTotal            = {}        ---@type table<number,number> levelId -> 关卡物品总数（角色+建筑+物件）
+    self._LevelCollected        = {}        ---@type table<number,number> levelId -> 关卡已收集物品数
+    self._ItemLevelMap          = {}        ---@type table<string,number> itemKey -> 物品归属关卡映射
+    self._ItemMeta              = {}        ---@type table<string,table> itemKey -> 物品展示信息（icon 图标名 / isRole 是否角色）
+    self._ItemCollected         = {}        ---@type table<string,boolean> itemKey -> 物品是否已收集（单物品收集状态）
+    self._CollectibleTotal     = 0         ---@type number 全局可收集物品总数
+    self._CollectibleCollected  = 0         ---@type number 全局已收集物品总数
+
+    -- 连击 & 复活广告统计
+    self._ComboCount            = 0         ---@type number 本局连击次数
+    self._ReviveAdWatchCount    = 0         ---@type number 本局观看复活广告次数
+
     self._NumberOfPropsUsed     = 0         ---@type number 本局累计使用道具总数量
     self._LifeNumber            = 3         ---@type number 本局初始剩余可操作生命值
 
@@ -39,6 +55,8 @@ function GameCoreManagerData:ctor()
     self._LevelDifficulty       = 1         ---@type number 本局关卡难度系数，影响判定、积分、生成逻辑
     self._LevelMode             = 0         ---@type number 关卡玩法模式ID，区分普通/限时/挑战等分支逻辑
     self._LevelID               = 0         ---@type number 当前加载关卡唯一静态ID
+    ---TODO [优化] ctor 统一初始化 _IsLatestChapterLevel 字段，保持字段类型标注一致
+    self._IsLatestChapterLevel  = false     ---@type boolean 当前是否为章节最新解锁关卡
 end
 
 ---=========================================================================
@@ -48,9 +66,9 @@ end
 ---@param args table 自定义构造参数（预留）
 ---@return GameCoreManagerData 全新空数据实例
 ---=========================================================================
+---TODO [优化] 移除 Create 内冗余局部变量，直接返回 new()
 function GameCoreManagerData:Create()
-    local instance = GameCoreManagerData.new()
-    return instance
+    return GameCoreManagerData.new()
 end
 
 ---=========================================================================
@@ -73,7 +91,7 @@ function GameCoreManagerData:InitData(levelData)
 
     -- 读取关卡基础标识与难度配置
     self._LevelID = levelData.LevelId
-    
+
     -- 初始化关卡限制条件容器
     self._LimitCheckData = {}
     self._LimitTriggered = {}
@@ -91,6 +109,14 @@ function GameCoreManagerData:InitData(levelData)
     -- 清空收集物列表，等待地图生成角色填充
     self._CharacterList = {}
     self._CharacterChooseList = {}
+
+    -- 分区分类数据重置（唯一数据源，地图生成角色/物件时按分区重新登记）
+    self:ResetLevelData()
+
+    -- 连击 & 复活广告计数归零
+    self._ComboCount = 0
+    self._ReviveAdWatchCount = 0
+
     -- 默认非章节最新解锁关卡，业务层按需修改赋值
     self._IsLatestChapterLevel = false
 end
@@ -104,6 +130,13 @@ function GameCoreManagerData:ClearData()
     -- 集合容器置空释放引用
     self._CharacterList = {}
     self._CharacterChooseList = {}
+
+    -- 分区分类数据清空（唯一数据源统一清盘）
+    self:ResetLevelData()
+
+    -- 连击 & 复活广告计数归零
+    self._ComboCount = 0
+    self._ReviveAdWatchCount = 0
 
     self._LimitCheckData = nil
     self._LimitTriggered = nil
@@ -168,11 +201,266 @@ end
 
 ---=========================================================================
 ---@brief 获取收集进度文本（已收集/总数量），直接用于UI文本展示
+---@desc 复用 GetCharacterChooseListCount/GetCharacterListCount，消除重复计数
 ---@type fun():string
 ---@return string 拼接后的进度字符串，格式 "已收集数/总数"
 ---=========================================================================
+---TODO [优化] 复用计数接口拼接进度文本，消除 GetTableCount 重复调用
 function GameCoreManagerData:GetCharacterAndChooseListCount()
-    return GetTableCount(self._CharacterChooseList) .. "/" .. GetTableCount(self._CharacterList)
+    return self:GetCharacterChooseListCount() .. "/" .. self:GetCharacterListCount()
+end
+
+--region 关卡分类数据 读写接口（唯一数据源，收敛自 LevelManager）
+
+---=========================================================================
+---@brief 重置全部关卡分类数据（关卡初始化/清盘调用）
+---@desc 置空关卡状态、总数、已收集、归属映射与展示信息容器，切断引用防跨关卡残留
+---@type fun():void
+---=========================================================================
+function GameCoreManagerData:ResetLevelData()
+    self._States            = {}
+    self._LevelTotal      = {}
+    self._LevelCollected  = {}
+    self._ItemLevelMap    = {}
+    self._ItemMeta          = {}
+    self._ItemCollected     = {}
+    self._CollectibleTotal  = 0
+    self._CollectibleCollected = 0
+end
+
+---=========================================================================
+---@brief 登记一个可收集物品到所属关卡
+---@desc 地图生成角色/物件时由 CharacterGenerationManager 调用：
+---      记录 itemKey → levelId 归属，累加该关卡与全局物品总数
+---@type fun(levelId:number,itemKey:string,meta:table):void
+---@param levelId number @所属关卡ID
+---@param itemKey string @物品唯一键（角色ID / 物件 Obj_关卡_物件ID）
+---@param meta table @物品展示信息（icon 图标名 / isRole 是否角色）
+---=========================================================================
+function GameCoreManagerData:RegisterLevelItem(levelId, itemKey, meta)
+    if not levelId or not itemKey then
+        return
+    end
+    self._ItemLevelMap[itemKey] = levelId
+    -- 记录物品展示信息（icon 图标名 / isRole 是否角色），供收集面板列表展示；未传则空表兜底
+    self._ItemMeta[itemKey] = meta or {}
+    -- 初始化为未收集
+    self._ItemCollected[itemKey] = false
+    self._LevelTotal[levelId] = (self._LevelTotal[levelId] or 0) + 1
+    self._CollectibleTotal = self._CollectibleTotal + 1
+end
+
+---=========================================================================
+---@brief 查询物品所属关卡
+---@type fun(itemKey:string):number|nil
+---@param itemKey string @物品唯一键
+---@return number|nil 所属关卡ID，未登记返回nil
+---=========================================================================
+function GameCoreManagerData:GetItemLevel(itemKey)
+    return self._ItemLevelMap[itemKey]
+end
+
+---=========================================================================
+---@brief 查询关卡当前状态
+---@type fun(levelId:number):ELevelState
+---@param levelId number @关卡ID
+---@return ELevelState 关卡状态（未登记默认 Locked）
+---=========================================================================
+function GameCoreManagerData:GetLevelState(levelId)
+    return self._States[levelId] or ELevelState.Locked
+end
+
+---=========================================================================
+---@brief 设置关卡状态
+---@type fun(levelId:number,state:ELevelState):void
+---@param levelId number @关卡ID
+---@param state ELevelState @目标状态
+---=========================================================================
+function GameCoreManagerData:SetLevelState(levelId, state)
+    self._States[levelId] = state
+end
+
+---=========================================================================
+---@brief 获取关卡物品总数
+---@type fun(levelId:number):number
+---@param levelId number @关卡ID
+---@return number 该关卡可收集物品总数
+---=========================================================================
+function GameCoreManagerData:GetLevelTotal(levelId)
+    return self._LevelTotal[levelId] or 0
+end
+
+---=========================================================================
+---@brief 获取关卡已收集物品数
+---@type fun(levelId:number):number
+---@param levelId number @关卡ID
+---@return number 该关卡已收集物品数
+---=========================================================================
+function GameCoreManagerData:GetLevelCollected(levelId)
+    return self._LevelCollected[levelId] or 0
+end
+
+---=========================================================================
+---@brief 判断关卡是否已全部收集完成
+---@type fun(levelId:number):boolean
+---@param levelId number @关卡ID
+---@return boolean true=该关卡物品全部收集
+---=========================================================================
+function GameCoreManagerData:IsLevelFullyCollected(levelId)
+    return self:GetLevelCollected(levelId) >= self:GetLevelTotal(levelId)
+end
+
+---=========================================================================
+---@brief 判断全局是否已全部收集完成
+---@type fun():boolean
+---@return boolean true=全部物品已收集
+---=========================================================================
+function GameCoreManagerData:IsAllCollected()
+    return self._CollectibleTotal > 0 and self._CollectibleCollected >= self._CollectibleTotal
+end
+
+---=========================================================================
+---@brief 获取全部可收集物品键列表（供收集面板滑动列表逐项展示）
+---@desc 遍历关卡归属映射，按 itemKey 字典序排序保证列表稳定；角色与物件全量包含
+---@type fun():string[]
+---@return string[] 全部可收集物品键（itemKey）
+---=========================================================================
+function GameCoreManagerData:GetCollectableItems()
+    local keys = {}
+    if not self._ItemLevelMap then
+        return keys
+    end
+    for k in pairs(self._ItemLevelMap) do
+        table.insert(keys, k)
+    end
+    table.sort(keys)
+    return keys
+end
+
+---=========================================================================
+---@brief 查询单个物品是否已收集
+---@type fun(itemKey:string):boolean
+---@param itemKey string @物品唯一键
+---@return boolean true=已收集
+---=========================================================================
+function GameCoreManagerData:IsItemCollected(itemKey)
+    return self._ItemCollected[itemKey] == true
+end
+
+---=========================================================================
+---@brief 查询单个物品展示信息
+---@type fun(itemKey:string):table|nil
+---@param itemKey string @物品唯一键
+---@return table|nil 物品展示信息 {icon=图标名,isRole=是否角色}，未登记返回nil
+---=========================================================================
+function GameCoreManagerData:GetItemMeta(itemKey)
+    return self._ItemMeta[itemKey]
+end
+
+---=========================================================================
+---@brief 获取全局已收集物品总数
+---@type fun():number
+---@return number 全局已收集物品数
+---=========================================================================
+function GameCoreManagerData:GetGlobalCollected()
+    return self._CollectibleCollected
+end
+
+---=========================================================================
+---@brief 获取全局可收集物品总数（本章节需要收集的总数）
+---@type fun():number
+---@return number 全局可收集物品总数
+---=========================================================================
+function GameCoreManagerData:GetGlobalTotal()
+    return self._CollectibleTotal
+end
+
+---=========================================================================
+---@brief 提交一次物品收集的数据推进（幂等），返回收集结果供门面广播事件
+---@desc 角色/物件收集统一数据入口（LevelManager:NotifyItemCollected 门面转发到本方法）：
+---      1. 递增所属关卡与全局已收集数（重复收集/已满忽略）
+---      2. 更新单物品已收集标记
+---      事件广播（OnLevelProgress/OnAllLevelsCollected）由 LevelManager 门面按本方法返回结果触发
+---@type fun(itemKey:string):table|nil
+---@param itemKey string @物品唯一键
+---@return table|nil 收集结果 {new=是否新收集,levelId=,total=,collected=}；未登记/已满返回nil
+---=========================================================================
+function GameCoreManagerData:SubmitItemCollected(itemKey)
+    if not itemKey then
+        return nil
+    end
+    local levelId = self._ItemLevelMap[itemKey]
+    if not levelId then
+        PrintInfo("[LevelManager] 收集 " .. tostring(itemKey) .. " 未登记关卡，忽略")
+        return nil
+    end
+
+    local total = self._LevelTotal[levelId] or 0
+    local collected = self._LevelCollected[levelId] or 0
+    -- 幂等：已满则不再计数
+    if total == 0 or collected >= total then
+        return nil
+    end
+
+    collected = collected + 1
+    self._LevelCollected[levelId] = collected
+    self._CollectibleCollected = self._CollectibleCollected + 1
+    -- 标记单物品已收集（供"每物品一项"收集面板展示）
+    self._ItemCollected[itemKey] = true
+    PrintInfo("[LevelManager] 收集 " .. tostring(itemKey) .. " 关卡" .. tostring(levelId) ..
+            " 进度 " .. tostring(collected) .. "/" .. tostring(total) ..
+            " 全局 " .. tostring(self._CollectibleCollected) .. "/" .. tostring(self._CollectibleTotal))
+
+    return { new = true, levelId = levelId, total = total, collected = collected }
+end
+
+--endregion
+
+---=========================================================================
+---@brief 获取本局可收集物件总数（收敛：直读唯一数据源，不再委托 LevelManager）
+---@desc 物件收集权威数据已收敛至本类（分区登记/收集/状态机数据源唯一）
+---@type fun():number
+---@return number 全局可收集物件总数
+---=========================================================================
+function GameCoreManagerData:GetItemTotal()
+    return self._CollectibleTotal or 0
+end
+
+---=========================================================================
+---@brief 获取本局已收集物件数量（收敛：直读唯一数据源，不再委托 LevelManager）
+---@type fun():number
+---@return number 全局已收集物件数
+---=========================================================================
+function GameCoreManagerData:GetItemCollected()
+    return self._CollectibleCollected or 0
+end
+
+---=========================================================================
+---@brief 获取本局需收集总数量（小猫角色 + 物件）
+---@desc 统一"小猫+物件"收集总量，供收集面板"本章节一共需要收集的总数"展示
+---@type fun():number
+---@return number 角色总数 + 物件总数
+---=========================================================================
+function GameCoreManagerData:GetCollectTotal()
+    return self:GetCharacterListCount() + self:GetItemTotal()
+end
+
+---=========================================================================
+---@brief 获取本局已收集总数量（小猫角色 + 物件）
+---@type fun():number
+---@return number 已收集角色数 + 已收集物件数
+---=========================================================================
+function GameCoreManagerData:GetCollectedCount()
+    return self:GetCharacterChooseListCount() + self:GetItemCollected()
+end
+
+---=========================================================================
+---@brief 获取统一收集进度文本（已收集/总，小猫+物件）
+---@type fun():string
+---@return string 拼接进度字符串，格式 "已收集/总"
+---=========================================================================
+function GameCoreManagerData:GetCollectProgressText()
+    return self:GetCollectedCount() .. "/" .. self:GetCollectTotal()
 end
 
 ---=========================================================================
@@ -215,6 +503,62 @@ end
 ---=========================================================================
 function GameCoreManagerData:RecordLevelBoosterUse(id, num)
     self._NumberOfPropsUsed = self._NumberOfPropsUsed + num
+end
+
+--endregion
+
+--region 连击 & 复活广告 计数读写接口
+
+---=========================================================================
+---@brief 获取本局当前连击次数
+---@type fun():number
+---@return number 当前连击次数
+---=========================================================================
+function GameCoreManagerData:GetComboCount()
+    return self._ComboCount
+end
+
+---=========================================================================
+---@brief 增加连击次数（连击+1，可指定增量）
+---@type fun(num:number):void
+---@param num number 本次增量（默认1）
+---=========================================================================
+function GameCoreManagerData:AddComboCount(num)
+    self._ComboCount = self._ComboCount + (num or 1)
+end
+
+---=========================================================================
+---@brief 重置连击次数为0（连击中断/关卡结算时调用）
+---@type fun():void
+---=========================================================================
+function GameCoreManagerData:ResetComboCount()
+    self._ComboCount = 0
+end
+
+---=========================================================================
+---@brief 获取本局观看复活广告次数
+---@type fun():number
+---@return number 观看复活广告次数
+---=========================================================================
+function GameCoreManagerData:GetReviveAdWatchCount()
+    return self._ReviveAdWatchCount
+end
+
+---=========================================================================
+---@brief 增加观看复活广告次数（+1，可指定增量）
+---@type fun(num:number):void
+---@param num number 本次增量（默认1）
+---=========================================================================
+function GameCoreManagerData:AddReviveAdWatchCount(num)
+    self._ReviveAdWatchCount = self._ReviveAdWatchCount + (num or 1)
+end
+
+---=========================================================================
+---@brief 重置观看复活广告次数为0
+---@type fun():void
+---=========================================================================
+function GameCoreManagerData:ResetReviveAdWatchCount()
+    self._ReviveAdWatchCount = 0
 end
 
 --endregion

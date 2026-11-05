@@ -11,7 +11,7 @@
 -- @feat      自治工人管理、延时调用安全清理、地图生命周期、UI交互基类
 -- @author    商业项目规范版 | 注释完整 | 空安全 | 性能优化
 -- @规范      Unity Lua 商业项目编码标准 / UI地图基类规范
--- @dependency UIBase, GameEntry, EventManager, TimerComponent, MainUIIconDataSourceManager, GameMapMotion, DOTween
+-- @dependency UIBase, GameEntry, EventManager, TimerComponent, MainUIIconDataSourceManager, GameMapMotionManager, DOTween
 --=====================================================================================================
 
 ---@class UIMapBase : GameMapBase UI地图基础类
@@ -118,13 +118,13 @@ end
 --region 【地图卸载 & 资源清理】
 
 ---@brief 卸载地图前清理（MapManager:UnloadOldMap 驱动，核心资源释放）
----@desc 结束 GameMapMotion、遍历 Kill 所有 DOTween 延时调用并清空列表
+---@desc 结束 GameMapMotionManager、遍历 Kill 所有 DOTween 延时调用并清空列表
 ---@type fun():void
 function UIMapBase:UnloadMapBeforeClear()
     UIMapBase.super.UnloadMapBeforeClear(self)
 
-    -- 结束地图控制
-    GameMapMotion:OnMapEnd()
+    -- 结束地图输入手势
+    GameMapMotionManager:OnMapEnd()
 
     -- 清理所有延迟调用
     for id, _ in pairs(self._delayCallIds) do

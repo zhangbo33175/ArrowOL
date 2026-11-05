@@ -10,7 +10,7 @@
 -- @scope      所有场景地图的父类（UIMapBase 及具体关卡地图继承），不直接实例化
 -- @feat       完整生命周期管理、EasyTouch触摸交互、地图相机边界控制、胜利失败表现、地图角色资源自动加载、全局静态引用安全释放
 -- @规范       Unity XLua 商业项目编码标准 | 全函数XML注释 | 多层判空防护 | 无内存泄漏 | 解耦静态全局变量
--- @dependency LuaBehaviourSuper, GameMapMotion, UIBase, MapManager, GameCoreManager, EasyTouch, GameEffectManager, SoundManager
+-- @dependency LuaBehaviourSuper, GameMapCameraManager, GameMapMotionManager, UIBase, MapManager, GameCoreManager, EasyTouch, GameEffectManager, SoundManager
 --=====================================================================================================
 
 ---@class GameMapBase : LuaBehaviourSuper 地图基类，所有场景地图父类
@@ -50,7 +50,7 @@ function GameMapBase:ctor(args)
     self._IsGameOver = false
 
     ---@type UnityEngine.Transform 地图根物体Transform
-    self.GameMapRoot = self.cs.transform:Find("RawImage")
+    self.GameMapRoot = self.cs.transform:Find("ZoneRoot")
 
     -- 覆盖全局静态地图实例
     MapManager.CurGameMapBase = self
@@ -95,20 +95,24 @@ function GameMapBase:Init()
 end
 
 ---@brief MonoBehaviour Awake生命周期，地图物体激活时执行（框架驱动，勿删）
----@desc 初始化顶部HUD高度、相机渲染区域、触发 MapManager:OnInitGame
+---@desc 初始化相机参数（统一走 GameMapCameraManager）、顶部HUD高度、触发 MapManager:OnInitGame
 ---@type fun():void
 function GameMapBase:Awake()
     GameMapBase.super.Awake(self)
 
     -- 初始化相机参数，增加MapData空安全保护
     if MapManager.CurMapData ~= nil then
-        -- 顶部HUD统一为120px（对齐顶部红框上边线≈UI底部），使地图画面上方铺满、不留空白；
-        -- SetCameraRect(GetHudDesignHeights) 与 RecalcNormalCamData 均读此字段，自动联动
+        -- 顶部HUD统一为120px（对齐顶部红框上边线≈UI底部），使地图画面上方铺满、不留空白
         MapManager.CurMapData.m_TopHudPixelHeight = 120
-        -- 根据当前视口自动计算适配尺寸，让地图完整贴合中间区域
-        MapManager.CurMapData:RecalcNormalCamData()
-        GameLib.MapCamHelper.InitMapCamera(MapManager.CurMapData.m_NormalCamData)
+
+        -- 统一通过 GameMapCameraManager 初始化镜头：
+        -- 1. 读取 MapData 配置（HUD高度、Canvas设计高度、缩放范围）
+        -- 2. 计算安全区偏移
+        -- 3. 应用红框视口（顶部留HUD、底部留HUD）
+        -- 4. 缓存 RedBoxAspect，供后续 ortho 计算使用
+        GameMapCameraManager:Init(MapManager.CurMapData)
     end
+
     -- 地图相机/HUD就绪后，根据地图配置批量生成所有角色实体（挂载到地图根节点，保证显示就绪）
     self:LoadCharacterByMapData()
     -- 初始化所有机器到游戏初始待机状态
@@ -116,21 +120,23 @@ function GameMapBase:Awake()
 end
 
 ---@brief MonoBehaviour Start生命周期，Awake后下一帧执行（框架驱动，勿删）
----@desc 启动 GameMapMotion 地图运动模块
+---@desc 启动 GameMapMotionManager 地图输入手势模块
 ---@type fun():void
 function GameMapBase:Start()
     GameMapBase.super.Start(self)
-    -- 地图运动逻辑初始化
-    GameMapMotion:OnMapStart(self.cs.transform)
+    -- 地图输入手势初始化
+    GameMapMotionManager:OnMapStart()
 end
 
 ---@brief MonoBehaviour OnDestroy生命周期，地图销毁时释放所有引用与事件（框架驱动，勿删）
----@desc 释放 GameMapMotion、清空触摸回调、销毁相机缓存、清理全局静态地图引用
+---@desc 释放 GameMapCameraManager、GameMapMotionManager、清空触摸回调、销毁相机缓存、清理全局静态地图引用
 ---@type fun():void
 function GameMapBase:OnDestroy()
     GameMapBase.super.OnDestroy(self)
-    -- 释放地图运动模块静态缓存
-    GameMapMotion:OnMapEnd()
+    -- 释放镜头管理器（恢复全屏视口、还原近裁剪面）
+    GameMapCameraManager:Dispose()
+    -- 释放地图输入手势模块
+    GameMapMotionManager:OnMapEnd()
     -- 清空所有触摸回调函数引用
     self:ClearSwipeData()
     -- 销毁相机缓存，切断对象引用
@@ -213,7 +219,7 @@ function GameMapBase:UnloadMapBeforeClear() end
 ---@brief 地图卸载后置兜底清理，仅清空自身持有的全局静态引用
 ---@type fun():void
 function GameMapBase:UnloadMapAfterClear()
-    GameMapMotion:OnMapEnd()
+    GameMapMotionManager:OnMapEnd()
     self:ClearStaticMapRefs()
 end
 

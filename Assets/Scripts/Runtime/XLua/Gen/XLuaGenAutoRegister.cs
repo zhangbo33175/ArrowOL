@@ -25,13 +25,7 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(GameLib.HiddenObjectCS), GameLibHiddenObjectCSWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(GameLib.MapGridCheckUtil), GameLibMapGridCheckUtilWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(GameLib.MapGridDrawUtil), GameLibMapGridDrawUtilWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.MapConfigLoader), GameLibMapConfigLoaderWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(GameLib.MapLoadManager), GameLibMapLoadManagerWrap.__Register);
@@ -174,16 +168,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(UnityEngine.WaitForEndOfFrame), UnityEngineWaitForEndOfFrameWrap.__Register);
         
-        }
-        
-        static void wrapInit1(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Tilemaps.ITilemap), UnityEngineTilemapsITilemapWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(UnityEngine.Tilemaps.Tile), UnityEngineTilemapsTileWrap.__Register);
         
+        }
+        
+        static void wrapInit1(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(UnityEngine.Tilemaps.Tile.ColliderType), UnityEngineTilemapsTileColliderTypeWrap.__Register);
         
@@ -331,16 +325,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.RowColumnPair), HonorRuntimeRowColumnPairWrap.__Register);
         
-        }
-        
-        static void wrapInit2(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.ItemSizeGroup), HonorRuntimeItemSizeGroupWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.AorItemPosMgr), HonorRuntimeAorItemPosMgrWrap.__Register);
         
+        }
+        
+        static void wrapInit2(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.ItemPool), HonorRuntimeItemPoolWrap.__Register);
         
@@ -488,16 +482,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.WebSocketOpen), HonorRuntimeWebSocketOpenWrap.__Register);
         
-        }
-        
-        static void wrapInit3(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.WebSocketMessageReceived), HonorRuntimeWebSocketMessageReceivedWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.WebSocketBinaryReceived), HonorRuntimeWebSocketBinaryReceivedWrap.__Register);
         
+        }
+        
+        static void wrapInit3(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.WebSocketClosed), HonorRuntimeWebSocketClosedWrap.__Register);
         
@@ -645,16 +639,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.CameraOutlineBuffer), HonorRuntimeCameraOutlineBufferWrap.__Register);
         
-        }
-        
-        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.ObjectOutline), HonorRuntimeObjectOutlineWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.ShaderManager), HonorRuntimeShaderManagerWrap.__Register);
         
+        }
+        
+        static void wrapInit4(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.TextureBlur), HonorRuntimeTextureBlurWrap.__Register);
         
@@ -802,16 +796,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.ResPaths), HonorRuntimeResPathsWrap.__Register);
         
-        }
-        
-        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.EventDelegate), HonorRuntimeEventDelegateWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.RealTime), HonorRuntimeRealTimeWrap.__Register);
         
+        }
+        
+        static void wrapInit5(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.SpringPosition), HonorRuntimeSpringPositionWrap.__Register);
         
@@ -959,16 +953,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Texture), HonorRuntimeGamePathUtilsTextureWrap.__Register);
         
-        }
-        
-        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.PicsForAtlas), HonorRuntimeGamePathUtilsPicsForAtlasWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Localization), HonorRuntimeGamePathUtilsLocalizationWrap.__Register);
         
+        }
+        
+        static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Table), HonorRuntimeGamePathUtilsTableWrap.__Register);
         
@@ -1116,16 +1110,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.GDPR.ItemKey), HonorRuntimeGameConstantsPersistGDPRItemKeyWrap.__Register);
         
-        }
-        
-        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.MAX.ItemKey), HonorRuntimeGameConstantsPersistMAXItemKeyWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.Permission.ItemKey), HonorRuntimeGameConstantsPersistPermissionItemKeyWrap.__Register);
         
+        }
+        
+        static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.AF.ItemKey), HonorRuntimeGameConstantsPersistAFItemKeyWrap.__Register);
         
@@ -1273,16 +1267,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SpineAtlasAsset), SpineUnitySpineAtlasAssetWrap.__Register);
         
-        }
-        
-        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.NoOpTextureLoader), SpineUnityNoOpTextureLoaderWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Spine.Unity.MaterialsTextureLoader), SpineUnityMaterialsTextureLoaderWrap.__Register);
         
+        }
+        
+        static void wrapInit8(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.SpineSpriteAtlasAsset), SpineUnitySpineSpriteAtlasAssetWrap.__Register);
         
@@ -1430,16 +1424,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(Spine.Unity.WaitForSpineEvent), SpineUnityWaitForSpineEventWrap.__Register);
         
-        }
-        
-        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.WaitForSpineTrackEntryEnd), SpineUnityWaitForSpineTrackEntryEndWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Spine.Unity.BlendModeMaterials.ReplacementMaterial), SpineUnityBlendModeMaterialsReplacementMaterialWrap.__Register);
         
+        }
+        
+        static void wrapInit9(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(Spine.Unity.BoneFollower.AxisOrientation), SpineUnityBoneFollowerAxisOrientationWrap.__Register);
         
@@ -1587,16 +1581,16 @@ namespace XLua.CSObjectWrap
         
             translator.DelayWrapLoader(typeof(RMapType), RMapTypeWrap.__Register);
         
-        }
-        
-        static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
-        {
         
             translator.DelayWrapLoader(typeof(RMapWalkLoopMode), RMapWalkLoopModeWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(RMapCamPosType), RMapCamPosTypeWrap.__Register);
         
+        }
+        
+        static void wrapInit10(LuaEnv luaenv, ObjectTranslator translator)
+        {
         
             translator.DelayWrapLoader(typeof(RMapData), RMapDataWrap.__Register);
         
@@ -1620,9 +1614,6 @@ namespace XLua.CSObjectWrap
         
         
             translator.DelayWrapLoader(typeof(GameLib.ItemMap), GameLibItemMapWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(GameLib.MapObjectType), GameLibMapObjectTypeWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(GameLib.AorClickItem), GameLibAorClickItemWrap.__Register);
