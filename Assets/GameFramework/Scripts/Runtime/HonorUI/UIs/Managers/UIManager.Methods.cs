@@ -191,7 +191,7 @@ namespace Honor.Runtime
 
             UIFlagBehaviour uiFlagBehaviour = go.GetOrAddComponent<UIFlagBehaviour>();
             uiFlagBehaviour.LuaBehaviour = go.GetComponent<LuaBehaviour>();
-            uiFlagBehaviour.PrefabInstanceGOBehaviour = go.GetComponent<PrefabInstanceGOBehaviour>();
+            uiFlagBehaviour.PrefabInstanceBehaviour = go.GetComponent<PrefabInstanceBehaviour>();
             uiFlagBehaviour.UIInfo = uiInfo;
             return uiFlagBehaviour;
         }
@@ -219,7 +219,7 @@ namespace Honor.Runtime
                 {
                     UIFlagBehaviour childFlagBehaviour = child.GetOrAddComponent<UIFlagBehaviour>();
                     childFlagBehaviour.LuaBehaviour = child;
-                    childFlagBehaviour.PrefabInstanceGOBehaviour = null;
+                    childFlagBehaviour.PrefabInstanceBehaviour = null;
                     childFlagBehaviour.UIInfo = null;
                     childrenFlagBehaviours.Add(childFlagBehaviour);
                 }
@@ -508,7 +508,7 @@ namespace Honor.Runtime
         {
             if (go == null) return;
 
-            PrefabInstanceGOBehaviour prefabInstance = go.GetComponent<PrefabInstanceGOBehaviour>();
+            PrefabInstanceBehaviour prefabInstance = go.GetComponent<PrefabInstanceBehaviour>();
             if (prefabInstance != null)
             {
                 UIFlagBehaviour flag = go.GetComponent<UIFlagBehaviour>();
@@ -539,9 +539,9 @@ namespace Honor.Runtime
         {
             if (flagBehaviour == null) return;
 
-            if (flagBehaviour.PrefabInstanceGOBehaviour != null)
+            if (flagBehaviour.PrefabInstanceBehaviour != null)
             {
-                flagBehaviour.PrefabInstanceGOBehaviour.RightNowDestroyOnAsset = true;
+                flagBehaviour.PrefabInstanceBehaviour.RightNowDestroyOnAsset = true;
             }
 
             RemoveFromUIManagedLists(flagBehaviour);
@@ -639,7 +639,7 @@ namespace Honor.Runtime
             UIInfo uiInfo = go.GetComponent<UIFlagBehaviour>()?.UIInfo;
             if (uiInfo == null) return;
 
-            AorTextLocalizing[] locals = go.GetComponentsInChildren<AorTextLocalizing>(true);
+            HonorLocalizedText[] locals = go.GetComponentsInChildren<HonorLocalizedText>(true);
             foreach (var local in locals)
             {
                 if (local == null) continue;
@@ -648,7 +648,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 检查界面下所有文本组件是否都挂载了AorTextLocalizing
+        /// 检查界面下所有文本组件是否都挂载了HonorLocalizedText
         /// </summary>
         /// <param name="go">界面根节点</param>
         private void CheckTextLocalizingComponents(GameObject go)
@@ -659,7 +659,7 @@ namespace Honor.Runtime
 
             foreach (var g in graphics)
             {
-                if (g != null && !g.GetComponent<AorTextLocalizing>())
+                if (g != null && !g.GetComponent<HonorLocalizedText>())
                 {
                     Log.Error($"多语言组件缺失：{g.transform.GetRoute()}");
                 }
@@ -673,7 +673,7 @@ namespace Honor.Runtime
         /// <param name="uiInfo">界面信息</param>
         /// <param name="fontMarks">字体标记列表</param>
         /// <param name="fontDatas">字体数据列表</param>
-        private void ApplyLocalizationToLocalizing(AorTextLocalizing local, UIInfo uiInfo, List<string> fontMarks,
+        private void ApplyLocalizationToLocalizing(HonorLocalizedText local, UIInfo uiInfo, List<string> fontMarks,
             List<LocalizationFontData> fontDatas)
         {
             int index = fontMarks.FindIndex(m => m == local.LocalizingFontMark);
@@ -725,7 +725,7 @@ namespace Honor.Runtime
         /// <param name="font">字体资源</param>
         /// <param name="scale">字号缩放比</param>
         /// <param name="offset">位置偏移</param>
-        private void ApplyLegacyFontToLocalizing(AorTextLocalizing local, UIInfo uiInfo, Text text, TextMeshProUGUI tmp,
+        private void ApplyLegacyFontToLocalizing(HonorLocalizedText local, UIInfo uiInfo, Text text, TextMeshProUGUI tmp,
             UnityEngine.Object font, float scale, Vector2 offset)
         {
             if (!uiInfo.MultiTypeTextCompsCoexist && tmp) tmp.enabled = false;
@@ -755,7 +755,7 @@ namespace Honor.Runtime
         /// <param name="fontData">字体数据</param>
         /// <param name="scale">字号缩放比</param>
         /// <param name="offset">位置偏移</param>
-        private void ApplyTMPFontToLocalizing(AorTextLocalizing local, UIInfo uiInfo, Text text, TextMeshProUGUI tmp,
+        private void ApplyTMPFontToLocalizing(HonorLocalizedText local, UIInfo uiInfo, Text text, TextMeshProUGUI tmp,
             UnityEngine.Object font, LocalizationFontData fontData, float scale, Vector2 offset)
         {
             if (!uiInfo.MultiTypeTextCompsCoexist && text) text.enabled = false;

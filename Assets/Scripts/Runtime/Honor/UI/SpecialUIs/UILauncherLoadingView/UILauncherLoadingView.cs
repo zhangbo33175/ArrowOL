@@ -623,7 +623,7 @@ namespace Honor.Runtime
                     if (string.IsNullOrEmpty(descContent))
                         SetProgressDescContent(descContent);
                     else
-                        SetProgressDescContent(AorTxt.Format("{0} [{1:N2}M/{2:N2}M] {3:N0}%", textDownloading,
+                        SetProgressDescContent(HonorTxt.Format("{0} [{1:N2}M/{2:N2}M] {3:N0}%", textDownloading,
                             curBytes / 1024f / 1024f, totalBytes / 1024f / 1024f, progress * 100));
                     SetButtonsVisible(false, false, false);
                     break;
@@ -724,7 +724,7 @@ namespace Honor.Runtime
         /// <param name="progress">进度值 0~1</param>
         private void RefreshProgressText(float progress)
         {
-            SetText(m_ProgressText, m_ProgressTextTMP, AorTxt.Format("{0:N0}%", progress * 100));
+            SetText(m_ProgressText, m_ProgressTextTMP, HonorTxt.Format("{0:N0}%", progress * 100));
         }
 
         /// <summary>
@@ -745,7 +745,7 @@ namespace Honor.Runtime
         {
             m_CurFileNum = curNum;
             m_TotalFileNum = totalNum;
-            SetText(m_FileNumText, m_FileNumTextTMP, AorTxt.Format("({0} / {1})", m_CurFileNum, m_TotalFileNum));
+            SetText(m_FileNumText, m_FileNumTextTMP, HonorTxt.Format("({0} / {1})", m_CurFileNum, m_TotalFileNum));
         }
 
         /// <summary>
@@ -758,7 +758,7 @@ namespace Honor.Runtime
             m_CurBytes = curNum;
             m_TotalBytes = totalNum;
             SetText(m_BytesNumText, m_BytesNumTextTMP,
-                AorTxt.Format("({0:N2} / {1:N2}MB) ", m_CurBytes / 1024f / 1024f, m_TotalBytes / 1024f / 1024f));
+                HonorTxt.Format("({0:N2} / {1:N2}MB) ", m_CurBytes / 1024f / 1024f, m_TotalBytes / 1024f / 1024f));
         }
 
         /// <summary>

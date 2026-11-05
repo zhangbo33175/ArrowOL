@@ -24,10 +24,10 @@ namespace Honor.Runtime
         // [ShaderManager] 着色器管理：Find（查找带缓存）/ Prewarm（预热）/ ClearCache（清空缓存）
         //   经本门面：FindShader / PrewarmShaders / ClearShaderCache
         //
-        // [CameraShake] 相机震动：Shake（综合）/ ShakePosition（位置）/ ShakeRotation（旋转）
+        // [HonorCameraShakeEffect] 相机震动：Shake（综合）/ ShakePosition（位置）/ ShakeRotation（旋转）
         //   经本门面：ShakeCamera / ShakeCameraPosition / ShakeCameraRotation
         //
-        // [GraphicsUtils] 图形工具：GetRoleRootTransform（角色根节点）/ ScreenRatio（屏幕比例）
+        // [HonorGraphicsUtil] 图形工具：GetRoleRootTransform（角色根节点）/ ScreenRatio（屏幕比例）
         //   经本门面：GetRoleRootTransform；ScreenRatio 依赖 EScreenType 枚举，直接静态调用
 
         #endregion

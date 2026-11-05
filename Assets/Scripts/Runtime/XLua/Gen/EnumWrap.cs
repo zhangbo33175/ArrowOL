@@ -1466,33 +1466,33 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
-    public class HonorRuntimePlaySoundErrorCodeWrap
+    public class HonorRuntimeHonorSoundErrorCodeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.PlaySoundErrorCode), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.PlaySoundErrorCode), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorSoundErrorCode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorSoundErrorCode), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.PlaySoundErrorCode), L, null, 7, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorSoundErrorCode), L, null, 7, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Unknown", Honor.Runtime.PlaySoundErrorCode.Unknown);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Unknown", Honor.Runtime.HonorSoundErrorCode.Unknown);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoundGroupNotExist", Honor.Runtime.PlaySoundErrorCode.SoundGroupNotExist);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoundGroupNotExist", Honor.Runtime.HonorSoundErrorCode.SoundGroupNotExist);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoundGroupInsufficientAgents", Honor.Runtime.PlaySoundErrorCode.SoundGroupInsufficientAgents);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SoundGroupInsufficientAgents", Honor.Runtime.HonorSoundErrorCode.SoundGroupInsufficientAgents);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LoadAssetFailure", Honor.Runtime.PlaySoundErrorCode.LoadAssetFailure);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LoadAssetFailure", Honor.Runtime.HonorSoundErrorCode.LoadAssetFailure);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IgnoredDueToLowPriority", Honor.Runtime.PlaySoundErrorCode.IgnoredDueToLowPriority);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IgnoredDueToLowPriority", Honor.Runtime.HonorSoundErrorCode.IgnoredDueToLowPriority);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SetSoundAssetFailure", Honor.Runtime.PlaySoundErrorCode.SetSoundAssetFailure);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SetSoundAssetFailure", Honor.Runtime.HonorSoundErrorCode.SetSoundAssetFailure);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.PlaySoundErrorCode), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorSoundErrorCode), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1502,7 +1502,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimePlaySoundErrorCode(L, (Honor.Runtime.PlaySoundErrorCode)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorSoundErrorCode(L, (Honor.Runtime.HonorSoundErrorCode)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -1510,38 +1510,38 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "Unknown"))
                 {
-                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.Unknown);
+                    translator.PushHonorRuntimeHonorSoundErrorCode(L, Honor.Runtime.HonorSoundErrorCode.Unknown);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoundGroupNotExist"))
                 {
-                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.SoundGroupNotExist);
+                    translator.PushHonorRuntimeHonorSoundErrorCode(L, Honor.Runtime.HonorSoundErrorCode.SoundGroupNotExist);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "SoundGroupInsufficientAgents"))
                 {
-                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.SoundGroupInsufficientAgents);
+                    translator.PushHonorRuntimeHonorSoundErrorCode(L, Honor.Runtime.HonorSoundErrorCode.SoundGroupInsufficientAgents);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "LoadAssetFailure"))
                 {
-                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.LoadAssetFailure);
+                    translator.PushHonorRuntimeHonorSoundErrorCode(L, Honor.Runtime.HonorSoundErrorCode.LoadAssetFailure);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "IgnoredDueToLowPriority"))
                 {
-                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.IgnoredDueToLowPriority);
+                    translator.PushHonorRuntimeHonorSoundErrorCode(L, Honor.Runtime.HonorSoundErrorCode.IgnoredDueToLowPriority);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "SetSoundAssetFailure"))
                 {
-                    translator.PushHonorRuntimePlaySoundErrorCode(L, Honor.Runtime.PlaySoundErrorCode.SetSoundAssetFailure);
+                    translator.PushHonorRuntimeHonorSoundErrorCode(L, Honor.Runtime.HonorSoundErrorCode.SetSoundAssetFailure);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.PlaySoundErrorCode!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorSoundErrorCode!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.PlaySoundErrorCode! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorSoundErrorCode! Expect number or string, got + " + lua_type);
             }
 
             return 1;
@@ -2476,27 +2476,27 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
-    public class HonorRuntimeAorTextEffectOutlineHorizontalAligmentTypeWrap
+    public class HonorRuntimeHonorTextEffectOutlineHorizontalAligmentTypeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType), L, null, 4, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType), L, null, 4, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Left", Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType.Left);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Left", Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType.Left);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Center", Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType.Center);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Center", Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType.Center);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Right", Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType.Right);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Right", Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType.Right);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2506,7 +2506,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType(L, (Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType(L, (Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2514,53 +2514,53 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "Left"))
                 {
-                    translator.PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType(L, Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType.Left);
+                    translator.PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType(L, Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType.Left);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Center"))
                 {
-                    translator.PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType(L, Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType.Center);
+                    translator.PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType(L, Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType.Center);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Right"))
                 {
-                    translator.PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType(L, Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType.Right);
+                    translator.PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType(L, Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType.Right);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType! Expect number or string, got + " + lua_type);
             }
 
             return 1;
 		}
 	}
     
-    public class HonorRuntimeAorTextEffectSpacingHorizontalAligmentTypeWrap
+    public class HonorRuntimeHonorTextEffectSpacingHorizontalAligmentTypeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType), L, null, 4, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType), L, null, 4, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Left", Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType.Left);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Left", Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType.Left);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Center", Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType.Center);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Center", Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType.Center);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Right", Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType.Right);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Right", Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType.Right);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2570,7 +2570,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(L, (Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType(L, (Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2578,26 +2578,26 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "Left"))
                 {
-                    translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(L, Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType.Left);
+                    translator.PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType(L, Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType.Left);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Center"))
                 {
-                    translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(L, Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType.Center);
+                    translator.PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType(L, Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType.Center);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Right"))
                 {
-                    translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(L, Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType.Right);
+                    translator.PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType(L, Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType.Right);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType! Expect number or string, got + " + lua_type);
             }
 
             return 1;
@@ -2870,25 +2870,25 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
-    public class HonorRuntimeGraphicsUtilsEScreenTypeWrap
+    public class HonorRuntimeHonorGraphicsUtilEScreenTypeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, null, 3, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType), L, null, 3, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Width", Honor.Runtime.GraphicsUtils.EScreenType.Width);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Width", Honor.Runtime.HonorGraphicsUtil.EScreenType.Width);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Height", Honor.Runtime.GraphicsUtils.EScreenType.Height);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Height", Honor.Runtime.HonorGraphicsUtil.EScreenType.Height);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GraphicsUtils.EScreenType), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2898,7 +2898,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, (Honor.Runtime.GraphicsUtils.EScreenType)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorGraphicsUtilEScreenType(L, (Honor.Runtime.HonorGraphicsUtil.EScreenType)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2906,22 +2906,22 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "Width"))
                 {
-                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Width);
+                    translator.PushHonorRuntimeHonorGraphicsUtilEScreenType(L, Honor.Runtime.HonorGraphicsUtil.EScreenType.Width);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Height"))
                 {
-                    translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, Honor.Runtime.GraphicsUtils.EScreenType.Height);
+                    translator.PushHonorRuntimeHonorGraphicsUtilEScreenType(L, Honor.Runtime.HonorGraphicsUtil.EScreenType.Height);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GraphicsUtils.EScreenType!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorGraphicsUtil.EScreenType!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GraphicsUtils.EScreenType! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorGraphicsUtil.EScreenType! Expect number or string, got + " + lua_type);
             }
 
             return 1;

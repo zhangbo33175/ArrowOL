@@ -42,7 +42,7 @@ namespace Honor.Runtime
         /// <returns>拼接后的绝对路径</returns>
         private static string UnderDataPath(string relative)
         {
-            return AorTxt.Format("{0}/{1}", Application.dataPath, relative);
+            return HonorTxt.Format("{0}/{1}", Application.dataPath, relative);
         }
 
         // 说明：路径反斜杠 → 斜杠的统一逻辑已提取至 HonorUtils.NormalizePath，
@@ -92,7 +92,7 @@ namespace Honor.Runtime
             /// <summary>
             /// AB文件夹前缀
             /// </summary>
-            public static string DirectoryPrefix = AorTxt.Format("AssetBundles/{0}", PlatformName);
+            public static string DirectoryPrefix = HonorTxt.Format("AssetBundles/{0}", PlatformName);
 
             /// <summary>
             /// 版本列表文件名称
@@ -131,7 +131,7 @@ namespace Honor.Runtime
             /// <returns>灰度版本文件名</returns>
             public static string GetVersionGrayFileName(string appVersion)
             {
-                return AorTxt.Format(s_GrayVersionFileName, appVersion);
+                return HonorTxt.Format(s_GrayVersionFileName, appVersion);
             }
 
             #region 服务器打包路径
@@ -159,7 +159,7 @@ namespace Honor.Runtime
                 /// <returns>AB根目录</returns>
                 public static string GetRootDirectoryFullPath(string platformName, string appVersion, int resMinor)
                 {
-                    return HonorUtils.NormalizePath(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}", Application.dataPath, platformName, appVersion, resMinor));
+                    return HonorUtils.NormalizePath(HonorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}", Application.dataPath, platformName, appVersion, resMinor));
                 }
 
                 /// <summary>
@@ -171,7 +171,7 @@ namespace Honor.Runtime
                 /// <returns>版本文件路径</returns>
                 public static string GetVersionFileFullPath(string platformName, string appVersion, int resMinor)
                 {
-                    return HonorUtils.NormalizePath(AorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}/{4}", Application.dataPath, platformName, appVersion, resMinor, VersionFileName));
+                    return HonorUtils.NormalizePath(HonorTxt.Format("{0}/../AssetBundles/{1}/{2}.{3}/{4}", Application.dataPath, platformName, appVersion, resMinor, VersionFileName));
                 }
 
                 /// <summary>
@@ -217,7 +217,7 @@ namespace Honor.Runtime
                     {
                         return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, DirectoryPrefix));
                     }
-                    return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, AorTxt.Format("AssetBundles/{0}", platformName)));
+                    return HonorUtils.NormalizePath(Path.Combine(Application.persistentDataPath, HonorTxt.Format("AssetBundles/{0}", platformName)));
                 }
 
                 /// <summary>
@@ -320,17 +320,17 @@ namespace Honor.Runtime
 #if UNITY_IOS && !UNITY_EDITOR
                     string subFolder = string.IsNullOrEmpty(platformName)
                         ? DirectoryPrefix
-                        : AorTxt.Format("AssetBundles/{0}", platformName);
+                        : HonorTxt.Format("AssetBundles/{0}", platformName);
                     return HonorUtils.NormalizePath(Txt.Format("{0}{1}{2}", Application.dataPath, "/Raw/", subFolder));
 #elif UNITY_WEBGL && UNITY_EDITOR
                     string subFolder = string.IsNullOrEmpty(platformName)
                         ? DirectoryPrefix
-                        : AorTxt.Format("AssetBundles/{0}", platformName);
+                        : HonorTxt.Format("AssetBundles/{0}", platformName);
                     return HonorUtils.NormalizePath(Txt.Format("{0}{1}{2}", Application.dataPath, "/StreamingAssets/", subFolder));
 #else
                     string subFolder = string.IsNullOrEmpty(platformName)
                         ? DirectoryPrefix
-                        : AorTxt.Format("AssetBundles/{0}", platformName);
+                        : HonorTxt.Format("AssetBundles/{0}", platformName);
                     return HonorUtils.NormalizePath(Path.Combine(Application.streamingAssetsPath, subFolder));
 #endif
                 }
@@ -346,7 +346,7 @@ namespace Honor.Runtime
 #elif (UNITY_ANDROID || UNITY_WEBGL) && !UNITY_EDITOR
                     return HonorUtils.NormalizePath(Path.Combine(Application.streamingAssetsPath, DirectoryPrefix, VersionFileName));
 #else
-                    return AorTxt.Format("{0}{1}{2}{3}{4}{5}", "file://", Application.dataPath, "/StreamingAssets/", DirectoryPrefix, "/", VersionFileName);
+                    return HonorTxt.Format("{0}{1}{2}{3}{4}{5}", "file://", Application.dataPath, "/StreamingAssets/", DirectoryPrefix, "/", VersionFileName);
 #endif
                 }
 
@@ -986,7 +986,7 @@ namespace Honor.Runtime
             /// <returns>Lua调试配置文件</returns>
             public static string GetLuaDebugModeLibraryConfigFileFullPath()
             {
-                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LuaDebugMode.dat"));
+                return HonorUtils.NormalizePath(HonorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LuaDebugMode.dat"));
             }
         }
         #endregion
@@ -1004,7 +1004,7 @@ namespace Honor.Runtime
             /// <returns>AAB工具配置文件</returns>
             public static string GetLibraryAABToolsConfigFileFullPath()
             {
-                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/AABTools.dat"));
+                return HonorUtils.NormalizePath(HonorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/AABTools.dat"));
             }
 
             /// <summary>
@@ -1014,7 +1014,7 @@ namespace Honor.Runtime
             /// <returns>日志根目录</returns>
             public static string GetLibraryLogsRootDirectoryFullPath()
             {
-                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LogFiles"));
+                return HonorUtils.NormalizePath(HonorTxt.Format("{0}/{1}", Path.GetFullPath("."), "Library/LogFiles"));
             }
         }
         #endregion
@@ -1088,7 +1088,7 @@ namespace Honor.Runtime
             /// <returns>包信息缓存文件</returns>
             public static string GetCachedPackageInfoProjectSettingsConfigFileFullPath()
             {
-                return HonorUtils.NormalizePath(AorTxt.Format("{0}/{1}", Path.GetFullPath("."), "ProjectSettings/CachedPackageInfo.dat"));
+                return HonorUtils.NormalizePath(HonorTxt.Format("{0}/{1}", Path.GetFullPath("."), "ProjectSettings/CachedPackageInfo.dat"));
             }
         }
         #endregion
@@ -1105,7 +1105,7 @@ namespace Honor.Runtime
             /// <returns>工程根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return HonorUtils.NormalizePath(AorTxt.Format("{0}/../", Application.dataPath));
+                return HonorUtils.NormalizePath(HonorTxt.Format("{0}/../", Application.dataPath));
             }
 
             /// <summary>
@@ -1186,7 +1186,7 @@ namespace Honor.Runtime
             /// <returns>工具根目录</returns>
             public static string GetRootDirectoryFullPath()
             {
-                return HonorUtils.NormalizePath(AorTxt.Format("{0}/../Tools", Application.dataPath));
+                return HonorUtils.NormalizePath(HonorTxt.Format("{0}/../Tools", Application.dataPath));
             }
 
             /// <summary>
@@ -1195,7 +1195,7 @@ namespace Honor.Runtime
             /// <returns>BMFont工具目录</returns>
             public static string GetBMFontDirectoryFullPath()
             {
-                return AorTxt.Format("{0}/{1}", GetRootDirectoryFullPath(), "BMFont");
+                return HonorTxt.Format("{0}/{1}", GetRootDirectoryFullPath(), "BMFont");
             }
         }
         #endregion
@@ -1212,7 +1212,7 @@ namespace Honor.Runtime
             /// <returns>项目设置目录</returns>
             public static string GetProjectSettingDirectoryFullPath()
             {
-                return HonorUtils.NormalizePath(AorTxt.Format("{0}/../ProjectSettings", Application.dataPath));
+                return HonorUtils.NormalizePath(HonorTxt.Format("{0}/../ProjectSettings", Application.dataPath));
             }
 
             /// <summary>
@@ -1226,7 +1226,7 @@ namespace Honor.Runtime
                 /// <returns>资源定义Lua文件</returns>
                 public static string GetResDefLuaFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/Config", "LoadResDefs.lua.txt");
+                    return HonorTxt.Format("{0}/{1}", LuaScript.Game.GetRootDirectoryFullPath(true) + "/Config", "LoadResDefs.lua.txt");
                 }
 
                 /// <summary>
@@ -1240,7 +1240,7 @@ namespace Honor.Runtime
                 /// <returns>资源导出工具配置</returns>
                 public static string GetResDefExportWindowsSettingsFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", GetProjectSettingDirectoryFullPath(), "HonorResDefExportSettings.json");
+                    return HonorTxt.Format("{0}/{1}", GetProjectSettingDirectoryFullPath(), "HonorResDefExportSettings.json");
                 }
             }
 
@@ -1255,7 +1255,7 @@ namespace Honor.Runtime
                 /// <returns>层级展开配置</returns>
                 public static string GetHierarchyExpandSettingsFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", GetProjectSettingDirectoryFullPath(), "HonorHierarchyExpandSettings.json");
+                    return HonorTxt.Format("{0}/{1}", GetProjectSettingDirectoryFullPath(), "HonorHierarchyExpandSettings.json");
                 }
             }
 
@@ -1270,7 +1270,7 @@ namespace Honor.Runtime
                 /// <returns>字体导出配置</returns>
                 public static string GetLocalizationFontTMPCharsExportSettingsFullPath()
                 {
-                    return AorTxt.Format("{0}/../ProjectSettings/HonorFontTMPCharsExportSettings.json", Application.dataPath);
+                    return HonorTxt.Format("{0}/../ProjectSettings/HonorFontTMPCharsExportSettings.json", Application.dataPath);
                 }
             }
 
@@ -1285,7 +1285,7 @@ namespace Honor.Runtime
                 /// <returns>AB打包配置</returns>
                 public static string GetABGenerationSettingsFullPath()
                 {
-                    return AorTxt.Format("{0}/{1}", GetProjectSettingDirectoryFullPath(), "HotfixABSettings.json");
+                    return HonorTxt.Format("{0}/{1}", GetProjectSettingDirectoryFullPath(), "HotfixABSettings.json");
                 }
             }
 
@@ -1400,7 +1400,7 @@ namespace Honor.Runtime
                 /// <summary>
                 /// 获取Lua脚本在Library目录下文件的绝对路径
                 /// </summary>
-                public static string LibraryLocalLuaFileFullPath = HonorUtils.NormalizePath(AorTxt.Format("{0}/../Library/LuaScript.lua.txt", Application.dataPath));
+                public static string LibraryLocalLuaFileFullPath = HonorUtils.NormalizePath(HonorTxt.Format("{0}/../Library/LuaScript.lua.txt", Application.dataPath));
             }
         }
         #endregion

@@ -16,12 +16,12 @@
 		<type fullname="Honor.Runtime.OriginType" preserve="all"/>
 		<type fullname="Honor.Runtime.PrefabDetailType" preserve="all"/>
 		<type fullname="Honor.Runtime.PrefabType" preserve="all"/>
-		<type fullname="Honor.Runtime.AssetBundleLoadManager" preserve="all"/>
-		<type fullname="Honor.Runtime.AssetLoadManager" preserve="all"/>
-		<type fullname="Honor.Runtime.CachePrefab" preserve="all"/>
+		<type fullname="Honor.Runtime.AssetBundleLoader" preserve="all"/>
+		<type fullname="Honor.Runtime.AssetProvider" preserve="all"/>
+		<type fullname="Honor.Runtime.CachedPrefab" preserve="all"/>
 		<type fullname="Honor.Runtime.PrefabCacheManager" preserve="all"/>
-		<type fullname="Honor.Runtime.PrefabInstanceGOBehaviour" preserve="all"/>
-		<type fullname="Honor.Runtime.PrefabLoadManager" preserve="all"/>
+		<type fullname="Honor.Runtime.PrefabInstanceBehaviour" preserve="all"/>
+		<type fullname="Honor.Runtime.PrefabLoader" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorAssetManager" preserve="all"/>
 		<type fullname="Honor.Runtime.GameComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.GameComponentsGroup" preserve="all"/>
@@ -36,29 +36,29 @@
 		<type fullname="Honor.Runtime.GameExtensionForUnity" preserve="all"/>
 		<type fullname="Honor.Runtime.AnimationStateBehaviour" preserve="all"/>
 		<type fullname="Honor.Runtime.FocusObjToCamera" preserve="all"/>
-		<type fullname="Honor.Runtime.AorClickEventListener" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorClickEventListener" preserve="all"/>
+		<type fullname="Honor.Runtime.ItemSizeGroup" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorItemPosMgr" preserve="all"/>
+		<type fullname="Honor.Runtime.ItemPool" preserve="all"/>
+		<type fullname="Honor.Runtime.ItemPrefabConfData" preserve="all"/>
+		<type fullname="Honor.Runtime.ListViewInitParam" preserve="all"/>
+		<type fullname="Honor.Runtime.DotElem" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorListView" preserve="all"/>
 		<type fullname="Honor.Runtime.SnapStatus" preserve="all"/>
 		<type fullname="Honor.Runtime.ItemCornerEnum" preserve="all"/>
 		<type fullname="Honor.Runtime.ListItemArrangeType" preserve="all"/>
 		<type fullname="Honor.Runtime.GridItemArrangeType" preserve="all"/>
 		<type fullname="Honor.Runtime.GridFixedType" preserve="all"/>
 		<type fullname="Honor.Runtime.RowColumnPair" preserve="all"/>
-		<type fullname="Honor.Runtime.ItemSizeGroup" preserve="all"/>
-		<type fullname="Honor.Runtime.AorItemPosMgr" preserve="all"/>
-		<type fullname="Honor.Runtime.ItemPool" preserve="all"/>
-		<type fullname="Honor.Runtime.ItemPrefabConfData" preserve="all"/>
-		<type fullname="Honor.Runtime.ListViewInitParam" preserve="all"/>
-		<type fullname="Honor.Runtime.DotElem" preserve="all"/>
-		<type fullname="Honor.Runtime.AorListView" preserve="all"/>
-		<type fullname="Honor.Runtime.AorListViewItem" preserve="all"/>
-		<type fullname="Honor.Runtime.AorSwitchButton" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextArea" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectCurve" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectGradient" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectOutline" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectSpacing" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextLocalizing" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextPicMixed" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorListViewItem" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSwitchButton" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextArea" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectCurve" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectGradient" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectOutline" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectSpacing" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorLocalizedText" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorRichText" preserve="all"/>
 		<type fullname="Honor.Runtime.ConfigComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.ConfigManager" preserve="all"/>
 		<type fullname="Honor.Runtime.EventComponent" preserve="all"/>
@@ -115,39 +115,39 @@
 		<type fullname="Honor.Runtime.UIFadeOutEvent" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFadeStopEvent" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFader" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundComponent" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundConfig" preserve="all"/>
-		<type fullname="Honor.Runtime.PlaySoundErrorCode" preserve="all"/>
-		<type fullname="Honor.Runtime.PlaySoundInfo" preserve="all"/>
-		<type fullname="Honor.Runtime.PlaySoundParams" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundAgent" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundAgentHelper" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundGroup" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundGroupHelper" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundManager" preserve="all"/>
-		<type fullname="Honor.Runtime.PlaySoundInfoShell" preserve="all"/>
-		<type fullname="Honor.Runtime.SoundGroupShell" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundConfig" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPlaySoundInfo" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPlaySoundParams" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundErrorCode" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundCategory" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundCategoryHelper" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundPlayer" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundPlayerHelper" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundManager" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPlaySoundHandle" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSoundGroupShell" preserve="all"/>
 		<type fullname="Honor.Runtime.TableComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.VibrateComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.VibrateType" preserve="all"/>
 		<type fullname="Honor.Runtime.VibrateManager" preserve="all"/>
 		<type fullname="Honor.Runtime.VibrateInfo" preserve="all"/>
-		<type fullname="Honor.Runtime.CameraShake" preserve="all"/>
-		<type fullname="Honor.Runtime.FxBase" preserve="all"/>
-		<type fullname="Honor.Runtime.FxDeath" preserve="all"/>
-		<type fullname="Honor.Runtime.FxDelay" preserve="all"/>
-		<type fullname="Honor.Runtime.FxDisplayIn" preserve="all"/>
-		<type fullname="Honor.Runtime.FxDissolve" preserve="all"/>
-		<type fullname="Honor.Runtime.GraphicsUtils" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDeathEffect" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDelayEffect" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDisplayInEffect" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDissolveEffect" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorEffectBase" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorCameraShakeEffect" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorGraphicsManager" preserve="all"/>
-		<type fullname="Honor.Runtime.PostEffectDissolve" preserve="all"/>
-		<type fullname="Honor.Runtime.PostEffectsBase" preserve="all"/>
-		<type fullname="Honor.Runtime.PostEffectSwitchScene" preserve="all"/>
-		<type fullname="Honor.Runtime.CameraOutlineAnimation" preserve="all"/>
-		<type fullname="Honor.Runtime.CameraOutlineBuffer" preserve="all"/>
-		<type fullname="Honor.Runtime.ObjectOutline" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorGraphicsUtil" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPostDissolveEffect" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPostEffectBase" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorSceneSwitchEffect" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorOutlineAnimation" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorOutlineBuffer" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorOutlineEffect" preserve="all"/>
 		<type fullname="Honor.Runtime.ShaderManager" preserve="all"/>
-		<type fullname="Honor.Runtime.TextureBlur" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextureBlurEffect" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorNetManager" preserve="all"/>
 		<type fullname="Honor.Runtime.DebuggerComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.DebuggerActiveWindowType" preserve="all"/>
@@ -225,17 +225,17 @@
 		<type fullname="Honor.Runtime.GameDefinitions+DebugMode" preserve="all"/>
 		<type fullname="Honor.Runtime.GameDefinitions+Language" preserve="all"/>
 		<type fullname="Honor.Runtime.GameDefinitions+DebugWindowModel" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectOutline+HorizontalAligmentType" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectOutline+Line" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectSpacing+HorizontalAligmentType" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTextEffectSpacing+Line" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectOutline+HorizontalAligmentType" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectOutline+Line" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectSpacing+HorizontalAligmentType" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTextEffectSpacing+Line" preserve="all"/>
 		<type fullname="Honor.Runtime.ConfigManager+ConfigData" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaBindValue+BindValueType" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaInjection+InjectionType" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaProtocolDispatcher+LuaProtocolReceiveType" preserve="all"/>
 		<type fullname="Honor.Runtime.UIFader+InitState" preserve="all"/>
-		<type fullname="Honor.Runtime.FxDelay+DelayData" preserve="all"/>
-		<type fullname="Honor.Runtime.GraphicsUtils+EScreenType" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDelayEffect+DelayData" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorGraphicsUtil+EScreenType" preserve="all"/>
 		<type fullname="Honor.Runtime.DebuggerComponent+ConsoleWindow" preserve="all"/>
 		<type fullname="Honor.Runtime.DebuggerComponent+LogNode" preserve="all"/>
 		<type fullname="Honor.Runtime.LauncherComponent+DevicePerformanceData" preserve="all"/>
@@ -301,7 +301,7 @@
 		<type fullname="Honor.Runtime.GameConstants+Persist+MAX+ItemKey" preserve="all"/>
 		<type fullname="Honor.Runtime.GameConstants+Persist+Permission+ItemKey" preserve="all"/>
 		<type fullname="Honor.Runtime.GameConstants+Persist+AF+ItemKey" preserve="all"/>
-		<type fullname="GaussianBlur" preserve="all"/>
+		<type fullname="HonorGaussianBlurEffect" preserve="all"/>
 		<type fullname="GameMain" preserve="all"/>
 		<type fullname="RMapIconType" preserve="all"/>
 		<type fullname="RMapPlayHudPosType" preserve="all"/>

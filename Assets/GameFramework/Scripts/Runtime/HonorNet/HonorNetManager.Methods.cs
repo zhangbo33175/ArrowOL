@@ -58,7 +58,7 @@ namespace Honor.Runtime
 #if BEST_HTTP_ENABLE
 
         /// <summary>
-        /// GET 请求（转发自 NetworkComponent）
+        /// GET 请求（转发自 HonorNetworkComponent）
         /// </summary>
         /// <param name="url">请求地址</param>
         /// <param name="finishedCallback">请求完成回调，可选</param>
@@ -78,7 +78,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// POST 请求（字符串数据，如 JSON，转发自 NetworkComponent）
+        /// POST 请求（字符串数据，如 JSON，转发自 HonorNetworkComponent）
         /// </summary>
         /// <param name="url">请求地址</param>
         /// <param name="contentString">请求内容字符串</param>
@@ -100,7 +100,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// POST 请求（上传文件 + 表单数据，转发自 NetworkComponent）
+        /// POST 请求（上传文件 + 表单数据，转发自 HonorNetworkComponent）
         /// </summary>
         /// <param name="url">请求地址</param>
         /// <param name="customJsonData">自定义 JSON 数据</param>
@@ -127,7 +127,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 创建并建立 WebSocket 长连接（转发自 NetworkComponent）
+        /// 创建并建立 WebSocket 长连接（转发自 HonorNetworkComponent）
         /// </summary>
         /// <param name="wsName">WebSocket 唯一名称</param>
         /// <param name="url">WebSocket 服务器地址</param>
@@ -138,7 +138,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 获取已创建的 WebSocket 实例（转发自 NetworkComponent）
+        /// 获取已创建的 WebSocket 实例（转发自 HonorNetworkComponent）
         /// </summary>
         /// <param name="wsName">WebSocket 唯一名称</param>
         /// <returns>WebSocket 实例，不存在返回null</returns>

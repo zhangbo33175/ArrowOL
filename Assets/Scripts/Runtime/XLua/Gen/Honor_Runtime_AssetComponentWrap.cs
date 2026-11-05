@@ -44,8 +44,8 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "transform", _g_get_transform);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "StrictCheck", _g_get_StrictCheck);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "LauncherComponent", _g_get_LauncherComponent);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "AssetLoadManager", _g_get_AssetLoadManager);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrefabLoadManager", _g_get_PrefabLoadManager);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "AssetProvider", _g_get_AssetProvider);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrefabLoader", _g_get_PrefabLoader);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "EditorResourceMode", _g_get_EditorResourceMode);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "DependsDataList", _g_get_DependsDataList);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "Scenes", _g_get_Scenes);
@@ -778,13 +778,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_AssetLoadManager(RealStatePtr L)
+        static int _g_get_AssetProvider(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.AssetLoadManager);
+                translator.Push(L, gen_to_be_invoked.AssetProvider);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -792,13 +792,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_PrefabLoadManager(RealStatePtr L)
+        static int _g_get_PrefabLoader(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.AssetComponent gen_to_be_invoked = (Honor.Runtime.AssetComponent)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.PrefabLoadManager);
+                translator.Push(L, gen_to_be_invoked.PrefabLoader);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

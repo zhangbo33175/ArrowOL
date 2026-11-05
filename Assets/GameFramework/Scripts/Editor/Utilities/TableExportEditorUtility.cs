@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -51,7 +51,7 @@ namespace Honor.Editor
                         Process.Start("open", directoryPath);
                         break;
                     default:
-                        throw new GameException(AorTxt.Format("Not support open folder on '{0}' platform.",
+                        throw new GameException(HonorTxt.Format("Not support open folder on '{0}' platform.",
                             Application.platform));
                 }
             }
@@ -98,7 +98,7 @@ namespace Honor.Editor
                         Process.Start("open", excelPath);
                         break;
                     default:
-                        throw new GameException(AorTxt.Format("Not support open file on '{0}' platform.",
+                        throw new GameException(HonorTxt.Format("Not support open file on '{0}' platform.",
                             Application.platform));
                 }
             }
@@ -249,8 +249,8 @@ namespace Honor.Editor
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine(
                     "-- ----------------------------------------------------------------------------------------------------")
-                .AppendLine(AorTxt.Format($"-- filename:  Table{table}"))
-                .AppendLine(AorTxt.Format($"-- descrip:   {desc}"))
+                .AppendLine(HonorTxt.Format($"-- filename:  Table{table}"))
+                .AppendLine(HonorTxt.Format($"-- descrip:   {desc}"))
                 .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
                 .AppendLine(
                     "--=====================================================================================================")

@@ -52,7 +52,7 @@ namespace Honor.Runtime
         public static HonorAssetManager HonorAssetManager { get; private set; }
 
         /// <summary>
-        /// 网络模块门面管理器（HonorNet 分类统一入口，持有 NetworkComponent）
+        /// 网络模块门面管理器（HonorNet 分类统一入口，持有 HonorNetworkComponent）
         /// </summary>
         public static HonorNetManager HonorNetManager { get; private set; }
 

@@ -61,7 +61,7 @@ namespace Honor.Runtime
 
         //=========================================================================
 
-        #region 音频（SoundComponent）
+        #region 音频（HonorSoundComponent）
 
         //=========================================================================
 
@@ -439,22 +439,22 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 播放音频（按资源参数，转发自 SoundComponent）
+        /// 播放音频（按资源参数，转发自 HonorSoundComponent）
         /// </summary>
         /// <param name="abPath">音频所在 AB 包路径</param>
         /// <param name="assetName">音频资源名称</param>
         /// <param name="soundGroupName">音频组名称</param>
-        /// <param name="playSoundParams">播放参数，可选</param>
+        /// <param name="HonorPlaySoundParams">播放参数，可选</param>
         /// <param name="worldPosition">世界坐标（3D 音效），可选</param>
         /// <returns>音频序列号</returns>
         public int PlaySound(string abPath, string assetName, string soundGroupName,
-            PlaySoundParams playSoundParams = null, Vector3 worldPosition = default)
+            HonorPlaySoundParams HonorPlaySoundParams = null, Vector3 worldPosition = default)
         {
-            return Sound.PlaySound(abPath, assetName, soundGroupName, playSoundParams, worldPosition);
+            return Sound.PlaySound(abPath, assetName, soundGroupName, HonorPlaySoundParams, worldPosition);
         }
 
         /// <summary>
-        /// 带淡出时间停止指定音频（转发自 SoundComponent）
+        /// 带淡出时间停止指定音频（转发自 HonorSoundComponent）
         /// </summary>
         /// <param name="serialID">音频序列号</param>
         /// <param name="fadeOutSeconds">淡出时长（秒）</param>
@@ -465,7 +465,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 停止指定音频组全部声音（转发自 SoundComponent）
+        /// 停止指定音频组全部声音（转发自 HonorSoundComponent）
         /// </summary>
         /// <param name="groupName">音频组名称</param>
         /// <returns>停止成功返回true</returns>

@@ -256,7 +256,7 @@ namespace Honor.Editor
             if (Application.isPlaying)
             {
                 EditorGUILayout.LabelField("编辑器启动语言类型",
-                    AorAorTxt.Format("{0}({1})", codeName, GameDefinitions.LanguageDesc[m_EditorLanguage.enumValueIndex]));
+                    AorHonorTxt.Format("{0}({1})", codeName, GameDefinitions.LanguageDesc[m_EditorLanguage.enumValueIndex]));
             }
             else
             {
@@ -267,7 +267,7 @@ namespace Honor.Editor
 
             EditorGUILayout.Space(3);
             EditorGUILayout.LabelField("当前语言类型",
-                AorAorTxt.Format("{0}({1})", codeName, GameDefinitions.LanguageDesc[m_Language.enumValueIndex]));
+                AorHonorTxt.Format("{0}({1})", codeName, GameDefinitions.LanguageDesc[m_Language.enumValueIndex]));
             EditorGUI.EndDisabledGroup();
 
 

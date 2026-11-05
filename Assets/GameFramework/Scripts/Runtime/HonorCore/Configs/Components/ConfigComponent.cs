@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -162,7 +162,7 @@ namespace Honor.Runtime
         /// <returns>实际查询用的配置名</returns>
         private string ResolvePlatformName(string configName, bool onPlatform)
         {
-            return onPlatform ? AorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName()) : configName;
+            return onPlatform ? HonorTxt.Format("{0}{1}", configName, GetCurBuildPlatformName()) : configName;
         }
 
         /// <summary>

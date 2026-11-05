@@ -25,14 +25,14 @@ namespace Honor.Editor
         //=========================================================================
 
         /// <summary>
-        /// 音频配置资产的序列化对象（绑定 SoundConfig.asset，可序列化、可编辑）
+        /// 音频配置资产的序列化对象（绑定 HonorSoundConfig.asset，可序列化、可编辑）
         /// </summary>
         private SerializedObject m_SoundSO;
 
         /// <summary>
         /// 音频配置资产引用（编辑器可序列化载体）
         /// </summary>
-        private SoundConfig m_SoundConfig;
+        private HonorSoundConfig m_HonorSoundConfig;
         #endregion
 
         //=========================================================================
@@ -56,15 +56,15 @@ namespace Honor.Editor
 
         /// <summary>
         /// 加载（或创建）音频配置资产并绑定序列化对象
-        /// <para>音频配置不再依赖纯 C# 组件（SoundComponent）——组件不走 Unity 序列化，
+        /// <para>音频配置不再依赖纯 C# 组件（HonorSoundComponent）——组件不走 Unity 序列化，
         /// 无法被 SerializedObject 绑定。此处改挂到 ScriptableObject 资产，实现可编辑持久化。</para>
         /// </summary>
         protected override void OnInitData()
         {
-            m_SoundConfig = SoundConfigEditorUtils.GetOrCreateSoundConfig();
-            if (m_SoundConfig != null)
+            m_HonorSoundConfig = SoundConfigEditorUtils.GetOrCreateSoundConfig();
+            if (m_HonorSoundConfig != null)
             {
-                m_SoundSO = new SerializedObject(m_SoundConfig);
+                m_SoundSO = new SerializedObject(m_HonorSoundConfig);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Honor.Editor
             BindClick("openDirBtn", () =>
                 TableExportEditorUtility.OpenDirectory(GamePathUtils.Sound.GetExcelRootDirectoryFullPath()));
 
-            // 音频配置：绑定 SoundConfig 资产的 AudioMixer 字段
+            // 音频配置：绑定 HonorSoundConfig 资产的 AudioMixer 字段
             //（UXML 已通过 object-type 声明为 AudioMixer，此处仅做取值与回写）
             var mixerField = Q<ObjectField>("audioMixerField");
             if (mixerField != null)
@@ -124,7 +124,7 @@ namespace Honor.Editor
 
         /// <summary>
         /// 注册 Ctrl+S / Cmd+S 快捷键：窗口内按快捷键立即将音频配置落盘
-        /// <para>让用户可手动、确定地保存当前配置到 SoundConfig.asset，
+        /// <para>让用户可手动、确定地保存当前配置到 HonorSoundConfig.asset，
         /// 不依赖自动保存/关窗时机，按需强制持久化。</para>
         /// </summary>
         private void RegisterSaveShortcut()
@@ -164,13 +164,13 @@ namespace Honor.Editor
             base.OnDisable();
 
             // 注意：此处不做无条件自动保存！
-            // 若在 Unity 脚本重载 / 窗口重开时 OnDisable 触发，此时 m_SoundConfig
+            // 若在 Unity 脚本重载 / 窗口重开时 OnDisable 触发，此时 m_HonorSoundConfig
             // 可能处于未初始化或空状态，无条件 SaveSoundConfigToDisk 会把空配置写回资产，
             // 覆盖磁盘上已有的真实数据（即"设置后重开又没了"的根因）。
             // 保存只由明确的 Ctrl+S 手动动作触发，保证绝不意外覆盖。
 
             m_SoundSO = null;
-            m_SoundConfig = null;
+            m_HonorSoundConfig = null;
         }
         #endregion
 
@@ -179,7 +179,7 @@ namespace Honor.Editor
         //=========================================================================
 
         /// <summary>
-        /// 绘制声音分组配置列表（基于 SoundConfig 资产的序列化数组）
+        /// 绘制声音分组配置列表（基于 HonorSoundConfig 资产的序列化数组）
         /// <para>用 EditorGUILayout.PropertyField 绘制数组，支持增删改。
         /// 每次绘制仅把改动提交到内存（ApplyModifiedProperties），不做时时落盘；
         /// 磁盘保存只由明确的保存动作触发（Ctrl+S 手动保存 / 关闭窗口兜底）。</para>
@@ -212,12 +212,12 @@ namespace Honor.Editor
         /// </summary>
         private void SaveSoundConfigToDisk()
         {
-            if (m_SoundConfig == null)
+            if (m_HonorSoundConfig == null)
             {
                 return;
             }
 
-            EditorUtility.SetDirty(m_SoundConfig);
+            EditorUtility.SetDirty(m_HonorSoundConfig);
             AssetDatabase.SaveAssets();
         }
         #endregion
@@ -231,7 +231,7 @@ namespace Honor.Editor
         /// <summary>
         /// 音频配置资产的存放相对路径（Assets/Resources 下，保证运行时 Resources.Load 可加载）
         /// </summary>
-        private const string SoundConfigAssetPath = "Assets/Resources/SoundConfig.asset";
+        private const string SoundConfigAssetPath = "Assets/Resources/HonorSoundConfig.asset";
 
         /// <summary>
         /// 获取或创建音频配置资产
@@ -240,27 +240,27 @@ namespace Honor.Editor
         /// 而是报错返回 null。</para>
         /// </summary>
         /// <returns>音频配置资产实例；创建/加载失败返回 null</returns>
-        public static SoundConfig GetOrCreateSoundConfig()
+        public static HonorSoundConfig GetOrCreateSoundConfig()
         {
             // 磁盘上已存在资产文件 → 必须成功加载，绝不新建覆盖（避免覆盖已有数据）
             if (File.Exists(SoundConfigAssetPath))
             {
-                SoundConfig existing = AssetDatabase.LoadAssetAtPath<SoundConfig>(SoundConfigAssetPath);
+                HonorSoundConfig existing = AssetDatabase.LoadAssetAtPath<HonorSoundConfig>(SoundConfigAssetPath);
                 if (existing != null)
                 {
                     return existing;
                 }
 
                 // 文件存在但加载失败：报错并返回 null，防止用空实例覆盖已有配置
-                Debug.LogError("[SoundConfig] 资产文件存在但加载失败（可能 SoundGroupShell 序列化定义变更），" +
+                Debug.LogError("[HonorSoundConfig] 资产文件存在但加载失败（可能 HonorSoundGroupShell 序列化定义变更），" +
                                "已停止创建以防覆盖已有数据。请检查配置。");
                 return null;
             }
 
-            SoundConfig config = ScriptableObject.CreateInstance<SoundConfig>();
+            HonorSoundConfig config = ScriptableObject.CreateInstance<HonorSoundConfig>();
             if (config == null)
             {
-                Debug.LogError("[SoundConfig] 创建音频配置资产失败。");
+                Debug.LogError("[HonorSoundConfig] 创建音频配置资产失败。");
                 return null;
             }
 

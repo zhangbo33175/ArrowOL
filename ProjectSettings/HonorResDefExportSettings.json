@@ -1086,6 +1086,13 @@
       "ABPath": "Assets/Res/Textures/Map/LevelBackground/Level_bg_main_21",
       "AssetName": "Level_bg_main_21",
       "AssetGUID": "db014f4de8dc5c14595a07ce4cef344e"
+    },
+    {
+      "ResType": "GameObject",
+      "AliasName": "GameObject_ZoneItem",
+      "ABPath": "Assets/Res/Prefabs",
+      "AssetName": "ZoneItem",
+      "AssetGUID": "23ad9e5575e3bae4e8c55c4000e561fd"
     }
   ]
 }

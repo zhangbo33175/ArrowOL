@@ -195,7 +195,7 @@ namespace Honor.Runtime
         {
             if (Application.isPlaying)
             {
-                m_RuntimeProcedureRecordInfos.Add(AorTxt.Format("{0}\t（{1:N2}秒）", procedureTypeName, time));
+                m_RuntimeProcedureRecordInfos.Add(HonorTxt.Format("{0}\t（{1:N2}秒）", procedureTypeName, time));
             }
         }
 

@@ -81,8 +81,8 @@ namespace Honor.Editor
                           .AppendLine();
                     }
 
-                    sb.AppendLine(AorTxt.Format("---@field {0} LOAD_RES_DEF_ITEM @文件 {1}", item.AliasName, item.AssetName));
-                    sb.AppendLine(AorTxt.Format("LoadRes[\"{0}\"] = {{ Name = \"{1}\", TypeName = \"{2}\", ABPath = \"{3}\", AssetName = \"{4}\" }}",
+                    sb.AppendLine(HonorTxt.Format("---@field {0} LOAD_RES_DEF_ITEM @文件 {1}", item.AliasName, item.AssetName));
+                    sb.AppendLine(HonorTxt.Format("LoadRes[\"{0}\"] = {{ Name = \"{1}\", TypeName = \"{2}\", ABPath = \"{3}\", AssetName = \"{4}\" }}",
                         item.AliasName, item.AliasName, item.ResType, item.ABPath, item.AssetName));
                     sb.AppendLine();
 

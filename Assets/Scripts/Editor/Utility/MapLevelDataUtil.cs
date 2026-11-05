@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -67,7 +67,7 @@ namespace Editor.Utility
                 Directory.CreateDirectory(dir);
 
             // 生成 Lua 表名
-            var luaFileName = AorTxt.Format($"TableLevelData_{data.ChapterId}_{data.MaplId}");
+            var luaFileName = HonorTxt.Format($"TableLevelData_{data.ChapterId}_{data.MaplId}");
             var sb = new StringBuilder();
 
             // ===================== 头部注释 =====================
@@ -75,15 +75,15 @@ namespace Editor.Utility
             sb.AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime");
             sb.AppendLine("-- All Rights Reserved.");
             sb.AppendLine("-- ----------------------------------------------------------------------------------------------------");
-            sb.AppendLine(AorTxt.Format($"-- filename:  {luaFileName}"));
-            sb.AppendLine(AorTxt.Format($"-- descrip:   关卡配置信息表"));
+            sb.AppendLine(HonorTxt.Format($"-- filename:  {luaFileName}"));
+            sb.AppendLine(HonorTxt.Format($"-- descrip:   关卡配置信息表"));
             sb.AppendLine("-- notices:   该文件自动生成，请不要手动修改！");
             sb.AppendLine("--=====================================================================================================");
             sb.AppendLine();
 
             // ===================== 数据主体 =====================
             sb.AppendLine("---@type Tables.LevelData_Item");
-            sb.AppendLine(AorTxt.Format($"Tables.LevelData_{data.ChapterId}_{data.MaplId} = ") + "{ ");
+            sb.AppendLine(HonorTxt.Format($"Tables.LevelData_{data.ChapterId}_{data.MaplId} = ") + "{ ");
 
             // 基础关卡配置
             sb.AppendLine($"    ChapterId = \"{data.ChapterId}\",");

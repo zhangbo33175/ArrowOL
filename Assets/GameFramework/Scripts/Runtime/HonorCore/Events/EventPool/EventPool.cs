@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -141,7 +141,7 @@ namespace Honor.Runtime
 
             if (Check(cmd, userData, handler))
             {
-                throw new GameException(AorTxt.Format("不允许事件 '{0}' 有重复处理函数。", cmd.ToString()));
+                throw new GameException(HonorTxt.Format("不允许事件 '{0}' 有重复处理函数。", cmd.ToString()));
             }
             else
             {

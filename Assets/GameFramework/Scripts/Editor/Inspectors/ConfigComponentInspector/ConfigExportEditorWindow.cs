@@ -127,7 +127,7 @@ namespace Honor.Editor
         private bool ReadConfigEntries()
         {
             m_ConfigEntryMap.Clear();
-            string configBytesPath = AorTxt.Format("{0}/{1}/{2}",
+            string configBytesPath = HonorTxt.Format("{0}/{1}/{2}",
                 Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
                 GamePathUtils.Json.GetRootDirectoryRelativePath(),
                 "Configs.bytes");

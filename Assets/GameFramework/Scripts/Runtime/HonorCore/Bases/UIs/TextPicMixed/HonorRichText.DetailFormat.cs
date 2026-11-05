@@ -1,0 +1,114 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  HonorRichText.DetailFormat.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   图文混排 - 详情格式图片标签解析（partial）
+ ***************************************************************/
+
+#if UIEXTENSION_ENABLE
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using UnityEngine.UI.Extensions;
+
+namespace Honor.Runtime
+{
+    public partial class HonorRichText
+    {
+        //=========================================================================
+        // 正则表达式
+        //=========================================================================
+        #region Regex - 图片标签匹配
+        /// <summary>
+        /// 详情格式图片正则匹配表达式
+        /// 匹配格式：#__资源路径&图片名&缩放&X偏移&Y偏移__#
+        /// 自动提取图片名称、路径、尺寸、偏移等参数
+        /// </summary>
+        private static readonly Regex s_PicRegexOnDetailFormat = new Regex(
+            HonorTxt.Format(
+                @"{0}(([\w]+/)*[\w]+){1}(?<fname>[\w]+){2}((([0-9]\d*)(.)([0-9]\d*))|([0-9]\d*)){3}((([0-9]\d*)(.)([0-9]\d*))|([0-9]\d*)){4}((([0-9]\d*)(.)([0-9]\d*))|([0-9]\d*)){5}",
+                IDENTIFIERS_START,
+                SEPARATOR,
+                SEPARATOR,
+                SEPARATOR,
+                SEPARATOR,
+                IDENTIFIERS_END
+            )
+        );
+        #endregion
+
+        //=========================================================================
+        // 图片标签解析（详情格式）
+        //=========================================================================
+        #region Method - 详情格式解析
+        /// <summary>
+        /// 解析文本中的【详情格式】图片标签
+        /// 格式规则：#__AB包路径&图片名称&缩放值&X偏移&Y偏移__#
+        /// 解析成功后将图片信息存入图标列表，替换文本显示
+        /// </summary>
+        public void ParseTextOnDetailFormat()
+        {
+            // 图标列表，先合并编辑器预设的图标数据
+            List<IconName> iconList = new List<IconName>();
+            if (inspectorIconList != null)
+                iconList.AddRange(inspectorIconList);
+
+            string workingText = m_Text;
+            Match picMatch = s_PicRegexOnDetailFormat.Match(workingText);
+            bool allParsed = true;
+
+            // 循环匹配所有图片标签
+            while (picMatch.Success)
+            {
+                // 获取完整匹配的原始字符串
+                string originalContent = picMatch.Groups[0].Value;
+
+                // 去掉首尾标识符，获取内部内容
+                string matchedContent = originalContent
+                    .Replace(IDENTIFIERS_START, string.Empty)
+                    .Replace(IDENTIFIERS_END, string.Empty);
+
+                // 按分隔符拆分参数
+                string[] parts = matchedContent.Split(SEPARATOR);
+                bool advance = true;
+
+                // 参数格式：路径、名称、缩放、偏移X、偏移Y
+                if (parts.Length == 5)
+                {
+                    string abPath = parts[0];
+                    string assetName = parts[1];
+                    float scaleXY = float.Parse(parts[2]);
+                    float offsetX = float.Parse(parts[3]);
+                    float offsetY = float.Parse(parts[4]);
+
+                    // 收集图标信息到列表
+                    advance = CollectIcon(iconList, originalContent, abPath, assetName, scaleXY, offsetX, offsetY);
+                }
+
+                // 继续匹配下一个标签
+                if (advance)
+                {
+                    workingText = workingText.Substring(picMatch.Index + picMatch.Length);
+                    picMatch = s_PicRegexOnDetailFormat.Match(workingText);
+                    continue;
+                }
+                else
+                {
+                    // 解析失败，终止循环
+                    allParsed = false;
+                    break;
+                }
+            }
+
+            // 全部解析完成后，赋值给基类图标列表
+            if (allParsed)
+            {
+                inspectorIconList = iconList.ToArray();
+            }
+        }
+        #endregion
+    }
+}
+#endif

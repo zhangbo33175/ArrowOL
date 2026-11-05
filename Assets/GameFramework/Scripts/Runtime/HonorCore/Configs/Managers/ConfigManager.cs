@@ -177,7 +177,7 @@ namespace Honor.Runtime
             List<ConfigData> configData = GetConfigData(configName);
             if (configData == null)
             {
-                throw new GameException(AorTxt.Format("配置项'{0}'不存在。", configName));
+                throw new GameException(HonorTxt.Format("配置项'{0}'不存在。", configName));
             }
 
             return configData;

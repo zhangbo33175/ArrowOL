@@ -43,19 +43,19 @@ namespace Honor.Runtime
             }
 
             // 初始化资源加载管理器（负责底层资源加载/卸载）
-            m_AssetLoadManager = new AssetLoadManager(HonorUIManager.Instance.Launcher == null || HonorUIManager.Instance.EditorResourceMode,
+            m_AssetProvider = new AssetProvider(HonorUIManager.Instance.Launcher == null || HonorUIManager.Instance.EditorResourceMode,
                 m_UnloadAssetDelayFrameNum, m_LoadedMaxNumToCleanMemery);
-            if (m_AssetLoadManager == null)
+            if (m_AssetProvider == null)
             {
-                Log.Fatal("AssetLoadManager 无效。");
+                Log.Fatal("AssetProvider 无效。");
                 return;
             }
 
             // 初始化预制体加载管理器（负责实例化、克隆、Lua 传参）
-            m_PrefabLoadManager = new PrefabLoadManager(m_AssetLoadManager);
-            if (m_PrefabLoadManager == null)
+            m_PrefabLoader = new PrefabLoader(m_AssetProvider);
+            if (m_PrefabLoader == null)
             {
-                Log.Fatal("PrefabLoadManager 无效。");
+                Log.Fatal("PrefabLoader 无效。");
             }
         }
 
@@ -69,14 +69,14 @@ namespace Honor.Runtime
         /// </summary>
         internal void DriveUpdate()
         {
-            if (m_AssetLoadManager != null)
+            if (m_AssetProvider != null)
             {
-                m_AssetLoadManager.Update();
+                m_AssetProvider.Update();
             }
 
-            if (m_PrefabLoadManager != null)
+            if (m_PrefabLoader != null)
             {
-                m_PrefabLoadManager.Update();
+                m_PrefabLoader.Update();
             }
         }
 
@@ -134,9 +134,9 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadManifest()
         {
-            if (!HonorUIManager.Instance.EditorResourceMode && m_AssetLoadManager != null)
+            if (!HonorUIManager.Instance.EditorResourceMode && m_AssetProvider != null)
             {
-                m_AssetLoadManager.AssetBundleLoadManager.LoadManifest();
+                m_AssetProvider.AssetBundleLoader.LoadManifest();
             }
         }
         #endregion
@@ -173,7 +173,7 @@ namespace Honor.Runtime
                 return null;
             }
 
-            return m_PrefabLoadManager.LoadSync(abPath, assetName, parent, luaParams);
+            return m_PrefabLoader.LoadSync(abPath, assetName, parent, luaParams);
         }
 
         //=========================================================================
@@ -209,7 +209,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_PrefabLoadManager.LoadAsync(abPath, assetName, parent, luaParams, overCallback);
+            m_PrefabLoader.LoadAsync(abPath, assetName, parent, luaParams, overCallback);
         }
 
         //=========================================================================
@@ -238,7 +238,7 @@ namespace Honor.Runtime
                 return null;
             }
 
-            return m_PrefabLoadManager.InstantiateGO(parent, childTemplateGO, luaParams);
+            return m_PrefabLoader.InstantiateGO(parent, childTemplateGO, luaParams);
         }
         #endregion
 
@@ -264,7 +264,7 @@ namespace Honor.Runtime
                 return null;
             }
 
-            return m_AssetLoadManager.LoadSync(typeName, abPath, assetName);
+            return m_AssetProvider.LoadSync(typeName, abPath, assetName);
         }
 
         //=========================================================================
@@ -294,7 +294,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetLoadManager.LoadAsync(typeName, abPath, assetName, overCallback);
+            m_AssetProvider.LoadAsync(typeName, abPath, assetName, overCallback);
         }
 
         //=========================================================================
@@ -320,7 +320,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetLoadManager.PreLoadAsync(typeName, abPath, assetName, overCallback, isWeak);
+            m_AssetProvider.PreLoadAsync(typeName, abPath, assetName, overCallback, isWeak);
         }
         #endregion
 
@@ -343,7 +343,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetLoadManager.Unload(asset, overCallback, rightNow);
+            m_AssetProvider.Unload(asset, overCallback, rightNow);
         }
 
         //=========================================================================
@@ -355,7 +355,7 @@ namespace Honor.Runtime
         /// <param name="overCallback">卸载完成回调，可选</param>
         public void ForceUnloadUnusedAssets(Action overCallback = null)
         {
-            m_AssetLoadManager.ForceUnloadUnusedAssets(overCallback);
+            m_AssetProvider.ForceUnloadUnusedAssets(overCallback);
         }
         #endregion
 
@@ -377,7 +377,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetLoadManager.LoadSync("Scene", abPath, sceneName);
+            m_AssetProvider.LoadSync("Scene", abPath, sceneName);
         }
 
         //=========================================================================
@@ -404,7 +404,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetLoadManager.LoadAsync("Scene", abPath, sceneName, overCallback);
+            m_AssetProvider.LoadAsync("Scene", abPath, sceneName, overCallback);
         }
 
         //=========================================================================
@@ -427,7 +427,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetLoadManager.PreLoadAsync("Scene", abPath, sceneName, overCallback, isWeak);
+            m_AssetProvider.PreLoadAsync("Scene", abPath, sceneName, overCallback, isWeak);
         }
 
         //=========================================================================
@@ -456,7 +456,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_AssetLoadManager.Unload(scene, overCallback);
+            m_AssetProvider.Unload(scene, overCallback);
         }
         #endregion
 
@@ -480,7 +480,7 @@ namespace Honor.Runtime
                 return false;
             }
 
-            return m_AssetLoadManager.IsFileExist(typeName, abPath, assetName);
+            return m_AssetProvider.IsFileExist(typeName, abPath, assetName);
         }
         #endregion
 
@@ -499,8 +499,8 @@ namespace Honor.Runtime
                     m_AssetGo = null;
                 }
 
-                m_AssetLoadManager = null;
-                m_PrefabLoadManager = null;
+                m_AssetProvider = null;
+                m_PrefabLoader = null;
             }
             catch (Exception e) { Log.Error(e); }
         }

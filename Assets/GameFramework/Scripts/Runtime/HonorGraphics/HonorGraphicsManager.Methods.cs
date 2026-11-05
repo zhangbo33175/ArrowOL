@@ -53,7 +53,7 @@ namespace Honor.Runtime
 
         //=========================================================================
 
-        #region 相机震动（CameraShake）
+        #region 相机震动（HonorCameraShakeEffect）
 
         //=========================================================================
 
@@ -66,7 +66,7 @@ namespace Honor.Runtime
         /// <param name="rotStrength">旋转震动强度，默认1</param>
         public void ShakeCamera(Camera camera, float duration, float posStrength = 0.3f, float rotStrength = 1f)
         {
-            CameraShake.Shake(camera, duration, posStrength, rotStrength);
+            HonorCameraShakeEffect.Shake(camera, duration, posStrength, rotStrength);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Honor.Runtime
         /// <param name="strength">位置震动强度，默认0.3</param>
         public void ShakeCameraPosition(Camera camera, float duration, float strength = 0.3f)
         {
-            CameraShake.ShakePosition(camera, duration, strength);
+            HonorCameraShakeEffect.ShakePosition(camera, duration, strength);
         }
 
         /// <summary>
@@ -89,14 +89,14 @@ namespace Honor.Runtime
         /// <param name="vibrato">震动次数，默认30</param>
         public void ShakeCameraRotation(Camera camera, float duration, float strength = 1f, int vibrato = 30)
         {
-            CameraShake.ShakeRotation(camera, duration, strength, vibrato);
+            HonorCameraShakeEffect.ShakeRotation(camera, duration, strength, vibrato);
         }
 
         #endregion
 
         //=========================================================================
 
-        #region 图形工具（GraphicsUtils）
+        #region 图形工具（HonorGraphicsUtil）
 
         //=========================================================================
 
@@ -107,7 +107,7 @@ namespace Honor.Runtime
         /// <returns>角色根节点</returns>
         public Transform GetRoleRootTransform(Transform trans)
         {
-            return GraphicsUtils.GetRoleRootTransform(trans);
+            return HonorGraphicsUtil.GetRoleRootTransform(trans);
         }
         
         #endregion

@@ -65,7 +65,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 底层资源加载管理器实例（转发自 AssetComponent）
         /// </summary>
-        public AssetLoadManager AssetLoadManager => Asset != null ? Asset.AssetLoadManager : null;
+        public AssetProvider AssetProvider => Asset != null ? Asset.AssetProvider : null;
 
         /// <summary>
         /// 资源组件根节点（Lua 绑定/动态物体挂载父节点，转发自 AssetComponent.transform）

@@ -219,20 +219,20 @@ namespace Honor.Runtime
         {
             // 设置多语言标题
             if (m_MainTitleText != null)
-                m_MainTitleText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainTitle_Text"),
+                m_MainTitleText.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainTitle_Text"),
                     Application.productName);
 
             if (m_MainTitleTextTMP != null)
-                m_MainTitleTextTMP.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainTitle_Text"),
+                m_MainTitleTextTMP.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainTitle_Text"),
                     Application.productName);
 
             // 设置多语言描述
             if (m_MainDescText != null)
-                m_MainDescText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainDesc_Text"),
+                m_MainDescText.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainDesc_Text"),
                     Application.productName, Application.productName, Application.productName);
 
             if (m_MainDescTextTMP != null)
-                m_MainDescTextTMP.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainDesc_Text"),
+                m_MainDescTextTMP.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MainDesc_Text"),
                     Application.productName, Application.productName, Application.productName);
         }
 
@@ -243,25 +243,25 @@ namespace Honor.Runtime
         {
             // GDPR 文字
             if (m_GDPRText != null)
-                m_GDPRText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_GDPRDesc_Text"));
+                m_GDPRText.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_GDPRDesc_Text"));
 
             if (m_GDPRTextTMP != null)
-                m_GDPRTextTMP.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_GDPRDesc_Text"));
+                m_GDPRTextTMP.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_GDPRDesc_Text"));
 
             // CCPA 文字
             if (m_CCPAText != null)
-                m_CCPAText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_CCPADesc_Text"));
+                m_CCPAText.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_CCPADesc_Text"));
 
             if (m_CCPATextTMP != null)
-                m_CCPATextTMP.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_CCPADesc_Text"));
+                m_CCPATextTMP.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_CCPADesc_Text"));
 
             // COPPA 文字
             if (m_COPPAText != null)
-                m_COPPAText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_COPPADesc_Text"),
+                m_COPPAText.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_COPPADesc_Text"),
                     Application.productName);
 
             if (m_COPPATextTMP != null)
-                m_COPPATextTMP.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_COPPADesc_Text"),
+                m_COPPATextTMP.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_COPPADesc_Text"),
                     Application.productName);
         }
 
@@ -273,19 +273,19 @@ namespace Honor.Runtime
             // 开始游戏按钮文字
             if (m_StartGameButtonText != null)
                 m_StartGameButtonText.text =
-                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_StartGameButton_Text"));
+                    HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_StartGameButton_Text"));
 
             if (m_StartGameButtonTextTMP != null)
                 m_StartGameButtonTextTMP.text =
-                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_StartGameButton_Text"));
+                    HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_StartGameButton_Text"));
 
             // 了解更多按钮文字
             if (m_MoreButtonText != null)
-                m_MoreButtonText.text = AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreButton_Text"));
+                m_MoreButtonText.text = HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreButton_Text"));
 
             if (m_MoreButtonTextTMP != null)
                 m_MoreButtonTextTMP.text =
-                    AorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreButton_Text"));
+                    HonorTxt.Format(HonorCoreManager.Instance.GetDefaultData("GDPR_MoreButton_Text"));
         }
 
         /// <summary>

@@ -354,29 +354,29 @@ namespace XLua.CSObjectWrap
                     
                     return 1;
                 }
-                if(gen_param_count == 6&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 4) || LuaAPI.lua_type(L, 4) == LuaTypes.LUA_TSTRING)&& translator.Assignable<Honor.Runtime.PlaySoundParams>(L, 5)&& translator.Assignable<UnityEngine.Vector3>(L, 6)) 
+                if(gen_param_count == 6&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 4) || LuaAPI.lua_type(L, 4) == LuaTypes.LUA_TSTRING)&& translator.Assignable<Honor.Runtime.HonorPlaySoundParams>(L, 5)&& translator.Assignable<UnityEngine.Vector3>(L, 6)) 
                 {
                     string _abPath = LuaAPI.lua_tostring(L, 2);
                     string _assetName = LuaAPI.lua_tostring(L, 3);
                     string _soundGroupName = LuaAPI.lua_tostring(L, 4);
-                    Honor.Runtime.PlaySoundParams _playSoundParams = (Honor.Runtime.PlaySoundParams)translator.GetObject(L, 5, typeof(Honor.Runtime.PlaySoundParams));
+                    Honor.Runtime.HonorPlaySoundParams _HonorPlaySoundParams = (Honor.Runtime.HonorPlaySoundParams)translator.GetObject(L, 5, typeof(Honor.Runtime.HonorPlaySoundParams));
                     UnityEngine.Vector3 _worldPosition;translator.Get(L, 6, out _worldPosition);
                     
-                        int gen_ret = gen_to_be_invoked.PlaySound( _abPath, _assetName, _soundGroupName, _playSoundParams, _worldPosition );
+                        int gen_ret = gen_to_be_invoked.PlaySound( _abPath, _assetName, _soundGroupName, _HonorPlaySoundParams, _worldPosition );
                         LuaAPI.xlua_pushinteger(L, gen_ret);
                     
                     
                     
                     return 1;
                 }
-                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 4) || LuaAPI.lua_type(L, 4) == LuaTypes.LUA_TSTRING)&& translator.Assignable<Honor.Runtime.PlaySoundParams>(L, 5)) 
+                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 4) || LuaAPI.lua_type(L, 4) == LuaTypes.LUA_TSTRING)&& translator.Assignable<Honor.Runtime.HonorPlaySoundParams>(L, 5)) 
                 {
                     string _abPath = LuaAPI.lua_tostring(L, 2);
                     string _assetName = LuaAPI.lua_tostring(L, 3);
                     string _soundGroupName = LuaAPI.lua_tostring(L, 4);
-                    Honor.Runtime.PlaySoundParams _playSoundParams = (Honor.Runtime.PlaySoundParams)translator.GetObject(L, 5, typeof(Honor.Runtime.PlaySoundParams));
+                    Honor.Runtime.HonorPlaySoundParams _HonorPlaySoundParams = (Honor.Runtime.HonorPlaySoundParams)translator.GetObject(L, 5, typeof(Honor.Runtime.HonorPlaySoundParams));
                     
-                        int gen_ret = gen_to_be_invoked.PlaySound( _abPath, _assetName, _soundGroupName, _playSoundParams );
+                        int gen_ret = gen_to_be_invoked.PlaySound( _abPath, _assetName, _soundGroupName, _HonorPlaySoundParams );
                         LuaAPI.xlua_pushinteger(L, gen_ret);
                     
                     

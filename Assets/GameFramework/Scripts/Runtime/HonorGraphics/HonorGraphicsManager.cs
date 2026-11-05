@@ -14,7 +14,7 @@ namespace Honor.Runtime
 {
     /// <summary>
     /// 图形模块门面管理器（HonorGraphics 分类统一入口）
-    /// 功能：统一转发图形能力（ShaderManager 着色器、CameraShake 相机震动、GraphicsUtils 图形工具）
+    /// 功能：统一转发图形能力（ShaderManager 着色器、HonorCameraShakeEffect 相机震动、HonorGraphicsUtil 图形工具）
     /// 外部调用：HonorGraphicsManager.Instance.FindShader(...)
     /// 说明：本分类均为静态工具类，本管理器作为统一入口封装，纯代码单例
     /// </summary>

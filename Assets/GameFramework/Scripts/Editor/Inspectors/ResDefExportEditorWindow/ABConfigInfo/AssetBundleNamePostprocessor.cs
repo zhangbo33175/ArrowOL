@@ -183,7 +183,7 @@ namespace Honor.Editor
         /// 说明：与打包工具 BuildPackage_Config 的 EachFile 粒度一致——递归收集整个目录树，
         ///       每个文件一个 bundle（bundle 名 = 完整资源相对路径去扩展名）。
         ///       如此生成的 ABPath 为完整资源路径（含资源名），可被运行时
-        ///       AssetBundleLoadManager.GetABFormatPath 精确命中单资源 bundle。
+        ///       AssetBundleLoader.GetABFormatPath 精确命中单资源 bundle。
         /// </summary>
         private static void ProcessPackageType_EachFile(ABConfigInfo info, bool forceCheckPath)
         {

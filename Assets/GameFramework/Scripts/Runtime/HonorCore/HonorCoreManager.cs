@@ -43,7 +43,7 @@ namespace Honor.Runtime
             Config = new ConfigComponent();
             Event = new EventComponent();
             Lua = new LuaComponent();
-            Sound = new SoundComponent();
+            Sound = new HonorSoundComponent();
             Table = new TableComponent();
             Timer = new TimerComponent();
             Vibrate = new VibrateComponent();

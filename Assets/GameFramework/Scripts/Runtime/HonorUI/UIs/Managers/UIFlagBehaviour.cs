@@ -26,7 +26,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 预制体实例化通用组件（资源加载、实例化管理）
         /// </summary>
-        public PrefabInstanceGOBehaviour PrefabInstanceGOBehaviour;
+        public PrefabInstanceBehaviour PrefabInstanceBehaviour;
 
         /// <summary>
         /// UI 配置信息（AB路径、名称、参数、回调等）

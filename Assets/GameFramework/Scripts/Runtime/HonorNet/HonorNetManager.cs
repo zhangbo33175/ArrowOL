@@ -16,7 +16,7 @@ namespace Honor.Runtime
 {
     /// <summary>
     /// 网络模块门面管理器（HonorNet 分类统一入口）
-    /// 功能：集中管理网络组件 NetworkComponent（socket、http、websocket、消息收发）
+    /// 功能：集中管理网络组件 HonorNetworkComponent（socket、http、websocket、消息收发）
     /// 外部调用：HonorNetManager.Instance.CheckNetworkActive()，或 .Network.xxx 访问组件完整能力
     /// 说明：采用纯代码单例，首次访问 Instance 自动调用 Init()
     /// </summary>
@@ -33,7 +33,7 @@ namespace Honor.Runtime
         /// </summary>
         public override void Init()
         {
-            Network = new NetworkComponent();
+            Network = new HonorNetworkComponent();
             Network.Init();
         }
 

@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -95,7 +95,7 @@ namespace GameLib
                 }
 
                 // 拼接完整磁盘路径
-                var filePath = AorTxt.Format("{0}/{1}",
+                var filePath = HonorTxt.Format("{0}/{1}",
                     Application.dataPath.Substring(0, Application.dataPath.Length - "Assets/".Length), oneFilePath);
 
                 // UTF8 无BOM 写入
@@ -111,7 +111,7 @@ namespace GameLib
                     List<string> assetStringArray = item.Value.Distinct().ToList();
                     string tempStr = string.Join("", assetStringArray);
 
-                    var filePath = AorTxt.Format("{0}/{1}",
+                    var filePath = HonorTxt.Format("{0}/{1}",
                         Application.dataPath.Substring(0, Application.dataPath.Length - "Assets/".Length), perFilePath);
 
                     File.WriteAllText(filePath, tempStr, new UTF8Encoding(false));

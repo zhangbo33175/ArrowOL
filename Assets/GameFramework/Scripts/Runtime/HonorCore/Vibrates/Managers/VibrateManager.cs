@@ -143,14 +143,14 @@ namespace Honor.Runtime
             var clips = new List<VibrateInfo>();
             int clipSeq = 1;
             LuaTable clipTable = null;
-            groupTable.Get(AorTxt.Format("Vibrate{0}", clipSeq), out clipTable);
+            groupTable.Get(HonorTxt.Format("Vibrate{0}", clipSeq), out clipTable);
 
             while (clipTable != null)
             {
                 clips.Add(clipReader(clipTable));
                 clipSeq++;
                 clipTable = null;
-                groupTable.Get(AorTxt.Format("Vibrate{0}", clipSeq), out clipTable);
+                groupTable.Get(HonorTxt.Format("Vibrate{0}", clipSeq), out clipTable);
             }
 
             return clips;

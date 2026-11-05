@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -307,7 +307,7 @@ namespace Honor.Editor
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine(
                     "-- ----------------------------------------------------------------------------------------------------")
-                .AppendLine(AorAorTxt.Format("-- filename:  {0}.lua.txt", luaScriptName))
+                .AppendLine(AorHonorTxt.Format("-- filename:  {0}.lua.txt", luaScriptName))
                 .AppendLine(
                     "--=====================================================================================================")
                 .AppendLine("");

@@ -246,7 +246,7 @@ namespace Honor.Editor.BuildPackage
 
         /// <summary>
         /// 格式化 bundle 名：'/' → '@'，全小写，加 ".bundle"
-        /// 与运行时 AssetBundleLoadManager.GetABFormatPath 完全一致
+        /// 与运行时 AssetBundleLoader.GetABFormatPath 完全一致
         /// </summary>
         /// <param name="path">原始路径（正斜杠）</param>
         /// <returns>格式化 bundle 名</returns>

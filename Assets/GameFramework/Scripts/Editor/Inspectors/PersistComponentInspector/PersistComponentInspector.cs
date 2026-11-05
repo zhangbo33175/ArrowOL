@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -233,7 +233,7 @@ namespace Honor.Editor
                     Process.Start("open", folderPath);
                     break;
                 default:
-                    throw new Exception(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
+                    throw new Exception(HonorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
             }
         }
 
@@ -291,7 +291,7 @@ namespace Honor.Editor
         /// <param name="folderFullPath">待打开的目录绝对路径</param>
         private static void OpenPersistentFolderInOS(string folderFullPath)
         {
-            string quoted = AorTxt.Format("\"{0}\"", folderFullPath);
+            string quoted = HonorTxt.Format("\"{0}\"", folderFullPath);
             switch (Application.platform)
             {
                 case RuntimePlatform.WindowsEditor:
@@ -301,7 +301,7 @@ namespace Honor.Editor
                     Process.Start("open", quoted);
                     break;
                 default:
-                    throw new Exception(AorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
+                    throw new Exception(HonorTxt.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
             }
         }
         #endregion
@@ -466,7 +466,7 @@ namespace Honor.Editor
                 return asset.bytes;
             });
 
-            object[] results = luaEnv.DoString(AorTxt.Format(@"
+            object[] results = luaEnv.DoString(HonorTxt.Format(@"
                 require('Assets/LuaScripts/Honor/HonorCore/Systems/libs/SystemFuncs.lua.txt')
                 local Base64 = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemBase64.lua.txt')
                 local protoc = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemProtoc.lua.txt')
@@ -496,10 +496,10 @@ namespace Honor.Editor
                 return asset.bytes;
             });
 
-            string protoLuaFilePath = AorTxt.Format("Assets/LuaScripts/Game/PBData/Proto/{0}.proto.lua.txt", protoLuaFileName);
+            string protoLuaFilePath = HonorTxt.Format("Assets/LuaScripts/Game/PBData/Proto/{0}.proto.lua.txt", protoLuaFileName);
             if(File.Exists(protoLuaFilePath))
             {
-                object[] results = luaEnv.DoString(AorTxt.Format(@"
+                object[] results = luaEnv.DoString(HonorTxt.Format(@"
                     require('Assets/LuaScripts/Honor/HonorCore/Systems/libs/SystemFuncs.lua.txt')
                     local Base64 = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemBase64.lua.txt')
                     local protoc = require('Assets/LuaScripts/Honor/HonorCore/Systems/thirds/SystemProtoc.lua.txt')
@@ -547,14 +547,14 @@ namespace Honor.Editor
                         m_EditValueCacheList[PersistWayType.PlayerPrefs].Add(classifyName, new SortedDictionary<string, string>());
                         m_EditScrollViewPositionList[PersistWayType.PlayerPrefs].Add(classifyName, new SortedDictionary<string, Vector2>());
 
-                        string nameListText = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(AorTxt.Format("Classify_{0}_ItemNameList", classifyName), AESEncrypt.EncodeToBase64(string.Empty)));
+                        string nameListText = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(HonorTxt.Format("Classify_{0}_ItemNameList", classifyName), AESEncrypt.EncodeToBase64(string.Empty)));
                         if (!string.IsNullOrEmpty(nameListText))
                         {
                             string[] nameList = nameListText.Split(',');
                             for (int nameIndex = 0; nameIndex < nameList.Length; nameIndex++)
                             {
                                 string itemName = nameList[nameIndex];
-                                string key = AorTxt.Format("{0}_{1}", classifyName, itemName);
+                                string key = HonorTxt.Format("{0}_{1}", classifyName, itemName);
                                 string valueTryString = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key));
                                 string fieldName = itemName;
                                 string fieldType = classInterFieldTypes[classifyName][fieldName];
@@ -707,13 +707,13 @@ namespace Honor.Editor
                                             List<string> itemNamesForDelete = new List<string>(m_ValueList[persistWay][classifyName].Keys);
                                             for (int i = 0; i < itemNamesForDelete.Count; i++)
                                             {
-                                                string key = AorTxt.Format("{0}_{1}", classifyName, itemNamesForDelete[i]);
+                                                string key = HonorTxt.Format("{0}_{1}", classifyName, itemNamesForDelete[i]);
                                                 if (PlayerPrefs.HasKey(key))
                                                 {
                                                     PlayerPrefs.DeleteKey(key);
                                                 }
                                             }
-                                            string classifyKey = AorTxt.Format("Classify_{0}_ItemNameList", classifyName);
+                                            string classifyKey = HonorTxt.Format("Classify_{0}_ItemNameList", classifyName);
                                             if (PlayerPrefs.HasKey(classifyKey))
                                             {
                                                 PlayerPrefs.DeleteKey(classifyKey);
@@ -727,7 +727,7 @@ namespace Honor.Editor
                                                 classifyNameListText = string.Empty;
                                                 foreach (string newClassifyName in classifyNameList)
                                                 {
-                                                    classifyNameListText = string.IsNullOrEmpty(classifyNameListText) ? newClassifyName : AorTxt.Format("{0},{1}", classifyNameListText, newClassifyName);
+                                                    classifyNameListText = string.IsNullOrEmpty(classifyNameListText) ? newClassifyName : HonorTxt.Format("{0},{1}", classifyNameListText, newClassifyName);
                                                 }
                                                 PlayerPrefs.SetString("ClassifyNameList", AESEncrypt.EncodeToBase64(classifyNameListText));
                                             }
@@ -746,7 +746,7 @@ namespace Honor.Editor
                                     {
                                         if (GUILayout.Button("删除当前分类下所有数据"))
                                         {
-                                            string fullPath = AorTxt.Format("{0}/{1}.dat", m_FileFragmentsRootDirectoryFullPath, classifyName);
+                                            string fullPath = HonorTxt.Format("{0}/{1}.dat", m_FileFragmentsRootDirectoryFullPath, classifyName);
                                             if (System.IO.File.Exists(fullPath))
                                             {
                                                 System.IO.File.Delete(fullPath);
@@ -807,7 +807,7 @@ namespace Honor.Editor
                                                         m_EditValueList[persistWay].Remove(classifyName);
                                                         m_EditValueCacheList[persistWay].Remove(classifyName);
                                                         m_EditScrollViewPositionList[persistWay].Remove(classifyName);
-                                                        string fullPath = AorTxt.Format("{0}/{1}.dat", m_FileFragmentsRootDirectoryFullPath, classifyName);
+                                                        string fullPath = HonorTxt.Format("{0}/{1}.dat", m_FileFragmentsRootDirectoryFullPath, classifyName);
                                                         if (System.IO.File.Exists(fullPath))
                                                         {
                                                             System.IO.File.Delete(fullPath);
@@ -892,7 +892,7 @@ namespace Honor.Editor
                             foreach (var itr in t.FileFragmentManager.ItemGroups)
                             {
                                 string classifyName = itr.Key;
-                                bool classifyNameCurrentState = DrawTrackedFoldout(classifyName, AorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
+                                bool classifyNameCurrentState = DrawTrackedFoldout(classifyName, HonorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
 
                                 if (classifyNameCurrentState)
                                 {
@@ -931,7 +931,7 @@ namespace Honor.Editor
                             foreach (var itr in t.PlayerPrefsManager.ItemNameGroups)
                             {
                                 string classifyName = itr.Key;
-                                bool classifyNameCurrentState = DrawTrackedFoldout(classifyName, AorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
+                                bool classifyNameCurrentState = DrawTrackedFoldout(classifyName, HonorTxt.Format("{0} ({1})", classifyName, itr.Value.Count));
 
                                 if (!m_RuntimeLastDecodedPbValue.ContainsKey(classifyName))
                                 {
@@ -1060,7 +1060,7 @@ namespace Honor.Editor
         /// <param name="itemName">条目名</param>
         private void RefreshPlayerPrefsItemOnRuntimeMode(string classifyName, string fieldName, string fieldType, string itemName)
         {
-            string key = AorTxt.Format("{0}_{1}", classifyName, itemName);
+            string key = HonorTxt.Format("{0}_{1}", classifyName, itemName);
             string itemValue = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(key));
             if (fieldType == "number" || fieldType == "string" || fieldType == "table" || fieldType == "boolean" || fieldType.EndsWith("[]"))
             {
@@ -1156,7 +1156,7 @@ namespace Honor.Editor
                             m_EditValueList[persistWay][classifyName][itemName] = m_EditValueCacheList[persistWay][classifyName][itemName];
                             m_ValueList[persistWay][classifyName][itemName] = SwitchToTidyFormat(m_EditValueList[persistWay][classifyName][itemName]);
 
-                            string key = AorTxt.Format("{0}_{1}", classifyName, itemName);
+                            string key = HonorTxt.Format("{0}_{1}", classifyName, itemName);
                             GenerateLuaDeclares(out List<List<string>> luaFilesDeclaresLines, false);
                             Dictionary<string, Dictionary<string, string>> classInterFieldTypes = GetPbFileMainStructorDetailInfos(luaFilesDeclaresLines);
                             string[] itemArray = classInterFieldTypes[classifyName][itemName].Split('.');
@@ -1180,7 +1180,7 @@ namespace Honor.Editor
                     EditorGUI.EndDisabledGroup();
                     if (GUILayout.Button("删除"))
                     {
-                        string key = AorTxt.Format("{0}_{1}", classifyName, itemName);
+                        string key = HonorTxt.Format("{0}_{1}", classifyName, itemName);
                         if (PlayerPrefs.HasKey(key))
                         {
                             PlayerPrefs.DeleteKey(key);
@@ -1197,7 +1197,7 @@ namespace Honor.Editor
                             m_EditValueList[persistWay].Remove(classifyName);
                             m_EditValueCacheList[persistWay].Remove(classifyName);
                             m_EditScrollViewPositionList[persistWay].Remove(classifyName);
-                            string classifyKey = AorTxt.Format("Classify_{0}_ItemNameList", classifyName);
+                            string classifyKey = HonorTxt.Format("Classify_{0}_ItemNameList", classifyName);
                             if (PlayerPrefs.HasKey(classifyKey))
                             {
                                 PlayerPrefs.DeleteKey(classifyKey);
@@ -1211,7 +1211,7 @@ namespace Honor.Editor
                                 classifyNameListText = string.Empty;
                                 foreach (string newClassifyName in classifyNameList)
                                 {
-                                    classifyNameListText = string.IsNullOrEmpty(classifyNameListText) ? newClassifyName : AorTxt.Format("{0},{1}", classifyNameListText, newClassifyName);
+                                    classifyNameListText = string.IsNullOrEmpty(classifyNameListText) ? newClassifyName : HonorTxt.Format("{0},{1}", classifyNameListText, newClassifyName);
                                 }
                                 PlayerPrefs.SetString("ClassifyNameList", AESEncrypt.EncodeToBase64(classifyNameListText));
                             }
@@ -1223,7 +1223,7 @@ namespace Honor.Editor
                             m_EditValueList[persistWay][classifyName].Remove(itemName);
                             m_EditValueCacheList[persistWay][classifyName].Remove(itemName);
                             m_EditScrollViewPositionList[persistWay][classifyName].Remove(itemName);
-                            string classifyKey = AorTxt.Format("Classify_{0}_ItemNameList", classifyName);
+                            string classifyKey = HonorTxt.Format("Classify_{0}_ItemNameList", classifyName);
                             string itemNameListText = AESEncrypt.DecodeFromBase64(PlayerPrefs.GetString(classifyKey, AESEncrypt.EncodeToBase64(string.Empty)));
                             if (!string.IsNullOrEmpty(itemNameListText))
                             {
@@ -1233,7 +1233,7 @@ namespace Honor.Editor
                                 itemNameListText = string.Empty;
                                 foreach (string newName in nameList)
                                 {
-                                    itemNameListText = string.IsNullOrEmpty(itemNameListText) ? newName : AorTxt.Format("{0},{1}", itemNameListText, newName);
+                                    itemNameListText = string.IsNullOrEmpty(itemNameListText) ? newName : HonorTxt.Format("{0},{1}", itemNameListText, newName);
                                 }
                                 PlayerPrefs.SetString(classifyKey, AESEncrypt.EncodeToBase64(itemNameListText));
                             }

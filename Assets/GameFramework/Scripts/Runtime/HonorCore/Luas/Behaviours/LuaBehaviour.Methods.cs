@@ -297,7 +297,7 @@ namespace Honor.Runtime
                         ApplyUIComponentInjection(injection, luaEnv, objs, keys, idx);
                         break;
                     default:
-                        luaEnv.Set(keys[idx], System.Convert.ChangeType(variants[idx], System.Type.GetType(AorTxt.Format("System.{0}", injection.InjectionTypeName.ToString()))));
+                        luaEnv.Set(keys[idx], System.Convert.ChangeType(variants[idx], System.Type.GetType(HonorTxt.Format("System.{0}", injection.InjectionTypeName.ToString()))));
                         break;
                 }
             }
@@ -382,7 +382,7 @@ namespace Honor.Runtime
                     SetInjectionComponent<TMP_InputField>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_TextPicMixed:
-                    SetInjectionComponent<AorTextPicMixed>(luaEnv, keys[idx], objs[idx]);
+                    SetInjectionComponent<HonorRichText>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Image:
                     SetInjectionComponent<Image>(luaEnv, keys[idx], objs[idx]);
@@ -409,13 +409,13 @@ namespace Honor.Runtime
                     SetInjectionComponent<InputField>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_Tree:
-                    SetInjectionComponent<AorTree>(luaEnv, keys[idx], objs[idx]);
+                    SetInjectionComponent<HonorTreeView>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_ListView:
-                    SetInjectionComponent<AorListView>(luaEnv, keys[idx], objs[idx]);
+                    SetInjectionComponent<HonorListView>(luaEnv, keys[idx], objs[idx]);
                     break;
                 case LuaInjection.InjectionType.UI_SwitchButton:
-                    SetInjectionComponent<AorSwitchButton>(luaEnv, keys[idx], objs[idx]);
+                    SetInjectionComponent<HonorSwitchButton>(luaEnv, keys[idx], objs[idx]);
                     break;
             }
         }

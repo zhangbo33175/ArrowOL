@@ -57,7 +57,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 底层资源加载管理器，负责 Asset/AB 包加载与卸载
         /// </summary>
-        private AssetLoadManager m_AssetLoadManager = null;
+        private AssetProvider m_AssetProvider = null;
 
         //=========================================================================
         // 预制体加载管理器（负责 Prefab 实例化）
@@ -65,7 +65,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 预制体加载管理器，负责 Prefab 加载、实例化、克隆
         /// </summary>
-        private PrefabLoadManager m_PrefabLoadManager = null;
+        private PrefabLoader m_PrefabLoader = null;
         #endregion
 
         #region 公开属性 - 配置
@@ -80,9 +80,9 @@ namespace Honor.Runtime
             set
             {
                 m_UnloadAssetDelayFrameNum = value;
-                if (m_AssetLoadManager != null)
+                if (m_AssetProvider != null)
                 {
-                    m_AssetLoadManager.UnloadAssetDelayFrameNum = m_UnloadAssetDelayFrameNum;
+                    m_AssetProvider.UnloadAssetDelayFrameNum = m_UnloadAssetDelayFrameNum;
                 }
             }
         }
@@ -98,9 +98,9 @@ namespace Honor.Runtime
             set
             {
                 m_LoadedMaxNumToCleanMemery = value;
-                if (m_AssetLoadManager != null)
+                if (m_AssetProvider != null)
                 {
-                    m_AssetLoadManager.LoadedMaxNumToCleanMemery = m_LoadedMaxNumToCleanMemery;
+                    m_AssetProvider.LoadedMaxNumToCleanMemery = m_LoadedMaxNumToCleanMemery;
                 }
             }
         }
@@ -136,9 +136,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取底层资源加载管理器实例
         /// </summary>
-        public AssetLoadManager AssetLoadManager
+        public AssetProvider AssetProvider
         {
-            get { return m_AssetLoadManager; }
+            get { return m_AssetProvider; }
         }
 
         //=========================================================================
@@ -147,9 +147,9 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取预制体加载管理器实例
         /// </summary>
-        public PrefabLoadManager PrefabLoadManager
+        public PrefabLoader PrefabLoader
         {
-            get { return m_PrefabLoadManager; }
+            get { return m_PrefabLoader; }
         }
         #endregion
 
@@ -182,7 +182,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, string[]> DependsDataList
         {
-            get { return m_AssetLoadManager.AssetBundleLoadManager.DependsDataList; }
+            get { return m_AssetProvider.AssetBundleLoader.DependsDataList; }
         }
 
         //=========================================================================
@@ -193,7 +193,7 @@ namespace Honor.Runtime
         /// </summary>
         public List<AssetObject> Scenes
         {
-            get { return m_AssetLoadManager.Scenes; }
+            get { return m_AssetProvider.Scenes; }
         }
         #endregion
 
@@ -206,7 +206,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, PrefabObject> LoadedPrefabList
         {
-            get { return m_PrefabLoadManager.LoadedList; }
+            get { return m_PrefabLoader.LoadedList; }
         }
 
         //=========================================================================
@@ -217,7 +217,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, AssetObject> LoadingAssetList
         {
-            get { return m_AssetLoadManager.LoadingList; }
+            get { return m_AssetProvider.LoadingList; }
         }
 
         //=========================================================================
@@ -228,7 +228,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, AssetObject> LoadedAssetList
         {
-            get { return m_AssetLoadManager.LoadedList; }
+            get { return m_AssetProvider.LoadedList; }
         }
 
         //=========================================================================
@@ -239,7 +239,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, AssetObject> UnloadAssetList
         {
-            get { return m_AssetLoadManager.UnloadList; }
+            get { return m_AssetProvider.UnloadList; }
         }
 
         //=========================================================================
@@ -250,7 +250,7 @@ namespace Honor.Runtime
         /// </summary>
         public Queue<PreloadAssetObject> PreloadedAssetList
         {
-            get { return m_AssetLoadManager.PreloadedAsyncList; }
+            get { return m_AssetProvider.PreloadedAsyncList; }
         }
 
         //=========================================================================
@@ -261,7 +261,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, AssetBundleObject> ReadyABList
         {
-            get { return m_AssetLoadManager.AssetBundleLoadManager.ReadyAssetBundleList; }
+            get { return m_AssetProvider.AssetBundleLoader.ReadyAssetBundleList; }
         }
 
         //=========================================================================
@@ -272,7 +272,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, AssetBundleObject> LoadingABList
         {
-            get { return m_AssetLoadManager.AssetBundleLoadManager.LoadingAssetBundleList; }
+            get { return m_AssetProvider.AssetBundleLoader.LoadingAssetBundleList; }
         }
 
         //=========================================================================
@@ -283,7 +283,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, AssetBundleObject> LoadedABList
         {
-            get { return m_AssetLoadManager.AssetBundleLoadManager.LoadedAssetBundleList; }
+            get { return m_AssetProvider.AssetBundleLoader.LoadedAssetBundleList; }
         }
 
         //=========================================================================
@@ -294,7 +294,7 @@ namespace Honor.Runtime
         /// </summary>
         public Dictionary<string, AssetBundleObject> UnloadABList
         {
-            get { return m_AssetLoadManager.AssetBundleLoadManager.UnloadAssetBundleList; }
+            get { return m_AssetProvider.AssetBundleLoader.UnloadAssetBundleList; }
         }
         #endregion
     }

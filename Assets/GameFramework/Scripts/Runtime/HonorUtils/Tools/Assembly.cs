@@ -152,7 +152,7 @@ namespace Honor.Runtime
         {
             foreach (System.Reflection.Assembly asm in s_Assemblies)
             {
-                string assemblyQualifiedName = AorTxt.Format("{0}, {1}", typeFullName, asm.FullName);
+                string assemblyQualifiedName = HonorTxt.Format("{0}, {1}", typeFullName, asm.FullName);
                 Type found = Type.GetType(assemblyQualifiedName);
                 if (found != null)
                 {

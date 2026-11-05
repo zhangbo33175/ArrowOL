@@ -218,24 +218,24 @@ namespace Honor.Runtime
         //=========================================================================
 
         /// <summary>
-        /// 为已实例化的预制体游戏对象增加资源引用计数（转发自 PrefabLoadManager）
+        /// 为已实例化的预制体游戏对象增加资源引用计数（转发自 PrefabLoader）
         /// </summary>
         /// <param name="abPath">AssetBundle路径，必须以Assets开头</param>
         /// <param name="assetName">预制体资源名称</param>
         /// <param name="go">已实例化的游戏对象</param>
         public void AddPrefabAssetRef(string abPath, string assetName, GameObject go)
         {
-            Asset.PrefabLoadManager.AddAssetRef(abPath, assetName, go);
+            Asset.PrefabLoader.AddAssetRef(abPath, assetName, go);
         }
 
         /// <summary>
-        /// 销毁预制体实例并释放资源引用（转发自 PrefabLoadManager）
+        /// 销毁预制体实例并释放资源引用（转发自 PrefabLoader）
         /// </summary>
         /// <param name="go">待销毁的游戏对象</param>
         /// <param name="rightNow">是否立即销毁，默认false</param>
         public void DestroyPrefab(GameObject go, bool rightNow = false)
         {
-            Asset.PrefabLoadManager.Destroy(go, rightNow);
+            Asset.PrefabLoader.Destroy(go, rightNow);
         }
 
         #endregion

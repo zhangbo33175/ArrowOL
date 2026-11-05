@@ -170,7 +170,7 @@ namespace Honor.Runtime
         {
             m_LocalizationManager.LoadDefaultDatas(m_Language, 
                 GamePathUtils.Json.GetRootDirectoryRelativePath(), 
-                AorTxt.Format("LocalizationDefault{0}", m_Language));
+                HonorTxt.Format("LocalizationDefault{0}", m_Language));
         }
 
         /// <summary>

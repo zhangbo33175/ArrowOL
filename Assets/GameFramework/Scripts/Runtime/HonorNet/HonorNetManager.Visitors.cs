@@ -22,7 +22,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 网络组件（socket、http、websocket、消息收发）
         /// </summary>
-        public NetworkComponent Network { get; private set; }
+        public HonorNetworkComponent Network { get; private set; }
 
         #endregion
 

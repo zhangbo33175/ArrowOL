@@ -253,8 +253,8 @@ namespace Honor.Editor
             if (!string.IsNullOrEmpty(m_LuaScriptCommonNameMVVM.stringValue))
             {
                 // 自动生成View/ViewModel名称
-                m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue = AorTxt.Format("{0}View", m_LuaScriptCommonNameMVVM.stringValue);
-                m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue = AorTxt.Format("{0}ViewModel", m_LuaScriptCommonNameMVVM.stringValue);
+                m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue = HonorTxt.Format("{0}View", m_LuaScriptCommonNameMVVM.stringValue);
+                m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue = HonorTxt.Format("{0}ViewModel", m_LuaScriptCommonNameMVVM.stringValue);
 
                 EditorGUILayout.LabelField("Lua-View脚本名称", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.View).stringValue);
                 EditorGUILayout.LabelField("Lua-ViewModel脚本名称", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue);
@@ -439,7 +439,7 @@ namespace Honor.Editor
                                         string info = interInjectionNames[selectedIndex].Replace("/[", "[").Replace('/', '^');
                                         if (!tmpInjectNames.Contains(info))
                                         {
-                                            m_InterBindValueOnInjections[index].stringValue += AorTxt.Format("{0}{1}", (string.IsNullOrEmpty(m_InterBindValueOnInjections[index].stringValue) || m_InterBindValueOnInjections[index].stringValue.EndsWith(",")) ? string.Empty : ",", info);
+                                            m_InterBindValueOnInjections[index].stringValue += HonorTxt.Format("{0}{1}", (string.IsNullOrEmpty(m_InterBindValueOnInjections[index].stringValue) || m_InterBindValueOnInjections[index].stringValue.EndsWith(",")) ? string.Empty : ",", info);
                                         }
                                     }
                                     m_InterBindValueOnInjections[index].stringValue = EditorGUILayout.TextField(m_InterBindValueOnInjections[index].stringValue);
@@ -469,15 +469,15 @@ namespace Honor.Editor
             string luaAuthor = m_LuaAuthorName.stringValue;
             string luaDescript = m_LuaDescript.stringValue;
 
-            stringBuilder.AppendLine(AorTxt.Format("--====================================================================================================="))
-                         .AppendLine(AorTxt.Format("-- (c) copyright 2026 - 2030, Honor.Runtime"))
-                         .AppendLine(AorTxt.Format("-- All Rights Reserved."))
-                         .AppendLine(AorTxt.Format("-- ----------------------------------------------------------------------------------------------------"))
-                         .AppendLine(AorTxt.Format("-- filename:  {0}.lua", luaScriptName))
-                         .AppendLine(AorTxt.Format("-- author:    {0}", luaAuthor))
-                         .AppendLine(AorTxt.Format("-- descrip:   {0}", AorTxt.Format("{0}{1}", luaDescript, ((MVVMPatternType)typeEnumIndex).ToString())))
-                         .AppendLine(AorTxt.Format("--====================================================================================================="))
-                         .AppendLine(AorTxt.Format(""));
+            stringBuilder.AppendLine(HonorTxt.Format("--====================================================================================================="))
+                         .AppendLine(HonorTxt.Format("-- (c) copyright 2026 - 2030, Honor.Runtime"))
+                         .AppendLine(HonorTxt.Format("-- All Rights Reserved."))
+                         .AppendLine(HonorTxt.Format("-- ----------------------------------------------------------------------------------------------------"))
+                         .AppendLine(HonorTxt.Format("-- filename:  {0}.lua", luaScriptName))
+                         .AppendLine(HonorTxt.Format("-- author:    {0}", luaAuthor))
+                         .AppendLine(HonorTxt.Format("-- descrip:   {0}", HonorTxt.Format("{0}{1}", luaDescript, ((MVVMPatternType)typeEnumIndex).ToString())))
+                         .AppendLine(HonorTxt.Format("--====================================================================================================="))
+                         .AppendLine(HonorTxt.Format(""));
 
             return stringBuilder;
         }
@@ -495,10 +495,10 @@ namespace Honor.Editor
             string luaSuperScriptName = m_LuaSuperScriptNamesMVVM.GetArrayElementAtIndex(typeEnumIndex).stringValue;
             string luaName = luaScriptName;
 
-            stringBuilder.AppendLine(AorTxt.Format("---@class {0} : {1}", luaName, luaSuperScriptName));
+            stringBuilder.AppendLine(HonorTxt.Format("---@class {0} : {1}", luaName, luaSuperScriptName));
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.View)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour"));
+                stringBuilder.AppendLine(HonorTxt.Format("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour"));
             }
 
             // 采集注入与绑定信息
@@ -532,8 +532,8 @@ namespace Honor.Editor
             // View/ViewModel生命周期与逻辑
             AppendMVVMEmptyLifeCycles(stringBuilder, typeEnumIndex, luaName, luaInjectNames, luaInjectComments, luaInjectFunctionNames, luaInjectFunctionParams, luaInjectCmds, luaBindValueOnInjectionNames, luaBindValueOnInjectionWays, luaBindValueOnInjectionSides, luaBindValueComments, luaBindValueFunctionNames, luaBindValueTypeNames);
 
-            stringBuilder.AppendLine(AorTxt.Format("return {0}", luaName));
-            stringBuilder.AppendLine(AorTxt.Format(""));
+            stringBuilder.AppendLine(HonorTxt.Format("return {0}", luaName));
+            stringBuilder.AppendLine(HonorTxt.Format(""));
 
             return stringBuilder;
         }
@@ -603,7 +603,7 @@ namespace Honor.Editor
                         while (isValid.Length < 10) isValid += " ";
                         while (infoEx.Length < 15) infoEx += " ";
 
-                        stringBuilder.AppendLine(AorTxt.Format("---@field {0}{1}{2}{3}{4}", fieldName, typeName, isValid, infoEx, comment));
+                        stringBuilder.AppendLine(HonorTxt.Format("---@field {0}{1}{2}{3}{4}", fieldName, typeName, isValid, infoEx, comment));
                     }
                 }
             }
@@ -617,12 +617,12 @@ namespace Honor.Editor
         private void AppendMVVMClassDefinition(StringBuilder stringBuilder, string luaName, string luaSuperScriptName)
         {
             // 类定义
-            stringBuilder.AppendLine(AorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName, luaSuperScriptName));
-            stringBuilder.AppendLine(AorTxt.Format(""));
+            stringBuilder.AppendLine(HonorTxt.Format("local {0} = class('{1}', import('{2}'))", luaName, luaName, luaSuperScriptName));
+            stringBuilder.AppendLine(HonorTxt.Format(""));
 
             // 绑定值Key定义
-            stringBuilder.AppendLine(AorTxt.Format("---绑定值Key名称"));
-            stringBuilder.AppendLine(AorTxt.Format("---@class {0}.BVKey", luaName));
+            stringBuilder.AppendLine(HonorTxt.Format("---绑定值Key名称"));
+            stringBuilder.AppendLine(HonorTxt.Format("---@class {0}.BVKey", luaName));
             string bvkeyContent = "{";
             foreach (var bindValueName in m_InterBindValueNames)
             {
@@ -631,11 +631,11 @@ namespace Honor.Editor
                 {
                     continue;
                 }
-                bvkeyContent = AorTxt.Format("{0}{1} = \"{2}\", ", bvkeyContent, bindValueName.stringValue, bindValueName.stringValue);
+                bvkeyContent = HonorTxt.Format("{0}{1} = \"{2}\", ", bvkeyContent, bindValueName.stringValue, bindValueName.stringValue);
             }
             bvkeyContent += "}";
-            stringBuilder.AppendLine(AorTxt.Format("{0}.BVKey = {1}", luaName, bvkeyContent));
-            stringBuilder.AppendLine(AorTxt.Format(""));
+            stringBuilder.AppendLine(HonorTxt.Format("{0}.BVKey = {1}", luaName, bvkeyContent));
+            stringBuilder.AppendLine(HonorTxt.Format(""));
         }
         /// <summary>
         /// 追加构造函数（含ViewModel绑定数据初始化）代码
@@ -646,11 +646,11 @@ namespace Honor.Editor
         private void AppendMVVMEmptyConstructor(StringBuilder stringBuilder, string luaName, int typeEnumIndex)
         {
             // 构造函数
-            stringBuilder.AppendLine(AorTxt.Format("---构造函数"));
-            stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):void"));
-            stringBuilder.AppendLine(AorTxt.Format("---@param args table @自定义参数"));
-            stringBuilder.AppendLine(AorTxt.Format("function {0}:ctor(args)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    {0}.super.ctor(self, args)", luaName));
+            stringBuilder.AppendLine(HonorTxt.Format("---构造函数"));
+            stringBuilder.AppendLine(HonorTxt.Format("---@type fun(args:table):void"));
+            stringBuilder.AppendLine(HonorTxt.Format("---@param args table @自定义参数"));
+            stringBuilder.AppendLine(HonorTxt.Format("function {0}:ctor(args)", luaName));
+            stringBuilder.AppendLine(HonorTxt.Format("    {0}.super.ctor(self, args)", luaName));
 
             // ViewModel绑定数据初始化
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
@@ -668,18 +668,18 @@ namespace Honor.Editor
 
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
-                            stringBuilder.AppendLine(AorTxt.Format("    -- 添加绑定数据成员：{0}，数据类型：{1}", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
+                            stringBuilder.AppendLine(HonorTxt.Format("    -- 添加绑定数据成员：{0}，数据类型：{1}", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
                         }
 
                         if (string.IsNullOrEmpty(m_InterBindValueVariants[index].stringValue))
                         {
                             if ((LuaBindValue.BindValueType)m_InterBindValueTypeNames[index].enumValueIndex == LuaBindValue.BindValueType.Trigger)
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)", m_InterBindValueNames[index].stringValue));
+                                stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)", m_InterBindValueNames[index].stringValue));
                             }
                             else
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0})", m_InterBindValueNames[index].stringValue));
+                                stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0})", m_InterBindValueNames[index].stringValue));
                             }
                         }
                         else
@@ -687,26 +687,26 @@ namespace Honor.Editor
                             // 根据类型生成初始化代码
                             switch ((LuaBindValue.BindValueType)m_InterBindValueTypeNames[index].enumValueIndex)
                             {
-                                case LuaBindValue.BindValueType.Int32: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Float: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.String: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant)", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Boolean: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant == 'true')", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Table: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Array: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Any: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0})", m_InterBindValueNames[index].stringValue)); break;
-                                case LuaBindValue.BindValueType.Trigger: stringBuilder.AppendLine(AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)", m_InterBindValueNames[index].stringValue)); break;
+                                case LuaBindValue.BindValueType.Int32: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Float: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.String: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant)", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Boolean: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant == 'true')", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Table: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Array: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Any: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0})", m_InterBindValueNames[index].stringValue)); break;
+                                case LuaBindValue.BindValueType.Trigger: stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)", m_InterBindValueNames[index].stringValue)); break;
                             }
                         }
                     }
                 }
                 else
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("    -- 无添加绑定数据成员"));
+                    stringBuilder.AppendLine(HonorTxt.Format("    -- 无添加绑定数据成员"));
                 }
                 stringBuilder.AppendLine("-- ====================================================================================================2");
             }
-            stringBuilder.AppendLine(AorTxt.Format("end"));
-            stringBuilder.AppendLine(AorTxt.Format(""));
+            stringBuilder.AppendLine(HonorTxt.Format("end"));
+            stringBuilder.AppendLine(HonorTxt.Format(""));
         }
         /// <summary>
         /// 追加Create工厂函数代码
@@ -716,15 +716,15 @@ namespace Honor.Editor
         private void AppendMVVMCreateFunction(StringBuilder stringBuilder, string luaName)
         {
             // Create函数
-            stringBuilder.AppendLine(AorTxt.Format("---创建函数"));
-            stringBuilder.AppendLine(AorTxt.Format("---@type fun(args:table):{0}", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("---@param args table @自定义参数"));
-            stringBuilder.AppendLine(AorTxt.Format("---@return {0} @{1}实例", luaName, luaName));
-            stringBuilder.AppendLine(AorTxt.Format("function {0}:Create(args)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    local obj = {0}.new(args)", luaName));
-            stringBuilder.AppendLine(AorTxt.Format("    return obj"));
-            stringBuilder.AppendLine(AorTxt.Format("end"));
-            stringBuilder.AppendLine(AorTxt.Format(""));
+            stringBuilder.AppendLine(HonorTxt.Format("---创建函数"));
+            stringBuilder.AppendLine(HonorTxt.Format("---@type fun(args:table):{0}", luaName));
+            stringBuilder.AppendLine(HonorTxt.Format("---@param args table @自定义参数"));
+            stringBuilder.AppendLine(HonorTxt.Format("---@return {0} @{1}实例", luaName, luaName));
+            stringBuilder.AppendLine(HonorTxt.Format("function {0}:Create(args)", luaName));
+            stringBuilder.AppendLine(HonorTxt.Format("    local obj = {0}.new(args)", luaName));
+            stringBuilder.AppendLine(HonorTxt.Format("    return obj"));
+            stringBuilder.AppendLine(HonorTxt.Format("end"));
+            stringBuilder.AppendLine(HonorTxt.Format(""));
         }
         /// <summary>
         /// 追加MVVM空模板View/ViewModel各生命周期函数（Awake/OnInit/Start/Proc/OnDestroy/UI监听/绑定回调等）代码
@@ -756,33 +756,33 @@ namespace Honor.Editor
             if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.View)
             {
                 // Awake
-                stringBuilder.AppendLine(AorTxt.Format("---唤醒"));
-                stringBuilder.AppendLine(AorTxt.Format("---@type fun():void"));
-                stringBuilder.AppendLine(AorTxt.Format("function {0}:Awake()", luaName));
-                stringBuilder.AppendLine(AorTxt.Format("    {0}.super.Awake(self)", luaName));
+                stringBuilder.AppendLine(HonorTxt.Format("---唤醒"));
+                stringBuilder.AppendLine(HonorTxt.Format("---@type fun():void"));
+                stringBuilder.AppendLine(HonorTxt.Format("function {0}:Awake()", luaName));
+                stringBuilder.AppendLine(HonorTxt.Format("    {0}.super.Awake(self)", luaName));
                 stringBuilder.AppendLine("-- 2=====================================================================================================");
                 if (luaInjectFunctionNames.Count > 0)
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                     {
-                        stringBuilder.AppendLine(AorTxt.Format("    self:AddUIListener(self.{0}, '{1}', Bind(self, self.{2}))", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
+                        stringBuilder.AppendLine(HonorTxt.Format("    self:AddUIListener(self.{0}, '{1}', Bind(self, self.{2}))", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
                     }
                 }
                 else
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("-- 无自动注册内容。"));
+                    stringBuilder.AppendLine(HonorTxt.Format("-- 无自动注册内容。"));
                 }
                 stringBuilder.AppendLine("-- ====================================================================================================2");
-                stringBuilder.AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
                 // OnInit
-                stringBuilder.AppendLine(AorTxt.Format("---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）"))
-                             .AppendLine(AorTxt.Format("---@type fun(viewModel:{0}):void", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue))
-                             .AppendLine(AorTxt.Format("---@param viewModel {0} @ViewModel", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue))
-                             .AppendLine(AorTxt.Format("function {0}:OnInit(viewModel)", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.OnInit(self, viewModel)", luaName))
+                stringBuilder.AppendLine(HonorTxt.Format("---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）"))
+                             .AppendLine(HonorTxt.Format("---@type fun(viewModel:{0}):void", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue))
+                             .AppendLine(HonorTxt.Format("---@param viewModel {0} @ViewModel", m_LuaScriptNamesMVVM.GetArrayElementAtIndex((int)MVVMPatternType.ViewModel).stringValue))
+                             .AppendLine(HonorTxt.Format("function {0}:OnInit(viewModel)", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.OnInit(self, viewModel)", luaName))
                              .AppendLine("-- 4=====================================================================================================");
                 if (m_InterBindValueNames.Count > 0)
                 {
@@ -796,172 +796,172 @@ namespace Honor.Editor
 
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
-                            stringBuilder.AppendLine(AorTxt.Format("    -- 添加数据变化监听：{0}，数据类型：{1}", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
+                            stringBuilder.AppendLine(HonorTxt.Format("    -- 添加数据变化监听：{0}，数据类型：{1}", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
                         }
-                        stringBuilder.AppendLine(AorTxt.Format("    self:AddBindHandler(self.BVKey.{0}, handler(self, self.{1}))", m_InterBindValueNames[index].stringValue, luaBindValueFunctionNames[m_InterBindValueNames[index].stringValue]));
+                        stringBuilder.AppendLine(HonorTxt.Format("    self:AddBindHandler(self.BVKey.{0}, handler(self, self.{1}))", m_InterBindValueNames[index].stringValue, luaBindValueFunctionNames[m_InterBindValueNames[index].stringValue]));
                     }
                 }
                 else
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("    -- 无数据变化监听"));
+                    stringBuilder.AppendLine(HonorTxt.Format("    -- 无数据变化监听"));
                 }
                 stringBuilder.AppendLine("-- ====================================================================================================4")
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("---开始"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:Start()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.Start(self)", luaName))
-                             .AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---开始"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:Start()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.Start(self)", luaName))
+                             .AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
                 if (m_UseProc.boolValue)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("---心跳（自定义）"))
-                                 .AppendLine(AorTxt.Format("---@type fun():void"))
-                                 .AppendLine(AorTxt.Format("function {0}:Proc()", luaName))
-                                 .AppendLine(AorTxt.Format("    {0}.super.Proc(self)", luaName))
-                                 .AppendLine(AorTxt.Format(""))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---心跳（自定义）"))
+                                 .AppendLine(HonorTxt.Format("---@type fun():void"))
+                                 .AppendLine(HonorTxt.Format("function {0}:Proc()", luaName))
+                                 .AppendLine(HonorTxt.Format("    {0}.super.Proc(self)", luaName))
+                                 .AppendLine(HonorTxt.Format(""))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
                 }
-                stringBuilder.AppendLine(AorTxt.Format("---销毁"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:OnDestroy()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.OnDestroy(self)", luaName));
-                stringBuilder.AppendLine(AorTxt.Format("-- 3====================================================================================================="));
+                stringBuilder.AppendLine(HonorTxt.Format("---销毁"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:OnDestroy()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.OnDestroy(self)", luaName));
+                stringBuilder.AppendLine(HonorTxt.Format("-- 3====================================================================================================="));
                 if (luaInjectFunctionNames.Count > 0)
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                     {
-                        stringBuilder.AppendLine(AorTxt.Format("    OnRemoveListener(self.{0}, '{1}', handler(self, self.{2}))", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
+                        stringBuilder.AppendLine(HonorTxt.Format("    OnRemoveListener(self.{0}, '{1}', handler(self, self.{2}))", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
                     }
                 }
                 else
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("-- 无自动注销内容。"));
+                    stringBuilder.AppendLine(HonorTxt.Format("-- 无自动注销内容。"));
                 }
-                stringBuilder.AppendLine(AorTxt.Format("-- ====================================================================================================3"));
+                stringBuilder.AppendLine(HonorTxt.Format("-- ====================================================================================================3"));
 
-                stringBuilder.AppendLine(AorTxt.Format(""));
-                stringBuilder.AppendLine(AorTxt.Format("end"));
-                stringBuilder.AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("end"));
+                stringBuilder.AppendLine(HonorTxt.Format(""));
 
-                stringBuilder.AppendLine(AorTxt.Format("---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:OnAddListeners()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.OnAddListeners(self)", luaName))
-                             .AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:OnAddListeners()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.OnAddListeners(self)", luaName))
+                             .AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
-                stringBuilder.AppendLine(AorTxt.Format("---获取ViewModel"))
-                             .AppendLine(AorTxt.Format("---@type fun():{0}Model", luaName))
-                             .AppendLine(AorTxt.Format("---@return {0}Model @ViewModel", luaName))
-                             .AppendLine(AorTxt.Format("function {0}:GetViewModel()", luaName))
-                             .AppendLine(AorTxt.Format("    return {0}.super.GetViewModel(self)", luaName))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---获取ViewModel"))
+                             .AppendLine(HonorTxt.Format("---@type fun():{0}Model", luaName))
+                             .AppendLine(HonorTxt.Format("---@return {0}Model @ViewModel", luaName))
+                             .AppendLine(HonorTxt.Format("function {0}:GetViewModel()", luaName))
+                             .AppendLine(HonorTxt.Format("    return {0}.super.GetViewModel(self)", luaName))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
-                stringBuilder.AppendLine(AorTxt.Format("---被追加的N层UI子节点销毁回调"))
-                             .AppendLine(AorTxt.Format("---@type fun(luaClass: XLua.LuaTable):void"))
-                             .AppendLine(AorTxt.Format("---@param luaClass XLua.LuaTable @luaClass"))
-                             .AppendLine(AorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.OnAddedUIDestroyed(self, luaClass)", luaName))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---被追加的N层UI子节点销毁回调"))
+                             .AppendLine(HonorTxt.Format("---@type fun(luaClass: XLua.LuaTable):void"))
+                             .AppendLine(HonorTxt.Format("---@param luaClass XLua.LuaTable @luaClass"))
+                             .AppendLine(HonorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.OnAddedUIDestroyed(self, luaClass)", luaName))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
                 // Collider2D/3D碰撞器生命周期函数
                 if (m_UseCollider2DLifeCycles.boolValue)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("---进入碰撞2D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
-                                 .AppendLine(AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnCollisionEnter2D(collision2D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---停留碰撞2D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
-                                 .AppendLine(AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnCollisionStay2D(collision2D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---退出碰撞2D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
-                                 .AppendLine(AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnCollisionExit2D(collision2D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---进入碰撞2D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
+                                 .AppendLine(HonorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnCollisionEnter2D(collision2D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---停留碰撞2D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
+                                 .AppendLine(HonorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnCollisionStay2D(collision2D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---退出碰撞2D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"))
+                                 .AppendLine(HonorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnCollisionExit2D(collision2D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
                 }
                 if (m_UseCollider3DLifeCycles.boolValue)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("---进入碰撞3D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
-                                 .AppendLine(AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnCollisionEnter3D(collision3D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---停留碰撞3D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
-                                 .AppendLine(AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnCollisionStay3D(collision3D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---退出碰撞3D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
-                                 .AppendLine(AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnCollisionExit3D(collision3D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---进入碰撞3D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
+                                 .AppendLine(HonorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnCollisionEnter3D(collision3D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---停留碰撞3D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
+                                 .AppendLine(HonorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnCollisionStay3D(collision3D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---退出碰撞3D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"))
+                                 .AppendLine(HonorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnCollisionExit3D(collision3D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
                 }
 
                 // Trigger2D/3D触发器生命周期函数
                 if (m_UseTrigger2DLifeCycles.boolValue)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("---进入触发2D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
-                                 .AppendLine(AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnTriggerEnter2D(other2D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---停留触发2D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
-                                 .AppendLine(AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnTriggerStay2D(other2D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---退出触发2D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
-                                 .AppendLine(AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnTriggerExit2D(other2D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---进入触发2D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
+                                 .AppendLine(HonorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnTriggerEnter2D(other2D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---停留触发2D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
+                                 .AppendLine(HonorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnTriggerStay2D(other2D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---退出触发2D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"))
+                                 .AppendLine(HonorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnTriggerExit2D(other2D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
                 }
                 if (m_UseTrigger3DLifeCycles.boolValue)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("---进入触发3D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
-                                 .AppendLine(AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnTriggerEnter3D(other3D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---停留触发3D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
-                                 .AppendLine(AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnTriggerStay3D(other3D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
-                    stringBuilder.AppendLine(AorTxt.Format("---退出触发3D"))
-                                 .AppendLine(AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
-                                 .AppendLine(AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
-                                 .AppendLine(AorTxt.Format("function {0}:OnTriggerExit3D(other3D)", luaName))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---进入触发3D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
+                                 .AppendLine(HonorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnTriggerEnter3D(other3D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---停留触发3D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
+                                 .AppendLine(HonorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnTriggerStay3D(other3D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---退出触发3D"))
+                                 .AppendLine(HonorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"))
+                                 .AppendLine(HonorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"))
+                                 .AppendLine(HonorTxt.Format("function {0}:OnTriggerExit3D(other3D)", luaName))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
                 }
 
                 // UI交互监听
-                stringBuilder.AppendLine(AorTxt.Format("-- 5====================================================================================================="));
-                stringBuilder.AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("-- 5====================================================================================================="));
+                stringBuilder.AppendLine(HonorTxt.Format(""));
                 for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                 {
                     bool hasContained = false;
@@ -986,16 +986,16 @@ namespace Honor.Editor
                         funcDesc += ((string.IsNullOrEmpty(funcDesc) ? "" : ", ") + param + ":any");
                         funcParams += ((string.IsNullOrEmpty(funcParams) ? "" : ", ") + param);
                     }
-                    stringBuilder.AppendLine(AorTxt.Format("---{0}", luaInjectComments[index]))
-                                 .AppendLine(AorTxt.Format("---@type fun({0}):void", funcDesc));
+                    stringBuilder.AppendLine(HonorTxt.Format("---{0}", luaInjectComments[index]))
+                                 .AppendLine(HonorTxt.Format("---@type fun({0}):void", funcDesc));
                     if (!string.IsNullOrEmpty(luaInjectFunctionParams[index]))
                     {
                         foreach (var param in paramsArray)
                         {
-                            stringBuilder.AppendLine(AorTxt.Format("---@param {0} any @UI交互内容", param));
+                            stringBuilder.AppendLine(HonorTxt.Format("---@param {0} any @UI交互内容", param));
                         }
                     }
-                    stringBuilder.AppendLine(AorTxt.Format("function {0}:{1}({2})", luaName, luaInjectFunctionNames[index], funcParams));
+                    stringBuilder.AppendLine(HonorTxt.Format("function {0}:{1}({2})", luaName, luaInjectFunctionNames[index], funcParams));
                     foreach (var injectionName in luaBindValueOnInjectionNames)
                     {
                         if (injectionName.Value.Contains(luaInjectNames[index]))
@@ -1014,10 +1014,10 @@ namespace Honor.Editor
                                 string side = luaBindValueOnInjectionSides[injectionName.Key][indexes[i]];
                                 if (side == "Two")
                                 {
-                                    string value = AorTxt.Format((luaBindValueTypeNames[injectionName.Key] == "table" || luaBindValueTypeNames[injectionName.Key] == "array") ? "TableDecode({0})" : "{0}", luaInjectFunctionParams[index]);
+                                    string value = HonorTxt.Format((luaBindValueTypeNames[injectionName.Key] == "table" || luaBindValueTypeNames[injectionName.Key] == "array") ? "TableDecode({0})" : "{0}", luaInjectFunctionParams[index]);
                                     if (!string.IsNullOrEmpty(value))
                                     {
-                                        stringBuilder.AppendLine(AorTxt.Format("    self:GetViewModel():SetBindValue(self.BVKey.{0}, {1})", injectionName.Key, value));
+                                        stringBuilder.AppendLine(HonorTxt.Format("    self:GetViewModel():SetBindValue(self.BVKey.{0}, {1})", injectionName.Key, value));
                                     }
                                 }
                             }
@@ -1026,39 +1026,39 @@ namespace Honor.Editor
 
                     if (luaInjectFunctionNames[index].EndsWith("GettingItem"))
                     {
-                        stringBuilder.AppendLine(AorTxt.Format($"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end"));
-                        stringBuilder.AppendLine(AorTxt.Format($"    local item = self.{luaInjectNames[index]}:NewListViewItem('Item')"));
-                        stringBuilder.AppendLine(AorTxt.Format($"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end"));
-                        stringBuilder.AppendLine(AorTxt.Format($"    return item"));
+                        stringBuilder.AppendLine(HonorTxt.Format($"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end"));
+                        stringBuilder.AppendLine(HonorTxt.Format($"    local item = self.{luaInjectNames[index]}:NewListViewItem('Item')"));
+                        stringBuilder.AppendLine(HonorTxt.Format($"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end"));
+                        stringBuilder.AppendLine(HonorTxt.Format($"    return item"));
                     }
 
-                    stringBuilder.AppendLine(AorTxt.Format("end"));
-                    stringBuilder.AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("end"));
+                    stringBuilder.AppendLine(HonorTxt.Format(""));
                 }
-                stringBuilder.AppendLine(AorTxt.Format("-- ====================================================================================================5"));
-                stringBuilder.AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("-- ====================================================================================================5"));
+                stringBuilder.AppendLine(HonorTxt.Format(""));
 
                 // 绑定数据变化监听
-                stringBuilder.AppendLine(AorTxt.Format("-- 6====================================================================================================="));
-                stringBuilder.AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("-- 6====================================================================================================="));
+                stringBuilder.AppendLine(HonorTxt.Format(""));
                 foreach (var luaBindValueFunctionName in luaBindValueFunctionNames)
                 {
                     string bindValueName = luaBindValueFunctionName.Key;
                     if (luaBindValueTypeNames[bindValueName] == "trigger")
                     {
-                        stringBuilder.AppendLine(AorTxt.Format("---{0}", luaBindValueComments[bindValueName]));
-                        stringBuilder.AppendLine(AorTxt.Format("---@type fun():void"))
-                                     .AppendLine(AorTxt.Format("function {0}:{1}()", luaName, luaBindValueFunctionName.Value));
+                        stringBuilder.AppendLine(HonorTxt.Format("---{0}", luaBindValueComments[bindValueName]));
+                        stringBuilder.AppendLine(HonorTxt.Format("---@type fun():void"))
+                                     .AppendLine(HonorTxt.Format("function {0}:{1}()", luaName, luaBindValueFunctionName.Value));
                     }
                     else
                     {
-                        stringBuilder.AppendLine(AorTxt.Format("---{0}", luaBindValueComments[bindValueName]));
-                        stringBuilder.AppendLine(AorTxt.Format("---@type fun(old:{0}, new:{1}, operate:string, valueItem:any):void", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName], luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]))
-                                     .AppendLine(AorTxt.Format("---@param old {0} @旧值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]))
-                                     .AppendLine(AorTxt.Format("---@param new {0} @新值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]))
-                                     .AppendLine(AorTxt.Format("---@param operate string @绑定数据操作类型"))
-                                     .AppendLine(AorTxt.Format("---@param valueItem any @动态数据集合Item值内容"))
-                                     .AppendLine(AorTxt.Format("function {0}:{1}(old, new, operate, valueItem)", luaName, luaBindValueFunctionName.Value));
+                        stringBuilder.AppendLine(HonorTxt.Format("---{0}", luaBindValueComments[bindValueName]));
+                        stringBuilder.AppendLine(HonorTxt.Format("---@type fun(old:{0}, new:{1}, operate:string, valueItem:any):void", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName], luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]))
+                                     .AppendLine(HonorTxt.Format("---@param old {0} @旧值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]))
+                                     .AppendLine(HonorTxt.Format("---@param new {0} @新值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]))
+                                     .AppendLine(HonorTxt.Format("---@param operate string @绑定数据操作类型"))
+                                     .AppendLine(HonorTxt.Format("---@param valueItem any @动态数据集合Item值内容"))
+                                     .AppendLine(HonorTxt.Format("function {0}:{1}(old, new, operate, valueItem)", luaName, luaBindValueFunctionName.Value));
                         // 对当前bindValue所绑定的所有ui对象进行ui指定绑定方式的更新
                         for (int checkIndex = 0; checkIndex < luaBindValueOnInjectionNames[bindValueName].Count; checkIndex++)
                         {
@@ -1066,174 +1066,174 @@ namespace Honor.Editor
                             string bindedInjectionWay = luaBindValueOnInjectionWays[bindValueName][checkIndex];
                             if (bindedInjectionWay == "Active")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    self.{0}.gameObject:SetActive(new)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.gameObject:SetActive(new)", bindedInjectionName));
                             }
                             else if (bindedInjectionWay == "Interactable")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    self.{0}.interactable = new", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.interactable = new", bindedInjectionName));
                             }
                             else if (bindedInjectionWay == "Content")
                             {
                                 string injectionTypeName = GetInjectionTypeByName(bindedInjectionName);
                                 switch (injectionTypeName)
                                 {
-                                    case "UnityEngine.UI.Text": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
-                                    case "Honor.Runtime.TextPicMixed": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
-                                    case "TMPro.TextMeshProUGUI": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
-                                    case "UnityEngine.UI.Toggle": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.isOn = new", bindedInjectionName)); break;
-                                    case "UnityEngine.UI.Slider": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.value = new", bindedInjectionName)); break;
-                                    case "UnityEngine.UI.Dropdown": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.value = new", bindedInjectionName)); break;
-                                    case "UnityEngine.UI.InputField": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
-                                    case "Honor.Runtime.SwitchButton": stringBuilder.AppendLine(AorTxt.Format("    self.{0}.isOn = new", bindedInjectionName)); break;
+                                    case "UnityEngine.UI.Text": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
+                                    case "Honor.Runtime.TextPicMixed": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
+                                    case "TMPro.TextMeshProUGUI": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
+                                    case "UnityEngine.UI.Toggle": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.isOn = new", bindedInjectionName)); break;
+                                    case "UnityEngine.UI.Slider": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.value = new", bindedInjectionName)); break;
+                                    case "UnityEngine.UI.Dropdown": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.value = new", bindedInjectionName)); break;
+                                    case "UnityEngine.UI.InputField": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.text = {1}", bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)")); break;
+                                    case "Honor.Runtime.SwitchButton": stringBuilder.AppendLine(HonorTxt.Format("    self.{0}.isOn = new", bindedInjectionName)); break;
                                 }
                             }
                             else if (bindedInjectionWay == "anchoredPosition")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().anchoredPosition = Unity.Vector2(new.x, new.y)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().anchoredPosition = Unity.Vector2(new.x, new.y)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "anchoredPosition3D")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil  and new.z ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().anchoredPosition3D = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil  and new.z ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().anchoredPosition3D = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "offsetMin")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().offsetMin = Unity.Vector2(new.x, new.y)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().offsetMin = Unity.Vector2(new.x, new.y)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "offsetMax")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().offsetMax = Unity.Vector2(new.x, new.y)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().offsetMax = Unity.Vector2(new.x, new.y)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "anchorMin")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().anchorMin = Unity.Vector2(new.x, new.y)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().anchorMin = Unity.Vector2(new.x, new.y)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "anchorMax")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().anchorMax = Unity.Vector2(new.x, new.y)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().anchorMax = Unity.Vector2(new.x, new.y)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "pivot")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().pivot = Unity.Vector2(new.x, new.y)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().pivot = Unity.Vector2(new.x, new.y)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "sizeDelta")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:rectTransform().sizeDelta = Unity.Vector2(new.x, new.y)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:rectTransform().sizeDelta = Unity.Vector2(new.x, new.y)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "localEulerAngles")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}.transform.localEulerAngles = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}.transform.localEulerAngles = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "eulerAngles")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}.transform.eulerAngles = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}.transform.eulerAngles = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "localScale")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}.transform.localScale = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}.transform.localScale = Unity.Vector3(new.x, new.y, new.z)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
                             }
                             else if (bindedInjectionWay == "ItemTotalNum")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    local operation = function()"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:SetListItemCount(new, false)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
-                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    local operation = function()"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:SetListItemCount(new, false)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
                             }
                             else if (bindedInjectionWay == "ScrollTo")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    local operation = function()"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:MovePanelToItemIndex(new, 0)", bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
-                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    local operation = function()"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:MovePanelToItemIndex(new, 0)", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
                             }
                             else if (bindedInjectionWay == "AddItemNum")
                             {
-                                stringBuilder.AppendLine(AorTxt.Format("    local operation = function()"));
-                                stringBuilder.AppendLine(AorTxt.Format("        self.{0}:SetListItemCount(self.{1}.ItemTotalCount + new, false)", bindedInjectionName, bindedInjectionName));
-                                stringBuilder.AppendLine(AorTxt.Format("    end"));
-                                stringBuilder.AppendLine(AorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    local operation = function()"));
+                                stringBuilder.AppendLine(HonorTxt.Format("        self.{0}:SetListItemCount(self.{1}.ItemTotalCount + new, false)", bindedInjectionName, bindedInjectionName));
+                                stringBuilder.AppendLine(HonorTxt.Format("    end"));
+                                stringBuilder.AppendLine(HonorTxt.Format("    if self.{0}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end", bindedInjectionName));
                             }
                         }
                     }
-                    stringBuilder.AppendLine(AorTxt.Format("end"));
-                    stringBuilder.AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("end"));
+                    stringBuilder.AppendLine(HonorTxt.Format(""));
                 }
-                stringBuilder.AppendLine(AorTxt.Format("-- ====================================================================================================6"));
-                stringBuilder.AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("-- ====================================================================================================6"));
+                stringBuilder.AppendLine(HonorTxt.Format(""));
             }
             else if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
             {
-                stringBuilder.AppendLine(AorTxt.Format("---唤醒"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:Awake()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.Awake(self)", luaName))
-                             .AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---唤醒"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:Awake()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.Awake(self)", luaName))
+                             .AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
-                stringBuilder.AppendLine(AorTxt.Format("---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:OnInit()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.OnInit(self)", luaName))
-                             .AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---初始化回调（在Awake中ViewSuper首次调用SetViewModel时触发，该方法执行后才会调用为View设置ViewModel，因此请勿在该方法中调用GetViewModel。）"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:OnInit()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.OnInit(self)", luaName))
+                             .AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
-                stringBuilder.AppendLine(AorTxt.Format("---开始"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:Start()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.Start(self)", luaName))
-                             .AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---开始"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:Start()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.Start(self)", luaName))
+                             .AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
                 if (m_UseProc.boolValue)
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("---心跳（自定义）"))
-                                 .AppendLine(AorTxt.Format("---@type fun():void"))
-                                 .AppendLine(AorTxt.Format("function {0}:Proc()", luaName))
-                                 .AppendLine(AorTxt.Format("    {0}.super.Proc(self)", luaName))
-                                 .AppendLine(AorTxt.Format(""))
-                                 .AppendLine(AorTxt.Format("end"))
-                                 .AppendLine(AorTxt.Format(""));
+                    stringBuilder.AppendLine(HonorTxt.Format("---心跳（自定义）"))
+                                 .AppendLine(HonorTxt.Format("---@type fun():void"))
+                                 .AppendLine(HonorTxt.Format("function {0}:Proc()", luaName))
+                                 .AppendLine(HonorTxt.Format("    {0}.super.Proc(self)", luaName))
+                                 .AppendLine(HonorTxt.Format(""))
+                                 .AppendLine(HonorTxt.Format("end"))
+                                 .AppendLine(HonorTxt.Format(""));
                 }
 
-                stringBuilder.AppendLine(AorTxt.Format("---销毁"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:OnDestroy()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.OnDestroy(self)", luaName))
-                             .AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---销毁"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:OnDestroy()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.OnDestroy(self)", luaName))
+                             .AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
 
-                stringBuilder.AppendLine(AorTxt.Format("---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）"))
-                             .AppendLine(AorTxt.Format("---@type fun():void"))
-                             .AppendLine(AorTxt.Format("function {0}:OnAddListeners()", luaName))
-                             .AppendLine(AorTxt.Format("    {0}.super.OnAddListeners(self)", luaName))
-                             .AppendLine(AorTxt.Format(""))
-                             .AppendLine(AorTxt.Format("end"))
-                             .AppendLine(AorTxt.Format(""));
+                stringBuilder.AppendLine(HonorTxt.Format("---注册监听代码处（注：所有成员函数的注册监听代码都写在这里，成员函数作为监听回调时不需要手动注销，父类会自动辅助完成事件的注销操作。）"))
+                             .AppendLine(HonorTxt.Format("---@type fun():void"))
+                             .AppendLine(HonorTxt.Format("function {0}:OnAddListeners()", luaName))
+                             .AppendLine(HonorTxt.Format("    {0}.super.OnAddListeners(self)", luaName))
+                             .AppendLine(HonorTxt.Format(""))
+                             .AppendLine(HonorTxt.Format("end"))
+                             .AppendLine(HonorTxt.Format(""));
             }
         }
 
@@ -1251,113 +1251,113 @@ namespace Honor.Editor
         {
             if (bindedInjectionWay == "Active")
             {
-                innerContent = AorTxt.Format("{0}    self.{1}.gameObject:SetActive(new)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    self.{1}.gameObject:SetActive(new)\n", innerContent, bindedInjectionName);
             }
             else if (bindedInjectionWay == "Interactable")
             {
-                innerContent = AorTxt.Format("{0}    self.{1}.interactable = new\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    self.{1}.interactable = new\n", innerContent, bindedInjectionName);
             }
             else if (bindedInjectionWay == "Content")
             {
                 string injectionTypeName = GetInjectionTypeByName(bindedInjectionName);
                 switch (injectionTypeName)
                 {
-                    case "UnityEngine.UI.Text": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                    case "Honor.Runtime.TextPicMixed": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                    case "TMPro.TextMeshProUGUI": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                    case "UnityEngine.UI.Toggle": innerContent = AorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
-                    case "UnityEngine.UI.Slider": innerContent = AorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
-                    case "UnityEngine.UI.Dropdown": innerContent = AorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
-                    case "UnityEngine.UI.InputField": innerContent = AorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
-                    case "Honor.Runtime.SwitchButton": innerContent = AorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
+                    case "UnityEngine.UI.Text": innerContent = HonorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "Honor.Runtime.TextPicMixed": innerContent = HonorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "TMPro.TextMeshProUGUI": innerContent = HonorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "UnityEngine.UI.Toggle": innerContent = HonorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
+                    case "UnityEngine.UI.Slider": innerContent = HonorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
+                    case "UnityEngine.UI.Dropdown": innerContent = HonorTxt.Format("{0}    self.{1}.value = new\n", innerContent, bindedInjectionName); break;
+                    case "UnityEngine.UI.InputField": innerContent = HonorTxt.Format("{0}    self.{1}.text = {2}\n", innerContent, bindedInjectionName, (luaBindValueTypeNames[bindValueName] == "table" || luaBindValueTypeNames[bindValueName] == "array") ? "TableEncode(new)" : "tostring(new)"); break;
+                    case "Honor.Runtime.SwitchButton": innerContent = HonorTxt.Format("{0}    self.{1}.isOn = new\n", innerContent, bindedInjectionName); break;
                 }
             }
             else if (bindedInjectionWay == "anchoredPosition")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "anchoredPosition3D")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition3D = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().anchoredPosition3D = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "offsetMin")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().offsetMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().offsetMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "offsetMax")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().offsetMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().offsetMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "anchorMin")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchorMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().anchorMin = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "anchorMax")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().anchorMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().anchorMax = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "pivot")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().pivot = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().pivot = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "sizeDelta")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:rectTransform().sizeDelta = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:rectTransform().sizeDelta = Unity.Vector2(new.x, new.y)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "localEulerAngles")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}.transform.localEulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}.transform.localEulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "eulerAngles")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}.transform.eulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}.transform.eulerAngles = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "localScale")
             {
-                innerContent = AorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}.transform.localScale = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if type(new) == \"table\" and new.x ~= nil and new.y ~= nil and new.z ~= nil then\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}.transform.localScale = Unity.Vector3(new.x, new.y, new.z)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
             }
             else if (bindedInjectionWay == "ItemTotalNum")
             {
-                innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(new, false)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    local operation = function()\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:SetListItemCount(new, false)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
             }
             else if (bindedInjectionWay == "ScrollTo")
             {
-                innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:MovePanelToItemIndex(new, 0)\n", innerContent, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    local operation = function()\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:MovePanelToItemIndex(new, 0)\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
             }
             else if (bindedInjectionWay == "AddItemNum")
             {
-                innerContent = AorTxt.Format("{0}    local operation = function()\n", innerContent);
-                innerContent = AorTxt.Format("{0}        self.{1}:SetListItemCount(self.{2}.ItemTotalCount + new, false)\n", innerContent, bindedInjectionName, bindedInjectionName);
-                innerContent = AorTxt.Format("{0}    end\n", innerContent);
-                innerContent = AorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    local operation = function()\n", innerContent);
+                innerContent = HonorTxt.Format("{0}        self.{1}:SetListItemCount(self.{2}.ItemTotalCount + new, false)\n", innerContent, bindedInjectionName, bindedInjectionName);
+                innerContent = HonorTxt.Format("{0}    end\n", innerContent);
+                innerContent = HonorTxt.Format("{0}    if self.{1}.IsInited == false then HonorCoroutineHelper:Start(handler(self, function(target) coroutine.yield(nil) operation() end)) else operation() end\n", innerContent, bindedInjectionName);
             }
 
             return innerContent;
@@ -1409,7 +1409,7 @@ namespace Honor.Editor
 
                 // ===== 修复：预检区域标记，缺失任一锚点即中止刷新以保护原文件 =====
                 string commentStr = "--=====================================================================================================";
-                string end1Str = AorTxt.Format("local {0} = class", luaName);
+                string end1Str = HonorTxt.Format("local {0} = class", luaName);
                 string start2RightStr = "-- 2=====================================================================================================";
                 string end2Str = "-- ====================================================================================================2";
                 string start3RightStr = "-- 3=====================================================================================================";
@@ -1450,7 +1450,7 @@ namespace Honor.Editor
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                     {
-                        content = content.Insert(end3LeftStrIndex, AorTxt.Format("    OnRemoveListener(self.{0}, '{1}', handler(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
+                        content = content.Insert(end3LeftStrIndex, HonorTxt.Format("    OnRemoveListener(self.{0}, '{1}', handler(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
                         // 刷新标记的位置
                         RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
                     }
@@ -1474,18 +1474,18 @@ namespace Honor.Editor
                         }
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
-                            content = content.Insert(end4LeftStrIndex, AorTxt.Format("    -- 添加数据变化监听：{0}，数据类型：{1}\n", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
+                            content = content.Insert(end4LeftStrIndex, HonorTxt.Format("    -- 添加数据变化监听：{0}，数据类型：{1}\n", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
                             // 刷新标记的位置
                             RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
                         }
-                        content = content.Insert(end4LeftStrIndex, AorTxt.Format("    self:AddBindHandler(self.BVKey.{0}, handler(self, self.{1}))\n", m_InterBindValueNames[index].stringValue, luaBindValueFunctionNames[m_InterBindValueNames[index].stringValue]));
+                        content = content.Insert(end4LeftStrIndex, HonorTxt.Format("    self:AddBindHandler(self.BVKey.{0}, handler(self, self.{1}))\n", m_InterBindValueNames[index].stringValue, luaBindValueFunctionNames[m_InterBindValueNames[index].stringValue]));
                         // 刷新标记的位置
                         RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
                     }
                 }
                 else
                 {
-                    content = content.Insert(end4LeftStrIndex, AorTxt.Format("    -- 无数据变化监听\n"));
+                    content = content.Insert(end4LeftStrIndex, HonorTxt.Format("    -- 无数据变化监听\n"));
                     // 刷新标记的位置
                     RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
                 }
@@ -1495,7 +1495,7 @@ namespace Honor.Editor
                 {
                     for (int index = 0; index < luaInjectFunctionNames.Count; index++)
                     {
-                        content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddUIListener(self.{0}, '{1}', Bind(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
+                        content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddUIListener(self.{0}, '{1}', Bind(self, self.{2}))\n", luaInjectNames[index], luaInjectCmds[index], luaInjectFunctionNames[index]));
                         // 刷新标记的位置
                         RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
                     }
@@ -1565,11 +1565,11 @@ namespace Honor.Editor
                         while (isValid.Length < 10) isValid += " ";
                         while (infoEx.Length < 15) infoEx += " ";
 
-                        content = content.Insert(start1RightStrIndex, AorTxt.Format("---@field {0}{1}{2}{3}{4}\n", fieldName, typeName, isValid, infoEx, comment));
+                        content = content.Insert(start1RightStrIndex, HonorTxt.Format("---@field {0}{1}{2}{3}{4}\n", fieldName, typeName, isValid, infoEx, comment));
                     }
                 }
-                content = content.Insert(start1RightStrIndex, AorTxt.Format("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour\n"));
-                content = content.Insert(start1RightStrIndex, AorTxt.Format("---@class {0} : {1}\n", luaName, luaSuperScriptName));
+                content = content.Insert(start1RightStrIndex, HonorTxt.Format("---@field cs Honor.Runtime.LuaBehaviour @LuaBehaviour\n"));
+                content = content.Insert(start1RightStrIndex, HonorTxt.Format("---@class {0} : {1}\n", luaName, luaSuperScriptName));
 
                 // 刷新标记的位置
                 RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
@@ -1578,16 +1578,16 @@ namespace Honor.Editor
                 string functionDef = string.Empty;
                 if (m_UseProc.boolValue)
                 {
-                    if (!content.Contains(AorTxt.Format("function {0}:Proc()", luaName)))
+                    if (!content.Contains(HonorTxt.Format("function {0}:Proc()", luaName)))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---心跳（自定义）"), AorTxt.Format("---@type fun():void"), AorTxt.Format("function {0}:Proc()", luaName), AorTxt.Format("    {0}.super.Proc(self)", luaName));
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---心跳（自定义）"), HonorTxt.Format("---@type fun():void"), HonorTxt.Format("function {0}:Proc()", luaName), HonorTxt.Format("    {0}.super.Proc(self)", luaName));
                     }
                 }
 
                 // 判断OnAddedUIDestroyed是否存在
-                if (!content.Contains(AorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName)))
+                if (!content.Contains(HonorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName)))
                 {
-                    functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n{5}\n\nend\n\n", functionDef, AorTxt.Format("---被追加的N层UI子节点销毁回调"), AorTxt.Format("---@type fun(luaClass:XLua.LuaTable):void"), AorTxt.Format("---@param luaClass XLua.LuaTable @luaClass"), AorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName), AorTxt.Format("    {0}.super.OnAddedUIDestroyed(self, luaClass)", luaName));
+                    functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n{5}\n\nend\n\n", functionDef, HonorTxt.Format("---被追加的N层UI子节点销毁回调"), HonorTxt.Format("---@type fun(luaClass:XLua.LuaTable):void"), HonorTxt.Format("---@param luaClass XLua.LuaTable @luaClass"), HonorTxt.Format("function {0}:OnAddedUIDestroyed(luaClass)", luaName), HonorTxt.Format("    {0}.super.OnAddedUIDestroyed(self, luaClass)", luaName));
                 }
 
                 content = content.Insert(start5LeftStrIndex, functionDef);
@@ -1607,19 +1607,19 @@ namespace Honor.Editor
                         funcDesc += ((string.IsNullOrEmpty(funcDesc) ? "" : ", ") + param + ":any");
                         funcParams += ((string.IsNullOrEmpty(funcParams) ? "" : ", ") + param);
                     }
-                    string checkContent = AorTxt.Format("function {0}:{1}({2})", luaName, luaInjectFunctionNames[index], funcParams);
+                    string checkContent = HonorTxt.Format("function {0}:{1}({2})", luaName, luaInjectFunctionNames[index], funcParams);
                     if (!content.Contains(checkContent) && !functionDef.Contains(checkContent))
                     {
                         string tmp = string.Empty;
                         foreach (var param in paramsArray)
                         {
-                            tmp += AorTxt.Format("---@param {0} any @UI交互内容\n", param);
+                            tmp += HonorTxt.Format("---@param {0} any @UI交互内容\n", param);
                         }
 
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}{4}\n",
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}{4}\n",
                                                     functionDef,
-                                                    AorTxt.Format("---{0}", luaInjectComments[index]),
-                                                    AorTxt.Format("---@type fun({0}):void", funcDesc),
+                                                    HonorTxt.Format("---{0}", luaInjectComments[index]),
+                                                    HonorTxt.Format("---@type fun({0}):void", funcDesc),
                                                     tmp,
                                                     checkContent);
 
@@ -1639,10 +1639,10 @@ namespace Honor.Editor
                                 string side = luaBindValueOnInjectionSides[injectionName.Key][indexes[i]];
                                 if (side == "Two")
                                 {
-                                    string value = AorTxt.Format((luaBindValueTypeNames[injectionName.Key] == "table" || luaBindValueTypeNames[injectionName.Key] == "array") ? "TableDecode({0})" : "{0}", luaInjectFunctionParams[index]);
+                                    string value = HonorTxt.Format((luaBindValueTypeNames[injectionName.Key] == "table" || luaBindValueTypeNames[injectionName.Key] == "array") ? "TableDecode({0})" : "{0}", luaInjectFunctionParams[index]);
                                     if (!string.IsNullOrEmpty(value))
                                     {
-                                        functionDef = AorTxt.Format("{0}    self:GetViewModel():SetBindValue(self.BVKey.{1}, {2})\n", functionDef, injectionName.Key, value);
+                                        functionDef = HonorTxt.Format("{0}    self:GetViewModel():SetBindValue(self.BVKey.{1}, {2})\n", functionDef, injectionName.Key, value);
                                     }
                                 }
                             }
@@ -1650,20 +1650,20 @@ namespace Honor.Editor
 
                         if (luaInjectFunctionNames[index].EndsWith("GettingListItem"))
                         {
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end");
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    local item = self.{luaInjectNames[index]}:NewListViewItem('Item')");
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end");
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    return item");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    local item = self.{luaInjectNames[index]}:NewListViewItem('Item')");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    return item");
                         }
                         else if (luaInjectFunctionNames[index].EndsWith("GettingGridItem"))
                         {
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end");
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    local item = self.{luaInjectNames[index]}:NewGridViewItem('Item')");
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end");
-                            functionDef = AorTxt.Format("{0}{1}\n", functionDef, $"    return item");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    if itemIndex < 0 or itemIndex >= self.{luaInjectNames[index]}.MaxItemNum then return nil end");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    local item = self.{luaInjectNames[index]}:NewGridViewItem('Item')");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    if item.IsInitHandlerCalled == false then item.IsInitHandlerCalled = true end");
+                            functionDef = HonorTxt.Format("{0}{1}\n", functionDef, $"    return item");
                         }
 
-                        functionDef = AorTxt.Format("{0}end\n\n", functionDef);
+                        functionDef = HonorTxt.Format("{0}end\n\n", functionDef);
                     }
                 }
                 content = content.Insert(end5LeftStrIndex, functionDef);
@@ -1679,19 +1679,19 @@ namespace Honor.Editor
                     string bindValueName = luaBindValueFunctionName.Key;
                     if (luaBindValueTypeNames[bindValueName] == "trigger")
                     {
-                        string checkContent = AorTxt.Format("function {0}:{1}()", luaName, luaBindValueFunctionName.Value);
+                        string checkContent = HonorTxt.Format("function {0}:{1}()", luaName, luaBindValueFunctionName.Value);
                         if (!content.Contains(checkContent))
                         {
-                            functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\nend\n\n",
+                            functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\nend\n\n",
                                                         functionDef,
-                                                        AorTxt.Format("---{0}", luaBindValueComments[bindValueName]),
-                                                        AorTxt.Format("---@type fun():void"),
+                                                        HonorTxt.Format("---{0}", luaBindValueComments[bindValueName]),
+                                                        HonorTxt.Format("---@type fun():void"),
                                                         checkContent);
                         }
                     }
                     else
                     {
-                        string checkContent = AorTxt.Format("function {0}:{1}(old, new, operate, valueItem)", luaName, luaBindValueFunctionName.Value);
+                        string checkContent = HonorTxt.Format("function {0}:{1}(old, new, operate, valueItem)", luaName, luaBindValueFunctionName.Value);
                         if (!content.Contains(checkContent))
                         {
                             string innerContent = string.Empty;
@@ -1703,14 +1703,14 @@ namespace Honor.Editor
                                 // 追加当前绑定方式对应的Lua更新语句（按绑定方式分派，纯字符串拼接）
                                 innerContent = BuildMVVMBindWayContent(innerContent, bindedInjectionName, bindedInjectionWay, bindValueName, luaBindValueTypeNames);
                             }
-                            functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n{5}\n{6}\n{7}\n{8}end\n\n",
+                            functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n{5}\n{6}\n{7}\n{8}end\n\n",
                                                         functionDef,
-                                                        AorTxt.Format("---{0}", luaBindValueComments[bindValueName]),
-                                                        AorTxt.Format("---@type fun(old:{0}, new:{1}, operate:string, valueItem:any):void", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName], luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]),
-                                                        AorTxt.Format("---@param old {0} @旧值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]),
-                                                        AorTxt.Format("---@param new {0} @新值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]),
-                                                        AorTxt.Format("---@param operate string @绑定数据操作类型"),
-                                                        AorTxt.Format("---@param valueItem any @动态数据集合Item值内容"),
+                                                        HonorTxt.Format("---{0}", luaBindValueComments[bindValueName]),
+                                                        HonorTxt.Format("---@type fun(old:{0}, new:{1}, operate:string, valueItem:any):void", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName], luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]),
+                                                        HonorTxt.Format("---@param old {0} @旧值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]),
+                                                        HonorTxt.Format("---@param new {0} @新值内容", luaBindValueTypeNames[bindValueName] == "array" ? "table" : luaBindValueTypeNames[bindValueName]),
+                                                        HonorTxt.Format("---@param operate string @绑定数据操作类型"),
+                                                        HonorTxt.Format("---@param valueItem any @动态数据集合Item值内容"),
                                                         checkContent,
                                                         innerContent);
                         }
@@ -1726,81 +1726,81 @@ namespace Honor.Editor
                 // Collider2D/3D碰撞器生命周期函数
                 if (m_UseCollider2DLifeCycles.boolValue)
                 {
-                    string checkContent = AorTxt.Format("function {0}:OnCollisionEnter2D(collision2D)", luaName);
+                    string checkContent = HonorTxt.Format("function {0}:OnCollisionEnter2D(collision2D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入碰撞2D"), AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---进入碰撞2D"), HonorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), HonorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnCollisionStay2D(collision2D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnCollisionStay2D(collision2D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留碰撞2D"), AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---停留碰撞2D"), HonorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), HonorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnCollisionExit2D(collision2D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnCollisionExit2D(collision2D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出碰撞2D"), AorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), AorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---退出碰撞2D"), HonorTxt.Format("---@type fun(collision2D:UnityEngine.Collision2D):void"), HonorTxt.Format("---@param collision2D UnityEngine.Collision2D @碰撞2D"), checkContent);
                     }
                 }
                 if (m_UseCollider3DLifeCycles.boolValue)
                 {
-                    string checkContent = AorTxt.Format("function {0}:OnCollisionEnter3D(collision3D)", luaName);
+                    string checkContent = HonorTxt.Format("function {0}:OnCollisionEnter3D(collision3D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入碰撞3D"), AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---进入碰撞3D"), HonorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), HonorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnCollisionStay3D(collision3D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnCollisionStay3D(collision3D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留碰撞3D"), AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---停留碰撞3D"), HonorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), HonorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnCollisionExit3D(collision3D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnCollisionExit3D(collision3D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出碰撞3D"), AorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), AorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---退出碰撞3D"), HonorTxt.Format("---@type fun(collision3D:UnityEngine.Collision):void"), HonorTxt.Format("---@param collision3D UnityEngine.Collision @碰撞3D"), checkContent);
                     }
                 }
 
                 // Trigger2D/3D触发器生命周期函数
                 if (m_UseTrigger2DLifeCycles.boolValue)
                 {
-                    string checkContent = AorTxt.Format("function {0}:OnTriggerEnter2D(other2D)", luaName);
+                    string checkContent = HonorTxt.Format("function {0}:OnTriggerEnter2D(other2D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入触发2D"), AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---进入触发2D"), HonorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), HonorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnTriggerStay2D(other2D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnTriggerStay2D(other2D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留触发2D"), AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---停留触发2D"), HonorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), HonorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnTriggerExit2D(other2D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnTriggerExit2D(other2D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出触发2D"), AorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), AorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---退出触发2D"), HonorTxt.Format("---@type fun(other2D:UnityEngine.Collider2D):void"), HonorTxt.Format("---@param other2D UnityEngine.Collider2D @对方碰撞器2D"), checkContent);
                     }
                 }
                 if (m_UseTrigger3DLifeCycles.boolValue)
                 {
-                    string checkContent = AorTxt.Format("function {0}:OnTriggerEnter3D(other3D)", luaName);
+                    string checkContent = HonorTxt.Format("function {0}:OnTriggerEnter3D(other3D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---进入触发3D"), AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---进入触发3D"), HonorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), HonorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnTriggerStay3D(other3D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnTriggerStay3D(other3D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---停留触发3D"), AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---停留触发3D"), HonorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), HonorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
                     }
-                    checkContent = AorTxt.Format("function {0}:OnTriggerExit3D(other3D)", luaName);
+                    checkContent = HonorTxt.Format("function {0}:OnTriggerExit3D(other3D)", luaName);
                     if (!content.Contains(checkContent))
                     {
-                        functionDef = AorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, AorTxt.Format("---退出触发3D"), AorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), AorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
+                        functionDef = HonorTxt.Format("{0}{1}\n{2}\n{3}\n{4}\n\nend\n\n", functionDef, HonorTxt.Format("---退出触发3D"), HonorTxt.Format("---@type fun(other3D:UnityEngine.Collider):void"), HonorTxt.Format("---@param other3D UnityEngine.Collider @对方碰撞器3D"), checkContent);
                     }
                 }
 
                 // 修复：return 锚点缺失时抛异常保护原文件，不再 Insert(-1) 越界
-                int returnRowIndex = content.LastIndexOf(AorTxt.Format("return {0}", luaName));
+                int returnRowIndex = content.LastIndexOf(HonorTxt.Format("return {0}", luaName));
                 if (returnRowIndex < 0)
                 {
                     throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 return {luaName} 语句，已中止刷新以保护原文件");
@@ -1811,7 +1811,7 @@ namespace Honor.Editor
                 RefreshIndexes(luaName, content, out endCommentStrIndex, out start1RightStrIndex, out end1LeftStrIndex, out end1RightStrIndex, out start2RightStrIndex, out end2LeftStrIndex, out start3RightStrIndex, out end3LeftStrIndex, out start4RightStrIndex, out end4LeftStrIndex, out start5LeftStrIndex, out start5RightStrIndex, out end5LeftStrIndex, out start6RightStrIndex, out end6LeftStrIndex);
 
                 // 更新绑定值Key名称定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
-                string bvKeyAnchor = AorTxt.Format("{0}.BVKey = ", luaName);
+                string bvKeyAnchor = HonorTxt.Format("{0}.BVKey = ", luaName);
                 int bvKeyDefIndex = content.LastIndexOf(bvKeyAnchor);
                 if (bvKeyDefIndex < 0)
                 {
@@ -1828,13 +1828,13 @@ namespace Honor.Editor
                     {
                         continue;
                     }
-                    bvkeyBuilder.Append(AorTxt.Format("{0} = \"{1}\", ", bindValueName.stringValue, bindValueName.stringValue));
+                    bvkeyBuilder.Append(HonorTxt.Format("{0} = \"{1}\", ", bindValueName.stringValue, bindValueName.stringValue));
                 }
                 bvkeyBuilder.Append("}");
-                content = content.Insert(bvKeyDefIndex, AorTxt.Format("{0}.BVKey = {1}\n", luaName, bvkeyBuilder.ToString()));
+                content = content.Insert(bvKeyDefIndex, HonorTxt.Format("{0}.BVKey = {1}\n", luaName, bvkeyBuilder.ToString()));
 
                 // 更新类的头部定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
-                string classAnchor = AorTxt.Format("local {0} = class('{1}', import", luaName, luaName);
+                string classAnchor = HonorTxt.Format("local {0} = class('{1}', import", luaName, luaName);
                 int classNameDefIndex = content.LastIndexOf(classAnchor);
                 if (classNameDefIndex < 0)
                 {
@@ -1842,7 +1842,7 @@ namespace Honor.Editor
                 }
                 int classNameLineEnd = FindLineEnd(content, classNameDefIndex);
                 content = content.Remove(classNameDefIndex, classNameLineEnd - classNameDefIndex);
-                content = content.Insert(classNameDefIndex, AorTxt.Format("local {0} = class('{1}', import('{2}'))\n", luaName, luaName, luaSuperScriptName));
+                content = content.Insert(classNameDefIndex, HonorTxt.Format("local {0} = class('{1}', import('{2}'))\n", luaName, luaName, luaSuperScriptName));
 
                 StringBuilder stringBuilderCodeLines = new StringBuilder(content, endCommentStrIndex, content.Length - endCommentStrIndex, content.Length * 2);
                 return stringBuilderCodeLines;
@@ -1850,7 +1850,7 @@ namespace Honor.Editor
             else if ((MVVMPatternType)typeEnumIndex == MVVMPatternType.ViewModel)
             {
                 string commentStr = "--=====================================================================================================";
-                string end1Str = AorTxt.Format("local {0} = class", luaName);
+                string end1Str = HonorTxt.Format("local {0} = class", luaName);
                 string start2RightStr = "-- 2=====================================================================================================";
                 string end2Str = "-- ====================================================================================================2";
 
@@ -1892,32 +1892,32 @@ namespace Honor.Editor
                         }
                         if (!string.IsNullOrEmpty(m_InterBindValueComments[index].stringValue))
                         {
-                            content = content.Insert(end2LeftStrIndex, AorTxt.Format("    -- 添加绑定数据成员：{0}，数据类型：{1}\n", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
+                            content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    -- 添加绑定数据成员：{0}，数据类型：{1}\n", m_InterBindValueComments[index].stringValue, GetBindValueTypeByName(m_InterBindValueNames[index].stringValue)));
                             end2LeftStrIndex = content.LastIndexOf(end2Str);
                         }
                         if (string.IsNullOrEmpty(m_InterBindValueVariants[index].stringValue))
                         {
                             if ((LuaBindValue.BindValueType)m_InterBindValueTypeNames[index].enumValueIndex == LuaBindValue.BindValueType.Trigger)
                             {
-                                content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)\n", m_InterBindValueNames[index].stringValue));
+                                content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)\n", m_InterBindValueNames[index].stringValue));
                             }
                             else
                             {
-                                content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0})\n", m_InterBindValueNames[index].stringValue));
+                                content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0})\n", m_InterBindValueNames[index].stringValue));
                             }
                         }
                         else
                         {
                             switch ((LuaBindValue.BindValueType)m_InterBindValueTypeNames[index].enumValueIndex)
                             {
-                                case LuaBindValue.BindValueType.Int32: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Float: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.String: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant)\n", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Boolean: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant == 'true')\n", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Table: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Array: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
-                                case LuaBindValue.BindValueType.Any: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0})\n", m_InterBindValueNames[index].stringValue)); break;
-                                case LuaBindValue.BindValueType.Trigger: content = content.Insert(end2LeftStrIndex, AorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)\n", m_InterBindValueNames[index].stringValue)); break;
+                                case LuaBindValue.BindValueType.Int32: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Float: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, tonumber(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.String: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant)\n", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Boolean: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, self._args.env.cs.BindValues[{1}].Variant == 'true')\n", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Table: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Array: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, TableDecode(self._args.env.cs.BindValues[{1}].Variant))\n", m_InterBindValueNames[index].stringValue, index)); break;
+                                case LuaBindValue.BindValueType.Any: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0})\n", m_InterBindValueNames[index].stringValue)); break;
+                                case LuaBindValue.BindValueType.Trigger: content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    self:AddBindValue(self.BVKey.{0}, false, true)\n", m_InterBindValueNames[index].stringValue)); break;
                             }
                         }
                         end2LeftStrIndex = content.LastIndexOf(end2Str);
@@ -1925,15 +1925,15 @@ namespace Honor.Editor
                 }
                 else
                 {
-                    content = content.Insert(end2LeftStrIndex, AorTxt.Format("    -- 无添加绑定数据成员\n"));
+                    content = content.Insert(end2LeftStrIndex, HonorTxt.Format("    -- 无添加绑定数据成员\n"));
                     end2LeftStrIndex = content.LastIndexOf(end2Str);
                 }
 
                 // 再插入1号区域的注入提示信息（先2后1，1的标记位置不变）
-                content = content.Insert(start1RightStrIndex, AorTxt.Format("---@class {0} : {1}\n", luaName, luaSuperScriptName));
+                content = content.Insert(start1RightStrIndex, HonorTxt.Format("---@class {0} : {1}\n", luaName, luaSuperScriptName));
 
                 // 更新绑定值Key名称定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
-                string bvKeyAnchor = AorTxt.Format("{0}.BVKey = ", luaName);
+                string bvKeyAnchor = HonorTxt.Format("{0}.BVKey = ", luaName);
                 int bvKeyDefIndex = content.LastIndexOf(bvKeyAnchor);
                 if (bvKeyDefIndex < 0)
                 {
@@ -1950,13 +1950,13 @@ namespace Honor.Editor
                     {
                         continue;
                     }
-                    bvkeyBuilder.Append(AorTxt.Format("{0} = \"{1}\", ", bindValueName.stringValue, bindValueName.stringValue));
+                    bvkeyBuilder.Append(HonorTxt.Format("{0} = \"{1}\", ", bindValueName.stringValue, bindValueName.stringValue));
                 }
                 bvkeyBuilder.Append("}");
-                content = content.Insert(bvKeyDefIndex, AorTxt.Format("{0}.BVKey = {1}\n", luaName, bvkeyBuilder.ToString()));
+                content = content.Insert(bvKeyDefIndex, HonorTxt.Format("{0}.BVKey = {1}\n", luaName, bvkeyBuilder.ToString()));
 
                 // 更新类的头部定义（修复：FindLineEnd 安全行尾查找，锚点缺失抛异常）
-                string classAnchor = AorTxt.Format("local {0} = class('{1}', import", luaName, luaName);
+                string classAnchor = HonorTxt.Format("local {0} = class('{1}', import", luaName, luaName);
                 int classNameDefIndex = content.LastIndexOf(classAnchor);
                 if (classNameDefIndex < 0)
                 {
@@ -1964,19 +1964,19 @@ namespace Honor.Editor
                 }
                 int classNameLineEnd = FindLineEnd(content, classNameDefIndex);
                 content = content.Remove(classNameDefIndex, classNameLineEnd - classNameDefIndex);
-                content = content.Insert(classNameDefIndex, AorTxt.Format("local {0} = class('{1}', import('{2}'))\n", luaName, luaName, luaSuperScriptName));
+                content = content.Insert(classNameDefIndex, HonorTxt.Format("local {0} = class('{1}', import('{2}'))\n", luaName, luaName, luaSuperScriptName));
 
                 // 追加Proc定义（修复：锚点由 "\r\n" 硬编码改为 "---销毁"，兼容 \n 换行风格）
                 if (m_UseProc.boolValue)
                 {
-                    if (!content.Contains(AorTxt.Format("function {0}:Proc()", luaName)))
+                    if (!content.Contains(HonorTxt.Format("function {0}:Proc()", luaName)))
                     {
-                        int onDestroyDefIndex = content.LastIndexOf(AorTxt.Format("---销毁"));
+                        int onDestroyDefIndex = content.LastIndexOf(HonorTxt.Format("---销毁"));
                         if (onDestroyDefIndex < 0)
                         {
                             throw new InvalidOperationException($"[LuaBehaviourInspector] 刷新失败：{fullPath} 未找到 OnDestroy 注释锚点，已中止刷新以保护原文件");
                         }
-                        string procDef = AorTxt.Format("{0}\n{1}\n{2}\n{3}\n\nend\n\n", AorTxt.Format("---心跳（自定义）"), AorTxt.Format("---@type fun():void"), AorTxt.Format("function {0}:Proc()", luaName), AorTxt.Format("    {0}.super.Proc(self)", luaName));
+                        string procDef = HonorTxt.Format("{0}\n{1}\n{2}\n{3}\n\nend\n\n", HonorTxt.Format("---心跳（自定义）"), HonorTxt.Format("---@type fun():void"), HonorTxt.Format("function {0}:Proc()", luaName), HonorTxt.Format("    {0}.super.Proc(self)", luaName));
                         content = content.Insert(onDestroyDefIndex, procDef);
                     }
                 }
@@ -2015,7 +2015,7 @@ namespace Honor.Editor
             out int start6RightStrIndex, out int end6LeftStrIndex)
         {
             string commentStr = "--=====================================================================================================";
-            string end1Str = AorTxt.Format("local {0} = class", luaName);
+            string end1Str = HonorTxt.Format("local {0} = class", luaName);
             string start2RightStr = "-- 2=====================================================================================================";
             string end2Str = "-- ====================================================================================================2";
             string start3RightStr = "-- 3=====================================================================================================";
@@ -2213,7 +2213,7 @@ namespace Honor.Editor
                 case LuaInjection.InjectionType.GameObject:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.Transform:
@@ -2223,152 +2223,152 @@ namespace Honor.Editor
                 case LuaInjection.InjectionType.UI_Text:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Text_TextMeshPro:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Dropdown_TextMeshPro:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_InputField_TextMeshPro:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_TextPicMixed:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Image:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Button:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Scrollbar:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_ScrollRect:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Toggle:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Slider:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Dropdown:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_InputField:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Color/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_Tree:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_ListView:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/ItemTotalNum/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/ScrollTo/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/AddItemNum/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/ItemTotalNum/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/ScrollTo/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/AddItemNum/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 case LuaInjection.InjectionType.UI_SwitchButton:
                     foreach (string middlePathDesc in middlePathDescs)
                     {
-                        paths.Add(AorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                        paths.Add(AorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Active/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Interactable/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                        paths.Add(HonorTxt.Format("{0}{1}/Content/Two", m_InterInjectionNames[index].stringValue, middlePathDesc));
                     }
                     break;
                 default: break;
             }
             foreach (string middlePathDesc in middlePathDescs)
             {
-                paths.Add(AorTxt.Format("{0}{1}/anchoredPosition/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/anchoredPosition3D/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/offsetMin/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/offsetMax/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/anchorMin/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/anchorMax/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/pivot/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/sizeDelta/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/localEulerAngles/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/eulerAngles/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
-                paths.Add(AorTxt.Format("{0}{1}/localScale/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/anchoredPosition/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/anchoredPosition3D/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/offsetMin/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/offsetMax/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/anchorMin/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/anchorMax/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/pivot/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/sizeDelta/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/localEulerAngles/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/eulerAngles/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
+                paths.Add(HonorTxt.Format("{0}{1}/localScale/One", m_InterInjectionNames[index].stringValue, middlePathDesc));
             }
             return paths;
         }

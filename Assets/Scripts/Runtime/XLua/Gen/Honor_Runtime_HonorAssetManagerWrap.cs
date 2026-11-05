@@ -48,7 +48,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "IsAssetReady", _g_get_IsAssetReady);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "StrictCheck", _g_get_StrictCheck);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "DependsDataList", _g_get_DependsDataList);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "AssetLoadManager", _g_get_AssetLoadManager);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "AssetProvider", _g_get_AssetProvider);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "AssetRootTransform", _g_get_AssetRootTransform);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "StrictCheck", _s_set_StrictCheck);
@@ -882,13 +882,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_AssetLoadManager(RealStatePtr L)
+        static int _g_get_AssetProvider(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.HonorAssetManager gen_to_be_invoked = (Honor.Runtime.HonorAssetManager)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.AssetLoadManager);
+                translator.Push(L, gen_to_be_invoked.AssetProvider);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

@@ -8,7 +8,7 @@
  * descrip:   AssetBundle 打包工具 - 全局常量与枚举定义
  *            基于参照工程 BuildPackage 框架移植，适配 Honor 运行时约定：
  *            bundle 名 = 相对路径 Replace('/','@').ToLower() + ".bundle"
- *            （与 AssetBundleLoadManager.GetABFormatPath 完全一致）
+ *            （与 AssetBundleLoader.GetABFormatPath 完全一致）
  ***************************************************************/
 
 using UnityEditor;
@@ -41,7 +41,7 @@ namespace Honor.Editor.BuildPackage
 
         #region AB 命名约定
         /// <summary>
-        /// AB 包后缀（与运行时 AssetBundleLoadManager 约定一致）
+        /// AB 包后缀（与运行时 AssetBundleLoader 约定一致）
         /// </summary>
         public const string BundleSuffix = ".bundle";
 

@@ -135,8 +135,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 资源管理器的 AB 包加载管理器（收敛深层访问，简化调用）
         /// </summary>
-        private AssetBundleLoadManager AssetBundleLoadManager =>
-            HonorAssetManager.Instance.AssetLoadManager.AssetBundleLoadManager;
+        private AssetBundleLoader AssetBundleLoader =>
+            HonorAssetManager.Instance.AssetProvider.AssetBundleLoader;
 
         /// <summary>
         /// Lua 脚本资源类型名（Luac 字节码模式 / 文本模式）

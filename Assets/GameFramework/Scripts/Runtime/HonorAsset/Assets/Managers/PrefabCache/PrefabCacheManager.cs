@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -6,8 +6,8 @@
  * author:    云毅
  * created:   2026
  * descrip:   预制体缓存池 - 统一管理预制体实例的获取/回收/预加载，降低实例化开销
- *            由旧版 HonorAsset.CachePrefab/资源缓存思想迁移重构，接入框架 AssetComponent
- *            （abPath/assetName 规范），实例自动携带 CachePrefab 标记
+ *            由旧版 HonorAsset.CachedPrefab/资源缓存思想迁移重构，接入框架 AssetComponent
+ *            （abPath/assetName 规范），实例自动携带 CachedPrefab 标记
  ***************************************************************/
 
 using System.Collections.Generic;
@@ -123,10 +123,10 @@ namespace Honor.Runtime
         /// <summary>实例生成后的通用初始化</summary>
         private void OnSpawned(GameObject instance, string cacheKey)
         {
-            CachePrefab mark = instance.GetComponent<CachePrefab>();
+            CachedPrefab mark = instance.GetComponent<CachedPrefab>();
             if (mark == null)
             {
-                mark = instance.AddComponent<CachePrefab>();
+                mark = instance.AddComponent<CachedPrefab>();
             }
 
             mark.SrcPath = cacheKey;
@@ -167,7 +167,7 @@ namespace Honor.Runtime
         #region 回收实例
 
         /// <summary>
-        /// 回收实例到缓存池（携带 CachePrefab 标记的实例自动归还对应槽位）
+        /// 回收实例到缓存池（携带 CachedPrefab 标记的实例自动归还对应槽位）
         /// </summary>
         /// <param name="instance">待回收实例</param>
         public void Recycle(GameObject instance)
@@ -187,7 +187,7 @@ namespace Honor.Runtime
 
             m_UsingSet.Remove(instance);
 
-            CachePrefab mark = instance.GetComponent<CachePrefab>();
+            CachedPrefab mark = instance.GetComponent<CachedPrefab>();
             string cacheKey = mark != null ? mark.SrcPath : null;
             if (string.IsNullOrEmpty(cacheKey))
             {

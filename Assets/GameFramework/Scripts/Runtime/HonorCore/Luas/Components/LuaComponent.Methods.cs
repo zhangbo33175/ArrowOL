@@ -40,7 +40,7 @@ namespace Honor.Runtime
             }
 
             // 获取格式化后的 AB 路径（用于真机路径校验）
-            string formatPath = AssetBundleLoadManager.GetABFormatPath(abPath);
+            string formatPath = AssetBundleLoader.GetABFormatPath(abPath);
 
             // 真机模式：你可以在这里补充文件存在性检查
             // 示例：

@@ -107,7 +107,7 @@ namespace GameLib
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new Exception(AorTxt.Format("状态类型 '{0}' 无效。", stateType.FullName));
+                throw new Exception(HonorTxt.Format("状态类型 '{0}' 无效。", stateType.FullName));
             }
 
             StateMachine<T> stateMachine = ownerMachine as StateMachine<T>;

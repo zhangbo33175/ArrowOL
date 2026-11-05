@@ -31,7 +31,7 @@ namespace Honor.Runtime
         public LuaComponent Lua { get; private set; }
 
         /// <summary>音频组件（背景音乐、音效）</summary>
-        public SoundComponent Sound { get; private set; }
+        public HonorSoundComponent Sound { get; private set; }
 
         /// <summary>数据表组件（Excel/Json表格读取）</summary>
         public TableComponent Table { get; private set; }

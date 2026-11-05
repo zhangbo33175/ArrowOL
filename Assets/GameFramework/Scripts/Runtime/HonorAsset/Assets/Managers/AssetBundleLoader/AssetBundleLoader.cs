@@ -1,0 +1,259 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  AssetBundleLoader.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   AssetBundle 加载管理器，负责 AB 包的同步/异步加载、
+ *            异步卸载、依赖清单管理、路径格式化与还原等功能
+ ***************************************************************/
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+
+namespace Honor.Runtime
+{
+    //=========================================================================
+    // AssetBundle 加载管理器
+    // 管理所有 AssetBundle 的生命周期、依赖关系、加载与卸载流程
+    //=========================================================================
+    /// <summary>
+    /// AssetBundle 加载核心管理器（密封分部类）
+    /// 统一管理 AB 包加载、卸载、依赖解析、状态控制
+    /// </summary>
+    public sealed partial class AssetBundleLoader
+    {
+        #region 构造函数
+
+        /// <summary>
+        /// 构造函数
+        /// 初始化所有 AB 包管理容器与缓存字典
+        /// </summary>
+        public AssetBundleLoader()
+        {
+            m_TempLoadeds = new List<AssetBundleObject>();
+            m_DependsDataList = new Dictionary<string, string[]>();
+            _mReadyAssetBundleList = new Dictionary<string, AssetBundleObject>();
+            m_LoadingAssetBundleList = new Dictionary<string, AssetBundleObject>();
+            m_LoadedAssetBundleList = new Dictionary<string, AssetBundleObject>();
+            m_UnloadAssetBundleList = new Dictionary<string, AssetBundleObject>();
+            m_AssetBundleFormatPathCaches = new Dictionary<string, string>();
+        }
+
+        #endregion
+
+        #region 管理器帧更新
+
+        /// <summary>
+        /// 每帧更新
+        /// 驱动加载中、就绪、卸载队列的逻辑执行
+        /// </summary>
+        public void Update()
+        {
+            UpdateLoadingList();
+            UpdateReadyList();
+            UpdateUnLoadList();
+        }
+
+        #endregion
+
+        #region 加载 AB 依赖清单
+
+        /// <summary>
+        /// 加载 AssetBundle 依赖清单文件
+        /// 解析并缓存所有 AB 包的依赖关系
+        /// </summary>
+        public void LoadManifest()
+        {
+            string manifestFormatPath = HonorTxt.Format("{0}.bundle", GamePathUtils.PlatformName);
+            GetABLoadPathOnDisk(manifestFormatPath, out string diskPath, out OriginType origin);
+
+            if (string.IsNullOrEmpty(diskPath))
+            {
+                return;
+            }
+
+            m_DependsDataList.Clear();
+
+            AssetBundle manifestBundle = AssetBundle.LoadFromFile(diskPath);
+            if (manifestBundle == null)
+            {
+                Log.Error("加载AB包{0}错误！", GamePathUtils.PlatformName);
+                return;
+            }
+
+            AssetBundleManifest manifest = manifestBundle.LoadAsset("AssetBundleManifest") as AssetBundleManifest;
+            if (manifest == null)
+            {
+                Log.Error("加载{0}.Manifest信息错误！", GamePathUtils.PlatformName);
+                return;
+            }
+
+            foreach (string bundleName in manifest.GetAllAssetBundles())
+            {
+                string[] depNames = manifest.GetAllDependencies(bundleName);
+                m_DependsDataList.Add(bundleName, depNames);
+            }
+
+            manifestBundle.Unload(true);
+
+            Log.Info("AB加载管理器中全局依赖资源数量：{0}", m_DependsDataList.Count);
+        }
+
+        #endregion
+
+        #region 同步加载 AB 包
+
+        /// <summary>
+        /// 同步加载 AssetBundle 包
+        /// </summary>
+        /// <param name="abPath">原始 AB 包路径</param>
+        /// <returns>加载完成的 AssetBundle 实例</returns>
+        public AssetBundle LoadSync(string abPath)
+        {
+            string formatPath = GetABFormatPath(abPath);
+            AssetBundleObject abObj = InternalLoadAssetBundleSync(formatPath);
+            return abObj.AssetBundles;
+        }
+
+        #endregion
+
+        #region 异步加载 AB 包
+
+        /// <summary>
+        /// 异步加载 AssetBundle 包
+        /// </summary>
+        /// <param name="abPath">原始 AB 包路径</param>
+        /// <param name="abLoadOverCallback">加载完成回调函数</param>
+        public void LoadAsync(string abPath, AssetBundleLoadOverCallBack abLoadOverCallback)
+        {
+            string formatPath = GetABFormatPath(abPath);
+            InternalLoadAssetBundleAsync(formatPath, abLoadOverCallback);
+        }
+
+        #endregion
+
+        #region 异步卸载 AB 包
+
+        /// <summary>
+        /// 异步卸载 AssetBundle 包
+        /// </summary>
+        /// <param name="abPath">原始 AB 包路径</param>
+        public void Unload(string abPath)
+        {
+            string formatPath = GetABFormatPath(abPath);
+            InternalUnloadAssetBundleAsync(formatPath);
+        }
+
+        #endregion
+
+        #region 判断 AB 包是否存在
+
+        /// <summary>
+        /// 判断 AB 包是否存在于依赖清单中
+        /// </summary>
+        /// <param name="abPath">原始 AB 包路径</param>
+        /// <returns>存在返回 true，不存在返回 false</returns>
+        public bool IsABExist(string abPath)
+        {
+            string formatPath = GetABFormatPath(abPath);
+            return m_DependsDataList.ContainsKey(formatPath);
+        }
+
+        #endregion
+
+        #region 判断 AB 包是否存在于持久化目录
+
+        /// <summary>
+        /// 判断 AB 包是否存在于可读写持久化目录
+        /// </summary>
+        /// <param name="abPath">原始 AB 包路径</param>
+        /// <returns>存在返回 true，不存在返回 false</returns>
+        public bool IsABExistInPersistentDataPath(string abPath)
+        {
+            string formatPath = GetABFormatPath(abPath);
+            string filePath = GamePathUtils.AB.Persistent.GetFileFullPath(formatPath);
+            return File.Exists(filePath);
+        }
+
+        #endregion
+
+        #region 获取格式化 AB 路径
+
+        /// <summary>
+        /// 获取标准化格式化 AB 路径
+        /// 规则：替换 / 为 @ + 全小写 + 添加 .bundle 后缀
+        /// 说明：打包器的 bundle 名相对 Assets/Res（如 Prefabs/UIs/... → prefabs@uis@...）。
+        ///       为兼容历史/手动配置中带 "Assets/Res/" 前缀或多余斜杠的路径（如
+        ///       "Assets/Res//Prefabs/UIs/..."），此处先剥掉前缀并清理开头多余 '/'，
+        ///       使带前缀与不带前缀的传入路径都命中同一 bundle。
+        /// </summary>
+        /// <param name="abPath">原始 AB 包路径</param>
+        /// <returns>格式化后的标准路径</returns>
+        public string GetABFormatPath(string abPath)
+        {
+            if (abPath == null)
+                return null;
+
+            if (!m_AssetBundleFormatPathCaches.TryGetValue(abPath, out string cachedFormat))
+            {
+                // 1. 统一反斜杠为正斜杠（复用全局路径规范化工具）
+                string normalized = HonorUtils.NormalizePath(abPath);
+
+                // 2. 剥掉 "Assets/Res/" 前缀（打包器 bundle 名相对该根目录）
+                const string resRoot = "Assets/Res/";
+                if (normalized.StartsWith(resRoot, StringComparison.OrdinalIgnoreCase))
+                    normalized = normalized.Substring(resRoot.Length);
+
+                // 3. 清理开头多余 '/'，避免 "Assets/Res//Prefabs" 产生 "assets@res@@prefabs"
+                normalized = normalized.TrimStart('/');
+
+                // 4. 格式化：'/' → '@'，全小写，加后缀
+                cachedFormat = $"{normalized.Replace('/', '@').ToLower()}.bundle";
+                m_AssetBundleFormatPathCaches.Add(abPath, cachedFormat);
+            }
+
+            return cachedFormat;
+        }
+
+        #endregion
+
+        #region 还原 AB 原始路径
+
+        /// <summary>
+        /// 将格式化路径还原为原始资源路径
+        /// 优先从缓存读取，无缓存则自动解析还原
+        /// </summary>
+        /// <param name="abFormatPath">格式化后的 AB 路径</param>
+        /// <returns>还原后的原始路径</returns>
+        public string GetABRestoredPath(string abFormatPath)
+        {
+            string restoredPath = string.Empty;
+            foreach (KeyValuePair<string, string> entry in m_AssetBundleFormatPathCaches)
+            {
+                if (entry.Value.Equals(abFormatPath))
+                {
+                    restoredPath = entry.Key;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(restoredPath))
+            {
+                string[] pieces = abFormatPath.Replace(".bundle", string.Empty).Split('@');
+                foreach (string piece in pieces)
+                {
+                    string segment = $"{piece.Substring(0, 1).ToUpper()}{piece.Substring(1)}";
+                    restoredPath = string.IsNullOrEmpty(restoredPath) ? segment : $"{restoredPath}/{segment}";
+                }
+            }
+
+            return restoredPath;
+        }
+
+        #endregion
+    }
+}

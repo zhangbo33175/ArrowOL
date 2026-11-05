@@ -26,12 +26,12 @@ namespace XLua.CSObjectWrap
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "LuaBehaviour", _g_get_LuaBehaviour);
-            Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrefabInstanceGOBehaviour", _g_get_PrefabInstanceGOBehaviour);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "PrefabInstanceBehaviour", _g_get_PrefabInstanceBehaviour);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "UIInfo", _g_get_UIInfo);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "FollowParentDestroy", _g_get_FollowParentDestroy);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "LuaBehaviour", _s_set_LuaBehaviour);
-            Utils.RegisterFunc(L, Utils.SETTER_IDX, "PrefabInstanceGOBehaviour", _s_set_PrefabInstanceGOBehaviour);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "PrefabInstanceBehaviour", _s_set_PrefabInstanceBehaviour);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "UIInfo", _s_set_UIInfo);
             Utils.RegisterFunc(L, Utils.SETTER_IDX, "FollowParentDestroy", _s_set_FollowParentDestroy);
             
@@ -97,13 +97,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _g_get_PrefabInstanceGOBehaviour(RealStatePtr L)
+        static int _g_get_PrefabInstanceBehaviour(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.UIFlagBehaviour gen_to_be_invoked = (Honor.Runtime.UIFlagBehaviour)translator.FastGetCSObj(L, 1);
-                translator.Push(L, gen_to_be_invoked.PrefabInstanceGOBehaviour);
+                translator.Push(L, gen_to_be_invoked.PrefabInstanceBehaviour);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -156,13 +156,13 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _s_set_PrefabInstanceGOBehaviour(RealStatePtr L)
+        static int _s_set_PrefabInstanceBehaviour(RealStatePtr L)
         {
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.UIFlagBehaviour gen_to_be_invoked = (Honor.Runtime.UIFlagBehaviour)translator.FastGetCSObj(L, 1);
-                gen_to_be_invoked.PrefabInstanceGOBehaviour = (Honor.Runtime.PrefabInstanceGOBehaviour)translator.GetObject(L, 2, typeof(Honor.Runtime.PrefabInstanceGOBehaviour));
+                gen_to_be_invoked.PrefabInstanceBehaviour = (Honor.Runtime.PrefabInstanceBehaviour)translator.GetObject(L, 2, typeof(Honor.Runtime.PrefabInstanceBehaviour));
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

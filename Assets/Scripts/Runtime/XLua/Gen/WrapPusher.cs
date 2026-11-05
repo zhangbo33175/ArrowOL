@@ -55,7 +55,7 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.MVVMPatternType>(translator.PushHonorRuntimeMVVMPatternType, translator.Get, translator.UpdateHonorRuntimeMVVMPatternType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaProtocolCmd>(translator.PushHonorRuntimeLuaProtocolCmd, translator.Get, translator.UpdateHonorRuntimeLuaProtocolCmd);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PersistWayType>(translator.PushHonorRuntimePersistWayType, translator.Get, translator.UpdateHonorRuntimePersistWayType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PlaySoundErrorCode>(translator.PushHonorRuntimePlaySoundErrorCode, translator.Get, translator.UpdateHonorRuntimePlaySoundErrorCode);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorSoundErrorCode>(translator.PushHonorRuntimeHonorSoundErrorCode, translator.Get, translator.UpdateHonorRuntimeHonorSoundErrorCode);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.VibrateType>(translator.PushHonorRuntimeVibrateType, translator.Get, translator.UpdateHonorRuntimeVibrateType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.DebuggerActiveWindowType>(translator.PushHonorRuntimeDebuggerActiveWindowType, translator.Get, translator.UpdateHonorRuntimeDebuggerActiveWindowType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.UIType>(translator.PushHonorRuntimeUIType, translator.Get, translator.UpdateHonorRuntimeUIType);
@@ -68,13 +68,13 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DebugMode>(translator.PushHonorRuntimeGameDefinitionsDebugMode, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDebugMode);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.Language>(translator.PushHonorRuntimeGameDefinitionsLanguage, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsLanguage);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DebugWindowModel>(translator.PushHonorRuntimeGameDefinitionsDebugWindowModel, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDebugWindowModel);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType>(translator.PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeAorTextEffectOutlineHorizontalAligmentType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType>(translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeAorTextEffectSpacingHorizontalAligmentType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType>(translator.PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType>(translator.PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaBindValue.BindValueType>(translator.PushHonorRuntimeLuaBindValueBindValueType, translator.Get, translator.UpdateHonorRuntimeLuaBindValueBindValueType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaInjection.InjectionType>(translator.PushHonorRuntimeLuaInjectionInjectionType, translator.Get, translator.UpdateHonorRuntimeLuaInjectionInjectionType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaProtocolDispatcher.LuaProtocolReceiveType>(translator.PushHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType, translator.Get, translator.UpdateHonorRuntimeLuaProtocolDispatcherLuaProtocolReceiveType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.UIFader.InitState>(translator.PushHonorRuntimeUIFaderInitState, translator.Get, translator.UpdateHonorRuntimeUIFaderInitState);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GraphicsUtils.EScreenType>(translator.PushHonorRuntimeGraphicsUtilsEScreenType, translator.Get, translator.UpdateHonorRuntimeGraphicsUtilsEScreenType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorGraphicsUtil.EScreenType>(translator.PushHonorRuntimeHonorGraphicsUtilEScreenType, translator.Get, translator.UpdateHonorRuntimeHonorGraphicsUtilEScreenType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.Log.LogLevel>(translator.PushHonorRuntimeLogLogLevel, translator.Get, translator.UpdateHonorRuntimeLogLogLevel);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDef.PlayerPrefsKey>(translator.PushHonorRuntimeHonorDefPlayerPrefsKey, translator.Get, translator.UpdateHonorRuntimeHonorDefPlayerPrefsKey);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.ResPaths.PathsEnum>(translator.PushHonorRuntimeResPathsPathsEnum, translator.Get, translator.UpdateHonorRuntimeResPathsPathsEnum);
@@ -2424,81 +2424,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimePlaySoundErrorCode_TypeID = -1;
-		int HonorRuntimePlaySoundErrorCode_EnumRef = -1;
+        int HonorRuntimeHonorSoundErrorCode_TypeID = -1;
+		int HonorRuntimeHonorSoundErrorCode_EnumRef = -1;
         
-        public void PushHonorRuntimePlaySoundErrorCode(RealStatePtr L, Honor.Runtime.PlaySoundErrorCode val)
+        public void PushHonorRuntimeHonorSoundErrorCode(RealStatePtr L, Honor.Runtime.HonorSoundErrorCode val)
         {
-            if (HonorRuntimePlaySoundErrorCode_TypeID == -1)
+            if (HonorRuntimeHonorSoundErrorCode_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimePlaySoundErrorCode_TypeID = getTypeId(L, typeof(Honor.Runtime.PlaySoundErrorCode), out is_first);
+                HonorRuntimeHonorSoundErrorCode_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorSoundErrorCode), out is_first);
 				
-				if (HonorRuntimePlaySoundErrorCode_EnumRef == -1)
+				if (HonorRuntimeHonorSoundErrorCode_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.PlaySoundErrorCode));
-				    HonorRuntimePlaySoundErrorCode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorSoundErrorCode));
+				    HonorRuntimeHonorSoundErrorCode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimePlaySoundErrorCode_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorSoundErrorCode_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimePlaySoundErrorCode_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorSoundErrorCode_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.PlaySoundErrorCode ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorSoundErrorCode ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimePlaySoundErrorCode_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorSoundErrorCode_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.PlaySoundErrorCode val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorSoundErrorCode val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimePlaySoundErrorCode_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorSoundErrorCode_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.PlaySoundErrorCode");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorSoundErrorCode");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.PlaySoundErrorCode");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorSoundErrorCode");
                 }
-				val = (Honor.Runtime.PlaySoundErrorCode)e;
+				val = (Honor.Runtime.HonorSoundErrorCode)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.PlaySoundErrorCode)objectCasters.GetCaster(typeof(Honor.Runtime.PlaySoundErrorCode))(L, index, null);
+                val = (Honor.Runtime.HonorSoundErrorCode)objectCasters.GetCaster(typeof(Honor.Runtime.HonorSoundErrorCode))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimePlaySoundErrorCode(RealStatePtr L, int index, Honor.Runtime.PlaySoundErrorCode val)
+        public void UpdateHonorRuntimeHonorSoundErrorCode(RealStatePtr L, int index, Honor.Runtime.HonorSoundErrorCode val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimePlaySoundErrorCode_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorSoundErrorCode_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.PlaySoundErrorCode");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorSoundErrorCode");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.PlaySoundErrorCode ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorSoundErrorCode ,value="+val);
                 }
             }
 			
@@ -3516,81 +3516,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_TypeID = -1;
-		int HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_EnumRef = -1;
+        int HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_TypeID = -1;
+		int HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_EnumRef = -1;
         
-        public void PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType(RealStatePtr L, Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType val)
+        public void PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType(RealStatePtr L, Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType val)
         {
-            if (HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_TypeID == -1)
+            if (HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_TypeID = getTypeId(L, typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType), out is_first);
+                HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType), out is_first);
 				
-				if (HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_EnumRef == -1)
+				if (HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType));
-				    HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType));
+				    HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType");
                 }
-				val = (Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType)e;
+				val = (Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType)objectCasters.GetCaster(typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType))(L, index, null);
+                val = (Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType)objectCasters.GetCaster(typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeAorTextEffectOutlineHorizontalAligmentType(RealStatePtr L, int index, Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType val)
+        public void UpdateHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType(RealStatePtr L, int index, Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeAorTextEffectOutlineHorizontalAligmentType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorTextEffectOutlineHorizontalAligmentType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType ,value="+val);
                 }
             }
 			
@@ -3600,81 +3600,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_TypeID = -1;
-		int HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_EnumRef = -1;
+        int HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_TypeID = -1;
+		int HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_EnumRef = -1;
         
-        public void PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(RealStatePtr L, Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType val)
+        public void PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType(RealStatePtr L, Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType val)
         {
-            if (HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_TypeID == -1)
+            if (HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_TypeID = getTypeId(L, typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType), out is_first);
+                HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType), out is_first);
 				
-				if (HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_EnumRef == -1)
+				if (HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType));
-				    HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType));
+				    HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType");
                 }
-				val = (Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType)e;
+				val = (Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType)objectCasters.GetCaster(typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType))(L, index, null);
+                val = (Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType)objectCasters.GetCaster(typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(RealStatePtr L, int index, Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType val)
+        public void UpdateHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType(RealStatePtr L, int index, Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeAorTextEffectSpacingHorizontalAligmentType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorTextEffectSpacingHorizontalAligmentType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType ,value="+val);
                 }
             }
 			
@@ -4020,81 +4020,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGraphicsUtilsEScreenType_TypeID = -1;
-		int HonorRuntimeGraphicsUtilsEScreenType_EnumRef = -1;
+        int HonorRuntimeHonorGraphicsUtilEScreenType_TypeID = -1;
+		int HonorRuntimeHonorGraphicsUtilEScreenType_EnumRef = -1;
         
-        public void PushHonorRuntimeGraphicsUtilsEScreenType(RealStatePtr L, Honor.Runtime.GraphicsUtils.EScreenType val)
+        public void PushHonorRuntimeHonorGraphicsUtilEScreenType(RealStatePtr L, Honor.Runtime.HonorGraphicsUtil.EScreenType val)
         {
-            if (HonorRuntimeGraphicsUtilsEScreenType_TypeID == -1)
+            if (HonorRuntimeHonorGraphicsUtilEScreenType_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGraphicsUtilsEScreenType_TypeID = getTypeId(L, typeof(Honor.Runtime.GraphicsUtils.EScreenType), out is_first);
+                HonorRuntimeHonorGraphicsUtilEScreenType_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType), out is_first);
 				
-				if (HonorRuntimeGraphicsUtilsEScreenType_EnumRef == -1)
+				if (HonorRuntimeHonorGraphicsUtilEScreenType_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GraphicsUtils.EScreenType));
-				    HonorRuntimeGraphicsUtilsEScreenType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType));
+				    HonorRuntimeHonorGraphicsUtilEScreenType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGraphicsUtilsEScreenType_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorGraphicsUtilEScreenType_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGraphicsUtilsEScreenType_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorGraphicsUtilEScreenType_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GraphicsUtils.EScreenType ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorGraphicsUtil.EScreenType ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGraphicsUtilsEScreenType_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorGraphicsUtilEScreenType_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GraphicsUtils.EScreenType val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorGraphicsUtil.EScreenType val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGraphicsUtilsEScreenType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorGraphicsUtilEScreenType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GraphicsUtils.EScreenType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorGraphicsUtil.EScreenType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GraphicsUtils.EScreenType");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorGraphicsUtil.EScreenType");
                 }
-				val = (Honor.Runtime.GraphicsUtils.EScreenType)e;
+				val = (Honor.Runtime.HonorGraphicsUtil.EScreenType)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GraphicsUtils.EScreenType)objectCasters.GetCaster(typeof(Honor.Runtime.GraphicsUtils.EScreenType))(L, index, null);
+                val = (Honor.Runtime.HonorGraphicsUtil.EScreenType)objectCasters.GetCaster(typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGraphicsUtilsEScreenType(RealStatePtr L, int index, Honor.Runtime.GraphicsUtils.EScreenType val)
+        public void UpdateHonorRuntimeHonorGraphicsUtilEScreenType(RealStatePtr L, int index, Honor.Runtime.HonorGraphicsUtil.EScreenType val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGraphicsUtilsEScreenType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorGraphicsUtilEScreenType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GraphicsUtils.EScreenType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorGraphicsUtil.EScreenType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GraphicsUtils.EScreenType ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorGraphicsUtil.EScreenType ,value="+val);
                 }
             }
 			
@@ -8405,10 +8405,10 @@ namespace XLua
 				translator.PushHonorRuntimePersistWayType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.PlaySoundErrorCode[]))
+			else if (type == typeof(Honor.Runtime.HonorSoundErrorCode[]))
 			{
-			    Honor.Runtime.PlaySoundErrorCode[] array = obj as Honor.Runtime.PlaySoundErrorCode[];
-				translator.PushHonorRuntimePlaySoundErrorCode(L, array[index]);
+			    Honor.Runtime.HonorSoundErrorCode[] array = obj as Honor.Runtime.HonorSoundErrorCode[];
+				translator.PushHonorRuntimeHonorSoundErrorCode(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.VibrateType[]))
@@ -8483,16 +8483,16 @@ namespace XLua
 				translator.PushHonorRuntimeGameDefinitionsDebugWindowModel(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType[]))
+			else if (type == typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType[]))
 			{
-			    Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType[] array = obj as Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType[];
-				translator.PushHonorRuntimeAorTextEffectOutlineHorizontalAligmentType(L, array[index]);
+			    Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType[] array = obj as Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType[];
+				translator.PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType[]))
+			else if (type == typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType[]))
 			{
-			    Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType[] array = obj as Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType[];
-				translator.PushHonorRuntimeAorTextEffectSpacingHorizontalAligmentType(L, array[index]);
+			    Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType[] array = obj as Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType[];
+				translator.PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.LuaBindValue.BindValueType[]))
@@ -8519,10 +8519,10 @@ namespace XLua
 				translator.PushHonorRuntimeUIFaderInitState(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GraphicsUtils.EScreenType[]))
+			else if (type == typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType[]))
 			{
-			    Honor.Runtime.GraphicsUtils.EScreenType[] array = obj as Honor.Runtime.GraphicsUtils.EScreenType[];
-				translator.PushHonorRuntimeGraphicsUtilsEScreenType(L, array[index]);
+			    Honor.Runtime.HonorGraphicsUtil.EScreenType[] array = obj as Honor.Runtime.HonorGraphicsUtil.EScreenType[];
+				translator.PushHonorRuntimeHonorGraphicsUtilEScreenType(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.Log.LogLevel[]))
@@ -8999,9 +8999,9 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.PlaySoundErrorCode[]))
+			else if (type == typeof(Honor.Runtime.HonorSoundErrorCode[]))
 			{
-			    Honor.Runtime.PlaySoundErrorCode[] array = obj as Honor.Runtime.PlaySoundErrorCode[];
+			    Honor.Runtime.HonorSoundErrorCode[] array = obj as Honor.Runtime.HonorSoundErrorCode[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
@@ -9077,15 +9077,15 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType[]))
+			else if (type == typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType[]))
 			{
-			    Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType[] array = obj as Honor.Runtime.AorTextEffectOutline.HorizontalAligmentType[];
+			    Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType[] array = obj as Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType[]))
+			else if (type == typeof(Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType[]))
 			{
-			    Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType[] array = obj as Honor.Runtime.AorTextEffectSpacing.HorizontalAligmentType[];
+			    Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType[] array = obj as Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
@@ -9113,9 +9113,9 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GraphicsUtils.EScreenType[]))
+			else if (type == typeof(Honor.Runtime.HonorGraphicsUtil.EScreenType[]))
 			{
-			    Honor.Runtime.GraphicsUtils.EScreenType[] array = obj as Honor.Runtime.GraphicsUtils.EScreenType[];
+			    Honor.Runtime.HonorGraphicsUtil.EScreenType[] array = obj as Honor.Runtime.HonorGraphicsUtil.EScreenType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

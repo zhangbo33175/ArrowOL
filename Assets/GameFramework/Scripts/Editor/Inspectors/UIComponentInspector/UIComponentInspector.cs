@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -338,7 +338,7 @@ namespace Honor.Editor
             UIFlagBehaviour modal = targetUI.CurModalUI;
             EditorGUILayout.BeginVertical("box");
             EditorGUILayout.ObjectField("[屏幕UI-模态]当前UI实例对象", modal.gameObject, typeof(GameObject), true);
-            EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例ID", modal.PrefabInstanceGOBehaviour.InstanceID.ToString());
+            EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例ID", modal.PrefabInstanceBehaviour.InstanceID.ToString());
             EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例Asset资源名称", modal.UIInfo.AssetName);
             EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例AB资源路径", modal.UIInfo.ABPath);
             EditorGUILayout.LabelField("[屏幕UI-模态]当前UI实例ZOrder层级", modal.UIInfo.ZOrder.ToString());
@@ -442,11 +442,11 @@ namespace Honor.Editor
         private static void DrawPlainUIInstanceRow(int index, UIFlagBehaviour flag)
         {
             EditorGUILayout.BeginVertical("box");
-            EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index), flag.gameObject, typeof(GameObject), true);
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index), flag.PrefabInstanceGOBehaviour.InstanceID.ToString());
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index), flag.UIInfo.AssetName);
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index), flag.UIInfo.ABPath);
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index), flag.GetComponent<Canvas>().sortingOrder.ToString());
+            EditorGUILayout.ObjectField(HonorTxt.Format("[{0}] UI实例对象", index), flag.gameObject, typeof(GameObject), true);
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] UI实例ID", index), flag.PrefabInstanceBehaviour.InstanceID.ToString());
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] Asset资源名称", index), flag.UIInfo.AssetName);
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] AB资源路径", index), flag.UIInfo.ABPath);
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] ZOrder层级", index), flag.GetComponent<Canvas>().sortingOrder.ToString());
             EditorGUILayout.EndVertical();
         }
 
@@ -456,11 +456,11 @@ namespace Honor.Editor
         private static void DrawTolerantUIInstanceRow(int index, UIFlagBehaviour flag)
         {
             EditorGUILayout.BeginVertical("box");
-            EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index), flag.gameObject, typeof(GameObject), true);
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index), flag.PrefabInstanceGOBehaviour ? flag.PrefabInstanceGOBehaviour.InstanceID.ToString() : "---");
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index), flag.UIInfo != null ? flag.UIInfo.AssetName : "---");
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index), flag.UIInfo != null ? flag.UIInfo.ABPath : "---");
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] ZOrder层级", index), flag.GetComponent<Canvas>() ? flag.GetComponent<Canvas>().sortingOrder.ToString() : "---");
+            EditorGUILayout.ObjectField(HonorTxt.Format("[{0}] UI实例对象", index), flag.gameObject, typeof(GameObject), true);
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] UI实例ID", index), flag.PrefabInstanceBehaviour ? flag.PrefabInstanceBehaviour.InstanceID.ToString() : "---");
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] Asset资源名称", index), flag.UIInfo != null ? flag.UIInfo.AssetName : "---");
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] AB资源路径", index), flag.UIInfo != null ? flag.UIInfo.ABPath : "---");
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] ZOrder层级", index), flag.GetComponent<Canvas>() ? flag.GetComponent<Canvas>().sortingOrder.ToString() : "---");
             EditorGUILayout.EndVertical();
         }
 
@@ -470,10 +470,10 @@ namespace Honor.Editor
         private static void DrawUnloadUIInstanceRow(int index, UIFlagBehaviour flag)
         {
             EditorGUILayout.BeginVertical("box");
-            EditorGUILayout.ObjectField(AorTxt.Format("[{0}] UI实例对象", index), flag.gameObject, typeof(GameObject), true);
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] UI实例ID", index), flag.PrefabInstanceGOBehaviour.InstanceID.ToString());
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] Asset资源名称", index), flag.UIInfo.AssetName);
-            EditorGUILayout.LabelField(AorTxt.Format("[{0}] AB资源路径", index), flag.UIInfo.ABPath);
+            EditorGUILayout.ObjectField(HonorTxt.Format("[{0}] UI实例对象", index), flag.gameObject, typeof(GameObject), true);
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] UI实例ID", index), flag.PrefabInstanceBehaviour.InstanceID.ToString());
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] Asset资源名称", index), flag.UIInfo.AssetName);
+            EditorGUILayout.LabelField(HonorTxt.Format("[{0}] AB资源路径", index), flag.UIInfo.ABPath);
             EditorGUILayout.EndVertical();
         }
 
@@ -485,7 +485,7 @@ namespace Honor.Editor
         private bool DrawFoldoutHeader(string listName, int entryCount)
         {
             bool lastState = m_OpenedItems.Contains(listName);
-            bool currentState = EditorGUILayout.Foldout(lastState, AorTxt.Format("{0}({1})", listName, entryCount));
+            bool currentState = EditorGUILayout.Foldout(lastState, HonorTxt.Format("{0}({1})", listName, entryCount));
             UpdateFoldoutState(listName, lastState, currentState);
             return currentState;
         }
@@ -538,7 +538,7 @@ namespace Honor.Editor
             DataSet excelData = TableExportEditorUtility.GetExcelData(GamePathUtils.UI.GetExcelFileFullPath());
             string luaFileName = "UIs";
             string luaRootDirectory = GamePathUtils.UI.GetLuaScriptRootDirectoryFullPath();
-            string luaFilePath = AorTxt.Format("{0}/{1}", luaRootDirectory, "UIs.lua.txt");
+            string luaFilePath = HonorTxt.Format("{0}/{1}", luaRootDirectory, "UIs.lua.txt");
 
             if (!Directory.Exists(luaRootDirectory))
             {
@@ -554,8 +554,8 @@ namespace Honor.Editor
                 .AppendLine("-- (c) copyright 2026 - 2030, Honor.Runtime")
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine("-- ----------------------------------------------------------------------------------------------------")
-                .AppendLine(AorTxt.Format("-- filename:  {0}.lua", luaFileName))
-                .AppendLine(AorTxt.Format("-- descrip:   {0}", tableDetail))
+                .AppendLine(HonorTxt.Format("-- filename:  {0}.lua", luaFileName))
+                .AppendLine(HonorTxt.Format("-- descrip:   {0}", tableDetail))
                 .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
                 .AppendLine("--=====================================================================================================")
                 .AppendLine();

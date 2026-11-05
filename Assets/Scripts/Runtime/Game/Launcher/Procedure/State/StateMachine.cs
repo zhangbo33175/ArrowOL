@@ -112,7 +112,7 @@ namespace GameLib
                 Type stateType = state.GetType();
                 if (m_States.ContainsKey(stateType))
                 {
-                    throw new Exception(AorTxt.Format("状态机 state '{1}' 已经存在。", stateType));
+                    throw new Exception(HonorTxt.Format("状态机 state '{1}' 已经存在。", stateType));
                 }
 
                 m_States.Add(stateType, state);
@@ -270,13 +270,13 @@ namespace GameLib
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new Exception(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+                throw new Exception(HonorTxt.Format("State type '{0}' 无效。", stateType.FullName));
             }
 
             State<T> state = GetState(stateType);
             if (state == null)
             {
-                throw new Exception(AorTxt.Format("状态机 '{0}' 不能开始一个不存在的 state '{1}'。", Name, stateType.FullName));
+                throw new Exception(HonorTxt.Format("状态机 '{0}' 不能开始一个不存在的 state '{1}'。", Name, stateType.FullName));
             }
 
             m_CurrentStateTime = 0f;
@@ -298,7 +298,7 @@ namespace GameLib
             State<T> state = GetState(stateType);
             if (state == null)
             {
-                throw new Exception(AorTxt.Format("状态机 '{0}' 不能切换到不存在的 state '{1}'。", Name, stateType.FullName));
+                throw new Exception(HonorTxt.Format("状态机 '{0}' 不能切换到不存在的 state '{1}'。", Name, stateType.FullName));
             }
 
             // 退出当前状态
@@ -355,7 +355,7 @@ namespace GameLib
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new Exception(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+                throw new Exception(HonorTxt.Format("State type '{0}' 无效。", stateType.FullName));
             }
 
             return m_States.ContainsKey(stateType);
@@ -375,7 +375,7 @@ namespace GameLib
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new Exception(AorTxt.Format("State type '{0}' 无效。", stateType.FullName));
+                throw new Exception(HonorTxt.Format("State type '{0}' 无效。", stateType.FullName));
             }
 
             m_States.TryGetValue(stateType, out State<T> state);

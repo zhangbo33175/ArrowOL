@@ -123,7 +123,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.GetItem(  );
+                        Honor.Runtime.HonorListViewItem gen_ret = gen_to_be_invoked.GetItem(  );
                         translator.Push(L, gen_ret);
                     
                     
@@ -151,7 +151,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        Honor.Runtime.AorListViewItem gen_ret = gen_to_be_invoked.CreateItem(  );
+                        Honor.Runtime.HonorListViewItem gen_ret = gen_to_be_invoked.CreateItem(  );
                         translator.Push(L, gen_ret);
                     
                     
@@ -178,7 +178,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.AorListViewItem _item = (Honor.Runtime.AorListViewItem)translator.GetObject(L, 2, typeof(Honor.Runtime.AorListViewItem));
+                    Honor.Runtime.HonorListViewItem _item = (Honor.Runtime.HonorListViewItem)translator.GetObject(L, 2, typeof(Honor.Runtime.HonorListViewItem));
                     
                     gen_to_be_invoked.RecycleItem( _item );
                     

@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -139,17 +139,17 @@ namespace Honor.Editor
                             .AppendLine("-- (c) copyright 2026 - 2030, Honor.GameLib")
                             .AppendLine("-- All Rights Reserved.")
                             .AppendLine("-- ----------------------------------------------------------------------------------------------------")
-                            .AppendLine(AorTxt.Format("-- filename:  {0}.lua", saveDataFileName))
-                            .AppendLine(AorTxt.Format("-- descrip:   {0}", saveDataFileNote))
+                            .AppendLine(HonorTxt.Format("-- filename:  {0}.lua", saveDataFileName))
+                            .AppendLine(HonorTxt.Format("-- descrip:   {0}", saveDataFileNote))
                             .AppendLine("-- notices:   该文件自动生成，请不要手动修改！ 5541424142")
                             .AppendLine("--=====================================================================================================")
                             .AppendLine("");
 
                         stringBuilder.AppendLine("SaveRootData = SaveRootData or {}");
-                        stringBuilder.AppendLine(AorTxt.Format("SaveRootData.{0} = SaveRootData.{1} or {{}}", classTidyName, classTidyName));
-                        stringBuilder.AppendLine(AorTxt.Format("---@type {0} @{1}", className, classNote));
-                        stringBuilder.AppendLine(AorTxt.Format("SaveRootData.{0} = {1}", saveDataFileTidyName, "{}"));
-                        stringBuilder.AppendLine(AorTxt.Format(""));
+                        stringBuilder.AppendLine(HonorTxt.Format("SaveRootData.{0} = SaveRootData.{1} or {{}}", classTidyName, classTidyName));
+                        stringBuilder.AppendLine(HonorTxt.Format("---@type {0} @{1}", className, classNote));
+                        stringBuilder.AppendLine(HonorTxt.Format("SaveRootData.{0} = {1}", saveDataFileTidyName, "{}"));
+                        stringBuilder.AppendLine(HonorTxt.Format(""));
 
                         string content = string.Empty;
 
@@ -158,8 +158,8 @@ namespace Honor.Editor
                         content += "\n";
 
                         // 自动化-load-接口
-                        content += AorTxt.Format("SaveIO = SaveIO and SaveIO or {0}\n", "{}");
-                        content += AorTxt.Format("SaveIO.{0} = {1}\n", classTidyName, "{}");
+                        content += HonorTxt.Format("SaveIO = SaveIO and SaveIO or {0}\n", "{}");
+                        content += HonorTxt.Format("SaveIO.{0} = {1}\n", classTidyName, "{}");
                         content += "----------------------------------------------------------------------------------------------\n";
                         content += _RecurseLoadAPIs("", "", saveDataFileName, classTidyName, className, classFieldTypes);
 
@@ -196,35 +196,35 @@ namespace Honor.Editor
                 .AppendLine("-- (c) copyright 2026 - 2030, Honor.GameLib")
                 .AppendLine("-- All Rights Reserved.")
                 .AppendLine("-- ----------------------------------------------------------------------------------------------------")
-                .AppendLine(AorTxt.Format("-- filename:  SaveRootData.lua"))
-                .AppendLine(AorTxt.Format("-- descrip:   存档主干数据"))
+                .AppendLine(HonorTxt.Format("-- filename:  SaveRootData.lua"))
+                .AppendLine(HonorTxt.Format("-- descrip:   存档主干数据"))
                 .AppendLine("-- notices:   该文件自动生成，请不要手动修改！")
                 .AppendLine("--=====================================================================================================")
                 .AppendLine("");
 
-            rootStringBuilder.AppendLine(AorTxt.Format("---@class SaveRootData @存档主干数据"));
+            rootStringBuilder.AppendLine(HonorTxt.Format("---@class SaveRootData @存档主干数据"));
             for (int index = 0; index < tidyNamesUnderRoot.Count; index++)
             {
-                rootStringBuilder.AppendLine(AorTxt.Format("---@field {0} {1} @{2}", tidyNamesUnderRoot[index], typeNamesUnderRoot[index], notesUnderRoot[index]));
+                rootStringBuilder.AppendLine(HonorTxt.Format("---@field {0} {1} @{2}", tidyNamesUnderRoot[index], typeNamesUnderRoot[index], notesUnderRoot[index]));
             }
 
             rootStringBuilder.AppendLine("SaveRootData = {}");
-            rootStringBuilder.AppendLine(AorTxt.Format(""));
+            rootStringBuilder.AppendLine(HonorTxt.Format(""));
 
             for (int index = 0; index < tidyNamesUnderRoot.Count; index++)
             {
-                rootStringBuilder.AppendLine(AorTxt.Format("require('{1}')", tidyNamesUnderRoot[index], fullNamesUnderRoot[index]));
+                rootStringBuilder.AppendLine(HonorTxt.Format("require('{1}')", tidyNamesUnderRoot[index], fullNamesUnderRoot[index]));
             }
 
-            rootStringBuilder.AppendLine(AorTxt.Format(""));
+            rootStringBuilder.AppendLine(HonorTxt.Format(""));
 
             for (int index = 0; index < tidyNamesUnderRoot.Count; index++)
             {
-                rootStringBuilder.AppendLine(AorTxt.Format("SaveIO.{0}.LoadAll()", tidyNamesUnderRoot[index]));
+                rootStringBuilder.AppendLine(HonorTxt.Format("SaveIO.{0}.LoadAll()", tidyNamesUnderRoot[index]));
             }
 
-            rootStringBuilder.AppendLine(AorTxt.Format(""));
-            rootStringBuilder.AppendLine(AorTxt.Format("return SaveRootData"));
+            rootStringBuilder.AppendLine(HonorTxt.Format(""));
+            rootStringBuilder.AppendLine(HonorTxt.Format("return SaveRootData"));
 
             string saveRootPath = Runtime.GamePathUtils.Save.GetLuaScriptRootDirectoryFullPath() + "/SaveRootData.lua.txt";
             File.WriteAllText(saveRootPath, rootStringBuilder.ToString(), new UTF8Encoding(false));
@@ -245,7 +245,7 @@ namespace Honor.Editor
             }
 
             Directory.CreateDirectory(Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath());
-            Log.Debug(AorTxt.Format("清空{0}文件夹成功。", Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath()));
+            Log.Debug(HonorTxt.Format("清空{0}文件夹成功。", Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath()));
             AssetDatabase.Refresh();
 
             string[] fileFullPaths = Directory.GetFiles(Runtime.GamePathUtils.Proto.Save.GetRootDirectoryFullPath(), "*.proto", SearchOption.AllDirectories);
@@ -259,7 +259,7 @@ namespace Honor.Editor
                 
                 if (content.Contains(startStr))
                 {
-                    string input = AorTxt.Format(@"(?<=({0}))\S*(?=(\r\n))", startStr);
+                    string input = HonorTxt.Format(@"(?<=({0}))\S*(?=(\r\n))", startStr);
                     MatchCollection matchCollection = Regex.Matches(content, input);
                     if (matchCollection.Count > 0)
                     {
@@ -269,33 +269,33 @@ namespace Honor.Editor
 
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder
-                    .AppendLine(AorTxt.Format("-- ====================================================================================================="))
-                    .AppendLine(AorTxt.Format("-- (c) copyright 2026 - 2030, Honor.GameLib"))
-                    .AppendLine(AorTxt.Format("-- All Rights Reserved."))
-                    .AppendLine(AorTxt.Format("-- ----------------------------------------------------------------------------------------------------"))
-                    .AppendLine(AorTxt.Format("-- filename:  {0}.lua", fileName));
+                    .AppendLine(HonorTxt.Format("-- ====================================================================================================="))
+                    .AppendLine(HonorTxt.Format("-- (c) copyright 2026 - 2030, Honor.GameLib"))
+                    .AppendLine(HonorTxt.Format("-- All Rights Reserved."))
+                    .AppendLine(HonorTxt.Format("-- ----------------------------------------------------------------------------------------------------"))
+                    .AppendLine(HonorTxt.Format("-- filename:  {0}.lua", fileName));
                 
                 if (!string.IsNullOrEmpty(desc))
                 {
-                    stringBuilder.AppendLine(AorTxt.Format("-- descrip:   {0}", desc));
+                    stringBuilder.AppendLine(HonorTxt.Format("-- descrip:   {0}", desc));
                 }
 
                 stringBuilder
-                    .AppendLine(AorTxt.Format("-- notices:   该文件自动生成，请不要手动修改！"))
-                    .AppendLine(AorTxt.Format("--====================================================================================================="))
-                    .AppendLine(AorTxt.Format(""))
-                    .AppendLine(AorTxt.Format("-- proto.Schema结构"))
-                    .AppendLine(AorTxt.Format(""))
-                    .AppendLine(AorTxt.Format("return [["))
-                    .AppendLine(AorTxt.Format(""))
+                    .AppendLine(HonorTxt.Format("-- notices:   该文件自动生成，请不要手动修改！"))
+                    .AppendLine(HonorTxt.Format("--====================================================================================================="))
+                    .AppendLine(HonorTxt.Format(""))
+                    .AppendLine(HonorTxt.Format("-- proto.Schema结构"))
+                    .AppendLine(HonorTxt.Format(""))
+                    .AppendLine(HonorTxt.Format("return [["))
+                    .AppendLine(HonorTxt.Format(""))
                     .Append(content)
                     .AppendLine("]]");
 
-                string luaScriptName = AorTxt.Format("{0}.lua.txt", fileName);
-                string outputPath = AorTxt.Format("{0}/{1}", Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath(), luaScriptName);
+                string luaScriptName = HonorTxt.Format("{0}.lua.txt", fileName);
+                string outputPath = HonorTxt.Format("{0}/{1}", Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath(), luaScriptName);
                 File.WriteAllText(outputPath, stringBuilder.ToString(), new UTF8Encoding(false));
 
-                Log.Debug(AorTxt.Format("生成{0}文件成功。", outputPath));
+                Log.Debug(HonorTxt.Format("生成{0}文件成功。", outputPath));
             }
 
             AssetDatabase.Refresh();
@@ -342,7 +342,7 @@ namespace Honor.Editor
                 {
                     if (protoSrcLines[index].Contains(startStr))
                     {
-                        string input = AorTxt.Format(@"(?<=({0}))\S*(?=())", startStr);
+                        string input = HonorTxt.Format(@"(?<=({0}))\S*(?=())", startStr);
                         MatchCollection matchCollection = Regex.Matches(protoSrcLines[index], input);
                         if (matchCollection.Count > 0)
                         {
@@ -355,19 +355,19 @@ namespace Honor.Editor
 
                 if (createFiles)
                 {
-                    finalLines.Add(AorTxt.Format("--====================================================================================================="));
-                    finalLines.Add(AorTxt.Format("-- (c)copyright 2026 - 2030, Honor.GameLib"));
-                    finalLines.Add(AorTxt.Format("-- All Rights Reserved."));
-                    finalLines.Add(AorTxt.Format("-- ----------------------------------------------------------------------------------------------------"));
-                    finalLines.Add(AorTxt.Format("-- filename: Declare{0}", fileName));
+                    finalLines.Add(HonorTxt.Format("--====================================================================================================="));
+                    finalLines.Add(HonorTxt.Format("-- (c)copyright 2026 - 2030, Honor.GameLib"));
+                    finalLines.Add(HonorTxt.Format("-- All Rights Reserved."));
+                    finalLines.Add(HonorTxt.Format("-- ----------------------------------------------------------------------------------------------------"));
+                    finalLines.Add(HonorTxt.Format("-- filename: Declare{0}", fileName));
                     
                     if (!string.IsNullOrEmpty(desc))
                     {
-                        finalLines.Add(AorTxt.Format("-- descrip: {0}", desc));
+                        finalLines.Add(HonorTxt.Format("-- descrip: {0}", desc));
                     }
 
-                    finalLines.Add(AorTxt.Format("-- notices: 该文件自动生成，请不要手动修改！"));
-                    finalLines.Add(AorTxt.Format("--====================================================================================================="));
+                    finalLines.Add(HonorTxt.Format("-- notices: 该文件自动生成，请不要手动修改！"));
+                    finalLines.Add(HonorTxt.Format("--====================================================================================================="));
                     finalLines.Add("");
                 }
 
@@ -415,7 +415,7 @@ namespace Honor.Editor
                     string fieldName = fieldInfo.Key;
                     string fieldType = fieldInfo.Value;
                     string fieldNote = classFieldNotes[className][fieldName];
-                    string tmpPrefix = AorTxt.Format("{0}.{1}", saveDataTidyName, fieldName);
+                    string tmpPrefix = HonorTxt.Format("{0}.{1}", saveDataTidyName, fieldName);
                     
                     if ((fieldType == "string" && fieldNote.Contains("[json]")) || fieldType.EndsWith("[]"))
                     {
@@ -959,7 +959,7 @@ namespace Honor.Editor
 
                     if (isMsg)
                     {
-                        str = str.Replace("message ", AorTxt.Format("---@class SavePBMsgDef.{0}.", tidyFileName)).Trim();
+                        str = str.Replace("message ", HonorTxt.Format("---@class SavePBMsgDef.{0}.", tidyFileName)).Trim();
                         str = str.Replace("{", " : nil").Trim();
                         s_IsCurEnum = false;
                     }

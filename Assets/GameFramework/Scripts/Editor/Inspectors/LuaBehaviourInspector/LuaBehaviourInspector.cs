@@ -797,11 +797,11 @@ namespace Honor.Editor
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("说明：类型/名称/对象/附加信息");
             stringBuilder.AppendLine("选择不同注入类型时填写对应CMD到附加信息框中即可生成事件的相关注册代码，多个CMD用','隔开。");
-            stringBuilder.AppendLine(AorTxt.Format("[GameObject] -> C#组件名称（需要包含完整的名字空间）"));
-            stringBuilder.AppendLine(AorTxt.Format("[LuaBehaviour] -> Lua脚本名称（MVVM设计模式下请填写View脚本名称）"));
+            stringBuilder.AppendLine(HonorTxt.Format("[GameObject] -> C#组件名称（需要包含完整的名字空间）"));
+            stringBuilder.AppendLine(HonorTxt.Format("[LuaBehaviour] -> Lua脚本名称（MVVM设计模式下请填写View脚本名称）"));
             for (int index = 0; index < m_InfoExTypeNameTempletes.Count; index++)
             {
-                stringBuilder.AppendLine(AorTxt.Format("[{0}] -> {1}", m_InfoExTypeNameTempletes[index].ToString(),
+                stringBuilder.AppendLine(HonorTxt.Format("[{0}] -> {1}", m_InfoExTypeNameTempletes[index].ToString(),
                     m_InfoExCmdTempletes[index]));
             }
 
@@ -977,7 +977,7 @@ namespace Honor.Editor
                             // 折叠面板
                             bool lastState = m_OpenedItems.Contains(m_InterInjectionNames[index].stringValue);
                             bool currentState = EditorGUILayout.Foldout(lastState,
-                                AorTxt.Format("元素列表清单({0})", m_InterInjectionElementsObjs[index].arraySize));
+                                HonorTxt.Format("元素列表清单({0})", m_InterInjectionElementsObjs[index].arraySize));
                             if (currentState != lastState)
                             {
                                 if (currentState)
@@ -1127,7 +1127,7 @@ namespace Honor.Editor
                                                         m_InterInjectionElementsObjs[index]
                                                             .GetArrayElementAtIndex(elementIndex)
                                                             .objectReferenceValue,
-                                                        typeof(AorTextPicMixed), true,
+                                                        typeof(HonorRichText), true,
                                                         new GUILayoutOption[] { GUILayout.Width(120) });
                                                 break;
                                             case (int)LuaInjection.InjectionType.UI_Image:
@@ -1217,7 +1217,7 @@ namespace Honor.Editor
                                                         m_InterInjectionElementsObjs[index]
                                                             .GetArrayElementAtIndex(elementIndex)
                                                             .objectReferenceValue,
-                                                        typeof(AorTree), true,
+                                                        typeof(HonorTreeView), true,
                                                         new GUILayoutOption[] { GUILayout.Width(120) });
                                                 break;
                                             case (int)LuaInjection.InjectionType.UI_ListView:
@@ -1227,7 +1227,7 @@ namespace Honor.Editor
                                                         m_InterInjectionElementsObjs[index]
                                                             .GetArrayElementAtIndex(elementIndex)
                                                             .objectReferenceValue,
-                                                        typeof(AorListView), true,
+                                                        typeof(HonorListView), true,
                                                         new GUILayoutOption[] { GUILayout.Width(120) });
                                                 break;
                                             case (int)LuaInjection.InjectionType.UI_SwitchButton:
@@ -1237,7 +1237,7 @@ namespace Honor.Editor
                                                         m_InterInjectionElementsObjs[index]
                                                             .GetArrayElementAtIndex(elementIndex)
                                                             .objectReferenceValue,
-                                                        typeof(AorSwitchButton), true,
+                                                        typeof(HonorSwitchButton), true,
                                                         new GUILayoutOption[] { GUILayout.Width(120) });
                                                 break;
                                             case (int)LuaInjection.InjectionType.Canvas:
@@ -1503,7 +1503,7 @@ namespace Honor.Editor
                                         m_InterInjectionObjs[index].objectReferenceValue =
                                             EditorGUILayout.ObjectField(
                                                 m_InterInjectionObjs[index].objectReferenceValue,
-                                                typeof(AorTextPicMixed), true,
+                                                typeof(HonorRichText), true,
                                                 new GUILayoutOption[] { GUILayout.Width(120) });
                                         break;
                                     case (int)LuaInjection.InjectionType.UI_Image:
@@ -1565,21 +1565,21 @@ namespace Honor.Editor
                                     case (int)LuaInjection.InjectionType.UI_Tree:
                                         m_InterInjectionObjs[index].objectReferenceValue =
                                             EditorGUILayout.ObjectField(
-                                                m_InterInjectionObjs[index].objectReferenceValue, typeof(AorTree),
+                                                m_InterInjectionObjs[index].objectReferenceValue, typeof(HonorTreeView),
                                                 true, new GUILayoutOption[] { GUILayout.Width(120) });
                                         break;
                                     case (int)LuaInjection.InjectionType.UI_ListView:
                                         m_InterInjectionObjs[index].objectReferenceValue =
                                             EditorGUILayout.ObjectField(
                                                 m_InterInjectionObjs[index].objectReferenceValue,
-                                                typeof(AorListView), true,
+                                                typeof(HonorListView), true,
                                                 new GUILayoutOption[] { GUILayout.Width(120) });
                                         break;
                                     case (int)LuaInjection.InjectionType.UI_SwitchButton:
                                         m_InterInjectionObjs[index].objectReferenceValue =
                                             EditorGUILayout.ObjectField(
                                                 m_InterInjectionObjs[index].objectReferenceValue,
-                                                typeof(AorSwitchButton), true,
+                                                typeof(HonorSwitchButton), true,
                                                 new GUILayoutOption[] { GUILayout.Width(120) });
                                         break;
                                     case (int)LuaInjection.InjectionType.Canvas:
@@ -1738,18 +1738,18 @@ namespace Honor.Editor
                     break;
             }
 
-            string luaRootPath = AorTxt.Format("{0}{1}",
+            string luaRootPath = HonorTxt.Format("{0}{1}",
                 Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
                 GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true));
             string[] fileFullPaths = System.IO.Directory.GetFiles(luaRootPath,
-                AorTxt.Format("{0}.lua.txt", luaScriptName), System.IO.SearchOption.AllDirectories);
+                HonorTxt.Format("{0}.lua.txt", luaScriptName), System.IO.SearchOption.AllDirectories);
 
             // 无文件 → 新建
             if (fileFullPaths.Length == 0)
             {
                 historyPath = string.IsNullOrEmpty(historyPath) ? luaRootPath : historyPath;
-                string exportFileName = EditorUtility.SaveFilePanel(AorTxt.Format("生成{0}.lua.txt文件", luaScriptName),
-                    historyPath, AorTxt.Format("{0}.lua.txt", luaScriptName), string.Empty);
+                string exportFileName = EditorUtility.SaveFilePanel(HonorTxt.Format("生成{0}.lua.txt文件", luaScriptName),
+                    historyPath, HonorTxt.Format("{0}.lua.txt", luaScriptName), string.Empty);
                 if (!string.IsNullOrEmpty(exportFileName))
                 {
                     historyPath = exportFileName.Substring(0, exportFileName.LastIndexOf("/"));
@@ -1769,14 +1769,14 @@ namespace Honor.Editor
                             stringBuilderEmptyCodeLines = GeneratePatternMVVMEmptyCodeLines(typeEnumIndex);
                         }
 
-                        string content = AorTxt.Format("{0}{1}", stringBuilderCommentLines.ToString(),
+                        string content = HonorTxt.Format("{0}{1}", stringBuilderCommentLines.ToString(),
                             stringBuilderEmptyCodeLines.ToString());
                         System.IO.File.WriteAllText(exportFileName, content, new System.Text.UTF8Encoding(false));
-                        Log.Debug(AorTxt.Format("生成{0}文件成功。", exportFileName));
+                        Log.Debug(HonorTxt.Format("生成{0}文件成功。", exportFileName));
                     }
                     catch (Exception exception)
                     {
-                        Log.Error(AorTxt.Format("生成{0}文件失败, 异常信息： '{1}'.", exportFileName, exception.ToString()));
+                        Log.Error(HonorTxt.Format("生成{0}文件失败, 异常信息： '{1}'.", exportFileName, exception.ToString()));
                     }
                 }
             }
@@ -1799,20 +1799,20 @@ namespace Honor.Editor
                         stringBuilderCodeLines = GeneratePatternMVVMCodeLines(fileFullPaths[0], typeEnumIndex);
                     }
 
-                    string content = AorTxt.Format("{0}{1}", stringBuilderCommentLines.ToString(),
+                    string content = HonorTxt.Format("{0}{1}", stringBuilderCommentLines.ToString(),
                         stringBuilderCodeLines.ToString());
                     System.IO.File.WriteAllText(fileFullPaths[0], content, new System.Text.UTF8Encoding(false));
-                    Log.Debug(AorTxt.Format("刷新{0}文件成功。", fileFullPaths[0]));
+                    Log.Debug(HonorTxt.Format("刷新{0}文件成功。", fileFullPaths[0]));
                 }
                 catch (Exception exception)
                 {
-                    Log.Error(AorTxt.Format("刷新{0}文件失败, 异常信息： '{1}'.", fileFullPaths[0], exception.ToString()));
+                    Log.Error(HonorTxt.Format("刷新{0}文件失败, 异常信息： '{1}'.", fileFullPaths[0], exception.ToString()));
                 }
             }
             // 多个同名文件 → 报错
             else
             {
-                Log.Error(AorTxt.Format("目录 {0} 及其子目录中遍历到多个文件 {1}.txt ！", luaRootPath, luaScriptName));
+                Log.Error(HonorTxt.Format("目录 {0} 及其子目录中遍历到多个文件 {1}.txt ！", luaRootPath, luaScriptName));
             }
         }
 
@@ -2122,7 +2122,7 @@ namespace Honor.Editor
                                 // EventTrigger事件
                                 if (m_InfoExEventTriggerCmdTempletes.Contains(cmds[cmdIndex][checkIndex]))
                                 {
-                                    string functionName = AorTxt.Format("On{0}{1}{2}",
+                                    string functionName = HonorTxt.Format("On{0}{1}{2}",
                                         m_InterInjectionNames[index].stringValue[0].ToString().ToUpper() +
                                         m_InterInjectionNames[index].stringValue.Substring(1,
                                             m_InterInjectionNames[index].stringValue.Length - 1), elementIndexInLua,
@@ -2147,7 +2147,7 @@ namespace Honor.Editor
                                     // 数组模式
                                     if (m_InterInjectionIsArrays[index].boolValue)
                                     {
-                                        functionName = AorTxt.Format(
+                                        functionName = HonorTxt.Format(
                                             m_InfoExFunctionNameTempletes[infoExCmdTempleteIndex],
                                             m_InterInjectionNames[index].stringValue[0].ToString().ToUpper() +
                                             m_InterInjectionNames[index].stringValue.Substring(1,
@@ -2160,14 +2160,14 @@ namespace Honor.Editor
                                                 .GetArrayElementAtIndex(elementIndexInCS).stringValue.Split('#');
                                             if (!string.IsNullOrEmpty(infos[0])) comment = $"{infos[0]}-交互回调";
                                             if (!string.IsNullOrEmpty(infos[1]))
-                                                functionName = AorTxt.Format(
+                                                functionName = HonorTxt.Format(
                                                     m_InfoExFunctionNameTempletes[infoExCmdTempleteIndex], infos[1]);
                                         }
                                     }
                                     // 普通模式
                                     else
                                     {
-                                        functionName = AorTxt.Format(
+                                        functionName = HonorTxt.Format(
                                             m_InfoExFunctionNameTempletes[infoExCmdTempleteIndex],
                                             m_InterInjectionNames[index].stringValue[0].ToString().ToUpper() +
                                             m_InterInjectionNames[index].stringValue.Substring(1,
@@ -2177,7 +2177,7 @@ namespace Honor.Editor
                                             string[] infos = m_InterInjectionExtends[index].stringValue.Split('#');
                                             if (!string.IsNullOrEmpty(infos[0])) comment = $"{infos[0]}-交互回调";
                                             if (!string.IsNullOrEmpty(infos[1]))
-                                                functionName = AorTxt.Format(
+                                                functionName = HonorTxt.Format(
                                                     m_InfoExFunctionNameTempletes[infoExCmdTempleteIndex], infos[1]);
                                         }
                                     }

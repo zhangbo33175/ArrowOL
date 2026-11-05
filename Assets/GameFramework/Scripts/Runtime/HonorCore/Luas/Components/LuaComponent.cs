@@ -189,7 +189,7 @@ namespace Honor.Runtime
             m_LuaScriptsABPathsForLoading.Clear();
             m_LuaModuleABPathCache.Clear();
             m_LuaModuleNotFoundCache.Clear();
-            string luaABRoot = AssetBundleLoadManager
+            string luaABRoot = AssetBundleLoader
                 .GetABFormatPath(GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath())
                 .Replace(".bundle", string.Empty);
 
@@ -197,7 +197,7 @@ namespace Honor.Runtime
             {
                 if (key.Contains(luaABRoot))
                 {
-                    string path = AssetBundleLoadManager.GetABRestoredPath(key);
+                    string path = AssetBundleLoader.GetABRestoredPath(key);
                     m_LuaScriptsABPathsForLoading.Add(path);
                 }
             }
@@ -742,7 +742,7 @@ namespace Honor.Runtime
                 {
                     asset = HonorAssetManager.Instance.LoadAssetSync(assetType, path, fileName) as TextAsset;
                     if (asset == null)
-                        AssetBundleLoadManager.Unload(path);
+                        AssetBundleLoader.Unload(path);
                 }
             }
             else
@@ -775,7 +775,7 @@ namespace Honor.Runtime
                         break;
                     }
 
-                    AssetBundleLoadManager.Unload(abPath);
+                    AssetBundleLoader.Unload(abPath);
                 }
 
                 if (asset == null)
