@@ -68,6 +68,12 @@ end
 function GameLoadMapState:LoadMapOver(finishCallback)
     local chapterId = ChapterListManager:GetRuntimeChapterId()
     local levelData = GameCoreManager:GetLevelData(chapterId)
+    -- TODO: 兜底保护 - 关卡配置缺失或章节ID异常时 levelData 为 nil，传给 PlayLevel 会导致后续流程空引用崩溃，直接回退主界面
+    if levelData == nil then
+        PrintError("[GameLoadMapState] 关卡数据为空 chapterId:{0}，回退主界面", tostring(chapterId))
+        GameStateMachine:ChangeState(GameStateCmd.MainState, finishCallback)
+        return
+    end
     -- 新手首次游戏流程
     if GamePlayHelper:IsPlayFirstLevel() then
         -- 补满体力

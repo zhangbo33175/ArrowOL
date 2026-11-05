@@ -1,10 +1,15 @@
 --=====================================================================================================
 -- (c) copyright 2026 - 2030, Honor.Runtime
--- All Rights Reserved.
--- ----------------------------------------------------------------------------------------------------
+--=====================================================================================================
 -- filename:  FishItem.lua
 -- author:    云毅
--- descrip:   生命Item
+-- created:   2026
+-- @brief     生命鱼图标 Item
+-- @desc      主界面生命值显示单元（小鱼图标），由 UIMainPlayingManager 通过对象池管理；
+--            负责播放"晃动+碎裂消失"动画表现生命扣减/关卡失败
+-- @core      FishIcon 碎裂动画（旋转摆动→缩放消失→隐藏节点）
+-- @scope     UIMainPlaying 子元素，HorizontalLayoutGroup 容器下的生命图标
+-- @dependency LuaBehaviourSuper, DOTween, Tables
 --=====================================================================================================
 
 ---@class FishItem : LuaBehaviourSuper
@@ -50,11 +55,7 @@ end
 ---@type fun():void
 function FishItem:Awake()
     FishItem.super.Awake(self)
--- 2=====================================================================================================
-
--- 无自动注册内容。
--- ====================================================================================================2
-
+    -- 无自动注册内容
 end
 
 ---开始
@@ -70,11 +71,7 @@ end
 ---@type fun():void
 function FishItem:OnDestroy()
     FishItem.super.OnDestroy(self)
--- 3=====================================================================================================
-
--- 无自动注销内容。
--- ====================================================================================================3
-
+    -- 无自动注销内容
 end
 
 --endregion
@@ -98,7 +95,6 @@ function FishItem:PlayBreakAnimation(startDelay, onComplete)
     end
     local fishTransform = iconGO.transform
 
-  
     PrintInfo("[FishItem] 播放 FishIcon 碎裂动画 name=" .. fishTransform.name .. " delay=" .. tostring(startDelay))
 
     -- 清除目标上可能残留的旧补间，避免与打开动画叠加

@@ -110,6 +110,7 @@ end
 ---=========================================================================
 function UIMainPlayingManager:OnLifeTransformation(data)
     local targetCount = MainPlayingManager:GetLifeNumber()
+    -- TODO: 兜底保护 - _fishItems 初始化前 OnLifeTransformation 可能先触发，nil 取 # 会报 Lua 错，缺省为 0
     local currentCount = self._fishItems ~= nil and #self._fishItems or 0
     if targetCount < currentCount then
         -- 生命减少：消除差值数量的 FishItem（碎裂动画）
@@ -267,10 +268,7 @@ end
 ---@desc 由 xianshi.Clicked 触发，激活广告背景并放大相机视野
 ---=========================================================================
 function UIMainPlayingManager:ShowBackground()
-    local view = self._view
-    if view and view.AdDisplayGameObject then
-        view.AdDisplayGameObject:SetActive(true)
-    end
+    self:_SetAdBackgroundActive(true)
     GameMapCameraManager:UpdateBottomHud(199.237)
 end
 
@@ -279,11 +277,19 @@ end
 ---@desc 由 yinchang.Clicked 触发，关闭广告背景并还原相机视野
 ---=========================================================================
 function UIMainPlayingManager:HideBackground()
+    self:_SetAdBackgroundActive(false)
+    GameMapCameraManager:UpdateBottomHud(0)
+end
+
+---=========================================================================
+---@brief 切换广告背景节点显隐（显示/隐藏按钮动作共用）
+---@param active boolean @true 激活背景 false 隐藏背景
+---=========================================================================
+function UIMainPlayingManager:_SetAdBackgroundActive(active)
     local view = self._view
     if view and view.AdDisplayGameObject then
-        view.AdDisplayGameObject:SetActive(false)
+        view.AdDisplayGameObject:SetActive(active)
     end
-    GameMapCameraManager:UpdateBottomHud(0)
 end
 
 --endregion
@@ -296,15 +302,15 @@ end
 ---@desc 通过 LoadRes["GameObject_FishItem"] 定位预制体，挂载到 LifeTransform；创建前先清理旧实例，避免刷新重复累计
 ---=========================================================================
 function UIMainPlayingManager:CreateFishItems(count)
+    -- TODO: 兜底保护 - count 为 nil 或 <=0 时直接返回，避免 for 循环范围异常
     if count == nil or count <= 0 then return end
     local view = self._view
+    -- TODO: 兜底保护 - 视图未就绪时调用方可能过早触发创建，避免对 nil 取方法
     if not view then return end
 
-    local assetInfo = LoadRes["GameObject_FishItem"]
-    if assetInfo == nil then
-        PrintError("[UIMainPlayingManager] 缺少资源定义 GameObject_FishItem")
-        return
-    end
+    local assetInfo = self:_GetFishItemAssetInfo()
+    -- TODO: 兜底保护 - LoadRes 资源表缺 GameObject_FishItem 键时返回 nil，后续加载预制体会崩
+    if assetInfo == nil then return end
 
     local parent = view:GetFishParent()
     PrintInfo("[UIMainPlayingManager] FishItem 挂载节点 = " .. parent.name)
@@ -327,16 +333,17 @@ end
 ---@desc 生命增加时调用，仅在现有 FishItem 基础上追加，避免重建打断已有动画状态
 ---=========================================================================
 function UIMainPlayingManager:AppendFishItems(count)
+    -- TODO: 兜底保护 - count 为 nil 或 <=0 时直接返回，避免 for 循环范围异常
     if count == nil or count <= 0 then return end
     local view = self._view
+    -- TODO: 兜底保护 - 视图未就绪时直接返回，避免对 nil 取方法
     if not view then return end
 
-    local assetInfo = LoadRes["GameObject_FishItem"]
-    if assetInfo == nil then
-        PrintError("[UIMainPlayingManager] 缺少资源定义 GameObject_FishItem")
-        return
-    end
+    local assetInfo = self:_GetFishItemAssetInfo()
+    -- TODO: 兜底保护 - 资源定义缺失时返回 nil，后续加载预制体会崩
+    if assetInfo == nil then return end
 
+    -- TODO: 兜底保护 - _fishItems 可能未初始化（首次补充而非创建），先建表再 insert
     if self._fishItems == nil then
         self._fishItems = {}
     end
@@ -344,6 +351,21 @@ function UIMainPlayingManager:AppendFishItems(count)
     for i = 1, count do
         table.insert(self._fishItems, self:_CreateFishItemSingle(parent, assetInfo, i))
     end
+end
+
+---=========================================================================
+---@brief 读取 FishItem 预制体资源定义（创建/增量补充共用）
+---@desc LoadRes 缺键时打印错误并返回 nil，调用方据此中止创建
+---@type fun():table|nil
+---@return table|nil @预制体资源定义
+---=========================================================================
+function UIMainPlayingManager:_GetFishItemAssetInfo()
+    local assetInfo = LoadRes["GameObject_FishItem"]
+    -- TODO: 兜底保护 - LoadRes 表未注册该资源键时返回 nil，调用方据此中止创建 FishItem
+    if assetInfo == nil then
+        PrintError("[UIMainPlayingManager] 缺少资源定义 GameObject_FishItem")
+    end
+    return assetInfo
 end
 
 ---=========================================================================
@@ -364,6 +386,7 @@ function UIMainPlayingManager:_CreateFishItemSingle(parent, assetInfo, index)
             break
         end
     end
+    -- TODO: 兜底保护 - 预制体根节点未挂 LuaBehaviour 或绑定脚本缺失时 luaClass 为 nil，碎裂动画调用 view:PlayBreakAnimation 会崩
     if luaClass == nil then
         PrintWarning("[UIMainPlayingManager] 创建 FishItem 视图为空，碎裂将直接销毁(预制体根节点可能未挂 LuaBehaviour) index=" .. tostring(index))
     end
@@ -542,6 +565,32 @@ function UIMainPlayingManager:CreateCollectPanel()
     panelRT.anchoredPosition = UnityEngine.Vector2(0, 8)
     panelRT.sizeDelta = UnityEngine.Vector2(-40, 150)
 
+    -- 章节名标题（左上）与全局总数（右上）
+    local title, total = self:_CreateCollectHeaderTexts(panelRT)
+
+    -- 横向滑动列表（ScrollRect + Viewport + Content），返回 Content 供填充 item
+    local contentRT = self:_CreateCollectScrollContent(panelRT)
+
+    -- 填充每个可收集物品
+    self._collectItems = {}
+    local items = LevelCollectManager:GetCollectableItems()
+    for _, itemKey in ipairs(items) do
+        self:_CreateCollectItem(contentRT, itemKey)
+    end
+
+    -- 保存引用并刷新
+    self._collectPanel = panelRT.gameObject
+    self._collectTitleText = title
+    self._collectTotalText = total
+    self:RefreshCollectPanel()
+end
+
+---=========================================================================
+---@brief 创建收集面板头部标题文本（章节名左上 + 全局总数右上）
+---@param panelRT UnityEngine.RectTransform 面板根节点
+---@return UnityEngine.UI.Text, UnityEngine.UI.Text @章节名标题文本, 全局总数文本
+---=========================================================================
+function UIMainPlayingManager:_CreateCollectHeaderTexts(panelRT)
     -- 章节名标题（左上）
     local title = self:_CreateText("ChapterTitle", panelRT, "章节", 26, UnityEngine.Color.white)
     local titleRect = title.rectTransform
@@ -559,16 +608,24 @@ function UIMainPlayingManager:CreateCollectPanel()
     totalRect.pivot = UnityEngine.Vector2(1, 1)
     totalRect.anchoredPosition = UnityEngine.Vector2(-8, -2)
     totalRect.sizeDelta = UnityEngine.Vector2(220, 36)
+    return title, total
+end
 
+---=========================================================================
+---@brief 创建收集面板横向滚动列表（ScrollRect + Viewport + Content）
+---@desc Viewport 带 Mask 裁剪；Content 挂 HorizontalLayoutGroup + ContentSizeFitter 横向自动扩展
+---@param panelRT UnityEngine.RectTransform 面板根节点
+---@return UnityEngine.RectTransform @Content 容器节点（供填充收集 item）
+---=========================================================================
+function UIMainPlayingManager:_CreateCollectScrollContent(panelRT)
     -- 横向滑动列表（ScrollRect + Viewport + Content）
-    local scrollGo = self:_CreateRectNode("CollectScroll", panelRT)
-    local scrollRT = scrollGo
+    local scrollRT = self:_CreateRectNode("CollectScroll", panelRT)
     scrollRT.anchorMin = UnityEngine.Vector2(0, 0)
     scrollRT.anchorMax = UnityEngine.Vector2(1, 0)
     scrollRT.pivot = UnityEngine.Vector2(0.5, 0)
     scrollRT.anchoredPosition = UnityEngine.Vector2(0, 4)
     scrollRT.sizeDelta = UnityEngine.Vector2(0, 104)
-    local scrollRect = scrollGo.gameObject:AddComponent(typeof(UnityEngine.UI.ScrollRect))
+    local scrollRect = scrollRT.gameObject:AddComponent(typeof(UnityEngine.UI.ScrollRect))
     scrollRect.horizontal = true
     scrollRect.vertical = false
     scrollRect.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped
@@ -599,19 +656,7 @@ function UIMainPlayingManager:CreateCollectPanel()
     fitter.horizontalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize
     fitter.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize
     scrollRect.content = contentRT
-
-    -- 填充每个可收集物品
-    self._collectItems = {}
-    local items = LevelCollectManager:GetCollectableItems()
-    for _, itemKey in ipairs(items) do
-        self:_CreateCollectItem(contentRT, itemKey)
-    end
-
-    -- 保存引用并刷新
-    self._collectPanel = panelRT.gameObject
-    self._collectTitleText = title
-    self._collectTotalText = total
-    self:RefreshCollectPanel()
+    return contentRT
 end
 
 ---=========================================================================

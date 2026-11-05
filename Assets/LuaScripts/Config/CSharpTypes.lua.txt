@@ -347,3 +347,246 @@
 ---@class SavePBMsgDef.UserDataPB.Time @PB-时间
 ---@class SavePBMsgDef.UserDataPB.UserData @PB-用户数据
 
+--=====================================================================================================
+-- 以下为业务层 Lua 类型索引（按命名空间/模块分组），消除跨文件引用红线
+--=====================================================================================================
+
+--region Honor 框架基类 & 容器
+
+---@class Singleton @单例基类
+---@class SingletonManager @全局单例管理器（已在上方）
+---@class LuaBehaviourSuper @LuaBehaviour 基类
+---@class ViewSuper @MVVM 视图基类
+---@class ViewModelSuper @MVVM 视图模型基类（已在上方）
+---@class BehaviorTreeTaskSuper @行为树任务基类
+---@class ProcedureSuper @流程基类
+---@class HonorList @Honor 列表容器（已在上方）
+---@class HonorPool @Honor 对象池容器
+---@class HonorQueue @Honor 队列容器
+---@class HonorStack @Honor 栈容器
+
+--endregion
+
+--region Honor 协议 & 系统
+
+---@class ProtocolCallback @协议回调
+---@class ProtocolCmd @协议命令
+---@class ProtocolReceiver @协议接收
+---@class ProtocolSender @协议发送
+---@class ProtocolUtil @协议工具
+---@class SystemArray @系统数组扩展
+---@class SystemSet @系统集合扩展
+---@class SystemDelegate @系统委托
+---@class LuaMemoryMonitor @Lua 内存监控
+---@class XLuaProfiler @XLua 性能分析器
+---@class SystemBase64 @Base64 工具
+---@class Catch @异常捕获工具
+
+--endregion
+
+--region Honor 工具类（Utils）
+
+---@class ActivityUtil @活动工具
+---@class AssetUtil @资源工具
+---@class BoundsUtil @包围盒工具
+---@class CoUtil @协程工具
+---@class DataParseUtil @数据解析工具
+---@class LevelUtil @关卡工具
+---@class LuaUtil @Lua 工具
+---@class QuestUtil @任务工具
+---@class RewardUtil @奖励工具
+---@class ScreenUtil @屏幕工具
+---@class SpineUtil @Spine 工具
+---@class StarFlyUtil @星光飞行动画工具
+---@class StringUtil @字符串工具
+---@class TableUtil @表格工具
+---@class TimeUtil @时间工具
+---@class TrackUtil @轨迹工具
+---@class TweenUtil @补间动画工具
+---@class UIAdaptUtil @UI 适配工具
+---@class UnityUtil @Unity 工具
+---@class UTF8Util @UTF8 工具
+---@class SaveDataHelper @存档工具
+---@class UIUtil @UI 工具
+---@class CoroutineWaitHelper @协程等待工具
+
+--endregion
+
+--region Honor 全局 Helper（单例）
+
+---@class HonorAccountHelper @账号助手
+---@class HonorConfigHelper @配置助手
+---@class HonorCoreManager @Honor 核心管理器
+---@class HonorCoroutineHelper @协程助手
+---@class HonorEventHelper @事件助手
+---@class HonorIAPHelper @内购助手
+---@class HonorNotificationHelper @通知助手
+---@class HonorTimerHelper @计时器助手
+---@class HonorAssetManager @资源管理器
+---@class HonorPoolHelper @对象池助手
+---@class UIManager @UI 管理器
+---@class UIEventCode @UI 事件码
+---@class Binder @数据绑定器
+---@class BindValue @绑定值
+---@class BindValueOperate @绑定值操作枚举
+---@class FwEventCmd @框架事件命令
+---@class HonorTweenType @补间类型枚举
+
+--endregion
+
+--region Game 业务管理器 & Helper
+
+---@class BuffManager @Buff 管理器
+---@class UIBubbleManager @气泡管理器
+---@class GameMainUIPushMgr @主界面 UI 推送管理器
+---@class GameMainUIPushConfig @主界面 UI 推送配置
+---@class GuideNewContext @引导上下文
+---@class OpenCanvas @画布打开配置
+
+--endregion
+
+--region Game 状态机
+
+---@class GameStateBase @游戏状态基类（已在上方）
+---@class GameLoadMapStateBase @加载地图状态基类
+---@class GameLoadMapState @加载地图状态
+---@class GameLoginState @登录状态
+---@class GameMainState @主界面状态
+---@class GamePlayingState @游玩状态
+---@class GameTurnToProLoadState @转预热加载状态
+
+--endregion
+
+--region Game Launcher 流程
+
+---@class ProcedurePlaying @游玩流程
+---@class ProcedurePreload @预加载流程
+
+--endregion
+
+--region Game 地图 & 实体
+
+---@class GameMapBase @地图基类
+---@class UIMapBase @UI 地图基类
+---@class UIMap @地图界面
+---@class BuildingItem @建筑物实体
+---@class CharacterPlayer @玩家角色实体
+---@class CharacterCtrl @角色控制器
+---@class MapObjectCtrl @地图物件绑定入口
+---@class ObjectItem @物品实体
+---@class ZoneItem @分区容器节点
+---@class FishItem @生命鱼图标
+---@class SectionItem @分区项
+---@class CollectItemView @收集项视图
+---@class RankItem @排行项
+
+--endregion
+
+--region Game UI 视图
+
+---@class UILoginView @登录界面
+---@class UILoadMapView @加载地图界面
+---@class UIMainPlaying @主玩法界面
+---@class UIMainStateViewView @关卡主界面视图
+---@class UIMainStateViewViewModel @关卡主界面视图模型
+---@class UIMainStateViewView.BVKey @关卡主界面绑定键
+---@class UIMainStateViewViewModel.BVKey @关卡主界面视图模型绑定键
+---@class UIRankView @排行榜界面
+---@class UISettingView @设置界面
+---@class UILevelFailedView @关卡失败界面
+---@class UILevelVictoryView @关卡胜利界面
+
+--endregion
+
+--region Game 核心管理器拆分模块
+
+---@class GameCoreManagerData @游戏核心数据模块
+---@class GameCoreManagerEffect @游戏核心特效模块
+---@class GameCoreManagerLevelFinish @游戏核心结算模块
+---@class GameCoreManagerUseItem @游戏核心道具模块
+
+--endregion
+
+--region Game 数据 POD 类型
+
+---@class BoosterModifyParam @道具修改参数
+---@class BoosterUnlockLevelConfig @道具解锁关卡配置
+---@class BubbleGenerateConfig @气泡生成配置
+---@class BuffModifyConfig @Buff 修改配置
+---@class CacheProp @缓存道具
+---@class LifeChange @生命变化
+---@class PropUsedEffectParam @道具生效效果参数
+---@class PropUsedFreezeParam @道具冻结参数
+---@class ResourceID @资源 ID
+---@class TimestampRecorder @时间戳记录器
+---@class GameVictorySettlementStep @胜利结算步骤枚举
+---@class LoginData @登录数据
+
+--endregion
+
+--region Game 枚举（E* 前缀）
+
+---@class EActivityDoublePointsSource @活动双倍积分来源
+---@class EActivityEnterFormPosType @活动进入表单位置类型
+---@class EActivityEntryPos @活动入口位置
+---@class EActivityIconPage @活动图标页
+---@class EAvatarFrameObtainType @头像框获取类型
+---@class EAvatarFrameType @头像框类型
+---@class ECharacterLifecycle @角色生命周期
+---@class ECharacterType @角色类型
+---@class ECollectionRarity @收集稀有度
+---@class ECustomTweenID @自定义补间 ID
+---@class EDailyQuestStatus @日常任务状态
+---@class EDailyQuestSubType @日常任务子类型
+---@class EGameMainUIPUshRunningType @主界面推送运行类型
+---@class EGameOverType @游戏结束类型
+---@class EHotfixStep @热更步骤
+---@class EIAPType @内购类型
+---@class EInterAdID @插屏广告 ID
+---@class EItemSubType @道具子类型
+---@class ELayerName @层级名称
+---@class ELevelDifficulty @关卡难度
+---@class ELevelMode @关卡模式
+---@class ELevelState @关卡状态
+---@class ELevelType @关卡类型
+---@class ELifeID @生命 ID
+---@class ELocalActivityId @本地活动 ID
+---@class EMainUIBubbleType @主界面气泡类型
+---@class EMainUIPushPriority @主界面推送优先级
+---@class EMainUIPushTrigger @主界面推送触发
+---@class EMainUIPushType @主界面推送类型
+---@class EMapLayoutConfig @地图布局配置
+---@class EMapType @地图类型
+---@class EOpenLevelPrepareSource @打开关卡准备来源
+---@class EPersistentForEditor @编辑器持久化标记
+---@class EPersistentForGame @游戏持久化标记
+---@class EPlayHudCycleAction @游玩 HUD 周期动作
+---@class EPlayOnceCutsceneType @一次性过场动画类型
+---@class EPopBubbleOrientation @弹出气泡方向
+---@class EPosType @位置类型
+---@class EResourceID @资源 ID 枚举
+---@class EResourceType @资源类型
+---@class ESelectType @选择类型
+---@class ESettingType @设置类型
+---@class ESingletonInitPriority @单例初始化优先级
+---@class ESingletonPriority @单例优先级
+---@class ESpineUpdateTiming @Spine 更新时机
+---@class ETaskType @任务类型
+---@class ETimestampID @时间戳 ID
+---@class EUIChapterListAnim @章节列表动画
+---@class EUIControllerAnim @UI 控制器动画
+---@class EUIStackName @UI 栈名称
+---@class EUITaskOpenSource @UI 任务打开来源
+---@class KeyCode @按键码
+
+--endregion
+
+--region 其他全局类型
+
+---@class EventCmd @事件命令（已在上方）
+---@class EventCodes @事件码
+---@class Ease @缓动枚举（本地定义，对齐 DG.Tweening.Ease）
+---@class Tables.UIs_Item @UI 配置项（已在上方）
+---@class UIs @UI 配置汇总
+
+--endregion

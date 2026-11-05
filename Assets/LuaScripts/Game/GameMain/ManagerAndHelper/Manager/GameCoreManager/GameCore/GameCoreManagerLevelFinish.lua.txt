@@ -37,7 +37,6 @@ end
 ---@param args table 初始化参数
 ---@return GameCoreManagerLevelFinish
 ---=========================================================================
----TODO [优化] 移除 Create 内冗余局部变量，直接返回 new()
 function GameCoreManagerLevelFinish:Create(args)
     return GameCoreManagerLevelFinish.new(args)
 end
@@ -72,22 +71,27 @@ function GameCoreManagerLevelFinish:OnGameOverAfter()
         -- 本章全通则自动解锁下一章节（"章节=单关地图"模式换章闭环），
         -- 结算界面"下一关"按钮据此直接进入已解锁的下一章。
         ChapterListManager:TryUnlockNextChapter(curChapterId)
-        -- 保存核心数据
-        coreData:SaveData()
+        -- 保存核心数据（coreData 理论上必存在，空判兜底防止异常时序崩溃）
+        if coreData then
+            coreData:SaveData()
+        end
     else
         -- 失败 → 清空连胜
-       -- SaveRootData.GameData.playerInfo.winStreak = 0
-       -- SaveIO.GameData.Save_playerInfo_winStreak()
+        -- SaveRootData.GameData.playerInfo.winStreak = 0
+        -- SaveIO.GameData.Save_playerInfo_winStreak()
         -- 挑战关卡失败 → 清空挑战进度
         if GameCoreManager:IsInChallengeLevel() then
             ChallengeLevelHelper:ClearCurrentChallengeLevel()
         end
-        -- 派发关卡失败事件
-        HonorEventHelper:FireNow(
-                EventCmd.OnLevelFailure,
-                GameCoreManager._CurLevelData.ChapterId,
-                GameCoreManager._CurLevelData.LevelId
-        )
+        -- TODO: 兜底保护 - _CurLevelData 在切章/重玩异常时序下可能为 nil，直接索引 .ChapterId 会崩，先判空再发事件
+        local curLevelData = GameCoreManager._CurLevelData
+        if curLevelData then
+            HonorEventHelper:FireNow(
+                    EventCmd.OnLevelFailure,
+                    curLevelData.ChapterId,
+                    curLevelData.LevelId
+            )
+        end
     end
 end
 
@@ -134,8 +138,10 @@ function GameCoreManagerLevelFinish:StartLevelFinishProcessCoroutine()
 
     -- UI遮罩，防止操作穿透
     GameMainRoot.HonorUIManager:AddUIMaskLayerRef("GamePlayManagerLevelFinish:StartLevelFinishProcessCoroutine")
+    -- 结算停留延时配置兜底，缺省 0 表示不等待
+    local delayTime = (Tables.Constants and Tables.Constants.GameEndTime
+            and Tables.Constants.GameEndTime.Value and Tables.Constants.GameEndTime.Value[1]) or 0
     local startTime = UnityEngine.Time.realtimeSinceStartup
-    local delayTime = Tables.Constants.GameEndTime.Value[1]
     local remainTime = delayTime - (UnityEngine.Time.realtimeSinceStartup - startTime)
 
     if remainTime > 0 then

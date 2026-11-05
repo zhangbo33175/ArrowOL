@@ -71,7 +71,10 @@ function UIMainStateViewView:OnInit(viewModel)
     UIMainStateViewView.super.OnInit(self, viewModel)
     -- 无数据变化监听
     LevelManager:GetCurrentLevelInfo()
-    self.LevelTxt.text = viewModel:GetChapterLevel()
+    -- viewModel/LevelTxt 注入缺失时空安全跳过，避免刷新文案中断初始化
+    if viewModel and self.LevelTxt then
+        self.LevelTxt.text = viewModel:GetChapterLevel()
+    end
 end
 
 ---开始
@@ -282,6 +285,11 @@ end
 ---@desc 更新 latestChapterId/curChapterId/全部章节 lv=1 并持久化，运行时章节回退为"1"，刷新主界面当前关卡文案
 function UIMainStateViewView:OnResetLevelButtonClicked()
     SoundManager:PlaySound("UI_SeasonStart")
+    -- 存档结构空保护：SaveRootData/GameData 缺失时直接中止，避免索引空表报错
+    if not SaveRootData or not SaveRootData.GameData then
+        PrintWarning("[UIMainStateView] 存档数据缺失，重置章节跳过")
+        return
+    end
     -- 最新解锁章节 → 1
     SaveRootData.GameData.latestChapterId = "1"
     -- 当前游玩章节 → 1

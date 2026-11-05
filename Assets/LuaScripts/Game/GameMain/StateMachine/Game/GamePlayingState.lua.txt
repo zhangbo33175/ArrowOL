@@ -68,7 +68,7 @@ function GamePlayingState:OnStateEnter(finishCallback)
             SoundManager:PlayBgm(chapterData.MapMusic)
         end
     end
-    
+
     -- 相机移动到关卡战斗位置
     local mapData = MapManager.CurMapData
     if mapData and mapData.m_PlayCamData then
@@ -76,10 +76,6 @@ function GamePlayingState:OnStateEnter(finishCallback)
                 mapData.m_PlayCamData,
                 0,--相机放大缩小地图效果
                 function()
-                    -- 相机动画完成后的回调
-                    local closeUICallback = function()
-                        PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
-                    end
                     -- 移除UI遮罩
                     GameMainRoot.HonorUIManager:SubUIMaskLayerRef()
                     -- 恢复地图输入与相机
@@ -87,25 +83,34 @@ function GamePlayingState:OnStateEnter(finishCallback)
                     GameMapCameraManager:Resume()
                     -- 动画结束后重新聚焦，确保相机位置正确（取消分区：整图视角，吸附跟随目标到当前位置）
                     GameMapCameraManager:SyncFollowToCamera()
-                    -- 进入游戏
-                    PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
-                    -- 打开游戏内核心UI
-                    OpenUISync(UIs.UIMainPlaying, { callback = closeUICallback })
+                    -- 进入游戏并打开游戏内核心UI（正常/异常路径共用同一入口）
+                    self:_OpenMainPlayingUIOnEnter()
                 end
         )
+    -- TODO: 兜底保护 - MapManager.CurMapData 或 m_PlayCamData 未配置时（老关卡/异常数据），跳过相机动画直接进游戏，避免 LookMap(nil) 崩溃
     else
         PrintWarning("[GamePlayingState] 当前地图数据或游玩相机数据为空，跳过相机视角切换")
         GameMainRoot.HonorUIManager:SubUIMaskLayerRef()
-        PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
-        OpenUISync(UIs.UIMainPlaying, {
-            callback = function()
-                PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
-            end
-        })
+        -- 无相机动画时直接进入游戏并打开主玩法 UI
+        self:_OpenMainPlayingUIOnEnter()
     end
 
     -- 执行完成回调
     SafeCallFinish(finishCallback)
+end
+
+---=========================================================================
+---@brief 进入游戏并打开主玩法 UI（相机动画完成/异常路径共用）
+---@desc 顺序：EnterGame → 同步打开 UIMainPlaying → 打开完成回调 BeginGame；
+---      抽取目的为消除 OnStateEnter 中正常/异常两个分支的重复编排代码
+---=========================================================================
+function GamePlayingState:_OpenMainPlayingUIOnEnter()
+    PlayGameplayCycle:OnAction(EPlayHudCycleAction.EnterGame)
+    OpenUISync(UIs.UIMainPlaying, {
+        callback = function()
+            PlayGameplayCycle:OnAction(EPlayHudCycleAction.BeginGame)
+        end
+    })
 end
 
 --endregion

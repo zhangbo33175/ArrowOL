@@ -79,12 +79,22 @@ function CharacterGenerationManager:SpawnCharacterByData(characterData, newParen
         return nil
     end
 
-    -- 从对象池获取角色预制体实例
+    -- TODO: 兜底保护 - 对象池未命中或预制体资源缺失时 PoolManager:Get 返回 nil/已销毁对象，
+    --       后续 go:GetComponent 会抛 MissingReferenceException，必须先判空再取组件
     local go = PoolManager:Get(characterData.ResName, newParent)
+    if not go or IsNull(go) then
+        PrintError("角色对象池获取失败 ResName:{0}, ID:{1}", characterData.ResName, tostring(characterData.ID))
+        return nil
+    end
     ---@type Honor.Runtime.LuaBehaviour
     local luaBehaviour = go:GetComponent("LuaBehaviour")
     ---@type CharacterBase
-    local characterBase = luaBehaviour.luaClass
+    -- TODO: 兜底保护 - 预制体未挂 LuaBehaviour 或 luaClass 绑定脚本缺失时 luaClass 为 nil，后续调用角色方法会崩
+    local characterBase = luaBehaviour and luaBehaviour.luaClass or nil
+    if not characterBase then
+        PrintError("角色 LuaBehaviour/luaClass 为空 ResName:{0}, ID:{1}", characterData.ResName, tostring(characterData.ID))
+        return nil
+    end
 
     -- 复位角色实例并绑定配置数据与游戏对象
     characterBase:Clear()
@@ -172,6 +182,16 @@ function CharacterGenerationManager:_ResolveSpriteName(sprite, fallbackIcon)
         spriteName = fallbackIcon
     end
     return spriteName
+end
+
+---=========================================================================
+---@brief 读取格子像素尺寸（编辑器/运行时统一为 32）
+---@desc 角色与物件坐标换算共用：pixel = Grid × gridSize；统一读取点，避免散落解析与魔数
+---@type fun():number
+---@return number @格子像素尺寸（配置缺失时回退 32）
+---=========================================================================
+function CharacterGenerationManager:_GetGridSize()
+    return tonumber(EMapLayoutConfig.gridSize) or 32
 end
 
 ---=========================================================================
@@ -303,63 +323,79 @@ function CharacterGenerationManager:_SpawnCharactersForSection(mapSectionData, g
     local sectionId = tonumber(mapSectionData.SectionId) or 1
 
     for i, v in ipairs(charList) do
-        if not v or not v.Id then
-            print("[CharacterGenerationManager] 无效角色配置数据，跳过")
-            goto continue
-        end
-
-        -- 根据ID生成角色实体挂载到地图根节点
-        local characterBase = self:SpawnCharacter(v.Id, gameMapRoot)
-        if not characterBase then
-            print("[CharacterGenerationManager] 角色生成失败 ID:" .. tostring(v.Id))
-            goto continue
-        end
-        -- 实例唯一收集键：分区ID_角色ID_序号（同分区允许多个相同 ID 实例，各自独立收集）
-        local collectKey = tostring(sectionId) .. "_" .. tostring(v.Id) .. "_" .. tostring(i)
-        -- 角色展示 ID 保留配置 ID（日志/排查用），收集/去重统一走实例唯一键 _CollectKey
-        characterBase.ID = v.Id
-        characterBase._CollectKey = collectKey
-
-        -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
-        -- 【取消分区】整图单分区：编辑器数据即整图坐标（GridX 0..GridCols-1），挂载点 ZoneItem_1/Root
-        -- 即整图坐标空间，无需再减分区水平偏移（原多分区 regionCol×zoneWidth 偏移已失效）。
-        -- Y 轴：编辑器左下原点向上 → Root top-left 向下，取反后与背景一致。
-        local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
-        local charWx = (v.GridX or 0) * gridSize
-        local charWy = (v.GridY or 0) * gridSize
-        characterBase._GameObject.transform.localPosition = UnityEngine.Vector3(charWx, -charWy, 0)
-
-        -- 刷新角色图标
-        local catData = CharacterGenerationDataManager:GetDataById(v.Id)
-        if isNewFormat then
-            ---TODO 新格式：按规范§9，角色静态表 Icon 优先，地图条目 Image/Sprite 仅作兜底
-            self:_RefreshCharacterIcon(characterBase, catData and catData.Icon, v.Image or v.Sprite)
-        else
-            -- 老格式：保持原调用顺序（地图配置 Sprite 优先，回退角色表 Icon），行为不变
-            self:_RefreshCharacterIcon(characterBase, v.Sprite, catData and catData.Icon)
-        end
-
-        ---TODO [路径移动] PathPoints 非空时实际启动巡逻移动（DOTween 匀速序列，随角色回收/销毁自动停止）；
-        ---     _PathPoints 赋值保留兼容旧读取方
-        if isNewFormat and v.PathPoints and #v.PathPoints > 0 then
-            ---TODO [坐标变换] PathPoints 同样为编辑器坐标系，统一变换到世界系再启动移动
-            local worldPathPoints = TransformEditorPathPoints(v.PathPoints, sectionId)
-            characterBase._PathPoints = worldPathPoints
-            local loop = v.PatrolLoop == true
-            characterBase:StartPathMove(worldPathPoints, v.Speed, loop)
-        end
-
-        -- 存入全局角色管理列表（以实例唯一键登记，同 ID 多实例不互相覆盖）
-        self:_RegisterCharacterToList(characterList, collectKey, characterBase)
-
-        -- 登记角色归属关卡与关卡物品总数（收集判定依据，收敛到 LevelCollectManager）
-        -- 携带展示信息 meta（图标名/是否角色），供收集面板列表展示
-        local charMeta = characterBase and characterBase._CharData
-                and { icon = characterBase._CharData.Icon, isRole = true } or { isRole = true }
-        LevelCollectManager:RegisterLevelItem(sectionId, collectKey, charMeta)
-
-        ::continue::
+        self:_ProcessSingleCharacter(v, i, gameMapRoot, characterList, sectionId, isNewFormat)
     end
+end
+
+---=========================================================================
+---@brief 处理单个分区角色条目（生成/定位/图标/路径/登记）
+---@desc 由 _SpawnCharactersForSection 循环逐条调用；条目无效或生成失败时直接返回（等价原 goto continue），
+---      职责：按ID生成实体→格子坐标换算→刷新图标→启动巡逻路径→写入全局列表与关卡收集表
+---@type fun(v:table,index:number,gameMapRoot:UnityEngine.Transform,characterList:table,sectionId:number,isNewFormat:boolean):void
+---@param v table @分区角色条目（Characters 新格式或 MapData 旧格式）
+---@param index number @循环序号（同分区同ID多实例收集键唯一用）
+---@param gameMapRoot UnityEngine.Transform @地图根节点（实体挂载点）
+---@param characterList table @全局角色列表（登记用）
+---@param sectionId number @当前分区ID
+---@param isNewFormat boolean @是否新地图数据格式（图标优先级/PathPoints 处理分支）
+---=========================================================================
+function CharacterGenerationManager:_ProcessSingleCharacter(v, index, gameMapRoot, characterList, sectionId, isNewFormat)
+    -- 无效条目直接跳过（等价原 goto continue）
+    if not v or not v.Id then
+        print("[CharacterGenerationManager] 无效角色配置数据，跳过")
+        return
+    end
+
+    -- 根据ID生成角色实体挂载到地图根节点
+    local characterBase = self:SpawnCharacter(v.Id, gameMapRoot)
+    if not characterBase then
+        print("[CharacterGenerationManager] 角色生成失败 ID:" .. tostring(v.Id))
+        return
+    end
+
+    -- 实例唯一收集键：分区ID_角色ID_序号（同分区允许多个相同 ID 实例，各自独立收集）
+    local collectKey = tostring(sectionId) .. "_" .. tostring(v.Id) .. "_" .. tostring(index)
+    -- 角色展示 ID 保留配置 ID（日志/排查用），收集/去重统一走实例唯一键 _CollectKey
+    characterBase.ID = v.Id
+    characterBase._CollectKey = collectKey
+
+    -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
+    -- 【取消分区】整图单分区：编辑器数据即整图坐标（GridX 0..GridCols-1），挂载点 ZoneItem_1/Root
+    -- 即整图坐标空间，无需再减分区水平偏移（原多分区 regionCol×zoneWidth 偏移已失效）。
+    -- Y 轴：编辑器左下原点向上 → Root top-left 向下，取反后与背景一致。
+    local gridSize = self:_GetGridSize()
+    local charWx = (v.GridX or 0) * gridSize
+    local charWy = (v.GridY or 0) * gridSize
+    characterBase._GameObject.transform.localPosition = UnityEngine.Vector3(charWx, -charWy, 0)
+
+    -- 刷新角色图标
+    local catData = CharacterGenerationDataManager:GetDataById(v.Id)
+    if isNewFormat then
+        ---TODO 新格式：按规范§9，角色静态表 Icon 优先，地图条目 Image/Sprite 仅作兜底
+        self:_RefreshCharacterIcon(characterBase, catData and catData.Icon, v.Image or v.Sprite)
+    else
+        -- 老格式：保持原调用顺序（地图配置 Sprite 优先，回退角色表 Icon），行为不变
+        self:_RefreshCharacterIcon(characterBase, v.Sprite, catData and catData.Icon)
+    end
+
+    ---TODO [路径移动] PathPoints 非空时实际启动巡逻移动（DOTween 匀速序列，随角色回收/销毁自动停止）；
+    ---     _PathPoints 赋值保留兼容旧读取方
+    if isNewFormat and v.PathPoints and #v.PathPoints > 0 then
+        ---TODO [坐标变换] PathPoints 同样为编辑器坐标系，统一变换到世界系再启动移动
+        local worldPathPoints = TransformEditorPathPoints(v.PathPoints, sectionId)
+        characterBase._PathPoints = worldPathPoints
+        local loop = v.PatrolLoop == true
+        characterBase:StartPathMove(worldPathPoints, v.Speed, loop)
+    end
+
+    -- 存入全局角色管理列表（以实例唯一键登记，同 ID 多实例不互相覆盖）
+    self:_RegisterCharacterToList(characterList, collectKey, characterBase)
+
+    -- 登记角色归属关卡与关卡物品总数（收集判定依据，收敛到 LevelCollectManager）
+    -- 携带展示信息 meta（图标名/是否角色），供收集面板列表展示
+    local charData = characterBase._CharData
+    local charMeta = charData and { icon = charData.Icon, isRole = true } or { isRole = true }
+    LevelCollectManager:RegisterLevelItem(sectionId, collectKey, charMeta)
 end
 
 ---=========================================================================
@@ -455,11 +491,17 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
     ---TODO [物件生成] 物件/建筑走 Model 运行时实体模板（BuildingTemplate/ObjectTemplate，
     ---     已在 LoadResDefs_1 手工注册；模板结构=UI RectTransform+LuaBehaviour[MapObjectCtrl]+子节点 BG Image，
     ---     复刻已验证的 ItemMap 模式；条目无 ResName 映射，按数组类型取对应模板资源名）
+    -- TODO: 兜底保护 - 物件模板资源未注册或对象池未命中时返回 nil，后续 go:GetComponent 会崩，先判空
     local go = PoolManager:Get(resName, gameMapRoot)
+    if not go or IsNull(go) then
+        PrintError("地图物件对象池获取失败 ResName:{0}, ID:{1}", resName, tostring(entry.Id))
+        return nil
+    end
     ---@type Honor.Runtime.LuaBehaviour
     local luaBehaviour = go:GetComponent("LuaBehaviour")
     ---@type MapObjectBase
-    local mapObj = luaBehaviour.luaClass
+    -- TODO: 兜底保护 - 物件模板预制体未挂 LuaBehaviour 或绑定脚本缺失时 luaClass 为 nil，后续调用物件方法会崩
+    local mapObj = luaBehaviour and luaBehaviour.luaClass or nil
     if not mapObj then
         PrintError("地图物件实例化失败：LuaBehaviour.luaClass 为空 ID:{0}", tostring(entry.Id))
         return nil
@@ -480,33 +522,13 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
 
     -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
     -- 【取消分区】整图单分区：编辑器数据即整图坐标，无需分区水平偏移；Y 取反适配 top-left 系
-    local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
+    local gridSize = self:_GetGridSize()
     local objWx = (entry.GridX or 0) * gridSize
     local objWy = (entry.GridY or 0) * gridSize
     go.transform.localPosition = UnityEngine.Vector3(objWx, -objWy, 0)
 
     -- 图标刷新（子节点 BG Image）与显示尺寸（格子数×32 像素）
-    local iconTrans = go.transform:Find("BG")
-    if iconTrans then
-        local uiImage = iconTrans:GetComponent(typeof(UnityEngine.UI.Image))
-        if uiImage then
-            local spriteName = self:_ResolveSpriteName(entry.Image, nil)
-            if spriteName then
-                GamePlayHelper:RefreshImageSprite(mapObj, uiImage, spriteName)
-            end
-        end
-        ---TODO [物件生成] 编辑器矩形像素尺寸=Width*GridSize × Height*GridSize（GridSize=32，
-        ---     SceneEditModule.Render.cs:136），运行时直接把 BG 的 sizeDelta 设为该像素尺寸
-        local gridPixel = 32
-        local width = tonumber(entry.Width)
-        local height = tonumber(entry.Height)
-        if width and height then
-            local iconRect = iconTrans:GetComponent(typeof(UnityEngine.RectTransform))
-            if iconRect then
-                iconRect.sizeDelta = UnityEngine.Vector2(width * gridPixel, height * gridPixel)
-            end
-        end
-    end
+    self:_SetupMapObjectIconAndSize(mapObj, go, entry)
 
     -- 路径移动：PathPoints 非空即实际沿路径移动；循环语义 PatrolLoop 优先，否则取 Loop
     ---TODO [坐标变换] 物件 PathPoints 编辑器坐标 → 世界坐标后再启动移动
@@ -517,6 +539,40 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
     -- 登记回收列表
     self._mapObjectTable:Add(mapObj)
     return mapObj
+end
+
+---=========================================================================
+---@brief 配置地图物件图标与显示尺寸（BG 子节点）
+---@desc 子节点 BG Image 按 entry.Image 解析别名刷新；Width/Height 格子数换算为像素尺寸写入 RectTransform；
+---      BG 节点缺失时静默跳过
+---@type fun(mapObj:MapObjectBase,go:UnityEngine.GameObject,entry:table):void
+---@param mapObj MapObjectBase @物件实例（图标刷新的上下文）
+---@param go UnityEngine.GameObject @物件根节点
+---@param entry table @MapObjectData 条目（Image/Width/Height 取数）
+---=========================================================================
+function CharacterGenerationManager:_SetupMapObjectIconAndSize(mapObj, go, entry)
+    local iconTrans = go.transform:Find("BG")
+    if not iconTrans then
+        return
+    end
+    local uiImage = iconTrans:GetComponent(typeof(UnityEngine.UI.Image))
+    if uiImage then
+        local spriteName = self:_ResolveSpriteName(entry.Image, nil)
+        if spriteName then
+            GamePlayHelper:RefreshImageSprite(mapObj, uiImage, spriteName)
+        end
+    end
+    ---TODO [物件生成] 编辑器矩形像素尺寸=Width*GridSize × Height*GridSize（GridSize=32，
+    ---     SceneEditModule.Render.cs:136），运行时直接把 BG 的 sizeDelta 设为该像素尺寸
+    local gridPixel = 32
+    local width = tonumber(entry.Width)
+    local height = tonumber(entry.Height)
+    if width and height then
+        local iconRect = iconTrans:GetComponent(typeof(UnityEngine.RectTransform))
+        if iconRect then
+            iconRect.sizeDelta = UnityEngine.Vector2(width * gridPixel, height * gridPixel)
+        end
+    end
 end
 
 --endregion

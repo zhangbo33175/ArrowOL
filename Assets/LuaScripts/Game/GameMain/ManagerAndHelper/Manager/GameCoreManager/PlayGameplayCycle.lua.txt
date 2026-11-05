@@ -97,6 +97,9 @@ end
 ---      不中断其余管理器的生命周期推进。
 ---@param methodName ECharacterLifecycle 生命周期方法名（枚举值即方法名字符串，如 ECharacterLifecycle.OnInitGame）
 function PlayGameplayCycle:_BroadcastToAllManagers(methodName)
+    if not methodName then
+        return
+    end
     local managers = {
         GameCoreManager,
         CharacterGenerationManager,

@@ -304,7 +304,9 @@ function GameManager:_OnCanvasClose(uiName)
     for i = 2, count do
         local currItem = self._openOverCanvasArray[i]
         local maxItem = self._openOverCanvasArray[maxIndex]
-        if currItem.UIInfo.IsFullScreenUI and currItem.UIInfo.ZOrder >= maxItem.UIInfo.ZOrder then
+        -- 空配置兜底，避免脏数据导致索引崩溃
+        if currItem.UIInfo and maxItem.UIInfo
+                and currItem.UIInfo.IsFullScreenUI and currItem.UIInfo.ZOrder >= maxItem.UIInfo.ZOrder then
             maxIndex = i
         end
     end

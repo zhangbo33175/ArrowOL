@@ -58,7 +58,6 @@ end
 ---@type fun():void
 function UIMainPlaying:OnAddListeners()
     UIMainPlaying.super.OnAddListeners(self)
-
 end
 
 ---唤醒
@@ -144,14 +143,20 @@ end
 ---@desc 由 UIMainPlayingManager:RefreshCompleteNumber 调用，写入 CompleteNumber 文本
 ---@param value any @完成数量（由 Manager 传入）
 function UIMainPlaying:SetCompleteNumber(value)
-    self.CompleteNumber.text = value
+    -- 文本组件可能因 Prefab 缺注入而未绑定，空安全跳过避免打断刷新流程
+    if self.CompleteNumber then
+        self.CompleteNumber.text = value
+    end
 end
 
 ---@brief 设置已使用道具数
 ---@desc 由 UIMainPlayingManager:RefreshUsedNumber 调用，写入 UsedNumber 文本
 ---@param value any @已使用道具数量（由 Manager 传入）
 function UIMainPlaying:SetUsedNumber(value)
-    self.UsedNumber.text = value
+    -- 文本组件可能因 Prefab 缺注入而未绑定，空安全跳过避免打断刷新流程
+    if self.UsedNumber then
+        self.UsedNumber.text = value
+    end
 end
 
 --endregion

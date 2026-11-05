@@ -86,7 +86,7 @@ function GameCoreManager:ClearData()
     self._ExitSureTip = {}
     self._ExitSureTipAgain = {}
 
-    -- 逐层清理子模块缓存（Skill模块注释屏蔽，防止nil调用报错）
+    -- 逐层清理子模块缓存
     self._GameCoreManagerData:ClearData()
     self._GameCoreManagerEffect:ClearData()
     self._GameCoreManagerLevelFinish:ClearData()
@@ -166,7 +166,7 @@ end
 ---@return Tables.LevelData_Item|nil 关卡配置数据，未取到关卡ID时返回 nil
 ---=========================================================================
 function GameCoreManager:GetLevelData(chapterId)
-    -- 【取消分区】章节地图为整图单分区：恒取第 1 分区（存档 lv 不再作为分区序号使用）
+    -- 章节地图为整图单分区：恒取第 1 分区（存档 lv 不再作为分区序号使用）
     local levelData = GamePlayHelper:LoadLevelData(chapterId, 1)
     return levelData
 end
@@ -193,7 +193,7 @@ end
 ---@return boolean true=最新关卡 false=普通关卡
 ---=========================================================================
 function GameCoreManager:IsLatestChapter()
-    if not self._CurLevelData then
+    if not self._CurLevelData or not ChapterListManager then
         return false
     end
     return self._CurLevelData.ChapterId == ChapterListManager:GetLatestChapterId()
@@ -205,7 +205,7 @@ end
 ---@return boolean true=挑战关卡 false=常规关卡
 ---=========================================================================
 function GameCoreManager:IsInChallengeLevel()
-    if self._CurLevelData == nil then
+    if self._CurLevelData == nil or not GameManager then
         return false
     end
     -- 挑战模式判定：主界面"每日挑战"按钮 → LevelManager:SetLevelMode(ELevelMode.DAILY)
@@ -472,50 +472,68 @@ function GameCoreManager:SetOnGameplay(character)
 
         -- 未收集则加入已收集列表，并延迟销毁原候选实体（覆盖流光收集动画时长）
         if not ContainsKey(characterChooseList, collectKey) then
-            if characterChooseList then
-                -- 统一构建收集项，消除对 collectKey 的重复索引
-                ---TODO [优化] 收集项构建抽为局部变量，消除 characterChooseList[collectKey] 三次重复索引
-                local collectedEntry = {}
-                collectedEntry.ID = character.ID
-                collectedEntry.CollectKey = collectKey
-                collectedEntry.Character = character
-                characterChooseList[collectKey] = collectedEntry
-                -- 角色成功收集，通知 UI 刷新目标完成数并播放流光动画；
-                -- 携带角色实体实例（CharacterBase），供 UIMainPlayingManager 流光动画读取图标与坐标
-                --TODO: [修复] OnCharacterCollected 原传 _CharData（数据，无 .cs），改为传 CharacterList 中的角色实例，否则流光动画因"角色无效"跳过
-                HonorEventHelper:Fire(EventCmd.OnCharacterCollected,
-                        characterList[collectKey] and characterList[collectKey].Character or character)
-            end
-            -- 角色实体延迟销毁：覆盖流光收集动画时长（UIMainPlayingManager 播放图标飞向数字并渐隐），
-            -- 避免立即 OnDestroy 导致图标瞬间消失；延时到期后再销毁实体，防止残留
-            --TODO: [优化] 收集后角色延迟销毁（延时覆盖流光动画时长），不再立即 OnDestroy，保证图标"化作流光飞向数字"表现完整
-            --      销毁直接用命中的角色实例 character（角色可能未登记进 GameCoreManagerData 收集列表，避免 characterList[collectKey] 为 nil 跳过销毁）
-            if character and character.cs ~= nil and not IsNull(character.cs) then
-                local collectedChar = character
-                HonorCoroutineHelper:StartAlone(function()
-                    HonorCoroutineHelper:WaitForSeconds(0.8)
-                    if collectedChar.cs ~= nil and not IsNull(collectedChar.cs) then
-                        collectedChar:OnDestroy()
-                    end
-                end)
-            end
-
-            -- 收敛到 LevelCollectManager，记录收集进度并推进事件（进度广播）
-            -- 仅在新收集成功时上报，避免重复点击已收集角色重复触发结算
-            LevelCollectManager:NotifyItemCollected(collectKey)
-            if LevelCollectManager:IsAllCollected() then
-                self:CheckGameResult(EGameOverType.SUCCESS)
-            end
+            self:_OnNewCharacterCollected(character, collectKey, characterChooseList, characterList)
         end
     else
-        -- 点击空白无匹配角色，扣除生命值
-        self:SubLifeNumber()
-        HonorEventHelper:Fire(EventCmd.LifeTransformation)
-        -- 生命值清零触发失败流程
-        local remainLife = self:GetLifeNumber()
-        if remainLife == 0 then
-            self:CheckGameResult(EGameOverType.FAILURE)
-        end
+        -- 点击空白无匹配角色，扣除生命值并在清零时触发失败
+        self:_OnMissTap()
+    end
+end
+
+---=========================================================================
+--- 新角色收集成功后的统一处理
+---@brief 加入已收集列表、广播收集事件、延迟销毁实体、上报收集进度并判定全收集通关
+---@param character CharacterBase 被收集的角色实体
+---@param collectKey string 实例唯一收集键
+---@param characterChooseList table 已收集列表
+---@param characterList table 全局候选角色列表
+---=========================================================================
+function GameCoreManager:_OnNewCharacterCollected(character, collectKey, characterChooseList, characterList)
+    -- 统一构建收集项，消除对 collectKey 的重复索引
+    local collectedEntry = {}
+    collectedEntry.ID = character.ID
+    collectedEntry.CollectKey = collectKey
+    collectedEntry.Character = character
+    characterChooseList[collectKey] = collectedEntry
+
+    -- 角色成功收集，通知 UI 刷新目标完成数并播放流光动画；
+    -- 携带角色实体实例（CharacterBase），供 UIMainPlayingManager 流光动画读取图标与坐标
+    --TODO: [修复] OnCharacterCollected 原传 _CharData（数据，无 .cs），改为传 CharacterList 中的角色实例，否则流光动画因"角色无效"跳过
+    HonorEventHelper:Fire(EventCmd.OnCharacterCollected,characterList[collectKey] and characterList[collectKey].Character or character)
+
+    -- 角色实体延迟销毁：覆盖流光收集动画时长（UIMainPlayingManager 播放图标飞向数字并渐隐），
+    -- 避免立即 OnDestroy 导致图标瞬间消失；延时到期后再销毁实体，防止残留
+    --TODO: [优化] 收集后角色延迟销毁（延时覆盖流光动画时长），不再立即 OnDestroy，保证图标"化作流光飞向数字"表现完整
+    --      销毁直接用命中的角色实例 character（角色可能未登记进 GameCoreManagerData 收集列表，避免 characterList[collectKey] 为 nil 跳过销毁）
+    if character.cs ~= nil and not IsNull(character.cs) then
+        local collectedChar = character
+        HonorCoroutineHelper:StartAlone(function()
+            HonorCoroutineHelper:WaitForSeconds(0.8)
+            if collectedChar.cs ~= nil and not IsNull(collectedChar.cs) then
+                collectedChar:OnDestroy()
+            end
+        end)
+    end
+
+    -- 收敛到 LevelCollectManager，记录收集进度并推进事件（进度广播）
+    -- 仅在新收集成功时上报，避免重复点击已收集角色重复触发结算
+    LevelCollectManager:NotifyItemCollected(collectKey)
+    if LevelCollectManager:IsAllCollected() then
+        self:CheckGameResult(EGameOverType.SUCCESS)
+    end
+end
+
+---=========================================================================
+--- 点击空白（未命中任何角色）的统一处理
+---@brief 扣除一点生命值，广播生命变化事件，剩余生命为 0 时触发失败结算
+---=========================================================================
+function GameCoreManager:_OnMissTap()
+    self:SubLifeNumber()
+    HonorEventHelper:Fire(EventCmd.LifeTransformation)
+    -- 生命值清零触发失败流程
+    local remainLife = self:GetLifeNumber()
+    if remainLife == 0 then
+        self:CheckGameResult(EGameOverType.FAILURE)
     end
 end
 
@@ -527,7 +545,7 @@ end
 ---@param itemKey string @物件唯一键（生成时登记到分区映射）
 ---=========================================================================
 function GameCoreManager:CollectMapItem(itemKey)
-    if self._IsGameOver then
+    if self._IsGameOver or not itemKey then
         return
     end
     LevelCollectManager:NotifyItemCollected(itemKey)

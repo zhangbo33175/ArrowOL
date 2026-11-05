@@ -51,7 +51,6 @@ end
 ---@param args table 自定义参数
 ---@return GameCoreManagerUseItem
 ---=========================================================================
----TODO [优化] 移除 Create 内冗余局部变量，直接返回 new()
 function GameCoreManagerUseItem:Create(args)
     return GameCoreManagerUseItem.new(args)
 end
@@ -73,9 +72,12 @@ function GameCoreManagerUseItem:RecycleEffectObject()
         return
     end
 
-    for _, effect in pairs(self._longtimeEffects) do
-        if not IsNull(effect) then
-            GameEffectManager:RecycleEffect(effect)
+    -- 全局特效管理器缺失时跳过回收，直接清空引用防止崩溃
+    if GameEffectManager then
+        for _, effect in pairs(self._longtimeEffects) do
+            if not IsNull(effect) then
+                GameEffectManager:RecycleEffect(effect)
+            end
         end
     end
     self._longtimeEffects = nil
@@ -92,6 +94,8 @@ end
 ---@param num number 使用数量，默认1
 ---=========================================================================
 function GameCoreManagerUseItem:OnUsingBooster(boosterID, num)
+    -- TODO: 兜底保护 - 数量缺省按 1 处理，避免缓存到 nil 后续 UseBoosterData 报错
+    num = num or 1
     if not self._isGameWorking or GameManager:IsGamePaused() then
         self._cacheWhenLevelNotWorking = self._cacheWhenLevelNotWorking or {}
         table.insert(self._cacheWhenLevelNotWorking, { boosterID = boosterID, num = num })
@@ -188,6 +192,9 @@ end
 ---@param boosterID string 道具ID
 ---=========================================================================
 function GameCoreManagerUseItem:OnConfirmTakeOffBooster(boosterID)
+    if not boosterID then
+        return
+    end
     ItemManager:OnConfirmUseBooster(boosterID, self._freeTag[boosterID] and 0 or 1)
     self._freeTag[boosterID] = nil
 end
@@ -204,6 +211,7 @@ function GameCoreManagerUseItem:UseBoosterData(boosterID, num)
         return false, nil
     end
 
+    -- TODO: 兜底保护 - num 可能为 nil（外部调用未传数量），nil 参与 + 运算会报 Lua 错，缺省按 1 处理
     num = num or 1
     if self._freeTag[boosterID] then
         num = 0
@@ -220,10 +228,16 @@ function GameCoreManagerUseItem:UseBoosterData(boosterID, num)
     elseif BuffManager:IsBuffPreBooster(boosterID) then
         self:OnConfirmTakeOffBooster(boosterID)
         local boosterData = ResourceDataManager:GetResourceData(boosterID)
-        propId = boosterData.RelatedItem
+        if boosterData then
+            propId = boosterData.RelatedItem
+        end
     end
 
-    GameCoreManager._GameCoreManagerData:RecordLevelBoosterUse(boosterID, 1)
+    -- 数据模块缺失时不记账，避免空索引崩溃
+    local coreData = GameCoreManager._GameCoreManagerData
+    if coreData then
+        coreData:RecordLevelBoosterUse(boosterID, 1)
+    end
     return true, propId
 end
 

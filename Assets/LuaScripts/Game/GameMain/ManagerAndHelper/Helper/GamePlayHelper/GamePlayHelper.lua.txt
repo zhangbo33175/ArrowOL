@@ -42,10 +42,11 @@ end
 ---@brief 判断当前是否处于游戏关卡状态
 ---@return boolean 是否在游戏中
 function GamePlayHelper:IsInLevelState()
-    if GameStateMachine:CurrentStateType() == GameStateCmd.PlayingState then
-        return true
+    -- TODO: 兜底保护 - 游戏启动早期 GameStateMachine 可能尚未初始化
+    if not GameStateMachine then
+        return false
     end
-    return false
+    return GameStateMachine:CurrentStateType() == GameStateCmd.PlayingState
 end
 
 ---@type fun():boolean
@@ -71,7 +72,11 @@ end
 function GamePlayHelper:LoadLevelData(chapterId, levelId)
     ---@type Tables.Chapters_Item
     local chapterConfig = Tables.MainLevels[tostring(chapterId)]
-    if chapterConfig and chapterConfig.MainLevels and not ChallengeLevelHelper:IsChallengeLevel(levelId) and levelId > chapterConfig.MainLevels[2] then
+    -- 边界保护：挑战关卡判定服务缺失时按非挑战处理；MainLevels[2] 缺省时不做上限拦截
+    local isChallenge = ChallengeLevelHelper and ChallengeLevelHelper:IsChallengeLevel(levelId)
+    local maxLevel = chapterConfig and chapterConfig.MainLevels and chapterConfig.MainLevels[2]
+    if chapterConfig and chapterConfig.MainLevels and not isChallenge
+            and type(maxLevel) == "number" and levelId > maxLevel then
         return nil
     end
     local levelName = table.concat({ "LevelData_", chapterId, "_", levelId })
@@ -119,7 +124,12 @@ end
 ---@param levelData Tables.LevelData_Item 关卡数据
 ---@return boolean 是否成功开始
 function GamePlayHelper:PlayLevel(levelData)
+    -- TODO: 兜底保护 - 配置表数据缺失时 levelData 可能为 nil
     if levelData == nil then
+        return false
+    end
+    -- TODO: 兜底保护 - 游戏启动早期 GameCoreManager 可能尚未初始化
+    if not GameCoreManager then
         return false
     end
     if GameCoreManager:IsLifeEnough() and PlayLevelImmediate(self, levelData) then
@@ -133,6 +143,10 @@ end
 ---@param isSuccess boolean 是否胜利
 function GamePlayHelper:GameOver(isSuccess)
     PrintInfo("GameOver,IsSuccess:" .. tostring(isSuccess))
+    -- TODO: 兜底保护 - 游戏结束时 GameCoreManager 可能已被销毁
+    if not GameCoreManager then
+        return
+    end
     GameCoreManager._IsGameOver = true
     GameCoreManager._IsSuccessFinishGame = isSuccess
     GameCoreManager:SetPlayingLevelTag('')
@@ -142,7 +156,7 @@ end
 ---@brief 退出关卡，返回主界面
 function GamePlayHelper:GameExitPlayHud()
     -- 重置相机缩放（放大缩小），避免返回主界面后画面残留缩放状态
-    if GameMapCameraManager.IsInitialized then
+    if GameMapCameraManager and GameMapCameraManager.IsInitialized then
         GameMapCameraManager:UpdateBottomHud(0)
     end
     GameStateMachine:ChangeState(GameStateCmd.MainState, nil)
@@ -155,8 +169,14 @@ end
 --TODO: [游戏流程] 结算界面"重新开始"按钮调用，强制重载当前章节实现重开
 function GamePlayHelper:RePlayCurrentLevel()
     local curChapterId = GamerDataManager:GetCurChapterId()
+    -- TODO: 兜底保护 - 存档数据缺失时当前章节ID可能为 nil
     if not curChapterId then
         PrintError("[GamePlayHelper] 无法获取当前章节ID，重玩失败")
+        return
+    end
+    -- TODO: 兜底保护 - 地图加载早期 MapManager 可能尚未初始化
+    if not MapManager then
+        PrintError("[GamePlayHelper] MapManager 未初始化，重玩失败")
         return
     end
     -- 直接进入加载状态机：先退出游玩状态卸载地图，再重载当前章节
@@ -173,9 +193,13 @@ end
 ---@param callback fun() 加载完成回调
 ---@param refuseAd boolean 不播放广告
 function GamePlayHelper:LoadMainMap(chapterId, callback, refuseAd)
+    if not ChapterDataManager or not MapManager then
+        PrintError("[GamePlayHelper] ChapterDataManager/MapManager 未初始化")
+        return
+    end
     local areaData = ChapterDataManager:GetChaptersDataByChapterId(chapterId)
     if not areaData then
-        PrintError("没有找到章节所在区域数据:" .. chapterId)
+        PrintError("没有找到章节所在区域数据:" .. tostring(chapterId))
         return
     end
     MapManager:OnSetSwitchMap(chapterId, callback, refuseAd)
@@ -191,6 +215,10 @@ end
 --TODO: [游戏流程] 同章重载当前依赖"先 UnloadOldMap 清空 CurLoadChapterId 绕过 OnSetSwitchMap 同章拦截"，
 --      待将"卸载+重载当前章"封装为 MapManager 统一接口后，业务层不再直接触碰 MapManager 内部状态。
 function GamePlayHelper:LoadNextLevel()
+    if not ChapterListManager or not MapManager then
+        PrintError("[GamePlayHelper] ChapterListManager/MapManager 未初始化")
+        return
+    end
     local curChapterId = ChapterListManager:GetRuntimeChapterId()
     if string.isNullOrEmpty(curChapterId) then
         PrintError("[GamePlayHelper] 无法获取当前章节ID，加载下一关失败")
@@ -218,6 +246,10 @@ end
 ---      此处仅对未解锁的边界场景兜底解锁，保证 LoadMapOver 的 IsLatestChapter 判定通过。
 --TODO: [游戏流程] 换章兜底解锁保留；正式流程已由成功结算推进 latestChapterId，勿重复依赖本分支。
 function GamePlayHelper:LoadNextChapter(curChapterId)
+    if not ChapterListManager then
+        PrintError("[GamePlayHelper] ChapterListManager 未初始化")
+        return
+    end
     -- 获取下一章节ID（无下一章节配置 = 已是最后一章）
     local nextChapterId = ChapterListManager:GetNextChapterId(curChapterId)
     if not nextChapterId then
@@ -245,13 +277,14 @@ end
 ---@type fun(ui:LuaBehaviourSuper, uiImage:UnityEngine.UI.Image,spriteName:string):void
 ---@brief 刷新图片精灵  Sprite_sc_2_cat_4
 function GamePlayHelper:RefreshImageSprite(ui, uiImage, spriteName)
-    if ui and uiImage then
-        ---@type LOAD_RES_DEF_ITEM
-        local info = LoadSpriteByName(spriteName)
-        if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
-            uiImage.sprite = ui:LoadAsset(info)
-            uiImage:SetNativeSize()
-        end
+    if not ui or not uiImage or string.isNullOrEmpty(spriteName) then
+        return
+    end
+    ---@type LOAD_RES_DEF_ITEM
+    local info = LoadSpriteByName(spriteName)
+    if info and (not uiImage.sprite or uiImage.sprite.name ~= info.AssetName) then
+        uiImage.sprite = ui:LoadAsset(info)
+        uiImage:SetNativeSize()
     end
 end
 
@@ -266,6 +299,10 @@ end
 ---@return boolean 是否成功
 function PlayLevelImmediate(self, levelData)
     if levelData then
+        if not GameCoreManager then
+            PrintError("PlayLevelImmediate: GameCoreManager 未初始化")
+            return false
+        end
         GameCoreManager._CurLevelData = levelData
         return true
     end

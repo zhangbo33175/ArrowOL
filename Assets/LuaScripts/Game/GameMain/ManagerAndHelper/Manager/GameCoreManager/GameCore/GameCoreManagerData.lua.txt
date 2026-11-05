@@ -37,7 +37,7 @@ function GameCoreManagerData:ctor()
     self._ItemLevelMap          = {}        ---@type table<string,number> itemKey -> 物品归属关卡映射
     self._ItemMeta              = {}        ---@type table<string,table> itemKey -> 物品展示信息（icon 图标名 / isRole 是否角色）
     self._ItemCollected         = {}        ---@type table<string,boolean> itemKey -> 物品是否已收集（单物品收集状态）
-    self._CollectibleTotal     = 0         ---@type number 全局可收集物品总数
+    self._CollectibleTotal      = 0         ---@type number 全局可收集物品总数
     self._CollectibleCollected  = 0         ---@type number 全局已收集物品总数
 
     -- 连击 & 复活广告统计
@@ -55,7 +55,6 @@ function GameCoreManagerData:ctor()
     self._LevelDifficulty       = 1         ---@type number 本局关卡难度系数，影响判定、积分、生成逻辑
     self._LevelMode             = 0         ---@type number 关卡玩法模式ID，区分普通/限时/挑战等分支逻辑
     self._LevelID               = 0         ---@type number 当前加载关卡唯一静态ID
-    ---TODO [优化] ctor 统一初始化 _IsLatestChapterLevel 字段，保持字段类型标注一致
     self._IsLatestChapterLevel  = false     ---@type boolean 当前是否为章节最新解锁关卡
 end
 
@@ -66,7 +65,6 @@ end
 ---@param args table 自定义构造参数（预留）
 ---@return GameCoreManagerData 全新空数据实例
 ---=========================================================================
----TODO [优化] 移除 Create 内冗余局部变量，直接返回 new()
 function GameCoreManagerData:Create()
     return GameCoreManagerData.new()
 end
@@ -205,7 +203,6 @@ end
 ---@type fun():string
 ---@return string 拼接后的进度字符串，格式 "已收集数/总数"
 ---=========================================================================
----TODO [优化] 复用计数接口拼接进度文本，消除 GetTableCount 重复调用
 function GameCoreManagerData:GetCharacterAndChooseListCount()
     return self:GetCharacterChooseListCount() .. "/" .. self:GetCharacterListCount()
 end
@@ -218,14 +215,14 @@ end
 ---@type fun():void
 ---=========================================================================
 function GameCoreManagerData:ResetLevelData()
-    self._States            = {}
-    self._LevelTotal      = {}
-    self._LevelCollected  = {}
-    self._ItemLevelMap    = {}
-    self._ItemMeta          = {}
-    self._ItemCollected     = {}
-    self._CollectibleTotal  = 0
-    self._CollectibleCollected = 0
+    self._States                = {}
+    self._LevelTotal            = {}
+    self._LevelCollected        = {}
+    self._ItemLevelMap          = {}
+    self._ItemMeta              = {}
+    self._ItemCollected         = {}
+    self._CollectibleTotal      = 0
+    self._CollectibleCollected  = 0
 end
 
 ---=========================================================================
@@ -502,6 +499,11 @@ end
 ---@param num number 本次使用道具数量
 ---=========================================================================
 function GameCoreManagerData:RecordLevelBoosterUse(id, num)
+    -- TODO: 兜底保护 - id 无效不记账；num 缺省按 1 计，避免 nil 参与加法报错
+    if not id then
+        return
+    end
+    num = tonumber(num) or 1
     self._NumberOfPropsUsed = self._NumberOfPropsUsed + num
 end
 
@@ -524,6 +526,7 @@ end
 ---@param num number 本次增量（默认1）
 ---=========================================================================
 function GameCoreManagerData:AddComboCount(num)
+    -- TODO: 兜底保护 - num 缺省按 1 计，避免 nil 参与加法报错
     self._ComboCount = self._ComboCount + (num or 1)
 end
 
@@ -550,6 +553,7 @@ end
 ---@param num number 本次增量（默认1）
 ---=========================================================================
 function GameCoreManagerData:AddReviveAdWatchCount(num)
+    -- TODO: 兜底保护 - num 缺省按 1 计，避免 nil 参与加法报错
     self._ReviveAdWatchCount = self._ReviveAdWatchCount + (num or 1)
 end
 

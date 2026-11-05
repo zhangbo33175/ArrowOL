@@ -3,7 +3,12 @@
 --=====================================================================================================
 -- filename:  MapObjectCtrl.lua
 -- author:    云毅
--- descrip:   地图物件/建筑实体入口（C# LuaBehaviour 绑定名，逻辑全部在 MapObjectBase）
+-- created:   2026
+-- @brief     地图物件实体入口
+-- @desc      C# LuaBehaviour 绑定名入口，所有地图物件/建筑/角色/物品的逻辑统一在 MapObjectBase 中实现；
+--            本类仅作为多态绑定点，无额外逻辑
+-- @scope     GameMap 场景物件预制体上的 LuaBehaviour 绑定类
+-- @dependency MapObjectBase
 --=====================================================================================================
 
 ---@class MapObjectCtrl : MapObjectBase

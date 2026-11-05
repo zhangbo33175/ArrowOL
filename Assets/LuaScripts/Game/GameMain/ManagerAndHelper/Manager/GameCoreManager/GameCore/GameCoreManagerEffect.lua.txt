@@ -33,7 +33,6 @@ end
 ---@param args table 初始化参数
 ---@return GameCoreManagerEffect 特效管理器实例对象
 ---=========================================================================
----TODO [优化] 移除 Create 内冗余局部变量，直接返回 new()
 function GameCoreManagerEffect:Create(args)
     return GameCoreManagerEffect.new(args)
 end
@@ -73,13 +72,15 @@ end
 ---@param go UnityEngine.GameObject 特效对象
 ---=========================================================================
 function GameCoreManagerEffect:RecycleEffect(go)
-    if IsNull(go) or not GameEffectManager then
+    if IsNull(go) or not GameEffectManager or not self._EffectList then
         return
     end
     GameEffectManager:RecycleEffect(go)
+    -- 同一特效对象只会登记一次，命中后直接跳出
     for i = #self._EffectList, 1, -1 do
         if self._EffectList[i] == go then
             table.remove(self._EffectList, i)
+            break
         end
     end
 end

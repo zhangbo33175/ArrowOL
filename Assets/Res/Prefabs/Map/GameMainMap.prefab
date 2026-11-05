@@ -67,8 +67,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   areaBounds:
-    m_Center: {x: 2048, y: 2048, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 2048, y: 2048, z: 0}
   mapInCollider: {fileID: 4424449215562312190}
 --- !u!61 &4424449215562312190
 BoxCollider2D:
