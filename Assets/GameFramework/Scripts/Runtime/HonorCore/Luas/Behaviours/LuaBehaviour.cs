@@ -214,6 +214,13 @@ namespace Honor.Runtime
             if (m_PatternType == PatternType.None)
             {
                 index = (int)NonePatternType.Default;
+                // 防护检查：列表为空或索引越界
+                if (LuaScriptNames == null || LuaScriptNames.Count <= index)
+                {
+                    Log.Error($"LuaBehaviour (None Mode) LuaScriptNames 列表为空或长度不足。当前模式：None，预期索引：{index}，列表长度：{LuaScriptNames?.Count ?? 0}。");
+                    aborted = true;
+                    return index;
+                }
                 if (string.IsNullOrEmpty(LuaScriptNames[index]))
                 {
                     Log.Error("LuaBehaviour (None Mode) LuaScriptName 为空。");
@@ -223,6 +230,13 @@ namespace Honor.Runtime
             else if (m_PatternType == PatternType.MVVM)
             {
                 index = (int)MVVMPatternType.View;
+                // 防护检查：列表为空或索引越界
+                if (LuaScriptNames == null || LuaScriptNames.Count <= index)
+                {
+                    Log.Error($"LuaBehaviour (MVVM Mode) LuaScriptNames 列表为空或长度不足。当前模式：MVVM，预期索引：{index}，列表长度：{LuaScriptNames?.Count ?? 0}。");
+                    aborted = true;
+                    return index;
+                }
                 if (string.IsNullOrEmpty(LuaScriptNames[index]))
                 {
                     Log.Error("LuaBehaviour (MVVM Mode) LuaScriptName 为空。");

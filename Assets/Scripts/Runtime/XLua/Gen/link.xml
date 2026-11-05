@@ -23,17 +23,18 @@
 		<type fullname="Honor.Runtime.PrefabInstanceBehaviour" preserve="all"/>
 		<type fullname="Honor.Runtime.PrefabLoader" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorAssetManager" preserve="all"/>
-		<type fullname="Honor.Runtime.GameComponent" preserve="all"/>
-		<type fullname="Honor.Runtime.GameComponentsGroup" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorComponent" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorComponentGroup" preserve="all"/>
 		<type fullname="Honor.Runtime.TimerComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.TimerCounter" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions" preserve="all"/>
-		<type fullname="Honor.Runtime.GameEventCmd" preserve="all"/>
-		<type fullname="Honor.Runtime.GameBinaryExtension" preserve="all"/>
-		<type fullname="Honor.Runtime.GameException" preserve="all"/>
-		<type fullname="Honor.Runtime.GameExtension" preserve="all"/>
-		<type fullname="Honor.Runtime.GameExtensionForUnity" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorEventCmd" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTweenType" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorBinaryExtension" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorException" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorExtension" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorUnityExtension" preserve="all"/>
 		<type fullname="Honor.Runtime.AnimationStateBehaviour" preserve="all"/>
 		<type fullname="Honor.Runtime.FocusObjToCamera" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorClickEventListener" preserve="all"/>
@@ -180,13 +181,13 @@
 		<type fullname="Honor.Runtime.QualityLevel" preserve="all"/>
 		<type fullname="Honor.Runtime.DevicePerformance" preserve="all"/>
 		<type fullname="Honor.Runtime.Encryption" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils" preserve="all"/>
 		<type fullname="Honor.Runtime.GZip" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils" preserve="all"/>
 		<type fullname="Honor.Runtime.Log" preserve="all"/>
 		<type fullname="Honor.Runtime.LuaHandler" preserve="all"/>
 		<type fullname="Honor.Runtime.MD5Handler" preserve="all"/>
 		<type fullname="Honor.Runtime.Timer" preserve="all"/>
-		<type fullname="Honor.Runtime.AorTxt" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorTxt" preserve="all"/>
 		<type fullname="Honor.Runtime.TouchComponent" preserve="all"/>
 		<type fullname="Honor.Runtime.Gestures2D" preserve="all"/>
 		<type fullname="Honor.Runtime.Gestures3D" preserve="all"/>
@@ -217,14 +218,14 @@
 		<type fullname="Honor.Runtime.UILauncherLogoBehaviour" preserve="all"/>
 		<type fullname="Honor.Runtime.UILauncherLogoView" preserve="all"/>
 		<type fullname="Honor.Runtime.UILauncherView" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions+DimensionMode" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions+AssetType" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions+PathType" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions+DownloadStep" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions+DebugMode" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions+Language" preserve="all"/>
-		<type fullname="Honor.Runtime.GameDefinitions+DebugWindowModel" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions+DimensionMode" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions+AssetType" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions+PathType" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions+DownloadStep" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions+DebugMode" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions+Language" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorDefinitions+DebugWindowModel" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorTextEffectOutline+HorizontalAligmentType" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorTextEffectOutline+Line" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorTextEffectSpacing+HorizontalAligmentType" preserve="all"/>
@@ -239,68 +240,68 @@
 		<type fullname="Honor.Runtime.DebuggerComponent+ConsoleWindow" preserve="all"/>
 		<type fullname="Honor.Runtime.DebuggerComponent+LogNode" preserve="all"/>
 		<type fullname="Honor.Runtime.LauncherComponent+DevicePerformanceData" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AppDownload" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AB" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+FileFragment" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+LuaScript" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Json" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Font" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Prefab" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Texture" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+PicsForAtlas" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Localization" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Table" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Proto" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Save" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Config" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+UI" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Sound" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Vibrate" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+IDEDebugger" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Debugger" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Purchase" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Track" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+CachedPackageInfo" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Project" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Native" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Tool" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+GetImage" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AppDownload" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AB" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+FileFragment" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+LuaScript" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Json" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Font" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Prefab" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Texture" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+PicsForAtlas" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Localization" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Table" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Proto" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Save" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Config" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+UI" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Sound" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Vibrate" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+IDEDebugger" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Debugger" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Purchase" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Track" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+CachedPackageInfo" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Project" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Native" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Tool" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+GetImage" preserve="all"/>
 		<type fullname="Honor.Runtime.Log+LogLevel" preserve="all"/>
 		<type fullname="Honor.Runtime.HonorDef+PlayerPrefsKey" preserve="all"/>
 		<type fullname="Honor.Runtime.ResPaths+PathsEnum" preserve="all"/>
 		<type fullname="Honor.Runtime.UILauncherLoadingView+LoadingMode" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+Common" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+IAP" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+GDPR" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+MAX" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+Permission" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+AF" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AppDownload+Uri" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AB+ForServer" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AB+Persistent" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AB+PersistentTmp" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AB+Caching" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AB+Streaming" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+AB+Uri" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+LuaScript+Framework" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+LuaScript+Game" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Proto+Net" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Proto+Save" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+ResDef" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+HierarchyExpandSettings" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+LocalizationFontTMPExportSettings" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+ABGeneration" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+ChatGPT" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+CDN" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+AssetBundleBrowser" preserve="all"/>
-		<type fullname="Honor.Runtime.GamePathUtils+Editor+LuaCloudScript" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+Common+ItemKey" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+IAP+ItemKey" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+GDPR+ItemKey" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+MAX+ItemKey" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+Permission+ItemKey" preserve="all"/>
-		<type fullname="Honor.Runtime.GameConstants+Persist+AF+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+Common" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+IAP" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+GDPR" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+MAX" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+Permission" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+AF" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AppDownload+Uri" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AB+ForServer" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AB+Persistent" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AB+PersistentTmp" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AB+Caching" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AB+Streaming" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+AB+Uri" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+LuaScript+Framework" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+LuaScript+Game" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Proto+Net" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Proto+Save" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+ResDef" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+HierarchyExpandSettings" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+LocalizationFontTMPExportSettings" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+ABGeneration" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+ChatGPT" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+CDN" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+AssetBundleBrowser" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorPathUtils+Editor+LuaCloudScript" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+Common+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+IAP+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+GDPR+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+MAX+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+Permission+ItemKey" preserve="all"/>
+		<type fullname="Honor.Runtime.HonorConstants+Persist+AF+ItemKey" preserve="all"/>
 		<type fullname="HonorGaussianBlurEffect" preserve="all"/>
 		<type fullname="GameMain" preserve="all"/>
 		<type fullname="RMapIconType" preserve="all"/>

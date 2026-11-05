@@ -313,7 +313,11 @@ namespace Honor.Runtime
         {
             get
             {
-                return m_PatternType == PatternType.None ? m_OwnLuaClassesNone[(int)NonePatternType.Default] : null;
+                if (m_PatternType != PatternType.None) return null;
+                if (m_OwnLuaClassesNone == null) return null;
+                int index = (int)NonePatternType.Default;
+                if (index >= m_OwnLuaClassesNone.Length) return null;
+                return m_OwnLuaClassesNone[index];
             }
         }
 
@@ -324,7 +328,11 @@ namespace Honor.Runtime
         {
             get
             {
-                return m_PatternType == PatternType.MVVM ? m_OwnLuaClassesMVVM[(int)MVVMPatternType.View] : null;
+                if (m_PatternType != PatternType.MVVM) return null;
+                if (m_OwnLuaClassesMVVM == null) return null;
+                int index = (int)MVVMPatternType.View;
+                if (index >= m_OwnLuaClassesMVVM.Length) return null;
+                return m_OwnLuaClassesMVVM[index];
             }
         }
 
